@@ -37,7 +37,7 @@
 //privat definitions
 static sds _mpd_client_lyrics_unsynced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri);
 static sds _mpd_client_lyrics_synced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri);
-static sds lyrics_fromfile(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, sds mediafile, const char *ext, bool synced);
+static sds lyrics_fromfile(sds buffer, sds method, long request_id, sds mediafile, const char *ext, bool synced);
 static sds lyricsextract_unsynced(sds buffer, sds method, long request_id, sds media_file, sds vorbis_comment);
 static sds lyricsextract_unsynced_id3(sds buffer, sds method, long request_id, sds media_file);
 static const char *_id3_field_getlanguage(union id3_field const *field);
@@ -47,6 +47,15 @@ static sds lyricsextract_flac(sds buffer, sds method, long request_id, sds media
 
 //public functions
 sds mpd_client_lyrics_get(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
+    if (is_streamuri(uri) == true) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not get lyrics for stream uri", true);
+        return buffer;
+    }
+    if (mpd_client_state->feat_library == false) {
+        LOG_DEBUG("No lyrics file found, no access to music directory");
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
+        return buffer;
+    }
     //try first synced lyrics
     LOG_DEBUG("Get synced lyrics for uri: %s", uri);
     buffer = _mpd_client_lyrics_synced(config, mpd_client_state, buffer, method, request_id, uri);
@@ -62,6 +71,7 @@ sds mpd_client_lyrics_get(t_config *config, t_mpd_client_state *mpd_client_state
     return buffer;
 }
 
+//private functions
 sds mpd_client_lyrics_unsynced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
     buffer = _mpd_client_lyrics_unsynced(config, mpd_client_state, buffer, method, request_id, uri);
     if (sdslen(buffer) == 0) {
@@ -78,13 +88,12 @@ sds mpd_client_lyrics_synced(t_config *config, t_mpd_client_state *mpd_client_st
     return buffer;
 }
 
-//privat functions
 static sds _mpd_client_lyrics_unsynced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
     //create absolute file
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mpd_client_state->music_directory_value, uri);
     LOG_DEBUG("Absolut media_file: %s", mediafile);
     //try .txt file in folder in the music directory
-    buffer = lyrics_fromfile(mpd_client_state, buffer, method, request_id, mediafile, config->uslt_ext, false);
+    buffer = lyrics_fromfile(buffer, method, request_id, mediafile, config->uslt_ext, false);
     if (sdslen(buffer) == 0) {
         LOG_DEBUG("Getting embedded unsynced lyrics from %s", mediafile);
         buffer = lyricsextract_unsynced(buffer, method, request_id, mediafile, config->vorbis_uslt);
@@ -107,7 +116,7 @@ static sds _mpd_client_lyrics_synced(t_config *config, t_mpd_client_state *mpd_c
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mpd_client_state->music_directory_value, uri);
     LOG_DEBUG("Absolut media_file: %s", mediafile);
     //try .lrc file in folder in the music directory
-    buffer = lyrics_fromfile(mpd_client_state, buffer, method, request_id, mediafile, config->sylt_ext, true);
+    buffer = lyrics_fromfile(buffer, method, request_id, mediafile, config->sylt_ext, true);
     if (sdslen(buffer) == 0) {
         LOG_DEBUG("Getting embedded synced lyrics from %s", mediafile);
         buffer = lyricsextract_synced(buffer, method, request_id, mediafile, config->vorbis_sylt);
@@ -125,13 +134,7 @@ static sds _mpd_client_lyrics_synced(t_config *config, t_mpd_client_state *mpd_c
     return buffer;
 }
 
-static sds lyrics_fromfile(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, sds mediafile, const char *ext, bool synced) {
-    //check music_directory folder
-    if (mpd_client_state->feat_library == false || access(mediafile, F_OK) != 0) /* Flawfinder: ignore */
-    {
-        LOG_DEBUG("No lyrics file found, no access to music directory");
-        return buffer;
-    }
+static sds lyrics_fromfile(sds buffer, sds method, long request_id, sds mediafile, const char *ext, bool synced) {
     //try file in folder in the music directory
     sds filename_cpy = sdsnew(mediafile);
     strip_extension(filename_cpy);

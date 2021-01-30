@@ -5,6 +5,7 @@
  https://github.com/jcorporation/mympd
 */
 
+//escapes html characters to avoid xss
 function e(x) {
     if (isNaN(x)) {
         return x.replace(/([<>"'])/g, function(m0, m1) {
@@ -17,9 +18,16 @@ function e(x) {
             else if (m1 === '003E') return '&gt;';
             else if (m1 === '0022') return '&quot;';
             else if (m1 === '0027') return '&apos;';
+        }).replace(/\[\[(\w+)\]\]/g, function(m0, m1) {
+            return '<span class="mi">' + m1 + '</span>';
         });
     }
     return x;
+}
+
+//removes special characters
+function r(x) {
+    return x.replace(/[^\w-]/g, '_');
 }
 
 function t(phrase, number, data) {

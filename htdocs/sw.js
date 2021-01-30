@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-var CACHE = 'myMPD-cache-v6.10.0';
+var CACHE = 'myMPD-cache-v6.11.0';
 var subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
 var urlsToCache = [
     subdir + '/',

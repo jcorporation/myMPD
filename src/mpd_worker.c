@@ -30,7 +30,6 @@
 #include "mpd_worker/mpd_worker_utility.h"
 #include "mpd_worker/mpd_worker_api.h"
 #include "mpd_worker/mpd_worker_smartpls.h"
-#include "mpd_worker/mpd_worker_stickercache.h"
 #include "mpd_worker.h"
 
 //private definitions
@@ -223,6 +222,7 @@ static void mpd_worker_parse_idle(t_config *config, t_mpd_worker_state *mpd_work
             switch(idle_event) {
                 case MPD_IDLE_DATABASE:
                     mpd_worker_smartpls_update_all(config, mpd_worker_state, false);
+                    //sticker cache and album cache updates are triggered from mpd_client
                     break;
                 default: {
                     //other idle events not used

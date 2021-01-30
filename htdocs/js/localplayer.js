@@ -1,3 +1,39 @@
+"use strict";
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
+function initLocalplayer() {
+   document.getElementById('alertLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        clickCheckLocalPlayerState(event);
+    }, false);
+    
+    document.getElementById('errorLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        clickCheckLocalPlayerState(event);
+    }, false);
+
+    document.getElementById('localPlayer').addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+    
+    document.getElementById('localPlayer').addEventListener('canplay', function() {
+        logDebug('localPlayer event: canplay');
+        document.getElementById('alertLocalPlayback').classList.add('hide');
+        document.getElementById('errorLocalPlayback').classList.add('hide');
+    });
+
+    document.getElementById('localPlayer').addEventListener('error', function() {
+        logError('localPlayer event: error');
+        document.getElementById('errorLocalPlayback').classList.remove('hide');
+    });
+}
+
 function setLocalPlayerUrl() {
     if (window.location.protocol === 'https:') {
         document.getElementById('infoLocalplayer').classList.remove('hide');
@@ -5,7 +41,7 @@ function setLocalPlayerUrl() {
     }
     else {
         document.getElementById('infoLocalplayer').classList.add('hide');
-        document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase','HTTP Port');
+        document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase', 'HTTP Port');
     }
     if (settings.streamUrl === '') {
         settings.mpdstream = window.location.protocol + '//';

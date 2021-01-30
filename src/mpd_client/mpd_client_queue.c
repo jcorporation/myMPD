@@ -142,7 +142,7 @@ sds mpd_client_put_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds m
     }
     
     if (limit == 0) {
-        limit = UINT_MAX - offset;
+        limit = INT_MAX - offset;
     }
     bool rc = mpd_send_list_queue_range_meta(mpd_client_state->mpd_state->conn, offset, offset + limit);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_queue_range_meta") == false) {

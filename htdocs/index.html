@@ -29,7 +29,6 @@
   <!-- Splash screen -->
   <div id="splashScreen">
     <div id="splashScreenLogo">
-      <!--<span class="material-icons splashScreenIcon">play_circle_outline</span> myMPD-->
       <svg width="6rem" height="6rem" version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
         <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
@@ -45,7 +44,7 @@
   <header>
     <nav id="header" class="navbar navbar-expand navbar-dark fixed-top bg-dark d-flex justify-content-between">
       <div class="dropdown nav-item" id="headerLeft">
-        <!--<a class="dropdown-toggle alwaysEnabled material-icons text-light" href="#" id="mainMenu" data-title-phrase="myMPD menu">play_circle_outline</a>-->
+        <!--<a class="dropdown-toggle alwaysEnabled mi text-light" href="#" id="mainMenu" data-title-phrase="myMPD menu">play_circle_outline</a>-->
         <a class="dropdown-toggle alwaysEnabled" href="#" id="mainMenu" data-title-phrase="myMPD menu">
           <svg width="2.5rem" height="2.5rem" version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
             <ellipse id="logoBg" cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#6c757d"/>
@@ -57,13 +56,13 @@
         </a>
         <div class="dropdown-menu bg-lite-dark" id="mainMenuDropdown">
           <a data-phrase="Add stream" class="dropdown-item text-light" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["stream"]}'></a>
-          <a id="navDBupdate" class="subMenu dropdown-item text-light" data-toggle="collapse" href="#menu-dbupdate"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="Update"></span></a>
+          <a id="navDBupdate" class="subMenu dropdown-item text-light" data-toggle="collapse" href="#menu-dbupdate"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Update"></span></a>
           <div class="collapse menu-indent" id="menu-dbupdate">
             <a data-phrase="Update database" class="dropdown-item text-light" href="#" data-href='{"cmd": "updateDB", "options": ["", true]}'></a>
             <a data-phrase="Rescan database" class="dropdown-item text-light" href="#" data-href='{"cmd": "rescanDB", "options": ["", true]}'></a>
             <a data-phrase="Update smart playlists" class="dropdown-item text-light bg-lite-dark featSmartpls" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": [false]}'></a>
           </div>
-          <a id="navSettings" class="subMenu dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#menu-settings"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="Settings"></span></a>
+          <a id="navSettings" class="subMenu dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#menu-settings"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Settings"></span></a>
           <div id="menu-settings" class="collapse menu-indent">
             <a data-phrase="MPD connection" class="dropdown-item text-light alwaysEnabled" href="#" data-toggle="modal" data-target="#modalConnection"></a>
             <a data-phrase="Settings" class="dropdown-item text-light" href="#" data-toggle="modal" data-target="#modalSettings"></a>
@@ -76,12 +75,12 @@
           <a data-phrase="Browse directories" class="dropdown-item text-light featBrowse alwaysEnabled" href="browse/" target="_blank"></a>
           <a data-phrase="About" class="dropdown-item text-light alwaysEnabled" href="#" data-toggle="modal" data-target="#modalAbout"></a>
           <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item text-light bg-lite-dark hide" href="#"></a>
-          <a id="navSyscmds" class="subMenu featSyscmds dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#syscmds"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="System commands"></span></a>
+          <a id="navSyscmds" class="subMenu featSyscmds dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#syscmds"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="System commands"></span></a>
           <div id="syscmds" class="featSyscmds noInitChilds collapse"></div>
-          <a id="navScripting" class="subMenu featScripting dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#scripts"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
+          <a id="navScripting" class="subMenu featScripting dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#scripts"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
           <div id="scripts" class="featScripting noInitChilds collapse"></div>
           <div class="dropdown-divider"></div>
-          <a id="navNotifications" class="subMenu dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#menu-notifications"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="Notifications"></span></a>
+          <a id="navNotifications" class="subMenu dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#menu-notifications"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Notifications"></span></a>
           <div id="menu-notifications" class="collapse menu-indent">
             <div id="logOverview" class="pl-2 pb-0 pr-2"></div>
           </div>
@@ -113,29 +112,29 @@
       <div class="card-body">
         <div class="btn-toolbar card-toolbar" id="PlaybackButtonsTop">
           <div class="btn-group btn-group featStickers">
-            <button disabled="disabled" data-title-phrase="Dislike song" id="btnVoteDown" data-href='{"cmd": "voteSong", "options": [0]}' class="btn btn-secondary material-icons">thumb_down</button>
-            <button disabled="disabled" data-title-phrase="Like song" id="btnVoteUp" data-href='{"cmd": "voteSong", "options": [2]}' class="btn btn-secondary material-icons">thumb_up</button>
+            <button disabled="disabled" data-title-phrase="Dislike song" id="btnVoteDown" data-href='{"cmd": "voteSong", "options": [0]}' class="btn btn-secondary mi">thumb_down</button>
+            <button disabled="disabled" data-title-phrase="Like song" id="btnVoteUp" data-href='{"cmd": "voteSong", "options": [2]}' class="btn btn-secondary mi">thumb_up</button>
           </div>
           <div class="btn-group btn-group featLove ml-2">
-            <button disabled="disabled" data-title-phrase="Love song" data-href='{"cmd": "loveSong", "options": []}' class="btn btn-secondary material-icons">favorite</button>
+            <button disabled="disabled" data-title-phrase="Love song" data-href='{"cmd": "loveSong", "options": []}' class="btn btn-secondary mi">favorite</button>
           </div>
           <div class="btn-group btn-group featPlaylists ml-2">
-            <button disabled="disabled" id="addCurrentSongToPlaylist" data-title-phrase="Add to playlist" data-href='{"cmd": "showAddToPlaylistCurrentSong", "options": []}' class="btn btn-secondary material-icons">playlist_add</button>
+            <button disabled="disabled" id="addCurrentSongToPlaylist" data-title-phrase="Add to playlist" data-href='{"cmd": "showAddToPlaylistCurrentSong", "options": []}' class="btn btn-secondary mi">playlist_add</button>
           </div>
           <div class="btn-group dropdown ml-2">
-            <button data-title-phrase="Playback settings" id="btnPlayDropdown" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">tune</span></button>
+            <button data-title-phrase="Playback settings" id="btnPlayDropdown" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">tune</span></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="playDropdown">
               <form>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label text-light" for="playDropdownBtnRandom" data-phrase="Random"></label>
                   <div class="col-sm-8">
-                    <button data-href='{"cmd":"setPlaySettings", "options":[]}' id="playDropdownBtnRandom" type="button" class="btn btn-secondary btn-sm material-icons"></button>
+                    <button data-href='{"cmd":"setPlaySettings", "options":[]}' id="playDropdownBtnRandom" type="button" class="btn btn-secondary btn-sm mi"></button>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label text-light" for="playDropdownBtnConsume" data-phrase="Consume"></label>
                   <div class="col-sm-8">          
-                    <button data-href='{"cmd": "setPlaySettings", "options": []}' id="playDropdownBtnConsume" type="button" class="btn btn-secondary btn-sm material-icons"></button>
+                    <button data-href='{"cmd": "setPlaySettings", "options": []}' id="playDropdownBtnConsume" type="button" class="btn btn-secondary btn-sm mi"></button>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -151,7 +150,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label text-light" for="btnRepeat" data-phrase="Repeat"></label>
                   <div class="col-sm-8">
-                    <button data-href='{"cmd": "setPlaySettings", "options": []}' id="playDropdownBtnRepeat" type="button" class="btn btn-secondary btn-sm material-icons"></button>
+                    <button data-href='{"cmd": "setPlaySettings", "options": []}' id="playDropdownBtnRepeat" type="button" class="btn btn-secondary btn-sm mi"></button>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -168,7 +167,7 @@
             </div>
           </div>
           <div class="btn-group ml-2 featTags">
-            <button data-title-phrase="Display tags" id="PlaybackColsBtn" class="btn btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">settings</span></button>
+            <button data-title-phrase="Display tags" id="PlaybackColsBtn" class="btn btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">settings</span></button>
             <div class="dropdown-menu text-light bg-lite-dark px-2" id="PlaybackColsDropdown"><form></form>
               <button data-phrase="Apply" data-href='{"cmd": "saveColsPlayback", "options": ["Playback"]}' class="btn btn-success btn-block btn-sm mt-2"></button>
             </div>
@@ -187,7 +186,7 @@
       <div class="card-body hide" id="cardQueueCurrent">
         <div class="btn-toolbar card-toolbar" id="QueueCurrentButtonsTop">
           <div class="btn-group mr-2">
-            <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
+            <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
               <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
               <button data-phrase="Last played" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
@@ -195,16 +194,16 @@
             </div>
           </div>
           <div class="btn-group mr-2 featPlaylists">
-            <button data-title-phrase="Save queue" type="button" class="btn btn-secondary material-icons" data-toggle="modal" data-target="#modalSaveQueue">save</button>
+            <button data-title-phrase="Save queue" type="button" class="btn btn-secondary mi" data-toggle="modal" data-target="#modalSaveQueue">save</button>
           </div>
           <div class="btn-group mr-2">
-            <button data-title-phrase="Shuffle queue" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_SHUFFLE"}]}'>shuffle</button>
+            <button data-title-phrase="Shuffle queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_SHUFFLE"}]}'>shuffle</button>
           </div>
           <div class="btn-group mr-2">
-            <button data-title-phrase="Add to queue" type="button" class="btn btn-secondary material-icons" data-toggle="modal" data-target="#modalAddToQueue">add_to_queue</button>
+            <button data-title-phrase="Add to queue" type="button" class="btn btn-secondary mi" data-toggle="modal" data-target="#modalAddToQueue">add_to_queue</button>
           </div>
           <div class="btn-group mr-2">
-            <button data-title-phrase="Crop queue" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP_OR_CLEAR"}]}'>clear_all</button>
+            <button data-title-phrase="Crop queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "clearQueue", "options": []}'>clear_all</button>
             <button id="clearQueueBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="clearQueueDropdown">
               <button data-phrase="Clear queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}]}' ></button>
@@ -215,7 +214,7 @@
             <div class="input-group">
               <div class="input-group-prepend">
                 <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                  <span class="material-icons">search</span>
+                  <span class="mi">search</span>
                   <span data-phrase="Any Tag" id="searchqueuetagsdesc"></span>
                 </button>
                 <div class="dropdown-menu bg-lite-dark px-2" id="searchqueuetags">
@@ -225,10 +224,10 @@
             </div>
           </form>
           <div class="btn-group mr-2">
-            <button id="btnQueueGotoPlayingSong" data-title-phrase="Goto playing song" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "gotoPlayingSong", "options": []}'>playlist_play</button>
+            <button id="btnQueueGotoPlayingSong" data-title-phrase="Goto playing song" type="button" class="btn btn-secondary mi" data-href='{"cmd": "gotoPlayingSong", "options": []}'>playlist_play</button>
           </div>
           <div class="btn-group mr-2 featHome">
-            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="material-icons">add_to_home_screen</span></button>
+            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
           <div id="QueueCurrentPaginationTop" class="btn-group mr-2 pagination hide">
           </div>
@@ -259,7 +258,7 @@
       <div class="card-body hide" id="cardQueueLastPlayed">
         <div class="btn-toolbar card-toolbar">
           <div class="btn-group mr-2">
-            <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
+            <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
               <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
               <button data-phrase="Last played" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
@@ -267,7 +266,7 @@
             </div>
           </div>
           <div class="btn-group mr-2 featHome">
-            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="material-icons">add_to_home_screen</span></button>
+            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
           <div id="QueueLastPlayedPaginationTop" class="btn-group mr-2 pagination hide">
           </div>
@@ -296,7 +295,7 @@
       <div class="card-body hide" id="cardQueueJukebox">
         <div class="btn-toolbar card-toolbar">
           <div class="btn-group mr-2">
-            <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
+            <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
               <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
               <button data-phrase="Last played" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
@@ -304,7 +303,7 @@
             </div>
           </div>
           <div class="btn-group mr-2 featHome">
-            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="material-icons">add_to_home_screen</span></button>
+            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
           <div id="QueueJukeboxPaginationTop" class="btn-group mr-2 pagination hide">
           </div>
@@ -336,26 +335,26 @@
       <div class="card-body hide" id="cardBrowsePlaylists">
         <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsButtons">
           <div class="btn-group mr-2">
-            <button data-title-phrase="Select view" id="BrowseNavPlaylists" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
+            <button data-title-phrase="Select view" id="BrowseNavPlaylists" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="BrowseNavPlaylistsDropdown">
             </div>
           </div>
           <div class="btn-group mr-2 hide">
-            <button data-title-phrase="Playlists" data-href='{"cmd": "appGoto", "options": ["Browse", "Playlists", "All"]}' id="btnBrowsePlaylistsAll" type="button" class="btn btn-secondary"><span class="material-icons">apps</span></button>
+            <button data-title-phrase="Playlists" data-href='{"cmd": "appGoto", "options": ["Browse", "Playlists", "All"]}' id="btnBrowsePlaylistsAll" type="button" class="btn btn-secondary"><span class="mi">apps</span></button>
           </div>
           <form id="searchPlaylists" class="flex-grow-1">
             <div class="input-group mr-2">
               <div class="input-group-prepend">
-                <span class="input-group-text border-secondary text-light bg-secondary"><span class="material-icons">search</span></span>
+                <span class="input-group-text border-secondary text-light bg-secondary"><span class="mi">search</span></span>
               </div>
               <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchPlaylistsStr"/>
             </div>
           </form>          
           <div class="hide btn-group mr-2" id="playlistContentBtns">
-            <button data-title-phrase="Clear playlist" type="button" class="btn btn-secondary material-icons rounded-right mr-2" data-href='{"cmd": "playlistClear", "options": []}'>clear_all</button>
-            <button data-href='{"cmd": "playlistShuffle", "options": []}' class="btn btn-secondary material-icons rounded mr-2" type="button" data-title-phrase="Shuffle playlist">shuffle</button>
+            <button data-title-phrase="Clear playlist" type="button" class="btn btn-secondary mi rounded-right mr-2" data-href='{"cmd": "playlistClear", "options": []}'>clear_all</button>
+            <button data-href='{"cmd": "playlistShuffle", "options": []}' class="btn btn-secondary mi rounded mr-2" type="button" data-title-phrase="Shuffle playlist">shuffle</button>
             <div class="btn-group mr-2">
-              <button data-title-phrase="Sort playlist" id="btnSortPlaylist" class="btn btn-secondary dropdown-toggle rounded-left" type="button" data-toggle="dropdown"><span class="material-icons">sort</span></button>
+              <button data-title-phrase="Sort playlist" id="btnSortPlaylist" class="btn btn-secondary dropdown-toggle rounded-left" type="button" data-toggle="dropdown"><span class="mi">sort</span></button>
               <div class="dropdown-menu bg-lite-dark px-2" id="dropdownSortPlaylist">
                 <h2 class="dropdown-header text-light" data-phrase="Sort playlist"></h2>
                 <div id="dropdownSortPlaylistTags">
@@ -364,10 +363,10 @@
             </div>
           </div>
           <div class="hide btn-group" id="smartPlaylistContentBtns">
-            <button data-title-phrase="Update smart playlist" type="button" class="btn btn-secondary material-icons rounded-right mr-2" data-href='{"cmd": "updateSmartPlaylistClick", "options": []}'>refresh</button>
+            <button data-title-phrase="Update smart playlist" type="button" class="btn btn-secondary mi rounded-right mr-2" data-href='{"cmd": "updateSmartPlaylistClick", "options": []}'>refresh</button>
           </div>
           <div class="btn-group mr-2 featSmartpls">
-            <button data-title-phrase="Add smart playlist" id="btnAddSmartpls" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">playlist_add</span></button>
+            <button data-title-phrase="Add smart playlist" id="btnAddSmartpls" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">playlist_add</span></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="dropdownAddSmartpls">
               <h2 class="dropdown-header text-light" data-phrase="Add smart playlist"></h2>
               <button data-phrase="Best rated" data-href='{"cmd": "addSmartpls", "options": ["bestRated"]}' type="button" class="btn btn-secondary btn-block"></button>
@@ -376,7 +375,7 @@
             </div>
           </div>
           <div class="btn-group mr-2 featHome">
-            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="material-icons">add_to_home_screen</span></button>
+            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
           <div id="BrowsePlaylistsPaginationTop" class="btn-group mr-2 pagination hide">
           </div>
@@ -421,8 +420,7 @@
           <div class="btn-toolbar card-toolbar" id="BrowseDatabaseButtons">
             <div class="btn-group mr-2">
               <button data-title-phrase="Select view" id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                <span class="material-icons">layers</span>
-                <span data-phrase="Album" id="btnBrowseDatabaseByTagDesc" class="hide"></span>
+                <span class="mi">layers</span>
               </button>
               <div class="dropdown-menu bg-lite-dark px-2" id="BrowseDatabaseByTagDropdown">
               </div>
@@ -431,7 +429,7 @@
               <div class="input-group mr-2">
                 <div class="input-group-prepend">
                   <button id="btnDatabaseSearchDropdown" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                    <span class="material-icons">search</span>
+                    <span class="mi">search</span>
                     <span data-phrase="AlbumArtist" id="searchDatabaseTagsDesc"></span>
                   </button>
                   <div class="dropdown-menu bg-lite-dark px-2" id="searchDatabaseTags">
@@ -440,6 +438,7 @@
                 <div class="input-group-prepend featAdvsearch">
                   <select class="form-control custom-select border-secondary rounded-0" id="searchDatabaseMatch">
                     <option data-phrase="contains" value="contains"></option>
+                    <option data-phrase="starts_with" value="starts_with"></option>
                     <option value="==">==</option>
                     <option class="featRegex" value="=~">=~</option>
                     <option value="!=">!=</option>
@@ -450,26 +449,26 @@
               </div>
             </form>
             <div class="btn-group mr-2">
-              <button id="btnDatabaseSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">sort</span></button>
+              <button id="btnDatabaseSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">sort</span></button>
               <div class="dropdown-menu bg-lite-dark px-2" id="databaseSortTags">
                 <div id="databaseSortTagsList">
                 </div>
                 <div class="dropdown-divider"></div>
                 <div class="form-check">
-                  <button class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="databaseSortDesc">radio_button_unchecked</button>&nbsp;
+                  <button class="btn btn-secondary btn-xs clickable mi mi-small" id="databaseSortDesc">radio_button_unchecked</button>&nbsp;
                   <label class="form-check-label text-light" for="databaseSortDesc" data-phrase="Descending"></label>
                 </div>
               </div>
             </div>
             <div class="btn-group mr-2 featHome">
-              <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="material-icons">add_to_home_screen</span></button>              
+              <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
             </div>
             <div id="BrowseDatabasePaginationTop" class="btn-group mr-2 pagination hide">
             </div>
           </div>
           <ol class="featAdvsearch breadcrumb hide" id="searchDatabaseCrumb"></ol>
           <div class="container BrowseDatabaseCardsContainer">
-            <div id="BrowseDatabaseCards" class="row">
+            <div id="BrowseDatabaseListList" class="row">
             </div>
           </div>
           <div class="btn-toolbar hide justify-content-between" id="BrowseDatabaseButtonsBottom">
@@ -478,11 +477,11 @@
         <div id="viewDetailDatabase">
           <div class="btn-toolbar card-toolbar">
             <div class="input-group mr-2">
-              <button class="btn btn-secondary material-icons" data-href='{"cmd": "backToAlbumGrid", "options": []}'>apps</button>
+              <button class="btn btn-secondary mi" data-href='{"cmd": "backToAlbumGrid", "options": []}'>apps</button>
             </div>
             <div class="input-group mr-2">
               <div class="input-group-prepend">
-                <button data-title-phrase="Append to queue" class="btn btn-secondary material-icons" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}'>library_add</button>
+                <button data-title-phrase="Append to queue" class="btn btn-secondary mi" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}'>library_add</button>
                 <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
                 <div class="dropdown-menu bg-lite-dark px-2">
                   <button data-phrase="Append to queue" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}' type="button" class="btn btn-secondary btn-sm btn-block"></button>
@@ -492,7 +491,7 @@
               </div>
             </div>
             <div class="btn-group mr-2 featHome">
-              <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="material-icons">add_to_home_screen</span></button>              
+              <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
             </div>
           </div>
           <div id="viewDetailDatabaseCover" class="featCoverimage album-cover-small album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'></div>
@@ -519,13 +518,13 @@
       <div class="card-body hide" id="cardBrowseFilesystem">
         <div class="btn-toolbar card-toolbar" id="BrowseFilesystemButtons">
           <div class="btn-group mr-2">
-            <button data-title-phrase="Select view" id="BrowseNavFilesystem" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
+            <button data-title-phrase="Select view" id="BrowseNavFilesystem" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="BrowseNavFilesystemDropdown">
             </div>
           </div>
           <div class="input-group mr-2">
             <div class="input-group-prepend">
-              <button data-title-phrase="Append to queue" data-href='{"cmd": "addAllFromBrowseFilesystem", "options": []}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary material-icons">library_add</button>
+              <button data-title-phrase="Append to queue" data-href='{"cmd": "addAllFromBrowseFilesystem", "options": []}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary mi">library_add</button>
               <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-lite-dark px-2" id="BrowseFilesystemAddAllSongsDropdown">
                 <button data-href='{"cmd": "addAllFromBrowseFilesystem", "options": [false]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
@@ -535,20 +534,20 @@
             </div>
           </div>
           <div class="btn-group mr-2 featBookmarks">
-            <button data-title-phrase="Bookmarks" id="BrowseFilesystemBookmark" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">collections_bookmark</span></button>
+            <button data-title-phrase="Bookmarks" id="BrowseFilesystemBookmark" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">collections_bookmark</span></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="BrowseFilesystemBookmarks">
             </div>
           </div>
           <form class="flex-grow-1">
             <div class="input-group mr-2">
               <div class="input-group-prepend">
-                <span class="input-group-text border-secondary text-light bg-secondary"><span class="material-icons">search</span></span>
+                <span class="input-group-text border-secondary text-light bg-secondary"><span class="mi">search</span></span>
               </div>
               <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchFilesystemStr"/>
             </div>
           </form>
           <div class="btn-group mr-2 featHome">
-            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="material-icons">add_to_home_screen</span></button>              
+            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
           </div>
           <div id="BrowseFilesystemPaginationTop" class="btn-group mr-2 pagination hide">
           </div>
@@ -583,7 +582,7 @@
             <div class="input-group mr-2">
               <div class="input-group-prepend">
                 <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                  <span class="material-icons">search</span>
+                  <span class="mi">search</span>
                   <span data-phrase="Any Tag" id="searchtagsdesc"></span>
                 </button>
                 <div class="dropdown-menu bg-lite-dark px-2" id="searchtags">
@@ -603,7 +602,7 @@
           </form>
           <div class="input-group mr-2">
             <div class="input-group-prepend">
-              <button data-title-phrase="Append to queue" id="searchAddAllSongs" class="btn btn-secondary material-icons" data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}'>library_add</button>
+              <button data-title-phrase="Append to queue" id="searchAddAllSongs" class="btn btn-secondary mi" data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}'>library_add</button>
               <button id="searchAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-lite-dark px-2" id="searchAddAllSongsDropdown">
                   <button data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
@@ -614,7 +613,7 @@
             </div>
           </div>
           <div class="btn-group mr-2 featHome">
-            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="material-icons">add_to_home_screen</span></button>              
+            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
           </div>
           <div id="SearchPaginationTop" class="btn-group mr-2 pagination hide">
           </div>
@@ -651,10 +650,10 @@
     <nav class="navbar navbar-expand navbar-dark bg-dark">
       <div class="btn-toolbar nav-item flex-nowrap">
         <div class="btn-group mr-2" id="playControlBtns">
-          <button data-title-phrase="Previous" data-href='{"cmd": "clickPrev", "options": []}' id="btnPrev" type="button" class="btn btn-dark pl-2 pr-2 material-icons">skip_previous</button>
-          <button data-title-phrase="Stop" data-href='{"cmd": "clickStop", "options": []}' id="btnStop" type="button" class="btn btn-dark pl-2 pr-2 material-icons hide">stop</button>
-          <button data-title-phrase="Toggle play" data-href='{"cmd": "clickPlay", "options": []}' id="btnPlay" type="button" class="btnPlay btn btn-lg btn-dark pl-2 pr-2 material-icons material-icons-lg">pause</button>
-          <button data-title-phrase="Next" data-href='{"cmd": "clickNext", "options": []}' id="btnNext" type="button" class="btn btn-dark pl-2 pr-2 material-icons">skip_next</button>
+          <button data-title-phrase="Previous" data-href='{"cmd": "clickPrev", "options": []}' id="btnPrev" type="button" class="btn btn-dark pl-2 pr-2 mi">skip_previous</button>
+          <button data-title-phrase="Stop" data-href='{"cmd": "clickStop", "options": []}' id="btnStop" type="button" class="btn btn-dark pl-2 pr-2 mi hide">stop</button>
+          <button data-title-phrase="Toggle play" data-href='{"cmd": "clickPlay", "options": []}' id="btnPlay" type="button" class="btnPlay btn btn-lg btn-dark pl-2 pr-2 mi mi-lg">pause</button>
+          <button data-title-phrase="Next" data-href='{"cmd": "clickNext", "options": []}' id="btnNext" type="button" class="btn btn-dark pl-2 pr-2 mi">skip_next</button>
         </div>
         <div class="align-self-center">
           <small id="counter" class="text-light">0:00&nbsp;/&nbsp;0:00</small>
@@ -665,12 +664,12 @@
         </div>
         <div id="footerPlaying">
           <span id="footerTitle" class="notclickable" data-href='{"cmd": "clickTitle", "options": []}'>Title</span><br/>
-          <span data-tag="Artist" id="footerArtist" data-href='{"cmd": "gotoBrowse", "options": []}'>Artist</span>&nbsp;&ndash;&nbsp;<span data-tag="Album" id="footerAlbum" data-href='{"cmd": "gotoBrowse", "options": []}'>Album</span>
+          <span data-tag="Artist" id="footerArtist" data-href='{"cmd": "gotoBrowse", "options": ["event"]}'>Artist</span>&nbsp;&ndash;&nbsp;<span data-tag="Album" id="footerAlbum" data-href='{"cmd": "gotoBrowse", "options": ["event"]}'>Album</span>
         </div>
       </div>
       <div class="btn-toolbar nav-item flex-nowrap ml-5">
         <div class="btn-group dropup">
-          <button data-title-phrase="Outputs" id="volumeMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2" type="button" data-toggle="dropdown"><span class="material-icons">volume_up</span></button>
+          <button data-title-phrase="Outputs" id="volumeMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2" type="button" data-toggle="dropdown"><span class="mi">volume_up</span></button>
           <div class="dropdown-menu bg-lite-dark">
             <h2 class="dropdown-header text-light"><span data-phrase="Volume"></span>: <span id="volumePrct"></span></h2>
             <form class="px-4 py-0 pb-3" id="volumeControl">
@@ -690,16 +689,16 @@
           </div>
         </div>
         <div class="btn-group dropup featLocalplayer ml-2">
-          <button data-title-phrase="Local playback" id="localPlaybackMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2" type="button" data-toggle="dropdown"><span class="material-icons">airplay</span></button>
+          <button data-title-phrase="Local playback" id="localPlaybackMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2" type="button" data-toggle="dropdown"><span class="mi">airplay</span></button>
           <div class="dropdown-menu bg-lite-dark">
             <h2 data-phrase="Local playback" class="dropdown-header dropdown-header-lx text-light"></h2>
             <div id="alertLocalPlayback" class="alert alert-warning mx-4 p-2 hide">
               <span data-phrase="Connecting to stream..."></span>
-              <a class="btn btn-sm btn-warning float-right material-icons material-icons-small px-1">refresh</a>
+              <a class="btn btn-sm btn-warning float-right mi mi-small px-1">refresh</a>
             </div>
             <div id="errorLocalPlayback" class="alert alert-danger mx-4 p-2 hide">
               <span data-phrase="Error loading stream"></span>
-              <a class="btn btn-sm btn-danger float-right material-icons material-icons-small px-1">refresh</a>
+              <a class="btn btn-sm btn-danger float-right mi mi-small px-1">refresh</a>
             </div>
             <audio class="mx-4" id="localPlayer" preload="none" controls=""></audio>
           </div>
@@ -713,7 +712,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">update</span> <span data-phrase="Updating MPD database"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">update</span> <span data-phrase="Updating MPD database"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
@@ -735,7 +734,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span> <span id="addToPlaylistCaption" data-phrase="Add to playlist"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">playlist_add</span> <span id="addToPlaylistCaption" data-phrase="Add to playlist"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
@@ -785,7 +784,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span> <span data-phrase="Rename playlist"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">playlist_add</span> <span data-phrase="Rename playlist"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
@@ -813,7 +812,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">delete</span> <span data-phrase="Delete playlist"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">delete</span> <span data-phrase="Delete playlist"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
@@ -836,7 +835,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">queue_music</span> <span data-phrase="Save smart playlist"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">queue_music</span> <span data-phrase="Save smart playlist"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
@@ -935,6 +934,9 @@
               <a class="nav-link text-dark" href="#tabInterfaceSettings" data-toggle="tab" data-height="true" data-phrase="Appearance"></a>
             </li>
             <li class="nav-item">
+              <a class="nav-link text-dark" href="#tabMaintenance" data-toggle="tab" data-height="true" data-phrase="Maintenance"></a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link text-dark" href="#tabAdvancedSettings" data-toggle="tab" data-height="true" data-phrase="Advanced"></a>
             </li>
           </ul>
@@ -948,13 +950,13 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnRandom" data-phrase="Random"></label>
                   <div class="col-sm-8">
-                    <button data-href='{"cmd":"toggleBtnChk", "options":[]}' id="btnRandom" type="button" class="btn btn-secondary btn-sm material-icons"></button>
+                    <button data-href='{"cmd":"toggleBtnChk", "options":[]}' id="btnRandom" type="button" class="btn btn-secondary btn-sm mi"></button>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnConsume" data-phrase="Consume"></label>
                   <div class="col-sm-8">          
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnConsume" type="button" class="btn btn-secondary btn-sm material-icons"></button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnConsume" type="button" class="btn btn-secondary btn-sm mi"></button>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -970,7 +972,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnRepeat" data-phrase="Repeat"></label>
                   <div class="col-sm-8">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnRepeat" type="button" class="btn btn-secondary btn-sm material-icons"></button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnRepeat" type="button" class="btn btn-secondary btn-sm mi"></button>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -1008,7 +1010,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnAutoPlay" data-phrase="Autoplay"></label>
                   <div class="col-sm-8">          
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnAutoPlay" type="button" class="btn btn-secondary btn-sm material-icons"></button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnAutoPlay" type="button" class="btn btn-secondary btn-sm mi"></button>
                   </div>
                 </div>
                 <hr/>
@@ -1071,14 +1073,14 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="inputBgColor" data-phrase="Background color"></label>
                   <div class="col-sm-8">
-                    <input id="inputBgColor" type="color" class="form-control border-secondary" value="" placeholder="#888">
+                    <input id="inputBgColor" type="color" class="form-control border-secondary" value="">
                     <div class="invalid-feedback" data-phrase="Invalid color"></div>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="inputHighlightColor" data-phrase="Highlight color"></label>
                   <div class="col-sm-8">
-                    <input id="inputHighlightColor" type="color" class="form-control border-secondary" value="" placeholder="#28a745">
+                    <input id="inputHighlightColor" type="color" class="form-control border-secondary" value="">
                     <div class="invalid-feedback" data-phrase="Invalid color"></div>
                   </div>
                 </div>
@@ -1095,7 +1097,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnCoverimage" data-phrase="Albumart"></label>
                   <div class="col-sm-8 ">
-                    <button data-toggle="collapse" data-target="#collapseAlbumart" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnCoverimage"></button>
+                    <button data-toggle="collapse" data-target="#collapseAlbumart" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnCoverimage"></button>
                   </div>
                 </div>
                 <div class="collapse" id="collapseAlbumart">
@@ -1126,7 +1128,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnBgCover" data-phrase="Albumart"></label>
                   <div class="col-sm-8 ">
-                    <button data-toggle="collapse" data-target="#collapseBackground" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnBgCover"></button>
+                    <button data-toggle="collapse" data-target="#collapseBackground" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnBgCover"></button>
                   </div>
                 </div>
                 <div class="collapse" id="collapseBackground">
@@ -1136,7 +1138,7 @@
                       <div class="input-group">
                         <input id="inputBgCssFilter" type="text" class="form-control border-secondary" value="blur(5px)" placeholder="grayscale(100%) opacity(5%)">
                         <div class="input-group-append">
-                          <button data-href='{"cmd": "resetValue", "options": ["inputBgCssFilter"]}' data-title-phrase="Reset to default" class="btn btn-secondary"><span class="material-icons">undo</span></button>
+                          <button data-href='{"cmd": "resetValue", "options": ["inputBgCssFilter"]}' data-title-phrase="Reset to default" class="btn btn-secondary"><span class="mi">undo</span></button>
                         </div>
                       </div>
                       <div class="invalid-feedback" data-phrase="Invalid CSS filter"></div>
@@ -1158,20 +1160,20 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnNotifyPage" data-phrase="On page notifications"></label>
                   <div class="col-sm-8">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnNotifyPage"></button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnNotifyPage"></button>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnNotifyWeb" data-phrase="Web notifications"></label>
                   <div class="col-sm-8">
-                    <button data-href='{"cmd": "toggleBtnNotifyWeb", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnNotifyWeb"></button>
+                    <button data-href='{"cmd": "toggleBtnNotifyWeb", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnNotifyWeb"></button>
                   </div>
                 </div>
                 <div id="warnNotifyWeb" class="alert alert-warning hide" data-phrase="Notifications are blocked"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnMediaSession" data-phrase="Media session support"></label>
                   <div class="col-sm-8">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnMediaSession"></button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnMediaSession"></button>
                   </div>
                 </div>
                 <hr/>
@@ -1197,7 +1199,7 @@
                   <div class="form-group row">
                     <label class="col-sm-4 col-form-label" for="btnEnabledTags">
                       <span data-phrase="Tags to use"></span>
-                      <small class="material-icons material-icons-small ml-1" data-title-phrase="MaintainEnableTagsText">help</small>
+                      <small class="mi mi-small ml-1" data-title-phrase="MaintainEnableTagsText">help</small>
                     </label>
                     <div class="col-sm-8 input-group">
                       <input type="text" class="form-control border-secondary" id="inputEnabledTags" readonly/>
@@ -1234,7 +1236,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnStickers" data-phrase="Playback statistics"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnStickers"></button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnStickers"></button>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -1251,7 +1253,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnSmartpls" data-phrase="Smart playlists"></label>
                   <div class="col-sm-8 ">
-                    <button data-toggle="collapse" data-target="#collapseSmartpls" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnSmartpls"></button>
+                    <button data-toggle="collapse" data-target="#collapseSmartpls" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnSmartpls"></button>
                   </div>
                 </div>
                 <div class="collapse" id="collapseSmartpls">
@@ -1291,7 +1293,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnFeatLocalplayer" data-phrase="Local playback"></label>
                   <div class="col-sm-8 ">
-                    <button data-toggle="collapse" data-target="#collapseLocalplayer" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnFeatLocalplayer"></button>
+                    <button data-toggle="collapse" data-target="#collapseLocalplayer" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnFeatLocalplayer"></button>
                   </div>
                 </div>
                 <div class="collapse" id="collapseLocalplayer">
@@ -1317,7 +1319,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnLoveEnable" data-phrase="Send love message"></label>
                   <div class="col-sm-8 ">
-                    <button data-toggle="collapse" data-target="#collapseLove" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnLoveEnable"></button>
+                    <button data-toggle="collapse" data-target="#collapseLove" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnLoveEnable"></button>
                   </div>
                 </div>
                 <div class="collapse" id="collapseLove">
@@ -1342,19 +1344,19 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnBookmarks" data-phrase="Bookmarks"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnBookmarks"></button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnBookmarks"></button>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnFeatTimer" data-phrase="Timer"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnFeatTimer"></button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnFeatTimer"></button>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnFeatLyrics" data-phrase="Lyrics"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnFeatLyrics"></button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnFeatLyrics"></button>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -1366,9 +1368,9 @@
                 </div>
               </form>
             </div>
-            <div class="tab-pane" id="tabAdvancedSettings">
-              <form id="AdvancedSettingsFrm">
-                <h4 data-phrase="Advanced"></h4>
+            <div class="tab-pane" id="tabMaintenance">
+              <form id="MaintenanceFrm">
+                <h4 data-phrase="Maintenance"></h4>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnResetSettings" data-phrase="Reset settings"></label>
                   <div class="col-sm-8">
@@ -1412,6 +1414,11 @@
                 </div>
               </form>
             </div>
+            <div class="tab-pane" id="tabAdvancedSettings">
+              <h4 data-phrase="Advanced"></h4>
+              <form id="AdvancedSettingsFrm">
+              </form>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -1424,7 +1431,7 @@
   </div>
   
   <div class="modal fade" id="modalAbout" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
@@ -1445,43 +1452,36 @@
                 <li><span data-phrase="Version"></span>: <span id="mympdVersion"></span></li>
                 <li><span data-phrase="Homepage"></span>: <a class="text-success" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/mympd">https://github.com/jcorporation/mympd</a></li>
                 <li><span data-phrase="Author"></span>: Jürgen Mang &lt;<a class="text-success" href="mailto:mail@jcgames.de">mail@jcgames.de</a>&gt;</li>
+                <li><a target="_blank" rel="noreferrer" href="https://github.com/jcorporation/myMPD/issues/167" class="text-success" data-phrase="Help to improve myMPD"></a></li>
               </ul>
-              <table class="table table-sm">
-                <tbody>
-                  <tr><td colspan="2" class="pt-3"><h5 data-phrase="Database statistics"></h5></td></tr>
-                  <tr><th data-phrase="Artists">Artists</th><td id="mpdstats_artists"></td></tr>
-                  <tr><th data-phrase="Albums"></th><td id="mpdstats_albums"></td></tr>
-                  <tr><th data-phrase="Songs"></th><td id="mpdstats_songs"></td></tr>
-                  <tr><th data-phrase="DB play time"></th><td id="mpdstats_dbPlaytime"></td></tr>
-                  <tr><th data-phrase="DB updated"></th><td id="mpdstats_dbUpdated"></td></tr>
-                  <tr><td colspan="2" class="pt-3"><h5 data-phrase="Playback statistics"></h5></td></tr>
-                  <tr><th data-phrase="myMPD uptime"></th><td id="mpdstats_mympd_uptime"></td></tr>
-                  <tr><th data-phrase="MPD uptime"></th><td id="mpdstats_uptime"></td></tr>
-                  <tr><th data-phrase="Play time"></th><td id="mpdstats_playtime"></td></tr>
-                  <tr><td colspan="2" class="pt-3"><h5>MPD</h5></td></tr>
-                  <tr><th data-phrase="Connection"></th><td id="mpdInfo_host"></td></tr>
-                  <tr><th data-phrase="Protocol version"></th><td id="mpdInfo_version"></td></tr>
-                  <tr><th data-phrase="Libmpdclient version"></th><td id="mpdInfo_libmpdclientVersion"></td></tr>
-                  <tr><th data-phrase="Libmympdclient version"></th><td id="mpdInfo_libmympdclientVersion"></td></tr>
-                  <tr><td colspan="2" class="pt-3"><h5 data-phrase="Webserver"></h5></td></tr>
-                  <tr><th data-phrase="Mongoose version"></th><td id="wsMongooseVersion"></td></tr>
-                  <tr><th data-phrase="IP-Address"></th><td id="wsIP"></td></tr>
-                  <tr class="featCacert"><th data-phrase="myMPD CA"></th><td><a class="text-success alwaysEnabled" href="/ca.crt" data-phrase="Download" target="_blank"></a></td></tr>
-                </tbody>
-              </table>          
-            </div>
-            <div class="tab-pane" id="tabShortcuts">
               <div class="table-responsive-md">
                 <table class="table table-sm">
-                  <thead>
-                    <tr>
-                      <th data-phrase="Shortcut"></th>
-                      <th data-phrase="Action"></th>
-                    </tr>
-                  </thead>
-                  <tbody id="tbodyShortcuts">
+                  <tbody>
+                    <tr><td colspan="2" class="pt-3"><h5 data-phrase="Database statistics"></h5></td></tr>
+                    <tr><th data-phrase="Artists">Artists</th><td id="mpdstats_artists"></td></tr>
+                    <tr><th data-phrase="Albums"></th><td id="mpdstats_albums"></td></tr>
+                    <tr><th data-phrase="Songs"></th><td id="mpdstats_songs"></td></tr>
+                    <tr><th data-phrase="DB play time"></th><td id="mpdstats_dbPlaytime"></td></tr>
+                    <tr><th data-phrase="DB updated"></th><td id="mpdstats_dbUpdated"></td></tr>
+                    <tr><td colspan="2" class="pt-3"><h5 data-phrase="Playback statistics"></h5></td></tr>
+                    <tr><th data-phrase="myMPD uptime"></th><td id="mpdstats_mympd_uptime"></td></tr>
+                    <tr><th data-phrase="MPD uptime"></th><td id="mpdstats_uptime"></td></tr>
+                    <tr><th data-phrase="Play time"></th><td id="mpdstats_playtime"></td></tr>
+                    <tr><td colspan="2" class="pt-3"><h5>MPD</h5></td></tr>
+                    <tr><th data-phrase="Connection"></th><td id="mpdInfo_host"></td></tr>
+                    <tr><th data-phrase="Protocol version"></th><td id="mpdInfo_version"></td></tr>
+                    <tr><th data-phrase="Libmpdclient version"></th><td id="mpdInfo_libmpdclientVersion"></td></tr>
+                    <tr><th data-phrase="Libmympdclient version"></th><td id="mpdInfo_libmympdclientVersion"></td></tr>
+                    <tr><td colspan="2" class="pt-3"><h5 data-phrase="Webserver"></h5></td></tr>
+                    <tr><th data-phrase="Mongoose version"></th><td id="wsMongooseVersion"></td></tr>
+                    <tr><th data-phrase="IP-Address"></th><td id="wsIP"></td></tr>
+                    <tr class="featCacert"><th data-phrase="myMPD CA"></th><td><a class="text-success alwaysEnabled" href="/ca.crt" data-phrase="Download" target="_blank"></a></td></tr>
                   </tbody>
                 </table>
+              </div>
+            </div>
+            <div class="tab-pane" id="tabShortcuts">
+              <div id="shortcutList">
               </div>
             </div>
           </div>
@@ -1494,7 +1494,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">play_circle_outline</span> <span data-phrase="MPD connection"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">play_circle_outline</span> <span data-phrase="MPD connection"></span></h5>
           <button type="button" class="close alwaysEnabled" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
@@ -1547,7 +1547,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">save</span> <span data-phrase="Save queue"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">save</span> <span data-phrase="Save queue"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
@@ -1573,7 +1573,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">add_to_queue</span> <span data-phrase="Add to queue"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">add_to_queue</span> <span data-phrase="Add to queue"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
@@ -1614,7 +1614,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">save</span> <span data-phrase="Save bookmark"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">save</span> <span data-phrase="Save bookmark"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
@@ -1694,7 +1694,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">timer</span> <span data-phrase="Timer"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">timer</span> <span data-phrase="Timer"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
@@ -1712,7 +1712,7 @@
               <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="btnTimerEnabled" data-phrase="Enabled"></label>
                 <div class="col-sm-8">
-                  <button data-href='{"cmd":"toggleBtnChk","options":[]}' id="btnTimerEnabled" type="button" class="btn btn-secondary btn-sm material-icons clickable active">check</button>
+                  <button data-href='{"cmd":"toggleBtnChk","options":[]}' id="btnTimerEnabled" type="button" class="btn btn-secondary btn-sm mi clickable active">check</button>
                 </div>
               </div>
               <div class="form-group row">
@@ -1728,31 +1728,31 @@
                 <label class="col-sm-4 col-form-label" for="TimerWeekdays" data-phrase="Weekdays"></label>
                 <div class="col-sm-8 mt-3">
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerMon">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs clickable mi mi-small" id="btnTimerMon">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerMon" data-phrase="Mon"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerTue">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs clickable mi mi-small" id="btnTimerTue">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerTue" data-phrase="Tue"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerWed">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs clickable mi mi-small" id="btnTimerWed">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerWed" data-phrase="Wed"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}'  class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerThu">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}'  class="btn btn-secondary btn-xs clickable mi mi-small" id="btnTimerThu">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerThu" data-phrase="Thu"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}'  class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerFri">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}'  class="btn btn-secondary btn-xs clickable mi mi-small" id="btnTimerFri">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerFri" data-phrase="Fri"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}'  class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerSat">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}'  class="btn btn-secondary btn-xs clickable mi mi-small" id="btnTimerSat">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerSat" data-phrase="Sat"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}'  class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerSun">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}'  class="btn btn-secondary btn-xs clickable mi mi-small" id="btnTimerSun">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerSun" data-phrase="Sun"></label>
                   </div>
                   <div id="invalidTimerWeekdays" class="invalid-feedback" data-phrase="Minimum one weekday must be selected"></div>
@@ -1837,7 +1837,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">dns</span> <span data-phrase="Mounts"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">dns</span> <span data-phrase="Mounts"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
@@ -1905,7 +1905,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">save</span> <span data-phrase="Execute script"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">save</span> <span data-phrase="Execute script"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
@@ -1933,7 +1933,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">description</span> <span data-phrase="Scripts"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">description</span> <span data-phrase="Scripts"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
@@ -1950,7 +1950,7 @@
               </div>
               <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="inputScriptOrder">
-                  <span data-phrase="Order"></span><small class="material-icons material-icons-small ml-1" data-title-phrase="Sort order of the script, 0 disables listing in main menu">help</small>
+                  <span data-phrase="Order"></span><small class="mi mi-small ml-1" data-title-phrase="Sort order of the script, 0 disables listing in main menu">help</small>
                 </label>
                 <div class="col-sm-8">
                   <input id="inputScriptOrder" class="form-control border-secondary" type="text"/>
@@ -2009,7 +2009,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">web</span> <span data-phrase="Partitions"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">web</span> <span data-phrase="Partitions"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
@@ -2058,7 +2058,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">volume_up</span> <span data-phrase="Move an output to this partition"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">volume_up</span> <span data-phrase="Move an output to this partition"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
@@ -2085,7 +2085,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">volume_up</span> <span data-phrase="Output attributes"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">volume_up</span> <span data-phrase="Output attributes"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
@@ -2125,7 +2125,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">flash_on</span> <span data-phrase="Trigger"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">flash_on</span> <span data-phrase="Trigger"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
@@ -2191,7 +2191,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">home</span> <span id="modalEditHomeIconTitle" data-phrase="Edit home icon"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">home</span> <span id="modalEditHomeIconTitle" data-phrase="Edit home icon"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
@@ -2213,9 +2213,22 @@
             <div id="divHomeIconLigature" class="hide">
               <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="inputHomeIconLigature" data-phrase="Ligature"></label>
-                <div class="col-sm-8">
-                  <input id="inputHomeIconLigature" class="form-control border-secondary" type="text"/>
-                  <small><a class="text-success" href="https://material.io/icons" target="_blank" data-phrase="Ligature overview"></a></small>
+                <div class="col-sm-8 input-group">
+                  <input type="text" class="form-control border-secondary" id="inputHomeIconLigature" readonly/>
+                  <div class="input-group-append">
+                    <button id="btnHomeIconLigature" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
+                    <div id="dropdownHomeIconLigature" class="dropdown-menu px-2">
+                      <div class="row">
+                        <div class="col">
+                          <input id="searchHomeIconLigature" type="text" class="form-control border-secondary" data-placeholder-phrase="Filter"/>
+                        </div>
+                        <div class="col">
+                          <select id="searchHomeIconCat" class="form-control border-secondary custom-select"></select>
+                        </div>
+                      </div>
+                      <div id="listHomeIconLigature"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="form-group row">
@@ -2228,7 +2241,7 @@
             <div class="form-group row">
               <label class="col-sm-4 col-form-label" data-phrase="Preview"></label>
               <div class="col-sm-8">
-                <div id="homeIconPreview" class="material-icons"></div>
+                <div id="homeIconPreview" class="mi"></div>
               </div>
             </div>
             <hr/>
@@ -2256,7 +2269,27 @@
       </div>
     </div>
   </div>
+  
+  <div class="modal fade" id="modalReally" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="mi title-icon">contact_support</span> <span data-phrase="Are you sure?"></span></h5>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+        </div>
+        <div class="modal-body">
+        <input type="hidden" id="modalReallyAction" data-href=''/>
+        <p id="modalReallyText"></p>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="No"></button>
+          <button data-href='{"cmd":"acknowledgeReally","options":[]}' type="button" class="btn btn-success" data-phrase="Yes"></button>
+        </div>
+      </div>
+    </div>
+  </div>
 
+<!--debug-->  <script src="js/long-press-event.min.js"></script>
 <!--debug-->  <script src="js/i18n.js"></script>
 <!--debug-->  <script src="js/keymap.js"></script>
 <!--debug-->  <script src="js/themes.js"></script>

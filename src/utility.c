@@ -464,7 +464,7 @@ sds get_mime_type_by_magic_stream(sds stream) {
 }
 
 bool is_streamuri(const char *uri) {
-    if (uri == NULL || strcasestr(uri, "://") != NULL) {
+    if (uri != NULL && strcasestr(uri, "://") != NULL) {
         return true;
     }
     return false;
@@ -477,7 +477,7 @@ bool write_covercache_file(t_config *config, const char *uri, const char *mime_t
     sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->varlibdir, filename);
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
-        LOG_ERROR("Can not write open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
     }
     else {
         FILE *fp = fdopen(fd, "w");
@@ -491,6 +491,7 @@ bool write_covercache_file(t_config *config, const char *uri, const char *mime_t
                 LOG_ERROR("Error removing file \"%s\": %s", tmp_file, strerror(errno));
             }
         }
+        LOG_DEBUG("Write covercache file \"%s\" for uri \"%s\"", cover_file, uri);
         sdsfree(ext);
         sdsfree(cover_file);
         rc = true;

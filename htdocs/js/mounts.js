@@ -5,6 +5,53 @@
  https://github.com/jcorporation/mympd
 */
 
+function initMounts() {
+    document.getElementById('listMountsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            if (getAttDec(event.target.parentNode, 'data-point') === '') {
+                return false;
+            }
+            showEditMount(getAttDec(event.target.parentNode, 'data-url'), getAttDec(event.target.parentNode, 'data-point'));
+        }
+        else if (event.target.nodeName === 'A') {
+            let action = event.target.getAttribute('data-action');
+            let mountPoint = getAttDec(event.target.parentNode.parentNode, 'data-point');
+            if (action === 'unmount') {
+                unmountMount(mountPoint);
+            }
+            else if (action === 'update') {
+                updateMount(event.target, mountPoint);
+            }
+        }
+    }, false);
+
+    document.getElementById('btnDropdownNeighbors').parentNode.addEventListener('show.bs.dropdown', function () {
+        if (settings.featNeighbors === true) {
+            sendAPI("MPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors, true);
+        }
+        else {
+            document.getElementById('dropdownNeighbors').children[0].innerHTML = 
+                '<div class="list-group-item"><span class="mi">warning</span> ' + t('Neighbors are disabled') + '</div>';
+        }
+    }, false);
+    
+    document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
+        event.preventDefault();
+        if (event.target.nodeName === 'A') {
+            const ec = getAttDec(event.target, 'data-value');
+            const c = ec.match(/^(\w+:\/\/)(.+)$/);
+            document.getElementById('selectMountUrlhandler').value = c[1];
+            document.getElementById('inputMountUrl').value = c[2];
+        }
+    }, false);
+
+    document.getElementById('modalMounts').addEventListener('shown.bs.modal', function () {
+        showListMounts();
+    });
+}
+
 //eslint-disable-next-line no-unused-vars
 function unmountMount(mountPoint) {
     sendAPI("MPD_API_MOUNT_UNMOUNT", {"mountPoint": mountPoint}, showListMounts);
@@ -55,8 +102,7 @@ function showEditMount(uri, storage) {
         document.getElementById('inputMountPoint').value = '';
     }
     document.getElementById('inputMountUrl').focus();
-    document.getElementById('inputMountUrl').classList.remove('is-invalid');
-    document.getElementById('inputMountPoint').classList.remove('is-invalid');
+    removeIsInvalid(document.getElementById('modalMounts'));
 }
 
 function showListMounts(obj) {
@@ -80,17 +126,17 @@ function parseListMounts(obj) {
     let activeRow = 0;
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         let row = document.createElement('tr');
-        row.setAttribute('data-url', encodeURI(obj.result.data[i].mountUrl));
-        row.setAttribute('data-point', encodeURI(obj.result.data[i].mountPoint));
+        setAttEnc(row, 'data-url', obj.result.data[i].mountUrl);
+        setAttEnc(row, 'data-point', obj.result.data[i].mountPoint);
         if (obj.result.data[i].mountPoint === '') {
             row.classList.add('not-clickable');
         }
-        let tds = '<td>' + (obj.result.data[i].mountPoint === '' ? '<span class="material-icons">home</span>' : e(obj.result.data[i].mountPoint)) + '</td>' +
+        let tds = '<td>' + (obj.result.data[i].mountPoint === '' ? '<span class="mi">home</span>' : e(obj.result.data[i].mountPoint)) + '</td>' +
                   '<td>' + e(obj.result.data[i].mountUrl) + '</td>';
         if (obj.result.data[i].mountPoint !== '') {
             tds += '<td data-col="Action">' + 
-                   '<a href="#" title="' + t('Unmount') + '" data-action="unmount" class="material-icons color-darkgrey">delete</a>' +
-                   '<a href="#" title="' + t('Update') + '" data-action="update"class="material-icons color-darkgrey">refresh</a>' +
+                   '<a href="#" title="' + t('Unmount') + '" data-action="unmount" class="mi color-darkgrey">delete</a>' +
+                   '<a href="#" title="' + t('Update') + '" data-action="update"class="mi color-darkgrey">refresh</a>' +
                    '</td>';
         }
         else {
@@ -110,7 +156,7 @@ function parseListMounts(obj) {
     }
 
     if (obj.result.returnedEntities === 0) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr><td><span class="mi">error_outline</span></td>' +
                           '<td colspan="4">' + t('Empty list') + '</td></tr>';
     }     
 }
@@ -118,7 +164,7 @@ function parseListMounts(obj) {
 function parseNeighbors(obj) {
     let list = '';
     if (obj.error) {
-        list = '<div class="list-group-item"><span class="material-icons">error_outline</span> ' + t(obj.error.message) + '</div>';
+        list = '<div class="list-group-item"><span class="mi">error_outline</span> ' + t(obj.error.message) + '</div>';
     }
     else {
         for (let i = 0; i < obj.result.returnedEntities; i++) {
@@ -126,7 +172,7 @@ function parseNeighbors(obj) {
                     obj.result.data[i].uri + '<br/><small>' + obj.result.data[i].displayName + '</small></a>';
         }    
         if (obj.result.returnedEntities === 0) {
-            list = '<div class="list-group-item"><span class="material-icons">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
+            list = '<div class="list-group-item"><span class="mi">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
         }
     }
     document.getElementById('dropdownNeighbors').children[0].innerHTML = list;

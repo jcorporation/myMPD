@@ -4,6 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
+var ignoreMessages = ['No current song', 'No lyrics found'];
+
 function sendAPI(method, params, callback, onerror) {
     let request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": params};
     let ajaxRequest=new XMLHttpRequest();
@@ -19,7 +21,9 @@ function sendAPI(method, params, callback, onerror) {
                 }
                 else if (obj.result && obj.result.message && obj.result.message !== 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
-                    showNotification(t(obj.result.message, obj.result.data), '', '', 'success');
+                    if (ignoreMessages.includes(obj.result.message) === false) {
+                        showNotification(t(obj.result.message, obj.result.data), '', '', 'success');
+                    }
                 }
                 else if (obj.result && obj.result.message && obj.result.message === 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
@@ -267,9 +271,259 @@ function getWsUrl() {
  https://github.com/jcorporation/mympd
 */
 
+function initBrowse() {
+    document.getElementById('BrowseDatabaseListList').addEventListener('click', function(event) {
+        if (app.current.tag === 'Album') {
+            if (event.target.classList.contains('card-body')) {
+                appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', 'AlbumArtist', 
+                    getAttDec(event.target.parentNode, 'data-album'),
+                    getAttDec(event.target.parentNode, 'data-albumartist'));
+            }
+            else if (event.target.classList.contains('card-footer')){
+                popoverMenuAlbumCards(event);
+            }
+        }
+        else {
+            app.current.search = '';
+            document.getElementById('searchDatabaseStr').value = '';
+            appGoto(app.current.app, app.current.card, undefined, 0, undefined, 'Album', 'AlbumArtist', 'Album', 
+                '(' + app.current.tag + ' == \'' + escapeMPD(getAttDec(event.target.parentNode, 'data-tag')) + '\')');
+        }
+    }, false);
+    
+    document.getElementById('BrowseDatabaseListList').addEventListener('contextmenu', function(event) {
+        if (app.current.tag === 'Album') {
+            popoverMenuAlbumCards(event);
+        }
+    }, false);
+    
+    document.getElementById('BrowseDatabaseListList').addEventListener('long-press', function(event) {
+        if (app.current.tag === 'Album') {
+            popoverMenuAlbumCards(event);
+        }
+    }, false);
+    
+    document.getElementById('BrowseDatabaseListList').addEventListener('keydown', function(event) {
+        navigateGrid(event.target, event.key);
+    }, false);
+    
+    if (isMobile === false) {
+        document.getElementById('BrowseDatabaseListList').addEventListener('mouseover', function(event) {
+            if (event.target.classList.contains('card-body') && event.target.childNodes.length === 0) {
+                const oldEls = document.getElementById('BrowseDatabaseListList').getElementsByClassName('album-grid-mouseover');
+                if (oldEls.length > 1) {
+                    for (let i = 0; i < oldEls.length; i++) {
+                        oldEls[i].remove();
+                    }
+                }
+                addPlayButton(event.target);
+            }
+        }, false);
+
+        document.getElementById('BrowseDatabaseListList').addEventListener('mouseout', function(event) {
+            if (event.target.classList.contains('card-body') && (event.relatedTarget === null || ! event.relatedTarget.classList.contains('album-grid-mouseover'))) {
+                event.target.innerHTML = '';
+            }
+        }, false);
+    }
+    
+    document.getElementById('BrowseDatabaseDetailList').addEventListener('click', function(event) {
+        if (event.target.parentNode.parentNode.nodeName === 'TFOOT') {
+            return;
+        }
+        if (event.target.nodeName === 'TD') {
+            clickSong(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+
+    document.getElementById('searchDatabaseTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            app.current.filter = getAttDec(event.target, 'data-tag');
+            searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
+            //appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
+        }
+    }, false);
+    
+    document.getElementById('databaseSortDesc').addEventListener('click', function(event) {
+        toggleBtnChk(this);
+        event.stopPropagation();
+        event.preventDefault();
+        if (app.current.sort.charAt(0) === '-') {
+            app.current.sort = app.current.sort.substr(1);
+        }
+        else {
+            app.current.sort = '-' + app.current.sort;
+        }
+        appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
+    }, false);
+
+    document.getElementById('databaseSortTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            event.stopPropagation();
+            app.current.sort = getAttDec(event.target, 'data-tag');
+            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
+        }
+    }, false);
+
+    document.getElementById('BrowseDatabaseByTagDropdown').addEventListener('click', function(event) {
+        navBrowseHandler(event);
+    }, false);
+    
+    document.getElementById('BrowseNavPlaylistsDropdown').addEventListener('click', function(event) {
+        navBrowseHandler(event);
+    }, false);
+    
+    document.getElementById('BrowseNavFilesystemDropdown').addEventListener('click', function(event) {
+        navBrowseHandler(event);
+    }, false);
+
+    document.getElementById('dropdownSortPlaylistTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            playlistSort(getAttDec(event.target, 'data-tag'));
+        }
+    }, false);
+
+    document.getElementById('searchFilesystemStr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                '0', app.current.limit, (this.value !== '' ? this.value : '-'), app.current.sort, '-', app.current.search);
+        }
+    }, false);
+    
+    document.getElementById('searchPlaylistsStr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                '0', app.current.limit, app.current.filter, app.current.sort, '-', this.value);
+        }
+    }, false);
+
+    document.getElementById('searchDatabaseStr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else if (event.key === 'Enter' && app.current.tag === 'Album') {
+            if (this.value !== '') {
+                let match = getSelectValue(document.getElementById('searchDatabaseMatch'));
+                let li = document.createElement('button');
+                li.classList.add('btn', 'btn-light', 'mr-2');
+                setAttEnc(li, 'data-filter-tag', app.current.filter);
+                setAttEnc(li, 'data-filter-op', match);
+                setAttEnc(li, 'data-filter-value', this.value);
+                li.innerHTML = e(app.current.filter) + ' ' + e(match) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
+                this.value = '';
+                document.getElementById('searchDatabaseCrumb').appendChild(li);
+            }
+            else {
+                searchAlbumgrid(this.value);
+            }
+        }
+        else if (app.current.tag === 'Album') {
+            searchAlbumgrid(this.value);
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, this.value);
+        }
+    }, false);
+
+    document.getElementById('searchDatabaseMatch').addEventListener('change', function() {
+        searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
+    });
+
+    document.getElementById('searchDatabaseCrumb').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'SPAN') {
+            event.preventDefault();
+            event.stopPropagation();
+            event.target.parentNode.remove();
+            searchAlbumgrid('');
+        }
+        else if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            event.stopPropagation();
+            selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', getAttDec(event.target,'data-filter-tag'));
+            document.getElementById('searchDatabaseStr').value = unescapeMPD(getAttDec(event.target, 'data-filter-value'));
+            document.getElementById('searchDatabaseMatch').value = getAttDec(event.target, 'data-filter-op');
+            event.target.remove();
+            searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
+        }
+    }, false);
+
+    document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'TD') {
+            const uri = getAttDec(event.target.parentNode, 'data-uri');
+            const name = getAttDec(event.target.parentNode, 'data-name');
+            const dataType = getAttDec(event.target.parentNode, 'data-type');
+            switch(dataType) {
+                case 'parentDir':
+                    app.current.filter = '-';
+                    appGoto('Browse', 'Filesystem', undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', uri);
+                    break;
+                case 'dir':
+                    clickFolder(uri, name);
+                    break;
+                case 'song':
+                    clickSong(uri, name);
+                    break;
+                case 'plist':
+                    clickPlaylist(uri, name);
+                    break;
+            }
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+
+    document.getElementById('BrowseFilesystemBookmarks').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'A') {
+            let id = getAttDec(event.target.parentNode.parentNode, 'data-id');
+            let type = getAttDec(event.target.parentNode.parentNode, 'data-type');
+            let uri = getAttDec(event.target.parentNode.parentNode, 'data-uri');
+            let name = event.target.parentNode.parentNode.firstChild.innerText;
+            let href = getAttDec(event.target, 'data-href');
+            
+            if (href === 'delete') {
+                sendAPI("MYMPD_API_BOOKMARK_RM", {"id": id}, function() {
+                    sendAPI("MYMPD_API_BOOKMARK_LIST", {"offset": 0, "limit": 0}, parseBookmarks);
+                });
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            else if (href === 'edit') {
+                showBookmarkSave(id, name, uri, type);
+            }
+            else if (href === 'goto') {
+                appGoto('Browse', 'Filesystem', undefined, '0', undefined, '-','-','-', uri);
+            }
+        }
+    }, false);
+
+    document.getElementById('BrowseBreadcrumb').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'A') {
+            event.preventDefault();
+            appGoto('Browse', 'Filesystem', undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', getAttDec(event.target, 'data-uri'));
+        }
+    }, false);
+
+    document.getElementById('BrowseFilesystemBookmark').parentNode.addEventListener('show.bs.dropdown', function () {
+        sendAPI("MYMPD_API_BOOKMARK_LIST", {"offset": 0, "limit": 0}, parseBookmarks);
+    });
+}
+
 function navBrowseHandler(event) {
     if (event.target.nodeName === 'BUTTON') {
-        const tag = event.target.getAttribute('data-tag');
+        const tag = getAttDec(event.target, 'data-tag');
         if (tag === 'Playlists' || tag === 'Filesystem') {
             appGoto('Browse', tag, undefined);
             return;
@@ -291,35 +545,48 @@ function navBrowseHandler(event) {
     }
 }
 
-function gotoBrowse() {
+function popoverMenuAlbumCards(event) {
+    showMenu(event.target, event);
+    const selCards = document.getElementById('BrowseDatabaseListList').getElementsByClassName('selected');
+    for (let i = 0; i < selCards.length; i++) {
+        selCards[i].classList.remove('selected');
+    }
+    event.target.parentNode.classList.add('selected');
+    event.preventDefault();
+    event.stopPropagation();
+}
+
+function gotoBrowse(event) {
     if (settings.featAdvsearch === false) {
         return;
     }
     const x = event.target;
-    let tag = x.getAttribute('data-tag');
-    let name = decodeURI(x.getAttribute('data-name'));
+    let tag = getAttDec(x, 'data-tag');
+    let name = getAttDec(x, 'data-name');
     if (tag === null) {
-        tag = x.parentNode.getAttribute('data-tag');
-        name = decodeURI(x.parentNode.getAttribute('data-name'));
+        tag = getAttDec(x.parentNode, 'data-tag');
+        name = getAttDec(x.parentNode, 'data-name');
     }
     if (tag !== '' && name !== '' && name !== '-' && settings.browsetags.includes(tag)) {
         if (tag === 'Album') {
-            let artist = x.getAttribute('data-albumartist');
+            let artist = getAttDec(x, 'data-albumartist');
             if (artist === null) {
-                artist = x.parentNode.getAttribute('data-albumartist');
+                artist = getAttDec(x.parentNode, 'data-albumartist');
             }
             if (artist !== null) {
                 //Show album details
-                appGoto('Browse', 'Database', 'Detail', '0', undefined, tag, tagAlbumArtist, name, decodeURI(artist));
+                appGoto('Browse', 'Database', 'Detail', '0', undefined, tag, tagAlbumArtist, name, artist);
             }
             else {
                 //show filtered album list
-                appGoto('Browse', 'Database', 'List', '0', undefined, tag, tagAlbumArtist, 'Album', '(' + tag + ' == \'' + name + '\')');
+                document.getElementById('searchDatabaseStr').value = '';
+                appGoto('Browse', 'Database', 'List', '0', undefined, tag, tagAlbumArtist, 'Album', '(' + tag + ' == \'' + escapeMPD(name) + '\')');
             }
         }
         else {
             //show filtered album list
-            appGoto('Browse', 'Database', 'List', '0', undefined, tag, tagAlbumArtist, 'Album', '(' + tag + ' == \'' + name + '\')');
+            document.getElementById('searchDatabaseStr').value = '';
+            appGoto('Browse', 'Database', 'List', '0', undefined, tag, tagAlbumArtist, 'Album', '(' + tag + ' == \'' + escapeMPD(name) + '\')');
         }
     }
 }
@@ -331,10 +598,9 @@ function parseFilesystem(obj) {
     let colspan = settings['cols' + list].length;
 
     if (obj.error) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr><td><span class="mi">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t(obj.error.message) + '</td></tr>';
         document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
-        //document.getElementById('cardFooterBrowse').innerText = '';
         return;
     }
     
@@ -351,7 +617,7 @@ function parseFilesystem(obj) {
             let img = document.createElement('div');
             img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
             img.classList.add('booklet');
-            img.setAttribute('data-href', subdir + '/browse/music/' + obj.result.bookletPath);
+            setAttEnc(img, 'data-href', subdir + '/browse/music/' + obj.result.bookletPath);
             img.title = t('Booklet');
             imageList.appendChild(img);
         }
@@ -361,34 +627,40 @@ function parseFilesystem(obj) {
             imageList.appendChild(img);
         }
     }
+    const rowTitleSong = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
+    const rowTitleFolder = advancedSettingsDefault.clickFolder.validValues[settings.advanced.clickFolder];
+    const rowTitlePlaylist = advancedSettingsDefault.clickPlaylist.validValues[settings.advanced.clickPlaylist];
     let nrItems = obj.result.returnedEntities;
     let tr = tbody.getElementsByTagName('tr');
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
     let activeRow = 0;
     for (let i = 0; i < nrItems; i++) {
-        let uri = encodeURI(obj.result.data[i].uri);
         let row = document.createElement('tr');
         let tds = '';
-        row.setAttribute('data-type', obj.result.data[i].Type);
-        row.setAttribute('data-uri', uri);
+        setAttEnc(row, 'data-type', obj.result.data[i].Type);
+        setAttEnc(row, 'data-uri', obj.result.data[i].uri);
         row.setAttribute('tabindex', 0);
         if (app.current.app === 'Search' && settings.featTags === true && settings.featAdvsearch === true) {
             //add artist and album information for album actions in search app
             if (obj.result.data[i].Album !== undefined) {
-                row.setAttribute('data-album', encodeURI(obj.result.data[i].Album));
+                setAttEnc(row, 'data-album', obj.result.data[i].Album);
             }
             if (obj.result.data[i][tagAlbumArtist] !== undefined) {
-                row.setAttribute('data-albumartist', encodeURI(obj.result.data[i][tagAlbumArtist]));
+                setAttEnc(row, 'data-albumartist', obj.result.data[i][tagAlbumArtist]);
             }
         }
         if (obj.result.data[i].Type === 'song') {
-            row.setAttribute('data-name', obj.result.data[i].Title);
+            setAttEnc(row, 'data-name', obj.result.data[i].Title);
         }
         else {
-            row.setAttribute('data-name', obj.result.data[i].name);
+            setAttEnc(row, 'data-name', obj.result.data[i].name);
         }
         
         switch(obj.result.data[i].Type) {
+            case 'parentDir':
+                row.innerHTML = '<td colspan="' + (colspan + 1) + '">..</td>';
+                row.setAttribute('title', t('Open parent folder'));
+                break;
             case 'dir':
             case 'smartpls':
             case 'plist':
@@ -396,10 +668,10 @@ function parseFilesystem(obj) {
                     tds += '<td data-col="' + settings['cols' + list][c] + '">';
                     if (settings['cols' + list][c] === 'Type') {
                         if (obj.result.data[i].Type === 'dir') {
-                            tds += '<span class="material-icons">folder_open</span>';
+                            tds += '<span class="mi">folder_open</span>';
                         }
                         else {
-                            tds += '<span class="material-icons">' + (obj.result.data[i].Type === 'smartpls' ? 'queue_music' : 'list') + '</span>';
+                            tds += '<span class="mi">' + (obj.result.data[i].Type === 'smartpls' ? 'queue_music' : 'list') + '</span>';
                         }
                     }
                     else if (settings['cols' + list][c] === 'Title') {
@@ -407,8 +679,9 @@ function parseFilesystem(obj) {
                     }
                     tds += '</td>';
                 }
-                tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td>';
+                tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
                 row.innerHTML = tds;
+                row.setAttribute('title', t(obj.result.data[i].Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
                 break;
             case 'song':
                 if (obj.result.data[i].Duration !== undefined) {
@@ -420,15 +693,16 @@ function parseFilesystem(obj) {
                 for (let c = 0; c < settings['cols' + list].length; c++) {
                     tds += '<td data-col="' + settings['cols' + list][c] + '">';
                     if (settings['cols' + list][c] === 'Type') {
-                        tds += '<span class="material-icons">music_note</span>';
+                        tds += '<span class="mi">music_note</span>';
                     }
                     else {
                         tds += e(obj.result.data[i][settings['cols' + list][c]]);
                     }
                     tds += '</td>';
                 }
-                tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td>';
+                tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
                 row.innerHTML = tds;
+                row.setAttribute('title', t(rowTitleSong));
                 break;
         }
         if (i < tr.length) {
@@ -450,11 +724,10 @@ function parseFilesystem(obj) {
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
                     
     if (nrItems === 0) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
     }
     document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
-    //document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.result.totalEntities);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -481,8 +754,8 @@ function parseBookmarks(obj) {
         list += '<tr data-id="' + obj.result.data[i].id + '" data-type="' + obj.result.data[i].type + '" ' +
                 'data-uri="' + encodeURI(obj.result.data[i].uri) + '">' +
                 '<td class="nowrap"><a class="text-light" href="#" data-href="goto">' + e(obj.result.data[i].name) + '</a></td>' +
-                '<td><a class="text-light material-icons material-icons-small" href="#" data-href="edit">edit</a></td><td>' +
-                '<a class="text-light material-icons material-icons-small" href="#" data-href="delete">delete</a></td></tr>';
+                '<td><a class="text-light mi mi-small" href="#" data-href="edit">edit</a></td><td>' +
+                '<a class="text-light mi mi-small" href="#" data-href="delete">delete</a></td></tr>';
     }
     if (obj.result.returnedEntities === 0) {
         list += '<tr><td class="text-light nowrap">' + t('No bookmarks found') + '</td></tr>';
@@ -492,7 +765,7 @@ function parseBookmarks(obj) {
 }
 
 function showBookmarkSave(id, name, uri, type) {
-    document.getElementById('saveBookmarkName').classList.remove('is-invalid');
+    removeIsInvalid(document.getElementById('modalSaveBookmark'));
     document.getElementById('saveBookmarkId').value = id;
     document.getElementById('saveBookmarkName').value = name;
     document.getElementById('saveBookmarkUri').value = uri;
@@ -517,9 +790,11 @@ function saveBookmark() {
 
 function parseDatabase(obj) {
     let nrItems = obj.result.returnedEntities;
-    let cardContainer = document.getElementById('BrowseDatabaseCards');
+    let cardContainer = document.getElementById('BrowseDatabaseListList');
     let cols = cardContainer.getElementsByClassName('col');
     const has_io = 'IntersectionObserver' in window ? true : false;
+
+    document.getElementById('BrowseDatabaseListList').classList.remove('opacity05');
 
     if (cols.length === 0) {
         cardContainer.innerHTML = '';
@@ -538,8 +813,8 @@ function parseDatabase(obj) {
         let picture = '';
         if (obj.result.tag === 'Album') {
             id = genId('database' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist);
-            picture = subdir + '/albumart/' + encodeURI(obj.result.data[i].FirstSongUri);
-            html = '<div class="card card-grid clickable" data-picture="' + picture  + '" ' + 
+            picture = subdir + '/albumart/' + obj.result.data[i].FirstSongUri;
+            html = '<div class="card card-grid clickable" data-picture="' + encodeURI(picture)  + '" ' + 
                        'data-uri="' + encodeURI(obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, '')) + '" ' +
                        'data-type="dir" data-name="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
@@ -552,7 +827,7 @@ function parseDatabase(obj) {
         else {
             id = genId('database' + obj.result.data[i].value);
             picture = subdir + '/tagpics/' + obj.result.tag + '/' + encodeURI(obj.result.data[i].value);
-            html = '<div class="card card-grid clickable" data-picture="' + picture + '" data-tag="' + encodeURI(obj.result.data[i].value) + '" tabindex="0">' +
+            html = '<div class="card card-grid clickable" data-picture="' + encodeURI(picture) + '" data-tag="' + encodeURI(obj.result.data[i].value) + '" tabindex="0">' +
                    (obj.result.pics === true ? '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' : '') +
                    '<div class="card-footer card-footer-grid p-2" title="' + e(obj.result.data[i].value) + '">' +
                    e(obj.result.data[i].value) + '<br/>' +
@@ -595,7 +870,7 @@ function parseDatabase(obj) {
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
                     
     if (nrItems === 0) {
-        cardContainer.innerHTML = '<div class="ml-3 mb-3"><span class="material-icons">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
+        cardContainer.innerHTML = '<div class="ml-3 mb-3 not-clickable"><span class="mi">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
     }
     //document.getElementById('cardFooterBrowse').innerText = gtPage('Num entries', obj.result.returnedEntities, obj.result.totalEntities);
 }
@@ -604,7 +879,7 @@ function setGridImage(changes, observer) {
     changes.forEach(change => {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);
-            const uri = decodeURI(change.target.firstChild.getAttribute('data-picture'));
+            const uri = getAttDec(change.target.firstChild, 'data-picture');
             const body = change.target.firstChild.getElementsByClassName('card-body')[0];
             if (body) {
                 body.style.backgroundImage = 'url("' + uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
@@ -615,26 +890,27 @@ function setGridImage(changes, observer) {
 
 function addPlayButton(parentEl) {
     const div = document.createElement('div');
-    div.classList.add('align-self-end', 'album-grid-mouseover', 'material-icons', 'rounded-circle', 'clickable');
+    div.classList.add('align-self-end', 'album-grid-mouseover', 'mi', 'rounded-circle', 'clickable');
     div.innerText = 'play_arrow';
+    div.title = t(advancedSettingsDefault.clickAlbumPlay.validValues[settings.advanced.clickAlbumPlay]);
     parentEl.appendChild(div);
     div.addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
-        replaceQueue('dir', decodeURI(event.target.parentNode.parentNode.getAttribute('data-uri')), decodeURI(event.target.parentNode.parentNode.getAttribute('data-name')));
+        clickAlbumPlay(getAttDec(event.target.parentNode.parentNode, 'data-albumartist'), getAttDec(event.target.parentNode.parentNode, 'data-album'));
     }, false);
 }
 
 function parseAlbumDetails(obj) {
     const coverEl = document.getElementById('viewDetailDatabaseCover');
     coverEl.style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.data[0].uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
-    coverEl.setAttribute('data-images', obj.result.images.join(';;'));
-    coverEl.setAttribute('data-uri', obj.result.data[0].uri);
+    setAttEnc(coverEl, 'data-images', obj.result.images.join(';;'));
+    setAttEnc(coverEl, 'data-uri', obj.result.data[0].uri);
     const infoEl = document.getElementById('viewDetailDatabaseInfo');
     infoEl.innerHTML = '<h1>' + e(obj.result.Album) + '</h1>' +
         '<small> ' + t('AlbumArtist') + '</small><p>' + e(obj.result.AlbumArtist) + '</p>' +
         (obj.result.bookletPath === '' || settings.featBrowse === false ? '' : 
-            '<span class="text-light material-icons">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
+            '<span class="text-light mi">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
             e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>') +
         '</p>';
     const table = document.getElementById('BrowseDatabaseDetailList');
@@ -642,29 +918,34 @@ function parseAlbumDetails(obj) {
     const nrCols = settings.colsBrowseDatabaseDetail.length;
     let titleList = '';
     if (obj.result.Discs > 1) {
-        titleList = '<tr class="not-clickable"><td><span class="material-icons">album</span></td><td colspan="' + nrCols +'">' + t('Disc 1') + '</td></tr>';
+        titleList = '<tr class="not-clickable"><td><span class="mi">album</span></td><td colspan="' + nrCols +'">' + t('Disc 1') + '</td></tr>';
     }
     let nrItems = obj.result.returnedEntities;
     let lastDisc = parseInt(obj.result.data[0].Disc);
+    const rowTitle = t(advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong]);
     for (let i = 0; i < nrItems; i++) {
         if (lastDisc < parseInt(obj.result.data[i].Disc)) {
-            titleList += '<tr class="not-clickable"><td><span class="material-icons">album</span></td><td colspan="' + nrCols +'">' + 
+            titleList += '<tr class="not-clickable"><td><span class="mi">album</span></td><td colspan="' + nrCols +'">' + 
                 t('Disc') + ' ' + e(obj.result.data[i].Disc) + '</td></tr>';
         }
         if (obj.result.data[i].Duration) {
             obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
         }
-        titleList += '<tr tabindex="0" data-type="song" data-name="' + obj.result.data[i].Title + '" data-uri="' + encodeURI(obj.result.data[i].uri) + '">';
+        titleList += '<tr tabindex="0" title="' + t(rowTitle) + '"data-type="song" data-name="' + encodeURI(obj.result.data[i].Title) + 
+            '" data-uri="' + encodeURI(obj.result.data[i].uri) + '">';
         for (let c = 0; c < settings.colsBrowseDatabaseDetail.length; c++) {
-            titleList += '<td data-col="' + settings.colsBrowseDatabaseDetail[c] + '">' + e(obj.result.data[i][settings.colsBrowseDatabaseDetail[c]]) + '</td>';
+            titleList += '<td data-col="' + settings.colsBrowseDatabaseDetail[c] + '">' + 
+                e(obj.result.data[i][settings.colsBrowseDatabaseDetail[c]]) + '</td>';
         }
-        titleList += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td></tr>';
+        titleList += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td></tr>';
         lastDisc = obj.result.data[i].Disc;
     }
     tbody.innerHTML = titleList;
     const tfoot = table.getElementsByTagName('tfoot')[0];
     let colspan = settings.colsBrowseDatabaseDetail.length;
-    tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
+    tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + 
+        t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + 
+        beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
     document.getElementById('BrowseDatabaseDetailList').classList.remove('opacity05');
 }
 
@@ -700,16 +981,15 @@ function searchAlbumgrid(x) {
         if (i > 0) {
             expression += ' AND ';
         }
-        expression += '(' + decodeURI(crumbs[i].getAttribute('data-filter-tag')) + ' ' + 
-            decodeURI(crumbs[i].getAttribute('data-filter-op')) + ' \'' + 
-            escapeMPD(decodeURI(crumbs[i].getAttribute('data-filter-value'))) + '\')';
+        expression += '(' + getAttDec(crumbs[i], 'data-filter-tag') + ' ' + 
+            getAttDec(crumbs[i], 'data-filter-op') + ' \'' + 
+            escapeMPD(getAttDec(crumbs[i], 'data-filter-value')) + '\')';
     }
     if (x !== '') {
         if (expression !== '') {
             expression += ' AND ';
         }
-        let match = document.getElementById('searchDatabaseMatch');
-        expression += '(' + app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + escapeMPD(x) +'\')';
+        expression += '(' + app.current.filter + ' ' + getSelectValue(document.getElementById('searchDatabaseMatch')) + ' \'' + escapeMPD(x) +'\')';
     }
     
     if (expression.length <= 2) {
@@ -788,6 +1068,155 @@ function navigateGrid(grid, keyCode) {
  https://github.com/jcorporation/mympd
 */
 
+function initHome() {
+    //home screen
+    document.getElementById('HomeCards').addEventListener('click', function(event) {
+        if (event.target.classList.contains('card-body')) {
+            const href = event.target.parentNode.getAttribute('data-href');
+            if (href !== null) {
+               parseCmd(event, href);
+            }
+        }
+        else if (event.target.classList.contains('card-footer')){
+            popoverMenuHome(event);
+        }
+    }, false);
+    
+    document.getElementById('HomeCards').addEventListener('contextmenu', function(event) {
+        popoverMenuHome(event);
+    }, false);
+
+    document.getElementById('HomeCards').addEventListener('long-press', function(event) {
+        popoverMenuHome(event);
+    }, false);
+    
+    document.getElementById('HomeCards').addEventListener('keydown', function(event) {
+        navigateGrid(event.target, event.key);
+    }, false);
+    
+    dragAndDropHome();
+
+    //modals
+    document.getElementById('selectHomeIconCmd').addEventListener('change', function() {
+        showHomeIconCmdOptions();
+    }, false);
+
+    document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
+        document.getElementById('homeIconPreview').style.backgroundColor = event.target.value;
+    }, false);
+
+    document.getElementById('selectHomeIconImage').addEventListener('change', function(event) {
+        const value = getSelectValue(event.target);
+        document.getElementById('homeIconPreview').style.backgroundImage = 'url("' + subdir + '/browse/pics/' + value  + '")';
+        if (value !== '') {
+            document.getElementById('divHomeIconLigature').classList.add('hide');
+            document.getElementById('homeIconPreview').innerHTML = '';
+        }
+        else {
+            document.getElementById('divHomeIconLigature').classList.remove('hide');
+            document.getElementById('homeIconPreview').innerText = document.getElementById('inputHomeIconLigature').value;
+        }
+    }, false);
+    
+    document.getElementById('btnHomeIconLigature').parentNode.addEventListener('show.bs.dropdown', function () {
+        const selLig = document.getElementById('inputHomeIconLigature').value;
+        if (selLig !== '') {
+            document.getElementById('searchHomeIconLigature').value = selLig;
+            filterHomeIconLigatures();
+        }
+    }, false);
+    
+    let ligatureList = '';
+    let catList = '<option value="all">' + t('All') + '</option>';
+    Object.keys(materialIcons).forEach(function(cat) {
+        ligatureList += '<h5 class="ml-1 mt-2">' + e(ucFirst(cat)) + '</h5>';
+        catList += '<option value="' + cat + '">' + e(ucFirst(cat)) + '</option>';
+        for (let i = 0; i < materialIcons[cat].length; i++) {
+            ligatureList += '<button title="' + materialIcons[cat][i] + '" data-cat="' + cat + '" class="btn btn-sm mi m-1">' + materialIcons[cat][i] + '</button>';
+        }
+    });
+    document.getElementById('listHomeIconLigature').innerHTML = ligatureList;
+    document.getElementById('searchHomeIconCat').innerHTML = catList;
+
+    document.getElementById('listHomeIconLigature').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            selectHomeIconLigature(event.target);
+        }
+    });
+    
+    document.getElementById('searchHomeIconLigature').addEventListener('click', function(event) {
+        event.stopPropagation();
+    }, false);
+
+    document.getElementById('searchHomeIconCat').addEventListener('click', function(event) {
+        event.stopPropagation();
+    }, false);
+    
+    document.getElementById('searchHomeIconCat').addEventListener('change', function() {
+        filterHomeIconLigatures();
+    }, false);
+    
+    document.getElementById('searchHomeIconLigature').addEventListener('keydown', function(event) {
+        event.stopPropagation();
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+    }, false);
+    
+    document.getElementById('searchHomeIconLigature').addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            let sel = document.getElementById('listHomeIconLigature').getElementsByClassName('active')[0];
+            if (sel !== undefined) {
+                selectHomeIconLigature(sel);
+                dropdownHomeIconLigature.toggle();
+            }
+        }
+        else {
+            filterHomeIconLigatures();
+        }
+    }, false);
+}
+
+function selectHomeIconLigature(x) {
+    document.getElementById('inputHomeIconLigature').value = x.getAttribute('title');
+    document.getElementById('homeIconPreview').innerText = x.getAttribute('title');
+    document.getElementById('homeIconPreview').style.backgroundImage = '';
+    document.getElementById('selectHomeIconImage').value = '';
+}
+
+function filterHomeIconLigatures() {
+    const str = document.getElementById('searchHomeIconLigature').value;
+    const cat = getSelectValue('searchHomeIconCat');
+    const els = document.getElementById('listHomeIconLigature').getElementsByTagName('button');
+    for (let i = 0; i < els.length; i++) {
+        if ((str === '' || els[i].getAttribute('title').indexOf(str) > -1) && (cat === 'all' || els[i].getAttribute('data-cat') === cat)) {
+            els[i].classList.remove('hide');
+            if (els[i].getAttribute('title') === str) {
+                els[i].classList.add('active');
+            }
+            else {
+                els[i].classList.remove('active');
+            }
+        }
+        else {
+            els[i].classList.add('hide');
+            els[i].classList.remove('active' );
+        }
+    }
+    const catTitles = document.getElementById('listHomeIconLigature').getElementsByTagName('h5');
+    if (cat === '') {
+        for (let i = 0; i < catTitles.length; i++) {
+            catTitles[i].classList.remove('hide');
+        }
+    }
+    else {
+        for (let i = 0; i < catTitles.length; i++) {
+            catTitles[i].classList.add('hide');
+        }
+    }
+}
+
 function parseHome(obj) {
     const nrItems = obj.result.returnedEntities;
     const cardContainer = document.getElementById('HomeCards');
@@ -814,7 +1243,7 @@ function parseHome(obj) {
         const href = JSON.stringify({"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
         const html = '<div class="card home-icons clickable" draggable="true" tabindex="0" data-pos="' + i + '" data-href=\'' + 
                    e(href) + '\'  title="' + e(obj.result.data[i].name) + '">' +
-                   '<div class="card-body material-icons">' + e(obj.result.data[i].ligature) + '</div>' +
+                   '<div class="card-body mi">' + e(obj.result.data[i].ligature) + '</div>' +
                    '<div class="card-footer card-footer-grid p-2">' +
                    e(obj.result.data[i].name) + 
                    '</div></div>';
@@ -842,8 +1271,20 @@ function parseHome(obj) {
     }
 }
 
+function popoverMenuHome(event) {
+    const sels = document.getElementById('HomeCards').getElementsByClassName('selected');
+    for (let i = 0; i < sels.length; i++) {
+        sels[i].classList.remove('selected');
+    }
+    event.target.parentNode.classList.add('selected');
+    showMenu(event.target, event);
+    event.preventDefault();
+    event.stopPropagation();
+}
+
 function dragAndDropHome() {
     const homeCards = document.getElementById('HomeCards');
+
     homeCards.addEventListener('dragstart', function(event) {
         if (event.target.classList.contains('home-icons')) {
             event.target.classList.add('opacity05');
@@ -853,6 +1294,7 @@ function dragAndDropHome() {
             dragEl = event.target.cloneNode(true);
         }
     }, false);
+
     homeCards.addEventListener('dragleave', function(event) {
         event.preventDefault();
         if (dragEl.classList.contains('home-icons') === false) {
@@ -862,6 +1304,7 @@ function dragAndDropHome() {
             event.target.classList.remove('dragover-icon');
         }
     }, false);
+
     homeCards.addEventListener('dragover', function(event) {
         event.preventDefault();
         if (dragEl.classList.contains('home-icons') === false) {
@@ -880,6 +1323,7 @@ function dragAndDropHome() {
         }
         event.dataTransfer.dropEffect = 'move';
     }, false);
+
     homeCards.addEventListener('dragend', function(event) {
         event.preventDefault();
         if (dragEl.classList.contains('home-icons') === false) {
@@ -892,6 +1336,7 @@ function dragAndDropHome() {
         }
         dragSrc.classList.remove('opacity05');
     }, false);
+
     homeCards.addEventListener('drop', function(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -919,7 +1364,6 @@ function dragAndDropHome() {
         for (let i = 0; i < thLen; i++) {
             th[i].classList.remove('dragover-icon');
         }
-
     }, false);
 }
 
@@ -1007,7 +1451,11 @@ function _editHomeIcon(pos, replace, title) {
             document.getElementById('divHomeIconLigature').classList.add('hide');
             document.getElementById('homeIconPreview').style.backgroundImage = 'url(' + subdir + '"/browse/pics/' + obj.result.data.image + '")';
         }
-        
+        //reset ligature selection
+        document.getElementById('searchHomeIconLigature').value = '';
+        document.getElementById('searchHomeIconCat').value = 'all';
+        filterHomeIconLigatures();
+        //show modal
         modalEditHomeIcon.show();
     });
 }
@@ -1080,6 +1528,8 @@ function getHomeIconPictureList(picture) {
         sel.value = picture;
     });
 }
+
+const materialIcons={"action": ["3d_rotation","accessibility","accessibility_new","accessible","accessible_forward","account_balance","account_balance_wallet","account_box","account_circle","add_shopping_cart","add_task","add_to_drive","addchart","admin_panel_settings","alarm","alarm_add","alarm_off","alarm_on","all_inbox","all_out","analytics","anchor","android","announcement","api","app_blocking","arrow_circle_down","arrow_circle_up","arrow_right_alt","article","aspect_ratio","assessment","assignment","assignment_ind","assignment_late","assignment_return","assignment_returned","assignment_turned_in","autorenew","backup","backup_table","batch_prediction","book","book_online","bookmark","bookmark_border","bookmarks","bug_report","build","build_circle","cached","calendar_today","calendar_view_day","camera_enhance","cancel_schedule_send","card_giftcard","card_membership","card_travel","change_history","check_circle","check_circle_outline","chrome_reader_mode","circle_notifications","class","close_fullscreen","code","comment_bank","commute","compare_arrows","compress","contact_page","contact_support","contactless","copyright","credit_card","dangerous","dashboard","dashboard_customize","date_range","delete","delete_forever","delete_outline","description","disabled_by_default","dns","done","done_all","done_outline","donut_large","donut_small","drag_indicator","dynamic_form","eco","edit_off","eject","euro_symbol","event","event_seat","exit_to_app","expand","explore","explore_off","extension","face","fact_check","favorite","favorite_border","feedback","file_present","filter_alt","filter_list_alt","find_in_page","find_replace","fingerprint","fit_screen","flaky","flight_land","flight_takeoff","flip_to_back","flip_to_front","g_translate","gavel","get_app","gif","grade","grading","group_work","help","help_center","help_outline","highlight_alt","highlight_off","history","history_toggle_off","home","home_filled","horizontal_split","hourglass_disabled","hourglass_empty","hourglass_full","http","https","important_devices","info","info_outline","input","integration_instructions","invert_colors","label","label_important","label_important_outline","label_off","label_outline","language","launch","leaderboard","lightbulb","lightbulb_outline","line_style","line_weight","list","lock","lock_clock","lock_open","lock_outline","login","logout","loyalty","mark_as_unread","markunread_mailbox","maximize","mediation","minimize","model_training","next_plan","nightlight_round","not_accessible","not_started","note_add","offline_bolt","offline_pin","online_prediction","opacity","open_in_browser","open_in_full","open_in_new","open_with","outbond","outbox","outgoing_mail","outlet","pageview","pan_tool","payment","pending","pending_actions","perm_camera_mic","perm_contact_calendar","perm_data_setting","perm_device_information","perm_identity","perm_media","perm_phone_msg","perm_scan_wifi","pets","picture_in_picture","picture_in_picture_alt","plagiarism","play_for_work","polymer","power_settings_new","pregnant_woman","preview","print","privacy_tip","published_with_changes","query_builder","question_answer","quickreply","receipt","record_voice_over","redeem","remove_done","remove_shopping_cart","reorder","report_problem","request_page","restore","restore_from_trash","restore_page","room","rounded_corner","rowing","rule","saved_search","schedule","schedule_send","search","search_off","segment","send_and_archive","settings","settings_applications","settings_backup_restore","settings_bluetooth","settings_brightness","settings_cell","settings_ethernet","settings_input_antenna","settings_input_component","settings_input_composite","settings_input_hdmi","settings_input_svideo","settings_overscan","settings_phone","settings_power","settings_remote","settings_voice","shop","shop_two","shopping_bag","shopping_basket","shopping_cart","smart_button","source","speaker_notes","speaker_notes_off","spellcheck","star_rate","stars","sticky_note_2","store","subject","subtitles_off","supervised_user_circle","supervisor_account","support","swap_horiz","swap_horizontal_circle","swap_vert","swap_vertical_circle","swipe","sync_alt","system_update_alt","tab","tab_unselected","table_view","text_rotate_up","text_rotate_vertical","text_rotation_angledown","text_rotation_angleup","text_rotation_down","text_rotation_none","theaters","thumb_down","thumb_down_off_alt","thumb_up","thumb_up_off_alt","thumbs_up_down","timeline","toc","today","toll","touch_app","tour","track_changes","translate","trending_down","trending_flat","trending_up","turned_in","turned_in_not","unpublished","update","update_disabled","upgrade","verified","verified_user","vertical_split","view_agenda","view_array","view_carousel","view_column","view_day","view_headline","view_in_ar","view_list","view_module","view_quilt","view_sidebar","view_stream","view_week","visibility","visibility_off","voice_over_off","watch_later","wifi_protected_setup","work","work_off","work_outline","wysiwyg","youtube_searched_for","zoom_in","zoom_out"],"alert": ["add_alert","auto_delete","error","error_outline","notification_important","warning","warning_amber"],"av": ["10k","1k","1k_plus","2k","2k_plus","3k","3k_plus","4k","4k_plus","5g","5k","5k_plus","6k","6k_plus","7k","7k_plus","8k","8k_plus","9k","9k_plus","add_to_queue","airplay","album","art_track","av_timer","branding_watermark","call_to_action","closed_caption","closed_caption_disabled","closed_caption_off","control_camera","equalizer","explicit","fast_forward","fast_rewind","featured_play_list","featured_video","fiber_dvr","fiber_manual_record","fiber_new","fiber_pin","fiber_smart_record","forward_10","forward_30","forward_5","games","hd","hearing","hearing_disabled","high_quality","library_add","library_add_check","library_books","library_music","loop","mic","mic_none","mic_off","missed_video_call","movie","music_video","new_releases","not_interested","note","pause","pause_circle_filled","pause_circle_outline","play_arrow","play_circle_filled","play_circle_outline","play_disabled","playlist_add","playlist_add_check","playlist_play","queue","queue_music","queue_play_next","radio","recent_actors","remove_from_queue","repeat","repeat_on","repeat_one","repeat_one_on","replay","replay_10","replay_30","replay_5","replay_circle_filled","sd","shuffle","shuffle_on","skip_next","skip_previous","slow_motion_video","snooze","sort_by_alpha","speed","stop","stop_circle","subscriptions","subtitles","surround_sound","video_call","video_label","video_library","video_settings","videocam","videocam_off","volume_down","volume_mute","volume_off","volume_up","web","web_asset"],"communication": ["add_ic_call","alternate_email","app_registration","business","call","call_end","call_made","call_merge","call_missed","call_missed_outgoing","call_received","call_split","cancel_presentation","cell_wifi","chat","chat_bubble","chat_bubble_outline","clear_all","comment","contact_mail","contact_phone","contacts","desktop_access_disabled","dialer_sip","dialpad","domain_disabled","domain_verification","duo","email","forum","forward_to_inbox","hourglass_bottom","hourglass_top","import_contacts","import_export","invert_colors_off","list_alt","live_help","location_off","location_on","mail_outline","mark_chat_read","mark_chat_unread","mark_email_read","mark_email_unread","message","mobile_screen_share","more_time","nat","no_sim","pause_presentation","person_add_disabled","person_search","phone","phone_disabled","phone_enabled","phonelink_erase","phonelink_lock","phonelink_ring","phonelink_setup","portable_wifi_off","present_to_all","print_disabled","qr_code","qr_code_2","qr_code_scanner","read_more","ring_volume","rss_feed","rtt","screen_share","sentiment_satisfied_alt","speaker_phone","stay_current_landscape","stay_current_portrait","stay_primary_landscape","stay_primary_portrait","stop_screen_share","swap_calls","textsms","unsubscribe","voicemail","vpn_key","wifi_calling"],"content": ["add","add_box","add_circle","add_circle_outline","add_link","amp_stories","archive","attribution","backspace","ballot","biotech","block","block_flipped","bolt","calculate","clear","content_copy","content_cut","content_paste","create","delete_sweep","drafts","dynamic_feed","file_copy","filter_list","flag","font_download","forward","gesture","how_to_reg","how_to_vote","inbox","insights","inventory","link","link_off","low_priority","mail","markunread","move_to_inbox","next_week","outlined_flag","policy","push_pin","redo","remove","remove_circle","remove_circle_outline","reply","reply_all","report","report_gmailerrorred","report_off","save","save_alt","select_all","send","shield","sort","square_foot","stacked_bar_chart","stream","tag","text_format","unarchive","undo","waves","weekend","where_to_vote"],"device": ["access_alarm","access_alarms","access_time","ad_units","add_alarm","add_to_home_screen","airplanemode_active","airplanemode_inactive","battery_alert","battery_charging_full","battery_full","battery_std","battery_unknown","bluetooth","bluetooth_connected","bluetooth_disabled","bluetooth_searching","brightness_auto","brightness_high","brightness_low","brightness_medium","data_usage","developer_mode","device_thermostat","devices","dvr","gps_fixed","gps_not_fixed","gps_off","graphic_eq","location_disabled","location_searching","mobile_friendly","mobile_off","network_cell","network_wifi","nfc","reset_tv","screen_lock_landscape","screen_lock_portrait","screen_lock_rotation","screen_rotation","screen_search_desktop","sd_storage","send_to_mobile","settings_system_daydream","signal_wifi_off","storage","thermostat","usb","wallpaper","widgets","wifi_lock","wifi_tethering"],"editor": ["add_chart","add_comment","align_horizontal_center","align_horizontal_left","align_horizontal_right","align_vertical_bottom","align_vertical_center","align_vertical_top","attach_file","attach_money","bar_chart","border_all","border_bottom","border_clear","border_color","border_horizontal","border_inner","border_left","border_outer","border_right","border_style","border_top","border_vertical","bubble_chart","drag_handle","format_align_center","format_align_justify","format_align_left","format_align_right","format_bold","format_clear","format_color_fill","format_color_reset","format_color_text","format_indent_decrease","format_indent_increase","format_italic","format_line_spacing","format_list_bulleted","format_list_numbered","format_list_numbered_rtl","format_paint","format_quote","format_shapes","format_size","format_strikethrough","format_textdirection_l_to_r","format_textdirection_r_to_l","format_underlined","functions","height","highlight","horizontal_distribute","horizontal_rule","insert_chart","insert_chart_outlined","insert_comment","insert_drive_file","insert_emoticon","insert_invitation","insert_link","insert_photo","linear_scale","margin","merge_type","mode","mode_comment","mode_edit","monetization_on","money_off","money_off_csred","multiline_chart","notes","padding","pie_chart","pie_chart_outline","pie_chart_outlined","post_add","publish","scatter_plot","score","short_text","show_chart","space_bar","stacked_line_chart","strikethrough_s","subscript","superscript","table_chart","table_rows","text_fields","title","vertical_align_bottom","vertical_align_center","vertical_align_top","vertical_distribute","wrap_text"],"file": ["approval","attach_email","attachment","cloud","cloud_circle","cloud_done","cloud_download","cloud_off","cloud_queue","cloud_upload","create_new_folder","download","download_done","drive_file_move","drive_file_move_outline","drive_file_rename_outline","drive_folder_upload","file_download","file_download_done","file_upload","folder","folder_open","folder_shared","grid_view","request_quote","rule_folder","snippet_folder","text_snippet","topic","upload","upload_file","workspaces_filled","workspaces_outline"],"hardware": ["browser_not_supported","cast","cast_connected","cast_for_education","computer","connected_tv","desktop_mac","desktop_windows","developer_board","device_hub","device_unknown","devices_other","dock","gamepad","headset","headset_mic","headset_off","keyboard","keyboard_arrow_down","keyboard_arrow_left","keyboard_arrow_right","keyboard_arrow_up","keyboard_backspace","keyboard_capslock","keyboard_hide","keyboard_return","keyboard_tab","keyboard_voice","laptop","laptop_chromebook","laptop_mac","laptop_windows","memory","monitor","mouse","phone_android","phone_iphone","phonelink","phonelink_off","point_of_sale","power_input","router","scanner","security","sim_card","smartphone","speaker","speaker_group","tablet","tablet_android","tablet_mac","toys","tv","videogame_asset","watch"],"home": ["sensor_door","sensor_window"],"image": ["10mp","11mp","12mp","13mp","14mp","15mp","16mp","17mp","18mp","19mp","20mp","21mp","22mp","23mp","24mp","2mp","3mp","4mp","5mp","6mp","7mp","8mp","9mp","add_a_photo","add_photo_alternate","add_to_photos","adjust","animation","assistant","assistant_photo","audiotrack","auto_awesome","auto_awesome_mosaic","auto_awesome_motion","auto_fix_high","auto_fix_normal","auto_fix_off","auto_stories","bedtime","blur_circular","blur_linear","blur_off","blur_on","brightness_1","brightness_2","brightness_3","brightness_4","brightness_5","brightness_6","brightness_7","broken_image","brush","burst_mode","camera","camera_alt","camera_front","camera_rear","camera_roll","cases","center_focus_strong","center_focus_weak","circle","collections","collections_bookmark","color_lens","colorize","compare","control_point","control_point_duplicate","crop","crop_16_9","crop_3_2","crop_5_4","crop_7_5","crop_din","crop_free","crop_landscape","crop_original","crop_portrait","crop_rotate","crop_square","dehaze","details","dirty_lens","edit","euro","exposure","exposure_neg_1","exposure_neg_2","exposure_plus_1","exposure_plus_2","exposure_zero","face_retouching_natural","filter","filter_1","filter_2","filter_3","filter_4","filter_5","filter_6","filter_7","filter_8","filter_9","filter_9_plus","filter_b_and_w","filter_center_focus","filter_drama","filter_frames","filter_hdr","filter_none","filter_tilt_shift","filter_vintage","flare","flash_auto","flash_off","flash_on","flip","flip_camera_android","flip_camera_ios","gradient","grain","grid_off","grid_on","hdr_enhanced_select","hdr_off","hdr_on","hdr_strong","hdr_weak","healing","image","image_aspect_ratio","image_not_supported","image_search","iso","landscape","leak_add","leak_remove","lens","linked_camera","looks","looks_3","looks_4","looks_5","looks_6","looks_one","looks_two","loupe","mic_external_off","mic_external_on","monochrome_photos","motion_photos_off","motion_photos_on","motion_photos_pause","motion_photos_paused","movie_creation","movie_filter","mp","music_note","music_off","nature","nature_people","navigate_before","navigate_next","palette","panorama","panorama_fish_eye","panorama_horizontal","panorama_horizontal_select","panorama_photosphere","panorama_photosphere_select","panorama_vertical","panorama_vertical_select","panorama_wide_angle","panorama_wide_angle_select","photo","photo_album","photo_camera","photo_camera_back","photo_camera_front","photo_filter","photo_library","photo_size_select_actual","photo_size_select_large","photo_size_select_small","picture_as_pdf","portrait","receipt_long","remove_red_eye","rotate_90_degrees_ccw","rotate_left","rotate_right","shutter_speed","slideshow","straighten","style","switch_camera","switch_video","tag_faces","texture","timelapse","timer","timer_10","timer_3","timer_off","tonality","transform","tune","view_comfy","view_compact","vignette","wb_auto","wb_cloudy","wb_incandescent","wb_iridescent","wb_shade","wb_sunny","wb_twighlight"],"maps": ["360","add_business","add_location","add_location_alt","add_road","agriculture","alt_route","atm","attractions","badge","bakery_dining","beenhere","bike_scooter","breakfast_dining","brunch_dining","bus_alert","car_rental","car_repair","category","celebration","cleaning_services","compass_calibration","delivery_dining","departure_board","design_services","dinner_dining","directions","directions_bike","directions_boat","directions_bus","directions_car","directions_railway","directions_run","directions_subway","directions_transit","directions_walk","dry_cleaning","edit_attributes","edit_location","edit_road","electric_bike","electric_car","electric_moped","electric_rickshaw","electric_scooter","electrical_services","ev_station","fastfood","festival","flight","hail","handyman","hardware","home_repair_service","hotel","hvac","icecream","layers","layers_clear","liquor","local_activity","local_airport","local_atm","local_bar","local_cafe","local_car_wash","local_convenience_store","local_dining","local_drink","local_fire_department","local_florist","local_gas_station","local_grocery_store","local_hospital","local_hotel","local_laundry_service","local_library","local_mall","local_movies","local_offer","local_parking","local_pharmacy","local_phone","local_pizza","local_play","local_police","local_post_office","local_printshop","local_see","local_shipping","local_taxi","location_pin","lunch_dining","map","maps_ugc","medical_services","menu_book","miscellaneous_services","money","moped","multiple_stop","museum","my_location","navigation","near_me","near_me_disabled","nightlife","no_meals","no_meals_ouline","no_transfer","not_listed_location","park","pedal_bike","person_pin","person_pin_circle","pest_control","pest_control_rodent","pin_drop","place","plumbing","railway_alert","ramen_dining","rate_review","restaurant","restaurant_menu","run_circle","satellite","set_meal","store_mall_directory","streetview","subway","takeout_dining","taxi_alert","terrain","theater_comedy","traffic","train","tram","transfer_within_a_station","transit_enterexit","trip_origin","two_wheeler","volunteer_activism","wine_bar","wrong_location","zoom_out_map"],"navigation": ["app_settings_alt","apps","arrow_back","arrow_back_ios","arrow_downward","arrow_drop_down","arrow_drop_down_circle","arrow_drop_up","arrow_forward","arrow_forward_ios","arrow_left","arrow_right","arrow_upward","assistant_direction","assistant_navigation","campaign","cancel","check","chevron_left","chevron_right","close","double_arrow","east","expand_less","expand_more","first_page","fullscreen","fullscreen_exit","home_work","last_page","legend_toggle","menu","menu_open","more_horiz","more_vert","north","north_east","north_west","offline_share","payments","pivot_table_chart","refresh","south","south_east","south_west","subdirectory_arrow_left","subdirectory_arrow_right","switch_left","switch_right","unfold_less","unfold_more","waterfall_chart","west"],"notification": ["account_tree","adb","add_call","airline_seat_flat","airline_seat_flat_angled","airline_seat_individual_suite","airline_seat_legroom_extra","airline_seat_legroom_normal","airline_seat_legroom_reduced","airline_seat_recline_extra","airline_seat_recline_normal","bluetooth_audio","confirmation_number","directions_off","disc_full","do_disturb","do_disturb_alt","do_disturb_off","do_disturb_on","do_not_disturb","do_not_disturb_alt","do_not_disturb_off","do_not_disturb_on","drive_eta","enhanced_encryption","event_available","event_busy","event_note","folder_special","imagesearch_roller","live_tv","mms","more","network_check","network_locked","no_encryption","no_encryption_gmailerrorred","ondemand_video","personal_video","phone_bluetooth_speaker","phone_callback","phone_forwarded","phone_in_talk","phone_locked","phone_missed","phone_paused","power","power_off","priority_high","sd_card","sd_card_alert","sim_card_alert","sms","sms_failed","support_agent","sync","sync_disabled","sync_problem","system_update","tap_and_play","time_to_leave","tv_off","vibration","voice_chat","vpn_lock","wc","wifi","wifi_off"],"places": ["ac_unit","airport_shuttle","all_inclusive","apartment","baby_changing_station","backpack","bathtub","beach_access","bento","business_center","carpenter","casino","charging_station","checkroom","child_care","child_friendly","corporate_fare","countertops","do_not_step","do_not_touch","dry","elevator","escalator","escalator_warning","family_restroom","fence","fire_extinguisher","fitness_center","food_bank","foundation","free_breakfast","golf_course","grass","hot_tub","house","house_siding","kitchen","meeting_room","microwave","night_shelter","no_backpack","no_cell","no_drinks","no_flash","no_food","no_meeting_room","no_photography","no_stroller","pool","rice_bowl","roofing","room_preferences","room_service","rv_hookup","smoke_free","smoking_rooms","soap","spa","sports_bar","stairs","storefront","stroller","tapas","tty","umbrella","wash","water_damage","wheelchair_pickup"],"social": ["6_ft_apart","add_moderator","architecture","cake","clean_hands","connect_without_contact","construction","coronavirus","deck","domain","elderly","emoji_emotions","emoji_events","emoji_flags","emoji_food_beverage","emoji_nature","emoji_objects","emoji_people","emoji_symbols","emoji_transportation","engineering","facebook","fireplace","follow_the_signs","group","group_add","groups","history_edu","ios_share","king_bed","location_city","luggage","masks","military_tech","mood","mood_bad","nights_stay","no_luggage","notifications","notifications_active","notifications_none","notifications_off","notifications_paused","outdoor_grill","pages","party_mode","people","people_alt","people_outline","person","person_add","person_add_alt","person_add_alt_1","person_outline","person_remove","person_remove_alt_1","plus_one","poll","precision_manufacturing","psychology","public","public_off","recommend","reduce_capacity","remove_moderator","sanitizer","school","science","self_improvement","sentiment_dissatisfied","sentiment_neutral","sentiment_satisfied","sentiment_very_dissatisfied","sentiment_very_satisfied","share","sick","single_bed","sports","sports_baseball","sports_basketball","sports_cricket","sports_esports","sports_football","sports_golf","sports_handball","sports_hockey","sports_kabaddi","sports_mma","sports_motorsports","sports_rugby","sports_soccer","sports_tennis","sports_volleyball","switch_account","thumb_down_alt","thumb_up_alt","whatshot"],"toggle": ["check_box","check_box_outline_blank","indeterminate_check_box","radio_button_checked","radio_button_unchecked","star","star_border","star_border_purple500","star_half","star_outline","star_purple500","toggle_off","toggle_on"]};
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
@@ -1094,6 +1544,7 @@ function delQueueJukeboxSong(pos) {
 }
 
 function parseJukeboxList(obj) {
+    const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
     let nrItems = obj.result.returnedEntities;
     let table = document.getElementById('QueueJukeboxList');
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
@@ -1104,18 +1555,19 @@ function parseJukeboxList(obj) {
         obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
         obj.result.data[i].LastPlayed = localeDate(obj.result.data[i].LastPlayed);
         let row = document.createElement('tr');
-        row.setAttribute('data-uri', obj.result.data[i].uri);
-        row.setAttribute('data-name', obj.result.data[i].Title);
-        row.setAttribute('data-type', 'song');
-        row.setAttribute('data-pos', i);
+        setAttEnc(row, 'data-uri', obj.result.data[i].uri);
+        setAttEnc(row, 'data-name', obj.result.data[i].Title);
+        setAttEnc(row, 'data-type', 'song');
+        setAttEnc(row, 'data-pos', i);
+        row.setAttribute('title', t(rowTitle));
         row.setAttribute('tabindex', 0);
         let tds = '';
         for (let c = 0; c < settings.colsQueueJukebox.length; c++) {
-            tds += '<td data-col="' + settings.colsQueueJukebox[c] + '">' + e(obj.result.data[i][settings.colsQueueJukebox[c]]) + '</td>';
+            tds += '<td data-col="' + encodeURI(settings.colsQueueJukebox[c]) + '">' + e(obj.result.data[i][settings.colsQueueJukebox[c]]) + '</td>';
         }
         tds += '<td data-col="Action">';
         if (obj.result.data[i].uri !== '') {
-            tds += '<a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a>';
+            tds += '<a href="#" class="mi color-darkgrey">' + ligatureMore + '</a>';
         }
         tds += '</td>';
         row.innerHTML = tds;
@@ -1134,7 +1586,7 @@ function parseJukeboxList(obj) {
     let colspan = settings['colsQueueJukebox'].length;
     
     if (nrItems === 0) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
             '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
     }
 
@@ -1167,13 +1619,15 @@ var keymap = {
     "t": {"cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
     "i": {"cmd": "clickTitle", "options": [], "desc": "Open song details"},
     "l": {"cmd": "openDropdown", "options": ["dropdownLocalPlayer"], "desc": "Open local player"},
-    "0": {"cmd": "appGoto", "options": ["Playback"], "desc": "Goto playback"},
-    "1": {"cmd": "appGoto", "options": ["Queue", "Current"], "desc": "Goto queue"},
-    "2": {"cmd": "appGoto", "options": ["Queue", "LastPlayed"], "desc": "Goto last played"},
-    "3": {"cmd": "appGoto", "options": ["Browse", "Database"], "desc": "Goto browse database", "req": "featTags"},
-    "4": {"cmd": "appGoto", "options": ["Browse", "Playlists"], "desc": "Goto browse playlists", "req": "featPlaylists"},
-    "5": {"cmd": "appGoto", "options": ["Browse", "Filesystem"], "desc": "Goto browse filesystem"},
-    "6": {"cmd": "appGoto", "options": ["Search"], "desc": "Goto search"},
+    "0": {"cmd": "appGoto", "options": ["Home"], "desc": "Goto home"},
+    "1": {"cmd": "appGoto", "options": ["Playback"], "desc": "Goto playback"},
+    "2": {"cmd": "appGoto", "options": ["Queue", "Current"], "desc": "Goto queue"},
+    "3": {"cmd": "appGoto", "options": ["Queue", "LastPlayed"], "desc": "Goto last played"},
+    "4": {"cmd": "appGoto", "options": ["Queue", "Jukebox"], "desc": "Goto jukebox queue"},
+    "5": {"cmd": "appGoto", "options": ["Browse", "Database"], "desc": "Goto browse database", "req": "featTags"},
+    "6": {"cmd": "appGoto", "options": ["Browse", "Playlists"], "desc": "Goto browse playlists", "req": "featPlaylists"},
+    "7": {"cmd": "appGoto", "options": ["Browse", "Filesystem"], "desc": "Goto browse filesystem"},
+    "8": {"cmd": "appGoto", "options": ["Search"], "desc": "Goto search"},
     "m": {"cmd": "openDropdown", "options": ["dropdownMainMenu"], "desc": "Open main menu"},
     "v": {"cmd": "openDropdown", "options": ["dropdownVolumeMenu"], "desc": "Open volume menu"},
     "S": {"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_SHUFFLE"}], "desc": "Shuffle queue"},
@@ -1193,6 +1647,7 @@ var keymap = {
  https://github.com/jcorporation/mympd
 */
 
+//escapes html characters to avoid xss
 function e(x) {
     if (isNaN(x)) {
         return x.replace(/([<>"'])/g, function(m0, m1) {
@@ -1208,6 +1663,11 @@ function e(x) {
         });
     }
     return x;
+}
+
+//removes special characters
+function r(x) {
+    return x.replace(/[^\w-]/g, '_');
 }
 
 function t(phrase, number, data) {
@@ -1310,6 +1770,41 @@ function i18nHtml(root) {
         }
     }
 }
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
+function initLocalplayer() {
+   document.getElementById('alertLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        clickCheckLocalPlayerState(event);
+    }, false);
+    
+    document.getElementById('errorLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        clickCheckLocalPlayerState(event);
+    }, false);
+
+    document.getElementById('localPlayer').addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+    
+    document.getElementById('localPlayer').addEventListener('canplay', function() {
+        logDebug('localPlayer event: canplay');
+        document.getElementById('alertLocalPlayback').classList.add('hide');
+        document.getElementById('errorLocalPlayback').classList.add('hide');
+    });
+
+    document.getElementById('localPlayer').addEventListener('error', function() {
+        logError('localPlayer event: error');
+        document.getElementById('errorLocalPlayback').classList.remove('hide');
+    });
+}
+
 function setLocalPlayerUrl() {
     if (window.location.protocol === 'https:') {
         document.getElementById('infoLocalplayer').classList.remove('hide');
@@ -1317,7 +1812,7 @@ function setLocalPlayerUrl() {
     }
     else {
         document.getElementById('infoLocalplayer').classList.add('hide');
-        document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase','HTTP Port');
+        document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase', 'HTTP Port');
     }
     if (settings.streamUrl === '') {
         settings.mpdstream = window.location.protocol + '//';
@@ -1602,15 +2097,15 @@ function _updateDBfinished(idleEvent) {
 //eslint-disable-next-line no-unused-vars
 function zoomPicture(el) {
     if (el.classList.contains('booklet')) {
-        window.open(el.getAttribute('data-href'));
+        window.open(getAttDec(el, 'data-href'));
         return;
     }
     
     if (el.classList.contains('carousel')) {
-        let imgSrc = el.getAttribute('data-images');
+        let imgSrc = getAttDec(el, 'data-images');
         let images;
         if (imgSrc !== null) {
-            images = el.getAttribute('data-images').split(';;');
+            images = getAttDec(el, 'data-images').split(';;');
         }
         else if (lastSongObj.images) {
             images = lastSongObj.images.slice();
@@ -1621,8 +2116,9 @@ function zoomPicture(el) {
         
         //add uri to image list to get embedded albumart
         let a_images = [];
-        if (el.getAttribute('data-uri')) {
-            a_images = [ subdir + '/albumart/' + el.getAttribute('data-uri') ];
+        const uri = getAttDec(el, 'data-uri');
+        if (uri) {
+            a_images = [ subdir + '/albumart/' + uri ];
         }
         //add all but coverfiles to image list
         if (settings.publish === true) {
@@ -1654,7 +2150,6 @@ function zoomPicture(el) {
 function zoomZoomPicture() {
     window.open(document.getElementById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
 }
-
 
 function createImgCarousel(imgEl, name, images) {
     let carousel = '<div id="' + name + '" class="carousel slide" data-ride="carousel">' +
@@ -1688,11 +2183,62 @@ function createImgCarousel(imgEl, name, images) {
         pause: false
     });
 }
+
+function ucFirst(string) {
+    return string[0].toUpperCase() + string.slice(1);
+}
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
+
+function initMounts() {
+    document.getElementById('listMountsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            if (getAttDec(event.target.parentNode, 'data-point') === '') {
+                return false;
+            }
+            showEditMount(getAttDec(event.target.parentNode, 'data-url'), getAttDec(event.target.parentNode, 'data-point'));
+        }
+        else if (event.target.nodeName === 'A') {
+            let action = event.target.getAttribute('data-action');
+            let mountPoint = getAttDec(event.target.parentNode.parentNode, 'data-point');
+            if (action === 'unmount') {
+                unmountMount(mountPoint);
+            }
+            else if (action === 'update') {
+                updateMount(event.target, mountPoint);
+            }
+        }
+    }, false);
+
+    document.getElementById('btnDropdownNeighbors').parentNode.addEventListener('show.bs.dropdown', function () {
+        if (settings.featNeighbors === true) {
+            sendAPI("MPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors, true);
+        }
+        else {
+            document.getElementById('dropdownNeighbors').children[0].innerHTML = 
+                '<div class="list-group-item"><span class="mi">warning</span> ' + t('Neighbors are disabled') + '</div>';
+        }
+    }, false);
+    
+    document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
+        event.preventDefault();
+        if (event.target.nodeName === 'A') {
+            const ec = getAttDec(event.target, 'data-value');
+            const c = ec.match(/^(\w+:\/\/)(.+)$/);
+            document.getElementById('selectMountUrlhandler').value = c[1];
+            document.getElementById('inputMountUrl').value = c[2];
+        }
+    }, false);
+
+    document.getElementById('modalMounts').addEventListener('shown.bs.modal', function () {
+        showListMounts();
+    });
+}
 
 //eslint-disable-next-line no-unused-vars
 function unmountMount(mountPoint) {
@@ -1744,8 +2290,7 @@ function showEditMount(uri, storage) {
         document.getElementById('inputMountPoint').value = '';
     }
     document.getElementById('inputMountUrl').focus();
-    document.getElementById('inputMountUrl').classList.remove('is-invalid');
-    document.getElementById('inputMountPoint').classList.remove('is-invalid');
+    removeIsInvalid(document.getElementById('modalMounts'));
 }
 
 function showListMounts(obj) {
@@ -1769,17 +2314,17 @@ function parseListMounts(obj) {
     let activeRow = 0;
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         let row = document.createElement('tr');
-        row.setAttribute('data-url', encodeURI(obj.result.data[i].mountUrl));
-        row.setAttribute('data-point', encodeURI(obj.result.data[i].mountPoint));
+        setAttEnc(row, 'data-url', obj.result.data[i].mountUrl);
+        setAttEnc(row, 'data-point', obj.result.data[i].mountPoint);
         if (obj.result.data[i].mountPoint === '') {
             row.classList.add('not-clickable');
         }
-        let tds = '<td>' + (obj.result.data[i].mountPoint === '' ? '<span class="material-icons">home</span>' : e(obj.result.data[i].mountPoint)) + '</td>' +
+        let tds = '<td>' + (obj.result.data[i].mountPoint === '' ? '<span class="mi">home</span>' : e(obj.result.data[i].mountPoint)) + '</td>' +
                   '<td>' + e(obj.result.data[i].mountUrl) + '</td>';
         if (obj.result.data[i].mountPoint !== '') {
             tds += '<td data-col="Action">' + 
-                   '<a href="#" title="' + t('Unmount') + '" data-action="unmount" class="material-icons color-darkgrey">delete</a>' +
-                   '<a href="#" title="' + t('Update') + '" data-action="update"class="material-icons color-darkgrey">refresh</a>' +
+                   '<a href="#" title="' + t('Unmount') + '" data-action="unmount" class="mi color-darkgrey">delete</a>' +
+                   '<a href="#" title="' + t('Update') + '" data-action="update"class="mi color-darkgrey">refresh</a>' +
                    '</td>';
         }
         else {
@@ -1799,7 +2344,7 @@ function parseListMounts(obj) {
     }
 
     if (obj.result.returnedEntities === 0) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr><td><span class="mi">error_outline</span></td>' +
                           '<td colspan="4">' + t('Empty list') + '</td></tr>';
     }     
 }
@@ -1807,7 +2352,7 @@ function parseListMounts(obj) {
 function parseNeighbors(obj) {
     let list = '';
     if (obj.error) {
-        list = '<div class="list-group-item"><span class="material-icons">error_outline</span> ' + t(obj.error.message) + '</div>';
+        list = '<div class="list-group-item"><span class="mi">error_outline</span> ' + t(obj.error.message) + '</div>';
     }
     else {
         for (let i = 0; i < obj.result.returnedEntities; i++) {
@@ -1815,7 +2360,7 @@ function parseNeighbors(obj) {
                     obj.result.data[i].uri + '<br/><small>' + obj.result.data[i].displayName + '</small></a>';
         }    
         if (obj.result.returnedEntities === 0) {
-            list = '<div class="list-group-item"><span class="material-icons">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
+            list = '<div class="list-group-item"><span class="mi">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
         }
     }
     document.getElementById('dropdownNeighbors').children[0].innerHTML = list;
@@ -2001,7 +2546,6 @@ domCache.progressBar = document.getElementById('footerProgressBar');
 domCache.progressPos = document.getElementById('footerProgressPos')
 domCache.volumeBar = document.getElementById('volumeBar');
 domCache.outputs = document.getElementById('outputs');
-domCache.btnA2HS = document.getElementById('nav-add2homescreen');
 domCache.currentCover = document.getElementById('currentCover');
 domCache.currentTitle = document.getElementById('currentTitle');
 domCache.footerTitle = document.getElementById('footerTitle');
@@ -2049,6 +2593,7 @@ var dropdownLocalPlayer = new BSN.Dropdown(document.getElementById('localPlaybac
 var dropdownPlay = new BSN.Dropdown(document.getElementById('btnPlayDropdown'));
 var dropdownDatabaseSort = new BSN.Dropdown(document.getElementById('btnDatabaseSortDropdown'));
 var dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNeighbors'));
+var dropdownHomeIconLigature = new BSN.Dropdown(document.getElementById('btnHomeIconLigature'));
 
 var collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
 var collapseSettings = new BSN.Collapse(document.getElementById('navSettings'));
@@ -2286,15 +2831,15 @@ function appRoute() {
             "searchstr": (app.current.filter !== '-' ? app.current.filter : ''), "cols": settings.colsBrowseFilesystem}, parseFilesystem, true);
         // Don't add all songs from root
         if (app.current.search) {
-            document.getElementById('BrowseFilesystemAddAllSongs').removeAttribute('disabled');
-            document.getElementById('BrowseFilesystemAddAllSongsBtn').removeAttribute('disabled');
+            enableEl('BrowseFilesystemAddAllSongs');
+            enableEl('BrowseFilesystemAddAllSongsBtn');
         }
         else {
-            document.getElementById('BrowseFilesystemAddAllSongs').setAttribute('disabled', 'disabled');
-            document.getElementById('BrowseFilesystemAddAllSongsBtn').setAttribute('disabled', 'disabled');
+            disableEl('BrowseFilesystemAddAllSongs');
+            disableEl('BrowseFilesystemAddAllSongsBtn');
         }
         // Create breadcrumb
-        let breadcrumbs='<li class="breadcrumb-item"><a data-uri="" class="text-body material-icons">home</a></li>';
+        let breadcrumbs='<li class="breadcrumb-item"><a data-uri="" class="text-body mi">home</a></li>';
         let pathArray = app.current.search.split('/');
         let pathArrayLen = pathArray.length;
         let fullPath = '';
@@ -2336,9 +2881,11 @@ function appRoute() {
             for (let i = 0; i < elements.length - 1 ; i++) {
                 let expression = elements[i].substring(1, elements[i].length - 1);
                 let fields = expression.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
-                crumbs += '<button data-filter-tag="' + encodeURI(fields[1]) + '" ' +
-                    'data-filter-op="' + encodeURI(fields[2]) + '" ' +
-                    'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(expression) + '<span class="badge badge-secondary">&times</span></button>';
+                if (fields !== null && fields.length === 4) {
+                    crumbs += '<button data-filter-tag="' + encodeURI(fields[1]) + '" ' +
+                        'data-filter-op="' + encodeURI(fields[2]) + '" ' +
+                        'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(expression) + '<span class="badge badge-secondary">&times</span></button>';
+                }
             }
             crumbEl.innerHTML = crumbs;
             if (searchEl.value === '' && elements.length >= 1) {
@@ -2346,24 +2893,25 @@ function appRoute() {
                 let lastElValue = lastEl.substring(lastEl.indexOf('\'') + 1, lastEl.length - 1);
                 if (searchEl.value !== lastElValue) {
                     let fields = lastEl.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
-                    crumbEl.innerHTML += '<button data-filter-tag="' + encodeURI(fields[1]) + '" ' +
-                        'data-filter-op="' + encodeURI(fields[2]) + '" ' +
-                        'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(lastEl) + '<span class="badge badge-secondary">&times</span></button>';
+                    if (fields !== null && fields.length === 4) {
+                        crumbEl.innerHTML += '<button data-filter-tag="' + encodeURI(fields[1]) + '" ' +
+                            'data-filter-op="' + encodeURI(fields[2]) + '" ' +
+                            'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(lastEl) + '<span class="badge badge-secondary">&times</span></button>';
+                    }
                 }
-                document.getElementById('searchDatabaseMatch').value = 'contains';
             }
             crumbEl.classList.remove('hide');
             document.getElementById('searchDatabaseMatch').classList.remove('hide');
-            document.getElementById('btnDatabaseSortDropdown').removeAttribute('disabled');
-            document.getElementById('btnDatabaseSearchDropdown').removeAttribute('disabled');
+            enableEl('btnDatabaseSortDropdown');
+            enableEl('btnDatabaseSearchDropdown');
             sendAPI("MPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, 
                 "filter": app.current.filter, "sort": sort, "sortdesc": sortdesc}, parseDatabase);
         }
         else {
             document.getElementById('searchDatabaseCrumb').classList.add('hide');
             document.getElementById('searchDatabaseMatch').classList.add('hide');
-            document.getElementById('btnDatabaseSortDropdown').setAttribute('disabled', 'disabled');
-            document.getElementById('btnDatabaseSearchDropdown').setAttribute('disabled', 'disabled');
+            disableEl('btnDatabaseSortDropdown');
+            disableEl('btnDatabaseSearchDropdown');
             document.getElementById('searchDatabaseStr').value = app.current.search;
             sendAPI("MPD_API_DATABASE_TAG_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, 
                 "filter": app.current.filter, "sort": sort, "sortdesc": sortdesc, "tag": app.current.tag}, parseDatabase);
@@ -2412,18 +2960,15 @@ function appRoute() {
                 document.getElementById('searchMatch').value = match;
             }
         }
-        else {
-            if (domCache.searchstr.value === '' && app.current.search !== '') {
+        else if (domCache.searchstr.value === '' && app.current.search !== '') {
                 domCache.searchstr.value = app.current.search;
-            }
         }
-        if (app.last.app !== app.current.app) {
-            if (app.current.search !== '') {
-                let colspan = settings['cols' + app.current.app].length;
-                document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML=
-                    '<tr><td><span class="material-icons">search</span></td>' +
-                    '<td colspan="' + colspan + '">' + t('Searching...') + '</td></tr>';
-            }
+        
+        if (app.last.app !== app.current.app && app.current.search !== '') {
+            let colspan = settings['cols' + app.current.app].length;
+            document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML=
+                '<tr><td><span class="mi">search</span></td>' +
+                '<td colspan="' + colspan + '">' + t('Searching...') + '</td></tr>';
         }
 
         if (domCache.searchstr.value.length >= 2 || domCache.searchCrumb.children.length > 0) {
@@ -2437,13 +2982,11 @@ function appRoute() {
                     else {
                         sort = '-';
                     }
-                    document.getElementById('SearchList').setAttribute('data-sort', sort);
+                    setAttEnc(document.getElementById('SearchList'), 'data-sort', sort);
                 }
-                else {
-                    if (sort.indexOf('-') === 0) {
-                        sortdesc = true;
-                        sort = sort.substring(1);
-                    }
+                else if (sort.indexOf('-') === 0) {
+                    sortdesc = true;
+                    sort = sort.substring(1);
                 }
                 sendAPI("MPD_API_DATABASE_SEARCH_ADV", {"plist": "", "offset": app.current.offset, "limit": app.current.limit, "sort": sort, "sortdesc": sortdesc, "expression": app.current.search, "cols": settings.colsSearch, "replace": false}, parseSearch);
             }
@@ -2453,8 +2996,8 @@ function appRoute() {
         }
         else {
             document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML = '';
-            document.getElementById('searchAddAllSongs').setAttribute('disabled', 'disabled');
-            document.getElementById('searchAddAllSongsBtn').setAttribute('disabled', 'disabled');
+            disableEl('searchAddAllSongs');
+            disableEl('searchAddAllSongsBtn');
             document.getElementById('SearchList').classList.remove('opacity05');
             setPagination(0, 0);
         }
@@ -2497,12 +3040,12 @@ function a2hsInit() {
         // Stash the event so it can be triggered later
         deferredA2HSprompt = event;
         // Update UI notify the user they can add to home screen
-        domCache.btnA2HS.classList.remove('hide');
+        document.getElementById('nav-add2homescreen').classList.remove('hide');
     });
 
-    domCache.btnA2HS.addEventListener('click', function() {
+    document.getElementById('nav-add2homescreen').addEventListener('click', function(event) {
         // Hide our user interface that shows our A2HS button
-        domCache.btnA2HS.classList.add('hide');
+        event.target.classList.add('hide');
         // Show the prompt
         deferredA2HSprompt.prompt();
         // Wait for the user to respond to the prompt
@@ -2569,7 +3112,7 @@ function appInitStart() {
 
     appInited = false;
     document.getElementById('splashScreen').classList.remove('hide');
-    document.getElementsByTagName('body')[0].classList.add('overflow-hidden');
+    domCache.body.classList.add('overflow-hidden');
     document.getElementById('splashScreenAlert').innerText = t('Fetch myMPD settings');
 
     a2hsInit();
@@ -2587,7 +3130,7 @@ function appInitWait() {
             setTimeout(function() {
                 document.getElementById('splashScreen').classList.add('hide');
                 document.getElementById('splashScreen').classList.remove('hide-fade');
-                document.getElementsByTagName('body')[0].classList.remove('overflow-hidden');
+                domCache.body.classList.remove('overflow-hidden');
             }, 500);
             appInit();
             appInited = true;
@@ -2607,6 +3150,192 @@ function appInitWait() {
 }
 
 function appInit() {
+    //collaps arrows for submenus
+    let collapseArrows = document.querySelectorAll('.subMenu');
+    let collapseArrowsLen = collapseArrows.length;
+    for (let i = 0; i < collapseArrowsLen; i++) {
+        collapseArrows[i].addEventListener('click', function(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            let icon = this.getElementsByTagName('span')[0];
+            icon.innerText = icon.innerText === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
+        }, false);
+    }    
+    //align dropdowns
+    let dropdowns = document.querySelectorAll('.dropdown-toggle');
+    for (let i = 0; i < dropdowns.length; i++) {
+        dropdowns[i].parentNode.addEventListener('show.bs.dropdown', function () {
+            alignDropdown(this);
+        });
+    }
+    //init links
+    let hrefs = document.querySelectorAll('[data-href]');
+    let hrefsLen = hrefs.length;
+    for (let i = 0; i < hrefsLen; i++) {
+        if (hrefs[i].classList.contains('notclickable') === false) {
+            hrefs[i].classList.add('clickable');
+        }
+        let parentInit = hrefs[i].parentNode.classList.contains('noInitChilds') ? true : false;
+        if (parentInit === false) {
+            parentInit = hrefs[i].parentNode.parentNode.classList.contains('noInitChilds') ? true : false;
+        }
+        if (parentInit === true) {
+            //handler on parentnode
+            continue;
+        }
+        hrefs[i].addEventListener('click', function(event) {
+            parseCmd(event, getAttDec(this, 'data-href'));
+        }, false);
+    }
+    //do not submit forms
+    const noFormSubmit = ['search', 'searchqueue', 'searchdatabase'];
+    for (let i = 0; i < noFormSubmit.length; i++) {
+        document.getElementById(noFormSubmit[i]).addEventListener('submit', function(event) {
+            event.preventDefault();
+        }, false);
+    }
+    //hide popover
+    domCache.body.addEventListener('click', function() {
+        hideMenu();
+    }, false);
+    //init moduls
+    initGlobalModals();
+    initSong();
+    initHome();
+    initBrowse();
+    initQueue();
+    initSearch();
+    initScripts();
+    initTrigger();
+    initTimer();
+    initPartitions();
+    initMounts();
+    initLocalplayer();
+    initSettings();
+    initPlayback();
+    initNavs();
+    initPlaylists();
+    //init drag and drop
+    dragAndDropTable('QueueCurrentList');
+    dragAndDropTable('BrowsePlaylistsDetailList');
+    dragAndDropTableHeader('QueueCurrent');
+    dragAndDropTableHeader('QueueLastPlayed');
+    dragAndDropTableHeader('QueueJukebox');
+    dragAndDropTableHeader('Search');
+    dragAndDropTableHeader('BrowseFilesystem');
+    dragAndDropTableHeader('BrowsePlaylistsDetail');
+    dragAndDropTableHeader('BrowseDatabaseDetail');
+    //update state on window focus - browser pauses javascript
+    window.addEventListener('focus', function() {
+        sendAPI("MPD_API_PLAYER_STATE", {}, parseState);
+    }, false);
+    //global keymap
+    document.addEventListener('keydown', function(event) {
+        if (event.target.tagName === 'INPUT' || event.target.tagName === 'SELECT' ||
+            event.target.tagName === 'TEXTAREA' || event.ctrlKey || event.altKey) {
+            return;
+        }
+        let cmd = keymap[event.key];
+        if (cmd && typeof window[cmd.cmd] === 'function') {
+            if (keymap[event.key].req === undefined || settings[keymap[event.key].req] === true)
+                parseCmd(event, cmd);
+        }        
+        
+    }, false);
+    //make tables navigateable by keyboard
+    let tables = document.getElementsByTagName('table');
+    for (let i = 0; i < tables.length; i++) {
+        tables[i].setAttribute('tabindex', 0);
+        tables[i].addEventListener('keydown', function(event) {
+            navigateTable(this, event.key);
+        }, false);
+    }
+    //contextmenu for tables
+    tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList', 
+        'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsAllList', 'BrowsePlaylistsDetailList'];
+    for (let i = 0; i < tables.length; i++) {
+        document.getElementById(tables[i]).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {
+            if (event.target.parentNode.classList.contains('not-clickable') || getAttDec(event.target.parentNode, 'data-type') === 'parentDir') {
+                return;
+            }
+            showMenu(event.target, event);
+            event.preventDefault();
+            event.stopPropagation();
+        }, false);
+    
+        document.getElementById(tables[i]).getElementsByTagName('tbody')[0].addEventListener('contextmenu', function(event) {
+            if (event.target.parentNode.classList.contains('not-clickable') || getAttDec(event.target.parentNode, 'data-type') === 'parentDir') {
+                return;
+            }
+            showMenu(event.target, event);
+            event.preventDefault();
+            event.stopPropagation();
+        }, false);
+    }
+
+    //websocket
+    window.addEventListener('beforeunload', function() {
+        webSocketClose();
+    });
+}
+
+function initGlobalModals() {
+    document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
+        sendAPI("MPD_API_DATABASE_STATS", {}, parseStats);
+        getServerinfo();
+        let list = '';
+        let i = 0;
+        for (let key in keymap) {
+            if (i === 0 || i % 2 === 0) {
+                if (i > 0) {
+                    list += '</div>';
+                }
+                list += '<div class="row row-keymap">';
+            }
+            if (keymap[key].req === undefined || settings[keymap[key].req] === true) {
+                list += '<div class="col col-keymap mb-1 d-flex"><div class="align-self-center key' + (keymap[key].key && keymap[key].key.length > 1 ? ' mi mi-small' : '') + 
+                       '">' + (keymap[key].key !== undefined ? keymap[key].key : key ) + '</div><div class="align-self-center">' + t(keymap[key].desc) + '</div></div>';
+                i++;
+            }
+        }
+        document.getElementById('shortcutList').innerHTML = list + '</div>';
+    });
+    
+    document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('updateDBprogress').classList.remove('updateDBprogressAnimate');
+    });
+}
+
+function initPlayback() {
+    let colDropdowns = ['PlaybackColsDropdown'];
+    for (let i = 0; i < colDropdowns.length; i++) {
+        document.getElementById(colDropdowns[i]).addEventListener('click', function(event) {
+            if (event.target.nodeName === 'BUTTON' && event.target.classList.contains('mi')) {
+                event.stopPropagation();
+                event.preventDefault();
+                toggleBtnChk(event.target);
+            }
+        }, false);
+    }
+
+    document.getElementById('cardPlaybackTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'P') {
+            gotoBrowse(event);
+        }
+    }, false);
+    
+    //quick plaback settings dropdown
+    document.getElementById('playDropdown').parentNode.addEventListener('show.bs.dropdown', function () {
+        showPlayDropdown();
+    });
+
+    document.getElementById('playDropdown').addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    });
+}
+
+function initNavs() {
     document.getElementById('mainMenu').addEventListener('click', function(event) {
         event.preventDefault();
     }, false);
@@ -2636,6 +3365,7 @@ function appInit() {
             sendAPI("MPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": seekVal});
         }
     }, false);
+
     domCache.progress.addEventListener('mousemove', function(event) {
         if ((playstate === 'pause' || playstate === 'play') && currentSong.totalTime > 0) {
             domCache.progressPos.innerText = beautifySongDuration(Math.ceil((currentSong.totalTime / event.target.offsetWidth) * event.clientX));
@@ -2645,26 +3375,15 @@ function appInit() {
             domCache.progressPos.style.left = posX + 'px';
         }
     }, false);
+
     domCache.progress.addEventListener('mouseout', function() {
         domCache.progressPos.style.display = 'none';
     }, false);
-
-    let collapseArrows = document.querySelectorAll('.subMenu');
-    let collapseArrowsLen = collapseArrows.length;
-    for (let i = 0; i < collapseArrowsLen; i++) {
-        collapseArrows[i].addEventListener('click', function(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            let icon = this.getElementsByTagName('span')[0];
-            icon.innerText = icon.innerText === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
-        }, false);
-    }    
-
     document.getElementById('navbar-main').addEventListener('click', function(event) {
         event.preventDefault();
-        let href = event.target.getAttribute('data-href');
+        let href = getAttDec(event.target, 'data-href');
         if (href === null) {
-            href = event.target.parentNode.getAttribute('data-href');
+            href = getAttDec(event.target.parentNode, 'data-href');
         }
         if (href !== null) {
             parseCmd(event, href);
@@ -2674,982 +3393,34 @@ function appInit() {
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
         sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs);
     });
-    
-    document.getElementById('btnDropdownNeighbors').parentNode.addEventListener('show.bs.dropdown', function () {
-        if (settings.featNeighbors === true) {
-            sendAPI("MPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors, true);
-        }
-        else {
-            document.getElementById('dropdownNeighbors').children[0].innerHTML = 
-                '<div class="list-group-item"><span class="material-icons">warning</span> ' + t('Neighbors are disabled') + '</div>';
-        }
-    });
-    
-    document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
-        event.preventDefault();
-        if (event.target.nodeName === 'A') {
-            let c = event.target.getAttribute('data-value').match(/^(\w+:\/\/)(.+)$/);
-            document.getElementById('selectMountUrlhandler').value = c[1];
-            document.getElementById('inputMountUrl').value = c[2];
-        }
-    });
-    
-    document.getElementById('BrowseFilesystemBookmark').parentNode.addEventListener('show.bs.dropdown', function () {
-        sendAPI("MYMPD_API_BOOKMARK_LIST", {"offset": 0, "limit": 0}, parseBookmarks);
-    });
-    
-    document.getElementById('playDropdown').parentNode.addEventListener('show.bs.dropdown', function () {
-        showPlayDropdown();
-    });
-
-    document.getElementById('playDropdown').addEventListener('click', function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    });
-    
-    let dropdowns = document.querySelectorAll('.dropdown-toggle');
-    for (let i = 0; i < dropdowns.length; i++) {
-        dropdowns[i].parentNode.addEventListener('show.bs.dropdown', function () {
-            alignDropdown(this);
-        });
-    }
-    
-    document.getElementById('modalTimer').addEventListener('shown.bs.modal', function () {
-        showListTimer();
-    });
-
-    document.getElementById('modalMounts').addEventListener('shown.bs.modal', function () {
-        showListMounts();
-    });
-    
-    document.getElementById('modalScripts').addEventListener('shown.bs.modal', function () {
-        showListScripts();
-    });
-    
-    document.getElementById('modalTrigger').addEventListener('shown.bs.modal', function () {
-        showListTrigger();
-    });
-    
-    document.getElementById('modalPartitions').addEventListener('shown.bs.modal', function () {
-        showListPartitions();
-    });
-    
-    document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
-        sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {"partition": "default"}, parsePartitionOutputsList, false);
-    });
-    
-    document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
-        sendAPI("MPD_API_DATABASE_STATS", {}, parseStats);
-        getServerinfo();
-        let trs = '';
-        for (let key in keymap) {
-            if (keymap[key].req === undefined || settings[keymap[key].req] === true) {
-                trs += '<tr><td><div class="key' + (keymap[key].key && keymap[key].key.length > 1 ? ' material-icons material-icons-small' : '') + 
-                       '">' + (keymap[key].key !== undefined ? keymap[key].key : key ) + '</div></td><td>' + t(keymap[key].desc) + '</td></tr>';
-            }
-        }
-        document.getElementById('tbodyShortcuts').innerHTML = trs;
-    });
-    
-    document.getElementById('modalAddToPlaylist').addEventListener('shown.bs.modal', function () {
-        if (!document.getElementById('addStreamFrm').classList.contains('hide')) {
-            document.getElementById('streamUrl').focus();
-            document.getElementById('streamUrl').value = '';
-        }
-        else {
-            document.getElementById('addToPlaylistPlaylist').focus();
-        }
-    });
-    
-    document.getElementById('inputTimerVolume').addEventListener('change', function() {
-        document.getElementById('textTimerVolume').innerHTML = this.value + '&nbsp;%';
-    }, false);
-    
-    document.getElementById('selectTimerAction').addEventListener('change', function() {
-        selectTimerActionChange();
-    }, false);
-    
-    document.getElementById('selectTriggerScript').addEventListener('change', function() {
-        selectTriggerActionChange();
-    }, false);
-    
-    let selectTimerHour = ''; 
-    for (let i = 0; i < 24; i++) {
-        selectTimerHour += '<option value="' + i + '">' + zeroPad(i, 2) + '</option>';
-    }
-    document.getElementById('selectTimerHour').innerHTML = selectTimerHour;
-    
-    let selectTimerMinute = ''; 
-    for (let i = 0; i < 60; i = i + 5) {
-        selectTimerMinute += '<option value="' + i + '">' + zeroPad(i, 2) + '</option>';
-    }
-    document.getElementById('selectTimerMinute').innerHTML = selectTimerMinute;
-    
-    document.getElementById('selectTheme').addEventListener('change', function() {
-        const value = getSelectValue(this);
-        if (value === 'theme-default') { 
-            document.getElementById('inputBgColor').value = '#ccc';
-        }
-        else if (value === 'theme-light') {
-            document.getElementById('inputBgColor').value = '#fff';
-        }
-        else if (value === 'theme-dark') {
-            document.getElementById('inputBgColor').value = '#000';
-        }
-        document.getElementById('bgColorPreview').style.backgroundColor = document.getElementById('inputBgColor').value;
-    }, false);
-    
-    document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function () {
-        document.getElementById('inputAddToQueueQuantity').classList.remove('is-invalid');
-        document.getElementById('warnJukeboxPlaylist2').classList.add('hide');
-        if (settings.featPlaylists === true) {
-            sendAPI("MPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) { 
-                getAllPlaylists(obj, 'selectAddToQueuePlaylist');
-            });
-        }
-    });
-
-    document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function () {
-        document.getElementById('updateDBprogress').classList.remove('updateDBprogressAnimate');
-    });
-    
-    document.getElementById('modalSaveQueue').addEventListener('shown.bs.modal', function () {
-        let plName = document.getElementById('saveQueueName');
-        plName.focus();
-        plName.value = '';
-        plName.classList.remove('is-invalid');
-    });
-        
-    document.getElementById('modalSettings').addEventListener('shown.bs.modal', function () {
-        getSettings();
-        document.getElementById('inputCrossfade').classList.remove('is-invalid');
-        document.getElementById('inputMixrampdb').classList.remove('is-invalid');
-        document.getElementById('inputMixrampdelay').classList.remove('is-invalid');
-        document.getElementById('inputScaleRatio').classList.remove('is-invalid');
-    });
-
-    document.getElementById('modalConnection').addEventListener('shown.bs.modal', function () {
-        getSettings();
-        document.getElementById('inputMpdHost').classList.remove('is-invalid');
-        document.getElementById('inputMpdPort').classList.remove('is-invalid');
-        document.getElementById('inputMpdPass').classList.remove('is-invalid');
-    });
-
-    document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
-        setTimeout(function() {
-            let value = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
-            if (value === '0') {
-                document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
-                document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
-            }
-            else if (value === '2') {
-                document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
-                document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
-                document.getElementById('selectJukeboxPlaylist').value = 'Database';
-            }
-            else if (value === '1') {
-                document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
-                document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
-            }
-            if (value !== '0') {
-                toggleBtnChk('btnConsume', true);            
-            }
-            checkConsume();
-        }, 100);
-    });
-    
-    document.getElementById('btnConsume').addEventListener('mouseup', function() {
-        setTimeout(function() { 
-            checkConsume(); 
-        }, 100);
-    });
-    
-    document.getElementById('btnStickers').addEventListener('mouseup', function() {
-        setTimeout(function() {
-            if (document.getElementById('btnStickers').classList.contains('active')) {
-                document.getElementById('warnPlaybackStatistics').classList.add('hide');
-                document.getElementById('inputJukeboxLastPlayed').removeAttribute('disabled');
-            }
-            else {
-                document.getElementById('warnPlaybackStatistics').classList.remove('hide');
-                document.getElementById('inputJukeboxLastPlayed').setAttribute('disabled', 'disabled');
-            }
-        }, 100);
-    });
-    
-    document.getElementById('selectAddToQueueMode').addEventListener('change', function () {
-        let value = this.options[this.selectedIndex].value;
-        if (value === '2') {
-            document.getElementById('inputAddToQueueQuantity').setAttribute('disabled', 'disabled');
-            document.getElementById('inputAddToQueueQuantity').value = '1';
-            document.getElementById('selectAddToQueuePlaylist').setAttribute('disabled', 'disabled');
-            document.getElementById('selectAddToQueuePlaylist').value = 'Database';
-        }
-        else if (value === '1') {
-            document.getElementById('inputAddToQueueQuantity').removeAttribute('disabled');
-            document.getElementById('selectAddToQueuePlaylist').removeAttribute('disabled');
-        }
-    });
-
-    document.getElementById('addToPlaylistPlaylist').addEventListener('change', function () {
-        if (this.options[this.selectedIndex].value === 'new') {
-            document.getElementById('addToPlaylistNewPlaylistDiv').classList.remove('hide');
-            document.getElementById('addToPlaylistNewPlaylist').focus();
-        }
-        else {
-            document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
-        }
-    }, false);
-    
-    document.getElementById('selectMusicDirectory').addEventListener('change', function () {
-        if (this.options[this.selectedIndex].value === 'auto') {
-            document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue;
-            document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
-        }
-        else if (this.options[this.selectedIndex].value === 'none') {
-            document.getElementById('inputMusicDirectory').value = '';
-            document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
-        }
-        else {
-            document.getElementById('inputMusicDirectory').value = '';
-            document.getElementById('inputMusicDirectory').removeAttribute('readonly');
-        }
-    }, false);
-    
-    document.getElementById('syscmds').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'A') {
-            parseCmd(event, event.target.getAttribute('data-href'));
-        }
-    }, false);
-    
-    document.getElementById('scripts').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'A') {
-            execScript(event.target.getAttribute('data-href'));
-        }
-    }, false);
-
-    let hrefs = document.querySelectorAll('[data-href]');
-    let hrefsLen = hrefs.length;
-    for (let i = 0; i < hrefsLen; i++) {
-        if (hrefs[i].classList.contains('notclickable') === false) {
-            hrefs[i].classList.add('clickable');
-        }
-        let parentInit = hrefs[i].parentNode.classList.contains('noInitChilds') ? true : false;
-        if (parentInit === false) {
-            parentInit = hrefs[i].parentNode.parentNode.classList.contains('noInitChilds') ? true : false;
-        }
-        if (parentInit === true) {
-            //handler on parentnode
-            continue;
-        }
-        hrefs[i].addEventListener('click', function(event) {
-            parseCmd(event, this.getAttribute('data-href'));
-        }, false);
-    }
-    
-    document.getElementById('HomeCards').addEventListener('click', function(event) {
-        if (event.target.classList.contains('card-body')) {
-            const href = event.target.parentNode.getAttribute('data-href');
-            if (href !== null) {
-               parseCmd(event, href);
-            }
-        }
-        else if (event.target.classList.contains('card-footer')){
-            let sels = document.getElementById('HomeCards').getElementsByClassName('selected');
-            for (let i = 0; i < sels.length; i++) {
-                sels[i].classList.remove('selected');
-            }
-            event.target.parentNode.classList.add('selected');
-            showMenu(event.target, event);
-            event.stopPropagation();
-        }
-    }, false);
-    
-    document.getElementById('HomeCards').addEventListener('keydown', function(event) {
-        navigateGrid(event.target, event.key);
-    }, false);
-    
-    dragAndDropHome();
-    
-    document.getElementById('selectHomeIconCmd').addEventListener('change', function() {
-        showHomeIconCmdOptions();
-    }, false);
-
-    document.getElementById('inputHomeIconLigature').addEventListener('change', function(event) {
-        document.getElementById('homeIconPreview').innerText = event.target.value;
-        if (event.target.value !== '') {
-            document.getElementById('selectHomeIconImage').value = '';
-            document.getElementById('homeIconPreview').style.backgroundImage = '';
-        }
-    }, false);
-    
-    document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
-        document.getElementById('homeIconPreview').style.backgroundColor = event.target.value;
-    }, false);
-    
-    document.getElementById('selectHomeIconImage').addEventListener('change', function(event) {
-        const value = getSelectValue(event.target);
-        document.getElementById('homeIconPreview').style.backgroundImage = 'url("' + subdir + '/browse/pics/' + value  + '")';
-        if (value !== '') {
-            document.getElementById('divHomeIconLigature').classList.add('hide');
-            document.getElementById('homeIconPreview').innerHTML = '';
-        }
-        else {
-            document.getElementById('divHomeIconLigature').classList.remove('hide');
-            document.getElementById('homeIconPreview').innerText = document.getElementById('inputHomeIconLigature').value;
-        }
-    }, false);
-
-    document.getElementById('cardPlaybackTags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'P') {
-            gotoBrowse();
-        }
-    }, false);
-
-    document.getElementById('BrowseBreadcrumb').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'A') {
-            event.preventDefault();
-            appGoto('Browse', 'Filesystem', undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', decodeURI(event.target.getAttribute('data-uri')));
-        }
-    }, false);
-    
-    document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'A') {
-            if (event.target.id === 'calcFingerprint') {
-                sendAPI("MPD_API_DATABASE_FINGERPRINT", {"uri": decodeURI(event.target.getAttribute('data-uri'))}, parseFingerprint);
-                event.preventDefault();
-                let parent = event.target.parentNode;
-                let spinner = document.createElement('div');
-                spinner.classList.add('spinner-border', 'spinner-border-sm');
-                event.target.classList.add('hide');
-                parent.appendChild(spinner);
-            }
-            else if (event.target.classList.contains('external')) {
-                //do nothing, link opens in new browser window
-            }
-            else if (event.target.parentNode.getAttribute('data-tag') !== null) {
-                modalSongDetails.hide();
-                event.preventDefault();
-                gotoBrowse();
-            } 
-        }
-        else if (event.target.nodeName === 'BUTTON') { 
-            if (event.target.getAttribute('data-href')) {
-                parseCmd(event, event.target.getAttribute('data-href'));
-            }
-        }
-    }, false);
 
     document.getElementById('outputs').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.stopPropagation();
             event.preventDefault();
-            sendAPI("MPD_API_PLAYER_TOGGLE_OUTPUT", {"output": event.target.getAttribute('data-output-id'), "state": (event.target.classList.contains('active') ? 0 : 1)});
+            sendAPI("MPD_API_PLAYER_TOGGLE_OUTPUT", {"output": getAttDec(event.target, 'data-output-id'), "state": (event.target.classList.contains('active') ? 0 : 1)});
             toggleBtn(event.target.id);
         }
         else if (event.target.nodeName === 'A') {
             event.preventDefault();
-            showListOutputAttributes(decodeURI(event.target.parentNode.getAttribute('data-output-name')));
-        }
-    }, false);
-    
-    document.getElementById('listTimerList').addEventListener('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        if (event.target.nodeName === 'TD') {
-            if (!event.target.parentNode.classList.contains('not-clickable')) {
-                showEditTimer(event.target.parentNode.getAttribute('data-id'));
-            }
-        }
-        else if (event.target.nodeName === 'A') {
-            deleteTimer(event.target.parentNode.parentNode.getAttribute('data-id'));
-        }
-        else if (event.target.nodeName === 'BUTTON') {
-            toggleTimer(event.target, event.target.parentNode.parentNode.getAttribute('data-id'));
+            showListOutputAttributes(getAttDec(event.target.parentNode, 'data-output-name'));
         }
     }, false);
 
-    document.getElementById('listMountsList').addEventListener('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        if (event.target.nodeName === 'TD') {
-            if (event.target.parentNode.getAttribute('data-point') === '') {
-                return false;
-            }
-            showEditMount(decodeURI(event.target.parentNode.getAttribute('data-url')),decodeURI(event.target.parentNode.getAttribute('data-point')));
-        }
-        else if (event.target.nodeName === 'A') {
-            let action = event.target.getAttribute('data-action');
-            let mountPoint = decodeURI(event.target.parentNode.parentNode.getAttribute('data-point'));
-            if (action === 'unmount') {
-                unmountMount(mountPoint);
-            }
-            else if (action === 'update') {
-                updateMount(event.target, mountPoint);
-            }
-        }
-    }, false);
-    
-    document.getElementById('listScriptsList').addEventListener('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        if (event.target.nodeName === 'TD') {
-            if (settings.featScripteditor === false || event.target.parentNode.getAttribute('data-script') === '') {
-                return false;
-            }
-            showEditScript(decodeURI(event.target.parentNode.getAttribute('data-script')));
-        }
-        else if (event.target.nodeName === 'A') {
-            let action = event.target.getAttribute('data-action');
-            let script = decodeURI(event.target.parentNode.parentNode.getAttribute('data-script'));
-            if (action === 'delete') {
-                deleteScript(script);
-            }
-            else if (action === 'execute') {
-                execScript(event.target.getAttribute('data-href'));
-            }
-            else if (action === 'add2home') {
-                addScriptToHome(script, event.target.getAttribute('data-href'))
-            }
-        }
-    }, false);
-    
-    document.getElementById('listTriggerList').addEventListener('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        if (event.target.nodeName === 'TD') {
-            let id = decodeURI(event.target.parentNode.getAttribute('data-trigger-id'));
-            showEditTrigger(id);
-        }
-        else if (event.target.nodeName === 'A') {
-            let action = event.target.getAttribute('data-action');
-            let id = decodeURI(event.target.parentNode.parentNode.getAttribute('data-trigger-id'));
-            if (action === 'delete') {
-                deleteTrigger(id);
-            }
-        }
-    }, false);
-    
-    document.getElementById('listPartitionsList').addEventListener('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
+    document.getElementById('syscmds').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
-            let action = event.target.getAttribute('data-action');
-            let partition = decodeURI(event.target.parentNode.parentNode.getAttribute('data-partition'));
-            if (action === 'delete') {
-                deletePartition(partition);
-            }
-            else if (action === 'switch') {
-                switchPartition(partition);
-            }
+            parseCmd(event, getAttDec(event.target, 'data-href'));
         }
     }, false);
     
-    document.getElementById('partitionOutputsList').addEventListener('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        if (event.target.nodeName === 'TD') {
-            let outputName = decodeURI(event.target.parentNode.getAttribute('data-output'));
-            moveOutput(outputName);
-            modalPartitionOutputs.hide();
-        }
-    }, false);
-    
-    document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            sendAPI("MPD_API_PLAYER_PLAY_TRACK", {"track": event.target.parentNode.getAttribute('data-trackid')});
-        }
-        else if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
-        }
-    }, false);
-    
-    document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
+    document.getElementById('scripts').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
+            execScript(getAttDec(event.target, 'data-href'));
         }
     }, false);
-
-    document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
-        }
-    }, false);
-
-    document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            switch(event.target.parentNode.getAttribute('data-type')) {
-                case 'parentDir':
-                case 'dir':
-                    app.current.filter = '-';
-                    appGoto('Browse', 'Filesystem', undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', decodeURI(event.target.parentNode.getAttribute("data-uri")));
-                    break;
-                case 'song':
-                    appendQueue('song', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
-                    break;
-                case 'plist':
-                    appendQueue('plist', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
-                    break;
-            }
-        }
-        else if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
-        }
-    }, false);
-
-    document.getElementById('BrowseFilesystemBookmarks').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'A') {
-            let id = event.target.parentNode.parentNode.getAttribute('data-id');
-            let type = event.target.parentNode.parentNode.getAttribute('data-type');
-            let uri = decodeURI(event.target.parentNode.parentNode.getAttribute('data-uri'));
-            let name = event.target.parentNode.parentNode.firstChild.innerText;
-            let href = event.target.getAttribute('data-href');
-            
-            if (href === 'delete') {
-                sendAPI("MYMPD_API_BOOKMARK_RM", {"id": id}, function() {
-                    sendAPI("MYMPD_API_BOOKMARK_LIST", {"offset": 0, "limit": 0}, parseBookmarks);
-                });
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            else if (href === 'edit') {
-                showBookmarkSave(id, name, uri, type);
-            }
-            else if (href === 'goto') {
-                appGoto('Browse', 'Filesystem', undefined, '0', undefined, '-','-','-', uri);
-            }
-        }
-    }, false);
-
-    document.getElementById('BrowsePlaylistsAllList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            appendQueue('plist', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
-        }
-        else if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
-        }
-    }, false);
-
-    document.getElementById('BrowsePlaylistsDetailList').addEventListener('click', function(event) {
-        if (event.target.parentNode.parentNode.nodeName === 'TFOOT') {
-            return;
-        }
-        if (event.target.nodeName === 'TD') {
-            appendQueue('song', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
-        }
-        else if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
-        }
-    }, false);    
-    
-    document.getElementById('SearchList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            appendQueue('song', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
-        }
-        else if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
-        }
-    }, false);
-
-    document.getElementById('BrowseDatabaseCards').addEventListener('click', function(event) {
-        if (app.current.tag === 'Album') {
-            if (event.target.classList.contains('card-body')) {
-                appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', 'AlbumArtist', 
-                    decodeURI(event.target.parentNode.getAttribute('data-album')), 
-                    decodeURI(event.target.parentNode.getAttribute('data-albumartist')));
-            }
-            else if (event.target.classList.contains('card-footer')){
-                showMenu(event.target, event);
-                const selCards = document.getElementById('BrowseDatabaseCards').getElementsByClassName('selected');
-                for (let i = 0; i < selCards.length; i++) {
-                    selCards[i].classList.remove('selected');
-                }
-                event.target.parentNode.classList.add('selected');
-            }
-        }
-        else {
-            app.current.search = '';
-            document.getElementById('searchDatabaseStr').value = '';
-            appGoto(app.current.app, app.current.card, undefined, 0, undefined, 'Album', 'AlbumArtist', 'Album', 
-                '(' + app.current.tag + ' == \'' + decodeURI(event.target.parentNode.getAttribute('data-tag')) + '\')');
-        }
-    }, false);
-    
-    document.getElementById('BrowseDatabaseCards').addEventListener('keydown', function(event) {
-        navigateGrid(event.target, event.key);
-    }, false);
-    
-    if (isMobile === false) {
-        document.getElementById('BrowseDatabaseCards').addEventListener('mouseover', function(event) {
-            if (event.target.classList.contains('card-body') && event.target.childNodes.length === 0) {
-                const oldEls = document.getElementById('BrowseDatabaseCards').getElementsByClassName('album-grid-mouseover');
-                if (oldEls.length > 1) {
-                    for (let i = 0; i < oldEls.length; i++) {
-                        oldEls[i].remove();
-                    }
-                }
-                addPlayButton(event.target);
-            }
-        }, false);
-
-        document.getElementById('BrowseDatabaseCards').addEventListener('mouseout', function(event) {
-            if (event.target.classList.contains('card-body') && (event.relatedTarget === null || ! event.relatedTarget.classList.contains('album-grid-mouseover'))) {
-                event.target.innerHTML = '';
-            }
-        }, false);
-    }
-    
-    document.getElementById('BrowseDatabaseDetailList').addEventListener('click', function(event) {
-        if (event.target.parentNode.parentNode.nodeName === 'TFOOT') {
-            return;
-        }
-        if (event.target.nodeName === 'TD') {
-            appendQueue('song', decodeURI(event.target.parentNode.getAttribute('data-uri')), event.target.parentNode.getAttribute('data-name'));
-        }
-        else if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
-        }
-    }, false);
-
-    document.getElementById('searchtags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON') {
-            app.current.filter = event.target.getAttribute('data-tag');
-            doSearch(domCache.searchstr.value);
-        }
-    }, false);
-    
-    document.getElementById('searchDatabaseTags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON') {
-            app.current.filter = event.target.getAttribute('data-tag');
-            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
-        }
-    }, false);
-    
-    document.getElementById('databaseSortDesc').addEventListener('click', function(event) {
-        toggleBtnChk(this);
-        event.stopPropagation();
-        event.preventDefault();
-        if (app.current.sort.charAt(0) === '-') {
-            app.current.sort = app.current.sort.substr(1);
-        }
-        else {
-            app.current.sort = '-' + app.current.sort;
-        }
-        appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
-    }, false);
-
-    document.getElementById('databaseSortTags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON') {
-            event.preventDefault();
-            event.stopPropagation();
-            app.current.sort = event.target.getAttribute('data-tag');
-            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
-        }
-    }, false);
-
-    document.getElementById('BrowseDatabaseByTagDropdown').addEventListener('click', function(event) {
-        navBrowseHandler(event);
-    }, false);
-    document.getElementById('BrowseNavPlaylistsDropdown').addEventListener('click', function(event) {
-        navBrowseHandler(event);
-    }, false);
-    document.getElementById('BrowseNavFilesystemDropdown').addEventListener('click', function(event) {
-        navBrowseHandler(event);
-    }, false);
-
-    document.getElementById('dropdownSortPlaylistTags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON') {
-            event.preventDefault();
-            playlistSort(event.target.getAttribute('data-tag'));
-        }
-    }, false);
-
-    document.getElementById('searchqueuestr').addEventListener('keyup', function(event) {
-        if (event.key === 'Escape') {
-            this.blur();
-        }
-        else {
-            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter , app.current.sort, '-', this.value);
-        }
-    }, false);
-
-    document.getElementById('searchqueuetags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON') {
-            appGoto(app.current.app, app.current.tab, app.current.view, 
-                app.current.offset, app.current.limit, event.target.getAttribute('data-tag'), app.current.sort, '-', app.current.search);
-        }
-    }, false);
-    
-    document.getElementById('searchFilesystemStr').addEventListener('keyup', function(event) {
-        if (event.key === 'Escape') {
-            this.blur();
-        }
-        else {
-            appGoto(app.current.app, app.current.tab, app.current.view, 
-                '0', app.current.limit, (this.value !== '' ? this.value : '-'), app.current.sort, '-', app.current.search);
-        }
-    }, false);
-    
-    document.getElementById('searchPlaylistsStr').addEventListener('keyup', function(event) {
-        if (event.key === 'Escape') {
-            this.blur();
-        }
-        else {
-            appGoto(app.current.app, app.current.tab, app.current.view, 
-                '0', app.current.limit, app.current.filter, app.current.sort, '-', this.value);
-        }
-    }, false);
-
-    let colDropdowns = ['PlaybackColsDropdown'];
-    for (let i = 0; i < colDropdowns.length; i++) {
-        document.getElementById(colDropdowns[i]).addEventListener('click', function(event) {
-            if (event.target.nodeName === 'BUTTON' && event.target.classList.contains('material-icons')) {
-                event.stopPropagation();
-                event.preventDefault();
-                toggleBtnChk(event.target);
-            }
-        }, false);
-    }
-
-
-    const noFormSubmit = ['search', 'searchqueue', 'searchdatabase'];
-    for (let i = 0; i < noFormSubmit.length; i++) {
-        document.getElementById(noFormSubmit[i]).addEventListener('submit', function(event) {
-            event.preventDefault();
-        }, false);
-    }
-
-    document.getElementById('searchDatabaseStr').addEventListener('keyup', function(event) {
-        if (event.key === 'Escape') {
-            this.blur();
-        }
-        else if (event.key === 'Enter' && app.current.tag === 'Album') {
-            if (this.value !== '') {
-                let match = document.getElementById('searchDatabaseMatch');
-                let li = document.createElement('button');
-                li.classList.add('btn', 'btn-light', 'mr-2');
-                li.setAttribute('data-filter-tag', encodeURI(app.current.filter));
-                li.setAttribute('data-filter-op', encodeURI(match.options[match.selectedIndex].value));
-                li.setAttribute('data-filter-value', encodeURI(this.value));
-                li.innerHTML = e(app.current.filter) + ' ' + e(match.options[match.selectedIndex].value) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
-                this.value = '';
-                document.getElementById('searchDatabaseCrumb').appendChild(li);
-            }
-            else {
-                searchAlbumgrid(this.value);
-            }
-        }
-        else if (app.current.tag === 'Album') {
-            searchAlbumgrid(this.value);
-        }
-        else {
-            appGoto(app.current.app, app.current.tab, app.current.view, 
-                '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, this.value);        
-        }
-    }, false);
-
-    document.getElementById('searchDatabaseCrumb').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'SPAN') {
-            event.preventDefault();
-            event.stopPropagation();
-            event.target.parentNode.remove();
-            searchAlbumgrid('');
-        }
-        else if (event.target.nodeName === 'BUTTON') {
-            event.preventDefault();
-            event.stopPropagation();
-            selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', decodeURI(event.target.getAttribute('data-filter-tag')));
-            document.getElementById('searchDatabaseStr').value = unescapeMPD(decodeURI(event.target.getAttribute('data-filter-value')));
-            document.getElementById('searchDatabaseMatch').value = decodeURI(event.target.getAttribute('data-filter-op'));
-            event.target.remove();
-            searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
-        }
-    }, false);
-
-    domCache.searchstr.addEventListener('keyup', function(event) {
-        if (event.key === 'Escape') {
-            this.blur();
-        }
-        else if (event.key === 'Enter' && settings.featAdvsearch) {
-            if (this.value !== '') {
-                let match = document.getElementById('searchMatch');
-                let li = document.createElement('button');
-                li.classList.add('btn', 'btn-light', 'mr-2');
-                li.setAttribute('data-filter-tag', encodeURI(app.current.filter));
-                li.setAttribute('data-filter-op', encodeURI(match.options[match.selectedIndex].value));
-                li.setAttribute('data-filter-value', encodeURI(this.value));
-                li.innerHTML = e(app.current.filter) + ' ' + e(match.options[match.selectedIndex].value) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
-                this.value = '';
-                domCache.searchCrumb.appendChild(li);
-            }
-            else {
-                doSearch(this.value);
-            }
-        }
-        else {
-            doSearch(this.value);
-        }
-    }, false);
-
-    domCache.searchCrumb.addEventListener('click', function(event) {
-        if (event.target.nodeName === 'SPAN') {
-            event.preventDefault();
-            event.stopPropagation();
-            event.target.parentNode.remove();
-            doSearch('');
-        }
-        else if (event.target.nodeName === 'BUTTON') {
-            event.preventDefault();
-            event.stopPropagation();
-            domCache.searchstr.value = unescapeMPD(decodeURI(event.target.getAttribute('data-filter-value')));
-            selectTag('searchtags', 'searchtagsdesc', decodeURI(event.target.getAttribute('data-filter-tag')));
-            document.getElementById('searchMatch').value = decodeURI(event.target.getAttribute('data-filter-op'));
-            event.target.remove();
-            doSearch(domCache.searchstr.value);
-        }
-    }, false);
-
-    document.getElementById('searchMatch').addEventListener('change', function() {
-        doSearch(domCache.searchstr.value);
-    }, false);
-    
-    document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
-        if (settings.featAdvsearch) {
-            if (event.target.nodeName === 'TH') {
-                if (event.target.innerHTML === '') {
-                    return;
-                }
-                let col = event.target.getAttribute('data-col');
-                if (col === 'Duration') {
-                    return;
-                }
-                let sortcol = app.current.sort;
-                let sortdesc = true;
-                
-                if (sortcol === col || sortcol === '-' + col) {
-                    if (sortcol.indexOf('-') === 0) {
-                        sortdesc = true;
-                        col = sortcol.substring(1);
-                    }
-                    else {
-                        sortdesc = false;
-                    }
-                }
-                if (sortdesc === false) {
-                    sortcol = '-' + col;
-                    sortdesc = true;
-                }
-                else {
-                    sortdesc = false;
-                    sortcol = col;
-                }
-                
-                let s = document.getElementById('SearchList').getElementsByClassName('sort-dir');
-                for (let i = 0; i < s.length; i++) {
-                    s[i].remove();
-                }
-                app.current.sort = sortcol;
-                event.target.innerHTML = t(col) + '<span class="sort-dir material-icons pull-right">' + 
-                    (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
-                appGoto(app.current.app, app.current.tab, app.current.view,
-                    app.current.offset, app.current.limit, app.current.filter,  app.current.sort, '-', app.current.search);
-            }
-        }
-    }, false);
-
-    document.getElementById('inputScriptArgument').addEventListener('keyup', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            event.stopPropagation();
-            addScriptArgument();
-        }
-    }, false);
-    
-    document.getElementById('selectScriptArguments').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'OPTION') {
-            removeScriptArgument(event);
-        }
-    }, false);
-
-    document.getElementsByTagName('body')[0].addEventListener('click', function() {
-        hideMenu();
-    }, false);
-
-    dragAndDropTable('QueueCurrentList');
-    dragAndDropTable('BrowsePlaylistsDetailList');
-    dragAndDropTableHeader('QueueCurrent');
-    dragAndDropTableHeader('QueueLastPlayed');
-    dragAndDropTableHeader('QueueJukebox');
-    dragAndDropTableHeader('Search');
-    dragAndDropTableHeader('BrowseFilesystem');
-    dragAndDropTableHeader('BrowsePlaylistsDetail');
-    dragAndDropTableHeader('BrowseDatabaseDetail');
-
-    window.addEventListener('focus', function() {
-        sendAPI("MPD_API_PLAYER_STATE", {}, parseState);
-    }, false);
-
-
-    document.addEventListener('keydown', function(event) {
-        if (event.target.tagName === 'INPUT' || event.target.tagName === 'SELECT' ||
-            event.target.tagName === 'TEXTAREA' || event.ctrlKey || event.altKey) {
-            return;
-        }
-        let cmd = keymap[event.key];
-        if (cmd && typeof window[cmd.cmd] === 'function') {
-            if (keymap[event.key].req === undefined || settings[keymap[event.key].req] === true)
-                parseCmd(event, cmd);
-        }        
-        
-    }, false);
-    
-
-    let tables = document.getElementsByTagName('table');
-    for (let i = 0; i < tables.length; i++) {
-        tables[i].setAttribute('tabindex', 0);
-        tables[i].addEventListener('keydown', function(event) {
-            navigateTable(this, event.key);
-        }, false);
-    }
-
-    let selectThemeHtml = '';
-    Object.keys(themes).forEach(function(key) {
-        selectThemeHtml += '<option value="' + e(key) + '">' + t(themes[key]) + '</option>';
-    });
-    document.getElementById('selectTheme').innerHTML = selectThemeHtml;
-
-    window.addEventListener('beforeunload', function() {
-        webSocketClose();
-    });
-    
-    document.getElementById('alertLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        clickCheckLocalPlayerState(event);
-    }, false);
-    
-    document.getElementById('errorLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        clickCheckLocalPlayerState(event);
-    }, false);
-
-    document.getElementById('localPlayer').addEventListener('click', function(event) {
-        event.stopPropagation();
-    });
-    
-    document.getElementById('localPlayer').addEventListener('canplay', function() {
-        logDebug('localPlayer event: canplay');
-        document.getElementById('alertLocalPlayback').classList.add('hide');
-        document.getElementById('errorLocalPlayback').classList.add('hide');
-    });
-    document.getElementById('localPlayer').addEventListener('error', function() {
-        logError('localPlayer event: error');
-        document.getElementById('errorLocalPlayback').classList.remove('hide');
-    });
 }
 
-//Init app
+//Handle javascript errors
 window.onerror = function(msg, url, line) {
     logError('JavaScript error: ' + msg + ' (' + url + ': ' + line + ')');
     if (settings.loglevel >= 4) {
@@ -3662,7 +3433,7 @@ window.onerror = function(msg, url, line) {
     }
     return true;
 };
-
+//Start app
 appInitStart();
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
@@ -3672,13 +3443,9 @@ appInitStart();
 
 function setStateIcon() {
     if (websocketConnected === false || settings.mpdConnected === false) {
-//        domCache.mainMenu.classList.add('text-light');
-//        domCache.mainMenu.classList.remove('connected');
         document.getElementById('logoBg').setAttribute('fill', '#6c757d');
     }
     else {
-//        domCache.mainMenu.classList.add('connected');
-//        domCache.mainMenu.classList.remove('text-light');
         document.getElementById('logoBg').setAttribute('fill', settings.highlightColor);
     }
 }
@@ -3696,12 +3463,6 @@ function toggleAlert(alertBox, state, msg) {
 }
 
 function showNotification(notificationTitle, notificationText, notificationHtml, notificationType) {
-    if (notificationTitle === 'No current song' ||
-        notificationTitle === 'No lyrics found'
-    ) {
-        return;
-    }
-
     if (settings.notificationWeb === true) {
         let notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
         setTimeout(notification.close.bind(notification), 3000);
@@ -3722,13 +3483,13 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         
         let toast = '<div class="toast-header">';
         if (notificationType === 'success' ) {
-            toast += '<span class="material-icons text-success mr-2">info</span>';
+            toast += '<span class="mi text-success mr-2">info</span>';
         }
         else if (notificationType === 'warning' ) {
-            toast += '<span class="material-icons text-warning mr-2">warning</span>';
+            toast += '<span class="mi text-warning mr-2">warning</span>';
         }
         else {
-            toast += '<span class="material-icons text-danger mr-2">error</span>';
+            toast += '<span class="mi text-danger mr-2">error</span>';
         }
         toast += '<strong class="mr-auto">' + e(notificationTitle) + '</strong>' +
             '<button type="button" class="ml-2 mb-1 close">&times;</button></div>';
@@ -3769,19 +3530,19 @@ function logMessage(notificationTitle, notificationText, notificationHtml, notif
     let append = true;
     let lastEntry = overview.firstElementChild;
     if (lastEntry) {
-        if (lastEntry.getAttribute('data-title') === notificationTitle) {
+        if (getAttDec(lastEntry, 'data-title') === notificationTitle) {
             append = false;        
         }
     }
 
     let entry = document.createElement('div');
     entry.classList.add('text-light');
-    entry.setAttribute('data-title', notificationTitle);
+    setAttEnc(entry, 'data-title', notificationTitle);
     let occurence = 1;
     if (append === false) {
-        occurence += parseInt(lastEntry.getAttribute('data-occurence'));
+        occurence += parseInt(getAttDec(lastEntry, 'data-occurence'));
     }
-    entry.setAttribute('data-occurence', occurence);
+    setAttEnc(entry, 'data-occurence', occurence);
     entry.innerHTML = '<small>' + localeDate() + '&nbsp;&ndash;&nbsp;' + t(notificationType) +
         (occurence > 1 ? '&nbsp;(' + occurence + ')' : '') + '</small>' +
         '<p>' + e(notificationTitle) +
@@ -3841,14 +3602,14 @@ function setElsState(tag, state, type) {
         if (state === 'disabled') {
             if (els[i].classList.contains('alwaysEnabled') === false) {
                 if (els[i].getAttribute('disabled') === null) {
-                    els[i].setAttribute('disabled', 'disabled');
+                    disableEl(els[i]);
                     els[i].classList.add('disabled');
                 }
             }
         }
         else {
             if (els[i].classList.contains('disabled')) {
-                els[i].removeAttribute('disabled');
+                enableEl(els[i]);
                 els[i].classList.remove('disabled');
             }
         }
@@ -3875,6 +3636,7 @@ function toggleUI() {
         logDebug('Setting ui state to ' + state);
         setElsState('a', state, 'tag');
         setElsState('input', state, 'tag');
+        setElsState('select', state, 'tag');
         setElsState('button', state, 'tag');
         setElsState('clickable', state, 'class');
         uiEnabled = enabled;
@@ -3904,6 +3666,41 @@ function toggleUI() {
  https://github.com/jcorporation/mympd
 */
 
+function initPartitions() {
+    document.getElementById('listPartitionsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'A') {
+            let action = event.target.getAttribute('data-action');
+            let partition = decodeURI(event.target.parentNode.parentNode.getAttribute('data-partition'));
+            if (action === 'delete') {
+                deletePartition(partition);
+            }
+            else if (action === 'switch') {
+                switchPartition(partition);
+            }
+        }
+    }, false);
+    
+    document.getElementById('partitionOutputsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            let outputName = decodeURI(event.target.parentNode.getAttribute('data-output'));
+            moveOutput(outputName);
+            modalPartitionOutputs.hide();
+        }
+    }, false);
+
+    document.getElementById('modalPartitions').addEventListener('shown.bs.modal', function () {
+        showListPartitions();
+    });
+
+    document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
+        sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {"partition": "default"}, parsePartitionOutputsList, false);
+    });
+}
+
 function moveOutput(output) {
     sendAPI("MPD_API_PARTITION_OUTPUT_MOVE", {"name": output});
 }
@@ -3925,7 +3722,7 @@ function parsePartitionOutputsList(obj) {
         }
     }
     if (nr === 0) {
-        outputList = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span>&nbsp;' +
+        outputList = '<tr class="not-clickable"><td><span class="mi">error_outline</span>&nbsp;' +
             t('Empty list') + '</td></tr>';
     }
     document.getElementById('partitionOutputsList').innerHTML = outputList;
@@ -3955,7 +3752,7 @@ function showNewPartition() {
     document.getElementById('newPartitionFooter').classList.remove('hide');
     
     const nameEl = document.getElementById('inputPartitionName');
-    nameEl.classList.remove('is-invalid');
+    removeIsInvalid(document.getElementById('modalPartitions'));
     nameEl.value = '';
     nameEl.focus();
 }
@@ -4003,14 +3800,14 @@ function parsePartitionList(obj) {
                 '</td>' +
                 '<td data-col="Action">' +
                 (obj.result.data[i].name === 'default' || obj.result.data[i].name === settings.partition  ? '' : 
-                    '<a href="#" title="' + t('Delete') + '" data-action="delete" class="material-icons color-darkgrey">delete</a>') +
-                (obj.result.data[i].name !== settings.partition ? '<a href="#" title="' + t('Switch to') + '" data-action="switch" class="material-icons color-darkgrey">check_circle</a>' : '') +
+                    '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>') +
+                (obj.result.data[i].name !== settings.partition ? '<a href="#" title="' + t('Switch to') + '" data-action="switch" class="mi color-darkgrey">check_circle</a>' : '') +
                 '</td></tr>';
         }
         document.getElementById('listPartitionsList').innerHTML = partitionList;
     }
     else {
-        document.getElementById('listPartitionsList').innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+        document.getElementById('listPartitionsList').innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
             '<td colspan="2">' + t('Empty list') + '</td></tr>';
     }
 }
@@ -4020,7 +3817,51 @@ function parsePartitionList(obj) {
  https://github.com/jcorporation/mympd
 */
 
+function initPlaylists() {
+    document.getElementById('modalAddToPlaylist').addEventListener('shown.bs.modal', function () {
+        if (!document.getElementById('addStreamFrm').classList.contains('hide')) {
+            document.getElementById('streamUrl').focus();
+            document.getElementById('streamUrl').value = '';
+        }
+        else {
+            document.getElementById('addToPlaylistPlaylist').focus();
+        }
+    });
+    
+    document.getElementById('addToPlaylistPlaylist').addEventListener('change', function () {
+        if (getSelectValue(this) === 'new') {
+            document.getElementById('addToPlaylistNewPlaylistDiv').classList.remove('hide');
+            document.getElementById('addToPlaylistNewPlaylist').focus();
+        }
+        else {
+            document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
+        }
+    }, false);
+    
+   document.getElementById('BrowsePlaylistsAllList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'TD') {
+            clickPlaylist(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+
+    document.getElementById('BrowsePlaylistsDetailList').addEventListener('click', function(event) {
+        if (event.target.parentNode.parentNode.nodeName === 'TFOOT') {
+            return;
+        }
+        if (event.target.nodeName === 'TD') {
+            clickSong(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+}
+
 function parsePlaylists(obj) {
+
     if (app.current.view === 'All') {
         document.getElementById('BrowsePlaylistsAllList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsDetailList').classList.add('hide');
@@ -4032,16 +3873,16 @@ function parsePlaylists(obj) {
     }
     else {
         if (obj.result.uri.indexOf('.') > -1 || obj.result.smartpls === true) {
-            document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'true')
+            setAttEnc(document.getElementById('BrowsePlaylistsDetailList'), 'data-ro', 'true');
             document.getElementById('playlistContentBtns').classList.add('hide');
             document.getElementById('smartPlaylistContentBtns').classList.remove('hide');
         }
         else {
-            document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'false');
+            setAttEnc(document.getElementById('BrowsePlaylistsDetailList'), 'data-ro', 'false');
             document.getElementById('playlistContentBtns').classList.remove('hide');
             document.getElementById('smartPlaylistContentBtns').classList.add('hide');
         }
-        document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-uri', obj.result.uri);
+        setAttEnc(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri', obj.result.uri);
         document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = 
             (obj.result.smartpls === true ? t('Smart playlist') : t('Playlist'))  + ': ' + obj.result.uri;
         document.getElementById('BrowsePlaylistsDetailList').classList.remove('hide');
@@ -4058,17 +3899,18 @@ function parsePlaylists(obj) {
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
     let activeRow = 0;
     if (app.current.view === 'All') {
+        const rowTitle = advancedSettingsDefault.clickPlaylist.validValues[settings.advanced.clickPlaylist];
         for (let i = 0; i < nrItems; i++) {
-            let uri = encodeURI(obj.result.data[i].uri);
             let row = document.createElement('tr');
-            row.setAttribute('data-uri', uri);
-            row.setAttribute('data-type', obj.result.data[i].Type);
-            row.setAttribute('data-name', obj.result.data[i].name);
+            setAttEnc(row, 'data-uri', obj.result.data[i].uri);
+            setAttEnc(row, 'data-type', obj.result.data[i].Type);
+            setAttEnc(row, 'data-name', obj.result.data[i].name);
             row.setAttribute('tabindex', 0);
-            row.innerHTML = '<td data-col="Type"><span class="material-icons">' + (obj.result.data[i].Type === 'smartpls' ? 'queue_music' : 'list') + '</span></td>' +
+            row.setAttribute('title', t(rowTitle));
+            row.innerHTML = '<td data-col="Type"><span class="mi">' + (obj.result.data[i].Type === 'smartpls' ? 'queue_music' : 'list') + '</span></td>' +
                             '<td>' + e(obj.result.data[i].name) + '</td>' +
                             '<td>'+ localeDate(obj.result.data[i].last_modified) + '</td>' +
-                            '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td>';
+                            '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
             if (i < tr.length) {
                 activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
             }
@@ -4079,24 +3921,25 @@ function parsePlaylists(obj) {
         //document.getElementById('cardFooterBrowse').innerText = gtPage('Num playlists', obj.result.returnedEntities, obj.result.totalEntities);
     }
     else if (app.current.view === 'Detail') {
+        const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
         for (let i = 0; i < nrItems; i++) {
-            let uri = encodeURI(obj.result.data[i].uri);
             let row = document.createElement('tr');
             if (obj.result.smartpls === false) {
                 row.setAttribute('draggable','true');
             }
             row.setAttribute('id','playlistTrackId' + obj.result.data[i].Pos);
-            row.setAttribute('data-type', obj.result.data[i].Type);
-            row.setAttribute('data-uri', uri);
-            row.setAttribute('data-name', obj.result.data[i].Title);
-            row.setAttribute('data-songpos', obj.result.data[i].Pos);
+            setAttEnc(row, 'data-type', obj.result.data[i].Type);
+            setAttEnc(row, 'data-uri', obj.result.data[i].uri);
+            setAttEnc(row, 'data-name', obj.result.data[i].Title);
+            setAttEnc(row, 'data-songpos', obj.result.data[i].Pos);
             row.setAttribute('tabindex', 0);
+            row.setAttribute('title', t(rowTitle));
             obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
             let tds = '';
             for (let c = 0; c < settings.colsBrowsePlaylistsDetail.length; c++) {
                 tds += '<td data-col="' + settings.colsBrowsePlaylistsDetail[c] + '">' + e(obj.result.data[i][settings.colsBrowsePlaylistsDetail[c]]) + '</td>';
             }
-            tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td>';
+            tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
             row.innerHTML = tds;
 
             if (i < tr.length) {
@@ -4124,11 +3967,11 @@ function parsePlaylists(obj) {
     
     if (nrItems === 0) {
         if (app.current.view === 'All') {
-            tbody.innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+            tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
                               '<td colspan="3">' + t('No playlists found') + '</td></tr>';
         }
         else {
-            tbody.innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+            tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
                               '<td colspan="' + settings.colsBrowsePlaylistsDetail.length + '">' + t('Empty playlist') + '</td></tr>';
         }
     }
@@ -4144,21 +3987,21 @@ function playlistDetails(uri) {
 
 //eslint-disable-next-line no-unused-vars
 function playlistClear() {
-    let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
+    let uri = getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri');
     sendAPI("MPD_API_PLAYLIST_CLEAR", {"uri": uri});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
 //eslint-disable-next-line no-unused-vars
 function playlistShuffle() {
-    let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
+    let uri = getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri');
     sendAPI("MPD_API_PLAYLIST_SHUFFLE", {"uri": uri});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
 //eslint-disable-next-line no-unused-vars
 function playlistSort(tag) {
-    let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
+    let uri = getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri');
     sendAPI("MPD_API_PLAYLIST_SORT", {"uri": uri, "tag": tag});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
@@ -4221,9 +4064,9 @@ function toggleAddToPlaylistFrm() {
 function parseSmartPlaylist(obj) {
     let nameEl = document.getElementById('saveSmartPlaylistName');
     nameEl.value = obj.result.playlist;
-    nameEl.classList.remove('is-invalid');
+    removeIsInvalid(document.getElementById('modalSaveSmartPlaylist'));
     document.getElementById('saveSmartPlaylistType').value = t(obj.result.type);
-    document.getElementById('saveSmartPlaylistType').setAttribute('data-value', obj.result.type);
+    setAttEnc(document.getElementById('saveSmartPlaylistType'), 'data-value', obj.result.type);
     document.getElementById('saveSmartPlaylistSearch').classList.add('hide');
     document.getElementById('saveSmartPlaylistSticker').classList.add('hide');
     document.getElementById('saveSmartPlaylistNewest').classList.add('hide');
@@ -4268,19 +4111,16 @@ function parseSmartPlaylist(obj) {
 //eslint-disable-next-line no-unused-vars
 function saveSmartPlaylist() {
     let name = document.getElementById('saveSmartPlaylistName').value;
-    let type = document.getElementById('saveSmartPlaylistType').getAttribute('data-value');
-    let sortEl = document.getElementById('saveSmartPlaylistSort');
-    let sort = sortEl.options[sortEl.selectedIndex].value;
+    let type = getAttDec(document.getElementById('saveSmartPlaylistType'), 'data-value');
+    let sort = getSelectValue('saveSmartPlaylistSort');
     if (validatePlname(name) === true) {
         if (type === 'search') {
-            let tagEl = document.getElementById('selectSaveSmartPlaylistTag');
-            let tag = tagEl.options[tagEl.selectedIndex].value;
+            let tag = getSelectValue('selectSaveSmartPlaylistTag');
             let searchstr = document.getElementById('inputSaveSmartPlaylistSearchstr').value;
             sendAPI("MPD_API_SMARTPLS_SAVE", {"type": type, "playlist": name, "tag": tag, "searchstr": searchstr, "sort": sort});
         }
         else if (type === 'sticker') {
-            let stickerEl = document.getElementById('selectSaveSmartPlaylistSticker');
-            let sticker = stickerEl.options[stickerEl.selectedIndex].value;
+            let sticker = getSelectValue('selectSaveSmartPlaylistSticker'); 
             let maxentriesEl = document.getElementById('inputSaveSmartPlaylistStickerMaxentries');
             if (!validateInt(maxentriesEl)) {
                 return;
@@ -4339,17 +4179,15 @@ function addSmartpls(type) {
 
 //eslint-disable-next-line no-unused-vars
 function deletePlaylists() {
-    let selectDeletePlaylists = document.getElementById('selectDeletePlaylists');
-    let btnDeletePlaylists = document.getElementById('btnDeletePlaylists');
-    btnWaiting(btnDeletePlaylists, true);
-    sendAPI("MPD_API_PLAYLIST_RM_ALL", {"type": selectDeletePlaylists.options[selectDeletePlaylists.selectedIndex].value}, function() {
-        btnWaiting(btnDeletePlaylists, false);
+    btnWaiting(document.getElementById('btnDeletePlaylists'), true);
+    sendAPI("MPD_API_PLAYLIST_RM_ALL", {"type": getSelectValue('selectDeletePlaylists')}, function() {
+        btnWaiting(document.getElementById('btnDeletePlaylists'), false);
     });
 }
 
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistCurrentSong() {
-    let uri = document.getElementById('currentTitle').getAttribute('data-uri');
+    let uri = getAttDec(document.getElementById('currentTitle'), 'data-uri');
     if (uri !== '') {
         showAddToPlaylist(uri, '');
     }
@@ -4366,12 +4204,11 @@ function showAddToPlaylist(uri, searchstr) {
     document.getElementById('addToPlaylistPlaylist').innerHTML = '';
     document.getElementById('addToPlaylistNewPlaylist').value = '';
     document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
-    document.getElementById('addToPlaylistNewPlaylist').classList.remove('is-invalid');
     toggleBtn('toggleAddToPlaylistBtn',0);
     let streamUrl = document.getElementById('streamUrl')
     streamUrl.focus();
     streamUrl.value = '';
-    streamUrl.classList.remove('is-invalid');
+    removeIsInvalid(document.getElementById('modalAddToPlaylist'));
     if (uri !== 'stream') {
         document.getElementById('addStreamFooter').classList.add('hide');
         document.getElementById('addStreamFrm').classList.add('hide');
@@ -4404,8 +4241,7 @@ function addToPlaylist() {
             return;
         }
     }
-    let plistEl = document.getElementById('addToPlaylistPlaylist');
-    let plist = plistEl.options[plistEl.selectedIndex].value;
+    let plist = getSelectValue('addToPlaylistPlaylist');
     if (plist === 'new') {
         let newPl = document.getElementById('addToPlaylistNewPlaylist').value;
         if (validatePlname(newPl) === true) {
@@ -4439,7 +4275,7 @@ function addToPlaylist() {
 
 //eslint-disable-next-line no-unused-vars
 function showRenamePlaylist(from) {
-    document.getElementById('renamePlaylistTo').classList.remove('is-invalid');
+    removeIsInvalid(document.getElementById('modalRenamePlaylist'));
     modalRenamePlaylist.show();
     document.getElementById('renamePlaylistFrom').value = from;
     document.getElementById('renamePlaylistTo').value = '';
@@ -4470,7 +4306,7 @@ function updateSmartPlaylist(playlist) {
 
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylistClick() {
-    let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
+    let uri = getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri');
     sendAPI("MPDWORKER_API_SMARTPLS_UPDATE", {"playlist": uri});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
@@ -4499,7 +4335,7 @@ function addSelectedItemToPlaylist() {
         if (item.parentNode.parentNode.id === 'BrowsePlaylistsAllList') {
             return;
         }
-        showAddToPlaylist(item.getAttribute('data-uri'), '');
+        showAddToPlaylist(getAttDec(item, 'data-uri'), '');
     }
 }
 /*
@@ -4547,9 +4383,6 @@ function showMenu(el, event) {
     event.preventDefault();
     event.stopPropagation();
     hideMenu();
-    //if (el.getAttribute('data-init')) {
-    //    return;
-    //}
     if (el.parentNode.nodeName === 'TH') {
         showMenuTh(el);
     }
@@ -4569,12 +4402,12 @@ function showMenuTh(el) {
         '<div class="popover-content" id="' + table + 'ColsDropdown' + '">' + menu + '</div>' +
         '</div>', content: ' '});
     let popoverInit = el.Popover;
-    if (el.getAttribute('data-init') === null) {
-        el.setAttribute('data-init', 'true');
+    if (getAttDec(el, 'data-init') === null) {
+        setAttEnc(el, 'data-init', 'true');
         el.addEventListener('shown.bs.popover', function(event) {
-            event.target.setAttribute('data-popover', 'true');
+            setAttEnc(event.target, 'data-popover', 'true');
             document.getElementById('colChecklist' + table).addEventListener('click', function(eventClick) {
-                if (eventClick.target.nodeName === 'BUTTON' && eventClick.target.classList.contains('material-icons')) {
+                if (eventClick.target.nodeName === 'BUTTON' && eventClick.target.classList.contains('mi')) {
                     toggleBtnChk(eventClick.target);
                     eventClick.preventDefault();
                     eventClick.stopPropagation();
@@ -4590,19 +4423,19 @@ function showMenuTh(el) {
 }
 
 function showMenuTd(el) {
-    let type = el.getAttribute('data-type');
-    let uri = decodeURI(el.getAttribute('data-uri'));
-    let name = decodeURI(el.getAttribute('data-name'));
+    let type = getAttDec(el, 'data-type');
+    let uri = getAttDec(el, 'data-uri');
+    let name = getAttDec(el, 'data-name');
     let nextsongpos = 0;
     if (type === null || uri === '') {
-        type = el.parentNode.getAttribute('data-type');
-        uri = decodeURI(el.parentNode.getAttribute('data-uri'));
-        name = el.parentNode.getAttribute('data-name');
+        type = getAttDec(el.parentNode, 'data-type');
+        uri = getAttDec(el.parentNode, 'data-uri');
+        name = getAttDec(el.parentNode, 'data-name');
     }
     if (type === null || uri === '') {
-        type = el.parentNode.parentNode.getAttribute('data-type');
-        uri = decodeURI(el.parentNode.parentNode.getAttribute('data-uri'));
-        name = el.parentNode.parentNode.getAttribute('data-name');
+        type = getAttDec(el.parentNode.parentNode, 'data-type');
+        uri = getAttDec(el.parentNode.parentNode, 'data-uri');
+        name = getAttDec(el.parentNode.parentNode, 'data-name');
     }
     
     if (lastState) {
@@ -4612,6 +4445,9 @@ function showMenuTd(el) {
     let menu = '';
     if ((app.current.app === 'Browse' && app.current.tab === 'Filesystem') || app.current.app === 'Search' ||
         (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail')) {
+        if (app.current.tab === 'Filesystem') {
+            menu += (type === 'dir' && settings.featBookmarks ? addMenuItem({"cmd": "appGoto", "options": ["Browse", "Filesystem", undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', uri]}, t('Open folder')) : '');
+        }
         menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
             (type === 'song' ? addMenuItem({"cmd": "appendAfterQueue", "options": [type, uri, nextsongpos, name]}, t('Add after current playing song')) : '') +
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
@@ -4628,10 +4464,10 @@ function showMenuTd(el) {
         if (app.current.app === 'Search') {
             const curTr = el.parentNode.parentNode;
             if (curTr.hasAttribute('data-album') && curTr.hasAttribute('data-albumartist')) {
-                const vAlbum = decodeURI(curTr.getAttribute('data-album'));
-                const vAlbumArtist = decodeURI(curTr.getAttribute('data-albumartist'));
+                const vAlbum = getAttDec(curTr, 'data-album');
+                const vAlbumArtist = getAttDec(curTr, 'data-albumartist');
                 menu += '<div class="dropdown-divider"></div>' +
-                    '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="material-icons material-icons-left">keyboard_arrow_right</span>Album actions</a>' +
+                    '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="mi mi-left">keyboard_arrow_right</span>Album actions</a>' +
                     '<div class="collapse" id="advancedMenu">' +
                         addMenuItem({"cmd": "_addAlbum", "options": ["appendQueue", vAlbumArtist, vAlbum]}, t('Append to queue')) +
                         addMenuItem({"cmd": "_addAlbum", "options": ["replaceQueue", vAlbumArtist, vAlbum]}, t('Replace queue')) +
@@ -4642,7 +4478,7 @@ function showMenuTd(el) {
                 //songs must be arragend in one album per folder
                 const baseuri = dirname(uri);
                 menu += '<div class="dropdown-divider"></div>' +
-                    '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="material-icons material-icons-left">keyboard_arrow_right</span>Folder actions</a>' +
+                    '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="mi mi-left">keyboard_arrow_right</span>Folder actions</a>' +
                     '<div class="collapse" id="advancedMenu">' +
                         addMenuItem({"cmd": "appendQueue", "options": [type, baseuri, name]}, t('Append to queue')) +
                         addMenuItem({"cmd": "appendAfterQueue", "options": [type, baseuri, nextsongpos, name]}, t('Add after current playing song')) +
@@ -4653,8 +4489,8 @@ function showMenuTd(el) {
         }
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
-        const albumArtist = decodeURI(el.parentNode.getAttribute('data-albumartist'));
-        const album = decodeURI(el.parentNode.getAttribute('data-album'));
+        const albumArtist = getAttDec(el.parentNode, 'data-albumartist');
+        const album = getAttDec(el.parentNode, 'data-album');
         menu += addMenuItem({"cmd": "appGoto", "options": ["Browse", "Database", "Detail", 0, undefined, "Album", tagAlbumArtist, album, albumArtist]}, t('Show album')) +
             addMenuItem({"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album]}, t('Append to queue')) +
             addMenuItem({"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album]}, t('Replace queue')) +
@@ -4671,20 +4507,21 @@ function showMenuTd(el) {
             (settings.featHome === true ?addMenuItem({"cmd": "addPlistToHome", "options": [uri, name]}, t('Add to homescreen')) : '');
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-        let x = document.getElementById('BrowsePlaylistsDetailList');
+        const x = document.getElementById('BrowsePlaylistsDetailList');
         menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
-            (x.getAttribute('data-ro') === 'false' ? addMenuItem({"cmd": "removeFromPlaylist", "options": [x.getAttribute('data-uri'), 
-                    el.parentNode.parentNode.getAttribute('data-songpos')]}, t('Remove')) : '') +
+            (getAttDec(x, 'data-ro') === 'false' ? addMenuItem({"cmd": "removeFromPlaylist", "options": [getAttDec(x, 'data-uri'), 
+                    getAttDec(el.parentNode.parentNode, 'data-songpos')]}, t('Remove')) : '') +
             (settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
             (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'Current') {
-        const trackid = parseInt(el.parentNode.parentNode.getAttribute('data-trackid'));
-        menu += ( trackid !== lastState.currentSongId ? addMenuItem({"cmd": "playAfterCurrent", "options": [trackid, el.parentNode.parentNode.getAttribute('data-songpos')]}, t('Play after current playing song')) : '') +
+        const trackid = parseInt(getAttDec(el.parentNode.parentNode, 'data-trackid'));
+        const songpos = parseInt(getAttDec(el.parentNode.parentNode, 'data-songpos'));
+        menu += ( trackid !== lastState.currentSongId ? addMenuItem({"cmd": "playAfterCurrent", "options": [trackid, songpos]}, t('Play after current playing song')) : '') +
             addMenuItem({"cmd": "delQueueSong", "options": ["single", trackid]}, t('Remove')) +
-            addMenuItem({"cmd": "delQueueSong", "options": ["range", 0, el.parentNode.parentNode.getAttribute('data-songpos')]}, t('Remove all upwards')) +
-            addMenuItem({"cmd": "delQueueSong", "options": ["range", (parseInt(el.parentNode.parentNode.getAttribute('data-songpos'))-1), -1]}, t('Remove all downwards')) +
+            addMenuItem({"cmd": "delQueueSong", "options": ["range", 0, songpos]}, t('Remove all upwards')) +
+            addMenuItem({"cmd": "delQueueSong", "options": ["range", (songpos - 1), -1]}, t('Remove all downwards')) +
             (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
@@ -4694,12 +4531,20 @@ function showMenuTd(el) {
             (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
+        const pos = parseInt(getAttDec(el.parentNode.parentNode, 'data-pos'));
         menu += addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) +
-            addMenuItem({"cmd": "delQueueJukeboxSong", "options": [el.parentNode.parentNode.getAttribute('data-pos')]}, t('Remove'));
+            addMenuItem({"cmd": "delQueueJukeboxSong", "options": [pos]}, t('Remove'));
     }
     else if (app.current.app === 'Home') {
-        const pos = parseInt(el.parentNode.getAttribute('data-pos'));
-        const href = JSON.parse(el.parentNode.getAttribute('data-href'));
+        let pos = parseInt(getAttDec(el.parentNode, 'data-pos'));
+        let href = JSON.parse(getAttDec(el.parentNode, 'data-href'));
+        if (href === null) {
+            pos = parseInt(getAttDec(el, 'data-pos'));
+            href = JSON.parse(getAttDec(el, 'data-href'));
+        }
+        if (href === null) {
+            return;
+        }
         let actionDesc = '';
         if (href.cmd === 'replaceQueue' && href.options[0] === 'plist') {
             type = 'plist';
@@ -4730,15 +4575,15 @@ function showMenuTd(el) {
         '<div class="popover-content">' + menu + '</div>' +
         '</div>', content: ' '});
     let popoverInit = el.Popover;
-    if (el.getAttribute('data-init') === null) {
-        el.setAttribute('data-init', 'true');
+    if (getAttDec(el, 'data-init') === null) {
+        setAttEnc(el, 'data-init', 'true');
         el.addEventListener('shown.bs.popover', function(event) {
-            event.target.setAttribute('data-popover', 'true');
+            setAttEnc(event.target, 'data-popover', 'true');
             document.getElementsByClassName('popover-content')[0].addEventListener('click', function(eventClick) {
                 eventClick.preventDefault();
                 eventClick.stopPropagation();
                 if (eventClick.target.nodeName === 'A') {
-                    let dh = eventClick.target.getAttribute('data-href');
+                    let dh = getAttDec(eventClick.target, 'data-href');
                     if (dh) {
                         let cmd = JSON.parse(b64DecodeUnicode(dh));
                         parseCmd(event, cmd);
@@ -4794,6 +4639,82 @@ function showMenuTd(el) {
  https://github.com/jcorporation/mympd
 */
 
+function initQueue() {
+    document.getElementById('searchqueuestr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter , app.current.sort, '-', this.value);
+        }
+    }, false);
+
+    document.getElementById('searchqueuetags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                app.current.offset, app.current.limit, getAttDec(event.target, 'data-tag'), app.current.sort, '-', app.current.search);
+        }
+    }, false);
+
+    document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'TD') {
+            clickQueueSong(getAttDec(event.target.parentNode, 'data-trackid'), getAttDec(event.target.parentNode, 'data-uri'));
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+    
+    document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'TD') {
+            clickSong(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+
+    document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'TD') {
+            clickSong(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+
+    document.getElementById('selectAddToQueueMode').addEventListener('change', function () {
+        let value = getSelectValue(this);
+        if (value === '2') {
+            disableEl('inputAddToQueueQuantity');
+            document.getElementById('inputAddToQueueQuantity').value = '1';
+            disableEl('selectAddToQueuePlaylist');
+            document.getElementById('selectAddToQueuePlaylist').value = 'Database';
+        }
+        else if (value === '1') {
+            enableEl('inputAddToQueueQuantity');
+            enableEl('selectAddToQueuePlaylist');
+        }
+    });
+
+    document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function () {
+        removeIsInvalid(document.getElementById('modalAddToQueue'));
+        document.getElementById('warnJukeboxPlaylist2').classList.add('hide');
+        if (settings.featPlaylists === true) {
+            sendAPI("MPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) { 
+                getAllPlaylists(obj, 'selectAddToQueuePlaylist');
+            });
+        }
+    });
+
+    document.getElementById('modalSaveQueue').addEventListener('shown.bs.modal', function () {
+        let plName = document.getElementById('saveQueueName');
+        plName.focus();
+        plName.value = '';
+        removeIsInvalid(document.getElementById('modalSaveQueue'));
+    });
+}
+
 function parseUpdateQueue(obj) {
     //Set playstate
     if (obj.result.state === 1) {
@@ -4827,12 +4748,12 @@ function parseUpdateQueue(obj) {
 
     if (obj.result.queueLength === 0) {
         for (let i = 0; i < domCache.btnsPlayLen; i++) {
-            domCache.btnsPlay[i].setAttribute('disabled', 'disabled');
+            disableEl(domCache.btnsPlay[i]);
         }
     }
     else {
         for (let i = 0; i < domCache.btnsPlayLen; i++) {
-            domCache.btnsPlay[i].removeAttribute('disabled');
+            enableEl(domCache.btnsPlay[i]);
         }
     }
 
@@ -4842,17 +4763,17 @@ function parseUpdateQueue(obj) {
     domCache.badgeQueueItems.innerText = obj.result.queueLength;
     
     if (obj.result.nextSongPos === -1 && settings.jukeboxMode === false) {
-        domCache.btnNext.setAttribute('disabled', 'disabled');
+        disableEl(domCache.btnNext);
     }
     else {
-        domCache.btnNext.removeAttribute('disabled');
+        enableEl(domCache.btnNext);
     }
     
     if (obj.result.songPos < 0) {
-        domCache.btnPrev.setAttribute('disabled', 'disabled');
+        disableEl(domCache.btnPrev);
     }
     else {
-        domCache.btnPrev.removeAttribute('disabled');
+        enableEl(domCache.btnPrev);
     }
 }
 
@@ -4893,10 +4814,11 @@ function parseQueue(obj) {
         document.getElementById('btnQueueGotoPlayingSong').parentNode.classList.add('hide');
     }
 
+    const rowTitle = advancedSettingsDefault.clickQueueSong.validValues[settings.advanced.clickQueueSong];
     let nrItems = obj.result.returnedEntities;
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
     let activeRow = 0;
-    table.setAttribute('data-version', obj.result.queueVersion);
+    setAttEnc(table, 'data-version', obj.result.queueVersion);
     let tbody = table.getElementsByTagName('tbody')[0];
     let tr = tbody.getElementsByTagName('tr');
     for (let i = 0; i < nrItems; i++) {
@@ -4904,17 +4826,18 @@ function parseQueue(obj) {
         obj.result.data[i].Pos++;
         let row = document.createElement('tr');
         row.setAttribute('draggable', 'true');
-        row.setAttribute('data-trackid', obj.result.data[i].id);
         row.setAttribute('id','queueTrackId' + obj.result.data[i].id);
-        row.setAttribute('data-songpos', obj.result.data[i].Pos);
-        row.setAttribute('data-duration', obj.result.data[i].Duration);
-        row.setAttribute('data-uri', obj.result.data[i].uri);
         row.setAttribute('tabindex', 0);
+        row.setAttribute('title', t(rowTitle));
+        setAttEnc(row, 'data-trackid', obj.result.data[i].id);
+        setAttEnc(row, 'data-songpos', obj.result.data[i].Pos);
+        setAttEnc(row, 'data-duration', obj.result.data[i].Duration);
+        setAttEnc(row, 'data-uri', obj.result.data[i].uri);
         let tds = '';
         for (let c = 0; c < settings.colsQueueCurrent.length; c++) {
-            tds += '<td data-col="' + settings.colsQueueCurrent[c] + '">' + e(obj.result.data[i][settings.colsQueueCurrent[c]]) + '</td>';
+            tds += '<td data-col="' + encodeURI(settings.colsQueueCurrent[c]) + '">' + e(obj.result.data[i][settings.colsQueueCurrent[c]]) + '</td>';
         }
-        tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td>';
+        tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
         row.innerHTML = tds;
         if (i < tr.length) {
             activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
@@ -4929,11 +4852,11 @@ function parseQueue(obj) {
     }
 
     if (obj.result.method === 'MPD_API_QUEUE_SEARCH' && nrItems === 0) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('No results, please refine your search') + '</td></tr>';
     }
     else if (obj.result.method === 'MPD_API_QUEUE_LIST' && nrItems === 0) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('Empty queue') + '</td></tr>';
     }
 
@@ -4945,7 +4868,7 @@ function parseQueue(obj) {
 }
 
 function parseLastPlayed(obj) {
-    //document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities);
+    const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
     let nrItems = obj.result.returnedEntities;
     let table = document.getElementById('QueueLastPlayedList');
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
@@ -4956,17 +4879,18 @@ function parseLastPlayed(obj) {
         obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
         obj.result.data[i].LastPlayed = localeDate(obj.result.data[i].LastPlayed);
         let row = document.createElement('tr');
-        row.setAttribute('data-uri', obj.result.data[i].uri);
-        row.setAttribute('data-name', obj.result.data[i].Title);
-        row.setAttribute('data-type', 'song');
+        setAttEnc(row, 'data-uri', obj.result.data[i].uri);
+        setAttEnc(row, 'data-name', obj.result.data[i].Title);
+        setAttEnc(row, 'data-type', 'song');
         row.setAttribute('tabindex', 0);
+        row.setAttribute('title', t(rowTitle));
         let tds = '';
         for (let c = 0; c < settings.colsQueueLastPlayed.length; c++) {
-            tds += '<td data-col="' + settings.colsQueueLastPlayed[c] + '">' + e(obj.result.data[i][settings.colsQueueLastPlayed[c]]) + '</td>';
+            tds += '<td data-col="' + encodeURI(settings.colsQueueLastPlayed[c]) + '">' + e(obj.result.data[i][settings.colsQueueLastPlayed[c]]) + '</td>';
         }
         tds += '<td data-col="Action">';
         if (obj.result.data[i].uri !== '') {
-            tds += '<a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a>';
+            tds += '<a href="#" class="mi color-darkgrey">' + ligatureMore + '</a>';
         }
         tds += '</td>';
         row.innerHTML = tds;
@@ -4985,7 +4909,7 @@ function parseLastPlayed(obj) {
     let colspan = settings['colsQueueLastPlayed'].length;
     
     if (nrItems === 0) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
             '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
     }
 
@@ -5005,10 +4929,10 @@ function queueSelectedItem(append) {
             return;
         }
         if (append === true) {
-            appendQueue(item.getAttribute('data-type'), item.getAttribute('data-uri'), item.getAttribute('data-name'));
+            appendQueue(getAttDec(item, 'data-type'), getAttDec(item, 'data-uri'), getAttDec(item, 'data-name'));
         }
         else {
-            replaceQueue(item.getAttribute('data-type'), item.getAttribute('data-uri'), item.getAttribute('data-name'));
+            replaceQueue(getAttDec(item, 'data-type'), getAttDec(item, 'data-uri'), getAttDec(item, 'data-name'));
         }
     }
 }
@@ -5020,7 +4944,7 @@ function dequeueSelectedItem() {
         if (item.parentNode.parentNode.id !== 'QueueCurrentList') {
             return;
         }
-        delQueueSong('single', item.getAttribute('data-trackid'));
+        delQueueSong('single', getAttDec(item, 'data-trackid'));
     }
 }
 
@@ -5066,16 +4990,13 @@ function replaceQueue(type, uri, name) {
 //eslint-disable-next-line no-unused-vars
 function addToQueue() {
     let formOK = true;
-    let inputAddToQueueQuantityEl = document.getElementById('inputAddToQueueQuantity');
+    const inputAddToQueueQuantityEl = document.getElementById('inputAddToQueueQuantity');
     if (!validateInt(inputAddToQueueQuantityEl)) {
         formOK = false;
     }
     
-    let selectAddToQueueMode = document.getElementById('selectAddToQueueMode');
-    let jukeboxMode = selectAddToQueueMode.options[selectAddToQueueMode.selectedIndex].value
-
-    let selectAddToQueuePlaylist = document.getElementById('selectAddToQueuePlaylist');
-    let jukeboxPlaylist = selectAddToQueuePlaylist.options[selectAddToQueuePlaylist.selectedIndex].value;
+    const jukeboxMode = getSelectValue('selectAddToQueueMode');
+    const jukeboxPlaylist = getSelectValue('selectAddToQueuePlaylist');
     
     if (jukeboxMode === '1' && settings.featSearchwindow === false && jukeboxPlaylist === 'Database') {
         document.getElementById('warnJukeboxPlaylist2').classList.remove('hide');
@@ -5137,6 +5058,50 @@ function playAfterCurrent(trackid, songpos) {
  https://github.com/jcorporation/mympd
 */
 
+function initScripts() {
+    document.getElementById('inputScriptArgument').addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            addScriptArgument();
+        }
+    }, false);
+    
+    document.getElementById('selectScriptArguments').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'OPTION') {
+            removeScriptArgument(event);
+        }
+    }, false);
+
+    document.getElementById('listScriptsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            if (settings.featScripteditor === false || getAttDec(event.target.parentNode, 'data-script') === '') {
+                return false;
+            }
+            showEditScript(getAttDec(event.target.parentNode, 'data-script'));
+        }
+        else if (event.target.nodeName === 'A') {
+            let action = getAttDec(event.target, 'data-action');
+            let script = getAttDec(event.target.parentNode.parentNode, 'data-script');
+            if (action === 'delete') {
+                deleteScript(script);
+            }
+            else if (action === 'execute') {
+                execScript(getAttDec(event.target, 'data-href'));
+            }
+            else if (action === 'add2home') {
+                addScriptToHome(script, getAttDec(event.target, 'data-href'))
+            }
+        }
+    }, false);
+
+    document.getElementById('modalScripts').addEventListener('shown.bs.modal', function () {
+        showListScripts();
+    });
+}
+
 //eslint-disable-next-line no-unused-vars
 function saveScript() {
     let formOK = true;
@@ -5191,10 +5156,8 @@ function showEditScript(script) {
     document.getElementById('listScriptsFooter').classList.add('hide');
     document.getElementById('editScriptFooter').classList.remove('hide');
     
-    document.getElementById('inputScriptName').classList.remove('is-invalid');
-    document.getElementById('inputScriptOrder').classList.remove('is-invalid');
-    document.getElementById('inputScriptArgument').classList.remove('is-invalid');
-    
+    removeIsInvalid(document.getElementById('modalScripts'));
+      
     if (script !== '') {
         sendAPI("MYMPD_API_SCRIPT_GET", {"script": script}, parseEditScript, false);
     }
@@ -5243,7 +5206,7 @@ function getScriptList(all) {
 
 function parseScriptList(obj) {
     let timerActions = document.createElement('optgroup');
-    timerActions.setAttribute('data-value', 'script');
+    setAttEnc(timerActions, 'data-value', 'script');
     timerActions.setAttribute('label', t('Script'));
     let scriptMaxListLen = 4;
     let scriptListMain = ''; //list in main menu
@@ -5271,10 +5234,10 @@ function parseScriptList(obj) {
             scriptList += '<tr data-script="' + encodeURI(obj.result.data[i].name) + '"><td>' + e(obj.result.data[i].name) + '</td>' +
                 '<td data-col="Action">' +
                     (settings.featScripteditor === true ? 
-                        '<a href="#" title="' + t('Delete') + '" data-action="delete" class="material-icons color-darkgrey">delete</a>' : '') +
-                        '<a href="#" title="' + t('Execute') + '" data-action="execute" class="material-icons color-darkgrey" ' +
+                        '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>' : '') +
+                        '<a href="#" title="' + t('Execute') + '" data-action="execute" class="mi color-darkgrey" ' +
                             ' data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>play_arrow</a>' +
-                        '<a href="#" title="' + t('Add to homescreen') + '" data-action="add2home" class="material-icons color-darkgrey" ' +
+                        '<a href="#" title="' + t('Add to homescreen') + '" data-action="add2home" class="mi color-darkgrey" ' +
                             ' data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>add_to_home_screen</a>' +
                 '</td></tr>';
             timerActions.innerHTML += '<option data-arguments=\'{"arguments":[' + arglist + ']}\' value="' + 
@@ -5283,7 +5246,7 @@ function parseScriptList(obj) {
         document.getElementById('listScriptsList').innerHTML = scriptList;
     }
     else {
-        document.getElementById('listScriptsList').innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+        document.getElementById('listScriptsList').innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
             '<td colspan="2">' + t('Empty list') + '</td></tr>';
     }
     document.getElementById('scripts').innerHTML = (showScriptListLen > scriptMaxListLen || showScriptListLen === 0 ? '' : '<div class="dropdown-divider"></div>') + scriptListMain;
@@ -5354,21 +5317,129 @@ function execScriptArgs() {
  https://github.com/jcorporation/mympd
 */
 
+function initSearch() {
+    document.getElementById('SearchList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'TD') {
+            clickSong(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+    
+    document.getElementById('searchtags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            app.current.filter = getAttDec(event.target, 'data-tag');
+            doSearch(domCache.searchstr.value);
+        }
+    }, false);
+
+    domCache.searchstr.addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else if (event.key === 'Enter' && settings.featAdvsearch) {
+            if (this.value !== '') {
+                let match = getSelectValue(document.getElementById('searchMatch'));
+                let li = document.createElement('button');
+                li.classList.add('btn', 'btn-light', 'mr-2');
+                setAttEnc(li, 'data-filter-tag', app.current.filter);
+                setAttEnc(li, 'data-filter-op', match);
+                setAttEnc(li, 'data-filter-value', this.value);
+                li.innerHTML = e(app.current.filter) + ' ' + e(match) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
+                this.value = '';
+                domCache.searchCrumb.appendChild(li);
+            }
+            else {
+                doSearch(this.value);
+            }
+        }
+        else {
+            doSearch(this.value);
+        }
+    }, false);
+
+    domCache.searchCrumb.addEventListener('click', function(event) {
+        if (event.target.nodeName === 'SPAN') {
+            event.preventDefault();
+            event.stopPropagation();
+            event.target.parentNode.remove();
+            doSearch('');
+        }
+        else if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            event.stopPropagation();
+            domCache.searchstr.value = unescapeMPD(getAttDec(event.target, 'data-filter-value'));
+            selectTag('searchtags', 'searchtagsdesc', getAttDec(event.target, 'data-filter-tag'));
+            document.getElementById('searchMatch').value = getAttDec(event.target, 'data-filter-op');
+            event.target.remove();
+            doSearch(domCache.searchstr.value);
+        }
+    }, false);
+
+    document.getElementById('searchMatch').addEventListener('change', function() {
+        doSearch(domCache.searchstr.value);
+    }, false);
+    
+    document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
+        if (settings.featAdvsearch) {
+            if (event.target.nodeName === 'TH') {
+                if (event.target.innerHTML === '') {
+                    return;
+                }
+                let col = event.target.getAttribute('data-col');
+                if (col === 'Duration') {
+                    return;
+                }
+                let sortcol = app.current.sort;
+                let sortdesc = true;
+                
+                if (sortcol === col || sortcol === '-' + col) {
+                    if (sortcol.indexOf('-') === 0) {
+                        sortdesc = true;
+                        col = sortcol.substring(1);
+                    }
+                    else {
+                        sortdesc = false;
+                    }
+                }
+                if (sortdesc === false) {
+                    sortcol = '-' + col;
+                    sortdesc = true;
+                }
+                else {
+                    sortdesc = false;
+                    sortcol = col;
+                }
+                
+                let s = document.getElementById('SearchList').getElementsByClassName('sort-dir');
+                for (let i = 0; i < s.length; i++) {
+                    s[i].remove();
+                }
+                app.current.sort = sortcol;
+                event.target.innerHTML = t(col) + '<span class="sort-dir mi pull-right">' + 
+                    (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
+                appGoto(app.current.app, app.current.tab, app.current.view,
+                    app.current.offset, app.current.limit, app.current.filter,  app.current.sort, '-', app.current.search);
+            }
+        }
+    }, false);
+}
+
 function doSearch(x) {
     if (settings.featAdvsearch) {
         let expression = '(';
         let crumbs = domCache.searchCrumb.children;
         for (let i = 0; i < crumbs.length; i++) {
-            expression += '(' + decodeURI(crumbs[i].getAttribute('data-filter-tag')) + ' ' + 
-                decodeURI(crumbs[i].getAttribute('data-filter-op')) + ' \'' + 
-                escapeMPD(decodeURI(crumbs[i].getAttribute('data-filter-value'))) + '\')';
+            expression += '(' + getAttDec(crumbs[i], 'data-filter-tag') + ' ' + 
+                getAttDec(crumbs[i], 'data-filter-op') + ' \'' + 
+                escapeMPD(getAttDec(crumbs[i], 'data-filter-value')) + '\')';
             if (x !== '') {
                 expression += ' AND ';
             }
         }
         if (x !== '') {
-            let match = document.getElementById('searchMatch');
-            expression += '(' + app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + escapeMPD(x) +'\'))';
+            expression += '(' + app.current.filter + ' ' + getSelectValue('searchMatch') + ' \'' + escapeMPD(x) +'\'))';
         }
         else {
             expression += ')';
@@ -5384,16 +5455,13 @@ function doSearch(x) {
 }
 
 function parseSearch(obj) {
-    //document.getElementById('panel-heading-search').innerText = gtPage('Num songs', obj.result.returnedEntities, obj.result.totalEntities);
-    //document.getElementById('cardFooterSearch').innerText = gtPage('Num songs', obj.result.returnedEntities, obj.result.totalEntities);
-    
     if (obj.result.returnedEntities > 0) {
-        document.getElementById('searchAddAllSongs').removeAttribute('disabled');
-        document.getElementById('searchAddAllSongsBtn').removeAttribute('disabled');
+        enableEl('searchAddAllSongs');
+        enableEl('searchAddAllSongsBtn');
     } 
     else {
-        document.getElementById('searchAddAllSongs').setAttribute('disabled', 'disabled');
-        document.getElementById('searchAddAllSongsBtn').setAttribute('disabled', 'disabled');
+        disableEl('searchAddAllSongs');
+        disableEl('searchAddAllSongsBtn');
     }
     parseFilesystem(obj);
 }
@@ -5437,14 +5505,154 @@ function addAllFromSearchPlist(plist, searchstr, replace) {
  https://github.com/jcorporation/mympd
 */
 
+var advancedSettingsDefault = {
+    "clickSong": { 
+        "defaultValue": "append", 
+        "validValues": { 
+            "append": "Append to queue", 
+            "replace": "Replace queue", 
+            "view": "Song details"
+        }, 
+        "inputType": "select",
+        "title": "Click song"
+        
+    },
+    "clickQueueSong": { 
+        "defaultValue": "play", 
+        "validValues": {
+            "play": "Play", 
+            "view": "Song details",
+        },
+        "inputType": "select",
+        "title": "Click song in queue"
+    },
+    "clickPlaylist": { 
+        "defaultValue": "append", 
+        "validValues": {
+            "append": "Append to queue",
+            "replace": "Replace queue",
+            "view": "View playlist"
+        },
+        "inputType": "select",
+        "title": "Click playlist"
+    },
+    "clickFolder": { 
+        "defaultValue": "view", 
+        "validValues": {
+            "append": "Append to queue",
+            "replace": "Replace queue",
+            "view": "Open folder"
+        },
+        "inputType": "select",
+        "title": "Click folder"
+    },
+    "clickAlbumPlay": { 
+        "defaultValue": "replace", 
+        "validValues": {
+            "append": "Append to queue",
+            "replace": "Replace queue",
+        },
+        "inputType": "select",
+        "title": "Click album play button"
+    }
+};
+
+function initSettings() {
+    let selectThemeHtml = '';
+    Object.keys(themes).forEach(function(key) {
+        selectThemeHtml += '<option value="' + e(key) + '">' + t(themes[key]) + '</option>';
+    });
+    document.getElementById('selectTheme').innerHTML = selectThemeHtml;
+
+    document.getElementById('selectTheme').addEventListener('change', function(event) {
+        const value = getSelectValue(event.target);
+        if (value === 'theme-default') { 
+            document.getElementById('inputBgColor').value = '#aaaaaa';
+        }
+        else if (value === 'theme-light') {
+            document.getElementById('inputBgColor').value = '#ffffff';
+        }
+        else if (value === 'theme-dark') {
+            document.getElementById('inputBgColor').value = '#000000';
+        }
+    }, false);
+
+    document.getElementById('selectMusicDirectory').addEventListener('change', function () {
+        let musicDirMode = getSelectValue(this);
+        if (musicDirMode === 'auto') {
+            document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue;
+            document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
+        }
+        else if (musicDirMode === 'none') {
+            document.getElementById('inputMusicDirectory').value = '';
+            document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
+        }
+        else {
+            document.getElementById('inputMusicDirectory').value = '';
+            document.getElementById('inputMusicDirectory').removeAttribute('readonly');
+        }
+    }, false);
+
+    document.getElementById('modalSettings').addEventListener('shown.bs.modal', function () {
+        getSettings();
+        removeIsInvalid(document.getElementById('modalSettings'));
+    });
+
+    document.getElementById('modalConnection').addEventListener('shown.bs.modal', function () {
+        getSettings();
+        removeIsInvalid(document.getElementById('modalConnection'));
+    });
+
+    document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
+        setTimeout(function() {
+            let value = getAttDec(document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
+            if (value === '0') {
+                disableEl('inputJukeboxQueueLength');
+                disableEl('selectJukeboxPlaylist');
+            }
+            else if (value === '2') {
+                disableEl('inputJukeboxQueueLength');
+                disableEl('selectJukeboxPlaylist');
+                document.getElementById('selectJukeboxPlaylist').value = 'Database';
+            }
+            else if (value === '1') {
+                enableEl('inputJukeboxQueueLength');
+                enableEl('selectJukeboxPlaylist');
+            }
+            if (value !== '0') {
+                toggleBtnChk('btnConsume', true);            
+            }
+            checkConsume();
+        }, 100);
+    });
+    
+    document.getElementById('btnConsume').addEventListener('mouseup', function() {
+        setTimeout(function() { 
+            checkConsume(); 
+        }, 100);
+    });
+    
+    document.getElementById('btnStickers').addEventListener('mouseup', function() {
+        setTimeout(function() {
+            if (document.getElementById('btnStickers').classList.contains('active')) {
+                document.getElementById('warnPlaybackStatistics').classList.add('hide');
+                enableEl('inputJukeboxLastPlayed');
+            }
+            else {
+                document.getElementById('warnPlaybackStatistics').classList.remove('hide');
+                disableEl('inputJukeboxLastPlayed');
+            }
+        }, 100);
+    });
+}
+
 //eslint-disable-next-line no-unused-vars
 function saveConnection() {
     let formOK = true;
-    let mpdHostEl = document.getElementById('inputMpdHost');
+    const mpdHostEl = document.getElementById('inputMpdHost');
     let mpdPortEl = document.getElementById('inputMpdPort');
-    let mpdPassEl = document.getElementById('inputMpdPass');
-    let musicDirectoryEl  = document.getElementById('selectMusicDirectory');
-    let musicDirectory = musicDirectoryEl.options[musicDirectoryEl.selectedIndex].value;
+    const mpdPassEl = document.getElementById('inputMpdPass');
+    let musicDirectory = getSelectValue('selectMusicDirectory');
     
     if (musicDirectory === 'custom') {
         let musicDirectoryValueEl  = document.getElementById('inputMusicDirectory');
@@ -5583,11 +5791,48 @@ function parseSettings() {
     }
     
     document.getElementById('selectTheme').value = settings.theme;
+
+    //build form for advanced settings    
+    for (let key in advancedSettingsDefault) {
+        if (!settings.advanced[key]) {
+            settings.advanced[key] = advancedSettingsDefault[key].defaultValue;
+        }
+    }
+    let advFrm = '';
     
+    let advSettingsKeys = Object.keys(settings.advanced);
+    advSettingsKeys.sort();
+    for (let i = 0; i < advSettingsKeys.length; i++) {
+        let key = advSettingsKeys[i];
+        advFrm += '<div class="form-group row">' +
+                    '<label class="col-sm-4 col-form-label" for="inputAdvSetting' + r(key) + '" data-phrase="' + 
+                    e(advancedSettingsDefault[key].title) + '">' + t(advancedSettingsDefault[key].title) + '</label>' +
+                    '<div class="col-sm-8 ">';
+        if (advancedSettingsDefault[key].inputType === 'select') {
+            advFrm += '<select id="inputAdvSetting' + r(key) + '" data-key="' + 
+                r(key) + '" class="form-control border-secondary custom-select">';
+            for (let value in advancedSettingsDefault[key].validValues) {
+                advFrm += '<option value="' + e(value) + '"' +
+                    (settings.advanced[key] === value ? ' selected' : '') +
+                    '>' + t(advancedSettingsDefault[key].validValues[value]) + '</option>';
+            }
+            advFrm += '</select>';
+        }
+        else {
+            advFrm += '<input id="inputAdvSetting' + r(key) + '" data-key="' + 
+                r(key) + '" type="text" class="form-control border-secondary" value="' + e(settings.advanced[key]) + '">';
+        }
+        advFrm +=   '</div>' +
+                  '</div>';
+    }
+    document.getElementById('AdvancedSettingsFrm').innerHTML = advFrm;
+    
+    //parse mpd settings if connected
     if (settings.mpdConnected === true) {
         parseMPDSettings();
     }
     
+    //Info in about modal
     if (settings.mpdHost.indexOf('/') !== 0) {
         document.getElementById('mpdInfo_host').innerText = settings.mpdHost + ':' + settings.mpdPort;
     }
@@ -5595,10 +5840,12 @@ function parseSettings() {
         document.getElementById('mpdInfo_host').innerText = settings.mpdHost;
     }
     
+    //connection modal
     document.getElementById('inputMpdHost').value = settings.mpdHost;
     document.getElementById('inputMpdPort').value = settings.mpdPort;
     document.getElementById('inputMpdPass').value = settings.mpdPass;
 
+    //web notifications - check permission
     let btnNotifyWeb = document.getElementById('btnNotifyWeb');
     document.getElementById('warnNotifyWeb').classList.add('hide');
     if (notificationsSupported()) {
@@ -5612,10 +5859,10 @@ function parseSettings() {
             document.getElementById('warnNotifyWeb').classList.remove('hide');
         }
         toggleBtnChk('btnNotifyWeb', settings.notificationWeb);
-        btnNotifyWeb.removeAttribute('disabled');
+        enableEl(btnNotifyWeb);
     }
     else {
-        btnNotifyWeb.setAttribute('disabled', 'disabled');
+        disableEl(btnNotifyWeb);
         toggleBtnChk('btnNotifyWeb', false);
     }
     
@@ -5703,11 +5950,11 @@ function parseSettings() {
         }
     }
     if (settings.readonly === true) {
-        document.getElementById('btnBookmarks').setAttribute('disabled', 'disabled');
+        disableEl('btnBookmarks');
         document.getElementsByClassName('groupClearCovercache')[0].classList.add('hide');
     }
     else {
-        document.getElementById('btnBookmarks').removeAttribute('disabled');
+        enableEl('btnBookmarks');
         document.getElementsByClassName('groupClearCovercache')[0].classList.remove('hide');
     }
     
@@ -5765,17 +6012,17 @@ function parseSettings() {
     document.getElementById('inputJukeboxLastPlayed').value = settings.jukeboxLastPlayed;
     
     if (settings.jukeboxMode === 0) {
-        document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
-        document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+        disableEl('inputJukeboxQueueLength');
+        disableEl('selectJukeboxPlaylist');
     }
     else if (settings.jukeboxMode === 2) {
-        document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
-        document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+        disableEl('inputJukeboxQueueLength');
+        disableEl('selectJukeboxPlaylist');
         document.getElementById('selectJukeboxPlaylist').value = 'Database';
     }
     else if (settings.jukeboxMode === 1) {
-        document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
-        document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
+        enableEl('inputJukeboxQueueLength');
+        enableEl('selectJukeboxPlaylist');
     }
 
     document.getElementById('inputSmartplsPrefix').value = settings.smartplsPrefix;
@@ -5897,10 +6144,10 @@ function parseMPDSettings() {
     }
     
     if (settings.featPlaylists === true && settings.readonly === false) {
-        document.getElementById('btnSmartpls').removeAttribute('disabled');
+        enableEl('btnSmartpls');
     }
     else {
-        document.getElementById('btnSmartpls').setAttribute('disabled', 'disabled');
+        disableEl('btnSmartpls');
     }
 
     if (settings.featStickers === false && settings.stickers === true) {
@@ -5912,11 +6159,11 @@ function parseMPDSettings() {
     
     if (settings.featStickers === false || settings.stickers === false || settings.featStickerCache === false) {
         document.getElementById('warnPlaybackStatistics').classList.remove('hide');
-        document.getElementById('inputJukeboxLastPlayed').setAttribute('disabled', 'disabled');
+        disableEl('inputJukeboxLastPlayed');
     }
     else {
         document.getElementById('warnPlaybackStatistics').classList.add('hide');
-        document.getElementById('inputJukeboxLastPlayed').removeAttribute('disabled');
+        enableEl('inputJukeboxLastPlayed');
     }
     
     if (settings.featLove === false && settings.love === true) {
@@ -6119,11 +6366,10 @@ function saveSettings(closeModal) {
         formOK = false;
     }
     
-    let selectStreamModeEl = document.getElementById('selectStreamMode');
     let streamUrl = '';
     let streamPort = '';
     let inputStreamUrl = document.getElementById('inputStreamUrl');
-    if (selectStreamModeEl.options[selectStreamModeEl.selectedIndex].value === 'port') {
+    if (getSelectValue('selectStreamMode') === 'port') {
         streamPort = inputStreamUrl.value;
         if (!validateInt(inputStreamUrl)) {
             formOK = false;
@@ -6207,14 +6453,11 @@ function saveSettings(closeModal) {
     let singleState = getBtnGroupValue('btnSingleGroup');
     let jukeboxMode = getBtnGroupValue('btnJukeboxModeGroup');
     let replaygain = getBtnGroupValue('btnReplaygainGroup');
-    let jukeboxUniqueTag = document.getElementById('selectJukeboxUniqueTag');
-    let jukeboxUniqueTagValue = jukeboxUniqueTag.options[jukeboxUniqueTag.selectedIndex].value;
-
-    let selectJukeboxPlaylist = document.getElementById('selectJukeboxPlaylist');
-    let jukeboxPlaylist = selectJukeboxPlaylist.options[selectJukeboxPlaylist.selectedIndex].value;
+    let jukeboxUniqueTag = getSelectValue('selectJukeboxUniqueTag');
+    let jukeboxPlaylist = getSelectValue('selectJukeboxPlaylist');
     
     if (jukeboxMode === '2') {
-        jukeboxUniqueTagValue = 'Album';
+        jukeboxUniqueTag = 'Album';
     }
     
     if (jukeboxMode === '1' && settings.featSearchwindow === false && jukeboxPlaylist === 'Database') {
@@ -6222,9 +6465,20 @@ function saveSettings(closeModal) {
         document.getElementById('warnJukeboxPlaylist').classList.remove('hide');
     }
     
+    let advSettings = {};
+    for (let key in advancedSettingsDefault) {
+        let el = document.getElementById('inputAdvSetting' + r(key));
+        if (el) {
+            if (advancedSettingsDefault[key].inputType === 'select') {
+                advSettings[key] = getSelectValue(el);
+            }
+            else {
+                advSettings[key] = el. value;
+            }
+        }
+    }
+    
     if (formOK === true) {
-        let selectLocale = document.getElementById('selectLocale');
-        let selectTheme = document.getElementById('selectTheme');
         sendAPI("MYMPD_API_SETTINGS_SET", {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random": (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
@@ -6241,7 +6495,7 @@ function saveSettings(closeModal) {
             "jukeboxPlaylist": jukeboxPlaylist,
             "jukeboxQueueLength": parseInt(document.getElementById('inputJukeboxQueueLength').value),
             "jukeboxLastPlayed": parseInt(document.getElementById('inputJukeboxLastPlayed').value),
-            "jukeboxUniqueTag": jukeboxUniqueTagValue,
+            "jukeboxUniqueTag": jukeboxUniqueTag,
             "autoPlay": (document.getElementById('btnAutoPlay').classList.contains('active') ? true : false),
             "bgCover": (document.getElementById('btnBgCover').classList.contains('active') ? true : false),
             "bgColor": document.getElementById('inputBgColor').value,
@@ -6253,7 +6507,7 @@ function saveSettings(closeModal) {
             "coverimageName": document.getElementById('inputCoverimageName').value,
             "coverimageSize": document.getElementById('inputCoverimageSize').value,
             "coverimageSizeSmall": document.getElementById('inputCoverimageSizeSmall').value,
-            "locale": selectLocale.options[selectLocale.selectedIndex].value,
+            "locale": getSelectValue('selectLocale'),
             "love": (document.getElementById('btnLoveEnable').classList.contains('active') ? true : false),
             "loveChannel": document.getElementById('inputLoveChannel').value,
             "loveMessage": document.getElementById('inputLoveMessage').value,
@@ -6269,11 +6523,12 @@ function saveSettings(closeModal) {
             "searchtaglist": getTagMultiSelectValues(document.getElementById('listSearchTags'), false),
             "browsetaglist": getTagMultiSelectValues(document.getElementById('listBrowseTags'), false),
             "generatePlsTags": getTagMultiSelectValues(document.getElementById('listGeneratePlsTags'), false),
-            "theme": selectTheme.options[selectTheme.selectedIndex].value,
+            "theme": getSelectValue('selectTheme'),
             "highlightColor": document.getElementById('inputHighlightColor').value,
             "timer": (document.getElementById('btnFeatTimer').classList.contains('active') ? true : false),
             "bookletName": document.getElementById('inputBookletName').value,
-            "lyrics": (document.getElementById('btnFeatLyrics').classList.contains('active') ? true : false)
+            "lyrics": (document.getElementById('btnFeatLyrics').classList.contains('active') ? true : false),
+            "advanced": advSettings
         }, getSettings);
         if (closeModal === true) {
             modalSettings.hide();
@@ -6311,7 +6566,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
             values.push(t(allTags[i]));
         }
         list += '<div class="form-check">' +
-            '<button class="btn btn-secondary btn-xs clickable material-icons material-icons-small' + 
+            '<button class="btn btn-secondary btn-xs clickable mi mi-small' + 
             (enabledTags.includes(allTags[i]) ? ' active' : '') + '" name="' + allTags[i] + '">' +
             (enabledTags.includes(allTags[i]) ? 'check' : 'radio_button_unchecked') + '</button>' +
             '<label class="form-check-label" for="' + allTags[i] + '">&nbsp;&nbsp;' + t(allTags[i]) + '</label>' +
@@ -6321,10 +6576,10 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
 
     let inputEl = document.getElementById(inputId);
     inputEl.value = values.join(', ');
-    if (inputEl.getAttribute('data-init') === 'true') {
+    if (getAttDec(inputEl, 'data-init') === 'true') {
         return;
     }
-    inputEl.setAttribute('data-init', 'true');
+    setAttEnc(inputEl, 'data-init', 'true');
     document.getElementById(listId).addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
@@ -6423,7 +6678,7 @@ function setPlaySettings(el) {
         toggleBtnChk(el);
     }
     if (el.parentNode.id === 'playDropdownBtnJukeboxModeGroup') {
-        if (el.parentNode.getElementsByClassName('active')[0].getAttribute('data-value') !== '0') {
+        if (getAttDec(el.parentNode.getElementsByClassName('active')[0], 'data-value') !== '0') {
             toggleBtnChk('playDropdownBtnConsume', true);            
         }
     }
@@ -6446,8 +6701,8 @@ function showPlayDropdown() {
 }
 
 function savePlaySettings() {
-    let singleState = document.getElementById('playDropdownBtnSingleGroup').getElementsByClassName('active')[0].getAttribute('data-value');
-    let jukeboxMode = document.getElementById('playDropdownBtnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    let singleState = getAttDec(document.getElementById('playDropdownBtnSingleGroup').getElementsByClassName('active')[0], 'data-value');
+    let jukeboxMode = getAttDec(document.getElementById('playDropdownBtnJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
     sendAPI("MYMPD_API_SETTINGS_SET", {
         "consume": (document.getElementById('playDropdownBtnConsume').classList.contains('active') ? 1 : 0),
         "random": (document.getElementById('playDropdownBtnRandom').classList.contains('active') ? 1 : 0),
@@ -6472,7 +6727,7 @@ function setNavbarIcons() {
         }
         btns += '<div id="nav' + settings.navbarIcons[i].options.join('') + '" class="nav-item flex-fill text-center ' + hide + '">' +
           '<a data-title-phrase="' + t(settings.navbarIcons[i].title) + '" data-href="" class="nav-link text-light" href="#">' +
-            '<span class="material-icons">' + settings.navbarIcons[i].ligature + '</span>' + 
+            '<span class="mi">' + settings.navbarIcons[i].ligature + '</span>' + 
             '<span class="navText" data-phrase="' + t(settings.navbarIcons[i].title) + '"></span>' +
             (settings.navbarIcons[i].badge !== '' ? settings.navbarIcons[i].badge : '') +
           '</a>' +
@@ -6491,21 +6746,50 @@ function setNavbarIcons() {
     }
 
     for (let i = 0; i < domCache.navbarBtnsLen; i++) {
-        domCache.navbarBtns[i].firstChild.setAttribute('data-href', JSON.stringify({"cmd": "appGoto", "options": settings.navbarIcons[i].options}));
+        setAttEnc(domCache.navbarBtns[i].firstChild, 'data-href', JSON.stringify({"cmd": "appGoto", "options": settings.navbarIcons[i].options}));
     }
 }
 
 //eslint-disable-next-line no-unused-vars
 function resetValue(elId) {
     const el = document.getElementById(elId);
-    el.value = el.getAttribute('data-default') !== null ? el.getAttribute('data-default') : 
-        (el.getAttribute('placeholder') !== null ? el.getAttribute('placeholder') : '');
+    el.value = getAttDec(el, 'data-default') !== null ? getAttDec(el, 'data-default') : 
+        (getAttDec(el, 'placeholder') !== null ? getAttDec(el, 'placeholder') : '');
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
+
+function initSong() {
+    document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'A') {
+            if (event.target.id === 'calcFingerprint') {
+                sendAPI("MPD_API_DATABASE_FINGERPRINT", {"uri": getAttDec(event.target, 'data-uri')}, parseFingerprint);
+                event.preventDefault();
+                let parent = event.target.parentNode;
+                let spinner = document.createElement('div');
+                spinner.classList.add('spinner-border', 'spinner-border-sm');
+                event.target.classList.add('hide');
+                parent.appendChild(spinner);
+            }
+            else if (event.target.classList.contains('external')) {
+                //do nothing, link opens in new browser window
+            }
+            else if (event.target.parentNode.getAttribute('data-tag') !== null) {
+                modalSongDetails.hide();
+                event.preventDefault();
+                gotoBrowse(event);
+            } 
+        }
+        else if (event.target.nodeName === 'BUTTON') { 
+            if (event.target.getAttribute('data-href')) {
+                parseCmd(event, event.target.getAttribute('data-href'));
+            }
+        }
+    }, false);
+}
 
 function songDetails(uri) {
     sendAPI("MPD_API_DATABASE_SONGDETAILS", {"uri": uri}, parseSongDetails);
@@ -6543,7 +6827,7 @@ function getMBtagLink(tag, value) {
     }
     else {
         return '<a title="' + t('Lookup at musicbrainz') + '" class="text-success external" target="_musicbrainz" href="https://musicbrainz.org/' + MBentity + '/' + encodeURI(value) + '">' +
-            '<span class="material-icons">open_in_browser</span>&nbsp;' + value + '</a>';
+            '<span class="mi">open_in_browser</span>&nbsp;' + value + '</a>';
     }
 }
 
@@ -6594,7 +6878,7 @@ function parseSongDetails(obj) {
             encodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
     }
     if (obj.result.bookletPath !== '' && settings.publish === true) {
-        songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="' + subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName + '" target="_blank">' + t('Download') + '</a></td></tr>';
+        songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="' + encodeURI(subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName) + '" target="_blank">' + t('Download') + '</a></td></tr>';
     }
     if (settings.featStickers === true) {
         songDetailsHTML += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +
@@ -6604,8 +6888,8 @@ function parseSongDetails(obj) {
             '<tr><th>' + t('Last skipped') + '</th><td>' + (obj.result.lastSkipped === 0 ? t('never') : localeDate(obj.result.lastSkipped)) + '</td></tr>' +
             '<tr><th>' + t('Like') + '</th><td>' +
               '<div class="btn-group btn-group-sm">' +
-                '<button title="' + t('Dislike song') + '" id="btnVoteDown2" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-light material-icons">thumb_down</button>' +
-                '<button title="' + t('Like song') + '" id="btnVoteUp2" data-href=\'{"cmd": "voteSong", "options": [2]}\' class="btn btn-sm btn-light material-icons">thumb_up</button>' +
+                '<button title="' + t('Dislike song') + '" id="btnVoteDown2" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-light mi">thumb_down</button>' +
+                '<button title="' + t('Like song') + '" id="btnVoteUp2" data-href=\'{"cmd": "voteSong", "options": [2]}\' class="btn btn-sm btn-light mi">thumb_up</button>' +
               '</div>' +
             '</td></tr>';
     }
@@ -6675,7 +6959,7 @@ function isCoverfile(uri) {
 }
 
 function getLyrics(uri, el) {
-    if (uri === undefined) {
+    if (isValidUri(uri) === false || isStreamUri(uri) === true) {
         el.innerHTML = t('No lyrics found');
         return;
     }
@@ -6766,7 +7050,7 @@ function loveSong() {
 
 //eslint-disable-next-line no-unused-vars
 function voteSong(vote) {
-    let uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
+    let uri = getAttDec(domCache.currentTitle, 'data-uri');
     if (uri === '') {
         return;
     }
@@ -6788,22 +7072,22 @@ function setVoteSongBtns(vote, uri) {
     domCache.btnVoteUp2 = document.getElementById('btnVoteUp2');
     domCache.btnVoteDown2 = document.getElementById('btnVoteDown2');
 
-    if (uri === '' || uri.indexOf('://') > -1) {
-        domCache.btnVoteUp.setAttribute('disabled', 'disabled');
-        domCache.btnVoteDown.setAttribute('disabled', 'disabled');
+    if (isValidUri(uri) === false || isStreamUri(uri) === true) {
+        disableEl(domCache.btnVoteUp);
+        disableEl(domCache.btnVoteDown);
         if (domCache.btnVoteUp2) {
-            domCache.btnVoteUp2.setAttribute('disabled', 'disabled');
-            domCache.btnVoteDown2.setAttribute('disabled', 'disabled');
+            disableEl(domCache.btnVoteUp2);
+            disableEl(domCache.btnVoteDown2);
         }
         domCache.btnVoteUp.classList.remove('highlight');
         domCache.btnVoteDown.classList.remove('highlight');
     }
     else {
-        domCache.btnVoteUp.removeAttribute('disabled');
-        domCache.btnVoteDown.removeAttribute('disabled');
+        enableEl(domCache.btnVoteUp);
+        enableEl(domCache.btnVoteDown);
         if (domCache.btnVoteUp2) {
-            domCache.btnVoteUp2.removeAttribute('disabled');
-            domCache.btnVoteDown2.removeAttribute('disabled');
+            enableEl(domCache.btnVoteUp2);
+            enableEl(domCache.btnVoteDown2);
         }
     }
     
@@ -6876,18 +7160,18 @@ function parseOutputs(obj) {
             if (obj.result.data[i].state === 1) {
                 btns += ' active';
             }
-            btns += '"><span class="material-icons float-left">volume_up</span> ' + e(obj.result.data[i].name);
+            btns += '"><span class="mi float-left">volume_up</span> ' + e(obj.result.data[i].name);
             if (Object.keys(obj.result.data[i].attributes).length > 0) {
-                btns += '<a class="material-icons float-right text-white" title="' + t('Edit attributes') + '">settings</a>';
+                btns += '<a class="mi float-right text-white" title="' + t('Edit attributes') + '">settings</a>';
             }
             else {
-                btns += '<a class="material-icons float-right text-white" title="' + t('Show attributes') + '">settings</a>';
+                btns += '<a class="mi float-right text-white" title="' + t('Show attributes') + '">settings</a>';
             }
             btns += '</button>';
         }
     }
     if (nr === 0) {
-        btns = '<span class="material-icons">error_outline</span> ' + t('No outputs');
+        btns = '<span class="mi">error_outline</span> ' + t('No outputs');
     }
     domCache.outputs.innerHTML = btns;
 }
@@ -6913,10 +7197,10 @@ function showListOutputAttributes(outputName) {
                 e(output.attributes[key]) + '"/></td></tr>';
         });
         if (i > 0) {
-            document.getElementById('btnOutputAttributesSave').removeAttribute('disabled');
+            enableEl('btnOutputAttributesSave');
         }
         else {
-            document.getElementById('btnOutputAttributesSave').setAttribute('disabled', 'disabled');
+            disableEl('btnOutputAttributesSave');
         }
         document.getElementById('outputAttributesList').innerHTML = list;
     });
@@ -6968,12 +7252,12 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
             if (tr) {
                 let durationTd = tr.querySelector('[data-col=Duration]');
                 if (durationTd) {
-                    durationTd.innerText = tr.getAttribute('data-duration');
+                    durationTd.innerText = getAttDec(tr, 'data-duration');
                 }
                 let posTd = tr.querySelector('[data-col=Pos]');
                 if (posTd) {
-                    posTd.classList.remove('material-icons');
-                    posTd.innerText = tr.getAttribute('data-songpos');
+                    posTd.classList.remove('mi');
+                    posTd.innerText = getAttDec(tr, 'data-songpos');
                 }
                 tr.classList.remove('font-weight-bold');
             }
@@ -6987,8 +7271,8 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
         }
         let posTd = tr.querySelector('[data-col=Pos]');
         if (posTd) {
-            if (!posTd.classList.contains('material-icons')) {
-                posTd.classList.add('material-icons');
+            if (!posTd.classList.contains('mi')) {
+                posTd.classList.add('mi');
                 posTd.innerText = 'play_arrow';
             }
         }
@@ -7165,7 +7449,7 @@ function _setCurrentCover(url, el) {
     div.classList.add('coverbg', 'carousel');
     div.style.backgroundImage = 'url("' + subdir + '/albumart/' + url + '")';
     div.style.opacity = 0;
-    div.setAttribute('data-uri', url);
+    setAttEnc(div, 'data-uri', url);
     el.insertBefore(div, el.firstChild);
 
     let img = new Image();
@@ -7218,51 +7502,51 @@ function songChange(obj) {
         htmlNotification += obj.result.Artist;
         pageTitle += obj.result.Artist + ' - ';
         domCache.footerArtist.innerText = obj.result.Artist;
-        domCache.footerArtist.setAttribute('data-name', encodeURI(obj.result.Artist));
+        setAttEnc(domCache.footerArtist, 'data-name', obj.result.Artist);
         if (settings.featAdvsearch === true) {
             domCache.footerArtist.classList.add('clickable');
         }
     }
     else {
         domCache.footerArtist.innerText = '';
-        domCache.footerArtist.setAttribute('data-name', '');
+        setAttEnc(domCache.footerArtist, 'data-name', '');
     }
 
     if (obj.result.Album !== undefined && obj.result.Album.length > 0 && obj.result.Album !== '-') {
         textNotification += ' - ' + obj.result.Album;
         htmlNotification += '<br/>' + obj.result.Album;
         domCache.footerAlbum.innerText = obj.result.Album;
-        domCache.footerAlbum.setAttribute('data-name', encodeURI(obj.result.Album));
-        domCache.footerAlbum.setAttribute('data-albumartist', encodeURI(obj.result[tagAlbumArtist]));
+        setAttEnc(domCache.footerAlbum, 'data-name', obj.result.Album);
+        setAttEnc(domCache.footerAlbum, 'data-albumartist', obj.result[tagAlbumArtist]);
         if (settings.featAdvsearch === true) {
             domCache.footerAlbum.classList.add('clickable');
         }
     }
     else {
         domCache.footerAlbum.innerText = '';
-        domCache.footerAlbum.setAttribute('data-name', '');
+        setAttEnc(domCache.footerAlbum, 'data-name', '');
     }
 
     if (obj.result.Title !== undefined && obj.result.Title.length > 0) {
         pageTitle += obj.result.Title;
         domCache.currentTitle.innerText = obj.result.Title;
-        domCache.currentTitle.setAttribute('data-uri', encodeURI(obj.result.uri));
+        setAttEnc(domCache.currentTitle, 'data-uri', obj.result.uri);
         domCache.footerTitle.innerText = obj.result.Title;
         domCache.footerTitle.classList.add('clickable');
         domCache.footerCover.classList.add('clickable');
     }
     else {
         domCache.currentTitle.innerText = '';
-        domCache.currentTitle.setAttribute('data-uri', '');
+        setAttEnc(domCache.currentTitle, 'data-uri', '');
         domCache.footerTitle.innerText = '';
-        domCache.footerTitle.setAttribute('data-name', '');
+        setAttEnc(domCache.footerTitle, 'data-name', '');
         domCache.footerTitle.classList.remove('clickable');
         domCache.footerCover.classList.remove('clickable');
     }
     document.title = 'myMPD: ' + pageTitle;
     domCache.footerCover.title = pageTitle;
     
-    if (obj.result.uri !== undefined && obj.result.uri !== '' && obj.result.uri.indexOf('://') === -1) {
+    if (isValidUri(obj.result.uri) === true && isStreamUri(obj.result.uri) === false) {
         domCache.footerTitle.classList.add('clickable');
     }
     else {
@@ -7271,11 +7555,11 @@ function songChange(obj) {
 
     if (obj.result.uri !== undefined) {
         obj.result['Filetype'] = filetype(obj.result.uri);
-        document.getElementById('addCurrentSongToPlaylist').removeAttribute('disabled');
+        enableEl('addCurrentSongToPlaylist');
     }
     else {
         obj.result['Filetype'] = '';
-        document.getElementById('addCurrentSongToPlaylist').setAttribute('disabled', 'disabled');
+        disableEl('addCurrentSongToPlaylist');
     }
     
     if (settings.featStickers === true) {
@@ -7312,15 +7596,15 @@ function songChange(obj) {
                 value = e(value);
             }
             c.getElementsByTagName('p')[0].innerHTML = value;
-            c.setAttribute('data-name', encodeURI(value));
+            setAttEnc(c, 'data-name', value);
             if (settings.colsPlayback[i] === 'Album' && obj.result[tagAlbumArtist] !== null) {
-                c.setAttribute('data-albumartist', encodeURI(obj.result[tagAlbumArtist]));
+                setAttEnc(c, 'data-albumartist', obj.result[tagAlbumArtist]);
             }
         }
     }
     
     document.getElementById('currentBooklet').innerHTML = obj.result.bookletPath === '' || obj.result.bookletPath === undefined|| settings.featBrowse === false ? '' : 
-            '<span class="text-light material-icons">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
+            '<span class="text-light mi">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
             e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>';
     
     //Update Artist in queue view for http streams
@@ -7362,8 +7646,8 @@ function chVolume(increment) {
 
 //eslint-disable-next-line no-unused-vars
 function clickTitle() {
-    let uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
-    if (uri !== '' && uri.indexOf('://') === -1) {
+    const uri = getAttDec(domCache.currentTitle, 'data-uri');
+    if (isValidUri(uri) === true && isStreamUri(uri) === false) {
         songDetails(uri);
     }
 }
@@ -7464,8 +7748,14 @@ function focusTable(rownr, table) {
         if (rownr === undefined) {
             if (sel.length === 0) {
                 let row = table.getElementsByTagName('tbody')[0].rows[0];
+                if (row === null) {
+                    return;
+                }
                 if (row.classList.contains('not-clickable')) {
                     row = table.getElementsByTagName('tbody')[0].rows[1];
+                }
+                if (row === null) {
+                    return;
                 }
                 row.focus();
                 row.classList.add('selected');
@@ -7486,19 +7776,6 @@ function focusTable(rownr, table) {
             if (rowsLen > rownr) {
                 rows[rownr].focus();
                 rows[rownr].classList.add('selected');
-            }
-        }
-        //insert goto parent row
-        if (table.id === 'BrowseFilesystemList') {
-            let tbody = table.getElementsByTagName('tbody')[0];
-            if (tbody.rows.length > 0 && tbody.rows[0].getAttribute('data-type') !== 'parentDir' && app.current.search !== '') {
-                let nrCells = table.getElementsByTagName('thead')[0].rows[0].cells.length;
-                let uri = app.current.search.replace(/\/?([^/]+)$/,'');
-                let row = tbody.insertRow(0);
-                row.setAttribute('data-type', 'parentDir');
-                row.setAttribute('tabindex', 0);
-                row.setAttribute('data-uri', encodeURI(uri));
-                row.innerHTML = '<td colspan="' + nrCells + '">..</td>';
             }
         }
         scrollFocusIntoView();
@@ -7539,6 +7816,9 @@ function navigateTable(table, keyCode) {
         let handled = false;
         if (keyCode === 'ArrowDown') {
             next = cur.nextElementSibling;
+            if (next === null) {
+                return;
+            }
             if (next.classList.contains('not-clickable')) {
                 next = next.nextElementSibling;
             }
@@ -7546,6 +7826,9 @@ function navigateTable(table, keyCode) {
         }
         else if (keyCode === 'ArrowUp') {
             next = cur.previousElementSibling;
+            if (next === null) {
+                return;
+            }
             if (next.classList.contains('not-clickable')) {
                 next = next.previousElementSibling;
             }
@@ -7593,7 +7876,7 @@ function dragAndDropTable(table) {
     }, false);
     tableBody.addEventListener('dragleave', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TR') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
         let target = event.target;
@@ -7606,7 +7889,7 @@ function dragAndDropTable(table) {
     }, false);
     tableBody.addEventListener('dragover', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TR') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
         let tr = tableBody.getElementsByClassName('dragover');
@@ -7625,7 +7908,7 @@ function dragAndDropTable(table) {
     }, false);
     tableBody.addEventListener('dragend', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TR') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
         let tr = tableBody.getElementsByClassName('dragover');
@@ -7636,19 +7919,20 @@ function dragAndDropTable(table) {
         if (document.getElementById(event.dataTransfer.getData('Text'))) {
             document.getElementById(event.dataTransfer.getData('Text')).classList.remove('opacity05');
         }
+        dragEl = undefined;
     }, false);
     tableBody.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (dragEl.nodeName !== 'TR') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
         let target = event.target;
         if (event.target.nodeName === 'TD') {
             target = event.target.parentNode;
         }
-        let oldSongpos = document.getElementById(event.dataTransfer.getData('Text')).getAttribute('data-songpos');
-        let newSongpos = target.getAttribute('data-songpos');
+        let oldSongpos = getAttDec(document.getElementById(event.dataTransfer.getData('Text')), 'data-songpos');
+        let newSongpos = getAttDec(target, 'data-songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.classList.remove('opacity05');
         tableBody.insertBefore(dragEl, target);
@@ -7688,7 +7972,7 @@ function dragAndDropTableHeader(table) {
     }, false);
     tableHeader.addEventListener('dragleave', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TH') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
         if (event.target.nodeName === 'TH') {
@@ -7697,7 +7981,7 @@ function dragAndDropTableHeader(table) {
     }, false);
     tableHeader.addEventListener('dragover', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TH') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
         let th = tableHeader.getElementsByClassName('dragover-th');
@@ -7712,7 +7996,7 @@ function dragAndDropTableHeader(table) {
     }, false);
     tableHeader.addEventListener('dragend', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TH') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
         let th = tableHeader.getElementsByClassName('dragover-th');
@@ -7723,11 +8007,12 @@ function dragAndDropTableHeader(table) {
         if (this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']')) {
             this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').classList.remove('opacity05');
         }
+        dragEl = undefined;
     }, false);
     tableHeader.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (dragEl.nodeName !== 'TH') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
         this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').remove();
@@ -7774,7 +8059,6 @@ function setColTags(table) {
             tags.push('Lyrics');
         }
     }
-    
     tags.sort();
     return tags;
 }
@@ -7787,7 +8071,7 @@ function setColsChecklist(table) {
             continue;
         }
         tagChks += '<div>' +
-            '<button class="btn btn-secondary btn-xs clickable material-icons material-icons-small' +
+            '<button class="btn btn-secondary btn-xs clickable mi mi-small' +
             (settings['cols' + table].includes(tags[i]) ? ' active' : '') + '" name="' + tags[i] + '">' +
             (settings['cols' + table].includes(tags[i]) ? 'check' : 'radio_button_unchecked') + '</button>' +
             '<label class="form-check-label" for="' + tags[i] + '">&nbsp;&nbsp;' + t(tags[i]) + '</label>' +
@@ -7830,17 +8114,16 @@ function setCols(table) {
                 if (app.current.sort.indexOf('-') === 0) {
                     sortdesc = true;
                 }
-                heading += '<span class="sort-dir material-icons pull-right">' + (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
+                heading += '<span class="sort-dir mi pull-right">' + (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
             }
             heading += '</th>';
         }
         if (settings.featTags === true) {
-            heading += '<th data-col="Action"><a data-title-phrase="' +t('Columns') + '" href="#" class="text-secondary align-middle material-icons material-icons-small">settings</a></th>';
+            heading += '<th data-col="Action"><a data-title-phrase="' +t('Columns') + '" href="#" class="text-secondary align-middle mi mi-small">settings</a></th>';
         }
         else {
             heading += '<th></th>';
         }
-
         document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
     }
 }
@@ -7905,7 +8188,7 @@ function saveColsPlayback(table) {
             th = document.createElement('div');
             th.innerHTML = '<small>' + t(colInputs[i].name) + '</small><p></p>';
             th.setAttribute('id', 'current' + colInputs[i].name);
-            th.setAttribute('data-tag', colInputs[i].name);
+            setAttEnc(th, 'data-tag', colInputs[i].name);
             header.appendChild(th);
         }
     }
@@ -7913,7 +8196,7 @@ function saveColsPlayback(table) {
     let params = {"table": "cols" + table, "cols": []};
     let ths = header.getElementsByTagName('div');
     for (let i = 0; i < ths.length; i++) {
-        let name = ths[i].getAttribute('data-tag');
+        let name = getAttDec(ths[i], 'data-tag');
         if (name) {
             params.cols.push(name);
         }
@@ -7954,6 +8237,48 @@ var themes = {
  https://github.com/jcorporation/mympd
 */
 
+function initTimer() {
+    document.getElementById('listTimerList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            if (!event.target.parentNode.classList.contains('not-clickable')) {
+                showEditTimer(getAttDec(event.target.parentNode, 'data-id'));
+            }
+        }
+        else if (event.target.nodeName === 'A') {
+            deleteTimer(getAttDec(event.target.parentNode.parentNode, 'data-id'));
+        }
+        else if (event.target.nodeName === 'BUTTON') {
+            toggleTimer(event.target, getAttDec(event.target.parentNode.parentNode, 'data-id'));
+        }
+    }, false);
+
+    let selectTimerHour = ''; 
+    for (let i = 0; i < 24; i++) {
+        selectTimerHour += '<option value="' + i + '">' + zeroPad(i, 2) + '</option>';
+    }
+    document.getElementById('selectTimerHour').innerHTML = selectTimerHour;
+    
+    let selectTimerMinute = ''; 
+    for (let i = 0; i < 60; i = i + 5) {
+        selectTimerMinute += '<option value="' + i + '">' + zeroPad(i, 2) + '</option>';
+    }
+    document.getElementById('selectTimerMinute').innerHTML = selectTimerMinute;
+
+    document.getElementById('inputTimerVolume').addEventListener('change', function() {
+        document.getElementById('textTimerVolume').innerHTML = this.value + '&nbsp;%';
+    }, false);
+    
+    document.getElementById('selectTimerAction').addEventListener('change', function() {
+        selectTimerActionChange();
+    }, false);
+
+    document.getElementById('modalTimer').addEventListener('shown.bs.modal', function () {
+        showListTimer();
+    });
+}
+
 //eslint-disable-next-line no-unused-vars
 function deleteTimer(timerid) {
     sendAPI("MYMPD_API_TIMER_RM", {"timerid": timerid}, showListTimer);
@@ -7974,12 +8299,12 @@ function toggleTimer(target, timerid) {
 //eslint-disable-next-line no-unused-vars
 function saveTimer() {
     let formOK = true;
-    let nameEl = document.getElementById('inputTimerName');
+    const nameEl = document.getElementById('inputTimerName');
     if (!validateNotBlank(nameEl)) {
         formOK = false;
     }
     let minOneDay = false;
-    let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
+    const weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     let weekdays = [];
     for (let i = 0; i < weekdayBtns.length; i++) {
         let checked = document.getElementById(weekdayBtns[i]).classList.contains('active') ? true : false;
@@ -7995,21 +8320,16 @@ function saveTimer() {
     else {
         document.getElementById('invalidTimerWeekdays').style.display = 'none';
     }
-    let selectTimerAction = document.getElementById('selectTimerAction');
-    let selectTimerPlaylist = document.getElementById('selectTimerPlaylist');
-    let selectTimerHour = document.getElementById('selectTimerHour');
-    let selectTimerMinute = document.getElementById('selectTimerMinute');
-    let jukeboxMode = document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    const selectTimerAction  = document.getElementById('selectTimerAction');
+    const jukeboxMode = getAttDec(document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
+    const selectTimerPlaylist = getSelectValue('selectTimerPlaylist');
 
     if (selectTimerAction.selectedIndex === -1) {
         formOK = false;
         selectTimerAction.classList.add('is-invalid');
     }
 
-    if (jukeboxMode === '0' &&
-        selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value === 'Database'&&
-        selectTimerAction.options[selectTimerAction.selectedIndex].value === 'startplay')
-    {
+    if (jukeboxMode === '0' &&  selectTimerPlaylist === 'Database'&& getSelectValue(selectTimerAction) === 'startplay') {
         formOK = false;
         document.getElementById('btnTimerJukeboxModeGroup').classList.add('is-invalid');
     }
@@ -8017,20 +8337,20 @@ function saveTimer() {
     if (formOK === true) {
         let args = {};
         let argEls = document.getElementById('timerActionScriptArguments').getElementsByTagName('input');
-        for (let i = 0; i < argEls.length; i ++) {
-            args[argEls[i].getAttribute('data-name')] = argEls[i].value;
+        for (let i = 0; i < argEls.length; i++) {
+            args[getAttDec(argEls[i], 'data-name')] = argEls[i].value;
         }
         sendAPI("MYMPD_API_TIMER_SAVE", {
             "timerid": parseInt(document.getElementById('inputTimerId').value),
             "name": nameEl.value,
             "enabled": (document.getElementById('btnTimerEnabled').classList.contains('active') ? true : false),
-            "startHour": parseInt(selectTimerHour.options[selectTimerHour.selectedIndex].value),
-            "startMinute": parseInt(selectTimerMinute.options[selectTimerMinute.selectedIndex].value),
+            "startHour": parseInt(getSelectValue('selectTimerHour')),
+            "startMinute": parseInt(getSelectValue('selectTimerMinute')),
             "weekdays": weekdays,
-            "action": selectTimerAction.options[selectTimerAction.selectedIndex].parentNode.getAttribute('data-value'),
-            "subaction": selectTimerAction.options[selectTimerAction.selectedIndex].value,
+            "action": getAttDec(selectTimerAction.options[selectTimerAction.selectedIndex].parentNode, 'data-value'),
+            "subaction": getSelectValue(selectTimerAction),
             "volume": parseInt(document.getElementById('inputTimerVolume').value), 
-            "playlist": selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value,
+            "playlist": selectTimerPlaylist,
             "jukeboxMode": parseInt(jukeboxMode),
             "arguments": args
             }, showListTimer);
@@ -8096,11 +8416,11 @@ function parseEditTimer(obj) {
 function selectTimerActionChange(values) {
     let el = document.getElementById('selectTimerAction');
     
-    if (el.options[el.selectedIndex].value === 'startplay') {
+    if (getSelectValue(el) === 'startplay') {
         document.getElementById('timerActionPlay').classList.remove('hide');
         document.getElementById('timerActionScript').classList.add('hide');
     }
-    else if (el.options[el.selectedIndex].parentNode.getAttribute('data-value') === 'script') {
+    else if (getAttDec(el.options[el.selectedIndex].parentNode, 'data-value') === 'script') {
         document.getElementById('timerActionScript').classList.remove('hide');
         document.getElementById('timerActionPlay').classList.add('hide');
         showTimerScriptArgs(el.options[el.selectedIndex], values);
@@ -8115,7 +8435,7 @@ function showTimerScriptArgs(option, values) {
     if (values === undefined) {
         values = {};
     }
-    let args = JSON.parse(option.getAttribute('data-arguments'));
+    let args = JSON.parse(getAttDec(option, 'data-arguments'));
     let list = '';
     for (let i = 0; i < args.arguments.length; i++) {
         list += '<div class="form-group row">' +
@@ -8123,7 +8443,7 @@ function showTimerScriptArgs(option, values) {
                   '<div class="col-sm-8">' +
                     '<input name="timerActionScriptArguments' + i + '" class="form-control border-secondary" type="text" value="' +
                     (values[args.arguments[i]] ? e(values[args.arguments[i]]) : '') + '"' +
-                    'data-name="' + args.arguments[i] + '">' +
+                    'data-name="' + encodeURI(args.arguments[i]) + '">' +
                   '</div>' +
                 '</div>';
     }
@@ -8149,9 +8469,9 @@ function parseListTimer(obj) {
     let weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         let row = document.createElement('tr');
-        row.setAttribute('data-id', obj.result.data[i].timerid);
+        setAttEnc(row, 'data-id', obj.result.data[i].timerid);
         let tds = '<td>' + e(obj.result.data[i].name) + '</td>' +
-                  '<td><button name="enabled" class="btn btn-secondary btn-xs clickable material-icons material-icons-small' +
+                  '<td><button name="enabled" class="btn btn-secondary btn-xs clickable mi mi-small' +
                   (obj.result.data[i].enabled === true ? ' active' : '') + '">' +
                   (obj.result.data[i].enabled === true ? 'check' : 'radio_button_unchecked') + '</button></td>' +
                   '<td>' + zeroPad(obj.result.data[i].startHour, 2) + ':' + zeroPad(obj.result.data[i].startMinute,2) + ' ' + t('on') + ' ';
@@ -8162,7 +8482,7 @@ function parseListTimer(obj) {
             }
         }
         tds += days.join(', ')  + '</td><td>' + prettyTimerAction(obj.result.data[i].action, obj.result.data[i].subaction) + '</td>' +
-               '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">delete</a></td>';
+               '<td data-col="Action"><a href="#" class="mi color-darkgrey">delete</a></td>';
         row.innerHTML = tds;
         if (i < tr.length) {
             activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
@@ -8177,7 +8497,7 @@ function parseListTimer(obj) {
     }
 
     if (obj.result.returnedEntities === 0) {
-        tbody.innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
                           '<td colspan="4">' + t('Empty list') + '</td></tr>';
     }     
 }
@@ -8203,6 +8523,32 @@ function prettyTimerAction(action, subaction) {
  https://github.com/jcorporation/mympd
 */
 
+function initTrigger() {
+    document.getElementById('listTriggerList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            let id = decodeURI(event.target.parentNode.getAttribute('data-trigger-id'));
+            showEditTrigger(id);
+        }
+        else if (event.target.nodeName === 'A') {
+            let action = event.target.getAttribute('data-action');
+            let id = decodeURI(event.target.parentNode.parentNode.getAttribute('data-trigger-id'));
+            if (action === 'delete') {
+                deleteTrigger(id);
+            }
+        }
+    }, false);
+
+    document.getElementById('selectTriggerScript').addEventListener('change', function() {
+        selectTriggerActionChange();
+    }, false);
+
+    document.getElementById('modalTrigger').addEventListener('shown.bs.modal', function () {
+        showListTrigger();
+    });
+}
+
 //eslint-disable-next-line no-unused-vars
 function saveTrigger() {
     let formOK = true;
@@ -8216,7 +8562,7 @@ function saveTrigger() {
         let args = {};
         let argEls = document.getElementById('triggerActionScriptArguments').getElementsByTagName('input');
         for (let i = 0; i < argEls.length; i ++) {
-            args[argEls[i].getAttribute('data-name')] = argEls[i].value;
+            args[getAttDec(argEls[i], 'data-name')] = argEls[i].value;
         }
 
         sendAPI("MPD_API_TRIGGER_SAVE", {
@@ -8237,7 +8583,7 @@ function showEditTrigger(id) {
     document.getElementById('newTriggerFooter').classList.remove('hide');
     
     const nameEl = document.getElementById('inputTriggerName');
-    nameEl.classList.remove('is-invalid');
+    removeIsInvalid(document.getElementById('modalTrigger'));
     nameEl.value = '';
     nameEl.focus();
     document.getElementById('inputTriggerId').value = '-1';
@@ -8260,7 +8606,7 @@ function parseTriggerEdit(obj) {
 }
 
 function selectTriggerActionChange(values) {
-    let el = document.getElementById('selectTriggerScript');
+    const el = document.getElementById('selectTriggerScript');
     showTriggerScriptArgs(el.options[el.selectedIndex], values);
 }
 
@@ -8268,7 +8614,7 @@ function showTriggerScriptArgs(option, values) {
     if (values === undefined) {
         values = {};
     }
-    let args = JSON.parse(option.getAttribute('data-arguments'));
+    let args = JSON.parse(getAttDec(option, 'data-arguments'));
     let list = '';
     for (let i = 0; i < args.arguments.length; i++) {
         list += '<div class="form-group row">' +
@@ -8276,7 +8622,7 @@ function showTriggerScriptArgs(option, values) {
                   '<div class="col-sm-8">' +
                     '<input name="triggerActionScriptArguments' + i + '" class="form-control border-secondary" type="text" value="' +
                     (values[args.arguments[i]] ? e(values[args.arguments[i]]) : '') + '"' +
-                    'data-name="' + args.arguments[i] + '">' +
+                    'data-name="' + encodeURI(args.arguments[i]) + '">' +
                   '</div>' +
                 '</div>';
     }
@@ -8312,13 +8658,13 @@ function parseTriggerList(obj) {
                 '<td>' + e(obj.result.data[i].script) + '</td>' +
                 '<td data-col="Action">' +
                 (obj.result.data[i].name === 'default' || obj.result.data[i].name === settings.trigger  ? '' : 
-                    '<a href="#" title="' + t('Delete') + '" data-action="delete" class="material-icons color-darkgrey">delete</a>') +
+                    '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>') +
                 '</td></tr>';
         }
         document.getElementById('listTriggerList').innerHTML = triggerList;
     }
     else {
-        document.getElementById('listTriggerList').innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+        document.getElementById('listTriggerList').innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
             '<td colspan="2">' + t('Empty list') + '</td></tr>';
     }
 }
@@ -8328,6 +8674,51 @@ function parseTriggerList(obj) {
  https://github.com/jcorporation/mympd
 */
 
+//functions to get custom actions
+function clickAlbumPlay(albumArtist, album) {
+    switch (settings.advanced.clickAlbumPlay) {
+        case 'append': return _addAlbum('appendQueue', albumArtist, album);
+        case 'replace': return _addAlbum('replaceQueue', albumArtist, album);
+    }
+}
+
+function clickSong(uri, name) {
+    switch (settings.advanced.clickSong) {
+        case 'append': return appendQueue('song', uri, name);
+        case 'replace': return replaceQueue('song', uri, name);
+        case 'view': return songDetails(uri);
+    }
+}
+
+function clickQueueSong(trackid, uri) {
+    switch (settings.advanced.clickQueueSong) {
+        case 'play':
+            sendAPI("MPD_API_PLAYER_PLAY_TRACK", {"track": trackid});
+            break;
+        case 'view': return songDetails(uri);
+    }
+}
+
+function clickPlaylist(uri, name) {
+    switch (settings.advanced.clickPlaylist) {
+        case 'append': return appendQueue('plist', uri, name);
+        case 'replace': return replaceQueue('plist', uri, name);
+        case 'view': return playlistDetails(uri);
+    }
+}
+
+function clickFolder(uri, name) {
+    switch (settings.advanced.clickFolder) {
+        case 'append': return appendQueue('dir', uri, name);
+        case 'replace': return replaceQueue('dir', uri, name);
+        case 'view': 
+            app.current.filter = '-';
+            appGoto('Browse', 'Filesystem', undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', uri);
+            break;
+    }
+}
+
+//escape and unescape MPD filter values
 function escapeMPD(x) {
     return x.replace(/(["'])/g, function(m0, m1) {
         if (m1 === '"') return '\\"';
@@ -8344,11 +8735,35 @@ function unescapeMPD(x) {
     });
 }
 
-function removeIsInvalid(el) {
-    let els = el.querySelectorAll('.is-invalid');
-    for (let i = 0; i < els.length; i++) {
-        els[i].classList.remove('is-invalid');
+//get and set attributes url encoded
+function setAttEnc(el, attribute, value) {
+    if (typeof el === 'string') {
+        el = document.getElementById(el);
     }
+    el.setAttribute(attribute, encodeURI(value));
+}
+
+function getAttDec(el, attribute) {
+    let value = el.getAttribute(attribute);
+    if (value) {
+        value = decodeURI(value);
+    }
+    return value;
+}
+
+//utility functions
+function disableEl(el) {
+    if (typeof el === 'string') {
+        el = document.getElementById(el);
+    }
+    el.setAttribute('disabled', 'disabled');
+}
+
+function enableEl(el) {
+    if (typeof el === 'string') {
+        el = document.getElementById(el);
+    }
+    el.removeAttribute('disabled');
 }
 
 function getSelectValue(el) {
@@ -8356,7 +8771,7 @@ function getSelectValue(el) {
         el = document.getElementById(el);
     }
     if (el && el.selectedIndex >= 0) {
-        return el.options[el.selectedIndex].value;
+        return getAttDec(el.options[el.selectedIndex], 'value');
     }
     return undefined;
 }
@@ -8364,7 +8779,7 @@ function getSelectValue(el) {
 function getSelectedOptionAttribute(selectId, attribute) {
     let el = document.getElementById(selectId);
     if (el && el.selectedIndex >= 0) {
-        return el.options[el.selectedIndex].getAttribute(attribute);
+        return getAttDec(el.options[el.selectedIndex], attribute);
     }
     return undefined;
 }
@@ -8455,8 +8870,11 @@ function selectTag(btnsEl, desc, setTo) {
     if (aBtn) {
         aBtn.classList.add('active');
         if (desc !== undefined) {
-            document.getElementById(desc).innerText = aBtn.innerText;
-            document.getElementById(desc).setAttribute('data-phrase', aBtn.innerText);
+            const descEl = document.getElementById(desc);
+            if (descEl !== null) {
+                descEl.innerText = aBtn.innerText;
+                descEl.setAttribute('data-phrase', aBtn.innerText);
+            }
         }
     }
 }
@@ -8545,10 +8963,10 @@ function btnWaiting(btn, waiting) {
         let spinner = document.createElement('span');
         spinner.classList.add('spinner-border', 'spinner-border-sm', 'mr-2');
         btn.insertBefore(spinner, btn.firstChild);
-        btn.setAttribute('disabled', 'disabled');
+        disableEl(btn);
     }
     else {
-        btn.removeAttribute('disabled');
+        enableEl(btn);
         if (btn.firstChild.nodeName === 'SPAN') {
             btn.firstChild.remove();
         }
@@ -8563,7 +8981,7 @@ function toggleBtnGroupValue(btngrp, value) {
         valuestr = value.toString();
     }
     for (let i = 0; i < btns.length; i++) {
-        if (btns[i].getAttribute('data-value') === valuestr) {
+        if (getAttDec(btns[i], 'data-value') === valuestr) {
             btns[i].classList.add('active');
             b = btns[i];
         }
@@ -8606,7 +9024,7 @@ function getBtnGroupValue(btnGroup) {
     if (activeBtn.length === 0) {
         activeBtn = document.getElementById(btnGroup).getElementsByTagName('button');    
     }
-    return activeBtn[0].getAttribute('data-value');
+    return getAttDec(activeBtn[0], 'data-value');
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -8686,16 +9104,16 @@ function setPagination(total, returned) {
     }
     let curPage = app.current.limit > 0 ? app.current.offset / app.current.limit + 1 : 1;
     
-    const paginationHTML = '<button title="' + t('First page') + '" type="button" class="btn btn-group-prepend btn-secondary material-icons">first_page</button>' +
-          '<button title="' + t('Previous page') + '" type="button" class="btn btn-group-prepend btn-secondary material-icons">navigate_before</button>' +
+    const paginationHTML = '<button title="' + t('First page') + '" type="button" class="btn btn-group-prepend btn-secondary mi">first_page</button>' +
+          '<button title="' + t('Previous page') + '" type="button" class="btn btn-group-prepend btn-secondary mi">navigate_before</button>' +
           '<div class="btn-group">' +
             '<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>' +
             '<div class="dropdown-menu bg-lite-dark px-2 pages dropdown-menu-right"></div>' +
           '</div>' +
-          '<button title="' + t('Next page') + '" type="button" class="btn btn-secondary btn-group-append material-icons">navigate_next</button>' +
-          '<button title="' + t('Last page') + '" type="button" class="btn btn-secondary btn-group-append material-icons">last_page</button>';
+          '<button title="' + t('Next page') + '" type="button" class="btn btn-secondary btn-group-append mi">navigate_next</button>' +
+          '<button title="' + t('Last page') + '" type="button" class="btn btn-secondary btn-group-append mi">last_page</button>';
 
-    let bottomBarHTML = '<button type="button" class="btn btn-secondary material-icons" title="' + t('To top') + '">keyboard_arrow_up</button>' +
+    let bottomBarHTML = '<button type="button" class="btn btn-secondary mi" title="' + t('To top') + '">keyboard_arrow_up</button>' +
           '<div>' +
           '<select class="form-control custom-select border-secondary" title="' + t('Elements per page') + '">';
     let nrEls = [25, 50, 100, 200, 0];
@@ -8740,7 +9158,7 @@ function setPagination(total, returned) {
     
         page.innerText = curPage + ' / ' + totalPages;
         if (totalPages > 1) {
-            page.removeAttribute('disabled');
+            enableEl(page);
             let pl = '';
             for (let j = 0; j < totalPages; j++) {
                 let o = j * app.current.limit;
@@ -8752,7 +9170,7 @@ function setPagination(total, returned) {
             page.classList.remove('nodropdown');
             pages.addEventListener('click', function(event) {
                 if (event.target.nodeName === 'BUTTON') {
-                    gotoPage(event.target.getAttribute('data-offset'));
+                    gotoPage(getAttDec(event.target, 'data-offset'));
                 }
             }, false);
             //eslint-disable-next-line no-unused-vars
@@ -8760,10 +9178,10 @@ function setPagination(total, returned) {
             
             let lastPageOffset = (totalPages - 1) * app.current.limit;
             if (lastPageOffset === app.current.offset) {
-                last.setAttribute('disabled', 'disabled');
+                disableEl(last);
             }
             else {
-                last.removeAttribute('disabled');
+                enableEl(last);
                 last.classList.remove('hide');
                 next.classList.remove('rounded-right');
                 last.addEventListener('click', function() {
@@ -8773,21 +9191,21 @@ function setPagination(total, returned) {
             }
         }
         else if (total === -1) {
-            page.setAttribute('disabled', 'disabled');
+            disableEl(page);
             page.innerText = curPage;
             page.classList.add('nodropdown');
-            last.setAttribute('disabled', 'disabled');
+            disableEl(last);
             last.classList.add('hide');
             next.classList.add('rounded-right');
         }
         else {
-            page.setAttribute('disabled', 'disabled');
+            disableEl(page);
             page.classList.add('nodropdown');
-            last.setAttribute('disabled', 'disabled');
+            disableEl(last);
         }
         
-        if ((total > offsetLast && offsetLast > 0 ) || (total === -1 && returned >= app.current.limit)) {
-            next.removeAttribute('disabled');
+        if (app.current.limit > 0 && ((total > offsetLast && offsetLast > 0) || (total === -1 && returned >= app.current.limit))) {
+            enableEl(next);
             p[i].classList.remove('hide');
             next.addEventListener('click', function() {
                 event.preventDefault();
@@ -8795,28 +9213,28 @@ function setPagination(total, returned) {
             }, false);
         }
         else {
-            next.setAttribute('disabled', 'disabled');
+            disableEl(next);
             if (i === 0) {
                 p[i].classList.add('hide');
             }
         }
-
+        
         if (app.current.offset > 0) {
-            prev.removeAttribute('disabled');
+            enableEl(prev);
             p[i].classList.remove('hide');
             prev.addEventListener('click', function() {
                 event.preventDefault();
                 gotoPage('prev');
             }, false);
-            first.removeAttribute('disabled');
+            enableEl(first);
             first.addEventListener('click', function() {
                 event.preventDefault();
                 gotoPage(0);
             }, false);
         }
         else {
-            prev.setAttribute('disabled', 'disabled');
-            first.setAttribute('disabled', 'disabled');
+            disableEl(prev);
+            disableEl(first);
         }
     }
     
@@ -8843,6 +9261,11 @@ function parseCmd(event, href) {
     }
 
     if (typeof window[cmd.cmd] === 'function') {
+        for (let i = 0; i < cmd.options.length; i++) {
+            if (cmd.options[i] === 'event') {
+                cmd.options[i] = event;
+            }
+        }
         switch(cmd.cmd) {
             case 'sendAPI':
                 sendAPI(cmd.options[0].cmd, {}); 
@@ -8899,16 +9322,35 @@ function gotoPage(x, limit) {
  https://github.com/jcorporation/mympd
 */
 
+function isValidUri(uri) {
+    if (uri === '' || uri === undefined || uri === null) {
+        return false;
+    }
+    return true;
+}
+
+function isStreamUri(uri) {
+    if (uri.indexOf('://') > -1) {
+        return true;
+    }
+    return false;
+}
+
+function removeIsInvalid(parentEl) {
+    const els = parentEl.getElementsByClassName('is-invalid')
+    for (let i = 0; i < els.length; i++) {
+        els[i].classList.remove('is-invalid');
+    }
+}
+
 function validateFilenameString(str) {
     if (str === '') {
         return false;
     }
-    else if (str.match(/^[\w-.]+$/) !== null) {
+    if (str.match(/^[\w-.]+$/) !== null) {
         return true;
     }
-    else {
-        return false;
-    }
+    return false;
 }
 
 function validateFilename(el) {
@@ -8916,10 +9358,8 @@ function validateFilename(el) {
         el.classList.add('is-invalid');
         return false;
     }
-    else {
-        el.classList.remove('is-invalid');
-        return true;
-    }
+    el.classList.remove('is-invalid');
+    return true;
 }
 
 function validateFilenameList(el) {
@@ -8940,14 +9380,12 @@ function validatePath(el) {
         el.classList.add('is-invalid');
         return false;
     }
-    else if (el.value.match(/^\/[/.\w-]+$/) !== null) {
+    if (el.value.match(/^\/[/.\w-]+$/) !== null) {
         el.classList.remove('is-invalid');
         return true;
     }
-    else {
-        el.classList.add('is-invalid');
-        return false;
-    }
+    el.classList.add('is-invalid');
+    return false;
 }
 
 function validatePlnameEl(el) {
@@ -8955,22 +9393,18 @@ function validatePlnameEl(el) {
         el.classList.add('is-invalid');
         return false;
     }
-    else {
-        el.classList.remove('is-invalid');
-        return true;
-    }
+    el.classList.remove('is-invalid');
+    return true;
 }
 
 function validatePlname(x) {
     if (x === '') {
         return false;
     }
-    else if (x.match(/\/|\r|\n|"|'/) === null) {
+    if (x.match(/\/|\r|\n|"|'/) === null) {
         return true;
     }
-    else {
-        return false;
-    }
+    return false;
 }
 
 function validateNotBlank(el) {
@@ -8979,10 +9413,8 @@ function validateNotBlank(el) {
         el.classList.add('is-invalid');
         return false;
     }
-    else {
-        el.classList.remove('is-invalid');
-        return true;
-    }
+    el.classList.remove('is-invalid');
+    return true;
 }
 
 function validateInt(el) {
@@ -8991,10 +9423,8 @@ function validateInt(el) {
         el.classList.add('is-invalid');
         return false;
     }
-    else {
-        el.classList.remove('is-invalid');
-        return true;
-    }
+    el.classList.remove('is-invalid');
+    return true;
 }
 
 function validateFloat(el) {
@@ -9003,21 +9433,17 @@ function validateFloat(el) {
         el.classList.add('is-invalid');
         return false;
     }
-    else {
-        el.classList.remove('is-invalid');
-        return true;
-    }
+    el.classList.remove('is-invalid');
+    return true;
 }
 
 function validateStream(el) {
-    if (el.value.indexOf('://') > -1) {
+    if (isStreamUri(el.value) === true) {
         el.classList.remove('is-invalid');
         return true;
     }
-    else {
-        el.classList.add('is-invalid');
-        return false;
-    }
+    el.classList.add('is-invalid');
+    return false;
 }
 
 function validateHost(el) {
@@ -9025,8 +9451,6 @@ function validateHost(el) {
         el.classList.remove('is-invalid');
         return true;
     }
-    else {
-        el.classList.add('is-invalid');
-        return false;
-    }
+    el.classList.add('is-invalid');
+    return false;
 }

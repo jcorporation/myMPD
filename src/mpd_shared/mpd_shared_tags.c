@@ -181,3 +181,19 @@ bool mpd_shared_tag_exists(const enum mpd_tag_type tag_types[64], const size_t t
     }
     return false;
 }
+
+void album_cache_free(rax **album_cache) {
+    if (*album_cache == NULL) {
+        LOG_DEBUG("Album cache is NULL not freeing anything");
+        return;
+    }
+    raxIterator iter;
+    raxStart(&iter, *album_cache);
+    raxSeek(&iter, "^", NULL, 0);
+    while (raxNext(&iter)) {
+        mpd_song_free((struct mpd_song *)iter.data);
+    }
+    raxStop(&iter);
+    raxFree(*album_cache);
+    *album_cache = NULL;
+}

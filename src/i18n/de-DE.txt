@@ -228,6 +228,9 @@ Tag zum Suchen auswählen
 contains
 enthält
 
+starts_with
+beginnt mit
+
 Initializing myMPD
 Initialisiere myMPD
 
@@ -585,9 +588,6 @@ Libmpdclient Version
 Libmympdclient version
 Libmympdclient Version
 
-Shortcut
-Tastenkürzel
-
 Action
 Aktion
 
@@ -681,6 +681,9 @@ Lieddetails
 Open local player
 Lokale Wiedergabe
 
+Goto home
+Gehe zur Startseite
+
 Goto playback
 Gehe zu Wiedergabe
 
@@ -689,6 +692,9 @@ Gehe zu Warteschlange
 
 Goto last played
 Gehe zu Zuletzt gespielt
+
+Goto jukebox queue
+Gehe zur Jukebox Warteschlange
 
 Goto browse database
 Gehe zu Datenbank durchsuchen
@@ -1566,9 +1572,6 @@ Du hast noch keine Homeicons hinzugefügt. Du kannst einzelne Ansichten, Wiederg
 Can not open directory pics
 Konnte Verzeichnis pics nicht öffnen
 
-Ligature overview
-Übersicht der Ligaturen
-
 Use ligature
 Ligatur benutzen
 
@@ -1662,9 +1665,6 @@ Nicht unterstützter Dateityp
 All
 Alle
 
-Either AlbumArtist or Artist tag must be enabled
-Albumartist or Artist Tag muss aktiviert sein
-
 Elements per page
 Anzahl Listenelemente
 
@@ -1689,3 +1689,66 @@ Letzte Seite
 
 Show album
 Album anzeigen
+
+Can not get lyrics for stream uri
+Liedtexte für Streams sind nicht unterstützt
+
+Albumcache not ready
+Albumcache ist noch nicht initialisiert
+
+Open folder
+Verzeichnis öffnen
+
+Open parent folder
+Gehe zu darüberliegenden Verzeichnis
+
+Maintenance
+Wartung
+
+Album cache is NULL
+Album Cache ist leer
+
+Click album play button
+Klick auf Album abspielen
+
+Click folder
+Click auf Verzeichnis
+
+Click playlist
+Click auf Wiedergabeliste
+
+Click song in queue
+Click auf Lied in Warteschlange
+
+Click song
+Click auf ein Lied
+
+Play
+Abspielen
+
+Homescreen
+Startbildschirm
+
+Homescreen help view
+Gehe zur Ansicht und klicke auf den [[add_to_home_screen]] Button.
+
+Homescreen help playlist
+Öffne das Contextmenü einer Wiedergabeliste und wähle "Zum Startbildschirm hinzufügen"
+
+Homescreen help script
+Öffne die Skriptverwaltung und klicke auf den [[add_to_home_screen]] Button, um ein Skript hinzuzufügen.
+
+Help to improve myMPD
+Hilf mit myMPD zu verbessern
+
+Are you sure?
+Bist du sicher?
+
+No
+Nein
+
+Yes
+Ja
+
+Do you really want to clear the queue?
+Willst du die Warteschlange wirklich leeren?

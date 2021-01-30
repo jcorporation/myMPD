@@ -15,16 +15,22 @@
 #include <dirent.h>
 #include <inttypes.h>
 #include <limits.h>
+#include <libgen.h>
 #include <mpd/client.h>
+#include <signal.h>
+#include <time.h>
+#include <pcre.h>
 
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
+#include "../../dist/src/rax/rax.h"
 #include "../list.h"
 #include "config_defs.h"
 #include "../utility.h"
 #include "../api.h"
 #include "../log.h"
 #include "../tiny_queue.h"
+#include "../global.h"
 #include "../mpd_shared/mpd_shared_typedefs.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_tags.h"
@@ -33,6 +39,12 @@
 #include "mpd_client_sticker.h"
 #include "mpd_client_browse.h"
 
+//private definitions
+static bool _search_song(struct mpd_song *song, struct list *expr_list);
+static pcre *_compile_regex(const char *regex_str);
+static bool _cmp_regex(pcre *re_compiled, const char *value);
+
+//public functions
 sds mpd_client_put_fingerprint(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                                const char *uri)
 {
@@ -129,7 +141,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
                 if (search_len == 0  || strcasestr(entity_name, searchstr) != NULL) {
                     sds key = sdscatprintf(sdsempty(), "2%s", mpd_song_get_uri(song));
                     sdstolower(key);
-                    list_push(&entity_list, key, MPD_ENTITY_TYPE_SONG, entity_name, mpd_song_dup(song));
+                    list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_SONG, entity_name, mpd_song_dup(song), false);
                     sdsfree(key);
                 }
                 sdsfree(entity_name);
@@ -148,7 +160,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
                 if (search_len == 0  || strcasestr(dir_name, searchstr) != NULL) {
                     sds key = sdscatprintf(sdsempty(), "0%s", mpd_directory_get_path(dir));
                     sdstolower(key);
-                    list_push(&entity_list, key, MPD_ENTITY_TYPE_DIRECTORY, dir_name, mpd_directory_dup(dir));
+                    list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_DIRECTORY, dir_name, mpd_directory_dup(dir), false);
                     sdsfree(key);
                 }
                 break;
@@ -169,7 +181,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
                 if (search_len == 0  || strcasestr(pl_name, searchstr) != NULL) {
                     sds key = sdscatprintf(sdsempty(), "1%s", mpd_playlist_get_path(pl));
                     sdstolower(key);
-                    list_push(&entity_list, key, MPD_ENTITY_TYPE_PLAYLIST, pl_name, mpd_playlist_dup(pl));
+                    list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_PLAYLIST, pl_name, mpd_playlist_dup(pl), false);
                     sdsfree(key);
                 }
                 break;
@@ -183,15 +195,23 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
         return buffer;
     }
 
-    list_sort_by_key(&entity_list, true);
-
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",\"data\":[");
     
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    struct list_node *current = entity_list.head;
-    while (current != NULL) {
+    if (strlen(path) > 1) {
+        char *path_cpy = strdup(path);
+        char *parent_dir = dirname(path_cpy);
+        buffer = sdscat(buffer, "{\"Type\":\"parentDir\",\"name\":\"parentDir\",");
+        buffer = tojson_char(buffer, "uri", (parent_dir[0] == '.' ? "" : parent_dir), false);
+        buffer = sdscat(buffer, "}");
+        entity_count++;
+        entities_returned++;
+        free(path_cpy);
+    }
+    struct list_node *current;
+    while ((current = list_shift_first(&entity_list)) != NULL) {
         entity_count++;
         if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
             if (entities_returned++) {
@@ -246,10 +266,8 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
                 }
             }
         }
-        current->user_data = NULL;
-        current = current->next;
+        list_node_free_keep_user_data(current);
     }
-    list_free(&entity_list);
 
     buffer = sdscatlen(buffer, "],", 2);
     buffer = put_extra_files(mpd_client_state, buffer, path, true);
@@ -353,113 +371,154 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
     return buffer;    
 }
 
+
+
 sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
                                        const char *searchstr, const char *filter, const char *sort, bool sortdesc, const unsigned int offset, unsigned int limit)
 {
+    if (mpd_client_state->album_cache == NULL) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Albumcache not ready", true);    
+        return buffer;
+    }
+
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",\"data\":[");
 
-    bool rc = mpd_search_db_songs(mpd_client_state->mpd_state->conn, false);
-    if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_db_songs") == false) {
-        mpd_search_cancel(mpd_client_state->mpd_state->conn);
-        return buffer;
-    }
-    
-    sds expression = sdsnew("((Album != '') AND (Track == '1')");
-
-    if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, MPD_TAG_ALBUM_ARTIST) == true) {
-        expression = sdscat(expression, " AND (AlbumArtist != '')");
-    }
-    else if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, MPD_TAG_ARTIST) == true) {
-        expression = sdscat(expression, " AND (Artist != '')");
-    }
-    else {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Either AlbumArtist or Artist tag must be enabled", true);
-        sdsfree(expression);
-        mpd_search_cancel(mpd_client_state->mpd_state->conn);
-        return buffer;
-    }
-
-    if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, MPD_TAG_DISC) == true) {
-        expression = sdscat(expression, " AND (Disc == '1')");
-    }
-
-    if (strlen(searchstr) > 0 && searchstr[0] == '(') {
-        expression = sdscat(expression, " AND ");
-        expression = sdscat(expression, searchstr);
-    }
-    expression = sdscat(expression, ")");
-    rc = mpd_search_add_expression(mpd_client_state->mpd_state->conn, expression);
-    sdsfree(expression);
-    if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_expression") == false) {
-        mpd_search_cancel(mpd_client_state->mpd_state->conn);
-        return buffer;
-    }
+    struct mpd_song *song;
+    //parse sort tag
+    bool sort_by_last_modified = false;
+    enum mpd_tag_type sort_tag = MPD_TAG_ALBUM;
+    enum mpd_tag_type sort_tag_org = sort_tag;
 
     if (strlen(sort) > 0) {
-        enum mpd_tag_type sort_tag = mpd_tag_name_parse(sort);
-        if (sort_tag != MPD_TAG_UNKNOWN) {
-            sort_tag = get_sort_tag(sort_tag);
-            rc = mpd_search_add_sort_tag(mpd_client_state->mpd_state->conn, sort_tag, sortdesc);
-            if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_tag") == false) {
-                mpd_search_cancel(mpd_client_state->mpd_state->conn);
-                return buffer;
+        sort_tag_org = mpd_tag_name_parse(sort);
+        if (sort_tag_org != MPD_TAG_UNKNOWN) {
+            sort_tag = get_sort_tag(sort_tag_org);
+            if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, sort_tag) == false) {
+                //sort tag is not enabled, revert 
+                sort_tag = sort_tag_org;
             }
         }
         else if (strcmp(sort, "Last-Modified") == 0) {
-            rc = mpd_search_add_sort_name(mpd_client_state->mpd_state->conn, sort, sortdesc);
-            if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_name") == false) {
-                mpd_search_cancel(mpd_client_state->mpd_state->conn);
-                return buffer;
-            }
+            sort_by_last_modified = true;
         }
         else {
             LOG_WARN("Unknown sort tag: %s", sort);
         }
     }
+    //parse mpd search expression
+    struct list expr_list;
+    list_init(&expr_list);
+    int count;
+    sds *tokens = sdssplitlen(searchstr, strlen(searchstr), ") AND (", 7, &count);
+    for (int j = 0; j < count; j++) {
+        sdstrim(tokens[j], "() ");
+        sds tag = sdsempty();
+        sds op = sdsempty();
+        sds value = sdsempty();
+        unsigned i = 0;
+        char *p = tokens[j];
+        //tag
+        for (i = 0; i < sdslen(tokens[j]); i++, p++) {
+            if (tokens[j][i] == ' ') {
+                break;
+            }
+            tag = sdscatprintf(tag, "%.*s", 1, p);
+        }
+        i++;
+        p++;
+        //operator
+        for (; i < sdslen(tokens[j]); i++, p++) {
+            if (tokens[j][i] == ' ') {
+                break;
+            }
+            op = sdscatprintf(op, "%.*s", 1, p);
+        }
+        i = i + 2;
+        p = p + 2;
+        //value
+        for (; i < sdslen(tokens[j]) - 1; i++, p++) {
+            value = sdscatprintf(value, "%.*s", 1, p);
+        }
+        if (strcmp(op, "=~") == 0 || strcmp(op, "!~") == 0) {
+            //is regex, compile
+            pcre *re_compiled = _compile_regex(value);
+            list_push(&expr_list, value, mpd_tag_name_parse(tag), op , re_compiled);
+        }
+        else {
+            list_push(&expr_list, value, mpd_tag_name_parse(tag), op , NULL);
+        }
+        LOG_DEBUG("Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, value);
+        sdsfree(tag);
+        sdsfree(op);
+        sdsfree(value);
+    }
+    sdsfreesplitres(tokens, count);
     
-    if (limit == 0) {
-        limit = UINT_MAX - offset;
+    //search and sort albumlist
+    struct list album_list;
+    list_init(&album_list);
+    raxIterator iter;
+    raxStart(&iter, mpd_client_state->album_cache);
+    raxSeek(&iter, "^", NULL, 0);
+    sds key = sdsempty();
+    while (raxNext(&iter)) {
+        song = (struct mpd_song *)iter.data;
+        if (_search_song(song, &expr_list) == true) {
+            if (sort_by_last_modified == true) {
+                key = sdscatlen(key, iter.key, iter.key_len);
+                list_insert_sorted_by_value_i(&album_list, key, mpd_song_get_last_modified(song), NULL, iter.data, sortdesc);
+                sdsclear(key);
+            }
+            else {
+                const char *sort_value = mpd_song_get_tag(song, sort_tag, 0);
+                if (sort_value != NULL) {
+                    list_insert_sorted_by_key(&album_list, sort_value, 0, NULL, iter.data, sortdesc);
+                }
+                else {
+                    LOG_WARN("Skip entry: %.*s", iter.key_len, iter.key); 
+                }
+            }
+        }
     }
-    rc = mpd_search_add_window(mpd_client_state->mpd_state->conn, offset, offset + limit);
-    if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
-        mpd_search_cancel(mpd_client_state->mpd_state->conn);
-        return buffer;
-    }
+    raxStop(&iter);
+    sdsfree(key);
+    list_free(&expr_list);
     
-    rc = mpd_search_commit(mpd_client_state->mpd_state->conn);
-    if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_commit") == false) {
-        return buffer;
-    }
-
-    struct mpd_song *song;
+    //print album list
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
+    unsigned end = offset + limit;
     sds album = sdsempty();
     sds artist = sdsempty();
-    while ((song = mpd_recv_song(mpd_client_state->mpd_state->conn)) != NULL) {
-        album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, album);
-        artist = mpd_shared_get_tags(song, MPD_TAG_ALBUM_ARTIST, artist);
+    struct list_node *current;
+    while ((current = list_shift_first(&album_list)) != NULL) {
         entity_count++;
-        if (entities_returned++) {
-            buffer = sdscat(buffer, ",");
+        if (entity_count > offset && (entity_count <= end || limit == 0)) {
+            if (entities_returned++) {
+                buffer = sdscat(buffer, ",");
+            }
+            song = (struct mpd_song *)current->user_data;
+            album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, album);
+            artist = mpd_shared_get_tags(song, MPD_TAG_ALBUM_ARTIST, artist);
+            buffer = sdscat(buffer, "{\"Type\": \"album\",");
+            buffer = tojson_char(buffer, "Album", album, true);
+            buffer = tojson_char(buffer, "AlbumArtist", artist, true);
+            buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
+            buffer = sdscat(buffer, "}");
         }
-        buffer = sdscat(buffer, "{\"Type\": \"album\",");
-        buffer = tojson_char(buffer, "Album", album, true);
-        buffer = tojson_char(buffer, "AlbumArtist", artist, true);
-        buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
-        buffer = sdscat(buffer, "}");
-        mpd_song_free(song);
+        list_node_free_keep_user_data(current);
+        if (entity_count > end && limit > 0) {
+            break;
+        }
     }
     sdsfree(album);
     sdsfree(artist);
-    mpd_response_finish(mpd_client_state->mpd_state->conn);
-    if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {
-        return buffer;
-    }
+    entity_count = album_list.length;
+    list_free_keep_user_data(&album_list);
 
     buffer = sdscat(buffer, "],");
-    buffer = tojson_long(buffer, "totalEntities", -1, true);
+    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_char(buffer, "filter", filter, true);
@@ -550,4 +609,75 @@ sds mpd_client_put_db_tag2(t_config *config, t_mpd_client_state *mpd_client_stat
     buffer = tojson_bool(buffer, "pics", pic, false);
     buffer = jsonrpc_end_result(buffer);
     return buffer;
+}
+
+//private functions
+static bool _search_song(struct mpd_song *song, struct list *expr_list) {
+    struct list_node *current = expr_list->head;
+    sds value = sdsempty();
+    while (current != NULL) {
+        value = mpd_shared_get_tags(song, current->value_i, value);
+        if (strcmp(current->value_p, "contains") == 0 && strcasestr(value, current->key) == NULL) {
+            sdsfree(value);
+            return false;
+        }
+        else if (strcmp(current->value_p, "starts_with") == 0 && strncasecmp(current->key, value, strlen(current->key)) != 0) {
+            sdsfree(value);
+            return false;
+        }
+        else if (strcmp(current->value_p, "==") == 0 && strcasecmp(value, current->key) != 0) {
+            sdsfree(value);
+            return false;
+        }
+        else if (strcmp(current->value_p, "!=") == 0 && strcasecmp(value, current->key) == 0) {
+            sdsfree(value);
+            return false;
+        }
+        else if (strcmp(current->value_p, "=~") == 0 && _cmp_regex((pcre *)current->user_data, value) == false) {
+            sdsfree(value);
+            return false;
+        }
+        else if (strcmp(current->value_p, "!~") == 0 && _cmp_regex((pcre *)current->user_data, value) == true) {
+            sdsfree(value);
+            return false;
+        }
+        current = current->next;
+    }
+    sdsfree(value);
+    return true;
+}
+
+static pcre *_compile_regex(const char *regex_str) {
+    LOG_DEBUG("Compiling regex: \"%s\"", regex_str);
+    const char *pcre_error_str;
+    int pcre_error_offset;
+    pcre *re_compiled = pcre_compile(regex_str, PCRE_CASELESS, &pcre_error_str, &pcre_error_offset, NULL);
+    if (re_compiled == NULL) {
+        LOG_DEBUG("Could not compile '%s': %s\n", regex_str, pcre_error_str);
+    }
+    return re_compiled;
+}
+
+static bool _cmp_regex(pcre *re_compiled, const char *value) {
+    if (re_compiled == NULL) {
+        return false;
+    }
+    bool rc = false;
+    int substr_vec[30];
+    int pcre_exec_ret = pcre_exec(re_compiled, NULL, value, strlen(value), 0, 0, substr_vec, 30);
+    if (pcre_exec_ret < 0) {
+        switch(pcre_exec_ret) {
+            case PCRE_ERROR_NOMATCH      : break;
+            case PCRE_ERROR_NULL         : LOG_ERROR("Something was null"); break;
+            case PCRE_ERROR_BADOPTION    : LOG_ERROR("A bad option was passed"); break;
+            case PCRE_ERROR_BADMAGIC     : LOG_ERROR("Magic number bad (compiled regex corrupt?)"); break;
+            case PCRE_ERROR_UNKNOWN_NODE : LOG_ERROR("Something kooky in the compiled regex"); break;
+            case PCRE_ERROR_NOMEMORY     : LOG_ERROR("Ran out of memory"); break;
+            default                      : LOG_ERROR("Unknown error"); break;
+        }
+    }
+    else {
+        rc = true;
+    }
+    return rc;
 }

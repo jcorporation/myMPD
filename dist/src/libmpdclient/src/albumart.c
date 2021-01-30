@@ -1,22 +1,17 @@
 /* libmpdclient
-   (c) 2003-2018 The Music Player Daemon Project
+   (c) 2003-2021 The Music Player Daemon Project
    This project's homepage is: http://www.musicpd.org
-
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions
    are met:
-
    - Redistributions of source code must retain the above copyright
    notice, this list of conditions and the following disclaimer.
-
    - Redistributions in binary form must reproduce the above copyright
    notice, this list of conditions and the following disclaimer in the
    documentation and/or other materials provided with the distribution.
-
    - Neither the name of the Music Player Daemon nor the names of its
    contributors may be used to endorse or promote products derived from
    this software without specific prior written permission.
-
    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
    ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -51,52 +46,44 @@ mpd_send_albumart(struct mpd_connection *connection, const char *uri, unsigned o
 	return mpd_send_s_u_command(connection, "albumart", uri, offset);
 }
 
-bool
-mpd_recv_albumart(struct mpd_connection *connection, struct mpd_albumart *buffer)
+int
+mpd_recv_albumart(struct mpd_connection *connection,
+                  void *buffer,
+                  size_t buffer_size)
 {
-        buffer->data_length = 0;
-        buffer->size = 0;
-        
-        struct mpd_pair *pair = mpd_recv_pair_named(connection, "size");
-        if (pair == NULL) {
-                return false;
-        }
-        buffer->size = strtoumax(pair->value, NULL, 10);
-        mpd_return_pair(connection, pair);
-        
-        pair = mpd_recv_pair_named(connection, "binary");
-        if (pair == NULL) {
-               return false;
-        }
-        buffer->data_length = strtoumax(pair->value, NULL, 10);
-        mpd_return_pair(connection, pair);
+    struct mpd_pair *pair = mpd_recv_pair_named(connection, "binary");
+    if (pair == NULL) {
+        return -1;
+    }
 
-        //binary data
-        buffer->data_length = buffer->data_length < MPD_BINARY_CHUNK_SIZE ? buffer->data_length : MPD_BINARY_CHUNK_SIZE;
-        if (mpd_recv_binary(connection, buffer->data, buffer->data_length) == false) {
-                return false;
-        }
+    size_t chunk_size = strtoumax(pair->value, NULL, 10);
+    mpd_return_pair(connection, pair);
+
+    //binary data
+    unsigned retrieve_bytes = chunk_size > buffer_size ? buffer_size : chunk_size;
+    if (mpd_recv_binary(connection, buffer, retrieve_bytes) == false) {
+        return -1;
+    }
         
-	return true;
+	return retrieve_bytes;
 }
 
-bool
-mpd_run_albumart(struct mpd_connection *connection, const char *uri, unsigned offset, struct mpd_albumart *buffer)
+int
+mpd_run_albumart(struct mpd_connection *connection,
+                 const char *uri,
+                 unsigned offset,
+                 void *buffer,
+                 size_t buffer_size)
 {
 	if (!mpd_run_check(connection) ||
 	    !mpd_send_albumart(connection, uri, offset)) {
-		return false;
-        }
+		    return -1;
+    }
         
-        if (mpd_recv_albumart(connection, buffer) == false) {
-                if (mpd_connection_get_error(connection) != MPD_ERROR_SUCCESS) {
-                       mpd_connection_clear_error(connection);
-                }
-                mpd_response_finish(connection);
-                return false;
-        }
-        else if (!mpd_response_finish(connection)) {
-                return false;
-        }
-	return true;
+    int read_size = mpd_recv_albumart(connection, buffer, buffer_size);
+    if (!mpd_response_finish(connection)) {
+        return -1;
+    }
+
+	return read_size;
 }

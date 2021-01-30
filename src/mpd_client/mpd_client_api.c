@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <assert.h>
+#include <time.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
@@ -27,6 +28,7 @@
 #include "../mpd_shared/mpd_shared_playlists.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
+#include "../mpd_shared/mpd_shared_tags.h"
 #include "../lua_mympd_state.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_browse.h"
@@ -62,6 +64,10 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
     char *p_charbuf3 = NULL;
     char *p_charbuf4 = NULL;
     char *p_charbuf5 = NULL;
+    
+    #ifdef DEBUG
+    MEASURE_START
+    #endif
 
     LOG_VERBOSE("MPD CLIENT API request (%d)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
@@ -243,6 +249,19 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Sticker cache is NULL", true);
             }
             mpd_client_state->sticker_cache_building = false;
+            break;
+        case MPD_API_ALBUMCACHE_CREATED:
+            album_cache_free(&mpd_client_state->album_cache);
+            if (request->extra != NULL) {
+                mpd_client_state->album_cache = (rax *) request->extra;
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                LOG_VERBOSE("Album cache was replaced");
+            }
+            else {
+                LOG_ERROR("Album cache is NULL");
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Album cache is NULL", true);
+            }
+            mpd_client_state->album_cache_building = false;
             break;
         case MPD_API_LOVE:
             if (mpd_run_send_message(mpd_client_state->mpd_state->conn, mpd_client_state->love_channel, mpd_client_state->love_message) == true) {
@@ -783,7 +802,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_shuffle");
             break;
         case MPD_API_PLAYLIST_RM:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri:%Q}}", &p_charbuf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
             if (je == 1) {
                 response->data = mpd_client_playlist_delete(config, mpd_client_state, response->data, request->method, request->id, p_charbuf1);
             }
@@ -795,7 +814,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             response->data = mpd_client_put_stats(config, mpd_client_state, response->data, request->method, request->id);
             break;
         case MPD_API_ALBUMART:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri:% Q}}", &p_charbuf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
             if (je == 1) {
                 response->data = mpd_client_getcover(config, mpd_client_state, response->data, request->method, request->id, p_charbuf1, &response->binary);
             }
@@ -896,6 +915,11 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
     FREE_PTR(p_charbuf3);                    
     FREE_PTR(p_charbuf4);
     FREE_PTR(p_charbuf5);
+    
+    #ifdef DEBUG
+    MEASURE_END
+    MEASURE_PRINT(request->method)
+    #endif
 
     if (sdslen(response->data) == 0) {
         response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "No response for method %{method}", true);

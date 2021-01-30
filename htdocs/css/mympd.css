@@ -470,7 +470,7 @@ tr > th {
   src: url(../assets/MaterialIcons-Regular.woff2) format('woff2');
 }
 
-.material-icons {
+.mi {
   font-family: 'Material Icons';
   font-weight: normal;
   font-style: normal;
@@ -492,30 +492,21 @@ tr > th {
   font-feature-settings: 'liga';
 }
 
-.material-icons:hover {
+.mi:hover {
   text-decoration: none;
 }
 
-.material-icons-left {
-/*  font-size: 1rem; */
+.mi-left {
   margin-left: -1em;
-/*  vertical-align: middle; */
 }
 
-.material-icons-small {
+.mi-small {
   font-size: 1rem;
 }
 
-.material-icons-lg {
+.mi-lg {
   font-size: 2.4rem;
 }
-
-/*
-.material-icons-small-left {
-  font-size: 1rem;
-  margin-left: -1em;
-}
-*/
 
 .btn-sm-big-icon {
   font-size: 1.4rem !important;
@@ -656,6 +647,16 @@ div.key {
   height: 2rem;
   text-align: center;
   line-height: 2rem;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+div.row-keymap {
+  overflow: hidden;
+}
+
+div.col-keymap {
+  min-width: 20rem;
 }
 
 ol#searchCrumb,
@@ -674,9 +675,6 @@ ol#searchDatabaseCrumb {
 #mainMenu img {
   width: 2.5rem;
   height: 2.5rem;
-/*  font-size: 2.5rem;
-  margin-right: 5px;
-*/
 }
 
 .connected,
@@ -1011,4 +1009,18 @@ div.album-grid-mouseover {
 
 tfoot td {
   text-align: right;
+}
+
+#dropdownHomeIconLigature {
+  width: 60vw;
+}
+
+#dropdownHomeIconLigature .row {
+  margin-right: 0;
+  margin-bottom: 1rem;
+}
+
+#listHomeIconLigature {
+  max-height: 60vh;
+  overflow-y: scroll;
 }

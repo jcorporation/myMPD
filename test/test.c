@@ -98,5 +98,41 @@ int main(void) {
         i++;
     }
     list_free(test_list);
+    //sorted inserts by key
+    list_insert_sorted_by_key(test_list, "ddd", 1, "value1", NULL, true);
+    list_insert_sorted_by_key(test_list, "bbb", 1, "value1", NULL, true);
+    list_insert_sorted_by_key(test_list, "ccc", 1, "value1", NULL, true);
+    list_insert_sorted_by_key(test_list, "aaa", 1, "value1", NULL, true);
+    list_insert_sorted_by_key(test_list, "xxx", 1, "value1", NULL, true);
+    list_insert_sorted_by_key(test_list, "ggg", 1, "value1", NULL, true);
+    list_insert_sorted_by_key(test_list, "yyy", 1, "value1", NULL, true);
+    list_insert_sorted_by_key(test_list, "zzz", 1, "value1", NULL, true);
+    list_push(test_list, "last", 1, "value1", NULL); //check if tail is correct
+    i = 0;
+    current = test_list->head;
+    while (current != NULL) {
+        printf("%d: %s\n", i, current->key);
+        current = current->next;
+        i++;
+    }
+    list_free(test_list);
+    //sorted inserts by value_i
+    list_insert_sorted_by_value_i(test_list, "ddd", 4, "value1", NULL, true);
+    list_insert_sorted_by_value_i(test_list, "bbb", 2, "value1", NULL, true);
+    list_insert_sorted_by_value_i(test_list, "ccc", 3, "value1", NULL, true);
+    list_insert_sorted_by_value_i(test_list, "aaa", 1, "value1", NULL, true);
+    list_insert_sorted_by_value_i(test_list, "xxx", 24, "value1", NULL, true);
+    list_insert_sorted_by_value_i(test_list, "ggg", 7, "value1", NULL, true);
+    list_insert_sorted_by_value_i(test_list, "yyy", 25, "value1", NULL, true);
+    list_insert_sorted_by_value_i(test_list, "zzz", 26, "value1", NULL, true);
+    list_push(test_list, "last", 0, "value1", NULL); //check if tail is correct
+    i = 0;
+    current = test_list->head;
+    while (current != NULL) {
+        printf("%d: %s - %ld\n", i, current->key, current->value_i);
+        current = current->next;
+        i++;
+    }
+    list_free(test_list);
     free(test_list);
 }

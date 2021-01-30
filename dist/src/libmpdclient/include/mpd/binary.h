@@ -1,5 +1,5 @@
 /* libmpdclient
-   (c) 2003-2019 The Music Player Daemon Project
+   (c) 2003-2021 The Music Player Daemon Project
    This project's homepage is: http://www.musicpd.org
 
    Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,33 @@
 #ifndef MPD_BINARY_H
 #define MPD_BINARY_H
 
-#define MPD_BINARY_CHUNK_SIZE 8192
+#include <stdbool.h>
+
+struct mpd_connection;
+
+/**
+ * Sends the "binarylimit" command to MPD.
+ *
+ * @param connection a valid and connected mpd_connection.
+ * @param limit the binary chunk size limit.
+ * @return true on success
+ *
+ * @since libmpdclient 2.20, MPD 0.22.4
+ */
+bool
+mpd_send_binarylimit(struct mpd_connection *connection, unsigned limit);
+
+/**
+ * Shortcut for mpd_send_binarylimit() and mpd_response_finish().
+ *
+ * @param connection A valid and connected mpd_connection.
+ * @param limit the binary chunk size limit.
+ * @return true on success
+ *
+ * @since libmpdclient 2.20, MPD 0.22.4
+ */
+bool
+mpd_run_binarylimit(struct mpd_connection *connection, unsigned limit);
+
 
 #endif

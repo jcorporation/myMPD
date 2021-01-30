@@ -342,6 +342,7 @@ builddebug() {
   echo "Linking bootstrap css and js"
   [ -e "$PWD/htdocs/css/bootstrap.css" ] || ln -s "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
   [ -e "$PWD/htdocs/js/bootstrap-native.js" ] || ln -s "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
+  [ -e "$PWD/htdocs/js/long-press-event.min.js" ] || ln -s "$PWD/dist/htdocs/js/long-press-event.min.js" "$PWD/htdocs/js/long-press-event.min.js"
 
   createi18n ../../htdocs/js/i18n.js pretty
   
@@ -389,6 +390,7 @@ cleanup() {
   #htdocs
   rm -f htdocs/js/bootstrap-native-v4.js
   rm -f htdocs/js/bootstrap-native.js
+  rm -f htdocs/js/long-press-event.min.js
   rm -f htdocs/js/i18n.js
   rm -f htdocs/css/bootstrap.css
 
@@ -671,11 +673,12 @@ installdeps() {
     apt-get update
     apt-get install -y --no-install-recommends \
 	gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-	build-essential liblua5.3-dev pkg-config $JAVADEB
+	build-essential liblua5.3-dev pkg-config $JAVADEB \
+	libpcre3-dev
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless lua pkgconf
+    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless lua pkgconf pcre
   elif [ -f /etc/alpine-release ]
   then
     #alpine
@@ -683,17 +686,17 @@ installdeps() {
     #issue 234
     [ "$(uname -m)" = "armv7l" ] && JAVADEB="java-common"
     apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.3-dev \
-    	alpine-sdk linux-headers pkgconf $JAVADEB
+    	alpine-sdk linux-headers pkgconf $JAVADEB pcre-dev
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	lua-devel java-11-openjdk-headless unzip
+	lua-devel java-11-openjdk-headless unzip pcre-devel
   elif [ -f /etc/redhat-release ]
   then  
     #fedora 	
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	lua-devel java-11-openjdk-headless unzip
+	lua-devel java-11-openjdk-headless unzip pcre-devel
   else 
     echo "Unsupported distribution detected."
     echo "You should manually install:"
@@ -705,6 +708,7 @@ installdeps() {
     echo "  - flac (devel)"
     echo "  - libid3tag (devel)"
     echo "  - lua53 (devel)"
+    echo "  - libpcre3 (devel)"
   fi
 }
 
@@ -804,6 +808,37 @@ translate() {
   $PERLBIN ./tojson.pl pretty > ../../htdocs/js/i18n.js
 }
 
+materialicons() {
+  TMPDIR=$(mktemp -d)
+  cd "$TMPDIR" || exit 1
+  if ! wget -q https://raw.githubusercontent.com/google/material-design-icons/master/update/current_versions.json \
+	-O current_version.json
+  then
+    echo "Error downloading json file"
+    exit 1
+  fi
+  EXCLUDE="face_unlock|battery_\d|battery_charging_\d|signal_cellular_|signal_wifi_\d_bar"
+  echo -n "const materialIcons={"
+  I=0
+  for CAT in $(grep "^\s" current_version.json | cut -d\" -f2 | cut -d: -f1 | sort -u)
+  do
+    [ "$I" -gt 0 ] && echo -n ","
+    echo -n "\"$CAT\": ["
+	J=0
+	for MI in $(cut -d\" -f2 current_version.json | grep "$CAT::" | cut -d: -f3 | grep -v -P "$EXCLUDE")
+	do
+	  [ "$J" -gt 0 ] && echo -n ","
+	  echo -n "\"$MI\""
+	  J=$((J+1))	
+	done
+	echo -n "]"
+	I=$((I+1))
+  done
+  echo "};"
+  cd / || exit 1
+  rm -fr "$TMPDIR"
+}
+
 case "$1" in
 	release)
 	  buildrelease
@@ -882,6 +917,9 @@ case "$1" in
 	;;
 	translate)
 	  translate
+	;;
+	materialicons)
+		materialicons
 	;;
 	createdist)
 	  createdistfiles

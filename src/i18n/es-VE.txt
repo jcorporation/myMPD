@@ -579,9 +579,6 @@ Versión Libmpdclient
 Libmympdclient version
 Versión Libmympdclient
 
-Shortcut
-Acceso directo
-
 Action
 Acción
 

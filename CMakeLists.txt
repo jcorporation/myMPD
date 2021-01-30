@@ -11,7 +11,7 @@ include(GNUInstallDirs)
 project (mympd C)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 set(CPACK_PACKAGE_VERSION_MAJOR "6")
-set(CPACK_PACKAGE_VERSION_MINOR "10")
+set(CPACK_PACKAGE_VERSION_MINOR "11")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 if(EXISTS "/etc/arch-release")
@@ -53,6 +53,8 @@ endif()
 message("ASSETS_PATH: ${ASSETS_PATH}")
 
 find_package(Threads REQUIRED)
+find_package(PCRE REQUIRED)
+include_directories(${PCRE_INCLUDE_DIRS})
 
 if(NOT "${ENABLE_SSL}" MATCHES "OFF")
   message("Searching for openssl")
@@ -213,7 +215,7 @@ set(SOURCES
   src/mpd_worker/mpd_worker_api.c
   src/mpd_worker/mpd_worker_utility.c
   src/mpd_worker/mpd_worker_smartpls.c
-  src/mpd_worker/mpd_worker_stickercache.c
+  src/mpd_worker/mpd_worker_cache.c
   src/mympd_api.c
   src/mympd_api/mympd_api_bookmarks.c
   src/mympd_api/mympd_api_home.c
@@ -243,6 +245,7 @@ endif()
 
 set(LIBMPDCLIENT_SOURCES
   dist/src/libmpdclient/src/albumart.c
+  dist/src/libmpdclient/src/binary.c
   dist/src/libmpdclient/src/async.c
   dist/src/libmpdclient/src/audio_format.c
   dist/src/libmpdclient/src/capabilities.c
@@ -303,6 +306,7 @@ add_executable(mympd ${SOURCES} ${LIBMPDCLIENT_SOURCES} ${CERT_SOURCES})
 
 target_link_libraries(mympd ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(mympd m)
+target_link_libraries(mympd ${PCRE_LIBRARIES})
 if (OPENSSL_FOUND)
   target_link_libraries(mympd ${OPENSSL_LIBRARIES})
 endif()

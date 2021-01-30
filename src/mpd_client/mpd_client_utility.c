@@ -35,6 +35,19 @@
 static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char *uri, sds *booklet_path, struct list *images, bool is_dirname);
 
 //public functions
+bool caches_init(t_config *config, t_mpd_client_state *mpd_client_state) {
+    if (config->sticker_cache == false || mpd_client_state->feat_sticker == false || mpd_client_state->mpd_state->feat_mpd_searchwindow == false) {
+        LOG_VERBOSE("Sticker cache is disabled, mpd version < 0.20.0 or stickers / sticker_cache not enabled");
+        return false;
+    }
+    //push cache building request to mpd_worker thread
+    mpd_client_state->sticker_cache_building = true;
+    mpd_client_state->album_cache_building = true;
+    t_work_request *request = create_request(-1, 0, MPDWORKER_API_CACHES_CREATE, "MPDWORKER_API_CACHES_CREATE", "");
+    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPDWORKER_API_CACHES_CREATE\",\"params\":{}}");
+    tiny_queue_push(mpd_worker_queue, request, 0);
+    return true;
+}
 
 sds put_extra_files(t_mpd_client_state *mpd_client_state, sds buffer, const char *uri, bool is_dirname) {
     struct list images;
@@ -136,8 +149,12 @@ void default_mpd_client_state(t_mpd_client_state *mpd_client_state) {
     list_init(&mpd_client_state->last_played);
     //init sticker queue
     list_init(&mpd_client_state->sticker_queue);
+    //sticker cache
     mpd_client_state->sticker_cache_building = false;
     mpd_client_state->sticker_cache = NULL;
+    //album cache
+    mpd_client_state->album_cache_building = false;
+    mpd_client_state->album_cache = NULL;
     //jukebox queue
     list_init(&mpd_client_state->jukebox_queue);
     list_init(&mpd_client_state->jukebox_queue_tmp);
@@ -173,9 +190,17 @@ void free_mpd_client_state(t_mpd_client_state *mpd_client_state) {
     free(mpd_client_state);
 }
 
+bool mpd_client_set_binarylimit(t_config *config, t_mpd_client_state *mpd_client_state) {
+    bool rc = false;
+    if (mpd_connection_cmp_server_version(mpd_client_state->mpd_state->conn, 0, 22, 4) >= 0 ) {
+        rc = mpd_run_binarylimit(mpd_client_state->mpd_state->conn, config->binarylimit);
+        check_rc_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_binarylimit");
+    }
+    LOG_DEBUG("binarylimit command not supported, depends on mpd >= 0.22.4");
+    return rc;
+}
 
 //private functions
-
 static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char *uri, sds *booklet_path, struct list *images, bool is_dirname) {
     char *uricpy = strdup(uri);
     

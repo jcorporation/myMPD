@@ -7,13 +7,9 @@
 
 function setStateIcon() {
     if (websocketConnected === false || settings.mpdConnected === false) {
-//        domCache.mainMenu.classList.add('text-light');
-//        domCache.mainMenu.classList.remove('connected');
         document.getElementById('logoBg').setAttribute('fill', '#6c757d');
     }
     else {
-//        domCache.mainMenu.classList.add('connected');
-//        domCache.mainMenu.classList.remove('text-light');
         document.getElementById('logoBg').setAttribute('fill', settings.highlightColor);
     }
 }
@@ -31,12 +27,6 @@ function toggleAlert(alertBox, state, msg) {
 }
 
 function showNotification(notificationTitle, notificationText, notificationHtml, notificationType) {
-    if (notificationTitle === 'No current song' ||
-        notificationTitle === 'No lyrics found'
-    ) {
-        return;
-    }
-
     if (settings.notificationWeb === true) {
         let notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
         setTimeout(notification.close.bind(notification), 3000);
@@ -57,13 +47,13 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         
         let toast = '<div class="toast-header">';
         if (notificationType === 'success' ) {
-            toast += '<span class="material-icons text-success mr-2">info</span>';
+            toast += '<span class="mi text-success mr-2">info</span>';
         }
         else if (notificationType === 'warning' ) {
-            toast += '<span class="material-icons text-warning mr-2">warning</span>';
+            toast += '<span class="mi text-warning mr-2">warning</span>';
         }
         else {
-            toast += '<span class="material-icons text-danger mr-2">error</span>';
+            toast += '<span class="mi text-danger mr-2">error</span>';
         }
         toast += '<strong class="mr-auto">' + e(notificationTitle) + '</strong>' +
             '<button type="button" class="ml-2 mb-1 close">&times;</button></div>';
@@ -104,19 +94,19 @@ function logMessage(notificationTitle, notificationText, notificationHtml, notif
     let append = true;
     let lastEntry = overview.firstElementChild;
     if (lastEntry) {
-        if (lastEntry.getAttribute('data-title') === notificationTitle) {
+        if (getAttDec(lastEntry, 'data-title') === notificationTitle) {
             append = false;        
         }
     }
 
     let entry = document.createElement('div');
     entry.classList.add('text-light');
-    entry.setAttribute('data-title', notificationTitle);
+    setAttEnc(entry, 'data-title', notificationTitle);
     let occurence = 1;
     if (append === false) {
-        occurence += parseInt(lastEntry.getAttribute('data-occurence'));
+        occurence += parseInt(getAttDec(lastEntry, 'data-occurence'));
     }
-    entry.setAttribute('data-occurence', occurence);
+    setAttEnc(entry, 'data-occurence', occurence);
     entry.innerHTML = '<small>' + localeDate() + '&nbsp;&ndash;&nbsp;' + t(notificationType) +
         (occurence > 1 ? '&nbsp;(' + occurence + ')' : '') + '</small>' +
         '<p>' + e(notificationTitle) +
@@ -176,14 +166,14 @@ function setElsState(tag, state, type) {
         if (state === 'disabled') {
             if (els[i].classList.contains('alwaysEnabled') === false) {
                 if (els[i].getAttribute('disabled') === null) {
-                    els[i].setAttribute('disabled', 'disabled');
+                    disableEl(els[i]);
                     els[i].classList.add('disabled');
                 }
             }
         }
         else {
             if (els[i].classList.contains('disabled')) {
-                els[i].removeAttribute('disabled');
+                enableEl(els[i]);
                 els[i].classList.remove('disabled');
             }
         }
@@ -210,6 +200,7 @@ function toggleUI() {
         logDebug('Setting ui state to ' + state);
         setElsState('a', state, 'tag');
         setElsState('input', state, 'tag');
+        setElsState('select', state, 'tag');
         setElsState('button', state, 'tag');
         setElsState('clickable', state, 'class');
         uiEnabled = enabled;
