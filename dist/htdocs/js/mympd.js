@@ -1240,9 +1240,12 @@ function parseHome(obj) {
             }
         }
         
+        const homeType = obj.result.data[i].cmd === 'replaceQueue' ? 'Playlist' :
+            obj.result.data[i].cmd === 'appGoto' ? 'View' : 'Script';
+        
         const href = JSON.stringify({"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
         const html = '<div class="card home-icons clickable" draggable="true" tabindex="0" data-pos="' + i + '" data-href=\'' + 
-                   e(href) + '\'  title="' + e(obj.result.data[i].name) + '">' +
+                   e(href) + '\'  title="' + t(homeType) +': ' + e(obj.result.data[i].name) + '">' +
                    '<div class="card-body mi">' + e(obj.result.data[i].ligature) + '</div>' +
                    '<div class="card-footer card-footer-grid p-2">' +
                    e(obj.result.data[i].name) + 
@@ -1267,7 +1270,12 @@ function parseHome(obj) {
     }
                     
     if (nrItems === 0) {
-        cardContainer.innerHTML = '<div class="ml-3">' + t('Homescreen welcome') + '</div>';
+        cardContainer.innerHTML = '<div class="ml-3"><h3>' + t('Homescreen') + '</h3><p>' + t('Homescreen welcome') + '</p>' +
+            '<ul>' +
+            '<li><b>' + t('View') + '</b>: ' + t('Homescreen help view') + '</li>' + 
+            '<li><b>' + t('Playlist') + '</b>: ' + t('Homescreen help playlist') + '</li>' +
+            '<li><b>' + t('Script') + '</b>: ' + t('Homescreen help script') + '</li>' +
+            '</div>';
     }
 }
 
@@ -1660,6 +1668,8 @@ function e(x) {
             else if (m1 === '003E') return '&gt;';
             else if (m1 === '0022') return '&quot;';
             else if (m1 === '0027') return '&apos;';
+        }).replace(/\[\[(\w+)\]\]/g, function(m0, m1) {
+            return '<span class="mi">' + m1 + '</span>';
         });
     }
     return x;
@@ -2585,6 +2595,7 @@ var modalTrigger = new BSN.Modal(document.getElementById('modalTrigger'));
 var modalOutputAttributes = new BSN.Modal(document.getElementById('modalOutputAttributes'));
 var modalPicture = new BSN.Modal(document.getElementById('modalPicture'));
 var modalEditHomeIcon = new BSN.Modal(document.getElementById('modalEditHomeIcon'));
+var modalReally = new BSN.Modal(document.getElementById('modalReally'));
 
 var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
@@ -5051,6 +5062,10 @@ function playAfterCurrent(trackid, songpos) {
         //in random mode - set song priority
         sendAPI("MPD_API_QUEUE_PRIO_SET_HIGHEST", {"trackid": trackid});
     }
+}
+
+function clearQueue() {
+    showReally('{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP_OR_CLEAR"}]}', t('Do you really want to clear the queue?'));
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
@@ -8674,6 +8689,18 @@ function parseTriggerList(obj) {
  https://github.com/jcorporation/mympd
 */
 
+//warning dialog
+function showReally(action, text) {
+    setAttEnc('modalReallyAction', 'data-href', action);
+    document.getElementById('modalReallyText').innerText = text;
+    modalReally.show();    
+}
+
+function acknowledgeReally(event) {
+    modalReally.hide();
+    parseCmd(event, getAttDec('modalReallyAction', 'data-href'));
+}
+
 //functions to get custom actions
 function clickAlbumPlay(albumArtist, album) {
     switch (settings.advanced.clickAlbumPlay) {
@@ -8744,6 +8771,9 @@ function setAttEnc(el, attribute, value) {
 }
 
 function getAttDec(el, attribute) {
+    if (typeof el === 'string') {
+        el = document.getElementById(el);
+    }
     let value = el.getAttribute(attribute);
     if (value) {
         value = decodeURI(value);
@@ -9252,7 +9282,7 @@ function genId(x) {
 }
 
 function parseCmd(event, href) {
-    if (event !== null) {
+    if (event !== null && event !== undefined) {
         event.preventDefault();
     }
     let cmd = href;
