@@ -8,5 +8,4 @@
 
 
 ## Reporting a Vulnerability
-- Open an issue: https://github.com/jcorporation/myMPD/issues
-- Mail to me:  <mail@jcgames.de>
+Please write a mail to:  <mail@jcgames.de>. I will respond as fast as possbile.
