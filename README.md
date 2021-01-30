@@ -40,11 +40,16 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - Progressiv Web App enabled
 - Support of Media Session API
 
+To use all myMPD functions you should use the latest stable MPD version (0.22.x).
+
+## Contribution
+
 myMPD is in active development. If you like myMPD, you can help to improve it (no programming skills are required).
 
-- [Help to improve myMPD](https://github.com/jcorporation/myMPD/issues/167)
-
-To use all myMPD functions you should use the latest stable MPD version (0.22.x).
+- [Help to improve myMPD](https://github.com/jcorporation/myMPD/issues/167).
+- Use [issues](https://github.com/jcorporation/myMPD/issues) for bug reports only.
+- Use [discussion](https://github.com/jcorporation/myMPD/discussions) for feature requests, questions and general feedback.
+- If I accept a feature request, I will open an issue and assign a milestone to it.
 
 ## Screenshots
 
