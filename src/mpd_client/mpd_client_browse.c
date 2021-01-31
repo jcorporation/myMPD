@@ -474,8 +474,14 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
                 if (sort_value != NULL) {
                     list_insert_sorted_by_key(&album_list, sort_value, 0, NULL, iter.data, sortdesc);
                 }
+                else if (sort_tag == MPD_TAG_ALBUM_ARTIST) {
+                    //fallback to artist tag if albumartist tag is not set
+                    sort_value = mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
+                    list_insert_sorted_by_key(&album_list, sort_value, 0, NULL, iter.data, sortdesc);
+                }
                 else {
-                    LOG_WARN("Skip entry: %.*s", iter.key_len, iter.key); 
+                    //sort tag not present, append to end of the list
+                    list_push(&album_list, "zzzzzzzzzz", 0, NULL, iter.data);
                 }
             }
         }
