@@ -630,7 +630,7 @@ bool mympd_dump_config(void) {
         "smartpls = %s\n"
         "smartplssort = %s\n"
         "smartplsprefix = %s\n"
-        "smartplsinterval = %lld\n"
+        "smartplsinterval = %llu\n"
         "generateplstags = %s\n"
         "mixramp = %s\n"
         "taglist = %s\n"
