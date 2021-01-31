@@ -856,13 +856,13 @@ sbuild_chroots() {
   DEPENDENCIES="sbuild qemu-debootstrap"
   for dependancy in ${DEPENDENCIES}
   do
-    command -v ${dependancy} > /dev/null || {
+    command -v "${dependancy}" > /dev/null || {
 		echo "ERROR: ${dependancy} not found"
         exit 1
     }
   done
 
-  mkdir -p ${WORKDIR}/chroot
+  mkdir -p "${WORKDIR}/chroot"
 
   for dist in ${DISTROS}
   do
@@ -872,7 +872,7 @@ sbuild_chroots() {
       [ -d "${WORKDIR}/chroot/${dist}-${arch}" ] && echo "chroot ${dist}-${arch} already exists... skipping." && continue
       qemu-debootstrap --arch="${arch}" --variant=buildd --include=fakeroot,build-essential "${dist}" "${WORKDIR}/chroot/${dist}-${arch}/" "${DEBIAN_MIRROR}"
 
-      grep "${dist}-${arch}" /etc/schroot/schroot.conf || sudo cat << EOF >> /etc/schroot/schroot.conf
+      grep "${dist}-${arch}" /etc/schroot/schroot.conf || cat << EOF >> /etc/schroot/schroot.conf
 
 [${dist}-${arch}]
 description=Debian ${dist} ${arch}
@@ -892,7 +892,7 @@ sbuild_build() {
   DEPENDENCIES="sbuild qemu-debootstrap"
   for dependancy in ${DEPENDENCIES}
   do
-    command -v ${dependancy} >/dev/null || {
+    command -v "${dependancy}" >/dev/null || {
 		echo "ERROR: ${dependancy} not found"
         exit 1
     }
