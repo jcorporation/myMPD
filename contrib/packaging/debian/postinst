@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 echo "Checking status of mympd system user and group"
 getent group mympd > /dev/null ||  groupadd -r mympd

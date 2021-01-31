@@ -5,6 +5,10 @@
 # https://github.com/jcorporation/mympd
 #
 
+set -e
+
+[ "$DEBUG" = "1" ] && set -x
+
 if [ "${ENABLE_SSL}" = "" ]
 then
   export ENABLE_SSL="ON"
@@ -481,6 +485,7 @@ prepare() {
   for F in $SRC
   do
     [ "$F" = "$STARTPATH/osc" ] && continue
+    [ "$F" = "$STARTPATH/builder" ] && continue
     cp -a "$F" .
   done
   rm -r dist/buildtools
@@ -491,7 +496,10 @@ pkgdebian() {
   cp -a contrib/packaging/debian .
   export LC_TIME="en_GB.UTF-8"
   tar -czf "../mympd_${VERSION}.orig.tar.gz" -- *
-  dpkg-buildpackage -rfakeroot
+
+  [ "$SIGN" = "TRUE" ] || SIGNOPT="--no-sign"
+
+  dpkg-buildpackage -rfakeroot "$SIGNOPT"
 
   #get created package name
   PACKAGE=$(ls ../mympd_"${VERSION}"-1_*.deb)
@@ -839,6 +847,82 @@ materialicons() {
   rm -fr "$TMPDIR"
 }
 
+sbuild_chroots() {
+  [ "$WORKDIR" = "" ] && WORKDIR="$STARTPATH/builder"
+  [ "$DISTROS" = "" ] && DISTROS="buster stretch"
+  [ "$TARGETS" = "" ] && TARGETS="armhf armel"
+  [ "$DEBIAN_MIRROR" = "" ] && DEBIAN_MIRROR="http://ftp.de.debian.org/debian"
+
+  DEPENDENCIES="sbuild qemu-debootstrap"
+  for dependancy in ${DEPENDENCIES}
+  do
+    command -v ${dependancy} > /dev/null || {
+		echo "ERROR: ${dependancy} not found"
+        exit 1
+    }
+  done
+
+  mkdir -p ${WORKDIR}/chroot
+
+  for dist in ${DISTROS}
+  do
+    for arch in ${TARGETS}
+    do
+      echo "${dist}-${arch}"
+      [ -d "${WORKDIR}/chroot/${dist}-${arch}" ] && echo "chroot ${dist}-${arch} already exists... skipping." && continue
+      qemu-debootstrap --arch="${arch}" --variant=buildd --include=fakeroot,build-essential "${dist}" "${WORKDIR}/chroot/${dist}-${arch}/" "${DEBIAN_MIRROR}"
+
+      grep "${dist}-${arch}" /etc/schroot/schroot.conf || sudo cat << EOF >> /etc/schroot/schroot.conf
+
+[${dist}-${arch}]
+description=Debian ${dist} ${arch}
+directory=${WORKDIR}/chroot/${dist}-${arch}
+groups=sbuild-security
+EOF
+
+    done
+  done
+}
+
+sbuild_build() {
+  [ "$WORKDIR" = "" ] && WORKDIR="$STARTPATH/builder"
+  [ "$DISTROS" = "" ] && DISTROS="buster stretch"
+  [ "$TARGETS" = "" ] && TARGETS="armhf armel"
+
+  DEPENDENCIES="sbuild qemu-debootstrap"
+  for dependancy in ${DEPENDENCIES}
+  do
+    command -v ${dependancy} >/dev/null || {
+		echo "ERROR: ${dependancy} not found"
+        exit 1
+    }
+  done
+
+  prepare
+  cp -a contrib/packaging/debian .
+  export LC_TIME="en_GB.UTF-8"
+  tar -czf "../mympd_${VERSION}.orig.tar.gz" -- *
+  cd ..
+  # Compile for target distro/arch
+  for dist in ${DISTROS}
+  do
+    for arch in ${TARGETS}
+    do
+      echo "${dist}-${arch}"
+      mkdir -p "${WORKDIR}/builds/${dist}-${arch}"
+      sbuild  --arch="${arch}" -d "${dist}-${arch}" build --build-dir="${WORKDIR}/builds/${dist}-${arch}" \
+      	--no-run-lintian
+      #TODO: fix debian packaging and run lintian
+      echo "WARN: lintian skipped, debian packaging must be fixed"
+    done
+  done
+}
+
+sbuild_cleanup() {
+  rm -rf package
+  rm -rf builder
+}
+
 case "$1" in
 	release)
 	  buildrelease
@@ -924,6 +1008,15 @@ case "$1" in
 	createdist)
 	  createdistfiles
 	;;
+	sbuild_chroots)
+		sbuild_chroots
+	;;
+	sbuild_build)
+		sbuild_build
+	;;
+	sbuild_cleanup)
+		sbuild_cleanup
+	;;
 	*)
 	  echo "Usage: $0 <option>"
 	  echo "Version: ${VERSION}"
@@ -970,16 +1063,31 @@ case "$1" in
 	  echo "                      - SIGN=\"FALSE\""
 	  echo "                      - GPGKEYID=\"\""
 	  echo "  pkgdocker:        creates the docker image (debian based)"
-          echo "                    following environment variables are respected"
-          echo "                      - DOCKERFILE=\"Dockerfile.alpine\""
-          echo "  pkgbuildx:        creates a multiarch docker image with buildx"
-          echo "                    following environment variables are respected"
-          echo "                      - DOCKERFILE=\"Dockerfile.alpine\""
-          echo "                      - PLATFORMS=\"linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6\""
+      echo "                    following environment variables are respected"
+      echo "                      - DOCKERFILE=\"Dockerfile.alpine\""
+      echo "  pkgbuildx:        creates a multiarch docker image with buildx"
+      echo "                    following environment variables are respected"
+      echo "                      - DOCKERFILE=\"Dockerfile.alpine\""
+      echo "                      - PLATFORMS=\"linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6\""
 	  echo "  pkgrpm:           creates the rpm package"
 	  echo "  pkgosc:           updates the open build service repository"
 	  echo "                    following environment variables are respected"
 	  echo "                      - OSC_REPO=\"home:jcorporation/myMPD\""
+	  echo "  sbuild_chroots:   creates chroots for debian crosscompile"
+	  echo "                    must be run as root"
+	  echo "                    following environment variables are respected"
+      echo "                      - WORKDIR=\"$STARTPATH/builder\""
+      echo "                      - DISTROS=\"buster stretch\""
+      echo "                      - TARGETS=\"armhf armel\""
+      echo "                      - DEBIAN_MIRROR=\"http://ftp.de.debian.org/debian\""
+	  echo "  sbuild_build:     builds the packages for targets and distros"
+	  echo "                    must be run as root"
+	  echo "                    following environment variables are respected"
+      echo "                      - WORKDIR=\"$STARTPATH/builder\""
+      echo "                      - DISTROS=\"buster stretch\""
+      echo "                      - TARGETS=\"armhf armel\""
+	  echo "  sbuild_cleanup:   removes the builder and package directory"
+	  echo "                    must be run as root"
 	  echo ""
 	  echo "Misc options:"
 	  echo "  setversion:       sets version and date in packaging files from CMakeLists.txt"
