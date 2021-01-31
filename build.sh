@@ -7,7 +7,7 @@
 
 set -e
 
-[ "$DEBUG" = "1" ] && set -x
+[ "$DEBUG" != "" ] && set -x
 
 if [ "${ENABLE_SSL}" = "" ]
 then
@@ -301,8 +301,12 @@ buildrelease() {
   	cleanupdist
   fi
 
-  createdistfiles
-  ASSETSCHANGED=$?
+  if createdistfiles
+  then
+  	ASSETSCHANGED="0"
+  else
+    ASSETSCHANGED="1"
+  fi
 
   echo "Compiling myMPD"
   install -d release
