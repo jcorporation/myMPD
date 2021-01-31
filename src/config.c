@@ -630,7 +630,7 @@ bool mympd_dump_config(void) {
         "smartpls = %s\n"
         "smartplssort = %s\n"
         "smartplsprefix = %s\n"
-        "smartplsinterval = %ld\n"
+        "smartplsinterval = %lld\n"
         "generateplstags = %s\n"
         "mixramp = %s\n"
         "taglist = %s\n"
@@ -696,7 +696,7 @@ bool mympd_dump_config(void) {
         (p_config->smartpls == true ? "true" : "false"),
         p_config->smartpls_sort,
         p_config->smartpls_prefix,
-        p_config->smartpls_interval,
+        (unsigned long long)p_config->smartpls_interval, //cast for 32 bit compatibility
         p_config->generate_pls_tags,
         (p_config->mixramp == true ? "true" : "false"),
         p_config->taglist,
