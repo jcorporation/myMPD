@@ -89,6 +89,8 @@ static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, 
     unsigned start = 0;
     unsigned end = start + 1000;
     unsigned i = 0;   
+    unsigned album_count = 0;
+    unsigned song_count = 0;
     //get first song from each album
     do {
         bool rc = mpd_search_db_songs(mpd_worker_state->mpd_state->conn, false);
@@ -125,6 +127,7 @@ static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, 
                 t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
                 assert(sticker);
                 raxInsert(sticker_cache, (unsigned char*)uri, strlen(uri), (void *)sticker, NULL);
+                song_count++;
             }
 
             //album cache
@@ -137,6 +140,9 @@ static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, 
                     if (raxTryInsert(album_cache, (unsigned char*)key, sdslen(key), (void *)song, NULL) == 0) {
                         //discard song data if key exists
                         mpd_song_free(song);
+                    }
+                    else {
+                        album_count++;
                     }
                 }
                 else {
@@ -170,6 +176,8 @@ static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, 
         sdsfree(uri);
         raxStop(&iter);
     }
+    LOG_VERBOSE("Added %u albums to album cache", album_count);
+    LOG_VERBOSE("Added %u songs to sticker cache", song_count);
     LOG_VERBOSE("Cache updated successfully");
     return true;
 }
