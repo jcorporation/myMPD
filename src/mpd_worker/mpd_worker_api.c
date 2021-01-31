@@ -37,7 +37,7 @@ static bool mpd_worker_api_settings_set(t_mpd_worker_state *mpd_worker_state, st
 void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void *arg_request) {
     t_work_request *request = (t_work_request*) arg_request;
     bool rc;
-    bool bool_buf;
+    bool bool_buf1, bool_buf2;
     bool async = false;
     int je;
     char *p_charbuf1 = NULL;
@@ -90,7 +90,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
             break;
         }
         case MPDWORKER_API_SMARTPLS_UPDATE_ALL:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {force: %B}}", &bool_buf);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {force: %B}}", &bool_buf1);
             if (je == 1) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Smart playlists update started", false);
                 if (request->conn_id > -1) {
@@ -101,7 +101,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
                     free_result(response);
                 }
                 free_request(request);
-                rc = mpd_worker_smartpls_update_all(config, mpd_worker_state, bool_buf);
+                rc = mpd_worker_smartpls_update_all(config, mpd_worker_state, bool_buf1);
                 if (rc == true) {
                     send_jsonrpc_notify_info("Smart playlists updated");
                 }
@@ -128,7 +128,10 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
             }
             break;
         case MPDWORKER_API_CACHES_CREATE:
-            mpd_worker_cache_init(mpd_worker_state);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {featTags: %B, featSticker: %B}}", &bool_buf1, &bool_buf2);
+            if (je == 2) {
+                mpd_worker_cache_init(mpd_worker_state, bool_buf1, bool_buf2);
+            }
             async = true;
             free_request(request);
             free_result(response);
