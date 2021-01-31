@@ -5064,6 +5064,7 @@ function playAfterCurrent(trackid, songpos) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function clearQueue() {
     showReally('{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP_OR_CLEAR"}]}', t('Do you really want to clear the queue?'));
 }
@@ -8696,6 +8697,7 @@ function showReally(action, text) {
     modalReally.show();    
 }
 
+//eslint-disable-next-line no-unused-vars
 function acknowledgeReally(event) {
     modalReally.hide();
     parseCmd(event, getAttDec('modalReallyAction', 'data-href'));
