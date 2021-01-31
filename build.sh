@@ -40,18 +40,16 @@ VERSION=$(grep CPACK_PACKAGE_VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.
 if [ "$1" != "installdeps" ]
 then
   #gzip is needed to compress assets for release
-  GZIPBIN=$(command -v gzip)
-  if [ "$GZIPBIN" = "" ]
+  if ! command -v gzip > /dev/null
   then
     echo "ERROR: gzip not found"
     exit 1
   fi
-  GZIP="$GZIPBIN -f -v -9"
-  GZIPCAT="$GZIPBIN -f -v -9 -c"
+  GZIP="gzip -f -v -9"
+  GZIPCAT="gzip -f -v -9 -c"
 
   #perl is needed to create i18n.js
-  PERLBIN=$(command -v perl)
-  if [ "$PERLBIN" = "" ]
+  if ! command -v perl > /dev/null
   then
     echo "ERROR: perl not found"
     exit 1
@@ -59,7 +57,11 @@ then
 fi
 
 #java is optional to minify js and css
-JAVABIN=$(command -v java)
+JAVA="0"
+if command -v java > /dev/null
+then
+  JAVA="1"
+fi
 
 #returns true if FILE1 is newer or equal than FILE2
 newer() {
@@ -145,13 +147,13 @@ minify() {
       echo "Error minifying $SRC"
       exit 1
     fi
-  elif [ "$TYPE" = "js" ] && [ "$JAVABIN" != "" ]
+  elif [ "$TYPE" = "js" ] && [ "$JAVA" = "1" ]
   then
-    $JAVABIN -jar dist/buildtools/closure-compiler.jar "$SRC" > "${DST}.tmp"
+    java -jar dist/buildtools/closure-compiler.jar "$SRC" > "${DST}.tmp"
     ERROR="$?"
-  elif [ "$TYPE" = "css" ] && [ "$JAVABIN" != "" ]
+  elif [ "$TYPE" = "css" ] && [ "$JAVA" = "1" ]
   then
-    $JAVABIN -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties "$SRC" > "${DST}.tmp"
+    java -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties "$SRC" > "${DST}.tmp"
     ERROR="$?"
   else
     ERROR="1"
@@ -159,7 +161,7 @@ minify() {
 
   if [ "$ERROR" = "1" ]
   then
-    if [ "$JAVABIN" = "" ]
+    if [ "$JAVA" = "0" ]
     then
       echo "Java not found, copy $SRC to $DST"
     else
@@ -330,8 +332,31 @@ buildrelease() {
 
 addmympduser() {
   echo "Checking status of mympd system user and group"
-  getent group mympd > /dev/null || groupadd -r mympd
-  getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
+  if ! getent group mympd > /dev/null
+  then
+    if command -v groupadd > /dev/null
+    then
+      groupadd -r mympd
+    elif command -v addgroup > /dev/null
+    then
+      addgroup -S mympd 2>/dev/null
+    else
+      echo "Can not add group mympd"
+    fi
+  fi
+
+  if ! getent passwd mympd
+  then
+    if command -v useradd > /dev/null
+    then
+      useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
+    elif command -v addgroup > /dev/null
+    then
+      adduser -S -D -H -h /var/lib/mympd -s /sbin/nologin -G mympd -g myMPD mympd
+    else
+      echo "Can not add user mympd"
+    fi
+  fi
 }
 
 installrelease() {
@@ -435,27 +460,25 @@ cleanupdist() {
 }
 
 check() {
-  CPPCHECKBIN=$(command -v cppcheck)
-  [ "$CPPCHECKOPTS" = "" ] && CPPCHECKOPTS="--enable=warning"
-  if [ "$CPPCHECKBIN" != "" ]
+  if command -v cppcheck > /dev/null
   then
     echo "Running cppcheck"
-    $CPPCHECKBIN $CPPCHECKOPTS src/*.c src/*.h
-    $CPPCHECKBIN $CPPCHECKOPTS src/mpd_client/*.c src/mpd_client/*.h
-    $CPPCHECKBIN $CPPCHECKOPTS src/mympd_api/*.c src/mympd_api/*.h
-    $CPPCHECKBIN $CPPCHECKOPTS src/web_server/*.c src/web_server/*.h
-    $CPPCHECKBIN $CPPCHECKOPTS cli_tools/*.c
+    [ "$CPPCHECKOPTS" = "" ] && CPPCHECKOPTS="--enable=warning"
+    cppcheck $CPPCHECKOPTS src/*.c src/*.h
+    cppcheck $CPPCHECKOPTS src/mpd_client/*.c src/mpd_client/*.h
+    cppcheck $CPPCHECKOPTS src/mympd_api/*.c src/mympd_api/*.h
+    cppcheck $CPPCHECKOPTS src/web_server/*.c src/web_server/*.h
+    cppcheck $CPPCHECKOPTS cli_tools/*.c
   else
     echo "cppcheck not found"
   fi
   
-  FLAWFINDERBIN=$(command -v flawfinder)
-  [ "$FLAWFINDEROPTS" = "" ] && FLAWFINDEROPTS="-m3"
-  if [ "$FLAWFINDERBIN" != "" ]
+  if command -v flawfinder > /dev/null
   then
     echo "Running flawfinder"
-    $FLAWFINDERBIN $FLAWFINDEROPTS src
-    $FLAWFINDERBIN $FLAWFINDEROPTS cli_tools
+    [ "$FLAWFINDEROPTS" = "" ] && FLAWFINDEROPTS="-m3"
+    flawfinder $FLAWFINDEROPTS src
+    flawfinder $FLAWFINDEROPTS cli_tools
   else
     echo "flawfinder not found"
   fi
@@ -467,8 +490,7 @@ check() {
     exit 1
   fi
   
-  CLANGTIDYBIN=$(command -v clang-tidy)
-  if [ "$CLANGTIDYBIN" != "" ]
+  if command -v clang-tidy > /dev/null
   then
     echo "Running clang-tidy, output goes to clang-tidy.out"
     rm -f clang-tidy.out
@@ -514,8 +536,7 @@ pkgdebian() {
 
   if [ "$SIGN" = "TRUE" ]
   then  
-    DPKGSIG=$(command -v dpkg-sig)
-    if [ "$DPKGSIG" != "" ]
+    if command -v dpkg-sig > /dev/null
     then
       if [ "$GPGKEYID" != "" ]
       then
@@ -529,11 +550,10 @@ pkgdebian() {
     fi
   fi
   
-  LINTIAN=$(command -v lintian)
-  if [ "$LINTIAN" != "" ]
+  if command -v lintian > /dev/null
   then
     echo "Checking package with lintian"
-    $LINTIAN "$PACKAGE"
+    lintian "$PACKAGE"
   else
     echo "WARNING: lintian not found, can't check package"
   fi
@@ -592,12 +612,11 @@ pkgrpm() {
   mv "mympd-${VERSION}.tar.gz" ~/rpmbuild/SOURCES/
   cp ../../contrib/packaging/rpm/mympd.spec .
   rpmbuild -ba mympd.spec
-  RPMLINT=$(command -v rpmlint)
-  if [ "$RPMLINT" != "" ]
+  if command -v rpmlint > /dev/null
   then
     echo "Checking package with rpmlint"
     ARCH=$(uname -p)
-    $RPMLINT "$HOME/rpmbuild/RPMS/${ARCH}/mympd-${VERSION}-0.${ARCH}.rpm"
+    rpmlint "$HOME/rpmbuild/RPMS/${ARCH}/mympd-${VERSION}-0.${ARCH}.rpm"
   else
     echo "WARNING: rpmlint not found, can't check package"
   fi
@@ -614,20 +633,18 @@ pkgarch() {
     [ "$GPGKEYID" != "" ] && KEYARG="--key $PGPGKEYID"
     makepkg --sign "$KEYARG" mympd-*.pkg.tar.xz
   fi
-  NAMCAP=$(command -v namcap)
-  if [ "$NAMCAP" != "" ]
+  if command -v namcap > /dev/null
   then
     echo "Checking package with namcap"
-    $NAMCAP PKGBUILD
-    $NAMCAP mympd-*.pkg.tar.xz
+    namcap PKGBUILD
+    namcap mympd-*.pkg.tar.xz
   else
     echo "WARNING: namcap not found, can't check package"
   fi
 }
 
 pkgosc() {
-  OSCBIN=$(command -v osc)
-  if [ "$OSCBIN" = "" ]
+  if command -v osc > /dev/null
   then
     echo "ERROR: osc not found"
     exit 1
@@ -725,14 +742,12 @@ installdeps() {
 }
 
 updatelibmympdclient() {
-  GITBIN=$(command -v git)
-  if [ "$GITBIN" = "" ]
+  if command -v git > /dev/null
   then
     echo "ERROR: git not found"
     exit 1
   fi
-  MESONBIN=$(command -v meson)
-  if [ "$MESONBIN" = "" ]
+  if command -v meson > /dev/null
   then
     echo "ERROR: meson not found"
     exit 1
@@ -743,9 +758,9 @@ updatelibmympdclient() {
 
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
-  $GITBIN clone -b libmympdclient https://github.com/jcorporation/libmpdclient.git
+  git clone -b libmympdclient https://github.com/jcorporation/libmpdclient.git
   cd libmpdclient || exit 1
-  $MESONBIN . output
+  meson . output
 
   cd "$STARTDIR" || exit 1
   install -d src
@@ -860,10 +875,11 @@ sbuild_chroots() {
   DEPENDENCIES="sbuild qemu-debootstrap"
   for dependancy in ${DEPENDENCIES}
   do
-    command -v "${dependancy}" > /dev/null || {
-		echo "ERROR: ${dependancy} not found"
-        exit 1
-    }
+    if ! command -v "${dependancy}" > /dev/null
+    then
+      echo "ERROR: ${dependancy} not found"
+      exit 1
+    fi
   done
 
   mkdir -p "${WORKDIR}/chroot"
@@ -896,10 +912,11 @@ sbuild_build() {
   DEPENDENCIES="sbuild qemu-debootstrap"
   for dependancy in ${DEPENDENCIES}
   do
-    command -v "${dependancy}" >/dev/null || {
-		echo "ERROR: ${dependancy} not found"
-        exit 1
-    }
+	if ! command -v "${dependancy}" > /dev/null
+    then
+      echo "ERROR: ${dependancy} not found"
+      exit 1
+    fi
   done
 
   prepare
