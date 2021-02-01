@@ -211,7 +211,7 @@ function parseHome(obj) {
             '<ul>' +
             '<li><b>' + t('View') + '</b>: ' + t('Homescreen help view') + '</li>' + 
             '<li><b>' + t('Playlist') + '</b>: ' + t('Homescreen help playlist') + '</li>' +
-            '<li><b>' + t('Script') + '</b>: ' + t('Homescreen help script') + '</li>' +
+            (settings.featScripting === true ? '<li><b>' + t('Script') + '</b>: ' + t('Homescreen help script') + '</li>' : '') +
             '</div>';
     }
 }
