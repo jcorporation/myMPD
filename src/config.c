@@ -542,7 +542,13 @@ void mympd_config_defaults(t_config *config) {
     config->acl = sdsempty();
     config->scriptacl = sdsnew("-0.0.0.0/0,+127.0.0.0/8");
     config->lualibs = sdsnew("base, string, utf8, table, math, mympd");
+    #ifdef ENABLE_LUA
+    config->scripting = true;
     config->scripteditor = true;
+    #else
+    config->scripting = false;
+    config->scripteditor = false;
+    #endif
     config->partitions = false;
     config->footer_stop = sdsnew("pause");
     config->home = true;
