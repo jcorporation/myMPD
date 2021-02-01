@@ -64,8 +64,11 @@ fi
 /usr/bin/mympd-config
 /usr/bin/mympd-script
 /usr/lib/systemd/system/mympd.service
+/usr/share/man/man1/mympd.1.gz
+/usr/share/man/man1/mympd-config.1.gz
+/usr/share/man/man1/mympd-script.1.gz
 %config(noreplace) /etc/mympd.conf
 
 %changelog
-* Sat Jan 30 2021 Juergen Mang <mail@jcgames.de> 6.11.1-0
+* Mon Feb 01 2021 Juergen Mang <mail@jcgames.de> 6.11.1-0
 - Version from master
