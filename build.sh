@@ -104,21 +104,30 @@ setversion() {
   export LC_TIME="en_GB.UTF-8"
   DATE_F1=$(date +"%a %b %d %Y")
   DATE_F2=$(date +"%a, %d %b %Y %H:%m:%S %z")
+  DATE_F3=$(date +"%d %b %Y")
   for F in htdocs/sw.js contrib/packaging/alpine/APKBUILD contrib/packaging/arch/PKGBUILD \
-  		   contrib/packaging/rpm/mympd.spec contrib/packaging/debian/changelog
+  		   contrib/packaging/rpm/mympd.spec contrib/packaging/debian/changelog contrib/man/mympd.1 \
+  		   contrib/man/mympd-config.1 contrib/man/mympd-script.1
   do
   	if ! newer "$F.in" "$F"
   	then 
   	  echo "Warning: $F is newer than $F.in"
   	else
   	  echo "$F"
-  	  sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE_F1__/$DATE_F1/g" -e "s/__DATE_F2__/$DATE_F2/g" "$F.in" > "$F"
+  	  sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE_F1__/$DATE_F1/g" -e "s/__DATE_F2__/$DATE_F2/g" \
+  	  	-e "s/__DATE_F3__/$DATE_F3/g" "$F.in" > "$F"
   	  #Adjust file modification date
   	  TS=$(stat -c%Y "$F.in")
   	  touch -d@"$TS" "$F"
   	fi
   done
+  #compress manpages
+  for F in contrib/man/mympd.1 contrib/man/mympd-config.1 contrib/man/mympd-script.1
+  do
+    gzip -n -9 -c $F > $F.gz
+  done
 
+  #genoo ebuild must be moved only
   mv -f contrib/packaging/gentoo/mympd-*.ebuild "contrib/packaging/gentoo/mympd-${VERSION}.ebuild"
 }
 
@@ -793,10 +802,16 @@ uninstall() {
   rm -f "$DESTDIR/usr/bin/mympd"
   rm -f "$DESTDIR/usr/bin/mympd-config"
   rm -f "$DESTDIR/usr/bin/mympd-script"
+  rm -f "$DESTDIR/usr/share/man/man1/mympd.1.gz"
+  rm -f "$DESTDIR/usr/share/man/man1/mympd-config.1.gz"
+  rm -f "$DESTDIR/usr/share/man/man1/mympd-script.1.gz"
   #MYMPD_INSTALL_PREFIX="/usr/local"
   rm -f "$DESTDIR/usr/local/bin/mympd"
   rm -f "$DESTDIR/usr/local/bin/mympd-config"
   rm -f "$DESTDIR/usr/local/bin/mympd-script"
+  rm -f "$DESTDIR/usr/local/share/man/man1/mympd.1.gz"
+  rm -f "$DESTDIR/usr/local/share/man/man1/mympd-config.1.gz"
+  rm -f "$DESTDIR/usr/local/share/man/man1/mympd-script.1.gz"
   #MYMPD_INSTALL_PREFIX="/opt/mympd/"
   rm -rf "$DESTDIR/opt/mympd"
   #systemd
@@ -845,23 +860,23 @@ materialicons() {
     exit 1
   fi
   EXCLUDE="face_unlock|battery_\d|battery_charging_\d|signal_cellular_|signal_wifi_\d_bar"
-  echo -n "const materialIcons={"
+  echo -n "const materialIcons={" > "$STARTPATH/htdocs/js/ligatures.js"
   I=0
   for CAT in $(grep "^\s" current_version.json | cut -d\" -f2 | cut -d: -f1 | sort -u)
   do
-    [ "$I" -gt 0 ] && echo -n ","
-    echo -n "\"$CAT\": ["
+    [ "$I" -gt 0 ] && echo -n "," >> "$STARTPATH/htdocs/js/ligatures.js"
+    echo -n "\"$CAT\": [" >> "$STARTPATH/htdocs/js/ligatures.js"
 	J=0
 	for MI in $(cut -d\" -f2 current_version.json | grep "$CAT::" | cut -d: -f3 | grep -v -P "$EXCLUDE")
 	do
-	  [ "$J" -gt 0 ] && echo -n ","
-	  echo -n "\"$MI\""
+	  [ "$J" -gt 0 ] && echo -n "," >> "$STARTPATH/htdocs/js/ligatures.js"
+	  echo -n "\"$MI\"" >> "$STARTPATH/htdocs/js/ligatures.js"
 	  J=$((J+1))	
 	done
-	echo -n "]"
+	echo -n "]" >> "$STARTPATH/htdocs/js/ligatures.js"
 	I=$((I+1))
   done
-  echo "};"
+  echo "};"  >> "$STARTPATH/htdocs/js/ligatures.js"
   cd / || exit 1
   rm -fr "$TMPDIR"
 }
@@ -931,10 +946,7 @@ sbuild_build() {
     do
       echo "${dist}-${arch}"
       mkdir -p "${WORKDIR}/builds/${dist}-${arch}"
-      sbuild  --arch="${arch}" -d "${dist}-${arch}" build --build-dir="${WORKDIR}/builds/${dist}-${arch}" \
-      	--no-run-lintian
-      #TODO: fix debian packaging and run lintian
-      echo "WARN: lintian skipped, debian packaging must be fixed"
+      sbuild --arch="${arch}" -d unstable --chroot="${dist}-${arch}" build --build-dir="${WORKDIR}/builds/${dist}-${arch}"
     done
   done
 }
