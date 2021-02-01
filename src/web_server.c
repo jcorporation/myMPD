@@ -400,7 +400,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 if (config->publish == false) {
                     send_error(nc, 403, "Publishing of directories is disabled");
                 }
-                if (config->webdav == false && mg_vcmp(&hm->method, "GET") == 1) {
+                if (config->webdav == false && mg_vcmp(&hm->method, "GET") == 1 && mg_vcmp(&hm->method, "HEAD") == 1) {
+                    LOG_ERROR("Invalid method: %.*s", hm->method.len, hm->method.p);
                     send_error(nc, 405, "Method not allowed (webdav is disabled)");
                 }
                 else {
@@ -414,6 +415,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
                     s_http_server_opts.enable_directory_listing = "yes";
                     s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
+                    s_http_server_opts.custom_mime_types = CUSTOM_MIME_TYPES;
                     mg_serve_http(nc, hm, s_http_server_opts);
                 }
             }
