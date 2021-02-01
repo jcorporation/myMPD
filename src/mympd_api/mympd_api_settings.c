@@ -504,8 +504,13 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "featStickerCache", config->sticker_cache, true);
     buffer = tojson_char(buffer, "bookletName", mympd_state->booklet_name, true);
     buffer = tojson_bool(buffer, "featLyrics", mympd_state->lyrics, true);
+    #ifdef ENABLE_LUA
     buffer = tojson_bool(buffer, "featScripting", config->scripting, true);
     buffer = tojson_bool(buffer, "featScripteditor", config->scripteditor, true);
+    #else
+    buffer = tojson_bool(buffer, "featScripting", false, true);
+    buffer = tojson_bool(buffer, "featScripteditor", false, true);
+    #endif
     buffer = tojson_char(buffer, "footerStop", config->footer_stop, true);
     buffer = tojson_bool(buffer, "featHome", config->home, true);
     buffer = tojson_long(buffer, "volumeMin", config->volume_min, true);
