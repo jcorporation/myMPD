@@ -38,11 +38,15 @@
 #include "mympd_api_scripts.h"
 
 #ifdef ENABLE_LUA
-    #include "lua.h"
-    #include "lualib.h"
-    #include "lauxlib.h"  
 
-    #include "mympd_api_scripts_lualibs.c"
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"  
+
+#ifndef DEBUG
+//embedded files for release build
+#include "mympd_api_scripts_lualibs.c"
+#endif
 
 //private definitions
 struct t_script_thread_arg {
