@@ -653,7 +653,7 @@ pkgarch() {
 }
 
 pkgosc() {
-  if command -v osc > /dev/null
+  if ! command -v osc > /dev/null
   then
     echo "ERROR: osc not found"
     exit 1
