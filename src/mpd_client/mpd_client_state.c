@@ -40,6 +40,7 @@ sds mpd_client_get_updatedb_state(t_mpd_client_state *mpd_client_state, sds buff
     struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
     if (status == NULL) {
         buffer = check_error_and_recover_notify(mpd_client_state->mpd_state, buffer);
+        return buffer;
     }
     unsigned update_id = mpd_status_get_update_id(status);
     LOG_INFO("Update database ID: %u", update_id);
