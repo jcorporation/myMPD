@@ -145,10 +145,10 @@ minify() {
   fi
   echo "Minifying $SRC"
 
-  if [ "$TYPE" = "html" ] && [ "$PERLBIN" != "" ]
+  if [ "$TYPE" = "html" ]
   then
     #shellcheck disable=SC2016
-    $PERLBIN -pe 's/^<!--debug-->.*\n//gm; s/<!--release\s+(.+)-->/$1/g; s/<!--(.+)-->//g; s/^\s*//gm; s/\s*$//gm' "$SRC" > "${DST}.tmp"
+    perl -pe 's/^<!--debug-->.*\n//gm; s/<!--release\s+(.+)-->/$1/g; s/<!--(.+)-->//g; s/^\s*//gm; s/\s*$//gm' "$SRC" > "${DST}.tmp"
     ERROR="$?"
     if [ "$ERROR" = "1" ]
     then
@@ -192,7 +192,7 @@ createi18n() {
   if older_s "$DST" ./*.txt
   then
     echo "Creating i18n json"
-    $PERLBIN ./tojson.pl "$PRETTY" > "$DST"
+    perl ./tojson.pl "$PRETTY" > "$DST"
   else
     echo "Skip creating i18n json"
   fi
@@ -325,9 +325,8 @@ buildrelease() {
   if [ "$ASSETSCHANGED" = "1" ]
   then
     echo "Assets changed"
-    #force rebuild of web_server.c with embedded assets
-    rm -vf CMakeFiles/mympd.dir/src/web_server/web_server_utility.c
-    rm -vf CMakeFiles/mympd.dir/src/web_server/web_server_embedded_files.c
+    #force rebuild of web_server with embedded assets
+    rm -vf CMakeFiles/mympd.dir/src/web_server/web_server_utility.c.o
   else
     echo "Assets not changed"
   fi
@@ -847,7 +846,7 @@ purge() {
 
 translate() {
   cd src/i18n || exit 1
-  $PERLBIN ./tojson.pl pretty > ../../htdocs/js/i18n.js
+  perl ./tojson.pl pretty > ../../htdocs/js/i18n.js
 }
 
 materialicons() {
