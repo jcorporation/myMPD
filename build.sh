@@ -890,10 +890,10 @@ materialicons() {
 }
 
 sbuild_chroots() {
-  [ -z "${WORKDIR+x}" ] || WORKDIR="$STARTPATH/builder"
-  [ -z "${DISTROS+x}" ] || DISTROS="buster stretch"
-  [ -z "${TARGETS+x}" ] || TARGETS="armhf armel"
-  [ -z "${DEBIAN_MIRROR+x}" ] || DEBIAN_MIRROR="http://ftp.de.debian.org/debian"
+  [ -z "${WORKDIR+x}" ] && WORKDIR="$STARTPATH/builder"
+  [ -z "${DISTROS+x}" ] && DISTROS="buster stretch"
+  [ -z "${TARGETS+x}" ] && TARGETS="armhf armel"
+  [ -z "${DEBIAN_MIRROR+x}" ] && DEBIAN_MIRROR="http://ftp.de.debian.org/debian"
 
   check_cmd sbuild qemu-debootstrap
 
@@ -904,9 +904,9 @@ sbuild_chroots() {
     for ARCH in ${TARGETS}
     do
       CHROOT="${DIST}-${ARCH}"
-      echo "$CHROOT"
+      echo "Creating chroot for $CHROOT"
       [ -d "${WORKDIR}/chroot/${CHROOT}" ] && echo "chroot ${CHROOT} already exists... skipping." && continue
-      qemu-debootstrap --arch="${ARCH}" --variant=buildd --include=fakeroot,build-essential "${DIST}" "${WORKDIR}/chroot/${CHROOT}/" "${DEBIAN_MIRROR}"
+      fakeroot -- qemu-debootstrap --arch="${ARCH}" --variant=buildd --include=fakeroot,build-essential "${DIST}" "${WORKDIR}/chroot/${CHROOT}/" "${DEBIAN_MIRROR}"
 
       grep "${CHROOT}" /etc/schroot/schroot.conf || cat << EOF >> /etc/schroot/schroot.conf
 
@@ -921,9 +921,9 @@ EOF
 }
 
 sbuild_build() {
-  [ -z "${WORKDIR+x}" ] || WORKDIR="$STARTPATH/builder"
-  [ -z "${DISTROS+x}" ] || DISTROS="buster stretch"
-  [ -z "${TARGETS+x}" ] || TARGETS="armhf armel"
+  [ -z "${WORKDIR+x}" ] && WORKDIR="$STARTPATH/builder"
+  [ -z "${DISTROS+x}" ] && DISTROS="buster stretch"
+  [ -z "${TARGETS+x}" ] && TARGETS="armhf armel"
 
   check_cmd sbuild qemu-debootstrap
 
@@ -938,9 +938,9 @@ sbuild_build() {
     for ARCH in ${TARGETS}
     do
       CHROOT="${DIST}-${ARCH}"
-      echo "${CHROOT}"
+      echo "Building ${DIST} for ${ARCH}"
       mkdir -p "${WORKDIR}/builds/${CHROOT}"
-      sbuild --arch="${ARCH}" -d unstable --chroot="${CHROOT}" build --build-dir="${WORKDIR}/builds/${CHROOT}"
+      fakeroot -- sbuild --arch="${ARCH}" -d unstable --chroot="${CHROOT}" build --build-dir="${WORKDIR}/builds/${CHROOT}"
     done
   done
 }
