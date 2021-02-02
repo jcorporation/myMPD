@@ -1133,6 +1133,8 @@ case "$ACTION" in
       echo "                      - TARGETS=\"armhf armel\""
 	  echo "  sbuild_cleanup:   removes the builder and package directory"
 	  echo "                    must be run as root"
+	  echo "                    following environment variables are respected"
+      echo "                      - WORKDIR=\"$STARTPATH/builder\""
 	  echo ""
 	  echo "Misc options:"
 	  echo "  setversion:       sets version and date in packaging files from CMakeLists.txt"
