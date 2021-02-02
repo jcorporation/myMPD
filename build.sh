@@ -898,6 +898,7 @@ sbuild_chroots() {
   check_cmd sbuild qemu-debootstrap
 
   mkdir -p "${WORKDIR}/chroot"
+  mkdir -p "${WORKDIR}/cache"
 
   for DIST in ${DISTROS}
   do
@@ -906,7 +907,7 @@ sbuild_chroots() {
       CHROOT="${DIST}-${ARCH}"
       echo "Creating chroot for $CHROOT"
       [ -d "${WORKDIR}/chroot/${CHROOT}" ] && echo "chroot ${CHROOT} already exists... skipping." && continue
-      fakeroot -- qemu-debootstrap --arch="${ARCH}" --variant=buildd --include=fakeroot,build-essential "${DIST}" "${WORKDIR}/chroot/${CHROOT}/" "${DEBIAN_MIRROR}"
+      fakeroot -- qemu-debootstrap --arch="${ARCH}" --variant=buildd --cache-dir="${WORKDIR}/cache" --include=fakeroot,build-essential "${DIST}" "${WORKDIR}/chroot/${CHROOT}/" "${DEBIAN_MIRROR}"
 
       grep "${CHROOT}" /etc/schroot/schroot.conf || cat << EOF >> /etc/schroot/schroot.conf
 
