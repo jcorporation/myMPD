@@ -5,30 +5,37 @@
 # https://github.com/jcorporation/mympd
 #
 
+#exit on error
 set -e
 
-[ "$DEBUG" != "" ] && set -x
+#exit on undefined variable
+set -u
 
-if [ "${ENABLE_SSL}" = "" ]
+#print out commands
+[ -z "${DEBUG+x}" ] || set -x
+
+#default compile settings
+if [ -z "${ENABLE_SSL+x}" ]
 then
   export ENABLE_SSL="ON"
 fi
 
-if [ "${ENABLE_LIBID3TAG}" = "" ]
+if [ -z "${ENABLE_LIBID3TAG+x}" ]
 then
   export ENABLE_LIBID3TAG="ON"
 fi
 
-if [ "${ENABLE_FLAC}" = "" ]
+if [ -z "${ENABLE_FLAC+x}" ]
 then
   export ENABLE_FLAC="ON"
 fi
 
-if [ "${ENABLE_LUA}" = "" ]
+if [ -z "${ENABLE_LUA+x}" ]
 then
   export ENABLE_LUA="ON"
 fi
 
+#save startpath
 STARTPATH=$(pwd)
 
 #set umask
@@ -37,28 +44,38 @@ umask 0022
 #get myMPD version
 VERSION=$(grep CPACK_PACKAGE_VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.' | sed 's/\.$//')
 
-if [ "$1" != "installdeps" ]
+#check for command
+check_cmd() {
+  for DEPENDENCY in "$@"
+  do
+	if ! command -v "${DEPENDENCY}" > /dev/null
+    then
+      echo "ERROR: ${DEPENDENCY} not found"
+      return 1
+    fi
+  done
+  return 0
+}
+
+#get action
+if [ -z "${1+x}" ]
 then
-  #gzip is needed to compress assets for release
-  if ! command -v gzip > /dev/null
-  then
-    echo "ERROR: gzip not found"
-    exit 1
-  fi
+  ACTION=""
+else
+  ACTION="$1"
+fi
+
+if [ "$ACTION" != "installdeps" ] && [ "$ACTION" != "" ]
+then
+  check_cmd gzip bzcat perl
+
   GZIP="gzip -f -v -9"
   GZIPCAT="gzip -f -v -9 -c"
-
-  #perl is needed to create i18n.js
-  if ! command -v perl > /dev/null
-  then
-    echo "ERROR: perl not found"
-    exit 1
-  fi
 fi
 
 #java is optional to minify js and css
 JAVA="0"
-if command -v java > /dev/null
+if check_cmd java
 then
   JAVA="1"
 fi
@@ -100,6 +117,7 @@ older_s() {
 }
 
 setversion() {
+  check_cmd bzcat
   echo "Setting version to ${VERSION}"
   export LC_TIME="en_GB.UTF-8"
   DATE_F1=$(date +"%a %b %d %Y")
@@ -124,11 +142,13 @@ setversion() {
   #compress manpages
   for F in contrib/man/mympd.1 contrib/man/mympd-config.1 contrib/man/mympd-script.1
   do
-    gzip -n -9 -c $F > $F.gz
+    gzip -n -9 -c "$F" > "$F.gz"
+    bzcat -c -z "$F" > "$F.bz2"
   done
 
   #genoo ebuild must be moved only
-  mv -f contrib/packaging/gentoo/mympd-*.ebuild "contrib/packaging/gentoo/mympd-${VERSION}.ebuild"
+  [ -f "contrib/packaging/gentoo/mympd-${VERSION}.ebuild" ] || \
+  	mv -f contrib/packaging/gentoo/mympd-*.ebuild "contrib/packaging/gentoo/mympd-${VERSION}.ebuild"
 }
 
 minify() {
@@ -203,7 +223,7 @@ createdistfiles() {
   echo "Creating dist files"
   ASSETSCHANGED=0
 
-  createi18n ../../dist/htdocs/js/i18n.min.js
+  createi18n ../../dist/htdocs/js/i18n.min.js ""
   
   echo "Minifying javascript"
   JSSRCFILES=""
@@ -342,29 +362,34 @@ addmympduser() {
   echo "Checking status of mympd system user and group"
   if ! getent group mympd > /dev/null
   then
-    if command -v groupadd > /dev/null
+    if check_cmd groupadd
     then
       groupadd -r mympd
-    elif command -v addgroup > /dev/null
+    elif check_cmd addgroup
     then
+      #alpine
       addgroup -S mympd 2>/dev/null
     else
       echo "Can not add group mympd"
+      return 1
     fi
   fi
 
-  if ! getent passwd mympd
+  if ! getent passwd mympd > /dev/null
   then
-    if command -v useradd > /dev/null
+    if check_cmd useradd
     then
       useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
-    elif command -v addgroup > /dev/null
+    elif check_cmd adduser
     then
+      #alpine
       adduser -S -D -H -h /var/lib/mympd -s /sbin/nologin -G mympd -g myMPD mympd
     else
       echo "Can not add user mympd"
+      return 1
     fi
   fi
+  return 0
 }
 
 installrelease() {
@@ -468,10 +493,10 @@ cleanupdist() {
 }
 
 check() {
-  if command -v cppcheck > /dev/null
+  if check_cmd cppcheck
   then
     echo "Running cppcheck"
-    [ "$CPPCHECKOPTS" = "" ] && CPPCHECKOPTS="--enable=warning"
+    [ -z "${CPPCHECKOPTS+z}" ] && CPPCHECKOPTS="--enable=warning"
     cppcheck $CPPCHECKOPTS src/*.c src/*.h
     cppcheck $CPPCHECKOPTS src/mpd_client/*.c src/mpd_client/*.h
     cppcheck $CPPCHECKOPTS src/mympd_api/*.c src/mympd_api/*.h
@@ -481,10 +506,10 @@ check() {
     echo "cppcheck not found"
   fi
   
-  if command -v flawfinder > /dev/null
+  if check_cmd flawfinder
   then
     echo "Running flawfinder"
-    [ "$FLAWFINDEROPTS" = "" ] && FLAWFINDEROPTS="-m3"
+    [ -z "${FLAWFINDEROPTS+z}" ] && FLAWFINDEROPTS="-m3"
     flawfinder $FLAWFINDEROPTS src
     flawfinder $FLAWFINDEROPTS cli_tools
   else
@@ -498,7 +523,7 @@ check() {
     exit 1
   fi
   
-  if command -v clang-tidy > /dev/null
+  if check_cmd clang-tidy
   then
     echo "Running clang-tidy, output goes to clang-tidy.out"
     rm -f clang-tidy.out
@@ -526,14 +551,21 @@ prepare() {
 }
 
 pkgdebian() {
+  check_cmd dpkg-buildpackage
   prepare
   cp -a contrib/packaging/debian .
   export LC_TIME="en_GB.UTF-8"
   tar -czf "../mympd_${VERSION}.orig.tar.gz" -- *
 
-  [ "$SIGN" = "TRUE" ] || SIGNOPT="--no-sign"
-
-  dpkg-buildpackage -rfakeroot "$SIGNOPT"
+  SIGNOPT="--no-sign"
+  if [ ! -z "${SIGN+x}" ] && [ "$SIGN" = "TRUE" ]
+  then
+	SIGNOPT="--sign-key=$GPGKEYID"  
+  else
+    echo "Package would not be signed"
+  fi
+  #shellcheck disable=SC2086
+  dpkg-buildpackage -rfakeroot $SIGNOPT
 
   #get created package name
   PACKAGE=$(ls ../mympd_"${VERSION}"-1_*.deb)
@@ -542,23 +574,7 @@ pkgdebian() {
     echo "Can't find package"
   fi
 
-  if [ "$SIGN" = "TRUE" ]
-  then  
-    if command -v dpkg-sig > /dev/null
-    then
-      if [ "$GPGKEYID" != "" ]
-      then
-        echo "Signing package with key $GPGKEYID"
-        dpkg-sig -k "$GPGKEYID" --sign builder "$PACKAGE"
-      else
-        echo "WARNING: GPGKEYID not set, can't sign package"
-      fi
-    else
-      echo "WARNING: dpkg-sig not found, can't sign package"
-    fi
-  fi
-  
-  if command -v lintian > /dev/null
+  if check_cmd lintian
   then
     echo "Checking package with lintian"
     lintian "$PACKAGE"
@@ -568,6 +584,7 @@ pkgdebian() {
 }
 
 pkgdocker() {
+  check_cmd docker
   [ "$DOCKERFILE" = "" ] && DOCKERFILE="Dockerfile.alpine"
   prepare
   cp contrib/packaging/docker/"$DOCKERFILE" Dockerfile
@@ -575,6 +592,7 @@ pkgdocker() {
 }
 
 pkgbuildx() {
+  check_cmd docker
   if [ ! -x ~/.docker/cli-plugins/docker-buildx ]
   then
     echo "Docker buildx not found"
@@ -598,6 +616,7 @@ pkgbuildx() {
 }
 
 pkgalpine() {
+  check_cmd abuild
   prepare
   tar -czf "mympd_${VERSION}.orig.tar.gz" -- *
   [ "$1" = "taronly" ] && return 0
@@ -607,6 +626,7 @@ pkgalpine() {
 }
 
 pkgrpm() {
+  check_cmd rpmbuild
   prepare
   SRC=$(ls)
   mkdir "mympd-${VERSION}"
@@ -620,7 +640,7 @@ pkgrpm() {
   mv "mympd-${VERSION}.tar.gz" ~/rpmbuild/SOURCES/
   cp ../../contrib/packaging/rpm/mympd.spec .
   rpmbuild -ba mympd.spec
-  if command -v rpmlint > /dev/null
+  if check_cmd rpmlint
   then
     echo "Checking package with rpmlint"
     ARCH=$(uname -p)
@@ -631,6 +651,7 @@ pkgrpm() {
 }
 
 pkgarch() {
+  check_cmd makepkg
   prepare
   tar -czf "mympd_${VERSION}.orig.tar.gz" -- *
   cp contrib/packaging/arch/* .
@@ -641,7 +662,7 @@ pkgarch() {
     [ "$GPGKEYID" != "" ] && KEYARG="--key $PGPGKEYID"
     makepkg --sign "$KEYARG" mympd-*.pkg.tar.xz
   fi
-  if command -v namcap > /dev/null
+  if check_cmd namcap
   then
     echo "Checking package with namcap"
     namcap PKGBUILD
@@ -652,12 +673,7 @@ pkgarch() {
 }
 
 pkgosc() {
-  if ! command -v osc > /dev/null
-  then
-    echo "ERROR: osc not found"
-    exit 1
-  fi
-  
+  check_cmd osc
   cleanup
   cleanuposc
   [ "$OSC_REPO" = "" ] && OSC_REPO="home:jcorporation/myMPD"
@@ -750,16 +766,7 @@ installdeps() {
 }
 
 updatelibmympdclient() {
-  if command -v git > /dev/null
-  then
-    echo "ERROR: git not found"
-    exit 1
-  fi
-  if command -v meson > /dev/null
-  then
-    echo "ERROR: meson not found"
-    exit 1
-  fi
+  check_cmd git meson
 
   cd dist/src/libmpdclient || exit 1
   STARTDIR=$(pwd)
@@ -858,59 +865,54 @@ materialicons() {
     echo "Error downloading json file"
     exit 1
   fi
-  EXCLUDE="face_unlock|battery_\d|battery_charging_\d|signal_cellular_|signal_wifi_\d_bar"
-  echo -n "const materialIcons={" > "$STARTPATH/htdocs/js/ligatures.js"
+  EXCLUDE="face_unlock|battery_\\d|battery_charging_\\d|signal_cellular_|signal_wifi_\\d_bar"
+  printf "const materialIcons={" > "$STARTPATH/htdocs/js/ligatures.js"
   I=0
-  for CAT in $(grep "^\s" current_version.json | cut -d\" -f2 | cut -d: -f1 | sort -u)
+  #shellcheck disable=SC2013
+  for CAT in $(grep "^\\s" current_version.json | cut -d\" -f2 | cut -d: -f1 | sort -u)
   do
-    [ "$I" -gt 0 ] && echo -n "," >> "$STARTPATH/htdocs/js/ligatures.js"
-    echo -n "\"$CAT\": [" >> "$STARTPATH/htdocs/js/ligatures.js"
+    [ "$I" -gt 0 ] && printf "," >> "$STARTPATH/htdocs/js/ligatures.js"
+    printf "\"%s\": [" "$CAT" >> "$STARTPATH/htdocs/js/ligatures.js"
 	J=0
+	#shellcheck disable=SC2013
 	for MI in $(cut -d\" -f2 current_version.json | grep "$CAT::" | cut -d: -f3 | grep -v -P "$EXCLUDE")
 	do
-	  [ "$J" -gt 0 ] && echo -n "," >> "$STARTPATH/htdocs/js/ligatures.js"
-	  echo -n "\"$MI\"" >> "$STARTPATH/htdocs/js/ligatures.js"
+	  [ "$J" -gt 0 ] && printf "," >> "$STARTPATH/htdocs/js/ligatures.js"
+	  printf "\"%s\"" "$MI" >> "$STARTPATH/htdocs/js/ligatures.js"
 	  J=$((J+1))	
 	done
-	echo -n "]" >> "$STARTPATH/htdocs/js/ligatures.js"
+	printf "]" >> "$STARTPATH/htdocs/js/ligatures.js"
 	I=$((I+1))
-  done
-  echo "};"  >> "$STARTPATH/htdocs/js/ligatures.js"
+  done 
+  printf "};\\n"  >> "$STARTPATH/htdocs/js/ligatures.js"
   cd / || exit 1
   rm -fr "$TMPDIR"
 }
 
 sbuild_chroots() {
-  [ "$WORKDIR" = "" ] && WORKDIR="$STARTPATH/builder"
-  [ "$DISTROS" = "" ] && DISTROS="buster stretch"
-  [ "$TARGETS" = "" ] && TARGETS="armhf armel"
-  [ "$DEBIAN_MIRROR" = "" ] && DEBIAN_MIRROR="http://ftp.de.debian.org/debian"
+  [ -z "${WORKDIR+x}" ] || WORKDIR="$STARTPATH/builder"
+  [ -z "${DISTROS+x}" ] || DISTROS="buster stretch"
+  [ -z "${TARGETS+x}" ] || TARGETS="armhf armel"
+  [ -z "${DEBIAN_MIRROR+x}" ] || DEBIAN_MIRROR="http://ftp.de.debian.org/debian"
 
-  DEPENDENCIES="sbuild qemu-debootstrap"
-  for dependancy in ${DEPENDENCIES}
-  do
-    if ! command -v "${dependancy}" > /dev/null
-    then
-      echo "ERROR: ${dependancy} not found"
-      exit 1
-    fi
-  done
+  check_cmd sbuild qemu-debootstrap
 
   mkdir -p "${WORKDIR}/chroot"
 
-  for dist in ${DISTROS}
+  for DIST in ${DISTROS}
   do
-    for arch in ${TARGETS}
+    for ARCH in ${TARGETS}
     do
-      echo "${dist}-${arch}"
-      [ -d "${WORKDIR}/chroot/${dist}-${arch}" ] && echo "chroot ${dist}-${arch} already exists... skipping." && continue
-      qemu-debootstrap --arch="${arch}" --variant=buildd --include=fakeroot,build-essential "${dist}" "${WORKDIR}/chroot/${dist}-${arch}/" "${DEBIAN_MIRROR}"
+      CHROOT="${DIST}-${ARCH}"
+      echo "$CHROOT"
+      [ -d "${WORKDIR}/chroot/${CHROOT}" ] && echo "chroot ${CHROOT} already exists... skipping." && continue
+      qemu-debootstrap --arch="${ARCH}" --variant=buildd --include=fakeroot,build-essential "${DIST}" "${WORKDIR}/chroot/${CHROOT}/" "${DEBIAN_MIRROR}"
 
-      grep "${dist}-${arch}" /etc/schroot/schroot.conf || cat << EOF >> /etc/schroot/schroot.conf
+      grep "${CHROOT}" /etc/schroot/schroot.conf || cat << EOF >> /etc/schroot/schroot.conf
 
-[${dist}-${arch}]
-description=Debian ${dist} ${arch}
-directory=${WORKDIR}/chroot/${dist}-${arch}
+[${CHROOT}]
+description=Debian ${DIST} ${ARCH}
+directory=${WORKDIR}/chroot/${CHROOT}
 groups=sbuild-security
 EOF
 
@@ -919,19 +921,11 @@ EOF
 }
 
 sbuild_build() {
-  [ "$WORKDIR" = "" ] && WORKDIR="$STARTPATH/builder"
-  [ "$DISTROS" = "" ] && DISTROS="buster stretch"
-  [ "$TARGETS" = "" ] && TARGETS="armhf armel"
+  [ -z "${WORKDIR+x}" ] || WORKDIR="$STARTPATH/builder"
+  [ -z "${DISTROS+x}" ] || DISTROS="buster stretch"
+  [ -z "${TARGETS+x}" ] || TARGETS="armhf armel"
 
-  DEPENDENCIES="sbuild qemu-debootstrap"
-  for dependancy in ${DEPENDENCIES}
-  do
-	if ! command -v "${dependancy}" > /dev/null
-    then
-      echo "ERROR: ${dependancy} not found"
-      exit 1
-    fi
-  done
+  check_cmd sbuild qemu-debootstrap
 
   prepare
   cp -a contrib/packaging/debian .
@@ -939,13 +933,14 @@ sbuild_build() {
   tar -czf "../mympd_${VERSION}.orig.tar.gz" -- *
   cd ..
   # Compile for target distro/arch
-  for dist in ${DISTROS}
+  for DIST in ${DISTROS}
   do
-    for arch in ${TARGETS}
+    for ARCH in ${TARGETS}
     do
-      echo "${dist}-${arch}"
-      mkdir -p "${WORKDIR}/builds/${dist}-${arch}"
-      sbuild --arch="${arch}" -d unstable --chroot="${dist}-${arch}" build --build-dir="${WORKDIR}/builds/${dist}-${arch}"
+      CHROOT="${DIST}-${ARCH}"
+      echo "${CHROOT}"
+      mkdir -p "${WORKDIR}/builds/${CHROOT}"
+      sbuild --arch="${ARCH}" -d unstable --chroot="${CHROOT}" build --build-dir="${WORKDIR}/builds/${CHROOT}"
     done
   done
 }
@@ -955,7 +950,7 @@ sbuild_cleanup() {
   rm -rf builder
 }
 
-case "$1" in
+case "$ACTION" in
 	release)
 	  buildrelease
 	;;
@@ -1132,6 +1127,7 @@ case "$1" in
 	  echo "  - ENABLE_LIBID3TAG=\"ON\""
 	  echo "  - ENABLE_FLAC=\"ON\""
 	  echo "  - ENABLE_LUA=\"ON\""
+	  echo "  - MANPAGES=\"ON\""
 	  echo ""
 	;;
 esac
