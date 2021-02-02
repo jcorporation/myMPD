@@ -47,9 +47,7 @@ mpd_send_albumart(struct mpd_connection *connection, const char *uri, unsigned o
 }
 
 int
-mpd_recv_albumart(struct mpd_connection *connection,
-                  void *buffer,
-                  size_t buffer_size)
+mpd_recv_albumart(struct mpd_connection *connection, void *buffer, size_t buffer_size)
 {
     struct mpd_pair *pair = mpd_recv_pair_named(connection, "binary");
     if (pair == NULL) {
@@ -59,7 +57,6 @@ mpd_recv_albumart(struct mpd_connection *connection,
     size_t chunk_size = strtoumax(pair->value, NULL, 10);
     mpd_return_pair(connection, pair);
 
-    //binary data
     unsigned retrieve_bytes = chunk_size > buffer_size ? buffer_size : chunk_size;
     if (mpd_recv_binary(connection, buffer, retrieve_bytes) == false) {
         return -1;
@@ -70,10 +67,8 @@ mpd_recv_albumart(struct mpd_connection *connection,
 
 int
 mpd_run_albumart(struct mpd_connection *connection,
-                 const char *uri,
-                 unsigned offset,
-                 void *buffer,
-                 size_t buffer_size)
+                 const char *uri, unsigned offset,
+                 void *buffer, size_t buffer_size)
 {
 	if (!mpd_run_check(connection) ||
 	    !mpd_send_albumart(connection, uri, offset)) {

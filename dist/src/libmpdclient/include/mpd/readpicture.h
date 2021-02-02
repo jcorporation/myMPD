@@ -56,22 +56,19 @@ extern "C" {
  * @return true on success
  */
 bool
-mpd_send_readpicture(struct mpd_connection *connection, 
-                                   const char *uri, 
-                                   unsigned offset);
+mpd_send_readpicture(struct mpd_connection *connection, const char *uri, unsigned offset);
 
 /**
  * Receives the "readpicture" response
  *
  * @param connection a valid and connected #mpd_connection
- * @param buffer an allocated buffer
- * @param buffer_size the allocated buffer size
+ * @param buffer an already allocated buffer, should be of the same size as the binary
+ * chunk size (default 8192, can be set with binarylimit command)
+ * @param buffer_size the size of the allocated buffer
  * @return read size on success, -1 on failure
  */
 int
-mpd_recv_readpicture(struct mpd_connection *connection, 
-                  void *buffer,
-                  size_t buffer_size);
+mpd_recv_readpicture(struct mpd_connection *connection, void *buffer, size_t buffer_size);
 
 /**
  * Shortcut for mpd_send_readpicture(), mpd_recv_readpicture() and
@@ -80,16 +77,15 @@ mpd_recv_readpicture(struct mpd_connection *connection,
  * @param connection a valid and connected #mpd_connection
  * @param uri the URI of the song
  * @param offset to read from
- * @param buffer an allocated buffer
- * @param buffer_size the allocated buffer size
+ * @param buffer an already allocated buffer, should be of the same size as the binary
+ * chunk size (default 8192, can be set with binarylimit command)
+ * @param buffer_size the size of the allocated buffer
  * @return read size on success, -1 on failure
  */
 int
 mpd_run_readpicture(struct mpd_connection *connection,
-				   const char *uri,
-				   unsigned offset,
-				   void *buffer,
-				   size_t buffer_size);
+                    const char *uri, unsigned offset,
+                    void *buffer, size_t buffer_size);
 
 #ifdef __cplusplus
 }
