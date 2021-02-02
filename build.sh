@@ -890,6 +890,12 @@ materialicons() {
 }
 
 sbuild_chroots() {
+  if [ "$(id -u)" != "0" ]
+  then
+    echo "Must be run as root: "
+    echo "  sudo -E ./build.sh sbuild_chroots"
+  	exit 1
+  fi
   [ -z "${WORKDIR+x}" ] && WORKDIR="$STARTPATH/builder"
   [ -z "${DISTROS+x}" ] && DISTROS="buster stretch"
   [ -z "${TARGETS+x}" ] && TARGETS="armhf armel"
@@ -907,7 +913,7 @@ sbuild_chroots() {
       CHROOT="${DIST}-${ARCH}"
       echo "Creating chroot for $CHROOT"
       [ -d "${WORKDIR}/chroot/${CHROOT}" ] && echo "chroot ${CHROOT} already exists... skipping." && continue
-      fakeroot -- qemu-debootstrap --arch="${ARCH}" --variant=buildd --cache-dir="${WORKDIR}/cache" --include=fakeroot,build-essential "${DIST}" "${WORKDIR}/chroot/${CHROOT}/" "${DEBIAN_MIRROR}"
+      qemu-debootstrap --arch="${ARCH}" --variant=buildd --cache-dir="${WORKDIR}/cache" --include=fakeroot,build-essential "${DIST}" "${WORKDIR}/chroot/${CHROOT}/" "${DEBIAN_MIRROR}"
 
       grep "${CHROOT}" /etc/schroot/schroot.conf || cat << EOF >> /etc/schroot/schroot.conf
 
@@ -916,12 +922,17 @@ description=Debian ${DIST} ${ARCH}
 directory=${WORKDIR}/chroot/${CHROOT}
 groups=sbuild-security
 EOF
-
     done
   done
 }
 
 sbuild_build() {
+  if [ "$(id -u)" != "0" ]
+  then
+    echo "Must be run as root: "
+    echo "  sudo -E ./build.sh sbuild_build"
+  	exit 1
+  fi
   [ -z "${WORKDIR+x}" ] && WORKDIR="$STARTPATH/builder"
   [ -z "${DISTROS+x}" ] && DISTROS="buster stretch"
   [ -z "${TARGETS+x}" ] && TARGETS="armhf armel"
@@ -941,14 +952,20 @@ sbuild_build() {
       CHROOT="${DIST}-${ARCH}"
       echo "Building ${DIST} for ${ARCH}"
       mkdir -p "${WORKDIR}/builds/${CHROOT}"
-      fakeroot -- sbuild --arch="${ARCH}" -d unstable --chroot="${CHROOT}" build --build-dir="${WORKDIR}/builds/${CHROOT}"
+      sbuild --arch="${ARCH}" -d unstable --chroot="${CHROOT}" build --build-dir="${WORKDIR}/builds/${CHROOT}"
     done
   done
 }
 
 sbuild_cleanup() {
-  rm -rf package
-  rm -rf builder
+  if [ "$(id -u)" != "0" ]
+  then
+    echo "Must be run as root: "
+    echo "  sudo -E ./build.sh sbuild_cleanup"
+  	exit 1
+  fi
+  [ -z "${WORKDIR+x}" ] && WORKDIR="$STARTPATH/builder"
+  rm -rf package "${WORKDIR}"
 }
 
 case "$ACTION" in
