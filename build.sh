@@ -395,6 +395,7 @@ addmympduser() {
 installrelease() {
   echo "Installing myMPD"
   cd release || exit 1  
+  [ -z "${DESTDIR+x}" ] && DESTDIR=""
   make install DESTDIR="$DESTDIR"
   addmympduser
   echo "myMPD installed"
@@ -803,7 +804,7 @@ uninstall() {
   then
     xargs rm < release/install_manifest.txt
   fi
-
+  [ -z "${DESTDIR+x}" ] && DESTDIR=""
   #MYMPD_INSTALL_PREFIX="/usr"
   rm -f "$DESTDIR/usr/bin/mympd"
   rm -f "$DESTDIR/usr/bin/mympd-config"
@@ -833,6 +834,7 @@ uninstall() {
 }
 
 purge() {
+  [ -z "${DESTDIR+x}" ] && DESTDIR=""
   #MYMPD_INSTALL_PREFIX="/usr"
   rm -rf "$DESTDIR/var/lib/mympd"
   rm -f "$DESTDIR/etc/mympd.conf"
