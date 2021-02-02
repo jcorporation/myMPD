@@ -8,8 +8,9 @@ Version:        6.11.1
 Release:        0 
 License:        GPL-2.0-or-later
 Group:          Productivity/Multimedia/Sound/Players
-Summary:        A standalone and mobile friendly web-based MPD client.
+Summary:        A standalone and mobile friendly web-based MPD client
 Url:            https://jcorporation.github.io/myMPD/
+Packager:       Juergen Mang <mail@jcgames.de>
 Source:         mympd-%{version}.tar.gz
 BuildRequires:  gcc
 BuildRequires:  cmake
@@ -35,6 +36,7 @@ Therefore myMPD is ideal for raspberry pis and similar devices.
 %build
 mkdir release
 cd release || exit 1
+export MANPAGES="BZ2"
 cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
 make
 
@@ -70,5 +72,5 @@ fi
 %config(noreplace) /etc/mympd.conf
 
 %changelog
-* Mon Feb 01 2021 Juergen Mang <mail@jcgames.de> 6.11.1-0
+* Tue Feb 02 2021 Juergen Mang <mail@jcgames.de> 6.11.1-0
 - Version from master

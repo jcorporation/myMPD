@@ -24,6 +24,7 @@ build() {
 	cd "$builddir" || exit 1
 	mkdir release
 	cd release || exit 1
+	export MANPAGES="OFF"
 	cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
 	make
 }
