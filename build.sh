@@ -462,10 +462,11 @@ cleanup() {
   rm -f htdocs/css/bootstrap.css
 
   #tmp files
-  find ./ -name \*~ -delete
+  find -name \*~ -not -path "./builder/*" -delete
   
   #compilation database
   rm -f src/compile_commands.json
+
   #clang tidy
   rm -f clang-tidy.out
 }
@@ -812,6 +813,9 @@ uninstall() {
   rm -f "$DESTDIR/usr/share/man/man1/mympd.1.gz"
   rm -f "$DESTDIR/usr/share/man/man1/mympd-config.1.gz"
   rm -f "$DESTDIR/usr/share/man/man1/mympd-script.1.gz"
+  rm -f "$DESTDIR/usr/share/man/man1/mympd.1.bz2"
+  rm -f "$DESTDIR/usr/share/man/man1/mympd-config.1.bz2"
+  rm -f "$DESTDIR/usr/share/man/man1/mympd-script.1.bz2"
   #MYMPD_INSTALL_PREFIX="/usr/local"
   rm -f "$DESTDIR/usr/local/bin/mympd"
   rm -f "$DESTDIR/usr/local/bin/mympd-config"
@@ -819,6 +823,9 @@ uninstall() {
   rm -f "$DESTDIR/usr/local/share/man/man1/mympd.1.gz"
   rm -f "$DESTDIR/usr/local/share/man/man1/mympd-config.1.gz"
   rm -f "$DESTDIR/usr/local/share/man/man1/mympd-script.1.gz"
+  rm -f "$DESTDIR/usr/local/share/man/man1/mympd.1.bz2"
+  rm -f "$DESTDIR/usr/local/share/man/man1/mympd-config.1.bz2"
+  rm -f "$DESTDIR/usr/local/share/man/man1/mympd-script.1.bz2"
   #MYMPD_INSTALL_PREFIX="/opt/mympd/"
   rm -rf "$DESTDIR/opt/mympd"
   #systemd
@@ -957,6 +964,8 @@ sbuild_build() {
       sbuild --arch="${ARCH}" -d unstable --chroot="${CHROOT}" build --build-dir="${WORKDIR}/builds/${CHROOT}"
     done
   done
+  #cleanup package dir
+  rm -rf "$STARTPATH/package"
 }
 
 sbuild_cleanup() {
@@ -967,7 +976,7 @@ sbuild_cleanup() {
   	exit 1
   fi
   [ -z "${WORKDIR+x}" ] && WORKDIR="$STARTPATH/builder"
-  rm -rf package "${WORKDIR}"
+  rm -rf "${WORKDIR}"
 }
 
 case "$ACTION" in
@@ -1141,7 +1150,7 @@ case "$ACTION" in
 	  echo "Misc options:"
 	  echo "  setversion:       sets version and date in packaging files from CMakeLists.txt"
 	  echo "  addmympduser:     adds mympd group and user"
-	  echo "  libmympdclient:   updates libmpdclient"
+	  echo "  libmympdclient:   updates libmympdclient (fork of libmpdclient)"
 	  echo ""
 	  echo "Environment variables for building"
 	  echo "  - MYMPD_INSTALL_PREFIX=\"/usr\""
