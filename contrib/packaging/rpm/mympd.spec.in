@@ -66,9 +66,9 @@ fi
 /usr/bin/mympd-config
 /usr/bin/mympd-script
 /usr/lib/systemd/system/mympd.service
-/usr/share/man/man1/mympd.1.gz
-/usr/share/man/man1/mympd-config.1.gz
-/usr/share/man/man1/mympd-script.1.gz
+/usr/share/man/man1/mympd.1.bz2
+/usr/share/man/man1/mympd-config.1.bz2
+/usr/share/man/man1/mympd-script.1.bz2
 %config(noreplace) /etc/mympd.conf
 
 %changelog
