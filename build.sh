@@ -1,4 +1,4 @@
-#!/bin/sh
+#p!/bin/sh
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 # myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
@@ -557,7 +557,7 @@ prepare() {
     [ "$F" = "$STARTPATH/builder" ] && continue
     cp -a "$F" .
   done
-  if [ "$ACTION" != "pkgdocker" ]
+  if [ "$ACTION" != "pkgdocker" ] && [ "$ACTION" != "pkgbuildx" ]
   then
     #do not delete buildtools for docker packaging
     rm -r dist/buildtools
@@ -623,7 +623,10 @@ pkgbuildx() {
   prepare
   cp contrib/packaging/docker/"$DOCKERFILE" Dockerfile
   docker run --rm --privileged docker/binfmt:820fdd95a9972a5308930a2bdfb8573dd4447ad3
-  docker buildx create --name mympdbuilder
+  if ! docker buildx ls | grep -q mympdbuilder
+  then
+    docker buildx create --name mympdbuilder
+  fi
   docker buildx use mympdbuilder
   docker buildx inspect --bootstrap
   docker buildx build -t mympd --platform "$PLATFORMS" .
