@@ -48,9 +48,20 @@ VERSION=$(grep CPACK_PACKAGE_VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.
 check_cmd() {
   for DEPENDENCY in "$@"
   do
-	if ! command -v "${DEPENDENCY}" > /dev/null
+    if ! check_cmd_silent "$@"
     then
       echo "ERROR: ${DEPENDENCY} not found"
+      return 1
+    fi
+  done
+  return 0
+}
+
+check_cmd_silent() {
+  for DEPENDENCY in "$@"
+  do
+    if ! command -v "${DEPENDENCY}" > /dev/null
+    then
       return 1
     fi
   done
@@ -75,7 +86,7 @@ fi
 
 #java is optional to minify js and css
 JAVA="0"
-if check_cmd java
+if check_cmd_silent java
 then
   JAVA="1"
 fi
@@ -362,10 +373,10 @@ addmympduser() {
   echo "Checking status of mympd system user and group"
   if ! getent group mympd > /dev/null
   then
-    if check_cmd groupadd
+    if check_cmd_silent groupadd
     then
       groupadd -r mympd
-    elif check_cmd addgroup
+    elif check_cmd_silent addgroup
     then
       #alpine
       addgroup -S mympd 2>/dev/null
@@ -377,10 +388,10 @@ addmympduser() {
 
   if ! getent passwd mympd > /dev/null
   then
-    if check_cmd useradd
+    if check_cmd_silent useradd
     then
       useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
-    elif check_cmd adduser
+    elif check_cmd_silent adduser
     then
       #alpine
       adduser -S -D -H -h /var/lib/mympd -s /sbin/nologin -G mympd -g myMPD mympd
@@ -461,9 +472,6 @@ cleanup() {
   rm -f htdocs/js/i18n.js
   rm -f htdocs/css/bootstrap.css
 
-  #tmp files
-  find -name \*~ -not -path "./builder/*" -delete
-  
   #compilation database
   rm -f src/compile_commands.json
 
@@ -549,7 +557,11 @@ prepare() {
     [ "$F" = "$STARTPATH/builder" ] && continue
     cp -a "$F" .
   done
-  rm -r dist/buildtools
+  if [ "$ACTION" != "pkgdocker" ]
+  then
+    #do not delete buildtools for docker packaging
+    rm -r dist/buildtools
+  fi
 }
 
 pkgdebian() {
@@ -587,7 +599,7 @@ pkgdebian() {
 
 pkgdocker() {
   check_cmd docker
-  [ "$DOCKERFILE" = "" ] && DOCKERFILE="Dockerfile.alpine"
+  [ -z "${DOCKERFILE+x}" ] && DOCKERFILE="Dockerfile.alpine"
   prepare
   cp contrib/packaging/docker/"$DOCKERFILE" Dockerfile
   docker build -t mympd .
@@ -606,8 +618,8 @@ pkgbuildx() {
     echo "More info: https://www.docker.com/blog/getting-started-with-docker-for-arm-on-linux/"
     exit 1
   fi
-  [ "$DOCKERFILE" = "" ] && DOCKERFILE="Dockerfile.alpine"
-  [ "$PLATFORMS" = "" ] && PLATFORMS="linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6"
+  [ -z "${DOCKERFILE+x}" ] && DOCKERFILE="Dockerfile.alpine"
+  [ -z "${PLATFORMS+x}" ] && PLATFORMS="linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6"
   prepare
   cp contrib/packaging/docker/"$DOCKERFILE" Dockerfile
   docker run --rm --privileged docker/binfmt:820fdd95a9972a5308930a2bdfb8573dd4447ad3
