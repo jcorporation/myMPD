@@ -84,13 +84,6 @@ then
   GZIPCAT="gzip -f -v -9 -c"
 fi
 
-#java is optional to minify js and css
-JAVA="0"
-if check_cmd_silent java
-then
-  JAVA="1"
-fi
-
 #returns true if FILE1 is newer or equal than FILE2
 newer() {
   M1=0
@@ -157,7 +150,7 @@ setversion() {
     bzcat -c -z "$F" > "$F.bz2"
   done
 
-  #genoo ebuild must be moved only
+  #gentoo ebuild must be moved only
   [ -f "contrib/packaging/gentoo/mympd-${VERSION}.ebuild" ] || \
   	mv -f contrib/packaging/gentoo/mympd-*.ebuild "contrib/packaging/gentoo/mympd-${VERSION}.ebuild"
 }
@@ -166,7 +159,8 @@ minify() {
   TYPE="$1"
   SRC="$2"
   DST="$3"
-  ERROR="1"
+
+  #We remove only line-breaks, comments and truncate spaces of lines
   
   if newer "$DST" "$SRC"
   then
@@ -179,40 +173,35 @@ minify() {
   if [ "$TYPE" = "html" ]
   then
     #shellcheck disable=SC2016
-    perl -pe 's/^<!--debug-->.*\n//gm; s/<!--release\s+(.+)-->/$1/g; s/<!--(.+)-->//g; s/^\s*//gm; s/\s*$//gm' "$SRC" > "${DST}.tmp"
-    ERROR="$?"
-    if [ "$ERROR" = "1" ]
+    if ! perl -pe 's/^<!--debug-->.*\n//gm; s/<!--release\s+(.+)-->/$1/g; s/<!--(.+)-->//g; s/^\s*//gm; s/\s*$//gm' "$SRC" > "${DST}.tmp"
     then
       rm -f "${DST}.tmp"
       echo "Error minifying $SRC"
       exit 1
     fi
-  elif [ "$TYPE" = "js" ] && [ "$JAVA" = "1" ]
+  elif [ "$TYPE" = "js" ]
   then
-    java -jar dist/buildtools/closure-compiler.jar "$SRC" > "${DST}.tmp"
-    ERROR="$?"
-  elif [ "$TYPE" = "css" ] && [ "$JAVA" = "1" ]
+    #shellcheck disable=SC2016
+    if ! perl -pe 's/^\s*//gm; s/^\/\/.+$//g; s/\s*$//gm;' "$SRC" > "${DST}.tmp"
+    then
+      rm -f "${DST}.tmp"
+      echo "Error minifying $SRC"
+      exit 1
+    fi
+  elif [ "$TYPE" = "css" ]
   then
-    java -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties "$SRC" > "${DST}.tmp"
-    ERROR="$?"
-  else
-    ERROR="1"
+    #shellcheck disable=SC2016
+    if ! perl -pe 's/^\s*//gm; s/\s*$//gm; s/: /:/g;' "$SRC" | perl -pe 's/\/\*[^*]+\*\///g;' > "${DST}.tmp"
+    then
+      rm -f "${DST}.tmp"
+      echo "Error minifying $SRC"
+      exit 1
+    fi
   fi
 
-  if [ "$ERROR" = "1" ]
-  then
-    if [ "$JAVA" = "0" ]
-    then
-      echo "Java not found, copy $SRC to $DST"
-    else
-      echo "Error minifying $SRC, copy $SRC to $DST"
-    fi
-    rm -f "${DST}.tmp"
-    cp "$SRC" "$DST"
-  else
-    mv "${DST}.tmp" "$DST"
-  fi
-  #successfull minified or copied file
+  #successfull minified file
+  echo "" >> "${DST}.tmp"
+  mv "${DST}.tmp" "$DST"
   return 0
 }
 
@@ -260,7 +249,6 @@ createdistfiles() {
   fi
   minify js htdocs/sw.js dist/htdocs/sw.min.js
   minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
-  minify js dist/htdocs/js/bootstrap-native.js dist/htdocs/js/bootstrap-native.min.js
   minify js dist/htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
   
   echo "Combining and compressing javascript"
@@ -420,7 +408,7 @@ builddebug() {
   echo "Linking bootstrap css and js"
   [ -e "$PWD/htdocs/css/bootstrap.css" ] || ln -s "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
   [ -e "$PWD/htdocs/js/bootstrap-native.js" ] || ln -s "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
-  [ -e "$PWD/htdocs/js/long-press-event.min.js" ] || ln -s "$PWD/dist/htdocs/js/long-press-event.min.js" "$PWD/htdocs/js/long-press-event.min.js"
+  [ -e "$PWD/htdocs/js/long-press-event.js" ] || ln -s "$PWD/dist/htdocs/js/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
 
   createi18n ../../htdocs/js/i18n.js pretty
   
@@ -468,7 +456,7 @@ cleanup() {
   #htdocs
   rm -f htdocs/js/bootstrap-native-v4.js
   rm -f htdocs/js/bootstrap-native.js
-  rm -f htdocs/js/long-press-event.min.js
+  rm -f htdocs/js/long-press-event.js
   rm -f htdocs/js/i18n.js
   rm -f htdocs/css/bootstrap.css
 
@@ -486,8 +474,6 @@ cleanuposc() {
 cleanupdist() {
   rm -f dist/htdocs/js/i18n.min.js
   rm -f dist/htdocs/js/keymap.min.js 
-  rm -f dist/htdocs/js/bootstrap-native-v4.min.js 
-  rm -f dist/htdocs/js/bootstrap-native.min.js 
   rm -f dist/htdocs/js/mympd.js
   rm -f dist/htdocs/js/mympd.min.js
   rm -f dist/htdocs/js/combined.js.gz
@@ -557,11 +543,6 @@ prepare() {
     [ "$F" = "$STARTPATH/builder" ] && continue
     cp -a "$F" .
   done
-  if [ "$ACTION" != "pkgdocker" ] && [ "$ACTION" != "pkgbuildx" ]
-  then
-    #do not delete buildtools for docker packaging
-    rm -r dist/buildtools
-  fi
 }
 
 pkgdebian() {
@@ -737,43 +718,35 @@ installdeps() {
   if [ -f /etc/debian_version ]
   then
     #debian
-    JAVADEB="default-jre-headless"
-    #issue 234
-    [ "$(uname -m)" = "armv6l" ] && JAVADEB="openjdk-8-jre-headless"
     apt-get update
     apt-get install -y --no-install-recommends \
 	gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-	build-essential liblua5.3-dev pkg-config $JAVADEB \
-	libpcre3-dev
+	build-essential liblua5.3-dev pkg-config libpcre3-dev
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless lua pkgconf pcre
+    pacman -S gcc cmake perl openssl libid3tag flac lua pkgconf pcre
   elif [ -f /etc/alpine-release ]
   then
     #alpine
-    JAVADEB="openjdk11-jre-headless"
-    #issue 234
-    [ "$(uname -m)" = "armv7l" ] && JAVADEB="java-common"
     apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.3-dev \
-    	alpine-sdk linux-headers pkgconf $JAVADEB pcre-dev
+    	alpine-sdk linux-headers pkgconf pcre-dev
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	lua-devel java-11-openjdk-headless unzip pcre-devel
+	lua-devel unzip pcre-devel
   elif [ -f /etc/redhat-release ]
   then  
     #fedora 	
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	lua-devel java-11-openjdk-headless unzip pcre-devel
+	lua-devel unzip pcre-devel
   else 
     echo "Unsupported distribution detected."
     echo "You should manually install:"
     echo "  - gcc"
     echo "  - cmake"
     echo "  - perl"
-    echo "  - java"
     echo "  - openssl (devel)"
     echo "  - flac (devel)"
     echo "  - libid3tag (devel)"

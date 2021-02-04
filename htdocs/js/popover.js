@@ -1,9 +1,7 @@
 "use strict";
-/*
- SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
- https://github.com/jcorporation/mympd
-*/
+// SPDX-License-Identifier: GPL-2.0-or-later
+// myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+// https://github.com/jcorporation/mympd
 
 function b64EncodeUnicode(str) {
     return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
@@ -88,12 +86,12 @@ function showMenuTd(el) {
     let uri = getAttDec(el, 'data-uri');
     let name = getAttDec(el, 'data-name');
     let nextsongpos = 0;
-    if (type === null || uri === '') {
+    if (type === null || uri === null) {
         type = getAttDec(el.parentNode, 'data-type');
         uri = getAttDec(el.parentNode, 'data-uri');
         name = getAttDec(el.parentNode, 'data-name');
     }
-    if (type === null || uri === '') {
+    if (type === null || uri === null) {
         type = getAttDec(el.parentNode.parentNode, 'data-type');
         uri = getAttDec(el.parentNode.parentNode, 'data-uri');
         name = getAttDec(el.parentNode.parentNode, 'data-name');

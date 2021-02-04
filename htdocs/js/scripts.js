@@ -1,9 +1,7 @@
 "use strict";
-/*
- SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
- https://github.com/jcorporation/mympd
-*/
+// SPDX-License-Identifier: GPL-2.0-or-later
+// myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+// https://github.com/jcorporation/mympd
 
 function initScripts() {
     document.getElementById('inputScriptArgument').addEventListener('keyup', function(event) {
@@ -156,8 +154,10 @@ function parseScriptList(obj) {
     setAttEnc(timerActions, 'data-value', 'script');
     timerActions.setAttribute('label', t('Script'));
     let scriptMaxListLen = 4;
-    let scriptListMain = ''; //list in main menu
-    let scriptList = ''; //list in scripts dialog
+    //list in main menu
+    let scriptListMain = '';
+    //list in scripts dialog
+    let scriptList = '';
     let scriptListLen = obj.result.data.length;
     let showScriptListLen = 0;
     if (scriptListLen > 0) {

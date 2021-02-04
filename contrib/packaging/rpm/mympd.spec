@@ -14,6 +14,7 @@ Packager:       Juergen Mang <mail@jcgames.de>
 Source:         mympd-%{version}.tar.gz
 BuildRequires:  gcc
 BuildRequires:  cmake
+BuildRequires:  perl
 BuildRequires:  unzip
 BuildRequires:  pkgconfig
 BuildRequires:  openssl-devel
@@ -72,5 +73,5 @@ fi
 %config(noreplace) /etc/mympd.conf
 
 %changelog
-* Tue Feb 02 2021 Juergen Mang <mail@jcgames.de> 6.11.1-0
+* Thu Feb 04 2021 Juergen Mang <mail@jcgames.de> 6.11.1-0
 - Version from master

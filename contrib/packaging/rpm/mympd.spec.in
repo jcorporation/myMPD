@@ -14,6 +14,7 @@ Packager:       Juergen Mang <mail@jcgames.de>
 Source:         mympd-%{version}.tar.gz
 BuildRequires:  gcc
 BuildRequires:  cmake
+BuildRequires:  perl
 BuildRequires:  unzip
 BuildRequires:  pkgconfig
 BuildRequires:  openssl-devel
