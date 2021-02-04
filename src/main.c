@@ -137,50 +137,47 @@ static bool chown_certs(t_config *config) {
 #endif
 
 static bool drop_privileges(t_config *config, uid_t startup_uid) {
-    if (startup_uid == 0) {
-        if (sdslen(config->user) > 0) {
-            LOG_INFO("Droping privileges to %s", config->user);
-            //get user
-            struct passwd *pw;
-            errno = 0;
-            if ((pw = getpwnam(config->user)) == NULL) {
-                LOG_ERROR("getpwnam() failed, unknown user: %s", strerror(errno));
-                return false;
-            }
-            //purge supplementary groups
-            errno = 0;
-            if (setgroups(0, NULL) == -1) { 
-                LOG_ERROR("setgroups() failed: %s", strerror(errno));
-                return false;
-            }
-            //set new supplementary groups from target user
-            errno = 0;
-            if (initgroups(config->user, pw->pw_gid) == -1) {
-                LOG_ERROR("initgroups() failed: %s", strerror(errno));
-                return false;
-            }
-            //chroot if enabled
-            if (config->chroot == true) {
-                LOG_INFO("Chroot to %s", config->varlibdir);
-                if (do_chroot(config) == false) {
-                    LOG_ERROR("Chroot to %s failed", config->varlibdir);
-                    return false;
-                }
-            }
-            //change primary group to group of target user
-            errno = 0;
-            if (setgid(pw->pw_gid) == -1 ) {
-                LOG_ERROR("setgid() failed: %s", strerror(errno));
-                return false;
-            }
-            //change user
-            errno = 0;
-            if (setuid(pw->pw_uid) == -1) {
-                LOG_ERROR("setuid() failed: %s", strerror(errno));
+    if (startup_uid == 0 && sdslen(config->user) > 0) {
+        LOG_INFO("Droping privileges to %s", config->user);
+        //get user
+        struct passwd *pw;
+        errno = 0;
+        if ((pw = getpwnam(config->user)) == NULL) {
+            LOG_ERROR("getpwnam() failed, unknown user: %s", strerror(errno));
+            return false;
+        }
+        //purge supplementary groups
+        errno = 0;
+        if (setgroups(0, NULL) == -1) { 
+            LOG_ERROR("setgroups() failed: %s", strerror(errno));
+            return false;
+        }
+        //set new supplementary groups from target user
+        errno = 0;
+        if (initgroups(config->user, pw->pw_gid) == -1) {
+            LOG_ERROR("initgroups() failed: %s", strerror(errno));
+            return false;
+        }
+        //chroot if enabled
+        if (config->chroot == true) {
+            LOG_INFO("Chroot to %s", config->varlibdir);
+            if (do_chroot(config) == false) {
+                LOG_ERROR("Chroot to %s failed", config->varlibdir);
                 return false;
             }
         }
-        
+        //change primary group to group of target user
+        errno = 0;
+        if (setgid(pw->pw_gid) == -1 ) {
+            LOG_ERROR("setgid() failed: %s", strerror(errno));
+            return false;
+        }
+        //change user
+        errno = 0;
+        if (setuid(pw->pw_uid) == -1) {
+            LOG_ERROR("setuid() failed: %s", strerror(errno));
+            return false;
+        }
     }
     //check if not root
     if (getuid() == 0) {
