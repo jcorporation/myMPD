@@ -33,7 +33,7 @@ static sds state_file_rw_string(t_config *config, const char *name, const char *
 static bool state_file_rw_bool(t_config *config, const char *name, const bool def_value, bool warn);
 static int state_file_rw_int(t_config *config, const char *name, const int def_value, bool warn);
 static bool state_file_write(t_config *config, const char *name, const char *value);
-static sds default_navbar_icons(t_config *config);
+static sds default_navbar_icons(t_config *config, sds buffer);
 static sds read_navbar_icons(t_config *config);
 
 //public functions
@@ -638,10 +638,11 @@ static bool state_file_write(t_config *config, const char *name, const char *val
     return true;
 }
 
-static sds default_navbar_icons(t_config *config) {
+static sds default_navbar_icons(t_config *config, sds buffer) {
     LOG_INFO("Writing default navbar_icons");
     sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->varlibdir);
-    sds buffer = sdsnew(NAVBAR_ICONS);
+    sdsclear(buffer);
+    buffer = sdscat(buffer, NAVBAR_ICONS);
     FILE *fp = fopen(file_name, "w");
     if (fp == NULL) {
         LOG_ERROR("Can not open file \"%s\" for write: %s", file_name, strerror(errno));
@@ -665,7 +666,7 @@ static sds read_navbar_icons(t_config *config) {
         if (errno != ENOENT) {
             LOG_ERROR("Can not open file \"%s\": %s", file_name, strerror(errno));
         }
-        buffer = default_navbar_icons(config);
+        buffer = default_navbar_icons(config, buffer);
         sdsfree(file_name);
         return buffer;
     }
@@ -680,7 +681,7 @@ static sds read_navbar_icons(t_config *config) {
     FREE_PTR(line);
     fclose(fp);
     if (sdslen(buffer) == 0) {
-        buffer = default_navbar_icons(config);
+        buffer = default_navbar_icons(config, buffer);
     }
     return buffer;
 }
