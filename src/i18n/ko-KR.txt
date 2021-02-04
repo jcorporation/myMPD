@@ -1730,13 +1730,25 @@ Homescreen
 홈 화면
 
 Homescreen help view
-홈 화면에 추가하려면 보기로 가서 [[add_to_home_screen]] 버튼을 누릅니다.
+보기를 홈 화면에 추가하려면 보기로 가서 [[add_to_home_screen]] 버튼을 누릅니다.
 
 Homescreen help playlist
-연주목록 연관 메뉴를 열고 "홈 화면에 추가"를 선택합니다.
+연주목록을 홈 화면에 추가하려면 연주목록의 연관 메뉴를 열고 "홈 화면에 추가"를 선택합니다.
 
 Homescreen help script
-홈 화면에 추가하려면 스크립트 양식을 열고 [[add_to_home_screen]] 버튼을 누릅니다.
+스크립트를 홈 화면에 추가하려면 스크립트 대화 상자를 열고 [[add_to_home_screen]] 버튼을 누릅니다.
 
 Help to improve myMPD
 myMPD 개선 도움
+
+Are you sure?
+확실한가요?
+
+No
+아니오
+
+Yes
+예
+
+Do you really want to clear the queue?
+캐시를 지울까요?
