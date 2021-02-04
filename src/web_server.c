@@ -292,7 +292,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             //set conn_id
             nc->user_data = (void *)(intptr_t)mg_user_data->conn_id;
             LOG_DEBUG("New connection id %d", (intptr_t)nc->user_data);
-
             break;
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
@@ -459,12 +458,37 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 
 #ifdef ENABLE_SSL
 static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data) {
-    if (ev == MG_EV_HTTP_REQUEST) {
+    t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
+    t_config *config = (t_config *) mg_user_data->config;
+    
+    if (ev == MG_EV_ACCEPT) {
+        //check acl
+        if (sdslen(config->acl) > 0) {
+            uint32_t remote_ip = ntohl(*(uint32_t *) &nc->sa.sin.sin_addr);
+            int allowed = mg_check_ip_acl(config->acl, remote_ip);
+            if (allowed == -1) {
+                LOG_ERROR("ACL malformed");
+            }
+            if (allowed != 1) {
+                nc->flags |= MG_F_SEND_AND_CLOSE;
+                send_error(nc, 403, "Request blocked by ACL");
+                return;
+            }
+        }
+        //increment conn_id
+        if (mg_user_data->conn_id < INT_MAX) {
+            mg_user_data->conn_id++;
+        }
+        else {
+            mg_user_data->conn_id = 1;
+        }
+        //set conn_id
+        nc->user_data = (void *)(intptr_t)mg_user_data->conn_id;
+        LOG_DEBUG("New connection id %d", (intptr_t)nc->user_data);
+    }
+    else if (ev == MG_EV_HTTP_REQUEST) {
         struct http_message *hm = (struct http_message *) ev_data;
         struct mg_str *host_hdr = mg_get_http_header(hm, "Host");
-        t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
-        t_config *config = (t_config *) mg_user_data->config;
-            
         sds host_header = sdscatlen(sdsempty(), host_hdr->p, (int)host_hdr->len);
             
         int count;
