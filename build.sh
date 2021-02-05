@@ -674,7 +674,7 @@ pkgosc() {
   check_cmd osc
   cleanup
   cleanuposc
-  [ "$OSC_REPO" = "" ] && OSC_REPO="home:jcorporation/myMPD"
+  [ -z "${OSC_REPO+x}" ] && OSC_REPO="home:jcorporation/myMPD"
   
   mkdir osc
   cd osc || exit 1  
