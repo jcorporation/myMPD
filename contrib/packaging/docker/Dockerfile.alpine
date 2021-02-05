@@ -9,6 +9,7 @@ ENV DESTDIR=/myMPD-dist
 RUN mkdir -p $DESTDIR
 WORKDIR /myMPD
 RUN ./build.sh installdeps
+ENV MANPAGES=OFF
 RUN ./build.sh releaseinstall
 WORKDIR /
 RUN tar -czvf /mympd.tar.gz -C /myMPD-dist .

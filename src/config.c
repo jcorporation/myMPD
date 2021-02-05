@@ -542,7 +542,13 @@ void mympd_config_defaults(t_config *config) {
     config->acl = sdsempty();
     config->scriptacl = sdsnew("-0.0.0.0/0,+127.0.0.0/8");
     config->lualibs = sdsnew("base, string, utf8, table, math, mympd");
+    #ifdef ENABLE_LUA
+    config->scripting = true;
     config->scripteditor = true;
+    #else
+    config->scripting = false;
+    config->scripteditor = false;
+    #endif
     config->partitions = false;
     config->footer_stop = sdsnew("pause");
     config->home = true;
@@ -630,7 +636,7 @@ bool mympd_dump_config(void) {
         "smartpls = %s\n"
         "smartplssort = %s\n"
         "smartplsprefix = %s\n"
-        "smartplsinterval = %ld\n"
+        "smartplsinterval = %llu\n"
         "generateplstags = %s\n"
         "mixramp = %s\n"
         "taglist = %s\n"
@@ -696,7 +702,7 @@ bool mympd_dump_config(void) {
         (p_config->smartpls == true ? "true" : "false"),
         p_config->smartpls_sort,
         p_config->smartpls_prefix,
-        p_config->smartpls_interval,
+        (unsigned long long)p_config->smartpls_interval, //cast for 32 bit compatibility
         p_config->generate_pls_tags,
         (p_config->mixramp == true ? "true" : "false"),
         p_config->taglist,

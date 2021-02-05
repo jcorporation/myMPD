@@ -1,12 +1,10 @@
 "use strict";
-/*
- SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
- https://github.com/jcorporation/mympd
-*/
+// SPDX-License-Identifier: GPL-2.0-or-later
+// myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+// https://github.com/jcorporation/mympd
 
-/* Disable eslint warnings */
-/* global BSN, phrases, locales */
+// Disable eslint warnings
+// global BSN, phrases, locales
 
 var socket = null;
 var websocketConnected = false;
@@ -177,7 +175,7 @@ domCache.btnPrev = document.getElementById('btnPrev');
 domCache.btnNext = document.getElementById('btnNext');
 domCache.progress = document.getElementById('footerProgress');
 domCache.progressBar = document.getElementById('footerProgressBar');
-domCache.progressPos = document.getElementById('footerProgressPos')
+domCache.progressPos = document.getElementById('footerProgressPos');
 domCache.volumeBar = document.getElementById('volumeBar');
 domCache.outputs = document.getElementById('outputs');
 domCache.currentCover = document.getElementById('currentCover');
@@ -995,7 +993,7 @@ function initNavs() {
             domCache.progressBar.style.width = event.clientX + 'px';
             setTimeout(function() {
                 domCache.progressBar.style.transition = progressBarTransition;
-            }, 10)
+            }, 10);
             const seekVal = Math.ceil((currentSong.totalTime * event.clientX) / event.target.offsetWidth);
             sendAPI("MPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": seekVal});
         }

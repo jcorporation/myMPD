@@ -31,44 +31,66 @@
 #include "mpd_worker_cache.h"
 
 //privat definitions
-static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache);
+static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache, bool feat_tags, bool feat_sticker);
 
 //public functions
-bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state) {
-    rax *album_cache = raxNew();
-    rax *sticker_cache = raxNew();
-    bool rc = _cache_init(mpd_worker_state, album_cache, sticker_cache);
+bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state, bool feat_tags, bool feat_sticker) {
+    rax *album_cache = NULL;
+    if (feat_tags == true) {
+        album_cache = raxNew();
+    }
+    rax *sticker_cache = NULL;
+    if (feat_sticker == true) {
+        sticker_cache = raxNew();
+    }
+    
+    bool rc = true;
+    if (feat_tags == true || feat_sticker == true) {
+        rc =_cache_init(mpd_worker_state, album_cache, sticker_cache, feat_tags, feat_sticker);
+    }
 
     //push album cache building response to mpd_client thread
-    t_work_request *request = create_request(-1, 0, MPD_API_ALBUMCACHE_CREATED, "MPD_API_ALBUMCACHE_CREATED", "");
-    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMCACHE_CREATED\",\"params\":{}}");
-    if (rc == true) {
-        request->extra = (void *) album_cache;
+    if (feat_tags == true) {
+        t_work_request *request = create_request(-1, 0, MPD_API_ALBUMCACHE_CREATED, "MPD_API_ALBUMCACHE_CREATED", "");
+        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMCACHE_CREATED\",\"params\":{}}");
+        if (rc == true) {
+            request->extra = (void *) album_cache;
+        }
+        else {
+            album_cache_free(&album_cache);
+        }
+        tiny_queue_push(mpd_client_queue, request, 0);
     }
     else {
-        album_cache_free(&album_cache);
+        LOG_VERBOSE("Skipped album cache creation, tags are disabled");
     }
-    tiny_queue_push(mpd_client_queue, request, 0);
 
     //push sticker cache building response to mpd_client thread
-    t_work_request *request2 = create_request(-1, 0, MPD_API_STICKERCACHE_CREATED, "MPD_API_STICKERCACHE_CREATED", "");
-    request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_STICKERCACHE_CREATED\",\"params\":{}}");
-    if (rc == true) {
-        request2->extra = (void *) sticker_cache;
+    if (feat_sticker == true) {
+        t_work_request *request2 = create_request(-1, 0, MPD_API_STICKERCACHE_CREATED, "MPD_API_STICKERCACHE_CREATED", "");
+        request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_STICKERCACHE_CREATED\",\"params\":{}}");
+        if (rc == true) {
+            request2->extra = (void *) sticker_cache;
+        }
+        else {
+            sticker_cache_free(&sticker_cache);
+        }
+        tiny_queue_push(mpd_client_queue, request2, 0);
     }
     else {
-        sticker_cache_free(&sticker_cache);
+        LOG_VERBOSE("Skipped sticker cache creation, stickers are disabled");
     }
-    tiny_queue_push(mpd_client_queue, request2, 0);
     return rc;
 }
 
 //private functions
-static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache) {
+static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache, bool feat_tags, bool feat_sticker) {
     LOG_VERBOSE("Creating caches");
     unsigned start = 0;
     unsigned end = start + 1000;
     unsigned i = 0;   
+    unsigned album_count = 0;
+    unsigned song_count = 0;
     //get first song from each album
     do {
         bool rc = mpd_search_db_songs(mpd_worker_state->mpd_state->conn, false);
@@ -100,25 +122,33 @@ static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, 
         sds key = sdsempty();
         while ((song = mpd_recv_song(mpd_worker_state->mpd_state->conn)) != NULL) {
             //sticker cache
-            const char *uri = mpd_song_get_uri(song);
-            t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
-            assert(sticker);
-            raxInsert(sticker_cache, (unsigned char*)uri, strlen(uri), (void *)sticker, NULL);
+            if (feat_sticker == true) {
+                const char *uri = mpd_song_get_uri(song);
+                t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
+                assert(sticker);
+                raxInsert(sticker_cache, (unsigned char*)uri, strlen(uri), (void *)sticker, NULL);
+                song_count++;
+            }
 
             //album cache
-            album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, album);
-            artist = mpd_shared_get_tags(song, MPD_TAG_ALBUM_ARTIST, artist);
-            if (strcmp(album, "-") > 0 && strcmp(artist, "-") > 0) {
-                sdsclear(key);
-                key = sdscatfmt(key, "%s::%s", album, artist);
-                if (raxTryInsert(album_cache, (unsigned char*)key, sdslen(key), (void *)song, NULL) == 0) {
-                     //discard song data if key exists
-                     mpd_song_free(song);
+            if (feat_tags == true) {
+                album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, album);
+                artist = mpd_shared_get_tags(song, MPD_TAG_ALBUM_ARTIST, artist);
+                if (strcmp(album, "-") > 0 && strcmp(artist, "-") > 0) {
+                    sdsclear(key);
+                    key = sdscatfmt(key, "%s::%s", album, artist);
+                    if (raxTryInsert(album_cache, (unsigned char*)key, sdslen(key), (void *)song, NULL) == 0) {
+                        //discard song data if key exists
+                        mpd_song_free(song);
+                    }
+                    else {
+                        album_count++;
+                    }
                 }
-            }
-            else {
-                LOG_WARN("Albumcache, skipping \"%s\"", mpd_song_get_uri(song));
-                mpd_song_free(song);
+                else {
+                    LOG_WARN("Albumcache, skipping \"%s\"", mpd_song_get_uri(song));
+                    mpd_song_free(song);
+                }
             }
             i++;
         }
@@ -134,16 +164,20 @@ static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, 
         end = end + 1000;
     } while (i >= start);
     //get sticker values
-    raxIterator iter;
-    raxStart(&iter, sticker_cache);
-    raxSeek(&iter, "^", NULL, 0);
-    sds uri = sdsempty();
-    while (raxNext(&iter)) {
-        uri = sdsreplacelen(uri, (char *)iter.key, iter.key_len);
-        mpd_shared_get_sticker(mpd_worker_state->mpd_state, uri, (t_sticker *)iter.data);
+    if (feat_sticker == true) {
+        raxIterator iter;
+        raxStart(&iter, sticker_cache);
+        raxSeek(&iter, "^", NULL, 0);
+        sds uri = sdsempty();
+        while (raxNext(&iter)) {
+            uri = sdsreplacelen(uri, (char *)iter.key, iter.key_len);
+            mpd_shared_get_sticker(mpd_worker_state->mpd_state, uri, (t_sticker *)iter.data);
+        }
+        sdsfree(uri);
+        raxStop(&iter);
     }
-    sdsfree(uri);
-    raxStop(&iter);
+    LOG_VERBOSE("Added %u albums to album cache", album_count);
+    LOG_VERBOSE("Added %u songs to sticker cache", song_count);
     LOG_VERBOSE("Cache updated successfully");
     return true;
 }

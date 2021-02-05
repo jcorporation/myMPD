@@ -48,6 +48,7 @@ void my_usleep(time_t usec);
 unsigned long substractUnsigned(unsigned long num1, unsigned long num2);
 char *basename_uri(char *uri);
 bool is_streamuri(const char *uri);
+int unsigned_to_int(unsigned x);
 
 #define FREE_PTR(PTR) do { \
     if (PTR != NULL) \

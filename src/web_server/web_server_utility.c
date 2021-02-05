@@ -140,31 +140,32 @@ void serve_plaintext(struct mg_connection *nc, const char *text) {
 
 #ifndef DEBUG
 struct embedded_file {
-  const char *uri;
-  const size_t uri_len;
-  const char *mimetype;
-  bool compressed;
-  const unsigned char *data;
-  const unsigned size;
+    const char *uri;
+    const size_t uri_len;
+    const char *mimetype;
+    bool compressed;
+    bool cache;
+    const unsigned char *data;
+    const unsigned size;
 };
 
 bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message *hm) {
     const struct embedded_file embedded_files[] = {
-        {"/", 1, "text/html; charset=utf-8", true, index_html_data, index_html_size},
-        {"/css/combined.css", 17, "text/css; charset=utf-8", true, combined_css_data, combined_css_size},
-        {"/js/combined.js", 15, "application/javascript; charset=utf-8", true, combined_js_data, combined_js_size},
-        {"/sw.js", 6, "application/javascript; charset=utf-8", true, sw_js_data, sw_js_size},
-        {"/mympd.webmanifest", 18, "application/manifest+json", true, mympd_webmanifest_data, mympd_webmanifest_size},
-        {"/assets/coverimage-notavailable.svg", 35, "image/svg+xml", true, coverimage_notavailable_svg_data, coverimage_notavailable_svg_size},
-        {"/assets/MaterialIcons-Regular.woff2", 35, "font/woff2", false, MaterialIcons_Regular_woff2_data, MaterialIcons_Regular_woff2_size},
-        {"/assets/coverimage-stream.svg", 29, "image/svg+xml", true, coverimage_stream_svg_data, coverimage_stream_svg_size},
-        {"/assets/coverimage-loading.svg", 30, "image/svg+xml", true, coverimage_loading_svg_data, coverimage_loading_svg_size},
-        {"/assets/coverimage-booklet.svg", 30, "image/svg+xml", true, coverimage_booklet_svg_data, coverimage_booklet_svg_size},
-        {"/assets/coverimage-mympd.svg", 28, "image/svg+xml", true, coverimage_mympd_svg_data, coverimage_mympd_svg_size},
-        {"/assets/favicon.ico", 19, "image/vnd.microsoft.icon", false, favicon_ico_data, favicon_ico_size},
-        {"/assets/appicon-192.png", 23, "image/png", false, appicon_192_png_data, appicon_192_png_size},
-        {"/assets/appicon-512.png", 23, "image/png", false, appicon_512_png_data, appicon_512_png_size},
-        {NULL, 0, NULL, false, NULL, 0}
+        {"/", 1, "text/html; charset=utf-8", true, false, index_html_data, index_html_size},
+        {"/css/combined.css", 17, "text/css; charset=utf-8", true, false, combined_css_data, combined_css_size},
+        {"/js/combined.js", 15, "application/javascript; charset=utf-8", true, false, combined_js_data, combined_js_size},
+        {"/sw.js", 6, "application/javascript; charset=utf-8", true, false, sw_js_data, sw_js_size},
+        {"/mympd.webmanifest", 18, "application/manifest+json", true, false, mympd_webmanifest_data, mympd_webmanifest_size},
+        {"/assets/coverimage-notavailable.svg", 35, "image/svg+xml", true, true, coverimage_notavailable_svg_data, coverimage_notavailable_svg_size},
+        {"/assets/MaterialIcons-Regular.woff2", 35, "font/woff2", false, true, MaterialIcons_Regular_woff2_data, MaterialIcons_Regular_woff2_size},
+        {"/assets/coverimage-stream.svg", 29, "image/svg+xml", true, true, coverimage_stream_svg_data, coverimage_stream_svg_size},
+        {"/assets/coverimage-loading.svg", 30, "image/svg+xml", true, true, coverimage_loading_svg_data, coverimage_loading_svg_size},
+        {"/assets/coverimage-booklet.svg", 30, "image/svg+xml", true, true, coverimage_booklet_svg_data, coverimage_booklet_svg_size},
+        {"/assets/coverimage-mympd.svg", 28, "image/svg+xml", true, true, coverimage_mympd_svg_data, coverimage_mympd_svg_size},
+        {"/assets/favicon.ico", 19, "image/vnd.microsoft.icon", false, true, favicon_ico_data, favicon_ico_size},
+        {"/assets/appicon-192.png", 23, "image/png", false, true, appicon_192_png_data, appicon_192_png_size},
+        {"/assets/appicon-512.png", 23, "image/png", false, true, appicon_512_png_data, appicon_512_png_size},
+        {NULL, 0, NULL, false, false, NULL, 0}
     };
     //decode uri
     sds uri_decoded = sdsurldecode(sdsempty(), uri, sdslen(uri), 0);
@@ -194,9 +195,11 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message
         //send header
         mg_printf(nc, "HTTP/1.1 200 OK\r\n"
                       EXTRA_HEADERS"\r\n"
+                      "%s"
                       "Content-Length: %u\r\n"
                       "Content-Type: %s\r\n"
                       "%s\r\n",
+                      (p->cache == true ? EXTRA_HEADERS_CACHE"\r\n" : ""),
                       p->size,
                       p->mimetype,
                       (p->compressed == true ? "Content-Encoding: gzip\r\n" : "")

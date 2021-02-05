@@ -25,7 +25,7 @@
 
 bool mpd_client_queue_prio_set_highest(t_mpd_client_state *mpd_client_state, const unsigned trackid) {
     //default prio is 10
-    int priority = 10;
+    unsigned priority = 10;
     
     //try to get prio of next song
     struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
@@ -52,7 +52,7 @@ bool mpd_client_queue_prio_set_highest(t_mpd_client_state *mpd_client_state, con
     }
     
     //set priority, priority have only an effect in random mode
-    bool rc = mpd_run_prio_id(mpd_client_state->mpd_state->conn, priority, trackid);
+    bool rc = mpd_run_prio_id(mpd_client_state->mpd_state->conn, unsigned_to_int(priority), trackid);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_prio_id") == false) {
         return false;
     }

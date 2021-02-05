@@ -407,7 +407,7 @@ bool list_insert_sorted_by_key(struct list *l, const char *key, long value_i, co
         if (order == false && strcmp(n->key, current->key) < 0) {
             break;
         }
-        else if (order == true && strcmp(n->key, current->key) > 0) {
+        if (order == true && strcmp(n->key, current->key) > 0) {
             break;
         }
     }
@@ -420,7 +420,7 @@ bool list_insert_sorted_by_key(struct list *l, const char *key, long value_i, co
     }
     n->next = current;
     //fix tail
-    if (l->tail == previous) {
+    if (l->tail == previous && previous != NULL) {
         l->tail = previous->next;
     }
     l->length++;
@@ -455,7 +455,7 @@ bool list_insert_sorted_by_value_i(struct list *l, const char *key, long value_i
         if (order == false && n->value_i < current->value_i) {
             break;
         }
-        else if (order == true && n->value_i > current->value_i) {
+        if (order == true && n->value_i > current->value_i) {
             break;
         }
     }
@@ -468,7 +468,7 @@ bool list_insert_sorted_by_value_i(struct list *l, const char *key, long value_i
     }
     n->next = current;
     //fix tail
-    if (l->tail == previous) {
+    if (l->tail == previous && previous != NULL) {
         l->tail = previous->next;
     }
     l->length++;

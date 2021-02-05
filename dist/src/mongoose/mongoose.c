@@ -8181,9 +8181,12 @@ MG_INTERNAL int mg_uri_to_local_path(struct http_message *hm,
   }
 
 out:
-  LOG(LL_DEBUG,
-      ("'%.*s' -> '%s' + '%.*s'", (int) hm->uri.len, hm->uri.p,
-       *local_path ? *local_path : "", (int) remainder->len, remainder->p));
+//Disabled debug log, gcc11 warning
+//error: '%.*s' directive argument is null [-Werror=format-overflow=]
+//
+//  LOG(LL_DEBUG,
+//      ("'%.*s' -> '%s' + '%.*s'", (int) hm->uri.len, hm->uri.p,
+//       *local_path ? *local_path : "", (int) remainder->len, remainder->p));
   return ok;
 }
 

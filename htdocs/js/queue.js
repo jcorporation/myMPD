@@ -1,9 +1,7 @@
 "use strict";
-/*
- SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
- https://github.com/jcorporation/mympd
-*/
+// SPDX-License-Identifier: GPL-2.0-or-later
+// myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+// https://github.com/jcorporation/mympd
 
 function initQueue() {
     document.getElementById('searchqueuestr').addEventListener('keyup', function(event) {
@@ -199,6 +197,7 @@ function parseQueue(obj) {
         setAttEnc(row, 'data-songpos', obj.result.data[i].Pos);
         setAttEnc(row, 'data-duration', obj.result.data[i].Duration);
         setAttEnc(row, 'data-uri', obj.result.data[i].uri);
+        setAttEnc(row, 'data-type', 'song');
         let tds = '';
         for (let c = 0; c < settings.colsQueueCurrent.length; c++) {
             tds += '<td data-col="' + encodeURI(settings.colsQueueCurrent[c]) + '">' + e(obj.result.data[i][settings.colsQueueCurrent[c]]) + '</td>';
@@ -419,6 +418,7 @@ function playAfterCurrent(trackid, songpos) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function clearQueue() {
     showReally('{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP_OR_CLEAR"}]}', t('Do you really want to clear the queue?'));
 }

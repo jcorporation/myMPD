@@ -10,14 +10,21 @@ ELSE()
 ENDIF()
 
 #Install startup script
-IF (EXISTS "/usr/lib/systemd/system")
+IF ((EXISTS "/etc/debian_version") AND (EXISTS "/usr/lib/systemd/system"))
+  #Install systemd unit
+  MESSAGE("-- Installing: $ENV{DESTDIR}/lib/systemd/system/mympd.service")
+  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service" "$ENV{DESTDIR}/lib/systemd/system/mympd.service")
+  EXECUTE_PROCESS (COMMAND chmod 644 "$ENV{DESTDIR}/lib/systemd/system/mympd.service")
+ELSEIF (EXISTS "/usr/lib/systemd/system")
   #Install systemd unit
   MESSAGE("-- Installing: $ENV{DESTDIR}/usr/lib/systemd/system/mympd.service")
   EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service" "$ENV{DESTDIR}/usr/lib/systemd/system/mympd.service")
+  EXECUTE_PROCESS (COMMAND chmod 644 "$ENV{DESTDIR}/usr/lib/systemd/system/mympd.service")
 ELSEIF (EXISTS "/lib/systemd/system")
   #Install systemd unit
   MESSAGE("-- Installing: $ENV{DESTDIR}/lib/systemd/system/mympd.service")
   EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service" "$ENV{DESTDIR}/lib/systemd/system/mympd.service")
+  EXECUTE_PROCESS (COMMAND chmod 644 "$ENV{DESTDIR}/lib/systemd/system/mympd.service")
 ELSEIF(EXISTS "/sbin/openrc-run")
   #Install openrc script
   MESSAGE("-- Installing: $ENV{DESTDIR}/etc/init.d/mympd")
@@ -26,4 +33,11 @@ ELSEIF(EXISTS "/etc/init.d")
   #Install sysVinit script
   MESSAGE("-- Installing: $ENV{DESTDIR}/etc/init.d/mympd")
   EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.sysVinit" "$ENV{DESTDIR}/etc/init.d/mympd")
+ENDIF()
+
+IF (EXISTS "/etc/debian_version")
+  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_SOURCE_DIR@/contrib/packaging/debian/copyright" "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_DATAROOTDIR@/doc/mympd/copyright")
+  EXECUTE_PROCESS (COMMAND chmod 644 "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_DATAROOTDIR@/doc/mympd/copyright")
+  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_SOURCE_DIR@/contrib/packaging/debian/changelog" "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_DATAROOTDIR@/doc/mympd/changelog.Debian")
+  EXECUTE_PROCESS (COMMAND gzip -n -9 "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_DATAROOTDIR@/doc/mympd/changelog.Debian")
 ENDIF()

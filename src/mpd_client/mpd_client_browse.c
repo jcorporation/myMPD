@@ -388,10 +388,9 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
     //parse sort tag
     bool sort_by_last_modified = false;
     enum mpd_tag_type sort_tag = MPD_TAG_ALBUM;
-    enum mpd_tag_type sort_tag_org = sort_tag;
 
     if (strlen(sort) > 0) {
-        sort_tag_org = mpd_tag_name_parse(sort);
+        enum mpd_tag_type sort_tag_org = mpd_tag_name_parse(sort);
         if (sort_tag_org != MPD_TAG_UNKNOWN) {
             sort_tag = get_sort_tag(sort_tag_org);
             if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, sort_tag) == false) {
@@ -479,8 +478,14 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
                 if (sort_value != NULL) {
                     list_insert_sorted_by_key(&album_list, sort_value, 0, NULL, iter.data, sortdesc);
                 }
+                else if (sort_tag == MPD_TAG_ALBUM_ARTIST) {
+                    //fallback to artist tag if albumartist tag is not set
+                    sort_value = mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
+                    list_insert_sorted_by_key(&album_list, sort_value, 0, NULL, iter.data, sortdesc);
+                }
                 else {
-                    LOG_WARN("Skip entry: %.*s", iter.key_len, iter.key); 
+                    //sort tag not present, append to end of the list
+                    list_push(&album_list, "zzzzzzzzzz", 0, NULL, iter.data);
                 }
             }
         }
@@ -689,7 +694,7 @@ static bool _cmp_regex(pcre *re_compiled, const char *value) {
     }
     bool rc = false;
     int substr_vec[30];
-    int pcre_exec_ret = pcre_exec(re_compiled, NULL, value, strlen(value), 0, 0, substr_vec, 30);
+    int pcre_exec_ret = pcre_exec(re_compiled, NULL, value, (int) strlen(value), 0, 0, substr_vec, 30);
     if (pcre_exec_ret < 0) {
         switch(pcre_exec_ret) {
             case PCRE_ERROR_NOMATCH      : break;

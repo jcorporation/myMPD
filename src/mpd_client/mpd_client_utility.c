@@ -36,16 +36,30 @@ static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char 
 
 //public functions
 bool caches_init(t_config *config, t_mpd_client_state *mpd_client_state) {
-    if (config->sticker_cache == false || mpd_client_state->feat_sticker == false || mpd_client_state->mpd_state->feat_mpd_searchwindow == false) {
-        LOG_VERBOSE("Sticker cache is disabled, mpd version < 0.20.0 or stickers / sticker_cache not enabled");
+    if (mpd_client_state->mpd_state->feat_mpd_searchwindow == false) {
+        LOG_VERBOSE("Can not create caches, mpd version < 0.20.0");
         return false;
     }
-    //push cache building request to mpd_worker thread
-    mpd_client_state->sticker_cache_building = true;
-    mpd_client_state->album_cache_building = true;
-    t_work_request *request = create_request(-1, 0, MPDWORKER_API_CACHES_CREATE, "MPDWORKER_API_CACHES_CREATE", "");
-    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPDWORKER_API_CACHES_CREATE\",\"params\":{}}");
-    tiny_queue_push(mpd_worker_queue, request, 0);
+    bool create_sticker_cache = config->sticker_cache == true ? mpd_client_state->feat_sticker : false;
+
+    if (create_sticker_cache == true || mpd_client_state->mpd_state->feat_tags == true) {
+        //push cache building request to mpd_worker thread
+        if (create_sticker_cache == true) {
+            mpd_client_state->sticker_cache_building = true;
+        }
+        if (mpd_client_state->mpd_state->feat_tags == true) {
+            mpd_client_state->album_cache_building = true;
+        }
+        t_work_request *request = create_request(-1, 0, MPDWORKER_API_CACHES_CREATE, "MPDWORKER_API_CACHES_CREATE", "");
+        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPDWORKER_API_CACHES_CREATE\",\"params\":{");
+        request->data = tojson_bool(request->data, "featSticker", create_sticker_cache, true);
+        request->data = tojson_bool(request->data, "featTags", mpd_client_state->mpd_state->feat_tags, false);
+        request->data = sdscat(request->data, "}}");
+        tiny_queue_push(mpd_worker_queue, request, 0);
+    }
+    else {
+        LOG_VERBOSE("Caches creation skipped, sticker_cache and tags are disabled");
+    }
     return true;
 }
 

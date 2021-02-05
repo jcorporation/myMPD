@@ -1,6 +1,6 @@
 
 /* libmpdclient
-   (c) 2003-2019 The Music Player Daemon Project
+   (c) 2003-2021 The Music Player Daemon Project
    This project's homepage is: http://www.musicpd.org
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions
@@ -56,22 +56,19 @@ extern "C" {
  * @return true on success
  */
 bool
-mpd_send_albumart(struct mpd_connection *connection, 
-                                   const char *uri, 
-                                   unsigned offset);
+mpd_send_albumart(struct mpd_connection *connection, const char *uri, unsigned offset);
 
 /**
  * Receives the "albumart" response
  *
  * @param connection a valid and connected #mpd_connection
- * @param buffer an allocated buffer
- * @param buffer_size the allocated buffer size
+ * @param buffer an already allocated buffer, should be of the same size as the binary 
+ * chunk size (default 8192, can be set with binarylimit command)
+ * @param buffer_size the size of the allocated buffer
  * @return read size on success, -1 on failure
  */
 int
-mpd_recv_albumart(struct mpd_connection *connection, 
-                  void *buffer,
-                  size_t buffer_size);
+mpd_recv_albumart(struct mpd_connection *connection, void *buffer, size_t buffer_size);
 
 /**
  * Shortcut for mpd_send_albumart(), mpd_recv_albumart() and
@@ -80,16 +77,15 @@ mpd_recv_albumart(struct mpd_connection *connection,
  * @param connection a valid and connected #mpd_connection
  * @param uri the URI of the song
  * @param offset to read from
- * @param buffer an allocated buffer
- * @param buffer_size the allocated buffer size
+ * @param buffer an already allocated buffer, should be of the same size as the binary 
+ * chunk size (default 8192, can be set with binarylimit command)
+ * @param buffer_size the size of the allocated buffer
  * @return read size on success, -1 on failure
  */
 int
 mpd_run_albumart(struct mpd_connection *connection,
-				   const char *uri,
-				   unsigned offset,
-				   void *buffer,
-				   size_t buffer_size);
+                 const char *uri, unsigned offset,
+                 void *buffer, size_t buffer_size);
 
 #ifdef __cplusplus
 }
