@@ -5,7 +5,7 @@
 /package/
 /htdocs/css/bootstrap.css
 /htdocs/js/bootstrap-native.js
-/htdocs/js/long-press-event.min.js
+/htdocs/js/long-press-event.js
 /htdocs/js/i18n.js
 /valgrind.out
 /src/compile_commands.json
