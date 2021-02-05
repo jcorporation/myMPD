@@ -614,16 +614,26 @@ pkgbuildx() {
 }
 
 pkgalpine() {
+  if [ -z "${1+x}" ]
+    TARONlY=""
+  then
+    TARONLY=$1
+  fi
   check_cmd abuild
   prepare
   tar -czf "mympd_${VERSION}.orig.tar.gz" -- *
-  [ "$1" = "taronly" ] && return 0
+  [ "$TARONLY" = "taronly" ] && return 0
   cp contrib/packaging/alpine/* .
   abuild checksum
   abuild -r
 }
 
 pkgrpm() {
+  if [ -z "${1+x}" ]
+    TARONlY=""
+  then
+    TARONLY=$1
+  fi
   check_cmd rpmbuild
   prepare
   SRC=$(ls)
@@ -633,7 +643,7 @@ pkgrpm() {
     mv "$F" "mympd-${VERSION}"
   done
   tar -czf "mympd-${VERSION}.tar.gz" "mympd-${VERSION}"
-  [ "$1" = "taronly" ] && return 0
+  [ "$TARONLY" = "taronly" ] && return 0
   install -d "$HOME/rpmbuild/SOURCES"
   mv "mympd-${VERSION}.tar.gz" ~/rpmbuild/SOURCES/
   cp ../../contrib/packaging/rpm/mympd.spec .
