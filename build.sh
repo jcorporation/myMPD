@@ -615,8 +615,9 @@ pkgbuildx() {
 
 pkgalpine() {
   if [ -z "${1+x}" ]
-    TARONLY=""
   then
+    TARONLY=""
+  else
     TARONLY=$1
   fi
   check_cmd abuild
@@ -630,8 +631,9 @@ pkgalpine() {
 
 pkgrpm() {
   if [ -z "${1+x}" ]
-    TARONLY=""
   then
+    TARONLY=""
+  else
     TARONLY=$1
   fi
   check_cmd rpmbuild
