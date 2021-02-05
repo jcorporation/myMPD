@@ -787,7 +787,6 @@ function parseMPDSettings() {
     }
     
     if (!settings.tags.includes('AlbumArtist') && app.apps.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
-        app.apps.Browse.tabs.Database.views.List.filter = 'Artist';
         app.apps.Browse.tabs.Database.views.List.sort = 'Artist';
     }
 

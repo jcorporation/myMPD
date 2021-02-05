@@ -131,7 +131,7 @@ app.apps = {
                     "List": { 
                         "offset": 0,
                         "limit": 100,
-                        "filter": "AlbumArtist",
+                        "filter": "any",
                         "sort": "AlbumArtist",
                         "tag": "Album",
                         "search": "",
