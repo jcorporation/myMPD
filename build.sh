@@ -615,7 +615,7 @@ pkgbuildx() {
 
 pkgalpine() {
   if [ -z "${1+x}" ]
-    TARONlY=""
+    TARONLY=""
   then
     TARONLY=$1
   fi
@@ -630,7 +630,7 @@ pkgalpine() {
 
 pkgrpm() {
   if [ -z "${1+x}" ]
-    TARONlY=""
+    TARONLY=""
   then
     TARONLY=$1
   fi
