@@ -496,6 +496,9 @@ function parseSettings() {
     else {
         document.getElementById('syscmds').innerHTML = '';
     }
+    //reinit mainmenu -> change of syscmd list
+    dropdownMainMenu.dispose();
+    dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 
     if (settings.featScripting === true) {
         getScriptList(true);

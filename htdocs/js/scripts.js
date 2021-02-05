@@ -216,6 +216,9 @@ function parseScriptList(obj) {
     else {
         document.getElementById('selectTimerAction').appendChild(timerActions);
     }
+    //reinit mainmenu -> change of script list
+    dropdownMainMenu.dispose();
+    dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 }
 
 //eslint-disable-next-line no-unused-vars
