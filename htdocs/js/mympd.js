@@ -994,7 +994,7 @@ function initNavs() {
             setTimeout(function() {
                 domCache.progressBar.style.transition = progressBarTransition;
             }, 10);
-            const seekVal = Math.ceil((currentSong.totalTime * event.clientX) / event.target.offsetWidth);
+            const seekVal = Math.ceil((currentSong.totalTime * event.clientX) / domCache.progress.offsetWidth);
             sendAPI("MPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": seekVal});
         }
     }, false);
