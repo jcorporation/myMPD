@@ -625,19 +625,20 @@ static bool _search_song(struct mpd_song *song, struct list *expr_list, t_tags *
     struct list_node *current = expr_list->head;
     sds value = sdsempty();
     (void) browse_tag_types;
+    struct t_tags one_tag;
+    one_tag.len = 1;
     while (current != NULL) {
-        struct t_tags *tags;
+        struct t_tags *tags = NULL;
         if (current->value_i == -2) {
             //any - use all browse tags
             tags = browse_tag_types;
         }
         else {
             //use selected tag only
-            tags = malloc(sizeof(struct t_tags));
+            tags = &one_tag;
             tags->tags[0] = current->value_i;
-            tags->len = 1;
         }
-        bool rc;
+        bool rc = false;
         for (unsigned i = 0; i < tags->len; i++) {
             rc = true;
             value = mpd_shared_get_tags(song, tags->tags[i], value);
@@ -663,9 +664,6 @@ static bool _search_song(struct mpd_song *song, struct list *expr_list, t_tags *
                 //tag value matched
                 break;
             }
-        }
-        if (current->value_i > -2) {
-            free(tags);
         }
         if (rc == false) {
             sdsfree(value);
