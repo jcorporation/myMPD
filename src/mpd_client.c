@@ -147,8 +147,8 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
                         if (mpd_client_state->feat_sticker && mpd_client_state->last_song_end_time > now) {
                             //last song skipped
                             time_t elapsed = now - mpd_client_state->last_song_start_time;
-                            if (elapsed > 10 && mpd_client_state->last_song_start_time > 0) {
-                                LOG_DEBUG("Song %s skipped", mpd_client_state->last_song_uri);
+                            if (elapsed > 10 && mpd_client_state->last_song_start_time > 0 && sdslen(mpd_client_state->last_song_uri) > 0) {
+                                LOG_DEBUG("Song \"%s\" skipped", mpd_client_state->last_song_uri);
                                 mpd_client_sticker_inc_skip_count(mpd_client_state, mpd_client_state->last_song_uri);
                                 mpd_client_sticker_last_skipped(mpd_client_state, mpd_client_state->last_song_uri);
                                 mpd_client_state->last_skipped_id = mpd_client_state->last_song_id;
