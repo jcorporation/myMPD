@@ -3,9 +3,6 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-// Disable eslint warnings
-// global BSN, phrases, locales
-
 var socket = null;
 var websocketConnected = false;
 var websocketTimer = null;

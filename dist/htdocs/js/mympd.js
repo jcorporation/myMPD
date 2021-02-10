@@ -2335,9 +2335,6 @@ function parseNeighbors(obj) {
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-// Disable eslint warnings
-// global BSN, phrases, locales
-
 var socket = null;
 var websocketConnected = false;
 var websocketTimer = null;
@@ -9235,10 +9232,10 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
         }
     }
     if (crumbEl.childElementCount > 0) {
-    	crumbEl.classList.remove('hide');
+        crumbEl.classList.remove('hide');
     }
     else {
-		crumbEl.classList.add('hide');    
+        crumbEl.classList.add('hide');    
     }
 }
 
@@ -9259,14 +9256,14 @@ function createSearchExpression(crumbsEl, tag, op, value) {
         if (i > 0) {
             expression += ' AND ';
         }
-        let op = getAttDec(crumbs[i], 'data-filter-op');
-        let value = getAttDec(crumbs[i], 'data-filter-value');
-        if (op === 'starts_with') {
-            op = '=~';
-            value = '^' + value;
+        let crumbOp = getAttDec(crumbs[i], 'data-filter-op');
+        let crumbValue = getAttDec(crumbs[i], 'data-filter-value');
+        if (app.current.app === 'Search' && crumbOp === 'starts_with') {
+            crumbOp = '=~';
+            crumbValue = '^' + crumbValue;
         }
         expression += '(' + getAttDec(crumbs[i], 'data-filter-tag') + ' ' + 
-            op + ' \'' + escapeMPD(value) + '\')';
+            crumbOp + ' \'' + escapeMPD(crumbValue) + '\')';
     }
     if (value !== '') {
         if (expression.length > 1) {
@@ -9275,7 +9272,7 @@ function createSearchExpression(crumbsEl, tag, op, value) {
         if (app.current.app === 'Search' && op === 'starts_with') {
             //mpd do not support starts_with, convert it to regex
             op = '=~';
-            value = '^' + x;
+            value = '^' + value;
         }
         expression += '(' + tag + ' ' + op + ' \'' + escapeMPD(value) +'\')';
     }
