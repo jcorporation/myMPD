@@ -419,9 +419,7 @@
         <div id="viewListDatabase">
           <div class="btn-toolbar card-toolbar" id="BrowseDatabaseButtons">
             <div class="btn-group mr-2">
-              <button data-title-phrase="Select view" id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                <span class="mi">layers</span>
-              </button>
+              <button data-title-phrase="Select view" id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
               <div class="dropdown-menu bg-lite-dark px-2" id="BrowseDatabaseByTagDropdown">
               </div>
             </div>
@@ -591,6 +589,7 @@
               <div class="input-group-prepend featAdvsearch">
                 <select class="form-control custom-select border-secondary rounded-0" id="searchMatch">
                   <option data-phrase="contains" value="contains"></option>
+                  <option data-phrase="starts_with" class="featRegex" value="starts_with"></option>
                   <option value="==">==</option>
                   <option class="featRegex" value="=~">=~</option>
                   <option value="!=">!=</option>
@@ -618,8 +617,7 @@
           <div id="SearchPaginationTop" class="btn-group mr-2 pagination hide">
           </div>
         </div>
-        <ol class="featAdvsearch breadcrumb" id="searchCrumb"></ol>
-
+        <ol class="featAdvsearch breadcrumb hide" id="searchCrumb"></ol>
         <div class="table-responsive-md">
           <table id="SearchList" class="table table-hover table-sm">
             <thead>
