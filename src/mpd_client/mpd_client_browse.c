@@ -168,8 +168,14 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
             case MPD_ENTITY_TYPE_PLAYLIST: {
                 const struct mpd_playlist *pl = mpd_entity_get_playlist(entity);
                 const char *entity_name = mpd_playlist_get_path(pl);
-                if (strchr(entity_name, '.') == NULL) {
-                    break;
+                //do not show mpd playlists in root directory
+                if (strcmp(path, "/") == 0) {
+                    sds ext = get_extension_from_filename(entity_name);
+                    if (strcmp(ext, "m3u") != 0 && strcmp(ext, "pls") != 0) {
+                        sdsfree(ext);
+                        break;
+                    }
+                    sdsfree(ext);
                 }
                 char *pl_name = strrchr(entity_name, '/');
                 if (pl_name != NULL) {
@@ -424,6 +430,13 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
             }
             tag = sdscatprintf(tag, "%.*s", 1, p);
         }
+        if (i + 1 >= sdslen(tokens[j])) {
+            LOG_ERROR("Can not parse search expression");
+            sdsfree(tag);
+            sdsfree(op);
+            sdsfree(value);
+            break;
+        }
         i++;
         p++;
         //operator
@@ -432,6 +445,13 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
                 break;
             }
             op = sdscatprintf(op, "%.*s", 1, p);
+        }
+        if (i + 2 >= sdslen(tokens[j])) {
+            LOG_ERROR("Can not parse search expression");
+            sdsfree(tag);
+            sdsfree(op);
+            sdsfree(value);
+            break;
         }
         i = i + 2;
         p = p + 2;
