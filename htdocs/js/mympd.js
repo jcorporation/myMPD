@@ -506,34 +506,7 @@ function appRoute() {
         }
         selectTag('databaseSortTags', undefined, sort);
         if (app.current.tag === 'Album') {
-            const crumbEl = document.getElementById('searchDatabaseCrumb');
-            const searchEl = document.getElementById('searchDatabaseStr');
-            
-            let crumbs = '';
-            let elements = app.current.search.split(' AND ');
-            for (let i = 0; i < elements.length - 1 ; i++) {
-                let expression = elements[i].substring(1, elements[i].length - 1);
-                let fields = expression.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
-                if (fields !== null && fields.length === 4) {
-                    crumbs += '<button data-filter-tag="' + encodeURI(fields[1]) + '" ' +
-                        'data-filter-op="' + encodeURI(fields[2]) + '" ' +
-                        'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(expression) + '<span class="badge badge-secondary">&times</span></button>';
-                }
-            }
-            crumbEl.innerHTML = crumbs;
-            if (searchEl.value === '' && elements.length >= 1) {
-                let lastEl = elements[elements.length - 1].substring(1, elements[elements.length - 1].length - 1);
-                let lastElValue = lastEl.substring(lastEl.indexOf('\'') + 1, lastEl.length - 1);
-                if (searchEl.value !== lastElValue) {
-                    let fields = lastEl.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
-                    if (fields !== null && fields.length === 4) {
-                        crumbEl.innerHTML += '<button data-filter-tag="' + encodeURI(fields[1]) + '" ' +
-                            'data-filter-op="' + encodeURI(fields[2]) + '" ' +
-                            'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(lastEl) + '<span class="badge badge-secondary">&times</span></button>';
-                    }
-                }
-            }
-            crumbEl.classList.remove('hide');
+            createSearchCrumbs(app.current.search, document.getElementById('searchDatabaseStr'), document.getElementById('searchDatabaseCrumb'));
             document.getElementById('searchDatabaseMatch').classList.remove('hide');
             enableEl('btnDatabaseSortDropdown');
             enableEl('btnDatabaseSearchDropdown');
@@ -566,32 +539,7 @@ function appRoute() {
     else if (app.current.app === 'Search') {
         domCache.searchstr.focus();
         if (settings.featAdvsearch) {
-            let crumbs = '';
-            let elements = app.current.search.substring(1, app.current.search.length - 1).split(' AND ');
-            for (let i = 0; i < elements.length - 1 ; i++) {
-                let expression = elements[i].substring(1, elements[i].length - 1);
-                let fields = expression.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
-                crumbs += '<button data-filter-tag="' + encodeURI(fields[1]) + '" ' +
-                    'data-filter-op="' + encodeURI(fields[2]) + '" ' +
-                    'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(expression) + '<span class="badge badge-secondary">&times</span></button>';
-            }
-            domCache.searchCrumb.innerHTML = crumbs;
-            if (domCache.searchstr.value === '' && elements.length >= 1) {
-                let lastEl = elements[elements.length - 1].substring(1,  elements[elements.length - 1].length - 1);
-                let lastElValue = lastEl.substring(lastEl.indexOf('\'') + 1, lastEl.length - 1);
-                if (domCache.searchstr.value !== lastElValue) {
-                    let fields = lastEl.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
-                    domCache.searchCrumb.innerHTML += '<button data-filter-tag="' + encodeURI(fields[1]) + '" ' +
-                        'data-filter-op="' + encodeURI(fields[2]) + '" ' +
-                        'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(lastEl) + '<span class="badge badge-secondary">&times</span></button>';
-                }
-                let match = lastEl.substring(lastEl.indexOf(' ') + 1);
-                match = match.substring(0, match.indexOf(' '));
-                if (match === '') {
-                    match = 'contains';
-                }
-                document.getElementById('searchMatch').value = match;
-            }
+            createSearchCrumbs(app.current.search, domCache.searchstr, domCache.searchCrumb);
         }
         else if (domCache.searchstr.value === '' && app.current.search !== '') {
                 domCache.searchstr.value = app.current.search;

@@ -26,15 +26,10 @@ function initSearch() {
         }
         else if (event.key === 'Enter' && settings.featAdvsearch) {
             if (this.value !== '') {
-                let match = getSelectValue(document.getElementById('searchMatch'));
-                let li = document.createElement('button');
-                li.classList.add('btn', 'btn-light', 'mr-2');
-                setAttEnc(li, 'data-filter-tag', app.current.filter);
-                setAttEnc(li, 'data-filter-op', match);
-                setAttEnc(li, 'data-filter-value', this.value);
-                li.innerHTML = e(app.current.filter) + ' ' + e(match) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
+                const op = getSelectValue(document.getElementById('searchMatch'));
+                domCache.searchCrumb.appendChild(createSearchCrumb(app.current.filter, op, this.value));
+                domCache.searchCrumb.classList.remove('hide');
                 this.value = '';
-                domCache.searchCrumb.appendChild(li);
             }
             else {
                 doSearch(this.value);
@@ -60,6 +55,9 @@ function initSearch() {
             document.getElementById('searchMatch').value = getAttDec(event.target, 'data-filter-op');
             event.target.remove();
             doSearch(domCache.searchstr.value);
+            if (domCache.searchCrumb.childElementCount === 0) {
+                domCache.searchCrumb.classList.add('hide');
+            }
         }
     }, false);
 
@@ -114,25 +112,7 @@ function initSearch() {
 
 function doSearch(x) {
     if (settings.featAdvsearch) {
-        let expression = '(';
-        let crumbs = domCache.searchCrumb.children;
-        for (let i = 0; i < crumbs.length; i++) {
-            expression += '(' + getAttDec(crumbs[i], 'data-filter-tag') + ' ' + 
-                getAttDec(crumbs[i], 'data-filter-op') + ' \'' + 
-                escapeMPD(getAttDec(crumbs[i], 'data-filter-value')) + '\')';
-            if (x !== '') {
-                expression += ' AND ';
-            }
-        }
-        if (x !== '') {
-            expression += '(' + app.current.filter + ' ' + getSelectValue('searchMatch') + ' \'' + escapeMPD(x) +'\'))';
-        }
-        else {
-            expression += ')';
-        }
-        if (expression.length <= 2) {
-            expression = '';
-        }
+        const expression = createSearchExpression(domCache.searchCrumb, app.current.filter, getSelectValue('searchMatch'), x);
         appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', expression);
     }
     else {
