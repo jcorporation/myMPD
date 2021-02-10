@@ -74,8 +74,16 @@ sds mpd_client_lyrics_get(t_config *config, t_mpd_client_state *mpd_client_state
     return buffer;
 }
 
-//private functions
 sds mpd_client_lyrics_unsynced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
+    if (is_streamuri(uri) == true) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not get lyrics for stream uri", true);
+        return buffer;
+    }
+    if (mpd_client_state->feat_library == false) {
+        LOG_DEBUG("No lyrics file found, no access to music directory");
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
+        return buffer;
+    }
     buffer = _mpd_client_lyrics_unsynced(config, mpd_client_state, buffer, method, request_id, uri);
     if (sdslen(buffer) == 0) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
@@ -84,6 +92,15 @@ sds mpd_client_lyrics_unsynced(t_config *config, t_mpd_client_state *mpd_client_
 }
 
 sds mpd_client_lyrics_synced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
+    if (is_streamuri(uri) == true) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not get lyrics for stream uri", true);
+        return buffer;
+    }
+    if (mpd_client_state->feat_library == false) {
+        LOG_DEBUG("No lyrics file found, no access to music directory");
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
+        return buffer;
+    }
     buffer = _mpd_client_lyrics_synced(config, mpd_client_state, buffer, method, request_id, uri);
     if (sdslen(buffer) == 0) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
@@ -91,6 +108,7 @@ sds mpd_client_lyrics_synced(t_config *config, t_mpd_client_state *mpd_client_st
     return buffer;
 }
 
+//private functions
 static sds _mpd_client_lyrics_unsynced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
     //create absolute file
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mpd_client_state->music_directory_value, uri);
