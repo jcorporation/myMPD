@@ -228,7 +228,6 @@ bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_client_state *mpd_c
     return true;
 }
 
-
 //private functions
 static bool add_album_to_queue(t_mpd_client_state *mpd_client_state, const char *album) {
     bool rc = mpd_search_add_db_songs(mpd_client_state->mpd_state->conn, true);
@@ -546,7 +545,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
     }
 
     if (nkeep < add_songs) {
-        LOG_WARN("Jukebox queue didn't contain %d entries", add_songs);
+        LOG_WARN("Jukebox queue didn't contain %u entries", add_songs);
         if (mpd_client_state->jukebox_enforce_unique == true) {
             LOG_WARN("Disabling jukebox unique constraints temporarily");
             mpd_client_state->jukebox_enforce_unique = false;
