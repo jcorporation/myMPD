@@ -340,7 +340,6 @@ function initBrowse() {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = getAttDec(event.target, 'data-tag');
             searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
-            //appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
         }
     }, false);
     
@@ -411,15 +410,11 @@ function initBrowse() {
         }
         else if (event.key === 'Enter' && app.current.tag === 'Album') {
             if (this.value !== '') {
-                let match = getSelectValue(document.getElementById('searchDatabaseMatch'));
-                let li = document.createElement('button');
-                li.classList.add('btn', 'btn-light', 'mr-2');
-                setAttEnc(li, 'data-filter-tag', app.current.filter);
-                setAttEnc(li, 'data-filter-op', match);
-                setAttEnc(li, 'data-filter-value', this.value);
-                li.innerHTML = e(app.current.filter) + ' ' + e(match) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
+                const op = getSelectValue(document.getElementById('searchDatabaseMatch'));
+                const crumbEl = document.getElementById('searchDatabaseCrumb');
+                crumbEl.appendChild(createSearchCrumb(app.current.filter, op, this.value));
+                crumbEl.classList.remove('hide');
                 this.value = '';
-                document.getElementById('searchDatabaseCrumb').appendChild(li);
             }
             else {
                 searchAlbumgrid(this.value);
@@ -453,6 +448,9 @@ function initBrowse() {
             document.getElementById('searchDatabaseMatch').value = getAttDec(event.target, 'data-filter-op');
             event.target.remove();
             searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
+            if (document.getElementById('searchDatabaseCrumb').childElementCount === 0) {
+                document.getElementById('searchDatabaseCrumb').classList.add('hide');
+            }
         }
     }, false);
 
@@ -869,7 +867,6 @@ function parseDatabase(obj) {
     if (nrItems === 0) {
         cardContainer.innerHTML = '<div class="ml-3 mb-3 not-clickable"><span class="mi">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
     }
-    //document.getElementById('cardFooterBrowse').innerText = gtPage('Num entries', obj.result.returnedEntities, obj.result.totalEntities);
 }
 
 function setGridImage(changes, observer) {
@@ -972,26 +969,7 @@ function _addAlbum(action, albumArtist, album) {
 }
 
 function searchAlbumgrid(x) {
-    let expression = '';
-    let crumbs = document.getElementById('searchDatabaseCrumb').children;
-    for (let i = 0; i < crumbs.length; i++) {
-        if (i > 0) {
-            expression += ' AND ';
-        }
-        expression += '(' + getAttDec(crumbs[i], 'data-filter-tag') + ' ' + 
-            getAttDec(crumbs[i], 'data-filter-op') + ' \'' + 
-            escapeMPD(getAttDec(crumbs[i], 'data-filter-value')) + '\')';
-    }
-    if (x !== '') {
-        if (expression !== '') {
-            expression += ' AND ';
-        }
-        expression += '(' + app.current.filter + ' ' + getSelectValue(document.getElementById('searchDatabaseMatch')) + ' \'' + escapeMPD(x) +'\')';
-    }
-    
-    if (expression.length <= 2) {
-        expression = '';
-    }
+    const expression = createSearchExpression(document.getElementById('searchDatabaseCrumb'), app.current.filter, getSelectValue('searchDatabaseMatch'), x);
     appGoto(app.current.app, app.current.tab, app.current.view, 
         '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression);
 }
@@ -2485,7 +2463,7 @@ app.apps = {
                     "List": { 
                         "offset": 0,
                         "limit": 100,
-                        "filter": "AlbumArtist",
+                        "filter": "any",
                         "sort": "AlbumArtist",
                         "tag": "Album",
                         "search": "",
@@ -2860,34 +2838,7 @@ function appRoute() {
         }
         selectTag('databaseSortTags', undefined, sort);
         if (app.current.tag === 'Album') {
-            const crumbEl = document.getElementById('searchDatabaseCrumb');
-            const searchEl = document.getElementById('searchDatabaseStr');
-            
-            let crumbs = '';
-            let elements = app.current.search.split(' AND ');
-            for (let i = 0; i < elements.length - 1 ; i++) {
-                let expression = elements[i].substring(1, elements[i].length - 1);
-                let fields = expression.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
-                if (fields !== null && fields.length === 4) {
-                    crumbs += '<button data-filter-tag="' + encodeURI(fields[1]) + '" ' +
-                        'data-filter-op="' + encodeURI(fields[2]) + '" ' +
-                        'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(expression) + '<span class="badge badge-secondary">&times</span></button>';
-                }
-            }
-            crumbEl.innerHTML = crumbs;
-            if (searchEl.value === '' && elements.length >= 1) {
-                let lastEl = elements[elements.length - 1].substring(1, elements[elements.length - 1].length - 1);
-                let lastElValue = lastEl.substring(lastEl.indexOf('\'') + 1, lastEl.length - 1);
-                if (searchEl.value !== lastElValue) {
-                    let fields = lastEl.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
-                    if (fields !== null && fields.length === 4) {
-                        crumbEl.innerHTML += '<button data-filter-tag="' + encodeURI(fields[1]) + '" ' +
-                            'data-filter-op="' + encodeURI(fields[2]) + '" ' +
-                            'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(lastEl) + '<span class="badge badge-secondary">&times</span></button>';
-                    }
-                }
-            }
-            crumbEl.classList.remove('hide');
+            createSearchCrumbs(app.current.search, document.getElementById('searchDatabaseStr'), document.getElementById('searchDatabaseCrumb'));
             document.getElementById('searchDatabaseMatch').classList.remove('hide');
             enableEl('btnDatabaseSortDropdown');
             enableEl('btnDatabaseSearchDropdown');
@@ -2920,32 +2871,7 @@ function appRoute() {
     else if (app.current.app === 'Search') {
         domCache.searchstr.focus();
         if (settings.featAdvsearch) {
-            let crumbs = '';
-            let elements = app.current.search.substring(1, app.current.search.length - 1).split(' AND ');
-            for (let i = 0; i < elements.length - 1 ; i++) {
-                let expression = elements[i].substring(1, elements[i].length - 1);
-                let fields = expression.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
-                crumbs += '<button data-filter-tag="' + encodeURI(fields[1]) + '" ' +
-                    'data-filter-op="' + encodeURI(fields[2]) + '" ' +
-                    'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(expression) + '<span class="badge badge-secondary">&times</span></button>';
-            }
-            domCache.searchCrumb.innerHTML = crumbs;
-            if (domCache.searchstr.value === '' && elements.length >= 1) {
-                let lastEl = elements[elements.length - 1].substring(1,  elements[elements.length - 1].length - 1);
-                let lastElValue = lastEl.substring(lastEl.indexOf('\'') + 1, lastEl.length - 1);
-                if (domCache.searchstr.value !== lastElValue) {
-                    let fields = lastEl.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
-                    domCache.searchCrumb.innerHTML += '<button data-filter-tag="' + encodeURI(fields[1]) + '" ' +
-                        'data-filter-op="' + encodeURI(fields[2]) + '" ' +
-                        'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(lastEl) + '<span class="badge badge-secondary">&times</span></button>';
-                }
-                let match = lastEl.substring(lastEl.indexOf(' ') + 1);
-                match = match.substring(0, match.indexOf(' '));
-                if (match === '') {
-                    match = 'contains';
-                }
-                document.getElementById('searchMatch').value = match;
-            }
+            createSearchCrumbs(app.current.search, domCache.searchstr, domCache.searchCrumb);
         }
         else if (domCache.searchstr.value === '' && app.current.search !== '') {
                 domCache.searchstr.value = app.current.search;
@@ -3348,7 +3274,7 @@ function initNavs() {
             setTimeout(function() {
                 domCache.progressBar.style.transition = progressBarTransition;
             }, 10);
-            const seekVal = Math.ceil((currentSong.totalTime * event.clientX) / event.target.offsetWidth);
+            const seekVal = Math.ceil((currentSong.totalTime * event.clientX) / domCache.progress.offsetWidth);
             sendAPI("MPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": seekVal});
         }
     }, false);
@@ -5252,6 +5178,9 @@ function parseScriptList(obj) {
     else {
         document.getElementById('selectTimerAction').appendChild(timerActions);
     }
+    //reinit mainmenu -> change of script list
+    dropdownMainMenu.dispose();
+    dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -5321,15 +5250,10 @@ function initSearch() {
         }
         else if (event.key === 'Enter' && settings.featAdvsearch) {
             if (this.value !== '') {
-                let match = getSelectValue(document.getElementById('searchMatch'));
-                let li = document.createElement('button');
-                li.classList.add('btn', 'btn-light', 'mr-2');
-                setAttEnc(li, 'data-filter-tag', app.current.filter);
-                setAttEnc(li, 'data-filter-op', match);
-                setAttEnc(li, 'data-filter-value', this.value);
-                li.innerHTML = e(app.current.filter) + ' ' + e(match) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
+                const op = getSelectValue(document.getElementById('searchMatch'));
+                domCache.searchCrumb.appendChild(createSearchCrumb(app.current.filter, op, this.value));
+                domCache.searchCrumb.classList.remove('hide');
                 this.value = '';
-                domCache.searchCrumb.appendChild(li);
             }
             else {
                 doSearch(this.value);
@@ -5355,6 +5279,9 @@ function initSearch() {
             document.getElementById('searchMatch').value = getAttDec(event.target, 'data-filter-op');
             event.target.remove();
             doSearch(domCache.searchstr.value);
+            if (domCache.searchCrumb.childElementCount === 0) {
+                domCache.searchCrumb.classList.add('hide');
+            }
         }
     }, false);
 
@@ -5409,25 +5336,7 @@ function initSearch() {
 
 function doSearch(x) {
     if (settings.featAdvsearch) {
-        let expression = '(';
-        let crumbs = domCache.searchCrumb.children;
-        for (let i = 0; i < crumbs.length; i++) {
-            expression += '(' + getAttDec(crumbs[i], 'data-filter-tag') + ' ' + 
-                getAttDec(crumbs[i], 'data-filter-op') + ' \'' + 
-                escapeMPD(getAttDec(crumbs[i], 'data-filter-value')) + '\')';
-            if (x !== '') {
-                expression += ' AND ';
-            }
-        }
-        if (x !== '') {
-            expression += '(' + app.current.filter + ' ' + getSelectValue('searchMatch') + ' \'' + escapeMPD(x) +'\'))';
-        }
-        else {
-            expression += ')';
-        }
-        if (expression.length <= 2) {
-            expression = '';
-        }
+        const expression = createSearchExpression(domCache.searchCrumb, app.current.filter, getSelectValue('searchMatch'), x);
         appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', expression);
     }
     else {
@@ -5975,6 +5884,9 @@ function parseSettings() {
     else {
         document.getElementById('syscmds').innerHTML = '';
     }
+    //reinit mainmenu -> change of syscmd list
+    dropdownMainMenu.dispose();
+    dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 
     if (settings.featScripting === true) {
         getScriptList(true);
@@ -6265,7 +6177,6 @@ function parseMPDSettings() {
     }
     
     if (!settings.tags.includes('AlbumArtist') && app.apps.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
-        app.apps.Browse.tabs.Database.views.List.filter = 'Artist';
         app.apps.Browse.tabs.Database.views.List.sort = 'Artist';
     }
 
@@ -8870,6 +8781,9 @@ function addTagList(el, list) {
         }
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="filename">' + t('Filename') + '</button>';
     }
+    if (el === 'searchDatabaseTags') {
+        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">' + t('Any Tag') + '</button>';
+    }
     for (let i = 0; i < settings[list].length; i++) {
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + t(settings[list][i]) + '</button>';
     }
@@ -9298,6 +9212,78 @@ function gotoPage(x, limit) {
     }
     appGoto(app.current.app, app.current.tab, app.current.view, 
         app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search, 0);
+}
+
+function createSearchCrumbs(searchStr, searchEl, crumbEl) {
+	crumbEl.innerHTML = '';
+    const elements = searchStr.substring(1, app.current.search.length - 1).split(' AND ');
+    for (let i = 0; i < elements.length - 1 ; i++) {
+        const expression = elements[i].substring(1, elements[i].length - 1);
+        const fields = expression.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
+        if (fields !== null && fields.length === 4) {
+            crumbEl.appendChild(createSearchCrumb(fields[1], fields[2], unescapeMPD(fields[3])));
+        }
+    }
+    if (searchEl.value === '' && elements.length >= 1) {
+        const lastEl = elements[elements.length - 1].substring(1, elements[elements.length - 1].length - 1);
+        const lastElValue = lastEl.substring(lastEl.indexOf('\'') + 1, lastEl.length - 1);
+        if (searchEl.value !== lastElValue) {
+            const fields = lastEl.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
+            if (fields !== null && fields.length === 4) {
+                crumbEl.appendChild(createSearchCrumb(fields[1], fields[2], unescapeMPD(fields[3])));
+            }
+        }
+    }
+    if (crumbEl.childElementCount > 0) {
+    	crumbEl.classList.remove('hide');
+    }
+    else {
+		crumbEl.classList.add('hide');    
+    }
+}
+
+function createSearchCrumb(filter, op, value) {
+    let li = document.createElement('button');
+    li.classList.add('btn', 'btn-light', 'mr-2');
+    setAttEnc(li, 'data-filter-tag', filter);
+    setAttEnc(li, 'data-filter-op', op);
+    setAttEnc(li, 'data-filter-value', value);
+    li.innerHTML = e(filter) + ' ' + e(op) + ' \'' + e(value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
+    return li;
+}
+
+function createSearchExpression(crumbsEl, tag, op, value) {
+    let expression = '(';
+    let crumbs = crumbsEl.children;
+    for (let i = 0; i < crumbs.length; i++) {
+        if (i > 0) {
+            expression += ' AND ';
+        }
+        let op = getAttDec(crumbs[i], 'data-filter-op');
+        let value = getAttDec(crumbs[i], 'data-filter-value');
+        if (op === 'starts_with') {
+            op = '=~';
+            value = '^' + value;
+        }
+        expression += '(' + getAttDec(crumbs[i], 'data-filter-tag') + ' ' + 
+            op + ' \'' + escapeMPD(value) + '\')';
+    }
+    if (value !== '') {
+        if (expression.length > 1) {
+            expression += ' AND ';
+        }
+        if (app.current.app === 'Search' && op === 'starts_with') {
+            //mpd do not support starts_with, convert it to regex
+            op = '=~';
+            value = '^' + x;
+        }
+        expression += '(' + tag + ' ' + op + ' \'' + escapeMPD(value) +'\')';
+    }
+    expression += ')';
+    if (expression.length <= 2) {
+        expression = '';
+    }
+    return expression;
 }
 // SPDX-License-Identifier: GPL-2.0-or-later
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
