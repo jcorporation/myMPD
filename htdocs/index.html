@@ -1340,6 +1340,12 @@
                 <h4 data-phrase="Other features"></h4>
                 <div class="warnReadonly alert alert-warning hide" data-phrase="myMPD is in readonly mode"></div>
                 <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnFeatHome" data-phrase="Homescreen"></label>
+                  <div class="col-sm-8 ">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnFeatHome"></button>
+                  </div>
+                </div>
+                <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnBookmarks" data-phrase="Bookmarks"></label>
                   <div class="col-sm-8 ">
                     <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnBookmarks"></button>
@@ -1362,6 +1368,16 @@
                   <div class="col-sm-8 ">
                     <input id="inputBookletName" type="text" class="form-control border-secondary" value="">
                     <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="selectStopPause" data-phrase="Playback controls"></label>
+                  <div class="col-sm-8 ">
+                    <select id="selectStopPause" class="form-control custom-select border-secondary">
+                      <option value="pause" data-phrase="pause only"></option>
+                      <option value="stop" data-phrase="stop only"></option>
+                      <option value="both" data-phrase="pause and stop"></option>
+                    </select>
                   </div>
                 </div>
               </form>

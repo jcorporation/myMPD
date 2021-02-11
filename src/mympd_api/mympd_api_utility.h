@@ -98,6 +98,8 @@ typedef struct t_mympd_state {
     struct list home_list;
     sds navbar_icons;
     sds advanced;
+    sds footer_stop;
+    bool home;
 } t_mympd_state;
 
 void free_mympd_state(t_mympd_state *mympd_state);

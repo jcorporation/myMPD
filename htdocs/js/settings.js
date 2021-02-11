@@ -370,6 +370,9 @@ function parseSettings() {
     toggleBtnChk('btnFeatTimer', settings.featTimer);
     toggleBtnChk('btnBookmarks', settings.featBookmarks);
     toggleBtnChk('btnFeatLyrics', settings.featLyrics);
+    toggleBtnChk('btnFeatHome', settings.featHome);
+
+    document.getElementById('selectStopPause').value = settings.footerStop;
 
     if (settings.streamUrl === '') {
         document.getElementById('selectStreamMode').value = 'port';
@@ -1028,7 +1031,9 @@ function saveSettings(closeModal) {
             "timer": (document.getElementById('btnFeatTimer').classList.contains('active') ? true : false),
             "bookletName": document.getElementById('inputBookletName').value,
             "lyrics": (document.getElementById('btnFeatLyrics').classList.contains('active') ? true : false),
-            "advanced": advSettings
+            "advanced": advSettings,
+            "footerStop": getSelectValue('selectStopPause'),
+            "featHome": (document.getElementById('btnFeatHome').classList.contains('active') ? true : false)
         }, getSettings);
         if (closeModal === true) {
             modalSettings.hide();
@@ -1222,7 +1227,7 @@ function setNavbarIcons() {
     let btns = '';
     for (let i = 0; i < settings.navbarIcons.length; i++) {
         let hide = '';
-        if (settings.featHome === false && settings.navbarIcons[i].title === 'Home') {
+        if (settings.featHome === false && settings.navbarIcons[i].options[0] === 'Home') {
             hide = 'hide';
         }
         btns += '<div id="nav' + settings.navbarIcons[i].options.join('') + '" class="nav-item flex-fill text-center ' + hide + '">' +

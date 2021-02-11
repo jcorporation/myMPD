@@ -1755,3 +1755,15 @@ Willst du die Warteschlange wirklich leeren?
 
 Number of songs to high
 Die Anzahl der Lieder ist zu hoch
+
+Playback controls
+Wiedergabe Steuerelemente
+
+pause and stop
+Pause und Stop
+
+pause only
+nur Pause
+
+stop only
+nur Stop
