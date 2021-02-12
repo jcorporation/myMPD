@@ -60,3 +60,4 @@ Click playlist
 Click song in queue
 Click song
 Play
+Num entries

@@ -78,7 +78,7 @@ fi
 
 if [ "$ACTION" != "installdeps" ] && [ "$ACTION" != "" ]
 then
-  check_cmd gzip bzcat perl
+  check_cmd gzip perl
 
   GZIP="gzip -f -v -9"
   GZIPCAT="gzip -f -v -9 -c"
@@ -147,7 +147,6 @@ setversion() {
   for F in contrib/man/mympd.1 contrib/man/mympd-config.1 contrib/man/mympd-script.1
   do
     gzip -n -9 -c "$F" > "$F.gz"
-    bzcat -c -z "$F" > "$F.bz2"
   done
 
   #gentoo ebuild must be moved only

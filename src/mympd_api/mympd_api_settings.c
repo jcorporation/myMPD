@@ -48,7 +48,8 @@ void mympd_api_settings_delete(t_config *config) {
         "last_played", "last_played_count", "locale", "localplayer", "love", "love_channel", "love_message",
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
         "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "bookmark_list", "coverimage_size_small", 
-        "theme", "timer", "highlight_color", "media_session", "booklet_name", "lyrics", "home_list", "navbar_icons", "advanced", 0};
+        "theme", "timer", "highlight_color", "media_session", "booklet_name", "lyrics", "home_list", "navbar_icons", "advanced", "footer_stop", 
+        "home", 0};
     const char** ptr = state_files;
     while (*ptr != 0) {
         sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
@@ -367,6 +368,14 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         mympd_state->advanced = sdsreplacelen(mympd_state->advanced, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "advanced");
     }
+    else if (strncmp(key->ptr, "footerStop", key->len) == 0) {
+        mympd_state->footer_stop = sdsreplacelen(mympd_state->footer_stop, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "footer_stop");
+    }
+    else if (strncmp(key->ptr, "featHome", key->len) == 0) {
+        mympd_state->home = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(settingname, "home");
+    }
     else {
         sdsfree(settingname);
         sdsfree(settingvalue);
@@ -440,6 +449,8 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->booklet_name = state_file_rw_string(config, "booklet_name", config->booklet_name, false);
     mympd_state->advanced = state_file_rw_string(config, "advanced", "{}", false);
     mympd_state->lyrics = state_file_rw_bool(config, "lyrics", config->lyrics, false);
+    mympd_state->footer_stop = state_file_rw_string(config, "footer_stop", config->footer_stop, false);
+    mympd_state->home = state_file_rw_bool(config, "home", config->home, false);
     if (config->readonly == true) {
         mympd_state->bookmarks = false;
         mympd_state->smartpls = false;
@@ -506,8 +517,8 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "featLyrics", mympd_state->lyrics, true);
     buffer = tojson_bool(buffer, "featScripting", config->scripting, true);
     buffer = tojson_bool(buffer, "featScripteditor", config->scripteditor, true);
-    buffer = tojson_char(buffer, "footerStop", config->footer_stop, true);
-    buffer = tojson_bool(buffer, "featHome", config->home, true);
+    buffer = tojson_char(buffer, "footerStop", mympd_state->footer_stop, true);
+    buffer = tojson_bool(buffer, "featHome", mympd_state->home, true);
     buffer = tojson_long(buffer, "volumeMin", config->volume_min, true);
     buffer = tojson_long(buffer, "volumeMax", config->volume_max, true);
     buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);

@@ -40,10 +40,13 @@ static sds _mpd_client_lyrics_synced(t_config *config, t_mpd_client_state *mpd_c
 static sds lyrics_fromfile(sds buffer, sds method, long request_id, sds mediafile, const char *ext, bool synced);
 static sds lyricsextract_unsynced(sds buffer, sds method, long request_id, sds media_file, sds vorbis_comment);
 static sds lyricsextract_unsynced_id3(sds buffer, sds method, long request_id, sds media_file);
-static const char *_id3_field_getlanguage(union id3_field const *field);
 static sds lyricsextract_synced(sds buffer, sds method, long request_id, sds media_file, sds vorbis_comment);
 static sds lyricsextract_synced_id3(sds buffer, sds method, long request_id, sds media_file);
 static sds lyricsextract_flac(sds buffer, sds method, long request_id, sds media_file, bool is_ogg, const char *comment_name, bool synced);
+
+#ifdef ENABLE_LIBID3TAG
+static const char *_id3_field_getlanguage(union id3_field const *field);
+#endif
 
 //public functions
 sds mpd_client_lyrics_get(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
@@ -71,8 +74,16 @@ sds mpd_client_lyrics_get(t_config *config, t_mpd_client_state *mpd_client_state
     return buffer;
 }
 
-//private functions
 sds mpd_client_lyrics_unsynced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
+    if (is_streamuri(uri) == true) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not get lyrics for stream uri", true);
+        return buffer;
+    }
+    if (mpd_client_state->feat_library == false) {
+        LOG_DEBUG("No lyrics file found, no access to music directory");
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
+        return buffer;
+    }
     buffer = _mpd_client_lyrics_unsynced(config, mpd_client_state, buffer, method, request_id, uri);
     if (sdslen(buffer) == 0) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
@@ -81,6 +92,15 @@ sds mpd_client_lyrics_unsynced(t_config *config, t_mpd_client_state *mpd_client_
 }
 
 sds mpd_client_lyrics_synced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
+    if (is_streamuri(uri) == true) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not get lyrics for stream uri", true);
+        return buffer;
+    }
+    if (mpd_client_state->feat_library == false) {
+        LOG_DEBUG("No lyrics file found, no access to music directory");
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
+        return buffer;
+    }
     buffer = _mpd_client_lyrics_synced(config, mpd_client_state, buffer, method, request_id, uri);
     if (sdslen(buffer) == 0) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
@@ -88,6 +108,7 @@ sds mpd_client_lyrics_synced(t_config *config, t_mpd_client_state *mpd_client_st
     return buffer;
 }
 
+//private functions
 static sds _mpd_client_lyrics_unsynced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
     //create absolute file
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mpd_client_state->music_directory_value, uri);
@@ -284,6 +305,8 @@ static sds lyricsextract_unsynced_id3(sds buffer, sds method, long request_id, s
     buffer = jsonrpc_end_result(buffer);
     #else
     (void) media_file;
+    (void) method;
+    (void) request_id;
     #endif
     return buffer;
 }
@@ -375,10 +398,13 @@ static sds lyricsextract_synced_id3(sds buffer, sds method, long request_id, sds
     buffer = jsonrpc_end_result(buffer);
     #else
     (void) media_file;
+    (void) method;
+    (void) request_id;
     #endif
     return buffer;
 }
 
+#ifdef ENABLE_LIBID3TAG
 static const char *_id3_field_getlanguage(union id3_field const *field) {
     assert(field);
 
@@ -388,6 +414,7 @@ static const char *_id3_field_getlanguage(union id3_field const *field) {
 
     return field->immediate.value;
 }
+#endif
 
 static sds lyricsextract_flac(sds buffer, sds method, long request_id, sds media_file, bool is_ogg, const char *comment_name, bool synced) {
     #ifdef ENABLE_FLAC
@@ -460,6 +487,10 @@ static sds lyricsextract_flac(sds buffer, sds method, long request_id, sds media
     #else
     (void) media_file;
     (void) is_ogg;
+    (void) method;
+    (void) request_id;
+    (void) comment_name;
+    (void) synced;
     #endif
     return buffer;
 }

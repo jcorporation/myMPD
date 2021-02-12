@@ -167,10 +167,10 @@ td[data-col=Action] {
   .navText {
     display: none;
   }
-  #counter {
+  .footerCounter {
     display: none;
   }
-  .ml-5 {
+  .ml-3 {
     margin-left: 1rem !important;
   }
 }
@@ -179,6 +179,10 @@ td[data-col=Action] {
   #navbar-main > div {
     margin-bottom: 0;
   }
+}
+
+div.footerCounter {
+  width: 7rem;
 }
 
 div#footerCover {

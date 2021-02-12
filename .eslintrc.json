@@ -6,7 +6,10 @@
     "extends": "eslint:recommended",
     "globals": {
         "Atomics": "readonly",
-        "SharedArrayBuffer": "readonly"
+        "SharedArrayBuffer": "readonly",
+        "BSN": true,
+        "phrases": true,
+        "locales": true
     },
     "parserOptions": {
         "ecmaVersion": 2018

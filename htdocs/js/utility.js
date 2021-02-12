@@ -666,3 +666,75 @@ function gotoPage(x, limit) {
     appGoto(app.current.app, app.current.tab, app.current.view, 
         app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search, 0);
 }
+
+function createSearchCrumbs(searchStr, searchEl, crumbEl) {
+	crumbEl.innerHTML = '';
+    const elements = searchStr.substring(1, app.current.search.length - 1).split(' AND ');
+    for (let i = 0; i < elements.length - 1 ; i++) {
+        const expression = elements[i].substring(1, elements[i].length - 1);
+        const fields = expression.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
+        if (fields !== null && fields.length === 4) {
+            crumbEl.appendChild(createSearchCrumb(fields[1], fields[2], unescapeMPD(fields[3])));
+        }
+    }
+    if (searchEl.value === '' && elements.length >= 1) {
+        const lastEl = elements[elements.length - 1].substring(1, elements[elements.length - 1].length - 1);
+        const lastElValue = lastEl.substring(lastEl.indexOf('\'') + 1, lastEl.length - 1);
+        if (searchEl.value !== lastElValue) {
+            const fields = lastEl.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
+            if (fields !== null && fields.length === 4) {
+                crumbEl.appendChild(createSearchCrumb(fields[1], fields[2], unescapeMPD(fields[3])));
+            }
+        }
+    }
+    if (crumbEl.childElementCount > 0) {
+        crumbEl.classList.remove('hide');
+    }
+    else {
+        crumbEl.classList.add('hide');    
+    }
+}
+
+function createSearchCrumb(filter, op, value) {
+    let li = document.createElement('button');
+    li.classList.add('btn', 'btn-light', 'mr-2');
+    setAttEnc(li, 'data-filter-tag', filter);
+    setAttEnc(li, 'data-filter-op', op);
+    setAttEnc(li, 'data-filter-value', value);
+    li.innerHTML = e(filter) + ' ' + e(op) + ' \'' + e(value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
+    return li;
+}
+
+function createSearchExpression(crumbsEl, tag, op, value) {
+    let expression = '(';
+    let crumbs = crumbsEl.children;
+    for (let i = 0; i < crumbs.length; i++) {
+        if (i > 0) {
+            expression += ' AND ';
+        }
+        let crumbOp = getAttDec(crumbs[i], 'data-filter-op');
+        let crumbValue = getAttDec(crumbs[i], 'data-filter-value');
+        if (app.current.app === 'Search' && crumbOp === 'starts_with') {
+            crumbOp = '=~';
+            crumbValue = '^' + crumbValue;
+        }
+        expression += '(' + getAttDec(crumbs[i], 'data-filter-tag') + ' ' + 
+            crumbOp + ' \'' + escapeMPD(crumbValue) + '\')';
+    }
+    if (value !== '') {
+        if (expression.length > 1) {
+            expression += ' AND ';
+        }
+        if (app.current.app === 'Search' && op === 'starts_with') {
+            //mpd do not support starts_with, convert it to regex
+            op = '=~';
+            value = '^' + value;
+        }
+        expression += '(' + tag + ' ' + op + ' \'' + escapeMPD(value) +'\')';
+    }
+    expression += ')';
+    if (expression.length <= 2) {
+        expression = '';
+    }
+    return expression;
+}

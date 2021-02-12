@@ -419,9 +419,7 @@
         <div id="viewListDatabase">
           <div class="btn-toolbar card-toolbar" id="BrowseDatabaseButtons">
             <div class="btn-group mr-2">
-              <button data-title-phrase="Select view" id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                <span class="mi">layers</span>
-              </button>
+              <button data-title-phrase="Select view" id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
               <div class="dropdown-menu bg-lite-dark px-2" id="BrowseDatabaseByTagDropdown">
               </div>
             </div>
@@ -591,6 +589,7 @@
               <div class="input-group-prepend featAdvsearch">
                 <select class="form-control custom-select border-secondary rounded-0" id="searchMatch">
                   <option data-phrase="contains" value="contains"></option>
+                  <option data-phrase="starts_with" class="featRegex" value="starts_with"></option>
                   <option value="==">==</option>
                   <option class="featRegex" value="=~">=~</option>
                   <option value="!=">!=</option>
@@ -618,8 +617,7 @@
           <div id="SearchPaginationTop" class="btn-group mr-2 pagination hide">
           </div>
         </div>
-        <ol class="featAdvsearch breadcrumb" id="searchCrumb"></ol>
-
+        <ol class="featAdvsearch breadcrumb hide" id="searchCrumb"></ol>
         <div class="table-responsive-md">
           <table id="SearchList" class="table table-hover table-sm">
             <thead>
@@ -655,11 +653,11 @@
           <button data-title-phrase="Toggle play" data-href='{"cmd": "clickPlay", "options": []}' id="btnPlay" type="button" class="btnPlay btn btn-lg btn-dark pl-2 pr-2 mi mi-lg">pause</button>
           <button data-title-phrase="Next" data-href='{"cmd": "clickNext", "options": []}' id="btnNext" type="button" class="btn btn-dark pl-2 pr-2 mi">skip_next</button>
         </div>
-        <div class="align-self-center">
+        <div class="align-self-center footerCounter">
           <small id="counter" class="text-light">0:00&nbsp;/&nbsp;0:00</small>
         </div>
       </div>
-      <div class="d-flex flex-fill navbar-nav ml-5 text-light" id="footerInfo">
+      <div class="d-flex flex-fill navbar-nav ml-3 text-light" id="footerInfo">
         <div data-title-phrase="Show cover" id="footerCover" class="album-cover-loading mr-3 clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'>
         </div>
         <div id="footerPlaying">
@@ -1342,6 +1340,12 @@
                 <h4 data-phrase="Other features"></h4>
                 <div class="warnReadonly alert alert-warning hide" data-phrase="myMPD is in readonly mode"></div>
                 <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnFeatHome" data-phrase="Homescreen"></label>
+                  <div class="col-sm-8 ">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnFeatHome"></button>
+                  </div>
+                </div>
+                <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnBookmarks" data-phrase="Bookmarks"></label>
                   <div class="col-sm-8 ">
                     <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnBookmarks"></button>
@@ -1364,6 +1368,16 @@
                   <div class="col-sm-8 ">
                     <input id="inputBookletName" type="text" class="form-control border-secondary" value="">
                     <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="selectStopPause" data-phrase="Playback controls"></label>
+                  <div class="col-sm-8 ">
+                    <select id="selectStopPause" class="form-control custom-select border-secondary">
+                      <option value="pause" data-phrase="pause only"></option>
+                      <option value="stop" data-phrase="stop only"></option>
+                      <option value="both" data-phrase="pause and stop"></option>
+                    </select>
                   </div>
                 </div>
               </form>
