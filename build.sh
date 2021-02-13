@@ -150,8 +150,8 @@ setversion() {
   done
 
   #gentoo ebuild must be moved only
-  [ -f "contrib/packaging/gentoo/mympd-${VERSION}.ebuild" ] || \
-  	mv -f contrib/packaging/gentoo/mympd-*.ebuild "contrib/packaging/gentoo/mympd-${VERSION}.ebuild"
+  [ -f "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild" ] || \
+  	mv -f contrib/packaging/gentoo/media-sound/mympd/mympd-*.ebuild "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild"
 }
 
 minify() {
