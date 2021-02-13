@@ -121,7 +121,7 @@ function selectHomeIconLigature(x) {
 }
 
 function filterHomeIconLigatures() {
-    const str = document.getElementById('searchHomeIconLigature').value;
+    const str = document.getElementById('searchHomeIconLigature').value.toLowerCase();
     const cat = getSelectValue('searchHomeIconCat');
     const els = document.getElementById('listHomeIconLigature').getElementsByTagName('button');
     for (let i = 0; i < els.length; i++) {
