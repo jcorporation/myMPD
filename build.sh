@@ -165,11 +165,13 @@ createi18n() {
   cd ../.. || exit 1
 }
 
-createdistfiles() {
-  echo "Creating dist files"
-  ASSETSCHANGED=0
+createassets() {
+  echo "Creating assets"
+  install -d release/htdocs/js
+  install -d release/htdocs/css
+  install -d release/htdocs/assets
 
-  createi18n ../../dist/htdocs/js/i18n.min.js ""
+  createi18n ../../release/htdocs/js/i18n.min.js ""
   
   echo "Minifying javascript"
   JSSRCFILES=""
@@ -186,13 +188,13 @@ createdistfiles() {
   echo "Creating mympd.js"
   # shellcheck disable=SC2086
   # shellcheck disable=SC2002
-  cat $JSSRCFILES | grep -v "\"use strict\";" > dist/htdocs/js/mympd.js
-  minify js htdocs/sw.js dist/htdocs/sw.min.js
-  minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
-  minify js dist/htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
+  cat $JSSRCFILES | grep -v "\"use strict\";" > release/htdocs/js/mympd.js
+  minify js htdocs/sw.js release/htdocs/sw.min.js
+  minify js htdocs/js/keymap.js release/htdocs/js/keymap.min.js
+  minify js release/htdocs/js/mympd.js release/htdocs/js/mympd.min.js
   
   echo "Combining and compressing javascript"
-  JSFILES="dist/htdocs/js/*.min.js"
+  JSFILES="dist/htdocs/js/*.min.js release/htdocs/js/*.min.js"
   for F in $JSFILES
   do
     if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
@@ -201,43 +203,43 @@ createdistfiles() {
       exit 1
     fi
   done
-  echo "\"use strict\";" > dist/htdocs/js/combined.js
+  echo "\"use strict\";" > release/htdocs/js/combined.js
   # shellcheck disable=SC2086
   # shellcheck disable=SC2002
-  cat $JSFILES >> dist/htdocs/js/combined.js
-  $GZIP dist/htdocs/js/combined.js
-
-  $GZIPCAT dist/htdocs/sw.min.js > dist/htdocs/sw.js.gz
+  cat $JSFILES >> release/htdocs/js/combined.js
+  $GZIP release/htdocs/js/combined.js
+  
+  #serviceworker
+  $GZIPCAT release/htdocs/sw.min.js > release/htdocs/sw.js.gz
  
   echo "Minifying stylesheets"
   for F in htdocs/css/*.css
   do
     DST=$(basename "$F" .css)
-    [ -L "$F" ] || minify css "$F" "dist/htdocs/css/${DST}.min.css"
+    [ -L "$F" ] || minify css "$F" "release/htdocs/css/${DST}.min.css"
   done
   
   echo "Combining and compressing stylesheets"
-  CSSFILES="dist/htdocs/css/*.min.css"
+  CSSFILES="dist/htdocs/css/*.min.css release/htdocs/css/*.min.css"
   # shellcheck disable=SC2086
-  cat $CSSFILES > dist/htdocs/css/combined.css
-  $GZIP dist/htdocs/css/combined.css
+  cat $CSSFILES > release/htdocs/css/combined.css
+  $GZIP release/htdocs/css/combined.css
   
   echo "Minifying and compressing html"
-  minify html htdocs/index.html dist/htdocs/index.html
-  $GZIPCAT dist/htdocs/index.html > dist/htdocs/index.html.gz
+  minify html htdocs/index.html release/htdocs/index.html
+  $GZIPCAT release/htdocs/index.html > release/htdocs/index.html.gz
 
   echo "Creating other compressed assets"
   ASSETS="htdocs/mympd.webmanifest htdocs/assets/*.svg"
   for ASSET in $ASSETS
   do
-    COMPRESSED="dist/${ASSET}.gz"
-      $GZIPCAT "$ASSET" > "$COMPRESSED"
+    $GZIPCAT "$ASSET" > "release/${ASSET}.gz"
   done
   return 0
 }
 
 buildrelease() {
-  createdistfiles
+  createassets
 
   echo "Compiling myMPD"
   install -d release
@@ -366,23 +368,6 @@ cleanuposc() {
   rm -rf osc
 }
 
-cleanupdist() {
-  rm -f dist/htdocs/js/i18n.min.js
-  rm -f dist/htdocs/js/keymap.min.js 
-  rm -f dist/htdocs/js/mympd.js
-  rm -f dist/htdocs/js/mympd.min.js
-  rm -f dist/htdocs/js/combined.js.gz
-  rm -f dist/htdocs/css/mympd.min.css
-  rm -f dist/htdocs/css/theme-*.min.css
-  rm -f dist/htdocs/css/combined.css.gz
-  rm -f dist/htdocs/sw.min.js
-  rm -f dist/htdocs/sw.js.gz
-  rm -f dist/htdocs/mympd.webmanifest.gz
-  rm -f dist/htdocs/index.html
-  rm -f dist/htdocs/index.html.gz
-  rm -f dist/htdocs/assets/*.gz
-}
-
 check() {
   if check_cmd cppcheck
   then
@@ -448,7 +433,7 @@ pkgdebian() {
   tar -czf "../mympd_${VERSION}.orig.tar.gz" -- *
 
   SIGNOPT="--no-sign"
-  if [ ! -z "${SIGN+x}" ] && [ "$SIGN" = "TRUE" ]
+  if [ -n "${SIGN+x}" ] && [ "$SIGN" = "TRUE" ]
   then
 	SIGNOPT="--sign-key=$GPGKEYID"  
   else
@@ -907,9 +892,6 @@ case "$ACTION" in
 	  cleanup
 	  cleanuposc
 	;;
-	cleanupdist)
-	  cleanupdist
-	;;
 	check)
 	  check
 	;;
@@ -956,8 +938,8 @@ case "$ACTION" in
 	materialicons)
 		materialicons
 	;;
-	createdist)
-	  createdistfiles
+	createassets)
+	  createassets
 	;;
 	sbuild_chroots)
 		sbuild_chroots
@@ -989,11 +971,10 @@ case "$ACTION" in
 	  echo "  test:             builds the unit testing files in test/build"
 	  echo "  installdeps:      installs build and run dependencies"
 	  echo "  translate:        builds the translation file for debug builds"
-	  echo "  createdist:       creates the minfied and compressed dist files"
+	  echo "  createassets:       creates the minfied and compressed dist files"
 	  echo ""
 	  echo "Cleanup options:"
 	  echo "  cleanup:          cleanup source tree"
-	  echo "  cleanupdist:      cleanup dist directory, forces release to build new assets"
 	  echo "  cleanupoldinst:   removes deprecated files"
 	  echo "  uninstall:        removes myMPD files, leaves configuration and "
 	  echo "                    state files in place"
