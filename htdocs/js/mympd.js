@@ -174,6 +174,7 @@ domCache.progressPos = document.getElementById('footerProgressPos');
 /* eslint-disable no-unused-vars */
 var modalConnection = new BSN.Modal(document.getElementById('modalConnection'));
 var modalSettings = new BSN.Modal(document.getElementById('modalSettings'));
+var modalQueueSettings = new BSN.Modal(document.getElementById('modalQueueSettings'));
 var modalAbout = new BSN.Modal(document.getElementById('modalAbout')); 
 var modalSaveQueue = new BSN.Modal(document.getElementById('modalSaveQueue'));
 var modalAddToQueue = new BSN.Modal(document.getElementById('modalAddToQueue'));
@@ -182,7 +183,6 @@ var modalAddToPlaylist = new BSN.Modal(document.getElementById('modalAddToPlayli
 var modalRenamePlaylist = new BSN.Modal(document.getElementById('modalRenamePlaylist'));
 var modalUpdateDB = new BSN.Modal(document.getElementById('modalUpdateDB'));
 var modalSaveSmartPlaylist = new BSN.Modal(document.getElementById('modalSaveSmartPlaylist'));
-var modalDeletePlaylist = new BSN.Modal(document.getElementById('modalDeletePlaylist'));
 var modalSaveBookmark = new BSN.Modal(document.getElementById('modalSaveBookmark'));
 var modalTimer = new BSN.Modal(document.getElementById('modalTimer'));
 var modalMounts = new BSN.Modal(document.getElementById('modalMounts'));
@@ -194,7 +194,7 @@ var modalTrigger = new BSN.Modal(document.getElementById('modalTrigger'));
 var modalOutputAttributes = new BSN.Modal(document.getElementById('modalOutputAttributes'));
 var modalPicture = new BSN.Modal(document.getElementById('modalPicture'));
 var modalEditHomeIcon = new BSN.Modal(document.getElementById('modalEditHomeIcon'));
-var modalReally = new BSN.Modal(document.getElementById('modalReally'));
+var modalConfirm = new BSN.Modal(document.getElementById('modalConfirm'));
 
 var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));

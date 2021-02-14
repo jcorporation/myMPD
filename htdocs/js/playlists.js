@@ -172,13 +172,6 @@ function playlistDetails(uri) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function playlistClear() {
-    let uri = getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri');
-    sendAPI("MPD_API_PLAYLIST_CLEAR", {"uri": uri});
-    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
-}
-
-//eslint-disable-next-line no-unused-vars
 function playlistShuffle() {
     let uri = getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri');
     sendAPI("MPD_API_PLAYLIST_SHUFFLE", {"uri": uri});
@@ -499,15 +492,17 @@ function updateSmartPlaylistClick() {
 
 //eslint-disable-next-line no-unused-vars
 function showDelPlaylist(uri) {
-    document.getElementById('deletePlaylist').value = uri;
-    modalDeletePlaylist.show();
+    showConfirm(t('Do you really want to delete the playlist?'), function() {
+        sendAPI("MPD_API_PLAYLIST_RM", {"uri": uri});
+    });
 }
 
-//eslint-disable-next-line no-unused-vars
-function delPlaylist() {
-    let uri = document.getElementById('deletePlaylist').value;
-    sendAPI("MPD_API_PLAYLIST_RM", {"uri": uri});
-    modalDeletePlaylist.hide();
+function showClearPlaylist() {
+    showConfirm(t('Do you really want to clear the playlist?'), function() {
+        let uri = getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri');
+        sendAPI("MPD_API_PLAYLIST_CLEAR", {"uri": uri});
+        document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');
+    });
 }
 
 function playlistMoveTrack(from, to) {

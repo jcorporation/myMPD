@@ -4,16 +4,20 @@
 // https://github.com/jcorporation/mympd
 
 //warning dialog
-function showReally(action, text) {
-    setAttEnc('modalReallyAction', 'data-href', action);
-    document.getElementById('modalReallyText').innerText = text;
-    modalReally.show();    
-}
-
-//eslint-disable-next-line no-unused-vars
-function acknowledgeReally(event) {
-    modalReally.hide();
-    parseCmd(event, getAttDec('modalReallyAction', 'data-href'));
+function showConfirm(text, callback) {
+    document.getElementById('modalConfirmText').innerText = text;
+    const yesBtn = document.createElement('button');
+    yesBtn.setAttribute('id', 'modalConfirmYesBtn');
+    yesBtn.classList.add('btn', 'btn-success');
+    yesBtn.addEventListener('click', function() {
+        if (callback !== undefined && typeof(callback) === 'function') {
+            callback();
+        }
+        modalConfirm.hide();        
+    }, false)
+    yesBtn.innerHTML = t('Yes');
+    document.getElementById('modalConfirmYesBtn').replaceWith(yesBtn);
+    modalConfirm.show();
 }
 
 //functions to get custom actions

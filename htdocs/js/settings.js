@@ -988,23 +988,9 @@ function saveSettings(closeModal) {
     
     if (formOK === true) {
         sendAPI("MYMPD_API_SETTINGS_SET", {
-            "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
-            "random": (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
-            "single": parseInt(singleState),
-            "repeat": (document.getElementById('btnRepeat').classList.contains('active') ? 1 : 0),
-            "replaygain": replaygain,
-            "crossfade": document.getElementById('inputCrossfade').value,
-            "mixrampdb": (settings.featMixramp === true ? document.getElementById('inputMixrampdb').value : settings.mixrampdb),
-            "mixrampdelay": (settings.featMixramp === true ? document.getElementById('inputMixrampdelay').value : settings.mixrampdelay),
             "notificationWeb": (document.getElementById('btnNotifyWeb').classList.contains('active') ? true : false),
             "notificationPage": (document.getElementById('btnNotifyPage').classList.contains('active') ? true : false),
             "mediaSession": (document.getElementById('btnMediaSession').classList.contains('active') ? true : false),
-            "jukeboxMode": parseInt(jukeboxMode),
-            "jukeboxPlaylist": jukeboxPlaylist,
-            "jukeboxQueueLength": parseInt(document.getElementById('inputJukeboxQueueLength').value),
-            "jukeboxLastPlayed": parseInt(document.getElementById('inputJukeboxLastPlayed').value),
-            "jukeboxUniqueTag": jukeboxUniqueTag,
-            "autoPlay": (document.getElementById('btnAutoPlay').classList.contains('active') ? true : false),
             "bgCover": (document.getElementById('btnBgCover').classList.contains('active') ? true : false),
             "bgColor": document.getElementById('inputBgColor').value,
             "bgCssFilter": document.getElementById('inputBgCssFilter').value,
@@ -1046,6 +1032,80 @@ function saveSettings(closeModal) {
         else {
             btnWaiting(document.getElementById('btnApplySettings'), true);
         }
+    }
+}
+
+function saveQueueSettings(closeModal) {
+    let formOK = true;
+
+    let inputCrossfade = document.getElementById('inputCrossfade');
+    if (!inputCrossfade.getAttribute('disabled')) {
+        if (!validateInt(inputCrossfade)) {
+            formOK = false;
+        }
+    }
+
+    let inputJukeboxQueueLength = document.getElementById('inputJukeboxQueueLength');
+    if (!validateInt(inputJukeboxQueueLength)) {
+        formOK = false;
+    }
+
+    let inputJukeboxLastPlayed = document.getElementById('inputJukeboxLastPlayed');
+    if (!validateInt(inputJukeboxLastPlayed)) {
+        formOK = false;
+    }
+    
+    if (settings.featMixramp === true) {
+        let inputMixrampdb = document.getElementById('inputMixrampdb');
+        if (!inputMixrampdb.getAttribute('disabled')) {
+            if (!validateFloat(inputMixrampdb)) {
+                formOK = false;
+            } 
+        }
+        let inputMixrampdelay = document.getElementById('inputMixrampdelay');
+        if (!inputMixrampdelay.getAttribute('disabled')) {
+            if (parseInt(inputMixrampdelay.value) === NaN) {
+                inputMixrampdelay.value = '-1';
+            }
+            if (!validateFloat(inputMixrampdelay)) {
+                formOK = false;
+            }
+        }
+    }
+    
+    let singleState = getBtnGroupValue('btnSingleGroup');
+    let jukeboxMode = getBtnGroupValue('btnJukeboxModeGroup');
+    let replaygain = getBtnGroupValue('btnReplaygainGroup');
+    let jukeboxUniqueTag = getSelectValue('selectJukeboxUniqueTag');
+    let jukeboxPlaylist = getSelectValue('selectJukeboxPlaylist');
+    
+    if (jukeboxMode === '2') {
+        jukeboxUniqueTag = 'Album';
+    }
+    
+    if (jukeboxMode === '1' && settings.featSearchwindow === false && jukeboxPlaylist === 'Database') {
+        formOK = false;
+        document.getElementById('warnJukeboxPlaylist').classList.remove('hide');
+    }
+       
+    if (formOK === true) {
+        sendAPI("MYMPD_API_SETTINGS_SET", {
+            "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
+            "random": (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
+            "single": parseInt(singleState),
+            "repeat": (document.getElementById('btnRepeat').classList.contains('active') ? 1 : 0),
+            "replaygain": replaygain,
+            "crossfade": document.getElementById('inputCrossfade').value,
+            "mixrampdb": (settings.featMixramp === true ? document.getElementById('inputMixrampdb').value : settings.mixrampdb),
+            "mixrampdelay": (settings.featMixramp === true ? document.getElementById('inputMixrampdelay').value : settings.mixrampdelay),
+            "jukeboxMode": parseInt(jukeboxMode),
+            "jukeboxPlaylist": jukeboxPlaylist,
+            "jukeboxQueueLength": parseInt(document.getElementById('inputJukeboxQueueLength').value),
+            "jukeboxLastPlayed": parseInt(document.getElementById('inputJukeboxLastPlayed').value),
+            "jukeboxUniqueTag": jukeboxUniqueTag,
+            "autoPlay": (document.getElementById('btnAutoPlay').classList.contains('active') ? true : false)
+        }, getSettings);
+        modalQueueSettings.hide();
     }
 }
 
