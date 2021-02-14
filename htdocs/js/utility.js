@@ -301,7 +301,7 @@ function focusSearch() {
         document.getElementById('searchqueuestr').focus();
     }
     else if (app.current.app === 'Search') {
-        domCache.searchstr.focus();
+        document.getElementById('searchstr').focus();
     }
     else {
         appGoto('Search');

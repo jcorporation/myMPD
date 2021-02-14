@@ -161,35 +161,15 @@ app.apps = {
 app.current = { "app": "Home", "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 app.last = { "app": undefined, "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 
+//cache often used dom elements
 var domCache = {};
+domCache.body = document.getElementsByTagName('body')[0];
+domCache.header = document.getElementById('header');
+domCache.footer = document.getElementsByTagName('footer')[0];
 domCache.counter = document.getElementById('counter');
-domCache.volumePrct = document.getElementById('volumePrct');
-domCache.volumeControl = document.getElementById('volumeControl');
-domCache.volumeMenu = document.getElementById('volumeMenu');
-domCache.btnsPlay = document.getElementsByClassName('btnPlay');
-domCache.btnsPlayLen = domCache.btnsPlay.length;
-domCache.btnPrev = document.getElementById('btnPrev');
-domCache.btnNext = document.getElementById('btnNext');
 domCache.progress = document.getElementById('footerProgress');
 domCache.progressBar = document.getElementById('footerProgressBar');
 domCache.progressPos = document.getElementById('footerProgressPos');
-domCache.volumeBar = document.getElementById('volumeBar');
-domCache.outputs = document.getElementById('outputs');
-domCache.currentCover = document.getElementById('currentCover');
-domCache.currentTitle = document.getElementById('currentTitle');
-domCache.footerTitle = document.getElementById('footerTitle');
-domCache.footerArtist = document.getElementById('footerArtist');
-domCache.footerAlbum = document.getElementById('footerAlbum');
-domCache.footerCover = document.getElementById('footerCover');
-domCache.btnVoteUp = document.getElementById('btnVoteUp');
-domCache.btnVoteDown = document.getElementById('btnVoteDown');
-domCache.badgeQueueItems = null;
-domCache.searchstr = document.getElementById('searchstr');
-domCache.searchCrumb = document.getElementById('searchCrumb');
-domCache.body = document.getElementsByTagName('body')[0];
-domCache.footer = document.getElementsByTagName('footer')[0];
-domCache.header = document.getElementById('header');
-domCache.mainMenu = document.getElementById('mainMenu');
 
 /* eslint-disable no-unused-vars */
 var modalConnection = new BSN.Modal(document.getElementById('modalConnection'));
@@ -220,7 +200,6 @@ var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
 var dropdownBookmarks = new BSN.Dropdown(document.getElementById('BrowseFilesystemBookmark'));
 var dropdownLocalPlayer = new BSN.Dropdown(document.getElementById('localPlaybackMenu'));
-var dropdownPlay = new BSN.Dropdown(document.getElementById('btnPlayDropdown'));
 var dropdownDatabaseSort = new BSN.Dropdown(document.getElementById('btnDatabaseSortDropdown'));
 var dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNeighbors'));
 var dropdownHomeIconLigature = new BSN.Dropdown(document.getElementById('btnHomeIconLigature'));
@@ -534,12 +513,12 @@ function appRoute() {
         }    
     }
     else if (app.current.app === 'Search') {
-        domCache.searchstr.focus();
+        document.getElementById('searchstr').focus();
         if (settings.featAdvsearch) {
-            createSearchCrumbs(app.current.search, domCache.searchstr, domCache.searchCrumb);
+            createSearchCrumbs(app.current.search, document.getElementById('searchstr'), document.getElementById('searchCrumb'));
         }
-        else if (domCache.searchstr.value === '' && app.current.search !== '') {
-                domCache.searchstr.value = app.current.search;
+        else if (document.getElementById('searchstr').value === '' && app.current.search !== '') {
+                document.getElementById('searchstr').value = app.current.search;
         }
         
         if (app.last.app !== app.current.app && app.current.search !== '') {
@@ -549,7 +528,7 @@ function appRoute() {
                 '<td colspan="' + colspan + '">' + t('Searching...') + '</td></tr>';
         }
 
-        if (domCache.searchstr.value.length >= 2 || domCache.searchCrumb.children.length > 0) {
+        if (document.getElementById('searchstr').value.length >= 2 || document.getElementById('searchCrumb').children.length > 0) {
             if (settings.featAdvsearch) {
                 let sort = app.current.sort;
                 let sortdesc = false;
@@ -900,17 +879,7 @@ function initPlayback() {
         if (event.target.nodeName === 'P') {
             gotoBrowse(event);
         }
-    }, false);
-    
-    //quick plaback settings dropdown
-    document.getElementById('playDropdown').parentNode.addEventListener('show.bs.dropdown', function () {
-        showPlayDropdown();
-    });
-
-    document.getElementById('playDropdown').addEventListener('click', function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    });
+    }, false); 
 }
 
 function initNavs() {
@@ -925,11 +894,12 @@ function initNavs() {
         event.stopPropagation();
     }, false);
 
-    domCache.volumeBar.addEventListener('click', function(event) {
+    document.getElementById('volumeBar').addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
-    domCache.volumeBar.addEventListener('change', function() {
-        sendAPI("MPD_API_PLAYER_VOLUME_SET", {"volume": domCache.volumeBar.value});
+
+    document.getElementById('volumeBar').addEventListener('change', function() {
+        sendAPI("MPD_API_PLAYER_VOLUME_SET", {"volume": parseInt(document.getElementById('volumeBar').value)});
     }, false);
 
     domCache.progress.addEventListener('click', function(event) {

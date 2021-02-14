@@ -538,8 +538,8 @@ function parseSettings() {
     document.getElementById('inputSmartplsInterval').value = settings.smartplsInterval / 60 / 60;
     document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
 
-    domCache.volumeBar.setAttribute('min', settings.volumeMin);
-    domCache.volumeBar.setAttribute('max', settings.volumeMax);
+    document.getElementById('volumeBar').setAttribute('min', settings.volumeMin);
+    document.getElementById('volumeBar').setAttribute('max', settings.volumeMax);
 
     if (settings.featLocalplayer === true) {
         setLocalPlayerUrl();
@@ -1179,49 +1179,6 @@ function toggleBtnNotifyWeb() {
     }
 }
 
-//eslint-disable-next-line no-unused-vars
-function setPlaySettings(el) {
-    if (el.parentNode.classList.contains('btn-group')) {
-        toggleBtnGroup(el);
-    }
-    else {
-        toggleBtnChk(el);
-    }
-    if (el.parentNode.id === 'playDropdownBtnJukeboxModeGroup') {
-        if (getAttDec(el.parentNode.getElementsByClassName('active')[0], 'data-value') !== '0') {
-            toggleBtnChk('playDropdownBtnConsume', true);            
-        }
-    }
-    else if (el.id === 'playDropdownBtnConsume') {
-        if (el.classList.contains('active') === false) {
-            toggleBtnGroupValue(document.getElementById('playDropdownBtnJukeboxModeGroup'), 0);
-        }
-    }
-
-    savePlaySettings();
-}
-
-function showPlayDropdown() {
-    toggleBtnChk(document.getElementById('playDropdownBtnRandom'), settings.random);
-    toggleBtnChk(document.getElementById('playDropdownBtnConsume'), settings.consume);
-    toggleBtnChk(document.getElementById('playDropdownBtnRepeat'), settings.repeat);
-    toggleBtnChk(document.getElementById('playDropdownBtnRandom'), settings.random);
-    toggleBtnGroupValue(document.getElementById('playDropdownBtnSingleGroup'), settings.single);
-    toggleBtnGroupValue(document.getElementById('playDropdownBtnJukeboxModeGroup'), settings.jukeboxMode);
-}
-
-function savePlaySettings() {
-    let singleState = getAttDec(document.getElementById('playDropdownBtnSingleGroup').getElementsByClassName('active')[0], 'data-value');
-    let jukeboxMode = getAttDec(document.getElementById('playDropdownBtnJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
-    sendAPI("MYMPD_API_SETTINGS_SET", {
-        "consume": (document.getElementById('playDropdownBtnConsume').classList.contains('active') ? 1 : 0),
-        "random": (document.getElementById('playDropdownBtnRandom').classList.contains('active') ? 1 : 0),
-        "single": parseInt(singleState),
-        "repeat": (document.getElementById('playDropdownBtnRepeat').classList.contains('active') ? 1 : 0),
-        "jukeboxMode": parseInt(jukeboxMode)
-        }, getSettings);
-}
-
 function setNavbarIcons() {
     let oldBadgeQueueItems = document.getElementById('badgeQueueItems');
     let oldQueueLength = 0;
@@ -1248,8 +1205,11 @@ function setNavbarIcons() {
 
     domCache.navbarBtns = container.getElementsByTagName('div');
     domCache.navbarBtnsLen = domCache.navbarBtns.length;
-    domCache.badgeQueueItems = document.getElementById('badgeQueueItems');
-    domCache.badgeQueueItems.innerText = oldQueueLength;
+    
+    const badgeQueueItemsEl = document.getElementById('badgeQueueItems');
+    if (badgeQueueItemsEl) {
+        document.getElementById('badgeQueueItems').innerText = oldQueueLength;
+    }
 
     if (document.getElementById('nav' + app.current.app)) {
         document.getElementById('nav' + app.current.app).classList.add('active');

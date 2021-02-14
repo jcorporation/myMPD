@@ -82,9 +82,7 @@ function initQueue() {
 function parseUpdateQueue(obj) {
     //Set playstate
     if (obj.result.state === 1) {
-        for (let i = 0; i < domCache.btnsPlayLen; i++) {
-            domCache.btnsPlay[i].innerText = 'play_arrow';
-        }
+        document.getElementById('btnPlay').innerText = 'play_arrow';
         playstate = 'stop';
         domCache.progressBar.style.transition = 'none';
         domCache.progressBar.style.width = '0px';
@@ -93,51 +91,41 @@ function parseUpdateQueue(obj) {
         }, 10);
     }
     else if (obj.result.state === 2) {
-        for (let i = 0; i < domCache.btnsPlayLen; i++) {
-            if (settings.footerStop === 'stop') {
-                domCache.btnsPlay[i].innerText = 'stop';
-            }
-            else {
-                domCache.btnsPlay[i].innerText = 'pause';
-            }
-        }
+        document.getElementById('btnPlay').innerText = settings.footerStop === 'stop' ? 'stop' : 'pause';
         playstate = 'play';
     }
     else {
-        for (let i = 0; i < domCache.btnsPlayLen; i++) {
-            domCache.btnsPlay[i].innerText = 'play_arrow';
-        }
+        document.getElementById('btnPlay').innerText = 'play_arrow';
         playstate = 'pause';
     }
 
     if (obj.result.queueLength === 0) {
-        for (let i = 0; i < domCache.btnsPlayLen; i++) {
-            disableEl(domCache.btnsPlay[i]);
-        }
+        disableEl('btnPlay');
     }
     else {
-        for (let i = 0; i < domCache.btnsPlayLen; i++) {
-            enableEl(domCache.btnsPlay[i]);
-        }
+        enableEl('btnPlay');
     }
 
     mediaSessionSetState();
     mediaSessionSetPositionState(obj.result.totalTime, obj.result.elapsedTime);
 
-    domCache.badgeQueueItems.innerText = obj.result.queueLength;
+    const badgeQueueItemsEl = document.getElementById('badgeQueueItems');
+    if (badgeQueueItemsEl) {
+        badgeQueueItemsEl.innerText = obj.result.queueLength;
+    }
     
     if (obj.result.nextSongPos === -1 && settings.jukeboxMode === false) {
-        disableEl(domCache.btnNext);
+        disableEl('btnNext');
     }
     else {
-        enableEl(domCache.btnNext);
+        enableEl('btnNext');
     }
     
     if (obj.result.songPos < 0) {
-        disableEl(domCache.btnPrev);
+        disableEl('btnPrev');
     }
     else {
-        enableEl(domCache.btnPrev);
+        enableEl('btnPrev');
     }
 }
 

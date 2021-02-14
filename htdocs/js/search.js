@@ -16,19 +16,19 @@ function initSearch() {
     document.getElementById('searchtags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = getAttDec(event.target, 'data-tag');
-            doSearch(domCache.searchstr.value);
+            doSearch(document.getElementById('searchstr').value);
         }
     }, false);
 
-    domCache.searchstr.addEventListener('keyup', function(event) {
+    document.getElementById('searchstr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
             this.blur();
         }
         else if (event.key === 'Enter' && settings.featAdvsearch) {
             if (this.value !== '') {
                 const op = getSelectValue(document.getElementById('searchMatch'));
-                domCache.searchCrumb.appendChild(createSearchCrumb(app.current.filter, op, this.value));
-                domCache.searchCrumb.classList.remove('hide');
+                document.getElementById('searchCrumb').appendChild(createSearchCrumb(app.current.filter, op, this.value));
+                document.getElementById('searchCrumb').classList.remove('hide');
                 this.value = '';
             }
             else {
@@ -40,7 +40,7 @@ function initSearch() {
         }
     }, false);
 
-    domCache.searchCrumb.addEventListener('click', function(event) {
+    document.getElementById('searchCrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'SPAN') {
             event.preventDefault();
             event.stopPropagation();
@@ -50,19 +50,19 @@ function initSearch() {
         else if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             event.stopPropagation();
-            domCache.searchstr.value = unescapeMPD(getAttDec(event.target, 'data-filter-value'));
+            document.getElementById('searchstr').value = unescapeMPD(getAttDec(event.target, 'data-filter-value'));
             selectTag('searchtags', 'searchtagsdesc', getAttDec(event.target, 'data-filter-tag'));
             document.getElementById('searchMatch').value = getAttDec(event.target, 'data-filter-op');
             event.target.remove();
-            doSearch(domCache.searchstr.value);
-            if (domCache.searchCrumb.childElementCount === 0) {
-                domCache.searchCrumb.classList.add('hide');
+            doSearch(document.getElementById('searchstr').value);
+            if (document.getElementById('searchCrumb').childElementCount === 0) {
+                document.getElementById('searchCrumb').classList.add('hide');
             }
         }
     }, false);
 
     document.getElementById('searchMatch').addEventListener('change', function() {
-        doSearch(domCache.searchstr.value);
+        doSearch(document.getElementById('searchstr').value);
     }, false);
     
     document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
@@ -112,7 +112,7 @@ function initSearch() {
 
 function doSearch(x) {
     if (settings.featAdvsearch) {
-        const expression = createSearchExpression(domCache.searchCrumb, app.current.filter, getSelectValue('searchMatch'), x);
+        const expression = createSearchExpression(document.getElementById('searchCrumb'), app.current.filter, getSelectValue('searchMatch'), x);
         appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', expression);
     }
     else {

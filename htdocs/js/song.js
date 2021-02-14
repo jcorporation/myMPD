@@ -291,15 +291,15 @@ function loveSong() {
 
 //eslint-disable-next-line no-unused-vars
 function voteSong(vote) {
-    let uri = getAttDec(domCache.currentTitle, 'data-uri');
+    let uri = getAttDec(document.getElementById('currentTitle'), 'data-uri');
     if (uri === '') {
         return;
     }
         
-    if (vote === 2 && domCache.btnVoteUp.classList.contains('highlight')) {
+    if (vote === 2 && document.getElementById('btnVoteUp').classList.contains('highlight')) {
         vote = 1;
     }
-    else if (vote === 0 && domCache.btnVoteDown.classList.contains('highlight')) {
+    else if (vote === 0 && document.getElementById('btnVoteDown').classList.contains('highlight')) {
         vote = 1;
     }
     sendAPI("MPD_API_LIKE", {"uri": uri, "like": vote});
@@ -310,50 +310,48 @@ function setVoteSongBtns(vote, uri) {
     if (uri === undefined) {
         uri = '';
     }
-    domCache.btnVoteUp2 = document.getElementById('btnVoteUp2');
-    domCache.btnVoteDown2 = document.getElementById('btnVoteDown2');
 
     if (isValidUri(uri) === false || isStreamUri(uri) === true) {
-        disableEl(domCache.btnVoteUp);
-        disableEl(domCache.btnVoteDown);
-        if (domCache.btnVoteUp2) {
-            disableEl(domCache.btnVoteUp2);
-            disableEl(domCache.btnVoteDown2);
+        disableEl('btnVoteUp');
+        disableEl('btnVoteDown');
+        if (document.getElementById('btnVoteUp2')) {
+            disableEl('btnVoteUp2');
+            disableEl('btnVoteDown2');
         }
-        domCache.btnVoteUp.classList.remove('highlight');
-        domCache.btnVoteDown.classList.remove('highlight');
+        document.getElementById('btnVoteUp').classList.remove('highlight');
+        document.getElementById('btnVoteDown').classList.remove('highlight');
     }
     else {
-        enableEl(domCache.btnVoteUp);
-        enableEl(domCache.btnVoteDown);
-        if (domCache.btnVoteUp2) {
-            enableEl(domCache.btnVoteUp2);
-            enableEl(domCache.btnVoteDown2);
+        enableEl('btnVoteUp');
+        enableEl('btnVoteDown');
+        if (document.getElementById('btnVoteUp2')) {
+            enableEl('btnVoteUp2');
+            enableEl('btnVoteDown2');
         }
     }
     
     if (vote === 0) {
-        domCache.btnVoteUp.classList.remove('highlight');
-        domCache.btnVoteDown.classList.add('highlight');
-        if (domCache.btnVoteUp2) {
-            domCache.btnVoteUp2.classList.remove('highlight');
-            domCache.btnVoteDown2.classList.add('highlight');
+        document.getElementById('btnVoteUp').classList.remove('highlight');
+        document.getElementById('btnVoteDown').classList.add('highlight');
+        if (document.getElementById('btnVoteUp2')) {
+            document.getElementById('btnVoteUp2').classList.remove('highlight');
+            document.getElementById('btnVoteDown2').classList.add('highlight');
         }
     }
     else if (vote === 1) {
-        domCache.btnVoteUp.classList.remove('highlight');
-        domCache.btnVoteDown.classList.remove('highlight');
-        if (domCache.btnVoteUp2) {
-            domCache.btnVoteUp2.classList.remove('highlight');
-            domCache.btnVoteDown2.classList.remove('highlight');
+        document.getElementById('btnVoteUp').classList.remove('highlight');
+        document.getElementById('btnVoteDown').classList.remove('highlight');
+        if (document.getElementById('btnVoteUp2')) {
+            document.getElementById('btnVoteUp2').classList.remove('highlight');
+            document.getElementById('btnVoteDown2').classList.remove('highlight');
         }
     }
     else if (vote === 2) {
-        domCache.btnVoteUp.classList.add('highlight');
-        domCache.btnVoteDown.classList.remove('highlight');
-        if (domCache.btnVoteUp2) {
-            domCache.btnVoteUp2.classList.add('highlight');
-            domCache.btnVoteDown2.classList.remove('highlight');
+        document.getElementById('btnVoteUp').classList.add('highlight');
+        document.getElementById('btnVoteDown').classList.remove('highlight');
+        if (document.getElementById('btnVoteUp2')) {
+            document.getElementById('btnVoteUp2').classList.add('highlight');
+            document.getElementById('btnVoteDown2').classList.remove('highlight');
         }
     }
 }
