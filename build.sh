@@ -332,22 +332,6 @@ buildtest() {
   make VERBOSE=1
 }
 
-cleanupoldinstall() {
-  if [ -d /usr/share/mympd ] || [ -d /usr/lib/mympd ]
-  then
-    echo "Cleaning up previous myMPD installation"
-    rm -rf /usr/share/mympd
-    rm -rf /var/lib/mympd/tmp
-    [ -f /etc/mympd/mympd.conf ] && mv /etc/mympd/mympd.conf /etc/mympd.conf
-    rm -rf /etc/mympd
-    rm -f /usr/lib/systemd/system/mympd.service
-    [ -d /usr/lib/systemd/system ] && rmdir --ignore-fail-on-non-empty /usr/lib/systemd/system
-    rm -rf /usr/lib/mympd
-  else
-    echo "No old myMPD installation found"
-  fi
-}
-
 cleanup() {
   #build directories
   rm -rf release
@@ -869,17 +853,12 @@ case "$ACTION" in
 	  buildrelease
 	;;
 	install)
-	  cleanupoldinstall
 	  installrelease
 	;;
 	releaseinstall)
 	  buildrelease
 	  cd .. || exit 1
-	  cleanupoldinstall
 	  installrelease
-	;;
-	cleanupoldinst)
-	  cleanupoldinstall
 	;;
 	debug)
 	  builddebug "FALSE"
@@ -980,7 +959,6 @@ case "$ACTION" in
 	  echo ""
 	  echo "Cleanup options:"
 	  echo "  cleanup:          cleanup source tree"
-	  echo "  cleanupoldinst:   removes deprecated files"
 	  echo "  uninstall:        removes myMPD files, leaves configuration and "
 	  echo "                    state files in place"
 	  echo "                    following environment variables are respected"
