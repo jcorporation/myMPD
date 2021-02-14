@@ -934,45 +934,12 @@ function saveSettings(closeModal) {
         }
     }
 
-    if (settings.featMixramp === true) {
-        let inputMixrampdb = document.getElementById('inputMixrampdb');
-        if (!inputMixrampdb.getAttribute('disabled')) {
-            if (!validateFloat(inputMixrampdb)) {
-                formOK = false;
-            } 
-        }
-        let inputMixrampdelay = document.getElementById('inputMixrampdelay');
-        if (!inputMixrampdelay.getAttribute('disabled')) {
-            if (inputMixrampdelay.value === 'nan') {
-                inputMixrampdelay.value = '-1';
-            }
-            if (!validateFloat(inputMixrampdelay)) {
-                formOK = false;
-            }
-        }
-    }
-    
     let inputSmartplsInterval = document.getElementById('inputSmartplsInterval');
     if (!validateInt(inputSmartplsInterval)) {
         formOK = false;
     }
     let smartplsInterval = document.getElementById('inputSmartplsInterval').value * 60 * 60;
 
-    let singleState = getBtnGroupValue('btnSingleGroup');
-    let jukeboxMode = getBtnGroupValue('btnJukeboxModeGroup');
-    let replaygain = getBtnGroupValue('btnReplaygainGroup');
-    let jukeboxUniqueTag = getSelectValue('selectJukeboxUniqueTag');
-    let jukeboxPlaylist = getSelectValue('selectJukeboxPlaylist');
-    
-    if (jukeboxMode === '2') {
-        jukeboxUniqueTag = 'Album';
-    }
-    
-    if (jukeboxMode === '1' && settings.featSearchwindow === false && jukeboxPlaylist === 'Database') {
-        formOK = false;
-        document.getElementById('warnJukeboxPlaylist').classList.remove('hide');
-    }
-    
     let advSettings = {};
     for (let key in advancedSettingsDefault) {
         let el = document.getElementById('inputAdvSetting' + r(key));
@@ -1035,7 +1002,8 @@ function saveSettings(closeModal) {
     }
 }
 
-function saveQueueSettings(closeModal) {
+//eslint-disable-next-line no-unused-vars
+function saveQueueSettings() {
     let formOK = true;
 
     let inputCrossfade = document.getElementById('inputCrossfade');
@@ -1064,7 +1032,7 @@ function saveQueueSettings(closeModal) {
         }
         let inputMixrampdelay = document.getElementById('inputMixrampdelay');
         if (!inputMixrampdelay.getAttribute('disabled')) {
-            if (parseInt(inputMixrampdelay.value) === NaN) {
+            if (isNaN(parseInt(inputMixrampdelay.value))) {
                 inputMixrampdelay.value = '-1';
             }
             if (!validateFloat(inputMixrampdelay)) {

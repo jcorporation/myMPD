@@ -14,7 +14,7 @@ function showConfirm(text, callback) {
             callback();
         }
         modalConfirm.hide();        
-    }, false)
+    }, false);
     yesBtn.innerHTML = t('Yes');
     document.getElementById('modalConfirmYesBtn').replaceWith(yesBtn);
     modalConfirm.show();

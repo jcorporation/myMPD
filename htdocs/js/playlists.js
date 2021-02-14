@@ -497,6 +497,7 @@ function showDelPlaylist(uri) {
     });
 }
 
+//eslint-disable-next-line no-unused-vars
 function showClearPlaylist() {
     showConfirm(t('Do you really want to clear the playlist?'), function() {
         let uri = getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri');
