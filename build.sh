@@ -535,11 +535,12 @@ pkgarch() {
   tar -czf "mympd_${VERSION}.orig.tar.gz" -- *
   cp contrib/packaging/arch/* .
   makepkg
-  if [ "$SIGN" = "TRUE" ]
+  if [ -n "${SIGN+x}" ] && [ "$SIGN" = "TRUE" ]
   then
     KEYARG=""
-    [ "$GPGKEYID" != "" ] && KEYARG="--key $PGPGKEYID"
-    makepkg --sign "$KEYARG" mympd-*.pkg.tar.xz
+    [ -z "${GPGKEYID+x}" ] || KEYARG="--key $PGPGKEYID"
+    #shellcheck disable=SC2086
+    makepkg --sign $KEYARG mympd-*.pkg.tar.xz
   fi
   if check_cmd namcap
   then
