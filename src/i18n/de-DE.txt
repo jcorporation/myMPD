@@ -1623,9 +1623,6 @@ Nächstes Lied
 Outputs
 Ausgabegeräte
 
-Playback settings
-Wiedergabeeinstellungen
-
 Previous
 Vorheriges Lied
 
@@ -1767,3 +1764,13 @@ nur Pause
 
 stop only
 nur Stop
+
+Do you really want to clear the playlist?"
+Willst du wirlich die Wiedergabeliste wirklich leeren?
+
+
+Do you really want to delete the playlist?
+Willst du wirklich die Wiedergabeliste löschen?
+
+Playback settings
+Wiedergabeeinstellungen
