@@ -84,49 +84,15 @@ then
   GZIPCAT="gzip -f -v -9 -c"
 fi
 
-#returns true if FILE1 is newer or equal than FILE2
-newer() {
-  M1=0
-  M2=0
-  [ -f "$1" ] && M1=$(stat -c%Y "$1")
-  [ -f "$2" ] && M2=$(stat -c%Y "$2")
-  if [ "$M1" -lt "$M2" ]
-  then
-    #echo "$1 is older than $2"
-    return 1
-  elif [ "$M1" -eq "$M2" ]
-  then
-    #echo "$1 is equal than $2"
-    return 0
-  else
-    #echo "$1 is newer than $2"
-    return 0
-  fi
-}
-
-#returns true if FILE1 is older than FILE...
-older_s() {
-  FILE1=$1
-  for FILE2 in "$@"
-  do
-    [ "$FILE1" = "$FILE2" ] && continue
-    if newer "$FILE2" "$FILE1"
-    then
-      #echo "$FILE1 is older than $FILE2"
-      return 0
-    fi
-  done
-  #echo "$FILE1 is newer or equal than $@"
-  return 1
-}
-
 setversion() {
   check_cmd bzcat
-  echo "Setting version to ${VERSION}"
+  TS=$(stat -c%Y CMakeLists.txt)
   export LC_TIME="en_GB.UTF-8"
-  DATE_F1=$(date +"%a %b %d %Y")
-  DATE_F2=$(date +"%a, %d %b %Y %H:%m:%S %z")
-  DATE_F3=$(date +"%d %b %Y")
+  DATE_F1=$(date --date=@"${TS}" +"%a %b %d %Y")
+  DATE_F2=$(date --date=@"${TS}" +"%a, %d %b %Y %H:%m:%S %z")
+  DATE_F3=$(date --date=@"${TS}" +"%d %b %Y")
+  echo "Setting version to ${VERSION} and date to ${DATE_F2}"
+
   for F in htdocs/sw.js contrib/packaging/alpine/APKBUILD contrib/packaging/arch/PKGBUILD \
   		   contrib/packaging/rpm/mympd.spec contrib/packaging/debian/changelog contrib/man/mympd.1 \
   		   contrib/man/mympd-config.1 contrib/man/mympd-script.1
@@ -154,15 +120,7 @@ minify() {
   DST="$3"
 
   #We remove only line-breaks, comments and truncate spaces of lines
-  
-  if newer "$DST" "$SRC"
-  then
-    #File already minified"
-    echo "Skipping $SRC"
-    return 1
-  fi
   echo "Minifying $SRC"
-
   if [ "$TYPE" = "html" ]
   then
     #shellcheck disable=SC2016
@@ -202,13 +160,8 @@ createi18n() {
   DST=$1
   PRETTY=$2
   cd src/i18n || exit 1
-  if older_s "$DST" ./*.txt
-  then
-    echo "Creating i18n json"
-    perl ./tojson.pl "$PRETTY" > "$DST"
-  else
-    echo "Skip creating i18n json"
-  fi
+  echo "Creating i18n json"
+  perl ./tojson.pl "$PRETTY" > "$DST"
   cd ../.. || exit 1
 }
 
@@ -230,16 +183,10 @@ createdistfiles() {
       exit 1
     fi
   done
+  echo "Creating mympd.js"
   # shellcheck disable=SC2086
-  if older_s dist/htdocs/js/mympd.js $JSSRCFILES
-  then
-    echo "Creating mympd.js"
-    # shellcheck disable=SC2086
-    # shellcheck disable=SC2002
-    cat $JSSRCFILES | grep -v "\"use strict\";" > dist/htdocs/js/mympd.js
-  else
-    echo "Skip creating mympd.js"
-  fi
+  # shellcheck disable=SC2002
+  cat $JSSRCFILES | grep -v "\"use strict\";" > dist/htdocs/js/mympd.js
   minify js htdocs/sw.js dist/htdocs/sw.min.js
   minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
   minify js dist/htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
@@ -254,25 +201,13 @@ createdistfiles() {
       exit 1
     fi
   done
+  echo "\"use strict\";" > dist/htdocs/js/combined.js
   # shellcheck disable=SC2086
-  if older_s dist/htdocs/js/combined.js.gz $JSFILES
-  then
-    echo "\"use strict\";" > dist/htdocs/js/combined.js
-    # shellcheck disable=SC2086
-    # shellcheck disable=SC2002
-    cat $JSFILES >> dist/htdocs/js/combined.js
-    $GZIP dist/htdocs/js/combined.js
-    ASSETSCHANGED=1
-  else
-    echo "Skip creating dist/htdocs/js/combined.js.gz"
-  fi
-  if newer dist/htdocs/sw.min.js dist/htdocs/sw.js.gz
-  then
-    $GZIPCAT dist/htdocs/sw.min.js > dist/htdocs/sw.js.gz
-    ASSETSCHANGED=1
-  else
-    echo "Skip dist/htdocs/sw.js.gz"
-  fi
+  # shellcheck disable=SC2002
+  cat $JSFILES >> dist/htdocs/js/combined.js
+  $GZIP dist/htdocs/js/combined.js
+
+  $GZIPCAT dist/htdocs/sw.min.js > dist/htdocs/sw.js.gz
  
   echo "Minifying stylesheets"
   for F in htdocs/css/*.css
@@ -284,64 +219,31 @@ createdistfiles() {
   echo "Combining and compressing stylesheets"
   CSSFILES="dist/htdocs/css/*.min.css"
   # shellcheck disable=SC2086
-  if older_s dist/htdocs/css/combined.css.gz $CSSFILES
-  then
-    # shellcheck disable=SC2086
-    cat $CSSFILES > dist/htdocs/css/combined.css
-    $GZIP dist/htdocs/css/combined.css
-    ASSETSCHANGED=1
-  else
-    echo "Skip creating dist/htdocs/css/combined.css.gz"
-  fi
+  cat $CSSFILES > dist/htdocs/css/combined.css
+  $GZIP dist/htdocs/css/combined.css
   
   echo "Minifying and compressing html"
-  if minify html htdocs/index.html dist/htdocs/index.html
-  then
-    $GZIPCAT dist/htdocs/index.html > dist/htdocs/index.html.gz
-    ASSETSCHANGED=1
-  fi
+  minify html htdocs/index.html dist/htdocs/index.html
+  $GZIPCAT dist/htdocs/index.html > dist/htdocs/index.html.gz
 
   echo "Creating other compressed assets"
   ASSETS="htdocs/mympd.webmanifest htdocs/assets/*.svg"
   for ASSET in $ASSETS
   do
     COMPRESSED="dist/${ASSET}.gz"
-    if newer "$ASSET" "$COMPRESSED"
-    then
       $GZIPCAT "$ASSET" > "$COMPRESSED"
-      ASSETSCHANGED=1
-    else
-      echo "Skipping $ASSET"
-    fi
   done
-  return $ASSETSCHANGED
+  return 0
 }
 
 buildrelease() {
-  if [ -f .git/HEAD ] && grep -q "devel" .git/HEAD
-  then
-  	echo "In devel branch, running cleanupdist"
-  	cleanupdist
-  fi
-
-  if createdistfiles
-  then
-  	ASSETSCHANGED="0"
-  else
-    ASSETSCHANGED="1"
-  fi
+  createdistfiles
 
   echo "Compiling myMPD"
   install -d release
   cd release || exit 1
-  if [ "$ASSETSCHANGED" = "1" ]
-  then
-    echo "Assets changed"
-    #force rebuild of web_server with embedded assets
-    rm -vf CMakeFiles/mympd.dir/src/web_server/web_server_utility.c.o
-  else
-    echo "Assets not changed"
-  fi
+  #force rebuild of web_server with embedded assets
+  rm -vf CMakeFiles/mympd.dir/src/web_server/web_server_utility.c.o
   #set INSTALL_PREFIX and build myMPD
   export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
   cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE \
