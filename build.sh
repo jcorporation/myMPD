@@ -131,17 +131,9 @@ setversion() {
   		   contrib/packaging/rpm/mympd.spec contrib/packaging/debian/changelog contrib/man/mympd.1 \
   		   contrib/man/mympd-config.1 contrib/man/mympd-script.1
   do
-  	if ! newer "$F.in" "$F"
-  	then 
-  	  echo "Warning: $F is newer than $F.in"
-  	else
-  	  echo "$F"
-  	  sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE_F1__/$DATE_F1/g" -e "s/__DATE_F2__/$DATE_F2/g" \
+  	echo "$F"
+  	sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE_F1__/$DATE_F1/g" -e "s/__DATE_F2__/$DATE_F2/g" \
   	  	-e "s/__DATE_F3__/$DATE_F3/g" "$F.in" > "$F"
-  	  #Adjust file modification date
-  	  TS=$(stat -c%Y "$F.in")
-  	  touch -d@"$TS" "$F"
-  	fi
   done
   #compress manpages
   for F in contrib/man/mympd.1 contrib/man/mympd-config.1 contrib/man/mympd-script.1
@@ -152,6 +144,8 @@ setversion() {
   #gentoo ebuild must be moved only
   [ -f "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild" ] || \
   	mv -f contrib/packaging/gentoo/media-sound/mympd/mympd-*.ebuild "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild"
+
+  echo "var myMPDversion = '${VERSION}';" > htdocs/js/version.js
 }
 
 minify() {

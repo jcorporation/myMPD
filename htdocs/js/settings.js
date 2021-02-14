@@ -254,6 +254,11 @@ function checkConsume() {
 }
 
 function parseSettings() {
+    if ('serviceWorker' in navigator && settings.mympdVersion !== myMPDversion) {
+        logWarn('Server version (' + settings.mympdVersion + ') not equal client version (' + myMPDversion + '), reloading');
+        clearAndReload();
+    }
+
     if (settings.locale === 'default') {
         locale = navigator.language || navigator.userLanguage;
     }

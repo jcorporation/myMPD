@@ -462,6 +462,7 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
 sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",");
+    buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
     buffer = tojson_char(buffer, "mpdHost", mympd_state->mpd_host, true);
     buffer = tojson_long(buffer, "mpdPort", mympd_state->mpd_port, true);
     buffer = tojson_char(buffer, "mpdPass", "dontsetpassword", true);
