@@ -178,6 +178,8 @@ createassets() {
   for F in htdocs/js/*.js
   do
     [ "$F" = "htdocs/js/i18n.js" ] && continue
+    [ "$F" = "htdocs/js/bootstrap-native.js" ] && continue
+    [ "$F" = "htdocs/js/long-press-event.js" ] && continue
     [ -L "$F" ] || JSSRCFILES="$JSSRCFILES $F"
     if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
     then
@@ -683,9 +685,6 @@ uninstall() {
   rm -f "$DESTDIR/usr/share/man/man1/mympd.1.gz"
   rm -f "$DESTDIR/usr/share/man/man1/mympd-config.1.gz"
   rm -f "$DESTDIR/usr/share/man/man1/mympd-script.1.gz"
-  rm -f "$DESTDIR/usr/share/man/man1/mympd.1.bz2"
-  rm -f "$DESTDIR/usr/share/man/man1/mympd-config.1.bz2"
-  rm -f "$DESTDIR/usr/share/man/man1/mympd-script.1.bz2"
   #MYMPD_INSTALL_PREFIX="/usr/local"
   rm -f "$DESTDIR/usr/local/bin/mympd"
   rm -f "$DESTDIR/usr/local/bin/mympd-config"
@@ -693,9 +692,6 @@ uninstall() {
   rm -f "$DESTDIR/usr/local/share/man/man1/mympd.1.gz"
   rm -f "$DESTDIR/usr/local/share/man/man1/mympd-config.1.gz"
   rm -f "$DESTDIR/usr/local/share/man/man1/mympd-script.1.gz"
-  rm -f "$DESTDIR/usr/local/share/man/man1/mympd.1.bz2"
-  rm -f "$DESTDIR/usr/local/share/man/man1/mympd-config.1.bz2"
-  rm -f "$DESTDIR/usr/local/share/man/man1/mympd-script.1.bz2"
   #MYMPD_INSTALL_PREFIX="/opt/mympd/"
   rm -rf "$DESTDIR/opt/mympd"
   #systemd
@@ -849,6 +845,15 @@ sbuild_cleanup() {
   rm -rf "${WORKDIR}"
 }
 
+run_eslint() {
+  check_cmd eslint
+  createassets
+  echo "Linting sw.js"
+  eslint htdocs/sw.js
+  echo "Linting mympd.js"
+  eslint release/htdocs/js/mympd.js
+}
+
 case "$ACTION" in
 	release)
 	  buildrelease
@@ -935,6 +940,9 @@ case "$ACTION" in
 	sbuild_cleanup)
 		sbuild_cleanup
 	;;
+	eslint)
+		run_eslint
+	;;
 	*)
 	  echo "Usage: $0 <option>"
 	  echo "Version: ${VERSION}"
@@ -949,14 +957,17 @@ case "$ACTION" in
 	  echo "                    linked with libasan3, uses assets in htdocs"
 	  echo "  memcheck:         builds debug files in directory debug"
 	  echo "                    for use with valgrind, uses assets in htdocs"
+	  echo "  test:             builds the unit testing files in test/build"
+	  echo "  installdeps:      installs build and run dependencies"
+	  echo "  translate:        builds the translation file for debug builds"
+	  echo "  createasset :       creates the minfied and compressed dist files"
+	  echo ""
+      echo "Test options:"
 	  echo "  check:            runs cppcheck and flawfinder on source files"
 	  echo "                    following environment variables are respected"
 	  echo "                      - CPPCHECKOPTS=\"--enable=warning\""
 	  echo "                      - FLAWFINDEROPTS=\"-m3\""
-	  echo "  test:             builds the unit testing files in test/build"
-	  echo "  installdeps:      installs build and run dependencies"
-	  echo "  translate:        builds the translation file for debug builds"
-	  echo "  createassets:       creates the minfied and compressed dist files"
+	  echo "  eslint:           combines javascript files and runs eslint"
 	  echo ""
 	  echo "Cleanup options:"
 	  echo "  cleanup:          cleanup source tree"
