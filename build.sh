@@ -302,10 +302,15 @@ installrelease() {
 builddebug() {
   MEMCHECK=$1
 
-  echo "Linking bootstrap css and js"
-  [ -e "$PWD/htdocs/css/bootstrap.css" ] || ln -s "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
-  [ -e "$PWD/htdocs/js/bootstrap-native.js" ] || ln -s "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
-  [ -e "$PWD/htdocs/js/long-press-event.js" ] || ln -s "$PWD/dist/htdocs/js/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
+  echo "Linking dist assets"
+  [ -e "$PWD/htdocs/css/bootstrap.css" ] || \
+  	ln -s "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
+  [ -e "$PWD/htdocs/js/bootstrap-native.js" ] || \
+  	ln -s "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
+  [ -e "$PWD/htdocs/js/long-press-event.js" ] || \
+  	ln -s "$PWD/dist/htdocs/js/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
+  [ -e "$PWD/htdocs/assets/MaterialIcons-Regular.woff2" ] || \
+  	ln -s "$PWD/dist/htdocs/assets/MaterialIcons-Regular.woff2" "$PWD/htdocs/assets/MaterialIcons-Regular.woff2"
 
   createi18n ../../htdocs/js/i18n.js pretty
   
@@ -351,11 +356,11 @@ cleanup() {
   rm -rf test/build
   
   #htdocs
-  rm -f htdocs/js/bootstrap-native-v4.js
   rm -f htdocs/js/bootstrap-native.js
   rm -f htdocs/js/long-press-event.js
   rm -f htdocs/js/i18n.js
   rm -f htdocs/css/bootstrap.css
+  rm -f htdocs/assets/MaterialIcons-Regular.woff2
 
   #compilation database
   rm -f src/compile_commands.json

@@ -23,4 +23,4 @@ INCBIN(combined_js, "htdocs/js/combined.js.gz");
 INCBIN(favicon_ico, "../htdocs/assets/favicon.ico");
 INCBIN(appicon_192_png, "../htdocs/assets/appicon-192.png");
 INCBIN(appicon_512_png, "../htdocs/assets/appicon-512.png");
-INCBIN(MaterialIcons_Regular_woff2, "../htdocs/assets/MaterialIcons-Regular.woff2");
+INCBIN(MaterialIcons_Regular_woff2, "../dist/htdocs/assets/MaterialIcons-Regular.woff2");
