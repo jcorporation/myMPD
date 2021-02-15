@@ -19,7 +19,7 @@ function initBrowse() {
             app.current.search = '';
             document.getElementById('searchDatabaseStr').value = '';
             appGoto(app.current.app, app.current.card, undefined, 0, undefined, 'Album', 'AlbumArtist', 'Album', 
-                '(' + app.current.tag + ' == \'' + escapeMPD(getAttDec(event.target.parentNode, 'data-tag')) + '\')');
+                '((' + app.current.tag + ' == \'' + escapeMPD(getAttDec(event.target.parentNode, 'data-tag')) + '\'))');
         }
     }, false);
     
