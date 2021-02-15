@@ -259,6 +259,14 @@ function parseSettings() {
         clearAndReload();
     }
 
+    getBgImageList(settings.bgImage);
+    if (settings.bgImage !== '') {
+        domCache.body.style.backgroundImage = 'url("' + subdir + '/browse/pics/' + settings.bgImage + '")';
+    }
+    else {
+        domCache.body.style.backgroundImage = '';
+    }
+
     if (settings.locale === 'default') {
         locale = navigator.language || navigator.userLanguage;
     }
@@ -960,6 +968,7 @@ function saveSettings(closeModal) {
             "mediaSession": (document.getElementById('btnMediaSession').classList.contains('active') ? true : false),
             "bgCover": (document.getElementById('btnBgCover').classList.contains('active') ? true : false),
             "bgColor": document.getElementById('inputBgColor').value,
+            "bgImage": getSelectValue('selectBgImage'),
             "bgCssFilter": document.getElementById('inputBgCssFilter').value,
             "featLocalplayer": (document.getElementById('btnFeatLocalplayer').classList.contains('active') ? true : false),
             "streamUrl": streamUrl,
@@ -1232,4 +1241,16 @@ function resetValue(elId) {
     const el = document.getElementById(elId);
     el.value = getAttDec(el, 'data-default') !== null ? getAttDec(el, 'data-default') : 
         (getAttDec(el, 'placeholder') !== null ? getAttDec(el, 'placeholder') : '');
+}
+
+function getBgImageList(image) {
+    sendAPI("MYMPD_API_HOME_ICON_PICTURE_LIST", {}, function(obj) {
+        let options = '<option value="">' + t('None') + '</option>';
+        for (let i = 0; i < obj.result.returnedEntities; i++) {
+            options += '<option value="' + e(obj.result.data[i]) + '">' + e(obj.result.data[i])  + '</option>';
+        }
+        let sel = document.getElementById('selectBgImage');
+        sel.innerHTML = options;
+        sel.value = image;
+    });
 }

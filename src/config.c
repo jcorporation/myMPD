@@ -312,6 +312,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("theme", "bgcolor")) {
         p_config->bg_color = sdsreplace(p_config->bg_color, value);
     }
+    else if (MATCH("theme", "bgimage")) {
+        p_config->bg_image = sdsreplace(p_config->bg_image, value);
+    }
     else if (MATCH("theme", "bgcssfilter")) {
         p_config->bg_css_filter = sdsreplace(p_config->bg_css_filter, value);
     }
@@ -391,7 +394,7 @@ static void mympd_get_env(struct t_config *config) {
       #ifdef ENABLE_LUA
         "MYMPD_SCRIPTING", "MYMPD_REMOTESCRIPTING", "MYMPD_LUALIBS", "MYMPD_SCRIPTEDITOR",
       #endif
-        "THEME_THEME", "THEME_CUSTOMPLACEHOLDERIMAGES",
+        "THEME_THEME", "THEME_CUSTOMPLACEHOLDERIMAGES", "THEME_BGIMAGE",
         "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER", "THEME_COVERIMAGESIZESMALL",
         "THEME_COVERIMAGE", "THEME_COVERIMAGENAME", "THEME_COVERIMAGESIZE",
         "THEME_LOCALE", "THEME_HIGHLIGHTCOLOR", 0};
@@ -451,6 +454,7 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->sylt_ext);
     sdsfree(config->uslt_ext);
     sdsfree(config->footer_stop);
+    sdsfree(config->bg_image);
     list_free(&config->syscmd_list);
     FREE_PTR(config);
 }
@@ -558,6 +562,7 @@ void mympd_config_defaults(t_config *config) {
     config->vorbis_sylt = sdsnew("SYNCEDLYRICS");
     config->uslt_ext = sdsnew("txt");
     config->sylt_ext = sdsnew("lrc");
+    config->bg_image = sdsempty();
     list_init(&config->syscmd_list);
 }
 
@@ -767,6 +772,7 @@ bool mympd_dump_config(void) {
         "bgcover = %s\n"
         "bgcolor = %s\n"
         "bgcssfilter = %s\n"
+        "bgimage = %s\n"
         "coverimage = %s\n"
         "coverimagename = %s\n"
         "coverimagesize = %d\n"
@@ -778,6 +784,7 @@ bool mympd_dump_config(void) {
         (p_config->bg_cover == true ? "true" : "false"),
         p_config->bg_color,
         p_config->bg_css_filter,
+        p_config->bg_image,
         (p_config->coverimage == true ? "true" : "false"),
         p_config->coverimage_name,
         p_config->coverimage_size,

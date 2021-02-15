@@ -49,7 +49,7 @@ void mympd_api_settings_delete(t_config *config) {
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
         "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "bookmark_list", "coverimage_size_small", 
         "theme", "timer", "highlight_color", "media_session", "booklet_name", "lyrics", "home_list", "navbar_icons", "advanced", "footer_stop", 
-        "home", 0};
+        "home", "bg_image",0};
     const char** ptr = state_files;
     while (*ptr != 0) {
         sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
@@ -376,6 +376,10 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         mympd_state->home = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(settingname, "home");
     }
+    else if (strncmp(key->ptr, "bgImage", key->len) == 0) {
+        mympd_state->bg_image = sdsreplacelen(mympd_state->bg_image, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "bg_image");
+    }
     else {
         sdsfree(settingname);
         sdsfree(settingvalue);
@@ -451,6 +455,7 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->lyrics = state_file_rw_bool(config, "lyrics", config->lyrics, false);
     mympd_state->footer_stop = state_file_rw_string(config, "footer_stop", config->footer_stop, false);
     mympd_state->home = state_file_rw_bool(config, "home", config->home, false);
+    mympd_state->bg_image = state_file_rw_string(config, "bg_image", config->bg_image, false);
     if (config->readonly == true) {
         mympd_state->bookmarks = false;
         mympd_state->smartpls = false;
@@ -522,6 +527,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "featHome", mympd_state->home, true);
     buffer = tojson_long(buffer, "volumeMin", config->volume_min, true);
     buffer = tojson_long(buffer, "volumeMax", config->volume_max, true);
+    buffer = tojson_char(buffer, "bgImage", mympd_state->bg_image, true);
     buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
     buffer = sdscatfmt(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
     buffer = sdscatfmt(buffer, "\"colsBrowseDatabaseDetail\":%s,", mympd_state->cols_browse_database);

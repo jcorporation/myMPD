@@ -110,6 +110,7 @@ void free_mympd_state_sds(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->navbar_icons);
     sdsfree(mympd_state->advanced);
     sdsfree(mympd_state->footer_stop);
+    sdsfree(mympd_state->bg_image);
 }
 
 static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", "Lyrics", 0};

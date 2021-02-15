@@ -150,6 +150,7 @@ typedef struct t_config {
     sds sylt_ext;
     sds uslt_ext;
     unsigned binarylimit;
+    sds bg_image;
     //system commands
     struct list syscmd_list;
 } t_config;
