@@ -1765,7 +1765,7 @@ nur Pause
 stop only
 nur Stop
 
-Do you really want to clear the playlist?"
+Do you really want to clear the playlist?
 Willst du wirlich die Wiedergabeliste wirklich leeren?
 
 
