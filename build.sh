@@ -133,7 +133,7 @@ minify() {
   elif [ "$TYPE" = "js" ]
   then
     #shellcheck disable=SC2016
-    if ! perl -pe 's/^\s*//gm; s/^\/\/.+$//g; s/\s*$//gm;' "$SRC" > "${DST}.tmp"
+    if ! perl -pe 's/^\s*//gm; s/^\/\/.+$//g; s/^logDebug\(.*$//g; s/\s*$//gm;' "$SRC" > "${DST}.tmp"
     then
       rm -f "${DST}.tmp"
       echo "Error minifying $SRC"
