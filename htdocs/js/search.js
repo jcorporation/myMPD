@@ -42,18 +42,21 @@ function initSearch() {
 
     document.getElementById('searchCrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'SPAN') {
+            //remove search expression
             event.preventDefault();
             event.stopPropagation();
             event.target.parentNode.remove();
             doSearch('');
         }
         else if (event.target.nodeName === 'BUTTON') {
+            //edit search expression
             event.preventDefault();
             event.stopPropagation();
             document.getElementById('searchstr').value = unescapeMPD(getAttDec(event.target, 'data-filter-value'));
             selectTag('searchtags', 'searchtagsdesc', getAttDec(event.target, 'data-filter-tag'));
             document.getElementById('searchMatch').value = getAttDec(event.target, 'data-filter-op');
             event.target.remove();
+            app.current.filter = getAttDec(event.target,'data-filter-tag');
             doSearch(document.getElementById('searchstr').value);
             if (document.getElementById('searchCrumb').childElementCount === 0) {
                 document.getElementById('searchCrumb').classList.add('hide');

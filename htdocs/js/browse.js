@@ -170,18 +170,21 @@ function initBrowse() {
 
     document.getElementById('searchDatabaseCrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'SPAN') {
+            //remove search expression
             event.preventDefault();
             event.stopPropagation();
             event.target.parentNode.remove();
             searchAlbumgrid('');
         }
         else if (event.target.nodeName === 'BUTTON') {
+            //edit search expression
             event.preventDefault();
             event.stopPropagation();
             selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', getAttDec(event.target,'data-filter-tag'));
             document.getElementById('searchDatabaseStr').value = unescapeMPD(getAttDec(event.target, 'data-filter-value'));
             document.getElementById('searchDatabaseMatch').value = getAttDec(event.target, 'data-filter-op');
             event.target.remove();
+            app.current.filter = getAttDec(event.target,'data-filter-tag');
             searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
             if (document.getElementById('searchDatabaseCrumb').childElementCount === 0) {
                 document.getElementById('searchDatabaseCrumb').classList.add('hide');
