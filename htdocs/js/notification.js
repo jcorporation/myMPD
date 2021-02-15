@@ -188,7 +188,7 @@ function toggleUI() {
     else {
         let topPadding = 0;
         if (window.innerWidth < window.innerHeight) {
-            topPadding = domCache.header.offsetHeight;
+            topPadding = document.getElementById('header').offsetHeight;
         }
         topAlert.style.paddingTop = topPadding + 'px';
         topAlert.classList.remove('hide');

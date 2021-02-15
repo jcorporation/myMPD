@@ -403,7 +403,7 @@ function parseSettings() {
     
     document.getElementById('inputHighlightColor').value = settings.highlightColor;
     document.getElementById('inputBgColor').value = settings.bgColor;
-    document.getElementsByTagName('body')[0].style.backgroundColor = settings.bgColor;
+    domCache.body.style.backgroundColor = settings.bgColor;
     
     toggleBtnChkCollapse('btnBgCover', 'collapseBackground', settings.bgCover);
     document.getElementById('inputBgCssFilter').value = settings.bgCssFilter;    
@@ -584,7 +584,7 @@ function parseSettings() {
         appRoute();
     }
 
-    i18nHtml(document.getElementsByTagName('body')[0]);
+    i18nHtml(domCache.body);
 
     checkConsume();
 
@@ -713,14 +713,14 @@ function parseMPDSettings() {
     settings.tags.sort();
     settings.searchtags.sort();
     settings.browsetags.sort();
-    filterCols('colsSearch');
-    filterCols('colsQueueCurrent');
-    filterCols('colsQueueLastPlayed');
-    filterCols('colsQueueJukebox');
-    filterCols('colsBrowsePlaylistsDetail');
-    filterCols('colsBrowseFilesystem');
-    filterCols('colsBrowseDatabaseDetail');
-    filterCols('colsPlayback');
+    filterCols('Search');
+    filterCols('QueueCurrent');
+    filterCols('QueueLastPlayed');
+    filterCols('QueueJukebox');
+    filterCols('BrowsePlaylistsDetail');
+    filterCols('BrowseFilesystem');
+    filterCols('BrowseDatabaseDetail');
+    filterCols('Playback');
     
     if (settings.featTags === false) {
         app.apps.Browse.active = 'Filesystem';
@@ -1129,38 +1129,16 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
 }
 
 function filterCols(x) {
-    let tags = settings.tags.slice();
-    if (settings.featTags === false) {
-        tags.push('Title');
-    }
-    tags.push('Duration');
-    if (x === 'colsQueueCurrent' || x === 'colsBrowsePlaylistsDetail' || x === 'colsQueueLastPlayed' || x === 'colsQueueJukebox') {
-        tags.push('Pos');
-    }
-    else if (x === 'colsBrowseFilesystem') {
-        tags.push('Type');
-    }
-    if (x === 'colsQueueLastPlayed') {
-        tags.push('LastPlayed');
-    }
-    if (x === 'colsSearch') {
-        tags.push('LastModified');
-    }
-    if (x === 'colsPlayback') {
-        tags.push('Filetype');
-        tags.push('Fileformat');
-        tags.push('LastModified');
-        if (settings.featLyrics === true) {
-            tags.push('Lyrics');
-        }
-    }
+    let tags = setColTags(x);
+    const set = "cols" + x;
+    
     let cols = [];
-    for (let i = 0; i < settings[x].length; i++) {
-        if (tags.includes(settings[x][i])) {
-            cols.push(settings[x][i]);
+    for (let i = 0; i < settings[set].length; i++) {
+        if (tags.includes(settings[set][i])) {
+            cols.push(settings[set][i]);
         }
     }
-    if (x === 'colsSearch') {
+    if (x === 'Search') {
         //enforce albumartist and album for albumactions
         if (cols.includes('Album') === false && tags.includes('Album')) {
             cols.push('Album');
@@ -1169,8 +1147,8 @@ function filterCols(x) {
             cols.push(tagAlbumArtist);
         }
     }
-    settings[x] = cols;
-    logDebug('Columns for ' + x + ': ' + cols);
+    settings[set] = cols;
+    logDebug('Columns for ' + set + ': ' + cols);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -1215,25 +1193,22 @@ function setNavbarIcons() {
     }
     
     let btns = '';
-    for (let i = 0; i < settings.navbarIcons.length; i++) {
+    for (const icon of settings.navbarIcons) {
         let hide = '';
         if (settings.featHome === false && settings.navbarIcons[i].options[0] === 'Home') {
             hide = 'hide';
         }
-        btns += '<div id="nav' + settings.navbarIcons[i].options.join('') + '" class="nav-item flex-fill text-center ' + hide + '">' +
-          '<a data-title-phrase="' + t(settings.navbarIcons[i].title) + '" data-href="" class="nav-link text-light" href="#">' +
-            '<span class="mi">' + settings.navbarIcons[i].ligature + '</span>' + 
-            '<span class="navText" data-phrase="' + t(settings.navbarIcons[i].title) + '"></span>' +
-            (settings.navbarIcons[i].badge !== '' ? settings.navbarIcons[i].badge : '') +
+        btns += '<div id="nav' + icon.options.join('') + '" class="nav-item flex-fill text-center ' + hide + '">' +
+          '<a data-title-phrase="' + t(icon.title) + '" data-href="" class="nav-link text-light" href="#">' +
+            '<span class="mi">' + icon.ligature + '</span>' + 
+            '<span class="navText" data-phrase="' + t(icon.title) + '"></span>' +
+            (icon.badge !== '' ? icon.badge : '') +
           '</a>' +
         '</div>';
     }
-    let container = document.getElementById('navbar-main');
+    const container = document.getElementById('navbar-main');
     container.innerHTML = btns;
 
-    domCache.navbarBtns = container.getElementsByTagName('div');
-    domCache.navbarBtnsLen = domCache.navbarBtns.length;
-    
     const badgeQueueItemsEl = document.getElementById('badgeQueueItems');
     if (badgeQueueItemsEl) {
         document.getElementById('badgeQueueItems').innerText = oldQueueLength;
@@ -1243,6 +1218,10 @@ function setNavbarIcons() {
         document.getElementById('nav' + app.current.app).classList.add('active');
     }
 
+    //cache elements, reused in appPrepare
+    domCache.navbarBtns = container.getElementsByTagName('div');
+    domCache.navbarBtnsLen = domCache.navbarBtns.length;
+    
     for (let i = 0; i < domCache.navbarBtnsLen; i++) {
         setAttEnc(domCache.navbarBtns[i].firstChild, 'data-href', JSON.stringify({"cmd": "appGoto", "options": settings.navbarIcons[i].options}));
     }

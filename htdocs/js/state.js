@@ -267,7 +267,12 @@ function setBackgroundImage(url) {
         clearBackgroundImage();
         return;
     }
-    let old = document.querySelectorAll('.albumartbg');
+    const bgImageUrl = 'url("' + subdir + '/albumart/' + url + '")';
+    const old = document.querySelectorAll('.albumartbg');
+    if (old[0] && old[0].style.backgroundImage === bgImageUrl) {
+        logDebug('Background image already set');
+        return;
+    }
     for (let i = 0; i < old.length; i++) {
         if (old[i].style.zIndex === '-10') {
             old[i].remove();
@@ -278,15 +283,14 @@ function setBackgroundImage(url) {
             //old[i].style.filter = '';
         }
     }
-    let div = document.createElement('div');
+    const div = document.createElement('div');
     div.classList.add('albumartbg');
     div.style.filter = settings.bgCssFilter;
-    div.style.backgroundImage = 'url("' + subdir + '/albumart/' + url + '")';
+    div.style.backgroundImage = bgImageUrl;
     div.style.opacity = 0;
-    let body = document.getElementsByTagName('body')[0];
-    body.insertBefore(div, body.firstChild);
+    domCache.body.insertBefore(div, domCache.body.firstChild);
 
-    let img = new Image();
+    const img = new Image();
     img.onload = function() {
         document.querySelector('.albumartbg').style.opacity = 1;
     };

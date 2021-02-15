@@ -161,11 +161,9 @@ app.apps = {
 app.current = { "app": "Home", "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 app.last = { "app": undefined, "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 
-//cache often used dom elements
+//cache often accessed dom elements
 var domCache = {};
 domCache.body = document.getElementsByTagName('body')[0];
-domCache.header = document.getElementById('header');
-domCache.footer = document.getElementsByTagName('footer')[0];
 domCache.counter = document.getElementById('counter');
 domCache.progress = document.getElementById('footerProgress');
 domCache.progressBar = document.getElementById('footerProgressBar');
@@ -533,12 +531,7 @@ function appRoute() {
                 let sort = app.current.sort;
                 let sortdesc = false;
                 if (sort === '-') {
-                    if (settings.tags.includes('Title')) {
-                        sort = 'Title';
-                    }
-                    else {
-                        sort = '-';
-                    }
+                    sort = settings.tags.includes('Title') ? 'Title' : '-';
                     setAttEnc(document.getElementById('SearchList'), 'data-sort', sort);
                 }
                 else if (sort.indexOf('-') === 0) {
@@ -607,7 +600,12 @@ function a2hsInit() {
         deferredA2HSprompt.prompt();
         // Wait for the user to respond to the prompt
         deferredA2HSprompt.userChoice.then((choiceResult) => {
-            choiceResult.outcome === 'accepted' ? logDebug('User accepted the A2HS prompt') : logDebug('User dismissed the A2HS prompt');
+            if (choiceResult.outcome === 'accepted') {
+                logDebug('User accepted the A2HS prompt');
+            }
+            else {
+                logDebug('User dismissed the A2HS prompt');
+            }
             deferredA2HSprompt = null;
         });
     });
@@ -631,16 +629,16 @@ function appInitStart() {
         setViewport(false);
     }
     else {
-        let m = document.getElementsByClassName('featMobile');
-        for (let i = 0; i < m.length; i++) {
-            m[i].classList.add('hide');
+        const ms = document.getElementsByClassName('featMobile');
+        for (const m of ms) {
+            m.classList.add('hide');
         }        
     }
 
     subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
     let localeList = '<option value="default" data-phrase="Browser default"></option>';
-    for (let i = 0; i < locales.length; i++) {
-        localeList += '<option value="' + e(locales[i].code) + '">' + e(locales[i].desc) + ' (' + e(locales[i].code) + ')</option>';
+    for (const locale of locales) {
+        localeList += '<option value="' + e(locale.code) + '">' + e(locale.desc) + ' (' + e(locale.code) + ')</option>';
     }
     document.getElementById('selectLocale').innerHTML = localeList;
     
@@ -708,10 +706,9 @@ function appInitWait() {
 
 function appInit() {
     //collaps arrows for submenus
-    let collapseArrows = document.querySelectorAll('.subMenu');
-    let collapseArrowsLen = collapseArrows.length;
-    for (let i = 0; i < collapseArrowsLen; i++) {
-        collapseArrows[i].addEventListener('click', function(event) {
+    const collapseArrows = document.querySelectorAll('.subMenu');
+    for (const collapseArrow of collapseArrows) {
+        collapseArrow.addEventListener('click', function(event) {
             event.stopPropagation();
             event.preventDefault();
             let icon = this.getElementsByTagName('span')[0];
@@ -719,35 +716,34 @@ function appInit() {
         }, false);
     }    
     //align dropdowns
-    let dropdowns = document.querySelectorAll('.dropdown-toggle');
-    for (let i = 0; i < dropdowns.length; i++) {
-        dropdowns[i].parentNode.addEventListener('show.bs.dropdown', function () {
+    const dropdowns = document.querySelectorAll('.dropdown-toggle');
+    for (const dropdown of dropdowns) {
+        dropdown.parentNode.addEventListener('show.bs.dropdown', function () {
             alignDropdown(this);
         });
     }
     //init links
-    let hrefs = document.querySelectorAll('[data-href]');
-    let hrefsLen = hrefs.length;
-    for (let i = 0; i < hrefsLen; i++) {
-        if (hrefs[i].classList.contains('notclickable') === false) {
-            hrefs[i].classList.add('clickable');
+    const hrefs = document.querySelectorAll('[data-href]');
+    for (const href of hrefs) {
+        if (href.classList.contains('notclickable') === false) {
+            href.classList.add('clickable');
         }
-        let parentInit = hrefs[i].parentNode.classList.contains('noInitChilds') ? true : false;
+        let parentInit = href.parentNode.classList.contains('noInitChilds') ? true : false;
         if (parentInit === false) {
-            parentInit = hrefs[i].parentNode.parentNode.classList.contains('noInitChilds') ? true : false;
+            parentInit = href.parentNode.parentNode.classList.contains('noInitChilds') ? true : false;
         }
         if (parentInit === true) {
             //handler on parentnode
             continue;
         }
-        hrefs[i].addEventListener('click', function(event) {
+        href.addEventListener('click', function(event) {
             parseCmd(event, getAttDec(this, 'data-href'));
         }, false);
     }
     //do not submit forms
     const noFormSubmit = ['search', 'searchqueue', 'searchdatabase'];
-    for (let i = 0; i < noFormSubmit.length; i++) {
-        document.getElementById(noFormSubmit[i]).addEventListener('submit', function(event) {
+    for (const formName of noFormSubmit) {
+        document.getElementById(formName).addEventListener('submit', function(event) {
             event.preventDefault();
         }, false);
     }
@@ -801,17 +797,17 @@ function appInit() {
     }, false);
     //make tables navigateable by keyboard
     let tables = document.getElementsByTagName('table');
-    for (let i = 0; i < tables.length; i++) {
-        tables[i].setAttribute('tabindex', 0);
-        tables[i].addEventListener('keydown', function(event) {
+    for (const tableName of tables) {
+        tableName.setAttribute('tabindex', 0);
+        tableName.addEventListener('keydown', function(event) {
             navigateTable(this, event.key);
         }, false);
     }
     //contextmenu for tables
     tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList', 
         'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsAllList', 'BrowsePlaylistsDetailList'];
-    for (let i = 0; i < tables.length; i++) {
-        document.getElementById(tables[i]).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {
+    for (const tableName of tables) {
+        document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {
             if (event.target.parentNode.classList.contains('not-clickable') || getAttDec(event.target.parentNode, 'data-type') === 'parentDir') {
                 return;
             }
@@ -820,7 +816,7 @@ function appInit() {
             event.stopPropagation();
         }, false);
     
-        document.getElementById(tables[i]).getElementsByTagName('tbody')[0].addEventListener('contextmenu', function(event) {
+        document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('contextmenu', function(event) {
             if (event.target.parentNode.classList.contains('not-clickable') || getAttDec(event.target.parentNode, 'data-type') === 'parentDir') {
                 return;
             }
@@ -842,7 +838,7 @@ function initGlobalModals() {
         getServerinfo();
         let list = '';
         let i = 0;
-        for (let key in keymap) {
+        for (const key in keymap) {
             if (i === 0 || i % 2 === 0) {
                 if (i > 0) {
                     list += '</div>';
@@ -864,16 +860,13 @@ function initGlobalModals() {
 }
 
 function initPlayback() {
-    let colDropdowns = ['PlaybackColsDropdown'];
-    for (let i = 0; i < colDropdowns.length; i++) {
-        document.getElementById(colDropdowns[i]).addEventListener('click', function(event) {
-            if (event.target.nodeName === 'BUTTON' && event.target.classList.contains('mi')) {
-                event.stopPropagation();
-                event.preventDefault();
-                toggleBtnChk(event.target);
-            }
-        }, false);
-    }
+    document.getElementById('PlaybackColsDropdown').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON' && event.target.classList.contains('mi')) {
+            event.stopPropagation();
+            event.preventDefault();
+            toggleBtnChk(event.target);
+        }
+    }, false);
 
     document.getElementById('cardPlaybackTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'P') {
@@ -883,20 +876,11 @@ function initPlayback() {
 }
 
 function initNavs() {
-    document.getElementById('mainMenu').addEventListener('click', function(event) {
-        event.preventDefault();
-    }, false);
-
-    document.getElementById('btnChVolumeDown').addEventListener('click', function(event) {
-        event.stopPropagation();
-    }, false);
-    document.getElementById('btnChVolumeUp').addEventListener('click', function(event) {
-        event.stopPropagation();
-    }, false);
-
-    document.getElementById('volumeBar').addEventListener('click', function(event) {
-        event.stopPropagation();
-    }, false);
+    for (const elName of ['mainMenu', 'btnChVolumeDown', 'btnChVolumeUp', 'volumeBar']) {
+        document.getElementById(elName).addEventListener('click', function(event) {
+            event.stopPropagation();
+        }, false);
+    }
 
     document.getElementById('volumeBar').addEventListener('change', function() {
         sendAPI("MPD_API_PLAYER_VOLUME_SET", {"volume": parseInt(document.getElementById('volumeBar').value)});

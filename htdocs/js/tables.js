@@ -84,9 +84,9 @@ function scrollFocusIntoView() {
     let height = el.offsetHeight;
     let headerHeight = el.parentNode.parentNode.offsetTop;
     if (window.innerHeight > window.innerWidth) {
-        headerHeight += domCache.header.offsetHeight;
+        headerHeight += document.getElementById('header').offsetHeight;
     }
-    let footerHeight = domCache.footer.offsetHeight;
+    let footerHeight = document.getElementsByTagName('footer')[0].offsetHeight;
     let parentHeight = window.innerHeight - headerHeight - footerHeight;
     let treshold = height / 2;
     //console.log('posY: ' + posY);
