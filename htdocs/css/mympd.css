@@ -481,13 +481,7 @@ tr > th {
   white-space: nowrap;
   direction: ltr;
   vertical-align: top;
-  /* Support for all WebKit browsers. */
-  -webkit-font-smoothing: antialiased;
-  /* Support for Safari and Chrome. */
   text-rendering: optimizeLegibility;
-  /* Support for Firefox. */
-  -moz-osx-font-smoothing: grayscale;
-  /* Support for IE. */
   font-feature-settings: 'liga';
 }
 
@@ -899,7 +893,7 @@ a.text-success:focus {
 
 .disabled {
   pointer-events: none;
-  cursor: not-available;
+  cursor: not-allowed;
 }
 
 .btn-warning {
