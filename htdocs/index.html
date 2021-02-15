@@ -1271,7 +1271,7 @@
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
-              <a class="nav-link active text-dark" href="#tabQueueSettings" data-toggle="tab" data-height="true" data-phrase="Queue"></a>
+              <a class="nav-link active text-dark" href="#tabQueueSettings" data-toggle="tab" data-height="true" data-phrase="Playback"></a>
             </li>
             <li class="nav-item">
               <a class="nav-link text-dark" href="#tabJukeboxSettings" data-toggle="tab" data-height="true" data-phrase="Jukebox"></a>
@@ -1426,7 +1426,14 @@
         <div class="modal-body">
           <div class="tab-content">
             <div class="tab-pane active" id="tabAbout">
-              <h4 class="text-success">myMPD</h4>
+              <h4 class="mb-3">
+              <svg width="2.5rem" height="2.5rem" version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
+                <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
+                <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
+                <path d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
+                <path d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
+              </svg>&nbsp;&nbsp;myMPD</h4>
               <ul>
                 <li><span data-phrase="Version"></span>: <span id="mympdVersion"></span></li>
                 <li><span data-phrase="Homepage"></span>: <a class="text-success" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/mympd">https://github.com/jcorporation/mympd</a></li>
@@ -1802,7 +1809,7 @@
         </div>
         <div class="modal-footer justify-content-between" id="listTimerFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showEditTimer","options":[0]}' class="btn btn-success justify-content-start" data-phrase="New timer"></button>
+          <button data-href='{"cmd":"showEditTimer","options":[0]}' class="btn btn-success" data-phrase="New timer"></button>
         </div>
         <div id="editTimerFooter" class="modal-footer justify-content-between hide">
           <button data-href='{"cmd":"showListTimer","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
@@ -1870,7 +1877,7 @@
         </div>
         <div class="modal-footer justify-content-between" id="listMountsFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showEditMount","options":["",""]}' class="btn btn-success justify-content-start" data-phrase="New mount"></button>
+          <button data-href='{"cmd":"showEditMount","options":["",""]}' class="btn btn-success" data-phrase="New mount"></button>
         </div>
         <div id="editMountFooter" class="modal-footer hide">
           <button data-href='{"cmd":"showListMounts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
@@ -1974,7 +1981,7 @@
         </div>
         <div class="modal-footer justify-content-between" id="listScriptsFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success justify-content-start featScripteditor" data-phrase="New script"></button>
+          <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success featScripteditor" data-phrase="New script"></button>
         </div>
         <div id="editScriptFooter" class="modal-footer justify-content-between hide">
           <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
@@ -2023,7 +2030,7 @@
         </div>
         <div class="modal-footer justify-content-between" id="listPartitionsFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showNewPartition","options":["",""]}' class="btn btn-success justify-content-start" data-phrase="New partition"></button>
+          <button data-href='{"cmd":"showNewPartition","options":["",""]}' class="btn btn-success" data-phrase="New partition"></button>
         </div>
         <div id="newPartitionFooter" class="modal-footer justify-content-between hide">
           <button data-href='{"cmd":"showListPartitions","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
@@ -2041,17 +2048,17 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
-            <div class="table-responsive-md overflow-auto">
-              <table class="table table-hover table-sm">
-                <thead>
-                  <tr>
-                    <th data-phrase="Output"></th>
-                  </tr>
-                </thead>
-                <tbody id="partitionOutputsList" class="clickable">
-                </tbody>
-              </table>
-            </div>
+          <div class="table-responsive-md overflow-auto">
+            <table class="table table-hover table-sm">
+              <thead>
+                <tr>
+                  <th data-phrase="Output"></th>
+                </tr>
+              </thead>
+              <tbody id="partitionOutputsList" class="clickable">
+              </tbody>
+            </table>
+          </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
@@ -2156,7 +2163,7 @@
         </div>
         <div class="modal-footer justify-content-between" id="listTriggerFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showEditTrigger","options":[-1]}' class="btn btn-success justify-content-start" data-phrase="New trigger"></button>
+          <button data-href='{"cmd":"showEditTrigger","options":[-1]}' class="btn btn-success" data-phrase="New trigger"></button>
         </div>
         <div id="newTriggerFooter" class="modal-footer justify-content-between hide">
           <button data-href='{"cmd":"showListTrigger","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
