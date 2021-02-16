@@ -52,6 +52,24 @@ var advancedSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click album play button"
+    },
+    "notificationAAASection": {
+        "inputType": "section",
+        "title": "Notifications"
+    },
+    "notificationSongChange": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Song change"
+    },
+    "uiAAASection": {
+        "inputType": "section",
+        "title": "UI"
+    },
+    "uiFooterQueueSettings": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Show playback settings in footer"
     }
 };
 
@@ -94,6 +112,11 @@ function initSettings() {
     document.getElementById('modalSettings').addEventListener('shown.bs.modal', function () {
         getSettings();
         removeIsInvalid(document.getElementById('modalSettings'));
+    });
+    
+    document.getElementById('modalQueueSettings').addEventListener('shown.bs.modal', function () {
+        getSettings();
+        removeIsInvalid(document.getElementById('modalQueueSettings'));
     });
 
     document.getElementById('modalConnection').addEventListener('shown.bs.modal', function () {
@@ -221,25 +244,7 @@ function joinSettings(obj) {
     settingsLock = false;
     parseSettings();
     toggleUI();
-    if (settings.mpdConnected === true) {
-        sendAPI("MPD_API_URLHANDLERS", {}, parseUrlhandlers,false);
-    }
     btnWaiting(document.getElementById('btnApplySettings'), false);
-}
-
-function parseUrlhandlers(obj) {
-    let storagePlugins = '';
-    for (let i = 0; i < obj.result.data.length; i++) {
-        switch(obj.result.data[i]) {
-            case 'http://':
-            case 'https://':
-            case 'nfs://':
-            case 'smb://':
-                storagePlugins += '<option value="' + obj.result.data[i] + '">' + obj.result.data[i] + '</option>';
-                break;
-        }
-    }
-    document.getElementById('selectMountUrlhandler').innerHTML = storagePlugins;
 }
 
 function checkConsume() {
@@ -259,7 +264,11 @@ function parseSettings() {
         clearAndReload();
     }
 
-    getBgImageList(settings.bgImage);
+    if (document.getElementById('modalSettings').classList.contains('show')) {
+        //execute only if settings modal is displayed
+        getBgImageList(settings.bgImage);
+    }
+
     if (settings.bgImage !== '') {
         domCache.body.style.backgroundImage = 'url("' + subdir + '/browse/pics/' + settings.bgImage + '")';
     }
@@ -315,6 +324,10 @@ function parseSettings() {
     advSettingsKeys.sort();
     for (let i = 0; i < advSettingsKeys.length; i++) {
         let key = advSettingsKeys[i];
+        if (advancedSettingsDefault[key].inputType === 'section') {
+            advFrm += '<h4>' + t(advancedSettingsDefault[key].title) + '</h4>';
+            continue;
+        }
         advFrm += '<div class="form-group row">' +
                     '<label class="col-sm-4 col-form-label" for="inputAdvSetting' + r(key) + '" data-phrase="' + 
                     e(advancedSettingsDefault[key].title) + '">' + t(advancedSettingsDefault[key].title) + '</label>' +
@@ -329,6 +342,12 @@ function parseSettings() {
             }
             advFrm += '</select>';
         }
+        else if (advancedSettingsDefault[key].inputType === 'checkbox') {
+            advFrm += '<button type="button" class="btn btn-sm btn-secondary mi ' + 
+                (settings.advanced[key] === false ? '' : 'active') + ' clickable" id="inputAdvSetting' + r(key) + '"'+
+                'data-key="' + r(key) + '">' +
+                (settings.advanced[key] === false ? 'radio_button_unchecked' : 'check') + '</button>';
+        }
         else {
             advFrm += '<input id="inputAdvSetting' + r(key) + '" data-key="' + 
                 r(key) + '" type="text" class="form-control border-secondary" value="' + e(settings.advanced[key]) + '">';
@@ -337,6 +356,19 @@ function parseSettings() {
                   '</div>';
     }
     document.getElementById('AdvancedSettingsFrm').innerHTML = advFrm;
+    let advFrmBtns = document.getElementById('AdvancedSettingsFrm').getElementsByTagName('button');
+    for (const btn of advFrmBtns) {
+        btn.addEventListener('click', function(event) {
+            toggleBtnChk(event.target);
+        }, false);
+    }
+
+    if (settings.advanced.uiFooterQueueSettings === true) {
+        document.getElementById('footerQueueSettings').classList.remove('hide');
+    }
+    else {
+        document.getElementById('footerQueueSettings').classList.add('hide');
+    }
     
     //parse mpd settings if connected
     if (settings.mpdConnected === true) {
@@ -519,6 +551,9 @@ function parseSettings() {
     }
     else {
         document.getElementById('scripts').innerHTML = '';
+        //reinit mainmenu -> change of script list
+        dropdownMainMenu.dispose();
+        dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
     }
 
     document.getElementById('selectTimerAction').innerHTML = timerActions;
@@ -617,6 +652,18 @@ function parseSettings() {
 }
 
 function parseMPDSettings() {
+    if (document.getElementById('modalQueueSettings').classList.contains('show')) {
+        //execute only if queueSettings modal is shown
+        if (settings.featPlaylists === true) {
+            sendAPI("MPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) {
+                getAllPlaylists(obj, 'selectJukeboxPlaylist', settings.jukeboxPlaylist);
+            });
+        }
+        else {
+            document.getElementById('selectJukeboxPlaylist').innerHTML = '<option value="Database">' + t('Database') + '</option>';
+        }
+    }
+
     toggleBtnChk('btnRandom', settings.random);
     toggleBtnChk('btnConsume', settings.consume);
     toggleBtnChk('btnRepeat', settings.repeat);
@@ -816,15 +863,6 @@ function parseMPDSettings() {
             tagEls[i].classList.remove('clickable');
         }
     }
-    
-    if (settings.featPlaylists === true) {
-        sendAPI("MPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) {
-            getAllPlaylists(obj, 'selectJukeboxPlaylist', settings.jukeboxPlaylist);
-        });
-    }
-    else {
-        document.getElementById('selectJukeboxPlaylist').innerHTML = '<option value="Database">' + t('Database') + '</option>';
-    }
 
     setCols('QueueCurrent');
     setCols('Search');
@@ -955,8 +993,11 @@ function saveSettings(closeModal) {
             if (advancedSettingsDefault[key].inputType === 'select') {
                 advSettings[key] = getSelectValue(el);
             }
+            else if (advancedSettingsDefault[key].inputType === 'checkbox') {
+                advSettings[key] = el.classList.contains('active') ? true : false;
+            }
             else {
-                advSettings[key] = el. value;
+                advSettings[key] = el.value;
             }
         }
     }
@@ -1244,12 +1285,16 @@ function resetValue(elId) {
 }
 
 function getBgImageList(image) {
-    sendAPI("MYMPD_API_HOME_ICON_PICTURE_LIST", {}, function(obj) {
-        let options = '<option value="">' + t('None') + '</option>';
+    getImageList(image, 'selectBgImage', '', 'None');
+}
+
+function getImageList(image, selectElId, firstOptValue, firstOptText) {
+    sendAPI("MYMPD_API_PICTURE_LIST", {}, function(obj) {
+        let options = '<option value="' + e(firstOptValue) + '">' + t(firstOptText) + '</option>';
         for (let i = 0; i < obj.result.returnedEntities; i++) {
             options += '<option value="' + e(obj.result.data[i]) + '">' + e(obj.result.data[i])  + '</option>';
         }
-        let sel = document.getElementById('selectBgImage');
+        let sel = document.getElementById(selectElId);
         sel.innerHTML = options;
         sel.value = image;
     });

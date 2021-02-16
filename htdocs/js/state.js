@@ -236,6 +236,8 @@ function parseState(obj) {
 
     lastState = obj.result;                    
     
+    //refresh settings if mpd is not connected or ui is disabled
+    //true on startup
     if (settings.mpdConnected === false || uiEnabled === false) {
         getSettings(true);
     }
@@ -499,7 +501,7 @@ function songChange(obj) {
         playingTr.getElementsByTagName('td')[1].innerText = obj.result.Title;
     }
 
-    if (playstate === 'play') {
+    if (playstate === 'play' && settings.advanced.notificationSongChange === true) {
         showNotification(obj.result.Title, textNotification, htmlNotification, 'success');
     }
     

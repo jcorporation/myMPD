@@ -665,13 +665,14 @@ function appInitStart() {
         });
     }
 
-    appInited = false;
+
     document.getElementById('splashScreen').classList.remove('hide');
     domCache.body.classList.add('overflow-hidden');
     document.getElementById('splashScreenAlert').innerText = t('Fetch myMPD settings');
 
     a2hsInit();
 
+    appInited = false;
     getSettings(true);
     appInitWait();
 }
@@ -780,6 +781,7 @@ function appInit() {
     dragAndDropTableHeader('BrowseDatabaseDetail');
     //update state on window focus - browser pauses javascript
     window.addEventListener('focus', function() {
+        logDebug('Browser tab gots the focus -> update player state');
         sendAPI("MPD_API_PLAYER_STATE", {}, parseState);
     }, false);
     //global keymap
@@ -876,11 +878,16 @@ function initPlayback() {
 }
 
 function initNavs() {
-    for (const elName of ['mainMenu', 'btnChVolumeDown', 'btnChVolumeUp', 'volumeBar']) {
+    for (const elName of ['btnChVolumeDown', 'btnChVolumeUp', 'volumeBar']) {
         document.getElementById(elName).addEventListener('click', function(event) {
             event.stopPropagation();
         }, false);
     }
+
+    //do not switch to first view by clicking on main menu logo
+    document.getElementById('mainMenu').addEventListener('click', function(event) {
+        event.preventDefault();
+    }, false);
 
     document.getElementById('volumeBar').addEventListener('change', function() {
         sendAPI("MPD_API_PLAYER_VOLUME_SET", {"volume": parseInt(document.getElementById('volumeBar').value)});
@@ -965,5 +972,6 @@ window.onerror = function(msg, url, line) {
     }
     return true;
 };
+
 //Start app
 appInitStart();

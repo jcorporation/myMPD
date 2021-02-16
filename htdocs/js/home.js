@@ -469,13 +469,5 @@ function showHomeIconCmdOptions(values) {
 }
 
 function getHomeIconPictureList(picture) {
-    sendAPI("MYMPD_API_HOME_ICON_PICTURE_LIST", {}, function(obj) {
-        let options = '<option value="">' + t('Use ligature') + '</option>';
-        for (let i = 0; i < obj.result.returnedEntities; i++) {
-            options += '<option value="' + e(obj.result.data[i]) + '">' + e(obj.result.data[i])  + '</option>';
-        }
-        let sel = document.getElementById('selectHomeIconImage');
-        sel.innerHTML = options;
-        sel.value = picture;
-    });
+    getImageList(picture, 'selectHomeIconImage', '', 'Use ligature');
 }

@@ -47,6 +47,7 @@ function initMounts() {
 
     document.getElementById('modalMounts').addEventListener('shown.bs.modal', function () {
         showListMounts();
+        getUrlhandlers();
     });
 }
 
@@ -174,4 +175,21 @@ function parseNeighbors(obj) {
         }
     }
     document.getElementById('dropdownNeighbors').children[0].innerHTML = list;
+}
+
+function getUrlhandlers() {
+    sendAPI("MPD_API_URLHANDLERS", {}, function() {
+        let storagePlugins = '';
+        for (let i = 0; i < obj.result.data.length; i++) {
+            switch(obj.result.data[i]) {
+                case 'http://':
+                case 'https://':
+                case 'nfs://':
+                case 'smb://':
+                    storagePlugins += '<option value="' + obj.result.data[i] + '">' + obj.result.data[i] + '</option>';
+                    break;
+            }
+        }
+        document.getElementById('selectMountUrlhandler').innerHTML = storagePlugins;
+    }, false);
 }
