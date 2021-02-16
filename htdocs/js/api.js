@@ -114,17 +114,6 @@ function webSocketConnect() {
                 return;
             }
             
-            if (obj.error) {
-                let facility = obj.error.facility === null ? 'general' : obj.error.facility;
-                showNotification(t(obj.error.message, obj.error.data), '', facility, 'error');
-                return;
-            }
-            else if (obj.result) {
-                let facility = obj.result.facility === null ? 'general' : obj.result.facility;
-                showNotification(t(obj.result.message, obj.result.data), '', facility, 'info');
-                return;
-            }
-
             switch (obj.method) {
                 case 'welcome':
                     websocketConnected = true;
@@ -191,12 +180,9 @@ function webSocketConnect() {
                         sendAPI("MPD_API_JUKEBOX_LIST", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
                     }
                     break;
-                case 'error':
-                case 'warn':
-                case 'info':
+                case 'notify':
                     if (document.getElementById('alertMpdState').classList.contains('hide')) {
-                        let facility = obj.params.facility === null ? 'general' : obj.params.facility;
-                        showNotification(t(obj.params.message), '', facility, obj.method);
+                        showNotification(t(obj.params.message, obj.params.data), '', obj.params.facility, obj.params.severity);
                     }
                     break;
                 default:
