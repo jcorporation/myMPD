@@ -61,3 +61,6 @@ Click song in queue
 Click song
 Play
 Num entries
+Song change
+Use ligature
+Show playback settings in footer

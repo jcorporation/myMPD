@@ -1774,3 +1774,12 @@ Willst du wirklich die Wiedergabeliste löschen?
 
 Playback settings
 Wiedergabeeinstellungen
+
+Color
+Farbe
+
+Song change
+Neues Lied
+
+Show playback settings in footer
+Wiedergabeeinstellungen im Footer anzeigen
