@@ -612,7 +612,7 @@ function a2hsInit() {
     
     window.addEventListener('appinstalled', function() {
         logInfo('myMPD installed as app');
-        showNotification(t('myMPD installed as app'), '', '', 'success');
+        showNotification(t('myMPD installed as app'), '', 'general', 'info');
     });
 }
 
@@ -964,7 +964,7 @@ window.onerror = function(msg, url, line) {
     logError('JavaScript error: ' + msg + ' (' + url + ': ' + line + ')');
     if (settings.loglevel >= 4) {
         if (appInited === true) {
-            showNotification(t('JavaScript error'), msg + ' (' + url + ': ' + line + ')', '', 'danger');
+            showNotification(t('JavaScript error'), msg + ' (' + url + ': ' + line + ')', 'general', 'error');
         }
         else {
             showAppInitAlert(t('JavaScript error') + ': ' + msg + ' (' + url + ': ' + line + ')');

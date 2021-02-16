@@ -306,11 +306,11 @@ function appendQueue(type, uri, name) {
         case 'song':
         case 'dir':
             sendAPI("MPD_API_QUEUE_ADD_TRACK", {"uri": uri});
-            showNotification(t('%{name} added to queue', {"name": name}), '', '', 'success');
+            showNotification(t('%{name} added to queue', {"name": name}), '', 'queue', 'info');
             break;
         case 'plist':
             sendAPI("MPD_API_QUEUE_ADD_PLAYLIST", {"plist": uri});
-            showNotification(t('%{name} added to queue', {"name": name}), '', '', 'success');
+            showNotification(t('%{name} added to queue', {"name": name}), '', 'queue', 'info');
             break;
     }
 }
@@ -321,7 +321,7 @@ function appendAfterQueue(type, uri, to, name) {
         case 'song':
             sendAPI("MPD_API_QUEUE_ADD_TRACK_AFTER", {"uri": uri, "to": to});
             to++;
-            showNotification(t('%{name} added to queue position %{to}', {"name": name, "to": to}), '', '', 'success');
+            showNotification(t('%{name} added to queue position %{to}', {"name": name, "to": to}), '', 'queue', 'info');
             break;
     }
 }
@@ -331,11 +331,11 @@ function replaceQueue(type, uri, name) {
         case 'song':
         case 'dir':
             sendAPI("MPD_API_QUEUE_REPLACE_TRACK", {"uri": uri});
-            showNotification(t('Queue replaced with %{name}', {"name": name}), '', '', 'success');
+            showNotification(t('Queue replaced with %{name}', {"name": name}), '', 'queue', 'info');
             break;
         case 'plist':
             sendAPI("MPD_API_QUEUE_REPLACE_PLAYLIST", {"plist": uri});
-            showNotification(t('Queue replaced with %{name}', {"name": name}), '', '', 'success');
+            showNotification(t('Queue replaced with %{name}', {"name": name}), '', 'queue', 'info');
             break;
     }
 }

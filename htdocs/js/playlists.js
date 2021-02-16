@@ -324,7 +324,7 @@ function saveSmartPlaylist() {
             return;
         }
         modalSaveSmartPlaylist.hide();
-        showNotification(t('Saved smart playlist %{name}', {"name": name}), '', '', 'success');
+        showNotification(t('Saved smart playlist %{name}', {"name": name}), '', 'playlist', 'info');
     }
     else {
         document.getElementById('saveSmartPlaylistName').classList.add('is-invalid');

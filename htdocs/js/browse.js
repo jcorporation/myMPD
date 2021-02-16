@@ -467,11 +467,11 @@ function parseFilesystem(obj) {
 function addAllFromBrowseFilesystem(replace) {
     if (replace === true) {
         sendAPI("MPD_API_QUEUE_REPLACE_TRACK", {"uri": app.current.search});
-        showNotification(t('Replaced queue'), '', '', 'success');
+        showNotification(t('Replaced queue'), '', 'queue', 'info');
     }
     else {
         sendAPI("MPD_API_QUEUE_ADD_TRACK", {"uri": app.current.search});
-        showNotification(t('Added all songs'), '', '', 'success');
+        showNotification(t('Added all songs'), '', 'queue', 'info');
     }
 }
 

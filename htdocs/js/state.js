@@ -371,7 +371,6 @@ function songChange(obj) {
         return;
     }
     let textNotification = '';
-    let htmlNotification = '';
     let pageTitle = '';
 
     mediaSessionSetMetadata(obj.result.Title, obj.result.Artist, obj.result.Album, obj.result.uri);
@@ -387,7 +386,6 @@ function songChange(obj) {
 
     if (obj.result.Artist !== undefined && obj.result.Artist.length > 0 && obj.result.Artist !== '-') {
         textNotification += obj.result.Artist;
-        htmlNotification += obj.result.Artist;
         pageTitle += obj.result.Artist + ' - ';
         document.getElementById('footerArtist').innerText = obj.result.Artist;
         setAttEnc(document.getElementById('footerArtist'), 'data-name', obj.result.Artist);
@@ -402,7 +400,6 @@ function songChange(obj) {
 
     if (obj.result.Album !== undefined && obj.result.Album.length > 0 && obj.result.Album !== '-') {
         textNotification += ' - ' + obj.result.Album;
-        htmlNotification += '<br/>' + obj.result.Album;
         document.getElementById('footerAlbum').innerText = obj.result.Album;
         setAttEnc(document.getElementById('footerAlbum'), 'data-name', obj.result.Album);
         setAttEnc(document.getElementById('footerAlbum'), 'data-albumartist', obj.result[tagAlbumArtist]);
@@ -501,8 +498,8 @@ function songChange(obj) {
         playingTr.getElementsByTagName('td')[1].innerText = obj.result.Title;
     }
 
-    if (playstate === 'play' && settings.advanced.notificationSongChange === true) {
-        showNotification(obj.result.Title, textNotification, htmlNotification, 'success');
+    if (playstate === 'play') {
+        showNotification(obj.result.Title, textNotification, 'player', 'info');
     }
     
     lastSong = curSong;

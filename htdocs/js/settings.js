@@ -57,10 +57,30 @@ var advancedSettingsDefault = {
         "inputType": "section",
         "title": "Notifications"
     },
-    "notificationSongChange": {
+    "notificationPlayer": {
         "defaultValue": false,
         "inputType": "checkbox",
-        "title": "Song change"
+        "title": "Playback"
+    },
+    "notificationQueue": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Queue"
+    },
+    "notificationGeneral": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "General"
+    },
+    "notificationDatabase": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Database"
+    },
+    "notificationPlaylist": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Playlist"
     },
     "uiAAASection": {
         "inputType": "section",

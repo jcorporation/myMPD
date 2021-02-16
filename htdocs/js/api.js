@@ -15,13 +15,15 @@ function sendAPI(method, params, callback, onerror) {
             if (ajaxRequest.responseText !== '') {
                 let obj = JSON.parse(ajaxRequest.responseText);
                 if (obj.error) {
-                    showNotification(t(obj.error.message, obj.error.data), '', '', 'danger');
+                    let facility = obj.error.facility === null ? 'general' : obj.error.facility;
+                    showNotification(t(obj.error.message, obj.error.data), '', 'api', 'error');
                     logError(JSON.stringify(obj.error));
                 }
                 else if (obj.result && obj.result.message && obj.result.message !== 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
                     if (ignoreMessages.includes(obj.result.message) === false) {
-                        showNotification(t(obj.result.message, obj.result.data), '', '', 'success');
+                        let facility = obj.result.facility === null ? 'general' : obj.result.facility;
+                        showNotification(t(obj.result.message, obj.result.data), '', facility, 'info');
                     }
                 }
                 else if (obj.result && obj.result.message && obj.result.message === 'ok') {
@@ -113,18 +115,20 @@ function webSocketConnect() {
             }
             
             if (obj.error) {
-                showNotification(t(obj.error.message, obj.error.data), '', '', 'danger');
+                let facility = obj.error.facility === null ? 'general' : obj.error.facility;
+                showNotification(t(obj.error.message, obj.error.data), '', facility, 'error');
                 return;
             }
             else if (obj.result) {
-                showNotification(t(obj.result.message, obj.result.data), '', '', 'success');
+                let facility = obj.result.facility === null ? 'general' : obj.result.facility;
+                showNotification(t(obj.result.message, obj.result.data), '', facility, 'info');
                 return;
             }
 
             switch (obj.method) {
                 case 'welcome':
                     websocketConnected = true;
-                    showNotification(t('Connected to myMPD'), wsUrl, '', 'success');
+                    showNotification(t('Connected to myMPD'), wsUrl, 'general', 'info');
                     appRoute();
                     sendAPI("MPD_API_PLAYER_STATE", {}, parseState, true);
                     break;
@@ -140,7 +144,7 @@ function webSocketConnect() {
                     break;
                 case 'mpd_connected':
                     //MPD connection established get state and settings
-                    showNotification(t('Connected to MPD'), '', '', 'success');
+                    showNotification(t('Connected to MPD'), '', 'general', 'info');
                     sendAPI("MPD_API_PLAYER_STATE", {}, parseState);
                     getSettings(true);
                     break;
@@ -188,18 +192,11 @@ function webSocketConnect() {
                     }
                     break;
                 case 'error':
-                    if (document.getElementById('alertMpdState').classList.contains('hide')) {
-                        showNotification(t(obj.params.message), '', '', 'danger');
-                    }
-                    break;
                 case 'warn':
-                    if (document.getElementById('alertMpdState').classList.contains('hide')) {
-                        showNotification(t(obj.params.message), '', '', 'warning');
-                    }
-                    break;
                 case 'info':
                     if (document.getElementById('alertMpdState').classList.contains('hide')) {
-                        showNotification(t(obj.params.message), '', '', 'success');
+                        let facility = obj.params.facility === null ? 'general' : obj.params.facility;
+                        showNotification(t(obj.params.message), '', facility, obj.method);
                     }
                     break;
                 default:

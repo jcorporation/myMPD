@@ -24,93 +24,111 @@ function toggleAlert(alertBox, state, msg) {
     }
 }
 
-function showNotification(notificationTitle, notificationText, notificationHtml, notificationType) {
-    if (settings.notificationWeb === true) {
-        let notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
-        setTimeout(notification.close.bind(notification), 3000);
-    } 
-    if (settings.notificationPage === true || notificationType === 'danger' || notificationType === 'warning') {
-        let alertBox;
-        if (alertTimeout) {
-            clearTimeout(alertTimeout);
-        }
-        if (!document.getElementById('alertBox')) {
-            alertBox = document.createElement('div');
-            alertBox.setAttribute('id', 'alertBox');
-            alertBox.classList.add('toast');
-        }
-        else {
-            alertBox = document.getElementById('alertBox');
-        }
-        
-        let toast = '<div class="toast-header">';
-        if (notificationType === 'success' ) {
-            toast += '<span class="mi text-success mr-2">info</span>';
-        }
-        else if (notificationType === 'warning' ) {
-            toast += '<span class="mi text-warning mr-2">warning</span>';
-        }
-        else {
-            toast += '<span class="mi text-danger mr-2">error</span>';
-        }
-        toast += '<strong class="mr-auto">' + e(notificationTitle) + '</strong>' +
-            '<button type="button" class="ml-2 mb-1 close">&times;</button></div>';
-        if (notificationHtml !== '' || notificationText !== '') {
-            toast += '<div class="toast-body">' + (notificationHtml === '' ? e(notificationText) : notificationHtml) + '</div>';
-        }
-        toast += '</div>';
-        alertBox.innerHTML = toast;
-        
-        if (!document.getElementById('alertBox')) {
-            document.getElementsByTagName('main')[0].append(alertBox);
-            requestAnimationFrame(function() {
-                let ab = document.getElementById('alertBox');
-                if (ab) {
-                    ab.classList.add('alertBoxActive');
-                }
-            });
-        }
-        alertBox.getElementsByTagName('button')[0].addEventListener('click', function() {
-            hideNotification();
-        }, false);
+//severities: info, warn, error
+//facilities: player, queue, general, database, playlist
 
-        alertTimeout = setTimeout(function() {
-            hideNotification();
-        }, 3000);
-    }
+function showNotification(title, text, facility, severity) {
     setStateIcon();
-    logMessage(notificationTitle, notificationText, notificationHtml, notificationType);
+    logMessage(title, text, facility, severity);
+    
+    if (settings.notificationWeb === true) {
+        let notification = new Notification(title, {icon: 'assets/favicon.ico', body: text});
+        setTimeout(notification.close.bind(notification), 3000);
+    }
+    
+    if (severity === 'info') {
+        //notifications with severity info can be hidden
+        if (settings.notificationPage === false) { return; }
+        if (facility === 'player' && settings.advanced.notificationPlayer === false) { return; }
+        if (facility === 'queue' && settings.advanced.notificationQueue === false) { return; }
+        if (facility === 'general' && settings.advanced.notificationGeneral === false) { return; }
+        if (facility === 'database' && settings.advanced.notificationDatabase === false) { return; }
+        if (facility === 'playlist' && settings.advanced.notificationPlaylist === false) { return; }
+    }
+        
+    if (alertTimeout) {
+        clearTimeout(alertTimeout);
+    }
+    let alertBox = document.getElementById('alertBox');
+    if (alertBox === null) {
+        alertBox = document.createElement('div');
+        alertBox.setAttribute('id', 'alertBox');
+        alertBox.classList.add('toast');
+    }
+        
+    let toast = '<div class="toast-header">';
+    if (severity === 'info' ) {
+        toast += '<span class="mi text-success mr-2">info</span>';
+    }
+    else if (severity === 'warn' ) {
+        toast += '<span class="mi text-warning mr-2">warning</span>';
+    }
+    else {
+        toast += '<span class="mi text-danger mr-2">error</span>';
+    }
+    toast += '<strong class="mr-auto">' + e(title) + '</strong>' +
+             '<button type="button" class="ml-2 mb-1 close">&times;</button></div>' +
+             (text === '' ? '' : '<div class="toast-body">' + e(text) + '</div>') +
+             '</div>';
+    alertBox.innerHTML = toast;
+        
+    if (!document.getElementById('alertBox')) {
+        document.getElementsByTagName('main')[0].append(alertBox);
+        requestAnimationFrame(function() {
+            let ab = document.getElementById('alertBox');
+            if (ab) {
+                ab.classList.add('alertBoxActive');
+            }
+        });
+    }
+    alertBox.getElementsByTagName('button')[0].addEventListener('click', function() {
+        hideNotification();
+    }, false);
+
+    alertTimeout = setTimeout(function() {
+        hideNotification();
+    }, 3000);
 }
 
-function logMessage(notificationTitle, notificationText, notificationHtml, notificationType) {
-    if (notificationType === 'success') { notificationType = 'Info'; }
-    else if (notificationType === 'warning') { notificationType = 'Warning'; }
-    else if (notificationType === 'danger') { notificationType = 'Error'; }
+function logMessage(title, text, facility, severity) {
+    if (severity === 'info') { severity = 'Info'; }
+    else if (severity === 'warn') { severity = 'Warning'; }
+    else if (severity === 'error') { severity = 'Error'; }
+    else { 
+        logDebug('Unknown severity: ' + severity);
+    }
+    
+    if (facility === 'player') { facility = 'Player'; }
+    else if (facility === 'queue') { facility = 'Queue'; }
+    else if (facility === 'general') { facility = 'General'; }
+    else if (facility === 'database') { facility = 'Database'; }
+    else if (facility === 'playlist') { facility = 'Playlist'; }
+    else { 
+        logDebug('Unknown facility: ' + facility);
+    }
     
     let overview = document.getElementById('logOverview');
 
     let append = true;
     let lastEntry = overview.firstElementChild;
     if (lastEntry) {
-        if (getAttDec(lastEntry, 'data-title') === notificationTitle) {
+        if (getAttDec(lastEntry, 'data-title') === title) {
             append = false;        
         }
     }
 
     let entry = document.createElement('div');
     entry.classList.add('text-light');
-    setAttEnc(entry, 'data-title', notificationTitle);
+    setAttEnc(entry, 'data-title', title);
     let occurence = 1;
     if (append === false) {
         occurence += parseInt(getAttDec(lastEntry, 'data-occurence'));
     }
     setAttEnc(entry, 'data-occurence', occurence);
-    entry.innerHTML = '<small>' + localeDate() + '&nbsp;&ndash;&nbsp;' + t(notificationType) +
+    entry.innerHTML = '<small>' + localeDate() + '&nbsp;&ndash;&nbsp;' + t(facility) +
+        ':&nbsp;' + t(severity) +
         (occurence > 1 ? '&nbsp;(' + occurence + ')' : '') + '</small>' +
-        '<p>' + e(notificationTitle) +
-        (notificationHtml === '' && notificationText === '' ? '' :
-        '<br/>' + (notificationHtml === '' ? e(notificationText) : notificationHtml)) +
-        '</p>';
+        '<p>' + e(title) + (text === '' ? '' : '<br/>' + e(text)) + '</p>';
 
     if (append === true) {
         overview.insertBefore(entry, overview.firstElementChild);
