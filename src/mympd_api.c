@@ -121,8 +121,8 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             }
             response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
             break;
-        case MYMPD_API_HOME_ICON_PICTURE_LIST:
-            response->data = mympd_api_put_home_picture_list(config, response->data, request->method, request->id);
+        case MYMPD_API_PICTURE_LIST:
+            response->data = mympd_api_picture_list(config, response->data, request->method, request->id);
             break;
         case MYMPD_API_HOME_ICON_SAVE:
             je = json_scanf(request->data, sdslen(request->data), "{params: {replace: %B, oldpos: %u, name: %Q, ligature: %Q, bgcolor: %Q, image: %Q, cmd: %Q}}", 
