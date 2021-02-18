@@ -484,20 +484,24 @@ function songChange(obj) {
         }
     }
     
-    document.getElementById('currentBooklet').innerHTML = obj.result.bookletPath === '' || obj.result.bookletPath === undefined|| settings.featBrowse === false ? '' : 
+    document.getElementById('currentBooklet').innerHTML = obj.result.bookletPath === '' || obj.result.bookletPath === undefined || settings.featBrowse === false ? '' : 
             '<span class="text-light mi">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
             e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>';
     
-    //Update Artist in queue view for http streams
-    let playingTr = document.getElementById('queueTrackId' + obj.result.currentSongId);
+    //Update title in queue view for http streams
+    const playingTr = document.getElementById('queueTrackId' + obj.result.currentSongId);
     if (playingTr) {
-        playingTr.getElementsByTagName('td')[1].innerText = obj.result.Title;
+        const titleCol = playingTr.querySelector('[data-col=Title');
+        if (titleCol) { 
+            titleCol.innerText = obj.result.Title;
+        }
     }
 
     if (playstate === 'play') {
         showNotification(obj.result.Title, textNotification, htmlNotification, 'success');
     }
     
+    //remember lastSong
     lastSong = curSong;
     lastSongObj = obj.result;
 }
