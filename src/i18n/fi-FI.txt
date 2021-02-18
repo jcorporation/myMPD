@@ -486,7 +486,7 @@ Smart playlists update failed
 Smart playlist %{playlist} updated
 Älykäs soittolista %{playlist} päivitetty
 
-Updating of smart playlist %{playlist} failed
+Updating smart playlist %{playlist} failed
 Älykkään soittolistan %{playlist} päivitys epäonnistui
 
 Smart playlist

@@ -465,8 +465,7 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
 }
 
 sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",");
+    buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
     buffer = tojson_char(buffer, "mpdHost", mympd_state->mpd_host, true);
     buffer = tojson_long(buffer, "mpdPort", mympd_state->mpd_port, true);
@@ -553,7 +552,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
         buffer = sdscat(buffer, "]");
     }
     
-    buffer = jsonrpc_end_result(buffer);
+    buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
 
@@ -561,14 +560,15 @@ sds mympd_api_picture_list(t_config *config, sds buffer, sds method, long reques
     sds pic_dirname = sdscatfmt(sdsempty(), "%s/pics", config->varlibdir);
     DIR *pic_dir = opendir(pic_dirname);
     if (pic_dir == NULL) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not open directory pics", true);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, true,
+            "general", "error", "Can not open directory pics");
         LOG_ERROR("Can not open directory \"%s\": %s", pic_dirname, strerror(errno));
         sdsfree(pic_dirname);
         return buffer;
     }
 
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",\"data\":[");
+    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = sdscat(buffer, "\"data\":[");
     int returned_entities = 0;
     struct dirent *next_file;
     while ((next_file = readdir(pic_dir)) != NULL ) {
@@ -583,7 +583,7 @@ sds mympd_api_picture_list(t_config *config, sds buffer, sds method, long reques
     sdsfree(pic_dirname);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
-    buffer = jsonrpc_end_result(buffer);
+    buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
 

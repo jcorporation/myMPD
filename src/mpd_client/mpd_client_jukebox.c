@@ -48,8 +48,8 @@ sds mpd_client_put_jukebox_list(t_mpd_client_state *mpd_client_state, sds buffer
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
 
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",\"data\":[");
+    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = sdscat(buffer, "\"data\":[");
 
     if (mpd_client_state->jukebox_queue.length > 0) {
         struct list_node *current = mpd_client_state->jukebox_queue.head;
@@ -86,7 +86,7 @@ sds mpd_client_put_jukebox_list(t_mpd_client_state *mpd_client_state, sds buffer
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
-    buffer = jsonrpc_end_result(buffer);
+    buffer = jsonrpc_result_end(buffer);
 
     return buffer;
 }
@@ -150,9 +150,7 @@ bool mpd_client_jukebox(t_config *config, t_mpd_client_state *mpd_client_state, 
         }
     }
     //notify clients
-    sds buffer = jsonrpc_notify(sdsempty(), "update_jukebox");
-    ws_notify(buffer);
-    sdsfree(buffer);
+    send_jsonrpc_event("update_jukebox");
     return rc;
 }
 
@@ -342,7 +340,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_client
     
     if (rc == false) {
         LOG_ERROR("Filling jukebox queue failed, disabling jukebox");
-        send_jsonrpc_notify_error("Filling jukebox queue failed, disabling jukebox");
+        send_jsonrpc_notify("jukebox", "error", "Filling jukebox queue failed, disabling jukebox");
         mpd_client_state->jukebox_mode = JUKEBOX_OFF;
         return false;
     }
@@ -549,7 +547,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
         if (mpd_client_state->jukebox_enforce_unique == true) {
             LOG_WARN("Disabling jukebox unique constraints temporarily");
             mpd_client_state->jukebox_enforce_unique = false;
-            send_jsonrpc_notify_warn("Playlist to small, disabling jukebox unique constraints temporarily");
+            send_jsonrpc_notify("jukebox", "warn", "Playlist to small, disabling jukebox unique constraints temporarily");
         }
     }
 

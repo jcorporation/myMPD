@@ -486,7 +486,7 @@ Error Actualizando listas de reproducción inteligentes
 Smart playlist %{playlist} updated
 Lista de reproducción %{playlist} actualizada
 
-Updating of smart playlist %{playlist} failed
+Updating smart playlist %{playlist} failed
 Error actualizando de lista de reproducción inteligente %{playlist} 
 
 Smart playlist

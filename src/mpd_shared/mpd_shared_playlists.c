@@ -96,7 +96,7 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
     }
     else {
         if (buffer != NULL) {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, "Leaving playlist as it is", true);
+            buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Leaving playlist as it is");
         }
         return buffer;
     }
@@ -123,7 +123,7 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
     if (sort_tags.tags[0] == MPD_TAG_UNKNOWN) {
         if (list_shuffle(&plist) == false) {
             if (buffer != NULL) {
-                buffer = jsonrpc_respond_message(buffer, method, request_id, "Playlist is too small to shuffle", true);
+                buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to shuffle");
             }
             list_free(&plist);
             enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
@@ -134,7 +134,7 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
         if (mpd_state->feat_tags == false || strcmp(tagstr, "filename") == 0) {
             if (list_sort_by_key(&plist, true) == false) {
                 if (buffer != NULL) {
-                    buffer = jsonrpc_respond_message(buffer, method, request_id, "Playlist is too small to sort", true);
+                    buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to sort");
                 }
                 list_free(&plist);
                 enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
@@ -144,7 +144,7 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
         else {
             if (list_sort_by_value_p(&plist, true) == false) {
                 if (buffer != NULL) {
-                    buffer = jsonrpc_respond_message(buffer, method, request_id, "Playlist is too small to sort", true);
+                    buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to sort");
                 }
                 list_free(&plist);
                 enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
@@ -153,7 +153,7 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
         }
     }
     
-    unsigned int randnr = randrange(100000,999999);
+    unsigned int randnr = randrange(100000, 999999);
     sds uri_tmp = sdscatprintf(sdsempty(), "%u-tmp-%s", randnr, uri);
     sds uri_old = sdscatprintf(sdsempty(), "%u-old-%s", randnr, uri);
     
@@ -214,10 +214,10 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
     }
     if (buffer != NULL) {
         if (strcmp(tagstr, "shuffle") == 0) {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, "Shuffled playlist succesfully", false);
+            buffer = jsonrpc_respond_message(buffer, method, request_id, false, "playlist", "info", "Shuffled playlist succesfully");
         }
         else {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, "Sorted playlist succesfully", false);
+            buffer = jsonrpc_respond_message(buffer, method, request_id, false, "playlist", "info", "Sorted playlist succesfully");
         }
     }
     return buffer;

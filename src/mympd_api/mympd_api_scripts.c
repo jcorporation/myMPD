@@ -74,8 +74,8 @@ static bool mympd_luaopen(lua_State *lua_vm, const char *lualib);
 
 //public functions
 sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request_id, bool all) {
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",\"data\":[");
+    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = sdscat(buffer, "\"data\":[");
     sds scriptdirname = sdscatfmt(sdsempty(), "%s/scripts", config->varlibdir);
     DIR *script_dir = opendir(scriptdirname);
     if (script_dir != NULL) {
@@ -144,7 +144,7 @@ sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request
     }
     sdsfree(scriptdirname);
     buffer = sdscat(buffer, "]");        
-    buffer = jsonrpc_end_result(buffer);
+    buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
 
@@ -193,8 +193,7 @@ bool mympd_api_script_save(t_config *config, const char *script, int order, cons
 }
 
 sds mympd_api_script_get(t_config *config, sds buffer, sds method, long request_id, const char *script) {
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",");
+    buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = tojson_char(buffer, "script", script, true);
  
     sds scriptfilename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
@@ -238,10 +237,11 @@ sds mympd_api_script_get(t_config *config, sds buffer, sds method, long request_
     }
     else {
         LOG_ERROR("Can not open file \"%s\": %s", scriptfilename, strerror(errno));
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not open scriptfile", true);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, true,
+            "script", "error", "Can not open scriptfile");
     }
     sdsfree(scriptfilename);
-    buffer = jsonrpc_end_result(buffer);
+    buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
 
@@ -295,9 +295,8 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     lua_State *lua_vm = luaL_newstate();
     if (lua_vm == NULL) {
         LOG_ERROR("Memory allocation error in luaL_newstate");
-        sds buffer = jsonrpc_start_phrase_notify(sdsempty(), "Error executing script %{script}: Memory allocation error", false);
-        buffer = tojson_char(buffer, "script", script_arg->script_name, false);
-        buffer = jsonrpc_end_phrase(buffer);
+        sds buffer = jsonrpc_notify_phrase(sdsempty(), "script", "error", 
+            "Error executing script %{script}: Memory allocation error", 2, "script", script_arg->script_name);
         ws_notify(buffer);
         sdsfree(buffer);
         sdsfree(thread_logname);
@@ -370,26 +369,25 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     }
     if (rc == 0) {
         if (script_return_text == NULL) {
-            sds buffer = jsonrpc_start_phrase_notify(sdsempty(), "Script %{script} executed successfully", false);
-            buffer = tojson_char(buffer, "script", script_arg->script_name, false);
-            buffer = jsonrpc_end_phrase(buffer);
+            sds buffer = jsonrpc_notify_phrase(sdsempty(), "script", "info", "Script %{script} executed successfully", 
+                2, "script", script_arg->script_name);
             ws_notify(buffer);
             sdsfree(buffer);
         }
         else {
-            send_jsonrpc_notify_info(script_return_text);
+            send_jsonrpc_notify("script", "info", script_return_text);
         }
     }
     else {
+        //return message
         sds err_str = lua_err_to_str(sdsempty(), rc, true, script_arg->script_name);
         if (script_return_text != NULL) {
             err_str = sdscatfmt(err_str, ": %s", script_return_text);
         }
-        sds buffer = jsonrpc_start_phrase_notify(sdsempty(), err_str, true);
-        buffer = tojson_char(buffer, "script", script_arg->script_name, false);
-        buffer = jsonrpc_end_phrase(buffer);
+        sds buffer = jsonrpc_notify_phrase(sdsempty(), "script", "error", err_str, 2, "script", script_arg->script_name);
         ws_notify(buffer);
         sdsfree(buffer);
+        //Error log message
         err_str = sdscrop(err_str);
         err_str = lua_err_to_str(err_str, rc, false, script_arg->script_name);
         if (script_return_text != NULL) {

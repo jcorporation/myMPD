@@ -24,8 +24,27 @@ function toggleAlert(alertBox, state, msg) {
     }
 }
 
-//severities: info, warn, error
-//facilities: player, queue, general, database, playlist
+const severities = {
+    "info": "Info",
+    "warn": "Warning",
+    "error": "Error"
+};
+
+const facilities = { 
+    "player": "Player",
+    "queue": "Queue",
+    "general": "General",
+    "database": "Database",
+    "playlist": "Playlist",
+    "mpd": "MPD",
+    "lyrics": "Lyrics",
+    "jukebox": "Jukebox",
+    "trigger": "Trigger",
+    "script": "Script",
+    "sticker": "Sticker",
+    "home": "Home",
+    "timer": "Timer"
+};
 
 function showNotification(title, text, facility, severity) {
     setStateIcon();
@@ -38,12 +57,19 @@ function showNotification(title, text, facility, severity) {
     
     if (severity === 'info') {
         //notifications with severity info can be hidden
-        if (settings.notificationPage === false) { return; }
-        if (facility === 'player' && settings.advanced.notificationPlayer === false) { return; }
-        if (facility === 'queue' && settings.advanced.notificationQueue === false) { return; }
-        if (facility === 'general' && settings.advanced.notificationGeneral === false) { return; }
-        if (facility === 'database' && settings.advanced.notificationDatabase === false) { return; }
-        if (facility === 'playlist' && settings.advanced.notificationPlaylist === false) { return; }
+        if (settings.notificationPage === false) { 
+            return;
+        }
+        //disabled notification for facility in advanced setting
+        let show = settings.advanced['notification' + facilities[facility]];
+        if (show === null ) {
+            logDebug('Unknown facility: ' + facility);
+            //fallback to general
+            show = settings.advanced['notificationGeneral'];    
+        }
+        if (show === false) { 
+            return;
+        }
     }
         
     if (alertTimeout) {
@@ -91,23 +117,21 @@ function showNotification(title, text, facility, severity) {
 }
 
 function logMessage(title, text, facility, severity) {
-    if (severity === 'info') { severity = 'Info'; }
-    else if (severity === 'warn') { severity = 'Warning'; }
-    else if (severity === 'error') { severity = 'Error'; }
+    if (severities[severity] !== undefined) {
+        severity = severities[severity];
+    }
     else { 
         logDebug('Unknown severity: ' + severity);
     }
     
-    if (facility === 'player') { facility = 'Player'; }
-    else if (facility === 'queue') { facility = 'Queue'; }
-    else if (facility === 'general') { facility = 'General'; }
-    else if (facility === 'database') { facility = 'Database'; }
-    else if (facility === 'playlist') { facility = 'Playlist'; }
+    if (facilities[facility] !== undefined) {
+        facility = facilities[facility];
+    }
     else { 
         logDebug('Unknown facility: ' + facility);
     }
     
-    let overview = document.getElementById('logOverview');
+    const overview = document.getElementById('logOverview');
 
     let append = true;
     let lastEntry = overview.firstElementChild;
@@ -227,7 +251,7 @@ function toggleUI() {
     }
     else {
         toggleAlert('alertMpdState', true, t('MPD disconnected'));
-        logMessage(t('MPD disconnected'), '', '', 'danger');
+        logMessage(t('MPD disconnected'), '', 'mpd', 'error');
     }
 
     if (websocketConnected === true) {
@@ -235,7 +259,7 @@ function toggleUI() {
     }
     else if (appInited === true) {
         toggleAlert('alertMympdState', true, t('Websocket is disconnected'));
-        logMessage(t('Websocket is disconnected'), '', '', 'danger');
+        logMessage(t('Websocket is disconnected'), '', 'general', 'error');
     }
  
     setStateIcon();

@@ -15,15 +15,13 @@ function sendAPI(method, params, callback, onerror) {
             if (ajaxRequest.responseText !== '') {
                 let obj = JSON.parse(ajaxRequest.responseText);
                 if (obj.error) {
-                    let facility = obj.error.facility === null ? 'general' : obj.error.facility;
-                    showNotification(t(obj.error.message, obj.error.data), '', 'api', 'error');
+                    showNotification(t(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
                     logError(JSON.stringify(obj.error));
                 }
                 else if (obj.result && obj.result.message && obj.result.message !== 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
                     if (ignoreMessages.includes(obj.result.message) === false) {
-                        let facility = obj.result.facility === null ? 'general' : obj.result.facility;
-                        showNotification(t(obj.result.message, obj.result.data), '', facility, 'info');
+                        showNotification(t(obj.result.message, obj.result.data), '', obj.result.facility, obj.result.severity);
                     }
                 }
                 else if (obj.result && obj.result.message && obj.result.message === 'ok') {

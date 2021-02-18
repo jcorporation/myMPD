@@ -495,7 +495,7 @@ Intelligente Wiedergabelisten konnten nicht aktualisiert werden
 Smart playlist %{playlist} updated
 Intelligente Wiedergabeliste %{playlist} aktualisiert
 
-Updating of smart playlist %{playlist} failed
+Updating smart playlist %{playlist} failed
 Intelligente Wiedergabeliste %{playlist} konnte nicht aktualisiert werden
 
 Smart playlist
@@ -1783,3 +1783,6 @@ Neues Lied
 
 Show playback settings in footer
 Wiedergabeeinstellungen im Footer anzeigen
+
+Error getting mpd state for script execution
+Fehler beim Ermitteln des Status beim Starten des Skripts

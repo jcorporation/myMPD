@@ -1265,7 +1265,7 @@ function setNavbarIcons() {
     let btns = '';
     for (const icon of settings.navbarIcons) {
         let hide = '';
-        if (settings.featHome === false && settings.navbarIcons[i].options[0] === 'Home') {
+        if (settings.featHome === false && icon.options[0] === 'Home') {
             hide = 'hide';
         }
         btns += '<div id="nav' + icon.options.join('') + '" class="nav-item flex-fill text-center ' + hide + '">' +

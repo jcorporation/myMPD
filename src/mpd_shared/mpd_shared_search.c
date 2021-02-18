@@ -56,7 +56,7 @@ static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, lo
 {
     if (strcmp(expression, "") == 0) {
         LOG_ERROR("No search expression defined");
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "No search expression defined", true);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "mpd", "error", "No search expression defined");
         return buffer;
     }
 
@@ -66,8 +66,8 @@ static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, lo
             mpd_search_cancel(mpd_state->conn);
             return buffer;
         }
-        buffer = jsonrpc_start_result(buffer, method, request_id);
-        buffer = sdscat(buffer, ",\"data\":[");
+        buffer = jsonrpc_result_start(buffer, method, request_id);
+        buffer = sdscat(buffer, "\"data\":[");
     }
     else if (strcmp(plist, "queue") == 0) {
         bool rc = mpd_search_add_db_songs(mpd_state->conn, false);
@@ -107,7 +107,7 @@ static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, lo
     }
     else {
         mpd_search_cancel(mpd_state->conn);
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "No search tag defined and advanced search is disabled", true);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "mpd", "error", "No search tag defined and advanced search is disabled");
         return buffer;
     }
 
@@ -193,15 +193,15 @@ static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, lo
             buffer = tojson_char(buffer, "searchstr", expression, true);
             buffer = tojson_char(buffer, "searchtag", searchtag, false);
         }
-        buffer = jsonrpc_end_result(buffer);
+        buffer = jsonrpc_result_end(buffer);
     }
     else if (strcmp(plist, "queue") == 0) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Added songs to queue", false);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, false, 
+            "queue", "info", "Added songs to queue");
     }
     else {
-        buffer = jsonrpc_start_phrase(buffer, method, request_id, "Added songs to %{playlist}", false);
-        buffer = tojson_char(buffer, "playlist", plist, false);
-        buffer = jsonrpc_end_phrase(buffer);
+        buffer = jsonrpc_respond_message_phrase(buffer, method, request_id, false, 
+            "playlist", "info", "Added songs to %{playlist}", 2, "playlist", plist);
     }
     
     mpd_response_finish(mpd_state->conn);

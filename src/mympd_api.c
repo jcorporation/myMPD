@@ -106,8 +106,12 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     int int_buf2;
     bool bool_buf1;
     bool rc;
+
+    #ifdef DEBUG
+    MEASURE_START
+    #endif
+
     LOG_VERBOSE("MYMPD API request (%d): %s", request->conn_id, request->data);
-    
     //create response struct
     t_work_result *response = create_result(request);
     
@@ -119,7 +123,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (mympd_state->timer == true) {
                 timerfile_save(config, mympd_state);
             }
-            response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+            response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             break;
         case MYMPD_API_PICTURE_LIST:
             response->data = mympd_api_picture_list(config, response->data, request->method, request->id);
@@ -142,7 +146,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can not save home icon", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "home", "error", "Can not save home icon");
                 }
             }
             break;
@@ -154,7 +158,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can not move home icon", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "home", "error", "Can not move home icon");
                 }
             }
             break;
@@ -166,7 +170,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can not delete home icon", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "home", "error", "Can not delete home icon");
                 }
             }
             break;
@@ -182,7 +186,8 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         #ifdef ENABLE_LUA
         case MYMPD_API_SCRIPT_SAVE:
             if (config->scripteditor == false) {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Editing scripts is disabled", true);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                    "script", "error", "Editing scripts is disabled");
                 break;
             }
             je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q, order: %d, content: %Q, oldscript: %Q}}", 
@@ -201,40 +206,46 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 if (validate_string_not_empty(p_charbuf1) == true && validate_string(p_charbuf3) == true) {
                     rc = mympd_api_script_save(config, p_charbuf1, int_buf1, p_charbuf2, arguments, p_charbuf3);
                     if (rc == true) {
-                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                     }
                     else {
-                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not save script", true);
+                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                            "script", "error", "Could not save script");
                     }
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid script name", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                        "script", "error", "Invalid script name");
                 }
                 sdsfree(arguments);
             }
             break;
         case MYMPD_API_SCRIPT_DELETE:
             if (config->scripteditor == false) {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Editing scripts is disabled", true);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                    "script", "error", "Editing scripts is disabled");
                 break;
             }
             je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
             if (je == 1 && validate_string_not_empty(p_charbuf1) == true) {
                 rc = mympd_api_script_delete(config, p_charbuf1);
                 if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not delete script", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                        "script", "error", "Could not delete script");
                 }
             }
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid script name", true);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                    "script", "error", "Invalid script name");
             }
             break;
         case MYMPD_API_SCRIPT_GET:
             if (config->scripteditor == false) {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Editing scripts is disabled", true);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                    "script", "error", "Editing scripts is disabled");
                 break;
             }
             je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
@@ -252,7 +263,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         case MYMPD_API_SCRIPT_INIT:
             if (config->scripting == true) {
                 if (request->extra != NULL) {
-                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                     struct list *lua_mympd_state = (struct list *)request->extra;
                     rc = mympd_api_get_lua_mympd_state(mympd_state, lua_mympd_state);
                     if (rc == false) {
@@ -261,11 +272,13 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     response->extra = request->extra;
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "No mpd state for script execution submitted", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                        "script", "error", "No mpd state for script execution submitted");
                 }
             } 
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Scripting is disabled", true);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                    "script", "error", "Scripting is disabled");
             }
             break;
         case MYMPD_API_SCRIPT_EXECUTE:
@@ -283,18 +296,21 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     }
                     rc = mympd_api_script_start(config, p_charbuf1, arguments, true);
                     if (rc == true) {
-                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                     }
                     else {
-                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can't create mympd_script thread", true);
+                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                            "script", "error", "Can't create mympd_script thread");
                     }
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid script name", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                        "script", "error", "Invalid script name");
                 }
             } 
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Scripting is disabled", true);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                    "script", "error", "Scripting is disabled");
             }
             break;
         case MYMPD_API_SCRIPT_POST_EXECUTE:
@@ -312,15 +328,17 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     }
                     rc = mympd_api_script_start(config, p_charbuf1, arguments, false);
                     if (rc == true) {
-                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                     }
                     else {
-                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can't create mympd_script thread", true);
+                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                            "script", "error", "Can't create mympd_script thread");
                     }
                 }
             } 
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Remote scripting is disabled", true);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                    "script", "error", "Remote scripting is disabled");
             }
             break;
         #endif
@@ -332,7 +350,8 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 }
             } 
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "System commands are disabled", true);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                    "script", "error", "System commands are disabled");
             }
             break;
         case MYMPD_API_COLS_SAVE: {
@@ -344,17 +363,17 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 if (error == false) {
                     cols = sdscatlen(cols, "]", 1);
                     if (mympd_api_cols_save(config, mympd_state, p_charbuf1, cols)) {
-                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
                     }
                     else {
-                        response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "Unknown table %{table}", true);
-                        response->data = tojson_char(response->data, "table", p_charbuf1, false);
-                        response->data = jsonrpc_end_phrase(response->data);
+                        response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true,
+                            "general", "error", "Unknown table %{table}", 2, "table", p_charbuf1);
                         LOG_ERROR("MYMPD_API_COLS_SAVE: Unknown table %s", p_charbuf1);
                     }
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid column", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                        "general", "error", "Invalid column");
                 }
             }
             sdsfree(cols);
@@ -363,7 +382,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         case MYMPD_API_SETTINGS_RESET:
             //TODO: error checking
             mympd_api_settings_reset(config, mympd_state);
-            response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+            response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             break;
         case MYMPD_API_SETTINGS_SET: {
             void *h = NULL;
@@ -384,12 +403,13 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 t_work_request *mpd_client_request2 = create_request(-1, request->id, request->cmd_id, request->method, request->data);
                 tiny_queue_push(mpd_worker_queue, mpd_client_request2, 0);
                 //respond with ok
-                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             }
             else {
-                response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "Can't save setting %{setting}", true);
-                response->data = tojson_char_len(response->data, "setting", key.ptr, key.len, false);
-                response->data = jsonrpc_end_phrase(response->data);
+                sds value = sdsnewlen(key.ptr, key.len);
+                response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true,
+                    "general", "error", "Can't save setting %{setting}", 2, "setting", value);
+                sdsfree(value);
             }
             break;
         }
@@ -410,23 +430,26 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (rc == true) {
                 //push settings to mpd_client queue
                 mympd_api_push_to_mpd_client(mympd_state);
-                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             }
             else {
-                response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "Can't save setting %{setting}", true);
-                response->data = tojson_char_len(response->data, "setting", val.ptr, val.len, false);
-                response->data = jsonrpc_end_phrase(response->data);
+                sds value = sdsnewlen(key.ptr, key.len);
+                response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true,
+                    "general", "error", "Can't save setting %{setting}", 2, "setting", value);
+                sdsfree(value);
             }
             break;
         }
         case MYMPD_API_BOOKMARK_SAVE:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {id: %d, name: %Q, uri: %Q, type: %Q}}", &int_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {id: %d, name: %Q, uri: %Q, type: %Q}}", 
+                &int_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3);
             if (je == 4) {
                 if (mympd_api_bookmark_update(config, int_buf1, p_charbuf1, p_charbuf2, p_charbuf3)) {
-                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Saving bookmark failed", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                        "general", "error", "Saving bookmark failed");
                 }
             }
             break;
@@ -434,19 +457,21 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             je = json_scanf(request->data, sdslen(request->data), "{params: {id: %d}}", &int_buf1);
             if (je == 1) {
                 if (mympd_api_bookmark_update(config, int_buf1, NULL, NULL, NULL)) {
-                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Deleting bookmark failed", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                        "general", "error", "Deleting bookmark failed");
                 }
             }
             break;
         case MYMPD_API_BOOKMARK_CLEAR:
             if (mympd_api_bookmark_clear(config)) {
-                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             }
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Clearing bookmarks failed", true);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                        "general", "error", "Clearing bookmarks failed");
             }
             break;
         case MYMPD_API_BOOKMARK_LIST:
@@ -456,12 +481,16 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             }
             break;
         case MYMPD_API_COVERCACHE_CROP:
+            //TODO: error checking
             clear_covercache(config, -1);
-            response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Successfully croped covercache", false);
+            response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                        "general", "info", "Successfully croped covercache");
             break;
         case MYMPD_API_COVERCACHE_CLEAR:
             clear_covercache(config, 0);
-            response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Successfully cleared covercache", false);
+            //TODO: error checking
+            response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                        "general", "info", "Successfully cleared covercache");
             break;
         case MYMPD_API_TIMER_SET:
             je = json_scanf(request->data, sdslen(request->data), "{params: {timeout: %d, interval: %d, handler: %Q}}", &int_buf1, &int_buf2, &p_charbuf1);
@@ -472,7 +501,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     handled = true;
                 }
                 if (handled == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "timer");
                 }
             }
             break;
@@ -489,10 +518,11 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute);
                 rc = replace_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, int_buf1, timer_def, NULL);
                 if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "timer");
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Adding timer failed", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
+                        "timer", "error", "Adding timer failed");
                     free_timer_definition(timer_def);
                 }
             }
@@ -515,18 +545,19 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             je = json_scanf(request->data, sdslen(request->data), "{params: {timerid: %d}}", &int_buf1);
             if (je == 1) {
                 remove_timer(&mympd_state->timer_list, int_buf1);
-                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "timer");
             }
             break;
         case MYMPD_API_TIMER_TOGGLE:
             je = json_scanf(request->data, sdslen(request->data), "{params: {timerid: %d}}", &int_buf1);
             if (je == 1) {
                 toggle_timer(&mympd_state->timer_list, int_buf1);
-                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "timer");
             }
             break;
         default:
-            response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Unknown request", true);
+            response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
+                "general", "error", "Unknown request");
             LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
     }
 
@@ -536,11 +567,15 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     FREE_PTR(p_charbuf4);
     FREE_PTR(p_charbuf5);
 
+    #ifdef DEBUG
+    MEASURE_END
+    MEASURE_PRINT(request->method)
+    #endif
+
     if (sdslen(response->data) == 0) {
-        response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "No response for method %{method}", true);
-        response->data = tojson_char(response->data, "method", request->method, false);
-        response->data = jsonrpc_end_phrase(response->data);
-        LOG_ERROR("No response for cmd_id %u", request->cmd_id);
+        response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true, 
+            "general", "error", "No response for method %{method}", 2, "method", request->method);
+        LOG_ERROR("No response for method \"%s\"", request->method);
     }
     if (request->conn_id == -2) {
         LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);

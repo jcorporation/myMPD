@@ -131,8 +131,8 @@ bool mympd_api_write_home_list(t_config *config, t_mympd_state *mympd_state) {
 }
 
 sds mympd_api_put_home_list(t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",\"data\":[");
+    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = sdscat(buffer, "\"data\":[");
     int returned_entities = 0;
     struct list_node *current = mympd_state->home_list.head;
     while (current != NULL) {
@@ -144,7 +144,7 @@ sds mympd_api_put_home_list(t_mympd_state *mympd_state, sds buffer, sds method, 
     }
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
-    buffer = jsonrpc_end_result(buffer);
+    buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
 
@@ -152,16 +152,16 @@ sds mympd_api_get_home_icon(t_mympd_state *mympd_state, sds buffer, sds method, 
     struct list_node *current = list_node_at(&mympd_state->home_list, pos);
 
     if (current != NULL) {
-        buffer = jsonrpc_start_result(buffer, method, request_id);
-        buffer = sdscat(buffer, ",\"data\":");
+        buffer = jsonrpc_result_start(buffer, method, request_id);
+        buffer = sdscat(buffer, "\"data\":");
         buffer = sdscat(buffer, current->key);
         buffer = sdscatlen(buffer, ",", 1);
         buffer = tojson_long(buffer, "returnedEntities", 1, false);
-        buffer = jsonrpc_end_result(buffer);
+        buffer = jsonrpc_result_end(buffer);
         return buffer;
     }
 
     LOG_ERROR("Can not get home icon at pos %u", pos);
-    buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not get home icon", true);
+    buffer = jsonrpc_respond_message(buffer, method, request_id, true, "home", "error", "Can not get home icon");
     return buffer;
 }

@@ -82,12 +82,11 @@ bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, l
         if (buffer != NULL) {
             if (*buffer != NULL) {
                 if (notify == false) {
-                    *buffer = jsonrpc_respond_message(*buffer, method, request_id, mpd_connection_get_error_message(mpd_state->conn), true);
+                    *buffer = jsonrpc_respond_message(*buffer, method, request_id, true, 
+                        "mpd", "error", mpd_connection_get_error_message(mpd_state->conn));
                 }
                 else {
-                    *buffer = jsonrpc_start_notify(*buffer, "error");
-                    *buffer = tojson_char(*buffer, "message", mpd_connection_get_error_message(mpd_state->conn), false);
-                    *buffer = jsonrpc_end_notify(*buffer);
+                    *buffer = jsonrpc_notify(*buffer, "mpd", "error", mpd_connection_get_error_message(mpd_state->conn));
                 }
             }
         }
@@ -120,22 +119,15 @@ sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer) {
 }
 
 sds respond_with_command_error(sds buffer, sds method, long request_id, const char *command) {
-    buffer = sdscrop(buffer);
-    buffer = jsonrpc_start_phrase(buffer, method, request_id, "Error in response to command: %{command}", true);
-    buffer = tojson_char(buffer, "command", command, false);
-    buffer = jsonrpc_end_phrase(buffer);
-    return buffer;
+    return jsonrpc_respond_message_phrase(buffer, method, request_id, 
+                            true, "mpd", "error", "Error in response to command: %{command}",
+                            2, "command", command);
 }
 
 sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method, long request_id, bool rc, const char *command) {
     buffer = sdscrop(buffer);
-    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
-        LOG_ERROR("Error in response to command: %s", command);
+    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, command) == false) {
         return buffer;
     }
-    if (rc == false) {
-        LOG_ERROR("Error in response to command: %s", command);
-        return respond_with_command_error(buffer, method, request_id, command);
-    }
-    return jsonrpc_respond_ok(buffer, method, request_id);
+    return jsonrpc_respond_ok(buffer, method, request_id, "mpd");
 }

@@ -495,7 +495,7 @@ Smart playlists update failed
 Smart playlist %{playlist} updated
 %{playlist} 스마트 연주목록 업데이트함
 
-Updating of smart playlist %{playlist} failed
+Updating smart playlist %{playlist} failed
 %{playlist} 스마트 연주목록 업데이트 안 됨
 
 Smart playlist

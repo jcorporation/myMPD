@@ -492,7 +492,7 @@ Impossibile aggiornare liste di riproduzione smart
 Smart playlist %{playlist} updated
 Lista di riproduzione smart %{playlist} aggiornata
 
-Updating of smart playlist %{playlist} failed
+Updating smart playlist %{playlist} failed
 Impossibile aggiornare la lista di riproduzione smart %{playlist}
 
 Smart playlist

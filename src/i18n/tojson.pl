@@ -27,7 +27,8 @@ my @files = ("../../htdocs/index.html");
 for my $dirname (@dirs) {
     opendir my $dir, $dirname or die "Can't open directory \"$dirname\": $!";
     while (my $entry = readdir $dir) {
-        next if $entry eq "bootstrap-native-v4.js";
+        next if $entry eq "bootstrap-native.js";
+        next if $entry eq "long-press-event.js";
         next if $entry eq "i18n.js";
         push @files, $dirname.$1 if $entry =~ /^(\w+\.(c|js))$/;
     }
@@ -38,14 +39,8 @@ for my $filename (@files) {
     open my $file, $filename or die "Can't open file \"$filename\": $!";
     while (my $line = <$file>) {
         if ($filename =~ /\.c$/) {
-            while ($line =~ /(jsonrpc_respond_message|jsonrpc_start_phrase)\([\w\->()]+\s*,\s*[\w\->]+\s*,\s*[\w\->]+,\s*"([^"]+)"/g) {
-                $phrases->{$2} = 1;
-            }
-            while ($line =~ /(jsonrpc_start_phrase_notify)\([\w\-()]+\s*,\s*"([^"]+)"/g) {
-                $phrases->{$2} = 1;
-            }
-            while ($line =~ /send_jsonrpc_notify_(info|error|warn)\("([^"]+)"/g) {
-                $phrases->{$2} = 1;
+            while ($line =~ /(\s+|\()"[^"]+",\s+"(info|warn|error)",\s+"([^"]+)"(\)|,)/g) {
+                $phrases->{$3} = 1;
             }
         }
         elsif ($filename =~ /\.js$/) {

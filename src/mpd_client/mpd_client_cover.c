@@ -53,10 +53,9 @@ sds mpd_client_getcover(t_config *config, t_mpd_client_state *mpd_client_state, 
     if (offset > 0) {
         LOG_DEBUG("Albumart found by mpd for uri \"%s\"", uri);
         sds mime_type = get_mime_type_by_magic_stream(*binary);
-        buffer = jsonrpc_start_result(buffer, method, request_id);
-        buffer = sdscat(buffer, ",");
+        buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = tojson_char(buffer, "mime_type", mime_type, false);
-        buffer = jsonrpc_end_result(buffer);
+        buffer = jsonrpc_result_end(buffer);
         if (config->covercache == true) {
             write_covercache_file(config, uri, mime_type, *binary);
         }
@@ -64,7 +63,7 @@ sds mpd_client_getcover(t_config *config, t_mpd_client_state *mpd_client_state, 
     }
     else {
         LOG_DEBUG("No albumart found by mpd for uri \"%s\"", uri);
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "No albumart found by mpd", true);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "albumart", "warn", "No albumart found by mpd");
     }
     return buffer;
 }

@@ -43,89 +43,110 @@ void ws_notify(sds message) {
     tiny_queue_push(web_server_queue, response, 0);
 }
 
-sds jsonrpc_start_notify(sds buffer, const char *facility, const char *severity) {
-    buffer = sdscrop(buffer);
-    buffer = sdscat(buffer, "{\"jsonrpc\":\"2.0\",\"method\":\"notify\",\"params\":{");
-    buffer = tojson_char(buffer, "facility", facility, true);
-    buffer = tojson_char(buffer, "severity", severity, true);
-    return buffer;
+void send_jsonrpc_event(const char *event) {
+    sds buffer = jsonrpc_event(sdsempty(), event);
+    ws_notify(buffer);
+    sdsfree(buffer);
 }
 
-sds jsonrpc_end_notify(sds buffer) {
-    buffer = sdscat(buffer, "}}");
+sds jsonrpc_event(sds buffer, const char *event) {
+    buffer = sdscrop(buffer);
+    buffer = sdscat(buffer, "{\"jsonrpc\":\"2.0\",");
+    buffer = tojson_char(buffer, "method", event, false);
+    buffer = sdscat(buffer, "}");
     return buffer;
 }
 
 sds jsonrpc_notify(sds buffer, const char *facility, const char *severity, const char *message) {
-    buffer = sdscrop(buffer);
-    buffer = jsonrpc_start_notify(sdsempty(), facility, severity);
-    buffer = tojson_char(buffer, "message", message, false);
-    buffer = jsonrpc_end_notify(buffer);
-    return buffer;
+    return jsonrpc_notify_phrase(buffer, facility, severity, message, 0);
 }
 
-sds jsonrpc_start_phrase_notify(sds buffer, const char *facility, const char *severity, const char *message) {
-    buffer = sdscrop(buffer);
-    buffer = jsonrpc_start_notify(buffer, facility, severity);
+sds jsonrpc_notify_phrase(sds buffer, const char *facility, const char *severity, const char *message, int count, ...) {
+    buffer = jsonrpc_notify_start(buffer, "notify");
+    buffer = tojson_char(buffer, "facility", facility, true);
+    buffer = tojson_char(buffer, "severity", severity, true);
     buffer = tojson_char(buffer, "message", message, true);
     buffer = sdscat(buffer, "\"data\":{");
-    return buffer;
-}
-
-sds jsonrpc_start_result(sds buffer, const char *method, long id) {
-    buffer = sdscrop(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"result\":{\"method\":", id);
-    buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
-    return buffer;
-}
-
-sds jsonrpc_end_result(sds buffer) {
-    buffer = sdscat(buffer, "}}");
-    return buffer;
-}
-
-sds jsonrpc_respond_ok(sds buffer, const char *method, long id) {
-    buffer = sdscrop(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"result\":{\"method\":", id);
-    buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
-    buffer = sdscat(buffer, ",\"message\":\"ok\"}}");
-    return buffer;
-}
-
-sds jsonrpc_respond_message(sds buffer, const char *method, long id, const char *message, bool error) {
-    buffer = sdscrop(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"%s\":{\"method\":", 
-        id, (error == true ? "error" : "result"));
-    buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
-    if (error == true) {
-        buffer = sdscat(buffer, ",\"code\": -32000");
+    va_list args;
+    va_start(args, count);
+    for (int i = 0; i < count; i++) {
+        const char *v = va_arg(args, char *);
+        if (i % 2 == 0) {
+            if (i > 0) {
+                buffer = sdscat(buffer, ",");
+            }
+            buffer = sdscatjson(buffer, v, strlen(v));
+            buffer = sdscat(buffer,":");
+        }
+        else {
+            buffer = sdscatjson(buffer, v, strlen(v));
+        }
+        i++;
     }
-    buffer = sdscat(buffer, ",\"message\":");
-    buffer = sdscatjson(buffer, message, strlen(message)); /* Flawfinder: ignore */
-    buffer = sdscatfmt(buffer, "}}");
-    return buffer;
-}
-
-sds jsonrpc_start_phrase(sds buffer, const char *method, long id, const char *message, bool error) {
-    buffer = sdscrop(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"%s\":{\"method\":", 
-        id, (error == true ? "error" : "result"));
-    buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
-    if (error == true) {
-        buffer = sdscat(buffer, ",\"code\": -32000");
-    }
-    buffer = sdscat(buffer, ",\"message\":");
-    buffer = sdscatjson(buffer, message, strlen(message)); /* Flawfinder: ignore */
-    buffer = sdscat(buffer, ",\"data\":{");
-    return buffer;
-}
-
-sds jsonrpc_end_phrase(sds buffer) {
+    va_end(args);
     buffer = sdscat(buffer, "}}}");
     return buffer;
 }
 
+sds jsonrpc_notify_start(sds buffer, const char *method) {
+    buffer = sdscrop(buffer);
+    buffer = sdscat(buffer, "{\"jsonrpc\":\"2.0\",");
+    buffer = tojson_char(buffer, "method", method, true);
+    buffer = sdscat(buffer, "\"params\":{");
+    return buffer;
+}
 
+sds jsonrpc_result_start(sds buffer, const char *method, long id) {
+    buffer = sdscrop(buffer);
+    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"result\":{", id);
+    buffer = tojson_char(buffer, "method", method, true);
+    return buffer;
+}
+
+sds jsonrpc_result_end(sds buffer) {
+    return sdscat(buffer, "}}");
+}
+
+sds jsonrpc_respond_ok(sds buffer, const char *method, long id, const char *facility) {
+    return jsonrpc_respond_message(buffer, method, id, false, facility, "info", "ok");
+}
+
+sds jsonrpc_respond_message(sds buffer, const char *method, long id, bool error, 
+                            const char *facility, const char *severity, const char *message)
+{
+    return jsonrpc_respond_message_phrase(buffer, method, id, error, facility, severity, message, 0);
+}
+
+sds jsonrpc_respond_message_phrase(sds buffer, const char *method, long id, bool error, 
+                            const char *facility, const char *severity, const char *message, int count, ...)
+{
+    buffer = sdscrop(buffer);
+    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"%s\":{", 
+        id, (error == true ? "error" : "result"));
+    buffer = tojson_char(buffer, "method", method, true);
+    buffer = tojson_char(buffer, "facility", facility, true);
+    buffer = tojson_char(buffer, "severity", severity, true);
+    buffer = tojson_char(buffer, "message", message, true);
+    buffer = sdscat(buffer, "\"data\":{");
+    va_list args;
+    va_start(args, count);
+    for (int i = 0; i < count; i++) {
+        const char *v = va_arg(args, char *);
+        if (i % 2 == 0) {
+            if (i > 0) {
+                buffer = sdscat(buffer, ",");
+            }
+            buffer = sdscatjson(buffer, v, strlen(v));
+            buffer = sdscat(buffer,":");
+        }
+        else {
+            buffer = sdscatjson(buffer, v, strlen(v));
+        }
+    }
+    va_end(args);
+    buffer = sdscat(buffer, "}}}");
+    return buffer;
+}
 
 sds tojson_char(sds buffer, const char *key, const char *value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":", key);

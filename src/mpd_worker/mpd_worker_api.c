@@ -46,6 +46,10 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
     char *p_charbuf4 = NULL;
     char *p_charbuf5 = NULL;
 
+    #ifdef DEBUG
+    MEASURE_START
+    #endif
+
     LOG_VERBOSE("MPD WORKER API request (%d)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
     t_work_result *response = create_result(request);
@@ -80,19 +84,21 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
                     //feature detection
                     mpd_worker_features(mpd_worker_state);
                 }
-                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             }
             else {
-                response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "Can't save setting %{setting}", true);
-                response->data = tojson_char_len(response->data, "setting", val.ptr, val.len, false);
-                response->data = jsonrpc_end_phrase(response->data);
+                sds value = sdsnewlen(val.ptr, val.len);
+                response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id,
+                    true, "general", "error", "Can't save setting %{setting}", 2, "setting", value);
+                sdsfree(value);
             }
             break;
         }
         case MPDWORKER_API_SMARTPLS_UPDATE_ALL:
             je = json_scanf(request->data, sdslen(request->data), "{params: {force: %B}}", &bool_buf1);
             if (je == 1) {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Smart playlists update started", false);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                    "playlist", "info", "Smart playlists update started");
                 if (request->conn_id > -1) {
                     LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
                     tiny_queue_push(web_server_queue, response, 0);
@@ -103,10 +109,10 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
                 free_request(request);
                 rc = mpd_worker_smartpls_update_all(config, mpd_worker_state, bool_buf1);
                 if (rc == true) {
-                    send_jsonrpc_notify_info("Smart playlists updated");
+                    send_jsonrpc_notify("playlist", "info", "Smart playlists updated");
                 }
                 else {
-                    send_jsonrpc_notify_error("Smart playlists update failed");
+                    send_jsonrpc_notify("playlist", "error", "Smart playlists update failed");
                 }
                 async = true;
             }
@@ -116,14 +122,12 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
             if (je == 1) {
                 rc = mpd_worker_smartpls_update(config, mpd_worker_state, p_charbuf1);
                 if (rc == true) {
-                    response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "Smart playlist %{playlist} updated", false);
-                    response->data = tojson_char(response->data, "playlist", p_charbuf1, false);
-                    response->data = jsonrpc_end_phrase(response->data);
+                    response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
+                        "playlist", "info", "Smart playlist %{playlist} updated", 2, "playlist", p_charbuf1);
                 }
                 else {
-                    response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "Updating of smart playlist %{playlist} failed", true);
-                    response->data = tojson_char(response->data, "playlist", p_charbuf1, false);
-                    response->data = jsonrpc_end_phrase(response->data);
+                    response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true,
+                        "playlist", "error", "Updating smart playlist %{playlist} failed", 2, "playlist", p_charbuf1);
                 }
             }
             break;
@@ -137,7 +141,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
             free_result(response);
             break;
         default:
-            response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Unknown request", true);
+            response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Unknown request");
             LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
     }
     FREE_PTR(p_charbuf1);
@@ -146,12 +150,16 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
     FREE_PTR(p_charbuf4);
     FREE_PTR(p_charbuf5);
 
+    #ifdef DEBUG
+    MEASURE_END
+    MEASURE_PRINT(async == false ? request->method : "Async request")
+    #endif
+
     if (async == false) {
         if (sdslen(response->data) == 0) {
-            response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "No response for method %{method}", true);
-            response->data = tojson_char(response->data, "method", request->method, false);
-            response->data = jsonrpc_end_phrase(response->data);
-            LOG_ERROR("No response for cmd_id %u", request->cmd_id);
+            response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true, 
+                "general", "error", "No response for method %{method}", 2, "method", request->method);
+            LOG_ERROR("No response for method \"%s\"", request->method);
         }
         if (request->conn_id == -2) {
             LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);

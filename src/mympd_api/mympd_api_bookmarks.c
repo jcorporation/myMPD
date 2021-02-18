@@ -112,9 +112,7 @@ bool mympd_api_bookmark_clear(t_config *config) {
     return false;
 }
 
-sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, long request_id,
-                            unsigned int offset)
-{
+sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, long request_id, unsigned int offset) {
     char *line = NULL;
     char *crap = NULL;
     size_t n = 0;
@@ -124,8 +122,8 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, long reque
     sds b_file = sdscatfmt(sdsempty(), "%s/state/bookmark_list", config->varlibdir);
     FILE *fi = fopen(b_file, "r");
 
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ", \"data\": [");
+    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = sdscat(buffer, "\"data\":[");
 
     if (fi == NULL) {
         //create empty bookmarks file
@@ -133,7 +131,8 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, long reque
         if (fi == NULL) {
             LOG_ERROR("Can't open %s for write", b_file);
             buffer = sdscrop(buffer);
-            buffer = jsonrpc_respond_message(buffer, method, request_id, "Failed to open bookmarks file", true);
+            buffer = jsonrpc_respond_message(buffer, method, request_id, true, 
+                "general", "error", "Failed to open bookmarks file");
             sdsfree(b_file);
             return buffer;
         }
@@ -159,7 +158,7 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, long reque
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
-    buffer = jsonrpc_end_result(buffer);
+    buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
 

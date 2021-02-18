@@ -305,9 +305,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
              LOG_VERBOSE("New Websocket connection established (%d)", (intptr_t)nc->user_data);
-             sds response = jsonrpc_start_notify(sdsempty(), "welcome");
+             sds response = jsonrpc_notify_start(sdsempty(), "welcome");
              response = tojson_char(response, "mympdVersion", MYMPD_VERSION, false);
-             response = jsonrpc_end_notify(response);
+             response = jsonrpc_result_end(response);
              mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response, sdslen(response));
              sdsfree(response);
              break;
@@ -340,7 +340,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 if (rc == false) {
                     LOG_ERROR("Invalid script API request");
                     sds method = sdsempty();
-                    sds response = jsonrpc_respond_message(sdsempty(), method, 0, "Invalid script API request", true);
+                    sds response = jsonrpc_respond_message(sdsempty(), method, 0, true,
+                        "script", "error", "Invalid script API request");
                     mg_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
                     mg_send(nc, response, sdslen(response));
                     sdsfree(response);
@@ -352,11 +353,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 socklen_t len = sizeof(localip);
                 if (getsockname(nc->sock, (struct sockaddr *)&localip, &len) == 0) {
                     sds method = sdsempty();
-                    sds response = jsonrpc_start_result(sdsempty(), method, 0);
-                    response = sdscat(response, ",");
+                    sds response = jsonrpc_result_start(sdsempty(), method, 0);
                     response = tojson_char(response, "version", MG_VERSION, true);
                     response = tojson_char(response, "ip", inet_ntoa(localip.sin_addr), false);
-                    response = jsonrpc_end_result(response);
+                    response = jsonrpc_result_end(response);
                     mg_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
                     mg_send(nc, response, sdslen(response));
                     sdsfree(response);
@@ -369,7 +369,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 if (rc == false) {
                     LOG_ERROR("Invalid API request");
                     sds method = sdsempty();
-                    sds response = jsonrpc_respond_message(sdsempty(), method, 0, "Invalid API request", true);
+                    sds response = jsonrpc_respond_message(sdsempty(), method, 0, true,
+                        "general", "error", "Invalid API request");
                     mg_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
                     mg_send(nc, response, sdslen(response));
                     sdsfree(response);

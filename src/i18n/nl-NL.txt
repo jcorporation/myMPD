@@ -492,7 +492,7 @@ Updaten slimmme afspeellijsten mislukt
 Smart playlist %{playlist} updated
 Slimmme afspeellijst %{playlist} geüpdatet
 
-Updating of smart playlist %{playlist} failed
+Updating smart playlist %{playlist} failed
 Updaten slimmme afspeellijst %{playlist} mislukt 
 
 Smart playlist
