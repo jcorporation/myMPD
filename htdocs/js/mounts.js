@@ -178,7 +178,7 @@ function parseNeighbors(obj) {
 }
 
 function getUrlhandlers() {
-    sendAPI("MPD_API_URLHANDLERS", {}, function() {
+    sendAPI("MPD_API_URLHANDLERS", {}, function(obj) {
         let storagePlugins = '';
         for (let i = 0; i < obj.result.data.length; i++) {
             switch(obj.result.data[i]) {
