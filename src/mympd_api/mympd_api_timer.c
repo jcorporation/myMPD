@@ -97,7 +97,16 @@ void check_timer(struct t_timer_list *l, bool gui) {
                 if (current->callback) {
                     current->callback(current->definition, current->user_data);
                 }
-                if (current->interval == 0) {
+                if (current->interval == 0 && current->definition != NULL) {
+                    //one shot and deactivate
+                    //only for timers from ui
+                    LOG_DEBUG("One shot timer disabled: %d", current->timer_id);
+                    current->definition->enabled = false;
+                }
+                else if (current->interval <= 0) {
+                    //one shot and remove
+                    //not ui timers are also removed
+                    LOG_DEBUG("One shot timer removed: %d", current->timer_id);
                     remove_timer(l, current->timer_id);
                 }
             }
@@ -105,14 +114,14 @@ void check_timer(struct t_timer_list *l, bool gui) {
     }
 }
 
-bool replace_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, 
+bool replace_timer(struct t_timer_list *l, unsigned int timeout, int interval, time_handler handler, 
                    int timer_id, struct t_timer_definition *definition, void *user_data)
 {
     remove_timer(l, timer_id);
     return add_timer(l, timeout, interval, handler, timer_id, definition, user_data);
 }
 
-bool add_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, 
+bool add_timer(struct t_timer_list *l, unsigned int timeout, int interval, time_handler handler, 
                int timer_id, struct t_timer_definition *definition, void *user_data) 
 {
 
@@ -146,8 +155,11 @@ bool add_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interv
         //timeout
         new_value.it_value.tv_sec = timeout;
         new_value.it_value.tv_nsec = 0;
-        //interval, 0 = single shot timer
-        new_value.it_interval.tv_sec = interval;
+        //interval
+        //0 = one shote and deactivate
+        //-1 = one shot and remove
+        
+        new_value.it_interval.tv_sec = interval > 0 ? interval : 0;
         new_value.it_interval.tv_nsec = 0;
 
         timerfd_settime(new_node->fd, 0, &new_value, NULL);
@@ -327,6 +339,7 @@ sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, long request_
             }
             buffer = sdscatlen(buffer, "{", 1);
             buffer = tojson_long(buffer, "timerid", current->timer_id, true);
+            buffer = tojson_long(buffer, "interval", current->interval, true);
             buffer = tojson_char(buffer, "name", current->definition->name, true);
             buffer = tojson_bool(buffer, "enabled", current->definition->enabled, true);
             buffer = tojson_long(buffer, "startHour", current->definition->start_hour, true);
@@ -362,6 +375,7 @@ sds timer_get(t_mympd_state *mympd_state, sds buffer, sds method, long request_i
         if (current->timer_id == timer_id && current->definition != NULL) {
             buffer = tojson_long(buffer, "timerid", current->timer_id, true);
             buffer = tojson_char(buffer, "name", current->definition->name, true);
+            buffer = tojson_long(buffer, "interval", current->interval, true);
             buffer = tojson_bool(buffer, "enabled", current->definition->enabled, true);
             buffer = tojson_long(buffer, "startHour", current->definition->start_hour, true);
             buffer = tojson_long(buffer, "startMinute", current->definition->start_minute, true);
@@ -414,15 +428,20 @@ bool timerfile_read(t_config *config, t_mympd_state *mympd_state) {
             assert(timer_def);
             sds param = sdscatfmt(sdsempty(), "{params: %s}", line);
             timer_def = parse_timer(timer_def, param, sdslen(param));
+            int interval;
+            int je = json_scanf(param, sdslen(param), "{params: {interval: %d}}", &interval);
+            if (je == 0) {
+                interval = 86400;
+            }
             int timerid;
-            int je = json_scanf(param, sdslen(param), "{params: {timerid: %d}}", &timerid);
+            je = json_scanf(param, sdslen(param), "{params: {timerid: %d}}", &timerid);
             sdsfree(param);
             if (timerid > mympd_state->timer_list.last_id) {
                 mympd_state->timer_list.last_id = timerid;
             }
             if (je == 1 && timer_def != NULL) {
                 time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute);
-                add_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, timerid, timer_def, NULL);
+                add_timer(&mympd_state->timer_list, start, interval, timer_handler_select, timerid, timer_def, NULL);
             }
             else {
                 LOG_ERROR("Invalid timer line");
@@ -460,6 +479,7 @@ bool timerfile_save(t_config *config, t_mympd_state *mympd_state) {
         if (current->timer_id > 99 && current->definition != NULL) {
             buffer = sdsreplace(buffer, "{");
             buffer = tojson_long(buffer, "timerid", current->timer_id, true);
+            buffer = tojson_long(buffer, "interval", current->interval, true);
             buffer = tojson_char(buffer, "name", current->definition->name, true);
             buffer = tojson_bool(buffer, "enabled", current->definition->enabled, true);
             buffer = tojson_long(buffer, "startHour", current->definition->start_hour, true);

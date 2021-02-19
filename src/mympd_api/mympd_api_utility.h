@@ -28,7 +28,7 @@ struct t_timer_node {
     struct t_timer_definition *definition;
     void *user_data;
     unsigned int timeout;
-    unsigned int interval;
+    int interval;
     int timer_id;
     struct t_timer_node *next;
 };

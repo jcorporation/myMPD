@@ -509,14 +509,14 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             struct t_timer_definition *timer_def = malloc(sizeof(struct t_timer_definition));
             assert(timer_def);
             timer_def = parse_timer(timer_def, request->data, sdslen(request->data));
-            je = json_scanf(request->data, sdslen(request->data), "{params: {timerid: %d}}", &int_buf1);
-            if (je == 1 && timer_def != NULL) {
+            je = json_scanf(request->data, sdslen(request->data), "{params: {timerid: %d, interval: %d}}", &int_buf1, &int_buf2);
+            if (je == 2 && timer_def != NULL) {
                 if (int_buf1 == 0) {
                     mympd_state->timer_list.last_id++;
                     int_buf1 = mympd_state->timer_list.last_id;
                 }
                 time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute);
-                rc = replace_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, int_buf1, timer_def, NULL);
+                rc = replace_timer(&mympd_state->timer_list, start, int_buf2, timer_handler_select, int_buf1, timer_def, NULL);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "timer");
                 }

@@ -9,9 +9,9 @@
 void init_timerlist(struct t_timer_list *l);
 void truncate_timerlist(struct t_timer_list *l);
 void check_timer(struct t_timer_list *l, bool gui);
-bool add_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, int timer_id, 
+bool add_timer(struct t_timer_list *l, unsigned int timeout, int interval, time_handler handler, int timer_id, 
                struct t_timer_definition *definition, void *user_data);
-bool replace_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, int timer_id, 
+bool replace_timer(struct t_timer_list *l, unsigned int timeout, int interval, time_handler handler, int timer_id, 
                    struct t_timer_definition *definition, void *user_data);
 void remove_timer(struct t_timer_list *l, int timer_id);
 void toggle_timer(struct t_timer_list *l, int timer_id);

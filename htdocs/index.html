@@ -1754,6 +1754,22 @@
                 </div>
               </div>
               <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="selectTimerInterval" data-phrase="Interval"></label>
+                <div class="col-sm-4">
+                  <select id="selectTimerInterval" class="form-control custom-select border-secondary">
+                    <option value="-1" data-phrase="One shot and delete"></option>
+                    <option value="0" data-phrase="One shot and disable"></option>
+                    <option value="86400" data-phrase="Daily"></option>
+                    <option value="604800" data-phrase="Weekly"></option>
+                    <option value="" data-phrase="Custom"></option>
+                  </select>
+                </div>
+                <div class="col-sm-2">
+                  <input type="text" class="form-control border-secondary hide" id="inputTimerInterval">
+                </div>
+                <label id="inputTimerIntervalLabel" class="col-sm-2 col-form-label hide" for="selectInputInterval" data-phrase="hours"></label>
+              </div>
+              <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="selectTimerAction" data-phrase="Action"></label>
                 <div class="col-sm-8">
                   <select id="selectTimerAction" class="form-control custom-select border-secondary">
@@ -1805,6 +1821,7 @@
                     <th data-phrase="Name"></th>
                     <th data-phrase="Enabled"></th>
                     <th data-phrase="Definition"></th>
+                    <th data-phrase="Interval"></th>
                     <th data-phrase="Action"></th>
                     <th>&nbsp;</th>
                   </tr>

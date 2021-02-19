@@ -40,6 +40,10 @@ function initTimer() {
         selectTimerActionChange();
     }, false);
 
+    document.getElementById('selectTimerInterval').addEventListener('change', function() {
+        selectTimerIntervalChange();
+    }, false);
+
     document.getElementById('modalTimer').addEventListener('shown.bs.modal', function () {
         showListTimer();
     });
@@ -106,9 +110,14 @@ function saveTimer() {
         for (let i = 0; i < argEls.length; i++) {
             args[getAttDec(argEls[i], 'data-name')] = argEls[i].value;
         }
+        let interval = parseInt(document.getElementById('inputTimerInterval').value);
+        if (interval > 0) {
+            interval = interval * 60 * 60;
+        }
         sendAPI("MYMPD_API_TIMER_SAVE", {
             "timerid": parseInt(document.getElementById('inputTimerId').value),
             "name": nameEl.value,
+            "interval": interval,
             "enabled": (document.getElementById('btnTimerEnabled').classList.contains('active') ? true : false),
             "startHour": parseInt(getSelectValue('selectTimerHour')),
             "startMinute": parseInt(getSelectValue('selectTimerMinute')),
@@ -147,6 +156,8 @@ function showEditTimer(timerid) {
         document.getElementById('selectTimerAction').value = 'startplay';
         document.getElementById('inputTimerVolume').value = '50';
         document.getElementById('selectTimerPlaylist').value = 'Database';
+        selectTimerIntervalChange(86400);
+        selectTimerActionChange();
         toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), 1);
         let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
         for (let i = 0; i < weekdayBtns.length; i++) {
@@ -171,12 +182,36 @@ function parseEditTimer(obj) {
     document.getElementById('selectTimerMinute').value = obj.result.startMinute;
     document.getElementById('selectTimerAction').value = obj.result.subaction;
     selectTimerActionChange(obj.result.arguments);
+    selectTimerIntervalChange(obj.result.interval);
     document.getElementById('inputTimerVolume').value = obj.result.volume;
     toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), obj.result.jukeboxMode);
     let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     for (let i = 0; i < weekdayBtns.length; i++) {
         toggleBtnChk(weekdayBtns[i], obj.result.weekdays[i]);
     }
+}
+
+function selectTimerIntervalChange(value) {
+    if (value === undefined) {
+        value = parseInt(getSelectValue('selectTimerInterval'));
+    }
+    else {
+        if (isNaN(value) || (value > 0 && value !== 86400 && value !== 604800)) {
+            document.getElementById('selectTimerInterval').value = '';
+        }
+        else {
+            document.getElementById('selectTimerInterval').value = value;
+        }
+    }
+    if (isNaN(value) || (value > 0 && value !== 86400 && value !== 604800)) {
+        document.getElementById('inputTimerInterval').classList.remove('hide');
+        document.getElementById('inputTimerIntervalLabel').classList.remove('hide');
+    }
+    else {
+        document.getElementById('inputTimerInterval').classList.add('hide');
+        document.getElementById('inputTimerIntervalLabel').classList.add('hide');
+    }
+    document.getElementById('inputTimerInterval').value = isNaN(value) ? 1 : value > 0 ? (value / 60 / 60) : value;
 }
 
 function selectTimerActionChange(values) {
@@ -239,15 +274,25 @@ function parseListTimer(obj) {
         let tds = '<td>' + e(obj.result.data[i].name) + '</td>' +
                   '<td><button name="enabled" class="btn btn-secondary btn-xs clickable mi mi-small' +
                   (obj.result.data[i].enabled === true ? ' active' : '') + '">' +
-                  (obj.result.data[i].enabled === true ? 'check' : 'radio_button_unchecked') + '</button></td>' +
-                  '<td>' + zeroPad(obj.result.data[i].startHour, 2) + ':' + zeroPad(obj.result.data[i].startMinute,2) + ' ' + t('on') + ' ';
+                  (obj.result.data[i].enabled === true ? 'check' : 'radio_button_unchecked') + '</button></td>';
+        tds += '<td>' + zeroPad(obj.result.data[i].startHour, 2) + ':' + zeroPad(obj.result.data[i].startMinute,2) + ' ' + t('on') + ' ';
         let days = [];
         for (let j = 0; j < 7; j++) {
             if (obj.result.data[i].weekdays[j] === true) {
                 days.push(t(weekdays[j]))
             }
         }
-        tds += days.join(', ')  + '</td><td>' + prettyTimerAction(obj.result.data[i].action, obj.result.data[i].subaction) + '</td>' +
+        tds += days.join(', ')  + '</td>';
+                let interval = '';
+        switch (obj.result.data[i].interval) {
+            case 604800: interval = t('Weekly'); break;
+            case 86400: interval = t('Daily'); break;
+            case -1: interval = t('One shot and delete'); break;
+            case 0: interval = t('One shot and disable'); break;
+            default: interval = t('Each') + ' ' + (obj.result.data[i].interval / 3600) + ' ' + t('hours');
+        }
+        tds += '<td>' + interval + '</td>';
+        tds += '<td>' + prettyTimerAction(obj.result.data[i].action, obj.result.data[i].subaction) + '</td>' +
                '<td data-col="Action"><a href="#" class="mi color-darkgrey">delete</a></td>';
         row.innerHTML = tds;
         if (i < tr.length) {
