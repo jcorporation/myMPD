@@ -41,3 +41,6 @@ Open the script dialog and use the [[add_to_home_screen]] button to add a script
 
 MaintainEnableTagsText
 You should maintain and enable the tags Artist, AlbumArtist, Album, Track, Disc and Genre for best user experience.
+
+Each hours
+each hour |||| each %{smart_count} hours

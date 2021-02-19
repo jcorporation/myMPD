@@ -1786,3 +1786,27 @@ Wiedergabeeinstellungen im Footer anzeigen
 
 Error getting mpd state for script execution
 Fehler beim Ermitteln des Status beim Starten des Skripts
+
+Custom
+Benutzerdefiniert
+
+Daily
+Täglich
+
+Interval
+Interval
+
+Invalid timer interval
+Ungültiger Interval
+
+One shot and delete
+Einmalig und löschen
+
+One shot and disable
+Einmalig und deaktivieren
+
+Weekly
+Wöchentlich
+
+Each hours
+jede Stunde |||| jede %{smart_count}. Stunde
