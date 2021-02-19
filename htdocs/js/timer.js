@@ -103,6 +103,11 @@ function saveTimer() {
         formOK = false;
         document.getElementById('btnTimerJukeboxModeGroup').classList.add('is-invalid');
     }
+
+    const inputTimerIntervalEl = document.getElementById('inputTimerInterval');
+    if (!validateInt(inputTimerIntervalEl)) {
+        formOK = false;
+    }
     
     if (formOK === true) {
         let args = {};
@@ -110,7 +115,7 @@ function saveTimer() {
         for (let i = 0; i < argEls.length; i++) {
             args[getAttDec(argEls[i], 'data-name')] = argEls[i].value;
         }
-        let interval = parseInt(document.getElementById('inputTimerInterval').value);
+        let interval = parseInt(inputTimerIntervalEl.value);
         if (interval > 0) {
             interval = interval * 60 * 60;
         }
@@ -289,7 +294,7 @@ function parseListTimer(obj) {
             case 86400: interval = t('Daily'); break;
             case -1: interval = t('One shot and delete'); break;
             case 0: interval = t('One shot and disable'); break;
-            default: interval = t('Each') + ' ' + (obj.result.data[i].interval / 3600) + ' ' + t('hours');
+            default: interval = t('Each hours', obj.result.data[i].interval / 3600);
         }
         tds += '<td>' + interval + '</td>';
         tds += '<td>' + prettyTimerAction(obj.result.data[i].action, obj.result.data[i].subaction) + '</td>' +
