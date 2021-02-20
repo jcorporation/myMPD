@@ -729,6 +729,16 @@ purge() {
   getent group mympd > /dev/null && groupdel -f mympd
 }
 
+transstatus() {
+  TRANSOUT=$(./build.sh translate 2>&1)
+  for F in src/i18n/*-*.txt
+  do
+    G=$(basename $F .txt)
+    printf "%s: " "$G"
+    echo "$TRANSOUT" | grep "$G not found" | wc -l
+  done
+}
+
 translate() {
   cd src/i18n || exit 1
   perl ./tojson.pl pretty > ../../htdocs/js/i18n.js
@@ -928,6 +938,9 @@ case "$ACTION" in
 	translate)
 	  translate
 	;;
+	transstatus)
+	  transstatus
+	;;
 	materialicons)
 		materialicons
 	;;
@@ -964,7 +977,8 @@ case "$ACTION" in
 	  echo "  test:             builds the unit testing files in test/build"
 	  echo "  installdeps:      installs build and run dependencies"
 	  echo "  translate:        builds the translation file for debug builds"
-	  echo "  createassets:       creates the minfied and compressed dist files"
+	  echo "  transstatus:      shows the translation status"
+	  echo "  createassets:     creates the minfied and compressed dist files"
 	  echo ""
       echo "Test options:"
 	  echo "  check:            runs cppcheck and flawfinder on source files"
