@@ -81,7 +81,6 @@ sds jsonrpc_notify_phrase(sds buffer, const char *facility, const char *severity
         else {
             buffer = sdscatjson(buffer, v, strlen(v));
         }
-        i++;
     }
     va_end(args);
     buffer = sdscat(buffer, "}}}");
