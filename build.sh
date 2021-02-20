@@ -266,7 +266,7 @@ addmympduser() {
     elif check_cmd_silent addgroup
     then
       #alpine
-      addgroup -S mympd 2>/dev/null
+      addgroup -S mympd
     else
       echo "Can not add group mympd"
       return 1
@@ -305,14 +305,10 @@ builddebug() {
   MEMCHECK=$1
 
   echo "Linking dist assets"
-  [ -e "$PWD/htdocs/css/bootstrap.css" ] || \
-  	ln -s "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
-  [ -e "$PWD/htdocs/js/bootstrap-native.js" ] || \
-  	ln -s "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
-  [ -e "$PWD/htdocs/js/long-press-event.js" ] || \
-  	ln -s "$PWD/dist/htdocs/js/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
-  [ -e "$PWD/htdocs/assets/MaterialIcons-Regular.woff2" ] || \
-  	ln -s "$PWD/dist/htdocs/assets/MaterialIcons-Regular.woff2" "$PWD/htdocs/assets/MaterialIcons-Regular.woff2"
+  ln -f "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
+  ln -f "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
+  ln -f "$PWD/dist/htdocs/js/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
+  ln -f "$PWD/dist/htdocs/assets/MaterialIcons-Regular.woff2" "$PWD/htdocs/assets/MaterialIcons-Regular.woff2"
 
   createi18n ../../htdocs/js/i18n.js pretty
   
@@ -453,8 +449,7 @@ pkgdocker() {
   check_cmd docker
   [ -z "${DOCKERFILE+x}" ] && DOCKERFILE="Dockerfile.alpine"
   prepare
-  cp contrib/packaging/docker/"$DOCKERFILE" Dockerfile
-  docker build -t mympd .
+  docker build -t mympd -f "contrib/packaging/docker/$DOCKERFILE" .
 }
 
 pkgbuildx() {
@@ -939,6 +934,7 @@ case "$ACTION" in
 	;;
 	sbuild_cleanup)
 		sbuild_cleanup
+		exit 0
 	;;
 	eslint)
 		run_eslint
@@ -1031,5 +1027,8 @@ case "$ACTION" in
 	  echo "  - ENABLE_LUA=\"ON\""
 	  echo "  - MANPAGES=\"ON\""
 	  echo ""
+	  exit 1
 	;;
 esac
+
+exit 0
