@@ -8,7 +8,7 @@ build-arch: build
 build-indep: build
 
 build:
-	mkdir $(BUILDDIR)
+	./build.sh createassets
 	cd $(BUILDDIR); cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
 	make -C $(BUILDDIR)
 

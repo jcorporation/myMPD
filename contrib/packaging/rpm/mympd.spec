@@ -35,7 +35,7 @@ Therefore myMPD is ideal for raspberry pis and similar devices.
 %setup -q -n %{name}-%{version}
 
 %build
-mkdir release
+./build.sh createassets
 cd release || exit 1
 cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
 make
@@ -73,5 +73,5 @@ fi
 %config(noreplace) /etc/mympd.conf
 
 %changelog
-* Sat Feb 13 2021 Juergen Mang <mail@jcgames.de> 6.12.0-0
+* Sat Feb 20 2021 Juergen Mang <mail@jcgames.de> 6.12.0-0
 - Version from master
