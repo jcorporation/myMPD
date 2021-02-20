@@ -7,8 +7,8 @@ FROM alpine:latest
 COPY . /myMPD/
 WORKDIR /myMPD
 RUN ./build.sh installdeps
-RUN ./build.sh debug
-RUN ./build.sh adduser
+RUN ./build.sh memcheck
+RUN ./build.sh addmympduser
 
 ENV MPD_HOST=127.0.0.1
 ENV MPD_PORT=6600
