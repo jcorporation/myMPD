@@ -1810,3 +1810,6 @@ Wöchentlich
 
 Each hours
 jede Stunde |||| jede %{smart_count}. Stunde
+
+hours
+Stunden
