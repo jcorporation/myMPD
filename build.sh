@@ -553,7 +553,15 @@ pkgosc() {
   check_cmd osc
   cleanup
   cleanuposc
-  [ -z "${OSC_REPO+x}" ] && OSC_REPO="home:jcorporation/myMPD"
+  if [ -z "${OSC_REPO+x}" ]
+  then
+    if [ -f .git/HEAD ] && grep -q "master" .git/HEAD
+    then
+  	  OSC_REPO="home:jcorporation/myMPD"
+  	else
+  	  OSC_REPO="home:jcorporation/myMPD-devel"
+  	fi
+  fi
   
   mkdir osc
   cd osc || exit 1  
@@ -956,7 +964,7 @@ case "$ACTION" in
 	  echo "  test:             builds the unit testing files in test/build"
 	  echo "  installdeps:      installs build and run dependencies"
 	  echo "  translate:        builds the translation file for debug builds"
-	  echo "  createasset :       creates the minfied and compressed dist files"
+	  echo "  createassets:       creates the minfied and compressed dist files"
 	  echo ""
       echo "Test options:"
 	  echo "  check:            runs cppcheck and flawfinder on source files"
