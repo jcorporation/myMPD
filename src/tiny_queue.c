@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -11,6 +12,7 @@
 #include <assert.h>
 #include <pthread.h>
 #include <time.h>
+#include <string.h>
 
 #include "../dist/src/sds/sds.h"
 #include "log.h"
@@ -83,7 +85,10 @@ unsigned tiny_queue_length(tiny_queue_t *queue, int timeout) {
     }
     if (timeout > 0 && queue->length == 0) {
         struct timespec max_wait = {0, 0};
-        clock_gettime(CLOCK_REALTIME, &max_wait);
+        if (clock_gettime(CLOCK_REALTIME, &max_wait) == -1) {
+            LOG_ERROR("Error getting realtime: %s", strerror(errno));
+            assert(NULL);
+        }
         //timeout in ms
         if (max_wait.tv_nsec <= (999999999 - timeout)) {
             max_wait.tv_nsec += timeout;
@@ -94,7 +99,8 @@ unsigned tiny_queue_length(tiny_queue_t *queue, int timeout) {
         }
         rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
         if (rc != 0 && rc != ETIMEDOUT) {
-            LOG_ERROR("Error in pthread_cond_timedwait: %d", rc);
+            LOG_ERROR("Error in pthread_cond_timedwait: %s - %s", rc, strerror(errno));
+            LOG_ERROR("Max wait: %llu", (unsigned long long)max_wait.tv_nsec);
         }
     }
     unsigned len = queue->length;
@@ -110,12 +116,15 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
-        return 0;
+        assert(NULL);
     }
     if (queue->length == 0) {
         if (timeout > 0) {
             struct timespec max_wait = {0, 0};
-            clock_gettime(CLOCK_REALTIME, &max_wait);
+            if (clock_gettime(CLOCK_REALTIME, &max_wait) == -1) {
+                LOG_ERROR("Error getting realtime: %s", strerror(errno));
+                return NULL;
+            }
             //timeout in ms
             if (max_wait.tv_nsec <= (999999999 - timeout)) {
                 max_wait.tv_nsec += timeout;
@@ -127,8 +136,8 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
             rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
             if (rc != 0) {
                 if (rc != ETIMEDOUT) {
-                    LOG_ERROR("Error in pthread_cond_timedwait: %d", rc);
-                    LOG_ERROR("nsec: %ld", max_wait.tv_nsec);
+                    LOG_ERROR("Error in pthread_cond_timedwait: %s - %s", rc, strerror(errno));
+                    LOG_ERROR("Max wait: %llu", (unsigned long long)max_wait.tv_nsec);
                 }
                 rc = pthread_mutex_unlock(&queue->mutex);
                 if (rc != 0) {
