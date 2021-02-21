@@ -725,8 +725,34 @@ purge() {
   #arch
   rm -rf "$DESTDIR/etc/webapps/mympd"
   #remove user
-  getent passwd mympd > /dev/null && userdel mympd
-  getent group mympd > /dev/null && groupdel -f mympd
+  if getent passwd mympd > /dev/null
+  then
+    if check_cmd_silent userdel
+    then
+      userdel mympd
+    elif check_cmd_silent deluser
+    then
+      #alpine
+      deluser mympd
+    else
+      echo "Can not del user mygpiod"
+      return 1
+    fi
+  fi
+  #remove group
+  if getent group mympd > /dev/null
+  then
+    if check_cmd_silent userdel
+    then
+      userdel mympd
+    elif check_cmd_silent deluser
+    then
+      deluser mympd
+    else
+      echo "Can not del user mympd"
+      return 1
+    fi
+  fi
 }
 
 transstatus() {
