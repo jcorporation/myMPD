@@ -40,14 +40,14 @@ static bool mpd_worker_smartpls_update_newest(t_mpd_worker_state *mpd_worker_sta
 //public functions
 bool mpd_worker_smartpls_update_all(t_config *config, t_mpd_worker_state *mpd_worker_state, bool force) {
     if (mpd_worker_state->feat_smartpls == false) {
-        LOG_DEBUG("Smart playlists are disabled");
+        MYMPD_LOG_DEBUG("Smart playlists are disabled");
         return true;
     }
     
     mpd_worker_smartpls_per_tag(config, mpd_worker_state);
 
     unsigned long db_mtime = mpd_shared_get_db_mtime(mpd_worker_state->mpd_state);
-    LOG_DEBUG("Database mtime: %d", db_mtime);
+    MYMPD_LOG_DEBUG("Database mtime: %d", db_mtime);
     
     sds dirname = sdscatfmt(sdsempty(), "%s/smartpls", config->varlibdir);
     DIR *dir = opendir (dirname);
@@ -59,18 +59,18 @@ bool mpd_worker_smartpls_update_all(t_config *config, t_mpd_worker_state *mpd_wo
             }
             unsigned long playlist_mtime = mpd_shared_get_playlist_mtime(mpd_worker_state->mpd_state, ent->d_name);
             unsigned long smartpls_mtime = mpd_shared_get_smartpls_mtime(config, ent->d_name);
-            LOG_DEBUG("Playlist %s: playlist mtime %d, smartpls mtime %d", ent->d_name, playlist_mtime, smartpls_mtime);
+            MYMPD_LOG_DEBUG("Playlist %s: playlist mtime %d, smartpls mtime %d", ent->d_name, playlist_mtime, smartpls_mtime);
             if (force == true || db_mtime > playlist_mtime || smartpls_mtime > playlist_mtime) {
                 mpd_worker_smartpls_update(config, mpd_worker_state, ent->d_name);
             }
             else {
-                LOG_VERBOSE("Update of smart playlist %s skipped, already up to date", ent->d_name);
+                MYMPD_LOG_INFO("Update of smart playlist %s skipped, already up to date", ent->d_name);
             }
         }
         closedir (dir);
     }
     else {
-        LOG_ERROR("Can't open smart playlist directory %s: %s", dirname, strerror(errno));
+        MYMPD_LOG_ERROR("Can't open smart playlist directory %s: %s", dirname, strerror(errno));
         sdsfree(dirname);
         return false;
     }
@@ -88,11 +88,11 @@ bool mpd_worker_smartpls_update(t_config *config, t_mpd_worker_state *mpd_worker
     int int_buf2;
     
     if (mpd_worker_state->feat_smartpls == false) {
-        LOG_WARN("Smart playlists are disabled");
+        MYMPD_LOG_WARN("Smart playlists are disabled");
         return true;
     }
     if (validate_string_not_dir(playlist) == false) {
-        LOG_ERROR("Invalid smart playlist name");
+        MYMPD_LOG_ERROR("Invalid smart playlist name");
         return false;
     }
     
@@ -100,31 +100,31 @@ bool mpd_worker_smartpls_update(t_config *config, t_mpd_worker_state *mpd_worker
     char *content = json_fread(filename);
     sdsfree(filename);
     if (content == NULL) {
-        LOG_ERROR("Cant read smart playlist %s", playlist);
+        MYMPD_LOG_ERROR("Cant read smart playlist %s", playlist);
         return false;
     }
     je = json_scanf(content, (int)strlen(content), "{type: %Q }", &smartpltype);
     if (je != 1) {
-        LOG_ERROR("Cant read smart playlist type from %s", filename);
+        MYMPD_LOG_ERROR("Cant read smart playlist type from %s", filename);
         return false;
     }
     if (strcmp(smartpltype, "sticker") == 0) {
         je = json_scanf(content, (int)strlen(content), "{sticker: %Q, maxentries: %d, minvalue: %d}", &p_charbuf1, &int_buf1, &int_buf2);
         if (je == 3) {
             if (mpd_worker_smartpls_update_sticker(mpd_worker_state, playlist, p_charbuf1, int_buf1, int_buf2) == false) {
-                LOG_ERROR("Update of smart playlist %s failed.", playlist);
+                MYMPD_LOG_ERROR("Update of smart playlist %s failed.", playlist);
                 rc = false;
             }
         }
         else if (je == 2) {
             //for backward compatibility
             if (mpd_worker_smartpls_update_sticker(mpd_worker_state, playlist, p_charbuf1, int_buf1, 2) == false) {
-                LOG_ERROR("Update of smart playlist %s failed.", playlist);
+                MYMPD_LOG_ERROR("Update of smart playlist %s failed.", playlist);
                 rc = false;
             }
         }
         else {
-            LOG_ERROR("Can't parse smart playlist file %s", filename);
+            MYMPD_LOG_ERROR("Can't parse smart playlist file %s", filename);
             rc = false;
         }
         FREE_PTR(p_charbuf1);
@@ -133,12 +133,12 @@ bool mpd_worker_smartpls_update(t_config *config, t_mpd_worker_state *mpd_worker
         je = json_scanf(content, (int)strlen(content), "{timerange: %d}", &int_buf1);
         if (je == 1) {
             if (mpd_worker_smartpls_update_newest(mpd_worker_state, playlist, int_buf1) == false) {
-                LOG_ERROR("Update of smart playlist %s failed", playlist);
+                MYMPD_LOG_ERROR("Update of smart playlist %s failed", playlist);
                 rc = false;
             }
         }
         else {
-            LOG_ERROR("Can't parse smart playlist file %s", filename);
+            MYMPD_LOG_ERROR("Can't parse smart playlist file %s", filename);
             rc = false;
         }
     }
@@ -146,13 +146,13 @@ bool mpd_worker_smartpls_update(t_config *config, t_mpd_worker_state *mpd_worker
         je = json_scanf(content, (int)strlen(content), "{tag: %Q, searchstr: %Q}", &p_charbuf1, &p_charbuf2);
         if (je == 2) {
             if (mpd_worker_smartpls_update_search(mpd_worker_state, playlist, p_charbuf1, p_charbuf2) == false) {
-                LOG_ERROR("Update of smart playlist %s failed", playlist);
+                MYMPD_LOG_ERROR("Update of smart playlist %s failed", playlist);
                 rc = false;
             }
 
         }
         else {
-            LOG_ERROR("Can't parse smart playlist file %s", filename);
+            MYMPD_LOG_ERROR("Can't parse smart playlist file %s", filename);
             rc = false;
         }
         FREE_PTR(p_charbuf1);
@@ -204,7 +204,7 @@ static bool mpd_worker_smartpls_per_tag(t_config *config, t_mpd_worker_state *mp
             sds playlist = sdscatfmt(sdsempty(), "%s%s%s-%s", mpd_worker_state->smartpls_prefix, (sdslen(mpd_worker_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, current->key);
             sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
             if (access(plpath, F_OK) == -1) { /* Flawfinder: ignore */
-                LOG_VERBOSE("Created smart playlist %s", playlist);
+                MYMPD_LOG_INFO("Created smart playlist %s", playlist);
                 mpd_shared_smartpls_save(config, "search", playlist, tagstr, current->key, 0, 0, mpd_worker_state->smartpls_sort);
             }
             sdsfree(playlist);
@@ -262,7 +262,7 @@ static bool mpd_worker_smartpls_update_search(t_mpd_worker_state *mpd_worker_sta
     }
     sdsfree(buffer);
     sdsfree(method);
-    LOG_VERBOSE("Updated smart playlist %s", playlist);
+    MYMPD_LOG_INFO("Updated smart playlist %s", playlist);
     return true;
 }
 
@@ -326,7 +326,7 @@ static bool mpd_worker_smartpls_update_sticker(t_mpd_worker_state *mpd_worker_st
             if (current->value_i >= value_max) {
                 rc = mpd_send_playlist_add(mpd_worker_state->mpd_state->conn, playlist, current->key);
                 if (rc == false) {
-                    LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
+                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
                     break;
                 }
                 i++;
@@ -345,7 +345,7 @@ static bool mpd_worker_smartpls_update_sticker(t_mpd_worker_state *mpd_worker_st
         }
     }
     list_free(&add_list);
-    LOG_VERBOSE("Updated smart playlist %s with %d songs, minValue: %d", playlist, i, value_max);
+    MYMPD_LOG_INFO("Updated smart playlist %s with %d songs, minValue: %d", playlist, i, value_max);
     return true;
 }
 
@@ -377,7 +377,7 @@ static bool mpd_worker_smartpls_update_newest(t_mpd_worker_state *mpd_worker_sta
             buffer = mpd_shared_search(mpd_worker_state->mpd_state, buffer, method, 0, searchstr, "modified-since", playlist, 0, 0, NULL);
             sdsfree(searchstr);
         }
-        LOG_VERBOSE("Updated smart playlist %s", playlist);
+        MYMPD_LOG_INFO("Updated smart playlist %s", playlist);
     }
     sdsfree(buffer);
     sdsfree(method);

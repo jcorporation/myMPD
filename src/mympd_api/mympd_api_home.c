@@ -85,7 +85,7 @@ bool mympd_api_read_home_list(t_config *config, t_mympd_state *mympd_state) {
     }
     else {
         //ignore error
-        LOG_DEBUG("Can not open file \"%s\": %s", home_file, strerror(errno));
+        MYMPD_LOG_DEBUG("Can not open file \"%s\": %s", home_file, strerror(errno));
         sdsfree(home_file);
         return false;
     }
@@ -97,11 +97,11 @@ bool mympd_api_write_home_list(t_config *config, t_mympd_state *mympd_state) {
     if (config->readonly == true) {
         return true;
     }
-    LOG_VERBOSE("Saving home icons to disc");
+    MYMPD_LOG_INFO("Saving home icons to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/home_list.XXXXXX", config->varlibdir);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        LOG_ERROR("Can not open \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }
@@ -110,7 +110,7 @@ bool mympd_api_write_home_list(t_config *config, t_mympd_state *mympd_state) {
     while (current != NULL) {
         int rc = fprintf(fp,"%s\n", current->key);
         if (rc < 0) {
-            LOG_ERROR("Can not write to file \"%s\"", tmp_file);
+            MYMPD_LOG_ERROR("Can not write to file \"%s\"", tmp_file);
             sdsfree(tmp_file);
             fclose(fp);
             return false;
@@ -120,7 +120,7 @@ bool mympd_api_write_home_list(t_config *config, t_mympd_state *mympd_state) {
     fclose(fp);
     sds home_file = sdscatfmt(sdsempty(), "%s/state/home_list", config->varlibdir);
     if (rename(tmp_file, home_file) == -1) {
-        LOG_ERROR("Rename file from \"%s\" to \"%s\" failed: %s", tmp_file, home_file, strerror(errno));
+        MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed: %s", tmp_file, home_file, strerror(errno));
         sdsfree(tmp_file);
         sdsfree(home_file);
         return false;
@@ -161,7 +161,7 @@ sds mympd_api_get_home_icon(t_mympd_state *mympd_state, sds buffer, sds method, 
         return buffer;
     }
 
-    LOG_ERROR("Can not get home icon at pos %u", pos);
+    MYMPD_LOG_ERROR("Can not get home icon at pos %u", pos);
     buffer = jsonrpc_respond_message(buffer, method, request_id, true, "home", "error", "Can not get home icon");
     return buffer;
 }

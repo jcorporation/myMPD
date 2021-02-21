@@ -140,7 +140,7 @@ sds json_to_cols(sds cols, char *str, size_t len, bool *error) {
             j++;
         }
         else {
-            LOG_WARN("Unknown column: %s", token);
+            MYMPD_LOG_WARN("Unknown column: %s", token);
             *error = true;
         }
         sdsfree(token);

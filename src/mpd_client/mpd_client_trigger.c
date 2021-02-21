@@ -98,11 +98,11 @@ sds print_trigger_list(sds buffer) {
 }
 
 void trigger_execute(t_mpd_client_state *mpd_client_state, enum trigger_events event) {
-    LOG_DEBUG("Trigger event: %s (%d)", trigger_name(event), event);
+    MYMPD_LOG_DEBUG("Trigger event: %s (%d)", trigger_name(event), event);
     struct list_node *current = mpd_client_state->triggers.head;
     while (current != NULL) {
         if (current->value_i == event) {
-            LOG_INFO("Executing script %s for trigger %s (%d)", current->value_p, trigger_name(event), event);
+            MYMPD_LOG_NOTICE("Executing script %s for trigger %s (%d)", current->value_p, trigger_name(event), event);
             _trigger_execute(current->value_p, (struct list *)current->user_data);
         }
         current = current->next;
@@ -224,9 +224,9 @@ bool triggerfile_read(t_config *config, t_mpd_client_state *mpd_client_state) {
         fclose(fp);
     }
     else {
-        LOG_DEBUG("Can not open file \"%s\": %s", trigger_file, strerror(errno));
+        MYMPD_LOG_DEBUG("Can not open file \"%s\": %s", trigger_file, strerror(errno));
     }
-    LOG_VERBOSE("Read %d triggers(s) from disc", mpd_client_state->triggers.length);
+    MYMPD_LOG_INFO("Read %d triggers(s) from disc", mpd_client_state->triggers.length);
     sdsfree(trigger_file);
     return true;
 }
@@ -235,11 +235,11 @@ bool triggerfile_save(t_config *config, t_mpd_client_state *mpd_client_state) {
     if (config->readonly == true) {
         return true;
     }
-    LOG_VERBOSE("Saving triggers to disc");
+    MYMPD_LOG_INFO("Saving triggers to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/trigger_list.XXXXXX", config->varlibdir);
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
-        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }
@@ -270,7 +270,7 @@ bool triggerfile_save(t_config *config, t_mpd_client_state *mpd_client_state) {
     sdsfree(buffer);
     sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", config->varlibdir);
     if (rename(tmp_file, trigger_file) == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, trigger_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, trigger_file, strerror(errno));
         sdsfree(tmp_file);
         sdsfree(trigger_file);
         return false;

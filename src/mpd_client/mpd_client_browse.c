@@ -406,7 +406,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
             sort_by_last_modified = true;
         }
         else {
-            LOG_WARN("Unknown sort tag: %s", sort);
+            MYMPD_LOG_WARN("Unknown sort tag: %s", sort);
         }
     }
     //parse mpd search expression
@@ -429,7 +429,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
             tag = sdscatprintf(tag, "%.*s", 1, p);
         }
         if (i + 1 >= sdslen(tokens[j])) {
-            LOG_ERROR("Can not parse search expression");
+            MYMPD_LOG_ERROR("Can not parse search expression");
             sdsfree(tag);
             sdsfree(op);
             sdsfree(value);
@@ -445,7 +445,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
             op = sdscatprintf(op, "%.*s", 1, p);
         }
         if (i + 2 >= sdslen(tokens[j])) {
-            LOG_ERROR("Can not parse search expression");
+            MYMPD_LOG_ERROR("Can not parse search expression");
             sdsfree(tag);
             sdsfree(op);
             sdsfree(value);
@@ -469,7 +469,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
         else {
             list_push(&expr_list, value, tag_type, op , NULL);
         }
-        LOG_DEBUG("Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, value);
+        MYMPD_LOG_DEBUG("Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, value);
         sdsfree(tag);
         sdsfree(op);
         sdsfree(value);
@@ -619,7 +619,7 @@ sds mpd_client_put_db_tag2(t_config *config, t_mpd_client_state *mpd_client_stat
         pic = true;
     }
     else {
-        LOG_DEBUG("Can not open directory \"%s\": %s", pic_path, strerror(errno));
+        MYMPD_LOG_DEBUG("Can not open directory \"%s\": %s", pic_path, strerror(errno));
         //ignore error
     }
     sdsfree(pic_path);
@@ -694,12 +694,12 @@ static bool _search_song(struct mpd_song *song, struct list *expr_list, t_tags *
 }
 
 static pcre *_compile_regex(const char *regex_str) {
-    LOG_DEBUG("Compiling regex: \"%s\"", regex_str);
+    MYMPD_LOG_DEBUG("Compiling regex: \"%s\"", regex_str);
     const char *pcre_error_str;
     int pcre_error_offset;
     pcre *re_compiled = pcre_compile(regex_str, PCRE_CASELESS, &pcre_error_str, &pcre_error_offset, NULL);
     if (re_compiled == NULL) {
-        LOG_DEBUG("Could not compile '%s': %s\n", regex_str, pcre_error_str);
+        MYMPD_LOG_DEBUG("Could not compile '%s': %s\n", regex_str, pcre_error_str);
     }
     return re_compiled;
 }
@@ -714,12 +714,12 @@ static bool _cmp_regex(pcre *re_compiled, const char *value) {
     if (pcre_exec_ret < 0) {
         switch(pcre_exec_ret) {
             case PCRE_ERROR_NOMATCH      : break;
-            case PCRE_ERROR_NULL         : LOG_ERROR("Something was null"); break;
-            case PCRE_ERROR_BADOPTION    : LOG_ERROR("A bad option was passed"); break;
-            case PCRE_ERROR_BADMAGIC     : LOG_ERROR("Magic number bad (compiled regex corrupt?)"); break;
-            case PCRE_ERROR_UNKNOWN_NODE : LOG_ERROR("Something kooky in the compiled regex"); break;
-            case PCRE_ERROR_NOMEMORY     : LOG_ERROR("Ran out of memory"); break;
-            default                      : LOG_ERROR("Unknown error"); break;
+            case PCRE_ERROR_NULL         : MYMPD_LOG_ERROR("Something was null"); break;
+            case PCRE_ERROR_BADOPTION    : MYMPD_LOG_ERROR("A bad option was passed"); break;
+            case PCRE_ERROR_BADMAGIC     : MYMPD_LOG_ERROR("Magic number bad (compiled regex corrupt?)"); break;
+            case PCRE_ERROR_UNKNOWN_NODE : MYMPD_LOG_ERROR("Something kooky in the compiled regex"); break;
+            case PCRE_ERROR_NOMEMORY     : MYMPD_LOG_ERROR("Ran out of memory"); break;
+            default                      : MYMPD_LOG_ERROR("Unknown error"); break;
         }
     }
     else {

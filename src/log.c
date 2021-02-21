@@ -17,24 +17,25 @@
 #include "log.h"
 
 int loglevel;
-int log_on_tty;
+bool log_to_syslog;
+bool log_on_tty;
 
 static const char *loglevel_names[] = {
-  "ERROR", "WARN", "INFO", "VERBOSE", "DEBUG"
+  "EMERG", "ALERT", "CRITICAL", "ERROR", "WARN", "NOTICE", "INFO", "DEBUG"
 };
 
 static const char *loglevel_colors[] = {
-  "\033[0;31m", "\033[0;33m", "", "", "\033[0;34m"
+  "\033[0;31m", "\033[0;31m", "\033[0;31m", "\033[0;31m", "\033[0;33m", "", "", "\033[0;34m"
 };
 
 void set_loglevel(int level) {
-    if (level > 4) {
-        level = 4;
+    if (level > 7) {
+        level = 7;
     }
     else if (level < 0) {
         level = 0;
     }
-    LOG_INFO("Setting loglevel to %s", loglevel_names[level]);
+    MYMPD_LOG_NOTICE("Setting loglevel to %s", loglevel_names[level]);
     loglevel = level;
 }
 
@@ -43,12 +44,20 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
         return;
     }
     
+    if (log_to_syslog == true) {
+        va_list args;
+        va_start(args, fmt);
+        vsyslog(level, fmt, args);
+        va_end(args);
+        return;
+    }
+    
     sds logline = sdsempty();
-    if (log_on_tty == 1) {
+    if (log_on_tty == true) {
         logline = sdscat(logline, loglevel_colors[level]);
     }
     
-    if (log_on_tty == 1) {
+    if (log_on_tty == true) {
         time_t now = time(NULL);
         struct tm timeinfo;
         if (localtime_r(&now, &timeinfo) != NULL) {
@@ -72,7 +81,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     else {
         logline = sdscatlen(logline, "\n", 1);
     }
-    if (log_on_tty == 1) {
+    if (log_on_tty == true) {
         logline = sdscat(logline, "\033[0m");
     }
     

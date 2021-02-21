@@ -37,7 +37,7 @@ static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char 
 //public functions
 bool caches_init(t_config *config, t_mpd_client_state *mpd_client_state) {
     if (mpd_client_state->mpd_state->feat_mpd_searchwindow == false) {
-        LOG_VERBOSE("Can not create caches, mpd version < 0.20.0");
+        MYMPD_LOG_INFO("Can not create caches, mpd version < 0.20.0");
         return false;
     }
     bool create_sticker_cache = config->sticker_cache == true ? mpd_client_state->feat_sticker : false;
@@ -58,7 +58,7 @@ bool caches_init(t_config *config, t_mpd_client_state *mpd_client_state) {
         tiny_queue_push(mpd_worker_queue, request, 0);
     }
     else {
-        LOG_VERBOSE("Caches creation skipped, sticker_cache and tags are disabled");
+        MYMPD_LOG_INFO("Caches creation skipped, sticker_cache and tags are disabled");
     }
     return true;
 }
@@ -210,7 +210,7 @@ bool mpd_client_set_binarylimit(t_config *config, t_mpd_client_state *mpd_client
         rc = mpd_run_binarylimit(mpd_client_state->mpd_state->conn, config->binarylimit);
         check_rc_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_binarylimit");
     }
-    LOG_DEBUG("binarylimit command not supported, depends on mpd >= 0.22.4");
+    MYMPD_LOG_DEBUG("binarylimit command not supported, depends on mpd >= 0.22.4");
     return rc;
 }
 
@@ -220,14 +220,14 @@ static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char 
     
     const char *path = is_dirname == false ? dirname(uricpy) : uri;
     sds albumpath = sdscatfmt(sdsempty(), "%s/%s", mpd_client_state->music_directory_value, path);
-    LOG_DEBUG("Read extra files from albumpath: %s", albumpath);
+    MYMPD_LOG_DEBUG("Read extra files from albumpath: %s", albumpath);
     DIR *album_dir = opendir(albumpath);
     if (album_dir != NULL) {
         struct dirent *next_file;
         while ((next_file = readdir(album_dir)) != NULL) {
             const char *ext = strrchr(next_file->d_name, '.');
             if (strcmp(next_file->d_name, mpd_client_state->booklet_name) == 0) {
-                LOG_DEBUG("Found booklet for uri %s", uri);
+                MYMPD_LOG_DEBUG("Found booklet for uri %s", uri);
                 *booklet_path = sdscatfmt(*booklet_path, "%s/%s", path, mpd_client_state->booklet_name);
             }
             else if (ext != NULL) {
@@ -245,7 +245,7 @@ static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char 
         closedir(album_dir);
     }
     else {
-        LOG_ERROR("Can not open directory \"%s\" to get list of extra files: %s", albumpath, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open directory \"%s\" to get list of extra files: %s", albumpath, strerror(errno));
     }
     FREE_PTR(uricpy);
     sdsfree(albumpath);

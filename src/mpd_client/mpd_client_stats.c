@@ -33,14 +33,14 @@ static sds mpd_client_put_last_played_obj(t_mpd_client_state *mpd_client_state, 
 //public functions
 bool mpd_client_last_played_list_save(t_config *config, t_mpd_client_state *mpd_client_state) {
     if (config->readonly == true) {
-        LOG_VERBOSE("Skip saving last_played list to disc");
+        MYMPD_LOG_INFO("Skip saving last_played list to disc");
         return true;
     }
-    LOG_VERBOSE("Saving last_played list to disc");
+    MYMPD_LOG_INFO("Saving last_played list to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/last_played.XXXXXX", config->varlibdir);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }    
@@ -69,12 +69,12 @@ bool mpd_client_last_played_list_save(t_config *config, t_mpd_client_state *mpd_
     }
     else {
         //ignore error
-        LOG_DEBUG("Can not open file \"%s\": %s", lp_file, strerror(errno));
+        MYMPD_LOG_DEBUG("Can not open file \"%s\": %s", lp_file, strerror(errno));
     }
     fclose(fp);
     
     if (rename(tmp_file, lp_file) == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, lp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, lp_file, strerror(errno));
         sdsfree(tmp_file);
         sdsfree(lp_file);
         return false;
@@ -112,7 +112,7 @@ bool mpd_client_add_song_to_last_played_list(t_config *config, t_mpd_client_stat
             send_jsonrpc_event("update_lastplayed");
         }
         else {
-            LOG_ERROR("Can't get song from id %d", song_id);
+            MYMPD_LOG_ERROR("Can't get song from id %d", song_id);
             return false;
         }
         if (check_error_and_recover2(mpd_client_state->mpd_state, NULL, NULL, 0, false) == false) {
@@ -166,8 +166,8 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_client_state *mpd_c
                         buffer = mpd_client_put_last_played_obj(mpd_client_state, buffer, entity_count, value, data, tagcols);
                     }
                     else {
-                        LOG_ERROR("Reading last_played line failed");
-                        LOG_DEBUG("Errorneous line: %s", line);
+                        MYMPD_LOG_ERROR("Reading last_played line failed");
+                        MYMPD_LOG_DEBUG("Errorneous line: %s", line);
                     }
                 }
             }
@@ -176,7 +176,7 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_client_state *mpd_c
         }
         else {
             //ignore error
-            LOG_DEBUG("Can not open file \"%s\": %s", lp_file, strerror(errno));
+            MYMPD_LOG_DEBUG("Can not open file \"%s\": %s", lp_file, strerror(errno));
         }
         sdsfree(lp_file);
     }

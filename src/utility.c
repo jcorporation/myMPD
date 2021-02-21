@@ -37,7 +37,7 @@ void send_jsonrpc_notify(const char *facility, const char *severity, const char 
 }
 
 void ws_notify(sds message) {
-    LOG_DEBUG("Push websocket notify to queue: %s", message);
+    MYMPD_LOG_DEBUG("Push websocket notify to queue: %s", message);
     t_work_result *response = create_result_new(0, 0, 0, "");
     response->data = sdsreplace(response->data, message);
     tiny_queue_push(web_server_queue, response, 0);
@@ -211,23 +211,23 @@ int testdir(const char *name, const char *dirname, bool create) {
     DIR* dir = opendir(dirname);
     if (dir != NULL) {
         closedir(dir);
-        LOG_INFO("%s: \"%s\"", name, dirname);
+        MYMPD_LOG_NOTICE("%s: \"%s\"", name, dirname);
         //directory exists
         return 0;
     }
 
     if (create == true) {
         if (mkdir(dirname, 0700) != 0) {
-            LOG_ERROR("%s: creating \"%s\" failed: %s", name, dirname, strerror(errno));
+            MYMPD_LOG_ERROR("%s: creating \"%s\" failed: %s", name, dirname, strerror(errno));
             //directory not exists and creating it failed
             return 2;
         }
-        LOG_INFO("%s: \"%s\" created", name, dirname);
+        MYMPD_LOG_NOTICE("%s: \"%s\" created", name, dirname);
         //directory successfully created
         return 1;
     }
 
-    LOG_ERROR("%s: \"%s\" don't exists", name, dirname);
+    MYMPD_LOG_ERROR("%s: \"%s\" don't exists", name, dirname);
     //directory not exists
     return 3;
 }
@@ -431,12 +431,12 @@ const struct magic_byte_entry magic_bytes[] = {
 sds get_mime_type_by_magic(const char *filename) {
     FILE *fp = fopen(filename, "rb");
     if (fp == NULL) {
-        LOG_ERROR("Can not open file \"%s\"", filename, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\"", filename, strerror(errno));
         return sdsempty();
     }
     unsigned char binary_buffer[8];
     size_t read = fread(binary_buffer, 1, sizeof(binary_buffer), fp);
-    LOG_DEBUG("Read %u bytes from file %s", read, filename);
+    MYMPD_LOG_DEBUG("Read %u bytes from file %s", read, filename);
     fclose(fp);
     sds stream = sdsnewlen(binary_buffer, read);
     sds mime_type = get_mime_type_by_magic_stream(stream);
@@ -453,7 +453,7 @@ sds get_mime_type_by_magic_stream(sds stream) {
     const struct magic_byte_entry *p = NULL;
     for (p = magic_bytes; p->magic_bytes != NULL; p++) {
         if (strncmp(hex_buffer, p->magic_bytes, strlen(p->magic_bytes)) == 0) {
-            LOG_DEBUG("Matched magic bytes for mime_type: %s", p->mime_type);
+            MYMPD_LOG_DEBUG("Matched magic bytes for mime_type: %s", p->mime_type);
             break;
         }
     }
@@ -476,7 +476,7 @@ bool write_covercache_file(t_config *config, const char *uri, const char *mime_t
     sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->varlibdir, filename);
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
-        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
     }
     else {
         FILE *fp = fdopen(fd, "w");
@@ -485,12 +485,12 @@ bool write_covercache_file(t_config *config, const char *uri, const char *mime_t
         sds ext = get_ext_by_mime_type(mime_type);
         sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", config->varlibdir, filename, ext);
         if (rename(tmp_file, cover_file) == -1) {
-            LOG_ERROR("Rename file from \"%s\" to \"%s\" failed: %s", tmp_file, cover_file, strerror(errno));
+            MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed: %s", tmp_file, cover_file, strerror(errno));
             if (unlink(tmp_file) != 0) {
-                LOG_ERROR("Error removing file \"%s\": %s", tmp_file, strerror(errno));
+                MYMPD_LOG_ERROR("Error removing file \"%s\": %s", tmp_file, strerror(errno));
             }
         }
-        LOG_DEBUG("Write covercache file \"%s\" for uri \"%s\"", cover_file, uri);
+        MYMPD_LOG_DEBUG("Write covercache file \"%s\" for uri \"%s\"", cover_file, uri);
         sdsfree(ext);
         sdsfree(cover_file);
         rc = true;

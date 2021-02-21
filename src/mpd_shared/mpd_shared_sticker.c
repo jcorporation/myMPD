@@ -71,7 +71,7 @@ bool mpd_shared_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *
 
 void sticker_cache_free(rax **sticker_cache) {
     if (*sticker_cache == NULL) {
-        LOG_DEBUG("Sticker cache is NULL not freeing anything");
+        MYMPD_LOG_DEBUG("Sticker cache is NULL not freeing anything");
         return;
     }
     raxIterator iter;

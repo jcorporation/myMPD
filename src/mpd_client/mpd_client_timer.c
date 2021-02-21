@@ -47,36 +47,36 @@ sds mpd_client_timer_startplay(t_mpd_client_state *mpd_client_state, sds buffer,
     if (mpd_command_list_begin(mpd_client_state->mpd_state->conn, false)) {
         rc = mpd_send_stop(mpd_client_state->mpd_state->conn);
         if (rc == false) {
-            LOG_ERROR("Error adding command to command list mpd_send_stop");
+            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_stop");
         }
         rc = mpd_send_set_volume(mpd_client_state->mpd_state->conn, volume);
         if (rc == false) {
-            LOG_ERROR("Error adding command to command list mpd_send_set_volume");
+            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_set_volume");
         }
         rc = mpd_send_clear(mpd_client_state->mpd_state->conn);
         if (rc == false) {
-            LOG_ERROR("Error adding command to command list mpd_send_clear");
+            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear");
         }
         if (jukebox_mode == JUKEBOX_OFF) {
             rc = mpd_send_load(mpd_client_state->mpd_state->conn, playlist);
             if (rc == false) {
-                LOG_ERROR("Error adding command to command list mpd_send_load");
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_load");
             }
         }
         else {
             rc = mpd_send_consume(mpd_client_state->mpd_state->conn, true);
             if (rc == false) {
-                LOG_ERROR("Error adding command to command list mpd_send_consume");
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_consume");
             }
         }
         rc = mpd_send_single(mpd_client_state->mpd_state->conn, false);
         if (rc == false) {
-            LOG_ERROR("Error adding command to command list mpd_send_single");
+            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_single");
         }
         if (jukebox_mode == JUKEBOX_OFF) {
             rc = mpd_send_play(mpd_client_state->mpd_state->conn);
             if (rc == false) {
-                LOG_ERROR("Error adding command to command list mpd_send_play");
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_play");
             }
         }
         if (mpd_command_list_end(mpd_client_state->mpd_state->conn) == true) {

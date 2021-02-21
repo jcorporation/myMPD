@@ -69,7 +69,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
     MEASURE_START
     #endif
 
-    LOG_VERBOSE("MPD CLIENT API request (%d)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
+    MYMPD_LOG_INFO("MPD CLIENT API request (%d)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
     t_work_result *response = create_result(request);
     
@@ -78,7 +78,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
             if (je == 1) {
                 if (p_charbuf1 == NULL || validate_uri(p_charbuf1) == false) {
-                    LOG_ERROR("Invalid URI: %s", p_charbuf1);
+                    MYMPD_LOG_ERROR("Invalid URI: %s", p_charbuf1);
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "lyrics", "error", "Invalid uri");
                 }
                 else {
@@ -90,7 +90,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
             if (je == 1) {
                 if (p_charbuf1 == NULL || validate_uri(p_charbuf1) == false) {
-                    LOG_ERROR("Invalid URI: %s", p_charbuf1);
+                    MYMPD_LOG_ERROR("Invalid URI: %s", p_charbuf1);
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "lyrics", "error", "Invalid uri");
                 }
                 else {
@@ -102,7 +102,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
             if (je == 1) {
                 if (p_charbuf1 == NULL || validate_uri(p_charbuf1) == false) {
-                    LOG_ERROR("Invalid URI: %s", p_charbuf1);
+                    MYMPD_LOG_ERROR("Invalid URI: %s", p_charbuf1);
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "lyrics", "error", "Invalid uri");
                 }
                 else {
@@ -242,10 +242,10 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             if (request->extra != NULL) {
                 mpd_client_state->sticker_cache = (rax *) request->extra;
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "sticker");
-                LOG_VERBOSE("Sticker cache was replaced");
+                MYMPD_LOG_INFO("Sticker cache was replaced");
             }
             else {
-                LOG_ERROR("Sticker cache is NULL");
+                MYMPD_LOG_ERROR("Sticker cache is NULL");
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "sticker", "error", "Sticker cache is NULL");
             }
             mpd_client_state->sticker_cache_building = false;
@@ -255,10 +255,10 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             if (request->extra != NULL) {
                 mpd_client_state->album_cache = (rax *) request->extra;
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "database");
-                LOG_VERBOSE("Album cache was replaced");
+                MYMPD_LOG_INFO("Album cache was replaced");
             }
             else {
-                LOG_ERROR("Album cache is NULL");
+                MYMPD_LOG_ERROR("Album cache is NULL");
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "database", "error", "Album cache is NULL");
             }
             mpd_client_state->album_cache_building = false;
@@ -282,7 +282,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
         case MPD_API_LIKE:
             if (mpd_client_state->feat_sticker == false) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "sticker", "error", "MPD stickers are disabled");
-                LOG_ERROR("MPD stickers are disabled");
+                MYMPD_LOG_ERROR("MPD stickers are disabled");
                 break;
             }
             je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q, like: %d}}", &p_charbuf1, &int_buf1);
@@ -338,7 +338,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                     mpd_client_mpd_features(config, mpd_client_state);
                     
                     if (jukebox_changed == true) {
-                        LOG_DEBUG("Jukebox options changed, clearing jukebox queue");
+                        MYMPD_LOG_DEBUG("Jukebox options changed, clearing jukebox queue");
                         list_free(&mpd_client_state->jukebox_queue);
                         mpd_client_state->jukebox_enforce_unique = true;
                     }
@@ -774,7 +774,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                 if (bool_buf1 == true) {
                     rc = mpd_run_clear(mpd_client_state->mpd_state->conn);
                     if (rc == false) {
-                        LOG_ERROR("Clearing queue failed");
+                        MYMPD_LOG_ERROR("Clearing queue failed");
                     }
                     check_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0);
                 }
@@ -793,7 +793,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                 if (bool_buf2 == true) {
                     rc = mpd_run_clear(mpd_client_state->mpd_state->conn);
                     if (rc == false) {
-                        LOG_ERROR("Clearing queue failed");
+                        MYMPD_LOG_ERROR("Clearing queue failed");
                     }
                     check_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0);
                 }
@@ -914,7 +914,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             break;
         default:
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Unknown request");
-            LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
+            MYMPD_LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
     }
     FREE_PTR(p_charbuf1);
     FREE_PTR(p_charbuf2);
@@ -930,14 +930,14 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
     if (sdslen(response->data) == 0) {
         response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true, 
             "general", "error", "No response for method %{method}", 2, "method", request->method);
-        LOG_ERROR("No response for method \"%s\"", request->method);
+        MYMPD_LOG_ERROR("No response for method \"%s\"", request->method);
     }
     if (request->conn_id == -2) {
-        LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
+        MYMPD_LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
         tiny_queue_push(mympd_script_queue, response, request->id);
     }
     else if (request->conn_id > -1) {
-        LOG_DEBUG("Push response to web_server_queue for connection %lu: %s", request->conn_id, response->data);
+        MYMPD_LOG_DEBUG("Push response to web_server_queue for connection %lu: %s", request->conn_id, response->data);
         tiny_queue_push(web_server_queue, response, 0);
     }
     else {

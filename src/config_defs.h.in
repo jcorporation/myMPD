@@ -44,7 +44,7 @@
 //measure time
 #define MEASURE_START clock_t measure_start = clock();
 #define MEASURE_END clock_t measure_end = clock();
-#define MEASURE_PRINT(X) LOG_DEBUG("Execution time for %s: %lf", X, ((double) (measure_end - measure_start)) / CLOCKS_PER_SEC);
+#define MEASURE_PRINT(X) MYMPD_LOG_DEBUG("Execution time for %s: %lf", X, ((double) (measure_end - measure_start)) / CLOCKS_PER_SEC);
 
 enum jukebox_modes {
     JUKEBOX_OFF,
@@ -151,6 +151,7 @@ typedef struct t_config {
     sds uslt_ext;
     unsigned binarylimit;
     sds bg_image;
+    bool syslog;
     //system commands
     struct list syscmd_list;
 } t_config;

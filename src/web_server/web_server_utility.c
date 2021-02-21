@@ -23,14 +23,14 @@ bool rm_mk_dir(sds dir_name, bool create) {
     if (create == true) { 
         int rc = mkdir(dir_name, 0700);
         if (rc != 0 && errno != EEXIST) {
-            LOG_ERROR("Can not create directory %s: %s", dir_name, strerror(errno));
+            MYMPD_LOG_ERROR("Can not create directory %s: %s", dir_name, strerror(errno));
             return false;
         }
     }
     else { 
         int rc = rmdir(dir_name);
         if (rc != 0 && errno != ENOENT) {
-            LOG_ERROR("Can not remove directory %s: %s", dir_name, strerror(errno));
+            MYMPD_LOG_ERROR("Can not remove directory %s: %s", dir_name, strerror(errno));
             return false;
         }
     }
@@ -90,7 +90,7 @@ void send_error(struct mg_connection *nc, int code, const char *msg) {
     mg_send(nc, errorpage, sdslen(errorpage));
     sdsfree(errorpage);
     if (code >= 400) {
-        LOG_ERROR(msg);
+        MYMPD_LOG_ERROR(msg);
     }
 }
 
@@ -127,7 +127,7 @@ void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const 
         serve_embedded_files(nc, asset_image, hm);
         #endif
     }
-    LOG_DEBUG("Serving file %s (%s)", asset_image, mime_type);
+    MYMPD_LOG_DEBUG("Serving file %s (%s)", asset_image, mime_type);
     sdsfree(asset_image);
     sdsfree(mime_type);
 }

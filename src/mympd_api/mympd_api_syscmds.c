@@ -25,12 +25,12 @@ sds mympd_api_syscmd(t_config *config, sds buffer, sds method, long request_id,
 {
     sds cmdline = list_get_value_p(&config->syscmd_list, cmd);
     if (cmdline == NULL) {
-        LOG_ERROR("Syscmd not defined: %s", cmd);
+        MYMPD_LOG_ERROR("Syscmd not defined: %s", cmd);
         buffer = jsonrpc_respond_message(buffer, method, request_id, true,
             "script", "error", "System command not defined");
         return buffer;
     }
-    LOG_DEBUG("Executing syscmd \"%s\"", cmdline);
+    MYMPD_LOG_DEBUG("Executing syscmd \"%s\"", cmdline);
     const int rc = system(cmdline); /* Flawfinder: ignore */
     if (rc == 0) {
         buffer = jsonrpc_respond_message_phrase(buffer, method, request_id, false,
@@ -39,7 +39,7 @@ sds mympd_api_syscmd(t_config *config, sds buffer, sds method, long request_id,
     else {
         buffer = jsonrpc_respond_message_phrase(buffer, method, request_id, true,
             "script", "error", "Failed to execute cmd %{cmd}", 2, "cmd", cmd);
-        LOG_ERROR("Executing syscmd \"%s\" failed", cmdline);
+        MYMPD_LOG_ERROR("Executing syscmd \"%s\" failed", cmdline);
     }
     return buffer;
 }

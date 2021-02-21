@@ -55,7 +55,7 @@ bool smartpls_default(t_config *config) {
     }
     else {
         //ignore error
-        LOG_DEBUG("Can not open file \"%s\": %s", prefix_file, strerror(errno));
+        MYMPD_LOG_DEBUG("Can not open file \"%s\": %s", prefix_file, strerror(errno));
         prefix = sdscat(prefix, config->smartpls_prefix);
     }
     sdsfree(prefix_file);
@@ -107,10 +107,10 @@ bool handle_option(t_config *config, char *cmd, sds option) {
             return true;
         }
         if (rc == ENOENT) {
-            LOG_ERROR("last_played file does not exist");
+            MYMPD_LOG_ERROR("last_played file does not exist");
         }
         else {
-            LOG_ERROR("Can not delete file \"%s\": %s", lpfile, strerror(errno));
+            MYMPD_LOG_ERROR("Can not delete file \"%s\": %s", lpfile, strerror(errno));
         }
         sdsfree(lpfile);
         return false;
@@ -185,7 +185,7 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
     sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", config->varlibdir, name);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }
@@ -194,7 +194,7 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
     fclose(fp);
     sds cfg_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, name);
     if (rename(tmp_file, cfg_file) == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, cfg_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, cfg_file, strerror(errno));
         sdsfree(tmp_file);
         sdsfree(cfg_file);
         return false;

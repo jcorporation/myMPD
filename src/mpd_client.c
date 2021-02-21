@@ -62,7 +62,7 @@ void *mpd_client_loop(void *arg_config) {
         t_work_request *request = tiny_queue_shift(mpd_client_queue, 50, 0);
         if (request != NULL) {
             if (request->cmd_id == MYMPD_API_SETTINGS_SET) {
-                LOG_DEBUG("Got initial settings from mympd_api");
+                MYMPD_LOG_DEBUG("Got initial settings from mympd_api");
                 mpd_client_api(config, mpd_client_state, request);
                 break;
             }
@@ -70,15 +70,15 @@ void *mpd_client_loop(void *arg_config) {
             if (request->conn_id > -1) {
                 t_work_result *response = create_result(request);
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "mpd", "error", "MPD disconnected");
-                LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
+                MYMPD_LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
                 tiny_queue_push(web_server_queue, response, 0);
             }
-            LOG_DEBUG("mpd_client not initialized, discarding message");
+            MYMPD_LOG_DEBUG("mpd_client not initialized, discarding message");
             free_request(request);
         }
     }
 
-    LOG_INFO("Starting mpd_client");
+    MYMPD_LOG_NOTICE("Starting mpd_client");
     trigger_execute(mpd_client_state, TRIGGER_MYMPD_START);
     //On startup connect instantly
     mpd_client_state->mpd_state->conn_state = MPD_DISCONNECTED;
@@ -107,7 +107,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
             break;
         }
         if (idle_bitmask & idle_event) {
-            LOG_VERBOSE("MPD idle event: %s", idle_name);
+            MYMPD_LOG_INFO("MPD idle event: %s", idle_name);
             sds buffer = sdsempty();
             switch(idle_event) {
                 case MPD_IDLE_DATABASE:
@@ -129,7 +129,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
                     //autoPlay enabled
                     if (mpd_client_state->auto_play == true && mpd_client_state->queue_length > 1) {
                         if (mpd_client_state->mpd_state->state != MPD_STATE_PLAY) {
-                            LOG_VERBOSE("AutoPlay enabled, start playing");
+                            MYMPD_LOG_INFO("AutoPlay enabled, start playing");
                             if (!mpd_run_play(mpd_client_state->mpd_state->conn)) {
                                 check_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0);
                             }
@@ -148,7 +148,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
                             //last song skipped
                             time_t elapsed = now - mpd_client_state->last_song_start_time;
                             if (elapsed > 10 && mpd_client_state->last_song_start_time > 0 && sdslen(mpd_client_state->last_song_uri) > 0) {
-                                LOG_DEBUG("Song \"%s\" skipped", mpd_client_state->last_song_uri);
+                                MYMPD_LOG_DEBUG("Song \"%s\" skipped", mpd_client_state->last_song_uri);
                                 mpd_client_sticker_inc_skip_count(mpd_client_state, mpd_client_state->last_song_uri);
                                 mpd_client_sticker_last_skipped(mpd_client_state, mpd_client_state->last_song_uri);
                                 mpd_client_state->last_skipped_id = mpd_client_state->last_song_id;
@@ -211,7 +211,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
             mpd_client_queue_length = tiny_queue_length(mpd_client_queue, 50);
             if (mpd_client_queue_length > 0) {
                 //Handle request
-                LOG_DEBUG("Handle request (mpd disconnected)");
+                MYMPD_LOG_DEBUG("Handle request (mpd disconnected)");
                 t_work_request *request = tiny_queue_shift(mpd_client_queue, 50, 0);
                 if (request != NULL) {
                     if (request->cmd_id == MYMPD_API_SETTINGS_SET) {
@@ -224,7 +224,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
                         if (request->conn_id > -1) {
                             t_work_result *response = create_result(request);
                             response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "mpd", "error", "MPD disconnected");
-                            LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
+                            MYMPD_LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
                             tiny_queue_push(web_server_queue, response, 0);
                         }
                         free_request(request);
@@ -240,14 +240,14 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
         case MPD_DISCONNECTED:
             /* Try to connect */
             if (strncmp(mpd_client_state->mpd_state->mpd_host, "/", 1) == 0) {
-                LOG_INFO("MPD connecting to socket %s", mpd_client_state->mpd_state->mpd_host);
+                MYMPD_LOG_NOTICE("MPD connecting to socket %s", mpd_client_state->mpd_state->mpd_host);
             }
             else {
-                LOG_INFO("MPD connecting to %s:%d", mpd_client_state->mpd_state->mpd_host, mpd_client_state->mpd_state->mpd_port);
+                MYMPD_LOG_NOTICE("MPD connecting to %s:%d", mpd_client_state->mpd_state->mpd_host, mpd_client_state->mpd_state->mpd_port);
             }
             mpd_client_state->mpd_state->conn = mpd_connection_new(mpd_client_state->mpd_state->mpd_host, mpd_client_state->mpd_state->mpd_port, mpd_client_state->mpd_state->timeout);
             if (mpd_client_state->mpd_state->conn == NULL) {
-                LOG_ERROR("MPD connection to failed: out-of-memory");
+                MYMPD_LOG_ERROR("MPD connection to failed: out-of-memory");
                 buffer = jsonrpc_event(buffer, "mpd_disconnected");
                 ws_notify(buffer);
                 sdsfree(buffer);
@@ -257,7 +257,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
             }
 
             if (mpd_connection_get_error(mpd_client_state->mpd_state->conn) != MPD_ERROR_SUCCESS) {
-                LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mpd_client_state->mpd_state->conn));
+                MYMPD_LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mpd_client_state->mpd_state->conn));
                 buffer = jsonrpc_notify_phrase(buffer, "mpd", "error", "MPD connection error: %{error}", 
                     2, "error", mpd_connection_get_error_message(mpd_client_state->mpd_state->conn));
                 ws_notify(buffer);
@@ -267,7 +267,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
             }
 
             if (sdslen(mpd_client_state->mpd_state->mpd_pass) > 0 && !mpd_run_password(mpd_client_state->mpd_state->conn, mpd_client_state->mpd_state->mpd_pass)) {
-                LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mpd_client_state->mpd_state->conn));
+                MYMPD_LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mpd_client_state->mpd_state->conn));
                 buffer = jsonrpc_notify_phrase(buffer, "mpd", "error", "MPD connection error: %{error}", 2, 
                     "error", mpd_connection_get_error_message(mpd_client_state->mpd_state->conn));
                 ws_notify(buffer);
@@ -276,7 +276,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
                 return;
             }
 
-            LOG_INFO("MPD connected");
+            MYMPD_LOG_NOTICE("MPD connected");
             mpd_connection_set_timeout(mpd_client_state->mpd_state->conn, mpd_client_state->mpd_state->timeout);
             buffer = jsonrpc_event(buffer, "mpd_connected");
             ws_notify(buffer);
@@ -298,14 +298,14 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
                 mpd_client_jukebox(config, mpd_client_state, 0);
             }
             if (!mpd_send_idle(mpd_client_state->mpd_state->conn)) {
-                LOG_ERROR("Entering idle mode failed");
+                MYMPD_LOG_ERROR("Entering idle mode failed");
                 mpd_client_state->mpd_state->conn_state = MPD_FAILURE;
             }
             trigger_execute(mpd_client_state, TRIGGER_MYMPD_CONNECTED);
             break;
 
         case MPD_FAILURE:
-            LOG_ERROR("MPD connection failed");
+            MYMPD_LOG_ERROR("MPD connection failed");
             buffer = jsonrpc_event(buffer, "mpd_disconnected");
             ws_notify(buffer);
             trigger_execute(mpd_client_state, TRIGGER_MYMPD_DISCONNECTED);
@@ -321,7 +321,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
                 mpd_client_state->mpd_state->reconnect_interval += 2;
             }
             mpd_client_state->mpd_state->reconnect_time = time(NULL) + mpd_client_state->mpd_state->reconnect_interval;
-            LOG_VERBOSE("Waiting %u seconds before reconnection", mpd_client_state->mpd_state->reconnect_interval);
+            MYMPD_LOG_INFO("Waiting %u seconds before reconnection", mpd_client_state->mpd_state->reconnect_interval);
             break;
 
         case MPD_CONNECTED:
@@ -347,7 +347,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
             if (pollrc > 0 || mpd_client_queue_length > 0 || jukebox_add_song == true || set_played == true
                 || mpd_client_state->sticker_queue.length > 0) 
             {
-                LOG_DEBUG("Leaving mpd idle mode");
+                MYMPD_LOG_DEBUG("Leaving mpd idle mode");
                 if (!mpd_send_noidle(mpd_client_state->mpd_state->conn)) {
                     check_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0);
                     mpd_client_state->mpd_state->conn_state = MPD_FAILURE;
@@ -355,7 +355,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
                 }
                 if (pollrc > 0) {
                     //Handle idle events
-                    LOG_DEBUG("Checking for idle events");
+                    MYMPD_LOG_DEBUG("Checking for idle events");
                     enum mpd_idle idle_bitmask = mpd_recv_idle(mpd_client_state->mpd_state->conn, false);
                     mpd_client_parse_idle(config, mpd_client_state, idle_bitmask);
                 } 
@@ -382,7 +382,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
                 
                 if (mpd_client_queue_length > 0) {
                     //Handle request
-                    LOG_DEBUG("Handle request");
+                    MYMPD_LOG_DEBUG("Handle request");
                     t_work_request *request = tiny_queue_shift(mpd_client_queue, 50, 0);
                     if (request != NULL) {
                         mpd_client_api(config, mpd_client_state, request);
@@ -393,7 +393,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
                     mpd_client_sticker_dequeue(mpd_client_state);
                 }
                 
-                LOG_DEBUG("Entering mpd idle mode");
+                MYMPD_LOG_DEBUG("Entering mpd idle mode");
                 if (!mpd_send_idle(mpd_client_state->mpd_state->conn)) {
                     check_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0);
                     mpd_client_state->mpd_state->conn_state = MPD_FAILURE;
@@ -401,7 +401,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
             }
             break;
         default:
-            LOG_ERROR("Invalid mpd connection state");
+            MYMPD_LOG_ERROR("Invalid mpd connection state");
     }
     sdsfree(buffer);
 }

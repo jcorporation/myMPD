@@ -146,7 +146,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "pagination")) {
         p_config->max_elements_per_page = strtoimax(value, &crap, 10);
         if (p_config->max_elements_per_page > 1000) {
-            LOG_WARN("Setting max_elements_per_page to maximal value 1000");
+            MYMPD_LOG_WARN("Setting max_elements_per_page to maximal value 1000");
             p_config->max_elements_per_page = 1000;
         }
     }
@@ -195,7 +195,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "jukeboxmode")) {
         p_config->jukebox_mode = strtoimax(value, &crap, 10);
         if (p_config->jukebox_mode < 0 || p_config->jukebox_mode > 2) {
-            LOG_WARN("Invalid jukeboxmode %d", p_config->jukebox_mode);
+            MYMPD_LOG_WARN("Invalid jukeboxmode %d", p_config->jukebox_mode);
             p_config->jukebox_mode = JUKEBOX_OFF;
         }
     }
@@ -300,6 +300,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "syltext")) {
         p_config->sylt_ext = sdsreplace(p_config->sylt_ext, value);
     }
+    else if (MATCH("mympd", "syslog")) {
+        p_config->syslog = strtobool(value);
+    }
     else if (MATCH("theme", "theme")) {
         p_config->theme = sdsreplace(p_config->theme, value);
     }
@@ -337,11 +340,11 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->custom_placeholder_images = strtobool(value);
     }
     else if (strcasecmp(section, "syscmds") == 0) {
-        LOG_DEBUG("Adding syscmd %s: %s", name, value);
+        MYMPD_LOG_DEBUG("Adding syscmd %s: %s", name, value);
         list_push(&p_config->syscmd_list, name, 0, value, NULL);
     }
     else {
-        LOG_WARN("Unkown config option: %s - %s", section, name);
+        MYMPD_LOG_WARN("Unkown config option: %s - %s", section, name);
         return 0;  
     }
     return 1;
@@ -355,7 +358,7 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
         char *var = strdup(envvar);
         section = strtok_r(var, "_", &name);
         if (section != NULL && name != NULL) {
-            LOG_DEBUG("Using environment variable %s_%s: %s", section, name, value);
+            MYMPD_LOG_DEBUG("Using environment variable %s_%s: %s", section, name, value);
             mympd_inihandler(config, section, name, value);
         }
         value = NULL;
@@ -390,7 +393,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
         "MYMPD_COVERCACHEAVOID", "MYMPD_LYRICS", "MYMPD_PARTITIONS", "MYMPD_FOOTERSTOP",
         "MYMPD_VOLUMEMIN", "MYMPD_VOLUMEMAX", "MYMPD_VORBISUSLT", "MYMPD_VORBISSYLT",
-        "MYMPD_USLTEXT", "MYMPD_SYLTEXT",
+        "MYMPD_USLTEXT", "MYMPD_SYLTEXT", "MYMPD_SYSLOG",
       #ifdef ENABLE_LUA
         "MYMPD_SCRIPTING", "MYMPD_REMOTESCRIPTING", "MYMPD_LUALIBS", "MYMPD_SCRIPTEDITOR",
       #endif
@@ -563,6 +566,7 @@ void mympd_config_defaults(t_config *config) {
     config->uslt_ext = sdsnew("txt");
     config->sylt_ext = sdsnew("lrc");
     config->bg_image = sdsempty();
+    config->syslog = false;
     list_init(&config->syscmd_list);
 }
 
@@ -574,7 +578,7 @@ bool mympd_dump_config(void) {
     sds tmp_file = sdscat(sdsempty(), "/tmp/mympd.conf.XXXXXX");
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
-        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }
@@ -698,6 +702,7 @@ bool mympd_dump_config(void) {
         "vorbissylt = %s\n"
         "usltext = %s\n"
         "syltext = %s\n"
+        "syslog = %s\n"
         "\n",
         p_config->user,
         (p_config->chroot == true ? "true" : "false"),
@@ -763,8 +768,8 @@ bool mympd_dump_config(void) {
         p_config->vorbis_uslt,
         p_config->vorbis_sylt,
         p_config->uslt_ext,
-        p_config->sylt_ext
-        
+        p_config->sylt_ext,
+        (p_config->syslog == true ? "true" : "false")
     );
 
     fprintf(fp, "[theme]\n"
@@ -800,7 +805,7 @@ bool mympd_dump_config(void) {
     sds conf_file = sdscat(sdsempty(), "/tmp/mympd.conf");
     int rc = rename(tmp_file, conf_file);
     if (rc == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, conf_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, conf_file, strerror(errno));
     }
     sdsfree(tmp_file);
     sdsfree(conf_file);
@@ -813,9 +818,9 @@ bool mympd_dump_config(void) {
 }
 
 bool mympd_read_config(t_config *config, sds configfile) {
-    LOG_INFO("Parsing config file: %s", configfile);
+    MYMPD_LOG_NOTICE("Parsing config file: %s", configfile);
     if (ini_parse(configfile, mympd_inihandler, config) < 0) {
-        LOG_WARN("Can't parse config file %s, using defaults", configfile);
+        MYMPD_LOG_WARN("Can't parse config file %s, using defaults", configfile);
     }
     //read environment - overwrites config file definitions
     mympd_get_env(config);
@@ -833,43 +838,43 @@ bool mympd_read_config(t_config *config, sds configfile) {
         mympd_set_readonly(config);
     }
     if (config->stickers == false && config->sticker_cache == true) {
-        LOG_INFO("Stickers are disabled, disabling sticker cache");
+        MYMPD_LOG_NOTICE("Stickers are disabled, disabling sticker cache");
         config->sticker_cache = false;
     }
     if (config->publish == false && config->webdav == true) {
-        LOG_INFO("Publish is disabled, disabling webdav");
+        MYMPD_LOG_NOTICE("Publish is disabled, disabling webdav");
         config->webdav = false;
     }
 
     if (config->chroot == true && config->syscmds == true) {
-        LOG_INFO("Chroot enabled, disabling syscmds");
+        MYMPD_LOG_NOTICE("Chroot enabled, disabling syscmds");
         config->syscmds = false;
     }
     
     if (config->scripting == false && config->remotescripting == true) {
-        LOG_INFO("Scripting disabled, disabling remote scripting");
+        MYMPD_LOG_NOTICE("Scripting disabled, disabling remote scripting");
         config->remotescripting = false;
     }
     if (config->scripting == false && config->scripteditor == true) {
-        LOG_INFO("Scripting disabled, disabling scripteditor");
+        MYMPD_LOG_NOTICE("Scripting disabled, disabling scripteditor");
         config->scripteditor = false;
     }
     return true;
 }
 
 void mympd_set_readonly(t_config *config) {
-    LOG_INFO("Entering readonly mode");
+    MYMPD_LOG_NOTICE("Entering readonly mode");
     config->readonly = true;
     if (config->bookmarks == true) {
-        LOG_INFO("Disabling bookmarks");
+        MYMPD_LOG_NOTICE("Disabling bookmarks");
         config->bookmarks = false;
     }
     if (config->smartpls == true) {
-        LOG_INFO("Disabling smart playlists");
+        MYMPD_LOG_NOTICE("Disabling smart playlists");
         config->smartpls = false;
     }
     if (config->covercache == true) {
-        LOG_INFO("Disabling covercache");
+        MYMPD_LOG_NOTICE("Disabling covercache");
         config->covercache = false;
     }
 }

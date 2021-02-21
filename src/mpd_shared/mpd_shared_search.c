@@ -55,7 +55,7 @@ static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, lo
                       unsigned int limit, const t_tags *tagcols, bool adv, const char *searchtag)
 {
     if (strcmp(expression, "") == 0) {
-        LOG_ERROR("No search expression defined");
+        MYMPD_LOG_ERROR("No search expression defined");
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "mpd", "error", "No search expression defined");
         return buffer;
     }
@@ -130,7 +130,7 @@ static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, lo
                 }
             }
             else {
-                LOG_WARN("Unknown sort tag: %s", sort);
+                MYMPD_LOG_WARN("Unknown sort tag: %s", sort);
             }
         }
         if (grouptag != NULL && strcmp(grouptag, "") != 0 && mpd_state->feat_tags == true) {

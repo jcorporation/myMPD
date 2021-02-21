@@ -60,7 +60,7 @@ bool check_rc_error_and_recover(t_mpd_state *mpd_state, sds *buffer,
                                 sds method, long request_id, bool notify, bool rc, const char *command)
 {
     if (check_error_and_recover2(mpd_state, buffer, method, request_id, notify) == false) {
-        LOG_ERROR("Error in response to command %s", command);
+        MYMPD_LOG_ERROR("Error in response to command %s", command);
         return false;
     }
     if (rc == false) {
@@ -68,7 +68,7 @@ bool check_rc_error_and_recover(t_mpd_state *mpd_state, sds *buffer,
         if (buffer != NULL && *buffer != NULL) {
             *buffer = respond_with_command_error(*buffer, method, request_id, command);
         }
-        LOG_ERROR("Error in response to command %s", command);
+        MYMPD_LOG_ERROR("Error in response to command %s", command);
         return false;
     }
     return true;
@@ -78,7 +78,7 @@ bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, l
     enum mpd_error error = mpd_connection_get_error(mpd_state->conn);
     if (error  != MPD_ERROR_SUCCESS) {
         const char *error_msg = mpd_connection_get_error_message(mpd_state->conn);
-        LOG_ERROR("MPD error: %s (%d)", error_msg , error);
+        MYMPD_LOG_ERROR("MPD error: %s (%d)", error_msg , error);
         if (buffer != NULL) {
             if (*buffer != NULL) {
                 if (notify == false) {

@@ -103,11 +103,11 @@ bool mpd_client_jukebox(t_config *config, t_mpd_client_state *mpd_client_state, 
     time_t now = time(NULL);
     time_t add_time = mpd_client_state->crossfade < mpd_client_state->song_end_time ? mpd_client_state->song_end_time - mpd_client_state->crossfade : 0;
     
-    LOG_DEBUG("Queue length: %u", queue_length);
-    LOG_DEBUG("Min queue length: %u", mpd_client_state->jukebox_queue_length);
+    MYMPD_LOG_DEBUG("Queue length: %u", queue_length);
+    MYMPD_LOG_DEBUG("Min queue length: %u", mpd_client_state->jukebox_queue_length);
     
     if (queue_length >= mpd_client_state->jukebox_queue_length && now < add_time) {
-        LOG_DEBUG("Jukebox: Queue length >= %d and add_time not reached", mpd_client_state->jukebox_queue_length);
+        MYMPD_LOG_DEBUG("Jukebox: Queue length >= %d and add_time not reached", mpd_client_state->jukebox_queue_length);
         return true;
     }
 
@@ -115,22 +115,22 @@ bool mpd_client_jukebox(t_config *config, t_mpd_client_state *mpd_client_state, 
     unsigned add_songs = substractUnsigned(mpd_client_state->jukebox_queue_length, queue_length);
     
     if (now > add_time && add_time > 0 && queue_length <= mpd_client_state->jukebox_queue_length) {
-        LOG_DEBUG("Time now %d greater than add_time %d, adding song", now, add_time);
+        MYMPD_LOG_DEBUG("Time now %d greater than add_time %d, adding song", now, add_time);
         add_songs++;
     }
 
     if (add_songs < 1) {
-        LOG_DEBUG("Jukebox: nothing to do");
+        MYMPD_LOG_DEBUG("Jukebox: nothing to do");
         return true;
     }
     
     if (add_songs > 99) {
-        LOG_WARN("Jukebox: max songs to add set to %ul, adding max. 99 songs", add_songs);
+        MYMPD_LOG_WARN("Jukebox: max songs to add set to %ul, adding max. 99 songs", add_songs);
         add_songs = 99;
     }
         
     if (mpd_client_state->feat_playlists == false && strcmp(mpd_client_state->jukebox_playlist, "Database") != 0) {
-        LOG_WARN("Jukebox: Playlists are disabled");
+        MYMPD_LOG_WARN("Jukebox: Playlists are disabled");
         return true;
     }
 
@@ -141,10 +141,10 @@ bool mpd_client_jukebox(t_config *config, t_mpd_client_state *mpd_client_state, 
         check_rc_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0, false, rc2, "mpd_run_play");
     }
     else {
-        LOG_DEBUG("Jukebox mode: %d", mpd_client_state->jukebox_mode);
-        LOG_ERROR("Jukebox: Error adding song(s)");
+        MYMPD_LOG_DEBUG("Jukebox mode: %d", mpd_client_state->jukebox_mode);
+        MYMPD_LOG_ERROR("Jukebox: Error adding song(s)");
         if (mpd_client_state->jukebox_mode != JUKEBOX_OFF && attempt == 0) {
-            LOG_ERROR("Jukebox: trying again");
+            MYMPD_LOG_ERROR("Jukebox: trying again");
             //retry it only one time
             mpd_client_jukebox(config, mpd_client_state, 1);
         }
@@ -156,7 +156,7 @@ bool mpd_client_jukebox(t_config *config, t_mpd_client_state *mpd_client_state, 
 
 bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_client_state *mpd_client_state, unsigned add_songs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
     if (manual == false) {
-        LOG_DEBUG("Jukebox queue length: %d", mpd_client_state->jukebox_queue.length);
+        MYMPD_LOG_DEBUG("Jukebox queue length: %d", mpd_client_state->jukebox_queue.length);
     }
     if ((manual == false && add_songs > mpd_client_state->jukebox_queue.length) ||
         (manual == true)) 
@@ -178,21 +178,21 @@ bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_client_state *mpd_c
         if (jukebox_mode == JUKEBOX_ADD_SONG) {
 	    bool rc = mpd_run_add(mpd_client_state->mpd_state->conn, current->key);
             if (check_rc_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_add") == true) {
-	        LOG_INFO("Jukebox adding song: %s", current->key);
+	        MYMPD_LOG_NOTICE("Jukebox adding song: %s", current->key);
                 added++;
             }
             else {
-                LOG_ERROR("Jukebox adding song %s failed", current->key);
+                MYMPD_LOG_ERROR("Jukebox adding song %s failed", current->key);
             }
         }
         else {
             bool rc = add_album_to_queue(mpd_client_state, current->key);
             if (rc == true) {
-                LOG_INFO("Jukebox adding album: %s", current->key);
+                MYMPD_LOG_NOTICE("Jukebox adding album: %s", current->key);
                 added++;
             }
             else {
-                LOG_ERROR("Jukebox adding album %s failed", current->key);
+                MYMPD_LOG_ERROR("Jukebox adding album %s failed", current->key);
             }
         }
         if (manual == false) {
@@ -209,7 +209,7 @@ bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_client_state *mpd_c
         check_rc_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_play");
     }
     else {
-        LOG_ERROR("Error adding song(s)");
+        MYMPD_LOG_ERROR("Error adding song(s)");
         return false;
     }
     if (manual == false) {
@@ -221,7 +221,7 @@ bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_client_state *mpd_c
                 return false;
             }
         }
-        LOG_DEBUG("Jukebox queue length: %d", mpd_client_state->jukebox_queue.length);
+        MYMPD_LOG_DEBUG("Jukebox queue length: %d", mpd_client_state->jukebox_queue.length);
     }
     return true;
 }
@@ -306,8 +306,8 @@ static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_c
                     check_error_and_recover2(mpd_client_state->mpd_state, NULL, NULL, 0, false);
                 }
                 else {
-                    LOG_ERROR("Reading last_played line failed");
-                    LOG_DEBUG("Erroneous line: %s", line);
+                    MYMPD_LOG_ERROR("Reading last_played line failed");
+                    MYMPD_LOG_DEBUG("Erroneous line: %s", line);
                 }
             }
             fclose(fp);
@@ -315,16 +315,16 @@ static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_c
         }
         else {
             //ignore missing last_played file
-            LOG_DEBUG("Can not open \"%s\": %s", lp_file, strerror(errno));
+            MYMPD_LOG_DEBUG("Can not open \"%s\": %s", lp_file, strerror(errno));
         }
         sdsfree(lp_file);
     }
-    LOG_DEBUG("Jukebox last_played list length: %d", queue_list->length);
+    MYMPD_LOG_DEBUG("Jukebox last_played list length: %d", queue_list->length);
     return queue_list;
 }
 
 static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_client_state *mpd_client_state, unsigned add_songs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
-    LOG_DEBUG("Jukebox queue to small, adding entities");
+    MYMPD_LOG_DEBUG("Jukebox queue to small, adding entities");
     if (mpd_client_state->mpd_state->feat_tags == true) {
         if (mpd_client_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
             enable_mpd_tags(mpd_client_state->mpd_state, mpd_client_state->jukebox_unique_tag);
@@ -339,7 +339,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_client
     }
     
     if (rc == false) {
-        LOG_ERROR("Filling jukebox queue failed, disabling jukebox");
+        MYMPD_LOG_ERROR("Filling jukebox queue failed, disabling jukebox");
         send_jsonrpc_notify("jukebox", "error", "Filling jukebox queue failed, disabling jukebox");
         mpd_client_state->jukebox_mode = JUKEBOX_OFF;
         return false;
@@ -358,7 +358,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
     }
     
     if (jukebox_mode == JUKEBOX_ADD_SONG && strcmp(playlist, "Database") == 0 && mpd_client_state->mpd_state->feat_mpd_searchwindow == false) {
-        LOG_ERROR("Jukebox mode song and playlist database depends on mpd version >= 0.20.0");
+        MYMPD_LOG_ERROR("Jukebox mode song and playlist database depends on mpd version >= 0.20.0");
         return false;
     }
     
@@ -376,7 +376,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
         now = now - mpd_client_state->jukebox_last_played * 60 * 60;
         
         if (mpd_client_state->sticker_cache == NULL) {
-            LOG_WARN("Sticker cache is null, jukebox doesn't respect last played constraint");
+            MYMPD_LOG_WARN("Sticker cache is null, jukebox doesn't respect last played constraint");
         }
         
         unsigned start_length;
@@ -388,28 +388,28 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
             start_length = 0;
         }
         do {
-            LOG_DEBUG("Jukebox: iterating through source, start: %u", start);
+            MYMPD_LOG_DEBUG("Jukebox: iterating through source, start: %u", start);
 
             if (strcmp(playlist, "Database") == 0) {
                 if (mpd_search_db_songs(mpd_client_state->mpd_state->conn, false) == false) { 
-                    LOG_ERROR("Error in response to command: mpd_search_db_songs");
+                    MYMPD_LOG_ERROR("Error in response to command: mpd_search_db_songs");
                 }
                 else if (mpd_search_add_uri_constraint(mpd_client_state->mpd_state->conn, MPD_OPERATOR_DEFAULT, "") == false) { 
-                    LOG_ERROR("Error in response to command: mpd_search_add_uri");
+                    MYMPD_LOG_ERROR("Error in response to command: mpd_search_add_uri");
                     mpd_search_cancel(mpd_client_state->mpd_state->conn);
                 }
                 else if (mpd_search_add_window(mpd_client_state->mpd_state->conn, start, end) == false) { 
-                    LOG_ERROR("Error in response to command: mpd_search_add_window");
+                    MYMPD_LOG_ERROR("Error in response to command: mpd_search_add_window");
                     mpd_search_cancel(mpd_client_state->mpd_state->conn);
                 }
                 else if (mpd_search_commit(mpd_client_state->mpd_state->conn) == false) {
-                    LOG_ERROR("Error in response to command: mpd_search_commit");
+                    MYMPD_LOG_ERROR("Error in response to command: mpd_search_commit");
                     mpd_search_cancel(mpd_client_state->mpd_state->conn);
                 }
             }
             else {
                 if (mpd_send_list_playlist_meta(mpd_client_state->mpd_state->conn, playlist) == false) {
-                    LOG_ERROR("Error in response to command: mpd_send_list_playlist_meta");
+                    MYMPD_LOG_ERROR("Error in response to command: mpd_send_list_playlist_meta");
                 }
             }
             
@@ -438,12 +438,12 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
                         if (nkeep < add_songs) {
                             if (manual == false) {
 		                if (list_push(&mpd_client_state->jukebox_queue, uri, lineno, tag_value, NULL) == false) {
-		                    LOG_ERROR("Can't push jukebox_queue element");
+		                    MYMPD_LOG_ERROR("Can't push jukebox_queue element");
 		                }
                             }
                             else {
                                 if (list_push(&mpd_client_state->jukebox_queue_tmp, uri, lineno, tag_value, NULL) == false) {
-                                    LOG_ERROR("Can't push jukebox_queue_tmp element");
+                                    MYMPD_LOG_ERROR("Can't push jukebox_queue_tmp element");
                                 }
                             }
                             nkeep++;
@@ -452,12 +452,12 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
                             unsigned i = add_songs > 1 ? start_length + randrange(0, add_songs -1)  : 0;
                             if (manual == false) {
                                 if (list_replace(&mpd_client_state->jukebox_queue, i, uri, lineno, tag_value, NULL) == false) {
-                                    LOG_ERROR("Can't replace jukebox_queue element pos %u", i);
+                                    MYMPD_LOG_ERROR("Can't replace jukebox_queue element pos %u", i);
                                 }
                             }
                             else {
                                 if (list_replace(&mpd_client_state->jukebox_queue_tmp, i, uri, lineno, tag_value, NULL) == false) {
-                                    LOG_ERROR("Can't replace jukebox_queue_tmp element pos %u", i);
+                                    MYMPD_LOG_ERROR("Can't replace jukebox_queue_tmp element pos %u", i);
                                 }
                             }
                         }
@@ -478,7 +478,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
             start = end;
             end = end + 1000;
         } while (strcmp(playlist, "Database") == 0 && lineno + skipno > start);
-        LOG_DEBUG("Jukebox iterated through %u songs, skipped %u", lineno, skipno);
+        MYMPD_LOG_DEBUG("Jukebox iterated through %u songs, skipped %u", lineno, skipno);
     }
     else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
         //add album
@@ -487,11 +487,11 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
         }
         
         if (mpd_search_db_tags(mpd_client_state->mpd_state->conn, MPD_TAG_ALBUM) == false) {
-            LOG_ERROR("Error in response to command: mpd_search_db_tags");
+            MYMPD_LOG_ERROR("Error in response to command: mpd_search_db_tags");
             mpd_search_cancel(mpd_client_state->mpd_state->conn);
         }
         else if (mpd_search_commit(mpd_client_state->mpd_state->conn) == false) { 
-            LOG_ERROR("Error in response to command: mpd_search_commit");
+            MYMPD_LOG_ERROR("Error in response to command: mpd_search_commit");
         }
         
         if (check_error_and_recover2(mpd_client_state->mpd_state, NULL, NULL, 0, false) == false) {
@@ -505,12 +505,12 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
                     if (nkeep < add_songs) {
                         if (manual == false) {
                             if (list_push(&mpd_client_state->jukebox_queue, pair->value, lineno, NULL, NULL) == false) {
-                                LOG_ERROR("Can't push jukebox_queue_tmp element");
+                                MYMPD_LOG_ERROR("Can't push jukebox_queue_tmp element");
                             }
                         }
                         else {
                             if (list_push(&mpd_client_state->jukebox_queue_tmp, pair->value, lineno, NULL, NULL) == false) {
-                                LOG_ERROR("Can't push jukebox_queue_tmp element");
+                                MYMPD_LOG_ERROR("Can't push jukebox_queue_tmp element");
                             }
                         }
                         nkeep++;
@@ -519,12 +519,12 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
                         unsigned i = add_songs > 1 ? randrange(0, add_songs) : 0;
                         if (manual == false) {
                             if (list_replace(&mpd_client_state->jukebox_queue, i, pair->value, lineno, NULL, NULL) == false) {
-                                LOG_ERROR("Can't replace jukebox_queue element pos %d", i);
+                                MYMPD_LOG_ERROR("Can't replace jukebox_queue element pos %d", i);
                             }
                         }
                         else {
                             if (list_replace(&mpd_client_state->jukebox_queue_tmp, i, pair->value, lineno, NULL, NULL) == false) {
-                                LOG_ERROR("Can't replace jukebox_queue_tmp element pos %d", i);
+                                MYMPD_LOG_ERROR("Can't replace jukebox_queue_tmp element pos %d", i);
                             }
                         }
                     }
@@ -539,13 +539,13 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
             FREE_PTR(queue_list);
             return false;
         }
-        LOG_DEBUG("Jukebox iterated through %u albums, skipped %u", lineno, skipno);
+        MYMPD_LOG_DEBUG("Jukebox iterated through %u albums, skipped %u", lineno, skipno);
     }
 
     if (nkeep < add_songs) {
-        LOG_WARN("Jukebox queue didn't contain %u entries", add_songs);
+        MYMPD_LOG_WARN("Jukebox queue didn't contain %u entries", add_songs);
         if (mpd_client_state->jukebox_enforce_unique == true) {
-            LOG_WARN("Disabling jukebox unique constraints temporarily");
+            MYMPD_LOG_WARN("Disabling jukebox unique constraints temporarily");
             mpd_client_state->jukebox_enforce_unique = false;
             send_jsonrpc_notify("jukebox", "warn", "Playlist to small, disabling jukebox unique constraints temporarily");
         }

@@ -55,11 +55,11 @@ void mympd_api_settings_delete(t_config *config) {
         sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
         int rc = unlink(filename);
         if (rc != 0 && rc != ENOENT) {
-            LOG_ERROR("Error removing file \"%s\": %s", filename, strerror(errno));
+            MYMPD_LOG_ERROR("Error removing file \"%s\": %s", filename, strerror(errno));
         }
         else if (rc != 0) {
             //ignore error
-            LOG_DEBUG("Error removing file \"%s\": %s", filename, strerror(errno));
+            MYMPD_LOG_DEBUG("Error removing file \"%s\": %s", filename, strerror(errno));
         }
         sdsfree(filename);
         ++ptr;
@@ -158,7 +158,7 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
     sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
     char *crap;
 
-    LOG_DEBUG("Parse setting %.*s: %.*s", key->len, key->ptr, val->len, val->ptr);    
+    MYMPD_LOG_DEBUG("Parse setting %.*s: %.*s", key->len, key->ptr, val->len, val->ptr);    
     if (strncmp(key->ptr, "notificationWeb", key->len) == 0) {
         mympd_state->notification_web = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(settingname, "notification_web");
@@ -399,7 +399,7 @@ void mympd_api_settings_reset(t_config *config, t_mympd_state *mympd_state) {
 }
 
 void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
-    LOG_INFO("Reading states");
+    MYMPD_LOG_NOTICE("Reading states");
     mympd_state->mpd_host = state_file_rw_string(config, "mpd_host", config->mpd_host, false);
     mympd_state->mpd_port = state_file_rw_int(config, "mpd_port", config->mpd_port, false);
     mympd_state->mpd_pass = state_file_rw_string(config, "mpd_pass", config->mpd_pass, false);
@@ -562,7 +562,7 @@ sds mympd_api_picture_list(t_config *config, sds buffer, sds method, long reques
     if (pic_dir == NULL) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, true,
             "general", "error", "Can not open directory pics");
-        LOG_ERROR("Can not open directory \"%s\": %s", pic_dirname, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open directory \"%s\": %s", pic_dirname, strerror(errno));
         sdsfree(pic_dirname);
         return buffer;
     }
@@ -603,10 +603,10 @@ static sds state_file_rw_string(t_config *config, const char *name, const char *
     FILE *fp = fopen(cfg_file, "r");
     if (fp == NULL) {
         if (warn == true) {
-            LOG_WARN("Can not open file \"%s\": %s", cfg_file, strerror(errno));
+            MYMPD_LOG_WARN("Can not open file \"%s\": %s", cfg_file, strerror(errno));
         }
         else if (errno != ENOENT) {
-            LOG_ERROR("Can not open file \"%s\": %s", cfg_file, strerror(errno));
+            MYMPD_LOG_ERROR("Can not open file \"%s\": %s", cfg_file, strerror(errno));
         }
         state_file_write(config, name, def_value);
         result = sdscat(result, def_value);
@@ -616,7 +616,7 @@ static sds state_file_rw_string(t_config *config, const char *name, const char *
     sdsfree(cfg_file);
     read = getline(&line, &n, fp);
     if (read > 0) {
-        LOG_DEBUG("State %s: %s", name, line);
+        MYMPD_LOG_DEBUG("State %s: %s", name, line);
     }
     fclose(fp);
     if (read > 0) {
@@ -664,19 +664,19 @@ static bool state_file_write(t_config *config, const char *name, const char *val
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/%s.XXXXXX", config->varlibdir, name);
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
-        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }
     FILE *fp = fdopen(fd, "w");
     int rc = fputs(value, fp);
     if (rc == EOF) {
-        LOG_ERROR("Can not write to file \"%s\"", tmp_file);
+        MYMPD_LOG_ERROR("Can not write to file \"%s\"", tmp_file);
     }
     fclose(fp);
     sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, name);
     if (rename(tmp_file, cfg_file) == -1) {
-        LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed: %s", tmp_file, cfg_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed: %s", tmp_file, cfg_file, strerror(errno));
         sdsfree(tmp_file);
         sdsfree(cfg_file);
         return false;
@@ -687,19 +687,19 @@ static bool state_file_write(t_config *config, const char *name, const char *val
 }
 
 static sds default_navbar_icons(t_config *config, sds buffer) {
-    LOG_INFO("Writing default navbar_icons");
+    MYMPD_LOG_NOTICE("Writing default navbar_icons");
     sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->varlibdir);
     sdsclear(buffer);
     buffer = sdscat(buffer, NAVBAR_ICONS);
     FILE *fp = fopen(file_name, "w");
     if (fp == NULL) {
-        LOG_ERROR("Can not open file \"%s\" for write: %s", file_name, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", file_name, strerror(errno));
         sdsfree(file_name);
         return buffer;
     }
     int rc = fputs(buffer, fp);
     if (rc == EOF) {
-        LOG_ERROR("Can not write to file \"%s\"", file_name);
+        MYMPD_LOG_ERROR("Can not write to file \"%s\"", file_name);
     }
     fclose(fp);
     sdsfree(file_name);
@@ -712,7 +712,7 @@ static sds read_navbar_icons(t_config *config) {
     FILE *fp = fopen(file_name, "r");
     if (fp == NULL) {
         if (errno != ENOENT) {
-            LOG_ERROR("Can not open file \"%s\": %s", file_name, strerror(errno));
+            MYMPD_LOG_ERROR("Can not open file \"%s\": %s", file_name, strerror(errno));
         }
         buffer = default_navbar_icons(config, buffer);
         sdsfree(file_name);

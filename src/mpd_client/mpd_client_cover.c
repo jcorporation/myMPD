@@ -31,14 +31,14 @@ sds mpd_client_getcover(t_config *config, t_mpd_client_state *mpd_client_state, 
     void *binary_buffer = malloc(config->binarylimit);
     int recv_len = 0;
     if (mpd_client_state->feat_mpd_albumart == true) {
-        LOG_DEBUG("Try mpd command albumart for \"%s\"", uri);
+        MYMPD_LOG_DEBUG("Try mpd command albumart for \"%s\"", uri);
         while ((recv_len = mpd_run_albumart(mpd_client_state->mpd_state->conn, uri, offset, binary_buffer, config->binarylimit)) > 0) {
             *binary = sdscatlen(*binary, binary_buffer, recv_len);
             offset += recv_len;
         }
     }
     if (offset == 0 && mpd_client_state->feat_mpd_readpicture == true) {
-        LOG_DEBUG("Try mpd command readpicture for \"%s\"", uri);
+        MYMPD_LOG_DEBUG("Try mpd command readpicture for \"%s\"", uri);
         while ((recv_len = mpd_run_readpicture(mpd_client_state->mpd_state->conn, uri, offset, binary_buffer, config->binarylimit)) > 0) {
             *binary = sdscatlen(*binary, binary_buffer, recv_len);
             offset += recv_len;
@@ -51,7 +51,7 @@ sds mpd_client_getcover(t_config *config, t_mpd_client_state *mpd_client_state, 
     }
     free(binary_buffer);
     if (offset > 0) {
-        LOG_DEBUG("Albumart found by mpd for uri \"%s\"", uri);
+        MYMPD_LOG_DEBUG("Albumart found by mpd for uri \"%s\"", uri);
         sds mime_type = get_mime_type_by_magic_stream(*binary);
         buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = tojson_char(buffer, "mime_type", mime_type, false);
@@ -62,7 +62,7 @@ sds mpd_client_getcover(t_config *config, t_mpd_client_state *mpd_client_state, 
         sdsfree(mime_type);
     }
     else {
-        LOG_DEBUG("No albumart found by mpd for uri \"%s\"", uri);
+        MYMPD_LOG_DEBUG("No albumart found by mpd for uri \"%s\"", uri);
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "albumart", "warn", "No albumart found by mpd");
     }
     return buffer;

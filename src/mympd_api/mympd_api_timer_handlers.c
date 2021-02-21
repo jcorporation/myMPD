@@ -25,7 +25,7 @@
 
 //timer_id 1
 void timer_handler_covercache(struct t_timer_definition *definition, void *user_data) {
-    LOG_VERBOSE("Start timer_handler_covercache");
+    MYMPD_LOG_INFO("Start timer_handler_covercache");
     (void) definition;
     t_config *config = (t_config *) user_data;
     clear_covercache(config, -1);
@@ -33,7 +33,7 @@ void timer_handler_covercache(struct t_timer_definition *definition, void *user_
 
 //timer_id 2
 void timer_handler_smartpls_update(struct t_timer_definition *definition, void *user_data) {
-    LOG_VERBOSE("Start timer_handler_smartpls_update");
+    MYMPD_LOG_INFO("Start timer_handler_smartpls_update");
     (void) definition;
     (void) user_data;
     t_work_request *request = create_request(-1, 0, MPDWORKER_API_SMARTPLS_UPDATE_ALL, "MPDWORKER_API_SMARTPLS_UPDATE_ALL", "");
@@ -42,7 +42,7 @@ void timer_handler_smartpls_update(struct t_timer_definition *definition, void *
 }
 
 void timer_handler_select(struct t_timer_definition *definition, void *user_data) {
-    LOG_VERBOSE("Start timer_handler_select for timer \"%s\"", definition->name);
+    MYMPD_LOG_INFO("Start timer_handler_select for timer \"%s\"", definition->name);
     if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "stopplay") == 0) {
         t_work_request *request = create_request(-1, 0, MPD_API_PLAYER_STOP, "MPD_API_PLAYER_STOP", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_PLAYER_STOP\",\"params\":{}}");
@@ -82,7 +82,7 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
         tiny_queue_push(mympd_api_queue, request, 0);
     }
     else {
-        LOG_ERROR("Unknown script action: %s - %s", definition->action, definition->subaction);
+        MYMPD_LOG_ERROR("Unknown script action: %s - %s", definition->action, definition->subaction);
     }
     (void) user_data;
 }

@@ -59,13 +59,13 @@ bool mpd_client_sticker_dequeue(t_mpd_client_state *mpd_client_state) {
     if (mpd_client_state->sticker_cache != NULL && mpd_client_state->sticker_cache_building == true) {
         //sticker cache is currently (re-)building in the mpd_worker thread
         //cache sticker write calls
-        LOG_VERBOSE("Delay setting stickers, sticker_cache is building");
+        MYMPD_LOG_INFO("Delay setting stickers, sticker_cache is building");
         return false;
     }
     
     struct list_node *current = mpd_client_state->sticker_queue.head;
     while (current != NULL) {
-        LOG_DEBUG("Setting %s = %ld for %s", current->value_p, current->value_i, current->key);
+        MYMPD_LOG_DEBUG("Setting %s = %ld for %s", current->value_p, current->value_i, current->key);
         if (strcmp(current->value_p, "playCount") == 0 || strcmp(current->value_p, "skipCount") == 0) {
             _mpd_client_count_song_uri(mpd_client_state, current->key, current->value_p, current->value_i);
         }
@@ -176,7 +176,7 @@ static bool _mpd_client_count_song_uri(t_mpd_client_state *mpd_client_state, con
     }
 
     sds value_str = sdsfromlonglong(old_value);
-    LOG_VERBOSE("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
+    MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
     bool rc = mpd_run_sticker_set(mpd_client_state->mpd_state->conn, "song", uri, name, value_str);
     sdsfree(value_str);
     if (rc == false) {
@@ -197,11 +197,11 @@ static bool _mpd_client_count_song_uri(t_mpd_client_state *mpd_client_state, con
 
 static bool _mpd_client_set_sticker(t_mpd_client_state *mpd_client_state, const char *uri, const char *name, const long value) {
     if (uri == NULL || strstr(uri, "://") != NULL) {
-        LOG_ERROR("Failed to set sticker %s to %d, invalid song uri: %s", name, value, uri);
+        MYMPD_LOG_ERROR("Failed to set sticker %s to %d, invalid song uri: %s", name, value, uri);
         return false;
     }
     sds value_str = sdsfromlonglong(value);
-    LOG_VERBOSE("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
+    MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
     bool rc = mpd_run_sticker_set(mpd_client_state->mpd_state->conn, "song", uri, name, value_str);
     sdsfree(value_str);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_sticker_set") == false) {

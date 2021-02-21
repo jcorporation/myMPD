@@ -50,7 +50,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
     MEASURE_START
     #endif
 
-    LOG_VERBOSE("MPD WORKER API request (%d)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
+    MYMPD_LOG_INFO("MPD WORKER API request (%d)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
     t_work_result *response = create_result(request);
     
@@ -100,7 +100,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
                     "playlist", "info", "Smart playlists update started");
                 if (request->conn_id > -1) {
-                    LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
+                    MYMPD_LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
                     tiny_queue_push(web_server_queue, response, 0);
                 }
                 else {
@@ -142,7 +142,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
             break;
         default:
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Unknown request");
-            LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
+            MYMPD_LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
     }
     FREE_PTR(p_charbuf1);
     FREE_PTR(p_charbuf2);
@@ -159,14 +159,14 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
         if (sdslen(response->data) == 0) {
             response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true, 
                 "general", "error", "No response for method %{method}", 2, "method", request->method);
-            LOG_ERROR("No response for method \"%s\"", request->method);
+            MYMPD_LOG_ERROR("No response for method \"%s\"", request->method);
         }
         if (request->conn_id == -2) {
-            LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
+            MYMPD_LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
             tiny_queue_push(mympd_script_queue, response, request->id);
         }
         else if (request->conn_id > -1) {
-            LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
+            MYMPD_LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
             tiny_queue_push(web_server_queue, response, 0);
         }
         else {
@@ -187,7 +187,7 @@ static bool mpd_worker_api_settings_set(t_mpd_worker_state *mpd_worker_state, st
     sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
 
     *check_mpd_error = false;
-    LOG_DEBUG("Parse setting \"%.*s\" with value \"%.*s\"", key->len, key->ptr, val->len, val->ptr);
+    MYMPD_LOG_DEBUG("Parse setting \"%.*s\" with value \"%.*s\"", key->len, key->ptr, val->len, val->ptr);
     if (strncmp(key->ptr, "mpdPass", key->len) == 0) {
         if (strncmp(val->ptr, "dontsetpassword", val->len) != 0) {
             *mpd_host_changed = true;

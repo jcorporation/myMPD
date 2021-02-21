@@ -63,15 +63,15 @@ bool mpd_client_queue_replace_with_song(t_mpd_client_state *mpd_client_state, co
     if (mpd_command_list_begin(mpd_client_state->mpd_state->conn, false)) {
         bool rc = mpd_send_clear(mpd_client_state->mpd_state->conn);
         if (rc == false) {
-            LOG_ERROR("Error adding command to command list mpd_send_clear");
+            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear");
         }
         rc = mpd_send_add(mpd_client_state->mpd_state->conn, uri);
         if (rc == false) {
-            LOG_ERROR("Error adding command to command list mpd_send_add");
+            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_add");
         }
         rc = mpd_send_play(mpd_client_state->mpd_state->conn);
         if (rc == false) {
-            LOG_ERROR("Error adding command to command list mpd_send_play");
+            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_play");
         }
         if (mpd_command_list_end(mpd_client_state->mpd_state->conn) == true) {
             mpd_response_finish(mpd_client_state->mpd_state->conn);
@@ -224,7 +224,7 @@ sds mpd_client_crop_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds 
     }
     else {
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "queue", "error", "Can not crop the queue");
-        LOG_ERROR("Can not crop the queue");
+        MYMPD_LOG_ERROR("Can not crop the queue");
     }
     
     mpd_status_free(status);

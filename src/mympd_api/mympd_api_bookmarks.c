@@ -32,7 +32,7 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/bookmark_list.XXXXXX", config->varlibdir);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }
@@ -67,8 +67,8 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
                 }
             }
             else {
-                LOG_ERROR("Can not read bookmarks line");
-                LOG_DEBUG("Errorneous line: %s", line);
+                MYMPD_LOG_ERROR("Can not read bookmarks line");
+                MYMPD_LOG_DEBUG("Errorneous line: %s", line);
             }
             FREE_PTR(lname);
             FREE_PTR(luri);
@@ -84,7 +84,7 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
     fclose(fo);
     
     if (rename(tmp_file, b_file) == -1) {
-        LOG_ERROR("Rename file from \"%s\" to \"%s\" failed: %s", tmp_file, b_file, strerror(errno));
+        MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed: %s", tmp_file, b_file, strerror(errno));
         sdsfree(tmp_file);
         sdsfree(b_file);
         return false;
@@ -102,11 +102,11 @@ bool mympd_api_bookmark_clear(t_config *config) {
         return true;
     }
     if (rc == -1 && errno != ENOENT) {
-        LOG_ERROR("Error removing file \"%s\": %s", b_file, strerror(errno));
+        MYMPD_LOG_ERROR("Error removing file \"%s\": %s", b_file, strerror(errno));
     }
     else {
         //ignore error
-        LOG_DEBUG("Error removing file \"%s\": %s", b_file, strerror(errno));
+        MYMPD_LOG_DEBUG("Error removing file \"%s\": %s", b_file, strerror(errno));
     }
     sdsfree(b_file);
     return false;
@@ -129,7 +129,7 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, long reque
         //create empty bookmarks file
         fi = fopen(b_file, "w");
         if (fi == NULL) {
-            LOG_ERROR("Can't open %s for write", b_file);
+            MYMPD_LOG_ERROR("Can't open %s for write", b_file);
             buffer = sdscrop(buffer);
             buffer = jsonrpc_respond_message(buffer, method, request_id, true, 
                 "general", "error", "Failed to open bookmarks file");
@@ -177,6 +177,6 @@ static bool write_bookmarks_line(FILE *fp, int id, const char *name,
     if (rc > 0) {
         return true;
     }
-    LOG_ERROR("Can't write bookmarks line to file");
+    MYMPD_LOG_ERROR("Can't write bookmarks line to file");
     return false;
 }

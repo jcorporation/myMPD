@@ -68,7 +68,7 @@ void *mympd_api_loop(void *arg_config) {
     
     //set timers
     if (config->covercache == true) {
-        LOG_DEBUG("Setting timer action \"clear covercache\" to periodic each 7200s");
+        MYMPD_LOG_DEBUG("Setting timer action \"clear covercache\" to periodic each 7200s");
         add_timer(&mympd_state->timer_list, 60, 7200, timer_handler_covercache, 1, NULL, (void *)config);
     }
 
@@ -111,7 +111,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     MEASURE_START
     #endif
 
-    LOG_VERBOSE("MYMPD API request (%d): %s", request->conn_id, request->data);
+    MYMPD_LOG_INFO("MYMPD API request (%d): %s", request->conn_id, request->data);
     //create response struct
     t_work_result *response = create_result(request);
     
@@ -267,7 +267,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     struct list *lua_mympd_state = (struct list *)request->extra;
                     rc = mympd_api_get_lua_mympd_state(mympd_state, lua_mympd_state);
                     if (rc == false) {
-                        LOG_ERROR("Error getting mympd state for script execution");
+                        MYMPD_LOG_ERROR("Error getting mympd state for script execution");
                     }
                     response->extra = request->extra;
                 }
@@ -368,7 +368,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     else {
                         response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true,
                             "general", "error", "Unknown table %{table}", 2, "table", p_charbuf1);
-                        LOG_ERROR("MYMPD_API_COLS_SAVE: Unknown table %s", p_charbuf1);
+                        MYMPD_LOG_ERROR("MYMPD_API_COLS_SAVE: Unknown table %s", p_charbuf1);
                     }
                 }
                 else {
@@ -527,7 +527,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 }
             }
             else if (timer_def != NULL) {
-                LOG_ERROR("No timer id received, discarding timer definition");
+                MYMPD_LOG_ERROR("No timer id received, discarding timer definition");
                 free_timer_definition(timer_def);
             }
             break;
@@ -558,7 +558,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         default:
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                 "general", "error", "Unknown request");
-            LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
+            MYMPD_LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
     }
 
     FREE_PTR(p_charbuf1);
@@ -575,14 +575,14 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     if (sdslen(response->data) == 0) {
         response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true, 
             "general", "error", "No response for method %{method}", 2, "method", request->method);
-        LOG_ERROR("No response for method \"%s\"", request->method);
+        MYMPD_LOG_ERROR("No response for method \"%s\"", request->method);
     }
     if (request->conn_id == -2) {
-        LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
+        MYMPD_LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
         tiny_queue_push(mympd_script_queue, response, request->id);
     }
     else if (request->conn_id > -1) {
-        LOG_DEBUG("Push response to web_server_queue for connection %lu: %s", request->conn_id, response->data);
+        MYMPD_LOG_DEBUG("Push response to web_server_queue for connection %lu: %s", request->conn_id, response->data);
         tiny_queue_push(web_server_queue, response, 0);
     }
     else {
