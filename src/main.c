@@ -22,7 +22,6 @@
 #include <dlfcn.h>
 #include <assert.h>
 #include <inttypes.h>
-#include <syslog.h>
 #include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
