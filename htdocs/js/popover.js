@@ -191,7 +191,10 @@ function showMenuTd(el) {
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
         const pos = parseInt(getAttDec(el.parentNode.parentNode, 'data-pos'));
-        menu += addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) +
+        const vAlbum = getAttDec(el.parentNode.parentNode, 'data-album');
+        const vAlbumArtist = getAttDec(el.parentNode.parentNode, 'data-albumartist');
+        menu += (settings.jukeboxMode === 1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) :
+            addMenuItem({"cmd": "appGoto", "options": ["Browse", "Database", "Detail", 0, 50, "Album", tagAlbumArtist, vAlbum, vAlbumArtist]}, t('Show album')))+
             addMenuItem({"cmd": "delQueueJukeboxSong", "options": [pos]}, t('Remove'));
     }
     else if (app.current.app === 'Home') {

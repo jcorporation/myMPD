@@ -759,6 +759,7 @@ function appInit() {
     initHome();
     initBrowse();
     initQueue();
+    initJukebox();
     initSearch();
     initScripts();
     initTrigger();

@@ -38,15 +38,6 @@ function initQueue() {
         }
     }, false);
 
-    document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            clickSong(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
-        }
-        else if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
-        }
-    }, false);
-
     document.getElementById('selectAddToQueueMode').addEventListener('change', function () {
         let value = getSelectValue(this);
         if (value === '2') {
