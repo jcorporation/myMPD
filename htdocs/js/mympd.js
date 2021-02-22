@@ -714,6 +714,7 @@ function appInit() {
             event.preventDefault();
             let icon = this.getElementsByTagName('span')[0];
             icon.innerText = icon.innerText === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
+            event.stopPropagation();
         }, false);
     }    
     //align dropdowns
@@ -878,6 +879,7 @@ function initPlayback() {
 }
 
 function initNavs() {
+    //do not hide volume menu on click on volume change buttons
     for (const elName of ['btnChVolumeDown', 'btnChVolumeUp', 'volumeBar']) {
         document.getElementById(elName).addEventListener('click', function(event) {
             event.stopPropagation();
@@ -887,6 +889,11 @@ function initNavs() {
     //do not switch to first view by clicking on main menu logo
     document.getElementById('mainMenu').addEventListener('click', function(event) {
         event.preventDefault();
+    }, false);
+    
+    //hides main menu after opening the modal
+    document.getElementById('mainMenuDropdown').addEventListener('click', function(event) {
+        dropdownMainMenu.hide();
     }, false);
 
     document.getElementById('volumeBar').addEventListener('change', function() {
