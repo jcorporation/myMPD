@@ -65,7 +65,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
         }
     }
     logline = sdscatprintf(logline, "%-8s %-10s", loglevel_names[level], thread_logname);
-    if (loglevel == 4) {
+    if (loglevel == 7) {
         logline = sdscatprintf(logline, "%s:%d: ", file, line);
     }
 
