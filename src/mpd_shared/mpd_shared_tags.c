@@ -24,6 +24,10 @@
 #include "../mpd_shared.h"
 #include "mpd_shared_tags.h"
 
+//private definitions
+static sds _mpd_shared_get_tags(struct mpd_song const *song, const enum mpd_tag_type tag, sds tags);
+
+//public functions
 enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag) {
     if (tag == MPD_TAG_ARTIST) {
         return MPD_TAG_ARTIST_SORT;
@@ -93,19 +97,6 @@ sds mpd_shared_get_tags(struct mpd_song const *song, const enum mpd_tag_type tag
         if (sdslen(tags) == 0) {
             tags = sdscatlen(tags, "-", 1);
         }
-    }
-    return tags;
-}
-
-sds _mpd_shared_get_tags(struct mpd_song const *song, const enum mpd_tag_type tag, sds tags) {
-    tags = sdscrop(tags);
-    char *value = NULL;
-    int i = 0;
-    while ((value = (char *)mpd_song_get_tag(song, tag, i)) != NULL) {
-        if (i++) {
-            tags = sdscatlen(tags, ", ", 2);
-        }
-        tags = sdscat(tags, value);
     }
     return tags;
 }
@@ -196,4 +187,18 @@ void album_cache_free(rax **album_cache) {
     raxStop(&iter);
     raxFree(*album_cache);
     *album_cache = NULL;
+}
+
+//private functions
+static sds _mpd_shared_get_tags(struct mpd_song const *song, const enum mpd_tag_type tag, sds tags) {
+    tags = sdscrop(tags);
+    char *value = NULL;
+    int i = 0;
+    while ((value = (char *)mpd_song_get_tag(song, tag, i)) != NULL) {
+        if (i++) {
+            tags = sdscatlen(tags, ", ", 2);
+        }
+        tags = sdscat(tags, value);
+    }
+    return tags;
 }

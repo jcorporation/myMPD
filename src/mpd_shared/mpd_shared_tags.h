@@ -19,6 +19,5 @@ sds put_empty_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcol
 void check_tags(sds taglist, const char *taglistname, t_tags *tagtypes, t_tags allowed_tag_types);
 bool mpd_shared_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag);
 sds mpd_shared_get_tags(struct mpd_song const *song, const enum mpd_tag_type tag, sds tags);
-sds _mpd_shared_get_tags(struct mpd_song const *song, const enum mpd_tag_type tag, sds tags);
 void album_cache_free(rax **album_cache);
 #endif
