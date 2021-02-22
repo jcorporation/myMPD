@@ -312,7 +312,7 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, con
     return timer_def;
 }
 
-time_t timer_calc_starttime(int start_hour, int start_minute) {
+time_t timer_calc_starttime(int start_hour, int start_minute, int interval) {
     time_t now = time(NULL);
     struct tm tms;
     localtime_r(&now, &tms);
@@ -320,11 +320,16 @@ time_t timer_calc_starttime(int start_hour, int start_minute) {
     tms.tm_min = start_minute;
     tms.tm_sec = 0;
     time_t start = mktime(&tms);
-    if (start > now) {
-        return start - now;
+
+    if (interval == 0 || interval == -1) {
+        interval = 86400;
     }
 
-    return 86400 + start - now;
+    while (start < now) {
+        start += interval;
+    }
+
+    return start - now;
 }
 
 sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
@@ -440,7 +445,7 @@ bool timerfile_read(t_config *config, t_mympd_state *mympd_state) {
                 mympd_state->timer_list.last_id = timerid;
             }
             if (je == 1 && timer_def != NULL) {
-                time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute);
+                time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute, interval);
                 add_timer(&mympd_state->timer_list, start, interval, timer_handler_select, timerid, timer_def, NULL);
             }
             else {
