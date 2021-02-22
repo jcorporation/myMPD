@@ -375,8 +375,6 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
     return buffer;    
 }
 
-
-
 sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
                                        const char *searchstr, const char *filter, const char *sort, bool sortdesc, const unsigned int offset, unsigned int limit)
 {
