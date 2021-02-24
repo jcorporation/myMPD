@@ -29,15 +29,15 @@ function delQueueJukeboxSong(pos) {
 function parseJukeboxList(obj) {
     const rowTitle = advancedSettingsDefault.clickAlbumPlay.validValues[settings.advanced.clickAlbumPlay];
     updateTable(obj, 'QueueJukebox', function(row, data) {
-        setAttEnc(row, 'data-uri', obj.result.data[i].uri);
-        setAttEnc(row, 'data-name', obj.result.data[i].Title);
-        setAttEnc(row, 'data-type', obj.result.data[i].uri === 'Album' ? 'album' : 'song');
-        setAttEnc(row, 'data-pos', i);
-        if (obj.result.data[i].Album !== undefined) {
-            setAttEnc(row, 'data-album', obj.result.data[i].Album);
+        setAttEnc(row, 'data-uri', data.uri);
+        setAttEnc(row, 'data-name', data.Title);
+        setAttEnc(row, 'data-type', data.uri === 'Album' ? 'album' : 'song');
+        setAttEnc(row, 'data-pos', (data.Pos - 1));
+        if (data.Album !== undefined) {
+            setAttEnc(row, 'data-album', data.Album);
         }
-        if (obj.result.data[i][tagAlbumArtist] !== undefined) {
-            setAttEnc(row, 'data-albumartist', obj.result.data[i][tagAlbumArtist]);
+        if (data[tagAlbumArtist] !== undefined) {
+            setAttEnc(row, 'data-albumartist', data[tagAlbumArtist]);
         }
         row.setAttribute('title', t(rowTitle));
         row.setAttribute('tabindex', 0);
