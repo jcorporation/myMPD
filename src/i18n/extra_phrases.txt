@@ -24,7 +24,6 @@ MUSICBRAINZ_RELEASETRACKID
 MUSICBRAINZ_TRACKID
 MUSICBRAINZ_WORKID
 Type
-LastPlayed
 Pos
 Fileformat
 Dark
@@ -64,3 +63,8 @@ Num entries
 Song change
 Use ligature
 Show playback settings in footer
+playCount
+skipCount
+lastPlayed
+lastSkipped
+like

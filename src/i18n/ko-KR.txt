@@ -171,15 +171,6 @@ Failed to set like, invalid like value
 Failed to set like, invalid song uri
 잘못된 곡 주소로 좋아요 설정 안 됨
 
-Last played
-앞서 연주함
-
-LastPlayed
-앞서 연주함
-
-Last skipped
-앞서 건너뜀
-
 Database
 데이터 베이스
 
@@ -206,9 +197,6 @@ Next page
 
 Num songs
 %{smart_count} 곡 |||| %{smart_count} 곡
-
-Num playlists
-%{smart_count} 연주목록 |||| %{smart_count} 연주목록
 
 Num entries
 %{smart_count} 항목 |||| %{smart_count} 항목
@@ -353,9 +341,6 @@ Like
 
 Play count
 연주 횟수
-
-Skip count
-건너뛴 횟수
 
 Theme
 테마
@@ -747,20 +732,8 @@ Volumecontrol disabled
 Volume
 음량
 
-No results, please refine your search
-결과가 없으므로, 맞게 찾아야 함
-
-Empty queue
-순서 비우기
-
 Empty list
 목록 비우기
-
-Empty playlist
-연주목록 비우기
-
-No playlists found
-연주목록 찾을 수 없음
 
 Added stream %{streamUri} to queue
 %{streamUri} 스트리밍을 순서에 추가함

@@ -171,15 +171,6 @@ Like non appliqué, valeur de like non valide
 Failed to set like, invalid song uri
 Like non appliqué, URI de la chanson non valide
 
-Last played
-Dernier joué
-
-LastPlayed
-Dernier joué
-
-Last skipped
-Dernier ignoré
-
 Database
 Base de données
 
@@ -206,9 +197,6 @@ Page suivante
 
 Num songs
 %{smart_count} Chanson |||| %{smart_count} Chansons
-
-Num playlists
-%{smart_count} Liste de lecture |||| %{smart_count} Listes de lecture
 
 Num entries
 %{smart_count} Entrée |||| %{smart_count} Entrées
@@ -350,9 +338,6 @@ J'aime
 
 Play count
 Nombre de lecture
-
-Skip count
-Nombre de fois ignoré 
 
 Theme
 Thème  
@@ -738,20 +723,8 @@ Contrôle du volulme désactivé
 Volume
 Volume
 
-No results, please refine your search
-Pas de résultats, veuillez préciser la rechercher
-
-Empty queue
-Queue vide
-
 Empty list
 Liste vide
-
-Empty playlist
-Liste de lecture vide
-
-No playlists found
-Pas de liste de lecture trouvée
 
 Added stream %{streamUri} to queue
 Flux %{streamUri} ajouté à la queue

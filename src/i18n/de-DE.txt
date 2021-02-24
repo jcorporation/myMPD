@@ -171,13 +171,10 @@ Wertung konnte nicht gesetzt werden, ungültiger Wert
 Failed to set like, invalid song uri
 Wertung konnte nicht gesetzt werden, ungültige Lied URL
 
-Last played
+lastPlayed
 Zuletzt gespielt
 
-LastPlayed
-Zuletzt gespielt
-
-Last skipped
+lastSkipped
 Zuletzt übersprungen
 
 Database
@@ -206,9 +203,6 @@ Nächste Seite
 
 Num songs
 %{smart_count} Lied |||| %{smart_count} Lieder
-
-Num playlists
-%{smart_count} Wiedergabeliste |||| %{smart_count} Wiedergabelisten
 
 Num entries
 %{smart_count} Eintrag |||| %{smart_count} Einträge
@@ -351,11 +345,17 @@ Tage
 Like
 Wertung
 
+like
+Wertung
+
 Play count
 Wie oft gespielt
 
-Skip count
-Wie oft übersprungen
+playCount
+Gespielt
+
+skipCount
+Übersprungen
 
 Theme
 Design
@@ -747,20 +747,8 @@ Lautstärkeregelung deaktiviert
 Volume
 Lautstärke
 
-No results, please refine your search
-Keine Ergebnisse, bitte passe die Suche an
-
-Empty queue
-Leere Warteschlange
-
 Empty list
 Leere Liste
-
-Empty playlist
-Leere Wiedergabeliste
-
-No playlists found
-Keine Wiedergabelisten gefunden
 
 Added stream %{streamUri} to queue
 Stream %{streamUri} zu Warteschlange hinzugefügt

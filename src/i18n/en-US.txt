@@ -3,9 +3,6 @@ English
 Num songs
 %{smart_count} Song |||| %{smart_count} Songs
 
-Num playlists
-%{smart_count} Playlist |||| %{smart_count} Playlists
-
 Num entries
 %{smart_count} Entry |||| %{smart_count} Entries
 
@@ -44,3 +41,18 @@ You should maintain and enable the tags Artist, AlbumArtist, Album, Track, Disc 
 
 Each hours
 each hour |||| each %{smart_count} hours
+
+playCount
+Play count
+
+skipCount
+Skip count
+
+lastPlayed
+Last played
+
+lastSkipped
+Last skipped
+
+like
+Like

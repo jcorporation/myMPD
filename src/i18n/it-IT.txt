@@ -171,15 +171,6 @@ Impossibile applicare il like, valore de like non valido
 Failed to set like, invalid song uri
 Impossibile applicare il like, URI della canzone non valido
 
-Last played
-Ultimo riprodotto
-
-LastPlayed
-Ultimo riprodotto
-
-Last skipped
-Ultimo saltato
-
 Database
 Database
 
@@ -206,9 +197,6 @@ Pagina successiva
 
 Num songs
 %{smart_count} Canzone |||| %{smart_count} Canzoni
-
-Num playlists
-%{smart_count} Lista di riproduzione |||| %{smart_count} Liste di riproduzione
 
 Num entries
 %{smart_count} Voce |||| %{smart_count} Voci
@@ -350,9 +338,6 @@ Mi piace
 
 Play count
 Numero esecuzioni
-
-Skip count
-Numero ignorati
 
 Theme
 Tema
@@ -738,20 +723,8 @@ Controllo volume disabilitato
 Volume
 Volume
 
-No results, please refine your search
-Nessun risultato, su prega di affinare la ricerca
-
-Empty queue
-Coda vuota
-
 Empty list
 Lista vuota
-
-Empty playlist
-Lista di riproduzione vuota
-
-No playlists found
-Nessuna lista di riproduzione trovata
 
 Added stream %{streamUri} to queue
 Flusso %{streamUri} aggiunto alla coda
