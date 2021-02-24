@@ -297,11 +297,10 @@ button {
 
 [data-col=Pos],
 [data-col=Type],
-[data-col=Track] {
+[data-col=Track],
+[data-col=Duration] {
   max-width: 5rem;
-  min-width: min-content;
-  min-width: -moz-min-content;
-  min-width: -webkit-min-content;
+  word-break: keep-all;
 }
 
 [data-col=Action] {
