@@ -113,7 +113,8 @@ void free_mympd_state_sds(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->bg_image);
 }
 
-static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", "Lyrics", 0};
+static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", 
+    "Lyrics", "playCount", "skipCount", "lastPlayed", "lastSkipped", "like", 0};
 
 static bool is_mympd_col(sds token) {
     const char** ptr = mympd_cols;

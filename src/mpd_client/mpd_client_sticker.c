@@ -25,6 +25,7 @@
 #include "../global.h"
 #include "../mpd_shared/mpd_shared_typedefs.h"
 #include "../mpd_shared/mpd_shared_tags.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_sticker.h"
@@ -80,59 +81,6 @@ bool mpd_client_sticker_dequeue(t_mpd_client_state *mpd_client_state) {
     return true;
 }
 
-struct t_sticker *get_sticker_from_cache(t_mpd_client_state *mpd_client_state, const char *uri) {
-    void *data = raxFind(mpd_client_state->sticker_cache, (unsigned char*)uri, strlen(uri));
-    if (data == raxNotFound) {
-        return NULL;
-    }
-    t_sticker *sticker = (t_sticker *) data;
-    return sticker;
-}
-
-bool mpd_client_get_sticker(t_mpd_client_state *mpd_client_state, const char *uri, t_sticker *sticker) {
-    struct mpd_pair *pair;
-    char *crap = NULL;
-    sticker->playCount = 0;
-    sticker->skipCount = 0;
-    sticker->lastPlayed = 0;
-    sticker->lastSkipped = 0;
-    sticker->like = 1;
-
-    if (is_streamuri(uri) == true) {
-        return false;
-    }
-
-    bool rc = mpd_send_sticker_list(mpd_client_state->mpd_state->conn, "song", uri);
-    if (check_rc_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_sticker_list") == false) {
-        return false;
-    }
-
-    while ((pair = mpd_recv_sticker(mpd_client_state->mpd_state->conn)) != NULL) {
-        if (strcmp(pair->name, "playCount") == 0) {
-            sticker->playCount = strtoimax(pair->value, &crap, 10);
-        }
-        else if (strcmp(pair->name, "skipCount") == 0) {
-            sticker->skipCount = strtoimax(pair->value, &crap, 10);
-        }
-        else if (strcmp(pair->name, "lastPlayed") == 0) {
-            sticker->lastPlayed = strtoimax(pair->value, &crap, 10);
-        }
-        else if (strcmp(pair->name, "lastSkipped") == 0) {
-            sticker->lastSkipped = strtoimax(pair->value, &crap, 10);
-        }
-        else if (strcmp(pair->name, "like") == 0) {
-            sticker->like = strtoimax(pair->value, &crap, 10);
-        }
-        mpd_return_sticker(mpd_client_state->mpd_state->conn, pair);
-    }
-    mpd_response_finish(mpd_client_state->mpd_state->conn);
-    if (check_error_and_recover2(mpd_client_state->mpd_state, NULL, NULL, 0, false) == false) {
-        return false;
-    }
-
-    return true;
-}
-
 //private functions
 static bool _mpd_client_count_song_uri(t_mpd_client_state *mpd_client_state, const char *uri, const char *name, const long value) {
     if (uri == NULL || strstr(uri, "://") != NULL) {
@@ -141,7 +89,7 @@ static bool _mpd_client_count_song_uri(t_mpd_client_state *mpd_client_state, con
     unsigned old_value = 0;
     t_sticker *sticker = NULL;
     if (mpd_client_state->sticker_cache != NULL) {
-        sticker = get_sticker_from_cache(mpd_client_state, uri);
+        sticker = get_sticker_from_cache(mpd_client_state->sticker_cache, uri);
         if (sticker != NULL) {
             if (strcmp(name, "playCount") == 0) {
                 old_value = sticker->playCount;
@@ -208,7 +156,7 @@ static bool _mpd_client_set_sticker(t_mpd_client_state *mpd_client_state, const 
         return false;
     }
     if (mpd_client_state->sticker_cache != NULL) {
-        t_sticker *sticker = get_sticker_from_cache(mpd_client_state, uri);
+        t_sticker *sticker = get_sticker_from_cache(mpd_client_state->sticker_cache, uri);
         if (sticker != NULL) {
             if (strcmp(name, "like") == 0) {
                 sticker->like = value;

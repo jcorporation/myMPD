@@ -25,6 +25,34 @@
 #include "../mpd_shared.h"
 #include "mpd_shared_sticker.h"
 
+sds mpd_shared_sticker_list(sds buffer, rax *sticker_cache, const char *uri) {
+    t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
+    if (sticker != NULL) {
+        buffer = tojson_long(buffer, "playCount", sticker->playCount, true);
+        buffer = tojson_long(buffer, "skipCount", sticker->skipCount, true);
+        buffer = tojson_long(buffer, "like", sticker->like, true);
+        buffer = tojson_long(buffer, "lastPlayed", sticker->lastPlayed, true);
+        buffer = tojson_long(buffer, "lastSkipped", sticker->lastSkipped, false);
+    }
+    else {
+        buffer = tojson_long(buffer, "playCount", 0, true);
+        buffer = tojson_long(buffer, "skipCount", 0, true);
+        buffer = tojson_long(buffer, "like", 1, true);
+        buffer = tojson_long(buffer, "lastPlayed", 0, true);
+        buffer = tojson_long(buffer, "lastSkipped", 0, false);
+    }
+    return buffer;
+}
+
+struct t_sticker *get_sticker_from_cache(rax *sticker_cache, const char *uri) {
+    void *data = raxFind(sticker_cache, (unsigned char*)uri, strlen(uri));
+    if (data == raxNotFound) {
+        return NULL;
+    }
+    t_sticker *sticker = (t_sticker *) data;
+    return sticker;
+}
+
 bool mpd_shared_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *sticker) {
     struct mpd_pair *pair;
     char *crap = NULL;

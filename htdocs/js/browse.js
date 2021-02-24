@@ -325,142 +325,44 @@ function gotoBrowse(event) {
 }
 
 function parseFilesystem(obj) {
-    let list = app.current.app + (app.current.tab === 'Filesystem' ? app.current.tab : '');
-    let table = document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List');
-    let tbody = table.getElementsByTagName('tbody')[0];
-    let colspan = settings['cols' + list].length;
+    //show images in folder
+    const imageList = document.getElementById('BrowseFilesystemImages');
+    imageList.innerHTML = '';
+    if ((obj.result.images.length === 0 && obj.result.bookletPath === '') || settings.publish === false) {
+        imageList.classList.add('hide');
+    }
+    else {
+        imageList.classList.remove('hide');
+    }
+    if (obj.result.bookletPath !== '' && settings.publish === true) {
+        let img = document.createElement('div');
+        img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
+        img.classList.add('booklet');
+        setAttEnc(img, 'data-href', subdir + '/browse/music/' + obj.result.bookletPath);
+        img.title = t('Booklet');
+        imageList.appendChild(img);
+    }
+    for (let i = 0; i < obj.result.images.length; i++) {
+        let img = document.createElement('div');
+        img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + obj.result.images[i] + '"),url("assets/coverimage-loading.svg")';
+        imageList.appendChild(img);
+    }
 
-    if (obj.error) {
-        tbody.innerHTML = '<tr><td><span class="mi">error_outline</span></td>' +
-                          '<td colspan="' + colspan + '">' + t(obj.error.message) + '</td></tr>';
-        document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
-        return;
-    }
-    
-    if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
-        const imageList = document.getElementById('BrowseFilesystemImages');
-        imageList.innerHTML = '';
-        if ((obj.result.images.length === 0 && obj.result.bookletPath === '') || settings.publish === false) {
-            imageList.classList.add('hide');
-        }
-        else {
-            imageList.classList.remove('hide');
-        }
-        if (obj.result.bookletPath !== '' && settings.publish === true) {
-            let img = document.createElement('div');
-            img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
-            img.classList.add('booklet');
-            setAttEnc(img, 'data-href', subdir + '/browse/music/' + obj.result.bookletPath);
-            img.title = t('Booklet');
-            imageList.appendChild(img);
-        }
-        for (let i = 0; i < obj.result.images.length; i++) {
-            let img = document.createElement('div');
-            img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + obj.result.images[i] + '"),url("assets/coverimage-loading.svg")';
-            imageList.appendChild(img);
-        }
-    }
     const rowTitleSong = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
     const rowTitleFolder = advancedSettingsDefault.clickFolder.validValues[settings.advanced.clickFolder];
     const rowTitlePlaylist = advancedSettingsDefault.clickPlaylist.validValues[settings.advanced.clickPlaylist];
-    let nrItems = obj.result.returnedEntities;
-    let tr = tbody.getElementsByTagName('tr');
-    let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
-    let activeRow = 0;
-    for (let i = 0; i < nrItems; i++) {
-        let row = document.createElement('tr');
-        let tds = '';
-        setAttEnc(row, 'data-type', obj.result.data[i].Type);
-        setAttEnc(row, 'data-uri', obj.result.data[i].uri);
-        row.setAttribute('tabindex', 0);
-        if (app.current.app === 'Search' && settings.featTags === true && settings.featAdvsearch === true) {
-            //add artist and album information for album actions in search app
-            if (obj.result.data[i].Album !== undefined) {
-                setAttEnc(row, 'data-album', obj.result.data[i].Album);
-            }
-            if (obj.result.data[i][tagAlbumArtist] !== undefined) {
-                setAttEnc(row, 'data-albumartist', obj.result.data[i][tagAlbumArtist]);
-            }
+    
+    updateTable(obj, 'BrowseFilesystem', function(row, data) {
+        setAttEnc(row, 'data-type', data.Type);
+        setAttEnc(row, 'data-uri', data.uri);
+        //set Title to name if not defined - for folders and playlists
+        if (data.Title === undefined) {
+            data.Title = data.name;
         }
-        if (obj.result.data[i].Type === 'song') {
-            setAttEnc(row, 'data-name', obj.result.data[i].Title);
-        }
-        else {
-            setAttEnc(row, 'data-name', obj.result.data[i].name);
-        }
-        
-        switch(obj.result.data[i].Type) {
-            case 'parentDir':
-                row.innerHTML = '<td colspan="' + (colspan + 1) + '">..</td>';
-                row.setAttribute('title', t('Open parent folder'));
-                break;
-            case 'dir':
-            case 'smartpls':
-            case 'plist':
-                for (let c = 0; c < settings['cols' + list].length; c++) {
-                    tds += '<td data-col="' + settings['cols' + list][c] + '">';
-                    if (settings['cols' + list][c] === 'Type') {
-                        if (obj.result.data[i].Type === 'dir') {
-                            tds += '<span class="mi">folder_open</span>';
-                        }
-                        else {
-                            tds += '<span class="mi">' + (obj.result.data[i].Type === 'smartpls' ? 'queue_music' : 'list') + '</span>';
-                        }
-                    }
-                    else if (settings['cols' + list][c] === 'Title') {
-                        tds += e(obj.result.data[i].name);
-                    }
-                    tds += '</td>';
-                }
-                tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
-                row.innerHTML = tds;
-                row.setAttribute('title', t(obj.result.data[i].Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
-                break;
-            case 'song':
-                if (obj.result.data[i].Duration !== undefined) {
-                    obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
-                }
-                if (obj.result.data[i].LastModified !== undefined) {
-                    obj.result.data[i].LastModified = localeDate(obj.result.data[i].LastModified);
-                }
-                for (let c = 0; c < settings['cols' + list].length; c++) {
-                    tds += '<td data-col="' + settings['cols' + list][c] + '">';
-                    if (settings['cols' + list][c] === 'Type') {
-                        tds += '<span class="mi">music_note</span>';
-                    }
-                    else {
-                        tds += e(obj.result.data[i][settings['cols' + list][c]]);
-                    }
-                    tds += '</td>';
-                }
-                tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
-                row.innerHTML = tds;
-                row.setAttribute('title', t(rowTitleSong));
-                break;
-        }
-        if (i < tr.length) {
-            activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
-        }
-        else {
-            tbody.append(row);
-        }
-    }
-    let trLen = tr.length - 1;
-    for (let i = trLen; i >= nrItems; i --) {
-        tr[i].remove();
-    }
-
-    if (navigate === true) {
-        focusTable(0);
-    }
-
-    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
-                    
-    if (nrItems === 0) {
-        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
-                          '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
-    }
-    document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
+        setAttEnc(row, 'data-name', data.Title);
+        row.setAttribute('title', t(data.Type === 'song' ? rowTitleSong : 
+                data.Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
+    });
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -645,40 +547,20 @@ function parseAlbumDetails(obj) {
             '<span class="text-light mi">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
             e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>') +
         '</p>';
-    const table = document.getElementById('BrowseDatabaseDetailList');
-    const tbody = table.getElementsByTagName('tbody')[0];
-    const nrCols = settings.colsBrowseDatabaseDetail.length;
-    let titleList = '';
-    if (obj.result.Discs > 1) {
-        titleList = '<tr class="not-clickable"><td><span class="mi">album</span></td><td colspan="' + nrCols +'">' + t('Disc 1') + '</td></tr>';
-    }
-    let nrItems = obj.result.returnedEntities;
-    let lastDisc = parseInt(obj.result.data[0].Disc);
+
     const rowTitle = t(advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong]);
-    for (let i = 0; i < nrItems; i++) {
-        if (lastDisc < parseInt(obj.result.data[i].Disc)) {
-            titleList += '<tr class="not-clickable"><td><span class="mi">album</span></td><td colspan="' + nrCols +'">' + 
-                t('Disc') + ' ' + e(obj.result.data[i].Disc) + '</td></tr>';
-        }
-        if (obj.result.data[i].Duration) {
-            obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
-        }
-        titleList += '<tr tabindex="0" title="' + t(rowTitle) + '"data-type="song" data-name="' + encodeURI(obj.result.data[i].Title) + 
-            '" data-uri="' + encodeURI(obj.result.data[i].uri) + '">';
-        for (let c = 0; c < settings.colsBrowseDatabaseDetail.length; c++) {
-            titleList += '<td data-col="' + settings.colsBrowseDatabaseDetail[c] + '">' + 
-                e(obj.result.data[i][settings.colsBrowseDatabaseDetail[c]]) + '</td>';
-        }
-        titleList += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td></tr>';
-        lastDisc = obj.result.data[i].Disc;
-    }
-    tbody.innerHTML = titleList;
+    updateTable(obj, 'BrowseDatabaseDetail', function(row, data) {
+        setAttEnc(row, 'data-type', 'song');
+        setAttEnc(row, 'data-name', data.Title);
+        setAttEnc(row, 'data-uri', data.uri);
+    });
+
+    const table = document.getElementById('BrowseDatabaseDetailList');
     const tfoot = table.getElementsByTagName('tfoot')[0];
-    let colspan = settings.colsBrowseDatabaseDetail.length;
+    const colspan = settings.colsBrowseDatabaseDetail.length;
     tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + 
         t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + 
         beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
-    document.getElementById('BrowseDatabaseDetailList').classList.remove('opacity05');
 }
 
 //eslint-disable-next-line no-unused-vars

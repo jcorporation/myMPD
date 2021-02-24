@@ -34,9 +34,9 @@
 #include "../mpd_shared/mpd_shared_typedefs.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_tags.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
-#include "mpd_client_sticker.h"
 #include "mpd_client_browse.h"
 
 //private definitions
@@ -97,16 +97,8 @@ sds mpd_client_put_songdetails(t_mpd_client_state *mpd_client_state, sds buffer,
     }
     
     if (mpd_client_state->feat_sticker) {
-        t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
-        assert(sticker);
-        mpd_client_get_sticker(mpd_client_state, uri, sticker);
         buffer = sdscat(buffer, ",");
-        buffer = tojson_long(buffer, "playCount", sticker->playCount, true);
-        buffer = tojson_long(buffer, "skipCount", sticker->skipCount, true);
-        buffer = tojson_long(buffer, "like", sticker->like, true);
-        buffer = tojson_long(buffer, "lastPlayed", sticker->lastPlayed, true);
-        buffer = tojson_long(buffer, "lastSkipped", sticker->lastSkipped, false);
-        FREE_PTR(sticker);
+        buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, uri);
     }
     
     buffer = sdscat(buffer, ",");
@@ -226,6 +218,10 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
                     struct mpd_song *song = (struct mpd_song *)current->user_data;
                     buffer = sdscat(buffer, "{\"Type\":\"song\",");
                     buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
+                    if (mpd_client_state->feat_sticker) {
+                        buffer = sdscat(buffer, ",");
+                        buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, mpd_song_get_uri(song));
+                    }
                     buffer = sdscat(buffer, "}");
                     mpd_song_free(song);
                     break;
@@ -335,6 +331,10 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
         }
         buffer = sdscat(buffer, "{\"Type\": \"song\",");
         buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
+        if (mpd_client_state->feat_sticker) {
+            buffer = sdscat(buffer, ",");
+            buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, mpd_song_get_uri(song));
+        }
         buffer = sdscat(buffer, "}");
 
         totalTime += mpd_song_get_duration(song);

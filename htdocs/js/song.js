@@ -122,21 +122,21 @@ function parseSongDetails(obj) {
         songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="' + encodeURI(subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName) + '" target="_blank">' + t('Download') + '</a></td></tr>';
     }
     if (settings.featStickers === true) {
-        songDetailsHTML += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +
-            '<tr><th>' + t('Play count') + '</th><td>' + obj.result.playCount + '</td></tr>' +
-            '<tr><th>' + t('Skip count') + '</th><td>' + obj.result.skipCount + '</td></tr>' +
-            '<tr><th>' + t('Last played') + '</th><td>' + (obj.result.lastPlayed === 0 ? t('never') : localeDate(obj.result.lastPlayed)) + '</td></tr>' +
-            '<tr><th>' + t('Last skipped') + '</th><td>' + (obj.result.lastSkipped === 0 ? t('never') : localeDate(obj.result.lastSkipped)) + '</td></tr>' +
-            '<tr><th>' + t('Like') + '</th><td>' +
-              '<div class="btn-group btn-group-sm">' +
-                '<button title="' + t('Dislike song') + '" id="btnVoteDown2" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-light mi">thumb_down</button>' +
-                '<button title="' + t('Like song') + '" id="btnVoteUp2" data-href=\'{"cmd": "voteSong", "options": [2]}\' class="btn btn-sm btn-light mi">thumb_up</button>' +
-              '</div>' +
-            '</td></tr>';
+        songDetailsHTML += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>';
+        for (const sticker of stickerList) {
+            if (sticker === 'like') {
+                songDetailsHTML += '<tr><th>' + t('Like') + '</th><td><div class="btn-group btn-group-sm" data-uri="' + encodeURI(obj.result.uri) + '">' +
+                    '<button title="' + t('Dislike song') + '" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-secondary mi' + (obj.result[sticker] === 0 ? ' active' : '') + '">thumb_down</button>' +
+                    '<button title="' + t('Like song') + '" data-href=\'{"cmd": "voteSong", "options": [2]}\' class="btn btn-sm btn-secondary mi' + (obj.result[sticker] === 2 ? ' active' : '') + '">thumb_up</button>' +
+                    '</div></td></tr>';
+            }
+            else {
+                songDetailsHTML += '<tr><th>' + t(sticker) + '</th><td>' + printValue(sticker,  obj.result[sticker]) + '</td></tr>';
+            }
+        }
     }
     
     document.getElementById('tbodySongDetails').innerHTML = songDetailsHTML;
-    setVoteSongBtns(obj.result.like, obj.result.uri);
     
     if (settings.featLyrics === true) {
         getLyrics(obj.result.uri, document.getElementById('lyricsText'));
@@ -289,8 +289,30 @@ function loveSong() {
     sendAPI("MPD_API_LOVE", {});
 }
 
+//used in songdetails modal
 //eslint-disable-next-line no-unused-vars
-function voteSong(vote) {
+function voteSong(el, vote) {
+    if (vote === 0 && el.classList.contains('active')) {
+        vote = 1;
+        el.classList.remove('active');
+    }
+    else if (vote === 2 && el.classList.contains('active')) {
+        vote = 1;
+        el.classList.remove('active');
+    }
+    const aEl = el.parentNode.getElementsByClassName('active')[0];
+    if (aEl !== undefined) {
+        aEl.classList.remove('active');
+    }
+    if (vote === 0 || vote === 2) {
+        el.classList.add('active');
+    }
+    const uri = getAttDec(el.parentNode, 'data-uri');
+    sendAPI("MPD_API_LIKE", {"uri": uri, "like": vote});
+}
+
+//eslint-disable-next-line no-unused-vars
+function voteCurrentSong(vote) {
     let uri = getAttDec(document.getElementById('currentTitle'), 'data-uri');
     if (uri === '') {
         return;
@@ -314,44 +336,24 @@ function setVoteSongBtns(vote, uri) {
     if (isValidUri(uri) === false || isStreamUri(uri) === true) {
         disableEl('btnVoteUp');
         disableEl('btnVoteDown');
-        if (document.getElementById('btnVoteUp2')) {
-            disableEl('btnVoteUp2');
-            disableEl('btnVoteDown2');
-        }
         document.getElementById('btnVoteUp').classList.remove('highlight');
         document.getElementById('btnVoteDown').classList.remove('highlight');
     }
     else {
         enableEl('btnVoteUp');
         enableEl('btnVoteDown');
-        if (document.getElementById('btnVoteUp2')) {
-            enableEl('btnVoteUp2');
-            enableEl('btnVoteDown2');
-        }
     }
     
     if (vote === 0) {
         document.getElementById('btnVoteUp').classList.remove('highlight');
         document.getElementById('btnVoteDown').classList.add('highlight');
-        if (document.getElementById('btnVoteUp2')) {
-            document.getElementById('btnVoteUp2').classList.remove('highlight');
-            document.getElementById('btnVoteDown2').classList.add('highlight');
-        }
     }
     else if (vote === 1) {
         document.getElementById('btnVoteUp').classList.remove('highlight');
         document.getElementById('btnVoteDown').classList.remove('highlight');
-        if (document.getElementById('btnVoteUp2')) {
-            document.getElementById('btnVoteUp2').classList.remove('highlight');
-            document.getElementById('btnVoteDown2').classList.remove('highlight');
-        }
     }
     else if (vote === 2) {
         document.getElementById('btnVoteUp').classList.add('highlight');
         document.getElementById('btnVoteDown').classList.remove('highlight');
-        if (document.getElementById('btnVoteUp2')) {
-            document.getElementById('btnVoteUp2').classList.add('highlight');
-            document.getElementById('btnVoteDown2').classList.remove('highlight');
-        }
     }
 }

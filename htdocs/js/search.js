@@ -132,7 +132,22 @@ function parseSearch(obj) {
         disableEl('searchAddAllSongs');
         disableEl('searchAddAllSongsBtn');
     }
-    parseFilesystem(obj);
+
+    updateTable(obj, 'Search', function(row, data) {
+        setAttEnc(row, 'data-type', data.Type);
+        setAttEnc(row, 'data-uri', data.uri);
+        row.setAttribute('tabindex', 0);
+        if (settings.featTags === true && settings.featAdvsearch === true) {
+            //add artist and album information for album actions
+            if (data.Album !== undefined) {
+                setAttEnc(row, 'data-album', data.Album);
+            }
+            if (data[tagAlbumArtist] !== undefined) {
+                setAttEnc(row, 'data-albumartist', data[tagAlbumArtist]);
+            }
+        }
+        setAttEnc(row, 'data-name', data.Title);
+    });
 }
 
 //eslint-disable-next-line no-unused-vars

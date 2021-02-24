@@ -335,24 +335,23 @@ function setColTags(table) {
         tags.push('Title');
     }
     tags.push('Duration');
+    tags.push('LastModified');
     if (table === 'QueueCurrent' || table === 'BrowsePlaylistsDetail' || table === 'QueueLastPlayed' || table === 'QueueJukebox') {
         tags.push('Pos');
     }
     if (table === 'BrowseFilesystem') {
         tags.push('Type');
     }
-    if (table === 'QueueLastPlayed') {
-        tags.push('LastPlayed');
-    }
-    if (table === 'Search') {
-        tags.push('LastModified');
-    }
     if (table === 'Playback') {
         tags.push('Filetype');
         tags.push('Fileformat');
-        tags.push('LastModified');
         if (settings.featLyrics === true) {
             tags.push('Lyrics');
+        }
+    }
+    if (settings.featStickers === true) {
+        for (const sticker of stickerList) {
+            tags.push(sticker);
         }
     }
     tags.sort();
@@ -513,4 +512,108 @@ function replaceTblRow(row, el) {
     }
     row.replaceWith(el);
     return result;
+}
+
+function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
+    const table = document.getElementById(list + 'List');
+    const tbody = table.getElementsByTagName('tbody')[0];
+    const colspan = settings['cols' + list] !== undefined ? settings['cols' + list].length : 0;
+
+    if (obj.error) {
+        tbody.innerHTML = '<tr><td><span class="mi">error_outline</span></td>' +
+                          '<td colspan="' + colspan + '">' + t(obj.error.message) + '</td></tr>';
+        table.classList.remove('opacity05');
+        return;
+    }
+
+    const nrItems = obj.result.returnedEntities;
+    const tr = tbody.getElementsByTagName('tr');
+    const navigate = document.activeElement.parentNode.parentNode === table ? true : false;
+    let activeRow = 0;
+    //disc handling for album view
+    let z = 0;
+    let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined ? parseInt(obj.result.data[0].Disc) : 0;
+    if (obj.result.Discs !== undefined && obj.result.Discs > 1) {
+        const row = document.createElement('tr');
+        row.classList.add('not-clickable');
+        row.innerHTML = '<td><span class="mi">album</span></td><td colspan="' + colspan +'">' + t('Disc 1') + '</td>';
+        if (z < tr.length) {
+            activeRow = replaceTblRow(tr[z], row) === true ? z : activeRow;
+        }
+        else {
+            tbody.append(row);
+        }
+        z++;
+    }
+    for (let i = 0; i < nrItems; i++) {
+        if (obj.result.data[0].Disc !== undefined && lastDisc < parseInt(obj.result.data[i].Disc)) {
+            const row = document.createElement('tr');
+            row.classList.add('not-clickable');
+            row.innerHTML = '<td><span class="mi">album</span></td><td colspan="' + colspan +'">' + 
+                t('Disc') + ' ' + e(obj.result.data[i].Disc) + '</td></tr>';
+            if (i + z < tr.length) {
+                activeRow = replaceTblRow(tr[i + z], row) === true ? i + z : activeRow;
+            }
+            else {
+                tbody.append(row);
+            }
+            z++;
+            lastDisc = obj.result.data[i].Disc;
+        }
+        const row = document.createElement('tr');
+        if (perRowCallback !== undefined && typeof(perRowCallback) === 'function') {
+            perRowCallback(row, obj.result.data[i]);
+        }
+        let tds = '';
+        row.setAttribute('tabindex', 0);
+        //set Title to name if not defined - for folders and playlists
+        if (obj.result.data[i].Title === undefined) {
+            obj.result.data[i].Title = obj.result.data[i].name;
+        }
+
+        if (createRowCellsCallback !== undefined && typeof(createRowCellsCallback) === 'function') {
+            //custom row content
+            createRowCellsCallback(row, obj.result.data[i]);
+        }
+        else {
+            //default row content
+            if (obj.result.data[i].Type === 'parentDir') {
+                row.innerHTML = '<td colspan="' + (colspan + 1) + '">..</td>';
+                row.setAttribute('title', t('Open parent folder'));
+            }
+            else {
+                for (let c = 0; c < settings['cols' + list].length; c++) {
+                    tds += '<td data-col="' + encodeURI(settings['cols' + list][c]) + '">' +
+                        printValue(settings['cols' + list][c], obj.result.data[i][settings['cols' + list][c]]) +
+                        '</td>';
+                }
+                tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
+                row.innerHTML = tds;
+            }
+        }
+        if (i + z < tr.length) {
+            activeRow = replaceTblRow(tr[i + z], row) === true ? i + z : activeRow;
+        }
+        else {
+            tbody.append(row);
+        }
+    }
+    let trLen = tr.length - 1;
+    for (let i = trLen; i >= nrItems + z; i --) {
+        tr[i].remove();
+    }
+
+    if (navigate === true) {
+        focusTable(activeRow);
+    }
+
+    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
+
+    if (nrItems === 0) {
+        tbody.innerHTML = '<tr class="not-clickable">' +
+                          '<td colspan="' + (colspan + 1) + '">' +
+                          '<span class="mi">error_outline</span>' + t('Empty list') + 
+                          '</td></tr>';
+    }
+    table.classList.remove('opacity05');
 }

@@ -134,12 +134,33 @@ function parseQueue(obj) {
         gotoPage(obj.result.offset);
         return;
     }
-    
-    let table = document.getElementById('QueueCurrentList');
-    let tfoot = table.getElementsByTagName('tfoot')[0];
 
-    let colspan = settings['colsQueueCurrent'].length;
+    //goto playing song button
+    if (obj.result.totalEntities > settings.maxElementsPerPage) {
+        document.getElementById('btnQueueGotoPlayingSong').parentNode.classList.remove('hide');
+    }
+    else {
+        document.getElementById('btnQueueGotoPlayingSong').parentNode.classList.add('hide');
+    }
 
+    const rowTitle = advancedSettingsDefault.clickQueueSong.validValues[settings.advanced.clickQueueSong];
+    updateTable(obj, 'QueueCurrent', function(row, data) {
+        data.Pos++;
+        row.setAttribute('draggable', 'true');
+        row.setAttribute('id','queueTrackId' + data.id);
+        row.setAttribute('tabindex', 0);
+        row.setAttribute('title', t(rowTitle));
+        setAttEnc(row, 'data-trackid', data.id);
+        setAttEnc(row, 'data-songpos', data.Pos);
+        setAttEnc(row, 'data-duration', data.Duration);
+        setAttEnc(row, 'data-uri', data.uri);
+        setAttEnc(row, 'data-type', 'song');
+    });
+
+    const table = document.getElementById('QueueCurrentList');
+    setAttEnc(table, 'data-version', obj.result.queueVersion);
+    const colspan = settings['colsQueueCurrent'].length;
+    const tfoot = table.getElementsByTagName('tfoot')[0];
     if (obj.result.totalTime && obj.result.totalTime > 0 && obj.result.totalEntities <= app.current.limit ) {
         tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
     }
@@ -149,120 +170,17 @@ function parseQueue(obj) {
     else {
         tfoot.innerHTML = '';
     }
-
-    if (obj.result.totalEntities > settings.maxElementsPerPage) {
-        document.getElementById('btnQueueGotoPlayingSong').parentNode.classList.remove('hide');
-    }
-    else {
-        document.getElementById('btnQueueGotoPlayingSong').parentNode.classList.add('hide');
-    }
-
-    const rowTitle = advancedSettingsDefault.clickQueueSong.validValues[settings.advanced.clickQueueSong];
-    let nrItems = obj.result.returnedEntities;
-    let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
-    let activeRow = 0;
-    setAttEnc(table, 'data-version', obj.result.queueVersion);
-    let tbody = table.getElementsByTagName('tbody')[0];
-    let tr = tbody.getElementsByTagName('tr');
-    for (let i = 0; i < nrItems; i++) {
-        obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
-        obj.result.data[i].Pos++;
-        let row = document.createElement('tr');
-        row.setAttribute('draggable', 'true');
-        row.setAttribute('id','queueTrackId' + obj.result.data[i].id);
-        row.setAttribute('tabindex', 0);
-        row.setAttribute('title', t(rowTitle));
-        setAttEnc(row, 'data-trackid', obj.result.data[i].id);
-        setAttEnc(row, 'data-songpos', obj.result.data[i].Pos);
-        setAttEnc(row, 'data-duration', obj.result.data[i].Duration);
-        setAttEnc(row, 'data-uri', obj.result.data[i].uri);
-        setAttEnc(row, 'data-type', 'song');
-        let tds = '';
-        for (let c = 0; c < settings.colsQueueCurrent.length; c++) {
-            tds += '<td data-col="' + encodeURI(settings.colsQueueCurrent[c]) + '">' + e(obj.result.data[i][settings.colsQueueCurrent[c]]) + '</td>';
-        }
-        tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
-        row.innerHTML = tds;
-        if (i < tr.length) {
-            activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
-        }
-        else {
-            tbody.append(row);
-        }
-    }
-    let trLen = tr.length - 1;
-    for (let i = trLen; i >= nrItems; i --) {
-        tr[i].remove();
-    }
-
-    if (obj.result.method === 'MPD_API_QUEUE_SEARCH' && nrItems === 0) {
-        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
-                          '<td colspan="' + colspan + '">' + t('No results, please refine your search') + '</td></tr>';
-    }
-    else if (obj.result.method === 'MPD_API_QUEUE_LIST' && nrItems === 0) {
-        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
-                          '<td colspan="' + colspan + '">' + t('Empty queue') + '</td></tr>';
-    }
-
-    if (navigate === true) {
-        focusTable(activeRow);
-    }
-    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
-    document.getElementById('QueueCurrentList').classList.remove('opacity05');
 }
 
 function parseLastPlayed(obj) {
     const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
-    let nrItems = obj.result.returnedEntities;
-    let table = document.getElementById('QueueLastPlayedList');
-    let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
-    let activeRow = 0;
-    let tbody = table.getElementsByTagName('tbody')[0];
-    let tr = tbody.getElementsByTagName('tr');
-    for (let i = 0; i < nrItems; i++) {
-        obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
-        obj.result.data[i].LastPlayed = localeDate(obj.result.data[i].LastPlayed);
-        let row = document.createElement('tr');
-        setAttEnc(row, 'data-uri', obj.result.data[i].uri);
-        setAttEnc(row, 'data-name', obj.result.data[i].Title);
+    updateTable(obj, 'QueueLastPlayed', function(row, data) {
+        setAttEnc(row, 'data-uri', data.uri);
+        setAttEnc(row, 'data-name', data.Title);
         setAttEnc(row, 'data-type', 'song');
         row.setAttribute('tabindex', 0);
         row.setAttribute('title', t(rowTitle));
-        let tds = '';
-        for (let c = 0; c < settings.colsQueueLastPlayed.length; c++) {
-            tds += '<td data-col="' + encodeURI(settings.colsQueueLastPlayed[c]) + '">' + e(obj.result.data[i][settings.colsQueueLastPlayed[c]]) + '</td>';
-        }
-        tds += '<td data-col="Action">';
-        if (obj.result.data[i].uri !== '') {
-            tds += '<a href="#" class="mi color-darkgrey">' + ligatureMore + '</a>';
-        }
-        tds += '</td>';
-        row.innerHTML = tds;
-        if (i < tr.length) {
-            activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
-        }
-        else {
-            tbody.append(row);
-        }
-    }
-    let trLen = tr.length - 1;
-    for (let i = trLen; i >= nrItems; i --) {
-        tr[i].remove();
-    }                    
-
-    let colspan = settings['colsQueueLastPlayed'].length;
-    
-    if (nrItems === 0) {
-        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
-            '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
-    }
-
-    if (navigate === true) {
-        focusTable(activeRow);
-    }
-
-    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
-    document.getElementById('QueueLastPlayedList').classList.remove('opacity05');
+    });
 }
 
 //eslint-disable-next-line no-unused-vars

@@ -630,6 +630,7 @@ function parseCmd(event, href) {
             case 'toggleBtnGroupCollapse':
             case 'zoomPicture':
             case 'setPlaySettings':
+            case 'voteSong':
                 window[cmd.cmd](event.target, ... cmd.options);
                 break;
             case 'toggleBtnChkCollapse':
@@ -741,4 +742,30 @@ function createSearchExpression(crumbsEl, tag, op, value) {
         expression = '';
     }
     return expression;
+}
+
+function printValue(key, value) {
+    if (value === undefined || value === null) {
+        return '';
+    }
+    switch (key) {
+        case 'Type':
+            if (value === 'song') { return '<span class="mi">music_note</span>'; }
+            if (value === 'smartpls') { return '<span class="mi">queue_music</span>'; }
+            if (value === 'plist') { return '<span class="mi">list</span>'; }
+            if (value === 'dir') { return '<span class="mi">folder_open</span>'; }
+        case 'Duration':
+            return beautifySongDuration(value);
+        case 'LastModified': 
+            return localeDate(value);
+        case 'lastPlayed':
+        case 'lastSkipped':
+            return value === 0 ? t('never') : localeDate(value);
+        case 'like':
+            return '<span class="mi mi-small">'+
+                (value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up') +
+                '</span>';
+        default:
+            return e(value);
+    }
 }

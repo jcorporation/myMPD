@@ -24,6 +24,7 @@
 #include "../utility.h"
 #include "../mpd_shared/mpd_shared_typedefs.h"
 #include "../mpd_shared/mpd_shared_tags.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_sticker.h"
@@ -70,6 +71,9 @@ sds mpd_client_put_jukebox_list(t_mpd_client_state *mpd_client_state, sds buffer
                         if ((entity = mpd_recv_entity(mpd_client_state->mpd_state->conn)) != NULL) {
                             const struct mpd_song *song = mpd_entity_get_song(entity);
                             buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
+                            if (mpd_client_state->feat_sticker == true && mpd_client_state->sticker_cache != NULL) {
+                                buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, mpd_song_get_uri(song));
+                            }
                             mpd_entity_free(entity);
                             mpd_response_finish(mpd_client_state->mpd_state->conn);
                         }
@@ -481,7 +485,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
                 const char *uri = mpd_song_get_uri(song);
                 time_t last_played = 0;
                 if (mpd_client_state->sticker_cache != NULL) {
-                    t_sticker *sticker = get_sticker_from_cache(mpd_client_state, uri);
+                    t_sticker *sticker = get_sticker_from_cache(mpd_client_state->sticker_cache, uri);
                     if (sticker != NULL) {
                         last_played = sticker->lastPlayed;
                     }

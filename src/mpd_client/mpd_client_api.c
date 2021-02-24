@@ -779,7 +779,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                     check_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0);
                 }
                 response->data = mpd_shared_search(mpd_client_state->mpd_state, response->data, request->method, request->id, 
-                    p_charbuf1, p_charbuf2, p_charbuf3, uint_buf1, uint_buf2, tagcols);
+                    p_charbuf1, p_charbuf2, p_charbuf3, uint_buf1, uint_buf2, tagcols, mpd_client_state->sticker_cache);
             }
             free(tagcols);
             break;
@@ -798,7 +798,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                     check_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0);
                 }
                 response->data = mpd_shared_search_adv(mpd_client_state->mpd_state, response->data, request->method, request->id, 
-                    p_charbuf1, p_charbuf2, bool_buf1, NULL, p_charbuf3, uint_buf1, uint_buf2, tagcols);
+                    p_charbuf1, p_charbuf2, bool_buf1, NULL, p_charbuf3, uint_buf1, uint_buf2, tagcols, mpd_client_state->sticker_cache);
             }
             free(tagcols);
             break;

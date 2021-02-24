@@ -121,7 +121,7 @@ function showMenuTd(el) {
                 (type === 'dir' ? addMenuItem({"cmd": "rescanDB", "options": [dirname(uri), true]}, t('Rescan directory')) : '');
         }
         if (app.current.app === 'Search') {
-            const curTr = el.parentNode.parentNode;
+            const curTr = el.nodeName === 'TD' ? el.parentNode : el.parentNode.parentNode;
             if (curTr.hasAttribute('data-album') && curTr.hasAttribute('data-albumartist')) {
                 const vAlbum = getAttDec(curTr, 'data-album');
                 const vAlbumArtist = getAttDec(curTr, 'data-albumartist');

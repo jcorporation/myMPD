@@ -22,6 +22,7 @@
 #include "../utility.h"
 #include "../mpd_shared/mpd_shared_typedefs.h"
 #include "../mpd_shared/mpd_shared_tags.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_stats.h"
@@ -241,6 +242,9 @@ static sds mpd_client_put_last_played_obj(t_mpd_client_state *mpd_client_state, 
         if ((entity = mpd_recv_entity(mpd_client_state->mpd_state->conn)) != NULL) {
             const struct mpd_song *song = mpd_entity_get_song(entity);
             buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
+            if (mpd_client_state->feat_sticker == true && mpd_client_state->sticker_cache != NULL) {
+                buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, mpd_song_get_uri(song));
+            }
             mpd_entity_free(entity);
             mpd_response_finish(mpd_client_state->mpd_state->conn);
         }

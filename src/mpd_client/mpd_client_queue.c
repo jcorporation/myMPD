@@ -19,6 +19,7 @@
 #include "../utility.h"
 #include "../mpd_shared/mpd_shared_typedefs.h"
 #include "../mpd_shared/mpd_shared_tags.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_queue.h"
@@ -165,6 +166,10 @@ sds mpd_client_put_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds m
         buffer = tojson_long(buffer, "id", mpd_song_get_id(song), true);
         buffer = tojson_long(buffer, "Pos", mpd_song_get_pos(song), true);
         buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
+        if (mpd_client_state->feat_sticker == true && mpd_client_state->sticker_cache != NULL) {
+            buffer = sdscat(buffer, ",");
+            buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, mpd_song_get_uri(song));
+        }
         buffer = sdscat(buffer, "}");
         mpd_song_free(song);
     }
@@ -275,6 +280,9 @@ sds mpd_client_search_queue(t_mpd_client_state *mpd_client_state, sds buffer, sd
             buffer = tojson_long(buffer, "id", mpd_song_get_id(song), true);
             buffer = tojson_long(buffer, "Pos", mpd_song_get_pos(song), true);
             buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
+            if (mpd_client_state->feat_sticker == true && mpd_client_state->sticker_cache != NULL) {
+                buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, mpd_song_get_uri(song));
+            }
             buffer = sdscat(buffer, "}");
         }
         mpd_song_free(song);

@@ -255,10 +255,10 @@ static bool mpd_worker_smartpls_update_search(t_mpd_worker_state *mpd_worker_sta
     sds method = sdsempty();
     mpd_worker_smartpls_clear(mpd_worker_state, playlist);
     if (mpd_worker_state->mpd_state->feat_advsearch == true && strcmp(tag, "expression") == 0) {
-        buffer = mpd_shared_search_adv(mpd_worker_state->mpd_state, buffer, method, 0, searchstr, NULL, true, NULL, playlist, 0, 0, NULL);
+        buffer = mpd_shared_search_adv(mpd_worker_state->mpd_state, buffer, method, 0, searchstr, NULL, true, NULL, playlist, 0, 0, NULL, NULL);
     }
     else {
-        buffer = mpd_shared_search(mpd_worker_state->mpd_state, buffer, method, 0, searchstr, tag, playlist, 0, 0, NULL);
+        buffer = mpd_shared_search(mpd_worker_state->mpd_state, buffer, method, 0, searchstr, tag, playlist, 0, 0, NULL, NULL);
     }
     sdsfree(buffer);
     sdsfree(method);
@@ -369,12 +369,12 @@ static bool mpd_worker_smartpls_update_newest(t_mpd_worker_state *mpd_worker_sta
     if (value_max > 0) {
         if (mpd_worker_state->mpd_state->feat_advsearch == true) {
             sds searchstr = sdscatprintf(sdsempty(), "(modified-since '%lu')", value_max);
-            buffer = mpd_shared_search_adv(mpd_worker_state->mpd_state, buffer, method, 0, searchstr, NULL, true, NULL, playlist, 0, 0, NULL);
+            buffer = mpd_shared_search_adv(mpd_worker_state->mpd_state, buffer, method, 0, searchstr, NULL, true, NULL, playlist, 0, 0, NULL, NULL);
             sdsfree(searchstr);
         }
         else {
             sds searchstr = sdscatprintf(sdsempty(), "%lu", value_max);
-            buffer = mpd_shared_search(mpd_worker_state->mpd_state, buffer, method, 0, searchstr, "modified-since", playlist, 0, 0, NULL);
+            buffer = mpd_shared_search(mpd_worker_state->mpd_state, buffer, method, 0, searchstr, "modified-since", playlist, 0, 0, NULL, NULL);
             sdsfree(searchstr);
         }
         MYMPD_LOG_INFO("Updated smart playlist %s", playlist);
