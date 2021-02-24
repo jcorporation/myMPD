@@ -741,7 +741,7 @@ function parseMPDSettings() {
         document.getElementById('warnStickers').classList.add('hide');
     }
     
-    if (settings.featStickers === false || settings.stickers === false || settings.featStickerCache === false) {
+    if (settings.featStickers === false || settings.stickers === false) {
         document.getElementById('warnPlaybackStatistics').classList.remove('hide');
         disableEl('inputJukeboxLastPlayed');
     }

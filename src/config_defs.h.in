@@ -129,7 +129,6 @@ typedef struct t_config {
     bool custom_placeholder_images;
     bool regex;
     bool timer;
-    bool sticker_cache;
     sds generate_pls_tags;
     sds booklet_name;
     bool mounts;

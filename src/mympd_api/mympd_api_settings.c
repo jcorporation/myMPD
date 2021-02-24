@@ -517,7 +517,6 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_char(buffer, "theme", mympd_state->theme, true);
     buffer = tojson_char(buffer, "highlightColor", mympd_state->highlight_color, true);
     buffer = tojson_bool(buffer, "featTimer", mympd_state->timer, true);
-    buffer = tojson_bool(buffer, "featStickerCache", config->sticker_cache, true);
     buffer = tojson_char(buffer, "bookletName", mympd_state->booklet_name, true);
     buffer = tojson_bool(buffer, "featLyrics", mympd_state->lyrics, true);
     buffer = tojson_bool(buffer, "featScripting", config->scripting, true);

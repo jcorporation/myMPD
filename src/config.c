@@ -113,9 +113,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "stickers")) {
         p_config->stickers = strtobool(value);
     }
-    else if (MATCH("mympd", "stickercache")) {
-        p_config->sticker_cache = strtobool(value);
-    }
     else if (MATCH("mympd", "smartpls")) {
         p_config->smartpls =  strtobool(value);
     }
@@ -378,7 +375,7 @@ static void mympd_get_env(struct t_config *config) {
         "WEBSERVER_SSLSAN", "WEBSERVER_REDIRECT", 
       #endif
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", 
-        "MYMPD_STICKERCACHE", "MYMPD_TAGLIST", "MYMPD_GENERATE_PLS_TAGS",
+        "MYMPD_TAGLIST", "MYMPD_GENERATE_PLS_TAGS",
         "MYMPD_SMARTPLSSORT", "MYMPD_SMARTPLSPREFIX", "MYMPD_SMARTPLSINTERVAL",
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
@@ -540,7 +537,6 @@ void mympd_config_defaults(t_config *config) {
     config->highlight_color = sdsnew("#28a745");
     config->custom_placeholder_images = false;
     config->timer = true;
-    config->sticker_cache = true;
     config->booklet_name = sdsnew("booklet.pdf");
     config->mounts = true;
     config->lyrics = true;
@@ -641,7 +637,6 @@ bool mympd_dump_config(void) {
         "chroot = %s\n"
         "varlibdir = %s\n"
         "stickers = %s\n"
-        "stickercache = %s\n"
         "smartpls = %s\n"
         "smartplssort = %s\n"
         "smartplsprefix = %s\n"
@@ -708,7 +703,6 @@ bool mympd_dump_config(void) {
         (p_config->chroot == true ? "true" : "false"),
         p_config->varlibdir,
         (p_config->stickers == true ? "true" : "false"),
-        (p_config->sticker_cache == true ? "true" : "false"),
         (p_config->smartpls == true ? "true" : "false"),
         p_config->smartpls_sort,
         p_config->smartpls_prefix,
@@ -836,10 +830,6 @@ bool mympd_read_config(t_config *config, sds configfile) {
     #endif
     if (config->readonly == true) {
         mympd_set_readonly(config);
-    }
-    if (config->stickers == false && config->sticker_cache == true) {
-        MYMPD_LOG_NOTICE("Stickers are disabled, disabling sticker cache");
-        config->sticker_cache = false;
     }
     if (config->publish == false && config->webdav == true) {
         MYMPD_LOG_NOTICE("Publish is disabled, disabling webdav");

@@ -35,16 +35,15 @@
 static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char *uri, sds *booklet_path, struct list *images, bool is_dirname);
 
 //public functions
-bool caches_init(t_config *config, t_mpd_client_state *mpd_client_state) {
+bool caches_init(t_mpd_client_state *mpd_client_state) {
     if (mpd_client_state->mpd_state->feat_mpd_searchwindow == false) {
         MYMPD_LOG_INFO("Can not create caches, mpd version < 0.20.0");
         return false;
     }
-    bool create_sticker_cache = config->sticker_cache == true ? mpd_client_state->feat_sticker : false;
 
-    if (create_sticker_cache == true || mpd_client_state->mpd_state->feat_tags == true) {
+    if (mpd_client_state->feat_sticker == true || mpd_client_state->mpd_state->feat_tags == true) {
         //push cache building request to mpd_worker thread
-        if (create_sticker_cache == true) {
+        if (mpd_client_state->feat_sticker == true) {
             mpd_client_state->sticker_cache_building = true;
         }
         if (mpd_client_state->mpd_state->feat_tags == true) {
@@ -52,7 +51,7 @@ bool caches_init(t_config *config, t_mpd_client_state *mpd_client_state) {
         }
         t_work_request *request = create_request(-1, 0, MPDWORKER_API_CACHES_CREATE, "MPDWORKER_API_CACHES_CREATE", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPDWORKER_API_CACHES_CREATE\",\"params\":{");
-        request->data = tojson_bool(request->data, "featSticker", create_sticker_cache, true);
+        request->data = tojson_bool(request->data, "featSticker", mpd_client_state->feat_sticker, true);
         request->data = tojson_bool(request->data, "featTags", mpd_client_state->mpd_state->feat_tags, false);
         request->data = sdscat(request->data, "}}");
         tiny_queue_push(mpd_worker_queue, request, 0);
