@@ -520,8 +520,9 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const colspan = settings['cols' + list] !== undefined ? settings['cols' + list].length : 0;
 
     if (obj.error) {
-        tbody.innerHTML = '<tr><td><span class="mi">error_outline</span></td>' +
-                          '<td colspan="' + colspan + '">' + t(obj.error.message) + '</td></tr>';
+        tbody.innerHTML = '<tr class="not-clickable"><td colspan="' + (colspan + 1) + '">' +
+            '<div class="alert alert-danger">' +
+            '<span class="mi">error_outline</span>&nbsp;&nbsp;' + t(obj.error.message, obj.error.data) + '</div></td></tr>';
         table.classList.remove('opacity05');
         return;
     }
@@ -610,10 +611,8 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
 
     if (nrItems === 0) {
-        tbody.innerHTML = '<tr class="not-clickable">' +
-                          '<td colspan="' + (colspan + 1) + '">' +
-                          '<span class="mi">error_outline</span>' + t('Empty list') + 
-                          '</td></tr>';
+        tbody.innerHTML = '<tr class="not-clickable"><td colspan="' + (colspan + 1) + '">' +
+            '<span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
     }
     table.classList.remove('opacity05');
 }

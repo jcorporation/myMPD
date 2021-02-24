@@ -505,7 +505,7 @@ function parseDatabase(obj) {
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
                     
     if (nrItems === 0) {
-        cardContainer.innerHTML = '<div class="ml-3 mb-3 not-clickable"><span class="mi">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
+        cardContainer.innerHTML = '<div class="ml-3 mb-3 not-clickable"><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</div>';
     }
 }
 
