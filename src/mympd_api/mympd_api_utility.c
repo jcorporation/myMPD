@@ -114,7 +114,7 @@ void free_mympd_state_sds(t_mympd_state *mympd_state) {
 }
 
 static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", 
-    "Lyrics", "playCount", "skipCount", "lastPlayed", "lastSkipped", "like", 0};
+    "Lyrics", "stickerPlayCount", "stickerSkipCount", "stickerLastPlayed", "stickerLastSkipped", "stickerLike", 0};
 
 static bool is_mympd_col(sds token) {
     const char** ptr = mympd_cols;

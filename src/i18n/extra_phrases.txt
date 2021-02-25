@@ -63,8 +63,9 @@ Num entries
 Song change
 Use ligature
 Show playback settings in footer
-playCount
-skipCount
-lastPlayed
-lastSkipped
-like
+LastPlayed
+stickerPlayCount
+stickerSkipCount
+stickerLastPlayed
+stickerLastSkipped
+stickerLike

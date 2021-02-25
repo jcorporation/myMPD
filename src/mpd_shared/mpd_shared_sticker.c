@@ -28,18 +28,18 @@
 sds mpd_shared_sticker_list(sds buffer, rax *sticker_cache, const char *uri) {
     t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
     if (sticker != NULL) {
-        buffer = tojson_long(buffer, "playCount", sticker->playCount, true);
-        buffer = tojson_long(buffer, "skipCount", sticker->skipCount, true);
-        buffer = tojson_long(buffer, "like", sticker->like, true);
-        buffer = tojson_long(buffer, "lastPlayed", sticker->lastPlayed, true);
-        buffer = tojson_long(buffer, "lastSkipped", sticker->lastSkipped, false);
+        buffer = tojson_long(buffer, "stickerPlayCount", sticker->playCount, true);
+        buffer = tojson_long(buffer, "stickerSkipCount", sticker->skipCount, true);
+        buffer = tojson_long(buffer, "stickerLike", sticker->like, true);
+        buffer = tojson_long(buffer, "stickerLastPlayed", sticker->lastPlayed, true);
+        buffer = tojson_long(buffer, "stickerLastSkipped", sticker->lastSkipped, false);
     }
     else {
-        buffer = tojson_long(buffer, "playCount", 0, true);
-        buffer = tojson_long(buffer, "skipCount", 0, true);
-        buffer = tojson_long(buffer, "like", 1, true);
-        buffer = tojson_long(buffer, "lastPlayed", 0, true);
-        buffer = tojson_long(buffer, "lastSkipped", 0, false);
+        buffer = tojson_long(buffer, "stickerPlayCount", 0, true);
+        buffer = tojson_long(buffer, "stickerSkipCount", 0, true);
+        buffer = tojson_long(buffer, "stickerLike", 1, true);
+        buffer = tojson_long(buffer, "stickerLastPlayed", 0, true);
+        buffer = tojson_long(buffer, "stickerLastSkipped", 0, false);
     }
     return buffer;
 }

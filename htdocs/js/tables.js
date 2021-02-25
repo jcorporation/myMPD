@@ -349,12 +349,16 @@ function setColTags(table) {
             tags.push('Lyrics');
         }
     }
+    if (table === 'QueueLastPlayed') {
+        tags.push('LastPlayed');
+    }
+    tags.sort();
+    tags.push('dropdownTitleSticker');
     if (settings.featStickers === true) {
         for (const sticker of stickerList) {
             tags.push(sticker);
         }
     }
-    tags.sort();
     return tags;
 }
 
@@ -365,12 +369,17 @@ function setColsChecklist(table) {
         if (table === 'Playback' && tags[i] === 'Title') {
             continue;
         }
-        tagChks += '<div>' +
-            '<button class="btn btn-secondary btn-xs clickable mi mi-small' +
-            (settings['cols' + table].includes(tags[i]) ? ' active' : '') + '" name="' + tags[i] + '">' +
-            (settings['cols' + table].includes(tags[i]) ? 'check' : 'radio_button_unchecked') + '</button>' +
-            '<label class="form-check-label" for="' + tags[i] + '">&nbsp;&nbsp;' + t(tags[i]) + '</label>' +
-            '</div>';
+        if (tags[i] === 'dropdownTitleSticker') {
+            tagChks += '<h6 class="dropdown-header pl-0">' + t('Sticker') + '</h6>';
+        }
+        else {
+            tagChks += '<div>' +
+                '<button class="btn btn-secondary btn-xs clickable mi mi-small' +
+                (settings['cols' + table].includes(tags[i]) ? ' active' : '') + '" name="' + tags[i] + '">' +
+                (settings['cols' + table].includes(tags[i]) ? 'check' : 'radio_button_unchecked') + '</button>' +
+                '<label class="form-check-label" for="' + tags[i] + '">&nbsp;&nbsp;' + t(tags[i]) + '</label>' +
+                '</div>';
+        }
     }
     return tagChks;
 }

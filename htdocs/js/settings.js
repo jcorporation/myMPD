@@ -112,6 +112,11 @@ function initSettings() {
             document.getElementById('inputBgColor').value = '#000000';
         }
     }, false);
+    
+    document.getElementById('selectLocale').addEventListener('change', function(event) {
+        const value = getSelectValue(event.target);
+        warnLocale(value);
+    }, false);
 
     document.getElementById('selectMusicDirectory').addEventListener('change', function () {
         let musicDirMode = getSelectValue(this);
@@ -302,6 +307,7 @@ function parseSettings() {
     else {
         locale = settings.locale;
     }
+    warnLocale(settings.locale);
     
     if (isMobile === true) {    
         document.getElementById('inputScaleRatio').value = scale;
@@ -1318,4 +1324,16 @@ function getImageList(image, selectElId, firstOptValue, firstOptText) {
         sel.innerHTML = options;
         sel.value = image;
     });
+}
+
+function warnLocale(value) {
+    const warnEl = document.getElementById('warnMissingPhrases');
+    if (missingPhrases[value] !== undefined) {
+        warnEl.innerHTML = t('Missing translations', missingPhrases[value]) + '<br/>' +
+            '<a class="alert-link" target="_blank" href="https://github.com/jcorporation/myMPD/discussions/167"><span class="mi">open_in_browser</span>&nbsp;' + t('Help to improve myMPD') + '</a>';
+        warnEl.classList.remove('hide');
+    }
+    else {
+        warnEl.classList.add('hide');
+    }
 }
