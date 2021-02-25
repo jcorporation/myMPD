@@ -1262,3 +1262,6 @@ Sanoituksia ei löydy
 
 Invalid column
 Väärä sarake
+
+Missing translations
+Selected locale is missing %{smart_count} translation |||| Selected locale is missing %{smart_count} translations

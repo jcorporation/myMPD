@@ -146,7 +146,7 @@
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
               <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
-              <button data-phrase="lastPlayed" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
+              <button data-phrase="LastPlayed" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
               <button data-phrase="Jukebox" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Jukebox"]}'></button>
             </div>
           </div>
@@ -221,7 +221,7 @@
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
               <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
-              <button data-phrase="lastPlayed" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
+              <button data-phrase="LastPlayed" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
               <button data-phrase="Jukebox" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Jukebox"]}'></button>
             </div>
           </div>
@@ -258,7 +258,7 @@
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
               <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
-              <button data-phrase="lastPlayed" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
+              <button data-phrase="LastPlayed" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
               <button data-phrase="Jukebox" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "Jukebox"]}'></button>
             </div>
           </div>
@@ -978,6 +978,7 @@
                     <select id="selectLocale" class="form-control custom-select border-secondary">
                       <option value="default" data-phrase="Browser default"></option>
                     </select>
+                    <div id="warnMissingPhrases" class="alert alert-warning hide mt-2"></div>
                   </div>
                 </div>
                 <hr/>
@@ -1446,7 +1447,7 @@
                 <li><span data-phrase="Version"></span>: <span id="mympdVersion"></span></li>
                 <li><span data-phrase="Homepage"></span>: <a class="text-success" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/mympd">https://github.com/jcorporation/mympd</a></li>
                 <li><span data-phrase="Author"></span>: Jürgen Mang &lt;<a class="text-success" href="mailto:mail@jcgames.de">mail@jcgames.de</a>&gt;</li>
-                <li><a target="_blank" rel="noreferrer" href="https://github.com/jcorporation/myMPD/issues/167" class="text-success" data-phrase="Help to improve myMPD"></a></li>
+                <li><a target="_blank" rel="noreferrer" href="https://github.com/jcorporation/myMPD/issues/167" class="text-success"><span class="mi">open_in_browser</span>&nbsp;<span data-phrase="Help to improve myMPD"></span></a></li>
               </ul>
               <div class="table-responsive-md">
                 <table class="table table-sm">

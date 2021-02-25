@@ -171,10 +171,13 @@ Wertung konnte nicht gesetzt werden, ungültiger Wert
 Failed to set like, invalid song uri
 Wertung konnte nicht gesetzt werden, ungültige Lied URL
 
-lastPlayed
+LastPlayed
 Zuletzt gespielt
 
-lastSkipped
+stickerLastPlayed
+Zuletzt gespielt
+
+stickerLastSkipped
 Zuletzt übersprungen
 
 Database
@@ -345,16 +348,16 @@ Tage
 Like
 Wertung
 
-like
+stickerLike
 Wertung
 
 Play count
 Wie oft gespielt
 
-playCount
+stickerPlayCount
 Gespielt
 
-skipCount
+stickerSkipCount
 Übersprungen
 
 Theme
@@ -1801,3 +1804,6 @@ jede Stunde |||| jede %{smart_count}. Stunde
 
 hours
 Stunden
+
+Missing translations
+Für die ausgewählte Sprache fehlt %{smart_count} Übersetzung |||| Für die ausgewähle Sprache fehlen %{smart_count} Übersetzungen

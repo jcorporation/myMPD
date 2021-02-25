@@ -94,6 +94,8 @@ print "];";
 print "\n" if $pretty eq 1;
 print "var phrases={";
 
+my %outdated;
+
 $i = 0;
 for my $key (sort keys %$phrases) {
     print "," if $i > 0;
@@ -111,6 +113,12 @@ for my $key (sort keys %$phrases) {
         }
         elsif ($lang ne "en-US") {
             warn "Phrase \"".$key."\" for ".$lang." not found\n";
+            if (defined($outdated{$lang})) {
+                $outdated{$lang}++;
+            }
+            else {
+                $outdated{$lang} = 1;
+            }
         }
     }
     print "\n\t" if $pretty eq 1;
@@ -118,6 +126,19 @@ for my $key (sort keys %$phrases) {
     $i++;
 }
 print "\n" if $pretty eq 1;
+print "};";
+print "\n" if $pretty eq 1;
+
+#print outdated translations
+print "var missingPhrases={";
+$i = 0;
+for my $key (keys %outdated) {
+    if ($i > 0) {
+        print ",";
+    }
+    print "\"".$key."\":".$outdated{$key};
+    $i++;
+}
 print "};\n";
 
 #check for obsolet translations

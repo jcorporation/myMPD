@@ -1725,3 +1725,6 @@ Yes
 
 Do you really want to clear the queue?
 캐시를 지울까요?
+
+Missing translations
+Selected locale is missing %{smart_count} translation |||| Selected locale is missing %{smart_count} translations
