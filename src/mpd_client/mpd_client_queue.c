@@ -281,6 +281,7 @@ sds mpd_client_search_queue(t_mpd_client_state *mpd_client_state, sds buffer, sd
             buffer = tojson_long(buffer, "Pos", mpd_song_get_pos(song), true);
             buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
             if (mpd_client_state->feat_sticker == true && mpd_client_state->sticker_cache != NULL) {
+                buffer= sdscat(buffer, ",");
                 buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, mpd_song_get_uri(song));
             }
             buffer = sdscat(buffer, "}");
