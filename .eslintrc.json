@@ -33,6 +33,7 @@
         "no-self-compare": "error",
         "no-return-assign": "error",
         "no-restricted-properties": "error",
-        "no-invalid-this": "error"
+        "no-invalid-this": "error",
+        "default-case-last": "error"
     }
 }
