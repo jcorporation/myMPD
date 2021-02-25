@@ -723,12 +723,12 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             break;
         case MPD_API_QUEUE_ADD_RANDOM:
             je = json_scanf(request->data, sdslen(request->data), "{params: {mode:%u, playlist:%Q, quantity:%u}}", &uint_buf1, &p_charbuf1, &uint_buf2);
-            if (uint_buf2 > 999) {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
-                    "queue", "error", "Number of songs to high");
-                break;
-            }
             if (je == 3) {
+                if (uint_buf2 > 999) {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                        "queue", "error", "Number of songs to high");
+                    break;
+                }
                 rc = mpd_client_jukebox_add_to_queue(config, mpd_client_state, uint_buf2, uint_buf1, p_charbuf1, true);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
