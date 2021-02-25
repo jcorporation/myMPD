@@ -144,7 +144,7 @@ function parseTriggerList(obj) {
         document.getElementById('listTriggerList').innerHTML = triggerList;
     }
     else {
-        document.getElementById('listTriggerList').innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
-            '<td colspan="2">' + t('Empty list') + '</td></tr>';
+        document.getElementById('listTriggerList').innerHTML = '<tr class="not-clickable">' +
+            '<td colspan="3"><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
     }
 }

@@ -59,8 +59,7 @@ function parsePartitionOutputsList(obj) {
         }
     }
     if (nr === 0) {
-        outputList = '<tr class="not-clickable"><td><span class="mi">error_outline</span>&nbsp;' +
-            t('Empty list') + '</td></tr>';
+        outputList = '<tr class="not-clickable"><td><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
     }
     document.getElementById('partitionOutputsList').innerHTML = outputList;
 }
@@ -144,7 +143,7 @@ function parsePartitionList(obj) {
         document.getElementById('listPartitionsList').innerHTML = partitionList;
     }
     else {
-        document.getElementById('listPartitionsList').innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
-            '<td colspan="2">' + t('Empty list') + '</td></tr>';
+        document.getElementById('listPartitionsList').innerHTML = '<tr class="not-clickable">' +
+            '<td colspan="3"><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
     }
 }

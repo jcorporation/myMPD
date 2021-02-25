@@ -282,7 +282,6 @@ function setBackgroundImage(url) {
         else {
             old[i].style.zIndex = '-10';
             old[i].style.opacity = '0';
-            //old[i].style.filter = '';
         }
     }
     const div = document.createElement('div');
@@ -308,7 +307,6 @@ function clearBackgroundImage() {
         else {
             old[i].style.zIndex = '-10';
             old[i].style.opacity = '0';
-            //old[i].style.filter = '';
         }
     }
 }

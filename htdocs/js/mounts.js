@@ -155,8 +155,7 @@ function parseListMounts(obj) {
     }
 
     if (obj.result.returnedEntities === 0) {
-        tbody.innerHTML = '<tr><td><span class="mi">error_outline</span></td>' +
-                          '<td colspan="4">' + t('Empty list') + '</td></tr>';
+        tbody.innerHTML = '<tr class="not-clickable"><td colspan="5"><span class="mi">info</span>&nsbp;&nbsp;' + t('Empty list') + '</td></tr>';
     }     
 }
 
@@ -171,7 +170,7 @@ function parseNeighbors(obj) {
                     obj.result.data[i].uri + '<br/><small>' + obj.result.data[i].displayName + '</small></a>';
         }    
         if (obj.result.returnedEntities === 0) {
-            list = '<div class="list-group-item"><span class="mi">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
+            list = '<div class="list-group-item"><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</div>';
         }
     }
     document.getElementById('dropdownNeighbors').children[0].innerHTML = list;

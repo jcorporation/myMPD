@@ -313,8 +313,8 @@ function parseListTimer(obj) {
     }
 
     if (obj.result.returnedEntities === 0) {
-        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
-                          '<td colspan="4">' + t('Empty list') + '</td></tr>';
+        tbody.innerHTML = '<tr class="not-clickable">' +
+                          '<td colspan="5"><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
     }     
 }
 
