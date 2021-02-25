@@ -73,7 +73,7 @@ function initSearch() {
             event.target.innerHTML === '') {
             return;
         }
-        const col = event.target.getAttribute('data-col');
+        let col = event.target.getAttribute('data-col');
         if (col === 'Duration' || col.indexOf('sticker') === 0) {
             return;
         }
