@@ -116,7 +116,7 @@ function gtPage(phrase, returnedEntities, totalEntities) {
 }
 
 function i18nHtml(root) {
-    let attributes = [['data-phrase', 'innerText'], 
+    let attributes = [['data-phrase', 'innerHTML'], 
         ['data-title-phrase', 'title'], 
         ['data-placeholder-phrase', 'placeholder']
     ];

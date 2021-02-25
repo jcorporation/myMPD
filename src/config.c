@@ -273,9 +273,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "partitions")) {
         p_config->partitions = strtobool(value);
     }
-    else if (MATCH("mympd", "footerstop")) {
-        p_config->footer_stop = sdsreplace(p_config->footer_stop, value);
-    }
     else if (MATCH("mympd", "home")) {
         p_config->home = strtobool(value);
     }
@@ -388,7 +385,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
         "MYMPD_LOCALPLAYER", "MYMPD_STREAMPORT", "MYMPD_HOME", "MYMPOD_COLSQUEUEJUKEBOX",
         "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
-        "MYMPD_COVERCACHEAVOID", "MYMPD_LYRICS", "MYMPD_PARTITIONS", "MYMPD_FOOTERSTOP",
+        "MYMPD_COVERCACHEAVOID", "MYMPD_LYRICS", "MYMPD_PARTITIONS",
         "MYMPD_VOLUMEMIN", "MYMPD_VOLUMEMAX", "MYMPD_VORBISUSLT", "MYMPD_VORBISSYLT",
         "MYMPD_USLTEXT", "MYMPD_SYLTEXT", "MYMPD_SYSLOG",
       #ifdef ENABLE_LUA
@@ -453,7 +450,6 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->vorbis_sylt);
     sdsfree(config->sylt_ext);
     sdsfree(config->uslt_ext);
-    sdsfree(config->footer_stop);
     sdsfree(config->bg_image);
     list_free(&config->syscmd_list);
     FREE_PTR(config);
@@ -553,7 +549,6 @@ void mympd_config_defaults(t_config *config) {
     config->scripteditor = false;
     #endif
     config->partitions = false;
-    config->footer_stop = sdsnew("pause");
     config->home = true;
     config->volume_min = 0;
     config->volume_max = 100;
@@ -689,7 +684,6 @@ bool mympd_dump_config(void) {
         "mounts = %s\n"
         "lyrics = %s\n"
         "partitions = %s\n"
-        "footerstop = %s\n"
         "home = %s\n"
         "volumemine = %u\n"
         "volumemax = %u\n"
@@ -755,7 +749,6 @@ bool mympd_dump_config(void) {
         (p_config->mounts == true ? "true" : "false"),
         (p_config->lyrics == true ? "true" : "false"),
         (p_config->partitions == true ? "true" : "false"),
-        p_config->footer_stop,
         (p_config->home == true ? "true" : "false"),
         p_config->volume_min,
         p_config->volume_max,

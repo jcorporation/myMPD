@@ -90,6 +90,16 @@ var advancedSettingsDefault = {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Show playback settings in footer"
+    },
+    "uiFooterPlaybackControls": {
+        "defaultValue": "pause",
+        "validValues": {
+            "pause": "pause only",
+            "stop": "stop only",
+            "both": "pause and stop"
+        },
+        "inputType": "select",
+        "title": "Playback controls"
     }
 };
 
@@ -329,13 +339,6 @@ function parseSettings() {
 
     setNavbarIcons();
 
-    if (settings.footerStop === 'both') {
-        document.getElementById('btnStop').classList.remove('hide');
-    }
-    else {
-        document.getElementById('btnStop').classList.add('hide');
-    }
-    
     document.getElementById('selectTheme').value = settings.theme;
 
     //build form for advanced settings    
@@ -395,6 +398,13 @@ function parseSettings() {
     else {
         document.getElementById('footerQueueSettings').classList.add('hide');
     }
+
+    if (settings.advanced.uiFooterPlaybackControls === 'both') {
+        document.getElementById('btnStop').classList.remove('hide');
+    }
+    else {
+        document.getElementById('btnStop').classList.add('hide');
+    }
     
     //parse mpd settings if connected
     if (settings.mpdConnected === true) {
@@ -442,8 +452,6 @@ function parseSettings() {
     toggleBtnChk('btnBookmarks', settings.featBookmarks);
     toggleBtnChk('btnFeatLyrics', settings.featLyrics);
     toggleBtnChk('btnFeatHome', settings.featHome);
-
-    document.getElementById('selectStopPause').value = settings.footerStop;
 
     if (settings.streamUrl === '') {
         document.getElementById('selectStreamMode').value = 'port';
@@ -1066,7 +1074,6 @@ function saveSettings(closeModal) {
             "bookletName": document.getElementById('inputBookletName').value,
             "lyrics": (document.getElementById('btnFeatLyrics').classList.contains('active') ? true : false),
             "advanced": advSettings,
-            "footerStop": getSelectValue('selectStopPause'),
             "featHome": (document.getElementById('btnFeatHome').classList.contains('active') ? true : false)
         }, getSettings);
         if (closeModal === true) {

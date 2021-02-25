@@ -82,7 +82,7 @@ function parseUpdateQueue(obj) {
         }, 10);
     }
     else if (obj.result.state === 2) {
-        document.getElementById('btnPlay').innerText = settings.footerStop === 'stop' ? 'stop' : 'pause';
+        document.getElementById('btnPlay').innerText = settings.advanced.uiFooterPlaybackControls === 'stop' ? 'stop' : 'pause';
         playstate = 'play';
     }
     else {
