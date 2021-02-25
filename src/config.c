@@ -518,7 +518,7 @@ void mympd_config_defaults(t_config *config) {
     config->stream_port = 8443;
     config->stream_url = sdsempty();
     config->bg_cover = true;
-    config->bg_color = sdsnew("#ccc");
+    config->bg_color = sdsnew("#000000");
     config->bg_css_filter = sdsnew("grayscale(100%) opacity(5%)");
     config->coverimage = true;
     config->coverimage_name = sdsnew("folder, cover");
