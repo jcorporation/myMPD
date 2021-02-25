@@ -69,47 +69,44 @@ function initSearch() {
     }, false);
     
     document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
-        if (settings.featAdvsearch) {
-            if (event.target.nodeName === 'TH') {
-                if (event.target.innerHTML === '') {
-                    return;
-                }
-                let col = event.target.getAttribute('data-col');
-                if (col === 'Duration') {
-                    return;
-                }
-                let sortcol = app.current.sort;
-                let sortdesc = true;
+        if (settings.featAdvsearch === false || event.target.nodeName !== 'TH' ||
+            event.target.innerHTML === '') {
+            return;
+        }
+        const col = event.target.getAttribute('data-col');
+        if (col === 'Duration' || col.indexOf('sticker') === 0) {
+            return;
+        }
+        let sortcol = app.current.sort;
+        let sortdesc = true;
                 
-                if (sortcol === col || sortcol === '-' + col) {
-                    if (sortcol.indexOf('-') === 0) {
-                        sortdesc = true;
-                        col = sortcol.substring(1);
-                    }
-                    else {
-                        sortdesc = false;
-                    }
-                }
-                if (sortdesc === false) {
-                    sortcol = '-' + col;
-                    sortdesc = true;
-                }
-                else {
-                    sortdesc = false;
-                    sortcol = col;
-                }
-                
-                let s = document.getElementById('SearchList').getElementsByClassName('sort-dir');
-                for (let i = 0; i < s.length; i++) {
-                    s[i].remove();
-                }
-                app.current.sort = sortcol;
-                event.target.innerHTML = t(col) + '<span class="sort-dir mi pull-right">' + 
-                    (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
-                appGoto(app.current.app, app.current.tab, app.current.view,
-                    app.current.offset, app.current.limit, app.current.filter,  app.current.sort, '-', app.current.search);
+        if (sortcol === col || sortcol === '-' + col) {
+            if (sortcol.indexOf('-') === 0) {
+                sortdesc = true;
+                col = sortcol.substring(1);
+            }
+            else {
+                sortdesc = false;
             }
         }
+        if (sortdesc === false) {
+            sortcol = '-' + col;
+            sortdesc = true;
+        }
+        else {
+            sortdesc = false;
+            sortcol = col;
+        }
+                
+        let s = document.getElementById('SearchList').getElementsByClassName('sort-dir');
+        for (let i = 0; i < s.length; i++) {
+            s[i].remove();
+        }
+        app.current.sort = sortcol;
+        event.target.innerHTML = t(col) + '<span class="sort-dir mi pull-right">' + 
+            (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
+        appGoto(app.current.app, app.current.tab, app.current.view,
+            app.current.offset, app.current.limit, app.current.filter,  app.current.sort, '-', app.current.search);
     }, false);
 }
 
