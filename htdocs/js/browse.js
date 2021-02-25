@@ -279,6 +279,9 @@ function navBrowseHandler(event) {
 }
 
 function popoverMenuAlbumCards(event) {
+    if (event.target.classList.contains('row')) {
+        return;
+    }
     showMenu(event.target, event);
     const selCards = document.getElementById('BrowseDatabaseListList').getElementsByClassName('selected');
     for (let i = 0; i < selCards.length; i++) {
