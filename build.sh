@@ -80,8 +80,8 @@ if [ "$ACTION" != "installdeps" ] && [ "$ACTION" != "" ]
 then
   check_cmd gzip perl
 
-  GZIP="gzip -f -v -9"
-  GZIPCAT="gzip -f -v -9 -c"
+  GZIP="gzip -n -f -v -9"
+  GZIPCAT="gzip -n -v -9 -c"
 fi
 
 setversion() {
@@ -104,7 +104,7 @@ setversion() {
   #compress manpages
   for F in contrib/man/mympd.1 contrib/man/mympd-config.1 contrib/man/mympd-script.1
   do
-    gzip -n -9 -c "$F" > "$F.gz"
+    $GZIPCAT "$F" > "$F.gz"
   done
 
   #gentoo ebuild must be moved only
@@ -759,9 +759,9 @@ transstatus() {
   TRANSOUT=$(./build.sh translate 2>&1)
   for F in src/i18n/*-*.txt
   do
-    G=$(basename $F .txt)
+    G=$(basename "$F" .txt)
     printf "%s: " "$G"
-    echo "$TRANSOUT" | grep "$G not found" | wc -l
+    echo "$TRANSOUT" | grep -c "$G not found"
   done
 }
 
@@ -1002,9 +1002,11 @@ case "$ACTION" in
 	  echo "                    for use with valgrind, uses assets in htdocs"
 	  echo "  test:             builds the unit testing files in test/build"
 	  echo "  installdeps:      installs build and run dependencies"
+	  echo "  createassets:     creates the minfied and compressed dist files"
+      echo ""
+	  echo "Translation options:"
 	  echo "  translate:        builds the translation file for debug builds"
 	  echo "  transstatus:      shows the translation status"
-	  echo "  createassets:     creates the minfied and compressed dist files"
 	  echo ""
       echo "Test options:"
 	  echo "  check:            runs cppcheck and flawfinder on source files"
