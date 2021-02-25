@@ -638,8 +638,8 @@ function appInitStart() {
 
     subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
     let localeList = '<option value="default" data-phrase="Browser default"></option>';
-    for (const locale of locales) {
-        localeList += '<option value="' + e(locale.code) + '">' + e(locale.desc) + ' (' + e(locale.code) + ')</option>';
+    for (const l of locales) {
+        localeList += '<option value="' + e(l.code) + '">' + e(l.desc) + ' (' + e(l.code) + ')</option>';
     }
     document.getElementById('selectLocale').innerHTML = localeList;
     
@@ -894,7 +894,7 @@ function initNavs() {
     }, false);
     
     //hides main menu after opening the modal
-    document.getElementById('mainMenuDropdown').addEventListener('click', function(event) {
+    document.getElementById('mainMenuDropdown').addEventListener('click', function() {
         dropdownMainMenu.hide();
     }, false);
 

@@ -9,7 +9,8 @@
         "SharedArrayBuffer": "readonly",
         "BSN": true,
         "phrases": true,
-        "locales": true
+        "locales": true,
+        "missingPhrases": true
     },
     "parserOptions": {
         "ecmaVersion": 2018
@@ -23,6 +24,15 @@
         "no-alert": "error",
         "no-eq-null": "error",
         "no-implied-eval": "error",
-        "no-shadow": "error"
+        "no-shadow": "error",
+        "no-alert": "error",
+        "no-caller": "error",
+        "no-eq-null": "error",
+        "no-useless-concat": "error",
+        "no-unused-expressions": "error",
+        "no-self-compare": "error",
+        "no-return-assign": "error",
+        "no-restricted-properties": "error",
+        "no-invalid-this": "error"
     }
 }

@@ -58,7 +58,7 @@ function showMenuTh(el) {
     menu += '</form>';
     new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
         '<div class="arrow"></div>' +
-        '<div class="popover-content" id="' + table + 'ColsDropdown' + '">' + menu + '</div>' +
+        '<div class="popover-content" id="' + table + 'ColsDropdown">' + menu + '</div>' +
         '</div>', content: ' '});
     let popoverInit = el.Popover;
     if (getAttDec(el, 'data-init') === null) {
@@ -268,7 +268,9 @@ function showMenuTd(el) {
                             break;
                         }
                     } while ( !menuItems[idx].offsetHeight )
-                    menuItems[idx] && menuItems[idx].focus();
+                    if (menuItems[idx]) {
+                        menuItems[idx].focus();
+                    }
                 }
                 else if (eventKey.key === 'Enter') {
                     eventKey.target.click();

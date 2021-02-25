@@ -553,6 +553,7 @@ function parseAlbumDetails(obj) {
         setAttEnc(row, 'data-type', 'song');
         setAttEnc(row, 'data-name', data.Title);
         setAttEnc(row, 'data-uri', data.uri);
+        row.setAttribute('title', rowTitle);
     });
 
     const table = document.getElementById('BrowseDatabaseDetailList');

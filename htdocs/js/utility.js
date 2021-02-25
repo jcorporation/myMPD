@@ -754,6 +754,7 @@ function printValue(key, value) {
             if (value === 'smartpls') { return '<span class="mi">queue_music</span>'; }
             if (value === 'plist') { return '<span class="mi">list</span>'; }
             if (value === 'dir') { return '<span class="mi">folder_open</span>'; }
+            return '<span class="mi">radio_button_unchecked</span>';
         case 'Duration':
             return beautifySongDuration(value);
         case 'LastModified': 
