@@ -51,15 +51,17 @@ bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state, bool feat_tags,
 
     //push album cache building response to mpd_client thread
     if (feat_tags == true) {
-        t_work_request *request = create_request(-1, 0, MPD_API_ALBUMCACHE_CREATED, "MPD_API_ALBUMCACHE_CREATED", "");
-        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMCACHE_CREATED\",\"params\":{}}");
         if (rc == true) {
+            t_work_request *request = create_request(-1, 0, MPD_API_ALBUMCACHE_CREATED, "MPD_API_ALBUMCACHE_CREATED", "");
+            request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMCACHE_CREATED\",\"params\":{}}");
             request->extra = (void *) album_cache;
+            tiny_queue_push(mpd_client_queue, request, 0);
+            send_jsonrpc_notify("database", "info", "Updated album cache");
         }
         else {
             album_cache_free(&album_cache);
+            send_jsonrpc_notify("database", "error", "Update of album cache failed");
         }
-        tiny_queue_push(mpd_client_queue, request, 0);
     }
     else {
         MYMPD_LOG_INFO("Skipped album cache creation, tags are disabled");
@@ -67,15 +69,17 @@ bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state, bool feat_tags,
 
     //push sticker cache building response to mpd_client thread
     if (feat_sticker == true) {
-        t_work_request *request2 = create_request(-1, 0, MPD_API_STICKERCACHE_CREATED, "MPD_API_STICKERCACHE_CREATED", "");
-        request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_STICKERCACHE_CREATED\",\"params\":{}}");
         if (rc == true) {
+            t_work_request *request2 = create_request(-1, 0, MPD_API_STICKERCACHE_CREATED, "MPD_API_STICKERCACHE_CREATED", "");
+            request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_STICKERCACHE_CREATED\",\"params\":{}}");
             request2->extra = (void *) sticker_cache;
+            tiny_queue_push(mpd_client_queue, request2, 0);
+            send_jsonrpc_notify("database", "info", "Updated sticker cache");
         }
         else {
             sticker_cache_free(&sticker_cache);
+            send_jsonrpc_notify("database", "error", "Update of sticker cache failed");
         }
-        tiny_queue_push(mpd_client_queue, request2, 0);
     }
     else {
         MYMPD_LOG_INFO("Skipped sticker cache creation, stickers are disabled");
