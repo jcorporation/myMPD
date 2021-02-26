@@ -103,15 +103,15 @@ function beautifySongDuration(x) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function gtPage(phrase, returnedEntities, totalEntities) {
+function gtPage(phrase, returnedEntities, totalEntities, maxElements) {
     if (totalEntities > -1) {
         return t(phrase, totalEntities);
     }
-    else if (returnedEntities + app.current.offset < settings.maxElementsPerPage) {
+    else if (returnedEntities + app.current.offset < maxElements) {
         return t(phrase, returnedEntities);
     }
     else {
-        return '> ' + t(phrase, settings.maxElementsPerPage);
+        return '> ' + t(phrase, maxElements);
     }
 }
 

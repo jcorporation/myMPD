@@ -46,7 +46,7 @@ void mympd_api_settings_delete(t_config *config) {
         "cols_search", "cols_queue_jukebox", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
         "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags", "smartpls_sort", "smartpls_prefix", "smartpls_interval",
         "last_played", "last_played_count", "locale", "localplayer", "love", "love_channel", "love_message",
-        "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
+        "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
         "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "bookmark_list", "coverimage_size_small", 
         "theme", "timer", "highlight_color", "media_session", "booklet_name", "lyrics", "home_list", "navbar_icons", "advanced", 
         "home", "bg_image",0};
@@ -317,16 +317,6 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         mympd_state->generate_pls_tags = sdsreplacelen(mympd_state->generate_pls_tags, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "generate_pls_tags");
     }
-    else if (strncmp(key->ptr, "maxElementsPerPage", key->len) == 0) {
-        int max_elements_per_page = strtoimax(settingvalue, &crap, 10);
-        if (max_elements_per_page < 0 || max_elements_per_page > 999) {
-            sdsfree(settingname);
-            sdsfree(settingvalue);
-            return false;
-        }
-        mympd_state->max_elements_per_page = max_elements_per_page;
-        settingname = sdscat(settingname, "max_elements_per_page");
-    }
     else if (strncmp(key->ptr, "love", key->len) == 0) {
         mympd_state->love = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(settingname, "love");
@@ -368,10 +358,6 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         mympd_state->advanced = sdsreplacelen(mympd_state->advanced, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "advanced");
     }
-    else if (strncmp(key->ptr, "footerStop", key->len) == 0) {
-        mympd_state->footer_stop = sdsreplacelen(mympd_state->footer_stop, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "footer_stop");
-    }
     else if (strncmp(key->ptr, "featHome", key->len) == 0) {
         mympd_state->home = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(settingname, "home");
@@ -412,7 +398,6 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->smartpls_prefix = state_file_rw_string(config, "smartpls_prefix", config->smartpls_prefix, false);
     mympd_state->smartpls_interval = state_file_rw_int(config, "smartpls_interval", config->smartpls_interval, false);
     mympd_state->generate_pls_tags = state_file_rw_string(config, "generate_pls_tags", config->generate_pls_tags, false);
-    mympd_state->max_elements_per_page = state_file_rw_int(config, "max_elements_per_page", config->max_elements_per_page, false);
     mympd_state->last_played_count = state_file_rw_int(config, "last_played_count", config->last_played_count, false);
     mympd_state->love = state_file_rw_bool(config, "love", config->love, false);
     mympd_state->love_channel = state_file_rw_string(config, "love_channel", config->love_channel, false);
@@ -484,7 +469,6 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_long(buffer, "coverimageSize", mympd_state->coverimage_size, true);
     buffer = tojson_long(buffer, "coverimageSizeSmall", mympd_state->coverimage_size_small, true);
     buffer = tojson_bool(buffer, "featMixramp", config->mixramp, true);
-    buffer = tojson_long(buffer, "maxElementsPerPage", mympd_state->max_elements_per_page, true);
     buffer = tojson_bool(buffer, "notificationWeb", mympd_state->notification_web, true);
     buffer = tojson_bool(buffer, "notificationPage", mympd_state->notification_page, true);
     buffer = tojson_bool(buffer, "mediaSession", mympd_state->media_session, true);

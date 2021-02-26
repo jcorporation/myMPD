@@ -140,13 +140,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "browsetaglist")) {
         p_config->browsetaglist = sdsreplace(p_config->browsetaglist, value);
     }
-    else if (MATCH("mympd", "pagination")) {
-        p_config->max_elements_per_page = strtoimax(value, &crap, 10);
-        if (p_config->max_elements_per_page > 1000) {
-            MYMPD_LOG_WARN("Setting max_elements_per_page to maximal value 1000");
-            p_config->max_elements_per_page = 1000;
-        }
-    }
     else if (MATCH("mympd", "volumestep")) {
         p_config->volume_step = strtoimax(value, &crap, 10);
     }
@@ -375,7 +368,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_TAGLIST", "MYMPD_GENERATE_PLS_TAGS",
         "MYMPD_SMARTPLSSORT", "MYMPD_SMARTPLSPREFIX", "MYMPD_SMARTPLSINTERVAL",
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
-        "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
+        "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
         "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT", "MYMPD_READONLY", "MYMPD_TIMER", "MYMPD_MOUNTS",
         "MYMPD_NOTIFICATIONPAGE", "MYMPD_AUTOPLAY", "MYMPD_JUKEBOXMODE", "MYMPD_BOOKMARKS",
         "MYMPD_MEDIASESSION", "MYMPD_BOOKLETNAME",
@@ -486,7 +479,6 @@ void mympd_config_defaults(t_config *config) {
     config->smartpls_prefix = sdsnew("myMPDsmart");
     config->smartpls_interval = 14400;
     config->generate_pls_tags = sdsnew("Genre");
-    config->max_elements_per_page = 100;
     config->last_played_count = 200;
     config->syscmds = false;
     config->loglevel = 2;
@@ -641,7 +633,6 @@ bool mympd_dump_config(void) {
         "taglist = %s\n"
         "searchtaglist = %s\n"
         "browsetaglist = %s\n"
-        "pagination = %d\n"
         "volumestep = %d\n"
         "covercachekeepdays = %d\n"
         "covercache = %s\n"
@@ -706,7 +697,6 @@ bool mympd_dump_config(void) {
         p_config->taglist,
         p_config->searchtaglist,
         p_config->browsetaglist,
-        p_config->max_elements_per_page,
         p_config->volume_step,
         p_config->covercache_keep_days,
         (p_config->covercache == true ? "true" : "false"),

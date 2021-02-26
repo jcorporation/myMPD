@@ -12,8 +12,8 @@ var advancedSettingsDefault = {
             "view": "Song details"
         }, 
         "inputType": "select",
-        "title": "Click song"
-        
+        "title": "Click song",
+        "form": "AdvancedSettingsFrm"
     },
     "clickQueueSong": { 
         "defaultValue": "play", 
@@ -22,7 +22,8 @@ var advancedSettingsDefault = {
             "view": "Song details",
         },
         "inputType": "select",
-        "title": "Click song in queue"
+        "title": "Click song in queue",
+        "form": "AdvancedSettingsFrm"
     },
     "clickPlaylist": { 
         "defaultValue": "append", 
@@ -32,7 +33,8 @@ var advancedSettingsDefault = {
             "view": "View playlist"
         },
         "inputType": "select",
-        "title": "Click playlist"
+        "title": "Click playlist",
+        "form": "AdvancedSettingsFrm"
     },
     "clickFolder": { 
         "defaultValue": "view", 
@@ -42,7 +44,8 @@ var advancedSettingsDefault = {
             "view": "Open folder"
         },
         "inputType": "select",
-        "title": "Click folder"
+        "title": "Click folder",
+        "form": "AdvancedSettingsFrm"
     },
     "clickAlbumPlay": { 
         "defaultValue": "replace", 
@@ -51,45 +54,54 @@ var advancedSettingsDefault = {
             "replace": "Replace queue",
         },
         "inputType": "select",
-        "title": "Click album play button"
+        "title": "Click album play button",
+        "form": "AdvancedSettingsFrm"
     },
     "notificationAAASection": {
         "inputType": "section",
-        "title": "Notifications"
+        "subtitle": "Facilities",
+        "form": "NotificationSettingsAdvFrm"
     },
     "notificationPlayer": {
         "defaultValue": false,
         "inputType": "checkbox",
-        "title": "Playback"
+        "title": "Playback",
+        "form": "NotificationSettingsAdvFrm"
     },
     "notificationQueue": {
         "defaultValue": true,
         "inputType": "checkbox",
-        "title": "Queue"
+        "title": "Queue",
+        "form": "NotificationSettingsAdvFrm"
     },
     "notificationGeneral": {
         "defaultValue": true,
         "inputType": "checkbox",
-        "title": "General"
+        "title": "General",
+        "form": "NotificationSettingsAdvFrm"
     },
     "notificationDatabase": {
         "defaultValue": true,
         "inputType": "checkbox",
-        "title": "Database"
+        "title": "Database",
+        "form": "NotificationSettingsAdvFrm"
     },
     "notificationPlaylist": {
         "defaultValue": true,
         "inputType": "checkbox",
-        "title": "Playlist"
+        "title": "Playlist",
+        "form": "NotificationSettingsAdvFrm"
     },
     "uiAAASection": {
         "inputType": "section",
-        "title": "UI"
+        "title": "Appearance",
+        "form": "AdvancedSettingsFrm"
     },
     "uiFooterQueueSettings": {
         "defaultValue": false,
         "inputType": "checkbox",
-        "title": "Show playback settings in footer"
+        "title": "Show playback settings in footer",
+        "form": "AdvancedSettingsFrm"
     },
     "uiFooterPlaybackControls": {
         "defaultValue": "pause",
@@ -99,7 +111,21 @@ var advancedSettingsDefault = {
             "both": "pause and stop"
         },
         "inputType": "select",
-        "title": "Playback controls"
+        "title": "Playback controls",
+        "form": "AdvancedSettingsFrm"
+    },
+    "uiMaxElementsPerPage": {
+        "defaultValue": "100",
+        "validValues": {
+            "25": "25",
+            "50": "50",
+            "100": "100",
+            "200": "200",
+            "0": "All"
+        },
+        "inputType": "select",
+        "title": "Elements per page",
+        "form": "AdvancedSettingsFrm"
     }
 };
 
@@ -347,49 +373,61 @@ function parseSettings() {
             settings.advanced[key] = advancedSettingsDefault[key].defaultValue;
         }
     }
-    let advFrm = '';
+
+    let advFrm = {};
     
     let advSettingsKeys = Object.keys(settings.advanced);
     advSettingsKeys.sort();
     for (let i = 0; i < advSettingsKeys.length; i++) {
         let key = advSettingsKeys[i];
+        let form = advancedSettingsDefault[key].form;
+        if (advFrm[form] === undefined) {
+            advFrm[form] = '';
+        }
+        
         if (advancedSettingsDefault[key].inputType === 'section') {
-            advFrm += '<h4>' + t(advancedSettingsDefault[key].title) + '</h4>';
+            if (advancedSettingsDefault[key].title !== undefined) {
+                advFrm[form] += '<hr/><h4>' + t(advancedSettingsDefault[key].title) + '</h4>';
+            }
+            else if (advancedSettingsDefault[key].subtitle !== undefined) {
+                advFrm[form] += '<h5>' + t(advancedSettingsDefault[key].subtitle) + '</h5>';
+            }
             continue;
         }
-        advFrm += '<div class="form-group row">' +
+        advFrm[form] += '<div class="form-group row">' +
                     '<label class="col-sm-4 col-form-label" for="inputAdvSetting' + r(key) + '" data-phrase="' + 
                     e(advancedSettingsDefault[key].title) + '">' + t(advancedSettingsDefault[key].title) + '</label>' +
                     '<div class="col-sm-8 ">';
         if (advancedSettingsDefault[key].inputType === 'select') {
-            advFrm += '<select id="inputAdvSetting' + r(key) + '" data-key="' + 
+            advFrm[form] += '<select id="inputAdvSetting' + r(key) + '" data-key="' + 
                 r(key) + '" class="form-control border-secondary custom-select">';
             for (let value in advancedSettingsDefault[key].validValues) {
-                advFrm += '<option value="' + e(value) + '"' +
+                advFrm[form] += '<option value="' + e(value) + '"' +
                     (settings.advanced[key] === value ? ' selected' : '') +
                     '>' + t(advancedSettingsDefault[key].validValues[value]) + '</option>';
             }
-            advFrm += '</select>';
+            advFrm[form] += '</select>';
         }
         else if (advancedSettingsDefault[key].inputType === 'checkbox') {
-            advFrm += '<button type="button" class="btn btn-sm btn-secondary mi ' + 
+            advFrm[form] += '<button type="button" class="btn btn-sm btn-secondary mi ' + 
                 (settings.advanced[key] === false ? '' : 'active') + ' clickable" id="inputAdvSetting' + r(key) + '"'+
                 'data-key="' + r(key) + '">' +
                 (settings.advanced[key] === false ? 'radio_button_unchecked' : 'check') + '</button>';
         }
         else {
-            advFrm += '<input id="inputAdvSetting' + r(key) + '" data-key="' + 
+            advFrm[form] += '<input id="inputAdvSetting' + r(key) + '" data-key="' + 
                 r(key) + '" type="text" class="form-control border-secondary" value="' + e(settings.advanced[key]) + '">';
         }
-        advFrm +=   '</div>' +
-                  '</div>';
+        advFrm[form] += '</div></div>';
     }
-    document.getElementById('AdvancedSettingsFrm').innerHTML = advFrm;
-    let advFrmBtns = document.getElementById('AdvancedSettingsFrm').getElementsByTagName('button');
-    for (const btn of advFrmBtns) {
-        btn.addEventListener('click', function(event) {
-            toggleBtnChk(event.target);
-        }, false);
+    for (const key in advFrm) {
+        document.getElementById(key).innerHTML = advFrm[key];
+        const advFrmBtns = document.getElementById(key).getElementsByTagName('button');
+        for (const btn of advFrmBtns) {
+            btn.addEventListener('click', function(event) {
+                toggleBtnChk(event.target);
+            }, false);
+        }
     }
 
     if (settings.advanced.uiFooterQueueSettings === true) {
@@ -491,18 +529,20 @@ function parseSettings() {
     document.getElementById('inputLoveChannel').value = settings.loveChannel;
     document.getElementById('inputLoveMessage').value = settings.loveMessage;
     
-    document.getElementById('selectMaxElementsPerPage').value = settings.maxElementsPerPage;
-    app.apps.Home.limit = settings.maxElementsPerPage;
-    app.apps.Playback.limit = settings.maxElementsPerPage;
-    app.apps.Queue.tabs.Current.limit = settings.maxElementsPerPage;
-    app.apps.Queue.tabs.LastPlayed.limit = settings.maxElementsPerPage;
-    app.apps.Queue.tabs.Jukebox.limit = settings.maxElementsPerPage;
-    app.apps.Browse.tabs.Filesystem.limit = settings.maxElementsPerPage;
-    app.apps.Browse.tabs.Playlists.views.All.limit = settings.maxElementsPerPage;
-    app.apps.Browse.tabs.Playlists.views.Detail.limit = settings.maxElementsPerPage;
-    app.apps.Browse.tabs.Database.views.List.limit = settings.maxElementsPerPage;
-    app.apps.Browse.tabs.Database.views.Detail.limit = settings.maxElementsPerPage;
-    app.apps.Search.limit = settings.maxElementsPerPage;
+    //default limit for all apps
+    //convert from string to int
+    const limit = parseInt(settings.advanced.uiMaxElementsPerPage);
+    app.apps.Home.limit = limit;
+    app.apps.Playback.limit = limit;
+    app.apps.Queue.tabs.Current.limit = limit;
+    app.apps.Queue.tabs.LastPlayed.limit = limit;
+    app.apps.Queue.tabs.Jukebox.limit = limit;
+    app.apps.Browse.tabs.Filesystem.limit = limit;
+    app.apps.Browse.tabs.Playlists.views.All.limit = limit;
+    app.apps.Browse.tabs.Playlists.views.Detail.limit = limit;
+    app.apps.Browse.tabs.Database.views.List.limit = limit;
+    app.apps.Browse.tabs.Database.views.Detail.limit = limit;
+    app.apps.Search.limit = limit;
     
     toggleBtnChk('btnStickers', settings.stickers);
     document.getElementById('inputLastPlayedCount').value = settings.lastPlayedCount;
@@ -1057,7 +1097,6 @@ function saveSettings(closeModal) {
             "loveChannel": document.getElementById('inputLoveChannel').value,
             "loveMessage": document.getElementById('inputLoveMessage').value,
             "bookmarks": (document.getElementById('btnBookmarks').classList.contains('active') ? true : false),
-            "maxElementsPerPage": parseInt(getSelectValue('selectMaxElementsPerPage')),
             "stickers": (document.getElementById('btnStickers').classList.contains('active') ? true : false),
             "lastPlayedCount": document.getElementById('inputLastPlayedCount').value,
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),

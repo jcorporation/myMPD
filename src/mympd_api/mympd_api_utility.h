@@ -53,7 +53,6 @@ typedef struct t_mympd_state {
     sds smartpls_prefix;
     time_t smartpls_interval;
     sds generate_pls_tags;
-    int max_elements_per_page;
     int last_played_count;
     bool love;
     sds love_channel;
@@ -98,7 +97,6 @@ typedef struct t_mympd_state {
     struct list home_list;
     sds navbar_icons;
     sds advanced;
-    sds footer_stop;
     bool home;
     sds bg_image;
 } t_mympd_state;

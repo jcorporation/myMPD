@@ -112,7 +112,7 @@ bool mympd_api_bookmark_clear(t_config *config) {
     return false;
 }
 
-sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, long request_id, unsigned int offset) {
+sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, long request_id, unsigned int offset, unsigned int limit) {
     char *line = NULL;
     char *crap = NULL;
     size_t n = 0;
@@ -141,7 +141,7 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, long reque
     else {
         while (getline(&line, &n, fi) > 0) {
             entity_count++;
-            if (entity_count > offset && entity_count <= offset + config->max_elements_per_page) {
+            if (entity_count > offset && entity_count <= offset + limit) {
                 if (entities_returned++) {
                     buffer = sdscat(buffer, ",");
                 }

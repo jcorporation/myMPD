@@ -136,7 +136,7 @@ function parseQueue(obj) {
     }
 
     //goto playing song button
-    if (obj.result.totalEntities > settings.maxElementsPerPage) {
+    if (obj.result.totalEntities > app.current.limit && app.current.limit !== 0) {
         document.getElementById('btnQueueGotoPlayingSong').parentNode.classList.remove('hide');
     }
     else {
@@ -298,7 +298,10 @@ function delQueueSong(mode, start, end) {
 
 //eslint-disable-next-line no-unused-vars
 function gotoPlayingSong() {
-    let offset = lastState.songPos < settings.maxElementsPerPage ? 0 : Math.floor(lastState.songPos / settings.maxElementsPerPage) * settings.maxElementsPerPage;
+    if (app.current.limit === 0) {
+        return;
+    }
+    let offset = lastState.songPos < app.current.limit ? 0 : Math.floor(lastState.songPos / app.current.limit) * app.current.limit;
     gotoPage(offset);
 }
 

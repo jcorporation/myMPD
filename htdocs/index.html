@@ -29,7 +29,7 @@
   <!-- Splash screen -->
   <div id="splashScreen">
     <div id="splashScreenLogo">
-      <svg width="6rem" height="6rem" version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
+      <svg version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
         <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
         <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
@@ -45,7 +45,7 @@
     <nav id="header" class="navbar navbar-expand navbar-dark fixed-top bg-dark d-flex justify-content-between">
       <div class="dropdown nav-item" id="headerLeft">
         <a class="dropdown-toggle alwaysEnabled" href="#" id="mainMenu" data-title-phrase="myMPD menu">
-          <svg width="2.5rem" height="2.5rem" version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
+          <svg version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
             <ellipse id="logoBg" cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#6c757d"/>
             <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
             <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
@@ -869,10 +869,13 @@
               <a class="nav-link text-dark" href="#tabInterfaceSettings" data-toggle="tab" data-height="true" data-phrase="Appearance"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabMaintenance" data-toggle="tab" data-height="true" data-phrase="Maintenance"></a>
+              <a class="nav-link text-dark" href="#tabNotificationSettings" data-toggle="tab" data-height="true" data-phrase="Notifications"></a>
             </li>
             <li class="nav-item">
               <a class="nav-link text-dark" href="#tabAdvancedSettings" data-toggle="tab" data-height="true" data-phrase="Advanced"></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-dark" href="#tabMaintenance" data-toggle="tab" data-height="true" data-phrase="Maintenance"></a>
             </li>
           </ul>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -981,7 +984,10 @@
                     <div id="warnMissingPhrases" class="alert alert-warning hide mt-2"></div>
                   </div>
                 </div>
-                <hr/>
+              </form>
+            </div>
+            <div class="tab-pane" id="tabNotificationSettings">
+              <form id="NotificationSettingsFrm">
                 <h4 data-phrase="Notifications"></h4>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnNotifyPage" data-phrase="On page notifications"></label>
@@ -1002,20 +1008,8 @@
                     <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnMediaSession"></button>
                   </div>
                 </div>
-                <hr/>
-                <h4 data-phrase="Pagination"></h4>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="selectMaxElementsPerPage" data-phrase="Elements per page"></label>
-                  <div class="col-sm-8 ">
-                    <select id="selectMaxElementsPerPage" class="form-control custom-select border-secondary">
-                      <option value="25">25</option>
-                      <option value="50">50</option>
-                      <option value="100">100</option>
-                      <option value="200">200</option>
-                      <option value="0" data-phrase="All"></option>
-                    </select>
-                  </div>
-                </div>
+              </form>
+              <form id="NotificationSettingsAdvFrm">
               </form>
             </div>
             <div class="tab-pane active" id="tabGeneralSettings">
@@ -1139,31 +1133,7 @@
                     </div>
                   </div>
                 </div>
-                <hr/>
-                <h4 data-phrase="Scrobbler integration"></h4>
-                <div id="warnScrobbler" class="alert alert-warning hide" data-phrase="MPD channel not found"></div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="btnLoveEnable" data-phrase="Send love message"></label>
-                  <div class="col-sm-8 ">
-                    <button data-toggle="collapse" data-target="#collapseLove" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnLoveEnable"></button>
-                  </div>
-                </div>
-                <div class="collapse" id="collapseLove">
-                  <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="inputLoveChannel" data-phrase="MPD channel"></label>
-                    <div class="col-sm-8">
-                      <input id="inputLoveChannel" type="text" class="form-control border-secondary" value="">
-                      <div class="invalid-feedback" data-phrase="Invalid channel name"></div>
-                    </div>
-                  </div>
-                  <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="inputLoveMessage" data-phrase="Message"></label>
-                    <div class="col-sm-8">
-                      <input id="inputLoveMessage" type="text" class="form-control border-secondary" value="">
-                      <div class="invalid-feedback" data-phrase="Invalid message"></div>
-                    </div>
-                  </div>
-                </div>
+
                 <hr/>
                 <h4 data-phrase="Other features"></h4>
                 <div class="warnReadonly alert alert-warning hide" data-phrase="myMPD is in readonly mode"></div>
@@ -1250,6 +1220,31 @@
               <h4 data-phrase="Advanced"></h4>
               <form id="AdvancedSettingsFrm">
               </form>
+              <hr/>
+              <h4 data-phrase="Scrobbler integration"></h4>
+              <div id="warnScrobbler" class="alert alert-warning hide" data-phrase="MPD channel not found"></div>
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="btnLoveEnable" data-phrase="Send love message"></label>
+                <div class="col-sm-8 ">
+                  <button data-toggle="collapse" data-target="#collapseLove" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnLoveEnable"></button>
+                </div>
+              </div>
+              <div class="collapse" id="collapseLove">
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputLoveChannel" data-phrase="MPD channel"></label>
+                  <div class="col-sm-8">
+                    <input id="inputLoveChannel" type="text" class="form-control border-secondary" value="">
+                    <div class="invalid-feedback" data-phrase="Invalid channel name"></div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputLoveMessage" data-phrase="Message"></label>
+                  <div class="col-sm-8">
+                    <input id="inputLoveMessage" type="text" class="form-control border-secondary" value="">
+                    <div class="invalid-feedback" data-phrase="Invalid message"></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1426,7 +1421,7 @@
           <div class="tab-content">
             <div class="tab-pane active" id="tabAbout">
               <h4 class="mb-3">
-              <svg width="2.5rem" height="2.5rem" version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
+              <svg version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
                 <ellipse cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
                 <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
                 <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>

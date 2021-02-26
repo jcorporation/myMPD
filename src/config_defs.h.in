@@ -78,7 +78,6 @@ typedef struct t_config {
     sds smartpls_prefix;
     time_t smartpls_interval;
     sds varlibdir;
-    int max_elements_per_page;
     bool syscmds;
     bool chroot;
     int last_played_count;

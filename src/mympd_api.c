@@ -475,9 +475,9 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             }
             break;
         case MYMPD_API_BOOKMARK_LIST:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u}}", &uint_buf1);
-            if (je == 1) {
-                response->data = mympd_api_bookmark_list(config, response->data, request->method, request->id, uint_buf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u, limit: %u}}", &uint_buf1, &uint_buf2);
+            if (je == 2) {
+                response->data = mympd_api_bookmark_list(config, response->data, request->method, request->id, uint_buf1, uint_buf2);
             }
             break;
         case MYMPD_API_COVERCACHE_CROP:
