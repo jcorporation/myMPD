@@ -414,9 +414,6 @@ Kielivalinta
 Browser default
 Selaimen asetus
 
-Pagination
-Rivien määrä
-
 Notifications
 Ilmoitukset
 

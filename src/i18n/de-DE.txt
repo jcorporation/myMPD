@@ -438,9 +438,6 @@ Sprache
 Browser default
 Browsereinstellung
 
-Pagination
-Seitenumbruch
-
 Notifications
 Hinweise
 
@@ -1807,3 +1804,18 @@ Stunden
 
 Missing translations
 Für die ausgewählte Sprache fehlt %{smart_count} Übersetzung |||| Für die ausgewähle Sprache fehlen %{smart_count} Übersetzungen
+
+Updated album cache
+Album Cache wurde aktualisiert
+
+Update of album cache failed
+Album Cache konnte nicht aktualisiert werden
+
+Updated sticker cache
+Sticker Cache wurde aktualisiert
+
+Update of sticker cache failed
+Sticker Cache konnte nicht aktualisiert werden
+
+Facilities
+Kategorie

@@ -69,3 +69,8 @@ stickerSkipCount
 stickerLastPlayed
 stickerLastSkipped
 stickerLike
+Playback controls
+pause and stop
+pause only
+stop only
+Facilities

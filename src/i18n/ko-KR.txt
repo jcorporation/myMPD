@@ -420,9 +420,6 @@ Locale
 Browser default
 기본 열기
 
-Pagination
-페이지 매기기
-
 Notifications
 알림
 

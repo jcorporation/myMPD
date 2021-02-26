@@ -417,9 +417,6 @@ Taal
 Browser default
 Browserinstelling
 
-Pagination
-Paginagrootte
-
 Notifications
 Notificaties
 

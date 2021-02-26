@@ -414,9 +414,6 @@ Idioma
 Browser default
 Por defecto del navegador
 
-Pagination
-Paginación
-
 Notifications
 Notificaciones
 

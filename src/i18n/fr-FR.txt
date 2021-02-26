@@ -417,9 +417,6 @@ Langue
 Browser default
 Explorateur par défaut
 
-Pagination
-Pagination
-
 Notifications
 Notifications
 
