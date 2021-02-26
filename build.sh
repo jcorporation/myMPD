@@ -759,9 +759,9 @@ transstatus() {
   TRANSOUT=$(./build.sh translate 2>&1)
   for F in src/i18n/*-*.txt
   do
-    G=$(basename "$F" .txt)
-    printf "%s: " "$G"
-    echo "$TRANSOUT" | grep -c "$G not found"
+    T=$(basename "$F" .txt)
+    NR=$(echo "$TRANSOUT" | { grep -c "$T not found" || true; })
+    echo "$T: $NR"
   done
 }
 
@@ -1022,12 +1022,12 @@ case "$ACTION" in
 	  echo "  transstatus:      shows the translation status"
 	  echo ""
       echo "Test options:"
-	  echo "  check:            runs cppcheck and flawfinder on source files"
+	  echo "  check:            runs cppcheck, flawfinder and clang-tidy on source files"
 	  echo "                    following environment variables are respected"
 	  echo "                      - CPPCHECKOPTS=\"--enable=warning\""
 	  echo "                      - FLAWFINDEROPTS=\"-m3\""
 	  echo "  eslint:           combines javascript files and runs eslint"
-	  echo "  stylelint:        runs stylelint"
+	  echo "  stylelint:        runs stylelint (lints css files)"
 	  echo ""
 	  echo "Cleanup options:"
 	  echo "  cleanup:          cleanup source tree"
