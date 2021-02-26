@@ -5,7 +5,7 @@
 */
 
 *:focus {
-    outline: none;
+  outline: none;
 }
 
 :root {
@@ -46,6 +46,12 @@
   font-size: 4rem;
   text-align: center;
   margin-top: 25vh;
+}
+
+h4 svg,
+#mainMenu svg {
+  width: 2.5rem;
+  height: 2.5rem;
 }
 
 #splashScreenLogo svg {
@@ -128,35 +134,39 @@ td[data-col=Action] {
 }
 
 @media only screen and (orientation: landscape) {
-  nav#header {
+  #header {
     height: 100vw;
     width: 4rem;
     flex-flow: column;
-    padding-top: 1.2rem;
-    padding-left: 0;
-    padding-right: 0;
-    padding-bottom: 6.5rem;
+    padding: 1.2rem 0 6.5rem 0;
     justify-content: normal !important;
   }
+
   body {
     padding-top: 0;
     padding-left: 4rem;
   }
+
   main {
     padding-top: 0;
   }
+
   #headerLeft {
     margin-bottom: 2rem;
   }
+
   .navText {
     display: none;
   }
+
   #navbar-main > div {
     margin-bottom: 0.6rem;
   }
+
   #navbar-main {
     flex-direction: column !important;
   }
+
   #navQueue > a {
     padding-right: 0 !important;
     padding-left: 0.5rem !important;
@@ -167,9 +177,11 @@ td[data-col=Action] {
   .navText {
     display: none;
   }
+
   .footerCounter {
     display: none;
   }
+
   .ml-3 {
     margin-left: 1rem !important;
   }
@@ -185,7 +197,7 @@ div.footerCounter {
   width: 7rem;
 }
 
-div#footerCover {
+#footerCover {
   width: 4rem;
   height: 4rem;
   background-size: cover;
@@ -193,28 +205,28 @@ div#footerCover {
   position: relative;
 }
 
-span#footerTitle {
+#footerTitle {
   height: 2rem;
 }
 
-div#footerInfo {
+#footerInfo {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-div#footerProgress {
+#footerProgress {
   height: 1rem;
   background-color: transparent;
   border-radius: 0;
 }
 
-div#footerProgress:hover div#footerProgressBar {
+#footerProgress:hover div#footerProgressBar {
   border-top: 0.4rem solid var(--mympd-highlightcolor, #28a745);
   border-bottom: 0.4rem solid var(--mympd-highlightcolor, #28a745);
 }
 
-div#footerProgressBar {
+#footerProgressBar {
   height: 0.4rem;
   width: 0;
   margin-bottom: -0.6rem;
@@ -263,14 +275,16 @@ button {
 }
 
 @media only screen and (max-width: 400px) {
-  #btnPrev, 
+  #btnPrev,
   #btnPlay {
     padding-right: 4px !important;
   }
+
   #btnNext,
   #btnPlay {
     padding-left: 4px !important;
   }
+
   #footerPlaying {
     display: none !important;
   }
@@ -368,16 +382,13 @@ tr > th {
   font-size: 2rem;
   height: 4rem;
   width: 4rem;
-  padding-bottom:0;
+  padding: 1rem 0 0 0;
   background-size: cover;
   background-position: center center;
   background-color: var(--mympd-highlightcolor, #28a745);
   margin-left: auto;
   margin-right: auto;
   text-align: center;
-  padding-top: 1rem;
-  padding-left:0;
-  padding-right:0;
 }
 
 .home-icons .card-footer {
@@ -407,7 +418,7 @@ tr > th {
 .home-icons:focus {
   border-width: 1px;
   border-style: solid;
-  border-color:var(--mympd-highlightcolor, #28a745) !important;
+  border-color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
 .album-cover-grid {
@@ -510,6 +521,21 @@ tr > th {
   color: #6c757d !important;
 }
 
+.letters > button {
+  width: 28px;
+  height: 28px;
+}
+
+.pagination button {
+  padding-left: 0.375rem;
+  padding-right: 0.375rem;
+}
+
+.pages button {
+  min-width: 2rem;
+  margin: 0.1rem;
+}
+
 #btn-outputs-block > button {
   margin-bottom: 10px;
 }
@@ -531,11 +557,6 @@ tr > th {
   float: left;
   margin-right: 5px;
   font-size: 1.8rem;
-}
-
-.letters > button {
-  width: 28px;
-  height: 28px;
 }
 
 .col-md {
@@ -586,6 +607,14 @@ caption {
   font-size: 120%;
   font-weight: bold;
   color: black;
+}
+
+tfoot td {
+  text-align: right;
+}
+
+#dropdownHomeIconLigature {
+  width: 60vw;
 }
 
 .dragover > td {
@@ -664,16 +693,9 @@ ol#searchDatabaseCrumb {
   font-size: 1.2rem;
 }
 
-#mainMenu svg,
-h4 svg {
-  width: 2.5rem;
-  height: 2.5rem;
-}
-
 .connected,
 .connected:focus,
-.connected:hover
- {
+.connected:hover {
   color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
@@ -700,10 +722,26 @@ textarea.small {
   box-shadow: none !important;
 }
 
+.btn-dark:not(:disabled):not(.disabled):active,
+.btn-dark:not(:disabled):not(.disabled).active,
+.show > .btn-dark.dropdown-toggle {
+  color: #fff;
+  background-color: var(--mympd-highlightcolor, #28a745) !important;
+  border-color: var(--mympd-highlightcolor, #28a745) !important;
+}
+
 .btn-dark:not(:disabled):not(.disabled):active:focus,
 .btn-dark:not(:disabled):not(.disabled).active:focus,
 .show > .btn-dark.dropdown-toggle:focus {
   box-shadow: none !important;
+}
+
+.btn-light:focus,
+.btn-light.focus,
+.btn-secondary:focus,
+.btn-secondary.focus {
+  color: #fff;
+  box-shadow: none;
 }
 
 .btn-light:not(:disabled):not(.disabled):active,
@@ -715,22 +753,6 @@ textarea.small {
   color: #fff;
   background-color: var(--mympd-highlightcolor, #28a745) !important;
   border-color: var(--mympd-highlightcolor, #28a745) !important;
-}
-
-.btn-dark:not(:disabled):not(.disabled):active,
-.btn-dark:not(:disabled):not(.disabled).active,
-.show > .btn-dark.dropdown-toggle {
-    color: #fff;
-    background-color: var(--mympd-highlightcolor, #28a745) !important;
-    border-color: var(--mympd-highlightcolor, #28a745) !important;
-}
-
-.btn-light:focus,
-.btn-light.focus,
-.btn-secondary:focus,
-.btn-secondary.focus {
-  color: #fff;
-  box-shadow: none;
 }
 
 .btn-light:not(:disabled):not(.disabled):active:focus,
@@ -772,6 +794,16 @@ div.database-header {
 
 .container {
   max-width: none;
+}
+
+#dropdownHomeIconLigature .row {
+  margin-right: 0;
+  margin-bottom: 1rem;
+}
+
+#listHomeIconLigature {
+  max-height: 60vh;
+  overflow-y: scroll;
 }
 
 div#playDropdown .row {
@@ -823,6 +855,12 @@ a.text-success:focus {
   overflow-x: hidden;
 }
 
+.carousel-item > div {
+  background-position: center center;
+  background-size: cover;
+  padding-top: 100%;
+}
+
 #logOverview > div {
   font-size: 0.8rem;
 }
@@ -846,12 +884,6 @@ a.text-success:focus {
 #lyricsText {
   padding-bottom: 1rem;
   padding-left: 0.2rem;
-}
-
-.carousel-item > div {
-  background-position: center center;
-  background-size: cover;
-  padding-top: 100%;
 }
 
 .rounded-right-0 {
@@ -936,7 +968,7 @@ div.HomeContainer .col {
 .btn.disabled,
 .btn:disabled {
   cursor: default;
-  opacity: 0.50;
+  opacity: 0.5;
 }
 
 div#modalPictureImg {
@@ -968,17 +1000,17 @@ div#homeIconPreview {
   background-position: center center;
   background-size: cover;
   width: 4rem;
-  height: 4rem; 
+  height: 4rem;
   font-size: 2rem;
-  padding-bottom:0;
+  padding-bottom: 0;
   text-align: center;
   padding-top: 1rem;
-  float:left;
+  float: left;
   margin-right: 2rem;
 }
 
 div.album-grid-mouseover {
-  background-color: rgba(0, 0, 0, 0.5);  
+  background-color: rgba(0, 0, 0, 0.5);
   color: white;
   width: 3rem;
   height: 3rem;
@@ -986,34 +1018,6 @@ div.album-grid-mouseover {
   font-size: 2.4rem;
 }
 
-.pagination button {
-  padding-left: 0.375rem;
-  padding-right: 0.375rem;
-}
-
 .pages {
   min-width: 12.2rem;
-}
-
-.pages button {
-  min-width: 2rem;
-  margin: 0.1rem;
-}
-
-tfoot td {
-  text-align: right;
-}
-
-#dropdownHomeIconLigature {
-  width: 60vw;
-}
-
-#dropdownHomeIconLigature .row {
-  margin-right: 0;
-  margin-bottom: 1rem;
-}
-
-#listHomeIconLigature {
-  max-height: 60vh;
-  overflow-y: scroll;
 }

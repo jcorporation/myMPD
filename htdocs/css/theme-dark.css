@@ -17,13 +17,17 @@ body.theme-dark .btn {
 }
 
 body.theme-dark .btn:hover,
-body.theme-dark .btn:focus
- {
+body.theme-dark .btn:focus {
   border-color: transparent;
 }
 
 body.theme-dark .btn-light {
   border-color: #343a40;
+}
+
+body.theme-dark .btn-light:focus,
+body.theme-dark .btn-light.focus {
+  box-shadow: none;
 }
 
 body.theme-dark .btn-light:not(:disabled):not(.disabled):active,
@@ -32,11 +36,6 @@ body.theme-dark .show > .btn-light.dropdown-toggle {
   background-color: #6c757d;
   border-color: #6c757d;
   color: #f8f9fa;
-}
-
-body.theme-dark .btn-light:focus,
-body.theme-dark .btn-light.focus {
-  box-shadow: none;
 }
 
 body.theme-dark .show {
@@ -82,6 +81,10 @@ body.theme-dark .highlight-hover:hover {
 }
 
 body.theme-dark .text-dark:hover {
+  color: #f8f9fa !important;
+}
+
+body.theme-dark .nav-link {
   color: #f8f9fa !important;
 }
 
@@ -207,10 +210,6 @@ body.theme-dark td[data-col="Action"] a:hover {
 body.theme-dark .form-control:disabled,
 body.theme-dark .form-control[readonly] {
   background-color: #6c757d;
-}
-
-body.theme-dark .nav-link {
-    color: #f8f9fa !important;
 }
 
 body.theme-dark .nav-link.active {
