@@ -887,10 +887,20 @@ sbuild_cleanup() {
 run_eslint() {
   check_cmd eslint
   createassets
-  echo "Linting sw.js"
-  eslint htdocs/sw.js
-  echo "Linting mympd.js"
-  eslint release/htdocs/js/mympd.js
+  for F in sw.js js/mympd.js
+  do
+    echo "Linting $F"
+    eslint "htdocs/$F"
+  done
+}
+
+run_stylelint() {
+  check_cmd npx
+  for F in mympd.css theme-light.css theme-dark.css
+  do
+    echo "Linting $F"
+    npx stylelint "htdocs/css/$F"
+  done
 }
 
 case "$ACTION" in
@@ -974,17 +984,20 @@ case "$ACTION" in
 	  createassets
 	;;
 	sbuild_chroots)
-		sbuild_chroots
+	  sbuild_chroots
 	;;
 	sbuild_build)
-		sbuild_build
+	  sbuild_build
 	;;
 	sbuild_cleanup)
-		sbuild_cleanup
-		exit 0
+	  sbuild_cleanup
+	  exit 0
 	;;
 	eslint)
-		run_eslint
+	  run_eslint
+	;;
+	stylelint)
+	  run_stylelint
 	;;
 	*)
 	  echo "Usage: $0 <option>"
@@ -1014,6 +1027,7 @@ case "$ACTION" in
 	  echo "                      - CPPCHECKOPTS=\"--enable=warning\""
 	  echo "                      - FLAWFINDEROPTS=\"-m3\""
 	  echo "  eslint:           combines javascript files and runs eslint"
+	  echo "  stylelint:        runs stylelint"
 	  echo ""
 	  echo "Cleanup options:"
 	  echo "  cleanup:          cleanup source tree"
