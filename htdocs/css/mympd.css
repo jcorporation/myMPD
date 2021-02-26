@@ -48,9 +48,9 @@
   margin-top: 25vh;
 }
 
-.splashScreenIcon {
-  font-size: 4.8rem !important;
-  vertical-align: text-bottom !important;
+#splashScreenLogo svg {
+  width: 6rem;
+  height: 6rem;
 }
 
 #splashScreenAlert {
@@ -664,7 +664,8 @@ ol#searchDatabaseCrumb {
   font-size: 1.2rem;
 }
 
-#mainMenu img {
+#mainMenu svg,
+h4 svg {
   width: 2.5rem;
   height: 2.5rem;
 }
