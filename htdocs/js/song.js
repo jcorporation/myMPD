@@ -263,7 +263,7 @@ function getLyrics(uri, el) {
 
 function parseSyncedLyrics(text) {
     let html = '';
-    const lines = text.split('\r\n');
+    const lines = text.replace(/\r/g, '').split('\n');
     for (let i = 0; i < lines.length; i++) {
         //line must start with timestamp
         let line = lines[i].match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
