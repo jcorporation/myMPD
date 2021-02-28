@@ -45,6 +45,9 @@ sds mpd_shared_sticker_list(sds buffer, rax *sticker_cache, const char *uri) {
 }
 
 struct t_sticker *get_sticker_from_cache(rax *sticker_cache, const char *uri) {
+    if (sticker_cache == NULL) {
+        return NULL;
+    }
     void *data = raxFind(sticker_cache, (unsigned char*)uri, strlen(uri));
     if (data == raxNotFound) {
         return NULL;
