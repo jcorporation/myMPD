@@ -215,6 +215,7 @@ function getLyrics(uri, el) {
         else {
             let lyricsHeader = '<span class="lyricsHeader" class="btn-group-toggle" data-toggle="buttons">';
             let lyrics = '<div class="lyricsTextContainer">';
+            const clickable = el.parentNode.getAttribute('id') === 'currentLyrics' ? true : false;
             for (let i = 0; i < obj.result.returnedEntities; i++) {
                 let ht = obj.result.data[i].desc;
                 if (ht !== '' && obj.result.data[i].lang !== '') {
@@ -228,7 +229,7 @@ function getLyrics(uri, el) {
                 }
                 lyricsHeader += '<label data-num="' + i + '" class="btn btn-sm btn-outline-secondary mr-2' + (i === 0 ? ' active' : '') + '">' + ht + '</label>';
                 lyrics += '<div class="lyricsText' + (i > 0 ? ' hide' : '') + '">' +
-                    (obj.result.synced === true ? parseSyncedLyrics(obj.result.data[i].text) : e(obj.result.data[i].text).replace(/\n/g, "<br/>")) + 
+                    (obj.result.synced === true ? parseSyncedLyrics(obj.result.data[i].text, clickable) : e(obj.result.data[i].text).replace(/\n/g, "<br/>")) + 
                     '</div>';
             }
             lyricsHeader += '</span>';
@@ -256,12 +257,23 @@ function getLyrics(uri, el) {
             else {
                 el.innerHTML = lyrics;
             }
+            if (showSyncedLyrics === true && clickable === true) {
+                const textEls = el.getElementsByClassName('lyricsText');
+                for (let i = 0; i < textEls.length; i++) {
+                    textEls[i].addEventListener('click', function(event) {
+                        const sec = event.target.getAttribute('data-sec');
+                        if (sec !== null) {
+                            sendAPI("MPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": parseInt(sec)});
+                        }
+                    }, false); 
+                }
+            }
         }
         el.classList.remove('opacity05');
     }, true);
 }
 
-function parseSyncedLyrics(text) {
+function parseSyncedLyrics(text, clickable) {
     let html = '';
     const lines = text.replace(/\r/g, '').split('\n');
     for (let i = 0; i < lines.length; i++) {
@@ -270,12 +282,12 @@ function parseSyncedLyrics(text) {
         if (line) {
             let sec = parseInt(line[1]) * 60 + parseInt(line[2]);
             //line[3] are hundreths of a seconde - ignore it for the moment
-            html += '<p><span data-sec="' + sec + '">';
+            html += '<p><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + sec + '">';
             //support of extended lrc format - timestamps for words
             html += line[4].replace(/<(\d+):(\d+)\.\d+>/g, function(m0, m1, m2) {
                 //hundreths of a secondes are ignored
                 let wsec = parseInt(m1) * 60 + parseInt(m2);
-                return '</span><span data-sec="' + wsec + '">';
+                return '</span><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + wsec + '">';
             });
             html += '</span></p>';
         }

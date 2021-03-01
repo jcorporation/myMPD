@@ -335,6 +335,17 @@ tr > th {
   margin-bottom: 2rem;
 }
 
+.coverPanel {
+  float: left;
+  width: var(--mympd-coverimagesize, 250px);
+  margin-bottom: 1.25rem;
+  margin-right: 1.25rem;
+}
+
+#currentLyricsLine {
+  text-align: center;
+}
+
 .album-cover {
   background-size: cover;
   border: 1px solid black;
@@ -344,9 +355,6 @@ tr > th {
   width: var(--mympd-coverimagesize, 250px);
   height: var(--mympd-coverimagesize, 250px);
   background-color: #eee;
-  float: left;
-  margin-bottom: 1.25rem;
-  margin-right: 1.25rem;
   position: relative;
   z-index: 1;
 }
@@ -914,6 +922,9 @@ a.text-success:focus {
     width: 20rem;
     height: 20rem;
   }
+  .coverPanel {
+    width: 20rem;
+  }
 }
 
 @media only screen and (min-width: 992px) and (min-height: 43rem) {
@@ -921,6 +932,10 @@ a.text-success:focus {
     width: 26rem;
     height: 26rem;
   }
+  .coverPanel {
+    width: 26rem;
+  }
+
 }
 
 .disabled {

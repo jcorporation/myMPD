@@ -169,12 +169,16 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
         if (highlighted !== toHighlight) {
             if (toHighlight !== null) {
                 toHighlight.classList.add('highlight');
+                document.getElementById('currentLyricsLine').innerText = toHighlight.innerText !== null ? toHighlight.innerText : '';
                 if (highlighted !== undefined) {
                     highlighted.classList.remove('highlight');
                 }
             }
         }
-    }    
+    }
+    else {
+        document.getElementById('currentLyricsLine').innerText = '';
+    }
     
     if (progressTimer) {
         clearTimeout(progressTimer);
@@ -459,6 +463,7 @@ function songChange(obj) {
     for (let i = 0; i < settings.colsPlayback.length; i++) {
         let c = document.getElementById('current' + settings.colsPlayback[i]);
         if (c && settings.colsPlayback[i] === 'Lyrics') {
+            document.getElementById('currentLyricsLine').innerText = '';
             getLyrics(obj.result.uri, c.getElementsByTagName('p')[0]);
         }
         else if (c) {
