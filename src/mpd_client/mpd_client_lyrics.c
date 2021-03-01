@@ -427,7 +427,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
     for (unsigned i = 0; i < binary_length; i++) {
         if (ts == 4) {
             //got 4 timestamp bytes (32 bit), parse and print it
-            int ms = (ts_buf[0] << 16) | (ts_buf[1] << 8) | binary_data[i]; 
+            int ms = (ts_buf[0] << 24) | (ts_buf[1] << 16) | (ts_buf[2] << 8) | binary_data[i];
             //convert milliseconds to lrc time format
             int min = ms / 60000;
             ms = ms - min * 60000;
