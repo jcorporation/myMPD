@@ -45,7 +45,7 @@ static sds lyricsextract_synced_id3(sds buffer, sds method, long request_id, sds
 static sds lyricsextract_flac(sds buffer, sds method, long request_id, sds media_file, bool is_ogg, const char *comment_name, bool synced);
 
 #ifdef ENABLE_LIBID3TAG
-static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length);
+static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length, enum id3_field_textencoding encoding);
 static const char *_id3_field_getlanguage(union id3_field const *field);
 #endif
 
@@ -375,8 +375,9 @@ static sds lyricsextract_synced_id3(sds buffer, sds method, long request_id, sds
             else {
                 buffer = tojson_char(buffer, "desc", "", true);
             }
-            sds text = decode_sylt(sylt_data, sylt_data_len);
+            sds text = decode_sylt(sylt_data, sylt_data_len, encoding);
             buffer = tojson_char(buffer, "text", text, false);
+            sdsfree(text);
             buffer = sdscatlen(buffer, "}", 1);
             MYMPD_LOG_DEBUG("Lyrics successfully extracted");
         }
@@ -417,59 +418,48 @@ static const char *_id3_field_getlanguage(union id3_field const *field) {
     return field->immediate.value;
 }
 
-static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length) {
+static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length, enum id3_field_textencoding encoding) {
     sds sylt_text = sdsempty();
     int sep = 0;
-    int text = 1;
     int ts = 0;
-    unsigned char ts_buf[1] = "\0";
+    unsigned char ts_buf[3] = "\0\0\0";
     sds text_buf = sdsempty();
     for (unsigned i = 0; i < binary_length; i++) {
-        if (ts == 1) {
-            //timestamp has 2 bytes, save first one
-            ts_buf[0] = binary_data[i];
-            ts = 2;
-        }
-        else if (ts == 2) {
-           int cc = 0;
-           if (binary_data[i] != '\0' && ts_buf[0] != '\0') {
-               cc = (ts_buf[0] << 8) | binary_data[i]; 
-           }
-           //convert hundredths of a seconds to lrc time format
-           int mm = cc / 60000;
-           cc = cc - mm * 60000;
-           int ss = cc / 1000;
-           cc = cc - ss * 1000;
-           sylt_text = sdscatprintf(sylt_text, "[%02d:%02d.%02d]", mm, ss, cc);
-           ts = 3;
-        }
-        if (binary_data[i] == '\n' || ts == 3) {
-            //print text and empty text buffer
-            if (sdslen(text_buf) > 0) {
-                sylt_text = sdscatfmt(sylt_text, "%s\n", text_buf);
-                sdsclear(text_buf);
-            }
-            //reset all states on line ending
+        if (ts == 4) {
+            //got 4 timestamp bytes (32 bit), parse and print it
+            int ms = (ts_buf[0] << 16) | (ts_buf[1] << 8) | binary_data[i]; 
+            //convert milliseconds to lrc time format
+            int min = ms / 60000;
+            ms = ms - min * 60000;
+            int sec = ms / 1000;
+            ms = ms - sec * 1000;
+            sylt_text = sdscatprintf(sylt_text, "[%02d:%02d.%02d]%s\n", min, sec, ms, text_buf);
+            sdsclear(text_buf);
+            //reset all states after parsing the timestamp
             sep = 0;
-            text = 1;
             ts = 0;
+        }
+        else if (ts >= 1) {
+            //timestamp has 4 bytes, save first three in ts_buf before parsing it
+            ts_buf[ts - 1] = binary_data[i];
+            ts++;
         }
         else if (binary_data[i] == '\0') {
             //count separators
+            //1 for ISO-8859-1 
+            //2 for unicode
             sep++;
-            //end of text
-            text = 0;
-            //start of timestamps
-            if (sep == 3) {
+            //start of timestamp
+            if ((encoding == 0 && sep == 1) || (encoding > 0 && sep == 2)) {
                 ts = 1;
             }
         }
-        else if (text == 1) {
+        else if (ts == 0 && binary_data[i] != '\n') {
             //add char to text buffer
             text_buf = sdscatprintf(text_buf, "%c", binary_data[i]);
         }
     }
-
+    sdsfree(text_buf);
     return sylt_text;
 }
 #endif
