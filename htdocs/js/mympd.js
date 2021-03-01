@@ -927,6 +927,9 @@ function initNavs() {
     domCache.progress.addEventListener('mouseout', function() {
         domCache.progressPos.style.display = 'none';
     }, false);
+
+    domCache.progressBar.style.transition = progressBarTransition;
+
     document.getElementById('navbar-main').addEventListener('click', function(event) {
         event.preventDefault();
         let href = getAttDec(event.target, 'data-href');

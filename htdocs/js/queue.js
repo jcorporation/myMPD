@@ -76,7 +76,7 @@ function parseUpdateQueue(obj) {
         document.getElementById('btnPlay').innerText = 'play_arrow';
         playstate = 'stop';
         domCache.progressBar.style.transition = 'none';
-        domCache.progressBar.style.width = '0px';
+        domCache.progressBar.style.width = '0';
         setTimeout(function() {
             domCache.progressBar.style.transition = progressBarTransition;
         }, 10);
