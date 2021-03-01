@@ -169,6 +169,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
         if (highlighted !== toHighlight) {
             if (toHighlight !== null) {
                 toHighlight.classList.add('highlight');
+                toHighlight.scrollIntoView();
                 document.getElementById('currentLyricsLine').innerText = toHighlight.innerText !== null ? toHighlight.innerText : '';
                 if (highlighted !== undefined) {
                     highlighted.classList.remove('highlight');
