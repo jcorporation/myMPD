@@ -36,22 +36,37 @@ static bool _mpd_client_set_sticker(t_mpd_client_state *mpd_client_state, const 
 
 //public functions
 bool mpd_client_sticker_inc_play_count(t_mpd_client_state *mpd_client_state, const char *uri) {
+    if (is_streamuri(uri) == true) {
+        return true;
+    }
     return list_push(&mpd_client_state->sticker_queue, uri, 1, "playCount", NULL);
 }
 
 bool mpd_client_sticker_inc_skip_count(t_mpd_client_state *mpd_client_state, const char *uri) {
+    if (is_streamuri(uri) == true) {
+        return true;
+    }
     return list_push(&mpd_client_state->sticker_queue, uri, 1, "skipCount", NULL);
 }
 
 bool mpd_client_sticker_like(t_mpd_client_state *mpd_client_state, const char *uri, int value) {
+    if (is_streamuri(uri) == true) {
+        return true;
+    }
     return list_push(&mpd_client_state->sticker_queue, uri, value, "like", NULL);
 }
 
 bool mpd_client_sticker_last_played(t_mpd_client_state *mpd_client_state, const char *uri) {
+    if (is_streamuri(uri) == true) {
+        return true;
+    }
     return list_push(&mpd_client_state->sticker_queue, uri, mpd_client_state->song_start_time, "lastPlayed", NULL);
 }
 
 bool mpd_client_sticker_last_skipped(t_mpd_client_state *mpd_client_state, const char *uri) {
+    if (is_streamuri(uri) == true) {
+        return true;
+    }
     time_t now = time(NULL);
     return list_push(&mpd_client_state->sticker_queue, uri, now, "lastSkipped", NULL);
 }
@@ -83,9 +98,11 @@ bool mpd_client_sticker_dequeue(t_mpd_client_state *mpd_client_state) {
 
 //private functions
 static bool _mpd_client_count_song_uri(t_mpd_client_state *mpd_client_state, const char *uri, const char *name, const long value) {
-    if (uri == NULL || strstr(uri, "://") != NULL) {
+    if (is_streamuri(uri) == true) {
+        MYMPD_LOG_WARN("Failed to set sticker %s to %d, invalid song uri: %s", name, value, uri);
         return false;
     }
+
     unsigned old_value = 0;
     t_sticker *sticker = NULL;
     if (mpd_client_state->sticker_cache != NULL) {
@@ -144,8 +161,8 @@ static bool _mpd_client_count_song_uri(t_mpd_client_state *mpd_client_state, con
 }
 
 static bool _mpd_client_set_sticker(t_mpd_client_state *mpd_client_state, const char *uri, const char *name, const long value) {
-    if (uri == NULL || strstr(uri, "://") != NULL) {
-        MYMPD_LOG_ERROR("Failed to set sticker %s to %d, invalid song uri: %s", name, value, uri);
+    if (is_streamuri(uri) == true) {
+        MYMPD_LOG_WARN("Failed to set sticker %s to %d, invalid song uri: %s", name, value, uri);
         return false;
     }
     sds value_str = sdsfromlonglong(value);
