@@ -98,11 +98,6 @@ bool mpd_client_sticker_dequeue(t_mpd_client_state *mpd_client_state) {
 
 //private functions
 static bool _mpd_client_count_song_uri(t_mpd_client_state *mpd_client_state, const char *uri, const char *name, const long value) {
-    if (is_streamuri(uri) == true) {
-        MYMPD_LOG_WARN("Failed to set sticker %s to %d, invalid song uri: %s", name, value, uri);
-        return false;
-    }
-
     unsigned old_value = 0;
     t_sticker *sticker = NULL;
     if (mpd_client_state->sticker_cache != NULL) {
@@ -161,10 +156,6 @@ static bool _mpd_client_count_song_uri(t_mpd_client_state *mpd_client_state, con
 }
 
 static bool _mpd_client_set_sticker(t_mpd_client_state *mpd_client_state, const char *uri, const char *name, const long value) {
-    if (is_streamuri(uri) == true) {
-        MYMPD_LOG_WARN("Failed to set sticker %s to %d, invalid song uri: %s", name, value, uri);
-        return false;
-    }
     sds value_str = sdsfromlonglong(value);
     MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
     bool rc = mpd_run_sticker_set(mpd_client_state->mpd_state->conn, "song", uri, name, value_str);
