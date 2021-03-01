@@ -922,6 +922,7 @@ a.text-success:focus {
     width: 20rem;
     height: 20rem;
   }
+
   .coverPanel {
     width: 20rem;
   }
@@ -932,10 +933,10 @@ a.text-success:focus {
     width: 26rem;
     height: 26rem;
   }
+
   .coverPanel {
     width: 26rem;
   }
-
 }
 
 .disabled {
