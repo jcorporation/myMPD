@@ -216,17 +216,12 @@ function appPrepare(scrollPos) {
         for (let i = 0; i < domCache.navbarBtnsLen; i++) {
             domCache.navbarBtns[i].classList.remove('active');
         }
-        document.getElementById('cardHome').classList.add('hide');
-        document.getElementById('cardPlayback').classList.add('hide');
-        document.getElementById('cardQueue').classList.add('hide');
-        document.getElementById('cardBrowse').classList.add('hide');
-        document.getElementById('cardSearch').classList.add('hide');
-        document.getElementById('cardQueueCurrent').classList.add('hide');
-        document.getElementById('cardQueueLastPlayed').classList.add('hide');
-        document.getElementById('cardQueueJukebox').classList.add('hide');
-        document.getElementById('cardBrowsePlaylists').classList.add('hide');
-        document.getElementById('cardBrowseFilesystem').classList.add('hide');
-        document.getElementById('cardBrowseDatabase').classList.add('hide');
+        const cards = ['cardHome', 'cardPlayback', 'cardQueue', 'cardBrowse', 'cardSearch',
+            'cardQueueCurrent', 'cardQueueLastPlayed', 'cardQueueJukebox', 'cardBrowsePlaylists',
+            'cardBrowseFilesystem', 'cardBrowseDatabase'];
+        for (const card of cards) {
+            document.getElementById(card).classList.add('hide');
+        }
         //show active card
         document.getElementById('card' + app.current.app).classList.remove('hide');
         if (app.current.tab !== undefined) {
@@ -447,8 +442,8 @@ function appRoute() {
             disableEl('BrowseFilesystemAddAllSongsBtn');
         }
         // Create breadcrumb
-        let breadcrumbs='<li class="breadcrumb-item"><a data-uri="" class="text-body mi">home</a></li>';
-        let pathArray = app.current.search.split('/');
+        let breadcrumbs = '<li class="breadcrumb-item"><a data-uri="" class="text-body mi">home</a></li>';
+        const pathArray = app.current.search.split('/');
         let pathArrayLen = pathArray.length;
         let fullPath = '';
         for (let i = 0; i < pathArrayLen; i++) {
@@ -517,7 +512,7 @@ function appRoute() {
             createSearchCrumbs(app.current.search, document.getElementById('searchstr'), document.getElementById('searchCrumb'));
         }
         else if (document.getElementById('searchstr').value === '' && app.current.search !== '') {
-                document.getElementById('searchstr').value = app.current.search;
+            document.getElementById('searchstr').value = app.current.search;
         }
         
         if (app.last.app !== app.current.app && app.current.search !== '') {
@@ -844,7 +839,7 @@ function initGlobalModals() {
         let list = '';
         let i = 0;
         for (const key in keymap) {
-            if (i === 0 || i % 2 === 0) {
+            if (i % 2 === 0) {
                 if (i > 0) {
                     list += '</div>';
                 }
