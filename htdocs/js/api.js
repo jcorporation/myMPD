@@ -13,7 +13,14 @@ function sendAPI(method, params, callback, onerror) {
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {
             if (ajaxRequest.responseText !== '') {
-                let obj = JSON.parse(ajaxRequest.responseText);
+                let obj;
+                try {
+                    obj = JSON.parse(ajaxRequest.responseText);
+                }
+                catch(error) {
+                    showNotification(t('Can not parse response to json object'), '', 'general', 'error');
+                    logError('Can not parse response to json object:' + ajaxRequest.responseText);
+                }
                 if (obj.error) {
                     showNotification(t(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
                     logError(JSON.stringify(obj.error));
@@ -31,7 +38,7 @@ function sendAPI(method, params, callback, onerror) {
                     logDebug('Got API response of type: ' + obj.result.method);
                 }
                 else {
-                    logError('Got invalid API response: ' + JSON.stringify(obj));
+                    logError('Got invalid API response: ' + ajaxRequest.responseText);
                     if (onerror !== true) {
                         return;
                     }
@@ -102,7 +109,7 @@ function webSocketConnect() {
         };
 
         socket.onmessage = function got_packet(msg) {
-            var obj;
+            let obj;
             try {
                 obj = JSON.parse(msg.data);
                 logDebug('Websocket notification: ' + JSON.stringify(obj));

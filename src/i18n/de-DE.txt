@@ -1819,3 +1819,6 @@ Sticker Cache konnte nicht aktualisiert werden
 
 Facilities
 Kategorie
+
+Can not parse response to json object
+Antwort konnte nicht geparsed werden
