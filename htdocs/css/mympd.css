@@ -342,10 +342,6 @@ tr > th {
   margin-right: 1.25rem;
 }
 
-#currentLyricsLine {
-  text-align: center;
-}
-
 .album-cover {
   background-size: cover;
   border: 1px solid black;

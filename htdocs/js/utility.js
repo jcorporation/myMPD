@@ -758,11 +758,10 @@ function printValue(key, value) {
         case 'Duration':
             return beautifySongDuration(value);
         case 'LastModified': 
-            return localeDate(value);
-        case 'lastPlayed':
-        case 'lastSkipped':
+        case 'stickerLastPlayed':
+        case 'stickerLastSkipped':
             return value === 0 ? t('never') : localeDate(value);
-        case 'like':
+        case 'stickerLike':
             return '<span class="mi mi-small">'+
                 (value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up') +
                 '</span>';

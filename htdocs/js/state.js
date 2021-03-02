@@ -170,17 +170,13 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
             if (toHighlight !== null) {
                 toHighlight.classList.add('highlight');
                 toHighlight.scrollIntoView();
-                document.getElementById('currentLyricsLine').innerText = toHighlight.innerText !== null ? toHighlight.innerText : '';
                 if (highlighted !== undefined) {
                     highlighted.classList.remove('highlight');
                 }
             }
         }
     }
-    else {
-        document.getElementById('currentLyricsLine').innerText = '';
-    }
-    
+
     if (progressTimer) {
         clearTimeout(progressTimer);
     }
@@ -223,6 +219,7 @@ function parseState(obj) {
         document.getElementById('footerTitle').removeAttribute('title');
         document.getElementById('footerTitle').classList.remove('clickable');
         document.getElementById('footerCover').classList.remove('clickable');
+        document.getElementById('currentTitle').classList.remove('clickable');
         clearCurrentCover();
         if (settings.bgCover === true) {
             clearBackgroundImage();
@@ -383,9 +380,9 @@ function songChange(obj) {
         setBackgroundImage(obj.result.uri);
     }
     
-    document.getElementById('footerArtist').classList.remove('clickable');
-    document.getElementById('footerAlbum').classList.remove('clickable');
-    document.getElementById('footerCover').classList.remove('clickable');
+    for (const elName of ['footerArtist', 'footerAlbum', 'footerCover', 'currentTitle']) {
+        document.getElementById(elName).classList.remove('clickable');
+    }
 
     if (obj.result.Artist !== undefined && obj.result.Artist.length > 0 && obj.result.Artist !== '-') {
         textNotification += obj.result.Artist;
@@ -420,7 +417,6 @@ function songChange(obj) {
         document.getElementById('currentTitle').innerText = obj.result.Title;
         setAttEnc(document.getElementById('currentTitle'), 'data-uri', obj.result.uri);
         document.getElementById('footerTitle').innerText = obj.result.Title;
-        document.getElementById('footerTitle').classList.add('clickable');
         document.getElementById('footerCover').classList.add('clickable');
     }
     else {
@@ -428,6 +424,7 @@ function songChange(obj) {
         setAttEnc(document.getElementById('currentTitle'), 'data-uri', '');
         document.getElementById('footerTitle').innerText = '';
         setAttEnc(document.getElementById('footerTitle'), 'data-name', '');
+        document.getElementById('currentTitle').classList.remove('clickable');
         document.getElementById('footerTitle').classList.remove('clickable');
         document.getElementById('footerCover').classList.remove('clickable');
     }
@@ -436,9 +433,11 @@ function songChange(obj) {
     
     if (isValidUri(obj.result.uri) === true && isStreamUri(obj.result.uri) === false) {
         document.getElementById('footerTitle').classList.add('clickable');
+        document.getElementById('currentTitle').classList.add('clickable');        
     }
     else {
         document.getElementById('footerTitle').classList.remove('clickable');
+        document.getElementById('currentTitle').classList.remove('clickable');
     }
 
     if (obj.result.uri !== undefined) {
@@ -464,13 +463,12 @@ function songChange(obj) {
     for (let i = 0; i < settings.colsPlayback.length; i++) {
         let c = document.getElementById('current' + settings.colsPlayback[i]);
         if (c && settings.colsPlayback[i] === 'Lyrics') {
-            document.getElementById('currentLyricsLine').innerText = '';
             getLyrics(obj.result.uri, c.getElementsByTagName('p')[0]);
         }
         else if (c) {
             let value = obj.result[settings.colsPlayback[i]];
             if (value === undefined) {
-                value = '';
+                value = '-';
             }
             if (settings.colsPlayback[i] === 'Duration') {
                 value = beautifySongDuration(value);
@@ -485,6 +483,12 @@ function songChange(obj) {
                 value = e(value);
             }
             c.getElementsByTagName('p')[0].innerHTML = value;
+            if (value === '-') {
+                c.getElementsByTagName('p')[0].classList.remove('clickable');
+            }
+            else {
+                c.getElementsByTagName('p')[0].classList.add('clickable');
+            }
             setAttEnc(c, 'data-name', value);
             if (settings.colsPlayback[i] === 'Album' && obj.result[tagAlbumArtist] !== null) {
                 setAttEnc(c, 'data-albumartist', obj.result[tagAlbumArtist]);

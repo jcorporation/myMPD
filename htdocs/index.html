@@ -132,10 +132,9 @@
         </div>
         <div class="coverPanel featCoverimage">
           <div class="album-cover album-cover-loading clickable carousel" id="currentCover" data-href='{"cmd": "zoomPicture", "options": []}'></div>
-          <div class="featLyrics" id="currentLyricsLine"></div>
         </div>
         <div class="album-desc breakAll">
-          <h2 id="currentTitle" data-href='{"cmd": "clickTitle", "options": []}'></h2>
+          <h2 id="currentTitle" class="notclickable"  data-href='{"cmd": "clickTitle", "options": []}'></h2>
           <div class="featTags" id="cardPlaybackTags"></div>
           <div id="currentBooklet"></div>
         </div>
@@ -1144,12 +1143,6 @@
                   <label class="col-sm-4 col-form-label" for="btnFeatHome" data-phrase="Homescreen"></label>
                   <div class="col-sm-8 ">
                     <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnFeatHome"></button>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="btnBookmarks" data-phrase="Bookmarks"></label>
-                  <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnBookmarks"></button>
                   </div>
                 </div>
                 <div class="form-group row">

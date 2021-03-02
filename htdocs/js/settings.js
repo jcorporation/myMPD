@@ -487,7 +487,6 @@ function parseSettings() {
     toggleBtnChk('btnMediaSession', settings.mediaSession);
     toggleBtnChkCollapse('btnFeatLocalplayer', 'collapseLocalplayer', settings.featLocalplayer);
     toggleBtnChk('btnFeatTimer', settings.featTimer);
-    toggleBtnChk('btnBookmarks', settings.featBookmarks);
     toggleBtnChk('btnFeatLyrics', settings.featLyrics);
     toggleBtnChk('btnFeatHome', settings.featHome);
 
@@ -570,11 +569,9 @@ function parseSettings() {
         }
     }
     if (settings.readonly === true) {
-        disableEl('btnBookmarks');
         document.getElementsByClassName('groupClearCovercache')[0].classList.add('hide');
     }
     else {
-        enableEl('btnBookmarks');
         document.getElementsByClassName('groupClearCovercache')[0].classList.remove('hide');
     }
     
@@ -877,7 +874,9 @@ function parseMPDSettings() {
             pbtl += '>' +
                     '<small>' + t(settings.colsPlayback[i]) + '</small>' +
                     '<p';
-            if (settings.browsetags.includes(settings.colsPlayback[i])) {
+            if (settings.browsetags.includes(settings.colsPlayback[i]) && lastSongObj[settings.colsPlayback[i]] !== undefined && 
+                lastSongObj[settings.colsPlayback[i]] !== '-')
+            {
                 pbtl += ' class="clickable"';
             }
             pbtl += '>';
@@ -895,7 +894,7 @@ function parseMPDSettings() {
             }
 
             else {
-                pbtl += (lastSongObj[settings.colsPlayback[i]] ? e(lastSongObj[settings.colsPlayback[i]]) : '');
+                pbtl += (lastSongObj[settings.colsPlayback[i]] ? e(lastSongObj[settings.colsPlayback[i]]) : '-');
             }
             pbtl += '</p></div>';
         }
@@ -1098,7 +1097,6 @@ function saveSettings(closeModal) {
             "love": (document.getElementById('btnLoveEnable').classList.contains('active') ? true : false),
             "loveChannel": document.getElementById('inputLoveChannel').value,
             "loveMessage": document.getElementById('inputLoveMessage').value,
-            "bookmarks": (document.getElementById('btnBookmarks').classList.contains('active') ? true : false),
             "stickers": (document.getElementById('btnStickers').classList.contains('active') ? true : false),
             "lastPlayedCount": document.getElementById('inputLastPlayedCount').value,
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
