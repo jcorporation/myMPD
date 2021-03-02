@@ -5,17 +5,20 @@
 
 //eslint-disable-next-line no-unused-vars
 function openFullscreen() {
-    let elem = document.documentElement;
+    const elem = document.documentElement;
     if (elem.requestFullscreen) {
         elem.requestFullscreen();
     }
-    else if (elem.mozRequestFullScreen) { /* Firefox */
+    else if (elem.mozRequestFullScreen) {
+        //Firefox
         elem.mozRequestFullScreen();
     }
-    else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+    else if (elem.webkitRequestFullscreen) {
+        //Chrome, Safari and Opera
         elem.webkitRequestFullscreen();
     }
-    else if (elem.msRequestFullscreen) { /* IE/Edge */
+    else if (elem.msRequestFullscreen) {
+        //IE and Edge
         elem.msRequestFullscreen();
     }
 }
