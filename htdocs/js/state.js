@@ -485,37 +485,37 @@ function songChange(obj) {
 }
 
 function setPlaybackCardTags(songObj) {
-    for (let i = 0; i < settings.colsPlayback.length; i++) {
-        let c = document.getElementById('current' + settings.colsPlayback[i]);
-        if (c && settings.colsPlayback[i] === 'Lyrics') {
+    for (const col of settings.colsPlayback) {
+        let c = document.getElementById('current' + col);
+        if (c && col === 'Lyrics') {
             getLyrics(songObj.uri, c.getElementsByTagName('p')[0]);
         }
         else if (c) {
-            let value = songObj[settings.colsPlayback[i]];
+            let value = songObj[col];
             if (value === undefined) {
                 value = '-';
             }
-            if (settings.colsPlayback[i] === 'Duration') {
+            if (col === 'Duration') {
                 value = beautifySongDuration(value);
             }
-            else if (settings.colsPlayback[i] === 'LastModified') {
+            else if (col === 'LastModified') {
                 value = localeDate(value);
             }
-            else if (settings.colsPlayback[i].indexOf('MUSICBRAINZ') === 0) {
-                value = getMBtagLink(settings.colsPlayback[i], songObj[settings.colsPlayback[i]]);
+            else if (col.indexOf('MUSICBRAINZ') === 0) {
+                value = getMBtagLink(col, songObj[col]);
             }
             else {
                 value = e(value);
             }
             c.getElementsByTagName('p')[0].innerHTML = value;
-            if (value === '-') {
+            if (value === '-' || settings.browsetags.includes(col) === false) {
                 c.getElementsByTagName('p')[0].classList.remove('clickable');
             }
             else {
                 c.getElementsByTagName('p')[0].classList.add('clickable');
             }
             setAttEnc(c, 'data-name', value);
-            if (settings.colsPlayback[i] === 'Album' && songObj[tagAlbumArtist] !== null) {
+            if (col === 'Album' && songObj[tagAlbumArtist] !== null) {
                 setAttEnc(c, 'data-albumartist', songObj[tagAlbumArtist]);
             }
         }
