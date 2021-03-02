@@ -460,42 +460,8 @@ function songChange(obj) {
         obj.result['Fileformat'] = '';
     }
 
-    for (let i = 0; i < settings.colsPlayback.length; i++) {
-        let c = document.getElementById('current' + settings.colsPlayback[i]);
-        if (c && settings.colsPlayback[i] === 'Lyrics') {
-            getLyrics(obj.result.uri, c.getElementsByTagName('p')[0]);
-        }
-        else if (c) {
-            let value = obj.result[settings.colsPlayback[i]];
-            if (value === undefined) {
-                value = '-';
-            }
-            if (settings.colsPlayback[i] === 'Duration') {
-                value = beautifySongDuration(value);
-            }
-            else if (settings.colsPlayback[i] === 'LastModified') {
-                value = localeDate(value);
-            }
-            else if (settings.colsPlayback[i].indexOf('MUSICBRAINZ') === 0) {
-                value = getMBtagLink(settings.colsPlayback[i], obj.result[settings.colsPlayback[i]]);
-            }
-            else {
-                value = e(value);
-            }
-            c.getElementsByTagName('p')[0].innerHTML = value;
-            if (value === '-') {
-                c.getElementsByTagName('p')[0].classList.remove('clickable');
-            }
-            else {
-                c.getElementsByTagName('p')[0].classList.add('clickable');
-            }
-            setAttEnc(c, 'data-name', value);
-            if (settings.colsPlayback[i] === 'Album' && obj.result[tagAlbumArtist] !== null) {
-                setAttEnc(c, 'data-albumartist', obj.result[tagAlbumArtist]);
-            }
-        }
-    }
-    
+    setPlaybackCardTags(obj.result);
+
     document.getElementById('currentBooklet').innerHTML = obj.result.bookletPath === '' || obj.result.bookletPath === undefined || settings.featBrowse === false ? '' : 
             '<span class="text-light mi">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
             e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>';
@@ -516,6 +482,44 @@ function songChange(obj) {
     //remember lastSong
     lastSong = curSong;
     lastSongObj = obj.result;
+}
+
+function setPlaybackCardTags(songObj) {
+    for (let i = 0; i < settings.colsPlayback.length; i++) {
+        let c = document.getElementById('current' + settings.colsPlayback[i]);
+        if (c && settings.colsPlayback[i] === 'Lyrics') {
+            getLyrics(songObj.uri, c.getElementsByTagName('p')[0]);
+        }
+        else if (c) {
+            let value = songObj[settings.colsPlayback[i]];
+            if (value === undefined) {
+                value = '-';
+            }
+            if (settings.colsPlayback[i] === 'Duration') {
+                value = beautifySongDuration(value);
+            }
+            else if (settings.colsPlayback[i] === 'LastModified') {
+                value = localeDate(value);
+            }
+            else if (settings.colsPlayback[i].indexOf('MUSICBRAINZ') === 0) {
+                value = getMBtagLink(settings.colsPlayback[i], songObj[settings.colsPlayback[i]]);
+            }
+            else {
+                value = e(value);
+            }
+            c.getElementsByTagName('p')[0].innerHTML = value;
+            if (value === '-') {
+                c.getElementsByTagName('p')[0].classList.remove('clickable');
+            }
+            else {
+                c.getElementsByTagName('p')[0].classList.add('clickable');
+            }
+            setAttEnc(c, 'data-name', value);
+            if (settings.colsPlayback[i] === 'Album' && songObj[tagAlbumArtist] !== null) {
+                setAttEnc(c, 'data-albumartist', songObj[tagAlbumArtist]);
+            }
+        }
+    }
 }
 
 //eslint-disable-next-line no-unused-vars

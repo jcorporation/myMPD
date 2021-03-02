@@ -862,43 +862,19 @@ function parseMPDSettings() {
         settings.colsPlayback = [];
     }
     else {
+        //construct playback view
         let pbtl = '';
         for (let i = 0; i < settings.colsPlayback.length; i++) {
-            pbtl += '<div id="current' + settings.colsPlayback[i]  + '" data-tag="' + settings.colsPlayback[i] + '" ' +
-                    (settings.colsPlayback[i] === 'Lyrics' ? '' : 'data-name="' + (lastSongObj[settings.colsPlayback[i]] ? encodeURI(lastSongObj[settings.colsPlayback[i]]) : '') + '"');
-
-            if (settings.colsPlayback[i] === 'Album' && lastSongObj[tagAlbumArtist] !== null) {
-                pbtl += 'data-albumartist="' + encodeURI(lastSongObj[tagAlbumArtist]) + '"';
-            }
-
-            pbtl += '>' +
-                    '<small>' + t(settings.colsPlayback[i]) + '</small>' +
-                    '<p';
-            if (settings.browsetags.includes(settings.colsPlayback[i]) && lastSongObj[settings.colsPlayback[i]] !== undefined && 
-                lastSongObj[settings.colsPlayback[i]] !== '-')
-            {
-                pbtl += ' class="clickable"';
-            }
-            pbtl += '>';
-            if (settings.colsPlayback[i] === 'Duration') {
-                pbtl += (lastSongObj[settings.colsPlayback[i]] ? beautifySongDuration(lastSongObj[settings.colsPlayback[i]]) : '');
-            }
-            else if (settings.colsPlayback[i] === 'LastModified') {
-                pbtl += (lastSongObj[settings.colsPlayback[i]] ? localeDate(lastSongObj[settings.colsPlayback[i]]) : '');
-            }
-            else if (settings.colsPlayback[i] === 'Fileformat') {
-                pbtl += (lastState ? fileformat(lastState.audioFormat) : '');
-            }
-            else if (settings.colsPlayback[i].indexOf('MUSICBRAINZ') === 0) {
-                pbtl += (lastSongObj[settings.colsPlayback[i]] ? getMBtagLink(settings.colsPlayback[i], lastSongObj[settings.colsPlayback[i]]) : '');
-            }
-
-            else {
-                pbtl += (lastSongObj[settings.colsPlayback[i]] ? e(lastSongObj[settings.colsPlayback[i]]) : '-');
-            }
-            pbtl += '</p></div>';
+            pbtl += '<div id="current' + settings.colsPlayback[i]  + '" data-tag="' + 
+                settings.colsPlayback[i] + '">' +
+                '<small>' + t(settings.colsPlayback[i]) + '</small>' +
+                '<p></p></div>';
         }
         document.getElementById('cardPlaybackTags').innerHTML = pbtl;
+        //fill blank card with lastSongObj
+        if (lastSongObj !== null) {
+            setPlaybackCardTags(lastSongObj);
+        }
         //click on lyrics header to expand lyrics text container
         let cl = document.getElementById('currentLyrics');
         if (cl) {
