@@ -887,9 +887,10 @@ sbuild_cleanup() {
 run_eslint() {
   check_cmd eslint
   createassets
+  echo ""
   echo "Linting htdocs/sw.js"
   eslint htdocs/sw.js
-  echo "release/htdocs/mympd.js"
+  echo "Linting release/htdocs/mympd.js"
   eslint release/htdocs/js/mympd.js
 }
 
