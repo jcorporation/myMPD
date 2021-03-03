@@ -66,7 +66,7 @@ function initPlaylists() {
     }, false);
 }
 
-function parsePlaylistsAll(obj) {
+function parsePlaylistsList(obj) {
     const rowTitle = advancedSettingsDefault.clickPlaylist.validValues[settings.advanced.clickPlaylist];
     updateTable(obj, app.current.app + app.current.tab + app.current.view, function(row, data) {
         setAttEnc(row, 'data-uri', data.uri);

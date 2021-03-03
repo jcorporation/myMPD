@@ -282,7 +282,7 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
     if (filter === null || filter === undefined) { filter = ptr.filter; }
     if (sort === null || sort === undefined)     { sort = ptr.sort; }
     if (tag === null || tag === undefined)       { tag = ptr.tag; }
-    if (search === null || search == undefined)  { search = ptr.search; }
+    if (search === null || search === undefined)  { search = ptr.search; }
     //set new scrollpos
     if (newScrollPos === null || newScrollPos !== undefined) {
         ptr.scrollPos = newScrollPos;
@@ -365,7 +365,7 @@ function appRoute() {
         sendAPI("MPD_API_JUKEBOX_LIST", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
-        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search}, parsePlaylistsAll);
+        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search}, parsePlaylistsList);
         const searchPlaylistsStrEl = document.getElementById('searchPlaylistsListStr');
         if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
             searchPlaylistsStrEl.value = app.current.search;

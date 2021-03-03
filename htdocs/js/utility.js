@@ -771,7 +771,7 @@ function printValue(key, value) {
                 '</span>';
         default:
             if (key.indexOf('MUSICBRAINZ') === 0) {
-                return getMBtagLink(col, songObj[col]);
+                return getMBtagLink(key, value);
             }
             return e(value);
     }
