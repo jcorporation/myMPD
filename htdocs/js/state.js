@@ -495,19 +495,7 @@ function setPlaybackCardTags(songObj) {
             if (value === undefined) {
                 value = '-';
             }
-            if (col === 'Duration') {
-                value = beautifySongDuration(value);
-            }
-            else if (col === 'LastModified') {
-                value = localeDate(value);
-            }
-            else if (col.indexOf('MUSICBRAINZ') === 0) {
-                value = getMBtagLink(col, songObj[col]);
-            }
-            else {
-                value = e(value);
-            }
-            c.getElementsByTagName('p')[0].innerHTML = value;
+            c.getElementsByTagName('p')[0].innerHTML = printValue(col, value);
             if (value === '-' || settings.browsetags.includes(col) === false) {
                 c.getElementsByTagName('p')[0].classList.remove('clickable');
             }

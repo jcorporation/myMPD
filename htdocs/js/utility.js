@@ -770,6 +770,9 @@ function printValue(key, value) {
                 (value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up') +
                 '</span>';
         default:
+            if (key.indexOf('MUSICBRAINZ') === 0) {
+                return getMBtagLink(col, songObj[col]);
+            }
             return e(value);
     }
 }
