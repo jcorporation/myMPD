@@ -236,6 +236,7 @@ static sds mpd_client_put_last_played_obj(t_mpd_client_state *mpd_client_state, 
     bool rc = mpd_send_list_meta(mpd_client_state->mpd_state->conn, uri);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == false) {
         buffer = put_empty_song_tags(buffer, mpd_client_state->mpd_state, tagcols, uri);
+        mpd_response_finish(mpd_client_state->mpd_state->conn);
     }
     else {
         struct mpd_entity *entity;
@@ -247,11 +248,12 @@ static sds mpd_client_put_last_played_obj(t_mpd_client_state *mpd_client_state, 
                 buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, mpd_song_get_uri(song));
             }
             mpd_entity_free(entity);
-            mpd_response_finish(mpd_client_state->mpd_state->conn);
         }
         else {
             buffer = put_empty_song_tags(buffer, mpd_client_state->mpd_state, tagcols, uri);
         }
+        check_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0);
+        mpd_response_finish(mpd_client_state->mpd_state->conn);
     }
     buffer = sdscat(buffer, "}");
     return buffer;
