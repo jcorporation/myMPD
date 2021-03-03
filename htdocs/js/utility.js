@@ -750,7 +750,7 @@ function createSearchExpression(crumbsEl, tag, op, value) {
 
 function printValue(key, value) {
     if (value === undefined || value === null) {
-        return '';
+        return '-';
     }
     switch (key) {
         case 'Type':
