@@ -79,15 +79,13 @@ bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, l
     if (error  != MPD_ERROR_SUCCESS) {
         const char *error_msg = mpd_connection_get_error_message(mpd_state->conn);
         MYMPD_LOG_ERROR("MPD error: %s (%d)", error_msg , error);
-        if (buffer != NULL) {
-            if (*buffer != NULL) {
-                if (notify == false) {
-                    *buffer = jsonrpc_respond_message(*buffer, method, request_id, true, 
-                        "mpd", "error", mpd_connection_get_error_message(mpd_state->conn));
-                }
-                else {
-                    *buffer = jsonrpc_notify(*buffer, "mpd", "error", mpd_connection_get_error_message(mpd_state->conn));
-                }
+        if (buffer != NULL && *buffer != NULL) {
+            if (notify == false) {
+                *buffer = jsonrpc_respond_message(*buffer, method, request_id, true, 
+                    "mpd", "error", error_msg);
+            }
+            else {
+                *buffer = jsonrpc_notify(*buffer, "mpd", "error", error_msg);
             }
         }
 
