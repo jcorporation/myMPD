@@ -23,8 +23,28 @@ function initPlaylists() {
             document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
         }
     }, false);
+
+    document.getElementById('searchPlaylistsDetailStr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                '0', app.current.limit, app.current.filter, app.current.sort, '-', this.value);
+        }
+    }, false);
     
-   document.getElementById('BrowsePlaylistsAllList').addEventListener('click', function(event) {
+    document.getElementById('searchPlaylistsListStr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                '0', app.current.limit, app.current.filter, app.current.sort, '-', this.value);
+        }
+    }, false);
+    
+   document.getElementById('BrowsePlaylistsListList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             clickPlaylist(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
         }
@@ -46,68 +66,53 @@ function initPlaylists() {
     }, false);
 }
 
-function parsePlaylists(obj) {
-    if (app.current.view === 'All') {
-        //show list of playlists
-        document.getElementById('BrowsePlaylistsAllList').classList.remove('hide');
-        document.getElementById('BrowsePlaylistsDetailList').classList.add('hide');
-        document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.add('hide');
+function parsePlaylistsAll(obj) {
+    const rowTitle = advancedSettingsDefault.clickPlaylist.validValues[settings.advanced.clickPlaylist];
+    updateTable(obj, app.current.app + app.current.tab + app.current.view, function(row, data) {
+        setAttEnc(row, 'data-uri', data.uri);
+        setAttEnc(row, 'data-type', data.Type);
+        setAttEnc(row, 'data-name', data.name);
+        row.setAttribute('title', t(rowTitle));
+    }, function(row, data) {
+        row.innerHTML = '<td data-col="Type"><span class="mi">' + (data.Type === 'smartpls' ? 'queue_music' : 'list') + '</span></td>' +
+            '<td>' + e(data.name) + '</td>' +
+            '<td>'+ localeDate(data.last_modified) + '</td>' +
+            '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
+    });
+}
+
+function parsePlaylistsDetail(obj) {
+    if (obj.result.uri.indexOf('.') > -1 || obj.result.smartpls === true) {
+        setAttEnc(document.getElementById('BrowsePlaylistsDetailList'), 'data-ro', 'true');
         document.getElementById('playlistContentBtns').classList.add('hide');
-        document.getElementById('smartPlaylistContentBtns').classList.add('hide');
-        document.getElementById('btnAddSmartpls').parentNode.classList.remove('hide');
-        document.getElementById('BrowseNavPlaylists').parentNode.classList.remove('hide');
-        const rowTitle = advancedSettingsDefault.clickPlaylist.validValues[settings.advanced.clickPlaylist];
-        updateTable(obj, app.current.app + app.current.tab + app.current.view, function(row, data) {
-            setAttEnc(row, 'data-uri', data.uri);
-            setAttEnc(row, 'data-type', data.Type);
-            setAttEnc(row, 'data-name', data.name);
-            row.setAttribute('title', t(rowTitle));
-        }, function(row, data) {
-            row.innerHTML = '<td data-col="Type"><span class="mi">' + (data.Type === 'smartpls' ? 'queue_music' : 'list') + '</span></td>' +
-                '<td>' + e(data.name) + '</td>' +
-                '<td>'+ localeDate(data.last_modified) + '</td>' +
-                '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
-        });
+        document.getElementById('smartPlaylistContentBtns').classList.remove('hide');
     }
     else {
-        //show playlist contents
-        if (obj.result.uri.indexOf('.') > -1 || obj.result.smartpls === true) {
-            setAttEnc(document.getElementById('BrowsePlaylistsDetailList'), 'data-ro', 'true');
-            document.getElementById('playlistContentBtns').classList.add('hide');
-            document.getElementById('smartPlaylistContentBtns').classList.remove('hide');
-        }
-        else {
-            setAttEnc(document.getElementById('BrowsePlaylistsDetailList'), 'data-ro', 'false');
-            document.getElementById('playlistContentBtns').classList.remove('hide');
-            document.getElementById('smartPlaylistContentBtns').classList.add('hide');
-        }
-        setAttEnc(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri', obj.result.uri);
-        document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = 
-            (obj.result.smartpls === true ? t('Smart playlist') : t('Playlist'))  + ': ' + obj.result.uri;
-        document.getElementById('BrowsePlaylistsDetailList').classList.remove('hide');
-        document.getElementById('BrowsePlaylistsAllList').classList.add('hide');
-        document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.remove('hide');
-        document.getElementById('btnAddSmartpls').parentNode.classList.add('hide');
-        document.getElementById('BrowseNavPlaylists').parentNode.classList.add('hide');
-        const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
-        const table = document.getElementById('BrowsePlaylistsDetailList');
-        const tfoot = table.getElementsByTagName('tfoot')[0];
-        const colspan = settings.colsBrowsePlaylistsDetail.length;
-        tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
-        updateTable(obj, app.current.app + app.current.tab + app.current.view, function(row, data) {
-            row.setAttribute('id','playlistTrackId' + data.Pos);
-            setAttEnc(row, 'data-type', data.Type);
-            setAttEnc(row, 'data-uri', data.uri);
-            setAttEnc(row, 'data-name', data.Title);
-            setAttEnc(row, 'data-songpos', data.Pos);
-            row.setAttribute('title', t(rowTitle));
-        });
+        setAttEnc(document.getElementById('BrowsePlaylistsDetailList'), 'data-ro', 'false');
+        document.getElementById('playlistContentBtns').classList.remove('hide');
+        document.getElementById('smartPlaylistContentBtns').classList.add('hide');
     }
+    setAttEnc(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri', obj.result.uri);
+    document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = 
+        (obj.result.smartpls === true ? t('Smart playlist') : t('Playlist'))  + ': ' + obj.result.uri;
+    const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
+    const table = document.getElementById('BrowsePlaylistsDetailList');
+    const tfoot = table.getElementsByTagName('tfoot')[0];
+    const colspan = settings.colsBrowsePlaylistsDetail.length;
+    tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
+    updateTable(obj, app.current.app + app.current.tab + app.current.view, function(row, data) {
+        row.setAttribute('id','playlistTrackId' + data.Pos);
+        setAttEnc(row, 'data-type', data.Type);
+        setAttEnc(row, 'data-uri', data.uri);
+        setAttEnc(row, 'data-name', data.Title);
+        setAttEnc(row, 'data-songpos', data.Pos);
+        row.setAttribute('title', t(rowTitle));
+    });
 }
 
 //eslint-disable-next-line no-unused-vars
 function playlistDetails(uri) {
-    document.getElementById('BrowsePlaylistsAllList').classList.add('opacity05');
+    document.getElementById('BrowsePlaylistsListList').classList.add('opacity05');
     appGoto('Browse', 'Playlists', 'Detail', '0', undefined, uri, '-', '-', '');
 }
 
@@ -454,7 +459,7 @@ function playlistMoveTrack(from, to) {
 function addSelectedItemToPlaylist() {
     let item = document.activeElement;
     if (item) {
-        if (item.parentNode.parentNode.id === 'BrowsePlaylistsAllList') {
+        if (item.parentNode.parentNode.id === 'BrowsePlaylistsListList') {
             return;
         }
         showAddToPlaylist(getAttDec(item, 'data-uri'), '');

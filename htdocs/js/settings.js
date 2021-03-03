@@ -537,7 +537,7 @@ function parseSettings() {
     app.apps.Queue.tabs.LastPlayed.limit = limit;
     app.apps.Queue.tabs.Jukebox.limit = limit;
     app.apps.Browse.tabs.Filesystem.limit = limit;
-    app.apps.Browse.tabs.Playlists.views.All.limit = limit;
+    app.apps.Browse.tabs.Playlists.views.List.limit = limit;
     app.apps.Browse.tabs.Playlists.views.Detail.limit = limit;
     app.apps.Browse.tabs.Database.views.List.limit = limit;
     app.apps.Browse.tabs.Database.views.Detail.limit = limit;

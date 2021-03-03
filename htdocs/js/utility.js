@@ -153,7 +153,7 @@ function alignDropdown(el) {
 }
 
 function getXpos(el) {
-    var xPos = 0;
+    let xPos = 0;
     while (el) {
         xPos += (el.offsetLeft - el.scrollLeft + el.clientLeft);
         el = el.offsetParent;
@@ -445,13 +445,18 @@ function toggleBtnChkCollapse(btn, collapse, state) {
     if (checked === true) {
         document.getElementById(collapse).classList.add('show');
     }
-    else{
+    else {
         document.getElementById(collapse).classList.remove('show');
     }
 }
 
 function setPagination(total, returned) {
-    let cat = app.current.app + (app.current.tab === undefined ? '' : app.current.tab);
+    let cat = app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + (app.current.view === undefined ? '' : app.current.view);
+
+    if (document.getElementById(cat + 'PaginationTop') === null) {
+        return;
+    }
+
     let totalPages = app.current.limit > 0 ? Math.ceil(total / app.current.limit) : 1;
     if (totalPages === 0) {
         totalPages = 1;
@@ -470,8 +475,7 @@ function setPagination(total, returned) {
     let bottomBarHTML = '<button type="button" class="btn btn-secondary mi" title="' + t('To top') + '">keyboard_arrow_up</button>' +
           '<div>' +
           '<select class="form-control custom-select border-secondary" title="' + t('Elements per page') + '">';
-    let nrEls = [25, 50, 100, 200, 0];
-    for (let i of nrEls) {
+    for (let i of [25, 50, 100, 200, 0]) {
         bottomBarHTML += '<option value="' + i + '"' + (app.current.limit === i ? ' selected' : '') + '>' + (i > 0 ? i : t('All')) + '</option>';
     }
     bottomBarHTML += '</select>' +

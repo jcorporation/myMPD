@@ -6,7 +6,6 @@
 var socket = null;
 var websocketConnected = false;
 var websocketTimer = null;
-var socketRetry = 0;
 
 var lastSong = '';
 var lastSongObj = {};
@@ -101,9 +100,9 @@ app.apps = {
                 "scrollPos": 0 
             },
             "Playlists": { 
-                "active": "All",
+                "active": "List",
                 "views": { 
-                    "All": {
+                    "List": {
                         "offset": 0,
                         "limit": 100,
                         "filter": "-",
@@ -216,16 +215,23 @@ function appPrepare(scrollPos) {
         for (let i = 0; i < domCache.navbarBtnsLen; i++) {
             domCache.navbarBtns[i].classList.remove('active');
         }
-        const cards = ['cardHome', 'cardPlayback', 'cardQueue', 'cardBrowse', 'cardSearch',
-            'cardQueueCurrent', 'cardQueueLastPlayed', 'cardQueueJukebox', 'cardBrowsePlaylists',
-            'cardBrowseFilesystem', 'cardBrowseDatabase'];
+        const cards = ['cardHome', 'cardPlayback', 'cardSearch',
+            'cardQueue', 'tabQueueCurrent', 'tabQueueLastPlayed', 'tabQueueJukebox', 
+            'cardBrowse', 'tabBrowseFilesystem', 
+            'tabBrowsePlaylists', 'viewBrowsePlaylistsDetail', 'viewBrowsePlaylistsList', 
+            'tabBrowseDatabase', 'viewBrowseDatabaseDetail', 'viewBrowseDatabaseList'];
         for (const card of cards) {
             document.getElementById(card).classList.add('hide');
         }
         //show active card
         document.getElementById('card' + app.current.app).classList.remove('hide');
+        //show active tab
         if (app.current.tab !== undefined) {
-            document.getElementById('card' + app.current.app + app.current.tab).classList.remove('hide');
+            document.getElementById('tab' + app.current.app + app.current.tab).classList.remove('hide');
+        }
+        //show active view
+        if (app.current.view !== undefined) {
+            document.getElementById('view' + app.current.app + app.current.tab + app.current.view).classList.remove('hide');
         }
         //show active navbar icon
         let nav = document.getElementById('nav' + app.current.app + app.current.tab);
@@ -250,46 +256,12 @@ function appPrepare(scrollPos) {
 
 function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newScrollPos) {
     //save scrollPos of current view
-    let scrollPos = 0;
-    if (document.body.scrollTop) {
-        scrollPos = document.body.scrollTop
-    }
-    else {
-        scrollPos = document.documentElement.scrollTop;
-    }
-        
-    if (app.apps[app.current.app].scrollPos !== undefined) {
-        app.apps[app.current.app].scrollPos = scrollPos
-    }
-    else if (app.apps[app.current.app].tabs[app.current.tab].scrollPos !== undefined) {
-        app.apps[app.current.app].tabs[app.current.tab].scrollPos = scrollPos
-    }
-    else if (app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].scrollPos !== undefined) {
-        app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].scrollPos = scrollPos;
-    }
+    let oldptr = app.apps[app.current.app].offset !== undefined ? app.apps[app.current.app] :
+        app.apps[app.current.app].tabs[app.current.tab].offset !== undefined ? app.apps[app.current.app].tabs[app.current.tab] :
+            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view];
+    oldptr.scrollPos = document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
 
-    //set null options to undefined
-    if (offset === null) {
-        offset = undefined;
-    }
-    if (limit === null) {
-        limit = undefined;
-    }
-    if (filter === null) {
-        filter = undefined;
-    }
-    if (sort === null) {
-        sort = undefined;
-    }
-    if (tag === null) {
-        tag = undefined;
-    }
-    if (search === null) {
-        search = undefined;
-    }
-
-    //build new hash
-    let hash = '';
+    //get default active tab or view from state
     if (app.apps[card].tabs) {
         if (tab === undefined) {
             tab = app.apps[card].active;
@@ -298,43 +270,28 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
             if (view === undefined) {
                 view = app.apps[card].tabs[tab].active;
             }
-            hash = '/' + encodeURIComponent(card) + '/' + encodeURIComponent(tab) + '/' + encodeURIComponent(view) + '!' + 
-                encodeURIComponent(offset === undefined ? app.apps[card].tabs[tab].views[view].offset : offset) + '/' +
-                encodeURIComponent(limit === undefined ? app.apps[card].tabs[tab].views[view].limit : limit) + '/' +
-                encodeURIComponent(filter === undefined ? app.apps[card].tabs[tab].views[view].filter : filter) + '/' +
-                encodeURIComponent(sort === undefined ? app.apps[card].tabs[tab].views[view].sort : sort) + '/' +
-                encodeURIComponent(tag === undefined ? app.apps[card].tabs[tab].views[view].tag : tag) + '/' +
-                encodeURIComponent(search === undefined ? app.apps[card].tabs[tab].views[view].search : search);
-            if (newScrollPos !== undefined) {
-                app.apps[card].tabs[tab].views[view].scrollPos = newScrollPos;
-            }
-        }
-        else {
-            hash = '/' + encodeURIComponent(card) + '/' + encodeURIComponent(tab) + '!' + 
-                encodeURIComponent(offset === undefined ? app.apps[card].tabs[tab].offset : offset) + '/' +
-                encodeURIComponent(limit === undefined ? app.apps[card].tabs[tab].limit : limit) + '/' +
-                encodeURIComponent(filter === undefined ? app.apps[card].tabs[tab].filter : filter) + '/' +
-                encodeURIComponent(sort === undefined ? app.apps[card].tabs[tab].sort : sort) + '/' +
-                encodeURIComponent(tag === undefined ? app.apps[card].tabs[tab].tag : tag) + '/' +
-                encodeURIComponent(search === undefined ? app.apps[card].tabs[tab].search : search);
-            if (newScrollPos !== undefined) {
-                app.apps[card].tabs[tab].scrollPos = newScrollPos;
-            }
         }
     }
-    else {
-        hash = '/' + encodeURIComponent(card) + '!' + 
-            encodeURIComponent(offset === undefined ? app.apps[card].offset : offset) + '/' +
-            encodeURIComponent(limit === undefined ? app.apps[card].limit : limit) + '/' +
-            encodeURIComponent(filter === undefined ? app.apps[card].filter : filter) + '/' +
-            encodeURIComponent(sort === undefined ? app.apps[card].sort : sort) + '/' +
-            encodeURIComponent(tag === undefined ? app.apps[card].tag : tag) + '/' +
-            encodeURIComponent(search === undefined ? app.apps[card].search : search);
-        if (newScrollPos !== undefined) {
-            app.apps[card].scrollPos = newScrollPos;
-        }
+    //get ptr to new app
+    let ptr = app.apps[card].offset !== undefined ? app.apps[card] :
+                app.apps[card].tabs[tab].offset !== undefined ? app.apps[card].tabs[tab] :
+                app.apps[card].tabs[tab].views[view];
+    //set options to default, if not defined
+    if (offset === null || offset === undefined) { offset = ptr.offset; }
+    if (limit === null || limit === undefined)   { limit = ptr.limit; }
+    if (filter === null || filter === undefined) { filter = ptr.filter; }
+    if (sort === null || sort === undefined)     { sort = ptr.sort; }
+    if (tag === null || tag === undefined)       { tag = ptr.tag; }
+    if (search === null || search == undefined)  { search = ptr.search; }
+    //set new scrollpos
+    if (newScrollPos === null || newScrollPos !== undefined) {
+        ptr.scrollPos = newScrollPos;
     }
-    location.hash = hash;
+    //build hash
+    location.hash = '/' + encodeURIComponent(card) + (tab === undefined ? '' : '/' + encodeURIComponent(tab) + 
+        (view === undefined ? '' : '/' + encodeURIComponent(view))) + '!' + 
+        encodeURIComponent(offset) + '/' + encodeURIComponent(limit) + '/' + encodeURIComponent(filter) + '/' + 
+        encodeURIComponent(sort) + '/' + encodeURIComponent(tag) + '/' + encodeURIComponent(search);
 }
 
 function appRoute() {
@@ -355,37 +312,29 @@ function appRoute() {
         app.current.sort = decodeURIComponent(params[7]);
         app.current.tag = decodeURIComponent(params[8]);
         app.current.search = decodeURIComponent(params[9]);
-        
+
+        //get ptr to app options and set active tab/view        
+        let ptr;
         if (app.apps[app.current.app].offset !== undefined) {
-            app.apps[app.current.app].offset = app.current.offset;
-            app.apps[app.current.app].limit = app.current.limit;
-            app.apps[app.current.app].filter = app.current.filter;
-            app.apps[app.current.app].sort = app.current.sort;
-            app.apps[app.current.app].tag = app.current.tag;
-            app.apps[app.current.app].search = app.current.search;
-            app.current.scrollPos = app.apps[app.current.app].scrollPos;
+            ptr = app.apps[app.current.app];
         }
         else if (app.apps[app.current.app].tabs[app.current.tab].offset !== undefined) {
-            app.apps[app.current.app].tabs[app.current.tab].offset = app.current.offset;
-            app.apps[app.current.app].tabs[app.current.tab].limit = app.current.limit;
-            app.apps[app.current.app].tabs[app.current.tab].filter = app.current.filter;
-            app.apps[app.current.app].tabs[app.current.tab].sort = app.current.sort;
-            app.apps[app.current.app].tabs[app.current.tab].tag = app.current.tag;
-            app.apps[app.current.app].tabs[app.current.tab].search = app.current.search;
+            ptr = app.apps[app.current.app].tabs[app.current.tab];
             app.apps[app.current.app].active = app.current.tab;
-            app.current.scrollPos = app.apps[app.current.app].tabs[app.current.tab].scrollPos;
         }
         else if (app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].offset !== undefined) {
-            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].offset = app.current.offset;
-            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].limit = app.current.limit;
-            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].filter = app.current.filter;
-            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].sort = app.current.sort;
-            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].tag = app.current.tag;
-            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].search = app.current.search;
+            ptr = app.apps[app.current.app].tabs[app.current.tab].views[app.current.view];
             app.apps[app.current.app].active = app.current.tab;
             app.apps[app.current.app].tabs[app.current.tab].active = app.current.view;
-            app.current.scrollPos = app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].scrollPos;
         }
+        //set app options
+        ptr.offset = app.current.offset;
+        ptr.limit = app.current.limit;
+        ptr.filter = app.current.filter;
+        ptr.sort = app.current.sort;
+        ptr.tag = app.current.tag;
+        ptr.search = app.current.search;
+        app.current.scrollPos = ptr.scrollPos;
     }
     else {
         appPrepare(0);
@@ -415,16 +364,16 @@ function appRoute() {
     else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
         sendAPI("MPD_API_JUKEBOX_LIST", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'All') {
-        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search}, parsePlaylists);
-        const searchPlaylistsStrEl = document.getElementById('searchPlaylistsStr');
+    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
+        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search}, parsePlaylistsAll);
+        const searchPlaylistsStrEl = document.getElementById('searchPlaylistsListStr');
         if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
             searchPlaylistsStrEl.value = app.current.search;
         }
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, "uri": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
-        const searchPlaylistsStrEl = document.getElementById('searchPlaylistsStr');
+        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, "uri": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylistsDetail);
+        const searchPlaylistsStrEl = document.getElementById('searchPlaylistsDetailStr');
         if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
             searchPlaylistsStrEl.value = app.current.search;
         }
@@ -432,7 +381,7 @@ function appRoute() {
     else if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
         sendAPI("MPD_API_DATABASE_FILESYSTEM_LIST", {"offset": app.current.offset, "limit": app.current.limit, "path": (app.current.search ? app.current.search : "/"), 
             "searchstr": (app.current.filter !== '-' ? app.current.filter : ''), "cols": settings.colsBrowseFilesystem}, parseFilesystem, true);
-        // Don't add all songs from root
+        //Don't add all songs from root
         if (app.current.search) {
             enableEl('BrowseFilesystemAddAllSongs');
             enableEl('BrowseFilesystemAddAllSongsBtn');
@@ -441,7 +390,7 @@ function appRoute() {
             disableEl('BrowseFilesystemAddAllSongs');
             disableEl('BrowseFilesystemAddAllSongsBtn');
         }
-        // Create breadcrumb
+        //Create breadcrumb
         let breadcrumbs = '<li class="breadcrumb-item"><a data-uri="" class="text-body mi">home</a></li>';
         const pathArray = app.current.search.split('/');
         let pathArrayLen = pathArray.length;
@@ -460,8 +409,6 @@ function appRoute() {
         searchFilesystemStrEl.value = app.current.filter === '-' ? '' :  app.current.filter;
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
-        document.getElementById('viewListDatabase').classList.remove('hide');
-        document.getElementById('viewDetailDatabase').classList.add('hide');
         selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', app.current.filter);
         selectTag('BrowseDatabaseByTagDropdown', 'btnBrowseDatabaseByTagDesc', app.current.tag);
         let sort = app.current.sort;
@@ -494,8 +441,6 @@ function appRoute() {
         }
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail') {
-        document.getElementById('viewListDatabase').classList.add('hide');
-        document.getElementById('viewDetailDatabase').classList.remove('hide');
         if (app.current.filter === 'Album') {
             let cols = settings.colsBrowseDatabaseDetail.slice();
             if (cols.includes('Disc') === false) {
@@ -805,7 +750,7 @@ function appInit() {
     }
     //contextmenu for tables
     tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList', 
-        'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsAllList', 'BrowsePlaylistsDetailList'];
+        'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsListList', 'BrowsePlaylistsDetailList'];
     for (const tableName of tables) {
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {
             if (event.target.parentNode.classList.contains('not-clickable') || getAttDec(event.target.parentNode, 'data-type') === 'parentDir') {

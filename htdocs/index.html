@@ -142,7 +142,7 @@
     </div>
     
     <div class="card hide" id="cardQueue">
-      <div class="card-body hide" id="cardQueueCurrent">
+      <div class="card-body hide" id="tabQueueCurrent">
         <div class="btn-toolbar card-toolbar" id="QueueCurrentButtonsTop">
           <div class="btn-group mr-2">
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
@@ -217,7 +217,7 @@
         </div>
       </div>
 
-      <div class="card-body hide" id="cardQueueLastPlayed">
+      <div class="card-body hide" id="tabQueueLastPlayed">
         <div class="btn-toolbar card-toolbar">
           <div class="btn-group mr-2">
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
@@ -254,7 +254,7 @@
         </div>
       </div>
 
-      <div class="card-body hide" id="cardQueueJukebox">
+      <div class="card-body hide" id="tabQueueJukebox">
         <div class="btn-toolbar card-toolbar">
           <div class="btn-group mr-2">
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
@@ -270,7 +270,6 @@
           <div id="QueueJukeboxPaginationTop" class="btn-group mr-2 pagination hide">
           </div>
         </div>
-
         <div class="table-responsive-md">
           <table id="QueueJukeboxList" class="table table-hover table-sm">
             <thead>
@@ -290,43 +289,25 @@
         <div class="btn-toolbar hide justify-content-between" id="QueueJukeboxButtonsBottom">
         </div>
       </div>
-      
     </div>
     
     <div class="card hide" id="cardBrowse">
-      <div class="card-body hide" id="cardBrowsePlaylists">
-        <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsButtons">
-          <div class="btn-group mr-2">
-            <button data-title-phrase="Select view" id="BrowseNavPlaylists" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
-            <div class="dropdown-menu bg-lite-dark px-2" id="BrowseNavPlaylistsDropdown">
+      <div class="card-body hide" id="tabBrowsePlaylists">
+        <div id="viewBrowsePlaylistsList">
+          <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsAllButtons">
+            <div class="btn-group mr-2">
+              <button data-title-phrase="Select view" id="BrowseNavPlaylists" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
+              <div class="dropdown-menu bg-lite-dark px-2" id="BrowseNavPlaylistsDropdown">
+              </div>
             </div>
-          </div>
-          <div class="btn-group mr-2 hide">
-            <button data-title-phrase="Playlists" data-href='{"cmd": "appGoto", "options": ["Browse", "Playlists", "All"]}' id="btnBrowsePlaylistsAll" type="button" class="btn btn-secondary"><span class="mi">apps</span></button>
-          </div>
-          <form id="searchPlaylists" class="flex-grow-1">
+          <form id="searchPlaylistsAll" class="flex-grow-1">
             <div class="input-group mr-2">
               <div class="input-group-prepend">
                 <span class="input-group-text border-secondary text-light bg-secondary"><span class="mi">search</span></span>
               </div>
-              <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchPlaylistsStr"/>
+              <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchPlaylistsListStr"/>
             </div>
           </form>          
-          <div class="hide btn-group mr-2" id="playlistContentBtns">
-            <button data-title-phrase="Clear playlist" type="button" class="btn btn-secondary mi rounded-right mr-2" data-href='{"cmd": "showClearPlaylist", "options": []}'>clear_all</button>
-            <button data-href='{"cmd": "playlistShuffle", "options": []}' class="btn btn-secondary mi rounded mr-2" type="button" data-title-phrase="Shuffle playlist">shuffle</button>
-            <div class="btn-group mr-2">
-              <button data-title-phrase="Sort playlist" id="btnSortPlaylist" class="btn btn-secondary dropdown-toggle rounded-left" type="button" data-toggle="dropdown"><span class="mi">sort</span></button>
-              <div class="dropdown-menu bg-lite-dark px-2" id="dropdownSortPlaylist">
-                <h2 class="dropdown-header text-light" data-phrase="Sort playlist"></h2>
-                <div id="dropdownSortPlaylistTags">
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="hide btn-group" id="smartPlaylistContentBtns">
-            <button data-title-phrase="Update smart playlist" type="button" class="btn btn-secondary mi rounded-right mr-2" data-href='{"cmd": "updateSmartPlaylistClick", "options": []}'>refresh</button>
-          </div>
           <div class="btn-group mr-2 featSmartpls">
             <button data-title-phrase="Add smart playlist" id="btnAddSmartpls" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">playlist_add</span></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="dropdownAddSmartpls">
@@ -339,46 +320,84 @@
           <div class="btn-group mr-2 featHome">
             <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
-          <div id="BrowsePlaylistsPaginationTop" class="btn-group mr-2 pagination hide">
+          <div id="BrowsePlaylistsListPaginationTop" class="btn-group mr-2 pagination hide">
           </div>
         </div>
-        <div class="table-responsive-md">
-          <table id="BrowsePlaylistsAllList" class="table table-hover table-sm">
-            <thead>
-              <tr>
-                <th></th>
-                <th data-phrase="Playlist"></th>
-                <th data-phrase="Last modified"></th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody class="clickable">
-            </tbody>
-          </table>
-          <table id="BrowsePlaylistsDetailList" class="table table-hover table-sm hide">
-            <caption>Playlistname</caption>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th data-phrase="Title"></th>
-                <th data-phrase="Artist"></th>
-                <th data-phrase="Album"></th>
-                <th data-phrase="Duration"></th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody class="clickable">
-            </tbody>
-            <tfoot>
-            </tfoot>
-          </table>          
+          <div class="table-responsive-md">
+            <table id="BrowsePlaylistsListList" class="table table-hover table-sm">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th data-phrase="Playlist"></th>
+                  <th data-phrase="Last modified"></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody class="clickable">
+              </tbody>
+            </table>
+          </div>
+          <div class="btn-toolbar hide justify-content-between" id="BrowsePlaylistsListButtonsBottom"></div>
         </div>
-        <div class="btn-toolbar hide justify-content-between" id="BrowsePlaylistsButtonsBottom">
+        <div id="viewBrowsePlaylistsDetail">
+          <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsDetailButtons">
+            <div class="btn-group mr-2">
+              <button data-title-phrase="Playlists" data-href='{"cmd": "appGoto", "options": ["Browse", "Playlists", "List"]}' id="btnBrowsePlaylistsAll" type="button" class="btn btn-secondary"><span class="mi">apps</span></button>
+            </div>
+            <form id="searchPlaylistsDetail" class="flex-grow-1">
+              <div class="input-group mr-2">
+                <div class="input-group-prepend">
+                  <span class="input-group-text border-secondary text-light bg-secondary"><span class="mi">search</span></span>
+                </div>
+                <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchPlaylistsDetailStr"/>
+              </div>
+            </form>          
+            <div class="btn-group mr-2" id="playlistContentBtns">
+              <button data-title-phrase="Clear playlist" type="button" class="btn btn-secondary mi rounded-right mr-2" data-href='{"cmd": "showClearPlaylist", "options": []}'>clear_all</button>
+              <button data-href='{"cmd": "playlistShuffle", "options": []}' class="btn btn-secondary mi rounded mr-2" type="button" data-title-phrase="Shuffle playlist">shuffle</button>
+              <div class="btn-group mr-2">
+                <button data-title-phrase="Sort playlist" id="btnSortPlaylist" class="btn btn-secondary dropdown-toggle rounded-left" type="button" data-toggle="dropdown"><span class="mi">sort</span></button>
+                <div class="dropdown-menu bg-lite-dark px-2" id="dropdownSortPlaylist">
+                  <h2 class="dropdown-header text-light" data-phrase="Sort playlist"></h2>
+                  <div id="dropdownSortPlaylistTags">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="hide btn-group" id="smartPlaylistContentBtns">
+              <button data-title-phrase="Update smart playlist" type="button" class="btn btn-secondary mi rounded-right mr-2" data-href='{"cmd": "updateSmartPlaylistClick", "options": []}'>refresh</button>
+            </div>
+            <div class="btn-group mr-2 featHome">
+              <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+            </div>
+            <div id="BrowsePlaylistsDetailPaginationTop" class="btn-group mr-2 pagination hide">
+            </div>
+          </div>
+          <div class="table-responsive-md">
+            <table id="BrowsePlaylistsDetailList" class="table table-hover table-sm">
+              <caption>Playlistname</caption>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th data-phrase="Title"></th>
+                  <th data-phrase="Artist"></th>
+                  <th data-phrase="Album"></th>
+                  <th data-phrase="Duration"></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody class="clickable">
+              </tbody>
+              <tfoot>
+              </tfoot>
+            </table>          
+          </div>
+          <div class="btn-toolbar hide justify-content-between" id="BrowsePlaylistsDetailButtonsBottom"></div>
         </div>
       </div>
 
-      <div class="card-body hide" id="cardBrowseDatabase">
-        <div id="viewListDatabase">
+      <div class="card-body hide" id="tabBrowseDatabase">
+        <div id="viewBrowseDatabaseList">
           <div class="btn-toolbar card-toolbar" id="BrowseDatabaseButtons">
             <div class="btn-group mr-2">
               <button data-title-phrase="Select view" id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
@@ -423,7 +442,7 @@
             <div class="btn-group mr-2 featHome">
               <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
             </div>
-            <div id="BrowseDatabasePaginationTop" class="btn-group mr-2 pagination hide">
+            <div id="BrowseDatabaseListPaginationTop" class="btn-group mr-2 pagination hide">
             </div>
           </div>
           <ol class="featAdvsearch breadcrumb hide" id="searchDatabaseCrumb"></ol>
@@ -431,10 +450,10 @@
             <div id="BrowseDatabaseListList" class="row">
             </div>
           </div>
-          <div class="btn-toolbar hide justify-content-between" id="BrowseDatabaseButtonsBottom">
+          <div class="btn-toolbar hide justify-content-between" id="BrowseDatabaseListButtonsBottom">
           </div>
         </div>
-        <div id="viewDetailDatabase">
+        <div id="viewBrowseDatabaseDetail">
           <div class="btn-toolbar card-toolbar">
             <div class="input-group mr-2">
               <button class="btn btn-secondary mi" data-href='{"cmd": "backToAlbumGrid", "options": []}'>apps</button>
@@ -471,11 +490,11 @@
             </tbody>
             <tfoot>
             </tfoot>
-          </table>          
+          </table>
         </div>
       </div>
 
-      <div class="card-body hide" id="cardBrowseFilesystem">
+      <div class="card-body hide" id="tabBrowseFilesystem">
         <div class="btn-toolbar card-toolbar" id="BrowseFilesystemButtons">
           <div class="btn-group mr-2">
             <button data-title-phrase="Select view" id="BrowseNavFilesystem" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>

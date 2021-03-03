@@ -129,16 +129,6 @@ function initBrowse() {
         }
     }, false);
     
-    document.getElementById('searchPlaylistsStr').addEventListener('keyup', function(event) {
-        if (event.key === 'Escape') {
-            this.blur();
-        }
-        else {
-            appGoto(app.current.app, app.current.tab, app.current.view, 
-                '0', app.current.limit, app.current.filter, app.current.sort, '-', this.value);
-        }
-    }, false);
-
     document.getElementById('searchDatabaseStr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
             this.blur();

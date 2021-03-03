@@ -72,30 +72,17 @@ function webSocketConnect() {
     if (socket !== null && socket.readyState === WebSocket.OPEN) {
         logInfo('Socket already connected');
         websocketConnected = true;
-        socketRetry = 0;
         return;
     }
     else if (socket !== null && socket.readyState === WebSocket.CONNECTING) {
         logInfo('Socket connection in progress');
         websocketConnected = false;
-        socketRetry++;
-        if (socketRetry > 20) {
-            logError('Socket connection timed out');
-            webSocketClose();
-            setTimeout(function() {
-                webSocketConnect();
-            }, 1000);
-            socketRetry = 0;
-        }
         return;
     }
-    else {
-        websocketConnected = false;
-    }
-    
+
+    websocketConnected = false;  
     let wsUrl = getWsUrl();
     socket = new WebSocket(wsUrl);
-    socketRetry = 0;
     logInfo('Connecting to ' + wsUrl);
 
     try {
@@ -195,7 +182,7 @@ function webSocketConnect() {
             }
         };
 
-        socket.onclose = function(){
+        socket.onclose = function(event) {
             logError('Websocket is disconnected');
             websocketConnected = false;
             if (appInited === true) {
@@ -206,7 +193,7 @@ function webSocketConnect() {
             }
             else {
                 showAppInitAlert(t('Websocket connection failed'));
-                logError('Websocket connection failed.');
+                logError('Websocket connection failed: ' + event.code);
             }
             if (websocketTimer !== null) {
                 clearTimeout(websocketTimer);
@@ -218,6 +205,11 @@ function webSocketConnect() {
                 webSocketConnect();
             }, 3000);
             socket = null;
+        };
+        
+        socket.onerror = function(event) {
+            logError('Websocket error occured');
+            socket.close();
         };
 
     } catch(error) {

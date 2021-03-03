@@ -155,7 +155,7 @@ function showMenuTd(el) {
             addMenuItem({"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album]}, t('Replace queue')) +
             (settings.featPlaylists === true ? addMenuItem({"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, t('Add to playlist')) : '');
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'All') {
+    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
         menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
             (settings.smartpls === true && type === 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('Edit playlist')))+
