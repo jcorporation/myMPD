@@ -903,6 +903,12 @@ run_stylelint() {
   done
 }
 
+run_htmlhint() {
+  check_cmd htmlhint
+  echo "Linting htdocs/index.html"
+  htmlhint htdocs/index.html
+}
+
 case "$ACTION" in
 	release)
 	  buildrelease
@@ -999,6 +1005,9 @@ case "$ACTION" in
 	stylelint)
 	  run_stylelint
 	;;
+	htmlhint)
+	  run_htmlhint
+	;;
 	*)
 	  echo "Usage: $0 <option>"
 	  echo "Version: ${VERSION}"
@@ -1028,6 +1037,7 @@ case "$ACTION" in
 	  echo "                      - FLAWFINDEROPTS=\"-m3\""
 	  echo "  eslint:           combines javascript files and runs eslint"
 	  echo "  stylelint:        runs stylelint (lints css files)"
+	  echo "  htmlhint:         runs htmlhint (lints html files)"
 	  echo ""
 	  echo "Cleanup options:"
 	  echo "  cleanup:          cleanup source tree"
