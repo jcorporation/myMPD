@@ -1,35 +1,35 @@
+<!DOCTYPE html>
 <!--
  SPDX-License-Identifier: GPL-2.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 -->
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <title>myMPD</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <meta name="description" content="myMPD - fast and lightweight MPD webclient">
-  <meta name="author" content="mail@jcgames.de">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="theme-color" content="#343a40">
-<!--debug-->  <link href="css/bootstrap.css" rel="stylesheet">
-  <link href="assets/MaterialIcons-Regular.woff2" rel="preload" as="font" type="font/woff2" crossorigin="anonymous">
-<!--debug-->  <link href="css/mympd.css" rel="stylesheet">
-<!--debug-->  <link href="css/theme-dark.css" rel="stylesheet">
-<!--debug-->  <link href="css/theme-light.css" rel="stylesheet">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <meta name="description" content="myMPD - fast and lightweight MPD webclient"/>
+  <meta name="author" content="mail@jcgames.de"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+  <meta name="theme-color" content="#343a40"/>
+<!--debug-->  <link href="css/bootstrap.css" rel="stylesheet"/>
+  <link href="assets/MaterialIcons-Regular.woff2" rel="preload" as="font" type="font/woff2" crossorigin="anonymous"/>
+<!--debug-->  <link href="css/mympd.css" rel="stylesheet"/>
+<!--debug-->  <link href="css/theme-dark.css" rel="stylesheet"/>
+<!--debug-->  <link href="css/theme-light.css" rel="stylesheet"/>
 <!--release   <link href="css/combined.css" rel="stylesheet">-->
-  <link href="assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
-  <link href="mympd.webmanifest" rel="manifest" crossorigin="anonymous">
-  <link href="assets/appicon-192.png" rel="apple-touch-icon">
-  <link href="assets/appicon-192.png" rel="icon">
+  <link href="assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon"/>
+  <link href="mympd.webmanifest" rel="manifest" crossorigin="anonymous"/>
+  <link href="assets/appicon-192.png" rel="apple-touch-icon"/>
+  <link href="assets/appicon-192.png" rel="icon"/>
 </head>
 <body class="overflow-hidden">
   <!-- Splash screen -->
   <div id="splashScreen">
     <div id="splashScreenLogo">
-      <svg version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
+      <svg version="1.1" viewbox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
         <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
         <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
@@ -45,7 +45,7 @@
     <nav id="header" class="navbar navbar-expand navbar-dark fixed-top bg-dark d-flex justify-content-between">
       <div class="dropdown nav-item" id="headerLeft">
         <a class="dropdown-toggle alwaysEnabled" href="#" id="mainMenu" data-title-phrase="myMPD menu">
-          <svg version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
+          <svg version="1.1" viewbox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
             <ellipse id="logoBg" cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#6c757d"/>
             <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
             <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
@@ -658,7 +658,7 @@
               <div class="btn-group">
                 <button id="btnChVolumeDown" data-href='{"cmd": "volumeStep", "options": ["down"]}' class="btn btn-secondary">&minus;</button>
                   <div class="btn btn-secondary">
-                    <input type="range" min="0" max="100" step="1" class="form-control-range" id="volumeBar">
+                    <input type="range" min="0" max="100" step="1" class="form-control-range" id="volumeBar"/>
                   </div>
                 <button id="btnChVolumeUp" data-href='{"cmd": "volumeStep", "options": ["up"]}' class="btn btn-secondary">+</button>
               </div>
@@ -773,7 +773,7 @@
           <form id="renamePlaylistFrm">
             <div class="form-group">
               <label for="renamePlaylistFrom" data-phrase="From"></label>
-              <input type="text" class="form-control" id="renamePlaylistFrom" readonly>
+              <input type="text" class="form-control" id="renamePlaylistFrom" readonly="readonly"/>
             </div>
             <div class="form-group">
               <label for="renamePlaylistTo" data-phrase="To"></label>
@@ -809,7 +809,7 @@
             <div class="form-group row">
               <label class="col-sm-4 col-form-label" for="saveSmartPlaylistType" data-phrase="Type"></label>
               <div class="col-sm-8">
-                <input type="text" class="form-control" id="saveSmartPlaylistType" readonly/>
+                <input type="text" class="form-control" id="saveSmartPlaylistType" readonly="readonly"/>
                 <div class="invalid-feedback" data-phrase="Invalid type"></div>
               </div>
             </div>
@@ -916,14 +916,14 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="inputHighlightColor" data-phrase="Highlight color"></label>
                   <div class="col-sm-8">
-                    <input id="inputHighlightColor" type="color" class="form-control border-secondary" value="">
+                    <input id="inputHighlightColor" type="color" class="form-control border-secondary" value=""/>
                     <div class="invalid-feedback" data-phrase="Invalid color"></div>
                   </div>
                 </div>
                 <div class="form-group row featMobile">
                   <label class="col-sm-4 col-form-label" for="inputScaleRatio" data-phrase="Scale ratio"></label>
                   <div class="col-sm-8 ">
-                    <input id="inputScaleRatio" type="text" class="form-control border-secondary" value="" placeholder="1.0">
+                    <input id="inputScaleRatio" type="text" class="form-control border-secondary" value="" placeholder="1.0"/>
                     <div class="invalid-feedback" data-phrase="Invalid scale ratio"></div>
                   </div>
                 </div>
@@ -940,21 +940,21 @@
                   <div class="form-group row">
                     <label class="col-sm-4 col-form-label" for="inputCoverimageName" data-phrase="Name"></label>
                     <div class="col-sm-8 ">
-                      <input id="inputCoverimageName" type="text" class="form-control border-secondary" value="folder.jpg" data-placeholder-phrase="folder.jpg">
+                      <input id="inputCoverimageName" type="text" class="form-control border-secondary" value="folder.jpg" data-placeholder-phrase="folder.jpg"/>
                       <div class="invalid-feedback" data-phrase="Invalid filename"></div>
                     </div>
                   </div>
                   <div class="form-group row">
                     <label class="col-sm-4 col-form-label" for="inputCoverimageSize" data-phrase="Size normal"></label>
                     <div class="col-sm-8 ">
-                      <input id="inputCoverimageSize" type="text" class="form-control border-secondary" value="250" data-placeholder-phrase="Size in px">
+                      <input id="inputCoverimageSize" type="text" class="form-control border-secondary" value="250" data-placeholder-phrase="Size in px"/>
                       <div class="invalid-feedback" data-phrase="Invalid size"></div>
                     </div>
                   </div>
                   <div class="form-group row">
                     <label class="col-sm-4 col-form-label" for="inputCoverimageSizeSmall" data-phrase="Size small"></label>
                     <div class="col-sm-8 ">
-                      <input id="inputCoverimageSizeSmall" type="text" class="form-control border-secondary" value="190" data-placeholder-phrase="Size in px">
+                      <input id="inputCoverimageSizeSmall" type="text" class="form-control border-secondary" value="190" data-placeholder-phrase="Size in px"/>
                       <div class="invalid-feedback" data-phrase="Invalid size"></div>
                     </div>
                   </div>
@@ -964,7 +964,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="inputBgColor" data-phrase="Color"></label>
                   <div class="col-sm-8">
-                    <input id="inputBgColor" type="color" class="form-control border-secondary" value="">
+                    <input id="inputBgColor" type="color" class="form-control border-secondary" value=""/>
                     <div class="invalid-feedback" data-phrase="Invalid color"></div>
                   </div>
                 </div>
@@ -985,7 +985,7 @@
                     <label class="col-sm-4 col-form-label" for="inputBgCssFilter" data-phrase="CSS filter"></label>
                     <div class="col-sm-8 ">
                       <div class="input-group">
-                        <input id="inputBgCssFilter" type="text" class="form-control border-secondary" value="blur(5px)" placeholder="grayscale(100%) opacity(5%)">
+                        <input id="inputBgCssFilter" type="text" class="form-control border-secondary" value="blur(5px)" placeholder="grayscale(100%) opacity(5%)"/>
                         <div class="input-group-append">
                           <button data-href='{"cmd": "resetValue", "options": ["inputBgCssFilter"]}' data-title-phrase="Reset to default" class="btn btn-secondary"><span class="mi">undo</span></button>
                         </div>
@@ -1043,7 +1043,7 @@
                       <small class="mi mi-small ml-1" data-title-phrase="MaintainEnableTagsText">help</small>
                     </label>
                     <div class="col-sm-8 input-group">
-                      <input type="text" class="form-control border-secondary" id="inputEnabledTags" readonly/>
+                      <input type="text" class="form-control border-secondary" id="inputEnabledTags" readonly="readonly"/>
                       <div class="input-group-append">
                         <button id="btnEnabledTags" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
                         <div id="listEnabledTags" class="dropdown-menu px-2 mr-3"></div>
@@ -1053,7 +1053,7 @@
                   <div class="form-group row">
                     <label class="col-sm-4 col-form-label" for="btnSearchTags" data-phrase="Tags to search"></label>
                     <div class="col-sm-8 input-group">
-                      <input type="text" class="form-control border-secondary" id="inputSearchTags" readonly/>
+                      <input type="text" class="form-control border-secondary" id="inputSearchTags" readonly="readonly"/>
                       <div class="input-group-append">
                         <button id="btnSearchTags" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
                         <div id="listSearchTags" class="dropdown-menu px-2 mr-3"></div>
@@ -1063,7 +1063,7 @@
                   <div class="form-group row">
                     <label class="col-sm-4 col-form-label" for="btnBrowseTags" data-phrase="Tags to browse"></label>
                     <div class="col-sm-8 input-group">
-                      <input type="text" class="form-control border-secondary" id="inputBrowseTags" readonly/>
+                      <input type="text" class="form-control border-secondary" id="inputBrowseTags" readonly="readonly"/>
                       <div class="input-group-append">
                         <button id="btnBrowseTags" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
                         <div id="listBrowseTags" class="dropdown-menu px-2 mr-3"></div>
@@ -1083,7 +1083,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="inputLastPlayedCount" data-phrase="Last played list count"></label>
                   <div class="col-sm-8">
-                    <input id="inputLastPlayedCount" type="text" class="form-control border-secondary" value="">
+                    <input id="inputLastPlayedCount" type="text" class="form-control border-secondary" value=""/>
                     <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
                   </div>
                 </div>
@@ -1101,7 +1101,7 @@
                   <div class="form-group row featTags">
                     <label class="col-sm-4 col-form-label" for="btnGeneratePlsTags" data-phrase="Generate smart playlist per"></label>
                     <div class="col-sm-8 input-group">
-                      <input type="text" class="form-control border-secondary" id="inputGeneratePlsTags" readonly/>
+                      <input type="text" class="form-control border-secondary" id="inputGeneratePlsTags" readonly="readonly"/>
                       <div class="input-group-append">
                         <button id="btnGeneratePlsTags" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
                         <div id="listGeneratePlsTags" class="dropdown-menu px-2 mr-3"></div>
@@ -1146,7 +1146,7 @@
                       </select>
                     </div>                  
                     <div class="col-sm-8">
-                      <input id="inputStreamUrl" type="text" class="form-control border-secondary" value="">
+                      <input id="inputStreamUrl" type="text" class="form-control border-secondary" value=""/>
                       <div class="invalid-feedback" data-phrase="Invalid URI"></div>
                       <div id="infoLocalplayer" class="mt-2 alert alert-dark hide">
                         <span data-phrase="No mixed content,  MPD stream must be served over https:"></span>&nbsp;<a class="alert-link" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/myMPD/wiki/Local-playback" data-phrase="Details"></a>
@@ -1179,7 +1179,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="inputBookletName" data-phrase="Booklet filename"></label>
                   <div class="col-sm-8 ">
-                    <input id="inputBookletName" type="text" class="form-control border-secondary" value="">
+                    <input id="inputBookletName" type="text" class="form-control border-secondary" value=""/>
                     <div class="invalid-feedback" data-phrase="Invalid filename"></div>
                   </div>
                 </div>
@@ -1248,14 +1248,14 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="inputLoveChannel" data-phrase="MPD channel"></label>
                   <div class="col-sm-8">
-                    <input id="inputLoveChannel" type="text" class="form-control border-secondary" value="">
+                    <input id="inputLoveChannel" type="text" class="form-control border-secondary" value=""/>
                     <div class="invalid-feedback" data-phrase="Invalid channel name"></div>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="inputLoveMessage" data-phrase="Message"></label>
                   <div class="col-sm-8">
-                    <input id="inputLoveMessage" type="text" class="form-control border-secondary" value="">
+                    <input id="inputLoveMessage" type="text" class="form-control border-secondary" value=""/>
                     <div class="invalid-feedback" data-phrase="Invalid message"></div>
                   </div>
                 </div>
@@ -1324,7 +1324,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="inputCrossfade" data-phrase="Crossfade"></label>
                   <div class="col-sm-8">
-                    <input id="inputCrossfade" type="text" class="form-control border-secondary" value="">
+                    <input id="inputCrossfade" type="text" class="form-control border-secondary" value=""/>
                     <div class="invalid-feedback" data-phrase="Must be a number"></div>
                   </div>
                 </div>
@@ -1342,14 +1342,14 @@
                 <div class="form-group row featMixramp">
                   <label class="col-sm-4 col-form-label" for="inputMixrampdb" data-phrase="Mixramp DB"></label>
                   <div class="col-sm-8">
-                    <input id="inputMixrampdb" type="text" class="form-control border-secondary" value="">
+                    <input id="inputMixrampdb" type="text" class="form-control border-secondary" value=""/>
                     <div class="invalid-feedback" data-phrase="Must be a number"></div>
                   </div>
                 </div>
                 <div class="form-group row featMixramp">
                   <label class="col-sm-4 col-form-label" for="inputMixrampdelay" data-phrase="Mixramp delay"></label>
                   <div class="col-sm-8">
-                    <input id="inputMixrampdelay" type="text" class="form-control border-secondary" value="">
+                    <input id="inputMixrampdelay" type="text" class="form-control border-secondary" value=""/>
                     <div class="invalid-feedback" data-phrase="Must be a number"></div>
                   </div>
                 </div>
@@ -1386,7 +1386,7 @@
                   <div class="form-group row">
                     <label class="col-sm-4 col-form-label" for="inputJukeboxQueueLength" data-phrase="Keep queue length"></label>
                     <div class="col-sm-8">
-                      <input id="inputJukeboxQueueLength" type="text" class="form-control border-secondary" value="1">
+                      <input id="inputJukeboxQueueLength" type="text" class="form-control border-secondary" value="1"/>
                       <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
                     </div>
                   </div>
@@ -1400,7 +1400,7 @@
                   <div class="form-group row">
                     <label class="col-sm-4 col-form-label" for="inputJukeboxLastPlayed" data-phrase="Last played older than (hours)"></label>
                     <div class="col-sm-8">
-                      <input id="inputJukeboxLastPlayed" type="text" class="form-control border-secondary" value="24">
+                      <input id="inputJukeboxLastPlayed" type="text" class="form-control border-secondary" value="24"/>
                       <div class="invalid-feedback" data-phrase="Must be a number and equal or greater than zero"></div>
                     </div>
                   </div>
@@ -1436,7 +1436,7 @@
           <div class="tab-content">
             <div class="tab-pane active" id="tabAbout">
               <h4 class="mb-3">
-              <svg version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
+              <svg version="1.1" viewbox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
                 <ellipse cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
                 <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
                 <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
@@ -1592,7 +1592,7 @@
             <div class="row">
               <div class="form-group col-md-6">
                 <label class="control-label" for="inputAddToQueueQuantity" data-phrase="Quantity"></label>
-                <input id="inputAddToQueueQuantity" type="text" class="form-control border-secondary" value="1">
+                <input id="inputAddToQueueQuantity" type="text" class="form-control border-secondary" value="1"/>
                 <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
               </div>
             </div>
@@ -1626,7 +1626,7 @@
               </div>
               <div class="form-group col-md-9">
                 <label class="control-label" for="saveBookmarkUri" data-phrase="Bookmark URI"></label>
-                <input type="text" class="form-control" id="saveBookmarkUri" readonly/>
+                <input type="text" class="form-control" id="saveBookmarkUri" readonly="readonly"/>
               </div>
             </div>
           </form>
@@ -1767,7 +1767,7 @@
                   </select>
                 </div>
                 <div class="col-sm-2">
-                  <input type="text" class="form-control border-secondary hide" id="inputTimerInterval">
+                  <input type="text" class="form-control border-secondary hide" id="inputTimerInterval"/>
                   <div id="invalidTimerInterval" class="invalid-feedback" data-phrase="Invalid timer interval"></div>
                 </div>
                 <label id="inputTimerIntervalLabel" class="col-sm-2 col-form-label hide" for="selectInputInterval" data-phrase="hours"></label>
@@ -1784,7 +1784,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="inputTimerVolume" data-phrase="Volume"></label>
                   <div class="col-sm-7 mt-2">
-                    <input type="range" min="0" max="100" step="1" class="form-control-range" id="inputTimerVolume">
+                    <input type="range" min="0" max="100" step="1" class="form-control-range" id="inputTimerVolume"/>
                   </div>
                   <div class="col-sm-1 mt-2 pl-0 text-right" id="textTimerVolume">
                     50&nbsp;%
@@ -1928,7 +1928,7 @@
             <div class="form-group row">
               <label class="col-sm-4 col-form-label" for="modalExecScriptScriptname" data-phrase="Script"></label>
               <div class="col-sm-8">
-                <input id="modalExecScriptScriptname" type="text" class="form-control border-secondary" value="" readonly>
+                <input id="modalExecScriptScriptname" type="text" class="form-control border-secondary" value="" readonly="readonly"/>
               </div>
             </div>
             <hr/>
@@ -2211,8 +2211,8 @@
         </div>
         <div class="modal-body">
           <form id="editHomeIconForm">
-            <input type="hidden" id="inputHomeIconReplace">
-            <input type="hidden" id="inputHomeIconOldpos">
+            <input type="hidden" id="inputHomeIconReplace"/>
+            <input type="hidden" id="inputHomeIconOldpos"/>
             <div class="form-group row">
               <label class="col-sm-4 col-form-label" for="inputHomeIconName" data-phrase="Name"></label>
               <div class="col-sm-8">
@@ -2229,7 +2229,7 @@
               <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="inputHomeIconLigature" data-phrase="Ligature"></label>
                 <div class="col-sm-8 input-group">
-                  <input type="text" class="form-control border-secondary" id="inputHomeIconLigature" readonly/>
+                  <input type="text" class="form-control border-secondary" id="inputHomeIconLigature" readonly="readonly"/>
                   <div class="input-group-append">
                     <button id="btnHomeIconLigature" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
                     <div id="dropdownHomeIconLigature" class="dropdown-menu px-2">
