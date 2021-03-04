@@ -50,21 +50,20 @@ static const char *_id3_field_getlanguage(union id3_field const *field);
 //public functions
 sds mpd_client_lyrics_get(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
     if (is_streamuri(uri) == true) {
+        MYMPD_LOG_ERROR("Can not get lyrics for stream uri");
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "lyrics", "error", "Can not get lyrics for stream uri");
         return buffer;
     }
     if (mpd_client_state->feat_library == false) {
-        MYMPD_LOG_DEBUG("No lyrics file found, no access to music directory");
+        MYMPD_LOG_DEBUG("Can not get lyrics, no access to music directory");
         buffer = jsonrpc_respond_message(buffer, method, request_id, false, "lyrics", "info", "No lyrics found");
         return buffer;
     }
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    int returned_entities = 0;
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mpd_client_state->music_directory_value, uri);
     sds mime_type_mediafile = get_mime_type_by_ext(mediafile);
-    MYMPD_LOG_DEBUG("Absolut media_file: %s (%s)", mediafile, mime_type_mediafile);
-    returned_entities = _mpd_client_lyrics_synced(config, &buffer, returned_entities, mediafile, mime_type_mediafile);
+    int returned_entities = _mpd_client_lyrics_synced(config, &buffer, 0, mediafile, mime_type_mediafile);
     returned_entities = _mpd_client_lyrics_unsynced(config, &buffer, returned_entities, mediafile, mime_type_mediafile);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
@@ -79,7 +78,6 @@ static int _mpd_client_lyrics_unsynced(t_config *config, sds *buffer, int return
     //try .txt file in folder in the music directory
     returned_entities = lyrics_fromfile(buffer, mediafile, config->uslt_ext, false, returned_entities);
     //get embedded lyrics
-    MYMPD_LOG_DEBUG("Getting embedded unsynced lyrics from %s", mediafile);
     if (strcmp(mime_type_mediafile, "audio/mpeg") == 0) {
         returned_entities = lyricsextract_unsynced_id3(buffer, mediafile, returned_entities);
     }
@@ -96,7 +94,6 @@ static int _mpd_client_lyrics_synced(t_config *config, sds *buffer, int returned
     //try .lrc file in folder in the music directory
     returned_entities = lyrics_fromfile(buffer, mediafile, config->sylt_ext, true, returned_entities);
     //get embedded lyrics
-    MYMPD_LOG_DEBUG("Getting embedded synced lyrics from %s", mediafile);
     if (strcmp(mime_type_mediafile, "audio/mpeg") == 0) {
         returned_entities = lyricsextract_synced_id3(buffer, mediafile, returned_entities);
     }
@@ -141,8 +138,12 @@ static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool syn
         returned_entities++;
     }
     else {
-        MYMPD_LOG_DEBUG("No lyrics file found in music directory");
-        return returned_entities;
+        if (errno == ENOENT) {
+            MYMPD_LOG_DEBUG("No lyrics file found in music directory");
+        }
+        else {
+            MYMPD_LOG_ERROR("Error opening lyrics file \"%s\": %s", mediafile, strerror(errno));
+        }
     }
     return returned_entities;
 }
@@ -150,7 +151,7 @@ static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool syn
 static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_entities) {
     int i = 0;
     #ifdef ENABLE_LIBID3TAG
-    MYMPD_LOG_DEBUG("Exctracting lyrics from %s", media_file);
+    MYMPD_LOG_DEBUG("Exctracting unsynced lyrics from %s", media_file);
     struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
     if (file_struct == NULL) {
         MYMPD_LOG_ERROR("Can't parse id3_file: %s", media_file);
@@ -200,10 +201,10 @@ static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_
             FREE_PTR(uslt_text_utf8);
             *buffer = sdscatlen(*buffer, "}", 1);
             returned_entities++;
-            MYMPD_LOG_DEBUG("Lyrics successfully extracted");
+            MYMPD_LOG_DEBUG("Unsynced lyrics successfully extracted");
         }
         else {
-            MYMPD_LOG_DEBUG("Can not read embedded lyrics");
+            MYMPD_LOG_DEBUG("Can not read embedded unsynced lyrics");
             break;
         }
         i++;
@@ -211,7 +212,7 @@ static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_
     id3_file_close(file_struct);
     
     if (i == 0) {
-        MYMPD_LOG_DEBUG("No embedded lyrics detected");
+        MYMPD_LOG_DEBUG("No embedded unsynced lyrics detected");
     }
     #else
     (void) media_file;
@@ -222,7 +223,7 @@ static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_
 static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_entities) {
     int i = 0;
     #ifdef ENABLE_LIBID3TAG
-    MYMPD_LOG_DEBUG("Exctracting lyrics from %s", media_file);
+    MYMPD_LOG_DEBUG("Exctracting synced lyrics from %s", media_file);
     struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
     if (file_struct == NULL) {
         MYMPD_LOG_ERROR("Can't parse id3_file: %s", media_file);
@@ -284,17 +285,17 @@ static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_en
             sdsfree(text);
             *buffer = sdscatlen(*buffer, "}", 1);
             returned_entities++;
-            MYMPD_LOG_DEBUG("Lyrics successfully extracted");
+            MYMPD_LOG_DEBUG("Synced lyrics successfully extracted");
         }
         else {
-            MYMPD_LOG_DEBUG("Can not read embedded lyrics");
+            MYMPD_LOG_DEBUG("Can not read embedded synced lyrics");
             break;
         }
         i++;
     }
     id3_file_close(file_struct);
     if (i == 0) {
-        MYMPD_LOG_DEBUG("No embedded lyrics detected");
+        MYMPD_LOG_DEBUG("No embedded synced lyrics detected");
     }
     #else
     (void) media_file;
