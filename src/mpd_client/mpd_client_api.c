@@ -86,30 +86,6 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                 }
             }
             break;
-        case MPD_API_LYRICS_UNSYNCED_GET:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                if (p_charbuf1 == NULL || validate_uri(p_charbuf1) == false) {
-                    MYMPD_LOG_ERROR("Invalid URI: %s", p_charbuf1);
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "lyrics", "error", "Invalid uri");
-                }
-                else {
-                    response->data = mpd_client_lyrics_unsynced(config, mpd_client_state, response->data, request->method, request->id, p_charbuf1);
-                }
-            }
-            break;
-        case MPD_API_LYRICS_SYNCED_GET:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                if (p_charbuf1 == NULL || validate_uri(p_charbuf1) == false) {
-                    MYMPD_LOG_ERROR("Invalid URI: %s", p_charbuf1);
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "lyrics", "error", "Invalid uri");
-                }
-                else {
-                    response->data = mpd_client_lyrics_synced(config, mpd_client_state, response->data, request->method, request->id, p_charbuf1);
-                }
-            }
-            break;
         case MPD_API_STATE_SAVE:
             mpd_client_last_played_list_save(config, mpd_client_state);
             triggerfile_save(config, mpd_client_state);

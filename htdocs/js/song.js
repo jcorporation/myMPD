@@ -229,7 +229,7 @@ function getLyrics(uri, el) {
                 }
                 lyricsHeader += '<label data-num="' + i + '" class="btn btn-sm btn-outline-secondary mr-2' + (i === 0 ? ' active' : '') + '">' + ht + '</label>';
                 lyrics += '<div class="lyricsText' + (i > 0 ? ' hide' : '') + '">' +
-                    (obj.result.synced === true ? parseSyncedLyrics(obj.result.data[i].text, clickable) : e(obj.result.data[i].text).replace(/\n/g, "<br/>")) + 
+                    (obj.result.data[i].synced === true ? parseSyncedLyrics(obj.result.data[i].text, clickable) : e(obj.result.data[i].text).replace(/\n/g, "<br/>")) + 
                     '</div>';
             }
             lyricsHeader += '</span>';
