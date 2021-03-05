@@ -216,6 +216,7 @@ function getLyrics(uri, el) {
             let lyricsHeader = '<span class="lyricsHeader" class="btn-group-toggle" data-toggle="buttons">';
             let lyrics = '<div class="lyricsTextContainer">';
             const clickable = el.parentNode.getAttribute('id') === 'currentLyrics' ? true : false;
+            showSyncedLyrics = false;
             for (let i = 0; i < obj.result.returnedEntities; i++) {
                 let ht = obj.result.data[i].desc;
                 if (ht !== '' && obj.result.data[i].lang !== '') {
@@ -228,13 +229,15 @@ function getLyrics(uri, el) {
                     ht = i;
                 }
                 lyricsHeader += '<label data-num="' + i + '" class="btn btn-sm btn-outline-secondary mr-2' + (i === 0 ? ' active' : '') + '">' + ht + '</label>';
-                lyrics += '<div class="lyricsText' + (i > 0 ? ' hide' : '') + '">' +
+                lyrics += '<div class="lyricsText ' + (i > 0 ? 'hide' : '') + (obj.result.data[i].synced === true ? 'lyricsSyncedText' : '') + '">' +
                     (obj.result.data[i].synced === true ? parseSyncedLyrics(obj.result.data[i].text, clickable) : e(obj.result.data[i].text).replace(/\n/g, "<br/>")) + 
                     '</div>';
+                if (obj.result.data[i].synced === true) {
+                    showSyncedLyrics = true;
+                }
             }
             lyricsHeader += '</span>';
             lyrics += '</div>';
-            showSyncedLyrics = obj.result.synced;
             if (obj.result.returnedEntities > 1) {
                 el.innerHTML = lyricsHeader + lyrics;
                 el.getElementsByClassName('lyricsHeader')[0].addEventListener('click', function(event) {
@@ -258,7 +261,7 @@ function getLyrics(uri, el) {
                 el.innerHTML = lyrics;
             }
             if (showSyncedLyrics === true && clickable === true) {
-                const textEls = el.getElementsByClassName('lyricsText');
+                const textEls = el.getElementsByClassName('lyricsSyncedText');
                 for (let i = 0; i < textEls.length; i++) {
                     textEls[i].addEventListener('click', function(event) {
                         const sec = event.target.getAttribute('data-sec');

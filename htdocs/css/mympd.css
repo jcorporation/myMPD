@@ -888,19 +888,16 @@ a.text-success:focus {
   margin-bottom: 0;
 }
 
-#lyricsText {
+.lyricsText {
   padding-bottom: 1rem;
   padding-left: 0.2rem;
+  overflow-y: auto;
+  max-height: 12rem;
 }
 
 .rounded-right-0 {
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
-}
-
-#currentLyrics > p {
-  overflow-y: auto;
-  max-height: 12rem;
 }
 
 #currentLyrics > p.expanded {

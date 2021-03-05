@@ -889,18 +889,6 @@ function parseMPDSettings() {
         if (lastSongObj !== null) {
             setPlaybackCardTags(lastSongObj);
         }
-        //click on lyrics header to expand lyrics text container
-        let cl = document.getElementById('currentLyrics');
-        if (cl) {
-            let el = cl.getElementsByTagName('small')[0];
-            el.classList.add('clickable');
-            el.addEventListener('click', function(event) {
-                event.target.parentNode.children[1].classList.toggle('expanded');
-            }, false);
-            if (lastSongObj.uri) {
-                getLyrics(lastSongObj.uri, cl.getElementsByTagName('p')[0]);
-            }
-        }
     }
 
     if (settings.tags.includes('Title')) {
