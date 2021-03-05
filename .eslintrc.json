@@ -18,7 +18,7 @@
     "rules": {
         "no-console": "off",
         "no-eval": "error",
-        "eqeqeq": ["error", "always", { "null": "ignore" }],
+        "eqeqeq": ["error", "always", {"null": "ignore"}],
         "no-shadow-restricted-names": "error",
         "block-scoped-var": "error",
         "no-alert": "error",
@@ -34,6 +34,9 @@
         "no-return-assign": "error",
         "no-restricted-properties": "error",
         "no-invalid-this": "error",
-        "default-case-last": "error"
+        "default-case-last": "error",
+        "no-var": "error",
+        "prefer-const": "error",
+        "camelcase": "error"
     }
 }
