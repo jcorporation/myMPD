@@ -40,7 +40,7 @@ function focusTable(rownr, table) {
     }
 
     if (table !== null) {
-        let sel = table.getElementsByClassName('selected');
+        const sel = table.getElementsByClassName('selected');
         if (rownr === undefined) {
             if (sel.length === 0) {
                 let row = table.getElementsByTagName('tbody')[0].rows[0];
@@ -64,8 +64,8 @@ function focusTable(rownr, table) {
             if (sel && sel.length > 0) {
                 sel[0].classList.remove('selected');
             }
-            let rows = table.getElementsByTagName('tbody')[0].rows;
-            let rowsLen = rows.length;
+            const rows = table.getElementsByTagName('tbody')[0].rows;
+            const rowsLen = rows.length;
             if (rowsLen < rownr) {
                 rownr = 0;
             }
@@ -79,16 +79,16 @@ function focusTable(rownr, table) {
 }
 
 function scrollFocusIntoView() {
-    let el = document.activeElement;
-    let posY = el.getBoundingClientRect().top;
-    let height = el.offsetHeight;
+    const el = document.activeElement;
+    const posY = el.getBoundingClientRect().top;
+    const height = el.offsetHeight;
     let headerHeight = el.parentNode.parentNode.offsetTop;
     if (window.innerHeight > window.innerWidth) {
         headerHeight += document.getElementById('header').offsetHeight;
     }
-    let footerHeight = document.getElementsByTagName('footer')[0].offsetHeight;
-    let parentHeight = window.innerHeight - headerHeight - footerHeight;
-    let treshold = height / 2;
+    const footerHeight = document.getElementsByTagName('footer')[0].offsetHeight;
+    const parentHeight = window.innerHeight - headerHeight - footerHeight;
+    const treshold = height / 2;
     //console.log('posY: ' + posY);
     //console.log('height: ' + height);
     //console.log('treshold: ' + treshold);
@@ -106,7 +106,7 @@ function scrollFocusIntoView() {
 }
 
 function navigateTable(table, keyCode) {
-    let cur = document.activeElement;
+    const cur = document.activeElement;
     if (cur) {
         let next = null;
         let handled = false;
@@ -131,7 +131,7 @@ function navigateTable(table, keyCode) {
             handled = true;
         }
         else if (keyCode === ' ') {
-            let popupBtn = cur.lastChild.firstChild;
+            const popupBtn = cur.lastChild.firstChild;
             if (popupBtn.nodeName === 'A') {
                 popupBtn.click();
             }
@@ -160,7 +160,7 @@ function navigateTable(table, keyCode) {
 }
 
 function dragAndDropTable(table) {
-    let tableBody = document.getElementById(table).getElementsByTagName('tbody')[0];
+    const tableBody = document.getElementById(table).getElementsByTagName('tbody')[0];
     tableBody.addEventListener('dragstart', function(event) {
         if (event.target.nodeName === 'TR') {
             event.target.classList.add('opacity05');
@@ -188,8 +188,8 @@ function dragAndDropTable(table) {
         if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
-        let tr = tableBody.getElementsByClassName('dragover');
-        let trLen = tr.length;
+        const tr = tableBody.getElementsByClassName('dragover');
+        const trLen = tr.length;
         for (let i = 0; i < trLen; i++) {
             tr[i].classList.remove('dragover');
         }
@@ -207,8 +207,8 @@ function dragAndDropTable(table) {
         if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
-        let tr = tableBody.getElementsByClassName('dragover');
-        let trLen = tr.length;
+        const tr = tableBody.getElementsByClassName('dragover');
+        const trLen = tr.length;
         for (let i = 0; i < trLen; i++) {
             tr[i].classList.remove('dragover');
         }
@@ -227,13 +227,13 @@ function dragAndDropTable(table) {
         if (event.target.nodeName === 'TD') {
             target = event.target.parentNode;
         }
-        let oldSongpos = getAttDec(document.getElementById(event.dataTransfer.getData('Text')), 'data-songpos');
-        let newSongpos = getAttDec(target, 'data-songpos');
+        const oldSongpos = getAttDec(document.getElementById(event.dataTransfer.getData('Text')), 'data-songpos');
+        const newSongpos = getAttDec(target, 'data-songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.classList.remove('opacity05');
         tableBody.insertBefore(dragEl, target);
-        let tr = tableBody.getElementsByClassName('dragover');
-        let trLen = tr.length;
+        const tr = tableBody.getElementsByClassName('dragover');
+        const trLen = tr.length;
         for (let i = 0; i < trLen; i++) {
             tr[i].classList.remove('dragover');
         }
@@ -280,8 +280,8 @@ function dragAndDropTableHeader(table) {
         if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
-        let th = tableHeader.getElementsByClassName('dragover-th');
-        let thLen = th.length;
+        const th = tableHeader.getElementsByClassName('dragover-th');
+        const thLen = th.length;
         for (let i = 0; i < thLen; i++) {
             th[i].classList.remove('dragover-th');
         }
@@ -295,8 +295,8 @@ function dragAndDropTableHeader(table) {
         if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
-        let th = tableHeader.getElementsByClassName('dragover-th');
-        let thLen = th.length;
+        const th = tableHeader.getElementsByClassName('dragover-th');
+        const thLen = th.length;
         for (let i = 0; i < thLen; i++) {
             th[i].classList.remove('dragover-th');
         }
@@ -314,8 +314,8 @@ function dragAndDropTableHeader(table) {
         this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').remove();
         dragEl.classList.remove('opacity05');
         tableHeader.insertBefore(dragEl, event.target);
-        let th = tableHeader.getElementsByClassName('dragover-th');
-        let thLen = th.length;
+        const th = tableHeader.getElementsByClassName('dragover-th');
+        const thLen = th.length;
         for (let i = 0; i < thLen; i++) {
             th[i].classList.remove('dragover-th');
         }
@@ -330,7 +330,7 @@ function dragAndDropTableHeader(table) {
 }
 
 function setColTags(table) {
-    let tags = settings.tags.slice();
+    const tags = settings.tags.slice();
     if (settings.featTags === false) {
         tags.push('Title');
     }
@@ -364,7 +364,7 @@ function setColTags(table) {
 
 function setColsChecklist(table) {
     let tagChks = '';
-    let tags = setColTags(table);
+    const tags = setColTags(table);
     for (let i = 0; i < tags.length; i++) {
         if (table === 'Playback' && tags[i] === 'Title') {
             continue;
@@ -385,7 +385,7 @@ function setColsChecklist(table) {
 }
 
 function setCols(table) {
-    let colsChkList = document.getElementById(table + 'ColsDropdown');
+    const colsChkList = document.getElementById(table + 'ColsDropdown');
     if (colsChkList) {
         colsChkList.firstChild.innerHTML = setColsChecklist(table);
     }
@@ -433,7 +433,7 @@ function setCols(table) {
 }
 
 function saveCols(table, tableEl) {
-    let colsDropdown = document.getElementById(table + 'ColsDropdown');
+    const colsDropdown = document.getElementById(table + 'ColsDropdown');
     let header;
     if (tableEl === undefined) {
         header = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
@@ -445,7 +445,7 @@ function saveCols(table, tableEl) {
         header = tableEl.getElementsByTagName('tr')[0];
     }
     if (colsDropdown) {
-        let colInputs = colsDropdown.firstChild.getElementsByTagName('button');
+        const colInputs = colsDropdown.firstChild.getElementsByTagName('button');
         for (let i = 0; i < colInputs.length; i++) {
             if (colInputs[i].getAttribute('name') === null) {
                 continue;
@@ -465,10 +465,10 @@ function saveCols(table, tableEl) {
         }
     }
     
-    let params = {"table": "cols" + table, "cols": []};
-    let ths = header.getElementsByTagName('th');
+    const params = {"table": "cols" + table, "cols": []};
+    const ths = header.getElementsByTagName('th');
     for (let i = 0; i < ths.length; i++) {
-        let name = ths[i].getAttribute('data-col');
+        const name = ths[i].getAttribute('data-col');
         if (name !== 'Action' && name !== null) {
             params.cols.push(name);
         }
@@ -478,8 +478,8 @@ function saveCols(table, tableEl) {
 
 //eslint-disable-next-line no-unused-vars
 function saveColsPlayback(table) {
-    let colInputs = document.getElementById(table + 'ColsDropdown').firstChild.getElementsByTagName('button');
-    let header = document.getElementById('cardPlaybackTags');
+    const colInputs = document.getElementById(table + 'ColsDropdown').firstChild.getElementsByTagName('button');
+    const header = document.getElementById('cardPlaybackTags');
 
     for (let i = 0; i < colInputs.length -1; i++) {
         let th = document.getElementById('current' + colInputs[i].name);
@@ -497,10 +497,10 @@ function saveColsPlayback(table) {
         }
     }
     
-    let params = {"table": "cols" + table, "cols": []};
-    let ths = header.getElementsByTagName('div');
+    const params = {"table": "cols" + table, "cols": []};
+    const ths = header.getElementsByTagName('div');
     for (let i = 0; i < ths.length; i++) {
-        let name = getAttDec(ths[i], 'data-tag');
+        const name = getAttDec(ths[i], 'data-tag');
         if (name) {
             params.cols.push(name);
         }
@@ -509,7 +509,7 @@ function saveColsPlayback(table) {
 }
 
 function replaceTblRow(row, el) {
-    let menuEl = row.querySelector('[data-popover]');
+    const menuEl = row.querySelector('[data-popover]');
     let result = false;
     if (menuEl) {
         hideMenu();
@@ -608,7 +608,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             tbody.append(row);
         }
     }
-    let trLen = tr.length - 1;
+    const trLen = tr.length - 1;
     for (let i = trLen; i >= nrItems + z; i --) {
         tr[i].remove();
     }

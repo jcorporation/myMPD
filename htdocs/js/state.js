@@ -19,11 +19,18 @@ function parseStats(obj) {
 }
 
 function getServerinfo() {
-    let ajaxRequest=new XMLHttpRequest();
+    const ajaxRequest=new XMLHttpRequest();
     ajaxRequest.open('GET', subdir + '/api/serverinfo', true);
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {
-            let obj = JSON.parse(ajaxRequest.responseText);
+            let obj;
+            try {
+                obj = JSON.parse(ajaxRequest.responseText);
+            }
+            catch(error) {
+                showNotification(t('Can not parse response to json object'), '', 'general', 'error');
+                logError('Can not parse response to json object:' + ajaxRequest.responseText);
+            }
             document.getElementById('wsIP').innerText = obj.result.ip;
             document.getElementById('wsMongooseVersion').innerText = obj.result.version;
         }
@@ -90,12 +97,12 @@ function showListOutputAttributes(outputName) {
 
 //eslint-disable-next-line no-unused-vars
 function saveOutputAttributes() {
-    let params = {};
+    const params = {};
     params.outputId =  parseInt(document.getElementById('modalOutputAttributesId').value);
     params.attributes = {};
-    let el = document.getElementById('outputAttributesList').getElementsByTagName('input');
-    for (let i = 0; i < el.length; i++) {
-        params.attributes[el[i].name] = el[i].value;
+    const els = document.getElementById('outputAttributesList').getElementsByTagName('input');
+    for (let i = 0; i < els.length; i++) {
+        params.attributes[els[i].name] = els[i].value;
     }
     sendAPI('MPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET', params);
     modalOutputAttributes.hide();
@@ -124,19 +131,19 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
         domCache.progress.style.cursor = 'pointer';
     }
 
-    let counterText = beautifySongDuration(elapsedTime) + "&nbsp;/&nbsp;" + beautifySongDuration(totalTime);
+    const counterText = beautifySongDuration(elapsedTime) + "&nbsp;/&nbsp;" + beautifySongDuration(totalTime);
     domCache.counter.innerHTML = counterText;
     
     //Set playing track in queue view
     if (lastState) {
         if (lastState.currentSongId !== currentSongId) {
-            let tr = document.getElementById('queueTrackId' + lastState.currentSongId);
+            const tr = document.getElementById('queueTrackId' + lastState.currentSongId);
             if (tr) {
-                let durationTd = tr.querySelector('[data-col=Duration]');
+                const durationTd = tr.querySelector('[data-col=Duration]');
                 if (durationTd) {
                     durationTd.innerText = getAttDec(tr, 'data-duration');
                 }
-                let posTd = tr.querySelector('[data-col=Pos]');
+                const posTd = tr.querySelector('[data-col=Pos]');
                 if (posTd) {
                     posTd.classList.remove('mi');
                     posTd.innerText = getAttDec(tr, 'data-songpos');
@@ -145,13 +152,13 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
             }
         }
     }
-    let tr = document.getElementById('queueTrackId' + currentSongId);
+    const tr = document.getElementById('queueTrackId' + currentSongId);
     if (tr) {
-        let durationTd = tr.querySelector('[data-col=Duration]');
+        const durationTd = tr.querySelector('[data-col=Duration]');
         if (durationTd) {
             durationTd.innerHTML = counterText;
         }
-        let posTd = tr.querySelector('[data-col=Pos]');
+        const posTd = tr.querySelector('[data-col=Pos]');
         if (posTd) {
             if (!posTd.classList.contains('mi')) {
                 posTd.classList.add('mi');
@@ -182,7 +189,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     }
     if (playstate === 'play') {
         progressTimer = setTimeout(function() {
-            currentSong.elapsedTime ++;
+            currentSong.elapsedTime++;
             requestAnimationFrame(function() {
                 setCounter(currentSong.currentSongId, currentSong.totalTime, currentSong.elapsedTime);
             });
@@ -224,13 +231,13 @@ function parseState(obj) {
         if (settings.bgCover === true) {
             clearBackgroundImage();
         }
-        let pb = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
+        const pb = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
         for (let i = 0; i < pb.length; i++) {
             pb[i].innerText = '';
         }
     }
     else {
-        let cff = document.getElementById('currentFileformat');
+        const cff = document.getElementById('currentFileformat');
         if (cff) {
             cff.getElementsByTagName('p')[0].innerText = fileformat(obj.result.audioFormat);
         }
@@ -301,7 +308,7 @@ function setBackgroundImage(url) {
 }
 
 function clearBackgroundImage() {
-    let old = document.querySelectorAll('.albumartbg');
+    const old = document.querySelectorAll('.albumartbg');
     for (let i = 0; i < old.length; i++) {
         if (old[i].style.zIndex === '-10') {
             old[i].remove();        
@@ -323,7 +330,7 @@ function _setCurrentCover(url, el) {
         clearCurrentCover();
         return;
     }
-    let old = el.querySelectorAll('.coverbg');
+    const old = el.querySelectorAll('.coverbg');
     for (let i = 0; i < old.length; i++) {
         if (old[i].style.zIndex === '2') {
             old[i].remove();        
@@ -333,14 +340,14 @@ function _setCurrentCover(url, el) {
         }
     }
 
-    let div = document.createElement('div');
+    const div = document.createElement('div');
     div.classList.add('coverbg', 'carousel');
     div.style.backgroundImage = 'url("' + subdir + '/albumart/' + url + '")';
     div.style.opacity = 0;
     setAttEnc(div, 'data-uri', url);
     el.insertBefore(div, el.firstChild);
 
-    let img = new Image();
+    const img = new Image();
     img.onload = function() {
         el.querySelector('.coverbg').style.opacity = 1;
     };
@@ -353,7 +360,7 @@ function clearCurrentCover() {
 }
 
 function _clearCurrentCover(el) {
-    let old = el.querySelectorAll('.coverbg');
+    const old = el.querySelectorAll('.coverbg');
     for (let i = 0; i < old.length; i++) {
         if (old[i].style.zIndex === '2') {
             old[i].remove();        
@@ -366,7 +373,7 @@ function _clearCurrentCover(el) {
 }
 
 function songChange(obj) {
-    let curSong = obj.result.Title + ':' + obj.result.Artist + ':' + obj.result.Album + ':' + obj.result.uri + ':' + obj.result.currentSongId;
+    const curSong = obj.result.Title + ':' + obj.result.Artist + ':' + obj.result.Album + ':' + obj.result.uri + ':' + obj.result.currentSongId;
     if (lastSong === curSong) {
         return;
     }
@@ -486,7 +493,7 @@ function songChange(obj) {
 
 function setPlaybackCardTags(songObj) {
     for (const col of settings.colsPlayback) {
-        let c = document.getElementById('current' + col);
+        const c = document.getElementById('current' + col);
         if (c && col === 'Lyrics') {
             getLyrics(songObj.uri, c.getElementsByTagName('p')[0]);
         }
@@ -517,8 +524,7 @@ function gotoTagList() {
 
 //eslint-disable-next-line no-unused-vars
 function volumeStep(dir) {
-    let inc = dir === 'up' ? settings.volumeStep : 0 - settings.volumeStep;
-    chVolume(inc);
+    chVolume(dir === 'up' ? settings.volumeStep : 0 - settings.volumeStep);
 }
 
 function chVolume(increment) {
@@ -567,10 +573,8 @@ function mediaSessionSetState() {
 
 function mediaSessionSetMetadata(title, artist, album, url) {
     if (settings.mediaSession === true && 'mediaSession' in navigator) {
-        let hostname = window.location.hostname;
-        let protocol = window.location.protocol;
-        let port = window.location.port;
-        let artwork = protocol + '//' + hostname + (port !== '' ? ':' + port : '') + subdir + '/albumart/' + url;
+        const artwork = window.location.protocol + '//' + window.location.hostname + 
+            (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart/' + url;
 
         if (settings.coverimage === true) {
             //eslint-disable-next-line no-undef

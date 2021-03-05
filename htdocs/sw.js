@@ -2,9 +2,9 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-var CACHE = 'myMPD-cache-v6.12.0';
-var subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
-var urlsToCache = [
+const CACHE = 'myMPD-cache-v6.12.0';
+const subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
+const urlsToCache = [
     subdir + '/',
     subdir + '/css/combined.css',
     subdir + '/js/combined.js',
@@ -18,7 +18,7 @@ var urlsToCache = [
     subdir + '/assets/MaterialIcons-Regular.woff2'
 ];
 
-var ignoreRequests = new RegExp('(' + [
+const ignoreRequests = new RegExp('(' + [
   subdir + '/api',
   subdir + '/ca.crt',
   subdir + '/ws',

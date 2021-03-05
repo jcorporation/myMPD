@@ -210,11 +210,11 @@ function initBrowse() {
 
     document.getElementById('BrowseFilesystemBookmarks').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
-            let id = getAttDec(event.target.parentNode.parentNode, 'data-id');
-            let type = getAttDec(event.target.parentNode.parentNode, 'data-type');
-            let uri = getAttDec(event.target.parentNode.parentNode, 'data-uri');
-            let name = event.target.parentNode.parentNode.firstChild.innerText;
-            let href = getAttDec(event.target, 'data-href');
+            const id = getAttDec(event.target.parentNode.parentNode, 'data-id');
+            const type = getAttDec(event.target.parentNode.parentNode, 'data-type');
+            const uri = getAttDec(event.target.parentNode.parentNode, 'data-uri');
+            const name = event.target.parentNode.parentNode.firstChild.innerText;
+            const href = getAttDec(event.target, 'data-href');
             
             if (href === 'delete') {
                 sendAPI("MYMPD_API_BOOKMARK_RM", {"id": id}, function() {
@@ -253,8 +253,7 @@ function navBrowseHandler(event) {
         }
         
         if (app.current.app === 'Browse' && app.current.tab !== 'Database') {
-            let view = app.apps.Browse.tabs.Database.active;
-            appGoto('Browse', 'Database', view);
+            appGoto('Browse', 'Database', app.apps.Browse.tabs.Database.active);
             return;
         }
         if (tag !== 'Album') {
@@ -328,7 +327,7 @@ function parseFilesystem(obj) {
         imageList.classList.remove('hide');
     }
     if (obj.result.bookletPath !== '' && settings.publish === true) {
-        let img = document.createElement('div');
+        const img = document.createElement('div');
         img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
         img.classList.add('booklet');
         setAttEnc(img, 'data-href', subdir + '/browse/music/' + obj.result.bookletPath);
@@ -336,7 +335,7 @@ function parseFilesystem(obj) {
         imageList.appendChild(img);
     }
     for (let i = 0; i < obj.result.images.length; i++) {
-        let img = document.createElement('div');
+        const img = document.createElement('div');
         img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + obj.result.images[i] + '"),url("assets/coverimage-loading.svg")';
         imageList.appendChild(img);
     }
@@ -403,11 +402,11 @@ function showBookmarkSave(id, name, uri, type) {
 
 //eslint-disable-next-line no-unused-vars
 function saveBookmark() {
-    let id = parseInt(document.getElementById('saveBookmarkId').value);
-    let name = document.getElementById('saveBookmarkName').value;
-    let uri = document.getElementById('saveBookmarkUri').value;
-    let type = document.getElementById('saveBookmarkType').value;
+    const name = document.getElementById('saveBookmarkName').value;
     if (name !== '') {
+        const id = parseInt(document.getElementById('saveBookmarkId').value);
+        const uri = document.getElementById('saveBookmarkUri').value;
+        const type = document.getElementById('saveBookmarkType').value;
         sendAPI("MYMPD_API_BOOKMARK_SAVE", {"id": id, "name": name, "uri": uri, "type": type});
         modalSaveBookmark.hide();
     }
@@ -417,10 +416,10 @@ function saveBookmark() {
 }
 
 function parseDatabase(obj) {
-    let nrItems = obj.result.returnedEntities;
-    let cardContainer = document.getElementById('BrowseDatabaseListList');
-    let cols = cardContainer.getElementsByClassName('col');
-    const has_io = 'IntersectionObserver' in window ? true : false;
+    const nrItems = obj.result.returnedEntities;
+    const cardContainer = document.getElementById('BrowseDatabaseListList');
+    const cols = cardContainer.getElementsByClassName('col');
+    const hasIO = 'IntersectionObserver' in window ? true : false;
 
     document.getElementById('BrowseDatabaseListList').classList.remove('opacity05');
 
@@ -428,7 +427,7 @@ function parseDatabase(obj) {
         cardContainer.innerHTML = '';
     }
     for (let i = 0; i < nrItems; i++) {
-        let col = document.createElement('div');
+        const col = document.createElement('div');
         col.classList.add('col', 'px-0', 'flex-grow-0');
         if (obj.result.data[i].AlbumArtist === '') {
             obj.result.data[i].AlbumArtist = t('Unknown artist');
@@ -474,12 +473,12 @@ function parseDatabase(obj) {
             replaced = true;
         }
         if (replaced === true) {
-            if (has_io === true) {
-                let options = {
+            if (hasIO === true) {
+                const options = {
                     root: null,
                     rootMargin: '0px',
                 };
-                let observer = new IntersectionObserver(setGridImage, options);
+                const observer = new IntersectionObserver(setGridImage, options);
                 observer.observe(col);
             }
             else {
@@ -490,8 +489,7 @@ function parseDatabase(obj) {
             }
         }
     }
-    let colsLen = cols.length - 1;
-    for (let i = colsLen; i >= nrItems; i --) {
+    for (let i = cols.length -1; i >= nrItems; i --) {
         cols[i].remove();
     }
     

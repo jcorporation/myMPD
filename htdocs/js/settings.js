@@ -3,7 +3,7 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-var advancedSettingsDefault = {
+const advancedSettingsDefault = {
     "clickSong": { 
         "defaultValue": "append", 
         "validValues": { 
@@ -166,7 +166,7 @@ function initSettings() {
     }, false);
 
     document.getElementById('selectMusicDirectory').addEventListener('change', function () {
-        let musicDirMode = getSelectValue(this);
+        const musicDirMode = getSelectValue(this);
         if (musicDirMode === 'auto') {
             document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue;
             document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
@@ -198,7 +198,7 @@ function initSettings() {
 
     document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
         setTimeout(function() {
-            let value = getAttDec(document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
+            const value = getAttDec(document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
             if (value === '0') {
                 disableEl('inputJukeboxQueueLength');
                 disableEl('selectJukeboxPlaylist');
@@ -243,12 +243,12 @@ function initSettings() {
 function saveConnection() {
     let formOK = true;
     const mpdHostEl = document.getElementById('inputMpdHost');
-    let mpdPortEl = document.getElementById('inputMpdPort');
+    const mpdPortEl = document.getElementById('inputMpdPort');
     const mpdPassEl = document.getElementById('inputMpdPass');
     let musicDirectory = getSelectValue('selectMusicDirectory');
     
     if (musicDirectory === 'custom') {
-        let musicDirectoryValueEl  = document.getElementById('inputMusicDirectory');
+        const musicDirectoryValueEl  = document.getElementById('inputMusicDirectory');
         if (!validatePath(musicDirectoryValueEl)) {
             formOK = false;        
         }
@@ -301,7 +301,7 @@ function getMpdSettings(obj) {
 
 function joinSettings(obj) {
     if (obj !== '' && obj.result) {
-        for (let key in obj.result) {
+        for (const key in obj.result) {
             settingsNew[key] = obj.result[key];
         }
     }
@@ -320,8 +320,8 @@ function joinSettings(obj) {
 }
 
 function checkConsume() {
-    let stateConsume = document.getElementById('btnConsume').classList.contains('active') ? true : false;
-    let stateJukeboxMode = getBtnGroupValue('btnJukeboxModeGroup');
+    const stateConsume = document.getElementById('btnConsume').classList.contains('active') ? true : false;
+    const stateJukeboxMode = getBtnGroupValue('btnJukeboxModeGroup');
     if (stateJukeboxMode > 0 && stateConsume === false) {
         document.getElementById('warnConsume').classList.remove('hide');
     }
@@ -382,19 +382,19 @@ function parseSettings() {
     document.getElementById('selectTheme').value = settings.theme;
 
     //build form for advanced settings    
-    for (let key in advancedSettingsDefault) {
+    for (const key in advancedSettingsDefault) {
         if (!settings.advanced[key]) {
             settings.advanced[key] = advancedSettingsDefault[key].defaultValue;
         }
     }
 
-    let advFrm = {};
+    const advFrm = {};
     
-    let advSettingsKeys = Object.keys(settings.advanced);
+    const advSettingsKeys = Object.keys(settings.advanced);
     advSettingsKeys.sort();
     for (let i = 0; i < advSettingsKeys.length; i++) {
-        let key = advSettingsKeys[i];
-        let form = advancedSettingsDefault[key].form;
+        const key = advSettingsKeys[i];
+        const form = advancedSettingsDefault[key].form;
         if (advFrm[form] === undefined) {
             advFrm[form] = '';
         }
@@ -415,7 +415,7 @@ function parseSettings() {
         if (advancedSettingsDefault[key].inputType === 'select') {
             advFrm[form] += '<select id="inputAdvSetting' + r(key) + '" data-key="' + 
                 r(key) + '" class="form-control border-secondary custom-select">';
-            for (let value in advancedSettingsDefault[key].validValues) {
+            for (const value in advancedSettingsDefault[key].validValues) {
                 advFrm[form] += '<option value="' + e(value) + '"' +
                     (settings.advanced[key] === value ? ' selected' : '') +
                     '>' + t(advancedSettingsDefault[key].validValues[value]) + '</option>';
@@ -477,7 +477,7 @@ function parseSettings() {
     document.getElementById('inputMpdPass').value = settings.mpdPass;
 
     //web notifications - check permission
-    let btnNotifyWeb = document.getElementById('btnNotifyWeb');
+    const btnNotifyWeb = document.getElementById('btnNotifyWeb');
     document.getElementById('warnNotifyWeb').classList.add('hide');
     if (notificationsSupported()) {
         if (Notification.permission !== 'granted') {
@@ -533,7 +533,7 @@ function parseSettings() {
     toggleBtnChkCollapse('btnBgCover', 'collapseBackground', settings.bgCover);
     document.getElementById('inputBgCssFilter').value = settings.bgCssFilter;    
 
-    let albumartbg = document.querySelectorAll('.albumartbg');
+    const albumartbg = document.querySelectorAll('.albumartbg');
     for (let i = 0; i < albumartbg.length; i++) {
         albumartbg[i].style.filter = settings.bgCssFilter;
     }
@@ -562,18 +562,18 @@ function parseSettings() {
     
     toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
     
-    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
+    const features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
         "featRegex", "featTimer", "featLyrics", "featScripting", "featScripteditor", "featHome"];
     for (let j = 0; j < features.length; j++) {
-        let Els = document.getElementsByClassName(features[j]);
-        let ElsLen = Els.length;
-        let displayEl = settings[features[j]] === true ? '' : 'none';
+        const Els = document.getElementsByClassName(features[j]);
+        const ElsLen = Els.length;
+        const displayEl = settings[features[j]] === true ? '' : 'none';
         for (let i = 0; i < ElsLen; i++) {
             Els[i].style.display = displayEl;
         }
     }
     
-    let readonlyEls = document.getElementsByClassName('warnReadonly');
+    const readonlyEls = document.getElementsByClassName('warnReadonly');
     for (let i = 0; i < readonlyEls.length; i++) {
         if (settings.readonly === false) {
             readonlyEls[i].classList.add('hide');
@@ -595,9 +595,9 @@ function parseSettings() {
         '</optgroup>';
 
     if (settings.featSyscmds === true) {
-        let syscmdsMaxListLen = 4;
+        const syscmdsMaxListLen = 4;
         let syscmdsList = '';
-        let syscmdsListLen = settings.syscmdList.length;
+        const syscmdsListLen = settings.syscmdList.length;
         if (syscmdsListLen > 0) {
             timerActions += '<optgroup data-value="syscmd" label="' + t('System command') + '">';
             syscmdsList = syscmdsListLen > syscmdsMaxListLen ? '' : '<div class="dropdown-divider"></div>';
@@ -770,12 +770,12 @@ function parseMPDSettings() {
         settings['featBrowse'] = false;
     }
 
-    let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
+    const features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
         'featLove', 'featSingleOneshot', 'featBrowse', 'featMounts', 'featNeighbors',
         'featPartitions'];
     for (let j = 0; j < features.length; j++) {
-        let Els = document.getElementsByClassName(features[j]);
-        let ElsLen = Els.length;
+        const Els = document.getElementsByClassName(features[j]);
+        const ElsLen = Els.length;
         let displayEl = settings[features[j]] === true ? '' : 'none';
         if (features[j] === 'featCoverimage' && settings.coverimage === false) {
             displayEl = 'none';
@@ -956,26 +956,26 @@ function resetSettings() {
 function saveSettings(closeModal) {
     let formOK = true;
 
-    let inputCrossfade = document.getElementById('inputCrossfade');
+    const inputCrossfade = document.getElementById('inputCrossfade');
     if (!inputCrossfade.getAttribute('disabled')) {
         if (!validateInt(inputCrossfade)) {
             formOK = false;
         }
     }
 
-    let inputJukeboxQueueLength = document.getElementById('inputJukeboxQueueLength');
+    const inputJukeboxQueueLength = document.getElementById('inputJukeboxQueueLength');
     if (!validateInt(inputJukeboxQueueLength)) {
         formOK = false;
     }
 
-    let inputJukeboxLastPlayed = document.getElementById('inputJukeboxLastPlayed');
+    const inputJukeboxLastPlayed = document.getElementById('inputJukeboxLastPlayed');
     if (!validateInt(inputJukeboxLastPlayed)) {
         formOK = false;
     }
     
     let streamUrl = '';
     let streamPort = '';
-    let inputStreamUrl = document.getElementById('inputStreamUrl');
+    const inputStreamUrl = document.getElementById('inputStreamUrl');
     if (getSelectValue('selectStreamMode') === 'port') {
         streamPort = inputStreamUrl.value;
         if (!validateInt(inputStreamUrl)) {
@@ -989,28 +989,28 @@ function saveSettings(closeModal) {
         }
     }
 
-    let inputCoverimageSizeSmall = document.getElementById('inputCoverimageSizeSmall');
+    const inputCoverimageSizeSmall = document.getElementById('inputCoverimageSizeSmall');
     if (!validateInt(inputCoverimageSizeSmall)) {
         formOK = false;
     }
 
-    let inputCoverimageSize = document.getElementById('inputCoverimageSize');
+    const inputCoverimageSize = document.getElementById('inputCoverimageSize');
     if (!validateInt(inputCoverimageSize)) {
         formOK = false;
     }
     
-    let inputCoverimageName = document.getElementById('inputCoverimageName');
+    const inputCoverimageName = document.getElementById('inputCoverimageName');
     if (!validateFilenameList(inputCoverimageName)) {
         formOK = false;
     }
     
-    let inputBookletName = document.getElementById('inputBookletName');
+    const inputBookletName = document.getElementById('inputBookletName');
     if (!validateFilename(inputBookletName)) {
         formOK = false;
     }
     
     if (isMobile === true) {
-        let inputScaleRatio = document.getElementById('inputScaleRatio');
+        const inputScaleRatio = document.getElementById('inputScaleRatio');
         if (!validateFloat(inputScaleRatio)) {
             formOK = false;
         }
@@ -1020,28 +1020,28 @@ function saveSettings(closeModal) {
         }
     }
 
-    let inputLastPlayedCount = document.getElementById('inputLastPlayedCount');
+    const inputLastPlayedCount = document.getElementById('inputLastPlayedCount');
     if (!validateInt(inputLastPlayedCount)) {
         formOK = false;
     }
     
     if (document.getElementById('btnLoveEnable').classList.contains('active')) {
-        let inputLoveChannel = document.getElementById('inputLoveChannel');
-        let inputLoveMessage = document.getElementById('inputLoveMessage');
+        const inputLoveChannel = document.getElementById('inputLoveChannel');
+        const inputLoveMessage = document.getElementById('inputLoveMessage');
         if (!validateNotBlank(inputLoveChannel) || !validateNotBlank(inputLoveMessage)) {
             formOK = false;
         }
     }
 
-    let inputSmartplsInterval = document.getElementById('inputSmartplsInterval');
+    const inputSmartplsInterval = document.getElementById('inputSmartplsInterval');
     if (!validateInt(inputSmartplsInterval)) {
         formOK = false;
     }
-    let smartplsInterval = document.getElementById('inputSmartplsInterval').value * 60 * 60;
+    const smartplsInterval = document.getElementById('inputSmartplsInterval').value * 60 * 60;
 
-    let advSettings = {};
-    for (let key in advancedSettingsDefault) {
-        let el = document.getElementById('inputAdvSetting' + r(key));
+    const advSettings = {};
+    for (const key in advancedSettingsDefault) {
+        const el = document.getElementById('inputAdvSetting' + r(key));
         if (el) {
             if (advancedSettingsDefault[key].inputType === 'select') {
                 advSettings[key] = getSelectValue(el);
@@ -1106,31 +1106,31 @@ function saveSettings(closeModal) {
 function saveQueueSettings() {
     let formOK = true;
 
-    let inputCrossfade = document.getElementById('inputCrossfade');
+    const inputCrossfade = document.getElementById('inputCrossfade');
     if (!inputCrossfade.getAttribute('disabled')) {
         if (!validateInt(inputCrossfade)) {
             formOK = false;
         }
     }
 
-    let inputJukeboxQueueLength = document.getElementById('inputJukeboxQueueLength');
+    const inputJukeboxQueueLength = document.getElementById('inputJukeboxQueueLength');
     if (!validateInt(inputJukeboxQueueLength)) {
         formOK = false;
     }
 
-    let inputJukeboxLastPlayed = document.getElementById('inputJukeboxLastPlayed');
+    const inputJukeboxLastPlayed = document.getElementById('inputJukeboxLastPlayed');
     if (!validateInt(inputJukeboxLastPlayed)) {
         formOK = false;
     }
     
     if (settings.featMixramp === true) {
-        let inputMixrampdb = document.getElementById('inputMixrampdb');
+        const inputMixrampdb = document.getElementById('inputMixrampdb');
         if (!inputMixrampdb.getAttribute('disabled')) {
             if (!validateFloat(inputMixrampdb)) {
                 formOK = false;
             } 
         }
-        let inputMixrampdelay = document.getElementById('inputMixrampdelay');
+        const inputMixrampdelay = document.getElementById('inputMixrampdelay');
         if (!inputMixrampdelay.getAttribute('disabled')) {
             if (isNaN(parseInt(inputMixrampdelay.value))) {
                 inputMixrampdelay.value = '-1';
@@ -1141,11 +1141,11 @@ function saveQueueSettings() {
         }
     }
     
-    let singleState = getBtnGroupValue('btnSingleGroup');
-    let jukeboxMode = getBtnGroupValue('btnJukeboxModeGroup');
-    let replaygain = getBtnGroupValue('btnReplaygainGroup');
+    const singleState = getBtnGroupValue('btnSingleGroup');
+    const jukeboxMode = getBtnGroupValue('btnJukeboxModeGroup');
+    const replaygain = getBtnGroupValue('btnReplaygainGroup');
     let jukeboxUniqueTag = getSelectValue('selectJukeboxUniqueTag');
-    let jukeboxPlaylist = getSelectValue('selectJukeboxPlaylist');
+    const jukeboxPlaylist = getSelectValue('selectJukeboxPlaylist');
     
     if (jukeboxMode === '2') {
         jukeboxUniqueTag = 'Album';
@@ -1178,8 +1178,8 @@ function saveQueueSettings() {
 }
 
 function getTagMultiSelectValues(taglist, translated) {
-    let values = [];
-    let chkBoxes = taglist.getElementsByTagName('button');
+    const values = [];
+    const chkBoxes = taglist.getElementsByTagName('button');
     for (let i = 0; i < chkBoxes.length; i++) {
         if (chkBoxes[i].classList.contains('active')) {
             if (translated === true) {
@@ -1197,7 +1197,7 @@ function getTagMultiSelectValues(taglist, translated) {
 }
 
 function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
-    let values = [];
+    const values = [];
     let list = '';
     for (let i = 0; i < allTags.length; i++) {
         if (enabledTags.includes(allTags[i])) {
@@ -1212,7 +1212,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
     }
     document.getElementById(listId).innerHTML = list;
 
-    let inputEl = document.getElementById(inputId);
+    const inputEl = document.getElementById(inputId);
     inputEl.value = values.join(', ');
     if (getAttDec(inputEl, 'data-init') === 'true') {
         return;
@@ -1229,10 +1229,10 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
 }
 
 function filterCols(x) {
-    let tags = setColTags(x);
+    const tags = setColTags(x);
     const set = "cols" + x;
     
-    let cols = [];
+    const cols = [];
     for (let i = 0; i < settings[set].length; i++) {
         if (tags.includes(settings[set][i])) {
             cols.push(settings[set][i]);
@@ -1253,8 +1253,8 @@ function filterCols(x) {
 
 //eslint-disable-next-line no-unused-vars
 function toggleBtnNotifyWeb() {
-    let btnNotifyWeb = document.getElementById('btnNotifyWeb');
-    let notifyWebState = btnNotifyWeb.classList.contains('active') ? true : false;
+    const btnNotifyWeb = document.getElementById('btnNotifyWeb');
+    const notifyWebState = btnNotifyWeb.classList.contains('active') ? true : false;
     if (notificationsSupported()) {
         if (notifyWebState === false) {
             Notification.requestPermission(function (permission) {
@@ -1286,7 +1286,7 @@ function toggleBtnNotifyWeb() {
 }
 
 function setNavbarIcons() {
-    let oldBadgeQueueItems = document.getElementById('badgeQueueItems');
+    const oldBadgeQueueItems = document.getElementById('badgeQueueItems');
     let oldQueueLength = 0;
     if (oldBadgeQueueItems) {
         oldQueueLength = oldBadgeQueueItems.innerText;
@@ -1352,7 +1352,7 @@ function getImageList(selectEl, value, addOptions) {
         for (let i = 0; i < obj.result.returnedEntities; i++) {
             options += '<option value="' + e(obj.result.data[i]) + '">' + e(obj.result.data[i])  + '</option>';
         }
-        let sel = document.getElementById(selectEl);
+        const sel = document.getElementById(selectEl);
         sel.innerHTML = options;
         sel.value = value;
     });

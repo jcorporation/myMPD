@@ -9,11 +9,10 @@ function initSong() {
             if (event.target.id === 'calcFingerprint') {
                 sendAPI("MPD_API_DATABASE_FINGERPRINT", {"uri": getAttDec(event.target, 'data-uri')}, parseFingerprint);
                 event.preventDefault();
-                let parent = event.target.parentNode;
-                let spinner = document.createElement('div');
+                const spinner = document.createElement('div');
                 spinner.classList.add('spinner-border', 'spinner-border-sm');
                 event.target.classList.add('hide');
-                parent.appendChild(spinner);
+                event.target.parentNode.appendChild(spinner);
             }
             else if (event.target.classList.contains('external')) {
                 //do nothing, link opens in new browser window
@@ -38,10 +37,10 @@ function songDetails(uri) {
 }
 
 function parseFingerprint(obj) {
-    let textarea = document.createElement('textarea');
+    const textarea = document.createElement('textarea');
     textarea.value = obj.result.fingerprint;
     textarea.classList.add('form-control', 'text-monospace', 'small');
-    let fpTd = document.getElementById('fingerprint');
+    const fpTd = document.getElementById('fingerprint');
     fpTd.innerHTML = '';
     fpTd.appendChild(textarea);
 }
@@ -73,10 +72,10 @@ function getMBtagLink(tag, value) {
 }
 
 function parseSongDetails(obj) {
-    let modal = document.getElementById('modalSongDetails');
+    const modal = document.getElementById('modalSongDetails');
     modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
     
-    let elH1s = modal.getElementsByTagName('h1');
+    const elH1s = modal.getElementsByTagName('h1');
     for (let i = 0; i < elH1s.length; i++) {
         elH1s[i].innerText = obj.result.Title;
     }
@@ -150,7 +149,7 @@ function parseSongDetails(obj) {
         showPictures = true;
     }
     
-    let pictureEls = document.getElementsByClassName('featPictures');
+    const pictureEls = document.getElementsByClassName('featPictures');
     for (let i = 0; i < pictureEls.length; i++) {
         if (showPictures === true) {
             pictureEls[i].classList.remove('hide');
@@ -162,7 +161,7 @@ function parseSongDetails(obj) {
     
     if (showPictures === true) {
         //add uri to image list to get embedded albumart
-        let images = [ subdir + '/albumart/' + obj.result.uri ];
+        const images = [ subdir + '/albumart/' + obj.result.uri ];
         //add all but coverfiles to image list
         if (settings.publish === true) {
             for (let i = 0; i < obj.result.images.length; i++) {
@@ -180,13 +179,13 @@ function parseSongDetails(obj) {
 }
 
 function isCoverfile(uri) {
-    let filename = basename(uri).toLowerCase();
-    let fileparts = filename.split('.');
+    const filename = basename(uri).toLowerCase();
+    const fileparts = filename.split('.');
     
-    let extensions = ['png', 'jpg', 'jpeg', 'svg', 'webp', 'tiff', 'bmp'];
-    let coverimageNames = settings.coverimageName.split(',');
+    const extensions = ['png', 'jpg', 'jpeg', 'svg', 'webp', 'tiff', 'bmp'];
+    const coverimageNames = settings.coverimageName.split(',');
     for (let i = 0; i < coverimageNames.length; i++) {
-        let name = coverimageNames[i].trim();
+        const name = coverimageNames[i].trim();
         if (filename === name) {
             return true;
         }
@@ -282,15 +281,15 @@ function parseSyncedLyrics(text, clickable) {
     const lines = text.replace(/\r/g, '').split('\n');
     for (let i = 0; i < lines.length; i++) {
         //line must start with timestamp
-        let line = lines[i].match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
+        const line = lines[i].match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
         if (line) {
-            let sec = parseInt(line[1]) * 60 + parseInt(line[2]);
+            const sec = parseInt(line[1]) * 60 + parseInt(line[2]);
             //line[3] are hundreths of a seconde - ignore it for the moment
             html += '<p><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + sec + '">';
             //support of extended lrc format - timestamps for words
             html += line[4].replace(/<(\d+):(\d+)\.\d+>/g, function(m0, m1, m2) {
                 //hundreths of a secondes are ignored
-                let wsec = parseInt(m1) * 60 + parseInt(m2);
+                const wsec = parseInt(m1) * 60 + parseInt(m2);
                 return '</span><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + wsec + '">';
             });
             html += '</span></p>';
@@ -329,7 +328,7 @@ function voteSong(el, vote) {
 
 //eslint-disable-next-line no-unused-vars
 function voteCurrentSong(vote) {
-    let uri = getAttDec(document.getElementById('currentTitle'), 'data-uri');
+    const uri = getAttDec(document.getElementById('currentTitle'), 'data-uri');
     if (uri === '') {
         return;
     }

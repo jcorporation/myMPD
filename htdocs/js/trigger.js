@@ -8,12 +8,12 @@ function initTrigger() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            let id = decodeURI(event.target.parentNode.getAttribute('data-trigger-id'));
+            const id = decodeURI(event.target.parentNode.getAttribute('data-trigger-id'));
             showEditTrigger(id);
         }
         else if (event.target.nodeName === 'A') {
-            let action = event.target.getAttribute('data-action');
-            let id = decodeURI(event.target.parentNode.parentNode.getAttribute('data-trigger-id'));
+            const action = event.target.getAttribute('data-action');
+            const id = decodeURI(event.target.parentNode.parentNode.getAttribute('data-trigger-id'));
             if (action === 'delete') {
                 deleteTrigger(id);
             }
@@ -33,14 +33,14 @@ function initTrigger() {
 function saveTrigger() {
     let formOK = true;
     
-    let nameEl = document.getElementById('inputTriggerName');
+    const nameEl = document.getElementById('inputTriggerName');
     if (!validatePlnameEl(nameEl)) {
         formOK = false;
     }
     
     if (formOK === true) {
-        let args = {};
-        let argEls = document.getElementById('triggerActionScriptArguments').getElementsByTagName('input');
+        const args = {};
+        const argEls = document.getElementById('triggerActionScriptArguments').getElementsByTagName('input');
         for (let i = 0; i < argEls.length; i ++) {
             args[getAttDec(argEls[i], 'data-name')] = argEls[i].value;
         }
@@ -94,7 +94,7 @@ function showTriggerScriptArgs(option, values) {
     if (values === undefined) {
         values = {};
     }
-    let args = JSON.parse(getAttDec(option, 'data-arguments'));
+    const args = JSON.parse(getAttDec(option, 'data-arguments'));
     let list = '';
     for (let i = 0; i < args.arguments.length; i++) {
         list += '<div class="form-group row">' +

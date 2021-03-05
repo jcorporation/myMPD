@@ -101,7 +101,7 @@ function initHome() {
     
     document.getElementById('searchHomeIconLigature').addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
-            let sel = document.getElementById('listHomeIconLigature').getElementsByClassName('active')[0];
+            const sel = document.getElementById('listHomeIconLigature').getElementsByClassName('active')[0];
             if (sel !== undefined) {
                 selectHomeIconLigature(sel);
                 dropdownHomeIconLigature.toggle();
@@ -203,8 +203,7 @@ function parseHome(obj) {
             col.getElementsByClassName('card-body')[0].style.backgroundColor = obj.result.data[i].bgcolor;
         }
     }
-    let colsLen = cols.length - 1;
-    for (let i = colsLen; i >= nrItems; i --) {
+    for (let i = cols.length - 1; i >= nrItems; i --) {
         cols[i].remove();
     }
                     
@@ -257,10 +256,9 @@ function dragAndDropHome() {
         if (dragEl.classList.contains('home-icons') === false) {
             return;
         }
-        let th = homeCards.getElementsByClassName('dragover-icon');
-        let thLen = th.length;
-        for (let i = 0; i < thLen; i++) {
-            th[i].classList.remove('dragover-icon');
+        const ths = homeCards.getElementsByClassName('dragover-icon');
+        for (const th of ths) {
+            th.classList.remove('dragover-icon');
         }
         if (event.target.nodeName === 'DIV' && event.target.classList.contains('home-icons')) {
             event.target.classList.add('dragover-icon');
@@ -276,10 +274,9 @@ function dragAndDropHome() {
         if (dragEl.classList.contains('home-icons') === false) {
             return;
         }
-        let th = homeCards.getElementsByClassName('dragover-icon');
-        let thLen = th.length;
-        for (let i = 0; i < thLen; i++) {
-            th[i].classList.remove('dragover-icon');
+        const ths = homeCards.getElementsByClassName('dragover-icon');
+        for (const th of ths) {
+            th.classList.remove('dragover-icon');
         }
         dragSrc.classList.remove('opacity05');
     }, false);
@@ -306,10 +303,9 @@ function dragAndDropHome() {
                 }
             }
         }
-        let th = homeCards.getElementsByClassName('dragover-icon');
-        let thLen = th.length;
-        for (let i = 0; i < thLen; i++) {
-            th[i].classList.remove('dragover-icon');
+        const ths = homeCards.getElementsByClassName('dragover-icon');
+        for (const th of ths) {
+            th.classList.remove('dragover-icon');
         }
     }, false);
 }
@@ -327,9 +323,9 @@ function addViewToHome() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function addScriptToHome(name, script_def) {
-    let script = JSON.parse(script_def);
-    let options = [script.script, script.arguments.join(',')];
+function addScriptToHome(name, scriptDef) {
+    const script = JSON.parse(scriptDef);
+    const options = [script.script, script.arguments.join(',')];
     _addHomeIcon('execScriptFromOptions', name, 'description', options);
 }
 
@@ -414,17 +410,16 @@ function _editHomeIcon(pos, replace, title) {
 //eslint-disable-next-line no-unused-vars
 function saveHomeIcon() {
     let formOK = true;
-    let nameEl = document.getElementById('inputHomeIconName');
+    const nameEl = document.getElementById('inputHomeIconName');
     if (!validateNotBlank(nameEl)) {
         formOK = false;
     }
     if (formOK === true) {
-        let options = [];
-        let optionEls = document.getElementById('divHomeIconOptions').getElementsByTagName('input');
-        for (let i = 0; i < optionEls.length; i++) {
+        const options = [];
+        const optionEls = document.getElementById('divHomeIconOptions').getElementsByTagName('input');
+        for (const optionEl of optionEls) {
             //workarround for parsing arrays with empty values in frozen
-            let value = optionEls[i].value !== '' ? optionEls[i].value : '!undefined!';
-            options.push(value);
+            options.push(optionEl.value !== '' ? optionEl.value : '!undefined!');
         }
         const image = getSelectValue('selectHomeIconImage');
         sendAPI("MYMPD_API_HOME_ICON_SAVE", {
@@ -458,10 +453,10 @@ function showHomeIconCmdOptions(values) {
     if (optionsText !== undefined) {    
         const options = JSON.parse(optionsText);
         for (let i = 0; i < options.options.length; i++) {
-            let value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
             list += '<div class="form-group row">' +
                 '<label class="col-sm-4 col-form-label">' + t(options.options[i]) + '</label>' +
-                '<div class="col-sm-8"><input class="form-control border-secondary" value="' + e(value) + '"></div>' +
+                '<div class="col-sm-8"><input class="form-control border-secondary" value="' + 
+                e(values !== undefined ? values[i] !== undefined ? values[i] : '' : '') + '"></div>' +
                 '</div>';
         }
     }

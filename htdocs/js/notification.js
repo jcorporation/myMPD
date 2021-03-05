@@ -51,7 +51,7 @@ function showNotification(title, text, facility, severity) {
     logMessage(title, text, facility, severity);
     
     if (settings.notificationWeb === true) {
-        let notification = new Notification(title, {icon: 'assets/favicon.ico', body: text});
+        const notification = new Notification(title, {icon: 'assets/favicon.ico', body: text});
         setTimeout(notification.close.bind(notification), 3000);
     }
     
@@ -101,7 +101,7 @@ function showNotification(title, text, facility, severity) {
     if (!document.getElementById('alertBox')) {
         document.getElementsByTagName('main')[0].append(alertBox);
         requestAnimationFrame(function() {
-            let ab = document.getElementById('alertBox');
+            const ab = document.getElementById('alertBox');
             if (ab) {
                 ab.classList.add('alertBoxActive');
             }
@@ -134,14 +134,14 @@ function logMessage(title, text, facility, severity) {
     const overview = document.getElementById('logOverview');
 
     let append = true;
-    let lastEntry = overview.firstElementChild;
+    const lastEntry = overview.firstElementChild;
     if (lastEntry) {
         if (getAttDec(lastEntry, 'data-title') === title) {
             append = false;        
         }
     }
 
-    let entry = document.createElement('div');
+    const entry = document.createElement('div');
     entry.classList.add('text-light');
     setAttEnc(entry, 'data-title', title);
     let occurence = 1;
@@ -161,7 +161,7 @@ function logMessage(title, text, facility, severity) {
         overview.replaceChild(entry, lastEntry);
     }
    
-    let overviewEls = overview.getElementsByTagName('div');
+    const overviewEls = overview.getElementsByTagName('div');
     if (overviewEls.length > 10) {
         overviewEls[10].remove();
     }
@@ -169,7 +169,7 @@ function logMessage(title, text, facility, severity) {
 
 //eslint-disable-next-line no-unused-vars
 function clearLogOverview() {
-    let overviewEls = document.getElementById('logOverview').getElementsByTagName('div');
+    const overviewEls = document.getElementById('logOverview').getElementsByTagName('div');
     for (let i = overviewEls.length - 1; i >= 0; i--) {
         overviewEls[i].remove();
     }
@@ -184,7 +184,7 @@ function hideNotification() {
     if (document.getElementById('alertBox')) {
         document.getElementById('alertBox').classList.remove('alertBoxActive');
         setTimeout(function() {
-            let alertBox = document.getElementById('alertBox');
+            const alertBox = document.getElementById('alertBox');
             if (alertBox) {
                 alertBox.remove();
             }
@@ -197,24 +197,23 @@ function notificationsSupported() {
 }
 
 function setElsState(tag, state, type) {
-    let els = type === 'tag' ? document.getElementsByTagName(tag) : document.getElementsByClassName(tag);
-    let elsLen = els.length;
-    for (let i = 0; i < elsLen; i++) {
-        if (els[i].classList.contains('close')) {
+    const els = type === 'tag' ? document.getElementsByTagName(tag) : document.getElementsByClassName(tag);
+    for (const el of els) {
+        if (el.classList.contains('close')) {
             continue;
         }
         if (state === 'disabled') {
-            if (els[i].classList.contains('alwaysEnabled') === false) {
-                if (els[i].getAttribute('disabled') === null) {
-                    disableEl(els[i]);
-                    els[i].classList.add('disabled');
+            if (el.classList.contains('alwaysEnabled') === false) {
+                if (el.getAttribute('disabled') === null) {
+                    disableEl(el);
+                    el.classList.add('disabled');
                 }
             }
         }
         else {
-            if (els[i].classList.contains('disabled')) {
-                enableEl(els[i]);
-                els[i].classList.remove('disabled');
+            if (el.classList.contains('disabled')) {
+                enableEl(el);
+                el.classList.remove('disabled');
             }
         }
     }
@@ -235,7 +234,7 @@ function toggleUI() {
         topAlert.style.paddingTop = topPadding + 'px';
         topAlert.classList.remove('hide');
     }
-    let enabled = state === 'disabled' ? false : true;
+    const enabled = state === 'disabled' ? false : true;
     if (enabled !== uiEnabled) {
         logDebug('Setting ui state to ' + state);
         setElsState('a', state, 'tag');

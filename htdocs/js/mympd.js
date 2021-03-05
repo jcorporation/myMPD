@@ -3,39 +3,39 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-var socket = null;
-var websocketConnected = false;
-var websocketTimer = null;
+let socket = null;
+let websocketConnected = false;
+let websocketTimer = null;
 
-var lastSong = '';
-var lastSongObj = {};
-var lastState;
-var currentSong = {};
-var playstate = '';
-var settingsLock = false;
-var settingsParsed = false;
-var settingsNew = {};
-var settings = {};
+let lastSong = '';
+let lastSongObj = {};
+let lastState;
+const currentSong = {};
+let playstate = '';
+let settingsLock = false;
+let settingsParsed = false;
+let settingsNew = {};
+let settings = {};
 settings.loglevel = 2;
-var alertTimeout = null;
-var progressTimer = null;
-var deferredA2HSprompt;
-var dragSrc;
-var dragEl;
-var showSyncedLyrics = false;
+let alertTimeout = null;
+let progressTimer = null;
+let deferredA2HSprompt;
+let dragSrc;
+let dragEl;
+let showSyncedLyrics = false;
 
-var appInited = false;
-var subdir = '';
-var uiEnabled = true;
-var locale = navigator.language || navigator.userLanguage;
-var scale = '1.0';
-var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-var ligatureMore = 'menu';
-var progressBarTransition = 'width 1s linear';
-var tagAlbumArtist = 'AlbumArtist';
-var stickerList = ['stickerPlayCount', 'stickerSkipCount', 'stickerLastPlayed', 'stickerLastSkipped', 'stickerLike'];
+let appInited = false;
+let subdir = '';
+let uiEnabled = true;
+let locale = navigator.language || navigator.userLanguage;
+let scale = '1.0';
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const ligatureMore = 'menu';
+const progressBarTransition = 'width 1s linear';
+let tagAlbumArtist = 'AlbumArtist';
+const stickerList = ['stickerPlayCount', 'stickerSkipCount', 'stickerLastPlayed', 'stickerLastSkipped', 'stickerLike'];
 
-var app = {};
+const app = {};
 app.apps = { 
     "Home": { 
         "offset": 0,
@@ -162,7 +162,7 @@ app.current = { "app": "Home", "tab": undefined, "view": undefined, "offset": 0,
 app.last = { "app": undefined, "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 
 //cache often accessed dom elements
-var domCache = {};
+const domCache = {};
 domCache.body = document.getElementsByTagName('body')[0];
 domCache.counter = document.getElementById('counter');
 domCache.progress = document.getElementById('footerProgress');
@@ -170,43 +170,43 @@ domCache.progressBar = document.getElementById('footerProgressBar');
 domCache.progressPos = document.getElementById('footerProgressPos');
 
 /* eslint-disable no-unused-vars */
-var modalConnection = new BSN.Modal(document.getElementById('modalConnection'));
-var modalSettings = new BSN.Modal(document.getElementById('modalSettings'));
-var modalQueueSettings = new BSN.Modal(document.getElementById('modalQueueSettings'));
-var modalAbout = new BSN.Modal(document.getElementById('modalAbout')); 
-var modalSaveQueue = new BSN.Modal(document.getElementById('modalSaveQueue'));
-var modalAddToQueue = new BSN.Modal(document.getElementById('modalAddToQueue'));
-var modalSongDetails = new BSN.Modal(document.getElementById('modalSongDetails'));
-var modalAddToPlaylist = new BSN.Modal(document.getElementById('modalAddToPlaylist'));
-var modalRenamePlaylist = new BSN.Modal(document.getElementById('modalRenamePlaylist'));
-var modalUpdateDB = new BSN.Modal(document.getElementById('modalUpdateDB'));
-var modalSaveSmartPlaylist = new BSN.Modal(document.getElementById('modalSaveSmartPlaylist'));
-var modalSaveBookmark = new BSN.Modal(document.getElementById('modalSaveBookmark'));
-var modalTimer = new BSN.Modal(document.getElementById('modalTimer'));
-var modalMounts = new BSN.Modal(document.getElementById('modalMounts'));
-var modalExecScript = new BSN.Modal(document.getElementById('modalExecScript'));
-var modalScripts = new BSN.Modal(document.getElementById('modalScripts'));
-var modalPartitions = new BSN.Modal(document.getElementById('modalPartitions'));
-var modalPartitionOutputs = new BSN.Modal(document.getElementById('modalPartitionOutputs'));
-var modalTrigger = new BSN.Modal(document.getElementById('modalTrigger'));
-var modalOutputAttributes = new BSN.Modal(document.getElementById('modalOutputAttributes'));
-var modalPicture = new BSN.Modal(document.getElementById('modalPicture'));
-var modalEditHomeIcon = new BSN.Modal(document.getElementById('modalEditHomeIcon'));
-var modalConfirm = new BSN.Modal(document.getElementById('modalConfirm'));
+const modalConnection = new BSN.Modal(document.getElementById('modalConnection'));
+const modalSettings = new BSN.Modal(document.getElementById('modalSettings'));
+const modalQueueSettings = new BSN.Modal(document.getElementById('modalQueueSettings'));
+const modalAbout = new BSN.Modal(document.getElementById('modalAbout')); 
+const modalSaveQueue = new BSN.Modal(document.getElementById('modalSaveQueue'));
+const modalAddToQueue = new BSN.Modal(document.getElementById('modalAddToQueue'));
+const modalSongDetails = new BSN.Modal(document.getElementById('modalSongDetails'));
+const modalAddToPlaylist = new BSN.Modal(document.getElementById('modalAddToPlaylist'));
+const modalRenamePlaylist = new BSN.Modal(document.getElementById('modalRenamePlaylist'));
+const modalUpdateDB = new BSN.Modal(document.getElementById('modalUpdateDB'));
+const modalSaveSmartPlaylist = new BSN.Modal(document.getElementById('modalSaveSmartPlaylist'));
+const modalSaveBookmark = new BSN.Modal(document.getElementById('modalSaveBookmark'));
+const modalTimer = new BSN.Modal(document.getElementById('modalTimer'));
+const modalMounts = new BSN.Modal(document.getElementById('modalMounts'));
+const modalExecScript = new BSN.Modal(document.getElementById('modalExecScript'));
+const modalScripts = new BSN.Modal(document.getElementById('modalScripts'));
+const modalPartitions = new BSN.Modal(document.getElementById('modalPartitions'));
+const modalPartitionOutputs = new BSN.Modal(document.getElementById('modalPartitionOutputs'));
+const modalTrigger = new BSN.Modal(document.getElementById('modalTrigger'));
+const modalOutputAttributes = new BSN.Modal(document.getElementById('modalOutputAttributes'));
+const modalPicture = new BSN.Modal(document.getElementById('modalPicture'));
+const modalEditHomeIcon = new BSN.Modal(document.getElementById('modalEditHomeIcon'));
+const modalConfirm = new BSN.Modal(document.getElementById('modalConfirm'));
 
-var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
-var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
-var dropdownBookmarks = new BSN.Dropdown(document.getElementById('BrowseFilesystemBookmark'));
-var dropdownLocalPlayer = new BSN.Dropdown(document.getElementById('localPlaybackMenu'));
-var dropdownDatabaseSort = new BSN.Dropdown(document.getElementById('btnDatabaseSortDropdown'));
-var dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNeighbors'));
-var dropdownHomeIconLigature = new BSN.Dropdown(document.getElementById('btnHomeIconLigature'));
+let dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
+const dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
+const dropdownBookmarks = new BSN.Dropdown(document.getElementById('BrowseFilesystemBookmark'));
+const dropdownLocalPlayer = new BSN.Dropdown(document.getElementById('localPlaybackMenu'));
+const dropdownDatabaseSort = new BSN.Dropdown(document.getElementById('btnDatabaseSortDropdown'));
+const dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNeighbors'));
+const dropdownHomeIconLigature = new BSN.Dropdown(document.getElementById('btnHomeIconLigature'));
 
-var collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
-var collapseSettings = new BSN.Collapse(document.getElementById('navSettings'));
-var collapseSyscmds = new BSN.Collapse(document.getElementById('navSyscmds'));
-var collapseScripting = new BSN.Collapse(document.getElementById('navScripting'));
-var collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukeboxMode'));
+const collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
+const collapseSettings = new BSN.Collapse(document.getElementById('navSettings'));
+const collapseSyscmds = new BSN.Collapse(document.getElementById('navSyscmds'));
+const collapseScripting = new BSN.Collapse(document.getElementById('navScripting'));
+const collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukeboxMode'));
 /* eslint-enable no-unused-vars */
 
 function appPrepare(scrollPos) {
@@ -256,7 +256,7 @@ function appPrepare(scrollPos) {
 
 function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newScrollPos) {
     //save scrollPos of current view
-    let oldptr = app.apps[app.current.app].offset !== undefined ? app.apps[app.current.app] :
+    const oldptr = app.apps[app.current.app].offset !== undefined ? app.apps[app.current.app] :
         app.apps[app.current.app].tabs[app.current.tab].offset !== undefined ? app.apps[app.current.app].tabs[app.current.tab] :
             app.apps[app.current.app].tabs[app.current.tab].views[app.current.view];
     oldptr.scrollPos = document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
@@ -273,7 +273,7 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
         }
     }
     //get ptr to new app
-    let ptr = app.apps[card].offset !== undefined ? app.apps[card] :
+    const ptr = app.apps[card].offset !== undefined ? app.apps[card] :
                 app.apps[card].tabs[tab].offset !== undefined ? app.apps[card].tabs[tab] :
                 app.apps[card].tabs[tab].views[view];
     //set options to default, if not defined
@@ -300,8 +300,7 @@ function appRoute() {
         appInitStart();
         return;
     }
-    let hash = location.hash;
-    let params = hash.match(/^#\/(\w+)\/?(\w+)?\/?(\w+)?!(\d+)\/(\d+)\/([^/]+)\/([^/]+)\/([^/]+)\/(.*)$/);
+    const params = location.hash.match(/^#\/(\w+)\/?(\w+)?\/?(\w+)?!(\d+)\/(\d+)\/([^/]+)\/([^/]+)\/([^/]+)\/(.*)$/);
     if (params) {
         app.current.app = decodeURIComponent(params[1]);
         app.current.tab = params[2] !== undefined ? decodeURIComponent(params[2]) : undefined;
@@ -393,7 +392,7 @@ function appRoute() {
         //Create breadcrumb
         let breadcrumbs = '<li class="breadcrumb-item"><a data-uri="" class="text-body mi">home</a></li>';
         const pathArray = app.current.search.split('/');
-        let pathArrayLen = pathArray.length;
+        const pathArrayLen = pathArray.length;
         let fullPath = '';
         for (let i = 0; i < pathArrayLen; i++) {
             if (pathArrayLen - 1 === i) {
@@ -442,7 +441,7 @@ function appRoute() {
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail') {
         if (app.current.filter === 'Album') {
-            let cols = settings.colsBrowseDatabaseDetail.slice();
+            const cols = settings.colsBrowseDatabaseDetail.slice();
             if (cols.includes('Disc') === false) {
                 cols.push('Disc');
             }
@@ -461,10 +460,9 @@ function appRoute() {
         }
         
         if (app.last.app !== app.current.app && app.current.search !== '') {
-            let colspan = settings['cols' + app.current.app].length;
             document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML=
                 '<tr><td><span class="mi">search</span></td>' +
-                '<td colspan="' + colspan + '">' + t('Searching...') + '</td></tr>';
+                '<td colspan="' + settings['cols' + app.current.app].length + '">' + t('Searching...') + '</td></tr>';
         }
 
         if (document.getElementById('searchstr').value.length >= 2 || document.getElementById('searchCrumb').children.length > 0) {
@@ -586,7 +584,7 @@ function appInitStart() {
     i18nHtml(document.getElementById('splashScreenAlert'));
     
     //set loglevel
-    let script = document.getElementsByTagName("script")[0].src.replace(/^.*[/]/, '');
+    const script = document.getElementsByTagName("script")[0].src.replace(/^.*[/]/, '');
     if (script !== 'combined.js') {
         settings.loglevel = 4;
     }
@@ -653,7 +651,7 @@ function appInit() {
         collapseArrow.addEventListener('click', function(event) {
             event.stopPropagation();
             event.preventDefault();
-            let icon = this.getElementsByTagName('span')[0];
+            const icon = this.getElementsByTagName('span')[0];
             icon.innerText = icon.innerText === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
             event.stopPropagation();
         }, false);
@@ -733,7 +731,7 @@ function appInit() {
             event.target.tagName === 'TEXTAREA' || event.ctrlKey || event.altKey) {
             return;
         }
-        let cmd = keymap[event.key];
+        const cmd = keymap[event.key];
         if (cmd && typeof window[cmd.cmd] === 'function') {
             if (keymap[event.key].req === undefined || settings[keymap[event.key].req] === true)
                 parseCmd(event, cmd);

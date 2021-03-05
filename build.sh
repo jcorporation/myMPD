@@ -111,7 +111,7 @@ setversion() {
   [ -f "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild" ] || \
   	mv -f contrib/packaging/gentoo/media-sound/mympd/mympd-*.ebuild "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild"
 
-  echo "var myMPDversion = '${VERSION}';" > htdocs/js/version.js
+  echo "const myMPDversion = '${VERSION}';" > htdocs/js/version.js
 }
 
 minify() {

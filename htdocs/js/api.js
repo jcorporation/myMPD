@@ -3,11 +3,11 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-var ignoreMessages = ['No current song', 'No lyrics found'];
+const ignoreMessages = ['No current song', 'No lyrics found'];
 
 function sendAPI(method, params, callback, onerror) {
-    let request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": params};
-    let ajaxRequest=new XMLHttpRequest();
+    const request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": params};
+    const ajaxRequest = new XMLHttpRequest();
     ajaxRequest.open('POST', subdir + '/api', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
     ajaxRequest.onreadystatechange = function() {
@@ -81,7 +81,9 @@ function webSocketConnect() {
     }
 
     websocketConnected = false;  
-    let wsUrl = getWsUrl();
+    const wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
+        window.location.hostname + 
+        (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/ws/';
     socket = new WebSocket(wsUrl);
     logInfo('Connecting to ' + wsUrl);
 
@@ -95,7 +97,7 @@ function webSocketConnect() {
             }
         };
 
-        socket.onmessage = function got_packet(msg) {
+        socket.onmessage = function(msg) {
             let obj;
             try {
                 obj = JSON.parse(msg.data);
@@ -111,7 +113,7 @@ function webSocketConnect() {
                     websocketConnected = true;
                     showNotification(t('Connected to myMPD'), wsUrl, 'general', 'info');
                     appRoute();
-                    sendAPI("MPD_API_PLAYER_STATE", {}, parseState, true);
+                    sendAPI('MPD_API_PLAYER_STATE', {}, parseState, true);
                     break;
                 case 'update_state':
                     obj.result = obj.params;
@@ -126,7 +128,7 @@ function webSocketConnect() {
                 case 'mpd_connected':
                     //MPD connection established get state and settings
                     showNotification(t('Connected to MPD'), '', 'general', 'info');
-                    sendAPI("MPD_API_PLAYER_STATE", {}, parseState);
+                    sendAPI('MPD_API_PLAYER_STATE', {}, parseState);
                     getSettings(true);
                     break;
                 case 'update_queue':
@@ -140,7 +142,7 @@ function webSocketConnect() {
                     getSettings();
                     break;
                 case 'update_outputs':
-                    sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs);
+                    sendAPI('MPD_API_PLAYER_OUTPUT_LIST', {}, parseOutputs);
                     break;
                 case 'update_started':
                     updateDBstarted(false);
@@ -156,20 +158,20 @@ function webSocketConnect() {
                     break;
                 case 'update_stored_playlist':
                     if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'All') {
-                        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search}, parsePlaylistsList);
+                        sendAPI('MPD_API_PLAYLIST_LIST', {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search}, parsePlaylistsList);
                     }
                     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-                        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, "uri": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylistsDetail);
+                        sendAPI('MPD_API_PLAYLIST_CONTENT_LIST', {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, "uri": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylistsDetail);
                     }
                     break;
                 case 'update_lastplayed':
                     if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
-                        sendAPI("MPD_API_QUEUE_LAST_PLAYED", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
+                        sendAPI('MPD_API_QUEUE_LAST_PLAYED', {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
                     }
                     break;
                 case 'update_jukebox':
                     if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
-                        sendAPI("MPD_API_JUKEBOX_LIST", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
+                        sendAPI('MPD_API_JUKEBOX_LIST', {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
                     }
                     break;
                 case 'notify':
@@ -211,8 +213,8 @@ function webSocketConnect() {
             logError('Websocket error occured');
             socket.close();
         };
-
-    } catch(error) {
+    }
+    catch(error) {
         logError(error);
     }
 }
@@ -229,20 +231,4 @@ function webSocketClose() {
         socket = null;
     }
     websocketConnected = false;
-}
-
-function getWsUrl() {
-    let hostname = window.location.hostname;
-    let protocol = window.location.protocol;
-    let port = window.location.port;
-    
-    if (protocol === 'https:') {
-        protocol = 'wss://';
-    }
-    else {
-        protocol = 'ws://';
-    }
-
-    let wsUrl = protocol + hostname + (port !== '' ? ':' + port : '') + subdir + '/ws/';
-    return wsUrl;
 }

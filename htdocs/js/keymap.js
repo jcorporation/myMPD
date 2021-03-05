@@ -3,7 +3,7 @@
 // https://github.com/jcorporation/mympd
 
 //eslint-disable-next-line no-unused-vars
-var keymap = {
+const keymap = {
     "ArrowLeft": {"cmd": "clickPrev", "options": [], "desc": "Previous song", "key": "keyboard_arrow_left"},
     "ArrowRight": {"cmd": "clickNext", "options": [], "desc": "Next song", "key": "keyboard_arrow_right"},
     " ": {"cmd": "clickPlay", "options": [], "desc": "Toggle play / pause", "key": "space_bar"},

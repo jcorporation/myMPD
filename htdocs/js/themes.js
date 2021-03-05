@@ -3,7 +3,7 @@
 // https://github.com/jcorporation/mympd
 
 //eslint-disable-next-line no-unused-vars
-var themes = {
+const themes = {
     "theme-autodetect": "Autodetect",
     "theme-default": "Default",
     "theme-dark": "Dark",

@@ -126,7 +126,7 @@ function getSelectValue(el) {
 }
 
 function getSelectedOptionAttribute(selectId, attribute) {
-    let el = document.getElementById(selectId);
+    const el = document.getElementById(selectId);
     if (el && el.selectedIndex >= 0) {
         return getAttDec(el.options[el.selectedIndex], attribute);
     }
@@ -162,7 +162,7 @@ function getXpos(el) {
 }
 
 function zeroPad(num, places) {
-  var zero = places - num.toString().length + 1;
+  const zero = places - num.toString().length + 1;
   return Array(+(zero > 0 && zero)).join("0") + num;
 }
 
@@ -183,7 +183,7 @@ function filetype(uri) {
     if (uri === undefined) {
         return '';
     }
-    let ext = uri.split('.').pop().toUpperCase();
+    const ext = uri.split('.').pop().toUpperCase();
     switch (ext) {
         case 'MP3':  return ext + ' - MPEG-1 Audio Layer III';
         case 'FLAC': return ext + ' - Free Lossless Audio Codec';
@@ -212,7 +212,7 @@ function scrollToPosY(pos) {
 }
 
 function selectTag(btnsEl, desc, setTo) {
-    let btns = document.getElementById(btnsEl);
+    const btns = document.getElementById(btnsEl);
     let aBtn = btns.querySelector('.active');
     if (aBtn) {
         aBtn.classList.remove('active');
@@ -314,7 +314,7 @@ function focusSearch() {
 
 function btnWaiting(btn, waiting) {
     if (waiting === true) {
-        let spinner = document.createElement('span');
+        const spinner = document.createElement('span');
         spinner.classList.add('spinner-border', 'spinner-border-sm', 'mr-2');
         btn.insertBefore(spinner, btn.firstChild);
         disableEl(btn);
@@ -328,7 +328,7 @@ function btnWaiting(btn, waiting) {
 }
 
 function toggleBtnGroupValue(btngrp, value) {
-    let btns = btngrp.getElementsByTagName('button');
+    const btns = btngrp.getElementsByTagName('button');
     let b = btns[0];
     let valuestr = value;
     if (isNaN(value) === false) {
@@ -347,7 +347,7 @@ function toggleBtnGroupValue(btngrp, value) {
 }
 
 function toggleBtnGroupValueCollapse(btngrp, collapse, value) {
-    let activeBtn = toggleBtnGroupValue(btngrp, value);
+    const activeBtn = toggleBtnGroupValue(btngrp, value);
     if (activeBtn.getAttribute('data-collapse') === 'show') {
         document.getElementById(collapse).classList.add('show');
     }
@@ -361,7 +361,7 @@ function toggleBtnGroup(btn) {
     if (typeof btn === 'string') {
         b = document.getElementById(btn);
     }
-    let btns = b.parentNode.getElementsByTagName('button');
+    const btns = b.parentNode.getElementsByTagName('button');
     for (let i = 0; i < btns.length; i++) {
         if (btns[i] === b) {
             btns[i].classList.add('active');
@@ -383,7 +383,7 @@ function getBtnGroupValue(btnGroup) {
 
 //eslint-disable-next-line no-unused-vars
 function toggleBtnGroupCollapse(btn, collapse) {
-    let activeBtn = toggleBtnGroup(btn);
+    const activeBtn = toggleBtnGroup(btn);
     if (activeBtn.getAttribute('data-collapse') === 'show') {
         if (document.getElementById(collapse).classList.contains('show') === false) {
             window[collapse].show();
@@ -441,7 +441,7 @@ function toggleBtnChk(btn, state) {
 }
 
 function toggleBtnChkCollapse(btn, collapse, state) {
-    let checked = toggleBtnChk(btn, state);
+    const checked = toggleBtnChk(btn, state);
     if (checked === true) {
         document.getElementById(collapse).classList.add('show');
     }
@@ -451,7 +451,7 @@ function toggleBtnChkCollapse(btn, collapse, state) {
 }
 
 function setPagination(total, returned) {
-    let cat = app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + (app.current.view === undefined ? '' : app.current.view);
+    const cat = app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + (app.current.view === undefined ? '' : app.current.view);
 
     if (document.getElementById(cat + 'PaginationTop') === null) {
         return;
@@ -461,7 +461,7 @@ function setPagination(total, returned) {
     if (totalPages === 0) {
         totalPages = 1;
     }
-    let curPage = app.current.limit > 0 ? app.current.offset / app.current.limit + 1 : 1;
+    const curPage = app.current.limit > 0 ? app.current.offset / app.current.limit + 1 : 1;
     
     const paginationHTML = '<button title="' + t('First page') + '" type="button" class="btn btn-group-prepend btn-secondary mi">first_page</button>' +
           '<button title="' + t('Previous page') + '" type="button" class="btn btn-group-prepend btn-secondary mi">navigate_before</button>' +
@@ -475,7 +475,7 @@ function setPagination(total, returned) {
     let bottomBarHTML = '<button type="button" class="btn btn-secondary mi" title="' + t('To top') + '">keyboard_arrow_up</button>' +
           '<div>' +
           '<select class="form-control custom-select border-secondary" title="' + t('Elements per page') + '">';
-    for (let i of [25, 50, 100, 200, 0]) {
+    for (const i of [25, 50, 100, 200, 0]) {
         bottomBarHTML += '<option value="' + i + '"' + (app.current.limit === i ? ' selected' : '') + '>' + (i > 0 ? i : t('All')) + '</option>';
     }
     bottomBarHTML += '</select>' +
@@ -504,7 +504,7 @@ function setPagination(total, returned) {
     document.getElementById(cat + 'PaginationTop').innerHTML = paginationHTML;
     
     const offsetLast = app.current.offset + app.current.limit;
-    let p = [ document.getElementById(cat + 'PaginationTop'), document.getElementById(cat + 'PaginationBottom') ];
+    const p = [ document.getElementById(cat + 'PaginationTop'), document.getElementById(cat + 'PaginationBottom') ];
     
     for (let i = 0; i < p.length; i++) {
         const first = p[i].children[0];
@@ -519,7 +519,7 @@ function setPagination(total, returned) {
             enableEl(page);
             let pl = '';
             for (let j = 0; j < totalPages; j++) {
-                let o = j * app.current.limit;
+                const o = j * app.current.limit;
                 pl += '<button data-offset="' + o + '" type="button" class="btn-sm btn btn-secondary' +
                       ( o === app.current.offset ? ' active' : '') + '">' +
                       ( j + 1) + '</button>';
@@ -534,7 +534,7 @@ function setPagination(total, returned) {
             //eslint-disable-next-line no-unused-vars
             const pagesDropdown = new BSN.Dropdown(page);
             
-            let lastPageOffset = (totalPages - 1) * app.current.limit;
+            const lastPageOffset = (totalPages - 1) * app.current.limit;
             if (lastPageOffset === app.current.offset) {
                 disableEl(last);
             }
@@ -705,7 +705,7 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
 }
 
 function createSearchCrumb(filter, op, value) {
-    let li = document.createElement('button');
+    const li = document.createElement('button');
     li.classList.add('btn', 'btn-light', 'mr-2');
     setAttEnc(li, 'data-filter-tag', filter);
     setAttEnc(li, 'data-filter-op', op);
@@ -716,7 +716,7 @@ function createSearchCrumb(filter, op, value) {
 
 function createSearchExpression(crumbsEl, tag, op, value) {
     let expression = '(';
-    let crumbs = crumbsEl.children;
+    const crumbs = crumbsEl.children;
     for (let i = 0; i < crumbs.length; i++) {
         if (i > 0) {
             expression += ' AND ';

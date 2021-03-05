@@ -46,7 +46,7 @@ function validateFilename(el) {
 function validateFilenameList(el) {
     el.classList.remove('is-invalid');
     
-    let filenames = el.value.split(',');
+    const filenames = el.value.split(',');
     for (let i = 0; i < filenames.length; i++) {
         if (validateFilenameString(filenames[i].trim()) === false) {
             el.classList.add('is-invalid');
@@ -89,7 +89,7 @@ function validatePlname(x) {
 }
 
 function validateNotBlank(el) {
-    let value = el.value.replace(/\s/g, '');
+    const value = el.value.replace(/\s/g, '');
     if (value === '') {
         el.classList.add('is-invalid');
         return false;
@@ -99,7 +99,7 @@ function validateNotBlank(el) {
 }
 
 function validateInt(el) {
-    let value = el.value.replace(/\d/g, '');
+    const value = el.value.replace(/\d/g, '');
     if (value !== '') {
         el.classList.add('is-invalid');
         return false;
@@ -109,7 +109,7 @@ function validateInt(el) {
 }
 
 function validateFloat(el) {
-    let value = el.value.replace(/[\d-.]/g, '');
+    const value = el.value.replace(/[\d-.]/g, '');
     if (value !== '') {
         el.classList.add('is-invalid');
         return false;

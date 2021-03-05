@@ -39,7 +39,7 @@ function initQueue() {
     }, false);
 
     document.getElementById('selectAddToQueueMode').addEventListener('change', function () {
-        let value = getSelectValue(this);
+        const value = getSelectValue(this);
         if (value === '2') {
             disableEl('inputAddToQueueQuantity');
             document.getElementById('inputAddToQueueQuantity').value = '1';
@@ -63,7 +63,7 @@ function initQueue() {
     });
 
     document.getElementById('modalSaveQueue').addEventListener('shown.bs.modal', function () {
-        let plName = document.getElementById('saveQueueName');
+        const plName = document.getElementById('saveQueueName');
         plName.focus();
         plName.value = '';
         removeIsInvalid(document.getElementById('modalSaveQueue'));
@@ -185,7 +185,7 @@ function parseLastPlayed(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function queueSelectedItem(append) {
-    let item = document.activeElement;
+    const item = document.activeElement;
     if (item) {
         if (item.parentNode.parentNode.id === 'QueueCurrentList') {
             return;
@@ -201,7 +201,7 @@ function queueSelectedItem(append) {
 
 //eslint-disable-next-line no-unused-vars
 function dequeueSelectedItem() {
-    let item = document.activeElement;
+    const item = document.activeElement;
     if (item) {
         if (item.parentNode.parentNode.id !== 'QueueCurrentList') {
             return;
@@ -277,7 +277,7 @@ function addToQueue() {
 
 //eslint-disable-next-line no-unused-vars
 function saveQueue() {
-    let plName = document.getElementById('saveQueueName').value;
+    const plName = document.getElementById('saveQueueName').value;
     if (validatePlname(plName) === true) {
         sendAPI("MPD_API_QUEUE_SAVE", {"plist": plName});
         modalSaveQueue.hide();
@@ -301,16 +301,17 @@ function gotoPlayingSong() {
     if (app.current.limit === 0) {
         return;
     }
-    let offset = lastState.songPos < app.current.limit ? 0 : Math.floor(lastState.songPos / app.current.limit) * app.current.limit;
-    gotoPage(offset);
+    gotoPage(lastState.songPos < app.current.limit ? 0 : Math.floor(lastState.songPos / app.current.limit) * app.current.limit);
 }
 
 //eslint-disable-next-line no-unused-vars
 function playAfterCurrent(trackid, songpos) {
     if (settings.random === 0) {
         //not in random mode - move song after current playling song
-        let newSongPos = lastState.songPos !== undefined ? lastState.songPos + 2 : 0;
-        sendAPI("MPD_API_QUEUE_MOVE_TRACK", {"from": songpos, "to": newSongPos});
+        sendAPI("MPD_API_QUEUE_MOVE_TRACK", {
+            "from": songpos,
+            "to": lastState.songPos !== undefined ? lastState.songPos + 2 : 0
+        });
     }
     else {
         //in random mode - set song priority

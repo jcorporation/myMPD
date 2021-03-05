@@ -24,8 +24,7 @@ function openFullscreen() {
 }
 
 function setViewport(store) {
-    let viewport = document.querySelector("meta[name=viewport]");
-    viewport.setAttribute('content', 'width=device-width, initial-scale=' + scale + ', maximum-scale=' + scale);
+    document.querySelector("meta[name=viewport]").setAttribute('content', 'width=device-width, initial-scale=' + scale + ', maximum-scale=' + scale);
     if (store === true) {
         try {
             localStorage.setItem('scale-ratio', scale);
@@ -38,7 +37,7 @@ function setViewport(store) {
 
 //eslint-disable-next-line no-unused-vars
 function addStream() {
-    let streamUriEl = document.getElementById('streamUrl');
+    const streamUriEl = document.getElementById('streamUrl');
     if (validateStream(streamUriEl) === true) {
         sendAPI("MPD_API_QUEUE_ADD_TRACK", {"uri": streamUriEl.value});
         modalAddToPlaylist.hide();
@@ -117,7 +116,7 @@ function updateDBstarted(showModal) {
     if (showModal === true) {
         document.getElementById('updateDBfinished').innerText = '';
         document.getElementById('updateDBfooter').classList.add('hide');
-        let updateDBprogress = document.getElementById('updateDBprogress');
+        const updateDBprogress = document.getElementById('updateDBprogress');
         updateDBprogress.style.width = '20px';
         updateDBprogress.style.marginLeft = '-20px';
         modalUpdateDB.show();
@@ -140,9 +139,9 @@ function updateDBfinished(idleEvent) {
 
 function _updateDBfinished(idleEvent) {
     //spinner in mounts modal
-    let el = document.getElementById('spinnerUpdateProgress');
+    const el = document.getElementById('spinnerUpdateProgress');
     if (el) {
-        let parent = el.parentNode;
+        const parent = el.parentNode;
         el.remove();
         for (let i = 0; i < parent.children.length; i++) {
             parent.children[i].classList.remove('hide');
@@ -157,7 +156,7 @@ function _updateDBfinished(idleEvent) {
         else if (idleEvent === 'update_finished') {
             document.getElementById('updateDBfinished').innerText = t('Database update finished');
         }
-        let updateDBprogress = document.getElementById('updateDBprogress');
+        const updateDBprogress = document.getElementById('updateDBprogress');
         updateDBprogress.classList.remove('updateDBprogressAnimate');
         updateDBprogress.style.width = '100%';
         updateDBprogress.style.marginLeft = '0px';
@@ -181,7 +180,7 @@ function zoomPicture(el) {
     }
     
     if (el.classList.contains('carousel')) {
-        let imgSrc = getAttDec(el, 'data-images');
+        const imgSrc = getAttDec(el, 'data-images');
         let images;
         if (imgSrc !== null) {
             images = getAttDec(el, 'data-images').split(';;');
@@ -194,22 +193,22 @@ function zoomPicture(el) {
         }
         
         //add uri to image list to get embedded albumart
-        let a_images = [];
+        let aImages = [];
         const uri = getAttDec(el, 'data-uri');
         if (uri) {
-            a_images = [ subdir + '/albumart/' + uri ];
+            aImages = [ subdir + '/albumart/' + uri ];
         }
         //add all but coverfiles to image list
         if (settings.publish === true) {
             for (let i = 0; i < images.length; i++) {
                 if (isCoverfile(images[i]) === false) {
-                    a_images.push(subdir + '/browse/music/' + images[i]);
+                    aImages.push(subdir + '/browse/music/' + images[i]);
                 }
             }
         }
         const imgEl = document.getElementById('modalPictureImg');
         imgEl.style.paddingTop = 0;
-        createImgCarousel(imgEl, 'picsCarousel', a_images);
+        createImgCarousel(imgEl, 'picsCarousel', aImages);
         document.getElementById('modalPictureZoom').classList.add('hide');
         modalPicture.show();
         return;
@@ -251,13 +250,13 @@ function createImgCarousel(imgEl, name, images) {
         '</a>' +
         '</div>';
     imgEl.innerHTML = carousel;
-    let carouselItems = imgEl.getElementsByClassName('carousel-item');
+    const carouselItems = imgEl.getElementsByClassName('carousel-item');
     for (let i = 0; i < carouselItems.length; i++) {
         carouselItems[i].children[0].style.backgroundImage = 'url("' + encodeURI(images[i]) + '")';
     }
-    let myCarousel = document.getElementById(name);
+    const myCarousel = document.getElementById(name);
     //eslint-disable-next-line no-undef, no-unused-vars
-    let myCarouselInit = new BSN.Carousel(myCarousel, {
+    const myCarouselInit = new BSN.Carousel(myCarousel, {
         interval: false,
         pause: false
     });
