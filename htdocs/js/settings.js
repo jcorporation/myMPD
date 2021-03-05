@@ -341,7 +341,7 @@ function parseSettings() {
         getBgImageList(settings.bgImage);
     }
 
-    if (settings.bgImage.indexOf('/assets/') == 0) {
+    if (settings.bgImage.indexOf('/assets/') === 0) {
         domCache.body.style.backgroundImage = 'url("' + subdir + settings.bgImage + '")';
     }
     else if (settings.bgImage !== '') {
