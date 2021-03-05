@@ -192,7 +192,6 @@ createassets() {
   # shellcheck disable=SC2002
   cat $JSSRCFILES | grep -v "\"use strict\";" > release/htdocs/js/mympd.js
   minify js htdocs/sw.js release/htdocs/sw.min.js
-  minify js htdocs/js/keymap.js release/htdocs/js/keymap.min.js
   minify js release/htdocs/js/mympd.js release/htdocs/js/mympd.min.js
   
   echo "Combining and compressing javascript"
