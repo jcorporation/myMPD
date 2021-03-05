@@ -85,7 +85,10 @@ body {
   min-height: 100vh;
   padding-top: 3rem;
   padding-bottom: 4rem;
-  background-color: #888;
+  background-color: #000;
+  background-position: center center;
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 
 main {

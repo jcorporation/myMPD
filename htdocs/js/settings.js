@@ -138,14 +138,25 @@ function initSettings() {
 
     document.getElementById('selectTheme').addEventListener('change', function(event) {
         const value = getSelectValue(event.target);
+        const bgImageEl = document.getElementById('selectBgImage');
+        const bgImageValue = getSelectValue(bgImageEl);
         if (value === 'theme-default') { 
             document.getElementById('inputBgColor').value = '#aaaaaa';
+            if (bgImageValue.indexOf('/assets/') === 0) {
+                bgImageEl.value = '/assets/mympd-background-default.svg';
+            }
         }
         else if (value === 'theme-light') {
             document.getElementById('inputBgColor').value = '#ffffff';
+            if (bgImageValue.indexOf('/assets/') === 0) {
+                bgImageEl.value = '/assets/mympd-background-light.svg';
+            }
         }
         else if (value === 'theme-dark') {
-            document.getElementById('inputBgColor').value = '#000000';
+            document.getElementById('inputBgColor').value = '#060708';
+            if (bgImageValue.indexOf('/assets/') === 0) {
+                bgImageEl.value = '/assets/mympd-background-dark.svg';
+            }
         }
     }, false);
     
@@ -330,7 +341,10 @@ function parseSettings() {
         getBgImageList(settings.bgImage);
     }
 
-    if (settings.bgImage !== '') {
+    if (settings.bgImage.indexOf('/assets/') == 0) {
+        domCache.body.style.backgroundImage = 'url("' + subdir + settings.bgImage + '")';
+    }
+    else if (settings.bgImage !== '') {
         domCache.body.style.backgroundImage = 'url("' + subdir + '/browse/pics/' + settings.bgImage + '")';
     }
     else {
@@ -1333,18 +1347,26 @@ function resetValue(elId) {
 }
 
 function getBgImageList(image) {
-    getImageList(image, 'selectBgImage', '', 'None');
+    getImageList('selectBgImage', image, [
+        {"value":"","text":"None"},
+        {"value":"/assets/mympd-background-default.svg","text":"Default image"},
+        {"value":"/assets/mympd-background-dark.svg","text":"Default image dark"},
+        {"value":"/assets/mympd-background-light.svg","text":"Default image light"},
+    ]);
 }
 
-function getImageList(image, selectElId, firstOptValue, firstOptText) {
+function getImageList(selectEl, value, addOptions) {
     sendAPI("MYMPD_API_PICTURE_LIST", {}, function(obj) {
-        let options = '<option value="' + e(firstOptValue) + '">' + t(firstOptText) + '</option>';
+        let options = '';
+        for (const option of addOptions) {
+            options += '<option value="' + e(option.value) + '">' + t(option.text) + '</option>';
+        }
         for (let i = 0; i < obj.result.returnedEntities; i++) {
             options += '<option value="' + e(obj.result.data[i]) + '">' + e(obj.result.data[i])  + '</option>';
         }
-        let sel = document.getElementById(selectElId);
+        let sel = document.getElementById(selectEl);
         sel.innerHTML = options;
-        sel.value = image;
+        sel.value = value;
     });
 }
 

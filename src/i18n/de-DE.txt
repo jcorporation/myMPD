@@ -1822,3 +1822,12 @@ Kategorie
 
 Can not parse response to json object
 Antwort konnte nicht geparsed werden
+
+Default image
+Standardbild
+
+Default image light
+Standardbild Hell
+
+Default image dark
+Standardbild Dunkel

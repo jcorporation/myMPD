@@ -469,5 +469,5 @@ function showHomeIconCmdOptions(values) {
 }
 
 function getHomeIconPictureList(picture) {
-    getImageList(picture, 'selectHomeIconImage', '', 'Use ligature');
+    getImageList('selectHomeIconImage', image, [{"value":"","text":"Use ligature"}]);
 }
