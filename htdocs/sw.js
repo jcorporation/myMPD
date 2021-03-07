@@ -15,7 +15,10 @@ const urlsToCache = [
     subdir + '/assets/coverimage-loading.svg',
 	subdir + '/assets/coverimage-mympd.svg',
     subdir + '/assets/favicon.ico',
-    subdir + '/assets/MaterialIcons-Regular.woff2'
+    subdir + '/assets/MaterialIcons-Regular.woff2',
+	subidr + 'mympd-background-dark.svg',
+	subidr + 'mympd-background-default.svg',
+	subidr + 'mympd-background-light.svg'
 ];
 
 const ignoreRequests = new RegExp('(' + [
