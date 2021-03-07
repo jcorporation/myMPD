@@ -397,7 +397,7 @@ function showBookmarkSave(id, name, uri, type) {
     document.getElementById('saveBookmarkName').value = name;
     document.getElementById('saveBookmarkUri').value = uri;
     document.getElementById('saveBookmarkType').value = type;
-    modalSaveBookmark.show();
+    uiElements.modalSaveBookmark.show();
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -408,7 +408,7 @@ function saveBookmark() {
         const uri = document.getElementById('saveBookmarkUri').value;
         const type = document.getElementById('saveBookmarkType').value;
         sendAPI("MYMPD_API_BOOKMARK_SAVE", {"id": id, "name": name, "uri": uri, "type": type});
-        modalSaveBookmark.hide();
+        uiElements.modalSaveBookmark.hide();
     }
     else {
         document.getElementById('saveBookmarkName').classList.add('is-invalid');

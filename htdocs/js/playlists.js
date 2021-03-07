@@ -229,7 +229,7 @@ function parseSmartPlaylist(obj) {
         document.getElementById('saveSmartPlaylistNewest').classList.remove('hide');
         document.getElementById('inputSaveSmartPlaylistNewestTimerange').value = obj.result.timerange / 24 / 60 / 60;
     }
-    modalSaveSmartPlaylist.show();
+    uiElements.modalSaveSmartPlaylist.show();
     nameEl.focus();
 }
 
@@ -282,7 +282,7 @@ function saveSmartPlaylist() {
             document.getElementById('saveSmartPlaylistType').classList.add('is-invalid');
             return;
         }
-        modalSaveSmartPlaylist.hide();
+        uiElements.modalSaveSmartPlaylist.hide();
         showNotification(t('Saved smart playlist %{name}', {"name": name}), '', 'playlist', 'info');
     }
     else {
@@ -361,7 +361,7 @@ function showAddToPlaylist(uri, searchstr) {
         document.getElementById('addToPlaylistFrm').classList.add('hide');
         document.getElementById('addToPlaylistCaption').innerText = t('Add stream');
     }
-    modalAddToPlaylist.show();
+    uiElements.modalAddToPlaylist.show();
     if (settings.featPlaylists) {
         sendAPI("MPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) {
             getAllPlaylists(obj, 'addToPlaylistPlaylist');
@@ -404,7 +404,7 @@ function addToPlaylist() {
         else {
             sendAPI("MPD_API_PLAYLIST_ADD_TRACK", {"uri": uri, "plist": plist});
         }
-        modalAddToPlaylist.hide();
+        uiElements.modalAddToPlaylist.hide();
     }
     else {
         document.getElementById('addToPlaylistPlaylist').classList.add('is-invalid');
@@ -414,7 +414,7 @@ function addToPlaylist() {
 //eslint-disable-next-line no-unused-vars
 function showRenamePlaylist(from) {
     removeIsInvalid(document.getElementById('modalRenamePlaylist'));
-    modalRenamePlaylist.show();
+    uiElements.modalRenamePlaylist.show();
     document.getElementById('renamePlaylistFrom').value = from;
     document.getElementById('renamePlaylistTo').value = '';
 }
@@ -425,7 +425,7 @@ function renamePlaylist() {
     const to = document.getElementById('renamePlaylistTo').value;
     if (to !== from && validatePlname(to) === true) {
         sendAPI("MPD_API_PLAYLIST_RENAME", {"from": from, "to": to});
-        modalRenamePlaylist.hide();
+        uiElements.modalRenamePlaylist.hide();
     }
     else {
         document.getElementById('renamePlaylistTo').classList.add('is-invalid');

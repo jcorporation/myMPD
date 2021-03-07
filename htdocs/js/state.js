@@ -67,7 +67,7 @@ function parseOutputs(obj) {
 
 function showListOutputAttributes(outputName) {
     sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
-        modalOutputAttributes.show();
+        uiElements.modalOutputAttributes.show();
         let output;
         for (let i = 0; i < obj.result.data.length; i++) {
             if (obj.result.data[i].name === outputName) {
@@ -105,7 +105,7 @@ function saveOutputAttributes() {
         params.attributes[els[i].name] = els[i].value;
     }
     sendAPI('MPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET', params);
-    modalOutputAttributes.hide();
+    uiElements.modalOutputAttributes.hide();
 }
 
 function setCounter(currentSongId, totalTime, elapsedTime) {

@@ -28,6 +28,12 @@ function r(x) {
     return x.replace(/[^\w-]/g, '_');
 }
 
+function smartCount(number) {
+    if (number === 0) { return 1; }
+    else if (number === 1) { return 0; }
+    else { return 1; }
+}
+
 function t(phrase, number, data) {
     let result = undefined;
     if (isNaN(number)) {
@@ -62,12 +68,6 @@ function t(phrase, number, data) {
     }
     
     return e(result);
-}
-
-function smartCount(number) {
-    if (number === 0) { return 1; }
-    else if (number === 1) { return 0; }
-    else { return 1; }
 }
 
 function localeDate(secs) {

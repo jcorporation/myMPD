@@ -175,13 +175,12 @@ createassets() {
   
   echo "Minifying javascript"
   JSSRCFILES=""
-  for F in htdocs/js/*.js
+  for F in $(grep -P '<!--debug-->\s+<script' htdocs/index.html | cut -d\" -f2)
   do
-    [ "$F" = "htdocs/js/i18n.js" ] && continue
-    [ "$F" = "htdocs/js/bootstrap-native.js" ] && continue
-    [ "$F" = "htdocs/js/long-press-event.js" ] && continue
-    [ -L "$F" ] || JSSRCFILES="$JSSRCFILES $F"
-    if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
+    [ "$F" = "js/i18n.js" ] || [ "$F" = "js/bootstrap-native.js" ] || \
+    [ "$F" = "js/long-press-event.js" ] && continue
+    [ -L "$F" ] || JSSRCFILES="$JSSRCFILES htdocs/$F"
+    if tail -1 "htdocs/$F" | perl -npe 'exit 1 if m/\n/; exit 0'
     then
       echo "ERROR: $F don't end with newline character"
       exit 1

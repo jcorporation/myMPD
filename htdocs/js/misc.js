@@ -40,7 +40,7 @@ function addStream() {
     const streamUriEl = document.getElementById('streamUrl');
     if (validateStream(streamUriEl) === true) {
         sendAPI("MPD_API_QUEUE_ADD_TRACK", {"uri": streamUriEl.value});
-        modalAddToPlaylist.hide();
+        uiElements.modalAddToPlaylist.hide();
         showNotification(t('Added stream %{streamUri} to queue', {"streamUri": streamUriEl.value}), '', 'queue', 'info');
     }
 }
@@ -119,7 +119,7 @@ function updateDBstarted(showModal) {
         const updateDBprogress = document.getElementById('updateDBprogress');
         updateDBprogress.style.width = '20px';
         updateDBprogress.style.marginLeft = '-20px';
-        modalUpdateDB.show();
+        uiElements.modalUpdateDB.show();
         updateDBprogress.classList.add('updateDBprogressAnimate');
     }
     showNotification(t('Database update started'), '', 'database', 'info');
@@ -210,7 +210,7 @@ function zoomPicture(el) {
         imgEl.style.paddingTop = 0;
         createImgCarousel(imgEl, 'picsCarousel', aImages);
         document.getElementById('modalPictureZoom').classList.add('hide');
-        modalPicture.show();
+        uiElements.modalPicture.show();
         return;
     }
     
@@ -220,7 +220,7 @@ function zoomPicture(el) {
         imgEl.style.paddingTop = '100%';
         imgEl.style.backgroundImage = el.style.backgroundImage;
         document.getElementById('modalPictureZoom').classList.remove('hide');
-        modalPicture.show();
+        uiElements.modalPicture.show();
     }
 }
 

@@ -13,11 +13,11 @@ function showConfirm(text, callback) {
         if (callback !== undefined && typeof(callback) === 'function') {
             callback();
         }
-        modalConfirm.hide();        
+        uiElements.modalConfirm.hide();        
     }, false);
     yesBtn.innerHTML = t('Yes');
     document.getElementById('modalConfirmYesBtn').replaceWith(yesBtn);
-    modalConfirm.show();
+    uiElements.modalConfirm.show();
 }
 
 //functions to get custom actions
@@ -386,11 +386,11 @@ function toggleBtnGroupCollapse(btn, collapse) {
     const activeBtn = toggleBtnGroup(btn);
     if (activeBtn.getAttribute('data-collapse') === 'show') {
         if (document.getElementById(collapse).classList.contains('show') === false) {
-            window[collapse].show();
+            uiElements[collapse].show();
         }
     }
     else {
-        window[collapse].hide();
+        uiElements[collapse].hide();
     }
 }
 

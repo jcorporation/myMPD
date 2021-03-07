@@ -104,7 +104,7 @@ function initHome() {
             const sel = document.getElementById('listHomeIconLigature').getElementsByClassName('active')[0];
             if (sel !== undefined) {
                 selectHomeIconLigature(sel);
-                dropdownHomeIconLigature.toggle();
+                uiElements.dropdownHomeIconLigature.toggle();
             }
         }
         else {
@@ -350,7 +350,7 @@ function _addHomeIcon(cmd, name, ligature, options) {
     document.getElementById('homeIconPreview').style.backgroundColor = '#28a745';
     document.getElementById('homeIconPreview').style.backgroundImage = '';
     document.getElementById('divHomeIconLigature').classList.remove('hide');
-    modalEditHomeIcon.show();
+    uiElements.modalEditHomeIcon.show();
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -403,7 +403,7 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('searchHomeIconCat').value = 'all';
         filterHomeIconLigatures();
         //show modal
-        modalEditHomeIcon.show();
+        uiElements.modalEditHomeIcon.show();
     });
 }
 
@@ -432,7 +432,7 @@ function saveHomeIcon() {
             "cmd": document.getElementById('selectHomeIconCmd').value,
             "options": options
             }, function() {
-                modalEditHomeIcon.hide();
+                uiElements.modalEditHomeIcon.hide();
                 sendAPI("MYMPD_API_HOME_LIST", {}, function(obj) {
                     parseHome(obj);
                 });

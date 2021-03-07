@@ -217,8 +217,8 @@ function parseScriptList(obj) {
         document.getElementById('selectTimerAction').appendChild(timerActions);
     }
     //reinit mainmenu -> change of script list
-    dropdownMainMenu.dispose();
-    dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
+    uiElements.dropdownMainMenu.dispose();
+    uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -245,7 +245,7 @@ function execScript(href) {
         }
         document.getElementById('execScriptArguments').innerHTML = arglist;
         document.getElementById('modalExecScriptScriptname').value = cmd.script;
-        modalExecScript.show();
+        uiElements.modalExecScript.show();
     }
 }
 
@@ -258,5 +258,5 @@ function execScriptArgs() {
         args[inputs[i].name] = inputs[i].value;
     }
     sendAPI("MYMPD_API_SCRIPT_EXECUTE", {"script": script, "arguments": args});
-    modalExecScript.hide();
+    uiElements.modalExecScript.hide();
 }

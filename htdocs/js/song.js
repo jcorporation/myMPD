@@ -18,7 +18,7 @@ function initSong() {
                 //do nothing, link opens in new browser window
             }
             else if (event.target.parentNode.getAttribute('data-tag') !== null) {
-                modalSongDetails.hide();
+                uiElements.modalSongDetails.hide();
                 event.preventDefault();
                 gotoBrowse(event);
             } 
@@ -33,7 +33,7 @@ function initSong() {
 
 function songDetails(uri) {
     sendAPI("MPD_API_DATABASE_SONGDETAILS", {"uri": uri}, parseSongDetails);
-    modalSongDetails.show();
+    uiElements.modalSongDetails.show();
 }
 
 function parseFingerprint(obj) {

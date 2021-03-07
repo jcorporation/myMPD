@@ -3,132 +3,6 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-const advancedSettingsDefault = {
-    "clickSong": { 
-        "defaultValue": "append", 
-        "validValues": { 
-            "append": "Append to queue", 
-            "replace": "Replace queue", 
-            "view": "Song details"
-        }, 
-        "inputType": "select",
-        "title": "Click song",
-        "form": "AdvancedSettingsFrm"
-    },
-    "clickQueueSong": { 
-        "defaultValue": "play", 
-        "validValues": {
-            "play": "Play", 
-            "view": "Song details",
-        },
-        "inputType": "select",
-        "title": "Click song in queue",
-        "form": "AdvancedSettingsFrm"
-    },
-    "clickPlaylist": { 
-        "defaultValue": "append", 
-        "validValues": {
-            "append": "Append to queue",
-            "replace": "Replace queue",
-            "view": "View playlist"
-        },
-        "inputType": "select",
-        "title": "Click playlist",
-        "form": "AdvancedSettingsFrm"
-    },
-    "clickFolder": { 
-        "defaultValue": "view", 
-        "validValues": {
-            "append": "Append to queue",
-            "replace": "Replace queue",
-            "view": "Open folder"
-        },
-        "inputType": "select",
-        "title": "Click folder",
-        "form": "AdvancedSettingsFrm"
-    },
-    "clickAlbumPlay": { 
-        "defaultValue": "replace", 
-        "validValues": {
-            "append": "Append to queue",
-            "replace": "Replace queue",
-        },
-        "inputType": "select",
-        "title": "Click album play button",
-        "form": "AdvancedSettingsFrm"
-    },
-    "notificationAAASection": {
-        "inputType": "section",
-        "subtitle": "Facilities",
-        "form": "NotificationSettingsAdvFrm"
-    },
-    "notificationPlayer": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Playback",
-        "form": "NotificationSettingsAdvFrm"
-    },
-    "notificationQueue": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Queue",
-        "form": "NotificationSettingsAdvFrm"
-    },
-    "notificationGeneral": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "General",
-        "form": "NotificationSettingsAdvFrm"
-    },
-    "notificationDatabase": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Database",
-        "form": "NotificationSettingsAdvFrm"
-    },
-    "notificationPlaylist": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Playlist",
-        "form": "NotificationSettingsAdvFrm"
-    },
-    "uiAAASection": {
-        "inputType": "section",
-        "title": "Appearance",
-        "form": "AdvancedSettingsFrm"
-    },
-    "uiFooterQueueSettings": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Show playback settings in footer",
-        "form": "AdvancedSettingsFrm"
-    },
-    "uiFooterPlaybackControls": {
-        "defaultValue": "pause",
-        "validValues": {
-            "pause": "pause only",
-            "stop": "stop only",
-            "both": "pause and stop"
-        },
-        "inputType": "select",
-        "title": "Playback controls",
-        "form": "AdvancedSettingsFrm"
-    },
-    "uiMaxElementsPerPage": {
-        "defaultValue": "100",
-        "validValues": {
-            "25": "25",
-            "50": "50",
-            "100": "100",
-            "200": "200",
-            "0": "All"
-        },
-        "inputType": "select",
-        "title": "Elements per page",
-        "form": "AdvancedSettingsFrm"
-    }
-};
-
 function initSettings() {
     let selectThemeHtml = '';
     Object.keys(themes).forEach(function(key) {
@@ -273,7 +147,7 @@ function saveConnection() {
             "mpdPass": mpdPassEl.value,
             "musicDirectory": musicDirectory
         }, getSettings);
-        modalConnection.hide();    
+        uiElements.modalConnection.hide();    
     }
 }
 
@@ -628,8 +502,8 @@ function parseSettings() {
         document.getElementById('syscmds').innerHTML = '';
     }
     //reinit mainmenu -> change of syscmd list
-    dropdownMainMenu.dispose();
-    dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
+    uiElements.dropdownMainMenu.dispose();
+    uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 
     if (settings.featScripting === true) {
         getScriptList(true);
@@ -637,8 +511,8 @@ function parseSettings() {
     else {
         document.getElementById('scripts').innerHTML = '';
         //reinit mainmenu -> change of script list
-        dropdownMainMenu.dispose();
-        dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
+        uiElements.dropdownMainMenu.dispose();
+        uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
     }
 
     document.getElementById('selectTimerAction').innerHTML = timerActions;
@@ -1094,7 +968,7 @@ function saveSettings(closeModal) {
             "featHome": (document.getElementById('btnFeatHome').classList.contains('active') ? true : false)
         }, getSettings);
         if (closeModal === true) {
-            modalSettings.hide();
+            uiElements.modalSettings.hide();
         }
         else {
             btnWaiting(document.getElementById('btnApplySettings'), true);
@@ -1173,7 +1047,7 @@ function saveQueueSettings() {
             "jukeboxUniqueTag": jukeboxUniqueTag,
             "autoPlay": (document.getElementById('btnAutoPlay').classList.contains('active') ? true : false)
         }, getSettings);
-        modalQueueSettings.hide();
+        uiElements.modalQueueSettings.hide();
     }
 }
 

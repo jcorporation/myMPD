@@ -271,7 +271,7 @@ function addToQueue() {
             "playlist": jukeboxPlaylist,
             "quantity": document.getElementById('inputAddToQueueQuantity').value
         });
-        modalAddToQueue.hide();
+        uiElements.modalAddToQueue.hide();
     }
 }
 
@@ -280,7 +280,7 @@ function saveQueue() {
     const plName = document.getElementById('saveQueueName').value;
     if (validatePlname(plName) === true) {
         sendAPI("MPD_API_QUEUE_SAVE", {"plist": plName});
-        modalSaveQueue.hide();
+        uiElements.modalSaveQueue.hide();
     }
     else {
         document.getElementById('saveQueueName').classList.add('is-invalid');

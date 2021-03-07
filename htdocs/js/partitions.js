@@ -25,7 +25,7 @@ function initPartitions() {
         if (event.target.nodeName === 'TD') {
             const outputName = decodeURI(event.target.parentNode.getAttribute('data-output'));
             moveOutput(outputName);
-            modalPartitionOutputs.hide();
+            uiElements.modalPartitionOutputs.hide();
         }
     }, false);
 
