@@ -135,3 +135,12 @@ function validateHost(el) {
     el.classList.add('is-invalid');
     return false;
 }
+
+function validateSelect(el) {
+    if (getSelectValue(el) !== undefined) {
+        el.classList.remove('is-invalid');
+        return true;
+    }
+    el.classList.add('is-invalid');
+    return false;
+}

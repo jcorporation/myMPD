@@ -38,6 +38,11 @@ function saveTrigger() {
         formOK = false;
     }
     
+    const scriptEl = document.getElementById('selectTriggerScript');
+    if (!validateSelect(scriptEl)) {
+        formOK = false;
+    }
+    
     if (formOK === true) {
         const args = {};
         const argEls = document.getElementById('triggerActionScriptArguments').getElementsByTagName('input');
@@ -87,7 +92,9 @@ function parseTriggerEdit(obj) {
 
 function selectTriggerActionChange(values) {
     const el = document.getElementById('selectTriggerScript');
-    showTriggerScriptArgs(el.options[el.selectedIndex], values);
+    if (el.selectedIndex > -1) {
+        showTriggerScriptArgs(el.options[el.selectedIndex], values);
+    }
 }
 
 function showTriggerScriptArgs(option, values) {

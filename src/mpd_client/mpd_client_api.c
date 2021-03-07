@@ -125,7 +125,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
         case MPD_API_TRIGGER_SAVE:
             je = json_scanf(request->data, sdslen(request->data), "{params: {id: %d, name: %Q, event: %d, script: %Q}}", 
                 &int_buf1, &p_charbuf1, &int_buf2, &p_charbuf2);
-            if (je == 4 && validate_string_not_empty(p_charbuf2) == true) {
+            if (je == 4 && validate_string_not_empty(p_charbuf1) == true && validate_string_not_empty(p_charbuf2) == true) {
                 struct list *arguments = (struct list *) malloc(sizeof(struct list));
                 assert(arguments);
                 list_init(arguments);
