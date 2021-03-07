@@ -130,10 +130,13 @@ function parseSearch(obj) {
         disableEl('searchAddAllSongsBtn');
     }
 
+    const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
+
     updateTable(obj, 'Search', function(row, data) {
         setAttEnc(row, 'data-type', data.Type);
         setAttEnc(row, 'data-uri', data.uri);
         row.setAttribute('tabindex', 0);
+        row.setAttribute('title', rowTitle);
         if (settings.featTags === true && settings.featAdvsearch === true) {
             //add artist and album information for album actions
             if (data.Album !== undefined) {
