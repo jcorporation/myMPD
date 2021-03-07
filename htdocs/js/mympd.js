@@ -679,11 +679,11 @@ function initNavs() {
     });
 
     document.getElementById('outputs').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON') {
+        if (event.target.nodeName === 'SPAN') {
             event.stopPropagation();
             event.preventDefault();
-            sendAPI("MPD_API_PLAYER_TOGGLE_OUTPUT", {"output": getAttDec(event.target, 'data-output-id'), "state": (event.target.classList.contains('active') ? 0 : 1)});
-            toggleBtn(event.target.id);
+            sendAPI("MPD_API_PLAYER_TOGGLE_OUTPUT", {"output": getAttDec(event.target.parentNode, 'data-output-id'), "state": (event.target.parentNode.classList.contains('active') ? 0 : 1)});
+            toggleBtn(event.target.parentNode.id);
         }
         else if (event.target.nodeName === 'A') {
             event.preventDefault();

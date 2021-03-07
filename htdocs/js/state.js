@@ -45,18 +45,15 @@ function parseOutputs(obj) {
         if (obj.result.data[i].plugin !== 'dummy') {
             nr++;
             btns += '<button id="btnOutput' + obj.result.data[i].id +'" data-output-name="' + encodeURI(obj.result.data[i].name) + '" data-output-id="' + 
-                obj.result.data[i].id + '" class="btn btn-secondary btn-block';
+                obj.result.data[i].id + '" class="btn btn-secondary btn-block d-flex justify-content-between';
             if (obj.result.data[i].state === 1) {
                 btns += ' active';
             }
-            btns += '"><span class="mi float-left">volume_up</span> ' + e(obj.result.data[i].name);
-            if (Object.keys(obj.result.data[i].attributes).length > 0) {
-                btns += '<a class="mi float-right text-white" title="' + t('Edit attributes') + '">settings</a>';
-            }
-            else {
-                btns += '<a class="mi float-right text-white" title="' + t('Show attributes') + '">settings</a>';
-            }
-            btns += '</button>';
+            btns += '"><span class="mi align-self-center">' + (obj.result.data[i].plugin === 'httpd' ? 'cast' : 'volume_up') + '</span> ' + 
+                '<span class="ml-2 mr-2 align-self-center">' + e(obj.result.data[i].name) + '</span>' +
+                '<a class="mi text-white align-self-center" title="' + 
+                (Object.keys(obj.result.data[i].attributes).length > 0 ? t('Edit attributes') : t('Show attributes')) + '">settings</a>' +
+                '</button>';
         }
     }
     if (nr === 0) {
