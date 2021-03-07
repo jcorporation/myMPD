@@ -605,8 +605,8 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             if (je == 2) {
                 rc = mpd_run_playlist_add(mpd_client_state->mpd_state->conn, p_charbuf1, p_charbuf2);
                 if (check_error_and_recover2(mpd_client_state->mpd_state, &response->data, request->method, request->id, false) == true && rc == true) {
-                    response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true, 
-                    "playlist", "error", "Added %{uri} to playlist %{playlist}", 4, "uri", p_charbuf2, "playlist", p_charbuf1);
+                    response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false, 
+                    "playlist", "info", "Added %{uri} to playlist %{playlist}", 4, "uri", p_charbuf2, "playlist", p_charbuf1);
                 }
                 else if (rc == false) {
                     response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_playlist_add");
