@@ -679,15 +679,16 @@ function initNavs() {
     });
 
     document.getElementById('outputs').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'SPAN') {
-            event.stopPropagation();
-            event.preventDefault();
-            sendAPI("MPD_API_PLAYER_TOGGLE_OUTPUT", {"output": getAttDec(event.target.parentNode, 'data-output-id'), "state": (event.target.parentNode.classList.contains('active') ? 0 : 1)});
-            toggleBtn(event.target.parentNode.id);
-        }
-        else if (event.target.nodeName === 'A') {
+        if (event.target.nodeName === 'A') {
             event.preventDefault();
             showListOutputAttributes(getAttDec(event.target.parentNode, 'data-output-name'));
+        }
+        else {
+            const target = event.target.nodeName === 'BUTTON' ? event.target : event.target.parentNode;
+            event.stopPropagation();
+            event.preventDefault();
+            sendAPI("MPD_API_PLAYER_TOGGLE_OUTPUT", {"output": getAttDec(target, 'data-output-id'), "state": (target.classList.contains('active') ? 0 : 1)});
+            toggleBtn(target.id);
         }
     }, false);
 
