@@ -325,10 +325,8 @@ button {
   text-align: right;
 }
 
-tr > th {
+th {
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .card {
