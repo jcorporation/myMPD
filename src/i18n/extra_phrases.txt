@@ -74,3 +74,6 @@ pause and stop
 pause only
 stop only
 Facilities
+Default image
+Default image dark
+Default image light

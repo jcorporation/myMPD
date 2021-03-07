@@ -1527,9 +1527,6 @@ Duplica l'icona della home
 Edit home icon
 Modifica l'icona della home
 
-Error reading metadata
-Errore nella lettuda dei metadati
-
 Execute Script
 Esegui lo script
 
@@ -1610,9 +1607,6 @@ Linguetta
 
 Toggle play
 Commuta riproduzione
-
-Unsupported file type
-Tipo file non supportato
 
 Use ligature
 Usa legatura
