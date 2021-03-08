@@ -167,19 +167,22 @@ createi18n() {
 
 createassets() {
   echo "Creating assets"
+  #Recreate asset directories
+  rm -fr release/htdocs
   install -d release/htdocs/js
   install -d release/htdocs/css
   install -d release/htdocs/assets
 
+  #Create translation phrases file
   createi18n ../../release/htdocs/js/i18n.min.js ""
   
   echo "Minifying javascript"
   JSSRCFILES=""
+  # shellcheck disable=SC2013
   for F in $(grep -P '<!--debug-->\s+<script' htdocs/index.html | cut -d\" -f2)
   do
-    [ "$F" = "js/i18n.js" ] || [ "$F" = "js/bootstrap-native.js" ] || \
-    [ "$F" = "js/long-press-event.js" ] && continue
-    [ -L "$F" ] || JSSRCFILES="$JSSRCFILES htdocs/$F"
+	#skip symbolic links
+    [ -L "htdocs/$F" ] || JSSRCFILES="$JSSRCFILES htdocs/$F"
     if tail -1 "htdocs/$F" | perl -npe 'exit 1 if m/\n/; exit 0'
     then
       echo "ERROR: $F don't end with newline character"
@@ -194,6 +197,7 @@ createassets() {
   minify js release/htdocs/js/mympd.js release/htdocs/js/mympd.min.js
   
   echo "Combining and compressing javascript"
+  echo "//myMPD ${VERSION} | (c) 2018-2021 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-2.0-or-later | https://github.com/jcorporation/mympd" > release/htdocs/js/copyright.min.js
   JSFILES="dist/htdocs/js/*.min.js release/htdocs/js/*.min.js"
   for F in $JSFILES
   do
@@ -216,10 +220,12 @@ createassets() {
   for F in htdocs/css/*.css
   do
     DST=$(basename "$F" .css)
+    #skip symbolic links
     [ -L "$F" ] || minify css "$F" "release/htdocs/css/${DST}.min.css"
   done
   
   echo "Combining and compressing stylesheets"
+  echo "/* myMPD ${VERSION} | (c) 2018-2021 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-2.0-or-later | https://github.com/jcorporation/mympd */" > release/htdocs/css/copyright.min.css
   CSSFILES="dist/htdocs/css/*.min.css release/htdocs/css/*.min.css"
   # shellcheck disable=SC2086
   cat $CSSFILES > release/htdocs/css/combined.css
@@ -302,16 +308,17 @@ installrelease() {
 builddebug() {
   MEMCHECK=$1
 
-  echo "Linking dist assets"
-  ln -f "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
-  ln -f "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
-  ln -f "$PWD/dist/htdocs/js/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
-  ln -f "$PWD/dist/htdocs/assets/MaterialIcons-Regular.woff2" "$PWD/htdocs/assets/MaterialIcons-Regular.woff2"
+  install -d debug/htdocs/js
+  createi18n ../../debug/htdocs/js/i18n.js pretty
 
-  createi18n ../../htdocs/js/i18n.js pretty
-  
+  echo "Linking dist assets"
+  ln -sf "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
+  ln -sf "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
+  ln -sf "$PWD/dist/htdocs/js/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
+  ln -sf "$PWD/dist/htdocs/assets/MaterialIcons-Regular.woff2" "$PWD/htdocs/assets/MaterialIcons-Regular.woff2"
+  ln -sf "$PWD/debug/htdocs/js/i18n.js" "$PWD/htdocs/js/i18n.js"
+
   echo "Compiling myMPD"
-  install -d debug
   cd debug || exit 1
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -DMEMCHECK="$MEMCHECK" \
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" -DENABLE_FLAC="$ENABLE_FLAC" \
