@@ -325,9 +325,3 @@ endif()
 
 install(TARGETS mympd DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
 install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/cmake/CopyConfig.cmake)
-
-if(NOT "$ENV{MANPAGES}" MATCHES "OFF")
-  install(FILES ${CMAKE_SOURCE_DIR}/contrib/man/mympd.1.gz DESTINATION ${CMAKE_INSTALL_FULL_MANDIR}/man1/)
-  install(FILES ${CMAKE_SOURCE_DIR}/contrib/man/mympd-config.1.gz DESTINATION ${CMAKE_INSTALL_FULL_MANDIR}/man1/)
-  install(FILES ${CMAKE_SOURCE_DIR}/contrib/man/mympd-script.1.gz DESTINATION ${CMAKE_INSTALL_FULL_MANDIR}/man1/)
-endif()

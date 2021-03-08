@@ -101,11 +101,6 @@ setversion() {
   	sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE_F1__/$DATE_F1/g" -e "s/__DATE_F2__/$DATE_F2/g" \
   	  	-e "s/__DATE_F3__/$DATE_F3/g" "$F.in" > "$F"
   done
-  #compress manpages
-  for F in contrib/man/mympd.1 contrib/man/mympd-config.1 contrib/man/mympd-script.1
-  do
-    $GZIPCAT "$F" > "$F.gz"
-  done
 
   #gentoo ebuild must be moved only
   [ -f "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild" ] || \
@@ -182,11 +177,14 @@ createassets() {
   for F in $(grep -P '<!--debug-->\s+<script' htdocs/index.html | cut -d\" -f2)
   do
 	#skip symbolic links
-    [ -L "htdocs/$F" ] || JSSRCFILES="$JSSRCFILES htdocs/$F"
-    if tail -1 "htdocs/$F" | perl -npe 'exit 1 if m/\n/; exit 0'
+    if [ -f "htdocs/$F" ] && [ ! -L "htdocs/$F" ]
     then
-      echo "ERROR: $F don't end with newline character"
-      exit 1
+      JSSRCFILES="$JSSRCFILES htdocs/$F"
+      if tail -1 "htdocs/$F" | perl -npe 'exit 1 if m/\n/; exit 0'
+      then
+        echo "ERROR: $F don't end with newline character"
+        exit 1
+      fi
     fi
   done
   echo "Creating mympd.js"
@@ -221,7 +219,10 @@ createassets() {
   do
     DST=$(basename "$F" .css)
     #skip symbolic links
-    [ -L "$F" ] || minify css "$F" "release/htdocs/css/${DST}.min.css"
+    if [ -f "$F" ] && [ ! -L "$F" ]
+    then
+      minify css "$F" "release/htdocs/css/${DST}.min.css"
+    fi
   done
   
   echo "Combining and compressing stylesheets"
