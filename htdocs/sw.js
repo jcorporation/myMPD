@@ -2,7 +2,7 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-const CACHE = 'myMPD-cache-v6.12.0';
+const CACHE = 'myMPD-cache-v6.12.1';
 const subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
 const urlsToCache = [
     subdir + '/',
