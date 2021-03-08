@@ -149,7 +149,6 @@ static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool syn
 }
 
 static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_entities) {
-    int i = 0;
     #ifdef ENABLE_LIBID3TAG
     MYMPD_LOG_DEBUG("Exctracting unsynced lyrics from %s", media_file);
     struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
@@ -163,7 +162,8 @@ static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_
         id3_file_close(file_struct);
         return returned_entities;
     }
-
+    
+    int i = 0;
     struct id3_frame *frame;
     while ((frame = id3_tag_findframe(tags, "USLT", i)) != NULL) {
         //fields of USLT:
@@ -216,12 +216,12 @@ static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_
     }
     #else
     (void) media_file;
+    (void) buffer;
     #endif
     return returned_entities;
 }
 
 static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_entities) {
-    int i = 0;
     #ifdef ENABLE_LIBID3TAG
     MYMPD_LOG_DEBUG("Exctracting synced lyrics from %s", media_file);
     struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
@@ -236,6 +236,7 @@ static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_en
         return 0;
     }
 
+    int i = 0;
     struct id3_frame *frame;
     while ((frame = id3_tag_findframe(tags, "SYLT", i)) != NULL) {
         //fields of SYLT:
@@ -299,6 +300,7 @@ static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_en
     }
     #else
     (void) media_file;
+    (void) buffer;
     #endif
     return returned_entities;
 }
@@ -361,7 +363,6 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
 #endif
 
 static int lyricsextract_flac(sds *buffer, sds media_file, bool is_ogg, const char *comment_name, bool synced, int returned_entities) {
-    int found_lyrics = 0;
     #ifdef ENABLE_FLAC
     MYMPD_LOG_DEBUG("Exctracting lyrics from %s", media_file);
     FLAC__StreamMetadata *metadata = NULL;
@@ -379,6 +380,7 @@ static int lyricsextract_flac(sds *buffer, sds media_file, bool is_ogg, const ch
     int field_num = 0;
     FLAC__StreamMetadata *block;
     FLAC__bool ok = true;
+    int found_lyrics = 0;
     do {
         block = FLAC__metadata_iterator_get_block(iterator);
         ok &= (0 != block);
@@ -425,6 +427,7 @@ static int lyricsextract_flac(sds *buffer, sds media_file, bool is_ogg, const ch
     (void) is_ogg;
     (void) comment_name;
     (void) synced;
+    (void) buffer;
     #endif
     return returned_entities;
 }
