@@ -343,7 +343,7 @@ void set_defaults(struct t_config *pconfig) {
     pconfig->webport = sdsnew("80");
     pconfig->sslport = sdsnew("443");
     pconfig->user = sdsnew("mympd");
-    pconfig->loglevel = 2;
+    pconfig->loglevel = 5;
     pconfig->ssl = true;
     pconfig->mixramp = false;
     pconfig->publish = false;
