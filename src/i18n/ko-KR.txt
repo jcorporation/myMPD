@@ -171,6 +171,15 @@ Failed to set like, invalid like value
 Failed to set like, invalid song uri
 잘못된 곡 주소로 좋아요 설정 안 됨
 
+LastPlayed
+앞서 연주함
+
+stickerLastPlayed
+앞서 연주함
+
+stickerLastSkipped
+앞서 건너뜀
+
 Database
 데이터 베이스
 
@@ -339,8 +348,17 @@ Timerange (days)
 Like
 좋아요
 
+stickerLike
+좋아요
+
 Play count
 연주 횟수
+
+stickerPlayCount
+연주 횟수
+
+stickerSkipCount
+건너뛴 횟수
 
 Theme
 테마
@@ -1593,9 +1611,6 @@ Next
 Outputs
 출력
 
-Playback settings
-연주 설정
-
 Previous
 이전
 
@@ -1618,7 +1633,7 @@ MaintainEnableTagsText
 최고의 사용자 경험을 위해서는 연주자, 음반 연주자, 음반, 곡, 디스크, 장르 태그를 관리하고 사용해야 합니다.
 
 Failed to set like, unknown error
-좋아요 설정 실패, 알 수 없는 오류
+좋아요 설정 안 됨, 알 수 없는 오류
 
 Invalid uri
 잘못된 URI
@@ -1717,5 +1732,99 @@ Yes
 Do you really want to clear the queue?
 캐시를 지울까요?
 
+Number of songs to high
+곡이 너무 많음
+
+Playback controls
+연주 관리
+
+pause and stop
+잠시 멈춤과 정지
+
+pause only
+잠시 멈춤만
+
+stop only
+정지만
+
+Do you really want to clear the playlist?
+연주목록을 지울까요?
+
+
+Do you really want to delete the playlist?
+연주목록을 삭제할까요?
+
+Playback settings
+연주 설정
+
+Color
+색상
+
+Song change
+곡 바꿈
+
+Show playback settings in footer
+아래에 연주 설정 보기
+
+Error getting mpd state for script execution
+스크립트 실행을 위한 mpd 상태 가져오기 오류
+
+Custom
+사용자
+
+Daily
+매일
+
+Interval
+간격
+
+Invalid timer interval
+잘못된 시간 간격
+
+One shot and delete
+한 번에 삭제
+
+One shot and disable
+한 번에 사용 안 함
+
+Weekly
+매주
+
+Each hours
+매시간 |||| 매 %{smart_count}시간
+
+hours
+시간
+
 Missing translations
-Selected locale is missing %{smart_count} translation |||| Selected locale is missing %{smart_count} translations
+선택한 언어에 % {smart_count}개의 번역이 없습니다 |||| 선택한 언어에 % {smart_count}개의 번역이 없습니다
+
+Updated album cache
+음반 캐시 업데이트함
+
+Update of album cache failed
+음반 캐시 업데이트 안 됨
+
+Updated sticker cache
+스티커 캐시 업데이트함
+
+Update of sticker cache failed
+스티커 캐시 업데이트 안 됨
+
+Facilities
+기능
+
+Can not parse response to json object
+json 응답을 분석할 수 없음
+
+Default image
+기본 이미지
+
+Default image light
+밝은 기본 이미지
+
+Default image dark
+어두운 기본 이미지
+
+No script selected
+선택한 스크립트가 없음
