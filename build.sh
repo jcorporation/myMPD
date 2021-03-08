@@ -174,7 +174,7 @@ createassets() {
   echo "Minifying javascript"
   JSSRCFILES=""
   # shellcheck disable=SC2013
-  for F in $(grep -P '<!--debug-->\s+<script' htdocs/index.html | cut -d\" -f2)
+  for F in $(grep -E '<!--debug-->\s+<script' htdocs/index.html | cut -d\" -f2)
   do
 	#skip symbolic links
     if [ -f "htdocs/$F" ] && [ ! -L "htdocs/$F" ]
