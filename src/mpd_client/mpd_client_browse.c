@@ -34,9 +34,9 @@
 #include "../mpd_shared/mpd_shared_typedefs.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_tags.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
-#include "mpd_client_sticker.h"
 #include "mpd_client_browse.h"
 
 //private definitions
@@ -49,7 +49,7 @@ sds mpd_client_put_fingerprint(t_mpd_client_state *mpd_client_state, sds buffer,
                                const char *uri)
 {
     if (validate_songuri(uri) == false) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Invalid URI", true);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "database", "error", "Invalid URI");
         return buffer;
     }
     
@@ -60,10 +60,9 @@ sds mpd_client_put_fingerprint(t_mpd_client_state *mpd_client_state, sds buffer,
         return buffer;
     }
     
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",");
+    buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = tojson_char(buffer, "fingerprint", fingerprint, false);
-    buffer = jsonrpc_end_result(buffer);
+    buffer = jsonrpc_result_end(buffer);
     
     mpd_response_finish(mpd_client_state->mpd_state->conn);
     check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false);
@@ -75,7 +74,7 @@ sds mpd_client_put_songdetails(t_mpd_client_state *mpd_client_state, sds buffer,
                                const char *uri)
 {
     if (validate_songuri(uri) == false) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Invalid URI", true);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "database", "error", "Invalid URI");
         return buffer;
     }
 
@@ -84,8 +83,7 @@ sds mpd_client_put_songdetails(t_mpd_client_state *mpd_client_state, sds buffer,
         return buffer;
     }
 
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer,",");
+    buffer = jsonrpc_result_start(buffer, method, request_id);
 
     struct mpd_song *song;
     if ((song = mpd_recv_song(mpd_client_state->mpd_state->conn)) != NULL) {
@@ -99,21 +97,13 @@ sds mpd_client_put_songdetails(t_mpd_client_state *mpd_client_state, sds buffer,
     }
     
     if (mpd_client_state->feat_sticker) {
-        t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
-        assert(sticker);
-        mpd_client_get_sticker(mpd_client_state, uri, sticker);
         buffer = sdscat(buffer, ",");
-        buffer = tojson_long(buffer, "playCount", sticker->playCount, true);
-        buffer = tojson_long(buffer, "skipCount", sticker->skipCount, true);
-        buffer = tojson_long(buffer, "like", sticker->like, true);
-        buffer = tojson_long(buffer, "lastPlayed", sticker->lastPlayed, true);
-        buffer = tojson_long(buffer, "lastSkipped", sticker->lastSkipped, false);
-        FREE_PTR(sticker);
+        buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, uri);
     }
     
     buffer = sdscat(buffer, ",");
     buffer = put_extra_files(mpd_client_state, buffer, uri, false);
-    buffer = jsonrpc_end_result(buffer);
+    buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
 
@@ -201,8 +191,8 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
         return buffer;
     }
 
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",\"data\":[");
+    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = sdscat(buffer, "\"data\":[");
     
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
@@ -228,6 +218,10 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
                     struct mpd_song *song = (struct mpd_song *)current->user_data;
                     buffer = sdscat(buffer, "{\"Type\":\"song\",");
                     buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
+                    if (mpd_client_state->feat_sticker) {
+                        buffer = sdscat(buffer, ",");
+                        buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, mpd_song_get_uri(song));
+                    }
                     buffer = sdscat(buffer, "}");
                     mpd_song_free(song);
                     break;
@@ -282,15 +276,15 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_char(buffer, "search", searchstr, false);
-    buffer = jsonrpc_end_result(buffer);
+    buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
 
 sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                                   const char *album, const char *search, const char *tag, const t_tags *tagcols)
 {
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",\"data\":[");
+    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = sdscat(buffer, "\"data\":[");
 
     bool rc = mpd_search_db_songs(mpd_client_state->mpd_state->conn, true);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_db_songs") == false) {
@@ -337,6 +331,10 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
         }
         buffer = sdscat(buffer, "{\"Type\": \"song\",");
         buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
+        if (mpd_client_state->feat_sticker) {
+            buffer = sdscat(buffer, ",");
+            buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, mpd_song_get_uri(song));
+        }
         buffer = sdscat(buffer, "}");
 
         totalTime += mpd_song_get_duration(song);
@@ -363,7 +361,7 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
     buffer = tojson_char(buffer, "AlbumArtist", albumartist, true);
     buffer = tojson_long(buffer, "Discs", discs, true);
     buffer = tojson_long(buffer, "totalTime", totalTime, false);
-    buffer = jsonrpc_end_result(buffer);
+    buffer = jsonrpc_result_end(buffer);
         
     if (first_song != NULL) {
         mpd_song_free(first_song);
@@ -377,18 +375,16 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
     return buffer;    
 }
 
-
-
 sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
                                        const char *searchstr, const char *filter, const char *sort, bool sortdesc, const unsigned int offset, unsigned int limit)
 {
     if (mpd_client_state->album_cache == NULL) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Albumcache not ready", true);    
+        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "database", "error", "Albumcache not ready");
         return buffer;
     }
 
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",\"data\":[");
+    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = sdscat(buffer, "\"data\":[");
 
     struct mpd_song *song;
     //parse sort tag
@@ -408,7 +404,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
             sort_by_last_modified = true;
         }
         else {
-            LOG_WARN("Unknown sort tag: %s", sort);
+            MYMPD_LOG_WARN("Unknown sort tag: %s", sort);
         }
     }
     //parse mpd search expression
@@ -431,7 +427,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
             tag = sdscatprintf(tag, "%.*s", 1, p);
         }
         if (i + 1 >= sdslen(tokens[j])) {
-            LOG_ERROR("Can not parse search expression");
+            MYMPD_LOG_ERROR("Can not parse search expression");
             sdsfree(tag);
             sdsfree(op);
             sdsfree(value);
@@ -447,7 +443,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
             op = sdscatprintf(op, "%.*s", 1, p);
         }
         if (i + 2 >= sdslen(tokens[j])) {
-            LOG_ERROR("Can not parse search expression");
+            MYMPD_LOG_ERROR("Can not parse search expression");
             sdsfree(tag);
             sdsfree(op);
             sdsfree(value);
@@ -471,7 +467,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
         else {
             list_push(&expr_list, value, tag_type, op , NULL);
         }
-        LOG_DEBUG("Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, value);
+        MYMPD_LOG_DEBUG("Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, value);
         sdsfree(tag);
         sdsfree(op);
         sdsfree(value);
@@ -555,7 +551,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
     buffer = tojson_char(buffer, "sort", sort, true);
     buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
     buffer = tojson_char(buffer, "tag", "Album", false);
-    buffer = jsonrpc_end_result(buffer);
+    buffer = jsonrpc_result_end(buffer);
         
     return buffer;    
 }
@@ -566,8 +562,8 @@ sds mpd_client_put_db_tag2(t_config *config, t_mpd_client_state *mpd_client_stat
     (void) sort;
     (void) sortdesc;
     size_t searchstr_len = strlen(searchstr);
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",\"data\":[");
+    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = sdscat(buffer, "\"data\":[");
    
     bool rc = mpd_search_db_tags(mpd_client_state->mpd_state->conn, mpd_tag_name_parse(tag));
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_db_tags") == false) {
@@ -621,7 +617,7 @@ sds mpd_client_put_db_tag2(t_config *config, t_mpd_client_state *mpd_client_stat
         pic = true;
     }
     else {
-        LOG_DEBUG("Can not open directory \"%s\": %s", pic_path, strerror(errno));
+        MYMPD_LOG_DEBUG("Can not open directory \"%s\": %s", pic_path, strerror(errno));
         //ignore error
     }
     sdsfree(pic_path);
@@ -636,7 +632,7 @@ sds mpd_client_put_db_tag2(t_config *config, t_mpd_client_state *mpd_client_stat
     buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
     buffer = tojson_char(buffer, "tag", tag, true);
     buffer = tojson_bool(buffer, "pics", pic, false);
-    buffer = jsonrpc_end_result(buffer);
+    buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
 
@@ -696,12 +692,12 @@ static bool _search_song(struct mpd_song *song, struct list *expr_list, t_tags *
 }
 
 static pcre *_compile_regex(const char *regex_str) {
-    LOG_DEBUG("Compiling regex: \"%s\"", regex_str);
+    MYMPD_LOG_DEBUG("Compiling regex: \"%s\"", regex_str);
     const char *pcre_error_str;
     int pcre_error_offset;
     pcre *re_compiled = pcre_compile(regex_str, PCRE_CASELESS, &pcre_error_str, &pcre_error_offset, NULL);
     if (re_compiled == NULL) {
-        LOG_DEBUG("Could not compile '%s': %s\n", regex_str, pcre_error_str);
+        MYMPD_LOG_DEBUG("Could not compile '%s': %s\n", regex_str, pcre_error_str);
     }
     return re_compiled;
 }
@@ -716,12 +712,12 @@ static bool _cmp_regex(pcre *re_compiled, const char *value) {
     if (pcre_exec_ret < 0) {
         switch(pcre_exec_ret) {
             case PCRE_ERROR_NOMATCH      : break;
-            case PCRE_ERROR_NULL         : LOG_ERROR("Something was null"); break;
-            case PCRE_ERROR_BADOPTION    : LOG_ERROR("A bad option was passed"); break;
-            case PCRE_ERROR_BADMAGIC     : LOG_ERROR("Magic number bad (compiled regex corrupt?)"); break;
-            case PCRE_ERROR_UNKNOWN_NODE : LOG_ERROR("Something kooky in the compiled regex"); break;
-            case PCRE_ERROR_NOMEMORY     : LOG_ERROR("Ran out of memory"); break;
-            default                      : LOG_ERROR("Unknown error"); break;
+            case PCRE_ERROR_NULL         : MYMPD_LOG_ERROR("Something was null"); break;
+            case PCRE_ERROR_BADOPTION    : MYMPD_LOG_ERROR("A bad option was passed"); break;
+            case PCRE_ERROR_BADMAGIC     : MYMPD_LOG_ERROR("Magic number bad (compiled regex corrupt?)"); break;
+            case PCRE_ERROR_UNKNOWN_NODE : MYMPD_LOG_ERROR("Something kooky in the compiled regex"); break;
+            case PCRE_ERROR_NOMEMORY     : MYMPD_LOG_ERROR("Ran out of memory"); break;
+            default                      : MYMPD_LOG_ERROR("Unknown error"); break;
         }
     }
     else {

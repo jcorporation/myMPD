@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -11,6 +12,7 @@
 #include <assert.h>
 #include <pthread.h>
 #include <time.h>
+#include <string.h>
 
 #include "../dist/src/sds/sds.h"
 #include "log.h"
@@ -44,7 +46,7 @@ void tiny_queue_free(tiny_queue_t *queue) {
 int tiny_queue_push(tiny_queue_t *queue, void *data, long id) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
-        LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
+        MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
         return 0;
     }
     struct tiny_msg_t* new_node = (struct tiny_msg_t*)malloc(sizeof(struct tiny_msg_t));
@@ -63,12 +65,12 @@ int tiny_queue_push(tiny_queue_t *queue, void *data, long id) {
     }
     rc = pthread_mutex_unlock(&queue->mutex);
     if (rc != 0) {
-        LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
+        MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
         return 0;
     }
     rc = pthread_cond_signal(&queue->wakeup);
     if (rc != 0) {
-        LOG_ERROR("Error in pthread_cond_signal: %d", rc);
+        MYMPD_LOG_ERROR("Error in pthread_cond_signal: %d", rc);
         return 0;
     }
     return 1;
@@ -78,12 +80,15 @@ unsigned tiny_queue_length(tiny_queue_t *queue, int timeout) {
     timeout = timeout * 1000;  
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
-        LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
+        MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
         return 0;
     }
     if (timeout > 0 && queue->length == 0) {
         struct timespec max_wait = {0, 0};
-        clock_gettime(CLOCK_REALTIME, &max_wait);
+        if (clock_gettime(CLOCK_REALTIME, &max_wait) == -1) {
+            MYMPD_LOG_ERROR("Error getting realtime: %s", strerror(errno));
+            assert(NULL);
+        }
         //timeout in ms
         if (max_wait.tv_nsec <= (999999999 - timeout)) {
             max_wait.tv_nsec += timeout;
@@ -94,13 +99,14 @@ unsigned tiny_queue_length(tiny_queue_t *queue, int timeout) {
         }
         rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
         if (rc != 0 && rc != ETIMEDOUT) {
-            LOG_ERROR("Error in pthread_cond_timedwait: %d", rc);
+            MYMPD_LOG_ERROR("Error in pthread_cond_timedwait: %s - %s", rc, strerror(errno));
+            MYMPD_LOG_ERROR("Max wait: %llu", (unsigned long long)max_wait.tv_nsec);
         }
     }
     unsigned len = queue->length;
     rc = pthread_mutex_unlock(&queue->mutex);
     if (rc != 0) {
-        LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
+        MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
     }
     return len;
 }
@@ -109,13 +115,16 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
     timeout = timeout * 1000;
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
-        LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
-        return 0;
+        MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
+        assert(NULL);
     }
     if (queue->length == 0) {
         if (timeout > 0) {
             struct timespec max_wait = {0, 0};
-            clock_gettime(CLOCK_REALTIME, &max_wait);
+            if (clock_gettime(CLOCK_REALTIME, &max_wait) == -1) {
+                MYMPD_LOG_ERROR("Error getting realtime: %s", strerror(errno));
+                return NULL;
+            }
             //timeout in ms
             if (max_wait.tv_nsec <= (999999999 - timeout)) {
                 max_wait.tv_nsec += timeout;
@@ -127,12 +136,12 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
             rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
             if (rc != 0) {
                 if (rc != ETIMEDOUT) {
-                    LOG_ERROR("Error in pthread_cond_timedwait: %d", rc);
-                    LOG_ERROR("nsec: %ld", max_wait.tv_nsec);
+                    MYMPD_LOG_ERROR("Error in pthread_cond_timedwait: %s - %s", rc, strerror(errno));
+                    MYMPD_LOG_ERROR("Max wait: %llu", (unsigned long long)max_wait.tv_nsec);
                 }
                 rc = pthread_mutex_unlock(&queue->mutex);
                 if (rc != 0) {
-                    LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
+                    MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
                 }
                 return NULL;
             }
@@ -140,10 +149,10 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
         else {
             rc = pthread_cond_wait(&queue->wakeup, &queue->mutex);
             if (rc != 0) {
-                LOG_ERROR("Error in pthread_cond_wait: %d", rc);
+                MYMPD_LOG_ERROR("Error in pthread_cond_wait: %d", rc);
                 rc = pthread_mutex_unlock(&queue->mutex);
                 if (rc != 0) {
-                    LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
+                    MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
                 }
                 return NULL;
             }
@@ -175,17 +184,17 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
                 queue->length--;
                 rc = pthread_mutex_unlock(&queue->mutex);
                 if (rc != 0) {
-                    LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
+                    MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
                 }
                 return data;
             }
-            LOG_DEBUG("Skipping queue entry with id %d", current->id);
+            MYMPD_LOG_DEBUG("Skipping queue entry with id %d", current->id);
         }
     }
 
     rc = pthread_mutex_unlock(&queue->mutex);
     if (rc != 0) {
-        LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
+        MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
     }
     return NULL;
 }
@@ -194,7 +203,7 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
 void *tiny_queue_expire(tiny_queue_t *queue, time_t max_age) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
-        LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
+        MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
         return 0;
     }
     //queue has entry
@@ -225,9 +234,9 @@ void *tiny_queue_expire(tiny_queue_t *queue, time_t max_age) {
                 queue->length--;
                 rc = pthread_mutex_unlock(&queue->mutex);
                 if (rc != 0) {
-                    LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
+                    MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
                 }
-                LOG_WARN("Found expired entry in queue");
+                MYMPD_LOG_WARN("Found expired entry in queue");
                 return data;
             }
         }
@@ -235,7 +244,7 @@ void *tiny_queue_expire(tiny_queue_t *queue, time_t max_age) {
 
     rc = pthread_mutex_unlock(&queue->mutex);
     if (rc != 0) {
-        LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
+        MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
     }
     return NULL;
 }

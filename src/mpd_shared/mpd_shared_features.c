@@ -27,17 +27,17 @@ bool mpd_shared_feat_mpd_searchwindow(t_mpd_state *mpd_state) {
         return true;
     }
 
-    LOG_WARN("Disabling search window support, depends on mpd >= 0.20.0");
+    MYMPD_LOG_WARN("Disabling search window support, depends on mpd >= 0.20.0");
     return false;
 }
 
 bool mpd_shared_feat_advsearch(t_mpd_state *mpd_state) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
-        LOG_VERBOSE("Enabling advanced search");
+        MYMPD_LOG_INFO("Enabling advanced search");
         return true;
     }
 
-    LOG_WARN("Disabling advanced search, depends on mpd >= 0.21.0");
+    MYMPD_LOG_WARN("Disabling advanced search, depends on mpd >= 0.21.0");
     return false;
 }
 
@@ -57,26 +57,26 @@ void mpd_shared_feat_tags(t_mpd_state *mpd_state) {
                 mpd_state->mpd_tag_types.tags[mpd_state->mpd_tag_types.len++] = tag;
             }
             else {
-                LOG_WARN("Unknown tag %s (libmpdclient too old)", pair->value);
+                MYMPD_LOG_WARN("Unknown tag %s (libmpdclient too old)", pair->value);
             }
             mpd_return_pair(mpd_state->conn, pair);
         }
     }
     else {
-        LOG_ERROR("Error in response to command: mpd_send_list_tag_types");
+        MYMPD_LOG_ERROR("Error in response to command: mpd_send_list_tag_types");
     }
     mpd_response_finish(mpd_state->conn);
     check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
 
     if (mpd_state->mpd_tag_types.len == 0) {
         logline = sdscat(logline, "none");
-        LOG_INFO(logline);
-        LOG_INFO("Tags are disabled");
+        MYMPD_LOG_NOTICE(logline);
+        MYMPD_LOG_NOTICE("Tags are disabled");
         mpd_state->feat_tags = false;
     }
     else {
         mpd_state->feat_tags = true;
-        LOG_INFO(logline);
+        MYMPD_LOG_NOTICE(logline);
 
         check_tags(mpd_state->taglist, "mympdtags", &mpd_state->mympd_tag_types, mpd_state->mpd_tag_types);
         enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);

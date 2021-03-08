@@ -107,11 +107,9 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_ICON_DELETE","params":{"pos":0}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_ICON_MOVE","params":{"from":0,"to":0}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_ICON_SAVE","params":{"replace":false,"oldpos":0,"name":"","ligature":"","bgcolor":"","image":"","cmd":"","options":["option1","option2"]}},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_ICON_PICTURE_LIST","params":{}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_PICTURE_LIST","params":{}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_JUKEBOX_LIST","params":{"offset":"0","limit":100,"cols":["Pos","Title","Artist","Album"]}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_JUKEBOX_RM","params":{"pos":0}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_LYRICS_UNSYNCED_GET","params":{"uri":""}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_LYRICS_SYNCED_GET","params":{"uri":""}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_LYRICS_GET","params":{"uri":""}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_PRIO_SET_HIGHEST","params":{"trackid":0}}
 ];

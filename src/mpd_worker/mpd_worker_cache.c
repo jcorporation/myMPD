@@ -51,41 +51,45 @@ bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state, bool feat_tags,
 
     //push album cache building response to mpd_client thread
     if (feat_tags == true) {
-        t_work_request *request = create_request(-1, 0, MPD_API_ALBUMCACHE_CREATED, "MPD_API_ALBUMCACHE_CREATED", "");
-        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMCACHE_CREATED\",\"params\":{}}");
         if (rc == true) {
+            t_work_request *request = create_request(-1, 0, MPD_API_ALBUMCACHE_CREATED, "MPD_API_ALBUMCACHE_CREATED", "");
+            request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMCACHE_CREATED\",\"params\":{}}");
             request->extra = (void *) album_cache;
+            tiny_queue_push(mpd_client_queue, request, 0);
+            send_jsonrpc_notify("database", "info", "Updated album cache");
         }
         else {
             album_cache_free(&album_cache);
+            send_jsonrpc_notify("database", "error", "Update of album cache failed");
         }
-        tiny_queue_push(mpd_client_queue, request, 0);
     }
     else {
-        LOG_VERBOSE("Skipped album cache creation, tags are disabled");
+        MYMPD_LOG_INFO("Skipped album cache creation, tags are disabled");
     }
 
     //push sticker cache building response to mpd_client thread
     if (feat_sticker == true) {
-        t_work_request *request2 = create_request(-1, 0, MPD_API_STICKERCACHE_CREATED, "MPD_API_STICKERCACHE_CREATED", "");
-        request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_STICKERCACHE_CREATED\",\"params\":{}}");
         if (rc == true) {
+            t_work_request *request2 = create_request(-1, 0, MPD_API_STICKERCACHE_CREATED, "MPD_API_STICKERCACHE_CREATED", "");
+            request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_STICKERCACHE_CREATED\",\"params\":{}}");
             request2->extra = (void *) sticker_cache;
+            tiny_queue_push(mpd_client_queue, request2, 0);
+            send_jsonrpc_notify("database", "info", "Updated sticker cache");
         }
         else {
             sticker_cache_free(&sticker_cache);
+            send_jsonrpc_notify("database", "error", "Update of sticker cache failed");
         }
-        tiny_queue_push(mpd_client_queue, request2, 0);
     }
     else {
-        LOG_VERBOSE("Skipped sticker cache creation, stickers are disabled");
+        MYMPD_LOG_INFO("Skipped sticker cache creation, stickers are disabled");
     }
     return rc;
 }
 
 //private functions
 static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache, bool feat_tags, bool feat_sticker) {
-    LOG_VERBOSE("Creating caches");
+    MYMPD_LOG_INFO("Creating caches");
     unsigned start = 0;
     unsigned end = start + 1000;
     unsigned i = 0;   
@@ -95,25 +99,25 @@ static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, 
     do {
         bool rc = mpd_search_db_songs(mpd_worker_state->mpd_state->conn, false);
         if (check_rc_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_db_songs") == false) {
-            LOG_ERROR("Cache update failed");
+            MYMPD_LOG_ERROR("Cache update failed");
             mpd_search_cancel(mpd_worker_state->mpd_state->conn);
             return false;
         }
         rc = mpd_search_add_uri_constraint(mpd_worker_state->mpd_state->conn, MPD_OPERATOR_DEFAULT, "");
         if (check_rc_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_add_uri_constraint") == false) {
-            LOG_ERROR("Cache update failed");
+            MYMPD_LOG_ERROR("Cache update failed");
             mpd_search_cancel(mpd_worker_state->mpd_state->conn);
             return false;
         }
         rc = mpd_search_add_window(mpd_worker_state->mpd_state->conn, start, end);
         if (check_rc_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_add_window") == false) {
-            LOG_ERROR("Cache update failed");
+            MYMPD_LOG_ERROR("Cache update failed");
             mpd_search_cancel(mpd_worker_state->mpd_state->conn);
             return false;
         }
         rc = mpd_search_commit(mpd_worker_state->mpd_state->conn);
         if (check_rc_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_commit") == false) {
-            LOG_ERROR("Cache update failed");
+            MYMPD_LOG_ERROR("Cache update failed");
             return false;
         }
         struct mpd_song *song;
@@ -146,7 +150,7 @@ static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, 
                     }
                 }
                 else {
-                    LOG_WARN("Albumcache, skipping \"%s\"", mpd_song_get_uri(song));
+                    MYMPD_LOG_WARN("Albumcache, skipping \"%s\"", mpd_song_get_uri(song));
                     mpd_song_free(song);
                 }
             }
@@ -157,7 +161,7 @@ static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, 
         sdsfree(key);
         mpd_response_finish(mpd_worker_state->mpd_state->conn);
         if (check_error_and_recover2(mpd_worker_state->mpd_state, NULL, NULL, 0, false) == false) {
-            LOG_ERROR("Cache update failed");
+            MYMPD_LOG_ERROR("Cache update failed");
             return false;        
         }
         start = end;
@@ -176,8 +180,8 @@ static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, 
         sdsfree(uri);
         raxStop(&iter);
     }
-    LOG_VERBOSE("Added %u albums to album cache", album_count);
-    LOG_VERBOSE("Added %u songs to sticker cache", song_count);
-    LOG_VERBOSE("Cache updated successfully");
+    MYMPD_LOG_INFO("Added %u albums to album cache", album_count);
+    MYMPD_LOG_INFO("Added %u songs to sticker cache", song_count);
+    MYMPD_LOG_INFO("Cache updated successfully");
     return true;
 }

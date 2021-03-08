@@ -24,6 +24,7 @@
 #include "../utility.h"
 #include "../mpd_shared/mpd_shared_typedefs.h"
 #include "../mpd_shared/mpd_shared_tags.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
@@ -43,15 +44,14 @@ sds mpd_client_get_updatedb_state(t_mpd_client_state *mpd_client_state, sds buff
         return buffer;
     }
     unsigned update_id = mpd_status_get_update_id(status);
-    LOG_INFO("Update database ID: %u", update_id);
+    MYMPD_LOG_NOTICE("Update database ID: %u", update_id);
     if (update_id > 0) {
-        buffer = jsonrpc_start_notify(buffer, "update_started");
+        buffer = jsonrpc_notify_start(buffer, "update_started");
         buffer = tojson_long(buffer, "jobid", update_id, false);
-        buffer = jsonrpc_end_notify(buffer);
+        buffer = jsonrpc_result_end(buffer);
     }
     else {
-        buffer = jsonrpc_start_notify(buffer, "update_finished");
-        buffer = jsonrpc_end_notify(buffer);
+        buffer = jsonrpc_event(buffer, "update_finished");
     }
     mpd_status_free(status);    
     return buffer;    
@@ -117,11 +117,10 @@ sds mpd_client_put_state(t_config *config, t_mpd_client_state *mpd_client_state,
     }
     
     if (method == NULL) {
-        buffer = jsonrpc_start_notify(buffer, "update_state");
+        buffer = jsonrpc_notify_start(buffer, "update_state");
     }
     else {
-        buffer = jsonrpc_start_result(buffer, method, request_id);
-        buffer = sdscat(buffer, ",");
+        buffer = jsonrpc_result_start(buffer, method, request_id);
     }
     const struct mpd_audio_format *audioformat = mpd_status_get_audio_format(status);
     buffer = tojson_long(buffer, "state", mpd_status_get_state(status), true);
@@ -144,12 +143,8 @@ sds mpd_client_put_state(t_config *config, t_mpd_client_state *mpd_client_state,
     buffer = tojson_long(buffer, "bits", (audioformat ? audioformat->bits : 0), true);
     buffer = tojson_long(buffer, "channels", (audioformat ? audioformat->channels : 0), false);
     buffer = sdscat(buffer, "}");
-    if (method == NULL) {
-        buffer = jsonrpc_end_notify(buffer);
-    }
-    else {
-        buffer = jsonrpc_end_result(buffer);
-    }
+    buffer = jsonrpc_result_end(buffer);
+    
     mpd_status_free(status);
     return buffer;
 }
@@ -191,18 +186,14 @@ bool mpd_client_get_lua_mympd_state(t_config *config, t_mpd_client_state *mpd_cl
 
 sds mpd_client_put_volume(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id) {
     int volume = _mpd_client_get_volume(mpd_client_state);
-    
     if (method == NULL) {
-        buffer = jsonrpc_start_notify(buffer, "update_volume");
-        buffer = tojson_long(buffer, "volume", volume, false);
-        buffer = jsonrpc_end_notify(buffer);
+        buffer = jsonrpc_notify_start(buffer, "update_volume");
     }
     else {
-        buffer = jsonrpc_start_result(buffer, method, request_id);
-        buffer = sdscat(buffer, ",");
-        buffer = tojson_long(buffer, "volume", volume, false);
-        buffer = jsonrpc_end_result(buffer);
+        buffer = jsonrpc_result_start(buffer, method, request_id);
     }
+    buffer = tojson_long(buffer, "volume", volume, false);
+    buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
 
@@ -235,36 +226,27 @@ sds mpd_client_put_current_song(t_mpd_client_state *mpd_client_state, sds buffer
         if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {
             return buffer;
         }
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "No current song", false);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, false, "player", "info", "No current song");
         return buffer;
     }
     
     const char *uri = mpd_song_get_uri(song);
 
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",");
+    buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = tojson_long(buffer, "pos", mpd_song_get_pos(song), true);
     buffer = tojson_long(buffer, "currentSongId", mpd_client_state->song_id, true);
     buffer = put_song_tags(buffer, mpd_client_state->mpd_state, &mpd_client_state->mpd_state->mympd_tag_types, song);
 
-    if (mpd_client_state->feat_sticker) {
-        t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
-        assert(sticker);
-        mpd_client_get_sticker(mpd_client_state, uri, sticker);
+    if (mpd_client_state->feat_sticker && mpd_client_state->sticker_cache != NULL) {
         buffer = sdscat(buffer, ",");
-        buffer = tojson_long(buffer, "playCount", sticker->playCount, true);
-        buffer = tojson_long(buffer, "skipCount", sticker->skipCount, true);
-        buffer = tojson_long(buffer, "like", sticker->like, true);
-        buffer = tojson_long(buffer, "lastPlayed", sticker->lastPlayed, true);
-        buffer = tojson_long(buffer, "lastSkipped", sticker->lastSkipped, false);
-        FREE_PTR(sticker);
+        buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, mpd_song_get_uri(song));
     }
 
     buffer = sdscat(buffer, ",");
     buffer = put_extra_files(mpd_client_state, buffer, uri, false);
     
     mpd_song_free(song);
-    buffer = jsonrpc_end_result(buffer);
+    buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
 
@@ -275,8 +257,8 @@ static sds _mpd_client_put_outputs(t_mpd_client_state *mpd_client_state, sds buf
         return buffer;
     }
 
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",\"data\":[");
+    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = sdscat(buffer, "\"data\":[");
     int nr = 0;
     struct mpd_output *output;
     while ((output = mpd_recv_output(mpd_client_state->mpd_state->conn)) != NULL) {
@@ -307,7 +289,7 @@ static sds _mpd_client_put_outputs(t_mpd_client_state *mpd_client_state, sds buf
 
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "numOutputs", nr, false);
-    buffer = jsonrpc_end_result(buffer);
+    buffer = jsonrpc_result_end(buffer);
     
     return buffer;
 }

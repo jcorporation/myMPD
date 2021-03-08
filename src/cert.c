@@ -70,7 +70,7 @@ bool create_certificates(sds dir, sds custom_san) {
         rc_ca = create_ca_certificate(cakey_file, &ca_key, cacert_file, &ca_cert);
     }
     else {
-        LOG_INFO("CA certificate and private key found");
+        MYMPD_LOG_NOTICE("CA certificate and private key found");
         int rc_expires = check_expiration(ca_cert, cacert_file, CA_MIN_LIFETIME, CA_LIFETIME);
         if (rc_expires == 0) {
             rc_ca = true;
@@ -101,7 +101,7 @@ bool create_certificates(sds dir, sds custom_san) {
             custom_san, &ca_key, &ca_cert); 
     }
     else {
-        LOG_INFO("Server certificate and private key found");
+        MYMPD_LOG_NOTICE("Server certificate and private key found");
         int rc_expires = check_expiration(server_cert, servercert_file, CERT_MIN_LIFETIME, CERT_LIFETIME);
         if (rc_expires == 0) {
             rc_cert = true;
@@ -136,12 +136,12 @@ bool create_certificates(sds dir, sds custom_san) {
 bool cleanup_certificates(sds dir, const char *name) {
     sds cert_file = sdscatfmt(sdsempty(), "%s/%s.pem", dir, name);
     if (unlink(cert_file) != 0) {
-        LOG_ERROR("Error removing file \"%s\": %s", cert_file, strerror(errno));
+        MYMPD_LOG_ERROR("Error removing file \"%s\": %s", cert_file, strerror(errno));
     }
     sdsfree(cert_file);
     sds key_file = sdscatfmt(sdsempty(), "%s/%s.key", dir, name);
     if (unlink(key_file) != 0) {
-        LOG_ERROR("Error removing file \"%s\": %s", key_file, strerror(errno));
+        MYMPD_LOG_ERROR("Error removing file \"%s\": %s", key_file, strerror(errno));
     }
     sdsfree(key_file);
     
@@ -156,21 +156,21 @@ static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_day
     int psec = 0;
     int rc = ASN1_TIME_diff(&pday, &psec, NULL, not_after);
     if (rc == 1) {
-        LOG_DEBUG("Certificate %s expires in %d days", cert_file, pday);
+        MYMPD_LOG_DEBUG("Certificate %s expires in %d days", cert_file, pday);
         if (pday > max_days || pday < min_days) {
-            LOG_WARN("Certificate %s must be renewed, expires in %d days", cert_file, pday);
+            MYMPD_LOG_WARN("Certificate %s must be renewed, expires in %d days", cert_file, pday);
             return 1;
         }
     }
     else {
-        LOG_ERROR("Can not parse date from certificate file: %s", cert_file);
+        MYMPD_LOG_ERROR("Can not parse date from certificate file: %s", cert_file);
         return -1;
     }
     return 0;
 }
 
 static bool create_ca_certificate(sds cakey_file, EVP_PKEY **ca_key, sds cacert_file, X509 **ca_cert) {
-    LOG_INFO("Creating self signed ca certificate");
+    MYMPD_LOG_NOTICE("Creating self signed ca certificate");
     *ca_key = generate_keypair(4096);
     if (*ca_key == NULL) {
         return false;
@@ -188,7 +188,7 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
                                       sds servercert_file, X509 **server_cert, 
                                       sds custom_san, EVP_PKEY **ca_key, X509 **ca_cert)
 {
-    LOG_INFO("Creating server certificate");
+    MYMPD_LOG_NOTICE("Creating server certificate");
     *server_key = generate_keypair(2048);
     if (*server_key == NULL) {
         return false;
@@ -203,7 +203,7 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
     if (sdslen(custom_san) > 0) {
         san = sdscatfmt(san, ", %s", custom_san);
     }
-    LOG_INFO("Set server certificate san to: %s", san);
+    MYMPD_LOG_NOTICE("Set server certificate san to: %s", san);
     *server_cert = sign_certificate_request(*ca_key, *ca_cert, server_req, san);
     X509_REQ_free(server_req);
     if (*server_cert == NULL) {
@@ -325,7 +325,7 @@ static int generate_set_random_serial(X509 *crt) {
 static X509_REQ *generate_request(EVP_PKEY *pkey) {
     X509_REQ *req = X509_REQ_new();
     if (!req) {
-        LOG_ERROR("Unable to create X509_REQ structure");
+        MYMPD_LOG_ERROR("Unable to create X509_REQ structure");
         return NULL;
     }
     X509_REQ_set_pubkey(req, pkey);
@@ -342,7 +342,7 @@ static X509_REQ *generate_request(EVP_PKEY *pkey) {
     sdsfree(cn);
     
     if (!X509_REQ_sign(req, pkey, EVP_sha256())) {
-        LOG_ERROR("Error signing request");
+        MYMPD_LOG_ERROR("Error signing request");
         X509_REQ_free(req);
         return NULL;
     }
@@ -358,7 +358,7 @@ static void add_extension(X509V3_CTX *ctx, X509 *cert, int nid, const char *valu
 static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ *req, sds san) {
     X509 *cert = X509_new();
     if (!cert) {
-        LOG_ERROR("Unable to create X509 structure");
+        MYMPD_LOG_ERROR("Unable to create X509 structure");
         return NULL;
     }
         
@@ -404,28 +404,28 @@ static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ 
 static EVP_PKEY *generate_keypair(int rsa_key_bits) {
     RSA *rsa = RSA_new();
     if (!rsa) {
-        LOG_ERROR("Unable to create RSA structure");
+        MYMPD_LOG_ERROR("Unable to create RSA structure");
         return NULL;
     }
     
     /* Allocate memory for the EVP_PKEY structure. */
     EVP_PKEY *pkey = EVP_PKEY_new();
     if (!pkey) {
-        LOG_ERROR("Unable to create EVP_PKEY structure");
+        MYMPD_LOG_ERROR("Unable to create EVP_PKEY structure");
         return NULL;
     }
     
     /* Generate the RSA key and assign it to pkey. */
     BIGNUM *e = BN_new();
     if (!e) {
-        LOG_ERROR("Unable to create BN structure");
+        MYMPD_LOG_ERROR("Unable to create BN structure");
         EVP_PKEY_free(pkey);
         return NULL;
     }
     BN_set_word(e, 65537);
     RSA_generate_key_ex(rsa, rsa_key_bits, e, NULL);
     if (!EVP_PKEY_assign_RSA(pkey, rsa)) {
-        LOG_ERROR("Unable to generate RSA key");
+        MYMPD_LOG_ERROR("Unable to generate RSA key");
         BN_free(e);
         EVP_PKEY_free(pkey);
         return NULL;
@@ -440,7 +440,7 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
     /* Allocate memory for the X509 structure. */
     X509 *cert = X509_new();
     if (!cert) {
-        LOG_ERROR("Unable to create X509 structure");
+        MYMPD_LOG_ERROR("Unable to create X509 structure");
         return NULL;
     }
     
@@ -481,7 +481,7 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
     
     /* Self sign the certificate with our key. */
     if (!X509_sign(cert, pkey, EVP_sha256())) {
-        LOG_ERROR("Error signing certificate");
+        MYMPD_LOG_ERROR("Error signing certificate");
         X509_free(cert);
         return NULL;
     }
@@ -494,7 +494,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     sds key_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", key_file);
     int fd = mkstemp(key_file_tmp);
     if (fd < 0) {
-        LOG_ERROR("Can not open file \"%s\" for write: %s", key_file_tmp, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", key_file_tmp, strerror(errno));
         sdsfree(key_file_tmp);
         return false;
     }
@@ -502,12 +502,12 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     bool rc = PEM_write_PrivateKey(key_file_fp, pkey, NULL, NULL, 0, NULL, NULL);
     fclose(key_file_fp);
     if (!rc) {
-        LOG_ERROR("Unable to write private key to disk");
+        MYMPD_LOG_ERROR("Unable to write private key to disk");
         sdsfree(key_file_tmp);
         return false;
     }
     if (rename(key_file_tmp, key_file) == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed: %s", key_file_tmp, key_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from %s to %s failed: %s", key_file_tmp, key_file, strerror(errno));
         sdsfree(key_file_tmp);
         return false;
     }
@@ -516,7 +516,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     /* Write the certificate to disk. */
     sds cert_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", cert_file);
     if ((fd = mkstemp(cert_file_tmp)) < 0 ) {
-        LOG_ERROR("Can not open file \"%s\" for write: %s", cert_file_tmp, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", cert_file_tmp, strerror(errno));
         sdsfree(cert_file_tmp);
         return false;
     }
@@ -524,12 +524,12 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     rc = PEM_write_X509(cert_file_fp, cert);
     fclose(cert_file_fp);
     if (!rc) {
-        LOG_ERROR("Unable to write certificate to disk");
+        MYMPD_LOG_ERROR("Unable to write certificate to disk");
         sdsfree(cert_file_tmp);
         return false;
     }
     if (rename(cert_file_tmp, cert_file) == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed: %s", cert_file_tmp, cert_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from %s to %s failed: %s", cert_file_tmp, cert_file, strerror(errno));
         sdsfree(cert_file_tmp);
         return false;
     }

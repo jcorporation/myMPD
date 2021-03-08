@@ -21,9 +21,9 @@ function addMenuItem(href, text) {
 }
 
 function hideMenu() {
-    let menuEl = document.querySelector('[data-popover]');
+    const menuEl = document.querySelector('[data-popover]');
     if (menuEl) {
-        let m = new BSN.Popover(menuEl, {});
+        const m = new BSN.Popover(menuEl, {});
         m.hide();
         menuEl.removeAttribute('data-popover');
         if (menuEl.parentNode.parentNode.classList.contains('selected')) {
@@ -51,16 +51,16 @@ function showMenu(el, event) {
 }
 
 function showMenuTh(el) {
-    let table = app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '');
+    const table = app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '');
     let menu = '<form class="p-2" id="colChecklist' + table + '">';
     menu += setColsChecklist(table);
     menu += '<button class="btn btn-success btn-block btn-sm mt-2">' + t('Apply') + '</button>';
     menu += '</form>';
     new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
         '<div class="arrow"></div>' +
-        '<div class="popover-content" id="' + table + 'ColsDropdown' + '">' + menu + '</div>' +
+        '<div class="popover-content" id="' + table + 'ColsDropdown">' + menu + '</div>' +
         '</div>', content: ' '});
-    let popoverInit = el.Popover;
+    const popoverInit = el.Popover;
     if (getAttDec(el, 'data-init') === null) {
         setAttEnc(el, 'data-init', 'true');
         el.addEventListener('shown.bs.popover', function(event) {
@@ -121,7 +121,7 @@ function showMenuTd(el) {
                 (type === 'dir' ? addMenuItem({"cmd": "rescanDB", "options": [dirname(uri), true]}, t('Rescan directory')) : '');
         }
         if (app.current.app === 'Search') {
-            const curTr = el.parentNode.parentNode;
+            const curTr = el.nodeName === 'TD' ? el.parentNode : el.parentNode.parentNode;
             if (curTr.hasAttribute('data-album') && curTr.hasAttribute('data-albumartist')) {
                 const vAlbum = getAttDec(curTr, 'data-album');
                 const vAlbumArtist = getAttDec(curTr, 'data-albumartist');
@@ -155,7 +155,7 @@ function showMenuTd(el) {
             addMenuItem({"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album]}, t('Replace queue')) +
             (settings.featPlaylists === true ? addMenuItem({"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, t('Add to playlist')) : '');
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'All') {
+    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
         menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
             (settings.smartpls === true && type === 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('Edit playlist')))+
@@ -191,7 +191,10 @@ function showMenuTd(el) {
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
         const pos = parseInt(getAttDec(el.parentNode.parentNode, 'data-pos'));
-        menu += addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) +
+        const vAlbum = getAttDec(el.parentNode.parentNode, 'data-album');
+        const vAlbumArtist = getAttDec(el.parentNode.parentNode, 'data-albumartist');
+        menu += (settings.jukeboxMode === 1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) :
+            addMenuItem({"cmd": "appGoto", "options": ["Browse", "Database", "Detail", 0, 50, "Album", tagAlbumArtist, vAlbum, vAlbumArtist]}, t('Show album')))+
             addMenuItem({"cmd": "delQueueJukeboxSong", "options": [pos]}, t('Remove'));
     }
     else if (app.current.app === 'Home') {
@@ -233,7 +236,7 @@ function showMenuTd(el) {
         '<div class="arrow"></div>' +
         '<div class="popover-content">' + menu + '</div>' +
         '</div>', content: ' '});
-    let popoverInit = el.Popover;
+    const popoverInit = el.Popover;
     if (getAttDec(el, 'data-init') === null) {
         setAttEnc(el, 'data-init', 'true');
         el.addEventListener('shown.bs.popover', function(event) {
@@ -242,9 +245,9 @@ function showMenuTd(el) {
                 eventClick.preventDefault();
                 eventClick.stopPropagation();
                 if (eventClick.target.nodeName === 'A') {
-                    let dh = getAttDec(eventClick.target, 'data-href');
+                    const dh = getAttDec(eventClick.target, 'data-href');
                     if (dh) {
-                        let cmd = JSON.parse(b64DecodeUnicode(dh));
+                        const cmd = JSON.parse(b64DecodeUnicode(dh));
                         parseCmd(event, cmd);
                         hideMenu();
                     }
@@ -254,8 +257,8 @@ function showMenuTd(el) {
                 eventKey.preventDefault();
                 eventKey.stopPropagation();
                 if (eventKey.key === 'ArrowDown' || eventKey.key === 'ArrowUp') {
-                    let menuItemsHtml = this.getElementsByTagName('a');
-                    let menuItems = Array.prototype.slice.call(menuItemsHtml);
+                    const menuItemsHtml = this.getElementsByTagName('a');
+                    const menuItems = Array.prototype.slice.call(menuItemsHtml);
                     let idx = menuItems.indexOf(document.activeElement);
                     do {
                         idx = eventKey.key === 'ArrowUp' ? (idx > 1 ? idx - 1 : 0)
@@ -265,7 +268,9 @@ function showMenuTd(el) {
                             break;
                         }
                     } while ( !menuItems[idx].offsetHeight )
-                    menuItems[idx] && menuItems[idx].focus();
+                    if (menuItems[idx]) {
+                        menuItems[idx].focus();
+                    }
                 }
                 else if (eventKey.key === 'Enter') {
                     eventKey.target.click();
@@ -274,10 +279,10 @@ function showMenuTd(el) {
                     hideMenu();
                 }
             }, false);
-            let collapseLink = document.getElementById('advancedMenuLink');
+            const collapseLink = document.getElementById('advancedMenuLink');
             if (collapseLink) {
                 collapseLink.addEventListener('click', function() {
-                    let icon = this.getElementsByTagName('span')[0];
+                    const icon = this.getElementsByTagName('span')[0];
                     if (icon.innerText === 'keyboard_arrow_right') {
                         icon.innerText = 'keyboard_arrow_down';
                     }

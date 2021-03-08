@@ -36,7 +36,7 @@ static void mpd_client_feature_music_directory(t_mpd_client_state *mpd_client_st
 //public functions
 void mpd_client_mpd_features(t_config *config, t_mpd_client_state *mpd_client_state) {
     mpd_client_state->protocol = mpd_connection_get_server_version(mpd_client_state->mpd_state->conn);
-    LOG_INFO("MPD protocoll version: %u.%u.%u", mpd_client_state->protocol[0], mpd_client_state->protocol[1], mpd_client_state->protocol[2]);
+    MYMPD_LOG_NOTICE("MPD protocoll version: %u.%u.%u", mpd_client_state->protocol[0], mpd_client_state->protocol[1], mpd_client_state->protocol[2]);
 
     // Defaults
     mpd_client_state->feat_sticker = false;
@@ -70,26 +70,26 @@ void mpd_client_mpd_features(t_config *config, t_mpd_client_state *mpd_client_st
 
     if (mpd_connection_cmp_server_version(mpd_client_state->mpd_state->conn, 0, 21, 0) >= 0) {
         mpd_client_state->feat_single_oneshot = true;
-        LOG_INFO("Enabling single oneshot feature");
+        MYMPD_LOG_NOTICE("Enabling single oneshot feature");
     }
     else {
-        LOG_WARN("Disabling single oneshot feature, depends on mpd >= 0.21.0");
+        MYMPD_LOG_WARN("Disabling single oneshot feature, depends on mpd >= 0.21.0");
     }
     
     if (mpd_connection_cmp_server_version(mpd_client_state->mpd_state->conn, 0, 22, 0) >= 0 &&
         config->partitions == true) {
         mpd_client_state->feat_mpd_partitions = true;
-        LOG_INFO("Enabling partitions feature");
+        MYMPD_LOG_NOTICE("Enabling partitions feature");
     }
     else if (config->partitions == true && mpd_connection_cmp_server_version(mpd_client_state->mpd_state->conn, 0, 22, 0) == -1) {
-        LOG_WARN("Disabling partitions support, depends on mpd >= 0.22.0");
+        MYMPD_LOG_WARN("Disabling partitions support, depends on mpd >= 0.22.0");
     }
     
     if (config->mounts == false) {
         mpd_client_state->feat_mpd_mount = false;
     }
     else if (config->mounts == true && mpd_client_state->feat_mpd_mount == false) {
-        LOG_WARN("Disabling mount and neighbor support");
+        MYMPD_LOG_WARN("Disabling mount and neighbor support");
         mpd_client_state->feat_mpd_neighbor = false;
     }
     
@@ -120,16 +120,16 @@ void mpd_client_feature_love(t_mpd_client_state *mpd_client_state) {
             }
         }
         else {
-            LOG_ERROR("Error in response to command: mpd_send_channels");
+            MYMPD_LOG_ERROR("Error in response to command: mpd_send_channels");
         }
         mpd_response_finish(mpd_client_state->mpd_state->conn);
         check_error_and_recover2(mpd_client_state->mpd_state, NULL, NULL, 0, false);
 
         if (mpd_client_state->feat_love == false) {
-            LOG_WARN("Disabling featLove, channel %s not found", mpd_client_state->love_channel);
+            MYMPD_LOG_WARN("Disabling featLove, channel %s not found", mpd_client_state->love_channel);
         }
         else {
-            LOG_INFO("Enabling featLove, channel %s found", mpd_client_state->love_channel);
+            MYMPD_LOG_NOTICE("Enabling featLove, channel %s found", mpd_client_state->love_channel);
         }
     }
 }
@@ -140,56 +140,56 @@ static void mpd_client_feature_commands(t_mpd_client_state *mpd_client_state) {
         struct mpd_pair *pair;
         while ((pair = mpd_recv_command_pair(mpd_client_state->mpd_state->conn)) != NULL) {
             if (strcmp(pair->value, "sticker") == 0) {
-                LOG_DEBUG("MPD supports stickers");
+                MYMPD_LOG_DEBUG("MPD supports stickers");
                 mpd_client_state->feat_sticker = true;
             }
             else if (strcmp(pair->value, "listplaylists") == 0) {
-                LOG_DEBUG("MPD supports playlists");
+                MYMPD_LOG_DEBUG("MPD supports playlists");
                 mpd_client_state->feat_playlists = true;
             }
             else if (strcmp(pair->value, "getfingerprint") == 0) {
-                LOG_DEBUG("MPD supports fingerprint");
+                MYMPD_LOG_DEBUG("MPD supports fingerprint");
                 mpd_client_state->feat_fingerprint = true;
             }
             else if (strcmp(pair->value, "albumart") == 0) {
-                LOG_DEBUG("MPD supports albumart");
+                MYMPD_LOG_DEBUG("MPD supports albumart");
                 mpd_client_state->feat_mpd_albumart = true;
 
             }
             else if (strcmp(pair->value, "readpicture") == 0) {
-                LOG_DEBUG("MPD supports readpicture");
+                MYMPD_LOG_DEBUG("MPD supports readpicture");
                 mpd_client_state->feat_mpd_readpicture = true;
             }
             else if (strcmp(pair->value, "mount") == 0) {
-                LOG_DEBUG("MPD supports mounts");
+                MYMPD_LOG_DEBUG("MPD supports mounts");
                 mpd_client_state->feat_mpd_mount = true;
             }
             else if (strcmp(pair->value, "listneighbors") == 0) {
-                LOG_DEBUG("MPD supports neighbors");
+                MYMPD_LOG_DEBUG("MPD supports neighbors");
                 mpd_client_state->feat_mpd_neighbor = true;
             }
             mpd_return_pair(mpd_client_state->mpd_state->conn, pair);
         }
     }
     else {
-        LOG_ERROR("Error in response to command: mpd_send_allowed_commands");
+        MYMPD_LOG_ERROR("Error in response to command: mpd_send_allowed_commands");
     }
     mpd_response_finish(mpd_client_state->mpd_state->conn);
     check_error_and_recover2(mpd_client_state->mpd_state, NULL, NULL, 0, false);
     
     if (mpd_client_state->feat_sticker == false && mpd_client_state->stickers == true) {
-        LOG_WARN("MPD don't support stickers, disabling myMPD feature");
+        MYMPD_LOG_WARN("MPD don't support stickers, disabling myMPD feature");
         mpd_client_state->feat_sticker = false;
     }
     if (mpd_client_state->feat_sticker == true && mpd_client_state->stickers == false) {
         mpd_client_state->feat_sticker = false;
     }
     if (mpd_client_state->feat_sticker == false && mpd_client_state->smartpls == true) {
-        LOG_WARN("Stickers are disabled, disabling smart playlists");
+        MYMPD_LOG_WARN("Stickers are disabled, disabling smart playlists");
         mpd_client_state->feat_smartpls = false;
     }
     if (mpd_client_state->feat_playlists == false && mpd_client_state->smartpls == true) {
-        LOG_WARN("Playlists are disabled, disabling smart playlists");
+        MYMPD_LOG_WARN("Playlists are disabled, disabling smart playlists");
         mpd_client_state->feat_smartpls = false;
     }
 }
@@ -227,11 +227,11 @@ static void mpd_client_feature_music_directory(t_mpd_client_state *mpd_client_st
             }
         }
         else {
-            LOG_ERROR("Error in response to command: config");
+            MYMPD_LOG_ERROR("Error in response to command: config");
         }
         mpd_response_finish(mpd_client_state->mpd_state->conn);
         if (check_error_and_recover2(mpd_client_state->mpd_state, NULL, NULL, 0, false) == false) {
-            LOG_ERROR("Can't get music_directory value from mpd");
+            MYMPD_LOG_ERROR("Can't get music_directory value from mpd");
         }
     }
     else if (strncmp(mpd_client_state->music_directory, "/", 1) == 0) {
@@ -244,22 +244,22 @@ static void mpd_client_feature_music_directory(t_mpd_client_state *mpd_client_st
     
     //set feat_library
     if (sdslen(mpd_client_state->music_directory_value) == 0) {
-        LOG_WARN("Disabling featLibrary support");
+        MYMPD_LOG_WARN("Disabling featLibrary support");
         mpd_client_state->feat_library = false;
     }
     else if (testdir("MPD music_directory", mpd_client_state->music_directory_value, false) == 0) {
-        LOG_INFO("Enabling featLibrary support");
+        MYMPD_LOG_NOTICE("Enabling featLibrary support");
         mpd_client_state->feat_library = true;
     }
     else {
-        LOG_WARN("Disabling featLibrary support");
+        MYMPD_LOG_WARN("Disabling featLibrary support");
         mpd_client_state->feat_library = false;
         mpd_client_state->music_directory_value = sdscrop(mpd_client_state->music_directory_value);
     }
     
     if (mpd_client_state->feat_library == false) {
         if (mpd_connection_cmp_server_version(mpd_client_state->mpd_state->conn, 0, 21, 0) < 0) {
-            LOG_WARN("Disabling coverimage support");
+            MYMPD_LOG_WARN("Disabling coverimage support");
             mpd_client_state->feat_coverimage = false;
         }
     }

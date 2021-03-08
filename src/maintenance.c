@@ -28,7 +28,7 @@
 int clear_covercache(t_config *config, int keepdays) {
     int num_deleted = 0;
     if (config->covercache == false) {
-        LOG_WARN("Covercache is disabled");
+        MYMPD_LOG_WARN("Covercache is disabled");
         return 0;
     }
     if (keepdays == -1) {
@@ -37,8 +37,8 @@ int clear_covercache(t_config *config, int keepdays) {
     time_t now = time(NULL) - keepdays * 24 * 60 * 60;
     
     sds covercache = sdscatfmt(sdsempty(), "%s/covercache", config->varlibdir);
-    LOG_INFO("Cleaning covercache %s", covercache);
-    LOG_DEBUG("Remove files older than %ld sec", now);
+    MYMPD_LOG_NOTICE("Cleaning covercache %s", covercache);
+    MYMPD_LOG_DEBUG("Remove files older than %ld sec", now);
     DIR *covercache_dir = opendir(covercache);
     if (covercache_dir != NULL) {
         struct dirent *next_file;
@@ -48,9 +48,9 @@ int clear_covercache(t_config *config, int keepdays) {
                 struct stat status;
                 if (stat(filepath, &status) == 0) {
                     if (status.st_mtime < now) {
-                        LOG_DEBUG("Deleting %s: %ld", filepath, status.st_mtime);
+                        MYMPD_LOG_DEBUG("Deleting %s: %ld", filepath, status.st_mtime);
                         if (unlink(filepath) != 0) {
-                            LOG_ERROR("Error removing file \"%s\": %s", filepath, strerror(errno));
+                            MYMPD_LOG_ERROR("Error removing file \"%s\": %s", filepath, strerror(errno));
                         }
                         else {
                             num_deleted++;
@@ -63,9 +63,9 @@ int clear_covercache(t_config *config, int keepdays) {
         closedir(covercache_dir);
     }
     else {
-        LOG_ERROR("Error opening directory %s: %s", covercache, strerror(errno));
+        MYMPD_LOG_ERROR("Error opening directory %s: %s", covercache, strerror(errno));
     }
-    LOG_INFO("Deleted %d files from covercache", num_deleted);
+    MYMPD_LOG_NOTICE("Deleted %d files from covercache", num_deleted);
     sdsfree(covercache);
     return num_deleted;
 }

@@ -171,15 +171,6 @@ Failed to set like, invalid like value
 Failed to set like, invalid song uri
 잘못된 곡 주소로 좋아요 설정 안 됨
 
-Last played
-앞서 연주함
-
-LastPlayed
-앞서 연주함
-
-Last skipped
-앞서 건너뜀
-
 Database
 데이터 베이스
 
@@ -206,9 +197,6 @@ Next page
 
 Num songs
 %{smart_count} 곡 |||| %{smart_count} 곡
-
-Num playlists
-%{smart_count} 연주목록 |||| %{smart_count} 연주목록
 
 Num entries
 %{smart_count} 항목 |||| %{smart_count} 항목
@@ -354,9 +342,6 @@ Like
 Play count
 연주 횟수
 
-Skip count
-건너뛴 횟수
-
 Theme
 테마
 
@@ -435,9 +420,6 @@ Locale
 Browser default
 기본 열기
 
-Pagination
-페이지 매기기
-
 Notifications
 알림
 
@@ -495,7 +477,7 @@ Smart playlists update failed
 Smart playlist %{playlist} updated
 %{playlist} 스마트 연주목록 업데이트함
 
-Updating of smart playlist %{playlist} failed
+Updating smart playlist %{playlist} failed
 %{playlist} 스마트 연주목록 업데이트 안 됨
 
 Smart playlist
@@ -747,20 +729,8 @@ Volumecontrol disabled
 Volume
 음량
 
-No results, please refine your search
-결과가 없으므로, 맞게 찾아야 함
-
-Empty queue
-순서 비우기
-
 Empty list
 목록 비우기
-
-Empty playlist
-연주목록 비우기
-
-No playlists found
-연주목록 찾을 수 없음
 
 Added stream %{streamUri} to queue
 %{streamUri} 스트리밍을 순서에 추가함
@@ -1647,9 +1617,6 @@ Invalid volume level
 MaintainEnableTagsText
 최고의 사용자 경험을 위해서는 연주자, 음반 연주자, 음반, 곡, 디스크, 장르 태그를 관리하고 사용해야 합니다.
 
-Error reading metadata
-메타데이터 읽기 오류
-
 Failed to set like, unknown error
 좋아요 설정 실패, 알 수 없는 오류
 
@@ -1658,9 +1625,6 @@ Invalid uri
 
 Stop
 정지
-
-Unsupported file type
-지원되지 않는 파일 형식
 
 All
 모두
@@ -1752,3 +1716,6 @@ Yes
 
 Do you really want to clear the queue?
 캐시를 지울까요?
+
+Missing translations
+Selected locale is missing %{smart_count} translation |||| Selected locale is missing %{smart_count} translations

@@ -41,7 +41,7 @@ unsigned long mpd_shared_get_smartpls_mtime(t_config *config, const char *playli
     sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
     struct stat attr;
     if (stat(plpath, &attr) != 0) {
-        LOG_ERROR("Error getting mtime for %s: %s", plpath, strerror(errno));
+        MYMPD_LOG_ERROR("Error getting mtime for %s: %s", plpath, strerror(errno));
         sdsfree(plpath);
         return 0;
     }
@@ -82,21 +82,21 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
     bool rc = false;
     
     if (strcmp(tagstr, "shuffle") == 0) {
-        LOG_VERBOSE("Shuffling playlist %s", uri);
+        MYMPD_LOG_INFO("Shuffling playlist %s", uri);
         rc = mpd_send_list_playlist(mpd_state->conn, uri);
     }
     else if (strcmp(tagstr, "filename") == 0) {
-        LOG_VERBOSE("Sorting playlist %s by filename", uri);
+        MYMPD_LOG_INFO("Sorting playlist %s by filename", uri);
         rc = mpd_send_list_playlist(mpd_state->conn, uri);
     } 
     else if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
-        LOG_VERBOSE("Sorting playlist %s by tag %s", uri, tagstr);
+        MYMPD_LOG_INFO("Sorting playlist %s by tag %s", uri, tagstr);
         enable_mpd_tags(mpd_state, sort_tags);
         rc = mpd_send_list_playlist_meta(mpd_state->conn, uri);
     }
     else {
         if (buffer != NULL) {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, "Leaving playlist as it is", true);
+            buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Leaving playlist as it is");
         }
         return buffer;
     }
@@ -123,7 +123,7 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
     if (sort_tags.tags[0] == MPD_TAG_UNKNOWN) {
         if (list_shuffle(&plist) == false) {
             if (buffer != NULL) {
-                buffer = jsonrpc_respond_message(buffer, method, request_id, "Playlist is too small to shuffle", true);
+                buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to shuffle");
             }
             list_free(&plist);
             enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
@@ -134,7 +134,7 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
         if (mpd_state->feat_tags == false || strcmp(tagstr, "filename") == 0) {
             if (list_sort_by_key(&plist, true) == false) {
                 if (buffer != NULL) {
-                    buffer = jsonrpc_respond_message(buffer, method, request_id, "Playlist is too small to sort", true);
+                    buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to sort");
                 }
                 list_free(&plist);
                 enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
@@ -144,7 +144,7 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
         else {
             if (list_sort_by_value_p(&plist, true) == false) {
                 if (buffer != NULL) {
-                    buffer = jsonrpc_respond_message(buffer, method, request_id, "Playlist is too small to sort", true);
+                    buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to sort");
                 }
                 list_free(&plist);
                 enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
@@ -153,7 +153,7 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
         }
     }
     
-    unsigned int randnr = randrange(100000,999999);
+    unsigned int randnr = randrange(100000, 999999);
     sds uri_tmp = sdscatprintf(sdsempty(), "%u-tmp-%s", randnr, uri);
     sds uri_old = sdscatprintf(sdsempty(), "%u-old-%s", randnr, uri);
     
@@ -163,7 +163,7 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
         while (current != NULL) {
             rc = mpd_send_playlist_add(mpd_state->conn, uri_tmp, current->key);
             if (rc == false) {
-                LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
                 break;
             }
             current = current->next;
@@ -214,10 +214,10 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
     }
     if (buffer != NULL) {
         if (strcmp(tagstr, "shuffle") == 0) {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, "Shuffled playlist succesfully", false);
+            buffer = jsonrpc_respond_message(buffer, method, request_id, false, "playlist", "info", "Shuffled playlist succesfully");
         }
         else {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, "Sorted playlist succesfully", false);
+            buffer = jsonrpc_respond_message(buffer, method, request_id, false, "playlist", "info", "Sorted playlist succesfully");
         }
     }
     return buffer;
@@ -233,7 +233,7 @@ bool mpd_shared_smartpls_save(t_config *config, const char *smartpltype, const c
     sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", config->varlibdir, playlist);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }
@@ -258,13 +258,13 @@ bool mpd_shared_smartpls_save(t_config *config, const char *smartpltype, const c
     int rc = fputs(line, fp);
     sdsfree(line);
     if (rc < 0) {
-        LOG_ERROR("Can't write to file %s", tmp_file);
+        MYMPD_LOG_ERROR("Can't write to file %s", tmp_file);
     }
     fclose(fp);
     sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
     rc = rename(tmp_file, pl_file);
     if (rc == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, pl_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, pl_file, strerror(errno));
         sdsfree(tmp_file);
         sdsfree(pl_file);
         return false;

@@ -4,16 +4,20 @@
 // https://github.com/jcorporation/mympd
 
 //warning dialog
-function showReally(action, text) {
-    setAttEnc('modalReallyAction', 'data-href', action);
-    document.getElementById('modalReallyText').innerText = text;
-    modalReally.show();    
-}
-
-//eslint-disable-next-line no-unused-vars
-function acknowledgeReally(event) {
-    modalReally.hide();
-    parseCmd(event, getAttDec('modalReallyAction', 'data-href'));
+function showConfirm(text, callback) {
+    document.getElementById('modalConfirmText').innerText = text;
+    const yesBtn = document.createElement('button');
+    yesBtn.setAttribute('id', 'modalConfirmYesBtn');
+    yesBtn.classList.add('btn', 'btn-success');
+    yesBtn.addEventListener('click', function() {
+        if (callback !== undefined && typeof(callback) === 'function') {
+            callback();
+        }
+        uiElements.modalConfirm.hide();        
+    }, false);
+    yesBtn.innerHTML = t('Yes');
+    document.getElementById('modalConfirmYesBtn').replaceWith(yesBtn);
+    uiElements.modalConfirm.show();
 }
 
 //functions to get custom actions
@@ -122,7 +126,7 @@ function getSelectValue(el) {
 }
 
 function getSelectedOptionAttribute(selectId, attribute) {
-    let el = document.getElementById(selectId);
+    const el = document.getElementById(selectId);
     if (el && el.selectedIndex >= 0) {
         return getAttDec(el.options[el.selectedIndex], attribute);
     }
@@ -149,7 +153,7 @@ function alignDropdown(el) {
 }
 
 function getXpos(el) {
-    var xPos = 0;
+    let xPos = 0;
     while (el) {
         xPos += (el.offsetLeft - el.scrollLeft + el.clientLeft);
         el = el.offsetParent;
@@ -158,7 +162,7 @@ function getXpos(el) {
 }
 
 function zeroPad(num, places) {
-  var zero = places - num.toString().length + 1;
+  const zero = places - num.toString().length + 1;
   return Array(+(zero > 0 && zero)).join("0") + num;
 }
 
@@ -179,7 +183,7 @@ function filetype(uri) {
     if (uri === undefined) {
         return '';
     }
-    let ext = uri.split('.').pop().toUpperCase();
+    const ext = uri.split('.').pop().toUpperCase();
     switch (ext) {
         case 'MP3':  return ext + ' - MPEG-1 Audio Layer III';
         case 'FLAC': return ext + ' - Free Lossless Audio Codec';
@@ -208,7 +212,7 @@ function scrollToPosY(pos) {
 }
 
 function selectTag(btnsEl, desc, setTo) {
-    let btns = document.getElementById(btnsEl);
+    const btns = document.getElementById(btnsEl);
     let aBtn = btns.querySelector('.active');
     if (aBtn) {
         aBtn.classList.remove('active');
@@ -301,7 +305,7 @@ function focusSearch() {
         document.getElementById('searchqueuestr').focus();
     }
     else if (app.current.app === 'Search') {
-        domCache.searchstr.focus();
+        document.getElementById('searchstr').focus();
     }
     else {
         appGoto('Search');
@@ -310,7 +314,7 @@ function focusSearch() {
 
 function btnWaiting(btn, waiting) {
     if (waiting === true) {
-        let spinner = document.createElement('span');
+        const spinner = document.createElement('span');
         spinner.classList.add('spinner-border', 'spinner-border-sm', 'mr-2');
         btn.insertBefore(spinner, btn.firstChild);
         disableEl(btn);
@@ -324,7 +328,7 @@ function btnWaiting(btn, waiting) {
 }
 
 function toggleBtnGroupValue(btngrp, value) {
-    let btns = btngrp.getElementsByTagName('button');
+    const btns = btngrp.getElementsByTagName('button');
     let b = btns[0];
     let valuestr = value;
     if (isNaN(value) === false) {
@@ -343,7 +347,7 @@ function toggleBtnGroupValue(btngrp, value) {
 }
 
 function toggleBtnGroupValueCollapse(btngrp, collapse, value) {
-    let activeBtn = toggleBtnGroupValue(btngrp, value);
+    const activeBtn = toggleBtnGroupValue(btngrp, value);
     if (activeBtn.getAttribute('data-collapse') === 'show') {
         document.getElementById(collapse).classList.add('show');
     }
@@ -357,7 +361,7 @@ function toggleBtnGroup(btn) {
     if (typeof btn === 'string') {
         b = document.getElementById(btn);
     }
-    let btns = b.parentNode.getElementsByTagName('button');
+    const btns = b.parentNode.getElementsByTagName('button');
     for (let i = 0; i < btns.length; i++) {
         if (btns[i] === b) {
             btns[i].classList.add('active');
@@ -379,14 +383,14 @@ function getBtnGroupValue(btnGroup) {
 
 //eslint-disable-next-line no-unused-vars
 function toggleBtnGroupCollapse(btn, collapse) {
-    let activeBtn = toggleBtnGroup(btn);
+    const activeBtn = toggleBtnGroup(btn);
     if (activeBtn.getAttribute('data-collapse') === 'show') {
         if (document.getElementById(collapse).classList.contains('show') === false) {
-            window[collapse].show();
+            uiElements[collapse].show();
         }
     }
     else {
-        window[collapse].hide();
+        uiElements[collapse].hide();
     }
 }
 
@@ -437,22 +441,27 @@ function toggleBtnChk(btn, state) {
 }
 
 function toggleBtnChkCollapse(btn, collapse, state) {
-    let checked = toggleBtnChk(btn, state);
+    const checked = toggleBtnChk(btn, state);
     if (checked === true) {
         document.getElementById(collapse).classList.add('show');
     }
-    else{
+    else {
         document.getElementById(collapse).classList.remove('show');
     }
 }
 
 function setPagination(total, returned) {
-    let cat = app.current.app + (app.current.tab === undefined ? '' : app.current.tab);
+    const cat = app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + (app.current.view === undefined ? '' : app.current.view);
+
+    if (document.getElementById(cat + 'PaginationTop') === null) {
+        return;
+    }
+
     let totalPages = app.current.limit > 0 ? Math.ceil(total / app.current.limit) : 1;
     if (totalPages === 0) {
         totalPages = 1;
     }
-    let curPage = app.current.limit > 0 ? app.current.offset / app.current.limit + 1 : 1;
+    const curPage = app.current.limit > 0 ? app.current.offset / app.current.limit + 1 : 1;
     
     const paginationHTML = '<button title="' + t('First page') + '" type="button" class="btn btn-group-prepend btn-secondary mi">first_page</button>' +
           '<button title="' + t('Previous page') + '" type="button" class="btn btn-group-prepend btn-secondary mi">navigate_before</button>' +
@@ -466,8 +475,7 @@ function setPagination(total, returned) {
     let bottomBarHTML = '<button type="button" class="btn btn-secondary mi" title="' + t('To top') + '">keyboard_arrow_up</button>' +
           '<div>' +
           '<select class="form-control custom-select border-secondary" title="' + t('Elements per page') + '">';
-    let nrEls = [25, 50, 100, 200, 0];
-    for (let i of nrEls) {
+    for (const i of [25, 50, 100, 200, 0]) {
         bottomBarHTML += '<option value="' + i + '"' + (app.current.limit === i ? ' selected' : '') + '>' + (i > 0 ? i : t('All')) + '</option>';
     }
     bottomBarHTML += '</select>' +
@@ -496,7 +504,7 @@ function setPagination(total, returned) {
     document.getElementById(cat + 'PaginationTop').innerHTML = paginationHTML;
     
     const offsetLast = app.current.offset + app.current.limit;
-    let p = [ document.getElementById(cat + 'PaginationTop'), document.getElementById(cat + 'PaginationBottom') ];
+    const p = [ document.getElementById(cat + 'PaginationTop'), document.getElementById(cat + 'PaginationBottom') ];
     
     for (let i = 0; i < p.length; i++) {
         const first = p[i].children[0];
@@ -511,7 +519,7 @@ function setPagination(total, returned) {
             enableEl(page);
             let pl = '';
             for (let j = 0; j < totalPages; j++) {
-                let o = j * app.current.limit;
+                const o = j * app.current.limit;
                 pl += '<button data-offset="' + o + '" type="button" class="btn-sm btn btn-secondary' +
                       ( o === app.current.offset ? ' active' : '') + '">' +
                       ( j + 1) + '</button>';
@@ -526,7 +534,7 @@ function setPagination(total, returned) {
             //eslint-disable-next-line no-unused-vars
             const pagesDropdown = new BSN.Dropdown(page);
             
-            let lastPageOffset = (totalPages - 1) * app.current.limit;
+            const lastPageOffset = (totalPages - 1) * app.current.limit;
             if (lastPageOffset === app.current.offset) {
                 disableEl(last);
             }
@@ -626,6 +634,7 @@ function parseCmd(event, href) {
             case 'toggleBtnGroupCollapse':
             case 'zoomPicture':
             case 'setPlaySettings':
+            case 'voteSong':
                 window[cmd.cmd](event.target, ... cmd.options);
                 break;
             case 'toggleBtnChkCollapse':
@@ -696,7 +705,7 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
 }
 
 function createSearchCrumb(filter, op, value) {
-    let li = document.createElement('button');
+    const li = document.createElement('button');
     li.classList.add('btn', 'btn-light', 'mr-2');
     setAttEnc(li, 'data-filter-tag', filter);
     setAttEnc(li, 'data-filter-op', op);
@@ -707,7 +716,7 @@ function createSearchCrumb(filter, op, value) {
 
 function createSearchExpression(crumbsEl, tag, op, value) {
     let expression = '(';
-    let crumbs = crumbsEl.children;
+    const crumbs = crumbsEl.children;
     for (let i = 0; i < crumbs.length; i++) {
         if (i > 0) {
             expression += ' AND ';
@@ -737,4 +746,33 @@ function createSearchExpression(crumbsEl, tag, op, value) {
         expression = '';
     }
     return expression;
+}
+
+function printValue(key, value) {
+    if (value === undefined || value === null) {
+        return '-';
+    }
+    switch (key) {
+        case 'Type':
+            if (value === 'song') { return '<span class="mi">music_note</span>'; }
+            if (value === 'smartpls') { return '<span class="mi">queue_music</span>'; }
+            if (value === 'plist') { return '<span class="mi">list</span>'; }
+            if (value === 'dir') { return '<span class="mi">folder_open</span>'; }
+            return '<span class="mi">radio_button_unchecked</span>';
+        case 'Duration':
+            return beautifySongDuration(value);
+        case 'LastModified': 
+        case 'stickerLastPlayed':
+        case 'stickerLastSkipped':
+            return value === 0 ? t('never') : localeDate(value);
+        case 'stickerLike':
+            return '<span class="mi mi-small">'+
+                (value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up') +
+                '</span>';
+        default:
+            if (key.indexOf('MUSICBRAINZ') === 0) {
+                return getMBtagLink(key, value);
+            }
+            return e(value);
+    }
 }

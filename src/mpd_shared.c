@@ -60,7 +60,7 @@ bool check_rc_error_and_recover(t_mpd_state *mpd_state, sds *buffer,
                                 sds method, long request_id, bool notify, bool rc, const char *command)
 {
     if (check_error_and_recover2(mpd_state, buffer, method, request_id, notify) == false) {
-        LOG_ERROR("Error in response to command %s", command);
+        MYMPD_LOG_ERROR("Error in response to command %s", command);
         return false;
     }
     if (rc == false) {
@@ -68,7 +68,7 @@ bool check_rc_error_and_recover(t_mpd_state *mpd_state, sds *buffer,
         if (buffer != NULL && *buffer != NULL) {
             *buffer = respond_with_command_error(*buffer, method, request_id, command);
         }
-        LOG_ERROR("Error in response to command %s", command);
+        MYMPD_LOG_ERROR("Error in response to command %s", command);
         return false;
     }
     return true;
@@ -78,17 +78,14 @@ bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, l
     enum mpd_error error = mpd_connection_get_error(mpd_state->conn);
     if (error  != MPD_ERROR_SUCCESS) {
         const char *error_msg = mpd_connection_get_error_message(mpd_state->conn);
-        LOG_ERROR("MPD error: %s (%d)", error_msg , error);
-        if (buffer != NULL) {
-            if (*buffer != NULL) {
-                if (notify == false) {
-                    *buffer = jsonrpc_respond_message(*buffer, method, request_id, mpd_connection_get_error_message(mpd_state->conn), true);
-                }
-                else {
-                    *buffer = jsonrpc_start_notify(*buffer, "error");
-                    *buffer = tojson_char(*buffer, "message", mpd_connection_get_error_message(mpd_state->conn), false);
-                    *buffer = jsonrpc_end_notify(*buffer);
-                }
+        MYMPD_LOG_ERROR("MPD error: %s (%d)", error_msg , error);
+        if (buffer != NULL && *buffer != NULL) {
+            if (notify == false) {
+                *buffer = jsonrpc_respond_message(*buffer, method, request_id, true, 
+                    "mpd", "error", error_msg);
+            }
+            else {
+                *buffer = jsonrpc_notify(*buffer, "mpd", "error", error_msg);
             }
         }
 
@@ -120,22 +117,15 @@ sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer) {
 }
 
 sds respond_with_command_error(sds buffer, sds method, long request_id, const char *command) {
-    buffer = sdscrop(buffer);
-    buffer = jsonrpc_start_phrase(buffer, method, request_id, "Error in response to command: %{command}", true);
-    buffer = tojson_char(buffer, "command", command, false);
-    buffer = jsonrpc_end_phrase(buffer);
-    return buffer;
+    return jsonrpc_respond_message_phrase(buffer, method, request_id, 
+                            true, "mpd", "error", "Error in response to command: %{command}",
+                            2, "command", command);
 }
 
 sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method, long request_id, bool rc, const char *command) {
     buffer = sdscrop(buffer);
-    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
-        LOG_ERROR("Error in response to command: %s", command);
+    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, command) == false) {
         return buffer;
     }
-    if (rc == false) {
-        LOG_ERROR("Error in response to command: %s", command);
-        return respond_with_command_error(buffer, method, request_id, command);
-    }
-    return jsonrpc_respond_ok(buffer, method, request_id);
+    return jsonrpc_respond_ok(buffer, method, request_id, "mpd");
 }

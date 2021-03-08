@@ -171,15 +171,6 @@ Like mislukt, ongeldige waarde
 Failed to set like, invalid song uri
 Like mislukt, ongeldige url
 
-Last played
-Laatst afgespeeld
-
-LastPlayed
-Laatst afgespeeld
-
-Last skipped
-Laatst overgeslagen
-
 Database
 Database
 
@@ -206,9 +197,6 @@ Volgende pagina
 
 Num songs
 %{smart_count} nummer |||| %{smart_count} nummers
-
-Num playlists
-%{smart_count} afspeellijst |||| %{smart_count} afspeellijsten
 
 Num entries
 %{smart_count} entry |||| %{smart_count} entries
@@ -351,9 +339,6 @@ Like
 Play count
 Aantal x afgespeeld
 
-Skip count
-Aantal x geskipt
-
 Theme
 Thema
 
@@ -432,9 +417,6 @@ Taal
 Browser default
 Browserinstelling
 
-Pagination
-Paginagrootte
-
 Notifications
 Notificaties
 
@@ -492,7 +474,7 @@ Updaten slimmme afspeellijsten mislukt
 Smart playlist %{playlist} updated
 Slimmme afspeellijst %{playlist} geüpdatet
 
-Updating of smart playlist %{playlist} failed
+Updating smart playlist %{playlist} failed
 Updaten slimmme afspeellijst %{playlist} mislukt 
 
 Smart playlist
@@ -738,20 +720,8 @@ Volumeregeling uitgeschakeld
 Volume
 Volume
 
-No results, please refine your search
-Geen hits, gebruik andere zoekterm
-
-Empty queue
-Lege wachtrij
-
 Empty list
 Lege lijst
-
-Empty playlist
-Lege afspeellijst
-
-No playlists found
-Geen afspeellijsten gevonden
 
 Added stream %{streamUri} to queue
 Stream %{streamUri} aan wachtrij toevoegen
@@ -1520,3 +1490,6 @@ Disc 1
 
 Disc
 Disc
+
+Missing translations
+Selected locale is missing %{smart_count} translation |||| Selected locale is missing %{smart_count} translations

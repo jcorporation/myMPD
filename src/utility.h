@@ -6,19 +6,20 @@
 
 #ifndef __UTILITY_H__
 #define __UTILITY_H__
-void send_jsonrpc_notify_info(const char *message);
-void send_jsonrpc_notify_warn(const char *message);
-void send_jsonrpc_notify_error(const char *message);
-sds jsonrpc_start_notify(sds buffer, const char *method);
-sds jsonrpc_end_notify(sds buffer);
-sds jsonrpc_notify(sds buffer, const char *method);
-sds jsonrpc_start_result(sds buffer, const char *method, long id);
-sds jsonrpc_end_result(sds buffer);
-sds jsonrpc_respond_ok(sds buffer, const char *method, long id);
-sds jsonrpc_respond_message(sds buffer, const char *method, long id, const char *message, bool error);
-sds jsonrpc_start_phrase(sds buffer, const char *method, long id, const char *message, bool error);
-sds jsonrpc_start_phrase_notify(sds buffer, const char *message, bool error);
-sds jsonrpc_end_phrase(sds buffer);
+void send_jsonrpc_notify(const char *facility, const char *severity, const char *message);
+void send_jsonrpc_event(const char *event);
+void ws_notify(sds message);
+sds jsonrpc_event(sds buffer, const char *event);
+sds jsonrpc_notify(sds buffer, const char *facility, const char *severity, const char *message);
+sds jsonrpc_notify_phrase(sds buffer, const char *facility, const char *severity, const char *message, int count, ...);
+sds jsonrpc_notify_start(sds buffer, const char *method);
+sds jsonrpc_result_start(sds buffer, const char *method, long id);
+sds jsonrpc_result_end(sds buffer);
+sds jsonrpc_respond_ok(sds buffer, const char *method, long id, const char *facility);
+sds jsonrpc_respond_message(sds buffer, const char *method, long id, 
+        bool error, const char *facility, const char *severity, const char *message);
+sds jsonrpc_respond_message_phrase(sds buffer, const char *method, long id, 
+        bool error, const char *facility, const char *severity, const char *message, int count, ...);
 sds tojson_char(sds buffer, const char *key, const char *value, bool comma);
 sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, bool comma);
 sds tojson_bool(sds buffer, const char *key, bool value, bool comma);
@@ -43,7 +44,7 @@ bool write_covercache_file(t_config *config, const char *uri, const char *mime_t
 bool strtobool(const char *value);
 int strip_extension(char *s);
 void strip_slash(sds s);
-void ws_notify(sds message);
+
 void my_usleep(time_t usec);
 unsigned long substractUnsigned(unsigned long num1, unsigned long num2);
 char *basename_uri(char *uri);

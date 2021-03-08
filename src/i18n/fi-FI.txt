@@ -168,15 +168,6 @@ Tykkäystä ei voitu asettaa, virheellinen tykkäys arvo
 Failed to set like, invalid song uri
 Tykkäystä ei voitu asettaa, virheellinen kappaleen URI
 
-Last played
-Viimeksi soitettu
-
-LastPlayed
-ViimeksiSoitettu
-
-Last skipped
-Viimeksi ohitettu
-
 Database
 Tietokanta
 
@@ -203,9 +194,6 @@ Seuraava sivu
 
 Num songs
 %{smart_count} Kappale |||| %{smart_count} Kappaletta
-
-Num playlists
-%{smart_count} Soittolista |||| %{smart_count} Soittolistaa
 
 Num entries
 %{smart_count} Kohde |||| %{smart_count} Kohdetta
@@ -348,9 +336,6 @@ Tykkää
 Play count
 Soittokerrat
 
-Skip count
-Ohitus laskuri
-
 Theme
 Teema
 
@@ -429,9 +414,6 @@ Kielivalinta
 Browser default
 Selaimen asetus
 
-Pagination
-Rivien määrä
-
 Notifications
 Ilmoitukset
 
@@ -486,7 +468,7 @@ Smart playlists update failed
 Smart playlist %{playlist} updated
 Älykäs soittolista %{playlist} päivitetty
 
-Updating of smart playlist %{playlist} failed
+Updating smart playlist %{playlist} failed
 Älykkään soittolistan %{playlist} päivitys epäonnistui
 
 Smart playlist
@@ -732,20 +714,8 @@ Volumecontrol disabled
 Volume
 Äänenvoimakkuus
 
-No results, please refine your search
-Ei tuloksia, tarkista hakuehdot
-
-Empty queue
-Tyhjä jono
-
 Empty list
 Tyhjä lista
-
-Empty playlist
-Tyhjä soittolista
-
-No playlists found
-Soittolistoja ei löydy
 
 Added stream %{streamUri} to queue
 Streami %{streamUri} lisätty jonoon
@@ -1289,3 +1259,6 @@ Sanoituksia ei löydy
 
 Invalid column
 Väärä sarake
+
+Missing translations
+Selected locale is missing %{smart_count} translation |||| Selected locale is missing %{smart_count} translations

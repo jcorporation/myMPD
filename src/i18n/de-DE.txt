@@ -171,13 +171,13 @@ Wertung konnte nicht gesetzt werden, ungültiger Wert
 Failed to set like, invalid song uri
 Wertung konnte nicht gesetzt werden, ungültige Lied URL
 
-Last played
-Zuletzt gespielt
-
 LastPlayed
 Zuletzt gespielt
 
-Last skipped
+stickerLastPlayed
+Zuletzt gespielt
+
+stickerLastSkipped
 Zuletzt übersprungen
 
 Database
@@ -206,9 +206,6 @@ Nächste Seite
 
 Num songs
 %{smart_count} Lied |||| %{smart_count} Lieder
-
-Num playlists
-%{smart_count} Wiedergabeliste |||| %{smart_count} Wiedergabelisten
 
 Num entries
 %{smart_count} Eintrag |||| %{smart_count} Einträge
@@ -351,11 +348,17 @@ Tage
 Like
 Wertung
 
+stickerLike
+Wertung
+
 Play count
 Wie oft gespielt
 
-Skip count
-Wie oft übersprungen
+stickerPlayCount
+Gespielt
+
+stickerSkipCount
+Übersprungen
 
 Theme
 Design
@@ -435,9 +438,6 @@ Sprache
 Browser default
 Browsereinstellung
 
-Pagination
-Seitenumbruch
-
 Notifications
 Hinweise
 
@@ -495,7 +495,7 @@ Intelligente Wiedergabelisten konnten nicht aktualisiert werden
 Smart playlist %{playlist} updated
 Intelligente Wiedergabeliste %{playlist} aktualisiert
 
-Updating of smart playlist %{playlist} failed
+Updating smart playlist %{playlist} failed
 Intelligente Wiedergabeliste %{playlist} konnte nicht aktualisiert werden
 
 Smart playlist
@@ -747,20 +747,8 @@ Lautstärkeregelung deaktiviert
 Volume
 Lautstärke
 
-No results, please refine your search
-Keine Ergebnisse, bitte passe die Suche an
-
-Empty queue
-Leere Warteschlange
-
 Empty list
 Leere Liste
-
-Empty playlist
-Leere Wiedergabeliste
-
-No playlists found
-Keine Wiedergabelisten gefunden
 
 Added stream %{streamUri} to queue
 Stream %{streamUri} zu Warteschlange hinzugefügt
@@ -1623,9 +1611,6 @@ Nächstes Lied
 Outputs
 Ausgabegeräte
 
-Playback settings
-Wiedergabeeinstellungen
-
 Previous
 Vorheriges Lied
 
@@ -1647,9 +1632,6 @@ Ungültige Lautstärke
 MaintainEnableTagsText
 Folgende Tags sollten gepflegt und aktiviert sein: Artist, AlbumArtist, Album, Track, Disc and Genre
 
-Error reading metadata
-Metadaten konnten nicht gelesen werden
-
 Failed to set like, unknown error
 Like konnte nicht gesetzt werden - unbekannter Fehler
 
@@ -1658,9 +1640,6 @@ Ungültige URI
 
 Stop
 Stop
-
-Unsupported file type
-Nicht unterstützter Dateityp
 
 All
 Alle
@@ -1767,3 +1746,85 @@ nur Pause
 
 stop only
 nur Stop
+
+Do you really want to clear the playlist?
+Willst du wirlich die Wiedergabeliste wirklich leeren?
+
+
+Do you really want to delete the playlist?
+Willst du wirklich die Wiedergabeliste löschen?
+
+Playback settings
+Wiedergabeeinstellungen
+
+Color
+Farbe
+
+Song change
+Neues Lied
+
+Show playback settings in footer
+Wiedergabeeinstellungen im Footer anzeigen
+
+Error getting mpd state for script execution
+Fehler beim Ermitteln des Status beim Starten des Skripts
+
+Custom
+Benutzerdefiniert
+
+Daily
+Täglich
+
+Interval
+Interval
+
+Invalid timer interval
+Ungültiger Interval
+
+One shot and delete
+Einmalig und löschen
+
+One shot and disable
+Einmalig und deaktivieren
+
+Weekly
+Wöchentlich
+
+Each hours
+jede Stunde |||| jede %{smart_count}. Stunde
+
+hours
+Stunden
+
+Missing translations
+Für die ausgewählte Sprache fehlt %{smart_count} Übersetzung |||| Für die ausgewähle Sprache fehlen %{smart_count} Übersetzungen
+
+Updated album cache
+Album Cache wurde aktualisiert
+
+Update of album cache failed
+Album Cache konnte nicht aktualisiert werden
+
+Updated sticker cache
+Sticker Cache wurde aktualisiert
+
+Update of sticker cache failed
+Sticker Cache konnte nicht aktualisiert werden
+
+Facilities
+Kategorie
+
+Can not parse response to json object
+Antwort konnte nicht geparsed werden
+
+Default image
+Standardbild
+
+Default image light
+Standardbild Hell
+
+Default image dark
+Standardbild Dunkel
+
+No script selected
+Kein Skript ausgewählt

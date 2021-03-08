@@ -57,10 +57,10 @@ static void mympd_signal_handler(int sig_num) {
         //Wakeup queue loops
         pthread_cond_signal(&mympd_api_queue->wakeup);
         pthread_cond_signal(&mympd_script_queue->wakeup);
-        LOG_INFO("Signal %s received, exiting", strsignal(sig_num));
+        MYMPD_LOG_NOTICE("Signal %s received, exiting", strsignal(sig_num));
     }
     else if (sig_num == SIGHUP) {
-        LOG_INFO("Signal %s received, saving states", strsignal(sig_num));
+        MYMPD_LOG_NOTICE("Signal %s received, saving states", strsignal(sig_num));
         t_work_request *request = create_request(-1, 0, MYMPD_API_STATE_SAVE, "MYMPD_API_STATE_SAVE", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_STATE_SAVE\",\"params\":{}}");
         tiny_queue_push(mympd_api_queue, request, 0);    
@@ -74,7 +74,7 @@ static void mympd_signal_handler(int sig_num) {
 static bool do_chown(const char *file_path, const char *user_name) {
     struct passwd *pwd = getpwnam(user_name);
     if (pwd == NULL) {
-        LOG_ERROR("Can't get passwd entry for user %s", user_name);
+        MYMPD_LOG_ERROR("Can't get passwd entry for user %s", user_name);
         return false;
     }
 
@@ -82,7 +82,7 @@ static bool do_chown(const char *file_path, const char *user_name) {
     int rc = chown(file_path, pwd->pw_uid, pwd->pw_gid); /* Flawfinder: ignore */
     //Originaly owned by root
     if (rc == -1) {
-        LOG_ERROR("Can't chown %s to %s: %s", file_path, user_name, strerror(errno));
+        MYMPD_LOG_ERROR("Can't chown %s to %s: %s", file_path, user_name, strerror(errno));
         return false;
     }
     return true;
@@ -92,7 +92,7 @@ static bool do_chroot(struct t_config *config) {
     if (chroot(config->varlibdir) == 0) { /* Flawfinder: ignore */
         errno = 0;
         if (chdir("/") != 0) {
-            LOG_ERROR("Can not change directory to /: %s", strerror(errno));
+            MYMPD_LOG_ERROR("Can not change directory to /: %s", strerror(errno));
             return false;
         }
         //reset environment
@@ -138,50 +138,50 @@ static bool chown_certs(t_config *config) {
 
 static bool drop_privileges(t_config *config, uid_t startup_uid) {
     if (startup_uid == 0 && sdslen(config->user) > 0) {
-        LOG_INFO("Droping privileges to %s", config->user);
+        MYMPD_LOG_NOTICE("Droping privileges to %s", config->user);
         //get user
         struct passwd *pw;
         errno = 0;
         if ((pw = getpwnam(config->user)) == NULL) {
-            LOG_ERROR("getpwnam() failed, unknown user: %s", strerror(errno));
+            MYMPD_LOG_ERROR("getpwnam() failed, unknown user: %s", strerror(errno));
             return false;
         }
         //purge supplementary groups
         errno = 0;
         if (setgroups(0, NULL) == -1) { 
-            LOG_ERROR("setgroups() failed: %s", strerror(errno));
+            MYMPD_LOG_ERROR("setgroups() failed: %s", strerror(errno));
             return false;
         }
         //set new supplementary groups from target user
         errno = 0;
         if (initgroups(config->user, pw->pw_gid) == -1) {
-            LOG_ERROR("initgroups() failed: %s", strerror(errno));
+            MYMPD_LOG_ERROR("initgroups() failed: %s", strerror(errno));
             return false;
         }
         //chroot if enabled
         if (config->chroot == true) {
-            LOG_INFO("Chroot to %s", config->varlibdir);
+            MYMPD_LOG_NOTICE("Chroot to %s", config->varlibdir);
             if (do_chroot(config) == false) {
-                LOG_ERROR("Chroot to %s failed", config->varlibdir);
+                MYMPD_LOG_ERROR("Chroot to %s failed", config->varlibdir);
                 return false;
             }
         }
         //change primary group to group of target user
         errno = 0;
         if (setgid(pw->pw_gid) == -1 ) {
-            LOG_ERROR("setgid() failed: %s", strerror(errno));
+            MYMPD_LOG_ERROR("setgid() failed: %s", strerror(errno));
             return false;
         }
         //change user
         errno = 0;
         if (setuid(pw->pw_uid) == -1) {
-            LOG_ERROR("setuid() failed: %s", strerror(errno));
+            MYMPD_LOG_ERROR("setuid() failed: %s", strerror(errno));
             return false;
         }
     }
     //check if not root
     if (getuid() == 0) {
-        LOG_ERROR("myMPD should not be run with root privileges");
+        MYMPD_LOG_ERROR("myMPD should not be run with root privileges");
         return false;
     }
     return true;
@@ -203,7 +203,7 @@ static bool check_ssl_certs(t_config *config, uid_t startup_uid) {
             //directory created, create certificates
             if (!create_certificates(testdirname, config->ssl_san)) {
                 //error creating certificates
-                LOG_ERROR("Certificate creation failed");
+                MYMPD_LOG_ERROR("Certificate creation failed");
                 sdsfree(testdirname);
                 return false;
             }
@@ -306,9 +306,18 @@ static bool check_dirs(t_config *config) {
     return true;
 }
 
+static void log_startup(void) {
+    MYMPD_LOG_NOTICE("Starting myMPD %s", MYMPD_VERSION);
+    MYMPD_LOG_NOTICE("Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i", 
+            LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION,
+            LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+    MYMPD_LOG_NOTICE("Mongoose %s", MG_VERSION);
+}
+
 int main(int argc, char **argv) {
     thread_logname = sdsnew("mympd");
-    log_on_tty = isatty(fileno(stdout)) ? 1: 0;
+    log_on_tty = isatty(fileno(stdout)) ? true : false;
+    log_to_syslog = false;
  
     s_signal_received = 0;
     bool init_webserver = false;
@@ -319,13 +328,13 @@ int main(int argc, char **argv) {
     bool init_thread_mympdapi = false;
     int rc = EXIT_FAILURE;
     #ifdef DEBUG
-    set_loglevel(4);
+    set_loglevel(LOG_DEBUG);
     #else
-    set_loglevel(2);
+    set_loglevel(LOG_NOTICE);
     #endif
 
     if (chdir("/") != 0) {
-        LOG_ERROR("Can not change directory to /: %s", strerror(errno));
+        MYMPD_LOG_ERROR("Can not change directory to /: %s", strerror(errno));
         goto end;
     }
     //only user and group have rw access
@@ -372,22 +381,25 @@ int main(int argc, char **argv) {
         }
     }
 
-    LOG_INFO("Starting myMPD %s", MYMPD_VERSION);
-    LOG_INFO("Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i", 
-            LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION,
-            LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
-    LOG_INFO("Mongoose %s", MG_VERSION);
-    
+    log_startup();
+
+    //read config    
     if (mympd_read_config(config, configfile) == false) {
         goto cleanup;
     }
 
     //set loglevel
     #ifdef DEBUG
-        set_loglevel(4);
+        set_loglevel(LOG_DEBUG);
     #else
         set_loglevel(config->loglevel);
     #endif
+
+    if (config->syslog == true) {
+        openlog("mympd", LOG_CONS, LOG_DAEMON);
+        log_to_syslog = true;
+        log_startup();
+    }
 
     //check varlibdir
     if (config->readonly == false) {
@@ -408,7 +420,7 @@ int main(int argc, char **argv) {
 
     //go into varlibdir
     if (chdir(config->varlibdir) != 0) {
-        LOG_ERROR("Can not change directory to %s: %s", config->varlibdir, strerror(errno));
+        MYMPD_LOG_ERROR("Can not change directory to %s: %s", config->varlibdir, strerror(errno));
         goto cleanup;
     }
 
@@ -417,7 +429,7 @@ int main(int argc, char **argv) {
         if (drop_privileges(config, startup_uid) == false) {
             goto cleanup;
         }
-        LOG_DEBUG("myMPD started with option: %s", option);
+        MYMPD_LOG_DEBUG("myMPD started with option: %s", option);
         if (handle_option(config, argv[0], option) == false) {
             rc = EXIT_FAILURE;
         }
@@ -471,43 +483,43 @@ int main(int argc, char **argv) {
     pthread_t web_server_thread;
     pthread_t mympd_api_thread;
     //mympd api
-    LOG_INFO("Starting mympd api thread");
+    MYMPD_LOG_NOTICE("Starting mympd api thread");
     if (pthread_create(&mympd_api_thread, NULL, mympd_api_loop, config) == 0) {
         pthread_setname_np(mympd_api_thread, "mympd_mympdapi");
         init_thread_mympdapi = true;
     }
     else {
-        LOG_ERROR("Can't create mympd_mympdapi thread");
+        MYMPD_LOG_ERROR("Can't create mympd_mympdapi thread");
         s_signal_received = SIGTERM;
     }
     //mpd connection
-    LOG_INFO("Starting mpd worker thread");
+    MYMPD_LOG_NOTICE("Starting mpd worker thread");
     if (pthread_create(&mpd_worker_thread, NULL, mpd_worker_loop, config) == 0) {
         pthread_setname_np(mpd_worker_thread, "mympd_mpdworker");
         init_thread_mpdworker = true;
     }
     else {
-        LOG_ERROR("Can't create mympd_worker thread");
+        MYMPD_LOG_ERROR("Can't create mympd_worker thread");
         s_signal_received = SIGTERM;
     }
-    LOG_INFO("Starting mpd client thread");
+    MYMPD_LOG_NOTICE("Starting mpd client thread");
     if (pthread_create(&mpd_client_thread, NULL, mpd_client_loop, config) == 0) {
         pthread_setname_np(mpd_client_thread, "mympd_mpdclient");
         init_thread_mpdclient = true;
     }
     else {
-        LOG_ERROR("Can't create mympd_client thread");
+        MYMPD_LOG_ERROR("Can't create mympd_client thread");
         s_signal_received = SIGTERM;
     }
 
     //webserver
-    LOG_INFO("Starting webserver thread");
+    MYMPD_LOG_NOTICE("Starting webserver thread");
     if (pthread_create(&web_server_thread, NULL, web_server_loop, &mgr) == 0) {
         pthread_setname_np(web_server_thread, "mympd_webserver");
         init_thread_webserver = true;
     }
     else {
-        LOG_ERROR("Can't create mympd_webserver thread");
+        MYMPD_LOG_ERROR("Can't create mympd_webserver thread");
         s_signal_received = SIGTERM;
     }
 
@@ -518,48 +530,48 @@ int main(int argc, char **argv) {
     cleanup:
     if (init_thread_mpdclient == true) {
         pthread_join(mpd_client_thread, NULL);
-        LOG_INFO("Stopping mpd client thread");
+        MYMPD_LOG_NOTICE("Stopping mpd client thread");
     }
     if (init_thread_mpdworker == true) {
         pthread_join(mpd_worker_thread, NULL);
-        LOG_INFO("Stopping mpd worker thread");
+        MYMPD_LOG_NOTICE("Stopping mpd worker thread");
     }
     if (init_thread_webserver == true) {
         pthread_join(web_server_thread, NULL);
-        LOG_INFO("Stopping web server thread");
+        MYMPD_LOG_NOTICE("Stopping web server thread");
     }
     if (init_thread_mympdapi == true) {
         pthread_join(mympd_api_thread, NULL);
-        LOG_INFO("Stopping mympd api thread");
+        MYMPD_LOG_NOTICE("Stopping mympd api thread");
     }
     if (init_webserver == true) {
         web_server_free(&mgr);
     }
     
-    LOG_DEBUG("Expiring web_server_queue: %u", tiny_queue_length(web_server_queue, 10));
+    MYMPD_LOG_DEBUG("Expiring web_server_queue: %u", tiny_queue_length(web_server_queue, 10));
     int expired = expire_result_queue(web_server_queue, 0);
     tiny_queue_free(web_server_queue);
-    LOG_DEBUG("Expired %d entries", expired);
+    MYMPD_LOG_DEBUG("Expired %d entries", expired);
 
-    LOG_DEBUG("Expiring mpd_client_queue: %u", tiny_queue_length(mpd_client_queue, 10));
+    MYMPD_LOG_DEBUG("Expiring mpd_client_queue: %u", tiny_queue_length(mpd_client_queue, 10));
     expired = expire_request_queue(mpd_client_queue, 0);
     tiny_queue_free(mpd_client_queue);
-    LOG_DEBUG("Expired %d entries", expired);
+    MYMPD_LOG_DEBUG("Expired %d entries", expired);
 
-    LOG_DEBUG("Expiring mympd_api_queue: %u", tiny_queue_length(mympd_api_queue, 10));
+    MYMPD_LOG_DEBUG("Expiring mympd_api_queue: %u", tiny_queue_length(mympd_api_queue, 10));
     expired = expire_request_queue(mympd_api_queue, 0);
     tiny_queue_free(mympd_api_queue);
-    LOG_DEBUG("Expired %d entries", expired);
+    MYMPD_LOG_DEBUG("Expired %d entries", expired);
 
-    LOG_DEBUG("Expiring mpd_worker_queue: %u", tiny_queue_length(mpd_worker_queue, 10));
+    MYMPD_LOG_DEBUG("Expiring mpd_worker_queue: %u", tiny_queue_length(mpd_worker_queue, 10));
     expired = expire_request_queue(mpd_worker_queue, 0);
     tiny_queue_free(mpd_worker_queue);
-    LOG_DEBUG("Expired %d entries", expired);
+    MYMPD_LOG_DEBUG("Expired %d entries", expired);
 
-    LOG_DEBUG("Expiring mympd_script_queue: %u", tiny_queue_length(mympd_script_queue, 10));
+    MYMPD_LOG_DEBUG("Expiring mympd_script_queue: %u", tiny_queue_length(mympd_script_queue, 10));
     expired = expire_result_queue(mympd_script_queue, 0);
     tiny_queue_free(mympd_script_queue);
-    LOG_DEBUG("Expired %d entries", expired);
+    MYMPD_LOG_DEBUG("Expired %d entries", expired);
 
     mympd_free_config(config);
     sdsfree(configfile);
@@ -575,6 +587,7 @@ int main(int argc, char **argv) {
     if (rc == EXIT_SUCCESS) {
         printf("Exiting gracefully, thank you for using myMPD\n");
     }
+
     end:
     sdsfree(thread_logname);
     return rc;

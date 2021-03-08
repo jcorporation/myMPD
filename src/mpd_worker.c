@@ -50,16 +50,16 @@ void *mpd_worker_loop(void *arg_config) {
         t_work_request *request = tiny_queue_shift(mpd_worker_queue, 50, 0);
         if (request != NULL) {
             if (request->cmd_id == MYMPD_API_SETTINGS_SET) {
-                LOG_DEBUG("Got initial settings from mympd_api");
+                MYMPD_LOG_DEBUG("Got initial settings from mympd_api");
                 mpd_worker_api(config, mpd_worker_state, request);
                 break;
             }
-            LOG_DEBUG("MPD worker not initialized, discarding message");
+            MYMPD_LOG_DEBUG("MPD worker not initialized, discarding message");
             free_request(request);
         }
     }
 
-    LOG_INFO("Starting mpd_worker");
+    MYMPD_LOG_NOTICE("Starting mpd_worker");
     //On startup connect instantly
     mpd_worker_state->mpd_state->conn_state = MPD_DISCONNECTED;
     while (s_signal_received == 0) {
@@ -83,7 +83,7 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
             mpd_worker_queue_length = tiny_queue_length(mpd_worker_queue, 50);
             if (mpd_worker_queue_length > 0) {
                 //Handle request
-                LOG_DEBUG("Handle request (mpd disconnected)");
+                MYMPD_LOG_DEBUG("Handle request (mpd disconnected)");
                 t_work_request *request = tiny_queue_shift(mpd_worker_queue, 50, 0);
                 if (request != NULL) {
                     if (request->cmd_id == MYMPD_API_SETTINGS_SET) {
@@ -111,32 +111,32 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
         case MPD_DISCONNECTED:
             /* Try to connect */
             if (strncmp(mpd_worker_state->mpd_state->mpd_host, "/", 1) == 0) {
-                LOG_INFO("MPD worker connecting to socket %s", mpd_worker_state->mpd_state->mpd_host);
+                MYMPD_LOG_NOTICE("MPD worker connecting to socket %s", mpd_worker_state->mpd_state->mpd_host);
             }
             else {
-                LOG_INFO("MPD worker connecting to %s:%d", mpd_worker_state->mpd_state->mpd_host, mpd_worker_state->mpd_state->mpd_port);
+                MYMPD_LOG_NOTICE("MPD worker connecting to %s:%d", mpd_worker_state->mpd_state->mpd_host, mpd_worker_state->mpd_state->mpd_port);
             }
             mpd_worker_state->mpd_state->conn = mpd_connection_new(mpd_worker_state->mpd_state->mpd_host, mpd_worker_state->mpd_state->mpd_port, mpd_worker_state->mpd_state->timeout);
             if (mpd_worker_state->mpd_state->conn == NULL) {
-                LOG_ERROR("MPD worker connection to failed: out-of-memory");
+                MYMPD_LOG_ERROR("MPD worker connection to failed: out-of-memory");
                 mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
                 mpd_connection_free(mpd_worker_state->mpd_state->conn);
                 return;
             }
 
             if (mpd_connection_get_error(mpd_worker_state->mpd_state->conn) != MPD_ERROR_SUCCESS) {
-                LOG_ERROR("MPD worker connection: %s", mpd_connection_get_error_message(mpd_worker_state->mpd_state->conn));
+                MYMPD_LOG_ERROR("MPD worker connection: %s", mpd_connection_get_error_message(mpd_worker_state->mpd_state->conn));
                 mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
                 return;
             }
 
             if (sdslen(mpd_worker_state->mpd_state->mpd_pass) > 0 && !mpd_run_password(mpd_worker_state->mpd_state->conn, mpd_worker_state->mpd_state->mpd_pass)) {
-                LOG_ERROR("MPD worker connection: %s", mpd_connection_get_error_message(mpd_worker_state->mpd_state->conn));
+                MYMPD_LOG_ERROR("MPD worker connection: %s", mpd_connection_get_error_message(mpd_worker_state->mpd_state->conn));
                 mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
                 return;
             }
 
-            LOG_INFO("MPD worker connected");
+            MYMPD_LOG_NOTICE("MPD worker connected");
             mpd_connection_set_timeout(mpd_worker_state->mpd_state->conn, mpd_worker_state->mpd_state->timeout);
             mpd_worker_state->mpd_state->conn_state = MPD_CONNECTED;
             mpd_worker_state->mpd_state->reconnect_interval = 0;
@@ -145,13 +145,13 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
             mpd_worker_features(mpd_worker_state);
             
             if (!mpd_send_idle_mask(mpd_worker_state->mpd_state->conn, set_idle_mask)) {
-                LOG_ERROR("MPD worker entering idle mode failed");
+                MYMPD_LOG_ERROR("MPD worker entering idle mode failed");
                 mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
             }
             break;
 
         case MPD_FAILURE:
-            LOG_ERROR("MPD worker connection failed");
+            MYMPD_LOG_ERROR("MPD worker connection failed");
             // fall through
         case MPD_DISCONNECT:
         case MPD_RECONNECT:
@@ -164,7 +164,7 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
                 mpd_worker_state->mpd_state->reconnect_interval += 2;
             }
             mpd_worker_state->mpd_state->reconnect_time = time(NULL) + mpd_worker_state->mpd_state->reconnect_interval;
-            LOG_VERBOSE("MPD worker waiting %u seconds before reconnection", mpd_worker_state->mpd_state->reconnect_interval);
+            MYMPD_LOG_INFO("MPD worker waiting %u seconds before reconnection", mpd_worker_state->mpd_state->reconnect_interval);
             break;
 
         case MPD_CONNECTED:
@@ -174,7 +174,7 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
 
             mpd_worker_queue_length = tiny_queue_length(mpd_worker_queue, 50);
             if (pollrc > 0 || mpd_worker_queue_length > 0) {
-                LOG_DEBUG("Leaving mpd worker idle mode");
+                MYMPD_LOG_DEBUG("Leaving mpd worker idle mode");
                 if (!mpd_send_noidle(mpd_worker_state->mpd_state->conn)) {
                     check_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0);
                     mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
@@ -182,7 +182,7 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
                 }
                 if (pollrc > 0) {
                     //Handle idle events
-                    LOG_DEBUG("Checking for idle events");
+                    MYMPD_LOG_DEBUG("Checking for idle events");
                     enum mpd_idle idle_bitmask = mpd_recv_idle(mpd_worker_state->mpd_state->conn, false);
                     mpd_worker_parse_idle(config, mpd_worker_state, idle_bitmask);
 
@@ -192,13 +192,13 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
                 }
                 if (mpd_worker_queue_length > 0) {
                     //Handle request
-                    LOG_DEBUG("MPD worker handle request");
+                    MYMPD_LOG_DEBUG("MPD worker handle request");
                     t_work_request *request = tiny_queue_shift(mpd_worker_queue, 50, 0);
                     if (request != NULL) {
                         mpd_worker_api(config, mpd_worker_state, request);
                     }
                 }
-                LOG_DEBUG("Entering mpd worker idle mode");
+                MYMPD_LOG_DEBUG("Entering mpd worker idle mode");
                 if (!mpd_send_idle_mask(mpd_worker_state->mpd_state->conn, set_idle_mask)) {
                     check_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0);
                     mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
@@ -206,7 +206,7 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
             }
             break;
         default:
-            LOG_ERROR("Invalid mpd worker connection state");
+            MYMPD_LOG_ERROR("Invalid mpd worker connection state");
     }
 }
 
@@ -218,7 +218,7 @@ static void mpd_worker_parse_idle(t_config *config, t_mpd_worker_state *mpd_work
             break;
         }
         if (idle_bitmask & idle_event) {
-            LOG_VERBOSE("MPD idle event: %s", idle_name);
+            MYMPD_LOG_INFO("MPD idle event: %s", idle_name);
             switch(idle_event) {
                 case MPD_IDLE_DATABASE:
                     mpd_worker_smartpls_update_all(config, mpd_worker_state, false);

@@ -22,41 +22,42 @@
 #include "../mpd_shared.h"
 #include "mpd_shared_tags.h"
 #include "mpd_shared_search.h"
+#include "mpd_shared_sticker.h"
 
 //private definitions
 static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *expression, const char *sort, const bool sortdesc, 
                       const char *grouptag, const char *plist, const unsigned int offset,
-                      unsigned int limit, const t_tags *tagcols, bool adv, const char *searchtag);
+                      unsigned int limit, const t_tags *tagcols, bool adv, const char *searchtag, rax *sticker_cache);
 //public functions
 sds mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *searchstr, const char *searchtag, const char *plist, 
-                      const unsigned int offset, unsigned int limit, const t_tags *tagcols)
+                      const unsigned int offset, unsigned int limit, const t_tags *tagcols, rax *sticker_cache)
 {
     return _mpd_shared_search(mpd_state, buffer, method, request_id, 
                               searchstr, NULL, false, NULL, plist, offset, limit,
-                              tagcols, false, searchtag);
+                              tagcols, false, searchtag, sticker_cache);
 }
 
 sds mpd_shared_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                           const char *expression, const char *sort, const bool sortdesc, 
                           const char *grouptag, const char *plist, const unsigned int offset,
-                          unsigned int limit, const t_tags *tagcols)
+                          unsigned int limit, const t_tags *tagcols, rax *sticker_cache)
 {
     return _mpd_shared_search(mpd_state, buffer, method, request_id, 
                               expression, sort, sortdesc, grouptag, plist, offset, limit,
-                              tagcols, true, NULL);
+                              tagcols, true, NULL, sticker_cache);
 }
 
 //private functions
 static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *expression, const char *sort, const bool sortdesc, 
                       const char *grouptag, const char *plist, const unsigned int offset,
-                      unsigned int limit, const t_tags *tagcols, bool adv, const char *searchtag)
+                      unsigned int limit, const t_tags *tagcols, bool adv, const char *searchtag, rax *sticker_cache)
 {
     if (strcmp(expression, "") == 0) {
-        LOG_ERROR("No search expression defined");
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "No search expression defined", true);
+        MYMPD_LOG_ERROR("No search expression defined");
+        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "mpd", "error", "No search expression defined");
         return buffer;
     }
 
@@ -66,8 +67,8 @@ static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, lo
             mpd_search_cancel(mpd_state->conn);
             return buffer;
         }
-        buffer = jsonrpc_start_result(buffer, method, request_id);
-        buffer = sdscat(buffer, ",\"data\":[");
+        buffer = jsonrpc_result_start(buffer, method, request_id);
+        buffer = sdscat(buffer, "\"data\":[");
     }
     else if (strcmp(plist, "queue") == 0) {
         bool rc = mpd_search_add_db_songs(mpd_state->conn, false);
@@ -107,7 +108,7 @@ static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, lo
     }
     else {
         mpd_search_cancel(mpd_state->conn);
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "No search tag defined and advanced search is disabled", true);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "mpd", "error", "No search tag defined and advanced search is disabled");
         return buffer;
     }
 
@@ -130,7 +131,7 @@ static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, lo
                 }
             }
             else {
-                LOG_WARN("Unknown sort tag: %s", sort);
+                MYMPD_LOG_WARN("Unknown sort tag: %s", sort);
             }
         }
         if (grouptag != NULL && strcmp(grouptag, "") != 0 && mpd_state->feat_tags == true) {
@@ -170,6 +171,10 @@ static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, lo
                 buffer = sdscat(buffer, "{");
                 buffer = tojson_char(buffer, "Type", "song", true);
                 buffer = put_song_tags(buffer, mpd_state, tagcols, song);
+                if (sticker_cache != NULL) {
+                    buffer = sdscat(buffer, ",");
+                    buffer = mpd_shared_sticker_list(buffer, sticker_cache, mpd_song_get_uri(song));
+                }
                 buffer = sdscat(buffer, "}");
             }
             mpd_song_free(song);
@@ -193,15 +198,15 @@ static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, lo
             buffer = tojson_char(buffer, "searchstr", expression, true);
             buffer = tojson_char(buffer, "searchtag", searchtag, false);
         }
-        buffer = jsonrpc_end_result(buffer);
+        buffer = jsonrpc_result_end(buffer);
     }
     else if (strcmp(plist, "queue") == 0) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Added songs to queue", false);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, false, 
+            "queue", "info", "Added songs to queue");
     }
     else {
-        buffer = jsonrpc_start_phrase(buffer, method, request_id, "Added songs to %{playlist}", false);
-        buffer = tojson_char(buffer, "playlist", plist, false);
-        buffer = jsonrpc_end_phrase(buffer);
+        buffer = jsonrpc_respond_message_phrase(buffer, method, request_id, false, 
+            "playlist", "info", "Added songs to %{playlist}", 2, "playlist", plist);
     }
     
     mpd_response_finish(mpd_state->conn);

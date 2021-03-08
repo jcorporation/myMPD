@@ -28,8 +28,8 @@ function initScripts() {
             showEditScript(getAttDec(event.target.parentNode, 'data-script'));
         }
         else if (event.target.nodeName === 'A') {
-            let action = getAttDec(event.target, 'data-action');
-            let script = getAttDec(event.target.parentNode.parentNode, 'data-script');
+            const action = getAttDec(event.target, 'data-action');
+            const script = getAttDec(event.target.parentNode.parentNode, 'data-script');
             if (action === 'delete') {
                 deleteScript(script);
             }
@@ -51,19 +51,19 @@ function initScripts() {
 function saveScript() {
     let formOK = true;
     
-    let nameEl = document.getElementById('inputScriptName');
+    const nameEl = document.getElementById('inputScriptName');
     if (!validatePlnameEl(nameEl)) {
         formOK = false;
     }
     
-    let orderEl = document.getElementById('inputScriptOrder');
+    const orderEl = document.getElementById('inputScriptOrder');
     if (!validateInt(orderEl)) {
         formOK = false;
     }
     
     if (formOK === true) {
-        let args = [];
-        let argSel = document.getElementById('selectScriptArguments');
+        const args = [];
+        const argSel = document.getElementById('selectScriptArguments');
         for (let i = 0; i < argSel.options.length; i++) {
             args.push(argSel.options[i].text);
         }
@@ -78,9 +78,9 @@ function saveScript() {
 }
 
 function addScriptArgument() {
-    let el = document.getElementById('inputScriptArgument');
+    const el = document.getElementById('inputScriptArgument');
     if (validatePlnameEl(el)) {
-        let o = document.createElement('option');
+        const o = document.createElement('option');
         o.text = el.value;
         document.getElementById('selectScriptArguments').appendChild(o);
         el.value = '';
@@ -88,7 +88,7 @@ function addScriptArgument() {
 }
 
 function removeScriptArgument(ev) {
-    let el = document.getElementById('inputScriptArgument');
+    const el = document.getElementById('inputScriptArgument');
     el.value = ev.target.text;
     ev.target.remove();
     el.focus();  
@@ -121,10 +121,10 @@ function parseEditScript(obj) {
     document.getElementById('inputScriptName').value = obj.result.script;
     document.getElementById('inputScriptOrder').value = obj.result.metadata.order;
     document.getElementById('inputScriptArgument').value = '';
-    let selSA = document.getElementById('selectScriptArguments');
+    const selSA = document.getElementById('selectScriptArguments');
     selSA.innerText = '';
     for (let i = 0; i < obj.result.metadata.arguments.length; i++) {
-        let o = document.createElement('option');
+        const o = document.createElement('option');
         o.innerText = obj.result.metadata.arguments[i];
         selSA.appendChild(o);
     }
@@ -150,15 +150,15 @@ function getScriptList(all) {
 }
 
 function parseScriptList(obj) {
-    let timerActions = document.createElement('optgroup');
+    const timerActions = document.createElement('optgroup');
     setAttEnc(timerActions, 'data-value', 'script');
     timerActions.setAttribute('label', t('Script'));
-    let scriptMaxListLen = 4;
+    const scriptMaxListLen = 4;
     //list in main menu
     let scriptListMain = '';
     //list in scripts dialog
     let scriptList = '';
-    let scriptListLen = obj.result.data.length;
+    const scriptListLen = obj.result.data.length;
     let showScriptListLen = 0;
     if (scriptListLen > 0) {
         obj.result.data.sort(function(a, b) {
@@ -193,8 +193,8 @@ function parseScriptList(obj) {
         document.getElementById('listScriptsList').innerHTML = scriptList;
     }
     else {
-        document.getElementById('listScriptsList').innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
-            '<td colspan="2">' + t('Empty list') + '</td></tr>';
+        document.getElementById('listScriptsList').innerHTML = '<tr class="not-clickable">' +
+            '<td colspan="3"><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
     }
     document.getElementById('scripts').innerHTML = (showScriptListLen > scriptMaxListLen || showScriptListLen === 0 ? '' : '<div class="dropdown-divider"></div>') + scriptListMain;
         
@@ -209,7 +209,7 @@ function parseScriptList(obj) {
 
     document.getElementById('selectTriggerScript').innerHTML = timerActions.innerHTML;
     
-    let old = document.getElementById('selectTimerAction').querySelector('optgroup[data-value="script"]');
+    const old = document.getElementById('selectTimerAction').querySelector('optgroup[data-value="script"]');
     if (old) {
         old.replaceWith(timerActions);
     }
@@ -217,19 +217,18 @@ function parseScriptList(obj) {
         document.getElementById('selectTimerAction').appendChild(timerActions);
     }
     //reinit mainmenu -> change of script list
-    dropdownMainMenu.dispose();
-    dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
+    uiElements.dropdownMainMenu.dispose();
+    uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 }
 
 //eslint-disable-next-line no-unused-vars
 function execScriptFromOptions(cmd, options) {
-    let args = options !== undefined && options !== '' ? options.split(',') : [];
-    let script = {"script": cmd, "arguments": args};
-    execScript(JSON.stringify(script));
+    const args = options !== undefined && options !== '' ? options.split(',') : [];
+    execScript(JSON.stringify({"script": cmd, "arguments": args}));
 }
 
 function execScript(href) {
-    let cmd = JSON.parse(href);
+    const cmd = JSON.parse(href);
     if (cmd.arguments.length === 0) {
         sendAPI("MYMPD_API_SCRIPT_EXECUTE", {"script": cmd.script, "arguments": {}});
     }
@@ -246,18 +245,18 @@ function execScript(href) {
         }
         document.getElementById('execScriptArguments').innerHTML = arglist;
         document.getElementById('modalExecScriptScriptname').value = cmd.script;
-        modalExecScript.show();
+        uiElements.modalExecScript.show();
     }
 }
 
 //eslint-disable-next-line no-unused-vars
 function execScriptArgs() {
-    let script = document.getElementById('modalExecScriptScriptname').value;
-    let args = {};
-    let inputs = document.getElementById('execScriptArguments').getElementsByTagName('input');
+    const script = document.getElementById('modalExecScriptScriptname').value;
+    const args = {};
+    const inputs = document.getElementById('execScriptArguments').getElementsByTagName('input');
     for (let i = 0; i < inputs.length; i++) {
         args[inputs[i].name] = inputs[i].value;
     }
     sendAPI("MYMPD_API_SCRIPT_EXECUTE", {"script": script, "arguments": args});
-    modalExecScript.hide();
+    uiElements.modalExecScript.hide();
 }

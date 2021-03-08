@@ -23,14 +23,14 @@ bool rm_mk_dir(sds dir_name, bool create) {
     if (create == true) { 
         int rc = mkdir(dir_name, 0700);
         if (rc != 0 && errno != EEXIST) {
-            LOG_ERROR("Can not create directory %s: %s", dir_name, strerror(errno));
+            MYMPD_LOG_ERROR("Can not create directory %s: %s", dir_name, strerror(errno));
             return false;
         }
     }
     else { 
         int rc = rmdir(dir_name);
         if (rc != 0 && errno != ENOENT) {
-            LOG_ERROR("Can not remove directory %s: %s", dir_name, strerror(errno));
+            MYMPD_LOG_ERROR("Can not remove directory %s: %s", dir_name, strerror(errno));
             return false;
         }
     }
@@ -90,7 +90,7 @@ void send_error(struct mg_connection *nc, int code, const char *msg) {
     mg_send(nc, errorpage, sdslen(errorpage));
     sdsfree(errorpage);
     if (code >= 400) {
-        LOG_ERROR(msg);
+        MYMPD_LOG_ERROR(msg);
     }
 }
 
@@ -127,7 +127,7 @@ void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const 
         serve_embedded_files(nc, asset_image, hm);
         #endif
     }
-    LOG_DEBUG("Serving file %s (%s)", asset_image, mime_type);
+    MYMPD_LOG_DEBUG("Serving file %s (%s)", asset_image, mime_type);
     sdsfree(asset_image);
     sdsfree(mime_type);
 }
@@ -162,6 +162,9 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message
         {"/assets/coverimage-loading.svg", 30, "image/svg+xml", true, true, coverimage_loading_svg_data, coverimage_loading_svg_size},
         {"/assets/coverimage-booklet.svg", 30, "image/svg+xml", true, true, coverimage_booklet_svg_data, coverimage_booklet_svg_size},
         {"/assets/coverimage-mympd.svg", 28, "image/svg+xml", true, true, coverimage_mympd_svg_data, coverimage_mympd_svg_size},
+        {"/assets/mympd-background-dark.svg", 33, "image/svg+xml", true, true, mympd_background_dark_svg_data, mympd_background_dark_svg_size},
+        {"/assets/mympd-background-light.svg", 34, "image/svg+xml", true, true, mympd_background_light_svg_data, mympd_background_light_svg_size},
+        {"/assets/mympd-background-default.svg", 36, "image/svg+xml", true, true, mympd_background_default_svg_data, mympd_background_default_svg_size},
         {"/assets/favicon.ico", 19, "image/vnd.microsoft.icon", false, true, favicon_ico_data, favicon_ico_size},
         {"/assets/appicon-192.png", 23, "image/png", false, true, appicon_192_png_data, appicon_192_png_size},
         {"/assets/appicon-512.png", 23, "image/png", false, true, appicon_512_png_data, appicon_512_png_size},

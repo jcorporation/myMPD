@@ -14,8 +14,8 @@ function initMounts() {
             showEditMount(getAttDec(event.target.parentNode, 'data-url'), getAttDec(event.target.parentNode, 'data-point'));
         }
         else if (event.target.nodeName === 'A') {
-            let action = event.target.getAttribute('data-action');
-            let mountPoint = getAttDec(event.target.parentNode.parentNode, 'data-point');
+            const action = event.target.getAttribute('data-action');
+            const mountPoint = getAttDec(event.target.parentNode.parentNode, 'data-point');
             if (action === 'unmount') {
                 unmountMount(mountPoint);
             }
@@ -47,6 +47,7 @@ function initMounts() {
 
     document.getElementById('modalMounts').addEventListener('shown.bs.modal', function () {
         showListMounts();
+        getUrlhandlers();
     });
 }
 
@@ -57,24 +58,20 @@ function unmountMount(mountPoint) {
 
 //eslint-disable-next-line no-unused-vars
 function mountMount() {
-    let formOK = true;
     document.getElementById('errorMount').classList.add('hide');
-    
-    if (formOK === true) {
-        sendAPI("MPD_API_MOUNT_MOUNT", {
-            "mountUrl": getSelectValue('selectMountUrlhandler') + document.getElementById('inputMountUrl').value,
-            "mountPoint": document.getElementById('inputMountPoint').value,
-            }, showListMounts, true);
-    }
+    sendAPI("MPD_API_MOUNT_MOUNT", {
+        "mountUrl": getSelectValue('selectMountUrlhandler') + document.getElementById('inputMountUrl').value,
+        "mountPoint": document.getElementById('inputMountPoint').value,
+    }, showListMounts, true);
 }
 
 //eslint-disable-next-line no-unused-vars
 function updateMount(el, uri) {
-    let parent = el.parentNode;
+    const parent = el.parentNode;
     for (let i = 0; i < parent.children.length; i++) {
         parent.children[i].classList.add('hide');
     }
-    let spinner = document.createElement('div');
+    const spinner = document.createElement('div');
     spinner.setAttribute('id', 'spinnerUpdateProgress');
     spinner.classList.add('spinner-border', 'spinner-border-sm');
     el.parentNode.insertBefore(spinner, el);
@@ -89,7 +86,7 @@ function showEditMount(uri, storage) {
     document.getElementById('editMountFooter').classList.remove('hide');
     document.getElementById('errorMount').classList.add('hide');
 
-    let c = uri.match(/^(\w+:\/\/)(.+)$/);
+    const c = uri.match(/^(\w+:\/\/)(.+)$/);
     if (c !== null && c.length > 2) {
         document.getElementById('selectMountUrlhandler').value = c[1];
         document.getElementById('inputMountUrl').value = c[2];
@@ -105,7 +102,7 @@ function showEditMount(uri, storage) {
 
 function showListMounts(obj) {
     if (obj && obj.error && obj.error.message) {
-        let emEl = document.getElementById('errorMount');
+        const emEl = document.getElementById('errorMount');
         emEl.innerText = obj.error.message;
         emEl.classList.remove('hide');
         return;
@@ -118,12 +115,12 @@ function showListMounts(obj) {
 }
 
 function parseListMounts(obj) {
-    let tbody = document.getElementById('listMounts').getElementsByTagName('tbody')[0];
-    let tr = tbody.getElementsByTagName('tr');
+    const tbody = document.getElementById('listMounts').getElementsByTagName('tbody')[0];
+    const tr = tbody.getElementsByTagName('tr');
     
     let activeRow = 0;
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        let row = document.createElement('tr');
+        const row = document.createElement('tr');
         setAttEnc(row, 'data-url', obj.result.data[i].mountUrl);
         setAttEnc(row, 'data-point', obj.result.data[i].mountPoint);
         if (obj.result.data[i].mountPoint === '') {
@@ -148,14 +145,12 @@ function parseListMounts(obj) {
             tbody.append(row);
         }
     }
-    let trLen = tr.length - 1;
-    for (let i = trLen; i >= obj.result.returnedEntities; i --) {
+    for (let i = tr.length - 1; i >= obj.result.returnedEntities; i --) {
         tr[i].remove();
     }
 
     if (obj.result.returnedEntities === 0) {
-        tbody.innerHTML = '<tr><td><span class="mi">error_outline</span></td>' +
-                          '<td colspan="4">' + t('Empty list') + '</td></tr>';
+        tbody.innerHTML = '<tr class="not-clickable"><td colspan="5"><span class="mi">info</span>&nsbp;&nbsp;' + t('Empty list') + '</td></tr>';
     }     
 }
 
@@ -170,8 +165,25 @@ function parseNeighbors(obj) {
                     obj.result.data[i].uri + '<br/><small>' + obj.result.data[i].displayName + '</small></a>';
         }    
         if (obj.result.returnedEntities === 0) {
-            list = '<div class="list-group-item"><span class="mi">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
+            list = '<div class="list-group-item"><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</div>';
         }
     }
     document.getElementById('dropdownNeighbors').children[0].innerHTML = list;
+}
+
+function getUrlhandlers() {
+    sendAPI("MPD_API_URLHANDLERS", {}, function(obj) {
+        let storagePlugins = '';
+        for (let i = 0; i < obj.result.data.length; i++) {
+            switch(obj.result.data[i]) {
+                case 'http://':
+                case 'https://':
+                case 'nfs://':
+                case 'smb://':
+                    storagePlugins += '<option value="' + obj.result.data[i] + '">' + obj.result.data[i] + '</option>';
+                    break;
+            }
+        }
+        document.getElementById('selectMountUrlhandler').innerHTML = storagePlugins;
+    }, false);
 }

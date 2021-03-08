@@ -25,6 +25,37 @@
 #include "../mpd_shared.h"
 #include "mpd_shared_sticker.h"
 
+sds mpd_shared_sticker_list(sds buffer, rax *sticker_cache, const char *uri) {
+    t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
+    if (sticker != NULL) {
+        buffer = tojson_long(buffer, "stickerPlayCount", sticker->playCount, true);
+        buffer = tojson_long(buffer, "stickerSkipCount", sticker->skipCount, true);
+        buffer = tojson_long(buffer, "stickerLike", sticker->like, true);
+        buffer = tojson_long(buffer, "stickerLastPlayed", sticker->lastPlayed, true);
+        buffer = tojson_long(buffer, "stickerLastSkipped", sticker->lastSkipped, false);
+    }
+    else {
+        buffer = tojson_long(buffer, "stickerPlayCount", 0, true);
+        buffer = tojson_long(buffer, "stickerSkipCount", 0, true);
+        buffer = tojson_long(buffer, "stickerLike", 1, true);
+        buffer = tojson_long(buffer, "stickerLastPlayed", 0, true);
+        buffer = tojson_long(buffer, "stickerLastSkipped", 0, false);
+    }
+    return buffer;
+}
+
+struct t_sticker *get_sticker_from_cache(rax *sticker_cache, const char *uri) {
+    if (sticker_cache == NULL) {
+        return NULL;
+    }
+    void *data = raxFind(sticker_cache, (unsigned char*)uri, strlen(uri));
+    if (data == raxNotFound) {
+        return NULL;
+    }
+    t_sticker *sticker = (t_sticker *) data;
+    return sticker;
+}
+
 bool mpd_shared_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *sticker) {
     struct mpd_pair *pair;
     char *crap = NULL;
@@ -71,7 +102,7 @@ bool mpd_shared_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *
 
 void sticker_cache_free(rax **sticker_cache) {
     if (*sticker_cache == NULL) {
-        LOG_DEBUG("Sticker cache is NULL not freeing anything");
+        MYMPD_LOG_DEBUG("Sticker cache is NULL not freeing anything");
         return;
     }
     raxIterator iter;

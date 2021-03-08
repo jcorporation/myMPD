@@ -16,19 +16,19 @@ function initSearch() {
     document.getElementById('searchtags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = getAttDec(event.target, 'data-tag');
-            doSearch(domCache.searchstr.value);
+            doSearch(document.getElementById('searchstr').value);
         }
     }, false);
 
-    domCache.searchstr.addEventListener('keyup', function(event) {
+    document.getElementById('searchstr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
             this.blur();
         }
         else if (event.key === 'Enter' && settings.featAdvsearch) {
             if (this.value !== '') {
                 const op = getSelectValue(document.getElementById('searchMatch'));
-                domCache.searchCrumb.appendChild(createSearchCrumb(app.current.filter, op, this.value));
-                domCache.searchCrumb.classList.remove('hide');
+                document.getElementById('searchCrumb').appendChild(createSearchCrumb(app.current.filter, op, this.value));
+                document.getElementById('searchCrumb').classList.remove('hide');
                 this.value = '';
             }
             else {
@@ -40,7 +40,7 @@ function initSearch() {
         }
     }, false);
 
-    domCache.searchCrumb.addEventListener('click', function(event) {
+    document.getElementById('searchCrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'SPAN') {
             //remove search expression
             event.preventDefault();
@@ -52,7 +52,7 @@ function initSearch() {
             //edit search expression
             event.preventDefault();
             event.stopPropagation();
-            domCache.searchstr.value = unescapeMPD(getAttDec(event.target, 'data-filter-value'));
+            document.getElementById('searchstr').value = unescapeMPD(getAttDec(event.target, 'data-filter-value'));
             selectTag('searchtags', 'searchtagsdesc', getAttDec(event.target, 'data-filter-tag'));
             document.getElementById('searchMatch').value = getAttDec(event.target, 'data-filter-op');
             event.target.remove();
@@ -65,57 +65,54 @@ function initSearch() {
     }, false);
 
     document.getElementById('searchMatch').addEventListener('change', function() {
-        doSearch(domCache.searchstr.value);
+        doSearch(document.getElementById('searchstr').value);
     }, false);
     
     document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
-        if (settings.featAdvsearch) {
-            if (event.target.nodeName === 'TH') {
-                if (event.target.innerHTML === '') {
-                    return;
-                }
-                let col = event.target.getAttribute('data-col');
-                if (col === 'Duration') {
-                    return;
-                }
-                let sortcol = app.current.sort;
-                let sortdesc = true;
+        if (settings.featAdvsearch === false || event.target.nodeName !== 'TH' ||
+            event.target.innerHTML === '') {
+            return;
+        }
+        let col = event.target.getAttribute('data-col');
+        if (col === 'Duration' || col.indexOf('sticker') === 0) {
+            return;
+        }
+        let sortcol = app.current.sort;
+        let sortdesc = true;
                 
-                if (sortcol === col || sortcol === '-' + col) {
-                    if (sortcol.indexOf('-') === 0) {
-                        sortdesc = true;
-                        col = sortcol.substring(1);
-                    }
-                    else {
-                        sortdesc = false;
-                    }
-                }
-                if (sortdesc === false) {
-                    sortcol = '-' + col;
-                    sortdesc = true;
-                }
-                else {
-                    sortdesc = false;
-                    sortcol = col;
-                }
-                
-                let s = document.getElementById('SearchList').getElementsByClassName('sort-dir');
-                for (let i = 0; i < s.length; i++) {
-                    s[i].remove();
-                }
-                app.current.sort = sortcol;
-                event.target.innerHTML = t(col) + '<span class="sort-dir mi pull-right">' + 
-                    (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
-                appGoto(app.current.app, app.current.tab, app.current.view,
-                    app.current.offset, app.current.limit, app.current.filter,  app.current.sort, '-', app.current.search);
+        if (sortcol === col || sortcol === '-' + col) {
+            if (sortcol.indexOf('-') === 0) {
+                sortdesc = true;
+                col = sortcol.substring(1);
+            }
+            else {
+                sortdesc = false;
             }
         }
+        if (sortdesc === false) {
+            sortcol = '-' + col;
+            sortdesc = true;
+        }
+        else {
+            sortdesc = false;
+            sortcol = col;
+        }
+                
+        const s = document.getElementById('SearchList').getElementsByClassName('sort-dir');
+        for (let i = 0; i < s.length; i++) {
+            s[i].remove();
+        }
+        app.current.sort = sortcol;
+        event.target.innerHTML = t(col) + '<span class="sort-dir mi pull-right">' + 
+            (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
+        appGoto(app.current.app, app.current.tab, app.current.view,
+            app.current.offset, app.current.limit, app.current.filter,  app.current.sort, '-', app.current.search);
     }, false);
 }
 
 function doSearch(x) {
     if (settings.featAdvsearch) {
-        const expression = createSearchExpression(domCache.searchCrumb, app.current.filter, getSelectValue('searchMatch'), x);
+        const expression = createSearchExpression(document.getElementById('searchCrumb'), app.current.filter, getSelectValue('searchMatch'), x);
         appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', expression);
     }
     else {
@@ -132,7 +129,25 @@ function parseSearch(obj) {
         disableEl('searchAddAllSongs');
         disableEl('searchAddAllSongsBtn');
     }
-    parseFilesystem(obj);
+
+    const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
+
+    updateTable(obj, 'Search', function(row, data) {
+        setAttEnc(row, 'data-type', data.Type);
+        setAttEnc(row, 'data-uri', data.uri);
+        row.setAttribute('tabindex', 0);
+        row.setAttribute('title', rowTitle);
+        if (settings.featTags === true && settings.featAdvsearch === true) {
+            //add artist and album information for album actions
+            if (data.Album !== undefined) {
+                setAttEnc(row, 'data-album', data.Album);
+            }
+            if (data[tagAlbumArtist] !== undefined) {
+                setAttEnc(row, 'data-albumartist', data[tagAlbumArtist]);
+            }
+        }
+        setAttEnc(row, 'data-name', data.Title);
+    });
 }
 
 //eslint-disable-next-line no-unused-vars

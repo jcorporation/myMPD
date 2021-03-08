@@ -71,7 +71,7 @@ function clickCheckLocalPlayerState(event) {
     el.classList.add('disabled');
     const parent = document.getElementById('localPlayer').parentNode;
     document.getElementById('localPlayer').remove();
-    let localPlayer = document.createElement('audio');
+    const localPlayer = document.createElement('audio');
     localPlayer.setAttribute('preload', 'none');
     localPlayer.setAttribute('controls', '');
     localPlayer.setAttribute('id', 'localPlayer');

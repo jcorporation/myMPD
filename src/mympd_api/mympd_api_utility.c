@@ -109,10 +109,11 @@ void free_mympd_state_sds(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->booklet_name);
     sdsfree(mympd_state->navbar_icons);
     sdsfree(mympd_state->advanced);
-    sdsfree(mympd_state->footer_stop);
+    sdsfree(mympd_state->bg_image);
 }
 
-static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", "Lyrics", 0};
+static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", 
+    "Lyrics", "stickerPlayCount", "stickerSkipCount", "stickerLastPlayed", "stickerLastSkipped", "stickerLike", 0};
 
 static bool is_mympd_col(sds token) {
     const char** ptr = mympd_cols;
@@ -139,7 +140,7 @@ sds json_to_cols(sds cols, char *str, size_t len, bool *error) {
             j++;
         }
         else {
-            LOG_WARN("Unknown column: %s", token);
+            MYMPD_LOG_WARN("Unknown column: %s", token);
             *error = true;
         }
         sdsfree(token);

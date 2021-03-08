@@ -171,15 +171,6 @@ Like non appliqué, valeur de like non valide
 Failed to set like, invalid song uri
 Like non appliqué, URI de la chanson non valide
 
-Last played
-Dernier joué
-
-LastPlayed
-Dernier joué
-
-Last skipped
-Dernier ignoré
-
 Database
 Base de données
 
@@ -206,9 +197,6 @@ Page suivante
 
 Num songs
 %{smart_count} Chanson |||| %{smart_count} Chansons
-
-Num playlists
-%{smart_count} Liste de lecture |||| %{smart_count} Listes de lecture
 
 Num entries
 %{smart_count} Entrée |||| %{smart_count} Entrées
@@ -351,9 +339,6 @@ J'aime
 Play count
 Nombre de lecture
 
-Skip count
-Nombre de fois ignoré 
-
 Theme
 Thème  
 
@@ -432,9 +417,6 @@ Langue
 Browser default
 Explorateur par défaut
 
-Pagination
-Pagination
-
 Notifications
 Notifications
 
@@ -492,7 +474,7 @@ Echec de la mise à jour des listes de lecture intelligentes
 Smart playlist %{playlist} updated
 Liste de lecture intelligente %{playlist} mise à jour
 
-Updating of smart playlist %{playlist} failed
+Updating smart playlist %{playlist} failed
 Echec de la mise à jour de la liste de lecture intelligente %{playlist}
 
 Smart playlist
@@ -738,20 +720,8 @@ Contrôle du volulme désactivé
 Volume
 Volume
 
-No results, please refine your search
-Pas de résultats, veuillez préciser la rechercher
-
-Empty queue
-Queue vide
-
 Empty list
 Liste vide
-
-Empty playlist
-Liste de lecture vide
-
-No playlists found
-Pas de liste de lecture trouvée
 
 Added stream %{streamUri} to queue
 Flux %{streamUri} ajouté à la queue
@@ -1508,3 +1478,6 @@ Port
 
 Websocket is disconnected
 La websocket est déconnectée
+
+Missing translations
+Selected locale is missing %{smart_count} translation |||| Selected locale is missing %{smart_count} translations

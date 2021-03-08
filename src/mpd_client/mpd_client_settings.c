@@ -39,7 +39,7 @@ bool mpd_api_settings_set(t_config *config, t_mpd_client_state *mpd_client_state
     sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
 
     *check_mpd_error = false;
-    LOG_DEBUG("Parse setting \"%.*s\" with value \"%.*s\"", key->len, key->ptr, val->len, val->ptr);
+    MYMPD_LOG_DEBUG("Parse setting \"%.*s\" with value \"%.*s\"", key->len, key->ptr, val->len, val->ptr);
     if (strncmp(key->ptr, "mpdPass", key->len) == 0) {
         if (strncmp(val->ptr, "dontsetpassword", val->len) != 0) {
             *mpd_host_changed = true;
@@ -216,7 +216,7 @@ bool mpd_api_settings_set(t_config *config, t_mpd_client_state *mpd_client_state
         else if (strncmp(key->ptr, "replaygain", key->len) == 0) {
             enum mpd_replay_gain_mode mode = mpd_parse_replay_gain_name(settingvalue);
             if (mode == MPD_REPLAY_UNKNOWN) {
-                LOG_ERROR("Unknown replay gain mode: %s", settingvalue);
+                MYMPD_LOG_ERROR("Unknown replay gain mode: %s", settingvalue);
             }
             else {
                 rc = mpd_run_replay_gain_mode(mpd_client_state->mpd_state->conn, mode);
@@ -244,8 +244,7 @@ sds mpd_client_put_settings(t_mpd_client_state *mpd_client_state, sds buffer, sd
     }
     const char *replaygain = mpd_lookup_replay_gain_mode(replay_gain_mode);
     
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",");
+    buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = tojson_long(buffer, "repeat", mpd_status_get_repeat(status), true);
     if (mpd_client_state->feat_single_oneshot == true) {
         buffer = tojson_long(buffer, "single", mpd_status_get_single_state(status), true);
@@ -294,7 +293,7 @@ sds mpd_client_put_settings(t_mpd_client_state *mpd_client_state, sds buffer, sd
     buffer = print_trigger_list(buffer);
     buffer = sdscat(buffer, "}");
     
-    buffer = jsonrpc_end_result(buffer);
+    buffer = jsonrpc_result_end(buffer);
     
     return buffer;
 }

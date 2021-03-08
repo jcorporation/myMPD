@@ -25,22 +25,21 @@ sds mympd_api_syscmd(t_config *config, sds buffer, sds method, long request_id,
 {
     sds cmdline = list_get_value_p(&config->syscmd_list, cmd);
     if (cmdline == NULL) {
-        LOG_ERROR("Syscmd not defined: %s", cmd);
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "System command not defined", true);
+        MYMPD_LOG_ERROR("Syscmd not defined: %s", cmd);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, true,
+            "script", "error", "System command not defined");
         return buffer;
     }
-    LOG_DEBUG("Executing syscmd \"%s\"", cmdline);
+    MYMPD_LOG_DEBUG("Executing syscmd \"%s\"", cmdline);
     const int rc = system(cmdline); /* Flawfinder: ignore */
     if (rc == 0) {
-        buffer = jsonrpc_start_phrase(buffer, method, request_id, "Successfully execute cmd %{cmd}", false);
-        buffer = tojson_char(buffer, "cmd", cmd, false);
-        buffer = jsonrpc_end_phrase(buffer);
+        buffer = jsonrpc_respond_message_phrase(buffer, method, request_id, false,
+            "script", "info", "Successfully execute cmd %{cmd}", 2, "cmd", cmd);
     }
     else {
-        buffer = jsonrpc_start_phrase(buffer, method, request_id, "Failed to execute cmd %{cmd}", true);
-        buffer = tojson_char(buffer, "cmd", cmd, false);
-        buffer = jsonrpc_end_phrase(buffer);
-        LOG_ERROR("Executing syscmd \"%s\" failed", cmdline);
+        buffer = jsonrpc_respond_message_phrase(buffer, method, request_id, true,
+            "script", "error", "Failed to execute cmd %{cmd}", 2, "cmd", cmd);
+        MYMPD_LOG_ERROR("Executing syscmd \"%s\" failed", cmdline);
     }
     return buffer;
 }

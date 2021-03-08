@@ -4,10 +4,10 @@
 
 pkgname=mympd
 _pkgname=myMPD
-pkgver=6.11.3
+pkgver=6.12.0
 pkgrel=1
 pkgdesc="A standalone and mobile friendly web-based MPD client."
-arch=('i686' 'x86_64' 'armv6h' 'armv7h')
+arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 url="https://jcorporation.github.io/myMPD/"
 license=('GPL2')
 depends=('pcre' 'openssl' 'libid3tag' 'flac' 'lua')
@@ -23,7 +23,7 @@ sha256sums=('SKIP')
 
 build() {
   cd "${srcdir}" || exit 1
-  install -d release
+  ./build.sh createassets
   cd release || exit 1
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
   make

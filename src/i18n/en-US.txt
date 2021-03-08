@@ -3,11 +3,11 @@ English
 Num songs
 %{smart_count} Song |||| %{smart_count} Songs
 
-Num playlists
-%{smart_count} Playlist |||| %{smart_count} Playlists
-
 Num entries
 %{smart_count} Entry |||| %{smart_count} Entries
+
+Missing translations
+Selected locale is missing %{smart_count} translation |||| Selected locale is missing %{smart_count} translations
 
 Days
 Days
@@ -41,3 +41,25 @@ Open the script dialog and use the [[add_to_home_screen]] button to add a script
 
 MaintainEnableTagsText
 You should maintain and enable the tags Artist, AlbumArtist, Album, Track, Disc and Genre for best user experience.
+
+Each hours
+each hour |||| each %{smart_count} hours
+
+LastPlayed
+Last played
+
+stickerPlayCount
+Play count
+
+stickerSkipCount
+Skip count
+
+stickerLastPlayed
+Last played
+
+stickerLastSkipped
+Last skipped
+
+stickerLike
+Like
+

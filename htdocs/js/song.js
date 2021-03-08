@@ -9,17 +9,16 @@ function initSong() {
             if (event.target.id === 'calcFingerprint') {
                 sendAPI("MPD_API_DATABASE_FINGERPRINT", {"uri": getAttDec(event.target, 'data-uri')}, parseFingerprint);
                 event.preventDefault();
-                let parent = event.target.parentNode;
-                let spinner = document.createElement('div');
+                const spinner = document.createElement('div');
                 spinner.classList.add('spinner-border', 'spinner-border-sm');
                 event.target.classList.add('hide');
-                parent.appendChild(spinner);
+                event.target.parentNode.appendChild(spinner);
             }
             else if (event.target.classList.contains('external')) {
                 //do nothing, link opens in new browser window
             }
             else if (event.target.parentNode.getAttribute('data-tag') !== null) {
-                modalSongDetails.hide();
+                uiElements.modalSongDetails.hide();
                 event.preventDefault();
                 gotoBrowse(event);
             } 
@@ -34,14 +33,14 @@ function initSong() {
 
 function songDetails(uri) {
     sendAPI("MPD_API_DATABASE_SONGDETAILS", {"uri": uri}, parseSongDetails);
-    modalSongDetails.show();
+    uiElements.modalSongDetails.show();
 }
 
 function parseFingerprint(obj) {
-    let textarea = document.createElement('textarea');
+    const textarea = document.createElement('textarea');
     textarea.value = obj.result.fingerprint;
     textarea.classList.add('form-control', 'text-monospace', 'small');
-    let fpTd = document.getElementById('fingerprint');
+    const fpTd = document.getElementById('fingerprint');
     fpTd.innerHTML = '';
     fpTd.appendChild(textarea);
 }
@@ -73,10 +72,10 @@ function getMBtagLink(tag, value) {
 }
 
 function parseSongDetails(obj) {
-    let modal = document.getElementById('modalSongDetails');
+    const modal = document.getElementById('modalSongDetails');
     modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
     
-    let elH1s = modal.getElementsByTagName('h1');
+    const elH1s = modal.getElementsByTagName('h1');
     for (let i = 0; i < elH1s.length; i++) {
         elH1s[i].innerText = obj.result.Title;
     }
@@ -122,21 +121,21 @@ function parseSongDetails(obj) {
         songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="' + encodeURI(subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName) + '" target="_blank">' + t('Download') + '</a></td></tr>';
     }
     if (settings.featStickers === true) {
-        songDetailsHTML += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +
-            '<tr><th>' + t('Play count') + '</th><td>' + obj.result.playCount + '</td></tr>' +
-            '<tr><th>' + t('Skip count') + '</th><td>' + obj.result.skipCount + '</td></tr>' +
-            '<tr><th>' + t('Last played') + '</th><td>' + (obj.result.lastPlayed === 0 ? t('never') : localeDate(obj.result.lastPlayed)) + '</td></tr>' +
-            '<tr><th>' + t('Last skipped') + '</th><td>' + (obj.result.lastSkipped === 0 ? t('never') : localeDate(obj.result.lastSkipped)) + '</td></tr>' +
-            '<tr><th>' + t('Like') + '</th><td>' +
-              '<div class="btn-group btn-group-sm">' +
-                '<button title="' + t('Dislike song') + '" id="btnVoteDown2" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-light mi">thumb_down</button>' +
-                '<button title="' + t('Like song') + '" id="btnVoteUp2" data-href=\'{"cmd": "voteSong", "options": [2]}\' class="btn btn-sm btn-light mi">thumb_up</button>' +
-              '</div>' +
-            '</td></tr>';
+        songDetailsHTML += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>';
+        for (const sticker of stickerList) {
+            if (sticker === 'stickerLike') {
+                songDetailsHTML += '<tr><th>' + t('Like') + '</th><td><div class="btn-group btn-group-sm" data-uri="' + encodeURI(obj.result.uri) + '">' +
+                    '<button title="' + t('Dislike song') + '" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-secondary mi' + (obj.result[sticker] === 0 ? ' active' : '') + '">thumb_down</button>' +
+                    '<button title="' + t('Like song') + '" data-href=\'{"cmd": "voteSong", "options": [2]}\' class="btn btn-sm btn-secondary mi' + (obj.result[sticker] === 2 ? ' active' : '') + '">thumb_up</button>' +
+                    '</div></td></tr>';
+            }
+            else {
+                songDetailsHTML += '<tr><th>' + t(sticker) + '</th><td>' + printValue(sticker,  obj.result[sticker]) + '</td></tr>';
+            }
+        }
     }
     
     document.getElementById('tbodySongDetails').innerHTML = songDetailsHTML;
-    setVoteSongBtns(obj.result.like, obj.result.uri);
     
     if (settings.featLyrics === true) {
         getLyrics(obj.result.uri, document.getElementById('lyricsText'));
@@ -150,7 +149,7 @@ function parseSongDetails(obj) {
         showPictures = true;
     }
     
-    let pictureEls = document.getElementsByClassName('featPictures');
+    const pictureEls = document.getElementsByClassName('featPictures');
     for (let i = 0; i < pictureEls.length; i++) {
         if (showPictures === true) {
             pictureEls[i].classList.remove('hide');
@@ -162,7 +161,7 @@ function parseSongDetails(obj) {
     
     if (showPictures === true) {
         //add uri to image list to get embedded albumart
-        let images = [ subdir + '/albumart/' + obj.result.uri ];
+        const images = [ subdir + '/albumart/' + obj.result.uri ];
         //add all but coverfiles to image list
         if (settings.publish === true) {
             for (let i = 0; i < obj.result.images.length; i++) {
@@ -180,13 +179,13 @@ function parseSongDetails(obj) {
 }
 
 function isCoverfile(uri) {
-    let filename = basename(uri).toLowerCase();
-    let fileparts = filename.split('.');
+    const filename = basename(uri).toLowerCase();
+    const fileparts = filename.split('.');
     
-    let extensions = ['png', 'jpg', 'jpeg', 'svg', 'webp', 'tiff', 'bmp'];
-    let coverimageNames = settings.coverimageName.split(',');
+    const extensions = ['png', 'jpg', 'jpeg', 'svg', 'webp', 'tiff', 'bmp'];
+    const coverimageNames = settings.coverimageName.split(',');
     for (let i = 0; i < coverimageNames.length; i++) {
-        let name = coverimageNames[i].trim();
+        const name = coverimageNames[i].trim();
         if (filename === name) {
             return true;
         }
@@ -215,6 +214,8 @@ function getLyrics(uri, el) {
         else {
             let lyricsHeader = '<span class="lyricsHeader" class="btn-group-toggle" data-toggle="buttons">';
             let lyrics = '<div class="lyricsTextContainer">';
+            const clickable = el.parentNode.getAttribute('id') === 'currentLyrics' ? true : false;
+            showSyncedLyrics = false;
             for (let i = 0; i < obj.result.returnedEntities; i++) {
                 let ht = obj.result.data[i].desc;
                 if (ht !== '' && obj.result.data[i].lang !== '') {
@@ -227,13 +228,16 @@ function getLyrics(uri, el) {
                     ht = i;
                 }
                 lyricsHeader += '<label data-num="' + i + '" class="btn btn-sm btn-outline-secondary mr-2' + (i === 0 ? ' active' : '') + '">' + ht + '</label>';
-                lyrics += '<div class="lyricsText' + (i > 0 ? ' hide' : '') + '">' +
-                    (obj.result.synced === true ? parseSyncedLyrics(obj.result.data[i].text) : e(obj.result.data[i].text).replace(/\n/g, "<br/>")) + 
+                lyrics += '<div class="lyricsText ' + (i > 0 ? 'hide' : '') + (obj.result.data[i].synced === true ? 'lyricsSyncedText' : '') + 
+                    (clickable === true ? '' : ' fullHeight') + '">' +
+                    (obj.result.data[i].synced === true ? parseSyncedLyrics(obj.result.data[i].text, clickable) : e(obj.result.data[i].text).replace(/\n/g, "<br/>")) + 
                     '</div>';
+                if (obj.result.data[i].synced === true) {
+                    showSyncedLyrics = true;
+                }
             }
             lyricsHeader += '</span>';
             lyrics += '</div>';
-            showSyncedLyrics = obj.result.synced;
             if (obj.result.returnedEntities > 1) {
                 el.innerHTML = lyricsHeader + lyrics;
                 el.getElementsByClassName('lyricsHeader')[0].addEventListener('click', function(event) {
@@ -256,26 +260,37 @@ function getLyrics(uri, el) {
             else {
                 el.innerHTML = lyrics;
             }
+            if (showSyncedLyrics === true && clickable === true) {
+                const textEls = el.getElementsByClassName('lyricsSyncedText');
+                for (let i = 0; i < textEls.length; i++) {
+                    textEls[i].addEventListener('click', function(event) {
+                        const sec = event.target.getAttribute('data-sec');
+                        if (sec !== null) {
+                            sendAPI("MPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": parseInt(sec)});
+                        }
+                    }, false); 
+                }
+            }
         }
         el.classList.remove('opacity05');
     }, true);
 }
 
-function parseSyncedLyrics(text) {
+function parseSyncedLyrics(text, clickable) {
     let html = '';
-    const lines = text.split('\r\n');
+    const lines = text.replace(/\r/g, '').split('\n');
     for (let i = 0; i < lines.length; i++) {
         //line must start with timestamp
-        let line = lines[i].match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
+        const line = lines[i].match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
         if (line) {
-            let sec = parseInt(line[1]) * 60 + parseInt(line[2]);
+            const sec = parseInt(line[1]) * 60 + parseInt(line[2]);
             //line[3] are hundreths of a seconde - ignore it for the moment
-            html += '<p><span data-sec="' + sec + '">';
+            html += '<p><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + sec + '">';
             //support of extended lrc format - timestamps for words
             html += line[4].replace(/<(\d+):(\d+)\.\d+>/g, function(m0, m1, m2) {
                 //hundreths of a secondes are ignored
-                let wsec = parseInt(m1) * 60 + parseInt(m2);
-                return '</span><span data-sec="' + wsec + '">';
+                const wsec = parseInt(m1) * 60 + parseInt(m2);
+                return '</span><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + wsec + '">';
             });
             html += '</span></p>';
         }
@@ -289,17 +304,39 @@ function loveSong() {
     sendAPI("MPD_API_LOVE", {});
 }
 
+//used in songdetails modal
 //eslint-disable-next-line no-unused-vars
-function voteSong(vote) {
-    let uri = getAttDec(domCache.currentTitle, 'data-uri');
+function voteSong(el, vote) {
+    if (vote === 0 && el.classList.contains('active')) {
+        vote = 1;
+        el.classList.remove('active');
+    }
+    else if (vote === 2 && el.classList.contains('active')) {
+        vote = 1;
+        el.classList.remove('active');
+    }
+    const aEl = el.parentNode.getElementsByClassName('active')[0];
+    if (aEl !== undefined) {
+        aEl.classList.remove('active');
+    }
+    if (vote === 0 || vote === 2) {
+        el.classList.add('active');
+    }
+    const uri = getAttDec(el.parentNode, 'data-uri');
+    sendAPI("MPD_API_LIKE", {"uri": uri, "like": vote});
+}
+
+//eslint-disable-next-line no-unused-vars
+function voteCurrentSong(vote) {
+    const uri = getAttDec(document.getElementById('currentTitle'), 'data-uri');
     if (uri === '') {
         return;
     }
         
-    if (vote === 2 && domCache.btnVoteUp.classList.contains('highlight')) {
+    if (vote === 2 && document.getElementById('btnVoteUp').classList.contains('highlight')) {
         vote = 1;
     }
-    else if (vote === 0 && domCache.btnVoteDown.classList.contains('highlight')) {
+    else if (vote === 0 && document.getElementById('btnVoteDown').classList.contains('highlight')) {
         vote = 1;
     }
     sendAPI("MPD_API_LIKE", {"uri": uri, "like": vote});
@@ -310,50 +347,28 @@ function setVoteSongBtns(vote, uri) {
     if (uri === undefined) {
         uri = '';
     }
-    domCache.btnVoteUp2 = document.getElementById('btnVoteUp2');
-    domCache.btnVoteDown2 = document.getElementById('btnVoteDown2');
 
     if (isValidUri(uri) === false || isStreamUri(uri) === true) {
-        disableEl(domCache.btnVoteUp);
-        disableEl(domCache.btnVoteDown);
-        if (domCache.btnVoteUp2) {
-            disableEl(domCache.btnVoteUp2);
-            disableEl(domCache.btnVoteDown2);
-        }
-        domCache.btnVoteUp.classList.remove('highlight');
-        domCache.btnVoteDown.classList.remove('highlight');
+        disableEl('btnVoteUp');
+        disableEl('btnVoteDown');
+        document.getElementById('btnVoteUp').classList.remove('highlight');
+        document.getElementById('btnVoteDown').classList.remove('highlight');
     }
     else {
-        enableEl(domCache.btnVoteUp);
-        enableEl(domCache.btnVoteDown);
-        if (domCache.btnVoteUp2) {
-            enableEl(domCache.btnVoteUp2);
-            enableEl(domCache.btnVoteDown2);
-        }
+        enableEl('btnVoteUp');
+        enableEl('btnVoteDown');
     }
     
     if (vote === 0) {
-        domCache.btnVoteUp.classList.remove('highlight');
-        domCache.btnVoteDown.classList.add('highlight');
-        if (domCache.btnVoteUp2) {
-            domCache.btnVoteUp2.classList.remove('highlight');
-            domCache.btnVoteDown2.classList.add('highlight');
-        }
+        document.getElementById('btnVoteUp').classList.remove('highlight');
+        document.getElementById('btnVoteDown').classList.add('highlight');
     }
     else if (vote === 1) {
-        domCache.btnVoteUp.classList.remove('highlight');
-        domCache.btnVoteDown.classList.remove('highlight');
-        if (domCache.btnVoteUp2) {
-            domCache.btnVoteUp2.classList.remove('highlight');
-            domCache.btnVoteDown2.classList.remove('highlight');
-        }
+        document.getElementById('btnVoteUp').classList.remove('highlight');
+        document.getElementById('btnVoteDown').classList.remove('highlight');
     }
     else if (vote === 2) {
-        domCache.btnVoteUp.classList.add('highlight');
-        domCache.btnVoteDown.classList.remove('highlight');
-        if (domCache.btnVoteUp2) {
-            domCache.btnVoteUp2.classList.add('highlight');
-            domCache.btnVoteDown2.classList.remove('highlight');
-        }
+        document.getElementById('btnVoteUp').classList.add('highlight');
+        document.getElementById('btnVoteDown').classList.remove('highlight');
     }
 }

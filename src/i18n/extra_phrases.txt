@@ -24,7 +24,6 @@ MUSICBRAINZ_RELEASETRACKID
 MUSICBRAINZ_TRACKID
 MUSICBRAINZ_WORKID
 Type
-LastPlayed
 Pos
 Fileformat
 Dark
@@ -61,3 +60,20 @@ Click song in queue
 Click song
 Play
 Num entries
+Song change
+Use ligature
+Show playback settings in footer
+LastPlayed
+stickerPlayCount
+stickerSkipCount
+stickerLastPlayed
+stickerLastSkipped
+stickerLike
+Playback controls
+pause and stop
+pause only
+stop only
+Facilities
+Default image
+Default image dark
+Default image light

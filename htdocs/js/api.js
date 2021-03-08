@@ -3,25 +3,32 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-var ignoreMessages = ['No current song', 'No lyrics found'];
+const ignoreMessages = ['No current song', 'No lyrics found'];
 
 function sendAPI(method, params, callback, onerror) {
-    let request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": params};
-    let ajaxRequest=new XMLHttpRequest();
+    const request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": params};
+    const ajaxRequest = new XMLHttpRequest();
     ajaxRequest.open('POST', subdir + '/api', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {
             if (ajaxRequest.responseText !== '') {
-                let obj = JSON.parse(ajaxRequest.responseText);
+                let obj;
+                try {
+                    obj = JSON.parse(ajaxRequest.responseText);
+                }
+                catch(error) {
+                    showNotification(t('Can not parse response to json object'), '', 'general', 'error');
+                    logError('Can not parse response to json object:' + ajaxRequest.responseText);
+                }
                 if (obj.error) {
-                    showNotification(t(obj.error.message, obj.error.data), '', '', 'danger');
+                    showNotification(t(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
                     logError(JSON.stringify(obj.error));
                 }
                 else if (obj.result && obj.result.message && obj.result.message !== 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
                     if (ignoreMessages.includes(obj.result.message) === false) {
-                        showNotification(t(obj.result.message, obj.result.data), '', '', 'success');
+                        showNotification(t(obj.result.message, obj.result.data), '', obj.result.facility, obj.result.severity);
                     }
                 }
                 else if (obj.result && obj.result.message && obj.result.message === 'ok') {
@@ -31,7 +38,7 @@ function sendAPI(method, params, callback, onerror) {
                     logDebug('Got API response of type: ' + obj.result.method);
                 }
                 else {
-                    logError('Got invalid API response: ' + JSON.stringify(obj));
+                    logError('Got invalid API response: ' + ajaxRequest.responseText);
                     if (onerror !== true) {
                         return;
                     }
@@ -65,30 +72,19 @@ function webSocketConnect() {
     if (socket !== null && socket.readyState === WebSocket.OPEN) {
         logInfo('Socket already connected');
         websocketConnected = true;
-        socketRetry = 0;
         return;
     }
     else if (socket !== null && socket.readyState === WebSocket.CONNECTING) {
         logInfo('Socket connection in progress');
         websocketConnected = false;
-        socketRetry++;
-        if (socketRetry > 20) {
-            logError('Socket connection timed out');
-            webSocketClose();
-            setTimeout(function() {
-                webSocketConnect();
-            }, 1000);
-            socketRetry = 0;
-        }
         return;
     }
-    else {
-        websocketConnected = false;
-    }
-    
-    let wsUrl = getWsUrl();
+
+    websocketConnected = false;  
+    const wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
+        window.location.hostname + 
+        (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/ws/';
     socket = new WebSocket(wsUrl);
-    socketRetry = 0;
     logInfo('Connecting to ' + wsUrl);
 
     try {
@@ -101,8 +97,8 @@ function webSocketConnect() {
             }
         };
 
-        socket.onmessage = function got_packet(msg) {
-            var obj;
+        socket.onmessage = function(msg) {
+            let obj;
             try {
                 obj = JSON.parse(msg.data);
                 logDebug('Websocket notification: ' + JSON.stringify(obj));
@@ -112,21 +108,12 @@ function webSocketConnect() {
                 return;
             }
             
-            if (obj.error) {
-                showNotification(t(obj.error.message, obj.error.data), '', '', 'danger');
-                return;
-            }
-            else if (obj.result) {
-                showNotification(t(obj.result.message, obj.result.data), '', '', 'success');
-                return;
-            }
-
             switch (obj.method) {
                 case 'welcome':
                     websocketConnected = true;
-                    showNotification(t('Connected to myMPD'), wsUrl, '', 'success');
+                    showNotification(t('Connected to myMPD'), wsUrl, 'general', 'info');
                     appRoute();
-                    sendAPI("MPD_API_PLAYER_STATE", {}, parseState, true);
+                    sendAPI('MPD_API_PLAYER_STATE', {}, parseState, true);
                     break;
                 case 'update_state':
                     obj.result = obj.params;
@@ -139,8 +126,9 @@ function webSocketConnect() {
                     getSettings(true);
                     break;
                 case 'mpd_connected':
-                    showNotification(t('Connected to MPD'), '', '', 'success');
-                    sendAPI("MPD_API_PLAYER_STATE", {}, parseState);
+                    //MPD connection established get state and settings
+                    showNotification(t('Connected to MPD'), '', 'general', 'info');
+                    sendAPI('MPD_API_PLAYER_STATE', {}, parseState);
                     getSettings(true);
                     break;
                 case 'update_queue':
@@ -154,7 +142,7 @@ function webSocketConnect() {
                     getSettings();
                     break;
                 case 'update_outputs':
-                    sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs);
+                    sendAPI('MPD_API_PLAYER_OUTPUT_LIST', {}, parseOutputs);
                     break;
                 case 'update_started':
                     updateDBstarted(false);
@@ -170,35 +158,25 @@ function webSocketConnect() {
                     break;
                 case 'update_stored_playlist':
                     if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'All') {
-                        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search}, parsePlaylists);
+                        sendAPI('MPD_API_PLAYLIST_LIST', {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search}, parsePlaylistsList);
                     }
                     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-                        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, "uri": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
+                        sendAPI('MPD_API_PLAYLIST_CONTENT_LIST', {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, "uri": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylistsDetail);
                     }
                     break;
                 case 'update_lastplayed':
                     if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
-                        sendAPI("MPD_API_QUEUE_LAST_PLAYED", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
+                        sendAPI('MPD_API_QUEUE_LAST_PLAYED', {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
                     }
                     break;
                 case 'update_jukebox':
                     if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
-                        sendAPI("MPD_API_JUKEBOX_LIST", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
+                        sendAPI('MPD_API_JUKEBOX_LIST', {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
                     }
                     break;
-                case 'error':
+                case 'notify':
                     if (document.getElementById('alertMpdState').classList.contains('hide')) {
-                        showNotification(t(obj.params.message), '', '', 'danger');
-                    }
-                    break;
-                case 'warn':
-                    if (document.getElementById('alertMpdState').classList.contains('hide')) {
-                        showNotification(t(obj.params.message), '', '', 'warning');
-                    }
-                    break;
-                case 'info':
-                    if (document.getElementById('alertMpdState').classList.contains('hide')) {
-                        showNotification(t(obj.params.message), '', '', 'success');
+                        showNotification(t(obj.params.message, obj.params.data), '', obj.params.facility, obj.params.severity);
                     }
                     break;
                 default:
@@ -206,7 +184,7 @@ function webSocketConnect() {
             }
         };
 
-        socket.onclose = function(){
+        socket.onclose = function(event) {
             logError('Websocket is disconnected');
             websocketConnected = false;
             if (appInited === true) {
@@ -217,7 +195,7 @@ function webSocketConnect() {
             }
             else {
                 showAppInitAlert(t('Websocket connection failed'));
-                logError('Websocket connection failed.');
+                logError('Websocket connection failed: ' + event.code);
             }
             if (websocketTimer !== null) {
                 clearTimeout(websocketTimer);
@@ -230,8 +208,13 @@ function webSocketConnect() {
             }, 3000);
             socket = null;
         };
-
-    } catch(error) {
+        
+        socket.onerror = function() {
+            logError('Websocket error occured');
+            socket.close();
+        };
+    }
+    catch(error) {
         logError(error);
     }
 }
@@ -248,20 +231,4 @@ function webSocketClose() {
         socket = null;
     }
     websocketConnected = false;
-}
-
-function getWsUrl() {
-    let hostname = window.location.hostname;
-    let protocol = window.location.protocol;
-    let port = window.location.port;
-    
-    if (protocol === 'https:') {
-        protocol = 'wss://';
-    }
-    else {
-        protocol = 'ws://';
-    }
-
-    let wsUrl = protocol + hostname + (port !== '' ? ':' + port : '') + subdir + '/ws/';
-    return wsUrl;
 }

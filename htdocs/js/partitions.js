@@ -8,8 +8,8 @@ function initPartitions() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'A') {
-            let action = event.target.getAttribute('data-action');
-            let partition = decodeURI(event.target.parentNode.parentNode.getAttribute('data-partition'));
+            const action = event.target.getAttribute('data-action');
+            const partition = decodeURI(event.target.parentNode.parentNode.getAttribute('data-partition'));
             if (action === 'delete') {
                 deletePartition(partition);
             }
@@ -23,9 +23,9 @@ function initPartitions() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            let outputName = decodeURI(event.target.parentNode.getAttribute('data-output'));
+            const outputName = decodeURI(event.target.parentNode.getAttribute('data-output'));
             moveOutput(outputName);
-            modalPartitionOutputs.hide();
+            uiElements.modalPartitionOutputs.hide();
         }
     }, false);
 
@@ -43,8 +43,8 @@ function moveOutput(output) {
 }
 
 function parsePartitionOutputsList(obj) {
-    let outputs = document.getElementById('outputs').getElementsByTagName('button');
-    let outputIds = [];
+    const outputs = document.getElementById('outputs').getElementsByTagName('button');
+    const outputIds = [];
     for (let i = 0; i < outputs.length; i++) {
         outputIds.push(parseInt(outputs[i].getAttribute('data-output-id')));
     }
@@ -59,8 +59,7 @@ function parsePartitionOutputsList(obj) {
         }
     }
     if (nr === 0) {
-        outputList = '<tr class="not-clickable"><td><span class="mi">error_outline</span>&nbsp;' +
-            t('Empty list') + '</td></tr>';
+        outputList = '<tr class="not-clickable"><td><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
     }
     document.getElementById('partitionOutputsList').innerHTML = outputList;
 }
@@ -69,7 +68,7 @@ function parsePartitionOutputsList(obj) {
 function savePartition() {
     let formOK = true;
     
-    let nameEl = document.getElementById('inputPartitionName');
+    const nameEl = document.getElementById('inputPartitionName');
     if (!validatePlnameEl(nameEl)) {
         formOK = false;
     }
@@ -106,7 +105,7 @@ function showListPartitions() {
 function deletePartition(partition) {
     sendAPI("MPD_API_PARTITION_RM", {"name": partition}, function(obj) {
         if (obj.error) {
-            let el = document.getElementById('errorPartition');
+            const el = document.getElementById('errorPartition');
             el.innerText = t(obj.error.message);
             el.classList.remove('hide');
         }
@@ -117,7 +116,7 @@ function deletePartition(partition) {
 function switchPartition(partition) {
     sendAPI("MPD_API_PARTITION_SWITCH", {"name": partition}, function(obj) {
         if (obj.error) {
-            let el = document.getElementById('errorPartition');
+            const el = document.getElementById('errorPartition');
             el.innerText = t(obj.error.message);
             el.classList.remove('hide');
         }
@@ -144,7 +143,7 @@ function parsePartitionList(obj) {
         document.getElementById('listPartitionsList').innerHTML = partitionList;
     }
     else {
-        document.getElementById('listPartitionsList').innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
-            '<td colspan="2">' + t('Empty list') + '</td></tr>';
+        document.getElementById('listPartitionsList').innerHTML = '<tr class="not-clickable">' +
+            '<td colspan="3"><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
     }
 }

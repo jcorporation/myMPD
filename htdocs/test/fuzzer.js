@@ -112,8 +112,6 @@ function defineCmds() {
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_ICON_SAVE","params":{"replace":bool0,"oldpos":int0,"name":string1,"ligature":string2,"bgcolor":string3,"image":string4,"cmd":string5,"options":[string2,string3]}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_JUKEBOX_LIST","params":{"offset":int0,"limit":int4,"cols":[string1,string2]}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_JUKEBOX_RM","params":{"pos":int0}},
-        {"jsonrpc":"2.0","id":0,"method":"MPD_API_LYRICS_UNSYNCED_GET","params":{"uri":string1}},
-        {"jsonrpc":"2.0","id":0,"method":"MPD_API_LYRICS_SYNCED_GET","params":{"uri":string1}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_LYRICS_GET","params":{"uri":string1}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_PRIO_SET_HIGHEST","params":{"trackid":int0}}
     ];

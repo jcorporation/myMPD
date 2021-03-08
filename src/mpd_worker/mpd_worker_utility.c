@@ -79,20 +79,20 @@ static void mpd_worker_feature_commands(t_mpd_worker_state *mpd_worker_state) {
         struct mpd_pair *pair;
         while ((pair = mpd_recv_command_pair(mpd_worker_state->mpd_state->conn)) != NULL) {
             if (strcmp(pair->value, "listplaylists") == 0) {
-                LOG_DEBUG("MPD supports playlists");
+                MYMPD_LOG_DEBUG("MPD supports playlists");
                 mpd_worker_state->feat_playlists = true;
             }
             mpd_return_pair(mpd_worker_state->mpd_state->conn, pair);
         }
     }
     else {
-        LOG_ERROR("Error in response to command: mpd_send_allowed_commands");
+        MYMPD_LOG_ERROR("Error in response to command: mpd_send_allowed_commands");
     }
     mpd_response_finish(mpd_worker_state->mpd_state->conn);
     check_error_and_recover2(mpd_worker_state->mpd_state, NULL, NULL, 0, false);
 
     if (mpd_worker_state->feat_playlists == false && mpd_worker_state->smartpls == true) {
-        LOG_WARN("Playlists are disabled, disabling smart playlists");
+        MYMPD_LOG_WARN("Playlists are disabled, disabling smart playlists");
         mpd_worker_state->feat_smartpls = false;
     }
 }
