@@ -321,7 +321,7 @@ function playAfterCurrent(trackid, songpos) {
 
 //eslint-disable-next-line no-unused-vars
 function clearQueue() {
-    showConfirm(t('Do you really want to clear the queue?'), function() {
+    showConfirm(t('Do you really want to clear the queue?'), "Yes, clear it", function() {
         sendAPI("MPD_API_QUEUE_CROP_OR_CLEAR", {});
     });
 }

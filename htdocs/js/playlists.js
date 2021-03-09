@@ -452,16 +452,17 @@ function updateSmartPlaylistClick() {
 
 //eslint-disable-next-line no-unused-vars
 function showDelPlaylist(uri) {
-    showConfirm(t('Do you really want to delete the playlist?'), function() {
+    showConfirm(t('Do you really want to delete the playlist?', {"playlist": uri}), "Yes, delete it", function() {
         sendAPI("MPD_API_PLAYLIST_RM", {"uri": uri});
     });
 }
 
 //eslint-disable-next-line no-unused-vars
 function showClearPlaylist() {
-    showConfirm(t('Do you really want to clear the playlist?'), function() {
+    showConfirm(t('Do you really want to clear the playlist?', {"playlist": uri}), "Yes, clear it", function() {
+        const uri = getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri');
         sendAPI("MPD_API_PLAYLIST_CLEAR", {
-            "uri": getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri')
+            "uri": uri
         });
         document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');
     });

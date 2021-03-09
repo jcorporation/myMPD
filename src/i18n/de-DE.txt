@@ -1723,12 +1723,6 @@ Hilf mit myMPD zu verbessern
 Are you sure?
 Bist du sicher?
 
-No
-Nein
-
-Yes
-Ja
-
 Do you really want to clear the queue?
 Willst du die Warteschlange wirklich leeren?
 
@@ -1748,11 +1742,19 @@ stop only
 nur Stop
 
 Do you really want to clear the playlist?
-Willst du wirlich die Wiedergabeliste wirklich leeren?
-
+Willst du wirlich die Wiedergabeliste "%{playlist}" leeren?
 
 Do you really want to delete the playlist?
-Willst du wirklich die Wiedergabeliste löschen?
+Willst du wirklich die Wiedergabeliste "%{playlist}" löschen?
+
+Do you really want to delete the script?
+Willst du wirklich das Skript "%{script}" löschen?
+
+Yes, delete it
+Ja, löschen
+
+Yes, do it
+Ja, tu es
 
 Playback settings
 Wiedergabeeinstellungen

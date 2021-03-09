@@ -4,20 +4,49 @@
 // https://github.com/jcorporation/mympd
 
 //warning dialog
-function showConfirm(text, callback) {
-    document.getElementById('modalConfirmText').innerText = text;
+function showConfirm(text, btnText, callback) {
+    document.getElementById('modalConfirmText').innerHTML = text;
     const yesBtn = document.createElement('button');
     yesBtn.setAttribute('id', 'modalConfirmYesBtn');
-    yesBtn.classList.add('btn', 'btn-success');
+    yesBtn.classList.add('btn', 'btn-danger');
     yesBtn.addEventListener('click', function() {
         if (callback !== undefined && typeof(callback) === 'function') {
             callback();
         }
         uiElements.modalConfirm.hide();        
     }, false);
-    yesBtn.innerHTML = t('Yes');
+    yesBtn.innerText = btnText;
     document.getElementById('modalConfirmYesBtn').replaceWith(yesBtn);
     uiElements.modalConfirm.show();
+}
+
+function showConfirmInline(el, text, btnText, callback) {
+    const confirm = document.createElement('div');
+    confirm.classList.add('alert', 'alert-danger', 'mt-2');
+
+    const p = document.createElement('p');
+    p.innerHTML = text;
+    confirm.appendChild(p);
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.classList.add('btn', 'btn-secondary');
+    cancelBtn.addEventListener('click', function() {
+        this.parentNode.remove();
+    }, false);
+    cancelBtn.innerText = t('Cancel');
+    confirm.appendChild(cancelBtn);
+
+    const yesBtn = document.createElement('button');
+    yesBtn.classList.add('btn', 'btn-danger', 'float-right');
+    yesBtn.addEventListener('click', function() {
+        if (callback !== undefined && typeof(callback) === 'function') {
+            callback();
+        }
+    }, false);
+    yesBtn.innerText = btnText;
+    confirm.appendChild(yesBtn);
+    
+    el.appendChild(confirm);
 }
 
 //functions to get custom actions

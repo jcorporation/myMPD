@@ -63,3 +63,11 @@ Last skipped
 stickerLike
 Like
 
+Do you really want to clear the playlist?
+Do you really want to clear the playlist %{playlist}?
+
+Do you really want to delete the playlist?
+Do you really want to delete the playlist %{playlist}?
+
+Do you really want to delete the script?
+Do you really want to delete the script %{script}?

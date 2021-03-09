@@ -31,7 +31,7 @@ function initScripts() {
             const action = getAttDec(event.target, 'data-action');
             const script = getAttDec(event.target.parentNode.parentNode, 'data-script');
             if (action === 'delete') {
-                deleteScript(script);
+                deleteScript(event.target, script);
             }
             else if (action === 'execute') {
                 execScript(getAttDec(event.target, 'data-href'));
@@ -139,10 +139,12 @@ function showListScripts() {
     sendAPI("MYMPD_API_SCRIPT_LIST", {"all": true}, parseScriptList);
 }
 
-function deleteScript(script) {
-    sendAPI("MYMPD_API_SCRIPT_DELETE", {"script": script}, function() {
-        getScriptList(true);
-    }, false);
+function deleteScript(el, script) {
+    showConfirmInline(el.parentNode.previousSibling, t('Do you really want to delete the script?', {"script": script}), t('Yes, delete it'), function() {
+        sendAPI("MYMPD_API_SCRIPT_DELETE", {"script": script}, function() {
+            getScriptList(true);
+        }, false);
+    });
 }
 
 function getScriptList(all) {
