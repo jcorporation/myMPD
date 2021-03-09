@@ -459,8 +459,8 @@ function showDelPlaylist(uri) {
 
 //eslint-disable-next-line no-unused-vars
 function showClearPlaylist() {
+    const uri = getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri');
     showConfirm(t('Do you really want to clear the playlist?', {"playlist": uri}), "Yes, clear it", function() {
-        const uri = getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri');
         sendAPI("MPD_API_PLAYLIST_CLEAR", {
             "uri": uri
         });
