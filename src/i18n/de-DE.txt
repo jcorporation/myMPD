@@ -154,10 +154,25 @@ Label
 Herausgeber
 
 Grouping
-Grupierung
+Gruppierung
 
 Conductor
 Dirigent
+
+ComposerSort
+Komponist
+
+Ensemble
+Ensemble
+
+Movement
+Movement
+
+MovementNumber
+Movement Nummer
+
+Location
+Ort
 
 Pos
 Pos

@@ -23,6 +23,11 @@ MUSICBRAINZ_ARTISTID
 MUSICBRAINZ_RELEASETRACKID
 MUSICBRAINZ_TRACKID
 MUSICBRAINZ_WORKID
+ComposerSort
+Ensemble
+Movement
+MovementNumber
+Location
 Type
 Pos
 Fileformat
