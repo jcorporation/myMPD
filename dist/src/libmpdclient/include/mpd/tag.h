@@ -82,6 +82,12 @@ enum mpd_tag_type
 	MPD_TAG_WORK,
 	MPD_TAG_CONDUCTOR,
 
+	MPD_TAG_COMPOSER_SORT,
+	MPD_TAG_ENSEMBLE,
+	MPD_TAG_MOVEMENT,
+	MPD_TAG_MOVEMENTNUMBER,
+	MPD_TAG_LOCATION,
+
 	/* IMPORTANT: the ordering of tag types above must be
 	   retained, or else the libmpdclient ABI breaks */
 

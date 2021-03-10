@@ -38,7 +38,9 @@ enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag) {
     if (tag == MPD_TAG_ALBUM) {
         return MPD_TAG_ALBUM_SORT;
     }
-
+    if (tag == MPD_TAG_COMPOSER) {
+        return MPD_TAG_COMPOSER_SORT;
+    }
     return tag;
 }
 
