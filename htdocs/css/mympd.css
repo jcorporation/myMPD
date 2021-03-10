@@ -897,6 +897,10 @@ a.text-success:focus {
   scroll-margin: 3rem;
 }
 
+.lyricsSyncedText > p {
+  margin-bottom: 0;
+}
+
 .rounded-right-0 {
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;

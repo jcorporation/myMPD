@@ -287,11 +287,16 @@ function parseSyncedLyrics(text, clickable) {
             //line[3] are hundreths of a seconde - ignore it for the moment
             html += '<p><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + sec + '">';
             //support of extended lrc format - timestamps for words
-            html += line[4].replace(/<(\d+):(\d+)\.\d+>/g, function(m0, m1, m2) {
-                //hundreths of a secondes are ignored
-                const wsec = parseInt(m1) * 60 + parseInt(m2);
-                return '</span><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + wsec + '">';
-            });
+            if (line[4] === '') {
+                html += '&nbsp;';
+            }
+            else {
+                html += line[4].replace(/<(\d+):(\d+)\.\d+>/g, function(m0, m1, m2) {
+                    //hundreths of a secondes are ignored
+                    const wsec = parseInt(m1) * 60 + parseInt(m2);
+                    return '</span><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + wsec + '">';
+                });
+            }
             html += '</span></p>';
         }
     }
