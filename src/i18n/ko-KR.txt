@@ -1723,12 +1723,6 @@ myMPD 개선 도움
 Are you sure?
 확실한가요?
 
-No
-아니오
-
-Yes
-예
-
 Do you really want to clear the queue?
 캐시를 지울까요?
 
