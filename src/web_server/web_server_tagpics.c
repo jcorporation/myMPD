@@ -16,7 +16,7 @@
 #include "../sds_extras.h"
 #include "../api.h"
 #include "../list.h"
-#include "config_defs.h"
+#include "mympd_config_defs.h"
 #include "../utility.h"
 #include "../log.h"
 #include "../tiny_queue.h"
@@ -24,10 +24,6 @@
 #include "web_server_utility.h"
 #include "web_server_tagpics.h"
 
-//public functions
-
-//returns true if lyrics are served
-//returns false if waiting for mpd_client to handle request - not implemented yet
 bool handle_tagpics(struct mg_connection *nc, struct http_message *hm, t_mg_user_data *mg_user_data, t_config *config, int conn_id) {
     //decode uri
     sds uri_decoded = sdsurldecode(sdsempty(), hm->uri.p, (int)hm->uri.len, 0);

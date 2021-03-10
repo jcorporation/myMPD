@@ -14,7 +14,7 @@
 #include "../sds_extras.h"
 #include "../log.h"
 #include "../list.h"
-#include "config_defs.h"
+#include "mympd_config_defs.h"
 #include "../utility.h"
 #include "../api.h"
 #include "../tiny_queue.h"

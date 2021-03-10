@@ -19,7 +19,7 @@
 #include "../../dist/src/frozen/frozen.h"
 #include "../api.h"
 #include "../list.h"
-#include "config_defs.h"
+#include "mympd_config_defs.h"
 #include "../utility.h"
 #include "../log.h"
 #include "../mpd_shared/mpd_shared_typedefs.h"

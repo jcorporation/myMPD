@@ -10,7 +10,7 @@
 #include "../../dist/src/mongoose/mongoose.h"
 #include "../log.h"
 #include "../list.h"
-#include "config_defs.h"
+#include "mympd_config_defs.h"
 #include "../utility.h"
 #include "web_server_utility.h"
 

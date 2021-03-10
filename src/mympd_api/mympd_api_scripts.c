@@ -29,7 +29,7 @@
 #include "../log.h"
 #include "../list.h"
 #include "../lua_mympd_state.h"
-#include "config_defs.h"
+#include "mympd_config_defs.h"
 #include "../tiny_queue.h"
 #include "../api.h"
 #include "../global.h"

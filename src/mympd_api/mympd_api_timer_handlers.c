@@ -16,7 +16,7 @@
 #include "../tiny_queue.h"
 #include "../api.h"
 #include "../global.h"
-#include "config_defs.h"
+#include "mympd_config_defs.h"
 #include "../utility.h"
 #include "../maintenance.h"
 #include "mympd_api_utility.h"

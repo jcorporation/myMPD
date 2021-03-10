@@ -17,7 +17,7 @@
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
 #include "list.h"
-#include "config_defs.h"
+#include "mympd_config_defs.h"
 #include "tiny_queue.h"
 #include "api.h"
 #include "global.h"

@@ -21,7 +21,7 @@
 #include "../../dist/src/frozen/frozen.h"
 #include "../log.h"
 #include "../list.h"
-#include "config_defs.h"
+#include "mympd_config_defs.h"
 #include "../utility.h"
 #include "mympd_api_utility.h"
 #include "mympd_api_timer.h"

@@ -15,14 +15,15 @@
 #include <unistd.h>
 #include <time.h>
 
+#include "../dist/src/inih/ini.h"
 #include "../dist/src/sds/sds.h"
+
 #include "sds_extras.h"
 #include "list.h"
-#include "config_defs.h"
+#include "mympd_config_defs.h"
 #include "utility.h"
 #include "log.h"
-#include "config.h"
-#include "../dist/src/inih/ini.h"
+#include "mympd_config.h"
 
 //private functions
 static int mympd_inihandler(void *user, const char *section, const char *name, const char* value);
