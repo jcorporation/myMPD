@@ -173,7 +173,9 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
         if (highlighted !== toHighlight) {
             if (toHighlight !== null) {
                 toHighlight.classList.add('highlight');
-                toHighlight.scrollIntoView({behavior: "smooth"});
+                if (scrollSyncedLyrics === true) {
+                    toHighlight.scrollIntoView({behavior: "smooth"});
+                }
                 if (highlighted !== undefined) {
                     highlighted.classList.remove('highlight');
                 }

@@ -22,6 +22,7 @@ let deferredA2HSprompt;
 let dragSrc;
 let dragEl;
 let showSyncedLyrics = false;
+let scrollSyncedLyrics = true;
 let appInited = false;
 let subdir = '';
 let uiEnabled = true;
