@@ -331,6 +331,13 @@ function parseSettings() {
     else {
         document.getElementById('btnStop').classList.add('hide');
     }
+
+    if (settings.advanced.uiStickyTables === true) {
+        domCache.body.classList.add('stickyTables');
+    }
+    else {
+        domCache.body.classList.remove('stickyTables');
+    }
     
     //parse mpd settings if connected
     if (settings.mpdConnected === true) {
