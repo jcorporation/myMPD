@@ -161,17 +161,17 @@ createi18n() {
 }
 
 createassets() {
-  [ -z "${BUILDDIR+x}" ] && BUILDDIR="release"
+  [ -z "${MYMPD_BUILDDIR+x}" ] && MYMPD_BUILDDIR="release"
 
-  echo "Creating assets in $BUILDDIR"
+  echo "Creating assets in $MYMPD_BUILDDIR"
   #Recreate asset directories
-  rm -fr "$BUILDDIR/htdocs"
-  install -d "$BUILDDIR/htdocs/js"
-  install -d "$BUILDDIR/htdocs/css"
-  install -d "$BUILDDIR/htdocs/assets"
+  rm -fr "$MYMPD_BUILDDIR/htdocs"
+  install -d "$MYMPD_BUILDDIR/htdocs/js"
+  install -d "$MYMPD_BUILDDIR/htdocs/css"
+  install -d "$MYMPD_BUILDDIR/htdocs/assets"
 
   #Create translation phrases file
-  createi18n "../../$BUILDDIR/htdocs/js/i18n.min.js" ""
+  createi18n "../../$MYMPD_BUILDDIR/htdocs/js/i18n.min.js" ""
   
   echo "Minifying javascript"
   JSSRCFILES=""
@@ -192,13 +192,13 @@ createassets() {
   echo "Creating mympd.js"
   # shellcheck disable=SC2086
   # shellcheck disable=SC2002
-  cat $JSSRCFILES | grep -v "\"use strict\";" > "$BUILDDIR/htdocs/js/mympd.js"
-  minify js htdocs/sw.js "$BUILDDIR/htdocs/sw.min.js"
-  minify js "$BUILDDIR/htdocs/js/mympd.js" "$BUILDDIR/htdocs/js/mympd.min.js"
+  cat $JSSRCFILES | grep -v "\"use strict\";" > "$MYMPD_BUILDDIR/htdocs/js/mympd.js"
+  minify js htdocs/sw.js "$MYMPD_BUILDDIR/htdocs/sw.min.js"
+  minify js "$MYMPD_BUILDDIR/htdocs/js/mympd.js" "$MYMPD_BUILDDIR/htdocs/js/mympd.min.js"
   
   echo "Combining and compressing javascript"
-  echo "//myMPD ${VERSION} | (c) 2018-2021 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-2.0-or-later | https://github.com/jcorporation/mympd" > "$BUILDDIR/htdocs/js/copyright.min.js"
-  JSFILES="dist/htdocs/js/*.min.js $BUILDDIR/htdocs/js/*.min.js"
+  echo "//myMPD ${VERSION} | (c) 2018-2021 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-2.0-or-later | https://github.com/jcorporation/mympd" > "$MYMPD_BUILDDIR/htdocs/js/copyright.min.js"
+  JSFILES="dist/htdocs/js/*.min.js $MYMPD_BUILDDIR/htdocs/js/*.min.js"
   for F in $JSFILES
   do
     if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
@@ -207,14 +207,14 @@ createassets() {
       exit 1
     fi
   done
-  echo "\"use strict\";" > "$BUILDDIR/htdocs/js/combined.js"
+  echo "\"use strict\";" > "$MYMPD_BUILDDIR/htdocs/js/combined.js"
   # shellcheck disable=SC2086
   # shellcheck disable=SC2002
-  cat $JSFILES >> "$BUILDDIR/htdocs/js/combined.js"
-  $GZIP "$BUILDDIR/htdocs/js/combined.js"
+  cat $JSFILES >> "$MYMPD_BUILDDIR/htdocs/js/combined.js"
+  $GZIP "$MYMPD_BUILDDIR/htdocs/js/combined.js"
   
   #serviceworker
-  $GZIPCAT "$BUILDDIR/htdocs/sw.min.js" > "$BUILDDIR/htdocs/sw.js.gz"
+  $GZIPCAT "$MYMPD_BUILDDIR/htdocs/sw.min.js" > "$MYMPD_BUILDDIR/htdocs/sw.js.gz"
  
   echo "Minifying stylesheets"
   for F in htdocs/css/*.css
@@ -223,26 +223,26 @@ createassets() {
     #skip symbolic links
     if [ -f "$F" ] && [ ! -L "$F" ]
     then
-      minify css "$F" "$BUILDDIR/htdocs/css/${DST}.min.css"
+      minify css "$F" "$MYMPD_BUILDDIR/htdocs/css/${DST}.min.css"
     fi
   done
   
   echo "Combining and compressing stylesheets"
-  echo "/* myMPD ${VERSION} | (c) 2018-2021 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-2.0-or-later | https://github.com/jcorporation/mympd */" > "$BUILDDIR/htdocs/css/copyright.min.css"
-  CSSFILES="dist/htdocs/css/*.min.css $BUILDDIR/htdocs/css/*.min.css"
+  echo "/* myMPD ${VERSION} | (c) 2018-2021 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-2.0-or-later | https://github.com/jcorporation/mympd */" > "$MYMPD_BUILDDIR/htdocs/css/copyright.min.css"
+  CSSFILES="dist/htdocs/css/*.min.css $MYMPD_BUILDDIR/htdocs/css/*.min.css"
   # shellcheck disable=SC2086
-  cat $CSSFILES > "$BUILDDIR/htdocs/css/combined.css"
-  $GZIP "$BUILDDIR/htdocs/css/combined.css"
+  cat $CSSFILES > "$MYMPD_BUILDDIR/htdocs/css/combined.css"
+  $GZIP "$MYMPD_BUILDDIR/htdocs/css/combined.css"
   
   echo "Minifying and compressing html"
-  minify html htdocs/index.html "$BUILDDIR/htdocs/index.html"
-  $GZIPCAT "$BUILDDIR/htdocs/index.html" > "$BUILDDIR/htdocs/index.html.gz"
+  minify html htdocs/index.html "$MYMPD_BUILDDIR/htdocs/index.html"
+  $GZIPCAT "$MYMPD_BUILDDIR/htdocs/index.html" > "$MYMPD_BUILDDIR/htdocs/index.html.gz"
 
   echo "Creating other compressed assets"
   ASSETS="htdocs/mympd.webmanifest htdocs/assets/*.svg"
   for ASSET in $ASSETS
   do
-    $GZIPCAT "$ASSET" > "$BUILDDIR/${ASSET}.gz"
+    $GZIPCAT "$ASSET" > "$MYMPD_BUILDDIR/${ASSET}.gz"
   done
   return 0
 }
@@ -339,9 +339,9 @@ buildtest() {
 }
 
 cleanup() {
-  [ -z "${BUILDDIR+x}" ] && BUILDDIR="release"
+  [ -z "${MYMPD_BUILDDIR+x}" ] && MYMPD_BUILDDIR="release"
   #build directories
-  rm -rf "$BUILDDIR"
+  rm -rf "$MYMPD_BUILDDIR"
   rm -rf release
   rm -rf debug
   rm -rf package
@@ -1036,7 +1036,7 @@ case "$ACTION" in
 	  echo "  installdeps:      installs build and run dependencies"
 	  echo "  createassets:     creates the minfied and compressed dist files"
 	  echo "                    following environment variables are respected"
-	  echo "                      - BUILDDIR=\"release\""
+	  echo "                      - MYMPD_BUILDDIR=\"release\""
       echo ""
 	  echo "Translation options:"
 	  echo "  translate:        builds the translation file for debug builds"
