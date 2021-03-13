@@ -211,7 +211,9 @@ function webSocketConnect() {
         
         socket.onerror = function() {
             logError('Websocket error occured');
-            socket.close();
+            if (socket !== null) {
+                socket.close();
+            }
         };
     }
     catch(error) {
