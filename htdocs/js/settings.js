@@ -268,6 +268,9 @@ function parseSettings() {
     advSettingsKeys.sort();
     for (let i = 0; i < advSettingsKeys.length; i++) {
         const key = advSettingsKeys[i];
+        if (advancedSettingsDefault[key] === undefined) {
+            continue;
+        }
         const form = advancedSettingsDefault[key].form;
         if (advFrm[form] === undefined) {
             advFrm[form] = '';
