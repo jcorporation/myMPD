@@ -220,7 +220,3 @@ body.theme-dark .nav-link.active {
 body.theme-dark small {
   color: #aaa;
 }
-
-body.theme-dark.stickyTables .table > thead > tr > th {
-  background-color: #6c757d;
-}

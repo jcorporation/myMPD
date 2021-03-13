@@ -296,12 +296,6 @@ const advancedSettingsDefault = {
         "inputType": "select",
         "title": "Elements per page",
         "form": "AdvancedSettingsFrm"
-    },
-    "uiStickyTables": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Sticky table headers",
-        "form": "AdvancedSettingsFrm"
     }
 };
 

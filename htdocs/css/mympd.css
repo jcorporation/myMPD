@@ -83,12 +83,16 @@ html {
 
 body {
   min-height: 100vh;
-  padding-top: 3.5rem;
+  padding-top: 3rem;
   padding-bottom: 4rem;
   background-color: #000;
   background-position: center center;
   background-size: contain;
   background-repeat: no-repeat;
+}
+
+main {
+  padding-top: 0.5rem;
 }
 
 .breakAll {
@@ -144,6 +148,10 @@ td[data-col=Action] {
   body {
     padding-top: 0;
     padding-left: 4rem;
+  }
+
+  main {
+    padding-top: 0;
   }
 
   #headerLeft {
@@ -1035,44 +1043,4 @@ div.album-grid-mouseover {
 .fullHeight {
   overflow: unset;
   max-height: none;
-}
-
-main {
-  margin-top: 1.25rem;
-}
-
-.card-body {
-  padding-top: 0;
-}
-
-/*sticky table header*/
-body.stickyTables .table > thead > tr > th {
-  position: sticky;
-  top: 0;
-  border-bottom: 0;
-  border-top: 0;
-  background-color: #e9ecef;
-}
-
-body.stickyTables .table > thead > tr > th:first-child {
-  border-top-left-radius: 4px;
-}
-
-body.stickyTables .table > thead > tr > th:last-child {
-  border-top-right-radius: 4px;
-}
-
-body.stickyTables main {
-  overflow-y: auto;
-  height: calc(100vH - 11rem);
-}
-
-@media only screen and (orientation: landscape) {
-  body.stickyTables main {
-    height: calc(100vH - 7.5rem);
-  }
-}
-
-body.stickyTables {
-  overflow-y: hidden;
 }

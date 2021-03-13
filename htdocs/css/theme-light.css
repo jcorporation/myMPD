@@ -154,7 +154,3 @@ body.theme-light .form-control[readonly] {
 body.theme-light #navbar-main div.active {
   background-color: #e8eaea;
 }
-
-body.theme-light.stickyTables .table > thead > tr > th {
-  background-color: #e9ecef;
-}
