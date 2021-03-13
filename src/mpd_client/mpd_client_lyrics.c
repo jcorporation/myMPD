@@ -282,7 +282,10 @@ static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_en
                 *buffer = tojson_char(*buffer, "desc", "", true);
             }
             sds text = decode_sylt(sylt_data, sylt_data_len, encoding);
-            *buffer = tojson_char(*buffer, "text", text, false);
+            //sylt data is already encoded
+            *buffer = sdscatfmt(*buffer, "\"text\":\"%s\"", text);
+            
+            //*buffer = tojson_char(*buffer, "text", text, false);
             sdsfree(text);
             *buffer = sdscatlen(*buffer, "}", 1);
             returned_entities++;
@@ -318,12 +321,24 @@ static const char *_id3_field_getlanguage(union id3_field const *field) {
 
 static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length, enum id3_field_textencoding encoding) {
     sds sylt_text = sdsempty();
+    //separator counter
     int sep = 0;
+    //timestamp counter
     int ts = 0;
+    //start bytes counter for unicode
+    int start_bytes = 0;
+    //timestamp buffer
     unsigned char ts_buf[3] = "\0\0\0";
+    //separator buffer for unicode
+    unsigned char sep_buf[1] = " ";
+    //text buffer
     sds text_buf = sdsempty();
     for (unsigned i = 0; i < binary_length; i++) {
-        if (ts == 4) {
+        if (encoding == 1 && start_bytes < 2) {
+            //skip first 2 bytes for unicode
+            start_bytes++;
+        }
+        else if (ts == 4) {
             //got 4 timestamp bytes (32 bit), parse and print it
             int ms = (ts_buf[0] << 24) | (ts_buf[1] << 16) | (ts_buf[2] << 8) | binary_data[i];
             //convert milliseconds to lrc time format
@@ -331,30 +346,59 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
             ms = ms - min * 60000;
             int sec = ms / 1000;
             ms = ms - sec * 1000;
-            sylt_text = sdscatprintf(sylt_text, "[%02d:%02d.%02d]%s\n", min, sec, ms, text_buf);
+            sylt_text = sdscatprintf(sylt_text, "[%02d:%02d.%02d]%s\\n", min, sec, ms, text_buf);
             sdsclear(text_buf);
             //reset all states after parsing the timestamp
             sep = 0;
             ts = 0;
+            start_bytes = 0;
+            sep_buf[0] = '\0';
         }
         else if (ts >= 1) {
             //timestamp has 4 bytes, save first three in ts_buf before parsing it
             ts_buf[ts - 1] = binary_data[i];
             ts++;
         }
-        else if (binary_data[i] == '\0') {
+        else if (encoding == 0 && binary_data[i] == '\0') {
             //count separators
             //1 for ISO-8859-1 
+            sep++;
+            //start of timestamp
+            ts = 1;
+        }
+        else if (encoding == 1 && binary_data[i] == '\0' && sep_buf[0] == '\0') {
+            //count separators
             //2 for unicode
             sep++;
             //start of timestamp
-            if ((encoding == 0 && sep == 1) || (encoding > 0 && sep == 2)) {
+            if (sep == 2) {
                 ts = 1;
+                sep_buf[0] = binary_data[i];
             }
+        }
+        else if (ts == 0 && encoding == 1 && binary_data[i] == '\0') {
+            //save \0 to detect \0\0 separator
+            sep_buf[0] = binary_data[i];
         }
         else if (ts == 0 && binary_data[i] != '\n') {
             //add char to text buffer
-            text_buf = sdscatprintf(text_buf, "%c", binary_data[i]);
+            if (encoding == 0) {
+                //ISO-8859-1
+                text_buf = sdscatprintf(text_buf, "%c", binary_data[i]);
+            }
+            else if (i + 1 < binary_length) {
+                //unicode
+                if (binary_data[i + 1] == '\0' && isprint(binary_data[i])) {
+                    //printable ascii char
+                    text_buf = sdscatprintf(text_buf, "%c", binary_data[i]);
+                }
+                else {
+                    //print unicode escape
+                    text_buf = sdscatprintf(text_buf, "\\u%02x%02x", binary_data[i + 1], binary_data[i]);
+                }
+                i++;
+            }
+            sep_buf[0] = binary_data[i];
         }
     }
     sdsfree(text_buf);
