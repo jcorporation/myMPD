@@ -333,12 +333,9 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
     
     while (i + sep_len + 4 < binary_length) {
         //look for bom and skip it
-        if (encoding == 1 && binary_data[i] == 0xff && binary_data[i + 1] == 0xfe) {
-            //utf-16 little endian
-            i = i + 2;
-        }
-        else if (encoding == 2 && binary_data[i] == 0xfe && binary_data[i + 1] == 0xff) {
-            //utf-16 big endian
+        if ((encoding == 1 && binary_data[i] == 0xff && binary_data[i + 1] == 0xfe) ||
+            (encoding == 2 && binary_data[i] == 0xfe && binary_data[i + 1] == 0xff)) {
+            //utf-16 le or be
             i = i + 2;
         }
         else if (encoding == 3 && binary_data[i] == 0xef && binary_data[i + 1] == 0xbb && binary_data[i + 2] == 0xbf) { 
@@ -349,10 +346,9 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
         if ((encoding == 0 || encoding == 3) && binary_data[i] == '\n') {
             i++;
         }
-        else if (encoding == 1 && binary_data[i] == '\n' && binary_data[i + 1] == '\0') {
-            i = i + 2;
-        }
-        else if (encoding == 2 && binary_data[i] == '\0' && binary_data[i + 1] == '\n') {
+        else if ((encoding == 1 && binary_data[i] == '\n' && binary_data[i + 1] == '\0') ||
+                 (encoding == 2 && binary_data[i] == '\0' && binary_data[i + 1] == '\n'))
+        {
             i = i + 2;
         }
         //read text
@@ -409,7 +405,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
                     }
                     else {
                         //premature end of data
-                        return false;
+                        break;
                     }
                 }
                 i = i + 2;
@@ -430,7 +426,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
         }
         else {
             //unknown encoding
-            return false;
+            break;
         }
         //skip separator
         if (i + sep_len < binary_length) {
@@ -438,7 +434,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
         }
         else {
             //premature end of data
-            return false;
+            break;
         }
         //read timestamp - 4 bytes
         if (i + 3 < binary_length) {
@@ -453,7 +449,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
         }
         else {
             //no timestamp found - invalid sylt tag
-            return false;
+            break;
         }
     }
     sdsfree(text_buf);
