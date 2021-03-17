@@ -237,6 +237,7 @@ set(SOURCES
   dist/src/sds/sds.c
   dist/src/rax/rax.c
   dist/src/tinymt/tinymt32.c
+  dist/src/utf8decode/utf8decode.c
 )
 
 if("${ENABLE_SSL}" MATCHES "ON")
