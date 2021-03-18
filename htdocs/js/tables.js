@@ -341,6 +341,7 @@ function setColTags(table) {
     }
     if (table === 'BrowseFilesystem') {
         tags.push('Type');
+        tags.push('Filename');
     }
     if (table === 'Playback') {
         tags.push('Filetype');
