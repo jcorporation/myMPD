@@ -296,11 +296,11 @@ function parseSyncedLyrics(text, clickable) {
             const sec = parseInt(line[1]) * 60 + parseInt(line[2]);
             //line[3] are hundreths of a seconde - ignore it for the moment
             html += '<p><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + sec + '">';
-            //support of extended lrc format - timestamps for words
-            if (line[4] === '') {
+            if (line[4].match(/^\s+$/)) {
                 html += '&nbsp;';
             }
             else {
+                //support of extended lrc format - timestamps for words
                 html += line[4].replace(/<(\d+):(\d+)\.\d+>/g, function(m0, m1, m2) {
                     //hundreths of a secondes are ignored
                     const wsec = parseInt(m1) * 60 + parseInt(m2);
