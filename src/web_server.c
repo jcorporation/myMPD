@@ -58,6 +58,8 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_user_data->conn_id = 1;
     mg_user_data->feat_library = false;
     mg_user_data->feat_mpd_albumart = false;
+
+    mgr->user_data = mg_user_data;
     
     //init monogoose mgr
     mg_mgr_init(mgr);
@@ -67,11 +69,11 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     sds http_url = sdscatfmt(sdsempty(), "http://%s:%s", config->http_host, config->http_port);
     #ifdef ENABLE_SSL
     if (config->ssl == true && config->redirect == true) {
-        nc_http = mg_http_listen(mgr, http_url, ev_handler_redirect, mg_user_data);
+        nc_http = mg_http_listen(mgr, http_url, ev_handler_redirect, NULL);
     }
     else {
     #endif
-        nc_http = mg_http_listen(mgr, http_url, ev_handler, mg_user_data);
+        nc_http = mg_http_listen(mgr, http_url, ev_handler, NULL);
     #ifdef ENABLE_SSL
     }
     #endif
@@ -87,7 +89,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     #ifdef ENABLE_SSL
     if (config->ssl == true) {
         sds https_url = sdscatfmt(sdsempty(), "https://%s:%s", config->http_host, config->ssl_port);
-        struct mg_connection *nc_https = mg_http_listen(mgr, https_url, ev_handler_redirect, mg_user_data);
+        struct mg_connection *nc_https = mg_http_listen(mgr, https_url, ev_handler_redirect, NULL);
         sdsfree(https_url);
         if (nc_https == NULL) {
             MYMPD_LOG_ERROR("Can't bind to https://%s:%s", config->http_host, config->ssl_port);
@@ -262,7 +264,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
 }
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
-    t_mg_user_data *mg_user_data = (t_mg_user_data *) fn_data;
+    t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
     t_config *config = (t_config *) mg_user_data->config;
     
     switch(ev) {
