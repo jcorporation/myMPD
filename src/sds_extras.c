@@ -64,6 +64,36 @@ sds sdscatjson(sds s, const char *p, size_t len) {
     return sdscatlen(s, "\"", 1);
 }
 
+sds sdscatjsonchar(sds s, const char p) {
+    const char *hex_digits = "0123456789abcdef";
+    switch(p) {
+        case '\\':
+        case '"':
+            s = sdscatprintf(s, "\\%c", p);
+            break;
+        case '\n': s = sdscatlen(s, "\\n", 2);     break;
+        case '\r': s = sdscatlen(s, "\\r", 2);     break;
+        case '\t': s = sdscatlen(s, "\\t", 2);     break;
+        case '\b': s = sdscatlen(s, "\\b", 2);     break;
+        case '\f': s = sdscatlen(s, "\\f", 2);     break;
+        // Escape < to prevent script execution
+        case '<' : s = sdscatlen(s, "\\u003C", 6); break;
+        //ignore vertical tabulator and alert
+        case '\v': 
+        case '\a': 
+            break;
+        default:
+            if (isprint(p)) {
+                s = sdscatprintf(s, "%c", p);
+            }
+            else {
+                s = sdscatprintf(s, "\\u00%s%s", &hex_digits[(p >> 4) % 0xf], &hex_digits[p % 0xf]);
+            } 
+            break;
+    }
+    return s;
+}
+
 sds sdsurldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
     size_t i;
     int a;
