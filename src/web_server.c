@@ -34,7 +34,6 @@
 
 //private definitions
 static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_user_data);
-static unsigned long is_websocket(const struct mg_connection *nc);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 #ifdef ENABLE_SSL
   static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data, void *fn_data);
@@ -59,7 +58,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_user_data->feat_library = false;
     mg_user_data->feat_mpd_albumart = false;
 
-    mgr->user_data = mg_user_data;
+    mgr->userdata = mg_user_data;
     
     //init monogoose mgr
     mg_mgr_init(mgr);
@@ -83,7 +82,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
         mg_mgr_free(mgr);
         return false;
     }
-    LOG_INFO("Listening on http://%s:%s", config->http_host, config->http_port);
+    MYMPD_LOG_INFO("Listening on http://%s:%s", config->http_host, config->http_port);
 
     //bind to ssl_port
     #ifdef ENABLE_SSL
@@ -100,7 +99,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
         tls_opts.cert = config->ssl_cert;
         tls_opts.certkey = config->ssl_key;
         if (mg_tls_init(nc_https, &tls_opts) == 0) {
-            LOG_ERROR("Can't init tls with cert %s and key %s", config->ssl_cert, config->ssl_key);
+            MYMPD_LOG_ERROR("Can't init tls with cert %s and key %s", config->ssl_cert, config->ssl_key);
             mg_mgr_free(mgr);
             return false;
         }
@@ -264,24 +263,21 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
 }
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
-    t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
+    t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->userdata;
     t_config *config = (t_config *) mg_user_data->config;
-    
+    (void)fn_data;    
     switch(ev) {
         case MG_EV_ACCEPT: {
             //check acl
             if (sdslen(config->acl) > 0) {
                 uint32_t remote_ip = ntohl(nc->peer.ip);
-                
-                //ntohl(*(uint32_t *) &nc->sa.sin.sin_addr);
                 int allowed = http_check_ip_acl(config->acl, remote_ip);
                 if (allowed == -1) {
                     MYMPD_LOG_ERROR("ACL malformed");
                 }
                 if (allowed != 1) {
-                    //nc->flags |= MG_F_SEND_AND_CLOSE;
-                    send_error(nc, 403, "Request blocked by ACL");
                     nc->is_draining = 1;
+                    send_error(nc, 403, "Request blocked by ACL");
                     break;
                 }
             }
@@ -303,38 +299,36 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             MYMPD_LOG_INFO("HTTP request (%d): %.*s", (intptr_t)nc->fn_data, (int)hm->uri.len, hm->uri.ptr);
 
             if (mg_http_match_uri(hm, "/ws/")) {
-                mg_ws_upgrade(nc, hm);
+                mg_ws_upgrade(nc, hm, NULL);
                 MYMPD_LOG_INFO("New Websocket connection established (%d)", (intptr_t)nc->fn_data);
-                sds response = jsonrpc_start_notify(sdsempty(), "welcome");
-                response = tojson_char(response, "mympdVersion", MYMPD_VERSION, false);
-                response = jsonrpc_end_notify(response);
+                sds response = jsonrpc_notify(sdsempty(), "webserver", "info", "welcome "MYMPD_VERSION);
                 mg_ws_send(nc, response, sdslen(response), WEBSOCKET_OP_TEXT);
                 sdsfree(response);
             }
             else if (mg_http_match_uri(hm, "/api/script")) {
                 if (config->remotescripting == false) {
-                    nc->flags |= MG_F_SEND_AND_CLOSE;
+                    nc->is_draining = 1;
                     send_error(nc, 403, "Remote scripting is disabled");
                     break;
                 }
                 if (sdslen(config->scriptacl) > 0) {
                     uint32_t remote_ip = ntohl(nc->peer.ip);
-                    int allowed = mg_check_ip_acl(config->scriptacl, remote_ip);
+                    int allowed = http_check_ip_acl(config->scriptacl, remote_ip);
                     if (allowed == -1) {
                         MYMPD_LOG_ERROR("ACL malformed");
                     }
                     if (allowed != 1) {
+                        nc->is_draining = 1;
                         send_error(nc, 403, "Request blocked by ACL");
-                        uint32_t remote_ip = ntohl(nc->peer.ip);
                         break;
                     }
                 }
-                bool rc = handle_script_api((intptr_t)nc->user_data, hm);
+                bool rc = handle_script_api((intptr_t)nc->fn_data, hm);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Invalid script API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
                         "script", "error", "Invalid script API request");
-                    mg_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
+                    http_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
                     mg_send(nc, response, sdslen(response));
                     sdsfree(response);
                 }
@@ -342,24 +336,24 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             else if (mg_http_match_uri(hm, "/api/serverinfo")) {
                 struct sockaddr_in localip;
                 socklen_t len = sizeof(localip);
-                if (getsockname(nc->sock, (struct sockaddr *)&localip, &len) == 0) {
+                if (getsockname((long)nc->fd, (struct sockaddr *)&localip, &len) == 0) {
                     sds response = jsonrpc_result_start(sdsempty(), "", 0);
                     response = tojson_char(response, "version", MG_VERSION, true);
                     response = tojson_char(response, "ip", inet_ntoa(localip.sin_addr), false);
                     response = jsonrpc_result_end(response);
-                    mg_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
+                    http_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
                     mg_send(nc, response, sdslen(response));
                     sdsfree(response);
                 }
             }
             else if (mg_http_match_uri(hm, "/api")) {
                 //api request
-                bool rc = handle_api((intptr_t)nc->user_data, hm);
+                bool rc = handle_api((intptr_t)nc->fn_data, hm);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Invalid API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
                         "general", "error", "Invalid API request");
-                    mg_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
+                    http_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
                     mg_send(nc, response, sdslen(response));
                     sdsfree(response);
                 }
@@ -369,7 +363,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 if (config->custom_cert == false) {
                     //deliver ca certificate
                     sds ca_file = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->varlibdir);
-                    mg_http_serve_file(nc, hm, ca_file, mg_mk_str("application/x-x509-ca-cert"), mg_mk_str(""));
+                    mg_http_serve_file(nc, hm, ca_file, "application/x-x509-ca-cert", NULL);
                     sdsfree(ca_file);
                 }
                 else {
@@ -378,10 +372,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             #endif
             else if (mg_http_match_uri(hm, "/albumart")) {
-                handle_albumart(nc, hm, mg_user_data, config, (intptr_t)nc->user_data);
+                handle_albumart(nc, hm, mg_user_data, config, (intptr_t)nc->fn_data);
             }
             else if (mg_http_match_uri(hm, "/tagpics")) {
-                handle_tagpics(nc, hm, mg_user_data, config, (intptr_t)nc->user_data);
+                handle_tagpics(nc, hm, mg_user_data, config, (intptr_t)nc->fn_data);
             }
             else if (mg_http_match_uri(hm, "/browse")) {
                 if (config->publish == false) {
@@ -392,35 +386,38 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
                 else {
                     //serve directory
-                    static struct mg_serve_http_opts s_http_server_opts;
-                    s_http_server_opts.document_root = mg_user_data->browse_document_root;
+                    static struct mg_http_serve_opts s_http_server_opts;
+                    s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+                    /*
                     if (config->webdav == true) {
                         s_http_server_opts.dav_document_root = mg_user_data->browse_document_root;
                         s_http_server_opts.dav_auth_file = "-";
                     }
                     s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
+                    
                     s_http_server_opts.enable_directory_listing = "yes";
-                    s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
                     s_http_server_opts.custom_mime_types = CUSTOM_MIME_TYPES;
-                    mg_serve_http(nc, hm, s_http_server_opts);
+                    */
+                    s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
+                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 }
             }
             else if (mg_vcmp(&hm->uri, "/index.html") == 0) {
-                mg_http_send_redirect(nc, 301, mg_mk_str("/"), mg_mk_str(NULL));
+                mg_http_reply(nc, 301, "Location: /\r\n", NULL);
             }
             else if (mg_vcmp(&hm->uri, "/favicon.ico") == 0) {
-                mg_http_send_redirect(nc, 301, mg_mk_str("/assets/favicon.ico"), mg_mk_str(NULL));
+                mg_http_reply(nc, 301, "Location: /assets/favicon.ico\r\n", NULL);
             }
             else {
                 //all other uris
                 #ifdef DEBUG
                 //serve all files from filesystem
-                static struct mg_serve_http_opts s_http_server_opts;
-                s_http_server_opts.document_root = DOC_ROOT;
-                s_http_server_opts.enable_directory_listing = "no";
+                static struct mg_http_serve_opts s_http_server_opts;
+                s_http_server_opts.root_dir = DOC_ROOT;
+                //s_http_server_opts.enable_directory_listing = "no";
                 s_http_server_opts.extra_headers = EXTRA_HEADERS;
-                s_http_server_opts.custom_mime_types = CUSTOM_MIME_TYPES;
-                mg_serve_http(nc, hm, s_http_server_opts);
+                //s_http_server_opts.custom_mime_types = CUSTOM_MIME_TYPES;
+                mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 #else
                 //serve embedded files
                 sds uri = sdsnewlen(hm->uri.p, hm->uri.len);
@@ -431,9 +428,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             break;
         }
         case MG_EV_CLOSE: {
-            if (nc->user_data != NULL) {
-                MYMPD_LOG_INFO("HTTP connection %ld closed", (intptr_t)nc->user_data);
-                nc->user_data = NULL;
+            if (nc->fn_data != NULL) {
+                MYMPD_LOG_INFO("HTTP connection %ld closed", (intptr_t)nc->fn_data);
+                nc->fn_data = NULL;
             }
             break;
         }
@@ -445,13 +442,41 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 
 #ifdef ENABLE_SSL
 static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
-    if (ev == MG_EV_HTTP_REQUEST) {
+    (void)fn_data;
+    if (ev == MG_EV_ACCEPT) {
+        t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->userdata;
+        t_config *config = (t_config *) mg_user_data->config;
+        //check acl
+        if (sdslen(config->acl) > 0) {
+            uint32_t remote_ip = ntohl(nc->peer.ip);
+            int allowed = http_check_ip_acl(config->acl, remote_ip);
+            if (allowed == -1) {
+                MYMPD_LOG_ERROR("ACL malformed");
+            }
+            if (allowed != 1) {
+                nc->is_draining = 1;
+                send_error(nc, 403, "Request blocked by ACL");
+                return;
+            }
+        }
+        //increment conn_id
+        if (mg_user_data->conn_id < INT_MAX) {
+            mg_user_data->conn_id++;
+        }
+        else {
+            mg_user_data->conn_id = 1;
+        }
+        //set conn_id
+        nc->fn_data = (void *)(intptr_t)mg_user_data->conn_id;
+        MYMPD_LOG_DEBUG("New connection id %d", (intptr_t)nc->fn_data);
+    }
+    else if (ev == MG_EV_HTTP_MSG) {
         struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-        struct mg_str *host_hdr = mg_get_http_header(hm, "Host");
-        t_mg_user_data *mg_user_data = (t_mg_user_data *) fn_data;
+        struct mg_str *host_hdr = mg_http_get_header(hm, "Host");
+        t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->userdata;
         t_config *config = (t_config *) mg_user_data->config;
             
-        sds host_header = sdscatlen(sdsempty(), host_hdr->p, (int)host_hdr->len);
+        sds host_header = sdscatlen(sdsempty(), host_hdr->ptr, (int)host_hdr->len);
         int count;
         sds *tokens = sdssplitlen(host_header, sdslen(host_header), ":", 1, &count);
             
@@ -459,12 +484,10 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
         if (strcmp(config->ssl_port, "443") != 0) {
             s_redirect = sdscatfmt(s_redirect, ":%s", config->ssl_port);
         }
-        s_redirect = sdscat(s_redirect, "/");
         MYMPD_LOG_INFO("Redirecting to %s", s_redirect);
-        mg_http_send_redirect(nc, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
+        mg_http_reply(nc, 301, "Location: /", NULL);
         sdsfreesplitres(tokens, count);
         sdsfree(host_header);
-        sdsfree(s_redirect);
     }
 }
 #endif
@@ -475,11 +498,11 @@ static bool handle_api(int conn_id, struct mg_http_message *hm) {
         return false;
     }
     
-    MYMPD_LOG_DEBUG("API request (%d): %.*s", conn_id, hm->body.len, hm->body.p);
+    MYMPD_LOG_DEBUG("API request (%d): %.*s", conn_id, hm->body.len, hm->body.ptr);
     char *cmd = NULL;
     char *jsonrpc = NULL;
     int id = 0;
-    const int je = json_scanf(hm->body.p, hm->body.len, "{jsonrpc: %Q, method: %Q, id: %d}", &jsonrpc, &cmd, &id);
+    const int je = json_scanf(hm->body.ptr, hm->body.len, "{jsonrpc: %Q, method: %Q, id: %d}", &jsonrpc, &cmd, &id);
     if (je < 3) {
         FREE_PTR(cmd);
         FREE_PTR(jsonrpc);
@@ -501,7 +524,7 @@ static bool handle_api(int conn_id, struct mg_http_message *hm) {
         return false;
     }
     
-    sds data = sdscatlen(sdsempty(), hm->body.p, hm->body.len);
+    sds data = sdscatlen(sdsempty(), hm->body.ptr, hm->body.len);
     t_work_request *request = create_request(conn_id, id, cmd_id, cmd, data);
     sdsfree(data);
     
@@ -527,11 +550,11 @@ static bool handle_script_api(int conn_id, struct mg_http_message *hm) {
         return false;
     }
     
-    MYMPD_LOG_DEBUG("Script API request (%d): %.*s", conn_id, hm->body.len, hm->body.p);
+    MYMPD_LOG_DEBUG("Script API request (%d): %.*s", conn_id, hm->body.len, hm->body.ptr);
     char *cmd = NULL;
     char *jsonrpc = NULL;
     long id = 0;
-    const int je = json_scanf(hm->body.p, hm->body.len, "{jsonrpc: %Q, method: %Q, id: %ld}", &jsonrpc, &cmd, &id);
+    const int je = json_scanf(hm->body.ptr, hm->body.len, "{jsonrpc: %Q, method: %Q, id: %ld}", &jsonrpc, &cmd, &id);
     if (je < 3) {
         FREE_PTR(cmd);
         FREE_PTR(jsonrpc);
@@ -553,7 +576,7 @@ static bool handle_script_api(int conn_id, struct mg_http_message *hm) {
         return false;
     }
     
-    sds data = sdscatlen(sdsempty(), hm->body.p, hm->body.len);
+    sds data = sdscatlen(sdsempty(), hm->body.ptr, hm->body.len);
     t_work_request *request = create_request(conn_id, id, cmd_id, cmd, data);
     sdsfree(data);
     tiny_queue_push(mympd_api_queue, request, 0);

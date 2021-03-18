@@ -15,7 +15,7 @@
 // Alternatively, you can license this software under a commercial
 // license, as set out in <https://www.cesanta.com/license>.
 #pragma once
-#define MG_VERSION "7.2"
+#define MG_VERSION "7.3"
 
 
 #define MG_ARCH_CUSTOM 0
@@ -82,7 +82,80 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
-// Standard C headers
+#if !defined(PRINTF_LIKE)
+#if defined(__GNUC__) || defined(__clang__) || defined(__TI_COMPILER_VERSION__)
+#define PRINTF_LIKE(f, a) __attribute__((format(printf, f, a)))
+#else
+#define PRINTF_LIKE(f, a)
+#endif
+#endif
+
+#if MG_ARCH == MG_ARCH_CUSTOM
+#include <mongoose_custom.h>
+#endif
+
+
+
+
+
+
+
+
+#if MG_ARCH == MG_ARCH_ESP32
+
+#include <ctype.h>
+#include <dirent.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <netdb.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <time.h>
+
+#define MG_DIRSEP '/'
+#define MG_INT64_FMT "%lld"
+#ifndef MG_PATH_MAX
+#define MG_PATH_MAX 128
+#endif
+
+#endif
+
+
+#if MG_ARCH == MG_ARCH_ESP8266
+
+#include <ctype.h>
+#include <dirent.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <netdb.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <time.h>
+
+#include <esp_system.h>
+
+#define MG_DIRSEP '/'
+#define MG_INT64_FMT "%lld"
+
+#endif
+
+
+#if MG_ARCH == MG_ARCH_FREERTOS
+
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -96,53 +169,6 @@
 #include <sys/types.h>
 #include <time.h>
 
-#if MG_ARCH == MG_ARCH_CUSTOM
-#include <mongoose_custom.h>
-#endif
-
-
-
-
-
-
-
-#if !defined(PRINTF_LIKE)
-#if defined(__GNUC__) || defined(__clang__) || defined(__TI_COMPILER_VERSION__)
-#define PRINTF_LIKE(f, a) __attribute__((format(printf, f, a)))
-#else
-#define PRINTF_LIKE(f, a)
-#endif
-#endif
-
-
-#if MG_ARCH == MG_ARCH_ESP32
-
-#include <dirent.h>
-#include <netdb.h>
-#include <sys/stat.h>
-#define MG_DIRSEP '/'
-#define MG_INT64_FMT "%lld"
-#ifndef MG_PATH_MAX
-#define MG_PATH_MAX 128
-#endif
-
-#endif
-
-
-#if MG_ARCH == MG_ARCH_ESP8266
-
-#include <dirent.h>
-#include <esp_system.h>
-#include <netdb.h>
-#include <stdbool.h>
-#include <sys/time.h>
-#define MG_DIRSEP '/'
-#define MG_INT64_FMT "%lld"
-
-#endif
-
-
-#if MG_ARCH == MG_ARCH_FREERTOS
 #include <FreeRTOS.h>
 
 #include <task.h>
@@ -211,17 +237,30 @@ static inline int ff_vfprintf(FF_FILE *fp, const char *fmt, va_list ap) {
 #define _DARWIN_UNLIMITED_SELECT 1
 
 #include <arpa/inet.h>
+#include <ctype.h>
 #include <dirent.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <inttypes.h>
+#include <limits.h>
 #include <netdb.h>
 #include <netinet/tcp.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/select.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
+
 #define MG_DIRSEP '/'
 #define MG_ENABLE_POSIX 1
 #define MG_INT64_FMT "%" PRId64
@@ -230,6 +269,19 @@ static inline int ff_vfprintf(FF_FILE *fp, const char *fmt, va_list ap) {
 
 
 #if MG_ARCH == MG_ARCH_WIN32
+
+#include <ctype.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <time.h>
 
 #if defined(_MSC_VER) && _MSC_VER < 1700
 #define __func__ ""
@@ -290,9 +342,7 @@ typedef int socklen_t;
 #define MG_ENABLE_LWIP 0
 #endif
 
-#if MG_ENABLE_LWIP
-#define MG_ENABLE_SOCKET 0
-#elif !defined(MG_ENABLE_SOCKET)
+#ifndef MG_ENABLE_SOCKET
 #define MG_ENABLE_SOCKET 1
 #endif
 
@@ -326,6 +376,11 @@ typedef int socklen_t;
 
 #ifndef MG_ENABLE_MD5
 #define MG_ENABLE_MD5 0
+#endif
+
+// Set MG_ENABLE_WINSOCK=0 for Win32 builds with external IP stack (like LWIP)
+#ifndef MG_ENABLE_WINSOCK
+#define MG_ENABLE_WINSOCK 1
 #endif
 
 #ifndef MG_ENABLE_DIRECTORY_LISTING
@@ -407,7 +462,7 @@ struct mg_timer {
 #define MG_TIMER_REPEAT 1   // Call function periodically, otherwise run once
 #define MG_TIMER_RUN_NOW 2  // Call immediately when timer is set
   void (*fn)(void *);       // Function to call
-  void *arg;                // Function agrument
+  void *arg;                // Function argument
   unsigned long expire;     // Expiration timestamp in milliseconds
   struct mg_timer *next;    // Linkage in g_timers list
 };
@@ -422,7 +477,7 @@ void mg_timer_poll(unsigned long uptime_ms);
 
 
 
-char *mg_file_read(const char *path);
+char *mg_file_read(const char *path, size_t *size);
 int64_t mg_file_size(const char *path);
 bool mg_file_write(const char *path, const void *buf, size_t len);
 bool mg_file_printf(const char *path, const char *fmt, ...);
@@ -627,7 +682,7 @@ struct mg_connection {
   struct mg_iobuf recv;        // Incoming data
   struct mg_iobuf send;        // Outgoing data
   mg_event_handler_t fn;       // User-specified event handler function
-  void *fn_data;               // User-speficied function parameter
+  void *fn_data;               // User-specified function parameter
   mg_event_handler_t pfn;      // Protocol-specific handler function
   void *pfn_data;              // Protocol-specific function parameter
   char label[50];              // Arbitrary label
@@ -635,7 +690,7 @@ struct mg_connection {
   unsigned is_listening : 1;   // Listening connection
   unsigned is_client : 1;      // Outbound (client) connection
   unsigned is_accepted : 1;    // Accepted (server) connection
-  unsigned is_resolving : 1;   // Non-blocking DNS resolv is in progress
+  unsigned is_resolving : 1;   // Non-blocking DNS resolution is in progress
   unsigned is_connecting : 1;  // Non-blocking connect is in progress
   unsigned is_tls : 1;         // TLS-enabled connection
   unsigned is_tls_hs : 1;      // TLS handshake is in progress
@@ -688,8 +743,16 @@ struct mg_http_message {
 
 // Parameter for mg_http_serve_dir()
 struct mg_http_serve_opts {
-  const char *root_dir;     // Web root directory, must be non-NULL
-  const char *ssi_pattern;  // SSI filename pattern, e.g. #.shtml
+  const char *root_dir;       // Web root directory, must be non-NULL
+  const char *ssi_pattern;    // SSI file name pattern, e.g. #.shtml
+  const char *extra_headers;  // Extra HTTP headers to add in responses
+};
+
+// Parameter for mg_http_next_multipart
+struct mg_http_part {
+  struct mg_str name;      // Form field name
+  struct mg_str filename;  // Filename for file uploads
+  struct mg_str body;      // Part contents
 };
 
 int mg_http_parse(const char *s, size_t len, struct mg_http_message *);
@@ -717,6 +780,8 @@ bool mg_http_match_uri(const struct mg_http_message *, const char *glob);
 int mg_http_upload(struct mg_connection *, struct mg_http_message *hm,
                    const char *dir);
 void mg_http_bauth(struct mg_connection *, const char *user, const char *pass);
+struct mg_str mg_http_get_header_var(struct mg_str s, struct mg_str v);
+size_t mg_http_next_multipart(struct mg_str, size_t, struct mg_http_part *);
 
 
 void mg_http_serve_ssi(struct mg_connection *c, const char *root,

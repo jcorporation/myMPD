@@ -86,7 +86,7 @@ void send_error(struct mg_connection *nc, int code, const char *msg) {
         "<p>%s</p>"
         "</body></html>",
         msg);
-    mg_send_head(nc, code, sdslen(errorpage), "Content-Type: text/html");
+    http_send_head(nc, code, sdslen(errorpage), "Content-Type: text/html");
     mg_send(nc, errorpage, sdslen(errorpage));
     sdsfree(errorpage);
     if (code >= 400) {
