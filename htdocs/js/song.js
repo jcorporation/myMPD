@@ -230,8 +230,8 @@ function getLyrics(uri, el) {
                 else {
                     ht = i;
                 }
-                lyricsHeader += '<label data-num="' + i + '" class="btn btn-sm btn-outline-secondary mr-2' + (i === 0 ? ' active' : '') + '" title="' + 
-                    (obj.result.data[i].synced === true ? t('Synced lyrics') : t('Unsynced lyrics')) + '">' + ht + '</label>';
+                lyricsHeader += '<label data-num="' + i + '" class="btn btn-sm btn-outline-secondary mr-2 lyricsChangeButton' + (i === 0 ? ' active' : '') + '" title="' + 
+                    (obj.result.data[i].synced === true ? t('Synced lyrics') : t('Unsynced lyrics')) + ': ' + e(ht) + '">' + e(ht) + '</label>';
                 lyrics += '<div class="lyricsText ' + (i > 0 ? 'hide' : '') + (obj.result.data[i].synced === true ? 'lyricsSyncedText' : '') + 
                     (clickable === true ? '' : ' fullHeight') + '">' +
                     (obj.result.data[i].synced === true ? parseSyncedLyrics(obj.result.data[i].text, clickable) : e(obj.result.data[i].text).replace(/\n/g, "<br/>")) + 
