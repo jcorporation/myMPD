@@ -1845,3 +1845,9 @@ Standardbild Dunkel
 
 No script selected
 Kein Skript ausgewählt
+
+Synced lyrics
+Synchronisierter Liedtext
+
+Unsynced lyrics
+Liedtext
