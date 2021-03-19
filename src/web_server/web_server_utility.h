@@ -37,6 +37,7 @@ typedef struct t_mg_user_data {
     bool feat_library;
     bool feat_mpd_albumart;
     int conn_id;
+    int connection_count;
 } t_mg_user_data;
 
 #ifndef DEBUG

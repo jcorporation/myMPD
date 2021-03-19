@@ -58,6 +58,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_user_data->conn_id = 1;
     mg_user_data->feat_library = false;
     mg_user_data->feat_mpd_albumart = false;
+    mg_user_data->connection_count = 0;
 
     //init monogoose mgr
     mg_mgr_init(mgr);
@@ -245,6 +246,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
     (void)fn_data;    
     switch(ev) {
         case MG_EV_ACCEPT: {
+            //check connection count
+            if (mg_user_data->connection_count > 100) {
+                nc->is_draining = 1;
+                send_error(nc, 429, "Concurrent connections limit exceeded");
+            }
             //check acl
             if (sdslen(config->acl) > 0) {
                 uint32_t remote_ip = ntohl(nc->peer.ip);
@@ -281,7 +287,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             //set conn_id
             nc->fn_data = (void *)(intptr_t)mg_user_data->conn_id;
-            MYMPD_LOG_DEBUG("New connection id %d", (intptr_t)nc->fn_data);
+            mg_user_data->connection_count++;
+            MYMPD_LOG_DEBUG("New connection id %d, connections %d", (intptr_t)nc->fn_data, mg_user_data->connection_count);
             break;
         }
         case MG_EV_HTTP_MSG: {
@@ -360,7 +367,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             #endif
             else if (mg_http_match_uri(hm, "/albumart/#")) {
-                MYMPD_LOG_WARN("Albumart request");
                 handle_albumart(nc, hm, mg_user_data, config, (intptr_t)nc->fn_data);
             }
             else if (mg_http_match_uri(hm, "/pics/#")) {
@@ -430,6 +436,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 MYMPD_LOG_INFO("HTTP connection %ld closed", (intptr_t)nc->fn_data);
                 nc->fn_data = NULL;
             }
+            mg_user_data->connection_count--;
             break;
         }
     }
