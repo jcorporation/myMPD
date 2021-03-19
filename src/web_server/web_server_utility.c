@@ -23,14 +23,14 @@ bool rm_mk_dir(sds dir_name, bool create) {
     if (create == true) { 
         int rc = mkdir(dir_name, 0700);
         if (rc != 0 && errno != EEXIST) {
-            MYMPD_LOG_ERROR("Can not create directory %s: %s", dir_name, strerror(errno));
+            MYMPD_LOG_ERROR("Can not create directory \"%s\": %s", dir_name, strerror(errno));
             return false;
         }
     }
     else { 
         int rc = rmdir(dir_name);
         if (rc != 0 && errno != ENOENT) {
-            MYMPD_LOG_ERROR("Can not remove directory %s: %s", dir_name, strerror(errno));
+            MYMPD_LOG_ERROR("Can not remove directory \"%s\": %s", dir_name, strerror(errno));
             return false;
         }
     }
@@ -137,7 +137,7 @@ void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, con
         serve_embedded_files(nc, asset_image, hm);
         #endif
     }
-    MYMPD_LOG_DEBUG("Serving file %s (%s)", asset_image, mime_type);
+    MYMPD_LOG_DEBUG("Serving file \"%s\" (%s)", asset_image, mime_type);
     sdsfree(asset_image);
     sdsfree(mime_type);
 }
@@ -221,7 +221,7 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_mess
         return true;
     }
     else {
-        sds errormsg = sdscatfmt(sdsempty(), "Embedded asset %s not found", uri);
+        sds errormsg = sdscatfmt(sdsempty(), "Embedded asset \"%s\" not found", uri);
         send_error(nc, 404, errormsg);
         sdsfree(errormsg);
     }
