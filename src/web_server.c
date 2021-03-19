@@ -374,7 +374,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 MYMPD_LOG_DEBUG("Setting document root to \"%s\"", mg_user_data->pics_document_root);
                 static struct mg_http_serve_opts s_http_server_opts;
                 s_http_server_opts.root_dir = mg_user_data->pics_document_root;
-                s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
+                s_http_server_opts.enable_directory_listing = 0;
+                s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
                 hm->uri = mg_str_strip_parent(&hm->uri, 1);
                 mg_http_serve_dir(nc, hm, &s_http_server_opts);
             }
@@ -385,6 +386,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
                 static struct mg_http_serve_opts s_http_server_opts;
                 s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
+                s_http_server_opts.enable_directory_listing = 1;
                 if (mg_http_match_uri(hm, "/browse/")) {
                     s_http_server_opts.root_dir = mg_user_data->browse_document_root;
                     hm->uri = mg_str_strip_parent(&hm->uri, 1);
@@ -419,7 +421,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 //serve all files from filesystem
                 static struct mg_http_serve_opts s_http_server_opts;
                 s_http_server_opts.root_dir = DOC_ROOT;
-                //s_http_server_opts.enable_directory_listing = "no";
+                s_http_server_opts.enable_directory_listing = 0;
                 s_http_server_opts.extra_headers = EXTRA_HEADERS;
                 mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 #else

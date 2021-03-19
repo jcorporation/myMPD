@@ -1163,7 +1163,12 @@ void mg_http_serve_dir(struct mg_connection *c, struct mg_http_message *hm,
 #endif
       if (is_index && fp == NULL) {
 #if MG_ENABLE_DIRECTORY_LISTING
-        listdir(c, hm, opts, t2);
+        if (opts->enable_directory_listing == 1) {
+          listdir(c, hm, opts, t2);
+        }
+        else {
+          mg_http_reply(c, 403, "", "%s", "Directory listing disabled");
+        }
 #else
         mg_http_reply(c, 403, "", "%s", "Directory listing not supported");
 #endif
