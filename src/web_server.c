@@ -59,10 +59,10 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_user_data->feat_library = false;
     mg_user_data->feat_mpd_albumart = false;
 
-    mgr->userdata = mg_user_data;
-    
     //init monogoose mgr
+    
     mg_mgr_init(mgr);
+    mgr->userdata = mg_user_data;
     
     //bind to http_port
     struct mg_connection *nc_http;
@@ -96,15 +96,6 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
             mg_mgr_free(mgr);
             return false;
         } 
-        struct mg_tls_opts tls_opts;
-        tls_opts.cert = config->ssl_cert;
-        tls_opts.certkey = config->ssl_key;
-        if (mg_tls_init(nc_https, &tls_opts) == 0) {
-            MYMPD_LOG_ERROR("Can't init tls with cert %s and key %s", config->ssl_cert, config->ssl_key);
-            mg_mgr_free(mgr);
-            return false;
-        }
-        
         MYMPD_LOG_NOTICE("Listening on https://%s:%s", config->http_host, config->ssl_port);
         MYMPD_LOG_DEBUG("Using certificate: %s", config->ssl_cert);
         MYMPD_LOG_DEBUG("Using private key: %s", config->ssl_key);
@@ -121,36 +112,43 @@ void web_server_free(void *arg_mgr) {
 
 void *web_server_loop(void *arg_mgr) {
     thread_logname = sdsreplace(thread_logname, "webserver");
-
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
-    t_mg_user_data *mg_user_data = (t_mg_user_data *) mgr->conns->fn_data;
+    switch(loglevel) {
+        case 7:
+            mg_log_set("3");
+            break;
+        case 6:
+        case 5:
+            mg_log_set("2");
+            break;
+        default:
+            mg_log_set("1");
+    }
+    t_mg_user_data *mg_user_data = (t_mg_user_data *) mgr->userdata;
     sds last_notify = sdsempty();
     time_t last_time = 0;
     while (s_signal_received == 0) {
-        unsigned web_server_queue_length = tiny_queue_length(web_server_queue, 50);
-        if (web_server_queue_length > 0) {
-            t_work_result *response = tiny_queue_shift(web_server_queue, 50, 0);
-            if (response != NULL) {
-                if (response->conn_id == -1) {
-                    //internal message
-                    parse_internal_message(response, mg_user_data);
-                }
-                else if (response->conn_id == 0) {
-                    //websocket notify from mpd idle
-                    time_t now = time(NULL);
-                    if (strcmp(response->data, last_notify) != 0 || last_time < now - 1) {
-                        last_notify = sdsreplace(last_notify, response->data);
-                        last_time = now;
-                        send_ws_notify(mgr, response);
-                    } 
-                    else {
-                        free_result(response);                    
-                    }
+        t_work_result *response = tiny_queue_shift(web_server_queue, 50, 0);
+        if (response != NULL) {
+            if (response->conn_id == -1) {
+                //internal message
+                parse_internal_message(response, mg_user_data);
+            }
+            else if (response->conn_id == 0) {
+                //websocket notify from mpd idle
+                time_t now = time(NULL);
+                if (strcmp(response->data, last_notify) != 0 || last_time < now - 1) {
+                    last_notify = sdsreplace(last_notify, response->data);
+                    last_time = now;
+                    send_ws_notify(mgr, response);
                 } 
                 else {
-                    //api response
-                    send_api_response(mgr, response);
+                    free_result(response);                    
                 }
+            } 
+            else {
+                //api response
+                send_api_response(mgr, response);
             }
         }
         //webserver polling
@@ -281,6 +279,17 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     break;
                 }
             }
+            //ssl support
+            if (config->ssl == true) {
+                struct mg_tls_opts tls_opts;
+                tls_opts.cert = config->ssl_cert;
+                tls_opts.certkey = config->ssl_key;
+                if (mg_tls_init(nc, &tls_opts) == 0) {
+                    MYMPD_LOG_ERROR("Can't init tls with cert %s and key %s", config->ssl_cert, config->ssl_key);
+                    return;
+                }
+            }
+
             //increment conn_id
             if (mg_user_data->conn_id < INT_MAX) {
                 mg_user_data->conn_id++;
