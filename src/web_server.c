@@ -424,7 +424,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 #else
                 //serve embedded files
-                sds uri = sdsnewlen(hm->uri.p, hm->uri.len);
+                sds uri = sdsnewlen(hm->uri.ptr, hm->uri.len);
                 serve_embedded_files(nc, uri, hm);
                 sdsfree(uri);
                 #endif

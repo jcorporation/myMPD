@@ -178,9 +178,9 @@ createassets() {
   # shellcheck disable=SC2013
   for F in $(grep -E '<!--debug-->\s+<script' htdocs/index.html | cut -d\" -f2)
   do
-    [ "$F" = "bootstrap-native.js" ] && continue;
-    [ "$F" = "i18n.js" ] && continue;
-    [ "$F" = "long-press-event.js" ] && continue;
+    [ "$F" = "js/bootstrap-native.js" ] && continue;
+    [ "$F" = "js/i18n.js" ] && continue;
+    [ "$F" = "js/long-press-event.js" ] && continue;
     JSSRCFILES="$JSSRCFILES htdocs/$F"
     if tail -1 "htdocs/$F" | perl -npe 'exit 1 if m/\n/; exit 0'
     then

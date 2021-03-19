@@ -197,20 +197,21 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_mess
     if (p->uri != NULL) {
         //respond with error if browser don't support compression and asset is compressed
         if (p->compressed == true) {
-            struct mg_str *header_encoding = mg_get_http_header(hm, "Accept-Encoding");
-            if (header_encoding == NULL || mg_strstr(mg_mk_str_n(header_encoding->p, header_encoding->len), mg_mk_str("gzip")) == NULL) {
-                send_error(nc, 406, "Browser don't support gzip compression");
+            struct mg_str *header_encoding = mg_http_get_header(hm, "Accept-Encoding");
+            if (header_encoding == NULL || mg_strstr(*header_encoding, mg_str_n("gzip", 4)) == NULL) {
+                nc->is_draining = 1;
+                send_error(nc, 406, "Browser does not support gzip compression");
                 return false;
             }
         }
         //send header
         mg_printf(nc, "HTTP/1.1 200 OK\r\n"
-                      EXTRA_HEADERS"\r\n"
+                      EXTRA_HEADERS
                       "%s"
                       "Content-Length: %u\r\n"
                       "Content-Type: %s\r\n"
                       "%s\r\n",
-                      (p->cache == true ? EXTRA_HEADERS_CACHE"\r\n" : ""),
+                      (p->cache == true ? EXTRA_HEADERS_CACHE : ""),
                       p->size,
                       p->mimetype,
                       (p->compressed == true ? "Content-Encoding: gzip\r\n" : "")
