@@ -136,7 +136,7 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
             rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
             if (rc != 0) {
                 if (rc != ETIMEDOUT) {
-                    MYMPD_LOG_ERROR("Error in pthread_cond_timedwait: %s - %s", rc, strerror(errno));
+                    MYMPD_LOG_ERROR("Error in pthread_cond_timedwait: %d - %s", rc, strerror(errno));
                     MYMPD_LOG_ERROR("Max wait: %llu", (unsigned long long)max_wait.tv_nsec);
                 }
                 rc = pthread_mutex_unlock(&queue->mutex);
