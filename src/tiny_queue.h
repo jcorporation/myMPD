@@ -20,9 +20,10 @@ typedef struct tiny_queue_t {
     struct tiny_msg_t *tail;
     pthread_mutex_t mutex;
     pthread_cond_t wakeup;
+    const char *name;
 } tiny_queue_t;
 
-tiny_queue_t *tiny_queue_create(void);
+tiny_queue_t *tiny_queue_create(const char *name);
 void tiny_queue_free(tiny_queue_t *queue);
 int tiny_queue_push(struct tiny_queue_t *queue, void *data, long id);
 void *tiny_queue_shift(struct tiny_queue_t *queue, int timeout, long id);

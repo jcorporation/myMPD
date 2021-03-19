@@ -24,6 +24,23 @@ static int parse_net(const char *spec, uint32_t *net, uint32_t *mask);
 static int isbyte(int n);
 
 //public functions
+struct mg_str mg_str_strip_parent(struct mg_str *path, int count) {
+    //removes parent dir
+    int i = 0;
+    count++;
+    while (path->len > 0) {
+        if (path->ptr[0] == '/') {
+            i++;
+            if (i == count) {
+                break;
+            }
+        }
+        path->len--;
+        path->ptr++;
+    }
+    return *path;
+}
+
 int mg6_check_ip_acl(const char *acl, uint32_t remote_ip) {
     int allowed, flag;
     uint32_t net, mask;

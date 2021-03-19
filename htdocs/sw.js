@@ -25,7 +25,7 @@ const ignoreRequests = new RegExp('(' + [
   subdir + '/api',
   subdir + '/ca.crt',
   subdir + '/ws',
-  subdir + '/tagpics/(.*)',
+  subdir + '/pics/(.*)',
   subdir + '/albumart/(.*)',
   subdir + '/browse/(.*)'].join('(/?)|\\') + ')$');
 

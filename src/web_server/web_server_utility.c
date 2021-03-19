@@ -97,6 +97,13 @@ void http_send_header_ok(struct mg_connection *nc, size_t len, const char *heade
       headers, len);
 }
 
+void http_send_header_redirect(struct mg_connection *nc, const char *location) {
+    mg_printf(nc, "HTTP/1.1 301 Moved Permanently\r\n"
+      "Location: %s\r\n"
+      "Content-Length: 0\r\n\r\n", 
+      location);
+}
+
 void serve_na_image(struct mg_connection *nc, struct mg_http_message *hm) {
     serve_asset_image(nc, hm, "coverimage-notavailable");
 }

@@ -816,6 +816,10 @@ static const char *guess_content_type(const char *filename) {
              MIME_ENTRY("bmp", "image/bmp"),
              MIME_ENTRY("bin", "application/octet-stream"),
              MIME_ENTRY("wasm", "application/wasm"),
+             MIME_ENTRY("manifest", "application/manifest+json"),
+             MIME_ENTRY("woff2", "application/font-woff"),
+             MIME_ENTRY("tiff", "image/tiff"),
+             MIME_ENTRY("webp", "image/webp"),
              {NULL, 0, NULL},
          };
 
@@ -1046,6 +1050,17 @@ static void listdir(struct mg_connection *c, struct mg_http_message *hm,
       "srt(tb, sc, so, true);"
       "}"
       "</script>";
+  
+  static const char *css_code =
+      "h1{top:0;font-size:inherit;font-weight:inherit}address{bottom:0;font-style:normal}"
+      "h1,address{background-color:#343a40;color:#f8f9fa;padding:1rem;position:fixed;"
+      "box-sizing:border-box;width:100%;margin-top:0}body{margin:5rem 0;background-color:#f7f7f7;"
+      "color:#212529;font-family:sans-serif;font-size:1rem;font-weight:400;line-height:1.5}"
+      "table{border-collapse:collapse;margin:1rem}th{border-bottom:2px solid #dee2e6;"
+      "border-top:1px solid #dee2e6;text-align:left;padding:.3rem;font-family:inherit}"
+      "td{text-align:left;padding:.3rem;font-family:inherit;border-bottom:1px solid #dee2e6}"
+      "td:last-child{text-align:right}a,a:visited,a:active{color:#212529;text-decoration:none}"
+      "a:hover{text-decoration:underline}";
 
   while (p > dir && *p != '/') *p-- = '\0';
   if ((dirp = (opendir(dir))) != NULL) {
@@ -1059,17 +1074,15 @@ static void listdir(struct mg_connection *c, struct mg_http_message *hm,
     off = c->send.len;  // Start of body
     mg_printf(c,
               "<!DOCTYPE html><html><head><title>Index of %.*s</title>%s%s"
-              "<style>th,td {text-align: left; padding-right: 1em; "
-              "font-family: monospace; }</style></head>"
-              "<body><h1>Index of %.*s</h1><table cellpadding=\"0\"><thead>"
+              "<style>%s</style></head>"
+              "<body><h1>Index of %.*s</h1><table><thead>"
               "<tr><th><a href=\"#\" rel=\"0\">Name</a></th><th>"
               "<a href=\"#\" rel=\"1\">Modified</a></th>"
               "<th><a href=\"#\" rel=\"2\">Size</a></th></tr>"
-              "<tr><td colspan=\"3\"><hr></td></tr>"
               "</thead>"
               "<tbody id=\"tb\">\n",
               (int) hm->uri.len, hm->uri.ptr, sort_js_code, sort_js_code2,
-              (int) hm->uri.len, hm->uri.ptr);
+              css_code, (int) hm->uri.len, hm->uri.ptr);
 
     while ((dp = readdir(dirp)) != NULL) {
       mg_stat_t st;
@@ -1087,8 +1100,8 @@ static void listdir(struct mg_connection *c, struct mg_http_message *hm,
     }
     closedir(dirp);
     mg_printf(c,
-              "</tbody><tfoot><tr><td colspan=\"3\"><hr></td></tr></tfoot>"
-              "</table><address>Mongoose v.%s</address></body></html>\n",
+              "</tbody>"
+              "</table><address>myMPD</body></html>\n",
               MG_VERSION);
     n = snprintf(tmp, sizeof(tmp), "%lu", (unsigned long) (c->send.len - off));
     memcpy(c->send.buf + off - 10, tmp, n);  // Set content length

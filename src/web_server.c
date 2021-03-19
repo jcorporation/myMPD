@@ -51,16 +51,15 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_user_data->config = config;
     mg_user_data->browse_document_root = sdscatfmt(sdsempty(), "%s/empty", config->varlibdir);
     mg_user_data->pics_document_root = sdscatfmt(sdsempty(), "%s/pics", config->varlibdir);
+    mg_user_data->smartpls_document_root = sdscatfmt(sdsempty(), "%s/smartpls", config->varlibdir);
     mg_user_data->music_directory = sdsempty();
     mg_user_data->playlist_directory = sdsempty();
-    mg_user_data->rewrite_patterns = sdsempty();
     mg_user_data->coverimage_names= split_coverimage_names(config->coverimage_name, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
     mg_user_data->conn_id = 1;
     mg_user_data->feat_library = false;
     mg_user_data->feat_mpd_albumart = false;
 
     //init monogoose mgr
-    
     mg_mgr_init(mgr);
     mgr->userdata = mg_user_data;
     
@@ -68,7 +67,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     struct mg_connection *nc_http;
     sds http_url = sdscatfmt(sdsempty(), "http://%s:%s", config->http_host, config->http_port);
     #ifdef ENABLE_SSL
-    if (config->ssl == true && config->redirect == true) {
+    if (config->ssl == true) {
         nc_http = mg_http_listen(mgr, http_url, ev_handler_redirect, NULL);
     }
     else {
@@ -89,7 +88,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     #ifdef ENABLE_SSL
     if (config->ssl == true) {
         sds https_url = sdscatfmt(sdsempty(), "https://%s:%s", config->http_host, config->ssl_port);
-        struct mg_connection *nc_https = mg_http_listen(mgr, https_url, ev_handler_redirect, NULL);
+        struct mg_connection *nc_https = mg_http_listen(mgr, https_url, ev_handler, NULL);
         sdsfree(https_url);
         if (nc_https == NULL) {
             MYMPD_LOG_ERROR("Can't bind to https://%s:%s", config->http_host, config->ssl_port);
@@ -113,17 +112,10 @@ void web_server_free(void *arg_mgr) {
 void *web_server_loop(void *arg_mgr) {
     thread_logname = sdsreplace(thread_logname, "webserver");
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
-    switch(loglevel) {
-        case 7:
-            mg_log_set("3");
-            break;
-        case 6:
-        case 5:
-            mg_log_set("2");
-            break;
-        default:
-            mg_log_set("1");
-    }
+    
+    //set mongoose loglevel
+    mg_log_set("1");
+    
     t_mg_user_data *mg_user_data = (t_mg_user_data *) mgr->userdata;
     sds last_notify = sdsempty();
     time_t last_time = 0;
@@ -132,9 +124,11 @@ void *web_server_loop(void *arg_mgr) {
         if (response != NULL) {
             if (response->conn_id == -1) {
                 //internal message
+                MYMPD_LOG_DEBUG("Got internal message");
                 parse_internal_message(response, mg_user_data);
             }
             else if (response->conn_id == 0) {
+                MYMPD_LOG_DEBUG("Got websocket notify");
                 //websocket notify from mpd idle
                 time_t now = time(NULL);
                 if (strcmp(response->data, last_notify) != 0 || last_time < now - 1) {
@@ -147,6 +141,7 @@ void *web_server_loop(void *arg_mgr) {
                 }
             } 
             else {
+                MYMPD_LOG_DEBUG("Got API response for id \"%ld\"", response->conn_id);
                 //api response
                 send_api_response(mgr, response);
             }
@@ -167,7 +162,7 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
     bool feat_library;
     bool feat_mpd_albumart;
     bool rc = false;
-    t_config *config = (t_config *) mg_user_data->config;
+    //t_config *config = (t_config *) mg_user_data->config;
     
     int je = json_scanf(response->data, sdslen(response->data), "{playlistDirectory: %Q, musicDirectory: %Q, coverimageName: %Q, featLibrary: %B, featMpdAlbumart: %B}", 
         &p_charbuf3, &p_charbuf1, &p_charbuf2, &feat_library, &feat_mpd_albumart);
@@ -178,26 +173,6 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
         mg_user_data->coverimage_names = split_coverimage_names(p_charbuf2, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
         mg_user_data->feat_library = feat_library;
         mg_user_data->feat_mpd_albumart = feat_mpd_albumart;
-        
-        mg_user_data->rewrite_patterns = sdscrop(mg_user_data->rewrite_patterns);
-        if (config->publish == true) {
-            mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, "/browse/pics=%s/pics", config->varlibdir);
-            if (config->smartpls == true) {
-                mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, ",/browse/smartplaylists=%s/smartpls", config->varlibdir);
-            }
-            if (feat_library == true) {
-                mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, ",/browse/music=%s", mg_user_data->music_directory);
-            }
-            if (sdslen(mg_user_data->playlist_directory) > 0) {
-                mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, ",/browse/playlists=%s", mg_user_data->playlist_directory);
-            }
-            mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, ",/browse=%s/empty", config->varlibdir);
-            if (config->readonly == false) {
-                //maintain directory structure in empty directory
-                manage_emptydir(config->varlibdir, true, config->smartpls, feat_library, (sdslen(mg_user_data->playlist_directory) > 0 ? true : false));
-            }
-        }
-        MYMPD_LOG_DEBUG("Setting rewrite_patterns to %s", mg_user_data->rewrite_patterns);
         rc = true;
     }
     else {
@@ -216,6 +191,8 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
     int i = 0;
     while (nc != NULL) {
         if (nc->is_websocket == 0) {
+            //skip none websocket connections
+            nc = nc->next;
             continue;
         }
         i++;
@@ -238,6 +215,8 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
     struct mg_connection *nc = mgr->conns;
     while (nc != NULL) {
         if (nc->is_websocket == 1) {
+            //skip websocket connections
+            nc = nc->next;
             continue;
         }
         if (nc->fn_data != NULL) {
@@ -281,12 +260,15 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             //ssl support
             if (config->ssl == true) {
-                struct mg_tls_opts tls_opts;
-                tls_opts.cert = config->ssl_cert;
-                tls_opts.certkey = config->ssl_key;
+                MYMPD_LOG_DEBUG("Init tls with cert %s and key %s", config->ssl_cert, config->ssl_key);
+                struct mg_tls_opts tls_opts = {
+                    .cert = config->ssl_cert,
+                    .certkey = config->ssl_key
+                };
                 if (mg_tls_init(nc, &tls_opts) == 0) {
-                    MYMPD_LOG_ERROR("Can't init tls with cert %s and key %s", config->ssl_cert, config->ssl_key);
-                    return;
+                    MYMPD_LOG_ERROR("Can not init tls with cert %s and key %s", config->ssl_cert, config->ssl_key);
+                    nc->is_closing = 1;
+                    break;
                 }
             }
 
@@ -310,7 +292,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             if (mg_http_match_uri(hm, "/ws/")) {
                 mg_ws_upgrade(nc, hm, NULL);
                 MYMPD_LOG_INFO("New Websocket connection established (%d)", (intptr_t)nc->fn_data);
-                sds response = jsonrpc_notify(sdsempty(), "webserver", "info", "welcome "MYMPD_VERSION);
+                sds response = jsonrpc_event(sdsempty(), "welcome");
                 mg_ws_send(nc, response, sdslen(response), WEBSOCKET_OP_TEXT);
                 sdsfree(response);
             }
@@ -377,50 +359,53 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
             }
             #endif
-            else if (mg_http_match_uri(hm, "/albumart")) {
+            else if (mg_http_match_uri(hm, "/albumart/#")) {
+                MYMPD_LOG_WARN("Albumart request");
                 handle_albumart(nc, hm, mg_user_data, config, (intptr_t)nc->fn_data);
             }
-            else if (mg_http_match_uri(hm, "/pics")) {
+            else if (mg_http_match_uri(hm, "/pics/#")) {
                 //serve directory
+                MYMPD_LOG_DEBUG("Setting document root to \"%s\"", mg_user_data->pics_document_root);
                 static struct mg_http_serve_opts s_http_server_opts;
-                s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+                s_http_server_opts.root_dir = mg_user_data->pics_document_root;
                 s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
-                /*
-                s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
-                s_http_server_opts.custom_mime_types = CUSTOM_MIME_TYPES;
-                */
+                hm->uri = mg_str_strip_parent(&hm->uri, 1);
                 mg_http_serve_dir(nc, hm, &s_http_server_opts);
             }
-            else if (mg_http_match_uri(hm, "/browse")) {
+            else if (mg_http_match_uri(hm, "/browse/#")) {
                 if (config->publish == false) {
                     send_error(nc, 403, "Publishing of directories is disabled");
+                    break;
                 }
-                else if (config->webdav == false && mg_vcmp(&hm->method, "GET") == 1 && mg_vcmp(&hm->method, "HEAD") == 1) {
-                    send_error(nc, 405, "Method not allowed (webdav is disabled)");
-                }
-                else {
-                    //serve directory
-                    static struct mg_http_serve_opts s_http_server_opts;
+                static struct mg_http_serve_opts s_http_server_opts;
+                s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
+                if (mg_http_match_uri(hm, "/browse/")) {
                     s_http_server_opts.root_dir = mg_user_data->browse_document_root;
-                    /*
-                    if (config->webdav == true) {
-                        s_http_server_opts.dav_document_root = mg_user_data->browse_document_root;
-                        s_http_server_opts.dav_auth_file = "-";
-                    }
-                    s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
-                    
-                    s_http_server_opts.enable_directory_listing = "yes";
-                    s_http_server_opts.custom_mime_types = CUSTOM_MIME_TYPES;
-                    */
-                    s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
-                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
+                    hm->uri = mg_str_strip_parent(&hm->uri, 1);
                 }
+                else if (mg_http_match_uri(hm, "/browse/pics/#")) {
+                    s_http_server_opts.root_dir = mg_user_data->pics_document_root;
+                    hm->uri = mg_str_strip_parent(&hm->uri, 2);
+                }
+                else if (mg_http_match_uri(hm, "/browse/smartplaylists/#")) {
+                    s_http_server_opts.root_dir = mg_user_data->smartpls_document_root;
+                    hm->uri = mg_str_strip_parent(&hm->uri, 2);
+                }
+                else if (mg_http_match_uri(hm, "/browse/playlists/#")) {
+                    s_http_server_opts.root_dir = mg_user_data->playlist_directory;
+                    hm->uri = mg_str_strip_parent(&hm->uri, 2);
+                }
+                else if (mg_http_match_uri(hm, "/browse/music/#")) {
+                    s_http_server_opts.root_dir = mg_user_data->music_directory;
+                    hm->uri = mg_str_strip_parent(&hm->uri, 2);
+                }
+                mg_http_serve_dir(nc, hm, &s_http_server_opts);
             }
             else if (mg_vcmp(&hm->uri, "/index.html") == 0) {
-                mg_http_reply(nc, 301, "Location: /\r\n", NULL);
+                http_send_header_redirect(nc, "/");
             }
             else if (mg_vcmp(&hm->uri, "/favicon.ico") == 0) {
-                mg_http_reply(nc, 301, "Location: /assets/favicon.ico\r\n", NULL);
+                http_send_header_redirect(nc, "/assets/favicon.ico");
             }
             else {
                 //all other uris
@@ -430,7 +415,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 s_http_server_opts.root_dir = DOC_ROOT;
                 //s_http_server_opts.enable_directory_listing = "no";
                 s_http_server_opts.extra_headers = EXTRA_HEADERS;
-                //s_http_server_opts.custom_mime_types = CUSTOM_MIME_TYPES;
                 mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 #else
                 //serve embedded files
@@ -446,9 +430,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 MYMPD_LOG_INFO("HTTP connection %ld closed", (intptr_t)nc->fn_data);
                 nc->fn_data = NULL;
             }
-            break;
-        }
-        default: {
             break;
         }
     }
@@ -499,9 +480,10 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
             s_redirect = sdscatfmt(s_redirect, ":%s", config->ssl_port);
         }
         MYMPD_LOG_INFO("Redirecting to %s", s_redirect);
-        mg_http_reply(nc, 301, "Location: /", NULL);
+        http_send_header_redirect(nc, s_redirect);
         sdsfreesplitres(tokens, count);
         sdsfree(host_header);
+        sdsfree(s_redirect);
     }
 }
 #endif

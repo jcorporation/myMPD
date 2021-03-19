@@ -25,4 +25,5 @@
 int mg6_check_ip_acl(const char *acl, uint32_t remote_ip);
 void mg6_send_head(struct mg_connection *c, int status_code,
                   int64_t content_length, const char *extra_headers);
+struct mg_str mg_str_strip_parent(struct mg_str *path, int count);
 #endif
