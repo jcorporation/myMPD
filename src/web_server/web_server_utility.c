@@ -57,18 +57,16 @@ void manage_emptydir(sds varlibdir, bool pics, bool smartplaylists, bool music, 
 
 //create an empty dummy message struct, used for async responses
 void populate_dummy_hm(struct mg_http_message *hm) {
-    hm->message = mg_mk_str("");
-    hm->body = mg_mk_str("");
-    hm->method = mg_mk_str("GET");
-    hm->uri = mg_mk_str("");
-    hm->proto = mg_mk_str("HTTP/1.1");
-    hm->resp_code = 200;
-    hm->resp_status_msg = mg_mk_str("OK");
-    hm->query_string = mg_mk_str("");
+    hm->message = mg_str("");
+    hm->body = mg_str("");
+    hm->method = mg_str("GET");
+    hm->uri = mg_str("");
+    hm->query = mg_str("");
+    hm->proto = mg_str("HTTP/1.1");
     //add accept-encoding header to deliver gziped embedded files
     //browsers without gzip support are not supported by myMPD
-    hm->header_names[0] = mg_mk_str("Accept-Encoding");
-    hm->header_values[0] = mg_mk_str("gzip");
+    hm->headers[0].name = mg_str("Accept-Encoding");
+    hm->headers[0].value = mg_str("gzip");
 }
 
 sds *split_coverimage_names(const char *coverimage_name, sds *coverimage_names, int *count) {
@@ -86,12 +84,17 @@ void send_error(struct mg_connection *nc, int code, const char *msg) {
         "<p>%s</p>"
         "</body></html>",
         msg);
-    http_send_head(nc, code, sdslen(errorpage), "Content-Type: text/html");
-    mg_send(nc, errorpage, sdslen(errorpage));
-    sdsfree(errorpage);
+    mg_http_reply(nc, code, "Content-Type: text/html\n\n", errorpage);
     if (code >= 400) {
         MYMPD_LOG_ERROR(msg);
     }
+}
+
+void http_send_header_ok(struct mg_connection *nc, size_t len, const char *headers) {
+    mg_printf(nc, "HTTP/1.1 200 OK\r\n"
+      "%s"
+      "Content-Length: %d\r\n\r\n",
+      headers, len);
 }
 
 void serve_na_image(struct mg_connection *nc, struct mg_http_message *hm) {
@@ -103,7 +106,7 @@ void serve_stream_image(struct mg_connection *nc, struct mg_http_message *hm) {
 }
 
 void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, const char *name) {
-    t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
+    t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->userdata;
     t_config *config = (t_config *) mg_user_data->config;
     
     sds asset_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, name);
@@ -113,14 +116,14 @@ void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, con
     }
     if (config->custom_placeholder_images == true && sdslen(asset_image) > 0) {
         mime_type = get_mime_type_by_ext(asset_image);
-        mg_http_serve_file(nc, hm, asset_image, mg_mk_str(mime_type), mg_mk_str(""));
+        mg_http_serve_file(nc, hm, asset_image, mime_type, EXTRA_HEADERS_CACHE);
     }
     else {
         asset_image = sdscrop(asset_image);
         #ifdef DEBUG
         asset_image = sdscatfmt(asset_image, "%s/assets/%s.svg", DOC_ROOT, name);
         mime_type = get_mime_type_by_ext(asset_image);
-        mg_http_serve_file(nc, hm, asset_image, mg_mk_str("image/svg+xml"), mg_mk_str(""));
+        mg_http_serve_file(nc, hm, asset_image, "image/svg+xml", EXTRA_HEADERS_CACHE);
         #else
         asset_image = sdscatfmt(asset_image, "/assets/%s.svg", name);
         mime_type = sdsempty();
@@ -133,37 +136,7 @@ void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, con
 }
 
 void serve_plaintext(struct mg_connection *nc, const char *text) {
-    size_t len = strlen(text);
-    mg_send_head(nc, 200, len, "Content-Type: text/plain");
-    mg_send(nc, text, len);
-}
-
-void http_send_head(struct mg_connection *nc, int code, size_t len, const char *headers) {
-    mg_printf(c, "HTTP/1.1 %d OK\r\n"
-                 "%s\r\n"
-                 "Content-Length: %d\r\n\r\n",
-              code, headers, len);
-}
-
-int http_check_ip_acl(const char *acl, uint32_t remote_ip) {
-    int allowed, flag;
-    uint32_t net, mask;
-    struct mg_str vec;
-
-    // If any ACL is set, deny by default
-    allowed = (acl == NULL || *acl == '\0') ? '+' : '-';
-
-    while ((acl = mg_next_comma_list_entry(acl, &vec, NULL)) != NULL) {
-        flag = vec.p[0];
-        if ((flag != '+' && flag != '-') || parse_net(&vec.p[1], &net, &mask) == 0) {
-            return -1;
-        }
-
-        if (net == (remote_ip & mask)) {
-            allowed = flag;
-        }
-    }
-    return allowed == '+';
+    mg_http_reply(nc, 200, "Content-Type: text/plain\r\n", text);
 }
 
 #ifndef DEBUG

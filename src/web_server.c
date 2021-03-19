@@ -17,6 +17,7 @@
 
 #include "../dist/src/sds/sds.h"
 #include "../dist/src/mongoose/mongoose.h"
+#include "../dist/src/mongoose/mongoose_compat.h"
 #include "../dist/src/frozen/frozen.h"
 
 #include "sds_extras.h"
@@ -29,7 +30,6 @@
 #include "global.h"
 #include "web_server/web_server_utility.h"
 #include "web_server/web_server_albumart.h"
-#include "web_server/web_server_tagpics.h"
 #include "web_server.h"
 
 //private definitions
@@ -50,6 +50,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
     mg_user_data->browse_document_root = sdscatfmt(sdsempty(), "%s/empty", config->varlibdir);
+    mg_user_data->pics_document_root = sdscatfmt(sdsempty(), "%s/pics", config->varlibdir);
     mg_user_data->music_directory = sdsempty();
     mg_user_data->playlist_directory = sdsempty();
     mg_user_data->rewrite_patterns = sdsempty();
@@ -248,8 +249,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
                     send_albumart(nc, response->data, response->binary);
                 }
                 else {
-                    http_send_head(nc, 200, sdslen(response->data), "Content-Type: application/json");
-                    mg_send(nc, response->data, sdslen(response->data));
+                    mg_http_reply(nc, 200, "Content-Type: application/json\r\n", response->data);
                 }
                 break;
             }
@@ -271,7 +271,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             //check acl
             if (sdslen(config->acl) > 0) {
                 uint32_t remote_ip = ntohl(nc->peer.ip);
-                int allowed = http_check_ip_acl(config->acl, remote_ip);
+                int allowed = mg6_check_ip_acl(config->acl, remote_ip);
                 if (allowed == -1) {
                     MYMPD_LOG_ERROR("ACL malformed");
                 }
@@ -313,7 +313,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
                 if (sdslen(config->scriptacl) > 0) {
                     uint32_t remote_ip = ntohl(nc->peer.ip);
-                    int allowed = http_check_ip_acl(config->scriptacl, remote_ip);
+                    int allowed = mg6_check_ip_acl(config->scriptacl, remote_ip);
                     if (allowed == -1) {
                         MYMPD_LOG_ERROR("ACL malformed");
                     }
@@ -328,8 +328,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     MYMPD_LOG_ERROR("Invalid script API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
                         "script", "error", "Invalid script API request");
-                    http_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
-                    mg_send(nc, response, sdslen(response));
+                    mg_http_reply(nc, 200, "Content-Type: application/json\r\n", response);
                     sdsfree(response);
                 }
             }
@@ -341,8 +340,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     response = tojson_char(response, "version", MG_VERSION, true);
                     response = tojson_char(response, "ip", inet_ntoa(localip.sin_addr), false);
                     response = jsonrpc_result_end(response);
-                    http_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
-                    mg_send(nc, response, sdslen(response));
+                    mg_http_reply(nc, 200, "Content-Type: application/json\r\n", response);
                     sdsfree(response);
                 }
             }
@@ -353,8 +351,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     MYMPD_LOG_ERROR("Invalid API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
                         "general", "error", "Invalid API request");
-                    http_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
-                    mg_send(nc, response, sdslen(response));
+                    mg_http_reply(nc, 200, "Content-Type: application/json\r\n", response);
                     sdsfree(response);
                 }
             }
@@ -374,8 +371,16 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             else if (mg_http_match_uri(hm, "/albumart")) {
                 handle_albumart(nc, hm, mg_user_data, config, (intptr_t)nc->fn_data);
             }
-            else if (mg_http_match_uri(hm, "/tagpics")) {
-                handle_tagpics(nc, hm, mg_user_data, config, (intptr_t)nc->fn_data);
+            else if (mg_http_match_uri(hm, "/pics")) {
+                //serve directory
+                static struct mg_http_serve_opts s_http_server_opts;
+                s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+                s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
+                /*
+                s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
+                s_http_server_opts.custom_mime_types = CUSTOM_MIME_TYPES;
+                */
+                mg_http_serve_dir(nc, hm, &s_http_server_opts);
             }
             else if (mg_http_match_uri(hm, "/browse")) {
                 if (config->publish == false) {
@@ -449,7 +454,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
         //check acl
         if (sdslen(config->acl) > 0) {
             uint32_t remote_ip = ntohl(nc->peer.ip);
-            int allowed = http_check_ip_acl(config->acl, remote_ip);
+            int allowed = mg6_check_ip_acl(config->acl, remote_ip);
             if (allowed == -1) {
                 MYMPD_LOG_ERROR("ACL malformed");
             }

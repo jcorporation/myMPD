@@ -170,7 +170,7 @@ set_property(SOURCE ${MYMPD_SRC_FILES6} PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS}")
 set_property(SOURCE dist/src/frozen/frozen.c PROPERTY COMPILE_FLAGS "-Wno-stringop-overflow")
 
 #compiler flags for mongoose
-set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-truncation ${MONGOOSE_FLAGS}")
+set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-unused-result ${MONGOOSE_FLAGS}")
 
 #linker flags
 set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
@@ -230,8 +230,8 @@ set(SOURCES
   src/web_server.c
   src/web_server/web_server_utility.c
   src/web_server/web_server_albumart.c
-  src/web_server/web_server_tagpics.c
   dist/src/mongoose/mongoose.c
+  dist/src/mongoose/mongoose_compat.c
   dist/src/frozen/frozen.c
   dist/src/inih/ini.c
   dist/src/sds/sds.c

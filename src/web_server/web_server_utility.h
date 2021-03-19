@@ -13,7 +13,7 @@
                           "media-src *; frame-ancestors *; base-uri 'none';\r\n"\
                           "X-Content-Type-Options: nosniff\r\n"\
                           "X-XSS-Protection: 1; mode=block\r\n"\
-                          "X-Frame-Options: deny"
+                          "X-Frame-Options: deny\r\n"
 
 #define EXTRA_HEADERS "Content-Security-Policy: default-src 'none'; "\
                       "style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; "\
@@ -21,15 +21,16 @@
                       "media-src *; frame-ancestors *; base-uri 'none';\r\n"\
                       "X-Content-Type-Options: nosniff\r\n"\
                       "X-XSS-Protection: 1; mode=block\r\n"\
-                      "X-Frame-Options: deny"
+                      "X-Frame-Options: deny\r\n"
 
-#define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800"
+#define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800\r\n"
 
 #define CUSTOM_MIME_TYPES ".html=text/html; charset=utf-8,.manifest=application/manifest+json,.woff2=application/font-woff,.tiff=image/tiff"
 
 typedef struct t_mg_user_data {
     void *config; //pointer to mympd config
     sds browse_document_root;
+    sds pics_document_root;
     sds music_directory;
     sds playlist_directory;
     sds rewrite_patterns;
@@ -52,6 +53,5 @@ void serve_plaintext(struct mg_connection *nc, const char *text);
 void serve_stream_image(struct mg_connection *nc, struct mg_http_message *hm);
 void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, const char *name);
 void populate_dummy_hm(struct mg_http_message *hm);
-void http_send_head(struct mg_connection *nc, int code, size_t len, const char *headers);
-int http_check_ip_acl(const char *acl, uint32_t remote_ip);
+void http_send_header_ok(struct mg_connection *nc, size_t len, const char *headers);
 #endif
