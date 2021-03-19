@@ -333,7 +333,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             else if (mg_http_match_uri(hm, "/api/serverinfo")) {
                 struct sockaddr_in localip;
                 socklen_t len = sizeof(localip);
-                if (getsockname((long)nc->fd, (struct sockaddr *)&localip, &len) == 0) {
+                if (getsockname((int)(long)nc->fd, (struct sockaddr *)&localip, &len) == 0) {
                     sds response = jsonrpc_result_start(sdsempty(), "", 0);
                     response = tojson_char(response, "version", MG_VERSION, true);
                     response = tojson_char(response, "ip", inet_ntoa(localip.sin_addr), false);
