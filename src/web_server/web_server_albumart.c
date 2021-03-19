@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <assert.h>
 #include <limits.h>
 #include <stdbool.h>
 #include <signal.h>
@@ -12,6 +13,7 @@
 
 #include "../../dist/src/sds/sds.h"
 #include "../../dist/src/mongoose/mongoose.h"
+#include "../../dist/src/mongoose/mongoose_compat.h"
 #include "../../dist/src/frozen/frozen.h"
 #include "../sds_extras.h"
 #include "../api.h"
@@ -47,13 +49,13 @@ void send_albumart(struct mg_connection *nc, sds data, sds binary) {
         MYMPD_LOG_DEBUG("Serving file from memory (%s - %u bytes)", p_charbuf1, sdslen(binary));
         sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", p_charbuf1);
         header = sdscat(header, EXTRA_HEADERS_CACHE);
-        mg_send_head(nc, 200, sdslen(binary), header);
+        http_send_header_ok(nc, sdslen(binary), header);
         mg_send(nc, binary, sdslen(binary));
         sdsfree(header);
     }
     else {
         //create dummy http message and serve not available image
-        struct http_message hm;
+        struct mg_http_message hm;
         populate_dummy_hm(&hm);
         serve_na_image(nc, &hm);
     }
@@ -62,9 +64,9 @@ void send_albumart(struct mg_connection *nc, sds data, sds binary) {
 
 //returns true if an image is served
 //returns false if waiting for mpd_client to handle request
-bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_user_data *mg_user_data, t_config *config, int conn_id) {
+bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm, t_mg_user_data *mg_user_data, t_config *config, int conn_id) {
     //decode uri
-    sds uri_decoded = sdsurldecode(sdsempty(), hm->uri.p, (int)hm->uri.len, 0);
+    sds uri_decoded = sdsurldecode(sdsempty(), hm->uri.ptr, (int)hm->uri.len, 0);
     if (sdslen(uri_decoded) == 0) {
         MYMPD_LOG_ERROR("Failed to decode uri");
         serve_na_image(nc, hm);
@@ -96,7 +98,7 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         if (sdslen(coverfile) > 0) {
             sds mime_type = get_mime_type_by_ext(coverfile);
             MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
-            mg_http_serve_file(nc, hm, coverfile, mg_mk_str(mime_type), mg_mk_str(EXTRA_HEADERS_CACHE));
+            mg_http_serve_file(nc, hm, coverfile, mime_type, EXTRA_HEADERS_CACHE);
             sdsfree(mime_type);
         }
         else {
@@ -121,7 +123,7 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         if (sdslen(covercachefile) > 0) {
             sds mime_type = get_mime_type_by_ext(covercachefile);
             MYMPD_LOG_DEBUG("Serving file %s (%s)", covercachefile, mime_type);
-            mg_http_serve_file(nc, hm, covercachefile, mg_mk_str(mime_type), mg_mk_str(EXTRA_HEADERS_CACHE));
+            mg_http_serve_file(nc, hm, covercachefile, mime_type, EXTRA_HEADERS_CACHE);
             sdsfree(uri_decoded);
             sdsfree(covercachefile);
             sdsfree(mediafile);
@@ -149,7 +151,7 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
                 MYMPD_LOG_DEBUG("Check for cover %s", coverfile);
                 sds mime_type = get_mime_type_by_ext(coverfile);
                 MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
-                mg_http_serve_file(nc, hm, coverfile, mg_mk_str(mime_type), mg_mk_str(EXTRA_HEADERS_CACHE));
+                mg_http_serve_file(nc, hm, coverfile, mime_type, EXTRA_HEADERS_CACHE);
                 sdsfree(uri_decoded);
                 sdsfree(coverfile);
                 sdsfree(mediafile);
@@ -211,7 +213,7 @@ static bool handle_coverextract(struct mg_connection *nc, t_config *config, cons
         sds mime_type = get_mime_type_by_magic_stream(binary);
         sds header = sdscatfmt(sdsempty(), "Content-Type: %s", mime_type);
         header = sdscat(header, EXTRA_HEADERS_CACHE);
-        mg_send_head(nc, 200, sdslen(binary), header);
+        http_send_header_ok(nc, sdslen(binary), header);
         mg_send(nc, binary, sdslen(binary));
         sdsfree(header);
         sdsfree(mime_type);

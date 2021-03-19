@@ -23,14 +23,14 @@ bool rm_mk_dir(sds dir_name, bool create) {
     if (create == true) { 
         int rc = mkdir(dir_name, 0700);
         if (rc != 0 && errno != EEXIST) {
-            MYMPD_LOG_ERROR("Can not create directory %s: %s", dir_name, strerror(errno));
+            MYMPD_LOG_ERROR("Can not create directory \"%s\": %s", dir_name, strerror(errno));
             return false;
         }
     }
     else { 
         int rc = rmdir(dir_name);
         if (rc != 0 && errno != ENOENT) {
-            MYMPD_LOG_ERROR("Can not remove directory %s: %s", dir_name, strerror(errno));
+            MYMPD_LOG_ERROR("Can not remove directory \"%s\": %s", dir_name, strerror(errno));
             return false;
         }
     }
@@ -55,20 +55,18 @@ void manage_emptydir(sds varlibdir, bool pics, bool smartplaylists, bool music, 
     sdsfree(dir_name);
 }
 
-void populate_dummy_hm(struct http_message *hm) {
-    //create an empty dummy message struct, used for async responses
-    hm->message = mg_mk_str("");
-    hm->body = mg_mk_str("");
-    hm->method = mg_mk_str("GET");
-    hm->uri = mg_mk_str("");
-    hm->proto = mg_mk_str("HTTP/1.1");
-    hm->resp_code = 200;
-    hm->resp_status_msg = mg_mk_str("OK");
-    hm->query_string = mg_mk_str("");
+//create an empty dummy message struct, used for async responses
+void populate_dummy_hm(struct mg_http_message *hm) {
+    hm->message = mg_str("");
+    hm->body = mg_str("");
+    hm->method = mg_str("GET");
+    hm->uri = mg_str("");
+    hm->query = mg_str("");
+    hm->proto = mg_str("HTTP/1.1");
     //add accept-encoding header to deliver gziped embedded files
     //browsers without gzip support are not supported by myMPD
-    hm->header_names[0] = mg_mk_str("Accept-Encoding");
-    hm->header_values[0] = mg_mk_str("gzip");
+    hm->headers[0].name = mg_str("Accept-Encoding");
+    hm->headers[0].value = mg_str("gzip");
 }
 
 sds *split_coverimage_names(const char *coverimage_name, sds *coverimage_names, int *count) {
@@ -86,24 +84,36 @@ void send_error(struct mg_connection *nc, int code, const char *msg) {
         "<p>%s</p>"
         "</body></html>",
         msg);
-    mg_send_head(nc, code, sdslen(errorpage), "Content-Type: text/html");
-    mg_send(nc, errorpage, sdslen(errorpage));
-    sdsfree(errorpage);
+    mg_http_reply(nc, code, "Content-Type: text/html\n\n", errorpage);
     if (code >= 400) {
         MYMPD_LOG_ERROR(msg);
     }
 }
 
-void serve_na_image(struct mg_connection *nc, struct http_message *hm) {
+void http_send_header_ok(struct mg_connection *nc, size_t len, const char *headers) {
+    mg_printf(nc, "HTTP/1.1 200 OK\r\n"
+      "%s"
+      "Content-Length: %d\r\n\r\n",
+      headers, len);
+}
+
+void http_send_header_redirect(struct mg_connection *nc, const char *location) {
+    mg_printf(nc, "HTTP/1.1 301 Moved Permanently\r\n"
+      "Location: %s\r\n"
+      "Content-Length: 0\r\n\r\n", 
+      location);
+}
+
+void serve_na_image(struct mg_connection *nc, struct mg_http_message *hm) {
     serve_asset_image(nc, hm, "coverimage-notavailable");
 }
 
-void serve_stream_image(struct mg_connection *nc, struct http_message *hm) {
+void serve_stream_image(struct mg_connection *nc, struct mg_http_message *hm) {
     serve_asset_image(nc, hm, "coverimage-stream");
 }
 
-void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const char *name) {
-    t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
+void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, const char *name) {
+    t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->userdata;
     t_config *config = (t_config *) mg_user_data->config;
     
     sds asset_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, name);
@@ -113,29 +123,27 @@ void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const 
     }
     if (config->custom_placeholder_images == true && sdslen(asset_image) > 0) {
         mime_type = get_mime_type_by_ext(asset_image);
-        mg_http_serve_file(nc, hm, asset_image, mg_mk_str(mime_type), mg_mk_str(""));
+        mg_http_serve_file(nc, hm, asset_image, mime_type, EXTRA_HEADERS_CACHE);
     }
     else {
         asset_image = sdscrop(asset_image);
         #ifdef DEBUG
         asset_image = sdscatfmt(asset_image, "%s/assets/%s.svg", DOC_ROOT, name);
         mime_type = get_mime_type_by_ext(asset_image);
-        mg_http_serve_file(nc, hm, asset_image, mg_mk_str("image/svg+xml"), mg_mk_str(""));
+        mg_http_serve_file(nc, hm, asset_image, "image/svg+xml", EXTRA_HEADERS_CACHE);
         #else
         asset_image = sdscatfmt(asset_image, "/assets/%s.svg", name);
         mime_type = sdsempty();
         serve_embedded_files(nc, asset_image, hm);
         #endif
     }
-    MYMPD_LOG_DEBUG("Serving file %s (%s)", asset_image, mime_type);
+    MYMPD_LOG_DEBUG("Serving file \"%s\" (%s)", asset_image, mime_type);
     sdsfree(asset_image);
     sdsfree(mime_type);
 }
 
 void serve_plaintext(struct mg_connection *nc, const char *text) {
-    size_t len = strlen(text);
-    mg_send_head(nc, 200, len, "Content-Type: text/plain");
-    mg_send(nc, text, len);
+    mg_http_reply(nc, 200, "Content-Type: text/plain\r\n", text);
 }
 
 #ifndef DEBUG
@@ -149,7 +157,7 @@ struct embedded_file {
     const unsigned size;
 };
 
-bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message *hm) {
+bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_message *hm) {
     const struct embedded_file embedded_files[] = {
         {"/", 1, "text/html; charset=utf-8", true, false, index_html_data, index_html_size},
         {"/css/combined.css", 17, "text/css; charset=utf-8", true, false, combined_css_data, combined_css_size},
@@ -189,20 +197,21 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message
     if (p->uri != NULL) {
         //respond with error if browser don't support compression and asset is compressed
         if (p->compressed == true) {
-            struct mg_str *header_encoding = mg_get_http_header(hm, "Accept-Encoding");
-            if (header_encoding == NULL || mg_strstr(mg_mk_str_n(header_encoding->p, header_encoding->len), mg_mk_str("gzip")) == NULL) {
-                send_error(nc, 406, "Browser don't support gzip compression");
+            struct mg_str *header_encoding = mg_http_get_header(hm, "Accept-Encoding");
+            if (header_encoding == NULL || mg_strstr(*header_encoding, mg_str_n("gzip", 4)) == NULL) {
+                nc->is_draining = 1;
+                send_error(nc, 406, "Browser does not support gzip compression");
                 return false;
             }
         }
         //send header
         mg_printf(nc, "HTTP/1.1 200 OK\r\n"
-                      EXTRA_HEADERS"\r\n"
+                      EXTRA_HEADERS
                       "%s"
                       "Content-Length: %u\r\n"
                       "Content-Type: %s\r\n"
                       "%s\r\n",
-                      (p->cache == true ? EXTRA_HEADERS_CACHE"\r\n" : ""),
+                      (p->cache == true ? EXTRA_HEADERS_CACHE : ""),
                       p->size,
                       p->mimetype,
                       (p->compressed == true ? "Content-Encoding: gzip\r\n" : "")
@@ -212,7 +221,7 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message
         return true;
     }
     else {
-        sds errormsg = sdscatfmt(sdsempty(), "Embedded asset %s not found", uri);
+        sds errormsg = sdscatfmt(sdsempty(), "Embedded asset \"%s\" not found", uri);
         send_error(nc, 404, errormsg);
         sdsfree(errormsg);
     }

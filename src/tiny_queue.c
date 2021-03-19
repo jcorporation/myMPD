@@ -18,12 +18,13 @@
 #include "log.h"
 #include "tiny_queue.h"
 
-tiny_queue_t *tiny_queue_create(void) {
+tiny_queue_t *tiny_queue_create(const char *name) {
     struct tiny_queue_t* queue = (struct tiny_queue_t *)malloc(sizeof(struct tiny_queue_t));
     assert(queue);
     queue->head = NULL;
     queue->tail = NULL;
     queue->length = 0;
+    queue->name = name;
 
     queue->mutex  = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
     queue->wakeup = (pthread_cond_t)PTHREAD_COND_INITIALIZER;
@@ -44,6 +45,7 @@ void tiny_queue_free(tiny_queue_t *queue) {
 
 
 int tiny_queue_push(tiny_queue_t *queue, void *data, long id) {
+    MYMPD_LOG_DEBUG("Inserting entry with id \"%ld\" in queue \"%s\"", id, queue->name);
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
@@ -73,6 +75,7 @@ int tiny_queue_push(tiny_queue_t *queue, void *data, long id) {
         MYMPD_LOG_ERROR("Error in pthread_cond_signal: %d", rc);
         return 0;
     }
+    MYMPD_LOG_DEBUG("New length of queue \"%s\" is %d", queue->name, queue->length);
     return 1;
 }
 
@@ -136,7 +139,7 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
             rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
             if (rc != 0) {
                 if (rc != ETIMEDOUT) {
-                    MYMPD_LOG_ERROR("Error in pthread_cond_timedwait: %s - %s", rc, strerror(errno));
+                    MYMPD_LOG_ERROR("Error in pthread_cond_timedwait: %d - %s", rc, strerror(errno));
                     MYMPD_LOG_ERROR("Max wait: %llu", (unsigned long long)max_wait.tv_nsec);
                 }
                 rc = pthread_mutex_unlock(&queue->mutex);
@@ -160,11 +163,13 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
     }
     //queue has entry
     if (queue->head != NULL) {
+        MYMPD_LOG_DEBUG("Reading entry with id \"%ld\" from queue \"%s\"", id, queue->name);
         struct tiny_msg_t *current = NULL;
         struct tiny_msg_t *previous = NULL;
         
         for (current = queue->head; current != NULL; previous = current, current = current->next) {
             if (id == 0 || id == current->id) {
+                MYMPD_LOG_DEBUG("Returning entry with id \"%ld\"", current->id);
                 void *data = current->data;
                 
                 if (previous == NULL) {

@@ -219,7 +219,7 @@ function parseSettings() {
         domCache.body.style.backgroundImage = 'url("' + subdir + settings.bgImage + '")';
     }
     else if (settings.bgImage !== '') {
-        domCache.body.style.backgroundImage = 'url("' + subdir + '/browse/pics/' + settings.bgImage + '")';
+        domCache.body.style.backgroundImage = 'url("' + subdir + '/pics/' + settings.bgImage + '")';
     }
     else {
         domCache.body.style.backgroundImage = '';

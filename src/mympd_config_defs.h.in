@@ -57,7 +57,8 @@ typedef struct t_config {
     sds mpd_host;
     int mpd_port;
     sds mpd_pass;
-    sds webport;
+    sds http_host;
+    sds http_port;
 #ifdef ENABLE_SSL
     bool ssl;
     sds ssl_port;
@@ -65,7 +66,6 @@ typedef struct t_config {
     sds ssl_key;
     bool custom_cert;
     sds ssl_san;
-    bool redirect;
 #endif
     sds user;
     bool stickers;
@@ -120,7 +120,6 @@ typedef struct t_config {
     bool bookmarks;
     int volume_step;
     bool publish;
-    bool webdav;
     int covercache_keep_days;
     bool covercache;
     sds theme;

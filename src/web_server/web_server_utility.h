@@ -13,7 +13,7 @@
                           "media-src *; frame-ancestors *; base-uri 'none';\r\n"\
                           "X-Content-Type-Options: nosniff\r\n"\
                           "X-XSS-Protection: 1; mode=block\r\n"\
-                          "X-Frame-Options: deny"
+                          "X-Frame-Options: deny\r\n"
 
 #define EXTRA_HEADERS "Content-Security-Policy: default-src 'none'; "\
                       "style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; "\
@@ -21,35 +21,37 @@
                       "media-src *; frame-ancestors *; base-uri 'none';\r\n"\
                       "X-Content-Type-Options: nosniff\r\n"\
                       "X-XSS-Protection: 1; mode=block\r\n"\
-                      "X-Frame-Options: deny"
+                      "X-Frame-Options: deny\r\n"
 
-#define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800"
-
-#define CUSTOM_MIME_TYPES ".html=text/html; charset=utf-8,.manifest=application/manifest+json,.woff2=application/font-woff,.tiff=image/tiff"
+#define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800\r\n"
 
 typedef struct t_mg_user_data {
     void *config; //pointer to mympd config
     sds browse_document_root;
+    sds pics_document_root;
     sds music_directory;
+    sds smartpls_document_root;
     sds playlist_directory;
-    sds rewrite_patterns;
     sds *coverimage_names;
     int coverimage_names_len;
     bool feat_library;
     bool feat_mpd_albumart;
     int conn_id;
+    int connection_count;
 } t_mg_user_data;
 
 #ifndef DEBUG
-bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message *hm);
+bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_message *hm);
 #endif
 bool rm_mk_dir(sds dir_name, bool create);
 void manage_emptydir(sds varlibdir, bool pics, bool smartplaylists, bool music, bool playlists);
 sds *split_coverimage_names(const char *coverimage_name, sds *coverimage_names, int *count);
 void send_error(struct mg_connection *nc, int code, const char *msg);
-void serve_na_image(struct mg_connection *nc, struct http_message *hm);
+void serve_na_image(struct mg_connection *nc, struct mg_http_message *hm);
 void serve_plaintext(struct mg_connection *nc, const char *text);
-void serve_stream_image(struct mg_connection *nc, struct http_message *hm);
-void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const char *name);
-void populate_dummy_hm(struct http_message *hm);
+void serve_stream_image(struct mg_connection *nc, struct mg_http_message *hm);
+void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, const char *name);
+void populate_dummy_hm(struct mg_http_message *hm);
+void http_send_header_ok(struct mg_connection *nc, size_t len, const char *headers);
+void http_send_header_redirect(struct mg_connection *nc, const char *location);
 #endif
