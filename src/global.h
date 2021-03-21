@@ -36,6 +36,16 @@ typedef struct t_work_result {
     void *extra;
 } t_work_result;
 
+struct set_mg_user_data_request {
+    sds music_directory;
+    sds playlist_directory;
+    sds coverimage_names;
+    bool feat_library;
+    bool feat_mpd_albumart;
+    sds mpd_host;
+    unsigned mpd_stream_port;
+};
+
 t_work_result *create_result(t_work_request *request);
 t_work_result *create_result_new(long long conn_id, long request_id, int cmd_id, const char *method);
 t_work_request *create_request(long long conn_id, long request_id, int cmd_id, const char *method, const char *data);

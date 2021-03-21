@@ -104,9 +104,7 @@ typedef struct t_config {
     sds cols_playback;
     sds cols_queue_last_played;
     sds cols_queue_jukebox;
-    bool localplayer;
-    int stream_port;
-    sds stream_url;
+    unsigned mpd_stream_port;
     bool bg_cover;
     sds bg_color;
     sds bg_css_filter;

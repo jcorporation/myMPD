@@ -25,6 +25,16 @@ static int isbyte(int n);
 static bool rm_mk_dir(sds dir_name, bool create);
 
 //public functions
+void free_mg_user_data(t_mg_user_data *mg_user_data) {
+    sdsfree(mg_user_data->browse_document_root);
+    sdsfree(mg_user_data->pics_document_root);
+    sdsfree(mg_user_data->smartpls_document_root);
+    sdsfree(mg_user_data->music_directory);
+    sdsfree(mg_user_data->playlist_directory);
+    sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
+    sdsfree(mg_user_data->stream_uri);
+}
+
 struct mg_str mg_str_strip_parent(struct mg_str *path, int count) {
     //removes parent dir
     int i = 0;

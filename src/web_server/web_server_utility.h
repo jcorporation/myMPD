@@ -47,6 +47,7 @@ typedef struct t_mg_user_data {
     bool feat_library;
     bool feat_mpd_albumart;
     int connection_count;
+    sds stream_uri;
 } t_mg_user_data;
 
 #ifndef DEBUG
@@ -64,4 +65,5 @@ void http_send_header_ok(struct mg_connection *nc, size_t len, const char *heade
 void http_send_header_redirect(struct mg_connection *nc, const char *location);
 int check_ip_acl(const char *acl, uint32_t remote_ip);
 struct mg_str mg_str_strip_parent(struct mg_str *path, int count);
+void free_mg_user_data(t_mg_user_data *mg_user_data);
 #endif

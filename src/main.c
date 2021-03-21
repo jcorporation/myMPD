@@ -577,12 +577,7 @@ int main(int argc, char **argv) {
     sdsfree(configfile);
     sdsfree(option);
     if (init_mg_user_data == true) {
-        sdsfree(mg_user_data->browse_document_root);
-        sdsfree(mg_user_data->pics_document_root);
-        sdsfree(mg_user_data->smartpls_document_root);
-        sdsfree(mg_user_data->music_directory);
-        sdsfree(mg_user_data->playlist_directory);
-        sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
+        free_mg_user_data(mg_user_data);
     }
     FREE_PTR(mg_user_data);
     if (rc == EXIT_SUCCESS) {

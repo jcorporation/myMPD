@@ -41,6 +41,8 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
 static bool handle_api(long long conn_id, struct mg_http_message *hm);
 static bool handle_script_api(long long conn_id, struct mg_http_message *hm);
+static void mpd_stream_proxy_forward(struct mg_http_message *hm, struct mg_connection *nc);
+static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 
 //public functions
 bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_data) {
@@ -57,6 +59,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_user_data->feat_library = false;
     mg_user_data->feat_mpd_albumart = false;
     mg_user_data->connection_count = 0;
+	mg_user_data->stream_uri = sdsnew("http://localhost:8000");
 
     //init monogoose mgr
     mg_mgr_init(mgr);
@@ -156,32 +159,37 @@ void *web_server_loop(void *arg_mgr) {
 
 //private functions
 static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_user_data) {
-    char *p_charbuf1 = NULL;
-    char *p_charbuf2 = NULL;
-    char *p_charbuf3 = NULL;
-    bool feat_library;
-    bool feat_mpd_albumart;
     bool rc = false;
-    //t_config *config = (t_config *) mg_user_data->config;
-    
-    int je = json_scanf(response->data, sdslen(response->data), "{playlistDirectory: %Q, musicDirectory: %Q, coverimageName: %Q, featLibrary: %B, featMpdAlbumart: %B}", 
-        &p_charbuf3, &p_charbuf1, &p_charbuf2, &feat_library, &feat_mpd_albumart);
-    if (je == 5) {
-        mg_user_data->music_directory = sdsreplace(mg_user_data->music_directory, p_charbuf1);
-        mg_user_data->playlist_directory = sdsreplace(mg_user_data->playlist_directory, p_charbuf3);
+    if (response->extra != NULL) {	
+	    struct set_mg_user_data_request *new_mg_user_data = (struct set_mg_user_data_request *)response->extra;
+        
+        mg_user_data->music_directory = sdsreplace(mg_user_data->music_directory, new_mg_user_data->music_directory);
+        sdsfree(new_mg_user_data->music_directory);
+        
+        mg_user_data->playlist_directory = sdsreplace(mg_user_data->playlist_directory, new_mg_user_data->playlist_directory);
+        sdsfree(new_mg_user_data->playlist_directory);
+        
         sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
-        mg_user_data->coverimage_names = split_coverimage_names(p_charbuf2, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
-        mg_user_data->feat_library = feat_library;
-        mg_user_data->feat_mpd_albumart = feat_mpd_albumart;
+        mg_user_data->coverimage_names = split_coverimage_names(new_mg_user_data->coverimage_names, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
+        sdsfree(new_mg_user_data->coverimage_names);
+        
+        mg_user_data->feat_library = new_mg_user_data->feat_library;
+        mg_user_data->feat_mpd_albumart = new_mg_user_data->feat_mpd_albumart;
+
+        sdsclear(mg_user_data->stream_uri);
+        if (new_mg_user_data->mpd_stream_port != 0) {
+            mg_user_data->stream_uri = sdscatprintf(mg_user_data->stream_uri, "http://%s:%u", 
+                (strncmp(new_mg_user_data->mpd_host, "/", 1) == 0 ? "127.0.0.1" : new_mg_user_data->mpd_host),
+                new_mg_user_data->mpd_stream_port);
+        }
+        sdsfree(new_mg_user_data->mpd_host);
+        
+		FREE_PTR(response->extra);
         rc = true;
     }
     else {
-        MYMPD_LOG_WARN("Unknown internal message: %s", response->data);
-        rc = false;
+        MYMPD_LOG_WARN("Invalid internal message: %s", response->data);
     }
-    FREE_PTR(p_charbuf1);
-    FREE_PTR(p_charbuf2);
-    FREE_PTR(p_charbuf3);
     free_result(response);
     return rc;
 }
@@ -221,10 +229,40 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
     free_result(response);
 }
 
+// Reverse proxy
+static void mpd_stream_proxy_forward(struct mg_http_message *hm, struct mg_connection *nc) {
+    mg_printf(nc, "%.*s\r\n", (int) (hm->proto.ptr + hm->proto.len - hm->message.ptr), hm->message.ptr);
+    mg_send(nc, "\r\n", 2);
+    mg_send(nc, hm->body.ptr, hm->body.len);
+}
+
+static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
+    struct mg_connection *frontend_nc = fn_data;
+    switch(ev) {
+        case MG_EV_READ:
+            //forward incoming data from backend to frontend
+            mg_send(frontend_nc, nc->recv.buf, nc->recv.len);
+            mg_iobuf_delete(&nc->recv, nc->recv.len);
+            break;
+        case MG_EV_CLOSE: {
+            MYMPD_LOG_INFO("Backend HTTP connection %lu closed", nc->id);
+            //close frontend connection
+            if (frontend_nc != NULL) {
+                frontend_nc->is_closing = 1;
+            }
+            //remove backend connection pointer from frontend connection
+            frontend_nc->fn_data = NULL;
+            break;
+        }    
+    }
+	(void) ev_data;
+}
+
+// Event handler
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
+    struct mg_connection *backend_nc = fn_data;
     t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->userdata;
     t_config *config = (t_config *) mg_user_data->config;
-    (void)fn_data;    
     switch(ev) {
         case MG_EV_ACCEPT: {
             //check connection count
@@ -265,10 +303,39 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         }
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-
             MYMPD_LOG_INFO("HTTP request (%lu): %.*s", nc->id, (int)hm->uri.len, hm->uri.ptr);
-
-            if (mg_http_match_uri(hm, "/ws/")) {
+            
+            if (mg_http_match_uri(hm, "/stream/")) {
+                if (sdslen(mg_user_data->stream_uri) == 0) {
+                    nc->is_draining = 1;
+                    send_error(nc, 404, "MPD stream port not configured");
+                    break;
+                }
+                if (backend_nc == NULL) {
+                    // Client request, create backend connection Note that we're passing
+                    // client connection `c` as fn_data for the created backend connection.
+                    // This way, we tie together these two connections via `fn_data` pointer:
+                    // client's c->fn_data points to the backend connection, and backend's
+                    // c->fn_data points to the client connection
+					MYMPD_LOG_INFO("Creating new mpd stream proxy backend connection to %s", mg_user_data->stream_uri);
+                    backend_nc = mg_connect(nc->mgr, mg_user_data->stream_uri, mpd_stream_proxy_ev_handler, nc);
+                    nc->fn_data = backend_nc;
+                    if (backend_nc == NULL) {
+						//no backend connection, close frontend connection
+						MYMPD_LOG_WARN("Can not create backend connection to %lu", backend_nc->id);
+                        nc->is_closing = 1;
+                    }
+                }
+                if (backend_nc != NULL) {
+                    //strip path
+                    hm->uri.ptr = "/";
+                    hm->uri.len = 1;
+                    //forward request
+					MYMPD_LOG_INFO("Forwarding client connection %lu to backend connection %lu", nc->id, backend_nc->id);
+                    mpd_stream_proxy_forward(hm, backend_nc);
+                }
+            }
+            else if (mg_http_match_uri(hm, "/ws/")) {
                 mg_ws_upgrade(nc, hm, NULL);
                 MYMPD_LOG_INFO("New Websocket connection established (%lu)", nc->id);
                 sds response = jsonrpc_event(sdsempty(), "welcome");
@@ -409,6 +476,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         case MG_EV_CLOSE: {
             MYMPD_LOG_INFO("HTTP connection %lu closed", nc->id);
             mg_user_data->connection_count--;
+            //close reverse proxy connection
+            if (backend_nc != NULL) {
+                backend_nc->is_closing = 1;
+                //remove pointer to frontend connection
+                backend_nc->fn_data = NULL;
+            }
             break;
         }
     }
