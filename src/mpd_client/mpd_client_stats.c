@@ -243,7 +243,7 @@ static sds mpd_client_put_last_played_obj(t_mpd_client_state *mpd_client_state, 
         if ((entity = mpd_recv_entity(mpd_client_state->mpd_state->conn)) != NULL) {
             const struct mpd_song *song = mpd_entity_get_song(entity);
             buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
-            if (mpd_client_state->feat_sticker == true && mpd_client_state->sticker_cache != NULL) {
+            if (mpd_client_state->mpd_state->feat_stickers == true && mpd_client_state->sticker_cache != NULL) {
                 buffer = sdscatlen(buffer, ",", 1);
                 buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, mpd_song_get_uri(song));
             }

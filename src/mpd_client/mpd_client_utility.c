@@ -41,19 +41,16 @@ bool caches_init(t_mpd_client_state *mpd_client_state) {
         return false;
     }
 
-    if (mpd_client_state->feat_sticker == true || mpd_client_state->mpd_state->feat_tags == true) {
+    if (mpd_client_state->mpd_state->feat_stickers == true || mpd_client_state->mpd_state->feat_tags == true) {
         //push cache building request to mpd_worker thread
-        if (mpd_client_state->feat_sticker == true) {
+        if (mpd_client_state->mpd_state->feat_stickers == true) {
             mpd_client_state->sticker_cache_building = true;
         }
         if (mpd_client_state->mpd_state->feat_tags == true) {
             mpd_client_state->album_cache_building = true;
         }
         t_work_request *request = create_request(-1, 0, MPDWORKER_API_CACHES_CREATE, "MPDWORKER_API_CACHES_CREATE", "");
-        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPDWORKER_API_CACHES_CREATE\",\"params\":{");
-        request->data = tojson_bool(request->data, "featSticker", mpd_client_state->feat_sticker, true);
-        request->data = tojson_bool(request->data, "featTags", mpd_client_state->mpd_state->feat_tags, false);
-        request->data = sdscat(request->data, "}}");
+        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPDWORKER_API_CACHES_CREATE\",\"params\":{}}");
         tiny_queue_push(mpd_worker_queue, request, 0);
     }
     else {

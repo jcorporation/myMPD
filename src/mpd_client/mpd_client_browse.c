@@ -96,7 +96,7 @@ sds mpd_client_put_songdetails(t_mpd_client_state *mpd_client_state, sds buffer,
         return buffer;
     }
     
-    if (mpd_client_state->feat_sticker) {
+    if (mpd_client_state->mpd_state->feat_stickers) {
         buffer = sdscat(buffer, ",");
         buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, uri);
     }
@@ -222,7 +222,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
                     char *filename = strdup(mpd_song_get_uri(song));
                     buffer = tojson_char(buffer, "Filename", basename_uri(filename), false);
                     free(filename);
-                    if (mpd_client_state->feat_sticker) {
+                    if (mpd_client_state->mpd_state->feat_stickers) {
                         buffer = sdscat(buffer, ",");
                         buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, mpd_song_get_uri(song));
                     }
@@ -336,7 +336,7 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
         }
         buffer = sdscat(buffer, "{\"Type\": \"song\",");
         buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
-        if (mpd_client_state->feat_sticker) {
+        if (mpd_client_state->mpd_state->feat_stickers) {
             buffer = sdscat(buffer, ",");
             buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, mpd_song_get_uri(song));
         }

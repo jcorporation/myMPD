@@ -256,7 +256,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             }
             break;
         case MPD_API_LIKE:
-            if (mpd_client_state->feat_sticker == false) {
+            if (mpd_client_state->mpd_state->feat_stickers == false) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "sticker", "error", "MPD stickers are disabled");
                 MYMPD_LOG_ERROR("MPD stickers are disabled");
                 break;

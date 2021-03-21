@@ -40,8 +40,8 @@ void mpd_client_mpd_features(t_config *config, t_mpd_client_state *mpd_client_st
     MYMPD_LOG_NOTICE("MPD protocoll version: %u.%u.%u", mpd_client_state->protocol[0], mpd_client_state->protocol[1], mpd_client_state->protocol[2]);
 
     // Defaults
-    mpd_client_state->feat_sticker = false;
-    mpd_client_state->feat_playlists = false;
+    mpd_client_state->mpd_state->feat_stickers = false;
+    mpd_client_state->mpd_state->feat_playlists = false;
     mpd_client_state->mpd_state->feat_tags = false;
     mpd_client_state->mpd_state->feat_advsearch = false;
     mpd_client_state->feat_fingerprint = false;
@@ -144,11 +144,11 @@ static void mpd_client_feature_commands(t_mpd_client_state *mpd_client_state) {
         while ((pair = mpd_recv_command_pair(mpd_client_state->mpd_state->conn)) != NULL) {
             if (strcmp(pair->value, "sticker") == 0) {
                 MYMPD_LOG_DEBUG("MPD supports stickers");
-                mpd_client_state->feat_sticker = true;
+                mpd_client_state->mpd_state->feat_stickers = true;
             }
             else if (strcmp(pair->value, "listplaylists") == 0) {
                 MYMPD_LOG_DEBUG("MPD supports playlists");
-                mpd_client_state->feat_playlists = true;
+                mpd_client_state->mpd_state->feat_playlists = true;
             }
             else if (strcmp(pair->value, "getfingerprint") == 0) {
                 MYMPD_LOG_DEBUG("MPD supports fingerprint");
@@ -180,18 +180,18 @@ static void mpd_client_feature_commands(t_mpd_client_state *mpd_client_state) {
     mpd_response_finish(mpd_client_state->mpd_state->conn);
     check_error_and_recover2(mpd_client_state->mpd_state, NULL, NULL, 0, false);
     
-    if (mpd_client_state->feat_sticker == false && mpd_client_state->stickers == true) {
+    if (mpd_client_state->mpd_state->feat_stickers == false && mpd_client_state->stickers == true) {
         MYMPD_LOG_WARN("MPD don't support stickers, disabling myMPD feature");
-        mpd_client_state->feat_sticker = false;
+        mpd_client_state->mpd_state->feat_stickers = false;
     }
-    if (mpd_client_state->feat_sticker == true && mpd_client_state->stickers == false) {
-        mpd_client_state->feat_sticker = false;
+    if (mpd_client_state->mpd_state->feat_stickers == true && mpd_client_state->stickers == false) {
+        mpd_client_state->mpd_state->feat_stickers = false;
     }
-    if (mpd_client_state->feat_sticker == false && mpd_client_state->smartpls == true) {
+    if (mpd_client_state->mpd_state->feat_stickers == false && mpd_client_state->smartpls == true) {
         MYMPD_LOG_WARN("Stickers are disabled, disabling smart playlists");
         mpd_client_state->feat_smartpls = false;
     }
-    if (mpd_client_state->feat_playlists == false && mpd_client_state->smartpls == true) {
+    if (mpd_client_state->mpd_state->feat_playlists == false && mpd_client_state->smartpls == true) {
         MYMPD_LOG_WARN("Playlists are disabled, disabling smart playlists");
         mpd_client_state->feat_smartpls = false;
     }

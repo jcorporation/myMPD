@@ -50,8 +50,6 @@ typedef struct t_mpd_client_state {
     time_t set_song_played_time;
     // Features
     const unsigned* protocol;
-    bool feat_sticker;
-    bool feat_playlists;
     bool feat_library;
     bool feat_smartpls;
     bool feat_love;
