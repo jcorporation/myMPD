@@ -237,7 +237,7 @@ sds mpd_client_put_current_song(t_mpd_client_state *mpd_client_state, sds buffer
     buffer = tojson_long(buffer, "currentSongId", mpd_client_state->song_id, true);
     buffer = put_song_tags(buffer, mpd_client_state->mpd_state, &mpd_client_state->mpd_state->mympd_tag_types, song);
 
-    if (mpd_client_state->feat_sticker && mpd_client_state->sticker_cache != NULL) {
+    if (mpd_client_state->mpd_state->feat_stickers && mpd_client_state->sticker_cache != NULL) {
         buffer = sdscat(buffer, ",");
         buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, mpd_song_get_uri(song));
     }

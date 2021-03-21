@@ -8,9 +8,9 @@
 #define __MPD_WORKER_UTILITY_H__
 
 typedef struct t_mpd_worker_state {
-    bool feat_playlists;
     bool smartpls;
     bool feat_smartpls;
+    bool stickers;
     sds smartpls_sort;
     sds smartpls_prefix;
     sds generate_pls_tags;

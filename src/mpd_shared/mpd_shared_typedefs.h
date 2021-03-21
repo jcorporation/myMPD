@@ -49,5 +49,7 @@ typedef struct t_mpd_state {
     bool feat_mpd_searchwindow;
     bool feat_tags;
     bool feat_advsearch;
+    bool feat_stickers;
+    bool feat_playlists;
 } t_mpd_state;
 #endif

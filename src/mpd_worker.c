@@ -30,6 +30,7 @@
 #include "mpd_worker/mpd_worker_utility.h"
 #include "mpd_worker/mpd_worker_api.h"
 #include "mpd_worker/mpd_worker_smartpls.h"
+#include "mpd_worker/mpd_worker_cache.h"
 #include "mpd_worker.h"
 
 //private definitions
@@ -144,6 +145,9 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
             
             mpd_worker_features(mpd_worker_state);
             
+            //update database and sticker cache
+            mpd_worker_cache_init(mpd_worker_state);
+            
             if (!mpd_send_idle_mask(mpd_worker_state->mpd_state->conn, set_idle_mask)) {
                 MYMPD_LOG_ERROR("MPD worker entering idle mode failed");
                 mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
@@ -222,7 +226,7 @@ static void mpd_worker_parse_idle(t_config *config, t_mpd_worker_state *mpd_work
             switch(idle_event) {
                 case MPD_IDLE_DATABASE:
                     mpd_worker_smartpls_update_all(config, mpd_worker_state, false);
-                    //sticker cache and album cache updates are triggered from mpd_client
+                    mpd_worker_cache_init(mpd_worker_state);
                     break;
                 default: {
                     //other idle events not used

@@ -31,26 +31,26 @@
 #include "mpd_worker_cache.h"
 
 //privat definitions
-static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache, bool feat_tags, bool feat_sticker);
+static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache);
 
 //public functions
-bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state, bool feat_tags, bool feat_sticker) {
+bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state) {
     rax *album_cache = NULL;
-    if (feat_tags == true) {
+    if (mpd_worker_state->mpd_state->feat_tags == true) {
         album_cache = raxNew();
     }
     rax *sticker_cache = NULL;
-    if (feat_sticker == true) {
+    if (mpd_worker_state->mpd_state->feat_stickers == true) {
         sticker_cache = raxNew();
     }
     
     bool rc = true;
-    if (feat_tags == true || feat_sticker == true) {
-        rc =_cache_init(mpd_worker_state, album_cache, sticker_cache, feat_tags, feat_sticker);
+    if (mpd_worker_state->mpd_state->feat_tags == true || mpd_worker_state->mpd_state->feat_stickers == true) {
+        rc =_cache_init(mpd_worker_state, album_cache, sticker_cache);
     }
 
     //push album cache building response to mpd_client thread
-    if (feat_tags == true) {
+    if (mpd_worker_state->mpd_state->feat_tags == true) {
         if (rc == true) {
             t_work_request *request = create_request(-1, 0, MPD_API_ALBUMCACHE_CREATED, "MPD_API_ALBUMCACHE_CREATED", "");
             request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMCACHE_CREATED\",\"params\":{}}");
@@ -68,7 +68,7 @@ bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state, bool feat_tags,
     }
 
     //push sticker cache building response to mpd_client thread
-    if (feat_sticker == true) {
+    if (mpd_worker_state->mpd_state->feat_stickers == true) {
         if (rc == true) {
             t_work_request *request2 = create_request(-1, 0, MPD_API_STICKERCACHE_CREATED, "MPD_API_STICKERCACHE_CREATED", "");
             request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_STICKERCACHE_CREATED\",\"params\":{}}");
@@ -88,7 +88,7 @@ bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state, bool feat_tags,
 }
 
 //private functions
-static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache, bool feat_tags, bool feat_sticker) {
+static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache) {
     MYMPD_LOG_INFO("Creating caches");
     unsigned start = 0;
     unsigned end = start + 1000;
@@ -126,7 +126,7 @@ static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, 
         sds key = sdsempty();
         while ((song = mpd_recv_song(mpd_worker_state->mpd_state->conn)) != NULL) {
             //sticker cache
-            if (feat_sticker == true) {
+            if (mpd_worker_state->mpd_state->feat_stickers == true) {
                 const char *uri = mpd_song_get_uri(song);
                 t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
                 assert(sticker);
@@ -135,7 +135,7 @@ static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, 
             }
 
             //album cache
-            if (feat_tags == true) {
+            if (mpd_worker_state->mpd_state->feat_tags == true) {
                 album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, album);
                 artist = mpd_shared_get_tags(song, MPD_TAG_ALBUM_ARTIST, artist);
                 if (strcmp(album, "-") > 0 && strcmp(artist, "-") > 0) {
@@ -168,7 +168,7 @@ static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, 
         end = end + 1000;
     } while (i >= start);
     //get sticker values
-    if (feat_sticker == true) {
+    if (mpd_worker_state->mpd_state->feat_stickers == true) {
         raxIterator iter;
         raxStart(&iter, sticker_cache);
         raxSeek(&iter, "^", NULL, 0);

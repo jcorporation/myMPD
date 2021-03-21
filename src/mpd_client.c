@@ -113,9 +113,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
                 case MPD_IDLE_DATABASE:
                     //database has changed
                     buffer = jsonrpc_event(buffer, "update_database");
-                    //update database caches
-                    caches_init(mpd_client_state);
-                    //smart playlist updates are triggered in the mpd worker thread
+                    //mpd worker initiates all mympd refresh tasks
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
                     buffer = jsonrpc_event(buffer, "update_stored_playlist");
@@ -144,7 +142,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
                         && mpd_client_state->last_song_uri != NULL)
                     {
                         time_t now = time(NULL);
-                        if (mpd_client_state->feat_sticker && mpd_client_state->last_song_end_time > now) {
+                        if (mpd_client_state->mpd_state->feat_stickers && mpd_client_state->last_song_end_time > now) {
                             //last song skipped
                             time_t elapsed = now - mpd_client_state->last_song_start_time;
                             if (elapsed > 10 && mpd_client_state->last_song_start_time > 0 && sdslen(mpd_client_state->last_song_uri) > 0) {
@@ -289,8 +287,6 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
             mpd_client_mpd_features(config, mpd_client_state);
             //set binarylimit
             mpd_client_set_binarylimit(config, mpd_client_state);
-            //update sticker and album cache
-            caches_init(mpd_client_state);
             //set timer for smart playlist update
             mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, mpd_client_state->smartpls_interval, "timer_handler_smartpls_update");
             //jukebox
@@ -369,7 +365,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
                     if (mpd_client_state->last_played_count > 0) {
                         mpd_client_add_song_to_last_played_list(config, mpd_client_state, mpd_client_state->song_id);
                     }
-                    if (mpd_client_state->feat_sticker == true) {
+                    if (mpd_client_state->mpd_state->feat_stickers == true) {
                         mpd_client_sticker_inc_play_count(mpd_client_state, mpd_client_state->song_uri);
                         mpd_client_sticker_last_played(mpd_client_state, mpd_client_state->song_uri);
                     }

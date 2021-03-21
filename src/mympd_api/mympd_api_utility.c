@@ -65,7 +65,8 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     request2->data = tojson_char(request2->data, "generatePlsTags", mympd_state->generate_pls_tags, true);
     request2->data = tojson_char(request2->data, "mpdHost", mympd_state->mpd_host, true);
     request2->data = tojson_char(request2->data, "mpdPass", mympd_state->mpd_pass, true);
-    request2->data = tojson_long(request2->data, "mpdPort", mympd_state->mpd_port, false);
+    request2->data = tojson_long(request2->data, "mpdPort", mympd_state->mpd_port, true);
+    request2->data = tojson_bool(request2->data, "stickers", mympd_state->stickers, false);
     request2->data = sdscat(request2->data, "}}");
     tiny_queue_push(mpd_worker_queue, request2, 0);
 }

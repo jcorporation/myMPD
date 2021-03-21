@@ -37,7 +37,7 @@ static bool mpd_worker_api_settings_set(t_mpd_worker_state *mpd_worker_state, st
 void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void *arg_request) {
     t_work_request *request = (t_work_request*) arg_request;
     bool rc;
-    bool bool_buf1, bool_buf2;
+    bool bool_buf1;
     bool async = false;
     int je;
     char *p_charbuf1 = NULL;
@@ -132,10 +132,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
             }
             break;
         case MPDWORKER_API_CACHES_CREATE:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {featTags: %B, featSticker: %B}}", &bool_buf1, &bool_buf2);
-            if (je == 2) {
-                mpd_worker_cache_init(mpd_worker_state, bool_buf1, bool_buf2);
-            }
+            mpd_worker_cache_init(mpd_worker_state);
             async = true;
             free_request(request);
             free_result(response);
@@ -210,6 +207,9 @@ static bool mpd_worker_api_settings_set(t_mpd_worker_state *mpd_worker_state, st
             *mpd_host_changed = true;
             mpd_worker_state->mpd_state->mpd_port = mpd_port;
         }
+    }
+    else if (strncmp(key->ptr, "stickers", key->len) == 0) {
+        mpd_worker_state->stickers = val->type == JSON_TYPE_TRUE ? true : false;
     }
     else if (strncmp(key->ptr, "smartpls", key->len) == 0) {
         mpd_worker_state->smartpls = val->type == JSON_TYPE_TRUE ? true : false;
