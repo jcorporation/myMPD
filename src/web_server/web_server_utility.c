@@ -20,7 +20,7 @@
 #endif
 
 //private definitions
-static int parse_net(const char *spec, uint32_t *net, uint32_t *mask);
+static int parse_net(struct mg_str *spec, uint32_t *net, uint32_t *mask);
 static int isbyte(int n);
 static bool rm_mk_dir(sds dir_name, bool create);
 
@@ -53,21 +53,19 @@ struct mg_str mg_str_strip_parent(struct mg_str *path, int count) {
 }
 
 int check_ip_acl(const char *acl, uint32_t remote_ip) {
-    int allowed, flag;
     uint32_t net, mask;
     struct mg_str vec;
     struct mg_str acl_str = mg_str(acl);
 
     // If any ACL is set, deny by default
-    allowed = (acl == NULL || *acl == '\0') ? '+' : '-';
+    int allowed = (acl == NULL || *acl == '\0') ? '+' : '-';
 
     while (mg_next_comma_entry(&acl_str, &vec, NULL)) {
-        flag = vec.ptr[0];
-        if ((flag != '+' && flag != '-') || parse_net(&vec.ptr[1], &net, &mask) == 0) {
+        int flag = vec.ptr[0];
+        if ((flag != '+' && flag != '-') || parse_net(&vec, &net, &mask) == false) {
             return -1;
         }
-
-        if (net == (remote_ip & mask)) {
+        if ((net & mask) == (remote_ip & mask)) {
             allowed = flag;
         }
     }
@@ -267,24 +265,23 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_mess
 #endif
 
 //private functions
-static int parse_net(const char *spec, uint32_t *net, uint32_t *mask) {
-  int n, a, b, c, d, slash = 32, len = 0;
-
-  if ((sscanf(spec, "%d.%d.%d.%d/%d%n", &a, &b, &c, &d, &slash, &n) == 5 ||
-       sscanf(spec, "%d.%d.%d.%d%n", &a, &b, &c, &d, &n) == 4) &&
-      isbyte(a) && isbyte(b) && isbyte(c) && isbyte(d) && slash >= 0 &&
-      slash < 33) {
-    len = n;
-    *net =
-        ((uint32_t) a << 24) | ((uint32_t) b << 16) | ((uint32_t) c << 8) | d;
-    *mask = slash ? 0xffffffffU << (32 - slash) : 0;
-  }
-
-  return len;
+static int isbyte(int n) {
+    return n >= 0 && n <= 255;
 }
 
-static int isbyte(int n) {
-  return n >= 0 && n <= 255;
+static int parse_net(struct mg_str *spec, uint32_t *net, uint32_t *mask) {
+    int n, a, b, c, d, slash = 32, len = 0;
+
+    if ((sscanf(spec->ptr, "%d.%d.%d.%d/%d%n", &a, &b, &c, &d, &slash, &n) == 5 ||
+        sscanf(spec->ptr, "%d.%d.%d.%d%n", &a, &b, &c, &d, &n) == 4) &&
+        isbyte(a) && isbyte(b) && isbyte(c) && isbyte(d) && slash >= 0 &&
+        slash < 33)
+    {
+        len = n;
+        *net = ((uint32_t) a << 24) | ((uint32_t) b << 16) | ((uint32_t) c << 8) | d;
+        *mask = slash ? 0xffffffffU << (32 - slash) : 0;
+    }
+    return len;
 }
 
 static bool rm_mk_dir(sds dir_name, bool create) {
