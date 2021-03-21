@@ -229,7 +229,6 @@ set(SOURCES
   src/web_server/web_server_utility.c
   src/web_server/web_server_albumart.c
   dist/src/mongoose/mongoose.c
-  dist/src/mongoose/mongoose_compat.c
   dist/src/frozen/frozen.c
   dist/src/inih/ini.c
   dist/src/sds/sds.c

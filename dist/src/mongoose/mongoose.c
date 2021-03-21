@@ -1050,17 +1050,6 @@ static void listdir(struct mg_connection *c, struct mg_http_message *hm,
       "srt(tb, sc, so, true);"
       "}"
       "</script>";
-  
-  static const char *css_code =
-      "h1{top:0;font-size:inherit;font-weight:inherit}address{bottom:0;font-style:normal}"
-      "h1,address{background-color:#343a40;color:#f8f9fa;padding:1rem;position:fixed;"
-      "box-sizing:border-box;width:100%;margin-top:0}body{margin:5rem 0;background-color:#f7f7f7;"
-      "color:#212529;font-family:sans-serif;font-size:1rem;font-weight:400;line-height:1.5}"
-      "table{border-collapse:collapse;margin:1rem}th{border-bottom:2px solid #dee2e6;"
-      "border-top:1px solid #dee2e6;text-align:left;padding:.3rem;font-family:inherit}"
-      "td{text-align:left;padding:.3rem;font-family:inherit;border-bottom:1px solid #dee2e6}"
-      "td:last-child{text-align:right}a,a:visited,a:active{color:#212529;text-decoration:none}"
-      "a:hover{text-decoration:underline}";
 
   while (p > dir && *p != '/') *p-- = '\0';
   if ((dirp = (opendir(dir))) != NULL) {
@@ -1082,7 +1071,7 @@ static void listdir(struct mg_connection *c, struct mg_http_message *hm,
               "</thead>"
               "<tbody id=\"tb\">\n",
               (int) hm->uri.len, hm->uri.ptr, sort_js_code, sort_js_code2,
-              css_code, (int) hm->uri.len, hm->uri.ptr);
+              opts->directory_listing_css, (int) hm->uri.len, hm->uri.ptr);
 
     while ((dp = readdir(dirp)) != NULL) {
       mg_stat_t st;
@@ -1101,8 +1090,8 @@ static void listdir(struct mg_connection *c, struct mg_http_message *hm,
     closedir(dirp);
     mg_printf(c,
               "</tbody>"
-              "</table><address>myMPD</body></html>\n",
-              MG_VERSION);
+              "</table><address>%s</address></body></html>\n",
+              c->mgr->product_name);
     n = snprintf(tmp, sizeof(tmp), "%lu", (unsigned long) (c->send.len - off));
     memcpy(c->send.buf + off - 10, tmp, n);  // Set content length
   } else {
@@ -1167,7 +1156,7 @@ void mg_http_serve_dir(struct mg_connection *c, struct mg_http_message *hm,
           listdir(c, hm, opts, t2);
         }
         else {
-          mg_http_reply(c, 403, "", "%s", "Directory listing disabled");
+          mg_http_reply(c, 403, "", "%s", "Directory listing forbidden");
         }
 #else
         mg_http_reply(c, 403, "", "%s", "Directory listing not supported");
@@ -2332,6 +2321,7 @@ void mg_mgr_init(struct mg_mgr *mgr) {
   mgr->dnstimeout = 3000;
   mgr->dns4.url = "udp://8.8.8.8:53";
   mgr->dns6.url = "udp://[2001:4860:4860::8888]:53";
+  mgr->product_name = "mongoose";
 }
 
 #ifdef MG_ENABLE_LINES

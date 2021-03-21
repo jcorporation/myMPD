@@ -671,6 +671,7 @@ struct mg_mgr {
 #if MG_ARCH == MG_ARCH_FREERTOS
   SocketSet_t ss;  // NOTE(lsm): referenced from socket struct
 #endif
+  const char *product_name;
 };
 
 struct mg_connection {
@@ -747,6 +748,7 @@ struct mg_http_serve_opts {
   const char *ssi_pattern;    // SSI file name pattern, e.g. #.shtml
   const char *extra_headers;  // Extra HTTP headers to add in responses
   int enable_directory_listing;  //Enabled directory listing
+  const char *directory_listing_css; //css code for directory listing
 };
 
 // Parameter for mg_http_next_multipart

@@ -17,7 +17,6 @@
 
 #include "../dist/src/sds/sds.h"
 #include "../dist/src/mongoose/mongoose.h"
-#include "../dist/src/mongoose/mongoose_compat.h"
 #include "../dist/src/frozen/frozen.h"
 
 #include "sds_extras.h"
@@ -40,8 +39,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 #endif
 static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
-static bool handle_api(int conn_id, struct mg_http_message *hm);
-static bool handle_script_api(int conn_id, struct mg_http_message *hm);
+static bool handle_api(long long conn_id, struct mg_http_message *hm);
+static bool handle_script_api(long long conn_id, struct mg_http_message *hm);
 
 //public functions
 bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_data) {
@@ -55,7 +54,6 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_user_data->music_directory = sdsempty();
     mg_user_data->playlist_directory = sdsempty();
     mg_user_data->coverimage_names= split_coverimage_names(config->coverimage_name, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
-    mg_user_data->conn_id = 1;
     mg_user_data->feat_library = false;
     mg_user_data->feat_mpd_albumart = false;
     mg_user_data->connection_count = 0;
@@ -63,6 +61,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     //init monogoose mgr
     mg_mgr_init(mgr);
     mgr->userdata = mg_user_data;
+    mgr->product_name = "myMPD "MYMPD_VERSION;
     
     //bind to http_port
     struct mg_connection *nc_http;
@@ -191,19 +190,11 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
     struct mg_connection *nc = mgr->conns;
     int i = 0;
     while (nc != NULL) {
-        if (nc->is_websocket == 0) {
-            //skip none websocket connections
-            nc = nc->next;
-            continue;
+        if (nc->is_websocket == 1) {
+            MYMPD_LOG_DEBUG("Sending notify to conn_id %lu: %s", nc->id, response->data);
+            mg_ws_send(nc, response->data, sdslen(response->data), WEBSOCKET_OP_TEXT);
+            i++;
         }
-        i++;
-        if (nc->fn_data != NULL) {
-            MYMPD_LOG_DEBUG("Sending notify to conn_id %d: %s", (intptr_t)nc->fn_data, response->data);
-        }
-        else {
-            MYMPD_LOG_WARN("Sending notify to unknown connection: %s", response->data);
-        }
-        mg_ws_send(nc, response->data, sdslen(response->data), WEBSOCKET_OP_TEXT);
         nc = nc->next;
     }
     if (i == 0) {
@@ -215,25 +206,15 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
     struct mg_connection *nc = mgr->conns;
     while (nc != NULL) {
-        if (nc->is_websocket == 1) {
-            //skip websocket connections
-            nc = nc->next;
-            continue;
-        }
-        if (nc->fn_data != NULL) {
-            if ((intptr_t)nc->fn_data == response->conn_id) {
-                MYMPD_LOG_DEBUG("Sending response to conn_id %d: %s", (intptr_t)nc->fn_data, response->data);
-                if (response->cmd_id == MPD_API_ALBUMART) {
-                    send_albumart(nc, response->data, response->binary);
-                }
-                else {
-                    mg_http_reply(nc, 200, "Content-Type: application/json\r\n", response->data);
-                }
-                break;
+        if (nc->is_websocket == 0 && nc->id == (long unsigned)response->conn_id) {
+            MYMPD_LOG_DEBUG("Sending response to conn_id %lu: %s", nc->id, response->data);
+            if (response->cmd_id == MPD_API_ALBUMART) {
+                send_albumart(nc, response->data, response->binary);
             }
-        }
-        else {
-            MYMPD_LOG_WARN("Unknown connection");
+            else {
+                mg_http_reply(nc, 200, "Content-Type: application/json\r\n", response->data);
+            }
+            break;
         }
         nc = nc->next;
     }
@@ -250,11 +231,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             if (mg_user_data->connection_count > 100) {
                 nc->is_draining = 1;
                 send_error(nc, 429, "Concurrent connections limit exceeded");
+                break;
             }
             //check acl
             if (sdslen(config->acl) > 0) {
                 uint32_t remote_ip = ntohl(nc->peer.ip);
-                int allowed = mg6_check_ip_acl(config->acl, remote_ip);
+                int allowed = check_ip_acl(config->acl, remote_ip);
                 if (allowed == -1) {
                     MYMPD_LOG_ERROR("ACL malformed");
                 }
@@ -277,28 +259,18 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     break;
                 }
             }
-
-            //increment conn_id
-            if (mg_user_data->conn_id < INT_MAX) {
-                mg_user_data->conn_id++;
-            }
-            else {
-                mg_user_data->conn_id = 1;
-            }
-            //set conn_id
-            nc->fn_data = (void *)(intptr_t)mg_user_data->conn_id;
             mg_user_data->connection_count++;
-            MYMPD_LOG_DEBUG("New connection id %d, connections %d", (intptr_t)nc->fn_data, mg_user_data->connection_count);
+            MYMPD_LOG_DEBUG("New connection id %lu, connections %d", nc->id, mg_user_data->connection_count);
             break;
         }
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
 
-            MYMPD_LOG_INFO("HTTP request (%d): %.*s", (intptr_t)nc->fn_data, (int)hm->uri.len, hm->uri.ptr);
+            MYMPD_LOG_INFO("HTTP request (%lu): %.*s", nc->id, (int)hm->uri.len, hm->uri.ptr);
 
             if (mg_http_match_uri(hm, "/ws/")) {
                 mg_ws_upgrade(nc, hm, NULL);
-                MYMPD_LOG_INFO("New Websocket connection established (%d)", (intptr_t)nc->fn_data);
+                MYMPD_LOG_INFO("New Websocket connection established (%lu)", nc->id);
                 sds response = jsonrpc_event(sdsempty(), "welcome");
                 mg_ws_send(nc, response, sdslen(response), WEBSOCKET_OP_TEXT);
                 sdsfree(response);
@@ -311,7 +283,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
                 if (sdslen(config->scriptacl) > 0) {
                     uint32_t remote_ip = ntohl(nc->peer.ip);
-                    int allowed = mg6_check_ip_acl(config->scriptacl, remote_ip);
+                    int allowed = check_ip_acl(config->scriptacl, remote_ip);
                     if (allowed == -1) {
                         MYMPD_LOG_ERROR("ACL malformed");
                     }
@@ -321,7 +293,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                         break;
                     }
                 }
-                bool rc = handle_script_api((intptr_t)nc->fn_data, hm);
+                bool rc = handle_script_api((long long)nc->id, hm);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Invalid script API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
@@ -344,7 +316,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             else if (mg_http_match_uri(hm, "/api")) {
                 //api request
-                bool rc = handle_api((intptr_t)nc->fn_data, hm);
+                bool rc = handle_api((long long)nc->id, hm);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Invalid API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
@@ -367,7 +339,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             #endif
             else if (mg_http_match_uri(hm, "/albumart/#")) {
-                handle_albumart(nc, hm, mg_user_data, config, (intptr_t)nc->fn_data);
+                handle_albumart(nc, hm, mg_user_data, config, (long long)nc->id);
             }
             else if (mg_http_match_uri(hm, "/pics/#")) {
                 //serve directory
@@ -387,6 +359,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 static struct mg_http_serve_opts s_http_server_opts;
                 s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
                 s_http_server_opts.enable_directory_listing = 1;
+                s_http_server_opts.directory_listing_css = DIRECTORY_LISTING_CSS;
                 if (mg_http_match_uri(hm, "/browse/")) {
                     s_http_server_opts.root_dir = mg_user_data->browse_document_root;
                     hm->uri = mg_str_strip_parent(&hm->uri, 1);
@@ -434,10 +407,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             break;
         }
         case MG_EV_CLOSE: {
-            if (nc->fn_data != NULL) {
-                MYMPD_LOG_INFO("HTTP connection %ld closed", (intptr_t)nc->fn_data);
-                nc->fn_data = NULL;
-            }
+            MYMPD_LOG_INFO("HTTP connection %lu closed", nc->id);
             mg_user_data->connection_count--;
             break;
         }
@@ -447,13 +417,19 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 #ifdef ENABLE_SSL
 static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     (void)fn_data;
+    t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->userdata;
+    t_config *config = (t_config *) mg_user_data->config;
     if (ev == MG_EV_ACCEPT) {
-        t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->userdata;
-        t_config *config = (t_config *) mg_user_data->config;
+        //check connection count
+        if (mg_user_data->connection_count > 100) {
+            nc->is_draining = 1;
+            send_error(nc, 429, "Concurrent connections limit exceeded");
+            return;
+        }
         //check acl
         if (sdslen(config->acl) > 0) {
             uint32_t remote_ip = ntohl(nc->peer.ip);
-            int allowed = mg6_check_ip_acl(config->acl, remote_ip);
+            int allowed = check_ip_acl(config->acl, remote_ip);
             if (allowed == -1) {
                 MYMPD_LOG_ERROR("ACL malformed");
             }
@@ -463,27 +439,14 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
                 return;
             }
         }
-        //increment conn_id
-        if (mg_user_data->conn_id < INT_MAX) {
-            mg_user_data->conn_id++;
-        }
-        else {
-            mg_user_data->conn_id = 1;
-        }
-        //set conn_id
-        nc->fn_data = (void *)(intptr_t)mg_user_data->conn_id;
-        MYMPD_LOG_DEBUG("New connection id %d", (intptr_t)nc->fn_data);
+        mg_user_data->connection_count++;
     }
     else if (ev == MG_EV_HTTP_MSG) {
         struct mg_http_message *hm = (struct mg_http_message *) ev_data;
         struct mg_str *host_hdr = mg_http_get_header(hm, "Host");
-        t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->userdata;
-        t_config *config = (t_config *) mg_user_data->config;
-            
         sds host_header = sdscatlen(sdsempty(), host_hdr->ptr, (int)host_hdr->len);
         int count;
         sds *tokens = sdssplitlen(host_header, sdslen(host_header), ":", 1, &count);
-            
         sds s_redirect = sdscatfmt(sdsempty(), "https://%s", tokens[0]);
         if (strcmp(config->ssl_port, "443") != 0) {
             s_redirect = sdscatfmt(s_redirect, ":%s", config->ssl_port);
@@ -497,13 +460,13 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
 }
 #endif
 
-static bool handle_api(int conn_id, struct mg_http_message *hm) {
+static bool handle_api(long long conn_id, struct mg_http_message *hm) {
     if (hm->body.len > 2048) {
         MYMPD_LOG_ERROR("Request length of %d exceeds max request size, discarding request)", hm->body.len);
         return false;
     }
     
-    MYMPD_LOG_DEBUG("API request (%d): %.*s", conn_id, hm->body.len, hm->body.ptr);
+    MYMPD_LOG_DEBUG("API request (%lld): %.*s", conn_id, hm->body.len, hm->body.ptr);
     char *cmd = NULL;
     char *jsonrpc = NULL;
     int id = 0;
@@ -513,7 +476,7 @@ static bool handle_api(int conn_id, struct mg_http_message *hm) {
         FREE_PTR(jsonrpc);
         return false;
     }
-    MYMPD_LOG_INFO("API request (%d): %s", conn_id, cmd);
+    MYMPD_LOG_INFO("API request (%lld): %s", conn_id, cmd);
 
     enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
     if (cmd_id == 0 || strncmp(jsonrpc, "2.0", 3) != 0) {
@@ -549,13 +512,13 @@ static bool handle_api(int conn_id, struct mg_http_message *hm) {
     return true;
 }
 
-static bool handle_script_api(int conn_id, struct mg_http_message *hm) {
+static bool handle_script_api(long long conn_id, struct mg_http_message *hm) {
     if (hm->body.len > 4096) {
         MYMPD_LOG_ERROR("Request length of %d exceeds max request size, discarding request)", hm->body.len);
         return false;
     }
     
-    MYMPD_LOG_DEBUG("Script API request (%d): %.*s", conn_id, hm->body.len, hm->body.ptr);
+    MYMPD_LOG_DEBUG("Script API request (%lld): %.*s", conn_id, hm->body.len, hm->body.ptr);
     char *cmd = NULL;
     char *jsonrpc = NULL;
     long id = 0;
@@ -565,7 +528,7 @@ static bool handle_script_api(int conn_id, struct mg_http_message *hm) {
         FREE_PTR(jsonrpc);
         return false;
     }
-    MYMPD_LOG_INFO("Script API request (%d): %s", conn_id, cmd);
+    MYMPD_LOG_INFO("Script API request (%lld): %s", conn_id, cmd);
 
     enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
     if (cmd_id == 0 || strncmp(jsonrpc, "2.0", 3) != 0) {

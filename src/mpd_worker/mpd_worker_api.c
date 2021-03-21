@@ -50,7 +50,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
     MEASURE_START
     #endif
 
-    MYMPD_LOG_INFO("MPD WORKER API request (%d)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
+    MYMPD_LOG_INFO("MPD WORKER API request (%lld)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
     t_work_result *response = create_result(request);
     
@@ -100,7 +100,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
                     "playlist", "info", "Smart playlists update started");
                 if (request->conn_id > -1) {
-                    MYMPD_LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
+                    MYMPD_LOG_DEBUG("Push response to queue for connection %lld: %s", request->conn_id, response->data);
                     tiny_queue_push(web_server_queue, response, 0);
                 }
                 else {
@@ -166,7 +166,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
             tiny_queue_push(mympd_script_queue, response, request->id);
         }
         else if (request->conn_id > -1) {
-            MYMPD_LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
+            MYMPD_LOG_DEBUG("Push response to queue for connection %lld: %s", request->conn_id, response->data);
             tiny_queue_push(web_server_queue, response, 0);
         }
         else {

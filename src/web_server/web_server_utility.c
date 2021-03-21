@@ -19,22 +19,49 @@
 #include "web_server_embedded_files.c"
 #endif
 
-bool rm_mk_dir(sds dir_name, bool create) {
-    if (create == true) { 
-        int rc = mkdir(dir_name, 0700);
-        if (rc != 0 && errno != EEXIST) {
-            MYMPD_LOG_ERROR("Can not create directory \"%s\": %s", dir_name, strerror(errno));
-            return false;
+//private definitions
+static int parse_net(const char *spec, uint32_t *net, uint32_t *mask);
+static int isbyte(int n);
+static bool rm_mk_dir(sds dir_name, bool create);
+
+//public functions
+struct mg_str mg_str_strip_parent(struct mg_str *path, int count) {
+    //removes parent dir
+    int i = 0;
+    count++;
+    while (path->len > 0) {
+        if (path->ptr[0] == '/') {
+            i++;
+            if (i == count) {
+                break;
+            }
+        }
+        path->len--;
+        path->ptr++;
+    }
+    return *path;
+}
+
+int check_ip_acl(const char *acl, uint32_t remote_ip) {
+    int allowed, flag;
+    uint32_t net, mask;
+    struct mg_str vec;
+    struct mg_str acl_str = mg_str(acl);
+
+    // If any ACL is set, deny by default
+    allowed = (acl == NULL || *acl == '\0') ? '+' : '-';
+
+    while (mg_next_comma_entry(&acl_str, &vec, NULL)) {
+        flag = vec.ptr[0];
+        if ((flag != '+' && flag != '-') || parse_net(&vec.ptr[1], &net, &mask) == 0) {
+            return -1;
+        }
+
+        if (net == (remote_ip & mask)) {
+            allowed = flag;
         }
     }
-    else { 
-        int rc = rmdir(dir_name);
-        if (rc != 0 && errno != ENOENT) {
-            MYMPD_LOG_ERROR("Can not remove directory \"%s\": %s", dir_name, strerror(errno));
-            return false;
-        }
-    }
-    return true;
+    return allowed == '+';
 }
 
 void manage_emptydir(sds varlibdir, bool pics, bool smartplaylists, bool music, bool playlists) {
@@ -228,3 +255,42 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_mess
     return false;
 }
 #endif
+
+//private functions
+static int parse_net(const char *spec, uint32_t *net, uint32_t *mask) {
+  int n, a, b, c, d, slash = 32, len = 0;
+
+  if ((sscanf(spec, "%d.%d.%d.%d/%d%n", &a, &b, &c, &d, &slash, &n) == 5 ||
+       sscanf(spec, "%d.%d.%d.%d%n", &a, &b, &c, &d, &n) == 4) &&
+      isbyte(a) && isbyte(b) && isbyte(c) && isbyte(d) && slash >= 0 &&
+      slash < 33) {
+    len = n;
+    *net =
+        ((uint32_t) a << 24) | ((uint32_t) b << 16) | ((uint32_t) c << 8) | d;
+    *mask = slash ? 0xffffffffU << (32 - slash) : 0;
+  }
+
+  return len;
+}
+
+static int isbyte(int n) {
+  return n >= 0 && n <= 255;
+}
+
+static bool rm_mk_dir(sds dir_name, bool create) {
+    if (create == true) { 
+        int rc = mkdir(dir_name, 0700);
+        if (rc != 0 && errno != EEXIST) {
+            MYMPD_LOG_ERROR("Can not create directory \"%s\": %s", dir_name, strerror(errno));
+            return false;
+        }
+    }
+    else { 
+        int rc = rmdir(dir_name);
+        if (rc != 0 && errno != ENOENT) {
+            MYMPD_LOG_ERROR("Can not remove directory \"%s\": %s", dir_name, strerror(errno));
+            return false;
+        }
+    }
+    return true;
+}
