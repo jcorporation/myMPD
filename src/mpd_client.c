@@ -114,6 +114,12 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
                     //database has changed
                     buffer = jsonrpc_event(buffer, "update_database");
                     //mpd worker initiates all mympd refresh tasks
+                    if (mpd_client_state->mpd_state->feat_stickers == true) {
+                        mpd_client_state->sticker_cache_building = true;
+                    }
+                    if (mpd_client_state->mpd_state->feat_tags == true) {
+                        mpd_client_state->album_cache_building = true;
+                    }
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
                     buffer = jsonrpc_event(buffer, "update_stored_playlist");
@@ -287,6 +293,13 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
             mpd_client_mpd_features(config, mpd_client_state);
             //set binarylimit
             mpd_client_set_binarylimit(config, mpd_client_state);
+            //mpd worker initiates all mympd refresh tasks
+            if (mpd_client_state->mpd_state->feat_stickers == true) {
+                mpd_client_state->sticker_cache_building = true;
+            }
+            if (mpd_client_state->mpd_state->feat_tags == true) {
+                mpd_client_state->album_cache_building = true;
+            }
             //set timer for smart playlist update
             mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, mpd_client_state->smartpls_interval, "timer_handler_smartpls_update");
             //jukebox
