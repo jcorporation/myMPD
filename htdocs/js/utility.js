@@ -86,7 +86,11 @@ function clickFolder(uri, name) {
     switch (settings.advanced.clickFolder) {
         case 'append': return appendQueue('dir', uri, name);
         case 'replace': return replaceQueue('dir', uri, name);
-        case 'view': 
+        case 'view':
+            //remember offset for current browse uri
+            browseFilesystemHistory[app.current.search] = {};
+            browseFilesystemHistory[app.current.search].offset = app.current.offset;
+            //reset filter and open folder
             app.current.filter = '-';
             appGoto('Browse', 'Filesystem', undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', uri);
             break;

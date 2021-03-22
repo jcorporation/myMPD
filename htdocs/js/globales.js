@@ -33,6 +33,9 @@ const ligatureMore = 'menu';
 const progressBarTransition = 'width 1s linear';
 let tagAlbumArtist = 'AlbumArtist';
 
+//remember offset for filesystem browsing uris
+const browseFilesystemHistory = {};
+
 //list of stickers
 const stickerList = ['stickerPlayCount', 'stickerSkipCount', 'stickerLastPlayed', 
     'stickerLastSkipped', 'stickerLike'];
