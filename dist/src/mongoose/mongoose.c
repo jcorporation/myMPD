@@ -1385,7 +1385,8 @@ int mg_iobuf_resize(struct mg_iobuf *io, size_t new_size) {
     // porting to some obscure platforms like FreeRTOS
     void *p = malloc(new_size);
     if (p != NULL) {
-      memcpy(p, io->buf, io->size < new_size ? io->size : new_size);
+      size_t len = new_size < io->len ? new_size : io->len;
+      if (len > 0) memcpy(p, io->buf, len);
       free(io->buf);
       io->buf = (unsigned char *) p;
       io->size = new_size;
@@ -4049,9 +4050,8 @@ void mg_random(void *buf, size_t len) {
 #if MG_ENABLE_FS
   FILE *fp = mg_fopen("/dev/urandom", "rb");
   if (fp != NULL) {
-    fread(buf, 1, len, fp);
+    if (fread(buf, 1, len, fp) == len) done = true;
     fclose(fp);
-    done = true;
   }
 #endif
   if (!done) {
@@ -4220,7 +4220,7 @@ int mg_asprintf(char **buf, size_t size, const char *fmt, ...) {
 }
 
 int64_t mg_to64(struct mg_str str) {
-  int64_t result = 0, neg = 1, max = 922337203685477580 /* INT64_MAX / 10 */;
+  int64_t result = 0, neg = 1, max = 922337203685477570 /* INT64_MAX/10-10 */;
   size_t i = 0;
   while (i < str.len && (str.ptr[i] == ' ' || str.ptr[i] == '\t')) i++;
   if (i < str.len && str.ptr[i] == '-') neg = -1, i++;
