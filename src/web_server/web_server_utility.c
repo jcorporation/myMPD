@@ -20,9 +20,15 @@
 #endif
 
 //private definitions
-static int parse_net(struct mg_str *spec, uint32_t *net, uint32_t *mask);
-static int isbyte(int n);
 static bool rm_mk_dir(sds dir_name, bool create);
+static bool check_ipv4_acl(const char *acl, const uint32_t remote_ip);
+
+/*
+static bool check_ipv6_acl(const char *acl, const uint8_t remote_ip[16]);
+static bool compare_ipv6_with_mask(const uint8_t addr1[16], const int addr2[16], 
+    const int mask[16]);
+static void create_ipv6_mask(int *netmask, int mask);
+*/
 
 //public functions
 void free_mg_user_data(t_mg_user_data *mg_user_data) {
@@ -52,24 +58,16 @@ struct mg_str mg_str_strip_parent(struct mg_str *path, int count) {
     return *path;
 }
 
-int check_ip_acl(const char *acl, uint32_t remote_ip) {
-    uint32_t net, mask;
-    struct mg_str vec;
-    struct mg_str acl_str = mg_str(acl);
-
-    // If any ACL is set, deny by default
-    int allowed = (acl == NULL || *acl == '\0') ? '+' : '-';
-
-    while (mg_next_comma_entry(&acl_str, &vec, NULL)) {
-        int flag = vec.ptr[0];
-        if ((flag != '+' && flag != '-') || parse_net(&vec, &net, &mask) == false) {
-            return -1;
-        }
-        if ((net & mask) == (remote_ip & mask)) {
-            allowed = flag;
-        }
+bool check_ip_acl(const char *acl, struct mg_addr *peer) {
+    /*
+    if (peer->is_ip6 == true) {
+        //ipv6
+        return check_ipv6_acl(acl, peer->ip6);
     }
-    return allowed == '+';
+    */
+    //ipv4
+    uint32_t remote_ip = ntohl(peer->ip);
+    return check_ipv4_acl(acl, remote_ip);
 }
 
 void manage_emptydir(sds varlibdir, bool pics, bool smartplaylists, bool music, bool playlists) {
@@ -265,25 +263,6 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_mess
 #endif
 
 //private functions
-static int isbyte(int n) {
-    return n >= 0 && n <= 255;
-}
-
-static int parse_net(struct mg_str *spec, uint32_t *net, uint32_t *mask) {
-    int n, a, b, c, d, slash = 32, len = 0;
-
-    if ((sscanf(spec->ptr, "%d.%d.%d.%d/%d%n", &a, &b, &c, &d, &slash, &n) == 5 ||
-        sscanf(spec->ptr, "%d.%d.%d.%d%n", &a, &b, &c, &d, &n) == 4) &&
-        isbyte(a) && isbyte(b) && isbyte(c) && isbyte(d) && slash >= 0 &&
-        slash < 33)
-    {
-        len = n;
-        *net = ((uint32_t) a << 24) | ((uint32_t) b << 16) | ((uint32_t) c << 8) | d;
-        *mask = slash ? 0xffffffffU << (32 - slash) : 0;
-    }
-    return len;
-}
-
 static bool rm_mk_dir(sds dir_name, bool create) {
     if (create == true) { 
         int rc = mkdir(dir_name, 0700);
@@ -301,3 +280,109 @@ static bool rm_mk_dir(sds dir_name, bool create) {
     }
     return true;
 }
+
+static bool check_ipv4_acl(const char *acl, uint32_t remote_ip) {
+    bool allowed = false;
+    int count;
+    sds *tokens = sdssplitlen(acl, strlen(acl), ",", 1, &count);
+    for (int i = 0; i < count; i++) {
+        if (strstr(tokens[i], ":") != NULL) {
+            //ipv6 skip
+            continue;
+        }
+        int flag = tokens[i][0];
+        char *acl_str = tokens[i];
+        acl_str++;
+        char *mask_str;
+        char *net_str = strtok_r(acl_str, "/", &mask_str);
+        uint32_t mask = strtoimax(mask_str, NULL, 10);
+        if (mask == 0) {
+            //mask of 0 matches always
+            allowed = flag == '+' ? true : false;        
+            continue;
+        }
+        else if (mask > 32) {
+            //invalid mask
+            continue;
+        }
+        uint32_t net;
+        if (inet_pton(AF_INET, net_str, &net) != 1) {
+            MYMPD_LOG_WARN("Invalid acl entry: \"%s\"", tokens[i]);
+            continue;
+        }
+        uint32_t net_ip = ntohl(net);        
+        uint32_t mask_bits = 0xffffffffU << (32 - mask);
+        MYMPD_LOG_DEBUG("remote ip: %u, acl: %u", (remote_ip & mask_bits), (net_ip & mask_bits));
+        if ((remote_ip & mask_bits) == (net_ip & mask_bits)) {
+            allowed = flag == '+' ? true : false;        
+        }
+    }
+    sdsfreesplitres(tokens, count);
+    return allowed;
+}
+
+/*
+static bool check_ipv6_acl(const char *acl, const uint8_t remote_ip[16]) {
+    bool allowed = false;
+    int count;
+    sds *tokens = sdssplitlen(acl, strlen(acl), ",", 1, &count);
+    for (int i = 0; i < count; i++) {
+        if (strstr(tokens[i], ":") == NULL) {
+            //ipv4 skip
+            continue;
+        }
+        int flag = tokens[i][0];
+        char *acl_str = tokens[i];
+        acl_str++;
+        char *mask_str;
+        char *net_str = strtok_r(acl_str, "/", &mask_str);
+        uint32_t mask = strtoimax(mask_str, NULL, 10);
+        if (mask == 0) {
+            //mask of 0 matches always
+            allowed = flag == '+' ? true : false;        
+            continue;
+        }
+        else if (mask > 128) {
+            //invalid mask
+            continue;
+        }
+        int net[16];
+        if (inet_pton(AF_INET6, net_str, &net) != 1) {
+            MYMPD_LOG_WARN("Invalid acl entry: \"%s\"", tokens[i]);
+            continue;
+        }
+        
+        int mask_struct[16];
+        create_ipv6_mask(&mask_struct[0], mask);
+        if (compare_ipv6_with_mask(remote_ip, net, mask_struct) == true) {
+            allowed = flag == '+' ? true : false;        
+        }
+    }
+    sdsfreesplitres(tokens, count);
+    return allowed;
+}
+
+static bool compare_ipv6_with_mask(const uint8_t addr1[16], const int addr2[16], 
+    const int mask[16])
+{
+    int masked[16];
+	for (unsigned i = 0; i < 16; i++) {
+	    masked[i] = addr2[i];
+	    masked[i] &= mask[i];
+    }
+	return memcmp(addr1, &masked, sizeof(int[16])) == 0 ? true : false;
+}
+
+static void create_ipv6_mask(int *netmask, int mask) {
+	memset(netmask, 0, sizeof(int[16]));
+	int *p_netmask = netmask;
+	while (8 < mask) {
+		*p_netmask = 0xff;
+		p_netmask++;
+		mask -= 8;
+	}
+	if (mask != 0) {
+		*p_netmask = htonl(0xff << (8 - mask));
+	}
+}
+*/

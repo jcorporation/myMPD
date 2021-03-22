@@ -272,17 +272,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 break;
             }
             //check acl
-            if (sdslen(config->acl) > 0) {
-                uint32_t remote_ip = ntohl(nc->peer.ip);
-                int allowed = check_ip_acl(config->acl, remote_ip);
-                if (allowed == -1) {
-                    MYMPD_LOG_ERROR("ACL malformed");
-                }
-                if (allowed != 1) {
-                    nc->is_draining = 1;
-                    send_error(nc, 403, "Request blocked by ACL");
-                    break;
-                }
+            if (sdslen(config->acl) > 0 && check_ip_acl(config->acl, &nc->peer) == false) {
+                nc->is_draining = 1;
+                send_error(nc, 403, "Request blocked by ACL");
+                break;
             }
             //ssl support
             if (config->ssl == true) {
@@ -348,17 +341,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     send_error(nc, 403, "Remote scripting is disabled");
                     break;
                 }
-                if (sdslen(config->scriptacl) > 0) {
-                    uint32_t remote_ip = ntohl(nc->peer.ip);
-                    int allowed = check_ip_acl(config->scriptacl, remote_ip);
-                    if (allowed == -1) {
-                        MYMPD_LOG_ERROR("ACL malformed");
-                    }
-                    if (allowed != 1) {
-                        nc->is_draining = 1;
-                        send_error(nc, 403, "Request blocked by ACL");
-                        break;
-                    }
+                if (sdslen(config->scriptacl) > 0 && check_ip_acl(config->scriptacl, &nc->peer) == false) {
+                    nc->is_draining = 1;
+                    send_error(nc, 403, "Request blocked by ACL");
+                    break;
                 }
                 bool rc = handle_script_api((long long)nc->id, hm);
                 if (rc == false) {
@@ -500,17 +486,10 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
             return;
         }
         //check acl
-        if (sdslen(config->acl) > 0) {
-            uint32_t remote_ip = ntohl(nc->peer.ip);
-            int allowed = check_ip_acl(config->acl, remote_ip);
-            if (allowed == -1) {
-                MYMPD_LOG_ERROR("ACL malformed");
-            }
-            if (allowed != 1) {
-                nc->is_draining = 1;
-                send_error(nc, 403, "Request blocked by ACL");
-                return;
-            }
+        if (sdslen(config->acl) > 0 && check_ip_acl(config->acl, &nc->peer) == false) {
+            nc->is_draining = 1;
+            send_error(nc, 403, "Request blocked by ACL");
+            return;
         }
         mg_user_data->connection_count++;
     }

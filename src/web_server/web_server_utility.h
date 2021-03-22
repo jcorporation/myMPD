@@ -63,7 +63,7 @@ void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, con
 void populate_dummy_hm(struct mg_http_message *hm);
 void http_send_header_ok(struct mg_connection *nc, size_t len, const char *headers);
 void http_send_header_redirect(struct mg_connection *nc, const char *location);
-int check_ip_acl(const char *acl, uint32_t remote_ip);
+bool check_ip_acl(const char *acl, struct mg_addr *peer);
 struct mg_str mg_str_strip_parent(struct mg_str *path, int count);
 void free_mg_user_data(t_mg_user_data *mg_user_data);
 #endif
