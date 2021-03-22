@@ -246,12 +246,12 @@ static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *
             break;
         case MG_EV_CLOSE: {
             MYMPD_LOG_INFO("Backend HTTP connection %lu closed", nc->id);
-            //close frontend connection
             if (frontend_nc != NULL) {
+                //remove backend connection pointer from frontend connection
+                frontend_nc->fn_data = NULL;
+                //close frontend connection
                 frontend_nc->is_closing = 1;
             }
-            //remove backend connection pointer from frontend connection
-            frontend_nc->fn_data = NULL;
             break;
         }    
     }
@@ -476,11 +476,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         case MG_EV_CLOSE: {
             MYMPD_LOG_INFO("HTTP connection %lu closed", nc->id);
             mg_user_data->connection_count--;
-            //close reverse proxy connection
             if (backend_nc != NULL) {
-                backend_nc->is_closing = 1;
                 //remove pointer to frontend connection
                 backend_nc->fn_data = NULL;
+                //close reverse proxy connection
+                backend_nc->is_closing = 1;
             }
             break;
         }
