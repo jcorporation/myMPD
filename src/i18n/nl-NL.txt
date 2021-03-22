@@ -438,15 +438,6 @@ Tags om te browsen
 Local playback
 Lokale weergave
 
-URI
-Url
-
-HTTPS Port
-HTTPS-poort
-
-HTTP Port
-HTTP-poort
-
 Statistics
 Gegevens
 
@@ -1463,15 +1454,6 @@ uitgeschakeld
 
 enabled
 ingeschakeld
-
-No mixed content,  MPD stream must be served over https:
-Geen gemengde inhoud, MPD-stream moet via https worden weergegeven:
-
-Details
-Details
-
-Port
-Poort
 
 Websocket is disconnected
 Websocket niet verbonden

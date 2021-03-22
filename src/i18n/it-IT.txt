@@ -438,15 +438,6 @@ Tag da sfogliare
 Local playback
 Lecture locale
 
-URI
-URI
-
-HTTPS Port
-Porta HTTPS
-
-HTTP Port
-Porta HTTP
-
 Statistics
 Statistiche
 
@@ -1466,15 +1457,6 @@ disabilitato
 
 enabled
 abilitato
-
-No mixed content,  MPD stream must be served over https:
-Nessun contenuto misto: il flusso MPD deve essere sertvito su https : 
-
-Details
-Dettagli
-
-Port
-Porta
 
 Websocket is disconnected
 Websocket disconnesso

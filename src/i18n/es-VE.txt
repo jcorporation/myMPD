@@ -435,12 +435,6 @@ Etiquetas para explorar
 Local playback
 Reproducción local
 
-URI
-URL
-
-Port
-Puerto
-
 Statistics
 Estadísticas
 
