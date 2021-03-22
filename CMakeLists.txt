@@ -140,7 +140,7 @@ else()
 	-fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -static-libasan")
 endif()
 
-set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_IPV6=1 -DMG_ENABLE_DIRECTORY_LISTING=1")
+set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_DIRECTORY_LISTING=1")
 
 set(MYMPD_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
 	-Wformat=2  -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
