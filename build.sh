@@ -310,7 +310,7 @@ builddebug() {
   install -d debug/htdocs/js
   createi18n ../../debug/htdocs/js/i18n.js pretty
 
-  echo "Linking dist assets"
+  echo "Copy dist assets"
   cp "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
   cp "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
   cp "$PWD/dist/htdocs/js/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
