@@ -15,7 +15,11 @@ function initLocalplayer() {
         event.preventDefault();
         clickCheckLocalPlayerState(event);
     }, false);
+    
+    initLocalPlaybackControl();
+}
 
+function initLocalPlaybackControl() {
     document.getElementById('localPlayer').addEventListener('click', function(event) {
         event.stopPropagation();
     });
@@ -58,6 +62,7 @@ function clickCheckLocalPlayerState(event) {
     localPlayer.setAttribute('id', 'localPlayer');
     localPlayer.classList.add('mx-4');
     parent.appendChild(localPlayer);
+    initLocalPlaybackControl();
     setLocalPlayerUrl();
     setTimeout(function() {
         el.classList.remove('disabled');
