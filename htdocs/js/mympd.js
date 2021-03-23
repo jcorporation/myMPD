@@ -50,11 +50,10 @@ function appPrepare(scrollPos) {
 }
 
 function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newScrollPos) {
-    //save scrollPos of current view
+    //old app
     const oldptr = app.apps[app.current.app].offset !== undefined ? app.apps[app.current.app] :
         app.apps[app.current.app].tabs[app.current.tab].offset !== undefined ? app.apps[app.current.app].tabs[app.current.tab] :
             app.apps[app.current.app].tabs[app.current.tab].views[app.current.view];
-    oldptr.scrollPos = document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
 
     //get default active tab or view from state
     if (app.apps[card].tabs) {
@@ -67,19 +66,26 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
             }
         }
     }
+
     //get ptr to new app
     const ptr = app.apps[card].offset !== undefined ? app.apps[card] :
                 app.apps[card].tabs[tab].offset !== undefined ? app.apps[card].tabs[tab] :
                 app.apps[card].tabs[tab].views[view];
+                
+    //save scrollPos of old app
+    if (oldptr != ptr) {
+        oldptr.scrollPos = document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
+    }
+    
     //set options to default, if not defined
     if (offset === null || offset === undefined) { offset = ptr.offset; }
     if (limit === null || limit === undefined)   { limit = ptr.limit; }
     if (filter === null || filter === undefined) { filter = ptr.filter; }
     if (sort === null || sort === undefined)     { sort = ptr.sort; }
     if (tag === null || tag === undefined)       { tag = ptr.tag; }
-    if (search === null || search === undefined)  { search = ptr.search; }
+    if (search === null || search === undefined) { search = ptr.search; }
     //set new scrollpos
-    if (newScrollPos === null || newScrollPos !== undefined) {
+    if (newScrollPos !== undefined) {
         ptr.scrollPos = newScrollPos;
     }
     //build hash
