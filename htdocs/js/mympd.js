@@ -73,7 +73,7 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
                 app.apps[card].tabs[tab].views[view];
                 
     //save scrollPos of old app
-    if (oldptr != ptr) {
+    if (oldptr !== ptr) {
         oldptr.scrollPos = document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
     }
     
