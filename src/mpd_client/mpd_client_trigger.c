@@ -203,8 +203,8 @@ bool triggerfile_read(t_config *config, t_mpd_client_state *mpd_client_state) {
         while ((read = getline(&line, &n, fp)) > 0) {
             char *name;
             char *script;
-            unsigned event;
-            int je = json_scanf(line, read, "{name: %Q, event: %u, script: %Q}", &name, &event, &script);
+            int event;
+            int je = json_scanf(line, read, "{name: %Q, event: %d, script: %Q}", &name, &event, &script);
             if (je == 3) {
                 struct list *arguments = (struct list *) malloc(sizeof(struct list));
                 assert(arguments);
