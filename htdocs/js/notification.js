@@ -241,6 +241,7 @@ function toggleUI() {
         setElsState('input', state, 'tag');
         setElsState('select', state, 'tag');
         setElsState('button', state, 'tag');
+        setElsState('textarea', state, 'tag');
         setElsState('clickable', state, 'class');
         uiEnabled = enabled;
     }
