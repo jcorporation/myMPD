@@ -1833,3 +1833,6 @@ Synchronisierter Liedtext
 
 Unsynced lyrics
 Liedtext
+
+Can not open script directory
+Skriptverzeichnis konnte nicht geöffnet werden
