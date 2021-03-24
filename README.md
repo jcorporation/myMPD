@@ -36,7 +36,7 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - Embedded Webserver (mongoose)
 - [Localized user interface](https://github.com/jcorporation/myMPD/wiki/Translating)
 - Themeing
-- [Publishing of mpd and myMPD directories via http and webdav](https://github.com/jcorporation/myMPD/wiki/Publishing-directories)
+- [Publishing of mpd and myMPD directories via http](https://github.com/jcorporation/myMPD/wiki/Publishing-directories)
 - Progressiv Web App enabled
 - Support of Media Session API
 
