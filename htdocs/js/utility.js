@@ -797,6 +797,7 @@ function printValue(key, value) {
         case 'Duration':
             return beautifySongDuration(value);
         case 'LastModified': 
+        case 'LastPlayed':
         case 'stickerLastPlayed':
         case 'stickerLastSkipped':
             return value === 0 ? t('never') : localeDate(value);
