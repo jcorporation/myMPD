@@ -475,7 +475,7 @@ void mympd_config_defaults(t_config *config) {
     config->generate_pls_tags = sdsnew("Genre");
     config->last_played_count = 200;
     config->syscmds = false;
-    config->loglevel = 2;
+    config->loglevel = 5;
     config->love = false;
     config->love_channel = sdsempty();
     config->love_message = sdsnew("love");
