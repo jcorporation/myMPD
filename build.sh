@@ -178,15 +178,14 @@ createassets() {
   # shellcheck disable=SC2013
   for F in $(grep -E '<!--debug-->\s+<script' htdocs/index.html | cut -d\" -f2)
   do
-	#skip symbolic links
-    if [ -f "htdocs/$F" ] && [ ! -L "htdocs/$F" ]
+    [ "$F" = "js/bootstrap-native.js" ] && continue;
+    [ "$F" = "js/i18n.js" ] && continue;
+    [ "$F" = "js/long-press-event.js" ] && continue;
+    JSSRCFILES="$JSSRCFILES htdocs/$F"
+    if tail -1 "htdocs/$F" | perl -npe 'exit 1 if m/\n/; exit 0'
     then
-      JSSRCFILES="$JSSRCFILES htdocs/$F"
-      if tail -1 "htdocs/$F" | perl -npe 'exit 1 if m/\n/; exit 0'
-      then
-        echo "ERROR: $F don't end with newline character"
-        exit 1
-      fi
+      echo "ERROR: $F don't end with newline character"
+      exit 1
     fi
   done
   echo "Creating mympd.js"
@@ -219,12 +218,9 @@ createassets() {
   echo "Minifying stylesheets"
   for F in htdocs/css/*.css
   do
+	[ "$F" = "htdocs/css/bootstrap.css" ] && continue;
     DST=$(basename "$F" .css)
-    #skip symbolic links
-    if [ -f "$F" ] && [ ! -L "$F" ]
-    then
-      minify css "$F" "$MYMPD_BUILDDIR/htdocs/css/${DST}.min.css"
-    fi
+    minify css "$F" "$MYMPD_BUILDDIR/htdocs/css/${DST}.min.css"
   done
   
   echo "Combining and compressing stylesheets"
@@ -314,12 +310,12 @@ builddebug() {
   install -d debug/htdocs/js
   createi18n ../../debug/htdocs/js/i18n.js pretty
 
-  echo "Linking dist assets"
-  ln -sf "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
-  ln -sf "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
-  ln -sf "$PWD/dist/htdocs/js/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
-  ln -sf "$PWD/dist/htdocs/assets/MaterialIcons-Regular.woff2" "$PWD/htdocs/assets/MaterialIcons-Regular.woff2"
-  ln -sf "$PWD/debug/htdocs/js/i18n.js" "$PWD/htdocs/js/i18n.js"
+  echo "Copy dist assets"
+  cp "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
+  cp "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
+  cp "$PWD/dist/htdocs/js/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
+  cp "$PWD/dist/htdocs/assets/MaterialIcons-Regular.woff2" "$PWD/htdocs/assets/MaterialIcons-Regular.woff2"
+  cp "$PWD/debug/htdocs/js/i18n.js" "$PWD/htdocs/js/i18n.js"
 
   echo "Compiling myMPD"
   cd debug || exit 1

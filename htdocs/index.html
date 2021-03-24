@@ -670,7 +670,7 @@
             <a data-phrase="Move an output to this partition" class="dropdown-item text-light featPartitions" href="#" data-toggle="modal" data-target="#modalPartitionOutputs"></a>
           </div>
         </div>
-        <div class="btn-group dropup featLocalplayer ml-2">
+        <div class="btn-group dropup featLocalPlayback ml-2">
           <button data-title-phrase="Local playback" id="localPlaybackMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2" type="button" data-toggle="dropdown"><span class="mi">airplay</span></button>
           <div class="dropdown-menu bg-lite-dark">
             <h2 data-phrase="Local playback" class="dropdown-header dropdown-header-lx text-light"></h2>
@@ -1129,32 +1129,6 @@
                     </div>
                   </div>
                 </div>
-                <hr/>
-                <h4 data-phrase="Local playback"></h4>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="btnFeatLocalplayer" data-phrase="Local playback"></label>
-                  <div class="col-sm-8 ">
-                    <button data-toggle="collapse" data-target="#collapseLocalplayer" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnFeatLocalplayer"></button>
-                  </div>
-                </div>
-                <div class="collapse" id="collapseLocalplayer">
-                  <div class="form-group row">
-                    <div class="col-sm-4">
-                      <select id="selectStreamMode" class="form-control custom-select border-secondary">
-                        <option value="port" data-phrase="Port"></option>
-                        <option value="url" data-phrase="URI"></option>
-                      </select>
-                    </div>                  
-                    <div class="col-sm-8">
-                      <input id="inputStreamUrl" type="text" class="form-control border-secondary" value=""/>
-                      <div class="invalid-feedback" data-phrase="Invalid URI"></div>
-                      <div id="infoLocalplayer" class="mt-2 alert alert-dark hide">
-                        <span data-phrase="No mixed content,  MPD stream must be served over https:"></span>&nbsp;<a class="alert-link" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/myMPD/wiki/Local-playback" data-phrase="Details"></a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
                 <hr/>
                 <h4 data-phrase="Other features"></h4>
                 <div class="warnReadonly alert alert-warning hide" data-phrase="myMPD is in readonly mode"></div>
@@ -2331,7 +2305,7 @@
 <!--debug-->  <script src="js/scripts.js"></script>
 <!--debug-->  <script src="js/trigger.js"></script>
 <!--debug-->  <script src="js/popover.js"></script>
-<!--debug-->  <script src="js/localplayer.js"></script>
+<!--debug-->  <script src="js/localplayback.js"></script>
 <!--debug-->  <script src="js/ligatures.js"></script>
 <!--debug-->  <script src="js/home.js"></script>
 <!--debug-->  <script src="js/jukebox.js"></script>

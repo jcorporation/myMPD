@@ -45,9 +45,9 @@ void mympd_api_settings_delete(t_config *config) {
         "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
         "cols_search", "cols_queue_jukebox", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
         "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags", "smartpls_sort", "smartpls_prefix", "smartpls_interval",
-        "last_played", "last_played_count", "locale", "localplayer", "love", "love_channel", "love_message",
+        "last_played", "last_played_count", "locale", "love", "love_channel", "love_message",
         "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
-        "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "bookmark_list", "coverimage_size_small", 
+        "smartpls", "stickers", "taglist", "music_directory", "bookmarks", "bookmark_list", "coverimage_size_small", 
         "theme", "timer", "highlight_color", "media_session", "booklet_name", "lyrics", "home_list", "navbar_icons", "advanced", 
         "home", "bg_image",0};
     const char** ptr = state_files;
@@ -201,18 +201,6 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
     else if (strncmp(key->ptr, "bookletName", key->len) == 0) {
         mympd_state->booklet_name = sdsreplacelen(mympd_state->booklet_name, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "booklet_name");
-    }
-    else if (strncmp(key->ptr, "featLocalplayer", key->len) == 0) {
-        mympd_state->localplayer = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(settingname, "localplayer");
-    }
-    else if (strncmp(key->ptr, "streamPort", key->len) == 0) {
-        mympd_state->stream_port = strtoimax(settingvalue, &crap, 10);
-        settingname = sdscat(settingname, "stream_port");
-    }
-    else if (strncmp(key->ptr, "streamUrl", key->len) == 0) {
-        mympd_state->stream_url = sdsreplacelen(mympd_state->stream_url, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "stream_url");
     }
     else if (strncmp(key->ptr, "locale", key->len) == 0) {
         mympd_state->locale = sdsreplacelen(mympd_state->locale, settingvalue, sdslen(settingvalue));
@@ -419,9 +407,6 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->cols_playback = state_file_rw_string(config, "cols_playback", config->cols_playback, false);
     mympd_state->cols_queue_last_played = state_file_rw_string(config, "cols_queue_last_played", config->cols_queue_last_played, false);
     mympd_state->cols_queue_jukebox = state_file_rw_string(config, "cols_queue_jukebox", config->cols_queue_jukebox, false);
-    mympd_state->localplayer = state_file_rw_bool(config, "localplayer", config->localplayer, false);
-    mympd_state->stream_port = state_file_rw_int(config, "stream_port", config->stream_port, false);
-    mympd_state->stream_url = state_file_rw_string(config, "stream_url", config->stream_url, false);
     mympd_state->bg_cover = state_file_rw_bool(config, "bg_cover", config->bg_cover, false);
     mympd_state->bg_color = state_file_rw_string(config, "bg_color", config->bg_color, false);
     mympd_state->bg_css_filter = state_file_rw_string(config, "bg_css_filter", config->bg_css_filter, false);
@@ -461,9 +446,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
 #else
     buffer = tojson_bool(buffer, "featCacert", false, true);
 #endif
-    buffer = tojson_bool(buffer, "featLocalplayer", mympd_state->localplayer, true);
-    buffer = tojson_long(buffer, "streamPort", mympd_state->stream_port, true);
-    buffer = tojson_char(buffer, "streamUrl", mympd_state->stream_url, true);
+    buffer = tojson_bool(buffer, "featLocalPlayback", (config->mpd_stream_port == 0 ? false : true), true);
     buffer = tojson_bool(buffer, "coverimage", mympd_state->coverimage, true);
     buffer = tojson_char(buffer, "coverimageName", mympd_state->coverimage_name, true);
     buffer = tojson_long(buffer, "coverimageSize", mympd_state->coverimage_size, true);

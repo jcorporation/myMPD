@@ -299,6 +299,12 @@ const advancedSettingsDefault = {
         "inputType": "select",
         "title": "Elements per page",
         "form": "AdvancedSettingsFrm"
+    },
+    "uiLocalPlayback": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Local playback",
+        "form": "AdvancedSettingsFrm"
     }
 };
 

@@ -111,7 +111,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     MEASURE_START
     #endif
 
-    MYMPD_LOG_INFO("MYMPD API request (%d): %s", request->conn_id, request->data);
+    MYMPD_LOG_INFO("MYMPD API request (%lld): %s", request->conn_id, request->data);
     //create response struct
     t_work_result *response = create_result(request);
     
@@ -582,7 +582,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         tiny_queue_push(mympd_script_queue, response, request->id);
     }
     else if (request->conn_id > -1) {
-        MYMPD_LOG_DEBUG("Push response to web_server_queue for connection %lu: %s", request->conn_id, response->data);
+        MYMPD_LOG_DEBUG("Push response to web_server_queue for connection %lld: %s", request->conn_id, response->data);
         tiny_queue_push(web_server_queue, response, 0);
     }
     else {

@@ -69,7 +69,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
     MEASURE_START
     #endif
 
-    MYMPD_LOG_INFO("MPD CLIENT API request (%d)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
+    MYMPD_LOG_INFO("MPD CLIENT API request (%lld)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
     t_work_result *response = create_result(request);
     
@@ -913,7 +913,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
         tiny_queue_push(mympd_script_queue, response, request->id);
     }
     else if (request->conn_id > -1) {
-        MYMPD_LOG_DEBUG("Push response to web_server_queue for connection %lu: %s", request->conn_id, response->data);
+        MYMPD_LOG_DEBUG("Push response to web_server_queue for connection %lld: %s", request->conn_id, response->data);
         tiny_queue_push(web_server_queue, response, 0);
     }
     else {

@@ -435,12 +435,6 @@ Selattavat tagit
 Local playback
 Paikallinen toisto
 
-URI
-URL
-
-Port
-Portti
-
 Statistics
 Tilastot
 

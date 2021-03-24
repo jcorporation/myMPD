@@ -59,15 +59,18 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mpd", "binarylimit")) {
         p_config->binarylimit = strtoumax(value, &crap, 10);
     }
-    else if (MATCH("webserver", "webport")) {
-        p_config->webport = sdsreplace(p_config->webport, value);
+    else if (MATCH("mpd", "streamport")) {
+        p_config->mpd_stream_port = strtoumax(value, &crap, 10);
+    }
+    else if (MATCH("webserver", "httphost")) {
+        p_config->http_host = sdsreplace(p_config->http_host, value);
+    }
+    else if (MATCH("webserver", "httpport")) {
+        p_config->http_port = sdsreplace(p_config->http_port, value);
     }
 #ifdef ENABLE_SSL
     else if (MATCH("webserver", "ssl")) {
         p_config->ssl = strtobool(value);
-    }
-    else if (MATCH("webserver", "redirect")) {
-        p_config->redirect = strtobool(value);
     }
     else if (MATCH("webserver", "sslport")) {
         p_config->ssl_port = sdsreplace(p_config->ssl_port, value);
@@ -98,9 +101,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
 #endif
     else if (MATCH("webserver", "publish")) {
         p_config->publish = strtobool(value);
-    }
-    else if (MATCH("webserver", "webdav")) {
-        p_config->webdav = strtobool(value);
     }
     else if (MATCH("mympd", "user")) {
         p_config->user = sdsreplace(p_config->user, value);
@@ -226,15 +226,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "colsqueuejukebox")) {
         p_config->cols_queue_jukebox = sdsreplace(p_config->cols_queue_jukebox, value);
     }
-    else if (MATCH("mympd", "localplayer")) {
-        p_config->localplayer = strtobool(value);
-    }
-    else if (MATCH("mympd", "streamport")) {
-        p_config->stream_port = strtoimax(value, &crap, 10);
-    }
-    else if (MATCH("mympd", "streamurl")) {
-        p_config->stream_url = sdsreplace(p_config->stream_url, value);
-    }
     else if (MATCH("mympd", "readonly")) {
         p_config->readonly = strtobool(value);
     }
@@ -356,14 +347,15 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
 
 static void mympd_get_env(struct t_config *config) {
     const char *env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_MUSICDIRECTORY",
-        "MPD_PLAYLISTDIRECTORY", "MPD_REGEX", "MPD_BINARYLIMIT",
-        "WEBSERVER_WEBPORT", "WEBSERVER_PUBLISH", "WEBSERVER_WEBDAV", "WEBSERVER_ACL", 
+        "MPD_PLAYLISTDIRECTORY", "MPD_REGEX", "MPD_BINARYLIMIT", "MPD_STREAMPORT",
+        "WEBSERVER_HTTPHOST", "WEBSERVER_HTTPPORT",
+        "WEBSERVER_PUBLISH", "WEBSERVER_ACL", 
       #ifdef ENABLE_LUA
         "WEBSERVER_SCRIPTACL",
       #endif
       #ifdef ENABLE_SSL
         "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
-        "WEBSERVER_SSLSAN", "WEBSERVER_REDIRECT", 
+        "WEBSERVER_SSLSAN",
       #endif
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", 
         "MYMPD_TAGLIST", "MYMPD_GENERATE_PLS_TAGS",
@@ -377,8 +369,8 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_JUKEBOXUNIQUETAG", "MYMPD_COLSQUEUECURRENT","MYMPD_COLSSEARCH", 
         "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
-        "MYMPD_LOCALPLAYER", "MYMPD_STREAMPORT", "MYMPD_HOME", "MYMPOD_COLSQUEUEJUKEBOX",
-        "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
+        "MYMPD_HOME", "MYMPOD_COLSQUEUEJUKEBOX",
+        "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
         "MYMPD_COVERCACHEAVOID", "MYMPD_LYRICS", "MYMPD_PARTITIONS",
         "MYMPD_VOLUMEMIN", "MYMPD_VOLUMEMAX", "MYMPD_VORBISUSLT", "MYMPD_VORBISSYLT",
         "MYMPD_USLTEXT", "MYMPD_SYLTEXT", "MYMPD_SYSLOG",
@@ -400,7 +392,8 @@ static void mympd_get_env(struct t_config *config) {
 void mympd_free_config(t_config *config) {
     sdsfree(config->mpd_host);
     sdsfree(config->mpd_pass);
-    sdsfree(config->webport);
+    sdsfree(config->http_host);
+    sdsfree(config->http_port);
 #ifdef ENABLE_SSL
     sdsfree(config->ssl_port);
     sdsfree(config->ssl_cert);
@@ -426,7 +419,6 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->cols_browse_filesystem);
     sdsfree(config->cols_playback);
     sdsfree(config->cols_queue_jukebox);
-    sdsfree(config->stream_url);
     sdsfree(config->bg_color);
     sdsfree(config->bg_css_filter);
     sdsfree(config->coverimage_name);
@@ -454,10 +446,12 @@ void mympd_config_defaults(t_config *config) {
     config->mpd_port = 6600;
     config->mpd_pass = sdsempty();
     config->regex = true;
+    config->mpd_stream_port = 8000;
     config->binarylimit = 16384;
     config->music_directory = sdsnew("auto");
     config->playlist_directory = sdsnew("/var/lib/mpd/playlists");
-    config->webport = sdsnew("80");
+    config->http_host = sdsnew("0.0.0.0");
+    config->http_port = sdsnew("80");
 #ifdef ENABLE_SSL
     config->ssl = true;
     config->ssl_port = sdsnew("443");
@@ -465,7 +459,6 @@ void mympd_config_defaults(t_config *config) {
     config->ssl_key = sdsnew(VARLIB_PATH"/ssl/server.key");
     config->ssl_san = sdsempty();
     config->custom_cert = false;
-    config->redirect = true;
 #endif
     config->user = sdsnew("mympd");
     config->chroot = false;
@@ -503,9 +496,7 @@ void mympd_config_defaults(t_config *config) {
     config->cols_browse_filesystem = sdsnew("[\"Type\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
     config->cols_playback = sdsnew("[\"Artist\",\"Album\"]");
     config->cols_queue_jukebox = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\"]");
-    config->localplayer = false;
-    config->stream_port = 8443;
-    config->stream_url = sdsempty();
+    config->mpd_stream_port = 8000;
     config->bg_cover = true;
     config->bg_color = sdsnew("#060708");
     config->bg_css_filter = sdsnew("grayscale(100%) opacity(5%)");
@@ -519,7 +510,6 @@ void mympd_config_defaults(t_config *config) {
     config->bookmarks = false;
     config->volume_step = 5;
     config->publish = true;
-    config->webdav = false;
     config->covercache_keep_days = 7;
     config->covercache = true;
     config->theme = sdsnew("theme-dark");
@@ -576,43 +566,43 @@ bool mympd_dump_config(void) {
         "playlistdirectory = %s\n"
         "regex = %s\n"
         "binarylimit = %u\n"
+        "streamport = %u\n"
         "\n",
         p_config->mpd_host,
         p_config->mpd_port,
         p_config->music_directory,
         p_config->playlist_directory,
         (p_config->regex == true ? "true" : "false"),
-        p_config->binarylimit
+        p_config->binarylimit,
+        p_config->mpd_stream_port
     );
     
     fprintf(fp, "[webserver]\n"
-        "webport = %s\n"
+        "httphost = %s\n"
+        "httpport = %s\n"
       #ifdef ENABLE_SSL
         "ssl = %s\n"
         "sslport = %s\n"
         "sslcert = %s\n"
         "sslkey = %s\n"
         "sslsan = %s\n"
-        "redirect = %s\n"
       #endif
         "publish = %s\n"
-        "webdav = %s\n"
         "acl = %s\n"
       #ifdef ENABLE_LUA
         "scriptacl = %s\n"
       #endif
         "\n",
-        p_config->webport,
+        p_config->http_host,
+        p_config->http_port,
       #ifdef ENABLE_SSL
         (p_config->ssl == true ? "true" : "false"),
         p_config->ssl_port,
         p_config->ssl_cert,
         p_config->ssl_key,
         p_config->ssl_san,
-        (p_config->redirect == true ? "true" : "false" ),
       #endif
         (p_config->publish == true ? "true" : "false"),
-        (p_config->webdav == true ? "true" : "false"),
         p_config->acl
       #ifdef ENABLE_LUA
         ,
@@ -667,9 +657,6 @@ bool mympd_dump_config(void) {
         "colsbrowsefilesystem = %s\n"
         "colsplayback = %s\n"
         "colsqueuejukebox = %s\n"
-        "localplayer = %s\n"
-        "streamport = %d\n"
-        "#streamuri = %s\n"
         "readonly = %s\n"
         "bookmarks = %s\n"
         "bookletname = %s\n"
@@ -731,9 +718,6 @@ bool mympd_dump_config(void) {
         p_config->cols_browse_filesystem,
         p_config->cols_playback,
         p_config->cols_queue_jukebox,
-        (p_config->localplayer == true ? "true" : "false"),
-        p_config->stream_port,
-        p_config->stream_url,
         (p_config->readonly == true ? "true" : "false"),
         (p_config->bookmarks == true ? "true" : "false"),
         p_config->booklet_name,
@@ -814,10 +798,6 @@ bool mympd_read_config(t_config *config, sds configfile) {
     #endif
     if (config->readonly == true) {
         mympd_set_readonly(config);
-    }
-    if (config->publish == false && config->webdav == true) {
-        MYMPD_LOG_NOTICE("Publish is disabled, disabling webdav");
-        config->webdav = false;
     }
 
     if (config->chroot == true && config->syscmds == true) {

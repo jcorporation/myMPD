@@ -18,7 +18,7 @@ extern tiny_queue_t *mpd_worker_queue;
 extern tiny_queue_t *mympd_script_queue;
 
 typedef struct t_work_request {
-    int conn_id; // needed to identify the connection where to send the reply
+    long long conn_id; // needed to identify the connection where to send the reply
     long id; //the jsonrpc id
     sds method; //the jsonrpc method
     enum mympd_cmd_ids cmd_id;
@@ -27,7 +27,7 @@ typedef struct t_work_request {
 } t_work_request;
 
 typedef struct t_work_result {
-    int conn_id; // needed to identify the connection where to send the reply
+    long long conn_id; // needed to identify the connection where to send the reply
     long id; //the jsonrpc id
     sds method; //the jsonrpc method
     enum mympd_cmd_ids cmd_id;
@@ -36,9 +36,19 @@ typedef struct t_work_result {
     void *extra;
 } t_work_result;
 
+struct set_mg_user_data_request {
+    sds music_directory;
+    sds playlist_directory;
+    sds coverimage_names;
+    bool feat_library;
+    bool feat_mpd_albumart;
+    sds mpd_host;
+    unsigned mpd_stream_port;
+};
+
 t_work_result *create_result(t_work_request *request);
-t_work_result *create_result_new(int conn_id, long request_id, int cmd_id, const char *method);
-t_work_request *create_request(int conn_id, long request_id, int cmd_id, const char *method, const char *data);
+t_work_result *create_result_new(long long conn_id, long request_id, int cmd_id, const char *method);
+t_work_request *create_request(long long conn_id, long request_id, int cmd_id, const char *method, const char *data);
 int expire_request_queue(tiny_queue_t *queue, time_t age);
 int expire_result_queue(tiny_queue_t *queue, time_t age);
 void free_request(t_work_request *request);

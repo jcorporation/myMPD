@@ -219,7 +219,7 @@ int testdir(const char *name, const char *dirname, bool create) {
     if (create == true) {
         if (mkdir(dirname, 0700) != 0) {
             MYMPD_LOG_ERROR("%s: creating \"%s\" failed: %s", name, dirname, strerror(errno));
-            //directory not exists and creating it failed
+            //directory does not exist and creating it failed
             return 2;
         }
         MYMPD_LOG_NOTICE("%s: \"%s\" created", name, dirname);
@@ -227,8 +227,8 @@ int testdir(const char *name, const char *dirname, bool create) {
         return 1;
     }
 
-    MYMPD_LOG_ERROR("%s: \"%s\" don't exists", name, dirname);
-    //directory not exists
+    MYMPD_LOG_ERROR("%s: \"%s\" does not exist", name, dirname);
+    //directory does not exist
     return 3;
 }
 

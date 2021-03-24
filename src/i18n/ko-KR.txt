@@ -459,15 +459,6 @@ Tags to browse
 Local playback
 로컬 연주
 
-URI
-주소
-
-HTTPS Port
-HTTPS 포트
-
-HTTP Port
-HTTP 포트
-
 Statistics
 통계
 
@@ -1490,15 +1481,6 @@ disabled
 
 enabled
 사용함
-
-No mixed content,  MPD stream must be served over https:
-혼합된 컨텐트는 안되며, MPD 스트리밍은 https:를 통해야 합니다.
-
-Details
-상세
-
-Port
-포트
 
 Websocket is disconnected
 웹소켓 연결 안 됨

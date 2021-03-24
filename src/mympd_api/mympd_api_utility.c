@@ -97,7 +97,6 @@ void free_mympd_state_sds(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->cols_playback);
     sdsfree(mympd_state->cols_queue_last_played);
     sdsfree(mympd_state->cols_queue_jukebox);
-    sdsfree(mympd_state->stream_url);
     sdsfree(mympd_state->bg_color);
     sdsfree(mympd_state->bg_css_filter);
     sdsfree(mympd_state->coverimage_name);

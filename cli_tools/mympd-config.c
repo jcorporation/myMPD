@@ -33,14 +33,14 @@ struct t_config {
     sds mpd_conf;
     sds mpd_exe;
     sds mympd_conf;
-    sds webport;
+    sds httphost;
+    sds httpport;
     sds sslport;
     sds user;
     int loglevel;
     bool ssl;
     bool mixramp;
     bool publish;
-    bool webdav;
     bool syscmds;
     bool readonly;
     bool scripting;
@@ -193,13 +193,12 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
         {"mpdconf",   required_argument, 0, 'c'},
         {"mpdexe",    required_argument, 0, 'e'},
         {"mympdconf", required_argument, 0, 'm'},
-        {"webport",   required_argument, 0, 'w'},
+        {"httpport",  required_argument, 0, 'w'},
         {"sslport",   required_argument, 0, 's'},
         {"loglevel",  required_argument, 0, 'l'},
         {"user",      required_argument, 0, 'u'},
         {"mixramp",   no_argument,       0, 'r'},
         {"publish",   no_argument,       0, 'p'},
-        {"webdav",    no_argument,       0, 'd'},
         {"syscmds",   no_argument,       0, 'y'},
         {"scripting", no_argument,       0, 't'},
         {"chroot",    no_argument,       0, 'o'},
@@ -221,7 +220,7 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
                 pconfig->mympd_conf = sdsreplace(pconfig->mympd_conf, optarg);
                 break;
             case 'w':
-                pconfig->webport = sdsreplace(pconfig->webport, optarg);
+                pconfig->httpport = sdsreplace(pconfig->httpport, optarg);
                 break;
             case 'u':
                 pconfig->user = sdsreplace(pconfig->user, optarg);
@@ -237,10 +236,6 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
                 pconfig->mixramp = true;
                 break;
             case 'p':
-                pconfig->publish = true;
-                break;
-            case 'd':
-                pconfig->webdav = true;
                 pconfig->publish = true;
                 break;
             case 'y':
@@ -270,7 +265,6 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
                     "-l, --loglevel <number>  loglevel (default: 2 - info)\n"
                     "-r, --mixramp            enable mixramp settings in the gui (default: disabled)\n"
                     "-p, --publish            enable publishing feature (default: disabled)\n"
-                    "-d, --webdav             enable webdav support (default: disabled)\n"
                     "-y, --syscmds            enable system commands (default: disabled)\n"
                     "-t, --scripting          enable scripting with lua (default: disabled)\n"
                     "-o, --chroot             enable chroot to /var/lib/mympd\n"
@@ -340,14 +334,14 @@ void set_defaults(struct t_config *pconfig) {
     pconfig->mpd_conf = find_mpd_conf();
     pconfig->mpd_exe = find_mpd_exe();
     pconfig->mympd_conf = sdsnew("/etc/mympd.conf");
-    pconfig->webport = sdsnew("80");
+    pconfig->httpport = sdsnew("80");
+    pconfig->httphost = sdsnew("0.0.0.0");
     pconfig->sslport = sdsnew("443");
     pconfig->user = sdsnew("mympd");
     pconfig->loglevel = 5;
     pconfig->ssl = true;
     pconfig->mixramp = false;
     pconfig->publish = false;
-    pconfig->webdav = false;
     pconfig->syscmds = false;
     pconfig->scripting = false;
     pconfig->readonly = false;
@@ -402,11 +396,13 @@ bool write_mympd_conf(struct t_config *pconfig) {
 
     fprintf(fp, "\n\n[webserver]\n"
         "#Webserver options\n"
-        "webport = %s\n\n"
+        "httphost = %s\n\n"
+        "httpport = %s\n\n"
         "#Enable ssl\n"
         "#Certificates are generated under /var/lib/mympd/ssl/\n"
         "ssl = %s\n",
-        pconfig->webport,
+        pconfig->httphost,
+        pconfig->httpport,
         (pconfig->ssl == true ? "true" : "false"));
     if (pconfig->ssl == true) {
         fprintf(fp, "sslport = %s\n", pconfig->sslport);
@@ -415,11 +411,8 @@ bool write_mympd_conf(struct t_config *pconfig) {
         fprintf(fp, "#sslport = 443\n");
     }
     fprintf(fp, "\n#Publishes some mpd and myMPD directories\n"
-        "publish = %s\n\n"
-        "#Webdav support, publish must be set to true\n"
-        "webdav = %s\n",
-        (pconfig->publish == true ? "true" : "false"),
-        (pconfig->webdav == true ? "true" : "false"));
+        "publish = %s\n\n",
+        (pconfig->publish == true ? "true" : "false"));
 
     fprintf(fp, "\n\n[mympd]\n"
         "Loglevel\n"
@@ -498,7 +491,8 @@ int main(int argc, char **argv) {
     sdsfree(mpd_config.pass);
     sdsfree(mpd_config.music_directory);
     sdsfree(mpd_config.playlist_directory);
-    sdsfree(mpd_config.webport);
+    sdsfree(mpd_config.httpport);
+    sdsfree(mpd_config.httphost);
     sdsfree(mpd_config.sslport);
     sdsfree(mpd_config.user);
     sdsfree(mpd_config.mpd_conf);

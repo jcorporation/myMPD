@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -94,16 +95,18 @@ void mpd_client_mpd_features(t_config *config, t_mpd_client_state *mpd_client_st
     }
     
     //push settings to web_server_queue
+    struct set_mg_user_data_request *extra = (struct set_mg_user_data_request*)malloc(sizeof(struct set_mg_user_data_request));
+    assert(extra);
+    extra->music_directory = sdsdup(mpd_client_state->music_directory_value);
+    extra->playlist_directory = sdsdup(config->playlist_directory);
+    extra->coverimage_names = sdsdup(mpd_client_state->coverimage_name);
+    extra->feat_library = mpd_client_state->feat_library;
+    extra->feat_mpd_albumart = mpd_client_state->feat_mpd_albumart;
+    extra->mpd_stream_port = config->mpd_stream_port;
+    extra->mpd_host = sdsdup(mpd_client_state->mpd_state->mpd_host);
+
     t_work_result *web_server_response = create_result_new(-1, 0, 0, "");
-    sds data = sdsnew("{");
-    data = tojson_char(data, "musicDirectory", mpd_client_state->music_directory_value, true);
-    data = tojson_char(data, "playlistDirectory", config->playlist_directory, true);
-    data = tojson_char(data, "coverimageName", mpd_client_state->coverimage_name, true);
-    data = tojson_bool(data, "featLibrary", mpd_client_state->feat_library, false);
-    data = tojson_bool(data, "featMpdAlbumart", mpd_client_state->feat_mpd_albumart, false);
-    data = sdscat(data, "}");
-    web_server_response->data = sdsreplace(web_server_response->data, data);
-    sdsfree(data);
+    web_server_response->extra = extra;
     tiny_queue_push(web_server_queue, web_server_response, 0);
 }
 
