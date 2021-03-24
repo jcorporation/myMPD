@@ -693,8 +693,8 @@ static void _mympd_api_http_client_ev_handler(struct mg_connection *nc, int ev, 
                 break;
             }
             mg_client_response->header = sdscatprintf(mg_client_response->header, "%.*s:%.*s\n", 
-                hm->headers[i].name.len, hm->headers[i].name.ptr,
-                hm->headers[i].value.len, hm->headers[i].value.ptr);
+                (int) hm->headers[i].name.len, hm->headers[i].name.ptr,
+                (int) hm->headers[i].value.len, hm->headers[i].value.ptr);
         }
         //response code line
         for (unsigned i = 0; i <  hm->message.len; i++) {

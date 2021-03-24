@@ -290,7 +290,7 @@ static bool check_ipv4_acl(const char *acl, uint32_t remote_ip) {
             //ipv6 skip
             continue;
         }
-        int flag = tokens[i][0];
+        int flag = (unsigned char) tokens[i][0];
         char *acl_str = tokens[i];
         acl_str++;
         char *mask_str;
@@ -301,7 +301,7 @@ static bool check_ipv4_acl(const char *acl, uint32_t remote_ip) {
             allowed = flag == '+' ? true : false;        
             continue;
         }
-        else if (mask > 32) {
+        if (mask > 32) {
             //invalid mask
             continue;
         }

@@ -198,7 +198,7 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
     struct mg_connection *nc = mgr->conns;
     int i = 0;
     while (nc != NULL) {
-        if (nc->is_websocket == 1) {
+        if ((int)nc->is_websocket == 1) {
             MYMPD_LOG_DEBUG("Sending notify to conn_id %lu: %s", nc->id, response->data);
             mg_ws_send(nc, response->data, sdslen(response->data), WEBSOCKET_OP_TEXT);
             i++;
@@ -214,7 +214,7 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
     struct mg_connection *nc = mgr->conns;
     while (nc != NULL) {
-        if (nc->is_websocket == 0 && nc->id == (long unsigned)response->conn_id) {
+        if ((int)nc->is_websocket == 0 && nc->id == (long unsigned)response->conn_id) {
             MYMPD_LOG_DEBUG("Sending response to conn_id %lu: %s", nc->id, response->data);
             if (response->cmd_id == MPD_API_ALBUMART) {
                 send_albumart(nc, response->data, response->binary);
@@ -315,7 +315,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     nc->fn_data = backend_nc;
                     if (backend_nc == NULL) {
 						//no backend connection, close frontend connection
-						MYMPD_LOG_WARN("Can not create backend connection to %lu", backend_nc->id);
+						MYMPD_LOG_WARN("Can not create backend connection");
                         nc->is_closing = 1;
                     }
                 }
