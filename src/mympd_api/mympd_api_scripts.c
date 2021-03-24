@@ -633,7 +633,7 @@ static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_a
 struct mg_client_data_t {
     const char *method;
     const char *uri;
-    const char *post_content_type;
+    const char *extra_headers;
     const char *post_data;
 };
 
@@ -663,13 +663,13 @@ static void _mympd_api_http_client_ev_handler(struct mg_connection *nc, int ev, 
             mg_printf(nc,
                 "POST %s HTTP/1.0\r\n"
                 "Host: %.*s\r\n"
-                "Content-type: %s\r\n"
+                "%s"
                 "Content-length: %d\r\n"
                 "\r\n"
                 "%s\r\n",
                 mg_url_uri(mg_client_data->uri),
                 (int) host.len, host.ptr, 
-                mg_client_data->post_content_type,
+                mg_client_data->extra_headers,
                 strlen(mg_client_data->post_data),
                 mg_client_data->post_data);
         }
@@ -677,9 +677,11 @@ static void _mympd_api_http_client_ev_handler(struct mg_connection *nc, int ev, 
             mg_printf(nc,
                 "GET %s HTTP/1.0\r\n"
                 "Host: %.*s\r\n"
+                "%s"
                 "\r\n",
                 mg_url_uri(mg_client_data->uri),
-                (int) host.len, host.ptr);
+                (int) host.len, host.ptr,
+                mg_client_data->extra_headers);
         }
     } 
     else if (ev == MG_EV_HTTP_MSG) {
@@ -692,7 +694,7 @@ static void _mympd_api_http_client_ev_handler(struct mg_connection *nc, int ev, 
             if (hm->headers[i].name.len == 0) {
                 break;
             }
-            mg_client_response->header = sdscatprintf(mg_client_response->header, "%.*s:%.*s\n", 
+            mg_client_response->header = sdscatprintf(mg_client_response->header, "%.*s: %.*s\n", 
                 (int) hm->headers[i].name.len, hm->headers[i].name.ptr,
                 (int) hm->headers[i].value.len, hm->headers[i].value.ptr);
         }
@@ -731,7 +733,7 @@ static int _mympd_api_http_client(lua_State *lua_vm) {
     struct mg_client_data_t mg_client_data = {
         .method = lua_tostring(lua_vm, 1),
         .uri = lua_tostring(lua_vm, 2),
-        .post_content_type = lua_tostring(lua_vm, 3),
+        .extra_headers = lua_tostring(lua_vm, 3),
         .post_data = lua_tostring(lua_vm, 4)
     };
     
