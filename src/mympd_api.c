@@ -527,7 +527,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 }
             }
             else if (timer_def != NULL) {
-                MYMPD_LOG_ERROR("No timer id received, discarding timer definition");
+                MYMPD_LOG_ERROR("No timer id or interval, discarding timer definition");
                 free_timer_definition(timer_def);
             }
             break;

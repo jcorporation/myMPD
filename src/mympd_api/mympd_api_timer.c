@@ -260,6 +260,10 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, con
     int je = json_scanf(str, len, "{params: {name: %Q, enabled: %B, startHour: %d, startMinute: %d, action: %Q, subaction: %Q, volume: %d, playlist: %Q, jukeboxMode: %u}}",
         &name, &enabled, &start_hour, &start_minute, &action, &subaction, &volume, &playlist, &jukebox_mode);
     if (je == 9 || (je == 8 && subaction == NULL)) {
+        if (start_hour < 0 || start_hour > 23 || start_minute < 0 || start_minute > 59) {
+            start_hour = 0;
+            start_minute = 0;        
+        }
         MYMPD_LOG_DEBUG("Successfully parsed timer definition");
         timer_def->name = sdsnew(name);
         timer_def->enabled = enabled;
@@ -321,14 +325,13 @@ time_t timer_calc_starttime(int start_hour, int start_minute, int interval) {
     tms.tm_sec = 0;
     time_t start = mktime(&tms);
 
-    if (interval == 0 || interval == -1) {
+    if (interval <= 0) {
         interval = 86400;
     }
 
     while (start < now) {
         start += interval;
     }
-
     return start - now;
 }
 
@@ -435,9 +438,6 @@ bool timerfile_read(t_config *config, t_mympd_state *mympd_state) {
             timer_def = parse_timer(timer_def, param, sdslen(param));
             int interval;
             int je = json_scanf(param, sdslen(param), "{params: {interval: %d}}", &interval);
-            if (je == 0) {
-                interval = 86400;
-            }
             int timerid;
             je = json_scanf(param, sdslen(param), "{params: {timerid: %d}}", &timerid);
             sdsfree(param);
