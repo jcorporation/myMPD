@@ -159,6 +159,21 @@ Grouping
 Conductor
 지휘자
 
+ComposerSort
+작곡가 정렬
+
+Ensemble
+연주단체
+
+Movement
+악장
+
+MovementNumber
+악장 번호
+
+Location
+장소
+
 Pos
 위치
 
@@ -1482,6 +1497,7 @@ disabled
 enabled
 사용함
 
+
 Websocket is disconnected
 웹소켓 연결 안 됨
 
@@ -1659,7 +1675,6 @@ Albumcache not ready
 Open folder
 폴더 열기
 
-
 Open parent folder
 상위 폴더 열기
 
@@ -1724,11 +1739,19 @@ stop only
 정지만
 
 Do you really want to clear the playlist?
-연주목록을 지울까요?
-
+"%{playlist}" 연주목록을 지울까요?
 
 Do you really want to delete the playlist?
-연주목록을 삭제할까요?
+"%{playlist}" 연주목록을 삭제할까요?
+
+Do you really want to delete the script?
+스크립트를 삭제할까요?
+
+Yes, delete it
+예, 삭제합니다
+
+Yes, do it
+예, 합니다
 
 Playback settings
 연주 설정
@@ -1804,3 +1827,12 @@ Default image dark
 
 No script selected
 선택한 스크립트가 없음
+
+Synced lyrics
+동기화된 가사
+
+Unsynced lyrics
+가사
+
+Can not open script directory
+스크립트 디렉터리를 열 수 없음
