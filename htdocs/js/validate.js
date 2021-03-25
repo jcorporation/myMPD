@@ -99,7 +99,7 @@ function validateNotBlank(el) {
 }
 
 function validateInt(el) {
-    const value = el.value.replace(/\d/g, '');
+    const value = el.value.replace(/[\d\-]/g, '');
     if (value !== '') {
         el.classList.add('is-invalid');
         return false;
