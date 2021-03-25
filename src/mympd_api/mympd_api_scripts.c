@@ -168,12 +168,11 @@ bool mympd_api_script_save(t_config *config, const char *script, int order, cons
 }
 
 sds mympd_api_script_get(t_config *config, sds buffer, sds method, long request_id, const char *script) {
-    buffer = jsonrpc_result_start(buffer, method, request_id);
-    buffer = tojson_char(buffer, "script", script, true);
- 
     sds scriptfilename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
     FILE *fp = fopen(scriptfilename, "r");
     if (fp != NULL) {
+        buffer = jsonrpc_result_start(buffer, method, request_id);
+        buffer = tojson_char(buffer, "script", script, true);
         char *line = NULL;
         size_t n = 0;
         ssize_t read = 0;
@@ -203,6 +202,7 @@ sds mympd_api_script_get(t_config *config, sds buffer, sds method, long request_
         FREE_PTR(line);
         buffer = sdscatjson(buffer, content, sdslen(content));
         sdsfree(content);
+        buffer = jsonrpc_result_end(buffer);
     }
     else {
         MYMPD_LOG_ERROR("Can not open file \"%s\": %s", scriptfilename, strerror(errno));
@@ -210,7 +210,7 @@ sds mympd_api_script_get(t_config *config, sds buffer, sds method, long request_
             "script", "error", "Can not open scriptfile");
     }
     sdsfree(scriptfilename);
-    buffer = jsonrpc_result_end(buffer);
+    
     return buffer;
 }
 
