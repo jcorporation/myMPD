@@ -334,6 +334,11 @@ function parseSettings() {
     else {
         document.getElementById('btnStop').classList.add('hide');
     }
+
+    //set local playback url    
+    if (settings.advanced.uiLocalPlayback === true) {
+        setLocalPlayerUrl();
+    }
     
     //parse mpd settings if connected
     if (settings.mpdConnected === true) {
@@ -379,8 +384,6 @@ function parseSettings() {
     toggleBtnChk('btnFeatTimer', settings.featTimer);
     toggleBtnChk('btnFeatLyrics', settings.featLyrics);
     toggleBtnChk('btnFeatHome', settings.featHome);
-
-    setLocalPlayerUrl();
 
     toggleBtnChkCollapse('btnCoverimage', 'collapseAlbumart', settings.coverimage);
 
@@ -1001,11 +1004,6 @@ function saveQueueSettings() {
         jukeboxUniqueTag = 'Album';
     }
     
-    if (jukeboxMode === '1' && settings.featSearchwindow === false && jukeboxPlaylist === 'Database') {
-        formOK = false;
-        document.getElementById('warnJukeboxPlaylist').classList.remove('hide');
-    }
-       
     if (formOK === true) {
         sendAPI("MYMPD_API_SETTINGS_SET", {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),

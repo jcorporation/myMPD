@@ -417,13 +417,6 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
         list_free(&mpd_client_state->jukebox_queue_tmp);
     }
     
-    if (jukebox_mode == JUKEBOX_ADD_SONG && strcmp(playlist, "Database") == 0 && 
-        mpd_client_state->mpd_state->feat_mpd_searchwindow == false)
-    {
-        MYMPD_LOG_ERROR("Jukebox mode song and playlist database depends on mpd version >= 0.20.0");
-        return false;
-    }
-    
     //get last_played and current queue
     struct list *queue_list = mpd_client_jukebox_get_last_played(config, mpd_client_state, jukebox_mode);
     if (queue_list == NULL) {

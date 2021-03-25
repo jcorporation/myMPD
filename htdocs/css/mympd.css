@@ -1051,3 +1051,7 @@ div.album-grid-mouseover {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+.text-monospace {
+  font-size: 90%;
+}

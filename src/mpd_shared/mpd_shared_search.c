@@ -141,15 +141,13 @@ static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, lo
                 return buffer;
             }
         }
-        if (mpd_state->feat_mpd_searchwindow == true) {
-            if (limit == 0) {
-                limit = INT_MAX - offset;
-            }
-            bool rc = mpd_search_add_window(mpd_state->conn, offset, offset + limit);
-            if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
-                mpd_search_cancel(mpd_state->conn);
-                return buffer;
-            }
+        if (limit == 0) {
+            limit = INT_MAX - offset;
+        }
+        bool rc = mpd_search_add_window(mpd_state->conn, offset, offset + limit);
+        if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
+            mpd_search_cancel(mpd_state->conn);
+            return buffer;
         }
     }
     
@@ -161,31 +159,22 @@ static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, lo
     if (strcmp(plist, "") == 0) {
         struct mpd_song *song;
         unsigned entities_returned = 0;
-        unsigned entity_count = 0;
         while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
-            entity_count++;
-            if (mpd_state->feat_mpd_searchwindow == true || (entity_count > offset && (entity_count <= offset + limit || limit == 0))) {
-                if (entities_returned++) {
-                    buffer = sdscat(buffer,",");
-                }
-                buffer = sdscat(buffer, "{");
-                buffer = tojson_char(buffer, "Type", "song", true);
-                buffer = put_song_tags(buffer, mpd_state, tagcols, song);
-                if (sticker_cache != NULL) {
-                    buffer = sdscat(buffer, ",");
-                    buffer = mpd_shared_sticker_list(buffer, sticker_cache, mpd_song_get_uri(song));
-                }
-                buffer = sdscat(buffer, "}");
+            if (entities_returned++) {
+                buffer = sdscat(buffer,",");
             }
+            buffer = sdscat(buffer, "{");
+            buffer = tojson_char(buffer, "Type", "song", true);
+            buffer = put_song_tags(buffer, mpd_state, tagcols, song);
+            if (sticker_cache != NULL) {
+                buffer = sdscat(buffer, ",");
+                buffer = mpd_shared_sticker_list(buffer, sticker_cache, mpd_song_get_uri(song));
+            }
+            buffer = sdscat(buffer, "}");
             mpd_song_free(song);
         }
         buffer = sdscat(buffer, "],");
-        if (mpd_state->feat_mpd_searchwindow == true) {
-            buffer = tojson_long(buffer, "totalEntities", -1, true);
-        }
-        else {
-            buffer = tojson_long(buffer, "totalEntities", entity_count, true);
-        }
+        buffer = tojson_long(buffer, "totalEntities", -1, true);
         buffer = tojson_long(buffer, "offset", offset, true);
         buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
         if (adv == true) {

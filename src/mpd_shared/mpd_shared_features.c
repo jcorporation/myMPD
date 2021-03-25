@@ -22,15 +22,6 @@
 #include "mpd_shared_tags.h"
 #include "../mpd_shared.h"
 
-bool mpd_shared_feat_mpd_searchwindow(t_mpd_state *mpd_state) {
-    if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 20, 0) >= 0) {
-        return true;
-    }
-
-    MYMPD_LOG_WARN("Disabling search window support, depends on mpd >= 0.20.0");
-    return false;
-}
-
 bool mpd_shared_feat_advsearch(t_mpd_state *mpd_state) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         MYMPD_LOG_INFO("Enabling advanced search");

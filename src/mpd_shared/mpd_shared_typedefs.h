@@ -13,7 +13,8 @@ enum mpd_conn_states {
     MPD_CONNECTED,
     MPD_RECONNECT,
     MPD_DISCONNECT,
-    MPD_WAIT
+    MPD_WAIT,
+    MPD_TOO_OLD
 };
 
 typedef struct t_sticker {
@@ -46,7 +47,6 @@ typedef struct t_mpd_state {
     t_tags mympd_tag_types;
     t_tags mpd_tag_types;
     //Feats
-    bool feat_mpd_searchwindow;
     bool feat_tags;
     bool feat_advsearch;
     bool feat_stickers;

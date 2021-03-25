@@ -36,11 +36,6 @@ static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char 
 
 //public functions
 bool caches_init(t_mpd_client_state *mpd_client_state) {
-    if (mpd_client_state->mpd_state->feat_mpd_searchwindow == false) {
-        MYMPD_LOG_INFO("Can not create caches, mpd version < 0.20.0");
-        return false;
-    }
-
     if (mpd_client_state->mpd_state->feat_stickers == true || mpd_client_state->mpd_state->feat_tags == true) {
         //push cache building request to mpd_worker thread
         if (mpd_client_state->mpd_state->feat_stickers == true) {

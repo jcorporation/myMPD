@@ -57,7 +57,6 @@ void free_mpd_worker_state(t_mpd_worker_state *mpd_worker_state) {
 }
 
 void mpd_worker_features(t_mpd_worker_state *mpd_worker_state) {
-    mpd_worker_state->mpd_state->feat_mpd_searchwindow = mpd_shared_feat_mpd_searchwindow(mpd_worker_state->mpd_state);
     mpd_worker_state->mpd_state->feat_advsearch = mpd_shared_feat_advsearch(mpd_worker_state->mpd_state);
 
     reset_t_tags(&mpd_worker_state->generate_pls_tag_types);

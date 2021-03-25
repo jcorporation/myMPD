@@ -84,6 +84,9 @@ void *mpd_client_loop(void *arg_config) {
     mpd_client_state->mpd_state->conn_state = MPD_DISCONNECTED;
     while (s_signal_received == 0) {
         mpd_client_idle(config, mpd_client_state);
+        if (mpd_client_state->mpd_state->conn_state == MPD_TOO_OLD) {
+            break;
+        }
     }
     trigger_execute(mpd_client_state, TRIGGER_MYMPD_STOP);
     //Cleanup
@@ -281,6 +284,13 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
             }
 
             MYMPD_LOG_NOTICE("MPD connected");
+            //check version
+            if (mpd_connection_cmp_server_version(mpd_client_state->mpd_state->conn, 0, 20, 0) < 0) {
+                MYMPD_LOG_EMERG("MPD version to old, myMPD supports only MPD version >= 0.20.0");
+                mpd_client_state->mpd_state->conn_state = MPD_TOO_OLD;
+                s_signal_received = 1;
+            }
+            
             mpd_connection_set_timeout(mpd_client_state->mpd_state->conn, mpd_client_state->mpd_state->timeout);
             buffer = jsonrpc_event(buffer, "mpd_connected");
             ws_notify(buffer);

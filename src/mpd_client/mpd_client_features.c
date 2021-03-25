@@ -49,7 +49,6 @@ void mpd_client_mpd_features(t_config *config, t_mpd_client_state *mpd_client_st
     mpd_client_state->feat_coverimage = true;
     mpd_client_state->feat_mpd_albumart = false;
     mpd_client_state->feat_mpd_readpicture = false;
-    mpd_client_state->mpd_state->feat_mpd_searchwindow = false;
     mpd_client_state->feat_single_oneshot = false;
     mpd_client_state->feat_mpd_mount = false;
     mpd_client_state->feat_mpd_neighbor = false;
@@ -66,7 +65,6 @@ void mpd_client_mpd_features(t_config *config, t_mpd_client_state *mpd_client_st
     buffer = mpd_client_put_state(config, mpd_client_state, buffer, NULL, 0);
     sdsfree(buffer);
 
-    mpd_client_state->mpd_state->feat_mpd_searchwindow = mpd_shared_feat_mpd_searchwindow(mpd_client_state->mpd_state);
     mpd_client_state->mpd_state->feat_advsearch = mpd_shared_feat_advsearch(mpd_client_state->mpd_state);
 
     if (mpd_connection_cmp_server_version(mpd_client_state->mpd_state->conn, 0, 21, 0) >= 0) {

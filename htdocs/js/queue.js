@@ -256,19 +256,10 @@ function addToQueue() {
     if (!validateInt(inputAddToQueueQuantityEl)) {
         formOK = false;
     }
-    
-    const jukeboxMode = getSelectValue('selectAddToQueueMode');
-    const jukeboxPlaylist = getSelectValue('selectAddToQueuePlaylist');
-    
-    if (jukeboxMode === '1' && settings.featSearchwindow === false && jukeboxPlaylist === 'Database') {
-        document.getElementById('warnJukeboxPlaylist2').classList.remove('hide');
-        formOK = false;
-    }
-    
     if (formOK === true) {
         sendAPI("MPD_API_QUEUE_ADD_RANDOM", {
-            "mode": jukeboxMode,
-            "playlist": jukeboxPlaylist,
+            "mode": getSelectValue('selectAddToQueueMode'),
+            "playlist": getSelectValue('selectAddToQueuePlaylist'),
             "quantity": document.getElementById('inputAddToQueueQuantity').value
         });
         uiElements.modalAddToQueue.hide();
