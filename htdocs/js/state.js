@@ -340,7 +340,7 @@ function _setCurrentCover(url, el) {
     }
 
     const div = document.createElement('div');
-    div.classList.add('coverbg', 'carousel');
+    div.classList.add('coverbg', 'carousel', 'rounded');
     div.style.backgroundImage = 'url("' + subdir + '/albumart/' + url + '")';
     div.style.opacity = 0;
     setAttEnc(div, 'data-uri', url);
