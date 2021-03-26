@@ -220,7 +220,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
                 send_albumart(nc, response->data, response->binary);
             }
             else {
-                mg_http_reply(nc, 200, "Content-Type: application/json\r\n", response->data);
+                http_send_data(nc, response->data, sdslen(response->data), "Content-Type: application/json\r\n");
             }
             break;
         }
@@ -351,7 +351,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     MYMPD_LOG_ERROR("Invalid script API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
                         "script", "error", "Invalid script API request");
-                    mg_http_reply(nc, 200, "Content-Type: application/json\r\n", response);
+                    http_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
                     sdsfree(response);
                 }
             }
@@ -363,7 +363,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     response = tojson_char(response, "version", MG_VERSION, true);
                     response = tojson_char(response, "ip", inet_ntoa(localip.sin_addr), false);
                     response = jsonrpc_result_end(response);
-                    mg_http_reply(nc, 200, "Content-Type: application/json\r\n", response);
+                    http_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
                     sdsfree(response);
                 }
             }
@@ -374,7 +374,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     MYMPD_LOG_ERROR("Invalid API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
                         "general", "error", "Invalid API request");
-                    mg_http_reply(nc, 200, "Content-Type: application/json\r\n", response);
+                    http_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
                     sdsfree(response);
                 }
             }

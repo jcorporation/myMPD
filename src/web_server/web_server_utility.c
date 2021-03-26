@@ -112,12 +112,11 @@ sds *split_coverimage_names(const char *coverimage_name, sds *coverimage_names, 
 }
 
 void send_error(struct mg_connection *nc, int code, const char *msg) {
-    sds errorpage = sdscatfmt(sdsempty(), "<html><head><title>myMPD error</title></head><body>"
+    mg_http_reply(nc, code, "Content-Type: text/html\n\n", "<html><head><title>myMPD error</title></head><body>"
         "<h1>myMPD error</h1>"
         "<p>%s</p>"
         "</body></html>",
         msg);
-    mg_http_reply(nc, code, "Content-Type: text/html\n\n", errorpage);
     if (code >= 400) {
         MYMPD_LOG_ERROR(msg);
     }
@@ -128,6 +127,11 @@ void http_send_header_ok(struct mg_connection *nc, size_t len, const char *heade
       "%s"
       "Content-Length: %d\r\n\r\n",
       headers, len);
+}
+
+void http_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers) {
+    http_send_header_ok(nc, len, headers);
+    mg_send(nc, data, len);
 }
 
 void http_send_header_redirect(struct mg_connection *nc, const char *location) {
@@ -173,10 +177,6 @@ void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, con
     MYMPD_LOG_DEBUG("Serving file \"%s\" (%s)", asset_image, mime_type);
     sdsfree(asset_image);
     sdsfree(mime_type);
-}
-
-void serve_plaintext(struct mg_connection *nc, const char *text) {
-    mg_http_reply(nc, 200, "Content-Type: text/plain\r\n", text);
 }
 
 #ifndef DEBUG
