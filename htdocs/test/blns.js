@@ -29,6 +29,7 @@ var blns = [
   "None", 
   "hasOwnProperty", 
   "then", 
+  "%n%n",
   "\\", 
   "\\\\", 
   "0", 
