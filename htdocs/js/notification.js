@@ -19,7 +19,7 @@ function toggleAlert(alertBox, state, msg) {
         alertBoxEl.classList.add('hide');
     }
     else {
-        alertBoxEl.innerHTML = msg;
+        alertBoxEl.innerHTML = '<span class="mi mr-2">error</span>' + msg;
         alertBoxEl.classList.remove('hide');
     }
 }
@@ -135,10 +135,8 @@ function logMessage(title, text, facility, severity) {
 
     let append = true;
     const lastEntry = overview.firstElementChild;
-    if (lastEntry) {
-        if (getAttDec(lastEntry, 'data-title') === title) {
-            append = false;        
-        }
+    if (lastEntry && getAttDec(lastEntry, 'data-title') === title) {
+        append = false;        
     }
 
     const entry = document.createElement('div');
@@ -203,18 +201,14 @@ function setElsState(tag, state, type) {
             continue;
         }
         if (state === 'disabled') {
-            if (el.classList.contains('alwaysEnabled') === false) {
-                if (el.getAttribute('disabled') === null) {
-                    disableEl(el);
-                    el.classList.add('disabled');
-                }
+            if (el.classList.contains('alwaysEnabled') === false && el.getAttribute('disabled') === null) {
+                disableEl(el);
+                el.classList.add('disabled');
             }
         }
-        else {
-            if (el.classList.contains('disabled')) {
-                enableEl(el);
-                el.classList.remove('disabled');
-            }
+        else if (el.classList.contains('disabled')) {
+            enableEl(el);
+            el.classList.remove('disabled');
         }
     }
 }
