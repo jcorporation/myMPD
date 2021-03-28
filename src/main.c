@@ -577,6 +577,7 @@ int main(int argc, char **argv) {
     sdsfree(configfile);
     sdsfree(option);
     if (init_mg_user_data == true) {
+        free((char *)mgr.dns4.url);
         free_mg_user_data(mg_user_data);
     }
     FREE_PTR(mg_user_data);
