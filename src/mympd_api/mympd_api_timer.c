@@ -438,13 +438,17 @@ bool timerfile_read(t_config *config, t_mympd_state *mympd_state) {
             timer_def = parse_timer(timer_def, param, sdslen(param));
             int interval;
             int je = json_scanf(param, sdslen(param), "{params: {interval: %d}}", &interval);
+            if (je == 0) {
+                interval = 86400;
+            }
             int timerid;
             je = json_scanf(param, sdslen(param), "{params: {timerid: %d}}", &timerid);
             sdsfree(param);
-            if (timerid > mympd_state->timer_list.last_id) {
-                mympd_state->timer_list.last_id = timerid;
-            }
+            
             if (je == 1 && timer_def != NULL) {
+                if (timerid > mympd_state->timer_list.last_id) {
+                    mympd_state->timer_list.last_id = timerid;
+                }
                 time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute, interval);
                 add_timer(&mympd_state->timer_list, start, interval, timer_handler_select, timerid, timer_def, NULL);
             }
