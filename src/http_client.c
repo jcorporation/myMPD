@@ -49,13 +49,12 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
     mg_log_set("1");
     //set dns server
     sds dns_uri = get_dnsserver();
-    if (strlen(dns_uri) > 0) {
-        MYMPD_LOG_DEBUG("Setting dns server to %s", dns_uri);
-        mgr_client.dns4.url = dns_uri;
-    }
-    else {
+    if (strlen(dns_uri) == 0) {
         MYMPD_LOG_WARN("Error reading dns server settings");
+        dns_uri = sdscat(dns_uri, "udp://8.8.8.8:53");
     }
+    MYMPD_LOG_DEBUG("Setting dns server to %s", dns_uri);
+    mgr_client.dns4.url = dns_uri;
     
     mgr_client.userdata = mg_client_request;
     MYMPD_LOG_DEBUG("HTTP client connecting to \"%s\"", mg_client_request->uri);
