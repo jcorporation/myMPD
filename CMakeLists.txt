@@ -186,6 +186,7 @@ set(SOURCES
   src/utility.c
   src/random.c
   src/sds_extras.c
+  src/http_client.c
   src/lua_mympd_state.c
   src/mpd_shared.c
   src/mpd_shared/mpd_shared_search.c

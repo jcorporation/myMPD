@@ -27,6 +27,7 @@
 #include "utility.h"
 #include "tiny_queue.h"
 #include "global.h"
+#include "http_client.h"
 #include "web_server/web_server_utility.h"
 #include "web_server/web_server_albumart.h"
 #include "web_server.h"
@@ -65,7 +66,17 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_mgr_init(mgr);
     mgr->userdata = mg_user_data;
     mgr->product_name = "myMPD "MYMPD_VERSION;
-    
+    //set dns server
+    sds dns_uri = get_dnsserver();
+    if (strlen(dns_uri) > 0) {
+        MYMPD_LOG_WARN("Setting dns server to %s", dns_uri);
+        mgr->dns4.url = strdup(dns_uri);
+    }
+    else {
+        MYMPD_LOG_WARN("Error reading dns server settings");
+    }
+    sdsfree(dns_uri);
+  
     //bind to http_port
     struct mg_connection *nc_http;
     sds http_url = sdscatfmt(sdsempty(), "http://%s:%s", config->http_host, config->http_port);

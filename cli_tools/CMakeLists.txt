@@ -59,9 +59,11 @@ install(TARGETS mympd-config DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
 if (LUA_FOUND)
   set(MYMPD_SCRIPT_SOURCES
     mympd-script.c
+    log.c
     ../dist/src/mongoose/mongoose.c
     ../dist/src/sds/sds.c
     ../src/sds_extras.c
+    ../src/http_client.c
   )
 
   set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_MQTT=0 -DMG_ENABLE_HTTP_WEBSOCKET=0 \

@@ -35,6 +35,7 @@
 //private definitions
 static sds _mpd_client_put_outputs(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id);
 static int _mpd_client_get_volume(t_mpd_client_state *mpd_client_state);
+static unsigned get_current_song_start_time(t_mpd_client_state *mpd_client_state);
 
 //public functions
 sds mpd_client_get_updatedb_state(t_mpd_client_state *mpd_client_state, sds buffer) {
@@ -54,6 +55,8 @@ sds mpd_client_get_updatedb_state(t_mpd_client_state *mpd_client_state, sds buff
         buffer = jsonrpc_event(buffer, "update_finished");
     }
     mpd_status_free(status);    
+    mpd_response_finish(mpd_client_state->mpd_state->conn);
+    check_error_and_recover2(mpd_client_state->mpd_state, NULL, NULL, 0, false);
     return buffer;    
 }
 
@@ -181,6 +184,8 @@ bool mpd_client_get_lua_mympd_state(t_config *config, t_mpd_client_state *mpd_cl
         set_lua_mympd_state_p(lua_mympd_state, "partition", mpd_status_get_partition(status));
     }
     mpd_status_free(status);
+    mpd_response_finish(mpd_client_state->mpd_state->conn);
+    check_error_and_recover2(mpd_client_state->mpd_state, NULL, NULL, 0, false);
     return true;
 }
 
@@ -235,23 +240,44 @@ sds mpd_client_put_current_song(t_mpd_client_state *mpd_client_state, sds buffer
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = tojson_long(buffer, "pos", mpd_song_get_pos(song), true);
     buffer = tojson_long(buffer, "currentSongId", mpd_client_state->song_id, true);
-    buffer = tojson_long(buffer, "startTime", mpd_client_state->song_start_time, true);
     buffer = put_song_tags(buffer, mpd_client_state->mpd_state, &mpd_client_state->mpd_state->mympd_tag_types, song);
-
     if (mpd_client_state->mpd_state->feat_stickers && mpd_client_state->sticker_cache != NULL) {
         buffer = sdscat(buffer, ",");
         buffer = mpd_shared_sticker_list(buffer, mpd_client_state->sticker_cache, mpd_song_get_uri(song));
     }
-
     buffer = sdscat(buffer, ",");
     buffer = put_extra_files(mpd_client_state, buffer, uri, false);
-    
     mpd_song_free(song);
+
+    mpd_response_finish(mpd_client_state->mpd_state->conn);
+    if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
+    buffer = sdscat(buffer, ",");
+    unsigned start_time = get_current_song_start_time(mpd_client_state);
+    buffer = tojson_long(buffer, "startTime", start_time, false);
     buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
 
 //private functions
+static unsigned get_current_song_start_time(t_mpd_client_state *mpd_client_state) {
+    if (mpd_client_state->song_start_time > 0) {
+        return mpd_client_state->song_start_time;
+    }
+    struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
+    if (status == NULL) {
+        mpd_response_finish(mpd_client_state->mpd_state->conn);
+        check_error_and_recover2(mpd_client_state->mpd_state, NULL, NULL, 0, false);
+        return 0;
+    }
+    const unsigned start_time = time(NULL) - mpd_status_get_elapsed_time(status);
+    mpd_status_free(status);    
+    mpd_response_finish(mpd_client_state->mpd_state->conn);
+    check_error_and_recover2(mpd_client_state->mpd_state, NULL, NULL, 0, false);
+    return start_time;
+}
+
 static sds _mpd_client_put_outputs(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id) {
     bool rc = mpd_send_outputs(mpd_client_state->mpd_state->conn);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_outputs") == false) {
@@ -310,5 +336,7 @@ static int _mpd_client_get_volume(t_mpd_client_state *mpd_client_state) {
         volume = mpd_status_get_volume(status);
         mpd_status_free(status);
     }
+    mpd_response_finish(mpd_client_state->mpd_state->conn);
+    check_error_and_recover2(mpd_client_state->mpd_state, NULL, NULL, 0, false);
     return volume;
 }

@@ -35,6 +35,7 @@
 #include "../api.h"
 #include "../global.h"
 #include "../utility.h"
+#include "../http_client.h"
 #include "mympd_api_utility.h"
 #include "mympd_api_scripts.h"
 
@@ -629,100 +630,6 @@ static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_a
     free(script_thread_arg);
 }
 
-//simple http client for lua scripts
-struct mg_client_data_t {
-    const char *method;
-    const char *uri;
-    const char *extra_headers;
-    const char *post_data;
-};
-
-struct mg_client_response_t {
-    int rc;
-    sds response;
-    sds header;
-    sds body;
-};
-
-static void _mympd_api_http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
-    struct mg_client_data_t *mg_client_data = (struct mg_client_data_t *) nc->mgr->userdata;
-    if (ev == MG_EV_CONNECT) {
-        // Connected to server. Extract host name from URL
-        struct mg_str host = mg_url_host(mg_client_data->uri);
-
-        // If s_url is https://, tell client connection to use TLS
-        if (mg_url_is_ssl(mg_client_data->uri)) {
-            struct mg_tls_opts tls_opts = {
-                .srvname = host
-            };
-            mg_tls_init(nc, &tls_opts);
-        }
-
-        //Send request
-        if (strcmp(mg_client_data->method, "POST") == 0) {
-            mg_printf(nc,
-                "POST %s HTTP/1.0\r\n"
-                "Host: %.*s\r\n"
-                "%s"
-                "Content-length: %d\r\n"
-                "\r\n"
-                "%s\r\n",
-                mg_url_uri(mg_client_data->uri),
-                (int) host.len, host.ptr, 
-                mg_client_data->extra_headers,
-                strlen(mg_client_data->post_data),
-                mg_client_data->post_data);
-        }
-        else {
-            mg_printf(nc,
-                "GET %s HTTP/1.0\r\n"
-                "Host: %.*s\r\n"
-                "%s"
-                "\r\n",
-                mg_url_uri(mg_client_data->uri),
-                (int) host.len, host.ptr,
-                mg_client_data->extra_headers);
-        }
-    } 
-    else if (ev == MG_EV_HTTP_MSG) {
-        //Response is received. Return it
-        struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-        struct mg_client_response_t *mg_client_response = (struct mg_client_response_t *) fn_data;
-        mg_client_response->body = sdscatlen(mg_client_response->body, hm->body.ptr, hm->body.len);
-        //headers string
-        for (int i = 0; i < MG_MAX_HTTP_HEADERS; i++) {
-            if (hm->headers[i].name.len == 0) {
-                break;
-            }
-            mg_client_response->header = sdscatprintf(mg_client_response->header, "%.*s: %.*s\n", 
-                (int) hm->headers[i].name.len, hm->headers[i].name.ptr,
-                (int) hm->headers[i].value.len, hm->headers[i].value.ptr);
-        }
-        //response code line
-        for (unsigned i = 0; i <  hm->message.len; i++) {
-            if (hm->message.ptr[i] == '\n') {
-                break;
-            }
-            mg_client_response->response = sdscatprintf(mg_client_response->response, "%c", hm->message.ptr[i]);
-        }
-        //set response code
-        if (strncmp("HTTP/1.1 200", mg_client_response->response, 12) == 0) {;
-            mg_client_response->rc = 0;
-        }
-        else {
-            mg_client_response->rc = 1;
-        }
-        //Tell mongoose to close this connection
-        nc->is_closing = 1;        
-    } 
-    else if (ev == MG_EV_ERROR) {
-        struct mg_client_response_t *mg_client_response = (struct mg_client_response_t *) fn_data;
-        mg_client_response->body = sdscat(mg_client_response->body, "HTTP connection failed");
-        mg_client_response->rc = 2;
-        MYMPD_LOG_ERROR("HTTP connection to \"%s\" failed", mg_client_data->uri);
-    }
-}
-
 static int _mympd_api_http_client(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
     if (n != 4) {
@@ -730,7 +637,7 @@ static int _mympd_api_http_client(lua_State *lua_vm) {
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
 
-    struct mg_client_data_t mg_client_data = {
+    struct mg_client_request_t mg_client_request = {
         .method = lua_tostring(lua_vm, 1),
         .uri = lua_tostring(lua_vm, 2),
         .extra_headers = lua_tostring(lua_vm, 3),
@@ -744,14 +651,7 @@ static int _mympd_api_http_client(lua_State *lua_vm) {
         .body = sdsempty()
     };
 
-    struct mg_mgr mgr_client;
-    mg_mgr_init(&mgr_client);
-    mgr_client.userdata = &mg_client_data;
-    mg_http_connect(&mgr_client, mg_client_data.uri, _mympd_api_http_client_ev_handler, &mg_client_response);
-    while (mg_client_response.rc == -1) {
-        mg_mgr_poll(&mgr_client, 1000);
-    }
-    mg_mgr_free(&mgr_client);
+    http_client_request(&mg_client_request, &mg_client_response);
     
     lua_pushinteger(lua_vm, mg_client_response.rc);
     lua_pushlstring(lua_vm, mg_client_response.response, sdslen(mg_client_response.response));
