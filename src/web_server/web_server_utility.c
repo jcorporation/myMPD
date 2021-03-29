@@ -125,7 +125,7 @@ void send_error(struct mg_connection *nc, int code, const char *msg) {
 void http_send_header_ok(struct mg_connection *nc, size_t len, const char *headers) {
     mg_printf(nc, "HTTP/1.1 200 OK\r\n"
       "%s"
-      "Content-Length: %d\r\n\r\n",
+      "Content-Length: %ul\r\n\r\n",
       headers, len);
 }
 

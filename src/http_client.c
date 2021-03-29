@@ -90,7 +90,7 @@ static void _http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_d
                 "POST %s HTTP/1.0\r\n"
                 "Host: %.*s\r\n"
                 "%s"
-                "Content-length: %d\r\n"
+                "Content-length: %ul\r\n"
                 "\r\n"
                 "%s\r\n",
                 mg_url_uri(mg_client_request->uri),
