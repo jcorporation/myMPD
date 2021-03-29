@@ -45,7 +45,6 @@ void tiny_queue_free(tiny_queue_t *queue) {
 
 
 int tiny_queue_push(tiny_queue_t *queue, void *data, long id) {
-    MYMPD_LOG_DEBUG("Inserting entry with id \"%ld\" in queue \"%s\"", id, queue->name);
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
@@ -75,7 +74,6 @@ int tiny_queue_push(tiny_queue_t *queue, void *data, long id) {
         MYMPD_LOG_ERROR("Error in pthread_cond_signal: %d", rc);
         return 0;
     }
-    MYMPD_LOG_DEBUG("New length of queue \"%s\" is %d", queue->name, queue->length);
     return 1;
 }
 
@@ -163,13 +161,11 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
     }
     //queue has entry
     if (queue->head != NULL) {
-        MYMPD_LOG_DEBUG("Reading entry with id \"%ld\" from queue \"%s\"", id, queue->name);
         struct tiny_msg_t *current = NULL;
         struct tiny_msg_t *previous = NULL;
         
         for (current = queue->head; current != NULL; previous = current, current = current->next) {
             if (id == 0 || id == current->id) {
-                MYMPD_LOG_DEBUG("Returning entry with id \"%ld\"", current->id);
                 void *data = current->data;
                 
                 if (previous == NULL) {

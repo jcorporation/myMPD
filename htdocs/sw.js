@@ -22,19 +22,19 @@ const urlsToCache = [
 ];
 
 const ignoreRequests = new RegExp('(' + [
-  subdir + '/api',
-  subdir + '/ca.crt',
-  subdir + '/ws',
-  subdir + '/stream',
-  subdir + '/pics/(.*)',
-  subdir + '/albumart/(.*)',
-  subdir + '/browse/(.*)'].join('(/?)|\\') + ')$');
+    subdir + '/api/(.*)',
+    subdir + '/ca.crt',
+    subdir + '/ws/',
+    subdir + '/stream/',
+    subdir + '/pics/(.*)',
+    subdir + '/albumart/(.*)',
+    subdir + '/browse/(.*)'].join('|') + ')$');
 
 self.addEventListener('install', function(event) {
     event.waitUntil(
         caches.open(CACHE).then(function(cache) {
             urlsToCache.map(function(url) {
-		return cache.add(url).catch(function (reason) {
+                return cache.add(url).catch(function (reason) {
                     return console.log('ServiceWorker: ' + String(reason) + ' ' + url);
                 });
             });
@@ -43,12 +43,6 @@ self.addEventListener('install', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-    if (event.request.url.match('^http://')) {
-        return false;
-    }
-    if (event.request.destination === 'audio') {
-        return false;    
-    }
     if (ignoreRequests.test(event.request.url)) {
         return false;
     }

@@ -8,7 +8,7 @@ const ignoreMessages = ['No current song', 'No lyrics found'];
 function sendAPI(method, params, callback, onerror) {
     const request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": params};
     const ajaxRequest = new XMLHttpRequest();
-    ajaxRequest.open('POST', subdir + '/api', true);
+    ajaxRequest.open('POST', subdir + '/api/', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {

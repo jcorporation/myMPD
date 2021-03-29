@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
         sdsfree(script_data);
     }
     else {
-        uri = sdscat(uri, "/api");
+        uri = sdscat(uri, "/api/");
         post_data = sdscat(post_data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SCRIPT_EXECUTE\",\"params\":{\"script\":");
         post_data = sdscatjson(post_data, argv[2], strlen(argv[2]));
         post_data = sdscat(post_data, ",arguments:{");

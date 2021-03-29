@@ -22,13 +22,13 @@ const urlsToCache = [
 ];
 
 const ignoreRequests = new RegExp('(' + [
-	subdir + '/api',
+	subdir + '/api/(.*)',
 	subdir + '/ca.crt',
-	subdir + '/ws',
-	subdir + '/stream',
+	subdir + '/ws/',
+	subdir + '/stream/',
 	subdir + '/pics/(.*)',
 	subdir + '/albumart/(.*)',
-	subdir + '/browse/(.*)'].join('(/?)|\\') + ')$');
+	subdir + '/browse/(.*)'].join('|') + ')$');
 
 self.addEventListener('install', function(event) {
     event.waitUntil(
@@ -43,12 +43,6 @@ self.addEventListener('install', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-    if (event.request.url.match('^http://')) {
-        return false;
-    }
-    if (event.request.destination === 'audio') {
-        return false;    
-    }
     if (ignoreRequests.test(event.request.url)) {
         return false;
     }

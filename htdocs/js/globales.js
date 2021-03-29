@@ -265,6 +265,12 @@ const advancedSettingsDefault = {
         "title": "Playlist",
         "form": "NotificationSettingsAdvFrm"
     },
+    "notificationScript": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Script",
+        "form": "NotificationSettingsAdvFrm"
+    },
     "uiAAASection": {
         "inputType": "section",
         "title": "Appearance",
