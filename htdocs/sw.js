@@ -2,7 +2,7 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-const CACHE = 'myMPD-cache-v7.0.0';
+const CACHE = 'myMPD-cache-v7.0.1';
 const subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
 const urlsToCache = [
     subdir + '/',
@@ -22,19 +22,19 @@ const urlsToCache = [
 ];
 
 const ignoreRequests = new RegExp('(' + [
-    subdir + '/api/(.*)',
-    subdir + '/ca.crt',
-    subdir + '/ws/',
-    subdir + '/stream/',
-    subdir + '/pics/(.*)',
-    subdir + '/albumart/(.*)',
-    subdir + '/browse/(.*)'].join('|') + ')$');
+	subdir + '/api/(.*)',
+	subdir + '/ca.crt',
+	subdir + '/ws/',
+	subdir + '/stream/',
+	subdir + '/pics/(.*)',
+	subdir + '/albumart/(.*)',
+	subdir + '/browse/(.*)'].join('|') + ')$');
 
 self.addEventListener('install', function(event) {
     event.waitUntil(
         caches.open(CACHE).then(function(cache) {
             urlsToCache.map(function(url) {
-                return cache.add(url).catch(function (reason) {
+				return cache.add(url).catch(function (reason) {
                     return console.log('ServiceWorker: ' + String(reason) + ' ' + url);
                 });
             });
