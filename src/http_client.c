@@ -4,11 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <arpa/nameser.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <resolv.h>
-#include <sys/socket.h>
+#include <errno.h>
 
 #include "../dist/src/sds/sds.h"
 #include "../dist/src/mongoose/mongoose.h"
@@ -22,22 +18,46 @@ static void _http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_d
 
 //public functions
 sds get_dnsserver(void) {
+    //read resolv.conf directly - musl does not support res_init
     sds buffer = sdsempty();
-    if (res_init() != 0) {
-        MYMPD_LOG_WARN("Can not initialize dns server structure");
+    FILE *fp = fopen("/etc/resolv.conf", "r");
+    if (fp == NULL) {
+        MYMPD_LOG_WARN("Can not open /etc/resolv.conf: %s", strerror(errno));
         return buffer;
     }
-    if (_res.nscount <= 0) {
-        MYMPD_LOG_WARN("No dns servers found");
-        return buffer;
+    char *line = NULL;
+    size_t n = 0;
+    ssize_t read;
+    sds nameserver = sdsempty();
+    while ((read = getline(&line, &n, fp)) > 0) {
+        if (strncmp(line, "nameserver", 10) == 0 && isspace(line[10])) {
+            char *p;
+            char *z;
+            for (p = line + 11; isspace(*p); p++);
+            for (z = p; *z != '\0' && (isdigit(*z) || *z == '.'); z++) {
+                nameserver = sdscatprintf(nameserver, "%c", *z);
+            }
+            struct sockaddr_in sa;
+            if (inet_pton(AF_INET, nameserver, &(sa.sin_addr)) == 1) {
+                //valid ipv4 address
+                break;
+            }
+            MYMPD_LOG_DEBUG("Skipping invalid nameserver entry in resolv.conf");
+            sdsclear(nameserver);
+        }
     }
-    char ip_string[INET_ADDRSTRLEN] = "";
-    if (inet_ntop(AF_INET, &_res.nsaddr_list[0].sin_addr.s_addr, ip_string, INET_ADDRSTRLEN) != NULL) {
-        buffer = sdscatprintf(buffer, "udp://%s:%d", 
-            ip_string, 
-            ntohs(_res.nsaddr_list[0].sin_port)
-        );
+    if (line != NULL) {
+        free(line);
     }
+    fclose(fp);
+    if (sdslen(nameserver) > 0) {
+        buffer = sdscatprintf(buffer, "udp://%s:53", nameserver);
+    }
+    else {
+        MYMPD_LOG_WARN("No valid nameserver found");
+        buffer = sdscat(buffer, "udp://8.8.8.8:53");
+    }
+    sdsfree(nameserver);
     return buffer;
 }
 
@@ -49,10 +69,6 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
     mg_log_set("1");
     //set dns server
     sds dns_uri = get_dnsserver();
-    if (strlen(dns_uri) == 0) {
-        MYMPD_LOG_WARN("Error reading dns server settings");
-        dns_uri = sdscat(dns_uri, "udp://8.8.8.8:53");
-    }
     MYMPD_LOG_DEBUG("Setting dns server to %s", dns_uri);
     mgr_client.dns4.url = dns_uri;
     

@@ -68,14 +68,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mgr->product_name = "myMPD "MYMPD_VERSION;
     //set dns server
     sds dns_uri = get_dnsserver();
-    if (strlen(dns_uri) > 0) {
-        mgr->dns4.url = strdup(dns_uri);
-    }
-    else {
-        dns_uri = sdscat(dns_uri, "udp://8.8.8.8:53");
-        mgr->dns4.url = strdup(dns_uri);
-        MYMPD_LOG_WARN("Error reading dns server settings");
-    }
+    mgr->dns4.url = strdup(dns_uri);
     MYMPD_LOG_DEBUG("Setting dns server to %s", dns_uri);
     sdsfree(dns_uri);
   
