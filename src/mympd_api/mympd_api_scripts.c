@@ -633,7 +633,7 @@ static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_a
 static int _mympd_api_http_client(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
     if (n != 4) {
-        MYMPD_LOG_ERROR("Lua - mympd_api: invalid number of arguments");
+        MYMPD_LOG_ERROR("Lua - mympd_api_http_client: invalid number of arguments");
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
 
