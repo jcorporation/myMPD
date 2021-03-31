@@ -45,7 +45,6 @@
   #include "cert.h"
 #endif
 #include "handle_options.h"
-#include "maintenance.h"
 #include "random.h"
 
 _Thread_local sds thread_logname;

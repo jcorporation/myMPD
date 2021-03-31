@@ -183,7 +183,6 @@ set(SOURCES
   src/log.c
   src/mympd_config.c
   src/handle_options.c
-  src/maintenance.c
   src/utility.c
   src/random.c
   src/sds_extras.c

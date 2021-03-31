@@ -18,7 +18,7 @@
 #include "../global.h"
 #include "mympd_config_defs.h"
 #include "../utility.h"
-#include "../maintenance.h"
+#include "../covercache.h"
 #include "mympd_api_utility.h"
 #include "mympd_api_timer.h"
 #include "mympd_api_timer_handlers.h"

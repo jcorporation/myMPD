@@ -32,7 +32,7 @@
 #include "global.h"
 #include "lua_mympd_state.h"
 #include "mpd_client.h"
-#include "maintenance.h"
+#include "covercache.h"
 #include "mympd_api/mympd_api_utility.h"
 #include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_settings.h"

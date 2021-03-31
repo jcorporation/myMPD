@@ -4,11 +4,14 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <dirent.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "../dist/src/sds/sds.h"
@@ -48,4 +51,49 @@ bool write_covercache_file(t_config *config, const char *uri, const char *mime_t
     sdsfree(tmp_file);
     sdsfree(filename);
     return rc;
+}
+
+int clear_covercache(t_config *config, int keepdays) {
+    int num_deleted = 0;
+    if (config->covercache == false) {
+        MYMPD_LOG_WARN("Covercache is disabled");
+        return 0;
+    }
+    if (keepdays == -1) {
+        keepdays = config->covercache_keep_days;
+    }
+    time_t now = time(NULL) - keepdays * 24 * 60 * 60;
+    
+    sds covercache = sdscatfmt(sdsempty(), "%s/covercache", config->varlibdir);
+    MYMPD_LOG_NOTICE("Cleaning covercache %s", covercache);
+    MYMPD_LOG_DEBUG("Remove files older than %ld sec", now);
+    DIR *covercache_dir = opendir(covercache);
+    if (covercache_dir != NULL) {
+        struct dirent *next_file;
+        while ( (next_file = readdir(covercache_dir)) != NULL ) {
+            if (strncmp(next_file->d_name, ".", 1) != 0) {
+                sds filepath = sdscatfmt(sdsempty(), "%s/%s", covercache, next_file->d_name);
+                struct stat status;
+                if (stat(filepath, &status) == 0) {
+                    if (status.st_mtime < now) {
+                        MYMPD_LOG_DEBUG("Deleting %s: %ld", filepath, status.st_mtime);
+                        if (unlink(filepath) != 0) {
+                            MYMPD_LOG_ERROR("Error removing file \"%s\": %s", filepath, strerror(errno));
+                        }
+                        else {
+                            num_deleted++;
+                        }
+                    }
+                }
+                sdsfree(filepath);
+            }
+        }
+        closedir(covercache_dir);
+    }
+    else {
+        MYMPD_LOG_ERROR("Error opening directory %s: %s", covercache, strerror(errno));
+    }
+    MYMPD_LOG_NOTICE("Deleted %d files from covercache", num_deleted);
+    sdsfree(covercache);
+    return num_deleted;
 }

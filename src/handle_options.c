@@ -29,7 +29,7 @@
   #include "cert.h"
 #endif
 #include "utility.h"
-#include "maintenance.h"
+#include "covercache.h"
 #include "handle_options.h"
 
 //private function definitions
