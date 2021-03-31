@@ -30,10 +30,12 @@ sds get_dnsserver(void) {
     ssize_t read;
     sds nameserver = sdsempty();
     while ((read = getline(&line, &n, fp)) > 0) {
-        if (strncmp(line, "nameserver", 10) == 0 && isspace(line[10])) {
+        if (read > 10 && strncmp(line, "nameserver", 10) == 0 && isspace(line[10])) {
             char *p;
             char *z;
-            for (p = line + 11; isspace(*p); p++);
+            for (p = line + 11; isspace(*p); p++) {
+                //skip blank chars
+            }
             for (z = p; *z != '\0' && (isdigit(*z) || *z == '.'); z++) {
                 nameserver = sdscatprintf(nameserver, "%c", *z);
             }
