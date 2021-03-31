@@ -273,12 +273,12 @@ static sds get_san(sds buffer) {
         if (strcmp(hostbuffer, res->ai_canonname) != 0) {
             buffer = sdscatfmt(buffer, ", DNS:%s", res->ai_canonname);
         }
-        char addrstr[100];
+        char addrstr[INET6_ADDRSTRLEN];
         sds old_addrstr = sdsempty();
         void *ptr = NULL;
         
         for (rp = res; rp != NULL; rp = rp->ai_next) {
-            inet_ntop(res->ai_family, res->ai_addr->sa_data, addrstr, 100);
+            inet_ntop(res->ai_family, res->ai_addr->sa_data, addrstr, INET6_ADDRSTRLEN);
 
             switch (res->ai_family) {
                 case AF_INET:
@@ -289,7 +289,7 @@ static sds get_san(sds buffer) {
                     break;
             }
             if (ptr != NULL) {
-                inet_ntop(res->ai_family, ptr, addrstr, 100);
+                inet_ntop(res->ai_family, ptr, addrstr, INET6_ADDRSTRLEN);
                 if (strcmp(old_addrstr, addrstr) != 0) {
                     buffer = sdscatfmt(buffer, ", IP:%s", addrstr);
                     old_addrstr = sdsreplace(old_addrstr, addrstr);
