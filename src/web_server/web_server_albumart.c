@@ -22,6 +22,7 @@
 #include "../log.h"
 #include "../tiny_queue.h"
 #include "../global.h"
+#include "../covercache.h"
 #include "web_server_utility.h"
 #include "web_server_albumart.h"
 

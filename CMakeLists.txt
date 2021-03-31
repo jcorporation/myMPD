@@ -176,6 +176,7 @@ set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
 set(SOURCES
   src/main.c
   src/api.c
+  src/covercache.c
   src/global.c
   src/list.c
   src/tiny_queue.c

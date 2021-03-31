@@ -21,6 +21,7 @@
 #include "../list.h"
 #include "mympd_config_defs.h"
 #include "../utility.h"
+#include "../covercache.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
 
