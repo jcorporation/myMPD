@@ -105,9 +105,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "user")) {
         p_config->user = sdsreplace(p_config->user, value);
     }
-    else if (MATCH("mympd", "chroot")) {
-        p_config->chroot = strtobool(value);
-    }
     else if (MATCH("mympd", "varlibdir")) {
         p_config->varlibdir = sdsreplace(p_config->varlibdir, value);
     }
@@ -355,7 +352,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_SMARTPLSSORT", "MYMPD_SMARTPLSPREFIX", "MYMPD_SMARTPLSINTERVAL",
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
-        "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT", "MYMPD_READONLY", "MYMPD_TIMER", "MYMPD_MOUNTS",
+        "MYMPD_NOTIFICATIONWEB", "MYMPD_READONLY", "MYMPD_TIMER", "MYMPD_MOUNTS",
         "MYMPD_NOTIFICATIONPAGE", "MYMPD_AUTOPLAY", "MYMPD_JUKEBOXMODE", "MYMPD_BOOKMARKS",
         "MYMPD_MEDIASESSION", "MYMPD_BOOKLETNAME",
         "MYMPD_JUKEBOXPLAYLIST", "MYMPD_JUKEBOXQUEUELENGTH", "MYMPD_JUKEBOXLASTPLAYED",
@@ -453,7 +450,6 @@ void mympd_config_defaults(t_config *config) {
     config->custom_cert = false;
 #endif
     config->user = sdsnew("mympd");
-    config->chroot = false;
     config->varlibdir = sdsnew(VARLIB_PATH);
     config->stickers = true;
     config->mixramp = false;
@@ -602,7 +598,6 @@ bool mympd_dump_config(void) {
 
     fprintf(fp, "[mympd]\n"
         "user = %s\n"
-        "chroot = %s\n"
         "varlibdir = %s\n"
         "stickers = %s\n"
         "smartpls = %s\n"
@@ -662,7 +657,6 @@ bool mympd_dump_config(void) {
         "syslog = %s\n"
         "\n",
         p_config->user,
-        (p_config->chroot == true ? "true" : "false"),
         p_config->varlibdir,
         (p_config->stickers == true ? "true" : "false"),
         (p_config->smartpls == true ? "true" : "false"),

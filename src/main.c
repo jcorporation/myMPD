@@ -87,24 +87,6 @@ static bool do_chown(const char *file_path, const char *user_name) {
     return true;
 }
 
-static bool do_chroot(struct t_config *config) {
-    if (chroot(config->varlibdir) == 0) { /* Flawfinder: ignore */
-        errno = 0;
-        if (chdir("/") != 0) {
-            MYMPD_LOG_ERROR("Can not change directory to /: %s", strerror(errno));
-            return false;
-        }
-        //reset environment
-        clearenv();
-        char env_pwd[] = "PWD=/";
-        putenv(env_pwd);
-        //set mympd config
-        config->varlibdir = sdscrop(config->varlibdir);
-        return true;
-    }
-    return false;
-}
-
 #ifdef ENABLE_SSL
 static bool chown_certs(t_config *config) {
     sds filename = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->varlibdir);
@@ -156,14 +138,6 @@ static bool drop_privileges(t_config *config, uid_t startup_uid) {
         if (initgroups(config->user, pw->pw_gid) == -1) {
             MYMPD_LOG_ERROR("initgroups() failed: %s", strerror(errno));
             return false;
-        }
-        //chroot if enabled
-        if (config->chroot == true) {
-            MYMPD_LOG_NOTICE("Chroot to %s", config->varlibdir);
-            if (do_chroot(config) == false) {
-                MYMPD_LOG_ERROR("Chroot to %s failed", config->varlibdir);
-                return false;
-            }
         }
         //change primary group to group of target user
         errno = 0;
