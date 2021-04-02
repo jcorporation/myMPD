@@ -218,7 +218,6 @@ set(SOURCES
   src/mpd_worker/mpd_worker_smartpls.c
   src/mpd_worker/mpd_worker_cache.c
   src/mympd_api.c
-  src/mympd_api/mympd_api_bookmarks.c
   src/mympd_api/mympd_api_home.c
   src/mympd_api/mympd_api_utility.c
   src/mympd_api/mympd_api_settings.c

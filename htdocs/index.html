@@ -510,11 +510,6 @@
               </div>
             </div>
           </div>
-          <div class="btn-group mr-2 featBookmarks">
-            <button data-title-phrase="Bookmarks" id="BrowseFilesystemBookmark" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">collections_bookmark</span></button>
-            <div class="dropdown-menu bg-lite-dark px-2" id="BrowseFilesystemBookmarks">
-            </div>
-          </div>
           <form class="flex-grow-1">
             <div class="input-group mr-2">
               <div class="input-group-prepend">
@@ -1574,38 +1569,6 @@
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "addToQueue", "options": []}' data-phrase="Add"></button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="modalSaveBookmark" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"><span class="mi title-icon">save</span> <span data-phrase="Save bookmark"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>          
-        </div>
-        <div class="modal-body">
-          <form id="saveBookmarkFrm">
-            <input type="hidden" id="saveBookmarkType"/>
-            <input type="hidden" id="saveBookmarkId"/>
-            <div class="row">
-              <div class="form-group col-md-9">
-                <label class="control-label" for="saveBookmarkName" data-phrase="Bookmark name"></label>
-                <input type="text" class="form-control" id="saveBookmarkName"/>
-                <div class="invalid-feedback" data-phrase="Invalid filename"></div>
-              </div>
-              <div class="form-group col-md-9">
-                <label class="control-label" for="saveBookmarkUri" data-phrase="Bookmark URI"></label>
-                <input type="text" class="form-control" id="saveBookmarkUri" readonly="readonly"/>
-              </div>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
-          <button type="button" class="btn btn-success" data-href='{"cmd": "saveBookmark", "options": []}' data-phrase="Save"></button>
         </div>
       </div>
     </div>

@@ -374,7 +374,6 @@ uiElements.modalAddToPlaylist = new BSN.Modal(document.getElementById('modalAddT
 uiElements.modalRenamePlaylist = new BSN.Modal(document.getElementById('modalRenamePlaylist'));
 uiElements.modalUpdateDB = new BSN.Modal(document.getElementById('modalUpdateDB'));
 uiElements.modalSaveSmartPlaylist = new BSN.Modal(document.getElementById('modalSaveSmartPlaylist'));
-uiElements.modalSaveBookmark = new BSN.Modal(document.getElementById('modalSaveBookmark'));
 uiElements.modalTimer = new BSN.Modal(document.getElementById('modalTimer'));
 uiElements.modalMounts = new BSN.Modal(document.getElementById('modalMounts'));
 uiElements.modalExecScript = new BSN.Modal(document.getElementById('modalExecScript'));
@@ -389,7 +388,6 @@ uiElements.modalConfirm = new BSN.Modal(document.getElementById('modalConfirm'))
 
 uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 uiElements.dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
-uiElements.dropdownBookmarks = new BSN.Dropdown(document.getElementById('BrowseFilesystemBookmark'));
 uiElements.dropdownLocalPlayer = new BSN.Dropdown(document.getElementById('localPlaybackMenu'));
 uiElements.dropdownDatabaseSort = new BSN.Dropdown(document.getElementById('btnDatabaseSortDropdown'));
 uiElements.dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNeighbors'));

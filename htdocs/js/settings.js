@@ -438,7 +438,7 @@ function parseSettings() {
     if (settings.advanced.uiLocalPlayback === false) {
         settings.featLocalPlayback = false;    
     }
-    const features = ["featLocalPlayback", "featMixramp", "featCacert", "featBookmarks", 
+    const features = ["featLocalPlayback", "featMixramp", "featCacert", 
         "featRegex", "featTimer", "featLyrics", "featScripting", "featScripteditor", "featHome"];
     for (let j = 0; j < features.length; j++) {
         const Els = document.getElementsByClassName(features[j]);

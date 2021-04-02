@@ -211,30 +211,6 @@ function initBrowse() {
         }
     }, false);
 
-    document.getElementById('BrowseFilesystemBookmarks').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'A') {
-            const id = getAttDec(event.target.parentNode.parentNode, 'data-id');
-            const type = getAttDec(event.target.parentNode.parentNode, 'data-type');
-            const uri = getAttDec(event.target.parentNode.parentNode, 'data-uri');
-            const name = event.target.parentNode.parentNode.firstChild.innerText;
-            const href = getAttDec(event.target, 'data-href');
-            
-            if (href === 'delete') {
-                sendAPI("MYMPD_API_BOOKMARK_RM", {"id": id}, function() {
-                    sendAPI("MYMPD_API_BOOKMARK_LIST", {"offset": 0, "limit": 0}, parseBookmarks);
-                });
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            else if (href === 'edit') {
-                showBookmarkSave(id, name, uri, type);
-            }
-            else if (href === 'goto') {
-                appGoto('Browse', 'Filesystem', undefined, '0', undefined, '-','-','-', uri);
-            }
-        }
-    }, false);
-
     document.getElementById('BrowseBreadcrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
@@ -244,10 +220,6 @@ function initBrowse() {
             appGoto('Browse', 'Filesystem', undefined, offset, app.current.limit, app.current.filter, app.current.sort, '-', uri, scrollPos);
         }
     }, false);
-
-    document.getElementById('BrowseFilesystemBookmark').parentNode.addEventListener('show.bs.dropdown', function () {
-        sendAPI("MYMPD_API_BOOKMARK_LIST", {"offset": 0, "limit": 0}, parseBookmarks);
-    });
 }
 
 function navBrowseHandler(event) {
@@ -379,46 +351,6 @@ function addAllFromBrowseFilesystem(replace) {
 function addAllFromBrowseDatabasePlist(plist) {
     if (app.current.search.length >= 2) {
         sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0, "limit": 0, "cols": settings.colsSearch, "replace": false});
-    }
-}
-
-function parseBookmarks(obj) {
-    let list = '<table class="table table-sm table-dark table-borderless mb-0">';
-    for (let i = 0; i < obj.result.returnedEntities; i++) {
-        list += '<tr data-id="' + obj.result.data[i].id + '" data-type="' + obj.result.data[i].type + '" ' +
-                'data-uri="' + encodeURI(obj.result.data[i].uri) + '">' +
-                '<td class="nowrap"><a class="text-light" href="#" data-href="goto">' + e(obj.result.data[i].name) + '</a></td>' +
-                '<td><a class="text-light mi mi-small" href="#" data-href="edit">edit</a></td><td>' +
-                '<a class="text-light mi mi-small" href="#" data-href="delete">delete</a></td></tr>';
-    }
-    if (obj.result.returnedEntities === 0) {
-        list += '<tr><td class="text-light nowrap">' + t('No bookmarks found') + '</td></tr>';
-    }
-    list += '</table>';
-    document.getElementById('BrowseFilesystemBookmarks').innerHTML = list;
-}
-
-function showBookmarkSave(id, name, uri, type) {
-    removeIsInvalid(document.getElementById('modalSaveBookmark'));
-    document.getElementById('saveBookmarkId').value = id;
-    document.getElementById('saveBookmarkName').value = name;
-    document.getElementById('saveBookmarkUri').value = uri;
-    document.getElementById('saveBookmarkType').value = type;
-    uiElements.modalSaveBookmark.show();
-}
-
-//eslint-disable-next-line no-unused-vars
-function saveBookmark() {
-    const name = document.getElementById('saveBookmarkName').value;
-    if (name !== '') {
-        const id = parseInt(document.getElementById('saveBookmarkId').value);
-        const uri = document.getElementById('saveBookmarkUri').value;
-        const type = document.getElementById('saveBookmarkType').value;
-        sendAPI("MYMPD_API_BOOKMARK_SAVE", {"id": id, "name": name, "uri": uri, "type": type});
-        uiElements.modalSaveBookmark.hide();
-    }
-    else {
-        document.getElementById('saveBookmarkName').classList.add('is-invalid');
     }
 }
 

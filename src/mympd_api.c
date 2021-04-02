@@ -36,7 +36,6 @@
 #include "mympd_api/mympd_api_utility.h"
 #include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_settings.h"
-#include "mympd_api/mympd_api_bookmarks.h"
 #include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_timer_handlers.h"
 #include "mympd_api/mympd_api_scripts.h"
@@ -427,46 +426,6 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             }
             break;
         }
-        case MYMPD_API_BOOKMARK_SAVE:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {id: %d, name: %Q, uri: %Q, type: %Q}}", 
-                &int_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3);
-            if (je == 4) {
-                if (mympd_api_bookmark_update(config, int_buf1, p_charbuf1, p_charbuf2, p_charbuf3)) {
-                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
-                        "general", "error", "Saving bookmark failed");
-                }
-            }
-            break;
-        case MYMPD_API_BOOKMARK_RM:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {id: %d}}", &int_buf1);
-            if (je == 1) {
-                if (mympd_api_bookmark_update(config, int_buf1, NULL, NULL, NULL)) {
-                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
-                        "general", "error", "Deleting bookmark failed");
-                }
-            }
-            break;
-        case MYMPD_API_BOOKMARK_CLEAR:
-            if (mympd_api_bookmark_clear(config)) {
-                response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
-            }
-            else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
-                        "general", "error", "Clearing bookmarks failed");
-            }
-            break;
-        case MYMPD_API_BOOKMARK_LIST:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u, limit: %u}}", &uint_buf1, &uint_buf2);
-            if (je == 2) {
-                response->data = mympd_api_bookmark_list(config, response->data, request->method, request->id, uint_buf1, uint_buf2);
-            }
-            break;
         case MYMPD_API_COVERCACHE_CROP:
             //TODO: error checking
             clear_covercache(config, -1);
