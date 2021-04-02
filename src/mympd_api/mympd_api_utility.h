@@ -54,9 +54,6 @@ typedef struct t_mympd_state {
     time_t smartpls_interval;
     sds generate_pls_tags;
     int last_played_count;
-    bool love;
-    sds love_channel;
-    sds love_message;
     bool notification_web;
     bool notification_page;
     bool media_session;
@@ -81,7 +78,6 @@ typedef struct t_mympd_state {
     bool bg_cover;
     sds bg_color;
     sds bg_css_filter;
-    bool coverimage;
     sds coverimage_name;
     int coverimage_size;
     int coverimage_size_small;
@@ -89,7 +85,6 @@ typedef struct t_mympd_state {
     sds music_directory;
     sds theme;
     sds highlight_color;
-    bool bookmarks;
     bool timer;
     sds booklet_name;
     struct t_timer_list timer_list;

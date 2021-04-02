@@ -32,12 +32,8 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     request->data = tojson_long(request->data, "jukeboxLastPlayed", mympd_state->jukebox_last_played, true);
     request->data = tojson_char(request->data, "jukeboxUniqueTag", mympd_state->jukebox_unique_tag, true);
     request->data = tojson_bool(request->data, "autoPlay", mympd_state->auto_play, true);
-    request->data = tojson_bool(request->data, "coverimage", mympd_state->coverimage, true);
     request->data = tojson_char(request->data, "coverimageName", mympd_state->coverimage_name, true);
     request->data = tojson_char(request->data, "bookletName", mympd_state->booklet_name, true);
-    request->data = tojson_bool(request->data, "love", mympd_state->love, true);
-    request->data = tojson_char(request->data, "loveChannel", mympd_state->love_channel, true);
-    request->data = tojson_char(request->data, "loveMessage", mympd_state->love_message, true);
     request->data = tojson_char(request->data, "taglist", mympd_state->taglist, true);
     request->data = tojson_char(request->data, "searchtaglist", mympd_state->searchtaglist, true);
     request->data = tojson_char(request->data, "browsetaglist", mympd_state->browsetaglist, true);
@@ -85,8 +81,6 @@ void free_mympd_state_sds(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->searchtaglist);
     sdsfree(mympd_state->browsetaglist);
     sdsfree(mympd_state->generate_pls_tags);
-    sdsfree(mympd_state->love_channel);
-    sdsfree(mympd_state->love_message);
     sdsfree(mympd_state->jukebox_playlist);
     sdsfree(mympd_state->jukebox_unique_tag);
     sdsfree(mympd_state->cols_queue_current);

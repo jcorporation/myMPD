@@ -409,10 +409,6 @@ function parseSettings() {
         albumartbg[i].style.filter = settings.bgCssFilter;
     }
 
-    toggleBtnChkCollapse('btnLoveEnable', 'collapseLove', settings.love);
-    document.getElementById('inputLoveChannel').value = settings.loveChannel;
-    document.getElementById('inputLoveMessage').value = settings.loveMessage;
-    
     //default limit for all apps
     //convert from string to int
     const limit = parseInt(settings.advanced.uiMaxElementsPerPage);
@@ -643,13 +639,6 @@ function parseMPDSettings() {
         enableEl('inputJukeboxLastPlayed');
     }
     
-    if (settings.featLove === false && settings.love === true) {
-        document.getElementById('warnScrobbler').classList.remove('hide');
-    }
-    else {
-        document.getElementById('warnScrobbler').classList.add('hide');
-    }
-    
     if (settings.musicDirectoryValue === '' && settings.musicDirectory !== 'none') {
         document.getElementById('warnMusicDirectory').classList.remove('hide');
     }
@@ -874,9 +863,6 @@ function saveSettings(closeModal) {
             "coverimageSize": document.getElementById('inputCoverimageSize').value,
             "coverimageSizeSmall": document.getElementById('inputCoverimageSizeSmall').value,
             "locale": getSelectValue('selectLocale'),
-            "love": (document.getElementById('btnLoveEnable').classList.contains('active') ? true : false),
-            "loveChannel": document.getElementById('inputLoveChannel').value,
-            "loveMessage": document.getElementById('inputLoveMessage').value,
             "stickers": (document.getElementById('btnStickers').classList.contains('active') ? true : false),
             "lastPlayedCount": document.getElementById('inputLastPlayedCount').value,
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),

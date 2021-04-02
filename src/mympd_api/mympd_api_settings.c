@@ -42,8 +42,7 @@ void mympd_api_settings_delete(t_config *config) {
         "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
         "cols_search", "cols_queue_jukebox", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
         "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags", "smartpls_sort", "smartpls_prefix", "smartpls_interval",
-        "last_played", "last_played_count", "locale", "love", "love_channel", "love_message",
-        "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
+        "last_played", "last_played_count", "locale", "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
         "smartpls", "stickers", "taglist", "music_directory", "bookmarks", "bookmark_list", "coverimage_size_small", 
         "theme", "timer", "highlight_color", "media_session", "booklet_name", "lyrics", "home_list", "navbar_icons", "advanced", 
         "home", "bg_image",0};
@@ -293,22 +292,6 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         mympd_state->generate_pls_tags = sdsreplacelen(mympd_state->generate_pls_tags, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "generate_pls_tags");
     }
-    else if (strncmp(key->ptr, "love", key->len) == 0) {
-        mympd_state->love = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(settingname, "love");
-    }
-    else if (strncmp(key->ptr, "loveChannel", key->len) == 0) {
-        mympd_state->love_channel = sdsreplacelen(mympd_state->love_channel, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "love_channel");
-    }
-    else if (strncmp(key->ptr, "loveMessage", key->len) == 0) {
-        mympd_state->love_message = sdsreplacelen(mympd_state->love_message, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "love_message");
-    }
-    else if (strncmp(key->ptr, "bookmarks", key->len) == 0) {
-        mympd_state->bookmarks = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(settingname, "bookmarks");
-    }
     else if (strncmp(key->ptr, "theme", key->len) == 0) {
         mympd_state->theme = sdsreplacelen(mympd_state->theme, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "theme");
@@ -370,9 +353,6 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->smartpls_interval = state_file_rw_int(config, "smartpls_interval", config->smartpls_interval, false);
     mympd_state->generate_pls_tags = state_file_rw_string(config, "generate_pls_tags", config->generate_pls_tags, false);
     mympd_state->last_played_count = state_file_rw_int(config, "last_played_count", config->last_played_count, false);
-    mympd_state->love = state_file_rw_bool(config, "love", config->love, false);
-    mympd_state->love_channel = state_file_rw_string(config, "love_channel", config->love_channel, false);
-    mympd_state->love_message = state_file_rw_string(config, "love_message", config->love_message, false);
     mympd_state->notification_web = state_file_rw_bool(config, "notification_web", config->notification_web, false);
     mympd_state->notification_page = state_file_rw_bool(config, "notification_page", config->notification_page, false);
     mympd_state->media_session = state_file_rw_bool(config, "media_session", config->media_session, false);
@@ -398,7 +378,6 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->coverimage_size_small = state_file_rw_int(config, "coverimage_size_small", config->coverimage_size_small, false);
     mympd_state->locale = state_file_rw_string(config, "locale", config->locale, false);
     mympd_state->music_directory = state_file_rw_string(config, "music_directory", config->music_directory, false);
-    mympd_state->bookmarks = state_file_rw_bool(config, "bookmarks", config->bookmarks, false);
     mympd_state->theme = state_file_rw_string(config, "theme", config->theme, false);
     mympd_state->timer = state_file_rw_bool(config, "timer", config->timer, false);
     mympd_state->highlight_color = state_file_rw_string(config, "highlight_color", config->highlight_color, false);
@@ -447,11 +426,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_char(buffer, "smartplsPrefix", mympd_state->smartpls_prefix, true);
     buffer = tojson_long(buffer, "smartplsInterval", mympd_state->smartpls_interval, true);
     buffer = tojson_long(buffer, "lastPlayedCount", mympd_state->last_played_count, true);
-    buffer = tojson_bool(buffer, "love", mympd_state->love, true);
-    buffer = tojson_char(buffer, "loveChannel", mympd_state->love_channel, true);
-    buffer = tojson_char(buffer, "loveMessage", mympd_state->love_message, true);
     buffer = tojson_char(buffer, "musicDirectory", mympd_state->music_directory, true);
-    buffer = tojson_bool(buffer, "featBookmarks", mympd_state->bookmarks, true);
     buffer = tojson_long(buffer, "volumeStep", config->volume_step, true);
     buffer = tojson_bool(buffer, "publish", config->publish, true);
     buffer = tojson_char(buffer, "theme", mympd_state->theme, true);

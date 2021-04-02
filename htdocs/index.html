@@ -112,9 +112,6 @@
             <button disabled="disabled" data-title-phrase="Dislike song" id="btnVoteDown" data-href='{"cmd": "voteCurrentSong", "options": [0]}' class="btn btn-secondary mi">thumb_down</button>
             <button disabled="disabled" data-title-phrase="Like song" id="btnVoteUp" data-href='{"cmd": "voteCurrentSong", "options": [2]}' class="btn btn-secondary mi">thumb_up</button>
           </div>
-          <div class="btn-group btn-group featLove ml-2">
-            <button disabled="disabled" data-title-phrase="Love song" data-href='{"cmd": "loveSong", "options": []}' class="btn btn-secondary mi">favorite</button>
-          </div>
           <div class="btn-group btn-group featPlaylists ml-2">
             <button disabled="disabled" id="addCurrentSongToPlaylist" data-title-phrase="Add to playlist" data-href='{"cmd": "showAddToPlaylistCurrentSong", "options": []}' class="btn btn-secondary mi">playlist_add</button>
           </div>
@@ -1193,31 +1190,6 @@
               <h4 data-phrase="Advanced"></h4>
               <form id="AdvancedSettingsFrm">
               </form>
-              <hr/>
-              <h4 data-phrase="Scrobbler integration"></h4>
-              <div id="warnScrobbler" class="alert alert-warning hide" data-phrase="MPD channel not found"></div>
-              <div class="form-group row">
-                <label class="col-sm-4 col-form-label" for="btnLoveEnable" data-phrase="Send love message"></label>
-                <div class="col-sm-8 ">
-                  <button data-toggle="collapse" data-target="#collapseLove" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnLoveEnable"></button>
-                </div>
-              </div>
-              <div class="collapse" id="collapseLove">
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputLoveChannel" data-phrase="MPD channel"></label>
-                  <div class="col-sm-8">
-                    <input id="inputLoveChannel" type="text" class="form-control border-secondary" value=""/>
-                    <div class="invalid-feedback" data-phrase="Invalid channel name"></div>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputLoveMessage" data-phrase="Message"></label>
-                  <div class="col-sm-8">
-                    <input id="inputLoveMessage" type="text" class="form-control border-secondary" value=""/>
-                    <div class="invalid-feedback" data-phrase="Invalid message"></div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>

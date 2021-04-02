@@ -297,11 +297,6 @@ function parseSyncedLyrics(text, clickable) {
     return html;
 }
 
-//eslint-disable-next-line no-unused-vars
-function loveSong() {
-    sendAPI("MPD_API_LOVE", {});
-}
-
 //used in songdetails modal
 //eslint-disable-next-line no-unused-vars
 function voteSong(el, vote) {

@@ -153,15 +153,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "loglevel")) {
         p_config->loglevel = strtoimax(value, &crap, 10);
     }
-    else if (MATCH("mympd", "love")) {
-        p_config->love = strtobool(value);
-    }
-    else if (MATCH("mympd", "lovechannel")) {
-        p_config->love_channel = sdsreplace(p_config->love_channel, value);
-    }
-    else if (MATCH("mympd", "lovemessage")) {
-        p_config->love_message = sdsreplace(p_config->love_message, value);
-    }
     else if (MATCH("mympd", "notificationweb")) {
         p_config->notification_web = strtobool(value);
     }
@@ -342,7 +333,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_TAGLIST", "MYMPD_GENERATE_PLS_TAGS",
         "MYMPD_SMARTPLSSORT", "MYMPD_SMARTPLSPREFIX", "MYMPD_SMARTPLSINTERVAL",
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
-        "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
+        "MYMPD_LASTPLAYEDCOUNT",
         "MYMPD_NOTIFICATIONWEB", "MYMPD_READONLY", "MYMPD_TIMER", "MYMPD_MOUNTS",
         "MYMPD_NOTIFICATIONPAGE", "MYMPD_AUTOPLAY", "MYMPD_JUKEBOXMODE", "MYMPD_BOOKMARKS",
         "MYMPD_MEDIASESSION", "MYMPD_BOOKLETNAME",
@@ -386,8 +377,6 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->searchtaglist);
     sdsfree(config->browsetaglist);
     sdsfree(config->varlibdir);
-    sdsfree(config->love_channel);
-    sdsfree(config->love_message);
     sdsfree(config->music_directory);
     sdsfree(config->playlist_directory);
     sdsfree(config->jukebox_playlist);
@@ -453,9 +442,6 @@ void mympd_config_defaults(t_config *config) {
     config->generate_pls_tags = sdsnew("Genre");
     config->last_played_count = 200;
     config->loglevel = 5;
-    config->love = false;
-    config->love_channel = sdsempty();
-    config->love_message = sdsnew("love");
     config->notification_web = false;
     config->notification_page = true;
     config->media_session = true;
@@ -608,9 +594,6 @@ bool mympd_dump_config(void) {
         "timer = %s\n"
         "lastplayedcount = %d\n"
         "loglevel = %d\n"
-        "love = %s\n"
-        "lovechannel = %s\n"
-        "lovemessage = %s\n"
         "notificationweb = %s\n"
         "notificationpage = %s\n"
         "mediasession = %s\n"
@@ -665,9 +648,6 @@ bool mympd_dump_config(void) {
         (p_config->timer == true ? "true" : "false"),
         p_config->last_played_count,
         p_config->loglevel,
-        (p_config->love == true ? "true" : "false"),
-        p_config->love_channel,
-        p_config->love_message,
         (p_config->notification_web == true ? "true" : "false"),
         (p_config->notification_page == true ? "true" : "false"),
         (p_config->media_session == true ? "true" : "false"),
