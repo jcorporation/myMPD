@@ -106,7 +106,6 @@ typedef struct t_config {
     bool bg_cover;
     sds bg_color;
     sds bg_css_filter;
-    bool coverimage;
     sds coverimage_name;
     int coverimage_size;
     int coverimage_size_small;

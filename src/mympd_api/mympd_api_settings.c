@@ -40,7 +40,7 @@ static sds read_navbar_icons(t_config *config);
 void mympd_api_settings_delete(t_config *config) {
     const char* state_files[]={"auto_play", "bg_color", "bg_cover", "bg_css_filter", "browsetaglist", "cols_browse_database",
         "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
-        "cols_search", "cols_queue_jukebox", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
+        "cols_search", "cols_queue_jukebox", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
         "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags", "smartpls_sort", "smartpls_prefix", "smartpls_interval",
         "last_played", "last_played_count", "locale", "love", "love_channel", "love_message",
         "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
@@ -171,10 +171,6 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
     else if (strncmp(key->ptr, "autoPlay", key->len) == 0) {
         mympd_state->auto_play = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(settingname, "auto_play");
-    }
-    else if (strncmp(key->ptr, "coverimage", key->len) == 0) {
-        mympd_state->coverimage = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(settingname, "coverimage");
     }
     else if (strncmp(key->ptr, "coverimageName", key->len) == 0) {
         if (validate_string(settingvalue) && sdslen(settingvalue) > 0) {
@@ -397,7 +393,6 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->bg_cover = state_file_rw_bool(config, "bg_cover", config->bg_cover, false);
     mympd_state->bg_color = state_file_rw_string(config, "bg_color", config->bg_color, false);
     mympd_state->bg_css_filter = state_file_rw_string(config, "bg_css_filter", config->bg_css_filter, false);
-    mympd_state->coverimage = state_file_rw_bool(config, "coverimage", config->coverimage, false);
     mympd_state->coverimage_name = state_file_rw_string(config, "coverimage_name", config->coverimage_name, false);
     mympd_state->coverimage_size = state_file_rw_int(config, "coverimage_size", config->coverimage_size, false);
     mympd_state->coverimage_size_small = state_file_rw_int(config, "coverimage_size_small", config->coverimage_size_small, false);
@@ -429,7 +424,6 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "featCacert", false, true);
 #endif
     buffer = tojson_bool(buffer, "featLocalPlayback", (config->mpd_stream_port == 0 ? false : true), true);
-    buffer = tojson_bool(buffer, "coverimage", mympd_state->coverimage, true);
     buffer = tojson_char(buffer, "coverimageName", mympd_state->coverimage_name, true);
     buffer = tojson_long(buffer, "coverimageSize", mympd_state->coverimage_size, true);
     buffer = tojson_long(buffer, "coverimageSizeSmall", mympd_state->coverimage_size_small, true);

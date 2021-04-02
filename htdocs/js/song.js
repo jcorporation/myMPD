@@ -141,41 +141,23 @@ function parseSongDetails(obj) {
         getLyrics(obj.result.uri, document.getElementById('lyricsText'));
     }
 
-    let showPictures = false;
-    if (obj.result.images.length > 0 && settings.featLibrary === true && settings.publish === true) {
-        showPictures = true;
-    }
-    else if (settings.coverimage === true) {
-        showPictures = true;
-    }
-    
     const pictureEls = document.getElementsByClassName('featPictures');
     for (let i = 0; i < pictureEls.length; i++) {
-        if (showPictures === true) {
-            pictureEls[i].classList.remove('hide');
-        }
-        else {
-            pictureEls[i].classList.add('hide');
-        }
+        pictureEls[i].classList.remove('hide');
     }
     
-    if (showPictures === true) {
-        //add uri to image list to get embedded albumart
-        const images = [ subdir + '/albumart/' + obj.result.uri ];
-        //add all but coverfiles to image list
-        if (settings.publish === true) {
-            for (let i = 0; i < obj.result.images.length; i++) {
-                if (isCoverfile(obj.result.images[i]) === false) {
-                    images.push(subdir + '/browse/music/' + obj.result.images[i]);
-                }
+    //add uri to image list to get embedded albumart
+    const images = [ subdir + '/albumart/' + obj.result.uri ];
+    //add all but coverfiles to image list
+    if (settings.publish === true) {
+        for (let i = 0; i < obj.result.images.length; i++) {
+            if (isCoverfile(obj.result.images[i]) === false) {
+                images.push(subdir + '/browse/music/' + obj.result.images[i]);
             }
         }
-        const imgEl = document.getElementById('tabSongPics');
-        createImgCarousel(imgEl, 'songPicsCarousel', images);
     }
-    else {
-        document.getElementById('tabSongPics').innerText = '';
-    }
+    const imgEl = document.getElementById('tabSongPics');
+    createImgCarousel(imgEl, 'songPicsCarousel', images);
 }
 
 function isCoverfile(uri) {

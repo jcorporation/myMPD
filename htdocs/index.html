@@ -128,7 +128,7 @@
             </div>
           </div>
         </div>
-        <div class="coverPanel featCoverimage">
+        <div class="coverPanel">
           <div class="album-cover album-cover-loading clickable carousel" id="currentCover" data-href='{"cmd": "zoomPicture", "options": []}'></div>
         </div>
         <div class="album-desc breakAll">
@@ -471,7 +471,7 @@
               <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
             </div>
           </div>
-          <div id="viewDetailDatabaseCover" class="featCoverimage album-cover-small album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'></div>
+          <div id="viewDetailDatabaseCover" class="album-cover-small album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'></div>
           <div id="viewDetailDatabaseInfo"></div>
           <table id="BrowseDatabaseDetailList" class="table table-hover table-sm">
             <thead>
@@ -922,34 +922,25 @@
                 </div>
                 <hr/>
                 <h4 data-phrase="Albumart"></h4>
-                <div id="warnAlbumart" class="alert alert-warning hide" data-phrase="Can't access music directory"></div>
                 <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="btnCoverimage" data-phrase="Albumart"></label>
+                  <label class="col-sm-4 col-form-label" for="inputCoverimageName" data-phrase="Name"></label>
                   <div class="col-sm-8 ">
-                    <button data-toggle="collapse" data-target="#collapseAlbumart" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnCoverimage"></button>
+                    <input id="inputCoverimageName" type="text" class="form-control border-secondary" value="folder.jpg" data-placeholder-phrase="folder.jpg"/>
+                    <div class="invalid-feedback" data-phrase="Invalid filename"></div>
                   </div>
                 </div>
-                <div class="collapse" id="collapseAlbumart">
-                  <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="inputCoverimageName" data-phrase="Name"></label>
-                    <div class="col-sm-8 ">
-                      <input id="inputCoverimageName" type="text" class="form-control border-secondary" value="folder.jpg" data-placeholder-phrase="folder.jpg"/>
-                      <div class="invalid-feedback" data-phrase="Invalid filename"></div>
-                    </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputCoverimageSize" data-phrase="Size normal"></label>
+                  <div class="col-sm-8 ">
+                    <input id="inputCoverimageSize" type="text" class="form-control border-secondary" value="250" data-placeholder-phrase="Size in px"/>
+                    <div class="invalid-feedback" data-phrase="Invalid size"></div>
                   </div>
-                  <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="inputCoverimageSize" data-phrase="Size normal"></label>
-                    <div class="col-sm-8 ">
-                      <input id="inputCoverimageSize" type="text" class="form-control border-secondary" value="250" data-placeholder-phrase="Size in px"/>
-                      <div class="invalid-feedback" data-phrase="Invalid size"></div>
-                    </div>
-                  </div>
-                  <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="inputCoverimageSizeSmall" data-phrase="Size small"></label>
-                    <div class="col-sm-8 ">
-                      <input id="inputCoverimageSizeSmall" type="text" class="form-control border-secondary" value="190" data-placeholder-phrase="Size in px"/>
-                      <div class="invalid-feedback" data-phrase="Invalid size"></div>
-                    </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputCoverimageSizeSmall" data-phrase="Size small"></label>
+                  <div class="col-sm-8 ">
+                    <input id="inputCoverimageSizeSmall" type="text" class="form-control border-secondary" value="190" data-placeholder-phrase="Size in px"/>
+                    <div class="invalid-feedback" data-phrase="Invalid size"></div>
                   </div>
                 </div>
                 <hr/>

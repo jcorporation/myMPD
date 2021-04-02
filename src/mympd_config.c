@@ -291,9 +291,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("theme", "bgcssfilter")) {
         p_config->bg_css_filter = sdsreplace(p_config->bg_css_filter, value);
     }
-    else if (MATCH("theme", "coverimage")) {
-        p_config->coverimage = strtobool(value);
-    }
     else if (MATCH("theme", "coverimagename")) {
         p_config->coverimage_name = sdsreplace(p_config->coverimage_name, value);
     }
@@ -366,7 +363,7 @@ static void mympd_get_env(struct t_config *config) {
       #endif
         "THEME_THEME", "THEME_CUSTOMPLACEHOLDERIMAGES", "THEME_BGIMAGE",
         "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER", "THEME_COVERIMAGESIZESMALL",
-        "THEME_COVERIMAGE", "THEME_COVERIMAGENAME", "THEME_COVERIMAGESIZE",
+        "THEME_COVERIMAGENAME", "THEME_COVERIMAGESIZE",
         "THEME_LOCALE", "THEME_HIGHLIGHTCOLOR", 0};
     const char** ptr = env_vars;
     while (*ptr != 0) {
@@ -484,7 +481,6 @@ void mympd_config_defaults(t_config *config) {
     config->bg_cover = true;
     config->bg_color = sdsnew("#060708");
     config->bg_css_filter = sdsnew("grayscale(100%) opacity(5%)");
-    config->coverimage = true;
     config->coverimage_name = sdsnew("folder, cover");
     config->coverimage_size = 250;
     config->coverimage_size_small = 175;
@@ -716,7 +712,6 @@ bool mympd_dump_config(void) {
         "bgcolor = %s\n"
         "bgcssfilter = %s\n"
         "bgimage = %s\n"
-        "coverimage = %s\n"
         "coverimagename = %s\n"
         "coverimagesize = %d\n"
         "coverimagesizesmall = %d\n"
@@ -728,7 +723,6 @@ bool mympd_dump_config(void) {
         p_config->bg_color,
         p_config->bg_css_filter,
         p_config->bg_image,
-        (p_config->coverimage == true ? "true" : "false"),
         p_config->coverimage_name,
         p_config->coverimage_size,
         p_config->coverimage_size_small,

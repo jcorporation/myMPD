@@ -385,8 +385,6 @@ function parseSettings() {
     toggleBtnChk('btnFeatLyrics', settings.featLyrics);
     toggleBtnChk('btnFeatHome', settings.featHome);
 
-    toggleBtnChkCollapse('btnCoverimage', 'collapseAlbumart', settings.coverimage);
-
     document.getElementById('inputBookletName').value = settings.bookletName;
     
     document.getElementById('selectLocale').value = settings.locale;
@@ -605,16 +603,13 @@ function parseMPDSettings() {
         settings['featBrowse'] = false;
     }
 
-    const features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
+    const features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featAdvsearch',
         'featLove', 'featSingleOneshot', 'featBrowse', 'featMounts', 'featNeighbors',
         'featPartitions'];
     for (let j = 0; j < features.length; j++) {
         const Els = document.getElementsByClassName(features[j]);
         const ElsLen = Els.length;
         let displayEl = settings[features[j]] === true ? '' : 'none';
-        if (features[j] === 'featCoverimage' && settings.coverimage === false) {
-            displayEl = 'none';
-        }
         for (let i = 0; i < ElsLen; i++) {
             Els[i].style.display = displayEl;
         }
@@ -657,12 +652,6 @@ function parseMPDSettings() {
         document.getElementById('warnScrobbler').classList.add('hide');
     }
     
-    if (settings.featLibrary === false && settings.coverimage === true) {
-        document.getElementById('warnAlbumart').classList.remove('hide');
-    }
-    else {
-        document.getElementById('warnAlbumart').classList.add('hide');
-    }
     if (settings.musicDirectoryValue === '' && settings.musicDirectory !== 'none') {
         document.getElementById('warnMusicDirectory').classList.remove('hide');
     }
@@ -672,7 +661,7 @@ function parseMPDSettings() {
 
     document.getElementById('warnJukeboxPlaylist').classList.add('hide');
 
-    if (settings.bgCover === true && settings.featCoverimage === true && settings.coverimage === true) {
+    if (settings.bgCover === true) {
         setBackgroundImage(lastSongObj.uri);
     }
     else {
@@ -883,7 +872,6 @@ function saveSettings(closeModal) {
             "bgColor": document.getElementById('inputBgColor').value,
             "bgImage": getSelectValue('selectBgImage'),
             "bgCssFilter": document.getElementById('inputBgCssFilter').value,
-            "coverimage": (document.getElementById('btnCoverimage').classList.contains('active') ? true : false),
             "coverimageName": document.getElementById('inputCoverimageName').value,
             "coverimageSize": document.getElementById('inputCoverimageSize').value,
             "coverimageSizeSmall": document.getElementById('inputCoverimageSizeSmall').value,

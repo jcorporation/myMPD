@@ -382,9 +382,7 @@ function songChange(obj) {
     mediaSessionSetMetadata(obj.result.Title, obj.result.Artist, obj.result.Album, obj.result.uri);
     
     setCurrentCover(obj.result.uri);
-    if (settings.bgCover === true && settings.featCoverimage === true) {
-        setBackgroundImage(obj.result.uri);
-    }
+    setBackgroundImage(obj.result.uri);
     
     for (const elName of ['footerArtist', 'footerAlbum', 'footerCover', 'currentTitle']) {
         document.getElementById(elName).classList.remove('clickable');
@@ -574,23 +572,12 @@ function mediaSessionSetMetadata(title, artist, album, url) {
     if (settings.mediaSession === true && 'mediaSession' in navigator) {
         const artwork = window.location.protocol + '//' + window.location.hostname + 
             (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart/' + url;
-
-        if (settings.coverimage === true) {
-            //eslint-disable-next-line no-undef
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: title,
-                artist: artist,
-                album: album,
-                artwork: [{src: artwork}]
-            });
-        }
-        else {
-            //eslint-disable-next-line no-undef
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: title,
-                artist: artist,
-                album: album
-            });
-        }
+        //eslint-disable-next-line no-undef
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: title,
+            artist: artist,
+            album: album,
+            artwork: [{src: artwork}]
+        });
     }
 }
