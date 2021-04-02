@@ -69,7 +69,6 @@ typedef struct t_config {
 #endif
     sds user;
     bool stickers;
-    bool mixramp;
     sds taglist;
     sds searchtaglist;
     sds browsetaglist;

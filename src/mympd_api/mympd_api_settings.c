@@ -427,7 +427,6 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_char(buffer, "coverimageName", mympd_state->coverimage_name, true);
     buffer = tojson_long(buffer, "coverimageSize", mympd_state->coverimage_size, true);
     buffer = tojson_long(buffer, "coverimageSizeSmall", mympd_state->coverimage_size_small, true);
-    buffer = tojson_bool(buffer, "featMixramp", config->mixramp, true);
     buffer = tojson_bool(buffer, "notificationWeb", mympd_state->notification_web, true);
     buffer = tojson_bool(buffer, "notificationPage", mympd_state->notification_page, true);
     buffer = tojson_bool(buffer, "mediaSession", mympd_state->media_session, true);

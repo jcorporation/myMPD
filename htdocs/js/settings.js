@@ -436,8 +436,8 @@ function parseSettings() {
     if (settings.advanced.uiLocalPlayback === false) {
         settings.featLocalPlayback = false;    
     }
-    const features = ["featLocalPlayback", "featMixramp", "featCacert", 
-        "featRegex", "featTimer", "featLyrics", "featScripting", "featScripteditor", "featHome"];
+    const features = ["featLocalPlayback", "featCacert", "featRegex", "featTimer", "featLyrics", 
+        "featScripting", "featScripteditor", "featHome"];
     for (let j = 0; j < features.length; j++) {
         const Els = document.getElementsByClassName(features[j]);
         const ElsLen = Els.length;
@@ -593,8 +593,6 @@ function parseMPDSettings() {
     document.getElementById('partitionName').innerText = settings.partition;
     
     document.getElementById('inputCrossfade').value = settings.crossfade;
-    document.getElementById('inputMixrampdb').value = settings.mixrampdb;
-    document.getElementById('inputMixrampdelay').value = settings.mixrampdelay;
     
     if (settings.featLibrary === true && settings.publish === true) {
         settings['featBrowse'] = true;    
@@ -927,24 +925,6 @@ function saveQueueSettings() {
         formOK = false;
     }
     
-    if (settings.featMixramp === true) {
-        const inputMixrampdb = document.getElementById('inputMixrampdb');
-        if (!inputMixrampdb.getAttribute('disabled')) {
-            if (!validateFloat(inputMixrampdb)) {
-                formOK = false;
-            } 
-        }
-        const inputMixrampdelay = document.getElementById('inputMixrampdelay');
-        if (!inputMixrampdelay.getAttribute('disabled')) {
-            if (isNaN(parseInt(inputMixrampdelay.value))) {
-                inputMixrampdelay.value = '-1';
-            }
-            if (!validateFloat(inputMixrampdelay)) {
-                formOK = false;
-            }
-        }
-    }
-    
     const singleState = getBtnGroupValue('btnSingleGroup');
     const jukeboxMode = getBtnGroupValue('btnJukeboxModeGroup');
     const replaygain = getBtnGroupValue('btnReplaygainGroup');
@@ -963,8 +943,6 @@ function saveQueueSettings() {
             "repeat": (document.getElementById('btnRepeat').classList.contains('active') ? 1 : 0),
             "replaygain": replaygain,
             "crossfade": document.getElementById('inputCrossfade').value,
-            "mixrampdb": (settings.featMixramp === true ? document.getElementById('inputMixrampdb').value : settings.mixrampdb),
-            "mixrampdelay": (settings.featMixramp === true ? document.getElementById('inputMixrampdelay').value : settings.mixrampdelay),
             "jukeboxMode": parseInt(jukeboxMode),
             "jukeboxPlaylist": jukeboxPlaylist,
             "jukeboxQueueLength": parseInt(document.getElementById('inputJukeboxQueueLength').value),

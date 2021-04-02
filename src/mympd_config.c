@@ -126,9 +126,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "generateplstags")) {
         p_config->generate_pls_tags =  sdsreplace(p_config->generate_pls_tags, value);
     }
-    else if (MATCH("mympd", "mixramp")) {
-        p_config->mixramp = strtobool(value);
-    }
     else if (MATCH("mympd", "taglist")) {
         p_config->taglist = sdsreplace(p_config->taglist, value);
     }
@@ -446,7 +443,6 @@ void mympd_config_defaults(t_config *config) {
     config->user = sdsnew("mympd");
     config->varlibdir = sdsnew(VARLIB_PATH);
     config->stickers = true;
-    config->mixramp = false;
     config->taglist = sdsnew("Artist, Album, AlbumArtist, Title, Track, Genre, Date, Disc");
     config->searchtaglist = sdsnew("Artist, Album, AlbumArtist, Title, Genre");
     config->browsetaglist = sdsnew("Artist, Album, AlbumArtist, Genre");
@@ -597,7 +593,6 @@ bool mympd_dump_config(void) {
         "smartplsprefix = %s\n"
         "smartplsinterval = %llu\n"
         "generateplstags = %s\n"
-        "mixramp = %s\n"
         "taglist = %s\n"
         "searchtaglist = %s\n"
         "browsetaglist = %s\n"
@@ -655,7 +650,6 @@ bool mympd_dump_config(void) {
         p_config->smartpls_prefix,
         (unsigned long long)p_config->smartpls_interval, //cast for 32 bit compatibility
         p_config->generate_pls_tags,
-        (p_config->mixramp == true ? "true" : "false"),
         p_config->taglist,
         p_config->searchtaglist,
         p_config->browsetaglist,

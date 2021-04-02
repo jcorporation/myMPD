@@ -201,18 +201,6 @@ bool mpd_api_settings_set(t_config *config, t_mpd_client_state *mpd_client_state
             unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
             rc = mpd_run_crossfade(mpd_client_state->mpd_state->conn, uint_buf);
         }
-        else if (strncmp(key->ptr, "mixrampdb", key->len) == 0) {
-            if (config->mixramp == true) {
-                float float_buf = strtof(settingvalue, &crap);
-                rc = mpd_run_mixrampdb(mpd_client_state->mpd_state->conn, float_buf);
-            }
-        }
-        else if (strncmp(key->ptr, "mixrampdelay", key->len) == 0) {
-            if (config->mixramp == true) {
-                float float_buf = strtof(settingvalue, &crap);
-                rc = mpd_run_mixrampdelay(mpd_client_state->mpd_state->conn, float_buf);
-            }
-        }
         else if (strncmp(key->ptr, "replaygain", key->len) == 0) {
             enum mpd_replay_gain_mode mode = mpd_parse_replay_gain_name(settingvalue);
             if (mode == MPD_REPLAY_UNKNOWN) {
@@ -225,6 +213,7 @@ bool mpd_api_settings_set(t_config *config, t_mpd_client_state *mpd_client_state
         *check_mpd_error = true;
     }    
     sdsfree(settingvalue);
+    (void) config;
     return rc;
 }
 
@@ -258,8 +247,6 @@ sds mpd_client_put_settings(t_mpd_client_state *mpd_client_state, sds buffer, sd
     buffer = tojson_long(buffer, "crossfade", mpd_status_get_crossfade(status), true);
     buffer = tojson_long(buffer, "random", mpd_status_get_random(status), true);
     buffer = tojson_long(buffer, "consume", mpd_status_get_consume(status), true);
-    buffer = tojson_double(buffer, "mixrampdb", mpd_status_get_mixrampdb(status), true);
-    buffer = tojson_double(buffer, "mixrampdelay", mpd_status_get_mixrampdelay(status), true);
     buffer = tojson_char(buffer, "replaygain", replaygain == NULL ? "" : replaygain, true);
     buffer = tojson_bool(buffer, "featPlaylists", mpd_client_state->mpd_state->feat_playlists, true);
     buffer = tojson_bool(buffer, "featTags", mpd_client_state->mpd_state->feat_tags, true);
