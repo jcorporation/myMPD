@@ -86,7 +86,6 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SETTINGS_GET"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_SETTINGS_GET"},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SETTINGS_SET","params":{"random": 0}},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SYSCMD","params":{"cmd": "Echo"}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_COLS_SAVE","params":{"table":"colsPlayback","cols":["Artist","Album","AlbumArtist"]}},
     {"jsonrpc":"2.0","id":0,"method":"MPDWORKER_API_SMARTPLS_UPDATE_ALL", "params":{"force":false}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_SMARTPLS_SAVE","params":{"type":"newest","playlist":"myMPDsmart-newestSongs","timerange":2678400,"sort":""}},

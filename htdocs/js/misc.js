@@ -86,11 +86,6 @@ function clickNext() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function execSyscmd(cmd) {
-    sendAPI("MYMPD_API_SYSCMD", {"cmd": cmd});
-}
-
-//eslint-disable-next-line no-unused-vars
 function clearCovercache() {
     sendAPI("MYMPD_API_COVERCACHE_CLEAR", {});
 }

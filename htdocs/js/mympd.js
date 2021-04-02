@@ -698,12 +698,6 @@ function initNavs() {
         }
     }, false);
 
-    document.getElementById('syscmds').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'A') {
-            parseCmd(event, getAttDec(event.target, 'data-href'));
-        }
-    }, false);
-    
     document.getElementById('scripts').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             execScript(getAttDec(event.target, 'data-href'));

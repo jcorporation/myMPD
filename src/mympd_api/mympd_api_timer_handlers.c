@@ -57,13 +57,6 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
         request->data = sdscat(request->data, "}}");
         tiny_queue_push(mpd_client_queue, request, 0);
     }
-    else if (strcmp(definition->action, "syscmd") == 0) {
-        t_work_request *request = create_request(-1, 0, MYMPD_API_SYSCMD, "MYMPD_API_SYSCMD", "");
-        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SYSCMD\",\"params\":{");
-        request->data = tojson_char(request->data, "cmd", definition->subaction, false);
-        request->data = sdscat(request->data, "}}");
-        tiny_queue_push(mympd_api_queue, request, 0);
-    }
     else if (strcmp(definition->action, "script") == 0) {
         t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, "MYMPD_API_SCRIPT_EXECUTE", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SCRIPT_EXECUTE\",\"params\":{");

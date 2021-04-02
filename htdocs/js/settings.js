@@ -438,7 +438,7 @@ function parseSettings() {
     if (settings.advanced.uiLocalPlayback === false) {
         settings.featLocalPlayback = false;    
     }
-    const features = ["featLocalPlayback", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
+    const features = ["featLocalPlayback", "featMixramp", "featCacert", "featBookmarks", 
         "featRegex", "featTimer", "featLyrics", "featScripting", "featScripteditor", "featHome"];
     for (let j = 0; j < features.length; j++) {
         const Els = document.getElementsByClassName(features[j]);
@@ -469,43 +469,6 @@ function parseSettings() {
         '<option value="startplay">' + t('Start playback') + '</option>' +
         '<option value="stopplay">' + t('Stop playback') + '</option>' +
         '</optgroup>';
-
-    if (settings.featSyscmds === true) {
-        const syscmdsMaxListLen = 4;
-        let syscmdsList = '';
-        const syscmdsListLen = settings.syscmdList.length;
-        if (syscmdsListLen > 0) {
-            timerActions += '<optgroup data-value="syscmd" label="' + t('System command') + '">';
-            syscmdsList = syscmdsListLen > syscmdsMaxListLen ? '' : '<div class="dropdown-divider"></div>';
-            for (let i = 0; i < syscmdsListLen; i++) {
-                if (settings.syscmdList[i] === 'HR') {
-                    syscmdsList += '<div class="dropdown-divider"></div>';
-                }
-                else {
-                    syscmdsList += '<a class="dropdown-item text-light alwaysEnabled" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
-                        e(settings.syscmdList[i]) + '"]}\'>' + e(settings.syscmdList[i]) + '</a>';
-                    timerActions += '<option value="' + e(settings.syscmdList[i]) + '">' + e(settings.syscmdList[i]) + '</option>';
-                }
-            }
-        }
-        document.getElementById('syscmds').innerHTML = syscmdsList;
-        timerActions += '</optgroup>';
-        
-        if (syscmdsListLen > syscmdsMaxListLen) {
-            document.getElementById('navSyscmds').classList.remove('hide');
-            document.getElementById('syscmds').classList.add('collapse', 'menu-indent');
-        }
-        else {
-            document.getElementById('navSyscmds').classList.add('hide');
-            document.getElementById('syscmds').classList.remove('collapse', 'menu-indent');
-        }
-    }
-    else {
-        document.getElementById('syscmds').innerHTML = '';
-    }
-    //reinit mainmenu -> change of syscmd list
-    uiElements.dropdownMainMenu.dispose();
-    uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 
     if (settings.featScripting === true) {
         getScriptList(true);

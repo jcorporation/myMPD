@@ -150,9 +150,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "covercache")) {
         p_config->covercache = strtobool(value);
     }
-    else if (MATCH("mympd", "syscmds")) {
-        p_config->syscmds = strtobool(value);
-    }
     else if (MATCH("mympd", "timer")) {
         p_config->timer = strtobool(value);
     }
@@ -318,10 +315,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("theme", "customplaceholderimages")) {
         p_config->custom_placeholder_images = strtobool(value);
     }
-    else if (strcasecmp(section, "syscmds") == 0) {
-        MYMPD_LOG_DEBUG("Adding syscmd %s: %s", name, value);
-        list_push(&p_config->syscmd_list, name, 0, value, NULL);
-    }
     else {
         MYMPD_LOG_WARN("Unkown config option: %s - %s", section, name);
         return 0;  
@@ -437,7 +430,6 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->sylt_ext);
     sdsfree(config->uslt_ext);
     sdsfree(config->bg_image);
-    list_free(&config->syscmd_list);
     FREE_PTR(config);
 }
 
@@ -474,7 +466,6 @@ void mympd_config_defaults(t_config *config) {
     config->smartpls_interval = 14400;
     config->generate_pls_tags = sdsnew("Genre");
     config->last_played_count = 200;
-    config->syscmds = false;
     config->loglevel = 5;
     config->love = false;
     config->love_channel = sdsempty();
@@ -541,7 +532,6 @@ void mympd_config_defaults(t_config *config) {
     config->sylt_ext = sdsnew("lrc");
     config->bg_image = sdsempty();
     config->syslog = false;
-    list_init(&config->syscmd_list);
 }
 
 bool mympd_dump_config(void) {
@@ -627,7 +617,6 @@ bool mympd_dump_config(void) {
         "volumestep = %d\n"
         "covercachekeepdays = %d\n"
         "covercache = %s\n"
-        "syscmds = %s\n"
     #ifdef ENABLE_LUA
         "scripting = %s\n"
         "remotescripting = %s\n"
@@ -688,7 +677,6 @@ bool mympd_dump_config(void) {
         p_config->volume_step,
         p_config->covercache_keep_days,
         (p_config->covercache == true ? "true" : "false"),
-        (p_config->syscmds == true ? "true" : "false"),
     #ifdef ENABLE_LUA
         (p_config->scripting == true ? "true" : "false"),
         (p_config->remotescripting == true ? "true" : "false"),
@@ -760,9 +748,6 @@ bool mympd_dump_config(void) {
         (p_config->custom_placeholder_images == true ? "true" : "false"),
         p_config->highlight_color
     );
-
-    fprintf(fp, "[syscmds]\n");
-
     fclose(fp);
     sds conf_file = sdscat(sdsempty(), "/tmp/mympd.conf");
     int rc = rename(tmp_file, conf_file);
@@ -800,11 +785,6 @@ bool mympd_read_config(t_config *config, sds configfile) {
         mympd_set_readonly(config);
     }
 
-    if (config->chroot == true && config->syscmds == true) {
-        MYMPD_LOG_NOTICE("Chroot enabled, disabling syscmds");
-        config->syscmds = false;
-    }
-    
     if (config->scripting == false && config->remotescripting == true) {
         MYMPD_LOG_NOTICE("Scripting disabled, disabling remote scripting");
         config->remotescripting = false;

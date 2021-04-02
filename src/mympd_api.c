@@ -36,7 +36,6 @@
 #include "mympd_api/mympd_api_utility.h"
 #include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_settings.h"
-#include "mympd_api/mympd_api_syscmds.h"
 #include "mympd_api/mympd_api_bookmarks.h"
 #include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_timer_handlers.h"
@@ -342,18 +341,6 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             }
             break;
         #endif
-        case MYMPD_API_SYSCMD:
-            if (config->syscmds == true) {
-                je = json_scanf(request->data, sdslen(request->data), "{params: {cmd: %Q}}", &p_charbuf1);
-                if (je == 1) {
-                    response->data = mympd_api_syscmd(config, response->data, request->method, request->id, p_charbuf1);
-                }
-            } 
-            else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
-                    "script", "error", "System commands are disabled");
-            }
-            break;
         case MYMPD_API_COLS_SAVE: {
             sds cols = sdsnewlen("[", 1);
             je = json_scanf(request->data, sdslen(request->data), "{params: {table: %Q}}", &p_charbuf1);

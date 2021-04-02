@@ -222,7 +222,6 @@ set(SOURCES
   src/mympd_api/mympd_api_home.c
   src/mympd_api/mympd_api_utility.c
   src/mympd_api/mympd_api_settings.c
-  src/mympd_api/mympd_api_syscmds.c
   src/mympd_api/mympd_api_timer.c
   src/mympd_api/mympd_api_timer_handlers.c
   src/mympd_api/mympd_api_scripts.c

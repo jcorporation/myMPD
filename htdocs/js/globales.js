@@ -397,6 +397,5 @@ uiElements.dropdownHomeIconLigature = new BSN.Dropdown(document.getElementById('
 
 uiElements.collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
 uiElements.collapseSettings = new BSN.Collapse(document.getElementById('navSettings'));
-uiElements.collapseSyscmds = new BSN.Collapse(document.getElementById('navSyscmds'));
 uiElements.collapseScripting = new BSN.Collapse(document.getElementById('navScripting'));
 uiElements.collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukeboxMode'));

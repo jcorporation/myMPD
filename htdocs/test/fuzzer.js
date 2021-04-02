@@ -75,7 +75,6 @@ function defineCmds() {
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_TOGGLE_OUTPUT","params":{"output":int1,"state":int2}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_LIKE","params":{"uri":string1,"like":int1}},
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SETTINGS_SET","params":{"random": int1}},
-        {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SYSCMD","params":{"cmd": string1}},
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_COLS_SAVE","params":{"table":string1,"cols":[string2,string3,string4]}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_SMARTPLS_SAVE","params":{"type":string1,"playlist":string2,"timerange":int1,"sort":string3}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_SMARTPLS_GET","params":{"playlist":string1}},

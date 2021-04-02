@@ -440,7 +440,6 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_long(buffer, "mpdPort", mympd_state->mpd_port, true);
     buffer = tojson_char(buffer, "mpdPass", "dontsetpassword", true);
     buffer = tojson_bool(buffer, "featRegex", config->regex, true);
-    buffer = tojson_bool(buffer, "featSyscmds", config->syscmds, true);
 #ifdef ENABLE_SSL
     buffer = tojson_bool(buffer, "featCacert", (config->custom_cert == false && config->ssl == true ? true : false), true);
 #else
@@ -501,21 +500,6 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = sdscatfmt(buffer, "\"colsQueueJukebox\":%s,", mympd_state->cols_queue_jukebox);
     buffer = sdscatfmt(buffer, "\"navbarIcons\":%s,", mympd_state->navbar_icons);
     buffer = sdscatfmt(buffer, "\"advanced\":%s", mympd_state->advanced);
-
-    if (config->syscmds == true) {
-        buffer = sdscat(buffer, ",\"syscmdList\":[");
-        int nr = 0;
-        struct list_node *current = config->syscmd_list.head;
-        while (current != NULL) {
-            if (nr++) {
-                buffer = sdscat(buffer, ",");
-            }
-            buffer = sdscatjson(buffer, current->key, sdslen(current->key));
-            current = current->next;
-        }
-        buffer = sdscat(buffer, "]");
-    }
-    
     buffer = jsonrpc_result_end(buffer);
     return buffer;
 }

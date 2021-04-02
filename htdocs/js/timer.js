@@ -324,9 +324,6 @@ function prettyTimerAction(action, subaction) {
     if (action === 'player' && subaction === 'stopplay') {
         return t('Stop playback');
     }
-    if (action === 'syscmd') {
-        return t('System command') + ': ' + e(subaction);
-    }
     if (action === 'script') {
         return t('Script') + ': ' + e(subaction);
     }
