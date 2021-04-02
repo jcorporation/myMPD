@@ -232,9 +232,6 @@ bool triggerfile_read(t_config *config, t_mpd_client_state *mpd_client_state) {
 }
 
 bool triggerfile_save(t_config *config, t_mpd_client_state *mpd_client_state) {
-    if (config->readonly == true) {
-        return true;
-    }
     MYMPD_LOG_INFO("Saving triggers to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/trigger_list.XXXXXX", config->varlibdir);
     int fd = mkstemp(tmp_file);

@@ -470,9 +470,6 @@ bool timerfile_read(t_config *config, t_mympd_state *mympd_state) {
 }
 
 bool timerfile_save(t_config *config, t_mympd_state *mympd_state) {
-    if (config->readonly == true) {
-        return true;
-    }
     MYMPD_LOG_INFO("Saving timers to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/timer_list.XXXXXX", config->varlibdir);
     int fd = mkstemp(tmp_file);

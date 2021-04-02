@@ -375,20 +375,19 @@ int main(int argc, char **argv) {
     }
 
     //check varlibdir
-    if (config->readonly == false) {
-        int testdir_rc = testdir("Localstate dir", config->varlibdir, true);
-        if (testdir_rc < 2) {
-            //directory exists or was created; set user and group, if uid = 0
-            if (startup_uid == 0) {
-                if (do_chown(config->varlibdir, config->user) == false) {
-                    goto cleanup;
-                }
+    int testdir_rc = testdir("Localstate dir", config->varlibdir, true);
+    if (testdir_rc < 2) {
+        //directory exists or was created; set user and group, if uid = 0
+        if (startup_uid == 0) {
+            if (do_chown(config->varlibdir, config->user) == false) {
+                goto cleanup;
             }
         }
-        else {
-            //set readonly mode if varlibdir is not accessible
-            mympd_set_readonly(config);
-        }
+    }
+    else {
+        //exit if varlibdir is not accessible
+        MYMPD_LOG_ERROR("Can not access %s", config->varlibdir);
+        goto cleanup;
     }
 
     //go into varlibdir
@@ -421,10 +420,8 @@ int main(int argc, char **argv) {
 
     //check for ssl certificates
     #ifdef ENABLE_SSL
-    if (config->readonly == false) {
-        if (check_ssl_certs(config, startup_uid) == false) {
-            goto cleanup;
-        }
+    if (check_ssl_certs(config, startup_uid) == false) {
+        goto cleanup;
     }
     #endif
 
@@ -444,10 +441,8 @@ int main(int argc, char **argv) {
     }
 
     //check for needed directories
-    if (config->readonly == false) {
-        if (check_dirs(config) == false) {
-            goto cleanup;
-        }
+    if (check_dirs(config) == false) {
+        goto cleanup;
     }
 
     //Create working threads

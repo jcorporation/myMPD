@@ -329,7 +329,7 @@ static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_c
         current = current->next;
     }
     //get last_played from disc
-    if (queue_list->length < 20 && config->readonly == false) {
+    if (queue_list->length < 20) {
         char *line = NULL;
         char *data = NULL;
         char *crap = NULL;

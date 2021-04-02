@@ -38,9 +38,6 @@ static sds read_navbar_icons(t_config *config);
 
 //public functions
 void mympd_api_settings_delete(t_config *config) {
-    if (config->readonly == true) {
-        return;
-    }
     const char* state_files[]={"auto_play", "bg_color", "bg_cover", "bg_css_filter", "browsetaglist", "cols_browse_database",
         "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
         "cols_search", "cols_queue_jukebox", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
@@ -277,12 +274,7 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         settingname = sdscat(settingname, "browsetaglist");
     }
     else if (strncmp(key->ptr, "smartpls", key->len) == 0) {
-        if (config->readonly == false) {
-            mympd_state->smartpls = val->type == JSON_TYPE_TRUE ? true : false;
-        }
-        else {
-            mympd_state->smartpls = false;
-        }
+        mympd_state->smartpls = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(settingname, "smartpls");
     }
     else if (strncmp(key->ptr, "smartplsSort", key->len) == 0) {
@@ -318,12 +310,7 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         settingname = sdscat(settingname, "love_message");
     }
     else if (strncmp(key->ptr, "bookmarks", key->len) == 0) {
-        if (config->readonly == false) {
-            mympd_state->bookmarks = val->type == JSON_TYPE_TRUE ? true : false;
-        }
-        else {
-            mympd_state->bookmarks = false;
-        }
+        mympd_state->bookmarks = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(settingname, "bookmarks");
     }
     else if (strncmp(key->ptr, "theme", key->len) == 0) {
@@ -425,10 +412,6 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->lyrics = state_file_rw_bool(config, "lyrics", config->lyrics, false);
     mympd_state->home = state_file_rw_bool(config, "home", config->home, false);
     mympd_state->bg_image = state_file_rw_string(config, "bg_image", config->bg_image, false);
-    if (config->readonly == true) {
-        mympd_state->bookmarks = false;
-        mympd_state->smartpls = false;
-    }
     strip_slash(mympd_state->music_directory);
     mympd_state->navbar_icons = read_navbar_icons(config);
 }
@@ -475,7 +458,6 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_char(buffer, "loveChannel", mympd_state->love_channel, true);
     buffer = tojson_char(buffer, "loveMessage", mympd_state->love_message, true);
     buffer = tojson_char(buffer, "musicDirectory", mympd_state->music_directory, true);
-    buffer = tojson_bool(buffer, "readonly", config->readonly, true);
     buffer = tojson_bool(buffer, "featBookmarks", mympd_state->bookmarks, true);
     buffer = tojson_long(buffer, "volumeStep", config->volume_step, true);
     buffer = tojson_bool(buffer, "publish", config->publish, true);
@@ -603,9 +585,6 @@ static int state_file_rw_int(t_config *config, const char *name, const int def_v
 }
 
 static bool state_file_write(t_config *config, const char *name, const char *value) {
-    if (config->readonly == true) {
-        return true;
-    }
     if (!validate_string(name)) {
         return false;
     }

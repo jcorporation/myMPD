@@ -220,9 +220,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "colsqueuejukebox")) {
         p_config->cols_queue_jukebox = sdsreplace(p_config->cols_queue_jukebox, value);
     }
-    else if (MATCH("mympd", "readonly")) {
-        p_config->readonly = strtobool(value);
-    }
     else if (MATCH("mympd", "bookmarks")) {
         p_config->bookmarks = strtobool(value);
     }
@@ -493,7 +490,6 @@ void mympd_config_defaults(t_config *config) {
     config->coverimage_size_small = 175;
     config->locale = sdsnew("default");
     config->startup_time = time(NULL);
-    config->readonly = false;
     config->bookmarks = false;
     config->volume_step = 5;
     config->publish = true;
@@ -641,7 +637,6 @@ bool mympd_dump_config(void) {
         "colsbrowsefilesystem = %s\n"
         "colsplayback = %s\n"
         "colsqueuejukebox = %s\n"
-        "readonly = %s\n"
         "bookmarks = %s\n"
         "bookletname = %s\n"
         "mounts = %s\n"
@@ -700,7 +695,6 @@ bool mympd_dump_config(void) {
         p_config->cols_browse_filesystem,
         p_config->cols_playback,
         p_config->cols_queue_jukebox,
-        (p_config->readonly == true ? "true" : "false"),
         (p_config->bookmarks == true ? "true" : "false"),
         p_config->booklet_name,
         (p_config->mounts == true ? "true" : "false"),
@@ -775,10 +769,6 @@ bool mympd_read_config(t_config *config, sds configfile) {
         config->ssl_key = sdscatfmt(config->ssl_key, "%s/ssl/server.key", config->varlibdir);
     }
     #endif
-    if (config->readonly == true) {
-        mympd_set_readonly(config);
-    }
-
     if (config->scripting == false && config->remotescripting == true) {
         MYMPD_LOG_NOTICE("Scripting disabled, disabling remote scripting");
         config->remotescripting = false;
@@ -788,21 +778,4 @@ bool mympd_read_config(t_config *config, sds configfile) {
         config->scripteditor = false;
     }
     return true;
-}
-
-void mympd_set_readonly(t_config *config) {
-    MYMPD_LOG_NOTICE("Entering readonly mode");
-    config->readonly = true;
-    if (config->bookmarks == true) {
-        MYMPD_LOG_NOTICE("Disabling bookmarks");
-        config->bookmarks = false;
-    }
-    if (config->smartpls == true) {
-        MYMPD_LOG_NOTICE("Disabling smart playlists");
-        config->smartpls = false;
-    }
-    if (config->covercache == true) {
-        MYMPD_LOG_NOTICE("Disabling covercache");
-        config->covercache = false;
-    }
 }

@@ -112,7 +112,6 @@ typedef struct t_config {
     int coverimage_size_small;
     sds locale;
     time_t startup_time;
-    bool readonly;
     bool bookmarks;
     int volume_step;
     bool publish;

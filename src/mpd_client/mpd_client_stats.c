@@ -33,10 +33,6 @@ static sds mpd_client_put_last_played_obj(t_mpd_client_state *mpd_client_state, 
 
 //public functions
 bool mpd_client_last_played_list_save(t_config *config, t_mpd_client_state *mpd_client_state) {
-    if (config->readonly == true) {
-        MYMPD_LOG_INFO("Skip saving last_played list to disc");
-        return true;
-    }
     MYMPD_LOG_INFO("Saving last_played list to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/last_played.XXXXXX", config->varlibdir);
     int fd = mkstemp(tmp_file);
@@ -100,14 +96,8 @@ bool mpd_client_add_song_to_last_played_list(t_config *config, t_mpd_client_stat
             list_insert(&mpd_client_state->last_played, uri, time(NULL), NULL, NULL);
             mpd_song_free(song);
             //write last_played list to disc
-            if (config->readonly == false) {
-                if (mpd_client_state->last_played.length > 9 || mpd_client_state->last_played.length > mpd_client_state->last_played_count) {
-                    mpd_client_last_played_list_save(config, mpd_client_state);
-                }
-            }
-            else if (mpd_client_state->last_played.length > mpd_client_state->last_played_count) {
-                //remove last entry
-                list_shift(&mpd_client_state->last_played, mpd_client_state->last_played.length - 1);
+            if (mpd_client_state->last_played.length > 9 || mpd_client_state->last_played.length > mpd_client_state->last_played_count) {
+                mpd_client_last_played_list_save(config, mpd_client_state);
             }
             //notify clients
             send_jsonrpc_event("update_lastplayed");
@@ -146,41 +136,39 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_client_state *mpd_c
         }
     }
 
-    if (config->readonly == false) {
-        char *line = NULL;
-        char *data = NULL;
-        char *crap = NULL;
-        size_t n = 0;
-        sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
-        FILE *fp = fopen(lp_file, "r");
-        if (fp != NULL) {
-            while (getline(&line, &n, fp) > 0) {
-                entity_count++;
-                if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
-                    int value = strtoimax(line, &data, 10);
-                    if (strlen(data) > 2) {
-                        data = data + 2;
-                        strtok_r(data, "\n", &crap);
-                        if (entities_returned++) {
-                            buffer = sdscat(buffer, ",");
-                        }
-                        buffer = mpd_client_put_last_played_obj(mpd_client_state, buffer, entity_count, value, data, tagcols);
+    char *line = NULL;
+    char *data = NULL;
+    char *crap = NULL;
+    size_t n = 0;
+    sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
+    FILE *fp = fopen(lp_file, "r");
+    if (fp != NULL) {
+        while (getline(&line, &n, fp) > 0) {
+            entity_count++;
+            if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
+                int value = strtoimax(line, &data, 10);
+                if (strlen(data) > 2) {
+                    data = data + 2;
+                    strtok_r(data, "\n", &crap);
+                    if (entities_returned++) {
+                        buffer = sdscat(buffer, ",");
                     }
-                    else {
-                        MYMPD_LOG_ERROR("Reading last_played line failed");
-                        MYMPD_LOG_DEBUG("Errorneous line: %s", line);
-                    }
+                    buffer = mpd_client_put_last_played_obj(mpd_client_state, buffer, entity_count, value, data, tagcols);
+                }
+                else {
+                    MYMPD_LOG_ERROR("Reading last_played line failed");
+                    MYMPD_LOG_DEBUG("Errorneous line: %s", line);
                 }
             }
-            fclose(fp);
-            FREE_PTR(line);
         }
-        else {
-            //ignore error
-            MYMPD_LOG_DEBUG("Can not open file \"%s\": %s", lp_file, strerror(errno));
-        }
-        sdsfree(lp_file);
+        fclose(fp);
+        FREE_PTR(line);
     }
+    else {
+        //ignore error
+        MYMPD_LOG_DEBUG("Can not open file \"%s\": %s", lp_file, strerror(errno));
+    }
+    sdsfree(lp_file);
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);
