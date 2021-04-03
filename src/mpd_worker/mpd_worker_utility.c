@@ -16,6 +16,7 @@
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
 #include "../list.h"
@@ -25,7 +26,7 @@
 #include "../global.h"
 #include "../utility.h"
 #include "../log.h"
-#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mympd_state.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "../mpd_shared/mpd_shared_features.h"
 #include "../mpd_shared.h"
@@ -42,7 +43,7 @@ void default_mpd_worker_state(t_mpd_worker_state *mpd_worker_state) {
     mpd_worker_state->generate_pls_tags = sdsempty();
     reset_t_tags(&mpd_worker_state->generate_pls_tag_types);
     //mpd state
-    mpd_worker_state->mpd_state = (t_mpd_state *)malloc(sizeof(t_mpd_state));
+    mpd_worker_state->mpd_state = (struct t_mpd_state *)malloc(sizeof(struct t_mpd_state));
     assert(mpd_worker_state->mpd_state);
     mpd_shared_default_mpd_state(mpd_worker_state->mpd_state);
 }

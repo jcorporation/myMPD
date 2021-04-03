@@ -15,6 +15,7 @@
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
 #include "../api.h"
@@ -22,7 +23,7 @@
 #include "mympd_config_defs.h"
 #include "../utility.h"
 #include "../log.h"
-#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mympd_state.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_search.h"
@@ -31,25 +32,25 @@
 #include "mpd_worker_smartpls.h"
 
 //private definitions
-static bool mpd_worker_smartpls_per_tag(t_config *mpd_config, t_mpd_worker_state *mpd_worker_state);
+static bool mpd_worker_smartpls_per_tag(t_mpd_worker_state *mpd_worker_state);
 static bool mpd_worker_smartpls_clear(t_mpd_worker_state *mpd_worker_state, const char *playlist);
 static bool mpd_worker_smartpls_update_search(t_mpd_worker_state *mpd_worker_state, const char *playlist, const char *tag, const char *searchstr);
 static bool mpd_worker_smartpls_update_sticker(t_mpd_worker_state *mpd_worker_state, const char *playlist, const char *sticker, const int maxentries, const int minvalue);
 static bool mpd_worker_smartpls_update_newest(t_mpd_worker_state *mpd_worker_state, const char *playlist, const int timerange);
 
 //public functions
-bool mpd_worker_smartpls_update_all(t_config *config, t_mpd_worker_state *mpd_worker_state, bool force) {
+bool mpd_worker_smartpls_update_all(t_mpd_worker_state *mpd_worker_state, bool force) {
     if (mpd_worker_state->feat_smartpls == false) {
         MYMPD_LOG_DEBUG("Smart playlists are disabled");
         return true;
     }
     
-    mpd_worker_smartpls_per_tag(config, mpd_worker_state);
+    mpd_worker_smartpls_per_tag(mpd_worker_state);
 
     unsigned long db_mtime = mpd_shared_get_db_mtime(mpd_worker_state->mpd_state);
     MYMPD_LOG_DEBUG("Database mtime: %d", db_mtime);
     
-    sds dirname = sdscatfmt(sdsempty(), "%s/smartpls", config->varlibdir);
+    sds dirname = sdscatfmt(sdsempty(), "%s/smartpls", mpd_worker_state->config->varlibdir);
     DIR *dir = opendir (dirname);
     if (dir != NULL) {
         struct dirent *ent;
@@ -58,10 +59,10 @@ bool mpd_worker_smartpls_update_all(t_config *config, t_mpd_worker_state *mpd_wo
                 continue;
             }
             unsigned long playlist_mtime = mpd_shared_get_playlist_mtime(mpd_worker_state->mpd_state, ent->d_name);
-            unsigned long smartpls_mtime = mpd_shared_get_smartpls_mtime(config, ent->d_name);
+            unsigned long smartpls_mtime = mpd_shared_get_smartpls_mtime(mpd_worker_state->config, ent->d_name);
             MYMPD_LOG_DEBUG("Playlist %s: playlist mtime %d, smartpls mtime %d", ent->d_name, playlist_mtime, smartpls_mtime);
             if (force == true || db_mtime > playlist_mtime || smartpls_mtime > playlist_mtime) {
-                mpd_worker_smartpls_update(config, mpd_worker_state, ent->d_name);
+                mpd_worker_smartpls_update(mpd_worker_state, ent->d_name);
             }
             else {
                 MYMPD_LOG_INFO("Update of smart playlist %s skipped, already up to date", ent->d_name);
@@ -78,7 +79,7 @@ bool mpd_worker_smartpls_update_all(t_config *config, t_mpd_worker_state *mpd_wo
     return true;
 }
 
-bool mpd_worker_smartpls_update(t_config *config, t_mpd_worker_state *mpd_worker_state, const char *playlist) {
+bool mpd_worker_smartpls_update(t_mpd_worker_state *mpd_worker_state, const char *playlist) {
     char *smartpltype = NULL;
     int je;
     bool rc = true;
@@ -96,7 +97,7 @@ bool mpd_worker_smartpls_update(t_config *config, t_mpd_worker_state *mpd_worker
         return false;
     }
     
-    sds filename = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
+    sds filename = sdscatfmt(sdsempty(), "%s/smartpls/%s", mpd_worker_state->config->varlibdir, playlist);
     char *content = json_fread(filename);
     sdsfree(filename);
     if (content == NULL) {
@@ -171,7 +172,7 @@ bool mpd_worker_smartpls_update(t_config *config, t_mpd_worker_state *mpd_worker
 }
 
 //private functions
-static bool mpd_worker_smartpls_per_tag(t_config *config, t_mpd_worker_state *mpd_worker_state) {
+static bool mpd_worker_smartpls_per_tag(t_mpd_worker_state *mpd_worker_state) {
     for (size_t i = 0; i < mpd_worker_state->generate_pls_tag_types.len; i++) {
         enum mpd_tag_type tag = mpd_worker_state->generate_pls_tag_types.tags[i];
         bool rc = mpd_search_db_tags(mpd_worker_state->mpd_state->conn, tag);
@@ -202,10 +203,10 @@ static bool mpd_worker_smartpls_per_tag(t_config *config, t_mpd_worker_state *mp
         while (current != NULL) {
             const char *tagstr = mpd_tag_name(tag);
             sds playlist = sdscatfmt(sdsempty(), "%s%s%s-%s", mpd_worker_state->smartpls_prefix, (sdslen(mpd_worker_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, current->key);
-            sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
+            sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", mpd_worker_state->config->varlibdir, playlist);
             if (access(plpath, F_OK) == -1) { /* Flawfinder: ignore */
                 MYMPD_LOG_INFO("Created smart playlist %s", playlist);
-                mpd_shared_smartpls_save(config, "search", playlist, tagstr, current->key, 0, 0, mpd_worker_state->smartpls_sort);
+                mpd_shared_smartpls_save(mpd_worker_state->config, "search", playlist, tagstr, current->key, 0, 0, mpd_worker_state->smartpls_sort);
             }
             sdsfree(playlist);
             sdsfree(plpath);

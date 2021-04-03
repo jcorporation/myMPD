@@ -17,12 +17,13 @@
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "../sds_extras.h"
 #include "../log.h"
 #include "../list.h"
 #include "mympd_config_defs.h"
 #include "../utility.h"
-#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mympd_state.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_lyrics.h"
 
@@ -37,8 +38,8 @@
 #endif
 
 //privat definitions
-static int _mpd_client_lyrics_unsynced(t_config *config, sds *buffer, int returned_entities, sds mediafile, sds mime_type_mediafile);
-static int _mpd_client_lyrics_synced(t_config *config, sds *buffer, int returned_entities, sds mediafile, sds mime_type_mediafile);
+static int _mpd_client_lyrics_unsynced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, sds mime_type_mediafile);
+static int _mpd_client_lyrics_synced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, sds mime_type_mediafile);
 static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool synced, int returned_entities);
 static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_entities);
 static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_entities);
@@ -50,23 +51,23 @@ static const char *_id3_field_getlanguage(union id3_field const *field);
 #endif
 
 //public functions
-sds mpd_client_lyrics_get(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
+sds mpd_client_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, const char *uri) {
     if (is_streamuri(uri) == true) {
         MYMPD_LOG_ERROR("Can not get lyrics for stream uri");
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "lyrics", "error", "Can not get lyrics for stream uri");
         return buffer;
     }
-    if (mpd_client_state->feat_library == false) {
+    if (mympd_state->mpd_state->feat_library == false) {
         MYMPD_LOG_DEBUG("Can not get lyrics, no access to music directory");
         buffer = jsonrpc_respond_message(buffer, method, request_id, false, "lyrics", "info", "No lyrics found");
         return buffer;
     }
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mpd_client_state->music_directory_value, uri);
+    sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mympd_state->music_directory_value, uri);
     sds mime_type_mediafile = get_mime_type_by_ext(mediafile);
-    int returned_entities = _mpd_client_lyrics_synced(config, &buffer, 0, mediafile, mime_type_mediafile);
-    returned_entities = _mpd_client_lyrics_unsynced(config, &buffer, returned_entities, mediafile, mime_type_mediafile);
+    int returned_entities = _mpd_client_lyrics_synced(mympd_state, &buffer, 0, mediafile, mime_type_mediafile);
+    returned_entities = _mpd_client_lyrics_unsynced(mympd_state, &buffer, returned_entities, mediafile, mime_type_mediafile);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
     buffer = jsonrpc_result_end(buffer);
@@ -76,34 +77,34 @@ sds mpd_client_lyrics_get(t_config *config, t_mpd_client_state *mpd_client_state
 }
 
 //private functions
-static int _mpd_client_lyrics_unsynced(t_config *config, sds *buffer, int returned_entities, sds mediafile, sds mime_type_mediafile) {
+static int _mpd_client_lyrics_unsynced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, sds mime_type_mediafile) {
     //try .txt file in folder in the music directory
-    returned_entities = lyrics_fromfile(buffer, mediafile, config->uslt_ext, false, returned_entities);
+    returned_entities = lyrics_fromfile(buffer, mediafile, mympd_state->uslt_ext, false, returned_entities);
     //get embedded lyrics
     if (strcmp(mime_type_mediafile, "audio/mpeg") == 0) {
         returned_entities = lyricsextract_unsynced_id3(buffer, mediafile, returned_entities);
     }
     else if (strcmp(mime_type_mediafile, "audio/ogg") == 0) {
-        returned_entities = lyricsextract_flac(buffer, mediafile, true, config->vorbis_uslt, false, returned_entities);
+        returned_entities = lyricsextract_flac(buffer, mediafile, true, mympd_state->vorbis_uslt, false, returned_entities);
     }
     else if (strcmp(mime_type_mediafile, "audio/flac") == 0) {
-        returned_entities = lyricsextract_flac(buffer, mediafile, false, config->vorbis_uslt, false, returned_entities);
+        returned_entities = lyricsextract_flac(buffer, mediafile, false, mympd_state->vorbis_uslt, false, returned_entities);
     }
     return returned_entities;
 }
 
-static int _mpd_client_lyrics_synced(t_config *config, sds *buffer, int returned_entities, sds mediafile, sds mime_type_mediafile) { 
+static int _mpd_client_lyrics_synced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, sds mime_type_mediafile) { 
     //try .lrc file in folder in the music directory
-    returned_entities = lyrics_fromfile(buffer, mediafile, config->sylt_ext, true, returned_entities);
+    returned_entities = lyrics_fromfile(buffer, mediafile, mympd_state->sylt_ext, true, returned_entities);
     //get embedded lyrics
     if (strcmp(mime_type_mediafile, "audio/mpeg") == 0) {
         returned_entities = lyricsextract_synced_id3(buffer, mediafile, returned_entities);
     }
     else if (strcmp(mime_type_mediafile, "audio/ogg") == 0) {
-        returned_entities = lyricsextract_flac(buffer, mediafile, true, config->vorbis_sylt, true, returned_entities);
+        returned_entities = lyricsextract_flac(buffer, mediafile, true, mympd_state->vorbis_sylt, true, returned_entities);
     }
     else if (strcmp(mime_type_mediafile, "audio/flac") == 0) {
-        returned_entities = lyricsextract_flac(buffer, mediafile, false, config->vorbis_sylt, true, returned_entities);
+        returned_entities = lyricsextract_flac(buffer, mediafile, false, mympd_state->vorbis_sylt, true, returned_entities);
     }
     return returned_entities;
 }

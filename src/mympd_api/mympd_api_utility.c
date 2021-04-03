@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <assert.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <signal.h>
@@ -11,78 +12,123 @@
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "../../dist/src/frozen/frozen.h"
 #include "../sds_extras.h"
 #include "../log.h"
 #include "../list.h"
 #include "mympd_config_defs.h"
+#include "../mympd_state.h"
 #include "../api.h"
 #include "../tiny_queue.h"
 #include "../global.h"
 #include "../utility.h"
-#include "mympd_api_utility.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "../mpd_shared.h"
 #include "mympd_api_timer.h"
+#include "mympd_api_utility.h"
 
-void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
-    t_work_request *request = create_request(-1, 0, MYMPD_API_SETTINGS_SET, "MYMPD_API_SETTINGS_SET", "");
-    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SETTINGS_SET\",\"params\":{");
-    request->data = tojson_long(request->data, "jukeboxMode", mympd_state->jukebox_mode, true);
-    request->data = tojson_char(request->data, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
-    request->data = tojson_long(request->data, "jukeboxQueueLength", mympd_state->jukebox_queue_length, true);
-    request->data = tojson_long(request->data, "jukeboxLastPlayed", mympd_state->jukebox_last_played, true);
-    request->data = tojson_char(request->data, "jukeboxUniqueTag", mympd_state->jukebox_unique_tag, true);
-    request->data = tojson_bool(request->data, "autoPlay", mympd_state->auto_play, true);
-    request->data = tojson_char(request->data, "coverimageName", mympd_state->coverimage_name, true);
-    request->data = tojson_char(request->data, "bookletName", mympd_state->booklet_name, true);
-    request->data = tojson_char(request->data, "taglist", mympd_state->taglist, true);
-    request->data = tojson_char(request->data, "searchtaglist", mympd_state->searchtaglist, true);
-    request->data = tojson_char(request->data, "browsetaglist", mympd_state->browsetaglist, true);
-    request->data = tojson_bool(request->data, "stickers", mympd_state->stickers, true);
-    request->data = tojson_bool(request->data, "smartpls", mympd_state->smartpls, true);
-    request->data = tojson_char(request->data, "smartplsSort", mympd_state->smartpls_sort, true);
-    request->data = tojson_char(request->data, "smartplsPrefix", mympd_state->smartpls_prefix, true);
-    request->data = tojson_long(request->data, "smartplsInterval", mympd_state->smartpls_interval, true);
-    request->data = tojson_char(request->data, "generatePlsTags", mympd_state->generate_pls_tags, true);
-    request->data = tojson_char(request->data, "mpdHost", mympd_state->mpd_host, true);
-    request->data = tojson_char(request->data, "mpdPass", mympd_state->mpd_pass, true);
-    request->data = tojson_long(request->data, "mpdPort", mympd_state->mpd_port, true);
-    request->data = tojson_long(request->data, "lastPlayedCount", mympd_state->last_played_count, true);
-    request->data = tojson_char(request->data, "musicDirectory", mympd_state->music_directory, false);
-    request->data = sdscat(request->data, "}}");
-    tiny_queue_push(mpd_client_queue, request, 0);
-
+void mympd_api_push_to_mpd_worker(struct t_mympd_state *mympd_state) {
     t_work_request *request2 = create_request(-1, 0, MYMPD_API_SETTINGS_SET, "MYMPD_API_SETTINGS_SET", "");
     request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SETTINGS_SET\",\"params\":{");
-    request2->data = tojson_char(request2->data, "taglist", mympd_state->taglist, true);
-    request2->data = tojson_bool(request2->data, "smartpls", mympd_state->smartpls, true);
+    request2->data = tojson_char(request2->data, "taglist", mympd_state->mpd_state->taglist, true);
     request2->data = tojson_char(request2->data, "smartplsSort", mympd_state->smartpls_sort, true);
     request2->data = tojson_char(request2->data, "smartplsPrefix", mympd_state->smartpls_prefix, true);
     request2->data = tojson_long(request2->data, "smartplsInterval", mympd_state->smartpls_interval, true);
     request2->data = tojson_char(request2->data, "generatePlsTags", mympd_state->generate_pls_tags, true);
-    request2->data = tojson_char(request2->data, "mpdHost", mympd_state->mpd_host, true);
-    request2->data = tojson_char(request2->data, "mpdPass", mympd_state->mpd_pass, true);
-    request2->data = tojson_long(request2->data, "mpdPort", mympd_state->mpd_port, true);
-    request2->data = tojson_bool(request2->data, "stickers", mympd_state->stickers, false);
+    request2->data = tojson_char(request2->data, "mpdHost", mympd_state->mpd_state->mpd_host, true);
+    request2->data = tojson_char(request2->data, "mpdPass", mympd_state->mpd_state->mpd_pass, true);
+    request2->data = tojson_long(request2->data, "mpdPort", mympd_state->mpd_state->mpd_port, true);
     request2->data = sdscat(request2->data, "}}");
     tiny_queue_push(mpd_worker_queue, request2, 0);
 }
 
-void free_mympd_state(t_mympd_state *mympd_state) {
+void default_mympd_state(struct t_mympd_state *mympd_state) {
+    mympd_state->mpd_state->song_id = -1;
+    mympd_state->mpd_state->song_uri = sdsempty();
+    mympd_state->mpd_state->next_song_id = -1;
+    mympd_state->mpd_state->last_song_id = -1;
+    mympd_state->mpd_state->last_song_uri = sdsempty();
+    mympd_state->mpd_state->queue_version = 0;
+    mympd_state->mpd_state->queue_length = 0;
+    mympd_state->mpd_state->last_last_played_id = -1;
+    mympd_state->mpd_state->song_end_time = 0;
+    mympd_state->mpd_state->song_start_time = 0;
+    mympd_state->mpd_state->last_song_end_time = 0;
+    mympd_state->mpd_state->last_song_start_time = 0;
+    mympd_state->mpd_state->last_skipped_id = 0;
+    mympd_state->mpd_state->crossfade = 0;
+    mympd_state->mpd_state->set_song_played_time = 0;
+    mympd_state->music_directory = sdsempty();
+    mympd_state->music_directory_value = sdsempty();
+    mympd_state->jukebox_mode = JUKEBOX_OFF;
+    mympd_state->jukebox_playlist = sdsempty();
+    mympd_state->jukebox_unique_tag.len = 1;
+    mympd_state->jukebox_unique_tag.tags[0] = MPD_TAG_ARTIST;
+    mympd_state->jukebox_last_played = 24;
+    mympd_state->jukebox_queue_length = 1;
+    mympd_state->jukebox_enforce_unique = true;
+    mympd_state->coverimage_names = sdsempty();
+    mympd_state->searchtaglist = sdsempty();
+    mympd_state->browsetaglist = sdsempty();
+    mympd_state->generate_pls_tags = sdsempty();
+    mympd_state->smartpls_sort = sdsempty();
+    mympd_state->smartpls_prefix = sdsempty();
+    mympd_state->smartpls_interval = 14400;
+    mympd_state->booklet_name = sdsnew("booklet.pdf");
+    mympd_state->auto_play = false;
+    reset_t_tags(&mympd_state->search_tag_types);
+    reset_t_tags(&mympd_state->browse_tag_types);
+    reset_t_tags(&mympd_state->generate_pls_tag_types);
+    //init last played songs list
+    list_init(&mympd_state->last_played);
+    //init sticker queue
+    list_init(&mympd_state->sticker_queue);
+    //sticker cache
+    mympd_state->sticker_cache_building = false;
+    mympd_state->sticker_cache = NULL;
+    //album cache
+    mympd_state->album_cache_building = false;
+    mympd_state->album_cache = NULL;
+    //jukebox queue
+    list_init(&mympd_state->jukebox_queue);
+    list_init(&mympd_state->jukebox_queue_tmp);
+    //mpd state
+    mympd_state->mpd_state = (struct t_mpd_state *)malloc(sizeof(struct t_mpd_state));
+    assert(mympd_state->mpd_state);
+    mpd_shared_default_mpd_state(mympd_state->mpd_state);
+    //init triggers;
+    list_init(&mympd_state->triggers);
+}
+
+void free_mympd_state(struct t_mympd_state *mympd_state) {
+    sdsfree(mympd_state->music_directory);
+    sdsfree(mympd_state->music_directory_value);
+    sdsfree(mympd_state->jukebox_playlist);
+    sdsfree(mympd_state->mpd_state->song_uri);
+    sdsfree(mympd_state->mpd_state->last_song_uri);
+    sdsfree(mympd_state->coverimage_names);
+    sdsfree(mympd_state->searchtaglist);
+    sdsfree(mympd_state->browsetaglist);
+    sdsfree(mympd_state->generate_pls_tags);
+    sdsfree(mympd_state->smartpls_sort);
+    sdsfree(mympd_state->smartpls_prefix);
+    sdsfree(mympd_state->booklet_name);
+    list_free(&mympd_state->jukebox_queue);
+    list_free(&mympd_state->jukebox_queue_tmp);
+    list_free(&mympd_state->sticker_queue);
+    list_free(&mympd_state->triggers);
+    //mpd state
+    mpd_shared_free_mpd_state(mympd_state->mpd_state);
     free_mympd_state_sds(mympd_state);
-    truncate_timerlist(&mympd_state->timer_list);
-    list_free(&mympd_state->home_list);
     FREE_PTR(mympd_state);
 }
 
-void free_mympd_state_sds(t_mympd_state *mympd_state) {
-    sdsfree(mympd_state->mpd_host);
-    sdsfree(mympd_state->mpd_pass);
-    sdsfree(mympd_state->taglist);
+void free_mympd_state_sds(struct t_mympd_state *mympd_state) {
     sdsfree(mympd_state->searchtaglist);
     sdsfree(mympd_state->browsetaglist);
     sdsfree(mympd_state->generate_pls_tags);
     sdsfree(mympd_state->jukebox_playlist);
-    sdsfree(mympd_state->jukebox_unique_tag);
     sdsfree(mympd_state->cols_queue_current);
     sdsfree(mympd_state->cols_search);
     sdsfree(mympd_state->cols_browse_database);
@@ -91,19 +137,13 @@ void free_mympd_state_sds(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->cols_playback);
     sdsfree(mympd_state->cols_queue_last_played);
     sdsfree(mympd_state->cols_queue_jukebox);
-    sdsfree(mympd_state->bg_color);
-    sdsfree(mympd_state->bg_css_filter);
-    sdsfree(mympd_state->coverimage_name);
-    sdsfree(mympd_state->locale);
+    sdsfree(mympd_state->coverimage_names);
     sdsfree(mympd_state->music_directory);
-    sdsfree(mympd_state->theme);
-    sdsfree(mympd_state->highlight_color);
     sdsfree(mympd_state->smartpls_sort);
     sdsfree(mympd_state->smartpls_prefix);
     sdsfree(mympd_state->booklet_name);
     sdsfree(mympd_state->navbar_icons);
     sdsfree(mympd_state->advanced);
-    sdsfree(mympd_state->bg_image);
 }
 
 static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", 

@@ -16,36 +16,42 @@
 #include <stdbool.h>
 #include <inttypes.h>
 
+#include <mpd/client.h>
+
 #include "../../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
 #include "../log.h"
 #include "../list.h"
 #include "mympd_config_defs.h"
+#include "../mympd_state.h"
 #include "../utility.h"
+#include "../mpd_shared.h"
+#include "../mpd_client/mpd_client_trigger.h"
 #include "mympd_api_utility.h"
 #include "mympd_api_timer.h"
 #include "mympd_api_timer_handlers.h"
 #include "mympd_api_settings.h"
 
 //private definitions
-static sds state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn);
-static bool state_file_rw_bool(t_config *config, const char *name, const bool def_value, bool warn);
-static int state_file_rw_int(t_config *config, const char *name, const int def_value, bool warn);
-static bool state_file_write(t_config *config, const char *name, const char *value);
-static sds default_navbar_icons(t_config *config, sds buffer);
-static sds read_navbar_icons(t_config *config);
+static sds state_file_rw_string(struct t_config *config, const char *name, const char *def_value, bool warn);
+static bool state_file_rw_bool(struct t_config *config, const char *name, const bool def_value, bool warn);
+static int state_file_rw_int(struct t_config *config, const char *name, const int def_value, bool warn);
+static bool state_file_write(struct t_config *config, const char *name, const char *value);
+static sds default_navbar_icons(struct t_config *config, sds buffer);
+static sds read_navbar_icons(struct t_config *config);
+static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags);
 
 //public functions
-void mympd_api_settings_delete(t_config *config) {
-    const char* state_files[]={"auto_play", "bg_color", "bg_cover", "bg_css_filter", "browsetaglist", "cols_browse_database",
+void mympd_api_settings_delete(struct t_config *config) {
+    const char* state_files[]={"auto_play", "browsetaglist", "cols_browse_database",
         "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
-        "cols_search", "cols_queue_jukebox", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
+        "cols_search", "cols_queue_jukebox", "coverimage_names", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
         "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags", "smartpls_sort", "smartpls_prefix", "smartpls_interval",
-        "last_played", "last_played_count", "locale", "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
-        "smartpls", "stickers", "taglist", "music_directory", "bookmarks", "bookmark_list", "coverimage_size_small", 
-        "theme", "timer", "highlight_color", "media_session", "booklet_name", "lyrics", "home_list", "navbar_icons", "advanced", 
-        "home", "bg_image",0};
+        "last_played_count", "locale", "mpd_host", "mpd_pass", "mpd_port", "searchtaglist",
+        "taglist", "music_directory", "booklet_name", "home_list", "navbar_icons", "advanced", 
+        0};
     const char** ptr = state_files;
     while (*ptr != 0) {
         sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
@@ -62,14 +68,18 @@ void mympd_api_settings_delete(t_config *config) {
     }
 }
 
-bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_state, struct json_token *key, struct json_token *val) {
+bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_token *key, 
+                               struct json_token *val, bool *mpd_host_changed)
+{
     char *crap;
     sds settingname = sdsempty();
     sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
+    *mpd_host_changed = false;
     if (strncmp(key->ptr, "mpdPass", key->len) == 0) {
         if (strncmp(val->ptr, "dontsetpassword", val->len) != 0) {
-            mympd_state->mpd_pass = sdsreplacelen(mympd_state->mpd_pass, settingvalue, sdslen(settingvalue));
+            mympd_state->mpd_state->mpd_pass = sdsreplacelen(mympd_state->mpd_state->mpd_pass, settingvalue, sdslen(settingvalue));
             settingname = sdscat(settingname, "mpd_pass");
+            *mpd_host_changed = true;
         }
         else {
             sdsfree(settingname);
@@ -78,11 +88,18 @@ bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_state, str
         }
     }
     else if (strncmp(key->ptr, "mpdHost", key->len) == 0) {
-        mympd_state->mpd_host = sdsreplacelen(mympd_state->mpd_host, settingvalue, sdslen(settingvalue));
+        if (strncmp(val->ptr, mympd_state->mpd_state->mpd_host, val->len) != 0) {
+            *mpd_host_changed = true;
+            mympd_state->mpd_state->mpd_host = sdsreplacelen(mympd_state->mpd_state->mpd_host, settingvalue, sdslen(settingvalue));
+        }
         settingname = sdscat(settingname, "mpd_host");
     }
     else if (strncmp(key->ptr, "mpdPort", key->len) == 0) {
-        mympd_state->mpd_port = strtoimax(settingvalue, &crap, 10);
+        int mpd_port = strtoimax(settingvalue, &crap, 10);
+        if (mympd_state->mpd_state->mpd_port != mpd_port) {
+            *mpd_host_changed = true;
+            mympd_state->mpd_state->mpd_port = mpd_port;
+        }
         settingname = sdscat(settingname, "mpd_port");
     }
     else if (strncmp(key->ptr, "musicDirectory", key->len) == 0) {
@@ -96,13 +113,15 @@ bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_state, str
         return true;
     }
 
-    bool rc = state_file_write(config, settingname, settingvalue);
+    bool rc = state_file_write(mympd_state->config, settingname, settingvalue);
     sdsfree(settingname);
     sdsfree(settingvalue);
     return rc;
 }
 
-bool mympd_api_cols_save(t_config *config, t_mympd_state *mympd_state, const char *table, const char *cols) {
+bool mympd_api_cols_save(struct t_mympd_state *mympd_state, const char *table,
+                         const char *cols)
+{
     sds tablename = sdsempty();
     if (strcmp(table, "colsQueueCurrent") == 0) {
         mympd_state->cols_queue_current = sdsreplace(mympd_state->cols_queue_current, cols);
@@ -141,7 +160,7 @@ bool mympd_api_cols_save(t_config *config, t_mympd_state *mympd_state, const cha
         return false;
     }
     
-    if (!state_file_write(config, tablename, cols)) {
+    if (!state_file_write(mympd_state->config, tablename, cols)) {
         sdsfree(tablename);
         return false;
     }
@@ -149,32 +168,25 @@ bool mympd_api_cols_save(t_config *config, t_mympd_state *mympd_state, const cha
     return true;
 }
 
-bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct json_token *key, struct json_token *val) {
+bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token *key, struct json_token *val,
+                            bool *jukebox_changed, bool *check_mpd_error)
+{
     sds settingname = sdsempty();
     sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
+    *check_mpd_error = false;
+    *jukebox_changed = false;
     char *crap;
+    bool rc = false;
 
-    MYMPD_LOG_DEBUG("Parse setting %.*s: %.*s", key->len, key->ptr, val->len, val->ptr);    
-    if (strncmp(key->ptr, "notificationWeb", key->len) == 0) {
-        mympd_state->notification_web = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(settingname, "notification_web");
-    }
-    else if (strncmp(key->ptr, "notificationPage", key->len) == 0) {
-        mympd_state->notification_page = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(settingname, "notification_page");
-    }
-    else if (strncmp(key->ptr, "mediaSession", key->len) == 0) {
-        mympd_state->media_session = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(settingname, "media_session");
-    }
-    else if (strncmp(key->ptr, "autoPlay", key->len) == 0) {
+    MYMPD_LOG_DEBUG("Parse setting %.*s: %.*s", key->len, key->ptr, val->len, val->ptr);
+    if (strncmp(key->ptr, "autoPlay", key->len) == 0) {
         mympd_state->auto_play = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(settingname, "auto_play");
     }
-    else if (strncmp(key->ptr, "coverimageName", key->len) == 0) {
+    else if (strncmp(key->ptr, "coverimageNames", key->len) == 0) {
         if (validate_string(settingvalue) && sdslen(settingvalue) > 0) {
-            mympd_state->coverimage_name = sdsreplacelen(mympd_state->coverimage_name, settingvalue, sdslen(settingvalue));
-            settingname = sdscat(settingname, "coverimage_name");
+            mympd_state->coverimage_names = sdsreplacelen(mympd_state->coverimage_names, settingvalue, sdslen(settingvalue));
+            settingname = sdscat(settingname, "coverimage_names");
         }
         else {
             sdsfree(settingname);
@@ -182,33 +194,9 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
             return false;
         }
     }
-    else if (strncmp(key->ptr, "coverimageSize", key->len) == 0) {
-        mympd_state->coverimage_size = strtoimax(settingvalue, &crap, 10);
-        settingname = sdscat(settingname, "coverimage_size");
-    }
-    else if (strncmp(key->ptr, "coverimageSizeSmall", key->len) == 0) {
-        mympd_state->coverimage_size_small = strtoimax(settingvalue, &crap, 10);
-        settingname = sdscat(settingname, "coverimage_size_small");
-    }
     else if (strncmp(key->ptr, "bookletName", key->len) == 0) {
         mympd_state->booklet_name = sdsreplacelen(mympd_state->booklet_name, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "booklet_name");
-    }
-    else if (strncmp(key->ptr, "locale", key->len) == 0) {
-        mympd_state->locale = sdsreplacelen(mympd_state->locale, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "locale");
-    }
-    else if (strncmp(key->ptr, "bgCover", key->len) == 0) {
-        mympd_state->bg_cover = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(settingname, "bg_cover");
-    }
-    else if (strncmp(key->ptr, "bgColor", key->len) == 0) {
-        mympd_state->bg_color = sdsreplacelen(mympd_state->bg_color, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "bg_color");
-    }
-    else if (strncmp(key->ptr, "bgCssFilter", key->len) == 0) {
-        mympd_state->bg_css_filter = sdsreplacelen(mympd_state->bg_css_filter, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "bg_css_filter");
     }
     else if (strncmp(key->ptr, "jukeboxMode", key->len) == 0) {
         unsigned jukebox_mode = strtoumax(settingvalue, &crap, 10);
@@ -217,11 +205,17 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
             sdsfree(settingvalue);
             return false;
         }
-        mympd_state->jukebox_mode = jukebox_mode;
+        if (mympd_state->jukebox_mode != jukebox_mode) {
+            mympd_state->jukebox_mode = jukebox_mode;
+            *jukebox_changed = true;
+        }
         settingname = sdscat(settingname, "jukebox_mode");
     }
     else if (strncmp(key->ptr, "jukeboxPlaylist", key->len) == 0) {
-        mympd_state->jukebox_playlist = sdsreplacelen(mympd_state->jukebox_playlist, settingvalue, sdslen(settingvalue));
+        if (strcmp(mympd_state->jukebox_playlist, settingvalue) != 0) {
+            mympd_state->jukebox_playlist = sdsreplacelen(mympd_state->jukebox_playlist, settingvalue, sdslen(settingvalue));
+            *jukebox_changed = true;
+        }
         settingname = sdscat(settingname, "jukebox_playlist");
     }
     else if (strncmp(key->ptr, "jukeboxQueueLength", key->len) == 0) {
@@ -235,16 +229,25 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         settingname = sdscat(settingname, "jukebox_queue_length");
     }
     else if (strncmp(key->ptr, "jukeboxUniqueTag", key->len) == 0) {
-        mympd_state->jukebox_unique_tag = sdsreplacelen(mympd_state->jukebox_unique_tag, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "jukebox_unique_tag");
+        enum mpd_tag_type unique_tag = mpd_tag_name_parse(settingvalue);
+        if (unique_tag == MPD_TAG_UNKNOWN) {
+            unique_tag = MPD_TAG_TITLE;
+            sdsclear(settingvalue);
+            settingvalue = sdscatprintf(settingvalue, "%u", unique_tag);
+        }
+        if (mympd_state->jukebox_unique_tag.tags[0] != unique_tag) {
+            mympd_state->jukebox_unique_tag.tags[0] = unique_tag;
+            *jukebox_changed = true;
+        }
     }
     else if (strncmp(key->ptr, "jukeboxLastPlayed", key->len) == 0) {
-        mympd_state->jukebox_last_played = strtoimax(settingvalue, &crap, 10);
+        int jukebox_last_played = strtoimax(settingvalue, &crap, 10);
+        if (jukebox_last_played != mympd_state->jukebox_last_played) {
+            mympd_state->jukebox_last_played = jukebox_last_played;
+            *jukebox_changed = true;
+        }
         settingname = sdscat(settingname, "jukebox_last_played");
-    }
-    else if (strncmp(key->ptr, "stickers", key->len) == 0) {
-        mympd_state->stickers = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(settingname, "stickers");
     }
     else if (strncmp(key->ptr, "lastPlayedCount", key->len) == 0) {
         int last_played_count = strtoimax(settingvalue, &crap, 10);
@@ -257,7 +260,7 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         settingname = sdscat(settingname, "last_played_count");
     }
     else if (strncmp(key->ptr, "taglist", key->len) == 0) {
-        mympd_state->taglist = sdsreplacelen(mympd_state->taglist, settingvalue, sdslen(settingvalue));
+        mympd_state->mpd_state->taglist = sdsreplacelen(mympd_state->mpd_state->taglist, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "taglist");
     }
     else if (strncmp(key->ptr, "searchtaglist", key->len) == 0) {
@@ -267,10 +270,6 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
     else if (strncmp(key->ptr, "browsetaglist", key->len) == 0) {
         mympd_state->browsetaglist = sdsreplacelen(mympd_state->browsetaglist, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "browsetaglist");
-    }
-    else if (strncmp(key->ptr, "smartpls", key->len) == 0) {
-        mympd_state->smartpls = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(settingname, "smartpls");
     }
     else if (strncmp(key->ptr, "smartplsSort", key->len) == 0) {
         mympd_state->smartpls_sort = sdsreplacelen(mympd_state->smartpls_sort, settingvalue, sdslen(settingvalue));
@@ -292,154 +291,135 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         mympd_state->generate_pls_tags = sdsreplacelen(mympd_state->generate_pls_tags, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "generate_pls_tags");
     }
-    else if (strncmp(key->ptr, "theme", key->len) == 0) {
-        mympd_state->theme = sdsreplacelen(mympd_state->theme, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "theme");
-    }
-    else if (strncmp(key->ptr, "timer", key->len) == 0) {
-        mympd_state->timer = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(settingname, "timer");
-    }
-    else if (strncmp(key->ptr, "highlightColor", key->len) == 0) {
-        mympd_state->highlight_color = sdsreplacelen(mympd_state->highlight_color, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "highlight_color");
-    }
-    else if (strncmp(key->ptr, "lyrics", key->len) == 0) {
-        mympd_state->lyrics = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(settingname, "lyrics");
-    }
     else if (strncmp(key->ptr, "advanced", key->len) == 0) {
         mympd_state->advanced = sdsreplacelen(mympd_state->advanced, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "advanced");
     }
-    else if (strncmp(key->ptr, "featHome", key->len) == 0) {
-        mympd_state->home = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(settingname, "home");
-    }
-    else if (strncmp(key->ptr, "bgImage", key->len) == 0) {
-        mympd_state->bg_image = sdsreplacelen(mympd_state->bg_image, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "bg_image");
+    else if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
+        if (strncmp(key->ptr, "random", key->len) == 0) {
+            unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
+            rc = mpd_run_random(mympd_state->mpd_state->conn, uint_buf);
+        }
+        else if (strncmp(key->ptr, "repeat", key->len) == 0) {
+            unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
+            rc = mpd_run_repeat(mympd_state->mpd_state->conn, uint_buf);
+        }
+        else if (strncmp(key->ptr, "consume", key->len) == 0) {
+            unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
+            rc = mpd_run_consume(mympd_state->mpd_state->conn, uint_buf);
+        }
+        else if (strncmp(key->ptr, "single", key->len) == 0) {
+            unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
+            if (mympd_state->mpd_state->feat_single_oneshot == true) {
+                enum mpd_single_state state;
+                if (uint_buf == 0) { state = MPD_SINGLE_OFF; }
+                else if (uint_buf == 1) { state = MPD_SINGLE_ON; }
+                else if (uint_buf == 2) { state = MPD_SINGLE_ONESHOT; }
+                else { state = MPD_SINGLE_UNKNOWN; }
+                rc = mpd_run_single_state(mympd_state->mpd_state->conn, state);
+            }
+            else {
+                rc = mpd_run_single(mympd_state->mpd_state->conn, uint_buf);
+            }
+        }
+        else if (strncmp(key->ptr, "crossfade", key->len) == 0) {
+            unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
+            rc = mpd_run_crossfade(mympd_state->mpd_state->conn, uint_buf);
+        }
+        else if (strncmp(key->ptr, "replaygain", key->len) == 0) {
+            enum mpd_replay_gain_mode mode = mpd_parse_replay_gain_name(settingvalue);
+            if (mode == MPD_REPLAY_UNKNOWN) {
+                MYMPD_LOG_ERROR("Unknown replay gain mode: %s", settingvalue);
+            }
+            else {
+                rc = mpd_run_replay_gain_mode(mympd_state->mpd_state->conn, mode);
+            }
+        }
+        *check_mpd_error = true;
     }
     else {
+        MYMPD_LOG_WARN("Unknown setting \"%s\": \"%s\"", settingname, settingvalue);
         sdsfree(settingname);
         sdsfree(settingvalue);
         return true;
     }
-    bool rc = state_file_write(config, settingname, settingvalue);
+    if (check_mpd_error == false) {
+        rc = state_file_write(mympd_state->config, settingname, settingvalue);
+    }
     sdsfree(settingname);
     sdsfree(settingvalue);
     return rc;
 }
 
-void mympd_api_settings_reset(t_config *config, t_mympd_state *mympd_state) {
-    mympd_api_settings_delete(config);
+void mympd_api_settings_reset(struct t_mympd_state *mympd_state) {
+    mympd_api_settings_delete(mympd_state->config);
     free_mympd_state_sds(mympd_state);
-    mympd_api_read_statefiles(config, mympd_state);
-    mympd_api_push_to_mpd_client(mympd_state);
+    mympd_api_read_statefiles(mympd_state);
 }
 
-void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
+void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_NOTICE("Reading states");
-    mympd_state->mpd_host = state_file_rw_string(config, "mpd_host", config->mpd_host, false);
-    mympd_state->mpd_port = state_file_rw_int(config, "mpd_port", config->mpd_port, false);
-    mympd_state->mpd_pass = state_file_rw_string(config, "mpd_pass", config->mpd_pass, false);
-    mympd_state->stickers = state_file_rw_bool(config, "stickers", config->stickers, false);
-    mympd_state->taglist = state_file_rw_string(config, "taglist", config->taglist, false);
-    mympd_state->searchtaglist = state_file_rw_string(config, "searchtaglist", config->searchtaglist, false);
-    mympd_state->browsetaglist = state_file_rw_string(config, "browsetaglist", config->browsetaglist, false);
-    mympd_state->smartpls = state_file_rw_bool(config, "smartpls", config->smartpls, false);
-    mympd_state->smartpls_sort = state_file_rw_string(config, "smartpls_sort", config->smartpls_sort, false);
-    mympd_state->smartpls_prefix = state_file_rw_string(config, "smartpls_prefix", config->smartpls_prefix, false);
-    mympd_state->smartpls_interval = state_file_rw_int(config, "smartpls_interval", config->smartpls_interval, false);
-    mympd_state->generate_pls_tags = state_file_rw_string(config, "generate_pls_tags", config->generate_pls_tags, false);
-    mympd_state->last_played_count = state_file_rw_int(config, "last_played_count", config->last_played_count, false);
-    mympd_state->notification_web = state_file_rw_bool(config, "notification_web", config->notification_web, false);
-    mympd_state->notification_page = state_file_rw_bool(config, "notification_page", config->notification_page, false);
-    mympd_state->media_session = state_file_rw_bool(config, "media_session", config->media_session, false);
-    mympd_state->auto_play = state_file_rw_bool(config, "auto_play", config->auto_play, false);
-    mympd_state->jukebox_mode = state_file_rw_int(config, "jukebox_mode", config->jukebox_mode, false);
-    mympd_state->jukebox_playlist = state_file_rw_string(config, "jukebox_playlist", config->jukebox_playlist, false);
-    mympd_state->jukebox_queue_length = state_file_rw_int(config, "jukebox_queue_length", config->jukebox_queue_length, false);
-    mympd_state->jukebox_last_played = state_file_rw_int(config, "jukebox_last_played", config->jukebox_last_played, false);
-    mympd_state->jukebox_unique_tag = state_file_rw_string(config, "jukebox_unique_tag", config->jukebox_unique_tag, false);
-    mympd_state->cols_queue_current = state_file_rw_string(config, "cols_queue_current", config->cols_queue_current, false);
-    mympd_state->cols_search = state_file_rw_string(config, "cols_search", config->cols_search, false);
-    mympd_state->cols_browse_database = state_file_rw_string(config, "cols_browse_database", config->cols_browse_database, false);
-    mympd_state->cols_browse_playlists_detail = state_file_rw_string(config, "cols_browse_playlists_detail", config->cols_browse_playlists_detail, false);
-    mympd_state->cols_browse_filesystem = state_file_rw_string(config, "cols_browse_filesystem", config->cols_browse_filesystem, false);
-    mympd_state->cols_playback = state_file_rw_string(config, "cols_playback", config->cols_playback, false);
-    mympd_state->cols_queue_last_played = state_file_rw_string(config, "cols_queue_last_played", config->cols_queue_last_played, false);
-    mympd_state->cols_queue_jukebox = state_file_rw_string(config, "cols_queue_jukebox", config->cols_queue_jukebox, false);
-    mympd_state->bg_cover = state_file_rw_bool(config, "bg_cover", config->bg_cover, false);
-    mympd_state->bg_color = state_file_rw_string(config, "bg_color", config->bg_color, false);
-    mympd_state->bg_css_filter = state_file_rw_string(config, "bg_css_filter", config->bg_css_filter, false);
-    mympd_state->coverimage_name = state_file_rw_string(config, "coverimage_name", config->coverimage_name, false);
-    mympd_state->coverimage_size = state_file_rw_int(config, "coverimage_size", config->coverimage_size, false);
-    mympd_state->coverimage_size_small = state_file_rw_int(config, "coverimage_size_small", config->coverimage_size_small, false);
-    mympd_state->locale = state_file_rw_string(config, "locale", config->locale, false);
-    mympd_state->music_directory = state_file_rw_string(config, "music_directory", config->music_directory, false);
-    mympd_state->theme = state_file_rw_string(config, "theme", config->theme, false);
-    mympd_state->timer = state_file_rw_bool(config, "timer", config->timer, false);
-    mympd_state->highlight_color = state_file_rw_string(config, "highlight_color", config->highlight_color, false);
-    mympd_state->booklet_name = state_file_rw_string(config, "booklet_name", config->booklet_name, false);
-    mympd_state->advanced = state_file_rw_string(config, "advanced", "{}", false);
-    mympd_state->lyrics = state_file_rw_bool(config, "lyrics", config->lyrics, false);
-    mympd_state->home = state_file_rw_bool(config, "home", config->home, false);
-    mympd_state->bg_image = state_file_rw_string(config, "bg_image", config->bg_image, false);
+    mympd_state->mpd_state->mpd_host = state_file_rw_string(mympd_state->config, "mpd_host", "/run/mpd/socket", false);
+    mympd_state->mpd_state->mpd_port = state_file_rw_int(mympd_state->config, "mpd_port", 6600, false);
+    mympd_state->mpd_state->mpd_pass = state_file_rw_string(mympd_state->config, "mpd_pass", "", false);
+    mympd_state->mpd_state->taglist = state_file_rw_string(mympd_state->config, "taglist", "Artist,Album,AlbumArtist,Title,Track,Genre,Date,Disc", false);
+    mympd_state->searchtaglist = state_file_rw_string(mympd_state->config, "searchtaglist", "Artist,Album,AlbumArtist,Title,Genre", false);
+    mympd_state->browsetaglist = state_file_rw_string(mympd_state->config, "browsetaglist", "Artist,Album,AlbumArtist,Genre", false);
+    mympd_state->smartpls_sort = state_file_rw_string(mympd_state->config, "smartpls_sort", "", false);
+    mympd_state->smartpls_prefix = state_file_rw_string(mympd_state->config, "smartpls_prefix", "myMPDsmart", false);
+    mympd_state->smartpls_interval = state_file_rw_int(mympd_state->config, "smartpls_interval", 14400, false);
+    mympd_state->generate_pls_tags = state_file_rw_string(mympd_state->config, "generate_pls_tags", "Genre", false);
+    mympd_state->last_played_count = state_file_rw_int(mympd_state->config, "last_played_count", 200, false);
+    mympd_state->auto_play = state_file_rw_bool(mympd_state->config, "auto_play", false, false);
+    mympd_state->jukebox_mode = state_file_rw_int(mympd_state->config, "jukebox_mode", JUKEBOX_OFF, false);
+    mympd_state->jukebox_playlist = state_file_rw_string(mympd_state->config, "jukebox_playlist", "Database", false);
+    mympd_state->jukebox_queue_length = state_file_rw_int(mympd_state->config, "jukebox_queue_length", 1, false);
+    mympd_state->jukebox_last_played = state_file_rw_int(mympd_state->config, "jukebox_last_played", 24, false);
+    mympd_state->jukebox_unique_tag.tags[0] = state_file_rw_int(mympd_state->config, "jukebox_unique_tag", MPD_TAG_TITLE, false);
+    mympd_state->cols_queue_current = state_file_rw_string(mympd_state->config, "cols_queue_current", "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]", false);
+    mympd_state->cols_search = state_file_rw_string(mympd_state->config, "cols_search", "[\"Title\",\"Artist\",\"Album\",\"Duration\"]", false);
+    mympd_state->cols_browse_database = state_file_rw_string(mympd_state->config, "cols_browse_database", "[\"Track\",\"Title\",\"Duration\"]", false);
+    mympd_state->cols_browse_playlists_detail = state_file_rw_string(mympd_state->config, "cols_browse_playlists_detail", "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]", false);
+    mympd_state->cols_browse_filesystem = state_file_rw_string(mympd_state->config, "cols_browse_filesystem", "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]", false);
+    mympd_state->cols_playback = state_file_rw_string(mympd_state->config, "cols_playback", "[\"Artist\",\"Album\"]", false);
+    mympd_state->cols_queue_last_played = state_file_rw_string(mympd_state->config, "cols_queue_last_played", "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]", false);
+    mympd_state->cols_queue_jukebox = state_file_rw_string(mympd_state->config, "cols_queue_jukebox", "[\"Pos\",\"Title\",\"Artist\",\"Album\"]", false);
+    mympd_state->coverimage_names = state_file_rw_string(mympd_state->config, "coverimage_names", "folder,cover", false);
+    mympd_state->music_directory = state_file_rw_string(mympd_state->config, "music_directory", "auto", false);
+    mympd_state->booklet_name = state_file_rw_string(mympd_state->config, "booklet_name", "booklet.pdf", false);
+    mympd_state->advanced = state_file_rw_string(mympd_state->config, "advanced", "{}", false);
     strip_slash(mympd_state->music_directory);
-    mympd_state->navbar_icons = read_navbar_icons(config);
+    mympd_state->navbar_icons = read_navbar_icons(mympd_state->config);
 }
 
-sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
-    buffer = tojson_char(buffer, "mpdHost", mympd_state->mpd_host, true);
-    buffer = tojson_long(buffer, "mpdPort", mympd_state->mpd_port, true);
+    buffer = tojson_char(buffer, "mpdHost", mympd_state->mpd_state->mpd_host, true);
+    buffer = tojson_long(buffer, "mpdPort", mympd_state->mpd_state->mpd_port, true);
     buffer = tojson_char(buffer, "mpdPass", "dontsetpassword", true);
-    buffer = tojson_bool(buffer, "featRegex", config->regex, true);
 #ifdef ENABLE_SSL
-    buffer = tojson_bool(buffer, "featCacert", (config->custom_cert == false && config->ssl == true ? true : false), true);
+    buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
 #else
     buffer = tojson_bool(buffer, "featCacert", false, true);
 #endif
-    buffer = tojson_bool(buffer, "featLocalPlayback", (config->mpd_stream_port == 0 ? false : true), true);
-    buffer = tojson_char(buffer, "coverimageName", mympd_state->coverimage_name, true);
-    buffer = tojson_long(buffer, "coverimageSize", mympd_state->coverimage_size, true);
-    buffer = tojson_long(buffer, "coverimageSizeSmall", mympd_state->coverimage_size_small, true);
-    buffer = tojson_bool(buffer, "notificationWeb", mympd_state->notification_web, true);
-    buffer = tojson_bool(buffer, "notificationPage", mympd_state->notification_page, true);
-    buffer = tojson_bool(buffer, "mediaSession", mympd_state->media_session, true);
+    buffer = tojson_char(buffer, "coverimageNames", mympd_state->coverimage_names, true);
     buffer = tojson_long(buffer, "jukeboxMode", mympd_state->jukebox_mode, true);
     buffer = tojson_char(buffer, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
     buffer = tojson_long(buffer, "jukeboxQueueLength", mympd_state->jukebox_queue_length, true);
-    buffer = tojson_char(buffer, "jukeboxUniqueTag", mympd_state->jukebox_unique_tag, true);
+    buffer = tojson_char(buffer, "jukeboxUniqueTag", mpd_tag_name(mympd_state->jukebox_unique_tag.tags[0]), true);
     buffer = tojson_long(buffer, "jukeboxLastPlayed", mympd_state->jukebox_last_played, true);
     buffer = tojson_bool(buffer, "autoPlay", mympd_state->auto_play, true);
-    buffer = tojson_char(buffer, "bgColor", mympd_state->bg_color, true);
-    buffer = tojson_bool(buffer, "bgCover", mympd_state->bg_cover, true);
-    buffer = tojson_char(buffer, "bgCssFilter", mympd_state->bg_css_filter, true);
     buffer = tojson_long(buffer, "loglevel", loglevel, true);
-    buffer = tojson_char(buffer, "locale", mympd_state->locale, true);
-    buffer = tojson_bool(buffer, "stickers", mympd_state->stickers, true);
-    buffer = tojson_bool(buffer, "smartpls", mympd_state->smartpls, true);
     buffer = tojson_char(buffer, "smartplsSort", mympd_state->smartpls_sort, true);
     buffer = tojson_char(buffer, "smartplsPrefix", mympd_state->smartpls_prefix, true);
     buffer = tojson_long(buffer, "smartplsInterval", mympd_state->smartpls_interval, true);
     buffer = tojson_long(buffer, "lastPlayedCount", mympd_state->last_played_count, true);
     buffer = tojson_char(buffer, "musicDirectory", mympd_state->music_directory, true);
-    buffer = tojson_long(buffer, "volumeStep", config->volume_step, true);
-    buffer = tojson_bool(buffer, "publish", config->publish, true);
-    buffer = tojson_char(buffer, "theme", mympd_state->theme, true);
-    buffer = tojson_char(buffer, "highlightColor", mympd_state->highlight_color, true);
-    buffer = tojson_bool(buffer, "featTimer", mympd_state->timer, true);
+    buffer = tojson_long(buffer, "volumeStep", mympd_state->volume_step, true);
     buffer = tojson_char(buffer, "bookletName", mympd_state->booklet_name, true);
-    buffer = tojson_bool(buffer, "featLyrics", mympd_state->lyrics, true);
-    buffer = tojson_bool(buffer, "featScripting", config->scripting, true);
-    buffer = tojson_bool(buffer, "featScripteditor", config->scripteditor, true);
-    buffer = tojson_bool(buffer, "featHome", mympd_state->home, true);
-    buffer = tojson_long(buffer, "volumeMin", config->volume_min, true);
-    buffer = tojson_long(buffer, "volumeMax", config->volume_max, true);
-    buffer = tojson_char(buffer, "bgImage", mympd_state->bg_image, true);
+    buffer = tojson_long(buffer, "volumeMin", mympd_state->volume_min, true);
+    buffer = tojson_long(buffer, "volumeMax", mympd_state->volume_max, true);
     buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
     buffer = sdscatfmt(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
     buffer = sdscatfmt(buffer, "\"colsBrowseDatabaseDetail\":%s,", mympd_state->cols_browse_database);
@@ -450,12 +430,73 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = sdscatfmt(buffer, "\"colsQueueJukebox\":%s,", mympd_state->cols_queue_jukebox);
     buffer = sdscatfmt(buffer, "\"navbarIcons\":%s,", mympd_state->navbar_icons);
     buffer = sdscatfmt(buffer, "\"advanced\":%s", mympd_state->advanced);
+    if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
+        buffer = sdscat(buffer,",");
+        struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
+        if (status == NULL) {
+            buffer = check_error_and_recover(mympd_state->mpd_state, buffer, method, request_id);
+            return buffer;
+        }
+
+        enum mpd_replay_gain_mode replay_gain_mode = mpd_run_replay_gain_status(mympd_state->mpd_state->conn);
+        if (replay_gain_mode == MPD_REPLAY_UNKNOWN) {
+            if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
+                mpd_status_free(status);
+                return buffer;
+            }
+        }
+        const char *replaygain = mpd_lookup_replay_gain_mode(replay_gain_mode);
+        
+        buffer = jsonrpc_result_start(buffer, method, request_id);
+        buffer = tojson_long(buffer, "repeat", mpd_status_get_repeat(status), true);
+        if (mympd_state->mpd_state->feat_single_oneshot == true) {
+            buffer = tojson_long(buffer, "single", mpd_status_get_single_state(status), true);
+        }
+        else {
+            buffer = tojson_long(buffer, "single", mpd_status_get_single(status), true);
+        }
+        if (mympd_state->mpd_state->feat_mpd_partitions == true) {
+            buffer = tojson_char(buffer, "partition", mpd_status_get_partition(status), true);
+        }
+        buffer = tojson_long(buffer, "crossfade", mpd_status_get_crossfade(status), true);
+        buffer = tojson_long(buffer, "random", mpd_status_get_random(status), true);
+        buffer = tojson_long(buffer, "consume", mpd_status_get_consume(status), true);
+        buffer = tojson_char(buffer, "replaygain", replaygain == NULL ? "" : replaygain, true);
+        buffer = tojson_bool(buffer, "featPlaylists", mympd_state->mpd_state->feat_playlists, true);
+        buffer = tojson_bool(buffer, "featTags", mympd_state->mpd_state->feat_tags, true);
+        buffer = tojson_bool(buffer, "featLibrary", mympd_state->mpd_state->feat_library, true);
+        buffer = tojson_bool(buffer, "featAdvsearch", mympd_state->mpd_state->feat_advsearch, true);
+        buffer = tojson_bool(buffer, "featStickers", mympd_state->mpd_state->feat_stickers, true);
+        buffer = tojson_bool(buffer, "featFingerprint", mympd_state->mpd_state->feat_fingerprint, true);
+        buffer = tojson_bool(buffer, "featSingleOneshot", mympd_state->mpd_state->feat_single_oneshot, true);
+        buffer = tojson_bool(buffer, "featPartitions", mympd_state->mpd_state->feat_mpd_partitions, true);
+        buffer = tojson_char(buffer, "musicDirectoryValue", mympd_state->music_directory_value, true);
+        buffer = tojson_bool(buffer, "mpdConnected", true, true);
+        buffer = tojson_bool(buffer, "featMounts", mympd_state->mpd_state->feat_mpd_mount, true);
+        buffer = tojson_bool(buffer, "featNeighbors", mympd_state->mpd_state->feat_mpd_neighbor, true);
+        mpd_status_free(status);
+
+        buffer = print_tags_array(buffer, "tags", mympd_state->mpd_state->mympd_tag_types);
+        buffer = sdscat(buffer, ",");
+        buffer = print_tags_array(buffer, "searchtags", mympd_state->search_tag_types);
+        buffer = sdscat(buffer, ",");
+        buffer = print_tags_array(buffer, "browsetags", mympd_state->browse_tag_types);
+        buffer = sdscat(buffer, ",");
+        buffer = print_tags_array(buffer, "allmpdtags", mympd_state->mpd_state->mpd_tag_types);
+        buffer = sdscat(buffer, ",");
+        buffer = print_tags_array(buffer, "generatePlsTags", mympd_state->generate_pls_tag_types);
+        
+        buffer = sdscat(buffer, ",\"triggers\":{");
+        buffer = print_trigger_list(buffer);
+        buffer = sdscat(buffer, "}");
+
+    }
     buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
 
-sds mympd_api_picture_list(t_config *config, sds buffer, sds method, long request_id) {
-    sds pic_dirname = sdscatfmt(sdsempty(), "%s/pics", config->varlibdir);
+sds mympd_api_picture_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+    sds pic_dirname = sdscatfmt(sdsempty(), "%s/pics", mympd_state->config->varlibdir);
     DIR *pic_dir = opendir(pic_dirname);
     if (pic_dir == NULL) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, true,
@@ -486,7 +527,7 @@ sds mympd_api_picture_list(t_config *config, sds buffer, sds method, long reques
 }
 
 //privat functions
-static sds state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn) {
+static sds state_file_rw_string(struct t_config *config, const char *name, const char *def_value, bool warn) {
     char *line = NULL;
     size_t n = 0;
     ssize_t read;
@@ -529,7 +570,7 @@ static sds state_file_rw_string(t_config *config, const char *name, const char *
     return result;
 }
 
-static bool state_file_rw_bool(t_config *config, const char *name, const bool def_value, bool warn) {
+static bool state_file_rw_bool(struct t_config *config, const char *name, const bool def_value, bool warn) {
     bool value = def_value;
     sds line = state_file_rw_string(config, name, def_value == true ? "true" : "false", warn);
     if (sdslen(line) > 0) {
@@ -539,7 +580,7 @@ static bool state_file_rw_bool(t_config *config, const char *name, const bool de
     return value;
 }
 
-static int state_file_rw_int(t_config *config, const char *name, const int def_value, bool warn) {
+static int state_file_rw_int(struct t_config *config, const char *name, const int def_value, bool warn) {
     char *crap = NULL;
     int value = def_value;
     sds def_value_str = sdsfromlonglong(def_value);
@@ -552,7 +593,7 @@ static int state_file_rw_int(t_config *config, const char *name, const int def_v
     return value;
 }
 
-static bool state_file_write(t_config *config, const char *name, const char *value) {
+static bool state_file_write(struct t_config *config, const char *name, const char *value) {
     if (!validate_string(name)) {
         return false;
     }
@@ -581,7 +622,7 @@ static bool state_file_write(t_config *config, const char *name, const char *val
     return true;
 }
 
-static sds default_navbar_icons(t_config *config, sds buffer) {
+static sds default_navbar_icons(struct t_config *config, sds buffer) {
     MYMPD_LOG_NOTICE("Writing default navbar_icons");
     sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->varlibdir);
     sdsclear(buffer);
@@ -601,7 +642,7 @@ static sds default_navbar_icons(t_config *config, sds buffer) {
     return buffer;
 }
 
-static sds read_navbar_icons(t_config *config) {
+static sds read_navbar_icons(struct t_config *config) {
     sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->varlibdir);
     sds buffer = sdsempty();
     FILE *fp = fopen(file_name, "r");
@@ -626,5 +667,18 @@ static sds read_navbar_icons(t_config *config) {
     if (sdslen(buffer) == 0) {
         buffer = default_navbar_icons(config, buffer);
     }
+    return buffer;
+}
+
+static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags) {
+    buffer = sdscatfmt(buffer, "\"%s\": [", tagsname);
+    for (size_t i = 0; i < tags.len; i++) {
+        if (i > 0) {
+            buffer = sdscat(buffer, ",");
+        }
+        const char *tagname = mpd_tag_name(tags.tags[i]);
+        buffer = sdscatjson(buffer, tagname, strlen(tagname));
+    }
+    buffer = sdscat(buffer, "]");
     return buffer;
 }

@@ -31,7 +31,7 @@ static void create_ipv6_mask(int *netmask, int mask);
 */
 
 //public functions
-void free_mg_user_data(t_mg_user_data *mg_user_data) {
+void free_mg_user_data(struct t_mg_user_data *mg_user_data) {
     sdsfree(mg_user_data->browse_document_root);
     sdsfree(mg_user_data->pics_document_root);
     sdsfree(mg_user_data->smartpls_document_root);
@@ -150,15 +150,13 @@ void serve_stream_image(struct mg_connection *nc, struct mg_http_message *hm) {
 }
 
 void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, const char *name) {
-    t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->userdata;
-    t_config *config = (t_config *) mg_user_data->config;
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
+    struct t_config *config = (struct t_config *) mg_user_data->config;
     
     sds asset_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, name);
     sds mime_type;
-    if (config->custom_placeholder_images == true) {
-        asset_image = find_image_file(asset_image);
-    }
-    if (config->custom_placeholder_images == true && sdslen(asset_image) > 0) {
+    asset_image = find_image_file(asset_image);
+    if (sdslen(asset_image) > 0) {
         mime_type = get_mime_type_by_ext(asset_image);
         mg_http_serve_file(nc, hm, asset_image, mime_type, EXTRA_HEADERS_CACHE);
     }

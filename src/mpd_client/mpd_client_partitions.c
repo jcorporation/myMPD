@@ -10,21 +10,22 @@
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "../sds_extras.h"
 #include "../api.h"
 #include "../log.h"
 #include "../list.h"
 #include "mympd_config_defs.h"
 #include "../utility.h"
-#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mympd_state.h"
 #include "../mpd_shared.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_partitions.h"
 
 //public functions
-sds mpd_client_put_partitions(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id) {
-    bool rc = mpd_send_listpartitions(mpd_client_state->mpd_state->conn);
-    if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_listpartitions") == false) {
+sds mpd_client_put_partitions(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+    bool rc = mpd_send_listpartitions(mympd_state->mpd_state->conn);
+    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_listpartitions") == false) {
         return buffer;
     }
         
@@ -32,14 +33,14 @@ sds mpd_client_put_partitions(t_mpd_client_state *mpd_client_state, sds buffer, 
     buffer = sdscat(buffer, "\"data\":[");
     unsigned entity_count = 0;
     struct mpd_pair *partition;
-    while ((partition = mpd_recv_partition_pair(mpd_client_state->mpd_state->conn)) != NULL) {
+    while ((partition = mpd_recv_partition_pair(mympd_state->mpd_state->conn)) != NULL) {
         if (entity_count++) {
             buffer = sdscat(buffer, ",");
         }
         buffer = sdscat(buffer, "{");
         buffer = tojson_char(buffer, "name", partition->value, false);
         buffer = sdscat(buffer, "}");
-        mpd_return_pair(mpd_client_state->mpd_state->conn, partition);
+        mpd_return_pair(mympd_state->mpd_state->conn, partition);
     }
 
     buffer = sdscat(buffer, "],");
@@ -47,8 +48,8 @@ sds mpd_client_put_partitions(t_mpd_client_state *mpd_client_state, sds buffer, 
     buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
     buffer = jsonrpc_result_end(buffer);
     
-    mpd_response_finish(mpd_client_state->mpd_state->conn);
-    if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {
+    mpd_response_finish(mympd_state->mpd_state->conn);
+    if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
     }
     

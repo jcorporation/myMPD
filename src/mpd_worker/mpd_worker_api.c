@@ -13,6 +13,7 @@
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
 #include "../list.h"
@@ -22,7 +23,7 @@
 #include "../log.h"
 #include "../tiny_queue.h"
 #include "../global.h"
-#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mympd_state.h"
 #include "../mpd_shared.h"
 #include "mpd_worker_utility.h"
 #include "mpd_worker_smartpls.h"
@@ -34,7 +35,7 @@ static bool mpd_worker_api_settings_set(t_mpd_worker_state *mpd_worker_state, st
                           struct json_token *val, bool *mpd_host_changed, bool *check_mpd_error);
 
 //public functions
-void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void *arg_request) {
+void mpd_worker_api(t_mpd_worker_state *mpd_worker_state, void *arg_request) {
     t_work_request *request = (t_work_request*) arg_request;
     bool rc;
     bool bool_buf1;
@@ -107,7 +108,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
                     free_result(response);
                 }
                 free_request(request);
-                rc = mpd_worker_smartpls_update_all(config, mpd_worker_state, bool_buf1);
+                rc = mpd_worker_smartpls_update_all(mpd_worker_state, bool_buf1);
                 if (rc == true) {
                     send_jsonrpc_notify("playlist", "info", "Smart playlists updated");
                 }
@@ -120,7 +121,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
         case MPDWORKER_API_SMARTPLS_UPDATE:
             je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q}}", &p_charbuf1);
             if (je == 1) {
-                rc = mpd_worker_smartpls_update(config, mpd_worker_state, p_charbuf1);
+                rc = mpd_worker_smartpls_update(mpd_worker_state, p_charbuf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
                         "playlist", "info", "Smart playlist %{playlist} updated", 2, "playlist", p_charbuf1);
@@ -171,8 +172,6 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
         }
         free_request(request);
     }
-    //prevent unused parameter warning
-    (void) config;
 }
 
 //private functions

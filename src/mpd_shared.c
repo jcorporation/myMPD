@@ -15,6 +15,7 @@
 #include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "sds_extras.h"
 #include "list.h"
 #include "mympd_config_defs.h"
@@ -23,12 +24,12 @@
 #include "global.h"
 #include "utility.h"
 #include "log.h"
-#include "mpd_shared/mpd_shared_typedefs.h"
+#include "mympd_state.h"
 #include "mpd_shared/mpd_shared_tags.h"
 #include "mpd_shared.h"
 
 //mpd state
-void mpd_shared_default_mpd_state(t_mpd_state *mpd_state) {
+void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state) {
     mpd_state->conn_state = MPD_DISCONNECTED;
     mpd_state->reconnect_time = 0;
     mpd_state->reconnect_interval = 0;
@@ -37,27 +38,26 @@ void mpd_shared_default_mpd_state(t_mpd_state *mpd_state) {
     mpd_state->mpd_host = sdsempty();
     mpd_state->mpd_port = 0;
     mpd_state->mpd_pass = sdsempty();
-    mpd_state->taglist = sdsempty();
     reset_t_tags(&mpd_state->mympd_tag_types);
     reset_t_tags(&mpd_state->mpd_tag_types);
 }
 
-void mpd_shared_free_mpd_state(t_mpd_state *mpd_state) {
+void mpd_shared_free_mpd_state(struct t_mpd_state *mpd_state) {
     sdsfree(mpd_state->mpd_host);
     sdsfree(mpd_state->mpd_pass);
-    sdsfree(mpd_state->taglist);
     free(mpd_state);
 }
 
-void mpd_shared_mpd_disconnect(t_mpd_state *mpd_state) {
+void mpd_shared_mpd_disconnect(struct t_mpd_state *mpd_state) {
     mpd_state->conn_state = MPD_DISCONNECT;
     if (mpd_state->conn != NULL) {
         mpd_connection_free(mpd_state->conn);
     }
 }
 
-bool check_rc_error_and_recover(t_mpd_state *mpd_state, sds *buffer, 
-                                sds method, long request_id, bool notify, bool rc, const char *command)
+bool check_rc_error_and_recover(struct t_mpd_state *mpd_state, sds *buffer, 
+                                sds method, long request_id, bool notify, bool rc, 
+                                const char *command)
 {
     if (check_error_and_recover2(mpd_state, buffer, method, request_id, notify) == false) {
         MYMPD_LOG_ERROR("Error in response to command %s", command);
@@ -74,7 +74,9 @@ bool check_rc_error_and_recover(t_mpd_state *mpd_state, sds *buffer,
     return true;
 }
 
-bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, long request_id, bool notify) {
+bool check_error_and_recover2(struct t_mpd_state *mpd_state, sds *buffer, sds method, long request_id, 
+                              bool notify)
+{
     enum mpd_error error = mpd_connection_get_error(mpd_state->conn);
     if (error  != MPD_ERROR_SUCCESS) {
         const char *error_msg = mpd_connection_get_error_message(mpd_state->conn);
@@ -106,12 +108,12 @@ bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, l
     return true;
 }
 
-sds check_error_and_recover(t_mpd_state *mpd_state, sds buffer, sds method, long request_id) {
+sds check_error_and_recover(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id) {
     check_error_and_recover2(mpd_state, &buffer, method, request_id, false);
     return buffer;
 }
 
-sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer) {
+sds check_error_and_recover_notify(struct t_mpd_state *mpd_state, sds buffer) {
     check_error_and_recover2(mpd_state, &buffer, NULL, 0, true);
     return buffer;
 }
@@ -122,9 +124,13 @@ sds respond_with_command_error(sds buffer, sds method, long request_id, const ch
                             2, "command", command);
 }
 
-sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method, long request_id, bool rc, const char *command) {
+sds respond_with_mpd_error_or_ok(struct t_mpd_state *mpd_state, sds buffer, sds method, 
+                                 long request_id, bool rc, const char *command)
+{
     buffer = sdscrop(buffer);
-    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, command) == false) {
+    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, 
+                                   rc, command) == false)
+    {
         return buffer;
     }
     return jsonrpc_respond_ok(buffer, method, request_id, "mpd");

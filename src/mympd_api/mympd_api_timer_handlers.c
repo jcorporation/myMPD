@@ -10,13 +10,17 @@
 #include <time.h>
 #include <string.h>
 
+#include <mpd/client.h>
+
 #include "../../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "../log.h"
 #include "../list.h"
 #include "../tiny_queue.h"
 #include "../api.h"
 #include "../global.h"
 #include "mympd_config_defs.h"
+#include "../mympd_state.h"
 #include "../utility.h"
 #include "../covercache.h"
 #include "mympd_api_utility.h"
@@ -27,7 +31,7 @@
 void timer_handler_covercache(struct t_timer_definition *definition, void *user_data) {
     MYMPD_LOG_INFO("Start timer_handler_covercache");
     (void) definition;
-    t_config *config = (t_config *) user_data;
+    struct t_config *config = (struct t_config *) user_data;
     clear_covercache(config, -1);
 }
 
@@ -46,7 +50,7 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
     if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "stopplay") == 0) {
         t_work_request *request = create_request(-1, 0, MPD_API_PLAYER_STOP, "MPD_API_PLAYER_STOP", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_PLAYER_STOP\",\"params\":{}}");
-        tiny_queue_push(mpd_client_queue, request, 0);
+        tiny_queue_push(mympd_api_queue, request, 0);
     }
     else if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "startplay") == 0) {
         t_work_request *request = create_request(-1, 0, MPD_API_TIMER_STARTPLAY, "MPD_API_TIMER_STARTPLAY", "");
@@ -55,7 +59,7 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
         request->data = tojson_char(request->data, "playlist", definition->playlist, true);
         request->data = tojson_long(request->data, "jukeboxMode", definition->jukebox_mode, false);
         request->data = sdscat(request->data, "}}");
-        tiny_queue_push(mpd_client_queue, request, 0);
+        tiny_queue_push(mympd_api_queue, request, 0);
     }
     else if (strcmp(definition->action, "script") == 0) {
         t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, "MYMPD_API_SCRIPT_EXECUTE", "");

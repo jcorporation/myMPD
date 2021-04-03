@@ -36,9 +36,9 @@
 #endif
 
 //privat definitions
-static bool handle_coverextract(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file);
-static bool handle_coverextract_id3(t_config *config, const char *uri, const char *media_file, sds *binary);
-static bool handle_coverextract_flac(t_config *config, const char *uri, const char *media_file, sds *binary, bool is_ogg);
+static bool handle_coverextract(struct mg_connection *nc, struct t_config *config, const char *uri, const char *media_file);
+static bool handle_coverextract_id3(struct t_config *config, const char *uri, const char *media_file, sds *binary);
+static bool handle_coverextract_flac(struct t_config *config, const char *uri, const char *media_file, sds *binary, bool is_ogg);
 
 //public functions
 void send_albumart(struct mg_connection *nc, sds data, sds binary) {
@@ -64,7 +64,9 @@ void send_albumart(struct mg_connection *nc, sds data, sds binary) {
 
 //returns true if an image is served
 //returns false if waiting for mpd_client to handle request
-bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm, t_mg_user_data *mg_user_data, t_config *config, long long conn_id) {
+bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm, 
+                     struct t_mg_user_data *mg_user_data, struct t_config *config, 
+                     long long conn_id) {
     //decode uri
     sds uri_decoded = sdsurldecode(sdsempty(), hm->uri.ptr, (int)hm->uri.len, 0);
     if (sdslen(uri_decoded) == 0) {
@@ -178,8 +180,7 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm, t_mg_
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMART\",\"params\":{");
         request->data = tojson_char(request->data, "uri", uri_decoded, false);
         request->data = sdscat(request->data, "}}");
-
-        tiny_queue_push(mpd_client_queue, request, 0);
+        tiny_queue_push(mympd_api_queue, request, 0);
         sdsfree(mediafile);
         sdsfree(uri_decoded);
         return false;
@@ -193,7 +194,9 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm, t_mg_
 }
 
 //privat functions
-static bool handle_coverextract(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file) {
+static bool handle_coverextract(struct mg_connection *nc, struct t_config *config, 
+                                const char *uri, const char *media_file)
+{
     bool rc = false;
     sds mime_type_media_file = get_mime_type_by_ext(media_file);
     MYMPD_LOG_DEBUG("Handle coverextract for uri \"%s\"", uri);
@@ -222,7 +225,9 @@ static bool handle_coverextract(struct mg_connection *nc, t_config *config, cons
     return rc;
 }
 
-static bool handle_coverextract_id3(t_config *config, const char *uri, const char *media_file, sds *binary) {
+static bool handle_coverextract_id3(struct t_config *config, const char *uri, const char *media_file, 
+                                    sds *binary)
+{
     bool rc = false;
     #ifdef ENABLE_LIBID3TAG
     MYMPD_LOG_DEBUG("Exctracting coverimage from %s", media_file);
@@ -260,7 +265,9 @@ static bool handle_coverextract_id3(t_config *config, const char *uri, const cha
     return rc;
 }
 
-static bool handle_coverextract_flac(t_config *config, const char *uri, const char *media_file, sds *binary, bool is_ogg) {
+static bool handle_coverextract_flac(struct t_config *config, const char *uri, const char *media_file, 
+                                     sds *binary, bool is_ogg)
+{
     bool rc = false;
     #ifdef ENABLE_FLAC
     MYMPD_LOG_DEBUG("Exctracting coverimage from %s", media_file);

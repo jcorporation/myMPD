@@ -46,17 +46,10 @@
 #define MEASURE_END clock_t measure_end = clock();
 #define MEASURE_PRINT(X) MYMPD_LOG_DEBUG("Execution time for %s: %lf", X, ((double) (measure_end - measure_start)) / CLOCKS_PER_SEC);
 
-enum jukebox_modes {
-    JUKEBOX_OFF,
-    JUKEBOX_ADD_SONG,
-    JUKEBOX_ADD_ALBUM,
-};
-
 //myMPD configuration
-typedef struct t_config {
-    sds mpd_host;
-    int mpd_port;
-    sds mpd_pass;
+struct t_config {
+    sds user;
+    sds varlibdir;
     sds http_host;
     sds http_port;
 #ifdef ENABLE_SSL
@@ -67,77 +60,16 @@ typedef struct t_config {
     bool custom_cert;
     sds ssl_san;
 #endif
-    sds user;
-    bool stickers;
-    sds taglist;
-    sds searchtaglist;
-    sds browsetaglist;
-    bool smartpls;
-    sds smartpls_sort;
-    sds smartpls_prefix;
-    time_t smartpls_interval;
-    sds varlibdir;
-    int last_played_count;
-    int loglevel;
-    sds music_directory;
-    sds playlist_directory;
-    bool notification_web;
-    bool notification_page;
-    bool media_session;
-    bool auto_play;
-    int jukebox_mode;
-    sds jukebox_playlist;
-    int jukebox_queue_length;
-    int jukebox_last_played;
-    sds jukebox_unique_tag;
-    sds cols_queue_current;
-    sds cols_search;
-    sds cols_browse_database;
-    sds cols_browse_playlists_detail;
-    sds cols_browse_filesystem;
-    sds cols_playback;
-    sds cols_queue_last_played;
-    sds cols_queue_jukebox;
-    unsigned mpd_stream_port;
-    bool bg_cover;
-    sds bg_color;
-    sds bg_css_filter;
-    sds coverimage_name;
-    int coverimage_size;
-    int coverimage_size_small;
-    sds locale;
-    time_t startup_time;
-    bool bookmarks;
-    int volume_step;
-    bool publish;
-    int covercache_keep_days;
-    bool covercache;
-    sds theme;
-    sds highlight_color;
-    bool custom_placeholder_images;
-    bool regex;
-    bool timer;
-    sds generate_pls_tags;
-    sds booklet_name;
-    bool mounts;
-    bool lyrics;
-    bool scripting;
-    bool remotescripting;
     sds acl;
     sds scriptacl;
+#ifdef ENABLE_LUA
     sds lualibs;
-    bool scripteditor;
-    bool partitions;
-    bool home;
-    unsigned volume_min;
-    unsigned volume_max;
-    sds vorbis_sylt;
-    sds vorbis_uslt;
-    sds sylt_ext;
-    sds uslt_ext;
-    unsigned binarylimit;
-    sds bg_image;
+#endif
     bool syslog;
-} t_config;
+    int loglevel;
+    time_t startup_time;
+    bool covercache;
+    unsigned covercache_keep_days;
+};
 
 #endif

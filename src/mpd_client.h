@@ -6,5 +6,6 @@
 
 #ifndef __MPD_CLIENT_H__
 #define __MPD_CLIENT_H__
-void *mpd_client_loop(void *arg_config);
+void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask);
+void mpd_client_idle(struct t_mympd_state *mympd_state);
 #endif

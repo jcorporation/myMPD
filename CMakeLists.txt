@@ -182,7 +182,6 @@ set(SOURCES
   src/tiny_queue.c
   src/log.c
   src/mympd_config.c
-  src/handle_options.c
   src/utility.c
   src/random.c
   src/sds_extras.c
@@ -195,7 +194,6 @@ set(SOURCES
   src/mpd_shared/mpd_shared_features.c
   src/mpd_shared/mpd_shared_sticker.c
   src/mpd_client.c
-  src/mpd_client/mpd_client_api.c
   src/mpd_client/mpd_client_cover.c
   src/mpd_client/mpd_client_browse.c
   src/mpd_client/mpd_client_features.c
@@ -203,7 +201,6 @@ set(SOURCES
   src/mpd_client/mpd_client_utility.c
   src/mpd_client/mpd_client_playlists.c
   src/mpd_client/mpd_client_queue.c
-  src/mpd_client/mpd_client_settings.c
   src/mpd_client/mpd_client_state.c
   src/mpd_client/mpd_client_stats.c
   src/mpd_client/mpd_client_sticker.c
@@ -218,6 +215,7 @@ set(SOURCES
   src/mpd_worker/mpd_worker_smartpls.c
   src/mpd_worker/mpd_worker_cache.c
   src/mympd_api.c
+  src/mympd_api/mympd_api_handler.c
   src/mympd_api/mympd_api_home.c
   src/mympd_api/mympd_api_utility.c
   src/mympd_api/mympd_api_settings.c

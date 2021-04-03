@@ -14,25 +14,29 @@
 #include <ctype.h>
 #include <stdbool.h>
 
+#include <mpd/client.h>
+
 #include "../../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
 #include "../log.h"
 #include "../list.h"
 #include "mympd_config_defs.h"
 #include "../utility.h"
+#include "../mympd_state.h"
 #include "mympd_api_utility.h"
 #include "mympd_api_home.h"
 
-bool mympd_api_move_home_icon(t_mympd_state *mympd_state, unsigned int from, unsigned int to) {
+bool mympd_api_move_home_icon(struct t_mympd_state *mympd_state, unsigned int from, unsigned int to) {
     return list_move_item_pos(&mympd_state->home_list, from, to);
 }
 
-bool mympd_api_rm_home_icon(t_mympd_state *mympd_state, unsigned int pos) {
+bool mympd_api_rm_home_icon(struct t_mympd_state *mympd_state, unsigned int pos) {
     return list_shift(&mympd_state->home_list, pos);
 }
 
-bool mympd_api_save_home_icon(t_mympd_state *mympd_state, bool replace, unsigned int oldpos,
+bool mympd_api_save_home_icon(struct t_mympd_state *mympd_state, bool replace, unsigned int oldpos,
     const char *name, const char *ligature, const char *bgcolor, const char *image,
     const char *cmd, struct list *option_list) 
 {
@@ -69,8 +73,8 @@ bool mympd_api_save_home_icon(t_mympd_state *mympd_state, bool replace, unsigned
     return rc;
 }
 
-bool mympd_api_read_home_list(t_config *config, t_mympd_state *mympd_state) {
-    sds home_file = sdscatfmt(sdsempty(), "%s/state/home_list", config->varlibdir);
+bool mympd_api_read_home_list(struct t_mympd_state *mympd_state) {
+    sds home_file = sdscatfmt(sdsempty(), "%s/state/home_list", mympd_state->config->varlibdir);
     FILE *fp = fopen(home_file, "r");
     if (fp != NULL) {
         char *line = NULL;
@@ -93,9 +97,9 @@ bool mympd_api_read_home_list(t_config *config, t_mympd_state *mympd_state) {
     return true;
 }
 
-bool mympd_api_write_home_list(t_config *config, t_mympd_state *mympd_state) {
+bool mympd_api_write_home_list(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving home icons to disc");
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/home_list.XXXXXX", config->varlibdir);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/home_list.XXXXXX", mympd_state->config->varlibdir);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
         MYMPD_LOG_ERROR("Can not open \"%s\" for write: %s", tmp_file, strerror(errno));
@@ -115,7 +119,7 @@ bool mympd_api_write_home_list(t_config *config, t_mympd_state *mympd_state) {
         current = current->next;
     }
     fclose(fp);
-    sds home_file = sdscatfmt(sdsempty(), "%s/state/home_list", config->varlibdir);
+    sds home_file = sdscatfmt(sdsempty(), "%s/state/home_list", mympd_state->config->varlibdir);
     if (rename(tmp_file, home_file) == -1) {
         MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed: %s", tmp_file, home_file, strerror(errno));
         sdsfree(tmp_file);
@@ -127,7 +131,7 @@ bool mympd_api_write_home_list(t_config *config, t_mympd_state *mympd_state) {
     return true;
 }
 
-sds mympd_api_put_home_list(t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_put_home_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int returned_entities = 0;
@@ -145,7 +149,7 @@ sds mympd_api_put_home_list(t_mympd_state *mympd_state, sds buffer, sds method, 
     return buffer;
 }
 
-sds mympd_api_get_home_icon(t_mympd_state *mympd_state, sds buffer, sds method, long request_id, unsigned pos) {
+sds mympd_api_get_home_icon(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, unsigned pos) {
     struct list_node *current = list_node_at(&mympd_state->home_list, pos);
 
     if (current != NULL) {

@@ -33,7 +33,7 @@
 #include "web_server.h"
 
 //private definitions
-static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_user_data);
+static bool parse_internal_message(t_work_result *response, struct t_mg_user_data *mg_user_data);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 #ifdef ENABLE_SSL
   static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data, void *fn_data);
@@ -46,7 +46,7 @@ static void mpd_stream_proxy_forward(struct mg_http_message *hm, struct mg_conne
 static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 
 //public functions
-bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_data) {
+bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_data *mg_user_data) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
 
     //initialize mgr user_data, malloced in main.c
@@ -56,7 +56,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_user_data->smartpls_document_root = sdscatfmt(sdsempty(), "%s/smartpls", config->varlibdir);
     mg_user_data->music_directory = sdsempty();
     mg_user_data->playlist_directory = sdsempty();
-    mg_user_data->coverimage_names= split_coverimage_names(config->coverimage_name, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
+    mg_user_data->coverimage_names= split_coverimage_names("cover,folder", mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
     mg_user_data->feat_library = false;
     mg_user_data->feat_mpd_albumart = false;
     mg_user_data->connection_count = 0;
@@ -125,7 +125,7 @@ void *web_server_loop(void *arg_mgr) {
     //set mongoose loglevel
     mg_log_set("1");
     
-    t_mg_user_data *mg_user_data = (t_mg_user_data *) mgr->userdata;
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
     sds last_notify = sdsempty();
     time_t last_time = 0;
     while (s_signal_received == 0) {
@@ -164,7 +164,7 @@ void *web_server_loop(void *arg_mgr) {
 }
 
 //private functions
-static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_user_data) {
+static bool parse_internal_message(t_work_result *response, struct t_mg_user_data *mg_user_data) {
     bool rc = false;
     if (response->extra != NULL) {	
 	    struct set_mg_user_data_request *new_mg_user_data = (struct set_mg_user_data_request *)response->extra;
@@ -267,8 +267,8 @@ static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *
 // Event handler
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     struct mg_connection *backend_nc = fn_data;
-    t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->userdata;
-    t_config *config = (t_config *) mg_user_data->config;
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
+    struct t_config *config = (struct t_config *) mg_user_data->config;
     switch(ev) {
         case MG_EV_ACCEPT: {
             //check connection count
@@ -342,11 +342,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 sdsfree(response);
             }
             else if (mg_http_match_uri(hm, "/api/script")) {
-                if (config->remotescripting == false) {
-                    nc->is_draining = 1;
-                    send_error(nc, 403, "Remote scripting is disabled");
-                    break;
-                }
                 if (sdslen(config->scriptacl) > 0 && check_ip_acl(config->scriptacl, &nc->peer) == false) {
                     nc->is_draining = 1;
                     send_error(nc, 403, "Request blocked by ACL");
@@ -411,10 +406,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 mg_http_serve_dir(nc, hm, &s_http_server_opts);
             }
             else if (mg_http_match_uri(hm, "/browse/#")) {
-                if (config->publish == false) {
-                    send_error(nc, 403, "Publishing of directories is disabled");
-                    break;
-                }
                 static struct mg_http_serve_opts s_http_server_opts;
                 s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
                 s_http_server_opts.enable_directory_listing = 1;
@@ -482,8 +473,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 #ifdef ENABLE_SSL
 static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     (void)fn_data;
-    t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->userdata;
-    t_config *config = (t_config *) mg_user_data->config;
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
+    struct t_config *config = (struct t_config *) mg_user_data->config;
     if (ev == MG_EV_ACCEPT) {
         //check connection count
         if (mg_user_data->connection_count > 100) {
@@ -554,15 +545,11 @@ static bool handle_api(long long conn_id, struct mg_http_message *hm) {
     t_work_request *request = create_request(conn_id, id, cmd_id, cmd, data);
     sdsfree(data);
     
-    if (strncmp(cmd, "MYMPD_API_", 10) == 0) {
-        tiny_queue_push(mympd_api_queue, request, 0);
-    }
-    else if (strncmp(cmd, "MPDWORKER_API_", 14) == 0) {
+    if (strncmp(cmd, "MPDWORKER_API_", 14) == 0) {
         tiny_queue_push(mpd_worker_queue, request, 0);
-        
     }
     else {
-        tiny_queue_push(mpd_client_queue, request, 0);
+        tiny_queue_push(mympd_api_queue, request, 0);
     }
 
     FREE_PTR(cmd);

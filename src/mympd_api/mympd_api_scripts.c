@@ -24,6 +24,7 @@
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "../sds_extras.h"
 #include "../../dist/src/mongoose/mongoose.h"
 #include "../../dist/src/frozen/frozen.h"
@@ -31,6 +32,7 @@
 #include "../list.h"
 #include "../lua_mympd_state.h"
 #include "mympd_config_defs.h"
+#include "../mympd_state.h"
 #include "../tiny_queue.h"
 #include "../api.h"
 #include "../global.h"
@@ -52,7 +54,7 @@
 
 //private definitions
 struct t_script_thread_arg {
-    t_config *config;
+    struct t_config *config;
     bool localscript;
     sds script_fullpath;
     sds script_name;
@@ -77,7 +79,7 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
 static int _mympd_api_http_client(lua_State *lua_vm);
 
 //public functions
-sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request_id, bool all) {
+sds mympd_api_script_list(struct t_config *config, sds buffer, sds method, long request_id, bool all) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     sds scriptdirname = sdscatfmt(sdsempty(), "%s/scripts", config->varlibdir);
@@ -124,7 +126,7 @@ sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request
     return buffer;
 }
 
-bool mympd_api_script_delete(t_config *config, const char *script) {
+bool mympd_api_script_delete(struct t_config *config, const char *script) {
     sds scriptfilename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
     if (unlink(scriptfilename) == -1) {
         MYMPD_LOG_ERROR("Unlinking script file %s failed: %s", scriptfilename, strerror(errno));
@@ -135,7 +137,7 @@ bool mympd_api_script_delete(t_config *config, const char *script) {
     return true;
 }
 
-bool mympd_api_script_save(t_config *config, const char *script, int order, const char *content, const char *arguments, const char *oldscript) {
+bool mympd_api_script_save(struct t_config *config, const char *script, int order, const char *content, const char *arguments, const char *oldscript) {
     sds tmp_file = sdscatfmt(sdsempty(), "%s/scripts/%.XXXXXX", config->varlibdir, script);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
@@ -168,7 +170,7 @@ bool mympd_api_script_save(t_config *config, const char *script, int order, cons
     return true;
 }
 
-sds mympd_api_script_get(t_config *config, sds buffer, sds method, long request_id, const char *script) {
+sds mympd_api_script_get(struct t_config *config, sds buffer, sds method, long request_id, const char *script) {
     sds scriptfilename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
     FILE *fp = fopen(scriptfilename, "r");
     if (fp != NULL) {
@@ -215,7 +217,7 @@ sds mympd_api_script_get(t_config *config, sds buffer, sds method, long request_
     return buffer;
 }
 
-bool mympd_api_script_start(t_config *config, const char *script, struct list *arguments, bool localscript) {
+bool mympd_api_script_start(struct t_config *config, const char *script, struct list *arguments, bool localscript) {
     pthread_t mympd_script_thread;
     pthread_attr_t attr;
     if (pthread_attr_init(&attr) != 0) {
@@ -251,8 +253,10 @@ bool mympd_api_script_start(t_config *config, const char *script, struct list *a
     return true;
 }
 
-bool mympd_api_get_lua_mympd_state(t_mympd_state *mympd_state, struct list *lua_mympd_state) {
-    set_lua_mympd_state_p(lua_mympd_state, "jukebox_unique_tag", mympd_state->jukebox_unique_tag);
+bool mympd_api_get_lua_mympd_state(struct t_mympd_state *mympd_state, struct list *lua_mympd_state) {
+    set_lua_mympd_state_p(lua_mympd_state, "jukebox_unique_tag", mpd_tag_name(mympd_state->jukebox_unique_tag.tags[0]));
+    //TODO: populate more states
+    //https://github.com/jcorporation/myMPD/wiki/Scripting-mympd_state-lua-table
     return true;
 }
 
@@ -566,14 +570,11 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
     }
     request->data = sdscat(request->data, "}}");
     
-    if (strncmp(method, "MYMPD_API_", 10) == 0) {
-        tiny_queue_push(mympd_api_queue, request, tid);
-    }
-    else if (strncmp(method, "MPDWORKER_API_", 14) == 0) {
+    if (strncmp(method, "MPDWORKER_API_", 14) == 0) {
         tiny_queue_push(mpd_worker_queue, request, tid);
     }
     else {
-        tiny_queue_push(mpd_client_queue, request, tid);
+        tiny_queue_push(mympd_api_queue, request, tid);
     }
 
     int i = 0;

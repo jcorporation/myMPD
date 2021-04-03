@@ -12,7 +12,6 @@ extern sig_atomic_t s_signal_received;
 
 //message queue
 extern tiny_queue_t *web_server_queue;
-extern tiny_queue_t *mpd_client_queue;
 extern tiny_queue_t *mympd_api_queue;
 extern tiny_queue_t *mpd_worker_queue;
 extern tiny_queue_t *mympd_script_queue;

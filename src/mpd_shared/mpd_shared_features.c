@@ -15,14 +15,15 @@
 #include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "../sds_extras.h"
 #include "../list.h"
 #include "../log.h"
-#include "mpd_shared_typedefs.h"
+#include "../mympd_state.h"
 #include "mpd_shared_tags.h"
 #include "../mpd_shared.h"
 
-bool mpd_shared_feat_advsearch(t_mpd_state *mpd_state) {
+bool mpd_shared_feat_advsearch(struct t_mpd_state *mpd_state) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         MYMPD_LOG_INFO("Enabling advanced search");
         return true;
@@ -32,7 +33,7 @@ bool mpd_shared_feat_advsearch(t_mpd_state *mpd_state) {
     return false;
 }
 
-void mpd_shared_feat_tags(t_mpd_state *mpd_state) {
+void mpd_shared_feat_tags(struct t_mpd_state *mpd_state) {
     reset_t_tags(&mpd_state->mpd_tag_types);
     reset_t_tags(&mpd_state->mympd_tag_types);
 

@@ -7,6 +7,8 @@
 #ifndef __MPD_WORKER_UTILITY_H__
 #define __MPD_WORKER_UTILITY_H__
 
+#include "../mympd_state.h"
+
 typedef struct t_mpd_worker_state {
     bool smartpls;
     bool feat_smartpls;
@@ -14,9 +16,10 @@ typedef struct t_mpd_worker_state {
     sds smartpls_sort;
     sds smartpls_prefix;
     sds generate_pls_tags;
-    t_tags generate_pls_tag_types;
+    struct t_tags generate_pls_tag_types;
     //mpd state
     struct t_mpd_state *mpd_state;
+    struct t_config *config;
 } t_mpd_worker_state;
 
 void free_mpd_worker_state(t_mpd_worker_state *mpd_worker_state);

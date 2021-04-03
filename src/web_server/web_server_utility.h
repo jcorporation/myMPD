@@ -35,7 +35,7 @@
       "td:last-child{text-align:right}a,a:visited,a:active{color:#212529;text-decoration:none}"\
       "a:hover{text-decoration:underline}"
 
-typedef struct t_mg_user_data {
+struct t_mg_user_data {
     void *config; //pointer to mympd config
     sds browse_document_root;
     sds pics_document_root;
@@ -48,7 +48,7 @@ typedef struct t_mg_user_data {
     bool feat_mpd_albumart;
     int connection_count;
     sds stream_uri;
-} t_mg_user_data;
+};
 
 #ifndef DEBUG
 bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_message *hm);
@@ -65,5 +65,5 @@ void http_send_header_redirect(struct mg_connection *nc, const char *location);
 void http_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers);
 bool check_ip_acl(const char *acl, struct mg_addr *peer);
 struct mg_str mg_str_strip_parent(struct mg_str *path, int count);
-void free_mg_user_data(t_mg_user_data *mg_user_data);
+void free_mg_user_data(struct t_mg_user_data *mg_user_data);
 #endif

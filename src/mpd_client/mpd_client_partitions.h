@@ -6,5 +6,5 @@
 
 #ifndef __MPD_CLIENT_PARTITIONS_H__
 #define __MPD_CLIENT_PARTITIONS_H__
-sds mpd_client_put_partitions(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id);
+sds mpd_client_put_partitions(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
 #endif

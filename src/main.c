@@ -24,27 +24,28 @@
 #include <inttypes.h>
 #include <mpd/client.h>
 
-#include "../dist/src/sds/sds.h"
 #include "../dist/src/mongoose/mongoose.h"
-
+#include "../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "sds_extras.h"
 #include "log.h"
-#include "list.h"
 #include "tiny_queue.h"
+#include "list.h"
 #include "mympd_config_defs.h"
-#include "utility.h"
 #include "mympd_config.h"
+#include "mympd_state.h"
+#include "utility.h"
+
 #include "api.h"
 #include "global.h"
-#include "mpd_client.h"
 #include "mpd_worker.h"
 #include "web_server/web_server_utility.h"
 #include "web_server.h"
+#include "mpd_client/mpd_client_playlists.h"
 #include "mympd_api.h"
 #ifdef ENABLE_SSL
   #include "cert.h"
 #endif
-#include "handle_options.h"
 #include "random.h"
 
 _Thread_local sds thread_logname;
@@ -63,10 +64,6 @@ static void mympd_signal_handler(int sig_num) {
         t_work_request *request = create_request(-1, 0, MYMPD_API_STATE_SAVE, "MYMPD_API_STATE_SAVE", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_STATE_SAVE\",\"params\":{}}");
         tiny_queue_push(mympd_api_queue, request, 0);    
-        
-        t_work_request *request2 = create_request(-1, 0, MPD_API_STATE_SAVE, "MPD_API_STATE_SAVE", "");
-        request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_STATE_SAVE\",\"params\":{}}");
-        tiny_queue_push(mpd_client_queue, request2, 0);    
     }
 }
 
@@ -88,7 +85,7 @@ static bool do_chown(const char *file_path, const char *user_name) {
 }
 
 #ifdef ENABLE_SSL
-static bool chown_certs(t_config *config) {
+static bool chown_certs(struct t_config *config) {
     sds filename = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->varlibdir);
     if (do_chown(filename, config->user) == false) {
         sdsfree(filename);
@@ -117,7 +114,7 @@ static bool chown_certs(t_config *config) {
 }
 #endif
 
-static bool drop_privileges(t_config *config, uid_t startup_uid) {
+static bool drop_privileges(struct t_config *config, uid_t startup_uid) {
     if (startup_uid == 0 && sdslen(config->user) > 0) {
         MYMPD_LOG_NOTICE("Droping privileges to %s", config->user);
         //get user
@@ -161,7 +158,7 @@ static bool drop_privileges(t_config *config, uid_t startup_uid) {
 }
 
 #ifdef ENABLE_SSL
-static bool check_ssl_certs(t_config *config, uid_t startup_uid) {
+static bool check_ssl_certs(struct t_config *config, uid_t startup_uid) {
     if (config->ssl == true && config->custom_cert == false) {
         sds testdirname = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
         int testdir_rc = testdir("SSL certificates", testdirname, true);
@@ -197,7 +194,7 @@ static bool check_ssl_certs(t_config *config, uid_t startup_uid) {
 }
 #endif
 
-static bool check_dirs(t_config *config) {
+static bool check_dirs(struct t_config *config) {
     int testdir_rc;
     #ifdef DEBUG
     //release uses empty document root and delivers embedded files
@@ -267,24 +264,8 @@ static bool check_dirs(t_config *config) {
             return false;
         }
     }
-    
-    //mpd playlist directory
-    if (sdslen(config->playlist_directory) > 0) {
-        testdir_rc = testdir("MPD playlists dir", config->playlist_directory, false);
-        if (testdir_rc > 0) {
-            config->playlist_directory = sdscrop(config->playlist_directory);
-        }
-    }
     sdsfree(testdirname);
     return true;
-}
-
-static void log_startup(void) {
-    MYMPD_LOG_NOTICE("Starting myMPD %s", MYMPD_VERSION);
-    MYMPD_LOG_NOTICE("Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i", 
-            LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION,
-            LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
-    MYMPD_LOG_NOTICE("Mongoose %s", MG_VERSION);
 }
 
 int main(int argc, char **argv) {
@@ -296,7 +277,6 @@ int main(int argc, char **argv) {
     bool init_webserver = false;
     bool init_mg_user_data = false;
     bool init_thread_webserver = false;
-    bool init_thread_mpdclient = false;
     bool init_thread_mpdworker = false;
     bool init_thread_mympdapi = false;
     int rc = EXIT_FAILURE;
@@ -316,50 +296,43 @@ int main(int argc, char **argv) {
     //get startup uid
     uid_t startup_uid = getuid();
     
-    mpd_client_queue = tiny_queue_create("mpd_client_queue");
     mpd_worker_queue = tiny_queue_create("mpd_worker_queue");
     mympd_api_queue = tiny_queue_create("mympd_api_queue");
     web_server_queue = tiny_queue_create("web_server_queue");
     mympd_script_queue = tiny_queue_create("mympd_script_queue");
 
     //create mg_user_data struct for web_server
-    t_mg_user_data *mg_user_data = (t_mg_user_data *)malloc(sizeof(t_mg_user_data));
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)malloc(sizeof(struct t_mg_user_data));
     assert(mg_user_data);
 
     //initialize random number generator
-    //srand((unsigned int)time(NULL)); /* Flawfinder: ignore */
-    
     tinymt32_init(&tinymt, (unsigned int)time(NULL));
     
     //mympd config defaults
-    t_config *config = (t_config *)malloc(sizeof(t_config));
+    struct t_config *config = (struct t_config *)malloc(sizeof(struct t_config));
     assert(config);
     mympd_config_defaults(config);
-
-    //get configuration file
-    sds configfile = sdscatfmt(sdsempty(), "%s/mympd.conf", ETC_PATH);
-    
+   
     //command line option
-    sds option = sdsempty();
+    //TODO: use getops for
+    //-u mympd user
+    //-d mympd state directory
+    (void) argc;
+    (void) argv;
     
-    if (argc >= 2) {
-        if (strncmp(argv[1], "/", 1) == 0) {
-            configfile = sdsreplace(configfile, argv[1]);
-            if (argc == 3) {
-                option = sdsreplace(option, argv[2]);
-            }
-        }
-        else {
-            option = sdsreplace(option, argv[1]);
-        }
+    //read configuration
+    //TODO: read state files into config struct
+
+    if (config->syslog == true) {
+        openlog("mympd", LOG_CONS, LOG_DAEMON);
+        log_to_syslog = true;
     }
 
-    log_startup();
-
-    //read config    
-    if (mympd_read_config(config, configfile) == false) {
-        goto cleanup;
-    }
+    MYMPD_LOG_NOTICE("Starting myMPD %s", MYMPD_VERSION);
+    MYMPD_LOG_NOTICE("Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i", 
+            LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION,
+            LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+    MYMPD_LOG_NOTICE("Mongoose %s", MG_VERSION);
 
     //set loglevel
     #ifdef DEBUG
@@ -367,12 +340,6 @@ int main(int argc, char **argv) {
     #else
         set_loglevel(config->loglevel);
     #endif
-
-    if (config->syslog == true) {
-        openlog("mympd", LOG_CONS, LOG_DAEMON);
-        log_to_syslog = true;
-        log_startup();
-    }
 
     //check varlibdir
     int testdir_rc = testdir("Localstate dir", config->varlibdir, true);
@@ -396,21 +363,6 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //handle commandline options and exit
-    if (sdslen(option) > 0) {
-        if (drop_privileges(config, startup_uid) == false) {
-            goto cleanup;
-        }
-        MYMPD_LOG_DEBUG("myMPD started with option: %s", option);
-        if (handle_option(config, argv[0], option) == false) {
-            rc = EXIT_FAILURE;
-        }
-        else {
-            rc = EXIT_SUCCESS;
-        }
-        goto cleanup;
-    }
-    
     //set signal handler
     signal(SIGTERM, mympd_signal_handler);
     signal(SIGINT, mympd_signal_handler);
@@ -446,7 +398,6 @@ int main(int argc, char **argv) {
     }
 
     //Create working threads
-    pthread_t mpd_client_thread;
     pthread_t mpd_worker_thread;
     pthread_t web_server_thread;
     pthread_t mympd_api_thread;
@@ -460,7 +411,7 @@ int main(int argc, char **argv) {
         MYMPD_LOG_ERROR("Can't create mympd_mympdapi thread");
         s_signal_received = SIGTERM;
     }
-    //mpd connection
+    //mpd worker
     MYMPD_LOG_NOTICE("Starting mpd worker thread");
     if (pthread_create(&mpd_worker_thread, NULL, mpd_worker_loop, config) == 0) {
         pthread_setname_np(mpd_worker_thread, "mympd_mpdworker");
@@ -468,15 +419,6 @@ int main(int argc, char **argv) {
     }
     else {
         MYMPD_LOG_ERROR("Can't create mympd_worker thread");
-        s_signal_received = SIGTERM;
-    }
-    MYMPD_LOG_NOTICE("Starting mpd client thread");
-    if (pthread_create(&mpd_client_thread, NULL, mpd_client_loop, config) == 0) {
-        pthread_setname_np(mpd_client_thread, "mympd_mpdclient");
-        init_thread_mpdclient = true;
-    }
-    else {
-        MYMPD_LOG_ERROR("Can't create mympd_client thread");
         s_signal_received = SIGTERM;
     }
 
@@ -496,10 +438,6 @@ int main(int argc, char **argv) {
 
     //Try to cleanup all
     cleanup:
-    if (init_thread_mpdclient == true) {
-        pthread_join(mpd_client_thread, NULL);
-        MYMPD_LOG_NOTICE("Stopping mpd client thread");
-    }
     if (init_thread_mpdworker == true) {
         pthread_join(mpd_worker_thread, NULL);
         MYMPD_LOG_NOTICE("Stopping mpd worker thread");
@@ -521,11 +459,6 @@ int main(int argc, char **argv) {
     tiny_queue_free(web_server_queue);
     MYMPD_LOG_DEBUG("Expired %d entries", expired);
 
-    MYMPD_LOG_DEBUG("Expiring mpd_client_queue: %u", tiny_queue_length(mpd_client_queue, 10));
-    expired = expire_request_queue(mpd_client_queue, 0);
-    tiny_queue_free(mpd_client_queue);
-    MYMPD_LOG_DEBUG("Expired %d entries", expired);
-
     MYMPD_LOG_DEBUG("Expiring mympd_api_queue: %u", tiny_queue_length(mympd_api_queue, 10));
     expired = expire_request_queue(mympd_api_queue, 0);
     tiny_queue_free(mympd_api_queue);
@@ -542,8 +475,7 @@ int main(int argc, char **argv) {
     MYMPD_LOG_DEBUG("Expired %d entries", expired);
 
     mympd_free_config(config);
-    sdsfree(configfile);
-    sdsfree(option);
+    config = NULL;
     if (init_mg_user_data == true) {
         free((char *)mgr.dns4.url);
         free_mg_user_data(mg_user_data);

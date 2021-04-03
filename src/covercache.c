@@ -22,7 +22,7 @@
 #include "log.h"
 #include "covercache.h"
 
-bool write_covercache_file(t_config *config, const char *uri, const char *mime_type, sds binary) {
+bool write_covercache_file(struct t_config *config, const char *uri, const char *mime_type, sds binary) {
     bool rc = false;
     sds filename = sdsnew(uri);
     uri_to_filename(filename);
@@ -53,7 +53,7 @@ bool write_covercache_file(t_config *config, const char *uri, const char *mime_t
     return rc;
 }
 
-int clear_covercache(t_config *config, int keepdays) {
+int clear_covercache(struct t_config *config, int keepdays) {
     int num_deleted = 0;
     if (config->covercache == false) {
         MYMPD_LOG_WARN("Covercache is disabled");

@@ -11,6 +11,6 @@
 
 struct t_sticker *get_sticker_from_cache(rax *sticker_cache, const char *uri);
 sds mpd_shared_sticker_list(sds buffer, rax *sticker_cache, const char *uri);
-bool mpd_shared_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *sticker);
+bool mpd_shared_get_sticker(struct t_mpd_state *mpd_state, const char *uri, struct t_sticker *sticker);
 void sticker_cache_free(rax **sticker_cache);
 #endif
