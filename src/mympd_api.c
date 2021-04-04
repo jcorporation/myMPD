@@ -53,19 +53,20 @@
 void *mympd_api_loop(void *arg_config) {
     thread_logname = sdsreplace(thread_logname, "mympdapi");
 
+    //create mympd_state struct
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)malloc(sizeof(struct t_mympd_state));
     assert(mympd_state);
     mympd_state->config = (struct t_config *) arg_config;
+    default_mympd_state(mympd_state);
+    mpd_shared_default_mpd_state(mympd_state->mpd_state);
 
     //read myMPD states under config.varlibdir
     mympd_api_read_statefiles(mympd_state);
 
     //home icons
-    list_init(&mympd_state->home_list);
     mympd_api_read_home_list(mympd_state);
 
     //myMPD timer
-    init_timerlist(&mympd_state->timer_list);
     timerfile_read(mympd_state);
     
     //myMPD trigger
@@ -85,16 +86,16 @@ void *mympd_api_loop(void *arg_config) {
         check_timer(&mympd_state->timer_list);
     }
 
-    //cleanup
+    //cleanup trigger
     trigger_execute(mympd_state, TRIGGER_MYMPD_STOP);
-
+    //disconnect from mpd
     mpd_shared_mpd_disconnect(mympd_state->mpd_state);
+    //saev states
     mympd_api_write_home_list(mympd_state);
     timerfile_save(mympd_state);
     mpd_client_last_played_list_save(mympd_state);
-    sticker_cache_free(&mympd_state->sticker_cache);
-    album_cache_free(&mympd_state->album_cache);
     triggerfile_save(mympd_state);
+    //free anything
     free_trigerlist_arguments(mympd_state);
     free_mympd_state(mympd_state);
     sdsfree(thread_logname);

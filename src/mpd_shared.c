@@ -35,9 +35,24 @@ void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state) {
     mpd_state->reconnect_interval = 0;
     mpd_state->timeout = 10000;
     mpd_state->state = MPD_STATE_UNKNOWN;
-    mpd_state->mpd_host = sdsempty();
-    mpd_state->mpd_port = 0;
+    mpd_state->mpd_host = sdsnew("/run/mpd/socket");
+    mpd_state->mpd_port = 6600;
     mpd_state->mpd_pass = sdsempty();
+    mpd_state->song_id = -1;
+    mpd_state->song_uri = sdsempty();
+    mpd_state->next_song_id = -1;
+    mpd_state->last_song_id = -1;
+    mpd_state->last_song_uri = sdsempty();
+    mpd_state->queue_version = 0;
+    mpd_state->queue_length = 0;
+    mpd_state->last_last_played_id = -1;
+    mpd_state->song_end_time = 0;
+    mpd_state->song_start_time = 0;
+    mpd_state->last_song_end_time = 0;
+    mpd_state->last_song_start_time = 0;
+    mpd_state->last_skipped_id = 0;
+    mpd_state->crossfade = 0;
+    mpd_state->set_song_played_time = 0;
     reset_t_tags(&mpd_state->mympd_tag_types);
     reset_t_tags(&mpd_state->mpd_tag_types);
 }
@@ -45,7 +60,9 @@ void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state) {
 void mpd_shared_free_mpd_state(struct t_mpd_state *mpd_state) {
     sdsfree(mpd_state->mpd_host);
     sdsfree(mpd_state->mpd_pass);
-    free(mpd_state);
+    sdsfree(mpd_state->song_uri);
+    sdsfree(mpd_state->last_song_uri);
+    FREE_PTR(mpd_state);
 }
 
 void mpd_shared_mpd_disconnect(struct t_mpd_state *mpd_state) {

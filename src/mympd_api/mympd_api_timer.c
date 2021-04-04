@@ -251,6 +251,18 @@ void free_timer_node(struct t_timer_node *node) {
     free(node);
 }
 
+bool free_timerlist(struct t_timer_list *l) {
+    struct t_timer_node *current = l->list;
+    struct t_timer_node *tmp = NULL;
+    while (current != NULL) {
+        tmp = current->next;
+        free_timer_node(current);
+        current = tmp;
+    }
+    init_timerlist(l);
+    return true;
+}
+
 struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, const char *str, size_t len) {
     char *name = NULL;
     bool enabled;
