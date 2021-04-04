@@ -30,10 +30,6 @@
 #include "mpd_worker_cache.h"
 #include "mpd_worker_api.h"
 
-//private definitions
-static bool mpd_worker_api_settings_set(t_mpd_worker_state *mpd_worker_state, struct json_token *key, 
-                          struct json_token *val, bool *mpd_host_changed, bool *check_mpd_error);
-
 //public functions
 void mpd_worker_api(t_mpd_worker_state *mpd_worker_state, void *arg_request) {
     t_work_request *request = (t_work_request*) arg_request;
@@ -56,43 +52,41 @@ void mpd_worker_api(t_mpd_worker_state *mpd_worker_state, void *arg_request) {
     t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
-        case MYMPD_API_SETTINGS_SET: {
-            void *h = NULL;
-            struct json_token key;
-            struct json_token val;
-            rc = true;
+        case MPDWORKER_API_SETTINGS_SET: {
             bool mpd_host_changed = false;
-            bool check_mpd_error = false;
-            sds notify_buffer = sdsempty();
-            while ((h = json_next_key(request->data, sdslen(request->data), h, ".params", &key, &val)) != NULL) {
-                rc = mpd_worker_api_settings_set(mpd_worker_state, &key, &val, &mpd_host_changed, &check_mpd_error);
-                if ((check_mpd_error == true && check_error_and_recover2(mpd_worker_state->mpd_state, &notify_buffer, request->method, request->id, true) == false)
-                    || rc == false)
-                {
-                    if (sdslen(notify_buffer) > 0) {
-                        ws_notify(notify_buffer);
-                    }
-                    break;
-                }
+            
+            struct t_set_mpd_worker_request *extra = (struct t_set_mpd_worker_request *) request->extra;
+            mpd_worker_state->mpd_state->taglist = sdsreplace(mpd_worker_state->mpd_state->taglist, extra->taglist);
+            mpd_worker_state->smartpls_sort = sdsreplace(mpd_worker_state->smartpls_sort, extra->smartpls_sort);
+            mpd_worker_state->smartpls_prefix = sdsreplace(mpd_worker_state->smartpls_prefix, extra->smartpls_prefix);
+            mpd_worker_state->generate_pls_tags = sdsreplace(mpd_worker_state->generate_pls_tags, extra->generate_pls_tags);
+            
+            if (strcmp(mpd_worker_state->mpd_state->mpd_host, extra->mpd_host) != 0 ||
+                strcmp(mpd_worker_state->mpd_state->mpd_pass, extra->mpd_pass) != 0 ||
+                mpd_worker_state->mpd_state->mpd_port != extra->mpd_port) 
+            {
+                mpd_host_changed = true;
             }
-            sdsfree(notify_buffer);
-            if (rc == true) {
-                if (mpd_host_changed == true) {
-                    //reconnect with new settings
-                    mpd_worker_state->mpd_state->conn_state = MPD_DISCONNECT;
-                }
-                if (mpd_worker_state->mpd_state->conn_state == MPD_CONNECTED) {
-                    //feature detection
-                    mpd_worker_features(mpd_worker_state);
-                }
-                response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
+            mpd_worker_state->mpd_state->mpd_host = sdsreplace(mpd_worker_state->mpd_state->mpd_host, extra->mpd_host);
+            mpd_worker_state->mpd_state->mpd_port = extra->mpd_port;
+            mpd_worker_state->mpd_state->mpd_pass = sdsreplace(mpd_worker_state->mpd_state->mpd_pass, extra->mpd_pass);
+
+            sdsfree(extra->taglist);
+            sdsfree(extra->smartpls_sort);
+            sdsfree(extra->smartpls_prefix);
+            sdsfree(extra->generate_pls_tags);
+            sdsfree(extra->mpd_host);
+            sdsfree(extra->mpd_pass);
+
+            if (mpd_host_changed == true) {
+                //reconnect with new settings
+                mpd_worker_state->mpd_state->conn_state = MPD_DISCONNECT;
             }
-            else {
-                sds value = sdsnewlen(val.ptr, val.len);
-                response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id,
-                    true, "general", "error", "Can't save setting %{setting}", 2, "setting", value);
-                sdsfree(value);
+            if (mpd_worker_state->mpd_state->conn_state == MPD_CONNECTED) {
+                //feature detection
+                mpd_worker_features(mpd_worker_state);
             }
+            response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             break;
         }
         case MPDWORKER_API_SMARTPLS_UPDATE_ALL:
@@ -172,59 +166,4 @@ void mpd_worker_api(t_mpd_worker_state *mpd_worker_state, void *arg_request) {
         }
         free_request(request);
     }
-}
-
-//private functions
-static bool mpd_worker_api_settings_set(t_mpd_worker_state *mpd_worker_state, struct json_token *key, 
-                          struct json_token *val, bool *mpd_host_changed, bool *check_mpd_error)
-{
-    bool rc = true;
-    char *crap;
-    sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
-
-    *check_mpd_error = false;
-    MYMPD_LOG_DEBUG("Parse setting \"%.*s\" with value \"%.*s\"", key->len, key->ptr, val->len, val->ptr);
-    if (strncmp(key->ptr, "mpdPass", key->len) == 0) {
-        if (strncmp(val->ptr, "dontsetpassword", val->len) != 0) {
-            *mpd_host_changed = true;
-            mpd_worker_state->mpd_state->mpd_pass = sdsreplacelen(mpd_worker_state->mpd_state->mpd_pass, settingvalue, sdslen(settingvalue));
-        }
-        else {
-            sdsfree(settingvalue);
-            return true;
-        }
-    }
-    else if (strncmp(key->ptr, "mpdHost", key->len) == 0) {
-        if (strncmp(val->ptr, mpd_worker_state->mpd_state->mpd_host, val->len) != 0) {
-            *mpd_host_changed = true;
-            mpd_worker_state->mpd_state->mpd_host = sdsreplacelen(mpd_worker_state->mpd_state->mpd_host, settingvalue, sdslen(settingvalue));
-        }
-    }
-    else if (strncmp(key->ptr, "mpdPort", key->len) == 0) {
-        int mpd_port = strtoimax(settingvalue, &crap, 10);
-        if (mpd_worker_state->mpd_state->mpd_port != mpd_port) {
-            *mpd_host_changed = true;
-            mpd_worker_state->mpd_state->mpd_port = mpd_port;
-        }
-    }
-    else if (strncmp(key->ptr, "stickers", key->len) == 0) {
-        mpd_worker_state->stickers = val->type == JSON_TYPE_TRUE ? true : false;
-    }
-    else if (strncmp(key->ptr, "smartpls", key->len) == 0) {
-        mpd_worker_state->smartpls = val->type == JSON_TYPE_TRUE ? true : false;
-    }
-    else if (strncmp(key->ptr, "smartplsSort", key->len) == 0) {
-        mpd_worker_state->smartpls_sort = sdsreplacelen(mpd_worker_state->smartpls_sort, settingvalue, sdslen(settingvalue));
-    }
-    else if (strncmp(key->ptr, "smartplsPrefix", key->len) == 0) {
-        mpd_worker_state->smartpls_prefix = sdsreplacelen(mpd_worker_state->smartpls_prefix, settingvalue, sdslen(settingvalue));
-    }
-    else if (strncmp(key->ptr, "generatePlsTags", key->len) == 0) {
-        mpd_worker_state->generate_pls_tags = sdsreplacelen(mpd_worker_state->generate_pls_tags, settingvalue, sdslen(settingvalue));
-    }
-    else if (strncmp(key->ptr, "taglist", key->len) == 0) {
-        mpd_worker_state->mpd_state->taglist = sdsreplacelen(mpd_worker_state->mpd_state->taglist, settingvalue, sdslen(settingvalue));
-    }
-    sdsfree(settingvalue);
-    return rc;
 }

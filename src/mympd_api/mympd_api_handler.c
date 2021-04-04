@@ -320,10 +320,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 }
             }
             if (rc == true) {
-                //TODO: use a struct
                 //forward request to mpd_worker queue            
-                t_work_request *mpd_client_request = create_request(-1, request->id, request->cmd_id, request->method, request->data);
-                tiny_queue_push(mpd_worker_queue, mpd_client_request, 0);
+                mympd_api_push_to_mpd_worker(mympd_state);
                 //respond with ok
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
                 if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
@@ -368,7 +366,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 if (mpd_host_changed == true) {
                     //reconnect to new mpd
                     mympd_state->mpd_state->conn_state = MPD_DISCONNECT;
-                    //TODO: forward to mpd worker
+                    mympd_api_push_to_mpd_worker(mympd_state);
                 }
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             }

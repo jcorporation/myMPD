@@ -53,7 +53,7 @@
 void *mympd_api_loop(void *arg_config) {
     thread_logname = sdsreplace(thread_logname, "mympdapi");
 
-    //create mympd_state struct
+    //create mympd_state struct and set defaults
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)malloc(sizeof(struct t_mympd_state));
     assert(mympd_state);
     mympd_state->config = (struct t_config *) arg_config;
@@ -62,6 +62,9 @@ void *mympd_api_loop(void *arg_config) {
 
     //read myMPD states under config.varlibdir
     mympd_api_read_statefiles(mympd_state);
+
+    //push settings to mpd_worker
+    mympd_api_push_to_mpd_worker(mympd_state);
 
     //home icons
     mympd_api_read_home_list(mympd_state);

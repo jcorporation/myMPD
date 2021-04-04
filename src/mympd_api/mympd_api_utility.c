@@ -30,23 +30,25 @@
 #include "mympd_api_utility.h"
 
 void mympd_api_push_to_mpd_worker(struct t_mympd_state *mympd_state) {
-    t_work_request *request2 = create_request(-1, 0, MYMPD_API_SETTINGS_SET, "MYMPD_API_SETTINGS_SET", "");
-    request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SETTINGS_SET\",\"params\":{");
-    request2->data = tojson_char(request2->data, "taglist", mympd_state->mpd_state->taglist, true);
-    request2->data = tojson_char(request2->data, "smartplsSort", mympd_state->smartpls_sort, true);
-    request2->data = tojson_char(request2->data, "smartplsPrefix", mympd_state->smartpls_prefix, true);
-    request2->data = tojson_long(request2->data, "smartplsInterval", mympd_state->smartpls_interval, true);
-    request2->data = tojson_char(request2->data, "generatePlsTags", mympd_state->generate_pls_tags, true);
-    request2->data = tojson_char(request2->data, "mpdHost", mympd_state->mpd_state->mpd_host, true);
-    request2->data = tojson_char(request2->data, "mpdPass", mympd_state->mpd_state->mpd_pass, true);
-    request2->data = tojson_long(request2->data, "mpdPort", mympd_state->mpd_state->mpd_port, true);
-    request2->data = sdscat(request2->data, "}}");
-    tiny_queue_push(mpd_worker_queue, request2, 0);
+    t_work_request *request = create_request(-1, 0, MPDWORKER_API_SETTINGS_SET, "MPDWORKER_API_SETTINGS_SET", "");
+    struct t_set_mpd_worker_request *extra = (struct t_set_mpd_worker_request *)
+    malloc(sizeof(struct set_mg_user_data_request));
+    assert(extra);
+    extra->taglist = sdsdup(mympd_state->mpd_state->taglist);
+    extra->smartpls_sort = sdsdup(mympd_state->smartpls_sort);
+    extra->smartpls_prefix = sdsdup(mympd_state->smartpls_prefix);
+    extra->generate_pls_tags = sdsdup(mympd_state->generate_pls_tags);
+    extra->mpd_host = sdsdup(mympd_state->mpd_state->mpd_host);
+    extra->mpd_port = mympd_state->mpd_state->mpd_port;
+    extra->mpd_pass = sdsdup(mympd_state->mpd_state->mpd_pass);
+    request->extra = extra;
+    tiny_queue_push(mpd_worker_queue, request, 0);
 }
 
 void default_mympd_state(struct t_mympd_state *mympd_state) {
     mympd_state->music_directory = sdsnew("auto");
     mympd_state->music_directory_value = sdsempty();
+    mympd_state->playlist_directory = sdsnew("/var/lib/mpd/playlists");
     mympd_state->jukebox_mode = JUKEBOX_OFF;
     mympd_state->jukebox_playlist = sdsnew("Database");
     mympd_state->jukebox_unique_tag.len = 1;

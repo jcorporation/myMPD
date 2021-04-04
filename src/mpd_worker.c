@@ -52,7 +52,7 @@ void *mpd_worker_loop(void *arg_config) {
     while (s_signal_received == 0) {
         t_work_request *request = tiny_queue_shift(mpd_worker_queue, 50, 0);
         if (request != NULL) {
-            if (request->cmd_id == MYMPD_API_SETTINGS_SET) {
+            if (request->cmd_id == MPDWORKER_API_SETTINGS_SET) {
                 MYMPD_LOG_DEBUG("Got initial settings from mympd_api");
                 mpd_worker_api(mpd_worker_state, request);
                 break;
@@ -92,7 +92,7 @@ static void mpd_worker_idle(t_mpd_worker_state *mpd_worker_state) {
                 MYMPD_LOG_DEBUG("Handle request (mpd disconnected)");
                 t_work_request *request = tiny_queue_shift(mpd_worker_queue, 50, 0);
                 if (request != NULL) {
-                    if (request->cmd_id == MYMPD_API_SETTINGS_SET) {
+                    if (request->cmd_id == MPDWORKER_API_SETTINGS_SET) {
                         //allow to change mpd host
                         mpd_worker_api(mpd_worker_state, request);
                         mpd_worker_state->mpd_state->conn_state = MPD_DISCONNECTED;

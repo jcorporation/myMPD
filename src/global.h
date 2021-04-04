@@ -35,6 +35,7 @@ typedef struct t_work_result {
     void *extra;
 } t_work_result;
 
+//config data sent to webserver thread
 struct set_mg_user_data_request {
     sds music_directory;
     sds playlist_directory;
@@ -43,6 +44,17 @@ struct set_mg_user_data_request {
     bool feat_mpd_albumart;
     sds mpd_host;
     unsigned mpd_stream_port;
+};
+
+//config data sent to mpd worker thread
+struct t_set_mpd_worker_request {
+    sds taglist;
+    sds smartpls_sort;
+    sds smartpls_prefix;
+    sds generate_pls_tags;
+    sds mpd_host;
+    int mpd_port;
+    sds mpd_pass;
 };
 
 t_work_result *create_result(t_work_request *request);

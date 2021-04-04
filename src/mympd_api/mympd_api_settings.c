@@ -50,7 +50,7 @@ void mympd_api_settings_delete(struct t_config *config) {
         "cols_search", "cols_queue_jukebox", "coverimage_names", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
         "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags", "smartpls_sort", "smartpls_prefix", "smartpls_interval",
         "last_played_count", "locale", "mpd_host", "mpd_pass", "mpd_port", "searchtaglist",
-        "taglist", "music_directory", "booklet_name", "home_list", "navbar_icons", "advanced", 
+        "taglist", "music_directory", "playlist_directory", "booklet_name", "advanced", 
         0};
     const char** ptr = state_files;
     while (*ptr != 0) {
@@ -386,6 +386,7 @@ void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
     mympd_state->cols_queue_jukebox = state_file_rw_string(mympd_state->config, "cols_queue_jukebox", mympd_state->cols_queue_jukebox, false);
     mympd_state->coverimage_names = state_file_rw_string(mympd_state->config, "coverimage_names", mympd_state->coverimage_names, false);
     mympd_state->music_directory = state_file_rw_string(mympd_state->config, "music_directory", mympd_state->music_directory, false);
+    mympd_state->playlist_directory = state_file_rw_string(mympd_state->config, "playlist_directory", mympd_state->playlist_directory, false);
     mympd_state->booklet_name = state_file_rw_string(mympd_state->config, "booklet_name", mympd_state->booklet_name, false);
     mympd_state->advanced = state_file_rw_string(mympd_state->config, "advanced", mympd_state->advanced, false);
     strip_slash(mympd_state->music_directory);
