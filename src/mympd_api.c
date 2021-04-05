@@ -47,7 +47,11 @@
 #include "mpd_shared.h"
 #include "mpd_shared/mpd_shared_sticker.h"
 #include "mpd_shared/mpd_shared_tags.h"
+#include "mympd_autoconf.h"
 #include "mympd_api.h"
+
+//private definitions
+void mympd_autoconf(struct t_mympd_state *mympd_state);
 
 //public functions
 void *mympd_api_loop(void *arg_config) {
@@ -60,7 +64,12 @@ void *mympd_api_loop(void *arg_config) {
     default_mympd_state(mympd_state);
     mpd_shared_default_mpd_state(mympd_state->mpd_state);
 
-    //read myMPD states under config.workdir
+    if (mympd_state->config->first_startup == true) {
+        MYMPD_LOG_NOTICE("Starting myMPD autoconfiguration");
+        mympd_autoconf(mympd_state);
+    }
+
+    //read myMPD states
     mympd_api_read_statefiles(mympd_state);
 
     //push settings to mpd_worker
@@ -103,4 +112,40 @@ void *mympd_api_loop(void *arg_config) {
     free_mympd_state(mympd_state);
     sdsfree(thread_logname);
     return NULL;
+}
+
+//private functions
+void mympd_autoconf(struct t_mympd_state *mympd_state) {
+    sds mpd_conf = find_mpd_conf();
+    if (sdslen(mpd_conf) > 0) {
+        //get config from mpd configuration file
+        mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, get_mpd_conf("bind_to_address", mympd_state->mpd_state->mpd_host));
+        mympd_state->mpd_state->mpd_pass = sdsreplace(mympd_state->mpd_state->mpd_pass, get_mpd_conf("password", mympd_state->mpd_state->mpd_pass));
+        sds mpd_port = get_mpd_conf("port", mympd_state->mpd_state->mpd_host);
+        mympd_state->mpd_state->mpd_port = strtoimax(mpd_port, NULL, 10);
+        sdsfree(mpd_port);
+        mympd_state->music_directory = sdsreplace(mympd_state->music_directory, get_mpd_conf("music_directory", mympd_state->music_directory));
+        mympd_state->playlist_directory = sdsreplace(mympd_state->playlist_directory, get_mpd_conf("playlist_directory", mympd_state->playlist_directory));
+    }
+    else {
+        //try env
+        const char *mpd_host = getenv("MPD_HOST");
+        if (mpd_host != NULL) {
+            if (mpd_host[0] != '@' && strstr(mpd_host, "@") != NULL) {
+                int count;
+                sds *tokens = sdssplitlen(mpd_host, strlen(mpd_host), "@", 1, &count);
+                mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, tokens[1]);
+                mympd_state->mpd_state->mpd_pass = sdsreplace(mympd_state->mpd_state->mpd_pass, tokens[0]);
+                sdsfreesplitres(tokens,count);
+            }
+            else {
+                //no password
+                mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, mpd_host);
+            }
+        }
+        const char *mpd_port = getenv("MPD_PORT");
+        if (mpd_port != NULL) {
+            mympd_state->mpd_state->mpd_port = strtoimax(mpd_port, NULL, 10);
+        }
+    }
 }

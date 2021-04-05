@@ -9,4 +9,5 @@
 void mympd_config_defaults(struct t_config *config);
 void mympd_free_config(struct t_config *config);
 bool mympd_read_config(struct t_config *config);
+void mympd_autoconf(struct t_config *config);
 #endif

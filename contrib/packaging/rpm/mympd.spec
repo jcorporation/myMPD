@@ -63,7 +63,6 @@ fi
 %defattr(-,root,root,-)
 %doc README.md
 /usr/bin/mympd
-/usr/bin/mympd-config
 /usr/bin/mympd-script
 /usr/lib/systemd/system/mympd.service
 %{_mandir}/man1/mympd.1.gz

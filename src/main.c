@@ -195,6 +195,41 @@ static bool check_ssl_certs(struct t_config *config, uid_t startup_uid) {
 }
 #endif
 
+static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
+    int testdir_rc = testdir("Workdir", config->workdir, true);
+    if (testdir_rc == 1) {
+        config->first_startup = true;
+    }
+    if (testdir_rc < 2) {
+        //directory exists or was created; set user and group, if uid = 0
+        if (startup_uid == 0) {
+            if (do_chown(config->workdir, config->user) == false) {
+                return false;
+            }
+        }
+    }
+    else {
+        //workdir is not accessible
+        MYMPD_LOG_ERROR("Can not access %s", config->workdir);
+        return false;
+    }
+
+    //state directory
+    sds testdirname = sdscatfmt(sdsempty(), "%s/state", config->workdir);
+    testdir_rc = testdir("State dir", testdirname, true);
+    if (testdir_rc > 1) {
+        sdsfree(testdirname);
+        return false;
+    }
+    if (startup_uid == 0) {
+        if (do_chown(testdirname, config->user) == false) {
+            return false;
+        }
+    }
+    sdsfree(testdirname);
+    return true;
+}
+
 static bool check_dirs(struct t_config *config) {
     int testdir_rc;
     #ifdef DEBUG
@@ -217,15 +252,6 @@ static bool check_dirs(struct t_config *config) {
         return false;
     }
 
-    //state directory
-    testdirname = sdscrop(testdirname);
-    testdirname = sdscatfmt(testdirname, "%s/state", config->workdir);
-    testdir_rc = testdir("State dir", testdirname, true);
-    if (testdir_rc > 1) {
-        sdsfree(testdirname);
-        return false;
-    }
-    
     //for images
     testdirname = sdscrop(testdirname);
     testdirname = sdscatfmt(testdirname, "%s/pics", config->workdir);
@@ -319,19 +345,8 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //check workdir
-    int testdir_rc = testdir("Workdir", config->workdir, true);
-    if (testdir_rc < 2) {
-        //directory exists or was created; set user and group, if uid = 0
-        if (startup_uid == 0) {
-            if (do_chown(config->workdir, config->user) == false) {
-                goto cleanup;
-            }
-        }
-    }
-    else {
-        //exit if workdir is not accessible
-        MYMPD_LOG_ERROR("Can not access %s", config->workdir);
+    //check initial directories
+    if (check_dirs_initial(config, startup_uid) == false) {
         goto cleanup;
     }
 

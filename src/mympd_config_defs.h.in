@@ -70,6 +70,7 @@ struct t_config {
     time_t startup_time;
     bool covercache;
     unsigned covercache_keep_days;
+    bool first_startup;
 };
 
 #endif

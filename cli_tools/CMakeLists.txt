@@ -9,8 +9,8 @@ cmake_minimum_required(VERSION 3.4)
 include(GNUInstallDirs)
 
 project (cli_tools C)
-set(CPACK_PACKAGE_VERSION_MAJOR "6")
-set(CPACK_PACKAGE_VERSION_MINOR "5")
+set(CPACK_PACKAGE_VERSION_MAJOR "8")
+set(CPACK_PACKAGE_VERSION_MINOR "0")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
@@ -35,22 +35,6 @@ set(MYMPD_COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshado
 
 #linker flags
 set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
-
-#
-#mympd-config utility
-#
-
-set_property(SOURCE "mympd-config.c" PROPERTY COMPILE_FLAGS ${MYMPD_COMPILE_FLAGS})
-
-set(MYMPD_CONFIG_SOURCES
-  mympd-config.c
-  ../dist/src/sds/sds.c
-  ../src/sds_extras.c
-)
-
-add_executable(mympd-config ${MYMPD_CONFIG_SOURCES})
-target_link_libraries(mympd-config)
-install(TARGETS mympd-config DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
 
 #
 #mympd-script utility

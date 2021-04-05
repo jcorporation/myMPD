@@ -182,6 +182,7 @@ set(SOURCES
   src/list.c
   src/tiny_queue.c
   src/log.c
+  src/mympd_autoconf.c
   src/mympd_config.c
   src/utility.c
   src/random.c
