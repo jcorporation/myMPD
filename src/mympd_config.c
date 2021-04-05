@@ -15,7 +15,6 @@
 #include <unistd.h>
 #include <time.h>
 
-#include "../dist/src/inih/ini.h"
 #include "../dist/src/sds/sds.h"
 
 #include "sds_extras.h"

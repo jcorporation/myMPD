@@ -227,7 +227,6 @@ set(SOURCES
   src/web_server/web_server_albumart.c
   dist/src/mongoose/mongoose.c
   dist/src/frozen/frozen.c
-  dist/src/inih/ini.c
   dist/src/sds/sds.c
   dist/src/rax/rax.c
   dist/src/tinymt/tinymt32.c
