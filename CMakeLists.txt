@@ -7,7 +7,7 @@
 project (mympd C)
 set(CPACK_PACKAGE_VERSION_MAJOR "7")
 set(CPACK_PACKAGE_VERSION_MINOR "0")
-set(CPACK_PACKAGE_VERSION_PATCH "1")
+set(CPACK_PACKAGE_VERSION_PATCH "2")
 
 cmake_minimum_required(VERSION 3.4)
 include(GNUInstallDirs)
