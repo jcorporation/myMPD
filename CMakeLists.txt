@@ -178,6 +178,7 @@ set(SOURCES
   src/api.c
   src/covercache.c
   src/global.c
+  src/handle_options.c
   src/list.c
   src/tiny_queue.c
   src/log.c
@@ -185,6 +186,7 @@ set(SOURCES
   src/utility.c
   src/random.c
   src/sds_extras.c
+  src/state_files.c
   src/http_client.c
   src/lua_mympd_state.c
   src/mpd_shared.c

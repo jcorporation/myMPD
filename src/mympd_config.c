@@ -20,6 +20,7 @@
 #include "sds_extras.h"
 #include "list.h"
 #include "mympd_config_defs.h"
+#include "state_files.h"
 #include "utility.h"
 #include "log.h"
 #include "mympd_config.h"
@@ -52,20 +53,40 @@ void mympd_config_defaults(struct t_config *config) {
     config->ssl_san = sdsempty();
     config->custom_cert = false;
     #endif
-    config->user = sdsnew("mympd");
-    config->workdir = sdsnew(VARLIB_PATH);
-    config->startup_time = time(NULL);
     config->acl = sdsempty();
-    config->scriptacl = sdsnew("-0.0.0.0/0,+127.0.0.0/8");
+    config->scriptacl = sdsnew("+127.0.0.0/8");
     #ifdef ENABLE_LUA
-    config->lualibs = sdsnew("base, string, utf8, table, math, mympd");
+    config->lualibs = sdsnew("all");
     #endif
-    config->syslog = false;
+    
     config->covercache = true;
     config->covercache_keep_days = 30;
+    
+    //command line options
+    config->user = sdsnew("mympd");
+    config->workdir = sdsnew(VARLIB_PATH);
+    config->syslog = false;
+    //not configureable
+    config->startup_time = time(NULL);
 }
 
 bool mympd_read_config(struct t_config *config) {
+    config->http_host = state_file_rw_string(config, "http_host", config->http_host, false);
+    config->http_port = state_file_rw_string(config, "http_port", config->http_port, false);
+    #ifdef ENABLE_SSL
+    config->ssl = state_file_rw_bool(config, "ssl", config->ssl, false);
+    config->ssl_port = state_file_rw_string(config, "ssl_port", config->ssl_port, false);
+    config->ssl_cert = state_file_rw_string(config, "ssl_cert", config->ssl_cert, false);
+    config->ssl_key = state_file_rw_string(config, "ssl_key", config->ssl_key, false);
+    config->ssl_san = state_file_rw_string(config, "ssl_san", config->ssl_san, false);
+    config->custom_cert = state_file_rw_bool(config, "custom_cert", config->custom_cert, false);
+    #endif
+    config->acl = state_file_rw_string(config, "acl", config->acl, false);
+    config->scriptacl = state_file_rw_string(config, "scriptacl", config->scriptacl, false);
+    config->lualibs = state_file_rw_string(config, "lualibs", config->lualibs, false);
+    config->covercache = state_file_rw_bool(config, "covercache", config->covercache, false);
+    config->covercache_keep_days = state_file_rw_int(config, "covercache_keep_days", config->covercache_keep_days, false);
+    
     //set correct path to certificate/key, if workdir is non default and cert paths are default
     #ifdef ENABLE_SSL
     if (strcmp(config->workdir, VARLIB_PATH) != 0 && config->custom_cert == false) {

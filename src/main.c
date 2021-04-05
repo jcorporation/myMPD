@@ -34,6 +34,7 @@
 #include "mympd_config_defs.h"
 #include "mympd_config.h"
 #include "mympd_state.h"
+#include "handle_options.h"
 #include "utility.h"
 
 #include "api.h"
@@ -225,7 +226,7 @@ static bool check_dirs(struct t_config *config) {
         return false;
     }
     
-    //for stream images
+    //for images
     testdirname = sdscrop(testdirname);
     testdirname = sdscatfmt(testdirname, "%s/pics", config->workdir);
     testdir_rc = testdir("Pics dir", testdirname, true);
@@ -314,11 +315,9 @@ int main(int argc, char **argv) {
     mympd_config_defaults(config);
    
     //command line option
-    //TODO: use getops for
-    //-u mympd user
-    //-d mympd state directory
-    (void) argc;
-    (void) argv;
+    if (handle_options(config, argc, argv) == false) {
+        goto cleanup;
+    }
 
     //check workdir
     int testdir_rc = testdir("Workdir", config->workdir, true);
@@ -343,7 +342,7 @@ int main(int argc, char **argv) {
     }
     
     //read configuration
-    //TODO: read state files into config struct
+    mympd_read_config(config);
 
     //set loglevel
     #ifdef DEBUG
@@ -475,7 +474,6 @@ int main(int argc, char **argv) {
     MYMPD_LOG_DEBUG("Expired %d entries", expired);
 
     mympd_free_config(config);
-    config = NULL;
     if (init_mg_user_data == true) {
         free((char *)mgr.dns4.url);
         free_mg_user_data(mg_user_data);
