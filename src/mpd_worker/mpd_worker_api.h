@@ -6,5 +6,5 @@
 
 #ifndef __MPD_WORKER_API_H__
 #define __MPD_WORKER_API_H__
-void mpd_worker_api(t_mpd_worker_state *mpd_worker_state, void *arg_request);
+void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state, void *arg_request);
 #endif

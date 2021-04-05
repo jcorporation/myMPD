@@ -6,5 +6,5 @@
 
 #ifndef __MPD_WORKER_CACHE_H__
 #define __MPD_WORKER_CACHE_H__
-bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state);
+bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state);
 #endif

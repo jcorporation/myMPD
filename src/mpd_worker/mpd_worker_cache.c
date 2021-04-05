@@ -32,10 +32,10 @@
 #include "mpd_worker_cache.h"
 
 //privat definitions
-static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache);
+static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache);
 
 //public functions
-bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state) {
+bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     rax *album_cache = NULL;
     if (mpd_worker_state->mpd_state->feat_tags == true) {
         album_cache = raxNew();
@@ -89,7 +89,7 @@ bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state) {
 }
 
 //private functions
-static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache) {
+static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache) {
     MYMPD_LOG_INFO("Creating caches");
     unsigned start = 0;
     unsigned end = start + 1000;

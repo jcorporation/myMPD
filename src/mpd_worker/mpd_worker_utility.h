@@ -9,10 +9,7 @@
 
 #include "../mympd_state.h"
 
-typedef struct t_mpd_worker_state {
-    bool smartpls;
-    bool feat_smartpls;
-    bool stickers;
+struct t_mpd_worker_state {
     sds smartpls_sort;
     sds smartpls_prefix;
     sds generate_pls_tags;
@@ -20,9 +17,9 @@ typedef struct t_mpd_worker_state {
     //mpd state
     struct t_mpd_state *mpd_state;
     struct t_config *config;
-} t_mpd_worker_state;
+};
 
-void free_mpd_worker_state(t_mpd_worker_state *mpd_worker_state);
-void default_mpd_worker_state(t_mpd_worker_state *mpd_worker_state);
-void mpd_worker_features(t_mpd_worker_state *mpd_worker_state);
+void free_mpd_worker_state(struct t_mpd_worker_state *mpd_worker_state);
+void default_mpd_worker_state(struct t_mpd_worker_state *mpd_worker_state);
+void mpd_worker_features(struct t_mpd_worker_state *mpd_worker_state);
 #endif

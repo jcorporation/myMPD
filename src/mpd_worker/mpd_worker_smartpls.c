@@ -32,16 +32,16 @@
 #include "mpd_worker_smartpls.h"
 
 //private definitions
-static bool mpd_worker_smartpls_per_tag(t_mpd_worker_state *mpd_worker_state);
-static bool mpd_worker_smartpls_clear(t_mpd_worker_state *mpd_worker_state, const char *playlist);
-static bool mpd_worker_smartpls_update_search(t_mpd_worker_state *mpd_worker_state, const char *playlist, const char *tag, const char *searchstr);
-static bool mpd_worker_smartpls_update_sticker(t_mpd_worker_state *mpd_worker_state, const char *playlist, const char *sticker, const int maxentries, const int minvalue);
-static bool mpd_worker_smartpls_update_newest(t_mpd_worker_state *mpd_worker_state, const char *playlist, const int timerange);
+static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_state);
+static bool mpd_worker_smartpls_clear(struct t_mpd_worker_state *mpd_worker_state, const char *playlist);
+static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_worker_state, const char *playlist, const char *tag, const char *searchstr);
+static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_worker_state, const char *playlist, const char *sticker, const int maxentries, const int minvalue);
+static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_worker_state, const char *playlist, const int timerange);
 
 //public functions
-bool mpd_worker_smartpls_update_all(t_mpd_worker_state *mpd_worker_state, bool force) {
-    if (mpd_worker_state->feat_smartpls == false) {
-        MYMPD_LOG_DEBUG("Smart playlists are disabled");
+bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state, bool force) {
+    if (mpd_worker_state->mpd_state->feat_playlists == false) {
+        MYMPD_LOG_DEBUG("Playlists are disabled");
         return true;
     }
     
@@ -79,7 +79,7 @@ bool mpd_worker_smartpls_update_all(t_mpd_worker_state *mpd_worker_state, bool f
     return true;
 }
 
-bool mpd_worker_smartpls_update(t_mpd_worker_state *mpd_worker_state, const char *playlist) {
+bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, const char *playlist) {
     char *smartpltype = NULL;
     int je;
     bool rc = true;
@@ -88,8 +88,8 @@ bool mpd_worker_smartpls_update(t_mpd_worker_state *mpd_worker_state, const char
     int int_buf1;
     int int_buf2;
     
-    if (mpd_worker_state->feat_smartpls == false) {
-        MYMPD_LOG_WARN("Smart playlists are disabled");
+    if (mpd_worker_state->mpd_state->feat_playlists == false) {
+        MYMPD_LOG_WARN("Playlists are disabled");
         return true;
     }
     if (validate_string_not_dir(playlist) == false) {
@@ -172,7 +172,7 @@ bool mpd_worker_smartpls_update(t_mpd_worker_state *mpd_worker_state, const char
 }
 
 //private functions
-static bool mpd_worker_smartpls_per_tag(t_mpd_worker_state *mpd_worker_state) {
+static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_state) {
     for (size_t i = 0; i < mpd_worker_state->generate_pls_tag_types.len; i++) {
         enum mpd_tag_type tag = mpd_worker_state->generate_pls_tag_types.tags[i];
         bool rc = mpd_search_db_tags(mpd_worker_state->mpd_state->conn, tag);
@@ -217,7 +217,7 @@ static bool mpd_worker_smartpls_per_tag(t_mpd_worker_state *mpd_worker_state) {
     return true;
 }
 
-static bool mpd_worker_smartpls_clear(t_mpd_worker_state *mpd_worker_state, const char *playlist) {
+static bool mpd_worker_smartpls_clear(struct t_mpd_worker_state *mpd_worker_state, const char *playlist) {
     struct mpd_playlist *pl;
     bool exists = false;
     
@@ -251,7 +251,7 @@ static bool mpd_worker_smartpls_clear(t_mpd_worker_state *mpd_worker_state, cons
     return true;
 }
 
-static bool mpd_worker_smartpls_update_search(t_mpd_worker_state *mpd_worker_state, const char *playlist, const char *tag, const char *searchstr) {
+static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_worker_state, const char *playlist, const char *tag, const char *searchstr) {
     sds buffer = sdsempty();
     sds method = sdsempty();
     mpd_worker_smartpls_clear(mpd_worker_state, playlist);
@@ -267,7 +267,7 @@ static bool mpd_worker_smartpls_update_search(t_mpd_worker_state *mpd_worker_sta
     return true;
 }
 
-static bool mpd_worker_smartpls_update_sticker(t_mpd_worker_state *mpd_worker_state, const char *playlist, const char *sticker, const int maxentries, const int minvalue)
+static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_worker_state, const char *playlist, const char *sticker, const int maxentries, const int minvalue)
 {
     bool rc = mpd_send_sticker_find(mpd_worker_state->mpd_state->conn, "song", "", sticker);
     if (check_rc_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_sticker_find") == false) {
@@ -350,7 +350,7 @@ static bool mpd_worker_smartpls_update_sticker(t_mpd_worker_state *mpd_worker_st
     return true;
 }
 
-static bool mpd_worker_smartpls_update_newest(t_mpd_worker_state *mpd_worker_state, const char *playlist, const int timerange) {
+static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_worker_state, const char *playlist, const int timerange) {
     unsigned long value_max = 0;
     
     struct mpd_stats *stats = mpd_run_stats(mpd_worker_state->mpd_state->conn);

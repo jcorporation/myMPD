@@ -35,15 +35,15 @@
 #include "mpd_worker.h"
 
 //private definitions
-static void mpd_worker_idle(t_mpd_worker_state *mpd_worker_state);
-static void mpd_worker_parse_idle(t_mpd_worker_state *mpd_worker_state, int idle_bitmask);
+static void mpd_worker_idle(struct t_mpd_worker_state *mpd_worker_state);
+static void mpd_worker_parse_idle(struct t_mpd_worker_state *mpd_worker_state, int idle_bitmask);
 
 //public functions
 void *mpd_worker_loop(void *arg_config) {
     thread_logname = sdsreplace(thread_logname, "mpdworker");
 
     //State of mpd connection
-    t_mpd_worker_state *mpd_worker_state = (t_mpd_worker_state *)malloc(sizeof(t_mpd_worker_state));
+    struct t_mpd_worker_state *mpd_worker_state = (struct t_mpd_worker_state *)malloc(sizeof(struct t_mpd_worker_state));
     assert(mpd_worker_state);
     default_mpd_worker_state(mpd_worker_state);
     mpd_worker_state->config = (struct t_config *) arg_config;
@@ -78,7 +78,7 @@ void *mpd_worker_loop(void *arg_config) {
     return NULL;
 }
 
-static void mpd_worker_idle(t_mpd_worker_state *mpd_worker_state) {
+static void mpd_worker_idle(struct t_mpd_worker_state *mpd_worker_state) {
     unsigned mpd_worker_queue_length = 0;
     struct pollfd fds[1];
     int pollrc;
@@ -226,7 +226,7 @@ static void mpd_worker_idle(t_mpd_worker_state *mpd_worker_state) {
     }
 }
 
-static void mpd_worker_parse_idle(t_mpd_worker_state *mpd_worker_state, int idle_bitmask) {
+static void mpd_worker_parse_idle(struct t_mpd_worker_state *mpd_worker_state, int idle_bitmask) {
     for (unsigned j = 0;; j++) {
         enum mpd_idle idle_event = 1 << j;
         const char *idle_name = mpd_idle_name(idle_event);

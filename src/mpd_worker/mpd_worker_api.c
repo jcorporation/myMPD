@@ -31,7 +31,7 @@
 #include "mpd_worker_api.h"
 
 //public functions
-void mpd_worker_api(t_mpd_worker_state *mpd_worker_state, void *arg_request) {
+void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state, void *arg_request) {
     t_work_request *request = (t_work_request*) arg_request;
     bool rc;
     bool bool_buf1;
