@@ -33,7 +33,7 @@ function initTimer() {
     document.getElementById('selectTimerMinute').innerHTML = selectTimerMinute;
 
     document.getElementById('inputTimerVolume').addEventListener('change', function() {
-        document.getElementById('textTimerVolume').innerHTML = this.value + '&nbsp;%';
+        document.getElementById('textTimerVolume').innerHTML = e(this.value) + '&nbsp;%';
     }, false);
     
     document.getElementById('selectTimerAction').addEventListener('change', function() {
