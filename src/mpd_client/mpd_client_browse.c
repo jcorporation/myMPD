@@ -614,7 +614,7 @@ sds mpd_client_put_db_tag2(struct t_mympd_state *mympd_state, sds buffer, sds me
     }
 
     //checks if this tag has a directory with pictures in /var/lib/mympd/pics
-    sds pic_path = sdscatfmt(sdsempty(), "%s/pics/%s", mympd_state->config->varlibdir, tag);
+    sds pic_path = sdscatfmt(sdsempty(), "%s/pics/%s", mympd_state->config->workdir, tag);
     bool pic = false;
     DIR* dir = opendir(pic_path);
     if (dir != NULL) {

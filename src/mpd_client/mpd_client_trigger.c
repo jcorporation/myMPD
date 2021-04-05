@@ -195,7 +195,7 @@ void free_trigerlist_arguments(struct t_mympd_state *mympd_state) {
 }
 
 bool triggerfile_read(struct t_mympd_state *mympd_state) {
-    sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", mympd_state->config->varlibdir);
+    sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", mympd_state->config->workdir);
     char *line = NULL;
     size_t n = 0;
     ssize_t read = 0;
@@ -234,7 +234,7 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
 
 bool triggerfile_save(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving triggers to disc");
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/trigger_list.XXXXXX", mympd_state->config->varlibdir);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/trigger_list.XXXXXX", mympd_state->config->workdir);
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
         MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
@@ -266,7 +266,7 @@ bool triggerfile_save(struct t_mympd_state *mympd_state) {
     }
     fclose(fp);
     sdsfree(buffer);
-    sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", mympd_state->config->varlibdir);
+    sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", mympd_state->config->workdir);
     if (rename(tmp_file, trigger_file) == -1) {
         MYMPD_LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, trigger_file, strerror(errno));
         sdsfree(tmp_file);

@@ -60,7 +60,7 @@ void *mympd_api_loop(void *arg_config) {
     default_mympd_state(mympd_state);
     mpd_shared_default_mpd_state(mympd_state->mpd_state);
 
-    //read myMPD states under config.varlibdir
+    //read myMPD states under config.workdir
     mympd_api_read_statefiles(mympd_state);
 
     //push settings to mpd_worker

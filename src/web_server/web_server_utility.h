@@ -53,7 +53,7 @@ struct t_mg_user_data {
 #ifndef DEBUG
 bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_message *hm);
 #endif
-void manage_emptydir(sds varlibdir, bool pics, bool smartplaylists, bool music, bool playlists);
+void manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bool playlists);
 sds *split_coverimage_names(const char *coverimage_name, sds *coverimage_names, int *count);
 void send_error(struct mg_connection *nc, int code, const char *msg);
 void serve_na_image(struct mg_connection *nc, struct mg_http_message *hm);

@@ -176,7 +176,7 @@ bool mpd_client_get_lua_mympd_state(struct t_mympd_state *mympd_state, struct li
     set_lua_mympd_state_f(lua_mympd_state, "mixrampdb", mpd_status_get_mixrampdb(status));
     set_lua_mympd_state_f(lua_mympd_state, "mixrampdelay", mpd_status_get_mixrampdelay(status));
     set_lua_mympd_state_p(lua_mympd_state, "music_directory", mympd_state->music_directory_value);
-    set_lua_mympd_state_p(lua_mympd_state, "varlibdir", mympd_state->config->varlibdir);
+    set_lua_mympd_state_p(lua_mympd_state, "workdir", mympd_state->config->workdir);
     set_lua_mympd_state_i(lua_mympd_state, "jukebox_mode", mympd_state->jukebox_mode);
     set_lua_mympd_state_p(lua_mympd_state, "jukebox_playlist", mympd_state->jukebox_playlist);
     set_lua_mympd_state_i(lua_mympd_state, "jukebox_queue_length", mympd_state->jukebox_queue_length);

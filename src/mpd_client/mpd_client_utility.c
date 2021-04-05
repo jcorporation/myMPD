@@ -95,7 +95,7 @@ void json_to_tags(const char *str, int len, void *user_data) {
 
 bool is_smartpls(struct t_mympd_state *mympd_state, const char *plpath) {
     bool smartpls = false;
-    sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->varlibdir, plpath);
+    sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, plpath);
     if (validate_string(plpath) == true) {
         if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
             smartpls = true;

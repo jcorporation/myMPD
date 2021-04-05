@@ -50,7 +50,7 @@ bool mpd_worker_smartpls_update_all(t_mpd_worker_state *mpd_worker_state, bool f
     unsigned long db_mtime = mpd_shared_get_db_mtime(mpd_worker_state->mpd_state);
     MYMPD_LOG_DEBUG("Database mtime: %d", db_mtime);
     
-    sds dirname = sdscatfmt(sdsempty(), "%s/smartpls", mpd_worker_state->config->varlibdir);
+    sds dirname = sdscatfmt(sdsempty(), "%s/smartpls", mpd_worker_state->config->workdir);
     DIR *dir = opendir (dirname);
     if (dir != NULL) {
         struct dirent *ent;
@@ -97,7 +97,7 @@ bool mpd_worker_smartpls_update(t_mpd_worker_state *mpd_worker_state, const char
         return false;
     }
     
-    sds filename = sdscatfmt(sdsempty(), "%s/smartpls/%s", mpd_worker_state->config->varlibdir, playlist);
+    sds filename = sdscatfmt(sdsempty(), "%s/smartpls/%s", mpd_worker_state->config->workdir, playlist);
     char *content = json_fread(filename);
     sdsfree(filename);
     if (content == NULL) {
@@ -203,7 +203,7 @@ static bool mpd_worker_smartpls_per_tag(t_mpd_worker_state *mpd_worker_state) {
         while (current != NULL) {
             const char *tagstr = mpd_tag_name(tag);
             sds playlist = sdscatfmt(sdsempty(), "%s%s%s-%s", mpd_worker_state->smartpls_prefix, (sdslen(mpd_worker_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, current->key);
-            sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", mpd_worker_state->config->varlibdir, playlist);
+            sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", mpd_worker_state->config->workdir, playlist);
             if (access(plpath, F_OK) == -1) { /* Flawfinder: ignore */
                 MYMPD_LOG_INFO("Created smart playlist %s", playlist);
                 mpd_shared_smartpls_save(mpd_worker_state->config, "search", playlist, tagstr, current->key, 0, 0, mpd_worker_state->smartpls_sort);

@@ -35,7 +35,7 @@ static sds mpd_client_put_last_played_obj(struct t_mympd_state *mympd_state, sds
 //public functions
 bool mpd_client_last_played_list_save(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving last_played list to disc");
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/last_played.XXXXXX", mympd_state->config->varlibdir);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/last_played.XXXXXX", mympd_state->config->workdir);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
         MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
@@ -55,7 +55,7 @@ bool mpd_client_last_played_list_save(struct t_mympd_state *mympd_state) {
     //append current last_played file to tmp file
     char *line = NULL;
     size_t n = 0;
-    sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->varlibdir);
+    sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->workdir);
     FILE *fi = fopen(lp_file, "r");
     if (fi != NULL) {
         while (getline(&line, &n, fi) > 0 && i < mympd_state->last_played_count) {
@@ -144,7 +144,7 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
     char *data = NULL;
     char *crap = NULL;
     size_t n = 0;
-    sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->varlibdir);
+    sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->workdir);
     FILE *fp = fopen(lp_file, "r");
     if (fp != NULL) {
         while (getline(&line, &n, fp) > 0) {

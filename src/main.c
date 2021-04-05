@@ -86,25 +86,25 @@ static bool do_chown(const char *file_path, const char *user_name) {
 
 #ifdef ENABLE_SSL
 static bool chown_certs(struct t_config *config) {
-    sds filename = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->varlibdir);
+    sds filename = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->workdir);
     if (do_chown(filename, config->user) == false) {
         sdsfree(filename);
         return false;
     }
     filename = sdscrop(filename);
-    filename = sdscatfmt(filename, "%s/ssl/ca.key", config->varlibdir);
+    filename = sdscatfmt(filename, "%s/ssl/ca.key", config->workdir);
     if (do_chown(filename, config->user) == false) {
         sdsfree(filename);
         return false;
     }
     filename = sdscrop(filename);
-    filename = sdscatfmt(filename, "%s/ssl/server.pem", config->varlibdir);
+    filename = sdscatfmt(filename, "%s/ssl/server.pem", config->workdir);
     if (do_chown(filename, config->user) == false) {
         sdsfree(filename);
         return false;
     }
     filename = sdscrop(filename);
-    filename = sdscatfmt(filename, "%s/ssl/server.key", config->varlibdir);
+    filename = sdscatfmt(filename, "%s/ssl/server.key", config->workdir);
     if (do_chown(filename, config->user) == false) {
         sdsfree(filename);
         return false;
@@ -160,7 +160,7 @@ static bool drop_privileges(struct t_config *config, uid_t startup_uid) {
 #ifdef ENABLE_SSL
 static bool check_ssl_certs(struct t_config *config, uid_t startup_uid) {
     if (config->ssl == true && config->custom_cert == false) {
-        sds testdirname = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
+        sds testdirname = sdscatfmt(sdsempty(), "%s/ssl", config->workdir);
         int testdir_rc = testdir("SSL certificates", testdirname, true);
         if (testdir_rc < 2) {
             //chown to mympd user if root
@@ -205,7 +205,7 @@ static bool check_dirs(struct t_config *config) {
     #endif
 
     //smart playlists
-    sds testdirname = sdscatfmt(sdsempty(), "%s/smartpls", config->varlibdir);
+    sds testdirname = sdscatfmt(sdsempty(), "%s/smartpls", config->workdir);
     testdir_rc = testdir("Smartpls dir", testdirname, true);
     if (testdir_rc == 1) {
         //directory created, create default smart playlists
@@ -218,7 +218,7 @@ static bool check_dirs(struct t_config *config) {
 
     //state directory
     testdirname = sdscrop(testdirname);
-    testdirname = sdscatfmt(testdirname, "%s/state", config->varlibdir);
+    testdirname = sdscatfmt(testdirname, "%s/state", config->workdir);
     testdir_rc = testdir("State dir", testdirname, true);
     if (testdir_rc > 1) {
         sdsfree(testdirname);
@@ -227,7 +227,7 @@ static bool check_dirs(struct t_config *config) {
     
     //for stream images
     testdirname = sdscrop(testdirname);
-    testdirname = sdscatfmt(testdirname, "%s/pics", config->varlibdir);
+    testdirname = sdscatfmt(testdirname, "%s/pics", config->workdir);
     testdir_rc = testdir("Pics dir", testdirname, true);
     if (testdir_rc > 1) {
         sdsfree(testdirname);
@@ -236,7 +236,7 @@ static bool check_dirs(struct t_config *config) {
     
     //create empty document_root
     testdirname = sdscrop(testdirname);
-    testdirname = sdscatfmt(testdirname, "%s/empty", config->varlibdir);
+    testdirname = sdscatfmt(testdirname, "%s/empty", config->workdir);
     testdir_rc = testdir("Empty dir", testdirname, true);
     if (testdir_rc > 1) {
         sdsfree(testdirname);
@@ -246,7 +246,7 @@ static bool check_dirs(struct t_config *config) {
     //lua scripting
     #ifdef ENABLE_LUA
     testdirname = sdscrop(testdirname);
-    testdirname = sdscatfmt(testdirname, "%s/scripts", config->varlibdir);
+    testdirname = sdscatfmt(testdirname, "%s/scripts", config->workdir);
     testdir_rc = testdir("Scripts dir", testdirname, true);
     if (testdir_rc > 1) {
         sdsfree(testdirname);
@@ -257,7 +257,7 @@ static bool check_dirs(struct t_config *config) {
     //covercache for coverextract and mpd coverhandling
     if (config->covercache == true) {
         testdirname = sdscrop(testdirname);
-        testdirname = sdscatfmt(testdirname, "%s/covercache", config->varlibdir);
+        testdirname = sdscatfmt(testdirname, "%s/covercache", config->workdir);
         testdir_rc = testdir("Covercache dir", testdirname, true);
         if (testdir_rc > 1) {
             sdsfree(testdirname);
@@ -319,9 +319,38 @@ int main(int argc, char **argv) {
     //-d mympd state directory
     (void) argc;
     (void) argv;
+
+    //check workdir
+    int testdir_rc = testdir("Workdir", config->workdir, true);
+    if (testdir_rc < 2) {
+        //directory exists or was created; set user and group, if uid = 0
+        if (startup_uid == 0) {
+            if (do_chown(config->workdir, config->user) == false) {
+                goto cleanup;
+            }
+        }
+    }
+    else {
+        //exit if workdir is not accessible
+        MYMPD_LOG_ERROR("Can not access %s", config->workdir);
+        goto cleanup;
+    }
+
+    //go into workdir
+    if (chdir(config->workdir) != 0) {
+        MYMPD_LOG_ERROR("Can not change directory to %s: %s", config->workdir, strerror(errno));
+        goto cleanup;
+    }
     
     //read configuration
     //TODO: read state files into config struct
+
+    //set loglevel
+    #ifdef DEBUG
+        set_loglevel(LOG_DEBUG);
+    #else
+        set_loglevel(config->loglevel);
+    #endif
 
     if (config->syslog == true) {
         openlog("mympd", LOG_CONS, LOG_DAEMON);
@@ -333,35 +362,6 @@ int main(int argc, char **argv) {
             LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION,
             LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
     MYMPD_LOG_NOTICE("Mongoose %s", MG_VERSION);
-
-    //set loglevel
-    #ifdef DEBUG
-        set_loglevel(LOG_DEBUG);
-    #else
-        set_loglevel(config->loglevel);
-    #endif
-
-    //check varlibdir
-    int testdir_rc = testdir("Localstate dir", config->varlibdir, true);
-    if (testdir_rc < 2) {
-        //directory exists or was created; set user and group, if uid = 0
-        if (startup_uid == 0) {
-            if (do_chown(config->varlibdir, config->user) == false) {
-                goto cleanup;
-            }
-        }
-    }
-    else {
-        //exit if varlibdir is not accessible
-        MYMPD_LOG_ERROR("Can not access %s", config->varlibdir);
-        goto cleanup;
-    }
-
-    //go into varlibdir
-    if (chdir(config->varlibdir) != 0) {
-        MYMPD_LOG_ERROR("Can not change directory to %s: %s", config->varlibdir, strerror(errno));
-        goto cleanup;
-    }
 
     //set signal handler
     signal(SIGTERM, mympd_signal_handler);

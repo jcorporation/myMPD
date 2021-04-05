@@ -51,9 +51,9 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
 
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
-    mg_user_data->browse_document_root = sdscatfmt(sdsempty(), "%s/empty", config->varlibdir);
-    mg_user_data->pics_document_root = sdscatfmt(sdsempty(), "%s/pics", config->varlibdir);
-    mg_user_data->smartpls_document_root = sdscatfmt(sdsempty(), "%s/smartpls", config->varlibdir);
+    mg_user_data->browse_document_root = sdscatfmt(sdsempty(), "%s/empty", config->workdir);
+    mg_user_data->pics_document_root = sdscatfmt(sdsempty(), "%s/pics", config->workdir);
+    mg_user_data->smartpls_document_root = sdscatfmt(sdsempty(), "%s/smartpls", config->workdir);
     mg_user_data->music_directory = sdsempty();
     mg_user_data->playlist_directory = sdsempty();
     mg_user_data->coverimage_names= split_coverimage_names("cover,folder", mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
@@ -383,7 +383,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             else if (mg_http_match_uri(hm, "/ca.crt")) { 
                 if (config->custom_cert == false) {
                     //deliver ca certificate
-                    sds ca_file = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->varlibdir);
+                    sds ca_file = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->workdir);
                     mg_http_serve_file(nc, hm, ca_file, "application/x-x509-ca-cert", NULL);
                     sdsfree(ca_file);
                 }

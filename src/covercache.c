@@ -26,7 +26,7 @@ bool write_covercache_file(struct t_config *config, const char *uri, const char 
     bool rc = false;
     sds filename = sdsnew(uri);
     uri_to_filename(filename);
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->varlibdir, filename);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->workdir, filename);
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
         MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
@@ -36,7 +36,7 @@ bool write_covercache_file(struct t_config *config, const char *uri, const char 
         fwrite(binary, 1, sdslen(binary), fp);
         fclose(fp);
         sds ext = get_ext_by_mime_type(mime_type);
-        sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", config->varlibdir, filename, ext);
+        sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", config->workdir, filename, ext);
         if (rename(tmp_file, cover_file) == -1) {
             MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed: %s", tmp_file, cover_file, strerror(errno));
             if (unlink(tmp_file) != 0) {
@@ -64,7 +64,7 @@ int clear_covercache(struct t_config *config, int keepdays) {
     }
     time_t now = time(NULL) - keepdays * 24 * 60 * 60;
     
-    sds covercache = sdscatfmt(sdsempty(), "%s/covercache", config->varlibdir);
+    sds covercache = sdscatfmt(sdsempty(), "%s/covercache", config->workdir);
     MYMPD_LOG_NOTICE("Cleaning covercache %s", covercache);
     MYMPD_LOG_DEBUG("Remove files older than %ld sec", now);
     DIR *covercache_dir = opendir(covercache);

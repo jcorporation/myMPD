@@ -34,7 +34,7 @@ void mympd_free_config(struct t_config *config) {
     sdsfree(config->ssl_san);
 #endif
     sdsfree(config->user);
-    sdsfree(config->varlibdir);
+    sdsfree(config->workdir);
     sdsfree(config->acl);
     sdsfree(config->scriptacl);
     sdsfree(config->lualibs);
@@ -53,7 +53,7 @@ void mympd_config_defaults(struct t_config *config) {
     config->custom_cert = false;
     #endif
     config->user = sdsnew("mympd");
-    config->varlibdir = sdsnew(VARLIB_PATH);
+    config->workdir = sdsnew(VARLIB_PATH);
     config->startup_time = time(NULL);
     config->acl = sdsempty();
     config->scriptacl = sdsnew("-0.0.0.0/0,+127.0.0.0/8");
@@ -66,13 +66,13 @@ void mympd_config_defaults(struct t_config *config) {
 }
 
 bool mympd_read_config(struct t_config *config) {
-    //set correct path to certificate/key, if varlibdir is non default and cert paths are default
+    //set correct path to certificate/key, if workdir is non default and cert paths are default
     #ifdef ENABLE_SSL
-    if (strcmp(config->varlibdir, VARLIB_PATH) != 0 && config->custom_cert == false) {
+    if (strcmp(config->workdir, VARLIB_PATH) != 0 && config->custom_cert == false) {
         config->ssl_cert = sdscrop(config->ssl_cert);
-        config->ssl_cert = sdscatfmt(config->ssl_cert, "%s/ssl/server.pem", config->varlibdir);
+        config->ssl_cert = sdscatfmt(config->ssl_cert, "%s/ssl/server.pem", config->workdir);
         config->ssl_key = sdscrop(config->ssl_key);
-        config->ssl_key = sdscatfmt(config->ssl_key, "%s/ssl/server.key", config->varlibdir);
+        config->ssl_key = sdscatfmt(config->ssl_key, "%s/ssl/server.key", config->workdir);
     }
     #endif
     return true;

@@ -49,7 +49,7 @@
 //myMPD configuration
 struct t_config {
     sds user;
-    sds varlibdir;
+    sds workdir;
     sds http_host;
     sds http_port;
 #ifdef ENABLE_SSL

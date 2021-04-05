@@ -54,7 +54,7 @@ void mympd_api_settings_delete(struct t_config *config) {
         0};
     const char** ptr = state_files;
     while (*ptr != 0) {
-        sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
+        sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->workdir, *ptr);
         int rc = unlink(filename);
         if (rc != 0 && rc != ENOENT) {
             MYMPD_LOG_ERROR("Error removing file \"%s\": %s", filename, strerror(errno));
@@ -497,7 +497,7 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
 }
 
 sds mympd_api_picture_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
-    sds pic_dirname = sdscatfmt(sdsempty(), "%s/pics", mympd_state->config->varlibdir);
+    sds pic_dirname = sdscatfmt(sdsempty(), "%s/pics", mympd_state->config->workdir);
     DIR *pic_dir = opendir(pic_dirname);
     if (pic_dir == NULL) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, true,
@@ -539,7 +539,7 @@ static sds state_file_rw_string(struct t_config *config, const char *name, const
         return result;
     }
     
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, name);
+    sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->workdir, name);
     FILE *fp = fopen(cfg_file, "r");
     if (fp == NULL) {
         if (warn == true) {
@@ -598,7 +598,7 @@ static bool state_file_write(struct t_config *config, const char *name, const ch
     if (!validate_string(name)) {
         return false;
     }
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/%s.XXXXXX", config->varlibdir, name);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/%s.XXXXXX", config->workdir, name);
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
         MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
@@ -611,7 +611,7 @@ static bool state_file_write(struct t_config *config, const char *name, const ch
         MYMPD_LOG_ERROR("Can not write to file \"%s\"", tmp_file);
     }
     fclose(fp);
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, name);
+    sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->workdir, name);
     if (rename(tmp_file, cfg_file) == -1) {
         MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed: %s", tmp_file, cfg_file, strerror(errno));
         sdsfree(tmp_file);
@@ -625,7 +625,7 @@ static bool state_file_write(struct t_config *config, const char *name, const ch
 
 static sds default_navbar_icons(struct t_config *config, sds buffer) {
     MYMPD_LOG_NOTICE("Writing default navbar_icons");
-    sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->varlibdir);
+    sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->workdir);
     sdsclear(buffer);
     buffer = sdscat(buffer, NAVBAR_ICONS);
     FILE *fp = fopen(file_name, "w");
@@ -644,7 +644,7 @@ static sds default_navbar_icons(struct t_config *config, sds buffer) {
 }
 
 static sds read_navbar_icons(struct t_config *config) {
-    sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->varlibdir);
+    sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->workdir);
     sds buffer = sdsempty();
     FILE *fp = fopen(file_name, "r");
     if (fp == NULL) {

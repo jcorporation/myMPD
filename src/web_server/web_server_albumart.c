@@ -93,7 +93,7 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
         }
         name += 3;
         uri_to_filename(name);
-        sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, name);
+        sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, name);
         MYMPD_LOG_DEBUG("Check for stream cover %s", coverfile);
         coverfile = find_image_file(coverfile);
         
@@ -119,7 +119,7 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
     if (config->covercache == true) {
         sds filename = sdsdup(uri_decoded);
         uri_to_filename(filename);
-        sds covercachefile = sdscatfmt(sdsempty(), "%s/covercache/%s", config->varlibdir, filename);
+        sds covercachefile = sdscatfmt(sdsempty(), "%s/covercache/%s", config->workdir, filename);
         sdsfree(filename);
         covercachefile = find_image_file(covercachefile);
         if (sdslen(covercachefile) > 0) {

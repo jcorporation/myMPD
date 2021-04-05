@@ -70,20 +70,20 @@ bool check_ip_acl(const char *acl, struct mg_addr *peer) {
     return check_ipv4_acl(acl, remote_ip);
 }
 
-void manage_emptydir(sds varlibdir, bool pics, bool smartplaylists, bool music, bool playlists) {
-    sds dir_name = sdscatfmt(sdsempty(), "%s/empty/pics", varlibdir);
+void manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bool playlists) {
+    sds dir_name = sdscatfmt(sdsempty(), "%s/empty/pics", workdir);
     rm_mk_dir(dir_name, pics);
     
     dir_name = sdscrop(dir_name);
-    dir_name = sdscatfmt(dir_name, "%s/empty/smartplaylists", varlibdir);
+    dir_name = sdscatfmt(dir_name, "%s/empty/smartplaylists", workdir);
     rm_mk_dir(dir_name, smartplaylists);
     
     dir_name = sdscrop(dir_name);
-    dir_name = sdscatfmt(dir_name, "%s/empty/music", varlibdir);
+    dir_name = sdscatfmt(dir_name, "%s/empty/music", workdir);
     rm_mk_dir(dir_name, music);
     
     dir_name = sdscrop(dir_name);
-    dir_name = sdscatfmt(dir_name, "%s/empty/playlists", varlibdir);
+    dir_name = sdscatfmt(dir_name, "%s/empty/playlists", workdir);
     rm_mk_dir(dir_name, playlists);
     sdsfree(dir_name);
 }
@@ -153,7 +153,7 @@ void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, con
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = (struct t_config *) mg_user_data->config;
     
-    sds asset_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, name);
+    sds asset_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, name);
     sds mime_type;
     asset_image = find_image_file(asset_image);
     if (sdslen(asset_image) > 0) {
