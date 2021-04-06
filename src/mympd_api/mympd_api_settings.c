@@ -365,11 +365,11 @@ void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
     mympd_state->smartpls_prefix = state_file_rw_string(mympd_state->config, "smartpls_prefix", mympd_state->smartpls_prefix, false);
     mympd_state->smartpls_interval = state_file_rw_int(mympd_state->config, "smartpls_interval", mympd_state->smartpls_interval, false);
     mympd_state->generate_pls_tags = state_file_rw_string(mympd_state->config, "generate_pls_tags", mympd_state->generate_pls_tags, false);
-    mympd_state->last_played_count = state_file_rw_int(mympd_state->config, "last_played_count", mympd_state->last_played_count, false);
+    mympd_state->last_played_count = state_file_rw_int(mympd_state->config, "last_played_count", (int)mympd_state->last_played_count, false);
     mympd_state->auto_play = state_file_rw_bool(mympd_state->config, "auto_play", mympd_state->auto_play, false);
     mympd_state->jukebox_mode = state_file_rw_int(mympd_state->config, "jukebox_mode", mympd_state->jukebox_mode, false);
     mympd_state->jukebox_playlist = state_file_rw_string(mympd_state->config, "jukebox_playlist", mympd_state->jukebox_playlist, false);
-    mympd_state->jukebox_queue_length = state_file_rw_int(mympd_state->config, "jukebox_queue_length", mympd_state->jukebox_queue_length, false);
+    mympd_state->jukebox_queue_length = state_file_rw_int(mympd_state->config, "jukebox_queue_length",(int)mympd_state->jukebox_queue_length, false);
     mympd_state->jukebox_last_played = state_file_rw_int(mympd_state->config, "jukebox_last_played", mympd_state->jukebox_last_played, false);
     mympd_state->jukebox_unique_tag.tags[0] = state_file_rw_int(mympd_state->config, "jukebox_unique_tag", mympd_state->jukebox_unique_tag.tags[0], false);
     mympd_state->cols_queue_current = state_file_rw_string(mympd_state->config, "cols_queue_current", mympd_state->cols_queue_current, false);

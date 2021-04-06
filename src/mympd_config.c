@@ -26,9 +26,10 @@
 #include "mympd_config.h"
 
 //private functions
-static sds mympd_getenv_string(const char *env_var, const char *default_value);
-static bool mympd_getenv_bool(const char *env_var, bool default_value);
-static int mympd_getenv_int(const char *env_var, int default_value);
+static const char *mympd_getenv(const char *env_var, bool first_startup);
+static sds mympd_getenv_string(const char *env_var, const char *default_value, bool first_startup);
+static bool mympd_getenv_bool(const char *env_var, bool default_value, bool first_startup);
+static int mympd_getenv_int(const char *env_var, int default_value, bool first_startup);
 
 //public functions
 void mympd_free_config(struct t_config *config) {
@@ -49,25 +50,25 @@ void mympd_free_config(struct t_config *config) {
 }
 
 void mympd_config_defaults(struct t_config *config) {
-    //configureable with enivronment variables
-    config->http_host = mympd_getenv_string("MYMPD_HTTP_HOST", "0.0.0.0");
-    config->http_port = mympd_getenv_string("MYMPD_HTTP_PORT", "80");
+    //configureable with environment variables at first startup
+    config->http_host = mympd_getenv_string("MYMPD_HTTP_HOST", "0.0.0.0", config->first_startup);
+    config->http_port = mympd_getenv_string("MYMPD_HTTP_PORT", "80", config->first_startup);
     #ifdef ENABLE_SSL
-    config->ssl = mympd_getenv_bool("MYMPD_SSL", true);
-    config->ssl_port = mympd_getenv_string("MYMPD_SSL_PORT", "443");
-    config->ssl_cert = mympd_getenv_string("MYMPD_SSL_CERT", VARLIB_PATH"/ssl/server.pem");
-    config->ssl_key = mympd_getenv_string("MYMPD_SSL_KEY", VARLIB_PATH"/ssl/server.key");
-    config->ssl_san = mympd_getenv_string("MYMPD_SSL_SAN", ""); 
-    config->custom_cert = mympd_getenv_bool("MYMPD_CUSTOM_CERT", false);
+    config->ssl = mympd_getenv_bool("MYMPD_SSL", true, config->first_startup);
+    config->ssl_port = mympd_getenv_string("MYMPD_SSL_PORT", "443", config->first_startup);
+    config->ssl_cert = mympd_getenv_string("MYMPD_SSL_CERT", VARLIB_PATH"/ssl/server.pem", config->first_startup);
+    config->ssl_key = mympd_getenv_string("MYMPD_SSL_KEY", VARLIB_PATH"/ssl/server.key", config->first_startup);
+    config->ssl_san = mympd_getenv_string("MYMPD_SSL_SAN", "", config->first_startup); 
+    config->custom_cert = mympd_getenv_bool("MYMPD_CUSTOM_CERT", false, config->first_startup);
     #endif
-    config->acl = mympd_getenv_string("MYMPD_ACL", ""); 
-    config->scriptacl = mympd_getenv_string("MYMPD_SCRIPTACL", "+127.0.0.0/8");
+    config->acl = mympd_getenv_string("MYMPD_ACL", "", config->first_startup);
+    config->scriptacl = mympd_getenv_string("MYMPD_SCRIPTACL", "+127.0.0.0/8", config->first_startup);
     #ifdef ENABLE_LUA
-    config->lualibs = mympd_getenv_string("MYMPD_LUALIBS", "all");
+    config->lualibs = mympd_getenv_string("MYMPD_LUALIBS", "all", config->first_startup);
     #endif
     
-    config->covercache = mympd_getenv_bool("MYMPD_COVERCACHE", true);
-    config->covercache_keep_days = mympd_getenv_int("MYMPD_COVERCACHE_KEEP_DAYS", 14);
+    config->covercache = mympd_getenv_bool("MYMPD_COVERCACHE", true, config->first_startup);
+    config->covercache_keep_days = mympd_getenv_int("MYMPD_COVERCACHE_KEEP_DAYS", 14, config->first_startup);
     
     //command line options
     config->user = sdsnew("mympd");
@@ -108,18 +109,30 @@ bool mympd_read_config(struct t_config *config) {
 }
 
 //private functions
-static sds mympd_getenv_string(const char *env_var, const char *default_value) {
+static const char *mympd_getenv(const char *env_var, bool first_startup) {
     const char *env_value = getenv(env_var);
+    if (first_startup == true && env_value != NULL) {
+        MYMPD_LOG_INFO("Using environment variable \"%s\" with value \"%s\"", env_var, env_value);
+        return env_var;
+    }
+    if (first_startup == false && env_value != NULL) {
+        MYMPD_LOG_INFO("Ignoring environment variable \"%s\" with value \"%s\"", env_var, env_value);
+    }
+    return NULL;
+}
+
+static sds mympd_getenv_string(const char *env_var, const char *default_value, bool first_startup) {
+    const char *env_value = mympd_getenv(env_var, first_startup);
     return env_value != NULL ? sdsnew(env_value) : sdsnew(default_value);
 }
 
-static bool mympd_getenv_bool(const char *env_var, bool default_value) {
-    const char *env_value = getenv(env_var);
+static bool mympd_getenv_bool(const char *env_var, bool default_value, bool first_startup) {
+    const char *env_value = mympd_getenv(env_var, first_startup);
     return env_value != NULL ? strcmp(env_value, "true") == 0 ? true : false 
                              : default_value;
 }
 
-static int mympd_getenv_int(const char *env_var, int default_value) {
-    const char *env_value = getenv(env_var);
-    return env_value != NULL ? strtoimax(env_var, NULL, 10) : default_value;
+static int mympd_getenv_int(const char *env_var, int default_value, bool first_startup) {
+    const char *env_value = mympd_getenv(env_var, first_startup);
+    return env_value != NULL ? (int)strtoimax(env_var, NULL, 10) : default_value;
 }

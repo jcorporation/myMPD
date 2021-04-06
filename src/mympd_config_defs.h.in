@@ -69,7 +69,7 @@ struct t_config {
     int loglevel;
     time_t startup_time;
     bool covercache;
-    unsigned covercache_keep_days;
+    int covercache_keep_days;
     bool first_startup;
 };
 

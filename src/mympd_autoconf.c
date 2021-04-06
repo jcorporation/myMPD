@@ -117,17 +117,13 @@ static int sdssplit_whitespace(sds line, sds *name, sds *value) {
         if (isspace(*p) != 0) {
             break;
         }
-        else {
-            *name = sdscatlen(*name, p, 1);
-        }
+        *name = sdscatlen(*name, p, 1);
         p++;
     }
     if (sdslen(*name) == 0) {
         return tokens;
     }
-    else {
-        tokens++;
-    }
+    tokens++;
     //remove whitespace
     for (; i < sdslen(line); i++) {
         if (isspace(*p) == 0) {
