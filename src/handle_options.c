@@ -39,8 +39,10 @@ bool handle_options(struct t_config *config, int argc, char **argv) {
             default:
                 fprintf(stderr, "\nUsage: %s [OPTION]...\n\n"
                     "myMPD %s\n"
+                    "(c) 2018-2021 Juergen Mang <mail@jcgames.de>\n"
                     "https://github.com/jcorporation/myMPD\n\n"
                     "Options:\n"
+                    "  -h, --help             displays this help\n"
                     "  -u, --user <username>  username to drop privileges to (default: mympd)\n"
                     "  -s, --syslog           enable syslog logging (facility: daemon)\n"
                     "  -w, --workdir <path>   working directory (default: %s)\n\n",

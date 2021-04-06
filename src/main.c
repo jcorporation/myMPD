@@ -301,6 +301,7 @@ int main(int argc, char **argv) {
     log_to_syslog = false;
  
     s_signal_received = 0;
+    bool init_config = false;
     bool init_webserver = false;
     bool init_mg_user_data = false;
     bool init_thread_webserver = false;
@@ -338,10 +339,11 @@ int main(int argc, char **argv) {
     //mympd config defaults
     struct t_config *config = (struct t_config *)malloc(sizeof(struct t_config));
     assert(config);
-    mympd_config_defaults(config);
+    mympd_config_defaults_initial(config);
    
     //command line option
     if (handle_options(config, argc, argv) == false) {
+        loglevel = LOG_ERR;
         goto cleanup;
     }
 
@@ -357,6 +359,8 @@ int main(int argc, char **argv) {
     }
     
     //read configuration
+    init_config = true;
+    mympd_config_defaults(config);
     mympd_read_config(config);
 
     //set loglevel
@@ -418,11 +422,11 @@ int main(int argc, char **argv) {
     //mympd api
     MYMPD_LOG_NOTICE("Starting mympd api thread");
     if (pthread_create(&mympd_api_thread, NULL, mympd_api_loop, config) == 0) {
-        pthread_setname_np(mympd_api_thread, "mympd_mympdapi");
+        pthread_setname_np(mympd_api_thread, "mympd_api");
         init_thread_mympdapi = true;
     }
     else {
-        MYMPD_LOG_ERROR("Can't create mympd_mympdapi thread");
+        MYMPD_LOG_ERROR("Can't create mympd_api thread");
         s_signal_received = SIGTERM;
     }
     //mpd worker
@@ -488,7 +492,11 @@ int main(int argc, char **argv) {
     tiny_queue_free(mympd_script_queue);
     MYMPD_LOG_DEBUG("Expired %d entries", expired);
 
-    mympd_free_config(config);
+    mympd_free_config_initial(config);
+    if (init_config == true) {
+        mympd_free_config(config);
+    }
+    free(config);
     if (init_mg_user_data == true) {
         free((char *)mgr.dns4.url);
         free_mg_user_data(mg_user_data);

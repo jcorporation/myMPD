@@ -46,7 +46,11 @@ void mympd_free_config(struct t_config *config) {
     sdsfree(config->acl);
     sdsfree(config->scriptacl);
     sdsfree(config->lualibs);
-    FREE_PTR(config);
+}
+
+void mympd_free_config_initial(struct t_config *config) {
+    sdsfree(config->user);
+    sdsfree(config->workdir);
 }
 
 void mympd_config_defaults(struct t_config *config) {
@@ -69,7 +73,9 @@ void mympd_config_defaults(struct t_config *config) {
     
     config->covercache = mympd_getenv_bool("MYMPD_COVERCACHE", true, config->first_startup);
     config->covercache_keep_days = mympd_getenv_int("MYMPD_COVERCACHE_KEEP_DAYS", 14, config->first_startup);
-    
+}
+
+void mympd_config_defaults_initial(struct t_config *config) {
     //command line options
     config->user = sdsnew("mympd");
     config->workdir = sdsnew(VARLIB_PATH);
