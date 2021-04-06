@@ -16,6 +16,7 @@
 
 
 static struct option long_options[] = {
+    {"help",      no_argument,       0, 'h'},
     {"user",      required_argument, 0, 'u'},
     {"syslog",    no_argument,       0, 's'},
     {"workdir",   required_argument, 0, 'w'}
@@ -24,7 +25,7 @@ static struct option long_options[] = {
 bool handle_options(struct t_config *config, int argc, char **argv) {
     int n = 0;
     int option_index = 0;
-    while((n = getopt_long(argc, argv, "u:sw:", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
+    while((n = getopt_long(argc, argv, "hu:sw:", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
         switch (n) {
             case 'u':
                 config->user = sdsreplace(config->user, optarg);
