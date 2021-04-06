@@ -4,7 +4,7 @@
 .SH NAME
 myMPD \- standalone and mobile friendly web mpd client
 .SH SYNOPSIS
-mympd [/path/to/mympd.conf]
+mympd
 .SH DESCRIPTION
 myMPD is a standalone and lightweight web-based MPD client. It's tuned for minimal resource usage and requires only very few dependencies. Therefore myMPD is ideal for raspberry pis and similar devices.
 
@@ -15,7 +15,20 @@ The frontend is mobile friendly, written as a PWA and offers on all devices the 
 myMPD also integrates extended features like an advanced jukebox mode, timers, triggers and smart playlists. With the integrated lua interpreter myMPD functions can also be scripted.
 
 .SH OPTIONS
-Run mympd help
+.TP
+\fB\-u\fR, \fB\-\-user USERNAME\fR
+username to drop privileges to (default: mympd)
+.TP
+\fB\-s\fR, \fB\-\-syslog\fR
+enable syslog logging (facility: daemon)
+.TP
+\fB\-w\fR, \fB\-\-workdir PATH\fR
+working directory (default: /var/lib/mympd)
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+print all valid options and exits
+.SH ENVIRONMENT
+https://github.com/jcorporation/myMPD/wiki/Configuration
 .SH BUGS
 Look at https://github.com/jcorporation/myMPD/issues
 .SH AUTHOR
