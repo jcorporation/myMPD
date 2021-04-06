@@ -25,6 +25,12 @@
 #include "log.h"
 #include "mympd_config.h"
 
+//private functions
+static sds mympd_getenv_string(const char *env_var, const char *default_value);
+static bool mympd_getenv_bool(const char *env_var, bool default_value);
+static int mympd_getenv_int(const char *env_var, int default_value);
+
+//public functions
 void mympd_free_config(struct t_config *config) {
     sdsfree(config->http_host);
     sdsfree(config->http_port);
@@ -43,24 +49,25 @@ void mympd_free_config(struct t_config *config) {
 }
 
 void mympd_config_defaults(struct t_config *config) {
-    config->http_host = sdsnew("0.0.0.0");
-    config->http_port = sdsnew("80");
+    //configureable with enivronment variables
+    config->http_host = mympd_getenv_string("MYMPD_HTTP_HOST", "0.0.0.0");
+    config->http_port = mympd_getenv_string("MYMPD_HTTP_PORT", "80");
     #ifdef ENABLE_SSL
-    config->ssl = true;
-    config->ssl_port = sdsnew("443");
-    config->ssl_cert = sdsnew(VARLIB_PATH"/ssl/server.pem");
-    config->ssl_key = sdsnew(VARLIB_PATH"/ssl/server.key");
-    config->ssl_san = sdsempty();
-    config->custom_cert = false;
+    config->ssl = mympd_getenv_bool("MYMPD_SSL", true);
+    config->ssl_port = mympd_getenv_string("MYMPD_SSL_PORT", "443");
+    config->ssl_cert = mympd_getenv_string("MYMPD_SSL_CERT", VARLIB_PATH"/ssl/server.pem");
+    config->ssl_key = mympd_getenv_string("MYMPD_SSL_KEY", VARLIB_PATH"/ssl/server.key");
+    config->ssl_san = mympd_getenv_string("MYMPD_SSL_SAN", ""); 
+    config->custom_cert = mympd_getenv_bool("MYMPD_CUSTOM_CERT", false);
     #endif
-    config->acl = sdsempty();
-    config->scriptacl = sdsnew("+127.0.0.0/8");
+    config->acl = mympd_getenv_string("MYMPD_ACL", ""); 
+    config->scriptacl = mympd_getenv_string("MYMPD_SCRIPTACL", "+127.0.0.0/8");
     #ifdef ENABLE_LUA
-    config->lualibs = sdsnew("all");
+    config->lualibs = mympd_getenv_string("MYMPD_LUALIBS", "all");
     #endif
     
-    config->covercache = true;
-    config->covercache_keep_days = 30;
+    config->covercache = mympd_getenv_bool("MYMPD_COVERCACHE", true);
+    config->covercache_keep_days = mympd_getenv_int("MYMPD_COVERCACHE_KEEP_DAYS", 14);
     
     //command line options
     config->user = sdsnew("mympd");
@@ -98,4 +105,21 @@ bool mympd_read_config(struct t_config *config) {
     }
     #endif
     return true;
+}
+
+//private functions
+static sds mympd_getenv_string(const char *env_var, const char *default_value) {
+    const char *env_value = getenv(env_var);
+    return env_value != NULL ? sdsnew(env_value) : sdsnew(default_value);
+}
+
+static bool mympd_getenv_bool(const char *env_var, bool default_value) {
+    const char *env_value = getenv(env_var);
+    return env_value != NULL ? strcmp(env_value, "true") == 0 ? true : false 
+                             : default_value;
+}
+
+static int mympd_getenv_int(const char *env_var, int default_value) {
+    const char *env_value = getenv(env_var);
+    return env_value != NULL ? strtoimax(env_var, NULL, 10) : default_value;
 }
