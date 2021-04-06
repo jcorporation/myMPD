@@ -91,7 +91,7 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
         mg_mgr_free(mgr);
         return false;
     }
-    MYMPD_LOG_INFO("Listening on http://%s:%s", config->http_host, config->http_port);
+    MYMPD_LOG_NOTICE("Listening on http://%s:%s", config->http_host, config->http_port);
 
     //bind to ssl_port
     #ifdef ENABLE_SSL

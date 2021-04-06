@@ -439,7 +439,6 @@ int main(int argc, char **argv) {
         MYMPD_LOG_ERROR("Can't create mympd_worker thread");
         s_signal_received = SIGTERM;
     }
-
     //webserver
     MYMPD_LOG_NOTICE("Starting webserver thread");
     if (pthread_create(&web_server_thread, NULL, web_server_loop, &mgr) == 0) {

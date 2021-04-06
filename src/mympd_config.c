@@ -41,8 +41,6 @@ void mympd_free_config(struct t_config *config) {
     sdsfree(config->ssl_key);
     sdsfree(config->ssl_san);
 #endif
-    sdsfree(config->user);
-    sdsfree(config->workdir);
     sdsfree(config->acl);
     sdsfree(config->scriptacl);
     sdsfree(config->lualibs);
@@ -73,6 +71,8 @@ void mympd_config_defaults(struct t_config *config) {
     
     config->covercache = mympd_getenv_bool("MYMPD_COVERCACHE", true, config->first_startup);
     config->covercache_keep_days = mympd_getenv_int("MYMPD_COVERCACHE_KEEP_DAYS", 14, config->first_startup);
+    
+    config->loglevel = mympd_getenv_int("MYMPD_LOGLEVEL", 5, config->first_startup);
 }
 
 void mympd_config_defaults_initial(struct t_config *config) {
