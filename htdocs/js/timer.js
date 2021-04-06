@@ -226,7 +226,7 @@ function selectTimerActionChange(values) {
         document.getElementById('timerActionPlay').classList.remove('hide');
         document.getElementById('timerActionScript').classList.add('hide');
     }
-    else if (getAttDec(el.options[el.selectedIndex].parentNode, 'data-value') === 'script') {
+    else if (el.selectedIndex > -1 && getAttDec(el.options[el.selectedIndex].parentNode, 'data-value') === 'script') {
         document.getElementById('timerActionScript').classList.remove('hide');
         document.getElementById('timerActionPlay').classList.add('hide');
         showTimerScriptArgs(el.options[el.selectedIndex], values);
