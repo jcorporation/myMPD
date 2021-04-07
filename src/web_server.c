@@ -284,6 +284,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 break;
             }
             //ssl support
+            #ifdef ENABLE_SSL
             if (config->ssl == true) {
                 MYMPD_LOG_DEBUG("Init tls with cert %s and key %s", config->ssl_cert, config->ssl_key);
                 struct mg_tls_opts tls_opts = {
@@ -296,6 +297,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     break;
                 }
             }
+            #endif
             mg_user_data->connection_count++;
             MYMPD_LOG_DEBUG("New connection id %lu, connections %d", nc->id, mg_user_data->connection_count);
             break;
