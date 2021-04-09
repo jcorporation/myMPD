@@ -145,7 +145,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
                     posTd.classList.remove('mi');
                     posTd.innerText = getAttDec(tr, 'data-songpos');
                 }
-                tr.classList.remove('font-weight-bold');
+                tr.classList.remove('queue-playing');
             }
         }
     }
@@ -162,7 +162,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
                 posTd.innerText = 'play_arrow';
             }
         }
-        tr.classList.add('font-weight-bold');
+        tr.classList.add('queue-playing');
     }
 
     //synced lyrics
