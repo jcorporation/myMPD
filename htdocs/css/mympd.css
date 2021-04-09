@@ -1055,3 +1055,7 @@ div.album-grid-mouseover {
 .text-monospace {
   font-size: 90%;
 }
+
+.queue-playing {
+  font-weight: bold;
+}
