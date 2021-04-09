@@ -707,8 +707,8 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                 }
                 rc = mpd_client_jukebox_add_to_queue(config, mpd_client_state, uint_buf2, uint_buf1, p_charbuf1, true);
                 if (rc == true) {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
-                        "queue", "error", "Sucessfully added random songs to queue");
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                        "queue", "info", "Sucessfully added random songs to queue");
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
