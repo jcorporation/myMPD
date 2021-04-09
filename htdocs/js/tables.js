@@ -163,6 +163,7 @@ function dragAndDropTable(table) {
     const tableBody = document.getElementById(table).getElementsByTagName('tbody')[0];
     tableBody.addEventListener('dragstart', function(event) {
         if (event.target.nodeName === 'TR') {
+            hideMenu();
             event.target.classList.add('opacity05');
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
