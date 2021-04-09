@@ -45,7 +45,7 @@ void mympd_api_settings_delete(struct t_config *config) {
     const char* state_files[]={"auto_play", "browsetaglist", "cols_browse_database",
         "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
         "cols_search", "cols_queue_jukebox", "coverimage_names", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
-        "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags", "smartpls_sort", "smartpls_prefix", "smartpls_interval",
+        "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags", "smartpls", "smartpls_sort", "smartpls_prefix", "smartpls_interval",
         "last_played_count", "locale", "searchtaglist", "taglist", "booklet_name", "advanced", 
         0};
     const char** ptr = state_files;
@@ -267,6 +267,10 @@ bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token
         mympd_state->browsetaglist = sdsreplacelen(mympd_state->browsetaglist, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "browsetaglist");
     }
+    else if (strncmp(key->ptr, "smartpls", key->len) == 0) {
+        mympd_state->smartpls = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(settingname, "smartpls");
+    }
     else if (strncmp(key->ptr, "smartplsSort", key->len) == 0) {
         mympd_state->smartpls_sort = sdsreplacelen(mympd_state->smartpls_sort, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "smartpls_sort");
@@ -361,6 +365,7 @@ void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_state->taglist = state_file_rw_string(mympd_state->config, "taglist", mympd_state->mpd_state->taglist, false);
     mympd_state->searchtaglist = state_file_rw_string(mympd_state->config, "searchtaglist", mympd_state->searchtaglist, false);
     mympd_state->browsetaglist = state_file_rw_string(mympd_state->config, "browsetaglist", mympd_state->browsetaglist, false);
+    mympd_state->smartpls = state_file_rw_bool(mympd_state->config, "smartpls", mympd_state->smartpls, false);
     mympd_state->smartpls_sort = state_file_rw_string(mympd_state->config, "smartpls_sort", mympd_state->smartpls_sort, false);
     mympd_state->smartpls_prefix = state_file_rw_string(mympd_state->config, "smartpls_prefix", mympd_state->smartpls_prefix, false);
     mympd_state->smartpls_interval = state_file_rw_int(mympd_state->config, "smartpls_interval", mympd_state->smartpls_interval, false);
@@ -408,6 +413,7 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = tojson_long(buffer, "jukeboxLastPlayed", mympd_state->jukebox_last_played, true);
     buffer = tojson_bool(buffer, "autoPlay", mympd_state->auto_play, true);
     buffer = tojson_long(buffer, "loglevel", loglevel, true);
+    buffer = tojson_bool(buffer, "smartpls", mympd_state->smartpls, true);
     buffer = tojson_char(buffer, "smartplsSort", mympd_state->smartpls_sort, true);
     buffer = tojson_char(buffer, "smartplsPrefix", mympd_state->smartpls_prefix, true);
     buffer = tojson_long(buffer, "smartplsInterval", mympd_state->smartpls_interval, true);
@@ -426,9 +432,9 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = sdscatfmt(buffer, "\"colsQueueLastPlayed\":%s,", mympd_state->cols_queue_last_played);
     buffer = sdscatfmt(buffer, "\"colsQueueJukebox\":%s,", mympd_state->cols_queue_jukebox);
     buffer = sdscatfmt(buffer, "\"navbarIcons\":%s,", mympd_state->navbar_icons);
-    buffer = sdscatfmt(buffer, "\"advanced\":%s", mympd_state->advanced);
+    buffer = sdscatfmt(buffer, "\"advanced\":%s,", mympd_state->advanced);
     if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
-        buffer = sdscat(buffer,",");
+        buffer = tojson_bool(buffer, "mpdConnected", true, true);
         struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
         if (status == NULL) {
             buffer = check_error_and_recover(mympd_state->mpd_state, buffer, method, request_id);
@@ -444,7 +450,6 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
         }
         const char *replaygain = mpd_lookup_replay_gain_mode(replay_gain_mode);
         
-        buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = tojson_long(buffer, "repeat", mpd_status_get_repeat(status), true);
         if (mympd_state->mpd_state->feat_single_oneshot == true) {
             buffer = tojson_long(buffer, "single", mpd_status_get_single_state(status), true);
@@ -487,6 +492,9 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = print_trigger_list(buffer);
         buffer = sdscat(buffer, "}");
 
+    } 
+    else {
+        buffer = tojson_bool(buffer, "mpdConnected", false, false);
     }
     buffer = jsonrpc_result_end(buffer);
     return buffer;

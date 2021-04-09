@@ -11,10 +11,8 @@ let lastSongObj = {};
 let lastState;
 const currentSong = {};
 let playstate = '';
-let settingsLock = false;
-let settingsParsed = false;
-let settingsNew = {};
 let settings = {};
+let settingsParsed = 'no';
 settings.loglevel = 2;
 let alertTimeout = null;
 let progressTimer = null;
@@ -311,6 +309,51 @@ const advancedSettingsDefault = {
         "inputType": "checkbox",
         "title": "Local playback",
         "form": "AdvancedSettingsFrm"
+    },
+    "uiBgImage": {
+        "defaultValue": ""
+    },
+    "uiHighlightColor": {
+        "defaultValue": "#28a745"
+    },
+    "uiTheme": {
+        "defaultValue": "theme-dark"
+    },
+    "uiHome": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Homescreen",
+        "form": "otherFeaturesFrm"
+    },
+    "uiLyrics": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Lyrics",
+        "form": "otherFeaturesFrm"
+    },
+    "uiCoverimageSize": {
+        "defaultValue": 250,
+        "inputType": "input",
+        "title": "Size normal",
+        "form": "coverimageFrm"
+    },
+    "uiCoverimageSizeSmall": {
+        "defaultValue": 175,
+        "inputType": "input",
+        "title": "Size small",
+        "form": "coverimageFrm"
+    },
+    "uiBgColor": {
+        "defaultValue": "#000000"
+    },
+    "uiBgCssFilter": {
+        "defaultValue": "grayscale(100%) opacity(5%)"
+    },
+    "uiBgCover": {
+        "defaultValue": true
+    },
+    "uiLocale": {
+        "defaultValue": "default"
     }
 };
 

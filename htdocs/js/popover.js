@@ -110,7 +110,7 @@ function showMenuTd(el) {
             (type !== 'plist' && type !== 'smartpls' && settings.featPlaylists === true ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
             (type === 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '') +
             (type === 'plist' || type === 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : '') +
-            ((type === 'plist' || type === 'smartpls') && settings.featHome === true ? addMenuItem({"cmd": "addPlistToHome", "options": [uri, name]}, t('Add to homescreen')) : '');
+            ((type === 'plist' || type === 'smartpls') && settings.advanced.uiHome === true ? addMenuItem({"cmd": "addPlistToHome", "options": [uri, name]}, t('Add to homescreen')) : '');
             
         if (app.current.tab === 'Filesystem') {
             menu += (type === 'dir' ? addMenuItem({"cmd": "updateDB", "options": [dirname(uri), true]}, t('Update directory')) : '') +
@@ -159,7 +159,7 @@ function showMenuTd(el) {
             (settings.smartpls === true && type === 'smartpls' ? addMenuItem({"cmd": "updateSmartPlaylist", "options": [uri]}, t('Update smart playlist')) : '') +
             addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, t('Rename playlist')) + 
             addMenuItem({"cmd": "showDelPlaylist", "options": [uri]}, t('Delete playlist')) +
-            (settings.featHome === true ?addMenuItem({"cmd": "addPlistToHome", "options": [uri, name]}, t('Add to homescreen')) : '');
+            (settings.advanced.uiHome === true ?addMenuItem({"cmd": "addPlistToHome", "options": [uri, name]}, t('Add to homescreen')) : '');
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
         const x = document.getElementById('BrowsePlaylistsDetailList');

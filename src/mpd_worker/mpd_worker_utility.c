@@ -37,6 +37,7 @@ static void mpd_worker_feature_commands(struct t_mpd_worker_state *mpd_worker_st
 
 //public functions
 void default_mpd_worker_state(struct t_mpd_worker_state *mpd_worker_state) {
+    mpd_worker_state->smartpls = true;
     mpd_worker_state->smartpls_sort = sdsempty();
     mpd_worker_state->smartpls_prefix = sdsempty();
     mpd_worker_state->generate_pls_tags = sdsempty();

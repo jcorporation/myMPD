@@ -227,7 +227,7 @@ function parseState(obj) {
         document.getElementById('footerCover').classList.remove('clickable');
         document.getElementById('currentTitle').classList.remove('clickable');
         clearCurrentCover();
-        if (settings.bgCover === true) {
+        if (settings.advanced.uiBgCover === true) {
             clearBackgroundImage();
         }
         const pb = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
@@ -294,7 +294,7 @@ function setBackgroundImage(url) {
     }
     const div = document.createElement('div');
     div.classList.add('albumartbg');
-    div.style.filter = settings.bgCssFilter;
+    div.style.filter = settings.advanced.uiBgCssFilter;
     div.style.backgroundImage = bgImageUrl;
     div.style.opacity = 0;
     domCache.body.insertBefore(div, domCache.body.firstChild);

@@ -34,6 +34,7 @@ void mympd_api_push_to_mpd_worker(struct t_mympd_state *mympd_state) {
     struct t_set_mpd_worker_request *extra = (struct t_set_mpd_worker_request *)malloc(sizeof(struct t_set_mpd_worker_request));
     assert(extra);
     extra->taglist = sdsdup(mympd_state->mpd_state->taglist);
+    extra->smartpls = mympd_state->smartpls;
     extra->smartpls_sort = sdsdup(mympd_state->smartpls_sort);
     extra->smartpls_prefix = sdsdup(mympd_state->smartpls_prefix);
     extra->generate_pls_tags = sdsdup(mympd_state->generate_pls_tags);
@@ -60,6 +61,7 @@ void default_mympd_state(struct t_mympd_state *mympd_state) {
     mympd_state->browsetaglist = sdsnew("Artist,Album,AlbumArtist,Genre");
     mympd_state->generate_pls_tags = sdsnew("Genre");
     mympd_state->last_played_count = 200;
+    mympd_state->smartpls = true;
     mympd_state->smartpls_sort = sdsempty();
     mympd_state->smartpls_prefix = sdsnew("myMPDsmart");
     mympd_state->smartpls_interval = 14400;

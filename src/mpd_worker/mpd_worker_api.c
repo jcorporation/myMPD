@@ -57,6 +57,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state, void *arg_reque
             
             struct t_set_mpd_worker_request *extra = (struct t_set_mpd_worker_request *) request->extra;
             mpd_worker_state->mpd_state->taglist = sdsreplace(mpd_worker_state->mpd_state->taglist, extra->taglist);
+            mpd_worker_state->smartpls = extra->smartpls;
             mpd_worker_state->smartpls_sort = sdsreplace(mpd_worker_state->smartpls_sort, extra->smartpls_sort);
             mpd_worker_state->smartpls_prefix = sdsreplace(mpd_worker_state->smartpls_prefix, extra->smartpls_prefix);
             mpd_worker_state->generate_pls_tags = sdsreplace(mpd_worker_state->generate_pls_tags, extra->generate_pls_tags);
@@ -90,6 +91,11 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state, void *arg_reque
             break;
         }
         case MPDWORKER_API_SMARTPLS_UPDATE_ALL:
+            if (mpd_worker_state->smartpls == false) {
+                send_jsonrpc_notify("playlist", "error", "Smart playlists are disabled");
+                async = true;
+                break;
+            }
             je = json_scanf(request->data, sdslen(request->data), "{params: {force: %B}}", &bool_buf1);
             if (je == 1) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
@@ -113,6 +119,11 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state, void *arg_reque
             }
             break;
         case MPDWORKER_API_SMARTPLS_UPDATE:
+            if (mpd_worker_state->smartpls == false) {
+                send_jsonrpc_notify("playlist", "error", "Smart playlists are disabled");
+                async = true;
+                break;
+            }
             je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q}}", &p_charbuf1);
             if (je == 1) {
                 rc = mpd_worker_smartpls_update(mpd_worker_state, p_charbuf1);

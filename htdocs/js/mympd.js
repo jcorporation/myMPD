@@ -138,7 +138,7 @@ function appRoute() {
     }
     else {
         appPrepare(0);
-        if (settings.featHome === true) {
+        if (settings.advanced.uiHome === true) {
             appGoto('Home');
         }
         else {
@@ -419,7 +419,7 @@ function appInitStart() {
 
 function appInitWait() {
     setTimeout(function() {
-        if (settingsParsed === 'true' && websocketConnected === true) {
+        if (settingsParsed === 'parsed' && websocketConnected === true) {
             //app initialized
             document.getElementById('splashScreenAlert').innerText = t('Applying settings');
             document.getElementById('splashScreen').classList.add('hide-fade');
@@ -433,7 +433,7 @@ function appInitWait() {
             return;
         }
         
-        if (settingsParsed === 'true') {
+        if (settingsParsed === 'parsed') {
             //parsed settings, now its save to connect to websocket
             document.getElementById('splashScreenAlert').innerText = t('Connect to websocket');
             webSocketConnect();

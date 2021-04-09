@@ -165,6 +165,7 @@ struct t_mympd_state {
     struct t_tags search_tag_types;
     struct t_tags browse_tag_types;
     struct t_tags generate_pls_tag_types;
+    bool smartpls;
     sds smartpls_sort;
     sds smartpls_prefix;
     time_t smartpls_interval;

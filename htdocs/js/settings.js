@@ -98,19 +98,6 @@ function initSettings() {
             checkConsume(); 
         }, 100);
     });
-    
-    document.getElementById('btnStickers').addEventListener('mouseup', function() {
-        setTimeout(function() {
-            if (document.getElementById('btnStickers').classList.contains('active')) {
-                document.getElementById('warnPlaybackStatistics').classList.add('hide');
-                enableEl('inputJukeboxLastPlayed');
-            }
-            else {
-                document.getElementById('warnPlaybackStatistics').classList.remove('hide');
-                disableEl('inputJukeboxLastPlayed');
-            }
-        }, 100);
-    });
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -152,45 +139,8 @@ function saveConnection() {
 }
 
 function getSettings(onerror) {
-    if (settingsLock === false) {
-        settingsLock = true;
-        sendAPI("MYMPD_API_SETTINGS_GET", {}, getMpdSettings, onerror);
-    }
-}
-
-function getMpdSettings(obj) {
-    if (obj !== '' && obj.result) {
-        settingsNew = obj.result;
-        document.getElementById('splashScreenAlert').innerText = t('Fetch MPD settings');
-        sendAPI("MPD_API_SETTINGS_GET", {}, joinSettings, true);
-    }
-    else {
-        settingsParsed = 'error';
-        if (appInited === false) {
-            showAppInitAlert(obj === '' ? t('Can not parse settings') : t(obj.error.message));
-        }
-        return false;
-    }
-}
-
-function joinSettings(obj) {
-    if (obj !== '' && obj.result) {
-        for (const key in obj.result) {
-            settingsNew[key] = obj.result[key];
-        }
-    }
-    else {
-        settingsParsed = 'error';
-        if (appInited === false) {
-            showAppInitAlert(obj === '' ? t('Can not parse settings') : t(obj.error.message));
-        }
-        settingsNew.mpdConnected = false;
-    }
-    settings = Object.assign({}, settingsNew);
-    settingsLock = false;
-    parseSettings();
-    toggleUI();
-    btnWaiting(document.getElementById('btnApplySettings'), false);
+    settingsParsed = 'no';
+    sendAPI("MYMPD_API_SETTINGS_GET", {}, parseSettings, onerror);
 }
 
 function checkConsume() {
@@ -204,7 +154,24 @@ function checkConsume() {
     }
 }
 
-function parseSettings() {
+function parseSettings(obj) {
+    if (obj.error) {
+        settingsParsed = 'error';
+        if (appInited === false) {
+            showAppInitAlert(obj === '' ? t('Can not parse settings') : t(obj.error.message));
+        }
+        return;
+    }
+    settings = obj.result;
+    
+    //set advanced settings defaults
+    for (const key in advancedSettingsDefault) {
+        if (!settings.advanced[key]) {
+            settings.advanced[key] = advancedSettingsDefault[key].defaultValue;
+        }
+    }
+
+    //check for old cached javascript
     if ('serviceWorker' in navigator && settings.mympdVersion !== myMPDversion) {
         logWarn('Server version (' + settings.mympdVersion + ') not equal client version (' + myMPDversion + '), reloading');
         clearAndReload();
@@ -212,33 +179,33 @@ function parseSettings() {
 
     if (document.getElementById('modalSettings').classList.contains('show')) {
         //execute only if settings modal is displayed
-        getBgImageList(settings.bgImage);
+        getBgImageList(settings.advanced.uiBgImage);
     }
 
-    if (settings.bgImage.indexOf('/assets/') === 0) {
-        domCache.body.style.backgroundImage = 'url("' + subdir + settings.bgImage + '")';
+    if (settings.advanced.uiBgImage.indexOf('/assets/') === 0) {
+        domCache.body.style.backgroundImage = 'url("' + subdir + settings.advanced.uiBgImage + '")';
     }
-    else if (settings.bgImage !== '') {
-        domCache.body.style.backgroundImage = 'url("' + subdir + '/pics/' + settings.bgImage + '")';
+    else if (settings.advanced.uiBgImage !== '') {
+        domCache.body.style.backgroundImage = 'url("' + subdir + '/pics/' + settings.advanced.uiBgImage + '")';
     }
     else {
         domCache.body.style.backgroundImage = '';
     }
 
-    if (settings.locale === 'default') {
+    if (settings.advanced.uiLocale === 'default') {
         locale = navigator.language || navigator.userLanguage;
     }
     else {
-        locale = settings.locale;
+        locale = settings.advanced.uiLocale;
     }
-    warnLocale(settings.locale);
+    warnLocale(settings.advanced.uiLocale);
     
     if (isMobile === true) {    
         document.getElementById('inputScaleRatio').value = scale;
     }
 
-    let setTheme = settings.theme;
-    if (settings.theme === 'theme-autodetect') {
+    let setTheme = settings.advanced.uiTheme;
+    if (settings.advanced.uiTheme === 'theme-autodetect') {
         setTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-default';
     }    
 
@@ -253,22 +220,15 @@ function parseSettings() {
 
     setNavbarIcons();
 
-    document.getElementById('selectTheme').value = settings.theme;
+    document.getElementById('selectTheme').value = settings.advanced.uiTheme;
 
     //build form for advanced settings    
-    for (const key in advancedSettingsDefault) {
-        if (!settings.advanced[key]) {
-            settings.advanced[key] = advancedSettingsDefault[key].defaultValue;
-        }
-    }
-
     const advFrm = {};
-    
     const advSettingsKeys = Object.keys(settings.advanced);
     advSettingsKeys.sort();
     for (let i = 0; i < advSettingsKeys.length; i++) {
         const key = advSettingsKeys[i];
-        if (advancedSettingsDefault[key] === undefined) {
+        if (advancedSettingsDefault[key] === undefined || advancedSettingsDefault[key].form === undefined) {
             continue;
         }
         const form = advancedSettingsDefault[key].form;
@@ -381,32 +341,28 @@ function parseSettings() {
     
     toggleBtnChk('btnNotifyPage', settings.notificationPage);
     toggleBtnChk('btnMediaSession', settings.mediaSession);
-    toggleBtnChk('btnFeatTimer', settings.featTimer);
-    toggleBtnChk('btnFeatLyrics', settings.featLyrics);
-    toggleBtnChk('btnFeatHome', settings.featHome);
+    toggleBtnChk('btnFeatLyrics', settings.advanced.uiLyrics);
+    toggleBtnChk('btnFeatHome', settings.advanced.uiHome);
 
     document.getElementById('inputBookletName').value = settings.bookletName;
     
-    document.getElementById('selectLocale').value = settings.locale;
-    document.getElementById('inputCoverimageName').value = settings.coverimageName;
+    document.getElementById('selectLocale').value = settings.advanced.uiLocale;
+    document.getElementById('inputCoverimageNames').value = settings.coverimageNames;
 
-    document.getElementById('inputCoverimageSize').value = settings.coverimageSize;
-    document.getElementById('inputCoverimageSizeSmall').value = settings.coverimageSizeSmall;
-
-    document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimageSize + "px");
-    document.documentElement.style.setProperty('--mympd-coverimagesizesmall', settings.coverimageSizeSmall + "px");
-    document.documentElement.style.setProperty('--mympd-highlightcolor', settings.highlightColor);
+    document.documentElement.style.setProperty('--mympd-coverimagesize', settings.advanced.uiCoverimageSize + "px");
+    document.documentElement.style.setProperty('--mympd-coverimagesizesmall', settings.advanced.uiCoverimageSizeSmall + "px");
+    document.documentElement.style.setProperty('--mympd-highlightcolor', settings.advanced.uiHighlightColor);
     
-    document.getElementById('inputHighlightColor').value = settings.highlightColor;
-    document.getElementById('inputBgColor').value = settings.bgColor;
-    domCache.body.style.backgroundColor = settings.bgColor;
+    document.getElementById('inputHighlightColor').value = settings.advanced.uiHighlightColor;
+    document.getElementById('inputBgColor').value = settings.advanced.uiBgColor;
+    domCache.body.style.backgroundColor = settings.advanced.uiBgColor;
     
-    toggleBtnChkCollapse('btnBgCover', 'collapseBackground', settings.bgCover);
-    document.getElementById('inputBgCssFilter').value = settings.bgCssFilter;    
+    toggleBtnChkCollapse('btnBgCover', 'collapseBackground', settings.advanced.uiBgCover);
+    document.getElementById('inputBgCssFilter').value = settings.advanced.uiBgCssFilter;    
 
     const albumartbg = document.querySelectorAll('.albumartbg');
     for (let i = 0; i < albumartbg.length; i++) {
-        albumartbg[i].style.filter = settings.bgCssFilter;
+        albumartbg[i].style.filter = settings.advanced.uiBgCssFilter;
     }
 
     //default limit for all apps
@@ -424,7 +380,6 @@ function parseSettings() {
     app.apps.Browse.tabs.Database.views.Detail.limit = limit;
     app.apps.Search.limit = limit;
     
-    toggleBtnChk('btnStickers', settings.stickers);
     document.getElementById('inputLastPlayedCount').value = settings.lastPlayedCount;
     
     toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
@@ -432,8 +387,7 @@ function parseSettings() {
     if (settings.advanced.uiLocalPlayback === false) {
         settings.featLocalPlayback = false;    
     }
-    const features = ["featLocalPlayback", "featCacert", "featRegex", "featTimer", "featLyrics", 
-        "featScripting", "featScripteditor", "featHome"];
+    const features = ["featLocalPlayback", "featCacert", "featRegex", "featLyrics", "featHome"];
     for (let j = 0; j < features.length; j++) {
         const Els = document.getElementsByClassName(features[j]);
         const ElsLen = Els.length;
@@ -441,22 +395,6 @@ function parseSettings() {
         for (let i = 0; i < ElsLen; i++) {
             Els[i].style.display = displayEl;
         }
-    }
-    
-    const readonlyEls = document.getElementsByClassName('warnReadonly');
-    for (let i = 0; i < readonlyEls.length; i++) {
-        if (settings.readonly === false) {
-            readonlyEls[i].classList.add('hide');
-        }
-        else {
-            readonlyEls[i].classList.remove('hide');
-        }
-    }
-    if (settings.readonly === true) {
-        document.getElementsByClassName('groupClearCovercache')[0].classList.add('hide');
-    }
-    else {
-        document.getElementsByClassName('groupClearCovercache')[0].classList.remove('hide');
     }
     
     let timerActions = '<optgroup data-value="player" label="' + t('Playback') + '">' +
@@ -562,7 +500,10 @@ function parseSettings() {
         logDebug('mediaSession not supported by browser');
     }
 
-    settingsParsed = 'true';
+    //finished parse setting, set ui state
+    toggleUI();
+    btnWaiting(document.getElementById('btnApplySettings'), false);
+    settingsParsed = 'parsed';
 }
 
 function parseMPDSettings() {
@@ -616,21 +557,14 @@ function parseMPDSettings() {
         document.getElementById('warnSmartpls').classList.add('hide');
     }
     
-    if (settings.featPlaylists === true && settings.readonly === false) {
+    if (settings.featPlaylists === true) {
         enableEl('btnSmartpls');
     }
     else {
         disableEl('btnSmartpls');
     }
 
-    if (settings.featStickers === false && settings.stickers === true) {
-        document.getElementById('warnStickers').classList.remove('hide');
-    }
-    else {
-        document.getElementById('warnStickers').classList.add('hide');
-    }
-    
-    if (settings.featStickers === false || settings.stickers === false) {
+    if (settings.featStickers === false) {
         document.getElementById('warnPlaybackStatistics').classList.remove('hide');
         disableEl('inputJukeboxLastPlayed');
     }
@@ -648,7 +582,7 @@ function parseMPDSettings() {
 
     document.getElementById('warnJukeboxPlaylist').classList.add('hide');
 
-    if (settings.bgCover === true) {
+    if (settings.advanced.uiBgCover === true) {
         setBackgroundImage(lastSongObj.uri);
     }
     else {
@@ -855,15 +789,9 @@ function saveSettings(closeModal) {
             "notificationWeb": (document.getElementById('btnNotifyWeb').classList.contains('active') ? true : false),
             "notificationPage": (document.getElementById('btnNotifyPage').classList.contains('active') ? true : false),
             "mediaSession": (document.getElementById('btnMediaSession').classList.contains('active') ? true : false),
-            "bgCover": (document.getElementById('btnBgCover').classList.contains('active') ? true : false),
-            "bgColor": document.getElementById('inputBgColor').value,
-            "bgImage": getSelectValue('selectBgImage'),
             "bgCssFilter": document.getElementById('inputBgCssFilter').value,
-            "coverimageName": document.getElementById('inputCoverimageName').value,
-            "coverimageSize": document.getElementById('inputCoverimageSize').value,
-            "coverimageSizeSmall": document.getElementById('inputCoverimageSizeSmall').value,
+            "coverimageNames": document.getElementById('inputCoverimageNames').value,
             "locale": getSelectValue('selectLocale'),
-            "stickers": (document.getElementById('btnStickers').classList.contains('active') ? true : false),
             "lastPlayedCount": document.getElementById('inputLastPlayedCount').value,
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
             "smartplsPrefix": document.getElementById('inputSmartplsPrefix').value,
@@ -875,11 +803,8 @@ function saveSettings(closeModal) {
             "generatePlsTags": getTagMultiSelectValues(document.getElementById('listGeneratePlsTags'), false),
             "theme": getSelectValue('selectTheme'),
             "highlightColor": document.getElementById('inputHighlightColor').value,
-            "timer": (document.getElementById('btnFeatTimer').classList.contains('active') ? true : false),
             "bookletName": document.getElementById('inputBookletName').value,
-            "lyrics": (document.getElementById('btnFeatLyrics').classList.contains('active') ? true : false),
             "advanced": advSettings,
-            "featHome": (document.getElementById('btnFeatHome').classList.contains('active') ? true : false)
         }, getSettings);
         if (closeModal === true) {
             uiElements.modalSettings.hide();
@@ -1058,7 +983,7 @@ function setNavbarIcons() {
     let btns = '';
     for (const icon of settings.navbarIcons) {
         let hide = '';
-        if (settings.featHome === false && icon.options[0] === 'Home') {
+        if (settings.advanced.uiHome === false && icon.options[0] === 'Home') {
             hide = 'hide';
         }
         btns += '<div id="nav' + icon.options.join('') + '" class="nav-item flex-fill text-center ' + hide + '">' +

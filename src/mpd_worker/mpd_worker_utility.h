@@ -10,6 +10,7 @@
 #include "../mympd_state.h"
 
 struct t_mpd_worker_state {
+    bool smartpls;
     sds smartpls_sort;
     sds smartpls_prefix;
     sds generate_pls_tags;

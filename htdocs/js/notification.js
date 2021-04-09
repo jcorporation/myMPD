@@ -8,7 +8,7 @@ function setStateIcon() {
         document.getElementById('logoBg').setAttribute('fill', '#6c757d');
     }
     else {
-        document.getElementById('logoBg').setAttribute('fill', settings.highlightColor);
+        document.getElementById('logoBg').setAttribute('fill', settings.advanced.uiHighlightColor);
     }
 }
 

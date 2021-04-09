@@ -49,6 +49,7 @@ struct set_mg_user_data_request {
 //config data sent to mpd worker thread
 struct t_set_mpd_worker_request {
     sds taglist;
+    bool smartpls;
     sds smartpls_sort;
     sds smartpls_prefix;
     sds generate_pls_tags;

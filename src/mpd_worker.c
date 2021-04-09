@@ -237,7 +237,9 @@ static void mpd_worker_parse_idle(struct t_mpd_worker_state *mpd_worker_state, i
             MYMPD_LOG_INFO("MPD idle event: %s", idle_name);
             switch(idle_event) {
                 case MPD_IDLE_DATABASE:
-                    mpd_worker_smartpls_update_all(mpd_worker_state, false);
+                    if (mpd_worker_state->smartpls == true) {
+                        mpd_worker_smartpls_update_all(mpd_worker_state, false);
+                    }
                     mpd_worker_cache_init(mpd_worker_state);
                     break;
                 default: {
