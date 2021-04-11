@@ -376,12 +376,6 @@ function appInitStart() {
     }
 
     subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
-    let localeList = '<option value="default" data-phrase="Browser default"></option>';
-    for (const l of locales) {
-        localeList += '<option value="' + e(l.code) + '">' + e(l.desc) + ' (' + e(l.code) + ')</option>';
-    }
-    document.getElementById('selectLocale').innerHTML = localeList;
-    
     i18nHtml(document.getElementById('splashScreenAlert'));
     
     //set loglevel

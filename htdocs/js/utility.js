@@ -138,14 +138,22 @@ function getAttDec(el, attribute) {
 //utility functions
 function disableEl(el) {
     if (typeof el === 'string') {
+        const elStr = el;
         el = document.getElementById(el);
+        if (!el) {
+            logError("Element not found: " + elStr);
+         }
     }
     el.setAttribute('disabled', 'disabled');
 }
 
 function enableEl(el) {
     if (typeof el === 'string') {
+        const elStr = el;
         el = document.getElementById(el);
+        if (!el) {
+            logError("Element not found: " + elStr);
+         }
     }
     el.removeAttribute('disabled');
 }

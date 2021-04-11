@@ -4,41 +4,6 @@
 // https://github.com/jcorporation/mympd
 
 function initSettings() {
-    let selectThemeHtml = '';
-    Object.keys(themes).forEach(function(key) {
-        selectThemeHtml += '<option value="' + e(key) + '">' + t(themes[key]) + '</option>';
-    });
-    document.getElementById('selectTheme').innerHTML = selectThemeHtml;
-
-    document.getElementById('selectTheme').addEventListener('change', function(event) {
-        const value = getSelectValue(event.target);
-        const bgImageEl = document.getElementById('selectBgImage');
-        const bgImageValue = getSelectValue(bgImageEl);
-        if (value === 'theme-default') { 
-            document.getElementById('inputBgColor').value = '#aaaaaa';
-            if (bgImageValue.indexOf('/assets/') === 0) {
-                bgImageEl.value = '/assets/mympd-background-default.svg';
-            }
-        }
-        else if (value === 'theme-light') {
-            document.getElementById('inputBgColor').value = '#ffffff';
-            if (bgImageValue.indexOf('/assets/') === 0) {
-                bgImageEl.value = '/assets/mympd-background-light.svg';
-            }
-        }
-        else if (value === 'theme-dark') {
-            document.getElementById('inputBgColor').value = '#060708';
-            if (bgImageValue.indexOf('/assets/') === 0) {
-                bgImageEl.value = '/assets/mympd-background-dark.svg';
-            }
-        }
-    }, false);
-    
-    document.getElementById('selectLocale').addEventListener('change', function(event) {
-        const value = getSelectValue(event.target);
-        warnLocale(value);
-    }, false);
-
     document.getElementById('selectMusicDirectory').addEventListener('change', function () {
         const musicDirMode = getSelectValue(this);
         if (musicDirMode === 'auto') {
@@ -98,6 +63,35 @@ function initSettings() {
             checkConsume(); 
         }, 100);
     });
+}
+
+function eventChangeLocale(event) {
+    const value = getSelectValue(event.target);
+    warnLocale(value);
+}
+
+function eventChangeTheme(event) {
+    const value = getSelectValue(event.target);
+    const bgImageEl = document.getElementById('selectBgImage');
+    const bgImageValue = getSelectValue(bgImageEl);
+    if (value === 'theme-default') { 
+        document.getElementById('inputAdvSettinguiBgColor').value = '#aaaaaa';
+        if (bgImageValue.indexOf('/assets/') === 0) {
+            bgImageEl.value = '/assets/mympd-background-default.svg';
+        }
+    }
+    else if (value === 'theme-light') {
+        document.getElementById('inputAdvSettinguiBgColor').value = '#ffffff';
+        if (bgImageValue.indexOf('/assets/') === 0) {
+            bgImageEl.value = '/assets/mympd-background-light.svg';
+        }
+    }
+    else if (value === 'theme-dark') {
+        document.getElementById('inputAdvSettinguiBgColor').value = '#060708';
+        if (bgImageValue.indexOf('/assets/') === 0) {
+            bgImageEl.value = '/assets/mympd-background-dark.svg';
+        }
+    }
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -177,6 +171,42 @@ function parseSettings(obj) {
         clearAndReload();
     }
 
+    //create web ui form elements
+    createSettingsFrm();
+    
+    //locales
+    let localeList = '<option value="default">' + 
+        (settings.advanced.uiLocale === 'default' ? ' selected="selected"' : '') + '>' + 
+        t('Browser default') + '</option>';
+    for (const l of locales) {
+        localeList += '<option value="' + e(l.code) + '"' + 
+            (l.code === settings.advanced.uiLocale ? ' selected="selected"' : '') + '>' + 
+            e(l.desc) + ' (' + e(l.code) + ')</option>';
+    }
+    document.getElementById('inputAdvSettinguiLocale').innerHTML = localeList;
+    if (settings.advanced.uiLocale === 'default') {
+        locale = navigator.language || navigator.userLanguage;
+    }
+    else {
+        locale = settings.advanced.uiLocale;
+    }
+    warnLocale(settings.advanced.uiLocale);
+
+    //theme
+    let setTheme = settings.advanced.uiTheme;
+    if (settings.advanced.uiTheme === 'theme-autodetect') {
+        setTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-default';
+    }    
+
+    for (const t in advancedSettingsDefault.uiTheme.validValues) {
+        if (t === setTheme) {
+            domCache.body.classList.add(t);
+        }
+        else {
+            domCache.body.classList.remove(t);
+        }
+    }
+
     if (document.getElementById('modalSettings').classList.contains('show')) {
         //execute only if settings modal is displayed
         getBgImageList(settings.advanced.uiBgImage);
@@ -192,94 +222,11 @@ function parseSettings(obj) {
         domCache.body.style.backgroundImage = '';
     }
 
-    if (settings.advanced.uiLocale === 'default') {
-        locale = navigator.language || navigator.userLanguage;
-    }
-    else {
-        locale = settings.advanced.uiLocale;
-    }
-    warnLocale(settings.advanced.uiLocale);
-    
     if (isMobile === true) {    
         document.getElementById('inputScaleRatio').value = scale;
     }
 
-    let setTheme = settings.advanced.uiTheme;
-    if (settings.advanced.uiTheme === 'theme-autodetect') {
-        setTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-default';
-    }    
-
-    Object.keys(themes).forEach(function(key) {
-        if (key === setTheme) {
-            domCache.body.classList.add(key);
-        }
-        else {
-            domCache.body.classList.remove(key);
-        }
-    });
-
     setNavbarIcons();
-
-    document.getElementById('selectTheme').value = settings.advanced.uiTheme;
-
-    //build form for advanced settings    
-    const advFrm = {};
-    const advSettingsKeys = Object.keys(settings.advanced);
-    advSettingsKeys.sort();
-    for (let i = 0; i < advSettingsKeys.length; i++) {
-        const key = advSettingsKeys[i];
-        if (advancedSettingsDefault[key] === undefined || advancedSettingsDefault[key].form === undefined) {
-            continue;
-        }
-        const form = advancedSettingsDefault[key].form;
-        if (advFrm[form] === undefined) {
-            advFrm[form] = '';
-        }
-        
-        if (advancedSettingsDefault[key].inputType === 'section') {
-            if (advancedSettingsDefault[key].title !== undefined) {
-                advFrm[form] += '<hr/><h4>' + t(advancedSettingsDefault[key].title) + '</h4>';
-            }
-            else if (advancedSettingsDefault[key].subtitle !== undefined) {
-                advFrm[form] += '<h5>' + t(advancedSettingsDefault[key].subtitle) + '</h5>';
-            }
-            continue;
-        }
-        advFrm[form] += '<div class="form-group row">' +
-                    '<label class="col-sm-4 col-form-label" for="inputAdvSetting' + r(key) + '" data-phrase="' + 
-                    e(advancedSettingsDefault[key].title) + '">' + t(advancedSettingsDefault[key].title) + '</label>' +
-                    '<div class="col-sm-8 ">';
-        if (advancedSettingsDefault[key].inputType === 'select') {
-            advFrm[form] += '<select id="inputAdvSetting' + r(key) + '" data-key="' + 
-                r(key) + '" class="form-control border-secondary custom-select">';
-            for (const value in advancedSettingsDefault[key].validValues) {
-                advFrm[form] += '<option value="' + e(value) + '"' +
-                    (settings.advanced[key] === value ? ' selected' : '') +
-                    '>' + t(advancedSettingsDefault[key].validValues[value]) + '</option>';
-            }
-            advFrm[form] += '</select>';
-        }
-        else if (advancedSettingsDefault[key].inputType === 'checkbox') {
-            advFrm[form] += '<button type="button" class="btn btn-sm btn-secondary mi ' + 
-                (settings.advanced[key] === false ? '' : 'active') + ' clickable" id="inputAdvSetting' + r(key) + '"'+
-                'data-key="' + r(key) + '">' +
-                (settings.advanced[key] === false ? 'radio_button_unchecked' : 'check') + '</button>';
-        }
-        else {
-            advFrm[form] += '<input id="inputAdvSetting' + r(key) + '" data-key="' + 
-                r(key) + '" type="text" class="form-control border-secondary" value="' + e(settings.advanced[key]) + '">';
-        }
-        advFrm[form] += '</div></div>';
-    }
-    for (const key in advFrm) {
-        document.getElementById(key).innerHTML = advFrm[key];
-        const advFrmBtns = document.getElementById(key).getElementsByTagName('button');
-        for (const btn of advFrmBtns) {
-            btn.addEventListener('click', function(event) {
-                toggleBtnChk(event.target);
-            }, false);
-        }
-    }
 
     if (settings.advanced.uiFooterQueueSettings === true) {
         document.getElementById('footerQueueSettings').classList.remove('hide');
@@ -319,7 +266,7 @@ function parseSettings(obj) {
     document.getElementById('inputMpdPass').value = settings.mpdPass;
 
     //web notifications - check permission
-    const btnNotifyWeb = document.getElementById('btnNotifyWeb');
+    const btnNotifyWeb = document.getElementById('inputAdvSettingnotifyWeb');
     document.getElementById('warnNotifyWeb').classList.add('hide');
     if (notificationsSupported()) {
         if (Notification.permission !== 'granted') {
@@ -331,34 +278,24 @@ function parseSettings(obj) {
         if (Notification.permission === 'denied') {
             document.getElementById('warnNotifyWeb').classList.remove('hide');
         }
-        toggleBtnChk('btnNotifyWeb', settings.notificationWeb);
+        toggleBtnChk(btnNotifyWeb, settings.notificationWeb);
         enableEl(btnNotifyWeb);
     }
     else {
         disableEl(btnNotifyWeb);
-        toggleBtnChk('btnNotifyWeb', false);
+        toggleBtnChk(btnNotifyWeb, false);
     }
     
-    toggleBtnChk('btnNotifyPage', settings.notificationPage);
-    toggleBtnChk('btnMediaSession', settings.mediaSession);
-    toggleBtnChk('btnFeatLyrics', settings.advanced.uiLyrics);
-    toggleBtnChk('btnFeatHome', settings.advanced.uiHome);
-
     document.getElementById('inputBookletName').value = settings.bookletName;
-    
-    document.getElementById('selectLocale').value = settings.advanced.uiLocale;
     document.getElementById('inputCoverimageNames').value = settings.coverimageNames;
 
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.advanced.uiCoverimageSize + "px");
     document.documentElement.style.setProperty('--mympd-coverimagesizesmall', settings.advanced.uiCoverimageSizeSmall + "px");
     document.documentElement.style.setProperty('--mympd-highlightcolor', settings.advanced.uiHighlightColor);
     
-    document.getElementById('inputHighlightColor').value = settings.advanced.uiHighlightColor;
-    document.getElementById('inputBgColor').value = settings.advanced.uiBgColor;
     domCache.body.style.backgroundColor = settings.advanced.uiBgColor;
     
-    toggleBtnChkCollapse('btnBgCover', 'collapseBackground', settings.advanced.uiBgCover);
-    document.getElementById('inputBgCssFilter').value = settings.advanced.uiBgCssFilter;    
+    toggleBtnChkCollapse('inputAdvSettinguiBgCover', 'bgCssFilterFrm', settings.advanced.uiBgCover);
 
     const albumartbg = document.querySelectorAll('.albumartbg');
     for (let i = 0; i < albumartbg.length; i++) {
@@ -504,6 +441,78 @@ function parseSettings(obj) {
     toggleUI();
     btnWaiting(document.getElementById('btnApplySettings'), false);
     settingsParsed = 'parsed';
+}
+
+function createSettingsFrm() {
+    //build form for web ui settings    
+    const advFrm = {};
+    const advSettingsKeys = Object.keys(settings.advanced);
+    advSettingsKeys.sort();
+    for (let i = 0; i < advSettingsKeys.length; i++) {
+        const key = advSettingsKeys[i];
+        if (advancedSettingsDefault[key] === undefined || advancedSettingsDefault[key].form === undefined) {
+            continue;
+        }
+        const form = advancedSettingsDefault[key].form;
+        if (advFrm[form] === undefined) {
+            advFrm[form] = '';
+        }
+        
+        if (advancedSettingsDefault[key].inputType === 'section') {
+            if (advancedSettingsDefault[key].title !== undefined) {
+                advFrm[form] += '<hr/><h4>' + t(advancedSettingsDefault[key].title) + '</h4>';
+            }
+            else if (advancedSettingsDefault[key].subtitle !== undefined) {
+                advFrm[form] += '<h5>' + t(advancedSettingsDefault[key].subtitle) + '</h5>';
+            }
+            continue;
+        }
+        advFrm[form] += '<div class="form-group row">' +
+                    '<label class="col-sm-4 col-form-label" for="inputAdvSetting' + r(key) + '" data-phrase="' + 
+                    e(advancedSettingsDefault[key].title) + '">' + t(advancedSettingsDefault[key].title) + '</label>' +
+                    '<div class="col-sm-8 ">';
+        if (advancedSettingsDefault[key].inputType === 'select') {
+            advFrm[form] += '<select id="inputAdvSetting' + r(key) + '" data-key="' + 
+                r(key) + '" class="form-control border-secondary custom-select">';
+            for (const value in advancedSettingsDefault[key].validValues) {
+                advFrm[form] += '<option value="' + e(value) + '"' +
+                    (settings.advanced[key] === value ? ' selected' : '') +
+                    '>' + t(advancedSettingsDefault[key].validValues[value]) + '</option>';
+            }
+            advFrm[form] += '</select>';
+        }
+        else if (advancedSettingsDefault[key].inputType === 'checkbox') {
+            advFrm[form] += '<button type="button" class="btn btn-sm btn-secondary mi ' + 
+                (settings.advanced[key] === false ? '' : 'active') + ' clickable" id="inputAdvSetting' + r(key) + '"'+
+                'data-key="' + r(key) + '">' +
+                (settings.advanced[key] === false ? 'radio_button_unchecked' : 'check') + '</button>';
+        }
+        else if (advancedSettingsDefault[key].inputType === 'color') {
+            advFrm[form] += '<input id="inputAdvSetting' + r(key) + '" data-key="' + 
+                r(key) + '" type="color" class="form-control border-secondary" value="' + e(settings.advanced[key]) + '">';
+        }
+        else {
+            advFrm[form] += '<input id="inputAdvSetting' + r(key) + '" data-key="' + 
+                r(key) + '" type="text" class="form-control border-secondary" value="' + e(settings.advanced[key]) + '">';
+        }
+        advFrm[form] += '</div></div>';
+    }
+    for (const key in advFrm) {
+        document.getElementById(key).innerHTML = advFrm[key];
+        const advFrmBtns = document.getElementById(key).getElementsByTagName('button');
+        for (const btn of advFrmBtns) {
+            btn.addEventListener('click', function(event) {
+                toggleBtnChk(event.target);
+            }, false);
+        }
+    }
+    for (const key in advancedSettingsDefault) {
+        if (advancedSettingsDefault[key].onChange !== undefined) {
+            document.getElementById('inputAdvSetting' + key).addEventListener('change', function(event) {
+                window[advancedSettingsDefault[key].onChange](event);
+            }, false);
+        }
+    }
 }
 
 function parseMPDSettings() {
@@ -1023,7 +1032,7 @@ function resetValue(elId) {
 }
 
 function getBgImageList(image) {
-    getImageList('selectBgImage', image, [
+    getImageList('inputAdvSettinguiBgImage', image, [
         {"value":"","text":"None"},
         {"value":"/assets/mympd-background-default.svg","text":"Default image"},
         {"value":"/assets/mympd-background-dark.svg","text":"Default image dark"},

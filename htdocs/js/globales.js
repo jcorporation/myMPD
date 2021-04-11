@@ -38,14 +38,6 @@ const browseFilesystemHistory = {};
 const stickerList = ['stickerPlayCount', 'stickerSkipCount', 'stickerLastPlayed', 
     'stickerLastSkipped', 'stickerLike'];
 
-//list of themes
-const themes = {
-    "theme-autodetect": "Autodetect",
-    "theme-default": "Default",
-    "theme-dark": "Dark",
-    "theme-light": "Light"
-};
-
 //application state
 const app = {};
 app.apps = { 
@@ -269,6 +261,24 @@ const advancedSettingsDefault = {
         "title": "Script",
         "form": "NotificationSettingsAdvFrm"
     },
+    "notifyPage": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "On page notifications",
+        "form": "NotificationSettingsFrm"
+    },
+    "notifyWeb": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Web notifications",
+        "form": "NotificationSettingsFrm"
+    },
+    "mediaSession": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Media session",
+        "form": "NotificationSettingsFrm"
+    },
     "uiAAASection": {
         "inputType": "section",
         "title": "Appearance",
@@ -310,15 +320,6 @@ const advancedSettingsDefault = {
         "title": "Local playback",
         "form": "AdvancedSettingsFrm"
     },
-    "uiBgImage": {
-        "defaultValue": ""
-    },
-    "uiHighlightColor": {
-        "defaultValue": "#28a745"
-    },
-    "uiTheme": {
-        "defaultValue": "theme-dark"
-    },
     "uiHome": {
         "defaultValue": true,
         "inputType": "checkbox",
@@ -330,6 +331,25 @@ const advancedSettingsDefault = {
         "inputType": "checkbox",
         "title": "Lyrics",
         "form": "otherFeaturesFrm"
+    },
+    "uiTheme": {
+        "defaultValue": "theme-dark",
+        "validValues": {
+            "theme-autodetect": "Autodetect",
+            "theme-default": "Default",
+            "theme-dark": "Dark",
+            "theme-light": "Light"
+        },
+        "inputType": "select",
+        "title": "Theme",
+        "form": "themeFrm",
+        "onChange": "eventChangeTheme"
+    },
+    "uiHighlightColor": {
+        "defaultValue": "#28a745",
+        "inputType": "color",
+        "title": "Highlight color",
+        "form": "themeFrm"
     },
     "uiCoverimageSize": {
         "defaultValue": 250,
@@ -344,16 +364,35 @@ const advancedSettingsDefault = {
         "form": "coverimageFrm"
     },
     "uiBgColor": {
-        "defaultValue": "#000000"
+        "defaultValue": "#000000",
+        "inputType": "color",
+        "title": "Color",
+        "form": "bgFrm"
     },
-    "uiBgCssFilter": {
-        "defaultValue": "grayscale(100%) opacity(5%)"
+    "uiBgImage": {
+        "defaultValue": "/assets/mympd-background-dark.svg",
+        "inputType": "select",
+        "title": "Image",
+        "form": "bgFrm"
     },
     "uiBgCover": {
-        "defaultValue": true
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Albumart",
+        "form": "bgFrm"
+    },
+    "uiBgCssFilter": {
+        "defaultValue": "grayscale(100%) opacity(5%)",
+        "inputType": "input",
+        "title": "CSS filter",
+        "form": "bgCssFilterFrm"
     },
     "uiLocale": {
-        "defaultValue": "default"
+        "defaultValue": "default",
+        "inputType": "select",
+        "title": "Locale",
+        "form": "localeFrm",
+        "onChange": 'eventChangeLocale'
     }
 };
 
