@@ -34,12 +34,12 @@ function initPartitions() {
     });
 
     document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
-        sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {"partition": "default"}, parsePartitionOutputsList, false);
+        sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {"partition": "default"}, parsePartitionOutputsList, false);
     });
 }
 
 function moveOutput(output) {
-    sendAPI("MPD_API_PARTITION_OUTPUT_MOVE", {"name": output});
+    sendAPI("MYMPD_API_PARTITION_OUTPUT_MOVE", {"name": output});
 }
 
 function parsePartitionOutputsList(obj) {
@@ -74,7 +74,7 @@ function savePartition() {
     }
     
     if (formOK === true) {
-        sendAPI("MPD_API_PARTITION_NEW", {
+        sendAPI("MYMPD_API_PARTITION_NEW", {
             "name": nameEl.value
             }, showListPartitions, false);
     }
@@ -99,29 +99,29 @@ function showListPartitions() {
     document.getElementById('listPartitionsFooter').classList.remove('hide');
     document.getElementById('newPartitionFooter').classList.add('hide');
     document.getElementById('errorPartition').classList.add('hide');
-    sendAPI("MPD_API_PARTITION_LIST", {}, parsePartitionList, false);
+    sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, false);
 }
 
 function deletePartition(partition) {
-    sendAPI("MPD_API_PARTITION_RM", {"name": partition}, function(obj) {
+    sendAPI("MYMPD_API_PARTITION_RM", {"name": partition}, function(obj) {
         if (obj.error) {
             const el = document.getElementById('errorPartition');
             el.innerText = t(obj.error.message);
             el.classList.remove('hide');
         }
-        sendAPI("MPD_API_PARTITION_LIST", {}, parsePartitionList, false);
+        sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, false);
     }, true);
 }
 
 function switchPartition(partition) {
-    sendAPI("MPD_API_PARTITION_SWITCH", {"name": partition}, function(obj) {
+    sendAPI("MYMPD_API_PARTITION_SWITCH", {"name": partition}, function(obj) {
         if (obj.error) {
             const el = document.getElementById('errorPartition');
             el.innerText = t(obj.error.message);
             el.classList.remove('hide');
         }
-        sendAPI("MPD_API_PARTITION_LIST", {}, parsePartitionList, false);
-        sendAPI("MPD_API_PLAYER_STATE", {}, parseState);
+        sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, false);
+        sendAPI("MYMPD_API_PLAYER_STATE", {}, parseState);
     }, true);
 }
 

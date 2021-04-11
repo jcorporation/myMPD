@@ -187,6 +187,7 @@ bool mpd_client_get_lua_mympd_state(struct t_mympd_state *mympd_state, struct li
     mpd_status_free(status);
     mpd_response_finish(mympd_state->mpd_state->conn);
     check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
+    set_lua_mympd_state_p(lua_mympd_state, "jukebox_unique_tag", mpd_tag_name(mympd_state->jukebox_unique_tag.tags[0]));
     return true;
 }
 

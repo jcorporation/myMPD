@@ -21,8 +21,8 @@ function initJukebox() {
 
 //eslint-disable-next-line no-unused-vars
 function delQueueJukeboxSong(pos) {
-    sendAPI("MPD_API_JUKEBOX_RM", {"pos": pos}, function() {
-        sendAPI("MPD_API_JUKEBOX_LIST", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
+    sendAPI("MYMPD_API_JUKEBOX_RM", {"pos": pos}, function() {
+        sendAPI("MYMPD_API_JUKEBOX_LIST", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
     });
 }
 

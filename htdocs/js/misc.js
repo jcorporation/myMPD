@@ -39,7 +39,7 @@ function setViewport(store) {
 function addStream() {
     const streamUriEl = document.getElementById('streamUrl');
     if (validateStream(streamUriEl) === true) {
-        sendAPI("MPD_API_QUEUE_ADD_TRACK", {"uri": streamUriEl.value});
+        sendAPI("MYMPD_API_QUEUE_ADD_TRACK", {"uri": streamUriEl.value});
         uiElements.modalAddToPlaylist.hide();
         showNotification(t('Added stream %{streamUri} to queue', {"streamUri": streamUriEl.value}), '', 'queue', 'info');
     }
@@ -54,35 +54,35 @@ function seekRelativeBackward() {
 }
 
 function seekRelative(offset) {
-    sendAPI("MPD_API_SEEK_CURRENT", {"seek": offset, "relative": true});
+    sendAPI("MYMPD_API_SEEK_CURRENT", {"seek": offset, "relative": true});
 }
 
 //eslint-disable-next-line no-unused-vars
 function clickPlay() {
     if (playstate !== 'play') {
-        sendAPI("MPD_API_PLAYER_PLAY", {});
+        sendAPI("MYMPD_API_PLAYER_PLAY", {});
     }
     else if (settings.advanced.uiFooterPlaybackControls === 'stop') {
-        sendAPI("MPD_API_PLAYER_STOP", {});
+        sendAPI("MYMPD_API_PLAYER_STOP", {});
     }
     else {
-        sendAPI("MPD_API_PLAYER_PAUSE", {});
+        sendAPI("MYMPD_API_PLAYER_PAUSE", {});
     }
 }
 
 //eslint-disable-next-line no-unused-vars
 function clickStop() {
-    sendAPI("MPD_API_PLAYER_STOP", {});
+    sendAPI("MYMPD_API_PLAYER_STOP", {});
 }
 
 //eslint-disable-next-line no-unused-vars
 function clickPrev() {
-    sendAPI("MPD_API_PLAYER_PREV", {});
+    sendAPI("MYMPD_API_PLAYER_PREV", {});
 }
 
 //eslint-disable-next-line no-unused-vars
 function clickNext() {
-    sendAPI("MPD_API_PLAYER_NEXT", {});
+    sendAPI("MYMPD_API_PLAYER_NEXT", {});
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -97,13 +97,13 @@ function cropCovercache() {
 
 //eslint-disable-next-line no-unused-vars
 function updateDB(uri, showModal) {
-    sendAPI("MPD_API_DATABASE_UPDATE", {"uri": uri});
+    sendAPI("MYMPD_API_DATABASE_UPDATE", {"uri": uri});
     updateDBstarted(showModal);
 }
 
 //eslint-disable-next-line no-unused-vars
 function rescanDB(uri, showModal) {
-    sendAPI("MPD_API_DATABASE_RESCAN", {"uri": uri});
+    sendAPI("MYMPD_API_DATABASE_RESCAN", {"uri": uri});
     updateDBstarted(showModal);
 }
 

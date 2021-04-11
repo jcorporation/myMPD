@@ -176,8 +176,8 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
     //ask mpd
     else if (mg_user_data->feat_library == false && mg_user_data->feat_mpd_albumart == true) {
         MYMPD_LOG_DEBUG("Sending getalbumart to mpd_client_queue");
-        t_work_request *request = create_request(conn_id, 0, MPD_API_ALBUMART, "MPD_API_ALBUMART", "");
-        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMART\",\"params\":{");
+        t_work_request *request = create_request(conn_id, 0, MYMPD_API_ALBUMART, "MYMPD_API_ALBUMART", "");
+        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_ALBUMART\",\"params\":{");
         request->data = tojson_char(request->data, "uri", uri_decoded, false);
         request->data = sdscat(request->data, "}}");
         tiny_queue_push(mympd_api_queue, request, 0);

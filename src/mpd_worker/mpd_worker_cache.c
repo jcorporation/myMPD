@@ -53,8 +53,8 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     //push album cache building response to mpd_client thread
     if (mpd_worker_state->mpd_state->feat_tags == true) {
         if (rc == true) {
-            t_work_request *request = create_request(-1, 0, MPD_API_ALBUMCACHE_CREATED, "MPD_API_ALBUMCACHE_CREATED", "");
-            request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMCACHE_CREATED\",\"params\":{}}");
+            t_work_request *request = create_request(-1, 0, MYMPD_API_ALBUMCACHE_CREATED, "MYMPD_API_ALBUMCACHE_CREATED", "");
+            request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_ALBUMCACHE_CREATED\",\"params\":{}}");
             request->extra = (void *) album_cache;
             tiny_queue_push(mympd_api_queue, request, 0);
             send_jsonrpc_notify("database", "info", "Updated album cache");
@@ -71,8 +71,8 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     //push sticker cache building response to mpd_client thread
     if (mpd_worker_state->mpd_state->feat_stickers == true) {
         if (rc == true) {
-            t_work_request *request2 = create_request(-1, 0, MPD_API_STICKERCACHE_CREATED, "MPD_API_STICKERCACHE_CREATED", "");
-            request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_STICKERCACHE_CREATED\",\"params\":{}}");
+            t_work_request *request2 = create_request(-1, 0, MYMPD_API_STICKERCACHE_CREATED, "MYMPD_API_STICKERCACHE_CREATED", "");
+            request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_STICKERCACHE_CREATED\",\"params\":{}}");
             request2->extra = (void *) sticker_cache;
             tiny_queue_push(mympd_api_queue, request2, 0);
             send_jsonrpc_notify("database", "info", "Updated sticker cache");

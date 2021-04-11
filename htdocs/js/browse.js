@@ -339,18 +339,18 @@ function parseFilesystem(obj) {
 //eslint-disable-next-line no-unused-vars
 function addAllFromBrowseFilesystem(replace) {
     if (replace === true) {
-        sendAPI("MPD_API_QUEUE_REPLACE_TRACK", {"uri": app.current.search});
+        sendAPI("MYMPD_API_QUEUE_REPLACE_TRACK", {"uri": app.current.search});
         showNotification(t('Replaced queue'), '', 'queue', 'info');
     }
     else {
-        sendAPI("MPD_API_QUEUE_ADD_TRACK", {"uri": app.current.search});
+        sendAPI("MYMPD_API_QUEUE_ADD_TRACK", {"uri": app.current.search});
         showNotification(t('Added all songs'), '', 'queue', 'info');
     }
 }
 
 function addAllFromBrowseDatabasePlist(plist) {
     if (app.current.search.length >= 2) {
-        sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0, "limit": 0, "cols": settings.colsSearch, "replace": false});
+        sendAPI("MYMPD_API_DATABASE_SEARCH", {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0, "limit": 0, "cols": settings.colsSearch, "replace": false});
     }
 }
 

@@ -63,7 +63,7 @@ function parseOutputs(obj) {
 }
 
 function showListOutputAttributes(outputName) {
-    sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
+    sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
         uiElements.modalOutputAttributes.show();
         let output;
         for (let i = 0; i < obj.result.data.length; i++) {
@@ -101,7 +101,7 @@ function saveOutputAttributes() {
     for (let i = 0; i < els.length; i++) {
         params.attributes[els[i].name] = els[i].value;
     }
-    sendAPI('MPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET', params);
+    sendAPI('MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET', params);
     uiElements.modalOutputAttributes.hide();
 }
 
@@ -215,7 +215,7 @@ function parseState(obj) {
     if (!lastState || lastState.currentSongId !== obj.result.currentSongId ||
         lastState.queueVersion !== obj.result.queueVersion)
     {
-        sendAPI("MPD_API_PLAYER_CURRENT_SONG", {}, songChange);
+        sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, songChange);
     }
     //clear playback card if no current song
     if (obj.result.songPos === '-1') {
@@ -534,7 +534,7 @@ function chVolume(increment) {
         newValue = settings.volumeMax;
     }
     volumeBar.value = newValue;
-    sendAPI("MPD_API_PLAYER_VOLUME_SET", {"volume": newValue});
+    sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {"volume": newValue});
 }
 
 //eslint-disable-next-line no-unused-vars

@@ -152,7 +152,7 @@ function parseSearch(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function saveSearchAsSmartPlaylist() {
-    parseSmartPlaylist({"jsonrpc":"2.0","id":0,"result":{"method":"MPD_API_SMARTPLS_GET", 
+    parseSmartPlaylist({"jsonrpc":"2.0","id":0,"result":{"method":"MYMPD_API_SMARTPLS_GET", 
         "playlist":"",
         "type":"search",
         "tag": settings.featAdvsearch === true ? 'expression' : app.current.filter,
@@ -164,7 +164,7 @@ function addAllFromSearchPlist(plist, searchstr, replace) {
         searchstr = app.current.search;    
     }
     if (settings.featAdvsearch) {
-        sendAPI("MPD_API_DATABASE_SEARCH_ADV", {"plist": plist, 
+        sendAPI("MYMPD_API_DATABASE_SEARCH_ADV", {"plist": plist, 
             "sort": "", 
             "sortdesc": false, 
             "expression": searchstr,
@@ -174,7 +174,7 @@ function addAllFromSearchPlist(plist, searchstr, replace) {
             "replace": replace});
     }
     else {
-        sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, 
+        sendAPI("MYMPD_API_DATABASE_SEARCH", {"plist": plist, 
             "filter": app.current.filter, 
             "searchstr": searchstr,
             "offset": 0,

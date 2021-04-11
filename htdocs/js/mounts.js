@@ -27,7 +27,7 @@ function initMounts() {
 
     document.getElementById('btnDropdownNeighbors').parentNode.addEventListener('show.bs.dropdown', function () {
         if (settings.featNeighbors === true) {
-            sendAPI("MPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors, true);
+            sendAPI("MYMPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors, true);
         }
         else {
             document.getElementById('dropdownNeighbors').children[0].innerHTML = 
@@ -53,13 +53,13 @@ function initMounts() {
 
 //eslint-disable-next-line no-unused-vars
 function unmountMount(mountPoint) {
-    sendAPI("MPD_API_MOUNT_UNMOUNT", {"mountPoint": mountPoint}, showListMounts);
+    sendAPI("MYMPD_API_MOUNT_UNMOUNT", {"mountPoint": mountPoint}, showListMounts);
 }
 
 //eslint-disable-next-line no-unused-vars
 function mountMount() {
     document.getElementById('errorMount').classList.add('hide');
-    sendAPI("MPD_API_MOUNT_MOUNT", {
+    sendAPI("MYMPD_API_MOUNT_MOUNT", {
         "mountUrl": getSelectValue('selectMountUrlhandler') + document.getElementById('inputMountUrl').value,
         "mountPoint": document.getElementById('inputMountPoint').value,
     }, showListMounts, true);
@@ -111,7 +111,7 @@ function showListMounts(obj) {
     document.getElementById('editMount').classList.remove('active');
     document.getElementById('listMountsFooter').classList.remove('hide');
     document.getElementById('editMountFooter').classList.add('hide');
-    sendAPI("MPD_API_MOUNT_LIST", {}, parseListMounts);
+    sendAPI("MYMPD_API_MOUNT_LIST", {}, parseListMounts);
 }
 
 function parseListMounts(obj) {
@@ -172,7 +172,7 @@ function parseNeighbors(obj) {
 }
 
 function getUrlhandlers() {
-    sendAPI("MPD_API_URLHANDLERS", {}, function(obj) {
+    sendAPI("MYMPD_API_URLHANDLERS", {}, function(obj) {
         let storagePlugins = '';
         for (let i = 0; i < obj.result.data.length; i++) {
             switch(obj.result.data[i]) {

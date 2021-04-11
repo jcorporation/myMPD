@@ -152,34 +152,34 @@ function appRoute() {
         sendAPI("MYMPD_API_HOME_LIST", {}, parseHome);
     }
     else if (app.current.app === 'Playback') {
-        sendAPI("MPD_API_PLAYER_CURRENT_SONG", {}, songChange);
+        sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, songChange);
     }    
     else if (app.current.app === 'Queue' && app.current.tab === 'Current' ) {
         selectTag('searchqueuetags', 'searchqueuetagsdesc', app.current.filter);
         getQueue();
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
-        sendAPI("MPD_API_QUEUE_LAST_PLAYED", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
+        sendAPI("MYMPD_API_QUEUE_LAST_PLAYED", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
-        sendAPI("MPD_API_JUKEBOX_LIST", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
+        sendAPI("MYMPD_API_JUKEBOX_LIST", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
-        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search}, parsePlaylistsList);
+        sendAPI("MYMPD_API_PLAYLIST_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search}, parsePlaylistsList);
         const searchPlaylistsStrEl = document.getElementById('searchPlaylistsListStr');
         if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
             searchPlaylistsStrEl.value = app.current.search;
         }
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, "uri": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylistsDetail);
+        sendAPI("MYMPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, "uri": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylistsDetail);
         const searchPlaylistsStrEl = document.getElementById('searchPlaylistsDetailStr');
         if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
             searchPlaylistsStrEl.value = app.current.search;
         }
     }    
     else if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
-        sendAPI("MPD_API_DATABASE_FILESYSTEM_LIST", {"offset": app.current.offset, "limit": app.current.limit, "path": (app.current.search ? app.current.search : "/"), 
+        sendAPI("MYMPD_API_DATABASE_FILESYSTEM_LIST", {"offset": app.current.offset, "limit": app.current.limit, "path": (app.current.search ? app.current.search : "/"), 
             "searchstr": (app.current.filter !== '-' ? app.current.filter : ''), "cols": settings.colsBrowseFilesystem}, parseFilesystem, true);
         //Don't add all songs from root
         if (app.current.search) {
@@ -227,7 +227,7 @@ function appRoute() {
             document.getElementById('searchDatabaseMatch').classList.remove('hide');
             enableEl('btnDatabaseSortDropdown');
             enableEl('btnDatabaseSearchDropdown');
-            sendAPI("MPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, 
+            sendAPI("MYMPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, 
                 "filter": app.current.filter, "sort": sort, "sortdesc": sortdesc}, parseDatabase);
         }
         else {
@@ -236,7 +236,7 @@ function appRoute() {
             disableEl('btnDatabaseSortDropdown');
             disableEl('btnDatabaseSearchDropdown');
             document.getElementById('searchDatabaseStr').value = app.current.search;
-            sendAPI("MPD_API_DATABASE_TAG_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, 
+            sendAPI("MYMPD_API_DATABASE_TAG_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, 
                 "filter": app.current.filter, "sort": sort, "sortdesc": sortdesc, "tag": app.current.tag}, parseDatabase);
         }
     }
@@ -246,7 +246,7 @@ function appRoute() {
             if (cols.includes('Disc') === false) {
                 cols.push('Disc');
             }
-            sendAPI("MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": app.current.tag,
+            sendAPI("MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": app.current.tag,
                 "searchstr": app.current.search,
                 "tag": app.current.sort, "cols": cols}, parseAlbumDetails);
         }    
@@ -278,10 +278,10 @@ function appRoute() {
                     sortdesc = true;
                     sort = sort.substring(1);
                 }
-                sendAPI("MPD_API_DATABASE_SEARCH_ADV", {"plist": "", "offset": app.current.offset, "limit": app.current.limit, "sort": sort, "sortdesc": sortdesc, "expression": app.current.search, "cols": settings.colsSearch, "replace": false}, parseSearch);
+                sendAPI("MYMPD_API_DATABASE_SEARCH_ADV", {"plist": "", "offset": app.current.offset, "limit": app.current.limit, "sort": sort, "sortdesc": sortdesc, "expression": app.current.search, "cols": settings.colsSearch, "replace": false}, parseSearch);
             }
             else {
-                sendAPI("MPD_API_DATABASE_SEARCH", {"plist": "", "offset": app.current.offset, "limit": app.current.limit, "filter": app.current.filter, "searchstr": app.current.search, "cols": settings.colsSearch, "replace": false}, parseSearch);
+                sendAPI("MYMPD_API_DATABASE_SEARCH", {"plist": "", "offset": app.current.offset, "limit": app.current.limit, "filter": app.current.filter, "searchstr": app.current.search, "cols": settings.colsSearch, "replace": false}, parseSearch);
             }
         }
         else {
@@ -524,7 +524,7 @@ function appInit() {
     //update state on window focus - browser pauses javascript
     window.addEventListener('focus', function() {
         logDebug('Browser tab gots the focus -> update player state');
-        sendAPI("MPD_API_PLAYER_STATE", {}, parseState);
+        sendAPI("MYMPD_API_PLAYER_STATE", {}, parseState);
     }, false);
     //global keymap
     document.addEventListener('keydown', function(event) {
@@ -578,7 +578,7 @@ function appInit() {
 
 function initGlobalModals() {
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
-        sendAPI("MPD_API_DATABASE_STATS", {}, parseStats);
+        sendAPI("MYMPD_API_DATABASE_STATS", {}, parseStats);
         getServerinfo();
         let list = '';
         let i = 0;
@@ -638,7 +638,7 @@ function initNavs() {
     }, false);
 
     document.getElementById('volumeBar').addEventListener('change', function() {
-        sendAPI("MPD_API_PLAYER_VOLUME_SET", {"volume": parseInt(document.getElementById('volumeBar').value)});
+        sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {"volume": parseInt(document.getElementById('volumeBar').value)});
     }, false);
 
     domCache.progress.addEventListener('click', function(event) {
@@ -649,7 +649,7 @@ function initNavs() {
                 domCache.progressBar.style.transition = progressBarTransition;
             }, 10);
             const seekVal = Math.ceil((currentSong.totalTime * event.clientX) / domCache.progress.offsetWidth);
-            sendAPI("MPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": seekVal});
+            sendAPI("MYMPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": seekVal});
         }
     }, false);
 
@@ -681,7 +681,7 @@ function initNavs() {
     }, false);
     
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
-        sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs);
+        sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs);
     });
 
     document.getElementById('outputs').addEventListener('click', function(event) {
@@ -693,7 +693,7 @@ function initNavs() {
             const target = event.target.nodeName === 'BUTTON' ? event.target : event.target.parentNode;
             event.stopPropagation();
             event.preventDefault();
-            sendAPI("MPD_API_PLAYER_TOGGLE_OUTPUT", {"output": getAttDec(target, 'data-output-id'), "state": (target.classList.contains('active') ? 0 : 1)});
+            sendAPI("MYMPD_API_PLAYER_TOGGLE_OUTPUT", {"output": getAttDec(target, 'data-output-id'), "state": (target.classList.contains('active') ? 0 : 1)});
             toggleBtn(target.id);
         }
     }, false);

@@ -253,13 +253,6 @@ bool mympd_api_script_start(struct t_config *config, const char *script, struct 
     return true;
 }
 
-bool mympd_api_get_lua_mympd_state(struct t_mympd_state *mympd_state, struct list *lua_mympd_state) {
-    set_lua_mympd_state_p(lua_mympd_state, "jukebox_unique_tag", mpd_tag_name(mympd_state->jukebox_unique_tag.tags[0]));
-    //TODO: populate more states
-    //https://github.com/jcorporation/myMPD/wiki/Scripting-mympd_state-lua-table
-    return true;
-}
-
 //private functions
 static sds parse_script_metadata(sds entry, const char *scriptfilename, int *order) {
     FILE *fp = fopen(scriptfilename, "r");
@@ -539,7 +532,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
     }
     const char *method = lua_tostring(lua_vm, 1);
     enum mympd_cmd_ids method_id = get_cmd_id(method);
-    if (method_id == MPD_API_UNKNOWN) {
+    if (method_id == MYMPD_API_UNKNOWN) {
         MYMPD_LOG_ERROR("Lua - mympd_api: Invalid method \"%s\"", method);
         return luaL_error(lua_vm, "Invalid method");
     }

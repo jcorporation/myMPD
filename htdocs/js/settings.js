@@ -510,7 +510,7 @@ function parseMPDSettings() {
     if (document.getElementById('modalQueueSettings').classList.contains('show')) {
         //execute only if queueSettings modal is shown
         if (settings.featPlaylists === true) {
-            sendAPI("MPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) {
+            sendAPI("MYMPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) {
                 getAllPlaylists(obj, 'selectJukeboxPlaylist', settings.jukeboxPlaylist);
             });
         }

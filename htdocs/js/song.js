@@ -7,7 +7,7 @@ function initSong() {
     document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             if (event.target.id === 'calcFingerprint') {
-                sendAPI("MPD_API_DATABASE_FINGERPRINT", {"uri": getAttDec(event.target, 'data-uri')}, parseFingerprint);
+                sendAPI("MYMPD_API_DATABASE_FINGERPRINT", {"uri": getAttDec(event.target, 'data-uri')}, parseFingerprint);
                 event.preventDefault();
                 const spinner = document.createElement('div');
                 spinner.classList.add('spinner-border', 'spinner-border-sm');
@@ -32,7 +32,7 @@ function initSong() {
 }
 
 function songDetails(uri) {
-    sendAPI("MPD_API_DATABASE_SONGDETAILS", {"uri": uri}, parseSongDetails);
+    sendAPI("MYMPD_API_DATABASE_SONGDETAILS", {"uri": uri}, parseSongDetails);
     uiElements.modalSongDetails.show();
 }
 
@@ -186,7 +186,7 @@ function getLyrics(uri, el) {
         return;
     }
     el.classList.add('opacity05');
-    sendAPI("MPD_API_LYRICS_GET", {"uri": uri}, function(obj) {
+    sendAPI("MYMPD_API_LYRICS_GET", {"uri": uri}, function(obj) {
         if (obj.error) {
             el.innerText = t(obj.error.message);
         }
@@ -259,7 +259,7 @@ function getLyrics(uri, el) {
                     textEls[i].addEventListener('click', function(event) {
                         const sec = event.target.getAttribute('data-sec');
                         if (sec !== null) {
-                            sendAPI("MPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": parseInt(sec)});
+                            sendAPI("MYMPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": parseInt(sec)});
                         }
                     }, false); 
                 }
@@ -316,7 +316,7 @@ function voteSong(el, vote) {
         el.classList.add('active');
     }
     const uri = getAttDec(el.parentNode, 'data-uri');
-    sendAPI("MPD_API_LIKE", {"uri": uri, "like": vote});
+    sendAPI("MYMPD_API_LIKE", {"uri": uri, "like": vote});
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -332,7 +332,7 @@ function voteCurrentSong(vote) {
     else if (vote === 0 && document.getElementById('btnVoteDown').classList.contains('highlight')) {
         vote = 1;
     }
-    sendAPI("MPD_API_LIKE", {"uri": uri, "like": vote});
+    sendAPI("MYMPD_API_LIKE", {"uri": uri, "like": vote});
     setVoteSongBtns(vote, uri);
 }
 

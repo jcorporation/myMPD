@@ -50,7 +50,7 @@ function saveTrigger() {
             args[getAttDec(argEls[i], 'data-name')] = argEls[i].value;
         }
 
-        sendAPI("MPD_API_TRIGGER_SAVE", {
+        sendAPI("MYMPD_API_TRIGGER_SAVE", {
             "id": parseInt(document.getElementById('inputTriggerId').value),
             "name": nameEl.value,
             "event": getSelectValue('selectTriggerEvent'),
@@ -75,7 +75,7 @@ function showEditTrigger(id) {
     document.getElementById('selectTriggerEvent').selectedIndex = 0;
     document.getElementById('selectTriggerScript').selectedIndex = 0;
     if (id > -1) {
-        sendAPI("MPD_API_TRIGGER_GET", {"id": id}, parseTriggerEdit, false);
+        sendAPI("MYMPD_API_TRIGGER_GET", {"id": id}, parseTriggerEdit, false);
     }
     else {
         selectTriggerActionChange();
@@ -124,12 +124,12 @@ function showListTrigger() {
     document.getElementById('newTrigger').classList.remove('active');
     document.getElementById('listTriggerFooter').classList.remove('hide');
     document.getElementById('newTriggerFooter').classList.add('hide');
-    sendAPI("MPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
+    sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
 }
 
 function deleteTrigger(id) {
-    sendAPI("MPD_API_TRIGGER_DELETE", {"id": id}, function() {
-        sendAPI("MPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
+    sendAPI("MYMPD_API_TRIGGER_DELETE", {"id": id}, function() {
+        sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
     }, true);
 }
 
