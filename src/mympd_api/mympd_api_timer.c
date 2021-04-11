@@ -453,15 +453,11 @@ bool timerfile_read(struct t_mympd_state *mympd_state) {
             sds param = sdscatfmt(sdsempty(), "{params: %s}", line);
             timer_def = parse_timer(timer_def, param, sdslen(param));
             int interval;
-            int je = json_scanf(param, sdslen(param), "{params: {interval: %d}}", &interval);
-            if (je == 0) {
-                interval = 86400;
-            }
             int timerid;
-            je = json_scanf(param, sdslen(param), "{params: {timerid: %d}}", &timerid);
+            int je = json_scanf(param, sdslen(param), "{params: {interval: %d, timerid: %d}}", &interval, &timerid);
             sdsfree(param);
             
-            if (je == 1 && timer_def != NULL) {
+            if (je == 2 && timer_def != NULL) {
                 if (timerid > mympd_state->timer_list.last_id) {
                     mympd_state->timer_list.last_id = timerid;
                 }

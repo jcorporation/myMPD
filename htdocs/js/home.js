@@ -168,17 +168,6 @@ function parseHome(obj) {
         if (obj.result.data[i].Album === '') {
             obj.result.data[i].Album = t('Unknown album');
         }
-        //Workarround for 6.10 change (add limit parameter)
-        if (obj.result.data[i].cmd === 'appGoto') {
-            if (obj.result.data[i].options.length === 8) {
-                obj.result.data[i].options.splice(4, 0, parseInt(settings.advanced.uiMaxElementsPerPage));
-            }
-            //workarround for 6.11.2 change
-            if (obj.result.data[i].options[8].indexOf('((') === -1 && obj.result.data[i].options[8].length > 0) {
-                obj.result.data[i].options[8] = '(' + obj.result.data[i].options[8] + ')';
-            }
-        }
-        
         const homeType = obj.result.data[i].cmd === 'replaceQueue' ? 'Playlist' :
             obj.result.data[i].cmd === 'appGoto' ? 'View' : 'Script';
         
@@ -372,17 +361,6 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('inputHomeIconLigature').value = obj.result.data.ligature;
         document.getElementById('inputHomeIconBgcolor').value = obj.result.data.bgcolor;
         document.getElementById('selectHomeIconCmd').value = obj.result.data.cmd;
-
-        //Workarround for 6.10 change (add limit parameter)
-        if (obj.result.data.cmd === 'appGoto') {
-            if (obj.result.data.options.length === 8) {
-                obj.result.data.options.splice(4, 0, parseInt(settings.advanced.uiMaxElementsPerPage));
-            }
-            //workarround for 6.11.2 change
-            if (obj.result.data.options[8].indexOf('((') === -1 && obj.result.data.options[8].length > 0) {
-                obj.result.data.options[8] = '(' + obj.result.data.options[8] + ')';
-            }
-        }
 
         showHomeIconCmdOptions(obj.result.data.options);
         getHomeIconPictureList(obj.result.data.image);
