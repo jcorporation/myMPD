@@ -847,7 +847,7 @@ function saveQueueSettings() {
     }
     
     if (formOK === true) {
-        sendAPI("MYMPD_API_SETTINGS_SET", {
+        sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random": (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
             "single": parseInt(singleState),

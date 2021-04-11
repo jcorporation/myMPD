@@ -164,22 +164,14 @@ bool mympd_api_cols_save(struct t_mympd_state *mympd_state, const char *table,
     return true;
 }
 
-bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token *key, struct json_token *val,
-                            bool *jukebox_changed, bool *check_mpd_error)
-{
+bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token *key, struct json_token *val) {
     sds settingname = sdsempty();
     sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
-    *check_mpd_error = false;
-    *jukebox_changed = false;
     char *crap;
     bool rc = false;
 
     MYMPD_LOG_DEBUG("Parse setting %.*s: %.*s", key->len, key->ptr, val->len, val->ptr);
-    if (strncmp(key->ptr, "autoPlay", key->len) == 0) {
-        mympd_state->auto_play = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(settingname, "auto_play");
-    }
-    else if (strncmp(key->ptr, "coverimageNames", key->len) == 0) {
+    if (strncmp(key->ptr, "coverimageNames", key->len) == 0) {
         if (validate_string(settingvalue) && sdslen(settingvalue) > 0) {
             mympd_state->coverimage_names = sdsreplacelen(mympd_state->coverimage_names, settingvalue, sdslen(settingvalue));
             settingname = sdscat(settingname, "coverimage_names");
@@ -193,6 +185,83 @@ bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token
     else if (strncmp(key->ptr, "bookletName", key->len) == 0) {
         mympd_state->booklet_name = sdsreplacelen(mympd_state->booklet_name, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "booklet_name");
+    }
+    else if (strncmp(key->ptr, "lastPlayedCount", key->len) == 0) {
+        int last_played_count = strtoimax(settingvalue, &crap, 10);
+        if (last_played_count <= 0) {
+            sdsfree(settingname);
+            sdsfree(settingvalue);
+            return false;
+        }
+        mympd_state->last_played_count = last_played_count;
+        settingname = sdscat(settingname, "last_played_count");
+    }
+    else if (strncmp(key->ptr, "taglist", key->len) == 0) {
+        mympd_state->mpd_state->taglist = sdsreplacelen(mympd_state->mpd_state->taglist, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "taglist");
+    }
+    else if (strncmp(key->ptr, "searchtaglist", key->len) == 0) {
+        mympd_state->searchtaglist = sdsreplacelen(mympd_state->searchtaglist, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "searchtaglist");
+    }
+    else if (strncmp(key->ptr, "browsetaglist", key->len) == 0) {
+        mympd_state->browsetaglist = sdsreplacelen(mympd_state->browsetaglist, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "browsetaglist");
+    }
+    else if (strncmp(key->ptr, "smartpls", key->len) == 0) {
+        mympd_state->smartpls = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(settingname, "smartpls");
+    }
+    else if (strncmp(key->ptr, "smartplsSort", key->len) == 0) {
+        mympd_state->smartpls_sort = sdsreplacelen(mympd_state->smartpls_sort, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "smartpls_sort");
+    }
+    else if (strncmp(key->ptr, "smartplsPrefix", key->len) == 0) {
+        mympd_state->smartpls_prefix = sdsreplacelen(mympd_state->smartpls_prefix, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "smartpls_prefix");
+    }
+    else if (strncmp(key->ptr, "smartplsInterval", key->len) == 0) {
+        time_t interval = strtoumax(settingvalue, &crap, 10);
+        if (interval != mympd_state->smartpls_interval) {
+            mympd_state->smartpls_interval = interval;
+            replace_timer(&mympd_state->timer_list, interval, interval, timer_handler_smartpls_update, 2, NULL, NULL);
+        }
+        settingname = sdscat(settingname, "smartpls_interval");
+    }
+    else if (strncmp(key->ptr, "generatePlsTags", key->len) == 0) {
+        mympd_state->generate_pls_tags = sdsreplacelen(mympd_state->generate_pls_tags, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "generate_pls_tags");
+    }
+    else if (strncmp(key->ptr, "advanced", key->len) == 0) {
+        mympd_state->advanced = sdsreplacelen(mympd_state->advanced, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "advanced");
+    }
+    else {
+        MYMPD_LOG_WARN("Unknown setting \"%s\": \"%s\"", settingname, settingvalue);
+        sdsfree(settingname);
+        sdsfree(settingvalue);
+        return true;
+    }
+    rc = state_file_write(mympd_state->config, settingname, settingvalue);
+    sdsfree(settingname);
+    sdsfree(settingvalue);
+    return rc;
+}
+
+bool mpdclient_api_options_set(struct t_mympd_state *mympd_state, struct json_token *key, struct json_token *val,
+                            bool *jukebox_changed, bool *check_mpd_error)
+{
+    sds settingname = sdsempty();
+    sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
+    *check_mpd_error = false;
+    *jukebox_changed = false;
+    char *crap;
+    bool rc = false;
+
+    MYMPD_LOG_DEBUG("Parse setting %.*s: %.*s", key->len, key->ptr, val->len, val->ptr);
+    if (strncmp(key->ptr, "autoPlay", key->len) == 0) {
+        mympd_state->auto_play = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(settingname, "auto_play");
     }
     else if (strncmp(key->ptr, "jukeboxMode", key->len) == 0) {
         unsigned jukebox_mode = strtoumax(settingvalue, &crap, 10);
@@ -244,56 +313,6 @@ bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token
             *jukebox_changed = true;
         }
         settingname = sdscat(settingname, "jukebox_last_played");
-    }
-    else if (strncmp(key->ptr, "lastPlayedCount", key->len) == 0) {
-        int last_played_count = strtoimax(settingvalue, &crap, 10);
-        if (last_played_count <= 0) {
-            sdsfree(settingname);
-            sdsfree(settingvalue);
-            return false;
-        }
-        mympd_state->last_played_count = last_played_count;
-        settingname = sdscat(settingname, "last_played_count");
-    }
-    else if (strncmp(key->ptr, "taglist", key->len) == 0) {
-        mympd_state->mpd_state->taglist = sdsreplacelen(mympd_state->mpd_state->taglist, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "taglist");
-    }
-    else if (strncmp(key->ptr, "searchtaglist", key->len) == 0) {
-        mympd_state->searchtaglist = sdsreplacelen(mympd_state->searchtaglist, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "searchtaglist");
-    }
-    else if (strncmp(key->ptr, "browsetaglist", key->len) == 0) {
-        mympd_state->browsetaglist = sdsreplacelen(mympd_state->browsetaglist, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "browsetaglist");
-    }
-    else if (strncmp(key->ptr, "smartpls", key->len) == 0) {
-        mympd_state->smartpls = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(settingname, "smartpls");
-    }
-    else if (strncmp(key->ptr, "smartplsSort", key->len) == 0) {
-        mympd_state->smartpls_sort = sdsreplacelen(mympd_state->smartpls_sort, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "smartpls_sort");
-    }
-    else if (strncmp(key->ptr, "smartplsPrefix", key->len) == 0) {
-        mympd_state->smartpls_prefix = sdsreplacelen(mympd_state->smartpls_prefix, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "smartpls_prefix");
-    }
-    else if (strncmp(key->ptr, "smartplsInterval", key->len) == 0) {
-        time_t interval = strtoumax(settingvalue, &crap, 10);
-        if (interval != mympd_state->smartpls_interval) {
-            mympd_state->smartpls_interval = interval;
-            replace_timer(&mympd_state->timer_list, interval, interval, timer_handler_smartpls_update, 2, NULL, NULL);
-        }
-        settingname = sdscat(settingname, "smartpls_interval");
-    }
-    else if (strncmp(key->ptr, "generatePlsTags", key->len) == 0) {
-        mympd_state->generate_pls_tags = sdsreplacelen(mympd_state->generate_pls_tags, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "generate_pls_tags");
-    }
-    else if (strncmp(key->ptr, "advanced", key->len) == 0) {
-        mympd_state->advanced = sdsreplacelen(mympd_state->advanced, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "advanced");
     }
     else if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
         if (strncmp(key->ptr, "random", key->len) == 0) {

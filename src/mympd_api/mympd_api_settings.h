@@ -14,6 +14,7 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
                                struct json_token *val, bool *mpd_host_changed);
 void mympd_api_settings_delete(struct t_config *config);
 sds mympd_api_picture_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
-bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token *key, struct json_token *val,
+bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token *key, struct json_token *val);
+bool mpdclient_api_options_set(struct t_mympd_state *mympd_state, struct json_token *key, struct json_token *val,
                             bool *jukebox_changed, bool *check_mpd_error);
 #endif

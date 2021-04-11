@@ -287,10 +287,39 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             struct json_token key;
             struct json_token val;
             rc = true;
+            while ((h = json_next_key(request->data, sdslen(request->data), h, ".params", &key, &val)) != NULL) {
+                rc = mympd_api_settings_set(mympd_state, &key, &val);
+                if (rc == false) {
+                    break;
+                }
+            }
+            if (rc == true) {
+                if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
+                    //feature detection
+                    mpd_client_mpd_features(mympd_state);
+                }
+                //forward request to mpd_worker queue            
+                mympd_api_push_to_mpd_worker(mympd_state);
+                //respond with ok
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
+            }
+            else {
+                sds value = sdsnewlen(key.ptr, key.len);
+                response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true,
+                    "general", "error", "Can't save setting %{setting}", 2, "setting", value);
+                sdsfree(value);
+            }
+            break;
+        }
+        case MYMPD_API_PLAYER_OPTIONS_SET: {
+            void *h = NULL;
+            struct json_token key;
+            struct json_token val;
+            rc = true;
             bool jukebox_changed = false;
             bool check_mpd_error = false;
             while ((h = json_next_key(request->data, sdslen(request->data), h, ".params", &key, &val)) != NULL) {
-                rc = mympd_api_settings_set(mympd_state, &key, &val, &jukebox_changed, &check_mpd_error);
+                rc = mpdclient_api_options_set(mympd_state, &key, &val, &jukebox_changed, &check_mpd_error);
                 if (check_mpd_error == true && 
                     check_error_and_recover2(mympd_state->mpd_state, NULL, request->method, request->id, false) == false)
                 {
@@ -301,8 +330,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 }
             }
             if (rc == true) {
-                //forward request to mpd_worker queue            
-                mympd_api_push_to_mpd_worker(mympd_state);
                 //respond with ok
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
                 if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
