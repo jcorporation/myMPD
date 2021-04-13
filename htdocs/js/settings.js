@@ -740,35 +740,17 @@ function resetSettings() {
 function saveSettings(closeModal) {
     let formOK = true;
 
-    const inputCrossfade = document.getElementById('inputCrossfade');
-    if (!inputCrossfade.getAttribute('disabled')) {
-        if (!validateInt(inputCrossfade)) {
+    for (const inputId in ['inputAdvSettingcoverimageSize', 'inputAdvSettingcoverimageSizeSmall',
+            'inputLastPlayedCount', 'inputSmartplsInterval']) 
+    {
+        const inputEl = document.getElementById(inputId);
+        if (!validateInt(inputEl)) {
             formOK = false;
         }
     }
 
-    const inputJukeboxQueueLength = document.getElementById('inputJukeboxQueueLength');
-    if (!validateInt(inputJukeboxQueueLength)) {
-        formOK = false;
-    }
-
-    const inputJukeboxLastPlayed = document.getElementById('inputJukeboxLastPlayed');
-    if (!validateInt(inputJukeboxLastPlayed)) {
-        formOK = false;
-    }
-    
-    const inputCoverimageSizeSmall = document.getElementById('inputCoverimageSizeSmall');
-    if (!validateInt(inputCoverimageSizeSmall)) {
-        formOK = false;
-    }
-
-    const inputCoverimageSize = document.getElementById('inputCoverimageSize');
-    if (!validateInt(inputCoverimageSize)) {
-        formOK = false;
-    }
-    
-    const inputCoverimageName = document.getElementById('inputCoverimageName');
-    if (!validateFilenameList(inputCoverimageName)) {
+    const inputCoverimageNames = document.getElementById('inputCoverimageNames');
+    if (!validateFilenameList(inputCoverimageNames)) {
         formOK = false;
     }
     
@@ -788,50 +770,29 @@ function saveSettings(closeModal) {
         }
     }
 
-    const inputLastPlayedCount = document.getElementById('inputLastPlayedCount');
-    if (!validateInt(inputLastPlayedCount)) {
-        formOK = false;
-    }
-    
-    if (document.getElementById('btnLoveEnable').classList.contains('active')) {
-        const inputLoveChannel = document.getElementById('inputLoveChannel');
-        const inputLoveMessage = document.getElementById('inputLoveMessage');
-        if (!validateNotBlank(inputLoveChannel) || !validateNotBlank(inputLoveMessage)) {
-            formOK = false;
-        }
-    }
-
-    const inputSmartplsInterval = document.getElementById('inputSmartplsInterval');
-    if (!validateInt(inputSmartplsInterval)) {
-        formOK = false;
-    }
-    const smartplsInterval = document.getElementById('inputSmartplsInterval').value * 60 * 60;
+    //from hours to seconds
+    const smartplsInterval = parseInt(document.getElementById('inputSmartplsInterval').value) * 60 * 60;
 
     const advSettings = {};
     for (const key in advancedSettingsDefault) {
         const el = document.getElementById('inputAdvSetting' + r(key));
         if (el) {
             if (advancedSettingsDefault[key].inputType === 'select') {
-                advSettings[key] = getSelectValue(el);
+                advSettings[key] =  advancedSettingsDefault[key].contentType === 'integer' ? parseInt(getSelectValue(el)) : getSelectValue(el);
             }
             else if (advancedSettingsDefault[key].inputType === 'checkbox') {
                 advSettings[key] = el.classList.contains('active') ? true : false;
             }
             else {
-                advSettings[key] = el.value;
+                advSettings[key] = advancedSettingsDefault[key].contentType === 'integer' ? parseInt(el.value) : el.value;
             }
         }
     }
     
     if (formOK === true) {
         sendAPI("MYMPD_API_SETTINGS_SET", {
-            "notificationWeb": (document.getElementById('btnNotifyWeb').classList.contains('active') ? true : false),
-            "notificationPage": (document.getElementById('btnNotifyPage').classList.contains('active') ? true : false),
-            "mediaSession": (document.getElementById('btnMediaSession').classList.contains('active') ? true : false),
-            "bgCssFilter": document.getElementById('inputBgCssFilter').value,
-            "coverimageNames": document.getElementById('inputCoverimageNames').value,
-            "locale": getSelectValue('selectLocale'),
-            "lastPlayedCount": document.getElementById('inputLastPlayedCount').value,
+            "coverimageNames": inputCoverimageNames.value,
+            "lastPlayedCount": parseInt(document.getElementById('inputLastPlayedCount').value),
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
             "smartplsPrefix": document.getElementById('inputSmartplsPrefix').value,
             "smartplsInterval": smartplsInterval,
@@ -840,9 +801,7 @@ function saveSettings(closeModal) {
             "searchtaglist": getTagMultiSelectValues(document.getElementById('listSearchTags'), false),
             "browsetaglist": getTagMultiSelectValues(document.getElementById('listBrowseTags'), false),
             "generatePlsTags": getTagMultiSelectValues(document.getElementById('listGeneratePlsTags'), false),
-            "theme": getSelectValue('selectTheme'),
-            "highlightColor": document.getElementById('inputHighlightColor').value,
-            "bookletName": document.getElementById('inputBookletName').value,
+            "bookletName": inputBookletName.value,
             "advanced": advSettings,
         }, getSettings);
         if (closeModal === true) {
@@ -858,23 +817,13 @@ function saveSettings(closeModal) {
 function saveQueueSettings() {
     let formOK = true;
 
-    const inputCrossfade = document.getElementById('inputCrossfade');
-    if (!inputCrossfade.getAttribute('disabled')) {
-        if (!validateInt(inputCrossfade)) {
+    for (const inputId in ['inputCrossfade', 'inputJukeboxQueueLength', 'inputJukeboxLastPlayed']) {
+        const inputEl = document.getElementById(inputId);
+        if (!validateInt(inputEl)) {
             formOK = false;
         }
     }
 
-    const inputJukeboxQueueLength = document.getElementById('inputJukeboxQueueLength');
-    if (!validateInt(inputJukeboxQueueLength)) {
-        formOK = false;
-    }
-
-    const inputJukeboxLastPlayed = document.getElementById('inputJukeboxLastPlayed');
-    if (!validateInt(inputJukeboxLastPlayed)) {
-        formOK = false;
-    }
-    
     const singleState = getBtnGroupValue('btnSingleGroup');
     const jukeboxMode = getBtnGroupValue('btnJukeboxModeGroup');
     const replaygain = getBtnGroupValue('btnReplaygainGroup');

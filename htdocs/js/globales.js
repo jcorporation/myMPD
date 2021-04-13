@@ -336,6 +336,7 @@ const advancedSettingsDefault = {
             "0": "All"
         },
         "inputType": "select",
+        "contentType": "integer",
         "title": "Elements per page",
         "form": "AdvancedSettingsFrm"
     },
@@ -404,6 +405,7 @@ const advancedSettingsDefault = {
     "uiCoverimageSize": {
         "defaultValue": 250,
         "inputType": "input",
+        "contentType": "integer",
         "title": "Size normal",
         "form": "coverimageFrm",
         "reset": true
@@ -411,6 +413,7 @@ const advancedSettingsDefault = {
     "uiCoverimageSizeSmall": {
         "defaultValue": 175,
         "inputType": "input",
+        "contentType": "integer",
         "title": "Size small",
         "form": "coverimageFrm",
         "reset": true
