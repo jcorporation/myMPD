@@ -880,6 +880,9 @@
               <a class="nav-link text-dark" href="#tabInterfaceSettings" data-toggle="tab" data-height="true" data-phrase="Appearance"></a>
             </li>
             <li class="nav-item">
+              <a class="nav-link text-dark" href="#tabEnableFeatures" data-toggle="tab" data-height="true" data-phrase="Features"></a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link text-dark" href="#tabNotificationSettings" data-toggle="tab" data-height="true" data-phrase="Notifications"></a>
             </li>
             <li class="nav-item">
@@ -915,7 +918,10 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="inputCoverimageNames" data-phrase="Name"></label>
                   <div class="col-sm-8 ">
-                    <input id="inputCoverimageNames" type="text" class="form-control border-secondary" value="folder.jpg" data-placeholder-phrase="folder.jpg"/>
+                    <div class="input-group">
+                      <input id="inputCoverimageNames" type="text" class="form-control border-secondary" data-default="folder,cover" data-placeholder-phrase="folder,cover"/>
+                      <div class="input-group-append"><button data-href='{"cmd": "resetToDefault", "options": []}' title="Reset to default" class="btn btn-secondary resetBtn"><span class="mi">settings_backup_restore</span></button></div>
+                    </div>
                     <div class="invalid-feedback" data-phrase="Invalid filename"></div>
                   </div>
                 </div>
@@ -927,6 +933,7 @@
               </form>
             </div>
             <div class="tab-pane" id="tabNotificationSettings">
+              <h4>Notifications</h4>
               <form id="NotificationSettingsFrm">
               </form>
               <div id="warnNotifyWeb" class="alert alert-warning hide" data-phrase="Notifications are blocked"></div>
@@ -982,7 +989,7 @@
                   </div>
                 </div>
                 <hr/>
-                <h4 data-phrase="Playlists"></h4>
+                <h4 data-phrase="Smart playlists"></h4>
                 <div id="warnSmartpls" class="alert alert-warning hide" data-phrase="Playlists are disabled"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnSmartpls" data-phrase="Smart playlists"></label>
@@ -1022,16 +1029,12 @@
                     </div>
                   </div>
                 </div>
-                <hr/>
-                <h4 data-phrase="Other features"></h4>
-                <div id="otherFeaturesFrm"></div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputBookletName" data-phrase="Booklet filename"></label>
-                  <div class="col-sm-8 ">
-                    <input id="inputBookletName" type="text" class="form-control border-secondary" value=""/>
-                    <div class="invalid-feedback" data-phrase="Invalid filename"></div>
-                  </div>
-                </div>
+
+              </form>
+            </div>
+            <div class="tab-pane" id="tabEnableFeatures">
+              <h4>Features</h4>
+              <form id="enableFeaturesFrm">
               </form>
             </div>
             <div class="tab-pane" id="tabMaintenance">
@@ -1082,7 +1085,19 @@
             </div>
             <div class="tab-pane" id="tabAdvancedSettings">
               <h4 data-phrase="Advanced"></h4>
-              <form id="AdvancedSettingsFrm">
+              <form id="advancedSettings">
+                <div id="AdvancedSettingsFrm">
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputBookletName" data-phrase="Booklet filename"></label>
+                  <div class="col-sm-8 ">
+                    <input id="inputBookletName" type="text" class="form-control border-secondary" value=""/>
+                    <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+                  </div>
+                </div>
+              </form>
+              <h4 data-phrase="Volume control"></h4>
+              <form id="volumeSettingsFrm">
               </form>
             </div>
           </div>

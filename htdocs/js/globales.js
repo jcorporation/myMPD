@@ -165,7 +165,32 @@ app.apps = {
 app.current = { "app": "Home", "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 app.last = { "app": undefined, "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 
-//advanced settings default values und ui display configuration
+//normal settings
+const settingFields = {
+    "volumeMin": {
+        "defaultValue": 0,
+        "inputType": "input",
+        "title": "Volume min.",
+        "form": "volumeSettingsFrm",
+        "reset": true
+    },
+    "volumeMax": {
+        "defaultValue": 100,
+        "inputType": "input",
+        "title": "Volume max.",
+        "form": "volumeSettingsFrm",
+        "reset": true
+    },
+    "volumeStep": {
+        "defaultValue": 5,
+        "inputType": "input",
+        "title": "Volume step",
+        "form": "volumeSettingsFrm",
+        "reset": true
+    }
+}
+
+//advanced settings default values
 const advancedSettingsDefault = {
     "clickSong": { 
         "defaultValue": "append", 
@@ -314,23 +339,47 @@ const advancedSettingsDefault = {
         "title": "Elements per page",
         "form": "AdvancedSettingsFrm"
     },
-    "uiLocalPlayback": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Local playback",
-        "form": "AdvancedSettingsFrm"
-    },
-    "uiHome": {
+    "enableHome": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Homescreen",
-        "form": "otherFeaturesFrm"
+        "form": "enableFeaturesFrm"
     },
-    "uiLyrics": {
+    "enableLyrics": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Lyrics",
-        "form": "otherFeaturesFrm"
+        "form": "enableFeaturesFrm"
+    },
+    "enableScripts": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Scripting",
+        "form": "enableFeaturesFrm"
+    },
+    "enableTrigger": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Trigger",
+        "form": "enableFeaturesFrm"
+    },
+    "enableTimer": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Timer",
+        "form": "enableFeaturesFrm"
+    },
+    "enableMounts": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Mounts",
+        "form": "enableFeaturesFrm"
+    },
+    "enableLocalPlayback": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Local playback",
+        "form": "enableFeaturesFrm"
     },
     "uiTheme": {
         "defaultValue": "theme-dark",
@@ -349,25 +398,29 @@ const advancedSettingsDefault = {
         "defaultValue": "#28a745",
         "inputType": "color",
         "title": "Highlight color",
-        "form": "themeFrm"
+        "form": "themeFrm",
+        "reset": true
     },
     "uiCoverimageSize": {
         "defaultValue": 250,
         "inputType": "input",
         "title": "Size normal",
-        "form": "coverimageFrm"
+        "form": "coverimageFrm",
+        "reset": true
     },
     "uiCoverimageSizeSmall": {
         "defaultValue": 175,
         "inputType": "input",
         "title": "Size small",
-        "form": "coverimageFrm"
+        "form": "coverimageFrm",
+        "reset": true
     },
     "uiBgColor": {
         "defaultValue": "#000000",
         "inputType": "color",
         "title": "Color",
-        "form": "bgFrm"
+        "form": "bgFrm",
+        "reset": true
     },
     "uiBgImage": {
         "defaultValue": "/assets/mympd-background-dark.svg",
@@ -385,7 +438,8 @@ const advancedSettingsDefault = {
         "defaultValue": "grayscale(100%) opacity(5%)",
         "inputType": "input",
         "title": "CSS filter",
-        "form": "bgCssFilterFrm"
+        "form": "bgCssFilterFrm",
+        "reset": true
     },
     "uiLocale": {
         "defaultValue": "default",

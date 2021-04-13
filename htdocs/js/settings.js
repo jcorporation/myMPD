@@ -175,7 +175,7 @@ function parseSettings(obj) {
     createSettingsFrm();
     
     //locales
-    let localeList = '<option value="default">' + 
+    let localeList = '<option value="default"' + 
         (settings.advanced.uiLocale === 'default' ? ' selected="selected"' : '') + '>' + 
         t('Browser default') + '</option>';
     for (const l of locales) {
@@ -207,11 +207,12 @@ function parseSettings(obj) {
         }
     }
 
+    //execute only if settings modal is displayed
     if (document.getElementById('modalSettings').classList.contains('show')) {
-        //execute only if settings modal is displayed
         getBgImageList(settings.advanced.uiBgImage);
     }
 
+    //background
     if (settings.advanced.uiBgImage.indexOf('/assets/') === 0) {
         domCache.body.style.backgroundImage = 'url("' + subdir + settings.advanced.uiBgImage + '")';
     }
@@ -221,6 +222,14 @@ function parseSettings(obj) {
     else {
         domCache.body.style.backgroundImage = '';
     }
+    domCache.body.style.backgroundColor = settings.advanced.uiBgColor;
+    toggleBtnChkCollapse('inputAdvSettinguiBgCover', 'bgCssFilterFrm', settings.advanced.uiBgCover);
+
+    const albumartbg = document.querySelectorAll('.albumartbg');
+    for (let i = 0; i < albumartbg.length; i++) {
+        albumartbg[i].style.filter = settings.advanced.uiBgCssFilter;
+    }
+
 
     if (isMobile === true) {    
         document.getElementById('inputScaleRatio').value = scale;
@@ -292,15 +301,6 @@ function parseSettings(obj) {
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.advanced.uiCoverimageSize + "px");
     document.documentElement.style.setProperty('--mympd-coverimagesizesmall', settings.advanced.uiCoverimageSizeSmall + "px");
     document.documentElement.style.setProperty('--mympd-highlightcolor', settings.advanced.uiHighlightColor);
-    
-    domCache.body.style.backgroundColor = settings.advanced.uiBgColor;
-    
-    toggleBtnChkCollapse('inputAdvSettinguiBgCover', 'bgCssFilterFrm', settings.advanced.uiBgCover);
-
-    const albumartbg = document.querySelectorAll('.albumartbg');
-    for (let i = 0; i < albumartbg.length; i++) {
-        albumartbg[i].style.filter = settings.advanced.uiBgCssFilter;
-    }
 
     //default limit for all apps
     //convert from string to int
@@ -444,72 +444,91 @@ function parseSettings(obj) {
 }
 
 function createSettingsFrm() {
-    //build form for web ui settings    
+    _createSettingsFrm(settings.advanced, advancedSettingsDefault, 'inputAdvSetting');
+    _createSettingsFrm(settings, settingFields, 'inputSetting');
+}
+
+function _createSettingsFrm(fields, defaults, prefix) {
+    //build form for web ui settings
     const advFrm = {};
-    const advSettingsKeys = Object.keys(settings.advanced);
+    const advSettingsKeys = Object.keys(fields);
     advSettingsKeys.sort();
     for (let i = 0; i < advSettingsKeys.length; i++) {
         const key = advSettingsKeys[i];
-        if (advancedSettingsDefault[key] === undefined || advancedSettingsDefault[key].form === undefined) {
+        if (defaults[key] === undefined || defaults[key].form === undefined) {
             continue;
         }
-        const form = advancedSettingsDefault[key].form;
+        const form = defaults[key].form;
         if (advFrm[form] === undefined) {
             advFrm[form] = '';
         }
         
-        if (advancedSettingsDefault[key].inputType === 'section') {
-            if (advancedSettingsDefault[key].title !== undefined) {
-                advFrm[form] += '<hr/><h4>' + t(advancedSettingsDefault[key].title) + '</h4>';
+        if (defaults[key].inputType === 'section') {
+            if (defaults[key].title !== undefined) {
+                advFrm[form] += '<hr/><h4>' + t(defaults[key].title) + '</h4>';
             }
-            else if (advancedSettingsDefault[key].subtitle !== undefined) {
-                advFrm[form] += '<h5>' + t(advancedSettingsDefault[key].subtitle) + '</h5>';
+            else if (defaults[key].subtitle !== undefined) {
+                advFrm[form] += '<h5>' + t(defaults[key].subtitle) + '</h5>';
             }
             continue;
         }
         advFrm[form] += '<div class="form-group row">' +
-                    '<label class="col-sm-4 col-form-label" for="inputAdvSetting' + r(key) + '" data-phrase="' + 
-                    e(advancedSettingsDefault[key].title) + '">' + t(advancedSettingsDefault[key].title) + '</label>' +
+                    '<label class="col-sm-4 col-form-label" for="' + prefix + r(key) + '" data-phrase="' + 
+                    e(defaults[key].title) + '">' + t(defaults[key].title) + '</label>' +
                     '<div class="col-sm-8 ">';
-        if (advancedSettingsDefault[key].inputType === 'select') {
-            advFrm[form] += '<select id="inputAdvSetting' + r(key) + '" data-key="' + 
+        if (defaults[key].reset === true) {
+            advFrm[form] += '<div class="input-group">';
+        }
+        if (defaults[key].inputType === 'select') {
+            advFrm[form] += '<select id="' + prefix + r(key) + '" data-key="' + 
                 r(key) + '" class="form-control border-secondary custom-select">';
-            for (const value in advancedSettingsDefault[key].validValues) {
+            for (const value in defaults[key].validValues) {
                 advFrm[form] += '<option value="' + e(value) + '"' +
-                    (settings.advanced[key] === value ? ' selected' : '') +
-                    '>' + t(advancedSettingsDefault[key].validValues[value]) + '</option>';
+                    (fields[key] === value ? ' selected' : '') +
+                    '>' + t(defaults[key].validValues[value]) + '</option>';
             }
             advFrm[form] += '</select>';
         }
-        else if (advancedSettingsDefault[key].inputType === 'checkbox') {
-            advFrm[form] += '<button type="button" class="btn btn-sm btn-secondary mi ' + 
-                (settings.advanced[key] === false ? '' : 'active') + ' clickable" id="inputAdvSetting' + r(key) + '"'+
+        else if (defaults[key].inputType === 'checkbox') {
+            advFrm[form] += '<button type="button" class="btn btn-sm btn-secondary mi chkBtn ' + 
+                (fields[key] === false ? '' : 'active') + ' clickable" id="' + prefix + r(key) + '"'+
                 'data-key="' + r(key) + '">' +
-                (settings.advanced[key] === false ? 'radio_button_unchecked' : 'check') + '</button>';
+                (fields[key] === false ? 'radio_button_unchecked' : 'check') + '</button>';
         }
-        else if (advancedSettingsDefault[key].inputType === 'color') {
-            advFrm[form] += '<input id="inputAdvSetting' + r(key) + '" data-key="' + 
-                r(key) + '" type="color" class="form-control border-secondary" value="' + e(settings.advanced[key]) + '">';
+        else if (defaults[key].inputType === 'color') {
+            advFrm[form] += '<input data-default="' + encodeURI(defaults[key].defaultValue) + '" id="' + prefix + r(key) + '" data-key="' + 
+                r(key) + '" type="color" class="form-control border-secondary" value="' + e(fields[key]) + '">';
         }
         else {
-            advFrm[form] += '<input id="inputAdvSetting' + r(key) + '" data-key="' + 
-                r(key) + '" type="text" class="form-control border-secondary" value="' + e(settings.advanced[key]) + '">';
+            advFrm[form] += '<input data-default="' + encodeURI(defaults[key].defaultValue) + '" id="' + prefix + r(key) + '" data-key="' + 
+                r(key) + '" type="text" class="form-control border-secondary" value="' + e(fields[key]) + '">';
+        }
+        if (defaults[key].reset === true) {
+            advFrm[form] += '<div class="input-group-append"><button title="' + t('Reset to default') + '" class="btn btn-secondary resetBtn">' +
+                '<span class="mi">settings_backup_restore</span></button></div></div>';
         }
         advFrm[form] += '</div></div>';
     }
     for (const key in advFrm) {
         document.getElementById(key).innerHTML = advFrm[key];
-        const advFrmBtns = document.getElementById(key).getElementsByTagName('button');
+        const advFrmBtns = document.getElementById(key).getElementsByClassName('button');
         for (const btn of advFrmBtns) {
             btn.addEventListener('click', function(event) {
                 toggleBtnChk(event.target);
             }, false);
         }
+        const resetBtns = document.getElementById(key).getElementsByClassName('resetBtn');
+        for (const btn of resetBtns) {
+            btn.addEventListener('click', function(event) {
+                event.preventDefault();
+                resetToDefault(event.target);
+            }, false);
+        }
     }
-    for (const key in advancedSettingsDefault) {
-        if (advancedSettingsDefault[key].onChange !== undefined) {
-            document.getElementById('inputAdvSetting' + key).addEventListener('change', function(event) {
-                window[advancedSettingsDefault[key].onChange](event);
+    for (const key in defaults) {
+        if (defaults[key].onChange !== undefined) {
+            document.getElementById(prefix + key).addEventListener('change', function(event) {
+                window[defaults[key].onChange](event);
             }, false);
         }
     }
@@ -1025,8 +1044,8 @@ function setNavbarIcons() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function resetValue(elId) {
-    const el = document.getElementById(elId);
+function resetToDefault(button) {
+    const el = button.nodeName === 'button ' ? button.parentNode.previousElementSibling : button.parentNode.parentNode.previousElementSibling;
     el.value = getAttDec(el, 'data-default') !== null ? getAttDec(el, 'data-default') : 
         (getAttDec(el, 'placeholder') !== null ? getAttDec(el, 'placeholder') : '');
 }
