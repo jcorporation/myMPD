@@ -75,6 +75,9 @@ void default_mympd_state(struct t_mympd_state *mympd_state) {
     mympd_state->cols_playback = sdsnew("[\"Artist\",\"Album\"]");
     mympd_state->cols_queue_last_played = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");
     mympd_state->cols_queue_jukebox = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\"]");
+    mympd_state->volume_min = 0;
+    mympd_state->volume_max = 100;
+    mympd_state->volume_step = 5;
     mympd_state->advanced = sdsnew("{}");
     reset_t_tags(&mympd_state->search_tag_types);
     reset_t_tags(&mympd_state->browse_tag_types);
