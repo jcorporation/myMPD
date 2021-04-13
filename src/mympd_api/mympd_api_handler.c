@@ -13,7 +13,7 @@
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
+#include "../../dist/src/rax/rax.h"
 #include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
 #include "../list.h"
@@ -77,7 +77,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
     MEASURE_START
     #endif
 
-    MYMPD_LOG_INFO("MPD CLIENT API request (%lld)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
+    MYMPD_LOG_INFO("MYMPD API request (%lld)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
     t_work_result *response = create_result(request);
     
