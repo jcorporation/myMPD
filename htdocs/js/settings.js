@@ -100,6 +100,8 @@ function saveConnection() {
     const mpdHostEl = document.getElementById('inputMpdHost');
     const mpdPortEl = document.getElementById('inputMpdPort');
     const mpdPassEl = document.getElementById('inputMpdPass');
+    const playlistDirectoryEl = document.getElementById('inputPlaylistDirectory');
+    const streamPortEl = document.getElementById('inputStreamPort');
     let musicDirectory = getSelectValue('selectMusicDirectory');
     
     if (musicDirectory === 'custom') {
@@ -109,7 +111,6 @@ function saveConnection() {
         }
         musicDirectory = musicDirectoryValueEl.value;
     }    
-    
     if (mpdPortEl.value === '') {
         mpdPortEl.value = '6600';
     }
@@ -121,12 +122,20 @@ function saveConnection() {
             formOK = false;        
         }
     }
+    if (!validatePath(playlistDirectoryEl)) {
+        formOK = false;
+    }
+    if (!validateUint(streamPortEl)) {
+        formOK = false;
+    }
     if (formOK === true) {
         sendAPI("MYMPD_API_CONNECTION_SAVE", {
             "mpdHost": mpdHostEl.value,
             "mpdPort": mpdPortEl.value,
             "mpdPass": mpdPassEl.value,
-            "musicDirectory": musicDirectory
+            "musicDirectory": musicDirectory,
+            "playlistDirectory": playlistDirectoryEl.value,
+            "mpdStreamPort": parseInt(streamPortEl.value)
         }, getSettings);
         uiElements.modalConnection.hide();    
     }
@@ -273,6 +282,8 @@ function parseSettings(obj) {
     document.getElementById('inputMpdHost').value = settings.mpdHost;
     document.getElementById('inputMpdPort').value = settings.mpdPort;
     document.getElementById('inputMpdPass').value = settings.mpdPass;
+    document.getElementById('inputPlaylistDirectory').value = settings.playlistDirectory;
+    document.getElementById('inputStreamPort').value = settings.mpdStreamPort;
 
     //web notifications - check permission
     const btnNotifyWeb = document.getElementById('inputAdvSettingnotifyWeb');
