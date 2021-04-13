@@ -62,7 +62,6 @@ void *mympd_api_loop(void *arg_config) {
     assert(mympd_state);
     mympd_state->config = (struct t_config *) arg_config;
     default_mympd_state(mympd_state);
-    mpd_shared_default_mpd_state(mympd_state->mpd_state);
 
     if (mympd_state->config->first_startup == true) {
         MYMPD_LOG_NOTICE("Starting myMPD autoconfiguration");

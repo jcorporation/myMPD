@@ -78,6 +78,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state, void *arg_reque
             sdsfree(extra->generate_pls_tags);
             sdsfree(extra->mpd_host);
             sdsfree(extra->mpd_pass);
+            FREE_PTR(extra);
 
             if (mpd_host_changed == true) {
                 //reconnect with new settings

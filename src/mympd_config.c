@@ -86,19 +86,19 @@ void mympd_config_defaults_initial(struct t_config *config) {
 }
 
 bool mympd_read_config(struct t_config *config) {
-    config->http_host = state_file_rw_string(config, "http_host", config->http_host, false);
-    config->http_port = state_file_rw_string(config, "http_port", config->http_port, false);
+    config->http_host = state_file_rw_string_sds(config, "http_host", config->http_host, false);
+    config->http_port = state_file_rw_string_sds(config, "http_port", config->http_port, false);
     #ifdef ENABLE_SSL
     config->ssl = state_file_rw_bool(config, "ssl", config->ssl, false);
-    config->ssl_port = state_file_rw_string(config, "ssl_port", config->ssl_port, false);
-    config->ssl_cert = state_file_rw_string(config, "ssl_cert", config->ssl_cert, false);
-    config->ssl_key = state_file_rw_string(config, "ssl_key", config->ssl_key, false);
-    config->ssl_san = state_file_rw_string(config, "ssl_san", config->ssl_san, false);
+    config->ssl_port = state_file_rw_string_sds(config, "ssl_port", config->ssl_port, false);
+    config->ssl_cert = state_file_rw_string_sds(config, "ssl_cert", config->ssl_cert, false);
+    config->ssl_key = state_file_rw_string_sds(config, "ssl_key", config->ssl_key, false);
+    config->ssl_san = state_file_rw_string_sds(config, "ssl_san", config->ssl_san, false);
     config->custom_cert = state_file_rw_bool(config, "custom_cert", config->custom_cert, false);
     #endif
-    config->acl = state_file_rw_string(config, "acl", config->acl, false);
-    config->scriptacl = state_file_rw_string(config, "scriptacl", config->scriptacl, false);
-    config->lualibs = state_file_rw_string(config, "lualibs", config->lualibs, false);
+    config->acl = state_file_rw_string_sds(config, "acl", config->acl, false);
+    config->scriptacl = state_file_rw_string_sds(config, "scriptacl", config->scriptacl, false);
+    config->lualibs = state_file_rw_string_sds(config, "lualibs", config->lualibs, false);
     config->covercache = state_file_rw_bool(config, "covercache", config->covercache, false);
     config->covercache_keep_days = state_file_rw_int(config, "covercache_keep_days", config->covercache_keep_days, false);
     

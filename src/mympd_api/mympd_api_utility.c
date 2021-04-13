@@ -78,6 +78,7 @@ void default_mympd_state(struct t_mympd_state *mympd_state) {
     mympd_state->volume_min = 0;
     mympd_state->volume_max = 100;
     mympd_state->volume_step = 5;
+    mympd_state->mpd_stream_port = 8080;
     mympd_state->advanced = sdsnew("{}");
     reset_t_tags(&mympd_state->search_tag_types);
     reset_t_tags(&mympd_state->browse_tag_types);
@@ -146,6 +147,7 @@ void free_mympd_state_sds(struct t_mympd_state *mympd_state) {
     sdsfree(mympd_state->booklet_name);
     sdsfree(mympd_state->navbar_icons);
     sdsfree(mympd_state->advanced);
+    sdsfree(mympd_state->playlist_directory);
 }
 
 static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", 

@@ -28,6 +28,12 @@
 #include "utility.h"
 #include "state_files.h"
 
+sds state_file_rw_string_sds(struct t_config *config, const char *name, sds old_value, bool warn) {
+    sds value = state_file_rw_string(config, name, old_value, warn);
+    sdsfree(old_value);
+    return value;
+}
+
 sds state_file_rw_string(struct t_config *config, const char *name, const char *def_value, bool warn) {
     char *line = NULL;
     size_t n = 0;

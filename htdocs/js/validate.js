@@ -108,6 +108,16 @@ function validateInt(el) {
     return true;
 }
 
+function validateUint(el) {
+    const value = el.value.replace(/[\d]/g, '');
+    if (value !== '') {
+        el.classList.add('is-invalid');
+        return false;
+    }
+    el.classList.remove('is-invalid');
+    return true;
+}
+
 function validateFloat(el) {
     const value = el.value.replace(/[\d-.]/g, '');
     if (value !== '') {
