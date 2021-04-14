@@ -469,6 +469,11 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
 #else
     buffer = tojson_bool(buffer, "featCacert", false, true);
 #endif
+#ifdef ENABLE_LUA
+    buffer = tojson_bool(buffer, "featScripting", true, true);
+#else
+    buffer = tojson_bool(buffer, "featScripting", false, true);
+#endif
     buffer = tojson_char(buffer, "coverimageNames", mympd_state->coverimage_names, true);
     buffer = tojson_long(buffer, "jukeboxMode", mympd_state->jukebox_mode, true);
     buffer = tojson_char(buffer, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
