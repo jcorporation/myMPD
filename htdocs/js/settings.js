@@ -522,7 +522,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
     }
     for (const key in advFrm) {
         document.getElementById(key).innerHTML = advFrm[key];
-        const advFrmBtns = document.getElementById(key).getElementsByClassName('button');
+        const advFrmBtns = document.getElementById(key).getElementsByClassName('chkBtn');
         for (const btn of advFrmBtns) {
             btn.addEventListener('click', function(event) {
                 toggleBtnChk(event.target);
