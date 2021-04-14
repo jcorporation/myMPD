@@ -495,6 +495,12 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
     else if (ev == MG_EV_HTTP_MSG) {
         struct mg_http_message *hm = (struct mg_http_message *) ev_data;
         struct mg_str *host_hdr = mg_http_get_header(hm, "Host");
+        if (host_hdr == NULL) {
+            MYMPD_LOG_ERROR("No hoster header found, closing connection");
+            nc->is_closing = 1;
+            return;
+        }
+
         sds host_header = sdscatlen(sdsempty(), host_hdr->ptr, (int)host_hdr->len);
         int count;
         sds *tokens = sdssplitlen(host_header, sdslen(host_header), ":", 1, &count);
