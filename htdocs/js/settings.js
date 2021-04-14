@@ -740,7 +740,7 @@ function resetSettings() {
 function saveSettings(closeModal) {
     let formOK = true;
 
-    for (const inputId in ['inputAdvSettingcoverimageSize', 'inputAdvSettingcoverimageSizeSmall',
+    for (const inputId of ['inputAdvSettingcoverimageSize', 'inputAdvSettingcoverimageSizeSmall',
             'inputLastPlayedCount', 'inputSmartplsInterval']) 
     {
         const inputEl = document.getElementById(inputId);
@@ -817,7 +817,7 @@ function saveSettings(closeModal) {
 function saveQueueSettings() {
     let formOK = true;
 
-    for (const inputId in ['inputCrossfade', 'inputJukeboxQueueLength', 'inputJukeboxLastPlayed']) {
+    for (const inputId of ['inputCrossfade', 'inputJukeboxQueueLength', 'inputJukeboxLastPlayed']) {
         const inputEl = document.getElementById(inputId);
         if (!validateInt(inputEl)) {
             formOK = false;
