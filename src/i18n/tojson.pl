@@ -66,6 +66,8 @@ for my $filename (@files) {
 #print i18n.js
 print "const locales=[";
 print "\n\t" if $pretty eq 1;
+print "{\"code\":\"default\",\"desc\":\"Browser default\"},";
+print "\n\t" if $pretty eq 1;
 my $i = 0;
 for my $lang (sort @langs) {
     if ($i > 0) {
