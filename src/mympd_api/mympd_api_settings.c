@@ -543,7 +543,6 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = tojson_bool(buffer, "featSingleOneshot", mympd_state->mpd_state->feat_single_oneshot, true);
         buffer = tojson_bool(buffer, "featPartitions", mympd_state->mpd_state->feat_mpd_partitions, true);
         buffer = tojson_char(buffer, "musicDirectoryValue", mympd_state->music_directory_value, true);
-        buffer = tojson_bool(buffer, "mpdConnected", true, true);
         buffer = tojson_bool(buffer, "featMounts", mympd_state->mpd_state->feat_mpd_mount, true);
         buffer = tojson_bool(buffer, "featNeighbors", mympd_state->mpd_state->feat_mpd_neighbor, true);
         mpd_status_free(status);

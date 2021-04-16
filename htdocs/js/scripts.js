@@ -22,7 +22,7 @@ function initScripts() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            if (settings.featScripteditor === false || getAttDec(event.target.parentNode, 'data-script') === '') {
+            if (getAttDec(event.target.parentNode, 'data-script') === '') {
                 return false;
             }
             showEditScript(getAttDec(event.target.parentNode, 'data-script'));
@@ -182,8 +182,7 @@ function parseScriptList(obj) {
             }
             scriptList += '<tr data-script="' + encodeURI(obj.result.data[i].name) + '"><td>' + e(obj.result.data[i].name) + '</td>' +
                 '<td data-col="Action">' +
-                    (settings.featScripteditor === true ? 
-                        '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>' : '') +
+                        '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>' +
                         '<a href="#" title="' + t('Execute') + '" data-action="execute" class="mi color-darkgrey" ' +
                             ' data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>play_arrow</a>' +
                         '<a href="#" title="' + t('Add to homescreen') + '" data-action="add2home" class="mi color-darkgrey" ' +

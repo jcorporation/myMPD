@@ -366,6 +366,8 @@ function populateQueueSettingsFrm() {
     document.getElementById('selectJukeboxUniqueTag').value = settings.jukeboxUniqueTag;
     document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
     document.getElementById('inputJukeboxLastPlayed').value = settings.jukeboxLastPlayed;
+
+    addTagListSelect('selectJukeboxUniqueTag', 'browsetags');
     
     if (settings.jukeboxMode === 0) {
         disableEl('inputJukeboxQueueLength');
@@ -397,8 +399,15 @@ function populateQueueSettingsFrm() {
         toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.single);
         toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.replaygain);
         document.getElementById('inputCrossfade').value = settings.crossfade;    
+        if (settings.featStickers === false) {
+            document.getElementById('warnPlaybackStatistics').classList.remove('hide');
+            disableEl('inputJukeboxLastPlayed');
+        }
+        else {
+            document.getElementById('warnPlaybackStatistics').classList.add('hide');
+            enableEl('inputJukeboxLastPlayed');
+        }
     }
-    
     checkConsume();
 }
 
@@ -423,6 +432,13 @@ function populateConnectionFrm() {
         document.getElementById('selectMusicDirectory').value = 'custom';
         document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue;
         document.getElementById('inputMusicDirectory').removeAttribute('readonly');
+    }
+
+    if (settings.musicDirectoryValue === '' && settings.musicDirectory !== 'none') {
+        document.getElementById('warnMusicDirectory').classList.remove('hide');
+    }
+    else {
+        document.getElementById('warnMusicDirectory').classList.add('hide');
     }
 }
 
@@ -471,10 +487,42 @@ function populateSettingsFrm() {
     document.getElementById('inputLastPlayedCount').value = settings.lastPlayedCount;
     
     //smart playlists
-    toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
+    if (settings.featPlaylists === true) {
+        enableEl('btnSmartpls');
+        toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
+        document.getElementById('warnSmartpls').classList.add('hide');
+    }
+    else {
+        disableEl('btnSmartpls');
+        toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', false);
+        document.getElementById('warnSmartpls').classList.remove('hide');
+    }
     document.getElementById('inputSmartplsPrefix').value = settings.smartplsPrefix;
     document.getElementById('inputSmartplsInterval').value = settings.smartplsInterval / 60 / 60;
+    addTagListSelect('selectSmartplsSort', 'tags');
     document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
+    //tag multiselects
+    initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.allmpdtags, settings.tags);
+    initTagMultiSelect('inputSearchTags', 'listSearchTags', settings.tags, settings.searchtags);
+    initTagMultiSelect('inputBrowseTags', 'listBrowseTags', settings.tags, settings.browsetags);
+    initTagMultiSelect('inputGeneratePlsTags', 'listGeneratePlsTags', settings.browsetags, settings.generatePlsTags);
+    //features - show or hide warnings
+    setFeatureBtn('inputAdvSettingenableLyrics', settings.featLibrary);
+    setFeatureBtn('inputAdvSettingenableScripting', settings.featScripting);
+    setFeatureBtn('inputAdvSettingenableMounts', settings.featMounts);
+    setFeatureBtn('inputAdvSettingenablePartitions', settings.featPartitions);
+}
+
+function setFeatureBtn(btn, value) {
+    if (value === true) {
+        enableEl(btn);
+        document.getElementById('warn' + btn).classList.add('hide');
+    }
+    else {
+        disableEl(btn);
+        toggleBtnChk(btn, false);
+        document.getElementById('warn' + btn).classList.remove('hide');
+    }
 }
 
 function createSettingsFrm() {
@@ -485,7 +533,7 @@ function createSettingsFrm() {
 function _createSettingsFrm(fields, defaults, prefix) {
     //build form for web ui settings
     const advFrm = {};
-    const advSettingsKeys = Object.keys(fields);
+    const advSettingsKeys = Object.keys(defaults);
     advSettingsKeys.sort();
     for (let i = 0; i < advSettingsKeys.length; i++) {
         const key = advSettingsKeys[i];
@@ -545,6 +593,9 @@ function _createSettingsFrm(fields, defaults, prefix) {
                 '<span class="mi">settings_backup_restore</span></button></div></div>';
         }
         advFrm[form] += '</div></div>';
+        if (defaults[key].warn !== undefined) {
+            advFrm[form] += '<div id="warn' + prefix + r(key) + '" class="alert alert-warning hide">' + t(defaults[key].warn) + '</div>';
+        }
     }
     for (const key in advFrm) {
         document.getElementById(key).innerHTML = advFrm[key];
@@ -572,16 +623,42 @@ function _createSettingsFrm(fields, defaults, prefix) {
 }
 
 function setFeatures() {
-    if (settings.advanced.uiLocalPlayback === false) {
-        settings.featLocalPlayback = false;    
+    //web ui features
+    features.featCacert = settings.featCacert;
+    features.featHome = settings.advanced.uiHome;
+    features.featLocalPlayback = settings.advanced.enableLocalPlayback === true ?
+        (settings.mpdStreamPort > 0 ? true : false) : false;
+    features.featScripting = settings.advanced.enableScripting === true ?
+        (settings.featScripting === true ? true : false) : false;
+    features.featTimer = settings.advanced.enableTimer;
+    features.featTrigger = settings.advanced.enableTrigger;
+
+    //mpd features
+    if (settings.mpdConnected === true) {
+        features.featAdvsearch = settings.featAdvsearch;
+        features.featLibrary = settings.featLibrary;
+        features.featLyrics = settings.advanced.enableLyrics === true ?
+            (settings.featLibrary === true ? true : false) : false;
+        features.featMounts = settings.advanced.enableMounts === true ?
+            (settings.featMounts === true ? true : false) : false;
+        features.featNeighbors = settings.advanced.enableMounts === true ?
+            (settings.featNeighbors === true ? true : false) : false;
+        features.featPartitions = settings.advanced.enablePartitions === true ?
+            (settings.featPartitions === true ? true : false) : false;
+        features.featPlaylists = settings.featPlaylists;
+        features.featSingleOneShot = settings.featSingleOneShot;
+        features.featSmartpls = settings.smartpls === true ?
+            (settings.featPlaylists === true ? true : false) : false;
+        features.featStickers = settings.featStickers;
+        features.featTags = settings.featTags;
     }
-    const features = ["featLocalPlayback", "featCacert", "featRegex", "featLyrics", "featHome"];
-    for (let j = 0; j < features.length; j++) {
-        const Els = document.getElementsByClassName(features[j]);
-        const ElsLen = Els.length;
-        const displayEl = settings[features[j]] === true ? '' : 'none';
-        for (let i = 0; i < ElsLen; i++) {
-            Els[i].style.display = displayEl;
+
+    //show or hide elements
+    for (const feature in features) {
+        const els = document.getElementsByClassName(feature);
+        const displayValue = features[feature] === true ? '' : 'none';
+        for (const el of els) {
+            el.style.display = displayValue;
         }
     }
 }
@@ -589,57 +666,6 @@ function setFeatures() {
 function parseMPDSettings() {
     document.getElementById('partitionName').innerText = settings.partition;
     
-    if (settings.featLibrary === true) {
-        settings['featBrowse'] = true;    
-    }
-    else {
-        settings['featBrowse'] = false;
-    }
-
-    const features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featAdvsearch',
-        'featSingleOneshot', 'featBrowse', 'featMounts', 'featNeighbors',
-        'featPartitions'];
-    for (let j = 0; j < features.length; j++) {
-        const Els = document.getElementsByClassName(features[j]);
-        const ElsLen = Els.length;
-        let displayEl = settings[features[j]] === true ? '' : 'none';
-        for (let i = 0; i < ElsLen; i++) {
-            Els[i].style.display = displayEl;
-        }
-    }
-    
-    if (settings.featPlaylists === false && settings.smartpls === true) {
-        document.getElementById('warnSmartpls').classList.remove('hide');
-    }
-    else {
-        document.getElementById('warnSmartpls').classList.add('hide');
-    }
-    
-    if (settings.featPlaylists === true) {
-        enableEl('btnSmartpls');
-    }
-    else {
-        disableEl('btnSmartpls');
-    }
-
-    if (settings.featStickers === false) {
-        document.getElementById('warnPlaybackStatistics').classList.remove('hide');
-        disableEl('inputJukeboxLastPlayed');
-    }
-    else {
-        document.getElementById('warnPlaybackStatistics').classList.add('hide');
-        enableEl('inputJukeboxLastPlayed');
-    }
-    
-    if (settings.musicDirectoryValue === '' && settings.musicDirectory !== 'none') {
-        document.getElementById('warnMusicDirectory').classList.remove('hide');
-    }
-    else {
-        document.getElementById('warnMusicDirectory').classList.add('hide');
-    }
-
-    document.getElementById('warnJukeboxPlaylist').classList.add('hide');
-
     if (settings.advanced.uiBgCover === true) {
         setBackgroundImage(lastSongObj.uri);
     }
@@ -648,9 +674,9 @@ function parseMPDSettings() {
     }
 
     let triggerEventList = '';
-    Object.keys(settings.triggers).forEach(function(key) {
-        triggerEventList += '<option value="' + e(settings.triggers[key]) + '">' + t(key) + '</option>';
-    });
+    for (const trigger in settings.triggers) {
+        triggerEventList += '<option value="' + e(settings.triggers[trigger]) + '">' + t(trigger) + '</option>';
+    }
     document.getElementById('selectTriggerEvent').innerHTML = triggerEventList;
     
     settings.tags.sort();
@@ -739,15 +765,8 @@ function parseMPDSettings() {
     addTagList('databaseSortTagsList', 'browsetags');
     addTagList('dropdownSortPlaylistTags', 'tags');
     addTagList('saveSmartPlaylistSort', 'tags');
-    
-    addTagListSelect('selectSmartplsSort', 'tags');
+
     addTagListSelect('saveSmartPlaylistSort', 'tags');
-    addTagListSelect('selectJukeboxUniqueTag', 'browsetags');
-    
-    initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.allmpdtags, settings.tags);
-    initTagMultiSelect('inputSearchTags', 'listSearchTags', settings.tags, settings.searchtags);
-    initTagMultiSelect('inputBrowseTags', 'listBrowseTags', settings.tags, settings.browsetags);
-    initTagMultiSelect('inputGeneratePlsTags', 'listGeneratePlsTags', settings.browsetags, settings.generatePlsTags);
 }
 
 //eslint-disable-next-line no-unused-vars

@@ -65,13 +65,13 @@
           <div id="menu-settings" class="collapse menu-indent">
             <a data-phrase="MPD connection" class="dropdown-item text-light alwaysEnabled" href="#" data-toggle="modal" data-target="#modalConnection"></a>
             <a data-phrase="Settings" class="dropdown-item text-light" href="#" data-toggle="modal" data-target="#modalSettings"></a>
-            <a data-phrase="Scripts" class="dropdown-item text-light" href="#" data-toggle="modal" data-target="#modalScripts"></a>
-            <a data-phrase="Timer" class="dropdown-item text-light" href="#" data-toggle="modal" data-target="#modalTimer"></a>
-            <a data-phrase="Trigger" class="dropdown-item text-light" href="#" data-toggle="modal" data-target="#modalTrigger"></a>
+            <a data-phrase="Scripts" class="dropdown-item text-light featScripting" href="#" data-toggle="modal" data-target="#modalScripts"></a>
+            <a data-phrase="Timer" class="dropdown-item text-light featTimer" href="#" data-toggle="modal" data-target="#modalTimer"></a>
+            <a data-phrase="Trigger" class="dropdown-item text-light featTrigger" href="#" data-toggle="modal" data-target="#modalTrigger"></a>
             <a data-phrase="Mounts" class="dropdown-item text-light featMounts" href="#" data-toggle="modal" data-target="#modalMounts"></a>
             <a data-phrase="Fullscreen" class="dropdown-item text-light" href="#" data-href='{"cmd": "openFullscreen", "options": []}'></a>
           </div>
-          <a data-phrase="Browse directories" class="dropdown-item text-light featBrowse alwaysEnabled" href="browse/" target="_blank"></a>
+          <a data-phrase="Browse directories" class="dropdown-item text-light featLibrary alwaysEnabled" href="browse/" target="_blank"></a>
           <a data-phrase="About" class="dropdown-item text-light alwaysEnabled" href="#" data-toggle="modal" data-target="#modalAbout"></a>
           <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item text-light bg-lite-dark hide" href="#"></a>
           <a id="navScripting" class="subMenu featScripting dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#scripts"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
@@ -414,7 +414,7 @@
                     <option data-phrase="contains" value="contains"></option>
                     <option data-phrase="starts_with" value="starts_with"></option>
                     <option value="==">==</option>
-                    <option class="featRegex" value="=~">=~</option>
+                    <option value="=~">=~</option>
                     <option value="!=">!=</option>
                     <option value="!~">!~</option>
                   </select>
@@ -522,7 +522,7 @@
           </div>
         </div>
         <ol id="BrowseBreadcrumb" class="breadcrumb"></ol>
-        <div id="BrowseFilesystemImages" class="featBrowse not-clickable" data-href='{"cmd": "zoomPicture", "options": []}'></div>
+        <div id="BrowseFilesystemImages" class="featLibrary not-clickable" data-href='{"cmd": "zoomPicture", "options": []}'></div>
         <div class="table-responsive-md">
           <table id="BrowseFilesystemList" class="table table-hover table-sm">
             <thead>
@@ -560,9 +560,9 @@
               <div class="input-group-prepend featAdvsearch">
                 <select class="form-control custom-select border-secondary rounded-0" id="searchMatch">
                   <option data-phrase="contains" value="contains"></option>
-                  <option data-phrase="starts_with" class="featRegex" value="starts_with"></option>
+                  <option data-phrase="starts_with" value="starts_with"></option>
                   <option value="==">==</option>
-                  <option class="featRegex" value="=~">=~</option>
+                  <option value="=~">=~</option>
                   <option value="!=">!=</option>
                   <option value="!~">!~</option>
                 </select>
@@ -1208,7 +1208,6 @@
                       </select>
                     </div>
                   </div>
-                  <div id="warnJukeboxPlaylist" class="alert alert-warning hide" data-phrase="Sorry, your MPD version is too old"></div>
                   <div class="form-group row">
                     <label class="col-sm-4 col-form-label" for="inputJukeboxQueueLength" data-phrase="Keep queue length"></label>
                     <div class="col-sm-8">
@@ -1818,7 +1817,7 @@
         </div>
         <div class="modal-footer justify-content-between" id="listScriptsFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success featScripteditor" data-phrase="New script"></button>
+          <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success" data-phrase="New script"></button>
         </div>
         <div id="editScriptFooter" class="modal-footer justify-content-between hide">
           <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>

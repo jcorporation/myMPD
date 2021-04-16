@@ -350,13 +350,15 @@ const advancedSettingsDefault = {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Lyrics",
-        "form": "enableFeaturesFrm"
+        "form": "enableFeaturesFrm",
+        "warn": "Can't access music directory"
     },
-    "enableScripts": {
+    "enableScripting": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Scripting",
-        "form": "enableFeaturesFrm"
+        "form": "enableFeaturesFrm",
+        "warn": "Lua is not compiled in"
     },
     "enableTrigger": {
         "defaultValue": true,
@@ -374,13 +376,21 @@ const advancedSettingsDefault = {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Mounts",
-        "form": "enableFeaturesFrm"
+        "form": "enableFeaturesFrm",
+        "warn": "MPD does not support mounts"
     },
     "enableLocalPlayback": {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Local playback",
         "form": "enableFeaturesFrm"
+    },
+    "enablePartitions": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Partitions",
+        "form": "enableFeaturesFrm",
+        "warn": "MPD does not support partitions"
     },
     "uiTheme": {
         "defaultValue": "theme-dark",
@@ -451,6 +461,27 @@ const advancedSettingsDefault = {
         "form": "localeFrm",
         "onChange": 'eventChangeLocale'
     }
+};
+
+//features
+const features = {
+    "featAdvsearch": true,
+    "featCacert": false,
+    "featHome": true,
+    "featLibrary": false,
+    "featLocalPlayback": false,
+    "featLyrics": false,
+    "featMounts": true,
+    "featNeighbors": true,
+    "featPartitions": true,
+    "featPlaylists": true,
+    "featSingleOneShot": true,
+    "featScripting": true,
+    "featSmartpls": true,
+    "featStickers": false,
+    "featTags": true,
+    "featTimer": true,
+    "featTrigger": true
 };
 
 //keyboard shortcuts
