@@ -204,9 +204,6 @@ Guardar como lista de reproducción inteligente
 To top
 Arriba
 
-Bookmarks
-Marcadores
-
 Select tag to search
 Seleccionar etiqueta para buscar
 
@@ -217,9 +214,6 @@ Initializing myMPD
 Inicializando myMPD
 
 Fetch myMPD settings
-Cargando configuraciones de myMPD
-
-Fetch MPD settings
 Cargando configuraciones de myMPD
 
 Connect to websocket
@@ -282,15 +276,6 @@ Eliminar lista de reproducción
 Delete
 Eliminar
 
-Love song
-Me encanta esta canción
-
-Scrobbled love
-Me gusta recomendado
-
-Failed to send love message to channel
-Error al enviar Me gusta al canal
-
 Dislike song
 No me gusta esta canción
 
@@ -299,12 +284,6 @@ Me gusta esta canción
 
 MPD stickers are disabled
 Los Stickers MPD están deshabilitados
-
-folder.jpg
-carpeta.jpg
-
-Size in px
-Tamaño en px
 
 Save smart playlist
 Guardar lista de reproducción inteligente
@@ -363,12 +342,6 @@ Volver a reproducir
 Off
 Apagado
 
-Mixramp DB
-Mixramp dB
-
-Mixramp delay
-Retraso Mixramp
-
 Autoplay
 Reproducción automática
 
@@ -390,17 +363,11 @@ Carátula del álbum
 Can't access music directory
 No se puede acceder al directorio de música
 
-Invalid size
-Tamaño inválido
-
 Background color
 Color de fondo
 
 Highlight color
 Color de realce
-
-Invalid color
-Color inválido
 
 CSS filter
 Filtro CSS
@@ -438,9 +405,6 @@ Reproducción local
 Statistics
 Estadísticas
 
-Stickers are disabled
-Los Stickers están deshabilitados
-
 Playback statistics
 Estadísticas de reproducción
 
@@ -470,27 +434,6 @@ Lista de reproducción inteligente
 
 Playlists are disabled
 Listas de reproducción deshabilitadas
-
-Scrobbler integration
-Scrobbler Integration
-
-MPD channel not found
-Canal MPD no encontrado
-
-Send love message
-Enviar mensaje de Me gusta
-
-MPD channel
-Canal MPD
-
-Invalid channel name
-Nombre de canal inválido
-
-Message
-Mensaje
-
-Invalid message
-Mensaje inválido
 
 Reset
 Restablecer
@@ -599,18 +542,6 @@ Nombre de lista de reproducción
 
 Quantity
 Cantidad
-
-Save bookmark
-Guardad marcador
-
-Clearing bookmarks failed
-Error al borrar marcadores
-
-Bookmark name
-Nombre de marcador
-
-Bookmark URI
-URL de marcador
 
 Song details
 Detalles de canción
@@ -723,9 +654,6 @@ Añadir despues de la canción actual
 View playlist
 Ver lista de reproducción
 
-Add bookmark
-Agregar marcador
-
 Replace queue
 Reemplazar cola de reproducción
 
@@ -813,30 +741,6 @@ No se puede interpretar el archivo de lista de reproducción inteligente
 Unknown smart playlist type
 Tipo de lista de reproducción inteligente desconocido
 
-System commands are disabled
-Comandos del sistema deshabilitados
-
-Saving bookmark failed
-Error al guardar marcador
-
-Deleting bookmark failed
-Error al eliminar marcador
-
-System command not defined
-Comando del sistema no definido
-
-Successfully execute cmd %{cmd}
-Ejecutado %{cmd} exitosamente
-
-Failed to execute cmd %{cmd}
-Error al ejecutar el comando: %{cmd}
-
-Failed to open bookmarks file
-Error al abrir el archivo de marcadores
-
-No bookmarks found
-No se encontraron marcadores
-
 Background
 Fondo
 
@@ -866,9 +770,6 @@ Cola de reproducción reemplazada con %{name}
 
 Saved smart playlist %{name}
 Lista de reproducción inteligente guardada: %{name}
-
-System commands
-Comandos de sistema
 
 Focus table
 Centrar en tabla
@@ -941,9 +842,6 @@ Musicbrainz Track ID
 
 MUSICBRAINZ_WORKID
 Musicbrainz Work ID
-
-myMPD is in readonly mode
-myMPD está en modo solo lectura
 
 Consume must be enabled
 Modo Consumir debe estar habilitado
@@ -1044,9 +942,6 @@ on
 Oneshot
 Oneshot
 
-Other features
-Más funciones
-
 Start
 Iniciar
 
@@ -1079,9 +974,6 @@ Sáb
 
 Sun
 Dom
-
-System command
-Comando de sistema
 
 LastModified
 Últ. modif.
@@ -1170,9 +1062,6 @@ Eliminar listas de reproducción vacias
 Delete playlists
 Eliminar listas de reproducción
 
-Media session support
-Soporte de sesión de medios
-
 Playlists deleted
 Listas de reproducción eliminadas
 
@@ -1181,9 +1070,6 @@ Previsualizar
 
 Info
 Info
-
-Error
-Error
 
 Websocket is disconnected
 Websocket está desconectado
@@ -1235,9 +1121,6 @@ Punto de monaje
 
 Unmount
 Desmontar
-
-No such directory
-No se encontró ese directorio
 
 Error in response to command: %{command}
 Error en respuesta al comando: %{command}

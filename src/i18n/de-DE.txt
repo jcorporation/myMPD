@@ -231,9 +231,6 @@ Als intelligente Wiedergabeliste speichern
 To top
 Nach oben
 
-Bookmarks
-Lesezeichen
-
 Select tag to search
 Tag zum Suchen auswählen
 
@@ -248,9 +245,6 @@ Initialisiere myMPD
 
 Fetch myMPD settings
 Lade myMPD Einstellungen
-
-Fetch MPD settings
-Lade MPD Einstellungen
 
 Connect to websocket
 Websocketverbindung wird hergestellt
@@ -312,15 +306,6 @@ Wiedergabeliste löschen
 Delete
 Löschen
 
-Love song
-Lieblingslied
-
-Scrobbled love
-Lieblingslied wurde gescrobbelt
-
-Failed to send love message to channel
-Lieblingslied Nachricht konnte nicht gesendet werden
-
 Dislike song
 Schlechtes Lied
 
@@ -329,12 +314,6 @@ Gutes Lied
 
 MPD stickers are disabled
 MPD Sticker sind deaktiviert
-
-folder.jpg
-folder.jpg
-
-Size in px
-Größe in PX
 
 Save smart playlist
 Intelligente Wiedergabeliste sichern
@@ -402,12 +381,6 @@ Lautstärkeanpassung
 Off
 Deaktiviert
 
-Mixramp DB
-Mixramp DB
-
-Mixramp delay
-Mixramp Verzögerung
-
 Autoplay
 Automatische Wiedergabe
 
@@ -429,17 +402,11 @@ Albumcover
 Can't access music directory
 Musik Verzeichnis ist nicht verfügbar
 
-Invalid size
-Ungültige Größe
-
 Background color
 Hintergrundfarbe
 
 Highlight color
 Highlight Farbe
-
-Invalid color
-Ungültige Farbe
 
 CSS filter
 CSS Filter
@@ -477,9 +444,6 @@ Lokale Wiedergabe
 Statistics
 Statistiken
 
-Stickers are disabled
-Sticker sind deaktiviert
-
 Playback statistics
 Wiedergabestatistiken
 
@@ -509,27 +473,6 @@ Intelligente Wiedergabeliste
 
 Playlists are disabled
 Wiedergabelisten sind deaktiviert
-
-Scrobbler integration
-Scrobbler Integration
-
-MPD channel not found
-MPD Channel nicht gefunden
-
-Send love message
-Sende Lieblingslied
-
-MPD channel
-MPD Channel
-
-Invalid channel name
-Ungültiger Channel name
-
-Message
-Nachricht
-
-Invalid message
-Ungültige Zeichen in Nachricht
 
 Reset
 Zurücksetzen
@@ -638,18 +581,6 @@ Wiedergabelistenname
 
 Quantity
 Anzahl
-
-Save bookmark
-Lesezeichen speichern
-
-Clearing bookmarks failed
-Löschen aller Lesezeichen fehlgeschlagen
-
-Bookmark name
-Name
-
-Bookmark URI
-Lesezeichen URL
 
 Song details
 Lieddetails
@@ -768,9 +699,6 @@ Nach aktuellem Lied hinzufügen
 View playlist
 Wiedergabeliste anzeigen
 
-Add bookmark
-Lesezeichen hinzufügen
-
 Replace queue
 Warteschlange ersetzen
 
@@ -858,30 +786,6 @@ Intelligente Wiedergabeliste konnte nicht geparsed werden
 Unknown smart playlist type
 Unbekannter intelligenter Wiedergabenlisten Typ
 
-System commands are disabled
-Systembefehle sind deaktiviert
-
-Saving bookmark failed
-Lesezeichen konnte nicht gespeichert werden
-
-Deleting bookmark failed
-Lesezeichen konnte nicht gelöscht werden
-
-System command not defined
-Systembefehl nicht definiert
-
-Successfully execute cmd %{cmd}
-Systembefehl %{cmd} erfolgreich ausgeführt
-
-Failed to execute cmd %{cmd}
-Fehler beim Ausführen des Systembefehls %{cmd}
-
-Failed to open bookmarks file
-Lesezeichen Datei konnte nicht geöffnet werden
-
-No bookmarks found
-Keine Lesezeichen gefunden
-
 Background
 Hintergrund
 
@@ -911,9 +815,6 @@ Warteschlange mit %{name} ersetzt
 
 Saved smart playlist %{name}
 Intelligente Wiedergabeliste %{name} gespeichert
-
-System commands
-Systembefehle
 
 Focus table
 In Tabelle navigieren
@@ -986,9 +887,6 @@ Musicbrainz Track ID
 
 MUSICBRAINZ_WORKID
 Musicbrainz Werk ID
-
-myMPD is in readonly mode
-myMPD ist im Readonly Modus
 
 Consume must be enabled
 Konsumieren muss aktiviert sein
@@ -1089,9 +987,6 @@ an
 Oneshot
 Oneshot
 
-Other features
-Weitere Features
-
 Start
 Start
 
@@ -1124,9 +1019,6 @@ Sa
 
 Sun
 So
-
-System command
-Systembefehl
 
 LastModified
 Zuletzt geändert
@@ -1215,8 +1107,8 @@ Alle leere Wiedergabelisten löschen
 Delete playlists
 Wiedergabelisten löschen
 
-Media session support
-Media Session Unterstützung
+Media session
+Media Session
 
 Playlists deleted
 Wiedergabeliste wurde gelöscht
@@ -1226,9 +1118,6 @@ Vorschau
 
 Info
 Hinweis
-
-Error
-Fehler
 
 Auto
 Auto
@@ -1277,9 +1166,6 @@ Einhängepunkt
 
 Unmount
 Aushängen
-
-No such directory
-Verzeichnis nicht gefunden
 
 Error in response to command: %{command}
 Fehler beim Ausführen von %{command}
@@ -1344,26 +1230,17 @@ Fehler beim Ausführen des Skripts %{script}
 Invalid script name
 Ungültiger Skriptname
 
-No mpd state for script execution submitted
-Es wurde kein MPD Status für die Skriptausführung mitgeliefert
-
 Script
 Skript
 
 Script %{script} executed successfully
 Skript %{script} erfolgreich gestartet
 
-Scripting is disabled
-Skripte sind deaktiviert
-
 Scripts
 Skripte
 
 Invalid script API request
 Ungültiger Script-API Aufruf
-
-Remote scripting is disabled
-Remotescripting ist deaktiviert
 
 Arguments
 Parameter
@@ -1409,9 +1286,6 @@ Skriptname
 
 Sort order of the script, 0 disables listing in main menu
 Sortierreihenfolge der Skripts, 0 deaktiviert die Anzeige im Hauptmenü
-
-Editing scripts is disabled
-Das Editieren von Skripts ist deaktiviert
 
 Fullscreen
 Vollbild
@@ -1765,9 +1639,6 @@ Neues Lied
 Show playback settings in footer
 Wiedergabeeinstellungen im Footer anzeigen
 
-Error getting mpd state for script execution
-Fehler beim Ermitteln des Status beim Starten des Skripts
-
 Custom
 Benutzerdefiniert
 
@@ -1836,3 +1707,27 @@ Liedtext
 
 Can not open script directory
 Skriptverzeichnis konnte nicht geöffnet werden
+
+Error getting mympd state for script execution
+Konnte myMPD Status
+
+Features
+Features
+
+Invalid playlist directory
+Ungültiges Wiedergabelisten Verzeichnis
+
+Invalid stream port
+Ungültiger Stream Port
+
+Playlist directory
+Wiedergabelisten Verzeichnis
+
+Stream port
+Stream Port
+
+Volume control
+Lautstärkeeinstellung
+
+folder,cover
+folder,cover

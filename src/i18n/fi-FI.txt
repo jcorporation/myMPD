@@ -204,9 +204,6 @@ Tallenna älykkäänä soittolistana
 To top
 Huipulle
 
-Bookmarks
-Kirjanmerkit
-
 Select tag to search
 Valitse etsittävä tagi
 
@@ -218,9 +215,6 @@ Käynnistetään myMPD
 
 Fetch myMPD settings
 Noudetaan myMPD asetukset
-
-Fetch MPD settings
-Haetaan MPD asetukset
 
 Connect to websocket
 Yhdistetään websockettiin
@@ -282,15 +276,6 @@ Poista soittolista
 Delete
 Poista
 
-Love song
-Rakkauslaulu
-
-Scrobbled love
-Scrobbled rakkaus
-
-Failed to send love message to channel
-Rakkausviestin lähetys kanavalle epäonnistui
-
 Dislike song
 Dissaa kappaletta
 
@@ -299,12 +284,6 @@ Tykkää kappaleesta
 
 MPD stickers are disabled
 MPD Stickerit pois käytöstä
-
-folder.jpg
-folder.jpg
-
-Size in px
-koko pikseleinä
 
 Save smart playlist
 Tallenna älykäs soittolista
@@ -363,12 +342,6 @@ Replaygain
 Off
 Pois
 
-Mixramp DB
-Mixramp DB
-
-Mixramp delay
-Mixramp viive
-
 Autoplay
 Automaattitoisto
 
@@ -390,17 +363,11 @@ Albumcover
 Can't access music directory
 Musiikkikansiota ei pysty avaamaan
 
-Invalid size
-Virheellinen koko
-
 Background color
 Taustaväri
 
 Highlight color
 Valintaväri
-
-Invalid color
-Virheellinen väri
 
 CSS filter
 CSS suodatin
@@ -438,9 +405,6 @@ Paikallinen toisto
 Statistics
 Tilastot
 
-Stickers are disabled
-Stickerit on poistettu käytöstä
-
 Playback statistics
 Toistotilastot
 
@@ -470,27 +434,6 @@ Smart playlist
 
 Playlists are disabled
 Soittolistat ovat pois päältä
-
-Scrobbler integration
-Scrobbler Integration
-
-MPD channel not found
-MPD kanavaa ei löytynyt
-
-Send love message
-Lähetä rakkausviesti
-
-MPD channel
-MPD kanava
-
-Invalid channel name
-Virheellinen kanavanimi
-
-Message
-Viesti
-
-Invalid message
-Virheellinen viesti
 
 Reset
 Nollaa
@@ -599,18 +542,6 @@ Soittolistan nimi
 
 Quantity
 Määrä
-
-Save bookmark
-Tallenna kirjanmerkki
-
-Clearing bookmarks failed
-Kirjanmerkkien tyhjentäminen epäonnistui
-
-Bookmark name
-Kirjanmerkin nimi
-
-Bookmark URI
-Kirjanmerkin URL
 
 Song details
 Kappaleen tiedot
@@ -723,9 +654,6 @@ Lisää soivan kappaleen jälkeen
 View playlist
 Näytä soittolista
 
-Add bookmark
-Lisää kirjanmerkki
-
 Replace queue
 Korvaa jono
 
@@ -816,30 +744,6 @@ Can not parse smart playlist file
 Unknown smart playlist type
 Älykkään soittolistan tyyppi tuntematon
 
-System commands are disabled
-Järjestelmäkomennot on poistettu käytöstä
-
-Saving bookmark failed
-Kirjanmerkin tallennus epäonnistui
-
-Deleting bookmark failed
-Kirjanmerkin poisto epäonnistui
-
-System command not defined
-Järjestelmäkomentoa ei ole määritetty
-
-Successfully execute cmd %{cmd}
-Komennon  %{cmd} suorittaminen onnistui
-
-Failed to execute cmd %{cmd}
-Komennon %{cmd} suorittaminen epäonnistui
-
-Failed to open bookmarks file
-Kirjanmerkki tiedoston avaaminen epäonnistui
-
-No bookmarks found
-Kirjanmerkkejä ei löytynyt
-
 Background
 Tausta
 
@@ -869,9 +773,6 @@ Jono korvattu %{name}:lla
 
 Saved smart playlist %{name}
 Älykäs soittolista %{name} tallennettu
-
-System commands
-Järjestelmäkomennot
 
 Focus table
 Tarkenna taulu
@@ -944,9 +845,6 @@ Musicbrainz Track ID
 
 MUSICBRAINZ_WORKID
 Musicbrainz Työ ID
-
-myMPD is in readonly mode
-myMPD on vain luku tilassa
 
 Consume must be enabled
 Kulutuksen oltava päällä
@@ -1047,9 +945,6 @@ Päällä
 Oneshot
 Oneshot
 
-Other features
-Muut ominaisuudet
-
 Start
 Aloita
 
@@ -1082,9 +977,6 @@ La
 
 Sun
 Sun
-
-System command
-Järjestelmä komento
 
 LastModified
 ViimeksiMuokattu
@@ -1173,9 +1065,6 @@ Poista tyhjät soittolistat
 Delete playlists
 Poista soittolistat
 
-Media session support
-Media Session tuki
-
 Playlists deleted
 Soittolistat poistettu
 
@@ -1184,9 +1073,6 @@ Esikatselu
 
 Info
 Tietoa
-
-Error
-Virhe
 
 Websocket is disconnected
 Websocket yhteys on katkaistu
@@ -1238,9 +1124,6 @@ Liityntäkohta
 
 Unmount
 Poista liityntä
-
-No such directory
-Kansiota ei ole
 
 Error in response to command: %{command}
 Virhe komennolla %{command}

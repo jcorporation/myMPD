@@ -38,9 +38,6 @@ search
 newest
 sticker
 Info
-Error
-No such directory
-No lyrics found
 Error executing script %{script}: Syntax error during precompilation
 Error executing script %{script}: Memory allocation error
 Error executing script %{script}: Error in garbage collector
@@ -80,3 +77,15 @@ Facilities
 Default image
 Default image dark
 Default image light
+Browser default
+Highlight color
+Media session
+On page notifications
+Web notifications
+Open folder
+Size normal
+Size small
+CSS filter
+Can't access music directory
+Color
+Error getting mympd state for script execution
