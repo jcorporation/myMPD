@@ -83,6 +83,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, t_work_request *request
         return false;
     }
     pthread_setname_np(mpd_worker_thread, "mpd_worker");
+    worker_threads++;
     return true;
 }
 
@@ -97,6 +98,7 @@ static void *mpd_worker_run(void *arg) {
     MYMPD_LOG_NOTICE("Stopping mpd_worker thread");
     sdsfree(thread_logname);
     free_mpd_worker_state(mpd_worker_state);
+    worker_threads--;
     return NULL;
 }
 

@@ -7,6 +7,8 @@
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 
+extern _Atomic int worker_threads;
+
 //signal handler
 extern sig_atomic_t s_signal_received;
 

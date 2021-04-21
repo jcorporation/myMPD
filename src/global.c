@@ -18,6 +18,7 @@
 #include "api.h"
 #include "global.h"
 
+_Atomic int worker_threads;
 sig_atomic_t s_signal_received;
 tiny_queue_t *web_server_queue;
 tiny_queue_t *mympd_api_queue;

@@ -87,7 +87,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
         case MYMPD_API_SMARTPLS_UPDATE:
         case MYMPD_API_CACHES_CREATE:
-            //TODO: limit number of worker threads
+            if (worker_threads > 5) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                            "general", "error", "Too many worker threads are already running");
+                break;
+            }
             async = true;
             free_result(response);
             mpd_worker_start(mympd_state, request);

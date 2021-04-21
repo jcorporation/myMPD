@@ -299,7 +299,8 @@ int main(int argc, char **argv) {
     thread_logname = sdsnew("mympd");
     log_on_tty = isatty(fileno(stdout)) ? true : false;
     log_to_syslog = false;
- 
+
+    worker_threads = 0; 
     s_signal_received = 0;
     bool init_config = false;
     bool init_webserver = false;
