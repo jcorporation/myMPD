@@ -750,7 +750,7 @@ Failed to save playlist
 Added %{uri} to playlist %{playlist}
 %{uri}의 %{playlist} 연주목록 추가에 실패함
 
-Sucessfully added random songs to queue
+Successfully added random songs to queue
 무작위 곡을 순서에 추가함
 
 Adding random songs to queue failed
@@ -771,7 +771,7 @@ MPD 연결 오류: %{error}
 Renaming playlist failed
 연주목록 이름 바꾸기 안 됨
 
-Sucessfully renamed playlist
+Successfully renamed playlist
 연주목록 이름 바꿈
 
 Can not crop the queue

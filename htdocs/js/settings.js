@@ -782,7 +782,7 @@ function saveSettings(closeModal) {
             'inputLastPlayedCount', 'inputSmartplsInterval']) 
     {
         const inputEl = document.getElementById(inputId);
-        if (!validateInt(inputEl)) {
+        if (!validateUint(inputEl)) {
             formOK = false;
         }
     }
@@ -1035,7 +1035,6 @@ function setNavbarIcons() {
     //cache elements, reused in appPrepare
     domCache.navbarBtns = container.getElementsByTagName('div');
     domCache.navbarBtnsLen = domCache.navbarBtns.length;
-    
     for (let i = 0; i < domCache.navbarBtnsLen; i++) {
         setAttEnc(domCache.navbarBtns[i].firstChild, 'data-href', JSON.stringify({"cmd": "appGoto", "options": settings.navbarIcons[i].options}));
     }
@@ -1050,10 +1049,10 @@ function resetToDefault(button) {
 
 function getBgImageList(image) {
     getImageList('inputAdvSettinguiBgImage', image, [
-        {"value":"","text":"None"},
-        {"value":"/assets/mympd-background-default.svg","text":"Default image"},
-        {"value":"/assets/mympd-background-dark.svg","text":"Default image dark"},
-        {"value":"/assets/mympd-background-light.svg","text":"Default image light"},
+        {"value": "", "text": "None"},
+        {"value": "/assets/mympd-background-default.svg", "text":" Default image"},
+        {"value": "/assets/mympd-background-dark.svg", "text": "Default image dark"},
+        {"value": "/assets/mympd-background-light.svg", "text": "Default image light"},
     ]);
 }
 
@@ -1076,7 +1075,8 @@ function warnLocale(value) {
     const warnEl = document.getElementById('warnMissingPhrases');
     if (missingPhrases[value] !== undefined) {
         warnEl.innerHTML = t('Missing translations', missingPhrases[value]) + '<br/>' +
-            '<a class="alert-link" target="_blank" href="https://github.com/jcorporation/myMPD/discussions/167"><span class="mi">open_in_browser</span>&nbsp;' + t('Help to improve myMPD') + '</a>';
+            '<a class="alert-link" target="_blank" href="https://github.com/jcorporation/myMPD/discussions/167">' +
+            '<span class="mi">open_in_browser</span>&nbsp;' + t('Help to improve myMPD') + '</a>';
         warnEl.classList.remove('hide');
     }
     else {

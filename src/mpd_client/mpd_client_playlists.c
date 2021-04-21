@@ -251,7 +251,7 @@ sds mpd_client_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sd
     //rename mpd playlist
     bool rc = mpd_run_rename(mympd_state->mpd_state->conn, old_playlist, new_playlist);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_run_rename") == true) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, false, "playlist", "info", "Sucessfully renamed playlist");
+        buffer = jsonrpc_respond_message(buffer, method, request_id, false, "playlist", "info", "Successfully renamed playlist");
     }
     return buffer;
 }

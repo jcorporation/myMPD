@@ -711,7 +711,7 @@ Impossibile salvare la lista di riproduzione
 Added %{uri} to playlist %{playlist}
 Aggiunta di %{uri} alla lista di riproduzione %{playlist}
 
-Sucessfully added random songs to queue
+Successfully added random songs to queue
 Brani casuali aggiunti con successo alla coda
 
 Adding random songs to queue failed
@@ -732,7 +732,7 @@ Errore connessione MPD : %{error}
 Renaming playlist failed
 Impossibile rinominare la lista di riproduzione
 
-Sucessfully renamed playlist
+Successfully renamed playlist
 Lista di riproduzione rinominata con successo
 
 Can not crop the queue

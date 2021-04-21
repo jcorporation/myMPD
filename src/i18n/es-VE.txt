@@ -708,7 +708,7 @@ Error al guardar lista de reproducción
 Added %{uri} to playlist %{playlist}
 %{uri} agregado a lista de reproducción %{playlist}
 
-Sucessfully added random songs to queue
+Successfully added random songs to queue
 Agregadas canciones aleatorias a la cola de reproducción exitosamente
 
 Adding random songs to queue failed
@@ -729,7 +729,7 @@ Error de conexión MPD: %{error}
 Renaming playlist failed
 Error al renombrar lista de reproducción
 
-Sucessfully renamed playlist
+Successfully renamed playlist
 Lista de reproducción renombrada exitosamente
 
 Can not read smart playlist file

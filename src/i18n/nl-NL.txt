@@ -708,7 +708,7 @@ Saven afspeellijst mislukt
 Added %{uri} to playlist %{playlist}
 %{uri} aan afspeellijst %{playlist} toegevoegd
 
-Sucessfully added random songs to queue
+Successfully added random songs to queue
 Willekeurig nummer aan wachtrij toegevoegd
 
 Adding random songs to queue failed
@@ -729,7 +729,7 @@ MPD verbindingsfout: %{error}
 Renaming playlist failed
 Hernoemen afspeellijst mislukt
 
-Sucessfully renamed playlist
+Successfully renamed playlist
 Afspeellijst is hernoemd
 
 Can not crop the queue

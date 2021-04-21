@@ -89,3 +89,9 @@ CSS filter
 Can't access music directory
 Color
 Error getting mympd state for script execution
+MPD does not support partitions
+Lua is not compiled in
+MPD does not support mounts
+Volume max.
+Volume min.
+Volume step

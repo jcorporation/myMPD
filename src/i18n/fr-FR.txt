@@ -711,7 +711,7 @@ Echec de l'enregistrement de la liste de lecture
 Added %{uri} to playlist %{playlist}
 Ajout de %{uri} à la iste de lecture %{playlist}
 
-Sucessfully added random songs to queue
+Successfully added random songs to queue
 Chansons aléatoires ajoutées à la queue
 
 Adding random songs to queue failed
@@ -732,7 +732,7 @@ Erreur de connection MPD : %{error}
 Renaming playlist failed
 Echec du renommage de la liste de lecture
 
-Sucessfully renamed playlist
+Successfully renamed playlist
 Liste de lexture renommée
 
 Can not crop the queue

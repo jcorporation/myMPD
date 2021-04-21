@@ -750,7 +750,7 @@ Wiedergabeliste konnte nicht gespeichert werden
 Added %{uri} to playlist %{playlist}
 %{uri} zu Wiedergabeliste %{playlist} hinzugefügt
 
-Sucessfully added random songs to queue
+Successfully added random songs to queue
 Zufällige Lieder wurden zur Warteschlange hinzugefügt
 
 Adding random songs to queue failed
@@ -771,7 +771,7 @@ MPD Verbindungsfehler: %{error}
 Renaming playlist failed
 Wiedergabeliste konnte nicht umbenannt werden
 
-Sucessfully renamed playlist
+Successfully renamed playlist
 Wiedergabeliste erfolgreich umbenannt
 
 Can not crop the queue
@@ -1731,3 +1731,21 @@ Lautstärkeeinstellung
 
 folder,cover
 folder,cover
+
+Lua is not compiled in
+Lua ist nicht verfügbar
+
+MPD does not support mounts
+MPD unterstützt keine Einhängepunkte
+
+MPD does not support partitions
+MPD unterstützt keine Partitionen
+
+Volume max.
+Maximale Lautstärke
+
+Volume min.
+Minimale Lautstärke
+
+Volume step
+Lautstärkeschritt

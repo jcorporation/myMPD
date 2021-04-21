@@ -708,7 +708,7 @@ Soittolistan tallennus epäonnistui
 Added %{uri} to playlist %{playlist}
 %{uri} lisätty soittolistaan %{playlist}
 
-Sucessfully added random songs to queue
+Successfully added random songs to queue
 Satunnaisten kappaleiden lisääminen jonoon onnistui
 
 Adding random songs to queue failed
@@ -729,7 +729,7 @@ MPD yhteysvirhe: %{error}
 Renaming playlist failed
 Soittolistan nimeäminen epäonnistui
 
-Sucessfully renamed playlist
+Successfully renamed playlist
 Soittolista nimeäminen onnistui
 
 Can not crop the queue
