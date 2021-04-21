@@ -421,9 +421,7 @@ th {
 
 .card-grid:focus,
 .home-icons:focus {
-  border-width: 1px;
-  border-style: solid;
-  border-color: var(--mympd-highlightcolor, #28a745) !important;
+  box-shadow: 0 0 1px 1px var(--mympd-highlightcolor, #28a745);
 }
 
 .album-cover-grid {
@@ -1058,4 +1056,8 @@ div.album-grid-mouseover {
 
 .queue-playing {
   font-weight: bold;
+}
+
+#PlaybackColsDropdown {
+  white-space: nowrap;
 }

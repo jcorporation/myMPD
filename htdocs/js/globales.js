@@ -459,7 +459,7 @@ const advancedSettingsDefault = {
         "inputType": "select",
         "title": "Locale",
         "form": "localeFrm",
-        "onChange": 'eventChangeLocale'
+        "onChange": "eventChangeLocale"
     }
 };
 
