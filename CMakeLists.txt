@@ -194,7 +194,6 @@ set(SOURCES
   src/mpd_shared/mpd_shared_search.c
   src/mpd_shared/mpd_shared_tags.c
   src/mpd_shared/mpd_shared_playlists.c
-  src/mpd_shared/mpd_shared_features.c
   src/mpd_shared/mpd_shared_sticker.c
   src/mpd_client.c
   src/mpd_client/mpd_client_cover.c

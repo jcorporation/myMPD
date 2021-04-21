@@ -24,7 +24,6 @@
 #include "../lua_mympd_state.h"
 #include "../mympd_state.h"
 #include "../mpd_shared/mpd_shared_tags.h"
-#include "../mpd_shared/mpd_shared_features.h"
 #include "../mpd_shared.h"
 #include "mpd_client_state.h"
 #include "mpd_client_utility.h"
@@ -32,6 +31,7 @@
 
 //private definitions
 static void mpd_client_feature_commands(struct t_mympd_state *mympd_state);
+static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state);
 static void mpd_client_feature_tags(struct t_mympd_state *mympd_state);
 static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state);
 
@@ -66,14 +66,15 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     buffer = mpd_client_put_state(mympd_state, buffer, NULL, 0);
     sdsfree(buffer);
 
-    mympd_state->mpd_state->feat_advsearch = mpd_shared_feat_advsearch(mympd_state->mpd_state);
-
     if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 21, 0) >= 0) {
         mympd_state->mpd_state->feat_single_oneshot = true;
         MYMPD_LOG_NOTICE("Enabling single oneshot feature");
+        mympd_state->mpd_state->feat_advsearch = true;
+        MYMPD_LOG_INFO("Enabling advanced search");
     }
     else {
         MYMPD_LOG_WARN("Disabling single oneshot feature, depends on mpd >= 0.21.0");
+        MYMPD_LOG_WARN("Disabling advanced search, depends on mpd >= 0.21.0");
     }
     
     if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 22, 0) >= 0) {
@@ -149,13 +150,56 @@ static void mpd_client_feature_tags(struct t_mympd_state *mympd_state) {
     reset_t_tags(&mympd_state->browse_tag_types);
     reset_t_tags(&mympd_state->generate_pls_tag_types);
 
-    mpd_shared_feat_tags(mympd_state->mpd_state);
+    mpd_client_feature_mpd_tags(mympd_state);
 
     if (mympd_state->mpd_state->feat_tags == true) {
         check_tags(mympd_state->searchtaglist, "searchtags", &mympd_state->search_tag_types, mympd_state->mpd_state->mympd_tag_types);
         check_tags(mympd_state->browsetaglist, "browsetags", &mympd_state->browse_tag_types, mympd_state->mpd_state->mympd_tag_types);
         check_tags(mympd_state->generate_pls_tags, "generate pls tags", &mympd_state->generate_pls_tag_types, mympd_state->mpd_state->mympd_tag_types);
     }
+}
+
+static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
+    reset_t_tags(&mympd_state->mpd_state->mpd_tag_types);
+    reset_t_tags(&mympd_state->mpd_state->mympd_tag_types);
+
+    enable_all_mpd_tags(mympd_state->mpd_state);
+
+    sds logline = sdsnew("MPD supported tags: ");
+    if (mpd_send_list_tag_types(mympd_state->mpd_state->conn) == true) {
+        struct mpd_pair *pair;
+        while ((pair = mpd_recv_tag_type_pair(mympd_state->mpd_state->conn)) != NULL) {
+            enum mpd_tag_type tag = mpd_tag_name_parse(pair->value);
+            if (tag != MPD_TAG_UNKNOWN) {
+                logline = sdscatfmt(logline, "%s ", pair->value);
+                mympd_state->mpd_state->mpd_tag_types.tags[mympd_state->mpd_state->mpd_tag_types.len++] = tag;
+            }
+            else {
+                MYMPD_LOG_WARN("Unknown tag %s (libmpdclient too old)", pair->value);
+            }
+            mpd_return_pair(mympd_state->mpd_state->conn, pair);
+        }
+    }
+    else {
+        MYMPD_LOG_ERROR("Error in response to command: mpd_send_list_tag_types");
+    }
+    mpd_response_finish(mympd_state->mpd_state->conn);
+    check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
+
+    if (mympd_state->mpd_state->mpd_tag_types.len == 0) {
+        logline = sdscat(logline, "none");
+        MYMPD_LOG_NOTICE(logline);
+        MYMPD_LOG_NOTICE("Tags are disabled");
+        mympd_state->mpd_state->feat_tags = false;
+    }
+    else {
+        mympd_state->mpd_state->feat_tags = true;
+        MYMPD_LOG_NOTICE(logline);
+
+        check_tags(mympd_state->mpd_state->taglist, "mympdtags", &mympd_state->mpd_state->mympd_tag_types, mympd_state->mpd_state->mpd_tag_types);
+        enable_mpd_tags(mympd_state->mpd_state, mympd_state->mpd_state->mympd_tag_types);
+    }
+    sdsfree(logline);
 }
 
 static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state) {
