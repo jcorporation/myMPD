@@ -65,11 +65,13 @@ function initSettings() {
     });
 }
 
+//eslint-disable-next-line no-unused-vars
 function eventChangeLocale(event) {
     const value = getSelectValue(event.target);
     warnLocale(value);
 }
 
+//eslint-disable-next-line no-unused-vars
 function eventChangeTheme(event) {
     const value = getSelectValue(event.target);
     const bgImageEl = document.getElementById('selectBgImage');
@@ -211,12 +213,12 @@ function parseSettings(obj) {
         setTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-default';
     }    
 
-    for (const t in advancedSettingsDefault.uiTheme.validValues) {
-        if (t === setTheme) {
-            domCache.body.classList.add(t);
+    for (const theme in advancedSettingsDefault.uiTheme.validValues) {
+        if (theme === setTheme) {
+            domCache.body.classList.add(theme);
         }
         else {
-            domCache.body.classList.remove(t);
+            domCache.body.classList.remove(theme);
         }
     }
 
@@ -293,7 +295,7 @@ function parseSettings(obj) {
     app.apps.Search.limit = limit;
 
     //scripts
-    let timerActions = '<optgroup data-value="player" label="' + t('Playback') + '">' +
+    document.getElementById('selectTimerAction').innerHTML = '<optgroup data-value="player" label="' + t('Playback') + '">' +
         '<option value="startplay">' + t('Start playback') + '</option>' +
         '<option value="stopplay">' + t('Stop playback') + '</option>' +
         '</optgroup>';
@@ -307,7 +309,6 @@ function parseSettings(obj) {
         uiElements.dropdownMainMenu.dispose();
         uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
     }
-    document.getElementById('selectTimerAction').innerHTML = timerActions;
 
     //volumebar
     document.getElementById('volumeBar').setAttribute('min', settings.volumeMin);
