@@ -36,25 +36,6 @@
 static void detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct list *images, bool is_dirname);
 
 //public functions
-bool caches_init(struct t_mympd_state *mympd_state) {
-    if (mympd_state->mpd_state->feat_stickers == true || mympd_state->mpd_state->feat_tags == true) {
-        //push cache building request to mpd_worker thread
-        if (mympd_state->mpd_state->feat_stickers == true) {
-            mympd_state->sticker_cache_building = true;
-        }
-        if (mympd_state->mpd_state->feat_tags == true) {
-            mympd_state->album_cache_building = true;
-        }
-        t_work_request *request = create_request(-1, 0, MPDWORKER_API_CACHES_CREATE, "MPDWORKER_API_CACHES_CREATE", "");
-        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPDWORKER_API_CACHES_CREATE\",\"params\":{}}");
-        tiny_queue_push(mpd_worker_queue, request, 0);
-    }
-    else {
-        MYMPD_LOG_INFO("Caches creation skipped, sticker_cache and tags are disabled");
-    }
-    return true;
-}
-
 sds put_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *uri, bool is_dirname) {
     struct list images;
     list_init(&images);

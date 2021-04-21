@@ -13,7 +13,6 @@ extern sig_atomic_t s_signal_received;
 //message queue
 extern tiny_queue_t *web_server_queue;
 extern tiny_queue_t *mympd_api_queue;
-extern tiny_queue_t *mpd_worker_queue;
 extern tiny_queue_t *mympd_script_queue;
 
 typedef struct t_work_request {
@@ -44,18 +43,6 @@ struct set_mg_user_data_request {
     bool feat_mpd_albumart;
     sds mpd_host;
     unsigned mpd_stream_port;
-};
-
-//config data sent to mpd worker thread
-struct t_set_mpd_worker_request {
-    sds taglist;
-    bool smartpls;
-    sds smartpls_sort;
-    sds smartpls_prefix;
-    sds generate_pls_tags;
-    sds mpd_host;
-    int mpd_port;
-    sds mpd_pass;
 };
 
 t_work_result *create_result(t_work_request *request);

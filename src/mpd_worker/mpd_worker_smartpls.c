@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <signal.h>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -20,6 +21,8 @@
 #include "../../dist/src/frozen/frozen.h"
 #include "../api.h"
 #include "../list.h"
+#include "../tiny_queue.h"
+#include "../global.h"
 #include "mympd_config_defs.h"
 #include "../utility.h"
 #include "../log.h"

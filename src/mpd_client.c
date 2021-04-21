@@ -37,6 +37,7 @@
 #include "mpd_client/mpd_client_stats.h"
 #include "mpd_client/mpd_client_state.h"
 #include "mympd_state.h"
+#include "mpd_worker.h"
 #include "mpd_client/mpd_client_features.h"
 #include "mpd_client/mpd_client_queue.h"
 #include "mpd_client/mpd_client_features.h"
@@ -46,6 +47,10 @@
 #include "mympd_api/mympd_api_handler.h"
 #include "mpd_client.h"
 
+//private definitions
+static void update_mympd_caches(struct t_mympd_state *mympd_state);
+
+//public functions
 void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) {
     for (unsigned j = 0;; j++) {
         enum mpd_idle idle_event = 1 << j;
@@ -60,13 +65,8 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
                 case MPD_IDLE_DATABASE:
                     //database has changed
                     buffer = jsonrpc_event(buffer, "update_database");
-                    //mpd worker initiates all mympd refresh tasks
-                    if (mympd_state->mpd_state->feat_stickers == true) {
-                        mympd_state->sticker_cache_building = true;
-                    }
-                    if (mympd_state->mpd_state->feat_tags == true) {
-                        mympd_state->album_cache_building = true;
-                    }
+                    //initiate cache updates
+                    update_mympd_caches(mympd_state);
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
                     buffer = jsonrpc_event(buffer, "update_stored_playlist");
@@ -243,13 +243,8 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             mpd_client_mpd_features(mympd_state);
             //set binarylimit
             mpd_client_set_binarylimit(mympd_state);
-            //mpd worker initiates all mympd refresh tasks
-            if (mympd_state->mpd_state->feat_stickers == true) {
-                mympd_state->sticker_cache_building = true;
-            }
-            if (mympd_state->mpd_state->feat_tags == true) {
-                mympd_state->album_cache_building = true;
-            }
+            //initiate cache updates
+            update_mympd_caches(mympd_state);
             //set timer for smart playlist update
             mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, mympd_state->smartpls_interval, "timer_handler_smartpls_update");
             //jukebox
@@ -370,4 +365,19 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             MYMPD_LOG_ERROR("Invalid mpd connection state");
     }
     sdsfree(buffer);
+}
+
+static void update_mympd_caches(struct t_mympd_state *mympd_state) {
+    if (mympd_state->mpd_state->feat_stickers == false && mympd_state->mpd_state->feat_tags == false) {
+        return;
+    }
+    if (mympd_state->mpd_state->feat_stickers == true) {
+        mympd_state->sticker_cache_building = true;
+    }
+    if (mympd_state->mpd_state->feat_tags == true) {
+        mympd_state->album_cache_building = true;
+    }
+    t_work_request *request = create_request(-1, 0, MYMPD_API_CACHES_CREATE, "MYMPD_API_CACHES_CREATE", "");
+    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_CACHES_CREATE\",\"params\":{}}");
+    mpd_worker_start(mympd_state, request);
 }

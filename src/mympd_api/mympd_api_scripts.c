@@ -563,12 +563,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
     }
     request->data = sdscat(request->data, "}}");
     
-    if (strncmp(method, "MPDWORKER_API_", 14) == 0) {
-        tiny_queue_push(mpd_worker_queue, request, tid);
-    }
-    else {
-        tiny_queue_push(mympd_api_queue, request, tid);
-    }
+    tiny_queue_push(mympd_api_queue, request, tid);
 
     int i = 0;
     while (s_signal_received == 0 && i < 60) {

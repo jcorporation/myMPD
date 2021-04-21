@@ -305,7 +305,6 @@ int main(int argc, char **argv) {
     bool init_webserver = false;
     bool init_mg_user_data = false;
     bool init_thread_webserver = false;
-    bool init_thread_mpdworker = false;
     bool init_thread_mympdapi = false;
     int rc = EXIT_FAILURE;
     #ifdef DEBUG
@@ -324,7 +323,6 @@ int main(int argc, char **argv) {
     //get startup uid
     uid_t startup_uid = getuid();
     
-    mpd_worker_queue = tiny_queue_create("mpd_worker_queue");
     mympd_api_queue = tiny_queue_create("mympd_api_queue");
     web_server_queue = tiny_queue_create("web_server_queue");
     mympd_script_queue = tiny_queue_create("mympd_script_queue");
@@ -416,7 +414,6 @@ int main(int argc, char **argv) {
     }
 
     //Create working threads
-    pthread_t mpd_worker_thread;
     pthread_t web_server_thread;
     pthread_t mympd_api_thread;
     //mympd api
@@ -427,16 +424,6 @@ int main(int argc, char **argv) {
     }
     else {
         MYMPD_LOG_ERROR("Can't create mympd_api thread");
-        s_signal_received = SIGTERM;
-    }
-    //mpd worker
-    MYMPD_LOG_NOTICE("Starting mpd worker thread");
-    if (pthread_create(&mpd_worker_thread, NULL, mpd_worker_loop, config) == 0) {
-        pthread_setname_np(mpd_worker_thread, "mympd_mpdworker");
-        init_thread_mpdworker = true;
-    }
-    else {
-        MYMPD_LOG_ERROR("Can't create mympd_worker thread");
         s_signal_received = SIGTERM;
     }
     //webserver
@@ -455,10 +442,6 @@ int main(int argc, char **argv) {
 
     //Try to cleanup all
     cleanup:
-    if (init_thread_mpdworker == true) {
-        pthread_join(mpd_worker_thread, NULL);
-        MYMPD_LOG_NOTICE("Stopping mpd worker thread");
-    }
     if (init_thread_webserver == true) {
         pthread_join(web_server_thread, NULL);
         MYMPD_LOG_NOTICE("Stopping web server thread");
@@ -479,11 +462,6 @@ int main(int argc, char **argv) {
     MYMPD_LOG_DEBUG("Expiring mympd_api_queue: %u", tiny_queue_length(mympd_api_queue, 10));
     expired = expire_request_queue(mympd_api_queue, 0);
     tiny_queue_free(mympd_api_queue);
-    MYMPD_LOG_DEBUG("Expired %d entries", expired);
-
-    MYMPD_LOG_DEBUG("Expiring mpd_worker_queue: %u", tiny_queue_length(mpd_worker_queue, 10));
-    expired = expire_request_queue(mpd_worker_queue, 0);
-    tiny_queue_free(mpd_worker_queue);
     MYMPD_LOG_DEBUG("Expired %d entries", expired);
 
     MYMPD_LOG_DEBUG("Expiring mympd_script_queue: %u", tiny_queue_length(mympd_script_queue, 10));

@@ -6,5 +6,5 @@
 
 #ifndef __MPD_WORKER_H__
 #define __MPD_WORKER_H__
-void *mpd_worker_loop(void *arg_config);
+bool mpd_worker_start(struct t_mympd_state *mympd_state, t_work_request *request);
 #endif

@@ -92,17 +92,17 @@ bool smartpls_default(struct t_config *config) {
 }
 
 void mpd_client_smartpls_update(const char *playlist) {
-    t_work_request *request = create_request(-1, 0, MPDWORKER_API_SMARTPLS_UPDATE, "MPDWORKER_API_SMARTPLS_UPDATE", "");
-    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPDWORKER_API_SMARTPLS_UPDATE\",\"params\":{");
+    t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE, "MYMPD_API_SMARTPLS_UPDATE", "");
+    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SMARTPLS_UPDATE\",\"params\":{");
     request->data = tojson_char(request->data, "playlist", playlist, false);
     request->data = sdscat(request->data, "}}");
-    tiny_queue_push(mpd_worker_queue, request, 0);
+    tiny_queue_push(mympd_api_queue, request, 0);
 }
 
 void mpd_client_smartpls_update_all(void) {
-    t_work_request *request = create_request(-1, 0, MPDWORKER_API_SMARTPLS_UPDATE_ALL, "MPDWORKER_API_SMARTPLS_UPDATE_ALL", "");
-    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPDWORKER_API_SMARTPLS_UPDATE_ALL\",\"params\":{}}");
-    tiny_queue_push(mpd_worker_queue, request, 0);
+    t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, "MYMPD_API_SMARTPLS_UPDATE_ALL", "");
+    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SMARTPLS_UPDATE_ALL\",\"params\":{}}");
+    tiny_queue_push(mympd_api_queue, request, 0);
 }
 
 sds mpd_client_put_playlists(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,

@@ -13,11 +13,11 @@ struct t_mpd_worker_state {
     bool smartpls;
     sds smartpls_sort;
     sds smartpls_prefix;
-    sds generate_pls_tags;
     struct t_tags generate_pls_tag_types;
     //mpd state
     struct t_mpd_state *mpd_state;
     struct t_config *config;
+    t_work_request *request;
 };
 
 void free_mpd_worker_state(struct t_mpd_worker_state *mpd_worker_state);

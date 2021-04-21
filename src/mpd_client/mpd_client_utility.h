@@ -10,5 +10,4 @@ void json_to_tags(const char *str, int len, void *user_data);
 bool is_smartpls(struct t_mympd_state *mympd_state, const char *plpath);
 sds put_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *uri, bool is_dirname);
 bool mpd_client_set_binarylimit(struct t_mympd_state *mympd_state);
-bool caches_init(struct t_mympd_state *mympd_state);
 #endif

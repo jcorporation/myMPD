@@ -31,8 +31,8 @@
 #include "mpd_worker_api.h"
 
 //public functions
-void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state, void *arg_request) {
-    t_work_request *request = (t_work_request*) arg_request;
+void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
+    t_work_request *request = mpd_worker_state->request;
     bool rc;
     bool bool_buf1;
     bool async = false;
@@ -43,55 +43,12 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state, void *arg_reque
     char *p_charbuf4 = NULL;
     char *p_charbuf5 = NULL;
 
-    #ifdef DEBUG
-    MEASURE_START
-    #endif
-
     MYMPD_LOG_INFO("MPD WORKER API request (%lld)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
     t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
-        case MPDWORKER_API_SETTINGS_SET: {
-            bool mpd_host_changed = false;
-            
-            struct t_set_mpd_worker_request *extra = (struct t_set_mpd_worker_request *) request->extra;
-            mpd_worker_state->mpd_state->taglist = sdsreplace(mpd_worker_state->mpd_state->taglist, extra->taglist);
-            mpd_worker_state->smartpls = extra->smartpls;
-            mpd_worker_state->smartpls_sort = sdsreplace(mpd_worker_state->smartpls_sort, extra->smartpls_sort);
-            mpd_worker_state->smartpls_prefix = sdsreplace(mpd_worker_state->smartpls_prefix, extra->smartpls_prefix);
-            mpd_worker_state->generate_pls_tags = sdsreplace(mpd_worker_state->generate_pls_tags, extra->generate_pls_tags);
-            
-            if (strcmp(mpd_worker_state->mpd_state->mpd_host, extra->mpd_host) != 0 ||
-                strcmp(mpd_worker_state->mpd_state->mpd_pass, extra->mpd_pass) != 0 ||
-                mpd_worker_state->mpd_state->mpd_port != extra->mpd_port) 
-            {
-                mpd_host_changed = true;
-            }
-            mpd_worker_state->mpd_state->mpd_host = sdsreplace(mpd_worker_state->mpd_state->mpd_host, extra->mpd_host);
-            mpd_worker_state->mpd_state->mpd_port = extra->mpd_port;
-            mpd_worker_state->mpd_state->mpd_pass = sdsreplace(mpd_worker_state->mpd_state->mpd_pass, extra->mpd_pass);
-
-            sdsfree(extra->taglist);
-            sdsfree(extra->smartpls_sort);
-            sdsfree(extra->smartpls_prefix);
-            sdsfree(extra->generate_pls_tags);
-            sdsfree(extra->mpd_host);
-            sdsfree(extra->mpd_pass);
-            FREE_PTR(extra);
-
-            if (mpd_host_changed == true) {
-                //reconnect with new settings
-                mpd_worker_state->mpd_state->conn_state = MPD_DISCONNECT;
-            }
-            if (mpd_worker_state->mpd_state->conn_state == MPD_CONNECTED) {
-                //feature detection
-                mpd_worker_features(mpd_worker_state);
-            }
-            response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
-            break;
-        }
-        case MPDWORKER_API_SMARTPLS_UPDATE_ALL:
+        case MYMPD_API_SMARTPLS_UPDATE_ALL:
             if (mpd_worker_state->smartpls == false) {
                 send_jsonrpc_notify("playlist", "error", "Smart playlists are disabled");
                 async = true;
@@ -119,7 +76,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state, void *arg_reque
                 async = true;
             }
             break;
-        case MPDWORKER_API_SMARTPLS_UPDATE:
+        case MYMPD_API_SMARTPLS_UPDATE:
             if (mpd_worker_state->smartpls == false) {
                 send_jsonrpc_notify("playlist", "error", "Smart playlists are disabled");
                 async = true;
@@ -138,7 +95,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state, void *arg_reque
                 }
             }
             break;
-        case MPDWORKER_API_CACHES_CREATE:
+        case MYMPD_API_CACHES_CREATE:
             mpd_worker_cache_init(mpd_worker_state);
             async = true;
             free_request(request);
@@ -154,28 +111,25 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state, void *arg_reque
     FREE_PTR(p_charbuf4);
     FREE_PTR(p_charbuf5);
 
-    #ifdef DEBUG
-    MEASURE_END
-    MEASURE_PRINT(async == false ? request->method : "Async request")
-    #endif
-
-    if (async == false) {
-        if (sdslen(response->data) == 0) {
-            response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true, 
-                "general", "error", "No response for method %{method}", 2, "method", request->method);
-            MYMPD_LOG_ERROR("No response for method \"%s\"", request->method);
-        }
-        if (request->conn_id == -2) {
-            MYMPD_LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
-            tiny_queue_push(mympd_script_queue, response, request->id);
-        }
-        else if (request->conn_id > -1) {
-            MYMPD_LOG_DEBUG("Push response to queue for connection %lld: %s", request->conn_id, response->data);
-            tiny_queue_push(web_server_queue, response, 0);
-        }
-        else {
-            free_result(response);
-        }
-        free_request(request);
+    if (async == true) {
+        return;
     }
+    
+    if (sdslen(response->data) == 0) {
+        response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true, 
+            "general", "error", "No response for method %{method}", 2, "method", request->method);
+        MYMPD_LOG_ERROR("No response for method \"%s\"", request->method);
+    }
+    if (request->conn_id == -2) {
+        MYMPD_LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
+        tiny_queue_push(mympd_script_queue, response, request->id);
+    }
+    else if (request->conn_id > -1) {
+        MYMPD_LOG_DEBUG("Push response to queue for connection %lld: %s", request->conn_id, response->data);
+        tiny_queue_push(web_server_queue, response, 0);
+    }
+    else {
+        free_result(response);
+    }
+    free_request(request);
 }

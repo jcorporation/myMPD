@@ -71,9 +71,6 @@ void *mympd_api_loop(void *arg_config) {
     //read myMPD states
     mympd_api_read_statefiles(mympd_state);
 
-    //push settings to mpd_worker
-    mympd_api_push_to_mpd_worker(mympd_state);
-
     //home icons
     mympd_api_read_home_list(mympd_state);
 

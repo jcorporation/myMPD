@@ -47,6 +47,7 @@
 #include "../mpd_client/mpd_client_partitions.h"
 #include "../mpd_client/mpd_client_trigger.h"
 #include "../mpd_client/mpd_client_lyrics.h"
+#include "../mpd_worker.h"
 #include "mympd_api_utility.h"
 #include "mympd_api_timer.h"
 #include "mympd_api_settings.h"
@@ -72,6 +73,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
     char *p_charbuf3 = NULL;
     char *p_charbuf4 = NULL;
     char *p_charbuf5 = NULL;
+    bool async = false;
     
     #ifdef DEBUG
     MEASURE_START
@@ -82,6 +84,14 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
     t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
+        case MYMPD_API_SMARTPLS_UPDATE_ALL:
+        case MYMPD_API_SMARTPLS_UPDATE:
+        case MYMPD_API_CACHES_CREATE:
+            //TODO: limit number of worker threads
+            async = true;
+            free_result(response);
+            mpd_worker_start(mympd_state, request);
+            break;
         case MYMPD_API_PICTURE_LIST:
             response->data = mympd_api_picture_list(mympd_state, response->data, request->method, request->id);
             break;
@@ -298,8 +308,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                     //feature detection
                     mpd_client_mpd_features(mympd_state);
                 }
-                //forward request to mpd_worker queue            
-                mympd_api_push_to_mpd_worker(mympd_state);
                 //respond with ok
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             }
@@ -374,7 +382,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 if (mpd_host_changed == true) {
                     //reconnect to new mpd
                     mympd_state->mpd_state->conn_state = MPD_DISCONNECT;
-                    mympd_api_push_to_mpd_worker(mympd_state);
                 }
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             }
@@ -1218,6 +1225,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
     MEASURE_END
     MEASURE_PRINT(request->method)
     #endif
+
+    if (async == true) {
+        return;
+    }
 
     if (sdslen(response->data) == 0) {
         response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true, 

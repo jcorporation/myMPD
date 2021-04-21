@@ -21,7 +21,6 @@
 sig_atomic_t s_signal_received;
 tiny_queue_t *web_server_queue;
 tiny_queue_t *mympd_api_queue;
-tiny_queue_t *mpd_worker_queue;
 tiny_queue_t *mympd_script_queue;
 
 t_work_result *create_result(t_work_request *request) {

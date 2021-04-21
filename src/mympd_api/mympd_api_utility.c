@@ -29,22 +29,6 @@
 #include "mympd_api_timer.h"
 #include "mympd_api_utility.h"
 
-void mympd_api_push_to_mpd_worker(struct t_mympd_state *mympd_state) {
-    t_work_request *request = create_request(-1, 0, MPDWORKER_API_SETTINGS_SET, "MPDWORKER_API_SETTINGS_SET", "");
-    struct t_set_mpd_worker_request *extra = (struct t_set_mpd_worker_request *)malloc(sizeof(struct t_set_mpd_worker_request));
-    assert(extra);
-    extra->taglist = sdsdup(mympd_state->mpd_state->taglist);
-    extra->smartpls = mympd_state->smartpls;
-    extra->smartpls_sort = sdsdup(mympd_state->smartpls_sort);
-    extra->smartpls_prefix = sdsdup(mympd_state->smartpls_prefix);
-    extra->generate_pls_tags = sdsdup(mympd_state->generate_pls_tags);
-    extra->mpd_host = sdsdup(mympd_state->mpd_state->mpd_host);
-    extra->mpd_port = mympd_state->mpd_state->mpd_port;
-    extra->mpd_pass = sdsdup(mympd_state->mpd_state->mpd_pass);
-    request->extra = extra;
-    tiny_queue_push(mpd_worker_queue, request, 0);
-}
-
 void default_mympd_state(struct t_mympd_state *mympd_state) {
     mympd_state->music_directory = sdsnew("auto");
     mympd_state->music_directory_value = sdsempty();

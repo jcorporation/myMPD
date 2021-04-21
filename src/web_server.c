@@ -553,12 +553,7 @@ static bool handle_api(long long conn_id, struct mg_http_message *hm) {
     t_work_request *request = create_request(conn_id, id, cmd_id, cmd, data);
     sdsfree(data);
     
-    if (strncmp(cmd, "MPDWORKER_API_", 14) == 0) {
-        tiny_queue_push(mpd_worker_queue, request, 0);
-    }
-    else {
-        tiny_queue_push(mympd_api_queue, request, 0);
-    }
+    tiny_queue_push(mympd_api_queue, request, 0);
 
     FREE_PTR(cmd);
     FREE_PTR(jsonrpc);

@@ -30,6 +30,7 @@
 
 //mpd state
 void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state) {
+    mpd_state->conn = NULL;
     mpd_state->conn_state = MPD_DISCONNECTED;
     mpd_state->reconnect_time = 0;
     mpd_state->reconnect_interval = 0;
