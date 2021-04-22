@@ -71,6 +71,7 @@ struct t_config {
     bool covercache;
     int covercache_keep_days;
     bool first_startup;
+    bool bootstrap;
 };
 
 #endif

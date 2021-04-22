@@ -362,6 +362,12 @@ int main(int argc, char **argv) {
     mympd_config_defaults(config);
     mympd_read_config(config);
 
+    //bootstrap
+    if (config->bootstrap == true) {
+        printf("Created myMPD config and exit\n");
+        goto cleanup;
+    }
+
     //set loglevel
     #ifdef DEBUG
         set_loglevel(LOG_DEBUG);

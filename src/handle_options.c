@@ -19,13 +19,14 @@ static struct option long_options[] = {
     {"help",      no_argument,       0, 'h'},
     {"user",      required_argument, 0, 'u'},
     {"syslog",    no_argument,       0, 's'},
-    {"workdir",   required_argument, 0, 'w'}
+    {"workdir",   required_argument, 0, 'w'},
+    {"config",    no_argument,       0, 'c'}
 };
    
 bool handle_options(struct t_config *config, int argc, char **argv) {
     int n = 0;
     int option_index = 0;
-    while((n = getopt_long(argc, argv, "hu:sw:", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
+    while((n = getopt_long(argc, argv, "hu:sw:c", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
         switch (n) {
             case 'u':
                 config->user = sdsreplace(config->user, optarg);
@@ -36,12 +37,16 @@ bool handle_options(struct t_config *config, int argc, char **argv) {
             case 'w':
                 config->workdir = sdsreplace(config->workdir, optarg);
                 break;
+            case 'c':
+                config->bootstrap = true;
+                break;
             default:
                 fprintf(stderr, "\nUsage: %s [OPTION]...\n\n"
                     "myMPD %s\n"
                     "(c) 2018-2021 Juergen Mang <mail@jcgames.de>\n"
                     "https://github.com/jcorporation/myMPD\n\n"
                     "Options:\n"
+                    "  -c, --config           creates config and exits\n"
                     "  -h, --help             displays this help\n"
                     "  -u, --user <username>  username to drop privileges to (default: mympd)\n"
                     "  -s, --syslog           enable syslog logging (facility: daemon)\n"

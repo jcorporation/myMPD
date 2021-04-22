@@ -112,7 +112,12 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
         settingname = sdscat(settingname, "playlist_directory");
         strip_slash(mympd_state->playlist_directory);
     }
+    else if (strncmp(key->ptr, "binarylimit", key->len) == 0) {
+        mympd_state->mpd_state->binarylimit = strtoimax(settingvalue, &crap, 10);
+        settingname = sdscat(settingname, "binarylimit");
+    }
     else {
+        MYMPD_LOG_WARN("Unknown setting %s: %s", settingname, settingvalue);
         sdsfree(settingname);
         sdsfree(settingvalue);
         return true;
@@ -420,7 +425,9 @@ void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_state->mpd_host = state_file_rw_string_sds(mympd_state->config, "mpd_host", mympd_state->mpd_state->mpd_host, false);
     mympd_state->mpd_state->mpd_port = state_file_rw_int(mympd_state->config, "mpd_port", mympd_state->mpd_state->mpd_port, false);
     mympd_state->mpd_state->mpd_pass = state_file_rw_string_sds(mympd_state->config, "mpd_pass", mympd_state->mpd_state->mpd_pass, false);
+    mympd_state->mpd_state->binarylimit = state_file_rw_int(mympd_state->config, "binarylimit", mympd_state->mpd_state->binarylimit, false);
     mympd_state->mpd_state->taglist = state_file_rw_string_sds(mympd_state->config, "taglist", mympd_state->mpd_state->taglist, false);
+
     mympd_state->searchtaglist = state_file_rw_string_sds(mympd_state->config, "searchtaglist", mympd_state->searchtaglist, false);
     mympd_state->browsetaglist = state_file_rw_string_sds(mympd_state->config, "browsetaglist", mympd_state->browsetaglist, false);
     mympd_state->smartpls = state_file_rw_bool(mympd_state->config, "smartpls", mympd_state->smartpls, false);
@@ -464,6 +471,7 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = tojson_long(buffer, "mpdPort", mympd_state->mpd_state->mpd_port, true);
     buffer = tojson_char(buffer, "mpdPass", "dontsetpassword", true);
     buffer = tojson_long(buffer, "mpdStreamPort", mympd_state->mpd_stream_port, true);
+    buffer = tojson_long(buffer, "binarylimit", mympd_state->mpd_state->binarylimit, true);
 #ifdef ENABLE_SSL
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
 #else
@@ -545,6 +553,12 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = tojson_char(buffer, "musicDirectoryValue", mympd_state->music_directory_value, true);
         buffer = tojson_bool(buffer, "featMounts", mympd_state->mpd_state->feat_mpd_mount, true);
         buffer = tojson_bool(buffer, "featNeighbors", mympd_state->mpd_state->feat_mpd_neighbor, true);
+        if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 22, 4) >= 0 ) {
+            buffer = tojson_bool(buffer, "featBinarylimit", true, true);
+        }
+        else {
+            buffer = tojson_bool(buffer, "featBinarylimit", false, true);
+        }        
         mpd_status_free(status);
 
         buffer = print_tags_array(buffer, "tags", mympd_state->mpd_state->mympd_tag_types);

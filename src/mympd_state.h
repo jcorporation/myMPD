@@ -87,6 +87,7 @@ struct t_mpd_state {
     time_t last_song_start_time;
     time_t crossfade;
     time_t set_song_played_time;
+    time_t last_song_set_song_played_time;
     //tags
     sds taglist;
     struct t_tags mympd_tag_types;

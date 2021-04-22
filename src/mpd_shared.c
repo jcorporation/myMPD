@@ -52,6 +52,8 @@ void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state) {
     mpd_state->last_song_end_time = 0;
     mpd_state->last_song_start_time = 0;
     mpd_state->last_skipped_id = 0;
+    mpd_state->set_song_played_time = 0;
+    mpd_state->last_song_set_song_played_time = 0;
     mpd_state->crossfade = 0;
     mpd_state->set_song_played_time = 0;
     mpd_state->taglist = sdsnew("Artist,Album,AlbumArtist,Title,Genre,Disc,Track");

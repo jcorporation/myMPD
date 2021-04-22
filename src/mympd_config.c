@@ -83,6 +83,7 @@ void mympd_config_defaults_initial(struct t_config *config) {
     //not configureable
     config->startup_time = time(NULL);
     config->first_startup = false;
+    config->bootstrap =false;
 }
 
 bool mympd_read_config(struct t_config *config) {

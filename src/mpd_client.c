@@ -48,7 +48,7 @@
 #include "mpd_client.h"
 
 //private definitions
-static void update_mympd_caches(struct t_mympd_state *mympd_state);
+static bool update_mympd_caches(struct t_mympd_state *mympd_state);
 
 //public functions
 void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) {
@@ -96,8 +96,8 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
                         mympd_state->mpd_state->last_song_uri != NULL)
                     {
                         time_t now = time(NULL);
-                        if (mympd_state->mpd_state->feat_stickers && 
-                            mympd_state->mpd_state->last_song_end_time > now)
+                        if (mympd_state->mpd_state->feat_stickers && //stickers enabled
+                            mympd_state->mpd_state->last_song_set_song_played_time > now) //time in the future
                         {
                             //last song skipped
                             time_t elapsed = now - mympd_state->mpd_state->last_song_start_time;
@@ -367,9 +367,9 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
     sdsfree(buffer);
 }
 
-static void update_mympd_caches(struct t_mympd_state *mympd_state) {
+static bool update_mympd_caches(struct t_mympd_state *mympd_state) {
     if (mympd_state->mpd_state->feat_stickers == false && mympd_state->mpd_state->feat_tags == false) {
-        return;
+        return true;
     }
     if (mympd_state->mpd_state->feat_stickers == true) {
         mympd_state->sticker_cache_building = true;
@@ -379,5 +379,10 @@ static void update_mympd_caches(struct t_mympd_state *mympd_state) {
     }
     t_work_request *request = create_request(-1, 0, MYMPD_API_CACHES_CREATE, "MYMPD_API_CACHES_CREATE", "");
     request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_CACHES_CREATE\",\"params\":{}}");
-    mpd_worker_start(mympd_state, request);
+    bool rc = mpd_worker_start(mympd_state, request);
+    if (rc == false) {
+        mympd_state->sticker_cache_building = false;
+        mympd_state->album_cache_building = false;
+    }
+    return rc;
 }

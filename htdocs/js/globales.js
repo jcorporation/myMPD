@@ -188,7 +188,7 @@ const settingFields = {
         "form": "volumeSettingsFrm",
         "reset": true
     }
-}
+};
 
 //advanced settings default values
 const advancedSettingsDefault = {
@@ -481,7 +481,8 @@ const features = {
     "featStickers": false,
     "featTags": true,
     "featTimer": true,
-    "featTrigger": true
+    "featTrigger": true,
+    "featBinarylimit": true
 };
 
 //keyboard shortcuts

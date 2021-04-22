@@ -76,6 +76,7 @@ sds mpd_client_put_state(struct t_mympd_state *mympd_state, sds buffer, sds meth
         mympd_state->mpd_state->last_song_id = mympd_state->mpd_state->song_id;
         mympd_state->mpd_state->last_song_end_time = mympd_state->mpd_state->song_end_time;
         mympd_state->mpd_state->last_song_start_time = mympd_state->mpd_state->song_start_time;
+        mympd_state->mpd_state->last_song_set_song_played_time = mympd_state->mpd_state->set_song_played_time;
         struct mpd_song *song = mpd_run_current_song(mympd_state->mpd_state->conn);
         if (song != NULL) {
             mympd_state->mpd_state->last_song_uri = sdsreplace(mympd_state->mpd_state->last_song_uri, mympd_state->mpd_state->song_uri);
