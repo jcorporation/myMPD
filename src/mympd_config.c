@@ -71,8 +71,8 @@ void mympd_config_defaults(struct t_config *config) {
     
     config->covercache = mympd_getenv_bool("MYMPD_COVERCACHE", true, config->first_startup);
     config->covercache_keep_days = mympd_getenv_int("MYMPD_COVERCACHE_KEEP_DAYS", 14, config->first_startup);
-    
-    config->loglevel = mympd_getenv_int("MYMPD_LOGLEVEL", 5, config->first_startup);
+    //loglevel can be always overriden through environment
+    config->loglevel = mympd_getenv_int("MYMPD_LOGLEVEL", 5, true);
 }
 
 void mympd_config_defaults_initial(struct t_config *config) {
@@ -87,21 +87,22 @@ void mympd_config_defaults_initial(struct t_config *config) {
 }
 
 bool mympd_read_config(struct t_config *config) {
-    config->http_host = state_file_rw_string_sds(config, "http_host", config->http_host, false);
-    config->http_port = state_file_rw_string_sds(config, "http_port", config->http_port, false);
+    config->http_host = state_file_rw_string_sds(config, "config", "http_host", config->http_host, false);
+    config->http_port = state_file_rw_string_sds(config, "config", "http_port", config->http_port, false);
     #ifdef ENABLE_SSL
-    config->ssl = state_file_rw_bool(config, "ssl", config->ssl, false);
-    config->ssl_port = state_file_rw_string_sds(config, "ssl_port", config->ssl_port, false);
-    config->ssl_cert = state_file_rw_string_sds(config, "ssl_cert", config->ssl_cert, false);
-    config->ssl_key = state_file_rw_string_sds(config, "ssl_key", config->ssl_key, false);
-    config->ssl_san = state_file_rw_string_sds(config, "ssl_san", config->ssl_san, false);
-    config->custom_cert = state_file_rw_bool(config, "custom_cert", config->custom_cert, false);
+    config->ssl = state_file_rw_bool(config, "config", "ssl", config->ssl, false);
+    config->ssl_port = state_file_rw_string_sds(config, "config", "ssl_port", config->ssl_port, false);
+    config->ssl_cert = state_file_rw_string_sds(config, "config", "ssl_cert", config->ssl_cert, false);
+    config->ssl_key = state_file_rw_string_sds(config, "config", "ssl_key", config->ssl_key, false);
+    config->ssl_san = state_file_rw_string_sds(config, "config", "ssl_san", config->ssl_san, false);
+    config->custom_cert = state_file_rw_bool(config, "config", "custom_cert", config->custom_cert, false);
     #endif
-    config->acl = state_file_rw_string_sds(config, "acl", config->acl, false);
-    config->scriptacl = state_file_rw_string_sds(config, "scriptacl", config->scriptacl, false);
-    config->lualibs = state_file_rw_string_sds(config, "lualibs", config->lualibs, false);
-    config->covercache = state_file_rw_bool(config, "covercache", config->covercache, false);
-    config->covercache_keep_days = state_file_rw_int(config, "covercache_keep_days", config->covercache_keep_days, false);
+    config->acl = state_file_rw_string_sds(config, "config", "acl", config->acl, false);
+    config->scriptacl = state_file_rw_string_sds(config, "config", "scriptacl", config->scriptacl, false);
+    config->lualibs = state_file_rw_string_sds(config, "config", "lualibs", config->lualibs, false);
+    config->covercache = state_file_rw_bool(config, "config", "covercache", config->covercache, false);
+    config->covercache_keep_days = state_file_rw_int(config, "config", "covercache_keep_days", config->covercache_keep_days, false);
+    config->loglevel = state_file_rw_int(config, "config", "loglevel", config->loglevel, false);
     
     //set correct path to certificate/key, if workdir is non default and cert paths are default
     #ifdef ENABLE_SSL

@@ -6,9 +6,9 @@
 
 #ifndef __STATE_FILES_H
 #define __STATE_FILES_H
-sds state_file_rw_string_sds(struct t_config *config, const char *name, sds old_value, bool warn);
-sds state_file_rw_string(struct t_config *config, const char *name, const char *def_value, bool warn);
-bool state_file_rw_bool(struct t_config *config, const char *name, const bool def_value, bool warn);
-int state_file_rw_int(struct t_config *config, const char *name, const int def_value, bool warn);
-bool state_file_write(struct t_config *config, const char *name, const char *value);
+sds state_file_rw_string_sds(struct t_config *config, const char *dir, const char *name, sds old_value, bool warn);
+sds state_file_rw_string(struct t_config *config, const char *dir, const char *name, const char *def_value, bool warn);
+bool state_file_rw_bool(struct t_config *config, const char *dir, const char *name, const bool def_value, bool warn);
+int state_file_rw_int(struct t_config *config, const char *dir, const char *name, const int def_value, bool warn);
+bool state_file_write(struct t_config *config, const char *dir, const char *name, const char *value);
 #endif

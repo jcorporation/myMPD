@@ -28,13 +28,13 @@
 #include "utility.h"
 #include "state_files.h"
 
-sds state_file_rw_string_sds(struct t_config *config, const char *name, sds old_value, bool warn) {
-    sds value = state_file_rw_string(config, name, old_value, warn);
+sds state_file_rw_string_sds(struct t_config *config, const char *dir, const char *name, sds old_value, bool warn) {
+    sds value = state_file_rw_string(config, dir, name, old_value, warn);
     sdsfree(old_value);
     return value;
 }
 
-sds state_file_rw_string(struct t_config *config, const char *name, const char *def_value, bool warn) {
+sds state_file_rw_string(struct t_config *config, const char *dir, const char *name, const char *def_value, bool warn) {
     char *line = NULL;
     size_t n = 0;
     ssize_t read;
@@ -45,7 +45,7 @@ sds state_file_rw_string(struct t_config *config, const char *name, const char *
         return result;
     }
     
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->workdir, name);
+    sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", config->workdir, dir, name);
     FILE *fp = fopen(cfg_file, "r");
     if (fp == NULL) {
         if (warn == true) {
@@ -54,7 +54,7 @@ sds state_file_rw_string(struct t_config *config, const char *name, const char *
         else if (errno != ENOENT) {
             MYMPD_LOG_ERROR("Can not open file \"%s\": %s", cfg_file, strerror(errno));
         }
-        state_file_write(config, name, def_value);
+        state_file_write(config, dir, name, def_value);
         result = sdscat(result, def_value);
         sdsfree(cfg_file);
         return result;
@@ -77,9 +77,9 @@ sds state_file_rw_string(struct t_config *config, const char *name, const char *
     return result;
 }
 
-bool state_file_rw_bool(struct t_config *config, const char *name, const bool def_value, bool warn) {
+bool state_file_rw_bool(struct t_config *config, const char *dir, const char *name, const bool def_value, bool warn) {
     bool value = def_value;
-    sds line = state_file_rw_string(config, name, def_value == true ? "true" : "false", warn);
+    sds line = state_file_rw_string(config, dir, name, def_value == true ? "true" : "false", warn);
     if (sdslen(line) > 0) {
         value = strtobool(line);
         sdsfree(line);
@@ -87,11 +87,11 @@ bool state_file_rw_bool(struct t_config *config, const char *name, const bool de
     return value;
 }
 
-int state_file_rw_int(struct t_config *config, const char *name, const int def_value, bool warn) {
+int state_file_rw_int(struct t_config *config, const char *dir, const char *name, const int def_value, bool warn) {
     char *crap = NULL;
     int value = def_value;
     sds def_value_str = sdsfromlonglong(def_value);
-    sds line = state_file_rw_string(config, name, def_value_str, warn);
+    sds line = state_file_rw_string(config, dir, name, def_value_str, warn);
     sdsfree(def_value_str);
     if (sdslen(line) > 0) {
         value = strtoimax(line, &crap, 10);
@@ -100,11 +100,11 @@ int state_file_rw_int(struct t_config *config, const char *name, const int def_v
     return value;
 }
 
-bool state_file_write(struct t_config *config, const char *name, const char *value) {
+bool state_file_write(struct t_config *config, const char *dir, const char *name, const char *value) {
     if (!validate_string(name)) {
         return false;
     }
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/%s.XXXXXX", config->workdir, name);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/%s/%s.XXXXXX", config->workdir, dir, name);
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
         MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
@@ -117,7 +117,7 @@ bool state_file_write(struct t_config *config, const char *name, const char *val
         MYMPD_LOG_ERROR("Can not write to file \"%s\"", tmp_file);
     }
     fclose(fp);
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->workdir, name);
+    sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", config->workdir, dir, name);
     if (rename(tmp_file, cfg_file) == -1) {
         MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed: %s", tmp_file, cfg_file, strerror(errno));
         sdsfree(tmp_file);

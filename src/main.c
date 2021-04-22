@@ -214,17 +214,12 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         return false;
     }
 
-    //state directory
-    sds testdirname = sdscatfmt(sdsempty(), "%s/state", config->workdir);
-    testdir_rc = testdir("State dir", testdirname, true);
+    //config directory
+    sds testdirname = sdscatfmt(sdsempty(), "%s/config", config->workdir);
+    testdir_rc = testdir("Config dir", testdirname, true);
     if (testdir_rc > 1) {
         sdsfree(testdirname);
         return false;
-    }
-    if (startup_uid == 0) {
-        if (do_chown(testdirname, config->user) == false) {
-            return false;
-        }
     }
     sdsfree(testdirname);
     return true;
@@ -239,9 +234,15 @@ static bool check_dirs(struct t_config *config) {
         return false;
     }
     #endif
-
+    //state directory
+    sds testdirname = sdscatfmt(sdsempty(), "%s/state", config->workdir);
+    testdir_rc = testdir("State dir", testdirname, true);
+    if (testdir_rc > 1) {
+        sdsfree(testdirname);
+        return false;
+    }
     //smart playlists
-    sds testdirname = sdscatfmt(sdsempty(), "%s/smartpls", config->workdir);
+    testdirname = sdscatfmt(sdsempty(), "%s/smartpls", config->workdir);
     testdir_rc = testdir("Smartpls dir", testdirname, true);
     if (testdir_rc == 1) {
         //directory created, create default smart playlists
