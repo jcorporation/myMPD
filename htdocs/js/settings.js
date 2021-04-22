@@ -103,8 +103,9 @@ function saveConnection() {
     const mpdPortEl = document.getElementById('inputMpdPort');
     const mpdPassEl = document.getElementById('inputMpdPass');
     const playlistDirectoryEl = document.getElementById('inputPlaylistDirectory');
-    const streamPortEl = document.getElementById('inputStreamPort');
-    const binarylimitEl = document.getElementById('inputBinarylimit');
+    const mpdStreamPortEl = document.getElementById('inputMpdStreamPort');
+    const mpdBinarylimitEl = document.getElementById('inputMpdBinarylimit');
+    const mpdTimeoutEl = document.getElementById('inputMpdTimeout');
     let musicDirectory = getSelectValue('selectMusicDirectory');
     
     if (musicDirectory === 'custom') {
@@ -128,10 +129,13 @@ function saveConnection() {
     if (!validatePath(playlistDirectoryEl)) {
         formOK = false;
     }
-    if (!validateUint(streamPortEl)) {
+    if (!validateIntRange(mpdStreamPortEl, 1024, 65535)) {
         formOK = false;
     }
-    if (!validateUint(binarylimitEl)) {
+    if (!validateIntRange(mpdBinarylimitEl, 4096, 40960)) {
+        formOK = false;
+    }
+    if (!validateIntRange(mpdTimeoutEl, 1, 100)) {
         formOK = false;
     }
     if (formOK === true) {
@@ -141,8 +145,9 @@ function saveConnection() {
             "mpdPass": mpdPassEl.value,
             "musicDirectory": musicDirectory,
             "playlistDirectory": playlistDirectoryEl.value,
-            "mpdStreamPort": parseInt(streamPortEl.value),
-            "mpdBinarylimit": parseUint(binarylimitEl.value)
+            "mpdStreamPort": parseInt(mpdStreamPortEl.value),
+            "mpdBinarylimit": parseInt(mpdBinarylimitEl.value),
+            "mpdTimeout": parseInt(mpdTimeoutEl.value) * 1000
         }, getSettings);
         uiElements.modalConnection.hide();    
     }
@@ -422,8 +427,9 @@ function populateConnectionFrm() {
     document.getElementById('inputMpdPort').value = settings.mpdPort;
     document.getElementById('inputMpdPass').value = settings.mpdPass;
     document.getElementById('inputPlaylistDirectory').value = settings.playlistDirectory;
-    document.getElementById('inputStreamPort').value = settings.mpdStreamPort;
-    document.getElementById('inputBinarylimit').value = settings.mpdBinarylimit;
+    document.getElementById('inputMpdStreamPort').value = settings.mpdStreamPort;
+    document.getElementById('inputMpdBinarylimit').value = settings.mpdBinarylimit;
+    document.getElementById('inputMpdTimeout').value = settings.mpdTimeout / 1000;
 
     if (settings.musicDirectory === 'auto') {
         document.getElementById('selectMusicDirectory').value = settings.musicDirectory;

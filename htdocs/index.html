@@ -1022,9 +1022,14 @@
                     </div>
                   </div>
                   <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="inputSmartplsInterval" data-phrase="Update smart playlists (hours)"></label>
+                    <label class="col-sm-4 col-form-label" for="inputSmartplsInterval" data-phrase="Update interval"></label>
                     <div class="col-sm-8">
-                      <input type="text" class="form-control border-secondary" id="inputSmartplsInterval"/>
+                      <div class="input-group">
+                        <input type="text" class="form-control border-secondary rounded" id="inputSmartplsInterval"/>
+                        <div class="input-group-append">
+                          <div class="input-group-text-nobg" data-phrase="Hours"></div>
+                        </div>
+                      </div>
                       <div class="invalid-feedback" data-phrase="Invalid number"></div>
                     </div>
                   </div>
@@ -1223,9 +1228,14 @@
                     </div>
                   </div>
                   <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="inputJukeboxLastPlayed" data-phrase="Last played older than (hours)"></label>
+                    <label class="col-sm-4 col-form-label" for="inputJukeboxLastPlayed" data-phrase="Last played older than"></label>
                     <div class="col-sm-8">
-                      <input id="inputJukeboxLastPlayed" type="text" class="form-control border-secondary" value="24"/>
+                      <div class="input-group">
+                        <input id="inputJukeboxLastPlayed" type="text" class="form-control border-secondary rounded" value="24"/>
+                        <div class="input-group-append">
+                          <div class="input-group-text-nobg" data-phrase="Hours"></div>
+                        </div>
+                      </div>
                       <div class="invalid-feedback" data-phrase="Must be a number and equal or greater than zero"></div>
                     </div>
                   </div>
@@ -1363,16 +1373,28 @@
               </div>
             </div>
             <div class="form-group row">
-              <label class="col-sm-4 col-form-label" for="inputStreamPort" data-phrase="Stream port"></label>
+              <label class="col-sm-4 col-form-label" for="inputMpdStreamPort" data-phrase="Stream port"></label>
               <div class="col-sm-8 ">
-                 <input id="inputStreamPort" type="text" class="form-control border-secondary alwaysEnabled"/>
+                 <input id="inputMpdStreamPort" type="text" class="form-control border-secondary alwaysEnabled"/>
                  <div class="invalid-feedback" data-phrase="Invalid stream port"></div>
               </div>
             </div>
-            <div class="form-group row featBinarylimit">
-              <label class="col-sm-4 col-form-label" for="inputBinarylimit" data-phrase="Binary limit"></label>
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label" for="inputMpdTimeout" data-phrase="Timeout"></label>
               <div class="col-sm-8 ">
-                 <input id="inputBinarylimit" type="text" class="form-control border-secondary alwaysEnabled"/>
+                 <div class="input-group">
+                   <input id="inputMpdTimeout" type="text" class="form-control border-secondary rounded alwaysEnabled"/>
+                   <div class="input-group-append">
+                     <div class="input-group-text-nobg">Seconds</div>
+                   </div>
+                </div>
+                <div class="invalid-feedback" data-phrase="Invalid timeout"></div>
+              </div>
+            </div>
+            <div class="form-group row featBinarylimit">
+              <label class="col-sm-4 col-form-label" for="inputMpdBinarylimit" data-phrase="Binary limit"></label>
+              <div class="col-sm-8 ">
+                 <input id="inputMpdBinarylimit" type="text" class="form-control border-secondary alwaysEnabled"/>
                  <div class="invalid-feedback" data-phrase="Invalid binary limit"></div>
               </div>
             </div>
@@ -1584,7 +1606,7 @@
                   <input type="text" class="form-control border-secondary hide" id="inputTimerInterval"/>
                   <div id="invalidTimerInterval" class="invalid-feedback" data-phrase="Invalid timer interval"></div>
                 </div>
-                <label id="inputTimerIntervalLabel" class="col-sm-2 col-form-label hide" for="selectInputInterval" data-phrase="hours"></label>
+                <label id="inputTimerIntervalLabel" class="col-sm-2 col-form-label hide" for="selectInputInterval" data-phrase="Hours"></label>
               </div>
               <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="selectTimerAction" data-phrase="Action"></label>

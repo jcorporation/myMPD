@@ -192,7 +192,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             else {
                 MYMPD_LOG_NOTICE("MPD connecting to %s:%d", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port);
             }
-            mympd_state->mpd_state->conn = mpd_connection_new(mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->timeout);
+            mympd_state->mpd_state->conn = mpd_connection_new(mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_timeout);
             if (mympd_state->mpd_state->conn == NULL) {
                 MYMPD_LOG_ERROR("MPD connection to failed: out-of-memory");
                 buffer = jsonrpc_event(buffer, "mpd_disconnected");
@@ -231,7 +231,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 s_signal_received = 1;
             }
             
-            mpd_connection_set_timeout(mympd_state->mpd_state->conn, mympd_state->mpd_state->timeout);
+            mpd_connection_set_timeout(mympd_state->mpd_state->conn, mympd_state->mpd_state->mpd_timeout);
             buffer = jsonrpc_event(buffer, "mpd_connected");
             ws_notify(buffer);
             mympd_state->mpd_state->conn_state = MPD_CONNECTED;

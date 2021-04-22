@@ -960,8 +960,8 @@ Erzwinge Eindeutigkeit
 Invalid name
 Ungültiger Name
 
-Last played older than (hours)
-Zuletzte gespielt, vor mehr als (Stunden)
+Last played older than
+Zuletzte gespielt, vor mehr als
 
 Minimum one weekday must be selected
 Es muss mindestens ein Wochentag ausgewählt sein.
@@ -1080,8 +1080,8 @@ Reihenfolge
 Sort by tag
 Sortiere nach Tag
 
-Update smart playlists (hours)
-Intelligente Wiedergabelisten aktualisieren (Stunden)
+Update interval
+Update Intervall
 
 Smart playlists prefix
 Prefix von Intelligenten Wiedergabelisten
@@ -1663,9 +1663,6 @@ Wöchentlich
 Each hours
 jede Stunde |||| jede %{smart_count}. Stunde
 
-hours
-Stunden
-
 Missing translations
 Für die ausgewählte Sprache fehlt %{smart_count} Übersetzung |||| Für die ausgewähle Sprache fehlen %{smart_count} Übersetzungen
 
@@ -1758,3 +1755,9 @@ Binary Limit
 
 Invalid binary limit
 Ungültiger Binary Limit Wert
+
+Invalid timeout
+Ungültiger Timeit
+
+Timeout
+Timeout

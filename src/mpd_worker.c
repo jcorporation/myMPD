@@ -110,7 +110,7 @@ static bool mpd_worker_connect(struct t_mpd_worker_state *mpd_worker_state) {
     else {
         MYMPD_LOG_NOTICE("MPD worker connecting to %s:%d", mpd_worker_state->mpd_state->mpd_host, mpd_worker_state->mpd_state->mpd_port);
     }
-    mpd_worker_state->mpd_state->conn = mpd_connection_new(mpd_worker_state->mpd_state->mpd_host, mpd_worker_state->mpd_state->mpd_port, mpd_worker_state->mpd_state->timeout);
+    mpd_worker_state->mpd_state->conn = mpd_connection_new(mpd_worker_state->mpd_state->mpd_host, mpd_worker_state->mpd_state->mpd_port, mpd_worker_state->mpd_state->mpd_timeout);
     if (mpd_worker_state->mpd_state->conn == NULL) {
         MYMPD_LOG_ERROR("MPD worker connection to failed: out-of-memory");
         mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
@@ -129,7 +129,7 @@ static bool mpd_worker_connect(struct t_mpd_worker_state *mpd_worker_state) {
     }
 
     MYMPD_LOG_NOTICE("MPD worker connected");
-    mpd_connection_set_timeout(mpd_worker_state->mpd_state->conn, mpd_worker_state->mpd_state->timeout);
+    mpd_connection_set_timeout(mpd_worker_state->mpd_state->conn, mpd_worker_state->mpd_state->mpd_timeout);
     mpd_worker_state->mpd_state->conn_state = MPD_CONNECTED;
     return true;
 }

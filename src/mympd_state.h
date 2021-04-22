@@ -62,7 +62,7 @@ struct t_mpd_state {
     //Connection
     struct mpd_connection *conn;
     enum mpd_conn_states conn_state;
-    int timeout;
+    int mpd_timeout;
     time_t reconnect_time;
     unsigned reconnect_interval;
     //connection configuration

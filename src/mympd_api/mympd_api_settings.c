@@ -116,6 +116,10 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
         mympd_state->mpd_state->mpd_binarylimit = strtoimax(settingvalue, &crap, 10);
         settingname = sdscat(settingname, "mpd_binarylimit");
     }
+    else if (strncmp(key->ptr, "mpdTimeout", key->len) == 0) {
+        mympd_state->mpd_state->mpd_timeout = strtoimax(settingvalue, &crap, 10);
+        settingname = sdscat(settingname, "mpd_timeout");
+    }
     else {
         MYMPD_LOG_WARN("Unknown setting %s: %s", settingname, settingvalue);
         sdsfree(settingname);
@@ -426,6 +430,7 @@ void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_state->mpd_port = state_file_rw_int(mympd_state->config, "state", "mpd_port", mympd_state->mpd_state->mpd_port, false);
     mympd_state->mpd_state->mpd_pass = state_file_rw_string_sds(mympd_state->config, "state", "mpd_pass", mympd_state->mpd_state->mpd_pass, false);
     mympd_state->mpd_state->mpd_binarylimit = state_file_rw_int(mympd_state->config, "state", "mpd_binarylimit", mympd_state->mpd_state->mpd_binarylimit, false);
+    mympd_state->mpd_state->mpd_timeout = state_file_rw_int(mympd_state->config, "state", "mpd_timeout", mympd_state->mpd_state->mpd_timeout, false);
     mympd_state->mpd_state->taglist = state_file_rw_string_sds(mympd_state->config, "state", "taglist", mympd_state->mpd_state->taglist, false);
 
     mympd_state->searchtaglist = state_file_rw_string_sds(mympd_state->config, "state", "searchtaglist", mympd_state->searchtaglist, false);
@@ -471,6 +476,7 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = tojson_long(buffer, "mpdPort", mympd_state->mpd_state->mpd_port, true);
     buffer = tojson_char(buffer, "mpdPass", "dontsetpassword", true);
     buffer = tojson_long(buffer, "mpdStreamPort", mympd_state->mpd_stream_port, true);
+    buffer = tojson_long(buffer, "mpdTimeout", mympd_state->mpd_state->mpd_timeout, true);
     buffer = tojson_long(buffer, "mpdBinarylimit", mympd_state->mpd_state->mpd_binarylimit, true);
 #ifdef ENABLE_SSL
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);

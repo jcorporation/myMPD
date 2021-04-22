@@ -118,6 +118,21 @@ function validateUint(el) {
     return true;
 }
 
+function validateIntRange(el, min, max) {
+    const value = el.value.replace(/[\d]/g, '');
+    if (value !== '') {
+        el.classList.add('is-invalid');
+        return false;
+    }
+    const intValue = parseInt(el.value);
+    if (intValue < min || intValue > max) {
+        el.classList.add('is-invalid');
+        return false;
+    }
+    el.classList.remove('is-invalid');
+    return true;
+}
+
 function validateFloat(el) {
     const value = el.value.replace(/[\d-.]/g, '');
     if (value !== '') {
