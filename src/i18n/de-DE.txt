@@ -1749,3 +1749,12 @@ Minimale Lautstärke
 
 Volume step
 Lautstärkeschritt
+
+Too many worker threads are already running
+Es sind bereits zu viele Threads gestartet
+
+Binary limit
+Binary Limit
+
+Invalid binary limit
+Ungültiger Binary Limit Wert
