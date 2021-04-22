@@ -142,7 +142,7 @@ function saveConnection() {
             "musicDirectory": musicDirectory,
             "playlistDirectory": playlistDirectoryEl.value,
             "mpdStreamPort": parseInt(streamPortEl.value),
-            "binarylimit": parseUint(binarylimitEl.value)
+            "mpdBinarylimit": parseUint(binarylimitEl.value)
         }, getSettings);
         uiElements.modalConnection.hide();    
     }
@@ -423,7 +423,7 @@ function populateConnectionFrm() {
     document.getElementById('inputMpdPass').value = settings.mpdPass;
     document.getElementById('inputPlaylistDirectory').value = settings.playlistDirectory;
     document.getElementById('inputStreamPort').value = settings.mpdStreamPort;
-    document.getElementById('inputBinarylimit').value = settings.binarylimit;
+    document.getElementById('inputBinarylimit').value = settings.mpdBinarylimit;
 
     if (settings.musicDirectory === 'auto') {
         document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
@@ -658,7 +658,7 @@ function setFeatures() {
             (settings.featPlaylists === true ? true : false) : false;
         features.featStickers = settings.featStickers;
         features.featTags = settings.featTags;
-        features.featBinarylimit = settings.binarylimit;
+        features.featBinarylimit = settings.featBinarylimit;
     }
 
     //show or hide elements

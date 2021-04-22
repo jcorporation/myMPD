@@ -39,6 +39,7 @@ void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state) {
     mpd_state->mpd_host = sdsnew("/run/mpd/socket");
     mpd_state->mpd_port = 6600;
     mpd_state->mpd_pass = sdsempty();
+    mpd_state->mpd_binarylimit = 4096;
     mpd_state->song_id = -1;
     mpd_state->song_uri = sdsempty();
     mpd_state->next_song_id = -1;

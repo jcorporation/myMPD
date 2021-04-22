@@ -41,7 +41,8 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_NOTICE("MPD protocoll version: %u.%u.%u", 
         mympd_state->mpd_state->protocol[0], 
         mympd_state->mpd_state->protocol[1], 
-        mympd_state->mpd_state->protocol[2]);
+        mympd_state->mpd_state->protocol[2]
+    );
 
     // Defaults
     mympd_state->mpd_state->feat_stickers = false;
@@ -55,6 +56,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_state->feat_mpd_mount = false;
     mympd_state->mpd_state->feat_mpd_neighbor = false;
     mympd_state->mpd_state->feat_mpd_partitions = false;
+    mympd_state->mpd_state->feat_mpd_binarylimit = false;
     
     //get features
     mpd_client_feature_commands(mympd_state);
@@ -83,6 +85,14 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     }
     else {
         MYMPD_LOG_WARN("Disabling partitions support, depends on mpd >= 0.22.0");
+    }
+
+    if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 22, 4) >= 0 ) {
+        mympd_state->mpd_state->feat_mpd_binarylimit = true;
+        MYMPD_LOG_NOTICE("Enabling binarylimit feature");
+    }
+    else {
+        MYMPD_LOG_WARN("Disabling binarylimit support, depends on mpd >= 0.22.4");
     }
     
     //push settings to web_server_queue

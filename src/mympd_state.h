@@ -70,7 +70,7 @@ struct t_mpd_state {
     sds mpd_host;
     int mpd_port;
     sds mpd_pass;
-    unsigned binarylimit;
+    unsigned mpd_binarylimit;
     //connection states
     int song_id;
     int next_song_id;
@@ -106,6 +106,7 @@ struct t_mpd_state {
     bool feat_mpd_mount;
     bool feat_mpd_neighbor;
     bool feat_mpd_partitions;
+    bool feat_mpd_binarylimit;
 };
 
 struct t_timer_definition {

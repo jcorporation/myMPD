@@ -30,18 +30,18 @@ sds mpd_client_getcover(struct t_mympd_state *mympd_state, sds buffer, sds metho
                         const char *uri, sds *binary)
 {
     unsigned offset = 0;
-    void *binary_buffer = malloc(mympd_state->mpd_state->binarylimit);
+    void *binary_buffer = malloc(mympd_state->mpd_state->mpd_binarylimit);
     int recv_len = 0;
     if (mympd_state->mpd_state->feat_mpd_albumart == true) {
         MYMPD_LOG_DEBUG("Try mpd command albumart for \"%s\"", uri);
-        while ((recv_len = mpd_run_albumart(mympd_state->mpd_state->conn, uri, offset, binary_buffer, mympd_state->mpd_state->binarylimit)) > 0) {
+        while ((recv_len = mpd_run_albumart(mympd_state->mpd_state->conn, uri, offset, binary_buffer, mympd_state->mpd_state->mpd_binarylimit)) > 0) {
             *binary = sdscatlen(*binary, binary_buffer, recv_len);
             offset += recv_len;
         }
     }
     if (offset == 0 && mympd_state->mpd_state->feat_mpd_readpicture == true) {
         MYMPD_LOG_DEBUG("Try mpd command readpicture for \"%s\"", uri);
-        while ((recv_len = mpd_run_readpicture(mympd_state->mpd_state->conn, uri, offset, binary_buffer, mympd_state->mpd_state->binarylimit)) > 0) {
+        while ((recv_len = mpd_run_readpicture(mympd_state->mpd_state->conn, uri, offset, binary_buffer, mympd_state->mpd_state->mpd_binarylimit)) > 0) {
             *binary = sdscatlen(*binary, binary_buffer, recv_len);
             offset += recv_len;
         }
