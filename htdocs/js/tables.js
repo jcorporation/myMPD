@@ -599,7 +599,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
                         printValue(settings['cols' + list][c], obj.result.data[i][settings['cols' + list][c]]) +
                         '</td>';
                 }
-                tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
+                tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey" title="' + t('Actions') + '">' + ligatureMore + '</a></td>';
                 row.innerHTML = tds;
             }
         }
