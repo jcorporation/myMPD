@@ -346,13 +346,6 @@ const advancedSettingsDefault = {
         "title": "Homescreen",
         "form": "enableFeaturesFrm"
     },
-    "enableLyrics": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Lyrics",
-        "form": "enableFeaturesFrm",
-        "warn": "Can't access music directory"
-    },
     "enableScripting": {
         "defaultValue": true,
         "inputType": "checkbox",

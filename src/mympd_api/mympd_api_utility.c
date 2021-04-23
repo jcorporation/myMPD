@@ -64,6 +64,10 @@ void default_mympd_state(struct t_mympd_state *mympd_state) {
     mympd_state->volume_step = 5;
     mympd_state->mpd_stream_port = 8080;
     mympd_state->advanced = sdsnew("{}");
+    mympd_state->uslt_ext = sdsnew("txt");
+    mympd_state->sylt_ext = sdsnew("lrc");
+    mympd_state->vorbis_uslt = sdsnew("LYRICS");
+    mympd_state->vorbis_sylt = sdsnew("SYNCEDLYRICS");
     reset_t_tags(&mympd_state->search_tag_types);
     reset_t_tags(&mympd_state->browse_tag_types);
     reset_t_tags(&mympd_state->generate_pls_tag_types);
@@ -132,6 +136,10 @@ void free_mympd_state_sds(struct t_mympd_state *mympd_state) {
     sdsfree(mympd_state->navbar_icons);
     sdsfree(mympd_state->advanced);
     sdsfree(mympd_state->playlist_directory);
+    sdsfree(mympd_state->sylt_ext);
+    sdsfree(mympd_state->uslt_ext);
+    sdsfree(mympd_state->vorbis_uslt);
+    sdsfree(mympd_state->vorbis_sylt);
 }
 
 static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", 

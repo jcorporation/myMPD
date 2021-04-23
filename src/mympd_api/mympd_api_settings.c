@@ -46,7 +46,7 @@ void mympd_api_settings_delete(struct t_config *config) {
         "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
         "cols_search", "cols_queue_jukebox", "coverimage_names", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
         "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags", "smartpls", "smartpls_sort", "smartpls_prefix", "smartpls_interval",
-        "last_played_count", "locale", "searchtaglist", "taglist", "booklet_name", "advanced", 
+        "last_played_count", "locale", "searchtaglist", "taglist", "booklet_name", "advanced", "uslt_ext", "sylt_ext", "vorbis_uslt", "vorbis_sylt",
         0};
     const char** ptr = state_files;
     while (*ptr != 0) {
@@ -284,6 +284,22 @@ bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token
         mympd_state->advanced = sdsreplacelen(mympd_state->advanced, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "advanced");
     }
+    else if (strncmp(key->ptr, "usltExt", key->len) == 0) {
+        mympd_state->uslt_ext = sdsreplacelen(mympd_state->uslt_ext, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "uslt_ext");
+    }
+    else if (strncmp(key->ptr, "syltExt", key->len) == 0) {
+        mympd_state->sylt_ext = sdsreplacelen(mympd_state->sylt_ext, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "sylt_ext");
+    }
+    else if (strncmp(key->ptr, "vorbisUslt", key->len) == 0) {
+        mympd_state->vorbis_uslt = sdsreplacelen(mympd_state->vorbis_uslt, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "vorbis_uslt");
+    }
+    else if (strncmp(key->ptr, "vorbisSylt", key->len) == 0) {
+        mympd_state->vorbis_sylt = sdsreplacelen(mympd_state->vorbis_sylt, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "vorbis_sylt");
+    }
     else {
         MYMPD_LOG_WARN("Unknown setting \"%s\": \"%s\"", settingname, settingvalue);
         sdsfree(settingname);
@@ -464,6 +480,11 @@ void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
     mympd_state->volume_step = state_file_rw_int(mympd_state->config, "state", "volume_step", (int)mympd_state->volume_step, false);
     mympd_state->advanced = state_file_rw_string_sds(mympd_state->config, "state", "advanced", mympd_state->advanced, false);
     mympd_state->mpd_stream_port = state_file_rw_int(mympd_state->config, "state", "mpd_stream_port", mympd_state->mpd_stream_port, false);
+    mympd_state->uslt_ext = state_file_rw_string_sds(mympd_state->config, "state", "uslt_ext", mympd_state->uslt_ext, false);
+    mympd_state->sylt_ext = state_file_rw_string_sds(mympd_state->config, "state", "sylt_ext", mympd_state->sylt_ext, false);
+    mympd_state->vorbis_uslt = state_file_rw_string_sds(mympd_state->config, "state", "vorbis_uslt", mympd_state->vorbis_uslt, false);
+    mympd_state->vorbis_sylt = state_file_rw_string_sds(mympd_state->config, "state", "vorbis_sylt", mympd_state->vorbis_sylt, false);
+
     strip_slash(mympd_state->music_directory);
     strip_slash(mympd_state->playlist_directory);
     mympd_state->navbar_icons = read_navbar_icons(mympd_state->config);
@@ -507,6 +528,10 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = tojson_long(buffer, "volumeMin", mympd_state->volume_min, true);
     buffer = tojson_long(buffer, "volumeMax", mympd_state->volume_max, true);
     buffer = tojson_long(buffer, "volumeStep", mympd_state->volume_step, true);
+    buffer = tojson_char(buffer, "usltExt", mympd_state->uslt_ext, true);
+    buffer = tojson_char(buffer, "syltExt", mympd_state->sylt_ext, true);
+    buffer = tojson_char(buffer, "vorbisUslt", mympd_state->vorbis_uslt, true);
+    buffer = tojson_char(buffer, "vorbisSylt", mympd_state->vorbis_sylt, true);
     buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
     buffer = sdscatfmt(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
     buffer = sdscatfmt(buffer, "\"colsBrowseDatabaseDetail\":%s,", mympd_state->cols_browse_database);

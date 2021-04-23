@@ -514,13 +514,19 @@ function populateSettingsFrm() {
     document.getElementById('inputSmartplsInterval').value = settings.smartplsInterval / 60 / 60;
     addTagListSelect('selectSmartplsSort', 'tags');
     document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
+    //lyrics
+    toggleBtnChkCollapse('btnEnableLyrics', 'collapseEnableLyrics', settings.advanced.enableLyrics);
+    document.getElementById('inputSyltExt').value = settings.syltExt;
+    document.getElementById('inputUsltExt').value = settings.usltExt;
+    document.getElementById('inputVorbisSylt').value = settings.vorbisSylt;
+    document.getElementById('inputVorbisUslt').value = settings.vorbisUslt;
     //tag multiselects
     initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.allmpdtags, settings.tags);
     initTagMultiSelect('inputSearchTags', 'listSearchTags', settings.tags, settings.searchtags);
     initTagMultiSelect('inputBrowseTags', 'listBrowseTags', settings.tags, settings.browsetags);
     initTagMultiSelect('inputGeneratePlsTags', 'listGeneratePlsTags', settings.browsetags, settings.generatePlsTags);
     //features - show or hide warnings
-    setFeatureBtn('inputAdvSettingenableLyrics', settings.featLibrary);
+    //setFeatureBtn('inputAdvSettingenableLyrics', settings.featLibrary);
     setFeatureBtn('inputAdvSettingenableScripting', settings.featScripting);
     setFeatureBtn('inputAdvSettingenableMounts', settings.featMounts);
     setFeatureBtn('inputAdvSettingenablePartitions', settings.featPartitions);
@@ -793,9 +799,11 @@ function saveSettings(closeModal) {
     let formOK = true;
 
     for (const inputId of ['inputAdvSettinguiCoverimageSize', 'inputAdvSettinguiCoverimageSizeSmall',
-            'inputLastPlayedCount', 'inputSmartplsInterval']) 
+            'inputLastPlayedCount', 'inputSmartplsInterval', 'inputSettingvolumeMax', 'inputSettingvolumeMin',
+            'inputSettingvolumeStep']) 
     {
         const inputEl = document.getElementById(inputId);
+        if (inputEl === null) { console.log(inputId); }
         if (!validateUint(inputEl)) {
             formOK = false;
         }
@@ -841,7 +849,10 @@ function saveSettings(closeModal) {
         }
     }
     
+    advSettings.enableLyrics = (document.getElementById('btnEnableLyrics').classList.contains('active') ? true : false);
+    
     if (formOK === true) {
+        //TODO: add missing fields
         sendAPI("MYMPD_API_SETTINGS_SET", {
             "coverimageNames": inputCoverimageNames.value,
             "lastPlayedCount": parseInt(document.getElementById('inputLastPlayedCount').value),
@@ -854,6 +865,13 @@ function saveSettings(closeModal) {
             "browsetaglist": getTagMultiSelectValues(document.getElementById('listBrowseTags'), false),
             "generatePlsTags": getTagMultiSelectValues(document.getElementById('listGeneratePlsTags'), false),
             "bookletName": inputBookletName.value,
+            "volumeMin": parseInt(document.getElementById('inputSettingvolumeMin').value),
+            "volumeMax": parseInt(document.getElementById('inputSettingvolumeMax').value),
+            "volumeStep": parseInt(document.getElementById('inputSettingvolumeStep').value),
+            "usltExt": document.getElementById('inputUsltExt').value,
+            "syltExt": document.getElementById('inputSyltExt').value,
+            "vorbisUslt": document.getElementById('inputVorbisUslt').value,
+            "vorbisSylt": document.getElementById('inputVorbisSylt').value,
             "advanced": advSettings,
         }, getSettings);
         if (closeModal === true) {
