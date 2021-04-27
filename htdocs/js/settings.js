@@ -498,6 +498,7 @@ function populateSettingsFrm() {
     document.getElementById('inputBookletName').value = settings.bookletName;
     document.getElementById('inputCoverimageNames').value = settings.coverimageNames;
     document.getElementById('inputLastPlayedCount').value = settings.lastPlayedCount;
+    document.getElementById('inputCovercacheKeepDays').value = settings.covercacheKeepDays;
     
     //smart playlists
     if (settings.featPlaylists === true) {
@@ -800,7 +801,7 @@ function saveSettings(closeModal) {
 
     for (const inputId of ['inputAdvSettinguiCoverimageSize', 'inputAdvSettinguiCoverimageSizeSmall',
             'inputLastPlayedCount', 'inputSmartplsInterval', 'inputSettingvolumeMax', 'inputSettingvolumeMin',
-            'inputSettingvolumeStep']) 
+            'inputSettingvolumeStep', 'inputCovercacheKeepDays']) 
     {
         const inputEl = document.getElementById(inputId);
         if (inputEl === null) { console.log(inputId); }
@@ -852,7 +853,6 @@ function saveSettings(closeModal) {
     advSettings.enableLyrics = (document.getElementById('btnEnableLyrics').classList.contains('active') ? true : false);
     
     if (formOK === true) {
-        //TODO: add missing fields
         sendAPI("MYMPD_API_SETTINGS_SET", {
             "coverimageNames": inputCoverimageNames.value,
             "lastPlayedCount": parseInt(document.getElementById('inputLastPlayedCount').value),
@@ -872,7 +872,8 @@ function saveSettings(closeModal) {
             "syltExt": document.getElementById('inputSyltExt').value,
             "vorbisUslt": document.getElementById('inputVorbisUslt').value,
             "vorbisSylt": document.getElementById('inputVorbisSylt').value,
-            "advanced": advSettings,
+            "covercacheKeepDays": parseInt(document.getElementById('inputCovercacheKeepDays').value),
+            "advanced": advSettings
         }, getSettings);
         if (closeModal === true) {
             uiElements.modalSettings.hide();

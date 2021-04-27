@@ -31,8 +31,8 @@
 void timer_handler_covercache(struct t_timer_definition *definition, void *user_data) {
     MYMPD_LOG_INFO("Start timer_handler_covercache");
     (void) definition;
-    struct t_config *config = (struct t_config *) user_data;
-    clear_covercache(config, -1);
+    struct t_mympd_state *mympd_state = (struct t_mympd_state *) user_data;
+    clear_covercache(mympd_state->config->workdir, mympd_state->covercache_keep_days);
 }
 
 //timer_id 2

@@ -36,7 +36,7 @@
       "a:hover{text-decoration:underline}"
 
 struct t_mg_user_data {
-    void *config; //pointer to mympd config
+    struct t_config *config; //pointer to mympd config
     sds browse_document_root;
     sds pics_document_root;
     sds music_directory;
@@ -48,6 +48,7 @@ struct t_mg_user_data {
     bool feat_mpd_albumart;
     int connection_count;
     sds stream_uri;
+    bool covercache;
 };
 
 #ifndef DEBUG

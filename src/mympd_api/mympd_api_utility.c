@@ -68,6 +68,7 @@ void default_mympd_state(struct t_mympd_state *mympd_state) {
     mympd_state->sylt_ext = sdsnew("lrc");
     mympd_state->vorbis_uslt = sdsnew("LYRICS");
     mympd_state->vorbis_sylt = sdsnew("SYNCEDLYRICS");
+    mympd_state->covercache_keep_days = 7;
     reset_t_tags(&mympd_state->search_tag_types);
     reset_t_tags(&mympd_state->browse_tag_types);
     reset_t_tags(&mympd_state->generate_pls_tag_types);

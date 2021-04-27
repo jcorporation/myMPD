@@ -313,7 +313,7 @@ const advancedSettingsDefault = {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Show playback settings in footer",
-        "form": "AdvancedSettingsFrm"
+        "form": "footerFrm"
     },
     "uiFooterPlaybackControls": {
         "defaultValue": "pause",
@@ -324,7 +324,7 @@ const advancedSettingsDefault = {
         },
         "inputType": "select",
         "title": "Playback controls",
-        "form": "AdvancedSettingsFrm"
+        "form": "footerFrm"
     },
     "uiMaxElementsPerPage": {
         "defaultValue": "100",

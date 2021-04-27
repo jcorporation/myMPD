@@ -14,6 +14,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <mpd/client.h>
+
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
 #include "list.h"
@@ -22,11 +24,11 @@
 #include "log.h"
 #include "covercache.h"
 
-bool write_covercache_file(struct t_config *config, const char *uri, const char *mime_type, sds binary) {
+bool write_covercache_file(const char *workdir, const char *uri, const char *mime_type, sds binary) {
     bool rc = false;
     sds filename = sdsnew(uri);
     uri_to_filename(filename);
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->workdir, filename);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", workdir, filename);
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
         MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
@@ -36,7 +38,7 @@ bool write_covercache_file(struct t_config *config, const char *uri, const char 
         fwrite(binary, 1, sdslen(binary), fp);
         fclose(fp);
         sds ext = get_ext_by_mime_type(mime_type);
-        sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", config->workdir, filename, ext);
+        sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", workdir, filename, ext);
         if (rename(tmp_file, cover_file) == -1) {
             MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed: %s", tmp_file, cover_file, strerror(errno));
             if (unlink(tmp_file) != 0) {
@@ -53,18 +55,11 @@ bool write_covercache_file(struct t_config *config, const char *uri, const char 
     return rc;
 }
 
-int clear_covercache(struct t_config *config, int keepdays) {
+int clear_covercache(const char *workdir, int keepdays) {
     int num_deleted = 0;
-    if (config->covercache == false) {
-        MYMPD_LOG_WARN("Covercache is disabled");
-        return 0;
-    }
-    if (keepdays == -1) {
-        keepdays = config->covercache_keep_days;
-    }
     time_t now = time(NULL) - keepdays * 24 * 60 * 60;
     
-    sds covercache = sdscatfmt(sdsempty(), "%s/covercache", config->workdir);
+    sds covercache = sdscatfmt(sdsempty(), "%s/covercache", workdir);
     MYMPD_LOG_NOTICE("Cleaning covercache %s", covercache);
     MYMPD_LOG_DEBUG("Remove files older than %ld sec", now);
     DIR *covercache_dir = opendir(covercache);

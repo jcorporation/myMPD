@@ -77,43 +77,13 @@ static bool do_chown(const char *file_path, const char *user_name) {
 
     errno = 0;  
     int rc = chown(file_path, pwd->pw_uid, pwd->pw_gid); /* Flawfinder: ignore */
-    //Originaly owned by root
+    //Originally owned by root
     if (rc == -1) {
         MYMPD_LOG_ERROR("Can't chown %s to %s: %s", file_path, user_name, strerror(errno));
         return false;
     }
     return true;
 }
-
-#ifdef ENABLE_SSL
-static bool chown_certs(struct t_config *config) {
-    sds filename = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->workdir);
-    if (do_chown(filename, config->user) == false) {
-        sdsfree(filename);
-        return false;
-    }
-    filename = sdscrop(filename);
-    filename = sdscatfmt(filename, "%s/ssl/ca.key", config->workdir);
-    if (do_chown(filename, config->user) == false) {
-        sdsfree(filename);
-        return false;
-    }
-    filename = sdscrop(filename);
-    filename = sdscatfmt(filename, "%s/ssl/server.pem", config->workdir);
-    if (do_chown(filename, config->user) == false) {
-        sdsfree(filename);
-        return false;
-    }
-    filename = sdscrop(filename);
-    filename = sdscatfmt(filename, "%s/ssl/server.key", config->workdir);
-    if (do_chown(filename, config->user) == false) {
-        sdsfree(filename);
-        return false;
-    }
-    sdsfree(filename);
-    return true;
-}
-#endif
 
 static bool drop_privileges(struct t_config *config, uid_t startup_uid) {
     if (startup_uid == 0 && sdslen(config->user) > 0) {
@@ -159,37 +129,25 @@ static bool drop_privileges(struct t_config *config, uid_t startup_uid) {
 }
 
 #ifdef ENABLE_SSL
-static bool check_ssl_certs(struct t_config *config, uid_t startup_uid) {
-    if (config->ssl == true && config->custom_cert == false) {
-        sds testdirname = sdscatfmt(sdsempty(), "%s/ssl", config->workdir);
-        int testdir_rc = testdir("SSL certificates", testdirname, true);
-        if (testdir_rc < 2) {
-            //chown to mympd user if root
-            if (startup_uid == 0) {
-                if (do_chown(testdirname, config->user) == false) {
-                    sdsfree(testdirname);
-                    return false;
-                }
-            }
-            //directory created, create certificates
-            if (!create_certificates(testdirname, config->ssl_san)) {
-                //error creating certificates
-                MYMPD_LOG_ERROR("Certificate creation failed");
-                sdsfree(testdirname);
-                return false;
-            }
-            sdsfree(testdirname);
-            //chown to mympd user if root
-            if (startup_uid == 0) {
-                if (chown_certs(config)== false) {
-                    return false;
-                }
-            }
-        }
-        else {
+static bool check_ssl_certs(struct t_config *config) {
+    if (config->ssl == false || config->custom_cert == true) {
+        return true;
+    }
+    sds testdirname = sdscatfmt(sdsempty(), "%s/ssl", config->workdir);
+    int testdir_rc = testdir("SSL cert dir", testdirname, true);
+    if (testdir_rc < 2) {
+        //directory created, create certificates
+        if (!create_certificates(testdirname, config->ssl_san)) {
+            //error creating certificates
+            MYMPD_LOG_ERROR("Certificate creation failed");
             sdsfree(testdirname);
             return false;
         }
+        sdsfree(testdirname);
+    }
+    else {
+        sdsfree(testdirname);
+        return false;
     }
     return true;
 }
@@ -242,7 +200,8 @@ static bool check_dirs(struct t_config *config) {
         return false;
     }
     //smart playlists
-    testdirname = sdscatfmt(sdsempty(), "%s/smartpls", config->workdir);
+    testdirname = sdscrop(testdirname);
+    testdirname = sdscatfmt(testdirname, "%s/smartpls", config->workdir);
     testdir_rc = testdir("Smartpls dir", testdirname, true);
     if (testdir_rc == 1) {
         //directory created, create default smart playlists
@@ -282,15 +241,12 @@ static bool check_dirs(struct t_config *config) {
     }
     #endif
 
-    //covercache for coverextract and mpd coverhandling
-    if (config->covercache == true) {
-        testdirname = sdscrop(testdirname);
-        testdirname = sdscatfmt(testdirname, "%s/covercache", config->workdir);
-        testdir_rc = testdir("Covercache dir", testdirname, true);
-        if (testdir_rc > 1) {
-            sdsfree(testdirname);
-            return false;
-        }
+    testdirname = sdscrop(testdirname);
+    testdirname = sdscatfmt(testdirname, "%s/covercache", config->workdir);
+    testdir_rc = testdir("Covercache dir", testdirname, true);
+    if (testdir_rc > 1) {
+        sdsfree(testdirname);
+        return false;
     }
     sdsfree(testdirname);
     return true;
@@ -394,13 +350,6 @@ int main(int argc, char **argv) {
     setvbuf(stdout, NULL, _IOLBF, 0);
     setvbuf(stderr, NULL, _IOLBF, 0);
 
-    //check for ssl certificates
-    #ifdef ENABLE_SSL
-    if (check_ssl_certs(config, startup_uid) == false) {
-        goto cleanup;
-    }
-    #endif
-
     //init webserver    
     struct mg_mgr mgr;
     init_mg_user_data = true;
@@ -415,6 +364,13 @@ int main(int argc, char **argv) {
     if (drop_privileges(config, startup_uid) == false) {
         goto cleanup;
     }
+
+    //check for ssl certificates
+    #ifdef ENABLE_SSL
+    if (check_ssl_certs(config) == false) {
+        goto cleanup;
+    }
+    #endif
 
     //check for needed directories
     if (check_dirs(config) == false) {

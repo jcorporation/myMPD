@@ -45,6 +45,7 @@ struct set_mg_user_data_request {
     bool feat_mpd_albumart;
     sds mpd_host;
     unsigned mpd_stream_port;
+    bool covercache;
 };
 
 t_work_result *create_result(t_work_request *request);

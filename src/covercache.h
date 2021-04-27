@@ -6,6 +6,6 @@
 
 #ifndef __COVERCACHE_H__
 #define __COVERCACHE_H__
-bool write_covercache_file(struct t_config *config, const char *uri, const char *mime_type, sds binary);
-int clear_covercache(struct t_config *config, int keepdays);
+bool write_covercache_file(const char *workdir, const char *uri, const char *mime_type, sds binary);
+int clear_covercache(const char *workdir, int keepdays);
 #endif

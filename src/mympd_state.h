@@ -203,6 +203,7 @@ struct t_mympd_state {
     sds sylt_ext;
     sds vorbis_uslt;
     sds vorbis_sylt;
+    int covercache_keep_days;
     //settings only for webui
     sds advanced;
 };

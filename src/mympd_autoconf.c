@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -34,22 +35,25 @@ sds find_mpd_conf(void) {
     sds filename = sdsempty();
     for (const char **p = filenames; *p != NULL; p++) {
         filename = sdsreplace(filename, *p);
-        if (access(filename, F_OK) == 0) { /* Flawfinder: ignore */
+        FILE *fp = fopen(filename, "r");
+        if (fp != NULL) { /* Flawfinder: ignore */
+            fclose(fp);
             return filename;
         }
     }
-    MYMPD_LOG_WARN("No mpd.conf found");
+    MYMPD_LOG_WARN("No readable mpd.conf found");
     filename = sdscrop(filename);
     return filename;
 }
 
 sds get_mpd_conf(const char *key, const char *default_value) {
+    sds last_value = sdsnew(default_value);
     sds mpd_conf = find_mpd_conf();
     FILE *fp = fopen(mpd_conf, "r");
     if (fp == NULL) {
-        MYMPD_LOG_WARN("Error parsing MPD configuration file: %s", mpd_conf);
+        MYMPD_LOG_WARN("Error opening MPD configuration file \"%s\": ", mpd_conf, strerror(errno));
         sdsfree(mpd_conf);
-        return false;
+        return last_value;
     }
     sdsfree(mpd_conf);
     char *line = NULL;
@@ -57,7 +61,6 @@ sds get_mpd_conf(const char *key, const char *default_value) {
     sds sds_line = sdsempty();
     sds name;
     sds value;
-    sds last_value = sdsnew(default_value);
     while (getline(&line, &n, fp) > 0) {
         sds_line = sdsreplace(sds_line, line);
         sdstrim(sds_line, " \n\r\t");

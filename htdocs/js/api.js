@@ -58,7 +58,7 @@ function sendAPI(method, params, callback, onerror) {
                 if (onerror === true) {
                     if (callback !== undefined && typeof(callback) === 'function') {
                         logDebug('Got empty API response calling ' + callback.name);
-                        callback('');
+                        callback({"error": {"message": "Empty response"}});
                     }
                 }
             }

@@ -1764,3 +1764,24 @@ Timeout
 
 Actions
 Aktionen
+
+Covercache expiration
+Covercache Ablaufzeit
+
+Enable
+Aktivieren
+
+Footer
+Fußzeile
+
+Synced lyrics extension
+Synchronisierte Liedtexte Dateiendung
+
+Synced lyrics vorbis comment
+Synchronisierte Liedtexte Vorbis Kommentarname
+
+Unsynced lyrics extension
+Liedtexte Dateiendung
+
+Unsynced lyrics vorbis comment
+Liedtexte Vorbis Kommentarname

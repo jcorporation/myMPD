@@ -47,7 +47,7 @@ void mympd_api_settings_delete(struct t_config *config) {
         "cols_search", "cols_queue_jukebox", "coverimage_names", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
         "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags", "smartpls", "smartpls_sort", "smartpls_prefix", "smartpls_interval",
         "last_played_count", "locale", "searchtaglist", "taglist", "booklet_name", "advanced", "uslt_ext", "sylt_ext", "vorbis_uslt", "vorbis_sylt",
-        0};
+        "covercache_keep_days", "volume_min", "volume_max", "volume_step", 0};
     const char** ptr = state_files;
     while (*ptr != 0) {
         sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->workdir, *ptr);
@@ -300,6 +300,10 @@ bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token
         mympd_state->vorbis_sylt = sdsreplacelen(mympd_state->vorbis_sylt, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "vorbis_sylt");
     }
+    else if (strncmp(key->ptr, "covercacheKeepDays", key->len) == 0) {
+        mympd_state->covercache_keep_days = strtoimax(settingvalue, &crap, 10);
+        settingname = sdscat(settingname, "covercache_keep_days");
+    }
     else {
         MYMPD_LOG_WARN("Unknown setting \"%s\": \"%s\"", settingname, settingvalue);
         sdsfree(settingname);
@@ -484,6 +488,7 @@ void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
     mympd_state->sylt_ext = state_file_rw_string_sds(mympd_state->config, "state", "sylt_ext", mympd_state->sylt_ext, false);
     mympd_state->vorbis_uslt = state_file_rw_string_sds(mympd_state->config, "state", "vorbis_uslt", mympd_state->vorbis_uslt, false);
     mympd_state->vorbis_sylt = state_file_rw_string_sds(mympd_state->config, "state", "vorbis_sylt", mympd_state->vorbis_sylt, false);
+    mympd_state->covercache_keep_days = state_file_rw_int(mympd_state->config, "state", "covercache_keep_days", mympd_state->covercache_keep_days, false);
 
     strip_slash(mympd_state->music_directory);
     strip_slash(mympd_state->playlist_directory);
@@ -532,6 +537,7 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = tojson_char(buffer, "syltExt", mympd_state->sylt_ext, true);
     buffer = tojson_char(buffer, "vorbisUslt", mympd_state->vorbis_uslt, true);
     buffer = tojson_char(buffer, "vorbisSylt", mympd_state->vorbis_sylt, true);
+    buffer = tojson_long(buffer, "covercacheKeepDays", mympd_state->covercache_keep_days, true);
     buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
     buffer = sdscatfmt(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
     buffer = sdscatfmt(buffer, "\"colsBrowseDatabaseDetail\":%s,", mympd_state->cols_browse_database);

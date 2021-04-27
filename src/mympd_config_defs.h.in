@@ -68,8 +68,6 @@ struct t_config {
     bool syslog;
     int loglevel;
     time_t startup_time;
-    bool covercache;
-    int covercache_keep_days;
     bool first_startup;
     bool bootstrap;
 };

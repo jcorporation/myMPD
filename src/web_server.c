@@ -61,6 +61,7 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     mg_user_data->feat_mpd_albumart = false;
     mg_user_data->connection_count = 0;
 	mg_user_data->stream_uri = sdsnew("http://localhost:8000");
+	mg_user_data->covercache = true;
 
     //init monogoose mgr
     mg_mgr_init(mgr);
@@ -105,8 +106,6 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
             return false;
         } 
         MYMPD_LOG_NOTICE("Listening on https://%s:%s", config->http_host, config->ssl_port);
-        MYMPD_LOG_DEBUG("Using certificate: %s", config->ssl_cert);
-        MYMPD_LOG_DEBUG("Using private key: %s", config->ssl_key);
     }
     #endif
     return mgr;
@@ -123,9 +122,17 @@ void *web_server_loop(void *arg_mgr) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     
     //set mongoose loglevel
+    #ifdef DEBUG
     mg_log_set("1");
+    #else
+    mg_log_set("0");
+    #endif
     
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
+
+    MYMPD_LOG_DEBUG("Using certificate: %s", mg_user_data->config->ssl_cert);
+    MYMPD_LOG_DEBUG("Using private key: %s", mg_user_data->config->ssl_key);
+
     sds last_notify = sdsempty();
     time_t last_time = 0;
     while (s_signal_received == 0) {
@@ -181,7 +188,8 @@ static bool parse_internal_message(t_work_result *response, struct t_mg_user_dat
         
         mg_user_data->feat_library = new_mg_user_data->feat_library;
         mg_user_data->feat_mpd_albumart = new_mg_user_data->feat_mpd_albumart;
-
+        mg_user_data->covercache = new_mg_user_data->covercache;
+        
         sdsclear(mg_user_data->stream_uri);
         if (new_mg_user_data->mpd_stream_port != 0) {
             mg_user_data->stream_uri = sdscatprintf(mg_user_data->stream_uri, "http://%s:%u", 
@@ -268,7 +276,7 @@ static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     struct mg_connection *backend_nc = fn_data;
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
-    struct t_config *config = (struct t_config *) mg_user_data->config;
+    struct t_config *config = mg_user_data->config;
     switch(ev) {
         case MG_EV_ACCEPT: {
             //check connection count
@@ -476,7 +484,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     (void)fn_data;
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
-    struct t_config *config = (struct t_config *) mg_user_data->config;
+    struct t_config *config = mg_user_data->config;
     if (ev == MG_EV_ACCEPT) {
         //check connection count
         if (mg_user_data->connection_count > 100) {

@@ -68,9 +68,6 @@ void mympd_config_defaults(struct t_config *config) {
     #ifdef ENABLE_LUA
     config->lualibs = mympd_getenv_string("MYMPD_LUALIBS", "all", config->first_startup);
     #endif
-    
-    config->covercache = mympd_getenv_bool("MYMPD_COVERCACHE", true, config->first_startup);
-    config->covercache_keep_days = mympd_getenv_int("MYMPD_COVERCACHE_KEEP_DAYS", 14, config->first_startup);
     //loglevel can be always overriden through environment
     config->loglevel = mympd_getenv_int("MYMPD_LOGLEVEL", 5, true);
 }
@@ -83,7 +80,7 @@ void mympd_config_defaults_initial(struct t_config *config) {
     //not configureable
     config->startup_time = time(NULL);
     config->first_startup = false;
-    config->bootstrap =false;
+    config->bootstrap = false;
 }
 
 bool mympd_read_config(struct t_config *config) {
@@ -100,8 +97,6 @@ bool mympd_read_config(struct t_config *config) {
     config->acl = state_file_rw_string_sds(config, "config", "acl", config->acl, false);
     config->scriptacl = state_file_rw_string_sds(config, "config", "scriptacl", config->scriptacl, false);
     config->lualibs = state_file_rw_string_sds(config, "config", "lualibs", config->lualibs, false);
-    config->covercache = state_file_rw_bool(config, "config", "covercache", config->covercache, false);
-    config->covercache_keep_days = state_file_rw_int(config, "config", "covercache_keep_days", config->covercache_keep_days, false);
     config->loglevel = state_file_rw_int(config, "config", "loglevel", config->loglevel, false);
     
     //set correct path to certificate/key, if workdir is non default and cert paths are default

@@ -930,6 +930,9 @@
                 <h4 data-phrase="Locale"></h4>
                 <div id="localeFrm"></div>
                 <div id="warnMissingPhrases" class="alert alert-warning hide mt-2"></div>
+                <hr/>
+                <h4 data-phrase="Footer"></h4>
+                <div id="footerFrm"></div>
               </form>
             </div>
             <div class="tab-pane" id="tabNotificationSettings">
@@ -1092,12 +1095,23 @@
                     <button type="button" id="btnClearAndReload" class="btn btn-secondary btnCleanup" data-href='{"cmd": "clearAndReload", "options": []}' data-phrase="Reload"></button>
                   </div>
                 </div>
-                <div class="form-group row groupClearCovercache">
+                <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnClearCovercache" data-phrase="Clear covercache"></label>
                   <div class="col-sm-8">
                     <button type="button" id="btnClearCovercache" class="btn btn-secondary btnCleanup" data-href='{"cmd": "clearCovercache", "options": []}' data-phrase="Clear"></button>
                     &nbsp;
                     <button type="button" id="btnCropCovercache" class="btn btn-secondary btnCleanup" data-href='{"cmd": "cropCovercache", "options": []}' data-phrase="Crop"></button>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputCovercacheKeepDays" data-phrase="Covercache expiration"></label>
+                  <div class="col-sm-8">
+                    <div class="input-group">
+                      <input type="text" class="form-control border-secondary" id="inputCovercacheKeepDays" placeholder="7"/>
+                      <div class="input-group-append">
+                        <div class="input-group-text-nobg" data-phrase="Days"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="form-group row featPlaylists">
