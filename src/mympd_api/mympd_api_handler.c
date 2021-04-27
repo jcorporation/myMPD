@@ -291,11 +291,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             sdsfree(cols);
             break;
         }
-        case MYMPD_API_SETTINGS_RESET:
-            //TODO: error checking
-            mympd_api_settings_reset(mympd_state);
-            response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
-            break;
         case MYMPD_API_SETTINGS_SET: {
             void *h = NULL;
             struct json_token key;
@@ -692,19 +687,19 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             rc = false;
             if (je == 1) {
                 if (strcmp(p_charbuf1, "sticker") == 0) {
-                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, sticker: %Q, maxentries: %d, minvalue: %d, sort: %Q}}", &p_charbuf2, &p_charbuf3, &int_buf1, &int_buf2, &p_charbuf5);
+                    je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, sticker: %Q, maxentries: %d, minvalue: %d, sort: %Q}}", &p_charbuf2, &p_charbuf3, &int_buf1, &int_buf2, &p_charbuf5);
                     if (je == 5) {
                         rc = mpd_shared_smartpls_save(mympd_state->config, p_charbuf1, p_charbuf2, p_charbuf3, NULL, int_buf1, int_buf2, p_charbuf5);
                     }
                 }
                 else if (strcmp(p_charbuf1, "newest") == 0) {
-                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, timerange: %d, sort: %Q}}", &p_charbuf2, &int_buf1, &p_charbuf5);
+                    je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, timerange: %d, sort: %Q}}", &p_charbuf2, &int_buf1, &p_charbuf5);
                     if (je == 3) {
                         rc = mpd_shared_smartpls_save(mympd_state->config, p_charbuf1, p_charbuf2, NULL, NULL, 0, int_buf1, p_charbuf5);
                     }
                 }            
                 else if (strcmp(p_charbuf1, "search") == 0) {
-                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, tag: %Q, searchstr: %Q, sort: %Q}}", &p_charbuf2, &p_charbuf3, &p_charbuf4, &p_charbuf5);
+                    je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, tag: %Q, searchstr: %Q, sort: %Q}}", &p_charbuf2, &p_charbuf3, &p_charbuf4, &p_charbuf5);
                     if (je == 4) {
                         rc = mpd_shared_smartpls_save(mympd_state->config, p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, 0, 0, p_charbuf5);
                     }
@@ -719,7 +714,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_SMARTPLS_GET:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q}}", &p_charbuf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q}}", &p_charbuf1);
             if (je == 1) {
                 response->data = mpd_client_smartpls_put(mympd_state->config, response->data, request->method, request->id, p_charbuf1);
             }
@@ -755,7 +750,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = mpd_client_crop_queue(mympd_state, response->data, request->method, request->id, true);
             break;
         case MYMPD_API_QUEUE_RM_TRACK:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {track:%u}}", &uint_buf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {trackId:%u}}", &uint_buf1);
             if (je == 1) {
                 rc = mpd_run_delete_id(mympd_state->mpd_state->conn, uint_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_delete_id");
@@ -922,7 +917,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_PLAYLIST_CONTENT_LIST: {
             struct t_tags *tagcols = (struct t_tags *)malloc(sizeof(struct t_tags));
             assert(tagcols);
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q, offset: %u, limit: %u searchstr: %Q, cols: %M}}", 
+            je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, offset: %u, limit: %u searchstr: %Q, cols: %M}}", 
                 &p_charbuf1, &uint_buf1, &uint_buf2, &p_charbuf2, json_to_tags, tagcols);
             if (je == 5) {
                 response->data = mpd_client_put_playlist_list(mympd_state, response->data, request->method, request->id, p_charbuf1, uint_buf1, uint_buf2, p_charbuf2, tagcols);
@@ -944,7 +939,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_PLAYLIST_CLEAR:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q}}", &p_charbuf1);
             if (je == 1) {
                 rc = mpd_run_playlist_clear(mympd_state->mpd_state->conn, p_charbuf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_playlist_clear");
@@ -957,20 +952,20 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_PLAYLIST_RM_TRACK:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri:%Q, track:%u}}", &p_charbuf1, &uint_buf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {plist:%Q, track:%u}}", &p_charbuf1, &uint_buf1);
             if (je == 2) {
                 rc = mpd_run_playlist_delete(mympd_state->mpd_state->conn, p_charbuf1, uint_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_playlist_delete");
             }
             break;
         case MYMPD_API_PLAYLIST_SHUFFLE:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q}}", &p_charbuf1);
             if (je == 1) {
                 response->data = mpd_shared_playlist_shuffle_sort(mympd_state->mpd_state, response->data, request->method, request->id, p_charbuf1, "shuffle");
             }
             break;
         case MYMPD_API_PLAYLIST_SORT:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q, tag:%Q}}", &p_charbuf1, &p_charbuf2);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, tag:%Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
                 response->data = mpd_shared_playlist_shuffle_sort(mympd_state->mpd_state, response->data, request->method, request->id, p_charbuf1, p_charbuf2);
             }
@@ -1028,7 +1023,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_QUEUE_ADD_RANDOM:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {mode:%u, playlist:%Q, quantity:%u}}", &uint_buf1, &p_charbuf1, &uint_buf2);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {mode:%u, plist:%Q, quantity:%u}}", &uint_buf1, &p_charbuf1, &uint_buf2);
             if (je == 3) {
                 if (uint_buf2 > 999) {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
@@ -1037,8 +1032,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 }
                 rc = mpd_client_jukebox_add_to_queue(mympd_state, uint_buf2, uint_buf1, p_charbuf1, true);
                 if (rc == true) {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
-                        "queue", "error", "Successfully added random songs to queue");
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                        "queue", "info", "Successfully added random songs to queue");
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
@@ -1054,7 +1049,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_QUEUE_SAVE:
-            je = json_scanf(request->data, sdslen(request->data), "{ params: {plist:%Q}}", &p_charbuf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {plist:%Q}}", &p_charbuf1);
             if (je == 1) {
                 rc = mpd_run_save(mympd_state->mpd_state->conn, p_charbuf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_save");
@@ -1114,7 +1109,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_shuffle");
             break;
         case MYMPD_API_PLAYLIST_RM:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q}}", &p_charbuf1);
             if (je == 1) {
                 response->data = mpd_client_playlist_delete(mympd_state, response->data, request->method, request->id, p_charbuf1);
             }
@@ -1156,7 +1151,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         }
         case MYMPD_API_TIMER_STARTPLAY:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {volume:%u, playlist:%Q, jukeboxMode:%u}}", &uint_buf1, &p_charbuf1, &uint_buf2);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {volume:%u, plist:%Q, jukeboxMode:%u}}", &uint_buf1, &p_charbuf1, &uint_buf2);
             if (je == 3) {
                 response->data = mpd_client_timer_startplay(mympd_state, response->data, request->method, request->id, uint_buf1, p_charbuf1, uint_buf2);
             }

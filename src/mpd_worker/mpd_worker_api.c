@@ -82,7 +82,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 async = true;
                 break;
             }
-            je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q}}", &p_charbuf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q}}", &p_charbuf1);
             if (je == 1) {
                 rc = mpd_worker_smartpls_update(mpd_worker_state, p_charbuf1);
                 if (rc == true) {

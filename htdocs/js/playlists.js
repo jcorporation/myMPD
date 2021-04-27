@@ -119,7 +119,7 @@ function playlistDetails(uri) {
 //eslint-disable-next-line no-unused-vars
 function playlistShuffle() {
     sendAPI("MYMPD_API_PLAYLIST_SHUFFLE", {
-        "uri": getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri')
+        "plist": getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri')
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
@@ -127,7 +127,7 @@ function playlistShuffle() {
 //eslint-disable-next-line no-unused-vars
 function playlistSort(tag) {
     sendAPI("MYMPD_API_PLAYLIST_SORT", {
-        "uri": getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri'),
+        "plist": getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri'),
         "tag": tag
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
@@ -165,9 +165,9 @@ function updateSmartPlaylists(force) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function removeFromPlaylist(uri, pos) {
+function removeFromPlaylist(plist, pos) {
     pos--;
-    sendAPI("MYMPD_API_PLAYLIST_RM_TRACK", {"uri": uri, "track": pos});
+    sendAPI("MYMPD_API_PLAYLIST_RM_TRACK", {"plist": plist, "track": pos});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
@@ -433,36 +433,36 @@ function renamePlaylist() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function showSmartPlaylist(playlist) {
-    sendAPI("MYMPD_API_SMARTPLS_GET", {"playlist": playlist}, parseSmartPlaylist);
+function showSmartPlaylist(plist) {
+    sendAPI("MYMPD_API_SMARTPLS_GET", {"playlist": plist}, parseSmartPlaylist);
 }
 
 //eslint-disable-next-line no-unused-vars
-function updateSmartPlaylist(playlist) {
-    sendAPI("MPDWORKER_API_SMARTPLS_UPDATE", {"playlist": playlist});
+function updateSmartPlaylist(plist) {
+    sendAPI("MYMPD_API_SMARTPLS_UPDATE", {"plist": plist});
 }
 
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylistClick() {
-    sendAPI("MPDWORKER_API_SMARTPLS_UPDATE", {
-        "playlist": getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri')
+    sendAPI("MYMPD_API_SMARTPLS_UPDATE", {
+        "plist": getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri')
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
 //eslint-disable-next-line no-unused-vars
-function showDelPlaylist(uri) {
-    showConfirm(t('Do you really want to delete the playlist?', {"playlist": uri}), "Yes, delete it", function() {
-        sendAPI("MYMPD_API_PLAYLIST_RM", {"uri": uri});
+function showDelPlaylist(plist) {
+    showConfirm(t('Do you really want to delete the playlist?', {"playlist": plist}), "Yes, delete it", function() {
+        sendAPI("MYMPD_API_PLAYLIST_RM", {"plist": plist});
     });
 }
 
 //eslint-disable-next-line no-unused-vars
 function showClearPlaylist() {
-    const uri = getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri');
-    showConfirm(t('Do you really want to clear the playlist?', {"playlist": uri}), "Yes, clear it", function() {
+    const plist = getAttDec(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri');
+    showConfirm(t('Do you really want to clear the playlist?', {"playlist": plist}), "Yes, clear it", function() {
         sendAPI("MYMPD_API_PLAYLIST_CLEAR", {
-            "uri": uri
+            "plist": plist
         });
         document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');
     });

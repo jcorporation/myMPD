@@ -283,7 +283,7 @@ function delQueueSong(mode, start, end) {
         sendAPI("MYMPD_API_QUEUE_RM_RANGE", {"start": start, "end": end});
     }
     else if (mode === 'single') {
-        sendAPI("MYMPD_API_QUEUE_RM_TRACK", { "track": start});
+        sendAPI("MYMPD_API_QUEUE_RM_TRACK", { "trackId": start});
     }
 }
 

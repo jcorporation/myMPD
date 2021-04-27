@@ -41,29 +41,6 @@ static sds read_navbar_icons(struct t_config *config);
 static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags);
 
 //public functions
-void mympd_api_settings_delete(struct t_config *config) {
-    const char* state_files[]={"auto_play", "browsetaglist", "cols_browse_database",
-        "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
-        "cols_search", "cols_queue_jukebox", "coverimage_names", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
-        "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags", "smartpls", "smartpls_sort", "smartpls_prefix", "smartpls_interval",
-        "last_played_count", "locale", "searchtaglist", "taglist", "booklet_name", "advanced", "uslt_ext", "sylt_ext", "vorbis_uslt", "vorbis_sylt",
-        "covercache_keep_days", "volume_min", "volume_max", "volume_step", 0};
-    const char** ptr = state_files;
-    while (*ptr != 0) {
-        sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->workdir, *ptr);
-        int rc = unlink(filename);
-        if (rc != 0 && rc != ENOENT) {
-            MYMPD_LOG_ERROR("Error removing file \"%s\": %s", filename, strerror(errno));
-        }
-        else if (rc != 0) {
-            //ignore error
-            MYMPD_LOG_DEBUG("Error removing file \"%s\": %s", filename, strerror(errno));
-        }
-        sdsfree(filename);
-        ++ptr;
-    }
-}
-
 bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_token *key, 
                                struct json_token *val, bool *mpd_host_changed)
 {
@@ -436,12 +413,6 @@ bool mpdclient_api_options_set(struct t_mympd_state *mympd_state, struct json_to
     sdsfree(settingname);
     sdsfree(settingvalue);
     return rc;
-}
-
-void mympd_api_settings_reset(struct t_mympd_state *mympd_state) {
-    mympd_api_settings_delete(mympd_state->config);
-    free_mympd_state_sds(mympd_state);
-    default_mympd_state(mympd_state);
 }
 
 void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
