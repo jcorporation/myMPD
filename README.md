@@ -32,7 +32,6 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - Timers and Triggers
 - [System commands](https://github.com/jcorporation/myMPD/wiki/System-Commands)
 - [Lua scripting](https://github.com/jcorporation/myMPD/wiki/Scripting)
-- Scrobbler integration
 - Embedded Webserver (mongoose)
 - [Localized user interface](https://github.com/jcorporation/myMPD/wiki/Translating)
 - Themeing
@@ -66,7 +65,7 @@ myMPD should run on all current linux distributions. There are four ways to inst
 
 ## Run
 
-On the first startup myMPD reads some environments variables for initial configuration.
+On the first startup myMPD reads some environments variables and tries to autodetect the MPD connection configuration.
 
 - https://github.com/jcorporation/myMPD/wiki/Configuration
 
