@@ -151,7 +151,7 @@ void serve_stream_image(struct mg_connection *nc, struct mg_http_message *hm) {
 
 void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, const char *name) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
-    struct t_config *config = (struct t_config *) mg_user_data->config;
+    struct t_config *config = mg_user_data->config;
     
     sds asset_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, name);
     sds mime_type;

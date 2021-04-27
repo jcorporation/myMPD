@@ -449,7 +449,7 @@ void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_state->mpd_host = state_file_rw_string_sds(mympd_state->config, "state", "mpd_host", mympd_state->mpd_state->mpd_host, false);
     mympd_state->mpd_state->mpd_port = state_file_rw_int(mympd_state->config, "state", "mpd_port", mympd_state->mpd_state->mpd_port, false);
     mympd_state->mpd_state->mpd_pass = state_file_rw_string_sds(mympd_state->config, "state", "mpd_pass", mympd_state->mpd_state->mpd_pass, false);
-    mympd_state->mpd_state->mpd_binarylimit = state_file_rw_int(mympd_state->config, "state", "mpd_binarylimit", mympd_state->mpd_state->mpd_binarylimit, false);
+    mympd_state->mpd_state->mpd_binarylimit = state_file_rw_uint(mympd_state->config, "state", "mpd_binarylimit", mympd_state->mpd_state->mpd_binarylimit, false);
     mympd_state->mpd_state->mpd_timeout = state_file_rw_int(mympd_state->config, "state", "mpd_timeout", mympd_state->mpd_state->mpd_timeout, false);
     mympd_state->mpd_state->taglist = state_file_rw_string_sds(mympd_state->config, "state", "taglist", mympd_state->mpd_state->taglist, false);
 
@@ -460,11 +460,11 @@ void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
     mympd_state->smartpls_prefix = state_file_rw_string_sds(mympd_state->config, "state", "smartpls_prefix", mympd_state->smartpls_prefix, false);
     mympd_state->smartpls_interval = state_file_rw_int(mympd_state->config, "state", "smartpls_interval", mympd_state->smartpls_interval, false);
     mympd_state->generate_pls_tags = state_file_rw_string_sds(mympd_state->config, "state", "generate_pls_tags", mympd_state->generate_pls_tags, false);
-    mympd_state->last_played_count = state_file_rw_int(mympd_state->config, "state", "last_played_count", (int)mympd_state->last_played_count, false);
+    mympd_state->last_played_count = state_file_rw_uint(mympd_state->config, "state", "last_played_count", mympd_state->last_played_count, false);
     mympd_state->auto_play = state_file_rw_bool(mympd_state->config, "state", "auto_play", mympd_state->auto_play, false);
     mympd_state->jukebox_mode = state_file_rw_int(mympd_state->config, "state", "jukebox_mode", mympd_state->jukebox_mode, false);
     mympd_state->jukebox_playlist = state_file_rw_string_sds(mympd_state->config, "state", "jukebox_playlist", mympd_state->jukebox_playlist, false);
-    mympd_state->jukebox_queue_length = state_file_rw_int(mympd_state->config, "state", "jukebox_queue_length",(int)mympd_state->jukebox_queue_length, false);
+    mympd_state->jukebox_queue_length = state_file_rw_uint(mympd_state->config, "state", "jukebox_queue_length", mympd_state->jukebox_queue_length, false);
     mympd_state->jukebox_last_played = state_file_rw_int(mympd_state->config, "state", "jukebox_last_played", mympd_state->jukebox_last_played, false);
     mympd_state->jukebox_unique_tag.tags[0] = state_file_rw_int(mympd_state->config, "state", "jukebox_unique_tag", mympd_state->jukebox_unique_tag.tags[0], false);
     mympd_state->cols_queue_current = state_file_rw_string_sds(mympd_state->config, "state", "cols_queue_current", mympd_state->cols_queue_current, false);
@@ -479,9 +479,9 @@ void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
     mympd_state->music_directory = state_file_rw_string_sds(mympd_state->config, "state", "music_directory", mympd_state->music_directory, false);
     mympd_state->playlist_directory = state_file_rw_string_sds(mympd_state->config, "state", "playlist_directory", mympd_state->playlist_directory, false);
     mympd_state->booklet_name = state_file_rw_string_sds(mympd_state->config, "state", "booklet_name", mympd_state->booklet_name, false);
-    mympd_state->volume_min = state_file_rw_int(mympd_state->config, "state", "volume_min", (int)mympd_state->volume_min, false);
-    mympd_state->volume_max = state_file_rw_int(mympd_state->config, "state", "volume_max", (int)mympd_state->volume_max, false);
-    mympd_state->volume_step = state_file_rw_int(mympd_state->config, "state", "volume_step", (int)mympd_state->volume_step, false);
+    mympd_state->volume_min = state_file_rw_uint(mympd_state->config, "state", "volume_min", mympd_state->volume_min, false);
+    mympd_state->volume_max = state_file_rw_uint(mympd_state->config, "state", "volume_max", mympd_state->volume_max, false);
+    mympd_state->volume_step = state_file_rw_uint(mympd_state->config, "state", "volume_step", mympd_state->volume_step, false);
     mympd_state->advanced = state_file_rw_string_sds(mympd_state->config, "state", "advanced", mympd_state->advanced, false);
     mympd_state->mpd_stream_port = state_file_rw_int(mympd_state->config, "state", "mpd_stream_port", mympd_state->mpd_stream_port, false);
     mympd_state->uslt_ext = state_file_rw_string_sds(mympd_state->config, "state", "uslt_ext", mympd_state->uslt_ext, false);

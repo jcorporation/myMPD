@@ -100,6 +100,19 @@ int state_file_rw_int(struct t_config *config, const char *dir, const char *name
     return value;
 }
 
+unsigned state_file_rw_uint(struct t_config *config, const char *dir, const char *name, const unsigned def_value, bool warn) {
+    char *crap = NULL;
+    unsigned value = def_value;
+    sds def_value_str = sdsfromlonglong(def_value);
+    sds line = state_file_rw_string(config, dir, name, def_value_str, warn);
+    sdsfree(def_value_str);
+    if (sdslen(line) > 0) {
+        value = strtoimax(line, &crap, 10);
+        sdsfree(line);
+    }
+    return value;
+}
+
 bool state_file_write(struct t_config *config, const char *dir, const char *name, const char *value) {
     if (!validate_string(name)) {
         return false;
