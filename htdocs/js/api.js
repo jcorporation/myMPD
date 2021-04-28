@@ -112,7 +112,7 @@ function webSocketConnect() {
                 case 'welcome':
                     websocketConnected = true;
                     showNotification(t('Connected to myMPD'), wsUrl, 'general', 'info');
-                    appRoute();
+                    //appRoute();
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, true);
                     break;
                 case 'update_state':

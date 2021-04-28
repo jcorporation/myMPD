@@ -424,6 +424,7 @@ function appInitWait() {
             }, 500);
             appInit();
             appInited = true;
+            appRoute();
             return;
         }
         
