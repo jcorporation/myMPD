@@ -474,12 +474,6 @@ Smart playlist
 Playlists are disabled
 연주목록 사용 안 함
 
-Reset
-다시 설정
-
-Reset settings
-다시 설정 하기
-
 Clear app cache and reload
 앱 캐시를 지우고 다시 읽기
 
@@ -960,8 +954,8 @@ Enforce uniqueness
 Invalid name
 잘못된 이름
 
-Last played older than (hours)
-이전에 연주됨 (시간)
+Last played older than
+이전에 연주됨
 
 Minimum one weekday must be selected
 최소 일주일 선택해야 함
@@ -1079,9 +1073,6 @@ Order
 
 Sort by tag
 태그로 정렬
-
-Update smart playlists (hours)
-스마트 연주목록 업데이트 (시간)
 
 Smart playlists prefix
 스마트 연주목록 덧붙임
@@ -1659,9 +1650,6 @@ Weekly
 
 Each hours
 매시간 |||| 매 %{smart_count}시간
-
-hours
-시간
 
 Missing translations
 선택한 언어에 % {smart_count}개의 번역이 없습니다 |||| 선택한 언어에 % {smart_count}개의 번역이 없습니다

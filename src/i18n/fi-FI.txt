@@ -435,12 +435,6 @@ Smart playlist
 Playlists are disabled
 Soittolistat ovat pois päältä
 
-Reset
-Nollaa
-
-Reset settings
-Nollaa asetukset
-
 Clear app cache and reload
 Tyhjennä ohjelman välimuisti ja lataa uudelleen
 
@@ -918,8 +912,8 @@ Pakota yksilöllisyys
 Invalid name
 Virheellinen nimi
 
-Last played older than (hours)
-Viimeksi toistettu vanhempi kuin (Stunden)
+Last played older than
+Viimeksi toistettu vanhempi kuin
 
 Minimum one weekday must be selected
 Vähintään yksi päivä pitää valita
@@ -1037,9 +1031,6 @@ Järjestys
 
 Sort by tag
 Lahittele tagin mukaan
-
-Update smart playlists (hours)
-Älykkäiden soittolistojen päivitys (tunteja)
 
 Smart playlists prefix
 Älykkäiden soittolistojen etuliite

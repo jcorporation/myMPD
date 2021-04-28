@@ -438,12 +438,6 @@ Liste de lecture intelligente
 Playlists are disabled
 Listes de lecture désactivées
 
-Reset
-Remise à zéro
-
-Reset settings
-Remise à zéro des paramètres
-
 Clear app cache and reload
 Vider le cache de l'application et recharger
 
@@ -921,8 +915,8 @@ Eliminer les doublons
 Invalid name
 Nom non valide
 
-Last played older than (hours)
-Dernier lu de plus de (heures)
+Last played older than
+Dernier lu de plus de
 
 Minimum one weekday must be selected
 Choisir wu moins un jour
@@ -1040,9 +1034,6 @@ Ordre
 
 Sort by tag
 Trier par tags
-
-Update smart playlists (hours)
-Mise à jour des listes de lecture intelligentes (heures)
 
 Smart playlists prefix
 Préfixe des listes de lecture intelligentes

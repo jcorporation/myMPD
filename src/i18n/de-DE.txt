@@ -474,12 +474,6 @@ Intelligente Wiedergabeliste
 Playlists are disabled
 Wiedergabelisten sind deaktiviert
 
-Reset
-Zurücksetzen
-
-Reset settings
-Einstellungen zurücksetzen
-
 Clear app cache and reload
 Browser Cache löschen und neu laden
 
@@ -707,9 +701,6 @@ Intelligente Wiedergabeliste bearbeiten
 
 Edit playlist
 Wiegergabeliste bearbeiten
-
-Update smart playlist
-Intelligente Wiedergabeliste aktualisieren
 
 Remove
 Entfernen

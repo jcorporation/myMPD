@@ -438,12 +438,6 @@ Lista di riproduzione smart
 Playlists are disabled
 Le liste di riproduzione sono disabilitate
 
-Reset
-Reimposta
-
-Reset settings
-Reimposta i parametri
-
 Clear app cache and reload
 Svuota cache applicazione e ricarica
 
@@ -921,8 +915,8 @@ Elimina doppioni
 Invalid name
 Nome non valido
 
-Last played older than (hours)
-Riprodotto per l'ultima volta prima di (heures)
+Last played older than
+Riprodotto per l'ultima volta prima di
 
 Minimum one weekday must be selected
 Deve essere selezionato almeno un giorno della settimana
@@ -1040,9 +1034,6 @@ Ordine
 
 Sort by tag
 Ordinato per tag
-
-Update smart playlists (hours)
-Aggiorna lista di riproduzione smart (ore)
 
 Smart playlists prefix
 Prefisso lista di riproduzione smart

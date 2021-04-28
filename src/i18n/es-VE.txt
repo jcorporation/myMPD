@@ -435,12 +435,6 @@ Lista de reproducción inteligente
 Playlists are disabled
 Listas de reproducción deshabilitadas
 
-Reset
-Restablecer
-
-Reset settings
-Restablecer configuraciones
-
 Clear app cache and reload
 Borrar caché de la app y recargar
 
@@ -915,8 +909,8 @@ Hacer cumplir la singularidad
 Invalid name
 Nombre inválido
 
-Last played older than (hours)
-Última reproducción mas viejo que (horas)
+Last played older than
+Última reproducción mas viejo que
 
 Minimum one weekday must be selected
 Debe seleccionar al menos un dia de la semana
@@ -1034,9 +1028,6 @@ Orden
 
 Sort by tag
 Ordenar por etiqueta
-
-Update smart playlists (hours)
-Actualizar listas de reproducción inteligentes (horas)
 
 Smart playlists prefix
 Prefijo de listas de reproducción inteligente

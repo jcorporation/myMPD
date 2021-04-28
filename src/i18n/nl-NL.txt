@@ -438,12 +438,6 @@ Slimmme afspeellijst
 Playlists are disabled
 Afspeellijsten uitgeschakeld
 
-Reset
-Reset
-
-Reset settings
-Reset instellingen
-
 Clear app cache and reload
 Wis app-cache en herlaad
 
@@ -918,8 +912,8 @@ Gelijkenis op basis van
 Invalid name
 Ongeldige naam
 
-Last played older than (hours)
-Laatst afgespeeld, ouder dan (uur)
+Last played older than
+Laatst afgespeeld, ouder dan
 
 Minimum one weekday must be selected
 Selecteer minimaal 1 weekdag
@@ -1037,9 +1031,6 @@ Volgorde
 
 Sort by tag
 Sorteer op tag
-
-Update smart playlists (hours)
-Update slimme afspeellijsten (uren)
 
 Smart playlists prefix
 Voorvoegsel slimme afspeellijsten

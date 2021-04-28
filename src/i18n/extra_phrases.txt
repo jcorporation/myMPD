@@ -95,3 +95,7 @@ MPD does not support mounts
 Volume max.
 Volume min.
 Volume step
+Synced lyrics extension
+Synced lyrics vorbis comment
+Unsynced lyrics extension
+Unsynced lyrics vorbis comment
