@@ -517,10 +517,6 @@ function populateSettingsFrm() {
     document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
     //lyrics
     toggleBtnChkCollapse('btnEnableLyrics', 'collapseEnableLyrics', settings.advanced.enableLyrics);
-    document.getElementById('inputSyltExt').value = settings.syltExt;
-    document.getElementById('inputUsltExt').value = settings.usltExt;
-    document.getElementById('inputVorbisSylt').value = settings.vorbisSylt;
-    document.getElementById('inputVorbisUslt').value = settings.vorbisUslt;
     //tag multiselects
     initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.allmpdtags, settings.tags);
     initTagMultiSelect('inputSearchTags', 'listSearchTags', settings.tags, settings.searchtags);
@@ -868,10 +864,10 @@ function saveSettings(closeModal) {
             "volumeMin": parseInt(document.getElementById('inputSettingvolumeMin').value),
             "volumeMax": parseInt(document.getElementById('inputSettingvolumeMax').value),
             "volumeStep": parseInt(document.getElementById('inputSettingvolumeStep').value),
-            "usltExt": document.getElementById('inputUsltExt').value,
-            "syltExt": document.getElementById('inputSyltExt').value,
-            "vorbisUslt": document.getElementById('inputVorbisUslt').value,
-            "vorbisSylt": document.getElementById('inputVorbisSylt').value,
+            "usltExt": document.getElementById('inputSettingusltExt').value,
+            "syltExt": document.getElementById('inputSettingsyltExt').value,
+            "vorbisUslt": document.getElementById('inputSettingvorbisUslt').value,
+            "vorbisSylt": document.getElementById('inputSettingvorbisSylt').value,
             "covercacheKeepDays": parseInt(document.getElementById('inputCovercacheKeepDays').value),
             "advanced": advSettings
         }, getSettings);

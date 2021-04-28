@@ -1049,30 +1049,6 @@
                   </div>
                 </div>
                 <div class="collapse" id="collapseEnableLyrics">
-                  <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="inputUsltExt" data-phrase="Unsynced lyrics extension"></label>
-                    <div class="col-sm-8">
-                      <input type="text" class="form-control border-secondary" id="inputUsltExt"/>
-                    </div>
-                  </div>
-                  <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="inputSyltExt" data-phrase="Synced lyrics extension"></label>
-                    <div class="col-sm-8">
-                      <input type="text" class="form-control border-secondary" id="inputSyltExt"/>
-                    </div>
-                  </div>
-                  <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="inputVorbisUslt" data-phrase="Unsynced lyrics vorbis comment"></label>
-                    <div class="col-sm-8">
-                      <input type="text" class="form-control border-secondary" id="inputVorbisUslt"/>
-                    </div>
-                  </div>
-                  <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="inputVorbisSylt" data-phrase="Synced lyrics vorbis comment"></label>
-                    <div class="col-sm-8">
-                      <input type="text" class="form-control border-secondary" id="inputVorbisSylt"/>
-                    </div>
-                  </div>
                 </div>
               </form>
               <hr/>
@@ -1101,7 +1077,7 @@
                   <label class="col-sm-4 col-form-label" for="inputCovercacheKeepDays" data-phrase="Covercache expiration"></label>
                   <div class="col-sm-8">
                     <div class="input-group">
-                      <input type="text" class="form-control border-secondary" id="inputCovercacheKeepDays" placeholder="7"/>
+                      <input type="text" class="form-control border-secondary rounded" id="inputCovercacheKeepDays" placeholder="7"/>
                       <div class="input-group-append">
                         <div class="input-group-text-nobg" data-phrase="Days"></div>
                       </div>
@@ -1212,7 +1188,12 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="inputCrossfade" data-phrase="Crossfade"></label>
                   <div class="col-sm-8">
-                    <input id="inputCrossfade" type="text" class="form-control border-secondary" value=""/>
+                    <div class="input-group">
+                      <input id="inputCrossfade" type="text" class="form-control border-secondary rounded" value=""/>
+                      <div class="input-group-append">
+                        <div class="input-group-text-nobg" data-phrase="Seconds"></div>
+                      </div>
+                    </div>
                     <div class="invalid-feedback" data-phrase="Must be a number"></div>
                   </div>
                 </div>
