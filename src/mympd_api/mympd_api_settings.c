@@ -44,6 +44,7 @@ static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags
 bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_token *key, 
                                struct json_token *val, bool *mpd_host_changed)
 {
+    //TODO: validate values and write validated values only
     char *crap;
     sds settingname = sdsempty();
     sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
@@ -69,6 +70,10 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
     }
     else if (strncmp(key->ptr, "mpdPort", key->len) == 0) {
         int mpd_port = strtoimax(settingvalue, &crap, 10);
+        if (mpd_port < 1024 || mpd_port > 65535) {
+            MYMPD_LOG_ERROR("Invalid value for mpdPort: %s", settingvalue);
+            return false;
+        }
         if (mympd_state->mpd_state->mpd_port != mpd_port) {
             *mpd_host_changed = true;
             mympd_state->mpd_state->mpd_port = mpd_port;
@@ -76,7 +81,12 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
         settingname = sdscat(settingname, "mpd_port");
     }
     else if (strncmp(key->ptr, "mpdStreamPort", key->len) == 0) {
-        mympd_state->mpd_stream_port = strtoimax(settingvalue, &crap, 10);
+        int mpd_stream_port = strtoimax(settingvalue, &crap, 10);
+        if (mpd_stream_port < 1024 || mpd_stream_port > 65535) {
+            MYMPD_LOG_ERROR("Invalid value for mpdStreamPort: %s", settingvalue);
+            return false;
+        }
+        mympd_state->mpd_stream_port = mpd_stream_port;
         settingname = sdscat(settingname, "mpd_port");
     }
     else if (strncmp(key->ptr, "musicDirectory", key->len) == 0) {
@@ -90,11 +100,21 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
         strip_slash(mympd_state->playlist_directory);
     }
     else if (strncmp(key->ptr, "mpdBinarylimit", key->len) == 0) {
-        mympd_state->mpd_state->mpd_binarylimit = strtoimax(settingvalue, &crap, 10);
+        int binarylimit = strtoimax(settingvalue, &crap, 10);
+        if (binarylimit < 4096 || binarylimit > 40960) {
+            MYMPD_LOG_ERROR("Invalid value for binarylimit: %s", settingvalue);
+            return false;
+        }
+        mympd_state->mpd_state->mpd_binarylimit = binarylimit;
         settingname = sdscat(settingname, "mpd_binarylimit");
     }
     else if (strncmp(key->ptr, "mpdTimeout", key->len) == 0) {
-        mympd_state->mpd_state->mpd_timeout = strtoimax(settingvalue, &crap, 10);
+        int mpd_timeout = strtoimax(settingvalue, &crap, 10);
+        if (mpd_timeout < 1000 || mpd_timeout > 1000000) {
+            MYMPD_LOG_ERROR("Invalid value for mpdTimeoutt: %s", settingvalue);
+            return false;
+        }
+        mympd_state->mpd_state->mpd_timeout = mpd_timeout;
         settingname = sdscat(settingname, "mpd_timeout");
     }
     else {
