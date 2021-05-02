@@ -102,6 +102,8 @@ function parsePlaylistsDetail(obj) {
     tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
     updateTable(obj, app.current.app + app.current.tab + app.current.view, function(row, data) {
         row.setAttribute('id','playlistTrackId' + data.Pos);
+        row.setAttribute('draggable', 'true');
+        row.setAttribute('tabindex', 0);
         setAttEnc(row, 'data-type', data.Type);
         setAttEnc(row, 'data-uri', data.uri);
         setAttEnc(row, 'data-name', data.Title);
@@ -470,7 +472,7 @@ function showClearPlaylist() {
 
 function playlistMoveTrack(from, to) {
     sendAPI("MYMPD_API_PLAYLIST_MOVE_TRACK", {
-        "plist": app.current.search,
+        "plist": app.current.filter,
         "from": from,
         "to": to
     });
