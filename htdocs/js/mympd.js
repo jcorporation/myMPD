@@ -227,7 +227,7 @@ function appRoute() {
             document.getElementById('searchDatabaseMatch').classList.remove('hide');
             enableEl('btnDatabaseSortDropdown');
             enableEl('btnDatabaseSearchDropdown');
-            sendAPI("MYMPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, 
+            sendAPI("MYMPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.offset, "limit": app.current.limit, "expression": app.current.search, 
                 "filter": app.current.filter, "sort": sort, "sortdesc": sortdesc}, parseDatabase);
         }
         else {

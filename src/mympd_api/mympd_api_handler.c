@@ -1124,7 +1124,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_DATABASE_GET_ALBUMS:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u, limit: %u, searchstr: %Q, filter: %Q, sort: %Q, sortdesc: %B}}", 
+            je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u, limit: %u, expression: %Q, filter: %Q, sort: %Q, sortdesc: %B}}", 
                 &uint_buf1, &uint_buf2, &p_charbuf1, &p_charbuf2, &p_charbuf3, &bool_buf1);
             if (je == 6) {
                 response->data = mpd_client_put_firstsong_in_albums(mympd_state, response->data, request->method, request->id, 

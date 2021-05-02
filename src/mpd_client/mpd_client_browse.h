@@ -18,7 +18,7 @@ sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer,
                                   long request_id, const char *album, const char *search, 
                                   const char *tag, const struct t_tags *tagcols);
 sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds buffer, sds method,
-                                       long request_id, const char *searchstr, const char *filter,
+                                       long request_id, const char *expression, const char *filter,
                                        const char *sort, bool sortdesc, const unsigned int offset,
                                        unsigned int limit);
 sds mpd_client_put_db_tag2(struct t_mympd_state *mympd_state, sds buffer, 

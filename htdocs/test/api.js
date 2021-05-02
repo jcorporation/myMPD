@@ -12,7 +12,7 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_DATABASE_UPDATE","params":{"uri":""}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_DATABASE_RESCAN","params":{"uri":""}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_DATABASE_FILESYSTEM_LIST","params":{"offset":0,"limit":100,"searchstr":"","path":"","cols":["Artist","Album","Title"]}},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_DATABASE_GET_ALBUMS","params":{"offset":0,"limit":100,"searchstr":"", "filter":"", "sort":"", "sortdesc":false}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_DATABASE_GET_ALBUMS","params":{"offset":0,"limit":100,"expression":"", "filter":"", "sort":"", "sortdesc":false}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_DATABASE_TAG_LIST","params":{"offset":0,"limit":100,"searchstr":"", "filter":"", "sort":"", "sortdesc":false, "tag":""}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST","params":{"album":"","searchstr":"","tag":"","cols":["Artist","Album","Title"]}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_DATABASE_STATS"},

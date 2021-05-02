@@ -384,7 +384,7 @@ sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer,
 }
 
 sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
-                                       const char *searchstr, const char *filter, const char *sort, bool sortdesc, const unsigned int offset, unsigned int limit)
+                                       const char *expression, const char *filter, const char *sort, bool sortdesc, const unsigned int offset, unsigned int limit)
 {
     if (mympd_state->album_cache == NULL) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "database", "error", "Albumcache not ready");
@@ -419,7 +419,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
     struct list expr_list;
     list_init(&expr_list);
     int count;
-    sds *tokens = sdssplitlen(searchstr, strlen(searchstr), ") AND (", 7, &count);
+    sds *tokens = sdssplitlen(expression, strlen(expression), ") AND (", 7, &count);
     for (int j = 0; j < count; j++) {
         sdstrim(tokens[j], "() ");
         sds tag = sdsempty();
@@ -555,7 +555,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_char(buffer, "filter", filter, true);
-    buffer = tojson_char(buffer, "searchstr", searchstr, true);
+    buffer = tojson_char(buffer, "expression", expression, true);
     buffer = tojson_char(buffer, "sort", sort, true);
     buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
     buffer = tojson_char(buffer, "tag", "Album", false);

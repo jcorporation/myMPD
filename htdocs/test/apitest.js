@@ -48,6 +48,7 @@ function sendAPI(request) {
         if (request.params.album !== undefined) { request.params.album = album; }
         if (request.params.filter !== undefined) { request.params.filter = 'any'; }
         if (request.params.searchstr !== undefined) { request.params.searchstr = 'tabula'; }
+        if (request.params.expression !== undefined) { request.params.expression = '((any == \'tabula\'))'; }
         if (request.params.trackId !== undefined) { request.params.trackId = trackId; }
         if (request.params.outputId !== undefined) { request.params.outputId = outputId; }
         if (request.params.plist !== undefined) { request.params.plist = 'test'; }
