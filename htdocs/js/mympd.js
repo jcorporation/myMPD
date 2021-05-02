@@ -278,10 +278,27 @@ function appRoute() {
                     sortdesc = true;
                     sort = sort.substring(1);
                 }
-                sendAPI("MYMPD_API_DATABASE_SEARCH_ADV", {"plist": "", "offset": app.current.offset, "limit": app.current.limit, "sort": sort, "sortdesc": sortdesc, "expression": app.current.search, "cols": settings.colsSearch, "replace": false}, parseSearch);
+                sendAPI("MYMPD_API_DATABASE_SEARCH_ADV", {
+                    "plist": "",
+                    "offset": app.current.offset,
+                    "limit": app.current.limit,
+                    "sort": sort,
+                    "sortdesc": sortdesc,
+                    "expression": app.current.search,
+                    "cols": settings.colsSearchActions,
+                    "replace": false
+                }, parseSearch);
             }
             else {
-                sendAPI("MYMPD_API_DATABASE_SEARCH", {"plist": "", "offset": app.current.offset, "limit": app.current.limit, "filter": app.current.filter, "searchstr": app.current.search, "cols": settings.colsSearch, "replace": false}, parseSearch);
+                sendAPI("MYMPD_API_DATABASE_SEARCH", {
+                    "plist": "",
+                    "offset": app.current.offset,
+                    "limit": app.current.limit,
+                    "filter": app.current.filter,
+                    "searchstr": app.current.search,
+                    "cols": settings.colsSearchActions,
+                    "replace": false
+                }, parseSearch);
             }
         }
         else {

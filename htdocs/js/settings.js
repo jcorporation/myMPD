@@ -707,6 +707,15 @@ function parseMPDSettings() {
     filterCols('BrowseFilesystem');
     filterCols('BrowseDatabaseDetail');
     filterCols('Playback');
+
+    //enforce albumartist and album for albumactions
+    settings.colsSearchActions = settings.colsSearch.slice();
+    if (settings.colsSearchActions.includes('Album') === false && settings.tags.includes('Album')) {
+        settings.colsSearchActions.push('Album');
+    }
+    if (settings.colsSearchActions.includes(tagAlbumArtist) === false && settings.tags.includes(tagAlbumArtist)) {
+        settings.colsSearchActions.push(tagAlbumArtist);
+    }
     
     if (settings.featTags === false) {
         app.apps.Browse.active = 'Filesystem';
@@ -979,15 +988,6 @@ function filterCols(x) {
     for (let i = 0; i < settings[set].length; i++) {
         if (tags.includes(settings[set][i])) {
             cols.push(settings[set][i]);
-        }
-    }
-    if (x === 'Search') {
-        //enforce albumartist and album for albumactions
-        if (cols.includes('Album') === false && tags.includes('Album')) {
-            cols.push('Album');
-        }
-        if (cols.includes(tagAlbumArtist) === false && tags.includes(tagAlbumArtist)) {
-            cols.push(tagAlbumArtist);
         }
     }
     settings[set] = cols;
