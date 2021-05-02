@@ -1350,7 +1350,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="mi title-icon">play_circle_outline</span> <span data-phrase="MPD connection"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">settings_ethernet</span> <span data-phrase="MPD connection"></span></h5>
           <button type="button" class="close alwaysEnabled" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
@@ -1369,6 +1369,13 @@
                  <div class="invalid-feedback" data-phrase="Invalid MPD port"></div>
               </div>
             </div>
+            <hr/>
+            <div class="form-group row">
+              <div class="col-sm-8">
+                 <button data-href='{"cmd": "toggleBtn", "options": []}' data-toggle="collapse" data-target="#collapseConnectionAdv" class="btn btn-secondary alwaysEnabled" data-phrase="Advanced"></button>
+              </div>
+            </div>
+            <div id="collapseConnectionAdv" class="collapse">
             <div class="form-group row">
               <label class="col-sm-4 col-form-label" for="inputMpdPass" data-phrase="MPD password"></label>
               <div class="col-sm-8">
@@ -1426,6 +1433,7 @@
                 </div>
                 <div class="invalid-feedback" data-phrase="Invalid binary limit"></div>
               </div>
+            </div>
             </div>
           </form>
         </div>
