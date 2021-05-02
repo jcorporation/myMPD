@@ -1357,28 +1357,28 @@
           <form id="connectionFrm">
             <div class="form-group row">
               <label class="col-sm-4 col-form-label" for="inputMpdHost" data-phrase="MPD host"></label>
-              <div class="col-sm-8 ">
+              <div class="col-sm-8">
                  <input id="inputMpdHost" type="text" class="form-control border-secondary alwaysEnabled"/>
                  <div class="invalid-feedback" data-phrase="Invalid MPD host"></div>
               </div>
             </div>
             <div class="form-group row">
               <label class="col-sm-4 col-form-label" for="inputMpdPort" data-phrase="MPD port"></label>
-              <div class="col-sm-8 ">
+              <div class="col-sm-8">
                  <input id="inputMpdPort" type="text" class="form-control border-secondary alwaysEnabled"/>
                  <div class="invalid-feedback" data-phrase="Invalid MPD port"></div>
               </div>
             </div>
             <div class="form-group row">
               <label class="col-sm-4 col-form-label" for="inputMpdPass" data-phrase="MPD password"></label>
-              <div class="col-sm-8 ">
+              <div class="col-sm-8">
                  <input id="inputMpdPass" type="password" autocomplete="off" class="form-control border-secondary alwaysEnabled"/>
                  <div class="invalid-feedback" data-phrase="Invalid MPD password"></div>
               </div>
             </div>
             <div class="form-group row">
               <label class="col-sm-4 col-form-label" for="selectMusicDirectory" data-phrase="Music directory"></label>
-              <div class="col-sm-8 ">
+              <div class="col-sm-8">
                  <select id="selectMusicDirectory" class="form-control custom-select border-secondary alwaysEnabled">
                     <option value="auto" data-phrase="Autodetect"></option>
                     <option value="none" data-phrase="None"></option>
@@ -1391,35 +1391,40 @@
             <div id="warnMusicDirectory" class="alert alert-warning hide" data-phrase="Music directory not found"></div>
             <div class="form-group row">
               <label class="col-sm-4 col-form-label" for="inputPlaylistDirectory" data-phrase="Playlist directory"></label>
-              <div class="col-sm-8 ">
+              <div class="col-sm-8">
                  <input id="inputPlaylistDirectory" type="text" class="form-control border-secondary alwaysEnabled"/>
                  <div class="invalid-feedback" data-phrase="Invalid playlist directory"></div>
               </div>
             </div>
             <div class="form-group row">
               <label class="col-sm-4 col-form-label" for="inputMpdStreamPort" data-phrase="Stream port"></label>
-              <div class="col-sm-8 ">
+              <div class="col-sm-8">
                  <input id="inputMpdStreamPort" type="text" class="form-control border-secondary alwaysEnabled"/>
                  <div class="invalid-feedback" data-phrase="Invalid stream port"></div>
               </div>
             </div>
             <div class="form-group row">
               <label class="col-sm-4 col-form-label" for="inputMpdTimeout" data-phrase="Timeout"></label>
-              <div class="col-sm-8 ">
-                 <div class="input-group">
-                   <input id="inputMpdTimeout" type="text" class="form-control border-secondary rounded alwaysEnabled"/>
-                   <div class="input-group-append">
-                     <div class="input-group-text-nobg">Seconds</div>
-                   </div>
+              <div class="col-sm-8">
+                <div class="input-group">
+                  <input id="inputMpdTimeout" type="text" class="form-control border-secondary rounded alwaysEnabled"/>
+                  <div class="input-group-append">
+                    <div class="input-group-text-nobg" data-phrase="Seconds"></div>
+                  </div>
                 </div>
                 <div class="invalid-feedback" data-phrase="Invalid timeout"></div>
               </div>
             </div>
             <div class="form-group row featBinarylimit">
               <label class="col-sm-4 col-form-label" for="inputMpdBinarylimit" data-phrase="Binary limit"></label>
-              <div class="col-sm-8 ">
-                 <input id="inputMpdBinarylimit" type="text" class="form-control border-secondary alwaysEnabled"/>
-                 <div class="invalid-feedback" data-phrase="Invalid binary limit"></div>
+              <div class="col-sm-8">
+                <div class="input-group">
+                  <input id="inputMpdBinarylimit" type="text" class="form-control border-secondary rounded alwaysEnabled"/>
+                  <div class="input-group-append">
+                    <div class="input-group-text-nobg" data-phrase="kB"></div>
+                  </div>
+                </div>
+                <div class="invalid-feedback" data-phrase="Invalid binary limit"></div>
               </div>
             </div>
           </form>
