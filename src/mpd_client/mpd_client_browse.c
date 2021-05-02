@@ -295,14 +295,17 @@ sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer,
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_db_songs") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return buffer;
-    }    
-    rc = mpd_search_add_tag_constraint(mympd_state->mpd_state->conn, MPD_OPERATOR_DEFAULT, mpd_tag_name_parse(tag), search);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_tag_constraint") == false) {
+    }
+    sds expression = sdscatfmt(sdsempty(), "((%s == '%s') AND (Album == '%s'))", tag, search, album);
+    rc = mpd_search_add_expression(mympd_state->mpd_state->conn, expression);
+    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_expression") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
+        sdsfree(expression);
         return buffer;
     }
-    rc = mpd_search_add_tag_constraint(mympd_state->mpd_state->conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, album);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_tag_constraint") == false) {
+    sdsfree(expression);
+    rc = mpd_search_add_sort_tag(mympd_state->mpd_state->conn, MPD_TAG_DISC, false);
+    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_tag") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return buffer;
     }
