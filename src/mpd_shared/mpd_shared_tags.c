@@ -92,9 +92,11 @@ sds mpd_shared_get_tags(struct mpd_song const *song, const enum mpd_tag_type tag
     tags = _mpd_shared_get_tags(song, tag, tags);
     if (sdslen(tags) == 0) {
         if (tag == MPD_TAG_TITLE) {
+            //title fallback to filename
             tags = sdscat(tags, basename_uri((char *)mpd_song_get_uri(song)));
         }
         else if (tag == MPD_TAG_ALBUM_ARTIST) {
+            //albumartist fallback to artist tag
             tags = _mpd_shared_get_tags(song, MPD_TAG_ARTIST, tags);
         }
         if (sdslen(tags) == 0) {

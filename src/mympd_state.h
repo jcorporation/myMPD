@@ -92,6 +92,7 @@ struct t_mpd_state {
     sds taglist;
     struct t_tags mympd_tag_types;
     struct t_tags mpd_tag_types;
+    unsigned tag_albumartist;
     //Feats
     const unsigned* protocol;
     bool feat_library;

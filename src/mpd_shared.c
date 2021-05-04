@@ -60,6 +60,7 @@ void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state) {
     mpd_state->taglist = sdsnew("Artist,Album,AlbumArtist,Title,Genre,Disc,Track");
     reset_t_tags(&mpd_state->mympd_tag_types);
     reset_t_tags(&mpd_state->mpd_tag_types);
+    mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
 }
 
 void mpd_shared_free_mpd_state(struct t_mpd_state *mpd_state) {
