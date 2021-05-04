@@ -1142,10 +1142,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST: {
             struct t_tags *tagcols = (struct t_tags *)malloc(sizeof(struct t_tags));
             assert(tagcols);
-            je = json_scanf(request->data, sdslen(request->data), "{params: {album: %Q, searchstr: %Q, tag: %Q, cols: %M}}", 
-                &p_charbuf1, &p_charbuf2, &p_charbuf3, json_to_tags, tagcols);
-            if (je == 4) {
-                response->data = mpd_client_put_songs_in_album(mympd_state, response->data, request->method, request->id, p_charbuf1, p_charbuf2, p_charbuf3, tagcols);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {album: %Q, albumartist: %Q, cols: %M}}", 
+                &p_charbuf1, &p_charbuf2, json_to_tags, tagcols);
+            if (je == 3) {
+                response->data = mpd_client_put_songs_in_album(mympd_state, response->data, request->method, request->id, p_charbuf1, p_charbuf2, tagcols);
             }
             free(tagcols);
             break;

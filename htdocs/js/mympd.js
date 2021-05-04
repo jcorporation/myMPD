@@ -246,9 +246,11 @@ function appRoute() {
             if (cols.includes('Disc') === false) {
                 cols.push('Disc');
             }
-            sendAPI("MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": app.current.tag,
-                "searchstr": app.current.search,
-                "tag": app.current.sort, "cols": cols}, parseAlbumDetails);
+            sendAPI("MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {
+                "album": app.current.tag,
+                "albumartist": app.current.search,
+                "cols": cols
+            }, parseAlbumDetails);
         }    
     }
     else if (app.current.app === 'Search') {

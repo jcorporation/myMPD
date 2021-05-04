@@ -52,6 +52,18 @@ sds mpd_shared_search_adv(struct t_mpd_state *mpd_state, sds buffer, sds method,
                               tagcols, true, NULL, sticker_cache);
 }
 
+sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operator, const char *value) {
+    buffer = sdscatfmt(buffer, "(%s %s '", tag, operator);
+    for (size_t i = 0;  i < strlen(value); i++) {
+        if (value[i] == '\\' || value[i] == '\'') {
+            buffer = sdscat(buffer, "\\");
+        }
+        buffer = sdscatprintf(buffer, "%c", value[i]);
+    }
+    buffer = sdscat(buffer, "')");
+    return buffer;
+}
+
 //private functions
 static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *expression, const char *sort, const bool sortdesc, 

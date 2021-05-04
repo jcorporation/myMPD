@@ -35,6 +35,7 @@
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
+#include "../mpd_shared/mpd_shared_search.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
 #include "mpd_client_browse.h"
@@ -286,7 +287,7 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
 }
 
 sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                                  const char *album, const char *search, const char *tag, const struct t_tags *tagcols)
+                                  const char *album, const char *albumartist, const struct t_tags *tagcols)
 {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
@@ -296,7 +297,13 @@ sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer,
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return buffer;
     }
-    sds expression = sdscatfmt(sdsempty(), "((%s == '%s') AND (Album == '%s'))", tag, search, album);
+
+    sds expression = sdscat(sdsempty(), "(");
+    expression = escape_mpd_search_expression(expression, mpd_tag_name(mympd_state->mpd_state->tag_albumartist), "==", albumartist);
+    expression = sdscat(expression, " AND ");
+    expression = escape_mpd_search_expression(expression, "Album", "==", album);
+    expression = sdscat(expression, ")");
+    
     rc = mpd_search_add_expression(mympd_state->mpd_state->conn, expression);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_expression") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
@@ -351,9 +358,7 @@ sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer,
 
     buffer = sdscat(buffer, "],");
     
-    sds albumartist = sdsempty();
     if (first_song != NULL) {
-        albumartist = mpd_shared_get_tags(first_song, MPD_TAG_ALBUM_ARTIST, albumartist);
         buffer = put_extra_files(mympd_state, buffer, mpd_song_get_uri(first_song), false);
     }
     else {
@@ -364,8 +369,6 @@ sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer,
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_char(buffer, "Album", album, true);
-    buffer = tojson_char(buffer, "search", search, true);
-    buffer = tojson_char(buffer, "tag", tag, true);
     buffer = tojson_char(buffer, "AlbumArtist", albumartist, true);
     buffer = tojson_long(buffer, "Discs", discs, true);
     buffer = tojson_long(buffer, "totalTime", totalTime, false);
@@ -374,7 +377,6 @@ sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer,
     if (first_song != NULL) {
         mpd_song_free(first_song);
     }
-    sdsfree(albumartist);
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
@@ -533,7 +535,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
             }
             song = (struct mpd_song *)current->user_data;
             album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, album);
-            artist = mpd_shared_get_tags(song, MPD_TAG_ALBUM_ARTIST, artist);
+            artist = mpd_shared_get_tags(song, mympd_state->mpd_state->tag_albumartist, artist);
             buffer = sdscat(buffer, "{\"Type\": \"album\",");
             buffer = tojson_char(buffer, "Album", album, true);
             buffer = tojson_char(buffer, "AlbumArtist", artist, true);
