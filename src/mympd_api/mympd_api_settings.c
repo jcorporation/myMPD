@@ -87,17 +87,17 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
             return false;
         }
         mympd_state->mpd_stream_port = mpd_stream_port;
-        settingname = sdscat(settingname, "mpd_port");
+        settingname = sdscat(settingname, "mpd_stream_port");
     }
     else if (strncmp(key->ptr, "musicDirectory", key->len) == 0) {
         mympd_state->music_directory = sdsreplacelen(mympd_state->music_directory, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "music_directory");
         strip_slash(mympd_state->music_directory);
+        settingname = sdscat(settingname, "music_directory");
     }
     else if (strncmp(key->ptr, "playlistDirectory", key->len) == 0) {
         mympd_state->playlist_directory = sdsreplacelen(mympd_state->playlist_directory, settingvalue, sdslen(settingvalue));
-        settingname = sdscat(settingname, "playlist_directory");
         strip_slash(mympd_state->playlist_directory);
+        settingname = sdscat(settingname, "playlist_directory");
     }
     else if (strncmp(key->ptr, "mpdBinarylimit", key->len) == 0) {
         int binarylimit = strtoimax(settingvalue, &crap, 10);
