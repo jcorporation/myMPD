@@ -79,32 +79,32 @@ sds mpd_client_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds met
 //private functions
 static int _mpd_client_lyrics_unsynced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, sds mime_type_mediafile) {
     //try .txt file in folder in the music directory
-    returned_entities = lyrics_fromfile(buffer, mediafile, mympd_state->uslt_ext, false, returned_entities);
+    returned_entities = lyrics_fromfile(buffer, mediafile, mympd_state->lyrics_uslt_ext, false, returned_entities);
     //get embedded lyrics
     if (strcmp(mime_type_mediafile, "audio/mpeg") == 0) {
         returned_entities = lyricsextract_unsynced_id3(buffer, mediafile, returned_entities);
     }
     else if (strcmp(mime_type_mediafile, "audio/ogg") == 0) {
-        returned_entities = lyricsextract_flac(buffer, mediafile, true, mympd_state->vorbis_uslt, false, returned_entities);
+        returned_entities = lyricsextract_flac(buffer, mediafile, true, mympd_state->lyrics_vorbis_uslt, false, returned_entities);
     }
     else if (strcmp(mime_type_mediafile, "audio/flac") == 0) {
-        returned_entities = lyricsextract_flac(buffer, mediafile, false, mympd_state->vorbis_uslt, false, returned_entities);
+        returned_entities = lyricsextract_flac(buffer, mediafile, false, mympd_state->lyrics_vorbis_uslt, false, returned_entities);
     }
     return returned_entities;
 }
 
 static int _mpd_client_lyrics_synced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, sds mime_type_mediafile) { 
     //try .lrc file in folder in the music directory
-    returned_entities = lyrics_fromfile(buffer, mediafile, mympd_state->sylt_ext, true, returned_entities);
+    returned_entities = lyrics_fromfile(buffer, mediafile, mympd_state->lyrics_sylt_ext, true, returned_entities);
     //get embedded lyrics
     if (strcmp(mime_type_mediafile, "audio/mpeg") == 0) {
         returned_entities = lyricsextract_synced_id3(buffer, mediafile, returned_entities);
     }
     else if (strcmp(mime_type_mediafile, "audio/ogg") == 0) {
-        returned_entities = lyricsextract_flac(buffer, mediafile, true, mympd_state->vorbis_sylt, true, returned_entities);
+        returned_entities = lyricsextract_flac(buffer, mediafile, true, mympd_state->lyrics_vorbis_sylt, true, returned_entities);
     }
     else if (strcmp(mime_type_mediafile, "audio/flac") == 0) {
-        returned_entities = lyricsextract_flac(buffer, mediafile, false, mympd_state->vorbis_sylt, true, returned_entities);
+        returned_entities = lyricsextract_flac(buffer, mediafile, false, mympd_state->lyrics_vorbis_sylt, true, returned_entities);
     }
     return returned_entities;
 }

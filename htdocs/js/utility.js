@@ -275,7 +275,7 @@ function selectTag(btnsEl, desc, setTo) {
 
 function addTagList(el, list) {
     let tagList = '';
-    if (list === 'searchtags') {
+    if (list === 'tagListSearch') {
         if (settings.featTags === true) {
             tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">' + t('Any Tag') + '</button>';
         }
@@ -303,7 +303,7 @@ function addTagList(el, list) {
             '<button type="button" class="btn btn-secondary btn-sm btn-block' + (el === 'BrowseNavFilesystemDropdown' ? ' active' : '') + '" data-tag="Filesystem">' + t('Filesystem') + '</button>'
     }
     else if (el === 'databaseSortTagsList') {
-        if (settings.tags.includes('Date') === true && settings[list].includes('Date') === false) {
+        if (settings.tagList.includes('Date') === true && settings[list].includes('Date') === false) {
             tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Date">' + t('Date') + '</button>';
         }
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Last-Modified">' + t('Last modified') + '</button>';
@@ -319,7 +319,7 @@ function addTagListSelect(el, list) {
         tagList += '<optgroup label="' + t('Sort by tag') + '">';
         tagList += '<option value="filename">' + t('Filename') + '</option>';
     }
-    else if (el === 'selectJukeboxUniqueTag' && settings.browsetags.includes('Title') === false) {
+    else if (el === 'selectJukeboxUniqueTag' && settings.tagListBrowse.includes('Title') === false) {
         //Title tag should be always in the list
         tagList = '<option value="Title">' + t('Song') + '</option>';
     }

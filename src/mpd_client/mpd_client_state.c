@@ -243,7 +243,7 @@ sds mpd_client_put_current_song(struct t_mympd_state *mympd_state, sds buffer, s
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = tojson_long(buffer, "pos", mpd_song_get_pos(song), true);
     buffer = tojson_long(buffer, "currentSongId", mympd_state->mpd_state->song_id, true);
-    buffer = put_song_tags(buffer, mympd_state->mpd_state, &mympd_state->mpd_state->mympd_tag_types, song);
+    buffer = put_song_tags(buffer, mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd, song);
     if (mympd_state->mpd_state->feat_stickers && mympd_state->sticker_cache != NULL) {
         buffer = sdscat(buffer, ",");
         buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));

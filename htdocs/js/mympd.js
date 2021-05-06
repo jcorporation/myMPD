@@ -273,7 +273,7 @@ function appRoute() {
                 let sort = app.current.sort;
                 let sortdesc = false;
                 if (sort === '-') {
-                    sort = settings.tags.includes('Title') ? 'Title' : '-';
+                    sort = settings.tagList.includes('Title') ? 'Title' : '-';
                     setAttEnc(document.getElementById('SearchList'), 'data-sort', sort);
                 }
                 else if (sort.indexOf('-') === 0) {

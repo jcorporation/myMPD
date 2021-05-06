@@ -331,7 +331,7 @@ function dragAndDropTableHeader(table) {
 }
 
 function setColTags(table) {
-    const tags = settings.tags.slice();
+    const tags = settings.tagList.slice();
     if (settings.featTags === false) {
         tags.push('Title');
     }
@@ -394,7 +394,7 @@ function setCols(table) {
     let sort = app.current.sort;
     
     if (table === 'Search' && app.apps.Search.sort === 'Title') {
-        if (settings.tags.includes('Title')) {
+        if (settings.tagList.includes('Title')) {
             sort = 'Title';
         }
         else if (settings.featTags === false) {

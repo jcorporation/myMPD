@@ -13,7 +13,7 @@ struct t_mpd_worker_state {
     bool smartpls;
     sds smartpls_sort;
     sds smartpls_prefix;
-    struct t_tags generate_pls_tag_types;
+    struct t_tags smartpls_generate_tag_types;
     //mpd state
     struct t_mpd_state *mpd_state;
     struct t_config *config;

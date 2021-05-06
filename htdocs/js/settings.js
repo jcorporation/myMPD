@@ -378,7 +378,7 @@ function populateQueueSettingsFrm() {
     document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
     document.getElementById('inputJukeboxLastPlayed').value = settings.jukeboxLastPlayed;
 
-    addTagListSelect('selectJukeboxUniqueTag', 'browsetags');
+    addTagListSelect('selectJukeboxUniqueTag', 'tagListBrowse');
     
     if (settings.jukeboxMode === 0) {
         disableEl('inputJukeboxQueueLength');
@@ -513,17 +513,21 @@ function populateSettingsFrm() {
     }
     document.getElementById('inputSmartplsPrefix').value = settings.smartplsPrefix;
     document.getElementById('inputSmartplsInterval').value = settings.smartplsInterval / 60 / 60;
-    addTagListSelect('selectSmartplsSort', 'tags');
+    addTagListSelect('selectSmartplsSort', 'tagList');
     document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
     //lyrics
+    if (settings.featLibrary === false) {
+        //lyrics need access to library
+        settings.advanced.enableLyrics = false;
+    }
     toggleBtnChkCollapse('btnEnableLyrics', 'collapseEnableLyrics', settings.advanced.enableLyrics);
     //tag multiselects
-    initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.allmpdtags, settings.tags);
-    initTagMultiSelect('inputSearchTags', 'listSearchTags', settings.tags, settings.searchtags);
-    initTagMultiSelect('inputBrowseTags', 'listBrowseTags', settings.tags, settings.browsetags);
-    initTagMultiSelect('inputGeneratePlsTags', 'listGeneratePlsTags', settings.browsetags, settings.generatePlsTags);
+    initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.tagListMpd, settings.tagList);
+    initTagMultiSelect('inputSearchTags', 'listSearchTags', settings.tagList, settings.tagListSearch);
+    initTagMultiSelect('inputBrowseTags', 'listBrowseTags', settings.tagList, settings.tagListBrowse);
+    initTagMultiSelect('inputGeneratePlsTags', 'listGeneratePlsTags', settings.tagListBrowse, settings.smartplsGenerateTagList);
     //features - show or hide warnings
-    //setFeatureBtn('inputAdvSettingenableLyrics', settings.featLibrary);
+    setFeatureBtn('btnEnableLyrics', settings.featLibrary);
     setFeatureBtn('inputAdvSettingenableScripting', settings.featScripting);
     setFeatureBtn('inputAdvSettingenableMounts', settings.featMounts);
     setFeatureBtn('inputAdvSettingenablePartitions', settings.featPartitions);
@@ -696,9 +700,9 @@ function parseMPDSettings() {
     }
     document.getElementById('selectTriggerEvent').innerHTML = triggerEventList;
     
-    settings.tags.sort();
-    settings.searchtags.sort();
-    settings.browsetags.sort();
+    settings.tagList.sort();
+    settings.tagListSearch.sort();
+    settings.tagListBrowse.sort();
     filterCols('Search');
     filterCols('QueueCurrent');
     filterCols('QueueLastPlayed');
@@ -710,10 +714,10 @@ function parseMPDSettings() {
 
     //enforce albumartist and album for albumactions
     settings.colsSearchActions = settings.colsSearch.slice();
-    if (settings.colsSearchActions.includes('Album') === false && settings.tags.includes('Album')) {
+    if (settings.colsSearchActions.includes('Album') === false && settings.tagList.includes('Album')) {
         settings.colsSearchActions.push('Album');
     }
-    if (settings.colsSearchActions.includes(tagAlbumArtist) === false && settings.tags.includes(tagAlbumArtist)) {
+    if (settings.colsSearchActions.includes(tagAlbumArtist) === false && settings.tagList.includes(tagAlbumArtist)) {
         settings.colsSearchActions.push(tagAlbumArtist);
     }
     
@@ -746,18 +750,18 @@ function parseMPDSettings() {
         }
     }
 
-    if (settings.tags.includes('Title')) {
+    if (settings.tagList.includes('Title')) {
         app.apps.Search.sort = 'Title';
     }
     
-    if (settings.tags.includes('AlbumArtist')) {
+    if (settings.tagList.includes('AlbumArtist')) {
         tagAlbumArtist = 'AlbumArtist';        
     }
-    else if (settings.tags.includes('Artist')) {
+    else if (settings.tagList.includes('Artist')) {
         tagAlbumArtist = 'Artist';        
     }
     
-    if (!settings.tags.includes('AlbumArtist') && app.apps.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
+    if (!settings.tagList.includes('AlbumArtist') && app.apps.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
         app.apps.Browse.tabs.Database.views.List.sort = 'Artist';
     }
 
@@ -781,18 +785,18 @@ function parseMPDSettings() {
     setCols('BrowseDatabaseDetail');
     setCols('Playback');
 
-    addTagList('BrowseDatabaseByTagDropdown', 'browsetags');
-    addTagList('BrowseNavPlaylistsDropdown', 'browsetags');
-    addTagList('BrowseNavFilesystemDropdown', 'browsetags');
+    addTagList('BrowseDatabaseByTagDropdown', 'tagListBrowse');
+    addTagList('BrowseNavPlaylistsDropdown', 'tagListBrowse');
+    addTagList('BrowseNavFilesystemDropdown', 'tagListBrowse');
     
-    addTagList('searchqueuetags', 'searchtags');
-    addTagList('searchtags', 'searchtags');
-    addTagList('searchDatabaseTags', 'browsetags');
-    addTagList('databaseSortTagsList', 'browsetags');
-    addTagList('dropdownSortPlaylistTags', 'tags');
-    addTagList('saveSmartPlaylistSort', 'tags');
+    addTagList('searchqueuetags', 'tagListSearch');
+    addTagList('searchtags', 'tagListSearch');
+    addTagList('searchDatabaseTags', 'tagListBrowse');
+    addTagList('databaseSortTagsList', 'tagListBrowse');
+    addTagList('dropdownSortPlaylistTags', 'tagList');
+    addTagList('saveSmartPlaylistSort', 'tagList');
 
-    addTagListSelect('saveSmartPlaylistSort', 'tags');
+    addTagListSelect('saveSmartPlaylistSort', 'tagList');
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -865,18 +869,18 @@ function saveSettings(closeModal) {
             "smartplsPrefix": document.getElementById('inputSmartplsPrefix').value,
             "smartplsInterval": smartplsInterval,
             "smartplsSort": document.getElementById('selectSmartplsSort').value,
-            "taglist": getTagMultiSelectValues(document.getElementById('listEnabledTags'), false),
-            "searchtaglist": getTagMultiSelectValues(document.getElementById('listSearchTags'), false),
-            "browsetaglist": getTagMultiSelectValues(document.getElementById('listBrowseTags'), false),
-            "generatePlsTags": getTagMultiSelectValues(document.getElementById('listGeneratePlsTags'), false),
+            "smartplsGenerateTagList": getTagMultiSelectValues(document.getElementById('listGeneratePlsTags'), false),
+            "tagList": getTagMultiSelectValues(document.getElementById('listEnabledTags'), false),
+            "tagListSearch": getTagMultiSelectValues(document.getElementById('listSearchTags'), false),
+            "tagListBrowse": getTagMultiSelectValues(document.getElementById('listBrowseTags'), false),
             "bookletName": inputBookletName.value,
             "volumeMin": parseInt(document.getElementById('inputSettingvolumeMin').value),
             "volumeMax": parseInt(document.getElementById('inputSettingvolumeMax').value),
             "volumeStep": parseInt(document.getElementById('inputSettingvolumeStep').value),
-            "usltExt": document.getElementById('inputSettingusltExt').value,
-            "syltExt": document.getElementById('inputSettingsyltExt').value,
-            "vorbisUslt": document.getElementById('inputSettingvorbisUslt').value,
-            "vorbisSylt": document.getElementById('inputSettingvorbisSylt').value,
+            "lyricsUsltExt": document.getElementById('inputSettinglyricsUsltExt').value,
+            "lyricsSyltExt": document.getElementById('inputSettinglyricsSyltExt').value,
+            "lyricsVorbisUslt": document.getElementById('inputSettinglyricsVorbisUslt').value,
+            "lyricsVorbisSylt": document.getElementById('inputSettinglyricsVorbisSylt').value,
             "covercacheKeepDays": parseInt(document.getElementById('inputCovercacheKeepDays').value),
             "advanced": advSettings
         }, getSettings);

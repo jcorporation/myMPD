@@ -89,9 +89,9 @@ struct t_mpd_state {
     time_t set_song_played_time;
     time_t last_song_set_song_played_time;
     //tags
-    sds taglist;
-    struct t_tags mympd_tag_types;
-    struct t_tags mpd_tag_types;
+    sds tag_list;
+    struct t_tags tag_types_mympd;
+    struct t_tags tag_types_mpd;
     unsigned tag_albumartist;
     //Feats
     const unsigned* protocol;
@@ -163,16 +163,16 @@ struct t_mympd_state {
     rax *album_cache;
     bool album_cache_building;
     //states - configurable with webui
-    sds searchtaglist;
-    sds browsetaglist;
-    struct t_tags search_tag_types;
-    struct t_tags browse_tag_types;
-    struct t_tags generate_pls_tag_types;
+    sds tag_list_search;
+    sds tag_list_browse;
+    struct t_tags tag_types_search;
+    struct t_tags tag_types_browse;
     bool smartpls;
     sds smartpls_sort;
     sds smartpls_prefix;
     time_t smartpls_interval;
-    sds generate_pls_tags;
+    struct t_tags smartpls_generate_tag_types;
+    sds smartpls_generate_tag_list;
     unsigned last_played_count;
     bool auto_play;
     enum jukebox_modes jukebox_mode;
@@ -183,7 +183,7 @@ struct t_mympd_state {
     bool jukebox_enforce_unique;
     sds cols_queue_current;
     sds cols_search;
-    sds cols_browse_database;
+    sds cols_browse_database_detail;
     sds cols_browse_playlists_detail;
     sds cols_browse_filesystem;
     sds cols_playback;
@@ -200,10 +200,10 @@ struct t_mympd_state {
     unsigned volume_min;
     unsigned volume_max;
     unsigned volume_step;
-    sds uslt_ext;
-    sds sylt_ext;
-    sds vorbis_uslt;
-    sds vorbis_sylt;
+    sds lyrics_uslt_ext;
+    sds lyrics_sylt_ext;
+    sds lyrics_vorbis_uslt;
+    sds lyrics_vorbis_sylt;
     int covercache_keep_days;
     //settings only for webui
     sds advanced;

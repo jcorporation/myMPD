@@ -81,23 +81,23 @@ function parseSongDetails(obj) {
     }
     
     let songDetailsHTML = '';
-    for (let i = 0; i < settings.tags.length; i++) {
-        if (settings.tags[i] === 'Title' || obj.result[settings.tags[i]] === '-') {
+    for (let i = 0; i < settings.tagList.length; i++) {
+        if (settings.tagList[i] === 'Title' || obj.result[settings.tagList[i]] === '-') {
             continue;
         }
-        songDetailsHTML += '<tr><th>' + t(settings.tags[i]) + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.result[settings.tags[i]]) + '"';
-        if (settings.tags[i] === 'Album' && obj.result[tagAlbumArtist] !== null) {
+        songDetailsHTML += '<tr><th>' + t(settings.tagList[i]) + '</th><td data-tag="' + settings.tagList[i] + '" data-name="' + encodeURI(obj.result[settings.tagList[i]]) + '"';
+        if (settings.tagList[i] === 'Album' && obj.result[tagAlbumArtist] !== null) {
             songDetailsHTML += ' data-albumartist="' + encodeURI(obj.result[tagAlbumArtist]) + '"';
         }
         songDetailsHTML += '>';
-        if (settings.browsetags.includes(settings.tags[i]) && obj.result[settings.tags[i]] !== '-') {
-            songDetailsHTML += '<a class="text-success" href="#">' + e(obj.result[settings.tags[i]]) + '</a>';
+        if (settings.tagListBrowse.includes(settings.tagList[i]) && obj.result[settings.tagList[i]] !== '-') {
+            songDetailsHTML += '<a class="text-success" href="#">' + e(obj.result[settings.tagList[i]]) + '</a>';
         }
-        else if (settings.tags[i].indexOf('MUSICBRAINZ') === 0) {
-            songDetailsHTML += getMBtagLink(settings.tags[i], obj.result[settings.tags[i]]);
+        else if (settings.tagList[i].indexOf('MUSICBRAINZ') === 0) {
+            songDetailsHTML += getMBtagLink(settings.tagList[i], obj.result[settings.tagList[i]]);
         }
         else {
-            songDetailsHTML += obj.result[settings.tags[i]];
+            songDetailsHTML += obj.result[settings.tagList[i]];
         }
         songDetailsHTML += '</td></tr>';
     }

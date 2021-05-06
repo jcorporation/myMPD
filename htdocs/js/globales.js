@@ -188,28 +188,28 @@ const settingFields = {
         "form": "volumeSettingsFrm",
         "reset": true
     },
-    "usltExt": {
+    "lyricsUsltExt": {
         "defaultValue": "txt",
         "inputType": "input",
         "title": "Unsynced lyrics extension",
         "form": "collapseEnableLyrics",
         "reset": true
     },
-    "syltExt": {
+    "lyricsSyltExt": {
         "defaultValue": "lrc",
         "inputType": "input",
         "title": "Synced lyrics extension",
         "form": "collapseEnableLyrics",
         "reset": true
     },
-    "vorbisUslt": {
+    "lyricsVorbisUslt": {
         "defaultValue": "LYRICS",
         "inputType": "input",
         "title": "Unsynced lyrics vorbis comment",
         "form": "collapseEnableLyrics",
         "reset": true
     },
-    "vorbisSylt": {
+    "lyricsVorbisSylt": {
         "defaultValue": "SYNCEDLYRICS",
         "inputType": "input",
         "title": "Synced lyrics vorbis comment",

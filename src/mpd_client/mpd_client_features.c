@@ -157,22 +157,22 @@ static void mpd_client_feature_commands(struct t_mympd_state *mympd_state) {
 }
 
 static void mpd_client_feature_tags(struct t_mympd_state *mympd_state) {
-    reset_t_tags(&mympd_state->search_tag_types);
-    reset_t_tags(&mympd_state->browse_tag_types);
-    reset_t_tags(&mympd_state->generate_pls_tag_types);
+    reset_t_tags(&mympd_state->tag_types_search);
+    reset_t_tags(&mympd_state->tag_types_browse);
+    reset_t_tags(&mympd_state->smartpls_generate_tag_types);
 
     mpd_client_feature_mpd_tags(mympd_state);
 
     if (mympd_state->mpd_state->feat_tags == true) {
-        check_tags(mympd_state->searchtaglist, "searchtags", &mympd_state->search_tag_types, mympd_state->mpd_state->mympd_tag_types);
-        check_tags(mympd_state->browsetaglist, "browsetags", &mympd_state->browse_tag_types, mympd_state->mpd_state->mympd_tag_types);
-        check_tags(mympd_state->generate_pls_tags, "generate pls tags", &mympd_state->generate_pls_tag_types, mympd_state->mpd_state->mympd_tag_types);
+        check_tags(mympd_state->tag_list_search, "tag_list_search", &mympd_state->tag_types_search, mympd_state->mpd_state->tag_types_mympd);
+        check_tags(mympd_state->tag_list_browse, "tag_list_browse", &mympd_state->tag_types_browse, mympd_state->mpd_state->tag_types_mympd);
+        check_tags(mympd_state->smartpls_generate_tag_list, "smartpls_generate_tag_list", &mympd_state->smartpls_generate_tag_types, mympd_state->mpd_state->tag_types_mympd);
     }
 }
 
 static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
-    reset_t_tags(&mympd_state->mpd_state->mpd_tag_types);
-    reset_t_tags(&mympd_state->mpd_state->mympd_tag_types);
+    reset_t_tags(&mympd_state->mpd_state->tag_types_mpd);
+    reset_t_tags(&mympd_state->mpd_state->tag_types_mympd);
 
     enable_all_mpd_tags(mympd_state->mpd_state);
 
@@ -183,7 +183,7 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
             enum mpd_tag_type tag = mpd_tag_name_parse(pair->value);
             if (tag != MPD_TAG_UNKNOWN) {
                 logline = sdscatfmt(logline, "%s ", pair->value);
-                mympd_state->mpd_state->mpd_tag_types.tags[mympd_state->mpd_state->mpd_tag_types.len++] = tag;
+                mympd_state->mpd_state->tag_types_mpd.tags[mympd_state->mpd_state->tag_types_mpd.len++] = tag;
             }
             else {
                 MYMPD_LOG_WARN("Unknown tag %s (libmpdclient too old)", pair->value);
@@ -197,7 +197,7 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
     mpd_response_finish(mympd_state->mpd_state->conn);
     check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
 
-    if (mympd_state->mpd_state->mpd_tag_types.len == 0) {
+    if (mympd_state->mpd_state->tag_types_mpd.len == 0) {
         logline = sdscat(logline, "none");
         MYMPD_LOG_NOTICE(logline);
         MYMPD_LOG_NOTICE("Tags are disabled");
@@ -207,11 +207,11 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
         mympd_state->mpd_state->feat_tags = true;
         MYMPD_LOG_NOTICE(logline);
 
-        check_tags(mympd_state->mpd_state->taglist, "mympdtags", &mympd_state->mpd_state->mympd_tag_types, mympd_state->mpd_state->mpd_tag_types);
-        enable_mpd_tags(mympd_state->mpd_state, mympd_state->mpd_state->mympd_tag_types);
+        check_tags(mympd_state->mpd_state->tag_list, "tag_list", &mympd_state->mpd_state->tag_types_mympd, mympd_state->mpd_state->tag_types_mpd);
+        enable_mpd_tags(mympd_state->mpd_state, mympd_state->mpd_state->tag_types_mympd);
     }
     
-    bool has_albumartist = mpd_shared_tag_exists(mympd_state->mpd_state->mympd_tag_types.tags, mympd_state->mpd_state->mympd_tag_types.len, MPD_TAG_ALBUM_ARTIST);
+    bool has_albumartist = mpd_shared_tag_exists(mympd_state->mpd_state->tag_types_mympd.tags, mympd_state->mpd_state->tag_types_mympd.len, MPD_TAG_ALBUM_ARTIST);
     if (has_albumartist == true) {
         mympd_state->mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
     }

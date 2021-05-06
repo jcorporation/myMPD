@@ -238,7 +238,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             mympd_state->mpd_state->reconnect_interval = 0;
             mympd_state->mpd_state->reconnect_time = 0;
             //reset list of supported tags
-            reset_t_tags(&mympd_state->mpd_state->mpd_tag_types);
+            reset_t_tags(&mympd_state->mpd_state->tag_types_mpd);
             //get mpd features
             mpd_client_mpd_features(mympd_state);
             //set binarylimit

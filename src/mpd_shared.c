@@ -57,9 +57,9 @@ void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state) {
     mpd_state->last_song_set_song_played_time = 0;
     mpd_state->crossfade = 0;
     mpd_state->set_song_played_time = 0;
-    mpd_state->taglist = sdsnew("Artist,Album,AlbumArtist,Title,Genre,Disc,Track");
-    reset_t_tags(&mpd_state->mympd_tag_types);
-    reset_t_tags(&mpd_state->mpd_tag_types);
+    mpd_state->tag_list = sdsnew("Artist,Album,AlbumArtist,Title,Genre,Disc,Track");
+    reset_t_tags(&mpd_state->tag_types_mympd);
+    reset_t_tags(&mpd_state->tag_types_mpd);
     mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
 }
 
@@ -68,7 +68,7 @@ void mpd_shared_free_mpd_state(struct t_mpd_state *mpd_state) {
     sdsfree(mpd_state->mpd_pass);
     sdsfree(mpd_state->song_uri);
     sdsfree(mpd_state->last_song_uri);
-    sdsfree(mpd_state->taglist);
+    sdsfree(mpd_state->tag_list);
     FREE_PTR(mpd_state);
 }
 
@@ -125,7 +125,7 @@ bool check_error_and_recover2(struct t_mpd_state *mpd_state, sds *buffer, sds me
         if (mpd_state->conn_state != MPD_FAILURE) {
             mpd_response_finish(mpd_state->conn);
             //enable default mpd tags after cleaning error
-            enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
+            enable_mpd_tags(mpd_state, mpd_state->tag_types_mympd);
         }
         return false;
     }

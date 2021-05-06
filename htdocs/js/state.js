@@ -500,7 +500,7 @@ function setPlaybackCardTags(songObj) {
                 value = '-';
             }
             c.getElementsByTagName('p')[0].innerHTML = printValue(col, value);
-            if (value === '-' || settings.browsetags.includes(col) === false) {
+            if (value === '-' || settings.tagListBrowse.includes(col) === false) {
                 c.getElementsByTagName('p')[0].classList.remove('clickable');
             }
             else {

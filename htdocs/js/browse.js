@@ -270,7 +270,7 @@ function gotoBrowse(event) {
         tag = getAttDec(x.parentNode, 'data-tag');
         name = getAttDec(x.parentNode, 'data-name');
     }
-    if (tag !== '' && name !== '' && name !== '-' && settings.browsetags.includes(tag)) {
+    if (tag !== '' && name !== '' && name !== '-' && settings.tagListBrowse.includes(tag)) {
         if (tag === 'Album') {
             let artist = getAttDec(x, 'data-albumartist');
             if (artist === null) {

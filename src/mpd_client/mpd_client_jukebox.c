@@ -390,7 +390,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_st
     }
     bool rc = _mpd_client_jukebox_fill_jukebox_queue(mympd_state, add_songs, jukebox_mode, playlist, manual);
     if (mympd_state->mpd_state->feat_tags == true) {
-        enable_mpd_tags(mympd_state->mpd_state, mympd_state->mpd_state->mympd_tag_types);
+        enable_mpd_tags(mympd_state->mpd_state, mympd_state->mpd_state->tag_types_mympd);
     }
     
     if (rc == false) {

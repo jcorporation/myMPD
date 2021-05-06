@@ -176,8 +176,8 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
 
 //private functions
 static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_state) {
-    for (size_t i = 0; i < mpd_worker_state->generate_pls_tag_types.len; i++) {
-        enum mpd_tag_type tag = mpd_worker_state->generate_pls_tag_types.tags[i];
+    for (size_t i = 0; i < mpd_worker_state->smartpls_generate_tag_types.len; i++) {
+        enum mpd_tag_type tag = mpd_worker_state->smartpls_generate_tag_types.tags[i];
         bool rc = mpd_search_db_tags(mpd_worker_state->mpd_state->conn, tag);
 
         if (check_rc_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_db_tags") == false) {

@@ -12,4 +12,5 @@ bool state_file_rw_bool(struct t_config *config, const char *dir, const char *na
 int state_file_rw_int(struct t_config *config, const char *dir, const char *name, const int def_value, bool warn);
 unsigned state_file_rw_uint(struct t_config *config, const char *dir, const char *name, const unsigned def_value, bool warn);
 bool state_file_write(struct t_config *config, const char *dir, const char *name, const char *value);
+sds camel_to_snake(const char *text, size_t len);
 #endif

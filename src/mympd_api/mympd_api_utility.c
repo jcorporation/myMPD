@@ -41,9 +41,9 @@ void default_mympd_state(struct t_mympd_state *mympd_state) {
     mympd_state->jukebox_queue_length = 1;
     mympd_state->jukebox_enforce_unique = true;
     mympd_state->coverimage_names = sdsnew("folder,cover");
-    mympd_state->searchtaglist = sdsnew("Artist,Album,AlbumArtist,Title,Genre");
-    mympd_state->browsetaglist = sdsnew("Artist,Album,AlbumArtist,Genre");
-    mympd_state->generate_pls_tags = sdsnew("Genre");
+    mympd_state->tag_list_search = sdsnew("Artist,Album,AlbumArtist,Title,Genre");
+    mympd_state->tag_list_browse = sdsnew("Artist,Album,AlbumArtist,Genre");
+    mympd_state->smartpls_generate_tag_list = sdsnew("Genre");
     mympd_state->last_played_count = 200;
     mympd_state->smartpls = true;
     mympd_state->smartpls_sort = sdsempty();
@@ -53,7 +53,7 @@ void default_mympd_state(struct t_mympd_state *mympd_state) {
     mympd_state->auto_play = false;
     mympd_state->cols_queue_current = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
     mympd_state->cols_search = sdsnew("[\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-    mympd_state->cols_browse_database = sdsnew("[\"Track\",\"Title\",\"Duration\"]");
+    mympd_state->cols_browse_database_detail = sdsnew("[\"Track\",\"Title\",\"Duration\"]");
     mympd_state->cols_browse_playlists_detail = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
     mympd_state->cols_browse_filesystem = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
     mympd_state->cols_playback = sdsnew("[\"Artist\",\"Album\"]");
@@ -64,14 +64,14 @@ void default_mympd_state(struct t_mympd_state *mympd_state) {
     mympd_state->volume_step = 5;
     mympd_state->mpd_stream_port = 8080;
     mympd_state->advanced = sdsnew("{}");
-    mympd_state->uslt_ext = sdsnew("txt");
-    mympd_state->sylt_ext = sdsnew("lrc");
-    mympd_state->vorbis_uslt = sdsnew("LYRICS");
-    mympd_state->vorbis_sylt = sdsnew("SYNCEDLYRICS");
+    mympd_state->lyrics_uslt_ext = sdsnew("txt");
+    mympd_state->lyrics_sylt_ext = sdsnew("lrc");
+    mympd_state->lyrics_vorbis_uslt = sdsnew("LYRICS");
+    mympd_state->lyrics_vorbis_sylt = sdsnew("SYNCEDLYRICS");
     mympd_state->covercache_keep_days = 7;
-    reset_t_tags(&mympd_state->search_tag_types);
-    reset_t_tags(&mympd_state->browse_tag_types);
-    reset_t_tags(&mympd_state->generate_pls_tag_types);
+    reset_t_tags(&mympd_state->tag_types_search);
+    reset_t_tags(&mympd_state->tag_types_browse);
+    reset_t_tags(&mympd_state->smartpls_generate_tag_types);
     //init last played songs list
     list_init(&mympd_state->last_played);
     //init sticker queue
@@ -116,13 +116,13 @@ void free_mympd_state(struct t_mympd_state *mympd_state) {
 }
 
 void free_mympd_state_sds(struct t_mympd_state *mympd_state) {
-    sdsfree(mympd_state->searchtaglist);
-    sdsfree(mympd_state->browsetaglist);
-    sdsfree(mympd_state->generate_pls_tags);
+    sdsfree(mympd_state->tag_list_search);
+    sdsfree(mympd_state->tag_list_browse);
+    sdsfree(mympd_state->smartpls_generate_tag_list);
     sdsfree(mympd_state->jukebox_playlist);
     sdsfree(mympd_state->cols_queue_current);
     sdsfree(mympd_state->cols_search);
-    sdsfree(mympd_state->cols_browse_database);
+    sdsfree(mympd_state->cols_browse_database_detail);
     sdsfree(mympd_state->cols_browse_playlists_detail);
     sdsfree(mympd_state->cols_browse_filesystem);
     sdsfree(mympd_state->cols_playback);
@@ -137,10 +137,10 @@ void free_mympd_state_sds(struct t_mympd_state *mympd_state) {
     sdsfree(mympd_state->navbar_icons);
     sdsfree(mympd_state->advanced);
     sdsfree(mympd_state->playlist_directory);
-    sdsfree(mympd_state->sylt_ext);
-    sdsfree(mympd_state->uslt_ext);
-    sdsfree(mympd_state->vorbis_uslt);
-    sdsfree(mympd_state->vorbis_sylt);
+    sdsfree(mympd_state->lyrics_sylt_ext);
+    sdsfree(mympd_state->lyrics_uslt_ext);
+    sdsfree(mympd_state->lyrics_vorbis_uslt);
+    sdsfree(mympd_state->lyrics_vorbis_sylt);
 }
 
 static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", 

@@ -63,8 +63,8 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, t_work_request *request
     mpd_worker_state->smartpls_sort = sdsdup(mympd_state->smartpls_sort);
     mpd_worker_state->smartpls_prefix = sdsdup(mympd_state->smartpls_prefix);
     mpd_worker_state->config = mympd_state->config;
-    reset_t_tags(&mpd_worker_state->generate_pls_tag_types);
-    check_tags(mympd_state->generate_pls_tags, "generate pls tags", &mpd_worker_state->generate_pls_tag_types, mympd_state->mpd_state->mympd_tag_types);
+    reset_t_tags(&mpd_worker_state->smartpls_generate_tag_types);
+    check_tags(mympd_state->smartpls_generate_tag_list, "smartpls_generate_tag_list", &mpd_worker_state->smartpls_generate_tag_types, mympd_state->mpd_state->tag_types_mympd);
 
     //mpd state
     mpd_worker_state->mpd_state = (struct t_mpd_state *)malloc(sizeof(struct t_mpd_state));

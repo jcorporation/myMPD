@@ -88,7 +88,7 @@ sds mpd_client_put_songdetails(struct t_mympd_state *mympd_state, sds buffer, sd
 
     struct mpd_song *song;
     if ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
-        buffer = put_song_tags(buffer, mympd_state->mpd_state, &mympd_state->mpd_state->mympd_tag_types, song);
+        buffer = put_song_tags(buffer, mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd, song);
         mpd_song_free(song);
     }
 
@@ -405,7 +405,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
         enum mpd_tag_type sort_tag_org = mpd_tag_name_parse(sort);
         if (sort_tag_org != MPD_TAG_UNKNOWN) {
             sort_tag = get_sort_tag(sort_tag_org);
-            if (mpd_shared_tag_exists(mympd_state->mpd_state->mympd_tag_types.tags, mympd_state->mpd_state->mympd_tag_types.len, sort_tag) == false) {
+            if (mpd_shared_tag_exists(mympd_state->mpd_state->tag_types_mympd.tags, mympd_state->mpd_state->tag_types_mympd.len, sort_tag) == false) {
                 //sort tag is not enabled, revert 
                 sort_tag = sort_tag_org;
             }
@@ -493,7 +493,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
     sds key = sdsempty();
     while (raxNext(&iter)) {
         song = (struct mpd_song *)iter.data;
-        if (_search_song(song, &expr_list, &mympd_state->browse_tag_types) == true) {
+        if (_search_song(song, &expr_list, &mympd_state->tag_types_browse) == true) {
             if (sort_by_last_modified == true) {
                 key = sdscatlen(key, iter.key, iter.key_len);
                 list_insert_sorted_by_value_i(&album_list, key, mpd_song_get_last_modified(song), NULL, iter.data, sortdesc);

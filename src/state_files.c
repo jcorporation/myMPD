@@ -28,6 +28,19 @@
 #include "utility.h"
 #include "state_files.h"
 
+sds camel_to_snake(const char *text, size_t len) {
+    sds buffer = sdsempty();
+    for (size_t i = 0;  i < len; i++) {
+        if (isupper(text[i]) > 0) {
+            buffer = sdscatprintf(buffer, "_%c", tolower(text[i]));
+        }
+        else {
+            buffer = sdscatprintf(buffer, "%c", text[i]);
+        }
+    }
+    return buffer;
+}
+
 sds state_file_rw_string_sds(struct t_config *config, const char *dir, const char *name, sds old_value, bool warn) {
     sds value = state_file_rw_string(config, dir, name, old_value, warn);
     sdsfree(old_value);

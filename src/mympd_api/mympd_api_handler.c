@@ -382,6 +382,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                     //reconnect to new mpd
                     mympd_state->mpd_state->conn_state = MPD_DISCONNECT;
                 }
+                else {
+                    //feature detection
+                    mpd_client_mpd_features(mympd_state);
+                }
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             }
             else {
