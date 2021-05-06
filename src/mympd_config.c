@@ -114,6 +114,10 @@ bool mympd_read_config(struct t_config *config) {
 //private functions
 static const char *mympd_getenv(const char *env_var, bool first_startup) {
     const char *env_value = getenv(env_var);
+    if (env_value != NULL && strlen(env_value) > 100) {
+        MYMPD_LOG_WARN("Environment variable \"%s\" is too long", env_var);
+        return NULL;
+    }
     if (first_startup == true && env_value != NULL) {
         MYMPD_LOG_INFO("Using environment variable \"%s\" with value \"%s\"", env_var, env_value);
         return env_var;
