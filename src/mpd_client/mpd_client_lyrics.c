@@ -116,6 +116,7 @@ static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool syn
     sds lyricsfile = sdscatfmt(sdsempty(), "%s.%s", filename_cpy, ext);
     MYMPD_LOG_DEBUG("Trying to open lyrics file: %s", lyricsfile);
     sdsfree(filename_cpy);
+    errno = 0;
     FILE *fp = fopen(lyricsfile, "r");
     sdsfree(lyricsfile);
     if (fp != NULL) {
@@ -145,7 +146,8 @@ static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool syn
             MYMPD_LOG_DEBUG("No lyrics file found in music directory");
         }
         else {
-            MYMPD_LOG_ERROR("Error opening lyrics file \"%s\": %s", mediafile, strerror(errno));
+            MYMPD_LOG_ERROR("Error opening lyrics file \"%s\"", mediafile);
+            MYMPD_LOG_ERRNO(errno);
         }
     }
     return returned_entities;

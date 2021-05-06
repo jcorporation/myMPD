@@ -263,16 +263,20 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_mess
 //private functions
 static bool rm_mk_dir(sds dir_name, bool create) {
     if (create == true) { 
+        errno = 0;
         int rc = mkdir(dir_name, 0700);
         if (rc != 0 && errno != EEXIST) {
-            MYMPD_LOG_ERROR("Can not create directory \"%s\": %s", dir_name, strerror(errno));
+            MYMPD_LOG_ERROR("Can not create directory \"%s\"", dir_name);
+            MYMPD_LOG_ERRNO(errno);
             return false;
         }
     }
     else { 
+        errno = 0;
         int rc = rmdir(dir_name);
         if (rc != 0 && errno != ENOENT) {
-            MYMPD_LOG_ERROR("Can not remove directory \"%s\": %s", dir_name, strerror(errno));
+            MYMPD_LOG_ERROR("Can not remove directory \"%s\"", dir_name);
+            MYMPD_LOG_ERRNO(errno);
             return false;
         }
     }

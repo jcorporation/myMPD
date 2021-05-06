@@ -86,8 +86,10 @@ unsigned tiny_queue_length(tiny_queue_t *queue, int timeout) {
     }
     if (timeout > 0 && queue->length == 0) {
         struct timespec max_wait = {0, 0};
+        errno = 0;
         if (clock_gettime(CLOCK_REALTIME, &max_wait) == -1) {
-            MYMPD_LOG_ERROR("Error getting realtime: %s", strerror(errno));
+            MYMPD_LOG_ERROR("Error getting realtime");
+            MYMPD_LOG_ERRNO(errno);
             assert(NULL);
         }
         //timeout in ms
@@ -98,9 +100,11 @@ unsigned tiny_queue_length(tiny_queue_t *queue, int timeout) {
             max_wait.tv_sec += 1;
             max_wait.tv_nsec = timeout - (999999999 - max_wait.tv_nsec);
         }
+        errno = 0;
         rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
         if (rc != 0 && rc != ETIMEDOUT) {
-            MYMPD_LOG_ERROR("Error in pthread_cond_timedwait: %s - %s", rc, strerror(errno));
+            MYMPD_LOG_ERROR("Error in pthread_cond_timedwait: %s", rc);
+            MYMPD_LOG_ERRNO(errno);
             MYMPD_LOG_ERROR("Max wait: %llu", (unsigned long long)max_wait.tv_nsec);
         }
     }
@@ -122,8 +126,10 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
     if (queue->length == 0) {
         if (timeout > 0) {
             struct timespec max_wait = {0, 0};
+            errno = 0;
             if (clock_gettime(CLOCK_REALTIME, &max_wait) == -1) {
-                MYMPD_LOG_ERROR("Error getting realtime: %s", strerror(errno));
+                MYMPD_LOG_ERROR("Error getting realtime");
+                MYMPD_LOG_ERRNO(errno);
                 return NULL;
             }
             //timeout in ms
@@ -134,10 +140,12 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
                 max_wait.tv_sec += 1;
                 max_wait.tv_nsec = timeout - (999999999 - max_wait.tv_nsec);
             }
+            errno = 0;
             rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
             if (rc != 0) {
                 if (rc != ETIMEDOUT) {
-                    MYMPD_LOG_ERROR("Error in pthread_cond_timedwait: %d - %s", rc, strerror(errno));
+                    MYMPD_LOG_ERROR("Error in pthread_cond_timedwait: %d", rc);
+                    MYMPD_LOG_ERRNO(errno);
                     MYMPD_LOG_ERROR("Max wait: %llu", (unsigned long long)max_wait.tv_nsec);
                 }
                 rc = pthread_mutex_unlock(&queue->mutex);

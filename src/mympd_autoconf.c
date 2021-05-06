@@ -49,9 +49,11 @@ sds find_mpd_conf(void) {
 sds get_mpd_conf(const char *key, const char *default_value) {
     sds last_value = sdsnew(default_value);
     sds mpd_conf = find_mpd_conf();
+    errno = 0;
     FILE *fp = fopen(mpd_conf, "r");
     if (fp == NULL) {
-        MYMPD_LOG_WARN("Error opening MPD configuration file \"%s\": ", mpd_conf, strerror(errno));
+        MYMPD_LOG_WARN("Error opening MPD configuration file \"%s\": ", mpd_conf);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(mpd_conf);
         return last_value;
     }

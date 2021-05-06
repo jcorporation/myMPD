@@ -59,13 +59,16 @@ sds state_file_rw_string(struct t_config *config, const char *dir, const char *n
     }
     
     sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", config->workdir, dir, name);
+    errno = 0;
     FILE *fp = fopen(cfg_file, "r");
     if (fp == NULL) {
         if (warn == true) {
-            MYMPD_LOG_WARN("Can not open file \"%s\": %s", cfg_file, strerror(errno));
+            MYMPD_LOG_WARN("Can not open file \"%s\"", cfg_file);
+            MYMPD_LOG_ERRNO(errno);
         }
         else if (errno != ENOENT) {
-            MYMPD_LOG_ERROR("Can not open file \"%s\": %s", cfg_file, strerror(errno));
+            MYMPD_LOG_ERROR("Can not open file \"%s\"", cfg_file);
+            MYMPD_LOG_ERRNO(errno);
         }
         state_file_write(config, dir, name, def_value);
         result = sdscat(result, def_value);
@@ -131,9 +134,11 @@ bool state_file_write(struct t_config *config, const char *dir, const char *name
         return false;
     }
     sds tmp_file = sdscatfmt(sdsempty(), "%s/%s/%s.XXXXXX", config->workdir, dir, name);
+    errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         return false;
     }
@@ -144,8 +149,10 @@ bool state_file_write(struct t_config *config, const char *dir, const char *name
     }
     fclose(fp);
     sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", config->workdir, dir, name);
+    errno = 0;
     if (rename(tmp_file, cfg_file) == -1) {
-        MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed: %s", tmp_file, cfg_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed: %s", tmp_file, cfg_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         sdsfree(cfg_file);
         return false;

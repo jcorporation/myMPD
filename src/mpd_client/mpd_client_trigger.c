@@ -199,6 +199,7 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
     char *line = NULL;
     size_t n = 0;
     ssize_t read = 0;
+    errno = 0;
     FILE *fp = fopen(trigger_file, "r");
     if (fp != NULL) {
         while ((read = getline(&line, &n, fp)) > 0) {
@@ -225,7 +226,10 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
         fclose(fp);
     }
     else {
-        MYMPD_LOG_DEBUG("Can not open file \"%s\": %s", trigger_file, strerror(errno));
+        MYMPD_LOG_DEBUG("Can not open file \"%s\"", trigger_file);
+        if (errno != ENOENT) {
+            MYMPD_LOG_ERRNO(errno);
+        }
     }
     MYMPD_LOG_INFO("Read %d triggers(s) from disc", mympd_state->triggers.length);
     sdsfree(trigger_file);
@@ -235,9 +239,11 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
 bool triggerfile_save(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving triggers to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/trigger_list.XXXXXX", mympd_state->config->workdir);
+    errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         return false;
     }
@@ -267,8 +273,10 @@ bool triggerfile_save(struct t_mympd_state *mympd_state) {
     fclose(fp);
     sdsfree(buffer);
     sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", mympd_state->config->workdir);
+    errno = 0;
     if (rename(tmp_file, trigger_file) == -1) {
-        MYMPD_LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, trigger_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from %s to %s failed", tmp_file, trigger_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         sdsfree(trigger_file);
         return false;

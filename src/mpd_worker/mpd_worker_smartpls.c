@@ -54,6 +54,7 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
     MYMPD_LOG_DEBUG("Database mtime: %d", db_mtime);
     
     sds dirname = sdscatfmt(sdsempty(), "%s/smartpls", mpd_worker_state->config->workdir);
+    errno = 0;
     DIR *dir = opendir (dirname);
     if (dir != NULL) {
         struct dirent *ent;
@@ -74,7 +75,8 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
         closedir (dir);
     }
     else {
-        MYMPD_LOG_ERROR("Can't open smart playlist directory %s: %s", dirname, strerror(errno));
+        MYMPD_LOG_ERROR("Can't open smart playlist directory \"%s\"", dirname);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(dirname);
         return false;
     }

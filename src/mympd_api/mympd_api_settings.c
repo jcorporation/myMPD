@@ -565,11 +565,13 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
 
 sds mympd_api_picture_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     sds pic_dirname = sdscatfmt(sdsempty(), "%s/pics", mympd_state->config->workdir);
+    errno = 0;
     DIR *pic_dir = opendir(pic_dirname);
     if (pic_dir == NULL) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, true,
             "general", "error", "Can not open directory pics");
-        MYMPD_LOG_ERROR("Can not open directory \"%s\": %s", pic_dirname, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open directory \"%s\"", pic_dirname);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(pic_dirname);
         return buffer;
     }
@@ -600,9 +602,11 @@ static sds default_navbar_icons(struct t_config *config, sds buffer) {
     sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->workdir);
     sdsclear(buffer);
     buffer = sdscat(buffer, NAVBAR_ICONS);
+    errno = 0;
     FILE *fp = fopen(file_name, "w");
     if (fp == NULL) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", file_name, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", file_name);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(file_name);
         return buffer;
     }
@@ -618,10 +622,12 @@ static sds default_navbar_icons(struct t_config *config, sds buffer) {
 static sds read_navbar_icons(struct t_config *config) {
     sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->workdir);
     sds buffer = sdsempty();
+    errno = 0;
     FILE *fp = fopen(file_name, "r");
     if (fp == NULL) {
         if (errno != ENOENT) {
-            MYMPD_LOG_ERROR("Can not open file \"%s\": %s", file_name, strerror(errno));
+            MYMPD_LOG_ERROR("Can not open file \"%s\"", file_name);
+            MYMPD_LOG_ERRNO(errno);
         }
         buffer = default_navbar_icons(config, buffer);
         sdsfree(file_name);

@@ -331,6 +331,7 @@ static struct list *mpd_client_jukebox_get_last_played(struct t_mympd_state *mym
         char *crap = NULL;
         size_t n = 0;
         sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->workdir);
+        errno = 0;
         FILE *fp = fopen(lp_file, "r");
         if (fp != NULL) {
             while (getline(&line, &n, fp) > 0 && queue_list->length < 20) {
@@ -368,7 +369,8 @@ static struct list *mpd_client_jukebox_get_last_played(struct t_mympd_state *mym
         }
         else {
             //ignore missing last_played file
-            MYMPD_LOG_DEBUG("Can not open \"%s\": %s", lp_file, strerror(errno));
+            MYMPD_LOG_DEBUG("Can not open \"%s\"", lp_file);
+            MYMPD_LOG_ERRNO(errno);
         }
         sdsfree(lp_file);
     }

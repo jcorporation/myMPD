@@ -75,6 +75,7 @@ bool mympd_api_save_home_icon(struct t_mympd_state *mympd_state, bool replace, u
 
 bool mympd_api_read_home_list(struct t_mympd_state *mympd_state) {
     sds home_file = sdscatfmt(sdsempty(), "%s/state/home_list", mympd_state->config->workdir);
+    errno = 0;
     FILE *fp = fopen(home_file, "r");
     if (fp != NULL) {
         char *line = NULL;
@@ -89,7 +90,10 @@ bool mympd_api_read_home_list(struct t_mympd_state *mympd_state) {
     }
     else {
         //ignore error
-        MYMPD_LOG_DEBUG("Can not open file \"%s\": %s", home_file, strerror(errno));
+        MYMPD_LOG_DEBUG("Can not open file \"%s\"", home_file);
+        if (errno != ENOENT) {
+            MYMPD_LOG_ERRNO(errno);
+        }
         sdsfree(home_file);
         return false;
     }
@@ -100,9 +104,11 @@ bool mympd_api_read_home_list(struct t_mympd_state *mympd_state) {
 bool mympd_api_write_home_list(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving home icons to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/home_list.XXXXXX", mympd_state->config->workdir);
+    errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        MYMPD_LOG_ERROR("Can not open \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open \"%s\" for write", tmp_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         return false;
     }
@@ -120,8 +126,10 @@ bool mympd_api_write_home_list(struct t_mympd_state *mympd_state) {
     }
     fclose(fp);
     sds home_file = sdscatfmt(sdsempty(), "%s/state/home_list", mympd_state->config->workdir);
+    errno = 0;
     if (rename(tmp_file, home_file) == -1) {
-        MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed: %s", tmp_file, home_file, strerror(errno));
+        MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, home_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         sdsfree(home_file);
         return false;

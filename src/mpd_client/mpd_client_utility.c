@@ -102,6 +102,7 @@ static void detect_extra_files(struct t_mympd_state *mympd_state, const char *ur
     const char *path = is_dirname == false ? dirname(uricpy) : uri;
     sds albumpath = sdscatfmt(sdsempty(), "%s/%s", mympd_state->music_directory_value, path);
     MYMPD_LOG_DEBUG("Read extra files from albumpath: %s", albumpath);
+    errno = 0;
     DIR *album_dir = opendir(albumpath);
     if (album_dir != NULL) {
         struct dirent *next_file;
@@ -126,7 +127,8 @@ static void detect_extra_files(struct t_mympd_state *mympd_state, const char *ur
         closedir(album_dir);
     }
     else {
-        MYMPD_LOG_ERROR("Can not open directory \"%s\" to get list of extra files: %s", albumpath, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open directory \"%s\" to get list of extra files", albumpath);
+        MYMPD_LOG_ERRNO(errno);
     }
     FREE_PTR(uricpy);
     sdsfree(albumpath);

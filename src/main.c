@@ -71,7 +71,7 @@ static void mympd_signal_handler(int sig_num) {
 static bool do_chown(const char *file_path, const char *user_name) {
     struct passwd *pwd = getpwnam(user_name);
     if (pwd == NULL) {
-        MYMPD_LOG_ERROR("Can't get passwd entry for user %s", user_name);
+        MYMPD_LOG_ERROR("Can't get passwd entry for user \"%s\"", user_name);
         return false;
     }
 
@@ -79,7 +79,8 @@ static bool do_chown(const char *file_path, const char *user_name) {
     int rc = chown(file_path, pwd->pw_uid, pwd->pw_gid); /* Flawfinder: ignore */
     //Originally owned by root
     if (rc == -1) {
-        MYMPD_LOG_ERROR("Can't chown %s to %s: %s", file_path, user_name, strerror(errno));
+        MYMPD_LOG_ERROR("Can't chown \"%s\" to \"%s\"", file_path, user_name);
+        MYMPD_LOG_ERRNO(errno);
         return false;
     }
     return true;
@@ -92,31 +93,36 @@ static bool drop_privileges(struct t_config *config, uid_t startup_uid) {
         struct passwd *pw;
         errno = 0;
         if ((pw = getpwnam(config->user)) == NULL) {
-            MYMPD_LOG_ERROR("getpwnam() failed, unknown user: %s", strerror(errno));
+            MYMPD_LOG_ERROR("getpwnam() failed, unknown user \"%s\"", config->user);
+            MYMPD_LOG_ERRNO(errno);
             return false;
         }
         //purge supplementary groups
         errno = 0;
         if (setgroups(0, NULL) == -1) { 
-            MYMPD_LOG_ERROR("setgroups() failed: %s", strerror(errno));
+            MYMPD_LOG_ERROR("setgroups() failed");
+            MYMPD_LOG_ERRNO(errno);
             return false;
         }
         //set new supplementary groups from target user
         errno = 0;
         if (initgroups(config->user, pw->pw_gid) == -1) {
-            MYMPD_LOG_ERROR("initgroups() failed: %s", strerror(errno));
+            MYMPD_LOG_ERROR("initgroups() failed");
+            MYMPD_LOG_ERRNO(errno);
             return false;
         }
         //change primary group to group of target user
         errno = 0;
         if (setgid(pw->pw_gid) == -1 ) {
-            MYMPD_LOG_ERROR("setgid() failed: %s", strerror(errno));
+            MYMPD_LOG_ERROR("setgid() failed");
+            MYMPD_LOG_ERRNO(errno);
             return false;
         }
         //change user
         errno = 0;
         if (setuid(pw->pw_uid) == -1) {
-            MYMPD_LOG_ERROR("setuid() failed: %s", strerror(errno));
+            MYMPD_LOG_ERROR("setuid() failed");
+            MYMPD_LOG_ERRNO(errno);
             return false;
         }
     }
@@ -271,8 +277,10 @@ int main(int argc, char **argv) {
     set_loglevel(LOG_NOTICE);
     #endif
 
+    errno = 0;
     if (chdir("/") != 0) {
-        MYMPD_LOG_ERROR("Can not change directory to /: %s", strerror(errno));
+        MYMPD_LOG_ERROR("Can not change directory to /");
+        MYMPD_LOG_ERRNO(errno);
         goto end;
     }
     //only user and group have rw access
@@ -309,8 +317,10 @@ int main(int argc, char **argv) {
     }
 
     //go into workdir
+    errno = 0;
     if (chdir(config->workdir) != 0) {
-        MYMPD_LOG_ERROR("Can not change directory to %s: %s", config->workdir, strerror(errno));
+        MYMPD_LOG_ERROR("Can not change directory to \"%s\"", config->workdir);
+        MYMPD_LOG_ERRNO(errno);
         goto cleanup;
     }
     

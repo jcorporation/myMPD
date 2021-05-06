@@ -237,8 +237,10 @@ sds mpd_client_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sd
         //smart playlist
         if (access(new_pl_file, F_OK ) == -1) { /* Flawfinder: ignore */
             //new playlist doesn't exist
+            errno = 0;
             if (rename(old_pl_file, new_pl_file) == -1) {
-                MYMPD_LOG_ERROR("Renaming smart playlist %s to %s failed: %s", old_pl_file, new_pl_file, strerror(errno));
+                MYMPD_LOG_ERROR("Renaming smart playlist %s to %s failed", old_pl_file, new_pl_file);
+                MYMPD_LOG_ERRNO(errno);
                 buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Renaming playlist failed");
                 sdsfree(old_pl_file);
                 sdsfree(new_pl_file);
@@ -264,15 +266,17 @@ sds mpd_client_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sd
     }
     //remove smart playlist
     sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, playlist);
+    errno = 0;
     int rc = unlink(pl_file);
     if (rc == -1 && errno != ENOENT) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Deleting smart playlist failed");
-        MYMPD_LOG_ERROR("Deleting smart playlist \"%s\" failed: %s", playlist, strerror(errno));
+        MYMPD_LOG_ERROR("Deleting smart playlist \"%s\" failed", playlist);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(pl_file);
         return buffer;
     }
     //ignore error
-    MYMPD_LOG_DEBUG("Error removing file \"%s\": %s", pl_file, strerror(errno));
+    MYMPD_LOG_DEBUG("File \"%s\" does not exist", pl_file);
     sdsfree(pl_file);
     //remove mpd playlist
     bool rc2 = mpd_run_rm(mympd_state->mpd_state->conn, playlist);
@@ -400,6 +404,7 @@ sds mpd_client_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer
     }
     //delete each smart playlist file that have no corresponding mpd playlist file
     sds smartpls_path = sdscatfmt(sdsempty(), "%s/smartpls", mympd_state->config->workdir);
+    errno = 0;
     DIR *smartpls_dir = opendir(smartpls_path);
     if (smartpls_dir != NULL) {
         struct dirent *next_file;
@@ -407,11 +412,13 @@ sds mpd_client_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer
             if (strncmp(next_file->d_name, ".", 1) != 0) {
                 if (list_get_node(&playlists, next_file->d_name) == NULL) {
                     sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, next_file->d_name);
+                    errno = 0;
                     if (unlink(smartpls_file) == 0) {
                         MYMPD_LOG_INFO("Removed orphaned smartpls file \"%s\"", smartpls_file);
                     }
                     else {
-                        MYMPD_LOG_ERROR("Error removing file \"%s\": %s", smartpls_file, strerror(errno));
+                        MYMPD_LOG_ERROR("Error removing file \"%s\"", smartpls_file);
+                        MYMPD_LOG_ERRNO(errno);
                     }
                     sdsfree(smartpls_file);
                 }
@@ -420,7 +427,8 @@ sds mpd_client_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer
         closedir(smartpls_dir);
     }
     else {
-        MYMPD_LOG_ERROR("Can not open smartpls dir \"%s\": %s", smartpls_path, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open smartpls dir \"%s\"", smartpls_path);
+        MYMPD_LOG_ERRNO(errno);
     }
     sdsfree(smartpls_path);
     
@@ -503,9 +511,11 @@ static bool smartpls_init(struct t_config *config, const char *name, const char 
     }
     
     sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", config->workdir, name);
+    errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         return false;
     }
@@ -513,8 +523,10 @@ static bool smartpls_init(struct t_config *config, const char *name, const char 
     fprintf(fp, "%s", value);
     fclose(fp);
     sds cfg_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->workdir, name);
+    errno = 0;
     if (rename(tmp_file, cfg_file) == -1) {
-        MYMPD_LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, cfg_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         sdsfree(cfg_file);
         return false;

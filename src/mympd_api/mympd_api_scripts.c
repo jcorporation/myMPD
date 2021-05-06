@@ -83,9 +83,11 @@ sds mympd_api_script_list(struct t_config *config, sds buffer, sds method, long 
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     sds scriptdirname = sdscatfmt(sdsempty(), "%s/scripts", config->workdir);
+    errno = 0;
     DIR *script_dir = opendir(scriptdirname);
     if (script_dir == NULL) {
-        MYMPD_LOG_ERROR("Can not open directory \"%s\": %s", scriptdirname, strerror(errno));    
+        MYMPD_LOG_ERROR("Can not open directory \"%s\"", scriptdirname);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(scriptdirname);
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "script", "error", "Can not open script directory");
         return buffer;
@@ -128,8 +130,10 @@ sds mympd_api_script_list(struct t_config *config, sds buffer, sds method, long 
 
 bool mympd_api_script_delete(struct t_config *config, const char *script) {
     sds scriptfilename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->workdir, script);
+    errno = 0;
     if (unlink(scriptfilename) == -1) {
-        MYMPD_LOG_ERROR("Unlinking script file %s failed: %s", scriptfilename, strerror(errno));
+        MYMPD_LOG_ERROR("Unlinking script file \"%s\" failed", scriptfilename);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(scriptfilename);
         return false;
     }
@@ -139,9 +143,11 @@ bool mympd_api_script_delete(struct t_config *config, const char *script) {
 
 bool mympd_api_script_save(struct t_config *config, const char *script, int order, const char *content, const char *arguments, const char *oldscript) {
     sds tmp_file = sdscatfmt(sdsempty(), "%s/scripts/%.XXXXXX", config->workdir, script);
+    errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         return false;
     }
@@ -152,16 +158,20 @@ bool mympd_api_script_save(struct t_config *config, const char *script, int orde
     fputs(content, fp);
     fclose(fp);
     sds script_filename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->workdir, script);
+    errno = 0;
     if (rename(tmp_file, script_filename) == -1) {
-        MYMPD_LOG_ERROR("Rename file from %s to %s failed: %s", tmp_file, script_filename, strerror(errno));
+        MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, script_filename);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         sdsfree(script_filename);
         return false;
     }
     if (strlen(oldscript) > 0 && strcmp(script, oldscript) != 0) {
         sds oldscript_filename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->workdir, oldscript);
+        errno = 0;
         if (unlink(oldscript_filename) == -1) {
-            MYMPD_LOG_ERROR("Error removing file \"%s\": %s", oldscript_filename, strerror(errno));
+            MYMPD_LOG_ERROR("Error removing file \"%s\"", oldscript_filename);
+            MYMPD_LOG_ERRNO(errno);
         }
         sdsfree(oldscript_filename);
     }
@@ -172,6 +182,7 @@ bool mympd_api_script_save(struct t_config *config, const char *script, int orde
 
 sds mympd_api_script_get(struct t_config *config, sds buffer, sds method, long request_id, const char *script) {
     sds scriptfilename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->workdir, script);
+    errno = 0;
     FILE *fp = fopen(scriptfilename, "r");
     if (fp != NULL) {
         buffer = jsonrpc_result_start(buffer, method, request_id);
@@ -208,7 +219,8 @@ sds mympd_api_script_get(struct t_config *config, sds buffer, sds method, long r
         buffer = jsonrpc_result_end(buffer);
     }
     else {
-        MYMPD_LOG_ERROR("Can not open file \"%s\": %s", scriptfilename, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\"", scriptfilename);
+        MYMPD_LOG_ERRNO(errno);
         buffer = jsonrpc_respond_message(buffer, method, request_id, true,
             "script", "error", "Can not open scriptfile");
     }
@@ -255,9 +267,11 @@ bool mympd_api_script_start(struct t_config *config, const char *script, struct 
 
 //private functions
 static sds parse_script_metadata(sds entry, const char *scriptfilename, int *order) {
+    errno = 0;
     FILE *fp = fopen(scriptfilename, "r");
     if (fp == NULL) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\": %s", scriptfilename, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\": %s", scriptfilename);
+        MYMPD_LOG_ERRNO(errno);
         return entry;    
     }
     

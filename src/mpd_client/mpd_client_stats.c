@@ -36,9 +36,11 @@ static sds mpd_client_put_last_played_obj(struct t_mympd_state *mympd_state, sds
 bool mpd_client_last_played_list_save(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving last_played list to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/last_played.XXXXXX", mympd_state->config->workdir);
+    errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         return false;
     }    
@@ -56,6 +58,7 @@ bool mpd_client_last_played_list_save(struct t_mympd_state *mympd_state) {
     char *line = NULL;
     size_t n = 0;
     sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->workdir);
+    errno = 0;
     FILE *fi = fopen(lp_file, "r");
     if (fi != NULL) {
         while (getline(&line, &n, fi) > 0 && i < mympd_state->last_played_count) {
@@ -67,12 +70,16 @@ bool mpd_client_last_played_list_save(struct t_mympd_state *mympd_state) {
     }
     else {
         //ignore error
-        MYMPD_LOG_DEBUG("Can not open file \"%s\": %s", lp_file, strerror(errno));
+        MYMPD_LOG_DEBUG("Can not open file \"%s\"", lp_file);
+        if (errno != ENOENT) {
+            MYMPD_LOG_ERRNO(errno);
+        }
     }
     fclose(fp);
-    
+    errno = 0;
     if (rename(tmp_file, lp_file) == -1) {
-        MYMPD_LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, lp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, lp_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         sdsfree(lp_file);
         return false;
@@ -145,6 +152,7 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
     char *crap = NULL;
     size_t n = 0;
     sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->workdir);
+    errno = 0;
     FILE *fp = fopen(lp_file, "r");
     if (fp != NULL) {
         while (getline(&line, &n, fp) > 0) {
@@ -170,7 +178,10 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
     }
     else {
         //ignore error
-        MYMPD_LOG_DEBUG("Can not open file \"%s\": %s", lp_file, strerror(errno));
+        MYMPD_LOG_DEBUG("Can not open file \"%s\"", lp_file);
+        if (errno != ENOENT) {
+            MYMPD_LOG_ERRNO(errno);
+        }
     }
     sdsfree(lp_file);
     buffer = sdscat(buffer, "],");

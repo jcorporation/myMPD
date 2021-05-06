@@ -29,9 +29,11 @@ bool write_covercache_file(const char *workdir, const char *uri, const char *mim
     sds filename = sdsnew(uri);
     uri_to_filename(filename);
     sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", workdir, filename);
+    errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
+        MYMPD_LOG_ERRNO(errno);
     }
     else {
         FILE *fp = fdopen(fd, "w");
@@ -39,10 +41,14 @@ bool write_covercache_file(const char *workdir, const char *uri, const char *mim
         fclose(fp);
         sds ext = get_ext_by_mime_type(mime_type);
         sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", workdir, filename, ext);
+        errno = 0;
         if (rename(tmp_file, cover_file) == -1) {
-            MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed: %s", tmp_file, cover_file, strerror(errno));
+            MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, cover_file);
+            MYMPD_LOG_ERRNO(errno);
+            errno = 0;
             if (unlink(tmp_file) != 0) {
-                MYMPD_LOG_ERROR("Error removing file \"%s\": %s", tmp_file, strerror(errno));
+                MYMPD_LOG_ERROR("Error removing file \"%s\"", tmp_file);
+                MYMPD_LOG_ERRNO(errno);
             }
         }
         MYMPD_LOG_DEBUG("Write covercache file \"%s\" for uri \"%s\"", cover_file, uri);
@@ -62,6 +68,7 @@ int clear_covercache(const char *workdir, int keepdays) {
     sds covercache = sdscatfmt(sdsempty(), "%s/covercache", workdir);
     MYMPD_LOG_NOTICE("Cleaning covercache %s", covercache);
     MYMPD_LOG_DEBUG("Remove files older than %ld sec", now);
+    errno = 0;
     DIR *covercache_dir = opendir(covercache);
     if (covercache_dir != NULL) {
         struct dirent *next_file;
@@ -72,8 +79,10 @@ int clear_covercache(const char *workdir, int keepdays) {
                 if (stat(filepath, &status) == 0) {
                     if (status.st_mtime < now) {
                         MYMPD_LOG_DEBUG("Deleting %s: %ld", filepath, status.st_mtime);
+                        errno = 0;
                         if (unlink(filepath) != 0) {
-                            MYMPD_LOG_ERROR("Error removing file \"%s\": %s", filepath, strerror(errno));
+                            MYMPD_LOG_ERROR("Error removing file \"%s\"", filepath);
+                            MYMPD_LOG_ERRNO(errno);
                         }
                         else {
                             num_deleted++;
@@ -86,7 +95,8 @@ int clear_covercache(const char *workdir, int keepdays) {
         closedir(covercache_dir);
     }
     else {
-        MYMPD_LOG_ERROR("Error opening directory %s: %s", covercache, strerror(errno));
+        MYMPD_LOG_ERROR("Error opening directory %s", covercache);
+        MYMPD_LOG_ERRNO(errno);
     }
     MYMPD_LOG_NOTICE("Deleted %d files from covercache", num_deleted);
     sdsfree(covercache);

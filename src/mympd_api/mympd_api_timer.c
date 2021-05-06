@@ -60,10 +60,11 @@ void check_timer(struct t_timer_list *l) {
         }
         current = current->next;
     }
-
+    errno = 0;
     int read_fds = poll(ufds, iMaxCount, 100);
     if (read_fds < 0) {
-        MYMPD_LOG_ERROR("Error polling timerfd: %s", strerror(errno));
+        MYMPD_LOG_ERROR("Error polling timerfd");
+        MYMPD_LOG_ERRNO(errno);
         return;
     }
     if (read_fds == 0) {
@@ -445,6 +446,7 @@ bool timerfile_read(struct t_mympd_state *mympd_state) {
     sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer_list", mympd_state->config->workdir);
     char *line = NULL;
     size_t n = 0;
+    errno = 0;
     FILE *fp = fopen(timer_file, "r");
     if (fp != NULL) {
         while (getline(&line, &n, fp) > 0) {
@@ -474,7 +476,8 @@ bool timerfile_read(struct t_mympd_state *mympd_state) {
     }
     else {
         //ignore error
-        MYMPD_LOG_DEBUG("Can not open file \"%s\": %s", timer_file, strerror(errno));
+        MYMPD_LOG_DEBUG("Can not open file \"%s\"", timer_file);
+        MYMPD_LOG_ERRNO(errno);
     }
     sdsfree(timer_file);
     MYMPD_LOG_INFO("Read %d timer(s) from disc", mympd_state->timer_list.length);
@@ -484,9 +487,11 @@ bool timerfile_read(struct t_mympd_state *mympd_state) {
 bool timerfile_save(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving timers to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/timer_list.XXXXXX", mympd_state->config->workdir);
+    errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         return false;
     }
@@ -532,8 +537,10 @@ bool timerfile_save(struct t_mympd_state *mympd_state) {
     fclose(fp);
     sdsfree(buffer);
     sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer_list", mympd_state->config->workdir);
+    errno = 0;
     if (rename(tmp_file, timer_file) == -1) {
-        MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed: %s", tmp_file, timer_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, timer_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         sdsfree(timer_file);
         return false;

@@ -41,8 +41,10 @@ unsigned long mpd_shared_get_db_mtime(struct t_mpd_state *mpd_state) {
 unsigned long mpd_shared_get_smartpls_mtime(struct t_config *config, const char *playlist) {
     sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->workdir, playlist);
     struct stat attr;
+    errno = 0;
     if (stat(plpath, &attr) != 0) {
-        MYMPD_LOG_ERROR("Error getting mtime for %s: %s", plpath, strerror(errno));
+        MYMPD_LOG_ERROR("Error getting mtime for \"%s\"", plpath);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(plpath);
         return 0;
     }
@@ -235,9 +237,11 @@ bool mpd_shared_smartpls_save(struct t_config *config, const char *smartpltype, 
     }
     
     sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", config->workdir, playlist);
+    errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         return false;
     }
@@ -266,9 +270,11 @@ bool mpd_shared_smartpls_save(struct t_config *config, const char *smartpltype, 
     }
     fclose(fp);
     sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->workdir, playlist);
+    errno = 0;
     rc = rename(tmp_file, pl_file);
     if (rc == -1) {
-        MYMPD_LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, pl_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, pl_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         sdsfree(pl_file);
         return false;
