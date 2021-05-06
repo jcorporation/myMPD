@@ -33,6 +33,12 @@ void set_loglevel(int level) {
     loglevel = level;
 }
 
+void mympd_log_errno(const char *file, int line, int errnum) {
+    char err_text[256];
+    const char *err_str = strerror_r(errnum, err_text, 256);
+    mympd_log(LOG_ERR, file, line, "%s", err_str);
+}
+
 void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     if (level > loglevel) {
         return;
