@@ -310,7 +310,7 @@ function parseSettings(obj) {
         '<option value="stopplay">' + t('Stop playback') + '</option>' +
         '</optgroup>';
 
-    if (settings.featScripting === true) {
+    if (features.featScripting === true) {
         getScriptList(true);
     }
     else {
@@ -395,7 +395,7 @@ function populateQueueSettingsFrm() {
     }
     
     if (settings.mpdConnected === true) {
-        if (settings.featPlaylists === true) {
+        if (features.featPlaylists === true) {
             sendAPI("MYMPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) {
                 getAllPlaylists(obj, 'selectJukeboxPlaylist', settings.jukeboxPlaylist);
             });
@@ -410,7 +410,7 @@ function populateQueueSettingsFrm() {
         toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.single);
         toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.replaygain);
         document.getElementById('inputCrossfade').value = settings.crossfade;    
-        if (settings.featStickers === false) {
+        if (features.featStickers === false) {
             document.getElementById('warnPlaybackStatistics').classList.remove('hide');
             disableEl('inputJukeboxLastPlayed');
         }
@@ -501,7 +501,7 @@ function populateSettingsFrm() {
     document.getElementById('inputCovercacheKeepDays').value = settings.covercacheKeepDays;
     
     //smart playlists
-    if (settings.featPlaylists === true) {
+    if (features.featPlaylists === true) {
         enableEl('btnSmartpls');
         toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
         document.getElementById('warnSmartpls').classList.add('hide');
@@ -516,7 +516,7 @@ function populateSettingsFrm() {
     addTagListSelect('selectSmartplsSort', 'tagList');
     document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
     //lyrics
-    if (settings.featLibrary === false) {
+    if (features.featLibrary === false) {
         //lyrics need access to library
         settings.advanced.enableLyrics = false;
     }
@@ -527,10 +527,10 @@ function populateSettingsFrm() {
     initTagMultiSelect('inputBrowseTags', 'listBrowseTags', settings.tagList, settings.tagListBrowse);
     initTagMultiSelect('inputGeneratePlsTags', 'listGeneratePlsTags', settings.tagListBrowse, settings.smartplsGenerateTagList);
     //features - show or hide warnings
-    setFeatureBtn('btnEnableLyrics', settings.featLibrary);
-    setFeatureBtn('inputAdvSettingenableScripting', settings.featScripting);
-    setFeatureBtn('inputAdvSettingenableMounts', settings.featMounts);
-    setFeatureBtn('inputAdvSettingenablePartitions', settings.featPartitions);
+    setFeatureBtn('btnEnableLyrics', features.featLibrary);
+    setFeatureBtn('inputAdvSettingenableScripting', features.featScripting);
+    setFeatureBtn('inputAdvSettingenableMounts', features.featMounts);
+    setFeatureBtn('inputAdvSettingenablePartitions', features.featPartitions);
 }
 
 function setFeatureBtn(btn, value) {
@@ -645,7 +645,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
 function setFeatures() {
     //web ui features
     features.featCacert = settings.featCacert;
-    features.featHome = settings.advanced.uiHome;
+    features.featHome = settings.advanced.enableHome;
     features.featLocalPlayback = settings.advanced.enableLocalPlayback === true ?
         (settings.mpdStreamPort > 0 ? true : false) : false;
     features.featScripting = settings.advanced.enableScripting === true ?
@@ -672,6 +672,7 @@ function setFeatures() {
         features.featStickers = settings.featStickers;
         features.featTags = settings.featTags;
         features.featBinarylimit = settings.featBinarylimit;
+        features.featFingerprint = settings.featFingerprint;
     }
 
     //show or hide elements
@@ -721,7 +722,7 @@ function parseMPDSettings() {
         settings.colsSearchActions.push(tagAlbumArtist);
     }
     
-    if (settings.featTags === false) {
+    if (features.featTags === false) {
         app.apps.Browse.active = 'Filesystem';
         app.apps.Search.sort = 'filename';
         app.apps.Search.filter = 'filename';
@@ -765,11 +766,11 @@ function parseMPDSettings() {
         app.apps.Browse.tabs.Database.views.List.sort = 'Artist';
     }
 
-    if (settings.featAdvsearch === false && app.apps.Browse.active === 'Database') {
+    if (features.featAdvsearch === false && app.apps.Browse.active === 'Database') {
         app.apps.Browse.active = 'Filesystem';
     }
 
-    if (settings.featAdvsearch === false) {
+    if (features.featAdvsearch === false) {
         const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
         for (let i = 0; i < tagEls.length; i++) {
             tagEls[i].classList.remove('clickable');
@@ -1042,7 +1043,7 @@ function setNavbarIcons() {
     let btns = '';
     for (const icon of settings.navbarIcons) {
         let hide = '';
-        if (settings.advanced.uiHome === false && icon.options[0] === 'Home') {
+        if (features.featHome === false && icon.options[0] === 'Home') {
             hide = 'hide';
         }
         btns += '<div id="nav' + icon.options.join('') + '" class="nav-item flex-fill text-center ' + hide + '">' +

@@ -276,7 +276,7 @@ function selectTag(btnsEl, desc, setTo) {
 function addTagList(el, list) {
     let tagList = '';
     if (list === 'tagListSearch') {
-        if (settings.featTags === true) {
+        if (features.featTags === true) {
             tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">' + t('Any Tag') + '</button>';
         }
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="filename">' + t('Filename') + '</button>';
@@ -288,7 +288,7 @@ function addTagList(el, list) {
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + t(settings[list][i]) + '</button>';
     }
     if (el === 'BrowseNavFilesystemDropdown' || el === 'BrowseNavPlaylistsDropdown') {
-        if (settings.featTags === true && settings.featAdvsearch === true) {
+        if (features.featTags === true && features.featAdvsearch === true) {
             tagList = '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Database">' + t('Database') + '</button>';
         }
         else {

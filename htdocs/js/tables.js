@@ -332,7 +332,7 @@ function dragAndDropTableHeader(table) {
 
 function setColTags(table) {
     const tags = settings.tagList.slice();
-    if (settings.featTags === false) {
+    if (features.featTags === false) {
         tags.push('Title');
     }
     tags.push('Duration');
@@ -356,7 +356,7 @@ function setColTags(table) {
     }
     tags.sort();
     tags.push('dropdownTitleSticker');
-    if (settings.featStickers === true) {
+    if (features.featStickers === true) {
         for (const sticker of stickerList) {
             tags.push(sticker);
         }
@@ -397,7 +397,7 @@ function setCols(table) {
         if (settings.tagList.includes('Title')) {
             sort = 'Title';
         }
-        else if (settings.featTags === false) {
+        else if (features.featTags === false) {
             sort = 'Filename';
         }
         else {
@@ -424,7 +424,7 @@ function setCols(table) {
             }
             heading += '</th>';
         }
-        if (settings.featTags === true) {
+        if (features.featTags === true) {
             heading += '<th data-col="Action"><a data-title-phrase="' +t('Columns') + '" href="#" class="text-secondary align-middle mi mi-small">settings</a></th>';
         }
         else {

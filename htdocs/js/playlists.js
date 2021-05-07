@@ -199,7 +199,7 @@ function parseSmartPlaylist(obj) {
     document.getElementById('saveSmartPlaylistSticker').classList.add('hide');
     document.getElementById('saveSmartPlaylistNewest').classList.add('hide');
     let tagList;
-    if (settings.featTags) {
+    if (features.featTags) {
         tagList = '<option value="any">' + t('Any Tag') + '</option>';
     }
     tagList += '<option value="filename">' + t('Filename') + '</option>';
@@ -212,7 +212,7 @@ function parseSmartPlaylist(obj) {
         document.getElementById('saveSmartPlaylistSearch').classList.remove('hide');
         document.getElementById('selectSaveSmartPlaylistTag').value = obj.result.tag;
         document.getElementById('inputSaveSmartPlaylistSearchstr').value = obj.result.searchstr;
-        if (settings.featAdvsearch === true && obj.result.tag === 'expression') {
+        if (features.featAdvsearch === true && obj.result.tag === 'expression') {
             elSelectSaveSmartPlaylistTag.parentNode.parentNode.classList.add('hide');
             elSelectSaveSmartPlaylistTag.innerHTML = '<option value="expression">expression</option>';
             elSelectSaveSmartPlaylistTag.value = 'expression';
@@ -364,7 +364,7 @@ function showAddToPlaylist(uri, searchstr) {
         document.getElementById('addToPlaylistCaption').innerText = t('Add stream');
     }
     uiElements.modalAddToPlaylist.show();
-    if (settings.featPlaylists) {
+    if (features.featPlaylists) {
         sendAPI("MYMPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) {
             getAllPlaylists(obj, 'addToPlaylistPlaylist');
         });

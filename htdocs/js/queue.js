@@ -55,7 +55,7 @@ function initQueue() {
     document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function () {
         removeIsInvalid(document.getElementById('modalAddToQueue'));
         document.getElementById('warnJukeboxPlaylist2').classList.add('hide');
-        if (settings.featPlaylists === true) {
+        if (features.featPlaylists === true) {
             sendAPI("MYMPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) { 
                 getAllPlaylists(obj, 'selectAddToQueuePlaylist');
             });

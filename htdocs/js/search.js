@@ -24,7 +24,7 @@ function initSearch() {
         if (event.key === 'Escape') {
             this.blur();
         }
-        else if (event.key === 'Enter' && settings.featAdvsearch) {
+        else if (event.key === 'Enter' && features.featAdvsearch) {
             if (this.value !== '') {
                 const op = getSelectValue(document.getElementById('searchMatch'));
                 document.getElementById('searchCrumb').appendChild(createSearchCrumb(app.current.filter, op, this.value));
@@ -69,7 +69,7 @@ function initSearch() {
     }, false);
     
     document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
-        if (settings.featAdvsearch === false || event.target.nodeName !== 'TH' ||
+        if (features.featAdvsearch === false || event.target.nodeName !== 'TH' ||
             event.target.innerHTML === '') {
             return;
         }
@@ -111,7 +111,7 @@ function initSearch() {
 }
 
 function doSearch(x) {
-    if (settings.featAdvsearch) {
+    if (features.featAdvsearch) {
         const expression = createSearchExpression(document.getElementById('searchCrumb'), app.current.filter, getSelectValue('searchMatch'), x);
         appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', expression);
     }
@@ -137,7 +137,7 @@ function parseSearch(obj) {
         setAttEnc(row, 'data-uri', data.uri);
         row.setAttribute('tabindex', 0);
         row.setAttribute('title', rowTitle);
-        if (settings.featTags === true && settings.featAdvsearch === true) {
+        if (features.featTags === true && features.featAdvsearch === true) {
             //add artist and album information for album actions
             if (data.Album !== undefined) {
                 setAttEnc(row, 'data-album', data.Album);
@@ -155,7 +155,7 @@ function saveSearchAsSmartPlaylist() {
     parseSmartPlaylist({"jsonrpc":"2.0","id":0,"result":{"method":"MYMPD_API_SMARTPLS_GET", 
         "playlist":"",
         "type":"search",
-        "tag": settings.featAdvsearch === true ? 'expression' : app.current.filter,
+        "tag": features.featAdvsearch === true ? 'expression' : app.current.filter,
         "searchstr": app.current.search}});
 }
 
@@ -163,7 +163,7 @@ function addAllFromSearchPlist(plist, searchstr, replace) {
     if (searchstr === null) {
         searchstr = app.current.search;    
     }
-    if (settings.featAdvsearch) {
+    if (features.featAdvsearch) {
         sendAPI("MYMPD_API_DATABASE_SEARCH_ADV", {"plist": plist, 
             "sort": "", 
             "sortdesc": false, 

@@ -260,7 +260,7 @@ function popoverMenuAlbumCards(event) {
 }
 
 function gotoBrowse(event) {
-    if (settings.featAdvsearch === false) {
+    if (features.featAdvsearch === false) {
         return;
     }
     const x = event.target;
@@ -473,7 +473,7 @@ function parseAlbumDetails(obj) {
     const infoEl = document.getElementById('viewDetailDatabaseInfo');
     infoEl.innerHTML = '<h1>' + e(obj.result.Album) + '</h1>' +
         '<small> ' + t('AlbumArtist') + '</small><p>' + e(obj.result.AlbumArtist) + '</p>' +
-        (obj.result.bookletPath === '' || settings.featBrowse === false ? '' : 
+        (obj.result.bookletPath === '' || features.featLibrary === false ? '' : 
             '<span class="text-light mi">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
             e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>') +
         '</p>';

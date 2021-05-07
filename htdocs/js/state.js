@@ -393,7 +393,7 @@ function songChange(obj) {
         pageTitle += obj.result.Artist + ' - ';
         document.getElementById('footerArtist').innerText = obj.result.Artist;
         setAttEnc(document.getElementById('footerArtist'), 'data-name', obj.result.Artist);
-        if (settings.featAdvsearch === true) {
+        if (features.featAdvsearch === true) {
             document.getElementById('footerArtist').classList.add('clickable');
         }
     }
@@ -407,7 +407,7 @@ function songChange(obj) {
         document.getElementById('footerAlbum').innerText = obj.result.Album;
         setAttEnc(document.getElementById('footerAlbum'), 'data-name', obj.result.Album);
         setAttEnc(document.getElementById('footerAlbum'), 'data-albumartist', obj.result[tagAlbumArtist]);
-        if (settings.featAdvsearch === true) {
+        if (features.featAdvsearch === true) {
             document.getElementById('footerAlbum').classList.add('clickable');
         }
     }
@@ -453,7 +453,7 @@ function songChange(obj) {
         disableEl('addCurrentSongToPlaylist');
     }
     
-    if (settings.featStickers === true) {
+    if (features.featStickers === true) {
         setVoteSongBtns(obj.result.like, obj.result.uri);
     }
     
@@ -466,7 +466,7 @@ function songChange(obj) {
 
     setPlaybackCardTags(obj.result);
 
-    document.getElementById('currentBooklet').innerHTML = obj.result.bookletPath === '' || obj.result.bookletPath === undefined || settings.featBrowse === false ? '' : 
+    document.getElementById('currentBooklet').innerHTML = obj.result.bookletPath === '' || obj.result.bookletPath === undefined || features.featLibrary === false ? '' : 
             '<span class="text-light mi">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
             e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>';
     

@@ -503,7 +503,8 @@ const features = {
     "featTags": true,
     "featTimer": true,
     "featTrigger": true,
-    "featBinarylimit": true
+    "featBinarylimit": true,
+    "featFingerprint": false
 };
 
 //keyboard shortcuts

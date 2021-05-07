@@ -138,7 +138,7 @@ function appRoute() {
     }
     else {
         appPrepare(0);
-        if (settings.advanced.uiHome === true) {
+        if (features.featHome === true) {
             appGoto('Home');
         }
         else {
@@ -255,7 +255,7 @@ function appRoute() {
     }
     else if (app.current.app === 'Search') {
         document.getElementById('searchstr').focus();
-        if (settings.featAdvsearch) {
+        if (features.featAdvsearch) {
             createSearchCrumbs(app.current.search, document.getElementById('searchstr'), document.getElementById('searchCrumb'));
         }
         else if (document.getElementById('searchstr').value === '' && app.current.search !== '') {
@@ -269,7 +269,7 @@ function appRoute() {
         }
 
         if (document.getElementById('searchstr').value.length >= 2 || document.getElementById('searchCrumb').children.length > 0) {
-            if (settings.featAdvsearch) {
+            if (features.featAdvsearch) {
                 let sort = app.current.sort;
                 let sortdesc = false;
                 if (sort === '-') {
