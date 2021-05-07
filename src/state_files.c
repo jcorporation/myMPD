@@ -32,7 +32,7 @@ sds camel_to_snake(const char *text, size_t len) {
     sds buffer = sdsempty();
     for (size_t i = 0;  i < len; i++) {
         if (isupper(text[i]) > 0) {
-            buffer = sdscatprintf(buffer, "_%c", tolower(text[i]));
+            buffer = sdscatprintf(buffer, "_%c", tolower((unsigned char)text[i]));
         }
         else {
             buffer = sdscatprintf(buffer, "%c", text[i]);

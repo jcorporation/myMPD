@@ -372,7 +372,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 if (getsockname((int)(long)nc->fd, (struct sockaddr *)&localip, &len) == 0) {
                     sds response = jsonrpc_result_start(sdsempty(), "", 0);
                     response = tojson_char(response, "version", MG_VERSION, true);
-                    response = tojson_char(response, "ip", inet_ntoa(localip.sin_addr), false);
+                    char addr[INET_ADDRSTRLEN];
+                    const char *str = inet_ntop(AF_INET, &localip.sin_addr, addr, INET_ADDRSTRLEN);
+                    response = tojson_char(response, "ip", str, false);
                     response = jsonrpc_result_end(response);
                     http_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
                     sdsfree(response);
