@@ -54,14 +54,15 @@ _Thread_local sds thread_logname;
 static void mympd_signal_handler(int sig_num) {
     signal(sig_num, mympd_signal_handler);  // Reinstantiate signal handler
     if (sig_num == SIGTERM || sig_num == SIGINT) {
+        //Set loop end condiftion for threads
         s_signal_received = sig_num;
         //Wakeup queue loops
         pthread_cond_signal(&mympd_api_queue->wakeup);
         pthread_cond_signal(&mympd_script_queue->wakeup);
-        MYMPD_LOG_NOTICE("Signal %s received, exiting", sigdescr_np(sig_num));
+        MYMPD_LOG_NOTICE("Signal %s received, exiting", (sig_num == SIGTERM ? "SIGTERM" : "SIGINT"));
     }
     else if (sig_num == SIGHUP) {
-        MYMPD_LOG_NOTICE("Signal %s received, saving states", sigdescr_np(sig_num));
+        MYMPD_LOG_NOTICE("Signal SIGHUP received, saving states");
         t_work_request *request = create_request(-1, 0, MYMPD_API_STATE_SAVE, "MYMPD_API_STATE_SAVE", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_STATE_SAVE\",\"params\":{}}");
         tiny_queue_push(mympd_api_queue, request, 0);    
