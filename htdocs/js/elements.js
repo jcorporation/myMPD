@@ -11,12 +11,13 @@ class inputReset extends HTMLElement {
         const invalidPhrase = this.getAttribute('data-invalid-phrase');
         const unitPhrase = this.getAttribute('data-unit-phrase');
         const inputType = this.getAttribute('type');
+        const alwaysEnabled = this.classList.contains('alwaysEnabled') ? 'alwaysEnabled' : '';
         this.innerHTML = 
             '<div class="input-group">' +
                 '<input id="' + this.getAttribute('id') + '" placeholder="' + (placeholder === null ? '' : placeholder) + '" type="' + 
-                    (inputType === null ? 'text' : inputType) + '" class="form-control border-secondary"/>' +
+                    (inputType === null ? 'text' : inputType) + '" class="form-control border-secondary ' + alwaysEnabled + '"/>' +
                 '<div class="input-group-append">' +
-                    '<button data-title-phrase="Reset to default" class="btn btn-secondary resetBtn rounded-right">' +
+                    '<button data-title-phrase="Reset to default" class="btn btn-secondary resetBtn rounded-right ' + alwaysEnabled + '">' +
                         '<span class="mi">settings_backup_restore</span>' +
                     '</button>' +
                     (unitPhrase === null ? '' : '<div class="input-group-text-nobg" data-phrase="' + unitPhrase + '"></div>') +
