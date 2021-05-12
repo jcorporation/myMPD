@@ -305,19 +305,22 @@ function parseSettings(obj) {
     app.apps.Search.limit = limit;
 
     //scripts
-    document.getElementById('selectTimerAction').innerHTML = '<optgroup data-value="player" label="' + t('Playback') + '">' +
-        '<option value="startplay">' + t('Start playback') + '</option>' +
-        '<option value="stopplay">' + t('Stop playback') + '</option>' +
-        '</optgroup>';
+    if (scriptsInited === false) {
+        document.getElementById('selectTimerAction').innerHTML = '<optgroup data-value="player" label="' + t('Playback') + '">' +
+            '<option value="startplay">' + t('Start playback') + '</option>' +
+            '<option value="stopplay">' + t('Stop playback') + '</option>' +
+            '</optgroup>';
 
-    if (features.featScripting === true) {
-        getScriptList(true);
-    }
-    else {
-        document.getElementById('scripts').innerHTML = '';
-        //reinit mainmenu -> change of script list
-        uiElements.dropdownMainMenu.dispose();
-        uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
+            if (features.featScripting === true) {
+                getScriptList(true);
+            }
+            else {
+            document.getElementById('scripts').innerHTML = '';
+            //reinit mainmenu -> change of script list
+            uiElements.dropdownMainMenu.dispose();
+            uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
+        }
+        scriptsInited = true;
     }
 
     //volumebar
@@ -497,7 +500,6 @@ function populateSettingsFrm() {
     
     document.getElementById('inputBookletName').value = settings.bookletName;
     document.getElementById('inputCoverimageNames').value = settings.coverimageNames;
-    document.getElementById('inputLastPlayedCount').value = settings.lastPlayedCount;
     document.getElementById('inputCovercacheKeepDays').value = settings.covercacheKeepDays;
     
     //smart playlists
@@ -578,12 +580,8 @@ function _createSettingsFrm(fields, defaults, prefix) {
                     '<label class="col-sm-4 col-form-label" for="' + prefix + r(key) + '" data-phrase="' + 
                     e(defaults[key].title) + '">' + t(defaults[key].title) + '</label>' +
                     '<div class="col-sm-8 ">';
-        if (defaults[key].reset === true) {
-            advFrm[form] += '<div class="input-group">';
-        }
         if (defaults[key].inputType === 'select') {
-            advFrm[form] += '<select id="' + prefix + r(key) + '" data-key="' + 
-                r(key) + '" class="form-control border-secondary custom-select">';
+            advFrm[form] += '<select id="' + prefix + r(key) + '" class="form-control border-secondary custom-select">';
             for (let value in defaults[key].validValues) {
                 if (defaults[key].contentType === 'integer') {
                     value = parseInt(value);
@@ -596,21 +594,14 @@ function _createSettingsFrm(fields, defaults, prefix) {
         }
         else if (defaults[key].inputType === 'checkbox') {
             advFrm[form] += '<button type="button" class="btn btn-sm btn-secondary mi chkBtn ' + 
-                (fields[key] === false ? '' : 'active') + ' clickable" id="' + prefix + r(key) + '"'+
-                'data-key="' + r(key) + '">' +
+                (fields[key] === false ? '' : 'active') + ' clickable" id="' + prefix + r(key) + '">' +
                 (fields[key] === false ? 'radio_button_unchecked' : 'check') + '</button>';
         }
-        else if (defaults[key].inputType === 'color') {
-            advFrm[form] += '<input data-default="' + encodeURI(defaults[key].defaultValue) + '" id="' + prefix + r(key) + '" data-key="' + 
-                r(key) + '" type="color" class="form-control border-secondary" value="' + e(fields[key]) + '">';
-        }
         else {
-            advFrm[form] += '<input data-default="' + encodeURI(defaults[key].defaultValue) + '" id="' + prefix + r(key) + '" data-key="' + 
-                r(key) + '" type="text" class="form-control border-secondary" value="' + e(fields[key]) + '">';
-        }
-        if (defaults[key].reset === true) {
-            advFrm[form] += '<div class="input-group-append"><button title="' + t('Reset to default') + '" class="btn btn-secondary resetBtn">' +
-                '<span class="mi">settings_backup_restore</span></button></div></div>';
+            advFrm[form] += '<mympd-input-reset id="' + prefix + r(key) + '" placeholder="' + defaults[key].defaultValue + '" ' +
+                'value="' + e(fields[key]) + '" ' +
+                (defaults[key].invalid !== undefined ? 'data-invalid-phrase="' + t(defaults[key].invalid) +'"' : '') +
+                ' type="' + (defaults[key].inputType === 'color' ? 'color' : 'text') + '"></mympd-input-reset>';
         }
         advFrm[form] += '</div></div>';
         if (defaults[key].warn !== undefined) {
@@ -625,14 +616,8 @@ function _createSettingsFrm(fields, defaults, prefix) {
                 toggleBtnChk(event.target);
             }, false);
         }
-        const resetBtns = document.getElementById(key).getElementsByClassName('resetBtn');
-        for (const btn of resetBtns) {
-            btn.addEventListener('click', function(event) {
-                event.preventDefault();
-                resetToDefault(event.target);
-            }, false);
-        }
     }
+
     for (const key in defaults) {
         if (defaults[key].onChange !== undefined) {
             document.getElementById(prefix + key).addEventListener('change', function(event) {
@@ -810,11 +795,10 @@ function saveSettings(closeModal) {
     let formOK = true;
 
     for (const inputId of ['inputAdvSettinguiCoverimageSize', 'inputAdvSettinguiCoverimageSizeSmall',
-            'inputLastPlayedCount', 'inputSmartplsInterval', 'inputSettingvolumeMax', 'inputSettingvolumeMin',
+            'inputSettinglastPlayedCount', 'inputSmartplsInterval', 'inputSettingvolumeMax', 'inputSettingvolumeMin',
             'inputSettingvolumeStep', 'inputCovercacheKeepDays']) 
     {
         const inputEl = document.getElementById(inputId);
-        if (inputEl === null) { console.log(inputId); }
         if (!validateUint(inputEl)) {
             formOK = false;
         }
@@ -865,7 +849,7 @@ function saveSettings(closeModal) {
     if (formOK === true) {
         sendAPI("MYMPD_API_SETTINGS_SET", {
             "coverimageNames": inputCoverimageNames.value,
-            "lastPlayedCount": parseInt(document.getElementById('inputLastPlayedCount').value),
+            "lastPlayedCount": parseInt(document.getElementById('inputSettinglastPlayedCount').value),
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
             "smartplsPrefix": document.getElementById('inputSmartplsPrefix').value,
             "smartplsInterval": smartplsInterval,
@@ -1076,7 +1060,7 @@ function setNavbarIcons() {
 
 //eslint-disable-next-line no-unused-vars
 function resetToDefault(button) {
-    const el = button.nodeName === 'button ' ? button.parentNode.previousElementSibling : button.parentNode.parentNode.previousElementSibling;
+    const el = button.nodeName === 'BUTTON' ? button.parentNode.previousElementSibling : button.parentNode.parentNode.previousElementSibling;
     el.value = getAttDec(el, 'data-default') !== null ? getAttDec(el, 'data-default') : 
         (getAttDec(el, 'placeholder') !== null ? getAttDec(el, 'placeholder') : '');
 }
@@ -1084,7 +1068,7 @@ function resetToDefault(button) {
 function getBgImageList(image) {
     getImageList('inputAdvSettinguiBgImage', image, [
         {"value": "", "text": "None"},
-        {"value": "/assets/mympd-background-default.svg", "text":" Default image"},
+        {"value": "/assets/mympd-background-default.svg", "text":"Default image"},
         {"value": "/assets/mympd-background-dark.svg", "text": "Default image dark"},
         {"value": "/assets/mympd-background-light.svg", "text": "Default image light"},
     ]);

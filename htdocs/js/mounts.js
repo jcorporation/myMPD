@@ -96,7 +96,7 @@ function showEditMount(uri, storage) {
         document.getElementById('inputMountUrl').value = '';
         document.getElementById('inputMountPoint').value = '';
     }
-    document.getElementById('inputMountUrl').focus();
+    document.getElementById('inputMountPoint').focus();
     removeIsInvalid(document.getElementById('modalMounts'));
 }
 

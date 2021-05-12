@@ -22,6 +22,7 @@ let dragEl;
 let showSyncedLyrics = false;
 let scrollSyncedLyrics = true;
 let appInited = false;
+let scriptsInited = false;
 let subdir = '';
 let uiEnabled = true;
 let locale = navigator.language || navigator.userLanguage;
@@ -215,6 +216,14 @@ const settingFields = {
         "title": "Synced lyrics vorbis comment",
         "form": "collapseEnableLyrics",
         "reset": true
+    },
+    "lastPlayedCount": {
+        "defaultValue": 200,
+        "inputType": "input",
+        "title": "Last played list count",
+        "form": "statisticsFrm",
+        "reset": true,
+        "invalid": "Must be a number and greater than zero"
     }
 };
 

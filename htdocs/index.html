@@ -918,11 +918,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="inputCoverimageNames" data-phrase="Name"></label>
                   <div class="col-sm-8 ">
-                    <div class="input-group">
-                      <input id="inputCoverimageNames" type="text" class="form-control border-secondary" data-default="folder,cover" data-placeholder-phrase="folder,cover"/>
-                      <div class="input-group-append"><button data-href='{"cmd": "resetToDefault", "options": []}' title="Reset to default" class="btn btn-secondary resetBtn"><span class="mi">settings_backup_restore</span></button></div>
-                    </div>
-                    <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+                    <mympd-input-reset id="inputCoverimageNames" placeholder="folder,cover" value="" data-invalid-phrase="Invalid filename"></mympd-input-reset>
                   </div>
                 </div>
                 <div id="coverimageFrm"></div>
@@ -984,12 +980,7 @@
                 </div>  
                 <hr/>
                 <h4 data-phrase="Statistics"></h4>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputLastPlayedCount" data-phrase="Last played list count"></label>
-                  <div class="col-sm-8">
-                    <input id="inputLastPlayedCount" type="text" class="form-control border-secondary" value=""/>
-                    <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
-                  </div>
+                <div id="statisticsFrm">
                 </div>
                 <hr/>
                 <h4 data-phrase="Smart playlists"></h4>
@@ -1014,8 +1005,7 @@
                   <div class="form-group row">
                     <label class="col-sm-4 col-form-label" for="inputSmartplsPrefix" data-phrase="Smart playlists prefix"></label>
                     <div class="col-sm-8">
-                      <input type="text" class="form-control border-secondary" id="inputSmartplsPrefix"/>
-                      <div class="invalid-feedback" data-phrase="Invalid prefix"></div>
+                      <mympd-input-reset id="inputSmartplsPrefix" placeholder="myMPDsmart" value="" data-invalid-phrase="Invalid prefix"></mympd-input-reset>
                     </div>
                   </div>
                   <div class="form-group row">
@@ -1027,13 +1017,7 @@
                   <div class="form-group row">
                     <label class="col-sm-4 col-form-label" for="inputSmartplsInterval" data-phrase="Update interval"></label>
                     <div class="col-sm-8">
-                      <div class="input-group">
-                        <input type="text" class="form-control border-secondary rounded" id="inputSmartplsInterval"/>
-                        <div class="input-group-append">
-                          <div class="input-group-text-nobg" data-phrase="Hours"></div>
-                        </div>
-                      </div>
-                      <div class="invalid-feedback" data-phrase="Invalid number"></div>
+                      <mympd-input-reset id="inputSmartplsInterval" placeholder="4" value="" data-invalid-phrase="Invalid number" data-unit-phrase="Hours"></mympd-input-reset>
                     </div>
                   </div>
                 </div>
@@ -1077,12 +1061,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="inputCovercacheKeepDays" data-phrase="Covercache expiration"></label>
                   <div class="col-sm-8">
-                    <div class="input-group">
-                      <input type="text" class="form-control border-secondary rounded" id="inputCovercacheKeepDays" placeholder="7"/>
-                      <div class="input-group-append">
-                        <div class="input-group-text-nobg" data-phrase="Days"></div>
-                      </div>
-                    </div>
+                    <mympd-input-reset id="inputCovercacheKeepDays" placeholder="7" value="" data-invalid-phrase="Invalid number"></mympd-input-reset>
                   </div>
                 </div>
                 <div class="form-group row featPlaylists">
@@ -1116,8 +1095,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="inputBookletName" data-phrase="Booklet filename"></label>
                   <div class="col-sm-8 ">
-                    <input id="inputBookletName" type="text" class="form-control border-secondary" value=""/>
-                    <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+                    <mympd-input-reset id="inputBookletName" placeholder="booklet.pdf" value="" data-invalid-phrase="Invalid filename"></mympd-input-reset>
                   </div>
                 </div>
               </form>
@@ -2182,6 +2160,7 @@
 <!--debug-->  <script src="js/version.js"></script>
 <!--debug-->  <script src="js/long-press-event.js"></script>
 <!--debug-->  <script src="js/bootstrap-native.js"></script>
+<!--debug-->  <script src="js/elements.js"></script>
 <!--debug-->  <script src="js/globales.js"></script>
 <!--debug-->  <script src="js/log.js"></script>
 <!--debug-->  <script src="js/i18n.js"></script>

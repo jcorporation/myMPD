@@ -114,6 +114,7 @@ function showEditScript(script) {
         document.getElementById('selectScriptArguments').innerText = '';
         document.getElementById('textareaScriptContent').value = '';
     }
+    document.getElementById('inputScriptName').focus();
 }
 
 function parseEditScript(obj) {
