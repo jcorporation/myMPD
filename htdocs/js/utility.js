@@ -3,6 +3,31 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+//escapes html characters to avoid xss
+function e(x) {
+    if (isNaN(x)) {
+        return x.replace(/([<>"'])/g, function(m0, m1) {
+            if (m1 === '<') return '&lt;';
+            else if (m1 === '>') return '&gt;';
+            else if (m1 === '"') return '&quot;';
+            else if (m1 === '\'') return '&apos;';
+        }).replace(/\\u(003C|003E|0022|0027)/gi, function(m0, m1) {
+            if (m1 === '003C') return '&lt;';
+            else if (m1 === '003E') return '&gt;';
+            else if (m1 === '0022') return '&quot;';
+            else if (m1 === '0027') return '&apos;';
+        }).replace(/\[\[(\w+)\]\]/g, function(m0, m1) {
+            return '<span class="mi">' + m1 + '</span>';
+        });
+    }
+    return x;
+}
+
+//removes special characters
+function r(x) {
+    return x.replace(/[^\w-]/g, '_');
+}
+
 //warning dialog
 function showConfirm(text, btnText, callback) {
     document.getElementById('modalConfirmText').innerHTML = text;
@@ -284,7 +309,7 @@ function addTagList(el, list) {
     if (el === 'searchDatabaseTags') {
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">' + t('Any Tag') + '</button>';
     }
-    for (let i = 0; i < settings[list].length; i++) {
+    for (let i = 0, j = settings[list].length; i < j; i++) {
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + t(settings[list][i]) + '</button>';
     }
     if (el === 'BrowseNavFilesystemDropdown' || el === 'BrowseNavPlaylistsDropdown') {
@@ -323,7 +348,7 @@ function addTagListSelect(el, list) {
         //Title tag should be always in the list
         tagList = '<option value="Title">' + t('Song') + '</option>';
     }
-    for (let i = 0; i < settings[list].length; i++) {
+    for (let i = 0, j = settings[list].length; i < j; i++) {
         tagList += '<option value="' + settings[list][i] + '">' + t(settings[list][i]) + '</option>';
     }
     if (el === 'saveSmartPlaylistSort' || el === 'selectSmartplsSort') {
@@ -377,7 +402,7 @@ function toggleBtnGroupValue(btngrp, value) {
     if (isNaN(value) === false) {
         valuestr = value.toString();
     }
-    for (let i = 0; i < btns.length; i++) {
+    for (let i = 0, j = btns.length; i < j; i++) {
         if (getAttDec(btns[i], 'data-value') === valuestr) {
             btns[i].classList.add('active');
             b = btns[i];
@@ -405,7 +430,7 @@ function toggleBtnGroup(btn) {
         b = document.getElementById(btn);
     }
     const btns = b.parentNode.getElementsByTagName('button');
-    for (let i = 0; i < btns.length; i++) {
+    for (let i = 0, j = btns.length; i < j; i++) {
         if (btns[i] === b) {
             btns[i].classList.add('active');
         }
@@ -549,7 +574,7 @@ function setPagination(total, returned) {
     const offsetLast = app.current.offset + app.current.limit;
     const p = [ document.getElementById(cat + 'PaginationTop'), document.getElementById(cat + 'PaginationBottom') ];
     
-    for (let i = 0; i < p.length; i++) {
+    for (let i = 0, j = p.length; i < j; i++) {
         const first = p[i].children[0];
         const prev = p[i].children[1];
         const page = p[i].children[2].children[0];
@@ -561,11 +586,11 @@ function setPagination(total, returned) {
         if (totalPages > 1) {
             enableEl(page);
             let pl = '';
-            for (let j = 0; j < totalPages; j++) {
-                const o = j * app.current.limit;
+            for (let k = 0; k < totalPages; k++) {
+                const o = k * app.current.limit;
                 pl += '<button data-offset="' + o + '" type="button" class="btn-sm btn btn-secondary' +
                       ( o === app.current.offset ? ' active' : '') + '">' +
-                      ( j + 1) + '</button>';
+                      ( k + 1) + '</button>';
             }
             pages.innerHTML = pl;
             page.classList.remove('nodropdown');
@@ -662,7 +687,7 @@ function parseCmd(event, href) {
     }
 
     if (typeof window[cmd.cmd] === 'function') {
-        for (let i = 0; i < cmd.options.length; i++) {
+        for (let i = 0, j = cmd.options.length; i < j; i++) {
             if (cmd.options[i] === 'event') {
                 cmd.options[i] = event;
             }
@@ -723,7 +748,7 @@ function gotoPage(x, limit) {
 function createSearchCrumbs(searchStr, searchEl, crumbEl) {
 	crumbEl.innerHTML = '';
     const elements = searchStr.substring(1, app.current.search.length - 1).split(' AND ');
-    for (let i = 0; i < elements.length - 1 ; i++) {
+    for (let i = 0, j = elements.length - 1; i < j; i++) {
         const expression = elements[i].substring(1, elements[i].length - 1);
         const fields = expression.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
         if (fields !== null && fields.length === 4) {
@@ -761,7 +786,7 @@ function createSearchCrumb(filter, op, value) {
 function createSearchExpression(crumbsEl, tag, op, value) {
     let expression = '(';
     const crumbs = crumbsEl.children;
-    for (let i = 0; i < crumbs.length; i++) {
+    for (let i = 0, j = crumbs.length; i < j; i++) {
         if (i > 0) {
             expression += ' AND ';
         }

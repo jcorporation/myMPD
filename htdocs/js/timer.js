@@ -76,7 +76,7 @@ function saveTimer() {
     let minOneDay = false;
     const weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     const weekdays = [];
-    for (let i = 0; i < weekdayBtns.length; i++) {
+    for (let i = 0, j = weekdayBtns.length; i < j; i++) {
         const checked = document.getElementById(weekdayBtns[i]).classList.contains('active') ? true : false;
         weekdays.push(checked);
         if (checked === true) {
@@ -112,7 +112,7 @@ function saveTimer() {
     if (formOK === true) {
         const args = {};
         const argEls = document.getElementById('timerActionScriptArguments').getElementsByTagName('input');
-        for (let i = 0; i < argEls.length; i++) {
+        for (let i = 0, j = argEls.length; i < j; i++) {
             args[getAttDec(argEls[i], 'data-name')] = argEls[i].value;
         }
         let interval = parseInt(inputTimerIntervalEl.value);
@@ -165,7 +165,7 @@ function showEditTimer(timerid) {
         selectTimerActionChange();
         toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), 1);
         const weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
-        for (let i = 0; i < weekdayBtns.length; i++) {
+        for (let i = 0, j = weekdayBtns.length; i < j; i++) {
             toggleBtnChk(weekdayBtns[i], false);
         }
         document.getElementById('timerActionPlay').classList.remove('hide');
@@ -191,7 +191,7 @@ function parseEditTimer(obj) {
     document.getElementById('inputTimerVolume').value = obj.result.volume;
     toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), obj.result.jukeboxMode);
     const weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
-    for (let i = 0; i < weekdayBtns.length; i++) {
+    for (let i = 0, j = weekdayBtns.length; i < j; i++) {
         toggleBtnChk(weekdayBtns[i], obj.result.weekdays[i]);
     }
 }
@@ -243,7 +243,7 @@ function showTimerScriptArgs(option, values) {
     }
     const args = JSON.parse(getAttDec(option, 'data-arguments'));
     let list = '';
-    for (let i = 0; i < args.arguments.length; i++) {
+    for (let i = 0, j = args.arguments.length; i < j; i++) {
         list += '<div class="form-group row">' +
                   '<label class="col-sm-4 col-form-label" for="timerActionScriptArguments' + i + '">' + e(args.arguments[i]) + '</label>' +
                   '<div class="col-sm-8">' +

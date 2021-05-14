@@ -46,7 +46,7 @@ function saveTrigger() {
     if (formOK === true) {
         const args = {};
         const argEls = document.getElementById('triggerActionScriptArguments').getElementsByTagName('input');
-        for (let i = 0; i < argEls.length; i ++) {
+        for (let i = 0, j = argEls.length; i < j; i ++) {
             args[getAttDec(argEls[i], 'data-name')] = argEls[i].value;
         }
 
@@ -103,7 +103,7 @@ function showTriggerScriptArgs(option, values) {
     }
     const args = JSON.parse(getAttDec(option, 'data-arguments'));
     let list = '';
-    for (let i = 0; i < args.arguments.length; i++) {
+    for (let i = 0, j = args.arguments.length; i < j; i++) {
         list += '<div class="form-group row">' +
                   '<label class="col-sm-4 col-form-label" for="triggerActionScriptArguments' + i + '">' + e(args.arguments[i]) + '</label>' +
                   '<div class="col-sm-8">' +
@@ -134,9 +134,9 @@ function deleteTrigger(id) {
 }
 
 function parseTriggerList(obj) {
-    if (obj.result.data.length > 0) {
+    if (obj.result.returnedEntities > 0) {
         let triggerList = '';
-        for (let i = 0; i < obj.result.data.length; i++) {
+        for (let i = 0; i < obj.result.returnedEntities; i++) {
             triggerList += '<tr data-trigger-id="' + encodeURI(obj.result.data[i].id) + '"><td class="' +
                 (obj.result.data[i].name === settings.trigger ? 'font-weight-bold' : '') +
                 '">' + e(obj.result.data[i].name) + 

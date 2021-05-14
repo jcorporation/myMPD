@@ -43,8 +43,9 @@ function initBrowse() {
         document.getElementById('BrowseDatabaseListList').addEventListener('mouseover', function(event) {
             if (event.target.classList.contains('card-body') && event.target.childNodes.length === 0) {
                 const oldEls = document.getElementById('BrowseDatabaseListList').getElementsByClassName('album-grid-mouseover');
-                if (oldEls.length > 1) {
-                    for (let i = 0; i < oldEls.length; i++) {
+                const oldElsLen = oldEls.length;
+                if (oldElsLen > 1) {
+                    for (let i = 0; i < oldElsLen; i++) {
                         oldEls[i].remove();
                     }
                 }
@@ -251,7 +252,7 @@ function popoverMenuAlbumCards(event) {
     }
     showMenu(event.target, event);
     const selCards = document.getElementById('BrowseDatabaseListList').getElementsByClassName('selected');
-    for (let i = 0; i < selCards.length; i++) {
+    for (let i = 0, j = selCards.length; i < j; i++) {
         selCards[i].classList.remove('selected');
     }
     event.target.parentNode.classList.add('selected');
@@ -312,7 +313,7 @@ function parseFilesystem(obj) {
         img.title = t('Booklet');
         imageList.appendChild(img);
     }
-    for (let i = 0; i < obj.result.images.length; i++) {
+    for (let i = 0, j = obj.result.images.length; i < j; i++) {
         const img = document.createElement('div');
         img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + obj.result.images[i] + '"),url("assets/coverimage-loading.svg")';
         imageList.appendChild(img);

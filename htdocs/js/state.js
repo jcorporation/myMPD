@@ -66,7 +66,7 @@ function showListOutputAttributes(outputName) {
     sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
         uiElements.modalOutputAttributes.show();
         let output;
-        for (let i = 0; i < obj.result.data.length; i++) {
+        for (let i = 0; i < obj.result.numOutputs; i++) {
             if (obj.result.data[i].name === outputName) {
                 output = obj.result.data[i];
                 break;
@@ -77,11 +77,11 @@ function showListOutputAttributes(outputName) {
             '<tr><td>' + t('State') + '</td><td>' + (output.state === 1 ? t('enabled') : t('disabled')) + '</td></tr>' +
             '<tr><td>' + t('Plugin') + '</td><td>' + e(output.plugin) + '</td></tr>';
         let i = 0;
-        Object.keys(output.attributes).forEach(function(key) {
+        for (const key in output.attributes) {
             i++;
             list += '<tr><td>' + e(key) + '</td><td><input name="' + e(key) + '" class="form-control border-secondary" type="text" value="' + 
                 e(output.attributes[key]) + '"/></td></tr>';
-        });
+        }
         if (i > 0) {
             enableEl('btnOutputAttributesSave');
         }
@@ -98,7 +98,7 @@ function saveOutputAttributes() {
     params.outputId =  parseInt(document.getElementById('modalOutputAttributesId').value);
     params.attributes = {};
     const els = document.getElementById('outputAttributesList').getElementsByTagName('input');
-    for (let i = 0; i < els.length; i++) {
+    for (let i = 0, j = els.length; i < j; i++) {
         params.attributes[els[i].name] = els[i].value;
     }
     sendAPI('MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET', params);
@@ -111,22 +111,17 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     currentSong.currentSongId = currentSongId;
 
     const progressPx = totalTime > 0 ? Math.ceil(domCache.progress.offsetWidth * elapsedTime / totalTime) : 0;
-    if (progressPx === 0) {
+    if (progressPx === 0 || progressPx < domCache.progressBar.style.width) {
         domCache.progressBar.style.transition = 'none';
-    }
-    domCache.progressBar.style.width = progressPx + 'px'; 
-    if (progressPx === 0) {    
+        //Trigger a reflow, flushing the CSS changes
+        domCache.progressBar.offsetHeight;
         setTimeout(function() {
             domCache.progressBar.style.transition = progressBarTransition;
-        }, 10);
+            domCache.progressBar.offsetHeight;
+        }, 1000);
     }
-    
-    if (totalTime <= 0) {
-        domCache.progress.style.cursor = 'default';
-    }
-    else {
-        domCache.progress.style.cursor = 'pointer';
-    }
+    domCache.progressBar.style.width = progressPx + 'px';
+    domCache.progress.style.cursor = totalTime <= 0 ? 'default' : 'pointer';    
 
     const counterText = beautifySongDuration(elapsedTime) + "&nbsp;/&nbsp;" + beautifySongDuration(totalTime);
     domCache.counter.innerHTML = counterText;
@@ -218,7 +213,7 @@ function parseState(obj) {
         sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, songChange);
     }
     //clear playback card if no current song
-    if (obj.result.songPos === '-1') {
+    if (obj.result.songPos === -1) {
         document.getElementById('currentTitle').innerText = 'Not playing';
         document.title = 'myMPD';
         document.getElementById('footerTitle').innerText = '';
@@ -231,7 +226,7 @@ function parseState(obj) {
             clearBackgroundImage();
         }
         const pb = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
-        for (let i = 0; i < pb.length; i++) {
+        for (let i = 0, j = pb.length; i < j; i++) {
             pb[i].innerText = '';
         }
     }
@@ -283,7 +278,7 @@ function setBackgroundImage(url) {
         logDebug('Background image already set');
         return;
     }
-    for (let i = 0; i < old.length; i++) {
+    for (let i = 0, j = old.length; i < j; i++) {
         if (old[i].style.zIndex === '-10') {
             old[i].remove();
         }
@@ -308,7 +303,7 @@ function setBackgroundImage(url) {
 
 function clearBackgroundImage() {
     const old = document.querySelectorAll('.albumartbg');
-    for (let i = 0; i < old.length; i++) {
+    for (let i = 0, j = old.length; i < j; i++) {
         if (old[i].style.zIndex === '-10') {
             old[i].remove();        
         }
@@ -330,7 +325,7 @@ function _setCurrentCover(url, el) {
         return;
     }
     const old = el.querySelectorAll('.coverbg');
-    for (let i = 0; i < old.length; i++) {
+    for (let i = 0, j = old.length; i < j; i++) {
         if (old[i].style.zIndex === '2') {
             old[i].remove();        
         }
@@ -360,7 +355,7 @@ function clearCurrentCover() {
 
 function _clearCurrentCover(el) {
     const old = el.querySelectorAll('.coverbg');
-    for (let i = 0; i < old.length; i++) {
+    for (let i = 0, j = old.length; i < j; i++) {
         if (old[i].style.zIndex === '2') {
             old[i].remove();        
         }
@@ -559,12 +554,7 @@ function mediaSessionSetPositionState(duration, position) {
 
 function mediaSessionSetState() {
     if (settings.mediaSession === true && 'mediaSession' in navigator) {
-        if (playstate === 'play') {
-            navigator.mediaSession.playbackState = 'playing';
-        }
-        else {
-            navigator.mediaSession.playbackState = 'paused';
-        }
+        navigator.mediaSession.playbackState = playstate === 'play' ? 'playing' : 'paused';
     }
 }
 

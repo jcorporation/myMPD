@@ -64,7 +64,7 @@ function saveScript() {
     if (formOK === true) {
         const args = [];
         const argSel = document.getElementById('selectScriptArguments');
-        for (let i = 0; i < argSel.options.length; i++) {
+        for (let i = 0, j = argSel.options.length; i < j; i++) {
             args.push(argSel.options[i].text);
         }
         sendAPI("MYMPD_API_SCRIPT_SAVE", {
@@ -124,7 +124,7 @@ function parseEditScript(obj) {
     document.getElementById('inputScriptArgument').value = '';
     const selSA = document.getElementById('selectScriptArguments');
     selSA.innerText = '';
-    for (let i = 0; i < obj.result.metadata.arguments.length; i++) {
+    for (let i = 0, j = obj.result.metadata.arguments.length; i < j; i++) {
         const o = document.createElement('option');
         o.innerText = obj.result.metadata.arguments[i];
         selSA.appendChild(o);
@@ -170,7 +170,7 @@ function parseScriptList(obj) {
         for (let i = 0; i < scriptListLen; i++) {
             let arglist = '';
             if (obj.result.data[i].metadata.arguments.length > 0) {
-                for (let j = 0; j < obj.result.data[i].metadata.arguments.length; j++) {
+                for (let j = 0, k = obj.result.data[i].metadata.arguments.length; j < k; j++) {
                     obj.result.data[i].metadata.arguments[j] = e(obj.result.data[i].metadata.arguments[j]);
                 }
                 arglist = '"' + obj.result.data[i].metadata.arguments.join('","') + '"';
@@ -236,7 +236,7 @@ function execScript(href) {
     }
     else {
         let arglist ='';
-        for (let i = 0; i < cmd.arguments.length; i++) {
+        for (let i = 0, j = cmd.arguments.length; i < j; i++) {
             arglist += '<div class="form-group row">' +
                   '<label class="col-sm-4 col-form-label" for="inputScriptArg' + i + '">' + e(cmd.arguments[i]) +'</label>' +
                   '<div class="col-sm-8">' +
@@ -256,7 +256,7 @@ function execScriptArgs() {
     const script = document.getElementById('modalExecScriptScriptname').value;
     const args = {};
     const inputs = document.getElementById('execScriptArguments').getElementsByTagName('input');
-    for (let i = 0; i < inputs.length; i++) {
+    for (let i = 0, j = inputs.length; i < j; i++) {
         args[inputs[i].name] = inputs[i].value;
     }
     sendAPI("MYMPD_API_SCRIPT_EXECUTE", {"script": script, "arguments": args});

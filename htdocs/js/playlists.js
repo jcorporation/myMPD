@@ -203,7 +203,7 @@ function parseSmartPlaylist(obj) {
         tagList = '<option value="any">' + t('Any Tag') + '</option>';
     }
     tagList += '<option value="filename">' + t('Filename') + '</option>';
-    for (let i = 0; i < settings.tagListSearch.length; i++) {
+    for (let i = 0, j = settings.tagListSearch.length; i < j; i++) {
         tagList += '<option value="' + settings.tagListSearch[i] + '">' + t(settings.tagListSearch[i]) + '</option>';
     }
     const elSelectSaveSmartPlaylistTag = document.getElementById('selectSaveSmartPlaylistTag');

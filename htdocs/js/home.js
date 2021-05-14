@@ -63,13 +63,13 @@ function initHome() {
     
     let ligatureList = '';
     let catList = '<option value="all">' + t('All') + '</option>';
-    Object.keys(materialIcons).forEach(function(cat) {
+    for (const cat in materialIcons) {
         ligatureList += '<h5 class="ml-1 mt-2">' + e(ucFirst(cat)) + '</h5>';
         catList += '<option value="' + cat + '">' + e(ucFirst(cat)) + '</option>';
-        for (let i = 0; i < materialIcons[cat].length; i++) {
+        for (let i = 0, j = materialIcons[cat].length; i < j; i++) {
             ligatureList += '<button title="' + materialIcons[cat][i] + '" data-cat="' + cat + '" class="btn btn-sm mi m-1">' + materialIcons[cat][i] + '</button>';
         }
-    });
+    };
     document.getElementById('listHomeIconLigature').innerHTML = ligatureList;
     document.getElementById('searchHomeIconCat').innerHTML = catList;
 
@@ -124,7 +124,7 @@ function filterHomeIconLigatures() {
     const str = document.getElementById('searchHomeIconLigature').value.toLowerCase();
     const cat = getSelectValue('searchHomeIconCat');
     const els = document.getElementById('listHomeIconLigature').getElementsByTagName('button');
-    for (let i = 0; i < els.length; i++) {
+    for (let i = 0, j = els.length; i < j; i++) {
         if ((str === '' || els[i].getAttribute('title').indexOf(str) > -1) && (cat === 'all' || els[i].getAttribute('data-cat') === cat)) {
             els[i].classList.remove('hide');
             if (els[i].getAttribute('title') === str) {
@@ -141,12 +141,12 @@ function filterHomeIconLigatures() {
     }
     const catTitles = document.getElementById('listHomeIconLigature').getElementsByTagName('h5');
     if (cat === '') {
-        for (let i = 0; i < catTitles.length; i++) {
+        for (let i = 0, j = catTitles.length; i < j; i++) {
             catTitles[i].classList.remove('hide');
         }
     }
     else {
-        for (let i = 0; i < catTitles.length; i++) {
+        for (let i = 0, j = catTitles.length; i < j; i++) {
             catTitles[i].classList.add('hide');
         }
     }
@@ -208,7 +208,7 @@ function parseHome(obj) {
 
 function popoverMenuHome(event) {
     const sels = document.getElementById('HomeCards').getElementsByClassName('selected');
-    for (let i = 0; i < sels.length; i++) {
+    for (let i = 0, j = sels.length; i < j; i++) {
         sels[i].classList.remove('selected');
     }
     event.target.parentNode.classList.add('selected');
@@ -430,7 +430,7 @@ function showHomeIconCmdOptions(values) {
     const optionsText = getSelectedOptionAttribute('selectHomeIconCmd', 'data-options');
     if (optionsText !== undefined) {    
         const options = JSON.parse(optionsText);
-        for (let i = 0; i < options.options.length; i++) {
+        for (let i = 0, j = options.options.length; i < j; i++) {
             list += '<div class="form-group row">' +
                 '<label class="col-sm-4 col-form-label">' + t(options.options[i]) + '</label>' +
                 '<div class="col-sm-8"><input class="form-control border-secondary" value="' + 

@@ -19,7 +19,7 @@ function isStreamUri(uri) {
 
 function removeIsInvalid(parentEl) {
     const els = parentEl.getElementsByClassName('is-invalid');
-    for (let i = 0; i < els.length; i++) {
+    for (let i = 0, j = els.length; i < j; i++) {
         els[i].classList.remove('is-invalid');
     }
 }
@@ -56,7 +56,7 @@ function validateFilenameList(el) {
     removeIsInvalid(el);
     
     const filenames = el.value.split(',');
-    for (let i = 0; i < filenames.length; i++) {
+    for (let i = 0, j = filenames.length; i < j; i++) {
         if (validateFilenameString(filenames[i].trim()) === false) {
             setIsInvalid(el)
             return false;

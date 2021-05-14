@@ -370,7 +370,6 @@ function a2hsInit() {
     });
     
     window.addEventListener('appinstalled', function() {
-        logInfo('myMPD installed as app');
         showNotification(t('myMPD installed as app'), '', 'general', 'info');
     });
 }
@@ -657,13 +656,15 @@ function initNavs() {
 
     domCache.progress.addEventListener('click', function(event) {
         if (currentSong && currentSong.currentSongId >= 0 && currentSong.totalTime > 0) {
+            const seekVal = Math.ceil((currentSong.totalTime * event.clientX) / domCache.progress.offsetWidth);
+            sendAPI("MYMPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": seekVal});
             domCache.progressBar.style.transition = 'none';
+            domCache.progressBar.offsetHeight;
             domCache.progressBar.style.width = event.clientX + 'px';
             setTimeout(function() {
                 domCache.progressBar.style.transition = progressBarTransition;
-            }, 10);
-            const seekVal = Math.ceil((currentSong.totalTime * event.clientX) / domCache.progress.offsetWidth);
-            sendAPI("MYMPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": seekVal});
+                domCache.progressBar.offsetHeight;
+            }, 1000);
         }
     }, false);
 

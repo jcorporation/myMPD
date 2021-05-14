@@ -76,12 +76,12 @@ function parseSongDetails(obj) {
     modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
     
     const elH1s = modal.getElementsByTagName('h1');
-    for (let i = 0; i < elH1s.length; i++) {
+    for (let i = 0, j = elH1s.length; i < j; i++) {
         elH1s[i].innerText = obj.result.Title;
     }
     
     let songDetailsHTML = '';
-    for (let i = 0; i < settings.tagList.length; i++) {
+    for (let i = 0, j = settings.tagList.length; i < j; i++) {
         if (settings.tagList[i] === 'Title' || obj.result[settings.tagList[i]] === '-') {
             continue;
         }
@@ -142,7 +142,7 @@ function parseSongDetails(obj) {
     }
 
     const pictureEls = document.getElementsByClassName('featPictures');
-    for (let i = 0; i < pictureEls.length; i++) {
+    for (let i = 0, j = pictureEls.length; i < j; i++) {
         pictureEls[i].classList.remove('hide');
     }
     
@@ -150,7 +150,7 @@ function parseSongDetails(obj) {
     const images = [ subdir + '/albumart/' + obj.result.uri ];
     //add all but coverfiles to image list
     if (settings.publish === true) {
-        for (let i = 0; i < obj.result.images.length; i++) {
+        for (let i = 0, j = obj.result.images.length; i < j; i++) {
             if (isCoverfile(obj.result.images[i]) === false) {
                 images.push(subdir + '/browse/music/' + obj.result.images[i]);
             }
@@ -166,7 +166,7 @@ function isCoverfile(uri) {
     
     const extensions = ['png', 'jpg', 'jpeg', 'svg', 'webp', 'tiff', 'bmp'];
     const coverimageNames = settings.coverimageName.split(',');
-    for (let i = 0; i < coverimageNames.length; i++) {
+    for (let i = 0, j = coverimageNames.length; i < j; i++) {
         const name = coverimageNames[i].trim();
         if (filename === name) {
             return true;
@@ -234,7 +234,7 @@ function getLyrics(uri, el) {
                         event.target.classList.add('active');
                         const nr = parseInt(event.target.getAttribute('data-num'));
                         const tEls = el.getElementsByClassName('lyricsText');
-                        for (let i = 0; i < tEls.length; i++) {
+                        for (let i = 0, j = tEls.length; i < j; i++) {
                             if (i === nr) {
                                 tEls[i].classList.remove('hide');
                             }
@@ -254,7 +254,7 @@ function getLyrics(uri, el) {
                     scrollSyncedLyrics = event.target.classList.contains('active');
                 }, false);
                 const textEls = el.getElementsByClassName('lyricsSyncedText');
-                for (let i = 0; i < textEls.length; i++) {
+                for (let i = 0, j = textEls.length; i < j; i++) {
                     //seek to songpos in click
                     textEls[i].addEventListener('click', function(event) {
                         const sec = event.target.getAttribute('data-sec');
@@ -272,7 +272,7 @@ function getLyrics(uri, el) {
 function parseSyncedLyrics(text, clickable) {
     let html = '';
     const lines = text.replace(/\r/g, '').split('\n');
-    for (let i = 0; i < lines.length; i++) {
+    for (let i = 0, j = lines.length; i < j; i++) {
         //line must start with timestamp
         const line = lines[i].match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
         if (line) {

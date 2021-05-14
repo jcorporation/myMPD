@@ -138,7 +138,7 @@ function _updateDBfinished(idleEvent) {
     if (el) {
         const parent = el.parentNode;
         el.remove();
-        for (let i = 0; i < parent.children.length; i++) {
+        for (let i = 0, j = parent.children.length; i < j; i++) {
             parent.children[i].classList.remove('hide');
         }
     }
@@ -195,7 +195,7 @@ function zoomPicture(el) {
         }
         //add all but coverfiles to image list
         if (settings.publish === true) {
-            for (let i = 0; i < images.length; i++) {
+            for (let i = 0, j = images.length; i < j; i++) {
                 if (isCoverfile(images[i]) === false) {
                     aImages.push(subdir + '/browse/music/' + images[i]);
                 }
@@ -227,13 +227,13 @@ function zoomZoomPicture() {
 function createImgCarousel(imgEl, name, images) {
     let carousel = '<div id="' + name + '" class="carousel slide" data-ride="carousel">' +
         '<ol class="carousel-indicators">';
-    for (let i = 0; i < images.length; i++) {
+    for (let i = 0, j = images.length; i < j; i++) {
         carousel += '<li data-target="#' + name + '" data-slide-to="' + i + '"' +
             (i === 0 ? ' class="active"' : '') + '></li>';
     }
     carousel += '</ol>' +
         '<div class="carousel-inner" role="listbox">';
-    for (let i = 0; i < images.length; i++) {
+    for (let i = 0, j = images.length; i < j; i++) {
         carousel += '<div class="carousel-item' + (i === 0 ? ' active' : '') + '"><div></div></div>';
     }
     carousel += '</div>' +
@@ -246,7 +246,7 @@ function createImgCarousel(imgEl, name, images) {
         '</div>';
     imgEl.innerHTML = carousel;
     const carouselItems = imgEl.getElementsByClassName('carousel-item');
-    for (let i = 0; i < carouselItems.length; i++) {
+    for (let i = 0, j = carouselItems.length; i < j; i++) {
         carouselItems[i].children[0].style.backgroundImage = 'url("' + encodeURI(images[i]) + '")';
     }
     const myCarousel = document.getElementById(name);

@@ -45,13 +45,13 @@ function moveOutput(output) {
 function parsePartitionOutputsList(obj) {
     const outputs = document.getElementById('outputs').getElementsByTagName('button');
     const outputIds = [];
-    for (let i = 0; i < outputs.length; i++) {
+    for (let i = 0, j= outputs.length; i < j; i++) {
         outputIds.push(parseInt(outputs[i].getAttribute('data-output-id')));
     }
 
     let outputList = '';
     let nr = 0;
-    for (let i = 0; i < obj.result.data.length; i++) {
+    for (let i = 0, j = obj.result.data.length; i < j; i++) {
         if (outputIds.includes(obj.result.data[i].id) === false) {
             outputList += '<tr data-output="' + encodeURI(obj.result.data[i].name) + '"><td>' +
                 e(obj.result.data[i].name) + '</td></tr>';
@@ -128,7 +128,7 @@ function switchPartition(partition) {
 function parsePartitionList(obj) {
     if (obj.result.data.length > 0) {
         let partitionList = '';
-        for (let i = 0; i < obj.result.data.length; i++) {
+        for (let i = 0, j = obj.result.data.length; i < j; i++) {
             partitionList += '<tr data-partition="' + encodeURI(obj.result.data[i].name) + '"><td class="' +
                 (obj.result.data[i].name === settings.partition ? 'font-weight-bold' : '') +
                 '">' + e(obj.result.data[i].name) + 

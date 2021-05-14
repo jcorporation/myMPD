@@ -37,6 +37,7 @@
         "default-case-last": "error",
         "no-var": "error",
         "prefer-const": "error",
-        "camelcase": "error"
+        "camelcase": "error",
+        "no-restricted-globals": "error"
     }
 }

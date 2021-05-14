@@ -68,7 +68,7 @@ function mountMount() {
 //eslint-disable-next-line no-unused-vars
 function updateMount(el, uri) {
     const parent = el.parentNode;
-    for (let i = 0; i < parent.children.length; i++) {
+    for (let i = 0, j = parent.children.length; i < j; i++) {
         parent.children[i].classList.add('hide');
     }
     const spinner = document.createElement('div');
@@ -174,7 +174,7 @@ function parseNeighbors(obj) {
 function getUrlhandlers() {
     sendAPI("MYMPD_API_URLHANDLERS", {}, function(obj) {
         let storagePlugins = '';
-        for (let i = 0; i < obj.result.data.length; i++) {
+        for (let i = 0, j = obj.result.data.length; i < j; i++) {
             switch(obj.result.data[i]) {
                 case 'http://':
                 case 'https://':

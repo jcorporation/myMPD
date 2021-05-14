@@ -14,7 +14,7 @@ function focusTable(rownr, table) {
             return; 
         }
         table = tables[0];
-        for (let i = 0; i < tables.length; i++) {
+        for (let i = 0, j = tables.length; i < j; i++) {
             if (tables[i].classList.contains('selected')) {
                 table = tables[i];
                 break;
@@ -29,7 +29,7 @@ function focusTable(rownr, table) {
             return; 
         }
         table = tables[0];
-        for (let i = 0; i < tables.length; i++) {
+        for (let i = 0, j = tables.length; i < j; i++) {
             if (tables[i].classList.contains('selected')) {
                 table = tables[i];
                 break;
@@ -190,8 +190,7 @@ function dragAndDropTable(table) {
             return;
         }
         const tr = tableBody.getElementsByClassName('dragover');
-        const trLen = tr.length;
-        for (let i = 0; i < trLen; i++) {
+        for (let i = 0, j = tr.length; i < j; i++) {
             tr[i].classList.remove('dragover');
         }
         let target = event.target;
@@ -209,8 +208,7 @@ function dragAndDropTable(table) {
             return;
         }
         const tr = tableBody.getElementsByClassName('dragover');
-        const trLen = tr.length;
-        for (let i = 0; i < trLen; i++) {
+        for (let i = 0, j = tr.length; i < j; i++) {
             tr[i].classList.remove('dragover');
         }
         if (document.getElementById(event.dataTransfer.getData('Text'))) {
@@ -234,8 +232,7 @@ function dragAndDropTable(table) {
         dragEl.classList.remove('opacity05');
         tableBody.insertBefore(dragEl, target);
         const tr = tableBody.getElementsByClassName('dragover');
-        const trLen = tr.length;
-        for (let i = 0; i < trLen; i++) {
+        for (let i = 0, j = tr.length; i < j; i++) {
             tr[i].classList.remove('dragover');
         }
         document.getElementById(table).classList.add('opacity05');
@@ -282,8 +279,7 @@ function dragAndDropTableHeader(table) {
             return;
         }
         const th = tableHeader.getElementsByClassName('dragover-th');
-        const thLen = th.length;
-        for (let i = 0; i < thLen; i++) {
+        for (let i = 0, j = th.length; i < j; i++) {
             th[i].classList.remove('dragover-th');
         }
         if (event.target.nodeName === 'TH') {
@@ -297,8 +293,7 @@ function dragAndDropTableHeader(table) {
             return;
         }
         const th = tableHeader.getElementsByClassName('dragover-th');
-        const thLen = th.length;
-        for (let i = 0; i < thLen; i++) {
+        for (let i = 0, j = th.length; i < j; i++) {
             th[i].classList.remove('dragover-th');
         }
         if (this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']')) {
@@ -316,8 +311,7 @@ function dragAndDropTableHeader(table) {
         dragEl.classList.remove('opacity05');
         tableHeader.insertBefore(dragEl, event.target);
         const th = tableHeader.getElementsByClassName('dragover-th');
-        const thLen = th.length;
-        for (let i = 0; i < thLen; i++) {
+        for (let i = 0, j = th.length; i < j; i++) {
             th[i].classList.remove('dragover-th');
         }
         if (document.getElementById(table + 'List')) {
@@ -367,7 +361,7 @@ function setColTags(table) {
 function setColsChecklist(table) {
     let tagChks = '';
     const tags = setColTags(table);
-    for (let i = 0; i < tags.length; i++) {
+    for (let i = 0, j = tags.length; i < j; i++) {
         if (table === 'Playback' && tags[i] === 'Title') {
             continue;
         }
@@ -407,7 +401,7 @@ function setCols(table) {
     
     if (table !== 'Playback') {
         let heading = '';
-        for (let i = 0; i < settings['cols' + table].length; i++) {
+        for (let i = 0, j = settings['cols' + table].length; i < j; i++) {
             let h = settings['cols' + table][i];
             heading += '<th draggable="true" data-col="' + h  + '">';
             if (h === 'Track' || h === 'Pos') {
@@ -448,7 +442,7 @@ function saveCols(table, tableEl) {
     }
     if (colsDropdown) {
         const colInputs = colsDropdown.firstChild.getElementsByTagName('button');
-        for (let i = 0; i < colInputs.length; i++) {
+        for (let i = 0, j = colInputs.length; i < j; i++) {
             if (colInputs[i].getAttribute('name') === null) {
                 continue;
             }
@@ -469,7 +463,7 @@ function saveCols(table, tableEl) {
     
     const params = {"table": "cols" + table, "cols": []};
     const ths = header.getElementsByTagName('th');
-    for (let i = 0; i < ths.length; i++) {
+    for (let i = 0, j = ths.length; i < j; i++) {
         const name = ths[i].getAttribute('data-col');
         if (name !== 'Action' && name !== null) {
             params.cols.push(name);
@@ -483,7 +477,7 @@ function saveColsPlayback(table) {
     const colInputs = document.getElementById(table + 'ColsDropdown').firstChild.getElementsByTagName('button');
     const header = document.getElementById('cardPlaybackTags');
 
-    for (let i = 0; i < colInputs.length -1; i++) {
+    for (let i = 0, j = colInputs.length - 1; i < j; i++) {
         let th = document.getElementById('current' + colInputs[i].name);
         if (colInputs[i].classList.contains('active') === false) {
             if (th) {
@@ -501,7 +495,7 @@ function saveColsPlayback(table) {
     
     const params = {"table": "cols" + table, "cols": []};
     const ths = header.getElementsByTagName('div');
-    for (let i = 0; i < ths.length; i++) {
+    for (let i = 0, j = ths.length; i < j; i++) {
         const name = getAttDec(ths[i], 'data-tag');
         if (name) {
             params.cols.push(name);
@@ -594,7 +588,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
                 row.setAttribute('title', t('Open parent folder'));
             }
             else {
-                for (let c = 0; c < settings['cols' + list].length; c++) {
+                for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
                     tds += '<td data-col="' + encodeURI(settings['cols' + list][c]) + '">' +
                         printValue(settings['cols' + list][c], obj.result.data[i][settings['cols' + list][c]]) +
                         '</td>';

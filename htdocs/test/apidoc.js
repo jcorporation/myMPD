@@ -11,8 +11,39 @@ let strings = {};
 strings['cols'] = 'cols: array of columns to return';
 strings['offset'] = 'offset: start offset of the returned list';
 strings['limit'] = 'limit: maximum number of elements to return';
+strings['sort'] = 'sort: tag to sort the result';
+strings['sortdesc'] = 'sortdesc: false = ascending, true = descending sort';
 
 let desc = {};
+desc['MYMPD_API_DATABASE_SEARCH_ADV'] = 'Searches for songs in the database (new interface)' +
+    '<ul>' +
+    '<li>' + strings['offset'] + '</li>' +
+    '<li>' + strings['limit'] + '</li>' +
+    '<li>' + strings['cols'] + '</li>' +
+    '<li>expression: MPD search expression</li>' +
+    '<li>' + strings['sort'] + '</li>' +
+    '<li>' + strings['sortdesc'] + '</li>' +
+    '<li>plist: playlist to add this search, use "queue" to add search to queue</li>' +
+    '<li>replace: true = replaces the queue, false = append to qeue' +
+    '</ul>';
+desc['MYMPD_API_DATABASE_SEARCH'] = 'Searches for songs in the database (deprecated interface)' +
+    '<ul>' +
+    '<li>' + strings['offset'] + '</li>' +
+    '<li>' + strings['limit'] + '</li>' +
+    '<li>' + strings['cols'] + '</li>' +
+    '<li>filter: tag to search in</li>' +
+    '<li>searchstr: search string</li>' +
+    '<li>plist: playlist to add this search, use "queue" to add search to queue</li>' +
+    '<li>replace: true = replaces the queue, false = append to qeue' +
+    '</ul>';
+desc['MYMPD_API_DATABASE_UPDATE'] = 'Updates the database' +
+    '<ul>' +
+    '<li>uri: uri to update, leafe empty to update the whole database</li>'
+    '</ul>';
+desc['MYMPD_API_DATABASE_RESCAN'] = 'Rescan the database' +
+    '<ul>' +
+    '<li>uri: uri to update, leafe empty to rescan the whole database</li>'
+    '</ul>';
 desc['MYMPD_API_QUEUE_CLEAR'] = 'Clears the queue';
 desc['MYMPD_API_QUEUE_CROP'] = 'Crops the queue - removes all songs but the current playing one';
 desc['MYMPD_API_QUEUE_CROP_OR_CLEAR'] = 'Crops the queue if playing or clears the queue if not playing';

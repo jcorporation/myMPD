@@ -99,7 +99,7 @@ function initSearch() {
         }
                 
         const s = document.getElementById('SearchList').getElementsByClassName('sort-dir');
-        for (let i = 0; i < s.length; i++) {
+        for (let i = 0, j = s.length; i < j; i++) {
             s[i].remove();
         }
         app.current.sort = sortcol;

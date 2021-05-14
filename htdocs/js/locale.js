@@ -3,31 +3,6 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-//escapes html characters to avoid xss
-function e(x) {
-    if (isNaN(x)) {
-        return x.replace(/([<>"'])/g, function(m0, m1) {
-            if (m1 === '<') return '&lt;';
-            else if (m1 === '>') return '&gt;';
-            else if (m1 === '"') return '&quot;';
-            else if (m1 === '\'') return '&apos;';
-        }).replace(/\\u(003C|003E|0022|0027)/gi, function(m0, m1) {
-            if (m1 === '003C') return '&lt;';
-            else if (m1 === '003E') return '&gt;';
-            else if (m1 === '0022') return '&quot;';
-            else if (m1 === '0027') return '&apos;';
-        }).replace(/\[\[(\w+)\]\]/g, function(m0, m1) {
-            return '<span class="mi">' + m1 + '</span>';
-        });
-    }
-    return x;
-}
-
-//removes special characters
-function r(x) {
-    return x.replace(/[^\w-]/g, '_');
-}
-
 function smartCount(number) {
     if (number === 0) { return 1; }
     else if (number === 1) { return 0; }
@@ -120,11 +95,11 @@ function i18nHtml(root) {
         ['data-title-phrase', 'title'], 
         ['data-placeholder-phrase', 'placeholder']
     ];
-    for (let i = 0; i < attributes.length; i++) {
+    for (let i = 0, j = attributes.length; i < j; i++) {
         const els = root.querySelectorAll('[' + attributes[i][0] + ']');
         const elsLen = els.length;
-        for (let j = 0; j < elsLen; j++) {
-            els[j][attributes[i][1]] = t(els[j].getAttribute(attributes[i][0]));
+        for (let k = 0, l = elsLen; k < l; k++) {
+            els[k][attributes[i][1]] = t(els[k].getAttribute(attributes[i][0]));
         }
     }
 }
