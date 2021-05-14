@@ -1128,19 +1128,19 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_DATABASE_GET_ALBUMS:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u, limit: %u, expression: %Q, filter: %Q, sort: %Q, sortdesc: %B}}", 
-                &uint_buf1, &uint_buf2, &p_charbuf1, &p_charbuf2, &p_charbuf3, &bool_buf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u, limit: %u, expression: %Q, sort: %Q, sortdesc: %B}}", 
+                &uint_buf1, &uint_buf2, &p_charbuf1, &p_charbuf2, &bool_buf1);
             if (je == 6) {
                 response->data = mpd_client_put_firstsong_in_albums(mympd_state, response->data, request->method, request->id, 
-                    p_charbuf1, p_charbuf2, p_charbuf3, bool_buf1, uint_buf1, uint_buf2);
+                    p_charbuf1, p_charbuf2, bool_buf1, uint_buf1, uint_buf2);
             }
             break;
         case MYMPD_API_DATABASE_TAG_LIST:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u, limit: %u, searchstr: %Q, filter: %Q, sort: %Q, sortdesc: %B, tag: %Q}}", 
-                &uint_buf1, &uint_buf2, &p_charbuf1, &p_charbuf2, &p_charbuf3, &bool_buf1, &p_charbuf4);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u, limit: %u, searchstr: %Q, tag: %Q}}", 
+                &uint_buf1, &uint_buf2, &p_charbuf1, &p_charbuf2);
             if (je == 7) {
-                response->data = mpd_client_put_db_tag2(mympd_state, response->data, request->method, request->id,
-                    p_charbuf1, p_charbuf2, p_charbuf3, bool_buf1, uint_buf1, uint_buf2, p_charbuf4);
+                response->data = mpd_client_put_db_tag(mympd_state, response->data, request->method, request->id,
+                    p_charbuf1, p_charbuf2, uint_buf1, uint_buf2);
             }
             break;
         case MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST: {

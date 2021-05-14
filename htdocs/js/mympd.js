@@ -228,7 +228,7 @@ function appRoute() {
             enableEl('btnDatabaseSortDropdown');
             enableEl('btnDatabaseSearchDropdown');
             sendAPI("MYMPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.offset, "limit": app.current.limit, "expression": app.current.search, 
-                "filter": app.current.filter, "sort": sort, "sortdesc": sortdesc}, parseDatabase);
+                "sort": sort, "sortdesc": sortdesc}, parseDatabase);
         }
         else {
             document.getElementById('searchDatabaseCrumb').classList.add('hide');
@@ -237,7 +237,7 @@ function appRoute() {
             disableEl('btnDatabaseSearchDropdown');
             document.getElementById('searchDatabaseStr').value = app.current.search;
             sendAPI("MYMPD_API_DATABASE_TAG_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, 
-                "filter": app.current.filter, "sort": sort, "sortdesc": sortdesc, "tag": app.current.tag}, parseDatabase);
+                "tag": app.current.tag}, parseDatabase);
         }
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail') {

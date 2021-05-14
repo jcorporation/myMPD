@@ -386,7 +386,7 @@ sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer,
 }
 
 sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
-                                       const char *expression, const char *filter, const char *sort, bool sortdesc, const unsigned int offset, unsigned int limit)
+                                       const char *expression, const char *sort, bool sortdesc, const unsigned int offset, unsigned int limit)
 {
     if (mympd_state->album_cache == NULL) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "database", "error", "Albumcache not ready");
@@ -556,7 +556,6 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
-    buffer = tojson_char(buffer, "filter", filter, true);
     buffer = tojson_char(buffer, "expression", expression, true);
     buffer = tojson_char(buffer, "sort", sort, true);
     buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
@@ -566,11 +565,9 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
     return buffer;    
 }
 
-sds mpd_client_put_db_tag2(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
-                           const char *searchstr, const char *filter, const char *sort, bool sortdesc, const unsigned int offset, const unsigned int limit, const char *tag)
+sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
+                           const char *searchstr, const char *tag, const unsigned int offset, const unsigned int limit)
 {
-    (void) sort;
-    (void) sortdesc;
     size_t searchstr_len = strlen(searchstr);
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
@@ -638,10 +635,7 @@ sds mpd_client_put_db_tag2(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = tojson_long(buffer, "totalEntities", -1, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
-    buffer = tojson_char(buffer, "filter", filter, true);
     buffer = tojson_char(buffer, "searchstr", searchstr, true);
-    buffer = tojson_char(buffer, "sort", sort, true);
-    buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
     buffer = tojson_char(buffer, "tag", tag, true);
     buffer = tojson_bool(buffer, "pics", pic, false);
     buffer = jsonrpc_result_end(buffer);
