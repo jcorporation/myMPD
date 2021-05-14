@@ -238,7 +238,7 @@ const advancedSettingsDefault = {
         }, 
         "inputType": "select",
         "title": "Click song",
-        "form": "AdvancedSettingsFrm"
+        "form": "advancedSettingsFrm"
     },
     "clickQueueSong": { 
         "defaultValue": "play", 
@@ -248,7 +248,7 @@ const advancedSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click song in queue",
-        "form": "AdvancedSettingsFrm"
+        "form": "advancedSettingsFrm"
     },
     "clickPlaylist": { 
         "defaultValue": "append", 
@@ -259,7 +259,7 @@ const advancedSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click playlist",
-        "form": "AdvancedSettingsFrm"
+        "form": "advancedSettingsFrm"
     },
     "clickFolder": { 
         "defaultValue": "view", 
@@ -270,7 +270,7 @@ const advancedSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click folder",
-        "form": "AdvancedSettingsFrm"
+        "form": "advancedSettingsFrm"
     },
     "clickAlbumPlay": { 
         "defaultValue": "replace", 
@@ -280,7 +280,7 @@ const advancedSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click album play button",
-        "form": "AdvancedSettingsFrm"
+        "form": "advancedSettingsFrm"
     },
     "notificationAAASection": {
         "inputType": "section",
@@ -341,11 +341,6 @@ const advancedSettingsDefault = {
         "title": "Media session",
         "form": "NotificationSettingsFrm"
     },
-    "uiAAASection": {
-        "inputType": "section",
-        "title": "Appearance",
-        "form": "AdvancedSettingsFrm"
-    },
     "uiFooterQueueSettings": {
         "defaultValue": false,
         "inputType": "checkbox",
@@ -375,7 +370,7 @@ const advancedSettingsDefault = {
         "inputType": "select",
         "contentType": "integer",
         "title": "Elements per page",
-        "form": "AdvancedSettingsFrm"
+        "form": "appearanceSettingsFrm"
     },
     "enableHome": {
         "defaultValue": true,

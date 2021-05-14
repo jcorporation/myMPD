@@ -922,6 +922,12 @@
                   </div>
                 </div>
                 <div id="coverimageFrm"></div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputBookletName" data-phrase="Booklet filename"></label>
+                  <div class="col-sm-8 ">
+                    <mympd-input-reset id="inputBookletName" placeholder="booklet.pdf" value="" data-invalid-phrase="Invalid filename"></mympd-input-reset>
+                  </div>
+                </div>
                 <hr/>
                 <h4 data-phrase="Locale"></h4>
                 <div id="localeFrm"></div>
@@ -929,6 +935,10 @@
                 <hr/>
                 <h4 data-phrase="Footer"></h4>
                 <div id="footerFrm"></div>
+                <hr/>
+                <h4 data-phrase="Lists"></h4>
+                <div id="appearanceSettingsFrm">
+                </div>
               </form>
             </div>
             <div class="tab-pane" id="tabNotificationSettings">
@@ -1089,15 +1099,7 @@
             </div>
             <div class="tab-pane" id="tabAdvancedSettings">
               <h4 data-phrase="Advanced"></h4>
-              <form id="advancedSettings">
-                <div id="AdvancedSettingsFrm">
-                </div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputBookletName" data-phrase="Booklet filename"></label>
-                  <div class="col-sm-8 ">
-                    <mympd-input-reset id="inputBookletName" placeholder="booklet.pdf" value="" data-invalid-phrase="Invalid filename"></mympd-input-reset>
-                  </div>
-                </div>
+              <form id="advancedSettingsFrm">
               </form>
               <hr/>
               <h4 data-phrase="Volume control"></h4>
@@ -2144,12 +2146,13 @@
 <!--debug-->  <script src="js/version.js"></script>
 <!--debug-->  <script src="js/long-press-event.js"></script>
 <!--debug-->  <script src="js/bootstrap-native.js"></script>
+<!--debug-->  <script src="js/utility.js"></script>
 <!--debug-->  <script src="js/elements.js"></script>
 <!--debug-->  <script src="js/globales.js"></script>
 <!--debug-->  <script src="js/log.js"></script>
 <!--debug-->  <script src="js/i18n.js"></script>
 <!--debug-->  <script src="js/locale.js"></script>
-<!--debug-->  <script src="js/utility.js"></script>
+
 <!--debug-->  <script src="js/validate.js"></script>
 <!--debug-->  <script src="js/notification.js"></script>
 <!--debug-->  <script src="js/settings.js"></script>

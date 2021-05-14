@@ -246,7 +246,7 @@ function parseSettings(obj) {
     toggleBtnChkCollapse('inputAdvSettinguiBgCover', 'bgCssFilterFrm', settings.advanced.uiBgCover);
 
     const albumartbg = document.querySelectorAll('.albumartbg');
-    for (let i = 0; i < albumartbg.length; i++) {
+    for (let i = 0, j = albumartbg.length; i < j; i++) {
         albumartbg[i].style.filter = settings.advanced.uiBgCssFilter;
     }
 
@@ -557,7 +557,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
     const advFrm = {};
     const advSettingsKeys = Object.keys(defaults);
     advSettingsKeys.sort();
-    for (let i = 0; i < advSettingsKeys.length; i++) {
+    for (let i = 0, j = advSettingsKeys.length; i < j; i++) {
         const key = advSettingsKeys[i];
         if (defaults[key] === undefined || defaults[key].form === undefined) {
             continue;
@@ -723,7 +723,7 @@ function parseMPDSettings() {
     else {
         //construct playback view
         let pbtl = '';
-        for (let i = 0; i < settings.colsPlayback.length; i++) {
+        for (let i = 0, j = settings.colsPlayback.length; i < j; i++) {
             pbtl += '<div id="current' + settings.colsPlayback[i]  + '" data-tag="' + 
                 settings.colsPlayback[i] + '">' +
                 '<small>' + t(settings.colsPlayback[i]) + '</small>' +
@@ -757,7 +757,7 @@ function parseMPDSettings() {
 
     if (features.featAdvsearch === false) {
         const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
-        for (let i = 0; i < tagEls.length; i++) {
+        for (let i = 0, j = tagEls.length; i < j; i++) {
             tagEls[i].classList.remove('clickable');
         }
     }
@@ -921,7 +921,7 @@ function saveQueueSettings() {
 function getTagMultiSelectValues(taglist, translated) {
     const values = [];
     const chkBoxes = taglist.getElementsByTagName('button');
-    for (let i = 0; i < chkBoxes.length; i++) {
+    for (let i = 0, j = chkBoxes.length; i < j; i++) {
         if (chkBoxes[i].classList.contains('active')) {
             if (translated === true) {
                 values.push(t(chkBoxes[i].name));
@@ -940,7 +940,7 @@ function getTagMultiSelectValues(taglist, translated) {
 function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
     const values = [];
     let list = '';
-    for (let i = 0; i < allTags.length; i++) {
+    for (let i = 0, j = allTags.length; i < j; i++) {
         if (enabledTags.includes(allTags[i])) {
             values.push(t(allTags[i]));
         }
@@ -974,7 +974,7 @@ function filterCols(x) {
     const set = "cols" + x;
     
     const cols = [];
-    for (let i = 0; i < settings[set].length; i++) {
+    for (let i = 0, j = settings[set].length; i < j; i++) {
         if (tags.includes(settings[set][i])) {
             cols.push(settings[set][i]);
         }
@@ -1068,7 +1068,7 @@ function resetToDefault(button) {
 function getBgImageList(image) {
     getImageList('inputAdvSettinguiBgImage', image, [
         {"value": "", "text": "None"},
-        {"value": "/assets/mympd-background-default.svg", "text":"Default image"},
+        {"value": "/assets/mympd-background-default.svg", "text": "Default image"},
         {"value": "/assets/mympd-background-dark.svg", "text": "Default image dark"},
         {"value": "/assets/mympd-background-light.svg", "text": "Default image light"},
     ]);
