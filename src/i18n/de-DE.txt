@@ -24,6 +24,9 @@ Verzeichnis neu einlesen
 Update smart playlists
 Intelligente Wiedergabelisten aktualisieren
 
+Update smart playlist
+Intelligente Wiedergabeliste aktualisieren
+
 Settings
 Einstellungen
 
@@ -399,7 +402,7 @@ Muss eine Zahl größer als 0 sein
 Albumart
 Albumcover
 
-Can't access music directory
+Music directory not available
 Musik Verzeichnis ist nicht verfügbar
 
 Background color
@@ -1717,9 +1720,6 @@ Stream Port
 Volume control
 Lautstärkeeinstellung
 
-folder,cover
-folder,cover
-
 Lua is not compiled in
 Lua ist nicht verfügbar
 
@@ -1779,3 +1779,7 @@ Liedtexte Vorbis Kommentarname
 
 kB
 kB
+
+Lists
+Listen
+

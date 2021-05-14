@@ -86,7 +86,6 @@ Open folder
 Size normal
 Size small
 CSS filter
-Can't access music directory
 Color
 Error getting mympd state for script execution
 MPD does not support partitions
@@ -99,3 +98,5 @@ Synced lyrics extension
 Synced lyrics vorbis comment
 Unsynced lyrics extension
 Unsynced lyrics vorbis comment
+Last played list count
+Reset to default
