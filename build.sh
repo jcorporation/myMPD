@@ -300,8 +300,6 @@ installrelease() {
   make install DESTDIR="$DESTDIR"
   addmympduser
   echo "myMPD installed"
-  echo "Modify mympd.conf to suit your needs or use the"
-  echo "mympd-config tool to generate a valid mympd.conf automatically."
 }
 
 builddebug() {
@@ -689,17 +687,13 @@ uninstall() {
   [ -z "${DESTDIR+x}" ] && DESTDIR=""
   #MYMPD_INSTALL_PREFIX="/usr"
   rm -f "$DESTDIR/usr/bin/mympd"
-  rm -f "$DESTDIR/usr/bin/mympd-config"
   rm -f "$DESTDIR/usr/bin/mympd-script"
   rm -f "$DESTDIR/usr/share/man/man1/mympd.1.gz"
-  rm -f "$DESTDIR/usr/share/man/man1/mympd-config.1.gz"
   rm -f "$DESTDIR/usr/share/man/man1/mympd-script.1.gz"
   #MYMPD_INSTALL_PREFIX="/usr/local"
   rm -f "$DESTDIR/usr/local/bin/mympd"
-  rm -f "$DESTDIR/usr/local/bin/mympd-config"
   rm -f "$DESTDIR/usr/local/bin/mympd-script"
   rm -f "$DESTDIR/usr/local/share/man/man1/mympd.1.gz"
-  rm -f "$DESTDIR/usr/local/share/man/man1/mympd-config.1.gz"
   rm -f "$DESTDIR/usr/local/share/man/man1/mympd-script.1.gz"
   #MYMPD_INSTALL_PREFIX="/opt/mympd/"
   rm -rf "$DESTDIR/opt/mympd"
@@ -719,17 +713,9 @@ purge() {
   [ -z "${DESTDIR+x}" ] && DESTDIR=""
   #MYMPD_INSTALL_PREFIX="/usr"
   rm -rf "$DESTDIR/var/lib/mympd"
-  rm -f "$DESTDIR/etc/mympd.conf"
-  rm -f "$DESTDIR/etc/mympd.conf.dist"
   rm -f "$DESTDIR/etc/init.d/mympd"
-  #MYMPD_INSTALL_PREFIX="/usr/local"
-  rm -f "$DESTDIR/usr/local/etc/mympd.conf"
-  rm -f "$DESTDIR/usr/local/etc/mympd.conf.dist"
   #MYMPD_INSTALL_PREFIX="/opt/mympd/"
   rm -rf "$DESTDIR/var/opt/mympd"
-  rm -rf "$DESTDIR/etc/opt/mympd"
-  #arch
-  rm -rf "$DESTDIR/etc/webapps/mympd"
   #remove user
   if getent passwd mympd > /dev/null
   then
