@@ -13,24 +13,13 @@ cmake_minimum_required(VERSION 3.4)
 include(GNUInstallDirs)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 
-if(EXISTS "/etc/arch-release")
-  set(WEBAPPS "/webapps/${PROJECT_NAME}")
-else()
-  set(WEBAPPS "")
-endif()
-
 if("${CMAKE_INSTALL_PREFIX}" MATCHES "/usr")
-  set(SUBDIR_ETC "${WEBAPPS}")
   set(SUBDIR "/${PROJECT_NAME}")
   set(SUBDIRLIB "/lib")
 else() 
-  set(SUBDIR_ETC "")
   set(SUBDIR "")
   set(SUBDIRLIB "")
 endif()
-
-set(ETC_PATH "${CMAKE_INSTALL_FULL_SYSCONFDIR}${SUBDIR_ETC}")
-message("ETC_PATH: ${ETC_PATH}")
 
 message("BIN_PATH: ${CMAKE_INSTALL_FULL_BINDIR}")
 
