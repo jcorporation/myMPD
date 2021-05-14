@@ -22,9 +22,9 @@
 #endif
 void mg_connect_resolved(struct mg_connection *);
 
-#if MG_ARCH == MG_ARCH_FREERTOS
+#if MG_ARCH == MG_ARCH_FREERTOS_TCP
 static inline void *mg_calloc(int cnt, size_t size) {
-  void *p = pvPortMalloc(size);
+  void *p = pvPortMalloc(cnt * size);
   if (p != NULL) memset(p, 0, size);
   return p;
 }
@@ -987,7 +987,7 @@ void mg_http_serve_file(struct mg_connection *c, struct mg_http_message *hm,
 }
 
 #if MG_ARCH == MG_ARCH_ESP32 || MG_ARCH == MG_ARCH_ESP8266 || \
-    MG_ARCH == MG_ARCH_FREERTOS
+    MG_ARCH == MG_ARCH_FREERTOS_TCP
 char *realpath(const char *src, char *dst) {
   int len = strlen(src);
   if (len > MG_PATH_MAX - 1) len = MG_PATH_MAX - 1;
@@ -1001,7 +1001,7 @@ char *realpath(const char *src, char *dst) {
 // Allow user to override this function
 bool mg_is_dir(const char *path) WEAK;
 bool mg_is_dir(const char *path) {
-#if MG_ARCH == MG_ARCH_FREERTOS
+#if MG_ARCH == MG_ARCH_FREERTOS_TCP && defined(MG_ENABLE_FF)
   struct FF_STAT st;
   return (ff_stat(path, &st) == 0) && (st.st_mode & FF_IFDIR);
 #else
@@ -1638,207 +1638,6 @@ void mg_log_set_callback(void (*fn)(const void *, int, void *), void *param) {
 #endif
 
 #ifdef MG_ENABLE_LINES
-#line 1 "src/lwip.c"
-#endif
-
-
-
-
-
-
-
-#if MG_ENABLE_LWIP
-#include <lwip/tcp.h>
-#include <lwip/udp.h>
-
-static void tcp_error_cb(void *arg, err_t err) {
-  struct mg_connection *c = (struct mg_connection *) arg;
-  mg_error(c, "%p err %ld", c->fd, err);
-}
-
-static err_t connect_cb(void *arg, struct tcp_pcb *pcb, err_t err) {
-  struct mg_connection *c = (struct mg_connection *) arg;
-  LOG(LL_DEBUG, ("err %ld, arg %p, pcb %p", err, arg, pcb));
-  c->is_connecting = 0;
-  if (err != ERR_OK) mg_error(c, "%p err %d", c->fd, err);
-  return err;
-}
-
-static err_t tcp_recv_cb(void *arg, struct tcp_pcb *pcb, struct pbuf *p,
-                         err_t err) {
-  struct mg_connection *c = (struct mg_connection *) arg;
-  LOG(LL_DEBUG,
-      ("err %ld, pbuf %p/%d, io.len %d, io.size %d", err, p,
-       p == NULL ? 0 : (int) p->len, (int) c->recv.len, (int) c->recv.size));
-  if (err == ERR_OK && p != NULL) {
-#if 0
-    if (s->io.size < s->io.len + p->len) {
-      char *buf = realloc(s->io.buf, s->io.len + p->len);
-      if (buf != NULL) {
-        s->io.buf = buf;
-        s->io.size = s->io.len + p->len;
-      } else {
-        return ERR_MEM;
-      }
-    }
-    // MLOG(LL_DEBUG, " --> cpy, %p %p", s->io.buf, p->payload);
-    memcpy(s->io.buf + s->io.len, p->payload, p->len);
-    s->io.len += p->len;
-#endif
-    tcp_recved(pcb, p->len);
-    pbuf_free(p);
-    return err;
-  } else {
-    // rmsock(s);
-    return ERR_ABRT;
-  }
-}
-
-static void udp_recv_cb(void *arg, struct udp_pcb *pcb, struct pbuf *p,
-                        const ip_addr_t *addr, uint16_t port) {
-  LOG(LL_DEBUG,
-      ("%p %p pbuf %p/%d port %hu", arg, pcb, p, p == NULL ? 0 : p->len, port));
-}
-
-static err_t tcp_sent_cb(void *arg, struct tcp_pcb *pcb, uint16_t len) {
-  LOG(LL_DEBUG, ("%p %d", pcb, (int) len));
-  return ERR_OK;
-}
-
-#if 0
-static int ll_write(struct mg_connection *c, const void *buf, int len,
-                    int *fail) {
-  int n = c->is_tls ? mg_tls_send(c, buf, len, fail)
-                    : mg_sock_send(c, buf, len, fail);
-  LOG(*fail ? LL_ERROR : LL_VERBOSE_DEBUG,
-      ("%p %c%c%c %d/%d %d", c->fd, c->is_tls ? 'T' : 't',
-       c->is_udp ? 'U' : 'u', c->is_connecting ? 'C' : 'c', n, len,
-       MG_SOCK_ERRNO));
-  if (n > 0 && c->is_hexdumping) mg_hexdump(c, "->", buf, n);
-  return n;
-}
-#endif
-
-int mg_send(struct mg_connection *c, const void *buf, size_t len) {
-  if (c->is_udp) {
-    struct udp_pcb *pcb = (struct udp_pcb *) c->fd;
-    struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, len, PBUF_RAM);
-    if (p != NULL) {
-      // p->payload = (void *) buf;
-      memcpy(p->payload, buf, len);
-      err_t err = udp_send(pcb, p);
-      pbuf_free(p);
-      LOG(LL_DEBUG,
-          ("%lu UDP %d bytes -> %x:%hu, err %ld", c->id, (int) len,
-           (unsigned) *(uint32_t *) &pcb->remote_ip, pcb->remote_port, err));
-      if (err != ERR_OK) mg_error(c, "%p err %d", c->fd, err);
-    } else {
-      mg_error(c, "%p pbuf OOM", c->fd);
-    }
-  } else if (c->is_connecting) {
-    mg_iobuf_append(&c->send, buf, len, MG_IO_SIZE);
-  } else {
-  }
-#if 0
-  int fail, n = c->is_udp
-                    ? ll_write(c, buf, (SOCKET) len, &fail)
-                    : mg_iobuf_append(&c->send, buf, len, MG_IO_SIZE);
-  return n;
-#endif
-  return 0;
-}
-
-static struct mg_connection *mg_mkconn(const char *url) {
-  struct mg_connection *c = (struct mg_connection *) calloc(1, sizeof(*c));
-  typedef void *(*new_t)(void);
-  int is_udp = strncmp(url, "udp:", 4) == 0;
-  if (c == NULL) {
-    LOG(LL_ERROR, ("%s %s", url, "OOM"));
-  } else if ((c->fd = (is_udp ? (new_t) udp_new : (new_t) tcp_new)()) == NULL) {
-    LOG(LL_ERROR, ("%s new", url));
-    free(c);
-    c = NULL;
-  } else {
-    c->is_udp = is_udp;
-  }
-  return c;
-}
-
-struct mg_connection *mg_connect(struct mg_mgr *mgr, const char *url,
-                                 mg_event_handler_t fn, void *fn_data) {
-  struct mg_connection *c = mg_mkconn(url);
-  struct mg_str host = mg_url_host(url);
-  if (c == NULL) return c;
-  c->next = mgr->conns;
-  mgr->conns = c;
-  // mg_set_non_blocking_mode((SOCKET) c->fd);
-  c->is_client = 1;
-  c->peer.port = mg_htons(mg_url_port(url));
-  c->fn = fn;
-  c->fn_data = fn_data;
-  c->is_hexdumping = 1;
-  if (c->is_udp) {
-    udp_bind(c->fd, IP_ADDR_ANY, 0);
-    udp_recv(c->fd, udp_recv_cb, c);
-  } else {
-    tcp_arg(c->fd, c);
-    tcp_err(c->fd, tcp_error_cb);
-    tcp_sent(c->fd, tcp_sent_cb);
-    tcp_recv(c->fd, tcp_recv_cb);
-    tcp_bind(c->fd, IP_ADDR_ANY, 0);
-    tcp_nagle_disable((struct tcp_pcb *) c->fd);
-  }
-  LOG(LL_DEBUG, ("%lu -> %s %s", c->id, url, c->is_udp ? "UDP" : "TCP"));
-  mg_resolve(mgr, c, &host, mgr->dnstimeout);
-  return c;
-}
-
-void mg_connect_resolved(struct mg_connection *c) {
-  char buf[40];
-  ip_addr_t ipaddr;
-  memcpy(&ipaddr, &c->peer.ip, sizeof(ipaddr));
-  mg_call(c, MG_EV_RESOLVE, NULL);
-  LOG(LL_DEBUG, ("%lu resolved to %s", c->id, mg_straddr(c, buf, sizeof(buf))));
-  err_t err = c->is_udp ? udp_connect((struct udp_pcb *) c->fd, &ipaddr,
-                                      mg_ntohs(c->peer.port))
-                        : tcp_connect((struct tcp_pcb *) c->fd, &ipaddr,
-                                      mg_ntohs(c->peer.port), connect_cb);
-  if (c->is_udp) c->is_connecting = 0;
-  if (err != ERR_OK) mg_error(c, "%p failed, err %d", c->fd, err);
-}
-
-static err_t accept_cb(void *arg, struct tcp_pcb *pcb, err_t e) {
-  LOG(LL_DEBUG, ("%p err %ld, pcb %p", arg, e, pcb));
-  return ERR_OK;
-}
-
-struct mg_connection *mg_listen(struct mg_mgr *mgr, const char *url,
-                                mg_event_handler_t fn, void *fn_data) {
-  struct mg_connection *c = mg_mkconn(url);
-  struct mg_str host = mg_url_host(url);
-  uint16_t port = mg_url_port(url);
-  uint32_t ipaddr;
-  err_t err;
-  if (c == NULL) return c;
-  mg_aton(host.ptr, &ipaddr);
-  if (!mg_vcasecmp(&host, "localhost")) ipaddr = mg_htonl(0x7f000001);
-  if ((err = tcp_bind(c->fd, (ip_addr_t *) &ipaddr, port)) != ERR_OK) {
-    mg_error(c, "%p tcp_bind(%x:%hu) -> %ld", c->fd, ipaddr, port, err);
-  } else {
-    tcp_listen(c->fd);
-    tcp_accept(c->fd, accept_cb);
-  }
-  return c;
-}
-
-void mg_mgr_poll(struct mg_mgr *mgr, int ms) {
-  LOG(LL_DEBUG, ("%p %d", mgr, ms));
-  mg_usleep(200 * 1000);
-  mg_timer_poll(mg_millis());
-}
-#endif
-
-#ifdef MG_ENABLE_LINES
 #line 1 "src/md5.c"
 #endif
 #include <string.h>
@@ -2167,17 +1966,18 @@ void mg_mgr_free(struct mg_mgr *mgr) {
 }
 
 void mg_mgr_init(struct mg_mgr *mgr) {
+  memset(mgr, 0, sizeof(*mgr));
 #if defined(_WIN32) && MG_ENABLE_WINSOCK
-  WSADATA data;
-  WSAStartup(MAKEWORD(2, 2), &data);
-#elif MG_ARCH == MG_ARCH_FREERTOS
+  // clang-format off
+  { WSADATA data; WSAStartup(MAKEWORD(2, 2), &data); }
+  // clang-format on
+#elif MG_ARCH == MG_ARCH_FREERTOS_TCP
   mgr->ss = FreeRTOS_CreateSocketSet();
 #elif defined(__unix) || defined(__unix__) || defined(__APPLE__)
   // Ignore SIGPIPE signal, so if client cancels the request, it
   // won't kill the whole process.
   signal(SIGPIPE, SIG_IGN);
 #endif
-  memset(mgr, 0, sizeof(*mgr));
   mgr->dnstimeout = 3000;
   mgr->dns4.url = "udp://8.8.8.8:53";
   mgr->dns6.url = "udp://[2001:4860:4860::8888]:53";
@@ -2465,7 +2265,7 @@ void mg_hmac_sha1(const unsigned char *key, size_t keylen,
 #ifndef SO_EXCLUSIVEADDRUSE
 #define SO_EXCLUSIVEADDRUSE ((int) (~SO_REUSEADDR))
 #endif
-#elif MG_ARCH == MG_ARCH_FREERTOS
+#elif MG_ARCH == MG_ARCH_FREERTOS_TCP
 #define MG_SOCK_ERRNO errno
 typedef Socket_t SOCKET;
 #define INVALID_SOCKET FREERTOS_INVALID_SOCKET
@@ -2625,7 +2425,7 @@ static int ll_write(struct mg_connection *c, const void *buf, int len,
 
 int mg_send(struct mg_connection *c, const void *buf, size_t len) {
   int fail, n = c->is_udp
-                    ? ll_write(c, buf, (SOCKET) len, &fail)
+                    ? ll_write(c, buf, len, &fail)
                     : (int) mg_iobuf_append(&c->send, buf, len, MG_IO_SIZE);
   if (len > 0 && n == 0) fail = 1;
   return n;
@@ -2635,7 +2435,7 @@ static void mg_set_non_blocking_mode(SOCKET fd) {
 #if defined(_WIN32) && MG_ENABLE_WINSOCK
   unsigned long on = 1;
   ioctlsocket(fd, FIONBIO, &on);
-#elif MG_ARCH == MG_ARCH_FREERTOS
+#elif MG_ARCH == MG_ARCH_FREERTOS_TCP
   const BaseType_t off = 0;
   setsockopt(fd, 0, FREERTOS_SO_RCVTIMEO, &off, sizeof(off));
   setsockopt(fd, 0, FREERTOS_SO_SNDTIMEO, &off, sizeof(off));
@@ -2719,7 +2519,7 @@ static void read_conn(struct mg_connection *c,
 }
 
 static int write_conn(struct mg_connection *c) {
-  int fail, rc = ll_write(c, c->send.buf, (SOCKET) c->send.len, &fail);
+  int fail, rc = ll_write(c, c->send.buf, c->send.len, &fail);
   if (rc > 0) {
     mg_iobuf_delete(&c->send, rc);
     if (c->send.len == 0) mg_iobuf_resize(&c->send, 0);
@@ -2741,7 +2541,7 @@ static void close_conn(struct mg_connection *c) {
   LOG(LL_DEBUG, ("%lu closed", c->id));
   if (FD(c) != INVALID_SOCKET) {
     closesocket(FD(c));
-#if MG_ARCH == MG_ARCH_FREERTOS
+#if MG_ARCH == MG_ARCH_FREERTOS_TCP
     FreeRTOS_FD_CLR(c->fd, c->mgr->ss, eSELECT_ALL);
 #endif
   }
@@ -2753,7 +2553,7 @@ static void close_conn(struct mg_connection *c) {
 }
 
 static void setsockopts(struct mg_connection *c) {
-#if MG_ARCH == MG_ARCH_FREERTOS
+#if MG_ARCH == MG_ARCH_FREERTOS_TCP
   FreeRTOS_FD_SET(c->fd, c->mgr->ss, eSELECT_READ | eSELECT_EXCEPT);
 #else
   int on = 1;
@@ -2839,7 +2639,7 @@ static void accept_conn(struct mg_mgr *mgr, struct mg_connection *lsn) {
   if (fd == INVALID_SOCKET) {
     LOG(LL_ERROR, ("%lu accept failed, errno %d", lsn->id, MG_SOCK_ERRNO));
 #if !defined(_WIN32)
-  } else if (fd >= FD_SETSIZE) {
+  } else if ((long) fd >= FD_SETSIZE) {
     LOG(LL_ERROR, ("%ld > %ld", (long) fd, (long) FD_SETSIZE));
     closesocket(fd);
 #endif
@@ -2936,7 +2736,7 @@ struct mg_connection *mg_listen(struct mg_mgr *mgr, const char *url,
 }
 
 static void mg_iotest(struct mg_mgr *mgr, int ms) {
-#if MG_ARCH == MG_ARCH_FREERTOS
+#if MG_ARCH == MG_ARCH_FREERTOS_TCP
   struct mg_connection *c;
   for (c = mgr->conns; c != NULL; c = c->next) {
     FreeRTOS_FD_CLR(c->fd, mgr->ss, eSELECT_WRITE);
@@ -2988,8 +2788,10 @@ static void mg_iotest(struct mg_mgr *mgr, int ms) {
 
 static void connect_conn(struct mg_connection *c) {
   int rc = 0;
+#if MG_ARCH != MG_ARCH_FREERTOS_TCP
   socklen_t len = sizeof(rc);
   if (getsockopt(FD(c), SOL_SOCKET, SO_ERROR, (char *) &rc, &len)) rc = 1;
+#endif
   if (rc == EAGAIN || rc == EWOULDBLOCK) rc = 0;
   c->is_connecting = 0;
   if (rc) {
@@ -3750,6 +3552,7 @@ struct mg_str mg_url_pass(const char *url) {
 
 
 
+
 #if MG_ENABLE_FS
 int mg_stat(const char *path, mg_stat_t *st) {
 #ifdef _WIN32
@@ -3773,7 +3576,7 @@ FILE *mg_fopen(const char *path, const char *mode) {
 }
 
 int64_t mg_file_size(const char *path) {
-#if MG_ARCH == MG_ARCH_FREERTOS
+#if MG_ARCH == MG_ARCH_FREERTOS_TCP && defined(MG_ENABLE_FF)
   struct FF_STAT st;
   return ff_stat(path, &st) == 0 ? st.st_size : 0;
 #else
@@ -3833,7 +3636,7 @@ bool mg_file_printf(const char *path, const char *fmt, ...) {
   if (buf != tmp) free(buf);
   return result;
 }
-#endif
+#endif  // MG_ENABLE_FS
 
 void mg_random(void *buf, size_t len) {
   bool done = false;
@@ -3943,8 +3746,9 @@ unsigned long mg_unhexn(const char *s, int len) {
   for (i = 0; i < (unsigned long) len; i++) {
     int c = s[i];
     if (i > 0) v <<= 4;
-    v |= (c >= '0' && c <= '9') ? c - '0'
-                                : (c >= 'A' && c <= 'F') ? c - '7' : c - 'W';
+    v |= (c >= '0' && c <= '9')   ? c - '0'
+         : (c >= 'A' && c <= 'F') ? c - '7'
+                                  : c - 'W';
   }
   return v;
 }
@@ -4051,6 +3855,8 @@ double mg_time(void) {
                     ((int64_t) ftime.dwHighDateTime << 32)) /
                    10000000.0) -
          11644473600;
+#elif MG_ARCH == MG_ARCH_FREERTOS_TCP
+  return mg_millis() / 1000.0;
 #else
   struct timeval tv;
   if (gettimeofday(&tv, NULL /* tz */) != 0) return 0;
@@ -4063,6 +3869,8 @@ void mg_usleep(unsigned long usecs) {
   Sleep(usecs / 1000);
 #elif MG_ARCH == MG_ARCH_ESP8266
   ets_delay_us(usecs);
+#elif MG_ARCH == MG_ARCH_FREERTOS_TCP
+  vTaskDelay(pdMS_TO_TICKS(usecs / 1000));
 #else
   usleep(usecs);
 #endif
@@ -4074,9 +3882,8 @@ unsigned long mg_millis(void) {
 #elif MG_ARCH == MG_ARCH_ESP32
   return esp_timer_get_time() / 1000;
 #elif MG_ARCH == MG_ARCH_ESP8266
-  // return system_get_time() / 1000;
   return xTaskGetTickCount() * portTICK_PERIOD_MS;
-#elif MG_ARCH == MG_ARCH_FREERTOS
+#elif MG_ARCH == MG_ARCH_FREERTOS_TCP
   return xTaskGetTickCount() * portTICK_PERIOD_MS;
 #else
   struct timespec ts;
