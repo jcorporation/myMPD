@@ -51,7 +51,7 @@ function saveTrigger() {
         }
 
         sendAPI("MYMPD_API_TRIGGER_SAVE", {
-            "id": parseInt(document.getElementById('inputTriggerId').value),
+            "id": Number(document.getElementById('inputTriggerId').value),
             "name": nameEl.value,
             "event": getSelectValue('selectTriggerEvent'),
             "script": getSelectValue('selectTriggerScript'),

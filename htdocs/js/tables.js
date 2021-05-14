@@ -538,7 +538,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     let activeRow = 0;
     //disc handling for album view
     let z = 0;
-    let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined ? parseInt(obj.result.data[0].Disc) : 0;
+    let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined ? Number(obj.result.data[0].Disc) : 0;
     if (obj.result.Discs !== undefined && obj.result.Discs > 1) {
         const row = document.createElement('tr');
         row.classList.add('not-clickable');
@@ -552,7 +552,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         z++;
     }
     for (let i = 0; i < nrItems; i++) {
-        if (obj.result.data[0].Disc !== undefined && lastDisc < parseInt(obj.result.data[i].Disc)) {
+        if (obj.result.data[0].Disc !== undefined && lastDisc < Number(obj.result.data[i].Disc)) {
             const row = document.createElement('tr');
             row.classList.add('not-clickable');
             row.innerHTML = '<td><span class="mi">album</span></td><td colspan="' + colspan +'">' + 

@@ -263,8 +263,8 @@ function saveSmartPlaylist() {
                 "type": type, 
                 "playlist": name,
                 "sticker": getSelectValue('selectSaveSmartPlaylistSticker'),
-                "maxentries": parseInt(maxentriesEl.value), 
-                "minvalue": parseInt(minvalueEl.value),
+                "maxentries": Number(maxentriesEl.value), 
+                "minvalue": Number(minvalueEl.value),
                 "sort": sort
             });
         }
@@ -276,7 +276,7 @@ function saveSmartPlaylist() {
             sendAPI("MYMPD_API_SMARTPLS_SAVE", {
                 "type": type,
                 "playlist": name,
-                "timerange": parseInt(timerangeEl.value) * 60 * 60 * 24,
+                "timerange": Number(timerangeEl.value) * 60 * 60 * 24,
                 "sort": sort
             });
         }

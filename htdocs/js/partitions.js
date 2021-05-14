@@ -46,7 +46,7 @@ function parsePartitionOutputsList(obj) {
     const outputs = document.getElementById('outputs').getElementsByTagName('button');
     const outputIds = [];
     for (let i = 0, j= outputs.length; i < j; i++) {
-        outputIds.push(parseInt(outputs[i].getAttribute('data-output-id')));
+        outputIds.push(Number(outputs[i].getAttribute('data-output-id')));
     }
 
     let outputList = '';

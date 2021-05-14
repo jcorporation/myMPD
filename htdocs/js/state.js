@@ -95,7 +95,7 @@ function showListOutputAttributes(outputName) {
 //eslint-disable-next-line no-unused-vars
 function saveOutputAttributes() {
     const params = {};
-    params.outputId =  parseInt(document.getElementById('modalOutputAttributesId').value);
+    params.outputId =  Number(document.getElementById('modalOutputAttributesId').value);
     params.attributes = {};
     const els = document.getElementById('outputAttributesList').getElementsByTagName('input');
     for (let i = 0, j = els.length; i < j; i++) {
@@ -521,7 +521,7 @@ function volumeStep(dir) {
 
 function chVolume(increment) {
     const volumeBar = document.getElementById('volumeBar');
-    let newValue = parseInt(volumeBar.value) + increment;
+    let newValue = Number(volumeBar.value) + increment;
     if (newValue < settings.volumeMin)  {
         newValue = settings.volumeMin;
     }

@@ -145,9 +145,9 @@ function saveConnection() {
             "mpdPass": mpdPassEl.value,
             "musicDirectory": musicDirectory,
             "playlistDirectory": playlistDirectoryEl.value,
-            "mpdStreamPort": parseInt(mpdStreamPortEl.value),
-            "mpdBinarylimit": parseInt(mpdBinarylimitEl.value),
-            "mpdTimeout": parseInt(mpdTimeoutEl.value) * 1000
+            "mpdStreamPort": Number(mpdStreamPortEl.value),
+            "mpdBinarylimit": Number(mpdBinarylimitEl.value),
+            "mpdTimeout": Number(mpdTimeoutEl.value) * 1000
         }, getSettings);
         uiElements.modalConnection.hide();    
     }
@@ -291,7 +291,7 @@ function parseSettings(obj) {
 
     //default limit for all apps
     //convert from string to int
-    const limit = parseInt(settings.advanced.uiMaxElementsPerPage);
+    const limit = Number(settings.advanced.uiMaxElementsPerPage);
     app.apps.Home.limit = limit;
     app.apps.Playback.limit = limit;
     app.apps.Queue.tabs.Current.limit = limit;
@@ -584,7 +584,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
             advFrm[form] += '<select id="' + prefix + r(key) + '" class="form-control border-secondary custom-select">';
             for (let value in defaults[key].validValues) {
                 if (defaults[key].contentType === 'integer') {
-                    value = parseInt(value);
+                    value = Number(value);
                 }
                 advFrm[form] += '<option value="' + e(value) + '"' +
                     (fields[key] === value ? ' selected="selected"' : '') +
@@ -826,20 +826,20 @@ function saveSettings(closeModal) {
     }
 
     //from hours to seconds
-    const smartplsInterval = parseInt(document.getElementById('inputSmartplsInterval').value) * 60 * 60;
+    const smartplsInterval = Number(document.getElementById('inputSmartplsInterval').value) * 60 * 60;
 
     const advSettings = {};
     for (const key in advancedSettingsDefault) {
         const el = document.getElementById('inputAdvSetting' + r(key));
         if (el) {
             if (advancedSettingsDefault[key].inputType === 'select') {
-                advSettings[key] =  advancedSettingsDefault[key].contentType === 'integer' ? parseInt(getSelectValue(el)) : getSelectValue(el);
+                advSettings[key] =  advancedSettingsDefault[key].contentType === 'integer' ? Number(getSelectValue(el)) : getSelectValue(el);
             }
             else if (advancedSettingsDefault[key].inputType === 'checkbox') {
                 advSettings[key] = el.classList.contains('active') ? true : false;
             }
             else {
-                advSettings[key] = advancedSettingsDefault[key].contentType === 'integer' ? parseInt(el.value) : el.value;
+                advSettings[key] = advancedSettingsDefault[key].contentType === 'integer' ? Number(el.value) : el.value;
             }
         }
     }
@@ -849,7 +849,7 @@ function saveSettings(closeModal) {
     if (formOK === true) {
         sendAPI("MYMPD_API_SETTINGS_SET", {
             "coverimageNames": inputCoverimageNames.value,
-            "lastPlayedCount": parseInt(document.getElementById('inputSettinglastPlayedCount').value),
+            "lastPlayedCount": Number(document.getElementById('inputSettinglastPlayedCount').value),
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
             "smartplsPrefix": document.getElementById('inputSmartplsPrefix').value,
             "smartplsInterval": smartplsInterval,
@@ -859,14 +859,14 @@ function saveSettings(closeModal) {
             "tagListSearch": getTagMultiSelectValues(document.getElementById('listSearchTags'), false),
             "tagListBrowse": getTagMultiSelectValues(document.getElementById('listBrowseTags'), false),
             "bookletName": inputBookletName.value,
-            "volumeMin": parseInt(document.getElementById('inputSettingvolumeMin').value),
-            "volumeMax": parseInt(document.getElementById('inputSettingvolumeMax').value),
-            "volumeStep": parseInt(document.getElementById('inputSettingvolumeStep').value),
+            "volumeMin": Number(document.getElementById('inputSettingvolumeMin').value),
+            "volumeMax": Number(document.getElementById('inputSettingvolumeMax').value),
+            "volumeStep": Number(document.getElementById('inputSettingvolumeStep').value),
             "lyricsUsltExt": document.getElementById('inputSettinglyricsUsltExt').value,
             "lyricsSyltExt": document.getElementById('inputSettinglyricsSyltExt').value,
             "lyricsVorbisUslt": document.getElementById('inputSettinglyricsVorbisUslt').value,
             "lyricsVorbisSylt": document.getElementById('inputSettinglyricsVorbisSylt').value,
-            "covercacheKeepDays": parseInt(document.getElementById('inputCovercacheKeepDays').value),
+            "covercacheKeepDays": Number(document.getElementById('inputCovercacheKeepDays').value),
             "advanced": advSettings
         }, getSettings);
         if (closeModal === true) {
@@ -903,14 +903,14 @@ function saveQueueSettings() {
         sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random": (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
-            "single": parseInt(singleState),
+            "single": Number(singleState),
             "repeat": (document.getElementById('btnRepeat').classList.contains('active') ? 1 : 0),
             "replaygain": replaygain,
             "crossfade": document.getElementById('inputCrossfade').value,
-            "jukeboxMode": parseInt(jukeboxMode),
+            "jukeboxMode": Number(jukeboxMode),
             "jukeboxPlaylist": jukeboxPlaylist,
-            "jukeboxQueueLength": parseInt(document.getElementById('inputJukeboxQueueLength').value),
-            "jukeboxLastPlayed": parseInt(document.getElementById('inputJukeboxLastPlayed').value),
+            "jukeboxQueueLength": Number(document.getElementById('inputJukeboxQueueLength').value),
+            "jukeboxLastPlayed": Number(document.getElementById('inputJukeboxLastPlayed').value),
             "jukeboxUniqueTag": jukeboxUniqueTag,
             "autoPlay": (document.getElementById('btnAutoPlay').classList.contains('active') ? true : false)
         }, getSettings);

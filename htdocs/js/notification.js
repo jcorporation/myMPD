@@ -144,7 +144,7 @@ function logMessage(title, text, facility, severity) {
     setAttEnc(entry, 'data-title', title);
     let occurence = 1;
     if (append === false) {
-        occurence += parseInt(getAttDec(lastEntry, 'data-occurence'));
+        occurence += Number(getAttDec(lastEntry, 'data-occurence'));
     }
     setAttEnc(entry, 'data-occurence', occurence);
     entry.innerHTML = '<small>' + localeDate() + '&nbsp;&ndash;&nbsp;' + t(facility) +

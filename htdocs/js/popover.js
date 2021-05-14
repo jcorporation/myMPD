@@ -171,8 +171,8 @@ function showMenuTd(el) {
             (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'Current') {
-        const trackid = parseInt(getAttDec(el.parentNode.parentNode, 'data-trackid'));
-        const songpos = parseInt(getAttDec(el.parentNode.parentNode, 'data-songpos'));
+        const trackid = Number(getAttDec(el.parentNode.parentNode, 'data-trackid'));
+        const songpos = Number(getAttDec(el.parentNode.parentNode, 'data-songpos'));
         menu += ( trackid !== lastState.currentSongId ? addMenuItem({"cmd": "playAfterCurrent", "options": [trackid, songpos]}, t('Play after current playing song')) : '') +
             addMenuItem({"cmd": "delQueueSong", "options": ["single", trackid]}, t('Remove')) +
             addMenuItem({"cmd": "delQueueSong", "options": ["range", 0, songpos]}, t('Remove all upwards')) +
@@ -186,7 +186,7 @@ function showMenuTd(el) {
             (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
-        const pos = parseInt(getAttDec(el.parentNode.parentNode, 'data-pos'));
+        const pos = Number(getAttDec(el.parentNode.parentNode, 'data-pos'));
         const vAlbum = getAttDec(el.parentNode.parentNode, 'data-album');
         const vAlbumArtist = getAttDec(el.parentNode.parentNode, 'data-albumartist');
         menu += (settings.jukeboxMode === 1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) :
@@ -194,10 +194,10 @@ function showMenuTd(el) {
             addMenuItem({"cmd": "delQueueJukeboxSong", "options": [pos]}, t('Remove'));
     }
     else if (app.current.app === 'Home') {
-        let pos = parseInt(getAttDec(el.parentNode, 'data-pos'));
+        let pos = Number(getAttDec(el.parentNode, 'data-pos'));
         let href = JSON.parse(getAttDec(el.parentNode, 'data-href'));
         if (href === null) {
-            pos = parseInt(getAttDec(el, 'data-pos'));
+            pos = Number(getAttDec(el, 'data-pos'));
             href = JSON.parse(getAttDec(el, 'data-href'));
         }
         if (href === null) {

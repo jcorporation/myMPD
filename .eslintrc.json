@@ -29,7 +29,6 @@
         "no-caller": "error",
         "no-eq-null": "error",
         "no-useless-concat": "error",
-        "no-unused-expressions": "error",
         "no-self-compare": "error",
         "no-return-assign": "error",
         "no-restricted-properties": "error",

@@ -106,8 +106,8 @@ function appRoute() {
         app.current.app = decodeURIComponent(params[1]);
         app.current.tab = params[2] !== undefined ? decodeURIComponent(params[2]) : undefined;
         app.current.view = params[3] !== undefined ? decodeURIComponent(params[3]) : undefined;
-        app.current.offset = parseInt(decodeURIComponent(params[4]));
-        app.current.limit = parseInt(decodeURIComponent(params[5]));
+        app.current.offset = Number(decodeURIComponent(params[4]));
+        app.current.limit = Number(decodeURIComponent(params[5]));
         app.current.filter = decodeURIComponent(params[6]);
         app.current.sort = decodeURIComponent(params[7]);
         app.current.tag = decodeURIComponent(params[8]);
@@ -651,7 +651,7 @@ function initNavs() {
     }, false);
 
     document.getElementById('volumeBar').addEventListener('change', function() {
-        sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {"volume": parseInt(document.getElementById('volumeBar').value)});
+        sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {"volume": Number(document.getElementById('volumeBar').value)});
     }, false);
 
     domCache.progress.addEventListener('click', function(event) {

@@ -133,7 +133,7 @@ function validateIntRange(el, min, max) {
         setIsInvalid(el)
         return false;
     }
-    const intValue = parseInt(el.value);
+    const intValue = Number(el.value);
     if (intValue < min || intValue > max) {
         setIsInvalid(el)
         return false;

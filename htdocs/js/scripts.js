@@ -70,7 +70,7 @@ function saveScript() {
         sendAPI("MYMPD_API_SCRIPT_SAVE", {
             "oldscript": document.getElementById('inputOldScriptName').value,
             "script": nameEl.value,
-            "order": parseInt(orderEl.value),
+            "order": Number(orderEl.value),
             "content": document.getElementById('textareaScriptContent').value,
             "arguments": args
             }, showListScripts, false);

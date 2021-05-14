@@ -115,23 +115,23 @@ function saveTimer() {
         for (let i = 0, j = argEls.length; i < j; i++) {
             args[getAttDec(argEls[i], 'data-name')] = argEls[i].value;
         }
-        let interval = parseInt(inputTimerIntervalEl.value);
+        let interval = Number(inputTimerIntervalEl.value);
         if (interval > 0) {
             interval = interval * 60 * 60;
         }
         sendAPI("MYMPD_API_TIMER_SAVE", {
-            "timerid": parseInt(document.getElementById('inputTimerId').value),
+            "timerid": Number(document.getElementById('inputTimerId').value),
             "name": nameEl.value,
             "interval": interval,
             "enabled": (document.getElementById('btnTimerEnabled').classList.contains('active') ? true : false),
-            "startHour": parseInt(getSelectValue('selectTimerHour')),
-            "startMinute": parseInt(getSelectValue('selectTimerMinute')),
+            "startHour": Number(getSelectValue('selectTimerHour')),
+            "startMinute": Number(getSelectValue('selectTimerMinute')),
             "weekdays": weekdays,
             "action": getAttDec(selectTimerAction.options[selectTimerAction.selectedIndex].parentNode, 'data-value'),
             "subaction": getSelectValue(selectTimerAction),
-            "volume": parseInt(document.getElementById('inputTimerVolume').value), 
+            "volume": Number(document.getElementById('inputTimerVolume').value), 
             "playlist": selectTimerPlaylist,
-            "jukeboxMode": parseInt(jukeboxMode),
+            "jukeboxMode": Number(jukeboxMode),
             "arguments": args
             }, showListTimer);
     }
@@ -198,7 +198,7 @@ function parseEditTimer(obj) {
 
 function selectTimerIntervalChange(value) {
     if (value === undefined) {
-        value = parseInt(getSelectValue('selectTimerInterval'));
+        value = Number(getSelectValue('selectTimerInterval'));
     }
     else {
         if (isNaN(value) || (value > 0 && value !== 86400 && value !== 604800)) {

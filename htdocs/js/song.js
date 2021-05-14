@@ -232,7 +232,7 @@ function getLyrics(uri, el) {
                     if (event.target.nodeName === 'LABEL') {
                         event.target.parentNode.getElementsByClassName('active')[0].classList.remove('active');
                         event.target.classList.add('active');
-                        const nr = parseInt(event.target.getAttribute('data-num'));
+                        const nr = Number(event.target.getAttribute('data-num'));
                         const tEls = el.getElementsByClassName('lyricsText');
                         for (let i = 0, j = tEls.length; i < j; i++) {
                             if (i === nr) {
@@ -259,7 +259,7 @@ function getLyrics(uri, el) {
                     textEls[i].addEventListener('click', function(event) {
                         const sec = event.target.getAttribute('data-sec');
                         if (sec !== null) {
-                            sendAPI("MYMPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": parseInt(sec)});
+                            sendAPI("MYMPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": Number(sec)});
                         }
                     }, false); 
                 }
@@ -276,7 +276,7 @@ function parseSyncedLyrics(text, clickable) {
         //line must start with timestamp
         const line = lines[i].match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
         if (line) {
-            const sec = parseInt(line[1]) * 60 + parseInt(line[2]);
+            const sec = Number(line[1]) * 60 + Number(line[2]);
             //line[3] are hundreths of a seconde - ignore it for the moment
             html += '<p><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + sec + '">';
             if (line[4].match(/^\s+$/)) {
@@ -286,7 +286,7 @@ function parseSyncedLyrics(text, clickable) {
                 //support of extended lrc format - timestamps for words
                 html += line[4].replace(/<(\d+):(\d+)\.\d+>/g, function(m0, m1, m2) {
                     //hundreths of a secondes are ignored
-                    const wsec = parseInt(m1) * 60 + parseInt(m2);
+                    const wsec = Number(m1) * 60 + Number(m2);
                     return '</span><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + wsec + '">';
                 });
             }

@@ -69,7 +69,7 @@ function initHome() {
         for (let i = 0, j = materialIcons[cat].length; i < j; i++) {
             ligatureList += '<button title="' + materialIcons[cat][i] + '" data-cat="' + cat + '" class="btn btn-sm mi m-1">' + materialIcons[cat][i] + '</button>';
         }
-    };
+    }
     document.getElementById('listHomeIconLigature').innerHTML = ligatureList;
     document.getElementById('searchHomeIconCat').innerHTML = catList;
 
@@ -283,8 +283,8 @@ function dragAndDropHome() {
             }
             if (dst.classList.contains('home-icons')) {
                 dragEl.classList.remove('opacity05');
-                const to = parseInt(dst.getAttribute('data-pos'));
-                const from = parseInt(dragSrc.getAttribute('data-pos'));
+                const to = Number(dst.getAttribute('data-pos'));
+                const from = Number(dragSrc.getAttribute('data-pos'));
                 if (isNaN(to) === false && isNaN(from) === false && from !== to) {
                     sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, function(obj) {
                         parseHome(obj);
@@ -402,7 +402,7 @@ function saveHomeIcon() {
         const image = getSelectValue('selectHomeIconImage');
         sendAPI("MYMPD_API_HOME_ICON_SAVE", {
             "replace": (document.getElementById('inputHomeIconReplace').value === 'true' ? true : false),
-            "oldpos": parseInt(document.getElementById('inputHomeIconOldpos').value),
+            "oldpos": Number(document.getElementById('inputHomeIconOldpos').value),
             "name": nameEl.value,
             "ligature": (image === '' ? document.getElementById('inputHomeIconLigature').value : ''),
             "bgcolor": document.getElementById('inputHomeIconBgcolor').value,

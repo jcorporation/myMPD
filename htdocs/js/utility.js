@@ -563,7 +563,7 @@ function setPagination(total, returned) {
     }, false);
     
     bottomBar.getElementsByTagName('select')[0].addEventListener('change', function(event) {
-        const newLimit = parseInt(getSelectValue(event.target));
+        const newLimit = Number(getSelectValue(event.target));
         if (app.current.limit !== newLimit) {
             gotoPage(app.current.offset, newLimit);
         }
