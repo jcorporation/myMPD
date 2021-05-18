@@ -652,7 +652,7 @@ function setFeatures() {
             (settings.featPartitions === true ? true : false) : false;
         features.featPlaylists = settings.featPlaylists;
         features.featSingleOneShot = settings.featSingleOneShot;
-        features.featSmartpls = settings.featSmartpls == true ?
+        features.featSmartpls = settings.featSmartpls === true ?
             (settings.smartpls === true ? true : false) : false;
         features.featStickers = settings.featStickers;
         features.featTags = settings.featTags;
