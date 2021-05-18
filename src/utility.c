@@ -282,7 +282,7 @@ bool validate_string_not_dir(const char *data) {
 }
 
 bool validate_uri(const char *data) {
-    if (strstr(data, "/../") != NULL) {
+    if (strncmp(data, "../", 3) == 0 || strstr(data, "/../") != NULL || strstr(data, "/./") != NULL) {
         return false;
     }
     return true;
