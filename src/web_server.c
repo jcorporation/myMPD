@@ -30,6 +30,7 @@
 #include "http_client.h"
 #include "web_server/web_server_utility.h"
 #include "web_server/web_server_albumart.h"
+#include "web_server/web_server_tagart.h"
 #include "web_server.h"
 
 //private definitions
@@ -406,6 +407,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             #endif
             else if (mg_http_match_uri(hm, "/albumart/#")) {
                 handle_albumart(nc, hm, mg_user_data, config, (long long)nc->id);
+            }
+            else if (mg_http_match_uri(hm, "/tagart/#")) {
+                handle_tagart(nc, hm, mg_user_data);
             }
             else if (mg_http_match_uri(hm, "/pics/#")) {
                 //serve directory

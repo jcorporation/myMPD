@@ -5,6 +5,9 @@
 
 function initBrowse() {
     document.getElementById('BrowseDatabaseListList').addEventListener('click', function(event) {
+        if (event.target.classList.contains('row')) {
+            return;
+        }
         if (app.current.tag === 'Album') {
             if (event.target.classList.contains('card-body')) {
                 appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', 'AlbumArtist', 
@@ -24,12 +27,18 @@ function initBrowse() {
     }, false);
     
     document.getElementById('BrowseDatabaseListList').addEventListener('contextmenu', function(event) {
+        if (event.target.classList.contains('row')) {
+            return;
+        }
         if (app.current.tag === 'Album') {
             popoverMenuAlbumCards(event);
         }
     }, false);
     
     document.getElementById('BrowseDatabaseListList').addEventListener('long-press', function(event) {
+        if (event.target.classList.contains('row')) {
+            return;
+        }
         if (app.current.tag === 'Album') {
             popoverMenuAlbumCards(event);
         }
@@ -41,6 +50,9 @@ function initBrowse() {
     
     if (isMobile === false) {
         document.getElementById('BrowseDatabaseListList').addEventListener('mouseover', function(event) {
+            if (app.current.tag !== 'Album') {
+                return;
+            }
             if (event.target.classList.contains('card-body') && event.target.childNodes.length === 0) {
                 const oldEls = document.getElementById('BrowseDatabaseListList').getElementsByClassName('album-grid-mouseover');
                 const oldElsLen = oldEls.length;
@@ -54,6 +66,9 @@ function initBrowse() {
         }, false);
 
         document.getElementById('BrowseDatabaseListList').addEventListener('mouseout', function(event) {
+            if (app.current.tag !== 'Album') {
+                return;
+            }
             if (event.target.classList.contains('card-body') && (event.relatedTarget === null || ! event.relatedTarget.classList.contains('album-grid-mouseover'))) {
                 event.target.innerHTML = '';
             }
@@ -393,7 +408,7 @@ function parseDatabase(obj) {
         }
         else {
             id = genId('database' + obj.result.data[i].value);
-            picture = subdir + '/pics/' + obj.result.tag + '/' + encodeURI(obj.result.data[i].value);
+            picture = subdir + '/tagart/' + obj.result.tag + '/' + encodeURI(obj.result.data[i].value);
             html = '<div class="card card-grid clickable" data-picture="' + encodeURI(picture) + '" data-tag="' + encodeURI(obj.result.data[i].value) + '" tabindex="0">' +
                    (obj.result.pics === true ? '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' : '') +
                    '<div class="card-footer card-footer-grid p-2" title="' + e(obj.result.data[i].value) + '">' +
