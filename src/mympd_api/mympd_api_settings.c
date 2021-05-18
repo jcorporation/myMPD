@@ -539,6 +539,7 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = tojson_bool(buffer, "featMounts", mympd_state->mpd_state->feat_mpd_mount, true);
         buffer = tojson_bool(buffer, "featNeighbors", mympd_state->mpd_state->feat_mpd_neighbor, true);
         buffer = tojson_bool(buffer, "featBinarylimit", mympd_state->mpd_state->feat_mpd_binarylimit, true);
+        buffer = tojson_bool(buffer, "featSmartpls", mympd_state->mpd_state->feat_smartpls, true);
         mpd_status_free(status);
 
         buffer = print_tags_array(buffer, "tagList", mympd_state->mpd_state->tag_types_mympd);

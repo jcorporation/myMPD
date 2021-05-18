@@ -686,35 +686,38 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, (uint_buf1 == 0 ? false : true), "mpd_run_rescan");
             }
             break;
-        case MYMPD_API_SMARTPLS_SAVE:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {type: %Q}}", &p_charbuf1);
+        case MYMPD_API_SMARTPLS_STICKER_SAVE:
+        case MYMPD_API_SMARTPLS_NEWEST_SAVE:
+        case MYMPD_API_SMARTPLS_SEARCH_SAVE:
+            if (mympd_state->mpd_state->feat_smartpls == false) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "playlist", "error", "Smart playlists are not supported");
+                break;
+            }
             rc = false;
-            if (je == 1) {
-                if (strcmp(p_charbuf1, "sticker") == 0) {
-                    je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, sticker: %Q, maxentries: %d, minvalue: %d, sort: %Q}}", &p_charbuf2, &p_charbuf3, &int_buf1, &int_buf2, &p_charbuf5);
-                    if (je == 5) {
-                        rc = mpd_shared_smartpls_save(mympd_state->config, p_charbuf1, p_charbuf2, p_charbuf3, NULL, int_buf1, int_buf2, p_charbuf5);
-                    }
+            if (request->cmd_id == MYMPD_API_SMARTPLS_STICKER_SAVE) {
+                je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, sticker: %Q, maxentries: %d, minvalue: %d, sort: %Q}}", &p_charbuf1, &p_charbuf2, &int_buf1, &int_buf2, &p_charbuf3);
+                if (je == 5) {
+                    rc = mpd_shared_smartpls_save(mympd_state->config, "sticker", p_charbuf1, p_charbuf2, int_buf1, int_buf2, p_charbuf3);
                 }
-                else if (strcmp(p_charbuf1, "newest") == 0) {
-                    je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, timerange: %d, sort: %Q}}", &p_charbuf2, &int_buf1, &p_charbuf5);
-                    if (je == 3) {
-                        rc = mpd_shared_smartpls_save(mympd_state->config, p_charbuf1, p_charbuf2, NULL, NULL, 0, int_buf1, p_charbuf5);
-                    }
-                }            
-                else if (strcmp(p_charbuf1, "search") == 0) {
-                    je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, tag: %Q, searchstr: %Q, sort: %Q}}", &p_charbuf2, &p_charbuf3, &p_charbuf4, &p_charbuf5);
-                    if (je == 4) {
-                        rc = mpd_shared_smartpls_save(mympd_state->config, p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, 0, 0, p_charbuf5);
-                    }
+            }
+            else if (request->cmd_id == MYMPD_API_SMARTPLS_NEWEST_SAVE) {
+                je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, timerange: %d, sort: %Q}}", &p_charbuf1, &int_buf1, &p_charbuf2);
+                if (je == 3) {
+                    rc = mpd_shared_smartpls_save(mympd_state->config, "newest", p_charbuf1, NULL, 0, int_buf1, p_charbuf2);
+                }
+            }            
+            else if (request->cmd_id == MYMPD_API_SMARTPLS_SEARCH_SAVE) {
+                je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, expression: %Q, sort: %Q}}", &p_charbuf1, &p_charbuf2, &p_charbuf3);
+                if (je == 3) {
+                    rc = mpd_shared_smartpls_save(mympd_state->config, "search", p_charbuf1, p_charbuf2, 0, 0, p_charbuf3);
                 }
             }
             if (rc == true) {
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "playlist");
-                mpd_client_smartpls_update(p_charbuf2);
+                mpd_client_smartpls_update(p_charbuf1);
             }
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "playlist", "error", "Failed to save playlist");
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "playlist", "error", "Failed to save smart playlist");
             }
             break;
         case MYMPD_API_SMARTPLS_GET:
@@ -886,7 +889,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         }
         case MYMPD_API_DATABASE_SONGDETAILS:
-            je = json_scanf(request->data, sdslen(request->data), "{params: { uri: %Q}}", &p_charbuf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
             if (je == 1 && strlen(p_charbuf1) > 0) {
                 response->data = mpd_client_put_songdetails(mympd_state, response->data, request->method, request->id, p_charbuf1);
             }
@@ -896,7 +899,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         case MYMPD_API_DATABASE_FINGERPRINT:
             if (mympd_state->mpd_state->feat_fingerprint == true) {
-                je = json_scanf(request->data, sdslen(request->data), "{params: { uri: %Q}}", &p_charbuf1);
+                je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
                 if (je == 1 && strlen(p_charbuf1) > 0) {
                     response->data = mpd_client_put_fingerprint(mympd_state, response->data, request->method, request->id, p_charbuf1);
                 }
@@ -907,7 +910,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
 
         case MYMPD_API_PLAYLIST_RENAME:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {from: %Q, to: %Q}}", &p_charbuf1, &p_charbuf2);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, newName: %Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
                 response->data = mpd_client_playlist_rename(mympd_state, response->data, request->method, request->id, p_charbuf1, p_charbuf2);
             }
@@ -956,7 +959,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_PLAYLIST_RM_TRACK:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {plist:%Q, track:%u}}", &p_charbuf1, &uint_buf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, pos: %u}}", &p_charbuf1, &uint_buf1);
             if (je == 2) {
                 rc = mpd_run_playlist_delete(mympd_state->mpd_state->conn, p_charbuf1, uint_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_playlist_delete");
@@ -1130,7 +1133,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_DATABASE_GET_ALBUMS:
             je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u, limit: %u, expression: %Q, sort: %Q, sortdesc: %B}}", 
                 &uint_buf1, &uint_buf2, &p_charbuf1, &p_charbuf2, &bool_buf1);
-            if (je == 6) {
+            if (je == 5) {
                 response->data = mpd_client_put_firstsong_in_albums(mympd_state, response->data, request->method, request->id, 
                     p_charbuf1, p_charbuf2, bool_buf1, uint_buf1, uint_buf2);
             }
@@ -1138,7 +1141,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_DATABASE_TAG_LIST:
             je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u, limit: %u, searchstr: %Q, tag: %Q}}", 
                 &uint_buf1, &uint_buf2, &p_charbuf1, &p_charbuf2);
-            if (je == 7) {
+            if (je == 4) {
                 response->data = mpd_client_put_db_tag(mympd_state, response->data, request->method, request->id,
                     p_charbuf1, p_charbuf2, uint_buf1, uint_buf2);
             }

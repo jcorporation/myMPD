@@ -626,7 +626,9 @@ sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds met
     }
     else {
         MYMPD_LOG_DEBUG("Can not open directory \"%s\"", pic_path);
-        MYMPD_LOG_ERRNO(errno);
+        if (errno != ENOENT) {
+            MYMPD_LOG_ERRNO(errno);
+        }
         //ignore error
     }
     sdsfree(pic_path);

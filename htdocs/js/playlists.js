@@ -169,7 +169,7 @@ function updateSmartPlaylists(force) {
 //eslint-disable-next-line no-unused-vars
 function removeFromPlaylist(plist, pos) {
     pos--;
-    sendAPI("MYMPD_API_PLAYLIST_RM_TRACK", {"plist": plist, "track": pos});
+    sendAPI("MYMPD_API_PLAYLIST_RM_TRACK", {"plist": plist, "pos": pos});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
@@ -191,35 +191,17 @@ function toggleAddToPlaylistFrm() {
 
 function parseSmartPlaylist(obj) {
     const nameEl = document.getElementById('saveSmartPlaylistName');
-    nameEl.value = obj.result.playlist;
+    nameEl.value = obj.result.plist;
     removeIsInvalid(document.getElementById('modalSaveSmartPlaylist'));
     document.getElementById('saveSmartPlaylistType').value = t(obj.result.type);
     setAttEnc(document.getElementById('saveSmartPlaylistType'), 'data-value', obj.result.type);
     document.getElementById('saveSmartPlaylistSearch').classList.add('hide');
     document.getElementById('saveSmartPlaylistSticker').classList.add('hide');
     document.getElementById('saveSmartPlaylistNewest').classList.add('hide');
-    let tagList;
-    if (features.featTags) {
-        tagList = '<option value="any">' + t('Any Tag') + '</option>';
-    }
-    tagList += '<option value="filename">' + t('Filename') + '</option>';
-    for (let i = 0, j = settings.tagListSearch.length; i < j; i++) {
-        tagList += '<option value="' + settings.tagListSearch[i] + '">' + t(settings.tagListSearch[i]) + '</option>';
-    }
-    const elSelectSaveSmartPlaylistTag = document.getElementById('selectSaveSmartPlaylistTag');
-    elSelectSaveSmartPlaylistTag.innerHTML = tagList;
+    
     if (obj.result.type === 'search') {
         document.getElementById('saveSmartPlaylistSearch').classList.remove('hide');
-        document.getElementById('selectSaveSmartPlaylistTag').value = obj.result.tag;
-        document.getElementById('inputSaveSmartPlaylistSearchstr').value = obj.result.searchstr;
-        if (features.featAdvsearch === true && obj.result.tag === 'expression') {
-            elSelectSaveSmartPlaylistTag.parentNode.parentNode.classList.add('hide');
-            elSelectSaveSmartPlaylistTag.innerHTML = '<option value="expression">expression</option>';
-            elSelectSaveSmartPlaylistTag.value = 'expression';
-        }
-        else {
-            document.getElementById('selectSaveSmartPlaylistTag').parentNode.parentNode.classList.remove('hide');
-        }
+        document.getElementById('inputSaveSmartPlaylistExpression').value = obj.result.expression;
     }
     else if (obj.result.type === 'sticker') {
         document.getElementById('saveSmartPlaylistSticker').classList.remove('hide');
@@ -242,11 +224,9 @@ function saveSmartPlaylist() {
     const sort = getSelectValue('saveSmartPlaylistSort');
     if (validatePlname(name) === true) {
         if (type === 'search') {
-            sendAPI("MYMPD_API_SMARTPLS_SAVE", {
-                "type": type, 
-                "playlist": name, 
-                "tag": getSelectValue('selectSaveSmartPlaylistTag'), 
-                "searchstr": document.getElementById('inputSaveSmartPlaylistSearchstr').value,
+            sendAPI("MYMPD_API_SMARTPLS_SEARCH_SAVE", {
+                "plist": name, 
+                "expression": document.getElementById('inputSaveSmartPlaylistExpression').value,
                 "sort": sort
             });
         }
@@ -259,9 +239,8 @@ function saveSmartPlaylist() {
             if (!validateInt(minvalueEl)) {
                 return;
             }
-            sendAPI("MYMPD_API_SMARTPLS_SAVE", {
-                "type": type, 
-                "playlist": name,
+            sendAPI("MYMPD_API_SMARTPLS_STICKER_SAVE", {
+                "plist": name,
                 "sticker": getSelectValue('selectSaveSmartPlaylistSticker'),
                 "maxentries": Number(maxentriesEl.value), 
                 "minvalue": Number(minvalueEl.value),
@@ -273,9 +252,8 @@ function saveSmartPlaylist() {
             if (!validateInt(timerangeEl)) {
                 return;
             }
-            sendAPI("MYMPD_API_SMARTPLS_SAVE", {
-                "type": type,
-                "playlist": name,
+            sendAPI("MYMPD_API_SMARTPLS_NEWEST_SAVE", {
+                "plist": name,
                 "timerange": Number(timerangeEl.value) * 60 * 60 * 24,
                 "sort": sort
             });
@@ -296,19 +274,19 @@ function saveSmartPlaylist() {
 function addSmartpls(type) {
     const obj = {"jsonrpc": "2.0", "id": 0, "result": {"method": "MYMPD_API_SMARTPLS_GET"}};
     if (type === 'mostPlayed') {
-        obj.result.playlist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'mostPlayed';
+        obj.result.plist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'mostPlayed';
         obj.result.type = 'sticker';
         obj.result.sticker = 'playCount';
         obj.result.maxentries = 200;
         obj.result.minvalue = 10;
     }
     else if (type === 'newest') {
-        obj.result.playlist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'newestSongs';
+        obj.result.plist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'newestSongs';
         obj.result.type = 'newest';
         obj.result.timerange = 14 * 24 * 60 * 60;
     }
     else if (type === 'bestRated') {
-        obj.result.playlist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'bestRated';
+        obj.result.plist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'bestRated';
         obj.result.type = 'sticker';
         obj.result.sticker = 'like';
         obj.result.maxentries = 200;
@@ -426,7 +404,7 @@ function renamePlaylist() {
     const from = document.getElementById('renamePlaylistFrom').value;
     const to = document.getElementById('renamePlaylistTo').value;
     if (to !== from && validatePlname(to) === true) {
-        sendAPI("MYMPD_API_PLAYLIST_RENAME", {"from": from, "to": to});
+        sendAPI("MYMPD_API_PLAYLIST_RENAME", {"plist": from, "newName": to});
         uiElements.modalRenamePlaylist.hide();
     }
     else {
@@ -436,7 +414,7 @@ function renamePlaylist() {
 
 //eslint-disable-next-line no-unused-vars
 function showSmartPlaylist(plist) {
-    sendAPI("MYMPD_API_SMARTPLS_GET", {"playlist": plist}, parseSmartPlaylist);
+    sendAPI("MYMPD_API_SMARTPLS_GET", {"plist": plist}, parseSmartPlaylist);
 }
 
 //eslint-disable-next-line no-unused-vars

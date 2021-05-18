@@ -503,7 +503,7 @@ function populateSettingsFrm() {
     document.getElementById('inputCovercacheKeepDays').value = settings.covercacheKeepDays;
     
     //smart playlists
-    if (features.featPlaylists === true) {
+    if (settings.featSmartpls === true) {
         enableEl('btnSmartpls');
         toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
         document.getElementById('warnSmartpls').classList.add('hide');
@@ -652,8 +652,8 @@ function setFeatures() {
             (settings.featPartitions === true ? true : false) : false;
         features.featPlaylists = settings.featPlaylists;
         features.featSingleOneShot = settings.featSingleOneShot;
-        features.featSmartpls = settings.smartpls === true ?
-            (settings.featPlaylists === true ? true : false) : false;
+        features.featSmartpls = settings.featSmartpls == true ?
+            (settings.smartpls === true ? true : false) : false;
         features.featStickers = settings.featStickers;
         features.featTags = settings.featTags;
         features.featBinarylimit = settings.featBinarylimit;

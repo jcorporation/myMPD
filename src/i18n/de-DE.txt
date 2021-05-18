@@ -1180,10 +1180,13 @@ Force update
 Erzwinge Aktualisierung
 
 No search tag defined and advanced search is disabled
-Kein Such-Tag definiert und erweiterte Suche ist deaktiviert.
+Kein Such-Tag definiert und erweiterte Suche ist deaktiviert
 
 Smart playlists are disabled
 Intelligente Wiedergabelisten sind deaktiviert
+
+Too old MPD version for smart playlists
+MPD ist für Intelligente Wiedergabenlisten zu alt
 
 Smart playlists update started
 Aktualisierung der intelligenten Wiedergabelisten gestartet
@@ -1783,3 +1786,5 @@ kB
 Lists
 Listen
 
+Expression
+Suchausdruck
