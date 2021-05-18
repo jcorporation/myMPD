@@ -901,6 +901,25 @@ run_htmlhint() {
   htmlhint htdocs/index.html
 }
 
+migrate_config() {
+	#Convert smart playlists to expression search
+	for F in /var/lib/mympd/smartpls/*
+	do
+		[ -f "$F" ] || continue
+		if grep -q '"type":"search"' "$F"
+		then
+			if grep -q '"tag":"expression"' "$F"
+			then
+				continue
+			fi
+			TAG=$(cut -d\" -f8 < "$F")
+			VALUE=$(cut -d\" -f12 < "$F")
+			SORT=$(cut -d\" -f16 < "$F")
+			printf "{\"type\":\"search\",\"expression\":\"((%s == '%s'))\",\"sort\":\"%s\"}\n" "$TAG" "$VALUE" "$SORT" > "$F"
+		fi
+	done
+}
+
 case "$ACTION" in
 	release)
 	  buildrelease
@@ -999,6 +1018,9 @@ case "$ACTION" in
 	;;
 	htmlhint)
 	  run_htmlhint
+	;;
+	migrate_config)
+		migrate_config
 	;;
 	*)
 	  echo "Usage: $0 <option>"
