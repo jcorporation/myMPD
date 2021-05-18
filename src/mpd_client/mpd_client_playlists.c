@@ -94,7 +94,7 @@ bool smartpls_default(struct t_config *config) {
 void mpd_client_smartpls_update(const char *playlist) {
     t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE, "MYMPD_API_SMARTPLS_UPDATE", "");
     request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SMARTPLS_UPDATE\",\"params\":{");
-    request->data = tojson_char(request->data, "playlist", playlist, false);
+    request->data = tojson_char(request->data, "plist", playlist, false);
     request->data = sdscat(request->data, "}}");
     tiny_queue_push(mympd_api_queue, request, 0);
 }
@@ -310,7 +310,7 @@ sds mpd_client_smartpls_put(struct t_config *config, sds buffer, sds method, lon
     int je = json_scanf(content, (int)strlen(content), "{type: %Q }", &smartpltype);
     if (je == 1) {
         buffer = jsonrpc_result_start(buffer, method, request_id);
-        buffer = tojson_char(buffer, "playlist", playlist, true);
+        buffer = tojson_char(buffer, "plist", playlist, true);
         buffer = tojson_char(buffer, "type", smartpltype, true);
         bool rc = true;
         if (strcmp(smartpltype, "sticker") == 0) {
@@ -341,10 +341,9 @@ sds mpd_client_smartpls_put(struct t_config *config, sds buffer, sds method, lon
             }
         }
         else if (strcmp(smartpltype, "search") == 0) {
-            je = json_scanf(content, (int)strlen(content), "{tag: %Q, searchstr: %Q}", &p_charbuf1, &p_charbuf2);
-            if (je == 2) {
-                buffer = tojson_char(buffer, "tag", p_charbuf1, true);
-                buffer = tojson_char(buffer, "searchstr", p_charbuf2, true);
+            je = json_scanf(content, (int)strlen(content), "{expression: %Q}", &p_charbuf1);
+            if (je == 1) {
+                buffer = tojson_char(buffer, "expression", p_charbuf1, true);
             }
             else {
                 rc = false;    

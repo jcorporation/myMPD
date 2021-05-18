@@ -108,6 +108,7 @@ struct t_mpd_state {
     bool feat_mpd_neighbor;
     bool feat_mpd_partitions;
     bool feat_mpd_binarylimit;
+    bool feat_smartpls;
 };
 
 struct t_timer_definition {

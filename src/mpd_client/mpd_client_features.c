@@ -57,6 +57,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_state->feat_mpd_neighbor = false;
     mympd_state->mpd_state->feat_mpd_partitions = false;
     mympd_state->mpd_state->feat_mpd_binarylimit = false;
+    mympd_state->mpd_state->feat_smartpls = false;
     
     //get features
     mpd_client_feature_commands(mympd_state);
@@ -93,6 +94,10 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     }
     else {
         MYMPD_LOG_WARN("Disabling binarylimit support, depends on mpd >= 0.22.4");
+    }
+    
+    if (mympd_state->mpd_state->feat_advsearch == true && mympd_state->mpd_state->feat_playlists == true) {
+        mympd_state->mpd_state->feat_smartpls = true;
     }
     
     //push settings to web_server_queue

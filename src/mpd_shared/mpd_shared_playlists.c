@@ -229,7 +229,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
 }
 
 bool mpd_shared_smartpls_save(struct t_config *config, const char *smartpltype, const char *playlist, 
-                              const char *tag, const char *searchstr, const int maxentries, 
+                              const char *expression, const int maxentries, 
                               const int timerange, const char *sort)
 {
     if (validate_string_not_dir(playlist) == false) {
@@ -250,7 +250,7 @@ bool mpd_shared_smartpls_save(struct t_config *config, const char *smartpltype, 
     sds line = sdscat(sdsempty(), "{");
     line = tojson_char(line, "type", smartpltype, true);
     if (strcmp(smartpltype, "sticker") == 0) {
-        line = tojson_char(line, "sticker", tag, true);
+        line = tojson_char(line, "sticker", expression, true);
         line = tojson_long(line, "maxentries", maxentries, true);
         line = tojson_long(line, "minvalue", timerange, true);
     }
@@ -258,8 +258,7 @@ bool mpd_shared_smartpls_save(struct t_config *config, const char *smartpltype, 
         line = tojson_long(line, "timerange", timerange, true);
     }
     else if (strcmp(smartpltype, "search") == 0) {
-        line = tojson_char(line, "tag", tag, true);
-        line = tojson_char(line, "searchstr", searchstr, true);
+        line = tojson_char(line, "expression", expression, true);
     }
     line = tojson_char(line, "sort", sort, false);
     line = sdscat(line, "}");

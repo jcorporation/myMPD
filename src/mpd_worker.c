@@ -59,7 +59,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, t_work_request *request
     struct t_mpd_worker_state *mpd_worker_state = (struct t_mpd_worker_state *)malloc(sizeof(struct t_mpd_worker_state));
     assert(mpd_worker_state);
     mpd_worker_state->request = request;
-    mpd_worker_state->smartpls = mympd_state->smartpls;
+    mpd_worker_state->smartpls = mympd_state->smartpls == true ? mympd_state->mpd_state->feat_smartpls == true ? true : false : false;
     mpd_worker_state->smartpls_sort = sdsdup(mympd_state->smartpls_sort);
     mpd_worker_state->smartpls_prefix = sdsdup(mympd_state->smartpls_prefix);
     mpd_worker_state->config = mympd_state->config;
