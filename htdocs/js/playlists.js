@@ -169,7 +169,7 @@ function updateSmartPlaylists(force) {
 //eslint-disable-next-line no-unused-vars
 function removeFromPlaylist(plist, pos) {
     pos--;
-    sendAPI("MYMPD_API_PLAYLIST_RM_TRACK", {"plist": plist, "pos": pos});
+    sendAPI("MYMPD_API_PLAYLIST_RM_SONG", {"plist": plist, "pos": pos});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
@@ -382,7 +382,7 @@ function addToPlaylist() {
             addAllFromBrowseDatabasePlist(plist);
         }
         else {
-            sendAPI("MYMPD_API_PLAYLIST_ADD_TRACK", {"uri": uri, "plist": plist});
+            sendAPI("MYMPD_API_PLAYLIST_ADD_URI", {"uri": uri, "plist": plist});
         }
         uiElements.modalAddToPlaylist.hide();
     }
@@ -449,7 +449,7 @@ function showClearPlaylist() {
 }
 
 function playlistMoveTrack(from, to) {
-    sendAPI("MYMPD_API_PLAYLIST_MOVE_TRACK", {
+    sendAPI("MYMPD_API_PLAYLIST_MOVE_SONG", {
         "plist": app.current.filter,
         "from": from,
         "to": to

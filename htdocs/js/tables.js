@@ -237,7 +237,7 @@ function dragAndDropTable(table) {
         }
         document.getElementById(table).classList.add('opacity05');
         if (app.current.app === 'Queue' && app.current.tab === 'Current') {
-            sendAPI("MYMPD_API_QUEUE_MOVE_TRACK", {"from": oldSongpos, "to": newSongpos});
+            sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {"from": oldSongpos, "to": newSongpos});
         }
         else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
             playlistMoveTrack(oldSongpos, newSongpos);

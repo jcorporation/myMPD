@@ -70,6 +70,11 @@ const params = {
         "type": "text",
         "example": "shuffle",
         "desc": "blank = no sorting, shuffle = shuffle, tagname = sort by tag"
+    },
+    "songId": {
+        "type": "uint",
+        "example": 1,
+        "desc": "MPD queue song id"
     }
 };
 
@@ -228,10 +233,10 @@ const cmds = {
                 "type": "uint",
                 "example": 10,
                 "desc": "Number of songs or albums to add"
-            } 
+            },
             "mode": {
                 "type": "uint",
-                "example": 1
+                "example": 1,
                 "desc": "1 = add songs, 2 = add albums"
             }
         }
@@ -264,58 +269,54 @@ const cmds = {
             "cols": params.cols
         }
     },
-    "MYMPD_API_QUEUE_RM_TRACK": {
-        "desc": "Removes the track from the queue.",
+    "MYMPD_API_QUEUE_RM_SONG": {
+        "desc": "Removes the song from the queue.",
         "params": {
-            "trackId": {
-                "type": "uint",
-                "example": 1,
-                "desc": "MPD trackid to remove"
-            }
+            "songId": params.songId
         }
     },
     "MYMPD_API_QUEUE_RM_RANGE": {
-        "desc": "Removes a track range from the queue."
+        "desc": "Removes a range from the queue.",
         "params": {
             "start": {
                 "type": "uint",
                 "example": 0,
-                "desc": "Start track position",
+                "desc": "Start queue position",
             },
             "end": {
                 "type": "uint",
                 "example": 1,
-                "desc": "End track position"
+                "desc": "End queue position"
             }
         }
     },
-    "MYMPD_API_QUEUE_MOVE_TRACK": {
-        "desc": "Moves a track in the queue."
+    "MYMPD_API_QUEUE_MOVE_SONG": {
+        "desc": "Moves a song in the queue.",
         "params": {
-            "from": params.from
+            "from": params.from,
             "to": params.to
         }
     },
-    "MYMPD_API_QUEUE_ADD_TRACK_AFTER": {
+    "MYMPD_API_QUEUE_ADD_URI_AFTER": {
         "desc": "Adds song(s) to distinct position in queue.",
         "params": {
             "uri": params.uri,
             "to": params.to
         }
     },
-    "MYMPD_API_QUEUE_ADD_TRACK": {
+    "MYMPD_API_QUEUE_ADD_URI": {
         "desc": "Appends song(s) to the queue.",
         "params": {
             "uri": params.uri
         }
     },
-    "MYMPD_API_QUEUE_ADD_PLAY_TRACK": {
+    "MYMPD_API_QUEUE_ADD_PLAY_URI": {
         "desc": "Appends song(s) to queue queue and plays it.",
         "params": {
             "uri": params.uri
         }
     },
-    "MYMPD_API_QUEUE_REPLACE_TRACK": {
+    "MYMPD_API_QUEUE_REPLACE_URI": {
         "desc": "Replaces the queue with song(s).",
         "params": {
             "uri": params.uri
@@ -337,6 +338,12 @@ const cmds = {
         "desc": "Shuffles the queue.",
         "params": {}
     },
+    "MYMPD_API_QUEUE_PRIO_SET_HIGHEST": {
+        "desc": "Set highest prio for specified song",
+        "params": {
+            "songId": params.songId
+        }
+    },
     "MYMPD_API_QUEUE_LAST_PLAYED": {
         "desc": "Lists the last played songs.",
         "params": {
@@ -346,13 +353,13 @@ const cmds = {
         }
     },
     "MYMPD_API_PLAYLIST_RM": {
-        "desc": "Removes the MPD playlist."
+        "desc": "Removes the MPD playlist.",
         "params": {
             "plist": params.plist
         }
     },
     "MYMPD_API_PLAYLIST_CLEAR": {
-        "desc": "Clears the MPD playlist."
+        "desc": "Clears the MPD playlist.",
         "params": {
             "plist": params.plist
         }
@@ -372,7 +379,7 @@ const cmds = {
             }
         }
     },
-    "MYMPD_API_PLAYLIST_MOVE_TRACK": {
+    "MYMPD_API_PLAYLIST_MOVE_SONG": {
         "desc": "Moves a song in the playlist.",
         "params": {
             "plist": params.plist,
@@ -380,14 +387,14 @@ const cmds = {
             "to": params.to
         }
     },
-    "MYMPD_API_PLAYLIST_ADD_TRACK": {
+    "MYMPD_API_PLAYLIST_ADD_URI": {
         "desc": "Appens a song to the playlist",
         "params": {
             "plist": params.plist,
             "uri": params.uri
         }
     },
-    "MYMPD_API_PLAYLIST_RM_TRACK": {
+    "MYMPD_API_PLAYLIST_RM_SONG": {
         "desc": "Removes a song from the playlist.",
         "params": {
             "plist": params.plist,
@@ -460,7 +467,7 @@ const cmds = {
         }
     },
     "MYMPD_API_SMARTPLS_NEWEST_SAVE": {
-        "desc": "Saves a smart playlist of type newest songs",
+        "desc": "Saves a smart playlist of type newest songs.",
         "params": {
             "plist": params.plist,
             "timerange": {
@@ -472,12 +479,12 @@ const cmds = {
         }
     },
     "MYMPD_API_SMARTPLS_STICKER_SAVE": {
-        "desc": "Saves a sticker search as a smart playlist",
+        "desc": "Saves a sticker search as a smart playlist.",
         "params": {
             "plist": params.plist,
             "sticker": {
                 "type": "text",
-                "example": "like"
+                "example": "like",
                 "desc":"Sticker name"
             },
             "maxentries": {
@@ -494,7 +501,7 @@ const cmds = {
         }
     },
     "MYMPD_API_SMARTPLS_SEARCH_SAVE": {
-        "desc": "Saves a search expression as a smart playlist",
+        "desc": "Saves a search expression as a smart playlist.",
         "params": {
             "plist": params.plist,
             "expression": params.expression,
@@ -507,22 +514,103 @@ const cmds = {
             "plist": params.plist
         }
     },
-    {"MYMPD_API_PLAYER_PLAY_TRACK","params":{"track":0}},
-    {"MYMPD_API_PLAYER_VOLUME_SET","params":{"volume":0}},
-    {"MYMPD_API_PLAYER_VOLUME_GET"},
-    {"MYMPD_API_PLAYER_PAUSE"},
-    {"MYMPD_API_PLAYER_PLAY"},
-    {"MYMPD_API_PLAYER_STOP"},
-    {"MYMPD_API_PLAYER_SEEK_CURRENT","params":{"seek":0,"relative":false}},
-    {"MYMPD_API_PLAYER_SEEK","params":{"songid":0,"seek":0}},
-    {"MYMPD_API_PLAYER_NEXT"},
-    {"MYMPD_API_PLAYER_PREV"},
-    {"MYMPD_API_PLAYER_OUTPUT_LIST"},
-    {"MYMPD_API_PLAYER_TOGGLE_OUTPUT","params":{"output":0,"state":0}},
-    {"MYMPD_API_PLAYER_CURRENT_SONG"},
-    {"MYMPD_API_PLAYER_STATE"},
-    {"MYMPD_API_LIKE","params":{"uri":"","like":0}},
-    {"MYMPD_API_SETTINGS_GET"},
+    "MYMPD_API_PLAYER_PLAY_SONG": {
+        "desc": "Starts playing the specified song.",
+        "params": {
+            "songId": params.songId
+        }
+    },
+    "MYMPD_API_PLAYER_VOLUME_SET": {
+        "desc": "Sets the volume.", 
+        "params": {
+            "volume": {
+                "type": "uint",
+                "example": 50,
+                "desc": "volume percent"
+            }
+        }
+    },
+    "MYMPD_API_PLAYER_VOLUME_GET": {
+        "desc": "Gets the volume.",
+        "params": {}
+    },
+    "MYMPD_API_PLAYER_PAUSE": {
+        "desc": "Pauses the current playing song.",
+        "params": {}
+    },
+    "MYMPD_API_PLAYER_RESUME": {
+        "desc": "Resumes the current paused song.",
+        "params": {}
+    },
+    "MYMPD_API_PLAYER_PLAY": {
+        "desc": "Starts playing.",
+        "params": {}
+    },
+    "MYMPD_API_PLAYER_STOP": {
+        "desc": "Stops playing.",
+        "params": {}
+    },
+    "MYMPD_API_PLAYER_SEEK_CURRENT": {
+        "desc": "Seeks the current playing song.",
+        "params": {
+            "seek": {
+                "type": "int",
+                "example": 5,
+                "desc": "seconds to seek"
+            },
+            "relative": {
+                "type": "bool",
+                "example": "true",
+                "desc": "true = relative seek, false = goto seek seconds in song"
+            }
+        }
+    },
+    "MYMPD_API_PLAYER_NEXT": {
+        "desc": "Goto next song in queue.",
+        "params": {}
+    },
+    "MYMPD_API_PLAYER_PREV": {
+        "desc": "Goto previous song in queue.",
+        "params": {}
+    },
+    "MYMPD_API_PLAYER_OUTPUT_LIST": {
+        "desc": "Lists the MPD outputs.",
+        "params": {}
+    },
+    "MYMPD_API_PLAYER_TOGGLE_OUTPUT": {
+        "desc": "Toggles the output state.",
+        "params": {
+            "outputId": {
+                "type": "uint",
+                "example": 0,
+                "desc": "MPD output id"
+            },
+            "state": {
+                "type": "uint",
+                "example": 0,
+                "desc": "0 = disable, 1 = enable"
+            }
+        }
+    },
+    "MYMPD_API_PLAYER_CURRENT_SONG": {
+        "desc": "Shows details of current playing song.",
+        "params": {}
+    },
+    "MYMPD_API_PLAYER_STATE": {
+        "desc": "Shows the mpd player state.",
+        "params": {}
+    },
+    "MYMPD_API_LIKE": {
+        "desc": "",
+        "params": {
+            "uri": params.uri,
+            "like": {
+                "type": "uint",
+                "example": 1,
+                "desc": "0 = dislike, 1 = neutral, 2 = like"
+            }
+        }
+    },
     {"MYMPD_API_MOUNT_LIST"},
     {"MYMPD_API_MOUNT_NEIGHBOR_LIST"},
     {"MYMPD_API_MOUNT_MOUNT","params":{"mountUrl":"", "mountPoint":""}},
@@ -562,6 +650,5 @@ const cmds = {
     {"MYMPD_API_PICTURE_LIST","params":{}},
     {"MYMPD_API_JUKEBOX_LIST","params":{"offset":"0","limit":100,"cols":["Pos","Title","Artist","Album"]}},
     {"MYMPD_API_JUKEBOX_RM","params":{"pos":0}},
-    {"MYMPD_API_LYRICS_GET","params":{"uri":""}},
-    {"MYMPD_API_QUEUE_PRIO_SET_HIGHEST","params":{"trackid":0}}
+    {"MYMPD_API_LYRICS_GET","params":{"uri":""}}
 };

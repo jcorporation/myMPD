@@ -727,8 +727,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_PLAYER_PAUSE:
-            rc = mpd_run_toggle_pause(mympd_state->mpd_state->conn);
-            response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_toggle_pause");
+            rc = mpd_run_pause(mympd_state->mpd_state->conn, true);
+            response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_pause");
+            break;
+        case MYMPD_API_PLAYER_RESUME:
+            rc = mpd_run_pause(mympd_state->mpd_state->conn, false);
+            response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_pause");
             break;
         case MYMPD_API_PLAYER_PREV:
             rc = mpd_run_previous(mympd_state->mpd_state->conn);
@@ -756,8 +760,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_QUEUE_CROP_OR_CLEAR:
             response->data = mpd_client_crop_queue(mympd_state, response->data, request->method, request->id, true);
             break;
-        case MYMPD_API_QUEUE_RM_TRACK:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {trackId:%u}}", &uint_buf1);
+        case MYMPD_API_QUEUE_RM_SONG:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {songId:%u}}", &uint_buf1);
             if (je == 1) {
                 rc = mpd_run_delete_id(mympd_state->mpd_state->conn, uint_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_delete_id");
@@ -770,7 +774,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_delete_range");
             }
             break;
-        case MYMPD_API_QUEUE_MOVE_TRACK:
+        case MYMPD_API_QUEUE_MOVE_SONG:
             je = json_scanf(request->data, sdslen(request->data), "{params: {from: %u, to: %u}}", &uint_buf1, &uint_buf2);
             if (je == 2) {
                 uint_buf1--;
@@ -794,7 +798,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 }
             }
             break;
-        case MYMPD_API_PLAYLIST_MOVE_TRACK:
+        case MYMPD_API_PLAYLIST_MOVE_SONG:
             je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, from: %u, to: %u }}", &p_charbuf1, &uint_buf1, &uint_buf2);
             if (je == 3) {
                 uint_buf1--;
@@ -806,8 +810,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_playlist_move");
             }
             break;
-        case MYMPD_API_PLAYER_PLAY_TRACK:
-            je = json_scanf(request->data, sdslen(request->data), "{params: { track:%u}}", &uint_buf1);
+        case MYMPD_API_PLAYER_PLAY_SONG:
+            je = json_scanf(request->data, sdslen(request->data), "{params: { songId: %u}}", &uint_buf1);
             if (je == 1) {
                 rc = mpd_run_play_id(mympd_state->mpd_state->conn, uint_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_play_id");
@@ -823,7 +827,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_PLAYER_TOGGLE_OUTPUT:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {output: %u, state: %u}}", &uint_buf1, &uint_buf2);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {outputId: %u, state: %u}}", &uint_buf1, &uint_buf2);
             if (je == 2) {
                 if (uint_buf2 == 1) {
                     rc = mpd_run_enable_output(mympd_state->mpd_state->conn, uint_buf1);
@@ -836,7 +840,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_PLAYER_VOLUME_SET:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {volume:%u}}", &uint_buf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {volume: %u}}", &uint_buf1);
             if (je == 1) {
                 if (uint_buf1 > mympd_state->volume_max || uint_buf1 < mympd_state->volume_min) {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "player", "error", "Invalid volume level");
@@ -850,13 +854,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_PLAYER_VOLUME_GET:
             response->data = mpd_client_put_volume(mympd_state, response->data, request->method, request->id);
             break;            
-        case MYMPD_API_PLAYER_SEEK:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {songid: %u, seek: %u}}", &uint_buf1, &uint_buf2);
-            if (je == 2) {
-                rc = mpd_run_seek_id(mympd_state->mpd_state->conn, uint_buf1, uint_buf2);
-                response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_seek_id");
-            }
-            break;
         case MYMPD_API_PLAYER_SEEK_CURRENT:
             je = json_scanf(request->data, sdslen(request->data), "{params: {seek: %f, relative: %B}}", &float_buf, &bool_buf1);
             if (je == 2) {
@@ -932,7 +929,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             free(tagcols);
             break;
         }
-        case MYMPD_API_PLAYLIST_ADD_TRACK:
+        case MYMPD_API_PLAYLIST_ADD_URI:
             je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, uri: %Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
                 rc = mpd_run_playlist_add(mympd_state->mpd_state->conn, p_charbuf1, p_charbuf2);
@@ -958,7 +955,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 response->data = mpd_client_playlist_delete_all(mympd_state, response->data, request->method, request->id, p_charbuf1);
             }
             break;
-        case MYMPD_API_PLAYLIST_RM_TRACK:
+        case MYMPD_API_PLAYLIST_RM_SONG:
             je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, pos: %u}}", &p_charbuf1, &uint_buf1);
             if (je == 2) {
                 rc = mpd_run_playlist_delete(mympd_state->mpd_state->conn, p_charbuf1, uint_buf1);
@@ -988,28 +985,28 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             free(tagcols);
             break;
         }
-        case MYMPD_API_QUEUE_ADD_TRACK_AFTER:
+        case MYMPD_API_QUEUE_ADD_URI_AFTER:
             je = json_scanf(request->data, sdslen(request->data), "{params: {uri:%Q, to:%d}}", &p_charbuf1, &int_buf1);
             if (je == 2) {
                 rc = mpd_run_add_id_to(mympd_state->mpd_state->conn, p_charbuf1, int_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_add_id_to");
             }
             break;
-        case MYMPD_API_QUEUE_REPLACE_TRACK:
+        case MYMPD_API_QUEUE_REPLACE_URI:
             je = json_scanf(request->data, sdslen(request->data), "{params: {uri:%Q }}", &p_charbuf1);
             if (je == 1 && strlen(p_charbuf1) > 0) {
                 rc = mpd_client_queue_replace_with_song(mympd_state, p_charbuf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_client_queue_replace_with_song");
             }
             break;
-        case MYMPD_API_QUEUE_ADD_TRACK:
+        case MYMPD_API_QUEUE_ADD_URI:
             je = json_scanf(request->data, sdslen(request->data), "{params: {uri:%Q}}", &p_charbuf1);
             if (je == 1 && strlen(p_charbuf1) > 0) {
                 rc = mpd_run_add(mympd_state->mpd_state->conn, p_charbuf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_add");
             }
             break;
-        case MYMPD_API_QUEUE_ADD_PLAY_TRACK:
+        case MYMPD_API_QUEUE_ADD_PLAY_URI:
             je = json_scanf(request->data, sdslen(request->data), "{params: {uri:%Q}}", &p_charbuf1);
             if (je == 1) {
                 int_buf1 = mpd_run_add_id(mympd_state->mpd_state->conn, p_charbuf1);

@@ -39,7 +39,7 @@ function setViewport(store) {
 function addStream() {
     const streamUriEl = document.getElementById('streamUrl');
     if (validateStream(streamUriEl) === true) {
-        sendAPI("MYMPD_API_QUEUE_ADD_TRACK", {"uri": streamUriEl.value});
+        sendAPI("MYMPD_API_QUEUE_ADD_URI", {"uri": streamUriEl.value});
         uiElements.modalAddToPlaylist.hide();
         showNotification(t('Added stream %{streamUri} to queue', {"streamUri": streamUriEl.value}), '', 'queue', 'info');
     }
@@ -54,19 +54,24 @@ function seekRelativeBackward() {
 }
 
 function seekRelative(offset) {
-    sendAPI("MYMPD_API_SEEK_CURRENT", {"seek": offset, "relative": true});
+    sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {"seek": offset, "relative": true});
 }
 
 //eslint-disable-next-line no-unused-vars
 function clickPlay() {
-    if (playstate !== 'play') {
+    if (playstate === 'stop') {
         sendAPI("MYMPD_API_PLAYER_PLAY", {});
     }
-    else if (settings.advanced.uiFooterPlaybackControls === 'stop') {
-        sendAPI("MYMPD_API_PLAYER_STOP", {});
+    else if (playstate === 'play') {
+        if (settings.advanced.uiFooterPlaybackControls === 'stop') {
+            sendAPI("MYMPD_API_PLAYER_STOP", {});
+        }
+        else {
+            sendAPI("MYMPD_API_PLAYER_PAUSE", {});
+        }
     }
-    else {
-        sendAPI("MYMPD_API_PLAYER_PAUSE", {});
+    else if (playstate === 'pause') {
+        sendAPI("MYMPD_API_PLAYER_RESUME", {});
     }
 }
 

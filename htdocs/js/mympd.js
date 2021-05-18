@@ -657,7 +657,7 @@ function initNavs() {
     domCache.progress.addEventListener('click', function(event) {
         if (currentSong && currentSong.currentSongId >= 0 && currentSong.totalTime > 0) {
             const seekVal = Math.ceil((currentSong.totalTime * event.clientX) / domCache.progress.offsetWidth);
-            sendAPI("MYMPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": seekVal});
+            sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {"seek": seekVal, "relative": false});
             domCache.progressBar.style.transition = 'none';
             domCache.progressBar.offsetHeight;
             domCache.progressBar.style.width = event.clientX + 'px';
@@ -708,7 +708,7 @@ function initNavs() {
             const target = event.target.nodeName === 'BUTTON' ? event.target : event.target.parentNode;
             event.stopPropagation();
             event.preventDefault();
-            sendAPI("MYMPD_API_PLAYER_TOGGLE_OUTPUT", {"output": getAttDec(target, 'data-output-id'), "state": (target.classList.contains('active') ? 0 : 1)});
+            sendAPI("MYMPD_API_PLAYER_TOGGLE_OUTPUT", {"outputId": getAttDec(target, 'data-output-id'), "state": (target.classList.contains('active') ? 0 : 1)});
             toggleBtn(target.id);
         }
     }, false);

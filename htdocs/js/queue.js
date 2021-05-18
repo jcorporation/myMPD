@@ -214,7 +214,7 @@ function appendQueue(type, uri, name) {
     switch(type) {
         case 'song':
         case 'dir':
-            sendAPI("MYMPD_API_QUEUE_ADD_TRACK", {"uri": uri});
+            sendAPI("MYMPD_API_QUEUE_ADD_URI", {"uri": uri});
             showNotification(t('%{name} added to queue', {"name": name}), '', 'queue', 'info');
             break;
         case 'plist':
@@ -228,7 +228,7 @@ function appendQueue(type, uri, name) {
 function appendAfterQueue(type, uri, to, name) {
     switch(type) {
         case 'song':
-            sendAPI("MYMPD_API_QUEUE_ADD_TRACK_AFTER", {"uri": uri, "to": to});
+            sendAPI("MYMPD_API_QUEUE_ADD_URI_AFTER", {"uri": uri, "to": to});
             to++;
             showNotification(t('%{name} added to queue position %{to}', {"name": name, "to": to}), '', 'queue', 'info');
             break;
@@ -239,7 +239,7 @@ function replaceQueue(type, uri, name) {
     switch(type) {
         case 'song':
         case 'dir':
-            sendAPI("MYMPD_API_QUEUE_REPLACE_TRACK", {"uri": uri});
+            sendAPI("MYMPD_API_QUEUE_REPLACE_URI", {"uri": uri});
             showNotification(t('Queue replaced with %{name}', {"name": name}), '', 'queue', 'info');
             break;
         case 'plist':
@@ -283,7 +283,7 @@ function delQueueSong(mode, start, end) {
         sendAPI("MYMPD_API_QUEUE_RM_RANGE", {"start": start, "end": end});
     }
     else if (mode === 'single') {
-        sendAPI("MYMPD_API_QUEUE_RM_TRACK", { "trackId": start});
+        sendAPI("MYMPD_API_QUEUE_RM_SONG", { "songId": start});
     }
 }
 
@@ -299,7 +299,7 @@ function gotoPlayingSong() {
 function playAfterCurrent(trackid, songpos) {
     if (settings.random === 0) {
         //not in random mode - move song after current playling song
-        sendAPI("MYMPD_API_QUEUE_MOVE_TRACK", {
+        sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
             "from": songpos,
             "to": lastState.songPos !== undefined ? lastState.songPos + 2 : 0
         });

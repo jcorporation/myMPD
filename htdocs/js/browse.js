@@ -355,11 +355,11 @@ function parseFilesystem(obj) {
 //eslint-disable-next-line no-unused-vars
 function addAllFromBrowseFilesystem(replace) {
     if (replace === true) {
-        sendAPI("MYMPD_API_QUEUE_REPLACE_TRACK", {"uri": app.current.search});
+        sendAPI("MYMPD_API_QUEUE_REPLACE_URI", {"uri": app.current.search});
         showNotification(t('Replaced queue'), '', 'queue', 'info');
     }
     else {
-        sendAPI("MYMPD_API_QUEUE_ADD_TRACK", {"uri": app.current.search});
+        sendAPI("MYMPD_API_QUEUE_ADD_URI", {"uri": app.current.search});
         showNotification(t('Added all songs'), '', 'queue', 'info');
     }
 }

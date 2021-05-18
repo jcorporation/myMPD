@@ -90,10 +90,10 @@ function clickSong(uri, name) {
     }
 }
 
-function clickQueueSong(trackid, uri) {
+function clickQueueSong(songid, uri) {
     switch (settings.advanced.clickQueueSong) {
         case 'play':
-            sendAPI("MYMPD_API_PLAYER_PLAY_TRACK", {"track": trackid});
+            sendAPI("MYMPD_API_PLAYER_PLAY_SONG", {"songId": songid});
             break;
         case 'view': return songDetails(uri);
     }

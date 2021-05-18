@@ -259,7 +259,7 @@ function getLyrics(uri, el) {
                     textEls[i].addEventListener('click', function(event) {
                         const sec = event.target.getAttribute('data-sec');
                         if (sec !== null) {
-                            sendAPI("MYMPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": Number(sec)});
+                            sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {"seek": Number(sec), "relative": false});
                         }
                     }, false); 
                 }
