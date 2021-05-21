@@ -324,9 +324,6 @@ Intelligente Wiedergabeliste sichern
 Name
 Name
 
-Tag
-Tag
-
 Tags
 Tags
 
@@ -468,14 +465,14 @@ Intelligente Wiedergabelisten konnten nicht aktualisiert werden
 Smart playlist %{playlist} updated
 Intelligente Wiedergabeliste %{playlist} aktualisiert
 
+Smart playlists are not supported
+Intelligente Wiedergabelisten sind nicht unterstützt
+
 Updating smart playlist %{playlist} failed
 Intelligente Wiedergabeliste %{playlist} konnte nicht aktualisiert werden
 
 Smart playlist
 Intelligente Wiedergabeliste
-
-Playlists are disabled
-Wiedergabelisten sind deaktiviert
 
 Clear app cache and reload
 Browser Cache löschen und neu laden
@@ -738,8 +735,8 @@ Neue Wiedergabeliste
 never
 noch nie
 
-Failed to save playlist
-Wiedergabeliste konnte nicht gespeichert werden
+Failed to save smart playlist
+Intelligente Wiedergabeliste konnte nicht gespeichert werden
 
 Added %{uri} to playlist %{playlist}
 %{uri} zu Wiedergabeliste %{playlist} hinzugefügt
@@ -1463,9 +1460,6 @@ Filter
 
 Sort
 Sortieren
-
-Tag
-Tag
 
 Columns
 Spalten
