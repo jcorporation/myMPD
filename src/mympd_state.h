@@ -207,7 +207,7 @@ struct t_mympd_state {
     sds lyrics_vorbis_sylt;
     int covercache_keep_days;
     //settings only for webui
-    sds advanced;
+    sds webui_settings;
 };
 
 #endif

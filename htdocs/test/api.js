@@ -601,7 +601,7 @@ const cmds = {
         "params": {}
     },
     "MYMPD_API_LIKE": {
-        "desc": "",
+        "desc": "Sets the like status of a song.",
         "params": {
             "uri": params.uri,
             "like": {
@@ -611,14 +611,248 @@ const cmds = {
             }
         }
     },
-    {"MYMPD_API_MOUNT_LIST"},
-    {"MYMPD_API_MOUNT_NEIGHBOR_LIST"},
-    {"MYMPD_API_MOUNT_MOUNT","params":{"mountUrl":"", "mountPoint":""}},
-    {"MYMPD_API_MOUNT_UNMOUNT","params":{"mountPoint":""}},
-    {"MYMPD_API_URLHANDLERS"},
-    {"MYMPD_API_CONNECTION_SAVE","params":{"mpdHost":"/run/mpd/socket","mpdPort":6000,"musicDirectory":"auto","playlistDirectory":"/var/lib/mpd/playlists", "mpdStreamPort":8000, "mpdBinarylimit":8192, "mpdTimeout":10000}},
-    {"MYMPD_API_SETTINGS_GET"},
-    {"MYMPD_API_SETTINGS_SET","params":{"coverimageNames":"folder,cover","lastPlayedCount":"200","smartpls":true,"smartplsPrefix":"myMPDsmart","smartplsInterval":14400,"smartplsSort":"","taglist":"Artist,Album,AlbumArtist,Title,Track,Genre,Date","searchtaglist":"Album,AlbumArtist,Artist,Genre,Title","browsetaglist":"Album,AlbumArtist,Artist,Genre","generatePlsTags":"Genre","bookletName":"booklet.pdf"}},
+    "MYMPD_API_MOUNT_LIST": {
+        "desc": "Lists the MPD monts.",
+        "params": {}
+    },
+    "MYMPD_API_MOUNT_NEIGHBOR_LIST": {
+        "desc": "Lists the neighbors.",
+        "params": {}
+    },
+    "MYMPD_API_MOUNT_MOUNT": {
+        "desc": "Mounts a network path.",
+        "params": {
+            "mountUrl": {
+                "type": "text",
+                "example": "nfs://192.168.1.1/music",
+                "desc": "URL to mount."
+            }, 
+            "mountPoint": {
+                "type": "text",
+                "example": "nas",
+                "desc": "Path to mount the URL"
+            }
+        }
+    },
+    "MYMPD_API_MOUNT_UNMOUNT": {
+        "desc": "Unmounts a mounted network path.",
+        "params": {
+            "mountPoint": {
+                "type": "text",
+                "example": "nas",
+                "desc": "Path to unmount"
+            }
+        }
+    },
+    "MYMPD_API_URLHANDLERS": {
+        "desc": "Lists all known url handlers of MPD.",
+        "params": {}
+    },
+    "MYMPD_API_CONNECTION_SAVE": {
+        "desc": "Saves the MPD connection parameters.",
+        "params": {
+            "mpdHost": {
+                "type": "text",
+                "example": "/run/mpd/socket",
+                "desc": "MPD host or socket"
+            },
+            "mpdPort": {
+                "type": "uint",
+                "example": "6000",
+                "desc": "MPD port to use"
+            },
+            "musicDirectory": {
+                "type": "text"
+                "example": "auto",
+                "desc": "\"auto\" = autodetect (needs socket connection), " +
+                        "\"none\" = no music directory, " +
+                        "or absolute path of music directory"
+            },
+            "playlistDirectory": {
+                "type": "text",
+                "example": "/var/lib/mpd/playlists",
+                "desc": "absolut path of playlist directory"
+            },
+            "mpdStreamPort": {
+                "type": "uint",
+                "example": 8000,
+                "desc": "port of mpd http stream for local playback"
+            },
+            "mpdBinarylimit": {
+                "type": "uint",
+                "example": 8192,
+                "desc": "chunk size in bytes for binary data"
+            },
+            "mpdTimeout": {
+                "type": "uint",
+                "example": 10000,
+                "desc": "MPD timeout in ms"
+            }
+        }
+    },
+    "MYMPD_API_SETTINGS_GET": {
+        "desc": "Gets all myMPD and MPD settings.",
+        "params": {}
+    },
+    "MYMPD_API_SETTINGS_SET": {
+        "desc": "Sets myMPD settings."
+        "params": {
+            "coverimageNames": {
+                "type": "text",
+                "example": "folder,cover",
+                "desc": "Comma separated list of coverimages, basenames or full names"
+            },
+            "lastPlayedCount": {
+                "type": "uint",
+                "example": 200,
+                "desc": "Length of the last played list"
+            },
+            "smartpls": {
+                "type": "bool",
+                "example": true,
+                "desc": "Enabled the smart playlists feature"
+            },
+            "smartplsPrefix": {
+                "type": "text",
+                "example": "myMPDsmart",
+                "desc": "Prefix for generated smart playlists"
+            },
+            "smartplsInterval": {
+                "type": "uint",
+                "example": 14400,
+                "desc": "Interval for smart playlists generation in seconds"
+            },
+            "smartplsSort": {
+                "type": "text",
+                "example": "",
+                "desc": "Sort settings for generated smart playlists, blank = no sort, \"shuffle\" or tag name" 
+            },
+            "smartplsGenerateTagList": {
+                "type": "text",
+                "example": "Genre",
+                "desc": "Generates smart playlists per value of selected taglist"
+            },
+            "tagList": {
+                "type": "text"
+                "example": "Artist,Album,AlbumArtist,Title,Track,Genre,Disc",
+                "desc": "Comma separated list of MPD tags to use"
+            },
+            "tagListSearch": {
+                "type": "text",
+                "example": "Artist,Album,AlbumArtist,Title,Genre",
+                "desc": "Comma separated list of MPD tags for search"
+            },
+            "tagListBrowse": {
+                "type": "text",
+                "example": "Artist,Album,AlbumArtist,Genre",
+                "desc": "Comma separated list of MPD tags to browse"
+            },
+            "bookletName": {
+                "type": "text",
+                "example": "booklet.pdf",
+                "desc": "Name of booklet files"
+            },
+            "volumeMin": {
+                "type": "uint",
+                "example": 10,
+                "desc": "Minimum volume"
+            },
+            "volumeMax": {
+                "type": "uint",
+                "example": 90,
+                "desc": "Maximum volume"
+            },
+            "volumeStep": {
+                "type": "uint",
+                "example": 5,
+                "desc": "Step for volume changes"
+            },
+            "lyricsUsltExt": {
+                "type": "text",
+                "example": "txt",
+                "desc": "File extension for unsynced lyrics"
+            },
+            "lyricsSyltExt": {
+                "type": "text",
+                "example": "lrc",
+                "desc": "File extension for synced lyrics"
+            },
+            "lyricsVorbisUslt": {
+                "type": "text",
+                "example": "LYRICS",
+                "desc": "Vorbis tag for unsynced lyrics"
+            },
+            "lyricsVorbisSylt": {
+                "type": "text",
+                "example": "SYNCEDLYRICS",
+                "desc": "Vorbis tag for synced lyrics"
+            },
+            "covercacheKeepDays": {
+                "type": "uint",
+                "example": 7,
+                "desc": "Days before deleting cover cache files"
+            },
+            "webuiSettings": {
+                "type": "object",
+                "params": {
+                    "clickSong": {
+                        "type": "text", 
+                        "example": "append",
+                        "desc": "Action on click on song: append, replace, view"
+                    },
+                    "clickQueueSong": {
+                        "type": "text",
+                        "example": "play",
+                        "desc": "Action on click on song in queue: play, view"
+                    },
+                    "clickPlaylist": {
+                        "type": "text",
+                        "example": "view",
+                        "desc": "Action on click on playlist: append, replace, view"
+                    },
+                    "clickFolder": {
+                        "type": "text",
+                        "example": "view",
+                        "desc": "Action on click on folder: append, replace, view"
+                    },
+                    "clickAlbumPlay": {
+                        "type": "text",
+                        "example": "replace",
+                        "desc": "Action on click on album: append, replace"
+                    },
+                    "notificationPlayer":false,
+                    "notificationQueue":true,
+                    "notificationGeneral":true,
+                    "notificationDatabase":true,
+                    "notificationPlaylist":true,
+                    "notificationScript":true,
+                    "notifyPage":true,
+                    "notifyWeb":false,
+                    "mediaSession":true,
+                    "uiFooterQueueSettings":true,
+                    "uiFooterPlaybackControls":"both",
+                    "uiMaxElementsPerPage":50,
+                    "enableHome":true,
+                    "enableScripting":true,
+                    "enableTrigger":true,
+                    "enableTimer":true,
+                    "enableMounts":true,
+                    "enableLocalPlayback":false,
+                    "enablePartitions":false,
+                    "uiTheme":"theme-dark",
+                    "uiHighlightColor":"#28a745",
+                    "uiCoverimageSize":250,
+                    "uiCoverimageSizeSmall":175,
+                    "uiBgColor":"#000000",
+                    "uiBgImage":"",
+                    "uiBgCover":true,
+                    "uiBgCssFilter":"grayscale(100%) opacity(10%)",
+                    "uiLocale":"de-DE",
+                    "enableLyrics":true
+                }
+            }
+        }
+    },
     {"MYMPD_API_PLAYER_OPTIONS_SET","params":{"consume":1,"random":0,"single":0,"repeat":0,"replaygain":"off","crossfade":"0","jukeboxMode":1,"jukeboxPlaylist":"Database","jukeboxQueueLength":1,"jukeboxLastPlayed":24,"jukeboxUniqueTag":"Album","autoPlay":false}},
     {"MYMPD_API_COLS_SAVE","params":{"table":"","cols":["Artist","Album","Title"]}},
     {"MYMPD_API_TIMER_SAVE","params":{"timerid":0,"interval":0,"name":"","enabled":false,"startHour":0,"startMinute":0,"action":"","subaction":"","volume":0,"playlist":"","jukeboxMode":0,"weekdays":[false,false,false,false,false,false,false],"arguments":{"arg1":""}}},

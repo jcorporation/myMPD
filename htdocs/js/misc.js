@@ -63,7 +63,7 @@ function clickPlay() {
         sendAPI("MYMPD_API_PLAYER_PLAY", {});
     }
     else if (playstate === 'play') {
-        if (settings.advanced.uiFooterPlaybackControls === 'stop') {
+        if (settings.webuiSettings.uiFooterPlaybackControls === 'stop') {
             sendAPI("MYMPD_API_PLAYER_STOP", {});
         }
         else {

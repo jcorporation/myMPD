@@ -137,7 +137,7 @@ function parseSongDetails(obj) {
     
     document.getElementById('tbodySongDetails').innerHTML = songDetailsHTML;
     
-    if (settings.advanced.uiLyrics === true) {
+    if (settings.webuiSettings.uiLyrics === true) {
         getLyrics(obj.result.uri, document.getElementById('lyricsText'));
     }
 

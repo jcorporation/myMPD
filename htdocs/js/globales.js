@@ -228,7 +228,7 @@ const settingFields = {
 };
 
 //advanced settings default values
-const advancedSettingsDefault = {
+const webuiSettingsDefault = {
     "clickSong": { 
         "defaultValue": "append", 
         "validValues": { 

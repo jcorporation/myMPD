@@ -58,7 +58,9 @@ function initBrowse() {
                 const oldElsLen = oldEls.length;
                 if (oldElsLen > 1) {
                     for (let i = 0; i < oldElsLen; i++) {
-                        oldEls[i].remove();
+                        if (oldEls[i] !== undefined) {
+                            oldEls[i].remove();
+                        }
                     }
                 }
                 addPlayButton(event.target);
@@ -334,9 +336,9 @@ function parseFilesystem(obj) {
         imageList.appendChild(img);
     }
 
-    const rowTitleSong = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
-    const rowTitleFolder = advancedSettingsDefault.clickFolder.validValues[settings.advanced.clickFolder];
-    const rowTitlePlaylist = advancedSettingsDefault.clickPlaylist.validValues[settings.advanced.clickPlaylist];
+    const rowTitleSong = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
+    const rowTitleFolder = webuiSettingsDefault.clickFolder.validValues[settings.webuiSettings.clickFolder];
+    const rowTitlePlaylist = webuiSettingsDefault.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
     
     updateTable(obj, 'BrowseFilesystem', function(row, data) {
         setAttEnc(row, 'data-type', data.Type);
@@ -472,7 +474,7 @@ function addPlayButton(parentEl) {
     const div = document.createElement('div');
     div.classList.add('align-self-end', 'album-grid-mouseover', 'mi', 'rounded-circle', 'clickable');
     div.innerText = 'play_arrow';
-    div.title = t(advancedSettingsDefault.clickAlbumPlay.validValues[settings.advanced.clickAlbumPlay]);
+    div.title = t(webuiSettingsDefault.clickAlbumPlay.validValues[settings.webuiSettings.clickAlbumPlay]);
     parentEl.appendChild(div);
     div.addEventListener('click', function(event) {
         event.preventDefault();
@@ -494,7 +496,7 @@ function parseAlbumDetails(obj) {
             e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>') +
         '</p>';
 
-    const rowTitle = t(advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong]);
+    const rowTitle = t(webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong]);
     updateTable(obj, 'BrowseDatabaseDetail', function(row, data) {
         setAttEnc(row, 'data-type', 'song');
         setAttEnc(row, 'data-name', data.Title);

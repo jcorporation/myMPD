@@ -67,7 +67,7 @@ function initPlaylists() {
 }
 
 function parsePlaylistsList(obj) {
-    const rowTitle = advancedSettingsDefault.clickPlaylist.validValues[settings.advanced.clickPlaylist];
+    const rowTitle = webuiSettingsDefault.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
     updateTable(obj, app.current.app + app.current.tab + app.current.view, function(row, data) {
         setAttEnc(row, 'data-uri', data.uri);
         setAttEnc(row, 'data-type', data.Type);
@@ -95,7 +95,7 @@ function parsePlaylistsDetail(obj) {
     setAttEnc(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri', obj.result.uri);
     document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = 
         (obj.result.smartpls === true ? t('Smart playlist') : t('Playlist'))  + ': ' + obj.result.uri;
-    const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
+    const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
     const table = document.getElementById('BrowsePlaylistsDetailList');
     const tfoot = table.getElementsByTagName('tfoot')[0];
     const colspan = settings.colsBrowsePlaylistsDetail.length;

@@ -27,7 +27,7 @@ function delQueueJukeboxSong(pos) {
 }
 
 function parseJukeboxList(obj) {
-    const rowTitle = advancedSettingsDefault.clickAlbumPlay.validValues[settings.advanced.clickAlbumPlay];
+    const rowTitle = webuiSettingsDefault.clickAlbumPlay.validValues[settings.webuiSettings.clickAlbumPlay];
     updateTable(obj, 'QueueJukebox', function(row, data) {
         setAttEnc(row, 'data-uri', data.uri);
         setAttEnc(row, 'data-name', data.Title);

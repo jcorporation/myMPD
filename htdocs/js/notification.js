@@ -8,7 +8,7 @@ function setStateIcon() {
         document.getElementById('logoBg').setAttribute('fill', '#6c757d');
     }
     else {
-        document.getElementById('logoBg').setAttribute('fill', settings.advanced.uiHighlightColor);
+        document.getElementById('logoBg').setAttribute('fill', settings.webuiSettings.uiHighlightColor);
     }
 }
 
@@ -61,11 +61,11 @@ function showNotification(title, text, facility, severity) {
             return;
         }
         //disabled notification for facility in advanced setting
-        let show = settings.advanced['notification' + facilities[facility]];
+        let show = settings.webuiSettings['notification' + facilities[facility]];
         if (show === null ) {
             logDebug('Unknown facility: ' + facility);
             //fallback to general
-            show = settings.advanced['notificationGeneral'];    
+            show = settings.webuiSettings['notificationGeneral'];    
         }
         if (show === false) { 
             return;

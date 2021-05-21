@@ -82,7 +82,7 @@ function parseUpdateQueue(obj) {
         }, 10);
     }
     else if (obj.result.state === 2) {
-        document.getElementById('btnPlay').innerText = settings.advanced.uiFooterPlaybackControls === 'stop' ? 'stop' : 'pause';
+        document.getElementById('btnPlay').innerText = settings.webuiSettings.uiFooterPlaybackControls === 'stop' ? 'stop' : 'pause';
         playstate = 'play';
     }
     else {
@@ -143,7 +143,7 @@ function parseQueue(obj) {
         document.getElementById('btnQueueGotoPlayingSong').parentNode.classList.add('hide');
     }
 
-    const rowTitle = advancedSettingsDefault.clickQueueSong.validValues[settings.advanced.clickQueueSong];
+    const rowTitle = webuiSettingsDefault.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
     updateTable(obj, 'QueueCurrent', function(row, data) {
         data.Pos++;
         row.setAttribute('draggable', 'true');
@@ -173,7 +173,7 @@ function parseQueue(obj) {
 }
 
 function parseLastPlayed(obj) {
-    const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
+    const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
     updateTable(obj, 'QueueLastPlayed', function(row, data) {
         setAttEnc(row, 'data-uri', data.uri);
         setAttEnc(row, 'data-name', data.Title);

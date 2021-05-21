@@ -247,8 +247,8 @@ bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token
     else if (strncmp(key->ptr, "smartplsGenerateTagList", key->len) == 0) {
         mympd_state->smartpls_generate_tag_list = sdsreplacelen(mympd_state->smartpls_generate_tag_list, settingvalue, sdslen(settingvalue));
     }
-    else if (strncmp(key->ptr, "advanced", key->len) == 0) {
-        mympd_state->advanced = sdsreplacelen(mympd_state->advanced, settingvalue, sdslen(settingvalue));
+    else if (strncmp(key->ptr, "webuiSettings", key->len) == 0) {
+        mympd_state->webui_settings = sdsreplacelen(mympd_state->webui_settings, settingvalue, sdslen(settingvalue));
     }
     else if (strncmp(key->ptr, "lyricsUsltExt", key->len) == 0) {
         mympd_state->lyrics_uslt_ext = sdsreplacelen(mympd_state->lyrics_uslt_ext, settingvalue, sdslen(settingvalue));
@@ -430,7 +430,7 @@ void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
     mympd_state->volume_min = state_file_rw_uint(mympd_state->config, "state", "volume_min", mympd_state->volume_min, false);
     mympd_state->volume_max = state_file_rw_uint(mympd_state->config, "state", "volume_max", mympd_state->volume_max, false);
     mympd_state->volume_step = state_file_rw_uint(mympd_state->config, "state", "volume_step", mympd_state->volume_step, false);
-    mympd_state->advanced = state_file_rw_string_sds(mympd_state->config, "state", "advanced", mympd_state->advanced, false);
+    mympd_state->webui_settings = state_file_rw_string_sds(mympd_state->config, "state", "webui_settings", mympd_state->webui_settings, false);
     mympd_state->mpd_stream_port = state_file_rw_int(mympd_state->config, "state", "mpd_stream_port", mympd_state->mpd_stream_port, false);
     mympd_state->lyrics_uslt_ext = state_file_rw_string_sds(mympd_state->config, "state", "lyrics_uslt_ext", mympd_state->lyrics_uslt_ext, false);
     mympd_state->lyrics_sylt_ext = state_file_rw_string_sds(mympd_state->config, "state", "lyrics_sylt_ext", mympd_state->lyrics_sylt_ext, false);
@@ -495,7 +495,7 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = sdscatfmt(buffer, "\"colsQueueLastPlayed\":%s,", mympd_state->cols_queue_last_played);
     buffer = sdscatfmt(buffer, "\"colsQueueJukebox\":%s,", mympd_state->cols_queue_jukebox);
     buffer = sdscatfmt(buffer, "\"navbarIcons\":%s,", mympd_state->navbar_icons);
-    buffer = sdscatfmt(buffer, "\"advanced\":%s,", mympd_state->advanced);
+    buffer = sdscatfmt(buffer, "\"webuiSettings\":%s,", mympd_state->webui_settings);
     if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
         buffer = tojson_bool(buffer, "mpdConnected", true, true);
         struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);

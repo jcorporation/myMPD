@@ -185,10 +185,10 @@ function parseSettings(obj) {
         clearAndReload();
     }
 
-    //set advanced settings defaults
-    for (const key in advancedSettingsDefault) {
-        if (settings.advanced[key] === undefined) {
-            settings.advanced[key] = advancedSettingsDefault[key].defaultValue;
+    //set webuiSettings defaults
+    for (const key in webuiSettingsDefault) {
+        if (settings.webuiSettings[key] === undefined) {
+            settings.webuiSettings[key] = webuiSettingsDefault[key].defaultValue;
         }
     }
 
@@ -210,20 +210,20 @@ function parseSettings(obj) {
     }
     
     //locales
-    if (settings.advanced.uiLocale === 'default') {
+    if (settings.webuiSettings.uiLocale === 'default') {
         locale = navigator.language || navigator.userLanguage;
     }
     else {
-        locale = settings.advanced.uiLocale;
+        locale = settings.webuiSettings.uiLocale;
     }
 
     //theme
-    let setTheme = settings.advanced.uiTheme;
-    if (settings.advanced.uiTheme === 'theme-autodetect') {
+    let setTheme = settings.webuiSettings.uiTheme;
+    if (settings.webuiSettings.uiTheme === 'theme-autodetect') {
         setTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-default';
     }    
 
-    for (const theme in advancedSettingsDefault.uiTheme.validValues) {
+    for (const theme in webuiSettingsDefault.uiTheme.validValues) {
         if (theme === setTheme) {
             domCache.body.classList.add(theme);
         }
@@ -233,34 +233,34 @@ function parseSettings(obj) {
     }
 
     //background
-    if (settings.advanced.uiBgImage.indexOf('/assets/') === 0) {
-        domCache.body.style.backgroundImage = 'url("' + subdir + settings.advanced.uiBgImage + '")';
+    if (settings.webuiSettings.uiBgImage.indexOf('/assets/') === 0) {
+        domCache.body.style.backgroundImage = 'url("' + subdir + settings.webuiSettings.uiBgImage + '")';
     }
-    else if (settings.advanced.uiBgImage !== '') {
-        domCache.body.style.backgroundImage = 'url("' + subdir + '/pics/' + settings.advanced.uiBgImage + '")';
+    else if (settings.webuiSettings.uiBgImage !== '') {
+        domCache.body.style.backgroundImage = 'url("' + subdir + '/pics/' + settings.webuiSettings.uiBgImage + '")';
     }
     else {
         domCache.body.style.backgroundImage = '';
     }
-    domCache.body.style.backgroundColor = settings.advanced.uiBgColor;
-    toggleBtnChkCollapse('inputAdvSettinguiBgCover', 'bgCssFilterFrm', settings.advanced.uiBgCover);
+    domCache.body.style.backgroundColor = settings.webuiSettings.uiBgColor;
+    toggleBtnChkCollapse('inputAdvSettinguiBgCover', 'bgCssFilterFrm', settings.webuiSettings.uiBgCover);
 
     const albumartbg = document.querySelectorAll('.albumartbg');
     for (let i = 0, j = albumartbg.length; i < j; i++) {
-        albumartbg[i].style.filter = settings.advanced.uiBgCssFilter;
+        albumartbg[i].style.filter = settings.webuiSettings.uiBgCssFilter;
     }
 
     //Navigation and footer
     setNavbarIcons();
 
-    if (settings.advanced.uiFooterQueueSettings === true) {
+    if (settings.webuiSettings.uiFooterQueueSettings === true) {
         document.getElementById('footerQueueSettings').classList.remove('hide');
     }
     else {
         document.getElementById('footerQueueSettings').classList.add('hide');
     }
 
-    if (settings.advanced.uiFooterPlaybackControls === 'both') {
+    if (settings.webuiSettings.uiFooterPlaybackControls === 'both') {
         document.getElementById('btnStop').classList.remove('hide');
     }
     else {
@@ -268,7 +268,7 @@ function parseSettings(obj) {
     }
 
     //set local playback url    
-    if (settings.advanced.uiLocalPlayback === true) {
+    if (settings.webuiSettings.uiLocalPlayback === true) {
         setLocalPlayerUrl();
     }
     
@@ -285,13 +285,13 @@ function parseSettings(obj) {
         document.getElementById('mpdInfo_host').innerText = settings.mpdHost;
     }
 
-    document.documentElement.style.setProperty('--mympd-coverimagesize', settings.advanced.uiCoverimageSize + "px");
-    document.documentElement.style.setProperty('--mympd-coverimagesizesmall', settings.advanced.uiCoverimageSizeSmall + "px");
-    document.documentElement.style.setProperty('--mympd-highlightcolor', settings.advanced.uiHighlightColor);
+    document.documentElement.style.setProperty('--mympd-coverimagesize', settings.webuiSettings.uiCoverimageSize + "px");
+    document.documentElement.style.setProperty('--mympd-coverimagesizesmall', settings.webuiSettings.uiCoverimageSizeSmall + "px");
+    document.documentElement.style.setProperty('--mympd-highlightcolor', settings.webuiSettings.uiHighlightColor);
 
     //default limit for all apps
     //convert from string to int
-    const limit = Number(settings.advanced.uiMaxElementsPerPage);
+    const limit = Number(settings.webuiSettings.uiMaxElementsPerPage);
     app.apps.Home.limit = limit;
     app.apps.Playback.limit = limit;
     app.apps.Queue.tabs.Current.limit = limit;
@@ -461,17 +461,17 @@ function populateConnectionFrm() {
 function populateSettingsFrm() {
     createSettingsFrm();
 
-    getBgImageList(settings.advanced.uiBgImage);
+    getBgImageList(settings.webuiSettings.uiBgImage);
 
     //locales
     let localeList = '';
     for (const l of locales) {
         localeList += '<option value="' + e(l.code) + '"' + 
-            (l.code === settings.advanced.uiLocale ? ' selected="selected"' : '') + '>' + 
+            (l.code === settings.webuiSettings.uiLocale ? ' selected="selected"' : '') + '>' + 
             e(l.desc) + ' (' + e(l.code) + ')</option>';
     }
     document.getElementById('inputAdvSettinguiLocale').innerHTML = localeList;
-    warnLocale(settings.advanced.uiLocale);
+    warnLocale(settings.webuiSettings.uiLocale);
 
     //web notifications - check permission
     const btnNotifyWeb = document.getElementById('inputAdvSettingnotifyWeb');
@@ -520,9 +520,9 @@ function populateSettingsFrm() {
     //lyrics
     if (features.featLibrary === false) {
         //lyrics need access to library
-        settings.advanced.enableLyrics = false;
+        settings.webuiSettings.enableLyrics = false;
     }
-    toggleBtnChkCollapse('btnEnableLyrics', 'collapseEnableLyrics', settings.advanced.enableLyrics);
+    toggleBtnChkCollapse('btnEnableLyrics', 'collapseEnableLyrics', settings.webuiSettings.enableLyrics);
     //tag multiselects
     initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.tagListMpd, settings.tagList);
     initTagMultiSelect('inputSearchTags', 'listSearchTags', settings.tagList, settings.tagListSearch);
@@ -548,7 +548,7 @@ function setFeatureBtn(btn, value) {
 }
 
 function createSettingsFrm() {
-    _createSettingsFrm(settings.advanced, advancedSettingsDefault, 'inputAdvSetting');
+    _createSettingsFrm(settings.webuiSettings, webuiSettingsDefault, 'inputAdvSetting');
     _createSettingsFrm(settings, settingFields, 'inputSetting');
 }
 
@@ -630,25 +630,25 @@ function _createSettingsFrm(fields, defaults, prefix) {
 function setFeatures() {
     //web ui features
     features.featCacert = settings.featCacert;
-    features.featHome = settings.advanced.enableHome;
-    features.featLocalPlayback = settings.advanced.enableLocalPlayback === true ?
+    features.featHome = settings.webuiSettings.enableHome;
+    features.featLocalPlayback = settings.webuiSettings.enableLocalPlayback === true ?
         (settings.mpdStreamPort > 0 ? true : false) : false;
-    features.featScripting = settings.advanced.enableScripting === true ?
+    features.featScripting = settings.webuiSettings.enableScripting === true ?
         (settings.featScripting === true ? true : false) : false;
-    features.featTimer = settings.advanced.enableTimer;
-    features.featTrigger = settings.advanced.enableTrigger;
+    features.featTimer = settings.webuiSettings.enableTimer;
+    features.featTrigger = settings.webuiSettings.enableTrigger;
 
     //mpd features
     if (settings.mpdConnected === true) {
         features.featAdvsearch = settings.featAdvsearch;
         features.featLibrary = settings.featLibrary;
-        features.featLyrics = settings.advanced.enableLyrics === true ?
+        features.featLyrics = settings.webuiSettings.enableLyrics === true ?
             (settings.featLibrary === true ? true : false) : false;
-        features.featMounts = settings.advanced.enableMounts === true ?
+        features.featMounts = settings.webuiSettings.enableMounts === true ?
             (settings.featMounts === true ? true : false) : false;
-        features.featNeighbors = settings.advanced.enableMounts === true ?
+        features.featNeighbors = settings.webuiSettings.enableMounts === true ?
             (settings.featNeighbors === true ? true : false) : false;
-        features.featPartitions = settings.advanced.enablePartitions === true ?
+        features.featPartitions = settings.webuiSettings.enablePartitions === true ?
             (settings.featPartitions === true ? true : false) : false;
         features.featPlaylists = settings.featPlaylists;
         features.featSingleOneShot = settings.featSingleOneShot;
@@ -673,7 +673,7 @@ function setFeatures() {
 function parseMPDSettings() {
     document.getElementById('partitionName').innerText = settings.partition;
     
-    if (settings.advanced.uiBgCover === true) {
+    if (settings.webuiSettings.uiBgCover === true) {
         setBackgroundImage(lastSongObj.uri);
     }
     else {
@@ -828,23 +828,23 @@ function saveSettings(closeModal) {
     //from hours to seconds
     const smartplsInterval = Number(document.getElementById('inputSmartplsInterval').value) * 60 * 60;
 
-    const advSettings = {};
-    for (const key in advancedSettingsDefault) {
+    const webuiSettings = {};
+    for (const key in webuiSettingsDefault) {
         const el = document.getElementById('inputAdvSetting' + r(key));
         if (el) {
-            if (advancedSettingsDefault[key].inputType === 'select') {
-                advSettings[key] =  advancedSettingsDefault[key].contentType === 'integer' ? Number(getSelectValue(el)) : getSelectValue(el);
+            if (webuiSettingsDefault[key].inputType === 'select') {
+                webuiSettings[key] =  webuiSettingsDefault[key].contentType === 'integer' ? Number(getSelectValue(el)) : getSelectValue(el);
             }
-            else if (advancedSettingsDefault[key].inputType === 'checkbox') {
-                advSettings[key] = el.classList.contains('active') ? true : false;
+            else if (webuiSettingsDefault[key].inputType === 'checkbox') {
+                webuiSettings[key] = el.classList.contains('active') ? true : false;
             }
             else {
-                advSettings[key] = advancedSettingsDefault[key].contentType === 'integer' ? Number(el.value) : el.value;
+                webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(el.value) : el.value;
             }
         }
     }
     
-    advSettings.enableLyrics = (document.getElementById('btnEnableLyrics').classList.contains('active') ? true : false);
+    webuiSettings.enableLyrics = (document.getElementById('btnEnableLyrics').classList.contains('active') ? true : false);
     
     if (formOK === true) {
         sendAPI("MYMPD_API_SETTINGS_SET", {
@@ -867,7 +867,7 @@ function saveSettings(closeModal) {
             "lyricsVorbisUslt": document.getElementById('inputSettinglyricsVorbisUslt').value,
             "lyricsVorbisSylt": document.getElementById('inputSettinglyricsVorbisSylt').value,
             "covercacheKeepDays": Number(document.getElementById('inputCovercacheKeepDays').value),
-            "advanced": advSettings
+            "webuiSettings": webuiSettings
         }, getSettings);
         if (closeModal === true) {
             uiElements.modalSettings.hide();

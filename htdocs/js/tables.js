@@ -341,7 +341,7 @@ function setColTags(table) {
     if (table === 'Playback') {
         tags.push('Filetype');
         tags.push('Fileformat');
-        if (settings.advanced.uiLyrics === true) {
+        if (settings.webuiSettings.uiLyrics === true) {
             tags.push('Lyrics');
         }
     }

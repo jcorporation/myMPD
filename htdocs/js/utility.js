@@ -76,14 +76,14 @@ function showConfirmInline(el, text, btnText, callback) {
 
 //functions to get custom actions
 function clickAlbumPlay(albumArtist, album) {
-    switch (settings.advanced.clickAlbumPlay) {
+    switch (settings.webuiSettings.clickAlbumPlay) {
         case 'append': return _addAlbum('appendQueue', albumArtist, album);
         case 'replace': return _addAlbum('replaceQueue', albumArtist, album);
     }
 }
 
 function clickSong(uri, name) {
-    switch (settings.advanced.clickSong) {
+    switch (settings.webuiSettings.clickSong) {
         case 'append': return appendQueue('song', uri, name);
         case 'replace': return replaceQueue('song', uri, name);
         case 'view': return songDetails(uri);
@@ -91,7 +91,7 @@ function clickSong(uri, name) {
 }
 
 function clickQueueSong(songid, uri) {
-    switch (settings.advanced.clickQueueSong) {
+    switch (settings.webuiSettings.clickQueueSong) {
         case 'play':
             sendAPI("MYMPD_API_PLAYER_PLAY_SONG", {"songId": songid});
             break;
@@ -100,7 +100,7 @@ function clickQueueSong(songid, uri) {
 }
 
 function clickPlaylist(uri, name) {
-    switch (settings.advanced.clickPlaylist) {
+    switch (settings.webuiSettings.clickPlaylist) {
         case 'append': return appendQueue('plist', uri, name);
         case 'replace': return replaceQueue('plist', uri, name);
         case 'view': return playlistDetails(uri);
@@ -108,7 +108,7 @@ function clickPlaylist(uri, name) {
 }
 
 function clickFolder(uri, name) {
-    switch (settings.advanced.clickFolder) {
+    switch (settings.webuiSettings.clickFolder) {
         case 'append': return appendQueue('dir', uri, name);
         case 'replace': return replaceQueue('dir', uri, name);
         case 'view':

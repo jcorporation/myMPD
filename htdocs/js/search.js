@@ -130,7 +130,7 @@ function parseSearch(obj) {
         disableEl('searchAddAllSongsBtn');
     }
 
-    const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
+    const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
 
     updateTable(obj, 'Search', function(row, data) {
         setAttEnc(row, 'data-type', data.Type);
