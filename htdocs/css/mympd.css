@@ -1073,3 +1073,7 @@ div.album-grid-mouseover {
   text-align: center;
   white-space: nowrap;
 }
+
+.nav-link {
+  white-space: nowrap;
+}
