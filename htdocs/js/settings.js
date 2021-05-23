@@ -106,7 +106,13 @@ function saveConnection() {
     const mpdStreamPortEl = document.getElementById('inputMpdStreamPort');
     const mpdBinarylimitEl = document.getElementById('inputMpdBinarylimit');
     const mpdTimeoutEl = document.getElementById('inputMpdTimeout');
-    let musicDirectory = getSelectValue('selectMusicDirectory');
+    const musicDirectoryEl = document.getElementById('selectMusicDirectory');
+    let musicDirectory = getSelectValue(musicDirectoryEl);
+    
+    if (musicDirectory === 'auto' && mpdHostEl.value.indexOf('/') !== 0) {
+        formOK = false;
+        setIsInvalid(musicDirectoryEl);
+    }
     
     if (musicDirectory === 'custom') {
         const musicDirectoryValueEl  = document.getElementById('inputMusicDirectory');
