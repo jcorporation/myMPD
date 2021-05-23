@@ -687,8 +687,8 @@ function parseMPDSettings() {
     }
 
     let triggerEventList = '';
-    for (const trigger in settings.triggers) {
-        triggerEventList += '<option value="' + e(settings.triggers[trigger]) + '">' + t(trigger) + '</option>';
+    for (const event in settings.triggerEvents) {
+        triggerEventList += '<option value="' + e(settings.triggerEvents[event]) + '">' + t(event) + '</option>';
     }
     document.getElementById('selectTriggerEvent').innerHTML = triggerEventList;
     

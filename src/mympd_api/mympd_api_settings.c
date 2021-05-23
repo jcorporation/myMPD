@@ -552,7 +552,7 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = sdscat(buffer, ",");
         buffer = print_tags_array(buffer, "smartplsGenerateTagList", mympd_state->smartpls_generate_tag_types);
         
-        buffer = sdscat(buffer, ",\"triggers\":{");
+        buffer = sdscat(buffer, ",\"triggerEvents\":{");
         buffer = print_trigger_list(buffer);
         buffer = sdscat(buffer, "}");
 
