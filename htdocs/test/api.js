@@ -662,7 +662,7 @@ const cmds = {
                 "desc": "MPD port to use"
             },
             "musicDirectory": {
-                "type": "text"
+                "type": "text",
                 "example": "auto",
                 "desc": "\"auto\" = autodetect (needs socket connection), " +
                         "\"none\" = no music directory, " +
@@ -695,7 +695,7 @@ const cmds = {
         "params": {}
     },
     "MYMPD_API_SETTINGS_SET": {
-        "desc": "Sets myMPD settings."
+        "desc": "Sets myMPD settings.",
         "params": {
             "coverimageNames": {
                 "type": "text",
@@ -733,7 +733,7 @@ const cmds = {
                 "desc": "Generates smart playlists per value of selected taglist"
             },
             "tagList": {
-                "type": "text"
+                "type": "text",
                 "example": "Artist,Album,AlbumArtist,Title,Track,Genre,Disc",
                 "desc": "Comma separated list of MPD tags to use"
             },
@@ -790,7 +790,7 @@ const cmds = {
             "covercacheKeepDays": {
                 "type": "uint",
                 "example": 7,
-                "desc": "Days before deleting cover cache files"
+                "desc": "Days before deleting cover cache files."
             },
             "webuiSettings": {
                 "type": "object",
@@ -820,40 +820,220 @@ const cmds = {
                         "example": "replace",
                         "desc": "Action on click on album: append, replace"
                     },
-                    "notificationPlayer":false,
-                    "notificationQueue":true,
-                    "notificationGeneral":true,
-                    "notificationDatabase":true,
-                    "notificationPlaylist":true,
-                    "notificationScript":true,
-                    "notifyPage":true,
-                    "notifyWeb":false,
-                    "mediaSession":true,
-                    "uiFooterQueueSettings":true,
-                    "uiFooterPlaybackControls":"both",
-                    "uiMaxElementsPerPage":50,
-                    "enableHome":true,
-                    "enableScripting":true,
-                    "enableTrigger":true,
-                    "enableTimer":true,
-                    "enableMounts":true,
-                    "enableLocalPlayback":false,
-                    "enablePartitions":false,
-                    "uiTheme":"theme-dark",
-                    "uiHighlightColor":"#28a745",
-                    "uiCoverimageSize":250,
-                    "uiCoverimageSizeSmall":175,
-                    "uiBgColor":"#000000",
-                    "uiBgImage":"",
-                    "uiBgCover":true,
-                    "uiBgCssFilter":"grayscale(100%) opacity(10%)",
-                    "uiLocale":"de-DE",
-                    "enableLyrics":true
+                    "notificationPlayer": {
+                        "type": "bool",
+                        "example": false,
+                        "desc": "Enable notifications for player events."
+                    },
+                    "notificationQueue": {
+                        "type": "bool",
+                        "example": true,
+                        "desc": "Enable notifications for queue events."
+                    },
+                    "notificationGeneral": {
+                        "type": "bool",
+                        "example": true,
+                        "desc": "Enable notifications for general events."
+                    },
+                    "notificationDatabase": {
+                        "type": "bool",
+                        "example": true,
+                        "desc": "Enable notifications for database events."
+                    },
+                    "notificationPlaylist": {
+                        "type": "bool",
+                        "example": true,
+                        "desc": "Enable notifications for playlist events."
+                    },
+                    "notificationScript": {
+                        "type": "bool",
+                        "example": true,
+                        "desc": "Enable notifications for script events."
+                    },
+                    "notifyPage": {
+                        "type": "bool",
+                        "example": true,
+                        "desc": "Enable on page notifications"
+                    },
+                    "notifyWeb": {
+                        "type": "bool",
+                        "example": false,
+                        "desc": "Enable web notifications"
+                    },
+                    "mediaSession": {
+                        "type": "bool",
+                        "example": true,
+                        "desc": "Enable media session support"
+                    },
+                    "uiFooterQueueSettings": {
+                        "type": "bool",
+                        "example": true,
+                        "desc": "Shows playback settings button in footer."
+                    },
+                    "uiFooterPlaybackControls": {
+                        "type": "bool",
+                        "example": "both",
+                        "desc": "\"pause\", \"stop\" or \"both\" for pause and stop"
+                    },
+                    "uiMaxElementsPerPage": {
+                        "type": "uint",
+                        "example": 50,
+                        "desc": "max. elements for lists: 25, 50, 100, 200 or 0 for unlimited"
+                    },
+                    "enableHome": {
+                        "type": "bool",
+                        "example": true,
+                        "desc": "Enables the home screen"
+                    },
+                    "enableScripting": {
+                        "type": "bool",
+                        "example": true,
+                        "desc": "Enables scripting"
+                    },
+                    "enableTrigger": {
+                        "type": "bool",
+                        "example": true,
+                        "desc": "Enables trigger"
+                    },
+                    "enableTimer": {
+                        "type": "bool",
+                        "example": true,
+                        "desc": "Enables timer"
+                    },
+                    "enableMounts": {
+                        "type": "bool",
+                        "example": true,
+                        "desc": "Enables mounts"
+                    },
+                    "enableLocalPlayback": {
+                        "type": "bool",
+                        "example": false,
+                        "desc": "Enables local playback of mpd http stream"
+                    },
+                    "enablePartitions": {
+                        "type": "bool",
+                        "example": false,
+                        "desc": "Enables partitions"
+                    },
+                    "enableLyrics": {
+                        "type": "text",
+                        "example": true,
+                        "desc": "Enable Lyrics"
+                    },
+                    "uiTheme": {
+                        "type": "text",
+                        "example": "theme-dark",
+                        "desc": "\"theme-dark\", \"theme-light\" or \"theme-default\""
+                    },
+                    "uiHighlightColor": {
+                        "type": "text",
+                        "example": "#28a745",
+                        "desc": "Highlight color"
+                    },
+                    "uiCoverimageSize": {
+                        "type": "int",
+                        "example": 250,
+                        "desc": "Size for coverimages"
+                    },
+                    "uiCoverimageSizeSmall": {
+                        "type": "int",
+                        "example": 175,
+                        "desc": "Size for small cover images"
+                    },
+                    "uiBgColor": {
+                        "type": "text",
+                        "example": "#000000",
+                        "desc": "Background color"
+                    },
+                    "uiBgImage": {
+                        "type": "text",
+                        "example": "",
+                        "desc": "Uri for bacckground image"
+                    },
+                    "uiBgCover": {
+                        "type": "bool",
+                        "example": true,
+                        "desc": "Display the coverimage as background"
+                    },
+                    "uiBgCssFilter": {
+                        "type": "text",
+                        "example": "grayscale(100%) opacity(10%)",
+                        "desc": "CSS filter for background coverimage"
+                    },
+                    "uiLocale": {
+                        "type": "text",
+                        "example": "de-DE",
+                        "desc": "Language code or \"auto\" for brwoser default"
+                    }
                 }
             }
         }
     },
-    {"MYMPD_API_PLAYER_OPTIONS_SET","params":{"consume":1,"random":0,"single":0,"repeat":0,"replaygain":"off","crossfade":"0","jukeboxMode":1,"jukeboxPlaylist":"Database","jukeboxQueueLength":1,"jukeboxLastPlayed":24,"jukeboxUniqueTag":"Album","autoPlay":false}},
+    "MYMPD_API_PLAYER_OPTIONS_SET": {
+        "desc": "Sets MPD and jukebox options.",
+        "params":{
+            "consume": {
+                "type": "uint",
+                "example": 1,
+                "desc": "MPD consume mode: 1=enabled, 0=disabled"
+            },
+            "random": {
+                "type": "uint",
+                "example": 0,
+                "desc": "MPD randome mode: 1=enabled, 0=disabled"
+            },
+            "single": {
+                "type": "uint",
+                "example": 1,
+                "desc": "MPD single mode: 2=single oneshot, 1=enabled, 0=disabled"
+            },
+            "repeat": {
+                "type": "uint",
+                "example": 1,
+                "desc": "MPD repeat mode: 1=enabled, 0=disabled"
+            },
+            "replaygain": {
+                "type": "text",
+                "example": "off",
+                "desc": "MPD replaygain mode: \"off\", \"auto\", \"track\", \"album\""
+            },
+            "crossfade": {
+                "type": "utin",
+                "example": 0,
+                "desc": "MPD crossfade in seconds"
+            },
+            "jukeboxMode": {
+                "type": "uint",
+                "example": 1,
+                "desc": "Jukebox mode: 0=disabled, 1=song, 2=album"
+            },
+            "jukeboxPlaylist": {
+                "type": "text",
+                "example": "Database",
+                "desc": "Playlist for jukebox or \"Databas\" for whole database."
+            },
+            "jukeboxQueueLength": {
+                "type": "uint",
+                "example": 1,
+                "desc": "Minimum queue length to maintain."
+            },
+            "jukeboxLastPlayed": {
+                "type": "uint",
+                "example": 24,
+                "desc": "Add only songs that are not played x hours before."
+            },
+            "jukeboxUniqueTag": {
+                "type": "text",
+                "example": "Album",
+                "desc": "Tag to maintain unique values in internal jukebox queue."
+            },
+            "autoPlay": {
+                "type": "bool",
+                "example": false,
+                "desc": "Start playing if a song is adder to queue."
+            }
+        }
+    },
     {"MYMPD_API_COLS_SAVE","params":{"table":"","cols":["Artist","Album","Title"]}},
     {"MYMPD_API_TIMER_SAVE","params":{"timerid":0,"interval":0,"name":"","enabled":false,"startHour":0,"startMinute":0,"action":"","subaction":"","volume":0,"playlist":"","jukeboxMode":0,"weekdays":[false,false,false,false,false,false,false],"arguments":{"arg1":""}}},
     {"MYMPD_API_TIMER_LIST"},
