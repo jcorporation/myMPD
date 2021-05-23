@@ -75,6 +75,31 @@ const params = {
         "type": "uint",
         "example": 1,
         "desc": "MPD queue song id"
+    },
+    "timerid": {
+        "type": "uint",
+        "example": 1,
+        "desc": "timer id"
+    },
+    "script": {
+        "type": "text",
+        "example": "testscript",
+        "desc": "Name of the script"
+    },
+    "scriptArguments": {
+        "type": "object",
+        "example": "{\"argname1\": \"argvalue1\"}",
+        "desc": "Script arguments"
+    },
+    "partName": {
+        "type": "text",
+        "example": "partition1",
+        "desc": "Name of the new partition"
+    },
+    "triggerId": {
+        "type": "uint",
+        "example": 1,
+        "desc": "id of the trigger"
     }
 };
 
@@ -1034,35 +1059,364 @@ const cmds = {
             }
         }
     },
-    {"MYMPD_API_COLS_SAVE","params":{"table":"","cols":["Artist","Album","Title"]}},
-    {"MYMPD_API_TIMER_SAVE","params":{"timerid":0,"interval":0,"name":"","enabled":false,"startHour":0,"startMinute":0,"action":"","subaction":"","volume":0,"playlist":"","jukeboxMode":0,"weekdays":[false,false,false,false,false,false,false],"arguments":{"arg1":""}}},
-    {"MYMPD_API_TIMER_LIST"},
-    {"MYMPD_API_TIMER_GET","params":{"timerid":0}},
-    {"MYMPD_API_TIMER_RM","params":{"timerid":0}},
-    {"MYMPD_API_TIMER_TOGGLE","params":{"timerid":0}},
-    {"MYMPD_API_MESSAGE_SEND","params":{"channel":"", "message":""}},
-    {"MYMPD_API_SCRIPT_SAVE","params":{"script":"","oldscript":"","order":0,"content":"","arguments":["", ""]}},
-    {"MYMPD_API_SCRIPT_EXECUTE","params":{"script":"","arguments":{"arg1": ""}}},
-    {"MYMPD_API_SCRIPT_POST_EXECUTE","params":{"script":"","arguments":{"arg1": ""}}},
-    {"MYMPD_API_SCRIPT_LIST","params":{"all":true}},
-    {"MYMPD_API_SCRIPT_GET","params":{"script":""}},
-    {"MYMPD_API_SCRIPT_DELETE","params":{"script":""}},
-    {"MYMPD_API_PARTITION_LIST","params":{}},
-    {"MYMPD_API_PARTITION_NEW","params":{"name":""}},
-    {"MYMPD_API_PARTITION_SWITCH","params":{"name":""}},
-    {"MYMPD_API_PARTITION_RM","params":{"name":""}},
-    {"MYMPD_API_PARTITION_OUTPUT_MOVE","params":{"name":""}},
-    {"MYMPD_API_TRIGGER_LIST","params":{}},
-    {"MYMPD_API_TRIGGER_GET","params":{"id":0}},
-    {"MYMPD_API_TRIGGER_SAVE","params":{"id":0,"name":"","event":0,"script":""}},
-    {"MYMPD_API_TRIGGER_DELETE","params":{"id":0}},
-    {"MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET","params":{"outputId":0,"attributes":{"allowed_formats":""}}},
-    {"MYMPD_API_HOME_LIST","params":{}},
-    {"MYMPD_API_HOME_ICON_DELETE","params":{"pos":0}},
-    {"MYMPD_API_HOME_ICON_MOVE","params":{"from":0,"to":0}},
-    {"MYMPD_API_HOME_ICON_SAVE","params":{"replace":false,"oldpos":0,"name":"","ligature":"","bgcolor":"","image":"","cmd":"","options":["option1","option2"]}},
-    {"MYMPD_API_PICTURE_LIST","params":{}},
-    {"MYMPD_API_JUKEBOX_LIST","params":{"offset":"0","limit":100,"cols":["Pos","Title","Artist","Album"]}},
-    {"MYMPD_API_JUKEBOX_RM","params":{"pos":0}},
-    {"MYMPD_API_LYRICS_GET","params":{"uri":""}}
+    "MYMPD_API_COLS_SAVE": {
+        "desc": "Saves columnes for a table.",
+        "params": {
+            "table": {
+                "type": "text",
+                "example": "colsQueueJukebox",
+                "desc": "Valid values: colsQueueCurrent, colsQueueLastPlayed, colsSearch, colsBrowseDatabaseDetail, colsBrowsePlaylistsDetail, colsBrowseFilesystem, colsPlayback, colsQueueJukebox"
+            },
+            "cols": params.cols
+        }
+    },
+    "MYMPD_API_TIMER_SAVE": {
+        "desc": "Saves a timer.",
+        "params": {
+            "timerid": {
+                "type": "uint",
+                "example": "0",
+                "desc": "Timer id, 0 to create a new timer."
+            },
+            "interval": {
+                "type": "int",
+                "example": 86400,
+                "desc": "Timer interval in seconds, 0 = one shote and deactivate, -1 = one shot and remove"
+            },
+            "name": {
+                "type": "text",
+                "example": "example timer",
+                "desc": "Name of the timer"
+            },
+            "enabled": {
+                "type": "bool",
+                "example": true,
+                "desc": "Enables or disables the timer"
+            },
+            "startHour": {
+                "type": "uint",
+                "example": 7,
+                "desc": "Start hour of the timer, valid values are 0 -23"
+            },
+            "startMinute": {
+                "type": "uint",
+                "example": 0,
+                "desc": "Start minute of the timer, valid values are 0-59"
+            },
+            "action": {
+                "type": "text",
+                "example": "player",
+                "desc": "Timer action, valid values: player, script"
+            },
+            "subaction": {
+                "type": "text",
+                "example": "startplay",
+                "desc": "Action = player: startplay, stopplay; Action = script: Script name"
+            },
+            "volume": {
+                "type": "uint",
+                "example": 50,
+                "desc": "Volume in percent"
+            },
+            "playlist": {
+                "type": "text",
+                "example": "Database",
+                "desc": "Playlist to use, valid values: \"Database\" or MPD playlist name"
+            },
+            "jukeboxMode": {
+                "type": uint,
+                "example": 1,
+                "desc": "Jukebox mode: 0 = off, 1 = song, 2 = album"
+            },
+            "weekdays": {
+                "type": "array",
+                "example": "[false,false,false,false,false,true,true]",
+                "desc": "Boolean array for weekdays, starting at monday"
+            },
+            "arguments": {
+                "type": "object",
+                "example": "{\"arg1\": \"value1\"}",
+                "desc": "Script arguments"
+            }
+        }
+    },
+    "MYMPD_API_TIMER_LIST": {
+        "desc": "Lists all timers",
+        "params": {}
+    },
+    "MYMPD_API_TIMER_GET": {
+        "desc": "Gets options from a timer",
+        "params":{
+            "timerid": params.timerid
+        }
+    },
+    "MYMPD_API_TIMER_RM": {
+        "desc": "Removes a timer",
+        "params": {
+            "timerid": params.timerid
+        }
+    },
+    "MYMPD_API_TIMER_TOGGLE": {
+        "desc": "Toggles a timers enabled state",
+        "params": {
+            "timerid": params.timerid
+        }
+    },
+    "MYMPD_API_MESSAGE_SEND":  {
+        "desc": "Sends a message to a MPD channel",
+        "params": {
+            "channel": {
+                "type": "text",
+                "example": "mpdscribble",
+                "desc": "MPD channel name"
+            },
+            "message": {
+                "type": "text",
+                "example": "love",
+                "desc": "Message to send"
+            }
+        }
+    },
+    "MYMPD_API_SCRIPT_SAVE": {
+        "desc": "Saves a script",
+        "params": {
+            "script": params.script,
+            "oldscript": {
+                "type": "text",
+                "example": "testscript",
+                "desc": "Name of the old script to rename"
+            },
+            "order": {
+                "type": "uint",
+                "example": 1,
+                "desc": "Order for the scripts in main menu, 0 = disable listing in main menu"
+            },
+            "content": {
+                "type": "text",
+                "example": "return \"test\"",
+                "desc": "The lua script itself"
+            },
+            "arguments": {
+                "type": "array",
+                "example": "[\"argname1\",\"argname2\"]",
+                "desc": "Array of parameters for this script"
+            }
+        }
+    },
+    "MYMPD_API_SCRIPT_LIST": {
+        "desc": "Lists all scripts",
+        "params": {
+            "all": {
+                "type": "bool",
+                "example": true,
+                "desc": "true = lists all scripts, false = lists all scripts with order > 0"
+            }
+        }
+    },
+    "MYMPD_API_SCRIPT_GET": {
+        "desc": "Gets options from a timer",
+        "params": {
+            "script": params.script
+        }
+    },
+    "MYMPD_API_SCRIPT_DELETE": {
+        "desc": "Removes a script",
+        "params": {
+            "script": params.script
+        }
+    },
+    "MYMPD_API_SCRIPT_EXECUTE": {
+        "desc": "Executes a script",
+        "params": {
+            "script": params.script,
+            "arguments": params.scriptArguments
+        }
+    },
+    "MYMPD_API_SCRIPT_POST_EXECUTE": {
+        "desc": "Posts a lua script to myMPD for execution",
+        "params": {
+            "script": {
+                "type": "text",
+                "example": "return \"test\"..argname1",
+                "desc": "The lua script itself"
+            },
+            "arguments": params.scriptArguments
+        }
+    },
+    "MYMPD_API_PARTITION_LIST": {
+        "desc": "Lists all MPD partitions",
+        "params":{}
+    },
+    "MYMPD_API_PARTITION_NEW": {
+        "desc": "Creates a new MPD partition",
+        "params": {
+            "name": params.partName
+        }
+    },
+    "MYMPD_API_PARTITION_SWITCH": {
+        "desc": "Switch mpd client to this partition",
+        "params": {
+            "name": params.partName
+        }
+    },
+    "MYMPD_API_PARTITION_RM": {
+        "params": {
+            "name": params.partName
+        }
+    },
+    "MYMPD_API_PARTITION_OUTPUT_MOVE": {
+        "desc": "Moves this output to current MPD partition",
+        "params": {
+            "name": {
+                "tye": "text",
+                "example": "output1",
+                "desc": "output name"
+            }
+        }
+    },
+    "MYMPD_API_TRIGGER_LIST": {
+        "desc": "Lists all triggers",
+        "params": {}
+    },
+    "MYMPD_API_TRIGGER_GET": {
+        "desc": "Get the options from a trigger",
+        "params": {
+            "id": params.triggerId
+        }
+    },
+    "MYMPD_API_TRIGGER_SAVE": {
+        "desc": "Saves a trigger",
+        "params": {
+            "id": params.triggerId,
+            "name": {
+                "type": "text",
+                "example": "test trigger",
+                "desc": "Name of the trigger"
+            },
+            "event": {
+                "type": "int",
+                "example": 1,
+                "desc": "Event id that executes this triggers script"
+            },
+            "script": {
+                "type": "text",
+                "example": "test script",
+                "desc": "Script to execute"
+            },
+            "arguments": params.scriptArguments
+        }
+    },
+    "MYMPD_API_TRIGGER_DELETE": {
+        "desc": "Deletes a trigger",
+        "params":{
+            "id": params.triggerId
+        }
+    },
+    "MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET": {
+        "desc": "Sets an MPD output attribute",
+        "params":{
+            "outputId": {
+                "type": "uint",
+                "example": 0,
+                "desc": "MPD output id"
+            },
+            "attributes": {
+                "type" : "object",
+                "example": "{\"allowed_formats\": \"\"}",
+                "desc": "Key/value pairs to set attributes"
+            }
+        }
+    },
+    "MYMPD_API_HOME_LIST": {
+        "desc": "Lists all home icons",
+        "params":{}
+    },
+    "MYMPD_API_HOME_ICON_DELETE": {
+        "desc": "Deletes a home icon",
+        "params": {
+            "pos": {
+                "type": "uint",
+                "example": 0,
+                "desc": "Position to delete"
+            }
+        }
+    },
+    "MYMPD_API_HOME_ICON_MOVE": {
+        "desc": "Move home icon position",
+        "params": {
+            "from": params.from,
+            "to": params.to
+        }
+    },
+    "MYMPD_API_HOME_ICON_SAVE": {
+        "params": {
+            "replace": {
+                "type": "bool",
+                "example": false,
+                "desc": "Replace icon at pos oldpos"
+            },
+            "oldpos": {
+                "type": "uint",
+                "example": 0,
+                "desc": "Position of home icon to replace"
+            },
+            "name": {
+                "type": "text",
+                "example": "test home icon",
+                "desc": "Name of the home icon"
+            },
+            "ligature": {
+                "type": "text",
+                "example": "new_releases",
+                "desc": "Ligature to use"
+            },
+            "bgcolor": {
+                "type": "text",
+                "example": "#ffee00",
+                "desc": "Background color"
+            },
+            "image": {
+                "type": "text",
+                "example": "home-icon-1.png",
+                "desc": "realtive path for an image (/pics/ is the root)"
+            },
+            "cmd": {
+                "type": "text",
+                "example": "replaceQueue",
+                "desc": "Valid values: replaceQueue = replace queue with a playlist, appGoto = goto a view, execScriptFromOptions = execute script"
+            },
+            "options": {
+                "type": "array",
+                "example": "[\"plist\",\"nas/Webradios/swr1.m3u\",\"swr1.m3u\"]",
+                "desc": "array of cmd options" +
+                        "for replaceQueue: [\"plist\",\"nas/Webradios/swr1.m3u\",\"swr1.m3u\"], " +
+                        "for appGoto: [\"Browse\",\"Database\",\"List\",\"0\",\"AlbumArtist\",\"-Last-Modified\",\"Album\",\"\"], "+
+                        "for execScriptFromOptions: [\"Scriptname\",\"scriptarg1\"]"
+            }
+        }
+    },
+    "MYMPD_API_PICTURE_LIST": {
+        "desc": "Lists all pictures in the /pics directory.",
+        "params": {}
+    },
+    "MYMPD_API_JUKEBOX_LIST": {
+        "desc": "Lists the internal jukebox queue.",
+        "params": {
+            "offset": params.offset,
+            "limit": params.limit,
+            "cols": params.cols
+        }
+    },
+    "MYMPD_API_JUKEBOX_RM": {
+        "desc": "Removes a song or album from the jukebox queue.",
+        "params": {
+            "pos": params.pos
+        }
+    },
+    "MYMPD_API_LYRICS_GET": {
+        "desc": "Gets all lyrics from uri",
+        "params": {
+            "uri": params.uri
+        }
+    }
 };
