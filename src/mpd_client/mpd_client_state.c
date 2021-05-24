@@ -98,7 +98,7 @@ sds mpd_client_put_state(struct t_mympd_state *mympd_state, sds buffer, sds meth
     mympd_state->mpd_state->crossfade = mpd_status_get_crossfade(status);
 
     const unsigned total_time = mpd_status_get_total_time(status);
-    const unsigned elapsed_time =  mpd_status_get_elapsed_time(status);
+    const unsigned elapsed_time =  mpd_client_get_elapsed_seconds(status);
     unsigned uptime = time(NULL) - mympd_state->config->startup_time;
     if (total_time > 10 && uptime > elapsed_time) {
         time_t now = time(NULL);
@@ -130,7 +130,7 @@ sds mpd_client_put_state(struct t_mympd_state *mympd_state, sds buffer, sds meth
     buffer = tojson_long(buffer, "state", mpd_status_get_state(status), true);
     buffer = tojson_long(buffer, "volume", mpd_status_get_volume(status), true);
     buffer = tojson_long(buffer, "songPos", mpd_status_get_song_pos(status), true);
-    buffer = tojson_long(buffer, "elapsedTime", mpd_status_get_elapsed_time(status), true);
+    buffer = tojson_long(buffer, "elapsedTime", mpd_client_get_elapsed_seconds(status), true);
     buffer = tojson_long(buffer, "totalTime", mpd_status_get_total_time(status), true);
     buffer = tojson_long(buffer, "currentSongId", mpd_status_get_song_id(status), true);
     buffer = tojson_long(buffer, "kbitrate", mpd_status_get_kbit_rate(status), true);
@@ -162,7 +162,7 @@ bool mpd_client_get_lua_mympd_state(struct t_mympd_state *mympd_state, struct li
     set_lua_mympd_state_i(lua_mympd_state, "play_state", mpd_status_get_state(status));
     set_lua_mympd_state_i(lua_mympd_state, "volume", mpd_status_get_volume(status));
     set_lua_mympd_state_i(lua_mympd_state, "song_pos", mpd_status_get_song_pos(status));
-    set_lua_mympd_state_i(lua_mympd_state, "elapsed_time", mpd_status_get_elapsed_time(status));
+    set_lua_mympd_state_i(lua_mympd_state, "elapsed_time", mpd_client_get_elapsed_seconds(status));
     set_lua_mympd_state_i(lua_mympd_state, "total_time", mpd_status_get_total_time(status));
     set_lua_mympd_state_i(lua_mympd_state, "song_id", mpd_status_get_song_id(status));
     set_lua_mympd_state_i(lua_mympd_state, "next_song_id", mpd_status_get_next_song_id(status));
@@ -274,7 +274,7 @@ static unsigned get_current_song_start_time(struct t_mympd_state *mympd_state) {
         check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
         return 0;
     }
-    const unsigned start_time = time(NULL) - mpd_status_get_elapsed_time(status);
+    const unsigned start_time = time(NULL) - mpd_client_get_elapsed_seconds(status);
     mpd_status_free(status);    
     mpd_response_finish(mympd_state->mpd_state->conn);
     check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);

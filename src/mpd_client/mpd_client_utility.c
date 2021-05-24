@@ -95,6 +95,11 @@ bool mpd_client_set_binarylimit(struct t_mympd_state *mympd_state) {
     return rc;
 }
 
+//replacement for deprecated mpd_status_get_elapsed_time
+unsigned mpd_client_get_elapsed_seconds(struct mpd_status *status) {
+    return mpd_status_get_elapsed_ms(status) / 1000;
+}
+
 //private functions
 static void detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct list *images, bool is_dirname) {
     char *uricpy = strdup(uri);
