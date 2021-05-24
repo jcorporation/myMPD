@@ -902,22 +902,24 @@ run_htmlhint() {
 }
 
 migrate_config() {
-	#Convert smart playlists to expression search
-	for F in /var/lib/mympd/smartpls/*
-	do
-		[ -f "$F" ] || continue
-		if grep -q '"type":"search"' "$F"
-		then
-			if grep -q '"tag":"expression"' "$F"
-			then
-				continue
-			fi
-			TAG=$(cut -d\" -f8 < "$F")
-			VALUE=$(cut -d\" -f12 < "$F")
-			SORT=$(cut -d\" -f16 < "$F")
-			printf "{\"type\":\"search\",\"expression\":\"((%s == '%s'))\",\"sort\":\"%s\"}\n" "$TAG" "$VALUE" "$SORT" > "$F"
-		fi
-	done
+  #Convert smart playlists to expression search
+  for F in /var/lib/mympd/smartpls/*
+  do
+    [ -f "$F" ] || continue
+    if grep -q '"type":"search"' "$F"
+    then
+      SORT=$(cut -d\" -f16 < "$F")
+      if grep -q '"tag":"expression"' "$F"
+      then
+      	VALUE=$(cut -d\" -f12 < "$F")
+        printf "{\"type\":\"search\",\"expression\":\"%s\",\"sort\":\"%s\"}" "$VALUE" "$SORT" > "$F"
+      else
+      	TAG=$(cut -d\" -f8 < "$F")
+      	VALUE=$(cut -d\" -f12 < "$F" | sed "s/'/\\\'/g")
+        printf "{\"type\":\"search\",\"expression\":\"((%s == '%s'))\",\"sort\":\"%s\"}" "$TAG" "$VALUE" "$SORT" > "$F"
+      fi
+    fi
+  done
 }
 
 case "$ACTION" in
