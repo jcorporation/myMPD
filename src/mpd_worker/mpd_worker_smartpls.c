@@ -104,9 +104,9 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     
     sds filename = sdscatfmt(sdsempty(), "%s/smartpls/%s", mpd_worker_state->config->workdir, playlist);
     char *content = json_fread(filename);
-    sdsfree(filename);
     if (content == NULL) {
         MYMPD_LOG_ERROR("Cant read smart playlist %s", playlist);
+        sdsfree(filename);
         return false;
     }
     je = json_scanf(content, (int)strlen(content), "{type: %Q }", &smartpltype);
@@ -118,13 +118,6 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         je = json_scanf(content, (int)strlen(content), "{sticker: %Q, maxentries: %d, minvalue: %d}", &p_charbuf1, &int_buf1, &int_buf2);
         if (je == 3) {
             if (mpd_worker_smartpls_update_sticker(mpd_worker_state, playlist, p_charbuf1, int_buf1, int_buf2) == false) {
-                MYMPD_LOG_ERROR("Update of smart playlist %s failed.", playlist);
-                rc = false;
-            }
-        }
-        else if (je == 2) {
-            //for backward compatibility
-            if (mpd_worker_smartpls_update_sticker(mpd_worker_state, playlist, p_charbuf1, int_buf1, 2) == false) {
                 MYMPD_LOG_ERROR("Update of smart playlist %s failed.", playlist);
                 rc = false;
             }
@@ -173,6 +166,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     }
     FREE_PTR(smartpltype);
     FREE_PTR(content);
+    sdsfree(filename);
     return rc;
 }
 
