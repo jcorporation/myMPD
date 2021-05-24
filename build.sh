@@ -915,7 +915,7 @@ migrate_config() {
         printf "{\"type\":\"search\",\"expression\":\"%s\",\"sort\":\"%s\"}" "$VALUE" "$SORT" > "$F"
       else
       	TAG=$(cut -d\" -f8 < "$F")
-      	VALUE=$(cut -d\" -f12 < "$F" | sed "s/'/\\\'/g")
+      	VALUE=$(cut -d\" -f12 < "$F" | sed "s/'/\\\\\\\'/g")
         printf "{\"type\":\"search\",\"expression\":\"((%s == '%s'))\",\"sort\":\"%s\"}" "$TAG" "$VALUE" "$SORT" > "$F"
       fi
     fi
