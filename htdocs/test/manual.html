@@ -20,17 +20,17 @@
   <header>
     <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark">
       <a class="navbar-brand" href="index.html">
-        <span class="mi mi-lg">play_circle_outline</span>
+        myMPD API test
       </a>
     </nav>
   </header>
   <main role="main" class="container-fluid text-break">
     <div class="card">
-      <div class="card-header">Manual API Test</div>
+      <div class="card-header">myMPD API test</div>
       <div class="card-body">
         <form>
           <div class="form-group row">
-            <label class="col-sm-4 col-form-label" for="cmds">Command</label>
+            <label class="col-sm-4 col-form-label" for="cmds">Method</label>
             <div class="col-sm-6">
               <select id="cmds" class="form-control custom-select"></select>
             </div>
@@ -38,6 +38,7 @@
               <button class="btn btn-success btn-block" id="btnSubmit">Post</button>
             </div>
           </div>
+          <small id="desc"></small>
           <hr/>
           <div id="params"></div>
         </form>

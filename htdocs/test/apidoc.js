@@ -5,12 +5,17 @@
  https://github.com/jcorporation/mympd
 */
 
-let tbody = document.getElementsByTagName('tbody')[0];
-for (const method in cmds) {
-    let tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + method + '<br/><small>' + cmds[method].desc + '</small></td><td>' +
-        paramsToString(cmds[method].params) + '</td></tr>';
-    tbody.appendChild(tr);
+/* global cmds */
+
+function init() {
+    let tbody = document.getElementsByTagName('tbody')[0];
+    const methods = Object.keys(cmds).sort();
+    for (const method of methods) {
+        let tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + method + '<br/><small>' + cmds[method].desc + '</small></td><td>' +
+            paramsToString(cmds[method].params) + '</td></tr>';
+        tbody.appendChild(tr);
+    }
 }
 
 function paramsToString(p) {
@@ -31,3 +36,5 @@ function paramsToString(p) {
     html += '</table';
     return html;
 }
+
+init();
