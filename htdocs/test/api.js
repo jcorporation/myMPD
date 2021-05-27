@@ -818,7 +818,6 @@ const cmds = {
                 "desc": "Days before deleting cover cache files."
             },
             "webuiSettings": {
-                "type": "object",
                 "params": {
                     "clickSong": {
                         "type": "text", 
@@ -1023,7 +1022,7 @@ const cmds = {
                 "desc": "MPD replaygain mode: \"off\", \"auto\", \"track\", \"album\""
             },
             "crossfade": {
-                "type": "utin",
+                "type": "uint",
                 "example": 0,
                 "desc": "MPD crossfade in seconds"
             },
@@ -1124,7 +1123,7 @@ const cmds = {
                 "desc": "Playlist to use, valid values: \"Database\" or MPD playlist name"
             },
             "jukeboxMode": {
-                "type": uint,
+                "type": "uint",
                 "example": 1,
                 "desc": "Jukebox mode: 0 = off, 1 = song, 2 = album"
             },
@@ -1388,7 +1387,7 @@ const cmds = {
             "options": {
                 "type": "array",
                 "example": "[\"plist\",\"nas/Webradios/swr1.m3u\",\"swr1.m3u\"]",
-                "desc": "array of cmd options" +
+                "desc": "Array of cmd options" +
                         "for replaceQueue: [\"plist\",\"nas/Webradios/swr1.m3u\",\"swr1.m3u\"], " +
                         "for appGoto: [\"Browse\",\"Database\",\"List\",\"0\",\"AlbumArtist\",\"-Last-Modified\",\"Album\",\"\"], "+
                         "for execScriptFromOptions: [\"Scriptname\",\"scriptarg1\"]"
