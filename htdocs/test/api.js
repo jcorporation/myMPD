@@ -100,6 +100,11 @@ const params = {
         "type": "uint",
         "example": 1,
         "desc": "id of the trigger"
+    },
+    "pos": {
+        "type": "uint",
+        "example": 2,
+        "desc": "Position of song"
     }
 };
 
@@ -423,11 +428,7 @@ const cmds = {
         "desc": "Removes a song from the playlist.",
         "params": {
             "plist": params.plist,
-            "pos": {
-                "type": "uint",
-                "example": 2,
-                "desc": "Position of song"
-            }
+            "pos": params.pos
         }
     },
     "MYMPD_API_PLAYLIST_RM_ALL": {
@@ -435,7 +436,7 @@ const cmds = {
         "params": {
             "type": {
                 "type": "text",
-                "example": "empty",
+                "example": "deleteEmptyPlaylists",
                 "desc": "valid values are: \"deleteEmptyPlaylists\", \"deleteSmartPlaylists\", \"deleteAllPlaylists\""
             }
         }
@@ -445,7 +446,7 @@ const cmds = {
         "params": {
             "offset": params.offset,
             "limit": params.limit,
-            "searchstr": params.seachstr
+            "searchstr": params.searchstr
         }
     },
     "MYMPD_API_PLAYLIST_CONTENT_LIST": {
@@ -500,7 +501,7 @@ const cmds = {
                 "example": 604800,
                 "desc":"timerange in seconds"
             },
-            "sort": params.shortShuffle
+            "sort": params.sortShuffle
         }
     },
     "MYMPD_API_SMARTPLS_STICKER_SAVE": {
@@ -522,7 +523,7 @@ const cmds = {
                 "example": 2,
                 "desc": "minimum integer value"
             },
-            "sort": params.shortShuffle
+            "sort": params.sortShuffle
         }
     },
     "MYMPD_API_SMARTPLS_SEARCH_SAVE": {
@@ -530,7 +531,7 @@ const cmds = {
         "params": {
             "plist": params.plist,
             "expression": params.expression,
-            "sort": params.shortShuffle
+            "sort": params.sortShuffle
         }
     },
     "MYMPD_API_SMARTPLS_GET": {

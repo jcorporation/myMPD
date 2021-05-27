@@ -6,22 +6,28 @@
 */
 
 let tbody = document.getElementsByTagName('tbody')[0];
-for (let i = 0; i < cmds.length; i++) {
+for (const method in cmds) {
     let tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + cmds[i].method + '</td>' +
-        '<td>' + paramsToString(cmds[i].params) + '</td>' +
-        '<td>' + (desc[cmds[i].method] !== undefined ? desc[cmds[i].method] : '') + '</td>';
+    tr.innerHTML = '<td>' + method + '<br/><small>' + cmds[method].desc + '</small></td><td>' +
+        paramsToString(cmds[method].params) + '</td></tr>';
     tbody.appendChild(tr);
 }
 
-function paramsToString(obj) {
-    if (obj === undefined) {
-        return 'Without parameters';
+function paramsToString(p) {
+    let html = '<table class="table table-sm ">';
+    for (const param in p) {
+        if (p[param].params !== undefined) {
+            html += '<tr class="table-secondary"><td colspan="2">' + param + '</td></tr>' +
+                '<tr><td></td><td>' + paramsToString(p[param].params) +
+                '</td></tr>';
+        }
+        else {
+            html += '<tr class="table-secondary"><td colspan="2">' + param + '</td></tr>' +
+                '<tr><th>Type</th><td>' + p[param].type + '</td></tr>' +
+                '<tr><th>Desc</th><td>' + p[param].desc + '</td></tr>' +
+                '<tr><th>Example</th><td>' + p[param].example + '</td></tr>';
+        }
     }
-    
-    return JSON.stringify(obj).
-        replace(/</g, '&lt;').
-        replace(/>/g, '&gt;').
-        replace(/:/g, ': ').
-        replace(/,/g, ', ');
+    html += '</table';
+    return html;
 }
