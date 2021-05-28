@@ -5,7 +5,7 @@
  https://github.com/jcorporation/mympd
 */
 
-const params = {
+const APIparams = {
     "offset": {
             "type": "uint",
             "example": 0,
@@ -108,21 +108,21 @@ const params = {
     }
 };
 
-const cmds = {
+const APImethods = {
     "MYMPD_API_DATABASE_SEARCH_ADV": {
         "desc": "Searches for songs in the database (new interface).",
         "params": {
-            "offset": params.offset,
-            "limit": params.limit,
-            "expression": params.expression,
-            "sort": params.sort,
-            "sortdesc": params.sortdesc,
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "expression": APIparams.expression,
+            "sort": APIparams.sort,
+            "sortdesc": APIparams.sortdesc,
             "plist": {
                 "type": "text",
                 "example": "queue",
                 "desc": "playlist to add results to, use \"queue\" to add search to queue"
             },
-            "cols": params.cols,
+            "cols": APIparams.cols,
             "replace": {
                 "type": "bool",
                 "example": "false",
@@ -133,16 +133,16 @@ const cmds = {
     "MYMPD_API_DATABASE_SEARCH": {
         "desc": "Searches for songs in the database (deprecated interface).",
         "params": {
-            "offset": params.offset,
-            "limit": params.limit,
-            "filter": params.filter,
-            "searchstr": params.searchstr,
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "filter": APIparams.filter,
+            "searchstr": APIparams.searchstr,
             "plist": {
                 "type": "text",
                 "example": "queue",
                 "desc": "MPD playlist to add results to, use \"queue\" to add search to queue"
             },
-            "cols": params.cols,
+            "cols": APIparams.cols,
             "replace": {
                 "type": "bool",
                 "example": "false",
@@ -173,33 +173,33 @@ const cmds = {
     "MYMPD_API_DATABASE_FILESYSTEM_LIST": {
         "desc": "Lists directories, songs and playlists.",
         "params": {
-            "offset": params.offset,
-            "limit": params.limit,
-            "searchstr": params.searchstr,
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "searchstr": APIparams.searchstr,
             "path": {
                 "type": "text",
                 "example": "Alben",
                 "desc": "Directory to list"
             },
-            "cols": params.cols
+            "cols": APIparams.cols
         }
     },
     "MYMPD_API_DATABASE_GET_ALBUMS": {
         "desc": "Lists unique albums.",
         "params": {
-            "offset": params.offset,
-            "limit": params.limit,
-            "expression": params.expression,
-            "sort": params.sort,
-            "sortdesc": params.sortdesc
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "expression": APIparams.expression,
+            "sort": APIparams.sort,
+            "sortdesc": APIparams.sortdesc
         }
     },
     "MYMPD_API_DATABASE_TAG_LIST": {
         "desc": "Lists unique tag values.",
         "params":{
-            "offset": params.offset,
-            "limit": params.limit,
-            "searchstr": params.searchstr,
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "searchstr": APIparams.searchstr,
             "tag": {
                 "type": "text",
                 "example": "Genre",
@@ -220,7 +220,7 @@ const cmds = {
                 "example": "Einstürzende Neubauten",
                 "desc": "Albumartist"
             },
-            "cols": params.cols
+            "cols": APIparams.cols
         }
     },
     "MYMPD_API_DATABASE_STATS": {
@@ -230,13 +230,13 @@ const cmds = {
     "MYMPD_API_DATABASE_SONGDETAILS": {
         "desc": "Shows all details of a song.",
         "params": {
-            "uri": params.uri
+            "uri": APIparams.uri
         }
     },
     "MYMPD_API_DATABASE_FINGERPRINT": {
         "desc": "Calculates the chromaprint fingerprint",
         "params": {
-            "uri": params.uri
+            "uri": APIparams.uri
         }
     },
     "MYMPD_API_QUEUE_CLEAR": {
@@ -284,25 +284,25 @@ const cmds = {
     "MYMPD_API_QUEUE_LIST": {
         "desc": "List the songs from the queue.",
         "params": {
-            "offset": params.offset,
-            "limit": params.limit,
-            "cols": params.cols
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "cols": APIparams.cols
         }
     },
     "MYMPD_API_QUEUE_SEARCH": {
         "desc": "Searches the queue.",
         "params": {
-            "offset": params.offset,
-            "limit": params.limit,
-            "filter": params.filter,
-            "searchstr": params.searchstr,
-            "cols": params.cols
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "filter": APIparams.filter,
+            "searchstr": APIparams.searchstr,
+            "cols": APIparams.cols
         }
     },
     "MYMPD_API_QUEUE_RM_SONG": {
         "desc": "Removes the song from the queue.",
         "params": {
-            "songId": params.songId
+            "songId": APIparams.songId
         }
     },
     "MYMPD_API_QUEUE_RM_RANGE": {
@@ -323,45 +323,45 @@ const cmds = {
     "MYMPD_API_QUEUE_MOVE_SONG": {
         "desc": "Moves a song in the queue.",
         "params": {
-            "from": params.from,
-            "to": params.to
+            "from": APIparams.from,
+            "to": APIparams.to
         }
     },
     "MYMPD_API_QUEUE_ADD_URI_AFTER": {
         "desc": "Adds song(s) to distinct position in queue.",
         "params": {
-            "uri": params.uri,
-            "to": params.to
+            "uri": APIparams.uri,
+            "to": APIparams.to
         }
     },
     "MYMPD_API_QUEUE_ADD_URI": {
         "desc": "Appends song(s) to the queue.",
         "params": {
-            "uri": params.uri
+            "uri": APIparams.uri
         }
     },
     "MYMPD_API_QUEUE_ADD_PLAY_URI": {
         "desc": "Appends song(s) to queue queue and plays it.",
         "params": {
-            "uri": params.uri
+            "uri": APIparams.uri
         }
     },
     "MYMPD_API_QUEUE_REPLACE_URI": {
         "desc": "Replaces the queue with song(s).",
         "params": {
-            "uri": params.uri
+            "uri": APIparams.uri
         }
     },
     "MYMPD_API_QUEUE_ADD_PLAYLIST": {
         "desc": "Appends the playlist to the queue.",
         "params": {
-            "plist": params.plist
+            "plist": APIparams.plist
         }
     },
     "MYMPD_API_QUEUE_REPLACE_PLAYLIST": {
         "desc": "Replaces the queue with the playlist.",
         "params": {
-            "plist": params.plist
+            "plist": APIparams.plist
         }
     },
     "MYMPD_API_QUEUE_SHUFFLE": {
@@ -371,27 +371,27 @@ const cmds = {
     "MYMPD_API_QUEUE_PRIO_SET_HIGHEST": {
         "desc": "Set highest prio for specified song",
         "params": {
-            "songId": params.songId
+            "songId": APIparams.songId
         }
     },
     "MYMPD_API_QUEUE_LAST_PLAYED": {
         "desc": "Lists the last played songs.",
         "params": {
-            "offset": params.offset,
-            "limit": params.limit,
-            "cols": params.cols
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "cols": APIparams.cols
         }
     },
     "MYMPD_API_PLAYLIST_RM": {
         "desc": "Removes the MPD playlist.",
         "params": {
-            "plist": params.plist
+            "plist": APIparams.plist
         }
     },
     "MYMPD_API_PLAYLIST_CLEAR": {
         "desc": "Clears the MPD playlist.",
         "params": {
-            "plist": params.plist
+            "plist": APIparams.plist
         }
     },
     "MYMPD_API_PLAYLIST_RENAME": {
@@ -412,23 +412,23 @@ const cmds = {
     "MYMPD_API_PLAYLIST_MOVE_SONG": {
         "desc": "Moves a song in the playlist.",
         "params": {
-            "plist": params.plist,
-            "from": params.from,
-            "to": params.to
+            "plist": APIparams.plist,
+            "from": APIparams.from,
+            "to": APIparams.to
         }
     },
     "MYMPD_API_PLAYLIST_ADD_URI": {
         "desc": "Appens a song to the playlist",
         "params": {
-            "plist": params.plist,
-            "uri": params.uri
+            "plist": APIparams.plist,
+            "uri": APIparams.uri
         }
     },
     "MYMPD_API_PLAYLIST_RM_SONG": {
         "desc": "Removes a song from the playlist.",
         "params": {
-            "plist": params.plist,
-            "pos": params.pos
+            "plist": APIparams.plist,
+            "pos": APIparams.pos
         }
     },
     "MYMPD_API_PLAYLIST_RM_ALL": {
@@ -444,31 +444,31 @@ const cmds = {
     "MYMPD_API_PLAYLIST_LIST": {
         "desc": "Lists all MPD playlists.",
         "params": {
-            "offset": params.offset,
-            "limit": params.limit,
-            "searchstr": params.searchstr
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "searchstr": APIparams.searchstr
         }
     },
     "MYMPD_API_PLAYLIST_CONTENT_LIST": {
         "desc": "Lists songs in the playlist.",
         "params": {
-            "plist": params.plist,
-            "offset": params.offset,
-            "limit": params.limit,
-            "searchstr": params.searchstr, 
-            "cols": params.cols
+            "plist": APIparams.plist,
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "searchstr": APIparams.searchstr, 
+            "cols": APIparams.cols
         }
     },
     "MYMPD_API_PLAYLIST_SHUFFLE": {
         "desc": "Shuffles the playlist.",
         "params": {
-            "plist": params.plist
+            "plist": APIparams.plist
         }
     },
     "MYMPD_API_PLAYLIST_SORT": {
         "desc": "Sorts the playlist.",
         "params": {
-            "plist": params.plist,
+            "plist": APIparams.plist,
             "tag": {
                 "type": "text",
                 "example": "Artist",
@@ -489,25 +489,25 @@ const cmds = {
     "MYMPD_API_SMARTPLS_UPDATE": { 
         "desc": "Updates the smart playlist.",
         "params": {
-            "plist": params.plist
+            "plist": APIparams.plist
         }
     },
     "MYMPD_API_SMARTPLS_NEWEST_SAVE": {
         "desc": "Saves a smart playlist of type newest songs.",
         "params": {
-            "plist": params.plist,
+            "plist": APIparams.plist,
             "timerange": {
                 "type": "uint",
                 "example": 604800,
                 "desc":"timerange in seconds"
             },
-            "sort": params.sortShuffle
+            "sort": APIparams.sortShuffle
         }
     },
     "MYMPD_API_SMARTPLS_STICKER_SAVE": {
         "desc": "Saves a sticker search as a smart playlist.",
         "params": {
-            "plist": params.plist,
+            "plist": APIparams.plist,
             "sticker": {
                 "type": "text",
                 "example": "like",
@@ -523,27 +523,27 @@ const cmds = {
                 "example": 2,
                 "desc": "minimum integer value"
             },
-            "sort": params.sortShuffle
+            "sort": APIparams.sortShuffle
         }
     },
     "MYMPD_API_SMARTPLS_SEARCH_SAVE": {
         "desc": "Saves a search expression as a smart playlist.",
         "params": {
-            "plist": params.plist,
-            "expression": params.expression,
-            "sort": params.sortShuffle
+            "plist": APIparams.plist,
+            "expression": APIparams.expression,
+            "sort": APIparams.sortShuffle
         }
     },
     "MYMPD_API_SMARTPLS_GET": {
         "desc": "Gets the smart playlist options.",
         "params": {
-            "plist": params.plist
+            "plist": APIparams.plist
         }
     },
     "MYMPD_API_PLAYER_PLAY_SONG": {
         "desc": "Starts playing the specified song.",
         "params": {
-            "songId": params.songId
+            "songId": APIparams.songId
         }
     },
     "MYMPD_API_PLAYER_VOLUME_SET": {
@@ -629,7 +629,7 @@ const cmds = {
     "MYMPD_API_LIKE": {
         "desc": "Sets the like status of a song.",
         "params": {
-            "uri": params.uri,
+            "uri": APIparams.uri,
             "like": {
                 "type": "uint",
                 "example": 1,
@@ -1067,7 +1067,7 @@ const cmds = {
                 "example": "colsQueueJukebox",
                 "desc": "Valid values: colsQueueCurrent, colsQueueLastPlayed, colsSearch, colsBrowseDatabaseDetail, colsBrowsePlaylistsDetail, colsBrowseFilesystem, colsPlayback, colsQueueJukebox"
             },
-            "cols": params.cols
+            "cols": APIparams.cols
         }
     },
     "MYMPD_API_TIMER_SAVE": {
@@ -1147,19 +1147,19 @@ const cmds = {
     "MYMPD_API_TIMER_GET": {
         "desc": "Gets options from a timer",
         "params":{
-            "timerid": params.timerid
+            "timerid": APIparams.timerid
         }
     },
     "MYMPD_API_TIMER_RM": {
         "desc": "Removes a timer",
         "params": {
-            "timerid": params.timerid
+            "timerid": APIparams.timerid
         }
     },
     "MYMPD_API_TIMER_TOGGLE": {
         "desc": "Toggles a timers enabled state",
         "params": {
-            "timerid": params.timerid
+            "timerid": APIparams.timerid
         }
     },
     "MYMPD_API_MESSAGE_SEND":  {
@@ -1180,7 +1180,7 @@ const cmds = {
     "MYMPD_API_SCRIPT_SAVE": {
         "desc": "Saves a script",
         "params": {
-            "script": params.script,
+            "script": APIparams.script,
             "oldscript": {
                 "type": "text",
                 "example": "testscript",
@@ -1216,20 +1216,20 @@ const cmds = {
     "MYMPD_API_SCRIPT_GET": {
         "desc": "Gets options from a timer",
         "params": {
-            "script": params.script
+            "script": APIparams.script
         }
     },
     "MYMPD_API_SCRIPT_DELETE": {
         "desc": "Removes a script",
         "params": {
-            "script": params.script
+            "script": APIparams.script
         }
     },
     "MYMPD_API_SCRIPT_EXECUTE": {
         "desc": "Executes a script",
         "params": {
-            "script": params.script,
-            "arguments": params.scriptArguments
+            "script": APIparams.script,
+            "arguments": APIparams.scriptArguments
         }
     },
     "MYMPD_API_SCRIPT_POST_EXECUTE": {
@@ -1240,7 +1240,7 @@ const cmds = {
                 "example": "return \"test\"..argname1",
                 "desc": "The lua script itself"
             },
-            "arguments": params.scriptArguments
+            "arguments": APIparams.scriptArguments
         }
     },
     "MYMPD_API_PARTITION_LIST": {
@@ -1250,18 +1250,18 @@ const cmds = {
     "MYMPD_API_PARTITION_NEW": {
         "desc": "Creates a new MPD partition",
         "params": {
-            "name": params.partName
+            "name": APIparams.partName
         }
     },
     "MYMPD_API_PARTITION_SWITCH": {
         "desc": "Switch mpd client to this partition",
         "params": {
-            "name": params.partName
+            "name": APIparams.partName
         }
     },
     "MYMPD_API_PARTITION_RM": {
         "params": {
-            "name": params.partName
+            "name": APIparams.partName
         }
     },
     "MYMPD_API_PARTITION_OUTPUT_MOVE": {
@@ -1281,13 +1281,13 @@ const cmds = {
     "MYMPD_API_TRIGGER_GET": {
         "desc": "Get the options from a trigger",
         "params": {
-            "id": params.triggerId
+            "id": APIparams.triggerId
         }
     },
     "MYMPD_API_TRIGGER_SAVE": {
         "desc": "Saves a trigger",
         "params": {
-            "id": params.triggerId,
+            "id": APIparams.triggerId,
             "name": {
                 "type": "text",
                 "example": "test trigger",
@@ -1303,13 +1303,13 @@ const cmds = {
                 "example": "test script",
                 "desc": "Script to execute"
             },
-            "arguments": params.scriptArguments
+            "arguments": APIparams.scriptArguments
         }
     },
     "MYMPD_API_TRIGGER_DELETE": {
         "desc": "Deletes a trigger",
         "params":{
-            "id": params.triggerId
+            "id": APIparams.triggerId
         }
     },
     "MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET": {
@@ -1344,8 +1344,8 @@ const cmds = {
     "MYMPD_API_HOME_ICON_MOVE": {
         "desc": "Move home icon position",
         "params": {
-            "from": params.from,
-            "to": params.to
+            "from": APIparams.from,
+            "to": APIparams.to
         }
     },
     "MYMPD_API_HOME_ICON_SAVE": {
@@ -1402,21 +1402,21 @@ const cmds = {
     "MYMPD_API_JUKEBOX_LIST": {
         "desc": "Lists the internal jukebox queue.",
         "params": {
-            "offset": params.offset,
-            "limit": params.limit,
-            "cols": params.cols
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "cols": APIparams.cols
         }
     },
     "MYMPD_API_JUKEBOX_RM": {
         "desc": "Removes a song or album from the jukebox queue.",
         "params": {
-            "pos": params.pos
+            "pos": APIparams.pos
         }
     },
     "MYMPD_API_LYRICS_GET": {
         "desc": "Gets all lyrics from uri",
         "params": {
-            "uri": params.uri
+            "uri": APIparams.uri
         }
     }
 };

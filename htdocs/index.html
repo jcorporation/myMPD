@@ -1822,6 +1822,35 @@
               <div class="form-group">
                 <label for="textareaScriptContent" data-phrase="Script"></label>
                 <textarea class="form-control text-monospace border-secondary" id="textareaScriptContent" rows="10"></textarea>
+                <div class="btn-group mt-2">
+                  <button id="btnDropdownAddAPIcall" data-title-phrase="Insert API call" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">api</span></button>
+                  <div class="dropdown-menu bg-lite-dark px-2" id="dropdownAddAPIcall">
+                    <div class="input-group">
+                      <select class="form-control custom-select border-secondary" id="selectAPIcall"></select>
+                      <div class="input-group-append">
+                        <button class="btn btn-success" id="btnAddAPIcall" data-title-phrase="Add"><span class="mi">add</span></button>
+                      </div>
+                    </div>
+                    <div id="APIdesc" class="mt-2 pl-1"></div>
+                    <div class="mt-2 pl-1">
+                      <a target="_blank" rel="noreferrer" href="https://jcorporation.github.io/mympd/apidoc.html" class="text-success">
+                        <span class="mi">open_in_browser</span>&nbsp;<span data-phrase="Open documentation"></span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="btn-group mt-2">
+                  <button id="btnDropdownAddFunction" data-title-phrase="Insert function" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">functions</span></button>
+                  <div class="dropdown-menu bg-lite-dark px-2" id="dropdownAddFunction">
+                    <div class="input-group">
+                      <select class="form-control custom-select border-secondary" id="selectFunction"></select>
+                      <div class="input-group-append">
+                        <button class="btn btn-success" id="btnAddFunction" data-title-phrase="Add"><span class="mi">add</span></button>
+                      </div>
+                    </div>
+                    <div id="functionDesc" class="mt-2 pl-1"></div>
+                  </div>
+                </div>
               </div>
             </form>
           </div>
@@ -2140,13 +2169,13 @@
 <!--debug-->  <script src="js/version.js"></script>
 <!--debug-->  <script src="js/long-press-event.js"></script>
 <!--debug-->  <script src="js/bootstrap-native.js"></script>
+<!--debug-->  <script src="js/apidoc.js"></script>
 <!--debug-->  <script src="js/utility.js"></script>
 <!--debug-->  <script src="js/elements.js"></script>
 <!--debug-->  <script src="js/globales.js"></script>
 <!--debug-->  <script src="js/log.js"></script>
 <!--debug-->  <script src="js/i18n.js"></script>
 <!--debug-->  <script src="js/locale.js"></script>
-
 <!--debug-->  <script src="js/validate.js"></script>
 <!--debug-->  <script src="js/notification.js"></script>
 <!--debug-->  <script src="js/settings.js"></script>

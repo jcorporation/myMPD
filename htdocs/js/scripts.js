@@ -44,7 +44,106 @@ function initScripts() {
 
     document.getElementById('modalScripts').addEventListener('shown.bs.modal', function () {
         showListScripts();
-    });
+    }, false);
+    
+    document.getElementById('btnDropdownAddAPIcall').parentNode.addEventListener('show.bs.dropdown', function() {
+        let dw = document.getElementById('textareaScriptContent').offsetWidth - document.getElementById('btnDropdownAddAPIcall').parentNode.offsetLeft;
+        document.getElementById('dropdownAddAPIcall').style.width = dw + 'px';
+    }, false);
+    
+    document.getElementById('btnDropdownAddFunction').parentNode.addEventListener('show.bs.dropdown', function() {
+        const dw = document.getElementById('textareaScriptContent').offsetWidth - document.getElementById('btnDropdownAddFunction').parentNode.offsetLeft;
+        document.getElementById('dropdownAddFunction').style.width = dw + 'px';
+    }, false);
+    
+    let methodList = '<option value="">' + t('Select method') + '</option>';
+    for (const m in APImethods) {
+        methodList += '<option value="' + m + '">' + m + '</option>';
+    }
+    const selectAPIcallEl = document.getElementById('selectAPIcall');
+    selectAPIcallEl.innerHTML = methodList;
+    
+    selectAPIcallEl.addEventListener('click', function(event) {
+        event.stopPropagation();
+    }, false);
+    
+    selectAPIcallEl.addEventListener('change', function(event) {
+        const value = getSelectValue(event.target);
+        document.getElementById('APIdesc').innerText = value !== '' ? APImethods[value].desc : '';
+    }, false);
+    
+    document.getElementById('btnAddAPIcall').addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const method = getSelectValue('selectAPIcall');
+        if (method === '') {
+            return;
+        }
+        const el = document.getElementById('textareaScriptContent');
+        const [start, end] = [el.selectionStart, el.selectionEnd];
+        let newText = 'rc, raw_result = mympd_api_raw("' + method + '", "';
+        newText += apiParamsToArgs(APImethods[method].params);
+        newText += '")\nresult = json.decode(raw_result)\n';
+        el.setRangeText(newText, start, end, 'preserve');
+        document.getElementById('btnDropdownAddAPIcall').Dropdown.hide();
+        el.focus();
+    }, false);
+    
+    let functionList = '<option value="">' + t('Select function') + '</option>';
+    for (const m in LUAfunctions) {
+        functionList += '<option value="' + m + '">' + m + '</option>';
+    }
+    const selectFunctionEl = document.getElementById('selectFunction');
+    selectFunctionEl.innerHTML = functionList;
+    
+    selectFunctionEl.addEventListener('click', function(event) {
+        event.stopPropagation();
+    }, false);
+    
+    selectFunctionEl.addEventListener('change', function(event) {
+        const value = getSelectValue(event.target);
+        document.getElementById('functionDesc').innerText = value !== '' ? LUAfunctions[value].desc : '';
+    }, false);
+    
+    document.getElementById('btnAddFunction').addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const value = getSelectValue('selectFunction');
+        if (value === '') {
+            return;
+        }
+        const el = document.getElementById('textareaScriptContent');
+        const [start, end] = [el.selectionStart, el.selectionEnd];
+        let newText = LUAfunctions[value].func;
+        el.setRangeText(newText, start, end, 'end');
+        document.getElementById('btnDropdownAddFunction').Dropdown.hide();
+        el.focus();
+    }, false);
+}
+
+function apiParamsToArgs(p) {
+    let args = '{';
+    let i = 0;
+    for (const param in p) {
+        if (i > 0) {
+            args += ', ';
+        }
+        i++;
+        args += '\\"' + param + '\\": ';
+        if (p[param].params !== undefined) {
+            args += apiParamsToArgs(p[param].params);            
+        }
+        else {
+            if (p[param].type === 'text') {
+                args += '\\"' + p[param].example + '\\"';
+            }
+            else {
+                args += p[param].example;
+            }
+        }
+    }
+    args += '}';
+    return args;
 }
 
 //eslint-disable-next-line no-unused-vars

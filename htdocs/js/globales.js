@@ -594,3 +594,18 @@ uiElements.collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupd
 uiElements.collapseSettings = new BSN.Collapse(document.getElementById('navSettings'));
 uiElements.collapseScripting = new BSN.Collapse(document.getElementById('navScripting'));
 uiElements.collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukeboxMode'));
+
+const LUAfunctions = {
+    "mympd_api_http_client": {
+        "desc": "HTTP client",
+        "func": "rc, response, header, body = mympd_api_http_client(method, uri, headers, payload)"
+    },
+    "mympd.init": {
+        "desc": "Initializes the mympd_state lua table",
+        "func": "mympd.init()"
+    },
+    "mympd.os_capture": {
+        "desc":	"Executes a system command and capture its output.",
+        "func": "output = mympd.os_capture(command)"
+    }
+};
