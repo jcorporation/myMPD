@@ -300,11 +300,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     .cert = config->ssl_cert,
                     .certkey = config->ssl_key
                 };
-                if (mg_tls_init(nc, &tls_opts) == 0) {
-                    MYMPD_LOG_ERROR("Can not init tls with cert %s and key %s", config->ssl_cert, config->ssl_key);
-                    nc->is_closing = 1;
-                    break;
-                }
+                mg_tls_init(nc, &tls_opts);
             }
             #endif
             mg_user_data->connection_count++;
