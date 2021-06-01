@@ -37,7 +37,7 @@ function initSettings() {
 
     document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
         setTimeout(function() {
-            const value = getAttDec(document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
+            const value = getCustomDomProperty(document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
             if (value === '0') {
                 disableEl('inputJukeboxQueueLength');
                 disableEl('selectJukeboxPlaylist');
@@ -961,10 +961,10 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
 
     const inputEl = document.getElementById(inputId);
     inputEl.value = values.join(', ');
-    if (getAttDec(inputEl, 'data-init') === 'true') {
+    if (getCustomDomProperty(inputEl, 'data-init') === 'true') {
         return;
     }
-    setAttEnc(inputEl, 'data-init', 'true');
+    setCustomDomProperty(inputEl, 'data-init', 'true');
     document.getElementById(listId).addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
@@ -1060,15 +1060,15 @@ function setNavbarIcons() {
     domCache.navbarBtns = container.getElementsByTagName('div');
     domCache.navbarBtnsLen = domCache.navbarBtns.length;
     for (let i = 0; i < domCache.navbarBtnsLen; i++) {
-        setAttEnc(domCache.navbarBtns[i].firstChild, 'data-href', JSON.stringify({"cmd": "appGoto", "options": settings.navbarIcons[i].options}));
+        setCustomDomProperty(domCache.navbarBtns[i].firstChild, 'data-href', JSON.stringify({"cmd": "appGoto", "options": settings.navbarIcons[i].options}));
     }
 }
 
 //eslint-disable-next-line no-unused-vars
 function resetToDefault(button) {
     const el = button.nodeName === 'BUTTON' ? button.parentNode.previousElementSibling : button.parentNode.parentNode.previousElementSibling;
-    el.value = getAttDec(el, 'data-default') !== null ? getAttDec(el, 'data-default') : 
-        (getAttDec(el, 'placeholder') !== null ? getAttDec(el, 'placeholder') : '');
+    el.value = getCustomDomProperty(el, 'data-default') !== null ? getCustomDomProperty(el, 'data-default') : 
+        (getCustomDomProperty(el, 'placeholder') !== null ? getCustomDomProperty(el, 'placeholder') : '');
 }
 
 function getBgImageList(image) {

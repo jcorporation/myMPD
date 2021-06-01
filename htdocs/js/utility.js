@@ -74,6 +74,18 @@ function showConfirmInline(el, text, btnText, callback) {
     el.appendChild(confirm);
 }
 
+function myEncodeURI(x) {
+    return encodeURI(x).replace(/([#])/g, function(m0, m1) {
+            if (m1 === '#') return '%23';
+    });
+}
+
+function myDecodeURI(x) {
+    return decodeURI(x).replace(/(%23)/g, function(m0, m1) {
+            if (m1 === '%23') return '#';
+    });
+}
+
 //functions to get custom actions
 function clickAlbumPlay(albumArtist, album) {
     switch (settings.webuiSettings.clickAlbumPlay) {
@@ -141,21 +153,23 @@ function unescapeMPD(x) {
     });
 }
 
-//get and set attributes url encoded
-function setAttEnc(el, attribute, value) {
+//get and set custom dom properties
+//replaces data-* attributes
+function setCustomDomProperty(el, attribute, value) {
     if (typeof el === 'string') {
         el = document.getElementById(el);
     }
-    el.setAttribute(attribute, encodeURI(value));
+    el['myMPD-' + attribute] = value;
 }
 
-function getAttDec(el, attribute) {
+function getCustomDomProperty(el, attribute) {
     if (typeof el === 'string') {
         el = document.getElementById(el);
     }
-    let value = el.getAttribute(attribute);
-    if (value) {
-        value = decodeURI(value);
+    let value = el['myMPD-' + attribute];
+    if (value === undefined) {
+        //fallback to attribute
+        value = el.getAttribute(decodeURI(attribute));
     }
     return value;
 }
@@ -188,7 +202,7 @@ function getSelectValue(el) {
         el = document.getElementById(el);
     }
     if (el && el.selectedIndex >= 0) {
-        return getAttDec(el.options[el.selectedIndex], 'value');
+        return getCustomDomProperty(el.options[el.selectedIndex], 'value');
     }
     return undefined;
 }
@@ -196,7 +210,7 @@ function getSelectValue(el) {
 function getSelectedOptionAttribute(selectId, attribute) {
     const el = document.getElementById(selectId);
     if (el && el.selectedIndex >= 0) {
-        return getAttDec(el.options[el.selectedIndex], attribute);
+        return getCustomDomProperty(el.options[el.selectedIndex], attribute);
     }
     return undefined;
 }
@@ -403,7 +417,7 @@ function toggleBtnGroupValue(btngrp, value) {
         valuestr = value.toString();
     }
     for (let i = 0, j = btns.length; i < j; i++) {
-        if (getAttDec(btns[i], 'data-value') === valuestr) {
+        if (getCustomDomProperty(btns[i], 'data-value') === valuestr) {
             btns[i].classList.add('active');
             b = btns[i];
         }
@@ -446,7 +460,7 @@ function getBtnGroupValue(btnGroup) {
     if (activeBtn.length === 0) {
         activeBtn = document.getElementById(btnGroup).getElementsByTagName('button');    
     }
-    return getAttDec(activeBtn[0], 'data-value');
+    return getCustomDomProperty(activeBtn[0], 'data-value');
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -596,7 +610,7 @@ function setPagination(total, returned) {
             page.classList.remove('nodropdown');
             pages.addEventListener('click', function(event) {
                 if (event.target.nodeName === 'BUTTON') {
-                    gotoPage(getAttDec(event.target, 'data-offset'));
+                    gotoPage(getCustomDomProperty(event.target, 'data-offset'));
                 }
             }, false);
             //eslint-disable-next-line no-unused-vars
@@ -776,9 +790,9 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
 function createSearchCrumb(filter, op, value) {
     const li = document.createElement('button');
     li.classList.add('btn', 'btn-light', 'mr-2');
-    setAttEnc(li, 'data-filter-tag', filter);
-    setAttEnc(li, 'data-filter-op', op);
-    setAttEnc(li, 'data-filter-value', value);
+    setCustomDomProperty(li, 'data-filter-tag', filter);
+    setCustomDomProperty(li, 'data-filter-op', op);
+    setCustomDomProperty(li, 'data-filter-value', value);
     li.innerHTML = e(filter) + ' ' + e(op) + ' \'' + e(value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
     return li;
 }
@@ -790,13 +804,13 @@ function createSearchExpression(crumbsEl, tag, op, value) {
         if (i > 0) {
             expression += ' AND ';
         }
-        let crumbOp = getAttDec(crumbs[i], 'data-filter-op');
-        let crumbValue = getAttDec(crumbs[i], 'data-filter-value');
+        let crumbOp = getCustomDomProperty(crumbs[i], 'data-filter-op');
+        let crumbValue = getCustomDomProperty(crumbs[i], 'data-filter-value');
         if (app.current.app === 'Search' && crumbOp === 'starts_with') {
             crumbOp = '=~';
             crumbValue = '^' + crumbValue;
         }
-        expression += '(' + getAttDec(crumbs[i], 'data-filter-tag') + ' ' + 
+        expression += '(' + getCustomDomProperty(crumbs[i], 'data-filter-tag') + ' ' + 
             crumbOp + ' \'' + escapeMPD(crumbValue) + '\')';
     }
     if (value !== '') {

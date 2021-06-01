@@ -6,7 +6,7 @@
 function initSearch() {
     document.getElementById('SearchList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            clickSong(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
+            clickSong(getCustomDomProperty(event.target.parentNode, 'data-uri'), getCustomDomProperty(event.target.parentNode, 'data-name'));
         }
         else if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
@@ -15,7 +15,7 @@ function initSearch() {
     
     document.getElementById('searchtags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
-            app.current.filter = getAttDec(event.target, 'data-tag');
+            app.current.filter = getCustomDomProperty(event.target, 'data-tag');
             doSearch(document.getElementById('searchstr').value);
         }
     }, false);
@@ -52,11 +52,11 @@ function initSearch() {
             //edit search expression
             event.preventDefault();
             event.stopPropagation();
-            document.getElementById('searchstr').value = unescapeMPD(getAttDec(event.target, 'data-filter-value'));
-            selectTag('searchtags', 'searchtagsdesc', getAttDec(event.target, 'data-filter-tag'));
-            document.getElementById('searchMatch').value = getAttDec(event.target, 'data-filter-op');
+            document.getElementById('searchstr').value = unescapeMPD(getCustomDomProperty(event.target, 'data-filter-value'));
+            selectTag('searchtags', 'searchtagsdesc', getCustomDomProperty(event.target, 'data-filter-tag'));
+            document.getElementById('searchMatch').value = getCustomDomProperty(event.target, 'data-filter-op');
             event.target.remove();
-            app.current.filter = getAttDec(event.target,'data-filter-tag');
+            app.current.filter = getCustomDomProperty(event.target,'data-filter-tag');
             doSearch(document.getElementById('searchstr').value);
             if (document.getElementById('searchCrumb').childElementCount === 0) {
                 document.getElementById('searchCrumb').classList.add('hide');
@@ -133,20 +133,20 @@ function parseSearch(obj) {
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
 
     updateTable(obj, 'Search', function(row, data) {
-        setAttEnc(row, 'data-type', data.Type);
-        setAttEnc(row, 'data-uri', data.uri);
+        setCustomDomProperty(row, 'data-type', data.Type);
+        setCustomDomProperty(row, 'data-uri', data.uri);
         row.setAttribute('tabindex', 0);
         row.setAttribute('title', rowTitle);
         if (features.featTags === true && features.featAdvsearch === true) {
             //add artist and album information for album actions
             if (data.Album !== undefined) {
-                setAttEnc(row, 'data-album', data.Album);
+                setCustomDomProperty(row, 'data-album', data.Album);
             }
             if (data[tagAlbumArtist] !== undefined) {
-                setAttEnc(row, 'data-albumartist', data[tagAlbumArtist]);
+                setCustomDomProperty(row, 'data-albumartist', data[tagAlbumArtist]);
             }
         }
-        setAttEnc(row, 'data-name', data.Title);
+        setCustomDomProperty(row, 'data-name', data.Title);
     });
 }
 

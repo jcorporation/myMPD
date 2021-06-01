@@ -16,13 +16,13 @@ function initQueue() {
     document.getElementById('searchqueuetags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             appGoto(app.current.app, app.current.tab, app.current.view, 
-                app.current.offset, app.current.limit, getAttDec(event.target, 'data-tag'), app.current.sort, '-', app.current.search);
+                app.current.offset, app.current.limit, getCustomDomProperty(event.target, 'data-tag'), app.current.sort, '-', app.current.search);
         }
     }, false);
 
     document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            clickQueueSong(getAttDec(event.target.parentNode, 'data-trackid'), getAttDec(event.target.parentNode, 'data-uri'));
+            clickQueueSong(getCustomDomProperty(event.target.parentNode, 'data-trackid'), getCustomDomProperty(event.target.parentNode, 'data-uri'));
         }
         else if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
@@ -31,7 +31,7 @@ function initQueue() {
     
     document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            clickSong(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
+            clickSong(getCustomDomProperty(event.target.parentNode, 'data-uri'), getCustomDomProperty(event.target.parentNode, 'data-name'));
         }
         else if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
@@ -150,15 +150,15 @@ function parseQueue(obj) {
         row.setAttribute('id','queueTrackId' + data.id);
         row.setAttribute('tabindex', 0);
         row.setAttribute('title', t(rowTitle));
-        setAttEnc(row, 'data-trackid', data.id);
-        setAttEnc(row, 'data-songpos', data.Pos);
-        setAttEnc(row, 'data-duration', data.Duration);
-        setAttEnc(row, 'data-uri', data.uri);
-        setAttEnc(row, 'data-type', 'song');
+        setCustomDomProperty(row, 'data-trackid', data.id);
+        setCustomDomProperty(row, 'data-songpos', data.Pos);
+        setCustomDomProperty(row, 'data-duration', data.Duration);
+        setCustomDomProperty(row, 'data-uri', data.uri);
+        setCustomDomProperty(row, 'data-type', 'song');
     });
 
     const table = document.getElementById('QueueCurrentList');
-    setAttEnc(table, 'data-version', obj.result.queueVersion);
+    setCustomDomProperty(table, 'data-version', obj.result.queueVersion);
     const colspan = settings['colsQueueCurrent'].length;
     const tfoot = table.getElementsByTagName('tfoot')[0];
     if (obj.result.totalTime && obj.result.totalTime > 0 && obj.result.totalEntities <= app.current.limit ) {
@@ -175,9 +175,9 @@ function parseQueue(obj) {
 function parseLastPlayed(obj) {
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
     updateTable(obj, 'QueueLastPlayed', function(row, data) {
-        setAttEnc(row, 'data-uri', data.uri);
-        setAttEnc(row, 'data-name', data.Title);
-        setAttEnc(row, 'data-type', 'song');
+        setCustomDomProperty(row, 'data-uri', data.uri);
+        setCustomDomProperty(row, 'data-name', data.Title);
+        setCustomDomProperty(row, 'data-type', 'song');
         row.setAttribute('tabindex', 0);
         row.setAttribute('title', t(rowTitle));
     });
@@ -191,10 +191,10 @@ function queueSelectedItem(append) {
             return;
         }
         if (append === true) {
-            appendQueue(getAttDec(item, 'data-type'), getAttDec(item, 'data-uri'), getAttDec(item, 'data-name'));
+            appendQueue(getCustomDomProperty(item, 'data-type'), getCustomDomProperty(item, 'data-uri'), getCustomDomProperty(item, 'data-name'));
         }
         else {
-            replaceQueue(getAttDec(item, 'data-type'), getAttDec(item, 'data-uri'), getAttDec(item, 'data-name'));
+            replaceQueue(getCustomDomProperty(item, 'data-type'), getCustomDomProperty(item, 'data-uri'), getCustomDomProperty(item, 'data-name'));
         }
     }
 }
@@ -206,7 +206,7 @@ function dequeueSelectedItem() {
         if (item.parentNode.parentNode.id !== 'QueueCurrentList') {
             return;
         }
-        delQueueSong('single', getAttDec(item, 'data-trackid'));
+        delQueueSong('single', getCustomDomProperty(item, 'data-trackid'));
     }
 }
 

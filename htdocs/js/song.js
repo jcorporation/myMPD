@@ -7,7 +7,7 @@ function initSong() {
     document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             if (event.target.id === 'calcFingerprint') {
-                sendAPI("MYMPD_API_DATABASE_FINGERPRINT", {"uri": getAttDec(event.target, 'data-uri')}, parseFingerprint);
+                sendAPI("MYMPD_API_DATABASE_FINGERPRINT", {"uri": getCustomDomProperty(event.target, 'data-uri')}, parseFingerprint);
                 event.preventDefault();
                 const spinner = document.createElement('div');
                 spinner.classList.add('spinner-border', 'spinner-border-sm');
@@ -73,8 +73,10 @@ function getMBtagLink(tag, value) {
 
 function parseSongDetails(obj) {
     const modal = document.getElementById('modalSongDetails');
-    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
-    
+    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(obj.result.uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+
+    const u = myEncodeURI(obj.result.uri);
+
     const elH1s = modal.getElementsByTagName('h1');
     for (let i = 0, j = elH1s.length; i < j; i++) {
         elH1s[i].innerText = obj.result.Title;
@@ -104,8 +106,8 @@ function parseSongDetails(obj) {
     songDetailsHTML += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.result.Duration) + '</td></tr>';
     if (features.featLibrary === true) {
         songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/browse/music/' + 
-            encodeURI(obj.result.uri) + '" target="_blank" title="' + e(obj.result.uri) + '">' + 
-            e(basename(obj.result.uri, true)) + '</a></td></tr>';
+            myEncodeURI(obj.result.uri) + '" target="_blank" title="' + e(obj.result.uri) + '">' + 
+            e(basename(obj.result.uri, false)) + '</a></td></tr>';
     }
     else {
         songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td class="breakAll"><span title="' + e(obj.result.uri) + '">' + 
@@ -115,16 +117,16 @@ function parseSongDetails(obj) {
     songDetailsHTML += '<tr><th>' + t('LastModified') + '</th><td>' + localeDate(obj.result.LastModified) + '</td></tr>';
     if (features.featFingerprint === true) {
         songDetailsHTML += '<tr><th>' + t('Fingerprint') + '</th><td class="breakAll" id="fingerprint"><a class="text-success" data-uri="' + 
-            encodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
+            myEncodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
     }
     if (obj.result.bookletPath !== '' && settings.publish === true) {
-        songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="' + encodeURI(subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName) + '" target="_blank">' + t('Download') + '</a></td></tr>';
+        songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="' + myEncodeURI(subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName) + '" target="_blank">' + t('Download') + '</a></td></tr>';
     }
     if (features.featStickers === true) {
         songDetailsHTML += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>';
         for (const sticker of stickerList) {
             if (sticker === 'stickerLike') {
-                songDetailsHTML += '<tr><th>' + t('Like') + '</th><td><div class="btn-group btn-group-sm" data-uri="' + encodeURI(obj.result.uri) + '">' +
+                songDetailsHTML += '<tr><th>' + t('Like') + '</th><td><div class="btn-group btn-group-sm" data-uri="' + myEncodeURI(obj.result.uri) + '">' +
                     '<button title="' + t('Dislike song') + '" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-secondary mi' + (obj.result[sticker] === 0 ? ' active' : '') + '">thumb_down</button>' +
                     '<button title="' + t('Like song') + '" data-href=\'{"cmd": "voteSong", "options": [2]}\' class="btn btn-sm btn-secondary mi' + (obj.result[sticker] === 2 ? ' active' : '') + '">thumb_up</button>' +
                     '</div></td></tr>';
@@ -147,7 +149,7 @@ function parseSongDetails(obj) {
     }
     
     //add uri to image list to get embedded albumart
-    const images = [ subdir + '/albumart/' + obj.result.uri ];
+    const images = [ subdir + '/albumart/' + myEncodeURI(obj.result.uri) ];
     //add all but coverfiles to image list
     if (settings.publish === true) {
         for (let i = 0, j = obj.result.images.length; i < j; i++) {
@@ -315,13 +317,13 @@ function voteSong(el, vote) {
     if (vote === 0 || vote === 2) {
         el.classList.add('active');
     }
-    const uri = getAttDec(el.parentNode, 'data-uri');
+    const uri = getCustomDomProperty(el.parentNode, 'data-uri');
     sendAPI("MYMPD_API_LIKE", {"uri": uri, "like": vote});
 }
 
 //eslint-disable-next-line no-unused-vars
 function voteCurrentSong(vote) {
-    const uri = getAttDec(document.getElementById('currentTitle'), 'data-uri');
+    const uri = getCustomDomProperty(document.getElementById('currentTitle'), 'data-uri');
     if (uri === '') {
         return;
     }

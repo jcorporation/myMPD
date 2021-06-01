@@ -7,10 +7,10 @@ function initJukebox() {
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             if (settings.jukeboxMode === 1) {
-                clickSong(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
+                clickSong(getCustomDomProperty(event.target.parentNode, 'data-uri'), getCustomDomProperty(event.target.parentNode, 'data-name'));
             }
             else if (settings.jukeboxMode === 2) {
-                clickAlbumPlay(getAttDec(event.target.parentNode, 'data-albumartist'), getAttDec(event.target.parentNode, 'data-album'));
+                clickAlbumPlay(getCustomDomProperty(event.target.parentNode, 'data-albumartist'), getCustomDomProperty(event.target.parentNode, 'data-album'));
             }
         }
         else if (event.target.nodeName === 'A') {
@@ -29,15 +29,15 @@ function delQueueJukeboxSong(pos) {
 function parseJukeboxList(obj) {
     const rowTitle = webuiSettingsDefault.clickAlbumPlay.validValues[settings.webuiSettings.clickAlbumPlay];
     updateTable(obj, 'QueueJukebox', function(row, data) {
-        setAttEnc(row, 'data-uri', data.uri);
-        setAttEnc(row, 'data-name', data.Title);
-        setAttEnc(row, 'data-type', data.uri === 'Album' ? 'album' : 'song');
-        setAttEnc(row, 'data-pos', (data.Pos - 1));
+        setCustomDomProperty(row, 'data-uri', data.uri);
+        setCustomDomProperty(row, 'data-name', data.Title);
+        setCustomDomProperty(row, 'data-type', data.uri === 'Album' ? 'album' : 'song');
+        setCustomDomProperty(row, 'data-pos', (data.Pos - 1));
         if (data.Album !== undefined) {
-            setAttEnc(row, 'data-album', data.Album);
+            setCustomDomProperty(row, 'data-album', data.Album);
         }
         if (data[tagAlbumArtist] !== undefined) {
-            setAttEnc(row, 'data-albumartist', data[tagAlbumArtist]);
+            setCustomDomProperty(row, 'data-albumartist', data[tagAlbumArtist]);
         }
         row.setAttribute('title', t(rowTitle));
         row.setAttribute('tabindex', 0);

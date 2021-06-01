@@ -217,7 +217,7 @@ int testdir(const char *name, const char *dirname, bool create) {
     if (create == true) {
         errno = 0;
         if (mkdir(dirname, 0700) != 0) {
-            MYMPD_LOG_ERROR("%s: creating \"%s\" failed: %s", name, dirname);
+            MYMPD_LOG_ERROR("%s: creating \"%s\" failed", name, dirname);
             MYMPD_LOG_ERRNO(errno);
             //directory does not exist and creating it failed
             return 2;

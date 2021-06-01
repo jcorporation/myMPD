@@ -274,7 +274,7 @@ function appRoute() {
                 let sortdesc = false;
                 if (sort === '-') {
                     sort = settings.tagList.includes('Title') ? 'Title' : '-';
-                    setAttEnc(document.getElementById('SearchList'), 'data-sort', sort);
+                    setCustomDomProperty(document.getElementById('SearchList'), 'data-sort', sort);
                 }
                 else if (sort.indexOf('-') === 0) {
                     sortdesc = true;
@@ -492,7 +492,7 @@ function appInit() {
             continue;
         }
         href.addEventListener('click', function(event) {
-            parseCmd(event, getAttDec(this, 'data-href'));
+            parseCmd(event, getCustomDomProperty(this, 'data-href'));
         }, false);
     }
     //do not submit forms
@@ -565,7 +565,7 @@ function appInit() {
         'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsListList', 'BrowsePlaylistsDetailList'];
     for (const tableName of tables) {
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {
-            if (event.target.parentNode.classList.contains('not-clickable') || getAttDec(event.target.parentNode, 'data-type') === 'parentDir') {
+            if (event.target.parentNode.classList.contains('not-clickable') || getCustomDomProperty(event.target.parentNode, 'data-type') === 'parentDir') {
                 return;
             }
             showMenu(event.target, event);
@@ -574,7 +574,7 @@ function appInit() {
         }, false);
     
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('contextmenu', function(event) {
-            if (event.target.parentNode.classList.contains('not-clickable') || getAttDec(event.target.parentNode, 'data-type') === 'parentDir') {
+            if (event.target.parentNode.classList.contains('not-clickable') || getCustomDomProperty(event.target.parentNode, 'data-type') === 'parentDir') {
                 return;
             }
             showMenu(event.target, event);
@@ -686,13 +686,12 @@ function initNavs() {
 
     document.getElementById('navbar-main').addEventListener('click', function(event) {
         event.preventDefault();
-        let href = getAttDec(event.target, 'data-href');
-        if (href === null) {
-            href = getAttDec(event.target.parentNode, 'data-href');
+        let href = getCustomDomProperty(event.target, 'data-href');
+        if (href === undefined || href === null) {
+            //workarround - event does not propagate to A
+            href = getCustomDomProperty(event.target.parentNode, 'data-href');
         }
-        if (href !== null) {
-            parseCmd(event, href);
-        }
+        parseCmd(event, href);
     }, false);
     
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
@@ -702,20 +701,20 @@ function initNavs() {
     document.getElementById('outputs').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
-            showListOutputAttributes(getAttDec(event.target.parentNode, 'data-output-name'));
+            showListOutputAttributes(getCustomDomProperty(event.target.parentNode, 'data-output-name'));
         }
         else {
             const target = event.target.nodeName === 'BUTTON' ? event.target : event.target.parentNode;
             event.stopPropagation();
             event.preventDefault();
-            sendAPI("MYMPD_API_PLAYER_TOGGLE_OUTPUT", {"outputId": getAttDec(target, 'data-output-id'), "state": (target.classList.contains('active') ? 0 : 1)});
+            sendAPI("MYMPD_API_PLAYER_TOGGLE_OUTPUT", {"outputId": getCustomDomProperty(target, 'data-output-id'), "state": (target.classList.contains('active') ? 0 : 1)});
             toggleBtn(target.id);
         }
     }, false);
 
     document.getElementById('scripts').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
-            execScript(getAttDec(event.target, 'data-href'));
+            execScript(getCustomDomProperty(event.target, 'data-href'));
         }
     }, false);
 }

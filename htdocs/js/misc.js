@@ -175,15 +175,15 @@ function _updateDBfinished(idleEvent) {
 //eslint-disable-next-line no-unused-vars
 function zoomPicture(el) {
     if (el.classList.contains('booklet')) {
-        window.open(getAttDec(el, 'data-href'));
+        window.open(getCustomDomProperty(el, 'data-href'));
         return;
     }
     
     if (el.classList.contains('carousel')) {
-        const imgSrc = getAttDec(el, 'data-images');
+        const imgSrc = getCustomDomProperty(el, 'data-images');
         let images;
         if (imgSrc !== null) {
-            images = getAttDec(el, 'data-images').split(';;');
+            images = getCustomDomProperty(el, 'data-images').split(';;');
         }
         else if (lastSongObj.images) {
             images = lastSongObj.images.slice();
@@ -194,7 +194,8 @@ function zoomPicture(el) {
         
         //add uri to image list to get embedded albumart
         let aImages = [];
-        const uri = getAttDec(el, 'data-uri');
+        //use uri encoded attribute
+        const uri = el.getAttribute('data-uri');
         if (uri) {
             aImages = [ subdir + '/albumart/' + uri ];
         }
@@ -252,7 +253,7 @@ function createImgCarousel(imgEl, name, images) {
     imgEl.innerHTML = carousel;
     const carouselItems = imgEl.getElementsByClassName('carousel-item');
     for (let i = 0, j = carouselItems.length; i < j; i++) {
-        carouselItems[i].children[0].style.backgroundImage = 'url("' + encodeURI(images[i]) + '")';
+        carouselItems[i].children[0].style.backgroundImage = 'url("' + myEncodeURI(images[i]) + '")';
     }
     const myCarousel = document.getElementById(name);
     //eslint-disable-next-line no-undef, no-unused-vars

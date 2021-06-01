@@ -8,14 +8,14 @@ function initMounts() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            if (getAttDec(event.target.parentNode, 'data-point') === '') {
+            if (getCustomDomProperty(event.target.parentNode, 'data-point') === '') {
                 return false;
             }
-            showEditMount(getAttDec(event.target.parentNode, 'data-url'), getAttDec(event.target.parentNode, 'data-point'));
+            showEditMount(getCustomDomProperty(event.target.parentNode, 'data-url'), getCustomDomProperty(event.target.parentNode, 'data-point'));
         }
         else if (event.target.nodeName === 'A') {
             const action = event.target.getAttribute('data-action');
-            const mountPoint = getAttDec(event.target.parentNode.parentNode, 'data-point');
+            const mountPoint = getCustomDomProperty(event.target.parentNode.parentNode, 'data-point');
             if (action === 'unmount') {
                 unmountMount(mountPoint);
             }
@@ -38,7 +38,7 @@ function initMounts() {
     document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
         event.preventDefault();
         if (event.target.nodeName === 'A') {
-            const ec = getAttDec(event.target, 'data-value');
+            const ec = getCustomDomProperty(event.target, 'data-value');
             const c = ec.match(/^(\w+:\/\/)(.+)$/);
             document.getElementById('selectMountUrlhandler').value = c[1];
             document.getElementById('inputMountUrl').value = c[2];
@@ -121,8 +121,8 @@ function parseListMounts(obj) {
     let activeRow = 0;
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const row = document.createElement('tr');
-        setAttEnc(row, 'data-url', obj.result.data[i].mountUrl);
-        setAttEnc(row, 'data-point', obj.result.data[i].mountPoint);
+        setCustomDomProperty(row, 'data-url', obj.result.data[i].mountUrl);
+        setCustomDomProperty(row, 'data-point', obj.result.data[i].mountPoint);
         if (obj.result.data[i].mountPoint === '') {
             row.classList.add('not-clickable');
         }

@@ -47,7 +47,7 @@ function saveTrigger() {
         const args = {};
         const argEls = document.getElementById('triggerActionScriptArguments').getElementsByTagName('input');
         for (let i = 0, j = argEls.length; i < j; i ++) {
-            args[getAttDec(argEls[i], 'data-name')] = argEls[i].value;
+            args[getCustomDomProperty(argEls[i], 'data-name')] = argEls[i].value;
         }
 
         sendAPI("MYMPD_API_TRIGGER_SAVE", {
@@ -101,7 +101,7 @@ function showTriggerScriptArgs(option, values) {
     if (values === undefined) {
         values = {};
     }
-    const args = JSON.parse(getAttDec(option, 'data-arguments'));
+    const args = JSON.parse(getCustomDomProperty(option, 'data-arguments'));
     let list = '';
     for (let i = 0, j = args.arguments.length; i < j; i++) {
         list += '<div class="form-group row">' +

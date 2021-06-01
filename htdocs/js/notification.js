@@ -135,18 +135,18 @@ function logMessage(title, text, facility, severity) {
 
     let append = true;
     const lastEntry = overview.firstElementChild;
-    if (lastEntry && getAttDec(lastEntry, 'data-title') === title) {
+    if (lastEntry && getCustomDomProperty(lastEntry, 'data-title') === title) {
         append = false;        
     }
 
     const entry = document.createElement('div');
     entry.classList.add('text-light');
-    setAttEnc(entry, 'data-title', title);
+    setCustomDomProperty(entry, 'data-title', title);
     let occurence = 1;
     if (append === false) {
-        occurence += Number(getAttDec(lastEntry, 'data-occurence'));
+        occurence += Number(getCustomDomProperty(lastEntry, 'data-occurence'));
     }
-    setAttEnc(entry, 'data-occurence', occurence);
+    setCustomDomProperty(entry, 'data-occurence', occurence);
     entry.innerHTML = '<small>' + localeDate() + '&nbsp;&ndash;&nbsp;' + t(facility) +
         ':&nbsp;' + t(severity) +
         (occurence > 1 ? '&nbsp;(' + occurence + ')' : '') + '</small>' +

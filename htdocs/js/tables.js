@@ -226,8 +226,8 @@ function dragAndDropTable(table) {
         if (event.target.nodeName === 'TD') {
             target = event.target.parentNode;
         }
-        const oldSongpos = getAttDec(document.getElementById(event.dataTransfer.getData('Text')), 'data-songpos');
-        const newSongpos = getAttDec(target, 'data-songpos');
+        const oldSongpos = getCustomDomProperty(document.getElementById(event.dataTransfer.getData('Text')), 'data-songpos');
+        const newSongpos = getCustomDomProperty(target, 'data-songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.classList.remove('opacity05');
         tableBody.insertBefore(dragEl, target);
@@ -488,7 +488,7 @@ function saveColsPlayback(table) {
             th = document.createElement('div');
             th.innerHTML = '<small>' + t(colInputs[i].name) + '</small><p></p>';
             th.setAttribute('id', 'current' + colInputs[i].name);
-            setAttEnc(th, 'data-tag', colInputs[i].name);
+            setCustomDomProperty(th, 'data-tag', colInputs[i].name);
             header.appendChild(th);
         }
     }
@@ -496,7 +496,7 @@ function saveColsPlayback(table) {
     const params = {"table": "cols" + table, "cols": []};
     const ths = header.getElementsByTagName('div');
     for (let i = 0, j = ths.length; i < j; i++) {
-        const name = getAttDec(ths[i], 'data-tag');
+        const name = getCustomDomProperty(ths[i], 'data-tag');
         if (name) {
             params.cols.push(name);
         }

@@ -9,14 +9,14 @@ function initTimer() {
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
             if (!event.target.parentNode.classList.contains('not-clickable')) {
-                showEditTimer(getAttDec(event.target.parentNode, 'data-id'));
+                showEditTimer(getCustomDomProperty(event.target.parentNode, 'data-id'));
             }
         }
         else if (event.target.nodeName === 'A') {
-            deleteTimer(getAttDec(event.target.parentNode.parentNode, 'data-id'));
+            deleteTimer(getCustomDomProperty(event.target.parentNode.parentNode, 'data-id'));
         }
         else if (event.target.nodeName === 'BUTTON') {
-            toggleTimer(event.target, getAttDec(event.target.parentNode.parentNode, 'data-id'));
+            toggleTimer(event.target, getCustomDomProperty(event.target.parentNode.parentNode, 'data-id'));
         }
     }, false);
 
@@ -91,7 +91,7 @@ function saveTimer() {
         document.getElementById('invalidTimerWeekdays').style.display = 'none';
     }
     const selectTimerAction  = document.getElementById('selectTimerAction');
-    const jukeboxMode = getAttDec(document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
+    const jukeboxMode = getCustomDomProperty(document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
     const selectTimerPlaylist = getSelectValue('selectTimerPlaylist');
 
     if (selectTimerAction.selectedIndex === -1) {
@@ -113,7 +113,7 @@ function saveTimer() {
         const args = {};
         const argEls = document.getElementById('timerActionScriptArguments').getElementsByTagName('input');
         for (let i = 0, j = argEls.length; i < j; i++) {
-            args[getAttDec(argEls[i], 'data-name')] = argEls[i].value;
+            args[getCustomDomProperty(argEls[i], 'data-name')] = argEls[i].value;
         }
         let interval = Number(inputTimerIntervalEl.value);
         if (interval > 0) {
@@ -127,7 +127,7 @@ function saveTimer() {
             "startHour": Number(getSelectValue('selectTimerHour')),
             "startMinute": Number(getSelectValue('selectTimerMinute')),
             "weekdays": weekdays,
-            "action": getAttDec(selectTimerAction.options[selectTimerAction.selectedIndex].parentNode, 'data-value'),
+            "action": getCustomDomProperty(selectTimerAction.options[selectTimerAction.selectedIndex].parentNode, 'data-value'),
             "subaction": getSelectValue(selectTimerAction),
             "volume": Number(document.getElementById('inputTimerVolume').value), 
             "playlist": selectTimerPlaylist,
@@ -226,7 +226,7 @@ function selectTimerActionChange(values) {
         document.getElementById('timerActionPlay').classList.remove('hide');
         document.getElementById('timerActionScript').classList.add('hide');
     }
-    else if (el.selectedIndex > -1 && getAttDec(el.options[el.selectedIndex].parentNode, 'data-value') === 'script') {
+    else if (el.selectedIndex > -1 && getCustomDomProperty(el.options[el.selectedIndex].parentNode, 'data-value') === 'script') {
         document.getElementById('timerActionScript').classList.remove('hide');
         document.getElementById('timerActionPlay').classList.add('hide');
         showTimerScriptArgs(el.options[el.selectedIndex], values);
@@ -241,7 +241,7 @@ function showTimerScriptArgs(option, values) {
     if (values === undefined) {
         values = {};
     }
-    const args = JSON.parse(getAttDec(option, 'data-arguments'));
+    const args = JSON.parse(getCustomDomProperty(option, 'data-arguments'));
     let list = '';
     for (let i = 0, j = args.arguments.length; i < j; i++) {
         list += '<div class="form-group row">' +
@@ -275,7 +275,7 @@ function parseListTimer(obj) {
     const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const row = document.createElement('tr');
-        setAttEnc(row, 'data-id', obj.result.data[i].timerid);
+        setCustomDomProperty(row, 'data-id', obj.result.data[i].timerid);
         let tds = '<td>' + e(obj.result.data[i].name) + '</td>' +
                   '<td><button name="enabled" class="btn btn-secondary btn-xs clickable mi mi-small' +
                   (obj.result.data[i].enabled === true ? ' active' : '') + '">' +

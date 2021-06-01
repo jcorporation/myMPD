@@ -11,8 +11,8 @@ function initBrowse() {
         if (app.current.tag === 'Album') {
             if (event.target.classList.contains('card-body')) {
                 appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', 'AlbumArtist', 
-                    getAttDec(event.target.parentNode, 'data-album'),
-                    getAttDec(event.target.parentNode, 'data-albumartist'));
+                    getCustomDomProperty(event.target.parentNode, 'data-album'),
+                    getCustomDomProperty(event.target.parentNode, 'data-albumartist'));
             }
             else if (event.target.classList.contains('card-footer')){
                 popoverMenuAlbumCards(event);
@@ -22,7 +22,7 @@ function initBrowse() {
             app.current.search = '';
             document.getElementById('searchDatabaseStr').value = '';
             appGoto(app.current.app, app.current.card, undefined, 0, undefined, 'Album', 'AlbumArtist', 'Album', 
-                '((' + app.current.tag + ' == \'' + escapeMPD(getAttDec(event.target.parentNode, 'data-tag')) + '\'))');
+                '((' + app.current.tag + ' == \'' + escapeMPD(getCustomDomProperty(event.target.parentNode, 'data-tag')) + '\'))');
         }
     }, false);
     
@@ -82,7 +82,7 @@ function initBrowse() {
             return;
         }
         if (event.target.nodeName === 'TD') {
-            clickSong(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
+            clickSong(getCustomDomProperty(event.target.parentNode, 'data-uri'), getCustomDomProperty(event.target.parentNode, 'data-name'));
         }
         else if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
@@ -91,7 +91,7 @@ function initBrowse() {
 
     document.getElementById('searchDatabaseTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
-            app.current.filter = getAttDec(event.target, 'data-tag');
+            app.current.filter = getCustomDomProperty(event.target, 'data-tag');
             searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
         }
     }, false);
@@ -113,7 +113,7 @@ function initBrowse() {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             event.stopPropagation();
-            app.current.sort = getAttDec(event.target, 'data-tag');
+            app.current.sort = getCustomDomProperty(event.target, 'data-tag');
             appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
         }
     }, false);
@@ -133,7 +133,7 @@ function initBrowse() {
     document.getElementById('dropdownSortPlaylistTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
-            playlistSort(getAttDec(event.target, 'data-tag'));
+            playlistSort(getCustomDomProperty(event.target, 'data-tag'));
         }
     }, false);
 
@@ -188,11 +188,11 @@ function initBrowse() {
             //edit search expression
             event.preventDefault();
             event.stopPropagation();
-            selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', getAttDec(event.target,'data-filter-tag'));
-            document.getElementById('searchDatabaseStr').value = unescapeMPD(getAttDec(event.target, 'data-filter-value'));
-            document.getElementById('searchDatabaseMatch').value = getAttDec(event.target, 'data-filter-op');
+            selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', getCustomDomProperty(event.target,'data-filter-tag'));
+            document.getElementById('searchDatabaseStr').value = unescapeMPD(getCustomDomProperty(event.target, 'data-filter-value'));
+            document.getElementById('searchDatabaseMatch').value = getCustomDomProperty(event.target, 'data-filter-op');
             event.target.remove();
-            app.current.filter = getAttDec(event.target,'data-filter-tag');
+            app.current.filter = getCustomDomProperty(event.target,'data-filter-tag');
             searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
             if (document.getElementById('searchDatabaseCrumb').childElementCount === 0) {
                 document.getElementById('searchDatabaseCrumb').classList.add('hide');
@@ -202,9 +202,9 @@ function initBrowse() {
 
     document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            const uri = getAttDec(event.target.parentNode, 'data-uri');
-            const name = getAttDec(event.target.parentNode, 'data-name');
-            const dataType = getAttDec(event.target.parentNode, 'data-type');
+            const uri = getCustomDomProperty(event.target.parentNode, 'data-uri');
+            const name = getCustomDomProperty(event.target.parentNode, 'data-name');
+            const dataType = getCustomDomProperty(event.target.parentNode, 'data-type');
             switch(dataType) {
                 case 'parentDir': {
                     const offset = browseFilesystemHistory[uri] !== undefined ? browseFilesystemHistory[uri].offset : 0;
@@ -232,7 +232,7 @@ function initBrowse() {
     document.getElementById('BrowseBreadcrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
-            const uri = getAttDec(event.target, 'data-uri');
+            const uri = getCustomDomProperty(event.target, 'data-uri');
             const offset = browseFilesystemHistory[uri] !== undefined ? browseFilesystemHistory[uri].offset : 0;
             const scrollPos = browseFilesystemHistory[uri] !== undefined ? browseFilesystemHistory[uri].scrollPos : 0;
             appGoto('Browse', 'Filesystem', undefined, offset, app.current.limit, app.current.filter, app.current.sort, '-', uri, scrollPos);
@@ -242,7 +242,7 @@ function initBrowse() {
 
 function navBrowseHandler(event) {
     if (event.target.nodeName === 'BUTTON') {
-        const tag = getAttDec(event.target, 'data-tag');
+        const tag = getCustomDomProperty(event.target, 'data-tag');
         if (tag === 'Playlists' || tag === 'Filesystem') {
             appGoto('Browse', tag, undefined);
             return;
@@ -282,17 +282,17 @@ function gotoBrowse(event) {
         return;
     }
     const x = event.target;
-    let tag = getAttDec(x, 'data-tag');
-    let name = getAttDec(x, 'data-name');
+    let tag = getCustomDomProperty(x, 'data-tag');
+    let name = getCustomDomProperty(x, 'data-name');
     if (tag === null) {
-        tag = getAttDec(x.parentNode, 'data-tag');
-        name = getAttDec(x.parentNode, 'data-name');
+        tag = getCustomDomProperty(x.parentNode, 'data-tag');
+        name = getCustomDomProperty(x.parentNode, 'data-name');
     }
     if (tag !== '' && name !== '' && name !== '-' && settings.tagListBrowse.includes(tag)) {
         if (tag === 'Album') {
-            let artist = getAttDec(x, 'data-albumartist');
+            let artist = getCustomDomProperty(x, 'data-albumartist');
             if (artist === null) {
-                artist = getAttDec(x.parentNode, 'data-albumartist');
+                artist = getCustomDomProperty(x.parentNode, 'data-albumartist');
             }
             if (artist !== null) {
                 //Show album details
@@ -326,7 +326,7 @@ function parseFilesystem(obj) {
         const img = document.createElement('div');
         img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
         img.classList.add('booklet');
-        setAttEnc(img, 'data-href', subdir + '/browse/music/' + obj.result.bookletPath);
+        setCustomDomProperty(img, 'data-href', subdir + '/browse/music/' + obj.result.bookletPath);
         img.title = t('Booklet');
         imageList.appendChild(img);
     }
@@ -341,13 +341,13 @@ function parseFilesystem(obj) {
     const rowTitlePlaylist = webuiSettingsDefault.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
     
     updateTable(obj, 'BrowseFilesystem', function(row, data) {
-        setAttEnc(row, 'data-type', data.Type);
-        setAttEnc(row, 'data-uri', data.uri);
+        setCustomDomProperty(row, 'data-type', data.Type);
+        setCustomDomProperty(row, 'data-uri', data.uri);
         //set Title to name if not defined - for folders and playlists
         if (data.Title === undefined) {
             data.Title = data.name;
         }
-        setAttEnc(row, 'data-name', data.Title);
+        setCustomDomProperty(row, 'data-name', data.Title);
         row.setAttribute('title', t(data.Type === 'song' ? rowTitleSong : 
                 data.Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
     });
@@ -397,8 +397,8 @@ function parseDatabase(obj) {
         let picture = '';
         if (obj.result.tag === 'Album') {
             id = genId('database' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist);
-            picture = subdir + '/albumart/' + obj.result.data[i].FirstSongUri;
-            html = '<div class="card card-grid clickable" data-picture="' + encodeURI(picture)  + '" ' + 
+            picture = subdir + '/albumart/' + myEncodeURI(obj.result.data[i].FirstSongUri);
+            html = '<div class="card card-grid clickable" data-picture="' + myEncodeURI(picture)  + '" ' + 
                        'data-uri="' + encodeURI(obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, '')) + '" ' +
                        'data-type="dir" data-name="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
@@ -411,7 +411,7 @@ function parseDatabase(obj) {
         else {
             id = genId('database' + obj.result.data[i].value);
             picture = subdir + '/tagart/' + obj.result.tag + '/' + encodeURI(obj.result.data[i].value);
-            html = '<div class="card card-grid clickable" data-picture="' + encodeURI(picture) + '" data-tag="' + encodeURI(obj.result.data[i].value) + '" tabindex="0">' +
+            html = '<div class="card card-grid clickable" data-picture="' + myEncodeURI(picture) + '" data-tag="' + encodeURI(obj.result.data[i].value) + '" tabindex="0">' +
                    (obj.result.pics === true ? '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' : '') +
                    '<div class="card-footer card-footer-grid p-2" title="' + e(obj.result.data[i].value) + '">' +
                    e(obj.result.data[i].value) + '<br/>' +
@@ -461,7 +461,8 @@ function setGridImage(changes, observer) {
     changes.forEach(change => {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);
-            const uri = getAttDec(change.target.firstChild, 'data-picture');
+            //use URI encoded attribute
+            const uri = change.target.firstChild.getAttribute('data-picture');
             const body = change.target.firstChild.getElementsByClassName('card-body')[0];
             if (body) {
                 body.style.backgroundImage = 'url("' + uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
@@ -479,15 +480,15 @@ function addPlayButton(parentEl) {
     div.addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
-        clickAlbumPlay(getAttDec(event.target.parentNode.parentNode, 'data-albumartist'), getAttDec(event.target.parentNode.parentNode, 'data-album'));
+        clickAlbumPlay(getCustomDomProperty(event.target.parentNode.parentNode, 'data-albumartist'), getCustomDomProperty(event.target.parentNode.parentNode, 'data-album'));
     }, false);
 }
 
 function parseAlbumDetails(obj) {
     const coverEl = document.getElementById('viewDetailDatabaseCover');
-    coverEl.style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.data[0].uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
-    setAttEnc(coverEl, 'data-images', obj.result.images.join(';;'));
-    setAttEnc(coverEl, 'data-uri', obj.result.data[0].uri);
+    coverEl.style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(obj.result.data[0].uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+    setCustomDomProperty(coverEl, 'data-images', obj.result.images.join(';;'));
+    setCustomDomProperty(coverEl, 'data-uri', obj.result.data[0].uri);
     const infoEl = document.getElementById('viewDetailDatabaseInfo');
     infoEl.innerHTML = '<h1>' + e(obj.result.Album) + '</h1>' +
         '<small> ' + t('AlbumArtist') + '</small><p>' + e(obj.result.AlbumArtist) + '</p>' +
@@ -498,9 +499,9 @@ function parseAlbumDetails(obj) {
 
     const rowTitle = t(webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong]);
     updateTable(obj, 'BrowseDatabaseDetail', function(row, data) {
-        setAttEnc(row, 'data-type', 'song');
-        setAttEnc(row, 'data-name', data.Title);
-        setAttEnc(row, 'data-uri', data.uri);
+        setCustomDomProperty(row, 'data-type', 'song');
+        setCustomDomProperty(row, 'data-name', data.Title);
+        setCustomDomProperty(row, 'data-uri', data.uri);
         row.setAttribute('title', rowTitle);
     });
 

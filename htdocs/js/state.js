@@ -133,12 +133,12 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
             if (tr) {
                 const durationTd = tr.querySelector('[data-col=Duration]');
                 if (durationTd) {
-                    durationTd.innerText = getAttDec(tr, 'data-duration');
+                    durationTd.innerText = getCustomDomProperty(tr, 'data-duration');
                 }
                 const posTd = tr.querySelector('[data-col=Pos]');
                 if (posTd) {
                     posTd.classList.remove('mi');
-                    posTd.innerText = getAttDec(tr, 'data-songpos');
+                    posTd.innerText = getCustomDomProperty(tr, 'data-songpos');
                 }
                 tr.classList.remove('queue-playing');
             }
@@ -272,7 +272,7 @@ function setBackgroundImage(url) {
         clearBackgroundImage();
         return;
     }
-    const bgImageUrl = 'url("' + subdir + '/albumart/' + url + '")';
+    const bgImageUrl = 'url("' + subdir + '/albumart/' + myEncodeURI(url) + '")';
     const old = document.querySelectorAll('.albumartbg');
     if (old[0] && old[0].style.backgroundImage === bgImageUrl) {
         logDebug('Background image already set');
@@ -338,7 +338,7 @@ function _setCurrentCover(url, el) {
     div.classList.add('coverbg', 'carousel', 'rounded');
     div.style.backgroundImage = 'url("' + subdir + '/albumart/' + url + '")';
     div.style.opacity = 0;
-    setAttEnc(div, 'data-uri', url);
+    setCustomDomProperty(div, 'data-uri', url);
     el.insertBefore(div, el.firstChild);
 
     const img = new Image();
@@ -387,42 +387,42 @@ function songChange(obj) {
         textNotification += obj.result.Artist;
         pageTitle += obj.result.Artist + ' - ';
         document.getElementById('footerArtist').innerText = obj.result.Artist;
-        setAttEnc(document.getElementById('footerArtist'), 'data-name', obj.result.Artist);
+        setCustomDomProperty(document.getElementById('footerArtist'), 'data-name', obj.result.Artist);
         if (features.featAdvsearch === true) {
             document.getElementById('footerArtist').classList.add('clickable');
         }
     }
     else {
         document.getElementById('footerArtist').innerText = '';
-        setAttEnc(document.getElementById('footerArtist'), 'data-name', '');
+        setCustomDomProperty(document.getElementById('footerArtist'), 'data-name', '');
     }
 
     if (obj.result.Album !== undefined && obj.result.Album.length > 0 && obj.result.Album !== '-') {
         textNotification += ' - ' + obj.result.Album;
         document.getElementById('footerAlbum').innerText = obj.result.Album;
-        setAttEnc(document.getElementById('footerAlbum'), 'data-name', obj.result.Album);
-        setAttEnc(document.getElementById('footerAlbum'), 'data-albumartist', obj.result[tagAlbumArtist]);
+        setCustomDomProperty(document.getElementById('footerAlbum'), 'data-name', obj.result.Album);
+        setCustomDomProperty(document.getElementById('footerAlbum'), 'data-albumartist', obj.result[tagAlbumArtist]);
         if (features.featAdvsearch === true) {
             document.getElementById('footerAlbum').classList.add('clickable');
         }
     }
     else {
         document.getElementById('footerAlbum').innerText = '';
-        setAttEnc(document.getElementById('footerAlbum'), 'data-name', '');
+        setCustomDomProperty(document.getElementById('footerAlbum'), 'data-name', '');
     }
 
     if (obj.result.Title !== undefined && obj.result.Title.length > 0) {
         pageTitle += obj.result.Title;
         document.getElementById('currentTitle').innerText = obj.result.Title;
-        setAttEnc(document.getElementById('currentTitle'), 'data-uri', obj.result.uri);
+        setCustomDomProperty(document.getElementById('currentTitle'), 'data-uri', obj.result.uri);
         document.getElementById('footerTitle').innerText = obj.result.Title;
         document.getElementById('footerCover').classList.add('clickable');
     }
     else {
         document.getElementById('currentTitle').innerText = '';
-        setAttEnc(document.getElementById('currentTitle'), 'data-uri', '');
+        setCustomDomProperty(document.getElementById('currentTitle'), 'data-uri', '');
         document.getElementById('footerTitle').innerText = '';
-        setAttEnc(document.getElementById('footerTitle'), 'data-name', '');
+        setCustomDomProperty(document.getElementById('footerTitle'), 'data-name', '');
         document.getElementById('currentTitle').classList.remove('clickable');
         document.getElementById('footerTitle').classList.remove('clickable');
         document.getElementById('footerCover').classList.remove('clickable');
@@ -501,9 +501,9 @@ function setPlaybackCardTags(songObj) {
             else {
                 c.getElementsByTagName('p')[0].classList.add('clickable');
             }
-            setAttEnc(c, 'data-name', value);
+            setCustomDomProperty(c, 'data-name', value);
             if (col === 'Album' && songObj[tagAlbumArtist] !== null) {
-                setAttEnc(c, 'data-albumartist', songObj[tagAlbumArtist]);
+                setCustomDomProperty(c, 'data-albumartist', songObj[tagAlbumArtist]);
             }
         }
     }
@@ -534,7 +534,7 @@ function chVolume(increment) {
 
 //eslint-disable-next-line no-unused-vars
 function clickTitle() {
-    const uri = getAttDec(document.getElementById('currentTitle'), 'data-uri');
+    const uri = getCustomDomProperty(document.getElementById('currentTitle'), 'data-uri');
     if (isValidUri(uri) === true && isStreamUri(uri) === false) {
         songDetails(uri);
     }
