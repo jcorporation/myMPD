@@ -988,7 +988,7 @@ const APImethods = {
                     "uiLocale": {
                         "type": "text",
                         "example": "de-DE",
-                        "desc": "Language code or \"auto\" for brwoser default"
+                        "desc": "Language code or \"auto\" for browser default"
                     }
                 }
             }
