@@ -45,7 +45,7 @@ function validateFilenameString(str) {
 
 function validateFilename(el) {
     if (validateFilenameString(el.value) === false) {
-        setIsInvalid(el)
+        setIsInvalid(el);
         return false;
     }
     removeIsInvalid(el);
@@ -58,7 +58,7 @@ function validateFilenameList(el) {
     const filenames = el.value.split(',');
     for (let i = 0, j = filenames.length; i < j; i++) {
         if (validateFilenameString(filenames[i].trim()) === false) {
-            setIsInvalid(el)
+            setIsInvalid(el);
             return false;
         }
     }
@@ -67,20 +67,20 @@ function validateFilenameList(el) {
 
 function validatePath(el) {
     if (el.value === '') {
-        setIsInvalid(el)
+        setIsInvalid(el);
         return false;
     }
     if (el.value.match(/^\/[/.\w-]+$/) !== null) {
         removeIsInvalid(el);
         return true;
     }
-    setIsInvalid(el)
+    setIsInvalid(el);
     return false;
 }
 
 function validatePlnameEl(el) {
     if (validatePlname(el.value) === false) {
-        setIsInvalid(el)
+        setIsInvalid(el);
         return false;
     }
     removeIsInvalid(el);
@@ -100,7 +100,7 @@ function validatePlname(x) {
 function validateNotBlank(el) {
     const value = el.value.replace(/\s/g, '');
     if (value === '') {
-        setIsInvalid(el)
+        setIsInvalid(el);
         return false;
     }
     removeIsInvalid(el);
@@ -110,7 +110,7 @@ function validateNotBlank(el) {
 function validateInt(el) {
     const value = el.value.replace(/[\d-]/g, '');
     if (value !== '') {
-        setIsInvalid(el)
+        setIsInvalid(el);
         return false;
     }
     removeIsInvalid(el);
@@ -120,7 +120,7 @@ function validateInt(el) {
 function validateUint(el) {
     const value = el.value.replace(/[\d]/g, '');
     if (value !== '') {
-        setIsInvalid(el)
+        setIsInvalid(el);
         return false;
     }
     removeIsInvalid(el);
@@ -130,12 +130,12 @@ function validateUint(el) {
 function validateIntRange(el, min, max) {
     const value = el.value.replace(/[\d]/g, '');
     if (value !== '') {
-        setIsInvalid(el)
+        setIsInvalid(el);
         return false;
     }
     const intValue = Number(el.value);
     if (intValue < min || intValue > max) {
-        setIsInvalid(el)
+        setIsInvalid(el);
         return false;
     }
     removeIsInvalid(el);
@@ -145,7 +145,7 @@ function validateIntRange(el, min, max) {
 function validateFloat(el) {
     const value = el.value.replace(/[\d-.]/g, '');
     if (value !== '') {
-        setIsInvalid(el)
+        setIsInvalid(el);
         return false;
     }
     removeIsInvalid(el);
@@ -157,7 +157,7 @@ function validateStream(el) {
         removeIsInvalid(el);
         return true;
     }
-    setIsInvalid(el)
+    setIsInvalid(el);
     return false;
 }
 
@@ -166,7 +166,7 @@ function validateHost(el) {
         removeIsInvalid(el);
         return true;
     }
-    setIsInvalid(el)
+    setIsInvalid(el);
     return false;
 }
 
@@ -175,6 +175,6 @@ function validateSelect(el) {
         removeIsInvalid(el);
         return true;
     }
-    setIsInvalid(el)
+    setIsInvalid(el);
     return false;
 }
