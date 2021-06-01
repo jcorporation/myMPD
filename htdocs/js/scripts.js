@@ -47,7 +47,7 @@ function initScripts() {
     }, false);
     
     document.getElementById('btnDropdownAddAPIcall').parentNode.addEventListener('show.bs.dropdown', function() {
-        let dw = document.getElementById('textareaScriptContent').offsetWidth - document.getElementById('btnDropdownAddAPIcall').parentNode.offsetLeft;
+        const dw = document.getElementById('textareaScriptContent').offsetWidth - document.getElementById('btnDropdownAddAPIcall').parentNode.offsetLeft;
         document.getElementById('dropdownAddAPIcall').style.width = dw + 'px';
     }, false);
     
@@ -114,8 +114,7 @@ function initScripts() {
         }
         const el = document.getElementById('textareaScriptContent');
         const [start, end] = [el.selectionStart, el.selectionEnd];
-        let newText = LUAfunctions[value].func;
-        el.setRangeText(newText, start, end, 'end');
+        el.setRangeText(LUAfunctions[value].func, start, end, 'end');
         document.getElementById('btnDropdownAddFunction').Dropdown.hide();
         el.focus();
     }, false);

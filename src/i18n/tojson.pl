@@ -30,6 +30,7 @@ for my $dirname (@dirs) {
         next if $entry eq "bootstrap-native.js";
         next if $entry eq "long-press-event.js";
         next if $entry eq "i18n.js";
+        next if $entry eq "apidoc.js";
         push @files, $dirname.$1 if $entry =~ /^(\w+\.(c|js))$/;
     }
     closedir $dir;
