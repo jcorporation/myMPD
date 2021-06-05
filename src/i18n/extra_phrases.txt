@@ -100,3 +100,4 @@ Unsynced lyrics extension
 Unsynced lyrics vorbis comment
 Last played list count
 Reset to default
+Image

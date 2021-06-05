@@ -1782,3 +1782,30 @@ Listen
 
 Expression
 Suchausdruck
+
+Image
+Bild
+
+Executes a system command and capture its output.
+Executes a system command and capture its output.
+
+HTTP client
+HTTP Client
+
+Initializes the mympd_state lua table
+Initializes the mympd_state lua table
+
+Insert API call
+Füge API Aufruf hinzu
+
+Insert function
+Füge Funktion hinzu
+
+Open documentation
+Gehe zur Dokumentation
+
+Select function
+Funktion auswählen
+
+Select method
+Methode auswählen
