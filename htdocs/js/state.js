@@ -298,7 +298,7 @@ function setBackgroundImage(url) {
     img.onload = function() {
         document.querySelector('.albumartbg').style.opacity = 1;
     };
-    img.src = subdir + '/albumart/' + url;
+    img.src = subdir + '/albumart/' + myEncodeURI(url);
 }
 
 function clearBackgroundImage() {
@@ -336,7 +336,7 @@ function _setCurrentCover(url, el) {
 
     const div = document.createElement('div');
     div.classList.add('coverbg', 'carousel', 'rounded');
-    div.style.backgroundImage = 'url("' + subdir + '/albumart/' + url + '")';
+    div.style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(url) + '")';
     div.style.opacity = 0;
     setCustomDomProperty(div, 'data-uri', url);
     el.insertBefore(div, el.firstChild);
@@ -345,7 +345,7 @@ function _setCurrentCover(url, el) {
     img.onload = function() {
         el.querySelector('.coverbg').style.opacity = 1;
     };
-    img.src = subdir + '/albumart/' + url;
+    img.src = subdir + '/albumart/' + myEncodeURI(url);
 }
 
 function clearCurrentCover() {
@@ -463,7 +463,7 @@ function songChange(obj) {
 
     document.getElementById('currentBooklet').innerHTML = obj.result.bookletPath === '' || obj.result.bookletPath === undefined || features.featLibrary === false ? '' : 
             '<span class="text-light mi">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
-            e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>';
+            myEncodeURI(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>';
     
     //Update title in queue view for http streams
     const playingTr = document.getElementById('queueTrackId' + obj.result.currentSongId);
@@ -561,7 +561,7 @@ function mediaSessionSetState() {
 function mediaSessionSetMetadata(title, artist, album, url) {
     if (settings.mediaSession === true && 'mediaSession' in navigator) {
         const artwork = window.location.protocol + '//' + window.location.hostname + 
-            (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart/' + url;
+            (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart/' + myEncodeURI(url);
         //eslint-disable-next-line no-undef
         navigator.mediaSession.metadata = new MediaMetadata({
             title: title,

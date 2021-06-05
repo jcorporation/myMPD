@@ -332,7 +332,7 @@ function parseFilesystem(obj) {
     }
     for (let i = 0, j = obj.result.images.length; i < j; i++) {
         const img = document.createElement('div');
-        img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + obj.result.images[i] + '"),url("assets/coverimage-loading.svg")';
+        img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + myEncodeURI(obj.result.images[i]) + '"),url("assets/coverimage-loading.svg")';
         imageList.appendChild(img);
     }
 
@@ -397,12 +397,8 @@ function parseDatabase(obj) {
         let picture = '';
         if (obj.result.tag === 'Album') {
             id = genId('database' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist);
-            picture = subdir + '/albumart/' + myEncodeURI(obj.result.data[i].FirstSongUri);
-            html = '<div class="card card-grid clickable" data-picture="' + myEncodeURI(picture)  + '" ' + 
-                       'data-uri="' + encodeURI(obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, '')) + '" ' +
-                       'data-type="dir" data-name="' + encodeURI(obj.result.data[i].Album) + '" ' +
-                       'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
-                       'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '" tabindex="0">' +
+            picture = subdir + '/albumart/' + obj.result.data[i].FirstSongUri;
+            html = '<div class="card card-grid clickable" tabindex="0">' +
                    '<div class="card-body album-cover-loading album-cover-grid bg-white d-flex" id="' + id + '"></div>' +
                    '<div class="card-footer card-footer-grid p-2" title="' + e(obj.result.data[i].AlbumArtist) + ': ' + e(obj.result.data[i].Album) + '">' +
                    e(obj.result.data[i].Album) + '<br/><small>' + e(obj.result.data[i].AlbumArtist) + '</small>' +
@@ -410,14 +406,27 @@ function parseDatabase(obj) {
         }
         else {
             id = genId('database' + obj.result.data[i].value);
-            picture = subdir + '/tagart/' + obj.result.tag + '/' + encodeURI(obj.result.data[i].value);
-            html = '<div class="card card-grid clickable" data-picture="' + myEncodeURI(picture) + '" data-tag="' + encodeURI(obj.result.data[i].value) + '" tabindex="0">' +
+            picture = subdir + '/tagart/' + obj.result.tag + '/' + obj.result.data[i].value;
+            html = '<div class="card card-grid clickable" tabindex="0">' +
                    (obj.result.pics === true ? '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' : '') +
                    '<div class="card-footer card-footer-grid p-2" title="' + e(obj.result.data[i].value) + '">' +
                    e(obj.result.data[i].value) + '<br/>' +
                    '</div></div>';
         }
         col.innerHTML = html;
+        const card = col.firstElementChild;
+        if (obj.result.tag === 'Album') {
+            setCustomDomProperty(card, 'data-picture', picture);
+            setCustomDomProperty(card, 'data-uri', obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, ''));
+            setCustomDomProperty(card, 'data-type', 'dir');
+            setCustomDomProperty(card, 'data-name', obj.result.data[i].Album);
+            setCustomDomProperty(card, 'data-album', obj.result.data[i].Album);
+            setCustomDomProperty(card, 'data-albumartist', obj.result.data[i].AlbumArtist);
+        }
+        else {
+            setCustomDomProperty(card, 'data-picture', picture);
+            setCustomDomProperty(card, 'data-tag', obj.result.data[i].value);
+        }
         let replaced = false;
         if (i < cols.length) {
             if (cols[i].firstChild.getAttribute('data-picture') !== col.firstChild.getAttribute('data-picture')) {
@@ -439,7 +448,7 @@ function parseDatabase(obj) {
                 observer.observe(col);
             }
             else {
-                col.firstChild.firstChild.style.backgroundImage = picture;
+                col.firstChild.firstChild.style.backgroundImage = myEncodeURI(picture);
             }
             if (obj.result.tag === 'Album' && isMobile === true) {
                 addPlayButton(document.getElementById(id));
@@ -462,10 +471,10 @@ function setGridImage(changes, observer) {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);
             //use URI encoded attribute
-            const uri = change.target.firstChild.getAttribute('data-picture');
+            const uri = getCustomDomProperty(change.target.firstChild, 'data-picture');
             const body = change.target.firstChild.getElementsByClassName('card-body')[0];
             if (body) {
-                body.style.backgroundImage = 'url("' + uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+                body.style.backgroundImage = 'url("' + myEncodeURI(uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
             }
         }
     });
@@ -494,7 +503,7 @@ function parseAlbumDetails(obj) {
         '<small> ' + t('AlbumArtist') + '</small><p>' + e(obj.result.AlbumArtist) + '</p>' +
         (obj.result.bookletPath === '' || features.featLibrary === false ? '' : 
             '<span class="text-light mi">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
-            e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>') +
+            myEncodeURI(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>') +
         '</p>';
 
     const rowTitle = t(webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong]);

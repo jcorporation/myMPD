@@ -42,7 +42,7 @@ function initHome() {
 
     document.getElementById('selectHomeIconImage').addEventListener('change', function(event) {
         const value = getSelectValue(event.target);
-        document.getElementById('homeIconPreview').style.backgroundImage = 'url("' + subdir + '/pics/' + value  + '")';
+        document.getElementById('homeIconPreview').style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(value)  + '")';
         if (value !== '') {
             document.getElementById('divHomeIconLigature').classList.add('hide');
             document.getElementById('homeIconPreview').innerHTML = '';
@@ -186,7 +186,7 @@ function parseHome(obj) {
             cardContainer.append(col);
         }
         if (obj.result.data[i].image !== '') {
-            col.getElementsByClassName('card-body')[0].style.backgroundImage = 'url("' + subdir + '/pics/' + obj.result.data[i].image + '")';
+            col.getElementsByClassName('card-body')[0].style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(obj.result.data[i].image) + '")';
         }
         if (obj.result.data[i].bgcolor !== '') {
             col.getElementsByClassName('card-body')[0].style.backgroundColor = obj.result.data[i].bgcolor;
@@ -374,7 +374,7 @@ function _editHomeIcon(pos, replace, title) {
         }
         else {
             document.getElementById('divHomeIconLigature').classList.add('hide');
-            document.getElementById('homeIconPreview').style.backgroundImage = 'url(' + subdir + '"/pics/' + obj.result.data.image + '")';
+            document.getElementById('homeIconPreview').style.backgroundImage = 'url(' + subdir + '"/pics/' + myEncodeURI(obj.result.data.image) + '")';
         }
         //reset ligature selection
         document.getElementById('searchHomeIconLigature').value = '';

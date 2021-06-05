@@ -240,10 +240,10 @@ function parseSettings(obj) {
 
     //background
     if (settings.webuiSettings.uiBgImage.indexOf('/assets/') === 0) {
-        domCache.body.style.backgroundImage = 'url("' + subdir + settings.webuiSettings.uiBgImage + '")';
+        domCache.body.style.backgroundImage = 'url("' + subdir + myEncodeURI(settings.webuiSettings.uiBgImage) + '")';
     }
     else if (settings.webuiSettings.uiBgImage !== '') {
-        domCache.body.style.backgroundImage = 'url("' + subdir + '/pics/' + settings.webuiSettings.uiBgImage + '")';
+        domCache.body.style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(settings.webuiSettings.uiBgImage) + '")';
     }
     else {
         domCache.body.style.backgroundImage = '';
@@ -623,7 +623,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
             }, false);
         }
     }
-
+    
     for (const key in defaults) {
         if (defaults[key].onChange !== undefined) {
             document.getElementById(prefix + key).addEventListener('change', function(event) {

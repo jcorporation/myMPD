@@ -149,7 +149,7 @@ function parseSongDetails(obj) {
     }
     
     //add uri to image list to get embedded albumart
-    const images = [ subdir + '/albumart/' + myEncodeURI(obj.result.uri) ];
+    const images = [ subdir + '/albumart/' + obj.result.uri ];
     //add all but coverfiles to image list
     if (settings.publish === true) {
         for (let i = 0, j = obj.result.images.length; i < j; i++) {
