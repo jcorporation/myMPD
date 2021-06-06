@@ -432,7 +432,7 @@ function updateSmartPlaylistClick() {
 
 //eslint-disable-next-line no-unused-vars
 function showDelPlaylist(plist) {
-    showConfirm(t('Do you really want to delete the playlist?', {"playlist": plist}), t("Yes, delete it"), function() {
+    showConfirm(t('Do you really want to delete the playlist?', {"playlist": plist}), t('Yes, delete it'), function() {
         sendAPI("MYMPD_API_PLAYLIST_RM", {"plist": plist});
     });
 }
@@ -440,7 +440,7 @@ function showDelPlaylist(plist) {
 //eslint-disable-next-line no-unused-vars
 function showClearPlaylist() {
     const plist = getCustomDomProperty(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri');
-    showConfirm(t('Do you really want to clear the playlist?', {"playlist": plist}), t("Yes, clear it"), function() {
+    showConfirm(t('Do you really want to clear the playlist?', {"playlist": plist}), t('Yes, clear it'), function() {
         sendAPI("MYMPD_API_PLAYLIST_CLEAR", {
             "plist": plist
         });
