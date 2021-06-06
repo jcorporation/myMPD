@@ -532,6 +532,9 @@ function populateSettingsFrm() {
     const inputAdvSettinguiBgCover = document.getElementById('inputAdvSettinguiBgCover');
     inputAdvSettinguiBgCover.setAttribute('data-toggle', 'collapse');
     inputAdvSettinguiBgCover.setAttribute('data-target', '#bgCssFilterFrm');
+    if (uiElements.collapseuiBgCover !== undefined) {
+        uiElements.collapseuiBgCover.dispose();
+    }
     uiElements.collapseuiBgCover = new BSN.Collapse(inputAdvSettinguiBgCover);
     toggleBtnChkCollapse('inputAdvSettinguiBgCover', 'bgCssFilterFrm', settings.webuiSettings.uiBgCover);
 

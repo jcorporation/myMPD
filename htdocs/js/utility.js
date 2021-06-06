@@ -80,6 +80,7 @@ function myEncodeURI(x) {
     });
 }
 
+//eslint-disable-next-line no-unused-vars
 function myDecodeURI(x) {
     return decodeURI(x).replace(/(%23)/g, function(m0, m1) {
             if (m1 === '%23') return '#';

@@ -75,8 +75,6 @@ function parseSongDetails(obj) {
     const modal = document.getElementById('modalSongDetails');
     modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(obj.result.uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
 
-    const u = myEncodeURI(obj.result.uri);
-
     const elH1s = modal.getElementsByTagName('h1');
     for (let i = 0, j = elH1s.length; i < j; i++) {
         elH1s[i].innerText = obj.result.Title;
