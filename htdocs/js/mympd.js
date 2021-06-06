@@ -542,7 +542,7 @@ function appInit() {
     //global keymap
     document.addEventListener('keydown', function(event) {
         if (event.target.tagName === 'INPUT' || event.target.tagName === 'SELECT' ||
-            event.target.tagName === 'TEXTAREA' || event.ctrlKey || event.altKey) {
+            event.target.tagName === 'TEXTAREA' || event.ctrlKey || event.altKey || event.metaKey) {
             return;
         }
         const cmd = keymap[event.key];
