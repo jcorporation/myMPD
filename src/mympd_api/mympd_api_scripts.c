@@ -554,8 +554,9 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
     pid_t tid = syscall(__NR_gettid);
     
     t_work_request *request = create_request(-2, tid, method_id, method, "");
-    request->data = sdscatprintf(request->data, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"method\":\"%s\",\"params\":{", tid, method);
+    request->data = sdscatprintf(request->data, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"method\":\"%s\",\"params\":", tid, method);
     if (raw == false) {
+        request->data = sdscat(request->data, "{");
         for (int i = 2; i < n; i = i + 2) {
             bool comma = i + 1 < n ? true : false;
             if (lua_isboolean(lua_vm, i + 1)) {
@@ -571,11 +572,12 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                 request->data = tojson_char(request->data, lua_tostring(lua_vm, i), lua_tostring(lua_vm, i + 1), comma);
             }
         }
+        request->data = sdscat(request->data, "}");
     }
     else if (n == 2) {
         request->data = sdscat(request->data, lua_tostring(lua_vm, 2));
     }
-    request->data = sdscat(request->data, "}}");
+    request->data = sdscat(request->data, "}");
     
     tiny_queue_push(mympd_api_queue, request, tid);
 

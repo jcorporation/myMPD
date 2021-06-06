@@ -81,9 +81,12 @@ function initScripts() {
         }
         const el = document.getElementById('textareaScriptContent');
         const [start, end] = [el.selectionStart, el.selectionEnd];
-        let newText = 'rc, raw_result = mympd_api_raw("' + method + '", "';
-        newText += apiParamsToArgs(APImethods[method].params);
-        newText += '")\nresult = json.decode(raw_result)\n';
+        const newText = 'rc, raw_result = mympd_api_raw("' + method + '", json.encode(' +
+            apiParamsToArgs(APImethods[method].params) +
+            '))\n' + 
+            'if rc == 0 then\n' +
+            '    result = json.decode(raw_result)\n' +
+            'end\n';
         el.setRangeText(newText, start, end, 'preserve');
         document.getElementById('btnDropdownAddAPIcall').Dropdown.hide();
         el.focus();
@@ -128,13 +131,13 @@ function apiParamsToArgs(p) {
             args += ', ';
         }
         i++;
-        args += '\\"' + param + '\\": ';
+        args += param + ' =  ';
         if (p[param].params !== undefined) {
             args += apiParamsToArgs(p[param].params);            
         }
         else {
             if (p[param].type === 'text') {
-                args += '\\"' + p[param].example + '\\"';
+                args += '"' + p[param].example + '"';
             }
             else {
                 args += p[param].example;
