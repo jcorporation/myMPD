@@ -66,7 +66,7 @@ function getMBtagLink(tag, value) {
         return e(value);
     }
     else {
-        return '<a title="' + t('Lookup at musicbrainz') + '" class="text-success external" target="_musicbrainz" href="https://musicbrainz.org/' + MBentity + '/' + encodeURI(value) + '">' +
+        return '<a title="' + t('Lookup at musicbrainz') + '" class="text-success external" target="_musicbrainz" href="https://musicbrainz.org/' + MBentity + '/' + myEncodeURI(value) + '">' +
             '<span class="mi">open_in_browser</span>&nbsp;' + value + '</a>';
     }
 }
