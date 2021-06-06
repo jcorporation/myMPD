@@ -201,6 +201,12 @@ static bool parse_internal_message(t_work_result *response, struct t_mg_user_dat
         
 		FREE_PTR(response->extra);
         rc = true;
+        manage_emptydir(mg_user_data->config->workdir, 
+            true, //pics
+            true, //smart playlists
+            mg_user_data->feat_library, 
+            (sdslen(mg_user_data->playlist_directory) > 0 ? true : false)
+        );
     }
     else {
         MYMPD_LOG_WARN("Invalid internal message: %s", response->data);
