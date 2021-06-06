@@ -249,7 +249,6 @@ function parseSettings(obj) {
         domCache.body.style.backgroundImage = '';
     }
     domCache.body.style.backgroundColor = settings.webuiSettings.uiBgColor;
-    toggleBtnChkCollapse('inputAdvSettinguiBgCover', 'bgCssFilterFrm', settings.webuiSettings.uiBgCover);
 
     const albumartbg = document.querySelectorAll('.albumartbg');
     for (let i = 0, j = albumartbg.length; i < j; i++) {
@@ -529,6 +528,13 @@ function populateSettingsFrm() {
         settings.webuiSettings.enableLyrics = false;
     }
     toggleBtnChkCollapse('btnEnableLyrics', 'collapseEnableLyrics', settings.webuiSettings.enableLyrics);
+
+    const inputAdvSettinguiBgCover = document.getElementById('inputAdvSettinguiBgCover');
+    inputAdvSettinguiBgCover.setAttribute('data-toggle', 'collapse');
+    inputAdvSettinguiBgCover.setAttribute('data-target', '#bgCssFilterFrm');
+    uiElements.collapseuiBgCover = new BSN.Collapse(inputAdvSettinguiBgCover);
+    toggleBtnChkCollapse('inputAdvSettinguiBgCover', 'bgCssFilterFrm', settings.webuiSettings.uiBgCover);
+
     //tag multiselects
     initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.tagListMpd, settings.tagList);
     initTagMultiSelect('inputSearchTags', 'listSearchTags', settings.tagList, settings.tagListSearch);
