@@ -620,8 +620,8 @@ int mg_http_parse(const char *s, size_t len, struct mg_http_message *hm) {
   s = skip(s, end, " ", &hm->uri);
   s = skip(s, end, "\r\n", &hm->proto);
 
-  // Sanity check
-  if (hm->method.len == 0 || hm->uri.len == 0 || hm->proto.len == 0) return -1;
+  // Sanity check. Allow protocol/reason to be empty
+  if (hm->method.len == 0 || hm->uri.len == 0) return -1;
 
   // If URI contains '?' character, setup query string
   if ((qs = (const char *) memchr(hm->uri.ptr, '?', hm->uri.len)) != NULL) {
@@ -1191,7 +1191,8 @@ static void listdir(struct mg_connection *c, struct mg_http_message *hm,
               "</thead>"
               "<tbody id=\"tb\">\n",
               (int) hm->uri.len, hm->uri.ptr, sort_js_code, sort_js_code2,
-              opts->directory_listing_css, (int) hm->uri.len, hm->uri.ptr);
+              opts->directory_listing_css,
+              (int) hm->uri.len, hm->uri.ptr);
 
     while ((dp = readdir(dirp)) != NULL) {
       mg_stat_t st;
@@ -1212,7 +1213,9 @@ static void listdir(struct mg_connection *c, struct mg_http_message *hm,
               "</tbody>"
               "</table><address>%s</address></body></html>\n",
               c->mgr->product_name);
-    n = snprintf(tmp, sizeof(tmp), "%lu", (unsigned long) (c->send.len - off));
+    n = (size_t) snprintf(tmp, sizeof(tmp), "%lu",
+                          (unsigned long) (c->send.len - off));
+    if (n > sizeof(tmp)) n = 0;
     memcpy(c->send.buf + off - 10, tmp, n);  // Set content length
   } else {
     mg_http_reply(c, 400, "", "Cannot open dir");
@@ -1538,10 +1541,13 @@ int mg_iobuf_init(struct mg_iobuf *io, size_t size) {
 
 size_t mg_iobuf_append(struct mg_iobuf *io, const void *buf, size_t len,
                        size_t chunk_size) {
-  size_t new_size = io->len + len + chunk_size;
-  new_size -= new_size % chunk_size;
-  if (new_size != io->size) mg_iobuf_resize(io, new_size);
-  if (new_size != io->size) len = 0;  // Realloc failure, append nothing
+  size_t new_size = io->len + len;
+  if (new_size > io->size) {
+    new_size += chunk_size;             // Make sure that io->size
+    new_size -= new_size % chunk_size;  // is aligned by chunk_size boundary
+    mg_iobuf_resize(io, new_size);      // Attempt to realloc
+    if (new_size != io->size) len = 0;  // Realloc failure, append nothing
+  }
   if (buf != NULL) memmove(io->buf + io->len, buf, len);
   io->len += len;
   return len;
@@ -3850,7 +3856,7 @@ void mg_usleep(unsigned long usecs) {
   Sleep(usecs / 1000);
 #elif MG_ARCH == MG_ARCH_ESP8266
   ets_delay_us(usecs);
-#elif MG_ARCH == MG_ARCH_FREERTOS_TCP
+#elif MG_ARCH == MG_ARCH_FREERTOS_TCP || MG_ARCH == MG_ARCH_FREERTOS_LWIP
   vTaskDelay(pdMS_TO_TICKS(usecs / 1000));
 #else
   usleep((useconds_t) usecs);
@@ -3864,7 +3870,7 @@ unsigned long mg_millis(void) {
   return esp_timer_get_time() / 1000;
 #elif MG_ARCH == MG_ARCH_ESP8266
   return xTaskGetTickCount() * portTICK_PERIOD_MS;
-#elif MG_ARCH == MG_ARCH_FREERTOS_TCP
+#elif MG_ARCH == MG_ARCH_FREERTOS_TCP || MG_ARCH == MG_ARCH_FREERTOS_LWIP
   return xTaskGetTickCount() * portTICK_PERIOD_MS;
 #else
   struct timespec ts;
