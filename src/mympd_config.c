@@ -28,8 +28,11 @@
 //private functions
 static const char *mympd_getenv(const char *env_var, bool first_startup);
 static sds mympd_getenv_string(const char *env_var, const char *default_value, bool first_startup);
-static bool mympd_getenv_bool(const char *env_var, bool default_value, bool first_startup);
 static int mympd_getenv_int(const char *env_var, int default_value, bool first_startup);
+
+#ifdef ENABLE_SSL
+static bool mympd_getenv_bool(const char *env_var, bool default_value, bool first_startup);
+#endif
 
 //public functions
 void mympd_free_config(struct t_config *config) {
@@ -133,13 +136,15 @@ static sds mympd_getenv_string(const char *env_var, const char *default_value, b
     return env_value != NULL ? sdsnew(env_value) : sdsnew(default_value);
 }
 
+static int mympd_getenv_int(const char *env_var, int default_value, bool first_startup) {
+    const char *env_value = mympd_getenv(env_var, first_startup);
+    return env_value != NULL ? (int)strtoimax(env_var, NULL, 10) : default_value;
+}
+
+#ifdef ENABLE_SSL
 static bool mympd_getenv_bool(const char *env_var, bool default_value, bool first_startup) {
     const char *env_value = mympd_getenv(env_var, first_startup);
     return env_value != NULL ? strcmp(env_value, "true") == 0 ? true : false 
                              : default_value;
 }
-
-static int mympd_getenv_int(const char *env_var, int default_value, bool first_startup) {
-    const char *env_value = mympd_getenv(env_var, first_startup);
-    return env_value != NULL ? (int)strtoimax(env_var, NULL, 10) : default_value;
-}
+#endif
