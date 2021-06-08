@@ -316,13 +316,13 @@ function parseFilesystem(obj) {
     //show images in folder
     const imageList = document.getElementById('BrowseFilesystemImages');
     imageList.innerHTML = '';
-    if ((obj.result.images.length === 0 && obj.result.bookletPath === '') || settings.publish === false) {
+    if ((obj.result.images.length === 0 && obj.result.bookletPath === '')) {
         imageList.classList.add('hide');
     }
     else {
         imageList.classList.remove('hide');
     }
-    if (obj.result.bookletPath !== '' && settings.publish === true) {
+    if (obj.result.bookletPath !== '') {
         const img = document.createElement('div');
         img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
         img.classList.add('booklet');
@@ -376,7 +376,6 @@ function parseDatabase(obj) {
     const nrItems = obj.result.returnedEntities;
     const cardContainer = document.getElementById('BrowseDatabaseListList');
     const cols = cardContainer.getElementsByClassName('col');
-    const hasIO = 'IntersectionObserver' in window ? true : false;
 
     document.getElementById('BrowseDatabaseListList').classList.remove('opacity05');
 
@@ -414,22 +413,9 @@ function parseDatabase(obj) {
                    '</div></div>';
         }
         col.innerHTML = html;
-        const card = col.firstElementChild;
-        if (obj.result.tag === 'Album') {
-            setCustomDomProperty(card, 'data-picture', picture);
-            setCustomDomProperty(card, 'data-uri', obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, ''));
-            setCustomDomProperty(card, 'data-type', 'dir');
-            setCustomDomProperty(card, 'data-name', obj.result.data[i].Album);
-            setCustomDomProperty(card, 'data-album', obj.result.data[i].Album);
-            setCustomDomProperty(card, 'data-albumartist', obj.result.data[i].AlbumArtist);
-        }
-        else {
-            setCustomDomProperty(card, 'data-picture', picture);
-            setCustomDomProperty(card, 'data-tag', obj.result.data[i].value);
-        }
         let replaced = false;
         if (i < cols.length) {
-            if (cols[i].firstChild.getAttribute('data-picture') !== col.firstChild.getAttribute('data-picture')) {
+            if (cols[i].firstChild['data-picture'] !== picture) {
                 cols[i].replaceWith(col);
                 replaced = true;
             }
@@ -439,6 +425,19 @@ function parseDatabase(obj) {
             replaced = true;
         }
         if (replaced === true) {
+            const card = col.firstElementChild;
+            if (obj.result.tag === 'Album') {
+                setCustomDomProperty(card, 'data-picture', picture);
+                setCustomDomProperty(card, 'data-uri', obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, ''));
+                setCustomDomProperty(card, 'data-type', 'dir');
+                setCustomDomProperty(card, 'data-name', obj.result.data[i].Album);
+                setCustomDomProperty(card, 'data-album', obj.result.data[i].Album);
+                setCustomDomProperty(card, 'data-albumartist', obj.result.data[i].AlbumArtist);
+            }
+            else {
+                setCustomDomProperty(card, 'data-picture', picture);
+                setCustomDomProperty(card, 'data-tag', obj.result.data[i].value);
+            }
             if (hasIO === true) {
                 const options = {
                     root: null,
@@ -496,7 +495,7 @@ function addPlayButton(parentEl) {
 function parseAlbumDetails(obj) {
     const coverEl = document.getElementById('viewDetailDatabaseCover');
     coverEl.style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(obj.result.data[0].uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
-    setCustomDomProperty(coverEl, 'data-images', obj.result.images.join(';;'));
+    setCustomDomProperty(coverEl, 'data-images', obj.result.images);
     setCustomDomProperty(coverEl, 'data-uri', obj.result.data[0].uri);
     const infoEl = document.getElementById('viewDetailDatabaseInfo');
     infoEl.innerHTML = '<h1>' + e(obj.result.Album) + '</h1>' +

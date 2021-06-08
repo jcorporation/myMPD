@@ -117,7 +117,7 @@ function parseSongDetails(obj) {
         songDetailsHTML += '<tr><th>' + t('Fingerprint') + '</th><td class="breakAll" id="fingerprint"><a class="text-success" data-uri="' + 
             myEncodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
     }
-    if (obj.result.bookletPath !== '' && settings.publish === true) {
+    if (obj.result.bookletPath !== '') {
         songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="' + myEncodeURI(subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName) + '" target="_blank">' + t('Download') + '</a></td></tr>';
     }
     if (features.featStickers === true) {
@@ -149,11 +149,9 @@ function parseSongDetails(obj) {
     //add uri to image list to get embedded albumart
     const images = [ subdir + '/albumart/' + obj.result.uri ];
     //add all but coverfiles to image list
-    if (settings.publish === true) {
-        for (let i = 0, j = obj.result.images.length; i < j; i++) {
-            if (isCoverfile(obj.result.images[i]) === false) {
-                images.push(subdir + '/browse/music/' + obj.result.images[i]);
-            }
+    for (let i = 0, j = obj.result.images.length; i < j; i++) {
+        if (isCoverfile(obj.result.images[i]) === false) {
+            images.push(subdir + '/browse/music/' + obj.result.images[i]);
         }
     }
     const imgEl = document.getElementById('tabSongPics');
@@ -165,7 +163,7 @@ function isCoverfile(uri) {
     const fileparts = filename.split('.');
     
     const extensions = ['png', 'jpg', 'jpeg', 'svg', 'webp', 'tiff', 'bmp'];
-    const coverimageNames = settings.coverimageName.split(',');
+    const coverimageNames = settings.coverimageNames.split(',');
     for (let i = 0, j = coverimageNames.length; i < j; i++) {
         const name = coverimageNames[i].trim();
         if (filename === name) {

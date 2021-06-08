@@ -74,7 +74,7 @@ function eventChangeLocale(event) {
 //eslint-disable-next-line no-unused-vars
 function eventChangeTheme(event) {
     const value = getSelectValue(event.target);
-    const bgImageEl = document.getElementById('selectBgImage');
+    const bgImageEl = document.getElementById('inputAdvSettinguiBgImage');
     const bgImageValue = getSelectValue(bgImageEl);
     if (value === 'theme-default') { 
         document.getElementById('inputAdvSettinguiBgColor').value = '#aaaaaa';

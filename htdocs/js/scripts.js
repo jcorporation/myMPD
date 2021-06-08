@@ -34,10 +34,10 @@ function initScripts() {
                 deleteScript(event.target, script);
             }
             else if (action === 'execute') {
-                execScript(getCustomDomProperty(event.target, 'data-href'));
+                execScript(getCustomDomProperty(event.target.parentNode.parentNode, 'data-href'));
             }
             else if (action === 'add2home') {
-                addScriptToHome(script, getCustomDomProperty(event.target, 'data-href'))
+                addScriptToHome(script, getCustomDomProperty(event.target.parentNode.parentNode, 'data-href'))
             }
         }
     }, false);
@@ -282,13 +282,13 @@ function parseScriptList(obj) {
                     e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>' + e(obj.result.data[i].name) + '</a>';
                 
             }
-            scriptList += '<tr data-script="' + encodeURI(obj.result.data[i].name) + '"><td>' + e(obj.result.data[i].name) + '</td>' +
+            scriptList += '<tr data-script="' + encodeURI(obj.result.data[i].name) + '" ' +
+                'data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>' +
+                '<td>' + e(obj.result.data[i].name) + '</td>' +
                 '<td data-col="Action">' +
-                        '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>' +
-                        '<a href="#" title="' + t('Execute') + '" data-action="execute" class="mi color-darkgrey" ' +
-                            ' data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>play_arrow</a>' +
-                        '<a href="#" title="' + t('Add to homescreen') + '" data-action="add2home" class="mi color-darkgrey" ' +
-                            ' data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>add_to_home_screen</a>' +
+                    '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>' +
+                    '<a href="#" title="' + t('Execute') + '" data-action="execute" class="mi color-darkgrey">play_arrow</a>' +
+                    '<a href="#" title="' + t('Add to homescreen') + '" data-action="add2home" class="mi color-darkgrey">add_to_home_screen</a>' +
                 '</td></tr>';
             timerActions.innerHTML += '<option data-arguments=\'{"arguments":[' + arglist + ']}\' value="' + 
                 e(obj.result.data[i].name) + '">' + e(obj.result.data[i].name) + '</option>';

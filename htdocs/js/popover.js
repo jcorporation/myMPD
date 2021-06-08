@@ -56,7 +56,7 @@ function showMenuTh(el) {
     menu += setColsChecklist(table);
     menu += '<button class="btn btn-success btn-block btn-sm mt-2">' + t('Apply') + '</button>';
     menu += '</form>';
-    new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
+    new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover">' +
         '<div class="arrow"></div>' +
         '<div class="popover-content" id="' + table + 'ColsDropdown">' + menu + '</div>' +
         '</div>', content: ' '});
@@ -86,15 +86,19 @@ function showMenuTd(el) {
     let uri = getCustomDomProperty(el, 'data-uri');
     let name = getCustomDomProperty(el, 'data-name');
     let nextsongpos = 0;
-    if (type === null || uri === null) {
-        type = getCustomDomProperty(el.parentNode, 'data-type');
-        uri = getCustomDomProperty(el.parentNode, 'data-uri');
-        name = getCustomDomProperty(el.parentNode, 'data-name');
+    let dataNode = el;
+    if (type === null || type === undefined || uri === null || uri === undefined) {
+        dataNode = dataNode.parentNode;
+        type = getCustomDomProperty(dataNode, 'data-type');
+        uri = getCustomDomProperty(dataNode, 'data-uri');
+        name = getCustomDomProperty(dataNode, 'data-name');
     }
-    if (type === null || uri === null) {
-        type = getCustomDomProperty(el.parentNode.parentNode, 'data-type');
-        uri = getCustomDomProperty(el.parentNode.parentNode, 'data-uri');
-        name = getCustomDomProperty(el.parentNode.parentNode, 'data-name');
+    if (type === null || type === undefined || uri === null || uri === undefined) {
+        dataNode = dataNode.parentNode;
+        type = getCustomDomProperty(dataNode, 'data-type');
+        uri = getCustomDomProperty(dataNode, 'data-uri');
+        name = getCustomDomProperty(dataNode, 'data-name');
+        
     }
     
     if (lastState) {
@@ -117,10 +121,9 @@ function showMenuTd(el) {
                 (type === 'dir' ? addMenuItem({"cmd": "rescanDB", "options": [dirname(uri), true]}, t('Rescan directory')) : '');
         }
         if (app.current.app === 'Search') {
-            const curTr = el.nodeName === 'TD' ? el.parentNode : el.parentNode.parentNode;
-            if (curTr.hasAttribute('data-album') && curTr.hasAttribute('data-albumartist')) {
-                const vAlbum = getCustomDomProperty(curTr, 'data-album');
-                const vAlbumArtist = getCustomDomProperty(curTr, 'data-albumartist');
+            const vAlbum = getCustomDomProperty(dataNode, 'data-album');
+            const vAlbumArtist = getCustomDomProperty(dataNode, 'data-albumartist');
+            if (vAlbum !== undefined && vAlbumArtist !== undefined) {
                 menu += '<div class="dropdown-divider"></div>' +
                     '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="mi mi-left">keyboard_arrow_right</span>Album actions</a>' +
                     '<div class="collapse" id="advancedMenu">' +
@@ -144,8 +147,8 @@ function showMenuTd(el) {
         }
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
-        const albumArtist = getCustomDomProperty(el.parentNode, 'data-albumartist');
-        const album = getCustomDomProperty(el.parentNode, 'data-album');
+        const albumArtist = getCustomDomProperty(dataNode, 'data-albumartist');
+        const album = getCustomDomProperty(dataNode, 'data-album');
         menu += addMenuItem({"cmd": "appGoto", "options": ["Browse", "Database", "Detail", 0, undefined, "Album", tagAlbumArtist, album, albumArtist]}, t('Show album')) +
             addMenuItem({"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album]}, t('Append to queue')) +
             addMenuItem({"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album]}, t('Replace queue')) +
@@ -171,8 +174,8 @@ function showMenuTd(el) {
             (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'Current') {
-        const trackid = Number(getCustomDomProperty(el.parentNode.parentNode, 'data-trackid'));
-        const songpos = Number(getCustomDomProperty(el.parentNode.parentNode, 'data-songpos'));
+        const trackid = getCustomDomProperty(dataNode, 'data-trackid');
+        const songpos = getCustomDomProperty(dataNode, 'data-songpos');
         menu += ( trackid !== lastState.currentSongId ? addMenuItem({"cmd": "playAfterCurrent", "options": [trackid, songpos]}, t('Play after current playing song')) : '') +
             addMenuItem({"cmd": "delQueueSong", "options": ["single", trackid]}, t('Remove')) +
             addMenuItem({"cmd": "delQueueSong", "options": ["range", 0, songpos]}, t('Remove all upwards')) +
@@ -186,21 +189,17 @@ function showMenuTd(el) {
             (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
-        const pos = Number(getCustomDomProperty(el.parentNode.parentNode, 'data-pos'));
-        const vAlbum = getCustomDomProperty(el.parentNode.parentNode, 'data-album');
-        const vAlbumArtist = getCustomDomProperty(el.parentNode.parentNode, 'data-albumartist');
+        const pos = Number(getCustomDomProperty(dataNode, 'data-pos'));
+        const vAlbum = getCustomDomProperty(dataNode, 'data-album');
+        const vAlbumArtist = getCustomDomProperty(dataNode, 'data-albumartist');
         menu += (settings.jukeboxMode === 1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) :
             addMenuItem({"cmd": "appGoto", "options": ["Browse", "Database", "Detail", 0, 50, "Album", tagAlbumArtist, vAlbum, vAlbumArtist]}, t('Show album')))+
             addMenuItem({"cmd": "delQueueJukeboxSong", "options": [pos]}, t('Remove'));
     }
     else if (app.current.app === 'Home') {
-        let pos = Number(getCustomDomProperty(el.parentNode, 'data-pos'));
+        let pos = getCustomDomProperty(el.parentNode, 'data-pos');
         let href = JSON.parse(getCustomDomProperty(el.parentNode, 'data-href'));
-        if (href === null) {
-            pos = Number(getCustomDomProperty(el, 'data-pos'));
-            href = JSON.parse(getCustomDomProperty(el, 'data-href'));
-        }
-        if (href === null) {
+        if (href === null || href === undefined) {
             return;
         }
         let actionDesc = '';
@@ -228,7 +227,7 @@ function showMenuTd(el) {
                 addMenuItem({"cmd": "deleteHomeIcon", "options": [pos]}, t('Delete home icon'));
     }
 
-    new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
+    new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover">' +
         '<div class="arrow"></div>' +
         '<div class="popover-content">' + menu + '</div>' +
         '</div>', content: ' '});

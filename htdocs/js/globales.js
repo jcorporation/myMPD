@@ -11,9 +11,8 @@ let lastSongObj = {};
 let lastState;
 const currentSong = {};
 let playstate = '';
-let settings = {};
+let settings = {"loglevel": 2};
 let settingsParsed = 'no';
-settings.loglevel = 2;
 let alertTimeout = null;
 let progressTimer = null;
 let deferredA2HSprompt;
@@ -28,6 +27,7 @@ let uiEnabled = true;
 let locale = navigator.language || navigator.userLanguage;
 let scale = '1.0';
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const hasIO = 'IntersectionObserver' in window ? true : false;
 const ligatureMore = 'menu';
 const progressBarTransition = 'width 1s linear';
 let tagAlbumArtist = 'AlbumArtist';
@@ -609,3 +609,4 @@ const LUAfunctions = {
         "func": "output = mympd.os_capture(command)"
     }
 };
+

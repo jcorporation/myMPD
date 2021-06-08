@@ -7,8 +7,8 @@ function initHome() {
     //home screen
     document.getElementById('HomeCards').addEventListener('click', function(event) {
         if (event.target.classList.contains('card-body')) {
-            const href = event.target.parentNode.getAttribute('data-href');
-            if (href !== null) {
+            const href = getCustomDomProperty(event.target.parentNode, 'data-href');
+            if (href !== undefined) {
                parseCmd(event, href);
             }
         }
@@ -172,8 +172,8 @@ function parseHome(obj) {
             obj.result.data[i].cmd === 'appGoto' ? 'View' : 'Script';
         
         const href = JSON.stringify({"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
-        const html = '<div class="card home-icons clickable" draggable="true" tabindex="0" data-pos="' + i + '" data-href=\'' + 
-                   e(href) + '\'  title="' + t(homeType) +': ' + e(obj.result.data[i].name) + '">' +
+        const html = '<div class="card home-icons clickable" draggable="true" tabindex="0" ' + 
+                   'title="' + t(homeType) +': ' + e(obj.result.data[i].name) + '">' +
                    '<div class="card-body mi rounded">' + e(obj.result.data[i].ligature) + '</div>' +
                    '<div class="card-footer card-footer-grid p-2">' +
                    e(obj.result.data[i].name) + 
@@ -185,6 +185,8 @@ function parseHome(obj) {
         else {
             cardContainer.append(col);
         }
+        setCustomDomProperty(col.firstChild, 'data-href', href);
+        setCustomDomProperty(col.firstChild, 'data-pos', i);
         if (obj.result.data[i].image !== '') {
             col.getElementsByClassName('card-body')[0].style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(obj.result.data[i].image) + '")';
         }
@@ -192,7 +194,7 @@ function parseHome(obj) {
             col.getElementsByClassName('card-body')[0].style.backgroundColor = obj.result.data[i].bgcolor;
         }
     }
-    for (let i = cols.length - 1; i >= nrItems; i --) {
+    for (let i = cols.length - 1; i >= nrItems; i--) {
         cols[i].remove();
     }
                     
@@ -283,8 +285,8 @@ function dragAndDropHome() {
             }
             if (dst.classList.contains('home-icons')) {
                 dragEl.classList.remove('opacity05');
-                const to = Number(dst.getAttribute('data-pos'));
-                const from = Number(dragSrc.getAttribute('data-pos'));
+                const to = getCustomDomProperty(dst, 'data-pos');
+                const from = getCustomDomProperty(dragSrc, 'data-pos');
                 if (isNaN(to) === false && isNaN(from) === false && from !== to) {
                     sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, function(obj) {
                         parseHome(obj);
@@ -302,7 +304,7 @@ function dragAndDropHome() {
 //eslint-disable-next-line no-unused-vars
 function executeHomeIcon(pos) {
     const el = document.getElementById('HomeCards').children[pos].firstChild;
-    parseCmd(null, el.getAttribute('data-href'));
+    parseCmd(null, getCustomDomProperty(el, 'data-href'));
 }
 
 //eslint-disable-next-line no-unused-vars

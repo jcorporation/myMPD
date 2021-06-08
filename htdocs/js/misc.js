@@ -180,10 +180,10 @@ function zoomPicture(el) {
     }
     
     if (el.classList.contains('carousel')) {
-        const imgSrc = getCustomDomProperty(el, 'data-images');
         let images;
-        if (imgSrc !== null) {
-            images = getCustomDomProperty(el, 'data-images').split(';;');
+        const dataImages = getCustomDomProperty(el, 'data-images');
+        if (dataImages !== undefined && dataImages !== null) {
+            images = dataImages.slice();
         }
         else if (lastSongObj.images) {
             images = lastSongObj.images.slice();
@@ -195,16 +195,14 @@ function zoomPicture(el) {
         //add uri to image list to get embedded albumart
         let aImages = [];
         //use uri encoded attribute
-        const uri = el.getAttribute('data-uri');
+        const uri = getCustomDomProperty(el, 'data-uri');
         if (uri) {
             aImages = [ subdir + '/albumart/' + uri ];
         }
         //add all but coverfiles to image list
-        if (settings.publish === true) {
-            for (let i = 0, j = images.length; i < j; i++) {
-                if (isCoverfile(images[i]) === false) {
-                    aImages.push(subdir + '/browse/music/' + images[i]);
-                }
+        for (let i = 0, j = images.length; i < j; i++) {
+            if (isCoverfile(images[i]) === false) {
+                aImages.push(subdir + '/browse/music/' + images[i]);
             }
         }
         const imgEl = document.getElementById('modalPictureImg');
@@ -231,33 +229,37 @@ function zoomZoomPicture() {
 }
 
 function createImgCarousel(imgEl, name, images) {
-    let carousel = '<div id="' + name + '" class="carousel slide" data-ride="carousel">' +
-        '<ol class="carousel-indicators">';
-    for (let i = 0, j = images.length; i < j; i++) {
-        carousel += '<li data-target="#' + name + '" data-slide-to="' + i + '"' +
-            (i === 0 ? ' class="active"' : '') + '></li>';
+    const nrImages = images.length;
+    let carousel = '<div id="' + name + '" class="carousel slide" data-ride="carousel">';
+    if (nrImages > 1) {
+        carousel += '<ol class="carousel-indicators">';
+        for (let i = 0; i < nrImages; i++) {
+            carousel += '<li data-target="#' + name + '" data-slide-to="' + i + '"' +
+                (i === 0 ? ' class="active"' : '') + '></li>';
+        }
+        carousel += '</ol>';
     }
-    carousel += '</ol>' +
-        '<div class="carousel-inner" role="listbox">';
-    for (let i = 0, j = images.length; i < j; i++) {
+    carousel += '<div class="carousel-inner">';
+    for (let i = 0; i < nrImages; i++) {
         carousel += '<div class="carousel-item' + (i === 0 ? ' active' : '') + '"><div></div></div>';
     }
-    carousel += '</div>' +
-        '<a class="carousel-control-prev" href="#' + name + '" data-slide="prev">' +
-            '<span class="carousel-control-prev-icon"></span>' +
-        '</a>' +
-        '<a class="carousel-control-next" href="#' + name + '" data-slide="next">' +
-            '<span class="carousel-control-next-icon"></span>' +
-        '</a>' +
-        '</div>';
+    carousel += '</div>';
+    if (nrImages > 1) {
+        carousel += '<a class="carousel-control-prev" href="#' + name + '" data-slide="prev">' +
+                '<span class="carousel-control-prev-icon"></span>' +
+            '</a>' +
+            '<a class="carousel-control-next" href="#' + name + '" data-slide="next">' +
+                '<span class="carousel-control-next-icon"></span>' +
+            '</a>';
+    }
+    carousel += '</div>';
     imgEl.innerHTML = carousel;
     const carouselItems = imgEl.getElementsByClassName('carousel-item');
     for (let i = 0, j = carouselItems.length; i < j; i++) {
         carouselItems[i].children[0].style.backgroundImage = 'url("' + myEncodeURI(images[i]) + '")';
     }
-    const myCarousel = document.getElementById(name);
-    //eslint-disable-next-line no-undef, no-unused-vars
-    const myCarouselInit = new BSN.Carousel(myCarousel, {
+    
+    uiElements.albumartCarousel = new BSN.Carousel(document.getElementById(name), {
         interval: false,
         pause: false
     });
