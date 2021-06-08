@@ -197,8 +197,8 @@ function showMenuTd(el) {
             addMenuItem({"cmd": "delQueueJukeboxSong", "options": [pos]}, t('Remove'));
     }
     else if (app.current.app === 'Home') {
-        let pos = getCustomDomProperty(el.parentNode, 'data-pos');
-        let href = JSON.parse(getCustomDomProperty(el.parentNode, 'data-href'));
+        const pos = getCustomDomProperty(el.parentNode, 'data-pos');
+        const href = JSON.parse(getCustomDomProperty(el.parentNode, 'data-href'));
         if (href === null || href === undefined) {
             return;
         }
