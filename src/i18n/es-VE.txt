@@ -291,9 +291,6 @@ Guardar lista de reproducción inteligente
 Name
 Nombre
 
-Tag
-Etiqueta
-
 Tags
 Etiquetas
 
@@ -359,9 +356,6 @@ Debe ser un número mayor a cero
 
 Albumart
 Carátula del álbum
-
-Can't access music directory
-No se puede acceder al directorio de música
 
 Background color
 Color de fondo
@@ -431,9 +425,6 @@ Error actualizando de lista de reproducción inteligente %{playlist}
 
 Smart playlist
 Lista de reproducción inteligente
-
-Playlists are disabled
-Listas de reproducción deshabilitadas
 
 Clear app cache and reload
 Borrar caché de la app y recargar
@@ -695,9 +686,6 @@ Nueva lista de reproducción
 
 never
 nunca
-
-Failed to save playlist
-Error al guardar lista de reproducción
 
 Added %{uri} to playlist %{playlist}
 %{uri} agregado a lista de reproducción %{playlist}

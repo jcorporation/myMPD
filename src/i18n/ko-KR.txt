@@ -321,9 +321,6 @@ Save smart playlist
 Name
 이름
 
-Tag
-태그
-
 Tags
 태그
 
@@ -399,9 +396,6 @@ Must be a number and greater than zero
 Albumart
 음반 표지
 
-Can't access music directory
-음원 디렉터리에 접근할 수 없음
-
 Background color
 배경색
 
@@ -470,9 +464,6 @@ Updating smart playlist %{playlist} failed
 
 Smart playlist
 스마트 연주목록
-
-Playlists are disabled
-연주목록 사용 안 함
 
 Clear app cache and reload
 앱 캐시를 지우고 다시 읽기
@@ -737,9 +728,6 @@ New playlist
 
 never
 안 함
-
-Failed to save playlist
-연주목록 저장 안 됨
 
 Added %{uri} to playlist %{playlist}
 %{uri}의 %{playlist} 연주목록 추가에 실패함
@@ -1455,9 +1443,6 @@ Filter
 
 Sort
 정렬
-
-Tag
-태그
 
 Columns
 열

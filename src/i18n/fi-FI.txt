@@ -291,9 +291,6 @@ Tallenna älykäs soittolista
 Name
 Nimi
 
-Tag
-Tag
-
 Tags
 Tagit
 
@@ -359,9 +356,6 @@ Tarvii olla numero joka on suurempi kuin 0
 
 Albumart
 Albumcover
-
-Can't access music directory
-Musiikkikansiota ei pysty avaamaan
 
 Background color
 Taustaväri
@@ -431,9 +425,6 @@ Updating smart playlist %{playlist} failed
 
 Smart playlist
 Älykäs soittolista
-
-Playlists are disabled
-Soittolistat ovat pois päältä
 
 Clear app cache and reload
 Tyhjennä ohjelman välimuisti ja lataa uudelleen
@@ -695,9 +686,6 @@ Uusi soittolista
 
 never
 Ei koskaan
-
-Failed to save playlist
-Soittolistan tallennus epäonnistui
 
 Added %{uri} to playlist %{playlist}
 %{uri} lisätty soittolistaan %{playlist}

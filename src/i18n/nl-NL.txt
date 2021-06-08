@@ -294,9 +294,6 @@ Save slimme afspeellijst
 Name
 Naam
 
-Tag
-Tag
-
 Tags
 Tags
 
@@ -362,9 +359,6 @@ Moet een getal zijn en groter dan 0
 
 Albumart
 Albumcover
-
-Can't access music directory
-Map niet toegankelijk
 
 Background color
 Achtergrondkleur
@@ -434,9 +428,6 @@ Updaten slimmme afspeellijst %{playlist} mislukt
 
 Smart playlist
 Slimmme afspeellijst
-
-Playlists are disabled
-Afspeellijsten uitgeschakeld
 
 Clear app cache and reload
 Wis app-cache en herlaad
@@ -695,9 +686,6 @@ Nieuwe afspeellijst
 
 never
 nooit
-
-Failed to save playlist
-Saven afspeellijst mislukt
 
 Added %{uri} to playlist %{playlist}
 %{uri} aan afspeellijst %{playlist} toegevoegd

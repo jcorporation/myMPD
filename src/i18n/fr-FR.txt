@@ -294,9 +294,6 @@ Enregistrer la liste de lecture intelligente
 Name
 Nom
 
-Tag
-Tag
-
 Tags
 Tags
 
@@ -362,9 +359,6 @@ Doit être un nombre supérieur à zéro
 
 Albumart
 Jaquette
-
-Can't access music directory
-Dossier de musiques non accessible
 
 Background color
 Couleur d'arrière plan
@@ -434,9 +428,6 @@ Echec de la mise à jour de la liste de lecture intelligente %{playlist}
 
 Smart playlist
 Liste de lecture intelligente
-
-Playlists are disabled
-Listes de lecture désactivées
 
 Clear app cache and reload
 Vider le cache de l'application et recharger
@@ -698,9 +689,6 @@ Nouvelle liste de lecture
 
 never
 jamais
-
-Failed to save playlist
-Echec de l'enregistrement de la liste de lecture
 
 Added %{uri} to playlist %{playlist}
 Ajout de %{uri} à la iste de lecture %{playlist}

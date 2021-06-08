@@ -294,9 +294,6 @@ Salva la lista di riproduzione smart
 Name
 Nome
 
-Tag
-Tag
-
 Tags
 Tags
 
@@ -362,9 +359,6 @@ Dever essere un numero e maggiore di zero
 
 Albumart
 Copertina
-
-Can't access music directory
-Cartella musicale non accessibile
 
 Background color
 Colore sfondo
@@ -434,9 +428,6 @@ Impossibile aggiornare la lista di riproduzione smart %{playlist}
 
 Smart playlist
 Lista di riproduzione smart
-
-Playlists are disabled
-Le liste di riproduzione sono disabilitate
 
 Clear app cache and reload
 Svuota cache applicazione e ricarica
@@ -698,9 +689,6 @@ Nuova lista di riproduzione
 
 never
 mai
-
-Failed to save playlist
-Impossibile salvare la lista di riproduzione
 
 Added %{uri} to playlist %{playlist}
 Aggiunta di %{uri} alla lista di riproduzione %{playlist}
