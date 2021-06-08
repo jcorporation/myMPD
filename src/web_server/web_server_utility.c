@@ -297,6 +297,9 @@ static bool check_ipv4_acl(const char *acl, uint32_t remote_ip) {
         acl_str++;
         char *mask_str;
         char *net_str = strtok_r(acl_str, "/", &mask_str);
+        if (net_str == NULL || mask_str == NULL) {
+            continue;
+        }
         uint32_t mask = strtoimax(mask_str, NULL, 10);
         if (mask == 0) {
             //mask of 0 matches always
