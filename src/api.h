@@ -135,4 +135,5 @@ enum mympd_cmd_ids {
 //global functions
 enum mympd_cmd_ids get_cmd_id(const char *cmd);
 bool is_public_api_method(enum mympd_cmd_ids cmd_id);
+bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id);
 #endif

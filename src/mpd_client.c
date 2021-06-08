@@ -159,12 +159,12 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 MYMPD_LOG_DEBUG("Handle request (mpd disconnected)");
                 t_work_request *request = tiny_queue_shift(mympd_api_queue, 50, 0);
                 if (request != NULL) {
-                    if (request->cmd_id == MYMPD_API_SETTINGS_GET ||
-                        request->cmd_id == MYMPD_API_CONNECTION_SAVE)
-                    {
-                        //allow to change mpd host
+                    if (is_mympd_only_api_method(request->cmd_id) == true) {
+                        //reconnect instantly on change of mpd host
+                        if (request->cmd_id == MYMPD_API_CONNECTION_SAVE) {
+                            mympd_state->mpd_state->conn_state = MPD_DISCONNECTED;
+                        }
                         mympd_api_handler(mympd_state, request);
-                        mympd_state->mpd_state->conn_state = MPD_DISCONNECTED;
                     }
                     else {
                         //other requests not allowed
@@ -271,7 +271,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             }
             mympd_state->mpd_state->conn = NULL;
             mympd_state->mpd_state->conn_state = MPD_WAIT;
-            if (mympd_state->mpd_state->reconnect_interval <= 20) {
+            if (mympd_state->mpd_state->reconnect_interval < 20) {
                 mympd_state->mpd_state->reconnect_interval += 2;
             }
             mympd_state->mpd_state->reconnect_time = time(NULL) + mympd_state->mpd_state->reconnect_interval;

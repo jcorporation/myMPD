@@ -35,3 +35,15 @@ bool is_public_api_method(enum mympd_cmd_ids cmd_id) {
             return true;
     }
 }
+
+bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
+    switch(cmd_id) {
+        case MYMPD_API_SETTINGS_GET:
+        case MYMPD_API_CONNECTION_SAVE:
+        case MYMPD_API_HOME_LIST:
+        case MYMPD_API_SCRIPT_LIST:
+            return true;
+        default:
+            return false;
+    }
+}
