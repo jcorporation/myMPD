@@ -8,6 +8,10 @@ The frontend is mobile friendly, written as a PWA and offers on all devices the 
 
 myMPD also integrates extended features like an advanced jukebox mode, timers, triggers and smart playlists. With the integrated lua interpreter myMPD functions can also be scripted.
 
+## Screenshots
+
+![image](https://jcorporation.github.io/assets/myMDPv6.8.3.gif)
+
 ## Features
 
 - Control mpd functions (play, pause, etc.)
@@ -44,14 +48,11 @@ To use all myMPD functions you should use the latest stable MPD version (0.22.x)
 
 myMPD is in active development. If you like myMPD, you can help to improve it (no programming skills are required).
 
+- Star this repository
 - [Help to improve myMPD](https://github.com/jcorporation/myMPD/issues/167).
 - Use [issues](https://github.com/jcorporation/myMPD/issues) for bug reports only.
 - Use [discussion](https://github.com/jcorporation/myMPD/discussions) for feature requests, questions and general feedback.
 - If I accept a feature request, I will open an issue and assign a [milestone](https://github.com/jcorporation/myMPD/milestones) to it.
-
-## Screenshots
-
-![image](https://jcorporation.github.io/assets/myMDPv6.8.3.gif)
 
 ## Installation
 
