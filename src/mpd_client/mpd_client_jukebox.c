@@ -102,6 +102,7 @@ sds mpd_client_put_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
         }
     }
     buffer = sdscat(buffer, "],");
+    buffer = tojson_long(buffer, "jukeboxMode", mympd_state->jukebox_mode, true);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);

@@ -27,6 +27,14 @@ function delQueueJukeboxSong(pos) {
 }
 
 function parseJukeboxList(obj) {
+    if (obj.result.jukeboxMode === 0) {
+        document.getElementById('QueueJukeboxList').classList.add('hide');
+        document.getElementById('QueueJukeboxDisabled').classList.remove('hide');
+        return;
+    }
+    document.getElementById('QueueJukeboxDisabled').classList.add('hide');
+    document.getElementById('QueueJukeboxList').classList.remove('hide');
+
     const rowTitle = webuiSettingsDefault.clickAlbumPlay.validValues[settings.webuiSettings.clickAlbumPlay];
     updateTable(obj, 'QueueJukebox', function(row, data) {
         setCustomDomProperty(row, 'data-uri', data.uri);
