@@ -545,7 +545,7 @@ function populateSettingsFrm() {
     initTagMultiSelect('inputGeneratePlsTags', 'listGeneratePlsTags', settings.tagListBrowse, settings.smartplsGenerateTagList);
     //features - show or hide warnings
     setFeatureBtn('btnEnableLyrics', features.featLibrary);
-    setFeatureBtn('inputAdvSettingenableScripting', features.featScripting);
+    setFeatureBtn('inputAdvSettingenableScripting', settings.featScripting);
     setFeatureBtn('inputAdvSettingenableMounts', features.featMounts);
     setFeatureBtn('inputAdvSettingenablePartitions', features.featPartitions);
 }
