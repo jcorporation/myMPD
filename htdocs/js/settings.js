@@ -543,11 +543,11 @@ function populateSettingsFrm() {
     initTagMultiSelect('inputSearchTags', 'listSearchTags', settings.tagList, settings.tagListSearch);
     initTagMultiSelect('inputBrowseTags', 'listBrowseTags', settings.tagList, settings.tagListBrowse);
     initTagMultiSelect('inputGeneratePlsTags', 'listGeneratePlsTags', settings.tagListBrowse, settings.smartplsGenerateTagList);
-    //features - show or hide warnings
-    setFeatureBtn('btnEnableLyrics', features.featLibrary);
+    //features - show or hide warnings - use settings object
+    setFeatureBtn('btnEnableLyrics', settings.featLibrary);
     setFeatureBtn('inputAdvSettingenableScripting', settings.featScripting);
-    setFeatureBtn('inputAdvSettingenableMounts', features.featMounts);
-    setFeatureBtn('inputAdvSettingenablePartitions', features.featPartitions);
+    setFeatureBtn('inputAdvSettingenableMounts', settings.featMounts);
+    setFeatureBtn('inputAdvSettingenablePartitions', settings.featPartitions);
 }
 
 function setFeatureBtn(btn, value) {
