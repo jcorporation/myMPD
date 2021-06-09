@@ -106,9 +106,16 @@ function clickSong(uri, name) {
 function clickQueueSong(songid, uri) {
     switch (settings.webuiSettings.clickQueueSong) {
         case 'play':
+            if (songid === null) {
+                return;
+            }
             sendAPI("MYMPD_API_PLAYER_PLAY_SONG", {"songId": songid});
             break;
-        case 'view': return songDetails(uri);
+        case 'view': 
+            if (uri === null) {
+                return;
+            }
+            return songDetails(uri);
     }
 }
 
