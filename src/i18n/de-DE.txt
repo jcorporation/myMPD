@@ -1306,7 +1306,7 @@ Invalid trigger name
 Ungültiger Trigger Name
 
 Move an output to this partition
-Verschiebe ein Ausgabegerät zu dieser Partition
+Verschiebe ein Ausgabegerät in diese Partition
 
 New partition
 Neue Partition
@@ -1812,3 +1812,6 @@ Methode auswählen
 
 Yes, clear it
 Ja, leeren
+
+Manage partitions
+Partitionen verwalten
