@@ -1815,3 +1815,6 @@ Ja, leeren
 
 Manage partitions
 Partitionen verwalten
+
+Jukebox is disabled
+Jukebox ist deaktiviert
