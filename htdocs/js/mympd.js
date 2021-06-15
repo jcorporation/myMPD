@@ -686,11 +686,8 @@ function initNavs() {
 
     document.getElementById('navbar-main').addEventListener('click', function(event) {
         event.preventDefault();
-        let href = getCustomDomProperty(event.target, 'data-href');
-        if (href === undefined || href === null) {
-            //workarround - event does not propagate to A
-            href = getCustomDomProperty(event.target.parentNode, 'data-href');
-        }
+        const target = event.target.nodeName === 'A' ? event.target : event.target.parentNode;
+        const href = getCustomDomProperty(target, 'data-href');
         parseCmd(event, href);
     }, false);
     
