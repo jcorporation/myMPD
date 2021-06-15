@@ -74,22 +74,22 @@ function eventChangeLocale(event) {
 //eslint-disable-next-line no-unused-vars
 function eventChangeTheme(event) {
     const value = getSelectValue(event.target);
-    const bgImageEl = document.getElementById('inputAdvSettinguiBgImage');
+    const bgImageEl = document.getElementById('inputWebUIsettinguiBgImage');
     const bgImageValue = getSelectValue(bgImageEl);
     if (value === 'theme-default') { 
-        document.getElementById('inputAdvSettinguiBgColor').value = '#aaaaaa';
+        document.getElementById('inputWebUIsettinguiBgColor').value = '#aaaaaa';
         if (bgImageValue.indexOf('/assets/') === 0) {
             bgImageEl.value = '/assets/mympd-background-default.svg';
         }
     }
     else if (value === 'theme-light') {
-        document.getElementById('inputAdvSettinguiBgColor').value = '#ffffff';
+        document.getElementById('inputWebUIsettinguiBgColor').value = '#ffffff';
         if (bgImageValue.indexOf('/assets/') === 0) {
             bgImageEl.value = '/assets/mympd-background-light.svg';
         }
     }
     else if (value === 'theme-dark') {
-        document.getElementById('inputAdvSettinguiBgColor').value = '#060708';
+        document.getElementById('inputWebUIsettinguiBgColor').value = '#060708';
         if (bgImageValue.indexOf('/assets/') === 0) {
             bgImageEl.value = '/assets/mympd-background-dark.svg';
         }
@@ -475,11 +475,11 @@ function populateSettingsFrm() {
             (l.code === settings.webuiSettings.uiLocale ? ' selected="selected"' : '') + '>' + 
             e(l.desc) + ' (' + e(l.code) + ')</option>';
     }
-    document.getElementById('inputAdvSettinguiLocale').innerHTML = localeList;
+    document.getElementById('inputWebUIsettinguiLocale').innerHTML = localeList;
     warnLocale(settings.webuiSettings.uiLocale);
 
     //web notifications - check permission
-    const btnNotifyWeb = document.getElementById('inputAdvSettingnotifyWeb');
+    const btnNotifyWeb = document.getElementById('inputWebUIsettingnotifyWeb');
     document.getElementById('warnNotifyWeb').classList.add('hide');
     if (notificationsSupported()) {
         if (Notification.permission !== 'granted') {
@@ -529,14 +529,14 @@ function populateSettingsFrm() {
     }
     toggleBtnChkCollapse('btnEnableLyrics', 'collapseEnableLyrics', settings.webuiSettings.enableLyrics);
 
-    const inputAdvSettinguiBgCover = document.getElementById('inputAdvSettinguiBgCover');
-    inputAdvSettinguiBgCover.setAttribute('data-toggle', 'collapse');
-    inputAdvSettinguiBgCover.setAttribute('data-target', '#bgCssFilterFrm');
+    const inputWebUIsettinguiBgCover = document.getElementById('inputWebUIsettinguiBgCover');
+    inputWebUIsettinguiBgCover.setAttribute('data-toggle', 'collapse');
+    inputWebUIsettinguiBgCover.setAttribute('data-target', '#bgCssFilterFrm');
     if (uiElements.collapseuiBgCover !== undefined) {
         uiElements.collapseuiBgCover.dispose();
     }
-    uiElements.collapseuiBgCover = new BSN.Collapse(inputAdvSettinguiBgCover);
-    toggleBtnChkCollapse('inputAdvSettinguiBgCover', 'bgCssFilterFrm', settings.webuiSettings.uiBgCover);
+    uiElements.collapseuiBgCover = new BSN.Collapse(inputWebUIsettinguiBgCover);
+    toggleBtnChkCollapse('inputWebUIsettinguiBgCover', 'bgCssFilterFrm', settings.webuiSettings.uiBgCover);
 
     //tag multiselects
     initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.tagListMpd, settings.tagList);
@@ -545,9 +545,9 @@ function populateSettingsFrm() {
     initTagMultiSelect('inputGeneratePlsTags', 'listGeneratePlsTags', settings.tagListBrowse, settings.smartplsGenerateTagList);
     //features - show or hide warnings - use settings object
     setFeatureBtn('btnEnableLyrics', settings.featLibrary);
-    setFeatureBtn('inputAdvSettingenableScripting', settings.featScripting);
-    setFeatureBtn('inputAdvSettingenableMounts', settings.featMounts);
-    setFeatureBtn('inputAdvSettingenablePartitions', settings.featPartitions);
+    setFeatureBtn('inputWebUIsettingenableScripting', settings.featScripting);
+    setFeatureBtn('inputWebUIsettingenableMounts', settings.featMounts);
+    setFeatureBtn('inputWebUIsettingenablePartitions', settings.featPartitions);
 }
 
 function setFeatureBtn(btn, value) {
@@ -563,7 +563,7 @@ function setFeatureBtn(btn, value) {
 }
 
 function createSettingsFrm() {
-    _createSettingsFrm(settings.webuiSettings, webuiSettingsDefault, 'inputAdvSetting');
+    _createSettingsFrm(settings.webuiSettings, webuiSettingsDefault, 'inputWebUIsetting');
     _createSettingsFrm(settings, settingFields, 'inputSetting');
 }
 
@@ -809,7 +809,7 @@ function resetSettings() {
 function saveSettings(closeModal) {
     let formOK = true;
 
-    for (const inputId of ['inputAdvSettinguiCoverimageSize', 'inputAdvSettinguiCoverimageSizeSmall',
+    for (const inputId of ['inputWebUIsettinguiCoverimageSize', 'inputWebUIsettinguiCoverimageSizeSmall',
             'inputSettinglastPlayedCount', 'inputSmartplsInterval', 'inputSettingvolumeMax', 'inputSettingvolumeMin',
             'inputSettingvolumeStep', 'inputCovercacheKeepDays']) 
     {
@@ -845,7 +845,7 @@ function saveSettings(closeModal) {
 
     const webuiSettings = {};
     for (const key in webuiSettingsDefault) {
-        const el = document.getElementById('inputAdvSetting' + r(key));
+        const el = document.getElementById('inputWebUIsetting' + r(key));
         if (el) {
             if (webuiSettingsDefault[key].inputType === 'select') {
                 webuiSettings[key] =  webuiSettingsDefault[key].contentType === 'integer' ? Number(getSelectValue(el)) : getSelectValue(el);
@@ -1081,7 +1081,7 @@ function resetToDefault(button) {
 }
 
 function getBgImageList(image) {
-    getImageList('inputAdvSettinguiBgImage', image, [
+    getImageList('inputWebUIsettinguiBgImage', image, [
         {"value": "", "text": "None"},
         {"value": "/assets/mympd-background-default.svg", "text": "Default image"},
         {"value": "/assets/mympd-background-dark.svg", "text": "Default image dark"},
