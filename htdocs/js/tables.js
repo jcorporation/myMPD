@@ -552,6 +552,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         z++;
     }
     for (let i = 0; i < nrItems; i++) {
+        //disc handling for album view
         if (obj.result.data[0].Disc !== undefined && lastDisc < Number(obj.result.data[i].Disc)) {
             const row = document.createElement('tr');
             row.classList.add('not-clickable');
@@ -570,6 +571,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         if (perRowCallback !== undefined && typeof(perRowCallback) === 'function') {
             perRowCallback(row, obj.result.data[i]);
         }
+        //data row
         let tds = '';
         row.setAttribute('tabindex', 0);
         //set Title to name if not defined - for folders and playlists
