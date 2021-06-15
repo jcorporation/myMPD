@@ -112,6 +112,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     je = json_scanf(content, (int)strlen(content), "{type: %Q }", &smartpltype);
     if (je != 1) {
         MYMPD_LOG_ERROR("Cant read smart playlist type from \"%s\"", filename);
+        sdsfree(filename);
         return false;
     }
     if (strcmp(smartpltype, "sticker") == 0) {
