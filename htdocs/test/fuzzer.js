@@ -5,35 +5,64 @@
  https://github.com/jcorporation/mympd
 */
 
-var i = 0;
-var j = 0;
-var t = 0;
-var blns_len = blns.length;
-var cmds;
+let i = 0;
+let j = 0;
+let t = 0;
+const blns_len = blns.length;
+let cmds;
 
 function defineCmds() {
-    var newCmds = cmds.slice();
-    for (const c in newCmds) {
-        for (const p in newCmds[c].params) {
-            switch(typeof p) {
-                case "number": 
-                    newCmds[c].params[p] = getRandomInt(); 
-                    break;
-                case "boolean":
-                    newCmds[c].params[p] = getRandomBool();
-                    break;
-                default:
-                    newCmds[c].params[p] = blns[getRandomUint(blns_len)];
+    let newCmds = [];
+    for (const method of APImethods) {
+        let request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": apiParamsToObject(APImethods[method].params)};
+        newCmds.push(request);
+    }
+    return newCmds;
+}
+
+function getRandomByType(t) {
+    if (getRandomBool() === true) {
+        //return value of valid type
+        if (t === 'bool') { return getRandomBool(); }
+        if (t === 'int') { return getRandomInt(); }
+        if (t === 'uint') { return getRandomUint(); }
+        return blns[getRandomUint(blns_len)];
+    }
+    else {
+        //return value of invalid type
+        const rt = getRandomUint(4);
+        if (rt === 0) { return getRandomBool(); }
+        if (rt === 1) { return getRandomInt(); }
+        if (rt === 2) { return getRandomUint(); }
+        if (rt === 2) { return blns[getRandomUint(blns_len)]; ]
+        return '';
+    }
+}
+
+function apiParamsToObject(p) {
+    let args = {};
+    for (const param in p) {
+        if (p[param].params !== undefined) {
+            args[param] = apiParamsToObject(p[param].params);
+        }
+        else {
+            if (getRandomBool() === true) {
+                //return valid example value
+                args[param] = p[param].example;
+            }
+            else {
+                //return random value with random type
+                args[param] = getRandomByType(p[param].type);
             }
         }
     }
-    return newCmds;
+    return args;
 }
 
 function setTest(cmd, response) {
     var tr = document.createElement('tr');
     tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + e(JSON.stringify(cmd)) + '</td><td>' + response + '</td>';
-    var tbody = document.getElementsByTagName('tbody')[0];
+    const tbody = document.getElementsByTagName('tbody')[0];
     tbody.appendChild(tr);
     t++;
     document.getElementById('testCount').innerText = t + '/' + i + '/' + j;
@@ -43,11 +72,14 @@ function setTest(cmd, response) {
 }
 
 function getRandomUint(max) {
+    if (max === null) {
+        max = 9999999999;
+    }
     return Math.floor(Math.random() * Math.floor(max));
 }
 
 function getRandomInt() {
-    var int = Math.floor(Math.random() * Math.floor(9999999999));
+    let int = Math.floor(Math.random() * Math.floor(9999999999));
     if (getRandomUint(3) === 0) {
         int = 0 - int;
     }
@@ -62,14 +94,14 @@ function sendAPI(id) {
     if (id === 0) {
         cmds = defineCmds();
     }
-    var request = cmds[id];
-    
-    var ajaxRequest=new XMLHttpRequest();
+    const request = cmds[id];
+
+    const ajaxRequest = new XMLHttpRequest();
     ajaxRequest.open('POST', '/api/', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {
-            var sleep = 0;
+            let sleep = 0;
             try {
                 var obj = JSON.parse(ajaxRequest.responseText);
                 if (obj.error && obj.error.message === 'MPD disconnected') {
