@@ -127,38 +127,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     domCache.counter.innerHTML = counterText;
     
     //Set playing track in queue view
-    if (lastState) {
-        if (lastState.currentSongId !== currentSongId) {
-            const tr = document.getElementById('queueTrackId' + lastState.currentSongId);
-            if (tr) {
-                const durationTd = tr.querySelector('[data-col=Duration]');
-                if (durationTd) {
-                    durationTd.innerText = getCustomDomProperty(tr, 'data-duration');
-                }
-                const posTd = tr.querySelector('[data-col=Pos]');
-                if (posTd) {
-                    posTd.classList.remove('mi');
-                    posTd.innerText = getCustomDomProperty(tr, 'data-songpos');
-                }
-                tr.classList.remove('queue-playing');
-            }
-        }
-    }
-    const tr = document.getElementById('queueTrackId' + currentSongId);
-    if (tr) {
-        const durationTd = tr.querySelector('[data-col=Duration]');
-        if (durationTd) {
-            durationTd.innerHTML = counterText;
-        }
-        const posTd = tr.querySelector('[data-col=Pos]');
-        if (posTd) {
-            if (!posTd.classList.contains('mi')) {
-                posTd.classList.add('mi');
-                posTd.innerText = 'play_arrow';
-            }
-        }
-        tr.classList.add('queue-playing');
-    }
+    queueSetCurrentSong(currentSongId, elapsedTime, totalTime);
 
     //synced lyrics
     if (showSyncedLyrics === true && settings.colsPlayback.includes('Lyrics')) {
@@ -240,8 +209,9 @@ function parseState(obj) {
     lastState = obj.result;                    
     
     //refresh settings if mpd is not connected or ui is disabled
-    //true on startup
+    //ui is disabled at startup
     if (settings.mpdConnected === false || uiEnabled === false) {
+        logDebug((settings.mpdConnected === false ? 'MPD disconnected' : 'UI disabled') + ' - refreshing settings');
         getSettings(true);
     }
 }

@@ -155,6 +155,19 @@ function parseQueue(obj) {
         setCustomDomProperty(row, 'data-duration', data.Duration);
         setCustomDomProperty(row, 'data-uri', data.uri);
         setCustomDomProperty(row, 'data-type', 'song');
+    }, function(row, data) {
+        const list = 'QueueCurrent';
+        let tds = '';
+        for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
+            tds += '<td data-col="' + encodeURI(settings['cols' + list][c]) + '">' +
+                printValue(settings['cols' + list][c], data[settings['cols' + list][c]]) +
+                '</td>';
+        }
+        tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey" title="' + t('Actions') + '">' + ligatureMore + '</a></td>';
+        row.innerHTML = tds;
+        if (lastState && lastState.currentSongId === data.id) {
+            setPlayingRow(row, lastState.elapsedTime, data.Duration);
+        }
     });
 
     const table = document.getElementById('QueueCurrentList');
@@ -170,6 +183,45 @@ function parseQueue(obj) {
     else {
         tfoot.innerHTML = '';
     }
+}
+
+function queueSetCurrentSong(currentSongId, elapsedTime, totalTime) {
+    if (lastState) {
+        if (lastState.currentSongId !== currentSongId) {
+            const tr = document.getElementById('queueTrackId' + lastState.currentSongId);
+            if (tr) {
+                const durationTd = tr.querySelector('[data-col=Duration]');
+                if (durationTd) {
+                    durationTd.innerText = beautifySongDuration(getCustomDomProperty(tr, 'data-duration'));
+                }
+                const posTd = tr.querySelector('[data-col=Pos]');
+                if (posTd) {
+                    posTd.classList.remove('mi');
+                    posTd.innerText = getCustomDomProperty(tr, 'data-songpos');
+                }
+                tr.classList.remove('queue-playing');
+            }
+        }
+    }
+    const tr = document.getElementById('queueTrackId' + currentSongId);
+    if (tr) {
+        setPlayingRow(tr, elapsedTime, totalTime);
+    }
+}
+
+function setPlayingRow(row, elapsedTime, totalTime) {
+    const durationTd = row.querySelector('[data-col=Duration]');
+    if (durationTd) {
+        durationTd.innerHTML = beautifySongDuration(elapsedTime) + "&nbsp;/&nbsp;" + beautifySongDuration(totalTime);
+    }
+    const posTd = row.querySelector('[data-col=Pos]');
+    if (posTd) {
+        if (!posTd.classList.contains('mi')) {
+            posTd.classList.add('mi');
+            posTd.innerText = 'play_arrow';
+        }
+    }
+    row.classList.add('queue-playing');
 }
 
 function parseLastPlayed(obj) {
