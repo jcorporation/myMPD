@@ -13,7 +13,7 @@ let cmds;
 
 function defineCmds() {
     let newCmds = [];
-    for (const method of APImethods) {
+    for (const method in APImethods) {
         let request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": apiParamsToObject(APImethods[method].params)};
         newCmds.push(request);
     }
@@ -34,7 +34,7 @@ function getRandomByType(t) {
         if (rt === 0) { return getRandomBool(); }
         if (rt === 1) { return getRandomInt(); }
         if (rt === 2) { return getRandomUint(); }
-        if (rt === 2) { return blns[getRandomUint(blns_len)]; ]
+        if (rt === 2) { return blns[getRandomUint(blns_len)]; }
         return '';
     }
 }
