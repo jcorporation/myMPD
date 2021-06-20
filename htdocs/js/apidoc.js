@@ -478,6 +478,7 @@ const APImethods = {
     },
     "MYMPD_API_SMARTPLS_UPDATE_ALL": {
         "desc": "Updates all smart playlists.",
+        "async": true,
         "params": {
             "force": {
                 "type": "bool",
@@ -488,6 +489,7 @@ const APImethods = {
     },
     "MYMPD_API_SMARTPLS_UPDATE": { 
         "desc": "Updates the smart playlist.",
+        "async": true,
         "params": {
             "plist": APIparams.plist
         }
