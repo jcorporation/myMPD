@@ -380,9 +380,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             if (rc == true) {
                 if (mpd_host_changed == true) {
                     //reconnect to new mpd
-                    mympd_state->mpd_state->conn_state = MPD_DISCONNECT;
+                    MYMPD_LOG_DEBUG("MPD host has changed, disconnecting");
+                    mympd_state->mpd_state->conn_state = MPD_DISCONNECT_INSTANT;
                 }
-                else {
+                else if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
                     //feature detection
                     mpd_client_mpd_features(mympd_state);
                 }

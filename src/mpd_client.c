@@ -231,7 +231,6 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 s_signal_received = 1;
             }
             
-            mpd_connection_set_timeout(mympd_state->mpd_state->conn, mympd_state->mpd_state->mpd_timeout);
             buffer = jsonrpc_event(buffer, "mpd_connected");
             ws_notify(buffer);
             mympd_state->mpd_state->conn_state = MPD_CONNECTED;
@@ -265,17 +264,26 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             trigger_execute(mympd_state, TRIGGER_MYMPD_DISCONNECTED);
             // fall through
         case MPD_DISCONNECT:
+        case MPD_DISCONNECT_INSTANT:
         case MPD_RECONNECT:
             if (mympd_state->mpd_state->conn != NULL) {
                 mpd_connection_free(mympd_state->mpd_state->conn);
             }
             mympd_state->mpd_state->conn = NULL;
-            mympd_state->mpd_state->conn_state = MPD_WAIT;
-            if (mympd_state->mpd_state->reconnect_interval < 20) {
-                mympd_state->mpd_state->reconnect_interval += 2;
+            if (mympd_state->mpd_state->conn_state != MPD_DISCONNECT_INSTANT) {
+                //set wait time for next connection attempt
+                mympd_state->mpd_state->conn_state = MPD_WAIT;
+                if (mympd_state->mpd_state->reconnect_interval < 20) {
+                    mympd_state->mpd_state->reconnect_interval += 2;
+                }
+                mympd_state->mpd_state->reconnect_time = time(NULL) + mympd_state->mpd_state->reconnect_interval;
+                MYMPD_LOG_INFO("Waiting %u seconds before reconnection", mympd_state->mpd_state->reconnect_interval);
             }
-            mympd_state->mpd_state->reconnect_time = time(NULL) + mympd_state->mpd_state->reconnect_interval;
-            MYMPD_LOG_INFO("Waiting %u seconds before reconnection", mympd_state->mpd_state->reconnect_interval);
+            else {
+                mympd_state->mpd_state->conn_state = MPD_DISCONNECTED;
+                mympd_state->mpd_state->reconnect_interval = 0;
+                mympd_state->mpd_state->reconnect_time = 0;
+            }
             break;
 
         case MPD_CONNECTED:

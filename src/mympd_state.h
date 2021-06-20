@@ -40,6 +40,7 @@ enum mpd_conn_states {
     MPD_FAILURE,
     MPD_CONNECTED,
     MPD_RECONNECT,
+    MPD_DISCONNECT_INSTANT,
     MPD_DISCONNECT,
     MPD_WAIT,
     MPD_TOO_OLD

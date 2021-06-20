@@ -30,6 +30,7 @@
 #include "../utility.h"
 #include "../mpd_shared.h"
 #include "../mpd_client/mpd_client_trigger.h"
+#include "../mpd_client/mpd_client_utility.h"
 #include "mympd_api_utility.h"
 #include "mympd_api_timer.h"
 #include "mympd_api_timer_handlers.h"
@@ -48,20 +49,20 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
     char *crap;
     sds settingname = camel_to_snake(key->ptr, key->len);
     sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
-    *mpd_host_changed = false;
     if (strncmp(key->ptr, "mpdPass", key->len) == 0) {
-        if (strncmp(val->ptr, "dontsetpassword", val->len) != 0) {
+        if (strcmp(settingvalue, "dontsetpassword") != 0) {
             mympd_state->mpd_state->mpd_pass = sdsreplacelen(mympd_state->mpd_state->mpd_pass, settingvalue, sdslen(settingvalue));
             *mpd_host_changed = true;
         }
         else {
+            //keep old password
             sdsfree(settingname);
             sdsfree(settingvalue);
             return true;
         }
     }
     else if (strncmp(key->ptr, "mpdHost", key->len) == 0) {
-        if (strncmp(val->ptr, mympd_state->mpd_state->mpd_host, val->len) != 0) {
+        if (strcmp(settingvalue, mympd_state->mpd_state->mpd_host) != 0) {
             *mpd_host_changed = true;
             mympd_state->mpd_state->mpd_host = sdsreplacelen(mympd_state->mpd_state->mpd_host, settingvalue, sdslen(settingvalue));
         }
@@ -94,12 +95,17 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
         strip_slash(mympd_state->playlist_directory);
     }
     else if (strncmp(key->ptr, "mpdBinarylimit", key->len) == 0) {
-        int binarylimit = strtoimax(settingvalue, &crap, 10);
+        unsigned binarylimit = strtoumax(settingvalue, &crap, 10);
         if (binarylimit < 4096 || binarylimit > 40960) {
             MYMPD_LOG_ERROR("Invalid value for binarylimit: %s", settingvalue);
             return false;
         }
-        mympd_state->mpd_state->mpd_binarylimit = binarylimit;
+        if (binarylimit != mympd_state->mpd_state->mpd_binarylimit) {
+            mympd_state->mpd_state->mpd_binarylimit = binarylimit;
+            if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
+                mpd_client_set_binarylimit(mympd_state);
+            }
+        }
     }
     else if (strncmp(key->ptr, "mpdTimeout", key->len) == 0) {
         int mpd_timeout = strtoimax(settingvalue, &crap, 10);
@@ -107,7 +113,12 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
             MYMPD_LOG_ERROR("Invalid value for mpdTimeoutt: %s", settingvalue);
             return false;
         }
-        mympd_state->mpd_state->mpd_timeout = mpd_timeout;
+        if (mpd_timeout != mympd_state->mpd_state->mpd_timeout) {
+            mympd_state->mpd_state->mpd_timeout = mpd_timeout;
+            if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
+                mpd_connection_set_timeout(mympd_state->mpd_state->conn, mympd_state->mpd_state->mpd_timeout);
+            }
+        }
     }
     else {
         MYMPD_LOG_WARN("Unknown setting %s: %s", settingname, settingvalue);
