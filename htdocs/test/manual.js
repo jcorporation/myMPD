@@ -22,7 +22,7 @@ function e(x) {
 
 function init() {
     let options = '<option></option>';
-    const methods = Object.keys(cmds).sort();
+    const methods = Object.keys(APImethods).sort();
     for (const method of methods) {
         options += '<option value="' + method + '">' + method + '</option>';
     }
@@ -31,9 +31,9 @@ function init() {
     select.addEventListener('change', function() {
         let method = this.options[this.selectedIndex].value;
         let form = '';
-        if (method !== '' && cmds[method].params !== undefined) {
-            form = paramsToForm(cmds[method].params, '');
-            document.getElementById('desc').innerText = cmds[method].desc;
+        if (method !== '' && APImethods[method].params !== undefined) {
+            form = paramsToForm(APImethods[method].params, '');
+            document.getElementById('desc').innerText = APImethods[method].desc;
         }
         document.getElementById('params').innerHTML = form;
         document.getElementById('desc').innerText = '';
@@ -103,8 +103,8 @@ function sendAPI() {
     let select = document.getElementById('cmds');
     let method = select.options[select.selectedIndex].value;
     let request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": {}};
-    if (cmds[method].params !== undefined) {
-        request.params = formToParams(cmds[method].params, '');
+    if (APImethods[method].params !== undefined) {
+        request.params = formToParams(APImethods[method].params, '');
     }
     let ajaxRequest = new XMLHttpRequest();
     ajaxRequest.open('POST', '/api/', true);
