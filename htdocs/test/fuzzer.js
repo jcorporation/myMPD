@@ -14,6 +14,9 @@ let cmds;
 function defineCmds() {
     let newCmds = [];
     for (const method in APImethods) {
+        if (method === 'MYMPD_API_CONNECTION_SAVE') {
+            continue;
+        }
         let request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": apiParamsToObject(APImethods[method].params)};
         newCmds.push(request);
     }
