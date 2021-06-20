@@ -213,7 +213,7 @@ void remove_timer(struct t_timer_list *l, int timer_id) {
 void toggle_timer(struct t_timer_list *l, int timer_id) {
     struct t_timer_node *current = NULL;
     for (current = l->list; current != NULL; current = current->next) {
-        if (current->timer_id == timer_id) {
+        if (current->timer_id == timer_id && current->definition != NULL) {
             current->definition->enabled = current->definition->enabled == true ? false : true;
             return;
         }
