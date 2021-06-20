@@ -293,8 +293,6 @@ bool mpdclient_api_options_set(struct t_mympd_state *mympd_state, struct json_to
 {
     sds settingname = camel_to_snake(key->ptr, key->len);
     sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
-    *check_mpd_error = false;
-    *jukebox_changed = false;
     char *crap;
     bool rc = false;
 
