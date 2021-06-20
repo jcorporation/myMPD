@@ -52,6 +52,8 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             if (mpd_worker_state->smartpls == false) {
                 send_jsonrpc_notify("playlist", "error", "Smart playlists are disabled");
                 async = true;
+                free_result(response);
+                free_request(request);
                 break;
             }
             je = json_scanf(request->data, sdslen(request->data), "{params: {force: %B}}", &bool_buf1);
