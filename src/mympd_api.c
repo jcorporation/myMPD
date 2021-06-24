@@ -98,7 +98,7 @@ void *mympd_api_loop(void *arg_config) {
     trigger_execute(mympd_state, TRIGGER_MYMPD_STOP);
     //disconnect from mpd
     mpd_shared_mpd_disconnect(mympd_state->mpd_state);
-    //saev states
+    //save states
     mympd_api_write_home_list(mympd_state);
     timerfile_save(mympd_state);
     mpd_client_last_played_list_save(mympd_state);
