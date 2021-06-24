@@ -1165,7 +1165,7 @@ Neighbors are disabled
 Kein Neighbor Plugin aktiviert
 
 No lyrics found
-Kein Songtext gefunden
+Kein Liedtext gefunden
 
 Invalid column
 Ungültiger Spaltenname

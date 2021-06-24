@@ -206,6 +206,16 @@ function parseState(obj) {
         }
     }
 
+    //handle error from mpd status response
+    if (obj.result.lastError === '') {
+        toggleAlert('alertMpdStatusError', false, '');
+    }
+    else {
+        toggleAlert('alertMpdStatusError', true, e(obj.result.lastError));
+    }
+    toggleTopAlert();
+
+    //save state
     lastState = obj.result;                    
     
     //refresh settings if mpd is not connected or ui is disabled

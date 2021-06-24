@@ -609,4 +609,3 @@ const LUAfunctions = {
         "func": "output = mympd.os_capture(command)"
     }
 };
-

@@ -147,9 +147,10 @@ sds mpd_client_put_state(struct t_mympd_state *mympd_state, sds buffer, sds meth
     buffer = tojson_long(buffer, "sampleRate", (audioformat ? audioformat->sample_rate : 0), true);
     buffer = tojson_long(buffer, "bits", (audioformat ? audioformat->bits : 0), true);
     buffer = tojson_long(buffer, "channels", (audioformat ? audioformat->channels : 0), false);
-    buffer = sdscat(buffer, "}");
+    buffer = sdscat(buffer, "},");
+    buffer = tojson_char(buffer, "lastError", mpd_status_get_error(status), false);
     buffer = jsonrpc_result_end(buffer);
-    
+
     mpd_status_free(status);
     return buffer;
 }

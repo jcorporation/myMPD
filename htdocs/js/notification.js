@@ -19,7 +19,8 @@ function toggleAlert(alertBox, state, msg) {
         alertBoxEl.classList.add('hide');
     }
     else {
-        alertBoxEl.innerHTML = '<span class="mi mr-2">error</span>' + msg;
+        //msg should be already escaped
+        alertBoxEl.innerHTML = '<span class="mi mr-2">error</span><div>' + msg + '</div>';
         alertBoxEl.classList.remove('hide');
     }
 }
@@ -215,18 +216,8 @@ function setElsState(tag, state, type) {
 
 function toggleUI() {
     let state = 'disabled';
-    const topAlert = document.getElementById('top-alerts');
     if (websocketConnected === true && settings.mpdConnected === true) {
-        topAlert.classList.add('hide');
         state = 'enabled';
-    }
-    else {
-        let topPadding = 0;
-        if (window.innerWidth < window.innerHeight) {
-            topPadding = document.getElementById('header').offsetHeight;
-        }
-        topAlert.style.paddingTop = topPadding + 'px';
-        topAlert.classList.remove('hide');
     }
     const enabled = state === 'disabled' ? false : true;
     if (enabled !== uiEnabled) {
@@ -255,6 +246,25 @@ function toggleUI() {
         toggleAlert('alertMympdState', true, t('Websocket is disconnected'));
         logMessage(t('Websocket is disconnected'), '', 'general', 'error');
     }
- 
+
+    toggleTopAlert();
     setStateIcon();
+}
+
+function toggleTopAlert() {
+    const topAlert = document.getElementById('top-alerts');
+    if (uiEnabled === false || (lastState !== undefined && lastState.lastError !== '')) {
+        let topPadding = 0;
+        if (window.innerWidth < window.innerHeight) {
+            topPadding = document.getElementById('header').offsetHeight;
+        }
+        topAlert.style.paddingTop = topPadding + 'px';
+        topAlert.classList.remove('hide');
+        const mt = topAlert.offsetHeight - parseInt(topAlert.style.paddingTop);
+        document.getElementsByTagName('main')[0].style.marginTop = mt + 'px';
+    }
+    else {
+        document.getElementsByTagName('main')[0].style.marginTop = 0;
+        topAlert.classList.add('hide');
+    }
 }
