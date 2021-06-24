@@ -698,19 +698,19 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             if (request->cmd_id == MYMPD_API_SMARTPLS_STICKER_SAVE) {
                 je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, sticker: %Q, maxentries: %d, minvalue: %d, sort: %Q}}", &p_charbuf1, &p_charbuf2, &int_buf1, &int_buf2, &p_charbuf3);
                 if (je == 5) {
-                    rc = mpd_shared_smartpls_save(mympd_state->config, "sticker", p_charbuf1, p_charbuf2, int_buf1, int_buf2, p_charbuf3);
+                    rc = mpd_shared_smartpls_save(mympd_state->config->workdir, "sticker", p_charbuf1, p_charbuf2, int_buf1, int_buf2, p_charbuf3);
                 }
             }
             else if (request->cmd_id == MYMPD_API_SMARTPLS_NEWEST_SAVE) {
                 je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, timerange: %d, sort: %Q}}", &p_charbuf1, &int_buf1, &p_charbuf2);
                 if (je == 3) {
-                    rc = mpd_shared_smartpls_save(mympd_state->config, "newest", p_charbuf1, NULL, 0, int_buf1, p_charbuf2);
+                    rc = mpd_shared_smartpls_save(mympd_state->config->workdir, "newest", p_charbuf1, NULL, 0, int_buf1, p_charbuf2);
                 }
             }            
             else if (request->cmd_id == MYMPD_API_SMARTPLS_SEARCH_SAVE) {
                 je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, expression: %Q, sort: %Q}}", &p_charbuf1, &p_charbuf2, &p_charbuf3);
                 if (je == 3) {
-                    rc = mpd_shared_smartpls_save(mympd_state->config, "search", p_charbuf1, p_charbuf2, 0, 0, p_charbuf3);
+                    rc = mpd_shared_smartpls_save(mympd_state->config->workdir, "search", p_charbuf1, p_charbuf2, 0, 0, p_charbuf3);
                 }
             }
             if (rc == true) {

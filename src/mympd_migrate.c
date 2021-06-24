@@ -13,28 +13,38 @@
 #include <dirent.h>
 #include <inttypes.h>
 #include <ctype.h>
+#include <mpd/client.h>
 
-#include "../../dist/src/sds/sds.h"
-#include "../sds_extras.h"
-#include "../../dist/src/frozen/frozen.h"
-#include "../log.h"
-#include "../mpd_shared.h"
-#include "../mpd_shared/mpd_shared_search.h"
-#include "../mpd_shared/mpd_shared_playlists.h"
-#include "mpd_worker_utility.h"
+#include "../dist/src/sds/sds.h"
+#include "sds_extras.h"
+#include "../dist/src/rax/rax.h"
+#include "../dist/src/frozen/frozen.h"
+#include "api.h"
+#include "list.h"
+#include "tiny_queue.h"
+#include "global.h"
+#include "mympd_config_defs.h"
+#include "utility.h"
+#include "log.h"
+#include "mympd_state.h"
+#include "mpd_shared/mpd_shared_tags.h"
+#include "mpd_shared.h"
+#include "mpd_shared/mpd_shared_search.h"
+#include "mpd_shared/mpd_shared_playlists.h"
 #include "mympd_migrate.h"
 
 //private functions
 static bool migrate_smartpls_files(const char *workdir);
-static bool migrate_smartpls_file(workdir, const char *playlist);
+static bool migrate_smartpls_file(const char *workdir, const char *playlist);
 
 //public functions
 bool start_migrate(const char *workdir) {
 //    if () {
         MYMPD_LOG_INFO("Migrating configuration");
-        migrate_smartpls_files(workdir);
+        return migrate_smartpls_files(workdir);
         //TODO: migrate mympd.conf
 //    }
+    return true;
 }
 
 //private functions
@@ -62,15 +72,13 @@ static bool migrate_smartpls_files(const char *workdir) {
     return true;
 }
 
-static bool migrate_smartpls_file(workdir, const char *playlist) {
+static bool migrate_smartpls_file(const char *workdir, const char *playlist) {
     char *smartpltype = NULL;
     int je;
     bool rc = true;
     char *p_charbuf1 = NULL;
     char *p_charbuf2 = NULL;
     char *p_charbuf3 = NULL;
-    int int_buf1;
-    int int_buf2;
     
     sds filename = sdscatfmt(sdsempty(), "%s/smartpls/%s", workdir, playlist);
     char *content = json_fread(filename);
@@ -88,7 +96,7 @@ static bool migrate_smartpls_file(workdir, const char *playlist) {
     if (strcmp(smartpltype, "search") == 0) {
         je = json_scanf(content, (int)strlen(content), "{expression: %Q}", &p_charbuf1);
         if (je == 1) {
-            return;
+            return true;
         }
         else {
             MYMPD_LOG_INFO("Converting smart playlist file \"%s\" to new format", filename);
@@ -106,12 +114,9 @@ static bool migrate_smartpls_file(workdir, const char *playlist) {
                     expression = sdscat(expression, ")");
                     rc = mpd_shared_smartpls_save(workdir, "search", playlist, expression, 0, 0, p_charbuf3);
                 }
-                if (rc == true) {
-                    rc = mpd_worker_smartpls_update_search(mpd_worker_state, playlist, expression);
-                }
                 sdsfree(expression);
                 if (rc == false) {
-                    MYMPD_LOG_ERROR("Update of smart playlist \"%s\" failed", playlist);
+                    MYMPD_LOG_ERROR("Migration of smart playlist \"%s\" failed", playlist);
                 }
                 FREE_PTR(p_charbuf3);
             }

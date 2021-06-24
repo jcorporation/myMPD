@@ -208,7 +208,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
                 sds expression = sdsnew("(");
                 expression = escape_mpd_search_expression(expression, tagstr, "==", current->key);
                 expression = sdscat(expression, ")");
-                mpd_shared_smartpls_save(mpd_worker_state->config, "search", playlist, expression, 0, 0, mpd_worker_state->smartpls_sort);
+                mpd_shared_smartpls_save(mpd_worker_state->config->workdir, "search", playlist, expression, 0, 0, mpd_worker_state->smartpls_sort);
                 sdsfree(expression);
             }
             sdsfree(playlist);
