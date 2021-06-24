@@ -36,7 +36,6 @@
 #include "mympd_state.h"
 #include "handle_options.h"
 #include "utility.h"
-
 #include "api.h"
 #include "global.h"
 #include "mpd_worker.h"
@@ -48,6 +47,7 @@
   #include "cert.h"
 #endif
 #include "random.h"
+#include "mympd_migrate.h"
 
 _Thread_local sds thread_logname;
 
@@ -387,6 +387,9 @@ int main(int argc, char **argv) {
     if (check_dirs(config) == false) {
         goto cleanup;
     }
+
+    //migrate old config
+    start_migrate(config->workdir);
 
     //Create working threads
     pthread_t web_server_thread;

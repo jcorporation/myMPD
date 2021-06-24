@@ -228,7 +228,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
     return buffer;
 }
 
-bool mpd_shared_smartpls_save(struct t_config *config, const char *smartpltype, const char *playlist, 
+bool mpd_shared_smartpls_save(const char *workdir, const char *smartpltype, const char *playlist, 
                               const char *expression, const int maxentries, 
                               const int timerange, const char *sort)
 {
@@ -236,7 +236,7 @@ bool mpd_shared_smartpls_save(struct t_config *config, const char *smartpltype, 
         return false;
     }
     
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", config->workdir, playlist);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", workdir, playlist);
     errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
@@ -268,7 +268,7 @@ bool mpd_shared_smartpls_save(struct t_config *config, const char *smartpltype, 
         MYMPD_LOG_ERROR("Can't write to file %s", tmp_file);
     }
     fclose(fp);
-    sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->workdir, playlist);
+    sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", workdir, playlist);
     errno = 0;
     rc = rename(tmp_file, pl_file);
     if (rc == -1) {
