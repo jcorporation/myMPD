@@ -1818,3 +1818,9 @@ Partitionen verwalten
 
 Jukebox is disabled
 Jukebox ist deaktiviert
+
+Database update already startet
+Datenbankaktualisierung läuft bereits
+
+Error getting MPD status
+Fehler beim Ermitteln des MPD Statuses

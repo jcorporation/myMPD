@@ -30,6 +30,7 @@
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
 #include "mpd_client_sticker.h"
+#include "mpd_client_state.h"
 
 //private definitions
 static sds _mpd_client_put_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
@@ -38,14 +39,11 @@ static unsigned get_current_song_start_time(struct t_mympd_state *mympd_state);
 
 //public functions
 sds mpd_client_get_updatedb_state(struct t_mympd_state *mympd_state, sds buffer) {
-    struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
-    if (status == NULL) {
-        buffer = check_error_and_recover_notify(mympd_state->mpd_state, buffer);
-        return buffer;
+    long update_id = mpd_client_get_updatedb_id(mympd_state);
+    if (update_id == -1) {
+        buffer = jsonrpc_notify(buffer, "mpd", "error", "Error getting MPD status");
     }
-    unsigned update_id = mpd_status_get_update_id(status);
-    MYMPD_LOG_NOTICE("Update database ID: %u", update_id);
-    if (update_id > 0) {
+    else if (update_id > 0) {
         buffer = jsonrpc_notify_start(buffer, "update_started");
         buffer = tojson_long(buffer, "jobid", update_id, false);
         buffer = jsonrpc_result_end(buffer);
@@ -53,10 +51,21 @@ sds mpd_client_get_updatedb_state(struct t_mympd_state *mympd_state, sds buffer)
     else {
         buffer = jsonrpc_event(buffer, "update_finished");
     }
+    return buffer;    
+}
+
+long mpd_client_get_updatedb_id(struct t_mympd_state *mympd_state) {
+    struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
+    if (status == NULL) {
+        check_error_and_recover_notify(mympd_state->mpd_state, NULL);
+        return -1;
+    }
+    unsigned update_id = mpd_status_get_update_id(status);
+    MYMPD_LOG_NOTICE("Update database ID: %u", update_id);
     mpd_status_free(status);    
     mpd_response_finish(mympd_state->mpd_state->conn);
     check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
-    return buffer;    
+    return update_id;
 }
 
 sds mpd_client_put_state(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {

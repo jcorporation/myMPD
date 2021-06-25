@@ -666,27 +666,33 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_PLAYER_STATE:
             response->data = mpd_client_put_state(mympd_state, response->data, request->method, request->id);
             break;
-
         case MYMPD_API_DATABASE_UPDATE:
+        case MYMPD_API_DATABASE_RESCAN: {
+            long update_id = mpd_client_get_updatedb_id(mympd_state);
+            if (update_id == -1) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "database", "info", "Error getting MPD status");
+                break;
+            }
+            else if (update_id > 0) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, "database", "info", "Database update already startet");
+                break;
+            }
             je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
             if (je == 1) {
                 if (strcmp(p_charbuf1, "") == 0) {
                     FREE_PTR(p_charbuf1);
                 }
-                uint_buf1 = mpd_run_update(mympd_state->mpd_state->conn, p_charbuf1);
-                response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, (uint_buf1 == 0 ? false : true), "mpd_run_update");
-            }
-            break;
-        case MYMPD_API_DATABASE_RESCAN:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                if (strcmp(p_charbuf1, "") == 0) {
-                    FREE_PTR(p_charbuf1);
+                if (request->cmd_id == MYMPD_API_DATABASE_UPDATE) {
+                    uint_buf1 = mpd_run_update(mympd_state->mpd_state->conn, p_charbuf1);
+                    response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, (uint_buf1 == 0 ? false : true), "mpd_run_update");
                 }
-                uint_buf1 = mpd_run_rescan(mympd_state->mpd_state->conn, p_charbuf1);
-                response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, (uint_buf1 == 0 ? false : true), "mpd_run_rescan");
+                else {
+                    uint_buf1 = mpd_run_rescan(mympd_state->mpd_state->conn, p_charbuf1);
+                    response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, (uint_buf1 == 0 ? false : true), "mpd_run_rescan");
+                }
             }
             break;
+        }
         case MYMPD_API_SMARTPLS_STICKER_SAVE:
         case MYMPD_API_SMARTPLS_NEWEST_SAVE:
         case MYMPD_API_SMARTPLS_SEARCH_SAVE:
