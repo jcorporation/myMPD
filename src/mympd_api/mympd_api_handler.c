@@ -670,7 +670,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_DATABASE_RESCAN: {
             long update_id = mpd_client_get_updatedb_id(mympd_state);
             if (update_id == -1) {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "database", "info", "Error getting MPD status");
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "database", "error", "Error getting MPD status");
                 break;
             }
             else if (update_id > 0) {

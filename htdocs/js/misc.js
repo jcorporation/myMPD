@@ -101,15 +101,32 @@ function cropCovercache() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function updateDB(uri, showModal) {
-    sendAPI("MYMPD_API_DATABASE_UPDATE", {"uri": uri});
-    updateDBstarted(showModal);
+function updateDB(uri, showModal, rescan) {
+    const method = rescan === true ? "MYMPD_API_DATABASE_RESCAN" : "MYMPD_API_DATABASE_UPDATE";
+    sendAPI(method, {"uri": uri}, function(obj) {
+        if (obj.error !== undefined) {
+            updateDBerror(true, obj.error.message);
+        }
+        else {
+            updateDBstarted(showModal);
+        }
+    }, true);
 }
 
-//eslint-disable-next-line no-unused-vars
-function rescanDB(uri, showModal) {
-    sendAPI("MYMPD_API_DATABASE_RESCAN", {"uri": uri});
-    updateDBstarted(showModal);
+function updateDBerror(showModal, message) {
+    if (showModal === true) {
+        document.getElementById('updateDBfinished').innerText = '';
+        document.getElementById('updateDBfooter').classList.remove('hide');
+        const updateDBprogress = document.getElementById('updateDBprogress');
+        updateDBprogress.classList.remove('updateDBprogressAnimate');
+        updateDBprogress.style.width = '0';
+        updateDBprogress.style.marginLeft = '0px';
+        const errorUpdateDB = document.getElementById('errorUpdateDB');
+        errorUpdateDB.classList.remove('hide');
+        errorUpdateDB.innerHTML = t('Database update failed: ') + t(message);
+        uiElements.modalUpdateDB.show();
+    }
+    showNotification(t('Database update failed: ') + t(message), '', 'database', 'error');
 }
 
 function updateDBstarted(showModal) {
@@ -119,6 +136,9 @@ function updateDBstarted(showModal) {
         const updateDBprogress = document.getElementById('updateDBprogress');
         updateDBprogress.style.width = '20px';
         updateDBprogress.style.marginLeft = '-20px';
+        const errorUpdateDB = document.getElementById('errorUpdateDB');
+        errorUpdateDB.classList.add('hide');
+        errorUpdateDB.innerText = '';
         uiElements.modalUpdateDB.show();
         updateDBprogress.classList.add('updateDBprogressAnimate');
     }
