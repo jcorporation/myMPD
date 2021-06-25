@@ -38,18 +38,32 @@ static void migrate_state_files(const char *workdir);
 static void rename_file(const char *workdir, const char *src, const char *dst);
 
 //public functions
-bool start_migrate(const char *workdir) {
+bool start_migrate_conf(const char *workdir) {
     //check for pre v8 version
     sds filename = sdscatprintf(sdsempty(), "%s/state/advanced", workdir);
     FILE *fp = fopen(filename, "r");
     sdsfree(filename);
-    if (fp != NULL) {
-        fclose(fp);
-        MYMPD_LOG_INFO("Migrating configuration");
-        migrate_smartpls_files(workdir);
-        migrate_state_files(workdir);
-        //TODO: migrate mympd.conf
+    if (fp == NULL) {
+        return true;
     }
+    fclose(fp);
+    MYMPD_LOG_INFO("Detected old configuration, migrating mympd.conf");
+    //TODO: migrate webserver config
+    return true;
+}
+
+bool start_migrate_workdir(const char *workdir) {
+    //check for pre v8 version
+    sds filename = sdscatprintf(sdsempty(), "%s/state/advanced", workdir);
+    FILE *fp = fopen(filename, "r");
+    sdsfree(filename);
+    if (fp == NULL) {
+        return true;
+    }
+    fclose(fp);
+    MYMPD_LOG_INFO("Detected old configuration, migrating state files");
+    migrate_smartpls_files(workdir);
+    migrate_state_files(workdir);
     return true;
 }
 
@@ -133,9 +147,12 @@ static bool migrate_smartpls_file(const char *workdir, const char *playlist) {
         sdsfree(filename);
         return false;
     }
+    sdsfree(filename);
     if (strcmp(smartpltype, "search") == 0) {
         je = json_scanf(content, (int)strlen(content), "{expression: %Q}", &p_charbuf1);
         if (je == 1) {
+            FREE_PTR(smartpltype);
+            FREE_PTR(content);
             return true;
         }
         MYMPD_LOG_INFO("Converting smart playlist file \"%s\" to new format", filename);
@@ -167,6 +184,5 @@ static bool migrate_smartpls_file(const char *workdir, const char *playlist) {
     }
     FREE_PTR(smartpltype);
     FREE_PTR(content);
-    sdsfree(filename);
     return rc;
 }

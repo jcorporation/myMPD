@@ -361,6 +361,9 @@ int main(int argc, char **argv) {
     setvbuf(stdout, NULL, _IOLBF, 0);
     setvbuf(stderr, NULL, _IOLBF, 0);
 
+    //migrate old config
+    start_migrate_conf(config->workdir);
+
     //init webserver    
     struct mg_mgr mgr;
     init_mg_user_data = true;
@@ -389,7 +392,7 @@ int main(int argc, char **argv) {
     }
 
     //migrate old config
-    start_migrate(config->workdir);
+    start_migrate_workdir(config->workdir);
 
     //Create working threads
     pthread_t web_server_thread;

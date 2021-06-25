@@ -6,5 +6,6 @@
 
 #ifndef __MYMPD_MIGRATE_H__
 #define __MYMPD_MIGRATE_H__
-bool start_migrate(const char *workdir);
+bool start_migrate_workdir(const char *workdir);
+bool start_migrate_conf(const char *workdir);
 #endif
