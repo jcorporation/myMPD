@@ -85,31 +85,26 @@ function showMenuTd(el) {
     let type = getCustomDomProperty(el, 'data-type');
     let uri = getCustomDomProperty(el, 'data-uri');
     let name = getCustomDomProperty(el, 'data-name');
-    let nextsongpos = 0;
+    let nextSongPos = 0;
     let dataNode = el;
-    if (type === null || type === undefined || uri === null || uri === undefined) {
+    let depth = 0;
+    while (type === null || type === undefined || uri === null || uri === undefined) {
         dataNode = dataNode.parentNode;
         type = getCustomDomProperty(dataNode, 'data-type');
         uri = getCustomDomProperty(dataNode, 'data-uri');
         name = getCustomDomProperty(dataNode, 'data-name');
-    }
-    if (type === null || type === undefined || uri === null || uri === undefined) {
-        dataNode = dataNode.parentNode;
-        type = getCustomDomProperty(dataNode, 'data-type');
-        uri = getCustomDomProperty(dataNode, 'data-uri');
-        name = getCustomDomProperty(dataNode, 'data-name');
-        
+        if (depth < 2) { depth++; } else { break; }
     }
     
     if (lastState) {
-        nextsongpos = lastState.nextSongPos;
+        nextSongPos = lastState.nextSongPos;
     }
 
     let menu = '';
     if ((app.current.app === 'Browse' && app.current.tab === 'Filesystem') || app.current.app === 'Search' ||
         (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail')) {
         menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
-            (type === 'song' ? addMenuItem({"cmd": "appendAfterQueue", "options": [type, uri, nextsongpos, name]}, t('Add after current playing song')) : '') +
+            (type === 'song' ? addMenuItem({"cmd": "appendAfterQueue", "options": [type, uri, nextSongPos, name]}, t('Add after current playing song')) : '') +
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
             (type !== 'plist' && type !== 'smartpls' && features.featPlaylists === true ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
             (type === 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '') +
@@ -139,7 +134,7 @@ function showMenuTd(el) {
                     '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="mi mi-left">keyboard_arrow_right</span>Folder actions</a>' +
                     '<div class="collapse" id="advancedMenu">' +
                         addMenuItem({"cmd": "appendQueue", "options": [type, baseuri, name]}, t('Append to queue')) +
-                        addMenuItem({"cmd": "appendAfterQueue", "options": [type, baseuri, nextsongpos, name]}, t('Add after current playing song')) +
+                        addMenuItem({"cmd": "appendAfterQueue", "options": [type, baseuri, nextSongPos, name]}, t('Add after current playing song')) +
                         addMenuItem({"cmd": "replaceQueue", "options": [type, baseuri, name]}, t('Replace queue')) +
                         (features.featPlaylists === true ? addMenuItem({"cmd": "showAddToPlaylist", "options": [baseuri, ""]}, t('Add to playlist')) : '') +
                     '</div>';
