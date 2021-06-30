@@ -131,6 +131,7 @@ unsigned state_file_rw_uint(struct t_config *config, const char *dir, const char
 
 bool state_file_write(struct t_config *config, const char *dir, const char *name, const char *value) {
     if (!validate_string(name)) {
+        MYMPD_LOG_ERROR("Invalid filename \"%s\"", name);
         return false;
     }
     sds tmp_file = sdscatfmt(sdsempty(), "%s/%s/%s.XXXXXX", config->workdir, dir, name);
