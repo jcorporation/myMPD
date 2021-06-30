@@ -1824,3 +1824,6 @@ Datenbankaktualisierung läuft bereits
 
 Error getting MPD status
 Fehler beim Ermitteln des MPD Statuses
+
+Database update failed
+Datenbankaktualisierung fehlgeschlagen
