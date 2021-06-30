@@ -186,7 +186,6 @@ function getCustomDomProperty(el, attribute) {
 //utility functions
 function disableEl(el) {
     if (typeof el === 'string') {
-        const elStr = el;
         el = document.getElementById(el);
     }
     el.setAttribute('disabled', 'disabled');
@@ -194,7 +193,6 @@ function disableEl(el) {
 
 function enableEl(el) {
     if (typeof el === 'string') {
-        const elStr = el;
         el = document.getElementById(el);
     }
     el.removeAttribute('disabled');
