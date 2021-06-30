@@ -324,7 +324,10 @@ int main(int argc, char **argv) {
         MYMPD_LOG_ERRNO(errno);
         goto cleanup;
     }
-    
+
+    //migrate old config
+    start_migrate_conf(config->workdir);
+
     //read configuration
     init_config = true;
     mympd_config_defaults(config);
@@ -360,9 +363,6 @@ int main(int argc, char **argv) {
     signal(SIGHUP, mympd_signal_handler); 
     setvbuf(stdout, NULL, _IOLBF, 0);
     setvbuf(stderr, NULL, _IOLBF, 0);
-
-    //migrate old config
-    start_migrate_conf(config->workdir);
 
     //init webserver    
     struct mg_mgr mgr;

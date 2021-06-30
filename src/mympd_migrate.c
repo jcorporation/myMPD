@@ -25,6 +25,7 @@
 #include "utility.h"
 #include "log.h"
 #include "mympd_state.h"
+#include "state_files.h"
 #include "mpd_shared/mpd_shared_tags.h"
 #include "mpd_shared.h"
 #include "mpd_shared/mpd_shared_search.h"
@@ -32,42 +33,124 @@
 #include "mympd_migrate.h"
 
 //private functions
+static bool is_old_config(const char *workdir);
+void parse_ini_line (const char *line, sds *key, sds *value);
 static bool migrate_smartpls_files(const char *workdir);
 static bool migrate_smartpls_file(const char *workdir, const char *playlist);
 static void migrate_state_files(const char *workdir);
 static void rename_file(const char *workdir, const char *src, const char *dst);
 
 //public functions
-bool start_migrate_conf(const char *workdir) {
-    //check for pre v8 version
-    sds filename = sdscatprintf(sdsempty(), "%s/state/advanced", workdir);
-    FILE *fp = fopen(filename, "r");
-    sdsfree(filename);
-    if (fp == NULL) {
-        return true;
+void start_migrate_conf(const char *workdir) {
+/*
+    if (is_old_config(workdir) == false) {
+        return;
     }
-    fclose(fp);
+*/
     MYMPD_LOG_INFO("Detected old configuration, migrating mympd.conf");
-    //TODO: migrate webserver config
-    return true;
+    //find and open mympd.conf
+    FILE *fp = fopen("/etc/mympd.conf", "r");
+    if (fp == NULL) {
+        fp = fopen("/etc/webapps/mympd/mympd.conf", "r");
+    }
+    if (fp == NULL) {
+        fp = fopen("/etc/opt/mympd.conf", "r");
+    }
+    if (fp == NULL) {
+        return;
+    }
+    //parse mympd.conf and write config files
+    sds key = sdsempty();
+    sds value = sdsempty();
+    char *line = NULL;
+    size_t n = 0;
+    while (getline(&line, &n, fp) > 0) {
+        sdsclear(key);
+        sdsclear(value);
+        parse_ini_line(line, &key, &value);
+        if (strcmp(key, "httphost") == 0) { 
+            state_file_write(workdir, "config", "http_host", value);
+        }
+        else if (strcmp(key, "httpport") == 0) { 
+            state_file_write(workdir, "config", "http_port", value);
+        }
+        else if (strcmp(key, "ssl") == 0) { 
+            state_file_write(workdir, "config", "ssl", value);
+        }
+        else if (strcmp(key, "sslport") == 0) { 
+            state_file_write(workdir, "config", "ssl_port", value);
+        }
+        else if (strcmp(key, "sslcert") == 0) { 
+            state_file_write(workdir, "config", "ssl_cert", value);
+        }
+        else if (strcmp(key, "sslkey") == 0) { 
+            state_file_write(workdir, "config", "ssl_key", value);
+        }
+        else if (strcmp(key, "sslsan") == 0) { 
+            state_file_write(workdir, "config", "ssl_san", value);
+        }
+        else if (strcmp(key, "scriptacl") == 0) { 
+            state_file_write(workdir, "config", "scriptacl", value);
+        }
+        else if (strcmp(key, "lualibs") == 0) { 
+            state_file_write(workdir, "config", "lualibs", value);
+        }
+        else if (strcmp(key, "loglevel") == 0) { 
+            state_file_write(workdir, "config", "loglevel", value);
+        }
+        else if (strcmp(key, "customcert") == 0) { 
+            state_file_write(workdir, "config", "custom_cert", value);
+        }
+        else if (strcmp(key, "acl") == 0) { 
+            state_file_write(workdir, "config", "acl", value);
+        }
+    }
+    FREE_PTR(line);
+    fclose(fp);   
+    (void) workdir; 
 }
 
-bool start_migrate_workdir(const char *workdir) {
-    //check for pre v8 version
-    sds filename = sdscatprintf(sdsempty(), "%s/state/advanced", workdir);
-    FILE *fp = fopen(filename, "r");
-    sdsfree(filename);
-    if (fp == NULL) {
-        return true;
+void start_migrate_workdir(const char *workdir) {
+    if (is_old_config(workdir) == false) {
+        return;
     }
-    fclose(fp);
     MYMPD_LOG_INFO("Detected old configuration, migrating state files");
     migrate_smartpls_files(workdir);
     migrate_state_files(workdir);
-    return true;
 }
 
 //private functions
+static bool is_old_config(const char *workdir) {
+    //check for pre v8 version
+    sds filename = sdscatprintf(sdsempty(), "%s/state/advanced", workdir);
+    FILE *fp = fopen(filename, "r");
+    sdsfree(filename);
+    if (fp == NULL) {
+        return false;
+    }
+    fclose(fp);
+    return true;
+}
+
+void parse_ini_line (const char *line, sds *key, sds *value) {
+    sds sds_line = sdsnew(line);
+    sdstrim(sds_line, " \n\r\t");
+    if (sdslen(sds_line) == 0 || sds_line[0] == '#') {
+        sdsfree(sds_line);
+        return;
+    }
+    int count;
+    sds *tokens = sdssplitlen(sds_line, sdslen(sds_line), "=", 1, &count);
+    if (count == 2) {
+        sdstrim(tokens[0], " ");
+        sdstrim(tokens[1], " \"");
+        *key = sdsreplace(*key, tokens[0]);
+        *value = sdsreplace(*value, tokens[1]);
+    }
+    sdsfreesplitres(tokens, count);
+    sdsfree(sds_line);
+}
+
 static void migrate_state_files(const char *workdir) {
     //new state file names
     rename_file(workdir, "coverimage_name", "coverimage_names");
