@@ -1077,7 +1077,7 @@ function setNavbarIcons() {
 function resetToDefault(button) {
     const el = button.nodeName === 'BUTTON' ? button.parentNode.previousElementSibling : button.parentNode.parentNode.previousElementSibling;
     el.value = getCustomDomProperty(el, 'data-default') !== null ? getCustomDomProperty(el, 'data-default') : 
-        (getCustomDomProperty(el, 'placeholder') !== null ? getCustomDomProperty(el, 'placeholder') : '');
+        (el.getAttribute( 'placeholder') !== null ? el.getAttribute('placeholder') : '');
 }
 
 function getBgImageList(image) {
