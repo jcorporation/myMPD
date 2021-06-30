@@ -473,7 +473,7 @@ const webuiSettingsDefault = {
         "form": "bgFrm"
     },
     "uiBgCssFilter": {
-        "defaultValue": "grayscale(100%) opacity(5%)",
+        "defaultValue": "grayscale(100%) opacity(10%)",
         "inputType": "input",
         "title": "CSS filter",
         "form": "bgCssFilterFrm",
