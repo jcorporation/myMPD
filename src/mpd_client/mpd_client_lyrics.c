@@ -488,13 +488,13 @@ static int lyricsextract_flac(sds *buffer, sds media_file, bool is_ogg, const ch
         else if (block->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
             field_num = 0;
             while ((field_num = FLAC__metadata_object_vorbiscomment_find_entry_from(block, field_num, comment_name)) > -1) {
-                MYMPD_LOG_DEBUG("Found embedded lyrics");
                 metadata = block;
                 FLAC__StreamMetadata_VorbisComment *vc = &metadata->data.vorbis_comment;
                 FLAC__StreamMetadata_VorbisComment_Entry *field = &vc->comments[field_num++];
 
                 char *field_value = memchr(field->entry, '=', field->length);
                 if (field_value != NULL && strlen(field_value) > 1) {
+                    MYMPD_LOG_DEBUG("Found embedded lyrics");
                     field_value++;
                     found_lyrics++;
                     if (returned_entities > 0) {
