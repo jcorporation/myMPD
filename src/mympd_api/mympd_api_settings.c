@@ -295,6 +295,7 @@ bool mpdclient_api_options_set(struct t_mympd_state *mympd_state, struct json_to
     sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
     char *crap;
     bool rc = false;
+    bool write_state_file = true;
 
     MYMPD_LOG_DEBUG("Parse setting %.*s: %.*s", key->len, key->ptr, val->len, val->ptr);
     if (strncmp(key->ptr, "autoPlay", key->len) == 0) {
@@ -387,6 +388,7 @@ bool mpdclient_api_options_set(struct t_mympd_state *mympd_state, struct json_to
             }
         }
         *check_mpd_error = true;
+        write_state_file = false;
     }
     else {
         MYMPD_LOG_WARN("Unknown setting \"%s\": \"%s\"", settingname, settingvalue);
@@ -394,7 +396,7 @@ bool mpdclient_api_options_set(struct t_mympd_state *mympd_state, struct json_to
         sdsfree(settingvalue);
         return false;
     }
-    if (*check_mpd_error == false) {
+    if (write_state_file == true) {
         rc = state_file_write(mympd_state->config, "state", settingname, settingvalue);
     }
     sdsfree(settingname);
