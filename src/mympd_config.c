@@ -87,20 +87,20 @@ void mympd_config_defaults_initial(struct t_config *config) {
 }
 
 bool mympd_read_config(struct t_config *config) {
-    config->http_host = state_file_rw_string_sds(config, "config", "http_host", config->http_host, false);
-    config->http_port = state_file_rw_string_sds(config, "config", "http_port", config->http_port, false);
+    config->http_host = state_file_rw_string_sds(config->workdir, "config", "http_host", config->http_host, false);
+    config->http_port = state_file_rw_string_sds(config->workdir, "config", "http_port", config->http_port, false);
     #ifdef ENABLE_SSL
-    config->ssl = state_file_rw_bool(config, "config", "ssl", config->ssl, false);
-    config->ssl_port = state_file_rw_string_sds(config, "config", "ssl_port", config->ssl_port, false);
-    config->ssl_cert = state_file_rw_string_sds(config, "config", "ssl_cert", config->ssl_cert, false);
-    config->ssl_key = state_file_rw_string_sds(config, "config", "ssl_key", config->ssl_key, false);
-    config->ssl_san = state_file_rw_string_sds(config, "config", "ssl_san", config->ssl_san, false);
-    config->custom_cert = state_file_rw_bool(config, "config", "custom_cert", config->custom_cert, false);
+    config->ssl = state_file_rw_bool(config->workdir, "config", "ssl", config->ssl, false);
+    config->ssl_port = state_file_rw_string_sds(config->workdir, "config", "ssl_port", config->ssl_port, false);
+    config->ssl_cert = state_file_rw_string_sds(config->workdir, "config", "ssl_cert", config->ssl_cert, false);
+    config->ssl_key = state_file_rw_string_sds(config->workdir, "config", "ssl_key", config->ssl_key, false);
+    config->ssl_san = state_file_rw_string_sds(config->workdir, "config", "ssl_san", config->ssl_san, false);
+    config->custom_cert = state_file_rw_bool(config->workdir, "config", "custom_cert", config->custom_cert, false);
     #endif
-    config->acl = state_file_rw_string_sds(config, "config", "acl", config->acl, false);
-    config->scriptacl = state_file_rw_string_sds(config, "config", "scriptacl", config->scriptacl, false);
-    config->lualibs = state_file_rw_string_sds(config, "config", "lualibs", config->lualibs, false);
-    config->loglevel = state_file_rw_int(config, "config", "loglevel", config->loglevel, false);
+    config->acl = state_file_rw_string_sds(config->workdir, "config", "acl", config->acl, false);
+    config->scriptacl = state_file_rw_string_sds(config->workdir, "config", "scriptacl", config->scriptacl, false);
+    config->lualibs = state_file_rw_string_sds(config->workdir, "config", "lualibs", config->lualibs, false);
+    config->loglevel = state_file_rw_int(config->workdir, "config", "loglevel", config->loglevel, false);
     
     //set correct path to certificate/key, if workdir is non default and cert paths are default
     #ifdef ENABLE_SSL

@@ -6,25 +6,14 @@
 
 #include <errno.h>
 #include <stdio.h>
-#include <string.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <libgen.h>
 #include <ctype.h>
-#include <libgen.h>
-#include <dirent.h>
-#include <stdbool.h>
 #include <inttypes.h>
 
-#include <mpd/client.h>
-
 #include "../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
 #include "sds_extras.h"
 #include "log.h"
-#include "list.h"
-#include "mympd_config_defs.h"
-#include "mympd_state.h"
 #include "utility.h"
 #include "state_files.h"
 
@@ -41,13 +30,13 @@ sds camel_to_snake(const char *text, size_t len) {
     return buffer;
 }
 
-sds state_file_rw_string_sds(struct t_config *config, const char *dir, const char *name, sds old_value, bool warn) {
-    sds value = state_file_rw_string(config, dir, name, old_value, warn);
+sds state_file_rw_string_sds(const char *workdir, const char *dir, const char *name, sds old_value, bool warn) {
+    sds value = state_file_rw_string(workdir, dir, name, old_value, warn);
     sdsfree(old_value);
     return value;
 }
 
-sds state_file_rw_string(struct t_config *config, const char *dir, const char *name, const char *def_value, bool warn) {
+sds state_file_rw_string(const char *workdir, const char *dir, const char *name, const char *def_value, bool warn) {
     char *line = NULL;
     size_t n = 0;
     ssize_t read;
@@ -58,7 +47,7 @@ sds state_file_rw_string(struct t_config *config, const char *dir, const char *n
         return result;
     }
     
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", config->workdir, dir, name);
+    sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", workdir, dir, name);
     errno = 0;
     FILE *fp = fopen(cfg_file, "r");
     if (fp == NULL) {
@@ -70,7 +59,7 @@ sds state_file_rw_string(struct t_config *config, const char *dir, const char *n
             MYMPD_LOG_ERROR("Can not open file \"%s\"", cfg_file);
             MYMPD_LOG_ERRNO(errno);
         }
-        state_file_write(config, dir, name, def_value);
+        state_file_write(workdir, dir, name, def_value);
         result = sdscat(result, def_value);
         sdsfree(cfg_file);
         return result;
@@ -93,9 +82,9 @@ sds state_file_rw_string(struct t_config *config, const char *dir, const char *n
     return result;
 }
 
-bool state_file_rw_bool(struct t_config *config, const char *dir, const char *name, const bool def_value, bool warn) {
+bool state_file_rw_bool(const char *workdir, const char *dir, const char *name, const bool def_value, bool warn) {
     bool value = def_value;
-    sds line = state_file_rw_string(config, dir, name, def_value == true ? "true" : "false", warn);
+    sds line = state_file_rw_string(workdir, dir, name, def_value == true ? "true" : "false", warn);
     if (sdslen(line) > 0) {
         value = strtobool(line);
         sdsfree(line);
@@ -103,11 +92,11 @@ bool state_file_rw_bool(struct t_config *config, const char *dir, const char *na
     return value;
 }
 
-int state_file_rw_int(struct t_config *config, const char *dir, const char *name, const int def_value, bool warn) {
+int state_file_rw_int(const char *workdir, const char *dir, const char *name, const int def_value, bool warn) {
     char *crap = NULL;
     int value = def_value;
     sds def_value_str = sdsfromlonglong(def_value);
-    sds line = state_file_rw_string(config, dir, name, def_value_str, warn);
+    sds line = state_file_rw_string(workdir, dir, name, def_value_str, warn);
     sdsfree(def_value_str);
     if (sdslen(line) > 0) {
         value = strtoimax(line, &crap, 10);
@@ -116,11 +105,11 @@ int state_file_rw_int(struct t_config *config, const char *dir, const char *name
     return value;
 }
 
-unsigned state_file_rw_uint(struct t_config *config, const char *dir, const char *name, const unsigned def_value, bool warn) {
+unsigned state_file_rw_uint(const char *workdir, const char *dir, const char *name, const unsigned def_value, bool warn) {
     char *crap = NULL;
     unsigned value = def_value;
     sds def_value_str = sdsfromlonglong(def_value);
-    sds line = state_file_rw_string(config, dir, name, def_value_str, warn);
+    sds line = state_file_rw_string(workdir, dir, name, def_value_str, warn);
     sdsfree(def_value_str);
     if (sdslen(line) > 0) {
         value = strtoimax(line, &crap, 10);
@@ -129,12 +118,12 @@ unsigned state_file_rw_uint(struct t_config *config, const char *dir, const char
     return value;
 }
 
-bool state_file_write(struct t_config *config, const char *dir, const char *name, const char *value) {
+bool state_file_write(const char *workdir, const char *dir, const char *name, const char *value) {
     if (!validate_string(name)) {
         MYMPD_LOG_ERROR("Invalid filename \"%s\"", name);
         return false;
     }
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/%s/%s.XXXXXX", config->workdir, dir, name);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/%s/%s.XXXXXX", workdir, dir, name);
     errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
@@ -149,7 +138,7 @@ bool state_file_write(struct t_config *config, const char *dir, const char *name
         MYMPD_LOG_ERROR("Can not write to file \"%s\"", tmp_file);
     }
     fclose(fp);
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", config->workdir, dir, name);
+    sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", workdir, dir, name);
     errno = 0;
     if (rename(tmp_file, cfg_file) == -1) {
         MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed: %s", tmp_file, cfg_file);
