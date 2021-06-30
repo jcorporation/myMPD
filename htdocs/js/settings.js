@@ -921,7 +921,7 @@ function saveQueueSettings() {
             "single": Number(singleState),
             "repeat": (document.getElementById('btnRepeat').classList.contains('active') ? 1 : 0),
             "replaygain": replaygain,
-            "crossfade": document.getElementById('inputCrossfade').value,
+            "crossfade": Number(document.getElementById('inputCrossfade').value),
             "jukeboxMode": Number(jukeboxMode),
             "jukeboxPlaylist": jukeboxPlaylist,
             "jukeboxQueueLength": Number(document.getElementById('inputJukeboxQueueLength').value),
