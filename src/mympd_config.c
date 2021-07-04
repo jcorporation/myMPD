@@ -61,10 +61,20 @@ void mympd_config_defaults(struct t_config *config) {
     #ifdef ENABLE_SSL
     config->ssl = mympd_getenv_bool("MYMPD_SSL", true, config->first_startup);
     config->ssl_port = mympd_getenv_string("MYMPD_SSL_PORT", "443", config->first_startup);
-    config->ssl_cert = mympd_getenv_string("MYMPD_SSL_CERT", VARLIB_PATH"/ssl/server.pem", config->first_startup);
-    config->ssl_key = mympd_getenv_string("MYMPD_SSL_KEY", VARLIB_PATH"/ssl/server.key", config->first_startup);
     config->ssl_san = mympd_getenv_string("MYMPD_SSL_SAN", "", config->first_startup); 
     config->custom_cert = mympd_getenv_bool("MYMPD_CUSTOM_CERT", false, config->first_startup);
+    sds default_cert = sdscatfmt(sdsempty(), "%s/ssl/server.pem", config->workdir);
+    sds default_key = sdscatfmt(sdsempty(), "%s/ssl/server.key", config->workdir);
+    if (config->custom_cert == true) {
+        config->ssl_cert = mympd_getenv_string("MYMPD_SSL_CERT", default_cert, config->first_startup);
+        config->ssl_key = mympd_getenv_string("MYMPD_SSL_KEY", default_key, config->first_startup);
+        sdsfree(default_cert);
+        sdsfree(default_key);
+    }
+    else {
+        config->ssl_cert = default_cert;
+        config->ssl_key = default_key;
+    }
     #endif
     config->acl = mympd_getenv_string("MYMPD_ACL", "", config->first_startup);
     config->scriptacl = mympd_getenv_string("MYMPD_SCRIPTACL", "+127.0.0.0/8", config->first_startup);
@@ -92,40 +102,40 @@ bool mympd_read_config(struct t_config *config) {
     #ifdef ENABLE_SSL
     config->ssl = state_file_rw_bool(config->workdir, "config", "ssl", config->ssl, false);
     config->ssl_port = state_file_rw_string_sds(config->workdir, "config", "ssl_port", config->ssl_port, false);
-    config->ssl_cert = state_file_rw_string_sds(config->workdir, "config", "ssl_cert", config->ssl_cert, false);
-    config->ssl_key = state_file_rw_string_sds(config->workdir, "config", "ssl_key", config->ssl_key, false);
     config->ssl_san = state_file_rw_string_sds(config->workdir, "config", "ssl_san", config->ssl_san, false);
     config->custom_cert = state_file_rw_bool(config->workdir, "config", "custom_cert", config->custom_cert, false);
+    if (config->custom_cert == true) {
+        config->ssl_cert = state_file_rw_string_sds(config->workdir, "config", "ssl_cert", config->ssl_cert, false);
+        config->ssl_key = state_file_rw_string_sds(config->workdir, "config", "ssl_key", config->ssl_key, false);
+    }
     #endif
     config->acl = state_file_rw_string_sds(config->workdir, "config", "acl", config->acl, false);
     config->scriptacl = state_file_rw_string_sds(config->workdir, "config", "scriptacl", config->scriptacl, false);
     config->lualibs = state_file_rw_string_sds(config->workdir, "config", "lualibs", config->lualibs, false);
     config->loglevel = state_file_rw_int(config->workdir, "config", "loglevel", config->loglevel, false);
     
-    //set correct path to certificate/key, if workdir is non default and cert paths are default
-    #ifdef ENABLE_SSL
-    if (strcmp(config->workdir, VARLIB_PATH) != 0 && config->custom_cert == false) {
-        config->ssl_cert = sdscrop(config->ssl_cert);
-        config->ssl_cert = sdscatfmt(config->ssl_cert, "%s/ssl/server.pem", config->workdir);
-        config->ssl_key = sdscrop(config->ssl_key);
-        config->ssl_key = sdscatfmt(config->ssl_key, "%s/ssl/server.key", config->workdir);
-    }
-    #endif
     return true;
 }
 
 //private functions
 static const char *mympd_getenv(const char *env_var, bool first_startup) {
     const char *env_value = getenv(env_var);
-    if (env_value != NULL && strlen(env_value) > 100) {
+    if (env_value == NULL) {
+        return NULL;
+    }
+    if (strlen(env_value) > 100) {
         MYMPD_LOG_WARN("Environment variable \"%s\" is too long", env_var);
         return NULL;
     }
-    if (first_startup == true && env_value != NULL) {
+    if (strlen(env_value) == 0) {
+        MYMPD_LOG_WARN("Environment variable \"%s\" is empty", env_var);
+        return NULL;
+    }
+    if (first_startup == true) {
         MYMPD_LOG_INFO("Using environment variable \"%s\" with value \"%s\"", env_var, env_value);
         return env_var;
     }
-    if (first_startup == false && env_value != NULL) {
+    else {
         MYMPD_LOG_INFO("Ignoring environment variable \"%s\" with value \"%s\"", env_var, env_value);
     }
     return NULL;
