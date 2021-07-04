@@ -141,7 +141,7 @@ bool state_file_write(const char *workdir, const char *dir, const char *name, co
     sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", workdir, dir, name);
     errno = 0;
     if (rename(tmp_file, cfg_file) == -1) {
-        MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed: %s", tmp_file, cfg_file);
+        MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, cfg_file);
         MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         sdsfree(cfg_file);

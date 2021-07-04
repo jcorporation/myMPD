@@ -540,7 +540,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     }
     errno = 0;
     if (rename(cert_file_tmp, cert_file) == -1) {
-        MYMPD_LOG_ERROR("Renaming file from %s to %s failed: %s", cert_file_tmp, cert_file);
+        MYMPD_LOG_ERROR("Renaming file from %s to %s failed", cert_file_tmp, cert_file);
         MYMPD_LOG_ERRNO(errno);
         sdsfree(cert_file_tmp);
         return false;
