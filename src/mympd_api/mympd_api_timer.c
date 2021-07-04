@@ -17,13 +17,17 @@
 #include <stdbool.h>
 #include <time.h>
 
+#include <mpd/client.h>
+
 #include "../../dist/src/frozen/frozen.h"
 #include "../../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "../sds_extras.h"
 #include "../log.h"
 #include "../list.h"
 #include "mympd_config_defs.h"
 #include "../utility.h"
+#include "../mympd_state.h"
 #include "mympd_api_utility.h"
 #include "mympd_api_timer.h"
 #include "mympd_api_timer_handlers.h"
@@ -41,7 +45,7 @@ void init_timerlist(struct t_timer_list *l) {
     l->list = NULL;
 }
 
-void check_timer(struct t_timer_list *l, bool gui) {
+void check_timer(struct t_timer_list *l) {
     int iMaxCount = 0;
     struct t_timer_node *current = l->list;
     uint64_t exp;
@@ -49,17 +53,18 @@ void check_timer(struct t_timer_list *l, bool gui) {
     struct pollfd ufds[MAX_TIMER_COUNT] = {{0}};
     memset(ufds, 0, sizeof(struct pollfd) * MAX_TIMER_COUNT);
     while (current != NULL && iMaxCount <= 100) {
-        if (current->fd > -1 && (current->timer_id < 100 || gui == true)) {
+        if (current->fd > -1) {
             ufds[iMaxCount].fd = current->fd;
             ufds[iMaxCount].events = POLLIN;
             iMaxCount++;
         }
         current = current->next;
     }
-
+    errno = 0;
     int read_fds = poll(ufds, iMaxCount, 100);
     if (read_fds < 0) {
-        MYMPD_LOG_ERROR("Error polling timerfd: %s", strerror(errno));
+        MYMPD_LOG_ERROR("Error polling timerfd");
+        MYMPD_LOG_ERRNO(errno);
         return;
     }
     if (read_fds == 0) {
@@ -208,7 +213,7 @@ void remove_timer(struct t_timer_list *l, int timer_id) {
 void toggle_timer(struct t_timer_list *l, int timer_id) {
     struct t_timer_node *current = NULL;
     for (current = l->list; current != NULL; current = current->next) {
-        if (current->timer_id == timer_id) {
+        if (current->timer_id == timer_id && current->definition != NULL) {
             current->definition->enabled = current->definition->enabled == true ? false : true;
             return;
         }
@@ -245,6 +250,18 @@ void free_timer_node(struct t_timer_node *node) {
         free_timer_definition(node->definition);
     }
     free(node);
+}
+
+bool free_timerlist(struct t_timer_list *l) {
+    struct t_timer_node *current = l->list;
+    struct t_timer_node *tmp = NULL;
+    while (current != NULL) {
+        tmp = current->next;
+        free_timer_node(current);
+        current = tmp;
+    }
+    init_timerlist(l);
+    return true;
 }
 
 struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, const char *str, size_t len) {
@@ -335,7 +352,7 @@ time_t timer_calc_starttime(int start_hour, int start_minute, int interval) {
     return start - now;
 }
 
-sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds timer_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int entities_returned = 0;
@@ -375,7 +392,7 @@ sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, long request_
     return buffer;
 }
 
-sds timer_get(t_mympd_state *mympd_state, sds buffer, sds method, long request_id, int timer_id) {
+sds timer_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, int timer_id) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     bool found = false;
     struct t_timer_node *current = mympd_state->timer_list.list;
@@ -425,10 +442,11 @@ sds timer_get(t_mympd_state *mympd_state, sds buffer, sds method, long request_i
     return buffer;
 }
 
-bool timerfile_read(t_config *config, t_mympd_state *mympd_state) {
-    sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer_list", config->varlibdir);
+bool timerfile_read(struct t_mympd_state *mympd_state) {
+    sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer_list", mympd_state->config->workdir);
     char *line = NULL;
     size_t n = 0;
+    errno = 0;
     FILE *fp = fopen(timer_file, "r");
     if (fp != NULL) {
         while (getline(&line, &n, fp) > 0) {
@@ -437,15 +455,11 @@ bool timerfile_read(t_config *config, t_mympd_state *mympd_state) {
             sds param = sdscatfmt(sdsempty(), "{params: %s}", line);
             timer_def = parse_timer(timer_def, param, sdslen(param));
             int interval;
-            int je = json_scanf(param, sdslen(param), "{params: {interval: %d}}", &interval);
-            if (je == 0) {
-                interval = 86400;
-            }
             int timerid;
-            je = json_scanf(param, sdslen(param), "{params: {timerid: %d}}", &timerid);
+            int je = json_scanf(param, sdslen(param), "{params: {interval: %d, timerid: %d}}", &interval, &timerid);
             sdsfree(param);
             
-            if (je == 1 && timer_def != NULL) {
+            if (je == 2 && timer_def != NULL) {
                 if (timerid > mympd_state->timer_list.last_id) {
                     mympd_state->timer_list.last_id = timerid;
                 }
@@ -462,22 +476,22 @@ bool timerfile_read(t_config *config, t_mympd_state *mympd_state) {
     }
     else {
         //ignore error
-        MYMPD_LOG_DEBUG("Can not open file \"%s\": %s", timer_file, strerror(errno));
+        MYMPD_LOG_DEBUG("Can not open file \"%s\"", timer_file);
+        MYMPD_LOG_ERRNO(errno);
     }
     sdsfree(timer_file);
     MYMPD_LOG_INFO("Read %d timer(s) from disc", mympd_state->timer_list.length);
     return true;
 }
 
-bool timerfile_save(t_config *config, t_mympd_state *mympd_state) {
-    if (config->readonly == true) {
-        return true;
-    }
+bool timerfile_save(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving timers to disc");
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/timer_list.XXXXXX", config->varlibdir);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/timer_list.XXXXXX", mympd_state->config->workdir);
+    errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         return false;
     }
@@ -522,9 +536,11 @@ bool timerfile_save(t_config *config, t_mympd_state *mympd_state) {
     }
     fclose(fp);
     sdsfree(buffer);
-    sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer_list", config->varlibdir);
+    sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer_list", mympd_state->config->workdir);
+    errno = 0;
     if (rename(tmp_file, timer_file) == -1) {
-        MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed: %s", tmp_file, timer_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, timer_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         sdsfree(timer_file);
         return false;

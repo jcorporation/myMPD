@@ -20,9 +20,11 @@ static void _http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_d
 sds get_dnsserver(void) {
     //read resolv.conf directly - musl does not support res_init
     sds buffer = sdsempty();
+    errno = 0;
     FILE *fp = fopen("/etc/resolv.conf", "r");
     if (fp == NULL) {
-        MYMPD_LOG_WARN("Can not open /etc/resolv.conf: %s", strerror(errno));
+        MYMPD_LOG_WARN("Can not open /etc/resolv.conf");
+        MYMPD_LOG_ERRNO(errno);
         return buffer;
     }
     char *line = NULL;

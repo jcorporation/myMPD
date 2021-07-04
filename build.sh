@@ -95,7 +95,7 @@ setversion() {
 
   for F in htdocs/sw.js contrib/packaging/alpine/APKBUILD contrib/packaging/arch/PKGBUILD \
   		   contrib/packaging/rpm/mympd.spec contrib/packaging/debian/changelog contrib/man/mympd.1 \
-  		   contrib/man/mympd-config.1 contrib/man/mympd-script.1
+  		   contrib/man/mympd-script.1
   do
   	echo "$F"
   	sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE_F1__/$DATE_F1/g" -e "s/__DATE_F2__/$DATE_F2/g" \
@@ -300,8 +300,6 @@ installrelease() {
   make install DESTDIR="$DESTDIR"
   addmympduser
   echo "myMPD installed"
-  echo "Modify mympd.conf to suit your needs or use the"
-  echo "mympd-config tool to generate a valid mympd.conf automatically."
 }
 
 builddebug() {
@@ -398,7 +396,7 @@ check() {
     rm -f clang-tidy.out
     cd src || exit 1
     find ./ -name '*.c' -exec clang-tidy \
-    	--checks="*,-google-readability-todo,-llvmlibc-restrict-system-libc-headers,-bugprone-reserved-identifier,-cert-dcl37-c,-cert-dcl51-cpp,-readability-isolate-declaration,-hicpp-multiway-paths-covered,-readability-uppercase-literal-suffix,-hicpp-uppercase-literal-suffix,-cert-msc51-cpp,-cert-msc32-c,-hicpp-no-assembler,-android*,-cert-env33-c,-cert-msc50-cpp,-bugprone-branch-clone,-misc-misplaced-const,-readability-non-const-parameter,-cert-msc30-c,-hicpp-signed-bitwise,-readability-magic-numbers,-readability-avoid-const-params-in-decls,-llvm-include-order,-bugprone-macro-parentheses,-modernize*,-cppcoreguidelines*,-llvm-header-guard,-clang-analyzer-optin.performance.Padding,-clang-diagnostic-embedded-directive" \
+    	--checks="*,-bugprone-narrowing-conversions,-readability-function-cognitive-complexity,-altera-struct-pack-align,-google-readability-todo,-llvmlibc-restrict-system-libc-headers,-bugprone-reserved-identifier,-cert-dcl37-c,-cert-dcl51-cpp,-readability-isolate-declaration,-hicpp-multiway-paths-covered,-readability-uppercase-literal-suffix,-hicpp-uppercase-literal-suffix,-cert-msc51-cpp,-cert-msc32-c,-hicpp-no-assembler,-android*,-cert-env33-c,-cert-msc50-cpp,-bugprone-branch-clone,-misc-misplaced-const,-readability-non-const-parameter,-cert-msc30-c,-hicpp-signed-bitwise,-readability-magic-numbers,-readability-avoid-const-params-in-decls,-llvm-include-order,-bugprone-macro-parentheses,-modernize*,-cppcoreguidelines*,-llvm-header-guard,-clang-analyzer-optin.performance.Padding,-clang-diagnostic-embedded-directive" \
     	-header-filter='.*' {}  \; >> ../clang-tidy.out
   else
     echo "clang-tidy not found"  
@@ -455,7 +453,7 @@ pkgdocker() {
   check_cmd docker
   [ -z "${DOCKERFILE+x}" ] && DOCKERFILE="Dockerfile.alpine"
   prepare
-  docker build -t mympd -f "contrib/packaging/docker/$DOCKERFILE" .
+  docker build --rm -t mympd -f "contrib/packaging/docker/$DOCKERFILE" .
 }
 
 pkgbuildx() {
@@ -622,7 +620,7 @@ installdeps() {
   elif [ -f /etc/alpine-release ]
   then
     #alpine
-    apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.3-dev \
+    apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.4-dev \
     	alpine-sdk linux-headers pkgconf pcre-dev
   elif [ -f /etc/SuSE-release ]
   then
@@ -689,17 +687,13 @@ uninstall() {
   [ -z "${DESTDIR+x}" ] && DESTDIR=""
   #MYMPD_INSTALL_PREFIX="/usr"
   rm -f "$DESTDIR/usr/bin/mympd"
-  rm -f "$DESTDIR/usr/bin/mympd-config"
   rm -f "$DESTDIR/usr/bin/mympd-script"
   rm -f "$DESTDIR/usr/share/man/man1/mympd.1.gz"
-  rm -f "$DESTDIR/usr/share/man/man1/mympd-config.1.gz"
   rm -f "$DESTDIR/usr/share/man/man1/mympd-script.1.gz"
   #MYMPD_INSTALL_PREFIX="/usr/local"
   rm -f "$DESTDIR/usr/local/bin/mympd"
-  rm -f "$DESTDIR/usr/local/bin/mympd-config"
   rm -f "$DESTDIR/usr/local/bin/mympd-script"
   rm -f "$DESTDIR/usr/local/share/man/man1/mympd.1.gz"
-  rm -f "$DESTDIR/usr/local/share/man/man1/mympd-config.1.gz"
   rm -f "$DESTDIR/usr/local/share/man/man1/mympd-script.1.gz"
   #MYMPD_INSTALL_PREFIX="/opt/mympd/"
   rm -rf "$DESTDIR/opt/mympd"
@@ -719,17 +713,9 @@ purge() {
   [ -z "${DESTDIR+x}" ] && DESTDIR=""
   #MYMPD_INSTALL_PREFIX="/usr"
   rm -rf "$DESTDIR/var/lib/mympd"
-  rm -f "$DESTDIR/etc/mympd.conf"
-  rm -f "$DESTDIR/etc/mympd.conf.dist"
   rm -f "$DESTDIR/etc/init.d/mympd"
-  #MYMPD_INSTALL_PREFIX="/usr/local"
-  rm -f "$DESTDIR/usr/local/etc/mympd.conf"
-  rm -f "$DESTDIR/usr/local/etc/mympd.conf.dist"
   #MYMPD_INSTALL_PREFIX="/opt/mympd/"
   rm -rf "$DESTDIR/var/opt/mympd"
-  rm -rf "$DESTDIR/etc/opt/mympd"
-  #arch
-  rm -rf "$DESTDIR/etc/webapps/mympd"
   #remove user
   if getent passwd mympd > /dev/null
   then

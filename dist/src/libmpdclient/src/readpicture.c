@@ -49,36 +49,36 @@ mpd_send_readpicture(struct mpd_connection *connection, const char *uri, unsigne
 int
 mpd_recv_readpicture(struct mpd_connection *connection, void *buffer, size_t buffer_size)
 {
-    struct mpd_pair *pair = mpd_recv_pair_named(connection, "binary");
-    if (pair == NULL) {
-        return -1;
-    }
+	struct mpd_pair *pair = mpd_recv_pair_named(connection, "binary");
+	if (pair == NULL) {
+		return -1;
+	}
 
-    size_t chunk_size = strtoumax(pair->value, NULL, 10);
-    mpd_return_pair(connection, pair);
+	size_t chunk_size = strtoumax(pair->value, NULL, 10);
+	mpd_return_pair(connection, pair);
 
-    unsigned retrieve_bytes = chunk_size > buffer_size ? buffer_size : chunk_size;
-    if (mpd_recv_binary(connection, buffer, retrieve_bytes) == false) {
-        return -1;
-    }
-        
+	unsigned retrieve_bytes = chunk_size > buffer_size ? buffer_size : chunk_size;
+	if (mpd_recv_binary(connection, buffer, retrieve_bytes) == false) {
+		return -1;
+	}
+
 	return retrieve_bytes;
 }
 
 int
 mpd_run_readpicture(struct mpd_connection *connection,
-                    const char *uri, unsigned offset,
-                    void *buffer, size_t buffer_size)
+					const char *uri, unsigned offset,
+					void *buffer, size_t buffer_size)
 {
 	if (!mpd_run_check(connection) ||
-	    !mpd_send_readpicture(connection, uri, offset)) {
-		    return -1;
-    }
-        
-    int read_size = mpd_recv_readpicture(connection, buffer, buffer_size);
-    if (!mpd_response_finish(connection)) {
-        return -1;
-    }
+		!mpd_send_readpicture(connection, uri, offset)) {
+			return -1;
+	}
+
+	int read_size = mpd_recv_readpicture(connection, buffer, buffer_size);
+	if (!mpd_response_finish(connection)) {
+		return -1;
+	}
 
 	return read_size;
 }

@@ -8,7 +8,7 @@ function setStateIcon() {
         document.getElementById('logoBg').setAttribute('fill', '#6c757d');
     }
     else {
-        document.getElementById('logoBg').setAttribute('fill', settings.highlightColor);
+        document.getElementById('logoBg').setAttribute('fill', settings.webuiSettings.uiHighlightColor);
     }
 }
 
@@ -19,7 +19,8 @@ function toggleAlert(alertBox, state, msg) {
         alertBoxEl.classList.add('hide');
     }
     else {
-        alertBoxEl.innerHTML = '<span class="mi mr-2">error</span>' + msg;
+        //msg should be already escaped
+        alertBoxEl.innerHTML = '<span class="mi mr-2">error</span><div>' + msg + '</div>';
         alertBoxEl.classList.remove('hide');
     }
 }
@@ -61,11 +62,11 @@ function showNotification(title, text, facility, severity) {
             return;
         }
         //disabled notification for facility in advanced setting
-        let show = settings.advanced['notification' + facilities[facility]];
+        let show = settings.webuiSettings['notification' + facilities[facility]];
         if (show === null ) {
             logDebug('Unknown facility: ' + facility);
             //fallback to general
-            show = settings.advanced['notificationGeneral'];    
+            show = settings.webuiSettings['notificationGeneral'];    
         }
         if (show === false) { 
             return;
@@ -135,18 +136,18 @@ function logMessage(title, text, facility, severity) {
 
     let append = true;
     const lastEntry = overview.firstElementChild;
-    if (lastEntry && getAttDec(lastEntry, 'data-title') === title) {
+    if (lastEntry && getCustomDomProperty(lastEntry, 'data-title') === title) {
         append = false;        
     }
 
     const entry = document.createElement('div');
     entry.classList.add('text-light');
-    setAttEnc(entry, 'data-title', title);
+    setCustomDomProperty(entry, 'data-title', title);
     let occurence = 1;
     if (append === false) {
-        occurence += parseInt(getAttDec(lastEntry, 'data-occurence'));
+        occurence += Number(getCustomDomProperty(lastEntry, 'data-occurence'));
     }
-    setAttEnc(entry, 'data-occurence', occurence);
+    setCustomDomProperty(entry, 'data-occurence', occurence);
     entry.innerHTML = '<small>' + localeDate() + '&nbsp;&ndash;&nbsp;' + t(facility) +
         ':&nbsp;' + t(severity) +
         (occurence > 1 ? '&nbsp;(' + occurence + ')' : '') + '</small>' +
@@ -215,18 +216,8 @@ function setElsState(tag, state, type) {
 
 function toggleUI() {
     let state = 'disabled';
-    const topAlert = document.getElementById('top-alerts');
     if (websocketConnected === true && settings.mpdConnected === true) {
-        topAlert.classList.add('hide');
         state = 'enabled';
-    }
-    else {
-        let topPadding = 0;
-        if (window.innerWidth < window.innerHeight) {
-            topPadding = document.getElementById('header').offsetHeight;
-        }
-        topAlert.style.paddingTop = topPadding + 'px';
-        topAlert.classList.remove('hide');
     }
     const enabled = state === 'disabled' ? false : true;
     if (enabled !== uiEnabled) {
@@ -255,6 +246,25 @@ function toggleUI() {
         toggleAlert('alertMympdState', true, t('Websocket is disconnected'));
         logMessage(t('Websocket is disconnected'), '', 'general', 'error');
     }
- 
+
+    toggleTopAlert();
     setStateIcon();
+}
+
+function toggleTopAlert() {
+    const topAlert = document.getElementById('top-alerts');
+    if (uiEnabled === false || (lastState !== undefined && lastState.lastError !== '')) {
+        let topPadding = 0;
+        if (window.innerWidth < window.innerHeight) {
+            topPadding = document.getElementById('header').offsetHeight;
+        }
+        topAlert.style.paddingTop = topPadding + 'px';
+        topAlert.classList.remove('hide');
+        const mt = topAlert.offsetHeight - parseInt(topAlert.style.paddingTop);
+        document.getElementsByTagName('main')[0].style.marginTop = mt + 'px';
+    }
+    else {
+        document.getElementsByTagName('main')[0].style.marginTop = 0;
+        topAlert.classList.add('hide');
+    }
 }

@@ -49,7 +49,6 @@ src_compile() {
 src_install() {
 	cd release
 	dobin mympd
-	dobin cli_tools/mympd-config
 	if use lua; then
 		dobin cli_tools/mympd-script
 	fi
@@ -57,14 +56,11 @@ src_install() {
 	if use systemd; then
 		systemd_newunit contrib/initscripts/mympd.service mympd.service
 	fi
-	${D}/usr/bin/mympd-config --mympdconf ${D}/etc/mympd.conf
 	dodoc ${S}/README.md
 }
 
 pkg_postinst() {
 	elog
 	elog "myMPD installed"
-	elog "Modify /etc/mympd.conf to suit your needs or use the"
-	elog "\`mympd-config\` tool to generate a valid mympd.conf automatically."
 	elog
 }

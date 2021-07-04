@@ -23,54 +23,20 @@
 #define MG_ARCH_WIN32 2
 #define MG_ARCH_ESP32 3
 #define MG_ARCH_ESP8266 4
-#define MG_ARCH_CC3100 5
-#define MG_ARCH_CC3200 6
-#define MG_ARCH_CC3220 7
-#define MG_ARCH_MSP432 8
-#define MG_ARCH_TM4C129 9
-#define MG_ARCH_MBED 10
-#define MG_ARCH_WINCE 11
-#define MG_ARCH_NXP_LPC 12
-#define MG_ARCH_NXP_KINETIS 13
-#define MG_ARCH_NRF51 14
-#define MG_ARCH_NRF52 15
-#define MG_ARCH_PIC32 16
-#define MG_ARCH_RS14100 17
-#define MG_ARCH_STM32 18
-#define MG_ARCH_FREERTOS 19
+#define MG_ARCH_FREERTOS_TCP 5
+#define MG_ARCH_FREERTOS_LWIP 6
 
 #if !defined(MG_ARCH)
-#if defined(TARGET_IS_MSP432P4XX) || defined(__MSP432P401R__)
-#define MG_ARCH MG_ARCH_MSP432
-#elif defined(cc3200) || defined(TARGET_IS_CC3200)
-#define MG_ARCH MG_ARCH_CC3200
-#elif defined(cc3220) || defined(TARGET_IS_CC3220)
-#define MG_ARCH MG_ARCH_CC3220
-#elif defined(__unix__) || defined(__APPLE__)
+#if defined(__unix__) || defined(__APPLE__)
 #define MG_ARCH MG_ARCH_UNIX
-#elif defined(WINCE)
-#define MG_ARCH MG_ARCH_WINCE
 #elif defined(_WIN32)
 #define MG_ARCH MG_ARCH_WIN32
-#elif defined(__MBED__)
-#define MG_ARCH MG_ARCH_MBED
-#elif defined(__USE_LPCOPEN)
-#define MG_ARCH MG_ARCH_NXP_LPC
-#elif defined(FRDM_K64F) || defined(FREEDOM)
-#define MG_ARCH MG_ARCH_NXP_KINETIS
-#elif defined(PIC32)
-#define MG_ARCH MG_ARCH_PIC32
 #elif defined(ICACHE_FLASH) || defined(ICACHE_RAM_ATTR)
 #define MG_ARCH MG_ARCH_ESP8266
 #elif defined(ESP_PLATFORM)
 #define MG_ARCH MG_ARCH_ESP32
-#elif defined(TARGET_IS_TM4C129_RA0) || defined(TARGET_IS_TM4C129_RA1) || \
-    defined(TARGET_IS_TM4C129_RA2)
-#define MG_ARCH MG_ARCH_TM4C129
-#elif defined(RS14100)
-#define MG_ARCH MG_ARCH_RS14100
-#elif defined(STM32)
-#define MG_ARCH MG_ARCH_STM32
+#elif defined(FREERTOS_IP_H)
+#define MG_ARCH MG_ARCH_FREERTOS_TCP
 #endif
 
 #if !defined(MG_ARCH)
@@ -93,6 +59,7 @@
 #if MG_ARCH == MG_ARCH_CUSTOM
 #include <mongoose_custom.h>
 #endif
+
 
 
 
@@ -154,31 +121,77 @@
 #endif
 
 
-#if MG_ARCH == MG_ARCH_FREERTOS
+#if MG_ARCH == MG_ARCH_FREERTOS_LWIP
+
+#include <errno.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+#if defined(__GNUC__)
+#include <sys/time.h>
+#else
+typedef long suseconds_t;
+struct timeval {
+  time_t tv_sec;
+  suseconds_t tv_usec;
+};
+#endif
+
+#if MG_ENABLE_FS
+#include <sys/stat.h>
+#endif
+
+#include <FreeRTOS.h>
+#include <task.h>
+
+#include <lwip/sockets.h>
+
+#define MG_INT64_FMT "%lld"
+#define MG_DIRSEP '/'
+
+// Re-route calloc/free to the FreeRTOS's functions, don't use stdlib
+static inline void *mg_calloc(int cnt, size_t size) {
+  void *p = pvPortMalloc(cnt * size);
+  if (p != NULL) memset(p, 0, size);
+  return p;
+}
+#define calloc(a, b) mg_calloc((a), (b))
+#define free(a) vPortFree(a)
+#define malloc(a) pvPortMalloc(a)
+
+#define gmtime_r(a, b) gmtime(a)
+
+#endif  // MG_ARCH == MG_ARCH_FREERTOS_LWIP
+
+
+#if MG_ARCH == MG_ARCH_FREERTOS_TCP
 
 #include <ctype.h>
 #include <errno.h>
-#include <fcntl.h>
 #include <limits.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <time.h>
 
+#if MG_ENABLE_FS
+#include <sys/stat.h>
+#endif
+
 #include <FreeRTOS.h>
-
-#include <task.h>
-
 #include <FreeRTOS_IP.h>
 #include <FreeRTOS_Sockets.h>
-#include <stdbool.h>
+#include <task.h>
 
 #define MG_INT64_FMT "%lld"
 #define MG_DIRSEP '/'
+
+// Why FreeRTOS-TCP did not implement a clean BSD API, but its own thing
+// with FreeRTOS_ prefix, is beyond me
 #define IPPROTO_TCP FREERTOS_IPPROTO_TCP
 #define IPPROTO_UDP FREERTOS_IPPROTO_UDP
 #define AF_INET FREERTOS_AF_INET
@@ -189,9 +202,7 @@
 #define SOL_SOCKET 0
 #define SO_REUSEADDR 0
 #define sockaddr_in freertos_sockaddr
-struct sockaddr {
-  uint8_t sa_len, sa_family;
-};
+#define sockaddr freertos_sockaddr
 #define accept(a, b, c) FreeRTOS_accept((a), (b), (c))
 #define connect(a, b, c) FreeRTOS_connect((a), (b), (c))
 #define bind(a, b, c) FreeRTOS_bind((a), (b), (c))
@@ -206,30 +217,41 @@ struct sockaddr {
 #define closesocket(x) FreeRTOS_closesocket(x)
 #define gethostbyname(x) FreeRTOS_gethostbyname(x)
 
-#include <ff_stdio.h>
-
-#undef FILE
-#define FILE FF_FILE
-//#define SEEK_SET FF_SEEK_SET
-//#define SEEK_END FF_SEEK_END
-#define stat(a, b) ff_stat((a), (b))
-#define fopen(a, b) ff_fopen((a), (b))
-#define fclose(a) ff_fclose(a)
-#define fread(a, b, c, d) ff_fread((a), (b), (c), (d))
-#define fwrite(a, b, c, d) ff_fwrite((a), (b), (c), (d))
-#define vfprintf ff_vfprintf
-#define fprintf ff_fprintf
-#define remove(a) ff_remove(a)
-#define rename(a, b) ff_rename((a), (b), 1)
-
-static inline int ff_vfprintf(FF_FILE *fp, const char *fmt, va_list ap) {
-  char *buf = NULL;
-  int n = mg_vasprintf(&buf, 0, fmt, ap);
-  if (buf != NULL) ff_fwrite(buf, 1, n, fp), free(buf);
-  return n;
+// Re-route calloc/free to the FreeRTOS's functions, don't use stdlib
+static inline void *mg_calloc(int cnt, size_t size) {
+  void *p = pvPortMalloc(cnt * size);
+  if (p != NULL) memset(p, 0, size);
+  return p;
 }
+#define calloc(a, b) mg_calloc((a), (b))
+#define free(a) vPortFree(a)
+#define malloc(a) pvPortMalloc(a)
 
+#define gmtime_r(a, b) gmtime(a)
+
+#if !defined(__GNUC__)
+// copied from GCC on ARM; for some reason useconds are signed
+typedef long suseconds_t;
+struct timeval {
+  time_t tv_sec;
+  suseconds_t tv_usec;
+};
 #endif
+
+#ifndef EINPROGRESS
+#define EINPROGRESS pdFREERTOS_ERRNO_EINPROGRESS
+#endif
+#ifndef EWOULDBLOCK
+#define EWOULDBLOCK pdFREERTOS_ERRNO_EWOULDBLOCK
+#endif
+#ifndef EAGAIN
+#define EAGAIN pdFREERTOS_ERRNO_EAGAIN
+#endif
+#ifndef EINTR
+#define EINTR pdFREERTOS_ERRNO_EINTR
+#endif
+
+#endif  // MG_ARCH == MG_ARCH_FREERTOS_TCP
 
 
 #if MG_ARCH == MG_ARCH_UNIX
@@ -310,6 +332,7 @@ typedef enum { false = 0, true = 1 } bool;
 #define strdup(x) _strdup(x)
 #endif
 
+typedef unsigned suseconds_t;
 typedef int socklen_t;
 #define MG_DIRSEP '\\'
 #ifndef PATH_MAX
@@ -335,12 +358,19 @@ typedef int socklen_t;
 
 #define MG_INT64_FMT "%I64d"
 
+// https://lgtm.com/rules/2154840805/ -gmtime, localtime, ctime and asctime
+static __inline struct tm *gmtime_r(time_t *t, struct tm *tm) {
+  (void) tm;
+  return gmtime(t);
+}
+
+static __inline struct tm *localtime_r(time_t *t, struct tm *tm) {
+  (void) tm;
+  return localtime(t);
+}
+
 #endif
 
-
-#ifndef MG_ENABLE_LWIP
-#define MG_ENABLE_LWIP 0
-#endif
 
 #ifndef MG_ENABLE_SOCKET
 #define MG_ENABLE_SOCKET 1
@@ -368,10 +398,6 @@ typedef int socklen_t;
 
 #ifndef MG_ENABLE_LOG
 #define MG_ENABLE_LOG 1
-#endif
-
-#ifndef MG_ENABLE_MGOS
-#define MG_ENABLE_MGOS 0
 #endif
 
 #ifndef MG_ENABLE_MD5
@@ -437,9 +463,6 @@ const char *mg_strstr(const struct mg_str haystack, const struct mg_str needle);
 
 
 
-#if MG_ENABLE_MGOS
-#include <common/cs_dbg.h>
-#else
 #if MG_ENABLE_LOG
 #define LOG(level, args)                                                   \
   do {                                                                     \
@@ -449,16 +472,16 @@ enum { LL_NONE, LL_ERROR, LL_INFO, LL_DEBUG, LL_VERBOSE_DEBUG };
 bool mg_log_prefix(int ll, const char *file, int line, const char *fname);
 void mg_log(const char *fmt, ...) PRINTF_LIKE(1, 2);
 void mg_log_set(const char *spec);
-void mg_log_set_callback(void (*fn)(const void *, int, void *), void *param);
+void mg_log_set_callback(void (*fn)(const void *, size_t, void *), void *param);
 #else
-#define LOG(level, args)
-#endif
+#define LOG(level, args) (void) 0
+#define mg_log_set(x) (void) (x)
 #endif
 
 
 struct mg_timer {
-  int period_ms;            // Timer period in milliseconds
-  int flags;                // Possible flags values below
+  unsigned long period_ms;  // Timer period in milliseconds
+  unsigned flags;           // Possible flags values below
 #define MG_TIMER_REPEAT 1   // Call function periodically, otherwise run once
 #define MG_TIMER_RUN_NOW 2  // Call immediately when timer is set
   void (*fn)(void *);       // Function to call
@@ -469,7 +492,8 @@ struct mg_timer {
 
 extern struct mg_timer *g_timers;  // Global list of timers
 
-void mg_timer_init(struct mg_timer *, int ms, int, void (*fn)(void *), void *);
+void mg_timer_init(struct mg_timer *, unsigned long ms, unsigned,
+                   void (*fn)(void *), void *);
 void mg_timer_free(struct mg_timer *);
 void mg_timer_poll(unsigned long uptime_ms);
 
@@ -477,20 +501,33 @@ void mg_timer_poll(unsigned long uptime_ms);
 
 
 
+// WEAK symbol makes it possible to define a "default" function implementation,
+// which could be overridden by the user who can define a function with the
+// same name without linking conflict
+#if !defined(WEAK)
+#if (defined(__GNUC__) || defined(__clang__) || \
+     defined(__TI_COMPILER_VERSION__)) &&       \
+    !defined(_WIN32) && !defined(__CYGWIN__)
+#define WEAK __attribute__((weak))
+#else
+#define WEAK
+#endif
+#endif
+
 char *mg_file_read(const char *path, size_t *size);
 int64_t mg_file_size(const char *path);
 bool mg_file_write(const char *path, const void *buf, size_t len);
 bool mg_file_printf(const char *path, const char *fmt, ...);
-void mg_random(void *buf, size_t len);
-bool mg_globmatch(const char *pattern, int plen, const char *s, int n);
+void mg_random(void *buf, size_t len) WEAK;
+bool mg_globmatch(const char *pattern, size_t plen, const char *s, size_t n);
 bool mg_next_comma_entry(struct mg_str *s, struct mg_str *k, struct mg_str *v);
 uint16_t mg_ntohs(uint16_t net);
 uint32_t mg_ntohl(uint32_t net);
 uint32_t mg_crc32(uint32_t crc, const char *buf, size_t len);
 char *mg_hexdump(const void *buf, size_t len);
-char *mg_hex(const void *buf, int len, char *dst);
-void mg_unhex(const char *buf, int len, unsigned char *to);
-unsigned long mg_unhexn(const char *s, int len);
+char *mg_hex(const void *buf, size_t len, char *dst);
+void mg_unhex(const char *buf, size_t len, unsigned char *to);
+unsigned long mg_unhexn(const char *s, size_t len);
 int mg_asprintf(char **buf, size_t size, const char *fmt, ...);
 int mg_vasprintf(char **buf, size_t size, const char *fmt, va_list ap);
 int64_t mg_to64(struct mg_str str);
@@ -511,20 +548,6 @@ FILE *mg_fopen(const char *fp, const char *mode);
 #define mg_htons(x) mg_ntohs(x)
 #define mg_htonl(x) mg_ntohl(x)
 
-#define MG_SWAP16(x) ((((x) >> 8) & 255) | ((x & 255) << 8))
-#define MG_SWAP32(x) \
-  (((x) >> 24) | (((x) &0xff0000) >> 8) | (((x) &0xff00) << 8) | ((x) << 24))
-
-#if !defined(WEAK)
-#if (defined(__GNUC__) || defined(__clang__) || \
-     defined(__TI_COMPILER_VERSION__)) &&       \
-    !defined(_WIN32) && !defined(__CYGWIN__)
-#define WEAK __attribute__((weak))
-#else
-#define WEAK
-#endif
-#endif
-
 // Expands to a string representation of its argument: e.g.
 // MG_STRINGIFY_LITERAL(5) expands to "5"
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
@@ -532,7 +555,12 @@ FILE *mg_fopen(const char *fp, const char *mode);
 #else
 #define MG_STRINGIFY_LITERAL(x) #x
 #endif
+// Expands to a string representation of its argument, which can be a macro:
+// #define FOO 123
+// MG_STRINGIFY_MACRO(FOO)  // Expands to 123
+#define MG_STRINGIFY_MACRO(x) MG_STRINGIFY_LITERAL(x)
 
+// Linked list management macros
 #define LIST_ADD_HEAD(type_, head_, elem_) \
   do {                                     \
     (elem_)->next = (*head_);              \
@@ -552,11 +580,6 @@ FILE *mg_fopen(const char *fp, const char *mode);
     while (*h != (elem_)) h = &(*h)->next; \
     *h = (elem_)->next;                    \
   } while (0)
-
-// Expands to a string representation of its argument, which can be a macro:
-// #define FOO 123
-// MG_STRINGIFY_MACRO(FOO)  // Expands to 123
-#define MG_STRINGIFY_MACRO(x) MG_STRINGIFY_LITERAL(x)
 
 
 
@@ -629,7 +652,7 @@ enum {
   MG_EV_CONNECT,     // Connection established       NULL
   MG_EV_ACCEPT,      // Connection accepted          NULL
   MG_EV_READ,        // Data received from socket    struct mg_str *
-  MG_EV_WRITE,       // Data written to socket       int *num_bytes_written
+  MG_EV_WRITE,       // Data written to socket       long *bytes_written
   MG_EV_CLOSE,       // Connection closed            NULL
   MG_EV_HTTP_MSG,    // HTTP request/response        struct mg_http_message *
   MG_EV_HTTP_CHUNK,  // HTTP chunk (partial msg)     struct mg_http_message *
@@ -668,7 +691,7 @@ struct mg_mgr {
   int dnstimeout;               // DNS resolve timeout in milliseconds
   unsigned long nextid;         // Next connection ID
   void *userdata;               // Arbitrary user data pointer
-#if MG_ARCH == MG_ARCH_FREERTOS
+#if MG_ARCH == MG_ARCH_FREERTOS_TCP
   SocketSet_t ss;  // NOTE(lsm): referenced from socket struct
 #endif
   const char *product_name;
@@ -712,7 +735,7 @@ struct mg_connection *mg_listen(struct mg_mgr *, const char *url,
                                 mg_event_handler_t fn, void *fn_data);
 struct mg_connection *mg_connect(struct mg_mgr *, const char *url,
                                  mg_event_handler_t fn, void *fn_data);
-int mg_send(struct mg_connection *, const void *, size_t);
+bool mg_send(struct mg_connection *, const void *, size_t);
 int mg_printf(struct mg_connection *, const char *fmt, ...);
 int mg_vprintf(struct mg_connection *, const char *fmt, va_list ap);
 char *mg_straddr(struct mg_connection *, char *, size_t);
@@ -775,10 +798,10 @@ void mg_http_reply(struct mg_connection *, int status_code, const char *headers,
                    const char *body_fmt, ...);
 struct mg_str *mg_http_get_header(struct mg_http_message *, const char *name);
 void mg_http_event_handler(struct mg_connection *c, int ev);
-int mg_http_get_var(const struct mg_str *, const char *name, char *, int);
+int mg_http_get_var(const struct mg_str *, const char *name, char *, size_t);
 int mg_url_decode(const char *s, size_t n, char *to, size_t to_len, int form);
-int mg_url_encode(const char *s, size_t n, char *buf, size_t len);
-void mg_http_creds(struct mg_http_message *, char *user, int, char *pass, int);
+size_t mg_url_encode(const char *s, size_t n, char *buf, size_t len);
+void mg_http_creds(struct mg_http_message *, char *, size_t, char *, size_t);
 bool mg_http_match_uri(const struct mg_http_message *, const char *glob);
 int mg_http_upload(struct mg_connection *, struct mg_http_message *hm,
                    const char *dir);
@@ -800,11 +823,11 @@ struct mg_tls_opts {
   struct mg_str srvname;  // If not empty, enables server name verification
 };
 
-int mg_tls_init(struct mg_connection *, struct mg_tls_opts *);
-int mg_tls_free(struct mg_connection *);
-int mg_tls_send(struct mg_connection *, const void *buf, size_t len, int *fail);
-int mg_tls_recv(struct mg_connection *, void *buf, size_t len, int *fail);
-int mg_tls_handshake(struct mg_connection *);
+void mg_tls_init(struct mg_connection *, struct mg_tls_opts *);
+void mg_tls_free(struct mg_connection *);
+long mg_tls_send(struct mg_connection *, const void *buf, size_t len);
+long mg_tls_recv(struct mg_connection *, void *buf, size_t len);
+void mg_tls_handshake(struct mg_connection *);
 
 
 #define WEBSOCKET_OP_CONTINUE 0

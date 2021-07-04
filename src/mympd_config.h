@@ -4,11 +4,12 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __CONFIG_H__
-#define __CONFIG_H__
-void mympd_config_defaults(t_config *config);
-void mympd_free_config(t_config *config);
-bool mympd_read_config(t_config *config, sds configfile);
-void mympd_set_readonly(t_config *config);
-bool mympd_dump_config(void);
+#ifndef __MYMPD_CONFIG_H__
+#define __MYMPD_CONFIG_H__
+void mympd_config_defaults_initial(struct t_config *config);
+void mympd_config_defaults(struct t_config *config);
+void mympd_free_config_initial(struct t_config *config);
+void mympd_free_config(struct t_config *config);
+bool mympd_read_config(struct t_config *config);
+void mympd_autoconf(struct t_config *config);
 #endif

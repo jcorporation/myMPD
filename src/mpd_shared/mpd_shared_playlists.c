@@ -14,19 +14,20 @@
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../../dist/src/rax/rax.h"
 #include "../sds_extras.h"
 #include "../api.h"
 #include "../list.h"
 #include "mympd_config_defs.h"
 #include "../utility.h"
 #include "../log.h"
-#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mympd_state.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "../mpd_shared.h"
 #include "../random.h"
 #include "mpd_shared_playlists.h"
 
-unsigned long mpd_shared_get_db_mtime(t_mpd_state *mpd_state) {
+unsigned long mpd_shared_get_db_mtime(struct t_mpd_state *mpd_state) {
     struct mpd_stats *stats = mpd_run_stats(mpd_state->conn);
     if (stats == NULL) {
         check_error_and_recover(mpd_state, NULL, NULL, 0);
@@ -37,11 +38,13 @@ unsigned long mpd_shared_get_db_mtime(t_mpd_state *mpd_state) {
     return mtime;
 }
 
-unsigned long mpd_shared_get_smartpls_mtime(t_config *config, const char *playlist) {
-    sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
+unsigned long mpd_shared_get_smartpls_mtime(struct t_config *config, const char *playlist) {
+    sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->workdir, playlist);
     struct stat attr;
+    errno = 0;
     if (stat(plpath, &attr) != 0) {
-        MYMPD_LOG_ERROR("Error getting mtime for %s: %s", plpath, strerror(errno));
+        MYMPD_LOG_ERROR("Error getting mtime for \"%s\"", plpath);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(plpath);
         return 0;
     }
@@ -49,7 +52,7 @@ unsigned long mpd_shared_get_smartpls_mtime(t_config *config, const char *playli
     return attr.st_mtime;
 }
 
-unsigned long mpd_shared_get_playlist_mtime(t_mpd_state *mpd_state, const char *playlist) {
+unsigned long mpd_shared_get_playlist_mtime(struct t_mpd_state *mpd_state, const char *playlist) {
     bool rc = mpd_send_list_playlists(mpd_state->conn);
     if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_playlists") == false) {
         return 0;
@@ -73,11 +76,13 @@ unsigned long mpd_shared_get_playlist_mtime(t_mpd_state *mpd_state, const char *
     return mtime;
 }
 
-sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds method, long request_id, const char *uri, const char *tagstr) {
-    t_tags sort_tags;
-    
-    sort_tags.len = 1;
-    sort_tags.tags[0] = mpd_tag_name_parse(tagstr);
+sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, sds method, 
+                                     long request_id, const char *uri, const char *tagstr)
+{
+    struct t_tags sort_tags = {
+        .len = 1,
+        .tags[0] = mpd_tag_name_parse(tagstr)
+    };
 
     bool rc = false;
     
@@ -126,7 +131,7 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
                 buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to shuffle");
             }
             list_free(&plist);
-            enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
+            enable_mpd_tags(mpd_state, mpd_state->tag_types_mympd);
             return buffer;
         }
     }
@@ -137,7 +142,7 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
                     buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to sort");
                 }
                 list_free(&plist);
-                enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
+                enable_mpd_tags(mpd_state, mpd_state->tag_types_mympd);
                 return buffer;
             }
         }
@@ -147,7 +152,7 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
                     buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to sort");
                 }
                 list_free(&plist);
-                enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
+                enable_mpd_tags(mpd_state, mpd_state->tag_types_mympd);
                 return buffer;
             }
         }
@@ -210,7 +215,7 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
     sdsfree(uri_old);
     
     if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
-        enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
+        enable_mpd_tags(mpd_state, mpd_state->tag_types_mympd);
     }
     if (buffer != NULL) {
         if (strcmp(tagstr, "shuffle") == 0) {
@@ -223,17 +228,20 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
     return buffer;
 }
 
-bool mpd_shared_smartpls_save(t_config *config, const char *smartpltype, const char *playlist, 
-                              const char *tag, const char *searchstr, const int maxentries, const int timerange, const char *sort)
+bool mpd_shared_smartpls_save(const char *workdir, const char *smartpltype, const char *playlist, 
+                              const char *expression, const int maxentries, 
+                              const int timerange, const char *sort)
 {
     if (validate_string_not_dir(playlist) == false) {
         return false;
     }
     
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", config->varlibdir, playlist);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", workdir, playlist);
+    errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         return false;
     }
@@ -242,7 +250,7 @@ bool mpd_shared_smartpls_save(t_config *config, const char *smartpltype, const c
     sds line = sdscat(sdsempty(), "{");
     line = tojson_char(line, "type", smartpltype, true);
     if (strcmp(smartpltype, "sticker") == 0) {
-        line = tojson_char(line, "sticker", tag, true);
+        line = tojson_char(line, "sticker", expression, true);
         line = tojson_long(line, "maxentries", maxentries, true);
         line = tojson_long(line, "minvalue", timerange, true);
     }
@@ -250,8 +258,7 @@ bool mpd_shared_smartpls_save(t_config *config, const char *smartpltype, const c
         line = tojson_long(line, "timerange", timerange, true);
     }
     else if (strcmp(smartpltype, "search") == 0) {
-        line = tojson_char(line, "tag", tag, true);
-        line = tojson_char(line, "searchstr", searchstr, true);
+        line = tojson_char(line, "expression", expression, true);
     }
     line = tojson_char(line, "sort", sort, false);
     line = sdscat(line, "}");
@@ -261,10 +268,12 @@ bool mpd_shared_smartpls_save(t_config *config, const char *smartpltype, const c
         MYMPD_LOG_ERROR("Can't write to file %s", tmp_file);
     }
     fclose(fp);
-    sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
+    sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", workdir, playlist);
+    errno = 0;
     rc = rename(tmp_file, pl_file);
     if (rc == -1) {
-        MYMPD_LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, pl_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, pl_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         sdsfree(pl_file);
         return false;

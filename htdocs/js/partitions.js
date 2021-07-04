@@ -34,24 +34,24 @@ function initPartitions() {
     });
 
     document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
-        sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {"partition": "default"}, parsePartitionOutputsList, false);
+        sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {"partition": "default"}, parsePartitionOutputsList, false);
     });
 }
 
 function moveOutput(output) {
-    sendAPI("MPD_API_PARTITION_OUTPUT_MOVE", {"name": output});
+    sendAPI("MYMPD_API_PARTITION_OUTPUT_MOVE", {"name": output});
 }
 
 function parsePartitionOutputsList(obj) {
     const outputs = document.getElementById('outputs').getElementsByTagName('button');
     const outputIds = [];
-    for (let i = 0; i < outputs.length; i++) {
-        outputIds.push(parseInt(outputs[i].getAttribute('data-output-id')));
+    for (let i = 0, j= outputs.length; i < j; i++) {
+        outputIds.push(Number(outputs[i].getAttribute('data-output-id')));
     }
 
     let outputList = '';
     let nr = 0;
-    for (let i = 0; i < obj.result.data.length; i++) {
+    for (let i = 0, j = obj.result.data.length; i < j; i++) {
         if (outputIds.includes(obj.result.data[i].id) === false) {
             outputList += '<tr data-output="' + encodeURI(obj.result.data[i].name) + '"><td>' +
                 e(obj.result.data[i].name) + '</td></tr>';
@@ -74,7 +74,7 @@ function savePartition() {
     }
     
     if (formOK === true) {
-        sendAPI("MPD_API_PARTITION_NEW", {
+        sendAPI("MYMPD_API_PARTITION_NEW", {
             "name": nameEl.value
             }, showListPartitions, false);
     }
@@ -99,36 +99,36 @@ function showListPartitions() {
     document.getElementById('listPartitionsFooter').classList.remove('hide');
     document.getElementById('newPartitionFooter').classList.add('hide');
     document.getElementById('errorPartition').classList.add('hide');
-    sendAPI("MPD_API_PARTITION_LIST", {}, parsePartitionList, false);
+    sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, false);
 }
 
 function deletePartition(partition) {
-    sendAPI("MPD_API_PARTITION_RM", {"name": partition}, function(obj) {
+    sendAPI("MYMPD_API_PARTITION_RM", {"name": partition}, function(obj) {
         if (obj.error) {
             const el = document.getElementById('errorPartition');
             el.innerText = t(obj.error.message);
             el.classList.remove('hide');
         }
-        sendAPI("MPD_API_PARTITION_LIST", {}, parsePartitionList, false);
+        sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, false);
     }, true);
 }
 
 function switchPartition(partition) {
-    sendAPI("MPD_API_PARTITION_SWITCH", {"name": partition}, function(obj) {
+    sendAPI("MYMPD_API_PARTITION_SWITCH", {"name": partition}, function(obj) {
         if (obj.error) {
             const el = document.getElementById('errorPartition');
             el.innerText = t(obj.error.message);
             el.classList.remove('hide');
         }
-        sendAPI("MPD_API_PARTITION_LIST", {}, parsePartitionList, false);
-        sendAPI("MPD_API_PLAYER_STATE", {}, parseState);
+        sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, false);
+        sendAPI("MYMPD_API_PLAYER_STATE", {}, parseState);
     }, true);
 }
 
 function parsePartitionList(obj) {
     if (obj.result.data.length > 0) {
         let partitionList = '';
-        for (let i = 0; i < obj.result.data.length; i++) {
+        for (let i = 0, j = obj.result.data.length; i < j; i++) {
             partitionList += '<tr data-partition="' + encodeURI(obj.result.data[i].name) + '"><td class="' +
                 (obj.result.data[i].name === settings.partition ? 'font-weight-bold' : '') +
                 '">' + e(obj.result.data[i].name) + 

@@ -46,12 +46,12 @@ function saveTrigger() {
     if (formOK === true) {
         const args = {};
         const argEls = document.getElementById('triggerActionScriptArguments').getElementsByTagName('input');
-        for (let i = 0; i < argEls.length; i ++) {
-            args[getAttDec(argEls[i], 'data-name')] = argEls[i].value;
+        for (let i = 0, j = argEls.length; i < j; i ++) {
+            args[getCustomDomProperty(argEls[i], 'data-name')] = argEls[i].value;
         }
 
-        sendAPI("MPD_API_TRIGGER_SAVE", {
-            "id": parseInt(document.getElementById('inputTriggerId').value),
+        sendAPI("MYMPD_API_TRIGGER_SAVE", {
+            "id": Number(document.getElementById('inputTriggerId').value),
             "name": nameEl.value,
             "event": getSelectValue('selectTriggerEvent'),
             "script": getSelectValue('selectTriggerScript'),
@@ -75,7 +75,7 @@ function showEditTrigger(id) {
     document.getElementById('selectTriggerEvent').selectedIndex = 0;
     document.getElementById('selectTriggerScript').selectedIndex = 0;
     if (id > -1) {
-        sendAPI("MPD_API_TRIGGER_GET", {"id": id}, parseTriggerEdit, false);
+        sendAPI("MYMPD_API_TRIGGER_GET", {"id": id}, parseTriggerEdit, false);
     }
     else {
         selectTriggerActionChange();
@@ -101,9 +101,9 @@ function showTriggerScriptArgs(option, values) {
     if (values === undefined) {
         values = {};
     }
-    const args = JSON.parse(getAttDec(option, 'data-arguments'));
+    const args = JSON.parse(getCustomDomProperty(option, 'data-arguments'));
     let list = '';
-    for (let i = 0; i < args.arguments.length; i++) {
+    for (let i = 0, j = args.arguments.length; i < j; i++) {
         list += '<div class="form-group row">' +
                   '<label class="col-sm-4 col-form-label" for="triggerActionScriptArguments' + i + '">' + e(args.arguments[i]) + '</label>' +
                   '<div class="col-sm-8">' +
@@ -114,7 +114,7 @@ function showTriggerScriptArgs(option, values) {
                 '</div>';
     }
     if (args.arguments.length === 0) {
-        list = 'No arguments';
+        list = t('No arguments');
     }
     document.getElementById('triggerActionScriptArguments').innerHTML = list;
 }
@@ -124,19 +124,19 @@ function showListTrigger() {
     document.getElementById('newTrigger').classList.remove('active');
     document.getElementById('listTriggerFooter').classList.remove('hide');
     document.getElementById('newTriggerFooter').classList.add('hide');
-    sendAPI("MPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
+    sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
 }
 
 function deleteTrigger(id) {
-    sendAPI("MPD_API_TRIGGER_DELETE", {"id": id}, function() {
-        sendAPI("MPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
+    sendAPI("MYMPD_API_TRIGGER_DELETE", {"id": id}, function() {
+        sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
     }, true);
 }
 
 function parseTriggerList(obj) {
-    if (obj.result.data.length > 0) {
+    if (obj.result.returnedEntities > 0) {
         let triggerList = '';
-        for (let i = 0; i < obj.result.data.length; i++) {
+        for (let i = 0; i < obj.result.returnedEntities; i++) {
             triggerList += '<tr data-trigger-id="' + encodeURI(obj.result.data[i].id) + '"><td class="' +
                 (obj.result.data[i].name === settings.trigger ? 'font-weight-bold' : '') +
                 '">' + e(obj.result.data[i].name) + 

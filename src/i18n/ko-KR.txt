@@ -231,9 +231,6 @@ Save as smart playlist
 To top
 위로
 
-Bookmarks
-즐겨찾기
-
 Select tag to search
 찾을 태그 선택
 
@@ -248,9 +245,6 @@ myMPD 초기화
 
 Fetch myMPD settings
 myMPD 설정 가져오기
-
-Fetch MPD settings
-MPD 설정 가져오기
 
 Connect to websocket
 웹소켓에 연결
@@ -312,15 +306,6 @@ Delete playlist
 Delete
 지우기
 
-Love song
-애청곡
-
-Scrobbled love
-애청곡 추천
-
-Failed to send love message to channel
-채널에 애청곡 메시지 보내기 안 됨
-
 Dislike song
 곡 좋아하지 않음
 
@@ -330,20 +315,11 @@ Like song
 MPD stickers are disabled
 MPD 스티커 사용 안 함
 
-folder.jpg
-folder.jpg
-
-Size in px
-픽셀 크기
-
 Save smart playlist
 스마트 연주목록 저장
 
 Name
 이름
-
-Tag
-태그
 
 Tags
 태그
@@ -402,12 +378,6 @@ Replaygain
 Off
 끄기
 
-Mixramp DB
-Mixramp DB
-
-Mixramp delay
-Mixramp 지연
-
 Autoplay
 자동 연주
 
@@ -426,20 +396,11 @@ Must be a number and greater than zero
 Albumart
 음반 표지
 
-Can't access music directory
-음원 디렉터리에 접근할 수 없음
-
-Invalid size
-잘못된 크기
-
 Background color
 배경색
 
 Highlight color
 강조색
-
-Invalid color
-잘못된 색상
 
 CSS filter
 CSS 필터
@@ -477,9 +438,6 @@ Local playback
 Statistics
 통계
 
-Stickers are disabled
-스티커 사용 안 함
-
 Playback statistics
 연주 통계
 
@@ -506,36 +464,6 @@ Updating smart playlist %{playlist} failed
 
 Smart playlist
 스마트 연주목록
-
-Playlists are disabled
-연주목록 사용 안 함
-
-Scrobbler integration
-추천 통합
-
-MPD channel not found
-MPD 채널 없음
-
-Send love message
-애청 메시지 보내기
-
-MPD channel
-MPD 채널
-
-Invalid channel name
-잘못된 채널 이름
-
-Message
-메시지
-
-Invalid message
-잘못된 메시지
-
-Reset
-다시 설정
-
-Reset settings
-다시 설정 하기
 
 Clear app cache and reload
 앱 캐시를 지우고 다시 읽기
@@ -638,18 +566,6 @@ Playlist name
 
 Quantity
 갯수
-
-Clearing bookmarks failed
-즐겨찾기 지우기 안 됨
-
-Save bookmark
-즐겨찾기 저장
-
-Bookmark name
-즐겨찾기 이름
-
-Bookmark URI
-즐겨찾기 주소
 
 Song details
 곡 정보
@@ -768,9 +684,6 @@ Add after current playing song
 View playlist
 연주목록 보기
 
-Add bookmark
-즐겨찾기 추가
-
 Replace queue
 순서 바꾸기
 
@@ -816,13 +729,10 @@ New playlist
 never
 안 함
 
-Failed to save playlist
-연주목록 저장 안 됨
-
 Added %{uri} to playlist %{playlist}
 %{uri}의 %{playlist} 연주목록 추가에 실패함
 
-Sucessfully added random songs to queue
+Successfully added random songs to queue
 무작위 곡을 순서에 추가함
 
 Adding random songs to queue failed
@@ -843,7 +753,7 @@ MPD 연결 오류: %{error}
 Renaming playlist failed
 연주목록 이름 바꾸기 안 됨
 
-Sucessfully renamed playlist
+Successfully renamed playlist
 연주목록 이름 바꿈
 
 Can not crop the queue
@@ -857,30 +767,6 @@ Can not parse smart playlist file
 
 Unknown smart playlist type
 스마트 연주목록 형식을 알 수 없음
-
-System commands are disabled
-시스템 명령어 사용 안 함
-
-Saving bookmark failed
-즐겨찾기 저장 안 됨
-
-Deleting bookmark failed
-즐겨찾기 지우기 안 됨
-
-System command not defined
-시스템 명령어 정의 안됨
-
-Successfully execute cmd %{cmd}
-%{cmd} 명령어 실행함
-
-Failed to execute cmd %{cmd}
-%{cmd} 명령어 실행 안 됨
-
-Failed to open bookmarks file
-즐겨찾기 파일 열기 안 됨
-
-No bookmarks found
-즐겨찾기를 찾을 수 없음
 
 Background
 배경
@@ -911,9 +797,6 @@ Queue replaced with %{name}
 
 Saved smart playlist %{name}
 %{name} 스마트 연주목록 저장함
-
-System commands
-시스템 명령어
 
 Focus table
 목록에서 찾기
@@ -987,9 +870,6 @@ MUSICBRAINZ_TRACKID
 MUSICBRAINZ_WORKID
 뮤직브레인즈 작품 ID
 
-myMPD is in readonly mode
-읽기 전용 모드임
-
 Consume must be enabled
 소비를 선택해야 함
 
@@ -1062,8 +942,8 @@ Enforce uniqueness
 Invalid name
 잘못된 이름
 
-Last played older than (hours)
-이전에 연주됨 (시간)
+Last played older than
+이전에 연주됨
 
 Minimum one weekday must be selected
 최소 일주일 선택해야 함
@@ -1088,9 +968,6 @@ on
 
 Oneshot
 1회
-
-Other features
-다른 기능
 
 Start
 시작
@@ -1124,9 +1001,6 @@ Sat
 
 Sun
 일
-
-System command
-시스템 명령어
 
 LastModified
 마지막 수정
@@ -1188,9 +1062,6 @@ Order
 Sort by tag
 태그로 정렬
 
-Update smart playlists (hours)
-스마트 연주목록 업데이트 (시간)
-
 Smart playlists prefix
 스마트 연주목록 덧붙임
 
@@ -1215,9 +1086,6 @@ Delete empty playlists
 Delete playlists
 연주목록 지움
 
-Media session support
-미디어 세션 지원
-
 Playlists deleted
 연주목록 지워짐
 
@@ -1226,9 +1094,6 @@ Preview
 
 Info
 정보
-
-Error
-오류
 
 Auto
 자동
@@ -1277,9 +1142,6 @@ Mount point
 
 Unmount
 언마운트
-
-No such directory
-그런 디렉터리가 없음
 
 Error in response to command: %{command}
 명령어 오류: %{command}
@@ -1344,26 +1206,17 @@ Error executing script %{script}
 Invalid script name
 잘못된 스크립트 이름
 
-No mpd state for script execution submitted
-스크립트 실행을 위한 MPD 상태 없음
-
 Script
 스크립트
 
 Script %{script} executed successfully
 스크립트 %{script} 실행 성공
 
-Scripting is disabled
-스크립트 사용 안 함
-
 Scripts
 스크립트
 
 Invalid script API request
 잘못된 스크립트 API 요청
-
-Remote scripting is disabled
-원격 스크립트 사용 안 함
 
 Arguments
 변수
@@ -1409,9 +1262,6 @@ Script name
 
 Sort order of the script, 0 disables listing in main menu
 스크립트 분류 순서, 0은 주 메뉴에 안 보임
-
-Editing scripts is disabled
-스크립트 편집 사용 안 함
 
 Fullscreen
 전체 화면
@@ -1594,9 +1444,6 @@ Filter
 Sort
 정렬
 
-Tag
-태그
-
 Columns
 열
 
@@ -1765,9 +1612,6 @@ Song change
 Show playback settings in footer
 아래에 연주 설정 보기
 
-Error getting mpd state for script execution
-스크립트 실행을 위한 mpd 상태 가져오기 오류
-
 Custom
 사용자
 
@@ -1791,9 +1635,6 @@ Weekly
 
 Each hours
 매시간 |||| 매 %{smart_count}시간
-
-hours
-시간
 
 Missing translations
 선택한 언어에 % {smart_count}개의 번역이 없습니다 |||| 선택한 언어에 % {smart_count}개의 번역이 없습니다

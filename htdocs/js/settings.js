@@ -4,41 +4,6 @@
 // https://github.com/jcorporation/mympd
 
 function initSettings() {
-    let selectThemeHtml = '';
-    Object.keys(themes).forEach(function(key) {
-        selectThemeHtml += '<option value="' + e(key) + '">' + t(themes[key]) + '</option>';
-    });
-    document.getElementById('selectTheme').innerHTML = selectThemeHtml;
-
-    document.getElementById('selectTheme').addEventListener('change', function(event) {
-        const value = getSelectValue(event.target);
-        const bgImageEl = document.getElementById('selectBgImage');
-        const bgImageValue = getSelectValue(bgImageEl);
-        if (value === 'theme-default') { 
-            document.getElementById('inputBgColor').value = '#aaaaaa';
-            if (bgImageValue.indexOf('/assets/') === 0) {
-                bgImageEl.value = '/assets/mympd-background-default.svg';
-            }
-        }
-        else if (value === 'theme-light') {
-            document.getElementById('inputBgColor').value = '#ffffff';
-            if (bgImageValue.indexOf('/assets/') === 0) {
-                bgImageEl.value = '/assets/mympd-background-light.svg';
-            }
-        }
-        else if (value === 'theme-dark') {
-            document.getElementById('inputBgColor').value = '#060708';
-            if (bgImageValue.indexOf('/assets/') === 0) {
-                bgImageEl.value = '/assets/mympd-background-dark.svg';
-            }
-        }
-    }, false);
-    
-    document.getElementById('selectLocale').addEventListener('change', function(event) {
-        const value = getSelectValue(event.target);
-        warnLocale(value);
-    }, false);
-
     document.getElementById('selectMusicDirectory').addEventListener('change', function () {
         const musicDirMode = getSelectValue(this);
         if (musicDirMode === 'auto') {
@@ -72,7 +37,7 @@ function initSettings() {
 
     document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
         setTimeout(function() {
-            const value = getAttDec(document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
+            const value = getCustomDomProperty(document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
             if (value === '0') {
                 disableEl('inputJukeboxQueueLength');
                 disableEl('selectJukeboxPlaylist');
@@ -98,19 +63,37 @@ function initSettings() {
             checkConsume(); 
         }, 100);
     });
-    
-    document.getElementById('btnStickers').addEventListener('mouseup', function() {
-        setTimeout(function() {
-            if (document.getElementById('btnStickers').classList.contains('active')) {
-                document.getElementById('warnPlaybackStatistics').classList.add('hide');
-                enableEl('inputJukeboxLastPlayed');
-            }
-            else {
-                document.getElementById('warnPlaybackStatistics').classList.remove('hide');
-                disableEl('inputJukeboxLastPlayed');
-            }
-        }, 100);
-    });
+}
+
+//eslint-disable-next-line no-unused-vars
+function eventChangeLocale(event) {
+    const value = getSelectValue(event.target);
+    warnLocale(value);
+}
+
+//eslint-disable-next-line no-unused-vars
+function eventChangeTheme(event) {
+    const value = getSelectValue(event.target);
+    const bgImageEl = document.getElementById('inputWebUIsettinguiBgImage');
+    const bgImageValue = getSelectValue(bgImageEl);
+    if (value === 'theme-default') { 
+        document.getElementById('inputWebUIsettinguiBgColor').value = '#aaaaaa';
+        if (bgImageValue.indexOf('/assets/') === 0) {
+            bgImageEl.value = '/assets/mympd-background-default.svg';
+        }
+    }
+    else if (value === 'theme-light') {
+        document.getElementById('inputWebUIsettinguiBgColor').value = '#ffffff';
+        if (bgImageValue.indexOf('/assets/') === 0) {
+            bgImageEl.value = '/assets/mympd-background-light.svg';
+        }
+    }
+    else if (value === 'theme-dark') {
+        document.getElementById('inputWebUIsettinguiBgColor').value = '#060708';
+        if (bgImageValue.indexOf('/assets/') === 0) {
+            bgImageEl.value = '/assets/mympd-background-dark.svg';
+        }
+    }
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -119,7 +102,17 @@ function saveConnection() {
     const mpdHostEl = document.getElementById('inputMpdHost');
     const mpdPortEl = document.getElementById('inputMpdPort');
     const mpdPassEl = document.getElementById('inputMpdPass');
-    let musicDirectory = getSelectValue('selectMusicDirectory');
+    const playlistDirectoryEl = document.getElementById('inputPlaylistDirectory');
+    const mpdStreamPortEl = document.getElementById('inputMpdStreamPort');
+    const mpdBinarylimitEl = document.getElementById('inputMpdBinarylimit');
+    const mpdTimeoutEl = document.getElementById('inputMpdTimeout');
+    const musicDirectoryEl = document.getElementById('selectMusicDirectory');
+    let musicDirectory = getSelectValue(musicDirectoryEl);
+    
+    if (musicDirectory === 'auto' && mpdHostEl.value.indexOf('/') !== 0) {
+        formOK = false;
+        setIsInvalid(musicDirectoryEl);
+    }
     
     if (musicDirectory === 'custom') {
         const musicDirectoryValueEl  = document.getElementById('inputMusicDirectory');
@@ -128,7 +121,6 @@ function saveConnection() {
         }
         musicDirectory = musicDirectoryValueEl.value;
     }    
-    
     if (mpdPortEl.value === '') {
         mpdPortEl.value = '6600';
     }
@@ -140,57 +132,36 @@ function saveConnection() {
             formOK = false;        
         }
     }
+    if (!validatePath(playlistDirectoryEl)) {
+        formOK = false;
+    }
+    if (!validateIntRange(mpdStreamPortEl, 1024, 65535)) {
+        formOK = false;
+    }
+    if (!validateIntRange(mpdBinarylimitEl, 4096, 40960)) {
+        formOK = false;
+    }
+    if (!validateIntRange(mpdTimeoutEl, 1, 100)) {
+        formOK = false;
+    }
     if (formOK === true) {
         sendAPI("MYMPD_API_CONNECTION_SAVE", {
             "mpdHost": mpdHostEl.value,
             "mpdPort": mpdPortEl.value,
             "mpdPass": mpdPassEl.value,
-            "musicDirectory": musicDirectory
+            "musicDirectory": musicDirectory,
+            "playlistDirectory": playlistDirectoryEl.value,
+            "mpdStreamPort": Number(mpdStreamPortEl.value),
+            "mpdBinarylimit": Number(mpdBinarylimitEl.value),
+            "mpdTimeout": Number(mpdTimeoutEl.value) * 1000
         }, getSettings);
         uiElements.modalConnection.hide();    
     }
 }
 
 function getSettings(onerror) {
-    if (settingsLock === false) {
-        settingsLock = true;
-        sendAPI("MYMPD_API_SETTINGS_GET", {}, getMpdSettings, onerror);
-    }
-}
-
-function getMpdSettings(obj) {
-    if (obj !== '' && obj.result) {
-        settingsNew = obj.result;
-        document.getElementById('splashScreenAlert').innerText = t('Fetch MPD settings');
-        sendAPI("MPD_API_SETTINGS_GET", {}, joinSettings, true);
-    }
-    else {
-        settingsParsed = 'error';
-        if (appInited === false) {
-            showAppInitAlert(obj === '' ? t('Can not parse settings') : t(obj.error.message));
-        }
-        return false;
-    }
-}
-
-function joinSettings(obj) {
-    if (obj !== '' && obj.result) {
-        for (const key in obj.result) {
-            settingsNew[key] = obj.result[key];
-        }
-    }
-    else {
-        settingsParsed = 'error';
-        if (appInited === false) {
-            showAppInitAlert(obj === '' ? t('Can not parse settings') : t(obj.error.message));
-        }
-        settingsNew.mpdConnected = false;
-    }
-    settings = Object.assign({}, settingsNew);
-    settingsLock = false;
-    parseSettings();
-    toggleUI();
-    btnWaiting(document.getElementById('btnApplySettings'), false);
+    settingsParsed = 'no';
+    sendAPI("MYMPD_API_SETTINGS_GET", {}, parseSettings, onerror);
 }
 
 function checkConsume() {
@@ -204,131 +175,97 @@ function checkConsume() {
     }
 }
 
-function parseSettings() {
+function parseSettings(obj) {
+    if (obj.error) {
+        settingsParsed = 'error';
+        if (appInited === false) {
+            showAppInitAlert(obj === '' ? t('Can not parse settings') : t(obj.error.message));
+        }
+        return;
+    }
+    settings = obj.result;
+    
+    //check for old cached javascript
     if ('serviceWorker' in navigator && settings.mympdVersion !== myMPDversion) {
         logWarn('Server version (' + settings.mympdVersion + ') not equal client version (' + myMPDversion + '), reloading');
         clearAndReload();
     }
 
-    if (document.getElementById('modalSettings').classList.contains('show')) {
-        //execute only if settings modal is displayed
-        getBgImageList(settings.bgImage);
+    //set webuiSettings defaults
+    for (const key in webuiSettingsDefault) {
+        if (settings.webuiSettings[key] === undefined) {
+            settings.webuiSettings[key] = webuiSettingsDefault[key].defaultValue;
+        }
     }
 
-    if (settings.bgImage.indexOf('/assets/') === 0) {
-        domCache.body.style.backgroundImage = 'url("' + subdir + settings.bgImage + '")';
+    //set features object from settings
+    setFeatures();
+
+    //execute only if settings modal is displayed
+    if (document.getElementById('modalSettings').classList.contains('show')) {
+        populateSettingsFrm();
+
     }
-    else if (settings.bgImage !== '') {
-        domCache.body.style.backgroundImage = 'url("' + subdir + '/pics/' + settings.bgImage + '")';
+    //execute only if connection modal is displayed
+    if (document.getElementById('modalConnection').classList.contains('show')) {
+        populateConnectionFrm();
+    }
+    //execute only if queue settings modal is displayed
+    if (document.getElementById('modalQueueSettings').classList.contains('show')) {
+        populateQueueSettingsFrm();
+    }
+    
+    //locales
+    if (settings.webuiSettings.uiLocale === 'default') {
+        locale = navigator.language || navigator.userLanguage;
+    }
+    else {
+        locale = settings.webuiSettings.uiLocale;
+    }
+
+    //theme
+    let setTheme = settings.webuiSettings.uiTheme;
+    if (settings.webuiSettings.uiTheme === 'theme-autodetect') {
+        setTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-default';
+    }    
+
+    for (const theme in webuiSettingsDefault.uiTheme.validValues) {
+        if (theme === setTheme) {
+            domCache.body.classList.add(theme);
+        }
+        else {
+            domCache.body.classList.remove(theme);
+        }
+    }
+
+    //background
+    if (settings.webuiSettings.uiBgImage.indexOf('/assets/') === 0) {
+        domCache.body.style.backgroundImage = 'url("' + subdir + myEncodeURI(settings.webuiSettings.uiBgImage) + '")';
+    }
+    else if (settings.webuiSettings.uiBgImage !== '') {
+        domCache.body.style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(settings.webuiSettings.uiBgImage) + '")';
     }
     else {
         domCache.body.style.backgroundImage = '';
     }
+    domCache.body.style.backgroundColor = settings.webuiSettings.uiBgColor;
 
-    if (settings.locale === 'default') {
-        locale = navigator.language || navigator.userLanguage;
-    }
-    else {
-        locale = settings.locale;
-    }
-    warnLocale(settings.locale);
-    
-    if (isMobile === true) {    
-        document.getElementById('inputScaleRatio').value = scale;
+    const albumartbg = document.querySelectorAll('.albumartbg');
+    for (let i = 0, j = albumartbg.length; i < j; i++) {
+        albumartbg[i].style.filter = settings.webuiSettings.uiBgCssFilter;
     }
 
-    let setTheme = settings.theme;
-    if (settings.theme === 'theme-autodetect') {
-        setTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-default';
-    }    
-
-    Object.keys(themes).forEach(function(key) {
-        if (key === setTheme) {
-            domCache.body.classList.add(key);
-        }
-        else {
-            domCache.body.classList.remove(key);
-        }
-    });
-
+    //Navigation and footer
     setNavbarIcons();
 
-    document.getElementById('selectTheme').value = settings.theme;
-
-    //build form for advanced settings    
-    for (const key in advancedSettingsDefault) {
-        if (!settings.advanced[key]) {
-            settings.advanced[key] = advancedSettingsDefault[key].defaultValue;
-        }
-    }
-
-    const advFrm = {};
-    
-    const advSettingsKeys = Object.keys(settings.advanced);
-    advSettingsKeys.sort();
-    for (let i = 0; i < advSettingsKeys.length; i++) {
-        const key = advSettingsKeys[i];
-        if (advancedSettingsDefault[key] === undefined) {
-            continue;
-        }
-        const form = advancedSettingsDefault[key].form;
-        if (advFrm[form] === undefined) {
-            advFrm[form] = '';
-        }
-        
-        if (advancedSettingsDefault[key].inputType === 'section') {
-            if (advancedSettingsDefault[key].title !== undefined) {
-                advFrm[form] += '<hr/><h4>' + t(advancedSettingsDefault[key].title) + '</h4>';
-            }
-            else if (advancedSettingsDefault[key].subtitle !== undefined) {
-                advFrm[form] += '<h5>' + t(advancedSettingsDefault[key].subtitle) + '</h5>';
-            }
-            continue;
-        }
-        advFrm[form] += '<div class="form-group row">' +
-                    '<label class="col-sm-4 col-form-label" for="inputAdvSetting' + r(key) + '" data-phrase="' + 
-                    e(advancedSettingsDefault[key].title) + '">' + t(advancedSettingsDefault[key].title) + '</label>' +
-                    '<div class="col-sm-8 ">';
-        if (advancedSettingsDefault[key].inputType === 'select') {
-            advFrm[form] += '<select id="inputAdvSetting' + r(key) + '" data-key="' + 
-                r(key) + '" class="form-control border-secondary custom-select">';
-            for (const value in advancedSettingsDefault[key].validValues) {
-                advFrm[form] += '<option value="' + e(value) + '"' +
-                    (settings.advanced[key] === value ? ' selected' : '') +
-                    '>' + t(advancedSettingsDefault[key].validValues[value]) + '</option>';
-            }
-            advFrm[form] += '</select>';
-        }
-        else if (advancedSettingsDefault[key].inputType === 'checkbox') {
-            advFrm[form] += '<button type="button" class="btn btn-sm btn-secondary mi ' + 
-                (settings.advanced[key] === false ? '' : 'active') + ' clickable" id="inputAdvSetting' + r(key) + '"'+
-                'data-key="' + r(key) + '">' +
-                (settings.advanced[key] === false ? 'radio_button_unchecked' : 'check') + '</button>';
-        }
-        else {
-            advFrm[form] += '<input id="inputAdvSetting' + r(key) + '" data-key="' + 
-                r(key) + '" type="text" class="form-control border-secondary" value="' + e(settings.advanced[key]) + '">';
-        }
-        advFrm[form] += '</div></div>';
-    }
-    for (const key in advFrm) {
-        document.getElementById(key).innerHTML = advFrm[key];
-        const advFrmBtns = document.getElementById(key).getElementsByTagName('button');
-        for (const btn of advFrmBtns) {
-            btn.addEventListener('click', function(event) {
-                toggleBtnChk(event.target);
-            }, false);
-        }
-    }
-
-    if (settings.advanced.uiFooterQueueSettings === true) {
+    if (settings.webuiSettings.uiFooterQueueSettings === true) {
         document.getElementById('footerQueueSettings').classList.remove('hide');
     }
     else {
         document.getElementById('footerQueueSettings').classList.add('hide');
     }
 
-    if (settings.advanced.uiFooterPlaybackControls === 'both') {
+    if (settings.webuiSettings.uiFooterPlaybackControls === 'both') {
         document.getElementById('btnStop').classList.remove('hide');
     }
     else {
@@ -336,7 +273,7 @@ function parseSettings() {
     }
 
     //set local playback url    
-    if (settings.advanced.uiLocalPlayback === true) {
+    if (settings.webuiSettings.enableLocalPlayback === true) {
         setLocalPlayerUrl();
     }
     
@@ -352,72 +289,14 @@ function parseSettings() {
     else {
         document.getElementById('mpdInfo_host').innerText = settings.mpdHost;
     }
-    
-    //connection modal
-    document.getElementById('inputMpdHost').value = settings.mpdHost;
-    document.getElementById('inputMpdPort').value = settings.mpdPort;
-    document.getElementById('inputMpdPass').value = settings.mpdPass;
 
-    //web notifications - check permission
-    const btnNotifyWeb = document.getElementById('btnNotifyWeb');
-    document.getElementById('warnNotifyWeb').classList.add('hide');
-    if (notificationsSupported()) {
-        if (Notification.permission !== 'granted') {
-            if (settings.notificationWeb === true) {
-                document.getElementById('warnNotifyWeb').classList.remove('hide');
-            }
-            settings.notificationWeb = false;
-        }
-        if (Notification.permission === 'denied') {
-            document.getElementById('warnNotifyWeb').classList.remove('hide');
-        }
-        toggleBtnChk('btnNotifyWeb', settings.notificationWeb);
-        enableEl(btnNotifyWeb);
-    }
-    else {
-        disableEl(btnNotifyWeb);
-        toggleBtnChk('btnNotifyWeb', false);
-    }
-    
-    toggleBtnChk('btnNotifyPage', settings.notificationPage);
-    toggleBtnChk('btnMediaSession', settings.mediaSession);
-    toggleBtnChk('btnFeatTimer', settings.featTimer);
-    toggleBtnChk('btnFeatLyrics', settings.featLyrics);
-    toggleBtnChk('btnFeatHome', settings.featHome);
+    document.documentElement.style.setProperty('--mympd-coverimagesize', settings.webuiSettings.uiCoverimageSize + "px");
+    document.documentElement.style.setProperty('--mympd-coverimagesizesmall', settings.webuiSettings.uiCoverimageSizeSmall + "px");
+    document.documentElement.style.setProperty('--mympd-highlightcolor', settings.webuiSettings.uiHighlightColor);
 
-    toggleBtnChkCollapse('btnCoverimage', 'collapseAlbumart', settings.coverimage);
-
-    document.getElementById('inputBookletName').value = settings.bookletName;
-    
-    document.getElementById('selectLocale').value = settings.locale;
-    document.getElementById('inputCoverimageName').value = settings.coverimageName;
-
-    document.getElementById('inputCoverimageSize').value = settings.coverimageSize;
-    document.getElementById('inputCoverimageSizeSmall').value = settings.coverimageSizeSmall;
-
-    document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimageSize + "px");
-    document.documentElement.style.setProperty('--mympd-coverimagesizesmall', settings.coverimageSizeSmall + "px");
-    document.documentElement.style.setProperty('--mympd-highlightcolor', settings.highlightColor);
-    
-    document.getElementById('inputHighlightColor').value = settings.highlightColor;
-    document.getElementById('inputBgColor').value = settings.bgColor;
-    domCache.body.style.backgroundColor = settings.bgColor;
-    
-    toggleBtnChkCollapse('btnBgCover', 'collapseBackground', settings.bgCover);
-    document.getElementById('inputBgCssFilter').value = settings.bgCssFilter;    
-
-    const albumartbg = document.querySelectorAll('.albumartbg');
-    for (let i = 0; i < albumartbg.length; i++) {
-        albumartbg[i].style.filter = settings.bgCssFilter;
-    }
-
-    toggleBtnChkCollapse('btnLoveEnable', 'collapseLove', settings.love);
-    document.getElementById('inputLoveChannel').value = settings.loveChannel;
-    document.getElementById('inputLoveMessage').value = settings.loveMessage;
-    
     //default limit for all apps
     //convert from string to int
-    const limit = parseInt(settings.advanced.uiMaxElementsPerPage);
+    const limit = Number(settings.webuiSettings.uiMaxElementsPerPage);
     app.apps.Home.limit = limit;
     app.apps.Playback.limit = limit;
     app.apps.Queue.tabs.Current.limit = limit;
@@ -429,137 +308,29 @@ function parseSettings() {
     app.apps.Browse.tabs.Database.views.List.limit = limit;
     app.apps.Browse.tabs.Database.views.Detail.limit = limit;
     app.apps.Search.limit = limit;
-    
-    toggleBtnChk('btnStickers', settings.stickers);
-    document.getElementById('inputLastPlayedCount').value = settings.lastPlayedCount;
-    
-    toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
 
-    if (settings.advanced.uiLocalPlayback === false) {
-        settings.featLocalPlayback = false;    
-    }
-    const features = ["featLocalPlayback", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
-        "featRegex", "featTimer", "featLyrics", "featScripting", "featScripteditor", "featHome"];
-    for (let j = 0; j < features.length; j++) {
-        const Els = document.getElementsByClassName(features[j]);
-        const ElsLen = Els.length;
-        const displayEl = settings[features[j]] === true ? '' : 'none';
-        for (let i = 0; i < ElsLen; i++) {
-            Els[i].style.display = displayEl;
-        }
-    }
-    
-    const readonlyEls = document.getElementsByClassName('warnReadonly');
-    for (let i = 0; i < readonlyEls.length; i++) {
-        if (settings.readonly === false) {
-            readonlyEls[i].classList.add('hide');
-        }
-        else {
-            readonlyEls[i].classList.remove('hide');
-        }
-    }
-    if (settings.readonly === true) {
-        document.getElementsByClassName('groupClearCovercache')[0].classList.add('hide');
-    }
-    else {
-        document.getElementsByClassName('groupClearCovercache')[0].classList.remove('hide');
-    }
-    
-    let timerActions = '<optgroup data-value="player" label="' + t('Playback') + '">' +
-        '<option value="startplay">' + t('Start playback') + '</option>' +
-        '<option value="stopplay">' + t('Stop playback') + '</option>' +
-        '</optgroup>';
+    //scripts
+    if (scriptsInited === false) {
+        document.getElementById('selectTimerAction').innerHTML = '<optgroup data-value="player" label="' + t('Playback') + '">' +
+            '<option value="startplay">' + t('Start playback') + '</option>' +
+            '<option value="stopplay">' + t('Stop playback') + '</option>' +
+            '</optgroup>';
 
-    if (settings.featSyscmds === true) {
-        const syscmdsMaxListLen = 4;
-        let syscmdsList = '';
-        const syscmdsListLen = settings.syscmdList.length;
-        if (syscmdsListLen > 0) {
-            timerActions += '<optgroup data-value="syscmd" label="' + t('System command') + '">';
-            syscmdsList = syscmdsListLen > syscmdsMaxListLen ? '' : '<div class="dropdown-divider"></div>';
-            for (let i = 0; i < syscmdsListLen; i++) {
-                if (settings.syscmdList[i] === 'HR') {
-                    syscmdsList += '<div class="dropdown-divider"></div>';
-                }
-                else {
-                    syscmdsList += '<a class="dropdown-item text-light alwaysEnabled" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
-                        e(settings.syscmdList[i]) + '"]}\'>' + e(settings.syscmdList[i]) + '</a>';
-                    timerActions += '<option value="' + e(settings.syscmdList[i]) + '">' + e(settings.syscmdList[i]) + '</option>';
-                }
+            if (features.featScripting === true) {
+                getScriptList(true);
             }
+            else {
+            document.getElementById('scripts').innerHTML = '';
+            //reinit mainmenu -> change of script list
+            uiElements.dropdownMainMenu.dispose();
+            uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
         }
-        document.getElementById('syscmds').innerHTML = syscmdsList;
-        timerActions += '</optgroup>';
-        
-        if (syscmdsListLen > syscmdsMaxListLen) {
-            document.getElementById('navSyscmds').classList.remove('hide');
-            document.getElementById('syscmds').classList.add('collapse', 'menu-indent');
-        }
-        else {
-            document.getElementById('navSyscmds').classList.add('hide');
-            document.getElementById('syscmds').classList.remove('collapse', 'menu-indent');
-        }
-    }
-    else {
-        document.getElementById('syscmds').innerHTML = '';
-    }
-    //reinit mainmenu -> change of syscmd list
-    uiElements.dropdownMainMenu.dispose();
-    uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
-
-    if (settings.featScripting === true) {
-        getScriptList(true);
-    }
-    else {
-        document.getElementById('scripts').innerHTML = '';
-        //reinit mainmenu -> change of script list
-        uiElements.dropdownMainMenu.dispose();
-        uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
+        scriptsInited = true;
     }
 
-    document.getElementById('selectTimerAction').innerHTML = timerActions;
-    
-    toggleBtnGroupValueCollapse(document.getElementById('btnJukeboxModeGroup'), 'collapseJukeboxMode', settings.jukeboxMode);
-    document.getElementById('selectJukeboxUniqueTag').value = settings.jukeboxUniqueTag;
-    document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
-    document.getElementById('inputJukeboxLastPlayed').value = settings.jukeboxLastPlayed;
-    
-    if (settings.jukeboxMode === 0) {
-        disableEl('inputJukeboxQueueLength');
-        disableEl('selectJukeboxPlaylist');
-    }
-    else if (settings.jukeboxMode === 2) {
-        disableEl('inputJukeboxQueueLength');
-        disableEl('selectJukeboxPlaylist');
-        document.getElementById('selectJukeboxPlaylist').value = 'Database';
-    }
-    else if (settings.jukeboxMode === 1) {
-        enableEl('inputJukeboxQueueLength');
-        enableEl('selectJukeboxPlaylist');
-    }
-
-    document.getElementById('inputSmartplsPrefix').value = settings.smartplsPrefix;
-    document.getElementById('inputSmartplsInterval').value = settings.smartplsInterval / 60 / 60;
-    document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
-
+    //volumebar
     document.getElementById('volumeBar').setAttribute('min', settings.volumeMin);
     document.getElementById('volumeBar').setAttribute('max', settings.volumeMax);
-
-    if (settings.musicDirectory === 'auto') {
-        document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
-        document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue !== undefined ? settings.musicDirectoryValue : '';
-        document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
-    }
-    else if (settings.musicDirectory === 'none') {
-        document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
-        document.getElementById('inputMusicDirectory').value = '';
-        document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
-    }
-    else {
-        document.getElementById('selectMusicDirectory').value = 'custom';
-        document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue;
-        document.getElementById('inputMusicDirectory').removeAttribute('readonly');
-    }
 
     //update columns
     if (app.current.app === 'Queue' && app.current.tab === 'Current') {
@@ -586,8 +357,6 @@ function parseSettings() {
 
     i18nHtml(domCache.body);
 
-    checkConsume();
-
     if (settings.mediaSession === true && 'mediaSession' in navigator) {
         navigator.mediaSession.setActionHandler('play', clickPlay);
         navigator.mediaSession.setActionHandler('pause', clickPlay);
@@ -605,111 +374,321 @@ function parseSettings() {
         logDebug('mediaSession not supported by browser');
     }
 
-    settingsParsed = 'true';
+    //finished parse setting, set ui state
+    toggleUI();
+    btnWaiting(document.getElementById('btnApplySettings'), false);
+    settingsParsed = 'parsed';
 }
 
-function parseMPDSettings() {
-    if (document.getElementById('modalQueueSettings').classList.contains('show')) {
-        //execute only if queueSettings modal is shown
-        if (settings.featPlaylists === true) {
-            sendAPI("MPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) {
+function populateQueueSettingsFrm() {
+    toggleBtnGroupValueCollapse(document.getElementById('btnJukeboxModeGroup'), 'collapseJukeboxMode', settings.jukeboxMode);
+    document.getElementById('selectJukeboxUniqueTag').value = settings.jukeboxUniqueTag;
+    document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
+    document.getElementById('inputJukeboxLastPlayed').value = settings.jukeboxLastPlayed;
+
+    addTagListSelect('selectJukeboxUniqueTag', 'tagListBrowse');
+    
+    if (settings.jukeboxMode === 0) {
+        disableEl('inputJukeboxQueueLength');
+        disableEl('selectJukeboxPlaylist');
+    }
+    else if (settings.jukeboxMode === 2) {
+        disableEl('inputJukeboxQueueLength');
+        disableEl('selectJukeboxPlaylist');
+        document.getElementById('selectJukeboxPlaylist').value = 'Database';
+    }
+    else if (settings.jukeboxMode === 1) {
+        enableEl('inputJukeboxQueueLength');
+        enableEl('selectJukeboxPlaylist');
+    }
+    
+    if (settings.mpdConnected === true) {
+        if (features.featPlaylists === true) {
+            sendAPI("MYMPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) {
                 getAllPlaylists(obj, 'selectJukeboxPlaylist', settings.jukeboxPlaylist);
             });
         }
         else {
             document.getElementById('selectJukeboxPlaylist').innerHTML = '<option value="Database">' + t('Database') + '</option>';
         }
-    }
-
-    toggleBtnChk('btnRandom', settings.random);
-    toggleBtnChk('btnConsume', settings.consume);
-    toggleBtnChk('btnRepeat', settings.repeat);
-    toggleBtnChk('btnAutoPlay', settings.autoPlay);
-
-    toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.single);
-    toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.replaygain);
-
-    document.getElementById('partitionName').innerText = settings.partition;
-    
-    document.getElementById('inputCrossfade').value = settings.crossfade;
-    document.getElementById('inputMixrampdb').value = settings.mixrampdb;
-    document.getElementById('inputMixrampdelay').value = settings.mixrampdelay;
-    
-    if (settings.featLibrary === true && settings.publish === true) {
-        settings['featBrowse'] = true;    
-    }
-    else {
-        settings['featBrowse'] = false;
-    }
-
-    const features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featSingleOneshot', 'featBrowse', 'featMounts', 'featNeighbors',
-        'featPartitions'];
-    for (let j = 0; j < features.length; j++) {
-        const Els = document.getElementsByClassName(features[j]);
-        const ElsLen = Els.length;
-        let displayEl = settings[features[j]] === true ? '' : 'none';
-        if (features[j] === 'featCoverimage' && settings.coverimage === false) {
-            displayEl = 'none';
+        toggleBtnChk('btnRandom', settings.random);
+        toggleBtnChk('btnConsume', settings.consume);
+        toggleBtnChk('btnRepeat', settings.repeat);
+        toggleBtnChk('btnAutoPlay', settings.autoPlay);
+        toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.single);
+        toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.replaygain);
+        document.getElementById('inputCrossfade').value = settings.crossfade;    
+        if (features.featStickers === false) {
+            document.getElementById('warnPlaybackStatistics').classList.remove('hide');
+            disableEl('inputJukeboxLastPlayed');
         }
-        for (let i = 0; i < ElsLen; i++) {
-            Els[i].style.display = displayEl;
+        else {
+            document.getElementById('warnPlaybackStatistics').classList.add('hide');
+            enableEl('inputJukeboxLastPlayed');
         }
     }
-    
-    if (settings.featPlaylists === false && settings.smartpls === true) {
-        document.getElementById('warnSmartpls').classList.remove('hide');
+    checkConsume();
+}
+
+function populateConnectionFrm() {
+    document.getElementById('inputMpdHost').value = settings.mpdHost;
+    document.getElementById('inputMpdPort').value = settings.mpdPort;
+    document.getElementById('inputMpdPass').value = settings.mpdPass;
+    document.getElementById('inputPlaylistDirectory').value = settings.playlistDirectory;
+    document.getElementById('inputMpdStreamPort').value = settings.mpdStreamPort;
+    document.getElementById('inputMpdBinarylimit').value = settings.mpdBinarylimit;
+    document.getElementById('inputMpdTimeout').value = settings.mpdTimeout / 1000;
+
+    if (settings.musicDirectory === 'auto') {
+        document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
+        document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue !== undefined ? settings.musicDirectoryValue : '';
+        document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
+    }
+    else if (settings.musicDirectory === 'none') {
+        document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
+        document.getElementById('inputMusicDirectory').value = '';
+        document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
     }
     else {
-        document.getElementById('warnSmartpls').classList.add('hide');
-    }
-    
-    if (settings.featPlaylists === true && settings.readonly === false) {
-        enableEl('btnSmartpls');
-    }
-    else {
-        disableEl('btnSmartpls');
+        document.getElementById('selectMusicDirectory').value = 'custom';
+        document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue;
+        document.getElementById('inputMusicDirectory').removeAttribute('readonly');
     }
 
-    if (settings.featStickers === false && settings.stickers === true) {
-        document.getElementById('warnStickers').classList.remove('hide');
-    }
-    else {
-        document.getElementById('warnStickers').classList.add('hide');
-    }
-    
-    if (settings.featStickers === false || settings.stickers === false) {
-        document.getElementById('warnPlaybackStatistics').classList.remove('hide');
-        disableEl('inputJukeboxLastPlayed');
-    }
-    else {
-        document.getElementById('warnPlaybackStatistics').classList.add('hide');
-        enableEl('inputJukeboxLastPlayed');
-    }
-    
-    if (settings.featLove === false && settings.love === true) {
-        document.getElementById('warnScrobbler').classList.remove('hide');
-    }
-    else {
-        document.getElementById('warnScrobbler').classList.add('hide');
-    }
-    
-    if (settings.featLibrary === false && settings.coverimage === true) {
-        document.getElementById('warnAlbumart').classList.remove('hide');
-    }
-    else {
-        document.getElementById('warnAlbumart').classList.add('hide');
-    }
     if (settings.musicDirectoryValue === '' && settings.musicDirectory !== 'none') {
         document.getElementById('warnMusicDirectory').classList.remove('hide');
     }
     else {
         document.getElementById('warnMusicDirectory').classList.add('hide');
     }
+}
 
-    document.getElementById('warnJukeboxPlaylist').classList.add('hide');
+function populateSettingsFrm() {
+    createSettingsFrm();
 
-    if (settings.bgCover === true && settings.featCoverimage === true && settings.coverimage === true) {
+    getBgImageList(settings.webuiSettings.uiBgImage);
+
+    //locales
+    let localeList = '';
+    for (const l of locales) {
+        localeList += '<option value="' + e(l.code) + '"' + 
+            (l.code === settings.webuiSettings.uiLocale ? ' selected="selected"' : '') + '>' + 
+            e(l.desc) + ' (' + e(l.code) + ')</option>';
+    }
+    document.getElementById('inputWebUIsettinguiLocale').innerHTML = localeList;
+    warnLocale(settings.webuiSettings.uiLocale);
+
+    //web notifications - check permission
+    const btnNotifyWeb = document.getElementById('inputWebUIsettingnotifyWeb');
+    document.getElementById('warnNotifyWeb').classList.add('hide');
+    if (notificationsSupported()) {
+        if (Notification.permission !== 'granted') {
+            if (settings.notificationWeb === true) {
+                document.getElementById('warnNotifyWeb').classList.remove('hide');
+            }
+            settings.notificationWeb = false;
+        }
+        if (Notification.permission === 'denied') {
+            document.getElementById('warnNotifyWeb').classList.remove('hide');
+        }
+        toggleBtnChk(btnNotifyWeb, settings.notificationWeb);
+        enableEl(btnNotifyWeb);
+    }
+    else {
+        disableEl(btnNotifyWeb);
+        toggleBtnChk(btnNotifyWeb, false);
+    }
+
+    if (isMobile === true) {    
+        document.getElementById('inputScaleRatio').value = scale;
+    }
+    
+    document.getElementById('inputBookletName').value = settings.bookletName;
+    document.getElementById('inputCoverimageNames').value = settings.coverimageNames;
+    document.getElementById('inputCovercacheKeepDays').value = settings.covercacheKeepDays;
+    
+    //smart playlists
+    if (settings.featSmartpls === true) {
+        enableEl('btnSmartpls');
+        toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
+        document.getElementById('warnSmartpls').classList.add('hide');
+    }
+    else {
+        disableEl('btnSmartpls');
+        toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', false);
+        document.getElementById('warnSmartpls').classList.remove('hide');
+    }
+    document.getElementById('inputSmartplsPrefix').value = settings.smartplsPrefix;
+    document.getElementById('inputSmartplsInterval').value = settings.smartplsInterval / 60 / 60;
+    addTagListSelect('selectSmartplsSort', 'tagList');
+    document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
+    //lyrics
+    if (features.featLibrary === false) {
+        //lyrics need access to library
+        settings.webuiSettings.enableLyrics = false;
+    }
+    toggleBtnChkCollapse('btnEnableLyrics', 'collapseEnableLyrics', settings.webuiSettings.enableLyrics);
+
+    const inputWebUIsettinguiBgCover = document.getElementById('inputWebUIsettinguiBgCover');
+    inputWebUIsettinguiBgCover.setAttribute('data-toggle', 'collapse');
+    inputWebUIsettinguiBgCover.setAttribute('data-target', '#bgCssFilterFrm');
+    if (uiElements.collapseuiBgCover !== undefined) {
+        uiElements.collapseuiBgCover.dispose();
+    }
+    uiElements.collapseuiBgCover = new BSN.Collapse(inputWebUIsettinguiBgCover);
+    toggleBtnChkCollapse('inputWebUIsettinguiBgCover', 'bgCssFilterFrm', settings.webuiSettings.uiBgCover);
+
+    //tag multiselects
+    initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.tagListMpd, settings.tagList);
+    initTagMultiSelect('inputSearchTags', 'listSearchTags', settings.tagList, settings.tagListSearch);
+    initTagMultiSelect('inputBrowseTags', 'listBrowseTags', settings.tagList, settings.tagListBrowse);
+    initTagMultiSelect('inputGeneratePlsTags', 'listGeneratePlsTags', settings.tagListBrowse, settings.smartplsGenerateTagList);
+    //features - show or hide warnings - use settings object
+    setFeatureBtn('btnEnableLyrics', settings.featLibrary);
+    setFeatureBtn('inputWebUIsettingenableScripting', settings.featScripting);
+    setFeatureBtn('inputWebUIsettingenableMounts', settings.featMounts);
+    setFeatureBtn('inputWebUIsettingenablePartitions', settings.featPartitions);
+}
+
+function setFeatureBtn(btn, value) {
+    if (value === true) {
+        enableEl(btn);
+        document.getElementById('warn' + btn).classList.add('hide');
+    }
+    else {
+        disableEl(btn);
+        toggleBtnChk(btn, false);
+        document.getElementById('warn' + btn).classList.remove('hide');
+    }
+}
+
+function createSettingsFrm() {
+    _createSettingsFrm(settings.webuiSettings, webuiSettingsDefault, 'inputWebUIsetting');
+    _createSettingsFrm(settings, settingFields, 'inputSetting');
+}
+
+function _createSettingsFrm(fields, defaults, prefix) {
+    //build form for web ui settings
+    const advFrm = {};
+    const advSettingsKeys = Object.keys(defaults);
+    advSettingsKeys.sort();
+    for (let i = 0, j = advSettingsKeys.length; i < j; i++) {
+        const key = advSettingsKeys[i];
+        if (defaults[key] === undefined || defaults[key].form === undefined) {
+            continue;
+        }
+        const form = defaults[key].form;
+        if (advFrm[form] === undefined) {
+            advFrm[form] = '';
+        }
+        
+        if (defaults[key].inputType === 'section') {
+            if (defaults[key].title !== undefined) {
+                advFrm[form] += '<hr/><h4>' + t(defaults[key].title) + '</h4>';
+            }
+            else if (defaults[key].subtitle !== undefined) {
+                advFrm[form] += '<h5>' + t(defaults[key].subtitle) + '</h5>';
+            }
+            continue;
+        }
+        advFrm[form] += '<div class="form-group row">' +
+                    '<label class="col-sm-4 col-form-label" for="' + prefix + r(key) + '" data-phrase="' + 
+                    e(defaults[key].title) + '">' + t(defaults[key].title) + '</label>' +
+                    '<div class="col-sm-8 ">';
+        if (defaults[key].inputType === 'select') {
+            advFrm[form] += '<select id="' + prefix + r(key) + '" class="form-control border-secondary custom-select">';
+            for (let value in defaults[key].validValues) {
+                if (defaults[key].contentType === 'integer') {
+                    value = Number(value);
+                }
+                advFrm[form] += '<option value="' + e(value) + '"' +
+                    (fields[key] === value ? ' selected="selected"' : '') +
+                    '>' + t(defaults[key].validValues[value]) + '</option>';
+            }
+            advFrm[form] += '</select>';
+        }
+        else if (defaults[key].inputType === 'checkbox') {
+            advFrm[form] += '<button type="button" class="btn btn-sm btn-secondary mi chkBtn ' + 
+                (fields[key] === false ? '' : 'active') + ' clickable" id="' + prefix + r(key) + '">' +
+                (fields[key] === false ? 'radio_button_unchecked' : 'check') + '</button>';
+        }
+        else {
+            advFrm[form] += '<mympd-input-reset id="' + prefix + r(key) + '" placeholder="' + defaults[key].defaultValue + '" ' +
+                'value="' + e(fields[key]) + '" ' +
+                (defaults[key].invalid !== undefined ? 'data-invalid-phrase="' + t(defaults[key].invalid) +'"' : '') +
+                ' type="' + (defaults[key].inputType === 'color' ? 'color' : 'text') + '"></mympd-input-reset>';
+        }
+        advFrm[form] += '</div></div>';
+        if (defaults[key].warn !== undefined) {
+            advFrm[form] += '<div id="warn' + prefix + r(key) + '" class="alert alert-warning hide">' + t(defaults[key].warn) + '</div>';
+        }
+    }
+    for (const key in advFrm) {
+        document.getElementById(key).innerHTML = advFrm[key];
+        const advFrmBtns = document.getElementById(key).getElementsByClassName('chkBtn');
+        for (const btn of advFrmBtns) {
+            btn.addEventListener('click', function(event) {
+                toggleBtnChk(event.target);
+            }, false);
+        }
+    }
+    
+    for (const key in defaults) {
+        if (defaults[key].onChange !== undefined) {
+            document.getElementById(prefix + key).addEventListener('change', function(event) {
+                window[defaults[key].onChange](event);
+            }, false);
+        }
+    }
+}
+
+function setFeatures() {
+    //web ui features
+    features.featCacert = settings.featCacert;
+    features.featHome = settings.webuiSettings.enableHome;
+    features.featLocalPlayback = settings.webuiSettings.enableLocalPlayback === true ?
+        (settings.mpdStreamPort > 0 ? true : false) : false;
+    features.featScripting = settings.webuiSettings.enableScripting === true ?
+        (settings.featScripting === true ? true : false) : false;
+    features.featTimer = settings.webuiSettings.enableTimer;
+    features.featTrigger = settings.webuiSettings.enableTrigger;
+
+    //mpd features
+    if (settings.mpdConnected === true) {
+        features.featAdvsearch = settings.featAdvsearch;
+        features.featLibrary = settings.featLibrary;
+        features.featLyrics = settings.webuiSettings.enableLyrics === true ?
+            (settings.featLibrary === true ? true : false) : false;
+        features.featMounts = settings.webuiSettings.enableMounts === true ?
+            (settings.featMounts === true ? true : false) : false;
+        features.featNeighbors = settings.webuiSettings.enableMounts === true ?
+            (settings.featNeighbors === true ? true : false) : false;
+        features.featPartitions = settings.webuiSettings.enablePartitions === true ?
+            (settings.featPartitions === true ? true : false) : false;
+        features.featPlaylists = settings.featPlaylists;
+        features.featSingleOneShot = settings.featSingleOneShot;
+        features.featSmartpls = settings.featSmartpls === true ?
+            (settings.smartpls === true ? true : false) : false;
+        features.featStickers = settings.featStickers;
+        features.featTags = settings.featTags;
+        features.featBinarylimit = settings.featBinarylimit;
+        features.featFingerprint = settings.featFingerprint;
+    }
+
+    //show or hide elements
+    for (const feature in features) {
+        const els = document.getElementsByClassName(feature);
+        const displayValue = features[feature] === true ? '' : 'none';
+        for (const el of els) {
+            el.style.display = displayValue;
+        }
+    }
+}
+
+function parseMPDSettings() {
+    document.getElementById('partitionName').innerText = settings.partition;
+    
+    if (settings.webuiSettings.uiBgCover === true) {
         setBackgroundImage(lastSongObj.uri);
     }
     else {
@@ -717,14 +696,14 @@ function parseMPDSettings() {
     }
 
     let triggerEventList = '';
-    Object.keys(settings.triggers).forEach(function(key) {
-        triggerEventList += '<option value="' + e(settings.triggers[key]) + '">' + t(key) + '</option>';
-    });
+    for (const event in settings.triggerEvents) {
+        triggerEventList += '<option value="' + e(settings.triggerEvents[event]) + '">' + t(event) + '</option>';
+    }
     document.getElementById('selectTriggerEvent').innerHTML = triggerEventList;
     
-    settings.tags.sort();
-    settings.searchtags.sort();
-    settings.browsetags.sort();
+    settings.tagList.sort();
+    settings.tagListSearch.sort();
+    settings.tagListBrowse.sort();
     filterCols('Search');
     filterCols('QueueCurrent');
     filterCols('QueueLastPlayed');
@@ -733,8 +712,17 @@ function parseMPDSettings() {
     filterCols('BrowseFilesystem');
     filterCols('BrowseDatabaseDetail');
     filterCols('Playback');
+
+    //enforce albumartist and album for albumactions
+    settings.colsSearchActions = settings.colsSearch.slice();
+    if (settings.colsSearchActions.includes('Album') === false && settings.tagList.includes('Album')) {
+        settings.colsSearchActions.push('Album');
+    }
+    if (settings.colsSearchActions.includes(tagAlbumArtist) === false && settings.tagList.includes(tagAlbumArtist)) {
+        settings.colsSearchActions.push(tagAlbumArtist);
+    }
     
-    if (settings.featTags === false) {
+    if (features.featTags === false) {
         app.apps.Browse.active = 'Filesystem';
         app.apps.Search.sort = 'filename';
         app.apps.Search.filter = 'filename';
@@ -750,7 +738,7 @@ function parseMPDSettings() {
     else {
         //construct playback view
         let pbtl = '';
-        for (let i = 0; i < settings.colsPlayback.length; i++) {
+        for (let i = 0, j = settings.colsPlayback.length; i < j; i++) {
             pbtl += '<div id="current' + settings.colsPlayback[i]  + '" data-tag="' + 
                 settings.colsPlayback[i] + '">' +
                 '<small>' + t(settings.colsPlayback[i]) + '</small>' +
@@ -763,28 +751,28 @@ function parseMPDSettings() {
         }
     }
 
-    if (settings.tags.includes('Title')) {
+    if (settings.tagList.includes('Title')) {
         app.apps.Search.sort = 'Title';
     }
     
-    if (settings.tags.includes('AlbumArtist')) {
+    if (settings.tagList.includes('AlbumArtist')) {
         tagAlbumArtist = 'AlbumArtist';        
     }
-    else if (settings.tags.includes('Artist')) {
+    else if (settings.tagList.includes('Artist')) {
         tagAlbumArtist = 'Artist';        
     }
     
-    if (!settings.tags.includes('AlbumArtist') && app.apps.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
+    if (!settings.tagList.includes('AlbumArtist') && app.apps.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
         app.apps.Browse.tabs.Database.views.List.sort = 'Artist';
     }
 
-    if (settings.featAdvsearch === false && app.apps.Browse.active === 'Database') {
+    if (features.featAdvsearch === false && app.apps.Browse.active === 'Database') {
         app.apps.Browse.active = 'Filesystem';
     }
 
-    if (settings.featAdvsearch === false) {
+    if (features.featAdvsearch === false) {
         const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
-        for (let i = 0; i < tagEls.length; i++) {
+        for (let i = 0, j = tagEls.length; i < j; i++) {
             tagEls[i].classList.remove('clickable');
         }
     }
@@ -798,25 +786,18 @@ function parseMPDSettings() {
     setCols('BrowseDatabaseDetail');
     setCols('Playback');
 
-    addTagList('BrowseDatabaseByTagDropdown', 'browsetags');
-    addTagList('BrowseNavPlaylistsDropdown', 'browsetags');
-    addTagList('BrowseNavFilesystemDropdown', 'browsetags');
+    addTagList('BrowseDatabaseByTagDropdown', 'tagListBrowse');
+    addTagList('BrowseNavPlaylistsDropdown', 'tagListBrowse');
+    addTagList('BrowseNavFilesystemDropdown', 'tagListBrowse');
     
-    addTagList('searchqueuetags', 'searchtags');
-    addTagList('searchtags', 'searchtags');
-    addTagList('searchDatabaseTags', 'browsetags');
-    addTagList('databaseSortTagsList', 'browsetags');
-    addTagList('dropdownSortPlaylistTags', 'tags');
-    addTagList('saveSmartPlaylistSort', 'tags');
-    
-    addTagListSelect('selectSmartplsSort', 'tags');
-    addTagListSelect('saveSmartPlaylistSort', 'tags');
-    addTagListSelect('selectJukeboxUniqueTag', 'browsetags');
-    
-    initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.allmpdtags, settings.tags);
-    initTagMultiSelect('inputSearchTags', 'listSearchTags', settings.tags, settings.searchtags);
-    initTagMultiSelect('inputBrowseTags', 'listBrowseTags', settings.tags, settings.browsetags);
-    initTagMultiSelect('inputGeneratePlsTags', 'listGeneratePlsTags', settings.browsetags, settings.generatePlsTags);
+    addTagList('searchqueuetags', 'tagListSearch');
+    addTagList('searchtags', 'tagListSearch');
+    addTagList('searchDatabaseTags', 'tagListBrowse');
+    addTagList('databaseSortTagsList', 'tagListBrowse');
+    addTagList('dropdownSortPlaylistTags', 'tagList');
+    addTagList('saveSmartPlaylistSort', 'tagList');
+
+    addTagListSelect('saveSmartPlaylistSort', 'tagList');
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -828,35 +809,18 @@ function resetSettings() {
 function saveSettings(closeModal) {
     let formOK = true;
 
-    const inputCrossfade = document.getElementById('inputCrossfade');
-    if (!inputCrossfade.getAttribute('disabled')) {
-        if (!validateInt(inputCrossfade)) {
+    for (const inputId of ['inputWebUIsettinguiCoverimageSize', 'inputWebUIsettinguiCoverimageSizeSmall',
+            'inputSettinglastPlayedCount', 'inputSmartplsInterval', 'inputSettingvolumeMax', 'inputSettingvolumeMin',
+            'inputSettingvolumeStep', 'inputCovercacheKeepDays']) 
+    {
+        const inputEl = document.getElementById(inputId);
+        if (!validateUint(inputEl)) {
             formOK = false;
         }
     }
 
-    const inputJukeboxQueueLength = document.getElementById('inputJukeboxQueueLength');
-    if (!validateInt(inputJukeboxQueueLength)) {
-        formOK = false;
-    }
-
-    const inputJukeboxLastPlayed = document.getElementById('inputJukeboxLastPlayed');
-    if (!validateInt(inputJukeboxLastPlayed)) {
-        formOK = false;
-    }
-    
-    const inputCoverimageSizeSmall = document.getElementById('inputCoverimageSizeSmall');
-    if (!validateInt(inputCoverimageSizeSmall)) {
-        formOK = false;
-    }
-
-    const inputCoverimageSize = document.getElementById('inputCoverimageSize');
-    if (!validateInt(inputCoverimageSize)) {
-        formOK = false;
-    }
-    
-    const inputCoverimageName = document.getElementById('inputCoverimageName');
-    if (!validateFilenameList(inputCoverimageName)) {
+    const inputCoverimageNames = document.getElementById('inputCoverimageNames');
+    if (!validateFilenameList(inputCoverimageNames)) {
         formOK = false;
     }
     
@@ -876,75 +840,49 @@ function saveSettings(closeModal) {
         }
     }
 
-    const inputLastPlayedCount = document.getElementById('inputLastPlayedCount');
-    if (!validateInt(inputLastPlayedCount)) {
-        formOK = false;
-    }
-    
-    if (document.getElementById('btnLoveEnable').classList.contains('active')) {
-        const inputLoveChannel = document.getElementById('inputLoveChannel');
-        const inputLoveMessage = document.getElementById('inputLoveMessage');
-        if (!validateNotBlank(inputLoveChannel) || !validateNotBlank(inputLoveMessage)) {
-            formOK = false;
-        }
-    }
+    //from hours to seconds
+    const smartplsInterval = Number(document.getElementById('inputSmartplsInterval').value) * 60 * 60;
 
-    const inputSmartplsInterval = document.getElementById('inputSmartplsInterval');
-    if (!validateInt(inputSmartplsInterval)) {
-        formOK = false;
-    }
-    const smartplsInterval = document.getElementById('inputSmartplsInterval').value * 60 * 60;
-
-    const advSettings = {};
-    for (const key in advancedSettingsDefault) {
-        const el = document.getElementById('inputAdvSetting' + r(key));
+    const webuiSettings = {};
+    for (const key in webuiSettingsDefault) {
+        const el = document.getElementById('inputWebUIsetting' + r(key));
         if (el) {
-            if (advancedSettingsDefault[key].inputType === 'select') {
-                advSettings[key] = getSelectValue(el);
+            if (webuiSettingsDefault[key].inputType === 'select') {
+                webuiSettings[key] =  webuiSettingsDefault[key].contentType === 'integer' ? Number(getSelectValue(el)) : getSelectValue(el);
             }
-            else if (advancedSettingsDefault[key].inputType === 'checkbox') {
-                advSettings[key] = el.classList.contains('active') ? true : false;
+            else if (webuiSettingsDefault[key].inputType === 'checkbox') {
+                webuiSettings[key] = el.classList.contains('active') ? true : false;
             }
             else {
-                advSettings[key] = el.value;
+                webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(el.value) : el.value;
             }
         }
     }
+    
+    webuiSettings.enableLyrics = (document.getElementById('btnEnableLyrics').classList.contains('active') ? true : false);
     
     if (formOK === true) {
         sendAPI("MYMPD_API_SETTINGS_SET", {
-            "notificationWeb": (document.getElementById('btnNotifyWeb').classList.contains('active') ? true : false),
-            "notificationPage": (document.getElementById('btnNotifyPage').classList.contains('active') ? true : false),
-            "mediaSession": (document.getElementById('btnMediaSession').classList.contains('active') ? true : false),
-            "bgCover": (document.getElementById('btnBgCover').classList.contains('active') ? true : false),
-            "bgColor": document.getElementById('inputBgColor').value,
-            "bgImage": getSelectValue('selectBgImage'),
-            "bgCssFilter": document.getElementById('inputBgCssFilter').value,
-            "coverimage": (document.getElementById('btnCoverimage').classList.contains('active') ? true : false),
-            "coverimageName": document.getElementById('inputCoverimageName').value,
-            "coverimageSize": document.getElementById('inputCoverimageSize').value,
-            "coverimageSizeSmall": document.getElementById('inputCoverimageSizeSmall').value,
-            "locale": getSelectValue('selectLocale'),
-            "love": (document.getElementById('btnLoveEnable').classList.contains('active') ? true : false),
-            "loveChannel": document.getElementById('inputLoveChannel').value,
-            "loveMessage": document.getElementById('inputLoveMessage').value,
-            "stickers": (document.getElementById('btnStickers').classList.contains('active') ? true : false),
-            "lastPlayedCount": document.getElementById('inputLastPlayedCount').value,
+            "coverimageNames": inputCoverimageNames.value,
+            "lastPlayedCount": Number(document.getElementById('inputSettinglastPlayedCount').value),
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
             "smartplsPrefix": document.getElementById('inputSmartplsPrefix').value,
             "smartplsInterval": smartplsInterval,
             "smartplsSort": document.getElementById('selectSmartplsSort').value,
-            "taglist": getTagMultiSelectValues(document.getElementById('listEnabledTags'), false),
-            "searchtaglist": getTagMultiSelectValues(document.getElementById('listSearchTags'), false),
-            "browsetaglist": getTagMultiSelectValues(document.getElementById('listBrowseTags'), false),
-            "generatePlsTags": getTagMultiSelectValues(document.getElementById('listGeneratePlsTags'), false),
-            "theme": getSelectValue('selectTheme'),
-            "highlightColor": document.getElementById('inputHighlightColor').value,
-            "timer": (document.getElementById('btnFeatTimer').classList.contains('active') ? true : false),
-            "bookletName": document.getElementById('inputBookletName').value,
-            "lyrics": (document.getElementById('btnFeatLyrics').classList.contains('active') ? true : false),
-            "advanced": advSettings,
-            "featHome": (document.getElementById('btnFeatHome').classList.contains('active') ? true : false)
+            "smartplsGenerateTagList": getTagMultiSelectValues(document.getElementById('listGeneratePlsTags'), false),
+            "tagList": getTagMultiSelectValues(document.getElementById('listEnabledTags'), false),
+            "tagListSearch": getTagMultiSelectValues(document.getElementById('listSearchTags'), false),
+            "tagListBrowse": getTagMultiSelectValues(document.getElementById('listBrowseTags'), false),
+            "bookletName": inputBookletName.value,
+            "volumeMin": Number(document.getElementById('inputSettingvolumeMin').value),
+            "volumeMax": Number(document.getElementById('inputSettingvolumeMax').value),
+            "volumeStep": Number(document.getElementById('inputSettingvolumeStep').value),
+            "lyricsUsltExt": document.getElementById('inputSettinglyricsUsltExt').value,
+            "lyricsSyltExt": document.getElementById('inputSettinglyricsSyltExt').value,
+            "lyricsVorbisUslt": document.getElementById('inputSettinglyricsVorbisUslt').value,
+            "lyricsVorbisSylt": document.getElementById('inputSettinglyricsVorbisSylt').value,
+            "covercacheKeepDays": Number(document.getElementById('inputCovercacheKeepDays').value),
+            "webuiSettings": webuiSettings
         }, getSettings);
         if (closeModal === true) {
             uiElements.modalSettings.hide();
@@ -959,41 +897,13 @@ function saveSettings(closeModal) {
 function saveQueueSettings() {
     let formOK = true;
 
-    const inputCrossfade = document.getElementById('inputCrossfade');
-    if (!inputCrossfade.getAttribute('disabled')) {
-        if (!validateInt(inputCrossfade)) {
+    for (const inputId of ['inputCrossfade', 'inputJukeboxQueueLength', 'inputJukeboxLastPlayed']) {
+        const inputEl = document.getElementById(inputId);
+        if (!validateInt(inputEl)) {
             formOK = false;
         }
     }
 
-    const inputJukeboxQueueLength = document.getElementById('inputJukeboxQueueLength');
-    if (!validateInt(inputJukeboxQueueLength)) {
-        formOK = false;
-    }
-
-    const inputJukeboxLastPlayed = document.getElementById('inputJukeboxLastPlayed');
-    if (!validateInt(inputJukeboxLastPlayed)) {
-        formOK = false;
-    }
-    
-    if (settings.featMixramp === true) {
-        const inputMixrampdb = document.getElementById('inputMixrampdb');
-        if (!inputMixrampdb.getAttribute('disabled')) {
-            if (!validateFloat(inputMixrampdb)) {
-                formOK = false;
-            } 
-        }
-        const inputMixrampdelay = document.getElementById('inputMixrampdelay');
-        if (!inputMixrampdelay.getAttribute('disabled')) {
-            if (isNaN(parseInt(inputMixrampdelay.value))) {
-                inputMixrampdelay.value = '-1';
-            }
-            if (!validateFloat(inputMixrampdelay)) {
-                formOK = false;
-            }
-        }
-    }
-    
     const singleState = getBtnGroupValue('btnSingleGroup');
     const jukeboxMode = getBtnGroupValue('btnJukeboxModeGroup');
     const replaygain = getBtnGroupValue('btnReplaygainGroup');
@@ -1005,19 +915,17 @@ function saveQueueSettings() {
     }
     
     if (formOK === true) {
-        sendAPI("MYMPD_API_SETTINGS_SET", {
+        sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random": (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
-            "single": parseInt(singleState),
+            "single": Number(singleState),
             "repeat": (document.getElementById('btnRepeat').classList.contains('active') ? 1 : 0),
             "replaygain": replaygain,
-            "crossfade": document.getElementById('inputCrossfade').value,
-            "mixrampdb": (settings.featMixramp === true ? document.getElementById('inputMixrampdb').value : settings.mixrampdb),
-            "mixrampdelay": (settings.featMixramp === true ? document.getElementById('inputMixrampdelay').value : settings.mixrampdelay),
-            "jukeboxMode": parseInt(jukeboxMode),
+            "crossfade": Number(document.getElementById('inputCrossfade').value),
+            "jukeboxMode": Number(jukeboxMode),
             "jukeboxPlaylist": jukeboxPlaylist,
-            "jukeboxQueueLength": parseInt(document.getElementById('inputJukeboxQueueLength').value),
-            "jukeboxLastPlayed": parseInt(document.getElementById('inputJukeboxLastPlayed').value),
+            "jukeboxQueueLength": Number(document.getElementById('inputJukeboxQueueLength').value),
+            "jukeboxLastPlayed": Number(document.getElementById('inputJukeboxLastPlayed').value),
             "jukeboxUniqueTag": jukeboxUniqueTag,
             "autoPlay": (document.getElementById('btnAutoPlay').classList.contains('active') ? true : false)
         }, getSettings);
@@ -1028,7 +936,7 @@ function saveQueueSettings() {
 function getTagMultiSelectValues(taglist, translated) {
     const values = [];
     const chkBoxes = taglist.getElementsByTagName('button');
-    for (let i = 0; i < chkBoxes.length; i++) {
+    for (let i = 0, j = chkBoxes.length; i < j; i++) {
         if (chkBoxes[i].classList.contains('active')) {
             if (translated === true) {
                 values.push(t(chkBoxes[i].name));
@@ -1047,7 +955,7 @@ function getTagMultiSelectValues(taglist, translated) {
 function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
     const values = [];
     let list = '';
-    for (let i = 0; i < allTags.length; i++) {
+    for (let i = 0, j = allTags.length; i < j; i++) {
         if (enabledTags.includes(allTags[i])) {
             values.push(t(allTags[i]));
         }
@@ -1062,10 +970,10 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
 
     const inputEl = document.getElementById(inputId);
     inputEl.value = values.join(', ');
-    if (getAttDec(inputEl, 'data-init') === 'true') {
+    if (getCustomDomProperty(inputEl, 'data-init') === 'true') {
         return;
     }
-    setAttEnc(inputEl, 'data-init', 'true');
+    setCustomDomProperty(inputEl, 'data-init', 'true');
     document.getElementById(listId).addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
@@ -1081,18 +989,9 @@ function filterCols(x) {
     const set = "cols" + x;
     
     const cols = [];
-    for (let i = 0; i < settings[set].length; i++) {
+    for (let i = 0, j = settings[set].length; i < j; i++) {
         if (tags.includes(settings[set][i])) {
             cols.push(settings[set][i]);
-        }
-    }
-    if (x === 'Search') {
-        //enforce albumartist and album for albumactions
-        if (cols.includes('Album') === false && tags.includes('Album')) {
-            cols.push('Album');
-        }
-        if (cols.includes(tagAlbumArtist) === false && tags.includes(tagAlbumArtist)) {
-            cols.push(tagAlbumArtist);
         }
     }
     settings[set] = cols;
@@ -1143,7 +1042,7 @@ function setNavbarIcons() {
     let btns = '';
     for (const icon of settings.navbarIcons) {
         let hide = '';
-        if (settings.featHome === false && icon.options[0] === 'Home') {
+        if (features.featHome === false && icon.options[0] === 'Home') {
             hide = 'hide';
         }
         btns += '<div id="nav' + icon.options.join('') + '" class="nav-item flex-fill text-center ' + hide + '">' +
@@ -1169,25 +1068,24 @@ function setNavbarIcons() {
     //cache elements, reused in appPrepare
     domCache.navbarBtns = container.getElementsByTagName('div');
     domCache.navbarBtnsLen = domCache.navbarBtns.length;
-    
     for (let i = 0; i < domCache.navbarBtnsLen; i++) {
-        setAttEnc(domCache.navbarBtns[i].firstChild, 'data-href', JSON.stringify({"cmd": "appGoto", "options": settings.navbarIcons[i].options}));
+        setCustomDomProperty(domCache.navbarBtns[i].firstChild, 'data-href', JSON.stringify({"cmd": "appGoto", "options": settings.navbarIcons[i].options}));
     }
 }
 
 //eslint-disable-next-line no-unused-vars
-function resetValue(elId) {
-    const el = document.getElementById(elId);
-    el.value = getAttDec(el, 'data-default') !== null ? getAttDec(el, 'data-default') : 
-        (getAttDec(el, 'placeholder') !== null ? getAttDec(el, 'placeholder') : '');
+function resetToDefault(button) {
+    const el = button.nodeName === 'BUTTON' ? button.parentNode.previousElementSibling : button.parentNode.parentNode.previousElementSibling;
+    el.value = getCustomDomProperty(el, 'data-default') !== null ? getCustomDomProperty(el, 'data-default') : 
+        (el.getAttribute( 'placeholder') !== null ? el.getAttribute('placeholder') : '');
 }
 
 function getBgImageList(image) {
-    getImageList('selectBgImage', image, [
-        {"value":"","text":"None"},
-        {"value":"/assets/mympd-background-default.svg","text":"Default image"},
-        {"value":"/assets/mympd-background-dark.svg","text":"Default image dark"},
-        {"value":"/assets/mympd-background-light.svg","text":"Default image light"},
+    getImageList('inputWebUIsettinguiBgImage', image, [
+        {"value": "", "text": "None"},
+        {"value": "/assets/mympd-background-default.svg", "text": "Default image"},
+        {"value": "/assets/mympd-background-dark.svg", "text": "Default image dark"},
+        {"value": "/assets/mympd-background-light.svg", "text": "Default image light"},
     ]);
 }
 
@@ -1210,7 +1108,8 @@ function warnLocale(value) {
     const warnEl = document.getElementById('warnMissingPhrases');
     if (missingPhrases[value] !== undefined) {
         warnEl.innerHTML = t('Missing translations', missingPhrases[value]) + '<br/>' +
-            '<a class="alert-link" target="_blank" href="https://github.com/jcorporation/myMPD/discussions/167"><span class="mi">open_in_browser</span>&nbsp;' + t('Help to improve myMPD') + '</a>';
+            '<a class="alert-link" target="_blank" href="https://github.com/jcorporation/myMPD/discussions/167">' +
+            '<span class="mi">open_in_browser</span>&nbsp;' + t('Help to improve myMPD') + '</a>';
         warnEl.classList.remove('hide');
     }
     else {

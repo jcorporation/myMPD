@@ -6,7 +6,7 @@
 function initSearch() {
     document.getElementById('SearchList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            clickSong(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
+            clickSong(getCustomDomProperty(event.target.parentNode, 'data-uri'), getCustomDomProperty(event.target.parentNode, 'data-name'));
         }
         else if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
@@ -15,7 +15,7 @@ function initSearch() {
     
     document.getElementById('searchtags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
-            app.current.filter = getAttDec(event.target, 'data-tag');
+            app.current.filter = getCustomDomProperty(event.target, 'data-tag');
             doSearch(document.getElementById('searchstr').value);
         }
     }, false);
@@ -24,7 +24,7 @@ function initSearch() {
         if (event.key === 'Escape') {
             this.blur();
         }
-        else if (event.key === 'Enter' && settings.featAdvsearch) {
+        else if (event.key === 'Enter' && features.featAdvsearch) {
             if (this.value !== '') {
                 const op = getSelectValue(document.getElementById('searchMatch'));
                 document.getElementById('searchCrumb').appendChild(createSearchCrumb(app.current.filter, op, this.value));
@@ -52,11 +52,11 @@ function initSearch() {
             //edit search expression
             event.preventDefault();
             event.stopPropagation();
-            document.getElementById('searchstr').value = unescapeMPD(getAttDec(event.target, 'data-filter-value'));
-            selectTag('searchtags', 'searchtagsdesc', getAttDec(event.target, 'data-filter-tag'));
-            document.getElementById('searchMatch').value = getAttDec(event.target, 'data-filter-op');
+            document.getElementById('searchstr').value = unescapeMPD(getCustomDomProperty(event.target, 'data-filter-value'));
+            selectTag('searchtags', 'searchtagsdesc', getCustomDomProperty(event.target, 'data-filter-tag'));
+            document.getElementById('searchMatch').value = getCustomDomProperty(event.target, 'data-filter-op');
             event.target.remove();
-            app.current.filter = getAttDec(event.target,'data-filter-tag');
+            app.current.filter = getCustomDomProperty(event.target,'data-filter-tag');
             doSearch(document.getElementById('searchstr').value);
             if (document.getElementById('searchCrumb').childElementCount === 0) {
                 document.getElementById('searchCrumb').classList.add('hide');
@@ -69,7 +69,7 @@ function initSearch() {
     }, false);
     
     document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
-        if (settings.featAdvsearch === false || event.target.nodeName !== 'TH' ||
+        if (features.featAdvsearch === false || event.target.nodeName !== 'TH' ||
             event.target.innerHTML === '') {
             return;
         }
@@ -99,7 +99,7 @@ function initSearch() {
         }
                 
         const s = document.getElementById('SearchList').getElementsByClassName('sort-dir');
-        for (let i = 0; i < s.length; i++) {
+        for (let i = 0, j = s.length; i < j; i++) {
             s[i].remove();
         }
         app.current.sort = sortcol;
@@ -111,7 +111,7 @@ function initSearch() {
 }
 
 function doSearch(x) {
-    if (settings.featAdvsearch) {
+    if (features.featAdvsearch) {
         const expression = createSearchExpression(document.getElementById('searchCrumb'), app.current.filter, getSelectValue('searchMatch'), x);
         appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', expression);
     }
@@ -130,32 +130,32 @@ function parseSearch(obj) {
         disableEl('searchAddAllSongsBtn');
     }
 
-    const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
+    const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
 
     updateTable(obj, 'Search', function(row, data) {
-        setAttEnc(row, 'data-type', data.Type);
-        setAttEnc(row, 'data-uri', data.uri);
+        setCustomDomProperty(row, 'data-type', data.Type);
+        setCustomDomProperty(row, 'data-uri', data.uri);
         row.setAttribute('tabindex', 0);
         row.setAttribute('title', rowTitle);
-        if (settings.featTags === true && settings.featAdvsearch === true) {
+        if (features.featTags === true && features.featAdvsearch === true) {
             //add artist and album information for album actions
             if (data.Album !== undefined) {
-                setAttEnc(row, 'data-album', data.Album);
+                setCustomDomProperty(row, 'data-album', data.Album);
             }
             if (data[tagAlbumArtist] !== undefined) {
-                setAttEnc(row, 'data-albumartist', data[tagAlbumArtist]);
+                setCustomDomProperty(row, 'data-albumartist', data[tagAlbumArtist]);
             }
         }
-        setAttEnc(row, 'data-name', data.Title);
+        setCustomDomProperty(row, 'data-name', data.Title);
     });
 }
 
 //eslint-disable-next-line no-unused-vars
 function saveSearchAsSmartPlaylist() {
-    parseSmartPlaylist({"jsonrpc":"2.0","id":0,"result":{"method":"MPD_API_SMARTPLS_GET", 
+    parseSmartPlaylist({"jsonrpc":"2.0","id":0,"result":{"method":"MYMPD_API_SMARTPLS_GET", 
         "playlist":"",
         "type":"search",
-        "tag": settings.featAdvsearch === true ? 'expression' : app.current.filter,
+        "tag": features.featAdvsearch === true ? 'expression' : app.current.filter,
         "searchstr": app.current.search}});
 }
 
@@ -163,8 +163,8 @@ function addAllFromSearchPlist(plist, searchstr, replace) {
     if (searchstr === null) {
         searchstr = app.current.search;    
     }
-    if (settings.featAdvsearch) {
-        sendAPI("MPD_API_DATABASE_SEARCH_ADV", {"plist": plist, 
+    if (features.featAdvsearch) {
+        sendAPI("MYMPD_API_DATABASE_SEARCH_ADV", {"plist": plist, 
             "sort": "", 
             "sortdesc": false, 
             "expression": searchstr,
@@ -174,7 +174,7 @@ function addAllFromSearchPlist(plist, searchstr, replace) {
             "replace": replace});
     }
     else {
-        sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, 
+        sendAPI("MYMPD_API_DATABASE_SEARCH", {"plist": plist, 
             "filter": app.current.filter, 
             "searchstr": searchstr,
             "offset": 0,

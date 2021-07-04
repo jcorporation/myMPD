@@ -63,10 +63,10 @@ function parseOutputs(obj) {
 }
 
 function showListOutputAttributes(outputName) {
-    sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
+    sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
         uiElements.modalOutputAttributes.show();
         let output;
-        for (let i = 0; i < obj.result.data.length; i++) {
+        for (let i = 0; i < obj.result.numOutputs; i++) {
             if (obj.result.data[i].name === outputName) {
                 output = obj.result.data[i];
                 break;
@@ -77,11 +77,11 @@ function showListOutputAttributes(outputName) {
             '<tr><td>' + t('State') + '</td><td>' + (output.state === 1 ? t('enabled') : t('disabled')) + '</td></tr>' +
             '<tr><td>' + t('Plugin') + '</td><td>' + e(output.plugin) + '</td></tr>';
         let i = 0;
-        Object.keys(output.attributes).forEach(function(key) {
+        for (const key in output.attributes) {
             i++;
             list += '<tr><td>' + e(key) + '</td><td><input name="' + e(key) + '" class="form-control border-secondary" type="text" value="' + 
                 e(output.attributes[key]) + '"/></td></tr>';
-        });
+        }
         if (i > 0) {
             enableEl('btnOutputAttributesSave');
         }
@@ -95,13 +95,13 @@ function showListOutputAttributes(outputName) {
 //eslint-disable-next-line no-unused-vars
 function saveOutputAttributes() {
     const params = {};
-    params.outputId =  parseInt(document.getElementById('modalOutputAttributesId').value);
+    params.outputId =  Number(document.getElementById('modalOutputAttributesId').value);
     params.attributes = {};
     const els = document.getElementById('outputAttributesList').getElementsByTagName('input');
-    for (let i = 0; i < els.length; i++) {
+    for (let i = 0, j = els.length; i < j; i++) {
         params.attributes[els[i].name] = els[i].value;
     }
-    sendAPI('MPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET', params);
+    sendAPI('MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET', params);
     uiElements.modalOutputAttributes.hide();
 }
 
@@ -111,59 +111,23 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     currentSong.currentSongId = currentSongId;
 
     const progressPx = totalTime > 0 ? Math.ceil(domCache.progress.offsetWidth * elapsedTime / totalTime) : 0;
-    if (progressPx === 0) {
+    if (progressPx === 0 || progressPx < domCache.progressBar.style.width) {
         domCache.progressBar.style.transition = 'none';
-    }
-    domCache.progressBar.style.width = progressPx + 'px'; 
-    if (progressPx === 0) {    
+        //Trigger a reflow, flushing the CSS changes
+        domCache.progressBar.offsetHeight;
         setTimeout(function() {
             domCache.progressBar.style.transition = progressBarTransition;
-        }, 10);
+            domCache.progressBar.offsetHeight;
+        }, 1000);
     }
-    
-    if (totalTime <= 0) {
-        domCache.progress.style.cursor = 'default';
-    }
-    else {
-        domCache.progress.style.cursor = 'pointer';
-    }
+    domCache.progressBar.style.width = progressPx + 'px';
+    domCache.progress.style.cursor = totalTime <= 0 ? 'default' : 'pointer';    
 
     const counterText = beautifySongDuration(elapsedTime) + "&nbsp;/&nbsp;" + beautifySongDuration(totalTime);
     domCache.counter.innerHTML = counterText;
     
     //Set playing track in queue view
-    if (lastState) {
-        if (lastState.currentSongId !== currentSongId) {
-            const tr = document.getElementById('queueTrackId' + lastState.currentSongId);
-            if (tr) {
-                const durationTd = tr.querySelector('[data-col=Duration]');
-                if (durationTd) {
-                    durationTd.innerText = getAttDec(tr, 'data-duration');
-                }
-                const posTd = tr.querySelector('[data-col=Pos]');
-                if (posTd) {
-                    posTd.classList.remove('mi');
-                    posTd.innerText = getAttDec(tr, 'data-songpos');
-                }
-                tr.classList.remove('queue-playing');
-            }
-        }
-    }
-    const tr = document.getElementById('queueTrackId' + currentSongId);
-    if (tr) {
-        const durationTd = tr.querySelector('[data-col=Duration]');
-        if (durationTd) {
-            durationTd.innerHTML = counterText;
-        }
-        const posTd = tr.querySelector('[data-col=Pos]');
-        if (posTd) {
-            if (!posTd.classList.contains('mi')) {
-                posTd.classList.add('mi');
-                posTd.innerText = 'play_arrow';
-            }
-        }
-        tr.classList.add('queue-playing');
-    }
+    queueSetCurrentSong(currentSongId, elapsedTime, totalTime);
 
     //synced lyrics
     if (showSyncedLyrics === true && settings.colsPlayback.includes('Lyrics')) {
@@ -215,10 +179,10 @@ function parseState(obj) {
     if (!lastState || lastState.currentSongId !== obj.result.currentSongId ||
         lastState.queueVersion !== obj.result.queueVersion)
     {
-        sendAPI("MPD_API_PLAYER_CURRENT_SONG", {}, songChange);
+        sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, songChange);
     }
     //clear playback card if no current song
-    if (obj.result.songPos === '-1') {
+    if (obj.result.songPos === -1) {
         document.getElementById('currentTitle').innerText = 'Not playing';
         document.title = 'myMPD';
         document.getElementById('footerTitle').innerText = '';
@@ -227,11 +191,11 @@ function parseState(obj) {
         document.getElementById('footerCover').classList.remove('clickable');
         document.getElementById('currentTitle').classList.remove('clickable');
         clearCurrentCover();
-        if (settings.bgCover === true) {
+        if (settings.webuiSettings.uiBgCover === true) {
             clearBackgroundImage();
         }
         const pb = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
-        for (let i = 0; i < pb.length; i++) {
+        for (let i = 0, j = pb.length; i < j; i++) {
             pb[i].innerText = '';
         }
     }
@@ -242,11 +206,22 @@ function parseState(obj) {
         }
     }
 
+    //handle error from mpd status response
+    if (obj.result.lastError === '') {
+        toggleAlert('alertMpdStatusError', false, '');
+    }
+    else {
+        toggleAlert('alertMpdStatusError', true, e(obj.result.lastError));
+    }
+    toggleTopAlert();
+
+    //save state
     lastState = obj.result;                    
     
     //refresh settings if mpd is not connected or ui is disabled
-    //true on startup
+    //ui is disabled at startup
     if (settings.mpdConnected === false || uiEnabled === false) {
+        logDebug((settings.mpdConnected === false ? 'MPD disconnected' : 'UI disabled') + ' - refreshing settings');
         getSettings(true);
     }
 }
@@ -277,13 +252,13 @@ function setBackgroundImage(url) {
         clearBackgroundImage();
         return;
     }
-    const bgImageUrl = 'url("' + subdir + '/albumart/' + url + '")';
+    const bgImageUrl = 'url("' + subdir + '/albumart/' + myEncodeURI(url) + '")';
     const old = document.querySelectorAll('.albumartbg');
     if (old[0] && old[0].style.backgroundImage === bgImageUrl) {
         logDebug('Background image already set');
         return;
     }
-    for (let i = 0; i < old.length; i++) {
+    for (let i = 0, j = old.length; i < j; i++) {
         if (old[i].style.zIndex === '-10') {
             old[i].remove();
         }
@@ -294,7 +269,7 @@ function setBackgroundImage(url) {
     }
     const div = document.createElement('div');
     div.classList.add('albumartbg');
-    div.style.filter = settings.bgCssFilter;
+    div.style.filter = settings.webuiSettings.uiBgCssFilter;
     div.style.backgroundImage = bgImageUrl;
     div.style.opacity = 0;
     domCache.body.insertBefore(div, domCache.body.firstChild);
@@ -303,12 +278,12 @@ function setBackgroundImage(url) {
     img.onload = function() {
         document.querySelector('.albumartbg').style.opacity = 1;
     };
-    img.src = subdir + '/albumart/' + url;
+    img.src = subdir + '/albumart/' + myEncodeURI(url);
 }
 
 function clearBackgroundImage() {
     const old = document.querySelectorAll('.albumartbg');
-    for (let i = 0; i < old.length; i++) {
+    for (let i = 0, j = old.length; i < j; i++) {
         if (old[i].style.zIndex === '-10') {
             old[i].remove();        
         }
@@ -330,7 +305,7 @@ function _setCurrentCover(url, el) {
         return;
     }
     const old = el.querySelectorAll('.coverbg');
-    for (let i = 0; i < old.length; i++) {
+    for (let i = 0, j = old.length; i < j; i++) {
         if (old[i].style.zIndex === '2') {
             old[i].remove();        
         }
@@ -341,16 +316,16 @@ function _setCurrentCover(url, el) {
 
     const div = document.createElement('div');
     div.classList.add('coverbg', 'carousel', 'rounded');
-    div.style.backgroundImage = 'url("' + subdir + '/albumart/' + url + '")';
+    div.style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(url) + '")';
     div.style.opacity = 0;
-    setAttEnc(div, 'data-uri', url);
+    setCustomDomProperty(div, 'data-uri', url);
     el.insertBefore(div, el.firstChild);
 
     const img = new Image();
     img.onload = function() {
         el.querySelector('.coverbg').style.opacity = 1;
     };
-    img.src = subdir + '/albumart/' + url;
+    img.src = subdir + '/albumart/' + myEncodeURI(url);
 }
 
 function clearCurrentCover() {
@@ -360,7 +335,7 @@ function clearCurrentCover() {
 
 function _clearCurrentCover(el) {
     const old = el.querySelectorAll('.coverbg');
-    for (let i = 0; i < old.length; i++) {
+    for (let i = 0, j = old.length; i < j; i++) {
         if (old[i].style.zIndex === '2') {
             old[i].remove();        
         }
@@ -382,9 +357,7 @@ function songChange(obj) {
     mediaSessionSetMetadata(obj.result.Title, obj.result.Artist, obj.result.Album, obj.result.uri);
     
     setCurrentCover(obj.result.uri);
-    if (settings.bgCover === true && settings.featCoverimage === true) {
-        setBackgroundImage(obj.result.uri);
-    }
+    setBackgroundImage(obj.result.uri);
     
     for (const elName of ['footerArtist', 'footerAlbum', 'footerCover', 'currentTitle']) {
         document.getElementById(elName).classList.remove('clickable');
@@ -394,42 +367,42 @@ function songChange(obj) {
         textNotification += obj.result.Artist;
         pageTitle += obj.result.Artist + ' - ';
         document.getElementById('footerArtist').innerText = obj.result.Artist;
-        setAttEnc(document.getElementById('footerArtist'), 'data-name', obj.result.Artist);
-        if (settings.featAdvsearch === true) {
+        setCustomDomProperty(document.getElementById('footerArtist'), 'data-name', obj.result.Artist);
+        if (features.featAdvsearch === true) {
             document.getElementById('footerArtist').classList.add('clickable');
         }
     }
     else {
         document.getElementById('footerArtist').innerText = '';
-        setAttEnc(document.getElementById('footerArtist'), 'data-name', '');
+        setCustomDomProperty(document.getElementById('footerArtist'), 'data-name', '');
     }
 
     if (obj.result.Album !== undefined && obj.result.Album.length > 0 && obj.result.Album !== '-') {
         textNotification += ' - ' + obj.result.Album;
         document.getElementById('footerAlbum').innerText = obj.result.Album;
-        setAttEnc(document.getElementById('footerAlbum'), 'data-name', obj.result.Album);
-        setAttEnc(document.getElementById('footerAlbum'), 'data-albumartist', obj.result[tagAlbumArtist]);
-        if (settings.featAdvsearch === true) {
+        setCustomDomProperty(document.getElementById('footerAlbum'), 'data-name', obj.result.Album);
+        setCustomDomProperty(document.getElementById('footerAlbum'), 'data-albumartist', obj.result[tagAlbumArtist]);
+        if (features.featAdvsearch === true) {
             document.getElementById('footerAlbum').classList.add('clickable');
         }
     }
     else {
         document.getElementById('footerAlbum').innerText = '';
-        setAttEnc(document.getElementById('footerAlbum'), 'data-name', '');
+        setCustomDomProperty(document.getElementById('footerAlbum'), 'data-name', '');
     }
 
     if (obj.result.Title !== undefined && obj.result.Title.length > 0) {
         pageTitle += obj.result.Title;
         document.getElementById('currentTitle').innerText = obj.result.Title;
-        setAttEnc(document.getElementById('currentTitle'), 'data-uri', obj.result.uri);
+        setCustomDomProperty(document.getElementById('currentTitle'), 'data-uri', obj.result.uri);
         document.getElementById('footerTitle').innerText = obj.result.Title;
         document.getElementById('footerCover').classList.add('clickable');
     }
     else {
         document.getElementById('currentTitle').innerText = '';
-        setAttEnc(document.getElementById('currentTitle'), 'data-uri', '');
+        setCustomDomProperty(document.getElementById('currentTitle'), 'data-uri', '');
         document.getElementById('footerTitle').innerText = '';
-        setAttEnc(document.getElementById('footerTitle'), 'data-name', '');
+        setCustomDomProperty(document.getElementById('footerTitle'), 'data-name', '');
         document.getElementById('currentTitle').classList.remove('clickable');
         document.getElementById('footerTitle').classList.remove('clickable');
         document.getElementById('footerCover').classList.remove('clickable');
@@ -455,7 +428,7 @@ function songChange(obj) {
         disableEl('addCurrentSongToPlaylist');
     }
     
-    if (settings.featStickers === true) {
+    if (features.featStickers === true) {
         setVoteSongBtns(obj.result.like, obj.result.uri);
     }
     
@@ -468,9 +441,9 @@ function songChange(obj) {
 
     setPlaybackCardTags(obj.result);
 
-    document.getElementById('currentBooklet').innerHTML = obj.result.bookletPath === '' || obj.result.bookletPath === undefined || settings.featBrowse === false ? '' : 
+    document.getElementById('currentBooklet').innerHTML = obj.result.bookletPath === '' || obj.result.bookletPath === undefined || features.featLibrary === false ? '' : 
             '<span class="text-light mi">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
-            e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>';
+            myEncodeURI(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>';
     
     //Update title in queue view for http streams
     const playingTr = document.getElementById('queueTrackId' + obj.result.currentSongId);
@@ -502,15 +475,15 @@ function setPlaybackCardTags(songObj) {
                 value = '-';
             }
             c.getElementsByTagName('p')[0].innerHTML = printValue(col, value);
-            if (value === '-' || settings.browsetags.includes(col) === false) {
+            if (value === '-' || settings.tagListBrowse.includes(col) === false) {
                 c.getElementsByTagName('p')[0].classList.remove('clickable');
             }
             else {
                 c.getElementsByTagName('p')[0].classList.add('clickable');
             }
-            setAttEnc(c, 'data-name', value);
+            setCustomDomProperty(c, 'data-name', value);
             if (col === 'Album' && songObj[tagAlbumArtist] !== null) {
-                setAttEnc(c, 'data-albumartist', songObj[tagAlbumArtist]);
+                setCustomDomProperty(c, 'data-albumartist', songObj[tagAlbumArtist]);
             }
         }
     }
@@ -528,7 +501,7 @@ function volumeStep(dir) {
 
 function chVolume(increment) {
     const volumeBar = document.getElementById('volumeBar');
-    let newValue = parseInt(volumeBar.value) + increment;
+    let newValue = Number(volumeBar.value) + increment;
     if (newValue < settings.volumeMin)  {
         newValue = settings.volumeMin;
     }
@@ -536,12 +509,12 @@ function chVolume(increment) {
         newValue = settings.volumeMax;
     }
     volumeBar.value = newValue;
-    sendAPI("MPD_API_PLAYER_VOLUME_SET", {"volume": newValue});
+    sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {"volume": newValue});
 }
 
 //eslint-disable-next-line no-unused-vars
 function clickTitle() {
-    const uri = getAttDec(document.getElementById('currentTitle'), 'data-uri');
+    const uri = getCustomDomProperty(document.getElementById('currentTitle'), 'data-uri');
     if (isValidUri(uri) === true && isStreamUri(uri) === false) {
         songDetails(uri);
     }
@@ -561,36 +534,20 @@ function mediaSessionSetPositionState(duration, position) {
 
 function mediaSessionSetState() {
     if (settings.mediaSession === true && 'mediaSession' in navigator) {
-        if (playstate === 'play') {
-            navigator.mediaSession.playbackState = 'playing';
-        }
-        else {
-            navigator.mediaSession.playbackState = 'paused';
-        }
+        navigator.mediaSession.playbackState = playstate === 'play' ? 'playing' : 'paused';
     }
 }
 
 function mediaSessionSetMetadata(title, artist, album, url) {
     if (settings.mediaSession === true && 'mediaSession' in navigator) {
         const artwork = window.location.protocol + '//' + window.location.hostname + 
-            (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart/' + url;
-
-        if (settings.coverimage === true) {
-            //eslint-disable-next-line no-undef
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: title,
-                artist: artist,
-                album: album,
-                artwork: [{src: artwork}]
-            });
-        }
-        else {
-            //eslint-disable-next-line no-undef
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: title,
-                artist: artist,
-                album: album
-            });
-        }
+            (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart/' + myEncodeURI(url);
+        //eslint-disable-next-line no-undef
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: title,
+            artist: artist,
+            album: album,
+            artwork: [{src: artwork}]
+        });
     }
 }

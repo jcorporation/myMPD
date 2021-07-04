@@ -6,6 +6,5 @@
    
 #ifndef __HANDLE_OPTIONS_H__
 #define __HANDLE_OPTIONS_H__
-bool smartpls_default(t_config *config);
-bool handle_option(t_config *config, char *cmd, sds option);
+bool handle_options(struct t_config *config, int argc, char **argv);
 #endif

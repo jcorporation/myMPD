@@ -22,29 +22,130 @@ function initScripts() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            if (settings.featScripteditor === false || getAttDec(event.target.parentNode, 'data-script') === '') {
+            if (getCustomDomProperty(event.target.parentNode, 'data-script') === '') {
                 return false;
             }
-            showEditScript(getAttDec(event.target.parentNode, 'data-script'));
+            showEditScript(getCustomDomProperty(event.target.parentNode, 'data-script'));
         }
         else if (event.target.nodeName === 'A') {
-            const action = getAttDec(event.target, 'data-action');
-            const script = getAttDec(event.target.parentNode.parentNode, 'data-script');
+            const action = getCustomDomProperty(event.target, 'data-action');
+            const script = getCustomDomProperty(event.target.parentNode.parentNode, 'data-script');
             if (action === 'delete') {
                 deleteScript(event.target, script);
             }
             else if (action === 'execute') {
-                execScript(getAttDec(event.target, 'data-href'));
+                execScript(getCustomDomProperty(event.target.parentNode.parentNode, 'data-href'));
             }
             else if (action === 'add2home') {
-                addScriptToHome(script, getAttDec(event.target, 'data-href'))
+                addScriptToHome(script, getCustomDomProperty(event.target.parentNode.parentNode, 'data-href'))
             }
         }
     }, false);
 
     document.getElementById('modalScripts').addEventListener('shown.bs.modal', function () {
         showListScripts();
-    });
+    }, false);
+    
+    document.getElementById('btnDropdownAddAPIcall').parentNode.addEventListener('show.bs.dropdown', function() {
+        const dw = document.getElementById('textareaScriptContent').offsetWidth - document.getElementById('btnDropdownAddAPIcall').parentNode.offsetLeft;
+        document.getElementById('dropdownAddAPIcall').style.width = dw + 'px';
+    }, false);
+    
+    document.getElementById('btnDropdownAddFunction').parentNode.addEventListener('show.bs.dropdown', function() {
+        const dw = document.getElementById('textareaScriptContent').offsetWidth - document.getElementById('btnDropdownAddFunction').parentNode.offsetLeft;
+        document.getElementById('dropdownAddFunction').style.width = dw + 'px';
+    }, false);
+    
+    let methodList = '<option value="">' + t('Select method') + '</option>';
+    for (const m in APImethods) {
+        methodList += '<option value="' + m + '">' + m + '</option>';
+    }
+    const selectAPIcallEl = document.getElementById('selectAPIcall');
+    selectAPIcallEl.innerHTML = methodList;
+    
+    selectAPIcallEl.addEventListener('click', function(event) {
+        event.stopPropagation();
+    }, false);
+    
+    selectAPIcallEl.addEventListener('change', function(event) {
+        const value = getSelectValue(event.target);
+        document.getElementById('APIdesc').innerText = value !== '' ? APImethods[value].desc : '';
+    }, false);
+    
+    document.getElementById('btnAddAPIcall').addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const method = getSelectValue('selectAPIcall');
+        if (method === '') {
+            return;
+        }
+        const el = document.getElementById('textareaScriptContent');
+        const [start, end] = [el.selectionStart, el.selectionEnd];
+        const newText = 'rc, raw_result = mympd_api_raw("' + method + '", json.encode(' +
+            apiParamsToArgs(APImethods[method].params) +
+            '))\n' + 
+            'if rc == 0 then\n' +
+            '    result = json.decode(raw_result)\n' +
+            'end\n';
+        el.setRangeText(newText, start, end, 'preserve');
+        document.getElementById('btnDropdownAddAPIcall').Dropdown.hide();
+        el.focus();
+    }, false);
+    
+    let functionList = '<option value="">' + t('Select function') + '</option>';
+    for (const m in LUAfunctions) {
+        functionList += '<option value="' + m + '">' + m + '</option>';
+    }
+    const selectFunctionEl = document.getElementById('selectFunction');
+    selectFunctionEl.innerHTML = functionList;
+    
+    selectFunctionEl.addEventListener('click', function(event) {
+        event.stopPropagation();
+    }, false);
+    
+    selectFunctionEl.addEventListener('change', function(event) {
+        const value = getSelectValue(event.target);
+        document.getElementById('functionDesc').innerText = value !== '' ? LUAfunctions[value].desc : '';
+    }, false);
+    
+    document.getElementById('btnAddFunction').addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const value = getSelectValue('selectFunction');
+        if (value === '') {
+            return;
+        }
+        const el = document.getElementById('textareaScriptContent');
+        const [start, end] = [el.selectionStart, el.selectionEnd];
+        el.setRangeText(LUAfunctions[value].func, start, end, 'end');
+        document.getElementById('btnDropdownAddFunction').Dropdown.hide();
+        el.focus();
+    }, false);
+}
+
+function apiParamsToArgs(p) {
+    let args = '{';
+    let i = 0;
+    for (const param in p) {
+        if (i > 0) {
+            args += ', ';
+        }
+        i++;
+        args += param + ' =  ';
+        if (p[param].params !== undefined) {
+            args += apiParamsToArgs(p[param].params);            
+        }
+        else {
+            if (p[param].type === 'text') {
+                args += '"' + p[param].example + '"';
+            }
+            else {
+                args += p[param].example;
+            }
+        }
+    }
+    args += '}';
+    return args;
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -64,13 +165,13 @@ function saveScript() {
     if (formOK === true) {
         const args = [];
         const argSel = document.getElementById('selectScriptArguments');
-        for (let i = 0; i < argSel.options.length; i++) {
+        for (let i = 0, j = argSel.options.length; i < j; i++) {
             args.push(argSel.options[i].text);
         }
         sendAPI("MYMPD_API_SCRIPT_SAVE", {
             "oldscript": document.getElementById('inputOldScriptName').value,
             "script": nameEl.value,
-            "order": parseInt(orderEl.value),
+            "order": Number(orderEl.value),
             "content": document.getElementById('textareaScriptContent').value,
             "arguments": args
             }, showListScripts, false);
@@ -114,6 +215,7 @@ function showEditScript(script) {
         document.getElementById('selectScriptArguments').innerText = '';
         document.getElementById('textareaScriptContent').value = '';
     }
+    document.getElementById('inputScriptName').focus();
 }
 
 function parseEditScript(obj) {
@@ -123,7 +225,7 @@ function parseEditScript(obj) {
     document.getElementById('inputScriptArgument').value = '';
     const selSA = document.getElementById('selectScriptArguments');
     selSA.innerText = '';
-    for (let i = 0; i < obj.result.metadata.arguments.length; i++) {
+    for (let i = 0, j = obj.result.metadata.arguments.length; i < j; i++) {
         const o = document.createElement('option');
         o.innerText = obj.result.metadata.arguments[i];
         selSA.appendChild(o);
@@ -153,7 +255,7 @@ function getScriptList(all) {
 
 function parseScriptList(obj) {
     const timerActions = document.createElement('optgroup');
-    setAttEnc(timerActions, 'data-value', 'script');
+    setCustomDomProperty(timerActions, 'data-value', 'script');
     timerActions.setAttribute('label', t('Script'));
     const scriptMaxListLen = 4;
     //list in main menu
@@ -169,7 +271,7 @@ function parseScriptList(obj) {
         for (let i = 0; i < scriptListLen; i++) {
             let arglist = '';
             if (obj.result.data[i].metadata.arguments.length > 0) {
-                for (let j = 0; j < obj.result.data[i].metadata.arguments.length; j++) {
+                for (let j = 0, k = obj.result.data[i].metadata.arguments.length; j < k; j++) {
                     obj.result.data[i].metadata.arguments[j] = e(obj.result.data[i].metadata.arguments[j]);
                 }
                 arglist = '"' + obj.result.data[i].metadata.arguments.join('","') + '"';
@@ -180,14 +282,13 @@ function parseScriptList(obj) {
                     e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>' + e(obj.result.data[i].name) + '</a>';
                 
             }
-            scriptList += '<tr data-script="' + encodeURI(obj.result.data[i].name) + '"><td>' + e(obj.result.data[i].name) + '</td>' +
+            scriptList += '<tr data-script="' + encodeURI(obj.result.data[i].name) + '" ' +
+                'data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>' +
+                '<td>' + e(obj.result.data[i].name) + '</td>' +
                 '<td data-col="Action">' +
-                    (settings.featScripteditor === true ? 
-                        '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>' : '') +
-                        '<a href="#" title="' + t('Execute') + '" data-action="execute" class="mi color-darkgrey" ' +
-                            ' data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>play_arrow</a>' +
-                        '<a href="#" title="' + t('Add to homescreen') + '" data-action="add2home" class="mi color-darkgrey" ' +
-                            ' data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>add_to_home_screen</a>' +
+                    '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>' +
+                    '<a href="#" title="' + t('Execute') + '" data-action="execute" class="mi color-darkgrey">play_arrow</a>' +
+                    '<a href="#" title="' + t('Add to homescreen') + '" data-action="add2home" class="mi color-darkgrey">add_to_home_screen</a>' +
                 '</td></tr>';
             timerActions.innerHTML += '<option data-arguments=\'{"arguments":[' + arglist + ']}\' value="' + 
                 e(obj.result.data[i].name) + '">' + e(obj.result.data[i].name) + '</option>';
@@ -236,7 +337,7 @@ function execScript(href) {
     }
     else {
         let arglist ='';
-        for (let i = 0; i < cmd.arguments.length; i++) {
+        for (let i = 0, j = cmd.arguments.length; i < j; i++) {
             arglist += '<div class="form-group row">' +
                   '<label class="col-sm-4 col-form-label" for="inputScriptArg' + i + '">' + e(cmd.arguments[i]) +'</label>' +
                   '<div class="col-sm-8">' +
@@ -256,7 +357,7 @@ function execScriptArgs() {
     const script = document.getElementById('modalExecScriptScriptname').value;
     const args = {};
     const inputs = document.getElementById('execScriptArguments').getElementsByTagName('input');
-    for (let i = 0; i < inputs.length; i++) {
+    for (let i = 0, j = inputs.length; i < j; i++) {
         args[inputs[i].name] = inputs[i].value;
     }
     sendAPI("MYMPD_API_SCRIPT_EXECUTE", {"script": script, "arguments": args});

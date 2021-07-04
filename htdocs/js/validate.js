@@ -19,8 +19,17 @@ function isStreamUri(uri) {
 
 function removeIsInvalid(parentEl) {
     const els = parentEl.getElementsByClassName('is-invalid');
-    for (let i = 0; i < els.length; i++) {
+    for (let i = 0, j = els.length; i < j; i++) {
         els[i].classList.remove('is-invalid');
+    }
+}
+
+function setIsInvalid(el) {
+    if (el.nodeName === 'MYMPD-INPUT-RESET') {
+        el.getElementsByTagName('input')[0].classList.add('is-invalid');
+    }
+    else {
+        el.classList.add('is-invalid');
     }
 }
 
@@ -36,20 +45,20 @@ function validateFilenameString(str) {
 
 function validateFilename(el) {
     if (validateFilenameString(el.value) === false) {
-        el.classList.add('is-invalid');
+        setIsInvalid(el);
         return false;
     }
-    el.classList.remove('is-invalid');
+    removeIsInvalid(el);
     return true;
 }
 
 function validateFilenameList(el) {
-    el.classList.remove('is-invalid');
+    removeIsInvalid(el);
     
     const filenames = el.value.split(',');
-    for (let i = 0; i < filenames.length; i++) {
+    for (let i = 0, j = filenames.length; i < j; i++) {
         if (validateFilenameString(filenames[i].trim()) === false) {
-            el.classList.add('is-invalid');
+            setIsInvalid(el);
             return false;
         }
     }
@@ -58,23 +67,23 @@ function validateFilenameList(el) {
 
 function validatePath(el) {
     if (el.value === '') {
-        el.classList.add('is-invalid');
+        setIsInvalid(el);
         return false;
     }
     if (el.value.match(/^\/[/.\w-]+$/) !== null) {
-        el.classList.remove('is-invalid');
+        removeIsInvalid(el);
         return true;
     }
-    el.classList.add('is-invalid');
+    setIsInvalid(el);
     return false;
 }
 
 function validatePlnameEl(el) {
     if (validatePlname(el.value) === false) {
-        el.classList.add('is-invalid');
+        setIsInvalid(el);
         return false;
     }
-    el.classList.remove('is-invalid');
+    removeIsInvalid(el);
     return true;
 }
 
@@ -91,56 +100,81 @@ function validatePlname(x) {
 function validateNotBlank(el) {
     const value = el.value.replace(/\s/g, '');
     if (value === '') {
-        el.classList.add('is-invalid');
+        setIsInvalid(el);
         return false;
     }
-    el.classList.remove('is-invalid');
+    removeIsInvalid(el);
     return true;
 }
 
 function validateInt(el) {
     const value = el.value.replace(/[\d-]/g, '');
     if (value !== '') {
-        el.classList.add('is-invalid');
+        setIsInvalid(el);
         return false;
     }
-    el.classList.remove('is-invalid');
+    removeIsInvalid(el);
+    return true;
+}
+
+function validateUint(el) {
+    const value = el.value.replace(/[\d]/g, '');
+    if (value !== '') {
+        setIsInvalid(el);
+        return false;
+    }
+    removeIsInvalid(el);
+    return true;
+}
+
+function validateIntRange(el, min, max) {
+    const value = el.value.replace(/[\d]/g, '');
+    if (value !== '') {
+        setIsInvalid(el);
+        return false;
+    }
+    const intValue = Number(el.value);
+    if (intValue < min || intValue > max) {
+        setIsInvalid(el);
+        return false;
+    }
+    removeIsInvalid(el);
     return true;
 }
 
 function validateFloat(el) {
     const value = el.value.replace(/[\d-.]/g, '');
     if (value !== '') {
-        el.classList.add('is-invalid');
+        setIsInvalid(el);
         return false;
     }
-    el.classList.remove('is-invalid');
+    removeIsInvalid(el);
     return true;
 }
 
 function validateStream(el) {
     if (isStreamUri(el.value) === true) {
-        el.classList.remove('is-invalid');
+        removeIsInvalid(el);
         return true;
     }
-    el.classList.add('is-invalid');
+    setIsInvalid(el);
     return false;
 }
 
 function validateHost(el) {
     if (el.value.match(/^([\w-.]+)$/) !== null) {
-        el.classList.remove('is-invalid');
+        removeIsInvalid(el);
         return true;
     }
-    el.classList.add('is-invalid');
+    setIsInvalid(el);
     return false;
 }
 
 function validateSelect(el) {
     if (getSelectValue(el) !== undefined) {
-        el.classList.remove('is-invalid');
+        removeIsInvalid(el);
         return true;
     }
-    el.classList.add('is-invalid');
+    setIsInvalid(el);
     return false;
 }

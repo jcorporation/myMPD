@@ -39,7 +39,7 @@ function setViewport(store) {
 function addStream() {
     const streamUriEl = document.getElementById('streamUrl');
     if (validateStream(streamUriEl) === true) {
-        sendAPI("MPD_API_QUEUE_ADD_TRACK", {"uri": streamUriEl.value});
+        sendAPI("MYMPD_API_QUEUE_ADD_URI", {"uri": streamUriEl.value});
         uiElements.modalAddToPlaylist.hide();
         showNotification(t('Added stream %{streamUri} to queue', {"streamUri": streamUriEl.value}), '', 'queue', 'info');
     }
@@ -54,40 +54,40 @@ function seekRelativeBackward() {
 }
 
 function seekRelative(offset) {
-    sendAPI("MPD_API_SEEK_CURRENT", {"seek": offset, "relative": true});
+    sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {"seek": offset, "relative": true});
 }
 
 //eslint-disable-next-line no-unused-vars
 function clickPlay() {
-    if (playstate !== 'play') {
-        sendAPI("MPD_API_PLAYER_PLAY", {});
+    if (playstate === 'stop') {
+        sendAPI("MYMPD_API_PLAYER_PLAY", {});
     }
-    else if (settings.advanced.uiFooterPlaybackControls === 'stop') {
-        sendAPI("MPD_API_PLAYER_STOP", {});
+    else if (playstate === 'play') {
+        if (settings.webuiSettings.uiFooterPlaybackControls === 'stop') {
+            sendAPI("MYMPD_API_PLAYER_STOP", {});
+        }
+        else {
+            sendAPI("MYMPD_API_PLAYER_PAUSE", {});
+        }
     }
-    else {
-        sendAPI("MPD_API_PLAYER_PAUSE", {});
+    else if (playstate === 'pause') {
+        sendAPI("MYMPD_API_PLAYER_RESUME", {});
     }
 }
 
 //eslint-disable-next-line no-unused-vars
 function clickStop() {
-    sendAPI("MPD_API_PLAYER_STOP", {});
+    sendAPI("MYMPD_API_PLAYER_STOP", {});
 }
 
 //eslint-disable-next-line no-unused-vars
 function clickPrev() {
-    sendAPI("MPD_API_PLAYER_PREV", {});
+    sendAPI("MYMPD_API_PLAYER_PREV", {});
 }
 
 //eslint-disable-next-line no-unused-vars
 function clickNext() {
-    sendAPI("MPD_API_PLAYER_NEXT", {});
-}
-
-//eslint-disable-next-line no-unused-vars
-function execSyscmd(cmd) {
-    sendAPI("MYMPD_API_SYSCMD", {"cmd": cmd});
+    sendAPI("MYMPD_API_PLAYER_NEXT", {});
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -101,15 +101,32 @@ function cropCovercache() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function updateDB(uri, showModal) {
-    sendAPI("MPD_API_DATABASE_UPDATE", {"uri": uri});
-    updateDBstarted(showModal);
+function updateDB(uri, showModal, rescan) {
+    const method = rescan === true ? "MYMPD_API_DATABASE_RESCAN" : "MYMPD_API_DATABASE_UPDATE";
+    sendAPI(method, {"uri": uri}, function(obj) {
+        if (obj.error !== undefined) {
+            updateDBerror(true, obj.error.message);
+        }
+        else {
+            updateDBstarted(showModal);
+        }
+    }, true);
 }
 
-//eslint-disable-next-line no-unused-vars
-function rescanDB(uri, showModal) {
-    sendAPI("MPD_API_DATABASE_RESCAN", {"uri": uri});
-    updateDBstarted(showModal);
+function updateDBerror(showModal, message) {
+    if (showModal === true) {
+        document.getElementById('updateDBfinished').innerText = '';
+        document.getElementById('updateDBfooter').classList.remove('hide');
+        const updateDBprogress = document.getElementById('updateDBprogress');
+        updateDBprogress.classList.remove('updateDBprogressAnimate');
+        updateDBprogress.style.width = '0';
+        updateDBprogress.style.marginLeft = '0px';
+        const errorUpdateDB = document.getElementById('errorUpdateDB');
+        errorUpdateDB.classList.remove('hide');
+        errorUpdateDB.innerHTML = t('Database update failed: ') + t(message);
+        uiElements.modalUpdateDB.show();
+    }
+    showNotification(t('Database update failed: ') + t(message), '', 'database', 'error');
 }
 
 function updateDBstarted(showModal) {
@@ -119,6 +136,9 @@ function updateDBstarted(showModal) {
         const updateDBprogress = document.getElementById('updateDBprogress');
         updateDBprogress.style.width = '20px';
         updateDBprogress.style.marginLeft = '-20px';
+        const errorUpdateDB = document.getElementById('errorUpdateDB');
+        errorUpdateDB.classList.add('hide');
+        errorUpdateDB.innerText = '';
         uiElements.modalUpdateDB.show();
         updateDBprogress.classList.add('updateDBprogressAnimate');
     }
@@ -143,7 +163,7 @@ function _updateDBfinished(idleEvent) {
     if (el) {
         const parent = el.parentNode;
         el.remove();
-        for (let i = 0; i < parent.children.length; i++) {
+        for (let i = 0, j = parent.children.length; i < j; i++) {
             parent.children[i].classList.remove('hide');
         }
     }
@@ -175,15 +195,15 @@ function _updateDBfinished(idleEvent) {
 //eslint-disable-next-line no-unused-vars
 function zoomPicture(el) {
     if (el.classList.contains('booklet')) {
-        window.open(getAttDec(el, 'data-href'));
+        window.open(getCustomDomProperty(el, 'data-href'));
         return;
     }
     
     if (el.classList.contains('carousel')) {
-        const imgSrc = getAttDec(el, 'data-images');
         let images;
-        if (imgSrc !== null) {
-            images = getAttDec(el, 'data-images').split(';;');
+        const dataImages = getCustomDomProperty(el, 'data-images');
+        if (dataImages !== undefined && dataImages !== null) {
+            images = dataImages.slice();
         }
         else if (lastSongObj.images) {
             images = lastSongObj.images.slice();
@@ -194,16 +214,15 @@ function zoomPicture(el) {
         
         //add uri to image list to get embedded albumart
         let aImages = [];
-        const uri = getAttDec(el, 'data-uri');
+        //use uri encoded attribute
+        const uri = getCustomDomProperty(el, 'data-uri');
         if (uri) {
             aImages = [ subdir + '/albumart/' + uri ];
         }
         //add all but coverfiles to image list
-        if (settings.publish === true) {
-            for (let i = 0; i < images.length; i++) {
-                if (isCoverfile(images[i]) === false) {
-                    aImages.push(subdir + '/browse/music/' + images[i]);
-                }
+        for (let i = 0, j = images.length; i < j; i++) {
+            if (isCoverfile(images[i]) === false) {
+                aImages.push(subdir + '/browse/music/' + images[i]);
             }
         }
         const imgEl = document.getElementById('modalPictureImg');
@@ -230,33 +249,37 @@ function zoomZoomPicture() {
 }
 
 function createImgCarousel(imgEl, name, images) {
-    let carousel = '<div id="' + name + '" class="carousel slide" data-ride="carousel">' +
-        '<ol class="carousel-indicators">';
-    for (let i = 0; i < images.length; i++) {
-        carousel += '<li data-target="#' + name + '" data-slide-to="' + i + '"' +
-            (i === 0 ? ' class="active"' : '') + '></li>';
+    const nrImages = images.length;
+    let carousel = '<div id="' + name + '" class="carousel slide" data-ride="carousel">';
+    if (nrImages > 1) {
+        carousel += '<ol class="carousel-indicators">';
+        for (let i = 0; i < nrImages; i++) {
+            carousel += '<li data-target="#' + name + '" data-slide-to="' + i + '"' +
+                (i === 0 ? ' class="active"' : '') + '></li>';
+        }
+        carousel += '</ol>';
     }
-    carousel += '</ol>' +
-        '<div class="carousel-inner" role="listbox">';
-    for (let i = 0; i < images.length; i++) {
+    carousel += '<div class="carousel-inner">';
+    for (let i = 0; i < nrImages; i++) {
         carousel += '<div class="carousel-item' + (i === 0 ? ' active' : '') + '"><div></div></div>';
     }
-    carousel += '</div>' +
-        '<a class="carousel-control-prev" href="#' + name + '" data-slide="prev">' +
-            '<span class="carousel-control-prev-icon"></span>' +
-        '</a>' +
-        '<a class="carousel-control-next" href="#' + name + '" data-slide="next">' +
-            '<span class="carousel-control-next-icon"></span>' +
-        '</a>' +
-        '</div>';
+    carousel += '</div>';
+    if (nrImages > 1) {
+        carousel += '<a class="carousel-control-prev" href="#' + name + '" data-slide="prev">' +
+                '<span class="carousel-control-prev-icon"></span>' +
+            '</a>' +
+            '<a class="carousel-control-next" href="#' + name + '" data-slide="next">' +
+                '<span class="carousel-control-next-icon"></span>' +
+            '</a>';
+    }
+    carousel += '</div>';
     imgEl.innerHTML = carousel;
     const carouselItems = imgEl.getElementsByClassName('carousel-item');
-    for (let i = 0; i < carouselItems.length; i++) {
-        carouselItems[i].children[0].style.backgroundImage = 'url("' + encodeURI(images[i]) + '")';
+    for (let i = 0, j = carouselItems.length; i < j; i++) {
+        carouselItems[i].children[0].style.backgroundImage = 'url("' + myEncodeURI(images[i]) + '")';
     }
-    const myCarousel = document.getElementById(name);
-    //eslint-disable-next-line no-undef, no-unused-vars
-    const myCarouselInit = new BSN.Carousel(myCarousel, {
+    
+    uiElements.albumartCarousel = new BSN.Carousel(document.getElementById(name), {
         interval: false,
         pause: false
     });

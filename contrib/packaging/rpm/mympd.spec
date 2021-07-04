@@ -4,7 +4,7 @@
 # (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 
 Name:           mympd
-Version:        7.0.2
+Version:        8.0.0
 Release:        0 
 License:        GPL-2.0-or-later
 Group:          Productivity/Multimedia/Sound/Players
@@ -49,8 +49,6 @@ echo "Checking status of mympd system user and group"
 getent group mympd > /dev/null || groupadd -r mympd
 getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
 echo "myMPD installed"
-echo "Modify /etc/mympd.conf to suit your needs or use the"
-echo "mympd-config tool to generate a valid mympd.conf automatically."
 true
 
 %postun
@@ -63,15 +61,12 @@ fi
 %defattr(-,root,root,-)
 %doc README.md
 /usr/bin/mympd
-/usr/bin/mympd-config
 /usr/bin/mympd-script
 /usr/lib/systemd/system/mympd.service
 %{_mandir}/man1/mympd.1.gz
-%{_mandir}/man1/mympd-config.1.gz
 %{_mandir}/man1/mympd-script.1.gz
 %license LICENSE
-%config(noreplace) /etc/mympd.conf
 
 %changelog
-* Mon Apr 05 2021 Juergen Mang <mail@jcgames.de> 7.0.2-0
+* Tue Apr 06 2021 Juergen Mang <mail@jcgames.de> 8.0.0-0
 - Version from master

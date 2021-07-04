@@ -1,14 +1,3 @@
-#Install mympd.conf
-
-IF(NOT EXISTS "$ENV{DESTDIR}@ETC_PATH@/mympd.conf")
-  MESSAGE("-- Installing: $ENV{DESTDIR}@ETC_PATH@/mympd.conf")
-  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E make_directory "$ENV{DESTDIR}@ETC_PATH@")
-  EXECUTE_PROCESS (COMMAND @CMAKE_CURRENT_BINARY_DIR@/cli_tools/mympd-config -m $ENV{DESTDIR}@ETC_PATH@/mympd.conf)
-ELSE()
-  MESSAGE("-- Installing: $ENV{DESTDIR}@ETC_PATH@/mympd.conf.dist")
-  EXECUTE_PROCESS (COMMAND @CMAKE_CURRENT_BINARY_DIR@/cli_tools/mympd-config -m $ENV{DESTDIR}@ETC_PATH@/mympd.conf.dist)
-ENDIF()
-
 #Install startup script
 IF ((EXISTS "/etc/debian_version") AND (EXISTS "/usr/lib/systemd/system"))
   #Install systemd unit
@@ -47,12 +36,9 @@ ENDIF()
 #Install and compress manpages
 if(NOT "$ENV{MANPAGES}" MATCHES "OFF")
   EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_SOURCE_DIR@/contrib/man/mympd.1" "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_MANDIR@/man1/mympd.1")
-  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_SOURCE_DIR@/contrib/man/mympd.1" "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_MANDIR@/man1/mympd-config.1")
   EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_SOURCE_DIR@/contrib/man/mympd.1" "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_MANDIR@/man1/mympd-script.1")
   EXECUTE_PROCESS (COMMAND gzip -n -9 "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_MANDIR@/man1/mympd.1")
-  EXECUTE_PROCESS (COMMAND gzip -n -9 "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_MANDIR@/man1/mympd-config.1")
   EXECUTE_PROCESS (COMMAND gzip -n -9 "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_MANDIR@/man1/mympd-script.1")
   EXECUTE_PROCESS (COMMAND chmod 644 "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_MANDIR@/man1/mympd.1.gz")
-  EXECUTE_PROCESS (COMMAND chmod 644 "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_MANDIR@/man1/mympd-config.1.gz")
   EXECUTE_PROCESS (COMMAND chmod 644 "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_MANDIR@/man1/mympd-script.1.gz")
 endif()

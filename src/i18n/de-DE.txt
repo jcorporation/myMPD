@@ -24,6 +24,9 @@ Verzeichnis neu einlesen
 Update smart playlists
 Intelligente Wiedergabelisten aktualisieren
 
+Update smart playlist
+Intelligente Wiedergabeliste aktualisieren
+
 Settings
 Einstellungen
 
@@ -231,9 +234,6 @@ Als intelligente Wiedergabeliste speichern
 To top
 Nach oben
 
-Bookmarks
-Lesezeichen
-
 Select tag to search
 Tag zum Suchen auswählen
 
@@ -248,9 +248,6 @@ Initialisiere myMPD
 
 Fetch myMPD settings
 Lade myMPD Einstellungen
-
-Fetch MPD settings
-Lade MPD Einstellungen
 
 Connect to websocket
 Websocketverbindung wird hergestellt
@@ -312,15 +309,6 @@ Wiedergabeliste löschen
 Delete
 Löschen
 
-Love song
-Lieblingslied
-
-Scrobbled love
-Lieblingslied wurde gescrobbelt
-
-Failed to send love message to channel
-Lieblingslied Nachricht konnte nicht gesendet werden
-
 Dislike song
 Schlechtes Lied
 
@@ -330,20 +318,11 @@ Gutes Lied
 MPD stickers are disabled
 MPD Sticker sind deaktiviert
 
-folder.jpg
-folder.jpg
-
-Size in px
-Größe in PX
-
 Save smart playlist
 Intelligente Wiedergabeliste sichern
 
 Name
 Name
-
-Tag
-Tag
 
 Tags
 Tags
@@ -402,12 +381,6 @@ Lautstärkeanpassung
 Off
 Deaktiviert
 
-Mixramp DB
-Mixramp DB
-
-Mixramp delay
-Mixramp Verzögerung
-
 Autoplay
 Automatische Wiedergabe
 
@@ -426,20 +399,14 @@ Muss eine Zahl größer als 0 sein
 Albumart
 Albumcover
 
-Can't access music directory
+Music directory not available
 Musik Verzeichnis ist nicht verfügbar
-
-Invalid size
-Ungültige Größe
 
 Background color
 Hintergrundfarbe
 
 Highlight color
 Highlight Farbe
-
-Invalid color
-Ungültige Farbe
 
 CSS filter
 CSS Filter
@@ -477,9 +444,6 @@ Lokale Wiedergabe
 Statistics
 Statistiken
 
-Stickers are disabled
-Sticker sind deaktiviert
-
 Playback statistics
 Wiedergabestatistiken
 
@@ -501,41 +465,14 @@ Intelligente Wiedergabelisten konnten nicht aktualisiert werden
 Smart playlist %{playlist} updated
 Intelligente Wiedergabeliste %{playlist} aktualisiert
 
+Smart playlists are not supported
+Intelligente Wiedergabelisten sind nicht unterstützt
+
 Updating smart playlist %{playlist} failed
 Intelligente Wiedergabeliste %{playlist} konnte nicht aktualisiert werden
 
 Smart playlist
 Intelligente Wiedergabeliste
-
-Playlists are disabled
-Wiedergabelisten sind deaktiviert
-
-Scrobbler integration
-Scrobbler Integration
-
-MPD channel not found
-MPD Channel nicht gefunden
-
-Send love message
-Sende Lieblingslied
-
-MPD channel
-MPD Channel
-
-Invalid channel name
-Ungültiger Channel name
-
-Message
-Nachricht
-
-Invalid message
-Ungültige Zeichen in Nachricht
-
-Reset
-Zurücksetzen
-
-Reset settings
-Einstellungen zurücksetzen
 
 Clear app cache and reload
 Browser Cache löschen und neu laden
@@ -638,18 +575,6 @@ Wiedergabelistenname
 
 Quantity
 Anzahl
-
-Save bookmark
-Lesezeichen speichern
-
-Clearing bookmarks failed
-Löschen aller Lesezeichen fehlgeschlagen
-
-Bookmark name
-Name
-
-Bookmark URI
-Lesezeichen URL
 
 Song details
 Lieddetails
@@ -768,9 +693,6 @@ Nach aktuellem Lied hinzufügen
 View playlist
 Wiedergabeliste anzeigen
 
-Add bookmark
-Lesezeichen hinzufügen
-
 Replace queue
 Warteschlange ersetzen
 
@@ -779,9 +701,6 @@ Intelligente Wiedergabeliste bearbeiten
 
 Edit playlist
 Wiegergabeliste bearbeiten
-
-Update smart playlist
-Intelligente Wiedergabeliste aktualisieren
 
 Remove
 Entfernen
@@ -816,13 +735,13 @@ Neue Wiedergabeliste
 never
 noch nie
 
-Failed to save playlist
-Wiedergabeliste konnte nicht gespeichert werden
+Failed to save smart playlist
+Intelligente Wiedergabeliste konnte nicht gespeichert werden
 
 Added %{uri} to playlist %{playlist}
 %{uri} zu Wiedergabeliste %{playlist} hinzugefügt
 
-Sucessfully added random songs to queue
+Successfully added random songs to queue
 Zufällige Lieder wurden zur Warteschlange hinzugefügt
 
 Adding random songs to queue failed
@@ -843,7 +762,7 @@ MPD Verbindungsfehler: %{error}
 Renaming playlist failed
 Wiedergabeliste konnte nicht umbenannt werden
 
-Sucessfully renamed playlist
+Successfully renamed playlist
 Wiedergabeliste erfolgreich umbenannt
 
 Can not crop the queue
@@ -857,30 +776,6 @@ Intelligente Wiedergabeliste konnte nicht geparsed werden
 
 Unknown smart playlist type
 Unbekannter intelligenter Wiedergabenlisten Typ
-
-System commands are disabled
-Systembefehle sind deaktiviert
-
-Saving bookmark failed
-Lesezeichen konnte nicht gespeichert werden
-
-Deleting bookmark failed
-Lesezeichen konnte nicht gelöscht werden
-
-System command not defined
-Systembefehl nicht definiert
-
-Successfully execute cmd %{cmd}
-Systembefehl %{cmd} erfolgreich ausgeführt
-
-Failed to execute cmd %{cmd}
-Fehler beim Ausführen des Systembefehls %{cmd}
-
-Failed to open bookmarks file
-Lesezeichen Datei konnte nicht geöffnet werden
-
-No bookmarks found
-Keine Lesezeichen gefunden
 
 Background
 Hintergrund
@@ -911,9 +806,6 @@ Warteschlange mit %{name} ersetzt
 
 Saved smart playlist %{name}
 Intelligente Wiedergabeliste %{name} gespeichert
-
-System commands
-Systembefehle
 
 Focus table
 In Tabelle navigieren
@@ -987,9 +879,6 @@ Musicbrainz Track ID
 MUSICBRAINZ_WORKID
 Musicbrainz Werk ID
 
-myMPD is in readonly mode
-myMPD ist im Readonly Modus
-
 Consume must be enabled
 Konsumieren muss aktiviert sein
 
@@ -1062,8 +951,8 @@ Erzwinge Eindeutigkeit
 Invalid name
 Ungültiger Name
 
-Last played older than (hours)
-Zuletzte gespielt, vor mehr als (Stunden)
+Last played older than
+Zuletzte gespielt, vor mehr als
 
 Minimum one weekday must be selected
 Es muss mindestens ein Wochentag ausgewählt sein.
@@ -1088,9 +977,6 @@ an
 
 Oneshot
 Oneshot
-
-Other features
-Weitere Features
 
 Start
 Start
@@ -1124,9 +1010,6 @@ Sa
 
 Sun
 So
-
-System command
-Systembefehl
 
 LastModified
 Zuletzt geändert
@@ -1188,8 +1071,8 @@ Reihenfolge
 Sort by tag
 Sortiere nach Tag
 
-Update smart playlists (hours)
-Intelligente Wiedergabelisten aktualisieren (Stunden)
+Update interval
+Update Intervall
 
 Smart playlists prefix
 Prefix von Intelligenten Wiedergabelisten
@@ -1215,8 +1098,8 @@ Alle leere Wiedergabelisten löschen
 Delete playlists
 Wiedergabelisten löschen
 
-Media session support
-Media Session Unterstützung
+Media session
+Media Session
 
 Playlists deleted
 Wiedergabeliste wurde gelöscht
@@ -1226,9 +1109,6 @@ Vorschau
 
 Info
 Hinweis
-
-Error
-Fehler
 
 Auto
 Auto
@@ -1278,9 +1158,6 @@ Einhängepunkt
 Unmount
 Aushängen
 
-No such directory
-Verzeichnis nicht gefunden
-
 Error in response to command: %{command}
 Fehler beim Ausführen von %{command}
 
@@ -1288,7 +1165,7 @@ Neighbors are disabled
 Kein Neighbor Plugin aktiviert
 
 No lyrics found
-Kein Songtext gefunden
+Kein Liedtext gefunden
 
 Invalid column
 Ungültiger Spaltenname
@@ -1300,10 +1177,13 @@ Force update
 Erzwinge Aktualisierung
 
 No search tag defined and advanced search is disabled
-Kein Such-Tag definiert und erweiterte Suche ist deaktiviert.
+Kein Such-Tag definiert und erweiterte Suche ist deaktiviert
 
 Smart playlists are disabled
 Intelligente Wiedergabelisten sind deaktiviert
+
+Too old MPD version for smart playlists
+MPD ist für Intelligente Wiedergabenlisten zu alt
 
 Smart playlists update started
 Aktualisierung der intelligenten Wiedergabelisten gestartet
@@ -1344,26 +1224,17 @@ Fehler beim Ausführen des Skripts %{script}
 Invalid script name
 Ungültiger Skriptname
 
-No mpd state for script execution submitted
-Es wurde kein MPD Status für die Skriptausführung mitgeliefert
-
 Script
 Skript
 
 Script %{script} executed successfully
 Skript %{script} erfolgreich gestartet
 
-Scripting is disabled
-Skripte sind deaktiviert
-
 Scripts
 Skripte
 
 Invalid script API request
 Ungültiger Script-API Aufruf
-
-Remote scripting is disabled
-Remotescripting ist deaktiviert
 
 Arguments
 Parameter
@@ -1410,9 +1281,6 @@ Skriptname
 Sort order of the script, 0 disables listing in main menu
 Sortierreihenfolge der Skripts, 0 deaktiviert die Anzeige im Hauptmenü
 
-Editing scripts is disabled
-Das Editieren von Skripts ist deaktiviert
-
 Fullscreen
 Vollbild
 
@@ -1438,7 +1306,7 @@ Invalid trigger name
 Ungültiger Trigger Name
 
 Move an output to this partition
-Verschiebe ein Ausgabegerät zu dieser Partition
+Verschiebe ein Ausgabegerät in diese Partition
 
 New partition
 Neue Partition
@@ -1592,9 +1460,6 @@ Filter
 
 Sort
 Sortieren
-
-Tag
-Tag
 
 Columns
 Spalten
@@ -1765,9 +1630,6 @@ Neues Lied
 Show playback settings in footer
 Wiedergabeeinstellungen im Footer anzeigen
 
-Error getting mpd state for script execution
-Fehler beim Ermitteln des Status beim Starten des Skripts
-
 Custom
 Benutzerdefiniert
 
@@ -1791,9 +1653,6 @@ Wöchentlich
 
 Each hours
 jede Stunde |||| jede %{smart_count}. Stunde
-
-hours
-Stunden
 
 Missing translations
 Für die ausgewählte Sprache fehlt %{smart_count} Übersetzung |||| Für die ausgewähle Sprache fehlen %{smart_count} Übersetzungen
@@ -1836,3 +1695,138 @@ Liedtext
 
 Can not open script directory
 Skriptverzeichnis konnte nicht geöffnet werden
+
+Error getting mympd state for script execution
+Konnte myMPD Status
+
+Features
+Features
+
+Invalid playlist directory
+Ungültiges Wiedergabelisten Verzeichnis
+
+Invalid stream port
+Ungültiger Stream Port
+
+Playlist directory
+Wiedergabelisten Verzeichnis
+
+Stream port
+Stream Port
+
+Volume control
+Lautstärkeeinstellung
+
+Lua is not compiled in
+Lua ist nicht verfügbar
+
+MPD does not support mounts
+MPD unterstützt keine Einhängepunkte
+
+MPD does not support partitions
+MPD unterstützt keine Partitionen
+
+Volume max.
+Maximale Lautstärke
+
+Volume min.
+Minimale Lautstärke
+
+Volume step
+Lautstärkeschritt
+
+Too many worker threads are already running
+Es sind bereits zu viele Threads gestartet
+
+Binary limit
+Binary Limit
+
+Invalid binary limit
+Ungültiger Binary Limit Wert
+
+Invalid timeout
+Ungültiger Timeit
+
+Timeout
+Timeout
+
+Actions
+Aktionen
+
+Covercache expiration
+Covercache Ablaufzeit
+
+Enable
+Aktivieren
+
+Footer
+Fußzeile
+
+Synced lyrics extension
+Synchronisierte Liedtexte Dateiendung
+
+Synced lyrics vorbis comment
+Synchronisierte Liedtexte Vorbis Kommentarname
+
+Unsynced lyrics extension
+Liedtexte Dateiendung
+
+Unsynced lyrics vorbis comment
+Liedtexte Vorbis Kommentarname
+
+kB
+kB
+
+Lists
+Listen
+
+Expression
+Suchausdruck
+
+Image
+Bild
+
+Executes a system command and capture its output.
+Executes a system command and capture its output.
+
+HTTP client
+HTTP Client
+
+Initializes the mympd_state lua table
+Initializes the mympd_state lua table
+
+Insert API call
+Füge API Aufruf hinzu
+
+Insert function
+Füge Funktion hinzu
+
+Open documentation
+Gehe zur Dokumentation
+
+Select function
+Funktion auswählen
+
+Select method
+Methode auswählen
+
+Yes, clear it
+Ja, leeren
+
+Manage partitions
+Partitionen verwalten
+
+Jukebox is disabled
+Jukebox ist deaktiviert
+
+Database update already startet
+Datenbankaktualisierung läuft bereits
+
+Error getting MPD status
+Fehler beim Ermitteln des MPD Statuses
+
+Database update failed
+Datenbankaktualisierung fehlgeschlagen
+
+No arguments
+Keine Parameter

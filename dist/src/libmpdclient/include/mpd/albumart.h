@@ -48,7 +48,7 @@ extern "C" {
 
 /**
  * Sends the "albumart" command to MPD.  Call mpd_recv_albumart() to
- * read response lines. 
+ * read response lines.
  *
  * @param connection a valid and connected #mpd_connection
  * @param uri the URI of the song
@@ -62,7 +62,7 @@ mpd_send_albumart(struct mpd_connection *connection, const char *uri, unsigned o
  * Receives the "albumart" response
  *
  * @param connection a valid and connected #mpd_connection
- * @param buffer an already allocated buffer, should be of the same size as the binary 
+ * @param buffer an already allocated buffer, should be of the same size as the binary
  * chunk size (default 8192, can be set with binarylimit command)
  * @param buffer_size the size of the allocated buffer
  * @return read size on success, -1 on failure
@@ -77,7 +77,7 @@ mpd_recv_albumart(struct mpd_connection *connection, void *buffer, size_t buffer
  * @param connection a valid and connected #mpd_connection
  * @param uri the URI of the song
  * @param offset to read from
- * @param buffer an already allocated buffer, should be of the same size as the binary 
+ * @param buffer an already allocated buffer, should be of the same size as the binary
  * chunk size (default 8192, can be set with binarylimit command)
  * @param buffer_size the size of the allocated buffer
  * @return read size on success, -1 on failure

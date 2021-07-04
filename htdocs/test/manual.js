@@ -7,26 +7,36 @@
 
 /* global cmds */
 
+//escapes html characters to avoid xss
+function e(x) {
+    if (x!== undefined && isNaN(x)) {
+        return x.replace(/([<>"'])/g, function(m0, m1) {
+            if (m1 === '<') return '&lt;';
+            else if (m1 === '>') return '&gt;';
+            else if (m1 === '"') return '&quot;';
+            else if (m1 === '\'') return '&apos;';
+        });
+    }
+    return x;
+}
+
 function init() {
     let options = '<option></option>';
-    for (let i = 0; i < cmds.length; i++) {
-        options += '<option value="' + i + '">' + cmds[i].method + '</option>';
+    const methods = Object.keys(APImethods).sort();
+    for (const method of methods) {
+        options += '<option value="' + method + '">' + method + '</option>';
     }
     let select = document.getElementById('cmds');
     select.innerHTML = options;
     select.addEventListener('change', function() {
-        let id = this.options[this.selectedIndex].value;
+        let method = this.options[this.selectedIndex].value;
         let form = '';
-        if (cmds[id].params !== undefined) {
-            let params = Object.keys(cmds[id].params);
-            for (let key of params) {
-                form += '<div class="form-group row">' +
-                    '<label class="col-sm-4 col-form-label" for="input-' + key + '">' + key + '</label>' +
-                    '<div class="col-sm-8"><input id="input-' + key + '" class="form-control"/></div>' +
-                    '</div>';
-            }
+        if (method !== '' && APImethods[method].params !== undefined) {
+            form = paramsToForm(APImethods[method].params, '');
+            document.getElementById('desc').innerText = APImethods[method].desc;
         }
         document.getElementById('params').innerHTML = form;
+        document.getElementById('desc').innerText = '';
         document.getElementById('resultText').innerText = '';
         document.getElementById('requestText').innerText = '';
         document.getElementById('resultState').innerText = 'Result';
@@ -37,16 +47,37 @@ function init() {
     }, false);
 }
 
-function sendAPI() {
-    let select = document.getElementById('cmds');
-    let id = select.options[select.selectedIndex].value;
-    let request = cmds[id];
-    if (cmds[id].params !== undefined) {
-        let params = Object.keys(cmds[id].params);
-        for (let key of params) {
-            let value = document.getElementById('input-' + key).value;
+function paramsToForm(p, k) {
+    let form = '';
+    for (const param in p) {
+        if (p[param].params !== undefined) {
+            form += '<div class="form-group row">' +
+                '<label class="col-sm-4 col-form-label">' + param + '</label>' +
+                '<div class="col-sm-8">' + paramsToForm(p[param].params, param) +
+                '</div>' + 
+                '</div>';
+        }
+        else {
+            form += '<div class="form-group row">' +
+                '<label class="col-sm-4 col-form-label" for="input-' + param + '">' + param + ' <small>(' + p[param].type + ')</small></label>' +
+                '<div class="col-sm-8"><input id="input-' + k + param + '" class="form-control" value="' + e(p[param].example) + '"/>' +
+                '<small>' + e(p[param].desc) + '</small></div>' + 
+                '</div>';
+        }
+    }
+    return form;
+}
+
+function formToParams(p, k) {
+    let request = {};
+    for (const param in p) {
+        if (p[param].params !== undefined) {
+            request[param] = formToParams(p[param].params, param);
+        }
+        else {
+            let value = document.getElementById('input-' + k + param).value;
             if (value.charAt(0) === '{' || value.charAt(0) === '[') {
-                request.params[key] = JSON.parse(value);
+                request[params] = JSON.parse(value);
             }
             else {
                 if (value === '') {
@@ -61,12 +92,22 @@ function sendAPI() {
                 else if (!isNaN(value)) {
                     value = parseFloat(value);
                 }
-                request.params[key] = value;
+                request[param] = value;
             }
         }
     }
-    let ajaxRequest=new XMLHttpRequest();
-    ajaxRequest.open('POST', '/api', true);
+    return request;
+}
+
+function sendAPI() {
+    let select = document.getElementById('cmds');
+    let method = select.options[select.selectedIndex].value;
+    let request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": {}};
+    if (APImethods[method].params !== undefined) {
+        request.params = formToParams(APImethods[method].params, '');
+    }
+    let ajaxRequest = new XMLHttpRequest();
+    ajaxRequest.open('POST', '/api/', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {

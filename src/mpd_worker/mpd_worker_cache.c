@@ -15,6 +15,7 @@
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "../sds_extras.h"
 #include "../api.h"
 #include "../log.h"
@@ -23,7 +24,7 @@
 #include "../utility.h"
 #include "../tiny_queue.h"
 #include "../global.h"
-#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mympd_state.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
@@ -31,10 +32,10 @@
 #include "mpd_worker_cache.h"
 
 //privat definitions
-static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache);
+static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache);
 
 //public functions
-bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state) {
+bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     rax *album_cache = NULL;
     if (mpd_worker_state->mpd_state->feat_tags == true) {
         album_cache = raxNew();
@@ -52,10 +53,10 @@ bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state) {
     //push album cache building response to mpd_client thread
     if (mpd_worker_state->mpd_state->feat_tags == true) {
         if (rc == true) {
-            t_work_request *request = create_request(-1, 0, MPD_API_ALBUMCACHE_CREATED, "MPD_API_ALBUMCACHE_CREATED", "");
-            request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMCACHE_CREATED\",\"params\":{}}");
+            t_work_request *request = create_request(-1, 0, MYMPD_API_ALBUMCACHE_CREATED, "MYMPD_API_ALBUMCACHE_CREATED", "");
+            request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_ALBUMCACHE_CREATED\",\"params\":{}}");
             request->extra = (void *) album_cache;
-            tiny_queue_push(mpd_client_queue, request, 0);
+            tiny_queue_push(mympd_api_queue, request, 0);
             send_jsonrpc_notify("database", "info", "Updated album cache");
         }
         else {
@@ -70,10 +71,10 @@ bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state) {
     //push sticker cache building response to mpd_client thread
     if (mpd_worker_state->mpd_state->feat_stickers == true) {
         if (rc == true) {
-            t_work_request *request2 = create_request(-1, 0, MPD_API_STICKERCACHE_CREATED, "MPD_API_STICKERCACHE_CREATED", "");
-            request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_STICKERCACHE_CREATED\",\"params\":{}}");
+            t_work_request *request2 = create_request(-1, 0, MYMPD_API_STICKERCACHE_CREATED, "MYMPD_API_STICKERCACHE_CREATED", "");
+            request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_STICKERCACHE_CREATED\",\"params\":{}}");
             request2->extra = (void *) sticker_cache;
-            tiny_queue_push(mpd_client_queue, request2, 0);
+            tiny_queue_push(mympd_api_queue, request2, 0);
             send_jsonrpc_notify("database", "info", "Updated sticker cache");
         }
         else {
@@ -88,7 +89,7 @@ bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state) {
 }
 
 //private functions
-static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache) {
+static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache) {
     MYMPD_LOG_INFO("Creating caches");
     unsigned start = 0;
     unsigned end = start + 1000;
@@ -128,7 +129,7 @@ static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, 
             //sticker cache
             if (mpd_worker_state->mpd_state->feat_stickers == true) {
                 const char *uri = mpd_song_get_uri(song);
-                t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
+                struct t_sticker *sticker = (struct t_sticker *) malloc(sizeof(struct t_sticker));
                 assert(sticker);
                 raxInsert(sticker_cache, (unsigned char*)uri, strlen(uri), (void *)sticker, NULL);
                 song_count++;
@@ -175,7 +176,7 @@ static bool _cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache, 
         sds uri = sdsempty();
         while (raxNext(&iter)) {
             uri = sdsreplacelen(uri, (char *)iter.key, iter.key_len);
-            mpd_shared_get_sticker(mpd_worker_state->mpd_state, uri, (t_sticker *)iter.data);
+            mpd_shared_get_sticker(mpd_worker_state->mpd_state, uri, (struct t_sticker *)iter.data);
         }
         sdsfree(uri);
         raxStop(&iter);

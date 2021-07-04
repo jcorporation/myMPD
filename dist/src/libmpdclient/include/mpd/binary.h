@@ -43,6 +43,10 @@
 
 struct mpd_connection;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Sends the "binarylimit" command to MPD.
  *
@@ -67,5 +71,8 @@ mpd_send_binarylimit(struct mpd_connection *connection, unsigned limit);
 bool
 mpd_run_binarylimit(struct mpd_connection *connection, unsigned limit);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

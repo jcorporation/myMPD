@@ -21,6 +21,7 @@
 
 #include "../../dist/src/frozen/frozen.h"
 #include "../../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "../sds_extras.h"
 #include "../log.h"
 #include "../list.h"
@@ -29,7 +30,7 @@
 #include "../tiny_queue.h"
 #include "../global.h"
 #include "../utility.h"
-#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mympd_state.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "../mpd_shared.h"
 #include "mpd_client_utility.h"
@@ -97,9 +98,9 @@ sds print_trigger_list(sds buffer) {
     return buffer;
 }
 
-void trigger_execute(t_mpd_client_state *mpd_client_state, enum trigger_events event) {
+void trigger_execute(struct t_mympd_state *mympd_state, enum trigger_events event) {
     MYMPD_LOG_DEBUG("Trigger event: %s (%d)", trigger_name(event), event);
-    struct list_node *current = mpd_client_state->triggers.head;
+    struct list_node *current = mympd_state->triggers.head;
     while (current != NULL) {
         if (current->value_i == event) {
             MYMPD_LOG_NOTICE("Executing script %s for trigger %s (%d)", current->value_p, trigger_name(event), event);
@@ -109,11 +110,11 @@ void trigger_execute(t_mpd_client_state *mpd_client_state, enum trigger_events e
     }
 }
 
-sds trigger_list(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id) {
+sds trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int entities_returned = 0;
-    struct list_node *current = mpd_client_state->triggers.head;
+    struct list_node *current = mympd_state->triggers.head;
     int j = 0;
     while (current != NULL) {
         if (entities_returned++) {
@@ -147,8 +148,8 @@ sds trigger_list(t_mpd_client_state *mpd_client_state, sds buffer, sds method, l
     return buffer;
 }
 
-sds trigger_get(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, int id) {
-    struct list_node *current = list_node_at(&mpd_client_state->triggers, id);
+sds trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, int id) {
+    struct list_node *current = list_node_at(&mympd_state->triggers, id);
     if (current != NULL) {
         buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = tojson_long(buffer, "id", id, true);
@@ -176,28 +177,29 @@ sds trigger_get(t_mpd_client_state *mpd_client_state, sds buffer, sds method, lo
     return buffer;
 }
 
-bool delete_trigger(t_mpd_client_state *mpd_client_state, unsigned idx) {
-    struct list_node *toremove = list_node_at(&mpd_client_state->triggers, idx);
+bool delete_trigger(struct t_mympd_state *mympd_state, unsigned idx) {
+    struct list_node *toremove = list_node_at(&mympd_state->triggers, idx);
     if (toremove != NULL) {
         list_free((struct list *)toremove->user_data);
-        return list_shift(&mpd_client_state->triggers, idx);
+        return list_shift(&mympd_state->triggers, idx);
     }
     return false;
 }
 
-void free_trigerlist_arguments(t_mpd_client_state *mpd_client_state) {
-    struct list_node *current = mpd_client_state->triggers.head;
+void free_trigerlist_arguments(struct t_mympd_state *mympd_state) {
+    struct list_node *current = mympd_state->triggers.head;
     while (current != NULL) {
         list_free((struct list *)current->user_data);
         current = current->next;
     }
 }
 
-bool triggerfile_read(t_config *config, t_mpd_client_state *mpd_client_state) {
-    sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", config->varlibdir);
+bool triggerfile_read(struct t_mympd_state *mympd_state) {
+    sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", mympd_state->config->workdir);
     char *line = NULL;
     size_t n = 0;
     ssize_t read = 0;
+    errno = 0;
     FILE *fp = fopen(trigger_file, "r");
     if (fp != NULL) {
         while ((read = getline(&line, &n, fp)) > 0) {
@@ -215,7 +217,7 @@ bool triggerfile_read(t_config *config, t_mpd_client_state *mpd_client_state) {
                 while ((h = json_next_key(line, read, h, ".arguments", &key, &val)) != NULL) {
                     list_push_len(arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
                 }
-                list_push(&mpd_client_state->triggers, name, event, script, arguments);
+                list_push(&mympd_state->triggers, name, event, script, arguments);
             }
             FREE_PTR(name);
             FREE_PTR(script);
@@ -224,27 +226,29 @@ bool triggerfile_read(t_config *config, t_mpd_client_state *mpd_client_state) {
         fclose(fp);
     }
     else {
-        MYMPD_LOG_DEBUG("Can not open file \"%s\": %s", trigger_file, strerror(errno));
+        MYMPD_LOG_DEBUG("Can not open file \"%s\"", trigger_file);
+        if (errno != ENOENT) {
+            MYMPD_LOG_ERRNO(errno);
+        }
     }
-    MYMPD_LOG_INFO("Read %d triggers(s) from disc", mpd_client_state->triggers.length);
+    MYMPD_LOG_INFO("Read %d triggers(s) from disc", mympd_state->triggers.length);
     sdsfree(trigger_file);
     return true;
 }
 
-bool triggerfile_save(t_config *config, t_mpd_client_state *mpd_client_state) {
-    if (config->readonly == true) {
-        return true;
-    }
+bool triggerfile_save(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving triggers to disc");
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/trigger_list.XXXXXX", config->varlibdir);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/trigger_list.XXXXXX", mympd_state->config->workdir);
+    errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         return false;
     }
     FILE *fp = fdopen(fd, "w");
-    struct list_node *current = mpd_client_state->triggers.head;
+    struct list_node *current = mympd_state->triggers.head;
     sds buffer = sdsempty();
     while (current != NULL) {
         buffer = sdsreplace(buffer, "{");
@@ -268,9 +272,11 @@ bool triggerfile_save(t_config *config, t_mpd_client_state *mpd_client_state) {
     }
     fclose(fp);
     sdsfree(buffer);
-    sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", config->varlibdir);
+    sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", mympd_state->config->workdir);
+    errno = 0;
     if (rename(tmp_file, trigger_file) == -1) {
-        MYMPD_LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, trigger_file, strerror(errno));
+        MYMPD_LOG_ERROR("Renaming file from %s to %s failed", tmp_file, trigger_file);
+        MYMPD_LOG_ERRNO(errno);
         sdsfree(tmp_file);
         sdsfree(trigger_file);
         return false;

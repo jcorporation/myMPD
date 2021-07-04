@@ -4,202 +4,57 @@
  https://github.com/jcorporation/mympd
 */
 
-#define _GNU_SOURCE
-
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <dirent.h>
+#include <getopt.h>
 #include <stdbool.h>
+#include <stdio.h>
 
-#include "../dist/src/sds/sds.h"
-#include "sds_extras.h"
-#include "../dist/src/frozen/frozen.h"
-#include "log.h"
+#include "dist/src/sds/sds.h"
+#include "dist/src/rax/rax.h"
 #include "list.h"
+#include "sds_extras.h"
 #include "mympd_config_defs.h"
-#include "mympd_config.h"
-#include "mympd_api/mympd_api_utility.h"
-#include "mympd_api/mympd_api_timer.h"
-#include "mympd_api/mympd_api_settings.h"
-#ifdef ENABLE_SSL
-  #include "cert.h"
-#endif
-#include "utility.h"
-#include "covercache.h"
-#include "handle_options.h"
 
-//private function definitions
-static bool smartpls_init(t_config *config, const char *name, const char *value);
 
-//global functions
-bool smartpls_default(t_config *config) {
-    bool rc = true;
-
-    //try to get prefix from state file, fallback to config value
-    sds prefix = sdsempty();
-    sds prefix_file = sdscatfmt(sdsempty(), "%s/state/smartpls_prefix", config->varlibdir);
-    FILE *fp = fopen(prefix_file, "r");
-    if (fp != NULL) {
-        size_t n = 0;
-        char *line = NULL;
-        ssize_t read = getline(&line, &n, fp);
-        if (read > 0) {
-            prefix = sdscat(prefix, line);
-            FREE_PTR(line);
+static struct option long_options[] = {
+    {"help",      no_argument,       0, 'h'},
+    {"user",      required_argument, 0, 'u'},
+    {"syslog",    no_argument,       0, 's'},
+    {"workdir",   required_argument, 0, 'w'},
+    {"config",    no_argument,       0, 'c'}
+};
+   
+bool handle_options(struct t_config *config, int argc, char **argv) {
+    int n = 0;
+    int option_index = 0;
+    while((n = getopt_long(argc, argv, "hu:sw:c", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
+        switch (n) {
+            case 'u':
+                config->user = sdsreplace(config->user, optarg);
+                break;
+            case 's':
+                config->syslog = true;
+                break;
+            case 'w':
+                config->workdir = sdsreplace(config->workdir, optarg);
+                break;
+            case 'c':
+                config->bootstrap = true;
+                break;
+            default:
+                fprintf(stderr, "\nUsage: %s [OPTION]...\n\n"
+                    "myMPD %s\n"
+                    "(c) 2018-2021 Juergen Mang <mail@jcgames.de>\n"
+                    "https://github.com/jcorporation/myMPD\n\n"
+                    "Options:\n"
+                    "  -c, --config           creates config and exits\n"
+                    "  -h, --help             displays this help\n"
+                    "  -u, --user <username>  username to drop privileges to (default: mympd)\n"
+                    "  -s, --syslog           enable syslog logging (facility: daemon)\n"
+                    "  -w, --workdir <path>   working directory (default: %s)\n\n",
+                    argv[0], MYMPD_VERSION, config->workdir);
+                return false;
+        
         }
-        fclose(fp);
     }
-    else {
-        //ignore error
-        MYMPD_LOG_DEBUG("Can not open file \"%s\": %s", prefix_file, strerror(errno));
-        prefix = sdscat(prefix, config->smartpls_prefix);
-    }
-    sdsfree(prefix_file);
-    
-    sds smartpls_file = sdscatfmt(sdsempty(), "%s%sbestRated", prefix, (sdslen(prefix) > 0 ? "-" : ""));
-    rc = smartpls_init(config, smartpls_file, 
-        "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200, \"minvalue\": 2, \"sort\": \"\"}");
-    if (rc == false) {
-        sdsfree(smartpls_file);
-        sdsfree(prefix);
-        return rc;
-    }
-    
-    sdscrop(smartpls_file);
-    smartpls_file = sdscatfmt(smartpls_file, "%s%smostPlayed", prefix, (sdslen(prefix) > 0 ? "-" : ""));
-    rc = smartpls_init(config, smartpls_file, 
-        "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200, \"minvalue\": 0, \"sort\": \"\"}");
-    if (rc == false) {
-        sdsfree(smartpls_file);
-        sdsfree(prefix);
-        return rc;
-    }
-    
-    sdscrop(smartpls_file);
-    smartpls_file = sdscatfmt(smartpls_file, "%s%snewestSongs", prefix, (sdslen(prefix) > 0 ? "-" : ""));
-    rc = smartpls_init(config, smartpls_file, 
-        "{\"type\": \"newest\", \"timerange\": 604800, \"sort\": \"\"}");
-    sdsfree(smartpls_file);
-    sdsfree(prefix);
-    
-    return rc;
-}
-
-bool handle_option(t_config *config, char *cmd, sds option) {
-    #define MATCH_OPTION(o) strcasecmp(option, o) == 0
-    
-    if (MATCH_OPTION("reset_state")) {
-        mympd_api_settings_delete(config);
-        return true;
-    }
-    if (MATCH_OPTION("reset_smartpls")) {
-        return smartpls_default(config);
-    }
-    if (MATCH_OPTION("reset_lastplayed")) {
-        sds lpfile = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
-        int rc = unlink(lpfile);
-        if (rc == 0) {
-            sdsfree(lpfile);
-            return true;
-        }
-        if (rc == ENOENT) {
-            MYMPD_LOG_ERROR("last_played file does not exist");
-        }
-        else {
-            MYMPD_LOG_ERROR("Can not delete file \"%s\": %s", lpfile, strerror(errno));
-        }
-        sdsfree(lpfile);
-        return false;
-    }
-    #ifdef ENABLE_SSL
-    if (MATCH_OPTION("cert_remove")) {
-        sds ssldir = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
-        bool rc = cleanup_certificates(ssldir, "server");
-        sdsfree(ssldir);
-        return rc;
-    }
-    if (MATCH_OPTION("ca_remove")) {
-        sds ssldir = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
-        bool rc = cleanup_certificates(ssldir, "ca");
-        sdsfree(ssldir);
-        return rc;
-    }
-    if (MATCH_OPTION("certs_create")) {
-        sds ssldir = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
-        int testdir_rc = testdir("SSL certificates", ssldir, true);
-        if (testdir_rc < 2) {
-            bool rc = create_certificates(ssldir, config->ssl_san);
-            sdsfree(ssldir);
-            return rc;
-        }
-        sdsfree(ssldir);
-        return true;
-    }
-    #endif
-    if (MATCH_OPTION("crop_covercache")) {
-        clear_covercache(config, -1);
-        return true;
-    }
-    if (MATCH_OPTION("clear_covercache")) {
-        clear_covercache(config, 0);
-        return true;
-    }
-    if (MATCH_OPTION("dump_config")) {
-        return mympd_dump_config();
-    }
-
-    printf("myMPD %s\n"
-           "Copyright (C) 2018-2021 Juergen Mang <mail@jcgames.de>\n"
-           "https://github.com/jcorporation/myMPD\n\n"
-           "Usage: %s [/etc/mympd.conf] <command>\n"
-           "Commands (you should stop mympd before):\n"
-         #ifdef ENABLE_SSL
-           "  certs_create:     create ssl certificates\n"
-           "  cert_remove:      remove server certificates\n"
-           "  ca_remove:        remove ca certificates\n"
-         #endif
-           "  reset_state:      delete all myMPD settings\n"
-           "  reset_smartpls:   create default smart playlists\n"
-           "  reset_lastplayed: truncates last played list\n"
-           "  crop_covercache:  crops the covercache directory\n"
-           "  clear_covercache: empties the covercache directory\n"
-           "  dump_config:      writes default mympd.conf\n"
-           "  help:             display this help\n",
-           MYMPD_VERSION,
-           cmd
-    );
-    
-    return false;
-}
-
-//private functions
-static bool smartpls_init(t_config *config, const char *name, const char *value) {
-    if (!validate_string(name)) {
-        return false;
-    }
-    
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", config->varlibdir, name);
-    int fd = mkstemp(tmp_file);
-    if (fd < 0 ) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
-        sdsfree(tmp_file);
-        return false;
-    }
-    FILE *fp = fdopen(fd, "w");
-    fprintf(fp, "%s", value);
-    fclose(fp);
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, name);
-    if (rename(tmp_file, cfg_file) == -1) {
-        MYMPD_LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, cfg_file, strerror(errno));
-        sdsfree(tmp_file);
-        sdsfree(cfg_file);
-        return false;
-    }
-    sdsfree(tmp_file);
-    sdsfree(cfg_file);
     return true;
 }

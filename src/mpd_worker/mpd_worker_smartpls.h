@@ -6,6 +6,6 @@
 
 #ifndef __MPD_WORKER_SMARTPLS_H__
 #define __MPD_WORKER_SMARTPLS_H__
-bool mpd_worker_smartpls_update_all(t_config *config, t_mpd_worker_state *mpd_worker_state, bool force);
-bool mpd_worker_smartpls_update(t_config *config, t_mpd_worker_state *mpd_worker_state, const char *playlist);
+bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state, bool force);
+bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, const char *playlist);
 #endif

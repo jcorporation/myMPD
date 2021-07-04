@@ -30,10 +30,13 @@ function initLocalPlaybackControl() {
         document.getElementById('errorLocalPlayback').classList.add('hide');
     });
 
-    document.getElementById('localPlayer').addEventListener('error', function() {
-        logError('localPlayer event: error');
-        document.getElementById('errorLocalPlayback').classList.remove('hide');
-    });
+
+    for (const ev of ['error', 'abort', 'stalled']) {
+        document.getElementById('localPlayer').addEventListener(ev, function() {
+            logError('localPlayer event: ' + ev);
+            document.getElementById('errorLocalPlayback').classList.remove('hide');
+        });
+    }
 }
 
 function setLocalPlayerUrl() {

@@ -207,9 +207,6 @@ Save als slimme afspeellijst
 To top
 Omhoog
 
-Bookmarks
-Bladwijzers
-
 Select tag to search
 Selecteer tag om te zoeken
 
@@ -221,9 +218,6 @@ Voorbereiden myMPD
 
 Fetch myMPD settings
 myMPD-instellingen laden
-
-Fetch MPD settings
-MPD-instellingen laden
 
 Connect to websocket
 Verbinden met websocket
@@ -285,15 +279,6 @@ Delete afspeellijst
 Delete
 Delete
 
-Love song
-Favoriet
-
-Scrobbled love
-Favoriet werd gescrobbeld
-
-Failed to send love message to channel
-Versturen favoriet mislukt
-
 Dislike song
 Dislike nummer
 
@@ -303,20 +288,11 @@ Like nummer
 MPD stickers are disabled
 MPD-stickers uitgeschakeld
 
-folder.jpg
-folder.jpg
-
-Size in px
-Grootte in px
-
 Save smart playlist
 Save slimme afspeellijst
 
 Name
 Naam
-
-Tag
-Tag
 
 Tags
 Tags
@@ -366,12 +342,6 @@ Replaygain
 Off
 Uit
 
-Mixramp DB
-Mixramp DB
-
-Mixramp delay
-Mixramp-vertraging
-
 Autoplay
 Auto-afspelen
 
@@ -390,20 +360,11 @@ Moet een getal zijn en groter dan 0
 Albumart
 Albumcover
 
-Can't access music directory
-Map niet toegankelijk
-
-Invalid size
-Ongeldige grootte
-
 Background color
 Achtergrondkleur
 
 Highlight color
 Accentkleur
-
-Invalid color
-Ongeldige kleur
 
 CSS filter
 CSS filter
@@ -441,9 +402,6 @@ Lokale weergave
 Statistics
 Gegevens
 
-Stickers are disabled
-Stickers uitgeschakeld
-
 Playback statistics
 Afspeelgegevens
 
@@ -470,36 +428,6 @@ Updaten slimmme afspeellijst %{playlist} mislukt
 
 Smart playlist
 Slimmme afspeellijst
-
-Playlists are disabled
-Afspeellijsten uitgeschakeld
-
-Scrobbler integration
-Scrobbler-integratie
-
-MPD channel not found
-MPD-kanaal niet gevonden
-
-Send love message
-Stuur favoriet
-
-MPD channel
-MPD-kanaal
-
-Invalid channel name
-ongeldige naam
-
-Message
-Bericht
-
-Invalid message
-Ongeldig bericht
-
-Reset
-Reset
-
-Reset settings
-Reset instellingen
 
 Clear app cache and reload
 Wis app-cache en herlaad
@@ -602,18 +530,6 @@ Naam afspeellijst
 
 Quantity
 Aantal
-
-Save bookmark
-Save bladwijzer
-
-Clearing bookmarks failed
-Wissen bladwijzers mislukt
-
-Bookmark name
-Naam
-
-Bookmark URI
-Url bladwijzer
 
 Song details
 Nummerdetails
@@ -726,9 +642,6 @@ Als volgende afspelen
 View playlist
 Bekijk afspeellijst
 
-Add bookmark
-Voeg bladwijzer toe
-
 Replace queue
 Vervang wachtrij
 
@@ -774,13 +687,10 @@ Nieuwe afspeellijst
 never
 nooit
 
-Failed to save playlist
-Saven afspeellijst mislukt
-
 Added %{uri} to playlist %{playlist}
 %{uri} aan afspeellijst %{playlist} toegevoegd
 
-Sucessfully added random songs to queue
+Successfully added random songs to queue
 Willekeurig nummer aan wachtrij toegevoegd
 
 Adding random songs to queue failed
@@ -801,7 +711,7 @@ MPD verbindingsfout: %{error}
 Renaming playlist failed
 Hernoemen afspeellijst mislukt
 
-Sucessfully renamed playlist
+Successfully renamed playlist
 Afspeellijst is hernoemd
 
 Can not crop the queue
@@ -815,30 +725,6 @@ Kan slimme afspeellijst niet inlezen
 
 Unknown smart playlist type
 Onbekend type afspeellijst
-
-System commands are disabled
-Systeemcommando's uitgeschakeld
-
-Saving bookmark failed
-Saven bladwijzer mislukt
-
-Deleting bookmark failed
-Verwijderen bladwijzer mislukt
-
-System command not defined
-Systeemcommando niet bekend
-
-Successfully execute cmd %{cmd}
-Systeemcommando %{cmd} uitgevoerd
-
-Failed to execute cmd %{cmd}
-Uitvoeren mislukt cmd %{cmd}
-
-Failed to open bookmarks file
-Openen bladwijzer mislukt
-
-No bookmarks found
-Geen bladwijzers gevonden
 
 Background
 Achtergrond
@@ -869,9 +755,6 @@ Wachtrij vervangen door %{name}
 
 Saved smart playlist %{name}
 Slimme afspeellijst %{name} opgeslagen
-
-System commands
-Systemcommando
 
 Focus table
 In tabel navigeren
@@ -945,9 +828,6 @@ Musicbrainz Track ID
 MUSICBRAINZ_WORKID
 Musicbrainz Werk ID
 
-myMPD is in readonly mode
-myMPD is in alleen lezen modus
-
 Consume must be enabled
 Consumeren moet zijn ingeschakeld
 
@@ -1020,8 +900,8 @@ Gelijkenis op basis van
 Invalid name
 Ongeldige naam
 
-Last played older than (hours)
-Laatst afgespeeld, ouder dan (uur)
+Last played older than
+Laatst afgespeeld, ouder dan
 
 Minimum one weekday must be selected
 Selecteer minimaal 1 weekdag
@@ -1046,9 +926,6 @@ aan
 
 Oneshot
 Oneshot
-
-Other features
-Overige functies
 
 Start
 Start
@@ -1082,9 +959,6 @@ Za
 
 Sun
 Zo
-
-System command
-Systeemcommando
 
 LastModified
 Laatst gewijzigd
@@ -1146,9 +1020,6 @@ Volgorde
 Sort by tag
 Sorteer op tag
 
-Update smart playlists (hours)
-Update slimme afspeellijsten (uren)
-
 Smart playlists prefix
 Voorvoegsel slimme afspeellijsten
 
@@ -1173,9 +1044,6 @@ Delete lege afspeellijsten
 Delete playlists
 Delete afspeellijsten
 
-Media session support
-Mediasessie ondersteuning
-
 Playlists deleted
 Afspeellijsten gedeletet
 
@@ -1184,9 +1052,6 @@ Voorbeeld
 
 Info
 Info
-
-Error
-Fout
 
 Auto
 Auto
@@ -1235,9 +1100,6 @@ Aankoppelpunt
 
 Unmount
 Ontkoppelen
-
-No such directory
-Map niet gevonden
 
 Error in response to command: %{command}
 Uitvoerfout in: %{command}
@@ -1302,26 +1164,17 @@ Fout bij uitvoeren script %{script}
 Invalid script name
 Ongeldige script naam
 
-No mpd state for script execution submitted
-Geen MPD-status voor uitvoering script gegeven
-
 Script
 Script
 
 Script %{script} executed successfully
 Script %{script} succesvol uitgevoerd
 
-Scripting is disabled
-Scripten is uitgeschakeld
-
 Scripts
 Scripts
 
 Invalid script API request
 Ongeldige script-API-verzoek
-
-Remote scripting is disabled
-Scripten op afstand uitgeschakeld
 
 Arguments
 Argumenten
@@ -1367,9 +1220,6 @@ Script naam
 
 Sort order of the script, 0 disables listing in main menu
 Sorteervolgorde van het script, 0 schakelt lijst in hoofdmenu uit
-
-Editing scripts is disabled
-Bewerken scripts is uitgeschakeld
 
 Fullscreen
 Schermvullend

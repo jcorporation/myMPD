@@ -36,9 +36,9 @@
 #endif
 
 //privat definitions
-static bool handle_coverextract(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file);
-static bool handle_coverextract_id3(t_config *config, const char *uri, const char *media_file, sds *binary);
-static bool handle_coverextract_flac(t_config *config, const char *uri, const char *media_file, sds *binary, bool is_ogg);
+static bool handle_coverextract(struct mg_connection *nc, struct t_config *config, const char *uri, const char *media_file, bool covercache);
+static bool handle_coverextract_id3(struct t_config *config, const char *uri, const char *media_file, sds *binary, bool covercache);
+static bool handle_coverextract_flac(struct t_config *config, const char *uri, const char *media_file, sds *binary, bool is_ogg, bool covercache);
 
 //public functions
 void send_albumart(struct mg_connection *nc, sds data, sds binary) {
@@ -64,7 +64,10 @@ void send_albumart(struct mg_connection *nc, sds data, sds binary) {
 
 //returns true if an image is served
 //returns false if waiting for mpd_client to handle request
-bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm, t_mg_user_data *mg_user_data, t_config *config, long long conn_id) {
+bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm, 
+                     struct t_mg_user_data *mg_user_data, struct t_config *config, 
+                     long long conn_id)
+{
     //decode uri
     sds uri_decoded = sdsurldecode(sdsempty(), hm->uri.ptr, (int)hm->uri.len, 0);
     if (sdslen(uri_decoded) == 0) {
@@ -91,7 +94,7 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm, t_mg_
         }
         name += 3;
         uri_to_filename(name);
-        sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, name);
+        sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, name);
         MYMPD_LOG_DEBUG("Check for stream cover %s", coverfile);
         coverfile = find_image_file(coverfile);
         
@@ -110,14 +113,12 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm, t_mg_
     }
     //remove /albumart/
     sdsrange(uri_decoded, 10, -1);
-    //create absolute file
-    sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mg_user_data->music_directory, uri_decoded);
-    MYMPD_LOG_DEBUG("Absolut media_file: %s", mediafile);
+    
     //check covercache
-    if (config->covercache == true) {
+    if (mg_user_data->covercache == true) {
         sds filename = sdsdup(uri_decoded);
         uri_to_filename(filename);
-        sds covercachefile = sdscatfmt(sdsempty(), "%s/covercache/%s", config->varlibdir, filename);
+        sds covercachefile = sdscatfmt(sdsempty(), "%s/covercache/%s", config->workdir, filename);
         sdsfree(filename);
         covercachefile = find_image_file(covercachefile);
         if (sdslen(covercachefile) > 0) {
@@ -126,7 +127,6 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm, t_mg_
             mg_http_serve_file(nc, hm, covercachefile, mime_type, EXTRA_HEADERS_CACHE);
             sdsfree(uri_decoded);
             sdsfree(covercachefile);
-            sdsfree(mediafile);
             sdsfree(mime_type);
             return true;
         }
@@ -134,79 +134,87 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm, t_mg_
         MYMPD_LOG_DEBUG("No covercache file found");
         sdsfree(covercachefile);
     }
-    //check music_directory folder
-    if (mg_user_data->feat_library == true && mg_user_data->coverimage_names_len > 0 &&
+    
+    //create absolute file
+    sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mg_user_data->music_directory, uri_decoded);
+    MYMPD_LOG_DEBUG("Absolut media_file: %s", mediafile);
+    
+    if (mg_user_data->feat_library == true && 
         access(mediafile, F_OK) == 0) /* Flawfinder: ignore */
     {
         //try image in folder under music_directory
-        sds path = sdsdup(uri_decoded);
-        dirname(path);
-        for (int j = 0; j < mg_user_data->coverimage_names_len; j++) {
-            sds coverfile = sdscatfmt(sdsempty(), "%s/%s/%s", mg_user_data->music_directory, path, mg_user_data->coverimage_names[j]);
-            if (strchr(mg_user_data->coverimage_names[j], '.') == NULL) {
-                //basename, try extensions
-                coverfile = find_image_file(coverfile);
-            }
-            if (sdslen(coverfile) > 0 && access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
-                MYMPD_LOG_DEBUG("Check for cover %s", coverfile);
-                sds mime_type = get_mime_type_by_ext(coverfile);
-                MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
-                mg_http_serve_file(nc, hm, coverfile, mime_type, EXTRA_HEADERS_CACHE);
-                sdsfree(uri_decoded);
+        if (mg_user_data->coverimage_names_len > 0) {
+            sds path = sdsdup(uri_decoded);
+            dirname(path);
+            for (int j = 0; j < mg_user_data->coverimage_names_len; j++) {
+                sds coverfile = sdscatfmt(sdsempty(), "%s/%s/%s", mg_user_data->music_directory, path, mg_user_data->coverimage_names[j]);
+                if (strchr(mg_user_data->coverimage_names[j], '.') == NULL) {
+                    //basename, try extensions
+                    coverfile = find_image_file(coverfile);
+                }
+                if (sdslen(coverfile) > 0 && access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
+                    MYMPD_LOG_DEBUG("Check for cover %s", coverfile);
+                    sds mime_type = get_mime_type_by_ext(coverfile);
+                    MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
+                    mg_http_serve_file(nc, hm, coverfile, mime_type, EXTRA_HEADERS_CACHE);
+                    sdsfree(uri_decoded);
+                    sdsfree(coverfile);
+                    sdsfree(mediafile);
+                    sdsfree(mime_type);
+                    sdsfree(path); 
+                    return true;
+                }
                 sdsfree(coverfile);
-                sdsfree(mediafile);
-                sdsfree(mime_type);
-                sdsfree(path); 
-                return true;
             }
-            sdsfree(coverfile);
+            MYMPD_LOG_DEBUG("No cover file found in music directory");
+            sdsfree(path);
         }
-        MYMPD_LOG_DEBUG("No cover file found in music directory");
-        sdsfree(path);
-        //try to extract cover from media file
-        bool rc = handle_coverextract(nc, config, uri_decoded, mediafile);
+
+        //try to extract albumart from media file
+        bool rc = handle_coverextract(nc, config, uri_decoded, mediafile, mg_user_data->covercache);
         if (rc == true) {
             sdsfree(uri_decoded);
             sdsfree(mediafile);
             return true;
         }
     }
+    sdsfree(mediafile);
+
     //ask mpd
-    else if (mg_user_data->feat_library == false && mg_user_data->feat_mpd_albumart == true) {
+    if (mg_user_data->feat_mpd_albumart == true) {
         MYMPD_LOG_DEBUG("Sending getalbumart to mpd_client_queue");
-        t_work_request *request = create_request(conn_id, 0, MPD_API_ALBUMART, "MPD_API_ALBUMART", "");
-        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMART\",\"params\":{");
+        t_work_request *request = create_request(conn_id, 0, MYMPD_API_ALBUMART, "MYMPD_API_ALBUMART", "");
+        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_ALBUMART\",\"params\":{");
         request->data = tojson_char(request->data, "uri", uri_decoded, false);
         request->data = sdscat(request->data, "}}");
-
-        tiny_queue_push(mpd_client_queue, request, 0);
-        sdsfree(mediafile);
+        tiny_queue_push(mympd_api_queue, request, 0);
         sdsfree(uri_decoded);
         return false;
     }
 
-    MYMPD_LOG_INFO("No coverimage found for %s", mediafile);
-    sdsfree(mediafile);
+    MYMPD_LOG_INFO("No coverimage found for \"%s\"", uri_decoded);
     sdsfree(uri_decoded);
     serve_na_image(nc, hm);
     return true;
 }
 
 //privat functions
-static bool handle_coverextract(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file) {
+static bool handle_coverextract(struct mg_connection *nc, struct t_config *config, 
+                                const char *uri, const char *media_file, bool covercache)
+{
     bool rc = false;
     sds mime_type_media_file = get_mime_type_by_ext(media_file);
     MYMPD_LOG_DEBUG("Handle coverextract for uri \"%s\"", uri);
     MYMPD_LOG_DEBUG("Mimetype of %s is %s", media_file, mime_type_media_file);
     sds binary = sdsempty();
     if (strcmp(mime_type_media_file, "audio/mpeg") == 0) {
-        rc = handle_coverextract_id3(config, uri, media_file, &binary);
+        rc = handle_coverextract_id3(config, uri, media_file, &binary, covercache);
     }
     else if (strcmp(mime_type_media_file, "audio/ogg") == 0) {
-        rc = handle_coverextract_flac(config, uri, media_file, &binary, true);
+        rc = handle_coverextract_flac(config, uri, media_file, &binary, true, covercache);
     }
     else if (strcmp(mime_type_media_file, "audio/flac") == 0) {
-        rc = handle_coverextract_flac(config, uri, media_file, &binary, false);
+        rc = handle_coverextract_flac(config, uri, media_file, &binary, false, covercache);
     }
     sdsfree(mime_type_media_file);
     if (rc == true) {
@@ -222,7 +230,9 @@ static bool handle_coverextract(struct mg_connection *nc, t_config *config, cons
     return rc;
 }
 
-static bool handle_coverextract_id3(t_config *config, const char *uri, const char *media_file, sds *binary) {
+static bool handle_coverextract_id3(struct t_config *config, const char *uri, const char *media_file, 
+                                    sds *binary, bool covercache)
+{
     bool rc = false;
     #ifdef ENABLE_LIBID3TAG
     MYMPD_LOG_DEBUG("Exctracting coverimage from %s", media_file);
@@ -241,8 +251,8 @@ static bool handle_coverextract_id3(t_config *config, const char *uri, const cha
         id3_length_t length;
         const id3_byte_t *pic = id3_field_getbinarydata(id3_frame_field(frame, 4), &length);
         *binary = sdscatlen(*binary, pic, length);
-        if (config->covercache == true) {
-            write_covercache_file(config, uri, (char *)id3_field_getlatin1(id3_frame_field(frame, 1)), *binary);
+        if (covercache == true) {
+            write_covercache_file(config->workdir, uri, (char *)id3_field_getlatin1(id3_frame_field(frame, 1)), *binary);
         }
         MYMPD_LOG_DEBUG("Coverimage successfully extracted");
         rc = true;        
@@ -260,7 +270,9 @@ static bool handle_coverextract_id3(t_config *config, const char *uri, const cha
     return rc;
 }
 
-static bool handle_coverextract_flac(t_config *config, const char *uri, const char *media_file, sds *binary, bool is_ogg) {
+static bool handle_coverextract_flac(struct t_config *config, const char *uri, const char *media_file, 
+                                     sds *binary, bool is_ogg, bool covercache)
+{
     bool rc = false;
     #ifdef ENABLE_FLAC
     MYMPD_LOG_DEBUG("Exctracting coverimage from %s", media_file);
@@ -290,8 +302,8 @@ static bool handle_coverextract_flac(t_config *config, const char *uri, const ch
     }
     else {
         *binary = sdscatlen(*binary, metadata->data.picture.data, metadata->data.picture.data_length);
-        if (config->covercache == true) {
-            write_covercache_file(config, uri, metadata->data.picture.mime_type, *binary);
+        if (covercache == true) {
+            write_covercache_file(config->workdir, uri, metadata->data.picture.mime_type, *binary);
         }
         MYMPD_LOG_DEBUG("Coverimage successfully extracted");
         rc = true;

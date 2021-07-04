@@ -2,7 +2,7 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-const CACHE = 'myMPD-cache-v7.0.2';
+const CACHE = 'myMPD-cache-v8.0.0';
 const subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
 const urlsToCache = [
     subdir + '/',
@@ -28,6 +28,7 @@ const ignoreRequests = new RegExp('(' + [
 	subdir + '/stream/',
 	subdir + '/pics/(.*)',
 	subdir + '/albumart/(.*)',
+	subdir + '/tagart/(.*)',
 	subdir + '/browse/(.*)'].join('|') + ')$');
 
 self.addEventListener('install', function(event) {

@@ -48,7 +48,7 @@ extern "C" {
 
 /**
  * Sends the "readpicture" command to MPD.  Call mpd_recv_readpicture() to
- * read response lines. 
+ * read response lines.
  *
  * @param connection a valid and connected #mpd_connection
  * @param uri the URI of the song

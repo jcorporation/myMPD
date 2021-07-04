@@ -207,9 +207,6 @@ Enregistrer comme liste de lecture intelligente
 To top
 Remonter
 
-Bookmarks
-Marque-pages
-
 Select tag to search
 Choisir les tags pour la recherche
 
@@ -221,9 +218,6 @@ Initialisation de myMPD
 
 Fetch myMPD settings
 Récupération des paramètres de myMPD
-
-Fetch MPD settings
-Récupération des paramètres de MPD
 
 Connect to websocket
 Connection à la websocket
@@ -285,15 +279,6 @@ Effacer la liste de lecture
 Delete
 Effacer
 
-Love song
-J'adore cette chanson
-
-Scrobbled love
-Scrobbler les chansons adorées
-
-Failed to send love message to channel
-Echec de l'envoi du statut adoré
-
 Dislike song
 Je n'aime pas cette chanson
 
@@ -303,20 +288,11 @@ J'aime cette chanson
 MPD stickers are disabled
 Les stickers MPD sont désactivés
 
-folder.jpg
-folder.jpg
-
-Size in px
-Taille en pixels
-
 Save smart playlist
 Enregistrer la liste de lecture intelligente
 
 Name
 Nom
-
-Tag
-Tag
 
 Tags
 Tags
@@ -366,12 +342,6 @@ Replaygain
 Off
 Off
 
-Mixramp DB
-Mixramp DB
-
-Mixramp delay
-Délai de Mixramp
-
 Autoplay
 Jouer automatiquement
 
@@ -390,20 +360,11 @@ Doit être un nombre supérieur à zéro
 Albumart
 Jaquette
 
-Can't access music directory
-Dossier de musiques non accessible
-
-Invalid size
-Taille non valide
-
 Background color
 Couleur d'arrière plan
 
 Highlight color
 Couleur de mise en valeur
-
-Invalid color
-Couleur non valide
 
 CSS filter
 Filtre CSS
@@ -441,9 +402,6 @@ Lecture locale
 Statistics
 Statistiques
 
-Stickers are disabled
-Les Stickers sont désactivés
-
 Playback statistics
 Statistiques de lecture
 
@@ -470,36 +428,6 @@ Echec de la mise à jour de la liste de lecture intelligente %{playlist}
 
 Smart playlist
 Liste de lecture intelligente
-
-Playlists are disabled
-Listes de lecture désactivées
-
-Scrobbler integration
-Intégration de Scrobbler (recommandations musicales)
-
-MPD channel not found
-Canal MPD non trouvé
-
-Send love message
-Envoyer statut "adoré"
-
-MPD channel
-Canal MPD
-
-Invalid channel name
-nom de canal non valide
-
-Message
-Message
-
-Invalid message
-Message non valide
-
-Reset
-Remise à zéro
-
-Reset settings
-Remise à zéro des paramètres
 
 Clear app cache and reload
 Vider le cache de l'application et recharger
@@ -602,18 +530,6 @@ Nom de la liste de lecture
 
 Quantity
 Quantité
-
-Save bookmark
-Enregistrer le marque-page
-
-Clearing bookmarks failed
-Echec de suppression des marque-pages
-
-Bookmark name
-Nom du marque-page
-
-Bookmark URI
-URL du marque-page
 
 Song details
 Détails de la chanson
@@ -726,9 +642,6 @@ Ajouter après la chanson en cours
 View playlist
 Voir la liste de lecture
 
-Add bookmark
-Ajouter marque-page
-
 Replace queue
 Remplacer la queue
 
@@ -777,13 +690,10 @@ Nouvelle liste de lecture
 never
 jamais
 
-Failed to save playlist
-Echec de l'enregistrement de la liste de lecture
-
 Added %{uri} to playlist %{playlist}
 Ajout de %{uri} à la iste de lecture %{playlist}
 
-Sucessfully added random songs to queue
+Successfully added random songs to queue
 Chansons aléatoires ajoutées à la queue
 
 Adding random songs to queue failed
@@ -804,7 +714,7 @@ Erreur de connection MPD : %{error}
 Renaming playlist failed
 Echec du renommage de la liste de lecture
 
-Sucessfully renamed playlist
+Successfully renamed playlist
 Liste de lexture renommée
 
 Can not crop the queue
@@ -818,30 +728,6 @@ Le fichier de liste de lecture intelligente ne peut être analysé
 
 Unknown smart playlist type
 Type de liste de lecture intelligente inconnu
-
-System commands are disabled
-Les commandes système sont désactivées
-
-Saving bookmark failed
-Echec d'enregistrement du marque-page
-
-Deleting bookmark failed
-Echec de la suppression du marque-page
-
-System command not defined
-Commande système non définie
-
-Successfully execute cmd %{cmd}
-Commande %{cmd} réussie
-
-Failed to execute cmd %{cmd}
-Echec de l'exécution de la commande %{cmd}
-
-Failed to open bookmarks file
-Echec de l'ouverture du fichier des marque-pages
-
-No bookmarks found
-Marque-pages non trouvés
 
 Background
 Fond
@@ -872,9 +758,6 @@ Queue remplacée par %{name}
 
 Saved smart playlist %{name}
 Liste de lecture %{name} enregistrée
-
-System commands
-Commandes système
 
 Focus table
 Focus table (trad non trouvée)
@@ -948,9 +831,6 @@ MUSICBRAINZ_TRACKID
 MUSICBRAINZ_WORKID
 MUSICBRAINZ_TRACKID
 
-myMPD is in readonly mode
-myMPD est en lecture seule
-
 Consume must be enabled
 Consummer doit être activé
 
@@ -1023,8 +903,8 @@ Eliminer les doublons
 Invalid name
 Nom non valide
 
-Last played older than (hours)
-Dernier lu de plus de (heures)
+Last played older than
+Dernier lu de plus de
 
 Minimum one weekday must be selected
 Choisir wu moins un jour
@@ -1049,9 +929,6 @@ actif
 
 Oneshot
 Unique
-
-Other features
-Autres fonctionnalités
 
 Start
 Lancer
@@ -1085,9 +962,6 @@ Sam
 
 Sun
 Dim
-
-System command
-Commande système
 
 LastModified
 Dernière modification
@@ -1149,9 +1023,6 @@ Ordre
 Sort by tag
 Trier par tags
 
-Update smart playlists (hours)
-Mise à jour des listes de lecture intelligentes (heures)
-
 Smart playlists prefix
 Préfixe des listes de lecture intelligentes
 
@@ -1176,9 +1047,6 @@ Supprimer toutes les listes de lecture vides
 Delete playlists
 Supprimer les listes de lecture
 
-Media session support
-Session de médias supportée
-
 Playlists deleted
 Listes de lecture supprimées
 
@@ -1187,9 +1055,6 @@ Prévisualisation
 
 Info
 Infos
-
-Error
-Erreur
 
 Auto
 Auto
@@ -1238,9 +1103,6 @@ Point de montage
 
 Unmount
 Démonter
-
-No such directory
-Dossier introuvable
 
 Error in response to command: %{command}
 Erreur en réponse à la commande %{command}
@@ -1305,26 +1167,17 @@ Erreur d'éxecution du sript %{script}
 Invalid script name
 Nom du script non valide
 
-No mpd state for script execution submitted
-Pas d'état de mpd fourni pour l'exécution du script
-
 Script
 Script
 
 Script %{script} executed successfully
 Script %{script} exécuté
 
-Scripting is disabled
-Les scripts sont désactivés
-
 Scripts
 Scripte
 
 Invalid script API request
 Requête d'API des scripts non valide
-
-Remote scripting is disabled
-Les scripts distants sont désactivés
 
 Arguments
 Paramètres
@@ -1370,9 +1223,6 @@ Nom du script
 
 Sort order of the script, 0 disables listing in main menu
 Ordre de tri du script, 0 désactive le listing dans le menu principal
-
-Editing scripts is disabled
-Edition des scripts désactivé
 
 Fullscreen
 Plein écran

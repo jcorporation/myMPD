@@ -30,6 +30,7 @@ for my $dirname (@dirs) {
         next if $entry eq "bootstrap-native.js";
         next if $entry eq "long-press-event.js";
         next if $entry eq "i18n.js";
+        next if $entry eq "apidoc.js";
         push @files, $dirname.$1 if $entry =~ /^(\w+\.(c|js))$/;
     }
     closedir $dir;
@@ -65,6 +66,8 @@ for my $filename (@files) {
 
 #print i18n.js
 print "const locales=[";
+print "\n\t" if $pretty eq 1;
+print "{\"code\":\"default\",\"desc\":\"Browser default\"},";
 print "\n\t" if $pretty eq 1;
 my $i = 0;
 for my $lang (sort @langs) {

@@ -11,11 +11,8 @@ let lastSongObj = {};
 let lastState;
 const currentSong = {};
 let playstate = '';
-let settingsLock = false;
-let settingsParsed = false;
-let settingsNew = {};
-let settings = {};
-settings.loglevel = 2;
+let settings = {"loglevel": 2};
+let settingsParsed = 'no';
 let alertTimeout = null;
 let progressTimer = null;
 let deferredA2HSprompt;
@@ -24,11 +21,13 @@ let dragEl;
 let showSyncedLyrics = false;
 let scrollSyncedLyrics = true;
 let appInited = false;
+let scriptsInited = false;
 let subdir = '';
 let uiEnabled = true;
 let locale = navigator.language || navigator.userLanguage;
 let scale = '1.0';
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const hasIO = 'IntersectionObserver' in window ? true : false;
 const ligatureMore = 'menu';
 const progressBarTransition = 'width 1s linear';
 let tagAlbumArtist = 'AlbumArtist';
@@ -39,14 +38,6 @@ const browseFilesystemHistory = {};
 //list of stickers
 const stickerList = ['stickerPlayCount', 'stickerSkipCount', 'stickerLastPlayed', 
     'stickerLastSkipped', 'stickerLike'];
-
-//list of themes
-const themes = {
-    "theme-autodetect": "Autodetect",
-    "theme-default": "Default",
-    "theme-dark": "Dark",
-    "theme-light": "Light"
-};
 
 //application state
 const app = {};
@@ -175,8 +166,69 @@ app.apps = {
 app.current = { "app": "Home", "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 app.last = { "app": undefined, "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 
-//advanced settings default values und ui display configuration
-const advancedSettingsDefault = {
+//normal settings
+const settingFields = {
+    "volumeMin": {
+        "defaultValue": 0,
+        "inputType": "input",
+        "title": "Volume min.",
+        "form": "volumeSettingsFrm",
+        "reset": true
+    },
+    "volumeMax": {
+        "defaultValue": 100,
+        "inputType": "input",
+        "title": "Volume max.",
+        "form": "volumeSettingsFrm",
+        "reset": true
+    },
+    "volumeStep": {
+        "defaultValue": 5,
+        "inputType": "input",
+        "title": "Volume step",
+        "form": "volumeSettingsFrm",
+        "reset": true
+    },
+    "lyricsUsltExt": {
+        "defaultValue": "txt",
+        "inputType": "input",
+        "title": "Unsynced lyrics extension",
+        "form": "collapseEnableLyrics",
+        "reset": true
+    },
+    "lyricsSyltExt": {
+        "defaultValue": "lrc",
+        "inputType": "input",
+        "title": "Synced lyrics extension",
+        "form": "collapseEnableLyrics",
+        "reset": true
+    },
+    "lyricsVorbisUslt": {
+        "defaultValue": "LYRICS",
+        "inputType": "input",
+        "title": "Unsynced lyrics vorbis comment",
+        "form": "collapseEnableLyrics",
+        "reset": true
+    },
+    "lyricsVorbisSylt": {
+        "defaultValue": "SYNCEDLYRICS",
+        "inputType": "input",
+        "title": "Synced lyrics vorbis comment",
+        "form": "collapseEnableLyrics",
+        "reset": true
+    },
+    "lastPlayedCount": {
+        "defaultValue": 200,
+        "inputType": "input",
+        "title": "Last played list count",
+        "form": "statisticsFrm",
+        "reset": true,
+        "invalid": "Must be a number and greater than zero"
+    }
+};
+
+//advanced settings default values
+const webuiSettingsDefault = {
     "clickSong": { 
         "defaultValue": "append", 
         "validValues": { 
@@ -186,7 +238,7 @@ const advancedSettingsDefault = {
         }, 
         "inputType": "select",
         "title": "Click song",
-        "form": "AdvancedSettingsFrm"
+        "form": "advancedSettingsFrm"
     },
     "clickQueueSong": { 
         "defaultValue": "play", 
@@ -196,7 +248,7 @@ const advancedSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click song in queue",
-        "form": "AdvancedSettingsFrm"
+        "form": "advancedSettingsFrm"
     },
     "clickPlaylist": { 
         "defaultValue": "append", 
@@ -207,7 +259,7 @@ const advancedSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click playlist",
-        "form": "AdvancedSettingsFrm"
+        "form": "advancedSettingsFrm"
     },
     "clickFolder": { 
         "defaultValue": "view", 
@@ -218,7 +270,7 @@ const advancedSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click folder",
-        "form": "AdvancedSettingsFrm"
+        "form": "advancedSettingsFrm"
     },
     "clickAlbumPlay": { 
         "defaultValue": "replace", 
@@ -228,7 +280,7 @@ const advancedSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click album play button",
-        "form": "AdvancedSettingsFrm"
+        "form": "advancedSettingsFrm"
     },
     "notificationAAASection": {
         "inputType": "section",
@@ -271,16 +323,29 @@ const advancedSettingsDefault = {
         "title": "Script",
         "form": "NotificationSettingsAdvFrm"
     },
-    "uiAAASection": {
-        "inputType": "section",
-        "title": "Appearance",
-        "form": "AdvancedSettingsFrm"
+    "notifyPage": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "On page notifications",
+        "form": "NotificationSettingsFrm"
+    },
+    "notifyWeb": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Web notifications",
+        "form": "NotificationSettingsFrm"
+    },
+    "mediaSession": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Media session",
+        "form": "NotificationSettingsFrm"
     },
     "uiFooterQueueSettings": {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Show playback settings in footer",
-        "form": "AdvancedSettingsFrm"
+        "form": "footerFrm"
     },
     "uiFooterPlaybackControls": {
         "defaultValue": "pause",
@@ -291,7 +356,7 @@ const advancedSettingsDefault = {
         },
         "inputType": "select",
         "title": "Playback controls",
-        "form": "AdvancedSettingsFrm"
+        "form": "footerFrm"
     },
     "uiMaxElementsPerPage": {
         "defaultValue": "100",
@@ -303,15 +368,147 @@ const advancedSettingsDefault = {
             "0": "All"
         },
         "inputType": "select",
+        "contentType": "integer",
         "title": "Elements per page",
-        "form": "AdvancedSettingsFrm"
+        "form": "appearanceSettingsFrm"
     },
-    "uiLocalPlayback": {
+    "enableHome": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Homescreen",
+        "form": "enableFeaturesFrm"
+    },
+    "enableScripting": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Scripting",
+        "form": "enableFeaturesFrm",
+        "warn": "Lua is not compiled in"
+    },
+    "enableTrigger": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Trigger",
+        "form": "enableFeaturesFrm"
+    },
+    "enableTimer": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Timer",
+        "form": "enableFeaturesFrm"
+    },
+    "enableMounts": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Mounts",
+        "form": "enableFeaturesFrm",
+        "warn": "MPD does not support mounts"
+    },
+    "enableLocalPlayback": {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Local playback",
-        "form": "AdvancedSettingsFrm"
+        "form": "enableFeaturesFrm"
+    },
+    "enablePartitions": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Partitions",
+        "form": "enableFeaturesFrm",
+        "warn": "MPD does not support partitions"
+    },
+    "uiTheme": {
+        "defaultValue": "theme-dark",
+        "validValues": {
+            "theme-autodetect": "Autodetect",
+            "theme-default": "Default",
+            "theme-dark": "Dark",
+            "theme-light": "Light"
+        },
+        "inputType": "select",
+        "title": "Theme",
+        "form": "themeFrm",
+        "onChange": "eventChangeTheme"
+    },
+    "uiHighlightColor": {
+        "defaultValue": "#28a745",
+        "inputType": "color",
+        "title": "Highlight color",
+        "form": "themeFrm",
+        "reset": true
+    },
+    "uiCoverimageSize": {
+        "defaultValue": 250,
+        "inputType": "input",
+        "contentType": "integer",
+        "title": "Size normal",
+        "form": "coverimageFrm",
+        "reset": true
+    },
+    "uiCoverimageSizeSmall": {
+        "defaultValue": 175,
+        "inputType": "input",
+        "contentType": "integer",
+        "title": "Size small",
+        "form": "coverimageFrm",
+        "reset": true
+    },
+    "uiBgColor": {
+        "defaultValue": "#000000",
+        "inputType": "color",
+        "title": "Color",
+        "form": "bgFrm",
+        "reset": true
+    },
+    "uiBgImage": {
+        "defaultValue": "/assets/mympd-background-dark.svg",
+        "inputType": "select",
+        "title": "Image",
+        "form": "bgFrm2"
+    },
+    "uiBgCover": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Albumart",
+        "form": "bgFrm"
+    },
+    "uiBgCssFilter": {
+        "defaultValue": "grayscale(100%) opacity(10%)",
+        "inputType": "input",
+        "title": "CSS filter",
+        "form": "bgCssFilterFrm",
+        "reset": true
+    },
+    "uiLocale": {
+        "defaultValue": "default",
+        "inputType": "select",
+        "title": "Locale",
+        "form": "localeFrm",
+        "onChange": "eventChangeLocale"
     }
+};
+
+//features
+const features = {
+    "featAdvsearch": true,
+    "featCacert": false,
+    "featHome": true,
+    "featLibrary": false,
+    "featLocalPlayback": false,
+    "featLyrics": false,
+    "featMounts": true,
+    "featNeighbors": true,
+    "featPartitions": true,
+    "featPlaylists": true,
+    "featSingleOneShot": true,
+    "featScripting": true,
+    "featSmartpls": true,
+    "featStickers": false,
+    "featTags": true,
+    "featTimer": true,
+    "featTrigger": true,
+    "featBinarylimit": true,
+    "featFingerprint": false
 };
 
 //keyboard shortcuts
@@ -322,9 +519,9 @@ const keymap = {
     "s": {"cmd": "clickStop", "options": [], "desc": "Stop playing"},
     "-": {"cmd": "volumeStep", "options": ["down"], "desc": "Volume down"},
     "+": {"cmd": "volumeStep", "options": ["up"], "desc": "Volume up"},
-    "c": {"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}], "desc": "Clear queue"},
-    "u": {"cmd": "updateDB", "options": ["", true], "desc": "Update database"},
-    "r": {"cmd": "rescanDB", "options": ["", true], "desc": "Rescan database"},
+    "c": {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}], "desc": "Clear queue"},
+    "u": {"cmd": "updateDB", "options": ["", true, false], "desc": "Update database"},
+    "r": {"cmd": "updateDB", "options": ["", true, true], "desc": "Rescan database"},
     "p": {"cmd": "updateSmartPlaylists", "options": [false], "desc": "Update smart playlists", "req": "featSmartpls"},
     "a": {"cmd": "showAddToPlaylist", "options": ["stream", ""], "desc": "Add stream"},
     "t": {"cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
@@ -341,8 +538,8 @@ const keymap = {
     "8": {"cmd": "appGoto", "options": ["Search"], "desc": "Goto search"},
     "m": {"cmd": "openDropdown", "options": ["dropdownMainMenu"], "desc": "Open main menu"},
     "v": {"cmd": "openDropdown", "options": ["dropdownVolumeMenu"], "desc": "Open volume menu"},
-    "S": {"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_SHUFFLE"}], "desc": "Shuffle queue"},
-    "C": {"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP"}], "desc": "Crop queue"},
+    "S": {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_SHUFFLE"}], "desc": "Shuffle queue"},
+    "C": {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}], "desc": "Crop queue"},
     "?": {"cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
     "/": {"cmd": "focusSearch", "options": [], "desc": "Focus search"},
     "n": {"cmd": "focusTable", "options": [], "desc": "Focus table"},
@@ -374,7 +571,6 @@ uiElements.modalAddToPlaylist = new BSN.Modal(document.getElementById('modalAddT
 uiElements.modalRenamePlaylist = new BSN.Modal(document.getElementById('modalRenamePlaylist'));
 uiElements.modalUpdateDB = new BSN.Modal(document.getElementById('modalUpdateDB'));
 uiElements.modalSaveSmartPlaylist = new BSN.Modal(document.getElementById('modalSaveSmartPlaylist'));
-uiElements.modalSaveBookmark = new BSN.Modal(document.getElementById('modalSaveBookmark'));
 uiElements.modalTimer = new BSN.Modal(document.getElementById('modalTimer'));
 uiElements.modalMounts = new BSN.Modal(document.getElementById('modalMounts'));
 uiElements.modalExecScript = new BSN.Modal(document.getElementById('modalExecScript'));
@@ -389,7 +585,6 @@ uiElements.modalConfirm = new BSN.Modal(document.getElementById('modalConfirm'))
 
 uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 uiElements.dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
-uiElements.dropdownBookmarks = new BSN.Dropdown(document.getElementById('BrowseFilesystemBookmark'));
 uiElements.dropdownLocalPlayer = new BSN.Dropdown(document.getElementById('localPlaybackMenu'));
 uiElements.dropdownDatabaseSort = new BSN.Dropdown(document.getElementById('btnDatabaseSortDropdown'));
 uiElements.dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNeighbors'));
@@ -397,6 +592,20 @@ uiElements.dropdownHomeIconLigature = new BSN.Dropdown(document.getElementById('
 
 uiElements.collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
 uiElements.collapseSettings = new BSN.Collapse(document.getElementById('navSettings'));
-uiElements.collapseSyscmds = new BSN.Collapse(document.getElementById('navSyscmds'));
 uiElements.collapseScripting = new BSN.Collapse(document.getElementById('navScripting'));
 uiElements.collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukeboxMode'));
+
+const LUAfunctions = {
+    "mympd_api_http_client": {
+        "desc": "HTTP client",
+        "func": "rc, response, header, body = mympd_api_http_client(method, uri, headers, payload)"
+    },
+    "mympd.init": {
+        "desc": "Initializes the mympd_state lua table",
+        "func": "mympd.init()"
+    },
+    "mympd.os_capture": {
+        "desc":	"Executes a system command and capture its output.",
+        "func": "output = mympd.os_capture(command)"
+    }
+};

@@ -58,7 +58,7 @@ function sendAPI(method, params, callback, onerror) {
                 if (onerror === true) {
                     if (callback !== undefined && typeof(callback) === 'function') {
                         logDebug('Got empty API response calling ' + callback.name);
-                        callback('');
+                        callback({"error": {"message": "Empty response"}});
                     }
                 }
             }
@@ -112,8 +112,8 @@ function webSocketConnect() {
                 case 'welcome':
                     websocketConnected = true;
                     showNotification(t('Connected to myMPD'), wsUrl, 'general', 'info');
-                    appRoute();
-                    sendAPI('MPD_API_PLAYER_STATE', {}, parseState, true);
+                    //appRoute();
+                    sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, true);
                     break;
                 case 'update_state':
                     obj.result = obj.params;
@@ -128,7 +128,7 @@ function webSocketConnect() {
                 case 'mpd_connected':
                     //MPD connection established get state and settings
                     showNotification(t('Connected to MPD'), '', 'general', 'info');
-                    sendAPI('MPD_API_PLAYER_STATE', {}, parseState);
+                    sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState);
                     getSettings(true);
                     break;
                 case 'update_queue':
@@ -142,7 +142,7 @@ function webSocketConnect() {
                     getSettings();
                     break;
                 case 'update_outputs':
-                    sendAPI('MPD_API_PLAYER_OUTPUT_LIST', {}, parseOutputs);
+                    sendAPI('MYMPD_API_PLAYER_OUTPUT_LIST', {}, parseOutputs);
                     break;
                 case 'update_started':
                     updateDBstarted(false);
@@ -158,20 +158,20 @@ function webSocketConnect() {
                     break;
                 case 'update_stored_playlist':
                     if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
-                        sendAPI('MPD_API_PLAYLIST_LIST', {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search}, parsePlaylistsList);
+                        sendAPI('MYMPD_API_PLAYLIST_LIST', {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search}, parsePlaylistsList);
                     }
                     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-                        sendAPI('MPD_API_PLAYLIST_CONTENT_LIST', {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, "uri": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylistsDetail);
+                        sendAPI('MYMPD_API_PLAYLIST_CONTENT_LIST', {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, "plist": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylistsDetail);
                     }
                     break;
                 case 'update_lastplayed':
                     if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
-                        sendAPI('MPD_API_QUEUE_LAST_PLAYED', {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
+                        sendAPI('MYMPD_API_QUEUE_LAST_PLAYED', {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
                     }
                     break;
                 case 'update_jukebox':
                     if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
-                        sendAPI('MPD_API_JUKEBOX_LIST', {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
+                        sendAPI('MYMPD_API_JUKEBOX_LIST', {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
                     }
                     break;
                 case 'notify':

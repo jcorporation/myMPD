@@ -5,32 +5,21 @@
 #
 
 project (mympd C)
-set(CPACK_PACKAGE_VERSION_MAJOR "7")
+set(CPACK_PACKAGE_VERSION_MAJOR "8")
 set(CPACK_PACKAGE_VERSION_MINOR "0")
-set(CPACK_PACKAGE_VERSION_PATCH "2")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 cmake_minimum_required(VERSION 3.4)
 include(GNUInstallDirs)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 
-if(EXISTS "/etc/arch-release")
-  set(WEBAPPS "/webapps/${PROJECT_NAME}")
-else()
-  set(WEBAPPS "")
-endif()
-
 if("${CMAKE_INSTALL_PREFIX}" MATCHES "/usr")
-  set(SUBDIR_ETC "${WEBAPPS}")
   set(SUBDIR "/${PROJECT_NAME}")
   set(SUBDIRLIB "/lib")
 else() 
-  set(SUBDIR_ETC "")
   set(SUBDIR "")
   set(SUBDIRLIB "")
 endif()
-
-set(ETC_PATH "${CMAKE_INSTALL_FULL_SYSCONFDIR}${SUBDIR_ETC}")
-message("ETC_PATH: ${ETC_PATH}")
 
 message("BIN_PATH: ${CMAKE_INSTALL_FULL_BINDIR}")
 
@@ -59,7 +48,7 @@ if(NOT "${ENABLE_SSL}" MATCHES "OFF")
   message("Searching for openssl")
   find_package(OpenSSL)
 endif()
-if((OPENSSL_FOUND) AND ("${OPENSSL_VERSION}" VERSION_GREATER "1.1.0"))
+if((OPENSSL_FOUND) AND ("${OPENSSL_VERSION}" VERSION_GREATER_EQUAL "1.1.0"))
   set(ENABLE_SSL "ON")
   set(MONGOOSE_SSL "-DMG_ENABLE_OPENSSL=1")
   include_directories(${OPENSSL_INCLUDE_DIR})
@@ -94,7 +83,7 @@ endif()
 
 if(NOT "${ENABLE_LUA}" MATCHES "OFF")
   IF(EXISTS "/etc/alpine-release")                                        
-    set(ENV{LUA_DIR} "/usr/lib/lua5.3")                                 
+    set(ENV{LUA_DIR} "/usr/lib/lua5.4")                                 
   endif()     
   message("Searching for lua")
   find_package(Lua)
@@ -178,24 +167,25 @@ set(SOURCES
   src/api.c
   src/covercache.c
   src/global.c
+  src/handle_options.c
   src/list.c
   src/tiny_queue.c
   src/log.c
+  src/mympd_autoconf.c
   src/mympd_config.c
-  src/handle_options.c
+  src/mympd_migrate.c
   src/utility.c
   src/random.c
   src/sds_extras.c
+  src/state_files.c
   src/http_client.c
   src/lua_mympd_state.c
   src/mpd_shared.c
   src/mpd_shared/mpd_shared_search.c
   src/mpd_shared/mpd_shared_tags.c
   src/mpd_shared/mpd_shared_playlists.c
-  src/mpd_shared/mpd_shared_features.c
   src/mpd_shared/mpd_shared_sticker.c
   src/mpd_client.c
-  src/mpd_client/mpd_client_api.c
   src/mpd_client/mpd_client_cover.c
   src/mpd_client/mpd_client_browse.c
   src/mpd_client/mpd_client_features.c
@@ -203,7 +193,6 @@ set(SOURCES
   src/mpd_client/mpd_client_utility.c
   src/mpd_client/mpd_client_playlists.c
   src/mpd_client/mpd_client_queue.c
-  src/mpd_client/mpd_client_settings.c
   src/mpd_client/mpd_client_state.c
   src/mpd_client/mpd_client_stats.c
   src/mpd_client/mpd_client_sticker.c
@@ -218,20 +207,19 @@ set(SOURCES
   src/mpd_worker/mpd_worker_smartpls.c
   src/mpd_worker/mpd_worker_cache.c
   src/mympd_api.c
-  src/mympd_api/mympd_api_bookmarks.c
+  src/mympd_api/mympd_api_handler.c
   src/mympd_api/mympd_api_home.c
   src/mympd_api/mympd_api_utility.c
   src/mympd_api/mympd_api_settings.c
-  src/mympd_api/mympd_api_syscmds.c
   src/mympd_api/mympd_api_timer.c
   src/mympd_api/mympd_api_timer_handlers.c
   src/mympd_api/mympd_api_scripts.c
   src/web_server.c
   src/web_server/web_server_utility.c
   src/web_server/web_server_albumart.c
+  src/web_server/web_server_tagart.c
   dist/src/mongoose/mongoose.c
   dist/src/frozen/frozen.c
-  dist/src/inih/ini.c
   dist/src/sds/sds.c
   dist/src/rax/rax.c
   dist/src/tinymt/tinymt32.c

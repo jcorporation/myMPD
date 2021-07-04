@@ -14,7 +14,7 @@ function focusTable(rownr, table) {
             return; 
         }
         table = tables[0];
-        for (let i = 0; i < tables.length; i++) {
+        for (let i = 0, j = tables.length; i < j; i++) {
             if (tables[i].classList.contains('selected')) {
                 table = tables[i];
                 break;
@@ -29,7 +29,7 @@ function focusTable(rownr, table) {
             return; 
         }
         table = tables[0];
-        for (let i = 0; i < tables.length; i++) {
+        for (let i = 0, j = tables.length; i < j; i++) {
             if (tables[i].classList.contains('selected')) {
                 table = tables[i];
                 break;
@@ -190,8 +190,7 @@ function dragAndDropTable(table) {
             return;
         }
         const tr = tableBody.getElementsByClassName('dragover');
-        const trLen = tr.length;
-        for (let i = 0; i < trLen; i++) {
+        for (let i = 0, j = tr.length; i < j; i++) {
             tr[i].classList.remove('dragover');
         }
         let target = event.target;
@@ -209,8 +208,7 @@ function dragAndDropTable(table) {
             return;
         }
         const tr = tableBody.getElementsByClassName('dragover');
-        const trLen = tr.length;
-        for (let i = 0; i < trLen; i++) {
+        for (let i = 0, j = tr.length; i < j; i++) {
             tr[i].classList.remove('dragover');
         }
         if (document.getElementById(event.dataTransfer.getData('Text'))) {
@@ -228,19 +226,18 @@ function dragAndDropTable(table) {
         if (event.target.nodeName === 'TD') {
             target = event.target.parentNode;
         }
-        const oldSongpos = getAttDec(document.getElementById(event.dataTransfer.getData('Text')), 'data-songpos');
-        const newSongpos = getAttDec(target, 'data-songpos');
+        const oldSongpos = getCustomDomProperty(document.getElementById(event.dataTransfer.getData('Text')), 'data-songpos');
+        const newSongpos = getCustomDomProperty(target, 'data-songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.classList.remove('opacity05');
         tableBody.insertBefore(dragEl, target);
         const tr = tableBody.getElementsByClassName('dragover');
-        const trLen = tr.length;
-        for (let i = 0; i < trLen; i++) {
+        for (let i = 0, j = tr.length; i < j; i++) {
             tr[i].classList.remove('dragover');
         }
         document.getElementById(table).classList.add('opacity05');
         if (app.current.app === 'Queue' && app.current.tab === 'Current') {
-            sendAPI("MPD_API_QUEUE_MOVE_TRACK", {"from": oldSongpos, "to": newSongpos});
+            sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {"from": oldSongpos, "to": newSongpos});
         }
         else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
             playlistMoveTrack(oldSongpos, newSongpos);
@@ -282,8 +279,7 @@ function dragAndDropTableHeader(table) {
             return;
         }
         const th = tableHeader.getElementsByClassName('dragover-th');
-        const thLen = th.length;
-        for (let i = 0; i < thLen; i++) {
+        for (let i = 0, j = th.length; i < j; i++) {
             th[i].classList.remove('dragover-th');
         }
         if (event.target.nodeName === 'TH') {
@@ -297,8 +293,7 @@ function dragAndDropTableHeader(table) {
             return;
         }
         const th = tableHeader.getElementsByClassName('dragover-th');
-        const thLen = th.length;
-        for (let i = 0; i < thLen; i++) {
+        for (let i = 0, j = th.length; i < j; i++) {
             th[i].classList.remove('dragover-th');
         }
         if (this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']')) {
@@ -316,8 +311,7 @@ function dragAndDropTableHeader(table) {
         dragEl.classList.remove('opacity05');
         tableHeader.insertBefore(dragEl, event.target);
         const th = tableHeader.getElementsByClassName('dragover-th');
-        const thLen = th.length;
-        for (let i = 0; i < thLen; i++) {
+        for (let i = 0, j = th.length; i < j; i++) {
             th[i].classList.remove('dragover-th');
         }
         if (document.getElementById(table + 'List')) {
@@ -331,8 +325,8 @@ function dragAndDropTableHeader(table) {
 }
 
 function setColTags(table) {
-    const tags = settings.tags.slice();
-    if (settings.featTags === false) {
+    const tags = settings.tagList.slice();
+    if (features.featTags === false) {
         tags.push('Title');
     }
     tags.push('Duration');
@@ -347,7 +341,7 @@ function setColTags(table) {
     if (table === 'Playback') {
         tags.push('Filetype');
         tags.push('Fileformat');
-        if (settings.featLyrics === true) {
+        if (settings.webuiSettings.uiLyrics === true) {
             tags.push('Lyrics');
         }
     }
@@ -356,7 +350,7 @@ function setColTags(table) {
     }
     tags.sort();
     tags.push('dropdownTitleSticker');
-    if (settings.featStickers === true) {
+    if (features.featStickers === true) {
         for (const sticker of stickerList) {
             tags.push(sticker);
         }
@@ -367,7 +361,7 @@ function setColTags(table) {
 function setColsChecklist(table) {
     let tagChks = '';
     const tags = setColTags(table);
-    for (let i = 0; i < tags.length; i++) {
+    for (let i = 0, j = tags.length; i < j; i++) {
         if (table === 'Playback' && tags[i] === 'Title') {
             continue;
         }
@@ -394,10 +388,10 @@ function setCols(table) {
     let sort = app.current.sort;
     
     if (table === 'Search' && app.apps.Search.sort === 'Title') {
-        if (settings.tags.includes('Title')) {
+        if (settings.tagList.includes('Title')) {
             sort = 'Title';
         }
-        else if (settings.featTags === false) {
+        else if (features.featTags === false) {
             sort = 'Filename';
         }
         else {
@@ -407,7 +401,7 @@ function setCols(table) {
     
     if (table !== 'Playback') {
         let heading = '';
-        for (let i = 0; i < settings['cols' + table].length; i++) {
+        for (let i = 0, j = settings['cols' + table].length; i < j; i++) {
             let h = settings['cols' + table][i];
             heading += '<th draggable="true" data-col="' + h  + '">';
             if (h === 'Track' || h === 'Pos') {
@@ -424,7 +418,7 @@ function setCols(table) {
             }
             heading += '</th>';
         }
-        if (settings.featTags === true) {
+        if (features.featTags === true) {
             heading += '<th data-col="Action"><a data-title-phrase="' +t('Columns') + '" href="#" class="text-secondary align-middle mi mi-small">settings</a></th>';
         }
         else {
@@ -448,7 +442,7 @@ function saveCols(table, tableEl) {
     }
     if (colsDropdown) {
         const colInputs = colsDropdown.firstChild.getElementsByTagName('button');
-        for (let i = 0; i < colInputs.length; i++) {
+        for (let i = 0, j = colInputs.length; i < j; i++) {
             if (colInputs[i].getAttribute('name') === null) {
                 continue;
             }
@@ -469,7 +463,7 @@ function saveCols(table, tableEl) {
     
     const params = {"table": "cols" + table, "cols": []};
     const ths = header.getElementsByTagName('th');
-    for (let i = 0; i < ths.length; i++) {
+    for (let i = 0, j = ths.length; i < j; i++) {
         const name = ths[i].getAttribute('data-col');
         if (name !== 'Action' && name !== null) {
             params.cols.push(name);
@@ -483,7 +477,7 @@ function saveColsPlayback(table) {
     const colInputs = document.getElementById(table + 'ColsDropdown').firstChild.getElementsByTagName('button');
     const header = document.getElementById('cardPlaybackTags');
 
-    for (let i = 0; i < colInputs.length -1; i++) {
+    for (let i = 0, j = colInputs.length - 1; i < j; i++) {
         let th = document.getElementById('current' + colInputs[i].name);
         if (colInputs[i].classList.contains('active') === false) {
             if (th) {
@@ -494,15 +488,15 @@ function saveColsPlayback(table) {
             th = document.createElement('div');
             th.innerHTML = '<small>' + t(colInputs[i].name) + '</small><p></p>';
             th.setAttribute('id', 'current' + colInputs[i].name);
-            setAttEnc(th, 'data-tag', colInputs[i].name);
+            setCustomDomProperty(th, 'data-tag', colInputs[i].name);
             header.appendChild(th);
         }
     }
     
     const params = {"table": "cols" + table, "cols": []};
     const ths = header.getElementsByTagName('div');
-    for (let i = 0; i < ths.length; i++) {
-        const name = getAttDec(ths[i], 'data-tag');
+    for (let i = 0, j = ths.length; i < j; i++) {
+        const name = getCustomDomProperty(ths[i], 'data-tag');
         if (name) {
             params.cols.push(name);
         }
@@ -544,7 +538,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     let activeRow = 0;
     //disc handling for album view
     let z = 0;
-    let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined ? parseInt(obj.result.data[0].Disc) : 0;
+    let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined ? Number(obj.result.data[0].Disc) : 0;
     if (obj.result.Discs !== undefined && obj.result.Discs > 1) {
         const row = document.createElement('tr');
         row.classList.add('not-clickable');
@@ -558,7 +552,8 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         z++;
     }
     for (let i = 0; i < nrItems; i++) {
-        if (obj.result.data[0].Disc !== undefined && lastDisc < parseInt(obj.result.data[i].Disc)) {
+        //disc handling for album view
+        if (obj.result.data[0].Disc !== undefined && lastDisc < Number(obj.result.data[i].Disc)) {
             const row = document.createElement('tr');
             row.classList.add('not-clickable');
             row.innerHTML = '<td><span class="mi">album</span></td><td colspan="' + colspan +'">' + 
@@ -576,6 +571,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         if (perRowCallback !== undefined && typeof(perRowCallback) === 'function') {
             perRowCallback(row, obj.result.data[i]);
         }
+        //data row
         let tds = '';
         row.setAttribute('tabindex', 0);
         //set Title to name if not defined - for folders and playlists
@@ -594,12 +590,12 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
                 row.setAttribute('title', t('Open parent folder'));
             }
             else {
-                for (let c = 0; c < settings['cols' + list].length; c++) {
+                for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
                     tds += '<td data-col="' + encodeURI(settings['cols' + list][c]) + '">' +
                         printValue(settings['cols' + list][c], obj.result.data[i][settings['cols' + list][c]]) +
                         '</td>';
                 }
-                tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
+                tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey" title="' + t('Actions') + '">' + ligatureMore + '</a></td>';
                 row.innerHTML = tds;
             }
         }

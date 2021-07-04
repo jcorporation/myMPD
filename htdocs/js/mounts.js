@@ -8,14 +8,14 @@ function initMounts() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            if (getAttDec(event.target.parentNode, 'data-point') === '') {
+            if (getCustomDomProperty(event.target.parentNode, 'data-point') === '') {
                 return false;
             }
-            showEditMount(getAttDec(event.target.parentNode, 'data-url'), getAttDec(event.target.parentNode, 'data-point'));
+            showEditMount(getCustomDomProperty(event.target.parentNode, 'data-url'), getCustomDomProperty(event.target.parentNode, 'data-point'));
         }
         else if (event.target.nodeName === 'A') {
             const action = event.target.getAttribute('data-action');
-            const mountPoint = getAttDec(event.target.parentNode.parentNode, 'data-point');
+            const mountPoint = getCustomDomProperty(event.target.parentNode.parentNode, 'data-point');
             if (action === 'unmount') {
                 unmountMount(mountPoint);
             }
@@ -26,8 +26,8 @@ function initMounts() {
     }, false);
 
     document.getElementById('btnDropdownNeighbors').parentNode.addEventListener('show.bs.dropdown', function () {
-        if (settings.featNeighbors === true) {
-            sendAPI("MPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors, true);
+        if (features.featNeighbors === true) {
+            sendAPI("MYMPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors, true);
         }
         else {
             document.getElementById('dropdownNeighbors').children[0].innerHTML = 
@@ -38,7 +38,7 @@ function initMounts() {
     document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
         event.preventDefault();
         if (event.target.nodeName === 'A') {
-            const ec = getAttDec(event.target, 'data-value');
+            const ec = getCustomDomProperty(event.target, 'data-value');
             const c = ec.match(/^(\w+:\/\/)(.+)$/);
             document.getElementById('selectMountUrlhandler').value = c[1];
             document.getElementById('inputMountUrl').value = c[2];
@@ -53,13 +53,13 @@ function initMounts() {
 
 //eslint-disable-next-line no-unused-vars
 function unmountMount(mountPoint) {
-    sendAPI("MPD_API_MOUNT_UNMOUNT", {"mountPoint": mountPoint}, showListMounts);
+    sendAPI("MYMPD_API_MOUNT_UNMOUNT", {"mountPoint": mountPoint}, showListMounts);
 }
 
 //eslint-disable-next-line no-unused-vars
 function mountMount() {
     document.getElementById('errorMount').classList.add('hide');
-    sendAPI("MPD_API_MOUNT_MOUNT", {
+    sendAPI("MYMPD_API_MOUNT_MOUNT", {
         "mountUrl": getSelectValue('selectMountUrlhandler') + document.getElementById('inputMountUrl').value,
         "mountPoint": document.getElementById('inputMountPoint').value,
     }, showListMounts, true);
@@ -68,7 +68,7 @@ function mountMount() {
 //eslint-disable-next-line no-unused-vars
 function updateMount(el, uri) {
     const parent = el.parentNode;
-    for (let i = 0; i < parent.children.length; i++) {
+    for (let i = 0, j = parent.children.length; i < j; i++) {
         parent.children[i].classList.add('hide');
     }
     const spinner = document.createElement('div');
@@ -96,7 +96,7 @@ function showEditMount(uri, storage) {
         document.getElementById('inputMountUrl').value = '';
         document.getElementById('inputMountPoint').value = '';
     }
-    document.getElementById('inputMountUrl').focus();
+    document.getElementById('inputMountPoint').focus();
     removeIsInvalid(document.getElementById('modalMounts'));
 }
 
@@ -111,7 +111,7 @@ function showListMounts(obj) {
     document.getElementById('editMount').classList.remove('active');
     document.getElementById('listMountsFooter').classList.remove('hide');
     document.getElementById('editMountFooter').classList.add('hide');
-    sendAPI("MPD_API_MOUNT_LIST", {}, parseListMounts);
+    sendAPI("MYMPD_API_MOUNT_LIST", {}, parseListMounts);
 }
 
 function parseListMounts(obj) {
@@ -121,8 +121,8 @@ function parseListMounts(obj) {
     let activeRow = 0;
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const row = document.createElement('tr');
-        setAttEnc(row, 'data-url', obj.result.data[i].mountUrl);
-        setAttEnc(row, 'data-point', obj.result.data[i].mountPoint);
+        setCustomDomProperty(row, 'data-url', obj.result.data[i].mountUrl);
+        setCustomDomProperty(row, 'data-point', obj.result.data[i].mountPoint);
         if (obj.result.data[i].mountPoint === '') {
             row.classList.add('not-clickable');
         }
@@ -172,9 +172,9 @@ function parseNeighbors(obj) {
 }
 
 function getUrlhandlers() {
-    sendAPI("MPD_API_URLHANDLERS", {}, function(obj) {
+    sendAPI("MYMPD_API_URLHANDLERS", {}, function(obj) {
         let storagePlugins = '';
-        for (let i = 0; i < obj.result.data.length; i++) {
+        for (let i = 0, j = obj.result.data.length; i < j; i++) {
             switch(obj.result.data[i]) {
                 case 'http://':
                 case 'https://':

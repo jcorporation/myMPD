@@ -7,7 +7,7 @@ function initSong() {
     document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             if (event.target.id === 'calcFingerprint') {
-                sendAPI("MPD_API_DATABASE_FINGERPRINT", {"uri": getAttDec(event.target, 'data-uri')}, parseFingerprint);
+                sendAPI("MYMPD_API_DATABASE_FINGERPRINT", {"uri": getCustomDomProperty(event.target, 'data-uri')}, parseFingerprint);
                 event.preventDefault();
                 const spinner = document.createElement('div');
                 spinner.classList.add('spinner-border', 'spinner-border-sm');
@@ -32,7 +32,7 @@ function initSong() {
 }
 
 function songDetails(uri) {
-    sendAPI("MPD_API_DATABASE_SONGDETAILS", {"uri": uri}, parseSongDetails);
+    sendAPI("MYMPD_API_DATABASE_SONGDETAILS", {"uri": uri}, parseSongDetails);
     uiElements.modalSongDetails.show();
 }
 
@@ -66,46 +66,46 @@ function getMBtagLink(tag, value) {
         return e(value);
     }
     else {
-        return '<a title="' + t('Lookup at musicbrainz') + '" class="text-success external" target="_musicbrainz" href="https://musicbrainz.org/' + MBentity + '/' + encodeURI(value) + '">' +
+        return '<a title="' + t('Lookup at musicbrainz') + '" class="text-success external" target="_musicbrainz" href="https://musicbrainz.org/' + MBentity + '/' + myEncodeURI(value) + '">' +
             '<span class="mi">open_in_browser</span>&nbsp;' + value + '</a>';
     }
 }
 
 function parseSongDetails(obj) {
     const modal = document.getElementById('modalSongDetails');
-    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
-    
+    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(obj.result.uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+
     const elH1s = modal.getElementsByTagName('h1');
-    for (let i = 0; i < elH1s.length; i++) {
+    for (let i = 0, j = elH1s.length; i < j; i++) {
         elH1s[i].innerText = obj.result.Title;
     }
     
     let songDetailsHTML = '';
-    for (let i = 0; i < settings.tags.length; i++) {
-        if (settings.tags[i] === 'Title' || obj.result[settings.tags[i]] === '-') {
+    for (let i = 0, j = settings.tagList.length; i < j; i++) {
+        if (settings.tagList[i] === 'Title' || obj.result[settings.tagList[i]] === '-') {
             continue;
         }
-        songDetailsHTML += '<tr><th>' + t(settings.tags[i]) + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.result[settings.tags[i]]) + '"';
-        if (settings.tags[i] === 'Album' && obj.result[tagAlbumArtist] !== null) {
+        songDetailsHTML += '<tr><th>' + t(settings.tagList[i]) + '</th><td data-tag="' + settings.tagList[i] + '" data-name="' + encodeURI(obj.result[settings.tagList[i]]) + '"';
+        if (settings.tagList[i] === 'Album' && obj.result[tagAlbumArtist] !== null) {
             songDetailsHTML += ' data-albumartist="' + encodeURI(obj.result[tagAlbumArtist]) + '"';
         }
         songDetailsHTML += '>';
-        if (settings.browsetags.includes(settings.tags[i]) && obj.result[settings.tags[i]] !== '-') {
-            songDetailsHTML += '<a class="text-success" href="#">' + e(obj.result[settings.tags[i]]) + '</a>';
+        if (settings.tagListBrowse.includes(settings.tagList[i]) && obj.result[settings.tagList[i]] !== '-') {
+            songDetailsHTML += '<a class="text-success" href="#">' + e(obj.result[settings.tagList[i]]) + '</a>';
         }
-        else if (settings.tags[i].indexOf('MUSICBRAINZ') === 0) {
-            songDetailsHTML += getMBtagLink(settings.tags[i], obj.result[settings.tags[i]]);
+        else if (settings.tagList[i].indexOf('MUSICBRAINZ') === 0) {
+            songDetailsHTML += getMBtagLink(settings.tagList[i], obj.result[settings.tagList[i]]);
         }
         else {
-            songDetailsHTML += obj.result[settings.tags[i]];
+            songDetailsHTML += obj.result[settings.tagList[i]];
         }
         songDetailsHTML += '</td></tr>';
     }
     songDetailsHTML += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.result.Duration) + '</td></tr>';
-    if (settings.featLibrary === true && settings.publish === true) {
+    if (features.featLibrary === true) {
         songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/browse/music/' + 
-            encodeURI(obj.result.uri) + '" target="_blank" title="' + e(obj.result.uri) + '">' + 
-            e(basename(obj.result.uri, true)) + '</a></td></tr>';
+            myEncodeURI(obj.result.uri) + '" target="_blank" title="' + e(obj.result.uri) + '">' + 
+            e(basename(obj.result.uri, false)) + '</a></td></tr>';
     }
     else {
         songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td class="breakAll"><span title="' + e(obj.result.uri) + '">' + 
@@ -113,18 +113,18 @@ function parseSongDetails(obj) {
     }
     songDetailsHTML += '<tr><th>' + t('Filetype') + '</th><td>' + filetype(obj.result.uri) + '</td></tr>';
     songDetailsHTML += '<tr><th>' + t('LastModified') + '</th><td>' + localeDate(obj.result.LastModified) + '</td></tr>';
-    if (settings.featFingerprint === true) {
+    if (features.featFingerprint === true) {
         songDetailsHTML += '<tr><th>' + t('Fingerprint') + '</th><td class="breakAll" id="fingerprint"><a class="text-success" data-uri="' + 
-            encodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
+            myEncodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
     }
-    if (obj.result.bookletPath !== '' && settings.publish === true) {
-        songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="' + encodeURI(subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName) + '" target="_blank">' + t('Download') + '</a></td></tr>';
+    if (obj.result.bookletPath !== '') {
+        songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="' + myEncodeURI(subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName) + '" target="_blank">' + t('Download') + '</a></td></tr>';
     }
-    if (settings.featStickers === true) {
+    if (features.featStickers === true) {
         songDetailsHTML += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>';
         for (const sticker of stickerList) {
             if (sticker === 'stickerLike') {
-                songDetailsHTML += '<tr><th>' + t('Like') + '</th><td><div class="btn-group btn-group-sm" data-uri="' + encodeURI(obj.result.uri) + '">' +
+                songDetailsHTML += '<tr><th>' + t('Like') + '</th><td><div class="btn-group btn-group-sm" data-uri="' + myEncodeURI(obj.result.uri) + '">' +
                     '<button title="' + t('Dislike song') + '" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-secondary mi' + (obj.result[sticker] === 0 ? ' active' : '') + '">thumb_down</button>' +
                     '<button title="' + t('Like song') + '" data-href=\'{"cmd": "voteSong", "options": [2]}\' class="btn btn-sm btn-secondary mi' + (obj.result[sticker] === 2 ? ' active' : '') + '">thumb_up</button>' +
                     '</div></td></tr>';
@@ -137,45 +137,25 @@ function parseSongDetails(obj) {
     
     document.getElementById('tbodySongDetails').innerHTML = songDetailsHTML;
     
-    if (settings.featLyrics === true) {
+    if (features.featLyrics === true) {
         getLyrics(obj.result.uri, document.getElementById('lyricsText'));
     }
 
-    let showPictures = false;
-    if (obj.result.images.length > 0 && settings.featLibrary === true && settings.publish === true) {
-        showPictures = true;
-    }
-    else if (settings.coverimage === true) {
-        showPictures = true;
-    }
-    
     const pictureEls = document.getElementsByClassName('featPictures');
-    for (let i = 0; i < pictureEls.length; i++) {
-        if (showPictures === true) {
-            pictureEls[i].classList.remove('hide');
-        }
-        else {
-            pictureEls[i].classList.add('hide');
-        }
+    for (let i = 0, j = pictureEls.length; i < j; i++) {
+        pictureEls[i].classList.remove('hide');
     }
     
-    if (showPictures === true) {
-        //add uri to image list to get embedded albumart
-        const images = [ subdir + '/albumart/' + obj.result.uri ];
-        //add all but coverfiles to image list
-        if (settings.publish === true) {
-            for (let i = 0; i < obj.result.images.length; i++) {
-                if (isCoverfile(obj.result.images[i]) === false) {
-                    images.push(subdir + '/browse/music/' + obj.result.images[i]);
-                }
-            }
+    //add uri to image list to get embedded albumart
+    const images = [ subdir + '/albumart/' + obj.result.uri ];
+    //add all but coverfiles to image list
+    for (let i = 0, j = obj.result.images.length; i < j; i++) {
+        if (isCoverfile(obj.result.images[i]) === false) {
+            images.push(subdir + '/browse/music/' + obj.result.images[i]);
         }
-        const imgEl = document.getElementById('tabSongPics');
-        createImgCarousel(imgEl, 'songPicsCarousel', images);
     }
-    else {
-        document.getElementById('tabSongPics').innerText = '';
-    }
+    const imgEl = document.getElementById('tabSongPics');
+    createImgCarousel(imgEl, 'songPicsCarousel', images);
 }
 
 function isCoverfile(uri) {
@@ -183,8 +163,8 @@ function isCoverfile(uri) {
     const fileparts = filename.split('.');
     
     const extensions = ['png', 'jpg', 'jpeg', 'svg', 'webp', 'tiff', 'bmp'];
-    const coverimageNames = settings.coverimageName.split(',');
-    for (let i = 0; i < coverimageNames.length; i++) {
+    const coverimageNames = settings.coverimageNames.split(',');
+    for (let i = 0, j = coverimageNames.length; i < j; i++) {
         const name = coverimageNames[i].trim();
         if (filename === name) {
             return true;
@@ -204,7 +184,7 @@ function getLyrics(uri, el) {
         return;
     }
     el.classList.add('opacity05');
-    sendAPI("MPD_API_LYRICS_GET", {"uri": uri}, function(obj) {
+    sendAPI("MYMPD_API_LYRICS_GET", {"uri": uri}, function(obj) {
         if (obj.error) {
             el.innerText = t(obj.error.message);
         }
@@ -250,9 +230,9 @@ function getLyrics(uri, el) {
                     if (event.target.nodeName === 'LABEL') {
                         event.target.parentNode.getElementsByClassName('active')[0].classList.remove('active');
                         event.target.classList.add('active');
-                        const nr = parseInt(event.target.getAttribute('data-num'));
+                        const nr = Number(event.target.getAttribute('data-num'));
                         const tEls = el.getElementsByClassName('lyricsText');
-                        for (let i = 0; i < tEls.length; i++) {
+                        for (let i = 0, j = tEls.length; i < j; i++) {
                             if (i === nr) {
                                 tEls[i].classList.remove('hide');
                             }
@@ -272,12 +252,12 @@ function getLyrics(uri, el) {
                     scrollSyncedLyrics = event.target.classList.contains('active');
                 }, false);
                 const textEls = el.getElementsByClassName('lyricsSyncedText');
-                for (let i = 0; i < textEls.length; i++) {
+                for (let i = 0, j = textEls.length; i < j; i++) {
                     //seek to songpos in click
                     textEls[i].addEventListener('click', function(event) {
                         const sec = event.target.getAttribute('data-sec');
                         if (sec !== null) {
-                            sendAPI("MPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": parseInt(sec)});
+                            sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {"seek": Number(sec), "relative": false});
                         }
                     }, false); 
                 }
@@ -290,11 +270,11 @@ function getLyrics(uri, el) {
 function parseSyncedLyrics(text, clickable) {
     let html = '';
     const lines = text.replace(/\r/g, '').split('\n');
-    for (let i = 0; i < lines.length; i++) {
+    for (let i = 0, j = lines.length; i < j; i++) {
         //line must start with timestamp
         const line = lines[i].match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
         if (line) {
-            const sec = parseInt(line[1]) * 60 + parseInt(line[2]);
+            const sec = Number(line[1]) * 60 + Number(line[2]);
             //line[3] are hundreths of a seconde - ignore it for the moment
             html += '<p><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + sec + '">';
             if (line[4].match(/^\s+$/)) {
@@ -304,7 +284,7 @@ function parseSyncedLyrics(text, clickable) {
                 //support of extended lrc format - timestamps for words
                 html += line[4].replace(/<(\d+):(\d+)\.\d+>/g, function(m0, m1, m2) {
                     //hundreths of a secondes are ignored
-                    const wsec = parseInt(m1) * 60 + parseInt(m2);
+                    const wsec = Number(m1) * 60 + Number(m2);
                     return '</span><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + wsec + '">';
                 });
             }
@@ -313,11 +293,6 @@ function parseSyncedLyrics(text, clickable) {
     }
     html += '';
     return html;
-}
-
-//eslint-disable-next-line no-unused-vars
-function loveSong() {
-    sendAPI("MPD_API_LOVE", {});
 }
 
 //used in songdetails modal
@@ -338,13 +313,13 @@ function voteSong(el, vote) {
     if (vote === 0 || vote === 2) {
         el.classList.add('active');
     }
-    const uri = getAttDec(el.parentNode, 'data-uri');
-    sendAPI("MPD_API_LIKE", {"uri": uri, "like": vote});
+    const uri = getCustomDomProperty(el.parentNode, 'data-uri');
+    sendAPI("MYMPD_API_LIKE", {"uri": uri, "like": vote});
 }
 
 //eslint-disable-next-line no-unused-vars
 function voteCurrentSong(vote) {
-    const uri = getAttDec(document.getElementById('currentTitle'), 'data-uri');
+    const uri = getCustomDomProperty(document.getElementById('currentTitle'), 'data-uri');
     if (uri === '') {
         return;
     }
@@ -355,7 +330,7 @@ function voteCurrentSong(vote) {
     else if (vote === 0 && document.getElementById('btnVoteDown').classList.contains('highlight')) {
         vote = 1;
     }
-    sendAPI("MPD_API_LIKE", {"uri": uri, "like": vote});
+    sendAPI("MYMPD_API_LIKE", {"uri": uri, "like": vote});
     setVoteSongBtns(vote, uri);
 }
 

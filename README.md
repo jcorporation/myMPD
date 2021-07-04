@@ -8,6 +8,10 @@ The frontend is mobile friendly, written as a PWA and offers on all devices the 
 
 myMPD also integrates extended features like an advanced jukebox mode, timers, triggers and smart playlists. With the integrated lua interpreter myMPD functions can also be scripted.
 
+## Screenshots
+
+![image](https://jcorporation.github.io/assets/myMDPv6.8.3.gif)
+
 ## Features
 
 - Control mpd functions (play, pause, etc.)
@@ -23,16 +27,14 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - Jukebox mode
 - Customizable home screen and navigation bar
 - [Smart playlists and saved searches](https://github.com/jcorporation/myMPD/wiki/Smart-playlists)
-- Play statistics and song voting
+- Playback statistics and song voting
 - [Local albumart support: embedded and image per folder](https://github.com/jcorporation/myMPD/wiki/Albumart)
 - [Unsynchronized and synchronized Lyrics](https://github.com/jcorporation/myMPD/wiki/Lyrics)
 - Local booklet support (per album folder)
 - HTTP stream support
 - [Local playback of mpd http stream](https://github.com/jcorporation/myMPD/wiki/Local-playback)
 - Timers and Triggers
-- [System commands](https://github.com/jcorporation/myMPD/wiki/System-Commands)
 - [Lua scripting](https://github.com/jcorporation/myMPD/wiki/Scripting)
-- Scrobbler integration
 - Embedded Webserver (mongoose)
 - [Localized user interface](https://github.com/jcorporation/myMPD/wiki/Translating)
 - Themeing
@@ -46,14 +48,12 @@ To use all myMPD functions you should use the latest stable MPD version (0.22.x)
 
 myMPD is in active development. If you like myMPD, you can help to improve it (no programming skills are required).
 
+- Star this repository
 - [Help to improve myMPD](https://github.com/jcorporation/myMPD/issues/167).
 - Use [issues](https://github.com/jcorporation/myMPD/issues) for bug reports only.
 - Use [discussion](https://github.com/jcorporation/myMPD/discussions) for feature requests, questions and general feedback.
-- If I accept a feature request, I will open an issue and assign a [milestone](https://github.com/jcorporation/myMPD/milestones) to it.
-
-## Screenshots
-
-![image](https://jcorporation.github.io/assets/myMDPv6.8.3.gif)
+  - If I accept a feature request, I will open an issue and assign a [milestone](https://github.com/jcorporation/myMPD/milestones) to it.
+- Consider [donating](https://jcorporation.github.io/donate) a coffee to this project.
 
 ## Installation
 
@@ -66,11 +66,13 @@ myMPD should run on all current linux distributions. There are four ways to inst
 
 ## Run
 
-Adapt the configuration file `/etc/mympd.conf` to your needs (`/etc/webapps/mympd/mympd.conf` for Archlinux) or use the [mympd-config](https://github.com/jcorporation/myMPD/wiki/mympd-config) tool to generate automatically a valid `mympd.conf`. myMPD can be customized in many aspects, see the [configuration page](https://github.com/jcorporation/myMPD/wiki/Configuration) in the wiki for reference.
+On the first startup myMPD reads some environments variables and tries to autodetect the MPD connection configuration.
+
+- https://github.com/jcorporation/myMPD/wiki/Configuration
 
 
 ``
-Usage: ./mympd [/etc/mympd.conf]
+Usage: ./mympd
 ``
 
 ## Wiki

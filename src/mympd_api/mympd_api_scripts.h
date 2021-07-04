@@ -12,11 +12,10 @@
          ((5) == LUA_VERSION_MAJOR && \
           ((3) == LUA_VERSION_MINOR))
 
-bool mympd_api_script_save(t_config *config, const char *script, int order, const char *content, const char *arguments, const char *oldscript);
-bool mympd_api_script_delete(t_config *config, const char *script);
-sds mympd_api_script_get(t_config *config, sds buffer, sds method, long request_id, const char *script);
-sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request_id, bool all);
-bool mympd_api_script_start(t_config *config, const char *script, struct list *arguments, bool localscript);
-bool mympd_api_get_lua_mympd_state(t_mympd_state *mympd_state, struct list *lua_mympd_state);
+bool mympd_api_script_save(struct t_config *config, const char *script, int order, const char *content, const char *arguments, const char *oldscript);
+bool mympd_api_script_delete(struct t_config *config, const char *script);
+sds mympd_api_script_get(struct t_config *config, sds buffer, sds method, long request_id, const char *script);
+sds mympd_api_script_list(struct t_config *config, sds buffer, sds method, long request_id, bool all);
+bool mympd_api_script_start(struct t_config *config, const char *script, struct list *arguments, bool localscript);
 #endif
 #endif

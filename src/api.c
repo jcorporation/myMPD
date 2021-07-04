@@ -23,17 +23,27 @@ enum mympd_cmd_ids get_cmd_id(const char *cmd) {
 
 bool is_public_api_method(enum mympd_cmd_ids cmd_id) {
     switch(cmd_id) {
-        case MPD_API_UNKNOWN:
-        case MPD_API_SCRIPT_INIT:
-        case MPD_API_TIMER_STARTPLAY:
-        case MPDWORKER_API_CACHES_CREATE:
+        case MYMPD_API_UNKNOWN:
+        case MYMPD_API_TIMER_STARTPLAY:
+        case MYMPD_API_CACHES_CREATE:
         case MYMPD_API_TIMER_SET:
         case MYMPD_API_SCRIPT_INIT:
         case MYMPD_API_SCRIPT_POST_EXECUTE:
         case MYMPD_API_STATE_SAVE:
-        case MPD_API_STATE_SAVE:
             return false;
         default:
             return true;
+    }
+}
+
+bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
+    switch(cmd_id) {
+        case MYMPD_API_SETTINGS_GET:
+        case MYMPD_API_CONNECTION_SAVE:
+        case MYMPD_API_HOME_LIST:
+        case MYMPD_API_SCRIPT_LIST:
+            return true;
+        default:
+            return false;
     }
 }

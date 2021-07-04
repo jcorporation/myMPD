@@ -15,12 +15,13 @@
 #include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
+#include "../dist/src/rax/rax.h"
 #include "../sds_extras.h"
 #include "../log.h"
 #include "../list.h"
 #include "mympd_config_defs.h"
 #include "../utility.h"
-#include "mpd_shared_typedefs.h"
+#include "../mympd_state.h"
 #include "../mpd_shared.h"
 #include "mpd_shared_tags.h"
 
@@ -44,12 +45,12 @@ enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag) {
     return tag;
 }
 
-void reset_t_tags(t_tags *tags) {
+void reset_t_tags(struct t_tags *tags) {
     tags->len = 0;
     memset(tags->tags, 0, sizeof(tags->tags));
 }
 
-void disable_all_mpd_tags(t_mpd_state *mpd_state) {
+void disable_all_mpd_tags(struct t_mpd_state *mpd_state) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         MYMPD_LOG_DEBUG("Disabling all mpd tag types");
         bool rc = mpd_run_clear_tag_types(mpd_state->conn);
@@ -57,7 +58,7 @@ void disable_all_mpd_tags(t_mpd_state *mpd_state) {
     }
 }
 
-void enable_all_mpd_tags(t_mpd_state *mpd_state) {
+void enable_all_mpd_tags(struct t_mpd_state *mpd_state) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         MYMPD_LOG_DEBUG("Enabling all mpd tag types");
         bool rc = mpd_run_all_tag_types(mpd_state->conn);
@@ -65,7 +66,7 @@ void enable_all_mpd_tags(t_mpd_state *mpd_state) {
     }
 }
 
-void enable_mpd_tags(t_mpd_state *mpd_state, t_tags enable_tags) {
+void enable_mpd_tags(struct t_mpd_state *mpd_state, struct t_tags enable_tags) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         MYMPD_LOG_DEBUG("Setting interesting mpd tag types");
         if (mpd_command_list_begin(mpd_state->conn, false)) {
@@ -91,9 +92,11 @@ sds mpd_shared_get_tags(struct mpd_song const *song, const enum mpd_tag_type tag
     tags = _mpd_shared_get_tags(song, tag, tags);
     if (sdslen(tags) == 0) {
         if (tag == MPD_TAG_TITLE) {
+            //title fallback to filename
             tags = sdscat(tags, basename_uri((char *)mpd_song_get_uri(song)));
         }
         else if (tag == MPD_TAG_ALBUM_ARTIST) {
+            //albumartist fallback to artist tag
             tags = _mpd_shared_get_tags(song, MPD_TAG_ARTIST, tags);
         }
         if (sdslen(tags) == 0) {
@@ -103,7 +106,9 @@ sds mpd_shared_get_tags(struct mpd_song const *song, const enum mpd_tag_type tag
     return tags;
 }
 
-sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, const struct mpd_song *song) {
+sds put_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
+                  const struct mpd_song *song)
+{
     sds tag_value = sdsempty();
     if (mpd_state->feat_tags == true) {
         for (size_t tagnr = 0; tagnr < tagcols->len; ++tagnr) {
@@ -122,7 +127,9 @@ sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, con
     return buffer;
 }
 
-sds put_empty_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, const char *uri) {
+sds put_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
+                        const char *uri)
+{
     if (mpd_state->feat_tags == true) {
         for (size_t tagnr = 0; tagnr < tagcols->len; ++tagnr) {
             if (tagcols->tags[tagnr] == MPD_TAG_TITLE) {
@@ -141,7 +148,9 @@ sds put_empty_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcol
     return buffer;
 }
 
-void check_tags(sds taglist, const char *taglistname, t_tags *tagtypes, t_tags allowed_tag_types) {
+void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
+                struct t_tags allowed_tag_types)
+{
     sds logline = sdscatfmt(sdsempty(), "Enabled %s: ", taglistname);
     int tokens_count;
     sds *tokens = sdssplitlen(taglist, sdslen(taglist), ",", 1, &tokens_count);
@@ -166,7 +175,9 @@ void check_tags(sds taglist, const char *taglistname, t_tags *tagtypes, t_tags a
     sdsfree(logline);
 }
 
-bool mpd_shared_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag) {
+bool mpd_shared_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, 
+                           const enum mpd_tag_type tag)
+{
     for (size_t i = 0; i < tag_types_len; i++) {
         if (tag_types[i] == tag) {
             return true;

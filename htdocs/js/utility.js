@@ -3,6 +3,31 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+//escapes html characters to avoid xss
+function e(x) {
+    if (isNaN(x)) {
+        return x.replace(/([<>"'])/g, function(m0, m1) {
+            if (m1 === '<') return '&lt;';
+            else if (m1 === '>') return '&gt;';
+            else if (m1 === '"') return '&quot;';
+            else if (m1 === '\'') return '&apos;';
+        }).replace(/\\u(003C|003E|0022|0027)/gi, function(m0, m1) {
+            if (m1 === '003C') return '&lt;';
+            else if (m1 === '003E') return '&gt;';
+            else if (m1 === '0022') return '&quot;';
+            else if (m1 === '0027') return '&apos;';
+        }).replace(/\[\[(\w+)\]\]/g, function(m0, m1) {
+            return '<span class="mi">' + m1 + '</span>';
+        });
+    }
+    return x;
+}
+
+//removes special characters
+function r(x) {
+    return x.replace(/[^\w-]/g, '_');
+}
+
 //warning dialog
 function showConfirm(text, btnText, callback) {
     document.getElementById('modalConfirmText').innerHTML = text;
@@ -49,33 +74,53 @@ function showConfirmInline(el, text, btnText, callback) {
     el.appendChild(confirm);
 }
 
+function myEncodeURI(x) {
+    return encodeURI(x).replace(/([#])/g, function(m0, m1) {
+            if (m1 === '#') return '%23';
+    });
+}
+
+//eslint-disable-next-line no-unused-vars
+function myDecodeURI(x) {
+    return decodeURI(x).replace(/(%23)/g, function(m0, m1) {
+            if (m1 === '%23') return '#';
+    });
+}
+
 //functions to get custom actions
 function clickAlbumPlay(albumArtist, album) {
-    switch (settings.advanced.clickAlbumPlay) {
+    switch (settings.webuiSettings.clickAlbumPlay) {
         case 'append': return _addAlbum('appendQueue', albumArtist, album);
         case 'replace': return _addAlbum('replaceQueue', albumArtist, album);
     }
 }
 
 function clickSong(uri, name) {
-    switch (settings.advanced.clickSong) {
+    switch (settings.webuiSettings.clickSong) {
         case 'append': return appendQueue('song', uri, name);
         case 'replace': return replaceQueue('song', uri, name);
         case 'view': return songDetails(uri);
     }
 }
 
-function clickQueueSong(trackid, uri) {
-    switch (settings.advanced.clickQueueSong) {
+function clickQueueSong(songid, uri) {
+    switch (settings.webuiSettings.clickQueueSong) {
         case 'play':
-            sendAPI("MPD_API_PLAYER_PLAY_TRACK", {"track": trackid});
+            if (songid === null) {
+                return;
+            }
+            sendAPI("MYMPD_API_PLAYER_PLAY_SONG", {"songId": songid});
             break;
-        case 'view': return songDetails(uri);
+        case 'view': 
+            if (uri === null) {
+                return;
+            }
+            return songDetails(uri);
     }
 }
 
 function clickPlaylist(uri, name) {
-    switch (settings.advanced.clickPlaylist) {
+    switch (settings.webuiSettings.clickPlaylist) {
         case 'append': return appendQueue('plist', uri, name);
         case 'replace': return replaceQueue('plist', uri, name);
         case 'view': return playlistDetails(uri);
@@ -83,7 +128,7 @@ function clickPlaylist(uri, name) {
 }
 
 function clickFolder(uri, name) {
-    switch (settings.advanced.clickFolder) {
+    switch (settings.webuiSettings.clickFolder) {
         case 'append': return appendQueue('dir', uri, name);
         case 'replace': return replaceQueue('dir', uri, name);
         case 'view':
@@ -116,21 +161,24 @@ function unescapeMPD(x) {
     });
 }
 
-//get and set attributes url encoded
-function setAttEnc(el, attribute, value) {
+//get and set custom dom properties
+//replaces data-* attributes
+function setCustomDomProperty(el, attribute, value) {
     if (typeof el === 'string') {
         el = document.getElementById(el);
     }
-    el.setAttribute(attribute, encodeURI(value));
+    el['myMPD-' + attribute] = value;
 }
 
-function getAttDec(el, attribute) {
+function getCustomDomProperty(el, attribute) {
     if (typeof el === 'string') {
         el = document.getElementById(el);
     }
-    let value = el.getAttribute(attribute);
-    if (value) {
-        value = decodeURI(value);
+    let value = el['myMPD-' + attribute];
+    if (value === undefined) {
+        //fallback to attribute
+        const encValue = el.getAttribute(attribute);
+        value = encValue !== null ? decodeURI(encValue) : null;
     }
     return value;
 }
@@ -155,7 +203,7 @@ function getSelectValue(el) {
         el = document.getElementById(el);
     }
     if (el && el.selectedIndex >= 0) {
-        return getAttDec(el.options[el.selectedIndex], 'value');
+        return getCustomDomProperty(el.options[el.selectedIndex], 'value');
     }
     return undefined;
 }
@@ -163,7 +211,7 @@ function getSelectValue(el) {
 function getSelectedOptionAttribute(selectId, attribute) {
     const el = document.getElementById(selectId);
     if (el && el.selectedIndex >= 0) {
-        return getAttDec(el.options[el.selectedIndex], attribute);
+        return getCustomDomProperty(el.options[el.selectedIndex], attribute);
     }
     return undefined;
 }
@@ -267,8 +315,8 @@ function selectTag(btnsEl, desc, setTo) {
 
 function addTagList(el, list) {
     let tagList = '';
-    if (list === 'searchtags') {
-        if (settings.featTags === true) {
+    if (list === 'tagListSearch') {
+        if (features.featTags === true) {
             tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">' + t('Any Tag') + '</button>';
         }
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="filename">' + t('Filename') + '</button>';
@@ -276,11 +324,11 @@ function addTagList(el, list) {
     if (el === 'searchDatabaseTags') {
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">' + t('Any Tag') + '</button>';
     }
-    for (let i = 0; i < settings[list].length; i++) {
+    for (let i = 0, j = settings[list].length; i < j; i++) {
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + t(settings[list][i]) + '</button>';
     }
     if (el === 'BrowseNavFilesystemDropdown' || el === 'BrowseNavPlaylistsDropdown') {
-        if (settings.featTags === true && settings.featAdvsearch === true) {
+        if (features.featTags === true && features.featAdvsearch === true) {
             tagList = '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Database">' + t('Database') + '</button>';
         }
         else {
@@ -295,7 +343,7 @@ function addTagList(el, list) {
             '<button type="button" class="btn btn-secondary btn-sm btn-block' + (el === 'BrowseNavFilesystemDropdown' ? ' active' : '') + '" data-tag="Filesystem">' + t('Filesystem') + '</button>'
     }
     else if (el === 'databaseSortTagsList') {
-        if (settings.tags.includes('Date') === true && settings[list].includes('Date') === false) {
+        if (settings.tagList.includes('Date') === true && settings[list].includes('Date') === false) {
             tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Date">' + t('Date') + '</button>';
         }
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Last-Modified">' + t('Last modified') + '</button>';
@@ -311,11 +359,11 @@ function addTagListSelect(el, list) {
         tagList += '<optgroup label="' + t('Sort by tag') + '">';
         tagList += '<option value="filename">' + t('Filename') + '</option>';
     }
-    else if (el === 'selectJukeboxUniqueTag' && settings.browsetags.includes('Title') === false) {
+    else if (el === 'selectJukeboxUniqueTag' && settings.tagListBrowse.includes('Title') === false) {
         //Title tag should be always in the list
         tagList = '<option value="Title">' + t('Song') + '</option>';
     }
-    for (let i = 0; i < settings[list].length; i++) {
+    for (let i = 0, j = settings[list].length; i < j; i++) {
         tagList += '<option value="' + settings[list][i] + '">' + t(settings[list][i]) + '</option>';
     }
     if (el === 'saveSmartPlaylistSort' || el === 'selectSmartplsSort') {
@@ -369,8 +417,8 @@ function toggleBtnGroupValue(btngrp, value) {
     if (isNaN(value) === false) {
         valuestr = value.toString();
     }
-    for (let i = 0; i < btns.length; i++) {
-        if (getAttDec(btns[i], 'data-value') === valuestr) {
+    for (let i = 0, j = btns.length; i < j; i++) {
+        if (getCustomDomProperty(btns[i], 'data-value') === valuestr) {
             btns[i].classList.add('active');
             b = btns[i];
         }
@@ -397,7 +445,7 @@ function toggleBtnGroup(btn) {
         b = document.getElementById(btn);
     }
     const btns = b.parentNode.getElementsByTagName('button');
-    for (let i = 0; i < btns.length; i++) {
+    for (let i = 0, j = btns.length; i < j; i++) {
         if (btns[i] === b) {
             btns[i].classList.add('active');
         }
@@ -413,7 +461,7 @@ function getBtnGroupValue(btnGroup) {
     if (activeBtn.length === 0) {
         activeBtn = document.getElementById(btnGroup).getElementsByTagName('button');    
     }
-    return getAttDec(activeBtn[0], 'data-value');
+    return getCustomDomProperty(activeBtn[0], 'data-value');
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -530,7 +578,7 @@ function setPagination(total, returned) {
     }, false);
     
     bottomBar.getElementsByTagName('select')[0].addEventListener('change', function(event) {
-        const newLimit = parseInt(getSelectValue(event.target));
+        const newLimit = Number(getSelectValue(event.target));
         if (app.current.limit !== newLimit) {
             gotoPage(app.current.offset, newLimit);
         }
@@ -541,7 +589,7 @@ function setPagination(total, returned) {
     const offsetLast = app.current.offset + app.current.limit;
     const p = [ document.getElementById(cat + 'PaginationTop'), document.getElementById(cat + 'PaginationBottom') ];
     
-    for (let i = 0; i < p.length; i++) {
+    for (let i = 0, j = p.length; i < j; i++) {
         const first = p[i].children[0];
         const prev = p[i].children[1];
         const page = p[i].children[2].children[0];
@@ -553,17 +601,17 @@ function setPagination(total, returned) {
         if (totalPages > 1) {
             enableEl(page);
             let pl = '';
-            for (let j = 0; j < totalPages; j++) {
-                const o = j * app.current.limit;
+            for (let k = 0; k < totalPages; k++) {
+                const o = k * app.current.limit;
                 pl += '<button data-offset="' + o + '" type="button" class="btn-sm btn btn-secondary' +
                       ( o === app.current.offset ? ' active' : '') + '">' +
-                      ( j + 1) + '</button>';
+                      ( k + 1) + '</button>';
             }
             pages.innerHTML = pl;
             page.classList.remove('nodropdown');
             pages.addEventListener('click', function(event) {
                 if (event.target.nodeName === 'BUTTON') {
-                    gotoPage(getAttDec(event.target, 'data-offset'));
+                    gotoPage(getCustomDomProperty(event.target, 'data-offset'));
                 }
             }, false);
             //eslint-disable-next-line no-unused-vars
@@ -654,7 +702,7 @@ function parseCmd(event, href) {
     }
 
     if (typeof window[cmd.cmd] === 'function') {
-        for (let i = 0; i < cmd.options.length; i++) {
+        for (let i = 0, j = cmd.options.length; i < j; i++) {
             if (cmd.options[i] === 'event') {
                 cmd.options[i] = event;
             }
@@ -669,6 +717,7 @@ function parseCmd(event, href) {
             case 'toggleBtnGroupCollapse':
             case 'zoomPicture':
             case 'setPlaySettings':
+            case 'resetToDefault':
             case 'voteSong':
                 window[cmd.cmd](event.target, ... cmd.options);
                 break;
@@ -714,7 +763,7 @@ function gotoPage(x, limit) {
 function createSearchCrumbs(searchStr, searchEl, crumbEl) {
 	crumbEl.innerHTML = '';
     const elements = searchStr.substring(1, app.current.search.length - 1).split(' AND ');
-    for (let i = 0; i < elements.length - 1 ; i++) {
+    for (let i = 0, j = elements.length - 1; i < j; i++) {
         const expression = elements[i].substring(1, elements[i].length - 1);
         const fields = expression.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
         if (fields !== null && fields.length === 4) {
@@ -742,9 +791,9 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
 function createSearchCrumb(filter, op, value) {
     const li = document.createElement('button');
     li.classList.add('btn', 'btn-light', 'mr-2');
-    setAttEnc(li, 'data-filter-tag', filter);
-    setAttEnc(li, 'data-filter-op', op);
-    setAttEnc(li, 'data-filter-value', value);
+    setCustomDomProperty(li, 'data-filter-tag', filter);
+    setCustomDomProperty(li, 'data-filter-op', op);
+    setCustomDomProperty(li, 'data-filter-value', value);
     li.innerHTML = e(filter) + ' ' + e(op) + ' \'' + e(value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
     return li;
 }
@@ -752,17 +801,17 @@ function createSearchCrumb(filter, op, value) {
 function createSearchExpression(crumbsEl, tag, op, value) {
     let expression = '(';
     const crumbs = crumbsEl.children;
-    for (let i = 0; i < crumbs.length; i++) {
+    for (let i = 0, j = crumbs.length; i < j; i++) {
         if (i > 0) {
             expression += ' AND ';
         }
-        let crumbOp = getAttDec(crumbs[i], 'data-filter-op');
-        let crumbValue = getAttDec(crumbs[i], 'data-filter-value');
+        let crumbOp = getCustomDomProperty(crumbs[i], 'data-filter-op');
+        let crumbValue = getCustomDomProperty(crumbs[i], 'data-filter-value');
         if (app.current.app === 'Search' && crumbOp === 'starts_with') {
             crumbOp = '=~';
             crumbValue = '^' + crumbValue;
         }
-        expression += '(' + getAttDec(crumbs[i], 'data-filter-tag') + ' ' + 
+        expression += '(' + getCustomDomProperty(crumbs[i], 'data-filter-tag') + ' ' + 
             crumbOp + ' \'' + escapeMPD(crumbValue) + '\')';
     }
     if (value !== '') {

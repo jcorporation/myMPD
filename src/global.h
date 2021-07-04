@@ -7,14 +7,14 @@
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 
+extern _Atomic int worker_threads;
+
 //signal handler
 extern sig_atomic_t s_signal_received;
 
 //message queue
 extern tiny_queue_t *web_server_queue;
-extern tiny_queue_t *mpd_client_queue;
 extern tiny_queue_t *mympd_api_queue;
-extern tiny_queue_t *mpd_worker_queue;
 extern tiny_queue_t *mympd_script_queue;
 
 typedef struct t_work_request {
@@ -36,6 +36,7 @@ typedef struct t_work_result {
     void *extra;
 } t_work_result;
 
+//config data sent to webserver thread
 struct set_mg_user_data_request {
     sds music_directory;
     sds playlist_directory;
@@ -44,6 +45,7 @@ struct set_mg_user_data_request {
     bool feat_mpd_albumart;
     sds mpd_host;
     unsigned mpd_stream_port;
+    bool covercache;
 };
 
 t_work_result *create_result(t_work_request *request);

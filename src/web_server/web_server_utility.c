@@ -31,7 +31,7 @@ static void create_ipv6_mask(int *netmask, int mask);
 */
 
 //public functions
-void free_mg_user_data(t_mg_user_data *mg_user_data) {
+void free_mg_user_data(struct t_mg_user_data *mg_user_data) {
     sdsfree(mg_user_data->browse_document_root);
     sdsfree(mg_user_data->pics_document_root);
     sdsfree(mg_user_data->smartpls_document_root);
@@ -70,20 +70,20 @@ bool check_ip_acl(const char *acl, struct mg_addr *peer) {
     return check_ipv4_acl(acl, remote_ip);
 }
 
-void manage_emptydir(sds varlibdir, bool pics, bool smartplaylists, bool music, bool playlists) {
-    sds dir_name = sdscatfmt(sdsempty(), "%s/empty/pics", varlibdir);
+void manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bool playlists) {
+    sds dir_name = sdscatfmt(sdsempty(), "%s/empty/pics", workdir);
     rm_mk_dir(dir_name, pics);
     
     dir_name = sdscrop(dir_name);
-    dir_name = sdscatfmt(dir_name, "%s/empty/smartplaylists", varlibdir);
+    dir_name = sdscatfmt(dir_name, "%s/empty/smartplaylists", workdir);
     rm_mk_dir(dir_name, smartplaylists);
     
     dir_name = sdscrop(dir_name);
-    dir_name = sdscatfmt(dir_name, "%s/empty/music", varlibdir);
+    dir_name = sdscatfmt(dir_name, "%s/empty/music", workdir);
     rm_mk_dir(dir_name, music);
     
     dir_name = sdscrop(dir_name);
-    dir_name = sdscatfmt(dir_name, "%s/empty/playlists", varlibdir);
+    dir_name = sdscatfmt(dir_name, "%s/empty/playlists", workdir);
     rm_mk_dir(dir_name, playlists);
     sdsfree(dir_name);
 }
@@ -150,15 +150,13 @@ void serve_stream_image(struct mg_connection *nc, struct mg_http_message *hm) {
 }
 
 void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, const char *name) {
-    t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->userdata;
-    t_config *config = (t_config *) mg_user_data->config;
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
+    struct t_config *config = mg_user_data->config;
     
-    sds asset_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, name);
+    sds asset_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, name);
     sds mime_type;
-    if (config->custom_placeholder_images == true) {
-        asset_image = find_image_file(asset_image);
-    }
-    if (config->custom_placeholder_images == true && sdslen(asset_image) > 0) {
+    asset_image = find_image_file(asset_image);
+    if (sdslen(asset_image) > 0) {
         mime_type = get_mime_type_by_ext(asset_image);
         mg_http_serve_file(nc, hm, asset_image, mime_type, EXTRA_HEADERS_CACHE);
     }
@@ -265,16 +263,20 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_mess
 //private functions
 static bool rm_mk_dir(sds dir_name, bool create) {
     if (create == true) { 
+        errno = 0;
         int rc = mkdir(dir_name, 0700);
         if (rc != 0 && errno != EEXIST) {
-            MYMPD_LOG_ERROR("Can not create directory \"%s\": %s", dir_name, strerror(errno));
+            MYMPD_LOG_ERROR("Can not create directory \"%s\"", dir_name);
+            MYMPD_LOG_ERRNO(errno);
             return false;
         }
     }
     else { 
+        errno = 0;
         int rc = rmdir(dir_name);
         if (rc != 0 && errno != ENOENT) {
-            MYMPD_LOG_ERROR("Can not remove directory \"%s\": %s", dir_name, strerror(errno));
+            MYMPD_LOG_ERROR("Can not remove directory \"%s\"", dir_name);
+            MYMPD_LOG_ERRNO(errno);
             return false;
         }
     }
@@ -295,6 +297,9 @@ static bool check_ipv4_acl(const char *acl, uint32_t remote_ip) {
         acl_str++;
         char *mask_str;
         char *net_str = strtok_r(acl_str, "/", &mask_str);
+        if (net_str == NULL || mask_str == NULL) {
+            continue;
+        }
         uint32_t mask = strtoimax(mask_str, NULL, 10);
         if (mask == 0) {
             //mask of 0 matches always

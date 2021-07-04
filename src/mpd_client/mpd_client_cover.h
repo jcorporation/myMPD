@@ -6,6 +6,6 @@
 
 #ifndef __MPD_CLIENT_COVER_H__
 #define __MPD_CLIENT_COVER_H__
-sds mpd_client_getcover(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
+sds mpd_client_getcover(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                         const char *uri, sds *binary);
 #endif

@@ -38,9 +38,6 @@ search
 newest
 sticker
 Info
-Error
-No such directory
-No lyrics found
 Error executing script %{script}: Syntax error during precompilation
 Error executing script %{script}: Memory allocation error
 Error executing script %{script}: Error in garbage collector
@@ -80,3 +77,27 @@ Facilities
 Default image
 Default image dark
 Default image light
+Browser default
+Highlight color
+Media session
+On page notifications
+Web notifications
+Open folder
+Size normal
+Size small
+CSS filter
+Color
+Error getting mympd state for script execution
+MPD does not support partitions
+Lua is not compiled in
+MPD does not support mounts
+Volume max.
+Volume min.
+Volume step
+Synced lyrics extension
+Synced lyrics vorbis comment
+Unsynced lyrics extension
+Unsynced lyrics vorbis comment
+Last played list count
+Reset to default
+Image

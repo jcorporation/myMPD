@@ -5,11 +5,14 @@
 
 function initBrowse() {
     document.getElementById('BrowseDatabaseListList').addEventListener('click', function(event) {
+        if (event.target.classList.contains('row')) {
+            return;
+        }
         if (app.current.tag === 'Album') {
             if (event.target.classList.contains('card-body')) {
                 appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', 'AlbumArtist', 
-                    getAttDec(event.target.parentNode, 'data-album'),
-                    getAttDec(event.target.parentNode, 'data-albumartist'));
+                    getCustomDomProperty(event.target.parentNode, 'data-album'),
+                    getCustomDomProperty(event.target.parentNode, 'data-albumartist'));
             }
             else if (event.target.classList.contains('card-footer')){
                 popoverMenuAlbumCards(event);
@@ -19,17 +22,23 @@ function initBrowse() {
             app.current.search = '';
             document.getElementById('searchDatabaseStr').value = '';
             appGoto(app.current.app, app.current.card, undefined, 0, undefined, 'Album', 'AlbumArtist', 'Album', 
-                '((' + app.current.tag + ' == \'' + escapeMPD(getAttDec(event.target.parentNode, 'data-tag')) + '\'))');
+                '((' + app.current.tag + ' == \'' + escapeMPD(getCustomDomProperty(event.target.parentNode, 'data-tag')) + '\'))');
         }
     }, false);
     
     document.getElementById('BrowseDatabaseListList').addEventListener('contextmenu', function(event) {
+        if (event.target.classList.contains('row')) {
+            return;
+        }
         if (app.current.tag === 'Album') {
             popoverMenuAlbumCards(event);
         }
     }, false);
     
     document.getElementById('BrowseDatabaseListList').addEventListener('long-press', function(event) {
+        if (event.target.classList.contains('row')) {
+            return;
+        }
         if (app.current.tag === 'Album') {
             popoverMenuAlbumCards(event);
         }
@@ -41,11 +50,17 @@ function initBrowse() {
     
     if (isMobile === false) {
         document.getElementById('BrowseDatabaseListList').addEventListener('mouseover', function(event) {
+            if (app.current.tag !== 'Album') {
+                return;
+            }
             if (event.target.classList.contains('card-body') && event.target.childNodes.length === 0) {
                 const oldEls = document.getElementById('BrowseDatabaseListList').getElementsByClassName('album-grid-mouseover');
-                if (oldEls.length > 1) {
-                    for (let i = 0; i < oldEls.length; i++) {
-                        oldEls[i].remove();
+                const oldElsLen = oldEls.length;
+                if (oldElsLen > 1) {
+                    for (let i = 0; i < oldElsLen; i++) {
+                        if (oldEls[i] !== undefined) {
+                            oldEls[i].remove();
+                        }
                     }
                 }
                 addPlayButton(event.target);
@@ -53,6 +68,9 @@ function initBrowse() {
         }, false);
 
         document.getElementById('BrowseDatabaseListList').addEventListener('mouseout', function(event) {
+            if (app.current.tag !== 'Album') {
+                return;
+            }
             if (event.target.classList.contains('card-body') && (event.relatedTarget === null || ! event.relatedTarget.classList.contains('album-grid-mouseover'))) {
                 event.target.innerHTML = '';
             }
@@ -64,7 +82,7 @@ function initBrowse() {
             return;
         }
         if (event.target.nodeName === 'TD') {
-            clickSong(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
+            clickSong(getCustomDomProperty(event.target.parentNode, 'data-uri'), getCustomDomProperty(event.target.parentNode, 'data-name'));
         }
         else if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
@@ -73,7 +91,7 @@ function initBrowse() {
 
     document.getElementById('searchDatabaseTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
-            app.current.filter = getAttDec(event.target, 'data-tag');
+            app.current.filter = getCustomDomProperty(event.target, 'data-tag');
             searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
         }
     }, false);
@@ -95,7 +113,7 @@ function initBrowse() {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             event.stopPropagation();
-            app.current.sort = getAttDec(event.target, 'data-tag');
+            app.current.sort = getCustomDomProperty(event.target, 'data-tag');
             appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
         }
     }, false);
@@ -115,7 +133,7 @@ function initBrowse() {
     document.getElementById('dropdownSortPlaylistTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
-            playlistSort(getAttDec(event.target, 'data-tag'));
+            playlistSort(getCustomDomProperty(event.target, 'data-tag'));
         }
     }, false);
 
@@ -170,11 +188,11 @@ function initBrowse() {
             //edit search expression
             event.preventDefault();
             event.stopPropagation();
-            selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', getAttDec(event.target,'data-filter-tag'));
-            document.getElementById('searchDatabaseStr').value = unescapeMPD(getAttDec(event.target, 'data-filter-value'));
-            document.getElementById('searchDatabaseMatch').value = getAttDec(event.target, 'data-filter-op');
+            selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', getCustomDomProperty(event.target,'data-filter-tag'));
+            document.getElementById('searchDatabaseStr').value = unescapeMPD(getCustomDomProperty(event.target, 'data-filter-value'));
+            document.getElementById('searchDatabaseMatch').value = getCustomDomProperty(event.target, 'data-filter-op');
             event.target.remove();
-            app.current.filter = getAttDec(event.target,'data-filter-tag');
+            app.current.filter = getCustomDomProperty(event.target,'data-filter-tag');
             searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
             if (document.getElementById('searchDatabaseCrumb').childElementCount === 0) {
                 document.getElementById('searchDatabaseCrumb').classList.add('hide');
@@ -184,9 +202,9 @@ function initBrowse() {
 
     document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            const uri = getAttDec(event.target.parentNode, 'data-uri');
-            const name = getAttDec(event.target.parentNode, 'data-name');
-            const dataType = getAttDec(event.target.parentNode, 'data-type');
+            const uri = getCustomDomProperty(event.target.parentNode, 'data-uri');
+            const name = getCustomDomProperty(event.target.parentNode, 'data-name');
+            const dataType = getCustomDomProperty(event.target.parentNode, 'data-type');
             switch(dataType) {
                 case 'parentDir': {
                     const offset = browseFilesystemHistory[uri] !== undefined ? browseFilesystemHistory[uri].offset : 0;
@@ -211,48 +229,20 @@ function initBrowse() {
         }
     }, false);
 
-    document.getElementById('BrowseFilesystemBookmarks').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'A') {
-            const id = getAttDec(event.target.parentNode.parentNode, 'data-id');
-            const type = getAttDec(event.target.parentNode.parentNode, 'data-type');
-            const uri = getAttDec(event.target.parentNode.parentNode, 'data-uri');
-            const name = event.target.parentNode.parentNode.firstChild.innerText;
-            const href = getAttDec(event.target, 'data-href');
-            
-            if (href === 'delete') {
-                sendAPI("MYMPD_API_BOOKMARK_RM", {"id": id}, function() {
-                    sendAPI("MYMPD_API_BOOKMARK_LIST", {"offset": 0, "limit": 0}, parseBookmarks);
-                });
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            else if (href === 'edit') {
-                showBookmarkSave(id, name, uri, type);
-            }
-            else if (href === 'goto') {
-                appGoto('Browse', 'Filesystem', undefined, '0', undefined, '-','-','-', uri);
-            }
-        }
-    }, false);
-
     document.getElementById('BrowseBreadcrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
-            const uri = getAttDec(event.target, 'data-uri');
+            const uri = getCustomDomProperty(event.target, 'data-uri');
             const offset = browseFilesystemHistory[uri] !== undefined ? browseFilesystemHistory[uri].offset : 0;
             const scrollPos = browseFilesystemHistory[uri] !== undefined ? browseFilesystemHistory[uri].scrollPos : 0;
             appGoto('Browse', 'Filesystem', undefined, offset, app.current.limit, app.current.filter, app.current.sort, '-', uri, scrollPos);
         }
     }, false);
-
-    document.getElementById('BrowseFilesystemBookmark').parentNode.addEventListener('show.bs.dropdown', function () {
-        sendAPI("MYMPD_API_BOOKMARK_LIST", {"offset": 0, "limit": 0}, parseBookmarks);
-    });
 }
 
 function navBrowseHandler(event) {
     if (event.target.nodeName === 'BUTTON') {
-        const tag = getAttDec(event.target, 'data-tag');
+        const tag = getCustomDomProperty(event.target, 'data-tag');
         if (tag === 'Playlists' || tag === 'Filesystem') {
             appGoto('Browse', tag, undefined);
             return;
@@ -279,7 +269,7 @@ function popoverMenuAlbumCards(event) {
     }
     showMenu(event.target, event);
     const selCards = document.getElementById('BrowseDatabaseListList').getElementsByClassName('selected');
-    for (let i = 0; i < selCards.length; i++) {
+    for (let i = 0, j = selCards.length; i < j; i++) {
         selCards[i].classList.remove('selected');
     }
     event.target.parentNode.classList.add('selected');
@@ -288,21 +278,21 @@ function popoverMenuAlbumCards(event) {
 }
 
 function gotoBrowse(event) {
-    if (settings.featAdvsearch === false) {
+    if (features.featAdvsearch === false) {
         return;
     }
     const x = event.target;
-    let tag = getAttDec(x, 'data-tag');
-    let name = getAttDec(x, 'data-name');
+    let tag = getCustomDomProperty(x, 'data-tag');
+    let name = getCustomDomProperty(x, 'data-name');
     if (tag === null) {
-        tag = getAttDec(x.parentNode, 'data-tag');
-        name = getAttDec(x.parentNode, 'data-name');
+        tag = getCustomDomProperty(x.parentNode, 'data-tag');
+        name = getCustomDomProperty(x.parentNode, 'data-name');
     }
-    if (tag !== '' && name !== '' && name !== '-' && settings.browsetags.includes(tag)) {
+    if (tag !== '' && name !== '' && name !== '-' && settings.tagListBrowse.includes(tag)) {
         if (tag === 'Album') {
-            let artist = getAttDec(x, 'data-albumartist');
+            let artist = getCustomDomProperty(x, 'data-albumartist');
             if (artist === null) {
-                artist = getAttDec(x.parentNode, 'data-albumartist');
+                artist = getCustomDomProperty(x.parentNode, 'data-albumartist');
             }
             if (artist !== null) {
                 //Show album details
@@ -326,38 +316,38 @@ function parseFilesystem(obj) {
     //show images in folder
     const imageList = document.getElementById('BrowseFilesystemImages');
     imageList.innerHTML = '';
-    if ((obj.result.images.length === 0 && obj.result.bookletPath === '') || settings.publish === false) {
+    if ((obj.result.images.length === 0 && obj.result.bookletPath === '')) {
         imageList.classList.add('hide');
     }
     else {
         imageList.classList.remove('hide');
     }
-    if (obj.result.bookletPath !== '' && settings.publish === true) {
+    if (obj.result.bookletPath !== '') {
         const img = document.createElement('div');
         img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
         img.classList.add('booklet');
-        setAttEnc(img, 'data-href', subdir + '/browse/music/' + obj.result.bookletPath);
+        setCustomDomProperty(img, 'data-href', subdir + '/browse/music/' + obj.result.bookletPath);
         img.title = t('Booklet');
         imageList.appendChild(img);
     }
-    for (let i = 0; i < obj.result.images.length; i++) {
+    for (let i = 0, j = obj.result.images.length; i < j; i++) {
         const img = document.createElement('div');
-        img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + obj.result.images[i] + '"),url("assets/coverimage-loading.svg")';
+        img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + myEncodeURI(obj.result.images[i]) + '"),url("assets/coverimage-loading.svg")';
         imageList.appendChild(img);
     }
 
-    const rowTitleSong = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
-    const rowTitleFolder = advancedSettingsDefault.clickFolder.validValues[settings.advanced.clickFolder];
-    const rowTitlePlaylist = advancedSettingsDefault.clickPlaylist.validValues[settings.advanced.clickPlaylist];
+    const rowTitleSong = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
+    const rowTitleFolder = webuiSettingsDefault.clickFolder.validValues[settings.webuiSettings.clickFolder];
+    const rowTitlePlaylist = webuiSettingsDefault.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
     
     updateTable(obj, 'BrowseFilesystem', function(row, data) {
-        setAttEnc(row, 'data-type', data.Type);
-        setAttEnc(row, 'data-uri', data.uri);
+        setCustomDomProperty(row, 'data-type', data.Type);
+        setCustomDomProperty(row, 'data-uri', data.uri);
         //set Title to name if not defined - for folders and playlists
         if (data.Title === undefined) {
             data.Title = data.name;
         }
-        setAttEnc(row, 'data-name', data.Title);
+        setCustomDomProperty(row, 'data-name', data.Title);
         row.setAttribute('title', t(data.Type === 'song' ? rowTitleSong : 
                 data.Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
     });
@@ -367,58 +357,18 @@ function parseFilesystem(obj) {
 //eslint-disable-next-line no-unused-vars
 function addAllFromBrowseFilesystem(replace) {
     if (replace === true) {
-        sendAPI("MPD_API_QUEUE_REPLACE_TRACK", {"uri": app.current.search});
+        sendAPI("MYMPD_API_QUEUE_REPLACE_URI", {"uri": app.current.search});
         showNotification(t('Replaced queue'), '', 'queue', 'info');
     }
     else {
-        sendAPI("MPD_API_QUEUE_ADD_TRACK", {"uri": app.current.search});
+        sendAPI("MYMPD_API_QUEUE_ADD_URI", {"uri": app.current.search});
         showNotification(t('Added all songs'), '', 'queue', 'info');
     }
 }
 
 function addAllFromBrowseDatabasePlist(plist) {
     if (app.current.search.length >= 2) {
-        sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0, "limit": 0, "cols": settings.colsSearch, "replace": false});
-    }
-}
-
-function parseBookmarks(obj) {
-    let list = '<table class="table table-sm table-dark table-borderless mb-0">';
-    for (let i = 0; i < obj.result.returnedEntities; i++) {
-        list += '<tr data-id="' + obj.result.data[i].id + '" data-type="' + obj.result.data[i].type + '" ' +
-                'data-uri="' + encodeURI(obj.result.data[i].uri) + '">' +
-                '<td class="nowrap"><a class="text-light" href="#" data-href="goto">' + e(obj.result.data[i].name) + '</a></td>' +
-                '<td><a class="text-light mi mi-small" href="#" data-href="edit">edit</a></td><td>' +
-                '<a class="text-light mi mi-small" href="#" data-href="delete">delete</a></td></tr>';
-    }
-    if (obj.result.returnedEntities === 0) {
-        list += '<tr><td class="text-light nowrap">' + t('No bookmarks found') + '</td></tr>';
-    }
-    list += '</table>';
-    document.getElementById('BrowseFilesystemBookmarks').innerHTML = list;
-}
-
-function showBookmarkSave(id, name, uri, type) {
-    removeIsInvalid(document.getElementById('modalSaveBookmark'));
-    document.getElementById('saveBookmarkId').value = id;
-    document.getElementById('saveBookmarkName').value = name;
-    document.getElementById('saveBookmarkUri').value = uri;
-    document.getElementById('saveBookmarkType').value = type;
-    uiElements.modalSaveBookmark.show();
-}
-
-//eslint-disable-next-line no-unused-vars
-function saveBookmark() {
-    const name = document.getElementById('saveBookmarkName').value;
-    if (name !== '') {
-        const id = parseInt(document.getElementById('saveBookmarkId').value);
-        const uri = document.getElementById('saveBookmarkUri').value;
-        const type = document.getElementById('saveBookmarkType').value;
-        sendAPI("MYMPD_API_BOOKMARK_SAVE", {"id": id, "name": name, "uri": uri, "type": type});
-        uiElements.modalSaveBookmark.hide();
-    }
-    else {
-        document.getElementById('saveBookmarkName').classList.add('is-invalid');
+        sendAPI("MYMPD_API_DATABASE_SEARCH", {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0, "limit": 0, "cols": settings.colsSearch, "replace": false});
     }
 }
 
@@ -426,7 +376,6 @@ function parseDatabase(obj) {
     const nrItems = obj.result.returnedEntities;
     const cardContainer = document.getElementById('BrowseDatabaseListList');
     const cols = cardContainer.getElementsByClassName('col');
-    const hasIO = 'IntersectionObserver' in window ? true : false;
 
     document.getElementById('BrowseDatabaseListList').classList.remove('opacity05');
 
@@ -448,11 +397,7 @@ function parseDatabase(obj) {
         if (obj.result.tag === 'Album') {
             id = genId('database' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist);
             picture = subdir + '/albumart/' + obj.result.data[i].FirstSongUri;
-            html = '<div class="card card-grid clickable" data-picture="' + encodeURI(picture)  + '" ' + 
-                       'data-uri="' + encodeURI(obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, '')) + '" ' +
-                       'data-type="dir" data-name="' + encodeURI(obj.result.data[i].Album) + '" ' +
-                       'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
-                       'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '" tabindex="0">' +
+            html = '<div class="card card-grid clickable" tabindex="0">' +
                    '<div class="card-body album-cover-loading album-cover-grid bg-white d-flex" id="' + id + '"></div>' +
                    '<div class="card-footer card-footer-grid p-2" title="' + e(obj.result.data[i].AlbumArtist) + ': ' + e(obj.result.data[i].Album) + '">' +
                    e(obj.result.data[i].Album) + '<br/><small>' + e(obj.result.data[i].AlbumArtist) + '</small>' +
@@ -460,8 +405,8 @@ function parseDatabase(obj) {
         }
         else {
             id = genId('database' + obj.result.data[i].value);
-            picture = subdir + '/pics/' + obj.result.tag + '/' + encodeURI(obj.result.data[i].value);
-            html = '<div class="card card-grid clickable" data-picture="' + encodeURI(picture) + '" data-tag="' + encodeURI(obj.result.data[i].value) + '" tabindex="0">' +
+            picture = subdir + '/tagart/' + obj.result.tag + '/' + obj.result.data[i].value;
+            html = '<div class="card card-grid clickable" tabindex="0">' +
                    (obj.result.pics === true ? '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' : '') +
                    '<div class="card-footer card-footer-grid p-2" title="' + e(obj.result.data[i].value) + '">' +
                    e(obj.result.data[i].value) + '<br/>' +
@@ -470,7 +415,7 @@ function parseDatabase(obj) {
         col.innerHTML = html;
         let replaced = false;
         if (i < cols.length) {
-            if (cols[i].firstChild.getAttribute('data-picture') !== col.firstChild.getAttribute('data-picture')) {
+            if (cols[i].firstChild['data-picture'] !== picture) {
                 cols[i].replaceWith(col);
                 replaced = true;
             }
@@ -480,6 +425,19 @@ function parseDatabase(obj) {
             replaced = true;
         }
         if (replaced === true) {
+            const card = col.firstElementChild;
+            if (obj.result.tag === 'Album') {
+                setCustomDomProperty(card, 'data-picture', picture);
+                setCustomDomProperty(card, 'data-uri', obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, ''));
+                setCustomDomProperty(card, 'data-type', 'dir');
+                setCustomDomProperty(card, 'data-name', obj.result.data[i].Album);
+                setCustomDomProperty(card, 'data-album', obj.result.data[i].Album);
+                setCustomDomProperty(card, 'data-albumartist', obj.result.data[i].AlbumArtist);
+            }
+            else {
+                setCustomDomProperty(card, 'data-picture', picture);
+                setCustomDomProperty(card, 'data-tag', obj.result.data[i].value);
+            }
             if (hasIO === true) {
                 const options = {
                     root: null,
@@ -489,7 +447,7 @@ function parseDatabase(obj) {
                 observer.observe(col);
             }
             else {
-                col.firstChild.firstChild.style.backgroundImage = picture;
+                col.firstChild.firstChild.style.backgroundImage = myEncodeURI(picture);
             }
             if (obj.result.tag === 'Album' && isMobile === true) {
                 addPlayButton(document.getElementById(id));
@@ -511,10 +469,11 @@ function setGridImage(changes, observer) {
     changes.forEach(change => {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);
-            const uri = getAttDec(change.target.firstChild, 'data-picture');
+            //use URI encoded attribute
+            const uri = getCustomDomProperty(change.target.firstChild, 'data-picture');
             const body = change.target.firstChild.getElementsByClassName('card-body')[0];
             if (body) {
-                body.style.backgroundImage = 'url("' + uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+                body.style.backgroundImage = 'url("' + myEncodeURI(uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
             }
         }
     });
@@ -524,33 +483,33 @@ function addPlayButton(parentEl) {
     const div = document.createElement('div');
     div.classList.add('align-self-end', 'album-grid-mouseover', 'mi', 'rounded-circle', 'clickable');
     div.innerText = 'play_arrow';
-    div.title = t(advancedSettingsDefault.clickAlbumPlay.validValues[settings.advanced.clickAlbumPlay]);
+    div.title = t(webuiSettingsDefault.clickAlbumPlay.validValues[settings.webuiSettings.clickAlbumPlay]);
     parentEl.appendChild(div);
     div.addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
-        clickAlbumPlay(getAttDec(event.target.parentNode.parentNode, 'data-albumartist'), getAttDec(event.target.parentNode.parentNode, 'data-album'));
+        clickAlbumPlay(getCustomDomProperty(event.target.parentNode.parentNode, 'data-albumartist'), getCustomDomProperty(event.target.parentNode.parentNode, 'data-album'));
     }, false);
 }
 
 function parseAlbumDetails(obj) {
     const coverEl = document.getElementById('viewDetailDatabaseCover');
-    coverEl.style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.data[0].uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
-    setAttEnc(coverEl, 'data-images', obj.result.images.join(';;'));
-    setAttEnc(coverEl, 'data-uri', obj.result.data[0].uri);
+    coverEl.style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(obj.result.data[0].uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+    setCustomDomProperty(coverEl, 'data-images', obj.result.images);
+    setCustomDomProperty(coverEl, 'data-uri', obj.result.data[0].uri);
     const infoEl = document.getElementById('viewDetailDatabaseInfo');
     infoEl.innerHTML = '<h1>' + e(obj.result.Album) + '</h1>' +
         '<small> ' + t('AlbumArtist') + '</small><p>' + e(obj.result.AlbumArtist) + '</p>' +
-        (obj.result.bookletPath === '' || settings.featBrowse === false ? '' : 
+        (obj.result.bookletPath === '' || features.featLibrary === false ? '' : 
             '<span class="text-light mi">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
-            e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>') +
+            myEncodeURI(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>') +
         '</p>';
 
-    const rowTitle = t(advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong]);
+    const rowTitle = t(webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong]);
     updateTable(obj, 'BrowseDatabaseDetail', function(row, data) {
-        setAttEnc(row, 'data-type', 'song');
-        setAttEnc(row, 'data-name', data.Title);
-        setAttEnc(row, 'data-uri', data.uri);
+        setCustomDomProperty(row, 'data-type', 'song');
+        setCustomDomProperty(row, 'data-name', data.Title);
+        setCustomDomProperty(row, 'data-uri', data.uri);
         row.setAttribute('title', rowTitle);
     });
 

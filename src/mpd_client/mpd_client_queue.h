@@ -6,15 +6,15 @@
 
 #ifndef __MPD_CLIENT_QUEUE_H__
 #define __MPD_CLIENT_QUEUE_H__
-sds mpd_client_get_queue_state(t_mpd_client_state *mpd_client_state, sds buffer);
+sds mpd_client_get_queue_state(struct t_mympd_state *mympd_state, sds buffer);
 sds mpd_client_put_queue_state(struct mpd_status *status, sds buffer);
-sds mpd_client_put_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
-                         unsigned int offset, unsigned int limit, const t_tags *tagcols);
-sds mpd_client_crop_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, bool or_clear);
-sds mpd_client_search_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
+sds mpd_client_put_queue(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+                         unsigned int offset, unsigned int limit, const struct t_tags *tagcols);
+sds mpd_client_crop_queue(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, bool or_clear);
+sds mpd_client_search_queue(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                             const char *mpdtagtype, const unsigned int offset, const unsigned int limit, 
-                            const char *searchstr, const t_tags *tagcols);
-bool mpd_client_queue_replace_with_song(t_mpd_client_state *mpd_client_state, const char *uri);
-bool mpd_client_queue_replace_with_playlist(t_mpd_client_state *mpd_client_state, const char *plist);
-bool mpd_client_queue_prio_set_highest(t_mpd_client_state *mpd_client_state, const unsigned trackid);
+                            const char *searchstr, const struct t_tags *tagcols);
+bool mpd_client_queue_replace_with_song(struct t_mympd_state *mympd_state, const char *uri);
+bool mpd_client_queue_replace_with_playlist(struct t_mympd_state *mympd_state, const char *plist);
+bool mpd_client_queue_prio_set_highest(struct t_mympd_state *mympd_state, const unsigned trackid);
 #endif

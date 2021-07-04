@@ -207,9 +207,6 @@ Salva come lista di riproduzione smart
 To top
 All'inizio
 
-Bookmarks
-Segnalibro
-
 Select tag to search
 Scegliere i tag per la ricerca
 
@@ -221,9 +218,6 @@ Inizializzazione di myMPD in corso
 
 Fetch myMPD settings
 Caricamento parametri di myMPD
-
-Fetch MPD settings
-Caricamento parametri di MPD
 
 Connect to websocket
 Canessione a websocket
@@ -285,15 +279,6 @@ Elimina lista di riproduzione
 Delete
 Elimina
 
-Love song
-"Adoro" questa canzone
-
-Scrobbled love
-Scrobbling delle canzoni "adorate" eseguito
-
-Failed to send love message to channel
-Impossibile inviare il messaggio "adorato" sul canale
-
 Dislike song
 Non mi piace più
 
@@ -303,20 +288,11 @@ Mi piace questa canzone
 MPD stickers are disabled
 Gli sticker MPD sono disabilitati
 
-folder.jpg
-folder.jpg
-
-Size in px
-Dimensione in pixels
-
 Save smart playlist
 Salva la lista di riproduzione smart
 
 Name
 Nome
-
-Tag
-Tag
 
 Tags
 Tags
@@ -366,12 +342,6 @@ Guadagno in riproduzione
 Off
 Off
 
-Mixramp DB
-Mixramp DB
-
-Mixramp delay
-Ritardo mixramp
-
 Autoplay
 Riproduzione automatica
 
@@ -390,20 +360,11 @@ Dever essere un numero e maggiore di zero
 Albumart
 Copertina
 
-Can't access music directory
-Cartella musicale non accessibile
-
-Invalid size
-Dimensione non valida
-
 Background color
 Colore sfondo
 
 Highlight color
 Colore evidenziazioni
-
-Invalid color
-Colore non valido
 
 CSS filter
 Filtro CSS
@@ -441,9 +402,6 @@ Lecture locale
 Statistics
 Statistiche
 
-Stickers are disabled
-Gli Stickers sono disabilitati
-
 Playback statistics
 Statistiche di riproduzione
 
@@ -470,36 +428,6 @@ Impossibile aggiornare la lista di riproduzione smart %{playlist}
 
 Smart playlist
 Lista di riproduzione smart
-
-Playlists are disabled
-Le liste di riproduzione sono disabilitate
-
-Scrobbler integration
-Integrazione degli Scrobbler (raccomandazioni musicali)
-
-MPD channel not found
-Canale MPD non trovato
-
-Send love message
-Invia messaggio "adorato"
-
-MPD channel
-Canale MPD
-
-Invalid channel name
-Nome canale non valido
-
-Message
-Messaggio
-
-Invalid message
-Messaggio non valido
-
-Reset
-Reimposta
-
-Reset settings
-Reimposta i parametri
 
 Clear app cache and reload
 Svuota cache applicazione e ricarica
@@ -602,18 +530,6 @@ Nome lista di riproduzione
 
 Quantity
 Quantità
-
-Save bookmark
-Enregistrer le marque-page
-
-Clearing bookmarks failed
-Errore svuotamento segnalibri
-
-Bookmark name
-Nome segnalibro
-
-Bookmark URI
-URI segnalibro
 
 Song details
 Dettagli brano
@@ -726,9 +642,6 @@ Aggiungi dopo il brano corrente
 View playlist
 Visualizza lista di riproduzione
 
-Add bookmark
-Aggiungi segnalibro
-
 Replace queue
 Sostituisci la coda
 
@@ -777,13 +690,10 @@ Nuova lista di riproduzione
 never
 mai
 
-Failed to save playlist
-Impossibile salvare la lista di riproduzione
-
 Added %{uri} to playlist %{playlist}
 Aggiunta di %{uri} alla lista di riproduzione %{playlist}
 
-Sucessfully added random songs to queue
+Successfully added random songs to queue
 Brani casuali aggiunti con successo alla coda
 
 Adding random songs to queue failed
@@ -804,7 +714,7 @@ Errore connessione MPD : %{error}
 Renaming playlist failed
 Impossibile rinominare la lista di riproduzione
 
-Sucessfully renamed playlist
+Successfully renamed playlist
 Lista di riproduzione rinominata con successo
 
 Can not crop the queue
@@ -818,30 +728,6 @@ Impossibile elaborare il file di lista di riproduzione smart
 
 Unknown smart playlist type
 Tipo lista di riproduzione smart sconosciuto
-
-System commands are disabled
-I comandi di sistema sono disabilitati
-
-Saving bookmark failed
-Salvataggio segnalibro fallito
-
-Deleting bookmark failed
-Cancellazione segnalibro fallita
-
-System command not defined
-Comando di sistema non definito
-
-Successfully execute cmd %{cmd}
-Commando %{cmd} eseguito
-
-Failed to execute cmd %{cmd}
-Impossibile eseguire il comando %{cmd}
-
-Failed to open bookmarks file
-Impossibile aprire il file dei segnalibri
-
-No bookmarks found
-Nessun segnalibro trovato
 
 Background
 Sfondo
@@ -872,9 +758,6 @@ Coda sostituita con %{name}
 
 Saved smart playlist %{name}
 Lista di riproduzione %{name} salvata
-
-System commands
-Comandi di sistema
 
 Focus table
 Focus table
@@ -948,9 +831,6 @@ MUSICBRAINZ_TRACKID
 MUSICBRAINZ_WORKID
 MUSICBRAINZ_TRACKID
 
-myMPD is in readonly mode
-myMPD è in modalità sola lettura
-
 Consume must be enabled
 Il modo Consumo deve essere abilitato
 
@@ -1023,8 +903,8 @@ Elimina doppioni
 Invalid name
 Nome non valido
 
-Last played older than (hours)
-Riprodotto per l'ultima volta prima di (heures)
+Last played older than
+Riprodotto per l'ultima volta prima di
 
 Minimum one weekday must be selected
 Deve essere selezionato almeno un giorno della settimana
@@ -1049,9 +929,6 @@ on
 
 Oneshot
 Unico
-
-Other features
-Altre caratteristiche
 
 Start
 Avvia
@@ -1085,9 +962,6 @@ Sab
 
 Sun
 Dom
-
-System command
-Comando di sistema
 
 LastModified
 Ultima modifica
@@ -1149,9 +1023,6 @@ Ordine
 Sort by tag
 Ordinato per tag
 
-Update smart playlists (hours)
-Aggiorna lista di riproduzione smart (ore)
-
 Smart playlists prefix
 Prefisso lista di riproduzione smart
 
@@ -1176,9 +1047,6 @@ Elimina tutte le liste di riproduzione vuote
 Delete playlists
 Elimina liste di riproduzione
 
-Media session support
-Supporto media session
-
 Playlists deleted
 Liste di riproduzione eliminate
 
@@ -1187,9 +1055,6 @@ Anteprima
 
 Info
 Info
-
-Error
-Errore
 
 Auto
 Auto
@@ -1238,9 +1103,6 @@ Punto di montaggio
 
 Unmount
 Smonta
-
-No such directory
-Cartella non trovata
 
 Error in response to command: %{command}
 Errore in risposta al comando %{command}
@@ -1305,26 +1167,17 @@ Errore esecuzione script %{script}
 Invalid script name
 Nome script non valido
 
-No mpd state for script execution submitted
-Manca lo stato mpd per l'esecuzione dello script
-
 Script
 Script
 
 Script %{script} executed successfully
 Script %{script} eseguito
 
-Scripting is disabled
-Gli script sono disabilitati
-
 Scripts
 Script
 
 Invalid script API request
 Richiesta API dello script non valida
-
-Remote scripting is disabled
-Gli script remoti sono disabilitati
 
 Arguments
 Argomenti
@@ -1370,9 +1223,6 @@ Nome dello script
 
 Sort order of the script, 0 disables listing in main menu
 Ordinamento degli script, 0 disabilita l'elenco nel menù pricipale
-
-Editing scripts is disabled
-Moidifica degli script disabilitata
 
 Fullscreen
 Schermo intero
