@@ -46,7 +46,9 @@ void mympd_free_config(struct t_config *config) {
 #endif
     sdsfree(config->acl);
     sdsfree(config->scriptacl);
+#ifdef ENABLE_LUA
     sdsfree(config->lualibs);
+#endif
 }
 
 void mympd_free_config_initial(struct t_config *config) {
@@ -111,7 +113,9 @@ bool mympd_read_config(struct t_config *config) {
     #endif
     config->acl = state_file_rw_string_sds(config->workdir, "config", "acl", config->acl, false);
     config->scriptacl = state_file_rw_string_sds(config->workdir, "config", "scriptacl", config->scriptacl, false);
+    #ifdef ENABLE_LUA
     config->lualibs = state_file_rw_string_sds(config->workdir, "config", "lualibs", config->lualibs, false);
+    #endif
     config->loglevel = state_file_rw_int(config->workdir, "config", "loglevel", config->loglevel, false);
     
     return true;
