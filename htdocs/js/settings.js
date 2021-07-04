@@ -273,7 +273,7 @@ function parseSettings(obj) {
     }
 
     //set local playback url    
-    if (settings.webuiSettings.uiLocalPlayback === true) {
+    if (settings.webuiSettings.enableLocalPlayback === true) {
         setLocalPlayerUrl();
     }
     
