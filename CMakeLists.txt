@@ -83,7 +83,7 @@ endif()
 
 if(NOT "${ENABLE_LUA}" MATCHES "OFF")
   IF(EXISTS "/etc/alpine-release")                                        
-    set(ENV{LUA_DIR} "/usr/lib/lua5.3")                                 
+    set(ENV{LUA_DIR} "/usr/lib/lua5.4")                                 
   endif()     
   message("Searching for lua")
   find_package(Lua)

@@ -453,7 +453,7 @@ pkgdocker() {
   check_cmd docker
   [ -z "${DOCKERFILE+x}" ] && DOCKERFILE="Dockerfile.alpine"
   prepare
-  docker build -t mympd -f "contrib/packaging/docker/$DOCKERFILE" .
+  docker build --rm -t mympd -f "contrib/packaging/docker/$DOCKERFILE" .
 }
 
 pkgbuildx() {
@@ -620,7 +620,7 @@ installdeps() {
   elif [ -f /etc/alpine-release ]
   then
     #alpine
-    apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.3-dev \
+    apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.4-dev \
     	alpine-sdk linux-headers pkgconf pcre-dev
   elif [ -f /etc/SuSE-release ]
   then
