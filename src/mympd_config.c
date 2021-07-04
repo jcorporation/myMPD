@@ -135,9 +135,7 @@ static const char *mympd_getenv(const char *env_var, bool first_startup) {
         MYMPD_LOG_INFO("Using environment variable \"%s\" with value \"%s\"", env_var, env_value);
         return env_var;
     }
-    else {
-        MYMPD_LOG_INFO("Ignoring environment variable \"%s\" with value \"%s\"", env_var, env_value);
-    }
+    MYMPD_LOG_INFO("Ignoring environment variable \"%s\" with value \"%s\"", env_var, env_value);
     return NULL;
 }
 

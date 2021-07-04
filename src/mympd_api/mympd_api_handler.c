@@ -673,7 +673,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "database", "error", "Error getting MPD status");
                 break;
             }
-            else if (update_id > 0) {
+            if (update_id > 0) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, "database", "info", "Database update already startet");
                 break;
             }

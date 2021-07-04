@@ -240,7 +240,6 @@ static bool migrate_smartpls_file(const char *workdir, const char *playlist) {
         MYMPD_LOG_INFO("Converting smart playlist file \"%s\" to new format", filename);
         je = json_scanf(content, (int)strlen(content), "{tag: %Q, searchstr: %Q, sort: %Q}", &p_charbuf1, &p_charbuf2, &p_charbuf3);
         if (je == 3) {
-            rc = true;
             sds expression = sdsempty();
             if (strcmp(p_charbuf1, "expression") == 0) {
                 expression = sdscat(expression, p_charbuf2);
