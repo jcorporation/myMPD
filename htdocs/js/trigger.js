@@ -114,7 +114,7 @@ function showTriggerScriptArgs(option, values) {
                 '</div>';
     }
     if (args.arguments.length === 0) {
-        list = 'No arguments';
+        list = t('No arguments');
     }
     document.getElementById('triggerActionScriptArguments').innerHTML = list;
 }
