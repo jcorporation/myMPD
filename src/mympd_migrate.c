@@ -42,11 +42,9 @@ static void rename_file(const char *workdir, const char *src, const char *dst);
 
 //public functions
 void start_migrate_conf(const char *workdir) {
-/*
     if (is_old_config(workdir) == false) {
         return;
     }
-*/
     MYMPD_LOG_INFO("Detected old configuration, migrating mympd.conf");
     //find and open mympd.conf
     FILE *fp = fopen("/etc/mympd.conf", "r");
@@ -105,9 +103,10 @@ void start_migrate_conf(const char *workdir) {
             state_file_write(workdir, "config", "acl", value);
         }
     }
+    fclose(fp);
     FREE_PTR(line);
-    fclose(fp);   
-    (void) workdir; 
+    sdsfree(key);
+    sdsfree(value);
 }
 
 void start_migrate_workdir(const char *workdir) {
