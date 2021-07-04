@@ -218,6 +218,7 @@ static bool parse_internal_message(t_work_result *response, struct t_mg_user_dat
 static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
     struct mg_connection *nc = mgr->conns;
     int i = 0;
+    int j = 0;
     while (nc != NULL) {
         if ((int)nc->is_websocket == 1) {
             MYMPD_LOG_DEBUG("Sending notify to conn_id %lu: %s", nc->id, response->data);
@@ -225,11 +226,17 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
             i++;
         }
         nc = nc->next;
+        j++;
     }
     if (i == 0) {
         MYMPD_LOG_DEBUG("No websocket client connected, discarding message: %s", response->data);
     }
     free_result(response);
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
+    if (j != mg_user_data->connection_count) {
+        MYMPD_LOG_WARN("Correcting connection count from %d to %d", mg_user_data->connection_count, j);
+        mg_user_data->connection_count = j;
+    }
 }
 
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
@@ -259,7 +266,11 @@ static void mpd_stream_proxy_forward(struct mg_http_message *hm, struct mg_conne
 
 static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     struct mg_connection *frontend_nc = fn_data;
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     switch(ev) {
+        case MG_EV_ACCEPT:
+            mg_user_data->connection_count++;
+            break;
         case MG_EV_READ:
             //forward incoming data from backend to frontend
             mg_send(frontend_nc, nc->recv.buf, nc->recv.len);
@@ -267,6 +278,7 @@ static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *
             break;
         case MG_EV_CLOSE: {
             MYMPD_LOG_INFO("Backend HTTP connection %lu closed", nc->id);
+            mg_user_data->connection_count--;
             if (frontend_nc != NULL) {
                 //remove backend connection pointer from frontend connection
                 frontend_nc->fn_data = NULL;
@@ -289,6 +301,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             //check connection count
             if (mg_user_data->connection_count > 100) {
                 nc->is_draining = 1;
+                MYMPD_LOG_DEBUG("Connections %d", mg_user_data->connection_count);
                 send_error(nc, 429, "Concurrent connections limit exceeded");
                 break;
             }
@@ -315,7 +328,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         }
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-            MYMPD_LOG_INFO("HTTP request (%lu): %.*s", nc->id, (int)hm->uri.len, hm->uri.ptr);
+            MYMPD_LOG_INFO("HTTP request (%lu): %.*s %.*s", nc->id, (int)hm->method.len, hm->method.ptr, (int)hm->uri.len, hm->uri.ptr);
             
             if (mg_http_match_uri(hm, "/stream/")) {
                 if (sdslen(mg_user_data->stream_uri) == 0) {
@@ -529,6 +542,10 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
         sdsfreesplitres(tokens, count);
         sdsfree(host_header);
         sdsfree(s_redirect);
+    }
+    else if (ev == MG_EV_CLOSE) {
+        MYMPD_LOG_INFO("Connection %lu closed", nc->id);
+        mg_user_data->connection_count--;
     }
 }
 #endif
