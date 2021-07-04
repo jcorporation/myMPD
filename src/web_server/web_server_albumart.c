@@ -266,6 +266,7 @@ static bool handle_coverextract_id3(struct t_config *config, const char *uri, co
     (void) uri;
     (void) media_file;
     (void) binary;
+    (void) covercache;
     #endif
     return rc;
 }
@@ -316,6 +317,7 @@ static bool handle_coverextract_flac(struct t_config *config, const char *uri, c
     (void) media_file;
     (void) binary;
     (void) is_ogg;
+    (void) covercache;
     #endif
     return rc;
 }
