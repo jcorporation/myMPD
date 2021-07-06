@@ -130,10 +130,11 @@ void *web_server_loop(void *arg_mgr) {
     #endif
     
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
-
+    #ifdef ENABLE_SSL
     MYMPD_LOG_DEBUG("Using certificate: %s", mg_user_data->config->ssl_cert);
     MYMPD_LOG_DEBUG("Using private key: %s", mg_user_data->config->ssl_key);
-
+    #endif
+    
     sds last_notify = sdsempty();
     time_t last_time = 0;
     while (s_signal_received == 0) {
