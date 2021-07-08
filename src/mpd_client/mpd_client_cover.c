@@ -40,13 +40,16 @@ sds mpd_client_getcover(struct t_mympd_state *mympd_state, sds buffer, sds metho
         }
     }
     if (offset == 0 && mympd_state->mpd_state->feat_mpd_readpicture == true) {
+        //silently clear the error if no albumart is found
+        mpd_connection_clear_error(mympd_state->mpd_state->conn);
+        mpd_response_finish(mympd_state->mpd_state->conn);
         MYMPD_LOG_DEBUG("Try mpd command readpicture for \"%s\"", uri);
         while ((recv_len = mpd_run_readpicture(mympd_state->mpd_state->conn, uri, offset, binary_buffer, mympd_state->mpd_state->mpd_binarylimit)) > 0) {
             *binary = sdscatlen(*binary, binary_buffer, recv_len);
             offset += recv_len;
         }
     }
-    if (recv_len == -1) {
+    if (offset == 0) {
         //silently clear the error if no albumart is found
         mpd_connection_clear_error(mympd_state->mpd_state->conn);
         mpd_response_finish(mympd_state->mpd_state->conn);
