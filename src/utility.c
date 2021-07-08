@@ -450,7 +450,7 @@ sds get_mime_type_by_magic_stream(sds stream) {
     sds hex_buffer = sdsempty();
     size_t len = sdslen(stream) < 8 ? sdslen(stream) : 8;
     for (size_t i = 0; i < len; i++) {
-        hex_buffer = sdscatprintf(hex_buffer, "%02X", stream[i]);
+        hex_buffer = sdscatprintf(hex_buffer, "%02X", (unsigned char) stream[i]);
     }
     const struct magic_byte_entry *p = NULL;
     for (p = magic_bytes; p->magic_bytes != NULL; p++) {
@@ -458,6 +458,9 @@ sds get_mime_type_by_magic_stream(sds stream) {
             MYMPD_LOG_DEBUG("Matched magic bytes for mime_type: %s", p->mime_type);
             break;
         }
+    }
+    if (p->magic_bytes == NULL) {
+        MYMPD_LOG_WARN("Could not get mime type from bytes \"%s\"", hex_buffer);
     }
     sdsfree(hex_buffer);
     sds mime_type = sdsnew(p->mime_type);
