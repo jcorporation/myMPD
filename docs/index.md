@@ -34,7 +34,7 @@ To use all myMPD functions you should use the latest stable MPD version (0.22.x)
   * [MPD Configuration]
 * [Running]
 * References
-  * [API](/myMPD/api)
+  * [API]({{ site.baseurl }}/api)
   * [Keyboard-Shortcuts]
   * [Sticker]
   * [Translating]
