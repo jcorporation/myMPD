@@ -20,31 +20,31 @@ To use all myMPD functions you should use the latest stable MPD version (0.22.x)
   * [Compiling]({{ site.baseurl }}/installation/compiling)
 * [Configuration]({{ site.baseurl }}/configuration/)
   * [ACL]({{ site.baseurl }}/configuration/acl)
-  * [SSL]({{ site.baseurl }}/configuration/ssl)
   * [Logging]({{ site.baseurl }}/configuration/logging)
+  * [SSL]({{ site.baseurl }}/configuration/ssl)
 * [Running]({{ site.baseurl }}/running)
+* [Debug]
 * References
   * [API]({{ site.baseurl }}/api)
-  * [Keyboard-Shortcuts]
-  * [Sticker]
-  * [Translating]
-  * [Commandline Options]
-  * [Smart playlists]
-  * [Scripting]
-    * [Lua table mympd_state]
-    * [All mympd functions]
-  * [Trigger]
-  * [Custom navbar icons]
-  * [Filesystem Hierarchy]
-  * [FeatureMatrix]
   * [Components]
-  * [Publishing directories]
+  * [Custom navbar icons]
+  * [FeatureMatrix]
+  * [Filesystem Hierarchy]
+  * [Keyboard-Shortcuts]
+  * [Lyrics]
   * Pictures
     * [Albumart]
     * [Pictures for other tags]
     * [Home icon pictures]
+  * [Published directories]
+  * [Smart playlists]
+  * [Scripting]
+    * [Lua table mympd_state]
+    * [All mympd functions]
+  * [Sticker]
   * [Tags]
-  * [Lyrics]
-  * [myMPD behind a reverse proxy]
-  * [MPD Configuration]
-* [Debug]
+  * [Translating]
+  * [Trigger]
+* Additional topics
+  * [Behind a reverse proxy]
+  * [Recommended MPD configuration]

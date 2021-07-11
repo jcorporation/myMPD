@@ -6,7 +6,7 @@ title: Compiling
 
 ## Releases
 
-| **Name** | **State** | **Description** |
+| NAME | STATE | DESCRIPTION |
 |-|-|-|
 | <a href="https://github.com/jcorporation/myMPD/releases/latest">latest release</a> | stable | The latest stable release, this is the preferred image for daily, hassle-free usage |
 | <a href="https://github.com/jcorporation/myMPD/tree/master">master</a> | stable | the latest releases are created from the master branch |
@@ -57,7 +57,7 @@ You can self create packages for your distribution:
 
 Compile time options are set through environment variables.
 
-| **Environment** | **Default** | **Description** |
+| ENVIRONMENT | DEFAULT | DESCRIPTION |
 |-|-|-|
 | MYMPD_INSTALL_PREFIX | /usr | Installation prefix for myMPD |
 | ENABLE_SSL | ON | ON = Enables SSL, requires OpenSSL >= 1.1.0 |
@@ -65,7 +65,7 @@ Compile time options are set through environment variables.
 | ENABLE_FLAC | ON | ON = Enables flac usage for extracting coverimages |
 | ENABLE_LUA | ON | ON =  Enables scripting support with lua |
 | MANPAGES | ON | ON = build manpages |
-{: .table }
+{: .table .table-sm}
 
 There are three compile targets for myMPD.
 

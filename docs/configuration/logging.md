@@ -18,4 +18,4 @@ The log levels are unix default.
 | 5 | notice |
 | 6 | info |
 | 7 | debug |
-{: .table }
+{: .table .table-sm}

@@ -28,7 +28,7 @@ At first startup (if there is no ẁorking directory) myMPD tries to autodetect 
 After first startup all environment variables are ignored and the file in the directory `/var/lib/mympd/config/` should be edited.
 
 | FILE | ENVIRONMENT | DEFAULT | DESCRIPTION |
-| ---- | ----------- | ----------- |
+| ---- | ----------- | ------- | ----------- |
 | acl | MYMPD_ACL | | ACL to access the myMPD webserver: [ACL]({{ site.baseurl }}/configuration/acl), allows all hosts in the default configuration |
 | http_host | MYMPD_HTTP_HOST | 0.0.0.0 | IP address to listen on |
 | http_port | MYMPD_HTTP_PORT | 80 | Port to listen on. Redirect to `ssl_port` if `ssl` is set to `true` |
@@ -45,15 +45,17 @@ After first startup all environment variables are ignored and the file in the di
 
 - More details on [SSL]({{ site.baseurl }}/configuration/ssl)
 
+You can use `mympd -c` to create the initial configuration in the `/var/lib/mympd/config/` directory.
+
 ### MPD autodetection
 
 myMPD tries to autodetect the mpd connection at first startup.
 
-1. Searches for a valid `mpd.con` file and reads all interesting settings
-2. Uses environment variables
+1. Searches for a valid `mpd.conf` file and reads all interesting settings
+2. Uses the default MPD environment variables
 
 | ENVIRONMENT | DEFAULT | DESCRIPTION |
-| ----------- | ----------- |
+| ----------- | ------- | ----------- |
 | MPD_HOST | `/run/mpd/socket` | MPD host or path to mpd socket |
 | MPD_PORT | 0.0.0.0 | MPD port |
-{: .table }
+{: .table .table-sm}

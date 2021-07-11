@@ -17,4 +17,4 @@ If the acl is empty, all connections are allowed.
 | `+0.0.0.0/0`| Allow all |
 | `+127.0.0.0/8`| Allow localhost |
 | `+127.0.0.0/8,+192.168.0.0/24` | Allow localhost and all hosts in the net 192.168.0.x |
-{: .table }
+{: .table .table-sm}
