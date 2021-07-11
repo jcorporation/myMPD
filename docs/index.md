@@ -4,6 +4,8 @@ permalink: /
 title: Index
 ---
 
+<img src="{{ site.baseurl }}/assets/mympd-logo-schriftzug.svg"/>
+
 myMPD is a standalone and mobile friendly web-based MPD client with a tiny footprint and advanced features.
 
 - [Help to improve myMPD](https://github.com/jcorporation/myMPD/issues/167)
