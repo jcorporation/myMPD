@@ -19,7 +19,7 @@ The `workdir` option is useful if you want to run more then one instance of myMP
 | -u, --user `<username>`| username to drop privileges to (default: mympd) |
 | -s, --syslog | enable syslog logging (facility: daemon) |
 | -w, --workdir `<path>` | working directory (default: /var/lib/mympd) |
-{: .table-sm }
+{: .table .table-sm }
 
 ## Configuration files
 
@@ -41,7 +41,7 @@ After first startup all environment variables are ignored and the file in the di
 | custom_cert | MYMPD_CUSTOM_CERT | false | `true` = use custom ssl key and certificate |
 | ssl_cert | MYMPD_SSL_CERT | | Path to custom ssl certificate file |
 | ssl_key | MYMPD_SSL_KEY | | Path to custom ssl key file |
-{: .table }
+{: .table .table-sm }
 
 - More details on [SSL]({{ site.baseurl }}/configuration/ssl)
 
