@@ -8,7 +8,7 @@ myMPD uses a json-rpc 2 api for the communication between frontend and backend.
 
 **API endpoint:** /api/
 
-- [All API calls]({{ site.baseurl }}/api_methods)
+- [All API methods]({{ site.baseurl }}/api_methods)
 
 ### Example API call
 
@@ -36,3 +36,4 @@ myMPD uses the idle protocol from mpd to detect state changes. These status chan
 | n/a | mpd_connected |
 | n/a | update_lastplayed |
 | n/a | update_jukebox |
+{: .table }
