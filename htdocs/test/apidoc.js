@@ -5,17 +5,29 @@
  https://github.com/jcorporation/mympd
 */
 
-/* global cmds */
-
 function init() {
     let tbody = document.getElementsByTagName('tbody')[0];
-    const methods = Object.keys(cmds).sort();
+    const methods = Object.keys(APImethods).sort();
     for (const method of methods) {
         let tr = document.createElement('tr');
-        tr.innerHTML = '<td>' + method + '<br/><small>' + cmds[method].desc + '</small></td><td>' +
-            paramsToString(cmds[method].params) + '</td></tr>';
+        tr.setAttribute('id', method);
+        tr.innerHTML = '<td>' + method + '<br/><small>' + APImethods[method].desc + '</small></td><td>' +
+            paramsToString(APImethods[method].params) + '</td></tr>';
         tbody.appendChild(tr);
     }
+
+    let options = '<option></option>';
+    for (const method of methods) {
+        options += '<option value="' + method + '">' + method + '</option>';
+    }
+    let select = document.getElementById('selectMethod');
+    select.innerHTML = options;
+    select.addEventListener('change', function() {
+        const m = this.options[this.selectedIndex].value;
+        if (m !== '') {
+            document.getElementById(m).scrollIntoView(false);
+        }
+    }, false);
 }
 
 function paramsToString(p) {

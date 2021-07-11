@@ -1351,6 +1351,7 @@ const APImethods = {
         }
     },
     "MYMPD_API_HOME_ICON_SAVE": {
+        "desc": "Saves a home icon",
         "params": {
             "replace": {
                 "type": "bool",
