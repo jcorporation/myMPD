@@ -13,6 +13,8 @@ myMPD is a standalone and mobile friendly web-based MPD client with a tiny footp
 
 To use all myMPD functions you should use the latest stable MPD version (0.22.x).
 
+This documentation is for myMPD version {% include version %}.
+
 ## Table of contents
 
 * [Installation]({{ site.baseurl }}/installation/)
