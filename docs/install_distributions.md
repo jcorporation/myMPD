@@ -1,0 +1,23 @@
+---
+layout: page
+permalink: /install_distributions
+title: Distributions
+---
+
+myMPD is available in the following distributions:
+
+- Arch Linux (AUR): https://aur.archlinux.org/packages/mympd/
+- Archphile: http://archphile.org/ (discontinued)
+- Collybia OS: https://collybia.com/collybia-os/
+- DietPi: https://dietpi.com/
+- GentooPlayer: http://gentooplayer.com/
+- MusicLounge Audiophile Distro: https://linuxaudiofoundation.org
+- Snakeoil OS: https://www.snakeoil-os.net/
+
+### myMPDos
+
+[myMPDos](https://github.com/jcorporation/myMPDos) is my Raspberry Pi image (aarch64) based on Alpine Linux. It is running entirely in RAM and provides the latest MPD and myMPD packages and some goodies.
+
+---
+
+If you would distribute myMPD for any other distribution don't hesitate to contact me.

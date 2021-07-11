@@ -1,0 +1,11 @@
+<a href='{{ site.baseurl }}'>Home</a>
+{% assign crumbs = page.url | split: '_' %}
+{% for crumb in crumbs offset: 1 %}
+  {% if forloop.last %}
+  <span>&rsaquo;</span>
+    <a>{{ crumb | replace:'-',' ' | remove:'/index.html' | capitalize }}</a>
+  {% else %}
+  <span>&rsaquo;</span>
+    <a href="{% assign crumb_limit = forloop.index | plus: 1 %}{{site.baseurl}}{% for crumb in crumbs limit: crumb_limit %}{{ crumb | append: '/' }}{% endfor %}">{{ crumb | replace:'-',' ' | remove:'/index.html' | capitalize }}</a>
+  {% endif %}
+{% endfor %}
