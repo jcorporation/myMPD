@@ -27,7 +27,7 @@ To use all myMPD functions you should use the latest stable MPD version (0.22.x)
 * [Running]({{ site.baseurl }}/running)
 * [Debug]
 * References
-  * [API]({{ site.baseurl }}/api)
+  * [API]({{ site.baseurl }}/references/api/)
   * [Components]
   * [Custom navbar icons]
   * [FeatureMatrix]

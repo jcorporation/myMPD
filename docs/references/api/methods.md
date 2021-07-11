@@ -11,5 +11,5 @@ title: API Methods
   <tbody>
   </tbody>
 </table>
-<script src="https://raw.githubusercontent.com/jcorporation/myMPD/devel/htdocs/js/apidoc.js"></script>  
-<script src="https://raw.githubusercontent.com/jcorporation/myMPD/devel/htdocs/test/apidoc.js"></script>
+<script src="{{ site.baseurl }}/assets/apidoc.js"></script>  
+<script src="{{ site.baseurl }}/assets/create-apidoc.js"></script>
