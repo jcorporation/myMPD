@@ -1,37 +1,54 @@
-## Welcome to GitHub Pages
+---
+layout: page
+permalink: /
+---
 
-You can use the [editor on GitHub](https://github.com/jcorporation/myMPD/edit/devel/docs/index.md) to maintain and preview the content for your website in Markdown files.
+# myMPD Documentation
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+myMPD is a standalone and mobile friendly web-based MPD client with a tiny footprint and advanced features.
 
-### Markdown
+- <a href="https://github.com/jcorporation/myMPD/issues/167">Help to improve myMPD</a>
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+To use all myMPD functions you should use the latest stable MPD version (0.22.x).
 
-```markdown
-Syntax highlighted code block
+## Table of contents
+* [[Installation]]
+  * [[Distributions with myMPD]]
+  * [[Prebuild Packages]]
+  * [[Building myMPD]]
+  * [[Docker]]
+* [[Configuration]]
+  * Pictures
+    * [[Albumart]]
+    * [[Pictures for other tags]]
+    * [[Home icon pictures]]
+  * [[Tags]]
+  * [[Lyrics]]
+  * [[Publishing directories]]
+  * [[System Commands]]
+  * [[SSL]]
+  * [[Chroot]]
+  * [[myMPD behind a reverse proxy]]
+  * [[Local playback]]
+  * [[MPD Configuration]]
+* [[Running]]
+* References
+  * [[API]]
+  * [[Keyboard-Shortcuts]]
+  * [[Sticker]]
+  * [[Translating]]
+  * [[Commandline Options]]
+  * [[Smart playlists]]
+  * [[Scripting]]
+    * [Lua table mympd_state](Scripting-mympd_state-lua-table)
+    * [All mympd.* functions](Scripting-mympd-lua-functions)
+  * [[Trigger]]
+  * [[ACL]]
+  * [[Custom navbar icons]]
+  * [[Filesystem Hierarchy]]
+  * [[FeatureMatrix]]
+  * [[Components]]
+* [[Debug]]
 
-# Header 1
-## Header 2
-### Header 3
 
-- Bulleted
-- List
 
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/jcorporation/myMPD/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
