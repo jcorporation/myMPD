@@ -1,16 +1,18 @@
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+<head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="author" content="mail@jcgames.de">
   <title>{% if page.title %}{{ page.title }} – {% endif %}{{ site.name }}</title>
   <link href="{{ site.baseurl }}/assets/MaterialIcons-Regular.woff2" rel="preload" as="font" type="font/woff2" crossorigin="anonymous">
   <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/style.css" />
+  <link href="{{ site.baseurl }}/assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon"/>
 </head>
 <body>
   <header>
     <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark">
-      <a class="navbar-brand" href="/myMPD/">
+      <a class="navbar-brand" href="{{ site.baseurl }}/">
         myMPD Documentation
       </a>
     </nav>
