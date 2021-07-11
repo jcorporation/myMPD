@@ -13,26 +13,16 @@ To use all myMPD functions you should use the latest stable MPD version (0.22.x)
 
 ## Table of contents
 
-* [Installation]({{ site.baseurl }}/install/)
-  * [Distributions with myMPD]({{ site.baseurl }}/install_distributions)
-  * [Prebuild Packages]({{ site.baseurl }}/install_packages)
-  * [Docker]({{ site.baseurl }}/install_docker)
-  * [Building myMPD]({{ site.baseurl }}/install_compile)
-* [Configuration]
-  * Pictures
-    * [Albumart]
-    * [Pictures for other tags]
-    * [Home icon pictures]
-  * [Tags]
-  * [Lyrics]
-  * [Publishing directories]
-  * [System Commands]
-  * [SSL]
-  * [Chroot]
-  * [myMPD behind a reverse proxy]
-  * [Local playback]
-  * [MPD Configuration]
-* [Running]
+* [Installation]({{ site.baseurl }}/installation/)
+  * [Distributions with myMPD]({{ site.baseurl }}/installation/distributions)
+  * [Prebuild Packages]({{ site.baseurl }}/installation/prebuild-packages)
+  * [Docker]({{ site.baseurl }}/installation/docker)
+  * [Compiling]({{ site.baseurl }}/installation/compiling)
+* [Configuration]({{ site.baseurl }}/configuration/)
+  * [ACL]({{ site.baseurl }}/configuration/acl)
+  * [SSL]({{ site.baseurl }}/configuration/ssl)
+  * [Logging]({{ site.baseurl }}/configuration/logging)
+* [Running]({{ site.baseurl }}/running)
 * References
   * [API]({{ site.baseurl }}/api)
   * [Keyboard-Shortcuts]
@@ -44,9 +34,17 @@ To use all myMPD functions you should use the latest stable MPD version (0.22.x)
     * [Lua table mympd_state]
     * [All mympd functions]
   * [Trigger]
-  * [ACL]
   * [Custom navbar icons]
   * [Filesystem Hierarchy]
   * [FeatureMatrix]
   * [Components]
+  * [Publishing directories]
+  * Pictures
+    * [Albumart]
+    * [Pictures for other tags]
+    * [Home icon pictures]
+  * [Tags]
+  * [Lyrics]
+  * [myMPD behind a reverse proxy]
+  * [MPD Configuration]
 * [Debug]

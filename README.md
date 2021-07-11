@@ -59,10 +59,10 @@ myMPD is in active development. If you like myMPD, you can help to improve it (n
 
 myMPD should run on all current linux distributions. There are four ways to install myMPD:
 
-1. Use a linux distribution that delivers a myMPD package - the easiest way: [Distributions with myMPD](https://github.com/jcorporation/myMPD/wiki/Distributions-with-myMPD)
-2. Use a prebuild package: [Prebuild-Packages](https://github.com/jcorporation/myMPD/wiki/Prebuild-Packages)
-3. Use the docker image: [Docker](https://github.com/jcorporation/myMPD/wiki/Docker)
-4. Use the ``build.sh`` script to compile myMPD: [Building myMPD](https://github.com/jcorporation/myMPD/wiki/Building-myMPD)
+1. Use a linux distribution that delivers a myMPD package - the easiest way: [Distributions with myMPD](https://jcorporation.github.io/myMPD/installation/distributions)
+2. Use a prebuild package: [Prebuild-Packages](https://jcorporation.github.io/myMPD/installation/prebuild-packages)
+3. Use the docker image: [Docker](https://jcorporation.github.io/myMPD/installation/docker)
+4. Use the ``build.sh`` script to compile myMPD: [Building myMPD](https://jcorporation.github.io/myMPD/installation/compiling)
 
 ## Run
 
@@ -75,9 +75,9 @@ On the first startup myMPD reads some environments variables and tries to autode
 Usage: ./mympd
 ``
 
-## Wiki
+## Documentation
 
-For further information on installation and configuration, see the [myMPD wiki](https://github.com/jcorporation/myMPD/wiki)
+For further information on installation and configuration, see the [myMPD documentation](https://jcorporation.github.io/myMPD/)
 
 ## Copyright
 
