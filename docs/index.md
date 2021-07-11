@@ -13,7 +13,7 @@ To use all myMPD functions you should use the latest stable MPD version (0.22.x)
 
 ## Table of contents
 
-* [Installation]({{ site.baseurl }}/install)
+* [Installation]({{ site.baseurl }}/install/)
   * [Distributions with myMPD]({{ site.baseurl }}/install_distributions)
   * [Prebuild Packages]({{ site.baseurl }}/install_packages)
   * [Docker]({{ site.baseurl }}/install_docker)

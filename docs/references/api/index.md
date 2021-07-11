@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: /api
+permalink: /references/api/
 title: API
 ---
 

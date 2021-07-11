@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: api_methods
+permalink: /references/api/methods
 title: API Methods
 ---
 
