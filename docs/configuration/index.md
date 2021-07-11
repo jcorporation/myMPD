@@ -6,6 +6,8 @@ title: Configuration
 
 myMPD has no single configuration file. Most of the options are configureable through the settings dialog in the web ui.
 
+## Command line options
+
 You can set some basic options with command line options. All these options have sane default values and should not be changed for default usage.
 
 The `workdir` option is useful if you want to run more then one instance of myMPD on the same host.
@@ -17,7 +19,9 @@ The `workdir` option is useful if you want to run more then one instance of myMP
 | -u, --user `<username>`| username to drop privileges to (default: mympd) |
 | -s, --syslog | enable syslog logging (facility: daemon) |
 | -w, --workdir `<path>` | working directory (default: /var/lib/mympd) |
-{: .table }
+{: .table-sm }
+
+## Configuration files
 
 At first startup (if there is no ẁorking directory) myMPD tries to autodetect the MPD connection and reads some environment variables.
 
@@ -41,7 +45,7 @@ After first startup all environment variables are ignored and the file in the di
 
 - More details on [SSL]({{ site.baseurl }}/configuration/ssl)
 
-## MPD autodetection
+### MPD autodetection
 
 myMPD tries to autodetect the mpd connection at first startup.
 
