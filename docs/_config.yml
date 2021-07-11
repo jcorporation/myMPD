@@ -1,1 +1,6 @@
-theme: jekyll-theme-slate
+name: myMPD Documentation
+description: Documentation for myMPD
+
+footer-links:
+  email: mail@jcgames.de
+  github: jcorporation
