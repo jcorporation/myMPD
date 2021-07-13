@@ -20,6 +20,7 @@ The lua command `mympd.init()` populates the lua table `mympd_state` with config
 | -------- | ----------- |
 | `mympd.init()` | Initializes the [mympd_state](/scripting/lua-table-mympd_state) lua table |
 | `mympd.os_capture(<command>)` | Executes a system command and capture its output. |
+{: .table .table-sm }
 
 ### mympd_api
 
@@ -48,7 +49,7 @@ rc, response, header, body = mympd_api_http_client(method, uri, headers, payload
 
 ## Lua manual
 
-- https://www.lua.org/manual/5.3/
+- [https://www.lua.org/manual/5.4/]
 
 ## Examples
 
@@ -131,3 +132,4 @@ return("Arguments are: " .. arguments["testarg1"] .. arguments["testarg2"])
 | ------ | ----------- |
 | order | Sort order of the script, 0 disables listing in main menu |
 | arguments | Name of the keys for the script arguments, the gui asks for this arguments. Arguments are populated in a lua table called arguments. |
+{: .table .table-sm }
