@@ -32,8 +32,8 @@ After first startup all environment variables are ignored and the file in the di
 | acl | MYMPD_ACL | | ACL to access the myMPD webserver: [ACL]({{ site.baseurl }}/configuration/acl), allows all hosts in the default configuration |
 | http_host | MYMPD_HTTP_HOST | 0.0.0.0 | IP address to listen on |
 | http_port | MYMPD_HTTP_PORT | 80 | Port to listen on. Redirect to `ssl_port` if `ssl` is set to `true` |
-| loglevel | MYMPD_LOGLEVEL | 5 | ({{ site.baseurl }}/configuration/logging) |
-| lualibs | MYMPD_LUALIBS | all | ({{ site.baseurl }}/references/scripting) |
+| loglevel | MYMPD_LOGLEVEL | 5 | [Logging]({{ site.baseurl }}/configuration/logging) |
+| lualibs | MYMPD_LUALIBS | all | [Scripting]({{ site.baseurl }}/references/scripting) |
 | scriptacl | MYMPD_SCRIPTACL | +127.0.0.1 | ACL to access the myMPD script backend: [ACL]({{ site.baseurl }}/configuration/acl), allows only local connections in the default configuration |
 | ssl | MYMPD_SSL | true | `true` = enables ssl |
 | ssl_port | MYMPD_SSL_PORT | 443 | Port to listen to https traffic |
