@@ -27,28 +27,25 @@ This documentation is for myMPD version {% include version %}.
   * [Logging]({{ site.baseurl }}/configuration/logging)
   * [SSL]({{ site.baseurl }}/configuration/ssl)
 * [Running]({{ site.baseurl }}/running)
-* [Debug]
-* References
+* [Debug]({{ site.baseurl }}/debug)
+* [Scripting]({{ site.baseurl }}/references/scripting/)
+  * [Lua table mympd_state]({{ site.baseurl }}/references/scripting/lua-table-mympd_state)
+  * [All mympd functions]({{ site.baseurl }}/references/scripting/all-mympd-functions)
+* [References]({{ site.baseurl }}/references/)
   * [API]({{ site.baseurl }}/references/api/)
-  * [Components]
-  * [Custom navbar icons]
-  * [FeatureMatrix]
-  * [Filesystem Hierarchy]
-  * [Keyboard-Shortcuts]
-  * [Lyrics]
-  * Pictures
-    * [Albumart]
-    * [Pictures for other tags]
-    * [Home icon pictures]
-  * [Published directories]
-  * [Smart playlists]
-  * [Scripting]
-    * [Lua table mympd_state]
-    * [All mympd functions]
-  * [Sticker]
-  * [Tags]
-  * [Translating]
-  * [Trigger]
-* Additional topics
-  * [Behind a reverse proxy]
-  * [Recommended MPD configuration]
+  * [Components]({{ site.baseurl }}/references/components)
+  * [Custom navbar icons]({{ site.baseurl }}/references/custom-navbar-icons)
+  * [Feature matrix]({{ site.baseurl }}/references/feature-matrix)
+  * [Filesystem Hierarchy]({{ site.baseurl }}/references/filesystem-hierarchy)
+  * [Keyboard-Shortcuts]({{ site.baseurl }}/references/keyboard-shortcuts)
+  * [Lyrics]({{ site.baseurl }}/references/lyrics)
+  * [Pictures]({{ site.baseurl }}/references/pictures)
+  * [Published directories]({{ site.baseurl }}/references/published-directories)
+  * [Smart playlists]({{ site.baseurl }}/references/smart-playlists)
+  * [Sticker]({{ site.baseurl }}/references/sticker)
+  * [Tags]({{ site.baseurl }}/references/tags)
+  * [Translating]({{ site.baseurl }}/references/translating)
+  * [Trigger]({{ site.baseurl }}/references/trigger)
+* [Additional topics]({{ site.baseurl }}/additional-topics/)
+  * [Behind a reverse proxy]({{ site.baseurl }}/additional-topics/behind-a-reverse-proxy)
+  * [Recommended MPD configuration]({{ site.baseurl }}/additional-topics/recommended-mpd-configuration)

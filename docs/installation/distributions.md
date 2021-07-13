@@ -6,13 +6,13 @@ title: Distributions
 
 myMPD is available in the following distributions:
 
-- Arch Linux (AUR): https://aur.archlinux.org/packages/mympd/
-- Archphile: http://archphile.org/ (discontinued)
-- Collybia OS: https://collybia.com/collybia-os/
-- DietPi: https://dietpi.com/
-- GentooPlayer: http://gentooplayer.com/
-- MusicLounge Audiophile Distro: https://linuxaudiofoundation.org
-- Snakeoil OS: https://www.snakeoil-os.net/
+- [Arch Linux (AUR)](https://aur.archlinux.org/packages/mympd/)
+- [Archphile](http://archphile.org/ (discontinued)
+- [Collybia OS](https://collybia.com/collybia-os/)
+- [DietPi](https://dietpi.com/)
+- [GentooPlayer](http://gentooplayer.com/)
+- [MusicLounge Audiophile Distro](https://linuxaudiofoundation.org)
+- [Snakeoil OS](https://www.snakeoil-os.net/)
 
 ### myMPDos
 

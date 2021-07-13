@@ -12,7 +12,7 @@ title: Compiling
 | <a href="https://github.com/jcorporation/myMPD/tree/master">master</a> | stable | the latest releases are created from the master branch |
 | <a href="https://github.com/jcorporation/myMPD/tree/devel">devel</a> | unstable | this branch is for stabilizing and testing the upcoming new myMPD release |
 | other branches | unstable | very unstable development branches with breaking changes |
-{: .table }
+{: .table .table-sm }
 
 Get the appropriated tarball or clone the git repository and switch to the wanted branch.
 

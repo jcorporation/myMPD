@@ -116,7 +116,9 @@ function webSocketConnect() {
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, true);
                     break;
                 case 'update_state':
+                    //rename param to result
                     obj.result = obj.params;
+                    delete obj.params;
                     parseState(obj);
                     break;
                 case 'mpd_disconnected':
@@ -135,7 +137,9 @@ function webSocketConnect() {
                     if (app.current.app === 'Queue') {
                         getQueue();
                     }
+                    //rename param to result
                     obj.result = obj.params;
+                    delete obj.params;
                     parseUpdateQueue(obj);
                     break;
                 case 'update_options':
@@ -153,7 +157,9 @@ function webSocketConnect() {
                     updateDBfinished(obj.method);
                     break;
                 case 'update_volume':
+                    //rename param to result
                     obj.result = obj.params;
+                    delete obj.params;
                     parseVolume(obj);
                     break;
                 case 'update_stored_playlist':
@@ -227,7 +233,7 @@ function webSocketClose() {
         websocketTimer = null;
     }
     if (socket !== null) {
-        // disable onclose handler first
+        //disable onclose handler first
         socket.onclose = function () {}; 
         socket.close();
         socket = null;

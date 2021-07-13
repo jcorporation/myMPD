@@ -6,7 +6,7 @@
 */
 
 function init() {
-    let tbody = document.getElementsByTagName('tbody')[0];
+    const tbody = document.getElementsByTagName('tbody')[0];
     const methods = Object.keys(APImethods).sort();
     for (const method of methods) {
         let tr = document.createElement('tr');
@@ -20,12 +20,20 @@ function init() {
     for (const method of methods) {
         options += '<option value="' + method + '">' + method + '</option>';
     }
+
     let select = document.getElementById('selectMethod');
     select.innerHTML = options;
     select.addEventListener('change', function() {
         const m = this.options[this.selectedIndex].value;
         if (m !== '') {
-            document.getElementById(m).scrollIntoView(false);
+            for (const row of tbody.rows) {
+                if (row.getAttribute('id') === m) {
+                    row.classList.remove('d-none');
+                }
+                else {
+                    row.classList.add('d-none');
+                }
+            }
         }
     }, false);
 }

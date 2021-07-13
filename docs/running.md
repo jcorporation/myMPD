@@ -12,6 +12,7 @@ The installation process installs a LSB compatible startup script / systemd unit
 | sysVinit | `/etc/init.d/mympd` |
 | open-rc | `/etc/init.d/mympd` |
 | systemd | `/usr/lib/systemd/system/mympd` or `/lib/systemd/system/mympd` |
+{: .table .table-sm}
 
 ### Systemd usage
 
