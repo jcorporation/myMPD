@@ -1,7 +1,7 @@
 ---
 layout: page
 permalink: /scripting/lua-table-mympd_state
-title: Scripting
+title: Lua table mympd_state
 ---
 
 This is the description of the lua table mympd_state. This table must be initialized with `mympd.init()`.
