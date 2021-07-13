@@ -235,7 +235,7 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
     free_result(response);
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
     if (j != mg_user_data->connection_count) {
-        MYMPD_LOG_WARN("Correcting connection count from %d to %d", mg_user_data->connection_count, j);
+        MYMPD_LOG_DEBUG("Correcting connection count from %d to %d", mg_user_data->connection_count, j);
         mg_user_data->connection_count = j;
     }
 }
