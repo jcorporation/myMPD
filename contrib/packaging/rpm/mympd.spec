@@ -68,5 +68,5 @@ fi
 %license LICENSE
 
 %changelog
-* Tue Apr 06 2021 Juergen Mang <mail@jcgames.de> 8.0.0-0
+* Fri Jul 16 2021 Juergen Mang <mail@jcgames.de> 8.0.0-0
 - Version from master
