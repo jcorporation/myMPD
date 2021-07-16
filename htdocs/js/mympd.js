@@ -159,28 +159,51 @@ function appRoute() {
         getQueue();
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
-        sendAPI("MYMPD_API_QUEUE_LAST_PLAYED", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
+        sendAPI("MYMPD_API_QUEUE_LAST_PLAYED", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "cols": settings.colsQueueLastPlayed
+        }, parseLastPlayed);
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
-        sendAPI("MYMPD_API_JUKEBOX_LIST", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
+        sendAPI("MYMPD_API_JUKEBOX_LIST", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "cols": settings.colsQueueJukebox
+        }, parseJukeboxList);
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
-        sendAPI("MYMPD_API_PLAYLIST_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search}, parsePlaylistsList);
+        sendAPI("MYMPD_API_PLAYLIST_LIST", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "searchstr": app.current.search
+        }, parsePlaylistsList);
         const searchPlaylistsStrEl = document.getElementById('searchPlaylistsListStr');
         if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
             searchPlaylistsStrEl.value = app.current.search;
         }
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-        sendAPI("MYMPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, "plist": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylistsDetail);
+        sendAPI("MYMPD_API_PLAYLIST_CONTENT_LIST", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "searchstr": app.current.search,
+            "plist": app.current.filter,
+            "cols": settings.colsBrowsePlaylistsDetail
+        }, parsePlaylistsDetail);
         const searchPlaylistsStrEl = document.getElementById('searchPlaylistsDetailStr');
         if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
             searchPlaylistsStrEl.value = app.current.search;
         }
     }    
     else if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
-        sendAPI("MYMPD_API_DATABASE_FILESYSTEM_LIST", {"offset": app.current.offset, "limit": app.current.limit, "path": (app.current.search ? app.current.search : "/"), 
-            "searchstr": (app.current.filter !== '-' ? app.current.filter : ''), "cols": settings.colsBrowseFilesystem}, parseFilesystem, true);
+        sendAPI("MYMPD_API_DATABASE_FILESYSTEM_LIST", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "path": (app.current.search ? app.current.search : "/"), 
+            "searchstr": (app.current.filter !== '-' ? app.current.filter : ''),
+            "cols": settings.colsBrowseFilesystem
+        }, parseFilesystem, true);
         //Don't add all songs from root
         if (app.current.search) {
             enableEl('BrowseFilesystemAddAllSongs');
@@ -227,8 +250,13 @@ function appRoute() {
             document.getElementById('searchDatabaseMatch').classList.remove('hide');
             enableEl('btnDatabaseSortDropdown');
             enableEl('btnDatabaseSearchDropdown');
-            sendAPI("MYMPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.offset, "limit": app.current.limit, "expression": app.current.search, 
-                "sort": sort, "sortdesc": sortdesc}, parseDatabase);
+            sendAPI("MYMPD_API_DATABASE_GET_ALBUMS", {
+                "offset": app.current.offset,
+                "limit": app.current.limit,
+                "expression": app.current.search, 
+                "sort": sort,
+                "sortdesc": sortdesc
+            }, parseDatabase);
         }
         else {
             document.getElementById('searchDatabaseCrumb').classList.add('hide');
@@ -236,8 +264,12 @@ function appRoute() {
             disableEl('btnDatabaseSortDropdown');
             disableEl('btnDatabaseSearchDropdown');
             document.getElementById('searchDatabaseStr').value = app.current.search;
-            sendAPI("MYMPD_API_DATABASE_TAG_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, 
-                "tag": app.current.tag}, parseDatabase);
+            sendAPI("MYMPD_API_DATABASE_TAG_LIST", {
+                "offset": app.current.offset,
+                "limit": app.current.limit,
+                "searchstr": app.current.search, 
+                "tag": app.current.tag
+            }, parseDatabase);
         }
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail') {
@@ -407,31 +439,34 @@ function appInitStart() {
     {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('/sw.js', {scope: '/'}).then(function(registration) {
-                // Registration was successful
+                //Registration was successful
                 logInfo('ServiceWorker registration successful.');
                 registration.update();
             }, function(err) {
-                // Registration failed
+                //Registration failed
                 logError('ServiceWorker registration failed: ' + err);
             });
         });
     }
 
-
+    //show splash screen
     document.getElementById('splashScreen').classList.remove('hide');
     domCache.body.classList.add('overflow-hidden');
     document.getElementById('splashScreenAlert').innerText = t('Fetch myMPD settings');
-
+    
+    //init add to home screen feature
     a2hsInit();
 
+    //initialize app
     appInited = false;
-    getSettings(true);
-    appInitWait();
-}
-
-function appInitWait() {
-    setTimeout(function() {
-        if (settingsParsed === 'parsed' && websocketConnected === true) {
+    settingsParsed = 'no';
+    sendAPI("MYMPD_API_SETTINGS_GET", {}, function(obj) {
+        parseSettings(obj, true);
+        if (settingsParsed === 'parsed') {
+            //connect to websocket in background
+            setTimeout(function() {
+                webSocketConnect();
+            }, 0);
             //app initialized
             document.getElementById('splashScreenAlert').innerText = t('Applying settings');
             document.getElementById('splashScreen').classList.add('hide-fade');
@@ -443,19 +478,9 @@ function appInitWait() {
             appInit();
             appInited = true;
             appRoute();
-            return;
+            logInfo('Startup length: ' + (Date.now() - startTime) + 'ms');
         }
-        
-        if (settingsParsed === 'parsed') {
-            //parsed settings, now its save to connect to websocket
-            document.getElementById('splashScreenAlert').innerText = t('Connect to websocket');
-            webSocketConnect();
-        }
-        else if (settingsParsed === 'error') {
-            return;
-        }
-        appInitWait();
-    }, 500);
+    }, true);
 }
 
 function appInit() {

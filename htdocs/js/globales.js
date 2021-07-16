@@ -3,6 +3,7 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+const startTime = Date.now();
 let socket = null;
 let websocketConnected = false;
 let websocketTimer = null;
