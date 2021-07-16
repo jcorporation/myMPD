@@ -147,7 +147,7 @@ function saveConnection() {
     if (formOK === true) {
         sendAPI("MYMPD_API_CONNECTION_SAVE", {
             "mpdHost": mpdHostEl.value,
-            "mpdPort": mpdPortEl.value,
+            "mpdPort": Number(mpdPortEl.value),
             "mpdPass": mpdPassEl.value,
             "musicDirectory": musicDirectory,
             "playlistDirectory": playlistDirectoryEl.value,
