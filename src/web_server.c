@@ -125,8 +125,6 @@ void *web_server_loop(void *arg_mgr) {
     //set mongoose loglevel
     #ifdef DEBUG
     mg_log_set("1");
-    #else
-    mg_log_set("0");
     #endif
     
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
