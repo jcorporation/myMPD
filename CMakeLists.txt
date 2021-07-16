@@ -158,7 +158,7 @@ file(GLOB MYMPD_SRC_FILES6 "src/mpd_shared/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES6} PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS}")
 
 #compiler flags for frozen
-#set_property(SOURCE dist/src/frozen/frozen.c PROPERTY COMPILE_FLAGS "-Wno-stringop-overflow")
+set_property(SOURCE dist/src/frozen/frozen.c PROPERTY COMPILE_FLAGS "-Wno-stringop-overflow")
 
 #compiler flags for mongoose
 set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "${MONGOOSE_FLAGS}")
