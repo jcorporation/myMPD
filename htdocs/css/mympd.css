@@ -42,8 +42,6 @@
 }
 
 #splashScreenLogo {
-  color: white;
-  font-size: 4rem;
   text-align: center;
   margin-top: 25vh;
 }
@@ -55,8 +53,8 @@ h4 svg,
 }
 
 #splashScreenLogo svg {
-  width: 6rem;
-  height: 6rem;
+  width: 18rem;
+  height: 18rem;
 }
 
 #splashScreenAlert {
