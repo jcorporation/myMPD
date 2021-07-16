@@ -17,6 +17,10 @@
 #pragma once
 #define MG_VERSION "7.3"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 #define MG_ARCH_CUSTOM 0
 #define MG_ARCH_UNIX 1
@@ -43,10 +47,6 @@
 #error "MG_ARCH is not specified and we couldn't guess it."
 #endif
 #endif  // !defined(MG_ARCH)
-
-#define WIN32_LEAN_AND_MEAN
-#define _CRT_SECURE_NO_WARNINGS
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #if !defined(PRINTF_LIKE)
 #if defined(__GNUC__) || defined(__clang__) || defined(__TI_COMPILER_VERSION__)
@@ -291,6 +291,18 @@ struct timeval {
 
 
 #if MG_ARCH == MG_ARCH_WIN32
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
 
 #include <ctype.h>
 #include <errno.h>
@@ -892,3 +904,7 @@ bool mg_dns_parse(const uint8_t *buf, size_t len, struct mg_dns_message *);
 size_t mg_dns_parse_rr(const uint8_t *buf, size_t len, size_t ofs,
                        bool is_question, struct mg_dns_rr *);
 size_t mg_dns_decode_name(const uint8_t *, size_t, size_t, char *, size_t);
+
+#ifdef __cplusplus
+}
+#endif

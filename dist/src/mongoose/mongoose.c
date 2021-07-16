@@ -843,50 +843,56 @@ static const char *guess_content_type(const char *filename) {
   } * t, types[] = {
              MIME_ENTRY("html", "text/html; charset=utf-8"),
              MIME_ENTRY("htm", "text/html; charset=utf-8"),
-             MIME_ENTRY("shtml", "text/html; charset=utf-8"),
-             MIME_ENTRY("css", "text/css"),
-             MIME_ENTRY("js", "text/javascript"),
-             MIME_ENTRY("mjs", "text/javascript"),
-             MIME_ENTRY("json", "application/json"),
-             MIME_ENTRY("ico", "image/x-icon"),
+             MIME_ENTRY("css", "text/css; charset=utf-8"),
+             MIME_ENTRY("js", "text/javascript; charset=utf-8"),
              MIME_ENTRY("gif", "image/gif"),
-             MIME_ENTRY("jpg", "image/jpeg"),
-             MIME_ENTRY("jpeg", "image/jpeg"),
              MIME_ENTRY("png", "image/png"),
-             MIME_ENTRY("svg", "image/svg+xml"),
-             MIME_ENTRY("txt", "text/plain; charset=utf-8"),
-             MIME_ENTRY("wav", "audio/wav"),
-             MIME_ENTRY("mp3", "audio/mpeg"),
-             MIME_ENTRY("mid", "audio/mid"),
-             MIME_ENTRY("ogg", "application/ogg"),
-             MIME_ENTRY("xml", "application/xml"),
+             MIME_ENTRY("woff", "font/woff"),
              MIME_ENTRY("ttf", "font/ttf"),
-             MIME_ENTRY("json", "application/json"),
-             MIME_ENTRY("xsl", "application/xml"),
+             MIME_ENTRY("aac", "audio/aac"),
+             MIME_ENTRY("avi", "video/x-msvideo"),
+             MIME_ENTRY("azw", "application/vnd.amazon.ebook"),
+             MIME_ENTRY("bin", "application/octet-stream"),
+             MIME_ENTRY("bmp", "image/bmp"),
+             MIME_ENTRY("bz", "application/x-bzip"),
+             MIME_ENTRY("bz2", "application/x-bzip2"),
+             MIME_ENTRY("csv", "text/csv"),
              MIME_ENTRY("doc", "application/msword"),
+             MIME_ENTRY("epub", "application/epub+zip"),
              MIME_ENTRY("exe", "application/octet-stream"),
-             MIME_ENTRY("zip", "application/zip"),
-             MIME_ENTRY("xls", "application/excel"),
-             MIME_ENTRY("tgz", "application/tar-gz"),
-             MIME_ENTRY("tar", "application/tar"),
              MIME_ENTRY("gz", "application/gzip"),
+             MIME_ENTRY("ico", "image/x-icon"),
+             MIME_ENTRY("json", "application/json"),
+             MIME_ENTRY("mid", "audio/mid"),
+             MIME_ENTRY("mjs", "text/javascript"),
+             MIME_ENTRY("mov", "video/quicktime"),
+             MIME_ENTRY("mp3", "audio/mpeg"),
+             MIME_ENTRY("mp4", "video/mp4"),
+             MIME_ENTRY("mpeg", "video/mpeg"),
+             MIME_ENTRY("mpg", "video/mpeg"),
+             MIME_ENTRY("ogg", "application/ogg"),
+             MIME_ENTRY("pdf", "application/pdf"),
              MIME_ENTRY("rar", "application/rar"),
              MIME_ENTRY("rtf", "application/rtf"),
-             MIME_ENTRY("pdf", "application/pdf"),
-             MIME_ENTRY("mpg", "video/mpeg"),
-             MIME_ENTRY("webm", "video/webm"),
-             MIME_ENTRY("mpeg", "video/mpeg"),
-             MIME_ENTRY("mov", "video/quicktime"),
-             MIME_ENTRY("mp4", "video/mp4"),
-             MIME_ENTRY("avi", "video/x-msvideo"),
-             MIME_ENTRY("csv", "text/csv"),
-             MIME_ENTRY("bmp", "image/bmp"),
-             MIME_ENTRY("bin", "application/octet-stream"),
+             MIME_ENTRY("shtml", "text/html; charset=utf-8"),
+             MIME_ENTRY("svg", "image/svg+xml"),
+             MIME_ENTRY("tar", "application/tar"),
+             MIME_ENTRY("tgz", "application/tar-gz"),
+             MIME_ENTRY("txt", "text/plain; charset=utf-8"),
              MIME_ENTRY("wasm", "application/wasm"),
-             MIME_ENTRY("manifest", "application/manifest+json"),
-             MIME_ENTRY("woff2", "application/font-woff"),
-             MIME_ENTRY("tiff", "image/tiff"),
+             MIME_ENTRY("wav", "audio/wav"),
+             MIME_ENTRY("weba", "audio/webm"),
+             MIME_ENTRY("webm", "video/webm"),
              MIME_ENTRY("webp", "image/webp"),
+             MIME_ENTRY("xls", "application/excel"),
+             MIME_ENTRY("xml", "application/xml"),
+             MIME_ENTRY("xsl", "application/xml"),
+             MIME_ENTRY("zip", "application/zip"),
+             MIME_ENTRY("3gp", "video/3gpp"),
+             MIME_ENTRY("7z", "application/x-7z-compressed"),
+             MIME_ENTRY("manifest", "application/manifest+json"),
+             MIME_ENTRY("woff2", "font/font-woff2"),
+             MIME_ENTRY("tiff", "image/tiff"),
              {NULL, 0, NULL},
          };
 
@@ -926,8 +932,8 @@ void mg_http_serve_file(struct mg_connection *c, struct mg_http_message *hm,
   FILE *fp = mg_fopen(path, "rb");
   if (fp == NULL || mg_stat(path, &st) != 0 ||
       mg_http_etag(etag, sizeof(etag), &st) != etag) {
-    LOG(LL_DEBUG,
-        ("404 [%.*s] [%s] %p", (int) hm->uri.len, hm->uri.ptr, path, fp));
+    LOG(LL_DEBUG, ("404 [%.*s] [%s] %p", (int) hm->uri.len, hm->uri.ptr, path,
+                   (void *) fp));
     mg_http_reply(c, 404, "", "%s", "Not found\n");
     if (fp != NULL) fclose(fp);
   } else if (inm != NULL && mg_vcasecmp(inm, etag) == 0) {
@@ -2380,7 +2386,7 @@ static void mg_set_non_blocking_mode(SOCKET fd) {
   setsockopt(fd, 0, FREERTOS_SO_RCVTIMEO, &off, sizeof(off));
   setsockopt(fd, 0, FREERTOS_SO_SNDTIMEO, &off, sizeof(off));
 #else
-  fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) | O_NONBLOCK);
+  fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) | O_NONBLOCK, FD_CLOEXEC);
 #endif
 }
 
@@ -3085,6 +3091,12 @@ void mg_timer_poll(unsigned long now_ms) {
 #endif
 #endif
 
+#if MBEDTLS_VERSION_NUMBER >= 0x03000000
+#define RNG , rng_get, NULL
+#else
+#define RNG
+#endif
+
 // Different versions have those in different files, so declare here
 EXTERN_C int mbedtls_net_recv(void *, unsigned char *, size_t);
 EXTERN_C int mbedtls_net_send(void *, const unsigned char *, size_t);
@@ -3128,6 +3140,14 @@ static void debug_cb(void *c, int lev, const char *s, int n, const char *s2) {
   (void) c;
   (void) lev;
 }
+
+#if MBEDTLS_VERSION_NUMBER >= 0x03000000
+static int rng_get(void *p_rng, unsigned char *buf, size_t len) {
+  (void) p_rng;
+  mg_random(buf, len);
+  return 0;
+}
+#endif
 
 void mg_tls_init(struct mg_connection *c, struct mg_tls_opts *opts) {
   struct mg_tls *tls = (struct mg_tls *) calloc(1, sizeof(*tls));
@@ -3208,10 +3228,9 @@ void mg_tls_init(struct mg_connection *c, struct mg_tls_opts *opts) {
       mg_error(c, "parse(%s) err %#x", cert, -rc);
       goto fail;
     }
-    rc = key[0] == '-'
-             ? mbedtls_pk_parse_key(&tls->pk, (uint8_t *) key,
-                                    strlen(key) + 1, NULL, 0)
-             : mbedtls_pk_parse_keyfile(&tls->pk, key, NULL);
+    rc = key[0] == '-' ? mbedtls_pk_parse_key(&tls->pk, (uint8_t *) key,
+                                              strlen(key) + 1, NULL, 0 RNG)
+                       : mbedtls_pk_parse_keyfile(&tls->pk, key, NULL RNG);
     if (rc != 0) {
       mg_error(c, "tls key(%s) %#x", certkey, -rc);
       goto fail;
@@ -3343,7 +3362,7 @@ void mg_tls_init(struct mg_connection *c, struct mg_tls_opts *opts) {
     } else if ((rc = SSL_use_PrivateKey_file(tls->ssl, key, 1)) != 1) {
       mg_error(c, "Invalid SSL key, err %d", mg_tls_err(tls, rc));
       goto fail;
-#if OPENSSL_VERSION_NUMBER > 0x10002000L
+#if OPENSSL_VERSION_NUMBER > 0x10100000L
     } else if ((rc = SSL_use_certificate_chain_file(tls->ssl, opts->cert)) !=
                1) {
       mg_error(c, "Invalid CA, err %d", mg_tls_err(tls, rc));
@@ -3622,19 +3641,20 @@ bool mg_file_printf(const char *path, const char *fmt, ...) {
 
 void mg_random(void *buf, size_t len) {
   bool done = false;
-#if MG_ENABLE_FS
+  unsigned char *p = (unsigned char *) buf;
+#if MG_ARCH == MG_ARCH_ESP32
+  while (len--) *p++ = (unsigned char) (esp_random() & 255);
+#elif MG_ARCH == MG_ARCH_WIN32
+#elif MG_ARCH_UNIX && MG_ENABLE_FS
   FILE *fp = mg_fopen("/dev/urandom", "rb");
   if (fp != NULL) {
     if (fread(buf, 1, len, fp) == len) done = true;
     fclose(fp);
   }
 #endif
-  if (!done) {
     // Fallback to a pseudo random gen
-    size_t i;
-    for (i = 0; i < len; i++) {
-      ((unsigned char *) buf)[i] = (unsigned char) (rand() % 0xff);
-    }
+  if (!done) {
+    while (len--) *p++ = (unsigned char) (rand() & 255);
   }
 }
 
