@@ -153,7 +153,6 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
                     coverfile = find_image_file(coverfile);
                 }
                 if (sdslen(coverfile) > 0 && access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
-                    MYMPD_LOG_DEBUG("Check for cover %s", coverfile);
                     sds mime_type = get_mime_type_by_ext(coverfile);
                     MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
                     mg_http_serve_file(nc, hm, coverfile, mime_type, EXTRA_HEADERS_CACHE);
