@@ -24,6 +24,9 @@ Rescan directory
 Update smart playlists
 스마트 연주목록 업데이트
 
+Update smart playlist
+스마트 연주목록 업데이트
+
 Settings
 설정
 
@@ -396,6 +399,9 @@ Must be a number and greater than zero
 Albumart
 음반 표지
 
+Music directory not available
+음원 디렉터리를 사용할 수 없음
+
 Background color
 배경색
 
@@ -458,6 +464,9 @@ Smart playlists update failed
 
 Smart playlist %{playlist} updated
 %{playlist} 스마트 연주목록 업데이트함
+
+Smart playlists are not supported
+스마트 연주목록이 지원되지 않음
 
 Updating smart playlist %{playlist} failed
 %{playlist} 스마트 연주목록 업데이트 안 됨
@@ -693,9 +702,6 @@ Edit smart playlist
 Edit playlist
 연주목록 편집
 
-Update smart playlist
-스마트 연주목록 업데이트
-
 Remove
 지우기
 
@@ -728,6 +734,9 @@ New playlist
 
 never
 안 함
+
+Failed to save smart playlist
+스마트 연주목록 저장 안 됨
 
 Added %{uri} to playlist %{playlist}
 %{uri}의 %{playlist} 연주목록 추가에 실패함
@@ -1062,6 +1071,9 @@ Order
 Sort by tag
 태그로 정렬
 
+Update interval
+업데이트 간격
+
 Smart playlists prefix
 스마트 연주목록 덧붙임
 
@@ -1085,6 +1097,9 @@ Delete empty playlists
 
 Delete playlists
 연주목록 지움
+
+Media session
+미디어 세션
 
 Playlists deleted
 연주목록 지워짐
@@ -1162,10 +1177,13 @@ Force update
 강제 업데이트
 
 No search tag defined and advanced search is disabled
-검색 태그가 없고 정의되지 않고 고급 검색을 사용 안 함
+검색 태그가 없고 고급 검색을 사용 안 함
 
 Smart playlists are disabled
 스마트 연주목록 사용 안 함
+
+Too old MPD version for smart playlists
+스마트 연주목록에는 MPD 버전이 오래됨
 
 Smart playlists update started
 스마트 연주목록 업데이트 시작
@@ -1347,7 +1365,6 @@ disabled
 enabled
 사용함
 
-
 Websocket is disconnected
 웹소켓 연결 안 됨
 
@@ -1497,6 +1514,7 @@ Failed to set song priority
 
 Lookup at musicbrainz
 뮤직브레인즈에서 찾기
+
 
 Play after current playing song
 현재 연주 중인 곡 다음에 연주
@@ -1677,3 +1695,138 @@ Unsynced lyrics
 
 Can not open script directory
 스크립트 디렉터리를 열 수 없음
+
+Error getting mympd state for script execution
+스크립트 실행을 위한 myMPD 상태를 알 수 없음
+
+Features
+특징
+
+Invalid playlist directory
+잘못된 연주목록 디렉터리
+
+Invalid stream port
+잘못된 스트리밍 포트
+
+Playlist directory
+연주목록 디렉터리
+
+Stream port
+스트리밍 포트
+
+Volume control
+음량 조절
+
+Lua is not compiled in
+Lua 컴파일 안 됨
+
+MPD does not support mounts
+MPD 마운트 지원 안 함
+
+MPD does not support partitions
+MPD 파티션 지원 안 함
+
+Volume max.
+최대 음량
+
+Volume min.
+최소 음량
+
+Volume step
+음량 단계
+
+Too many worker threads are already running
+너무 많은 워커 스레드가 실행 중
+
+Binary limit
+바이너리 제한
+
+Invalid binary limit
+잘못된 바이너리 제한
+
+Invalid timeout
+잘못된 시간 초과
+
+Timeout
+시간 초과
+
+Actions
+기능
+
+Covercache expiration
+음반표지 캐시 만료
+
+Enable
+사용함
+
+Footer
+아래
+
+Synced lyrics extension
+동기화된 가사 파일 확장자
+
+Synced lyrics vorbis comment
+동기화된 가사 vorbis 설명
+
+Unsynced lyrics extension
+비 동기화된 가사 파일 확장자
+
+Unsynced lyrics vorbis comment
+비 동기화된 가사 vorbis 설명
+
+kB
+kB
+
+Lists
+목록
+
+Expression
+표시
+
+Image
+이미지
+
+Executes a system command and capture its output.
+시스템 명령어를 실행하고 그 결과를 보여줍니다.
+
+HTTP client
+HTTP 클라이언트
+
+Initializes the mympd_state lua table
+mympd_state 루아 테이블 초기화
+
+Insert API call
+API 호출 삽입
+
+Insert function
+기능 삽입
+
+Open documentation
+문서 열기
+
+Select function
+기능 선택
+
+Select method
+방법 선택
+
+Yes, clear it
+예, 지웁니다
+
+Manage partitions
+파티션 관리
+
+Jukebox is disabled
+뮤직박스 사용 안 함
+
+Database update already startet
+데이터베이스 업데이트가 이미 시작됨
+
+Error getting MPD status
+MPD 상태 읽기 오류
+
+Database update failed
+데이터베이스 업데이트 오류
+
+No arguments
+독립 변수 없음
