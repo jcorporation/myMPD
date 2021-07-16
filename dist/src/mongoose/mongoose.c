@@ -2936,7 +2936,7 @@ void mg_http_serve_ssi(struct mg_connection *c, const char *root,
 
 #include <stdlib.h>
 
-struct mg_str mg_str(const char *s) {
+struct mg_str mg_str_s(const char *s) {
   struct mg_str str = {s, s == NULL ? 0 : strlen(s)};
   return str;
 }
@@ -3338,6 +3338,7 @@ void mg_tls_init(struct mg_connection *c, struct mg_tls_opts *opts) {
   SSL_set_options(tls->ssl, SSL_OP_NO_SSLv2);
   SSL_set_options(tls->ssl, SSL_OP_NO_SSLv3);
   SSL_set_options(tls->ssl, SSL_OP_NO_TLSv1);
+  SSL_set_options(tls->ssl, SSL_OP_NO_TLSv1_1);
 #ifdef MG_ENABLE_OPENSSL_NO_COMPRESSION
   SSL_set_options(tls->ssl, SSL_OP_NO_COMPRESSION);
 #endif
