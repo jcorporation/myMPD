@@ -83,8 +83,7 @@ void mympd_config_defaults(struct t_config *config) {
     #ifdef ENABLE_LUA
     config->lualibs = mympd_getenv_string("MYMPD_LUALIBS", "all", config->first_startup);
     #endif
-    //loglevel can be always overriden through environment
-    config->loglevel = mympd_getenv_int("MYMPD_LOGLEVEL", 5, true);
+    config->loglevel = 5;
 }
 
 void mympd_config_defaults_initial(struct t_config *config) {
@@ -117,7 +116,8 @@ bool mympd_read_config(struct t_config *config) {
     config->lualibs = state_file_rw_string_sds(config->workdir, "config", "lualibs", config->lualibs, false);
     #endif
     config->loglevel = state_file_rw_int(config->workdir, "config", "loglevel", config->loglevel, false);
-    
+    //overwrite configured loglevel
+    config->loglevel = mympd_getenv_int("MYMPD_LOGLEVEL", 5, true);
     return true;
 }
 
@@ -150,7 +150,7 @@ static sds mympd_getenv_string(const char *env_var, const char *default_value, b
 
 static int mympd_getenv_int(const char *env_var, int default_value, bool first_startup) {
     const char *env_value = mympd_getenv(env_var, first_startup);
-    return env_value != NULL ? (int)strtoimax(env_var, NULL, 10) : default_value;
+    return env_value != NULL ? (int)strtoimax(env_value, NULL, 10) : default_value;
 }
 
 #ifdef ENABLE_SSL
