@@ -1,3 +1,4 @@
+-- {"order":1,"arguments":[]}
 token = ""
 uri = "https://api.listenbrainz.org/1/submit-listens"
 headers = "Content-type: application/json\r\n"..
@@ -11,8 +12,17 @@ if rc == 0 then
     payload = {{
       listened_at = current_song["result"]["startTime"],
       track_metadata = {
+      	additional_info = {
+      	  release_mbid = current_song["result"]["MUSICBRAINZ_RELEASETRACKID"],
+      	  recording_mbid = current_song["result"]["MUSICBRAINZ_TRACKID"],
+      	  artist_mbids = {
+      	    current_song["result"]["MUSICBRAINZ_ARTISTID"],
+      	    current_song["result"]["MUSICBRAINZ_ALBUMARTISTID"]
+      	  }
+      	},
         artist_name = current_song["result"]["Artist"],
-        track_name = current_song["result"]["Title"]
+        track_name = current_song["result"]["Title"],
+        release_name = current_song["result"]["Album"]
       }
     }}
   });
