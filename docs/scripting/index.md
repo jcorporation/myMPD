@@ -24,13 +24,13 @@ The lua command `mympd.init()` populates the lua table `mympd_state` with config
 
 ### mympd_api
 
-The lua command `mympd_api("method", "key1", "value1", ...)` executes myMPD API functions, look at [[API]] for detailed API description. The first argument must be the API method, followed by key / value pairs.
+The lua command `mympd_api("method", "key1", "value1", ...)` executes myMPD API functions, look at [API]({{ site.baseurl }}/references/api/) for detailed API description. The first argument must be the API method, followed by key / value pairs.
 
 The first return value is an error code (0 = OK, 1 = ERROR). If the return value of the API function is only a message or a error message the second return value is a simple string else the original json string is returned.
 
 ### mympd_api_raw
 
-The lua command `mympd_api_raw("method", "params")` executes myMPD API functions, look at [[API]] for detailed API description. The first argument must be the API method, followed by a json string describing the params, e.g. `json.encode({key1 = "value1", key2 = {"val2", "val3"}})`
+The lua command `mympd_api_raw("method", "params")` executes myMPD API functions, look at [API]({{ site.baseurl }}/references/api/) for detailed API description. The first argument must be the API method, followed by a json string describing the params, e.g. `json.encode({key1 = "value1", key2 = {"val2", "val3"}})`
 
 The first return value is an error code (0 = OK, 1 = ERROR). The second return value is the unparsed json string.
 
@@ -49,13 +49,14 @@ rc, response, header, body = mympd_api_http_client(method, uri, headers, payload
 
 ## Lua manual
 
-- [https://www.lua.org/manual/5.4/]
+- [Lua manual](https://www.lua.org/manual/5.4/)
 
 ## Examples
 
 Further examples can be found in the [repository](https://github.com/jcorporation/myMPD/tree/master/contrib/scripts).
 
 ### Simple
+
 ```
 -- load a playlist
 mympd_api("MPD_API_QUEUE_REPLACE_PLAYLIST", "plist", "NonPop")
@@ -64,6 +65,7 @@ mympd_api("MPD_API_PLAYER_PLAY")
 ```
 
 ### With arguments
+
 Script should be called with an argument named playlist.
 ```
 -- load a playlist
@@ -75,6 +77,7 @@ return("Loaded playlist: " .. arguments["playlist"])
 ```
 
 ### JSON parsing
+
 ```
 rc, raw_result = mympd_api("MPD_API_PLAYER_CURRENT_SONG")
 if rc == 0 then
@@ -93,6 +96,7 @@ return output
 ```
 
 ## mympd-script
+
 `mympd-script` is a small commandline tool to submit scripts to myMPD. It reads the script from STDIN and submits it to myMPD for execution. `Key=Value` parameters can be used to fill the arguments table in the Lua script.
 
 For security reasons this function is disabled in the default configuration, you must set `remotescripting = true` (mympd section) in the configuration file. Additionally there is a IP ACL option `scriptacl` (webserver section) set to `-0.0.0.0/0,+127.0.0.0/8` to prevent misuse of this feature.
@@ -111,6 +115,7 @@ mympd-script https://localhost test key1=value1
 ```
 
 ## LUA standard libraries
+
 myMPD loads in the default config all lua standard libraries. The config option lualibs controls which libraries myMPD opens before script execution.
 
 - Loaded by default: all

@@ -11,9 +11,9 @@ In the default configuration myMPD encrypts traffic on port 443, set `/var/lib/m
 Certificates are checked at startup and if necessary created or renewed. myMPD maintains a CA certificate and a server certificate signed with this ca.
 
 - Lifetime of the CA certificate: approximately 10 years
-- Lifetime of the server certificate: 90 days
+- Lifetime of the server certificate: 1 year
 
-The validity of the server certificate is so low because browsers no longer trust certificates with long durations, even if they are self-signed. You should restart your myMPD instance minimum each 90 days and import the ca certificate to have no trouble.
+The validity of the server certificate is so short because browsers no longer trust certificates with long durations, even if they are self-signed. On startup myMPD checks the expiration date of the certificate and renews it if necessary.
 
 The default certificates are saved in the directory `/var/lib/mympd/ssl/`.
 
@@ -36,7 +36,7 @@ The server certificates SAN is:
 
 You can edit the file `/var/lib/mympd/config/ssl_san` before starting myMPD to add additional names or ip addresses to the certificate, e.g. `DNS:jukebox.local`. 
 
-To regenerate the server certificate stop myMPD, and remove the `/var/lib/mympd/ssl/server.crt` and `/var/lib/mympd/ssl/server.key`.
+To regenerate the server certificate stop myMPD, and remove the `/var/lib/mympd/ssl/server.crt` and `/var/lib/mympd/ssl/server.key` files.
 
 ## Default CA
 

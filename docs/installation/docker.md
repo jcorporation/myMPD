@@ -19,7 +19,6 @@ Available architectures:
 Use ``docker pull ghcr.io/jcorporation/mympd/mympd:latest`` to use the latest image.
 
 ## Usage
-myMPD should be configured using [mympd.conf file](https://github.com/jcorporation/myMPD/wiki/Configuration).
 
 Docker Compose: 
 ```
@@ -35,6 +34,7 @@ services:
       - PGID=1000
       - TZ=Europe/London
       - UMASK_SET=022 #optional
+      - MYMPD_SSL=false
     volumes:
       - /path/to/mpd/socket:/run/mpd/socket #optional, use if you connect to mpd using sockets
       - /path/to/mympd/docker/dir:/var/lib/mympd/
@@ -52,7 +52,6 @@ docker run -d \
   -e PGID=1000 \
   -e TZ=Europe/London \
   -e UMASK_SET=022 `#optional` \
-  -e MYMPD_HTTP_PORT=80 \
   -e MYMPD_SSL=false \
   -v /path/to/mpd/socket:/run/mpd/socket #optional, use if you connect to mpd using sockets
   -v /path/to/mympd/docker/dir:/var/lib/mympd/ \

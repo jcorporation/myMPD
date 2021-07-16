@@ -9,11 +9,11 @@ Tips to debug problems with myMPD. Try these steps and reproduce the error.
 ## myMPD logging
 
 - Stop myMPD
-- Set loglevel to debug: ``printf "7" > /var/lib/mympd/config/loglevel``
+- Set loglevel to debug: ``export MYMPD_LOGLEVEL=7``
 - Start it in the console ``mympd``
 - Debug output is printed to the console
 - Press Ctrl + C to abort
-- Set loglevel to notice: ``printf "5" > /var/lib/mympd/config/loglevel``
+- Set loglevel to notice: ``unset MYMPD_LOGLEVEL``
 
 ## Webbrowser logging
 

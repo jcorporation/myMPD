@@ -10,12 +10,12 @@ myMPD supports local coverart for albums and streams.
 
 ## Albums
 
-myMPD needs access to the MPD music_directory or a brand new MPD and my patched libmpdclient (embedded in the myMPD distribution since 6.0.0).
+myMPD needs access to the MPD music_directory or a uptodate MPD.
 
 ### Albumart in directories through direct music directory access
 
-1. If connected over the local MPD socket: myMPD gets the music_directory automatically, if ```musicdirectory = auto``` (default)
-2. If connected over tcp/ip: set ```musicdirectory``` configuration option. This setting is configureable in the Connection dialog.
+1. If connected over the local MPD socket: myMPD gets the music_directory automatically, if music directory is set to auto.
+2. If connected over tcp/ip: set the music directory option in the connection dialog.
 
 Enable albumart support:
 
@@ -36,12 +36,14 @@ myMPD can extract embedded albumart, if it can access the music files. If MPD >=
 
 #### Covercache
 
-myMPD caches extracted covers under ``/var/lib/mympd/covercache``. Files in this directory can be safely deleted. myMPD houskeeps the covercache on startup and each two hours.
+myMPD caches extracted covers under `/var/lib/mympd/covercache`. Files in this directory can be safely deleted. myMPD houskeeps the covercache on startup and each two hours.
+
+***
 
 # Streams
 
 1. Images must be named as the uri of the stream, remove http:// and replace dots, colons and slashes with underscores, e.g. stream_laut_fm_nonpop.png for uri http://stream.laut.fm/nonpop.
-2. Put these images under /var/lib/mympd/pics/.
+2. Put these images under `/var/lib/mympd/pics/`.
 3. Supported file extensions are png, jpg, jpeg, tiff, bmp, svg, webp
 
 # Pictures for other tags
@@ -53,6 +55,8 @@ Supported file extensions are png, jpg, jpeg, tiff, bmp, svg, webp.
 ## Example
 
 Create a directory named `AlbumArtist` under `/var/lib/mympd/pics`. Add pictures with the AlbumArtist name as filename in this directory.
+
+***
 
 # Home icon pictures
 

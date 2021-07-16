@@ -26,19 +26,19 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - Advanced search
 - Jukebox mode
 - Customizable home screen and navigation bar
-- [Smart playlists and saved searches](https://github.com/jcorporation/myMPD/wiki/Smart-playlists)
+- [Smart playlists and saved searches](https://jcorporation.github.io/myMPD/references/smart-playlists)
 - Playback statistics and song voting
-- [Local albumart support: embedded and image per folder](https://github.com/jcorporation/myMPD/wiki/Albumart)
-- [Unsynchronized and synchronized Lyrics](https://github.com/jcorporation/myMPD/wiki/Lyrics)
+- [Local albumart support: embedded and image per folder](https://jcorporation.github.io/myMPD/references/pictures)
+- [Unsynchronized and synchronized Lyrics](https://jcorporation.github.io/myMPD/references/tags)
 - Local booklet support (per album folder)
 - HTTP stream support
-- [Local playback of mpd http stream](https://github.com/jcorporation/myMPD/wiki/Local-playback)
+- [Local playback of mpd http stream](https://jcorporation.github.io/myMPD/references/local-playback)
 - Timers and Triggers
-- [Lua scripting](https://github.com/jcorporation/myMPD/wiki/Scripting)
+- [Lua scripting](https://jcorporation.github.io/myMPD/scripting/)
 - Embedded Webserver (mongoose)
-- [Localized user interface](https://github.com/jcorporation/myMPD/wiki/Translating)
+- [Localized user interface](https://jcorporation.github.io/myMPD/references/translating)
 - Themeing
-- [Publishing of mpd and myMPD directories via http](https://github.com/jcorporation/myMPD/wiki/Publishing-directories)
+- [Publishing of mpd and myMPD directories via http](https://jcorporation.github.io/myMPD/references/published-directories)
 - Progressiv Web App enabled
 - Support of Media Session API
 
@@ -68,7 +68,7 @@ myMPD should run on all current linux distributions. There are four ways to inst
 
 On the first startup myMPD reads some environments variables and tries to autodetect the MPD connection configuration.
 
-- https://github.com/jcorporation/myMPD/wiki/Configuration
+- [Configuration](https://jcorporation.github.io/myMPD/configuration/)
 
 
 ``
