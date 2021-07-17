@@ -65,7 +65,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, t_work_request *request
     mpd_worker_state->config = mympd_state->config;
     reset_t_tags(&mpd_worker_state->smartpls_generate_tag_types);
     check_tags(mympd_state->smartpls_generate_tag_list, "smartpls_generate_tag_list", &mpd_worker_state->smartpls_generate_tag_types, mympd_state->mpd_state->tag_types_mympd);
-
+    
     //mpd state
     mpd_worker_state->mpd_state = (struct t_mpd_state *)malloc(sizeof(struct t_mpd_state));
     assert(mpd_worker_state->mpd_state);
@@ -77,6 +77,12 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, t_work_request *request
     mpd_worker_state->mpd_state->feat_stickers = mympd_state->mpd_state->feat_stickers;
     mpd_worker_state->mpd_state->feat_playlists = mympd_state->mpd_state->feat_playlists;
     mpd_worker_state->mpd_state->feat_advsearch = mympd_state->mpd_state->feat_advsearch;
+    
+    reset_t_tags(&mpd_worker_state->mpd_state->tag_types_mympd);
+    for (unsigned i = 0; i < mympd_state->mpd_state->tag_types_mympd.len; i++) {
+        mpd_worker_state->mpd_state->tag_types_mympd.tags[i] = mympd_state->mpd_state->tag_types_mympd.tags[i];
+    }
+    mpd_worker_state->mpd_state->tag_types_mympd.len = mympd_state->mpd_state->tag_types_mympd.len;
     
     if (pthread_create(&mpd_worker_thread, &attr, mpd_worker_run, mpd_worker_state) != 0) {
         MYMPD_LOG_ERROR("Can not create mpd_worker thread");
@@ -131,5 +137,8 @@ static bool mpd_worker_connect(struct t_mpd_worker_state *mpd_worker_state) {
     MYMPD_LOG_NOTICE("MPD worker connected");
     mpd_connection_set_timeout(mpd_worker_state->mpd_state->conn, mpd_worker_state->mpd_state->mpd_timeout);
     mpd_worker_state->mpd_state->conn_state = MPD_CONNECTED;
+
+    enable_mpd_tags(mpd_worker_state->mpd_state, mpd_worker_state->mpd_state->tag_types_mympd);
+    
     return true;
 }
