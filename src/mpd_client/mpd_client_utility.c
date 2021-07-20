@@ -89,6 +89,7 @@ bool is_smartpls(struct t_mympd_state *mympd_state, const char *plpath) {
 bool mpd_client_set_binarylimit(struct t_mympd_state *mympd_state) {
     bool rc = true;
     if (mympd_state->mpd_state->feat_mpd_binarylimit == true) {
+        MYMPD_LOG_INFO("Setting binarylimit to %u", mympd_state->mpd_state->mpd_binarylimit);
         rc = mpd_run_binarylimit(mympd_state->mpd_state->conn, mympd_state->mpd_state->mpd_binarylimit);
         check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_binarylimit");
     }
