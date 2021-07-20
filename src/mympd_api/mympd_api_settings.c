@@ -71,6 +71,8 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
         int mpd_port = strtoimax(settingvalue, &crap, 10);
         if (mpd_port < 1024 || mpd_port > 65535) {
             MYMPD_LOG_ERROR("Invalid value for mpdPort: %s", settingvalue);
+            sdsfree(settingname);
+            sdsfree(settingvalue);
             return false;
         }
         if (mympd_state->mpd_state->mpd_port != mpd_port) {
@@ -82,6 +84,8 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
         int mpd_stream_port = strtoimax(settingvalue, &crap, 10);
         if (mpd_stream_port < 1024 || mpd_stream_port > 65535) {
             MYMPD_LOG_ERROR("Invalid value for mpdStreamPort: %s", settingvalue);
+            sdsfree(settingname);
+            sdsfree(settingvalue);
             return false;
         }
         mympd_state->mpd_stream_port = mpd_stream_port;
@@ -98,6 +102,8 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
         unsigned binarylimit = strtoumax(settingvalue, &crap, 10);
         if (binarylimit < 4096 || binarylimit > 32768) {
             MYMPD_LOG_ERROR("Invalid value for binarylimit: %s", settingvalue);
+            sdsfree(settingname);
+            sdsfree(settingvalue);
             return false;
         }
         if (binarylimit != mympd_state->mpd_state->mpd_binarylimit) {
@@ -111,6 +117,8 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
         int mpd_timeout = strtoimax(settingvalue, &crap, 10);
         if (mpd_timeout < 1000 || mpd_timeout > 1000000) {
             MYMPD_LOG_ERROR("Invalid value for mpdTimeoutt: %s", settingvalue);
+            sdsfree(settingname);
+            sdsfree(settingvalue);
             return false;
         }
         if (mpd_timeout != mympd_state->mpd_state->mpd_timeout) {
