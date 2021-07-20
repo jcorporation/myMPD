@@ -18,6 +18,8 @@ response lines from MPD. If a response line is larger than this limit, this
 error occurs. Most of the time the reponse line is to large, because of a tag
 that length exceeds this limit.
 
+libmympdclient uses a fixed buffer size of 32678 bytes.
+
 #### Workaround
 
 - Disable the tag in mpd.conf or in myMPD if you do not use it
