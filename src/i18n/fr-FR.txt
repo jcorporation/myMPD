@@ -219,9 +219,6 @@ Initialisation de myMPD
 Fetch myMPD settings
 Récupération des paramètres de myMPD
 
-Connect to websocket
-Connection à la websocket
-
 Applying settings
 Application des paramètres
 

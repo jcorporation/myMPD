@@ -219,9 +219,6 @@ Voorbereiden myMPD
 Fetch myMPD settings
 myMPD-instellingen laden
 
-Connect to websocket
-Verbinden met websocket
-
 Applying settings
 Instellingen toepassen
 

@@ -216,9 +216,6 @@ Käynnistetään myMPD
 Fetch myMPD settings
 Noudetaan myMPD asetukset
 
-Connect to websocket
-Yhdistetään websockettiin
-
 Applying settings
 Asetuksia otetaan käyttöön
 

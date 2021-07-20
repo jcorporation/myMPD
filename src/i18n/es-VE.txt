@@ -216,9 +216,6 @@ Inicializando myMPD
 Fetch myMPD settings
 Cargando configuraciones de myMPD
 
-Connect to websocket
-Conectando a websocket
-
 Applying settings
 Aplicando configuraciones
 

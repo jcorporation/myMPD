@@ -249,9 +249,6 @@ Initialisiere myMPD
 Fetch myMPD settings
 Lade myMPD Einstellungen
 
-Connect to websocket
-Websocketverbindung wird hergestellt
-
 Applying settings
 Einstellungen werden angewendet
 
@@ -1830,3 +1827,6 @@ Datenbankaktualisierung fehlgeschlagen
 
 No arguments
 Keine Parameter
+
+Too many results, list is cropped
+Zu viele Ergebnisse, die Liste wurde abgeschnitten

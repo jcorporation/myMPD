@@ -249,9 +249,6 @@ myMPD 초기화
 Fetch myMPD settings
 myMPD 설정 가져오기
 
-Connect to websocket
-웹소켓에 연결
-
 Applying settings
 설정 적용
 

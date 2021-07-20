@@ -219,9 +219,6 @@ Inizializzazione di myMPD in corso
 Fetch myMPD settings
 Caricamento parametri di myMPD
 
-Connect to websocket
-Canessione a websocket
-
 Applying settings
 Applicazione parametri
 

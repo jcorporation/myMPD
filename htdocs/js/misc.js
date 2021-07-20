@@ -114,6 +114,7 @@ function updateDB(uri, showModal, rescan) {
 }
 
 function updateDBerror(showModal, message) {
+    const msg = t('Database update failed') + ': ' + t(message);
     if (showModal === true) {
         document.getElementById('updateDBfinished').innerText = '';
         document.getElementById('updateDBfooter').classList.remove('hide');
@@ -123,10 +124,10 @@ function updateDBerror(showModal, message) {
         updateDBprogress.style.marginLeft = '0px';
         const errorUpdateDB = document.getElementById('errorUpdateDB');
         errorUpdateDB.classList.remove('hide');
-        errorUpdateDB.innerHTML = t('Database update failed: ') + t(message);
+        errorUpdateDB.innerHTML = msg;
         uiElements.modalUpdateDB.show();
     }
-    showNotification(t('Database update failed: ') + t(message), '', 'database', 'error');
+    showNotification(msg, '', 'database', 'error');
 }
 
 function updateDBstarted(showModal) {
