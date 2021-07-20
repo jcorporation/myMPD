@@ -478,7 +478,7 @@ function appInitStart() {
             appInit();
             appInited = true;
             appRoute();
-            logInfo('Startup length: ' + (Date.now() - startTime) + 'ms');
+            logInfo('Startup duration: ' + (Date.now() - startTime) + 'ms');
         }
     }, true);
 }
