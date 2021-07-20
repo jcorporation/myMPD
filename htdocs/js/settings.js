@@ -138,7 +138,7 @@ function saveConnection() {
     if (!validateIntRange(mpdStreamPortEl, 1024, 65535)) {
         formOK = false;
     }
-    if (!validateIntRange(mpdBinarylimitEl, 4096, 32768)) {
+    if (!validateIntRange(mpdBinarylimitEl, 4, 256)) {
         formOK = false;
     }
     if (!validateIntRange(mpdTimeoutEl, 1, 100)) {
@@ -152,7 +152,7 @@ function saveConnection() {
             "musicDirectory": musicDirectory,
             "playlistDirectory": playlistDirectoryEl.value,
             "mpdStreamPort": Number(mpdStreamPortEl.value),
-            "mpdBinarylimit": Number(mpdBinarylimitEl.value),
+            "mpdBinarylimit": Number(mpdBinarylimitEl.value) * 1024,
             "mpdTimeout": Number(mpdTimeoutEl.value) * 1000
         }, getSettings);
         uiElements.modalConnection.hide();    
@@ -436,7 +436,7 @@ function populateConnectionFrm() {
     document.getElementById('inputMpdPass').value = settings.mpdPass;
     document.getElementById('inputPlaylistDirectory').value = settings.playlistDirectory;
     document.getElementById('inputMpdStreamPort').value = settings.mpdStreamPort;
-    document.getElementById('inputMpdBinarylimit').value = settings.mpdBinarylimit;
+    document.getElementById('inputMpdBinarylimit').value = settings.mpdBinarylimit / 1024;
     document.getElementById('inputMpdTimeout').value = settings.mpdTimeout / 1000;
 
     if (settings.musicDirectory === 'auto') {
