@@ -49,3 +49,4 @@ This documentation is for myMPD version {% include version %}.
 - [Additional topics]({{ site.baseurl }}/additional-topics/)
   - [Behind a reverse proxy]({{ site.baseurl }}/additional-topics/behind-a-reverse-proxy)
   - [Recommended MPD configuration]({{ site.baseurl }}/additional-topics/recommended-mpd-configuration)
+- [Known issues]({{ site.baseurl }}/known-issues)

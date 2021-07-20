@@ -1,0 +1,40 @@
+---
+layout: page
+permalink: /known-issues
+title: Known issues
+---
+
+## Common errors
+
+### Response line too large
+
+- myMPD issue: [#524](https://github.com/jcorporation/myMPD/issues/524)
+- libmpdclient issue: [#69](https://github.com/MusicPlayerDaemon/libmpdclient/issues/69)
+
+#### Cause
+
+The mpd client library libmpclient uses a fixed buffer of 4096 bytes to get
+response lines from MPD. If a response line is larger than this limit, this
+error occurs. Most of the time the reponse line is to large, because of a tag
+that length exceeds this limit.
+
+#### Workaround
+
+- Disable the tag in mpd.conf or in myMPD if you do not use it
+- Crop the tag
+
+### Output buffer is full
+
+- myMPD issue: [#528](https://github.com/jcorporation/myMPD/issues/528)
+
+### Cause
+
+MPD has an output buffer with a default max size of 8 MB. If a response is
+larger than this limit, this error occurs.
+
+#### Workaround
+
+- Increase the output buffer size in mpd.conf - can cause further issues
+- Limit the response size - the better workaround
+  - Decrease the number of enabled tags to use
+  - Decrease the number of elements per page
