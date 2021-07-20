@@ -242,7 +242,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
     struct mg_connection *nc = mgr->conns;
     while (nc != NULL) {
         if ((int)nc->is_websocket == 0 && nc->id == (long unsigned)response->conn_id) {
-            MYMPD_LOG_DEBUG("Sending response to conn_id %lu: %s", nc->id, response->data);
+            MYMPD_LOG_DEBUG("Sending response to conn_id %lu (length: %d): %s", nc->id, sdslen(response->data), response->data);
             if (response->cmd_id == MYMPD_API_ALBUMART) {
                 send_albumart(nc, response->data, response->binary);
             }
