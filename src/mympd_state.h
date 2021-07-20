@@ -64,6 +64,7 @@ struct t_mpd_state {
     struct mpd_connection *conn;
     enum mpd_conn_states conn_state;
     int mpd_timeout;
+    bool mpd_keepalive;
     time_t reconnect_time;
     unsigned reconnect_interval;
     //connection configuration

@@ -128,6 +128,15 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
             }
         }
     }
+    else if (strncmp(key->ptr, "mpdKeepalive", key->len) == 0) {
+        bool keepalive = val->type == JSON_TYPE_TRUE ? true : false;
+        if (keepalive != mympd_state->mpd_state->mpd_keepalive) {
+            mympd_state->mpd_state->mpd_keepalive = keepalive;
+            if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
+                mpd_connection_set_keepalive(mympd_state->mpd_state->conn, mympd_state->mpd_state->mpd_keepalive);
+            }
+        }
+    }
     else {
         MYMPD_LOG_WARN("Unknown setting %s: %s", settingname, settingvalue);
         sdsfree(settingname);
@@ -419,6 +428,7 @@ void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_state->mpd_pass = state_file_rw_string_sds(mympd_state->config->workdir, "state", "mpd_pass", mympd_state->mpd_state->mpd_pass, false);
     mympd_state->mpd_state->mpd_binarylimit = state_file_rw_uint(mympd_state->config->workdir, "state", "mpd_binarylimit", mympd_state->mpd_state->mpd_binarylimit, false);
     mympd_state->mpd_state->mpd_timeout = state_file_rw_int(mympd_state->config->workdir, "state", "mpd_timeout", mympd_state->mpd_state->mpd_timeout, false);
+    mympd_state->mpd_state->mpd_keepalive = state_file_rw_bool(mympd_state->config->workdir, "state", "mpd_keepalive", mympd_state->mpd_state->mpd_keepalive, false);
     mympd_state->mpd_state->tag_list = state_file_rw_string_sds(mympd_state->config->workdir, "state", "tag_list", mympd_state->mpd_state->tag_list, false);
     mympd_state->tag_list_search = state_file_rw_string_sds(mympd_state->config->workdir, "state", "tag_list_search", mympd_state->tag_list_search, false);
     mympd_state->tag_list_browse = state_file_rw_string_sds(mympd_state->config->workdir, "state", "tag_list_browse", mympd_state->tag_list_browse, false);
@@ -470,6 +480,7 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = tojson_char(buffer, "mpdPass", "dontsetpassword", true);
     buffer = tojson_long(buffer, "mpdStreamPort", mympd_state->mpd_stream_port, true);
     buffer = tojson_long(buffer, "mpdTimeout", mympd_state->mpd_state->mpd_timeout, true);
+    buffer = tojson_bool(buffer, "mpdKeepalive", mympd_state->mpd_state->mpd_keepalive, true);
     buffer = tojson_long(buffer, "mpdBinarylimit", mympd_state->mpd_state->mpd_binarylimit, true);
 #ifdef ENABLE_SSL
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);

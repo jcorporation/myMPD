@@ -34,6 +34,7 @@ void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state) {
     mpd_state->conn_state = MPD_DISCONNECTED;
     mpd_state->reconnect_time = 0;
     mpd_state->reconnect_interval = 0;
+    mpd_state->mpd_keepalive = false;
     mpd_state->mpd_timeout = 10000;
     mpd_state->state = MPD_STATE_UNKNOWN;
     mpd_state->mpd_host = sdsnew("/run/mpd/socket");

@@ -153,7 +153,8 @@ function saveConnection() {
             "playlistDirectory": playlistDirectoryEl.value,
             "mpdStreamPort": Number(mpdStreamPortEl.value),
             "mpdBinarylimit": Number(mpdBinarylimitEl.value) * 1024,
-            "mpdTimeout": Number(mpdTimeoutEl.value) * 1000
+            "mpdTimeout": Number(mpdTimeoutEl.value) * 1000,
+            "mpdKeepalive": (document.getElementById('btnMpdKeepalive').classList.contains('active') ? true : false)
         }, getSettings);
         uiElements.modalConnection.hide();    
     }
@@ -438,6 +439,8 @@ function populateConnectionFrm() {
     document.getElementById('inputMpdStreamPort').value = settings.mpdStreamPort;
     document.getElementById('inputMpdBinarylimit').value = settings.mpdBinarylimit / 1024;
     document.getElementById('inputMpdTimeout').value = settings.mpdTimeout / 1000;
+
+    toggleBtnChk('btnMpdKeepalive', settings.mpdKeepalive);
 
     if (settings.musicDirectory === 'auto') {
         document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
