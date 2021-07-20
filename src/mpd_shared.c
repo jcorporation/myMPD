@@ -102,7 +102,7 @@ bool check_error_and_recover2(struct t_mpd_state *mpd_state, sds *buffer, sds me
                               bool notify)
 {
     enum mpd_error error = mpd_connection_get_error(mpd_state->conn);
-    if (error  != MPD_ERROR_SUCCESS) {
+    if (error  != MPD_ERROR_SUCCESS) {   
         const char *error_msg = mpd_connection_get_error_message(mpd_state->conn);
         MYMPD_LOG_ERROR("MPD error: %s (%d)", error_msg , error);
         if (buffer != NULL && *buffer != NULL) {
@@ -114,16 +114,12 @@ bool check_error_and_recover2(struct t_mpd_state *mpd_state, sds *buffer, sds me
                 *buffer = jsonrpc_notify(*buffer, "mpd", "error", error_msg);
             }
         }
-
-        if (error == 8 || //Connection closed by the server
-            error == 5 || //Broken pipe 
-            error == 4 || //Timeout
-            error == 7    //Response line to large
-        ) { 
+        //try to recover from error
+        bool recovered = mpd_connection_clear_error(mpd_state->conn);
+        if (recovered == false) {
             mpd_state->conn_state = MPD_FAILURE;
         }
-        mpd_connection_clear_error(mpd_state->conn);
-        if (mpd_state->conn_state != MPD_FAILURE) {
+        else {
             mpd_response_finish(mpd_state->conn);
             //enable default mpd tags after cleaning error
             enable_mpd_tags(mpd_state, mpd_state->tag_types_mympd);
