@@ -96,7 +96,7 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
     }
     else if (strncmp(key->ptr, "mpdBinarylimit", key->len) == 0) {
         unsigned binarylimit = strtoumax(settingvalue, &crap, 10);
-        if (binarylimit < 4096 || binarylimit > 40960) {
+        if (binarylimit < 4096 || binarylimit > 32768) {
             MYMPD_LOG_ERROR("Invalid value for binarylimit: %s", settingvalue);
             return false;
         }

@@ -138,7 +138,7 @@ function saveConnection() {
     if (!validateIntRange(mpdStreamPortEl, 1024, 65535)) {
         formOK = false;
     }
-    if (!validateIntRange(mpdBinarylimitEl, 4096, 40960)) {
+    if (!validateIntRange(mpdBinarylimitEl, 4096, 32768)) {
         formOK = false;
     }
     if (!validateIntRange(mpdTimeoutEl, 1, 100)) {
