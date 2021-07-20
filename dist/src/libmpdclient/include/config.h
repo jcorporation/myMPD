@@ -5,6 +5,8 @@
 
 #pragma once
 
+#define BUFFER_SIZE 32768
+
 #define DEFAULT_HOST "localhost"
 
 #define DEFAULT_PORT 6600

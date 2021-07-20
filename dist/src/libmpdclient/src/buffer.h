@@ -29,6 +29,8 @@
 #ifndef MPD_BUFFER_H
 #define MPD_BUFFER_H
 
+#include "config.h"
+
 #include <assert.h>
 #include <string.h>
 #include <stdbool.h>
@@ -45,7 +47,7 @@ struct mpd_buffer {
 	unsigned read;
 
 	/** the actual buffer */
-	unsigned char data[4096];
+	unsigned char data[BUFFER_SIZE];
 };
 
 /**
