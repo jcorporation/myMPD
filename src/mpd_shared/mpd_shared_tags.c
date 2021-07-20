@@ -45,6 +45,14 @@ enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag) {
     return tag;
 }
 
+void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list) {
+    reset_t_tags(dst_tag_list);
+    for (unsigned i = 0; i < src_tag_list->len; i++) {
+        dst_tag_list->tags[i] = src_tag_list->tags[i];
+    }
+    dst_tag_list->len = src_tag_list->len;
+}
+
 void reset_t_tags(struct t_tags *tags) {
     tags->len = 0;
     memset(tags->tags, 0, sizeof(tags->tags));
