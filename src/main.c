@@ -336,6 +336,7 @@ int main(int argc, char **argv) {
     //bootstrap
     if (config->bootstrap == true) {
         printf("Created myMPD config and exit\n");
+        rc = EXIT_SUCCESS;
         goto cleanup;
     }
 
