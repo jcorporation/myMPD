@@ -1830,3 +1830,6 @@ Keine Parameter
 
 Too many results, list is cropped
 Zu viele Ergebnisse, die Liste wurde abgeschnitten
+
+BinaryLimitHelpText
+Das Binary Limit muss zwischen 4096 und 32768 liegen

@@ -59,3 +59,6 @@ Do you really want to delete the playlist "%{playlist}"?
 
 Do you really want to delete the script?
 Do you really want to delete the script "%{script}"?
+
+BinaryLimitHelpText
+Binary limit must be between 4096 and 32768
