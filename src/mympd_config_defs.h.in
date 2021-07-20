@@ -45,6 +45,9 @@
 #define MEASURE_END clock_t measure_end = clock();
 #define MEASURE_PRINT(X) MYMPD_LOG_DEBUG("Execution time for %s: %lf", X, ((double) (measure_end - measure_start)) / CLOCKS_PER_SEC);
 
+//max results if limit is set to any
+#define MAX_RESULTS 1000
+
 //myMPD configuration
 struct t_config {
     sds user;

@@ -606,9 +606,17 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             tbody.append(row);
         }
     }
+
     const trLen = tr.length - 1;
     for (let i = trLen; i >= nrItems + z; i --) {
         tr[i].remove();
+    }
+
+    if (nrItems === 1000) {
+        const row = document.createElement('tr');
+        row.classList.add('not-clickable');
+        row.innerHTML = '<td><span class="mi">warning</span></td><td colspan="' + colspan +'">' + t('Too many results, list is cropped') + '</td>';
+        tbody.append(row);
     }
 
     if (navigate === true) {

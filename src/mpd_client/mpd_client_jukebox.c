@@ -51,7 +51,8 @@ sds mpd_client_put_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
 {
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-
+    unsigned real_limit = limit == 0 ? offset + MAX_RESULTS : offset + limit;
+    
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
 
@@ -59,7 +60,7 @@ sds mpd_client_put_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
         struct list_node *current = mympd_state->jukebox_queue.head;
         while (current != NULL) {
             entity_count++;
-            if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
+            if (entity_count > offset && entity_count <= real_limit) {
                 if (entities_returned++) {
                     buffer = sdscat(buffer, ",");
                 }

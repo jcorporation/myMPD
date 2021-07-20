@@ -207,10 +207,13 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
         entities_returned++;
         free(path_cpy);
     }
+    
+    unsigned real_limit = limit == 0 ? offset + MAX_RESULTS : offset + limit;
+    
     struct list_node *current;
     while ((current = list_shift_first(&entity_list)) != NULL) {
         entity_count++;
-        if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
+        if (entity_count > offset && entity_count <= real_limit) {
             if (entities_returned++) {
                 buffer = sdscat(buffer, ",");
             }
@@ -313,6 +316,11 @@ sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer,
     sdsfree(expression);
     rc = mpd_search_add_sort_tag(mympd_state->mpd_state->conn, MPD_TAG_DISC, false);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_tag") == false) {
+        mpd_search_cancel(mympd_state->mpd_state->conn);
+        return buffer;
+    }
+    rc = mpd_search_add_window(mympd_state->mpd_state->conn, 0, MAX_RESULTS);
+    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return buffer;
     }
@@ -523,13 +531,13 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
     //print album list
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    unsigned end = offset + limit;
+    unsigned real_limit = limit == 0 ? offset + MAX_RESULTS : offset + limit;
     sds album = sdsempty();
     sds artist = sdsempty();
     struct list_node *current;
     while ((current = list_shift_first(&album_list)) != NULL) {
         entity_count++;
-        if (entity_count > offset && (entity_count <= end || limit == 0)) {
+        if (entity_count > offset && entity_count <= real_limit) {
             if (entities_returned++) {
                 buffer = sdscat(buffer, ",");
             }
@@ -543,7 +551,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
             buffer = sdscat(buffer, "}");
         }
         list_node_free_keep_user_data(current);
-        if (entity_count > end && limit > 0) {
+        if (entity_count > real_limit) {
             break;
         }
     }
@@ -587,9 +595,10 @@ sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds met
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
     enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
+    unsigned real_limit = limit == 0 ? offset + MAX_RESULTS : offset + limit;
     while ((pair = mpd_recv_pair_tag(mympd_state->mpd_state->conn, mpdtag)) != NULL) {
         entity_count++;
-        if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
+        if (entity_count > offset && entity_count <= real_limit) {
             if (strcmp(pair->value, "") == 0) {
                 entity_count--;
             }

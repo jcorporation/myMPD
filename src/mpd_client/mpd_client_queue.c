@@ -142,11 +142,10 @@ sds mpd_client_put_queue(struct t_mympd_state *mympd_state, sds buffer, sds meth
     if (offset >= mpd_status_get_queue_length(status)) {
         offset = 0;
     }
-    
-    if (limit == 0) {
-        limit = INT_MAX - offset;
-    }
-    bool rc = mpd_send_list_queue_range_meta(mympd_state->mpd_state->conn, offset, offset + limit);
+
+    unsigned real_limit = limit == 0 ? offset + MAX_RESULTS : offset + limit;
+        
+    bool rc = mpd_send_list_queue_range_meta(mympd_state->mpd_state->conn, offset, real_limit);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_queue_range_meta") == false) {
         return buffer;
     }
@@ -271,9 +270,10 @@ sds mpd_client_search_queue(struct t_mympd_state *mympd_state, sds buffer, sds m
     struct mpd_song *song;
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
+    unsigned real_limit = limit == 0 ? offset + MAX_RESULTS : offset + limit;
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
         entity_count++;
-        if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
+        if (entity_count > offset && entity_count <= real_limit) {
             if (entities_returned++) {
                 buffer= sdscat(buffer, ",");
             }
