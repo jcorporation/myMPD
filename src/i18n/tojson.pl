@@ -45,7 +45,7 @@ for my $filename (@files) {
             }
         }
         elsif ($filename =~ /\.js$/) {
-            while ($line =~ /(\s+|\(|\+)t\('([^']+)'/g) {
+            while ($line =~ /(\s+|\(|\+)tn?\('([^']+)'/g) {
                 $phrases->{$2} = 1;
             }
             while ($line =~ /gtPage\('([^']+)'/g) {
