@@ -657,7 +657,7 @@ updatelibmympdclient() {
   cd "$TMPDIR" || exit 1
   git clone -b libmympdclient https://github.com/jcorporation/libmpdclient.git
   cd libmpdclient || exit 1
-  meson . output -Dbuffer_size=32768
+  meson . output -Dbuffer_size=8192
 
   cd "$STARTDIR" || exit 1
   install -d src

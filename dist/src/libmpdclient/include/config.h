@@ -5,7 +5,7 @@
 
 #pragma once
 
-#define BUFFER_SIZE 32768
+#define BUFFER_SIZE 8192
 
 #define DEFAULT_HOST "localhost"
 
