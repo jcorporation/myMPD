@@ -15,13 +15,16 @@ function setStateIcon() {
 function toggleAlert(alertBox, state, msg) {
     const alertBoxEl = document.getElementById(alertBox);
     if (state === false) {
-        alertBoxEl.innerHTML = '';
-        alertBoxEl.classList.add('hide');
+        elHide(alertBoxEl);
+        elClear(alertBoxEl);
     }
     else {
-        //msg should be already escaped
-        alertBoxEl.innerHTML = '<span class="mi mr-2">error</span><div>' + msg + '</div>';
-        alertBoxEl.classList.remove('hide');
+        const span = elCreate('span', {"class": ["mi", "mr-2"]}, 'error');
+        const div = elCreate('div', {}, msg);
+        elClear(alertBoxEl);
+        alertBoxEl.appendChild(span);
+        alertBoxEl.appendChild(div);
+        elShow(alertBoxEl);
     }
 }
 
@@ -203,12 +206,12 @@ function setElsState(tag, state, type) {
         }
         if (state === 'disabled') {
             if (el.classList.contains('alwaysEnabled') === false && el.getAttribute('disabled') === null) {
-                disableEl(el);
+                elDisable(el);
                 el.classList.add('disabled');
             }
         }
         else if (el.classList.contains('disabled')) {
-            enableEl(el);
+            elEnable(el);
             el.classList.remove('disabled');
         }
     }
@@ -235,7 +238,7 @@ function toggleUI() {
         toggleAlert('alertMpdState', false, '');
     }
     else {
-        toggleAlert('alertMpdState', true, t('MPD disconnected'));
+        toggleAlert('alertMpdState', true, tn('MPD disconnected'));
         logMessage(t('MPD disconnected'), '', 'mpd', 'error');
     }
 
@@ -243,7 +246,7 @@ function toggleUI() {
         toggleAlert('alertMympdState', false, '');
     }
     else if (appInited === true) {
-        toggleAlert('alertMympdState', true, t('Websocket is disconnected'));
+        toggleAlert('alertMympdState', true, tn('Websocket is disconnected'));
         logMessage(t('Websocket is disconnected'), '', 'general', 'error');
     }
 

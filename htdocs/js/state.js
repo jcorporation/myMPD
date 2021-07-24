@@ -4,18 +4,18 @@
 // https://github.com/jcorporation/mympd
 
 function parseStats(obj) {
-    document.getElementById('mpdstats_artists').innerText =  obj.result.artists;
-    document.getElementById('mpdstats_albums').innerText = obj.result.albums;
-    document.getElementById('mpdstats_songs').innerText = obj.result.songs;
-    document.getElementById('mpdstats_dbPlaytime').innerText = beautifyDuration(obj.result.dbPlaytime);
-    document.getElementById('mpdstats_playtime').innerText = beautifyDuration(obj.result.playtime);
-    document.getElementById('mpdstats_uptime').innerText = beautifyDuration(obj.result.uptime);
-    document.getElementById('mpdstats_mympd_uptime').innerText = beautifyDuration(obj.result.myMPDuptime);
-    document.getElementById('mpdstats_dbUpdated').innerText = localeDate(obj.result.dbUpdated);
-    document.getElementById('mympdVersion').innerText = obj.result.mympdVersion;
-    document.getElementById('mpdInfo_version').innerText = obj.result.mpdVersion;
-    document.getElementById('mpdInfo_libmpdclientVersion').innerText = obj.result.libmpdclientVersion;
-    document.getElementById('mpdInfo_libmympdclientVersion').innerText = obj.result.libmympdclientVersion;
+    document.getElementById('mpdstats_artists').textContent =  obj.result.artists;
+    document.getElementById('mpdstats_albums').textContent = obj.result.albums;
+    document.getElementById('mpdstats_songs').textContent = obj.result.songs;
+    document.getElementById('mpdstats_dbPlaytime').textContent = beautifyDuration(obj.result.dbPlaytime);
+    document.getElementById('mpdstats_playtime').textContent = beautifyDuration(obj.result.playtime);
+    document.getElementById('mpdstats_uptime').textContent = beautifyDuration(obj.result.uptime);
+    document.getElementById('mpdstats_mympd_uptime').textContent = beautifyDuration(obj.result.myMPDuptime);
+    document.getElementById('mpdstats_dbUpdated').textContent = localeDate(obj.result.dbUpdated);
+    document.getElementById('mympdVersion').textContent = obj.result.mympdVersion;
+    document.getElementById('mpdInfo_version').textContent = obj.result.mpdVersion;
+    document.getElementById('mpdInfo_libmpdclientVersion').textContent = obj.result.libmpdclientVersion;
+    document.getElementById('mpdInfo_libmympdclientVersion').textContent = obj.result.libmympdclientVersion;
 }
 
 function getServerinfo() {
@@ -31,8 +31,8 @@ function getServerinfo() {
                 showNotification(t('Can not parse response to json object'), '', 'general', 'error');
                 logError('Can not parse response to json object:' + ajaxRequest.responseText);
             }
-            document.getElementById('wsIP').innerText = obj.result.ip;
-            document.getElementById('wsMongooseVersion').innerText = obj.result.version;
+            document.getElementById('wsIP').textContent = obj.result.ip;
+            document.getElementById('wsMongooseVersion').textContent = obj.result.version;
         }
     };
     ajaxRequest.send();
@@ -83,10 +83,10 @@ function showListOutputAttributes(outputName) {
                 e(output.attributes[key]) + '"/></td></tr>';
         }
         if (i > 0) {
-            enableEl('btnOutputAttributesSave');
+            elEnable('btnOutputAttributesSave');
         }
         else {
-            disableEl('btnOutputAttributesSave');
+            elDisable('btnOutputAttributesSave');
         }
         document.getElementById('outputAttributesList').innerHTML = list;
     });
@@ -183,9 +183,9 @@ function parseState(obj) {
     }
     //clear playback card if no current song
     if (obj.result.songPos === -1) {
-        document.getElementById('currentTitle').innerText = 'Not playing';
+        document.getElementById('currentTitle').textContent = 'Not playing';
         document.title = 'myMPD';
-        document.getElementById('footerTitle').innerText = '';
+        document.getElementById('footerTitle').textContent = '';
         document.getElementById('footerTitle').removeAttribute('title');
         document.getElementById('footerTitle').classList.remove('clickable');
         document.getElementById('footerCover').classList.remove('clickable');
@@ -196,13 +196,13 @@ function parseState(obj) {
         }
         const pb = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
         for (let i = 0, j = pb.length; i < j; i++) {
-            pb[i].innerText = '';
+            pb[i].textContent = '';
         }
     }
     else {
         const cff = document.getElementById('currentFileformat');
         if (cff) {
-            cff.getElementsByTagName('p')[0].innerText = fileformat(obj.result.audioFormat);
+            cff.getElementsByTagName('p')[0].textContent = fileformat(obj.result.audioFormat);
         }
     }
 
@@ -215,7 +215,7 @@ function parseState(obj) {
         toggleAlert('alertMpdStatusError', false, '');
     }
     else {
-        toggleAlert('alertMpdStatusError', true, e(obj.result.lastError));
+        toggleAlert('alertMpdStatusError', true, obj.result.lastError);
     }
     toggleTopAlert();
     
@@ -229,20 +229,20 @@ function parseState(obj) {
 
 function parseVolume(obj) {
     if (obj.result.volume === -1) {
-        document.getElementById('volumePrct').innerText = t('Volumecontrol disabled');
+        document.getElementById('volumePrct').textContent = t('Volumecontrol disabled');
         document.getElementById('volumeControl').classList.add('hide');
     } 
     else {
         document.getElementById('volumeControl').classList.remove('hide');
-        document.getElementById('volumePrct').innerText = obj.result.volume + ' %';
+        document.getElementById('volumePrct').textContent = obj.result.volume + ' %';
         if (obj.result.volume === 0) {
-            document.getElementById('volumeMenu').firstChild.innerText = 'volume_off';
+            document.getElementById('volumeMenu').firstChild.textContent = 'volume_off';
         }
         else if (obj.result.volume < 50) {
-            document.getElementById('volumeMenu').firstChild.innerText = 'volume_down';
+            document.getElementById('volumeMenu').firstChild.textContent = 'volume_down';
         }
         else {
-            document.getElementById('volumeMenu').firstChild.innerText = 'volume_up';
+            document.getElementById('volumeMenu').firstChild.textContent = 'volume_up';
         }
     }
     document.getElementById('volumeBar').value = obj.result.volume;
@@ -367,20 +367,20 @@ function songChange(obj) {
     if (obj.result.Artist !== undefined && obj.result.Artist.length > 0 && obj.result.Artist !== '-') {
         textNotification += obj.result.Artist;
         pageTitle += obj.result.Artist + ' - ';
-        document.getElementById('footerArtist').innerText = obj.result.Artist;
+        document.getElementById('footerArtist').textContent = obj.result.Artist;
         setCustomDomProperty(document.getElementById('footerArtist'), 'data-name', obj.result.Artist);
         if (features.featAdvsearch === true) {
             document.getElementById('footerArtist').classList.add('clickable');
         }
     }
     else {
-        document.getElementById('footerArtist').innerText = '';
+        document.getElementById('footerArtist').textContent = '';
         setCustomDomProperty(document.getElementById('footerArtist'), 'data-name', '');
     }
 
     if (obj.result.Album !== undefined && obj.result.Album.length > 0 && obj.result.Album !== '-') {
         textNotification += ' - ' + obj.result.Album;
-        document.getElementById('footerAlbum').innerText = obj.result.Album;
+        document.getElementById('footerAlbum').textContent = obj.result.Album;
         setCustomDomProperty(document.getElementById('footerAlbum'), 'data-name', obj.result.Album);
         setCustomDomProperty(document.getElementById('footerAlbum'), 'data-albumartist', obj.result[tagAlbumArtist]);
         if (features.featAdvsearch === true) {
@@ -388,21 +388,21 @@ function songChange(obj) {
         }
     }
     else {
-        document.getElementById('footerAlbum').innerText = '';
+        document.getElementById('footerAlbum').textContent = '';
         setCustomDomProperty(document.getElementById('footerAlbum'), 'data-name', '');
     }
 
     if (obj.result.Title !== undefined && obj.result.Title.length > 0) {
         pageTitle += obj.result.Title;
-        document.getElementById('currentTitle').innerText = obj.result.Title;
+        document.getElementById('currentTitle').textContent = obj.result.Title;
         setCustomDomProperty(document.getElementById('currentTitle'), 'data-uri', obj.result.uri);
-        document.getElementById('footerTitle').innerText = obj.result.Title;
+        document.getElementById('footerTitle').textContent = obj.result.Title;
         document.getElementById('footerCover').classList.add('clickable');
     }
     else {
-        document.getElementById('currentTitle').innerText = '';
+        document.getElementById('currentTitle').textContent = '';
         setCustomDomProperty(document.getElementById('currentTitle'), 'data-uri', '');
-        document.getElementById('footerTitle').innerText = '';
+        document.getElementById('footerTitle').textContent = '';
         setCustomDomProperty(document.getElementById('footerTitle'), 'data-name', '');
         document.getElementById('currentTitle').classList.remove('clickable');
         document.getElementById('footerTitle').classList.remove('clickable');
@@ -422,11 +422,11 @@ function songChange(obj) {
 
     if (obj.result.uri !== undefined) {
         obj.result['Filetype'] = filetype(obj.result.uri);
-        enableEl('addCurrentSongToPlaylist');
+        elEnable('addCurrentSongToPlaylist');
     }
     else {
         obj.result['Filetype'] = '';
-        disableEl('addCurrentSongToPlaylist');
+        elDisable('addCurrentSongToPlaylist');
     }
     
     if (features.featStickers === true) {
@@ -451,7 +451,7 @@ function songChange(obj) {
     if (playingTr) {
         const titleCol = playingTr.querySelector('[data-col=Title');
         if (titleCol) { 
-            titleCol.innerText = obj.result.Title;
+            titleCol.textContent = obj.result.Title;
         }
     }
 

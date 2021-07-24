@@ -77,7 +77,7 @@ function parseSongDetails(obj) {
 
     const elH1s = modal.getElementsByTagName('h1');
     for (let i = 0, j = elH1s.length; i < j; i++) {
-        elH1s[i].innerText = obj.result.Title;
+        elH1s[i].textContent = obj.result.Title;
     }
     
     let songDetailsHTML = '';
@@ -186,10 +186,10 @@ function getLyrics(uri, el) {
     el.classList.add('opacity05');
     sendAPI("MYMPD_API_LYRICS_GET", {"uri": uri}, function(obj) {
         if (obj.error) {
-            el.innerText = t(obj.error.message);
+            el.textContent = t(obj.error.message);
         }
         else if (obj.result.message) {
-            el.innerText = t(obj.result.message);
+            el.textContent = t(obj.result.message);
         }
         else if (obj.result.returnedEntities === 0) {
             el.innerHTML = t('No lyrics found');
@@ -340,14 +340,14 @@ function setVoteSongBtns(vote, uri) {
     }
 
     if (isValidUri(uri) === false || isStreamUri(uri) === true) {
-        disableEl('btnVoteUp');
-        disableEl('btnVoteDown');
+        elDisable('btnVoteUp');
+        elDisable('btnVoteDown');
         document.getElementById('btnVoteUp').classList.remove('highlight');
         document.getElementById('btnVoteDown').classList.remove('highlight');
     }
     else {
-        enableEl('btnVoteUp');
-        enableEl('btnVoteDown');
+        elEnable('btnVoteUp');
+        elEnable('btnVoteDown');
     }
     
     if (vote === 0) {

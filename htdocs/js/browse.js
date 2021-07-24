@@ -482,7 +482,7 @@ function setGridImage(changes, observer) {
 function addPlayButton(parentEl) {
     const div = document.createElement('div');
     div.classList.add('align-self-end', 'album-grid-mouseover', 'mi', 'rounded-circle', 'clickable');
-    div.innerText = 'play_arrow';
+    div.textContent = 'play_arrow';
     div.title = t(webuiSettingsDefault.clickAlbumPlay.validValues[settings.webuiSettings.clickAlbumPlay]);
     parentEl.appendChild(div);
     div.addEventListener('click', function(event) {

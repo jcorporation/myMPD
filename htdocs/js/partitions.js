@@ -106,7 +106,7 @@ function deletePartition(partition) {
     sendAPI("MYMPD_API_PARTITION_RM", {"name": partition}, function(obj) {
         if (obj.error) {
             const el = document.getElementById('errorPartition');
-            el.innerText = t(obj.error.message);
+            el.textContent = t(obj.error.message);
             el.classList.remove('hide');
         }
         sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, false);
@@ -117,7 +117,7 @@ function switchPartition(partition) {
     sendAPI("MYMPD_API_PARTITION_SWITCH", {"name": partition}, function(obj) {
         if (obj.error) {
             const el = document.getElementById('errorPartition');
-            el.innerText = t(obj.error.message);
+            el.textContent = t(obj.error.message);
             el.classList.remove('hide');
         }
         sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, false);

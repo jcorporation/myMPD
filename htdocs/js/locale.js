@@ -10,6 +10,14 @@ function smartCount(number) {
 }
 
 function t(phrase, number, data) {
+    return e(_translate(phrase, number, data));
+}
+
+function tn(phrase, number, data) {
+    return _translate(phrase, number, data);
+}
+
+function _translate(phrase, number, data) {
     let result = undefined;
     if (isNaN(number)) {
         data = number;
@@ -41,8 +49,7 @@ function t(phrase, number, data) {
             return data[m1];
         });
     }
-    
-    return e(result);
+    return result;
 }
 
 function localeDate(secs) {

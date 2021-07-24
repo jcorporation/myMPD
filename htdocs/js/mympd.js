@@ -206,12 +206,12 @@ function appRoute() {
         }, parseFilesystem, true);
         //Don't add all songs from root
         if (app.current.search) {
-            enableEl('BrowseFilesystemAddAllSongs');
-            enableEl('BrowseFilesystemAddAllSongsBtn');
+            elEnable('BrowseFilesystemAddAllSongs');
+            elEnable('BrowseFilesystemAddAllSongsBtn');
         }
         else {
-            disableEl('BrowseFilesystemAddAllSongs');
-            disableEl('BrowseFilesystemAddAllSongsBtn');
+            elDisable('BrowseFilesystemAddAllSongs');
+            elDisable('BrowseFilesystemAddAllSongsBtn');
         }
         //Create breadcrumb
         let breadcrumbs = '<li class="breadcrumb-item"><a data-uri="" class="text-body mi">home</a></li>';
@@ -248,8 +248,8 @@ function appRoute() {
         if (app.current.tag === 'Album') {
             createSearchCrumbs(app.current.search, document.getElementById('searchDatabaseStr'), document.getElementById('searchDatabaseCrumb'));
             document.getElementById('searchDatabaseMatch').classList.remove('hide');
-            enableEl('btnDatabaseSortDropdown');
-            enableEl('btnDatabaseSearchDropdown');
+            elEnable('btnDatabaseSortDropdown');
+            elEnable('btnDatabaseSearchDropdown');
             sendAPI("MYMPD_API_DATABASE_GET_ALBUMS", {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
@@ -261,8 +261,8 @@ function appRoute() {
         else {
             document.getElementById('searchDatabaseCrumb').classList.add('hide');
             document.getElementById('searchDatabaseMatch').classList.add('hide');
-            disableEl('btnDatabaseSortDropdown');
-            disableEl('btnDatabaseSearchDropdown');
+            elDisable('btnDatabaseSortDropdown');
+            elDisable('btnDatabaseSearchDropdown');
             document.getElementById('searchDatabaseStr').value = app.current.search;
             sendAPI("MYMPD_API_DATABASE_TAG_LIST", {
                 "offset": app.current.offset,
@@ -337,8 +337,8 @@ function appRoute() {
         }
         else {
             document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML = '';
-            disableEl('searchAddAllSongs');
-            disableEl('searchAddAllSongsBtn');
+            elDisable('searchAddAllSongs');
+            elDisable('searchAddAllSongsBtn');
             document.getElementById('SearchList').classList.remove('opacity05');
             setPagination(0, 0);
         }
@@ -452,7 +452,7 @@ function appInitStart() {
     //show splash screen
     document.getElementById('splashScreen').classList.remove('hide');
     domCache.body.classList.add('overflow-hidden');
-    document.getElementById('splashScreenAlert').innerText = t('Fetch myMPD settings');
+    document.getElementById('splashScreenAlert').textContent = t('Fetch myMPD settings');
     
     //init add to home screen feature
     a2hsInit();
@@ -468,7 +468,7 @@ function appInitStart() {
                 webSocketConnect();
             }, 0);
             //app initialized
-            document.getElementById('splashScreenAlert').innerText = t('Applying settings');
+            document.getElementById('splashScreenAlert').textContent = t('Applying settings');
             document.getElementById('splashScreen').classList.add('hide-fade');
             setTimeout(function() {
                 document.getElementById('splashScreen').classList.add('hide');
@@ -491,7 +491,7 @@ function appInit() {
             event.stopPropagation();
             event.preventDefault();
             const icon = this.getElementsByTagName('span')[0];
-            icon.innerText = icon.innerText === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
+            icon.textContent = icon.textContent === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
             event.stopPropagation();
         }, false);
     }    
@@ -695,7 +695,7 @@ function initNavs() {
 
     domCache.progress.addEventListener('mousemove', function(event) {
         if ((playstate === 'pause' || playstate === 'play') && currentSong.totalTime > 0) {
-            domCache.progressPos.innerText = beautifySongDuration(Math.ceil((currentSong.totalTime / event.target.offsetWidth) * event.clientX));
+            domCache.progressPos.textContent = beautifySongDuration(Math.ceil((currentSong.totalTime / event.target.offsetWidth) * event.clientX));
             domCache.progressPos.style.display = 'block';
             const w = domCache.progressPos.offsetWidth / 2;
             const posX = event.clientX < w ? event.clientX : (event.clientX < window.innerWidth - w ? event.clientX - w : event.clientX - (w * 2));

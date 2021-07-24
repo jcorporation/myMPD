@@ -3,6 +3,44 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+//element handling shortcuts
+function elCreate(tagName, attributes, textContent) {
+    const tag = document.createElement(tagName);
+    for (const key in attributes) {
+        switch(key) {
+            case "class":
+                tag.classList.add(...attributes[key]);
+                break;
+            default:
+                tag.setAttribute(key, attributes[key]);
+        }
+    }
+    tag.textContent = textContent;
+    return tag;
+}
+
+function elHide(el) {
+    el.classList.add('hide');
+}
+
+function elShow(el) {
+    el.classList.remove('hide');
+}
+
+function elClear(el) {
+    el.textContent = '';
+}
+
+function elDisable(el) {
+    typeof el === 'string' ? document.getElementById(el).setAttribute('disabled', 'disabled')
+                           : el.setAttribute('disabled', 'disabled');
+}
+
+function elEnable(el) {
+    typeof el === 'string' ? document.getElementById(el).removeAttribute('disabled')
+                           : el.removeAttribute('disabled');
+}
+
 //escapes html characters to avoid xss
 function e(x) {
     if (isNaN(x)) {
@@ -28,49 +66,39 @@ function r(x) {
     return x.replace(/[^\w-]/g, '_');
 }
 
-//warning dialog
+//confirmation dialogs
 function showConfirm(text, btnText, callback) {
-    document.getElementById('modalConfirmText').innerHTML = text;
-    const yesBtn = document.createElement('button');
-    yesBtn.setAttribute('id', 'modalConfirmYesBtn');
-    yesBtn.classList.add('btn', 'btn-danger');
+    document.getElementById('modalConfirmText').textContent = text;
+    const yesBtn = elCreate('button', {"id": "modalConfirmYesBtn", "class": ["btn", "btn-danger"]}, btnText);
     yesBtn.addEventListener('click', function() {
         if (callback !== undefined && typeof(callback) === 'function') {
             callback();
         }
         uiElements.modalConfirm.hide();        
     }, false);
-    yesBtn.innerText = btnText;
     document.getElementById('modalConfirmYesBtn').replaceWith(yesBtn);
     uiElements.modalConfirm.show();
 }
 
 function showConfirmInline(el, text, btnText, callback) {
-    const confirm = document.createElement('div');
-    confirm.classList.add('alert', 'alert-danger', 'mt-2');
-
-    const p = document.createElement('p');
-    p.innerHTML = text;
+    const confirm = elCreate('div', {"class": ["alert", "alert-danger", "mt-2"]}, '');
+    const p = elCreate('p', {}, text);
     confirm.appendChild(p);
 
-    const cancelBtn = document.createElement('button');
-    cancelBtn.classList.add('btn', 'btn-secondary');
+    const cancelBtn = elCreate('button', {"class": ["btn", "btn-secondary"]}, t('Cancel'));
     cancelBtn.addEventListener('click', function() {
         this.parentNode.remove();
     }, false);
-    cancelBtn.innerText = t('Cancel');
     confirm.appendChild(cancelBtn);
 
-    const yesBtn = document.createElement('button');
-    yesBtn.classList.add('btn', 'btn-danger', 'float-right');
+    const yesBtn = elCreate('button', {"class": ["btn", "btn-danger", "float-right"]}, btnText);
     yesBtn.addEventListener('click', function() {
         if (callback !== undefined && typeof(callback) === 'function') {
             callback();
         }
     }, false);
-    yesBtn.innerText = btnText;
     confirm.appendChild(yesBtn);
-    
+
     el.appendChild(confirm);
 }
 
@@ -184,20 +212,6 @@ function getCustomDomProperty(el, attribute) {
 }
 
 //utility functions
-function disableEl(el) {
-    if (typeof el === 'string') {
-        el = document.getElementById(el);
-    }
-    el.setAttribute('disabled', 'disabled');
-}
-
-function enableEl(el) {
-    if (typeof el === 'string') {
-        el = document.getElementById(el);
-    }
-    el.removeAttribute('disabled');
-}
-
 function getSelectValue(el) {
     if (typeof el === 'string')	{
         el = document.getElementById(el);
@@ -306,8 +320,8 @@ function selectTag(btnsEl, desc, setTo) {
         if (desc !== undefined) {
             const descEl = document.getElementById(desc);
             if (descEl !== null) {
-                descEl.innerText = aBtn.innerText;
-                descEl.setAttribute('data-phrase', aBtn.innerText);
+                descEl.textContent = aBtn.textContent;
+                descEl.setAttribute('data-phrase', aBtn.textContent);
             }
         }
     }
@@ -400,10 +414,10 @@ function btnWaiting(btn, waiting) {
         const spinner = document.createElement('span');
         spinner.classList.add('spinner-border', 'spinner-border-sm', 'mr-2');
         btn.insertBefore(spinner, btn.firstChild);
-        disableEl(btn);
+        elDisable(btn);
     }
     else {
-        enableEl(btn);
+        elEnable(btn);
         if (btn.firstChild.nodeName === 'SPAN') {
             btn.firstChild.remove();
         }
@@ -513,12 +527,12 @@ function toggleBtnChk(btn, state) {
 
     if (state === true || state === 1) {
         b.classList.add('active');
-        b.innerText = 'check';
+        b.textContent = 'check';
         return true;
     }
     else {
         b.classList.remove('active');
-        b.innerText = 'radio_button_unchecked';
+        b.textContent = 'radio_button_unchecked';
         return false;
     }
 }
@@ -597,9 +611,9 @@ function setPagination(total, returned) {
         const next = p[i].children[3];
         const last = p[i].children[4];
     
-        page.innerText = curPage + ' / ' + totalPages;
+        page.textContent = curPage + ' / ' + totalPages;
         if (totalPages > 1) {
-            enableEl(page);
+            elEnable(page);
             let pl = '';
             for (let k = 0; k < totalPages; k++) {
                 const o = k * app.current.limit;
@@ -619,10 +633,10 @@ function setPagination(total, returned) {
             
             const lastPageOffset = (totalPages - 1) * app.current.limit;
             if (lastPageOffset === app.current.offset) {
-                disableEl(last);
+                elDisable(last);
             }
             else {
-                enableEl(last);
+                elEnable(last);
                 last.classList.remove('hide');
                 next.classList.remove('rounded-right');
                 last.addEventListener('click', function() {
@@ -632,21 +646,21 @@ function setPagination(total, returned) {
             }
         }
         else if (total === -1) {
-            disableEl(page);
-            page.innerText = curPage;
+            elDisable(page);
+            page.textContent = curPage;
             page.classList.add('nodropdown');
-            disableEl(last);
+            elDisable(last);
             last.classList.add('hide');
             next.classList.add('rounded-right');
         }
         else {
-            disableEl(page);
+            elDisable(page);
             page.classList.add('nodropdown');
-            disableEl(last);
+            elDisable(last);
         }
         
         if (app.current.limit > 0 && ((total > offsetLast && offsetLast > 0) || (total === -1 && returned >= app.current.limit))) {
-            enableEl(next);
+            elEnable(next);
             p[i].classList.remove('hide');
             next.addEventListener('click', function() {
                 event.preventDefault();
@@ -654,28 +668,28 @@ function setPagination(total, returned) {
             }, false);
         }
         else {
-            disableEl(next);
+            elDisable(next);
             if (i === 0) {
                 p[i].classList.add('hide');
             }
         }
         
         if (app.current.offset > 0) {
-            enableEl(prev);
+            elEnable(prev);
             p[i].classList.remove('hide');
             prev.addEventListener('click', function() {
                 event.preventDefault();
                 gotoPage('prev');
             }, false);
-            enableEl(first);
+            elEnable(first);
             first.addEventListener('click', function() {
                 event.preventDefault();
                 gotoPage(0);
             }, false);
         }
         else {
-            disableEl(prev);
-            disableEl(first);
+            elDisable(prev);
+            elDisable(first);
         }
     }
     
@@ -761,7 +775,7 @@ function gotoPage(x, limit) {
 }
 
 function createSearchCrumbs(searchStr, searchEl, crumbEl) {
-	crumbEl.innerHTML = '';
+    elClear(crumbEl);
     const elements = searchStr.substring(1, app.current.search.length - 1).split(' AND ');
     for (let i = 0, j = elements.length - 1; i < j; i++) {
         const expression = elements[i].substring(1, elements[i].length - 1);
@@ -780,22 +794,17 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
             }
         }
     }
-    if (crumbEl.childElementCount > 0) {
-        crumbEl.classList.remove('hide');
-    }
-    else {
-        crumbEl.classList.add('hide');    
-    }
+    crumbEl.childElementCount > 0 ? elShow(crumbEl) : elHide(crumbEl);    
 }
 
 function createSearchCrumb(filter, op, value) {
-    const li = document.createElement('button');
-    li.classList.add('btn', 'btn-light', 'mr-2');
-    setCustomDomProperty(li, 'data-filter-tag', filter);
-    setCustomDomProperty(li, 'data-filter-op', op);
-    setCustomDomProperty(li, 'data-filter-value', value);
-    li.innerHTML = e(filter) + ' ' + e(op) + ' \'' + e(value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
-    return li;
+    const btn = elCreate('button', {"class": ["btn", "btn-light", "mr-2"]}, filter + ' ' + op + ' \'' + value + '\'');
+    setCustomDomProperty(btn, 'data-filter-tag', filter);
+    setCustomDomProperty(btn, 'data-filter-op', op);
+    setCustomDomProperty(btn, 'data-filter-value', value);
+    const badge = elCreate('span', {"class": ["ml-2", "badge", "badge-secondary"]}, '×');
+    btn.appendChild(badge);
+    return btn;
 }
 
 function createSearchExpression(crumbsEl, tag, op, value) {

@@ -122,12 +122,12 @@ function doSearch(x) {
 
 function parseSearch(obj) {
     if (obj.result.returnedEntities > 0) {
-        enableEl('searchAddAllSongs');
-        enableEl('searchAddAllSongsBtn');
+        elEnable('searchAddAllSongs');
+        elEnable('searchAddAllSongsBtn');
     } 
     else {
-        disableEl('searchAddAllSongs');
-        disableEl('searchAddAllSongsBtn');
+        elDisable('searchAddAllSongs');
+        elDisable('searchAddAllSongsBtn');
     }
 
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];

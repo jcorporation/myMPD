@@ -69,7 +69,7 @@ function initScripts() {
     
     selectAPIcallEl.addEventListener('change', function(event) {
         const value = getSelectValue(event.target);
-        document.getElementById('APIdesc').innerText = value !== '' ? APImethods[value].desc : '';
+        document.getElementById('APIdesc').textContent = value !== '' ? APImethods[value].desc : '';
     }, false);
     
     document.getElementById('btnAddAPIcall').addEventListener('click', function(event) {
@@ -105,7 +105,7 @@ function initScripts() {
     
     selectFunctionEl.addEventListener('change', function(event) {
         const value = getSelectValue(event.target);
-        document.getElementById('functionDesc').innerText = value !== '' ? LUAfunctions[value].desc : '';
+        document.getElementById('functionDesc').textContent = value !== '' ? LUAfunctions[value].desc : '';
     }, false);
     
     document.getElementById('btnAddFunction').addEventListener('click', function(event) {
@@ -212,7 +212,7 @@ function showEditScript(script) {
         document.getElementById('inputScriptName').value = '';
         document.getElementById('inputScriptOrder').value = '1';
         document.getElementById('inputScriptArgument').value = '';
-        document.getElementById('selectScriptArguments').innerText = '';
+        document.getElementById('selectScriptArguments').textContent = '';
         document.getElementById('textareaScriptContent').value = '';
     }
     document.getElementById('inputScriptName').focus();
@@ -224,10 +224,10 @@ function parseEditScript(obj) {
     document.getElementById('inputScriptOrder').value = obj.result.metadata.order;
     document.getElementById('inputScriptArgument').value = '';
     const selSA = document.getElementById('selectScriptArguments');
-    selSA.innerText = '';
+    selSA.textContent = '';
     for (let i = 0, j = obj.result.metadata.arguments.length; i < j; i++) {
         const o = document.createElement('option');
-        o.innerText = obj.result.metadata.arguments[i];
+        o.textContent = obj.result.metadata.arguments[i];
         selSA.appendChild(o);
     }
     document.getElementById('textareaScriptContent').value = obj.result.content;
@@ -242,7 +242,7 @@ function showListScripts() {
 }
 
 function deleteScript(el, script) {
-    showConfirmInline(el.parentNode.previousSibling, t('Do you really want to delete the script?', {"script": script}), t('Yes, delete it'), function() {
+    showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the script?', {"script": script}), tn('Yes, delete it'), function() {
         sendAPI("MYMPD_API_SCRIPT_DELETE", {"script": script}, function() {
             getScriptList(true);
         }, false);

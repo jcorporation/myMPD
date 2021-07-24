@@ -454,7 +454,7 @@ function saveCols(table, tableEl) {
             } 
             else if (!th) {
                 th = document.createElement('th');
-                th.innerText = colInputs[i].name;
+                th.textContent = colInputs[i].name;
                 th.setAttribute('data-col', colInputs[i].name);
                 header.insertBefore(th, header.lastChild);
             }

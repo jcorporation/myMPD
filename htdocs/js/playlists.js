@@ -332,14 +332,14 @@ function showAddToPlaylist(uri, searchstr) {
         document.getElementById('addStreamFrm').classList.add('hide');
         document.getElementById('addToPlaylistFooter').classList.remove('hide');
         document.getElementById('addToPlaylistFrm').classList.remove('hide');
-        document.getElementById('addToPlaylistCaption').innerText = t('Add to playlist');
+        document.getElementById('addToPlaylistCaption').textContent = t('Add to playlist');
     }
     else {
         document.getElementById('addStreamFooter').classList.remove('hide');
         document.getElementById('addStreamFrm').classList.remove('hide');
         document.getElementById('addToPlaylistFooter').classList.add('hide');
         document.getElementById('addToPlaylistFrm').classList.add('hide');
-        document.getElementById('addToPlaylistCaption').innerText = t('Add stream');
+        document.getElementById('addToPlaylistCaption').textContent = t('Add stream');
     }
     uiElements.modalAddToPlaylist.show();
     if (features.featPlaylists) {
@@ -432,7 +432,7 @@ function updateSmartPlaylistClick() {
 
 //eslint-disable-next-line no-unused-vars
 function showDelPlaylist(plist) {
-    showConfirm(t('Do you really want to delete the playlist?', {"playlist": plist}), t('Yes, delete it'), function() {
+    showConfirm(tn('Do you really want to delete the playlist?', {"playlist": plist}), tn('Yes, delete it'), function() {
         sendAPI("MYMPD_API_PLAYLIST_RM", {"plist": plist});
     });
 }
@@ -440,7 +440,7 @@ function showDelPlaylist(plist) {
 //eslint-disable-next-line no-unused-vars
 function showClearPlaylist() {
     const plist = getCustomDomProperty(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri');
-    showConfirm(t('Do you really want to clear the playlist?', {"playlist": plist}), t('Yes, clear it'), function() {
+    showConfirm(tn('Do you really want to clear the playlist?', {"playlist": plist}), tn('Yes, clear it'), function() {
         sendAPI("MYMPD_API_PLAYLIST_CLEAR", {
             "plist": plist
         });

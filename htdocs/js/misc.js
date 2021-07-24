@@ -116,7 +116,7 @@ function updateDB(uri, showModal, rescan) {
 function updateDBerror(showModal, message) {
     const msg = t('Database update failed') + ': ' + t(message);
     if (showModal === true) {
-        document.getElementById('updateDBfinished').innerText = '';
+        document.getElementById('updateDBfinished').textContent = '';
         document.getElementById('updateDBfooter').classList.remove('hide');
         const updateDBprogress = document.getElementById('updateDBprogress');
         updateDBprogress.classList.remove('updateDBprogressAnimate');
@@ -132,14 +132,14 @@ function updateDBerror(showModal, message) {
 
 function updateDBstarted(showModal) {
     if (showModal === true) {
-        document.getElementById('updateDBfinished').innerText = '';
+        document.getElementById('updateDBfinished').textContent = '';
         document.getElementById('updateDBfooter').classList.add('hide');
         const updateDBprogress = document.getElementById('updateDBprogress');
         updateDBprogress.style.width = '20px';
         updateDBprogress.style.marginLeft = '-20px';
         const errorUpdateDB = document.getElementById('errorUpdateDB');
         errorUpdateDB.classList.add('hide');
-        errorUpdateDB.innerText = '';
+        errorUpdateDB.textContent = '';
         uiElements.modalUpdateDB.show();
         updateDBprogress.classList.add('updateDBprogressAnimate');
     }
@@ -172,10 +172,10 @@ function _updateDBfinished(idleEvent) {
     //update database modal
     if (document.getElementById('modalUpdateDB').classList.contains('show')) {
         if (idleEvent === 'update_database') {
-            document.getElementById('updateDBfinished').innerText = t('Database successfully updated');
+            document.getElementById('updateDBfinished').textContent = t('Database successfully updated');
         }
         else if (idleEvent === 'update_finished') {
-            document.getElementById('updateDBfinished').innerText = t('Database update finished');
+            document.getElementById('updateDBfinished').textContent = t('Database update finished');
         }
         const updateDBprogress = document.getElementById('updateDBprogress');
         updateDBprogress.classList.remove('updateDBprogressAnimate');

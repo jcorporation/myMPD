@@ -273,11 +273,11 @@ function showMenuTd(el) {
             if (collapseLink) {
                 collapseLink.addEventListener('click', function() {
                     const icon = this.getElementsByTagName('span')[0];
-                    if (icon.innerText === 'keyboard_arrow_right') {
-                        icon.innerText = 'keyboard_arrow_down';
+                    if (icon.textContent === 'keyboard_arrow_right') {
+                        icon.textContent = 'keyboard_arrow_down';
                     }
                     else {
-                        icon.innerText = 'keyboard_arrow_right';
+                        icon.textContent = 'keyboard_arrow_right';
                     }
                 }, false);
                 new BSN.Collapse(collapseLink);

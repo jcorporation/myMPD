@@ -41,14 +41,14 @@ function initQueue() {
     document.getElementById('selectAddToQueueMode').addEventListener('change', function () {
         const value = getSelectValue(this);
         if (value === '2') {
-            disableEl('inputAddToQueueQuantity');
+            elDisable('inputAddToQueueQuantity');
             document.getElementById('inputAddToQueueQuantity').value = '1';
-            disableEl('selectAddToQueuePlaylist');
+            elDisable('selectAddToQueuePlaylist');
             document.getElementById('selectAddToQueuePlaylist').value = 'Database';
         }
         else if (value === '1') {
-            enableEl('inputAddToQueueQuantity');
-            enableEl('selectAddToQueuePlaylist');
+            elEnable('inputAddToQueueQuantity');
+            elEnable('selectAddToQueuePlaylist');
         }
     });
 
@@ -73,7 +73,7 @@ function initQueue() {
 function parseUpdateQueue(obj) {
     //Set playstate
     if (obj.result.state === 1) {
-        document.getElementById('btnPlay').innerText = 'play_arrow';
+        document.getElementById('btnPlay').textContent = 'play_arrow';
         playstate = 'stop';
         domCache.progressBar.style.transition = 'none';
         domCache.progressBar.style.width = '0';
@@ -82,19 +82,19 @@ function parseUpdateQueue(obj) {
         }, 10);
     }
     else if (obj.result.state === 2) {
-        document.getElementById('btnPlay').innerText = settings.webuiSettings.uiFooterPlaybackControls === 'stop' ? 'stop' : 'pause';
+        document.getElementById('btnPlay').textContent = settings.webuiSettings.uiFooterPlaybackControls === 'stop' ? 'stop' : 'pause';
         playstate = 'play';
     }
     else {
-        document.getElementById('btnPlay').innerText = 'play_arrow';
+        document.getElementById('btnPlay').textContent = 'play_arrow';
         playstate = 'pause';
     }
 
     if (obj.result.queueLength === 0) {
-        disableEl('btnPlay');
+        elDisable('btnPlay');
     }
     else {
-        enableEl('btnPlay');
+        elEnable('btnPlay');
     }
 
     mediaSessionSetState();
@@ -102,21 +102,21 @@ function parseUpdateQueue(obj) {
 
     const badgeQueueItemsEl = document.getElementById('badgeQueueItems');
     if (badgeQueueItemsEl) {
-        badgeQueueItemsEl.innerText = obj.result.queueLength;
+        badgeQueueItemsEl.textContent = obj.result.queueLength;
     }
     
     if (obj.result.nextSongPos === -1 && settings.jukeboxMode === false) {
-        disableEl('btnNext');
+        elDisable('btnNext');
     }
     else {
-        enableEl('btnNext');
+        elEnable('btnNext');
     }
     
     if (obj.result.songPos < 0) {
-        disableEl('btnPrev');
+        elDisable('btnPrev');
     }
     else {
-        enableEl('btnPrev');
+        elEnable('btnPrev');
     }
 }
 
@@ -192,12 +192,12 @@ function queueSetCurrentSong(currentSongId, elapsedTime, totalTime) {
             if (tr) {
                 const durationTd = tr.querySelector('[data-col=Duration]');
                 if (durationTd) {
-                    durationTd.innerText = beautifySongDuration(getCustomDomProperty(tr, 'data-duration'));
+                    durationTd.textContent = beautifySongDuration(getCustomDomProperty(tr, 'data-duration'));
                 }
                 const posTd = tr.querySelector('[data-col=Pos]');
                 if (posTd) {
                     posTd.classList.remove('mi');
-                    posTd.innerText = getCustomDomProperty(tr, 'data-songpos');
+                    posTd.textContent = getCustomDomProperty(tr, 'data-songpos');
                 }
                 tr.classList.remove('queue-playing');
             }
@@ -218,7 +218,7 @@ function setPlayingRow(row, elapsedTime, totalTime) {
     if (posTd) {
         if (!posTd.classList.contains('mi')) {
             posTd.classList.add('mi');
-            posTd.innerText = 'play_arrow';
+            posTd.textContent = 'play_arrow';
         }
     }
     row.classList.add('queue-playing');
@@ -364,7 +364,7 @@ function playAfterCurrent(trackid, songpos) {
 
 //eslint-disable-next-line no-unused-vars
 function clearQueue() {
-    showConfirm(t('Do you really want to clear the queue?'), t('Yes, clear it'), function() {
+    showConfirm(tn('Do you really want to clear the queue?'), tn('Yes, clear it'), function() {
         sendAPI("MYMPD_API_QUEUE_CROP_OR_CLEAR", {});
     });
 }

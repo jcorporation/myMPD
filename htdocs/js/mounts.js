@@ -103,7 +103,7 @@ function showEditMount(uri, storage) {
 function showListMounts(obj) {
     if (obj && obj.error && obj.error.message) {
         const emEl = document.getElementById('errorMount');
-        emEl.innerText = obj.error.message;
+        emEl.textContent = obj.error.message;
         emEl.classList.remove('hide');
         return;
     }
