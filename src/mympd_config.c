@@ -117,7 +117,7 @@ bool mympd_read_config(struct t_config *config) {
     #endif
     config->loglevel = state_file_rw_int(config->workdir, "config", "loglevel", config->loglevel, false);
     //overwrite configured loglevel
-    config->loglevel = mympd_getenv_int("MYMPD_LOGLEVEL", 5, true);
+    config->loglevel = mympd_getenv_int("MYMPD_LOGLEVEL", config->loglevel, true);
     return true;
 }
 
