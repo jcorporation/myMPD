@@ -252,7 +252,7 @@ button {
   overflow: hidden;
 }
 
-#BrowseBreadrumb {
+#BrowseBreadcrumb {
   overflow: auto;
   white-space: nowrap;
 }
