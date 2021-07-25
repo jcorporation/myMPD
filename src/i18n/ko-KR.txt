@@ -1697,7 +1697,7 @@ Error getting mympd state for script execution
 스크립트 실행을 위한 myMPD 상태를 알 수 없음
 
 Features
-특징
+기능
 
 Invalid playlist directory
 잘못된 연주목록 디렉터리
@@ -1827,3 +1827,9 @@ Database update failed
 
 No arguments
 독립 변수 없음
+
+Too many results, list is cropped
+결과가 너무 많아서 목록이 잘림
+
+BinaryLimitHelpText
+바이너리 범위가 4 kB에서 256 kB 사이여야 함
