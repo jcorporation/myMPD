@@ -626,8 +626,19 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
 
     if (nrItems === 0) {
-        tbody.innerHTML = '<tr class="not-clickable"><td colspan="' + (colspan + 1) + '">' +
-            '<span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
+        tbody.appendChild(emptyRow(colspan + 1));
     }
     table.classList.remove('opacity05');
 }
+
+function emptyRow(colspan) {
+    const tr = elCreate('tr', {"class": ["not-clickable"]}, '');
+    const td = elCreate('td', {"colspan": colspan}, '');
+    const icon = elCreate('span', {"class": ["mi", "mr-2"]}, 'info');
+    const span = elCreate('span', {}, tn('Empty list'));
+    td.appendChild(icon);
+    td.appendChild(span);
+    tr.appendChild(td);
+    return tr;
+}
+
