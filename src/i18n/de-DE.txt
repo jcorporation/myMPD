@@ -1833,3 +1833,9 @@ Zu viele Ergebnisse, die Liste wurde abgeschnitten
 
 BinaryLimitHelpText
 Das Binary Limit muss zwischen 4 kB und 256 kB liegen
+
+Keepalive
+Keepalive
+
+Further Features
+Weitere Features
