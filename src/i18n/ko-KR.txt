@@ -1833,3 +1833,9 @@ Too many results, list is cropped
 
 BinaryLimitHelpText
 바이너리 범위가 4 kB에서 256 kB 사이여야 함
+
+Keepalive
+연결 유지
+
+Further Features
+부가 기능
