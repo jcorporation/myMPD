@@ -30,8 +30,14 @@ function initMounts() {
             sendAPI("MYMPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors, true);
         }
         else {
-            document.getElementById('dropdownNeighbors').children[0].innerHTML = 
-                '<div class="list-group-item"><span class="mi">warning</span> ' + t('Neighbors are disabled') + '</div>';
+            const dropdownNeighbors = document.getElementById('dropdownNeighbors').children[0];
+            dropdownNeighbors.textContent = '';
+            const div = elCreate('div', {"class": ["list-group-item"]}, '');
+            const icon = elCreate('span', {"class": ["mi", "mr-2"]}, 'warning');
+            const span = elCreate('span', {"class": ["nowrap"]}, tn('Neighbors are disabled'));
+            div.appendChild(icon);
+            div.appendChild(span);
+            dropdownNeighbors.appendChild(div);
         }
     }, false);
     
@@ -59,6 +65,8 @@ function unmountMount(mountPoint) {
 //eslint-disable-next-line no-unused-vars
 function mountMount() {
     document.getElementById('errorMount').classList.add('hide');
+    //TODO: check for non empty values
+
     sendAPI("MYMPD_API_MOUNT_MOUNT", {
         "mountUrl": getSelectValue('selectMountUrlhandler') + document.getElementById('inputMountUrl').value,
         "mountPoint": document.getElementById('inputMountPoint').value,
@@ -71,9 +79,7 @@ function updateMount(el, uri) {
     for (let i = 0, j = parent.children.length; i < j; i++) {
         parent.children[i].classList.add('hide');
     }
-    const spinner = document.createElement('div');
-    spinner.setAttribute('id', 'spinnerUpdateProgress');
-    spinner.classList.add('spinner-border', 'spinner-border-sm');
+    const spinner = elCreate('div', {"id": "spinnerUpdateProgress", "class": ["spinner-border", "spinner-border-sm"]}, '');
     el.parentNode.insertBefore(spinner, el);
     updateDB(uri, false);    
 }
@@ -103,7 +109,11 @@ function showEditMount(uri, storage) {
 function showListMounts(obj) {
     if (obj && obj.error && obj.error.message) {
         const emEl = document.getElementById('errorMount');
-        emEl.textContent = obj.error.message;
+        emEl.textContent = '';
+        const icon = elCreate('span', {"class": ["mi", "mr-2"]}, 'error_outline');
+        const span = elCreate('span', {}, tn(obj.error.message));
+        emEl.appendChild(icon);
+        emEl.appendChild(span);
         emEl.classList.remove('hide');
         return;
     }
@@ -117,7 +127,7 @@ function showListMounts(obj) {
 function parseListMounts(obj) {
     const tbody = document.getElementById('listMounts').getElementsByTagName('tbody')[0];
     const tr = tbody.getElementsByTagName('tr');
-    
+
     let activeRow = 0;
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const row = document.createElement('tr');
@@ -126,18 +136,24 @@ function parseListMounts(obj) {
         if (obj.result.data[i].mountPoint === '') {
             row.classList.add('not-clickable');
         }
-        let tds = '<td>' + (obj.result.data[i].mountPoint === '' ? '<span class="mi">home</span>' : e(obj.result.data[i].mountPoint)) + '</td>' +
-                  '<td>' + e(obj.result.data[i].mountUrl) + '</td>';
-        if (obj.result.data[i].mountPoint !== '') {
-            tds += '<td data-col="Action">' + 
-                   '<a href="#" title="' + t('Unmount') + '" data-action="unmount" class="mi color-darkgrey">delete</a>' +
-                   '<a href="#" title="' + t('Update') + '" data-action="update"class="mi color-darkgrey">refresh</a>' +
-                   '</td>';
+        const td1 = elCreate('td', {}, '');
+        if (obj.result.data[i].mountPoint === '') {
+            td1.appendChild(elCreate('span', {"class": ["mi"]}, 'home'));
         }
         else {
-            tds += '<td>&nbsp;</td>';
+            td1.textContent = obj.result.data[i].mountPoint;
         }
-        row.innerHTML = tds;
+        row.appendChild(td1);
+        row.appendChild(elCreate('td', {}, obj.result.data[i].mountUrl));
+        const actionTd = elCreate('td', {"data-col": "Action"}, '');
+        
+        if (obj.result.data[i].mountPoint !== '') {
+            const a1 = elCreate('a', {"href": "#", "title": t('Unmount'), "data-action": "unmount", "class": ["mi", "color-darkgrey"]}, 'delete');
+            const a2 = elCreate('a', {"href": "#", "title": t('Update'), "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh');
+            actionTd.appendChild(a1);
+            actionTd.appendChild(a2);
+        }
+        row.appendChild(actionTd);
         if (i < tr.length) {
             activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
         }
@@ -145,45 +161,65 @@ function parseListMounts(obj) {
             tbody.append(row);
         }
     }
-    for (let i = tr.length - 1; i >= obj.result.returnedEntities; i --) {
+    for (let i = tr.length - 1; i >= obj.result.returnedEntities; i--) {
         tr[i].remove();
     }
 
     if (obj.result.returnedEntities === 0) {
-        tbody.innerHTML = '<tr class="not-clickable"><td colspan="5"><span class="mi">info</span>&nsbp;&nbsp;' + t('Empty list') + '</td></tr>';
+        tbody.appendChild(emptyRow(5));
     }     
 }
 
 function parseNeighbors(obj) {
-    let list = '';
+    const dropdownNeighbors = document.getElementById('dropdownNeighbors').children[0];
+    dropdownNeighbors.textContent = '';
+
     if (obj.error) {
-        list = '<div class="list-group-item"><span class="mi">error_outline</span> ' + t(obj.error.message) + '</div>';
+        const div = elCreate('div', {"class": ["list-group-item"]}, '');
+        const icon = elCreate('span', {"class": ["mi", "mr-2"]}, 'error_outline');
+        const span = elCreate('span', {}, tn(obj.error.message));
+        div.appendChild(icon);
+        div.appenChild(span);
+        dropdownNeighbors.appendChild(div);
+        return;
     }
-    else {
-        for (let i = 0; i < obj.result.returnedEntities; i++) {
-            list += '<a href="#" class="list-group-item list-group-item-action" data-value="' + obj.result.data[i].uri + '">' + 
-                    obj.result.data[i].uri + '<br/><small>' + obj.result.data[i].displayName + '</small></a>';
-        }    
-        if (obj.result.returnedEntities === 0) {
-            list = '<div class="list-group-item"><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</div>';
-        }
+    if (obj.result.returnedEntities === 0) {
+        const div = elCreate('div', {"class": ["list-group-item"]}, '');
+        const icon = elCreate('span', {"class": ["mi", "mr-2"]}, 'info');
+        const span = elCreate('span', {}, tn('Empty list'));
+        div.appendChild(icon);
+        div.appenChild(span);
+        dropdownNeighbors.appendChild(div);
+        return;
     }
-    document.getElementById('dropdownNeighbors').children[0].innerHTML = list;
+
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
+        const a = elCreate('a', {"href": "#", "class": ["list-group-item", "list-group-item-action"]}, '');
+        setCustomDomProperty(a, 'data-value', obj.result.data[i].uri);
+        const span = elCreate('span', {}, obj.result.data[i].uri);
+        const br = elCreate('br', {}, '');
+        const small = elCreate('small', {}, obj.result.data[i].displayName);
+        a.appendChild(span);
+        a.appendChild(br);
+        a.appendChild(small);
+        dropdownNeighbors.appendChild(a);
+    }    
 }
 
 function getUrlhandlers() {
     sendAPI("MYMPD_API_URLHANDLERS", {}, function(obj) {
-        let storagePlugins = '';
-        for (let i = 0, j = obj.result.data.length; i < j; i++) {
+        const selectMountUrlhandler = document.getElementById('selectMountUrlhandler');
+        selectMountUrlhandler.textContent = '';
+        for (let i = 0; i < obj.result.returnedEntities; i++) {
             switch(obj.result.data[i]) {
                 case 'http://':
                 case 'https://':
                 case 'nfs://':
                 case 'smb://':
-                    storagePlugins += '<option value="' + obj.result.data[i] + '">' + obj.result.data[i] + '</option>';
+                    const option = elCreate('option', {"value": obj.result.data[i]}, obj.result.data[i]);
+                    selectMountUrlhandler.appendChild(option);
                     break;
             }
         }
-        document.getElementById('selectMountUrlhandler').innerHTML = storagePlugins;
     }, false);
 }
