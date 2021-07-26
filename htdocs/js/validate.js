@@ -19,7 +19,7 @@ function isStreamUri(uri) {
 
 function removeIsInvalid(parentEl) {
     const els = parentEl.getElementsByClassName('is-invalid');
-    for (let i = 0, j = els.length; i < j; i++) {
+    for (let i = els.length - 1; i >= 0; i--) {
         els[i].classList.remove('is-invalid');
     }
 }
