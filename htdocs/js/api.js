@@ -209,7 +209,7 @@ function webSocketConnect() {
             }
             websocketTimer = setTimeout(function() {
                 logInfo('Reconnecting websocket');
-                toggleAlert('alertMympdState', true, t('Websocket connection failed, trying to reconnect') + '&nbsp;&nbsp;<div class="spinner-border spinner-border-sm"></div>');
+                toggleAlert('alertMympdState', true, tn('Websocket connection failed, trying to reconnect'));
                 webSocketConnect();
             }, 3000);
             socket = null;

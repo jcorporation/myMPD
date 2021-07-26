@@ -19,11 +19,8 @@ function toggleAlert(alertBox, state, msg) {
         elClear(alertBoxEl);
     }
     else {
-        const span = elCreate('span', {"class": ["mi", "mr-2"]}, 'error');
-        const div = elCreate('div', {}, msg);
         elClear(alertBoxEl);
-        alertBoxEl.appendChild(span);
-        alertBoxEl.appendChild(div);
+        addIconLine(alertBoxEl, 'error', msg)
         elShow(alertBoxEl);
     }
 }
