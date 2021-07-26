@@ -212,13 +212,12 @@ function getUrlhandlers() {
         const selectMountUrlhandler = document.getElementById('selectMountUrlhandler');
         elClear(selectMountUrlhandler);
         for (let i = 0; i < obj.result.returnedEntities; i++) {
+            //smb is disabled because it is default disabled in mpd because of libmpdclient bug
             switch(obj.result.data[i]) {
                 case 'http://':
                 case 'https://':
                 case 'nfs://':
-                //case 'smb://': disabled - because of libsmbclient bug
-                    const option = elCreate('option', {"value": obj.result.data[i]}, obj.result.data[i]);
-                    selectMountUrlhandler.appendChild(option);
+                    selectMountUrlhandler.appendChild(elCreate('option', {"value": obj.result.data[i]}, obj.result.data[i]));
                     break;
             }
         }
