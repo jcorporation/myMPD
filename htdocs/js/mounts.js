@@ -31,12 +31,9 @@ function initMounts() {
         }
         else {
             const dropdownNeighbors = document.getElementById('dropdownNeighbors').children[0];
-            dropdownNeighbors.textContent = '';
-            const div = elCreate('div', {"class": ["list-group-item"]}, '');
-            const icon = elCreate('span', {"class": ["mi", "mr-2"]}, 'warning');
-            const span = elCreate('span', {"class": ["nowrap"]}, tn('Neighbors are disabled'));
-            div.appendChild(icon);
-            div.appendChild(span);
+            elClear(dropdownNeighbors);
+            const div = elCreate('div', {"class": ["list-group-item", "nowrap"]}, '');
+            addIconLine(div, 'warning', tn('Neighbors are disabled'));
             dropdownNeighbors.appendChild(div);
         }
     }, false);
@@ -54,6 +51,7 @@ function initMounts() {
     document.getElementById('modalMounts').addEventListener('shown.bs.modal', function () {
         showListMounts();
         getUrlhandlers();
+        removeIsInvalid(document.getElementById('modalMounts'));
     });
 }
 
@@ -65,12 +63,22 @@ function unmountMount(mountPoint) {
 //eslint-disable-next-line no-unused-vars
 function mountMount() {
     document.getElementById('errorMount').classList.add('hide');
-    //TODO: check for non empty values
-
-    sendAPI("MYMPD_API_MOUNT_MOUNT", {
-        "mountUrl": getSelectValue('selectMountUrlhandler') + document.getElementById('inputMountUrl').value,
-        "mountPoint": document.getElementById('inputMountPoint').value,
-    }, showListMounts, true);
+    removeIsInvalid(document.getElementById('modalMounts'));
+    let formOK = true;
+    const inputMountUrl = document.getElementById('inputMountUrl');
+    const inputMountPoint = document.getElementById('inputMountPoint');
+    if (!validateNotBlank(inputMountUrl)) {
+        formOK = false;
+    }
+    if (!validateNotBlank(inputMountPoint)) {
+        formOK = false;
+    }
+    if (formOK === true) {
+        sendAPI("MYMPD_API_MOUNT_MOUNT", {
+            "mountUrl": getSelectValue('selectMountUrlhandler') + inputMountUrl.value,
+            "mountPoint": inputMountPoint.value,
+            }, showListMounts, true);
+    }
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -109,11 +117,8 @@ function showEditMount(uri, storage) {
 function showListMounts(obj) {
     if (obj && obj.error && obj.error.message) {
         const emEl = document.getElementById('errorMount');
-        emEl.textContent = '';
-        const icon = elCreate('span', {"class": ["mi", "mr-2"]}, 'error_outline');
-        const span = elCreate('span', {}, tn(obj.error.message));
-        emEl.appendChild(icon);
-        emEl.appendChild(span);
+        elClear(emEl);
+        addIconLine(emEl, 'error_outline', tn(obj.error.message));
         emEl.classList.remove('hide');
         return;
     }
@@ -127,6 +132,12 @@ function showListMounts(obj) {
 function parseListMounts(obj) {
     const tbody = document.getElementById('listMounts').getElementsByTagName('tbody')[0];
     const tr = tbody.getElementsByTagName('tr');
+
+    if (obj.result.returnedEntities === 0) {
+        elClear(tbody);
+        tbody.appendChild(emptyRow(5));
+        return;
+    }
 
     let activeRow = 0;
     for (let i = 0; i < obj.result.returnedEntities; i++) {
@@ -148,8 +159,8 @@ function parseListMounts(obj) {
         const actionTd = elCreate('td', {"data-col": "Action"}, '');
         
         if (obj.result.data[i].mountPoint !== '') {
-            const a1 = elCreate('a', {"href": "#", "title": t('Unmount'), "data-action": "unmount", "class": ["mi", "color-darkgrey"]}, 'delete');
-            const a2 = elCreate('a', {"href": "#", "title": t('Update'), "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh');
+            const a1 = elCreate('a', {"href": "#", "title": tn('Unmount'), "data-action": "unmount", "class": ["mi", "color-darkgrey"]}, 'delete');
+            const a2 = elCreate('a', {"href": "#", "title": tn('Update'), "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh');
             actionTd.appendChild(a1);
             actionTd.appendChild(a2);
         }
@@ -164,31 +175,21 @@ function parseListMounts(obj) {
     for (let i = tr.length - 1; i >= obj.result.returnedEntities; i--) {
         tr[i].remove();
     }
-
-    if (obj.result.returnedEntities === 0) {
-        tbody.appendChild(emptyRow(5));
-    }     
 }
 
 function parseNeighbors(obj) {
     const dropdownNeighbors = document.getElementById('dropdownNeighbors').children[0];
-    dropdownNeighbors.textContent = '';
+    elClear(dropdownNeighbors);
 
     if (obj.error) {
         const div = elCreate('div', {"class": ["list-group-item"]}, '');
-        const icon = elCreate('span', {"class": ["mi", "mr-2"]}, 'error_outline');
-        const span = elCreate('span', {}, tn(obj.error.message));
-        div.appendChild(icon);
-        div.appenChild(span);
+        addIconLine(div, 'error_outline', tn(obj.error.message));
         dropdownNeighbors.appendChild(div);
         return;
     }
     if (obj.result.returnedEntities === 0) {
         const div = elCreate('div', {"class": ["list-group-item"]}, '');
-        const icon = elCreate('span', {"class": ["mi", "mr-2"]}, 'info');
-        const span = elCreate('span', {}, tn('Empty list'));
-        div.appendChild(icon);
-        div.appenChild(span);
+        addIconLine(div, 'info', tn('Empty list'));
         dropdownNeighbors.appendChild(div);
         return;
     }
@@ -209,13 +210,13 @@ function parseNeighbors(obj) {
 function getUrlhandlers() {
     sendAPI("MYMPD_API_URLHANDLERS", {}, function(obj) {
         const selectMountUrlhandler = document.getElementById('selectMountUrlhandler');
-        selectMountUrlhandler.textContent = '';
+        elClear(selectMountUrlhandler);
         for (let i = 0; i < obj.result.returnedEntities; i++) {
             switch(obj.result.data[i]) {
                 case 'http://':
                 case 'https://':
                 case 'nfs://':
-                case 'smb://':
+                //case 'smb://': disabled - because of libsmbclient bug
                     const option = elCreate('option', {"value": obj.result.data[i]}, obj.result.data[i]);
                     selectMountUrlhandler.appendChild(option);
                     break;

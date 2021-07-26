@@ -103,13 +103,17 @@ sds mpd_client_put_neighbors(struct t_mympd_state *mympd_state, sds buffer, sds 
     unsigned entity_count = 0;
     struct mpd_neighbor *neighbor;
     while ((neighbor = mpd_recv_neighbor(mympd_state->mpd_state->conn)) != NULL) {
-        if (entity_count++) {
-            buffer = sdscat(buffer, ",");
+        const char *uri = mpd_neighbor_get_uri(neighbor);
+        //upnp uris can not be mounted
+        if (strncmp(uri, "upnp://", 7) != 0) {
+            if (entity_count++) {
+                buffer = sdscat(buffer, ",");
+            }
+            buffer = sdscat(buffer, "{");
+            buffer = tojson_char(buffer, "uri", uri, true);
+            buffer = tojson_char(buffer, "displayName", mpd_neighbor_get_display_name(neighbor), false);
+            buffer = sdscat(buffer, "}");
         }
-        buffer = sdscat(buffer, "{");
-        buffer = tojson_char(buffer, "uri", mpd_neighbor_get_uri(neighbor), true);
-        buffer = tojson_char(buffer, "displayName", mpd_neighbor_get_display_name(neighbor), false);
-        buffer = sdscat(buffer, "}");
         mpd_neighbor_free(neighbor);
     }
 
