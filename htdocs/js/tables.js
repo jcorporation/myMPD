@@ -634,11 +634,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
 function emptyRow(colspan) {
     const tr = elCreate('tr', {"class": ["not-clickable"]}, '');
     const td = elCreate('td', {"colspan": colspan}, '');
-    const icon = elCreate('span', {"class": ["mi", "mr-2"]}, 'info');
-    const span = elCreate('span', {}, tn('Empty list'));
-    td.appendChild(icon);
-    td.appendChild(span);
+    addIconLine(td, 'info', tn('Empty list'));
     tr.appendChild(td);
     return tr;
 }
-
