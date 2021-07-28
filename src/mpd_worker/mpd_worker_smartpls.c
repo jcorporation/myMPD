@@ -56,30 +56,28 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
     sds dirname = sdscatfmt(sdsempty(), "%s/smartpls", mpd_worker_state->config->workdir);
     errno = 0;
     DIR *dir = opendir (dirname);
-    if (dir != NULL) {
-        struct dirent *ent;
-        while ((ent = readdir(dir)) != NULL) {
-            if (strncmp(ent->d_name, ".", 1) == 0) {
-                continue;
-            }
-            unsigned long playlist_mtime = mpd_shared_get_playlist_mtime(mpd_worker_state->mpd_state, ent->d_name);
-            unsigned long smartpls_mtime = mpd_shared_get_smartpls_mtime(mpd_worker_state->config, ent->d_name);
-            MYMPD_LOG_DEBUG("Playlist %s: playlist mtime %d, smartpls mtime %d", ent->d_name, playlist_mtime, smartpls_mtime);
-            if (force == true || db_mtime > playlist_mtime || smartpls_mtime > playlist_mtime) {
-                mpd_worker_smartpls_update(mpd_worker_state, ent->d_name);
-            }
-            else {
-                MYMPD_LOG_INFO("Update of smart playlist %s skipped, already up to date", ent->d_name);
-            }
-        }
-        closedir (dir);
-    }
-    else {
+    if (dir == NULL) {
         MYMPD_LOG_ERROR("Can't open smart playlist directory \"%s\"", dirname);
         MYMPD_LOG_ERRNO(errno);
         sdsfree(dirname);
         return false;
     }
+    struct dirent *next_file;
+    while ((next_file = readdir(dir)) != NULL) {
+        if (next_file->d_type != DT_REG) {
+            continue;
+        }
+        unsigned long playlist_mtime = mpd_shared_get_playlist_mtime(mpd_worker_state->mpd_state, next_file->d_name);
+        unsigned long smartpls_mtime = mpd_shared_get_smartpls_mtime(mpd_worker_state->config, next_file->d_name);
+        MYMPD_LOG_DEBUG("Playlist %s: playlist mtime %d, smartpls mtime %d", next_file->d_name, playlist_mtime, smartpls_mtime);
+        if (force == true || db_mtime > playlist_mtime || smartpls_mtime > playlist_mtime) {
+            mpd_worker_smartpls_update(mpd_worker_state, next_file->d_name);
+        }
+        else {
+            MYMPD_LOG_INFO("Update of smart playlist %s skipped, already up to date", next_file->d_name);
+        }
+    }
+    closedir (dir);
     sdsfree(dirname);
     return true;
 }
@@ -245,7 +243,7 @@ static bool mpd_worker_smartpls_clear(struct t_mpd_worker_state *mpd_worker_stat
     }
 
     //delete playlist if exists
-    if (exists) {
+    if (exists == true) {
         rc = mpd_run_rm(mpd_worker_state->mpd_state->conn, playlist);
         if (check_rc_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_rm") == false) {
             return false;

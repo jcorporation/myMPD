@@ -225,7 +225,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
 
             MYMPD_LOG_NOTICE("MPD connected");
             //set keepalive
-            mpd_client_set_keepalive(mympd_state);
+            mpd_shared_set_keepalive(mympd_state->mpd_state);
             //check version
             if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 20, 0) < 0) {
                 MYMPD_LOG_EMERG("MPD version to old, myMPD supports only MPD version >= 0.20.0");

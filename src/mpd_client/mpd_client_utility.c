@@ -96,12 +96,6 @@ bool mpd_client_set_binarylimit(struct t_mympd_state *mympd_state) {
     return rc;
 }
 
-bool mpd_client_set_keepalive(struct t_mympd_state *mympd_state) {
-    bool rc = mpd_connection_set_keepalive(mympd_state->mpd_state->conn, mympd_state->mpd_state->mpd_keepalive);
-    check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_connection_set_keepalive");
-    return rc;
-}
-
 //replacement for deprecated mpd_status_get_elapsed_time
 unsigned mpd_client_get_elapsed_seconds(struct mpd_status *status) {
     return mpd_status_get_elapsed_ms(status) / 1000;

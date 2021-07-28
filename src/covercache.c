@@ -72,8 +72,8 @@ int clear_covercache(const char *workdir, int keepdays) {
     DIR *covercache_dir = opendir(covercache);
     if (covercache_dir != NULL) {
         struct dirent *next_file;
-        while ( (next_file = readdir(covercache_dir)) != NULL ) {
-            if (strncmp(next_file->d_name, ".", 1) != 0) {
+        while ((next_file = readdir(covercache_dir)) != NULL ) {
+            if (next_file->d_type == DT_REG) {
                 sds filepath = sdscatfmt(sdsempty(), "%s/%s", covercache, next_file->d_name);
                 struct stat status;
                 if (stat(filepath, &status) == 0) {

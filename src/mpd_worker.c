@@ -129,10 +129,11 @@ static bool mpd_worker_connect(struct t_mpd_worker_state *mpd_worker_state) {
     }
 
     MYMPD_LOG_NOTICE("MPD worker connected");
-    mpd_connection_set_timeout(mpd_worker_state->mpd_state->conn, mpd_worker_state->mpd_state->mpd_timeout);
     mpd_worker_state->mpd_state->conn_state = MPD_CONNECTED;
+    //set keepalive
+    mpd_shared_set_keepalive(mpd_worker_state->mpd_state);
+    //set interesting tags
+    enable_mpd_tags(mpd_worker_state->mpd_state, &mpd_worker_state->mpd_state->tag_types_mympd);
 
-    enable_mpd_tags(mpd_worker_state->mpd_state, mpd_worker_state->mpd_state->tag_types_mympd);
-    
     return true;
 }

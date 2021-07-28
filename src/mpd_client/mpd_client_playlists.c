@@ -410,7 +410,7 @@ sds mpd_client_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer
     if (smartpls_dir != NULL) {
         struct dirent *next_file;
         while ((next_file = readdir(smartpls_dir)) != NULL ) {
-            if (strncmp(next_file->d_name, ".", 1) != 0) {
+            if (next_file->d_type == DT_REG) {
                 if (list_get_node(&playlists, next_file->d_name) == NULL) {
                     sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, next_file->d_name);
                     errno = 0;

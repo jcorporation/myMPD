@@ -46,11 +46,7 @@ enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag) {
 }
 
 void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list) {
-    reset_t_tags(dst_tag_list);
-    for (unsigned i = 0; i < src_tag_list->len; i++) {
-        dst_tag_list->tags[i] = src_tag_list->tags[i];
-    }
-    dst_tag_list->len = src_tag_list->len;
+    memcpy((void *)dst_tag_list, (void *)src_tag_list, sizeof(struct t_tags));
 }
 
 void reset_t_tags(struct t_tags *tags) {
@@ -74,7 +70,7 @@ void enable_all_mpd_tags(struct t_mpd_state *mpd_state) {
     }
 }
 
-void enable_mpd_tags(struct t_mpd_state *mpd_state, struct t_tags enable_tags) {
+void enable_mpd_tags(struct t_mpd_state *mpd_state, struct t_tags *enable_tags) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         MYMPD_LOG_DEBUG("Setting interesting mpd tag types");
         if (mpd_command_list_begin(mpd_state->conn, false)) {
@@ -82,8 +78,8 @@ void enable_mpd_tags(struct t_mpd_state *mpd_state, struct t_tags enable_tags) {
             if (rc == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear_tag_types");
             }
-            if (enable_tags.len > 0) {
-                rc = mpd_send_enable_tag_types(mpd_state->conn, enable_tags.tags, enable_tags.len);
+            if (enable_tags->len > 0) {
+                rc = mpd_send_enable_tag_types(mpd_state->conn, enable_tags->tags, enable_tags->len);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_enable_tag_types");
                 }

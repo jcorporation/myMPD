@@ -613,10 +613,20 @@ sds mympd_api_picture_list(struct t_mympd_state *mympd_state, sds buffer, sds me
     struct dirent *next_file;
     while ((next_file = readdir(pic_dir)) != NULL ) {
         if (next_file->d_type == DT_REG) {
-            if (returned_entities++) {
-                buffer = sdscat(buffer, ",");
+            const char *ext = strrchr(next_file->d_name, '.');
+            if (ext == NULL) {
+                continue;
             }
-            buffer = sdscatjson(buffer, next_file->d_name, strlen(next_file->d_name));
+            if (strcasecmp(ext, ".webp") == 0 || strcasecmp(ext, ".jpg") == 0 ||
+                strcasecmp(ext, ".jpeg") == 0 || strcasecmp(ext, ".png") == 0 ||
+                strcasecmp(ext, ".tiff") == 0 || strcasecmp(ext, ".svg") == 0 ||
+                strcasecmp(ext, ".bmp") == 0) 
+            {
+                if (returned_entities++) {
+                    buffer = sdscat(buffer, ",");
+                }
+                buffer = sdscatjson(buffer, next_file->d_name, strlen(next_file->d_name));
+            }
         }
     }
     closedir(pic_dir);

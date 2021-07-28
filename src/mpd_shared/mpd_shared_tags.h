@@ -10,7 +10,7 @@ void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list);
 void reset_t_tags(struct t_tags *tags);
 void disable_all_mpd_tags(struct t_mpd_state *mpd_state);
 void enable_all_mpd_tags(struct t_mpd_state *mpd_state);
-void enable_mpd_tags(struct t_mpd_state *mpd_state, struct t_tags enable_tags);
+void enable_mpd_tags(struct t_mpd_state *mpd_state, struct t_tags *enable_tags);
 enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag);
 sds put_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
                   const struct mpd_song *song);

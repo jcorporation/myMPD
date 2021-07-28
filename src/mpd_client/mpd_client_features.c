@@ -213,7 +213,7 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
         MYMPD_LOG_NOTICE(logline);
 
         check_tags(mympd_state->mpd_state->tag_list, "tag_list", &mympd_state->mpd_state->tag_types_mympd, mympd_state->mpd_state->tag_types_mpd);
-        enable_mpd_tags(mympd_state->mpd_state, mympd_state->mpd_state->tag_types_mympd);
+        enable_mpd_tags(mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd);
     }
     
     bool has_albumartist = mpd_shared_tag_exists(mympd_state->mpd_state->tag_types_mympd.tags, mympd_state->mpd_state->tag_types_mympd.len, MPD_TAG_ALBUM_ARTIST);

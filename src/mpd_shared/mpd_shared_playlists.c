@@ -96,7 +96,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
     } 
     else if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
         MYMPD_LOG_INFO("Sorting playlist %s by tag %s", uri, tagstr);
-        enable_mpd_tags(mpd_state, sort_tags);
+        enable_mpd_tags(mpd_state, &sort_tags);
         rc = mpd_send_list_playlist_meta(mpd_state->conn, uri);
     }
     else {
@@ -131,7 +131,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
                 buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to shuffle");
             }
             list_free(&plist);
-            enable_mpd_tags(mpd_state, mpd_state->tag_types_mympd);
+            enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
             return buffer;
         }
     }
@@ -142,7 +142,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
                     buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to sort");
                 }
                 list_free(&plist);
-                enable_mpd_tags(mpd_state, mpd_state->tag_types_mympd);
+                enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
                 return buffer;
             }
         }
@@ -152,7 +152,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
                     buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to sort");
                 }
                 list_free(&plist);
-                enable_mpd_tags(mpd_state, mpd_state->tag_types_mympd);
+                enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
                 return buffer;
             }
         }
@@ -215,7 +215,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
     sdsfree(uri_old);
     
     if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
-        enable_mpd_tags(mpd_state, mpd_state->tag_types_mympd);
+        enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
     }
     if (buffer != NULL) {
         if (strcmp(tagstr, "shuffle") == 0) {

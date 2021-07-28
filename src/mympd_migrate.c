@@ -188,7 +188,7 @@ static void rename_file(const char *workdir, const char *src, const char *dst) {
 static bool migrate_smartpls_files(const char *workdir) {
     sds dirname = sdscatfmt(sdsempty(), "%s/smartpls", workdir);
     errno = 0;
-    DIR *dir = opendir (dirname);
+    DIR *dir = opendir(dirname);
     if (dir == NULL) {
         MYMPD_LOG_ERROR("Can't open smart playlist directory \"%s\"", dirname);
         MYMPD_LOG_ERRNO(errno);
@@ -196,12 +196,11 @@ static bool migrate_smartpls_files(const char *workdir) {
         return false;
     }
     
-    struct dirent *ent;
-    while ((ent = readdir(dir)) != NULL) {
-        if (strncmp(ent->d_name, ".", 1) == 0) {
-            continue;
+    struct dirent *next_file;
+    while ((next_file = readdir(dir)) != NULL) {
+        if (next_file->d_type == DT_REG) {
+            migrate_smartpls_file(workdir, next_file->d_name);
         }
-        migrate_smartpls_file(workdir, ent->d_name);
     }
     closedir (dir);
     sdsfree(dirname);
@@ -223,7 +222,7 @@ static bool migrate_smartpls_file(const char *workdir, const char *playlist) {
         sdsfree(filename);
         return false;
     }
-    je = json_scanf(content, (int)strlen(content), "{type: %Q }", &smartpltype);
+    je = json_scanf(content, (int)strlen(content), "{type: %Q}", &smartpltype);
     if (je != 1) {
         MYMPD_LOG_ERROR("Cant read smart playlist type from \"%s\"", filename);
         sdsfree(filename);

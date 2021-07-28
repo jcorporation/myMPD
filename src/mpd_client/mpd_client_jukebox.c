@@ -386,7 +386,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_st
     MYMPD_LOG_DEBUG("Jukebox queue to small, adding entities");
     if (mympd_state->mpd_state->feat_tags == true) {
         if (mympd_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
-            enable_mpd_tags(mympd_state->mpd_state, mympd_state->jukebox_unique_tag);
+            enable_mpd_tags(mympd_state->mpd_state, &mympd_state->jukebox_unique_tag);
         }
         else {
             disable_all_mpd_tags(mympd_state->mpd_state);
@@ -394,7 +394,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_st
     }
     bool rc = _mpd_client_jukebox_fill_jukebox_queue(mympd_state, add_songs, jukebox_mode, playlist, manual);
     if (mympd_state->mpd_state->feat_tags == true) {
-        enable_mpd_tags(mympd_state->mpd_state, mympd_state->mpd_state->tag_types_mympd);
+        enable_mpd_tags(mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd);
     }
     
     if (rc == false) {

@@ -123,7 +123,7 @@ bool check_error_and_recover2(struct t_mpd_state *mpd_state, sds *buffer, sds me
         else {
             mpd_response_finish(mpd_state->conn);
             //enable default mpd tags after cleaning error
-            enable_mpd_tags(mpd_state, mpd_state->tag_types_mympd);
+            enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
         }
         return false;
     }
@@ -156,4 +156,10 @@ sds respond_with_mpd_error_or_ok(struct t_mpd_state *mpd_state, sds buffer, sds 
         return buffer;
     }
     return jsonrpc_respond_ok(buffer, method, request_id, "mpd");
+}
+
+bool mpd_shared_set_keepalive(struct t_mpd_state *mpd_state) {
+    bool rc = mpd_connection_set_keepalive(mpd_state->conn, mpd_state->mpd_keepalive);
+    check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_connection_set_keepalive");
+    return rc;
 }
