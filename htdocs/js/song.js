@@ -37,11 +37,10 @@ function songDetails(uri) {
 }
 
 function parseFingerprint(obj) {
-    const textarea = document.createElement('textarea');
+    const textarea = elCreate('textarea', {"class": ["form-control", "text-monospace", "small"]}, '');
     textarea.value = obj.result.fingerprint;
-    textarea.classList.add('form-control', 'text-monospace', 'small');
     const fpTd = document.getElementById('fingerprint');
-    fpTd.innerHTML = '';
+    elClear(fpTd);
     fpTd.appendChild(textarea);
 }
 

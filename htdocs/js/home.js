@@ -45,7 +45,7 @@ function initHome() {
         document.getElementById('homeIconPreview').style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(value)  + '")';
         if (value !== '') {
             document.getElementById('divHomeIconLigature').classList.add('hide');
-            document.getElementById('homeIconPreview').innerHTML = '';
+            elClear(document.getElementById('homeIconPreview'));
         }
         else {
             document.getElementById('divHomeIconLigature').classList.remove('hide');
@@ -157,7 +157,7 @@ function parseHome(obj) {
     const cardContainer = document.getElementById('HomeCards');
     const cols = cardContainer.getElementsByClassName('col');
     if (cols.length === 0) {
-        cardContainer.innerHTML = '';
+        elClear(cardContainer);
     }
     for (let i = 0; i < nrItems; i++) {
         const col = document.createElement('div');

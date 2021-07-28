@@ -236,7 +236,7 @@ function zoomPicture(el) {
     
     if (el.style.backgroundImage !== '') {
         const imgEl = document.getElementById('modalPictureImg');
-        imgEl.innerHTML = '';
+        elClear(imgEl);
         imgEl.style.paddingTop = '100%';
         imgEl.style.backgroundImage = el.style.backgroundImage;
         document.getElementById('modalPictureZoom').classList.remove('hide');

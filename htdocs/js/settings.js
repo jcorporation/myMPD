@@ -317,11 +317,11 @@ function parseSettings(obj) {
             '<option value="stopplay">' + t('Stop playback') + '</option>' +
             '</optgroup>';
 
-            if (features.featScripting === true) {
-                getScriptList(true);
-            }
-            else {
-            document.getElementById('scripts').innerHTML = '';
+        if (features.featScripting === true) {
+            getScriptList(true);
+        }
+        else {
+            elClear(document.getElementById('scripts'));
             //reinit mainmenu -> change of script list
             uiElements.dropdownMainMenu.dispose();
             uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));

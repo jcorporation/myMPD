@@ -336,7 +336,7 @@ function appRoute() {
             }
         }
         else {
-            document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML = '';
+            elClear(document.getElementById('SearchList').getElementsByTagName('tbody')[0]);
             elDisable('searchAddAllSongs');
             elDisable('searchAddAllSongsBtn');
             document.getElementById('SearchList').classList.remove('opacity05');

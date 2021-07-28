@@ -20,7 +20,7 @@ function toggleAlert(alertBox, state, msg) {
     }
     else {
         elClear(alertBoxEl);
-        addIconLine(alertBoxEl, 'error', msg)
+        addIconLine(alertBoxEl, 'error', msg);
         elShow(alertBoxEl);
     }
 }

@@ -828,7 +828,7 @@ function createSearchExpression(crumbsEl, tag, op, value) {
             expression += ' AND ';
         }
         if (app.current.app === 'Search' && op === 'starts_with') {
-            //mpd do not support starts_with, convert it to regex
+            //mpd does not support starts_with, convert it to regex
             op = '=~';
             value = '^' + value;
         }

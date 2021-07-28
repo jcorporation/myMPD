@@ -319,7 +319,7 @@ function showAddToPlaylistCurrentSearch() {
 function showAddToPlaylist(uri, searchstr) {
     document.getElementById('addToPlaylistUri').value = uri;
     document.getElementById('addToPlaylistSearch').value = searchstr;
-    document.getElementById('addToPlaylistPlaylist').innerHTML = '';
+    elClear(document.getElementById('addToPlaylistPlaylist'));
     document.getElementById('addToPlaylistNewPlaylist').value = '';
     document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
     toggleBtn('toggleAddToPlaylistBtn',0);
