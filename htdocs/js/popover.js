@@ -166,7 +166,7 @@ function showMenuTd(el) {
             (getCustomDomProperty(x, 'data-ro') === 'false' ? addMenuItem({"cmd": "removeFromPlaylist", "options": [getCustomDomProperty(x, 'data-uri'), 
                     getCustomDomProperty(el.parentNode.parentNode, 'data-songpos')]}, t('Remove')) : '') +
             (features.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
-            (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
+            (isStreamUri(uri) === false ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'Current') {
         const trackid = getCustomDomProperty(dataNode, 'data-trackid');
@@ -175,7 +175,8 @@ function showMenuTd(el) {
             addMenuItem({"cmd": "delQueueSong", "options": ["single", trackid]}, t('Remove')) +
             addMenuItem({"cmd": "delQueueSong", "options": ["range", 0, songpos]}, t('Remove all upwards')) +
             addMenuItem({"cmd": "delQueueSong", "options": ["range", (songpos - 1), -1]}, t('Remove all downwards')) +
-            (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
+            (features.featPlaylists === true ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
+            (isStreamUri(uri) === false ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
         menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
