@@ -66,9 +66,10 @@ body.theme-light a.text-light:focus {
   color: #121416 !important;
 }
 
-body.theme-light .btn-secondary {
+body.theme-light .btn-secondary,
+body.theme-light .bg-secondary {
   color: #212529;
-  background-color: #e8eaea;
+  background-color: #e8eaea !important;
   border-color: #e8eaea;
 }
 
