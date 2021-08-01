@@ -95,7 +95,7 @@ main {
 }
 
 .breakAll {
-  word-break: break-word;
+  word-break: break-all;
 }
 
 td[data-col=Action] {

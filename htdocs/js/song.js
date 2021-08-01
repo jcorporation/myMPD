@@ -37,7 +37,7 @@ function songDetails(uri) {
 }
 
 function parseFingerprint(obj) {
-    const textarea = elCreate('textarea', {"class": ["form-control", "text-monospace", "small"]}, '');
+    const textarea = elCreate('textarea', {"class": ["form-control", "text-monospace", "small", "breakAll"], "rows": 5}, '');
     textarea.value = obj.result.fingerprint;
     const fpTd = document.getElementById('fingerprint');
     elClear(fpTd);
@@ -102,18 +102,18 @@ function parseSongDetails(obj) {
     }
     songDetailsHTML += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.result.Duration) + '</td></tr>';
     if (features.featLibrary === true) {
-        songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/browse/music/' + 
+        songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td><a class="text-break text-success" href="/browse/music/' + 
             myEncodeURI(obj.result.uri) + '" target="_blank" title="' + e(obj.result.uri) + '">' + 
             e(basename(obj.result.uri, false)) + '</a></td></tr>';
     }
     else {
-        songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td class="breakAll"><span title="' + e(obj.result.uri) + '">' + 
+        songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td class="text-break"><span title="' + e(obj.result.uri) + '">' + 
             e(basename(obj.result.uri, true)) + '</span></td></tr>';
     }
     songDetailsHTML += '<tr><th>' + t('Filetype') + '</th><td>' + filetype(obj.result.uri) + '</td></tr>';
     songDetailsHTML += '<tr><th>' + t('LastModified') + '</th><td>' + localeDate(obj.result.LastModified) + '</td></tr>';
     if (features.featFingerprint === true) {
-        songDetailsHTML += '<tr><th>' + t('Fingerprint') + '</th><td class="breakAll" id="fingerprint"><a class="text-success" data-uri="' + 
+        songDetailsHTML += '<tr><th>' + t('Fingerprint') + '</th><td id="fingerprint"><a class="text-success" data-uri="' + 
             myEncodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
     }
     if (obj.result.bookletPath !== '') {
