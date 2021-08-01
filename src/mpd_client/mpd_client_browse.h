@@ -24,4 +24,6 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
 sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
                           const char *searchstr, const char *tag, 
                           const unsigned int offset, const unsigned int limit);
+sds mpd_client_read_comments(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
+                             const char *uri);
 #endif

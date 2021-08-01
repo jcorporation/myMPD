@@ -902,6 +902,15 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "database", "error", "Invalid API request");
             }
             break;
+        case MYMPD_API_DATABASE_COMMENTS:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
+            if (je == 1 && strlen(p_charbuf1) > 0) {
+                response->data = mpd_client_read_comments(mympd_state, response->data, request->method, request->id, p_charbuf1);
+            }
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "database", "error", "Invalid API request");
+            }
+            break;
         case MYMPD_API_DATABASE_FINGERPRINT:
             if (mympd_state->mpd_state->feat_fingerprint == true) {
                 je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);

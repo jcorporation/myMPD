@@ -233,6 +233,12 @@ const APImethods = {
             "uri": APIparams.uri
         }
     },
+    "MYMPD_API_DATABASE_COMMENTS": {
+        "desc": "Shows comments of uri.",
+        "params": {
+            "uri": APIparams.uri
+        }
+    },
     "MYMPD_API_DATABASE_FINGERPRINT": {
         "desc": "Calculates the chromaprint fingerprint",
         "params": {

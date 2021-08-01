@@ -1498,6 +1498,9 @@
             <li class="nav-item">
               <a class="nav-link text-dark featLyrics" href="#tabSongLyrics" data-toggle="tab" data-height="true" data-phrase="Lyrics"></a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link text-dark" href="#tabSongComments" data-toggle="tab" data-height="true" data-phrase="Comments"></a>
+            </li>
           </ul>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -1522,6 +1525,14 @@
             <div class="tab-pane" id="tabSongLyrics">
               <h1 class="breakAll"></h1>
               <div id="lyricsText"></div>
+            </div>
+            <div class="tab-pane" id="tabSongComments">
+              <div class="col table-responsive-md">
+                <table class="table table-sm">
+                  <tbody id="tbodySongComments">
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

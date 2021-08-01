@@ -108,6 +108,41 @@ sds mpd_client_put_songdetails(struct t_mympd_state *mympd_state, sds buffer, sd
     return buffer;
 }
 
+sds mpd_client_read_comments(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
+                             const char *uri)
+{
+    if (validate_songuri(uri) == false) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "database", "error", "Invalid URI");
+        return buffer;
+    }
+
+    bool rc = mpd_send_read_comments(mympd_state->mpd_state->conn, uri);
+    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_meta") == false) {
+        return buffer;
+    }
+
+    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = sdscat(buffer, "\"data\":{");
+    struct mpd_pair *pair;
+    int entities_returned = 0;
+    while ((pair = mpd_recv_pair(mympd_state->mpd_state->conn)) != NULL) {
+        if (entities_returned++) {
+            buffer = sdscat(buffer, ",");
+        }    
+        buffer = tojson_char(buffer, pair->name, pair->value,false);
+        mpd_return_pair(mympd_state->mpd_state->conn, pair);
+    }
+    mpd_response_finish(mympd_state->mpd_state->conn);
+    if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
+    buffer = sdscatlen(buffer, "},", 2);
+    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_long(buffer, "totalEntities", entities_returned, false);
+    buffer = jsonrpc_result_end(buffer);
+    return buffer;
+}
+
 sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
                               const char *path, const unsigned int offset, const unsigned int limit, const char *searchstr, const struct t_tags *tagcols)
 {
