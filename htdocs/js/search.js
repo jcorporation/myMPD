@@ -111,12 +111,13 @@ function initSearch() {
 }
 
 function doSearch(x) {
+
     if (features.featAdvsearch) {
         const expression = createSearchExpression(document.getElementById('searchCrumb'), app.current.filter, getSelectValue('searchMatch'), x);
-        appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', expression);
+        appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', expression, 0);
     }
     else {
-        appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', x);
+        appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', x, 0);
     }
 }
 

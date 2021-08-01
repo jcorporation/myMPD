@@ -562,5 +562,5 @@ function _addAlbum(action, albumArtist, album) {
 function searchAlbumgrid(x) {
     const expression = createSearchExpression(document.getElementById('searchDatabaseCrumb'), app.current.filter, getSelectValue('searchDatabaseMatch'), x);
     appGoto(app.current.app, app.current.tab, app.current.view, 
-        '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression);
+        '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression, 0);
 }
