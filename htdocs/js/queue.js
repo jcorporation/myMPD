@@ -181,7 +181,7 @@ function parseQueue(obj) {
         tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + t('Num songs', obj.result.totalEntities) + '</small></td></tr>';
     }
     else {
-        elClear(tfoot.innerHTML);
+        elClear(tfoot);
     }
 }
 
