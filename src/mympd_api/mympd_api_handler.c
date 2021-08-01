@@ -73,6 +73,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
     char *p_charbuf3 = NULL;
     char *p_charbuf4 = NULL;
     char *p_charbuf5 = NULL;
+    char *p_charbuf6 = NULL;
     bool async = false;
     
     #ifdef DEBUG
@@ -100,9 +101,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = mympd_api_picture_list(mympd_state, response->data, request->method, request->id);
             break;
         case MYMPD_API_HOME_ICON_SAVE:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {replace: %B, oldpos: %u, name: %Q, ligature: %Q, bgcolor: %Q, image: %Q, cmd: %Q}}", 
-                &bool_buf1, &uint_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3, &p_charbuf4, &p_charbuf5);
-            if (je == 7) {
+            je = json_scanf(request->data, sdslen(request->data), "{params: {replace: %B, oldpos: %u, name: %Q, ligature: %Q, bgcolor: %Q, color: %Q, image: %Q, cmd: %Q}}", 
+                &bool_buf1, &uint_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3, &p_charbuf4, &p_charbuf5, &p_charbuf6);
+            if (je == 8) {
                 struct list *options = (struct list *) malloc(sizeof(struct list));
                 assert(options);
                 list_init(options);
@@ -110,7 +111,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 for (int i = 0; json_scanf_array_elem(request->data, sdslen(request->data), ".params.options", i, &t) > 0; i++) {
                     list_push_len(options, t.ptr, t.len, 0, NULL, 0, NULL);
                 }
-                rc = mympd_api_save_home_icon(mympd_state, bool_buf1, uint_buf1, p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, p_charbuf5, options);
+                rc = mympd_api_save_home_icon(mympd_state, bool_buf1, uint_buf1, p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, p_charbuf5, p_charbuf6, options);
                 list_free(options);
                 free(options);
                 if (rc == true) {
@@ -1230,6 +1231,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
     FREE_PTR(p_charbuf3);                    
     FREE_PTR(p_charbuf4);
     FREE_PTR(p_charbuf5);
+    FREE_PTR(p_charbuf6);
     
     #ifdef DEBUG
     MEASURE_END

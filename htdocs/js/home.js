@@ -32,22 +32,34 @@ function initHome() {
     dragAndDropHome();
 
     //modals
-    document.getElementById('selectHomeIconCmd').addEventListener('change', function() {
+    const selectHomeIconCmd = document.getElementById('selectHomeIconCmd');
+    selectHomeIconCmd.addEventListener('change', function() {
         showHomeIconCmdOptions();
     }, false);
+    selectHomeIconCmd.appendChild(elCreate('option', {"value": "appGoto"}, tn('Goto view')));
+    setCustomDomProperty(selectHomeIconCmd.childNodes[0], 'data-options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
+    selectHomeIconCmd.appendChild(elCreate('option', {"value": "replaceQueue"}, tn('Replace queue')));
+    setCustomDomProperty(selectHomeIconCmd.childNodes[1], 'data-options', {"options": ["Type", "Uri", "Name"]});
+    selectHomeIconCmd.appendChild(elCreate('option', {"value": "execScriptFromOptions"}, tn('Execute Script')));
+    setCustomDomProperty(selectHomeIconCmd.childNodes[2], 'data-options', {"options":["Script","Arguments"]});
 
     document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
         document.getElementById('homeIconPreview').style.backgroundColor = event.target.value;
     }, false);
 
+    document.getElementById('inputHomeIconColor').addEventListener('change', function(event) {
+        document.getElementById('homeIconPreview').style.color = event.target.value;
+    }, false);
+
     document.getElementById('selectHomeIconImage').addEventListener('change', function(event) {
         const value = getSelectValue(event.target);
-        document.getElementById('homeIconPreview').style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(value)  + '")';
         if (value !== '') {
+            document.getElementById('homeIconPreview').style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(value)  + '")';
             document.getElementById('divHomeIconLigature').classList.add('hide');
             elClear(document.getElementById('homeIconPreview'));
         }
         else {
+            document.getElementById('homeIconPreview').style.backgroundImage = '';
             document.getElementById('divHomeIconLigature').classList.remove('hide');
             document.getElementById('homeIconPreview').textContent = document.getElementById('inputHomeIconLigature').value;
         }
@@ -61,19 +73,21 @@ function initHome() {
         }
     }, false);
     
-    let ligatureList = '';
-    let catList = '<option value="all">' + t('All') + '</option>';
+    const listHomeIconLigature = document.getElementById('listHomeIconLigature');
+    const searchHomeIconCat = document.getElementById('searchHomeIconCat');
+
+    elClear(listHomeIconLigature);
+    elClear(searchHomeIconCat);
+    searchHomeIconCat.appendChild(elCreate('option', {"value": "all"}, tn('All')));
     for (const cat in materialIcons) {
-        ligatureList += '<h5 class="ml-1 mt-2">' + e(ucFirst(cat)) + '</h5>';
-        catList += '<option value="' + cat + '">' + e(ucFirst(cat)) + '</option>';
-        for (let i = 0, j = materialIcons[cat].length; i < j; i++) {
-            ligatureList += '<button title="' + materialIcons[cat][i] + '" data-cat="' + cat + '" class="btn btn-sm mi m-1">' + materialIcons[cat][i] + '</button>';
+        listHomeIconLigature.appendChild(elCreate('h5', {"class": ["ml-1", "mt-2"]}, ucFirst(cat)));
+        searchHomeIconCat.appendChild(elCreate('option', {"value": cat}, ucFirst(cat)));
+        for (const icon of materialIcons[cat]) {
+            listHomeIconLigature.appendChild(elCreate('button', {"class": ["btn", "btn-sm", "mi", "m-1"], "title": icon, "data-cat": cat}, icon));
         }
     }
-    document.getElementById('listHomeIconLigature').innerHTML = ligatureList;
-    document.getElementById('searchHomeIconCat').innerHTML = catList;
 
-    document.getElementById('listHomeIconLigature').addEventListener('click', function(event) {
+    listHomeIconLigature.addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             selectHomeIconLigature(event.target);
@@ -84,7 +98,7 @@ function initHome() {
         event.stopPropagation();
     }, false);
 
-    document.getElementById('searchHomeIconCat').addEventListener('click', function(event) {
+    searchHomeIconCat.addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
     
@@ -153,58 +167,71 @@ function filterHomeIconLigatures() {
 }
 
 function parseHome(obj) {
-    const nrItems = obj.result.returnedEntities;
     const cardContainer = document.getElementById('HomeCards');
     const cols = cardContainer.getElementsByClassName('col');
     if (cols.length === 0) {
         elClear(cardContainer);
     }
-    for (let i = 0; i < nrItems; i++) {
-        const col = document.createElement('div');
-        col.classList.add('col', 'px-0', 'flex-grow-0');
+    if (obj.result.returnedEntities === 0) {
+        elClear(cardContainer);
+        const div = elCreate('div', {"class": ["ml-3"]}, '');
+        div.appendChild(elCreate('h3', {}, tn('Homescreen')));
+        div.appendChild(elCreate('p', {}, tn('Homescreen welcome')));
+        const ul = elCreate('ul', {}, '');
+        ul.appendChild(elCreate('li', {}, ''));
+        ul.childNodes[0].appendChild(elCreate('b', {}, tn('View')));
+        ul.childNodes[0].appendChild(elCreate('span', {}, ': ' + tn('Homescreen help view')));
+        ul.childNodes[0].appendChild(elCreate('span', {"class": ["mi"]}, 'add_to_home_screen'));
+        ul.appendChild(elCreate('li', {}, ''));
+        ul.childNodes[1].appendChild(elCreate('b', {}, tn('Playlist')));
+        ul.childNodes[1].appendChild(elCreate('span', {}, ': ' + tn('Homescreen help playlist')));
+        if (features.featScripting === true) {
+            ul.appendChild(elCreate('li', {}, ''));
+            ul.childNodes[2].appendChild(elCreate('b', {}, tn('Script')));
+            ul.childNodes[2].appendChild(elCreate('span', {}, ': ' + tn('Homescreen help script')));
+            ul.childNodes[2].appendChild(elCreate('span', {"class": ["mi"]}, 'add_to_home_screen'));
+        }
+        div.appendChild(ul);
+        cardContainer.appendChild(div);
+        return;
+    }
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
+        const col = elCreate('div', {"class": ["col", "px-0", "flex-grow-0"]}, '');
         if (obj.result.data[i].AlbumArtist === '') {
-            obj.result.data[i].AlbumArtist = t('Unknown artist');
+            obj.result.data[i].AlbumArtist = tn('Unknown artist');
         }
         if (obj.result.data[i].Album === '') {
-            obj.result.data[i].Album = t('Unknown album');
+            obj.result.data[i].Album = tn('Unknown album');
         }
         const homeType = obj.result.data[i].cmd === 'replaceQueue' ? 'Playlist' :
             obj.result.data[i].cmd === 'appGoto' ? 'View' : 'Script';
         
-        const href = JSON.stringify({"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
-        const html = '<div class="card home-icons clickable" draggable="true" tabindex="0" ' + 
-                   'title="' + t(homeType) +': ' + e(obj.result.data[i].name) + '">' +
-                   '<div class="card-body mi rounded">' + e(obj.result.data[i].ligature) + '</div>' +
-                   '<div class="card-footer card-footer-grid p-2">' +
-                   e(obj.result.data[i].name) + 
-                   '</div></div>';
-        col.innerHTML = html;
+        const card = elCreate('div', {"class": ["card", "home-icons", "clickable"], "tabindex": 0, "draggable": "true",
+            "title": tn(homeType) + ': ' + obj.result.data[i].name}, '');
+        setCustomDomProperty(card, 'data-href', {"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
+        setCustomDomProperty(card, 'data-pos', i);
+        const cardBody = elCreate('div', {"class": ["card-body", "mi", "rounded"]}, obj.result.data[i].ligature);
+        if (obj.result.data[i].image !== '') {
+            cardBody.style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(obj.result.data[i].image) + '")';
+        }
+        if (obj.result.data[i].bgcolor !== '') {
+            cardBody.style.backgroundColor = obj.result.data[i].bgcolor;
+        }
+        if (obj.result.data[i].color !== '' && obj.result.data[i].color !== undefined) {
+            cardBody.style.color = obj.result.data[i].color;
+        }
+        card.appendChild(cardBody);
+        card.appendChild(elCreate('div', {"class": ["card-footer", "card-footer-grid", "p-2"]}, obj.result.data[i].name));
+        col.appendChild(card);
         if (i < cols.length) {
             cols[i].replaceWith(col);
         }
         else {
             cardContainer.append(col);
         }
-        setCustomDomProperty(col.firstChild, 'data-href', href);
-        setCustomDomProperty(col.firstChild, 'data-pos', i);
-        if (obj.result.data[i].image !== '') {
-            col.getElementsByClassName('card-body')[0].style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(obj.result.data[i].image) + '")';
-        }
-        if (obj.result.data[i].bgcolor !== '') {
-            col.getElementsByClassName('card-body')[0].style.backgroundColor = obj.result.data[i].bgcolor;
-        }
     }
-    for (let i = cols.length - 1; i >= nrItems; i--) {
+    for (let i = cols.length - 1; i >= obj.result.returnedEntities; i--) {
         cols[i].remove();
-    }
-                    
-    if (nrItems === 0) {
-        cardContainer.innerHTML = '<div class="ml-3"><h3>' + t('Homescreen') + '</h3><p>' + t('Homescreen welcome') + '</p>' +
-            '<ul>' +
-            '<li><b>' + t('View') + '</b>: ' + t('Homescreen help view') + '</li>' + 
-            '<li><b>' + t('Playlist') + '</b>: ' + t('Homescreen help playlist') + '</li>' +
-            (features.featScripting === true ? '<li><b>' + t('Script') + '</b>: ' + t('Homescreen help script') + '</li>' : '') +
-            '</div>';
     }
 }
 
@@ -326,12 +353,13 @@ function addPlistToHome(uri, name) {
 }
 
 function _addHomeIcon(cmd, name, ligature, options) {
-    document.getElementById('modalEditHomeIconTitle').innerHTML = t('Add to homescreen');
+    document.getElementById('modalEditHomeIconTitle').textContent = tn('Add to homescreen');
     document.getElementById('inputHomeIconReplace').value = 'false';
     document.getElementById('inputHomeIconOldpos').value = '0';
     document.getElementById('inputHomeIconName').value = name;
     document.getElementById('inputHomeIconLigature').value = ligature;
     document.getElementById('inputHomeIconBgcolor').value = '#28a745';
+    document.getElementById('inputHomeIconColor').value = '#ffffff';
     document.getElementById('selectHomeIconCmd').value = cmd;
     
     showHomeIconCmdOptions(options);
@@ -339,6 +367,7 @@ function _addHomeIcon(cmd, name, ligature, options) {
     
     document.getElementById('homeIconPreview').textContent = ligature;
     document.getElementById('homeIconPreview').style.backgroundColor = '#28a745';
+    document.getElementById('homeIconPreview').style.color = '#ffffff';
     document.getElementById('homeIconPreview').style.backgroundImage = '';
     document.getElementById('divHomeIconLigature').classList.remove('hide');
     uiElements.modalEditHomeIcon.show();
@@ -355,13 +384,14 @@ function editHomeIcon(pos) {
 }
 
 function _editHomeIcon(pos, replace, title) {
-    document.getElementById('modalEditHomeIconTitle').innerHTML = t(title);
+    document.getElementById('modalEditHomeIconTitle').textContent = tn(title);
     sendAPI("MYMPD_API_HOME_ICON_GET", {"pos": pos}, function(obj) {
         document.getElementById('inputHomeIconReplace').value = replace;
         document.getElementById('inputHomeIconOldpos').value = pos;
         document.getElementById('inputHomeIconName').value = obj.result.data.name;
         document.getElementById('inputHomeIconLigature').value = obj.result.data.ligature;
         document.getElementById('inputHomeIconBgcolor').value = obj.result.data.bgcolor;
+        document.getElementById('inputHomeIconColor').value = obj.result.data.color;
         document.getElementById('selectHomeIconCmd').value = obj.result.data.cmd;
 
         showHomeIconCmdOptions(obj.result.data.options);
@@ -369,6 +399,7 @@ function _editHomeIcon(pos, replace, title) {
 
         document.getElementById('homeIconPreview').textContent = obj.result.data.ligature;
         document.getElementById('homeIconPreview').style.backgroundColor = obj.result.data.bgcolor;
+        document.getElementById('homeIconPreview').style.color = obj.result.data.color;
         
         if (obj.result.data.image === '') {
             document.getElementById('divHomeIconLigature').classList.remove('hide');
@@ -408,6 +439,7 @@ function saveHomeIcon() {
             "name": nameEl.value,
             "ligature": (image === '' ? document.getElementById('inputHomeIconLigature').value : ''),
             "bgcolor": document.getElementById('inputHomeIconBgcolor').value,
+            "color": document.getElementById('inputHomeIconColor').value,
             "image": image,
             "cmd": document.getElementById('selectHomeIconCmd').value,
             "options": options
@@ -428,21 +460,22 @@ function deleteHomeIcon(pos) {
 }
 
 function showHomeIconCmdOptions(values) {
-    let list = '';
-    const optionsText = getSelectedOptionAttribute('selectHomeIconCmd', 'data-options');
-    if (optionsText !== undefined) {    
-        const options = JSON.parse(optionsText);
+    const divHomeIconOptions = document.getElementById('divHomeIconOptions');
+    elClear(divHomeIconOptions);
+    const options = getSelectedOptionAttribute('selectHomeIconCmd', 'data-options');
+    if (options !== undefined) {
         for (let i = 0, j = options.options.length; i < j; i++) {
-            list += '<div class="form-group row">' +
-                '<label class="col-sm-4 col-form-label">' + t(options.options[i]) + '</label>' +
-                '<div class="col-sm-8"><input class="form-control border-secondary" value="' + 
-                e(values !== undefined ? values[i] !== undefined ? values[i] : '' : '') + '"></div>' +
-                '</div>';
+            const row = elCreate('div', {"class": ["form-group", "row"]}, '');
+            row.appendChild(elCreate('label', {"class": ["col-sm-4"]}, tn(options.options[i])));
+            const div = elCreate('div', {"class": ["col-sm-8"]}, '');
+            const value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
+            div.appendChild(elCreate('input', {"class": ["form-control", "border-secondary"], "value": value}, ''));
+            row.appendChild(div);
+            divHomeIconOptions.appendChild(row);
         }
     }
-    document.getElementById('divHomeIconOptions').innerHTML = list;
 }
 
 function getHomeIconPictureList(picture) {
-    getImageList('selectHomeIconImage', picture, [{"value":"","text":"Use ligature"}]);
+    getImageList('selectHomeIconImage', picture, [{"value": "", "text": "Use ligature"}]);
 }

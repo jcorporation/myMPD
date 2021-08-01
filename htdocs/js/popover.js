@@ -193,7 +193,7 @@ function showMenuTd(el) {
     }
     else if (app.current.app === 'Home') {
         const pos = getCustomDomProperty(el.parentNode, 'data-pos');
-        const href = JSON.parse(getCustomDomProperty(el.parentNode, 'data-href'));
+        const href = getCustomDomProperty(el.parentNode, 'data-href');
         if (href === null || href === undefined) {
             return;
         }

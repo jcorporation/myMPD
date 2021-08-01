@@ -19,13 +19,13 @@ Homescreen welcome
 You have not added any home icons yet. You can add views, playlists and scripts.
 
 Homescreen help view
-Navigate to the view and use the [[add_to_home_screen]] button to add it to the homescreen.
+Navigate to the view and click the "Add to homescreen" button:
 
 Homescreen help playlist
-Open the context menu of a playlist and select "Add to homescreen" to add this playlist to the homescreen.
+Open the context menu of a playlist and select "Add to homescreen".
 
 Homescreen help script
-Open the script dialog and use the [[add_to_home_screen]] button to add a script to the homescreen.
+Open the script dialog and click the "Add to homescreen" button:
 
 MaintainEnableTagsText
 You should maintain and enable the tags Artist, AlbumArtist, Album, Track, Disc and Genre for best user experience.

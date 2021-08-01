@@ -1568,13 +1568,13 @@ Homescreen
 Startbildschirm
 
 Homescreen help view
-Gehe zur Ansicht und klicke auf den [[add_to_home_screen]] Button.
+Gehe zur Ansicht und klicke auf:
 
 Homescreen help playlist
 Öffne das Contextmenü einer Wiedergabeliste und wähle "Zum Startbildschirm hinzufügen"
 
 Homescreen help script
-Öffne die Skriptverwaltung und klicke auf den [[add_to_home_screen]] Button, um ein Skript hinzuzufügen.
+Öffne die Skriptverwaltung und klicke auf:
 
 Help to improve myMPD
 Hilf mit myMPD zu verbessern

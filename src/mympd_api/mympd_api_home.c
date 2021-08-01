@@ -37,13 +37,14 @@ bool mympd_api_rm_home_icon(struct t_mympd_state *mympd_state, unsigned int pos)
 }
 
 bool mympd_api_save_home_icon(struct t_mympd_state *mympd_state, bool replace, unsigned int oldpos,
-    const char *name, const char *ligature, const char *bgcolor, const char *image,
+    const char *name, const char *ligature, const char *bgcolor, const char *color, const char *image,
     const char *cmd, struct list *option_list) 
 {
     sds key = sdscatlen(sdsempty(), "{", 1);
     key = tojson_char(key, "name", name, true);
     key = tojson_char(key, "ligature", ligature, true);
     key = tojson_char(key, "bgcolor", bgcolor, true);
+    key = tojson_char(key, "color", color, true);
     key = tojson_char(key, "image", image, true);
     key = tojson_char(key, "cmd", cmd, true);
     key = sdscat(key, "\"options\":[");
