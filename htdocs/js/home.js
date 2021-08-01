@@ -36,12 +36,15 @@ function initHome() {
     selectHomeIconCmd.addEventListener('change', function() {
         showHomeIconCmdOptions();
     }, false);
+    elClear(selectHomeIconCmd);
     selectHomeIconCmd.appendChild(elCreate('option', {"value": "appGoto"}, tn('Goto view')));
     setCustomDomProperty(selectHomeIconCmd.childNodes[0], 'data-options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
     selectHomeIconCmd.appendChild(elCreate('option', {"value": "replaceQueue"}, tn('Replace queue')));
     setCustomDomProperty(selectHomeIconCmd.childNodes[1], 'data-options', {"options": ["Type", "Uri", "Name"]});
+    selectHomeIconCmd.appendChild(elCreate('option', {"value": "appendQueue"}, tn('Append to queue')));
+    setCustomDomProperty(selectHomeIconCmd.childNodes[2], 'data-options', {"options": ["Type", "Uri", "Name"]});
     selectHomeIconCmd.appendChild(elCreate('option', {"value": "execScriptFromOptions"}, tn('Execute Script')));
-    setCustomDomProperty(selectHomeIconCmd.childNodes[2], 'data-options', {"options":["Script","Arguments"]});
+    setCustomDomProperty(selectHomeIconCmd.childNodes[3], 'data-options', {"options":["Script","Arguments"]});
 
     document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
         document.getElementById('homeIconPreview').style.backgroundColor = event.target.value;
@@ -460,6 +463,11 @@ function deleteHomeIcon(pos) {
 }
 
 function showHomeIconCmdOptions(values) {
+    const oldOptions = [];
+    const optionEls = document.getElementById('divHomeIconOptions').getElementsByTagName('input');
+    for (const optionEl of optionEls) {
+        oldOptions.push(optionEl.value);
+    }
     const divHomeIconOptions = document.getElementById('divHomeIconOptions');
     elClear(divHomeIconOptions);
     const options = getSelectedOptionAttribute('selectHomeIconCmd', 'data-options');
@@ -468,8 +476,11 @@ function showHomeIconCmdOptions(values) {
             const row = elCreate('div', {"class": ["form-group", "row"]}, '');
             row.appendChild(elCreate('label', {"class": ["col-sm-4"]}, tn(options.options[i])));
             const div = elCreate('div', {"class": ["col-sm-8"]}, '');
-            const value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
-            div.appendChild(elCreate('input', {"class": ["form-control", "border-secondary"], "value": value}, ''));
+            let value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
+            if (value === '' && oldOptions[i] !== undefined) {
+                value = oldOptions[i];
+            }
+            div.appendChild(elCreate('input', {"class": ["form-control", "border-secondary"], "name": options.options[i], "value": value}, ''));
             row.appendChild(div);
             divHomeIconOptions.appendChild(row);
         }
