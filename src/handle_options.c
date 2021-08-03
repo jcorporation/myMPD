@@ -52,19 +52,20 @@ bool handle_options(struct t_config *config, int argc, char **argv) {
             #endif
             default:
                 fprintf(stderr, "\nUsage: %s [OPTION]...\n\n"
-                    "myMPD %s\n"
-                    "(c) 2018-2021 Juergen Mang <mail@jcgames.de>\n"
-                    "https://github.com/jcorporation/myMPD\n\n"
-                    "Options:\n"
-                    "  -c, --config           creates config and exits\n"
-                    "  -h, --help             displays this help\n"
-                    "  -u, --user <username>  username to drop privileges to (default: mympd)\n"
-                    "  -s, --syslog           enable syslog logging (facility: daemon)\n"
-                    "  -w, --workdir <path>   working directory (default: %s)\n"
+                                "myMPD %s\n"
+                                "(c) 2018-2021 Juergen Mang <mail@jcgames.de>\n"
+                                "https://github.com/jcorporation/myMPD\n\n"
+                                "Options:\n"
+                                "  -c, --config           creates config and exits\n"
+                                "  -h, --help             displays this help\n"
+                                "  -u, --user <username>  username to drop privileges to (default: mympd)\n"
+                                "  -s, --syslog           enable syslog logging (facility: daemon)\n"
+                                "  -w, --workdir <path>   working directory (default: %s)\n",
+                    argv[0], MYMPD_VERSION, config->workdir);
                 #ifdef ENABLE_SSL
-                    "  -p, --pin              sets a pin for myMPD settings\n\n"
+                fprintf(stderr, "  -p, --pin              sets a pin for myMPD settings\n");
                 #endif
-                    ,argv[0], MYMPD_VERSION, config->workdir);
+                fprintf(stderr, "\n");
                 return false;
         }
     }

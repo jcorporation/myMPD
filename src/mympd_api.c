@@ -139,7 +139,7 @@ void mympd_autoconf(struct t_mympd_state *mympd_state) {
     else {
         MYMPD_LOG_NOTICE("Reading environment");
         //try env
-        const char *mpd_host = getenv("MPD_HOST");
+        const char *mpd_host = getenv("MPD_HOST"); /* Flawfinder: ignore */
         if (mpd_host != NULL && strlen(mpd_host) <= 100) {
             if (mpd_host[0] != '@' && strstr(mpd_host, "@") != NULL) {
                 int count;
@@ -154,7 +154,7 @@ void mympd_autoconf(struct t_mympd_state *mympd_state) {
             }
             MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", mympd_state->mpd_state->mpd_host);
         }
-        const char *mpd_port = getenv("MPD_PORT");
+        const char *mpd_port = getenv("MPD_PORT"); /* Flawfinder: ignore */
         if (mpd_port != NULL && strlen(mpd_port) <= 5) {
             mympd_state->mpd_state->mpd_port = strtoimax(mpd_port, NULL, 10);
             MYMPD_LOG_NOTICE("Setting mpd host to \"%d\"", mympd_state->mpd_state->mpd_port);

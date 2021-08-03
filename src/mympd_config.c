@@ -126,7 +126,7 @@ bool mympd_read_config(struct t_config *config) {
 
 //private functions
 static const char *mympd_getenv(const char *env_var, bool first_startup) {
-    const char *env_value = getenv(env_var);
+    const char *env_value = getenv(env_var); /* Flawfinder: ignore */
     if (env_value == NULL) {
         return NULL;
     }
