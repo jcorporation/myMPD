@@ -462,7 +462,7 @@ const webuiSettingsDefault = {
         "reset": true
     },
     "uiBgImage": {
-        "defaultValue": "/assets/mympd-background-dark.svg",
+        "defaultValue": "",
         "inputType": "select",
         "title": "Image",
         "form": "bgFrm2"
