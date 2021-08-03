@@ -551,7 +551,6 @@ function mediaSessionSetMetadata(title, artist, album, url) {
     if (settings.mediaSession === true && 'mediaSession' in navigator) {
         const artwork = window.location.protocol + '//' + window.location.hostname + 
             (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart/' + myEncodeURI(url);
-        //eslint-disable-next-line no-undef
         navigator.mediaSession.metadata = new MediaMetadata({
             title: title,
             artist: artist,
