@@ -883,10 +883,16 @@ run_eslint() {
   check_cmd eslint
   createassets
   echo ""
-  echo "Linting htdocs/sw.js"
-  eslint htdocs/sw.js
-  echo "Linting release/htdocs/mympd.js"
-  eslint release/htdocs/js/mympd.js
+  for F in htdocs/sw.js release/htdocs/js/mympd.js
+  do
+    echo "Linting $F"
+    eslint $F
+  done
+  for F in release/htdocs/sw.min.js release/htdocs/js/mympd.min.js release/htdocs/js/i18n.min.js
+  do
+    echo "Linting $F"
+    eslint -c .eslintrc-min.json $F
+  done
 }
 
 run_stylelint() {
