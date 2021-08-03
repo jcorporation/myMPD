@@ -6,48 +6,31 @@
 
 #define _GNU_SOURCE
 
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <pwd.h>
-#include <grp.h>
-#include <libgen.h>
-#include <pthread.h>
-#include <dirent.h>
-#include <stdbool.h>
-#include <signal.h>
-#include <dlfcn.h>
-#include <assert.h>
-#include <inttypes.h>
-#include <mpd/client.h>
-
 #include "../dist/src/mongoose/mongoose.h"
-#include "../dist/src/sds/sds.h"
 #include "../dist/src/rax/rax.h"
-#include "sds_extras.h"
-#include "log.h"
-#include "tiny_queue.h"
-#include "list.h"
-#include "mympd_config_defs.h"
-#include "mympd_config.h"
-#include "mympd_state.h"
-#include "handle_options.h"
-#include "utility.h"
-#include "api.h"
+#include "../dist/src/sds/sds.h"
 #include "global.h"
-#include "mpd_worker.h"
-#include "web_server/web_server_utility.h"
-#include "web_server.h"
+#include "handle_options.h"
+#include "log.h"
 #include "mpd_client/mpd_client_playlists.h"
 #include "mympd_api.h"
+#include "mympd_config.h"
+#include "mympd_migrate.h"
+#include "random.h"
+#include "sds_extras.h"
+#include "utility.h"
+#include "web_server.h"
+
 #ifdef ENABLE_SSL
   #include "cert.h"
 #endif
-#include "random.h"
-#include "mympd_migrate.h"
+
+#include <assert.h>
+#include <grp.h>
+#include <mpd/client.h>
+#include <pthread.h>
+#include <pwd.h>
+#include <signal.h>
 
 _Thread_local sds thread_logname;
 

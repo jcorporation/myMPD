@@ -4,33 +4,23 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <netdb.h> 
-#include <sys/types.h> 
-#include <sys/socket.h> 
-#include <netinet/in.h> 
-#include <arpa/inet.h> 
+#include "cert.h"
 
+#include "log.h"
+#include "sds_extras.h"
+
+#include <arpa/inet.h>
+#include <errno.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <openssl/bn.h>
 #include <openssl/err.h>
 #include <openssl/conf.h>
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 #include <openssl/x509v3.h>
-#include <openssl/bn.h>
-
-#include "../dist/src/sds/sds.h"
-#include "sds_extras.h"
-#include "log.h"
-#include "list.h"
-#include "mympd_config_defs.h"
-#include "utility.h"
-#include "cert.h"
+#include <string.h>
+#include <unistd.h>
 
 //private definitions
 

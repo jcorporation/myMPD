@@ -6,24 +6,15 @@
 
 #define _GNU_SOURCE
 
-#include <errno.h>
+#include "mympd_config.h"
+
+#include "log.h"
+#include "state_files.h"
+
+#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-#include <assert.h>
-#include <inttypes.h>
-#include <unistd.h>
 #include <time.h>
-
-#include "../dist/src/sds/sds.h"
-
-#include "sds_extras.h"
-#include "list.h"
-#include "mympd_config_defs.h"
-#include "state_files.h"
-#include "utility.h"
-#include "log.h"
-#include "mympd_config.h"
 
 //private functions
 static const char *mympd_getenv(const char *env_var, bool first_startup);

@@ -4,33 +4,21 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <signal.h>
+#include "mympd_migrate.h"
+
+#include "../dist/src/frozen/frozen.h"
+#include "log.h"
+#include "mpd_shared/mpd_shared_playlists.h"
+#include "mpd_shared/mpd_shared_search.h"
+#include "sds_extras.h"
+#include "state_files.h"
+#include "utility.h"
+
+#include <dirent.h>
 #include <errno.h>
-#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <stdlib.h>
-#include <dirent.h>
-#include <mpd/client.h>
-
-#include "../dist/src/sds/sds.h"
-#include "sds_extras.h"
-#include "../dist/src/rax/rax.h"
-#include "../dist/src/frozen/frozen.h"
-#include "api.h"
-#include "list.h"
-#include "tiny_queue.h"
-#include "global.h"
-#include "mympd_config_defs.h"
-#include "utility.h"
-#include "log.h"
-#include "mympd_state.h"
-#include "state_files.h"
-#include "mpd_shared/mpd_shared_tags.h"
-#include "mpd_shared.h"
-#include "mpd_shared/mpd_shared_search.h"
-#include "mpd_shared/mpd_shared_playlists.h"
-#include "mympd_migrate.h"
 
 //private functions
 static bool is_old_config(const char *workdir);

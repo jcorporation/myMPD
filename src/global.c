@@ -4,19 +4,13 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <signal.h>
-#include <stdlib.h>
-#include <assert.h>
+#include "global.h"
 
 #include <mpd/client.h>
-
-#include "../dist/src/sds/sds.h"
 #include "../dist/src/mongoose/mongoose.h"
-#include "list.h"
-#include "tiny_queue.h"
 #include "lua_mympd_state.h"
-#include "api.h"
-#include "global.h"
+
+#include <assert.h>
 
 _Atomic int worker_threads;
 sig_atomic_t s_signal_received;

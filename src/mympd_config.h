@@ -6,6 +6,11 @@
 
 #ifndef __MYMPD_CONFIG_H__
 #define __MYMPD_CONFIG_H__
+
+#include <stdbool.h>
+
+#include "mympd_config_defs.h"
+
 void mympd_config_defaults_initial(struct t_config *config);
 void mympd_config_defaults(struct t_config *config);
 void mympd_free_config_initial(struct t_config *config);

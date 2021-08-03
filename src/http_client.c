@@ -4,13 +4,12 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <errno.h>
-
-#include "../dist/src/sds/sds.h"
-#include "../dist/src/mongoose/mongoose.h"
-
-#include "log.h"
 #include "http_client.h"
+
+#include "../dist/src/mongoose/mongoose.h"
+#include "log.h"
+
+#include <errno.h>
 
 //private definitions
 static void _http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_data, 

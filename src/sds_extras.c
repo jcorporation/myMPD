@@ -4,13 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <ctype.h>
-
-#include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
+
+#include <ctype.h>
+#include <string.h>
 
 static int json_get_utf8_char_len(unsigned char ch) {
     if ((ch & 0x80) == 0) {

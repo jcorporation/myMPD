@@ -6,6 +6,10 @@
 
 #ifndef __MYMPD_API_SETTINGS_H
 #define __MYMPD_API_SETTINGS_H
+
+#include "../../dist/src/sds/sds.h"
+#include "../../dist/src/frozen/frozen.h"
+
 void mympd_api_read_statefiles(struct t_mympd_state *mympd_state);
 sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
 bool mympd_api_cols_save(struct t_mympd_state *mympd_state, const char *table, const char *cols);

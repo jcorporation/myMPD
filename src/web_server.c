@@ -4,34 +4,18 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <limits.h>
-#include <stdbool.h>
-#include <pthread.h>
-#include <signal.h>
-#include <assert.h>
-#include <inttypes.h>
-#include <libgen.h>
-#include <string.h>
-#include <errno.h>
-#include <time.h>
+#include "web_server.h"
 
-#include "../dist/src/sds/sds.h"
-#include "../dist/src/mongoose/mongoose.h"
 #include "../dist/src/frozen/frozen.h"
 
-#include "sds_extras.h"
-#include "api.h"
-#include "log.h"
-#include "list.h"
-#include "mympd_config_defs.h"
-#include "utility.h"
-#include "tiny_queue.h"
 #include "global.h"
 #include "http_client.h"
-#include "web_server/web_server_utility.h"
+#include "log.h"
+#include "mympd_config_defs.h"
+#include "sds_extras.h"
+#include "utility.h"
 #include "web_server/web_server_albumart.h"
 #include "web_server/web_server_tagart.h"
-#include "web_server.h"
 
 //private definitions
 static bool parse_internal_message(t_work_result *response, struct t_mg_user_data *mg_user_data);

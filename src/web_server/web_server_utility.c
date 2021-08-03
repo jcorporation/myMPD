@@ -4,15 +4,12 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "errno.h"
-#include "../../dist/src/sds/sds.h"
-#include "../sds_extras.h"
-#include "../../dist/src/mongoose/mongoose.h"
-#include "../log.h"
-#include "../list.h"
-#include "mympd_config_defs.h"
-#include "../utility.h"
 #include "web_server_utility.h"
+
+#include "../log.h"
+#include "../sds_extras.h"
+#include "../utility.h"
+#include "mympd_config_defs.h"
 
 #ifndef DEBUG
 //embedded files for release build

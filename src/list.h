@@ -7,6 +7,10 @@
 #ifndef __LIST_H__
 #define __LIST_H__
 
+#include <stdbool.h>
+
+#include "../dist/src/sds/sds.h"
+
 struct list_node {
     sds key;
     sds value_p;

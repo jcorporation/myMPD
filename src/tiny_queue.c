@@ -4,19 +4,13 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <assert.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <errno.h>
-#include <assert.h>
-#include <pthread.h>
-#include <time.h>
-#include <string.h>
-
-#include "../dist/src/sds/sds.h"
-#include "log.h"
 #include "tiny_queue.h"
+
+#include "log.h"
+
+#include <assert.h>
+#include <errno.h>
+#include <stdlib.h>
 
 tiny_queue_t *tiny_queue_create(const char *name) {
     struct tiny_queue_t* queue = (struct tiny_queue_t *)malloc(sizeof(struct tiny_queue_t));

@@ -6,6 +6,9 @@
 
 #ifndef __MPD_SHARED_SEARCH_H__
 #define __MPD_SHARED_SEARCH_H__
+
+#include "../mpd_shared.h"
+
 sds mpd_shared_search(struct t_mpd_state *mympd_state, sds buffer, sds method, long request_id,
                       const char *searchstr, const char *searchtag, const char *plist, 
                       const unsigned int offset, unsigned int limit, const struct t_tags *tagcols,

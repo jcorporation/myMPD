@@ -6,6 +6,9 @@
 
 #ifndef __MYMPD_PIN_H__
 #define __MYMPD_PIN_H__
+
+#include "../dist/src/sds/sds.h"
+
 void mympd_set_pin(sds workdir);
 sds hash_pin(const char *pin);
 #endif

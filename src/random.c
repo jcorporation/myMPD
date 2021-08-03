@@ -4,9 +4,9 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <limits.h>
-
 #include "random.h"
+
+#include <limits.h>
 
 tinymt32_t tinymt;
 

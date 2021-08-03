@@ -7,6 +7,10 @@
 #ifndef __LUA_MYMPD_STATE_H__
 #define __LUA_MYMPD_STATE_H__
 
+#include <stdbool.h>
+
+#include "list.h"
+
 enum lua_mympd_state_type {
     LUA_TYPE_STRING,
     LUA_TYPE_INTEGER,

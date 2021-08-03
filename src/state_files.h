@@ -6,6 +6,11 @@
 
 #ifndef __STATE_FILES_H
 #define __STATE_FILES_H
+
+#include <stdbool.h>
+
+#include "../dist/src/sds/sds.h"
+
 sds state_file_rw_string_sds(const char *workdir, const char *dir, const char *name, sds old_value, bool warn);
 sds state_file_rw_string(const char *workdir, const char *dir, const char *name, const char *def_value, bool warn);
 bool state_file_rw_bool(const char *workdir, const char *dir, const char *name, const bool def_value, bool warn);

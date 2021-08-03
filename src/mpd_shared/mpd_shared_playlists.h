@@ -6,6 +6,9 @@
 
 #ifndef __MPD_SHARED_PLAYLISTS_H__
 #define __MPD_SHARED_PLAYLISTS_H__
+
+#include "../mympd_state.h"
+
 sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, sds method, 
                                      long request_id, const char *uri, const char *tagstr);
 bool mpd_shared_smartpls_save(const char *workdir, const char *smartpltype, 

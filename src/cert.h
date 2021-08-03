@@ -6,6 +6,11 @@
 
 #ifndef __MYMPD_CERT_H__
 #define __MYMPD_CERT_H__
+
+#include <stdbool.h>
+
+#include "../dist/src/sds/sds.h"
+
 bool create_certificates(sds dir, sds custom_san);
 bool cleanup_certificates(sds dir, const char *name);
 #endif

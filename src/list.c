@@ -4,17 +4,14 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "list.h"
+
+#include "random.h"
+#include "sds_extras.h"
+
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <assert.h>
-
-#include "../dist/src/sds/sds.h"
-#include "sds_extras.h"
-#include "random.h"
-#include "list.h"
 
 //private definitions
 static struct list_node *list_node_extract(struct list *l, unsigned idx);

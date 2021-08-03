@@ -4,51 +4,29 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <libgen.h>
-#include <ctype.h>
-#include <libgen.h>
-#include <dirent.h>
-#include <stdbool.h>
-#include <pthread.h>
-#include <signal.h>
-#include <assert.h>
-#include <inttypes.h>
+#include "mympd_api.h"
 
-#include <mpd/client.h>
-
-#include "../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "sds_extras.h"
 #include "../dist/src/frozen/frozen.h"
-#include "api.h"
-#include "log.h"
-#include "list.h"
-#include "tiny_queue.h"
-#include "mympd_config_defs.h"
-#include "utility.h"
 #include "global.h"
-#include "lua_mympd_state.h"
-#include "mympd_state.h"
+#include "log.h"
 #include "mpd_client.h"
-#include "covercache.h"
-#include "mympd_api/mympd_api_utility.h"
-#include "mympd_api/mympd_api_timer.h"
+#include "mpd_client/mpd_client_stats.h"
+#include "mpd_client/mpd_client_trigger.h"
+#include "mpd_shared.h"
+#include "mympd_autoconf.h"
+#include "mympd_api/mympd_api_home.h"
 #include "mympd_api/mympd_api_settings.h"
 #include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_timer_handlers.h"
-#include "mympd_api/mympd_api_scripts.h"
-#include "mympd_api/mympd_api_home.h"
-#include "mpd_client/mpd_client_trigger.h"
-#include "mpd_client/mpd_client_stats.h"
-#include "mpd_shared.h"
-#include "mpd_shared/mpd_shared_sticker.h"
-#include "mpd_shared/mpd_shared_tags.h"
-#include "mympd_autoconf.h"
-#include "mympd_api.h"
+#include "mympd_api/mympd_api_utility.h"
+#include "mympd_config_defs.h"
+#include "sds_extras.h"
+
+#include <assert.h>
+#include <inttypes.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 //private definitions
 void mympd_autoconf(struct t_mympd_state *mympd_state);

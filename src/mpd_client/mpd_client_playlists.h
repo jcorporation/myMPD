@@ -6,6 +6,9 @@
 
 #ifndef __MPD_CLIENT_PLAYLISTS_H__
 #define __MPD_CLIENT_PLAYLISTS_H__
+
+#include "../mympd_state.h"
+
 bool smartpls_default(struct t_config *config);
 sds mpd_client_put_playlists(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                              const unsigned int offset, const unsigned int limit, const char *searchstr);

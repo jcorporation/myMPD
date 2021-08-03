@@ -4,22 +4,18 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <termios.h>
-
-#include "../dist/src/sds/sds.h"
+#include "mympd_pin.h"
 
 #include "mympd_config_defs.h"
+#include "state_files.h"
+
+#include <stdio.h>
+#include <string.h>
+#include <termios.h>
 
 #ifdef ENABLE_SSL
     #include <openssl/evp.h>
 #endif
-
-#include "state_files.h"
-#include "mympd_pin.h"
 
 void mympd_set_pin(sds workdir) {
     struct termios old, new;

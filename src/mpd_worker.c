@@ -6,37 +6,20 @@
 
 #define _GNU_SOURCE
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <poll.h>
-#include <pthread.h>
-#include <string.h>
-#include <signal.h>
-#include <assert.h>
-#include <unistd.h>
-
-#include <mpd/client.h>
+#include "mpd_worker.h"
 
 #include "../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "sds_extras.h"
 #include "log.h"
-#include "list.h"
-#include "mympd_config_defs.h"
-#include "mympd_state.h"
-#include "tiny_queue.h"
-#include "api.h"
-#include "global.h"
-#include "utility.h"
-#include "mympd_state.h"
 #include "mpd_shared.h"
 #include "mpd_shared/mpd_shared_tags.h"
-#include "mpd_shared/mpd_shared_sticker.h"
-#include "mpd_worker/mpd_worker_utility.h"
 #include "mpd_worker/mpd_worker_api.h"
-#include "mpd_worker/mpd_worker_smartpls.h"
 #include "mpd_worker/mpd_worker_cache.h"
-#include "mpd_worker.h"
+#include "mpd_worker/mpd_worker_smartpls.h"
+#include "sds_extras.h"
+
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 //private definitions
 static void *mpd_worker_run(void *arg);

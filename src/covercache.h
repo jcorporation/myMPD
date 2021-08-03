@@ -6,6 +6,11 @@
 
 #ifndef __COVERCACHE_H__
 #define __COVERCACHE_H__
+
+#include <stdbool.h>
+
+#include "../dist/src/sds/sds.h"
+
 bool write_covercache_file(const char *workdir, const char *uri, const char *mime_type, sds binary);
 int clear_covercache(const char *workdir, int keepdays);
 #endif

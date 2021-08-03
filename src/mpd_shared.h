@@ -6,6 +6,11 @@
 
 #ifndef __MPD_SHARED_H__
 #define __MPD_SHARED_H__
+
+#include "../dist/src/sds/sds.h"
+
+#include "mympd_state.h"
+
 void mpd_shared_free_mpd_state(struct t_mpd_state *mpd_state);
 void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state);
 void mpd_shared_mpd_disconnect(struct t_mpd_state *mpd_state);

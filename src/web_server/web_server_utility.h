@@ -7,6 +7,11 @@
 #ifndef __WEB_SERVER_UTILITY_H__
 #define __WEB_SERVER_UTILITY_H__
 
+#include <stdbool.h>
+
+#include "../../dist/src/mongoose/mongoose.h"
+#include "../../dist/src/sds/sds.h"
+
 #define EXTRA_HEADERS_DIR "Content-Security-Policy: default-src 'none'; "\
                           "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; "\
                           "connect-src 'self' ws: wss:; manifest-src 'self'; "\

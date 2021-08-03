@@ -7,6 +7,10 @@
 #ifndef __CONFIG_STRUCT_H__
 #define __CONFIG_STRUCT_H__
 
+#include <stdbool.h>
+
+#include "../dist/src/sds/sds.h"
+
 //Debug build
 #cmakedefine DEBUG
 

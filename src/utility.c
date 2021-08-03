@@ -6,27 +6,19 @@
 
 #define _GNU_SOURCE
 
+#include "utility.h"
+
+#include "global.h"
+#include "log.h"
+#include "sds_extras.h"
+
+#include <dirent.h>
 #include <errno.h>
-#include <string.h>
 #include <limits.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <dirent.h>
-#include <unistd.h>
+#include <string.h>
 #include <sys/stat.h>
-#include <ctype.h>
-#include <signal.h>
-#include <time.h>
-#include <libgen.h>
-
-#include "../dist/src/sds/sds.h"
-#include "sds_extras.h"
-#include "log.h"
-#include "tiny_queue.h"
-#include "api.h"
-#include "global.h"
-#include "utility.h"
+#include <unistd.h>
 
 void send_jsonrpc_notify(const char *facility, const char *severity, const char *message) {
     sds buffer = jsonrpc_notify(sdsempty(), facility, severity, message);

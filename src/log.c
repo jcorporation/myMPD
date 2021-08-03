@@ -4,15 +4,11 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <pthread.h>
-#include <time.h>
-
-#include "../dist/src/sds/sds.h"
 #include "log.h"
+
+#include <pthread.h>
+#include <stdio.h>
+#include <string.h>
 
 int loglevel;
 bool log_to_syslog;

@@ -4,27 +4,18 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <assert.h>
-#include <limits.h>
-#include <stdbool.h>
-#include <signal.h>
-#include <string.h>
-#include <libgen.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../../dist/src/mongoose/mongoose.h"
-#include "../../dist/src/frozen/frozen.h"
-#include "../sds_extras.h"
-#include "../api.h"
-#include "../list.h"
-#include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../log.h"
-#include "../tiny_queue.h"
-#include "../global.h"
-#include "../covercache.h"
-#include "web_server_utility.h"
 #include "web_server_albumart.h"
+
+#include "../../dist/src/frozen/frozen.h"
+#include "../covercache.h"
+#include "../global.h"
+#include "../log.h"
+#include "../sds_extras.h"
+#include "../utility.h"
+#include "mympd_config_defs.h"
+
+#include <assert.h>
+#include <libgen.h>
 
 //optional includes
 #ifdef ENABLE_LIBID3TAG

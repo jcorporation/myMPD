@@ -4,14 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "lua_mympd_state.h"
+
 #include <assert.h>
 #include <stdlib.h>
-
-#include <mpd/client.h>
-
-#include "../dist/src/sds/sds.h"
-#include "list.h"
-#include "lua_mympd_state.h"
 
 void set_lua_mympd_state_p(struct list *lua_mympd_state, const char *k, const char *v) {
     struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));

@@ -4,11 +4,9 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
 #include "api.h"
+
+#include <string.h>
 
 enum mympd_cmd_ids get_cmd_id(const char *cmd) {
     const char * mympd_cmd_strs[] = { MYMPD_CMDS(GEN_STR) };

@@ -4,17 +4,13 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <getopt.h>
-#include <stdbool.h>
-#include <stdio.h>
+#include "handle_options.h"
 
-#include "dist/src/sds/sds.h"
-#include "dist/src/rax/rax.h"
-#include "list.h"
-#include "sds_extras.h"
-#include "mympd_config_defs.h"
 #include "mympd_pin.h"
+#include "sds_extras.h"
 
+#include <getopt.h>
+#include <stdio.h>
 
 static struct option long_options[] = {
     {"help",      no_argument,       0, 'h'},

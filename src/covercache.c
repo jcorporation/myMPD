@@ -4,25 +4,18 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "covercache.h"
+
+#include "log.h"
+#include "utility.h"
+
 #include <dirent.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
-
-#include <mpd/client.h>
-
-#include "../dist/src/sds/sds.h"
-#include "sds_extras.h"
-#include "list.h"
-#include "mympd_config_defs.h"
-#include "utility.h"
-#include "log.h"
-#include "covercache.h"
 
 bool write_covercache_file(const char *workdir, const char *uri, const char *mime_type, sds binary) {
     bool rc = false;

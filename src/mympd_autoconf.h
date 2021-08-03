@@ -6,6 +6,9 @@
 
 #ifndef _MYMPD_AUTOCONF_H
 #define _MYMPD_AUTOCONF_H
+
+#include "../dist/src/sds/sds.h"
+
 sds find_mpd_conf(void);
 sds get_mpd_conf(const char *key, const char *default_value);
 #endif

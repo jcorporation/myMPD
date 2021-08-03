@@ -4,18 +4,17 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "state_files.h"
+
+#include "log.h"
+#include "sds_extras.h"
+#include "utility.h"
+
+#include <ctype.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <libgen.h>
-#include <ctype.h>
-#include <inttypes.h>
-
-#include "../dist/src/sds/sds.h"
-#include "sds_extras.h"
-#include "log.h"
-#include "utility.h"
-#include "state_files.h"
 
 sds camel_to_snake(const char *text, size_t len) {
     sds buffer = sdsempty();

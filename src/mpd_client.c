@@ -4,48 +4,26 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <poll.h>
-#include <pthread.h>
-#include <string.h>
-#include <signal.h>
-#include <assert.h>
-#include <unistd.h>
+#include "mpd_client.h"
 
-#include <mpd/client.h>
-
-#include "../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "sds_extras.h"
 #include "log.h"
-#include "list.h"
-#include "mympd_config_defs.h"
-#include "tiny_queue.h"
-#include "api.h"
-#include "global.h"
-#include "utility.h"
-#include "lua_mympd_state.h"
-#include "mympd_state.h"
-#include "mpd_shared/mpd_shared_tags.h"
-#include "mpd_shared.h"
-#include "mpd_shared/mpd_shared_sticker.h"
-#include "mpd_client/mpd_client_utility.h"
-#include "mpd_client/mpd_client_browse.h"
+#include "mpd_client/mpd_client_features.h"
 #include "mpd_client/mpd_client_jukebox.h"
-#include "mpd_client/mpd_client_playlists.h"
-#include "mpd_client/mpd_client_stats.h"
 #include "mpd_client/mpd_client_state.h"
-#include "mympd_state.h"
-#include "mpd_worker.h"
-#include "mpd_client/mpd_client_features.h"
+#include "mpd_client/mpd_client_stats.h"
 #include "mpd_client/mpd_client_queue.h"
-#include "mpd_client/mpd_client_features.h"
 #include "mpd_client/mpd_client_sticker.h"
 #include "mpd_client/mpd_client_timer.h"
 #include "mpd_client/mpd_client_trigger.h"
+#include "mpd_client/mpd_client_utility.h"
+#include "mpd_shared.h"
+#include "mpd_shared/mpd_shared_tags.h"
+#include "mpd_worker.h"
 #include "mympd_api/mympd_api_handler.h"
-#include "mpd_client.h"
+#include "utility.h"
+
+#include <poll.h>
+#include <string.h>
 
 //private definitions
 static bool update_mympd_caches(struct t_mympd_state *mympd_state);

@@ -7,6 +7,8 @@
 #ifndef __API_H__
 #define __API_H__
 
+#include <stdbool.h>
+
 //API cmds
 #define MYMPD_CMDS(X) \
     X(MYMPD_API_UNKNOWN) \

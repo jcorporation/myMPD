@@ -4,20 +4,16 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_autoconf.h"
+
+#include "log.h"
+#include "sds_extras.h"
+
+#include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdbool.h>
 #include <string.h>
-#include <ctype.h>
-#include <inttypes.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-
-#include "../dist/src/sds/sds.h"
-#include "sds_extras.h"
-#include "log.h"
 
 //private definitions
 static int sdssplit_whitespace(sds line, sds *name, sds *value);

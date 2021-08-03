@@ -4,8 +4,12 @@
  https://github.com/jcorporation/mympd
 */
 
+#ifndef __WEB_SERVER_EMBEDDED_FILES_C__
+#define __WEB_SERVER_EMBEDDED_FILES_C__
+
 #define INCBIN_PREFIX 
 #define INCBIN_STYLE INCBIN_STYLE_SNAKE
+
 #include "../../dist/src/incbin/incbin.h"
 
 //compressed assets
@@ -27,3 +31,5 @@ INCBIN(favicon_ico, "../htdocs/assets/favicon.ico");
 INCBIN(appicon_192_png, "../htdocs/assets/appicon-192.png");
 INCBIN(appicon_512_png, "../htdocs/assets/appicon-512.png");
 INCBIN(MaterialIcons_Regular_woff2, "../dist/htdocs/assets/MaterialIcons-Regular.woff2");
+
+#endif

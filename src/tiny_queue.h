@@ -7,6 +7,9 @@
 #ifndef __TINY_QUEUE_H__
 #define __TINY_QUEUE_H__
 
+#include <pthread.h>
+#include <time.h>
+
 typedef struct tiny_msg_t {
     void *data;
     long id;
