@@ -729,7 +729,7 @@ function initNavs() {
             const target = event.target.nodeName === 'BUTTON' ? event.target : event.target.parentNode;
             event.stopPropagation();
             event.preventDefault();
-            sendAPI("MYMPD_API_PLAYER_TOGGLE_OUTPUT", {"outputId": getCustomDomProperty(target, 'data-output-id'), "state": (target.classList.contains('active') ? 0 : 1)});
+            sendAPI("MYMPD_API_PLAYER_OUTPUT_TOGGLE", {"outputId": getCustomDomProperty(target, 'data-output-id'), "state": (target.classList.contains('active') ? 0 : 1)});
             toggleBtn(target.id);
         }
     }, false);

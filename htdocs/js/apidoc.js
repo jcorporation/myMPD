@@ -611,7 +611,7 @@ const APImethods = {
         "desc": "Lists the MPD outputs.",
         "params": {}
     },
-    "MYMPD_API_PLAYER_TOGGLE_OUTPUT": {
+    "MYMPD_API_PLAYER_OUTPUT_TOGGLE": {
         "desc": "Toggles the output state.",
         "params": {
             "outputId": {
@@ -632,6 +632,10 @@ const APImethods = {
     },
     "MYMPD_API_PLAYER_STATE": {
         "desc": "Shows the mpd player state.",
+        "params": {}
+    },
+    "MYMPD_API_PLAYER_CLEARERROR": {
+        "desc": "Clears the current error message.",
         "params": {}
     },
     "MYMPD_API_LIKE": {
