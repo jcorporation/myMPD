@@ -391,12 +391,7 @@ function a2hsInit() {
         deferredA2HSprompt.prompt();
         // Wait for the user to respond to the prompt
         deferredA2HSprompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                logDebug('User accepted the A2HS prompt');
-            }
-            else {
-                logDebug('User dismissed the A2HS prompt');
-            }
+            logDebug(choiceResult.outcome === 'accepted' ? 'User accepted the A2HS prompt' : 'User dismissed the A2HS prompt');
             deferredA2HSprompt = null;
         });
     });
