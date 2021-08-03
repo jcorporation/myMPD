@@ -6,7 +6,7 @@
 function clearMPDerror() {
     sendAPI('MYMPD_API_PLAYER_CLEARERROR',{}, function() {
         sendAPI('MYMPD_API_PLAYER_STATE', {}, function(obj) {
-            parseState(obj)
+            parseState(obj);
         }, false);
     }, false);
 }
@@ -523,7 +523,7 @@ function chVolume(increment) {
 
 //eslint-disable-next-line no-unused-vars
 function clickTitle() {
-    const uri = getCustomDomProperty(document.getElementById('currentTitle'), 'data-uri');
+    const uri = getCustomDomProperty('currentTitle', 'data-uri');
     if (isValidUri(uri) === true && isStreamUri(uri) === false) {
         songDetails(uri);
     }

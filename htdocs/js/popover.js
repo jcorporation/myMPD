@@ -258,7 +258,7 @@ function showMenuTd(el) {
                         if ( idx === 0 || idx === menuItems.length -1 ) {
                             break;
                         }
-                    } while ( !menuItems[idx].offsetHeight )
+                    } while (!menuItems[idx].offsetHeight);
                     if (menuItems[idx]) {
                         menuItems[idx].focus();
                     }

@@ -284,7 +284,7 @@ function parseListTimer(obj) {
         const days = [];
         for (let j = 0; j < 7; j++) {
             if (obj.result.data[i].weekdays[j] === true) {
-                days.push(t(weekdays[j]))
+                days.push(t(weekdays[j]));
             }
         }
         tds += days.join(', ')  + '</td>';

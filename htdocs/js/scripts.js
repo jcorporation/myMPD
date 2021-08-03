@@ -37,7 +37,7 @@ function initScripts() {
                 execScript(getCustomDomProperty(event.target.parentNode.parentNode, 'data-href'));
             }
             else if (action === 'add2home') {
-                addScriptToHome(script, getCustomDomProperty(event.target.parentNode.parentNode, 'data-href'))
+                addScriptToHome(script, getCustomDomProperty(event.target.parentNode.parentNode, 'data-href'));
             }
         }
     }, false);

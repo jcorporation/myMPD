@@ -121,7 +121,7 @@ function playlistDetails(uri) {
 //eslint-disable-next-line no-unused-vars
 function playlistShuffle() {
     sendAPI("MYMPD_API_PLAYLIST_SHUFFLE", {
-        "plist": getCustomDomProperty(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri')
+        "plist": getCustomDomProperty('BrowsePlaylistsDetailList', 'data-uri')
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
@@ -129,7 +129,7 @@ function playlistShuffle() {
 //eslint-disable-next-line no-unused-vars
 function playlistSort(tag) {
     sendAPI("MYMPD_API_PLAYLIST_SORT", {
-        "plist": getCustomDomProperty(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri'),
+        "plist": getCustomDomProperty('BrowsePlaylistsDetailList', 'data-uri'),
         "tag": tag
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
@@ -220,7 +220,7 @@ function parseSmartPlaylist(obj) {
 //eslint-disable-next-line no-unused-vars
 function saveSmartPlaylist() {
     const name = document.getElementById('saveSmartPlaylistName').value;
-    const type = getCustomDomProperty(document.getElementById('saveSmartPlaylistType'), 'data-value');
+    const type = getCustomDomProperty('saveSmartPlaylistType', 'data-value');
     const sort = getSelectValue('saveSmartPlaylistSort');
     if (validatePlname(name) === true) {
         if (type === 'search') {
@@ -305,7 +305,7 @@ function deletePlaylists() {
 
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistCurrentSong() {
-    const uri = getCustomDomProperty(document.getElementById('currentTitle'), 'data-uri');
+    const uri = getCustomDomProperty('currentTitle', 'data-uri');
     if (uri !== '') {
         showAddToPlaylist(uri, '');
     }
@@ -425,7 +425,7 @@ function updateSmartPlaylist(plist) {
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylistClick() {
     sendAPI("MYMPD_API_SMARTPLS_UPDATE", {
-        "plist": getCustomDomProperty(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri')
+        "plist": getCustomDomProperty('BrowsePlaylistsDetailList', 'data-uri')
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
@@ -439,7 +439,7 @@ function showDelPlaylist(plist) {
 
 //eslint-disable-next-line no-unused-vars
 function showClearPlaylist() {
-    const plist = getCustomDomProperty(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri');
+    const plist = getCustomDomProperty('BrowsePlaylistsDetailList', 'data-uri');
     showConfirm(tn('Do you really want to clear the playlist?', {"playlist": plist}), tn('Yes, clear it'), function() {
         sendAPI("MYMPD_API_PLAYLIST_CLEAR", {
             "plist": plist

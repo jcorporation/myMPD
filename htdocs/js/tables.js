@@ -226,7 +226,7 @@ function dragAndDropTable(table) {
         if (event.target.nodeName === 'TD') {
             target = event.target.parentNode;
         }
-        const oldSongpos = getCustomDomProperty(document.getElementById(event.dataTransfer.getData('Text')), 'data-songpos');
+        const oldSongpos = getCustomDomProperty(event.dataTransfer.getData('Text'), 'data-songpos');
         const newSongpos = getCustomDomProperty(target, 'data-songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.classList.remove('opacity05');

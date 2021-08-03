@@ -434,8 +434,8 @@ function appInitStart() {
         settings.loglevel = 4;
     }
     //register serviceworker
-    if ('serviceWorker' in navigator && window.location.protocol === 'https:' 
-        && window.location.hostname !== 'localhost' && script === 'combined.js')
+    if ('serviceWorker' in navigator && window.location.protocol === 'https:' && 
+        window.location.hostname !== 'localhost' && script === 'combined.js')
     {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('/sw.js', {scope: '/'}).then(function(registration) {

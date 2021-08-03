@@ -32,13 +32,21 @@ function elClear(el) {
 }
 
 function elDisable(el) {
-    typeof el === 'string' ? document.getElementById(el).setAttribute('disabled', 'disabled')
-                           : el.setAttribute('disabled', 'disabled');
+    if (typeof el === 'string') {
+        document.getElementById(el).setAttribute('disabled', 'disabled');
+    }
+    else {
+        el.setAttribute('disabled', 'disabled');
+    }
 }
 
 function elEnable(el) {
-    typeof el === 'string' ? document.getElementById(el).removeAttribute('disabled')
-                           : el.removeAttribute('disabled');
+    if (typeof el === 'string') {
+        document.getElementById(el).removeAttribute('disabled');
+    }
+    else {
+        el.removeAttribute('disabled');
+    }
 }
 
 //escapes html characters to avoid xss
