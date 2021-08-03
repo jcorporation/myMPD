@@ -3,6 +3,14 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+function clearMPDerror() {
+    sendAPI('MYMPD_API_PLAYER_CLEARERROR',{}, function() {
+        sendAPI('MYMPD_API_PLAYER_STATE', {}, function(obj) {
+            parseState(obj)
+        }, false);
+    }, false);
+}
+
 function parseStats(obj) {
     document.getElementById('mpdstats_artists').textContent =  obj.result.artists;
     document.getElementById('mpdstats_albums').textContent = obj.result.albums;

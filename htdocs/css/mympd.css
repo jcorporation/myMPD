@@ -884,6 +884,15 @@ a.text-success:focus {
   margin-bottom: 0;
 }
 
+.top-alert-dismissible .close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  padding: 0.25rem 1.25rem;
+  color: #721c24 !important;
+}
+
 .lyricsText {
   padding-bottom: 1rem;
   padding-left: 0.2rem;

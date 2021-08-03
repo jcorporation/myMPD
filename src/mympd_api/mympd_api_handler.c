@@ -667,6 +667,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_PLAYER_STATE:
             response->data = mpd_client_put_state(mympd_state, response->data, request->method, request->id);
             break;
+        case MYMPD_API_PLAYER_CLEARERROR:
+            rc = mpd_run_clearerror(mympd_state->mpd_state->conn);
+            response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_clearerror");
+            break;
         case MYMPD_API_DATABASE_UPDATE:
         case MYMPD_API_DATABASE_RESCAN: {
             long update_id = mpd_client_get_updatedb_id(mympd_state);
@@ -834,7 +838,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 response->data = mpd_client_put_outputs(mympd_state, response->data, request->method, request->id);
             }
             break;
-        case MYMPD_API_PLAYER_TOGGLE_OUTPUT:
+        case MYMPD_API_PLAYER_OUTPUT_TOGGLE:
             je = json_scanf(request->data, sdslen(request->data), "{params: {outputId: %u, state: %u}}", &uint_buf1, &uint_buf2);
             if (je == 2) {
                 if (uint_buf2 == 1) {
