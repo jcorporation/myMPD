@@ -13,6 +13,7 @@
 #include "list.h"
 #include "sds_extras.h"
 #include "mympd_config_defs.h"
+#include "mympd_pin.h"
 
 
 static struct option long_options[] = {
@@ -21,12 +22,15 @@ static struct option long_options[] = {
     {"syslog",    no_argument,       0, 's'},
     {"workdir",   required_argument, 0, 'w'},
     {"config",    no_argument,       0, 'c'}
+    #ifdef ENABLE_SSL
+   ,{"pin",       no_argument,       0, 'p'}
+    #endif
 };
    
 bool handle_options(struct t_config *config, int argc, char **argv) {
     int n = 0;
     int option_index = 0;
-    while((n = getopt_long(argc, argv, "hu:sw:c", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
+    while((n = getopt_long(argc, argv, "hu:sw:cp", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
         switch (n) {
             case 'u':
                 config->user = sdsreplace(config->user, optarg);
@@ -40,6 +44,12 @@ bool handle_options(struct t_config *config, int argc, char **argv) {
             case 'c':
                 config->bootstrap = true;
                 break;
+            #ifdef ENABLE_SSL
+            case 'p':
+                mympd_set_pin(config->workdir);
+                return false;
+                break;
+            #endif
             default:
                 fprintf(stderr, "\nUsage: %s [OPTION]...\n\n"
                     "myMPD %s\n"
@@ -50,10 +60,12 @@ bool handle_options(struct t_config *config, int argc, char **argv) {
                     "  -h, --help             displays this help\n"
                     "  -u, --user <username>  username to drop privileges to (default: mympd)\n"
                     "  -s, --syslog           enable syslog logging (facility: daemon)\n"
-                    "  -w, --workdir <path>   working directory (default: %s)\n\n",
-                    argv[0], MYMPD_VERSION, config->workdir);
+                    "  -w, --workdir <path>   working directory (default: %s)\n"
+                #ifdef ENABLE_SSL
+                    "  -p, --pin              sets a pin for myMPD settings\n\n"
+                #endif
+                    ,argv[0], MYMPD_VERSION, config->workdir);
                 return false;
-        
         }
     }
     return true;

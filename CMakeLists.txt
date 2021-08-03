@@ -178,6 +178,7 @@ set(SOURCES
   src/mympd_autoconf.c
   src/mympd_config.c
   src/mympd_migrate.c
+  src/mympd_pin.c
   src/utility.c
   src/random.c
   src/sds_extras.c

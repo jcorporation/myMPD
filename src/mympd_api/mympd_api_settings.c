@@ -483,8 +483,10 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = tojson_bool(buffer, "mpdKeepalive", mympd_state->mpd_state->mpd_keepalive, true);
     buffer = tojson_long(buffer, "mpdBinarylimit", mympd_state->mpd_state->mpd_binarylimit, true);
 #ifdef ENABLE_SSL
+    buffer = tojson_bool(buffer, "pin", (sdslen(mympd_state->config->pin_hash) == 0 ? false : true), true);
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
 #else
+    buffer = tojson_bool(buffer, "pin", false, true);
     buffer = tojson_bool(buffer, "featCacert", false, true);
 #endif
 #ifdef ENABLE_LUA
@@ -557,6 +559,8 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = tojson_long(buffer, "random", mpd_status_get_random(status), true);
         buffer = tojson_long(buffer, "consume", mpd_status_get_consume(status), true);
         buffer = tojson_char(buffer, "replaygain", replaygain == NULL ? "" : replaygain, true);
+        mpd_status_free(status);
+        
         buffer = tojson_bool(buffer, "featPlaylists", mympd_state->mpd_state->feat_playlists, true);
         buffer = tojson_bool(buffer, "featTags", mympd_state->mpd_state->feat_tags, true);
         buffer = tojson_bool(buffer, "featLibrary", mympd_state->mpd_state->feat_library, true);
@@ -570,8 +574,7 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = tojson_bool(buffer, "featNeighbors", mympd_state->mpd_state->feat_mpd_neighbor, true);
         buffer = tojson_bool(buffer, "featBinarylimit", mympd_state->mpd_state->feat_mpd_binarylimit, true);
         buffer = tojson_bool(buffer, "featSmartpls", mympd_state->mpd_state->feat_smartpls, true);
-        mpd_status_free(status);
-
+        
         buffer = print_tags_array(buffer, "tagList", mympd_state->mpd_state->tag_types_mympd);
         buffer = sdscat(buffer, ",");
         buffer = print_tags_array(buffer, "tagListSearch", mympd_state->tag_types_search);

@@ -49,6 +49,7 @@ void mympd_free_config(struct t_config *config) {
 #ifdef ENABLE_LUA
     sdsfree(config->lualibs);
 #endif
+    sdsfree(config->pin_hash);
 }
 
 void mympd_free_config_initial(struct t_config *config) {
@@ -84,6 +85,7 @@ void mympd_config_defaults(struct t_config *config) {
     config->lualibs = mympd_getenv_string("MYMPD_LUALIBS", "all", config->first_startup);
     #endif
     config->loglevel = 5;
+    config->pin_hash = sdsempty();
 }
 
 void mympd_config_defaults_initial(struct t_config *config) {
@@ -115,6 +117,7 @@ bool mympd_read_config(struct t_config *config) {
     #ifdef ENABLE_LUA
     config->lualibs = state_file_rw_string_sds(config->workdir, "config", "lualibs", config->lualibs, false);
     #endif
+    config->pin_hash = state_file_rw_string_sds(config->workdir, "config", "pin_hash", config->pin_hash, false);
     config->loglevel = state_file_rw_int(config->workdir, "config", "loglevel", config->loglevel, false);
     //overwrite configured loglevel
     config->loglevel = mympd_getenv_int("MYMPD_LOGLEVEL", config->loglevel, true);
