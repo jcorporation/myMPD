@@ -657,6 +657,7 @@ const APImethods = {
     },
     "MYMPD_API_MOUNT_MOUNT": {
         "desc": "Mounts a network path.",
+        "protected": true,
         "params": {
             "mountUrl": {
                 "type": "text",
@@ -672,6 +673,7 @@ const APImethods = {
     },
     "MYMPD_API_MOUNT_UNMOUNT": {
         "desc": "Unmounts a mounted network path.",
+        "protected": true,
         "params": {
             "mountPoint": {
                 "type": "text",
@@ -686,6 +688,7 @@ const APImethods = {
     },
     "MYMPD_API_CONNECTION_SAVE": {
         "desc": "Saves the MPD connection parameters.",
+        "protected": true,
         "params": {
             "mpdHost": {
                 "type": "text",
@@ -732,6 +735,7 @@ const APImethods = {
     },
     "MYMPD_API_SETTINGS_SET": {
         "desc": "Sets myMPD settings.",
+        "protected": true,
         "params": {
             "coverimageNames": {
                 "type": "text",
@@ -1082,6 +1086,7 @@ const APImethods = {
     },
     "MYMPD_API_TIMER_SAVE": {
         "desc": "Saves a timer.",
+        "protected": true,
         "params": {
             "timerid": {
                 "type": "uint",
@@ -1162,12 +1167,14 @@ const APImethods = {
     },
     "MYMPD_API_TIMER_RM": {
         "desc": "Removes a timer",
+        "protected": true,
         "params": {
             "timerid": APIparams.timerid
         }
     },
     "MYMPD_API_TIMER_TOGGLE": {
         "desc": "Toggles a timers enabled state",
+        "protected": true,
         "params": {
             "timerid": APIparams.timerid
         }
@@ -1189,6 +1196,7 @@ const APImethods = {
     },
     "MYMPD_API_SCRIPT_SAVE": {
         "desc": "Saves a script",
+        "protected": true,
         "params": {
             "script": APIparams.script,
             "oldscript": {
@@ -1229,8 +1237,9 @@ const APImethods = {
             "script": APIparams.script
         }
     },
-    "MYMPD_API_SCRIPT_DELETE": {
+    "MYMPD_API_SCRIPT_RM": {
         "desc": "Removes a script",
+        "protected": true,
         "params": {
             "script": APIparams.script
         }
@@ -1259,6 +1268,7 @@ const APImethods = {
     },
     "MYMPD_API_PARTITION_NEW": {
         "desc": "Creates a new MPD partition",
+        "protected": true,
         "params": {
             "name": APIparams.partName
         }
@@ -1270,12 +1280,15 @@ const APImethods = {
         }
     },
     "MYMPD_API_PARTITION_RM": {
+        "desc": "Removes a mpd partition.",
+        "protected": true,
         "params": {
             "name": APIparams.partName
         }
     },
     "MYMPD_API_PARTITION_OUTPUT_MOVE": {
         "desc": "Moves this output to current MPD partition",
+        "protected": true,
         "params": {
             "name": {
                 "tye": "text",
@@ -1296,6 +1309,7 @@ const APImethods = {
     },
     "MYMPD_API_TRIGGER_SAVE": {
         "desc": "Saves a trigger",
+        "protected": true,
         "params": {
             "id": APIparams.triggerId,
             "name": {
@@ -1316,14 +1330,16 @@ const APImethods = {
             "arguments": APIparams.scriptArguments
         }
     },
-    "MYMPD_API_TRIGGER_DELETE": {
+    "MYMPD_API_TRIGGER_RM": {
         "desc": "Deletes a trigger",
+        "protected": true,
         "params":{
             "id": APIparams.triggerId
         }
     },
     "MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET": {
         "desc": "Sets an MPD output attribute",
+        "protected": true,
         "params":{
             "outputId": {
                 "type": "uint",
@@ -1341,7 +1357,7 @@ const APImethods = {
         "desc": "Lists all home icons",
         "params":{}
     },
-    "MYMPD_API_HOME_ICON_DELETE": {
+    "MYMPD_API_HOME_ICON_RM": {
         "desc": "Deletes a home icon",
         "params": {
             "pos": {
@@ -1449,5 +1465,13 @@ const APImethods = {
                 "desc": "The session id to remove."
             }
         }
+    },
+    "MYMPD_API_COVERCACHE_CLEAR": {
+        "desc": "Clears the covercache",
+        "params": {}
+    },
+    "MYMPD_API_COVERCACHE_CROP": {
+        "desc": "Clears the covercache",
+        "params": {}
     }
 };

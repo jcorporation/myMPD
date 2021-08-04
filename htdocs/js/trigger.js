@@ -128,7 +128,7 @@ function showListTrigger() {
 }
 
 function deleteTrigger(id) {
-    sendAPI("MYMPD_API_TRIGGER_DELETE", {"id": id}, function() {
+    sendAPI("MYMPD_API_TRIGGER_RM", {"id": id}, function() {
         sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
     }, true);
 }

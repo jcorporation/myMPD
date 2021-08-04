@@ -457,7 +457,7 @@ function saveHomeIcon() {
 
 //eslint-disable-next-line no-unused-vars
 function deleteHomeIcon(pos) {
-    sendAPI("MYMPD_API_HOME_ICON_DELETE", {"pos": pos}, function(obj) {
+    sendAPI("MYMPD_API_HOME_ICON_RM", {"pos": pos}, function(obj) {
         parseHome(obj);
     });
 }

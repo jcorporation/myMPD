@@ -27,7 +27,8 @@ bool is_protected_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_PARTITION_RM:
         case MYMPD_API_PARTITION_OUTPUT_MOVE:
         case MYMPD_API_TRIGGER_SAVE:
-        case MYMPD_API_TRIGGER_DELETE:
+        case MYMPD_API_TRIGGER_RM:
+        case MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET:
         case MYMPD_API_CONNECTION_SAVE:
         case MYMPD_API_COVERCACHE_CROP:
         case MYMPD_API_COVERCACHE_CLEAR:
@@ -35,7 +36,7 @@ bool is_protected_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_TIMER_RM:
         case MYMPD_API_TIMER_TOGGLE:
         case MYMPD_API_SCRIPT_SAVE:
-        case MYMPD_API_SCRIPT_DELETE:
+        case MYMPD_API_SCRIPT_RM:
         case MYMPD_API_SETTINGS_SET:
             return true;
         default:

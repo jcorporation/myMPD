@@ -134,7 +134,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 }
             }
             break;
-        case MYMPD_API_HOME_ICON_DELETE:
+        case MYMPD_API_HOME_ICON_RM:
             je = json_scanf(request->data, sdslen(request->data), "{params: {pos: %u}}", &uint_buf1);
             if (je == 1) {
                 rc = mympd_api_rm_home_icon(mympd_state, uint_buf1);
@@ -187,7 +187,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 sdsfree(arguments);
             }
             break;
-        case MYMPD_API_SCRIPT_DELETE:
+        case MYMPD_API_SCRIPT_RM:
             je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
             if (je == 1 && validate_string_not_empty(p_charbuf1) == true) {
                 rc = mympd_api_script_delete(mympd_state->config, p_charbuf1);
@@ -558,7 +558,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "trigger", "error", "Invalid trigger name");
             }
             break;
-        case MYMPD_API_TRIGGER_DELETE:
+        case MYMPD_API_TRIGGER_RM:
             je = json_scanf(request->data, sdslen(request->data), "{params: {id: %u}}", &uint_buf1);
             if (je == 1) {
                 rc = delete_trigger(mympd_state, uint_buf1);
