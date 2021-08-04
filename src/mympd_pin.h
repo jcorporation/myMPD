@@ -7,8 +7,10 @@
 #ifndef __MYMPD_PIN_H__
 #define __MYMPD_PIN_H__
 
+#include <stdbool.h>
+
 #include "../dist/src/sds/sds.h"
 
-void mympd_set_pin(sds workdir);
-sds hash_pin(const char *pin);
+void set_pin(sds workdir);
+bool validate_pin(const char *pin, const char *pin_hash);
 #endif

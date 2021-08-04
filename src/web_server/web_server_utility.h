@@ -11,6 +11,7 @@
 
 #include "../../dist/src/mongoose/mongoose.h"
 #include "../../dist/src/sds/sds.h"
+#include "../list.h"
 
 #define EXTRA_HEADERS_DIR "Content-Security-Policy: default-src 'none'; "\
                           "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; "\
@@ -54,6 +55,7 @@ struct t_mg_user_data {
     int connection_count;
     sds stream_uri;
     bool covercache;
+    struct list session_list;
 };
 
 #ifndef DEBUG

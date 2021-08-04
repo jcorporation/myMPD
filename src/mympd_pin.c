@@ -17,7 +17,12 @@
     #include <openssl/evp.h>
 #endif
 
-void mympd_set_pin(sds workdir) {
+//private definitions
+static sds hash_pin(const char *pin);
+
+//public functions
+
+void set_pin(sds workdir) {
     struct termios old, new;
     if (tcgetattr(fileno(stdin), &old) != 0) {
         return;
@@ -56,7 +61,19 @@ void mympd_set_pin(sds workdir) {
     sdsfree(pin);
 }
 
-sds hash_pin(const char *pin) {
+bool validate_pin(const char *pin, const char *pin_hash) {
+    sds test_hash = hash_pin(pin);
+    bool rc = false;
+    if (strcmp(test_hash, pin_hash) == 0) {
+        rc = true;
+    }
+    sdsfree(test_hash);
+    return rc;
+}
+
+//private functions
+
+static sds hash_pin(const char *pin) {
     sds hex_hash = sdsempty();
 #ifdef ENABLE_SSL
     EVP_MD_CTX* context = EVP_MD_CTX_new();

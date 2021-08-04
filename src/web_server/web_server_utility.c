@@ -36,6 +36,7 @@ void free_mg_user_data(struct t_mg_user_data *mg_user_data) {
     sdsfree(mg_user_data->playlist_directory);
     sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
     sdsfree(mg_user_data->stream_uri);
+    list_free(&mg_user_data->session_list);
 }
 
 struct mg_str mg_str_strip_parent(struct mg_str *path, int count) {

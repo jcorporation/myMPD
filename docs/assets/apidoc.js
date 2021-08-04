@@ -1,9 +1,7 @@
 "use strict";
-/*
- SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
- https://github.com/jcorporation/mympd
-*/
+// SPDX-License-Identifier: GPL-2.0-or-later
+// myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+// https://github.com/jcorporation/mympd
 
 const APIparams = {
     "offset": {
@@ -1427,9 +1425,19 @@ const APImethods = {
         }
     },
     "MYMPD_API_LYRICS_GET": {
-        "desc": "Gets all lyrics from uri",
+        "desc": "Gets all lyrics from uri.",
         "params": {
             "uri": APIparams.uri
+        }
+    },
+    "MYMPD_API_SESSION_LOGIN": {
+        "desc": "Get a session ticket with supplied pin.",
+        "params": {
+            "pin": {
+                "type": "text",
+                "example": "1234",
+                "desc": "The myMPD settings pin, configured with mympd -p."
+            }
         }
     }
 };

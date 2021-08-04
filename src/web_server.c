@@ -12,9 +12,11 @@
 #include "http_client.h"
 #include "log.h"
 #include "mympd_config_defs.h"
+#include "mympd_pin.h"
 #include "sds_extras.h"
 #include "utility.h"
 #include "web_server/web_server_albumart.h"
+#include "web_server/web_server_sessions.h"
 #include "web_server/web_server_tagart.h"
 
 //private definitions
@@ -25,7 +27,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 #endif
 static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
-static bool handle_api(long long conn_id, struct mg_http_message *hm);
+static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, struct t_mg_user_data *mg_user_data);
 static bool handle_script_api(long long conn_id, struct mg_http_message *hm);
 static void mpd_stream_proxy_forward(struct mg_http_message *hm, struct mg_connection *nc);
 static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
@@ -45,8 +47,9 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     mg_user_data->feat_library = false;
     mg_user_data->feat_mpd_albumart = false;
     mg_user_data->connection_count = 0;
-	mg_user_data->stream_uri = sdsnew("http://localhost:8000");
-	mg_user_data->covercache = true;
+    mg_user_data->stream_uri = sdsnew("http://localhost:8000");
+    mg_user_data->covercache = true;
+    list_init(&mg_user_data->session_list);
 
     //init monogoose mgr
     mg_mgr_init(mgr);
@@ -381,7 +384,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             else if (mg_http_match_uri(hm, "/api/")) {
                 //api request
-                bool rc = handle_api((long long)nc->id, hm);
+                bool rc = handle_api(nc, hm, mg_user_data);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Invalid API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
@@ -533,23 +536,23 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
 }
 #endif
 
-static bool handle_api(long long conn_id, struct mg_http_message *hm) {
+static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, struct t_mg_user_data *mg_user_data) {
     if (hm->body.len > 2048) {
         MYMPD_LOG_ERROR("Request length of %d exceeds max request size, discarding request)", hm->body.len);
         return false;
     }
     
-    MYMPD_LOG_DEBUG("API request (%lld): %.*s", conn_id, hm->body.len, hm->body.ptr);
+    MYMPD_LOG_DEBUG("API request (%lld): %.*s", (long long)nc->id, hm->body.len, hm->body.ptr);
     char *cmd = NULL;
     char *jsonrpc = NULL;
     int id = 0;
-    const int je = json_scanf(hm->body.ptr, hm->body.len, "{jsonrpc: %Q, method: %Q, id: %d}", &jsonrpc, &cmd, &id);
+    int je = json_scanf(hm->body.ptr, hm->body.len, "{jsonrpc: %Q, method: %Q, id: %d}", &jsonrpc, &cmd, &id);
     if (je < 3) {
         FREE_PTR(cmd);
         FREE_PTR(jsonrpc);
         return false;
     }
-    MYMPD_LOG_INFO("API request (%lld): %s", conn_id, cmd);
+    MYMPD_LOG_INFO("API request (%lld): %s", (long long)nc->id, cmd);
 
     enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
     if (cmd_id == 0 || strncmp(jsonrpc, "2.0", 3) != 0) {
@@ -564,13 +567,39 @@ static bool handle_api(long long conn_id, struct mg_http_message *hm) {
         FREE_PTR(jsonrpc);
         return false;
     }
-    
-    sds data = sdscatlen(sdsempty(), hm->body.ptr, hm->body.len);
-    t_work_request *request = create_request(conn_id, id, cmd_id, cmd, data);
-    sdsfree(data);
-    
-    tiny_queue_push(mympd_api_queue, request, 0);
 
+    switch(cmd_id) {
+        case MYMPD_API_SESSION_LOGIN: {
+            char *pin = NULL;
+            bool is_valid = false;
+            je = json_scanf(hm->body.ptr, hm->body.len, "{params: {pin: %Q}}", &pin);
+            if (je == 1 && strlen(pin) > 0) {
+                is_valid = validate_pin(pin, mg_user_data->config->pin_hash);
+            }
+            FREE_PTR(pin);
+            sds response = jsonrpc_result_start(sdsempty(), "MYMPD_API_SESSION_LOGIN", 0);
+            if (is_valid == true) {
+                sds session = new_session(&mg_user_data->session_list);
+                response = tojson_char(response, "session", session, false);
+                sdsfree(session);
+            }
+            else {
+                response = tojson_char(response, "session", "", false);
+            }
+            response = jsonrpc_result_end(response);
+            http_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+            sdsfree(response);
+            break;
+        }
+        default: {
+            //forward API request to mympd_api_handler
+            sds data = sdscatlen(sdsempty(), hm->body.ptr, hm->body.len);
+            t_work_request *request = create_request(nc->id, id, cmd_id, cmd, data);
+            sdsfree(data);
+            tiny_queue_push(mympd_api_queue, request, 0);
+        }
+    }
+    
     FREE_PTR(cmd);
     FREE_PTR(jsonrpc);
     return true;

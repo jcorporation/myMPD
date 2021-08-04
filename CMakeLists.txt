@@ -208,9 +208,9 @@ set(SOURCES
   src/mpd_client/mpd_client_lyrics.c
   src/mpd_worker.c
   src/mpd_worker/mpd_worker_api.c
-  src/mpd_worker/mpd_worker_utility.c
-  src/mpd_worker/mpd_worker_smartpls.c
   src/mpd_worker/mpd_worker_cache.c
+  src/mpd_worker/mpd_worker_smartpls.c
+  src/mpd_worker/mpd_worker_utility.c
   src/mympd_api.c
   src/mympd_api/mympd_api_handler.c
   src/mympd_api/mympd_api_home.c
@@ -220,9 +220,10 @@ set(SOURCES
   src/mympd_api/mympd_api_timer_handlers.c
   src/mympd_api/mympd_api_scripts.c
   src/web_server.c
-  src/web_server/web_server_utility.c
   src/web_server/web_server_albumart.c
+  src/web_server/web_server_sessions.c
   src/web_server/web_server_tagart.c
+  src/web_server/web_server_utility.c
   dist/src/mongoose/mongoose.c
   dist/src/frozen/frozen.c
   dist/src/sds/sds.c
