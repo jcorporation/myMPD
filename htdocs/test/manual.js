@@ -34,9 +34,17 @@ function init() {
         if (method !== '' && APImethods[method].params !== undefined) {
             form = paramsToForm(APImethods[method].params, '');
             document.getElementById('desc').textContent = APImethods[method].desc;
+            if (APImethods[method].protected === true) {
+                document.getElementById('protected').classList.remove('d-none');
+            }
+            else {
+                document.getElementById('protected').classList.add('d-none');
+            }
+        }
+        else {
+            document.getElementById('desc').textContent = '';
         }
         document.getElementById('params').innerHTML = form;
-        document.getElementById('desc').textContent = '';
         document.getElementById('resultText').textContent = '';
         document.getElementById('requestText').textContent = '';
         document.getElementById('resultState').textContent = 'Result';
@@ -109,6 +117,7 @@ function sendAPI() {
     let ajaxRequest = new XMLHttpRequest();
     ajaxRequest.open('POST', '/api/', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
+    ajaxRequest.setRequestHeader('Authentication', 'Bearer: ' + document.getElementById('session').value);
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4 && ajaxRequest.status == 200) {
             try {
