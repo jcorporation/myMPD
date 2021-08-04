@@ -19,6 +19,30 @@ enum mympd_cmd_ids get_cmd_id(const char *cmd) {
     return 0;
 }
 
+bool is_protected_api_method(enum mympd_cmd_ids cmd_id) {
+    switch(cmd_id) {
+        case MYMPD_API_MOUNT_MOUNT:
+        case MYMPD_API_MOUNT_UNMOUNT:
+        case MYMPD_API_PARTITION_NEW:
+        case MYMPD_API_PARTITION_RM:
+        case MYMPD_API_PARTITION_OUTPUT_MOVE:
+        case MYMPD_API_TRIGGER_SAVE:
+        case MYMPD_API_TRIGGER_DELETE:
+        case MYMPD_API_CONNECTION_SAVE:
+        case MYMPD_API_COVERCACHE_CROP:
+        case MYMPD_API_COVERCACHE_CLEAR:
+        case MYMPD_API_TIMER_SAVE:
+        case MYMPD_API_TIMER_RM:
+        case MYMPD_API_TIMER_TOGGLE:
+        case MYMPD_API_SCRIPT_SAVE:
+        case MYMPD_API_SCRIPT_DELETE:
+        case MYMPD_API_SETTINGS_SET:
+            return true;
+        default:
+            return false;
+    }
+}
+
 bool is_public_api_method(enum mympd_cmd_ids cmd_id) {
     switch(cmd_id) {
         case MYMPD_API_UNKNOWN:

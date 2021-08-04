@@ -6,6 +6,7 @@
 
 #include "mympd_pin.h"
 
+#include "log.h"
 #include "mympd_config_defs.h"
 #include "state_files.h"
 
@@ -62,10 +63,18 @@ void set_pin(sds workdir) {
 }
 
 bool validate_pin(const char *pin, const char *pin_hash) {
+    if (pin_hash[0] == '\0') {
+        MYMPD_LOG_ERROR("No pin is set");
+        return false;
+    }
     sds test_hash = hash_pin(pin);
     bool rc = false;
     if (strcmp(test_hash, pin_hash) == 0) {
+        MYMPD_LOG_INFO("Valid pin entered");
         rc = true;
+    }
+    else {
+        MYMPD_LOG_ERROR("Invalid pin entered");
     }
     sdsfree(test_hash);
     return rc;

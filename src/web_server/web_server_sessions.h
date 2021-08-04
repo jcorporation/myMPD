@@ -10,6 +10,10 @@
 #include "../../dist/src/sds/sds.h"
 #include "../list.h"
 
+#include <stdbool.h>
+
 sds new_session(struct list *session_list);
+bool validate_session(struct list *session_list, const char *check_session);
+bool remove_session(struct list *session_list, const char *session);
 
 #endif

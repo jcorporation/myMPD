@@ -1439,5 +1439,15 @@ const APImethods = {
                 "desc": "The myMPD settings pin, configured with mympd -p."
             }
         }
+    },
+    "MYMPD_API_SESSION_LOGOUT": {
+        "desc": "Removes the session from the session table.",
+        "params": {
+            "session": {
+                "type": "text",
+                "example": "",
+                "desc": "The session id to remove."
+            }
+        }
     }
 };

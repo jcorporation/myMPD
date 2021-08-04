@@ -7,8 +7,11 @@
 #include "web_server_sessions.h"
 
 #include "../log.h"
+#include "../utility.h"
+#include "mympd_config_defs.h"
 
 #include <assert.h>
+#include <string.h>
 #include <time.h>
 
 #ifdef ENABLE_SSL
@@ -29,13 +32,54 @@ sds new_session(struct list *session_list) {
     return session;
     #endif
     //timeout old sessions
-    //struct    
+    validate_session(session_list, NULL);
     //add new session with 30 min timeout
     list_push(session_list, session, (time(NULL) + 1800), NULL, NULL);
+    MYMPD_LOG_DEBUG("Created session %s", session);
     //limit sessions to 10 
     if (session_list->length > 10) {
         list_shift(session_list, 0);
         MYMPD_LOG_WARN("To many sessions, discarding oldest session");
     }
     return session;
+}
+
+bool validate_session(struct list *session_list, const char *session) {
+    time_t now = time(NULL);
+    struct list_node *current = session_list->head;
+    unsigned i = 0;
+    while (current != NULL) {
+        if (current->value_i < now) {
+            MYMPD_LOG_DEBUG("Session %s timed out", current->key);
+            struct list_node *next = current->next;
+            list_shift(session_list, i);
+            current = next;
+        }
+        else {
+            i++;
+            current = current->next;
+            //validate a session
+            if (session != NULL && strcmp(current->key, session) == 0) {
+                current->value_i = time(NULL) + 1800;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool remove_session(struct list *session_list, const char *session) {
+    struct list_node *current = session_list->head;
+    unsigned i = 0;
+    while (current != NULL) {
+        if (strcmp(current->key, session) == 0) {
+            MYMPD_LOG_DEBUG("Session %s removed", current->key);
+            list_shift(session_list, i);
+            return true;
+        }
+        current = current->next;
+        i++;
+    }
+    MYMPD_LOG_DEBUG("Session %s not found", session);
+    return false;
 }

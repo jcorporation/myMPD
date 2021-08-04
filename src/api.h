@@ -127,7 +127,8 @@
     X(MYMPD_API_HOME_ICON_MOVE) \
     X(MYMPD_API_PICTURE_LIST) \
     X(MYMPD_API_CACHES_CREATE) \
-    X(MYMPD_API_SESSION_LOGIN)
+    X(MYMPD_API_SESSION_LOGIN) \
+    X(MYMPD_API_SESSION_LOGOUT)
 
 #define GEN_ENUM(X) X,
 #define GEN_STR(X) #X,
@@ -139,6 +140,7 @@ enum mympd_cmd_ids {
 
 //global functions
 enum mympd_cmd_ids get_cmd_id(const char *cmd);
+bool is_protected_api_method(enum mympd_cmd_ids cmd_id);
 bool is_public_api_method(enum mympd_cmd_ids cmd_id);
 bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id);
 #endif

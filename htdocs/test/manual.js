@@ -33,13 +33,13 @@ function init() {
         let form = '';
         if (method !== '' && APImethods[method].params !== undefined) {
             form = paramsToForm(APImethods[method].params, '');
-            document.getElementById('desc').innerText = APImethods[method].desc;
+            document.getElementById('desc').textContent = APImethods[method].desc;
         }
         document.getElementById('params').innerHTML = form;
-        document.getElementById('desc').innerText = '';
-        document.getElementById('resultText').innerText = '';
-        document.getElementById('requestText').innerText = '';
-        document.getElementById('resultState').innerText = 'Result';
+        document.getElementById('desc').textContent = '';
+        document.getElementById('resultText').textContent = '';
+        document.getElementById('requestText').textContent = '';
+        document.getElementById('resultState').textContent = 'Result';
     }, false);
     document.getElementById('btnSubmit').addEventListener('click', function(event) {
         event.preventDefault();
@@ -110,24 +110,28 @@ function sendAPI() {
     ajaxRequest.open('POST', '/api/', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
     ajaxRequest.onreadystatechange = function() {
-        if (ajaxRequest.readyState === 4) {
+        if (ajaxRequest.readyState === 4 && ajaxRequest.status == 200) {
             try {
                 let obj = JSON.parse(ajaxRequest.responseText);
                 if (obj.result) {
-                    document.getElementById('resultState').innerText = 'OK';
+                    document.getElementById('resultState').textContent = 'OK';
                 }
                 else {
-                    document.getElementById('resultState').innerText = 'ERROR';
+                    document.getElementById('resultState').textContent = 'ERROR';
                 }
             }
             catch(e) {
-                document.getElementById('resultState').innerText = 'JSON parse error: ' + e;
+                document.getElementById('resultState').textContent = 'JSON parse error: ' + e;
             }
-            document.getElementById('resultText').innerText = ajaxRequest.responseText;
+            document.getElementById('resultText').textContent = ajaxRequest.responseText;
+        }
+        else {
+            document.getElementById('resultState').textContent = 'Response code: ' + ajaxRequest.status;
+            document.getElementById('resultText').textContent = ajaxRequest.responseText;
         }
     };
     ajaxRequest.send(JSON.stringify(request));
-    document.getElementById('requestText').innerText = JSON.stringify(request);
+    document.getElementById('requestText').textContent = JSON.stringify(request);
 }
 
 init();

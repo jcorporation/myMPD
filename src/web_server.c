@@ -568,6 +568,31 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
         return false;
     }
 
+    if (sdslen(mg_user_data->config->pin_hash) > 0 && is_protected_api_method(cmd_id) == true) {
+        //format of authorization header must be: Bearer x
+        //bearer token must be 20 characters long
+        struct mg_str *session_header = mg_http_get_header(hm, "Authorization");
+        bool rc = false;
+        if (session_header != NULL && session_header->len == 27 && strncmp(session_header->ptr, "Bearer ", 7) == 0) {
+            sds session = sdsnewlen(session_header->ptr, session_header->len);
+            sdsrange(session, 8, -1);
+            rc = validate_session(&mg_user_data->session_list, session);
+            sdsfree(session);
+        }
+        else {
+            MYMPD_LOG_ERROR("No valid Authorization header found");
+        }
+        if (rc == false) {
+            MYMPD_LOG_ERROR("API method %s is protected", cmd);
+            mg_printf(nc, "HTTP/1.1 401 Unauthorized\r\n"
+                "WWW-Authenticate: Bearer realm=\"myMPD\"\r\n"
+                "Content-Length: 0\r\n\r\n");
+            FREE_PTR(cmd);
+            FREE_PTR(jsonrpc);
+            return true;
+        }
+    }
+
     switch(cmd_id) {
         case MYMPD_API_SESSION_LOGIN: {
             char *pin = NULL;
@@ -577,16 +602,39 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
                 is_valid = validate_pin(pin, mg_user_data->config->pin_hash);
             }
             FREE_PTR(pin);
-            sds response = jsonrpc_result_start(sdsempty(), "MYMPD_API_SESSION_LOGIN", 0);
+            sds response;
             if (is_valid == true) {
                 sds session = new_session(&mg_user_data->session_list);
+                response = jsonrpc_result_start(sdsempty(), "MYMPD_API_SESSION_LOGIN", 0);
                 response = tojson_char(response, "session", session, false);
+                response = jsonrpc_result_end(response);
                 sdsfree(session);
             }
             else {
-                response = tojson_char(response, "session", "", false);
+                response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGIN", 0, true, "general", "error", "Invalid pin");
             }
-            response = jsonrpc_result_end(response);
+            http_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+            sdsfree(response);
+            break;
+        }
+        case MYMPD_API_SESSION_LOGOUT: {
+            char *session = NULL;
+            sds response;
+            je = json_scanf(hm->body.ptr, hm->body.len, "{params: {session: %Q}}", &session);
+            if (je == 1) {
+                bool rc = remove_session(&mg_user_data->session_list, session);
+                FREE_PTR(session);
+                if (rc == true) {
+                    response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, false, "general", "info", "Session removed");
+                }
+                else {
+                    response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, true, "general", "error", "Invalid session");
+                }
+            }
+            else {
+                response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, true, "general", "error", "Invalid session");
+            }
+             
             http_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
             sdsfree(response);
             break;
