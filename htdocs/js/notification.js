@@ -51,7 +51,8 @@ const facilities = {
     "script": "Script",
     "sticker": "Sticker",
     "home": "Home",
-    "timer": "Timer"
+    "timer": "Timer",
+    "session": "Session"
 };
 
 function showNotification(title, text, facility, severity) {

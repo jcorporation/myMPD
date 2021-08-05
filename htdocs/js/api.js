@@ -5,14 +5,33 @@
 
 const ignoreMessages = ['No current song', 'No lyrics found'];
 
+function enterPin(method, params, callback, onerror) {
+    session = '';
+    //opened modal exists, show enter pin in footer
+    
+    //open modal to enter pin
+}
+
 function sendAPI(method, params, callback, onerror) {
+    if (settings.pin === true && session === '' && APImethods[method].protected === true) {
+        logDebug('Request must be authorized but we have no session');
+        enterPin(method, params, callback, onerror);
+        return false;
+    }
     const request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": params};
     const ajaxRequest = new XMLHttpRequest();
     ajaxRequest.open('POST', subdir + '/api/', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
+    if (session !== '') {
+        ajaxRequest.setRequestHeader('Authorization', 'Bearer ' + session);
+    }
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {
-            if (ajaxRequest.responseText !== '') {
+            if (ajaxRequest.status === 401) {
+                logDebug('Authorization required for ' + method);
+                enterPin(method, params, callback, onerror);
+            }
+            else if (ajaxRequest.responseText !== '') {
                 let obj;
                 try {
                     obj = JSON.parse(ajaxRequest.responseText);
@@ -55,6 +74,7 @@ function sendAPI(method, params, callback, onerror) {
             }
             else {
                 logError('Empty response for request: ' + JSON.stringify(request));
+                logError('Response code: ' + ajaxRequest.status);
                 if (onerror === true) {
                     if (callback !== undefined && typeof(callback) === 'function') {
                         logDebug('Got empty API response calling ' + callback.name);
@@ -66,6 +86,7 @@ function sendAPI(method, params, callback, onerror) {
     };
     ajaxRequest.send(JSON.stringify(request));
     logDebug('Send API request: ' + method);
+    return true;
 }
 
 function webSocketConnect() {

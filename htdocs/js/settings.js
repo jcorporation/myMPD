@@ -145,7 +145,7 @@ function saveConnection() {
         formOK = false;
     }
     if (formOK === true) {
-        sendAPI("MYMPD_API_CONNECTION_SAVE", {
+        const rc = sendAPI("MYMPD_API_CONNECTION_SAVE", {
             "mpdHost": mpdHostEl.value,
             "mpdPort": Number(mpdPortEl.value),
             "mpdPass": mpdPassEl.value,
@@ -156,7 +156,10 @@ function saveConnection() {
             "mpdTimeout": Number(mpdTimeoutEl.value) * 1000,
             "mpdKeepalive": (document.getElementById('btnMpdKeepalive').classList.contains('active') ? true : false)
         }, getSettings);
-        uiElements.modalConnection.hide();    
+        if (rc === true) {
+            //API request was authorized
+            uiElements.modalConnection.hide();
+        }
     }
 }
 
@@ -865,7 +868,7 @@ function saveSettings(closeModal) {
     webuiSettings.enableLyrics = (document.getElementById('btnEnableLyrics').classList.contains('active') ? true : false);
     
     if (formOK === true) {
-        sendAPI("MYMPD_API_SETTINGS_SET", {
+        const rc = sendAPI("MYMPD_API_SETTINGS_SET", {
             "coverimageNames": inputCoverimageNames.value,
             "lastPlayedCount": Number(document.getElementById('inputSettinglastPlayedCount').value),
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
@@ -887,11 +890,14 @@ function saveSettings(closeModal) {
             "covercacheKeepDays": Number(document.getElementById('inputCovercacheKeepDays').value),
             "webuiSettings": webuiSettings
         }, getSettings);
-        if (closeModal === true) {
-            uiElements.modalSettings.hide();
-        }
-        else {
-            btnWaiting(document.getElementById('btnApplySettings'), true);
+        if (rc === true) {
+            //API request was authorized
+            if (closeModal === true) {
+                uiElements.modalSettings.hide();
+            }
+            else {
+                btnWaiting(document.getElementById('btnApplySettings'), true);
+            }
         }
     }
 }
