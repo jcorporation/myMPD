@@ -22,24 +22,24 @@ static sds mympd_getenv_string(const char *env_var, const char *default_value, b
 static int mympd_getenv_int(const char *env_var, int default_value, bool first_startup);
 
 #ifdef ENABLE_SSL
-static bool mympd_getenv_bool(const char *env_var, bool default_value, bool first_startup);
+    static bool mympd_getenv_bool(const char *env_var, bool default_value, bool first_startup);
 #endif
 
 //public functions
 void mympd_free_config(struct t_config *config) {
     sdsfree(config->http_host);
     sdsfree(config->http_port);
-#ifdef ENABLE_SSL
-    sdsfree(config->ssl_port);
-    sdsfree(config->ssl_cert);
-    sdsfree(config->ssl_key);
-    sdsfree(config->ssl_san);
-#endif
+    #ifdef ENABLE_SSL
+        sdsfree(config->ssl_port);
+        sdsfree(config->ssl_cert);
+        sdsfree(config->ssl_key);
+        sdsfree(config->ssl_san);
+    #endif
     sdsfree(config->acl);
     sdsfree(config->scriptacl);
-#ifdef ENABLE_LUA
-    sdsfree(config->lualibs);
-#endif
+    #ifdef ENABLE_LUA
+        sdsfree(config->lualibs);
+    #endif
     sdsfree(config->pin_hash);
 }
 
@@ -53,27 +53,27 @@ void mympd_config_defaults(struct t_config *config) {
     config->http_host = mympd_getenv_string("MYMPD_HTTP_HOST", "0.0.0.0", config->first_startup);
     config->http_port = mympd_getenv_string("MYMPD_HTTP_PORT", "80", config->first_startup);
     #ifdef ENABLE_SSL
-    config->ssl = mympd_getenv_bool("MYMPD_SSL", true, config->first_startup);
-    config->ssl_port = mympd_getenv_string("MYMPD_SSL_PORT", "443", config->first_startup);
-    config->ssl_san = mympd_getenv_string("MYMPD_SSL_SAN", "", config->first_startup); 
-    config->custom_cert = mympd_getenv_bool("MYMPD_CUSTOM_CERT", false, config->first_startup);
-    sds default_cert = sdscatfmt(sdsempty(), "%s/ssl/server.pem", config->workdir);
-    sds default_key = sdscatfmt(sdsempty(), "%s/ssl/server.key", config->workdir);
-    if (config->custom_cert == true) {
-        config->ssl_cert = mympd_getenv_string("MYMPD_SSL_CERT", default_cert, config->first_startup);
-        config->ssl_key = mympd_getenv_string("MYMPD_SSL_KEY", default_key, config->first_startup);
-        sdsfree(default_cert);
-        sdsfree(default_key);
-    }
-    else {
-        config->ssl_cert = default_cert;
-        config->ssl_key = default_key;
-    }
+        config->ssl = mympd_getenv_bool("MYMPD_SSL", true, config->first_startup);
+        config->ssl_port = mympd_getenv_string("MYMPD_SSL_PORT", "443", config->first_startup);
+        config->ssl_san = mympd_getenv_string("MYMPD_SSL_SAN", "", config->first_startup); 
+        config->custom_cert = mympd_getenv_bool("MYMPD_CUSTOM_CERT", false, config->first_startup);
+        sds default_cert = sdscatfmt(sdsempty(), "%s/ssl/server.pem", config->workdir);
+        sds default_key = sdscatfmt(sdsempty(), "%s/ssl/server.key", config->workdir);
+        if (config->custom_cert == true) {
+            config->ssl_cert = mympd_getenv_string("MYMPD_SSL_CERT", default_cert, config->first_startup);
+            config->ssl_key = mympd_getenv_string("MYMPD_SSL_KEY", default_key, config->first_startup);
+            sdsfree(default_cert);
+            sdsfree(default_key);
+        }
+        else {
+            config->ssl_cert = default_cert;
+            config->ssl_key = default_key;
+        }
     #endif
     config->acl = mympd_getenv_string("MYMPD_ACL", "", config->first_startup);
     config->scriptacl = mympd_getenv_string("MYMPD_SCRIPTACL", "+127.0.0.0/8", config->first_startup);
     #ifdef ENABLE_LUA
-    config->lualibs = mympd_getenv_string("MYMPD_LUALIBS", "all", config->first_startup);
+        config->lualibs = mympd_getenv_string("MYMPD_LUALIBS", "all", config->first_startup);
     #endif
     config->loglevel = 5;
     config->pin_hash = sdsempty();
@@ -94,21 +94,23 @@ bool mympd_read_config(struct t_config *config) {
     config->http_host = state_file_rw_string_sds(config->workdir, "config", "http_host", config->http_host, false);
     config->http_port = state_file_rw_string_sds(config->workdir, "config", "http_port", config->http_port, false);
     #ifdef ENABLE_SSL
-    config->ssl = state_file_rw_bool(config->workdir, "config", "ssl", config->ssl, false);
-    config->ssl_port = state_file_rw_string_sds(config->workdir, "config", "ssl_port", config->ssl_port, false);
-    config->ssl_san = state_file_rw_string_sds(config->workdir, "config", "ssl_san", config->ssl_san, false);
-    config->custom_cert = state_file_rw_bool(config->workdir, "config", "custom_cert", config->custom_cert, false);
-    if (config->custom_cert == true) {
-        config->ssl_cert = state_file_rw_string_sds(config->workdir, "config", "ssl_cert", config->ssl_cert, false);
-        config->ssl_key = state_file_rw_string_sds(config->workdir, "config", "ssl_key", config->ssl_key, false);
-    }
+        config->ssl = state_file_rw_bool(config->workdir, "config", "ssl", config->ssl, false);
+        config->ssl_port = state_file_rw_string_sds(config->workdir, "config", "ssl_port", config->ssl_port, false);
+        config->ssl_san = state_file_rw_string_sds(config->workdir, "config", "ssl_san", config->ssl_san, false);
+        config->custom_cert = state_file_rw_bool(config->workdir, "config", "custom_cert", config->custom_cert, false);
+        if (config->custom_cert == true) {
+            config->ssl_cert = state_file_rw_string_sds(config->workdir, "config", "ssl_cert", config->ssl_cert, false);
+            config->ssl_key = state_file_rw_string_sds(config->workdir, "config", "ssl_key", config->ssl_key, false);
+        }
+        config->pin_hash = state_file_rw_string_sds(config->workdir, "config", "pin_hash", config->pin_hash, false);
+    #else
+        MYMPD_LOG_NOTICE("OpenSSL is disabled, ignoring ssl and pin settings");
     #endif
     config->acl = state_file_rw_string_sds(config->workdir, "config", "acl", config->acl, false);
     config->scriptacl = state_file_rw_string_sds(config->workdir, "config", "scriptacl", config->scriptacl, false);
     #ifdef ENABLE_LUA
-    config->lualibs = state_file_rw_string_sds(config->workdir, "config", "lualibs", config->lualibs, false);
+        config->lualibs = state_file_rw_string_sds(config->workdir, "config", "lualibs", config->lualibs, false);
     #endif
-    config->pin_hash = state_file_rw_string_sds(config->workdir, "config", "pin_hash", config->pin_hash, false);
     config->loglevel = state_file_rw_int(config->workdir, "config", "loglevel", config->loglevel, false);
     //overwrite configured loglevel
     config->loglevel = mympd_getenv_int("MYMPD_LOGLEVEL", config->loglevel, true);
