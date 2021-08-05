@@ -6,5 +6,8 @@
 
 #ifndef __MPD_WORKER_CACHE_H__
 #define __MPD_WORKER_CACHE_H__
+
+#include "mpd_worker_utility.h"
+
 bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state);
 #endif

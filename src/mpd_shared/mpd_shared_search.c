@@ -4,26 +4,15 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <limits.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../api.h"
-#include "../log.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../mympd_state.h"
-#include "../mpd_shared.h"
-#include "mpd_shared_tags.h"
 #include "mpd_shared_search.h"
+
+#include "../log.h"
+#include "../utility.h"
 #include "mpd_shared_sticker.h"
+#include "mpd_shared_tags.h"
+
+#include <string.h>
 
 //private definitions
 static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,

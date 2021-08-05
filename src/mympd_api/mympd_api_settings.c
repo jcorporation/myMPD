@@ -4,37 +4,25 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <libgen.h>
-#include <ctype.h>
-#include <libgen.h>
-#include <dirent.h>
-#include <stdbool.h>
-#include <inttypes.h>
-
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../../dist/src/frozen/frozen.h"
-#include "../log.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../mympd_state.h"
-#include "../state_files.h"
-#include "../utility.h"
-#include "../mpd_shared.h"
+#include "mympd_api_settings.h"
+
+#include "../log.h"
 #include "../mpd_client/mpd_client_trigger.h"
 #include "../mpd_client/mpd_client_utility.h"
-#include "mympd_api_utility.h"
+#include "../mpd_shared.h"
+#include "../sds_extras.h"
+#include "../state_files.h"
+#include "../utility.h"
 #include "mympd_api_timer.h"
 #include "mympd_api_timer_handlers.h"
-#include "mympd_api_settings.h"
+
+#include <dirent.h>
+#include <errno.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 //private definitions
 static sds default_navbar_icons(struct t_config *config, sds buffer);

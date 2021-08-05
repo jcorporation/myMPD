@@ -7,6 +7,7 @@
 #ifndef __MPD_WORKER_UTILITY_H__
 #define __MPD_WORKER_UTILITY_H__
 
+#include "../global.h"
 #include "../mympd_state.h"
 
 struct t_mpd_worker_state {

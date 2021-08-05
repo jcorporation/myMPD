@@ -6,50 +6,33 @@
 
 #define _GNU_SOURCE
 
+#include "mympd_config_defs.h"
+#include "mympd_api_scripts.h"
+
+#include "../../dist/src/frozen/frozen.h"
+#include "../global.h"
+#include "../http_client.h"
+#include "../log.h"
+#include "../lua_mympd_state.h"
+#include "../sds_extras.h"
+#include "../utility.h"
+
 #include <assert.h>
+#include <dirent.h>
 #include <errno.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-#include <pthread.h>
-#include <signal.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <inttypes.h>
-#include <dirent.h>
-#include <sys/types.h>
 #include <sys/syscall.h>
-
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../../dist/src/mongoose/mongoose.h"
-#include "../../dist/src/frozen/frozen.h"
-#include "../log.h"
-#include "../list.h"
-#include "../lua_mympd_state.h"
-#include "mympd_config_defs.h"
-#include "../mympd_state.h"
-#include "../tiny_queue.h"
-#include "../api.h"
-#include "../global.h"
-#include "../utility.h"
-#include "../http_client.h"
-#include "mympd_api_utility.h"
-#include "mympd_api_scripts.h"
+#include <unistd.h>
 
 #ifdef ENABLE_LUA
 
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"  
-
 #ifndef DEBUG
-//embedded files for release build
-#include "mympd_api_scripts_lualibs.c"
+    //embedded files for release build
+    #include "mympd_api_scripts_lualibs.c"
 #endif
 
 //private definitions

@@ -7,8 +7,9 @@
 #ifndef __MYMPD_API_SETTINGS_H
 #define __MYMPD_API_SETTINGS_H
 
-#include "../../dist/src/sds/sds.h"
 #include "../../dist/src/frozen/frozen.h"
+#include "../../dist/src/sds/sds.h"
+#include "../mympd_state.h"
 
 void mympd_api_read_statefiles(struct t_mympd_state *mympd_state);
 sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);

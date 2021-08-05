@@ -4,32 +4,20 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
+#include "mpd_worker_cache.h"
+
+#include "../log.h"
+#include "../mpd_shared.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "../sds_extras.h"
+#include "../utility.h"
+
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <inttypes.h>
-#include <limits.h>
-#include <time.h>
-#include <assert.h>
-#include <signal.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../api.h"
-#include "../log.h"
-#include "../list.h"
-#include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../tiny_queue.h"
-#include "../global.h"
-#include "../mympd_state.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mpd_shared.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
-#include "mpd_worker_utility.h"
-#include "mpd_worker_cache.h"
 
 //privat definitions
 static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache);

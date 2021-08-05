@@ -4,58 +4,48 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <assert.h>
-#include <time.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../../dist/src/frozen/frozen.h"
-#include "../list.h"
-#include "../mympd_state.h"
-#include "../mpd_shared.h"
 #include "mympd_config_defs.h"
-#include "../utility.h"
+#include "mympd_api_handler.h"
+
+#include "../../dist/src/frozen/frozen.h"
 #include "../api.h"
-#include "../log.h"
-#include "../tiny_queue.h"
-#include "../global.h"
 #include "../covercache.h"
-#include "../mpd_shared/mpd_shared_search.h"
-#include "../mpd_shared/mpd_shared_playlists.h"
-#include "../mpd_shared.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
-#include "../mpd_shared/mpd_shared_tags.h"
+#include "../global.h"
+#include "../log.h"
 #include "../lua_mympd_state.h"
-#include "../mpd_client/mpd_client_utility.h"
 #include "../mpd_client/mpd_client_browse.h"
 #include "../mpd_client/mpd_client_cover.h" 
 #include "../mpd_client/mpd_client_features.h"
 #include "../mpd_client/mpd_client_jukebox.h"
+#include "../mpd_client/mpd_client_lyrics.h"
+#include "../mpd_client/mpd_client_mounts.h"
+#include "../mpd_client/mpd_client_partitions.h"
 #include "../mpd_client/mpd_client_playlists.h"
 #include "../mpd_client/mpd_client_queue.h"
 #include "../mpd_client/mpd_client_state.h"
 #include "../mpd_client/mpd_client_stats.h"
 #include "../mpd_client/mpd_client_sticker.h"
 #include "../mpd_client/mpd_client_timer.h"
-#include "../mpd_client/mpd_client_mounts.h"
-#include "../mpd_client/mpd_client_partitions.h"
 #include "../mpd_client/mpd_client_trigger.h"
-#include "../mpd_client/mpd_client_lyrics.h"
+#include "../mpd_client/mpd_client_utility.h"
+#include "../mpd_shared.h"
+#include "../mpd_shared/mpd_shared_playlists.h"
+#include "../mpd_shared/mpd_shared_search.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
+#include "../mpd_shared/mpd_shared_tags.h"
 #include "../mpd_worker.h"
-#include "mympd_api_utility.h"
-#include "mympd_api_timer.h"
+#include "../sds_extras.h"
+#include "../utility.h"
+#include "mympd_api_home.h"
+#include "mympd_api_scripts.h"
 #include "mympd_api_settings.h"
 #include "mympd_api_timer.h"
 #include "mympd_api_timer_handlers.h"
-#include "mympd_api_scripts.h"
-#include "mympd_api_home.h"
-#include "mympd_api_handler.h"
+#include "mympd_api_utility.h"
+
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
     t_work_request *request = (t_work_request*) arg_request;

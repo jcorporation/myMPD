@@ -4,11 +4,11 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
 #include "web_server_sessions.h"
 
 #include "../log.h"
 #include "../utility.h"
-#include "mympd_config_defs.h"
 
 #include <assert.h>
 #include <string.h>

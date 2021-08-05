@@ -4,26 +4,16 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <inttypes.h>
-#include <limits.h>
-#include <time.h>
-#include <assert.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/rax/rax.h"
-#include "../../dist/src/sds/sds.h"
-#include "../sds_extras.h"
-#include "../api.h"
-#include "../log.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../mympd_state.h"
-#include "../mpd_shared.h"
 #include "mpd_shared_sticker.h"
+
+#include "../log.h"
+#include "../mpd_shared.h"
+#include "../utility.h"
+
+#include <inttypes.h>
+#include <stdlib.h>
+#include <string.h>
 
 sds mpd_shared_sticker_list(sds buffer, rax *sticker_cache, const char *uri) {
     struct t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);

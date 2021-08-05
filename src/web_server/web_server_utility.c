@@ -4,12 +4,12 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
 #include "web_server_utility.h"
 
 #include "../log.h"
 #include "../sds_extras.h"
 #include "../utility.h"
-#include "mympd_config_defs.h"
 
 #ifndef DEBUG
 //embedded files for release build

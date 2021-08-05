@@ -4,28 +4,20 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mpd_shared_playlists.h"
+#include "mympd_config_defs.h"
+
+#include "../log.h"
+#include "../mpd_shared.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "../random.h"
+#include "../utility.h"
+
 #include <errno.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
 #include <sys/stat.h> 
-#include <string.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../api.h"
-#include "../list.h"
-#include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../log.h"
-#include "../mympd_state.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mpd_shared.h"
-#include "../random.h"
-#include "mpd_shared_playlists.h"
 
 unsigned long mpd_shared_get_db_mtime(struct t_mpd_state *mpd_state) {
     struct mpd_stats *stats = mpd_run_stats(mpd_state->conn);

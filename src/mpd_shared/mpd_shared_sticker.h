@@ -8,6 +8,7 @@
 #define __MPD_SHARED_STICKER_H__
 
 #include "../../dist/src/rax/rax.h"
+#include "../mympd_state.h"
 
 struct t_sticker *get_sticker_from_cache(rax *sticker_cache, const char *uri);
 sds mpd_shared_sticker_list(sds buffer, rax *sticker_cache, const char *uri);

@@ -4,8 +4,14 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MYMPD_API_HOME_H
-#define __MYMPD_API_HOME_H
+#ifndef __MYMPD_API_HOME_H__
+#define __MYMPD_API_HOME_H__
+
+#include "../../dist/src/sds/sds.h"
+#include "../mympd_state.h"
+
+#include <stdbool.h>
+
 bool mympd_api_move_home_icon(struct t_mympd_state *mympd_state, unsigned int from, unsigned int to);
 bool mympd_api_rm_home_icon(struct t_mympd_state *mympd_state, unsigned int pos);
 bool mympd_api_save_home_icon(struct t_mympd_state *mympd_state, bool replace, unsigned int oldpos,

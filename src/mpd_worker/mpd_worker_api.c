@@ -4,31 +4,16 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <assert.h>
-#include <inttypes.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../../dist/src/frozen/frozen.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../api.h"
-#include "../log.h"
-#include "../tiny_queue.h"
-#include "../global.h"
-#include "../mympd_state.h"
-#include "../mpd_shared.h"
-#include "mpd_worker_utility.h"
-#include "mpd_worker_smartpls.h"
-#include "mpd_worker_cache.h"
 #include "mpd_worker_api.h"
+
+#include "../../dist/src/frozen/frozen.h"
+#include "../log.h"
+#include "../utility.h"
+#include "mpd_worker_cache.h"
+#include "mpd_worker_smartpls.h"
+
+#include <stdlib.h>
 
 //public functions
 void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {

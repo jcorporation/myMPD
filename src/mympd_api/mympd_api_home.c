@@ -4,29 +4,17 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <errno.h>
-#include <dirent.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <libgen.h>
-#include <ctype.h>
-#include <stdbool.h>
-
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../../dist/src/frozen/frozen.h"
-#include "../log.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../mympd_state.h"
-#include "mympd_api_utility.h"
 #include "mympd_api_home.h"
+
+#include "../log.h"
+#include "../sds_extras.h"
+#include "../utility.h"
+
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 bool mympd_api_move_home_icon(struct t_mympd_state *mympd_state, unsigned int from, unsigned int to) {
     return list_move_item_pos(&mympd_state->home_list, from, to);

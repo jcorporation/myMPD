@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
 #include "web_server_albumart.h"
 
 #include "../../dist/src/frozen/frozen.h"
@@ -12,7 +13,6 @@
 #include "../log.h"
 #include "../sds_extras.h"
 #include "../utility.h"
-#include "mympd_config_defs.h"
 
 #include <assert.h>
 #include <libgen.h>

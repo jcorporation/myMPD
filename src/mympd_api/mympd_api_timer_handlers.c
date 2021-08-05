@@ -4,28 +4,15 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <time.h>
-#include <string.h>
-
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../log.h"
-#include "../list.h"
-#include "../tiny_queue.h"
-#include "../api.h"
-#include "../global.h"
 #include "mympd_config_defs.h"
-#include "../mympd_state.h"
-#include "../utility.h"
-#include "../covercache.h"
-#include "mympd_api_utility.h"
-#include "mympd_api_timer.h"
 #include "mympd_api_timer_handlers.h"
+
+#include "../covercache.h"
+#include "../global.h"
+#include "../log.h"
+#include "../utility.h"
+
+#include <string.h>
 
 //timer_id 1
 void timer_handler_covercache(struct t_timer_definition *definition, void *user_data) {

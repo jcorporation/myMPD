@@ -4,33 +4,22 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <assert.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdint.h>
-#include <string.h>
-#include <sys/timerfd.h>
-#include <pthread.h>
-#include <poll.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <time.h>
-
-#include <mpd/client.h>
+#include "mympd_config_defs.h"
+#include "mympd_api_timer.h"
 
 #include "../../dist/src/frozen/frozen.h"
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
 #include "../log.h"
-#include "../list.h"
-#include "mympd_config_defs.h"
+#include "../sds_extras.h"
 #include "../utility.h"
-#include "../mympd_state.h"
-#include "mympd_api_utility.h"
-#include "mympd_api_timer.h"
 #include "mympd_api_timer_handlers.h"
+
+#include <assert.h>
+#include <errno.h>
+#include <poll.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/timerfd.h>
+#include <unistd.h>
 
 //private definitions
 #define MAX_TIMER_COUNT 100
