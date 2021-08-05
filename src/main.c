@@ -325,6 +325,7 @@ int main(int argc, char **argv) {
 
     //set loglevel
     #ifdef DEBUG
+        MYMPD_LOG_NOTICE("Debug build is running");
         set_loglevel(LOG_DEBUG);
     #else
         set_loglevel(config->loglevel);
