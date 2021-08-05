@@ -328,12 +328,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     // This way, we tie together these two connections via `fn_data` pointer:
                     // client's c->fn_data points to the backend connection, and backend's
                     // c->fn_data points to the client connection
-					MYMPD_LOG_INFO("Creating new mpd stream proxy backend connection to %s", mg_user_data->stream_uri);
+                    MYMPD_LOG_INFO("Creating new mpd stream proxy backend connection to %s", mg_user_data->stream_uri);
                     backend_nc = mg_connect(nc->mgr, mg_user_data->stream_uri, mpd_stream_proxy_ev_handler, nc);
                     nc->fn_data = backend_nc;
                     if (backend_nc == NULL) {
-						//no backend connection, close frontend connection
-						MYMPD_LOG_WARN("Can not create backend connection");
+                        //no backend connection, close frontend connection
+                        MYMPD_LOG_WARN("Can not create backend connection");
                         nc->is_closing = 1;
                     }
                 }
@@ -567,7 +567,8 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
         FREE_PTR(jsonrpc);
         return false;
     }
-
+    
+    #ifdef ENABLE_SSL
     if (sdslen(mg_user_data->config->pin_hash) > 0 && is_protected_api_method(cmd_id) == true) {
         //format of authorization header must be: Bearer x
         //bearer token must be 20 characters long
@@ -575,7 +576,7 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
         bool rc = false;
         if (session_header != NULL && session_header->len == 27 && strncmp(session_header->ptr, "Bearer ", 7) == 0) {
             sds session = sdsnewlen(session_header->ptr, session_header->len);
-            sdsrange(session, 8, -1);
+            sdsrange(session, 7, -1);
             rc = validate_session(&mg_user_data->session_list, session);
             sdsfree(session);
         }
@@ -591,8 +592,12 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
             FREE_PTR(jsonrpc);
             return true;
         }
+        else {
+            MYMPD_LOG_INFO("API request is authorized");
+        }
     }
-
+    #endif
+    
     switch(cmd_id) {
         case MYMPD_API_SESSION_LOGIN: {
             char *pin = NULL;
@@ -611,7 +616,7 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
                 sdsfree(session);
             }
             else {
-                response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGIN", 0, true, "general", "error", "Invalid pin");
+                response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGIN", 0, true, "session", "error", "Invalid pin");
             }
             http_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
             sdsfree(response);
@@ -619,20 +624,18 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
         }
         case MYMPD_API_SESSION_LOGOUT: {
             char *session = NULL;
+            bool rc = false;
             sds response;
             je = json_scanf(hm->body.ptr, hm->body.len, "{params: {session: %Q}}", &session);
             if (je == 1) {
-                bool rc = remove_session(&mg_user_data->session_list, session);
+                rc = remove_session(&mg_user_data->session_list, session);
                 FREE_PTR(session);
                 if (rc == true) {
-                    response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, false, "general", "info", "Session removed");
-                }
-                else {
-                    response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, true, "general", "error", "Invalid session");
+                    response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, false, "session", "info", "Session removed");
                 }
             }
-            else {
-                response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, true, "general", "error", "Invalid session");
+            if (rc == false) {
+                response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, true, "session", "error", "Invalid session");
             }
              
             http_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");

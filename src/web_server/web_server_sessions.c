@@ -56,14 +56,18 @@ bool validate_session(struct list *session_list, const char *session) {
             current = next;
         }
         else {
-            i++;
-            current = current->next;
-            //validate a session
+            //validate session
             if (session != NULL && strcmp(current->key, session) == 0) {
                 current->value_i = time(NULL) + 1800;
                 return true;
             }
+            //skip to next entrie
+            i++;
+            current = current->next;
         }
+    }
+    if (session != NULL) {
+        MYMPD_LOG_WARN("Session \"%s\" not found", session);
     }
     return false;
 }
