@@ -9,6 +9,7 @@
 
 #include "../../dist/src/frozen/frozen.h"
 #include "../lib/log.h"
+#include "../lib/validate.h"
 #include "../mpd_shared/mpd_shared_playlists.h"
 #include "../mpd_shared/mpd_shared_search.h"
 #include "../utility.h"

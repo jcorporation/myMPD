@@ -195,6 +195,7 @@ set(SOURCES
   src/lib/random.c
   src/lib/sds_extras.c
   src/lib/state_files.c
+  src/lib/validate.c
   src/lua_mympd_state.c
   src/main.c
   src/mpd_client.c

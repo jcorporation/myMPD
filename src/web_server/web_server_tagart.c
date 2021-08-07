@@ -9,6 +9,7 @@
 
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
+#include "../lib/validate.h"
 #include "../utility.h"
 
 bool handle_tagart(struct mg_connection *nc, struct mg_http_message *hm, 

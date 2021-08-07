@@ -8,6 +8,7 @@
 
 #include "log.h"
 #include "sds_extras.h"
+#include "validate.h"
 #include "../utility.h"
 
 #include <ctype.h>

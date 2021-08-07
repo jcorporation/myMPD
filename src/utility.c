@@ -67,58 +67,6 @@ int strip_extension(char *s) {
     return -1;
 }
 
-bool validate_string(const char *data) {
-    if (strchr(data, '/') != NULL || strchr(data, '\n') != NULL || strchr(data, '\r') != NULL ||
-        strchr(data, '\t') != NULL ||
-        strchr(data, '"') != NULL || strchr(data, '\'') != NULL || strchr(data, '\\') != NULL) {
-        return false;
-    }
-    return true;
-}
-
-bool validate_string_not_empty(const char *data) {
-    if (data == NULL) { 
-        return false;
-    }
-    if (strlen(data) == 0) {
-        return false;
-    }
-    return validate_string(data);
-}
-
-bool validate_string_not_dir(const char *data) {
-    bool rc = validate_string_not_empty(data);
-    if (rc == true) {
-        if (strcmp(data, ".") == 0 || strcmp(data, "..") == 0) {
-            rc = false;
-        }    
-    }
-    return rc;
-}
-
-bool validate_uri(const char *data) {
-    if (strncmp(data, "../", 3) == 0 || strstr(data, "/../") != NULL || strstr(data, "/./") != NULL) {
-        return false;
-    }
-    return true;
-}
-
-bool validate_songuri(const char *data) {
-    if (data == NULL) {
-        return false;
-    }
-    if (strlen(data) == 0) {
-        return false;
-    }
-    if (strcmp(data, "/") == 0) {
-        return false;
-    }
-    if (strchr(data, '.') == NULL) {
-        return false;
-    }
-    return true;
-}
-
 int replacechar(char *str, const char orig, const char rep) {
     char *ix = str;
     int n = 0;
@@ -280,13 +228,6 @@ sds get_mime_type_by_magic_stream(sds stream) {
     sdsfree(hex_buffer);
     sds mime_type = sdsnew(p->mime_type);
     return mime_type;
-}
-
-bool is_streamuri(const char *uri) {
-    if (uri != NULL && strcasestr(uri, "://") != NULL) {
-        return true;
-    }
-    return false;
 }
 
 void my_usleep(time_t usec) {

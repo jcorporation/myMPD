@@ -14,6 +14,7 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
+#include "../lib/validate.h"
 #include "../lua_mympd_state.h"
 #include "../mpd_client/mpd_client_browse.h"
 #include "../mpd_client/mpd_client_cover.h" 

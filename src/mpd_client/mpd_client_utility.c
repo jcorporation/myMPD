@@ -11,6 +11,7 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
+#include "../lib/validate.h"
 #include "../mpd_shared.h"
 #include "../utility.h"
 

@@ -11,6 +11,7 @@
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
 #include "../lib/state_files.h"
+#include "../lib/validate.h"
 #include "../mpd_client/mpd_client_trigger.h"
 #include "../mpd_client/mpd_client_utility.h"
 #include "../mpd_shared.h"

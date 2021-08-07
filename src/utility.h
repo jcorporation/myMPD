@@ -12,13 +12,8 @@
 #include "../dist/src/sds/sds.h"
 
 int testdir(const char *name, const char *dirname, bool create);
-bool validate_string(const char *data);
-bool validate_string_not_empty(const char *data);
-bool validate_string_not_dir(const char *data);
-bool validate_songuri(const char *data);
 int replacechar(char *str, const char orig, const char rep);
 int uri_to_filename(char *str);
-bool validate_uri(const char *data);
 sds find_image_file(sds basefilename);
 sds get_extension_from_filename(const char *filename);
 sds get_mime_type_by_ext(const char *filename);
@@ -32,7 +27,6 @@ void strip_slash(sds s);
 void my_usleep(time_t usec);
 unsigned long substractUnsigned(unsigned long num1, unsigned long num2);
 char *basename_uri(char *uri);
-bool is_streamuri(const char *uri);
 int unsigned_to_int(unsigned x);
 
 #define FREE_PTR(PTR) do { \
