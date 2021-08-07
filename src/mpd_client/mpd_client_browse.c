@@ -163,8 +163,7 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
             }
             case MPD_ENTITY_TYPE_DIRECTORY: {
                 const struct mpd_directory *dir = mpd_entity_get_directory(entity);
-                char *entity_name = strdup(mpd_directory_get_path(dir));
-                entity_name = strtolower(entity_name);
+                const char *entity_name = mpd_directory_get_path(dir);
                 char *dir_name = strrchr(entity_name, '/');
                 if (dir_name != NULL) {
                     dir_name++;
@@ -172,13 +171,15 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
                 else {
                     dir_name = (char *)entity_name;
                 }
-                if (search_len == 0  || strstr(dir_name, searchstr_lower) != NULL) {
+                char *dir_name_lower = strdup(dir_name);
+                dir_name_lower = strtolower(dir_name_lower);
+                if (search_len == 0  || strstr(dir_name_lower, searchstr_lower) != NULL) {
                     sds key = sdscatprintf(sdsempty(), "0%s", mpd_directory_get_path(dir));
                     sdstolower(key);
                     list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_DIRECTORY, dir_name, mpd_directory_dup(dir), false);
                     sdsfree(key);
                 }
-                FREE_PTR(entity_name);
+                FREE_PTR(dir_name_lower);
                 break;
             }
             case MPD_ENTITY_TYPE_PLAYLIST: {
@@ -190,6 +191,7 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
                     sds ext = get_extension_from_filename(entity_name);
                     if (strcmp(ext, "m3u") != 0 && strcmp(ext, "pls") != 0) {
                         sdsfree(ext);
+                        FREE_PTR(entity_name);
                         break;
                     }
                     sdsfree(ext);
