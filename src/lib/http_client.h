@@ -7,7 +7,7 @@
 #ifndef __HTTP_CLIENT_H__
 #define __HTTP_CLIENT_H__
 
-#include "../dist/src/sds/sds.h"
+#include "../../dist/src/sds/sds.h"
 
 struct mg_client_request_t {
     const char *method;

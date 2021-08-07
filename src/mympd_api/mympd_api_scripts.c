@@ -4,8 +4,6 @@
  https://github.com/jcorporation/mympd
 */
 
-#define _GNU_SOURCE
-
 #include "mympd_config_defs.h"
 #include "mympd_api_scripts.h"
 
@@ -24,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/syscall.h>
+#include <sys/prctl.h>
 #include <unistd.h>
 
 #ifdef ENABLE_LUA
@@ -244,7 +243,6 @@ bool mympd_api_script_start(struct t_config *config, const char *script, struct 
         free_t_script_thread_arg(script_thread_arg);
         return false;
     }
-    pthread_setname_np(mympd_script_thread, "mympd_script");
     expire_result_queue(mympd_script_queue, 120);
     return true;
 }
@@ -286,6 +284,7 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
 
 static void *mympd_api_script_execute(void *script_thread_arg) {
     thread_logname = sdsreplace(thread_logname, "script");
+    prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
     struct t_script_thread_arg *script_arg = (struct t_script_thread_arg *) script_thread_arg;
     
     const char *script_return_text = NULL;

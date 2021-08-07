@@ -4,8 +4,6 @@
  https://github.com/jcorporation/mympd
 */
 
-#define _GNU_SOURCE
-
 #include "../dist/src/mongoose/mongoose.h"
 #include "../dist/src/rax/rax.h"
 #include "../dist/src/sds/sds.h"
@@ -385,7 +383,6 @@ int main(int argc, char **argv) {
     //mympd api
     MYMPD_LOG_NOTICE("Starting mympd api thread");
     if (pthread_create(&mympd_api_thread, NULL, mympd_api_loop, config) == 0) {
-        pthread_setname_np(mympd_api_thread, "mympd_api");
         init_thread_mympdapi = true;
     }
     else {
@@ -395,7 +392,6 @@ int main(int argc, char **argv) {
     //webserver
     MYMPD_LOG_NOTICE("Starting webserver thread");
     if (pthread_create(&web_server_thread, NULL, web_server_loop, &mgr) == 0) {
-        pthread_setname_np(web_server_thread, "mympd_webserver");
         init_thread_webserver = true;
     }
     else {

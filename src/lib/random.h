@@ -7,7 +7,7 @@
 #ifndef __RANDOM_H__
 #define __RANDOM_H__
 
-#include "../dist/src/tinymt/tinymt32.h"
+#include "../../dist/src/tinymt/tinymt32.h"
 
 extern tinymt32_t tinymt;
 

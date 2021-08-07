@@ -4,15 +4,15 @@
  https://github.com/jcorporation/mympd
 */
 
-#define _GNU_SOURCE
-
 #include "utility.h"
 
 #include "lib/log.h"
 #include "lib/sds_extras.h"
 
+#include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
+#include <libgen.h>
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
@@ -79,6 +79,13 @@ int replacechar(char *str, const char orig, const char rep) {
 
 bool strtobool(const char *value) {
     return strncmp(value, "true", 4) == 0 ? true : false;
+}
+
+char *strtolower(char *s) {
+    for (char *p = s; *p; p++) {
+        *p = tolower(*p);
+    }
+    return s;
 }
 
 int uri_to_filename(char *str) {

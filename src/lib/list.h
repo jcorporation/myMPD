@@ -9,7 +9,7 @@
 
 #include <stdbool.h>
 
-#include "../dist/src/sds/sds.h"
+#include "../../dist/src/sds/sds.h"
 
 struct list_node {
     sds key;

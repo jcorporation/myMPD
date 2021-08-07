@@ -4,8 +4,6 @@
  https://github.com/jcorporation/mympd
 */
 
-#define _GNU_SOURCE 
-
 #include "mympd_config_defs.h"
 #include "mpd_client_browse.h"
 
@@ -137,6 +135,9 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
         return buffer;
     }
 
+    char *searchstr_lower = strdup(searchstr);
+    searchstr_lower = strtolower(searchstr_lower);
+
     struct list entity_list;
     list_init(&entity_list);
     struct mpd_entity *entity;
@@ -150,7 +151,8 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
                 const struct mpd_song *song = mpd_entity_get_song(entity);
                 sds entity_name = sdsempty();
                 entity_name = mpd_shared_get_tags(song, MPD_TAG_TITLE, entity_name);
-                if (search_len == 0  || strcasestr(entity_name, searchstr) != NULL) {
+                sdstolower(entity_name);
+                if (search_len == 0  || strstr(entity_name, searchstr_lower) != NULL) {
                     sds key = sdscatprintf(sdsempty(), "2%s", mpd_song_get_uri(song));
                     sdstolower(key);
                     list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_SONG, entity_name, mpd_song_dup(song), false);
@@ -161,7 +163,8 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
             }
             case MPD_ENTITY_TYPE_DIRECTORY: {
                 const struct mpd_directory *dir = mpd_entity_get_directory(entity);
-                const char *entity_name = mpd_directory_get_path(dir);
+                char *entity_name = strdup(mpd_directory_get_path(dir));
+                entity_name = strtolower(entity_name);
                 char *dir_name = strrchr(entity_name, '/');
                 if (dir_name != NULL) {
                     dir_name++;
@@ -169,17 +172,19 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
                 else {
                     dir_name = (char *)entity_name;
                 }
-                if (search_len == 0  || strcasestr(dir_name, searchstr) != NULL) {
+                if (search_len == 0  || strstr(dir_name, searchstr_lower) != NULL) {
                     sds key = sdscatprintf(sdsempty(), "0%s", mpd_directory_get_path(dir));
                     sdstolower(key);
                     list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_DIRECTORY, dir_name, mpd_directory_dup(dir), false);
                     sdsfree(key);
                 }
+                FREE_PTR(entity_name);
                 break;
             }
             case MPD_ENTITY_TYPE_PLAYLIST: {
                 const struct mpd_playlist *pl = mpd_entity_get_playlist(entity);
-                const char *entity_name = mpd_playlist_get_path(pl);
+                char *entity_name = strdup(mpd_playlist_get_path(pl));
+                entity_name = strtolower(entity_name);
                 //do not show mpd playlists in root directory
                 if (strcmp(path, "/") == 0) {
                     sds ext = get_extension_from_filename(entity_name);
@@ -196,22 +201,24 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
                 else {
                     pl_name = (char *)entity_name;
                 }
-                if (search_len == 0  || strcasestr(pl_name, searchstr) != NULL) {
+                if (search_len == 0  || strstr(pl_name, searchstr_lower) != NULL) {
                     sds key = sdscatprintf(sdsempty(), "1%s", mpd_playlist_get_path(pl));
                     sdstolower(key);
                     list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_PLAYLIST, pl_name, mpd_playlist_dup(pl), false);
                     sdsfree(key);
                 }
+                FREE_PTR(entity_name);
                 break;
             }
         }
         mpd_entity_free(entity);
     }
-    
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
     }
+
+    FREE_PTR(searchstr_lower);
 
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
@@ -598,6 +605,9 @@ sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds met
                            const char *searchstr, const char *tag, const unsigned int offset, const unsigned int limit)
 {
     size_t searchstr_len = strlen(searchstr);
+    char *searchstr_lower = strdup(searchstr);
+    searchstr_lower = strtolower(searchstr_lower);
+
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
    
@@ -619,13 +629,14 @@ sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds met
     unsigned real_limit = limit == 0 ? offset + MAX_RESULTS : offset + limit;
     while ((pair = mpd_recv_pair_tag(mympd_state->mpd_state->conn, mpdtag)) != NULL) {
         entity_count++;
+        char *value_lower = strtolower(strdup(pair->value));
         if (entity_count > offset && entity_count <= real_limit) {
             if (strcmp(pair->value, "") == 0) {
                 entity_count--;
             }
             else if (searchstr_len == 0
                      || (searchstr_len <= 2 && strncasecmp(searchstr, pair->value, searchstr_len) == 0)
-                     || (searchstr_len > 2 && strcasestr(pair->value, searchstr) != NULL))
+                     || (searchstr_len > 2 && strstr(pair->value, searchstr_lower) != NULL))
             {
                 if (entities_returned++) {
                     buffer = sdscat(buffer, ",");
@@ -639,6 +650,7 @@ sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds met
             }
         }
         mpd_return_pair(mympd_state->mpd_state->conn, pair);
+        FREE_PTR(value_lower);
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
@@ -693,19 +705,21 @@ static bool _search_song(struct mpd_song *song, struct list *expr_list, struct t
             tags->tags[0] = current->value_i;
         }
         bool rc = false;
+        char *key_lower = strtolower(strdup(current->key));
         for (unsigned i = 0; i < tags->len; i++) {
             rc = true;
             value = mpd_shared_get_tags(song, tags->tags[i], value);
-            if (strcmp(current->value_p, "contains") == 0 && strcasestr(value, current->key) == NULL) {
+            sdstolower(value);
+            if (strcmp(current->value_p, "contains") == 0 && strstr(value, key_lower) == NULL) {
                 rc = false;
             }
-            else if (strcmp(current->value_p, "starts_with") == 0 && strncasecmp(current->key, value, strlen(current->key)) != 0) {
+            else if (strcmp(current->value_p, "starts_with") == 0 && strncmp(key_lower, value, strlen(key_lower)) != 0) {
                 rc = false;
             }
-            else if (strcmp(current->value_p, "==") == 0 && strcasecmp(value, current->key) != 0) {
+            else if (strcmp(current->value_p, "==") == 0 && strcmp(value, key_lower) != 0) {
                 rc = false;
             }
-            else if (strcmp(current->value_p, "!=") == 0 && strcasecmp(value, current->key) == 0) {
+            else if (strcmp(current->value_p, "!=") == 0 && strcmp(value, key_lower) == 0) {
                 rc = false;
             }
             else if (strcmp(current->value_p, "=~") == 0 && _cmp_regex((pcre *)current->user_data, value) == false) {
@@ -719,6 +733,7 @@ static bool _search_song(struct mpd_song *song, struct list *expr_list, struct t
                 break;
             }
         }
+        FREE_PTR(key_lower);
         if (rc == false) {
             sdsfree(value);
             return false;
@@ -733,7 +748,7 @@ static pcre *_compile_regex(const char *regex_str) {
     MYMPD_LOG_DEBUG("Compiling regex: \"%s\"", regex_str);
     const char *pcre_error_str;
     int pcre_error_offset;
-    pcre *re_compiled = pcre_compile(regex_str, PCRE_CASELESS, &pcre_error_str, &pcre_error_offset, NULL);
+    pcre *re_compiled = pcre_compile(regex_str, 0, &pcre_error_str, &pcre_error_offset, NULL);
     if (re_compiled == NULL) {
         MYMPD_LOG_DEBUG("Could not compile '%s': %s\n", regex_str, pcre_error_str);
     }

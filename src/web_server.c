@@ -20,6 +20,8 @@
 #include "web_server/web_server_sessions.h"
 #include "web_server/web_server_tagart.h"
 
+#include <sys/prctl.h>
+
 //private definitions
 static bool parse_internal_message(t_work_result *response, struct t_mg_user_data *mg_user_data);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
@@ -108,6 +110,7 @@ void web_server_free(void *arg_mgr) {
 
 void *web_server_loop(void *arg_mgr) {
     thread_logname = sdsreplace(thread_logname, "webserver");
+    prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     
     //set mongoose loglevel

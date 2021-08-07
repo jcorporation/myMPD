@@ -9,7 +9,7 @@
 
 #include <stdbool.h>
 
-#include "../dist/src/sds/sds.h"
+#include "../../dist/src/sds/sds.h"
 
 void send_jsonrpc_notify(const char *facility, const char *severity, const char *message);
 void send_jsonrpc_event(const char *event);

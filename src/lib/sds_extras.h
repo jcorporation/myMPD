@@ -7,7 +7,7 @@
 #ifndef __SDS_EXTRAS_H__
 #define __SDS_EXTRAS_H__
 
-#include "../dist/src/sds/sds.h"
+#include "../../dist/src/sds/sds.h"
 
 sds sdscatjson(sds s, const char *p, size_t len);
 sds sdscatjsonchar(sds s, const char p);

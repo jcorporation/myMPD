@@ -4,8 +4,6 @@
  https://github.com/jcorporation/mympd
 */
 
-#define _GNU_SOURCE
-
 #include "mympd_config.h"
 
 #include "lib/log.h"

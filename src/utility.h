@@ -23,7 +23,7 @@ sds get_mime_type_by_magic_stream(sds stream);
 bool strtobool(const char *value);
 int strip_extension(char *s);
 void strip_slash(sds s);
-
+char *strtolower(char* s);
 void my_usleep(time_t usec);
 unsigned long substractUnsigned(unsigned long num1, unsigned long num2);
 char *basename_uri(char *uri);

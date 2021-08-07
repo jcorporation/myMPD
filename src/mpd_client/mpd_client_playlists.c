@@ -4,8 +4,6 @@
  https://github.com/jcorporation/mympd
 */
 
-#define _GNU_SOURCE
-
 #include "mympd_config_defs.h"
 #include "mpd_client_playlists.h"
 
@@ -104,16 +102,21 @@ sds mpd_client_put_playlists(struct t_mympd_state *mympd_state, sds buffer, sds 
         return buffer;
     }
 
+    char *searchstr_lower = strdup(searchstr);
+    searchstr_lower = strtolower(searchstr_lower);
+
     struct mpd_playlist *pl;
     struct list entity_list;
     list_init(&entity_list);
     size_t search_len = strlen(searchstr);
     while ((pl = mpd_recv_playlist(mympd_state->mpd_state->conn)) != NULL) {
         const char *plpath = mpd_playlist_get_path(pl);
-        if (search_len == 0  || strcasestr(plpath, searchstr) != NULL) {
+        char *plpath_lower = strtolower(strdup(plpath));
+        if (search_len == 0  || strstr(plpath_lower, searchstr_lower) != NULL) {
             list_push(&entity_list, plpath, mpd_playlist_get_last_modified(pl), NULL, NULL);
         }
         mpd_playlist_free(pl);
+        FREE_PTR(plpath_lower);
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
@@ -146,7 +149,7 @@ sds mpd_client_put_playlists(struct t_mympd_state *mympd_state, sds buffer, sds 
         current = current->next;
     }
     list_free(&entity_list);
-    
+    FREE_PTR(searchstr_lower);
     buffer = sdscat(buffer, "],");
     buffer = tojson_char(buffer, "searchstr", searchstr, true);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
@@ -164,6 +167,9 @@ sds mpd_client_put_playlist_list(struct t_mympd_state *mympd_state, sds buffer, 
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlist_meta") == false) {
         return buffer;
     }
+
+    char *searchstr_lower = strdup(searchstr);
+    searchstr_lower = strtolower(searchstr_lower);
     
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer,"\"data\":[");
@@ -180,7 +186,8 @@ sds mpd_client_put_playlist_list(struct t_mympd_state *mympd_state, sds buffer, 
         total_time += mpd_song_get_duration(song);
         if (entity_count > offset && entity_count <= real_limit) {
             entityName = mpd_shared_get_tags(song, MPD_TAG_TITLE, entityName);
-            if (search_len == 0  || strcasestr(entityName, searchstr) != NULL) {
+            sdstolower(entityName);
+            if (search_len == 0  || strstr(entityName, searchstr) != NULL) {
                 if (entities_returned++) {
                     buffer= sdscat(buffer, ",");
                 }
@@ -197,6 +204,8 @@ sds mpd_client_put_playlist_list(struct t_mympd_state *mympd_state, sds buffer, 
         mpd_song_free(song);
     }
     sdsfree(entityName);
+    FREE_PTR(searchstr_lower);
+    
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;

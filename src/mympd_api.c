@@ -26,6 +26,7 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/prctl.h>
 #include <unistd.h>
 
 //private definitions
@@ -34,6 +35,7 @@ void mympd_autoconf(struct t_mympd_state *mympd_state);
 //public functions
 void *mympd_api_loop(void *arg_config) {
     thread_logname = sdsreplace(thread_logname, "mympdapi");
+    prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
 
     //create mympd_state struct and set defaults
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)malloc(sizeof(struct t_mympd_state));

@@ -4,8 +4,6 @@
  https://github.com/jcorporation/mympd
 */
 
-#define _GNU_SOURCE
-
 #include "mpd_worker.h"
 
 #include "../dist/src/sds/sds.h"
@@ -20,6 +18,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/prctl.h>
 
 //private definitions
 static void *mpd_worker_run(void *arg);
@@ -66,13 +65,13 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, t_work_request *request
         free_mpd_worker_state(mpd_worker_state);
         return false;
     }
-    pthread_setname_np(mpd_worker_thread, "mpd_worker");
     worker_threads++;
     return true;
 }
 
 static void *mpd_worker_run(void *arg) {
     thread_logname = sdsreplace(thread_logname, "mpdworker");
+    prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
     struct t_mpd_worker_state *mpd_worker_state = (struct t_mpd_worker_state *) arg;
 
     if (mpd_worker_connect(mpd_worker_state) == true) {

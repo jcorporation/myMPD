@@ -4,8 +4,6 @@
  https://github.com/jcorporation/mympd
 */
 
-#define _GNU_SOURCE
-
 #include "validate.h"
 
 #include <string.h>
@@ -63,7 +61,7 @@ bool validate_songuri(const char *data) {
 }
 
 bool is_streamuri(const char *uri) {
-    if (uri != NULL && strcasestr(uri, "://") != NULL) {
+    if (uri != NULL && strstr(uri, "://") != NULL) {
         return true;
     }
     return false;
