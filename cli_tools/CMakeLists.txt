@@ -9,9 +9,6 @@ cmake_minimum_required(VERSION 3.4)
 include(GNUInstallDirs)
 
 project (cli_tools C)
-set(CPACK_PACKAGE_VERSION_MAJOR "8")
-set(CPACK_PACKAGE_VERSION_MINOR "0")
-set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 include(CheckCSourceCompiles)
@@ -52,7 +49,7 @@ if (LUA_FOUND)
 
   set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_FS=0")
   set_property(SOURCE "mympd-script.c" PROPERTY COMPILE_FLAGS "${MYMPD_COMPILE_FLAGS} ${MONGOOSE_FLAGS}")
-  set_property(SOURCE "../dist/src/mongoose/mongoose.c" PROPERTY COMPILE_FLAGS "-Wno-unused-result ${MONGOOSE_FLAGS}")
+  set_property(SOURCE "../dist/src/mongoose/mongoose.c" PROPERTY COMPILE_FLAGS ${MONGOOSE_FLAGS})
 
   add_executable(mympd-script ${MYMPD_SCRIPT_SOURCES})
   target_link_libraries(mympd-script)
