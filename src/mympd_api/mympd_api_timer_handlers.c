@@ -9,8 +9,8 @@
 
 #include "../covercache.h"
 #include "../global.h"
-#include "../log.h"
-#include "../utility.h"
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
 
 #include <string.h>
 

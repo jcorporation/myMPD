@@ -43,8 +43,8 @@ if (LUA_FOUND)
     log.c
     ../dist/src/mongoose/mongoose.c
     ../dist/src/sds/sds.c
-    ../src/sds_extras.c
-    ../src/http_client.c
+    ../src/lib/sds_extras.c
+    ../src/lib/http_client.c
   )
 
   set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_FS=0")

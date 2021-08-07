@@ -6,7 +6,7 @@
 
 #include "tiny_queue.h"
 
-#include "log.h"
+#include "lib/log.h"
 
 #include <assert.h>
 #include <errno.h>

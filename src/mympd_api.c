@@ -8,7 +8,8 @@
 
 #include "../dist/src/frozen/frozen.h"
 #include "global.h"
-#include "log.h"
+#include "lib/log.h"
+#include "lib/sds_extras.h"
 #include "mpd_client.h"
 #include "mpd_client/mpd_client_stats.h"
 #include "mpd_client/mpd_client_trigger.h"
@@ -20,7 +21,6 @@
 #include "mympd_api/mympd_api_timer_handlers.h"
 #include "mympd_api/mympd_api_utility.h"
 #include "mympd_config_defs.h"
-#include "sds_extras.h"
 
 #include <assert.h>
 #include <inttypes.h>

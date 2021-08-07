@@ -7,7 +7,7 @@
 #include "handle_options.h"
 
 #include "mympd_pin.h"
-#include "sds_extras.h"
+#include "lib/sds_extras.h"
 
 #include <getopt.h>
 #include <stdio.h>

@@ -7,9 +7,9 @@
 #include "mympd_config_defs.h"
 #include "mpd_client_mounts.h"
 
+#include "../lib/jsonrpc.h"
 #include "../mpd_shared.h"
-#include "../sds_extras.h"
-#include "../utility.h"
+#include "../lib/sds_extras.h"
 
 #include <string.h>
 

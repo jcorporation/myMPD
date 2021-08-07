@@ -7,8 +7,8 @@
 #include "mympd_config_defs.h"
 #include "mpd_shared_search.h"
 
-#include "../log.h"
-#include "../utility.h"
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
 #include "mpd_shared_sticker.h"
 #include "mpd_shared_tags.h"
 

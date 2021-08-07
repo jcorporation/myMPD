@@ -11,10 +11,11 @@
 
 #include "../../dist/src/frozen/frozen.h"
 #include "../global.h"
-#include "../http_client.h"
-#include "../log.h"
+#include "../lib/http_client.h"
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
+#include "../lib/sds_extras.h"
 #include "../lua_mympd_state.h"
-#include "../sds_extras.h"
 #include "../utility.h"
 
 #include <assert.h>

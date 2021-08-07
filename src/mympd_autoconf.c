@@ -6,8 +6,8 @@
 
 #include "mympd_autoconf.h"
 
-#include "log.h"
-#include "sds_extras.h"
+#include "lib/log.h"
+#include "lib/sds_extras.h"
 
 #include <ctype.h>
 #include <errno.h>

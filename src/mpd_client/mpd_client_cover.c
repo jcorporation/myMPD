@@ -8,7 +8,8 @@
 #include "mpd_client_cover.h"
 
 #include "../covercache.h"
-#include "../log.h"
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
 #include "../utility.h"
 
 #include <stdlib.h>

@@ -7,8 +7,8 @@
 #include "mympd_config_defs.h"
 #include "mpd_client_partitions.h"
 
+#include "../lib/jsonrpc.h"
 #include "../mpd_shared.h"
-#include "../utility.h"
 
 //public functions
 sds mpd_client_put_partitions(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {

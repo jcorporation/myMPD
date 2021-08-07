@@ -7,8 +7,9 @@
 #include "mympd_config_defs.h"
 #include "mympd_api_home.h"
 
-#include "../log.h"
-#include "../sds_extras.h"
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
+#include "../lib/sds_extras.h"
 #include "../utility.h"
 
 #include <errno.h>

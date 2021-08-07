@@ -8,11 +8,11 @@
 #include "mympd_api_utility.h"
 
 #include "../../dist/src/frozen/frozen.h"
-#include "../log.h"
+#include "../lib/log.h"
+#include "../lib/sds_extras.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
-#include "../sds_extras.h"
 #include "../utility.h"
 #include "mympd_api_timer.h"
 

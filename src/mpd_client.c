@@ -6,7 +6,8 @@
 
 #include "mpd_client.h"
 
-#include "log.h"
+#include "lib/jsonrpc.h"
+#include "lib/log.h"
 #include "mpd_client/mpd_client_features.h"
 #include "mpd_client/mpd_client_jukebox.h"
 #include "mpd_client/mpd_client_state.h"

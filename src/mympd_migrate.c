@@ -7,11 +7,11 @@
 #include "mympd_migrate.h"
 
 #include "../dist/src/frozen/frozen.h"
-#include "log.h"
+#include "lib/sds_extras.h"
+#include "lib/log.h"
+#include "lib/state_files.h"
 #include "mpd_shared/mpd_shared_playlists.h"
 #include "mpd_shared/mpd_shared_search.h"
-#include "sds_extras.h"
-#include "state_files.h"
 #include "utility.h"
 
 #include <dirent.h>

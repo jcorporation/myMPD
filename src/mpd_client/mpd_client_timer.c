@@ -8,9 +8,9 @@
 #include "mpd_client_timer.h"
 
 #include "../global.h"
-#include "../log.h"
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
 #include "../mpd_shared.h"
-#include "../utility.h"
 
 void mpd_client_set_timer(enum mympd_cmd_ids cmd_id, const char *cmd, int timeout, int interval, const char *handler) {
     t_work_request *request = create_request(-1, 0, cmd_id, cmd, "");

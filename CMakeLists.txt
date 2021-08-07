@@ -188,9 +188,13 @@ set(SOURCES
   src/covercache.c
   src/global.c
   src/handle_options.c
-  src/http_client.c
-  src/list.c
-  src/log.c
+  src/lib/http_client.c
+  src/lib/jsonrpc.c
+  src/lib/list.c
+  src/lib/log.c
+  src/lib/random.c
+  src/lib/sds_extras.c
+  src/lib/state_files.c
   src/lua_mympd_state.c
   src/main.c
   src/mpd_client.c
@@ -231,9 +235,6 @@ set(SOURCES
   src/mympd_config.c
   src/mympd_migrate.c
   src/mympd_pin.c
-  src/random.c
-  src/sds_extras.c
-  src/state_files.c
   src/tiny_queue.c
   src/utility.c
   src/web_server.c

@@ -7,7 +7,7 @@
 #include "mympd_config_defs.h"
 #include "web_server_sessions.h"
 
-#include "../log.h"
+#include "../lib/log.h"
 #include "../utility.h"
 
 #include <assert.h>

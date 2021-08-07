@@ -8,8 +8,9 @@
 #include "mympd_api_timer.h"
 
 #include "../../dist/src/frozen/frozen.h"
-#include "../log.h"
-#include "../sds_extras.h"
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
+#include "../lib/sds_extras.h"
 #include "../utility.h"
 #include "mympd_api_timer_handlers.h"
 

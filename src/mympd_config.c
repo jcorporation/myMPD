@@ -8,8 +8,8 @@
 
 #include "mympd_config.h"
 
-#include "log.h"
-#include "state_files.h"
+#include "lib/log.h"
+#include "lib/state_files.h"
 
 #include <inttypes.h>
 #include <stdlib.h>

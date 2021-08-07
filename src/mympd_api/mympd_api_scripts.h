@@ -8,7 +8,7 @@
 #define __MYMPD_API_SCRIPTS_H__
 
 #include "../../dist/src/sds/sds.h"
-#include "../list.h"
+#include "../lib/list.h"
 #include <stdbool.h>
 
 #ifdef ENABLE_LUA

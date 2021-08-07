@@ -7,8 +7,8 @@
 #include "mympd_config_defs.h"
 #include "web_server_tagart.h"
 
-#include "../log.h"
-#include "../sds_extras.h"
+#include "../lib/log.h"
+#include "../lib/sds_extras.h"
 #include "../utility.h"
 
 bool handle_tagart(struct mg_connection *nc, struct mg_http_message *hm, 

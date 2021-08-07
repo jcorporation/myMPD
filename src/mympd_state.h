@@ -13,7 +13,7 @@
 #include "../dist/src/rax/rax.h"
 #include "../dist/src/sds/sds.h"
 
-#include "list.h"
+#include "lib/list.h"
 
 enum jukebox_modes {
     JUKEBOX_OFF,

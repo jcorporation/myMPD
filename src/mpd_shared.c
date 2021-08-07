@@ -6,9 +6,10 @@
 
 #include "mpd_shared.h"
 
-#include "log.h"
+#include "lib/jsonrpc.h"
+#include "lib/log.h"
+#include "lib/sds_extras.h"
 #include "mpd_shared/mpd_shared_tags.h"
-#include "sds_extras.h"
 #include "utility.h"
 
 #include <stdlib.h>

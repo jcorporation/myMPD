@@ -7,10 +7,11 @@
 #include "mpd_shared_playlists.h"
 #include "mympd_config_defs.h"
 
-#include "../log.h"
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
+#include "../lib/random.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_tags.h"
-#include "../random.h"
 #include "../utility.h"
 
 #include <errno.h>

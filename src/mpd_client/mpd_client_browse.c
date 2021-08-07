@@ -9,12 +9,12 @@
 #include "mympd_config_defs.h"
 #include "mpd_client_browse.h"
 
-#include "../log.h"
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
 #include "../mpd_shared/mpd_shared_search.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "../utility.h"
-
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
 

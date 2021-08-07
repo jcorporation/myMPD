@@ -8,7 +8,7 @@
 #include "mpd_client_sticker.h"
 
 #include "../api.h"
-#include "../log.h"
+#include "../lib/log.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../utility.h"

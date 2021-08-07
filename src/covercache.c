@@ -6,7 +6,7 @@
 
 #include "covercache.h"
 
-#include "log.h"
+#include "lib/log.h"
 #include "utility.h"
 
 #include <dirent.h>

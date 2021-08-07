@@ -7,7 +7,6 @@
 #include "mympd_config_defs.h"
 #include "mpd_worker_utility.h"
 
-#include "../log.h"
 #include "../mpd_shared.h"
 
 #include <stdlib.h>

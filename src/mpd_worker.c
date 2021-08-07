@@ -9,13 +9,13 @@
 #include "mpd_worker.h"
 
 #include "../dist/src/sds/sds.h"
-#include "log.h"
+#include "lib/log.h"
+#include "lib/sds_extras.h"
 #include "mpd_shared.h"
 #include "mpd_shared/mpd_shared_tags.h"
 #include "mpd_worker/mpd_worker_api.h"
 #include "mpd_worker/mpd_worker_cache.h"
 #include "mpd_worker/mpd_worker_smartpls.h"
-#include "sds_extras.h"
 
 #include <assert.h>
 #include <stdlib.h>

@@ -8,7 +8,7 @@
 
 #include "log.h"
 #include "sds_extras.h"
-#include "utility.h"
+#include "../utility.h"
 
 #include <ctype.h>
 #include <errno.h>

@@ -7,9 +7,10 @@
 #include "mympd_config_defs.h"
 #include "mpd_shared_tags.h"
 
-#include "../log.h"
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
+#include "../lib/sds_extras.h"
 #include "../mpd_shared.h"
-#include "../sds_extras.h"
 #include "../utility.h"
 
 #include <string.h>

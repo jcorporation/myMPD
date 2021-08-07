@@ -8,7 +8,7 @@
 #include "mpd_worker_smartpls.h"
 
 #include "../../dist/src/frozen/frozen.h"
-#include "../log.h"
+#include "../lib/log.h"
 #include "../mpd_shared/mpd_shared_playlists.h"
 #include "../mpd_shared/mpd_shared_search.h"
 #include "../utility.h"

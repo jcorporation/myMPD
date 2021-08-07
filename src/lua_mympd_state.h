@@ -9,7 +9,7 @@
 
 #include <stdbool.h>
 
-#include "list.h"
+#include "lib/list.h"
 
 enum lua_mympd_state_type {
     LUA_TYPE_STRING,

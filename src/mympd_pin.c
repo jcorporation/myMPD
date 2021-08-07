@@ -4,11 +4,11 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
 #include "mympd_pin.h"
 
-#include "log.h"
-#include "mympd_config_defs.h"
-#include "state_files.h"
+#include "lib/log.h"
+#include "lib/state_files.h"
 
 #include <stdio.h>
 #include <string.h>

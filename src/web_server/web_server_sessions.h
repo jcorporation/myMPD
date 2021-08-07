@@ -8,7 +8,7 @@
 #define __WEB_SERVER_SESSIONS_H__
 
 #include "../../dist/src/sds/sds.h"
-#include "../list.h"
+#include "../lib/list.h"
 
 #include <stdbool.h>
 
