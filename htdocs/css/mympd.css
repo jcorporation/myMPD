@@ -1090,3 +1090,20 @@ div.album-grid-mouseover {
 #viewDetailDatabaseCover {
   float: left;
 }
+
+body.locked button.protected:before {
+  content: "lock";
+  float: left;
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  vertical-align: top;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'liga';
+  margin-right: 0.5rem;
+}

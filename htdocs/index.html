@@ -72,7 +72,9 @@
           <a data-phrase="Fullscreen" class="dropdown-item text-light" href="#" data-href='{"cmd": "openFullscreen", "options": []}'></a>
           <a data-phrase="Browse directories" class="dropdown-item text-light featLibrary" href="browse/" target="_blank"></a>
           <a data-phrase="About" class="dropdown-item text-light" href="#" data-toggle="modal" data-target="#modalAbout"></a>
-          <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item text-light bg-lite-dark hide" href="#"></a>
+          <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item text-light hide" href="#"></a>
+          <a data-phrase="Login" id="mmLogin" data-href='{"cmd": "enterPin", "options": []}' class="dropdown-item text-light" href="#"></a>
+          <a data-phrase="Logout" id="mmLogout" data-href='{"cmd": "removeSession", "options": []}' class="dropdown-item text-light hide" href="#"></a>
           <a id="navScripting" class="subMenu featScripting dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#scripts"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
           <div id="scripts" class="featScripting noInitChilds collapse"></div>
           <div class="dropdown-divider"></div>
@@ -1108,8 +1110,8 @@
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
           <div>
-            <button id="btnApplySettings" type="button" class="btn btn-success mr-2" data-href='{"cmd": "saveSettings", "options": [false]}' data-phrase="Apply"></button>
-            <button type="button" class="btn btn-success" data-href='{"cmd": "saveSettings", "options": [true]}' data-phrase="Save"></button>
+            <button id="btnApplySettings" type="button" class="btn btn-success mr-2 protected" data-href='{"cmd": "saveSettings", "options": [false]}' data-phrase="Apply"></button>
+            <button type="button" class="btn btn-success protected" data-href='{"cmd": "saveSettings", "options": [true]}' data-phrase="Save"></button>
           </div>
         </div>
       </div>
@@ -1411,7 +1413,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary alwaysEnabled" data-dismiss="modal" data-phrase="Cancel"></button>
-          <button type="button" class="btn btn-success alwaysEnabled" data-href='{"cmd": "saveConnection", "options": []}' data-phrase="Save"></button>
+          <button type="button" class="btn btn-success alwaysEnabled protected" data-href='{"cmd": "saveConnection", "options": []}' data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -1694,11 +1696,11 @@
         </div>
         <div class="modal-footer justify-content-between" id="listTimerFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showEditTimer","options":[0]}' class="btn btn-success" data-phrase="New timer"></button>
+          <button data-href='{"cmd":"showEditTimer","options":[0]}' class="btn btn-success protected" data-phrase="New timer"></button>
         </div>
         <div id="editTimerFooter" class="modal-footer justify-content-between hide">
           <button data-href='{"cmd":"showListTimer","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
-          <button data-href='{"cmd":"saveTimer","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+          <button data-href='{"cmd":"saveTimer","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -1762,11 +1764,11 @@
         </div>
         <div class="modal-footer justify-content-between" id="listMountsFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showEditMount","options":["",""]}' class="btn btn-success" data-phrase="New mount"></button>
+          <button data-href='{"cmd":"showEditMount","options":["",""]}' class="btn btn-success protected" data-phrase="New mount"></button>
         </div>
         <div id="editMountFooter" class="modal-footer hide">
           <button data-href='{"cmd":"showListMounts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
-          <button data-href='{"cmd":"mountMount","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+          <button data-href='{"cmd":"mountMount","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -1895,11 +1897,11 @@
         </div>
         <div class="modal-footer justify-content-between" id="listScriptsFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success" data-phrase="New script"></button>
+          <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success protected" data-phrase="New script"></button>
         </div>
         <div id="editScriptFooter" class="modal-footer justify-content-between hide">
           <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
-          <button data-href='{"cmd":"saveScript","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+          <button data-href='{"cmd":"saveScript","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -1944,11 +1946,11 @@
         </div>
         <div class="modal-footer justify-content-between" id="listPartitionsFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showNewPartition","options":["",""]}' class="btn btn-success" data-phrase="New partition"></button>
+          <button data-href='{"cmd":"showNewPartition","options":["",""]}' class="btn btn-success protected" data-phrase="New partition"></button>
         </div>
         <div id="newPartitionFooter" class="modal-footer justify-content-between hide">
           <button data-href='{"cmd":"showListPartitions","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
-          <button data-href='{"cmd":"savePartition","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+          <button data-href='{"cmd":"savePartition","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -2001,7 +2003,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
-          <button id="btnOutputAttributesSave" data-href='{"cmd":"saveOutputAttributes","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+          <button id="btnOutputAttributesSave" data-href='{"cmd":"saveOutputAttributes","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -2078,11 +2080,11 @@
         </div>
         <div class="modal-footer justify-content-between" id="listTriggerFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showEditTrigger","options":[-1]}' class="btn btn-success" data-phrase="New trigger"></button>
+          <button data-href='{"cmd":"showEditTrigger","options":[-1]}' class="btn btn-success protected" data-phrase="New trigger"></button>
         </div>
         <div id="newTriggerFooter" class="modal-footer justify-content-between hide">
           <button data-href='{"cmd":"showListTrigger","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
-          <button data-href='{"cmd":"saveTrigger","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+          <button data-href='{"cmd":"saveTrigger","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -2187,6 +2189,30 @@
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
           <button id="modalConfirmYesBtn" type="button" class="btn btn-danger" data-phrase="Yes, do it"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalEnterPin" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="mi title-icon">password</span> <span data-phrase="Enter Pin"></span></h5>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+        </div>
+        <div class="modal-body">
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label" for="inputPinModal" data-phrase="Pin"></label>
+            <div class="col-sm-8">
+              <input id="inputPinModal" class="form-control border-secondary" type="password"/>
+            </div>
+          </div>
+          <div id="modalEnterPinMessage" class="alert alert-danger p-2 hide"></div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button id="modalEnterPinEnterBtn" type="button" class="btn btn-success" data-phrase="Enter"></button>
         </div>
       </div>
     </div>

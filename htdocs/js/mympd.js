@@ -634,6 +634,10 @@ function initGlobalModals() {
     document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function () {
         document.getElementById('updateDBprogress').classList.remove('updateDBprogressAnimate');
     });
+
+    document.getElementById('modalEnterPin').addEventListener('shown.bs.modal', function () {
+        document.getElementById('inputPinModal').focus();
+    });
 }
 
 function initPlayback() {

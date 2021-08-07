@@ -7,9 +7,60 @@ const ignoreMessages = ['No current song', 'No lyrics found'];
 
 function enterPin(method, params, callback, onerror) {
     session = '';
-    //opened modal exists, show enter pin in footer
-    
-    //open modal to enter pin
+    setSessionState();
+    if (document.querySelector('.modal .show') !== null) {
+        //a modal is already opened, show enter pin dialog in footer
+    }
+    else {
+        //open modal to enter pin
+        const enterBtn = elCreate('button', {"id": "modalEnterPinEnterBtn", "class": ["btn", "btn-success"]}, tn('Enter'));
+        enterBtn.addEventListener('click', function() {
+            sendAPI('MYMPD_API_SESSION_LOGIN', {"pin": document.getElementById('inputPinModal').value}, function(obj) {
+                document.getElementById('inputPinModal').value = '';
+                if (obj.error) {
+                    const em = document.getElementById('modalEnterPinMessage');
+                    addIconLine(em, 'error_outline', tn(obj.error.message))
+                    em.classList.remove('hide');
+                }
+                else if (obj.result.session !== '') {
+                    session = obj.result.session;
+                    setSessionState();
+                    uiElements.modalEnterPin.hide();
+                    showNotification(tn('Session successfully created'), '', 'session', 'info');
+                    if (method !== undefined) {
+                        //call original API
+                        sendAPI(method, params, callback, onerror);
+                    }
+                }
+            }, true);
+        }, false);
+        document.getElementById('modalEnterPinEnterBtn').replaceWith(enterBtn);
+        document.getElementById('modalEnterPinMessage').classList.add('hide');
+        document.getElementById('inputPinModal').value = '';
+        uiElements.modalEnterPin.show();
+    }
+}
+
+function setSessionState() {
+   if (settings.pin === true && session === '') {
+        domCache.body.classList.add('locked');
+        document.getElementById('mmLogin').classList.remove('hide');
+        document.getElementById('mmLogout').classList.add('hide');
+    }
+    else {
+        domCache.body.classList.remove('locked');
+        if (settings.pin === true && session !== '') {
+            document.getElementById('mmLogin').classList.add('hide');
+            document.getElementById('mmLogout').classList.remove('hide');
+        }
+    }
+}
+
+function removeSession() {
+    sendAPI('MYMPD_API_SESSION_LOGOUT', {}, function() {
+        session = '';
+        setSessionState();
+    }, false);
 }
 
 function sendAPI(method, params, callback, onerror) {

@@ -201,6 +201,9 @@ function parseSettings(obj) {
             settings.webuiSettings[key] = webuiSettingsDefault[key].defaultValue;
         }
     }
+    
+    //set session state
+    setSessionState();
 
     //set features object from settings
     setFeatures();
