@@ -6,12 +6,14 @@
 const ignoreMessages = ['No current song', 'No lyrics found'];
 
 function enterPin(method, params, callback, onerror) {
-    session = '';
+    session.timeout = 0;
     setSessionState();
-    if (document.querySelector('.modal .show') !== null) {
+    if (document.querySelector('.modal-backdrop') !== null) {
+        logDebug('Show pin dialog in modal');
         //a modal is already opened, show enter pin dialog in footer
     }
     else {
+        logDebug('Open pin modal');
         //open modal to enter pin
         const enterBtn = elCreate('button', {"id": "modalEnterPinEnterBtn", "class": ["btn", "btn-success"]}, tn('Enter'));
         enterBtn.addEventListener('click', function() {
@@ -19,11 +21,12 @@ function enterPin(method, params, callback, onerror) {
                 document.getElementById('inputPinModal').value = '';
                 if (obj.error) {
                     const em = document.getElementById('modalEnterPinMessage');
-                    addIconLine(em, 'error_outline', tn(obj.error.message))
+                    addIconLine(em, 'error_outline', tn(obj.error.message));
                     em.classList.remove('hide');
                 }
                 else if (obj.result.session !== '') {
-                    session = obj.result.session;
+                    session.token = obj.result.session;
+                    session.timeout = getTimestamp() + session_lifetime;
                     setSessionState();
                     uiElements.modalEnterPin.hide();
                     showNotification(tn('Session successfully created'), '', 'session', 'info');
@@ -42,14 +45,18 @@ function enterPin(method, params, callback, onerror) {
 }
 
 function setSessionState() {
-   if (settings.pin === true && session === '') {
+    if (session.timeout < getTimestamp()) {
+        session.timeout = 0;
+        session.token = '';
+    }
+    if (settings.pin === true && session.token === '') {
         domCache.body.classList.add('locked');
         document.getElementById('mmLogin').classList.remove('hide');
         document.getElementById('mmLogout').classList.add('hide');
     }
     else {
         domCache.body.classList.remove('locked');
-        if (settings.pin === true && session !== '') {
+        if (settings.pin === true && session.token !== '') {
             document.getElementById('mmLogin').classList.add('hide');
             document.getElementById('mmLogout').classList.remove('hide');
         }
@@ -58,13 +65,15 @@ function setSessionState() {
 
 function removeSession() {
     sendAPI('MYMPD_API_SESSION_LOGOUT', {}, function() {
-        session = '';
+        session.timeout = 0;
         setSessionState();
     }, false);
 }
 
 function sendAPI(method, params, callback, onerror) {
-    if (settings.pin === true && session === '' && APImethods[method].protected === true) {
+    if (settings.pin === true && session.token === '' && 
+        session.timeout < getTimestamp() && APImethods[method].protected === true)
+    {
         logDebug('Request must be authorized but we have no session');
         enterPin(method, params, callback, onerror);
         return false;
@@ -74,7 +83,7 @@ function sendAPI(method, params, callback, onerror) {
     ajaxRequest.open('POST', subdir + '/api/', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
     if (session !== '') {
-        ajaxRequest.setRequestHeader('Authorization', 'Bearer ' + session);
+        ajaxRequest.setRequestHeader('Authorization', 'Bearer ' + session.token);
     }
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {
@@ -83,6 +92,11 @@ function sendAPI(method, params, callback, onerror) {
                 enterPin(method, params, callback, onerror);
             }
             else if (ajaxRequest.responseText !== '') {
+                if (settings.pin === true && session.token !== '' && 
+                    APImethods[method].protected === true)
+                {
+                    session.timeout = getTimestamp() + session_lifetime;
+                }
                 let obj;
                 try {
                     obj = JSON.parse(ajaxRequest.responseText);

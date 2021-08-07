@@ -32,7 +32,8 @@ const hasIO = 'IntersectionObserver' in window ? true : false;
 const ligatureMore = 'menu';
 const progressBarTransition = 'width 1s linear';
 let tagAlbumArtist = 'AlbumArtist';
-let session = '';
+const session = {"token": "", "timeout": 0};
+const session_lifetime = 1200;
 
 //remember offset for filesystem browsing uris
 const browseFilesystemHistory = {};

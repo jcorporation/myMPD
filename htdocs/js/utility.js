@@ -885,3 +885,7 @@ function addIconLine(el, ligature, text) {
     el.appendChild(icon);
     el.appendChild(span);
 }
+
+function getTimestamp() {
+    return Math.floor(Date.now() / 1000);
+}

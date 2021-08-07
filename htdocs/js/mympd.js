@@ -629,15 +629,21 @@ function initGlobalModals() {
             }
         }
         document.getElementById('shortcutList').innerHTML = list + '</div>';
-    });
+    }, false);
     
-    document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function() {
         document.getElementById('updateDBprogress').classList.remove('updateDBprogressAnimate');
-    });
+    }, false);
 
-    document.getElementById('modalEnterPin').addEventListener('shown.bs.modal', function () {
+    document.getElementById('modalEnterPin').addEventListener('shown.bs.modal', function() {
         document.getElementById('inputPinModal').focus();
-    });
+    }, false);
+    
+    document.getElementById('inputPinModal').addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            document.getElementById('modalEnterPinEnterBtn').click();        
+        }
+    }, false);
 }
 
 function initPlayback() {
