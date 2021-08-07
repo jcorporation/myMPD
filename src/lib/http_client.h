@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __HTTP_CLIENT_H__
-#define __HTTP_CLIENT_H__
+#ifndef MYMPD_HTTP_CLIENT_H
+#define MYMPD_HTTP_CLIENT_H
 
 #include "../../dist/src/sds/sds.h"
 

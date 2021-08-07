@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __UTILITY_H__
-#define __UTILITY_H__
+#ifndef MYMPD_UTILITY_H
+#define MYMPD_UTILITY_H
 
 #include <stdbool.h>
 

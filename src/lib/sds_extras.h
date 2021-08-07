@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __SDS_EXTRAS_H__
-#define __SDS_EXTRAS_H__
+#ifndef MYMPD_SDS_EXTRAS_H
+#define MYMPD_SDS_EXTRAS_H
 
 #include "../../dist/src/sds/sds.h"
 

@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __API_H__
-#define __API_H__
+#ifndef MYMPD_API_H
+#define MYMPD_API_H
 
 #include <stdbool.h>
 

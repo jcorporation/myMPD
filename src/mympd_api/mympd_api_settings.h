@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MYMPD_API_SETTINGS_H
-#define __MYMPD_API_SETTINGS_H
+#ifndef MYMPD_API_SETTINGS_H
+#define MYMPD_API_SETTINGS_H
 
 #include "../../dist/src/frozen/frozen.h"
 #include "../../dist/src/sds/sds.h"

@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MYMPD_STATE_H
-#define __MYMPD_STATE_H
+#ifndef MYMPD_STATE_H
+#define MYMPD_STATE_H
 
 #include <mpd/client.h>
 #include <time.h>

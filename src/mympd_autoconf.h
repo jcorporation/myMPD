@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef _MYMPD_AUTOCONF_H
-#define _MYMPD_AUTOCONF_H
+#ifndef MYMPD_AUTOCONF_H
+#define MYMPD_AUTOCONF_H
 
 #include "../dist/src/sds/sds.h"
 

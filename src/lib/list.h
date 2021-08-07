@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __LIST_H__
-#define __LIST_H__
+#ifndef MYMPD_LIST_H
+#define MYMPD_LIST_H
 
 #include <stdbool.h>
 

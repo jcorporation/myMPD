@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MYMPD_CERT_H__
-#define __MYMPD_CERT_H__
+#ifndef MYMPD_CERT_H
+#define MYMPD_CERT_H
 
 #include <stdbool.h>
 

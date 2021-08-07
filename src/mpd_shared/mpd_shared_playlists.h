@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MPD_SHARED_PLAYLISTS_H__
-#define __MPD_SHARED_PLAYLISTS_H__
+#ifndef MYMPD_MPD_SHARED_PLAYLISTS_H
+#define MYMPD_MPD_SHARED_PLAYLISTS_H
 
 #include "../mympd_state.h"
 

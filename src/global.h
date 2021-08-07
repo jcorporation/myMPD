@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __GLOBAL_H__
-#define __GLOBAL_H__
+#ifndef MYMPD_GLOBAL_H
+#define MYMPD_GLOBAL_H
 
 #include "../dist/src/sds/sds.h"
 #include "api.h"

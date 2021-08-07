@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __VALIDATE_H__
-#define __VALIDATE_H__
+#ifndef MYMPD_VALIDATE_H
+#define MYMPD_VALIDATE_H
 
 #include <stdbool.h>
 

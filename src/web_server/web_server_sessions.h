@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __WEB_SERVER_SESSIONS_H__
-#define __WEB_SERVER_SESSIONS_H__
+#ifndef MYMPD_WEB_SERVER_SESSIONS_H
+#define MYMPD_WEB_SERVER_SESSIONS_H
 
 #include "../../dist/src/sds/sds.h"
 #include "../lib/list.h"

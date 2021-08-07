@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __JSONRPC_H__
-#define __JSONRPC_H__
+#ifndef MYMPD_JSONRPC_H
+#define MYMPD_JSONRPC_H
 
 #include <stdbool.h>
 

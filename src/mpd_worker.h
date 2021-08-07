@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MPD_WORKER_H__
-#define __MPD_WORKER_H__
+#ifndef MYMPD_MPD_WORKER_H
+#define MYMPD_MPD_WORKER_H
 
 #include "global.h"
 #include "mympd_state.h"

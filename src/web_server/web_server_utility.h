@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __WEB_SERVER_UTILITY_H__
-#define __WEB_SERVER_UTILITY_H__
+#ifndef MYMPD_WEB_SERVER_UTILITY_H
+#define MYMPD_WEB_SERVER_UTILITY_H
 
 #include "../../dist/src/mongoose/mongoose.h"
 #include "../../dist/src/sds/sds.h"

@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MYMPD_PIN_H__
-#define __MYMPD_PIN_H__
+#ifndef MYMPD_PIN_H
+#define MYMPD_PIN_H
 
 #include <stdbool.h>
 

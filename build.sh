@@ -396,8 +396,15 @@ check() {
     echo "Running clang-tidy, output goes to clang-tidy.out"
     rm -f clang-tidy.out
     cd src || exit 1
+    DISABLED_CHECKS=",-bugprone-narrowing-conversions,-readability-function-cognitive-complexity,-altera-struct-pack-align,-google-readability-todo"
+    DISABLED_CHECKS="$DISABLED_CHECKS,-llvmlibc-restrict-system-libc-headers,-cert-dcl37-c,-cert-dcl51-cpp,-readability-isolate-declaration,-hicpp-multiway-paths-covered"
+    DISABLED_CHECKS="$DISABLED_CHECKS,-readability-uppercase-literal-suffix,-hicpp-uppercase-literal-suffix,-cert-msc51-cpp,-cert-msc32-c,-hicpp-no-assembler"
+	DISABLED_CHECKS="$DISABLED_CHECKS,-android*,-cert-env33-c,-cert-msc50-cpp,-bugprone-branch-clone,-misc-misplaced-const,-readability-non-const-parameter,-cert-msc30-c"
+	DISABLED_CHECKS="$DISABLED_CHECKS,-hicpp-signed-bitwise,-readability-magic-numbers,-readability-avoid-const-params-in-decls,-llvm-include-order,-bugprone-macro-parentheses,-modernize*,"
+	DISABLED_CHECKS="$DISABLED_CHECKS,-cppcoreguidelines*,-llvm-header-guard,-clang-analyzer-optin.performance.Padding,-clang-diagnostic-embedded-directive"
+	DISABLED_CHECKS="$DISABLED_CHECKS,-bugprone-reserved-identifier"
     find ./ -name '*.c' -exec clang-tidy \
-    	--checks="*,-bugprone-narrowing-conversions,-readability-function-cognitive-complexity,-altera-struct-pack-align,-google-readability-todo,-llvmlibc-restrict-system-libc-headers,-bugprone-reserved-identifier,-cert-dcl37-c,-cert-dcl51-cpp,-readability-isolate-declaration,-hicpp-multiway-paths-covered,-readability-uppercase-literal-suffix,-hicpp-uppercase-literal-suffix,-cert-msc51-cpp,-cert-msc32-c,-hicpp-no-assembler,-android*,-cert-env33-c,-cert-msc50-cpp,-bugprone-branch-clone,-misc-misplaced-const,-readability-non-const-parameter,-cert-msc30-c,-hicpp-signed-bitwise,-readability-magic-numbers,-readability-avoid-const-params-in-decls,-llvm-include-order,-bugprone-macro-parentheses,-modernize*,-cppcoreguidelines*,-llvm-header-guard,-clang-analyzer-optin.performance.Padding,-clang-diagnostic-embedded-directive" \
+    	--checks="*,$DISABLED_CHECKS" \
     	-header-filter='.*' {}  \; >> ../clang-tidy.out
   else
     echo "clang-tidy not found"  

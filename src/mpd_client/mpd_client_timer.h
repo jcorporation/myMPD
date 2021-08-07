@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MPD_CLIENT_TIMER_H__
-#define __MPD_CLIENT_TIMER_H__
+#ifndef MYMPD_MPD_CLIENT_TIMER_H
+#define MYMPD_MPD_CLIENT_TIMER_H
 
 #include "../../dist/src/sds/sds.h"
 #include "../api.h"

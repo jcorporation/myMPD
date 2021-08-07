@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __TINY_QUEUE_H__
-#define __TINY_QUEUE_H__
+#ifndef MYMPD_TINY_QUEUE_H
+#define MYMPD_TINY_QUEUE_H
 
 #include <pthread.h>
 #include <time.h>

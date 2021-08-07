@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MYMPD_MIGRATE_H__
-#define __MYMPD_MIGRATE_H__
+#ifndef MYMPD_MIGRATE_H
+#define MYMPD_MIGRATE_H
 void start_migrate_workdir(const char *workdir);
 void start_migrate_conf(const char *workdir);
 #endif

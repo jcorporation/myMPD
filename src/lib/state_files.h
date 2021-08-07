@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __STATE_FILES_H
-#define __STATE_FILES_H
+#ifndef MYMPD_STATE_FILES_H
+#define MYMPD_STATE_FILES_H
 
 #include <stdbool.h>
 

@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MYMPD_API_SCRIPTS_H__
-#define __MYMPD_API_SCRIPTS_H__
+#ifndef MYMPD_API_SCRIPTS_H
+#define MYMPD_API_SCRIPTS_H
 
 #include "../../dist/src/sds/sds.h"
 #include "../lib/list.h"

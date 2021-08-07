@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __LOG_H__
-#define __LOG_H__
+#ifndef MYMPD_LOG_H
+#define MYMPD_LOG_H
 
 #include <stdbool.h>
 #include <syslog.h>

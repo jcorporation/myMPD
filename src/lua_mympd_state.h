@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __LUA_MYMPD_STATE_H__
-#define __LUA_MYMPD_STATE_H__
+#ifndef MYMPD_LUA_MYMPD_STATE_H
+#define MYMPD_LUA_MYMPD_STATE_H
 
 #include <stdbool.h>
 

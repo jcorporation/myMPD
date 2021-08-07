@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __RANDOM_H__
-#define __RANDOM_H__
+#ifndef MYMPD_RANDOM_H
+#define MYMPD_RANDOM_H
 
 #include "../../dist/src/tinymt/tinymt32.h"
 

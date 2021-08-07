@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MPD_CLIENT_TRIGGER_H
-#define MPD_CLIENT_TRIGGER_H
+#ifndef MYMPD_MPD_CLIENT_TRIGGER_H
+#define MYMPD_MPD_CLIENT_TRIGGER_H
 
 #include "../mympd_state.h"
 

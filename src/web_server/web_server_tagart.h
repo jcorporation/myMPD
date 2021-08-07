@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __WEB_SERVER_TAGART_H__
-#define __WEB_SERVER_TAGART_H__
+#ifndef MYMPD_WEB_SERVER_TAGART_H
+#define MYMPD_WEB_SERVER_TAGART_H
 
 #include <stdbool.h>
 

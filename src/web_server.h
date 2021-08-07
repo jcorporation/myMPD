@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __WEB_SERVER_H__
-#define __WEB_SERVER_H__
+#ifndef MYMPD_WEB_SERVER_H
+#define MYMPD_WEB_SERVER_H
 
 #include "../dist/src/sds/sds.h"
 

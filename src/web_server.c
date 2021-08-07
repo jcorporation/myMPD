@@ -596,9 +596,7 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
             FREE_PTR(jsonrpc);
             return true;
         }
-        else {
-            MYMPD_LOG_INFO("API request is authorized");
-        }
+        MYMPD_LOG_INFO("API request is authorized");
     }
     #endif
     

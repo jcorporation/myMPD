@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __COVERCACHE_H__
-#define __COVERCACHE_H__
+#ifndef MYMPD_COVERCACHE_H
+#define MYMPD_COVERCACHE_H
 
 #include <stdbool.h>
 

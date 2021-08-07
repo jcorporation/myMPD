@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __JUKEBOX_H__
-#define __JUKEBOX_H__
+#ifndef MYMPD_JUKEBOX_H
+#define MYMPD_JUKEBOX_H
 
 #include "../mympd_state.h"
 

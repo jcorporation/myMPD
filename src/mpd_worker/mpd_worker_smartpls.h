@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MPD_WORKER_SMARTPLS_H__
-#define __MPD_WORKER_SMARTPLS_H__
+#ifndef MYMPD_MPD_WORKER_SMARTPLS_H
+#define MYMPD_MPD_WORKER_SMARTPLS_H
 
 #include "mpd_worker_utility.h"
 #include <stdbool.h>

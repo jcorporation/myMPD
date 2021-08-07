@@ -201,7 +201,7 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
                     pl_name++;
                 }
                 else {
-                    pl_name = (char *)entity_name;
+                    pl_name = entity_name;
                 }
                 if (search_len == 0  || strstr(pl_name, searchstr_lower) != NULL) {
                     sds key = sdscatprintf(sdsempty(), "1%s", mpd_playlist_get_path(pl));

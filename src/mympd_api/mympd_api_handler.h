@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MYMPD_API_HANDLER_H__
-#define __MYMPD_API_HANDLER_H__
+#ifndef MYMPD_API_HANDLER_H
+#define MYMPD_API_HANDLER_H
 
 #include "../mympd_state.h"
 

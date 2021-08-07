@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MPD_SHARED_H__
-#define __MPD_SHARED_H__
+#ifndef MYMPD_MPD_SHARED_H
+#define MYMPD_MPD_SHARED_H
 
 #include "../dist/src/sds/sds.h"
 

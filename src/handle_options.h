@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
    
-#ifndef __HANDLE_OPTIONS_H__
-#define __HANDLE_OPTIONS_H__
+#ifndef MYMPD_HANDLE_OPTIONS_H
+#define MYMPD_HANDLE_OPTIONS_H
 
 #include <stdbool.h>
 

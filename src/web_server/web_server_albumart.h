@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __WEB_SERVER_ALBUMART_H__
-#define __WEB_SERVER_ALBUMART_H__
+#ifndef MYMPD_WEB_SERVER_ALBUMART_H
+#define MYMPD_WEB_SERVER_ALBUMART_H
 
 #include <stdbool.h>
 

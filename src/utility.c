@@ -83,7 +83,7 @@ bool strtobool(const char *value) {
 
 char *strtolower(char *s) {
     for (char *p = s; *p; p++) {
-        *p = tolower(*p);
+        *p = tolower((unsigned char) *p);
     }
     return s;
 }
