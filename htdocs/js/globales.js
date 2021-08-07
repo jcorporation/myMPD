@@ -33,7 +33,7 @@ const ligatureMore = 'menu';
 const progressBarTransition = 'width 1s linear';
 let tagAlbumArtist = 'AlbumArtist';
 const session = {"token": "", "timeout": 0};
-const session_lifetime = 1200;
+const sessionLifetime = 1200;
 
 //remember offset for filesystem browsing uris
 const browseFilesystemHistory = {};

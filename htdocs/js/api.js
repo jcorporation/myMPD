@@ -26,7 +26,7 @@ function enterPin(method, params, callback, onerror) {
                 }
                 else if (obj.result.session !== '') {
                     session.token = obj.result.session;
-                    session.timeout = getTimestamp() + session_lifetime;
+                    session.timeout = getTimestamp() + sessionLifetime;
                     setSessionState();
                     uiElements.modalEnterPin.hide();
                     showNotification(tn('Session successfully created'), '', 'session', 'info');
@@ -63,6 +63,7 @@ function setSessionState() {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function removeSession() {
     sendAPI('MYMPD_API_SESSION_LOGOUT', {}, function() {
         session.timeout = 0;
@@ -95,7 +96,7 @@ function sendAPI(method, params, callback, onerror) {
                 if (settings.pin === true && session.token !== '' && 
                     APImethods[method].protected === true)
                 {
-                    session.timeout = getTimestamp() + session_lifetime;
+                    session.timeout = getTimestamp() + sessionLifetime;
                 }
                 let obj;
                 try {
