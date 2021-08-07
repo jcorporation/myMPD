@@ -6,8 +6,10 @@ title: Published directories
 
 myMPD publishes mpd and myMPD directories via the embedded webserver.
 
-| **Uri** | **Directory** |
-|-|-|
+For security reasons, only symlinks within the respective directory are followed. The root directory check is necessary to prevent path traversal attacks.
+
+| URI | DIRECTORY |
+| --- | --------- |
 | /browse | top level directory links to ``/var/lib/mympd/empty``, directories here are managed by myMPD |
 | /browse/music | links to the MPD music directory  |
 | /browse/playlists | links to the MPD playlists directory |

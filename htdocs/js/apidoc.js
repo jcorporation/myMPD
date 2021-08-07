@@ -1458,13 +1458,8 @@ const APImethods = {
     },
     "MYMPD_API_SESSION_LOGOUT": {
         "desc": "Removes the session from the session table.",
-        "params": {
-            "session": {
-                "type": "text",
-                "example": "",
-                "desc": "The session id to remove."
-            }
-        }
+        "protected": true,
+        "params": {}
     },
     "MYMPD_API_COVERCACHE_CLEAR": {
         "desc": "Clears the covercache",
