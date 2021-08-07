@@ -20,7 +20,7 @@
 #include "web_server.h"
 
 #ifdef ENABLE_SSL
-  #include "cert.h"
+  #include "lib/cert.h"
 #endif
 
 #include <assert.h>

@@ -185,9 +185,9 @@ set(SOURCES
   dist/src/tinymt/tinymt32.c
   dist/src/utf8decode/utf8decode.c
   src/api.c
-  src/covercache.c
   src/global.c
   src/handle_options.c
+  src/lib/covercache.c
   src/lib/http_client.c
   src/lib/jsonrpc.c
   src/lib/list.c
@@ -247,7 +247,7 @@ set(SOURCES
 
 if("${ENABLE_SSL}" MATCHES "ON")
   set(CERT_SOURCES
-      src/cert.c
+      src/lib/cert.c
   )
 endif()
 

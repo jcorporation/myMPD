@@ -7,8 +7,8 @@
 #include "mympd_config_defs.h"
 #include "mympd_api_timer_handlers.h"
 
-#include "../covercache.h"
 #include "../global.h"
+#include "../lib/covercache.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 

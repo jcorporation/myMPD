@@ -6,8 +6,8 @@
 
 #include "cert.h"
 
-#include "lib/log.h"
-#include "lib/sds_extras.h"
+#include "log.h"
+#include "sds_extras.h"
 
 #include <arpa/inet.h>
 #include <errno.h>

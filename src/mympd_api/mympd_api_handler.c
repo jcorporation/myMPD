@@ -9,8 +9,8 @@
 
 #include "../../dist/src/frozen/frozen.h"
 #include "../api.h"
-#include "../covercache.h"
 #include "../global.h"
+#include "../lib/covercache.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
