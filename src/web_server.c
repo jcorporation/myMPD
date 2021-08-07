@@ -568,6 +568,7 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
         return false;
     }
     
+    sds session = sdsempty();
     #ifdef ENABLE_SSL
     if (sdslen(mg_user_data->config->pin_hash) > 0 && is_protected_api_method(cmd_id) == true) {
         //format of authorization header must be: Bearer x
@@ -575,10 +576,9 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
         struct mg_str *session_header = mg_http_get_header(hm, "Authorization");
         bool rc = false;
         if (session_header != NULL && session_header->len == 27 && strncmp(session_header->ptr, "Bearer ", 7) == 0) {
-            sds session = sdsnewlen(session_header->ptr, session_header->len);
+            session = sdscatlen(session, session_header->ptr, session_header->len);
             sdsrange(session, 7, -1);
             rc = validate_session(&mg_user_data->session_list, session);
-            sdsfree(session);
         }
         else {
             MYMPD_LOG_ERROR("No valid Authorization header found");
@@ -609,11 +609,11 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
             FREE_PTR(pin);
             sds response;
             if (is_valid == true) {
-                sds session = new_session(&mg_user_data->session_list);
+                sds ses = new_session(&mg_user_data->session_list);
                 response = jsonrpc_result_start(sdsempty(), "MYMPD_API_SESSION_LOGIN", 0);
-                response = tojson_char(response, "session", session, false);
+                response = tojson_char(response, "session", ses, false);
                 response = jsonrpc_result_end(response);
-                sdsfree(session);
+                sdsfree(ses);
             }
             else {
                 response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGIN", 0, true, "session", "error", "Invalid pin");
@@ -623,13 +623,10 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
             break;
         }
         case MYMPD_API_SESSION_LOGOUT: {
-            char *session = NULL;
             bool rc = false;
             sds response;
-            je = json_scanf(hm->body.ptr, hm->body.len, "{params: {session: %Q}}", &session);
-            if (je == 1) {
+            if (sdslen(session) == 20) {
                 rc = remove_session(&mg_user_data->session_list, session);
-                FREE_PTR(session);
                 if (rc == true) {
                     response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, false, "session", "info", "Session removed");
                 }
@@ -650,7 +647,7 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
             tiny_queue_push(mympd_api_queue, request, 0);
         }
     }
-    
+    sdsfree(session);
     FREE_PTR(cmd);
     FREE_PTR(jsonrpc);
     return true;
