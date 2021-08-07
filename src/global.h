@@ -7,13 +7,12 @@
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 
+#include "../dist/src/sds/sds.h"
+#include "api.h"
+#include "lib/tiny_queue.h"
+
 #include <signal.h>
 #include <stdbool.h>
-
-#include "../dist/src/sds/sds.h"
-
-#include "api.h"
-#include "tiny_queue.h"
 
 extern _Atomic int worker_threads;
 

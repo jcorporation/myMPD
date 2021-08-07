@@ -195,6 +195,7 @@ set(SOURCES
   src/lib/random.c
   src/lib/sds_extras.c
   src/lib/state_files.c
+  src/lib/tiny_queue.c
   src/lib/validate.c
   src/lua_mympd_state.c
   src/main.c
@@ -236,7 +237,6 @@ set(SOURCES
   src/mympd_config.c
   src/mympd_migrate.c
   src/mympd_pin.c
-  src/tiny_queue.c
   src/utility.c
   src/web_server.c
   src/web_server/web_server_albumart.c
