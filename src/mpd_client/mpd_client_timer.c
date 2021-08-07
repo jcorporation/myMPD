@@ -4,29 +4,13 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdlib.h>
-#include <libgen.h>
-#include <pthread.h>
-#include <string.h>
-#include <inttypes.h>
-#include <signal.h>
-#include <unistd.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../../dist/src/frozen/frozen.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../tiny_queue.h"
-#include "../api.h"
+#include "mpd_client_timer.h"
+
 #include "../global.h"
-#include "../utility.h"
 #include "../log.h"
-#include "../mympd_state.h"
 #include "../mpd_shared.h"
-#include "mpd_client_utility.h"
+#include "../utility.h"
 
 void mpd_client_set_timer(enum mympd_cmd_ids cmd_id, const char *cmd, int timeout, int interval, const char *handler) {
     t_work_request *request = create_request(-1, 0, cmd_id, cmd, "");

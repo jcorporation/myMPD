@@ -6,39 +6,24 @@
 
 #define _GNU_SOURCE 
 
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <ctype.h>
-#include <dirent.h>
-#include <inttypes.h>
-#include <limits.h>
-#include <libgen.h>
-#include <mpd/client.h>
-#include <signal.h>
-#include <time.h>
-#include <pcre.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../sds_extras.h"
-#include "../../dist/src/rax/rax.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../api.h"
+#include "mpd_client_browse.h"
+
 #include "../log.h"
-#include "../tiny_queue.h"
-#include "../global.h"
-#include "../mympd_state.h"
-#include "../mpd_shared.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_search.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "../utility.h"
+
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
-#include "mpd_client_browse.h"
+
+#include <dirent.h>
+#include <errno.h>
+#include <inttypes.h>
+#include <libgen.h>
+#include <pcre.h>
+#include <string.h>
 
 //private definitions
 static bool _search_song(struct mpd_song *song, struct list *expr_list, struct t_tags *browse_tag_types);

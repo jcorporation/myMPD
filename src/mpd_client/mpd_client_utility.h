@@ -6,6 +6,10 @@
 
 #ifndef __MPD_CLIENT_UTILITY_H__
 #define __MPD_CLIENT_UTILITY_H__
+
+#include "../mympd_state.h"
+#include <stdbool.h>
+
 void json_to_tags(const char *str, int len, void *user_data);
 bool is_smartpls(struct t_mympd_state *mympd_state, const char *plpath);
 sds put_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *uri, bool is_dirname);

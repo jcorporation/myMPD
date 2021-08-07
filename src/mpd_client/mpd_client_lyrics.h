@@ -6,5 +6,8 @@
 
 #ifndef __MPD_CLIENT_LYRICS_H__
 #define __MPD_CLIENT_LYRICS_H__
+
+#include "../mympd_state.h"
+
 sds mpd_client_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, const char *uri);
 #endif

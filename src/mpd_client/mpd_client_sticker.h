@@ -6,6 +6,9 @@
 
 #ifndef __MPD_CLIENT_STICKER_H__
 #define __MPD_CLIENT_STICKER_H__
+
+#include "../mympd_state.h"
+
 bool mpd_client_sticker_inc_play_count(struct t_mympd_state *mympd_state, const char *uri);
 bool mpd_client_sticker_inc_skip_count(struct t_mympd_state *mympd_state, const char *uri);
 bool mpd_client_sticker_like(struct t_mympd_state *mympd_state, const char *uri, int value);

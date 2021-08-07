@@ -6,6 +6,9 @@
 
 #ifndef MPD_CLIENT_TRIGGER_H
 #define MPD_CLIENT_TRIGGER_H
+
+#include "../mympd_state.h"
+
 sds trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
 sds trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, int id);
 bool triggerfile_read(struct t_mympd_state *mympd_state);

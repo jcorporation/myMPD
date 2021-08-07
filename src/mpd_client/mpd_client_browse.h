@@ -4,8 +4,11 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __BROWSE_H__
-#define __BROWSE_H__
+#ifndef __MPD_CLIENT_BROWSE_H__
+#define __MPD_CLIENT_BROWSE_H__
+
+#include "../mympd_state.h"
+
 sds mpd_client_put_fingerprint(struct t_mympd_state *mympd_state, sds buffer, sds method,
                                long request_id, const char *uri);
 sds mpd_client_put_songdetails(struct t_mympd_state *mympd_state, sds buffer, sds method,

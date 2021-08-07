@@ -4,27 +4,14 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <unistd.h>
-
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../api.h"
-#include "../log.h"
-#include "../list.h"
-#include "../mympd_state.h"
-#include "../mpd_shared.h"
 #include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../covercache.h"
-#include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
+
+#include "../covercache.h"
+#include "../log.h"
+#include "../utility.h"
+
+#include <stdlib.h>
 
 sds mpd_client_getcover(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                         const char *uri, sds *binary)

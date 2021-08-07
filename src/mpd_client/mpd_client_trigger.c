@@ -4,37 +4,19 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <errno.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdint.h>
-#include <string.h>
-#include <sys/timerfd.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <errno.h>
-#include <time.h>
-#include <assert.h>
-#include <signal.h>
-#include <mpd/client.h>
+#include "mympd_config_defs.h"
+#include "mpd_client_trigger.h"
 
 #include "../../dist/src/frozen/frozen.h"
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../log.h"
-#include "../list.h"
-#include "mympd_config_defs.h"
 #include "../api.h"
-#include "../tiny_queue.h"
 #include "../global.h"
+#include "../log.h"
+#include "../sds_extras.h"
 #include "../utility.h"
-#include "../mympd_state.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mpd_shared.h"
-#include "mpd_client_utility.h"
-#include "mpd_client_trigger.h"
+
+#include <assert.h>
+#include <errno.h>
+#include <stdlib.h>
 
 //private definitions
 void _trigger_execute(const char *script, struct list *arguments);

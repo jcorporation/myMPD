@@ -6,6 +6,9 @@
 
 #ifndef __JUKEBOX_H__
 #define __JUKEBOX_H__
+
+#include "../mympd_state.h"
+
 bool mpd_client_rm_jukebox_entry(struct t_mympd_state *mympd_state, unsigned pos);
 sds mpd_client_put_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, sds method,
                                 long request_id, const unsigned int offset, const unsigned int limit, 

@@ -4,23 +4,14 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../api.h"
-#include "../log.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../mympd_state.h"
-#include "../mpd_shared.h"
-#include "mpd_client_utility.h"
 #include "mpd_client_mounts.h"
+
+#include "../mpd_shared.h"
+#include "../sds_extras.h"
+#include "../utility.h"
+
+#include <string.h>
 
 //public functions
 sds mpd_client_put_mounts(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {

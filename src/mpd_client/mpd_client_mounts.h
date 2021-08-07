@@ -6,6 +6,9 @@
 
 #ifndef __MPD_CLIENT_MOUNTS_H__
 #define __MPD_CLIENT_MOUNTS_H__
+
+#include "../mympd_state.h"
+
 sds mpd_client_put_mounts(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
 sds mpd_client_put_neighbors(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
 sds mpd_client_put_urlhandlers(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);

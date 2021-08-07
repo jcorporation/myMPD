@@ -4,29 +4,20 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <inttypes.h>
-#include <time.h>
-#include <libgen.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../api.h"
-#include "../log.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../mympd_state.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
-#include "../mpd_shared.h"
-#include "mpd_client_utility.h"
 #include "mpd_client_stats.h"
+
+#include "../log.h"
+#include "../mpd_shared.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "../utility.h"
+
+#include <errno.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 //private definitions
 static sds mpd_client_put_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, 

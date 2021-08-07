@@ -4,30 +4,21 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../log.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../api.h"
-#include "../tiny_queue.h"
-#include "../global.h"
-#include "../lua_mympd_state.h"
-#include "../mympd_state.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mpd_shared.h"
-#include "mpd_client_state.h"
-#include "mpd_client_utility.h"
 #include "mpd_client_features.h"
+
+
+#include "../global.h"
+#include "../log.h"
+#include "../mpd_shared.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "../sds_extras.h"
+#include "../utility.h"
+#include "mpd_client_state.h"
+
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 //private definitions
 static void mpd_client_feature_commands(struct t_mympd_state *mympd_state);

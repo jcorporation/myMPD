@@ -4,33 +4,17 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <assert.h>
-#include <stdint.h>
-
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../api.h"
-#include "../log.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../lua_mympd_state.h"
-#include "../utility.h"
-#include "../mympd_state.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
-#include "../mpd_shared.h"
-#include "mpd_client_utility.h"
-#include "mpd_client_cover.h"
-#include "mpd_client_sticker.h"
 #include "mpd_client_state.h"
+
+#include "../log.h"
+#include "../lua_mympd_state.h"
+#include "../mpd_shared.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "../sds_extras.h"
+#include "../utility.h"
+#include "mpd_client_utility.h"
 
 //private definitions
 static sds _mpd_client_put_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);

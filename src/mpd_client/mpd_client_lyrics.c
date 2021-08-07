@@ -4,28 +4,17 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
+#include "mpd_client_lyrics.h"
+
+#include "../log.h"
+#include "../sds_extras.h"
+#include "../utility.h"
+
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <libgen.h>
-#include <ctype.h>
-#include <inttypes.h>
-#include <stdbool.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../log.h"
-#include "../list.h"
-#include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../mympd_state.h"
-#include "mpd_client_utility.h"
-#include "mpd_client_lyrics.h"
 
 //optional includes
 #ifdef ENABLE_LIBID3TAG
