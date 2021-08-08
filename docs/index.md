@@ -27,6 +27,7 @@ This documentation is for myMPD version {% include version %}.
   - [ACL]({{ site.baseurl }}/configuration/acl)
   - [Logging]({{ site.baseurl }}/configuration/logging)
   - [SSL]({{ site.baseurl }}/configuration/ssl)
+  - [Pin protection]({{ site.baseurl }}/configuration/pin-protection)
 - [Running]({{ site.baseurl }}/running)
 - [Debug]({{ site.baseurl }}/debug)
 - [Scripting]({{ site.baseurl }}/scripting/)
