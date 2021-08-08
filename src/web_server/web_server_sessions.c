@@ -58,6 +58,7 @@ bool validate_session(struct list *session_list, const char *session) {
         else {
             //validate session
             if (session != NULL && strcmp(current->key, session) == 0) {
+                MYMPD_LOG_DEBUG("Extending session \"%s\"", session);
                 current->value_i = time(NULL) + 1800;
                 return true;
             }

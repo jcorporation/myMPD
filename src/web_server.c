@@ -589,9 +589,11 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
         }
         if (rc == false) {
             MYMPD_LOG_ERROR("API method %s is protected", cmd);
-            sds response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, true, "session", "error", "Authentication required");
+            sds response = jsonrpc_respond_message(sdsempty(), cmd, 0, true, "session", "error", 
+                (cmd_id == MYMPD_API_SESSION_VALIDATE ? "Invalid session" : "Authentication required"));
             mg_printf(nc, "HTTP/1.1 401 Unauthorized\r\n"
                 "WWW-Authenticate: Bearer realm=\"myMPD\"\r\n"
+                "Content-Type: application/json\r\n"
                 "Content-Length: %d\r\n\r\n", 
                 sdslen(response));
             mg_send(nc, response, sdslen(response));

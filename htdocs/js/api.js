@@ -80,7 +80,7 @@ function resetSessionTimer() {
 
 function validateSession() {
     sendAPI('MYMPD_API_SESSION_VALIDATE', {}, function(obj) {
-        if (obj.result.message === 'ok') {
+        if (obj.result !== undefined && obj.result.message === 'ok') {
             session.timeout = getTimestamp() + sessionLifetime;
         }
         else {
@@ -230,6 +230,9 @@ function webSocketConnect() {
                     showNotification(t('Connected to myMPD'), wsUrl, 'general', 'info');
                     //appRoute();
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, true);
+                    if (session.token !== '') {
+                        validateSession();
+                    }
                     break;
                 case 'update_state':
                     //rename param to result
