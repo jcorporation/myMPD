@@ -49,6 +49,16 @@ function elEnable(el) {
     }
 }
 
+function getOpenModal() {
+    const modals = document.getElementsByClassName('modal');
+    for (const modal of modals) {
+        if (modal.classList.contains('show')) {
+            return modal;
+        }
+    }
+    return null;
+}
+
 //escapes html characters to avoid xss
 function e(x) {
     if (isNaN(x)) {

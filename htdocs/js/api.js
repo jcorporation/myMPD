@@ -5,16 +5,72 @@
 
 const ignoreMessages = ['No current song', 'No lyrics found'];
 
+function removeEnterPinFooter(footer) {
+    if (footer) {
+        footer.previousElementSibling.classList.remove('hide');
+        footer.remove();
+    }
+}
+
+function createEnterPinFooter(footer) {
+    const div = elCreate('div', {"class": ["row", "w-100"]}, '');
+    div.appendChild(elCreate('div', {"class": ["col-4", "pl-0"]}, tn('Enter pin')));
+    const gr = elCreate('div', {"class": ["input-group"]}, '');
+    const input = elCreate('input', {"type": "password", "class": ["form-control", "border-secondary"]}, '');
+    gr.appendChild(input);
+    const ap = elCreate('div', {"class": ["input-group-append"]}, '');
+    const btn = elCreate('button', {"class": ["btn", "btn-success"]}, 'Enter');
+    ap.appendChild(btn);
+    gr.appendChild(ap);
+    const col2 = elCreate('div', {"class": ["col-8", "pr-0"]}, '');
+    col2.appendChild(gr);
+    div.appendChild(col2);
+    footer.classList.add('hide');
+    const newFooter = elCreate('div', {"class": ["modal-footer", "enterPinFooter"]}, '');
+    newFooter.appendChild(div);
+    footer.parentNode.appendChild(newFooter);
+    input.focus();
+    btn.addEventListener('click', function() {
+        sendAPI('MYMPD_API_SESSION_LOGIN', {"pin": input.value}, function(obj) {
+            input.value = '';
+            const alert = footer.getElementsByClassName('alert')[0];
+            if (alert !== undefined) {
+                alert.remove();
+            }
+            if (obj.error) {
+                const em = elCreate('div', {"class": ["alert", "alert-danger", "p-2", "w-100"]}, '');
+                addIconLine(em, 'error_outline', tn(obj.error.message));
+                newFooter.appendChild(em);
+            }
+            else if (obj.result.session !== '') {
+                session.token = obj.result.session;
+                session.timeout = getTimestamp() + sessionLifetime;
+                setSessionState();
+                removeEnterPinFooter(newFooter);
+                showNotification(tn('Session successfully created'), '', 'session', 'info');
+            }
+        }, true);
+    }, false);
+    input.addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            btn.click();
+        }
+    }, false);
+}
+
 function enterPin(method, params, callback, onerror) {
     session.timeout = 0;
     setSessionState();
-    if (document.querySelector('.modal-backdrop') !== null) {
+    const modal = getOpenModal();
+    if (modal !== null) {
         logDebug('Show pin dialog in modal');
         //a modal is already opened, show enter pin dialog in footer
+        const footer = modal.getElementsByClassName('modal-footer')[0];
+        createEnterPinFooter(footer, method, params, callback, onerror, true);
     }
     else {
         logDebug('Open pin modal');
-        //open modal to enter pin
+        //open modal to enter pin and resend API request
         const enterBtn = elCreate('button', {"id": "modalEnterPinEnterBtn", "class": ["btn", "btn-success"]}, tn('Enter'));
         enterBtn.addEventListener('click', function() {
             sendAPI('MYMPD_API_SESSION_LOGIN', {"pin": document.getElementById('inputPinModal').value}, function(obj) {

@@ -33,6 +33,7 @@ function initSettings() {
     document.getElementById('modalConnection').addEventListener('shown.bs.modal', function () {
         getSettings();
         removeIsInvalid(document.getElementById('modalConnection'));
+        removeEnterPinFooter(document.getElementById('modalConnection').getElementsByClassName('enterPinFooter')[0]);
     });
 
     document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
