@@ -34,6 +34,7 @@ const progressBarTransition = 'width 1s linear';
 let tagAlbumArtist = 'AlbumArtist';
 const session = {"token": "", "timeout": 0};
 const sessionLifetime = 1200;
+let sessionTimer = null;
 
 //remember offset for filesystem browsing uris
 const browseFilesystemHistory = {};

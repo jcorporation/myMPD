@@ -39,6 +39,7 @@ bool is_protected_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_SCRIPT_RM:
         case MYMPD_API_SETTINGS_SET:
         case MYMPD_API_SESSION_LOGOUT:
+        case MYMPD_API_SESSION_VALIDATE:
             return true;
         default:
             return false;

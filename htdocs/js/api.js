@@ -46,6 +46,7 @@ function enterPin(method, params, callback, onerror) {
 
 function setSessionState() {
     if (session.timeout < getTimestamp()) {
+        logDebug('Session expired: ' + session.timeout);
         session.timeout = 0;
         session.token = '';
     }
@@ -61,6 +62,32 @@ function setSessionState() {
             document.getElementById('mmLogout').classList.remove('hide');
         }
     }
+
+    if (settings.pin === true && session.token !== '') {
+        resetSessionTimer();
+    }
+}
+
+function resetSessionTimer() {
+    if (sessionTimer !== null) {
+        clearTimeout(sessionTimer);
+        sessionTimer = null;
+    }
+    sessionTimer = setTimeout(function() {
+        validateSession();
+    }, (sessionLifetime - 10) * 1000);
+}
+
+function validateSession() {
+    sendAPI('MYMPD_API_SESSION_VALIDATE', {}, function(obj) {
+        if (obj.result.message === 'ok') {
+            session.timeout = getTimestamp() + sessionLifetime;
+        }
+        else {
+            session.timeout = 0;
+        }
+        setSessionState();
+    }, true);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -88,7 +115,7 @@ function sendAPI(method, params, callback, onerror) {
     }
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {
-            if (ajaxRequest.status === 401) {
+            if (ajaxRequest.status === 401 && method !== 'MYMPD_API_SESSION_VALIDATE') {
                 logDebug('Authorization required for ' + method);
                 enterPin(method, params, callback, onerror);
             }
@@ -96,7 +123,9 @@ function sendAPI(method, params, callback, onerror) {
                 if (settings.pin === true && session.token !== '' && 
                     APImethods[method].protected === true)
                 {
+                    //session was extended through request
                     session.timeout = getTimestamp() + sessionLifetime;
+                    resetSessionTimer();
                 }
                 let obj;
                 try {

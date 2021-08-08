@@ -1842,3 +1842,33 @@ Weitere Features
 
 Comments
 Kommentare
+
+Authentication required
+Authentifizierung erforderlich
+
+Enter
+Abschicken
+
+Enter Pin
+Pin eingeben
+
+Invalid pin
+Ungültige Pin
+
+Invalid session
+Ungültige Session
+
+Login
+Login
+
+Logout
+Logout
+
+Pin
+Pin
+
+Session removed
+Session wurde gelöscht
+
+Session successfully created
+Session wurde erfolgreich erstellt

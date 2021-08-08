@@ -1461,6 +1461,11 @@ const APImethods = {
         "protected": true,
         "params": {}
     },
+    "MYMPD_API_SESSION_VALIDATE": {
+        "desc": "Validates the session table.",
+        "protected": true,
+        "params": {}
+    },
     "MYMPD_API_COVERCACHE_CLEAR": {
         "desc": "Clears the covercache",
         "params": {}
