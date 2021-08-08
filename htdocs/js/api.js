@@ -75,7 +75,7 @@ function resetSessionTimer() {
     }
     sessionTimer = setTimeout(function() {
         validateSession();
-    }, (sessionLifetime - 10) * 1000);
+    }, sessionRenewInterval);
 }
 
 function validateSession() {
