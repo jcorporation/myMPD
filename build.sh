@@ -94,8 +94,8 @@ setversion() {
   echo "Setting version to ${VERSION} and date to ${DATE_F2}"
 
   for F in htdocs/sw.js contrib/packaging/alpine/APKBUILD contrib/packaging/arch/PKGBUILD \
-  		   contrib/packaging/rpm/mympd.spec contrib/packaging/debian/changelog contrib/man/mympd.1 \
-  		   contrib/man/mympd-script.1
+  		   contrib/packaging/rpm/mympd.spec contrib/packaging/debian/changelog \
+  		   contrib/packaging/openwrt/Makefile contrib/man/mympd.1 contrib/man/mympd-script.1
   do
   	echo "$F"
   	sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE_F1__/$DATE_F1/g" -e "s/__DATE_F2__/$DATE_F2/g" \
@@ -554,6 +554,35 @@ pkgarch() {
   fi
 }
 
+pkgopenwrt() {
+  echo "Building with SDK"
+  echo "1. Download desired version of OpenWrt SDK for Your device"
+  echo "   from: https://openwrt.org/downloads"
+  echo "   The SDK must match the version of OpenWrt istalled on Your device."
+  echo "2. Unpack SDK and change current directory to it."
+  echo "3. Run following commands to download dependencies recipes:"
+  echo "    scripts/feeds update -a"
+  echo "    scripts/feeds install libflac libid3tag liblua5.3 libopenssl libpcre"
+  echo "4. Copy contents of 'contrib/packaging/openwrt' from myMPD tree"
+  echo "   to 'package/mympd' directory of SDK."
+  echo "5. To build package run:"
+  echo "    make -j\$(nproc) BUILD_LOG=1"
+  echo "6. Resulting package will be placed in 'bin' directory."
+  echo
+  echo "Building in full OpenWrt buildroot"
+  echo "1. Clone the OpenWrt tree https://git.openwrt.org/openwrt/openwrt.git"
+  echo "2. Run following commands to download dependencies recipes:"
+  echo "    scripts/feeds update -a"
+  echo "    scripts/feeds install libflac libid3tag liblua5.3 libopenssl libpcre"
+  echo "3. Copy contents of 'contrib/packaging/openwrt' from myMPD tree"
+  echo "   to 'package/mympd' directory of SDK."
+  echo "4. To select myMPD package build run:"
+  echo "    make menuconfig"
+  echo "   and select it in 'Sound' menu, to build it run:"
+  echo "    make -j\$(nproc) BUILD_LOG=1"
+  echo "6. Resulting package will be placed in 'bin' directory."
+}
+
 pkgosc() {
   check_cmd osc
   cleanup
@@ -959,6 +988,9 @@ case "$ACTION" in
 	pkgarch)
 	  pkgarch
 	;;
+	pkgopenwrt)
+	  pkgopenwrt
+	;;
 	setversion)
 	  setversion
 	;;
@@ -1070,6 +1102,9 @@ case "$ACTION" in
       echo "                      - DOCKERFILE=\"Dockerfile.alpine\""
       echo "                      - PLATFORMS=\"linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6\""
 	  echo "  pkgrpm:           creates the rpm package"
+	  echo "  pkgopenwrt:       shows package build instructions, given the nature"
+	  echo "                    of OpenWrt (cross compilation), it's difficult to"
+	  echo "                    consider all options"
 	  echo "  pkgosc:           updates the open build service repository"
 	  echo "                    following environment variables are respected"
 	  echo "                      - OSC_REPO=\"home:jcorporation/myMPD\""
