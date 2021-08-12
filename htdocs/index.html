@@ -68,6 +68,7 @@
             <a data-phrase="Timer" class="dropdown-item text-light featTimer" href="#" data-toggle="modal" data-target="#modalTimer"></a>
             <a data-phrase="Trigger" class="dropdown-item text-light featTrigger" href="#" data-toggle="modal" data-target="#modalTrigger"></a>
             <a data-phrase="Mounts" class="dropdown-item text-light featMounts" href="#" data-toggle="modal" data-target="#modalMounts"></a>
+            <a data-phrase="Partitions" class="dropdown-item text-light featPartitions" href="#" data-toggle="modal" data-target="#modalPartitions"></a>
           </div>
           <a data-phrase="Fullscreen" class="dropdown-item text-light" href="#" data-href='{"cmd": "openFullscreen", "options": []}'></a>
           <a data-phrase="Browse directories" class="dropdown-item text-light featLibrary" href="browse/" target="_blank"></a>
@@ -1062,9 +1063,9 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnClearCovercache" data-phrase="Clear covercache"></label>
                   <div class="col-sm-8">
-                    <button type="button" id="btnClearCovercache" class="btn btn-secondary btnCleanup" data-href='{"cmd": "clearCovercache", "options": []}' data-phrase="Clear"></button>
+                    <button type="button" id="btnClearCovercache" class="btn btn-secondary btnCleanup protected" data-href='{"cmd": "clearCovercache", "options": []}' data-phrase="Clear"></button>
                     &nbsp;
-                    <button type="button" id="btnCropCovercache" class="btn btn-secondary btnCleanup" data-href='{"cmd": "cropCovercache", "options": []}' data-phrase="Crop"></button>
+                    <button type="button" id="btnCropCovercache" class="btn btn-secondary btnCleanup protected" data-href='{"cmd": "cropCovercache", "options": []}' data-phrase="Crop"></button>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -1083,7 +1084,7 @@
                         <option value="deleteAllPlaylists" data-phrase="Delete all playlists"></option>
                       </select>
                       <div class="input-group-append">
-                        <button id="btnDeletePlaylists" data-href='{"cmd": "deletePlaylists", "options": []}' type="button" class="btn btn-secondary" data-phrase="Delete"></button>
+                        <button id="btnDeletePlaylists" data-href='{"cmd": "deletePlaylists", "options": []}' type="button" class="btn btn-secondary protected" data-phrase="Delete"></button>
                       </div>
                     </div>
                   </div>
