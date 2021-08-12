@@ -234,7 +234,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
     while (nc != NULL) {
         if ((int)nc->is_websocket == 0 && nc->id == (long unsigned)response->conn_id) {
             MYMPD_LOG_DEBUG("Sending response to conn_id %lu (length: %d): %s", nc->id, sdslen(response->data), response->data);
-            if (response->cmd_id == MYMPD_API_ALBUMART) {
+            if (response->cmd_id == INTERNAL_API_ALBUMART) {
                 send_albumart(nc, response->data, response->binary);
             }
             else {
@@ -559,14 +559,14 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
     MYMPD_LOG_INFO("API request (%lld): %s", (long long)nc->id, cmd);
 
     enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
-    if (cmd_id == 0 || strncmp(jsonrpc, "2.0", 3) != 0) {
+    if (cmd_id == GENERAL_API_UNKNOWN || strncmp(jsonrpc, "2.0", 3) != 0) {
         FREE_PTR(cmd);
         FREE_PTR(jsonrpc);
         return false;
     }
     
     if (is_public_api_method(cmd_id) == false) {
-        MYMPD_LOG_ERROR("API method %s is privat", cmd);
+        MYMPD_LOG_ERROR("API method %s is for internal use only", cmd);
         FREE_PTR(cmd);
         FREE_PTR(jsonrpc);
         return false;
@@ -656,7 +656,7 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
         default: {
             //forward API request to mympd_api_handler
             sds data = sdscatlen(sdsempty(), hm->body.ptr, hm->body.len);
-            t_work_request *request = create_request(nc->id, id, cmd_id, cmd, data);
+            t_work_request *request = create_request(nc->id, id, cmd_id, data);
             sdsfree(data);
             tiny_queue_push(mympd_api_queue, request, 0);
         }
@@ -692,7 +692,7 @@ static bool handle_script_api(long long conn_id, struct mg_http_message *hm) {
         return false;
     }
     
-    if (cmd_id != MYMPD_API_SCRIPT_POST_EXECUTE) {
+    if (cmd_id != INTERNAL_API_SCRIPT_POST_EXECUTE) {
         MYMPD_LOG_ERROR("API method %s is invalid for this uri", cmd);
         FREE_PTR(cmd);
         FREE_PTR(jsonrpc);
@@ -700,7 +700,7 @@ static bool handle_script_api(long long conn_id, struct mg_http_message *hm) {
     }
     
     sds data = sdscatlen(sdsempty(), hm->body.ptr, hm->body.len);
-    t_work_request *request = create_request(conn_id, id, cmd_id, cmd, data);
+    t_work_request *request = create_request(conn_id, id, cmd_id, data);
     sdsfree(data);
     tiny_queue_push(mympd_api_queue, request, 0);
 

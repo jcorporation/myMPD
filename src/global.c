@@ -19,16 +19,17 @@ tiny_queue_t *mympd_api_queue;
 tiny_queue_t *mympd_script_queue;
 
 t_work_result *create_result(t_work_request *request) {
-    t_work_result *response = create_result_new(request->conn_id, request->id, request->cmd_id, request->method);
+    t_work_result *response = create_result_new(request->conn_id, request->id, request->cmd_id);
     return response;
 }
 
-t_work_result *create_result_new(long long conn_id, long request_id, int cmd_id, const char *method) {
+t_work_result *create_result_new(long long conn_id, long request_id, unsigned cmd_id) {
     t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
     assert(response);
     response->conn_id = conn_id;
     response->id = request_id;
     response->cmd_id = cmd_id;
+    const char *method = get_cmd_id_method_name(cmd_id);
     response->method = sdsnew(method);
     response->data = sdsempty();
     response->binary = sdsempty();
@@ -36,14 +37,20 @@ t_work_result *create_result_new(long long conn_id, long request_id, int cmd_id,
     return response;
 }
 
-t_work_request *create_request(long long conn_id, long request_id, int cmd_id, const char *method, const char *data) {
+t_work_request *create_request(long long conn_id, long request_id, unsigned cmd_id, const char *data) {
     t_work_request *request = (t_work_request *)malloc(sizeof(t_work_request));
     assert(request);
     request->conn_id = conn_id;
     request->cmd_id = cmd_id;
     request->id = request_id;
+    const char *method = get_cmd_id_method_name(cmd_id);
     request->method = sdsnew(method);
-    request->data = sdsnew(data);
+    if (data == NULL) {
+        request->data = sdscatfmt(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"%s\",\"params\":{", method);
+    }
+    else {
+        request->data = sdsnew(data);
+    }
     request->extra = NULL;
     return request;
 }
@@ -70,7 +77,7 @@ int expire_result_queue(tiny_queue_t *queue, time_t age) {
     int i = 0;
     while ((response = tiny_queue_expire(queue, age)) != NULL) {
         if (response->extra != NULL) {
-            if (strcmp(response->method, "MYMPD_API_SCRIPT_INIT") == 0) {
+            if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
                 free_lua_mympd_state(response->extra);
             }
             else {
@@ -89,7 +96,7 @@ int expire_request_queue(tiny_queue_t *queue, time_t age) {
     int i = 0;
     while ((request = tiny_queue_expire(queue, age)) != NULL) {
         if (request->extra != NULL) {
-            if (strcmp(request->method, "MYMPD_API_SCRIPT_INIT") == 0) {
+            if (request->cmd_id == INTERNAL_API_SCRIPT_INIT) {
                 free_lua_mympd_state(request->extra);
             }
             else {

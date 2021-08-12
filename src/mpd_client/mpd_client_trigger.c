@@ -271,8 +271,7 @@ bool triggerfile_save(struct t_mympd_state *mympd_state) {
 
 //private functions
 void _trigger_execute(const char *script, struct list *arguments) {
-    t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, "MYMPD_API_SCRIPT_EXECUTE", "");
-    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SCRIPT_EXECUTE\",\"params\":{");
+    t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL);
     request->data = tojson_char(request->data, "script", script, true);
     request->data = sdscat(request->data, "arguments: {");
     struct list_node *argument = arguments->head;

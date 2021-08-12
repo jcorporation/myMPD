@@ -11,7 +11,7 @@
 #include "../api.h"
 #include "../mympd_state.h"
 
-void mpd_client_set_timer(enum mympd_cmd_ids cmd_id, const char *cmd, int timeout, int interval, const char *handler);
+void mpd_client_set_timer(enum mympd_cmd_ids cmd_id, int timeout, int interval, const char *handler);
 sds mpd_client_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
                                unsigned volume, const char *playlist, enum jukebox_modes jukebox_mode);
 #endif

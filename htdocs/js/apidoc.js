@@ -182,7 +182,7 @@ const APImethods = {
             "cols": APIparams.cols
         }
     },
-    "MYMPD_API_DATABASE_GET_ALBUMS": {
+    "MYMPD_API_DATABASE_ALBUMS_GET": {
         "desc": "Lists unique albums.",
         "params": {
             "offset": APIparams.offset,
@@ -437,6 +437,7 @@ const APImethods = {
     },
     "MYMPD_API_PLAYLIST_RM_ALL": {
         "desc": "Batch removes playlists.",
+        "protected": true,
         "params": {
             "type": {
                 "type": "text",
@@ -1363,7 +1364,7 @@ const APImethods = {
             "pos": {
                 "type": "uint",
                 "example": 0,
-                "desc": "Position to delete"
+                "desc": "Icon number to delete"
             }
         }
     },
@@ -1372,6 +1373,16 @@ const APImethods = {
         "params": {
             "from": APIparams.from,
             "to": APIparams.to
+        }
+    },
+    "MYMPD_API_HOME_ICON_GET": {
+        "desc": "Gets details for a home icon",
+        "params": {
+            "pos": {
+                "type": "uint",
+                "example": 0,
+                "desc": "Icon number to get"
+            }
         }
     },
     "MYMPD_API_HOME_ICON_SAVE": {

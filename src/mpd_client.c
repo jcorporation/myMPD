@@ -226,7 +226,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             //initiate cache updates
             update_mympd_caches(mympd_state);
             //set timer for smart playlist update
-            mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, mympd_state->smartpls_interval, "timer_handler_smartpls_update");
+            mpd_client_set_timer(INTERNAL_API_TIMER_SET, 10, mympd_state->smartpls_interval, "timer_handler_smartpls_update");
             //jukebox
             if (mympd_state->jukebox_mode != JUKEBOX_OFF) {
                 mpd_client_jukebox(mympd_state, 0);
@@ -366,8 +366,8 @@ static bool update_mympd_caches(struct t_mympd_state *mympd_state) {
     if (mympd_state->mpd_state->feat_tags == true) {
         mympd_state->album_cache_building = true;
     }
-    t_work_request *request = create_request(-1, 0, MYMPD_API_CACHES_CREATE, "MYMPD_API_CACHES_CREATE", "");
-    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_CACHES_CREATE\",\"params\":{}}");
+    t_work_request *request = create_request(-1, 0, INTERNAL_API_CACHES_CREATE, NULL);
+    request->data = sdscat(request->data, "}}");
     bool rc = mpd_worker_start(mympd_state, request);
     if (rc == false) {
         mympd_state->sticker_cache_building = false;

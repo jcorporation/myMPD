@@ -529,17 +529,15 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
     }
     const char *method = lua_tostring(lua_vm, 1);
     enum mympd_cmd_ids method_id = get_cmd_id(method);
-    if (method_id == MYMPD_API_UNKNOWN) {
+    if (method_id == GENERAL_API_UNKNOWN) {
         MYMPD_LOG_ERROR("Lua - mympd_api: Invalid method \"%s\"", method);
         return luaL_error(lua_vm, "Invalid method");
     }
 
     pid_t tid = syscall(__NR_gettid);
     
-    t_work_request *request = create_request(-2, tid, method_id, method, "");
-    request->data = sdscatprintf(request->data, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"method\":\"%s\",\"params\":", tid, method);
+    t_work_request *request = create_request(-2, tid, method_id, NULL);
     if (raw == false) {
-        request->data = sdscat(request->data, "{");
         for (int i = 2; i < n; i = i + 2) {
             bool comma = i + 1 < n ? true : false;
             if (lua_isboolean(lua_vm, i + 1)) {
@@ -558,6 +556,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         request->data = sdscat(request->data, "}");
     }
     else if (n == 2) {
+        sdsrange(request->data, 0, -1);  //remove {
         request->data = sdscat(request->data, lua_tostring(lua_vm, 2));
     }
     request->data = sdscat(request->data, "}");
@@ -573,7 +572,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
             char *p_charbuf1 = NULL;
             int je = json_scanf(response->data, sdslen(response->data), "{result: {message: %Q}}", &p_charbuf1);
             if (je == 1 && p_charbuf1 != NULL) {
-                if (strcmp(response->method, "MYMPD_API_SCRIPT_INIT") == 0) {
+                if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
                     MYMPD_LOG_DEBUG("Populating lua global state table mympd");
                     struct list *lua_mympd_state = (struct list *) response->extra;
                     lua_newtable(lua_vm);

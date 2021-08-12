@@ -79,7 +79,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
     switch(request->cmd_id) {
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
         case MYMPD_API_SMARTPLS_UPDATE:
-        case MYMPD_API_CACHES_CREATE:
+        case INTERNAL_API_CACHES_CREATE:
             if (worker_threads > 5) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
                             "general", "error", "Too many worker threads are already running");
@@ -236,7 +236,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                     "script", "error", "Invalid script name");
             }
             break;
-        case MYMPD_API_SCRIPT_POST_EXECUTE:
+        case INTERNAL_API_SCRIPT_POST_EXECUTE:
             je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
             if (je == 1 && strlen(p_charbuf1) > 0) {
                 struct list *arguments = (struct list *) malloc(sizeof(struct list));
@@ -402,7 +402,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
                         "general", "info", "Successfully cleared covercache");
             break;
-        case MYMPD_API_TIMER_SET:
+        case INTERNAL_API_TIMER_SET:
             je = json_scanf(request->data, sdslen(request->data), "{params: {timeout: %d, interval: %d, handler: %Q}}", &int_buf1, &int_buf2, &p_charbuf1);
             if (je == 3) {
                 bool handled = false;
@@ -477,7 +477,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 }
             }
             break;
-        case MYMPD_API_STATE_SAVE:
+        case INTERNAL_API_STATE_SAVE:
             mpd_client_last_played_list_save(mympd_state);
             triggerfile_save(mympd_state);
             mympd_api_write_home_list(mympd_state);
@@ -562,7 +562,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 }
             }
             break;
-        case MYMPD_API_SCRIPT_INIT: {
+        case INTERNAL_API_SCRIPT_INIT: {
             struct list *lua_mympd_state = (struct list *) malloc(sizeof(struct list));
             assert(lua_mympd_state);
             list_init(lua_mympd_state);
@@ -598,7 +598,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 }
             }
             break;
-        case MYMPD_API_STICKERCACHE_CREATED:
+        case INTERNAL_API_STICKERCACHE_CREATED:
             sticker_cache_free(&mympd_state->sticker_cache);
             if (request->extra != NULL) {
                 mympd_state->sticker_cache = (rax *) request->extra;
@@ -611,7 +611,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             mympd_state->sticker_cache_building = false;
             break;
-        case MYMPD_API_ALBUMCACHE_CREATED:
+        case INTERNAL_API_ALBUMCACHE_CREATED:
             album_cache_free(&mympd_state->album_cache);
             if (request->extra != NULL) {
                 mympd_state->album_cache = (rax *) request->extra;
@@ -1134,13 +1134,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_DATABASE_STATS:
             response->data = mpd_client_put_stats(mympd_state, response->data, request->method, request->id);
             break;
-        case MYMPD_API_ALBUMART:
+        case INTERNAL_API_ALBUMART:
             je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
             if (je == 1) {
                 response->data = mpd_client_getcover(mympd_state, response->data, request->method, request->id, p_charbuf1, &response->binary);
             }
             break;
-        case MYMPD_API_DATABASE_GET_ALBUMS:
+        case MYMPD_API_DATABASE_ALBUMS_GET:
             je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u, limit: %u, expression: %Q, sort: %Q, sortdesc: %B}}", 
                 &uint_buf1, &uint_buf2, &p_charbuf1, &p_charbuf2, &bool_buf1);
             if (je == 5) {
@@ -1167,7 +1167,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             free(tagcols);
             break;
         }
-        case MYMPD_API_TIMER_STARTPLAY:
+        case INTERNAL_API_TIMER_STARTPLAY:
             je = json_scanf(request->data, sdslen(request->data), "{params: {volume:%u, plist:%Q, jukeboxMode:%u}}", &uint_buf1, &p_charbuf1, &uint_buf2);
             if (je == 3) {
                 response->data = mpd_client_timer_startplay(mympd_state, response->data, request->method, request->id, uint_buf1, p_charbuf1, uint_buf2);

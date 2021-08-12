@@ -81,7 +81,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 }
             }
             break;
-        case MYMPD_API_CACHES_CREATE:
+        case INTERNAL_API_CACHES_CREATE:
             mpd_worker_cache_init(mpd_worker_state);
             async = true;
             free_request(request);

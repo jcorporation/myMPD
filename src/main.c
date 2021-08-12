@@ -44,8 +44,8 @@ static void mympd_signal_handler(int sig_num) {
     }
     else if (sig_num == SIGHUP) {
         MYMPD_LOG_NOTICE("Signal SIGHUP received, saving states");
-        t_work_request *request = create_request(-1, 0, MYMPD_API_STATE_SAVE, "MYMPD_API_STATE_SAVE", "");
-        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_STATE_SAVE\",\"params\":{}}");
+        t_work_request *request = create_request(-1, 0, INTERNAL_API_STATE_SAVE, NULL);
+        request->data = sdscat(request->data, "}}");
         tiny_queue_push(mympd_api_queue, request, 0);    
     }
 }

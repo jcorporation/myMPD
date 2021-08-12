@@ -81,16 +81,15 @@ bool smartpls_default(struct t_config *config) {
 }
 
 void mpd_client_smartpls_update(const char *playlist) {
-    t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE, "MYMPD_API_SMARTPLS_UPDATE", "");
-    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SMARTPLS_UPDATE\",\"params\":{");
+    t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE, NULL);
     request->data = tojson_char(request->data, "plist", playlist, false);
     request->data = sdscat(request->data, "}}");
     tiny_queue_push(mympd_api_queue, request, 0);
 }
 
 void mpd_client_smartpls_update_all(void) {
-    t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, "MYMPD_API_SMARTPLS_UPDATE_ALL", "");
-    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SMARTPLS_UPDATE_ALL\",\"params\":{}}");
+    t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL);
+    request->data = sdscat(request->data, "}}");
     tiny_queue_push(mympd_api_queue, request, 0);
 }
 

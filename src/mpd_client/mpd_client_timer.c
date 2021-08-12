@@ -12,9 +12,8 @@
 #include "../lib/log.h"
 #include "../mpd_shared.h"
 
-void mpd_client_set_timer(enum mympd_cmd_ids cmd_id, const char *cmd, int timeout, int interval, const char *handler) {
-    t_work_request *request = create_request(-1, 0, cmd_id, cmd, "");
-    request->data = sdscatfmt(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"%s\",\"params\":{", cmd);
+void mpd_client_set_timer(enum mympd_cmd_ids cmd_id, int timeout, int interval, const char *handler) {
+    t_work_request *request = create_request(-1, 0, cmd_id, NULL);
     request->data = tojson_long(request->data, "timeout", timeout, true);
     request->data = tojson_long(request->data, "interval", interval, true);
     request->data = tojson_char(request->data, "handler", handler, false);
@@ -69,8 +68,7 @@ sds mpd_client_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sd
         }
     }
         
-    t_work_request *request = create_request(-1, 0, MYMPD_API_SETTINGS_SET, "MYMPD_API_SETTINGS_SET", "");
-    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SETTINGS_SET\",\"params\":{");
+    t_work_request *request = create_request(-1, 0, MYMPD_API_SETTINGS_SET, NULL);
     request->data = tojson_long(request->data, "jukeboxMode", jukebox_mode, true);
     
     if (jukebox_mode != JUKEBOX_OFF) {

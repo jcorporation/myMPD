@@ -20,7 +20,7 @@ void send_jsonrpc_notify(const char *facility, const char *severity, const char 
 
 void ws_notify(sds message) {
     MYMPD_LOG_DEBUG("Push websocket notify to queue: %s", message);
-    t_work_result *response = create_result_new(0, 0, 0, "");
+    t_work_result *response = create_result_new(0, 0, INTERNAL_API_WEBSERVER_NOTIFY);
     response->data = sdsreplace(response->data, message);
     tiny_queue_push(web_server_queue, response, 0);
 }
