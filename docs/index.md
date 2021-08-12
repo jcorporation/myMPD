@@ -51,5 +51,5 @@ This documentation is for myMPD version {% include version %}.
   - [Behind a reverse proxy]({{ site.baseurl }}/additional-topics/behind-a-reverse-proxy)
   - [Multiple myMPD instances on same host]({{ site.baseurl }}/additional-topics/multiple-myMPD-instances-on-same-host)
   - [Recommended MPD configuration]({{ site.baseurl }}/additional-topics/recommended-mpd-configuration)
-  - [Scrobble to ListenBrainz]({{ site.baseurl }}/additional-topics/scrbble-to-listenbrainz)
+  - [Scrobble to ListenBrainz]({{ site.baseurl }}/additional-topics/scrobble-to-listenbrainz)
 - [Known issues]({{ site.baseurl }}/known-issues)
