@@ -94,6 +94,7 @@ function updateMount(el, uri) {
 
 //eslint-disable-next-line no-unused-vars
 function showEditMount(uri, storage) {
+    removeEnterPinFooter(document.getElementById('modalMounts').getElementsByClassName('enterPinFooter')[0]);
     document.getElementById('listMounts').classList.remove('active');
     document.getElementById('editMount').classList.add('active');
     document.getElementById('listMountsFooter').classList.add('hide');
@@ -115,6 +116,7 @@ function showEditMount(uri, storage) {
 }
 
 function showListMounts(obj) {
+    removeEnterPinFooter(document.getElementById('modalMounts').getElementsByClassName('enterPinFooter')[0]);
     if (obj && obj.error && obj.error.message) {
         const emEl = document.getElementById('errorMount');
         elClear(emEl);

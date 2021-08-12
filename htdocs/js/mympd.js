@@ -250,7 +250,7 @@ function appRoute() {
             document.getElementById('searchDatabaseMatch').classList.remove('hide');
             elEnable('btnDatabaseSortDropdown');
             elEnable('btnDatabaseSearchDropdown');
-            sendAPI("MYMPD_API_DATABASE_GET_ALBUMS", {
+            sendAPI("MYMPD_API_DATABASE_ALBUMS_GET", {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
                 "expression": app.current.search, 

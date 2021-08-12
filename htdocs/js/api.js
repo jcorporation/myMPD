@@ -155,6 +155,9 @@ function removeSession() {
 }
 
 function sendAPI(method, params, callback, onerror) {
+    if (APImethods[method] === undefined) {
+        logError('Method "' + method + '" is not defined');
+    }
     if (settings.pin === true && session.token === '' && 
         session.timeout < getTimestamp() && APImethods[method].protected === true)
     {

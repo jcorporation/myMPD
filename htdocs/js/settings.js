@@ -23,6 +23,7 @@ function initSettings() {
     document.getElementById('modalSettings').addEventListener('shown.bs.modal', function () {
         getSettings();
         removeIsInvalid(document.getElementById('modalSettings'));
+        removeEnterPinFooter(document.getElementById('modalSettings').getElementsByClassName('enterPinFooter')[0]);
     });
     
     document.getElementById('modalQueueSettings').addEventListener('shown.bs.modal', function () {

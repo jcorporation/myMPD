@@ -44,6 +44,7 @@ function initScripts() {
 
     document.getElementById('modalScripts').addEventListener('shown.bs.modal', function () {
         showListScripts();
+        removeEnterPinFooter(document.getElementById('modalScripts').getElementsByClassName('enterPinFooter')[0]);
     }, false);
     
     document.getElementById('btnDropdownAddAPIcall').parentNode.addEventListener('show.bs.dropdown', function() {
@@ -197,6 +198,7 @@ function removeScriptArgument(ev) {
 
 //eslint-disable-next-line no-unused-vars
 function showEditScript(script) {
+    removeEnterPinFooter(document.getElementById('modalScripts').getElementsByClassName('enterPinFooter')[0]);
     document.getElementById('listScripts').classList.remove('active');
     document.getElementById('editScript').classList.add('active');
     document.getElementById('listScriptsFooter').classList.add('hide');
@@ -234,6 +236,7 @@ function parseEditScript(obj) {
 }
 
 function showListScripts() {
+    removeEnterPinFooter(document.getElementById('modalScripts').getElementsByClassName('enterPinFooter')[0]);
     document.getElementById('listScripts').classList.add('active');
     document.getElementById('editScript').classList.remove('active');
     document.getElementById('listScriptsFooter').classList.remove('hide');

@@ -139,6 +139,7 @@ function saveTimer() {
 
 //eslint-disable-next-line no-unused-vars
 function showEditTimer(timerid) {
+    removeEnterPinFooter(document.getElementById('modalTimer').getElementsByClassName('enterPinFooter')[0]);
     document.getElementById('timerActionPlay').classList.add('hide');
     document.getElementById('timerActionScript').classList.add('hide');
     document.getElementById('listTimer').classList.remove('active');
@@ -260,6 +261,7 @@ function showTimerScriptArgs(option, values) {
 }
 
 function showListTimer() {
+    removeEnterPinFooter(document.getElementById('modalTimer').getElementsByClassName('enterPinFooter')[0]);
     document.getElementById('listTimer').classList.add('active');
     document.getElementById('editTimer').classList.remove('active');
     document.getElementById('listTimerFooter').classList.remove('hide');

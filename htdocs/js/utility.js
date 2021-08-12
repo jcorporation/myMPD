@@ -114,9 +114,9 @@ function showConfirmInline(el, text, btnText, callback) {
         if (callback !== undefined && typeof(callback) === 'function') {
             callback();
         }
+        this.parentNode.remove();
     }, false);
     confirm.appendChild(yesBtn);
-
     el.appendChild(confirm);
 }
 
