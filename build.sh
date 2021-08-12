@@ -245,6 +245,7 @@ createassets() {
 }
 
 buildrelease() {
+  check_doc
   createassets
 
   echo "Compiling myMPD"
@@ -308,6 +309,7 @@ builddebug() {
 
   install -d debug/htdocs/js
   createi18n ../../debug/htdocs/js/i18n.js pretty
+  check_doc
 
   echo "Copy dist assets"
   cp "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
@@ -358,6 +360,14 @@ cleanup() {
 
 cleanuposc() {
   rm -rf osc
+}
+
+check_doc() {
+  echo "API methods with no documentation"
+  for F in $(grep 'X(MYMPD' src/api.h | cut -d\( -f2 | cut -d\) -f1)
+  do 
+    grep -q "$F" htdocs/js/apidoc.js || echo $F
+  done
 }
 
 check() {
