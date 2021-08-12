@@ -8,9 +8,9 @@ title: Compiling
 
 | NAME | STATE | DESCRIPTION |
 |-|-|-|
-| <a href="https://github.com/jcorporation/myMPD/releases/latest">latest release</a> | stable | The latest stable release, this is the preferred image for daily, hassle-free usage |
-| <a href="https://github.com/jcorporation/myMPD/tree/master">master</a> | stable | the latest releases are created from the master branch |
-| <a href="https://github.com/jcorporation/myMPD/tree/devel">devel</a> | unstable | this branch is for stabilizing and testing the upcoming new myMPD release |
+| [latest release](https://github.com/jcorporation/myMPD/releases/latest) | stable | The latest stable release, this is the preferred image for daily, hassle-free usage |
+| [master](https://github.com/jcorporation/myMPD/tree/master) | stable | the latest releases are created from the master branch |
+| [devel](https://github.com/jcorporation/myMPD/tree/devel) | unstable | this branch is for stabilizing and testing the upcoming new myMPD release |
 | other branches | unstable | very unstable development branches with breaking changes |
 {: .table .table-sm }
 
@@ -24,7 +24,7 @@ git checkout devel
 
 ## Building
 
-The ``build.sh`` script is the one stop shop for building and packaging myMPD.
+The `build.sh` script is the one stop shop for building and packaging myMPD.
 
 ### Build Dependencies
 
@@ -39,16 +39,16 @@ myMPD has only a few dependencies beside the standard c libraries. Not installin
   - flac - to extract embedded coverimages
   - liblua >= 5.3.0 - for scripting myMPD
 
-You can type ``./build.sh installdeps`` as root to install the dependencies (works only for supported distributions). For all other distributions you must install the packages manually.
+You can type `./build.sh installdeps` as root to install the dependencies (works only for supported distributions). For all other distributions you must install the packages manually.
 
 ## Packaging
 
 You can self create packages for your distribution:
-- ``./build.sh pkgalpine`` for Alpine Linux
-- ``./build.sh pkgarch`` for Arch based distributions (e.g. Manjaro)
-- ``./build.sh pkgdebian`` for Debian based distributions (e.g. Ubuntu. Raspbian)
-- ``./build.sh pkgrpm`` for RPM based distributions (e.g. openSUSE, Fedora)
-- ``./build.sh pkgdocker`` to create a Docker image based on Alpine Linux
+- `./build.sh pkgalpine` for Alpine Linux
+- `./build.sh pkgarch` for Arch based distributions (e.g. Manjaro)
+- `./build.sh pkgdebian` for Debian based distributions (e.g. Ubuntu. Raspbian)
+- `./build.sh pkgrpm` for RPM based distributions (e.g. openSUSE, Fedora)
+- `./build.sh pkgdocker` to create a Docker image based on Alpine Linux
 - For gentoo you have to create a local overlay: https://wiki.gentoo.org/wiki/Custom_repository, the ebuild file is in the directory `contrib/packaging/gentoo`
 
 ## Compiling and installing
@@ -72,20 +72,22 @@ There are three compile targets for myMPD.
 _If compilation fails and you are building on top of an old version, try to run `./build.sh cleanup` before._
 
 ### Release 
-- ``./build.sh release`` builds the release binaries
+
+- `./build.sh release` builds the release binaries
   - Directory: release
   - Assets embedded in binary
   - Binary is stripped
-- ``./build.sh install`` installs the release binaries (run as root)
+- `./build.sh install` installs the release binaries (run as root)
 
-You can use ``./build.sh releaseinstall`` to compile and install in one step.
+You can use `./build.sh releaseinstall` to compile and install in one step.
 
 ### Debug
-- ``./build.sh debug`` builds the debug binaries
+
+- `./build.sh debug` builds the debug binaries
   - Directory: debug
   - Plain assets in htdocs directory
   - Binary is statically linked with libasan3
-- ``./build.sh memcheck`` builds the debug binaries
+- `./build.sh memcheck` builds the debug binaries
   - Directory: debug
   - Plain assets in htdocs directory
   - Use this to debug mympd with valgrind or gdb
@@ -113,6 +115,7 @@ The successfully build packages can be found in the `packager/builds` directory.
 ***
 
 **Note:** Since v6.12.0 the source does not include prebuild assets. If you do not use the provided build scripts, you must build the assets before, e. g.:
+
 ```
 export MYMPD_BUILDIR="build"
 ./build.sh createassets
