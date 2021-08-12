@@ -331,23 +331,30 @@ function setColTags(table) {
     }
     tags.push('Duration');
     tags.push('LastModified');
-    if (table === 'QueueCurrent' || table === 'BrowsePlaylistsDetail' || table === 'QueueLastPlayed' || table === 'QueueJukebox') {
-        tags.push('Pos');
+
+    switch(table) {
+        case 'QueueCurrent':
+        case 'BrowsePlaylistsDetail':
+        case 'QueueJukebox':
+            tags.push('Pos');
+            break;
+        case 'BrowseFilesystem':
+            tags.push('Type');
+            tags.push('Filename');
+            break;
+        case 'Playback':
+            tags.push('Filetype');
+            tags.push('Fileformat');
+            if (features.featLyrics === true) {
+                tags.push('Lyrics');
+            }
+            break;
+        case 'QueueLastPlayed':
+            tags.push('Pos');
+            tags.push('LastPlayed');
+            break;
     }
-    if (table === 'BrowseFilesystem') {
-        tags.push('Type');
-        tags.push('Filename');
-    }
-    if (table === 'Playback') {
-        tags.push('Filetype');
-        tags.push('Fileformat');
-        if (settings.webuiSettings.uiLyrics === true) {
-            tags.push('Lyrics');
-        }
-    }
-    if (table === 'QueueLastPlayed') {
-        tags.push('LastPlayed');
-    }
+    //sort tags and append stickers
     tags.sort();
     tags.push('dropdownTitleSticker');
     if (features.featStickers === true) {
