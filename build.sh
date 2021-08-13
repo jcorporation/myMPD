@@ -245,7 +245,8 @@ createassets() {
 }
 
 buildrelease() {
-  check_doc
+  check_docs
+  check_includes
   createassets
 
   echo "Compiling myMPD"
@@ -309,7 +310,8 @@ builddebug() {
 
   install -d debug/htdocs/js
   createi18n ../../debug/htdocs/js/i18n.js pretty
-  check_doc
+  check_docs
+  check_includes
 
   echo "Copy dist assets"
   cp "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
@@ -362,12 +364,17 @@ cleanuposc() {
   rm -rf osc
 }
 
-check_doc() {
-  echo "API methods with no documentation"
-  for F in $(grep 'X(MYMPD' src/api.h | cut -d\( -f2 | cut -d\) -f1)
+check_docs() {
+  for F in $(grep 'X(MYMPD' src/lib/api.h | cut -d\( -f2 | cut -d\) -f1)
   do 
-    grep -q "$F" htdocs/js/apidoc.js || echo $F
+    grep -q "$F" htdocs/js/apidoc.js || echo "API $F not documented"
   done
+  O=$(md5sum htdocs/js/apidoc.js | awk '{print $1}')
+  C=$(md5sum docs/assets/apidoc.js | awk '{print $1}')
+  if [ "$O" != "$C" ]
+  then
+  	echo "apidoc.js in docs differs"
+  fi
 }
 
 check_includes() {
@@ -377,6 +384,14 @@ check_includes() {
     then
       echo "First include is not mympd_config_defs.h: $F"
     fi
+    SRCDIR=$(dirname "$F")
+    for I in $(grep "#include \"" "$F" | grep -v "mympd_config_defs.h" | cut -d\" -f2)
+    do
+      if ! realpath -e "$SRCDIR/$I" > /dev/null 2>&1
+      then
+        echo "Wrong include path in $F for $I"
+      fi
+    done
   done
 }
 
@@ -430,7 +445,7 @@ check() {
     echo "clang-tidy not found"  
   fi
   
-  check_doc
+  check_docs
   check_includes
 }
 
@@ -971,6 +986,12 @@ case "$ACTION" in
 	check)
 	  check
 	;;
+	check_docs)
+	  check_docs
+	;;
+	check_includes)
+	  check_includes
+	;;
 	pkgdebian)
 	  pkgdebian
 	;;
@@ -1068,6 +1089,8 @@ case "$ACTION" in
 	  echo "                    following environment variables are respected"
 	  echo "                      - CPPCHECKOPTS=\"--enable=warning\""
 	  echo "                      - FLAWFINDEROPTS=\"-m3\""
+	  echo "  check_docs        checks the documentation for missing API methods"
+	  echo "  check_includes    checks for rigth include paths"
 	  echo "  eslint:           combines javascript files and runs eslint"
 	  echo "  stylelint:        runs stylelint (lints css files)"
 	  echo "  htmlhint:         runs htmlhint (lints html files)"
