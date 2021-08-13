@@ -25,6 +25,10 @@
 #include "covercache.h"
 
 bool write_covercache_file(const char *workdir, const char *uri, const char *mime_type, sds binary) {
+    if (mime_type[0] == '\0') {
+        MYMPD_LOG_WARN("Covercache file for %s not written, mime_type is empty", uri);
+        return false;
+    }
     bool rc = false;
     sds filename = sdsnew(uri);
     uri_to_filename(filename);
