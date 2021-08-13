@@ -4,10 +4,12 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
 #include "mpd_client.h"
 
 #include "lib/jsonrpc.h"
 #include "lib/log.h"
+#include "lib/utility.h"
 #include "mpd_client/mpd_client_features.h"
 #include "mpd_client/mpd_client_jukebox.h"
 #include "mpd_client/mpd_client_state.h"
@@ -21,7 +23,6 @@
 #include "mpd_shared/mpd_shared_tags.h"
 #include "mpd_worker.h"
 #include "mympd_api/mympd_api_handler.h"
-#include "utility.h"
 
 #include <poll.h>
 #include <string.h>

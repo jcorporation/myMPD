@@ -7,7 +7,7 @@
 #ifndef MYMPD_MPD_SHARED_PLAYLISTS_H
 #define MYMPD_MPD_SHARED_PLAYLISTS_H
 
-#include "../mympd_state.h"
+#include "../lib/mympd_state.h"
 
 sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, sds method, 
                                      long request_id, const char *uri, const char *tagstr);

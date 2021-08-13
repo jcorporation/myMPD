@@ -9,6 +9,8 @@
 
 #include "../../dist/src/sds/sds.h"
 #include "../lib/list.h"
+#include "../lib/mympd_configuration.h"
+
 #include <stdbool.h>
 
 #ifdef ENABLE_LUA

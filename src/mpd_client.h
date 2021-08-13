@@ -7,7 +7,7 @@
 #ifndef MYMPD_MPD_CLIENT_H
 #define MYMPD_MPD_CLIENT_H
 
-#include "mympd_state.h"
+#include "lib/mympd_state.h"
 
 void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask);
 void mpd_client_idle(struct t_mympd_state *mympd_state);

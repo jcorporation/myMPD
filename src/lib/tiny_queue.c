@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
 #include "tiny_queue.h"
 
 #include "log.h"

@@ -9,11 +9,12 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mympd_configuration.h"
+#include "../lib/random.h"
+#include "../lib/utility.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
-#include "../lib/random.h"
-#include "../utility.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -41,7 +42,7 @@ sds mpd_client_put_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
 {
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    unsigned real_limit = limit == 0 ? offset + MAX_RESULTS : offset + limit;
+    unsigned real_limit = limit == 0 ? offset + MAX_MPD_RESULTS : offset + limit;
     
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
@@ -416,7 +417,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
     if (jukebox_mode == JUKEBOX_ADD_SONG) {
         //add songs
         int start = 0;
-        int end = start + 1000;
+        int end = start + MAX_MPD_RESULTS;
         time_t now = time(NULL);
         now = now - mympd_state->jukebox_last_played * 60 * 60;
         
@@ -521,7 +522,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
                 return false;
             }
             start = end;
-            end = end + 1000;
+            end = end + MAX_MPD_RESULTS;
         } while (strcmp(playlist, "Database") == 0 && lineno + skipno > start);
         MYMPD_LOG_DEBUG("Jukebox iterated through %u songs, skipped %u", lineno, skipno);
     }

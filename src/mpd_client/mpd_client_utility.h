@@ -7,7 +7,8 @@
 #ifndef MYMPD_MPD_CLIENT_UTILITY_H
 #define MYMPD_MPD_CLIENT_UTILITY_H
 
-#include "../mympd_state.h"
+#include "../lib/mympd_state.h"
+
 #include <stdbool.h>
 
 void json_to_tags(const char *str, int len, void *user_data);

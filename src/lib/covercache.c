@@ -4,10 +4,12 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
 #include "covercache.h"
 
 #include "log.h"
-#include "../utility.h"
+#include "mimetype.h"
+#include "utility.h"
 
 #include <dirent.h>
 #include <errno.h>

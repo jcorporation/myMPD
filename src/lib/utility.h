@@ -9,17 +9,11 @@
 
 #include <stdbool.h>
 
-#include "../dist/src/sds/sds.h"
+#include "../../dist/src/sds/sds.h"
 
 int testdir(const char *name, const char *dirname, bool create);
 int replacechar(char *str, const char orig, const char rep);
 int uri_to_filename(char *str);
-sds find_image_file(sds basefilename);
-sds get_extension_from_filename(const char *filename);
-sds get_mime_type_by_ext(const char *filename);
-sds get_ext_by_mime_type(const char *mime_type);
-sds get_mime_type_by_magic(const char *filename);
-sds get_mime_type_by_magic_stream(sds stream);
 bool strtobool(const char *value);
 int strip_extension(char *s);
 void strip_slash(sds s);
@@ -35,14 +29,9 @@ int unsigned_to_int(unsigned x);
     PTR = NULL; \
 } while (0)
 
-struct mime_type_entry {
-    const char *extension;
-    const char *mime_type;
-};
-
-struct magic_byte_entry {
-    const char *magic_bytes;
-    const char *mime_type;
-};
-
 #endif
+
+//measure time
+#define MEASURE_START clock_t measure_start = clock();
+#define MEASURE_END clock_t measure_end = clock();
+#define MEASURE_PRINT(X) MYMPD_LOG_DEBUG("Execution time for %s: %lf", X, ((double) (measure_end - measure_start)) / CLOCKS_PER_SEC);

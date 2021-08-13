@@ -8,12 +8,12 @@
 #include "mpd_client_trigger.h"
 
 #include "../../dist/src/frozen/frozen.h"
-#include "../api.h"
-#include "../global.h"
+#include "../lib/api.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
-#include "../utility.h"
+#include "../lib/utility.h"
 
 #include <assert.h>
 #include <errno.h>

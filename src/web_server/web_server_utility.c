@@ -8,8 +8,8 @@
 #include "web_server_utility.h"
 
 #include "../lib/log.h"
+#include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
-#include "../utility.h"
 
 #ifndef DEBUG
 //embedded files for release build

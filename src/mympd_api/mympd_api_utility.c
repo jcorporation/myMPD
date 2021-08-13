@@ -10,10 +10,10 @@
 #include "../../dist/src/frozen/frozen.h"
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
-#include "../utility.h"
 #include "mympd_api_timer.h"
 
 #include <assert.h>

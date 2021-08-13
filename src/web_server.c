@@ -8,14 +8,13 @@
 #include "web_server.h"
 
 #include "../dist/src/frozen/frozen.h"
-
-#include "global.h"
+#include "lib/api.h"
 #include "lib/http_client.h"
 #include "lib/jsonrpc.h"
 #include "lib/log.h"
+#include "lib/mympd_pin.h"
 #include "lib/sds_extras.h"
-#include "mympd_pin.h"
-#include "utility.h"
+#include "lib/utility.h"
 #include "web_server/web_server_albumart.h"
 #include "web_server/web_server_sessions.h"
 #include "web_server/web_server_tagart.h"

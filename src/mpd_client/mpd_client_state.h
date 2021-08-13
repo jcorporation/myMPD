@@ -7,7 +7,7 @@
 #ifndef MYMPD_MPD_CLIENT_STATE_H
 #define MYMPD_MPD_CLIENT_STATE_H
 
-#include "../mympd_state.h"
+#include "../lib/mympd_state.h"
 
 sds mpd_client_get_updatedb_state(struct t_mympd_state *mympd_state, sds buffer);
 long mpd_client_get_updatedb_id(struct t_mympd_state *mympd_state);

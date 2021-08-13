@@ -4,13 +4,14 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
 #include "mpd_shared.h"
 
 #include "lib/jsonrpc.h"
 #include "lib/log.h"
 #include "lib/sds_extras.h"
+#include "lib/utility.h"
 #include "mpd_shared/mpd_shared_tags.h"
-#include "utility.h"
 
 #include <stdlib.h>
 

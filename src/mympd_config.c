@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
 #include "mympd_config.h"
 
 #include "lib/log.h"

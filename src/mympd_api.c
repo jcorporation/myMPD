@@ -4,11 +4,13 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
 #include "mympd_api.h"
 
 #include "../dist/src/frozen/frozen.h"
-#include "global.h"
+#include "lib/api.h"
 #include "lib/log.h"
+#include "lib/mympd_configuration.h"
 #include "lib/sds_extras.h"
 #include "mpd_client.h"
 #include "mpd_client/mpd_client_stats.h"
@@ -20,7 +22,6 @@
 #include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_timer_handlers.h"
 #include "mympd_api/mympd_api_utility.h"
-#include "mympd_config_defs.h"
 
 #include <assert.h>
 #include <inttypes.h>

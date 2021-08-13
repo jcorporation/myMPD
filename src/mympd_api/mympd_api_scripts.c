@@ -8,13 +8,14 @@
 #include "mympd_api_scripts.h"
 
 #include "../../dist/src/frozen/frozen.h"
-#include "../global.h"
+#include "../lib/api.h"
 #include "../lib/http_client.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/lua_mympd_state.h"
+#include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
-#include "../lua_mympd_state.h"
-#include "../utility.h"
+#include "../lib/utility.h"
 
 #include <assert.h>
 #include <dirent.h>

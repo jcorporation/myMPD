@@ -7,7 +7,7 @@
 #include "mympd_config_defs.h"
 #include "mpd_client_sticker.h"
 
-#include "../api.h"
+#include "../lib/api.h"
 #include "../lib/log.h"
 #include "../lib/validate.h"
 #include "../mpd_shared.h"

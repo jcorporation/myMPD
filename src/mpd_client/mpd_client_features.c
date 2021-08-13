@@ -7,13 +7,12 @@
 #include "mympd_config_defs.h"
 #include "mpd_client_features.h"
 
-
-#include "../global.h"
+#include "../lib/api.h"
 #include "../lib/log.h"
+#include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_tags.h"
-#include "../lib/sds_extras.h"
-#include "../utility.h"
 #include "mpd_client_state.h"
 
 #include <assert.h>

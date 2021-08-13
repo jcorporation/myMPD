@@ -7,8 +7,8 @@
 #ifndef MYMPD_MPD_WORKER_UTILITY_H
 #define MYMPD_MPD_WORKER_UTILITY_H
 
-#include "../global.h"
-#include "../mympd_state.h"
+#include "../lib/api.h"
+#include "../lib/mympd_state.h"
 
 struct t_mpd_worker_state {
     bool smartpls;

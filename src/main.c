@@ -4,19 +4,21 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
+
 #include "../dist/src/mongoose/mongoose.h"
 #include "../dist/src/rax/rax.h"
 #include "../dist/src/sds/sds.h"
-#include "global.h"
 #include "handle_options.h"
+#include "lib/api.h"
 #include "lib/log.h"
+#include "lib/random.h"
+#include "lib/sds_extras.h"
+#include "lib/utility.h"
 #include "mpd_client/mpd_client_playlists.h"
 #include "mympd_api.h"
 #include "mympd_config.h"
 #include "mympd_migrate.h"
-#include "lib/random.h"
-#include "lib/sds_extras.h"
-#include "utility.h"
 #include "web_server.h"
 
 #ifdef ENABLE_SSL

@@ -8,9 +8,9 @@
 #include "web_server_tagart.h"
 
 #include "../lib/log.h"
+#include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
 #include "../lib/validate.h"
-#include "../utility.h"
 
 bool handle_tagart(struct mg_connection *nc, struct mg_http_message *hm, 
                    struct t_mg_user_data *mg_user_data) {

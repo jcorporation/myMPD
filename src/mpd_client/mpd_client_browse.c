@@ -9,11 +9,13 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mimetype.h"
+#include "../lib/mympd_configuration.h"
+#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_shared/mpd_shared_search.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
-#include "../utility.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
 
@@ -238,7 +240,7 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
         free(path_cpy);
     }
     
-    unsigned real_limit = limit == 0 ? offset + MAX_RESULTS : offset + limit;
+    unsigned real_limit = limit == 0 ? offset + MAX_MPD_RESULTS : offset + limit;
     
     struct list_node *current;
     while ((current = list_shift_first(&entity_list)) != NULL) {
@@ -349,7 +351,7 @@ sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer,
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return buffer;
     }
-    rc = mpd_search_add_window(mympd_state->mpd_state->conn, 0, MAX_RESULTS);
+    rc = mpd_search_add_window(mympd_state->mpd_state->conn, 0, MAX_MPD_RESULTS);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return buffer;
@@ -561,7 +563,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
     //print album list
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    unsigned real_limit = limit == 0 ? offset + MAX_RESULTS : offset + limit;
+    unsigned real_limit = limit == 0 ? offset + MAX_MPD_RESULTS : offset + limit;
     sds album = sdsempty();
     sds artist = sdsempty();
     struct list_node *current;
@@ -628,7 +630,7 @@ sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds met
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
     enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
-    unsigned real_limit = limit == 0 ? offset + MAX_RESULTS : offset + limit;
+    unsigned real_limit = limit == 0 ? offset + MAX_MPD_RESULTS : offset + limit;
     while ((pair = mpd_recv_pair_tag(mympd_state->mpd_state->conn, mpdtag)) != NULL) {
         entity_count++;
         char *value_lower = strtolower(strdup(pair->value));

@@ -9,7 +9,10 @@
 
 #include "../dist/src/sds/sds.h"
 
-#include "mympd_state.h"
+#include "lib/mympd_state.h"
+
+//max number of results to retrieve from mpd
+#define MAX_MPD_RESULTS 1000
 
 void mpd_shared_free_mpd_state(struct t_mpd_state *mpd_state);
 void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state);

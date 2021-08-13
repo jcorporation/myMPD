@@ -7,7 +7,7 @@
 #ifndef MYMPD_API_TIMER_HANDLERS_H
 #define MYMPD_API_TIMER_HANDLERS_H
 
-#include "../mympd_state.h"
+#include "../lib/mympd_state.h"
 
 void timer_handler_covercache(struct t_timer_definition *definition, void *user_data); //timer_id 1
 void timer_handler_smartpls_update(struct t_timer_definition *definition, void *user_data); //timer_id 2

@@ -33,6 +33,8 @@ set(MYMPD_COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshado
 #linker flags
 set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
 
+configure_file(mympd_config_defs.h.in ${PROJECT_BINARY_DIR}/mympd_config_defs.h)
+
 #
 #mympd-script utility
 #

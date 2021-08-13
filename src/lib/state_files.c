@@ -4,12 +4,13 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
 #include "state_files.h"
 
 #include "log.h"
 #include "sds_extras.h"
+#include "utility.h"
 #include "validate.h"
-#include "../utility.h"
 
 #include <ctype.h>
 #include <errno.h>

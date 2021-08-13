@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
 #include "list.h"
 
 #include "random.h"

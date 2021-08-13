@@ -4,9 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
 #include "jsonrpc.h"
 
-#include "../global.h"
+#include "api.h"
 #include "log.h"
 #include "sds_extras.h"
 

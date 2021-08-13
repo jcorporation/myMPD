@@ -8,13 +8,14 @@
 #include "web_server_albumart.h"
 
 #include "../../dist/src/frozen/frozen.h"
-#include "../global.h"
+#include "../lib/api.h"
 #include "../lib/covercache.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "../lib/validate.h"
-#include "../utility.h"
 
 #include <assert.h>
 #include <libgen.h>

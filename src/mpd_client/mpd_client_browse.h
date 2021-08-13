@@ -7,7 +7,7 @@
 #ifndef MYMPD_MPD_CLIENT_BROWSE_H
 #define MYMPD_MPD_CLIENT_BROWSE_H
 
-#include "../mympd_state.h"
+#include "../lib/mympd_state.h"
 
 sds mpd_client_put_fingerprint(struct t_mympd_state *mympd_state, sds buffer, sds method,
                                long request_id, const char *uri);

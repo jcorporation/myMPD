@@ -7,8 +7,8 @@
 #include "mympd_config_defs.h"
 #include "mympd_pin.h"
 
-#include "lib/log.h"
-#include "lib/state_files.h"
+#include "log.h"
+#include "state_files.h"
 
 #include <stdio.h>
 #include <string.h>

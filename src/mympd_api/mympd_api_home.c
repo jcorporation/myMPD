@@ -9,8 +9,9 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
-#include "../utility.h"
+#include "../lib/utility.h"
 
 #include <errno.h>
 #include <stdio.h>

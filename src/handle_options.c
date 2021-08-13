@@ -4,9 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
 #include "handle_options.h"
 
-#include "mympd_pin.h"
+#include "lib/mympd_pin.h"
 #include "lib/sds_extras.h"
 
 #include <getopt.h>

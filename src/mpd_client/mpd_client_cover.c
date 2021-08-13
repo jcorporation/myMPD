@@ -10,7 +10,9 @@
 #include "../lib/covercache.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
-#include "../utility.h"
+#include "../lib/mimetype.h"
+#include "../lib/mympd_configuration.h"
+#include "../lib/utility.h"
 
 #include <stdlib.h>
 

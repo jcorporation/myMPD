@@ -8,14 +8,15 @@
 #include "mpd_client_playlists.h"
 
 #include "../../dist/src/frozen/frozen.h"
-#include "../global.h"
+#include "../lib/api.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_shared/mpd_shared_search.h"
 #include "../mpd_shared/mpd_shared_tags.h"
-#include "../utility.h"
 #include "mpd_client_utility.h"
 
 #include <dirent.h>
@@ -129,7 +130,7 @@ sds mpd_client_put_playlists(struct t_mympd_state *mympd_state, sds buffer, sds 
 
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    unsigned real_limit = limit == 0 ? offset + MAX_RESULTS : offset + limit;
+    unsigned real_limit = limit == 0 ? offset + MAX_MPD_RESULTS : offset + limit;
     struct list_node *current = entity_list.head;
     while (current != NULL) {
         entity_count++;
@@ -177,7 +178,7 @@ sds mpd_client_put_playlist_list(struct t_mympd_state *mympd_state, sds buffer, 
     unsigned entities_returned = 0;
     unsigned entity_count = 0;
     unsigned total_time = 0;
-    unsigned real_limit = limit == 0 ? offset + MAX_RESULTS : offset + limit;
+    unsigned real_limit = limit == 0 ? offset + MAX_MPD_RESULTS : offset + limit;
     sds entityName = sdsempty();
     size_t search_len = strlen(searchstr);
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {

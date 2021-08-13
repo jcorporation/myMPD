@@ -4,15 +4,16 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
 #include "mympd_migrate.h"
 
 #include "../dist/src/frozen/frozen.h"
 #include "lib/sds_extras.h"
 #include "lib/log.h"
 #include "lib/state_files.h"
+#include "lib/utility.h"
 #include "mpd_shared/mpd_shared_playlists.h"
 #include "mpd_shared/mpd_shared_search.h"
-#include "utility.h"
 
 #include <dirent.h>
 #include <errno.h>

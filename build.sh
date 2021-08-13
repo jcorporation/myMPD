@@ -370,6 +370,16 @@ check_doc() {
   done
 }
 
+check_includes() {
+  for F in $(find src/ -name \*.c)
+  do
+    if ! grep -m1 "#include" "$F" | grep -q "mympd_config_defs.h"
+    then
+      echo "First include is not mympd_config_defs.h: $F"
+    fi
+  done
+}
+
 check() {
   if check_cmd cppcheck
   then
@@ -419,6 +429,9 @@ check() {
   else
     echo "clang-tidy not found"  
   fi
+  
+  check_doc
+  check_includes
 }
 
 prepare() {

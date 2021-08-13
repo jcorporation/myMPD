@@ -8,7 +8,7 @@
 #define MYMPD_API_TIMER_H
 
 #include "../../dist/src/sds/sds.h"
-#include "../mympd_state.h"
+#include "../lib/mympd_state.h"
 
 void init_timerlist(struct t_timer_list *l);
 void truncate_timerlist(struct t_timer_list *l);

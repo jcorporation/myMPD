@@ -9,9 +9,9 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_shared.h"
-#include "../utility.h"
 
 #include <inttypes.h>
 #include <stdlib.h>

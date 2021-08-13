@@ -7,10 +7,11 @@
 #include "mympd_config_defs.h"
 #include "mympd_api_timer_handlers.h"
 
-#include "../global.h"
+#include "../lib/api.h"
 #include "../lib/covercache.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mympd_configuration.h"
 
 #include <string.h>
 

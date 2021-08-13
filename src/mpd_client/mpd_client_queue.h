@@ -7,7 +7,7 @@
 #ifndef MYMPD_MPD_CLIENT_QUEUE_H
 #define MYMPD_MPD_CLIENT_QUEUE_H
 
-#include "../mympd_state.h"
+#include "../lib/mympd_state.h"
 
 sds mpd_client_get_queue_state(struct t_mympd_state *mympd_state, sds buffer);
 sds mpd_client_put_queue_state(struct mpd_status *status, sds buffer);

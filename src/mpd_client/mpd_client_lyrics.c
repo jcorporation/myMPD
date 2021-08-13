@@ -9,9 +9,10 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "../lib/validate.h"
-#include "../utility.h"
 
 #include <assert.h>
 #include <errno.h>

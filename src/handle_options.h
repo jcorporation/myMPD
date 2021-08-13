@@ -7,9 +7,9 @@
 #ifndef MYMPD_HANDLE_OPTIONS_H
 #define MYMPD_HANDLE_OPTIONS_H
 
-#include <stdbool.h>
+#include "lib/mympd_configuration.h"
 
-#include "mympd_config_defs.h"
+#include <stdbool.h>
 
 bool handle_options(struct t_config *config, int argc, char **argv);
 

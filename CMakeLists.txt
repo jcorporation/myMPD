@@ -184,20 +184,22 @@ set(SOURCES
   dist/src/sds/sds.c
   dist/src/tinymt/tinymt32.c
   dist/src/utf8decode/utf8decode.c
-  src/api.c
-  src/global.c
   src/handle_options.c
+  src/lib/api.c
   src/lib/covercache.c
   src/lib/http_client.c
   src/lib/jsonrpc.c
   src/lib/list.c
   src/lib/log.c
+  src/lib/lua_mympd_state.c
+  src/lib/mimetype.c
+  src/lib/mympd_pin.c
   src/lib/random.c
   src/lib/sds_extras.c
   src/lib/state_files.c
   src/lib/tiny_queue.c
+  src/lib/utility.c
   src/lib/validate.c
-  src/lua_mympd_state.c
   src/main.c
   src/mpd_client.c
   src/mpd_client/mpd_client_browse.c
@@ -236,8 +238,6 @@ set(SOURCES
   src/mympd_autoconf.c
   src/mympd_config.c
   src/mympd_migrate.c
-  src/mympd_pin.c
-  src/utility.c
   src/web_server.c
   src/web_server/web_server_albumart.c
   src/web_server/web_server_sessions.c

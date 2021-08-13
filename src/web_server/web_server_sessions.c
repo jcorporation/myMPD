@@ -8,7 +8,7 @@
 #include "web_server_sessions.h"
 
 #include "../lib/log.h"
-#include "../utility.h"
+#include "../lib/utility.h"
 
 #include <assert.h>
 #include <string.h>

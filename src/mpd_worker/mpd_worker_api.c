@@ -10,7 +10,7 @@
 #include "../../dist/src/frozen/frozen.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
-#include "../utility.h"
+#include "../lib/utility.h"
 #include "mpd_worker_cache.h"
 #include "mpd_worker_smartpls.h"
 

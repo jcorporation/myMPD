@@ -9,13 +9,14 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
 #include "../lib/state_files.h"
+#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_client/mpd_client_trigger.h"
 #include "../mpd_client/mpd_client_utility.h"
 #include "../mpd_shared.h"
-#include "../utility.h"
 #include "mympd_api_timer.h"
 #include "mympd_api_timer_handlers.h"
 
@@ -27,9 +28,16 @@
 #include <string.h>
 
 //private definitions
-static sds default_navbar_icons(struct t_config *config, sds buffer);
+static sds set_default_navbar_icons(struct t_config *config, sds buffer);
 static sds read_navbar_icons(struct t_config *config);
 static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags);
+
+//default navbar icons
+const char *default_navbar_icons = "[{\"ligature\":\"home\",\"title\":\"Home\",\"options\":[\"Home\"],\"badge\":\"\"},"\
+    "{\"ligature\":\"equalizer\",\"title\":\"Playback\",\"options\":[\"Playback\"],\"badge\":\"\"},"\
+    "{\"ligature\":\"queue_music\",\"title\":\"Queue\",\"options\":[\"Queue\"],\"badge\":\"<span id=\\\"badgeQueueItems\\\" class=\\\"badge badge-secondary\\\"></span>\"},"\
+    "{\"ligature\":\"library_music\",\"title\":\"Browse\",\"options\":[\"Browse\"],\"badge\":\"\"},"\
+    "{\"ligature\":\"search\",\"title\":\"Search\",\"options\":[\"Search\"],\"badge\":\"\"}]";
 
 //public functions
 bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_token *key, 
@@ -631,11 +639,11 @@ sds mympd_api_picture_list(struct t_mympd_state *mympd_state, sds buffer, sds me
 }
 
 //privat functions
-static sds default_navbar_icons(struct t_config *config, sds buffer) {
+static sds set_default_navbar_icons(struct t_config *config, sds buffer) {
     MYMPD_LOG_NOTICE("Writing default navbar_icons");
     sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->workdir);
     sdsclear(buffer);
-    buffer = sdscat(buffer, NAVBAR_ICONS);
+    buffer = sdscat(buffer, default_navbar_icons);
     errno = 0;
     FILE *fp = fopen(file_name, "w");
     if (fp == NULL) {
@@ -663,7 +671,7 @@ static sds read_navbar_icons(struct t_config *config) {
             MYMPD_LOG_ERROR("Can not open file \"%s\"", file_name);
             MYMPD_LOG_ERRNO(errno);
         }
-        buffer = default_navbar_icons(config, buffer);
+        buffer = set_default_navbar_icons(config, buffer);
         sdsfree(file_name);
         return buffer;
     }
@@ -678,7 +686,7 @@ static sds read_navbar_icons(struct t_config *config) {
     FREE_PTR(line);
     fclose(fp);
     if (sdslen(buffer) == 0) {
-        buffer = default_navbar_icons(config, buffer);
+        buffer = set_default_navbar_icons(config, buffer);
     }
     return buffer;
 }

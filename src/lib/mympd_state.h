@@ -7,13 +7,12 @@
 #ifndef MYMPD_STATE_H
 #define MYMPD_STATE_H
 
-#include <mpd/client.h>
-#include <time.h>
-
 #include "../dist/src/rax/rax.h"
 #include "../dist/src/sds/sds.h"
+#include "list.h"
 
-#include "lib/list.h"
+#include <mpd/client.h>
+#include <time.h>
 
 enum jukebox_modes {
     JUKEBOX_OFF,

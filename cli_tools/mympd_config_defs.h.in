@@ -4,10 +4,12 @@
  https://github.com/jcorporation/mympd
 */
 
-//This file is configured by cmake
-
 #ifndef MYMPD_CONFIG_DEFS_H
 #define MYMPD_CONFIG_DEFS_H
+
+#include <stdbool.h>
+
+#include "../dist/src/sds/sds.h"
 
 //Debug build
 #cmakedefine DEBUG

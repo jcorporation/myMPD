@@ -8,8 +8,8 @@
 #include "mpd_client_mounts.h"
 
 #include "../lib/jsonrpc.h"
-#include "../mpd_shared.h"
 #include "../lib/sds_extras.h"
+#include "../mpd_shared.h"
 
 #include <string.h>
 

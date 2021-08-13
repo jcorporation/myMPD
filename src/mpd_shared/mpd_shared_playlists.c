@@ -4,11 +4,12 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mpd_shared_playlists.h"
 #include "mympd_config_defs.h"
+#include "mpd_shared_playlists.h"
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mympd_configuration.h"
 #include "../lib/random.h"
 #include "../lib/validate.h"
 #include "../mpd_shared.h"
