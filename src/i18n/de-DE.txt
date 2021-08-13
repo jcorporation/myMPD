@@ -1872,3 +1872,6 @@ Session wurde gelöscht
 
 Session successfully created
 Session wurde erfolgreich erstellt
+
+Enter pin
+Pin eingeben
