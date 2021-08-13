@@ -211,6 +211,7 @@ static bool handle_coverextract(struct mg_connection *nc, struct t_config *confi
     sdsfree(mime_type_media_file);
     if (rc == true) {
         sds mime_type = get_mime_type_by_magic_stream(binary);
+        MYMPD_LOG_DEBUG("Serving coverimage for \"%s\" (%s)", media_file, mime_type);
         sds header = sdscatfmt(sdsempty(), "Content-Type: %s", mime_type);
         header = sdscat(header, EXTRA_HEADERS_CACHE);
         http_send_header_ok(nc, sdslen(binary), header);
@@ -240,14 +241,25 @@ static bool handle_coverextract_id3(struct t_config *config, const char *uri, co
     }
     struct id3_frame *frame = id3_tag_findframe(tags, "APIC", 0);
     if (frame != NULL) {
-        id3_length_t length;
+        id3_length_t length = 0;
         const id3_byte_t *pic = id3_field_getbinarydata(id3_frame_field(frame, 4), &length);
-        *binary = sdscatlen(*binary, pic, length);
-        if (covercache == true) {
-            write_covercache_file(config->workdir, uri, (char *)id3_field_getlatin1(id3_frame_field(frame, 1)), *binary);
+        if (length > 0) {
+            *binary = sdscatlen(*binary, pic, length);
+            if (covercache == true) {
+                const char *mime_type = (char *)id3_field_getlatin1(id3_frame_field(frame, 1));
+                if (mime_type[0] == '\0') {
+                    MYMPD_LOG_DEBUG("No mime type set for APIC tag");
+                }
+                else {
+                    write_covercache_file(config->workdir, uri, mime_type, *binary);
+                }
+            }
+            MYMPD_LOG_DEBUG("Coverimage successfully extracted");
+            rc = true;
         }
-        MYMPD_LOG_DEBUG("Coverimage successfully extracted");
-        rc = true;        
+        else {
+            MYMPD_LOG_WARN("No embedded picture size is zero");
+        }
     }
     else {
         MYMPD_LOG_DEBUG("No embedded picture detected");
@@ -293,13 +305,21 @@ static bool handle_coverextract_flac(struct t_config *config, const char *uri, c
     if (metadata == NULL) {
         MYMPD_LOG_DEBUG("No embedded picture detected");
     }
-    else {
+    else if (metadata->data.picture.data_length > 0) {
         *binary = sdscatlen(*binary, metadata->data.picture.data, metadata->data.picture.data_length);
         if (covercache == true) {
-            write_covercache_file(config->workdir, uri, metadata->data.picture.mime_type, *binary);
+            if (metadata->data.picture.mime_type[0] == '\0') {
+                MYMPD_LOG_DEBUG("No mime type set for embedded image");
+            }
+            else {
+                write_covercache_file(config->workdir, uri, metadata->data.picture.mime_type, *binary);
+            }
         }
         MYMPD_LOG_DEBUG("Coverimage successfully extracted");
         rc = true;
+    }
+    else {
+        MYMPD_LOG_WARN("No embedded picture size is zero");
     }
     FLAC__metadata_iterator_delete(iterator);
     FLAC__metadata_chain_delete(chain);
