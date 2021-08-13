@@ -389,7 +389,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     response = tojson_char(response, "version", MG_VERSION, true);
                     char addr[INET_ADDRSTRLEN];
                     const char *str = inet_ntop(AF_INET, &localip.sin_addr, addr, INET_ADDRSTRLEN);
-                    response = tojson_char(response, "ip", str, false);
+                    if (str != NULL) {
+                        response = tojson_char(response, "ip", str, false);
+                    }
+                    else {
+                        MYMPD_LOG_ERROR("Can not get listening ip");
+                        response = tojson_char(response, "ip", "", false);
+                    }
                     response = jsonrpc_result_end(response);
                     http_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
                     sdsfree(response);
