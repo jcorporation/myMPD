@@ -1091,7 +1091,7 @@ div.album-grid-mouseover {
   float: left;
 }
 
-body.locked button.protected:before {
+body.locked button.protected::before {
   content: "lock";
   float: left;
   font-family: 'Material Icons';
