@@ -12,7 +12,7 @@ function removeEnterPinFooter(footer) {
     }
 }
 
-function createEnterPinFooter(footer) {
+function createEnterPinFooter(footer, method, params, callback, onerror) {
     const div = elCreate('div', {"class": ["row", "w-100"]}, '');
     div.appendChild(elCreate('div', {"class": ["col-4", "pl-0"]}, tn('Enter pin')));
     const gr = elCreate('div', {"class": ["input-group"]}, '');
@@ -48,6 +48,10 @@ function createEnterPinFooter(footer) {
                 setSessionState();
                 removeEnterPinFooter(newFooter);
                 showNotification(tn('Session successfully created'), '', 'session', 'info');
+                if (method !== undefined) {
+                    //call original API
+                    sendAPI(method, params, callback, onerror);
+                }
             }
         }, true);
     }, false);
@@ -66,7 +70,7 @@ function enterPin(method, params, callback, onerror) {
         logDebug('Show pin dialog in modal');
         //a modal is already opened, show enter pin dialog in footer
         const footer = modal.getElementsByClassName('modal-footer')[0];
-        createEnterPinFooter(footer, method, params, callback, onerror, true);
+        createEnterPinFooter(footer, method, params, callback, onerror);
     }
     else {
         logDebug('Open pin modal');

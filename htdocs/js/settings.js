@@ -873,7 +873,7 @@ function saveSettings(closeModal) {
     webuiSettings.enableLyrics = (document.getElementById('btnEnableLyrics').classList.contains('active') ? true : false);
     
     if (formOK === true) {
-        const rc = sendAPI("MYMPD_API_SETTINGS_SET", {
+        const params = {
             "coverimageNames": inputCoverimageNames.value,
             "lastPlayedCount": Number(document.getElementById('inputSettinglastPlayedCount').value),
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
@@ -894,17 +894,25 @@ function saveSettings(closeModal) {
             "lyricsVorbisSylt": document.getElementById('inputSettinglyricsVorbisSylt').value,
             "covercacheKeepDays": Number(document.getElementById('inputCovercacheKeepDays').value),
             "webuiSettings": webuiSettings
-        }, getSettings);
-        if (rc === true) {
-            //API request was authorized
-            if (closeModal === true) {
-                uiElements.modalSettings.hide();
-            }
-            else {
-                btnWaiting(document.getElementById('btnApplySettings'), true);
-            }
+        };
+
+        if (closeModal === true) {
+            sendAPI("MYMPD_API_SETTINGS_SET", params, saveSettingsClose);
+        }
+        else {
+            sendAPI("MYMPD_API_SETTINGS_SET", params, saveSettingsApply);
         }
     }
+}
+
+function saveSettingsClose(obj) {
+    getSettings(obj);
+    uiElements.modalSettings.hide();
+}
+
+function saveSettingsApply(obj) {
+    getSettings(obj);
+    btnWaiting(document.getElementById('btnApplySettings'), true);
 }
 
 //eslint-disable-next-line no-unused-vars
