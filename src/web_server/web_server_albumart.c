@@ -265,7 +265,7 @@ static bool handle_coverextract_id3(struct t_config *config, const char *uri, co
             rc = true;
         }
         else {
-            MYMPD_LOG_WARN("No embedded picture size is zero");
+            MYMPD_LOG_WARN("Embedded picture size is zero");
         }
     }
     else {
@@ -326,7 +326,7 @@ static bool handle_coverextract_flac(struct t_config *config, const char *uri, c
         rc = true;
     }
     else {
-        MYMPD_LOG_WARN("No embedded picture size is zero");
+        MYMPD_LOG_WARN("Embedded picture size is zero");
     }
     FLAC__metadata_iterator_delete(iterator);
     FLAC__metadata_chain_delete(chain);
