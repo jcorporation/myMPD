@@ -444,7 +444,7 @@ check() {
   else
     echo "clang-tidy not found"  
   fi
-  
+  cd .. || exit 1
   check_docs
   check_includes
 }
