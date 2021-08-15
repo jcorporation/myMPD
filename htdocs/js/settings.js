@@ -147,7 +147,7 @@ function saveConnection() {
         formOK = false;
     }
     if (formOK === true) {
-        const rc = sendAPI("MYMPD_API_CONNECTION_SAVE", {
+        sendAPI("MYMPD_API_CONNECTION_SAVE", {
             "mpdHost": mpdHostEl.value,
             "mpdPort": Number(mpdPortEl.value),
             "mpdPass": mpdPassEl.value,
@@ -157,12 +157,13 @@ function saveConnection() {
             "mpdBinarylimit": Number(mpdBinarylimitEl.value) * 1024,
             "mpdTimeout": Number(mpdTimeoutEl.value) * 1000,
             "mpdKeepalive": (document.getElementById('btnMpdKeepalive').classList.contains('active') ? true : false)
-        }, getSettings);
-        if (rc === true) {
-            //API request was authorized
-            uiElements.modalConnection.hide();
-        }
+        }, saveConnectionClose);
     }
+}
+
+function saveConnectionClose(obj) {
+    getSettings(obj);
+    uiElements.modalConnection.hide();
 }
 
 function getSettings(onerror) {
