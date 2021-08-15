@@ -50,7 +50,7 @@ void send_albumart(struct mg_connection *nc, sds data, sds binary) {
     else {
         //create dummy http message and serve not available image
         struct mg_http_message hm;
-        populate_dummy_hm(&hm);
+        populate_dummy_hm(nc, &hm);
         serve_na_image(nc, &hm);
     }
     FREE_PTR(p_charbuf1);

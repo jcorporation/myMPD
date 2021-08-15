@@ -27,6 +27,13 @@ static bool compare_ipv6_with_mask(const uint8_t addr1[16], const int addr2[16],
 static void create_ipv6_mask(int *netmask, int mask);
 */
 
+static const char *http_methods_str[] = {
+    "GET",
+    "HEAD",
+    "POST",
+    NULL
+};
+
 //public functions
 void free_mg_user_data(struct t_mg_user_data *mg_user_data) {
     sdsfree(mg_user_data->browse_document_root);
@@ -87,13 +94,15 @@ void manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bo
 }
 
 //create an empty dummy message struct, used for async responses
-void populate_dummy_hm(struct mg_http_message *hm) {
+void populate_dummy_hm(struct mg_connection *nc, struct mg_http_message *hm) {
+    struct t_nc_user_data * nc_user_data = (struct t_nc_user_data *) nc->fn_data;
+
     hm->message = mg_str("");
     hm->body = mg_str("");
-    hm->method = mg_str("GET");
-    hm->uri = mg_str("");
+    hm->method = mg_str(http_methods_str[nc_user_data->request_method]);
+    hm->uri = mg_str(nc_user_data->request_uri);
     hm->query = mg_str("");
-    hm->proto = mg_str("HTTP/1.1");
+    hm->proto = mg_str("HTTP/1.1"); //we only accept HTTP/1.1
     //add accept-encoding header to deliver gziped embedded files
     //browsers without gzip support are not supported by myMPD
     hm->headers[0].name = mg_str("Accept-Encoding");
@@ -130,6 +139,7 @@ void http_send_header_ok(struct mg_connection *nc, size_t len, const char *heade
 void http_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers) {
     http_send_header_ok(nc, len, headers);
     mg_send(nc, data, len);
+    handle_connection_close(nc);
 }
 
 void http_send_header_redirect(struct mg_connection *nc, const char *location) {
@@ -137,6 +147,17 @@ void http_send_header_redirect(struct mg_connection *nc, const char *location) {
       "Location: %s\r\n"
       "Content-Length: 0\r\n\r\n", 
       location);
+}
+
+void handle_connection_close(struct mg_connection *nc) {
+    if (nc->fn_data == NULL) {
+        return;
+    }
+    struct t_nc_user_data * nc_user_data = (struct t_nc_user_data *) nc->fn_data;
+    if (nc_user_data->request_close == true) {
+        MYMPD_LOG_DEBUG("Set connection %lu to is_draining", nc->id);
+        nc->is_draining = 1;
+    }
 }
 
 void serve_na_image(struct mg_connection *nc, struct mg_http_message *hm) {

@@ -42,6 +42,13 @@
       "td:last-child{text-align:right}a,a:visited,a:active{color:#212529;text-decoration:none}"\
       "a:hover{text-decoration:underline}"
 
+enum http_methods {
+    HTTP_GET = 0,
+    HTTP_HEAD,
+    HTTP_POST
+};
+
+//struct for mg_mgr userdata
 struct t_mg_user_data {
     struct t_config *config; //pointer to mympd config
     sds browse_document_root;
@@ -59,6 +66,14 @@ struct t_mg_user_data {
     struct list session_list;
 };
 
+//connection specific userdata
+struct t_nc_user_data {
+    struct mg_connection *backend_nc; //for usage as proxy
+    enum http_methods request_method;
+    sds request_uri;
+    bool request_close;
+};
+
 #ifndef DEBUG
 bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_message *hm);
 #endif
@@ -68,10 +83,11 @@ void send_error(struct mg_connection *nc, int code, const char *msg);
 void serve_na_image(struct mg_connection *nc, struct mg_http_message *hm);
 void serve_stream_image(struct mg_connection *nc, struct mg_http_message *hm);
 void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, const char *name);
-void populate_dummy_hm(struct mg_http_message *hm);
+void populate_dummy_hm(struct mg_connection *nc, struct mg_http_message *hm);
 void http_send_header_ok(struct mg_connection *nc, size_t len, const char *headers);
 void http_send_header_redirect(struct mg_connection *nc, const char *location);
 void http_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers);
+void handle_connection_close(struct mg_connection *nc);
 bool check_ip_acl(const char *acl, struct mg_addr *peer);
 struct mg_str mg_str_strip_parent(struct mg_str *path, int count);
 void free_mg_user_data(struct t_mg_user_data *mg_user_data);
