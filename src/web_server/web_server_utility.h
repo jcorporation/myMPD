@@ -45,7 +45,8 @@
 enum http_methods {
     HTTP_GET = 0,
     HTTP_HEAD,
-    HTTP_POST
+    HTTP_POST,
+    HTTP_TOTAL_METHODS
 };
 
 //struct for mg_mgr userdata
@@ -91,4 +92,5 @@ void handle_connection_close(struct mg_connection *nc);
 bool check_ip_acl(const char *acl, struct mg_addr *peer);
 struct mg_str mg_str_strip_parent(struct mg_str *path, int count);
 void free_mg_user_data(struct t_mg_user_data *mg_user_data);
+const char *get_http_method_str(enum http_methods http_method);
 #endif

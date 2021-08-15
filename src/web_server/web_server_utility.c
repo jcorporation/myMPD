@@ -27,11 +27,10 @@ static bool compare_ipv6_with_mask(const uint8_t addr1[16], const int addr2[16],
 static void create_ipv6_mask(int *netmask, int mask);
 */
 
-static const char *http_methods_str[] = {
-    "GET",
-    "HEAD",
-    "POST",
-    NULL
+static const char *const http_method_names[HTTP_TOTAL_METHODS] = {
+    [HTTP_GET] = "GET",
+    [HTTP_HEAD] = "HEAD",
+    [HTTP_POST] = "POST"
 };
 
 //public functions
@@ -95,18 +94,31 @@ void manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bo
 
 //create an empty dummy message struct, used for async responses
 void populate_dummy_hm(struct mg_connection *nc, struct mg_http_message *hm) {
-    struct t_nc_user_data * nc_user_data = (struct t_nc_user_data *) nc->fn_data;
-
+    if (nc->fn_data != NULL) {
+        struct t_nc_user_data * nc_user_data = (struct t_nc_user_data *) nc->fn_data;
+        hm->method = mg_str(get_http_method_str(nc_user_data->request_method));
+        hm->uri = mg_str(nc_user_data->request_uri);
+    }
+    else {
+        MYMPD_LOG_WARN("Connection has no t_nc_user_data struct");
+        hm->method = mg_str("GET");
+        hm->uri = mg_str("");
+    }
     hm->message = mg_str("");
-    hm->body = mg_str("");
-    hm->method = mg_str(http_methods_str[nc_user_data->request_method]);
-    hm->uri = mg_str(nc_user_data->request_uri);
+    hm->body = mg_str("");  
     hm->query = mg_str("");
     hm->proto = mg_str("HTTP/1.1"); //we only accept HTTP/1.1
     //add accept-encoding header to deliver gziped embedded files
     //browsers without gzip support are not supported by myMPD
     hm->headers[0].name = mg_str("Accept-Encoding");
     hm->headers[0].value = mg_str("gzip");
+}
+
+const char *get_http_method_str(enum http_methods http_method) {
+    if (http_method >= HTTP_TOTAL_METHODS) {
+        return NULL;
+    }
+    return http_method_names[http_method];
 }
 
 sds *split_coverimage_names(const char *coverimage_name, sds *coverimage_names, int *count) {
