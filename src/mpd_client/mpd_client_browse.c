@@ -711,22 +711,13 @@ static bool _search_song(struct mpd_song *song, struct list *expr_list, struct t
             rc = true;
             value = mpd_shared_get_tags(song, tags->tags[i], value);
             sdstolower(value);
-            if (strcmp(current->value_p, "contains") == 0 && strstr(value, key_lower) == NULL) {
-                rc = false;
-            }
-            else if (strcmp(current->value_p, "starts_with") == 0 && strncmp(key_lower, value, strlen(key_lower)) != 0) {
-                rc = false;
-            }
-            else if (strcmp(current->value_p, "==") == 0 && strcmp(value, key_lower) != 0) {
-                rc = false;
-            }
-            else if (strcmp(current->value_p, "!=") == 0 && strcmp(value, key_lower) == 0) {
-                rc = false;
-            }
-            else if (strcmp(current->value_p, "=~") == 0 && _cmp_regex((pcre *)current->user_data, value) == false) {
-                rc = false;
-            }
-            else if (strcmp(current->value_p, "!~") == 0 && _cmp_regex((pcre *)current->user_data, value) == true) {
+            if ((strcmp(current->value_p, "contains") == 0 && strstr(value, key_lower) == NULL) ||
+                (strcmp(current->value_p, "starts_with") == 0 && strncmp(key_lower, value, strlen(key_lower)) != 0) ||
+                (strcmp(current->value_p, "==") == 0 && strcmp(value, key_lower) != 0) ||
+                (strcmp(current->value_p, "!=") == 0 && strcmp(value, key_lower) == 0) ||
+                (strcmp(current->value_p, "=~") == 0 && _cmp_regex((pcre *)current->user_data, value) == false) ||
+                (strcmp(current->value_p, "!~") == 0 && _cmp_regex((pcre *)current->user_data, value) == true))
+            {
                 rc = false;
             }
             else {

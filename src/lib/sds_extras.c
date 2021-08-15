@@ -46,14 +46,11 @@ sds sdscatjson(sds s, const char *p, size_t len) {
         case '\a': 
             break;
         default:
-            if (isprint(*p)) {
+            if (isprint(*p) || json_get_utf8_char_len(*p) != 1) {
                 s = sdscatprintf(s, "%c", *p);
             }
-            else if (json_get_utf8_char_len(*p) == 1) {
-                s = sdscatprintf(s, "\\u00%s%s", &hex_digits[(*p >> 4) % 0xf], &hex_digits[*p % 0xf]);
-            } 
             else {
-                s = sdscatprintf(s, "%c", *p);
+                s = sdscatprintf(s, "\\u00%s%s", &hex_digits[(*p >> 4) % 0xf], &hex_digits[*p % 0xf]);
             }
             break;
         }

@@ -323,8 +323,8 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
             else if (strcmp(tokens[i], "os") == 0)        { luaL_requiref(lua_vm, "os", luaopen_os, 1); lua_pop(lua_vm, 1); }
             else if (strcmp(tokens[i], "debug") == 0)     { luaL_requiref(lua_vm, "debug", luaopen_debug, 1); lua_pop(lua_vm, 1); }
             //custom libs
-            else if (strcmp(tokens[i], "json") == 0)	  { mympd_luaopen(lua_vm, tokens[i]); }
-            else if (strcmp(tokens[i], "mympd") == 0) 	  { mympd_luaopen(lua_vm, tokens[i]); }
+            else if (strcmp(tokens[i], "json") == 0 ||
+                     strcmp(tokens[i], "mympd") == 0)	  { mympd_luaopen(lua_vm, tokens[i]); }
             else {
                 MYMPD_LOG_ERROR("Can not open lua library %s", tokens[i]);
                 continue;

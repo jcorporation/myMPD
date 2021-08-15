@@ -189,11 +189,9 @@ bool list_sort_by_value_i(struct list *l, bool order) {
         ptr1 = l->head;
   
         while (ptr1->next != lptr)  { 
-            if (order == true && ptr1->value_i > ptr1->next->value_i) {  
-                list_swap_item(ptr1, ptr1->next); 
-                swapped = 1; 
-            } 
-            else if (order == false && ptr1->value_i < ptr1->next->value_i) {  
+            if ((order == true && ptr1->value_i > ptr1->next->value_i) ||
+                (order == false && ptr1->value_i < ptr1->next->value_i))
+            {
                 list_swap_item(ptr1, ptr1->next); 
                 swapped = 1; 
             } 
@@ -219,11 +217,9 @@ bool list_sort_by_value_p(struct list *l, bool order) {
         ptr1 = l->head;
   
         while (ptr1->next != lptr)  { 
-            if (order == true && strcmp(ptr1->value_p, ptr1->next->value_p) > 0) {  
-                list_swap_item(ptr1, ptr1->next); 
-                swapped = 1; 
-            } 
-            else if (order == false && strcmp(ptr1->value_p, ptr1->next->value_p) < 0) {  
+            if ((order == true && strcmp(ptr1->value_p, ptr1->next->value_p) > 0) ||
+                (order == false && strcmp(ptr1->value_p, ptr1->next->value_p) < 0))
+            {  
                 list_swap_item(ptr1, ptr1->next); 
                 swapped = 1; 
             } 
@@ -249,11 +245,9 @@ bool list_sort_by_key(struct list *l, bool order) {
         ptr1 = l->head;
   
         while (ptr1->next != lptr)  { 
-            if (order == true && strcmp(ptr1->key, ptr1->next->key) > 0) {  
-                list_swap_item(ptr1, ptr1->next); 
-                swapped = 1; 
-            } 
-            else if (order == false && strcmp(ptr1->key, ptr1->next->key) < 0) {  
+            if ((order == true && strcmp(ptr1->key, ptr1->next->key) > 0) || 
+                (order == false && strcmp(ptr1->key, ptr1->next->key) < 0))
+            {  
                 list_swap_item(ptr1, ptr1->next); 
                 swapped = 1; 
             }
