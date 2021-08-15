@@ -327,7 +327,14 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             MYMPD_LOG_INFO("HTTP request (%lu): %.*s %.*s", nc->id, (int)hm->method.len, hm->method.ptr, (int)hm->uri.len, hm->uri.ptr);
-                        
+            
+            //safety check
+            if (nc_user_data == NULL) {
+                MYMPD_LOG_ERROR("nc_user_data is NULL, this should not occur");
+                nc->is_closing = 1;
+                return;
+            }
+
             //limit proto to HTTP/1.1
             if (strncmp(hm->proto.ptr, "HTTP/1.1", hm->proto.len) != 0) {
                 MYMPD_LOG_ERROR("Invalid http version, only http/1.1 is supported");
@@ -355,9 +362,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 nc->is_closing = 1;
                 return;
             }
-            else {
-                nc_user_data->request_uri = sdsreplacelen(nc_user_data->request_uri, hm->uri.ptr, hm->uri.len);
-            }
+            nc_user_data->request_uri = sdsreplacelen(nc_user_data->request_uri, hm->uri.ptr, hm->uri.len);
+
             //check post requests length
             if (nc_user_data->request_method == HTTP_POST && (hm->body.len == 0 || hm->body.len > 4096)) {
                 MYMPD_LOG_ERROR("POST request with body of size %d is invalid", hm->body.len);
