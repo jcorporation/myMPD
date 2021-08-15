@@ -331,7 +331,7 @@ int main(int argc, char **argv) {
         set_loglevel(config->loglevel);
     #endif
 
-    if (config->syslog == true) {
+    if (config->log_to_syslog == true) {
         openlog("mympd", LOG_CONS, LOG_DAEMON);
         log_to_syslog = true;
     }

@@ -30,7 +30,7 @@ struct t_config {
 #ifdef ENABLE_LUA
     sds lualibs;
 #endif
-    bool syslog;
+    bool log_to_syslog;
     int loglevel;
     time_t startup_time;
     bool first_startup;

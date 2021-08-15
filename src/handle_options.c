@@ -33,7 +33,7 @@ bool handle_options(struct t_config *config, int argc, char **argv) {
                 config->user = sdsreplace(config->user, optarg);
                 break;
             case 's':
-                config->syslog = true;
+                config->log_to_syslog = true;
                 break;
             case 'w':
                 config->workdir = sdsreplace(config->workdir, optarg);

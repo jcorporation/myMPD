@@ -82,7 +82,7 @@ void mympd_config_defaults_initial(struct t_config *config) {
     //command line options
     config->user = sdsnew("mympd");
     config->workdir = sdsnew(VARLIB_PATH);
-    config->syslog = false;
+    config->log_to_syslog = false;
     //not configureable
     config->startup_time = time(NULL);
     config->first_startup = false;
