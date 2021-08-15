@@ -46,12 +46,6 @@ static bool handle_script_api(long long conn_id, struct mg_http_message *hm);
 static void mpd_stream_proxy_forward(struct mg_http_message *hm, struct mg_connection *nc);
 static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 
-enum http_methods {
-    HTTP_GET,
-    HTTP_HEAD,
-    HTTP_POST
-};
-
 //public functions
 bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_data *mg_user_data) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
@@ -334,45 +328,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             MYMPD_LOG_INFO("HTTP request (%lu): %.*s %.*s", nc->id, (int)hm->method.len, hm->method.ptr, (int)hm->uri.len, hm->uri.ptr);
-
-            enum http_methods http_method;
-                        
-            //limit proto to HTTP/1.1
-            if (strncmp(hm->proto.ptr, "HTTP/1.1", hm->proto.len) != 0) {
-                MYMPD_LOG_ERROR("Invalid http version, only http/1.1 is supported");
-                nc->is_closing = 1;
-                return;
-            }
-            //limit allowed http methods
-            if (strncmp(hm->method.ptr, "GET", hm->method.len) == 0) {
-                http_method = HTTP_GET;
-            }
-            else if (strncmp(hm->method.ptr, "HEAD", hm->method.len) == 0) {
-                http_method = HTTP_HEAD;
-            }
-            else if (strncmp(hm->method.ptr, "POST", hm->method.len) == 0) {
-                http_method = HTTP_POST;
-            }
-            else {
-                MYMPD_LOG_ERROR("Invalid http method");
-                nc->is_closing = 1;
-                return;
-            }
-            //check post requests length
-            if (http_method == HTTP_POST && (hm->body.len == 0 || hm->body.len > 4096)) {
-                MYMPD_LOG_ERROR("POST request with body of size %d is invalid", hm->body.len);
-                nc->is_closing = 1;
-                return;
-            }
-            //respect connection close header
-            struct mg_str *connection_hdr = mg_http_get_header(hm, "Connection");
-            if (connection_hdr != NULL) {
-                if (strncmp(connection_hdr->ptr, "close", connection_hdr->len) == 0) {
-                    MYMPD_LOG_DEBUG("Connection: close header found, set is_draining");
-                    nc->is_draining = 1;
-                }
-            }
-
+            
             if (mg_http_match_uri(hm, "/stream/")) {
                 if (sdslen(mg_user_data->stream_uri) == 0) {
                     nc->is_draining = 1;
@@ -600,6 +556,11 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
 #endif
 
 static bool handle_api(long long conn_id, struct mg_http_message *hm) {
+    if (hm->body.len > 2048) {
+        MYMPD_LOG_ERROR("Request length of %d exceeds max request size, discarding request)", hm->body.len);
+        return false;
+    }
+    
     MYMPD_LOG_DEBUG("API request (%lld): %.*s", conn_id, hm->body.len, hm->body.ptr);
     char *cmd = NULL;
     char *jsonrpc = NULL;
