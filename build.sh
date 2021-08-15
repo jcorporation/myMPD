@@ -431,16 +431,31 @@ check() {
     echo "Running clang-tidy, output goes to clang-tidy.out"
     rm -f clang-tidy.out
     cd src || exit 1
-    DISABLED_CHECKS=",-bugprone-narrowing-conversions,-readability-function-cognitive-complexity,-altera-struct-pack-align,-google-readability-todo"
-    DISABLED_CHECKS="$DISABLED_CHECKS,-llvmlibc-restrict-system-libc-headers,-cert-dcl37-c,-cert-dcl51-cpp,-readability-isolate-declaration,-hicpp-multiway-paths-covered"
-    DISABLED_CHECKS="$DISABLED_CHECKS,-readability-uppercase-literal-suffix,-hicpp-uppercase-literal-suffix,-cert-msc51-cpp,-cert-msc32-c,-hicpp-no-assembler"
-	DISABLED_CHECKS="$DISABLED_CHECKS,-android*,-cert-env33-c,-cert-msc50-cpp,-bugprone-branch-clone,-misc-misplaced-const,-readability-non-const-parameter,-cert-msc30-c"
-	DISABLED_CHECKS="$DISABLED_CHECKS,-hicpp-signed-bitwise,-readability-magic-numbers,-readability-avoid-const-params-in-decls,-llvm-include-order,-bugprone-macro-parentheses,-modernize*,"
-	DISABLED_CHECKS="$DISABLED_CHECKS,-cppcoreguidelines*,-llvm-header-guard,-clang-analyzer-optin.performance.Padding,-clang-diagnostic-embedded-directive"
-	DISABLED_CHECKS="$DISABLED_CHECKS,-bugprone-reserved-identifier"
+    CHECKS="*"
+    CHECKS="$CHECKS,-altera-struct-pack-align,-clang-analyzer-optin.performance.Padding"
+    CHECKS="$CHECKS,-bugprone-macro-parentheses"
+    CHECKS="$CHECKS,-bugprone-reserved-identifier,-cert-dcl37-c,-cert-dcl51-cpp"
+    CHECKS="$CHECKS,-bugprone-signal-handler,-cert-sig30-c"
+    CHECKS="$CHECKS,-concurrency-mt-unsafe"
+    CHECKS="$CHECKS,-cppcoreguidelines*"
+	CHECKS="$CHECKS,-google-readability-todo"
+    CHECKS="$CHECKS,-hicpp-*"
+    CHECKS="$CHECKS,-llvm-header-guard"
+    CHECKS="$CHECKS,-llvm-include-order"
+    CHECKS="$CHECKS,-misc-misplaced-const"
+	CHECKS="$CHECKS,-misc-no-recursion"
+    CHECKS="$CHECKS,-readability-avoid-const-params-in-decls"
+    CHECKS="$CHECKS,-readability-function-cognitive-complexity,-google-readability-function-size,-readability-function-size"
+    CHECKS="$CHECKS,-readability-isolate-declaration"
+    CHECKS="$CHECKS,-readability-magic-numbers"
+    CHECKS="$CHECKS,-readability-non-const-parameter"
+    CHECKS="$CHECKS,-readability-uppercase-literal-suffix"
+    CHECKS="$CHECKS,-llvmlibc-restrict-system-libc-headers"
+
     find ./ -name '*.c' -exec clang-tidy \
-    	--checks="*,$DISABLED_CHECKS" \
-    	-header-filter='.*' {}  \; >> ../clang-tidy.out
+    	--checks="$CHECKS" \
+    	--header-filter=".*" {}  \; >> ../clang-tidy.out
+    grep -v -E "(memset|memcpy)" ../clang-tidy.out
   else
     echo "clang-tidy not found"  
   fi
