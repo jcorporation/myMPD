@@ -38,7 +38,7 @@ static bool handle_coverextract_flac(struct t_config *config, const char *uri, c
 void send_albumart(struct mg_connection *nc, sds data, sds binary) {
     char *p_charbuf1 = NULL;
 
-    int je = json_scanf(data, sdslen(data), "{result: {mime_type:%Q}}", &p_charbuf1);
+    int je = json_scanf(data, (int)sdslen(data), "{result: {mime_type:%Q}}", &p_charbuf1);
     if (je == 1) {
         MYMPD_LOG_DEBUG("Serving file from memory (%s - %u bytes)", p_charbuf1, sdslen(binary));
         sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", p_charbuf1);

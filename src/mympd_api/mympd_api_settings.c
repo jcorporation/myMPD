@@ -66,7 +66,7 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
         }
     }
     else if (strncmp(key->ptr, "mpdPort", key->len) == 0) {
-        int mpd_port = strtoimax(settingvalue, &crap, 10);
+        int mpd_port = (int)strtoimax(settingvalue, &crap, 10);
         if (mpd_port < 1024 || mpd_port > 65535) {
             MYMPD_LOG_ERROR("Invalid value for mpdPort: %s", settingvalue);
             sdsfree(settingname);
@@ -79,7 +79,7 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
         }
     }
     else if (strncmp(key->ptr, "mpdStreamPort", key->len) == 0) {
-        int mpd_stream_port = strtoimax(settingvalue, &crap, 10);
+        int mpd_stream_port = (int)strtoimax(settingvalue, &crap, 10);
         if (mpd_stream_port < 1024 || mpd_stream_port > 65535) {
             MYMPD_LOG_ERROR("Invalid value for mpdStreamPort: %s", settingvalue);
             sdsfree(settingname);
@@ -112,7 +112,7 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
         }
     }
     else if (strncmp(key->ptr, "mpdTimeout", key->len) == 0) {
-        int mpd_timeout = strtoimax(settingvalue, &crap, 10);
+        int mpd_timeout = (int)strtoimax(settingvalue, &crap, 10);
         if (mpd_timeout < 1000 || mpd_timeout > 1000000) {
             MYMPD_LOG_ERROR("Invalid value for mpdTimeoutt: %s", settingvalue);
             sdsfree(settingname);
@@ -210,7 +210,7 @@ bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token
         mympd_state->booklet_name = sdsreplacelen(mympd_state->booklet_name, settingvalue, sdslen(settingvalue));
     }
     else if (strncmp(key->ptr, "lastPlayedCount", key->len) == 0) {
-        int last_played_count = strtoimax(settingvalue, &crap, 10);
+        int last_played_count = (int)strtoimax(settingvalue, &crap, 10);
         if (last_played_count <= 0) {
             sdsfree(settingname);
             sdsfree(settingvalue);
@@ -219,7 +219,7 @@ bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token
         mympd_state->last_played_count = last_played_count;
     }
     else if (strncmp(key->ptr, "volumeMin", key->len) == 0) {
-        int volume_min = strtoimax(settingvalue, &crap, 10);
+        int volume_min = (int)strtoimax(settingvalue, &crap, 10);
         if (volume_min < 0 || volume_min > 100) {
             sdsfree(settingname);
             sdsfree(settingvalue);
@@ -228,7 +228,7 @@ bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token
         mympd_state->volume_min = volume_min;
     }
     else if (strncmp(key->ptr, "volumeMax", key->len) == 0) {
-        int volume_max = strtoimax(settingvalue, &crap, 10);
+        int volume_max = (int)strtoimax(settingvalue, &crap, 10);
         if (volume_max < 0 || volume_max > 100) {
             sdsfree(settingname);
             sdsfree(settingvalue);
@@ -237,7 +237,7 @@ bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token
         mympd_state->volume_max = volume_max;
     }
     else if (strncmp(key->ptr, "volumeStep", key->len) == 0) {
-        int volume_step = strtoimax(settingvalue, &crap, 10);
+        int volume_step = (int)strtoimax(settingvalue, &crap, 10);
         if (volume_step < 0 || volume_step > 100) {
             sdsfree(settingname);
             sdsfree(settingvalue);
@@ -264,10 +264,10 @@ bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token
         mympd_state->smartpls_prefix = sdsreplacelen(mympd_state->smartpls_prefix, settingvalue, sdslen(settingvalue));
     }
     else if (strncmp(key->ptr, "smartplsInterval", key->len) == 0) {
-        time_t interval = strtoumax(settingvalue, &crap, 10);
+        time_t interval = strtoimax(settingvalue, &crap, 10);
         if (interval != mympd_state->smartpls_interval) {
             mympd_state->smartpls_interval = interval;
-            replace_timer(&mympd_state->timer_list, interval, interval, timer_handler_smartpls_update, 2, NULL, NULL);
+            replace_timer(&mympd_state->timer_list, interval, (int)interval, timer_handler_smartpls_update, 2, NULL, NULL);
         }
     }
     else if (strncmp(key->ptr, "smartplsGenerateTagList", key->len) == 0) {
@@ -289,7 +289,7 @@ bool mympd_api_settings_set(struct t_mympd_state *mympd_state, struct json_token
         mympd_state->lyrics_vorbis_sylt = sdsreplacelen(mympd_state->lyrics_vorbis_sylt, settingvalue, sdslen(settingvalue));
     }
     else if (strncmp(key->ptr, "covercacheKeepDays", key->len) == 0) {
-        mympd_state->covercache_keep_days = strtoimax(settingvalue, &crap, 10);
+        mympd_state->covercache_keep_days = (int)strtoimax(settingvalue, &crap, 10);
     }
     else {
         MYMPD_LOG_WARN("Unknown setting \"%s\": \"%s\"", settingname, settingvalue);
@@ -335,7 +335,7 @@ bool mpdclient_api_options_set(struct t_mympd_state *mympd_state, struct json_to
         }
     }
     else if (strncmp(key->ptr, "jukeboxQueueLength", key->len) == 0) {
-        int jukebox_queue_length = strtoimax(settingvalue, &crap, 10);
+        int jukebox_queue_length = (int)strtoimax(settingvalue, &crap, 10);
         if (jukebox_queue_length <= 0 || jukebox_queue_length > 999) {
             sdsfree(settingname);
             sdsfree(settingvalue);
@@ -356,7 +356,7 @@ bool mpdclient_api_options_set(struct t_mympd_state *mympd_state, struct json_to
         }
     }
     else if (strncmp(key->ptr, "jukeboxLastPlayed", key->len) == 0) {
-        int jukebox_last_played = strtoimax(settingvalue, &crap, 10);
+        int jukebox_last_played = (int)strtoimax(settingvalue, &crap, 10);
         if (jukebox_last_played != mympd_state->jukebox_last_played) {
             mympd_state->jukebox_last_played = jukebox_last_played;
             *jukebox_changed = true;
@@ -433,7 +433,7 @@ void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
     mympd_state->smartpls = state_file_rw_bool(mympd_state->config->workdir, "state", "smartpls", mympd_state->smartpls, false);
     mympd_state->smartpls_sort = state_file_rw_string_sds(mympd_state->config->workdir, "state", "smartpls_sort", mympd_state->smartpls_sort, false);
     mympd_state->smartpls_prefix = state_file_rw_string_sds(mympd_state->config->workdir, "state", "smartpls_prefix", mympd_state->smartpls_prefix, false);
-    mympd_state->smartpls_interval = state_file_rw_int(mympd_state->config->workdir, "state", "smartpls_interval", mympd_state->smartpls_interval, false);
+    mympd_state->smartpls_interval = state_file_rw_int(mympd_state->config->workdir, "state", "smartpls_interval", (int)mympd_state->smartpls_interval, false);
     mympd_state->smartpls_generate_tag_list = state_file_rw_string_sds(mympd_state->config->workdir, "state", "smartpls_generate_tag_list", mympd_state->smartpls_generate_tag_list, false);
     mympd_state->last_played_count = state_file_rw_uint(mympd_state->config->workdir, "state", "last_played_count", mympd_state->last_played_count, false);
     mympd_state->auto_play = state_file_rw_bool(mympd_state->config->workdir, "state", "auto_play", mympd_state->auto_play, false);

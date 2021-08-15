@@ -152,7 +152,7 @@ sds json_to_cols(sds cols, char *str, size_t len, bool *error) {
     struct json_token t;
     int j = 0;
     *error = false;
-    for (int i = 0; json_scanf_array_elem(str, len, ".params.cols", i, &t) > 0; i++) {
+    for (int i = 0; json_scanf_array_elem(str, (int)len, ".params.cols", i, &t) > 0; i++) {
         sds token = sdscatlen(sdsempty(), t.ptr, t.len);
         if (mpd_tag_name_iparse(token) != MPD_TAG_UNKNOWN || is_mympd_col(token) == true) {
             if (j > 0) {

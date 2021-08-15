@@ -123,7 +123,7 @@ const char *get_http_method_str(enum http_methods http_method) {
 
 sds *split_coverimage_names(const char *coverimage_name, sds *coverimage_names, int *count) {
     int j;
-    coverimage_names = sdssplitlen(coverimage_name, strlen(coverimage_name), ",", 1, count);
+    coverimage_names = sdssplitlen(coverimage_name, (ssize_t)strlen(coverimage_name), ",", 1, count);
     for (j = 0; j < *count; j++) {
         sdstrim(coverimage_names[j], " ");
     }
@@ -317,7 +317,7 @@ static bool rm_mk_dir(sds dir_name, bool create) {
 static bool check_ipv4_acl(const char *acl, uint32_t remote_ip) {
     bool allowed = false;
     int count;
-    sds *tokens = sdssplitlen(acl, strlen(acl), ",", 1, &count);
+    sds *tokens = sdssplitlen(acl, (ssize_t)strlen(acl), ",", 1, &count);
     for (int i = 0; i < count; i++) {
         if (strstr(tokens[i], ":") != NULL) {
             //ipv6 skip
@@ -331,7 +331,7 @@ static bool check_ipv4_acl(const char *acl, uint32_t remote_ip) {
         if (net_str == NULL || mask_str == NULL) {
             continue;
         }
-        uint32_t mask = strtoimax(mask_str, NULL, 10);
+        uint32_t mask = (int)strtoimax(mask_str, NULL, 10);
         if (mask == 0) {
             //mask of 0 matches always
             allowed = flag == '+' ? true : false;        
@@ -372,7 +372,7 @@ static bool check_ipv6_acl(const char *acl, const uint8_t remote_ip[16]) {
         acl_str++;
         char *mask_str;
         char *net_str = strtok_r(acl_str, "/", &mask_str);
-        uint32_t mask = strtoimax(mask_str, NULL, 10);
+        uint32_t mask = (int)strtoimax(mask_str, NULL, 10);
         if (mask == 0) {
             //mask of 0 matches always
             allowed = flag == '+' ? true : false;        

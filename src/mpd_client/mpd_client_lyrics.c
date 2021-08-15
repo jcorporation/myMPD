@@ -350,7 +350,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
         if (encoding == 0) {
             //latin - read text until \0 separator
             while (i < binary_length && binary_data[i] != '\0') {
-                text_buf = sdscatjsonchar(text_buf, binary_data[i]);
+                text_buf = sdscatjsonchar(text_buf, (char)binary_data[i]);
                 i++;
             }
         }
@@ -359,7 +359,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
             while (i + 2 < binary_length && (binary_data[i] != '\0' || binary_data[i + 1] != '\0')) {
                 if ((binary_data[i] & 0x80) == 0x00 && binary_data[i + 1] == '\0') {
                     //printable ascii char
-                    text_buf = sdscatjsonchar(text_buf, binary_data[i]);
+                    text_buf = sdscatjsonchar(text_buf, (char)binary_data[i]);
                 }
                 else {
                     unsigned c = (binary_data[i + 1] << 8) | binary_data[i];
@@ -383,7 +383,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
             while (i + 2 < binary_length && (binary_data[i] != '\0' || binary_data[i + 1] != '\0')) {
                 if ((binary_data[i + 1] & 0x80) == 0x00 && binary_data[i] == '\0') {
                     //printable ascii char
-                    text_buf = sdscatjsonchar(text_buf, binary_data[i + 1]);
+                    text_buf = sdscatjsonchar(text_buf, (char)binary_data[i + 1]);
                 }
                 else {
                     unsigned c = (binary_data[i] << 8) | binary_data[i + 1];
@@ -411,7 +411,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
             while (i < binary_length && binary_data[i] != '\0') {
                 if ((binary_data[i] & 0x80) == 0x00) {
                     //ascii char
-                    text_buf = sdscatjsonchar(text_buf, binary_data[i]);
+                    text_buf = sdscatjsonchar(text_buf, (char)binary_data[i]);
                 }
                 else if (!decode_utf8(&state, &codepoint, binary_data[i])) {
                     text_buf = sdscatprintf(text_buf, "\\u%04x", codepoint);

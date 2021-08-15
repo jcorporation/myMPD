@@ -275,7 +275,7 @@ static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_wo
             const char *p_value = mpd_parse_sticker(pair->value, &j);
             if (p_value != NULL) {
                 char *crap;
-                int value = strtoimax(p_value, &crap, 10);
+                int value = (int)strtoimax(p_value, &crap, 10);
                 if (value >= 1) {
                     list_push(&add_list, uri, value, NULL, NULL);
                 }

@@ -152,7 +152,7 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
         while (getline(&line, &n, fp) > 0) {
             entity_count++;
             if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
-                int value = strtoimax(line, &data, 10);
+                int value = (int)strtoimax(line, &data, 10);
                 if (strlen(data) > 2) {
                     data = data + 2;
                     strtok_r(data, "\n", &crap);

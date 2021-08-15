@@ -107,7 +107,7 @@ static bool _mpd_client_count_song_uri(struct t_mympd_state *mympd_state, const 
         }
         while ((pair = mpd_recv_sticker(mympd_state->mpd_state->conn)) != NULL) {
             if (strcmp(pair->name, name) == 0) {
-                old_value = strtoimax(pair->value, &crap, 10);
+                old_value = (int)strtoimax(pair->value, &crap, 10);
             }
             mpd_return_sticker(mympd_state->mpd_state->conn, pair);
         }

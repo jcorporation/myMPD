@@ -100,7 +100,7 @@ int state_file_rw_int(const char *workdir, const char *dir, const char *name, co
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, warn);
     sdsfree(def_value_str);
     if (sdslen(line) > 0) {
-        value = strtoimax(line, &crap, 10);
+        value = (int)strtoimax(line, &crap, 10);
         sdsfree(line);
     }
     return value;
@@ -113,7 +113,7 @@ unsigned state_file_rw_uint(const char *workdir, const char *dir, const char *na
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, warn);
     sdsfree(def_value_str);
     if (sdslen(line) > 0) {
-        value = strtoimax(line, &crap, 10);
+        value = (int)strtoimax(line, &crap, 10);
         sdsfree(line);
     }
     return value;

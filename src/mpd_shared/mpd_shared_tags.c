@@ -147,7 +147,7 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
 {
     sds logline = sdscatfmt(sdsempty(), "Enabled %s: ", taglistname);
     int tokens_count;
-    sds *tokens = sdssplitlen(taglist, sdslen(taglist), ",", 1, &tokens_count);
+    sds *tokens = sdssplitlen(taglist, (ssize_t)sdslen(taglist), ",", 1, &tokens_count);
     for (int i = 0; i < tokens_count; i++) {
         sdstrim(tokens[i], " ");
         enum mpd_tag_type tag = mpd_tag_name_iparse(tokens[i]);

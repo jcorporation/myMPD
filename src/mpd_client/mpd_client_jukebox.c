@@ -328,7 +328,7 @@ static struct list *mpd_client_jukebox_get_last_played(struct t_mympd_state *mym
         FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
         if (fp != NULL) {
             while (getline(&line, &n, fp) > 0 && queue_list->length < 20) {
-                int value = strtoimax(line, &data, 10);
+                int value = (int)strtoimax(line, &data, 10);
                 if (value > 0 && strlen(data) > 2) {
                     data = data + 2;
                     strtok_r(data, "\n", &crap);

@@ -64,7 +64,7 @@ void check_timer(struct t_timer_list *l) {
 
     for (int i = 0; i < iMaxCount; i++) {
         if (ufds[i].revents & POLLIN) {
-            int s = read(ufds[i].fd, &exp, sizeof(uint64_t));
+            ssize_t s = read(ufds[i].fd, &exp, sizeof(uint64_t));
             if (s != sizeof(uint64_t)) {
                 continue;
             }
@@ -265,7 +265,7 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, con
     char *action = NULL;
     char *subaction = NULL;
     char *playlist = NULL;
-    int je = json_scanf(str, len, "{params: {name: %Q, enabled: %B, startHour: %d, startMinute: %d, action: %Q, subaction: %Q, volume: %d, playlist: %Q, jukeboxMode: %u}}",
+    int je = json_scanf(str, (int)len, "{params: {name: %Q, enabled: %B, startHour: %d, startMinute: %d, action: %Q, subaction: %Q, volume: %d, playlist: %Q, jukeboxMode: %u}}",
         &name, &enabled, &start_hour, &start_minute, &action, &subaction, &volume, &playlist, &jukebox_mode);
     if (je == 9 || (je == 8 && subaction == NULL)) {
         if (start_hour < 0 || start_hour > 23 || start_minute < 0 || start_minute > 59) {
@@ -306,7 +306,7 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, con
             timer_def->weekdays[i] = false;
         }
         struct json_token t;
-        for (int i = 0; json_scanf_array_elem(str, len, ".params.weekdays", i, &t) > 0 && i < 7; i++) {
+        for (int i = 0; json_scanf_array_elem(str, (int)len, ".params.weekdays", i, &t) > 0 && i < 7; i++) {
             timer_def->weekdays[i] = t.type == JSON_TYPE_TRUE ? true : false;
         }
     }
@@ -447,7 +447,7 @@ bool timerfile_read(struct t_mympd_state *mympd_state) {
             timer_def = parse_timer(timer_def, param, sdslen(param));
             int interval;
             int timerid;
-            int je = json_scanf(param, sdslen(param), "{params: {interval: %d, timerid: %d}}", &interval, &timerid);
+            int je = json_scanf(param, (int)sdslen(param), "{params: {interval: %d, timerid: %d}}", &interval, &timerid);
             sdsfree(param);
             
             if (je == 2 && timer_def != NULL) {

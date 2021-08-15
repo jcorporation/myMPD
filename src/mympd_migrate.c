@@ -128,7 +128,7 @@ void parse_ini_line (const char *line, sds *key, sds *value) {
         return;
     }
     int count;
-    sds *tokens = sdssplitlen(sds_line, sdslen(sds_line), "=", 1, &count);
+    sds *tokens = sdssplitlen(sds_line, (ssize_t)sdslen(sds_line), "=", 1, &count);
     if (count == 2) {
         sdstrim(tokens[0], " ");
         sdstrim(tokens[1], " \"");

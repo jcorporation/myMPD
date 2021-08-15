@@ -587,7 +587,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
 
         sds host_header = sdscatlen(sdsempty(), host_hdr->ptr, (int)host_hdr->len);
         int count;
-        sds *tokens = sdssplitlen(host_header, sdslen(host_header), ":", 1, &count);
+        sds *tokens = sdssplitlen(host_header, (ssize_t)sdslen(host_header), ":", 1, &count);
         sds s_redirect = sdscatfmt(sdsempty(), "https://%s", tokens[0]);
         if (strcmp(config->ssl_port, "443") != 0) {
             s_redirect = sdscatfmt(s_redirect, ":%s", config->ssl_port);
@@ -610,7 +610,7 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
     char *cmd = NULL;
     char *jsonrpc = NULL;
     int id = 0;
-    int je = json_scanf(hm->body.ptr, hm->body.len, "{jsonrpc: %Q, method: %Q, id: %d}", &jsonrpc, &cmd, &id);
+    int je = json_scanf(hm->body.ptr, (int)hm->body.len, "{jsonrpc: %Q, method: %Q, id: %d}", &jsonrpc, &cmd, &id);
     if (je < 3) {
         FREE_PTR(cmd);
         FREE_PTR(jsonrpc);
@@ -669,7 +669,7 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
         case MYMPD_API_SESSION_LOGIN: {
             char *pin = NULL;
             bool is_valid = false;
-            je = json_scanf(hm->body.ptr, hm->body.len, "{params: {pin: %Q}}", &pin);
+            je = json_scanf(hm->body.ptr, (int)hm->body.len, "{params: {pin: %Q}}", &pin);
             if (je == 1 && strlen(pin) > 0) {
                 is_valid = validate_pin(pin, mg_user_data->config->pin_hash);
             }
@@ -716,7 +716,7 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
         default: {
             //forward API request to mympd_api_handler
             sds data = sdscatlen(sdsempty(), hm->body.ptr, hm->body.len);
-            t_work_request *request = create_request(nc->id, id, cmd_id, data);
+            t_work_request *request = create_request((long long)nc->id, id, cmd_id, data);
             sdsfree(data);
             tiny_queue_push(mympd_api_queue, request, 0);
         }
@@ -737,7 +737,7 @@ static bool handle_script_api(long long conn_id, struct mg_http_message *hm) {
     char *cmd = NULL;
     char *jsonrpc = NULL;
     long id = 0;
-    const int je = json_scanf(hm->body.ptr, hm->body.len, "{jsonrpc: %Q, method: %Q, id: %ld}", &jsonrpc, &cmd, &id);
+    const int je = json_scanf(hm->body.ptr, (int)hm->body.len, "{jsonrpc: %Q, method: %Q, id: %ld}", &jsonrpc, &cmd, &id);
     if (je < 3) {
         FREE_PTR(cmd);
         FREE_PTR(jsonrpc);

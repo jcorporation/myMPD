@@ -263,7 +263,7 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
     if (getline(&line, &n, fp) > 0 && strncmp(line, "-- ", 3) == 0) {
         sds metadata = sdsnew(line);
         sdsrange(metadata, 3, -2);
-        int je = json_scanf(metadata, sdslen(metadata), "{order: %d}", &order);
+        int je = json_scanf(metadata, (int)sdslen(metadata), "{order: %d}", &order);
         if (je == 0) {
             MYMPD_LOG_WARN("Invalid metadata for script %s", scriptfilename);
             entry = sdscat(entry, "\"metadata\":{\"order\":0,\"arguments\":[]}");
@@ -308,7 +308,7 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     }
     else {
         int count;
-        sds *tokens = sdssplitlen(script_arg->config->lualibs, sdslen(script_arg->config->lualibs), ",", 1, &count);
+        sds *tokens = sdssplitlen(script_arg->config->lualibs, (ssize_t)sdslen(script_arg->config->lualibs), ",", 1, &count);
         for (int i = 0; i < count; i++) {
             sdstrim(tokens[i], " ");
             MYMPD_LOG_DEBUG("Open lua library %s", tokens[i]);
@@ -535,7 +535,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         return luaL_error(lua_vm, "Invalid method");
     }
 
-    pid_t tid = syscall(__NR_gettid);
+    long tid = syscall(__NR_gettid);
     
     t_work_request *request = create_request(-2, tid, method_id, NULL);
     if (raw == false) {
@@ -571,7 +571,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         if (response != NULL) {
             MYMPD_LOG_DEBUG("Got result: %s", response->data);
             char *p_charbuf1 = NULL;
-            int je = json_scanf(response->data, sdslen(response->data), "{result: {message: %Q}}", &p_charbuf1);
+            int je = json_scanf(response->data, (int)sdslen(response->data), "{result: {message: %Q}}", &p_charbuf1);
             if (je == 1 && p_charbuf1 != NULL) {
                 if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
                     MYMPD_LOG_DEBUG("Populating lua global state table mympd");
@@ -592,7 +592,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                 return 2;
             }
             
-            je = json_scanf(response->data, sdslen(response->data), "{error: {message: %Q}}", &p_charbuf1);
+            je = json_scanf(response->data, (int)sdslen(response->data), "{error: {message: %Q}}", &p_charbuf1);
             if (je == 1 && p_charbuf1 != NULL) {
                 lua_pushinteger(lua_vm, 1);
                 lua_pushstring(lua_vm, p_charbuf1);

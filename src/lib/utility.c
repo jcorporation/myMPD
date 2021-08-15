@@ -48,17 +48,17 @@ int testdir(const char *name, const char *dirname, bool create) {
 }
 
 void strip_slash(sds s) {
-    int len = sdslen(s);
+    ssize_t len = (ssize_t)sdslen(s);
     if (len > 1 && s[len - 1] == '/') {
         sdsrange(s, 0, len - 2);
     }
 }
 
 int strip_extension(char *s) {
-    for (ssize_t i = strlen(s) - 1 ; i > 0; i--) {
+    for (size_t i = strlen(s) - 1 ; i > 0; i--) {
         if (s[i] == '.') {
             s[i] = '\0';
-            return i;
+            return (int)i;
         }
         if (s[i] == '/') {
             return -1;

@@ -40,7 +40,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                     "playlist", "error", "Smart playlists are disabled");
                 break;
             }
-            je = json_scanf(request->data, sdslen(request->data), "{params: {force: %B}}", &bool_buf1);
+            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {force: %B}}", &bool_buf1);
             if (je == 1) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
                     "playlist", "info", "Smart playlists update started");
@@ -68,7 +68,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                     "playlist", "error", "Smart playlists are disabled");
                 break;
             }
-            je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q}}", &p_charbuf1);
+            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {plist: %Q}}", &p_charbuf1);
             if (je == 1) {
                 rc = mpd_worker_smartpls_update(mpd_worker_state, p_charbuf1);
                 if (rc == true) {

@@ -35,7 +35,7 @@ void set_pin(sds workdir) {
     }
         
     printf("Enter pin: ");
-    char c;
+    int c;
     sds pin = sdsempty();
     while ((c = getc(stdin)) != '\n') {
         pin = sdscatprintf(pin, "%c", c);

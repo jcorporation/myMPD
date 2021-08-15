@@ -379,7 +379,7 @@ sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer,
         }
         const char *disc;
         if ((disc = mpd_song_get_tag(song, MPD_TAG_DISC, 0)) != NULL) {
-            int d = strtoimax(disc, NULL, 10);
+            int d = (int)strtoimax(disc, NULL, 10);
             if (d > discs) {
                 discs = d;
             }
@@ -461,7 +461,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
     struct list expr_list;
     list_init(&expr_list);
     int count;
-    sds *tokens = sdssplitlen(expression, strlen(expression), ") AND (", 7, &count);
+    sds *tokens = sdssplitlen(expression, (ssize_t)strlen(expression), ") AND (", 7, &count);
     for (int j = 0; j < count; j++) {
         sdstrim(tokens[j], "() ");
         sds tag = sdsempty();
