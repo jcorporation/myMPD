@@ -632,16 +632,16 @@ sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds met
     enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
     unsigned real_limit = limit == 0 ? offset + MAX_MPD_RESULTS : offset + limit;
     while ((pair = mpd_recv_pair_tag(mympd_state->mpd_state->conn, mpdtag)) != NULL) {
-        entity_count++;
         char *value_lower = strtolower(strdup(pair->value));
-        if (entity_count > offset && entity_count <= real_limit) {
-            if (strcmp(pair->value, "") == 0) {
-                entity_count--;
-            }
-            else if (searchstr_len == 0
-                     || (searchstr_len <= 2 && strncasecmp(searchstr, pair->value, searchstr_len) == 0)
-                     || (searchstr_len > 2 && strstr(pair->value, searchstr_lower) != NULL))
-            {
+        mpd_return_pair(mympd_state->mpd_state->conn, pair);
+        if (value_lower[0] == '\0') {
+            continue;
+        }
+        if (searchstr_len == 0 ||
+            (searchstr_len <= 2 && strncmp(searchstr_lower, value_lower, searchstr_len) == 0) ||
+            (searchstr_len > 2 && strstr(value_lower, searchstr_lower) != NULL))
+        {
+            if (entity_count > offset && entity_count <= real_limit) {
                 if (entities_returned++) {
                     buffer = sdscat(buffer, ",");
                 }
@@ -649,11 +649,8 @@ sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds met
                 buffer = tojson_char(buffer, "value", pair->value, false);
                 buffer = sdscat(buffer, "}");
             }
-            else {
-                entity_count--;
-            }
+            entity_count++;
         }
-        mpd_return_pair(mympd_state->mpd_state->conn, pair);
         FREE_PTR(value_lower);
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
