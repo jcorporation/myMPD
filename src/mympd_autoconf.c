@@ -32,7 +32,7 @@ sds find_mpd_conf(void) {
     sds filename = sdsempty();
     for (const char **p = filenames; *p != NULL; p++) {
         filename = sdsreplace(filename, *p);
-        FILE *fp = fopen(filename, "r");
+        FILE *fp = fopen(filename, OPEN_FLAGS_READ);
         if (fp != NULL) { /* Flawfinder: ignore */
             fclose(fp);
             return filename;
@@ -47,7 +47,7 @@ sds get_mpd_conf(const char *key, const char *default_value) {
     sds last_value = sdsnew(default_value);
     sds mpd_conf = find_mpd_conf();
     errno = 0;
-    FILE *fp = fopen(mpd_conf, "r");
+    FILE *fp = fopen(mpd_conf, OPEN_FLAGS_READ);
     if (fp == NULL) {
         MYMPD_LOG_WARN("Error opening MPD configuration file \"%s\": ", mpd_conf);
         MYMPD_LOG_ERRNO(errno);

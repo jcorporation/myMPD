@@ -645,7 +645,7 @@ static sds set_default_navbar_icons(struct t_config *config, sds buffer) {
     sdsclear(buffer);
     buffer = sdscat(buffer, default_navbar_icons);
     errno = 0;
-    FILE *fp = fopen(file_name, "w");
+    FILE *fp = fopen(file_name, OPEN_FLAGS_WRITE);
     if (fp == NULL) {
         MYMPD_LOG_ERROR("Can not open file \"%s\" for write", file_name);
         MYMPD_LOG_ERRNO(errno);
@@ -665,7 +665,7 @@ static sds read_navbar_icons(struct t_config *config) {
     sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->workdir);
     sds buffer = sdsempty();
     errno = 0;
-    FILE *fp = fopen(file_name, "r");
+    FILE *fp = fopen(file_name, OPEN_FLAGS_READ);
     if (fp == NULL) {
         if (errno != ENOENT) {
             MYMPD_LOG_ERROR("Can not open file \"%s\"", file_name);

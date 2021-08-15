@@ -438,7 +438,7 @@ bool timerfile_read(struct t_mympd_state *mympd_state) {
     char *line = NULL;
     size_t n = 0;
     errno = 0;
-    FILE *fp = fopen(timer_file, "r");
+    FILE *fp = fopen(timer_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
         while (getline(&line, &n, fp) > 0) {
             struct t_timer_definition *timer_def = malloc(sizeof(struct t_timer_definition));

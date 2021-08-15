@@ -130,7 +130,7 @@ sds get_ext_by_mime_type(const char *mime_type) {
 
 sds get_mime_type_by_magic(const char *filename) {
     errno = 0;
-    FILE *fp = fopen(filename, "rb");
+    FILE *fp = fopen(filename, OPEN_FLAGS_READ_BIN);
     if (fp == NULL) {
         MYMPD_LOG_ERROR("Can not open file \"%s\"", filename);
         MYMPD_LOG_ERRNO(errno);

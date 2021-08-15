@@ -67,7 +67,7 @@ bool mympd_api_save_home_icon(struct t_mympd_state *mympd_state, bool replace, u
 bool mympd_api_read_home_list(struct t_mympd_state *mympd_state) {
     sds home_file = sdscatfmt(sdsempty(), "%s/state/home_list", mympd_state->config->workdir);
     errno = 0;
-    FILE *fp = fopen(home_file, "r");
+    FILE *fp = fopen(home_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
         char *line = NULL;
         char *crap = NULL;

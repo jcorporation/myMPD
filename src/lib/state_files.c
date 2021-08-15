@@ -50,7 +50,7 @@ sds state_file_rw_string(const char *workdir, const char *dir, const char *name,
     
     sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", workdir, dir, name);
     errno = 0;
-    FILE *fp = fopen(cfg_file, "r");
+    FILE *fp = fopen(cfg_file, OPEN_FLAGS_READ);
     if (fp == NULL) {
         if (warn == true) {
             MYMPD_LOG_WARN("Can not open file \"%s\"", cfg_file);

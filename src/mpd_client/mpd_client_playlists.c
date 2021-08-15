@@ -36,7 +36,7 @@ bool smartpls_default(struct t_config *config) {
     //try to get prefix from state file, fallback to config value
     sds prefix = sdsempty();
     sds prefix_file = sdscatfmt(sdsempty(), "%s/state/smartpls_prefix", config->workdir);
-    FILE *fp = fopen(prefix_file, "r");
+    FILE *fp = fopen(prefix_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
         size_t n = 0;
         char *line = NULL;

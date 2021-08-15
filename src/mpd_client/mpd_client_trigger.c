@@ -183,7 +183,7 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
     size_t n = 0;
     ssize_t read = 0;
     errno = 0;
-    FILE *fp = fopen(trigger_file, "r");
+    FILE *fp = fopen(trigger_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
         while ((read = getline(&line, &n, fp)) > 0) {
             char *name;

@@ -21,7 +21,7 @@ sds get_dnsserver(void) {
     //read resolv.conf directly - musl does not support res_init
     sds buffer = sdsempty();
     errno = 0;
-    FILE *fp = fopen("/etc/resolv.conf", "r");
+    FILE *fp = fopen("/etc/resolv.conf", OPEN_FLAGS_READ);
     if (fp == NULL) {
         MYMPD_LOG_WARN("Can not open /etc/resolv.conf");
         MYMPD_LOG_ERRNO(errno);

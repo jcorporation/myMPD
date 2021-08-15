@@ -109,7 +109,7 @@ static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool syn
     MYMPD_LOG_DEBUG("Trying to open lyrics file: %s", lyricsfile);
     sdsfree(filename_cpy);
     errno = 0;
-    FILE *fp = fopen(lyricsfile, "r");
+    FILE *fp = fopen(lyricsfile, OPEN_FLAGS_READ);
     sdsfree(lyricsfile);
     if (fp != NULL) {
         if (returned_entities > 0) {

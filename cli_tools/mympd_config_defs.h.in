@@ -37,4 +37,9 @@
 #define VARLIB_PATH "${VARLIB_PATH}"
 #define LUALIBS_PATH "${LUALIBS_PATH}"
 
+//io defaults
+#define OPEN_FLAGS_READ "re"
+#define OPEN_FLAGS_READ_BIN "rbe"
+#define OPEN_FLAGS_WRITE "w"
+
 #endif

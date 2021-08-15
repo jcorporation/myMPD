@@ -36,12 +36,12 @@ void start_migrate_conf(const char *workdir) {
     }
     MYMPD_LOG_INFO("Detected old configuration, migrating mympd.conf");
     //find and open mympd.conf
-    FILE *fp = fopen("/etc/mympd.conf", "r");
+    FILE *fp = fopen("/etc/mympd.conf", OPEN_FLAGS_READ);
     if (fp == NULL) {
-        fp = fopen("/etc/webapps/mympd/mympd.conf", "r");
+        fp = fopen("/etc/webapps/mympd/mympd.conf", OPEN_FLAGS_READ);
     }
     if (fp == NULL) {
-        fp = fopen("/etc/opt/mympd.conf", "r");
+        fp = fopen("/etc/opt/mympd.conf", OPEN_FLAGS_READ);
     }
     if (fp == NULL) {
         return;
@@ -111,7 +111,7 @@ void start_migrate_workdir(const char *workdir) {
 static bool is_old_config(const char *workdir) {
     //check for pre v8 version
     sds filename = sdscatprintf(sdsempty(), "%s/state/advanced", workdir);
-    FILE *fp = fopen(filename, "r");
+    FILE *fp = fopen(filename, OPEN_FLAGS_READ);
     sdsfree(filename);
     if (fp == NULL) {
         return false;

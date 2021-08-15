@@ -53,7 +53,7 @@ bool mpd_client_last_played_list_save(struct t_mympd_state *mympd_state) {
     size_t n = 0;
     sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->workdir);
     errno = 0;
-    FILE *fi = fopen(lp_file, "r");
+    FILE *fi = fopen(lp_file, OPEN_FLAGS_READ);
     if (fi != NULL) {
         while (getline(&line, &n, fi) > 0 && i < mympd_state->last_played_count) {
             fputs(line, fp);
@@ -147,7 +147,7 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
     size_t n = 0;
     sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->workdir);
     errno = 0;
-    FILE *fp = fopen(lp_file, "r");
+    FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
         while (getline(&line, &n, fp) > 0) {
             entity_count++;

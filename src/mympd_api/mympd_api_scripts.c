@@ -167,7 +167,7 @@ bool mympd_api_script_save(struct t_config *config, const char *script, int orde
 sds mympd_api_script_get(struct t_config *config, sds buffer, sds method, long request_id, const char *script) {
     sds scriptfilename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->workdir, script);
     errno = 0;
-    FILE *fp = fopen(scriptfilename, "r");
+    FILE *fp = fopen(scriptfilename, OPEN_FLAGS_READ);
     if (fp != NULL) {
         buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = tojson_char(buffer, "script", script, true);
@@ -251,7 +251,7 @@ bool mympd_api_script_start(struct t_config *config, const char *script, struct 
 //private functions
 static sds parse_script_metadata(sds entry, const char *scriptfilename, int *order) {
     errno = 0;
-    FILE *fp = fopen(scriptfilename, "r");
+    FILE *fp = fopen(scriptfilename, OPEN_FLAGS_READ);
     if (fp == NULL) {
         MYMPD_LOG_ERROR("Can not open file \"%s\": %s", scriptfilename);
         MYMPD_LOG_ERRNO(errno);
