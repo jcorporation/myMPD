@@ -1,7 +1,6 @@
 // Copyright (c) 2008-2010 Bjoern Hoehrmann <bjoern@hoehrmann.de>
 // See http://bjoern.hoehrmann.de/utf-8/decoder/dfa/ for details.
 
-#include <inttypes.h>
 #include "utf8decode.h"
 
 static const uint8_t utf8d[] = {
@@ -25,7 +24,7 @@ static const uint8_t utf8d[] = {
     12,36,12,12,12,12,12,12,12,12,12,12, 
 };
 
-uint32_t decode_utf8(uint32_t* state, uint32_t* codep, uint32_t byte) {
+uint32_t decode_utf8(uint32_t *state, uint32_t *codep, uint32_t byte) {
     uint32_t type = utf8d[byte];
 
     *codep = (*state != UTF8_ACCEPT) ?
@@ -34,4 +33,16 @@ uint32_t decode_utf8(uint32_t* state, uint32_t* codep, uint32_t byte) {
 
     *state = utf8d[256 + *state + type];
     return *state;
+}
+
+int check_utf8(uint8_t* s, int len) {
+    uint32_t codepoint;
+    uint32_t state = 0;
+
+    for (int i = 0; i < len; i++, ++s) {
+        if (decode_utf8(&state, &codepoint, *s) == UTF8_REJECT) {
+            return UTF8_REJECT;
+        }
+    }
+    return UTF8_ACCEPT;
 }
