@@ -595,6 +595,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
         }
         MYMPD_LOG_INFO("Redirecting to %s", s_redirect);
         http_send_header_redirect(nc, s_redirect);
+        nc->is_draining = 1;
         sdsfreesplitres(tokens, count);
         sdsfree(host_header);
         sdsfree(s_redirect);
