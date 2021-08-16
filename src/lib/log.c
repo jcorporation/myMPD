@@ -49,7 +49,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     if (log_to_syslog == true) {
         va_list args;
         va_start(args, fmt);
-        vsyslog(level, fmt, args);
+        vsyslog(level, fmt, args); // NOLINT(clang-diagnostic-format-nonliteral)
         va_end(args);
         return;
     }

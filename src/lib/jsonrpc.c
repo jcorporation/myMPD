@@ -9,10 +9,10 @@
 
 #include "../../dist/src/mjson/mjson.h"
 #include "api.h"
-#include "limits.h"
 #include "log.h"
 #include "sds_extras.h"
 
+#include <limits.h>
 #include <string.h>
 
 void send_jsonrpc_notify(const char *facility, const char *severity, const char *message) {

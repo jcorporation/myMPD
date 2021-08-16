@@ -125,7 +125,7 @@ bool sds_json_unescape(const char *src, int slen, sds *dst) {
                     return false;
                 }
             }
-            else if ((p = (char *) strchr(esc1, *src)) != NULL) {
+            else if ((p = strchr(esc1, *src)) != NULL) {
                 *dst = sdscatprintf(*dst, "%c", esc2[p - esc1]);
             }
             else {

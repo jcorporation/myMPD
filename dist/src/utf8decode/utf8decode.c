@@ -35,7 +35,7 @@ uint32_t decode_utf8(uint32_t *state, uint32_t *codep, uint32_t byte) {
     return *state;
 }
 
-int check_utf8(uint8_t* s, int len) {
+int check_utf8(uint8_t* s, size_t len) {
     uint32_t codepoint;
     uint32_t state = 0;
 
