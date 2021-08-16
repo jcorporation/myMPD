@@ -7,7 +7,6 @@
 #include "mympd_config_defs.h"
 #include "web_server.h"
 
-#include "../dist/src/frozen/frozen.h"
 #include "../dist/src/utf8decode/utf8decode.h"
 #include "lib/api.h"
 #include "lib/http_client.h"
@@ -30,8 +29,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 #endif
 static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
-static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, struct t_mg_user_data *mg_user_data);
-static bool handle_script_api(long long conn_id, struct mg_http_message *hm);
+static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data);
+static bool handle_script_api(long long conn_id, sds body);
 static void mpd_stream_proxy_forward(struct mg_http_message *hm, struct mg_connection *nc);
 static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 
@@ -417,7 +416,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     send_error(nc, 403, "Request blocked by ACL");
                     break;
                 }
-                bool rc = handle_script_api((long long)nc->id, hm);
+                sds body = sdsnewlen(hm->body.ptr, hm->body.len);
+                bool rc = handle_script_api((long long)nc->id, body);
+                sdsfree(body);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Invalid script API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
@@ -448,7 +449,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             else if (mg_http_match_uri(hm, "/api/")) {
                 //api request
-                bool rc = handle_api(nc, hm, mg_user_data);
+                sds body = sdsnewlen(hm->body.ptr, hm->body.len);
+                struct mg_str *auth_header = mg_http_get_header(hm, "Authorization");
+                bool rc = handle_api(nc, body, auth_header, mg_user_data);
+                sdsfree(body);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Invalid API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
@@ -607,37 +611,50 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
 }
 #endif
 
-static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, struct t_mg_user_data *mg_user_data) {
-    MYMPD_LOG_DEBUG("API request (%lld): %.*s", (long long)nc->id, hm->body.len, hm->body.ptr);
+static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data) {
+    MYMPD_LOG_DEBUG("API request (%lld): %s", (long long)nc->id, body);
     
     //first check if request is valid utf8
-    if (check_utf8((uint8_t *)hm->body.ptr, hm->body.len) == UTF8_REJECT) {
-        MYMPD_LOG_ERROR("Request is not valid utf8");    
+    if (check_utf8((uint8_t *)body, sdslen(body)) == UTF8_REJECT) {
+        MYMPD_LOG_ERROR("Request is not valid utf8");
         return false;
     }
     
-    char *cmd = NULL;
-    char *jsonrpc = NULL;
+    sds cmd = sdsempty();
+    sds jsonrpc = sdsempty();
     int id = 0;
-    int je = json_scanf(hm->body.ptr, (int)hm->body.len, "{jsonrpc: %Q, method: %Q, id: %d}", &jsonrpc, &cmd, &id);
-    if (je < 3) {
-        FREE_PTR(cmd);
-        FREE_PTR(jsonrpc);
+
+    if (json_get_string(body, "$.jsonrpc", 3, 3, &jsonrpc) == false ||
+        json_get_string_max(body, "$.method", &cmd) == false ||
+        json_get_int(body, "$.id", 0, 0, &id) == false)
+    {
+        MYMPD_LOG_ERROR("Invalid jsonrpc2 request");
+        sdsfree(cmd);
+        sdsfree(jsonrpc);
         return false;
     }
+
+    if (strncmp(jsonrpc, "2.0", 3) != 0) {
+        MYMPD_LOG_ERROR("Invalid jsonrpc version \"%s\"", jsonrpc);
+        sdsfree(cmd);
+        sdsfree(jsonrpc);
+        return false;
+    }
+
     MYMPD_LOG_INFO("API request (%lld): %s", (long long)nc->id, cmd);
 
     enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
-    if (cmd_id == GENERAL_API_UNKNOWN || strncmp(jsonrpc, "2.0", 3) != 0) {
-        FREE_PTR(cmd);
-        FREE_PTR(jsonrpc);
+    if (cmd_id == GENERAL_API_UNKNOWN) {
+        MYMPD_LOG_ERROR("Unknown API method");
+        sdsfree(cmd);
+        sdsfree(jsonrpc);
         return false;
     }
     
     if (is_public_api_method(cmd_id) == false) {
         MYMPD_LOG_ERROR("API method %s is for internal use only", cmd);
-        FREE_PTR(cmd);
-        FREE_PTR(jsonrpc);
+        sdsfree(cmd);
+        sdsfree(jsonrpc);
         return false;
     }
     
@@ -646,10 +663,9 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
     if (sdslen(mg_user_data->config->pin_hash) > 0 && is_protected_api_method(cmd_id) == true) {
         //format of authorization header must be: Bearer x
         //bearer token must be 20 characters long
-        struct mg_str *session_header = mg_http_get_header(hm, "Authorization");
         bool rc = false;
-        if (session_header != NULL && session_header->len == 27 && strncmp(session_header->ptr, "Bearer ", 7) == 0) {
-            session = sdscatlen(session, session_header->ptr, session_header->len);
+        if (auth_header != NULL && auth_header->len == 27 && strncmp(auth_header->ptr, "Bearer ", 7) == 0) {
+            session = sdscatlen(session, auth_header->ptr, auth_header->len);
             sdsrange(session, 7, -1);
             rc = validate_session(&mg_user_data->session_list, session);
         }
@@ -666,8 +682,8 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
                 "Content-Length: %d\r\n\r\n", 
                 sdslen(response));
             mg_send(nc, response, sdslen(response));
-            FREE_PTR(cmd);
-            FREE_PTR(jsonrpc);
+            sdsfree(cmd);
+            sdsfree(jsonrpc);
             return true;
         }
         MYMPD_LOG_INFO("API request is authorized");
@@ -676,13 +692,12 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
     
     switch(cmd_id) {
         case MYMPD_API_SESSION_LOGIN: {
-            char *pin = NULL;
+            sds pin = sdsempty();
             bool is_valid = false;
-            je = json_scanf(hm->body.ptr, (int)hm->body.len, "{params: {pin: %Q}}", &pin);
-            if (je == 1 && strlen(pin) > 0) {
+            if (json_get_string(body, "$.params.pin", 1, 20, &pin) == true) {
                 is_valid = validate_pin(pin, mg_user_data->config->pin_hash);
             }
-            FREE_PTR(pin);
+            sdsfree(pin);
             sds response;
             if (is_valid == true) {
                 sds ses = new_session(&mg_user_data->session_list);
@@ -724,58 +739,59 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
         }
         default: {
             //forward API request to mympd_api_handler
-            sds data = sdscatlen(sdsempty(), hm->body.ptr, hm->body.len);
-            t_work_request *request = create_request((long long)nc->id, id, cmd_id, data);
-            sdsfree(data);
+            t_work_request *request = create_request((long long)nc->id, id, cmd_id, body);
             tiny_queue_push(mympd_api_queue, request, 0);
         }
     }
     sdsfree(session);
-    FREE_PTR(cmd);
-    FREE_PTR(jsonrpc);
+    sdsfree(cmd);
+    sdsfree(jsonrpc);
     return true;
 }
 
-static bool handle_script_api(long long conn_id, struct mg_http_message *hm) {
-    MYMPD_LOG_DEBUG("Script API request (%lld): %.*s", conn_id, hm->body.len, hm->body.ptr);
+static bool handle_script_api(long long conn_id, sds body) {
+    MYMPD_LOG_DEBUG("Script API request (%lld): %s", conn_id, body);
 
     //first check if request is valid utf8
-    if (check_utf8((uint8_t *)hm->body.ptr, hm->body.len) == UTF8_REJECT) {
+    if (check_utf8((uint8_t *)body, sdslen(body)) == UTF8_REJECT) {
         MYMPD_LOG_ERROR("Request is not valid utf8");    
         return false;
     }
 
-    char *cmd = NULL;
-    char *jsonrpc = NULL;
-    long id = 0;
-    const int je = json_scanf(hm->body.ptr, (int)hm->body.len, "{jsonrpc: %Q, method: %Q, id: %ld}", &jsonrpc, &cmd, &id);
-    if (je < 3) {
-        FREE_PTR(cmd);
-        FREE_PTR(jsonrpc);
+    sds cmd = sdsempty();
+    sds jsonrpc = sdsempty();
+    int id = 0;
+
+    if (json_get_string(body, "$.jsonrpc", 3, 3, &jsonrpc) == false ||
+        json_get_string_max(body, "$.method", &cmd) == false ||
+        json_get_int(body, "$.id", 0, 0, &id))
+    {
+        sdsfree(cmd);
+        sdsfree(jsonrpc);
         return false;
     }
+
+    if (strncmp(jsonrpc, "2.0", 3) != 0) {
+        MYMPD_LOG_ERROR("Invalid jsonrpc version \"%s\"", jsonrpc);
+        sdsfree(cmd);
+        sdsfree(jsonrpc);
+        return false;
+    }
+
     MYMPD_LOG_INFO("Script API request (%lld): %s", conn_id, cmd);
 
-    enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
-    if (cmd_id == 0 || strncmp(jsonrpc, "2.0", 3) != 0) {
-        FREE_PTR(cmd);
-        FREE_PTR(jsonrpc);
-        return false;
-    }
-    
+    enum mympd_cmd_ids cmd_id = get_cmd_id(cmd); 
     if (cmd_id != INTERNAL_API_SCRIPT_POST_EXECUTE) {
         MYMPD_LOG_ERROR("API method %s is invalid for this uri", cmd);
-        FREE_PTR(cmd);
-        FREE_PTR(jsonrpc);
+        sdsfree(cmd);
+        sdsfree(jsonrpc);
         return false;
     }
     
-    sds data = sdscatlen(sdsempty(), hm->body.ptr, hm->body.len);
-    t_work_request *request = create_request(conn_id, id, cmd_id, data);
-    sdsfree(data);
+    t_work_request *request = create_request(conn_id, id, cmd_id, body);
     tiny_queue_push(mympd_api_queue, request, 0);
 
-    FREE_PTR(cmd);
-    FREE_PTR(jsonrpc);
+    sdsfree(cmd);
+    sdsfree(jsonrpc);
     return true;
 }
