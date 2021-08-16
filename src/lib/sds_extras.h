@@ -9,8 +9,11 @@
 
 #include "../../dist/src/sds/sds.h"
 
+#include <stdbool.h>
+
 sds sdscatjson(sds s, const char *p, size_t len);
 sds sdscatjsonchar(sds s, const char p);
+bool sds_json_unescape(const char *src, int slen, sds *dst);
 sds sdsurldecode(sds s, const char *p, size_t len, int is_form_url_encoded);
 sds sdscrop(sds s);
 sds sdsreplacelen(sds s, const char *value, size_t len);

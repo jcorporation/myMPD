@@ -31,4 +31,13 @@ sds tojson_bool(sds buffer, const char *key, bool value, bool comma);
 sds tojson_long(sds buffer, const char *key, long long value, bool comma);
 sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma);
 sds tojson_double(sds buffer, const char *key, double value, bool comma);
+
+bool json_get_bool(sds s, const char *path, bool *result);
+bool json_get_int_max(sds s, const char *path, int *result);
+bool json_get_int(sds s, const char *path, int min, int max, int *result);
+bool json_get_uint_max(sds s, const char *path, unsigned *result);
+bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned *result);
+bool json_get_string_max(sds s, const char *path, sds *result);
+bool json_get_string(sds s, const char *path, int min, int max, sds *result);
+
 #endif

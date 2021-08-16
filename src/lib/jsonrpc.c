@@ -7,7 +7,9 @@
 #include "mympd_config_defs.h"
 #include "jsonrpc.h"
 
+#include "../../dist/src/mjson/mjson.h"
 #include "api.h"
+#include "limits.h"
 #include "log.h"
 #include "sds_extras.h"
 
@@ -188,4 +190,67 @@ sds tojson_double(sds buffer, const char *key, double value, bool comma) {
         buffer = sdscat(buffer, ",");
     }
     return buffer;
+}
+
+bool json_get_bool(sds s, const char *path, bool *result) {
+    int v;
+    if (mjson_get_bool(s, (int)sdslen(s), path, &v) != 0) {
+        *result = v == 1 ? true : false;
+        return true;
+    }
+    return false;
+}
+
+bool json_get_int_max(sds s, const char *path, int *result) {
+    return json_get_int(s, path, INT_MIN, INT_MAX, result);
+}
+
+bool json_get_int(sds s, const char *path, int min, int max, int *result) {
+    double value;
+    if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
+        if (value >= min && value <= max) {
+            *result = (int)value;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool json_get_uint_max(sds s, const char *path, unsigned *result) {
+    return json_get_uint(s, path, 0, UINT_MAX, result);
+}
+
+bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned *result) {
+    double value;
+    if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
+        if (value >= min && value <= max) {
+            *result = (unsigned)value;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool json_get_string_max(sds s, const char *path, sds *result) {
+    return json_get_string(s, path, 0, 200, result);
+}
+
+bool json_get_string(sds s, const char *path, int min, int max, sds *result) {
+    const char *p;
+    int n;
+    if (mjson_find(s, (int)sdslen(s), path, &p, &n) == MJSON_TOK_STRING) {
+        if (n <= 2) {
+            //empty string
+            return min == 0 ? true : false;
+        }
+        if (n > 2) {
+            //remove quotes
+            n = n - 2;
+            p++;
+        }
+        if (n >= min && n <= max) {
+            return sds_json_unescape(p, n, result);
+        }
+    }
+    return false;
 }

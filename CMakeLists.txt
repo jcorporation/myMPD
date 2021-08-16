@@ -141,6 +141,7 @@ else()
 endif()
 
 set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_DIRECTORY_LISTING=1")
+set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABLE_RPC=0 -D MJSON_ENABLE_PRETTY=0 -D MJSON_ENABLE_MERGE=0")
 
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
   set(MONGOOSE_FLAGS "${MONGOOSE_FLAGS} -DMG_ENABLE_LOG=0")
@@ -152,6 +153,9 @@ set(MYMPD_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrit
 #compiler flags for mympd src
 file(GLOB MYMPD_SRC_FILES1 "src/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES1} PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS} ${MONGOOSE_FLAGS}")
+
+file(GLOB MYMPD_SRC_FILES1 "src/lib/*.c")
+set_property(SOURCE ${MYMPD_SRC_FILES1} PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS} ${MJSON_FLAGS}")
 
 file(GLOB MYMPD_SRC_FILES2 "src/mpd_client/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES2} PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS}")
@@ -171,6 +175,9 @@ set_property(SOURCE ${MYMPD_SRC_FILES6} PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS}")
 #compiler flags for frozen
 set_property(SOURCE dist/src/frozen/frozen.c PROPERTY COMPILE_FLAGS "-Wno-stringop-overflow")
 
+#compiler flags for mjson
+set_property(SOURCE dist/src/mjson/mjson.c PROPERTY COMPILE_FLAGS "${MJSON_FLAGS}")
+
 #compiler flags for mongoose
 set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "${MONGOOSE_FLAGS}")
 
@@ -179,6 +186,7 @@ set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
 
 set(SOURCES
   dist/src/frozen/frozen.c
+  dist/src/mjson/mjson.c
   dist/src/mongoose/mongoose.c
   dist/src/rax/rax.c
   dist/src/sds/sds.c
