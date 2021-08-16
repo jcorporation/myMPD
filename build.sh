@@ -399,7 +399,7 @@ check() {
   if check_cmd cppcheck
   then
     echo "Running cppcheck"
-    [ -z "${CPPCHECKOPTS+z}" ] && CPPCHECKOPTS="--enable=warning"
+    [ -z "${CPPCHECKOPTS+z}" ] && CPPCHECKOPTS="-q --force --enable=warning"
     cppcheck $CPPCHECKOPTS src/*.c src/*.h
     cppcheck $CPPCHECKOPTS src/mpd_client/*.c src/mpd_client/*.h
     cppcheck $CPPCHECKOPTS src/mympd_api/*.c src/mympd_api/*.h
@@ -412,7 +412,7 @@ check() {
   if check_cmd flawfinder
   then
     echo "Running flawfinder"
-    [ -z "${FLAWFINDEROPTS+z}" ] && FLAWFINDEROPTS="-m3"
+    [ -z "${FLAWFINDEROPTS+z}" ] && FLAWFINDEROPTS="-m3 --quiet --dataonly"
     flawfinder $FLAWFINDEROPTS src
     flawfinder $FLAWFINDEROPTS cli_tools
   else
@@ -454,8 +454,8 @@ check() {
 
     find ./ -name '*.c' -exec clang-tidy \
     	--checks="$CHECKS" \
-    	--header-filter=".*" {}  \; >> ../clang-tidy.out
-    grep -v -E "(memset|memcpy)" ../clang-tidy.out
+    	--header-filter=".*" {}  \; >> ../clang-tidy.out 2>/dev/null
+    grep -v -E "(memset|memcpy|\^)" ../clang-tidy.out
   else
     echo "clang-tidy not found"  
   fi
@@ -1102,8 +1102,8 @@ case "$ACTION" in
       echo "Test options:"
 	  echo "  check:            runs cppcheck, flawfinder and clang-tidy on source files"
 	  echo "                    following environment variables are respected"
-	  echo "                      - CPPCHECKOPTS=\"--enable=warning\""
-	  echo "                      - FLAWFINDEROPTS=\"-m3\""
+	  echo "                      - CPPCHECKOPTS=\"-q --force --enable=warning\""
+	  echo "                      - FLAWFINDEROPTS=\"-m3 --quiet --dataonly\""
 	  echo "  check_docs        checks the documentation for missing API methods"
 	  echo "  check_includes    checks for rigth include paths"
 	  echo "  eslint:           combines javascript files and runs eslint"
