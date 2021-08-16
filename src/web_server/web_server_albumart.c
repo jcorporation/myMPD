@@ -93,10 +93,9 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
         coverfile = find_image_file(coverfile);
         
         if (sdslen(coverfile) > 0) {
-            sds mime_type = get_mime_type_by_ext(coverfile);
+            const char *mime_type = get_mime_type_by_ext(coverfile);
             MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
             mg_http_serve_file(nc, hm, coverfile, mime_type, EXTRA_HEADERS_CACHE);
-            sdsfree(mime_type);
         }
         else {
             serve_stream_image(nc, hm);
@@ -116,12 +115,11 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
         sdsfree(filename);
         covercachefile = find_image_file(covercachefile);
         if (sdslen(covercachefile) > 0) {
-            sds mime_type = get_mime_type_by_ext(covercachefile);
+            const char *mime_type = get_mime_type_by_ext(covercachefile);
             MYMPD_LOG_DEBUG("Serving file %s (%s)", covercachefile, mime_type);
             mg_http_serve_file(nc, hm, covercachefile, mime_type, EXTRA_HEADERS_CACHE);
             sdsfree(uri_decoded);
             sdsfree(covercachefile);
-            sdsfree(mime_type);
             return true;
         }
 
@@ -147,13 +145,12 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
                     coverfile = find_image_file(coverfile);
                 }
                 if (sdslen(coverfile) > 0 && access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
-                    sds mime_type = get_mime_type_by_ext(coverfile);
+                    const char *mime_type = get_mime_type_by_ext(coverfile);
                     MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
                     mg_http_serve_file(nc, hm, coverfile, mime_type, EXTRA_HEADERS_CACHE);
                     sdsfree(uri_decoded);
                     sdsfree(coverfile);
                     sdsfree(mediafile);
-                    sdsfree(mime_type);
                     sdsfree(path); 
                     return true;
                 }
@@ -195,7 +192,7 @@ static bool handle_coverextract(struct mg_connection *nc, struct t_config *confi
                                 const char *uri, const char *media_file, bool covercache)
 {
     bool rc = false;
-    sds mime_type_media_file = get_mime_type_by_ext(media_file);
+    const char *mime_type_media_file = get_mime_type_by_ext(media_file);
     MYMPD_LOG_DEBUG("Handle coverextract for uri \"%s\"", uri);
     MYMPD_LOG_DEBUG("Mimetype of %s is %s", media_file, mime_type_media_file);
     sds binary = sdsempty();
@@ -208,16 +205,14 @@ static bool handle_coverextract(struct mg_connection *nc, struct t_config *confi
     else if (strcmp(mime_type_media_file, "audio/flac") == 0) {
         rc = handle_coverextract_flac(config, uri, media_file, &binary, false, covercache);
     }
-    sdsfree(mime_type_media_file);
     if (rc == true) {
-        sds mime_type = get_mime_type_by_magic_stream(binary);
+        const char *mime_type = get_mime_type_by_magic_stream(binary);
         MYMPD_LOG_DEBUG("Serving coverimage for \"%s\" (%s)", media_file, mime_type);
         sds header = sdscatfmt(sdsempty(), "Content-Type: %s", mime_type);
         header = sdscat(header, EXTRA_HEADERS_CACHE);
         http_send_header_ok(nc, sdslen(binary), header);
         mg_send(nc, binary, sdslen(binary));
         sdsfree(header);
-        sdsfree(mime_type);
     }
     sdsfree(binary);
     return rc;

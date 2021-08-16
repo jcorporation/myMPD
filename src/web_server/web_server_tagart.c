@@ -35,10 +35,9 @@ bool handle_tagart(struct mg_connection *nc, struct mg_http_message *hm,
     MYMPD_LOG_DEBUG("Absolut media_file: %s", mediafile);
     mediafile = find_image_file(mediafile);
     if (sdslen(mediafile) > 0) {
-        sds mime_type = get_mime_type_by_ext(mediafile);
+        const char *mime_type = get_mime_type_by_ext(mediafile);
         MYMPD_LOG_DEBUG("Serving file %s (%s)", mediafile, mime_type);
         mg_http_serve_file(nc, hm, mediafile, mime_type, EXTRA_HEADERS_CACHE);
-        sdsfree(mime_type);
     }
     else {
         MYMPD_LOG_DEBUG("No image for tag found");

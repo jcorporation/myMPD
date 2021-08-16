@@ -95,7 +95,7 @@ sds find_image_file(sds basefilename) {
     return basefilename;
 }
 
-sds get_mime_type_by_ext(const char *filename) {
+const char *get_mime_type_by_ext(const char *filename) {
     sds ext = get_extension_from_filename(filename);
 
     const struct mime_type_entry *p = NULL;
@@ -112,23 +112,21 @@ sds get_mime_type_by_ext(const char *filename) {
             }
         }
     }
-    sds mime_type = sdsnew(p->mime_type);
     sdsfree(ext);
-    return mime_type;
+    return p->mime_type;
 }
 
-sds get_ext_by_mime_type(const char *mime_type) {
+const char *get_ext_by_mime_type(const char *mime_type) {
     const struct mime_type_entry *p = NULL;
     for (p = image_files; p->extension != NULL; p++) {
         if (strcmp(mime_type, p->mime_type) == 0) {
             break;
         }
     }
-    sds ext = sdsnew(p->extension);
-    return ext;
+    return p->extension;
 }
 
-sds get_mime_type_by_magic(const char *filename) {
+const char *get_mime_type_by_magic(const char *filename) {
     errno = 0;
     FILE *fp = fopen(filename, OPEN_FLAGS_READ_BIN);
     if (fp == NULL) {
@@ -141,12 +139,12 @@ sds get_mime_type_by_magic(const char *filename) {
     MYMPD_LOG_DEBUG("Read %u bytes from file %s", read, filename);
     fclose(fp);
     sds stream = sdsnewlen(binary_buffer, read);
-    sds mime_type = get_mime_type_by_magic_stream(stream);
+    const char *mime_type = get_mime_type_by_magic_stream(stream);
     sdsfree(stream);
     return mime_type;
 }
 
-sds get_mime_type_by_magic_stream(sds stream) {
+const char *get_mime_type_by_magic_stream(sds stream) {
     sds hex_buffer = sdsempty();
     size_t len = sdslen(stream) < 8 ? sdslen(stream) : 8;
     for (size_t i = 0; i < len; i++) {
@@ -163,6 +161,5 @@ sds get_mime_type_by_magic_stream(sds stream) {
         MYMPD_LOG_WARN("Could not get mime type from bytes \"%s\"", hex_buffer);
     }
     sdsfree(hex_buffer);
-    sds mime_type = sdsnew(p->mime_type);
-    return mime_type;
+    return p->mime_type;
 }

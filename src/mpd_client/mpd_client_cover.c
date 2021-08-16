@@ -53,14 +53,13 @@ sds mpd_client_getcover(struct t_mympd_state *mympd_state, sds buffer, sds metho
     free(binary_buffer);
     if (offset > 0) {
         MYMPD_LOG_DEBUG("Albumart found by mpd for uri \"%s\"", uri);
-        sds mime_type = get_mime_type_by_magic_stream(*binary);
+        const char *mime_type = get_mime_type_by_magic_stream(*binary);
         buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = tojson_char(buffer, "mime_type", mime_type, false);
         buffer = jsonrpc_result_end(buffer);
         if (mympd_state->covercache_keep_days > 0) {
             write_covercache_file(mympd_state->config->workdir, uri, mime_type, *binary);
         }
-        sdsfree(mime_type);
     }
     else {
         MYMPD_LOG_DEBUG("No albumart found by mpd for uri \"%s\"", uri);

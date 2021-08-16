@@ -38,7 +38,7 @@ bool write_covercache_file(const char *workdir, const char *uri, const char *mim
         FILE *fp = fdopen(fd, "w");
         fwrite(binary, 1, sdslen(binary), fp);
         fclose(fp);
-        sds ext = get_ext_by_mime_type(mime_type);
+        const char *ext = get_ext_by_mime_type(mime_type);
         sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", workdir, filename, ext);
         errno = 0;
         if (rename(tmp_file, cover_file) == -1) {
@@ -51,7 +51,6 @@ bool write_covercache_file(const char *workdir, const char *uri, const char *mim
             }
         }
         MYMPD_LOG_DEBUG("Write covercache file \"%s\" for uri \"%s\"", cover_file, uri);
-        sdsfree(ext);
         sdsfree(cover_file);
         rc = true;
     }

@@ -185,27 +185,24 @@ void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, con
     struct t_config *config = mg_user_data->config;
     
     sds asset_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, name);
-    sds mime_type;
     asset_image = find_image_file(asset_image);
     if (sdslen(asset_image) > 0) {
-        mime_type = get_mime_type_by_ext(asset_image);
+        const char *mime_type = get_mime_type_by_ext(asset_image);
         mg_http_serve_file(nc, hm, asset_image, mime_type, EXTRA_HEADERS_CACHE);
+        MYMPD_LOG_DEBUG("Serving custom asset image \"%s\" (%s)", asset_image, mime_type);
     }
     else {
         asset_image = sdscrop(asset_image);
         #ifdef DEBUG
         asset_image = sdscatfmt(asset_image, "%s/assets/%s.svg", DOC_ROOT, name);
-        mime_type = get_mime_type_by_ext(asset_image);
         mg_http_serve_file(nc, hm, asset_image, "image/svg+xml", EXTRA_HEADERS_CACHE);
         #else
         asset_image = sdscatfmt(asset_image, "/assets/%s.svg", name);
-        mime_type = sdsempty();
         serve_embedded_files(nc, asset_image, hm);
         #endif
+        MYMPD_LOG_DEBUG("Serving asset image \"%s\" (image/svg+xml)", asset_image);
     }
-    MYMPD_LOG_DEBUG("Serving file \"%s\" (%s)", asset_image, mime_type);
     sdsfree(asset_image);
-    sdsfree(mime_type);
 }
 
 #ifndef DEBUG

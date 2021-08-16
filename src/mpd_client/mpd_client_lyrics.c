@@ -30,8 +30,8 @@
 #endif
 
 //privat definitions
-static int _mpd_client_lyrics_unsynced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, sds mime_type_mediafile);
-static int _mpd_client_lyrics_synced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, sds mime_type_mediafile);
+static int _mpd_client_lyrics_unsynced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, const char *mime_type_mediafile);
+static int _mpd_client_lyrics_synced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, const char *mime_type_mediafile);
 static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool synced, int returned_entities);
 static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_entities);
 static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_entities);
@@ -57,19 +57,18 @@ sds mpd_client_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds met
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mympd_state->music_directory_value, uri);
-    sds mime_type_mediafile = get_mime_type_by_ext(mediafile);
+    const char *mime_type_mediafile = get_mime_type_by_ext(mediafile);
     int returned_entities = _mpd_client_lyrics_synced(mympd_state, &buffer, 0, mediafile, mime_type_mediafile);
     returned_entities = _mpd_client_lyrics_unsynced(mympd_state, &buffer, returned_entities, mediafile, mime_type_mediafile);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
     buffer = jsonrpc_result_end(buffer);
-    sdsfree(mime_type_mediafile);
     sdsfree(mediafile);
     return buffer;
 }
 
 //private functions
-static int _mpd_client_lyrics_unsynced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, sds mime_type_mediafile) {
+static int _mpd_client_lyrics_unsynced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, const char *mime_type_mediafile) {
     //try .txt file in folder in the music directory
     returned_entities = lyrics_fromfile(buffer, mediafile, mympd_state->lyrics_uslt_ext, false, returned_entities);
     //get embedded lyrics
@@ -85,7 +84,7 @@ static int _mpd_client_lyrics_unsynced(struct t_mympd_state *mympd_state, sds *b
     return returned_entities;
 }
 
-static int _mpd_client_lyrics_synced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, sds mime_type_mediafile) { 
+static int _mpd_client_lyrics_synced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, const char *mime_type_mediafile) { 
     //try .lrc file in folder in the music directory
     returned_entities = lyrics_fromfile(buffer, mediafile, mympd_state->lyrics_sylt_ext, true, returned_entities);
     //get embedded lyrics
