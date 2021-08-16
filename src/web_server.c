@@ -8,6 +8,7 @@
 #include "web_server.h"
 
 #include "../dist/src/frozen/frozen.h"
+#include "../dist/src/utf8decode/utf8decode.h"
 #include "lib/api.h"
 #include "lib/http_client.h"
 #include "lib/jsonrpc.h"
@@ -237,7 +238,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
                 send_albumart(nc, response->data, response->binary);
             }
             else {
-                http_send_data(nc, response->data, sdslen(response->data), "Content-Type: application/json\r\n");
+                http_send_data(nc, response->data, sdslen(response->data), "Content-Type: application/json; charset=utf-8\r\n");
             }
             break;
         }
@@ -421,7 +422,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     MYMPD_LOG_ERROR("Invalid script API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
                         "script", "error", "Invalid script API request");
-                    http_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+                    http_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
                     sdsfree(response);
                 }
             }
@@ -441,7 +442,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                         response = tojson_char(response, "ip", "", false);
                     }
                     response = jsonrpc_result_end(response);
-                    http_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+                    http_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
                     sdsfree(response);
                 }
             }
@@ -452,7 +453,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     MYMPD_LOG_ERROR("Invalid API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
                         "general", "error", "Invalid API request");
-                    http_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+                    http_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
                     sdsfree(response);
                 }
             }
@@ -607,6 +608,13 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
 
 static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, struct t_mg_user_data *mg_user_data) {
     MYMPD_LOG_DEBUG("API request (%lld): %.*s", (long long)nc->id, hm->body.len, hm->body.ptr);
+    
+    //first check if request is valid utf8
+    if (check_utf8((uint8_t *)hm->body.ptr, hm->body.len) == UTF8_REJECT) {
+        MYMPD_LOG_ERROR("Request is not valid utf8");    
+        return false;
+    }
+    
     char *cmd = NULL;
     char *jsonrpc = NULL;
     int id = 0;
@@ -653,7 +661,7 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
                 (cmd_id == MYMPD_API_SESSION_VALIDATE ? "Invalid session" : "Authentication required"));
             mg_printf(nc, "HTTP/1.1 401 Unauthorized\r\n"
                 "WWW-Authenticate: Bearer realm=\"myMPD\"\r\n"
-                "Content-Type: application/json\r\n"
+                "Content-Type: application/json; charset=utf-8\r\n"
                 "Content-Length: %d\r\n\r\n", 
                 sdslen(response));
             mg_send(nc, response, sdslen(response));
@@ -685,7 +693,7 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
             else {
                 response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGIN", 0, true, "session", "error", "Invalid pin");
             }
-            http_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+            http_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
             sdsfree(response);
             break;
         }
@@ -702,14 +710,14 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
                 response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, true, "session", "error", "Invalid session");
             }
              
-            http_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+            http_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
             sdsfree(response);
             break;
         }
         case MYMPD_API_SESSION_VALIDATE: {
             //session is already validated
             sds response = jsonrpc_respond_ok(sdsempty(), "MYMPD_API_SESSION_VALIDATE", 0, "session");
-            http_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+            http_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
             sdsfree(response);
             break;
         }
