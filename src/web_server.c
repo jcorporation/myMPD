@@ -736,12 +736,14 @@ static bool handle_api(struct mg_connection *nc, struct mg_http_message *hm, str
 }
 
 static bool handle_script_api(long long conn_id, struct mg_http_message *hm) {
-    if (hm->body.len > 4096) {
-        MYMPD_LOG_ERROR("Request length of %d exceeds max request size, discarding request)", hm->body.len);
+    MYMPD_LOG_DEBUG("Script API request (%lld): %.*s", conn_id, hm->body.len, hm->body.ptr);
+
+    //first check if request is valid utf8
+    if (check_utf8((uint8_t *)hm->body.ptr, hm->body.len) == UTF8_REJECT) {
+        MYMPD_LOG_ERROR("Request is not valid utf8");    
         return false;
     }
-    
-    MYMPD_LOG_DEBUG("Script API request (%lld): %.*s", conn_id, hm->body.len, hm->body.ptr);
+
     char *cmd = NULL;
     char *jsonrpc = NULL;
     long id = 0;
