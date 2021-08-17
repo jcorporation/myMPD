@@ -11,6 +11,12 @@
 
 #include <stdbool.h>
 
+#define FREE_SDS(SDS) do { \
+    if (SDS != NULL) \
+        sdsfree(SDS); \
+    SDS = NULL; \
+} while (0)
+
 sds sdscatjson(sds s, const char *p, size_t len);
 sds sdscatjsonchar(sds s, const char p);
 bool sds_json_unescape(const char *src, int slen, sds *dst);

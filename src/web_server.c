@@ -620,24 +620,17 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
         return false;
     }
     
-    sds cmd = sdsempty();
-    sds jsonrpc = sdsempty();
+    sds cmd = NULL;
+    sds jsonrpc = NULL;
     int id = 0;
 
-    if (json_get_string(body, "$.jsonrpc", 3, 3, &jsonrpc) == false ||
+    if (json_get_string_cmp(body, "$.jsonrpc", 3, 3, "2.0", &jsonrpc) == false ||
         json_get_string_max(body, "$.method", &cmd) == false ||
         json_get_int(body, "$.id", 0, 0, &id) == false)
     {
         MYMPD_LOG_ERROR("Invalid jsonrpc2 request");
-        sdsfree(cmd);
-        sdsfree(jsonrpc);
-        return false;
-    }
-
-    if (strncmp(jsonrpc, "2.0", 3) != 0) {
-        MYMPD_LOG_ERROR("Invalid jsonrpc version \"%s\"", jsonrpc);
-        sdsfree(cmd);
-        sdsfree(jsonrpc);
+        FREE_SDS(cmd);
+        FREE_SDS(jsonrpc);
         return false;
     }
 
@@ -682,8 +675,8 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
                 "Content-Length: %d\r\n\r\n", 
                 sdslen(response));
             mg_send(nc, response, sdslen(response));
-            sdsfree(cmd);
-            sdsfree(jsonrpc);
+            FREE_SDS(cmd);
+            FREE_SDS(jsonrpc);
             return true;
         }
         MYMPD_LOG_INFO("API request is authorized");
@@ -698,16 +691,16 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
                 is_valid = validate_pin(pin, mg_user_data->config->pin_hash);
             }
             sdsfree(pin);
-            sds response;
+            sds response = sdsempty();
             if (is_valid == true) {
                 sds ses = new_session(&mg_user_data->session_list);
-                response = jsonrpc_result_start(sdsempty(), "MYMPD_API_SESSION_LOGIN", 0);
+                response = jsonrpc_result_start(response, "MYMPD_API_SESSION_LOGIN", 0);
                 response = tojson_char(response, "session", ses, false);
                 response = jsonrpc_result_end(response);
                 sdsfree(ses);
             }
             else {
-                response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGIN", 0, true, "session", "error", "Invalid pin");
+                response = jsonrpc_respond_message(response, "MYMPD_API_SESSION_LOGIN", 0, true, "session", "error", "Invalid pin");
             }
             http_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
             sdsfree(response);
@@ -758,23 +751,17 @@ static bool handle_script_api(long long conn_id, sds body) {
         return false;
     }
 
-    sds cmd = sdsempty();
-    sds jsonrpc = sdsempty();
+    sds cmd = NULL;
+    sds jsonrpc = NULL;
     int id = 0;
 
-    if (json_get_string(body, "$.jsonrpc", 3, 3, &jsonrpc) == false ||
+    if (json_get_string_cmp(body, "$.jsonrpc", 3, 3, "2.0", &jsonrpc) == false ||
         json_get_string_max(body, "$.method", &cmd) == false ||
-        json_get_int(body, "$.id", 0, 0, &id))
+        json_get_int(body, "$.id", 0, 0, &id) == false)
     {
-        sdsfree(cmd);
-        sdsfree(jsonrpc);
-        return false;
-    }
-
-    if (strncmp(jsonrpc, "2.0", 3) != 0) {
-        MYMPD_LOG_ERROR("Invalid jsonrpc version \"%s\"", jsonrpc);
-        sdsfree(cmd);
-        sdsfree(jsonrpc);
+        MYMPD_LOG_ERROR("Invalid jsonrpc2 request");
+        FREE_SDS(cmd);
+        FREE_SDS(jsonrpc);
         return false;
     }
 

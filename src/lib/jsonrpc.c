@@ -235,22 +235,38 @@ bool json_get_string_max(sds s, const char *path, sds *result) {
     return json_get_string(s, path, 0, 200, result);
 }
 
-bool json_get_string(sds s, const char *path, int min, int max, sds *result) {
+bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const char *cmp, sds *result) {
+    if (json_get_string(s, path, min, max, result) == false ||
+        strcmp(*result, cmp) != 0) 
+    {
+        sdsclear(*result);
+        return false;
+    }
+    return true;
+}
+
+bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *result) {
     const char *p;
     int n;
-    if (mjson_find(s, (int)sdslen(s), path, &p, &n) == MJSON_TOK_STRING) {
-        if (n <= 2) {
-            //empty string
-            return min == 0 ? true : false;
-        }
-        if (n > 2) {
-            //remove quotes
-            n = n - 2;
-            p++;
-        }
-        if (n >= min && n <= max) {
-            return sds_json_unescape(p, n, result);
-        }
+    if (mjson_find(s, (int)sdslen(s), path, &p, &n) != MJSON_TOK_STRING) {
+        *result = NULL;
+        return false;
     }
-    return false;
+    *result = sdsempty();
+    if (n <= 2) {
+        //empty string
+        return min == 0 ? true : false;
+    }
+    if (n > 2) {
+        //remove quotes
+        n = n - 2;
+        p++;
+    }
+    if ((sds_json_unescape(p, n, result) == false) ||
+        (sdslen(*result) < min && sdslen(*result) > max))
+    {
+        sdsclear(*result);
+        return false;
+    }
+    return true;
 }
