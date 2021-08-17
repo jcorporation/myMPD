@@ -257,11 +257,11 @@ bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *resul
         //empty string
         return min == 0 ? true : false;
     }
-    if (n > 2) {
-        //remove quotes
-        n = n - 2;
-        p++;
-    }
+    
+    //remove quotes
+    n = n - 2;
+    p++;
+
     if ((sds_json_unescape(p, n, result) == false) ||
         (sdslen(*result) < min && sdslen(*result) > max))
     {
