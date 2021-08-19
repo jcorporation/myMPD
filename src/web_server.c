@@ -15,6 +15,7 @@
 #include "lib/mympd_pin.h"
 #include "lib/sds_extras.h"
 #include "lib/utility.h"
+#include "lib/validate.h"
 #include "web_server/web_server_albumart.h"
 #include "web_server/web_server_sessions.h"
 #include "web_server/web_server_tagart.h"
@@ -614,9 +615,8 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
 static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data) {
     MYMPD_LOG_DEBUG("API request (%lld): %s", (long long)nc->id, body);
     
-    //first check if request is valid utf8
-    if (check_utf8((uint8_t *)body, sdslen(body)) == UTF8_REJECT) {
-        MYMPD_LOG_ERROR("Request is not valid utf8");
+    //first check if request is valid json string
+    if (validate_json(body, sdslen(body)) == false) {
         return false;
     }
     
@@ -745,9 +745,8 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
 static bool handle_script_api(long long conn_id, sds body) {
     MYMPD_LOG_DEBUG("Script API request (%lld): %s", conn_id, body);
 
-    //first check if request is valid utf8
-    if (check_utf8((uint8_t *)body, sdslen(body)) == UTF8_REJECT) {
-        MYMPD_LOG_ERROR("Request is not valid utf8");    
+    //first check if request is valid json string
+    if (validate_json(body, sdslen(body)) == false) {
         return false;
     }
 

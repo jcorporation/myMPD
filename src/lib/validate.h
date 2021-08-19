@@ -20,6 +20,8 @@ bool validate_songuri(const char *data);
 bool validate_uri(const char *data);
 bool is_streamuri(const char *uri);
 
+bool validate_json(const char *data, size_t len);
+
 bool vcb_isalnum(sds data);
 bool vcb_isprint(sds data);
 bool vcb_ishexcolor(sds data);

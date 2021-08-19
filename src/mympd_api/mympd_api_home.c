@@ -69,7 +69,15 @@ bool mympd_api_read_home_list(struct t_mympd_state *mympd_state) {
         char *crap = NULL;
         size_t n = 0;
         while (getline(&line, &n, fp) > 0) {
+            if (n > 1000) {
+                MYMPD_LOG_ERROR("Line is too long");
+            }
+            //TODO: better way to remove \n?
             strtok_r(line, "\n", &crap);
+            if (validate_json(line, strlen(line)) == false) {
+                MYMPD_LOG_ERROR("Invalid line");
+                break;
+            }
             list_push(&mympd_state->home_list, line, 0, NULL, NULL);
             i++;
             if (i == 100) {

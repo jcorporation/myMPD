@@ -8,9 +8,46 @@
 #include "validate.h"
 
 #include "../../dist/src/sds/sds.h"
+#include "../../dist/src/utf8decode/utf8decode.h"
+#include "log.h"
 
 #include <ctype.h>
 #include <string.h>
+
+//private
+
+static const char *invalid_json_chars = "\a\b\f\v\0";
+static const char *invalid_name_chars = "\a\b\f\n\r\t\v\0";
+static const char *invalid_filename_chars = "\a\b\f\n\r\t\v\0\\/?*|<>/";
+static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v\0\\/?*|<>";
+
+static bool check_for_invalid_chars(const char *data, size_t len, const char *invalid_chars) {
+    for (size_t i = 0; i < len; i++) {
+        if (strchr(invalid_chars, data[i]) != NULL) {
+            return false;
+        }
+    }
+    return true;
+}
+
+//public
+
+bool validate_json(const char *data, size_t len) {
+    //check if it is valid utf8
+    if (check_utf8((uint8_t *)data, len) == UTF8_REJECT) {
+        MYMPD_LOG_ERROR("String is not valid utf8");
+        return false;
+    }
+    //only some basic checks
+    if (len < 2 ||
+        data[0] != '{' ||
+        data[len - 1] != '}')
+    {
+        MYMPD_LOG_ERROR("String is not valid json");
+        return false;
+    }
+    return check_for_invalid_chars(data, len, invalid_json_chars);
+}
 
 bool vcb_isalnum(sds data) {
     for (size_t i = 0; i < sdslen(data); i++) {
@@ -39,25 +76,12 @@ bool vcb_ishexcolor(sds data) {
     return true;
 }
 
-static const char *invalid_name_chars = "\a\b\f\n\r\t\v\0";
-static const char *invalid_filename_chars = "\a\b\f\n\r\t\v\0\\/?*|<>/";
-static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v\0\\/?*|<>";
-
-static bool check_for_invalid_chars(sds data, const char *invalid_chars) {
-    for (size_t i = 0; i < sdslen(data); i++) {
-        if (strchr(invalid_chars, data[i]) != NULL) {
-            return false;
-        }
-    }
-    return true;
-}
-
 bool vcb_isname(sds data) {
-    return check_for_invalid_chars(data, invalid_name_chars);
+    return check_for_invalid_chars(data, sdslen(data), invalid_name_chars);
 }
 
 bool vcb_isfilename(sds data) {
-    return check_for_invalid_chars(data, invalid_filename_chars);
+    return check_for_invalid_chars(data, sdslen(data), invalid_filename_chars);
 }
 
 bool vcb_isfilepath(sds data) {
@@ -65,7 +89,7 @@ bool vcb_isfilepath(sds data) {
         //prevent dir traversal
         return false;
     }
-    return check_for_invalid_chars(data, invalid_filepath_chars);
+    return check_for_invalid_chars(data, sdslen(data), invalid_filepath_chars);
 }
 
 bool validate_string(const char *data) {

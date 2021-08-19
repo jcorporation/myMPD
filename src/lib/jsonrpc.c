@@ -246,7 +246,7 @@ bool json_get_string_max(sds s, const char *path, sds *result, validate_callback
 }
 
 bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const char *cmp, sds *result) {
-    if (json_get_string(s, path, min, max, result, NULL) == false ||
+    if (_json_get_string(s, path, min, max, result, NULL) == false ||
         strcmp(*result, cmp) != 0) 
     {
         sdsclear(*result);
