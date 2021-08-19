@@ -7,7 +7,66 @@
 #include "mympd_config_defs.h"
 #include "validate.h"
 
+#include "../../dist/src/sds/sds.h"
+
+#include <ctype.h>
 #include <string.h>
+
+bool vcb_isalnum(sds data) {
+    for (size_t i = 0; i < sdslen(data); i++) {
+        if (isalnum(data[i]) == 0 && data[i] != '_') {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool vcb_isprint(sds data) {
+    for (size_t i = 0; i < sdslen(data); i++) {
+        if (isprint(data[i]) == 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool vcb_ishexcolor(sds data) {
+    for (size_t i = 0; i < sdslen(data); i++) {
+        if (isxdigit(data[i]) == 0 && data[i] != '#') {
+            return false;
+        }
+    }
+    return true;
+}
+
+const char *invalid_name_chars = "\a\b\f\n\r\t\v\0";
+const char *invalid_filename_chars = "\a\b\f\n\r\t\v\0\\/?*|<>/";
+const char *invalid_filepath_chars = "\a\b\f\n\r\t\v\0\\/?*|<>";
+
+static bool check_for_invalid_chars(sds data, const char *invalid_chars) {
+    for (size_t i = 0; i < sdslen(data); i++) {
+        if (strchr(invalid_chars, data[i]) != NULL) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool vcb_isname(sds data) {
+    return check_for_invalid_chars(data, invalid_name_chars);
+}
+
+bool vcb_isfilename(sds data) {
+    return check_for_invalid_chars(data, invalid_filename_chars);
+}
+
+bool vcb_isfilepath(sds data) {
+    if (strstr(data, "../") != NULL || strstr(data, "/./") != NULL || strstr(data, "//") != NULL) {
+        //prevent dir traversal
+        return false;
+    }
+    return check_for_invalid_chars(data, invalid_filepath_chars);
+}
 
 bool validate_string(const char *data) {
     if (strchr(data, '/') != NULL || strchr(data, '\n') != NULL || strchr(data, '\r') != NULL ||

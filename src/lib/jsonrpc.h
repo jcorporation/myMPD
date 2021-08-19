@@ -8,6 +8,8 @@
 #define MYMPD_JSONRPC_H
 
 #include "../../dist/src/sds/sds.h"
+#include "list.h"
+#include "validate.h"
 
 #include <stdbool.h>
 
@@ -37,8 +39,9 @@ bool json_get_int_max(sds s, const char *path, int *result);
 bool json_get_int(sds s, const char *path, int min, int max, int *result);
 bool json_get_uint_max(sds s, const char *path, unsigned *result);
 bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned *result);
-bool json_get_string_max(sds s, const char *path, sds *result);
-bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *result);
+bool json_get_string_max(sds s, const char *path, sds *result, validate_callback vcb);
+bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb);
 bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const char *cmp, sds *result);
+bool json_get_array(sds s, const char *path, struct list *array);
 
 #endif

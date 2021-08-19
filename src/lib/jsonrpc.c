@@ -231,12 +231,12 @@ bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned
     return false;
 }
 
-bool json_get_string_max(sds s, const char *path, sds *result) {
-    return json_get_string(s, path, 0, 200, result);
+bool json_get_string_max(sds s, const char *path, sds *result, validate_callback vcb) {
+    return json_get_string(s, path, 0, 200, result, vcb);
 }
 
 bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const char *cmp, sds *result) {
-    if (json_get_string(s, path, min, max, result) == false ||
+    if (json_get_string(s, path, min, max, result, NULL) == false ||
         strcmp(*result, cmp) != 0) 
     {
         sdsclear(*result);
@@ -245,7 +245,7 @@ bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const 
     return true;
 }
 
-bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *result) {
+bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb) {
     const char *p;
     int n;
     if (mjson_find(s, (int)sdslen(s), path, &p, &n) != MJSON_TOK_STRING) {
@@ -268,5 +268,20 @@ bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *resul
         sdsclear(*result);
         return false;
     }
+
+    if (vcb != NULL) {
+        if (vcb(*result) == false) {
+            sdsclear(*result);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool json_get_array(sds s, const char *path, struct list *array) {
+    (void) s;
+    (void) path;
+    (void) array;
     return true;
 }

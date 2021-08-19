@@ -625,7 +625,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
     int id = 0;
 
     if (json_get_string_cmp(body, "$.jsonrpc", 3, 3, "2.0", &jsonrpc) == false ||
-        json_get_string_max(body, "$.method", &cmd) == false ||
+        json_get_string_max(body, "$.method", &cmd, vcb_isalnum) == false ||
         json_get_int(body, "$.id", 0, 0, &id) == false)
     {
         MYMPD_LOG_ERROR("Invalid jsonrpc2 request");
@@ -687,7 +687,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
         case MYMPD_API_SESSION_LOGIN: {
             sds pin = sdsempty();
             bool is_valid = false;
-            if (json_get_string(body, "$.params.pin", 1, 20, &pin) == true) {
+            if (json_get_string(body, "$.params.pin", 1, 20, &pin, vcb_isalnum) == true) {
                 is_valid = validate_pin(pin, mg_user_data->config->pin_hash);
             }
             sdsfree(pin);
@@ -756,7 +756,7 @@ static bool handle_script_api(long long conn_id, sds body) {
     int id = 0;
 
     if (json_get_string_cmp(body, "$.jsonrpc", 3, 3, "2.0", &jsonrpc) == false ||
-        json_get_string_max(body, "$.method", &cmd) == false ||
+        json_get_string_max(body, "$.method", &cmd, vcb_isalnum) == false ||
         json_get_int(body, "$.id", 0, 0, &id) == false)
     {
         MYMPD_LOG_ERROR("Invalid jsonrpc2 request");
