@@ -39,9 +39,9 @@ bool vcb_ishexcolor(sds data) {
     return true;
 }
 
-const char *invalid_name_chars = "\a\b\f\n\r\t\v\0";
-const char *invalid_filename_chars = "\a\b\f\n\r\t\v\0\\/?*|<>/";
-const char *invalid_filepath_chars = "\a\b\f\n\r\t\v\0\\/?*|<>";
+static const char *invalid_name_chars = "\a\b\f\n\r\t\v\0";
+static const char *invalid_filename_chars = "\a\b\f\n\r\t\v\0\\/?*|<>/";
+static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v\0\\/?*|<>";
 
 static bool check_for_invalid_chars(sds data, const char *invalid_chars) {
     for (size_t i = 0; i < sdslen(data); i++) {
