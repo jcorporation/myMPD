@@ -1413,6 +1413,11 @@ const APImethods = {
                 "example": "#ffee00",
                 "desc": "Background color"
             },
+            "color": {
+                "type": "text",
+                "example": "#ffee00",
+                "desc": "Color for ligature"
+            },
             "image": {
                 "type": "text",
                 "example": "home-icon-1.png",
