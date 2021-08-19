@@ -68,11 +68,11 @@ sds sdscatjsonchar(sds s, const char p) {
         case '"':
             s = sdscatprintf(s, "\\%c", p);
             break;
+        case '\b': s = sdscatlen(s, "\\b", 2);     break;
+        case '\f': s = sdscatlen(s, "\\f", 2);     break;
         case '\n': s = sdscatlen(s, "\\n", 2);     break;
         case '\r': s = sdscatlen(s, "\\r", 2);     break;
         case '\t': s = sdscatlen(s, "\\t", 2);     break;
-        case '\b': s = sdscatlen(s, "\\b", 2);     break;
-        case '\f': s = sdscatlen(s, "\\f", 2);     break;
         // Escape < to prevent script execution
         case '<' : s = sdscatlen(s, "\\u003C", 6); break;
         //ignore vertical tabulator and alert
