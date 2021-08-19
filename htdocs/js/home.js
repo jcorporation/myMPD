@@ -432,8 +432,7 @@ function saveHomeIcon() {
         const options = [];
         const optionEls = document.getElementById('divHomeIconOptions').getElementsByTagName('input');
         for (const optionEl of optionEls) {
-            //workarround for parsing arrays with empty values in frozen
-            options.push(optionEl.value !== '' ? optionEl.value : '!undefined!');
+            options.push(optionEl.value);
         }
         const image = getSelectValue('selectHomeIconImage');
         sendAPI("MYMPD_API_HOME_ICON_SAVE", {

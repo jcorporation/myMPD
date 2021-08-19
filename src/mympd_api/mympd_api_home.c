@@ -30,7 +30,7 @@ bool mympd_api_save_home_icon(struct t_mympd_state *mympd_state, bool replace, u
     const char *name, const char *ligature, const char *bgcolor, const char *color, const char *image,
     const char *cmd, struct list *option_list) 
 {
-    sds key = sdscatlen(sdsempty(), "{", 1);
+    sds key = sdsnewlen("{", 1);
     key = tojson_char(key, "name", name, true);
     key = tojson_char(key, "ligature", ligature, true);
     key = tojson_char(key, "bgcolor", bgcolor, true);
@@ -44,12 +44,7 @@ bool mympd_api_save_home_icon(struct t_mympd_state *mympd_state, bool replace, u
         if (i++) {
             key = sdscatlen(key, ",", 1);
         }
-        if (strcmp(current->key, "!undefined!") == 0) {
-            key = sdscatjson(key, "", 0);
-        }
-        else {
-            key = sdscatjson(key, current->key, sdslen(current->key));
-        }
+        key = sdscatjson(key, current->key, sdslen(current->key));
         current = current->next;
     }    
     key = sdscatlen(key, "]}", 2);
