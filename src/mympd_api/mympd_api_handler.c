@@ -66,6 +66,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
     char *p_charbuf4 = NULL;
     char *p_charbuf5 = NULL;
     char *p_charbuf6 = NULL;
+    sds sds_buf1 = NULL;
+    sds sds_buf2 = NULL;
+    sds sds_buf3 = NULL;
+    sds sds_buf4 = NULL;
+    sds sds_buf5 = NULL;
+    sds sds_buf6 = NULL;
     bool async = false;
     
     #ifdef DEBUG
@@ -92,20 +98,25 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_PICTURE_LIST:
             response->data = mympd_api_picture_list(mympd_state, response->data, request->method, request->id);
             break;
-        case MYMPD_API_HOME_ICON_SAVE:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {replace: %B, oldpos: %u, name: %Q, ligature: %Q, bgcolor: %Q, color: %Q, image: %Q, cmd: %Q}}", 
-                &bool_buf1, &uint_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3, &p_charbuf4, &p_charbuf5, &p_charbuf6);
-            if (je == 8) {
-                struct list *options = (struct list *) malloc(sizeof(struct list));
-                assert(options);
-                list_init(options);
-                struct json_token t;
-                for (int i = 0; json_scanf_array_elem(request->data, (int)sdslen(request->data), ".params.options", i, &t) > 0; i++) {
-                    list_push_len(options, t.ptr, t.len, 0, NULL, 0, NULL);
-                }
-                rc = mympd_api_save_home_icon(mympd_state, bool_buf1, uint_buf1, p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, p_charbuf5, p_charbuf6, options);
-                list_free(options);
-                free(options);
+        case MYMPD_API_HOME_ICON_SAVE: {
+            if (mympd_state->home_list.length == 100) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "home", "error", "Too many home icons");
+                break;
+            }
+            struct list options;
+            list_init(&options);
+            
+            if (json_get_bool(request->data, "$.params.replace", &bool_buf1) == true &&
+                json_get_uint_max(request->data, "$.params.oldpos", &uint_buf1) == true &&
+                json_get_string_max(request->data, "$.params.name", &sds_buf1, vcb_isname) == true &&
+                json_get_string_max(request->data, "$.params.ligature", &sds_buf2, vcb_isalnum) == true &&
+                json_get_string_max(request->data, "$.params.bgcolor", &sds_buf3, vcb_ishexcolor) == true &&
+                json_get_string_max(request->data, "$.params.color", &sds_buf4, vcb_ishexcolor) == true &&
+                json_get_string_max(request->data, "$.params.image", &sds_buf5, vcb_isfilepath) == true &&
+                json_get_string_max(request->data, "$.params.cmd", &sds_buf6, vcb_isalnum) == true &&
+                json_get_array_string(request->data, "$.params.options", &options, vcb_isname, 10) == true)
+            {
+                rc = mympd_api_save_home_icon(mympd_state, bool_buf1, uint_buf1, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, &options);                
                 if (rc == true) {
                     response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
                 }
@@ -113,10 +124,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "home", "error", "Can not save home icon");
                 }
             }
+            list_free(&options);
             break;
+        }
         case MYMPD_API_HOME_ICON_MOVE:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {from: %u, to: %u}}", &uint_buf1, &uint_buf2);
-            if (je == 2) {
+            if (json_get_uint_max(request->data, "$.params.from", &uint_buf1) == true &&
+                json_get_uint_max(request->data, "$.params.to", &uint_buf2) == true)
+            {
                 rc = mympd_api_move_home_icon(mympd_state, uint_buf1, uint_buf2);
                 if (rc == true) {
                     response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
@@ -127,8 +141,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_HOME_ICON_RM:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {pos: %u}}", &uint_buf1);
-            if (je == 1) {
+            if (json_get_uint_max(request->data, "$.params.pos", &uint_buf1) == true) {
                 rc = mympd_api_rm_home_icon(mympd_state, uint_buf1);
                 if (rc == true) {
                     response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
@@ -139,8 +152,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_HOME_ICON_GET:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {pos: %u}}", &uint_buf1);
-            if (je == 1) {
+            if (json_get_uint_max(request->data, "$.params.pos", &uint_buf1) == true) {
                 response->data = mympd_api_get_home_icon(mympd_state, response->data, request->method, request->id, uint_buf1);
             }
             break;
@@ -306,7 +318,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             else {
                 sds value = sdsnewlen(key.ptr, key.len);
                 response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true,
-                    "general", "error", "Can't save setting %{setting}", 2, "setting", value);
+                    "general", "error", "Can't save settinsds sdsbuf1 = NULL;g %{setting}", 2, "setting", value);
                 sdsfree(value);
             }
             break;
@@ -1238,6 +1250,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
     FREE_PTR(p_charbuf5);
     FREE_PTR(p_charbuf6);
     
+    FREE_SDS(sds_buf1);
+    FREE_SDS(sds_buf2);
+    FREE_SDS(sds_buf3);
+    FREE_SDS(sds_buf4);
+    FREE_SDS(sds_buf5);
+    FREE_SDS(sds_buf6);
+
     #ifdef DEBUG
     MEASURE_END
     MEASURE_PRINT(request->method)

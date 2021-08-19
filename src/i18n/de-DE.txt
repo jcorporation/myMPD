@@ -1386,6 +1386,9 @@ Icon konnte nicht gelöscht werden
 Can not save home icon
 Icon konnte nicht gespeichert werden
 
+Too many home icons
+Zu viele Icons
+
 Home
 Startseite
 
