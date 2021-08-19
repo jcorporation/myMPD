@@ -275,7 +275,6 @@ bool list_replace(struct list *l, unsigned pos, const char *key, long value_i, c
     
     current->key = sdsreplace(current->key, key);
     current->value_i = value_i;
-    current->value_p = sdsreplace(current->value_p, value_p);
     if (value_p != NULL) {
         current->value_p = sdsreplace(current->value_p, value_p);
     }
