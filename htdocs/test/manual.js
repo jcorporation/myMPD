@@ -85,7 +85,7 @@ function formToParams(p, k) {
         else {
             let value = document.getElementById('input-' + k + param).value;
             if (value.charAt(0) === '{' || value.charAt(0) === '[') {
-                request[params] = JSON.parse(value);
+                request[param] = JSON.parse(value);
             }
             else {
                 if (value === '') {
@@ -98,7 +98,7 @@ function formToParams(p, k) {
                     value = false;
                 }
                 else if (!isNaN(value)) {
-                    value = parseFloat(value);
+                    value = Number(value);
                 }
                 request[param] = value;
             }
