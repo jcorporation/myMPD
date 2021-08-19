@@ -12,10 +12,15 @@ find_package(Threads REQUIRED)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -O1 -Wall -Werror -Wuninitialized -ggdb")
 
+configure_file(mympd_config_defs.h.in ${PROJECT_BINARY_DIR}/mympd_config_defs.h)
+
+include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
+include(CheckCSourceCompiles)
+
 set(SOURCES
   test.c
   ../dist/src/sds/sds.c 
-  ../src/tiny_queue.c
+  ../src/lib/tiny_queue.c
   ../src/lib/list.c
   ../src/lib/log.c
   ../src/lib/random.c

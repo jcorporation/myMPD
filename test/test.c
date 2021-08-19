@@ -4,8 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
+
 #include "../dist/src/sds/sds.h"
-#include "../src/tiny_queue.h"
+#include "../src/lib/tiny_queue.h"
 #include "../src/lib/list.h"
 
 #include <assert.h>
@@ -129,6 +131,9 @@ int main(void) {
         i++;
     }
     printf("Tail is: %s\n", test_list->tail->key);
+
+    list_replace(test_list, 0, "test", 0, NULL, NULL);
+
     list_free(test_list);
     free(test_list);
 }
