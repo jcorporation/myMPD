@@ -63,6 +63,7 @@ bool mympd_api_read_home_list(struct t_mympd_state *mympd_state) {
     sds home_file = sdscatfmt(sdsempty(), "%s/state/home_list", mympd_state->config->workdir);
     errno = 0;
     FILE *fp = fopen(home_file, OPEN_FLAGS_READ);
+    int i = 0;
     if (fp != NULL) {
         char *line = NULL;
         char *crap = NULL;
@@ -70,6 +71,10 @@ bool mympd_api_read_home_list(struct t_mympd_state *mympd_state) {
         while (getline(&line, &n, fp) > 0) {
             strtok_r(line, "\n", &crap);
             list_push(&mympd_state->home_list, line, 0, NULL, NULL);
+            i++;
+            if (i == 100) {
+                break;
+            }
         }
         FREE_PTR(line);    
         fclose(fp);

@@ -105,9 +105,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             struct list options;
             list_init(&options);
-            
             if (json_get_bool(request->data, "$.params.replace", &bool_buf1) == true &&
-                json_get_uint_max(request->data, "$.params.oldpos", &uint_buf1) == true &&
+                json_get_uint(request->data, "$.params.oldpos", 0, 99, &uint_buf1) == true &&
                 json_get_string_max(request->data, "$.params.name", &sds_buf1, vcb_isname) == true &&
                 json_get_string_max(request->data, "$.params.ligature", &sds_buf2, vcb_isalnum) == true &&
                 json_get_string_max(request->data, "$.params.bgcolor", &sds_buf3, vcb_ishexcolor) == true &&
@@ -128,8 +127,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         }
         case MYMPD_API_HOME_ICON_MOVE:
-            if (json_get_uint_max(request->data, "$.params.from", &uint_buf1) == true &&
-                json_get_uint_max(request->data, "$.params.to", &uint_buf2) == true)
+            if (json_get_uint(request->data, "$.params.from", 0, 99, &uint_buf1) == true &&
+                json_get_uint(request->data, "$.params.to", 0, 99, &uint_buf2) == true)
             {
                 rc = mympd_api_move_home_icon(mympd_state, uint_buf1, uint_buf2);
                 if (rc == true) {
@@ -141,7 +140,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_HOME_ICON_RM:
-            if (json_get_uint_max(request->data, "$.params.pos", &uint_buf1) == true) {
+            if (json_get_uint(request->data, "$.params.pos", 0, 99, &uint_buf1) == true) {
                 rc = mympd_api_rm_home_icon(mympd_state, uint_buf1);
                 if (rc == true) {
                     response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
@@ -152,7 +151,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_HOME_ICON_GET:
-            if (json_get_uint_max(request->data, "$.params.pos", &uint_buf1) == true) {
+            if (json_get_uint(request->data, "$.params.pos", 0, 99, &uint_buf1) == true) {
                 response->data = mympd_api_get_home_icon(mympd_state, response->data, request->method, request->id, uint_buf1);
             }
             break;
