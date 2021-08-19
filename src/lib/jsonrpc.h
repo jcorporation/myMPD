@@ -42,6 +42,6 @@ bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned
 bool json_get_string_max(sds s, const char *path, sds *result, validate_callback vcb);
 bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb);
 bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const char *cmp, sds *result);
-bool json_get_array(sds s, const char *path, struct list *array);
+bool json_get_array_string(sds s, const char *path, struct list *array, validate_callback vcb, int max_elements);
 
 #endif

@@ -15,6 +15,12 @@
 #include <limits.h>
 #include <string.h>
 
+//private definitions
+static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb);
+
+
+//public functions
+
 void send_jsonrpc_notify(const char *facility, const char *severity, const char *message) {
     sds buffer = jsonrpc_notify(sdsempty(), facility, severity, message);
     ws_notify(buffer);
@@ -232,7 +238,11 @@ bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned
 }
 
 bool json_get_string_max(sds s, const char *path, sds *result, validate_callback vcb) {
-    return json_get_string(s, path, 0, 200, result, vcb);
+    if (vcb == NULL) {
+        MYMPD_LOG_ERROR("Validation callback is NULL");
+        return false;
+    }
+    return _json_get_string(s, path, 0, 200, result, vcb);
 }
 
 bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const char *cmp, sds *result) {
@@ -246,6 +256,14 @@ bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const 
 }
 
 bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb) {
+    if (vcb == NULL) {
+        MYMPD_LOG_ERROR("Validation callback is NULL");
+        return false;
+    }
+    return _json_get_string(s, path, min, max, result, vcb);
+}
+
+static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb) {
     const char *p;
     int n;
     if (mjson_find(s, (int)sdslen(s), path, &p, &n) != MJSON_TOK_STRING) {
@@ -279,9 +297,52 @@ bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *resul
     return true;
 }
 
-bool json_get_array(sds s, const char *path, struct list *array) {
-    (void) s;
-    (void) path;
-    (void) array;
+bool json_get_array_string(sds s, const char *path, struct list *array, validate_callback vcb, int max_elements) {
+    if (vcb == NULL) {
+        MYMPD_LOG_ERROR("Validation callback is NULL");
+        return false;
+    }
+    const char *p;
+    int n;
+    if (mjson_find(s, (int)sdslen(s), path, &p, &n) != MJSON_TOK_ARRAY) {
+        return false;
+    }
+    int koff;
+    int klen;
+    int voff;
+    int vlen;
+    int vtype;
+    int off;
+
+    if (n == 2) {
+        //empty array
+        return true;
+    }
+
+    sds value = sdsempty();
+    int i = 0;
+    for (off = 0; (off = mjson_next(p, n, off, &koff, &klen, &voff, &vlen, &vtype)) != 0;) {
+        if (vtype == MJSON_TOK_STRING) {
+            if (vlen > 2) {
+                if (sds_json_unescape(p + voff + 1, vlen - 2, &value) == false ||
+                     vcb(value) == false)
+                {
+                    sdsfree(value);
+                    return false;
+                }
+            }
+            list_push(array, value, 0, NULL, NULL);
+            sdsclear(value);
+            i++;
+        }
+        else {
+            sdsfree(value);
+            return false;
+        }
+        if (i == max_elements) {
+            break;
+        }
+    }
+    sdsfree(value);
     return true;
 }
