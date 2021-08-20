@@ -387,7 +387,7 @@ check_includes() {
     SRCDIR=$(dirname "$F")
     for I in $(grep "#include \"" "$F" | grep -v "mympd_config_defs.h" | cut -d\" -f2)
     do
-      if ! realpath -e "$SRCDIR/$I" > /dev/null 2>&1
+      if ! realpath "$SRCDIR/$I" > /dev/null 2>&1
       then
         echo "Wrong include path in $F for $I"
       fi
