@@ -58,7 +58,7 @@ sds get_mpd_conf(const char *key, const char *default_value) {
     sds line = sdsempty();
     sds name;
     sds value;
-    while (sdsgetline(&line, fp, 1000) > 0) {
+    while (sdsgetline(&line, fp, 1000) == 0) {
         if (sdslen(line) > 0) {
             int tokens = sdssplit_whitespace(line, &name, &value);
             if (tokens == 2) {
