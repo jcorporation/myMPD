@@ -29,9 +29,8 @@ sds get_dnsserver(void) {
         return buffer;
     }
     sds line = sdsempty();
-    size_t n = 0;
     sds nameserver = sdsempty();
-    while ((n = sdsgetline(&line, fp, 1000)) == 0) {
+    while (sdsgetline(&line, fp, 1000) == 0) {
         if (sdslen(line) > 10 && strncmp(line, "nameserver", 10) == 0 && isspace(line[10])) {
             char *p;
             char *z;

@@ -60,7 +60,7 @@ sds state_file_rw_string(const char *workdir, const char *dir, const char *name,
     sdsfree(cfg_file);
     int n = sdsgetline(&result, fp, 1000);
     fclose(fp);
-    if (n > -2 && sdslen(result) > 0) {
+    if (n == 0) {
         //sucessfully read the value
         MYMPD_LOG_DEBUG("State %s: %s", name, result);
         return result;
