@@ -616,7 +616,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
     MYMPD_LOG_DEBUG("API request (%lld): %s", (long long)nc->id, body);
     
     //first check if request is valid json string
-    if (validate_json(body, sdslen(body)) == false) {
+    if (validate_json(body) == false) {
         return false;
     }
     
@@ -746,7 +746,7 @@ static bool handle_script_api(long long conn_id, sds body) {
     MYMPD_LOG_DEBUG("Script API request (%lld): %s", conn_id, body);
 
     //first check if request is valid json string
-    if (validate_json(body, sdslen(body)) == false) {
+    if (validate_json(body) == false) {
         return false;
     }
 
