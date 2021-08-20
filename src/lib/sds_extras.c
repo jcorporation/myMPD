@@ -210,7 +210,7 @@ int sdsgetline(sds *s, FILE *fp, size_t max) {
     sdsclear(*s);
     size_t i = 0;
     for (;;) {
-        char c = fgetc(fp);
+        int c = fgetc(fp);
         if (c == EOF) {
             sdstrim(*s, "\r \t");
             if (sdslen(*s) > 0) {
@@ -243,7 +243,7 @@ int sdsgetfile(sds *s, FILE *fp, size_t max) {
     sdsclear(*s);
     size_t i = 0;
     for (;;) {
-        char c = fgetc(fp);
+        int c = fgetc(fp);
         if (c == EOF) {
             sdstrim(*s, "\r \t\n");
             if (sdslen(*s) > 0) {

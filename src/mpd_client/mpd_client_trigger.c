@@ -191,7 +191,7 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
             char *name = NULL;
             char *script = NULL;
             int event;
-            int je = json_scanf(line, sdslen(line), "{name: %Q, event: %d, script: %Q}", &name, &event, &script);
+            int je = json_scanf(line, (int)sdslen(line), "{name: %Q, event: %d, script: %Q}", &name, &event, &script);
             if (je == 3) {
                 struct list *arguments = (struct list *) malloc(sizeof(struct list));
                 assert(arguments);
@@ -199,7 +199,7 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
                 void *h = NULL;
                 struct json_token key;
                 struct json_token val;
-                while ((h = json_next_key(line, sdslen(line), h, ".arguments", &key, &val)) != NULL) {
+                while ((h = json_next_key(line, (int)sdslen(line), h, ".arguments", &key, &val)) != NULL) {
                     list_push_len(arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
                 }
                 list_push(&mympd_state->triggers, name, event, script, arguments);
