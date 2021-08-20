@@ -676,15 +676,14 @@ static sds read_navbar_icons(struct t_config *config) {
         return buffer;
     }
     sdsfree(file_name);
-    char *line = NULL;
-    char *crap = NULL;
-    size_t n = 0;
-    while (getline(&line, &n, fp) > 0) {
-        strtok_r(line, "\n", &crap);
-        buffer = sdscat(buffer, line);
-    }
-    FREE_PTR(line);
+    sdsgetfile(&buffer, fp, 2000);
     fclose(fp);
+    
+    if (validate_json_array(buffer) == false) {
+        MYMPD_LOG_ERROR("Invalid navbar icons");
+        sdsclear(buffer);
+    }
+
     if (sdslen(buffer) == 0) {
         buffer = set_default_navbar_icons(config, buffer);
     }

@@ -179,17 +179,19 @@ void free_trigerlist_arguments(struct t_mympd_state *mympd_state) {
 
 bool triggerfile_read(struct t_mympd_state *mympd_state) {
     sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", mympd_state->config->workdir);
-    char *line = NULL;
-    size_t n = 0;
-    ssize_t read = 0;
+    sds line = sdsempty();
     errno = 0;
     FILE *fp = fopen(trigger_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
-        while ((read = getline(&line, &n, fp)) > 0) {
-            char *name;
-            char *script;
+        while (sdsgetline(&line, fp, 1000) == 0) {
+            if (validate_json(line) == false) {
+                MYMPD_LOG_ERROR("Invalid line");
+                break;
+            }
+            char *name = NULL;
+            char *script = NULL;
             int event;
-            int je = json_scanf(line, (int)read, "{name: %Q, event: %d, script: %Q}", &name, &event, &script);
+            int je = json_scanf(line, sdslen(line), "{name: %Q, event: %d, script: %Q}", &name, &event, &script);
             if (je == 3) {
                 struct list *arguments = (struct list *) malloc(sizeof(struct list));
                 assert(arguments);
@@ -197,7 +199,7 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
                 void *h = NULL;
                 struct json_token key;
                 struct json_token val;
-                while ((h = json_next_key(line, (int)read, h, ".arguments", &key, &val)) != NULL) {
+                while ((h = json_next_key(line, sdslen(line), h, ".arguments", &key, &val)) != NULL) {
                     list_push_len(arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
                 }
                 list_push(&mympd_state->triggers, name, event, script, arguments);
@@ -205,7 +207,7 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
             FREE_PTR(name);
             FREE_PTR(script);
         }
-        FREE_PTR(line);
+        sdsfree(line);
         fclose(fp);
     }
     else {

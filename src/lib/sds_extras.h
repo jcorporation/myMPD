@@ -10,6 +10,7 @@
 #include "../../dist/src/sds/sds.h"
 
 #include <stdbool.h>
+#include <stdio.h>
 
 #define FREE_SDS(SDS) do { \
     if (SDS != NULL) \
@@ -24,4 +25,7 @@ sds sdsurldecode(sds s, const char *p, size_t len, int is_form_url_encoded);
 sds sdscrop(sds s);
 sds sdsreplacelen(sds s, const char *value, size_t len);
 sds sdsreplace(sds s, const char *value);
+int sdsgetline(sds *s, FILE *fp, size_t max);
+int sdsgetline_n(sds *s, FILE *fp, size_t max);
+int sdsgetfile(sds *s, FILE *fp, size_t max);
 #endif

@@ -171,33 +171,27 @@ sds mympd_api_script_get(struct t_config *config, sds buffer, sds method, long r
     if (fp != NULL) {
         buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = tojson_char(buffer, "script", script, true);
-        char *line = NULL;
-        size_t n = 0;
-        ssize_t read = 0;
-        if (getline(&line, &n, fp) > 0 && strncmp(line, "-- ", 3) == 0) {
-            sds metadata = sdsnew(line);
-            sdsrange(metadata, 3, -2);
-            if (metadata[0] == '{' && metadata[sdslen(metadata) - 1] == '}') {
+        sds line = sdsempty();
+        if (sdsgetline(&line, fp, 1000) == 0 && strncmp(line, "-- ", 3) == 0) {
+            sdsrange(line, 3, -2);
+            if (line[0] == '{' && line[sdslen(line) - 1] == '}') {
                 buffer = sdscat(buffer, "\"metadata\":");
-                buffer = sdscat(buffer, metadata);
+                buffer = sdscat(buffer, line);
             }
             else {
                 MYMPD_LOG_WARN("Invalid metadata for script %s", scriptfilename);
                 buffer = sdscat(buffer, "\"metadata\":{\"order\":0, \"arguments\":[]}");
             }
-            sdsfree(metadata);
         }
         else {
             MYMPD_LOG_WARN("Invalid metadata for script %s", scriptfilename);
             buffer = sdscat(buffer, "\"metadata\":{\"order\":0, \"arguments\":[]}");
         }
+        sdsfree(line);
         buffer = sdscat(buffer, ",\"content\":");
         sds content = sdsempty();
-        while ((read = getline(&line, &n, fp)) > 0) {
-            content = sdscatlen(content, line, read);
-        }
+        sdsgetfile(&content, fp, 10000);
         fclose(fp);
-        FREE_PTR(line);
         buffer = sdscatjson(buffer, content, sdslen(content));
         sdsfree(content);
         buffer = jsonrpc_result_end(buffer);
@@ -258,27 +252,24 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
         return entry;    
     }
     
-    char *line = NULL;
-    size_t n = 0;
-    if (getline(&line, &n, fp) > 0 && strncmp(line, "-- ", 3) == 0) {
-        sds metadata = sdsnew(line);
-        sdsrange(metadata, 3, -2);
-        int je = json_scanf(metadata, (int)sdslen(metadata), "{order: %d}", &order);
+    sds line = sdsempty();
+    if (sdsgetline(&line, fp, 1000) == 0 && strncmp(line, "-- ", 3) == 0) {
+        sdsrange(line, 3, -2);
+        int je = json_scanf(line, (int)sdslen(line), "{order: %d}", &order);
         if (je == 0) {
             MYMPD_LOG_WARN("Invalid metadata for script %s", scriptfilename);
             entry = sdscat(entry, "\"metadata\":{\"order\":0,\"arguments\":[]}");
         }
         else {
             entry = sdscat(entry, "\"metadata\":");
-            entry = sdscat(entry, metadata);
+            entry = sdscat(entry, line);
         }
-        sdsfree(metadata);
     }
     else {
         MYMPD_LOG_WARN("Invalid metadata for script %s", scriptfilename);
         entry = sdscat(entry, "\"metadata\":{\"order\":0,\"arguments\":[]}");
     }
-    FREE_PTR(line);
+    sdsfree(line);
     fclose(fp);
     return entry;
 }

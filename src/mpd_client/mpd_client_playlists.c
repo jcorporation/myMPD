@@ -33,17 +33,13 @@ static bool smartpls_init(struct t_config *config, const char *name, const char 
 bool smartpls_default(struct t_config *config) {
     bool rc = true;
 
-    //try to get prefix from state file, fallback to config value
+    //try to get prefix from state file, fallback to default value
     sds prefix = sdsempty();
     sds prefix_file = sdscatfmt(sdsempty(), "%s/state/smartpls_prefix", config->workdir);
     FILE *fp = fopen(prefix_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
-        size_t n = 0;
-        char *line = NULL;
-        ssize_t read = getline(&line, &n, fp);
-        if (read > 0) {
-            prefix = sdscat(prefix, line);
-            FREE_PTR(line);
+        if (sdsgetline(&prefix, fp, 50) != 0) {
+            prefix = sdscat(prefix, "myMPDsmart");
         }
         fclose(fp);
     }

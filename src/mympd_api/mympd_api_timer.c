@@ -435,12 +435,11 @@ sds timer_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long re
 
 bool timerfile_read(struct t_mympd_state *mympd_state) {
     sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer_list", mympd_state->config->workdir);
-    char *line = NULL;
-    size_t n = 0;
+    sds line = sdsempty();
     errno = 0;
     FILE *fp = fopen(timer_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
-        while (getline(&line, &n, fp) > 0) {
+        while (sdsgetline(&line, fp, 1000) == 0) {
             struct t_timer_definition *timer_def = malloc(sizeof(struct t_timer_definition));
             assert(timer_def);
             sds param = sdscatfmt(sdsempty(), "{params: %s}", line);
@@ -462,7 +461,7 @@ bool timerfile_read(struct t_mympd_state *mympd_state) {
                 MYMPD_LOG_DEBUG("Errorneous line: %s", line);
             }
         }
-        FREE_PTR(line);
+        sdsfree(line);
         fclose(fp);
     }
     else {

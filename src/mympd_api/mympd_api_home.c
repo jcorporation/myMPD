@@ -65,16 +65,9 @@ bool mympd_api_read_home_list(struct t_mympd_state *mympd_state) {
     FILE *fp = fopen(home_file, OPEN_FLAGS_READ);
     int i = 0;
     if (fp != NULL) {
-        char *line = NULL;
-        char *crap = NULL;
-        size_t n = 0;
-        while (getline(&line, &n, fp) > 0) {
-            if (n > 1000) {
-                MYMPD_LOG_ERROR("Line is too long");
-            }
-            //TODO: better way to remove \n?
-            strtok_r(line, "\n", &crap);
-            if (validate_json(line, strlen(line)) == false) {
+        sds line = sdsempty();
+        while (sdsgetline(&line, fp, 1000) == 0) {
+            if (validate_json(line) == false) {
                 MYMPD_LOG_ERROR("Invalid line");
                 break;
             }
@@ -84,7 +77,7 @@ bool mympd_api_read_home_list(struct t_mympd_state *mympd_state) {
                 break;
             }
         }
-        FREE_PTR(line);    
+        sdsfree(line);
         fclose(fp);
     }
     else {

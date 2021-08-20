@@ -55,16 +55,12 @@ sds get_mpd_conf(const char *key, const char *default_value) {
         return last_value;
     }
     sdsfree(mpd_conf);
-    char *line = NULL;
-    size_t n = 0;
-    sds sds_line = sdsempty();
+    sds line = sdsempty();
     sds name;
     sds value;
-    while (getline(&line, &n, fp) > 0) {
-        sds_line = sdsreplace(sds_line, line);
-        sdstrim(sds_line, " \n\r\t");
-        if (sdslen(sds_line) > 0) {
-            int tokens = sdssplit_whitespace(sds_line, &name, &value);
+    while (sdsgetline(&line, fp, 1000) > 0) {
+        if (sdslen(line) > 0) {
+            int tokens = sdssplit_whitespace(line, &name, &value);
             if (tokens == 2) {
                 if (strcasecmp(name, key) == 0 && strcasecmp(name, "bind_to_address") == 0) {
                     if (sdslen(last_value) == 0 || strncmp(value, "/", 1) == 0) {
@@ -95,11 +91,8 @@ sds get_mpd_conf(const char *key, const char *default_value) {
             sdsfree(value);
         }
     }
-    if (line != NULL) {
-        free(line);
-    }
     fclose(fp);
-    sdsfree(sds_line);
+    sdsfree(line);
     return last_value;
 }
 

@@ -10,6 +10,7 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mympd_configuration.h"
+#include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_shared.h"
@@ -49,17 +50,16 @@ bool mpd_client_last_played_list_save(struct t_mympd_state *mympd_state) {
         i++;
     }
     //append current last_played file to tmp file
-    char *line = NULL;
-    size_t n = 0;
+    sds line = sdsempty();
     sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->workdir);
     errno = 0;
     FILE *fi = fopen(lp_file, OPEN_FLAGS_READ);
     if (fi != NULL) {
-        while (getline(&line, &n, fi) > 0 && i < mympd_state->last_played_count) {
-            fputs(line, fp);
+        while (sdsgetline(&line, fi, 1000) == 0 && i < mympd_state->last_played_count) {
+            fprintf(fp, "%s\n", line);
             i++;
         }
-        FREE_PTR(line);
+        sdsfree(line);
         fclose(fi);
     }
     else {
@@ -141,21 +141,18 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
         }
     }
 
-    char *line = NULL;
+    sds line = sdsempty();
     char *data = NULL;
-    char *crap = NULL;
-    size_t n = 0;
     sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->workdir);
     errno = 0;
     FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
-        while (getline(&line, &n, fp) > 0) {
+        while (sdsgetline(&line, fp, 1000) == 0) {
             entity_count++;
             if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
                 int value = (int)strtoimax(line, &data, 10);
                 if (strlen(data) > 2) {
                     data = data + 2;
-                    strtok_r(data, "\n", &crap);
                     if (entities_returned++) {
                         buffer = sdscat(buffer, ",");
                     }
@@ -168,7 +165,7 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
             }
         }
         fclose(fp);
-        FREE_PTR(line);
+        sdsfree(line);
     }
     else {
         //ignore error

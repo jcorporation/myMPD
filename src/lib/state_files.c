@@ -38,16 +38,7 @@ sds state_file_rw_string_sds(const char *workdir, const char *dir, const char *n
 }
 
 sds state_file_rw_string(const char *workdir, const char *dir, const char *name, const char *def_value, bool warn) {
-    char *line = NULL;
-    size_t n = 0;
-    ssize_t read;
-    
-    sds result = sdsempty();
-    
-    if (!validate_string(name)) {
-        return result;
-    }
-    
+    sds result = sdsempty();  
     sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", workdir, dir, name);
     errno = 0;
     FILE *fp = fopen(cfg_file, OPEN_FLAGS_READ);
@@ -60,25 +51,21 @@ sds state_file_rw_string(const char *workdir, const char *dir, const char *name,
             MYMPD_LOG_ERROR("Can not open file \"%s\"", cfg_file);
             MYMPD_LOG_ERRNO(errno);
         }
+        //file does not exist, create it with default value and return
         state_file_write(workdir, dir, name, def_value);
         result = sdscat(result, def_value);
         sdsfree(cfg_file);
         return result;
     }
     sdsfree(cfg_file);
-    read = getline(&line, &n, fp);
-    if (read > 0) {
-        MYMPD_LOG_DEBUG("State %s: %s", name, line);
-    }
+    int n = sdsgetline(&result, fp, 1000);
     fclose(fp);
-    if (read > 0) {
-        result = sdscat(result, line);
-        sdstrim(result, " \n\r");
-        FREE_PTR(line);
+    if (n > -2 && sdslen(result) > 0) {
+        //sucessfully read the value
+        MYMPD_LOG_DEBUG("State %s: %s", name, result);
         return result;
     }
-    
-    FREE_PTR(line);
+    //blank value or too long line, return default value
     result = sdscat(result, def_value);
     return result;
 }

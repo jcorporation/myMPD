@@ -118,15 +118,9 @@ static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool syn
         *buffer = tojson_bool(*buffer, "synced", synced, true);
         *buffer = tojson_char(*buffer, "lang", "", true);
         *buffer = tojson_char(*buffer, "desc", "", true);
-        char *line = NULL;
-        size_t n = 0;
-        ssize_t read;
         sds text = sdsempty();
-        while ((read = getline(&line, &n, fp)) > 0) {
-            text = sdscatlen(text, line, read);
-        }
+        sdsgetfile(&text, fp, 10000);
         fclose(fp);
-        FREE_PTR(line);
         *buffer = tojson_char(*buffer, "text", text, false);
         *buffer = sdscatlen(*buffer, "}", 1);
         sdsfree(text);

@@ -23,7 +23,7 @@
 
 //private functions
 static bool is_old_config(const char *workdir);
-void parse_ini_line (const char *line, sds *key, sds *value);
+static void parse_ini_line (sds line, sds *key, sds *value);
 static bool migrate_smartpls_files(const char *workdir);
 static bool migrate_smartpls_file(const char *workdir, const char *playlist);
 static void migrate_state_files(const char *workdir);
@@ -49,9 +49,8 @@ void start_migrate_conf(const char *workdir) {
     //parse mympd.conf and write config files
     sds key = sdsempty();
     sds value = sdsempty();
-    char *line = NULL;
-    size_t n = 0;
-    while (getline(&line, &n, fp) > 0) {
+    sds line = sdsempty();
+    while (sdsgetline(&line, fp, 1000) == 0) {
         sdsclear(key);
         sdsclear(value);
         parse_ini_line(line, &key, &value);
@@ -120,15 +119,12 @@ static bool is_old_config(const char *workdir) {
     return true;
 }
 
-void parse_ini_line (const char *line, sds *key, sds *value) {
-    sds sds_line = sdsnew(line);
-    sdstrim(sds_line, " \n\r\t");
-    if (sdslen(sds_line) == 0 || sds_line[0] == '#') {
-        sdsfree(sds_line);
+static void parse_ini_line (sds line, sds *key, sds *value) {
+    if (sdslen(line) == 0 || line[0] == '#') {
         return;
     }
     int count;
-    sds *tokens = sdssplitlen(sds_line, (ssize_t)sdslen(sds_line), "=", 1, &count);
+    sds *tokens = sdssplitlen(line, (ssize_t)sdslen(line), "=", 1, &count);
     if (count == 2) {
         sdstrim(tokens[0], " ");
         sdstrim(tokens[1], " \"");
@@ -136,7 +132,6 @@ void parse_ini_line (const char *line, sds *key, sds *value) {
         *value = sdsreplace(*value, tokens[1]);
     }
     sdsfreesplitres(tokens, count);
-    sdsfree(sds_line);
 }
 
 static void migrate_state_files(const char *workdir) {

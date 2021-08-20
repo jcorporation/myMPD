@@ -7,6 +7,8 @@
 #include "mympd_config_defs.h"
 #include "sds_extras.h"
 
+#include "log.h"
+
 #include <ctype.h>
 #include <string.h>
 
@@ -196,4 +198,66 @@ sds sdscrop(sds s) {
     }
     sdsclear(s);
     return s;
+}
+
+//custom getline function
+//trims line for \n \r, \t and spaces
+//returns 0 on success
+//-1 for EOF
+//-2 for too long line
+
+int sdsgetline(sds *s, FILE *fp, size_t max) {
+    sdsclear(*s);
+    size_t i = 0;
+    for (;;) {
+        char c = fgetc(fp);
+        if (c == EOF) {
+            sdstrim(*s, "\r \t");
+            if (sdslen(*s) > 0) {
+                return 0;
+            }
+            return -1;
+        }
+        if (c == '\n') {
+            sdstrim(*s, "\r \t");
+            return 0;
+        }
+        if (i < max) {
+            *s = sdscatprintf(*s, "%c", c);
+            i++;
+        }
+        else {
+            MYMPD_LOG_ERROR("Line is too long, max length is 1000");
+            return -2;
+        }
+    }
+}
+
+int sdsgetline_n(sds *s, FILE *fp, size_t max) {
+    int rc = sdsgetline(s, fp, max);
+    *s = sdscat(*s, "\n");
+    return rc;
+}
+
+int sdsgetfile(sds *s, FILE *fp, size_t max) {
+    sdsclear(*s);
+    size_t i = 0;
+    for (;;) {
+        char c = fgetc(fp);
+        if (c == EOF) {
+            sdstrim(*s, "\r \t\n");
+            if (sdslen(*s) > 0) {
+                return 0;
+            }
+            return -1;
+        }
+        if (i < max) {
+            *s = sdscatprintf(*s, "%c", c);
+            i++;
+        }
+        else {
+            MYMPD_LOG_ERROR("Line is too long, max length is 1000");
+            return -2;
+        }
+    }
 }

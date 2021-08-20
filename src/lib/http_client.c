@@ -9,6 +9,7 @@
 
 #include "../../dist/src/mongoose/mongoose.h"
 #include "log.h"
+#include "sds_extras.h"
 
 #include <errno.h>
 
@@ -27,12 +28,11 @@ sds get_dnsserver(void) {
         MYMPD_LOG_ERRNO(errno);
         return buffer;
     }
-    char *line = NULL;
+    sds line = sdsempty();
     size_t n = 0;
-    ssize_t read;
     sds nameserver = sdsempty();
-    while ((read = getline(&line, &n, fp)) > 0) {
-        if (read > 10 && strncmp(line, "nameserver", 10) == 0 && isspace(line[10])) {
+    while ((n = sdsgetline(&line, fp, 1000)) == 0) {
+        if (sdslen(line) > 10 && strncmp(line, "nameserver", 10) == 0 && isspace(line[10])) {
             char *p;
             char *z;
             for (p = line + 11; isspace(*p); p++) {
@@ -50,9 +50,7 @@ sds get_dnsserver(void) {
             sdsclear(nameserver);
         }
     }
-    if (line != NULL) {
-        free(line);
-    }
+    sdsfree(line);
     fclose(fp);
     if (sdslen(nameserver) > 0) {
         buffer = sdscatprintf(buffer, "udp://%s:53", nameserver);

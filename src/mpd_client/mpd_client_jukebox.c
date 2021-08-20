@@ -11,6 +11,7 @@
 #include "../lib/log.h"
 #include "../lib/mympd_configuration.h"
 #include "../lib/random.h"
+#include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
@@ -296,8 +297,8 @@ static struct list *mpd_client_jukebox_get_last_played(struct t_mympd_state *mym
     //append last_played to queue list
     struct list_node *current = mympd_state->last_played.head;
     while (current != NULL) {
-        bool rc2 = mpd_send_list_meta(mympd_state->mpd_state->conn, current->key);
-        if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc2, "mpd_send_list_meta") == true) {
+        rc = mpd_send_list_meta(mympd_state->mpd_state->conn, current->key);
+        if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == true) {
             song = mpd_recv_song(mympd_state->mpd_state->conn);
             if (song != NULL) {
                 if (jukebox_mode == JUKEBOX_ADD_SONG) {
@@ -319,21 +320,18 @@ static struct list *mpd_client_jukebox_get_last_played(struct t_mympd_state *mym
     }
     //get last_played from disc
     if (queue_list->length < 20) {
-        char *line = NULL;
+        sds line = sdsempty();
         char *data = NULL;
-        char *crap = NULL;
-        size_t n = 0;
         sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->workdir);
         errno = 0;
         FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
         if (fp != NULL) {
-            while (getline(&line, &n, fp) > 0 && queue_list->length < 20) {
+            while (sdsgetline(&line, fp, 1000) == 0 && queue_list->length < 20) {
                 int value = (int)strtoimax(line, &data, 10);
                 if (value > 0 && strlen(data) > 2) {
                     data = data + 2;
-                    strtok_r(data, "\n", &crap);
-                    bool rc2 = mpd_send_list_meta(mympd_state->mpd_state->conn, data);
-                    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc2, "mpd_send_list_meta") == true) {
+                    rc = mpd_send_list_meta(mympd_state->mpd_state->conn, data);
+                    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == true) {
                         song = mpd_recv_song(mympd_state->mpd_state->conn);
                         if (song != NULL) {
                             if (jukebox_mode == JUKEBOX_ADD_SONG) {
@@ -358,7 +356,7 @@ static struct list *mpd_client_jukebox_get_last_played(struct t_mympd_state *mym
                 }
             }
             fclose(fp);
-            FREE_PTR(line);
+            sdsfree(line);
         }
         else {
             //ignore missing last_played file
