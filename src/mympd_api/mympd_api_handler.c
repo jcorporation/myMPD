@@ -214,7 +214,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             assert(arguments);
             list_init(arguments);
             if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename) == true && 
-                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10) == true) {
+                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10) == true)
+            {
                 rc = mympd_api_script_start(mympd_state->config, sds_buf1, arguments, true);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
@@ -232,18 +233,14 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         }
-        case INTERNAL_API_SCRIPT_POST_EXECUTE:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
-            if (je == 1 && strlen(p_charbuf1) > 0) {
-                struct list *arguments = (struct list *) malloc(sizeof(struct list));
-                assert(arguments);
-                list_init(arguments);
-                void *h = NULL;
-                struct json_token key;
-                struct json_token val;
-                while ((h = json_next_key(request->data, (int)sdslen(request->data), h, ".params.arguments", &key, &val)) != NULL) {
-                    list_push_len(arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
-                }
+        case INTERNAL_API_SCRIPT_POST_EXECUTE: {
+            //malloc list - it is used in another thread
+            struct list *arguments = (struct list *) malloc(sizeof(struct list));
+            assert(arguments);
+            list_init(arguments);
+            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_istext) == true &&
+                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10) == true) 
+            {
                 rc = mympd_api_script_start(mympd_state->config, p_charbuf1, arguments, false);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
@@ -253,31 +250,37 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                         "script", "error", "Can't create mympd_script thread");
                 }
             }
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                    "script", "error", "Invalid script content");
+                list_free(arguments);
+                FREE_PTR(arguments);
+            }
             break;
+        }
         #endif
         case MYMPD_API_COLS_SAVE: {
-            sds cols = sdsnewlen("[", 1);
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {table: %Q}}", &p_charbuf1);
-            if (je == 1) {
+            if (json_get_string(request->data, "$.params.table", 1, 200, &sds_buf1, vcb_isalnum) == true) {
                 bool error = false;
-                cols = json_to_cols(cols, request->data, sdslen(request->data), &error);
+                sds cols = sdsnewlen("[", 1);
+                cols = json_to_cols(cols, request->data, &error);
                 if (error == false) {
                     cols = sdscatlen(cols, "]", 1);
-                    if (mympd_api_cols_save(mympd_state, p_charbuf1, cols)) {
+                    if (mympd_api_cols_save(mympd_state, sds_buf1, cols)) {
                         response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
                     }
                     else {
                         response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true,
-                            "general", "error", "Unknown table %{table}", 2, "table", p_charbuf1);
-                        MYMPD_LOG_ERROR("MYMPD_API_COLS_SAVE: Unknown table %s", p_charbuf1);
+                            "general", "error", "Unknown table %{table}", 2, "table", sds_buf1);
+                        MYMPD_LOG_ERROR("MYMPD_API_COLS_SAVE: Unknown table %s", sds_buf1);
                     }
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
                         "general", "error", "Invalid column");
                 }
+                sdsfree(cols);
             }
-            sdsfree(cols);
             break;
         }
         case MYMPD_API_SETTINGS_SET: {

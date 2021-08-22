@@ -9,7 +9,7 @@
 
 #include "../lib/mympd_state.h"
 
-sds json_to_cols(sds cols, char *str, size_t len, bool *error);
+sds json_to_cols(sds cols, sds s, bool *error);
 void default_mympd_state(struct t_mympd_state *mympd_state);
 void free_mympd_state(struct t_mympd_state *mympd_state);
 void free_mympd_state_sds(struct t_mympd_state *mympd_state);

@@ -7,7 +7,7 @@
 #include "mympd_config_defs.h"
 #include "mympd_api_utility.h"
 
-#include "../../dist/src/frozen/frozen.h"
+#include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
@@ -134,38 +134,16 @@ void free_mympd_state_sds(struct t_mympd_state *mympd_state) {
     sdsfree(mympd_state->lyrics_vorbis_sylt);
 }
 
-static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", 
-    "Lyrics", "stickerPlayCount", "stickerSkipCount", "stickerLastPlayed", "stickerLastSkipped", "stickerLike", 0};
-
-static bool is_mympd_col(sds token) {
-    const char** ptr = mympd_cols;
-    while (*ptr != 0) {
-        if (strncmp(token, *ptr, sdslen(token)) == 0) {
-            return true;
-        }
-        ++ptr;
+sds json_to_cols(sds cols, sds s, bool *error) {
+    struct list col_list;
+    list_init(&col_list);
+    if (json_get_array_string(s, "$.params.cols", &col_list, vcb_iscolumn, 20) == true) {
+        cols = list_to_json_array(cols, &col_list);
+        *error = false;
     }
-    return false;
-}
-
-sds json_to_cols(sds cols, char *str, size_t len, bool *error) {
-    struct json_token t;
-    int j = 0;
-    *error = false;
-    for (int i = 0; json_scanf_array_elem(str, (int)len, ".params.cols", i, &t) > 0; i++) {
-        sds token = sdscatlen(sdsempty(), t.ptr, t.len);
-        if (mpd_tag_name_iparse(token) != MPD_TAG_UNKNOWN || is_mympd_col(token) == true) {
-            if (j > 0) {
-                cols = sdscatlen(cols, ",", 1);
-            }
-            cols = sdscatjson(cols, t.ptr, t.len);
-            j++;
-        }
-        else {
-            MYMPD_LOG_WARN("Unknown column: %s", token);
-            *error = true;
-        }
-        sdsfree(token);
+    else {
+        *error = true;
     }
+    list_free(&col_list);
     return cols;
 }
