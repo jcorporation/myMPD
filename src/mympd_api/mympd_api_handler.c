@@ -284,17 +284,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         }
         case MYMPD_API_SETTINGS_SET: {
-            void *h = NULL;
-            struct json_token key;
-            struct json_token val;
-            rc = true;
-            while ((h = json_next_key(request->data, (int)sdslen(request->data), h, ".params", &key, &val)) != NULL) {
-                rc = mympd_api_settings_set(mympd_state, &key, &val);
-                if (rc == false) {
-                    break;
-                }
-            }
-            if (rc == true) {
+            if (json_iterate_object(request->data, "$.params", mympd_api_settings_set, mympd_state, NULL, 1000) == true) {
                 if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
                     //feature detection
                     mpd_client_mpd_features(mympd_state);
@@ -303,10 +293,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             }
             else {
-                sds value = sdsnewlen(key.ptr, key.len);
-                response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true,
-                    "general", "error", "Can't save setting %{setting}", 2, "setting", value);
-                sdsfree(value);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
+                    "general", "error", "Can't save setting");
             }
             break;
         }
