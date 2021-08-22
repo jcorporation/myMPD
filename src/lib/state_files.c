@@ -18,9 +18,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-sds camel_to_snake(const char *text, size_t len) {
+sds camel_to_snake(sds text) {
     sds buffer = sdsempty();
-    for (size_t i = 0;  i < len; i++) {
+    for (size_t i = 0;  i < sdslen(text); i++) {
         if (isupper(text[i]) > 0) {
             buffer = sdscatprintf(buffer, "_%c", tolower((unsigned char)text[i]));
         }

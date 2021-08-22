@@ -17,5 +17,5 @@ bool state_file_rw_bool(const char *workdir, const char *dir, const char *name, 
 int state_file_rw_int(const char *workdir, const char *dir, const char *name, const int def_value, bool warn);
 unsigned state_file_rw_uint(const char *workdir, const char *dir, const char *name, const unsigned def_value, bool warn);
 bool state_file_write(const char *workdir, const char *dir, const char *name, const char *value);
-sds camel_to_snake(const char *text, size_t len);
+sds camel_to_snake(sds text);
 #endif
