@@ -13,6 +13,8 @@
 
 #include <stdbool.h>
 
+typedef bool (*iterate_callback) (sds, sds, int, validate_callback, void *);
+
 void send_jsonrpc_notify(const char *facility, const char *severity, const char *message);
 void send_jsonrpc_event(const char *event);
 void ws_notify(sds message);
@@ -42,8 +44,9 @@ bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned
 bool json_get_string_max(sds s, const char *path, sds *result, validate_callback vcb);
 bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb);
 bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const char *cmp, sds *result);
-bool json_get_array_string(sds s, const char *path, struct list *array, validate_callback vcb, int max_elements);
-bool json_get_object_string(sds s, const char *path, struct list *array, validate_callback vcb, int max_elements);
+bool json_get_array_string(sds s, const char *path, struct list *l, validate_callback vcb, int max_elements);
+bool json_get_object_string(sds s, const char *path, struct list *l, validate_callback vcb, int max_elements);
+bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata, validate_callback vcb, int max_elements);
 
 sds list_to_json_array(sds s, struct list *l);
 

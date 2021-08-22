@@ -204,6 +204,7 @@ bool json_get_bool(sds s, const char *path, bool *result) {
         *result = v == 1 ? true : false;
         return true;
     }
+    MYMPD_LOG_WARN("Path \"%s\" not found", path);
     return false;
 }
 
@@ -218,6 +219,10 @@ bool json_get_int(sds s, const char *path, int min, int max, int *result) {
             *result = (int)value;
             return true;
         }
+        MYMPD_LOG_WARN("Number out of range for path \"%s\"", path);
+    }
+    else {
+        MYMPD_LOG_WARN("Path \"%s\" not found", path);
     }
     return false;
 }
@@ -233,6 +238,10 @@ bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned
             *result = (unsigned)value;
             return true;
         }
+        MYMPD_LOG_WARN("Number out of range for path \"%s\"", path);
+    }
+    else {
+        MYMPD_LOG_WARN("Path \"%s\" not found", path);
     }
     return false;
 }
@@ -250,6 +259,7 @@ bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const 
         strcmp(*result, cmp) != 0) 
     {
         sdsclear(*result);
+        MYMPD_LOG_WARN("Validation of path \"%s\" has failed", path);
         return false;
     }
     return true;
@@ -268,12 +278,19 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
     int n;
     if (mjson_find(s, (int)sdslen(s), path, &p, &n) != MJSON_TOK_STRING) {
         *result = NULL;
+        MYMPD_LOG_WARN("String for path \"%s\" not found", path);
         return false;
     }
     *result = sdsempty();
     if (n <= 2) {
         //empty string
-        return min == 0 ? true : false;
+        if (min == 0) {
+            return true;
+        }
+        else {
+            MYMPD_LOG_WARN("String for path \"%s\" is too short", path);
+            return false;
+        }
     }
     
     //remove quotes
@@ -283,12 +300,14 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
     if ((sds_json_unescape(p, n, result) == false) ||
         (sdslen(*result) < min && sdslen(*result) > max))
     {
+        MYMPD_LOG_WARN("String for path \"%s\" is out of min or max", path);
         sdsclear(*result);
         return false;
     }
 
     if (vcb != NULL) {
         if (vcb(*result) == false) {
+            MYMPD_LOG_WARN("Validation of path \"%s\" has failed", path);
             sdsclear(*result);
             return false;
         }
@@ -297,73 +316,22 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
     return true;
 }
 
-bool json_get_array_string(sds s, const char *path, struct list *array, validate_callback vcb, int max_elements) {
+bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata, validate_callback vcb, int max_elements) {
+    if (icb == NULL) {
+        MYMPD_LOG_ERROR("Iteration callback is NULL");
+        return false;
+    }
     if (vcb == NULL) {
         MYMPD_LOG_ERROR("Validation callback is NULL");
         return false;
     }
     const char *p;
     int n;
-    if (mjson_find(s, (int)sdslen(s), path, &p, &n) != MJSON_TOK_ARRAY) {
+    int otype = mjson_find(s, (int)sdslen(s), path, &p, &n);
+    if ( otype != MJSON_TOK_OBJECT && otype != MJSON_TOK_ARRAY) {
+        MYMPD_LOG_WARN("Invalid json object type");
         return false;
     }
-    int koff;
-    int klen;
-    int voff;
-    int vlen;
-    int vtype;
-    int off;
-
-    if (n == 2) {
-        //empty array
-        return true;
-    }
-
-    sds value = sdsempty();
-    int i = 0;
-    for (off = 0; (off = mjson_next(p, n, off, &koff, &klen, &voff, &vlen, &vtype)) != 0;) {
-        if (vtype == MJSON_TOK_STRING) {
-            if (vlen > 2) {
-                if (sds_json_unescape(p + voff + 1, vlen - 2, &value) == false ||
-                     vcb(value) == false)
-                {
-                    sdsfree(value);
-                    return false;
-                }
-            }
-            list_push(array, value, 0, NULL, NULL);
-            sdsclear(value);
-            i++;
-        }
-        else {
-            sdsfree(value);
-            return false;
-        }
-        if (i == max_elements) {
-            break;
-        }
-    }
-    sdsfree(value);
-    return true;
-}
-
-bool json_get_object_string(sds s, const char *path, struct list *array, validate_callback vcb, int max_elements) {
-    if (vcb == NULL) {
-        MYMPD_LOG_ERROR("Validation callback is NULL");
-        return false;
-    }
-    const char *p;
-    int n;
-    if (mjson_find(s, (int)sdslen(s), path, &p, &n) != MJSON_TOK_OBJECT) {
-        return false;
-    }
-    int koff;
-    int klen;
-    int voff;
-    int vlen;
-    int vtype;
-    int off;
-
     if (n == 2) {
         //empty object
         return true;
@@ -372,46 +340,97 @@ bool json_get_object_string(sds s, const char *path, struct list *array, validat
     sds value = sdsempty();
     sds key = sdsempty();
     int i = 0;
+    int koff = 0;
+    int klen = 0;
+    int voff = 0;
+    int vlen = 0;
+    int vtype = 0;
+    int off = 0;
     for (off = 0; (off = mjson_next(p, n, off, &koff, &klen, &voff, &vlen, &vtype)) != 0;) {
-        if (vtype == MJSON_TOK_STRING) {
-            if (vlen > 2) {
-                if (sds_json_unescape(p + voff + 1, vlen - 2, &value) == false ||
-                     vcb(value) == false)
-                {
-                    sdsfree(value);
-                    sdsfree(key);
-                    return false;
-                }
-            }
-            if (klen > 2) {
-                if (sds_json_unescape(p + koff + 1, klen - 2, &key) == false ||
-                     vcb_isalnum(value) == false)
-                {
-                    sdsfree(value);
-                    sdsfree(key);
-                    return false;
-                }
-            }
-            else {
-                //key must not be empty
+        if (klen > 2) {
+            if (sds_json_unescape(p + koff + 1, klen - 2, &key) == false ||
+                vcb_isalnum(value) == false)
+            {
+                MYMPD_LOG_WARN("Validation of path \"%s\" has failed", path);
                 sdsfree(value);
                 sdsfree(key);
                 return false;
             }
-            list_push(array, key, 0, value, NULL);
-            sdsclear(value);
-            i++;
         }
-        else {
+        switch(vtype) {
+            case MJSON_TOK_STRING:
+                if (vlen > 2) {
+                    if (sds_json_unescape(p + voff + 1, vlen - 2, &value) == false) {
+                        sdsfree(value);
+                        sdsfree(key);
+                        MYMPD_LOG_WARN("Validation of path \"%s\" has failed", path);
+                        return false;
+                    }
+                }
+                break;
+            case MJSON_TOK_FALSE:
+            case MJSON_TOK_TRUE:
+            case MJSON_TOK_NUMBER:
+                break;
+            default:
+                MYMPD_LOG_WARN("Invalid json value type");
+                sdsfree(value);
+                sdsfree(key);
+                return false;
+        }
+
+        if (icb(key, value, vtype, vcb, icb_userdata) == false) {
+            MYMPD_LOG_WARN("Iteration cb for path \"%s\" has failed", path);
             sdsfree(value);
+            sdsfree(key);
             return false;
         }
+
+        sdsclear(value);
+        sdsclear(key);
+        i++;
+
         if (i == max_elements) {
             break;
         }
     }
     sdsfree(value);
+    sdsfree(key);
     return true;
+}
+
+static bool icb_json_get_array_string(sds key, sds value, int vtype, validate_callback vcb, void *userdata) {
+    (void) key;
+    if (vtype != MJSON_TOK_STRING ||
+        vcb(value) == false)
+    {
+        MYMPD_LOG_WARN("Validation of value \"%s\" has failed", value);
+        return false;
+    }
+    struct list *l = (struct list *)userdata;
+    list_push(l, value, 0, NULL, NULL);
+    return true;
+}
+
+bool json_get_array_string(sds s, const char *path, struct list *l, validate_callback vcb, int max_elements) {
+    return json_iterate_object(s, path, icb_json_get_array_string, l, vcb, max_elements);
+}
+
+static bool icb_json_get_object_string(sds key, sds value, int vtype, validate_callback vcb, void *userdata) {
+    if (sdslen(key) == 0 ||
+        vtype != MJSON_TOK_STRING ||
+        vcb(value) == false)
+    {
+        MYMPD_LOG_WARN("Validation of value \"%s\" has failed", value);
+        return false;
+    }
+    struct list *l = (struct list *)userdata;
+    list_push(l, key, 0, value, NULL);
+    return true;
+}
+
+bool json_get_object_string(sds s, const char *path, struct list *l, validate_callback vcb, int max_elements) {
+    return json_iterate_object(s, path, icb_json_get_object_string, l, vcb, max_elements);
 }
 
 sds list_to_json_array(sds s, struct list *l) {
