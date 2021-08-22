@@ -90,6 +90,10 @@ bool vcb_isname(sds data) {
     return _check_for_invalid_chars(data, invalid_name_chars);
 }
 
+bool vcb_istext(sds data) {
+    return _check_for_invalid_chars(data, invalid_json_chars);
+}
+
 bool vcb_isfilename(sds data) {
     return _check_for_invalid_chars(data, invalid_filename_chars);
 }

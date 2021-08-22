@@ -27,6 +27,7 @@ bool vcb_isalnum(sds data);
 bool vcb_isprint(sds data);
 bool vcb_ishexcolor(sds data);
 bool vcb_isname(sds data);
+bool vcb_istext(sds data);
 bool vcb_isfilename(sds data);
 bool vcb_isfilepath(sds data);
 
