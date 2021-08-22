@@ -346,3 +346,70 @@ bool json_get_array_string(sds s, const char *path, struct list *array, validate
     sdsfree(value);
     return true;
 }
+
+bool json_get_object_string(sds s, const char *path, struct list *array, validate_callback vcb, int max_elements) {
+    if (vcb == NULL) {
+        MYMPD_LOG_ERROR("Validation callback is NULL");
+        return false;
+    }
+    const char *p;
+    int n;
+    if (mjson_find(s, (int)sdslen(s), path, &p, &n) != MJSON_TOK_OBJECT) {
+        return false;
+    }
+    int koff;
+    int klen;
+    int voff;
+    int vlen;
+    int vtype;
+    int off;
+
+    if (n == 2) {
+        //empty object
+        return true;
+    }
+
+    sds value = sdsempty();
+    sds key = sdsempty();
+    int i = 0;
+    for (off = 0; (off = mjson_next(p, n, off, &koff, &klen, &voff, &vlen, &vtype)) != 0;) {
+        if (vtype == MJSON_TOK_STRING) {
+            if (vlen > 2) {
+                if (sds_json_unescape(p + voff + 1, vlen - 2, &value) == false ||
+                     vcb(value) == false)
+                {
+                    sdsfree(value);
+                    sdsfree(key);
+                    return false;
+                }
+            }
+            if (klen > 2) {
+                if (sds_json_unescape(p + koff + 1, klen - 2, &key) == false ||
+                     vcb_isalnum(value) == false)
+                {
+                    sdsfree(value);
+                    sdsfree(key);
+                    return false;
+                }
+            }
+            else {
+                //key must not be empty
+                sdsfree(value);
+                sdsfree(key);
+                return false;
+            }
+            list_push(array, key, 0, value, NULL);
+            sdsclear(value);
+            i++;
+        }
+        else {
+            sdsfree(value);
+            return false;
+        }
+        if (i == max_elements) {
+            break;
+        }
+    }
+    sdsfree(value);
+    return true;
+}

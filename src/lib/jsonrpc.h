@@ -43,5 +43,6 @@ bool json_get_string_max(sds s, const char *path, sds *result, validate_callback
 bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb);
 bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const char *cmp, sds *result);
 bool json_get_array_string(sds s, const char *path, struct list *array, validate_callback vcb, int max_elements);
+bool json_get_object_string(sds s, const char *path, struct list *array, validate_callback vcb, int max_elements);
 
 #endif
