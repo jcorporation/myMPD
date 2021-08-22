@@ -305,7 +305,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             else {
                 sds value = sdsnewlen(key.ptr, key.len);
                 response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true,
-                    "general", "error", "Can't save settinsds sdsbuf1 = NULL;g %{setting}", 2, "setting", value);
+                    "general", "error", "Can't save setting %{setting}", 2, "setting", value);
                 sdsfree(value);
             }
             break;
