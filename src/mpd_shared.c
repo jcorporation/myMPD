@@ -76,9 +76,14 @@ bool check_rc_error_and_recover(struct t_mpd_state *mpd_state, sds *buffer,
         return false;
     }
     if (rc == false) {
-        //TODO: implement notify jsonrpc message on demand
         if (buffer != NULL && *buffer != NULL) {
-            *buffer = respond_with_command_error(*buffer, method, request_id, command);
+            if (notify == false) {
+                *buffer = respond_with_command_error(*buffer, method, request_id, command);
+            }
+            else {
+                *buffer = jsonrpc_notify_phrase(*buffer, "mpd", "error", "Error in response to command: %{command}",
+                            2, "command", command);
+            }
         }
         MYMPD_LOG_ERROR("Error in response to command %s", command);
         return false;
