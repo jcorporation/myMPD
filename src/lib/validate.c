@@ -110,10 +110,16 @@ bool vcb_istext(sds data) {
 }
 
 bool vcb_isfilename(sds data) {
+    if (sdslen(data) == 0) {
+        return false;
+    }
     return _check_for_invalid_chars(data, invalid_filename_chars);
 }
 
 bool vcb_isfilepath(sds data) {
+    if (sdslen(data) == 0) {
+        return false;
+    }
     if (strstr(data, "../") != NULL || strstr(data, "/./") != NULL || strstr(data, "//") != NULL) {
         //prevent dir traversal
         return false;
@@ -121,16 +127,55 @@ bool vcb_isfilepath(sds data) {
     return _check_for_invalid_chars(data, invalid_filepath_chars);
 }
 
-bool vcb_iscolumn(sds token) {
-    if (mpd_tag_name_iparse(token) != MPD_TAG_UNKNOWN ||
-        _is_mympd_col(token) == true)
+bool vcb_iscolumn(sds data) {
+    if (mpd_tag_name_iparse(data) != MPD_TAG_UNKNOWN ||
+        _is_mympd_col(data) == true)
     {
         return true;
     }
-    MYMPD_LOG_WARN("Unknown column: %s", token);
+    MYMPD_LOG_WARN("Unknown column: %s", data);
     return false;
 }
 
+bool vcb_istaglist(sds data) {
+    int tokens_count;
+    sds *tokens = sdssplitlen(data, (ssize_t)sdslen(data), ",", 1, &tokens_count);
+    for (int i = 0; i < tokens_count; i++) {
+        sdstrim(tokens[i], " ");
+        enum mpd_tag_type tag = mpd_tag_name_iparse(tokens[i]);
+        if (tag == MPD_TAG_UNKNOWN) {
+            MYMPD_LOG_WARN("Unknown tag %s", tokens[i]);
+            sdsfreesplitres(tokens, tokens_count);
+            return false;
+        }
+    }
+    sdsfreesplitres(tokens, tokens_count);
+    return true;
+}
+
+bool vcb_ismpdtag(sds data) {
+    enum mpd_tag_type tag = mpd_tag_name_iparse(data);
+    if (tag == MPD_TAG_UNKNOWN) {
+        MYMPD_LOG_WARN("Unknown tag %s", data);
+        return false;
+    }
+    return true;
+}
+
+bool vcb_ismpdsort(sds data) {
+    enum mpd_tag_type tag = mpd_tag_name_iparse(data);
+    if (tag == MPD_TAG_UNKNOWN &&
+        strcmp(data, "filename") != 0 &&
+        strcmp(data, "shuffle") != 0 &&
+        strcmp(data, "Last-Modified") != 0 &&
+        strcmp(data, "Date") != 0)
+    {
+        MYMPD_LOG_WARN("Unknown tag \"%s\"", data);
+        return false;
+
+    }
+    return true;
+}
 
 //deprecated validation checks
 
