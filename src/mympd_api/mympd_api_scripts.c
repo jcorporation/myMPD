@@ -7,7 +7,6 @@
 #include "mympd_config_defs.h"
 #include "mympd_api_scripts.h"
 
-#include "../../dist/src/frozen/frozen.h"
 #include "../lib/api.h"
 #include "../lib/http_client.h"
 #include "../lib/jsonrpc.h"
@@ -125,7 +124,7 @@ bool mympd_api_script_delete(struct t_config *config, const char *script) {
     return true;
 }
 
-bool mympd_api_script_save(struct t_config *config, const char *script, int order, const char *content, const char *arguments, const char *oldscript) {
+bool mympd_api_script_save(struct t_config *config, const char *script, const char *oldscript, int order, const char *content, struct list *arguments) {
     sds tmp_file = sdscatfmt(sdsempty(), "%s/scripts/%.XXXXXX", config->workdir, script);
     errno = 0;
     int fd = mkstemp(tmp_file);
@@ -137,7 +136,18 @@ bool mympd_api_script_save(struct t_config *config, const char *script, int orde
     }
     FILE *fp = fdopen(fd, "w");
     //write metadata line
-    fprintf(fp, "-- {\"order\":%d,\"arguments\":[%s]}\n", order, arguments);
+    struct list_node *current = arguments->head;
+    int i = 0;
+    sds argstr = sdsempty();
+    while (current != NULL) {
+        if (i++) {
+            argstr = sdscatlen(argstr, ",", 1);
+        }
+        argstr = sdscatjson(argstr, current->key, sdslen(current->key));
+        current = current->next;
+    }
+    fprintf(fp, "-- {\"order\":%d,\"arguments\":[%s]}\n", order, argstr);
+    sdsfree(argstr);
     //write script content
     fputs(content, fp);
     fclose(fp);
@@ -254,15 +264,14 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
     
     sds line = sdsempty();
     if (sdsgetline(&line, fp, 1000) == 0 && strncmp(line, "-- ", 3) == 0) {
-        sdsrange(line, 3, -2);
-        int je = json_scanf(line, (int)sdslen(line), "{order: %d}", &order);
-        if (je == 0) {
-            MYMPD_LOG_WARN("Invalid metadata for script %s", scriptfilename);
-            entry = sdscat(entry, "\"metadata\":{\"order\":0,\"arguments\":[]}");
-        }
-        else {
+        sdsrange(line, 3, -1);
+        if (json_get_int(line, "$.order", 0, 99, order) == true) {
             entry = sdscat(entry, "\"metadata\":");
             entry = sdscat(entry, line);
+        }
+        else {
+            MYMPD_LOG_WARN("Invalid metadata for script %s", scriptfilename);
+            entry = sdscat(entry, "\"metadata\":{\"order\":0,\"arguments\":[]}");
         }
     }
     else {
@@ -561,9 +570,8 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         t_work_result *response = tiny_queue_shift(mympd_script_queue, 1000000, tid);
         if (response != NULL) {
             MYMPD_LOG_DEBUG("Got result: %s", response->data);
-            char *p_charbuf1 = NULL;
-            int je = json_scanf(response->data, (int)sdslen(response->data), "{result: {message: %Q}}", &p_charbuf1);
-            if (je == 1 && p_charbuf1 != NULL) {
+            sds sds_buf1 = NULL;
+            if (json_get_string(response->data, "$.result.message", 1, 1000, &sds_buf1, vcb_isname) == true) {
                 if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
                     MYMPD_LOG_DEBUG("Populating lua global state table mympd");
                     struct list *lua_mympd_state = (struct list *) response->extra;
@@ -577,17 +585,15 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                     return 2;
                 }
                 lua_pushinteger(lua_vm, 0);
-                lua_pushstring(lua_vm, p_charbuf1);
-                FREE_PTR(p_charbuf1);
+                lua_pushstring(lua_vm, sds_buf1);
+                FREE_SDS(sds_buf1);
                 free_result(response);
                 return 2;
             }
-            
-            je = json_scanf(response->data, (int)sdslen(response->data), "{error: {message: %Q}}", &p_charbuf1);
-            if (je == 1 && p_charbuf1 != NULL) {
+            if (json_get_string(request->data, "$.error.message", 1, 1000, &sds_buf1, vcb_isname) == true) {
                 lua_pushinteger(lua_vm, 1);
-                lua_pushstring(lua_vm, p_charbuf1);
-                FREE_PTR(p_charbuf1);
+                lua_pushstring(lua_vm, sds_buf1);
+                FREE_SDS(sds_buf1);
                 free_result(response);
                 return 2;
             }

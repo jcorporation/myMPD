@@ -159,41 +159,30 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
             break;
         #ifdef ENABLE_LUA
-        case MYMPD_API_SCRIPT_SAVE:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {script: %Q, order: %d, content: %Q, oldscript: %Q}}", 
-                &p_charbuf1, &int_buf1, &p_charbuf2, &p_charbuf3);
-            if (je == 4) {
-                struct json_token val;
-                int idx;
-                sds arguments = sdsempty();
-                void *h = NULL;
-                while ((h = json_next_elem(request->data, (int)sdslen(request->data), h, ".params.arguments", &idx, &val)) != NULL) {
-                    if (idx > 0) {
-                        arguments = sdscat(arguments, ",");
-                    }
-                    arguments = sdscatjson(arguments, val.ptr, val.len);
-                }
-                if (validate_string_not_empty(p_charbuf1) == true && validate_string(p_charbuf3) == true) {
-                    rc = mympd_api_script_save(mympd_state->config, p_charbuf1, int_buf1, p_charbuf2, arguments, p_charbuf3);
-                    if (rc == true) {
-                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
-                    }
-                    else {
-                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
-                            "script", "error", "Could not save script");
-                    }
+        case MYMPD_API_SCRIPT_SAVE: {
+            struct list arguments;
+            list_init(&arguments);
+            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename) == true &&
+                json_get_string(request->data, "$.params.oldscript", 0, 200, &sds_buf2, vcb_isfilename) == true &&
+                json_get_int(request->data, "$.params.order", 0, 99, &int_buf1) == true &&
+                json_get_string(request->data, "$.params.content", 0, 5000, &sds_buf3, vcb_istext) == true &&
+                json_get_array_string(request->data, "$.params.arguments", &arguments, vcb_isalnum, 10) == true)
+            {
+                rc = mympd_api_script_save(mympd_state->config, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments);
+                if (rc == true) {
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
-                        "script", "error", "Invalid script name");
+                        "script", "error", "Could not save script");
                 }
-                sdsfree(arguments);
             }
+            list_free(&arguments);
             break;
+        }
         case MYMPD_API_SCRIPT_RM:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
-            if (je == 1 && validate_string_not_empty(p_charbuf1) == true) {
-                rc = mympd_api_script_delete(mympd_state->config, p_charbuf1);
+            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename) == true) {
+                rc = mympd_api_script_delete(mympd_state->config, sds_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                 }
@@ -208,32 +197,25 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_SCRIPT_GET:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
-            if (je == 1 && validate_string_not_empty(p_charbuf1) == true) {
-                response->data = mympd_api_script_get(mympd_state->config, response->data, request->method, request->id, p_charbuf1);
+            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename) == true) {
+                response->data = mympd_api_script_get(mympd_state->config, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_SCRIPT_LIST: {
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {all: %B}}", &bool_buf1);
-            if (je == 1) {
+            if (json_get_bool(request->data, "$.params.all", &bool_buf1) == true) {
                 response->data = mympd_api_script_list(mympd_state->config, response->data, request->method, request->id, bool_buf1);
             }
             break;
         }
 
-        case MYMPD_API_SCRIPT_EXECUTE:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
-            if (je == 1 && validate_string_not_empty(p_charbuf1) == true) {
-                struct list *arguments = (struct list *) malloc(sizeof(struct list));
-                assert(arguments);
-                list_init(arguments);
-                void *h = NULL;
-                struct json_token key;
-                struct json_token val;
-                while ((h = json_next_key(request->data, (int)sdslen(request->data), h, ".params.arguments", &key, &val)) != NULL) {
-                    list_push_len(arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
-                }
-                rc = mympd_api_script_start(mympd_state->config, p_charbuf1, arguments, true);
+        case MYMPD_API_SCRIPT_EXECUTE: {
+            //malloc list - it is used in another thread
+            struct list *arguments = (struct list *) malloc(sizeof(struct list));
+            assert(arguments);
+            list_init(arguments);
+            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename) == true && 
+                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10) == true) {
+                rc = mympd_api_script_start(mympd_state->config, sds_buf1, arguments, true);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                 }
@@ -245,8 +227,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             else {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
                     "script", "error", "Invalid script name");
+                list_free(arguments);
+                FREE_PTR(arguments);
             }
             break;
+        }
         case INTERNAL_API_SCRIPT_POST_EXECUTE:
             je = json_scanf(request->data, (int)sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
             if (je == 1 && strlen(p_charbuf1) > 0) {

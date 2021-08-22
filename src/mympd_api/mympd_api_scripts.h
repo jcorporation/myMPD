@@ -18,7 +18,7 @@
             ((5) == LUA_VERSION_MAJOR && \
             ((3) == LUA_VERSION_MINOR))
 
-    bool mympd_api_script_save(struct t_config *config, const char *script, int order, const char *content, const char *arguments, const char *oldscript);
+    bool mympd_api_script_save(struct t_config *config, const char *script, const char *oldscript, int order, const char *content, struct list *arguments);
     bool mympd_api_script_delete(struct t_config *config, const char *script);
     sds mympd_api_script_get(struct t_config *config, sds buffer, sds method, long request_id, const char *script);
     sds mympd_api_script_list(struct t_config *config, sds buffer, sds method, long request_id, bool all);
