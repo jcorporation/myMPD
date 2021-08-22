@@ -34,75 +34,76 @@ static sds read_navbar_icons(struct t_config *config);
 static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags);
 
 //default navbar icons
-const char *default_navbar_icons = "[{\"ligature\":\"home\",\"title\":\"Home\",\"options\":[\"Home\"],\"badge\":\"\"},"\
+static const char *default_navbar_icons = "[{\"ligature\":\"home\",\"title\":\"Home\",\"options\":[\"Home\"],\"badge\":\"\"},"\
     "{\"ligature\":\"equalizer\",\"title\":\"Playback\",\"options\":[\"Playback\"],\"badge\":\"\"},"\
     "{\"ligature\":\"queue_music\",\"title\":\"Queue\",\"options\":[\"Queue\"],\"badge\":\"<span id=\\\"badgeQueueItems\\\" class=\\\"badge badge-secondary\\\"></span>\"},"\
     "{\"ligature\":\"library_music\",\"title\":\"Browse\",\"options\":[\"Browse\"],\"badge\":\"\"},"\
     "{\"ligature\":\"search\",\"title\":\"Search\",\"options\":[\"Search\"],\"badge\":\"\"}]";
 
 //public functions
-bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_token *key, 
-                               struct json_token *val, bool *mpd_host_changed)
-{
-    //TODO: validate values and write validated values only
-    char *crap;
-    sds settingname = camel_to_snake(key->ptr, key->len);
-    sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
-    if (strncmp(key->ptr, "mpdPass", key->len) == 0) {
-        if (strcmp(settingvalue, "dontsetpassword") != 0) {
-            mympd_state->mpd_state->mpd_pass = sdsreplacelen(mympd_state->mpd_state->mpd_pass, settingvalue, sdslen(settingvalue));
-            *mpd_host_changed = true;
+bool mympd_api_connection_save(sds key, sds value, int vtype, validate_callback vcb, void *userdata) {
+    (void) vcb;
+    struct t_mympd_state *mympd_state = (struct t_mympd_state *)userdata;
+    bool check_for_mpd_error = false;
+
+    MYMPD_LOG_DEBUG("Parse setting \"%s\": \"%s\"", key, value);
+
+    if (strcmp(key, "mpdPass") == 0) {
+        if (strcmp(value, "dontsetpassword") != 0) {
+            if (vcb_isname(value) == false) {
+                MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
+                return false;
+            }
+            mympd_state->mpd_state->mpd_pass = sdsreplace(mympd_state->mpd_state->mpd_pass, value);
         }
         else {
             //keep old password
-            sdsfree(settingname);
-            sdsfree(settingvalue);
             return true;
         }
     }
-    else if (strncmp(key->ptr, "mpdHost", key->len) == 0) {
-        if (strcmp(settingvalue, mympd_state->mpd_state->mpd_host) != 0) {
-            *mpd_host_changed = true;
-            mympd_state->mpd_state->mpd_host = sdsreplacelen(mympd_state->mpd_state->mpd_host, settingvalue, sdslen(settingvalue));
-        }
-    }
-    else if (strncmp(key->ptr, "mpdPort", key->len) == 0) {
-        int mpd_port = (int)strtoimax(settingvalue, &crap, 10);
-        if (mpd_port < 1024 || mpd_port > 65535) {
-            MYMPD_LOG_ERROR("Invalid value for mpdPort: %s", settingvalue);
-            sdsfree(settingname);
-            sdsfree(settingvalue);
+    else if (strcmp(key, "mpdHost") == 0) {
+        if (vcb_isfilepath(value) == false) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
-        if (mympd_state->mpd_state->mpd_port != mpd_port) {
-            *mpd_host_changed = true;
-            mympd_state->mpd_state->mpd_port = mpd_port;
-        }
+        mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, value);
     }
-    else if (strncmp(key->ptr, "mpdStreamPort", key->len) == 0) {
-        int mpd_stream_port = (int)strtoimax(settingvalue, &crap, 10);
+    else if (strcmp(key, "mpdPort") == 0) {
+        int mpd_port = (int)strtoimax(value, NULL, 10);
+        if (mpd_port < 1024 || mpd_port > 65535) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
+            return false;
+        }
+        mympd_state->mpd_state->mpd_port = mpd_port;
+    }
+    else if (strcmp(key, "mpdStreamPort") == 0) {
+        int mpd_stream_port = (int)strtoimax(value, NULL, 10);
         if (mpd_stream_port < 1024 || mpd_stream_port > 65535) {
-            MYMPD_LOG_ERROR("Invalid value for mpdStreamPort: %s", settingvalue);
-            sdsfree(settingname);
-            sdsfree(settingvalue);
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->mpd_stream_port = mpd_stream_port;
     }
-    else if (strncmp(key->ptr, "musicDirectory", key->len) == 0) {
-        mympd_state->music_directory = sdsreplacelen(mympd_state->music_directory, settingvalue, sdslen(settingvalue));
+    else if (strcmp(key, "musicDirectory") == 0) {
+        if (vcb_isfilepath(value) == false) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
+            return false;
+        }
+        mympd_state->music_directory = sdsreplace(mympd_state->music_directory, value);
         strip_slash(mympd_state->music_directory);
     }
-    else if (strncmp(key->ptr, "playlistDirectory", key->len) == 0) {
-        mympd_state->playlist_directory = sdsreplacelen(mympd_state->playlist_directory, settingvalue, sdslen(settingvalue));
+    else if (strcmp(key, "playlistDirectory") == 0) {
+        if (vcb_isfilepath(value) == false) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
+            return false;
+        }
+        mympd_state->playlist_directory = sdsreplace(mympd_state->playlist_directory, value);
         strip_slash(mympd_state->playlist_directory);
     }
-    else if (strncmp(key->ptr, "mpdBinarylimit", key->len) == 0) {
-        unsigned binarylimit = strtoumax(settingvalue, &crap, 10);
+    else if (strcmp(key, "mpdBinarylimit") == 0) {
+        unsigned binarylimit = strtoumax(value, NULL, 10);
         if (binarylimit < 4096 || binarylimit > 262144) {
-            MYMPD_LOG_ERROR("Invalid value for binarylimit: %s", settingvalue);
-            sdsfree(settingname);
-            sdsfree(settingvalue);
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         if (binarylimit != mympd_state->mpd_state->mpd_binarylimit) {
@@ -112,46 +113,64 @@ bool mympd_api_connection_save(struct t_mympd_state *mympd_state, struct json_to
             }
         }
     }
-    else if (strncmp(key->ptr, "mpdTimeout", key->len) == 0) {
-        int mpd_timeout = (int)strtoimax(settingvalue, &crap, 10);
+    else if (strcmp(key, "mpdTimeout") == 0) {
+        int mpd_timeout = (int)strtoimax(value, NULL, 10);
         if (mpd_timeout < 1000 || mpd_timeout > 1000000) {
-            MYMPD_LOG_ERROR("Invalid value for mpdTimeoutt: %s", settingvalue);
-            sdsfree(settingname);
-            sdsfree(settingvalue);
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         if (mpd_timeout != mympd_state->mpd_state->mpd_timeout) {
             mympd_state->mpd_state->mpd_timeout = mpd_timeout;
             if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
                 mpd_connection_set_timeout(mympd_state->mpd_state->conn, mympd_state->mpd_state->mpd_timeout);
+                check_for_mpd_error = true;
             }
         }
     }
-    else if (strncmp(key->ptr, "mpdKeepalive", key->len) == 0) {
-        bool keepalive = val->type == JSON_TYPE_TRUE ? true : false;
+    else if (strcmp(key, "mpdKeepalive") == 0) {
+        bool keepalive = false;
+        if (vtype == MJSON_TOK_TRUE) {
+            keepalive = true;
+        }
+        else if (vtype == MJSON_TOK_FALSE) {
+            keepalive = false;
+        }
+        else {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
+            return false;
+        }
         if (keepalive != mympd_state->mpd_state->mpd_keepalive) {
             mympd_state->mpd_state->mpd_keepalive = keepalive;
             if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
                 mpd_connection_set_keepalive(mympd_state->mpd_state->conn, mympd_state->mpd_state->mpd_keepalive);
+                check_for_mpd_error = true;
             }
         }
     }
     else {
-        MYMPD_LOG_WARN("Unknown setting %s: %s", settingname, settingvalue);
-        sdsfree(settingname);
-        sdsfree(settingvalue);
+        MYMPD_LOG_WARN("Unknown setting \"%s\": \"%s\"", key, value);
         return true;
     }
 
-    bool rc = state_file_write(mympd_state->config->workdir, "state", settingname, settingvalue);
-    sdsfree(settingname);
-    sdsfree(settingvalue);
+    bool rc = true;
+    if (check_for_mpd_error == true) {
+        sds message = check_error_and_recover_notify(mympd_state->mpd_state, sdsempty());
+        if (sdslen(message) > 0) {
+            ws_notify(message);
+            rc = false;
+        }
+        sdsfree(message);
+    }
+
+    if (rc == true) {
+        sds state_filename = camel_to_snake(key);
+        rc = state_file_write(mympd_state->config->workdir, "state", state_filename, value);
+        sdsfree(state_filename);
+    }
     return rc;
 }
 
-bool mympd_api_cols_save(struct t_mympd_state *mympd_state, const char *table,
-                         const char *cols)
-{
+bool mympd_api_cols_save(struct t_mympd_state *mympd_state, sds table, sds cols) {
     if (strcmp(table, "colsQueueCurrent") == 0) {
         mympd_state->cols_queue_current = sdsreplace(mympd_state->cols_queue_current, cols);
     }
@@ -179,7 +198,7 @@ bool mympd_api_cols_save(struct t_mympd_state *mympd_state, const char *table,
     else {
         return false;
     }
-    sds tablename = camel_to_snake(table, strlen(table));
+    sds tablename = camel_to_snake(table);
     if (!state_file_write(mympd_state->config->workdir, "state", tablename, cols)) {
         sdsfree(tablename);
         return false;
@@ -192,9 +211,6 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
     (void) vcb;
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)userdata;
 
-    char *crap;
-    bool rc = false;
-
     MYMPD_LOG_DEBUG("Parse setting \"%s\": \"%s\"", key, value);
 
     if (strcmp(key, "coverimageNames") == 0) {
@@ -202,6 +218,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
             mympd_state->coverimage_names = sdsreplace(mympd_state->coverimage_names, value);
         }
         else {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
     }
@@ -210,51 +227,59 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
             mympd_state->booklet_name = sdsreplace(mympd_state->booklet_name, value);
         }
         else {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
     }
     else if (strcmp(key, "lastPlayedCount") == 0) {
-        int last_played_count = (int)strtoimax(value, &crap, 10);
+        int last_played_count = (int)strtoimax(value, NULL, 10);
         if (last_played_count <= 0) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->last_played_count = last_played_count;
     }
     else if (strcmp(key, "volumeMin") == 0) {
-        int volume_min = (int)strtoimax(value, &crap, 10);
+        int volume_min = (int)strtoimax(value, NULL, 10);
         if (volume_min < 0 || volume_min > 100) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->volume_min = volume_min;
     }
     else if (strcmp(key, "volumeMax") == 0) {
-        int volume_max = (int)strtoimax(value, &crap, 10);
+        int volume_max = (int)strtoimax(value, NULL, 10);
         if (volume_max < 0 || volume_max > 100) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->volume_max = volume_max;
     }
     else if (strcmp(key, "volumeStep") == 0) {
-        int volume_step = (int)strtoimax(value, &crap, 10);
+        int volume_step = (int)strtoimax(value, NULL, 10);
         if (volume_step < 0 || volume_step > 100) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->volume_step = volume_step;
     }
     else if (strcmp(key, "tagList") == 0) {
         if (vcb_istaglist(value) == false) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->mpd_state->tag_list = sdsreplace(mympd_state->mpd_state->tag_list, value);
     }
     else if (strcmp(key, "tagListSearch") == 0) {
         if (vcb_istaglist(value) == false) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->tag_list_search = sdsreplace(mympd_state->tag_list_search, value);
     }
     else if (strcmp(key, "tagListBrowse") == 0) {
         if (vcb_istaglist(value) == false) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->tag_list_browse = sdsreplace(mympd_state->tag_list_browse, value);
@@ -267,24 +292,28 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
             mympd_state->smartpls = false;
         }
         else {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
     }
     else if (strcmp(key, "smartplsSort") == 0) {
         if (sdslen(value) > 0 && vcb_ismpdsort(value) == false) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->smartpls_sort = sdsreplace(mympd_state->smartpls_sort, value);
     }
     else if (strcmp(key, "smartplsPrefix") == 0) {
         if (vcb_isfilename(value) == false) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->smartpls_prefix = sdsreplacelen(mympd_state->smartpls_prefix, value, sdslen(value));
     }
     else if (strcmp(key, "smartplsInterval") == 0) {
-        time_t interval = strtoimax(value, &crap, 10);
+        time_t interval = strtoimax(value, NULL, 10);
         if (interval < 360 || interval > 604800) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         if (interval != mympd_state->smartpls_interval) {
@@ -294,6 +323,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
     }
     else if (strcmp(key, "smartplsGenerateTagList") == 0) {
         if (vcb_ismpdtag(value) == false) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->smartpls_generate_tag_list = sdsreplacelen(mympd_state->smartpls_generate_tag_list, value, sdslen(value));
@@ -303,31 +333,36 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
     }
     else if (strcmp(key, "lyricsUsltExt") == 0) {
         if (vcb_isalnum(value) == false) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->lyrics_uslt_ext = sdsreplacelen(mympd_state->lyrics_uslt_ext, value, sdslen(value));
     }
     else if (strcmp(key, "lyricsSyltExt") == 0) {
         if (vcb_isalnum(value) == false) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->lyrics_sylt_ext = sdsreplacelen(mympd_state->lyrics_sylt_ext, value, sdslen(value));
     }
     else if (strcmp(key, "lyricsVorbisUslt") == 0) {
         if (vcb_isalnum(value) == false) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->lyrics_vorbis_uslt = sdsreplacelen(mympd_state->lyrics_vorbis_uslt, value, sdslen(value));
     }
     else if (strcmp(key, "lyricsVorbisSylt") == 0) {
         if (vcb_isalnum(value) == false) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->lyrics_vorbis_sylt = sdsreplacelen(mympd_state->lyrics_vorbis_sylt, value, sdslen(value));
     }
     else if (strcmp(key, "covercacheKeepDays") == 0) {
-        int covercache_keep_days = (int)strtoimax(value, &crap, 10);
+        int covercache_keep_days = (int)strtoimax(value, NULL, 10);
         if (covercache_keep_days < 0 || covercache_keep_days > 365) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->covercache_keep_days = covercache_keep_days;
@@ -336,125 +371,175 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
         MYMPD_LOG_WARN("Unknown setting \"%s\": \"%s\"", key, value);
         return true;
     }
-    sds state_filename = camel_to_snake(key, sdslen(key));
-    rc = state_file_write(mympd_state->config->workdir, "state", state_filename, value);
+    sds state_filename = camel_to_snake(key);
+    bool rc = state_file_write(mympd_state->config->workdir, "state", state_filename, value);
     sdsfree(state_filename);
     return rc;
 }
 
-bool mpdclient_api_options_set(struct t_mympd_state *mympd_state, struct json_token *key, struct json_token *val,
-                            bool *jukebox_changed, bool *check_mpd_error)
-{
-    sds settingname = camel_to_snake(key->ptr, key->len);
-    sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
-    char *crap;
+bool mpdclient_api_options_set(sds key, sds value, int vtype, validate_callback vcb, void *userdata) {
+    (void) vcb;
+    struct t_mympd_state *mympd_state = (struct t_mympd_state *)userdata;
+
     bool rc = false;
     bool write_state_file = true;
+    bool jukebox_changed = false;
 
-    MYMPD_LOG_DEBUG("Parse setting %.*s: %.*s", key->len, key->ptr, val->len, val->ptr);
-    if (strncmp(key->ptr, "autoPlay", key->len) == 0) {
-        mympd_state->auto_play = val->type == JSON_TYPE_TRUE ? true : false;
+    MYMPD_LOG_DEBUG("Parse setting \"%s\": \"%s\"", key, value);
+    if (strcmp(key, "autoPlay") == 0) {
+        if (vtype == MJSON_TOK_TRUE) {
+            mympd_state->auto_play = true;
+        }
+        else if (vtype == MJSON_TOK_FALSE) {
+            mympd_state->auto_play = false;
+        }
+        else {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
+            return false;
+        }
     }
-    else if (strncmp(key->ptr, "jukeboxMode", key->len) == 0) {
-        unsigned jukebox_mode = strtoumax(settingvalue, &crap, 10);
+    else if (strcmp(key, "jukeboxMode") == 0) {
+        unsigned jukebox_mode = strtoumax(value, NULL, 10);
         if (jukebox_mode > 2) {
-            sdsfree(settingname);
-            sdsfree(settingvalue);
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         if (mympd_state->jukebox_mode != jukebox_mode) {
             mympd_state->jukebox_mode = jukebox_mode;
-            *jukebox_changed = true;
+            jukebox_changed = true;
         }
     }
-    else if (strncmp(key->ptr, "jukeboxPlaylist", key->len) == 0) {
-        if (strcmp(mympd_state->jukebox_playlist, settingvalue) != 0) {
-            mympd_state->jukebox_playlist = sdsreplacelen(mympd_state->jukebox_playlist, settingvalue, sdslen(settingvalue));
-            *jukebox_changed = true;
+    else if (strcmp(key, "jukeboxPlaylist") == 0) {
+        if (vcb_isfilename(value) == false) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
+            return false;
+        }
+        if (strcmp(mympd_state->jukebox_playlist, value) != 0) {
+            mympd_state->jukebox_playlist = sdsreplace(mympd_state->jukebox_playlist, value);
+            jukebox_changed = true;
         }
     }
-    else if (strncmp(key->ptr, "jukeboxQueueLength", key->len) == 0) {
-        int jukebox_queue_length = (int)strtoimax(settingvalue, &crap, 10);
+    else if (strcmp(key, "jukeboxQueueLength") == 0) {
+        int jukebox_queue_length = (int)strtoimax(value, NULL, 10);
         if (jukebox_queue_length <= 0 || jukebox_queue_length > 999) {
-            sdsfree(settingname);
-            sdsfree(settingvalue);
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
             return false;
         }
         mympd_state->jukebox_queue_length = jukebox_queue_length;
     }
-    else if (strncmp(key->ptr, "jukeboxUniqueTag", key->len) == 0) {
-        enum mpd_tag_type unique_tag = mpd_tag_name_parse(settingvalue);
+    else if (strcmp(key, "jukeboxUniqueTag") == 0) {
+        enum mpd_tag_type unique_tag = mpd_tag_name_parse(value);
         if (unique_tag == MPD_TAG_UNKNOWN) {
-            unique_tag = MPD_TAG_TITLE;
-            sdsclear(settingvalue);
-            settingvalue = sdscatprintf(settingvalue, "%u", unique_tag);
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
+            return false;
         }
         if (mympd_state->jukebox_unique_tag.tags[0] != unique_tag) {
             mympd_state->jukebox_unique_tag.tags[0] = unique_tag;
-            *jukebox_changed = true;
+            jukebox_changed = true;
         }
     }
-    else if (strncmp(key->ptr, "jukeboxLastPlayed", key->len) == 0) {
-        int jukebox_last_played = (int)strtoimax(settingvalue, &crap, 10);
+    else if (strcmp(key, "jukeboxLastPlayed") == 0) {
+        int jukebox_last_played = (int)strtoimax(value, NULL, 10);
+        if (jukebox_last_played < 0 || jukebox_last_played > 5000) {
+            MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
+            return false;
+        }
         if (jukebox_last_played != mympd_state->jukebox_last_played) {
             mympd_state->jukebox_last_played = jukebox_last_played;
-            *jukebox_changed = true;
+            jukebox_changed = true;
         }
     }
     else if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
-        if (strncmp(key->ptr, "random", key->len) == 0) {
-            unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
+        if (strcmp(key, "random") == 0) {
+            unsigned uint_buf = 0;
+            if (value[0] == '0') { uint_buf = 0; }
+            else if (value[0] == '1') { uint_buf = 1; }
+            else {
+                MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
+                return false;
+            }
             rc = mpd_run_random(mympd_state->mpd_state->conn, uint_buf);
         }
-        else if (strncmp(key->ptr, "repeat", key->len) == 0) {
-            unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
+        else if (strcmp(key, "repeat") == 0) {
+            unsigned uint_buf = 0;
+            if (value[0] == '0') { uint_buf = 0; }
+            else if (value[0] == '1') { uint_buf = 1; }
+            else {
+                MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
+                return false;
+            }
             rc = mpd_run_repeat(mympd_state->mpd_state->conn, uint_buf);
         }
-        else if (strncmp(key->ptr, "consume", key->len) == 0) {
-            unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
+        else if (strcmp(key, "consume") == 0) {
+            unsigned uint_buf = 0;
+            if (value[0] == '0') { uint_buf = 0; }
+            else if (value[0] == '1') { uint_buf = 1; }
+            else {
+                MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
+                return false;
+            }
             rc = mpd_run_consume(mympd_state->mpd_state->conn, uint_buf);
         }
-        else if (strncmp(key->ptr, "single", key->len) == 0) {
-            unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
+        else if (strcmp(key, "single") == 0) {
             if (mympd_state->mpd_state->feat_single_oneshot == true) {
                 enum mpd_single_state state;
-                if (uint_buf == 0) { state = MPD_SINGLE_OFF; }
-                else if (uint_buf == 1) { state = MPD_SINGLE_ON; }
-                else if (uint_buf == 2) { state = MPD_SINGLE_ONESHOT; }
-                else { state = MPD_SINGLE_UNKNOWN; }
+                if (value[0] == '0') { state = MPD_SINGLE_OFF; }
+                else if (value[0] == '1') { state = MPD_SINGLE_ON; }
+                else if (value[0] == '2') { state = MPD_SINGLE_ONESHOT; }
+                else { 
+                    MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
+                    return false;
+                }
                 rc = mpd_run_single_state(mympd_state->mpd_state->conn, state);
             }
             else {
+                unsigned uint_buf = 0;
+                if (value[0] == '0') { uint_buf = 0; }
+                else if (value[0] == '1') { uint_buf = 1; }
+                else { 
+                    MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
+                    return false;
+                }
                 rc = mpd_run_single(mympd_state->mpd_state->conn, uint_buf);
             }
         }
-        else if (strncmp(key->ptr, "crossfade", key->len) == 0) {
-            unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
+        else if (strcmp(key, "crossfade") == 0) {
+            unsigned uint_buf = strtoumax(value, NULL, 10);
+            if (uint_buf > 100) {
+                MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
+                return false;
+            }
             rc = mpd_run_crossfade(mympd_state->mpd_state->conn, uint_buf);
         }
-        else if (strncmp(key->ptr, "replaygain", key->len) == 0) {
-            enum mpd_replay_gain_mode mode = mpd_parse_replay_gain_name(settingvalue);
+        else if (strcmp(key, "replaygain") == 0) {
+            enum mpd_replay_gain_mode mode = mpd_parse_replay_gain_name(value);
             if (mode == MPD_REPLAY_UNKNOWN) {
-                MYMPD_LOG_ERROR("Unknown replay gain mode: %s", settingvalue);
+                MYMPD_LOG_WARN("Invalid value for \"%s\": \"%s\"", key, value);
+                return false;
             }
-            else {
-                rc = mpd_run_replay_gain_mode(mympd_state->mpd_state->conn, mode);
-            }
+            rc = mpd_run_replay_gain_mode(mympd_state->mpd_state->conn, mode);
         }
-        *check_mpd_error = true;
+        sds message = check_error_and_recover_notify(mympd_state->mpd_state, sdsempty());
+        if (sdslen(message) > 0) {
+            ws_notify(message);
+            rc = false;
+        }
+        sdsfree(message);
         write_state_file = false;
     }
     else {
-        MYMPD_LOG_WARN("Unknown setting \"%s\": \"%s\"", settingname, settingvalue);
-        sdsfree(settingname);
-        sdsfree(settingvalue);
+        MYMPD_LOG_WARN("Unknown setting \"%s\": \"%s\"", key, value);
         return false;
     }
-    if (write_state_file == true) {
-        rc = state_file_write(mympd_state->config->workdir, "state", settingname, settingvalue);
+    if (jukebox_changed == true && mympd_state->jukebox_queue.length > 0) {
+        MYMPD_LOG_INFO("Jukebox options changed, clearing jukebox queue");
+        list_free(&mympd_state->jukebox_queue);
     }
-    sdsfree(settingname);
-    sdsfree(settingvalue);
+    if (write_state_file == true) {
+        sds state_filename = camel_to_snake(key);
+        rc = state_file_write(mympd_state->config->workdir, "state", state_filename, value);
+        sdsfree(state_filename);
+    }
     return rc;
 }
 

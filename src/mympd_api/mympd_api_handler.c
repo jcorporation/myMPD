@@ -165,7 +165,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename) == true &&
                 json_get_string(request->data, "$.params.oldscript", 0, 200, &sds_buf2, vcb_isfilename) == true &&
                 json_get_int(request->data, "$.params.order", 0, 99, &int_buf1) == true &&
-                json_get_string(request->data, "$.params.content", 0, 5000, &sds_buf3, vcb_istext) == true &&
+                json_get_string(request->data, "$.params.content", 0, 2000, &sds_buf3, vcb_istext) == true &&
                 json_get_array_string(request->data, "$.params.arguments", &arguments, vcb_isalnum, 10) == true)
             {
                 rc = mympd_api_script_save(mympd_state->config, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments);
@@ -299,46 +299,21 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         }
         case MYMPD_API_PLAYER_OPTIONS_SET: {
-            void *h = NULL;
-            struct json_token key;
-            struct json_token val;
-            rc = true;
-            bool jukebox_changed = false;
-            bool check_mpd_error = false;
-            while ((h = json_next_key(request->data, (int)sdslen(request->data), h, ".params", &key, &val)) != NULL) {
-                rc = mpdclient_api_options_set(mympd_state, &key, &val, &jukebox_changed, &check_mpd_error);
-                if (check_mpd_error == true && 
-                    check_error_and_recover2(mympd_state->mpd_state, NULL, request->method, request->id, false) == false)
-                {
-                    break;
-                }
-                if (rc == false) {
-                    break;
-                }
-            }
-            if (rc == true) {
-                //respond with ok
-                response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
+            if (json_iterate_object(request->data, "$.params", mpdclient_api_options_set, mympd_state, NULL, 100) == true) {
                 if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
                     //feature detection
                     mpd_client_mpd_features(mympd_state);
-                    
-                    if (jukebox_changed == true) {
-                        MYMPD_LOG_DEBUG("Jukebox options changed, clearing jukebox queue");
-                        list_free(&mympd_state->jukebox_queue);
-                        mympd_state->jukebox_enforce_unique = true;
-                    }
                     if (mympd_state->jukebox_mode != JUKEBOX_OFF) {
                         //enable jukebox
                         mpd_client_jukebox(mympd_state, 0);
                     }
                 }
+                //respond with ok
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             }
             else {
-                sds value = sdsnewlen(key.ptr, key.len);
-                response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true,
-                    "general", "error", "Can't save setting %{setting}", 2, "setting", value);
-                sdsfree(value);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
+                    "general", "error", "Can't save settings");
             }
             break;
         }
@@ -346,19 +321,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = mympd_api_settings_put(mympd_state, response->data, request->method, request->id);
             break;
         case MYMPD_API_CONNECTION_SAVE: {
-            void *h = NULL;
-            struct json_token key;
-            struct json_token val;
-            rc = true;
-            bool mpd_host_changed = false;
-            while ((h = json_next_key(request->data, (int)sdslen(request->data), h, ".params", &key, &val)) != NULL) {
-                rc = mympd_api_connection_save(mympd_state, &key, &val, &mpd_host_changed);
-                if (rc == false) {
-                    break;
-                }
-            }
-            if (rc == true) {
-                if (mpd_host_changed == true) {
+            sds old_mpd_settings = sdscatprintf(sdsempty(), "%s%d%s", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
+
+            if (json_iterate_object(request->data, "$.params", mympd_api_connection_save, mympd_state, NULL, 100) == true) {
+                sds new_mpd_settings = sdscatprintf(sdsempty(), "%s%d%s", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
+                if (strcmp(old_mpd_settings, new_mpd_settings) != 0) {
                     //reconnect to new mpd
                     MYMPD_LOG_DEBUG("MPD host has changed, disconnecting");
                     mympd_state->mpd_state->conn_state = MPD_DISCONNECT_INSTANT;
@@ -367,14 +334,14 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                     //feature detection
                     mpd_client_mpd_features(mympd_state);
                 }
+                sdsfree(new_mpd_settings);
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             }
             else {
-                sds value = sdsnewlen(key.ptr, key.len);
-                response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true,
-                    "mpd", "error", "Can't save setting %{setting}", 2, "setting", value);
-                sdsfree(value);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
+                    "mpd", "error", "Can't save settings");
             }
+            sdsfree(old_mpd_settings);
             break;
         }
         case MYMPD_API_COVERCACHE_CROP:
