@@ -45,4 +45,6 @@ bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const 
 bool json_get_array_string(sds s, const char *path, struct list *array, validate_callback vcb, int max_elements);
 bool json_get_object_string(sds s, const char *path, struct list *array, validate_callback vcb, int max_elements);
 
+sds list_to_json_array(sds s, struct list *l);
+
 #endif

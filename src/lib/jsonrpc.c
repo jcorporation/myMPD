@@ -413,3 +413,16 @@ bool json_get_object_string(sds s, const char *path, struct list *array, validat
     sdsfree(value);
     return true;
 }
+
+sds list_to_json_array(sds s, struct list *l) {
+    struct list_node *current = l->head;
+    int i = 0;
+    while (current != NULL) {
+        if (i++) {
+            s = sdscatlen(s, ",", 1);
+        }
+        s = sdscatjson(s, current->key, sdslen(current->key));
+        current = current->next;
+    }
+    return s;
+}
