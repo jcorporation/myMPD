@@ -13,6 +13,7 @@
 
 #include <ctype.h>
 #include <limits.h>
+#include <mpd/client.h>
 #include <string.h>
 
 //private
@@ -21,6 +22,9 @@ static const char *invalid_json_chars = "\a\b\f\v\0";
 static const char *invalid_name_chars = "\a\b\f\n\r\t\v\0";
 static const char *invalid_filename_chars = "\a\b\f\n\r\t\v\0\\/?*|<>/";
 static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v\0\\/?*|<>";
+
+static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", 
+    "Lyrics", "stickerPlayCount", "stickerSkipCount", "stickerLastPlayed", "stickerLastSkipped", "stickerLike", 0};
 
 static bool _check_for_invalid_chars(sds data, const char *invalid_chars) {
     for (size_t i = 0; i < sdslen(data); i++) {
@@ -47,6 +51,17 @@ static bool _validate_json(sds data, char start, char end) {
         return false;
     }
     return _check_for_invalid_chars(data, invalid_json_chars);
+}
+
+static bool _is_mympd_col(sds token) {
+    const char** ptr = mympd_cols;
+    while (*ptr != 0) {
+        if (strncmp(token, *ptr, sdslen(token)) == 0) {
+            return true;
+        }
+        ++ptr;
+    }
+    return false;
 }
 
 //public
@@ -104,6 +119,16 @@ bool vcb_isfilepath(sds data) {
         return false;
     }
     return _check_for_invalid_chars(data, invalid_filepath_chars);
+}
+
+bool vcb_iscolumn(sds token) {
+    if (mpd_tag_name_iparse(token) != MPD_TAG_UNKNOWN ||
+        _is_mympd_col(token) == true)
+    {
+        return true;
+    }
+    MYMPD_LOG_WARN("Unknown column: %s", token);
+    return false;
 }
 
 

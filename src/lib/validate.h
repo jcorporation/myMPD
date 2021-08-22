@@ -13,13 +13,6 @@
 
 typedef bool (*validate_callback) (sds);
 
-bool validate_string(const char *data);
-bool validate_string_not_empty(const char *data);
-bool validate_string_not_dir(const char *data);
-bool validate_songuri(const char *data);
-bool validate_uri(const char *data);
-bool is_streamuri(const char *uri);
-
 bool validate_json(sds data);
 bool validate_json_array(sds data);
 
@@ -30,5 +23,14 @@ bool vcb_isname(sds data);
 bool vcb_istext(sds data);
 bool vcb_isfilename(sds data);
 bool vcb_isfilepath(sds data);
+bool vcb_iscolumn(sds token);
+
+//deprecated validation functions
+bool validate_string(const char *data);
+bool validate_string_not_empty(const char *data);
+bool validate_string_not_dir(const char *data);
+bool validate_songuri(const char *data);
+bool validate_uri(const char *data);
+bool is_streamuri(const char *uri);
 
 #endif
