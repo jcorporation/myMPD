@@ -341,6 +341,12 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
     int vtype = 0;
     int off = 0;
     for (off = 0; (off = mjson_next(p, n, off, &koff, &klen, &voff, &vlen, &vtype)) != 0;) {
+        if (klen > 50) {
+            MYMPD_LOG_WARN("Key in path \"%s\" is too long", path);
+            sdsfree(value);
+            sdsfree(key);
+            return false;
+        }
         if (klen > 2) {
             if (sds_json_unescape(p + koff + 1, klen - 2, &key) == false ||
                 vcb_isalnum(value) == false)
@@ -350,6 +356,12 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
                 sdsfree(key);
                 return false;
             }
+        }
+        if (vlen > 2000) {
+            MYMPD_LOG_WARN("Value for key \"%s\" is too long", key);
+            sdsfree(value);
+            sdsfree(key);
+            return false;
         }
         switch(vtype) {
             case MJSON_TOK_STRING:
@@ -415,7 +427,7 @@ static bool icb_json_get_object_string(sds key, sds value, int vtype, validate_c
         vtype != MJSON_TOK_STRING ||
         vcb(value) == false)
     {
-        MYMPD_LOG_WARN("Validation of value \"%s\" has failed", value);
+        MYMPD_LOG_WARN("Validation of key \"%s\" with value \"%s\" has failed", key, value);
         return false;
     }
     struct list *l = (struct list *)userdata;
