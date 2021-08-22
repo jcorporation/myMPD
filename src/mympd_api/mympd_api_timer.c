@@ -120,7 +120,6 @@ bool replace_timer(struct t_timer_list *l, unsigned int timeout, int interval, t
 bool add_timer(struct t_timer_list *l, unsigned int timeout, int interval, time_handler handler, 
                int timer_id, struct t_timer_definition *definition, void *user_data) 
 {
-
     if (l->length == 100) {
         MYMPD_LOG_ERROR("Maximum number of timers (100) reached");
         return false;
