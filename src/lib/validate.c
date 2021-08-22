@@ -77,6 +77,7 @@ bool validate_json_array(sds data) {
 bool vcb_isalnum(sds data) {
     for (size_t i = 0; i < sdslen(data); i++) {
         if (isalnum(data[i]) == 0 && data[i] != '_') {
+            MYMPD_LOG_WARN("Found none alphanumeric character in string");
             return false;
         }
     }
@@ -86,6 +87,7 @@ bool vcb_isalnum(sds data) {
 bool vcb_isprint(sds data) {
     for (size_t i = 0; i < sdslen(data); i++) {
         if (isprint(data[i]) == 0) {
+            MYMPD_LOG_WARN("Found none printable character in string");
             return false;
         }
     }
@@ -95,6 +97,7 @@ bool vcb_isprint(sds data) {
 bool vcb_ishexcolor(sds data) {
     for (size_t i = 0; i < sdslen(data); i++) {
         if (isxdigit(data[i]) == 0 && data[i] != '#') {
+            MYMPD_LOG_WARN("Found none hex character in string");
             return false;
         }
     }
@@ -102,18 +105,30 @@ bool vcb_ishexcolor(sds data) {
 }
 
 bool vcb_isname(sds data) {
-    return _check_for_invalid_chars(data, invalid_name_chars);
+    bool rc = _check_for_invalid_chars(data, invalid_name_chars);
+    if (rc == false) {
+        MYMPD_LOG_WARN("Found illegal name character");
+    }
+    return rc;
 }
 
 bool vcb_istext(sds data) {
-    return _check_for_invalid_chars(data, invalid_json_chars);
+    bool rc = _check_for_invalid_chars(data, invalid_json_chars);
+    if (rc == false) {
+        MYMPD_LOG_WARN("Found illegal text character");
+    }
+    return rc;
 }
 
 bool vcb_isfilename(sds data) {
     if (sdslen(data) == 0) {
         return false;
     }
-    return _check_for_invalid_chars(data, invalid_filename_chars);
+    bool rc = _check_for_invalid_chars(data, invalid_filename_chars);
+    if (rc == false) {
+        MYMPD_LOG_WARN("Found illegal filename character");
+    }
+    return rc;
 }
 
 bool vcb_isfilepath(sds data) {
@@ -122,9 +137,14 @@ bool vcb_isfilepath(sds data) {
     }
     if (strstr(data, "../") != NULL || strstr(data, "/./") != NULL || strstr(data, "//") != NULL) {
         //prevent dir traversal
+        MYMPD_LOG_WARN("Found dir traversal in path");
         return false;
     }
-    return _check_for_invalid_chars(data, invalid_filepath_chars);
+    bool rc = _check_for_invalid_chars(data, invalid_filepath_chars);
+    if (rc == false) {
+        MYMPD_LOG_WARN("Found illegal filepath character");
+    }
+    return rc;
 }
 
 bool vcb_iscolumn(sds data) {
