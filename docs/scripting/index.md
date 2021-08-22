@@ -10,7 +10,7 @@ myMPD integrates [Lua](http://www.lua.org) for scripting purposes. Script execut
 
 Accessing myMPD requires the mympd lua library to be loaded.
 
-The lua command `mympd.init()` populates the lua table `mympd_state` with configuration values and up-to-date status informations of myMPD and MPD. `mympd.init()` is only a shorthand command for `mympd_api("MYMPD_API_SCRIPT_INIT")`
+The lua command `mympd.init()` populates the lua table `mympd_state` with configuration values and up-to-date status informations of myMPD and MPD. `mympd.init()` is only a shorthand command for `mympd_api("INTERNAL_API_SCRIPT_INIT")`
 
 - [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state)
 
