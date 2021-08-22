@@ -287,10 +287,8 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
         if (min == 0) {
             return true;
         }
-        else {
-            MYMPD_LOG_WARN("String for path \"%s\" is too short", path);
-            return false;
-        }
+        MYMPD_LOG_WARN("String for path \"%s\" is too short", path);
+        return false;
     }
     
     //remove quotes
@@ -321,14 +319,10 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
         MYMPD_LOG_ERROR("Iteration callback is NULL");
         return false;
     }
-    if (vcb == NULL) {
-        MYMPD_LOG_ERROR("Validation callback is NULL");
-        return false;
-    }
     const char *p;
     int n;
     int otype = mjson_find(s, (int)sdslen(s), path, &p, &n);
-    if ( otype != MJSON_TOK_OBJECT && otype != MJSON_TOK_ARRAY) {
+    if (otype != MJSON_TOK_OBJECT && otype != MJSON_TOK_ARRAY) {
         MYMPD_LOG_WARN("Invalid json object type");
         return false;
     }
@@ -368,15 +362,15 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
                     }
                 }
                 break;
-            case MJSON_TOK_FALSE:
-            case MJSON_TOK_TRUE:
-            case MJSON_TOK_NUMBER:
-                break;
-            default:
+            case MJSON_TOK_INVALID:
+            case MJSON_TOK_NULL:
                 MYMPD_LOG_WARN("Invalid json value type");
                 sdsfree(value);
                 sdsfree(key);
                 return false;
+            default:
+                value = sdscatlen(value, p + voff, vlen);
+                break;
         }
 
         if (icb(key, value, vtype, vcb, icb_userdata) == false) {
