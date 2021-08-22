@@ -294,7 +294,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             else {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
-                    "general", "error", "Can't save setting");
+                    "general", "error", "Can't save settings");
             }
             break;
         }

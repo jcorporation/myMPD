@@ -795,9 +795,6 @@ Serveur Web
 Download
 Télécharger
 
-Can't save setting %{setting}
-Ne peut enregistrer le paramètre %{setting}
-
 No current song
 Pas de chanson en cours
 

@@ -795,9 +795,6 @@ Server Web
 Download
 Scarica
 
-Can't save setting %{setting}
-Impossibile salvare i parametri %{setting}
-
 No current song
 Nessun brano in riproduzione
 

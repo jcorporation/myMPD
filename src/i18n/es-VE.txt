@@ -789,9 +789,6 @@ Servidor Web
 Download
 Descargar
 
-Can't save setting %{setting}
-Error al guardar la configuración: %{setting}
-
 No current song
 No hay canción actual
 

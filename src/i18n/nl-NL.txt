@@ -792,9 +792,6 @@ Webserver
 Download
 Download
 
-Can't save setting %{setting}
-Kan instelling %{setting} niet saven
-
 No current song
 Geen nummer gekozen
 

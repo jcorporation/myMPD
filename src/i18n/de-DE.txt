@@ -843,8 +843,8 @@ Webserver
 Download
 Herunterladen
 
-Can't save setting %{setting}
-%{setting} konnte nicht gespeichert werden
+Can't save settings
+Einstellungen konnten nicht gespeichert werden
 
 No current song
 Kein Lied ausgwählt
@@ -1878,3 +1878,6 @@ Session wurde erfolgreich erstellt
 
 Enter pin
 Pin eingeben
+
+Invalid script content
+Ungültige Zeichen im Skript

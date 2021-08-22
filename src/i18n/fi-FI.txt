@@ -792,9 +792,6 @@ Webserver
 Download
 Lataa
 
-Can't save setting %{setting}
-Ei voi tallentaa asetusta %{setting}
-
 No current song
 Ei toistettavaa kappaletta
 
