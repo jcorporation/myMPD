@@ -136,16 +136,8 @@ bool mympd_api_script_save(struct t_config *config, const char *script, const ch
     }
     FILE *fp = fdopen(fd, "w");
     //write metadata line
-    struct list_node *current = arguments->head;
-    int i = 0;
     sds argstr = sdsempty();
-    while (current != NULL) {
-        if (i++) {
-            argstr = sdscatlen(argstr, ",", 1);
-        }
-        argstr = sdscatjson(argstr, current->key, sdslen(current->key));
-        current = current->next;
-    }
+    argstr = list_to_json_array(argstr, arguments);
     fprintf(fp, "-- {\"order\":%d,\"arguments\":[%s]}\n", order, argstr);
     sdsfree(argstr);
     //write script content
