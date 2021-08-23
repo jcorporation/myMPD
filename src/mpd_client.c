@@ -23,6 +23,8 @@
 #include "mpd_shared/mpd_shared_tags.h"
 #include "mpd_worker.h"
 #include "mympd_api/mympd_api_handler.h"
+#include "mympd_api/mympd_api_timer.h"
+#include "mympd_api/mympd_api_timer_handlers.h"
 
 #include <poll.h>
 #include <string.h>
@@ -227,7 +229,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             //initiate cache updates
             update_mympd_caches(mympd_state);
             //set timer for smart playlist update
-            mpd_client_set_timer(INTERNAL_API_TIMER_SET, 10, (int)mympd_state->smartpls_interval, "timer_handler_smartpls_update");
+            replace_timer(&mympd_state->timer_list, 10, (int)mympd_state->smartpls_interval, timer_handler_smartpls_update, 2, NULL, NULL);
             //jukebox
             if (mympd_state->jukebox_mode != JUKEBOX_OFF) {
                 mpd_client_jukebox(mympd_state, 0);

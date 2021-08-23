@@ -11,15 +11,6 @@
 #include "../lib/log.h"
 #include "../mpd_shared.h"
 
-void mpd_client_set_timer(enum mympd_cmd_ids cmd_id, int timeout, int interval, const char *handler) {
-    t_work_request *request = create_request(-1, 0, cmd_id, NULL);
-    request->data = tojson_long(request->data, "timeout", timeout, true);
-    request->data = tojson_long(request->data, "interval", interval, true);
-    request->data = tojson_char(request->data, "handler", handler, false);
-    request->data = sdscat(request->data, "}}");
-    tiny_queue_push(mympd_api_queue, request, 0);
-}
-
 sds mpd_client_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
                                unsigned volume, const char *playlist, enum jukebox_modes jukebox_mode) 
 {

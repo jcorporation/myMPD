@@ -366,19 +366,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                             "general", "error", "Error in clearing the covercache");
             }
             break;
-        case INTERNAL_API_TIMER_SET:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {timeout: %d, interval: %d, handler: %Q}}", &int_buf1, &int_buf2, &p_charbuf1);
-            if (je == 3) {
-                bool handled = false;
-                if (strcmp(p_charbuf1, "timer_handler_smartpls_update") == 0) {
-                    replace_timer(&mympd_state->timer_list, int_buf1, int_buf2, timer_handler_smartpls_update, 2, NULL, NULL);
-                    handled = true;
-                }
-                if (handled == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "timer");
-                }
-            }
-            break;
         case MYMPD_API_TIMER_SAVE: {
             struct t_timer_definition *timer_def = malloc(sizeof(struct t_timer_definition));
             assert(timer_def);
