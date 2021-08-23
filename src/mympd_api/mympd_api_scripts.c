@@ -257,7 +257,7 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
     sds line = sdsempty();
     if (sdsgetline(&line, fp, 1000) == 0 && strncmp(line, "-- ", 3) == 0) {
         sdsrange(line, 3, -1);
-        if (json_get_int(line, "$.order", 0, 99, order) == true) {
+        if (json_get_int(line, "$.order", 0, 99, order, NULL) == true) {
             entry = sdscat(entry, "\"metadata\":");
             entry = sdscat(entry, line);
         }
@@ -563,7 +563,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         if (response != NULL) {
             MYMPD_LOG_DEBUG("Got result: %s", response->data);
             sds sds_buf1 = NULL;
-            if (json_get_string(response->data, "$.result.message", 1, 1000, &sds_buf1, vcb_isname) == true) {
+            if (json_get_string(response->data, "$.result.message", 1, 1000, &sds_buf1, vcb_isname, NULL) == true) {
                 if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
                     MYMPD_LOG_DEBUG("Populating lua global state table mympd");
                     struct list *lua_mympd_state = (struct list *) response->extra;
@@ -582,7 +582,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                 free_result(response);
                 return 2;
             }
-            if (json_get_string(request->data, "$.error.message", 1, 1000, &sds_buf1, vcb_isname) == true) {
+            if (json_get_string(request->data, "$.error.message", 1, 1000, &sds_buf1, vcb_isname, NULL) == true) {
                 lua_pushinteger(lua_vm, 1);
                 lua_pushstring(lua_vm, sds_buf1);
                 FREE_SDS(sds_buf1);

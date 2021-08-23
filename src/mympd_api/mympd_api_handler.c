@@ -72,6 +72,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
     sds sds_buf4 = NULL;
     sds sds_buf5 = NULL;
     sds sds_buf6 = NULL;
+    sds error = sdsempty();
     bool async = false;
     
     #ifdef DEBUG
@@ -105,15 +106,15 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             struct list options;
             list_init(&options);
-            if (json_get_bool(request->data, "$.params.replace", &bool_buf1) == true &&
-                json_get_uint(request->data, "$.params.oldpos", 0, 99, &uint_buf1) == true &&
-                json_get_string_max(request->data, "$.params.name", &sds_buf1, vcb_isname) == true &&
-                json_get_string_max(request->data, "$.params.ligature", &sds_buf2, vcb_isalnum) == true &&
-                json_get_string_max(request->data, "$.params.bgcolor", &sds_buf3, vcb_ishexcolor) == true &&
-                json_get_string_max(request->data, "$.params.color", &sds_buf4, vcb_ishexcolor) == true &&
-                json_get_string_max(request->data, "$.params.image", &sds_buf5, vcb_isfilepath) == true &&
-                json_get_string_max(request->data, "$.params.cmd", &sds_buf6, vcb_isalnum) == true &&
-                json_get_array_string(request->data, "$.params.options", &options, vcb_isname, 10) == true)
+            if (json_get_bool(request->data, "$.params.replace", &bool_buf1, &error) == true &&
+                json_get_uint(request->data, "$.params.oldpos", 0, 99, &uint_buf1, &error) == true &&
+                json_get_string_max(request->data, "$.params.name", &sds_buf1, vcb_isname, &error) == true &&
+                json_get_string_max(request->data, "$.params.ligature", &sds_buf2, vcb_isalnum, &error) == true &&
+                json_get_string_max(request->data, "$.params.bgcolor", &sds_buf3, vcb_ishexcolor, &error) == true &&
+                json_get_string_max(request->data, "$.params.color", &sds_buf4, vcb_ishexcolor, &error) == true &&
+                json_get_string_max(request->data, "$.params.image", &sds_buf5, vcb_isfilepath, &error) == true &&
+                json_get_string_max(request->data, "$.params.cmd", &sds_buf6, vcb_isalnum, &error) == true &&
+                json_get_array_string(request->data, "$.params.options", &options, vcb_isname, 10, &error) == true)
             {
                 rc = mympd_api_save_home_icon(mympd_state, bool_buf1, uint_buf1, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, &options);                
                 if (rc == true) {
@@ -127,8 +128,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         }
         case MYMPD_API_HOME_ICON_MOVE:
-            if (json_get_uint(request->data, "$.params.from", 0, 99, &uint_buf1) == true &&
-                json_get_uint(request->data, "$.params.to", 0, 99, &uint_buf2) == true)
+            if (json_get_uint(request->data, "$.params.from", 0, 99, &uint_buf1, &error) == true &&
+                json_get_uint(request->data, "$.params.to", 0, 99, &uint_buf2, &error) == true)
             {
                 rc = mympd_api_move_home_icon(mympd_state, uint_buf1, uint_buf2);
                 if (rc == true) {
@@ -140,7 +141,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_HOME_ICON_RM:
-            if (json_get_uint(request->data, "$.params.pos", 0, 99, &uint_buf1) == true) {
+            if (json_get_uint(request->data, "$.params.pos", 0, 99, &uint_buf1, &error) == true) {
                 rc = mympd_api_rm_home_icon(mympd_state, uint_buf1);
                 if (rc == true) {
                     response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
@@ -151,7 +152,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_HOME_ICON_GET:
-            if (json_get_uint(request->data, "$.params.pos", 0, 99, &uint_buf1) == true) {
+            if (json_get_uint(request->data, "$.params.pos", 0, 99, &uint_buf1, &error) == true) {
                 response->data = mympd_api_get_home_icon(mympd_state, response->data, request->method, request->id, uint_buf1);
             }
             break;
@@ -162,11 +163,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_SCRIPT_SAVE: {
             struct list arguments;
             list_init(&arguments);
-            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename) == true &&
-                json_get_string(request->data, "$.params.oldscript", 0, 200, &sds_buf2, vcb_isfilename) == true &&
-                json_get_int(request->data, "$.params.order", 0, 99, &int_buf1) == true &&
-                json_get_string(request->data, "$.params.content", 0, 2000, &sds_buf3, vcb_istext) == true &&
-                json_get_array_string(request->data, "$.params.arguments", &arguments, vcb_isalnum, 10) == true)
+            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.oldscript", 0, 200, &sds_buf2, vcb_isfilename, &error) == true &&
+                json_get_int(request->data, "$.params.order", 0, 99, &int_buf1, &error) == true &&
+                json_get_string(request->data, "$.params.content", 0, 2000, &sds_buf3, vcb_istext, &error) == true &&
+                json_get_array_string(request->data, "$.params.arguments", &arguments, vcb_isalnum, 10, &error) == true)
             {
                 rc = mympd_api_script_save(mympd_state->config, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments);
                 if (rc == true) {
@@ -181,7 +182,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         }
         case MYMPD_API_SCRIPT_RM:
-            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename) == true) {
+            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename, &error) == true) {
                 rc = mympd_api_script_delete(mympd_state->config, sds_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
@@ -197,12 +198,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_SCRIPT_GET:
-            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename) == true) {
+            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename, &error) == true) {
                 response->data = mympd_api_script_get(mympd_state->config, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_SCRIPT_LIST: {
-            if (json_get_bool(request->data, "$.params.all", &bool_buf1) == true) {
+            if (json_get_bool(request->data, "$.params.all", &bool_buf1, &error) == true) {
                 response->data = mympd_api_script_list(mympd_state->config, response->data, request->method, request->id, bool_buf1);
             }
             break;
@@ -213,8 +214,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             struct list *arguments = (struct list *) malloc(sizeof(struct list));
             assert(arguments);
             list_init(arguments);
-            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename) == true && 
-                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10) == true)
+            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename, &error) == true && 
+                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
             {
                 rc = mympd_api_script_start(mympd_state->config, sds_buf1, arguments, true);
                 if (rc == true) {
@@ -238,8 +239,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             struct list *arguments = (struct list *) malloc(sizeof(struct list));
             assert(arguments);
             list_init(arguments);
-            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_istext) == true &&
-                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10) == true) 
+            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_istext, &error) == true &&
+                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true) 
             {
                 rc = mympd_api_script_start(mympd_state->config, p_charbuf1, arguments, false);
                 if (rc == true) {
@@ -260,11 +261,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         }
         #endif
         case MYMPD_API_COLS_SAVE: {
-            if (json_get_string(request->data, "$.params.table", 1, 200, &sds_buf1, vcb_isalnum) == true) {
-                bool error = false;
+            if (json_get_string(request->data, "$.params.table", 1, 200, &sds_buf1, vcb_isalnum, &error) == true) {
+                bool rc_error = false;
                 sds cols = sdsnewlen("[", 1);
-                cols = json_to_cols(cols, request->data, &error);
-                if (error == false) {
+                cols = json_to_cols(cols, request->data, &rc_error);
+                if (rc_error == false) {
                     cols = sdscatlen(cols, "]", 1);
                     if (mympd_api_cols_save(mympd_state, sds_buf1, cols)) {
                         response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
@@ -284,7 +285,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         }
         case MYMPD_API_SETTINGS_SET: {
-            if (json_iterate_object(request->data, "$.params", mympd_api_settings_set, mympd_state, NULL, 1000) == true) {
+            if (json_iterate_object(request->data, "$.params", mympd_api_settings_set, mympd_state, NULL, 1000, &error) == true) {
                 if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
                     //feature detection
                     mpd_client_mpd_features(mympd_state);
@@ -299,7 +300,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         }
         case MYMPD_API_PLAYER_OPTIONS_SET: {
-            if (json_iterate_object(request->data, "$.params", mpdclient_api_options_set, mympd_state, NULL, 100) == true) {
+            if (json_iterate_object(request->data, "$.params", mpdclient_api_options_set, mympd_state, NULL, 100, &error) == true) {
                 if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
                     //feature detection
                     mpd_client_mpd_features(mympd_state);
@@ -323,7 +324,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_CONNECTION_SAVE: {
             sds old_mpd_settings = sdscatprintf(sdsempty(), "%s%d%s", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
 
-            if (json_iterate_object(request->data, "$.params", mympd_api_connection_save, mympd_state, NULL, 100) == true) {
+            if (json_iterate_object(request->data, "$.params", mympd_api_connection_save, mympd_state, NULL, 100, &error) == true) {
                 sds new_mpd_settings = sdscatprintf(sdsempty(), "%s%d%s", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
                 if (strcmp(old_mpd_settings, new_mpd_settings) != 0) {
                     //reconnect to new mpd
@@ -1202,9 +1203,16 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
     #endif
 
     if (async == true) {
+        sdsfree(error);
         return;
     }
 
+    if (sdslen(error) > 0) {
+        response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+            "general", "error", error);
+        MYMPD_LOG_ERROR("Error processing method \"%s\"", request->method);
+    }
+    sdsfree(error);
     if (sdslen(response->data) == 0) {
         response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true, 
             "general", "error", "No response for method %{method}", 2, "method", request->method);

@@ -13,7 +13,7 @@
 
 #include <stdbool.h>
 
-typedef bool (*iterate_callback) (sds, sds, int, validate_callback, void *);
+typedef bool (*iterate_callback) (sds, sds, int, validate_callback, void *, sds *);
 
 void send_jsonrpc_notify(const char *facility, const char *severity, const char *message);
 void send_jsonrpc_event(const char *event);
@@ -36,17 +36,17 @@ sds tojson_long(sds buffer, const char *key, long long value, bool comma);
 sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma);
 sds tojson_double(sds buffer, const char *key, double value, bool comma);
 
-bool json_get_bool(sds s, const char *path, bool *result);
-bool json_get_int_max(sds s, const char *path, int *result);
-bool json_get_int(sds s, const char *path, int min, int max, int *result);
-bool json_get_uint_max(sds s, const char *path, unsigned *result);
-bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned *result);
-bool json_get_string_max(sds s, const char *path, sds *result, validate_callback vcb);
-bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb);
-bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const char *cmp, sds *result);
-bool json_get_array_string(sds s, const char *path, struct list *l, validate_callback vcb, int max_elements);
-bool json_get_object_string(sds s, const char *path, struct list *l, validate_callback vcb, int max_elements);
-bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata, validate_callback vcb, int max_elements);
+bool json_get_bool(sds s, const char *path, bool *result, sds *error);
+bool json_get_int_max(sds s, const char *path, int *result, sds *error);
+bool json_get_int(sds s, const char *path, int min, int max, int *result, sds *error);
+bool json_get_uint_max(sds s, const char *path, unsigned *result, sds *error);
+bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned *result, sds *error);
+bool json_get_string_max(sds s, const char *path, sds *result, validate_callback vcb, sds *error);
+bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, sds *error);
+bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const char *cmp, sds *result, sds *error);
+bool json_get_array_string(sds s, const char *path, struct list *l, validate_callback vcb, int max_elements, sds *error);
+bool json_get_object_string(sds s, const char *path, struct list *l, validate_callback vcb, int max_elements, sds *error);
+bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata, validate_callback vcb, int max_elements, sds *error);
 
 sds list_to_json_array(sds s, struct list *l);
 

@@ -137,7 +137,7 @@ void free_mympd_state_sds(struct t_mympd_state *mympd_state) {
 sds json_to_cols(sds cols, sds s, bool *error) {
     struct list col_list;
     list_init(&col_list);
-    if (json_get_array_string(s, "$.params.cols", &col_list, vcb_iscolumn, 20) == true) {
+    if (json_get_array_string(s, "$.params.cols", &col_list, vcb_iscolumn, 20, NULL) == true) {
         cols = list_to_json_array(cols, &col_list);
         *error = false;
     }

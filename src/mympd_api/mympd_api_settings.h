@@ -16,7 +16,7 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
 bool mympd_api_cols_save(struct t_mympd_state *mympd_state, sds table, sds cols);
 void mympd_api_settings_delete(struct t_config *config);
 sds mympd_api_picture_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
-bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb, void *userdata);
-bool mpdclient_api_options_set(sds key, sds value, int vtype, validate_callback vcb, void *userdata);
-bool mympd_api_connection_save(sds key, sds value, int vtype, validate_callback vcb, void *userdata);
+bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error);
+bool mpdclient_api_options_set(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error);
+bool mympd_api_connection_save(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error);
 #endif
