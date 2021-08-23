@@ -18,7 +18,6 @@
 //private definitions
 static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb);
 
-
 //public functions
 
 void send_jsonrpc_notify(const char *facility, const char *severity, const char *message) {
@@ -139,17 +138,7 @@ sds jsonrpc_respond_message_phrase(sds buffer, const char *method, long id, bool
 }
 
 sds tojson_char(sds buffer, const char *key, const char *value, bool comma) {
-    buffer = sdscatfmt(buffer, "\"%s\":", key);
-    if (value != NULL) {
-        buffer = sdscatjson(buffer, value, strlen(value)); /* Flawfinder: ignore */
-    }
-    else {
-        buffer = sdscat(buffer, "\"\"");
-    }
-    if (comma) {
-        buffer = sdscat(buffer, ",");
-    }
-    return buffer;
+    return tojson_char_len(buffer, key, value, strlen(value), comma);
 }
 
 sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, bool comma) {
