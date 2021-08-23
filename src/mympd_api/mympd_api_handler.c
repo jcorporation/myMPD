@@ -208,7 +208,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         }
-
         case MYMPD_API_SCRIPT_EXECUTE: {
             //malloc list - it is used in another thread
             struct list *arguments = (struct list *) malloc(sizeof(struct list));
@@ -240,7 +239,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             assert(arguments);
             list_init(arguments);
             if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_istext, &error) == true &&
-                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true) 
+                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
             {
                 rc = mympd_api_script_start(mympd_state->config, p_charbuf1, arguments, false);
                 if (rc == true) {
@@ -370,9 +369,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_TIMER_SAVE: {
             struct t_timer_definition *timer_def = malloc(sizeof(struct t_timer_definition));
             assert(timer_def);
-            timer_def = parse_timer(timer_def, request->data, sdslen(request->data));
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {timerid: %d, interval: %d}}", &int_buf1, &int_buf2);
-            if (je == 2 && timer_def != NULL) {
+            timer_def = parse_timer(timer_def, request->data, &error);
+            if (timer_def != NULL &&
+                json_get_int(request->data, "$.params.interval", -1, 604800, &int_buf2, &error) == true &&
+                json_get_int(request->data, "$.params.timerid", 0, 100, &int_buf1, &error) == true)
+            {
                 if (int_buf1 == 0) {
                     mympd_state->timer_list.last_id++;
                     int_buf1 = mympd_state->timer_list.last_id;
@@ -398,21 +399,18 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = timer_list(mympd_state, response->data, request->method, request->id);
             break;
         case MYMPD_API_TIMER_GET:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {timerid: %d}}", &int_buf1);
-            if (je == 1) {
+            if (json_get_int(request->data, "$.params.timerid", 0, 100, &int_buf1, &error) == true) {
                 response->data = timer_get(mympd_state, response->data, request->method, request->id, int_buf1);
             }
             break;
         case MYMPD_API_TIMER_RM:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {timerid: %d}}", &int_buf1);
-            if (je == 1) {
+            if (json_get_int(request->data, "$.params.timerid", 0, 100, &int_buf1, &error) == true) {
                 remove_timer(&mympd_state->timer_list, int_buf1);
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "timer");
             }
             break;
         case MYMPD_API_TIMER_TOGGLE:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {timerid: %d}}", &int_buf1);
-            if (je == 1) {
+            if (json_get_int(request->data, "$.params.timerid", 0, 100, &int_buf1, &error) == true) {
                 toggle_timer(&mympd_state->timer_list, int_buf1);
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "timer");
             }

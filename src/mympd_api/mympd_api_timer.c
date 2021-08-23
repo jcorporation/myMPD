@@ -7,7 +7,6 @@
 #include "mympd_config_defs.h"
 #include "mympd_api_timer.h"
 
-#include "../../dist/src/frozen/frozen.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mympd_configuration.h"
@@ -254,73 +253,44 @@ bool free_timerlist(struct t_timer_list *l) {
     return true;
 }
 
-struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, const char *str, size_t len) {
-    char *name = NULL;
-    bool enabled;
-    int start_hour;
-    int start_minute;
-    int volume;
-    unsigned jukebox_mode;
-    char *action = NULL;
-    char *subaction = NULL;
-    char *playlist = NULL;
-    int je = json_scanf(str, (int)len, "{params: {name: %Q, enabled: %B, startHour: %d, startMinute: %d, action: %Q, subaction: %Q, volume: %d, playlist: %Q, jukeboxMode: %u}}",
-        &name, &enabled, &start_hour, &start_minute, &action, &subaction, &volume, &playlist, &jukebox_mode);
-    if (je == 9 || (je == 8 && subaction == NULL)) {
-        if (start_hour < 0 || start_hour > 23 || start_minute < 0 || start_minute > 59) {
-            start_hour = 0;
-            start_minute = 0;        
-        }
+struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, sds str, sds *error) {
+    timer_def->name = NULL;
+    timer_def->action = NULL;
+    timer_def->subaction = NULL;
+    timer_def->playlist = NULL;
+    list_init(&timer_def->arguments);
+
+    if (json_get_string_max(str, "$.params.name", &timer_def->name, vcb_isname, error) == true &&
+        json_get_bool(str, "$.params.enabled", &timer_def->enabled, error) == true &&
+        json_get_int(str, "$.params.startHour", 0, 23, &timer_def->start_hour, error) == true &&
+        json_get_int(str, "$.params.startMinute", 0, 23, &timer_def->start_minute, error) == true &&
+        json_get_string_max(str, "$.params.action", &timer_def->action, vcb_isalnum, error) == true &&
+        json_get_string_max(str, "$.params.subaction", &timer_def->subaction, vcb_isname, error) == true &&
+        json_get_int(str, "$.params.volume", 0, 100, &timer_def->volume, error) == true &&
+        json_get_string_max(str, "$.params.playlist", &timer_def->subaction, vcb_isfilename, error) == true &&
+        json_get_uint(str, "$.params.jukeboxMode", 0, 2, &timer_def->jukebox_mode, error) == true &&
+        json_get_object_string(str, "$.params.arguments", &timer_def->arguments, vcb_isname, 10, error) == true &&
+        json_get_bool(str, "$.params.weekdays[0]", &timer_def->weekdays[0], error) == true &&
+        json_get_bool(str, "$.params.weekdays[1]", &timer_def->weekdays[1], error) == true &&
+        json_get_bool(str, "$.params.weekdays[2]", &timer_def->weekdays[2], error) == true &&
+        json_get_bool(str, "$.params.weekdays[3]", &timer_def->weekdays[3], error) == true &&
+        json_get_bool(str, "$.params.weekdays[4]", &timer_def->weekdays[4], error) == true &&
+        json_get_bool(str, "$.params.weekdays[5]", &timer_def->weekdays[5], error) == true &&
+        json_get_bool(str, "$.params.weekdays[6]", &timer_def->weekdays[6], error) == true)
+    {
         MYMPD_LOG_DEBUG("Successfully parsed timer definition");
-        timer_def->name = sdsnew(name);
-        timer_def->enabled = enabled;
-        timer_def->start_hour = start_hour;
-        timer_def->start_minute = start_minute;
-        if (je == 8) {
-            //pre 6.5.0 timer definition
-            if (strcmp(action, "startplay") == 0 || strcmp(action, "stopplay") == 0) {
-                timer_def->action = sdsnew("player");
-            }
-            else {
-                timer_def->action = sdsnew("syscmd");
-            }
-            timer_def->subaction = sdsnew(action);
-        }
-        else {
-            timer_def->action = sdsnew(action);
-            timer_def->subaction = sdsnew(subaction);
-        }
-        timer_def->volume = volume;
-        timer_def->playlist = sdsnew(playlist);
-        timer_def->jukebox_mode = jukebox_mode;
-        list_init(&timer_def->arguments);
-        void *h = NULL;
-        struct json_token key;
-        struct json_token val;
-        while ((h = json_next_key(str, (int)strlen(str), h, ".params.arguments", &key, &val)) != NULL) {
-            list_push_len(&timer_def->arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
-        }
-        
-        for (int i = 0; i < 7; i++) {
-            timer_def->weekdays[i] = false;
-        }
-        struct json_token t;
-        for (int i = 0; json_scanf_array_elem(str, (int)len, ".params.weekdays", i, &t) > 0 && i < 7; i++) {
-            timer_def->weekdays[i] = t.type == JSON_TYPE_TRUE ? true : false;
-        }
+        return timer_def;
     }
-    else {
-        MYMPD_LOG_ERROR("Error parsing timer definition");
-        free(timer_def);
-        timer_def = NULL;
-    }
-    
-    FREE_PTR(name);
-    FREE_PTR(action);
-    FREE_PTR(subaction);
-    FREE_PTR(playlist);
-    
-    return timer_def;
+
+    MYMPD_LOG_ERROR("Error parsing timer definition");
+    list_free(&timer_def->arguments);
+    FREE_SDS(timer_def->name);
+    FREE_SDS(timer_def->action);
+    FREE_SDS(timer_def->subaction);
+    FREE_SDS(timer_def->playlist);
+    free(timer_def);
+
+    return NULL;
 }
 
 time_t timer_calc_starttime(int start_hour, int start_minute, int interval) {
@@ -442,13 +412,13 @@ bool timerfile_read(struct t_mympd_state *mympd_state) {
             struct t_timer_definition *timer_def = malloc(sizeof(struct t_timer_definition));
             assert(timer_def);
             sds param = sdscatfmt(sdsempty(), "{params: %s}", line);
-            timer_def = parse_timer(timer_def, param, sdslen(param));
+            timer_def = parse_timer(timer_def, param, NULL);
             int interval;
-            int timerid;
-            int je = json_scanf(param, (int)sdslen(param), "{params: {interval: %d, timerid: %d}}", &interval, &timerid);
-            sdsfree(param);
-            
-            if (je == 2 && timer_def != NULL) {
+            int timerid;            
+            if (timer_def != NULL &&
+                json_get_int(param, "$.params.interval", -1, 604800, &interval, NULL) == true &&
+                json_get_int(param, "$.params.timerid", 0, 100, &timerid, NULL) == true) 
+            {
                 if (timerid > mympd_state->timer_list.last_id) {
                     mympd_state->timer_list.last_id = timerid;
                 }
@@ -459,6 +429,7 @@ bool timerfile_read(struct t_mympd_state *mympd_state) {
                 MYMPD_LOG_ERROR("Invalid timer line");
                 MYMPD_LOG_DEBUG("Errorneous line: %s", line);
             }
+            sdsfree(param);
         }
         sdsfree(line);
         fclose(fp);
