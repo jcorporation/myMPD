@@ -345,16 +345,26 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         }
         case MYMPD_API_COVERCACHE_CROP:
-            //TODO: error checking
-            clear_covercache(mympd_state->config->workdir, mympd_state->covercache_keep_days);
-            response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
-                        "general", "info", "Successfully croped covercache");
+            int_buf1 = clear_covercache(mympd_state->config->workdir, mympd_state->covercache_keep_days);
+            if (int_buf1 >= 0) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                            "general", "info", "Successfully croped covercache");
+            }
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                            "general", "error", "Error in cropping covercache");
+            }
             break;
         case MYMPD_API_COVERCACHE_CLEAR:
-            clear_covercache(mympd_state->config->workdir, 0);
-            //TODO: error checking
-            response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
-                        "general", "info", "Successfully cleared covercache");
+            int_buf1 = clear_covercache(mympd_state->config->workdir, 0);
+            if (int_buf1 >= 0) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                            "general", "info", "Successfully cleared covercache");
+            }
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                            "general", "error", "Error in clearing the covercache");
+            }
             break;
         case INTERNAL_API_TIMER_SET:
             je = json_scanf(request->data, (int)sdslen(request->data), "{params: {timeout: %d, interval: %d, handler: %Q}}", &int_buf1, &int_buf2, &p_charbuf1);

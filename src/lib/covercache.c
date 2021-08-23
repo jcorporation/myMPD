@@ -61,6 +61,7 @@ bool write_covercache_file(const char *workdir, const char *uri, const char *mim
 
 int clear_covercache(const char *workdir, int keepdays) {
     int num_deleted = 0;
+    bool error = false;
     time_t now = time(NULL) - keepdays * 24 * 60 * 60;
     
     sds covercache = sdscatfmt(sdsempty(), "%s/covercache", workdir);
@@ -70,9 +71,10 @@ int clear_covercache(const char *workdir, int keepdays) {
     DIR *covercache_dir = opendir(covercache);
     if (covercache_dir != NULL) {
         struct dirent *next_file;
+        sds filepath = sdsempty();
         while ((next_file = readdir(covercache_dir)) != NULL ) {
             if (next_file->d_type == DT_REG) {
-                sds filepath = sdscatfmt(sdsempty(), "%s/%s", covercache, next_file->d_name);
+                filepath = sdscatfmt(filepath, "%s/%s", covercache, next_file->d_name);
                 struct stat status;
                 if (stat(filepath, &status) == 0) {
                     if (status.st_mtime < now) {
@@ -81,16 +83,18 @@ int clear_covercache(const char *workdir, int keepdays) {
                         if (unlink(filepath) != 0) {
                             MYMPD_LOG_ERROR("Error removing file \"%s\"", filepath);
                             MYMPD_LOG_ERRNO(errno);
+                            error = true;
                         }
                         else {
                             num_deleted++;
                         }
                     }
                 }
-                sdsfree(filepath);
+                sdsclear(filepath);
             }
         }
         closedir(covercache_dir);
+        sdsfree(filepath);
     }
     else {
         MYMPD_LOG_ERROR("Error opening directory %s", covercache);
@@ -98,5 +102,5 @@ int clear_covercache(const char *workdir, int keepdays) {
     }
     MYMPD_LOG_NOTICE("Deleted %d files from covercache", num_deleted);
     sdsfree(covercache);
-    return num_deleted;
+    return error == false ? num_deleted : -1;
 }
