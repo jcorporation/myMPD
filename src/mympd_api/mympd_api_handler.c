@@ -372,11 +372,17 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             timer_def = parse_timer(timer_def, request->data, &error);
             if (timer_def != NULL &&
                 json_get_int(request->data, "$.params.interval", -1, 604800, &int_buf2, &error) == true &&
-                json_get_int(request->data, "$.params.timerid", 0, 100, &int_buf1, &error) == true)
+                json_get_int(request->data, "$.params.timerid", 0, 200, &int_buf1, &error) == true)
             {
                 if (int_buf1 == 0) {
                     mympd_state->timer_list.last_id++;
                     int_buf1 = mympd_state->timer_list.last_id;
+                }
+                else if (int_buf1 <= 100) {
+                    //user defined timers must be gt 100
+                    MYMPD_LOG_ERROR("Timer id must be greater than 100, but id is: \"%d\"", int_buf1);
+                    error = sdscat(error, "Invalid timer id");
+                    break;
                 }
                 time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute, int_buf2);
                 rc = replace_timer(&mympd_state->timer_list, start, int_buf2, timer_handler_select, int_buf1, timer_def, NULL);
@@ -399,18 +405,18 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = timer_list(mympd_state, response->data, request->method, request->id);
             break;
         case MYMPD_API_TIMER_GET:
-            if (json_get_int(request->data, "$.params.timerid", 0, 100, &int_buf1, &error) == true) {
+            if (json_get_int(request->data, "$.params.timerid", 100, 200, &int_buf1, &error) == true) {
                 response->data = timer_get(mympd_state, response->data, request->method, request->id, int_buf1);
             }
             break;
         case MYMPD_API_TIMER_RM:
-            if (json_get_int(request->data, "$.params.timerid", 0, 100, &int_buf1, &error) == true) {
+            if (json_get_int(request->data, "$.params.timerid", 100, 200, &int_buf1, &error) == true) {
                 remove_timer(&mympd_state->timer_list, int_buf1);
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "timer");
             }
             break;
         case MYMPD_API_TIMER_TOGGLE:
-            if (json_get_int(request->data, "$.params.timerid", 0, 100, &int_buf1, &error) == true) {
+            if (json_get_int(request->data, "$.params.timerid", 100, 200, &int_buf1, &error) == true) {
                 toggle_timer(&mympd_state->timer_list, int_buf1);
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "timer");
             }

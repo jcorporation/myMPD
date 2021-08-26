@@ -267,7 +267,7 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, sds
         json_get_string_max(str, "$.params.action", &timer_def->action, vcb_isalnum, error) == true &&
         json_get_string_max(str, "$.params.subaction", &timer_def->subaction, vcb_isname, error) == true &&
         json_get_int(str, "$.params.volume", 0, 100, &timer_def->volume, error) == true &&
-        json_get_string_max(str, "$.params.playlist", &timer_def->subaction, vcb_isfilename, error) == true &&
+        json_get_string_max(str, "$.params.playlist", &timer_def->playlist, vcb_isfilename, error) == true &&
         json_get_uint(str, "$.params.jukeboxMode", 0, 2, &timer_def->jukebox_mode, error) == true &&
         json_get_object_string(str, "$.params.arguments", &timer_def->arguments, vcb_isname, 10, error) == true &&
         json_get_bool(str, "$.params.weekdays[0]", &timer_def->weekdays[0], error) == true &&
@@ -411,13 +411,13 @@ bool timerfile_read(struct t_mympd_state *mympd_state) {
         while (sdsgetline(&line, fp, 1000) == 0) {
             struct t_timer_definition *timer_def = malloc(sizeof(struct t_timer_definition));
             assert(timer_def);
-            sds param = sdscatfmt(sdsempty(), "{params: %s}", line);
+            sds param = sdscatfmt(sdsempty(), "{\"params\":%s}", line);
             timer_def = parse_timer(timer_def, param, NULL);
             int interval;
             int timerid;            
             if (timer_def != NULL &&
                 json_get_int(param, "$.params.interval", -1, 604800, &interval, NULL) == true &&
-                json_get_int(param, "$.params.timerid", 0, 100, &timerid, NULL) == true) 
+                json_get_int(param, "$.params.timerid", 0, 200, &timerid, NULL) == true) 
             {
                 if (timerid > mympd_state->timer_list.last_id) {
                     mympd_state->timer_list.last_id = timerid;
