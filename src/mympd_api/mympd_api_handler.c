@@ -422,15 +422,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_LYRICS_GET:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                if (p_charbuf1 == NULL || validate_uri(p_charbuf1) == false) {
-                    MYMPD_LOG_ERROR("Invalid URI: %s", p_charbuf1);
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "lyrics", "error", "Invalid uri");
-                }
-                else {
-                    response->data = mpd_client_lyrics_get(mympd_state, response->data, request->method, request->id, p_charbuf1);
-                }
+            if (json_get_string(request->data, "$.params.uri", 1, 200, &sds_buf1, vcb_isfilepath, &error) == true) {
+                response->data = mpd_client_lyrics_get(mympd_state, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case INTERNAL_API_STATE_SAVE:
@@ -441,8 +434,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             break;
         case MYMPD_API_JUKEBOX_RM:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {pos: %u}}", &uint_buf1);
-            if (je == 1) {
+            if (json_get_uint_max(request->data, "$.params.pos", &uint_buf1, &error) == true) {
                 rc = mpd_client_rm_jukebox_entry(mympd_state, uint_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "jukebox");
@@ -453,21 +445,21 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_JUKEBOX_LIST: {
-            struct t_tags *tagcols = (struct t_tags *)malloc(sizeof(struct t_tags));
-            assert(tagcols);
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {offset: %u, limit: %u, cols: %M}}", &uint_buf1, &uint_buf2, json_to_tags, tagcols);
-            if (je == 3) {
-                response->data = mpd_client_put_jukebox_list(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, tagcols);
+            struct t_tags tagcols;
+            reset_t_tags(&tagcols);          
+            if (json_get_uint_max(request->data, "$.params.offset", &uint_buf1, &error) == true &&
+                json_get_uint_max(request->data, "$.params.limit", &uint_buf2, &error) == true &&
+                json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true)
+            {
+                response->data = mpd_client_put_jukebox_list(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, &tagcols);
             }
-            free(tagcols);
             break;
         }
         case MYMPD_API_TRIGGER_LIST:
             response->data = trigger_list(mympd_state, response->data, request->method, request->id);
             break;
         case MYMPD_API_TRIGGER_GET:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {id: %d}}", &int_buf1);
-            if (je == 1) {
+            if (json_get_int_max(request->data, "$.params.id", &int_buf1, &error) == true) {
                 response->data = trigger_get(mympd_state, response->data, request->method, request->id, int_buf1);
             }
             break;
