@@ -163,13 +163,18 @@ function getAllPlaylists(obj, playlistSelect, playlistValue) {
 
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylists(force) {
-    sendAPI("MPDWORKER_API_SMARTPLS_UPDATE_ALL", {"force":force});
+    sendAPI("MPDWORKER_API_SMARTPLS_UPDATE_ALL", {
+        "force":force
+    });
 }
 
 //eslint-disable-next-line no-unused-vars
 function removeFromPlaylist(plist, pos) {
     pos--;
-    sendAPI("MYMPD_API_PLAYLIST_RM_SONG", {"plist": plist, "pos": pos});
+    sendAPI("MYMPD_API_PLAYLIST_RM_SONG", {
+        "plist": plist,
+        "pos": pos
+    });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
@@ -395,7 +400,10 @@ function addToPlaylist() {
         addAllFromBrowseDatabasePlist(plist, addToPlaylistClose);
     }
     else {
-        sendAPI("MYMPD_API_PLAYLIST_ADD_URI", {"uri": uri, "plist": plist}, addToPlaylistClose, true);
+        sendAPI("MYMPD_API_PLAYLIST_ADD_URI", {
+            "uri": uri,
+            "plist": plist
+        }, addToPlaylistClose, true);
     }
     uiElements.modalAddToPlaylist.hide();
 }
@@ -424,7 +432,10 @@ function renamePlaylist() {
     const from = document.getElementById('renamePlaylistFrom').value;
     const to = document.getElementById('renamePlaylistTo').value;
     if (to !== from && validatePlname(to) === true) {
-        sendAPI("MYMPD_API_PLAYLIST_RENAME", {"plist": from, "newName": to}, renamePlaylistClose, true);
+        sendAPI("MYMPD_API_PLAYLIST_RENAME", {
+            "plist": from, 
+            "newName": to
+        }, renamePlaylistClose, true);
     }
     else {
         document.getElementById('renamePlaylistTo').classList.add('is-invalid');
@@ -443,12 +454,16 @@ function renamePlaylistClose(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function showSmartPlaylist(plist) {
-    sendAPI("MYMPD_API_SMARTPLS_GET", {"plist": plist}, parseSmartPlaylist);
+    sendAPI("MYMPD_API_SMARTPLS_GET", {
+        "plist": plist
+    }, parseSmartPlaylist);
 }
 
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylist(plist) {
-    sendAPI("MYMPD_API_SMARTPLS_UPDATE", {"plist": plist});
+    sendAPI("MYMPD_API_SMARTPLS_UPDATE", {
+        "plist": plist
+    });
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -462,7 +477,9 @@ function updateSmartPlaylistClick() {
 //eslint-disable-next-line no-unused-vars
 function showDelPlaylist(plist) {
     showConfirm(tn('Do you really want to delete the playlist?', {"playlist": plist}), tn('Yes, delete it'), function() {
-        sendAPI("MYMPD_API_PLAYLIST_RM", {"plist": plist});
+        sendAPI("MYMPD_API_PLAYLIST_RM", {
+            "plist": plist
+        });
     });
 }
 
