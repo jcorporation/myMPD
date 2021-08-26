@@ -204,6 +204,20 @@ sds tojson_double(sds buffer, const char *key, double value, bool comma) {
     return buffer;
 }
 
+//prints the keys of a list as a json array
+sds list_to_json_array(sds s, struct list *l) {
+    struct list_node *current = l->head;
+    int i = 0;
+    while (current != NULL) {
+        if (i++) {
+            s = sdscatlen(s, ",", 1);
+        }
+        s = sdscatjson(s, current->key, sdslen(current->key));
+        current = current->next;
+    }
+    return s;
+}
+
 bool json_get_bool(sds s, const char *path, bool *result, sds *error) {
     int v = 0;
     if (mjson_get_bool(s, (int)sdslen(s), path, &v) != 0) {
@@ -215,7 +229,7 @@ bool json_get_bool(sds s, const char *path, bool *result, sds *error) {
 }
 
 bool json_get_int_max(sds s, const char *path, int *result, sds *error) {
-    return json_get_int(s, path, INT_MIN, INT_MAX, result, error);
+    return json_get_int(s, path, JSONRPC_INT_MIN, JSONRPC_INT_MAX, result, error);
 }
 
 bool json_get_int(sds s, const char *path, int min, int max, int *result, sds *error) {
@@ -234,7 +248,7 @@ bool json_get_int(sds s, const char *path, int min, int max, int *result, sds *e
 }
 
 bool json_get_uint_max(sds s, const char *path, unsigned *result, sds *error) {
-    return json_get_uint(s, path, 0, UINT_MAX, result, error);
+    return json_get_uint(s, path, 0, JSONRPC_INT_MAX, result, error);
 }
 
 bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned *result, sds *error) {
@@ -257,7 +271,7 @@ bool json_get_string_max(sds s, const char *path, sds *result, validate_callback
         _set_parse_error(error, "Validation callback is NULL");
         return false;
     }
-    return _json_get_string(s, path, 0, 200, result, vcb, error);
+    return _json_get_string(s, path, 0, JSONRPC_STR_MAX, result, vcb, error);
 }
 
 bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const char *cmp, sds *result, sds *error) {
@@ -348,7 +362,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
     int vtype = 0;
     int off = 0;
     for (off = 0; (off = mjson_next(p, n, off, &koff, &klen, &voff, &vlen, &vtype)) != 0;) {
-        if (klen > 50) {
+        if (klen > JSONRPC_KEY_MAX) {
             _set_parse_error(error, "Key in JSON path \"%s\" is too long", path);
             sdsfree(value);
             sdsfree(key);
@@ -364,7 +378,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
                 return false;
             }
         }
-        if (vlen > 2000) {
+        if (vlen > JSONRPC_STR_MAX) {
             _set_parse_error(error, "Value for key \"%s\" in JSON path \"%s\" is too long", key, path);
             sdsfree(value);
             sdsfree(key);
@@ -444,19 +458,6 @@ static bool icb_json_get_object_string(sds key, sds value, int vtype, validate_c
 
 bool json_get_object_string(sds s, const char *path, struct list *l, validate_callback vcb, int max_elements, sds *error) {
     return json_iterate_object(s, path, icb_json_get_object_string, l, vcb, max_elements, error);
-}
-
-sds list_to_json_array(sds s, struct list *l) {
-    struct list_node *current = l->head;
-    int i = 0;
-    while (current != NULL) {
-        if (i++) {
-            s = sdscatlen(s, ",", 1);
-        }
-        s = sdscatjson(s, current->key, sdslen(current->key));
-        current = current->next;
-    }
-    return s;
 }
 
 static bool icb_json_get_tag(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {

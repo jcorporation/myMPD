@@ -12,16 +12,10 @@
 //Debug build
 #cmakedefine DEBUG
 
-//libid3tag
+//features
 #cmakedefine ENABLE_LIBID3TAG
-
-//flac
 #cmakedefine ENABLE_FLAC
-
-//openssl
 #cmakedefine ENABLE_SSL
-
-//lua
 #cmakedefine ENABLE_LUA
 
 //myMPD version from cmake
@@ -39,5 +33,15 @@
 #define OPEN_FLAGS_READ "re"
 #define OPEN_FLAGS_READ_BIN "rbe"
 #define OPEN_FLAGS_WRITE "we"
+
+//limits
+//max number of results to retrieve from mpd
+#define MAX_MPD_RESULTS 1000
+//limits for json parsing
+#define JSONRPC_INT_MIN INT_MIN
+#define JSONRPC_INT_MAX INT_MAX
+#define JSONRPC_UINT_MAX INT_MAX
+#define JSONRPC_STR_MAX 1000
+#define JSONRPC_KEY_MAX 50
 
 #endif
