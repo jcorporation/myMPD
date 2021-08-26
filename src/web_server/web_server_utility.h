@@ -42,13 +42,6 @@
       "td:last-child{text-align:right}a,a:visited,a:active{color:#212529;text-decoration:none}"\
       "a:hover{text-decoration:underline}"
 
-enum http_methods {
-    HTTP_GET = 0,
-    HTTP_HEAD,
-    HTTP_POST,
-    HTTP_TOTAL_METHODS
-};
-
 //struct for mg_mgr userdata
 struct t_mg_user_data {
     struct t_config *config; //pointer to mympd config
@@ -65,14 +58,6 @@ struct t_mg_user_data {
     sds stream_uri;
     bool covercache;
     struct list session_list;
-};
-
-//connection specific userdata
-struct t_nc_user_data {
-    struct mg_connection *backend_nc; //for usage as proxy
-    enum http_methods request_method;
-    sds request_uri;
-    bool request_close;
 };
 
 #ifndef DEBUG
@@ -92,5 +77,4 @@ void handle_connection_close(struct mg_connection *nc);
 bool check_ip_acl(const char *acl, struct mg_addr *peer);
 struct mg_str mg_str_strip_parent(struct mg_str *path, int count);
 void free_mg_user_data(struct t_mg_user_data *mg_user_data);
-const char *get_http_method_str(enum http_methods http_method);
 #endif

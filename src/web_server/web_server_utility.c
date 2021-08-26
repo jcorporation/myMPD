@@ -27,12 +27,6 @@ static bool compare_ipv6_with_mask(const uint8_t addr1[16], const int addr2[16],
 static void create_ipv6_mask(int *netmask, int mask);
 */
 
-static const char *const http_method_names[HTTP_TOTAL_METHODS] = {
-    [HTTP_GET] = "GET",
-    [HTTP_HEAD] = "HEAD",
-    [HTTP_POST] = "POST"
-};
-
 //public functions
 void free_mg_user_data(struct t_mg_user_data *mg_user_data) {
     sdsfree(mg_user_data->browse_document_root);
@@ -94,16 +88,10 @@ void manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bo
 
 //create an empty dummy message struct, used for async responses
 void populate_dummy_hm(struct mg_connection *nc, struct mg_http_message *hm) {
-    if (nc->fn_data != NULL) {
-        struct t_nc_user_data * nc_user_data = (struct t_nc_user_data *) nc->fn_data;
-        hm->method = mg_str(get_http_method_str(nc_user_data->request_method));
-        hm->uri = mg_str(nc_user_data->request_uri);
-    }
-    else {
-        MYMPD_LOG_WARN("Connection has no t_nc_user_data struct");
-        hm->method = mg_str("GET");
-        hm->uri = mg_str("");
-    }
+    if (nc->label[1] == 'G') { hm->method = mg_str("GET"); }
+    else if (nc->label[1] == 'H') { hm->method = mg_str("HEAD"); }
+    else if (nc->label[1] == 'P') { hm->method = mg_str("POST"); }
+    hm->uri = mg_str("/");
     hm->message = mg_str("");
     hm->body = mg_str("");  
     hm->query = mg_str("");
@@ -112,13 +100,6 @@ void populate_dummy_hm(struct mg_connection *nc, struct mg_http_message *hm) {
     //browsers without gzip support are not supported by myMPD
     hm->headers[0].name = mg_str("Accept-Encoding");
     hm->headers[0].value = mg_str("gzip");
-}
-
-const char *get_http_method_str(enum http_methods http_method) {
-    if (http_method >= HTTP_TOTAL_METHODS) {
-        return NULL;
-    }
-    return http_method_names[http_method];
 }
 
 sds *split_coverimage_names(const char *coverimage_name, sds *coverimage_names, int *count) {
@@ -162,11 +143,7 @@ void http_send_header_redirect(struct mg_connection *nc, const char *location) {
 }
 
 void handle_connection_close(struct mg_connection *nc) {
-    if (nc->fn_data == NULL) {
-        return;
-    }
-    struct t_nc_user_data * nc_user_data = (struct t_nc_user_data *) nc->fn_data;
-    if (nc_user_data->request_close == true) {
+    if (nc->label[2] == 'C') {
         MYMPD_LOG_DEBUG("Set connection %lu to is_draining", nc->id);
         nc->is_draining = 1;
     }

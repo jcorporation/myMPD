@@ -271,8 +271,7 @@ static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *
             mg_user_data->connection_count--;
             if (frontend_nc != NULL) {
                 //remove backend connection pointer from frontend connection
-                struct t_nc_user_data *nc_user_data = (struct t_nc_user_data *) frontend_nc->fn_data;
-                nc_user_data->backend_nc = NULL;
+                frontend_nc->fn_data = NULL;
                 //close frontend connection
                 frontend_nc->is_closing = 1;
             }
@@ -282,10 +281,15 @@ static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *
 	(void) ev_data;
 }
 
+//nc->label usage
+//0 - connection type: F = frontend connection, B = backend connection
+//1 - http method: G = GET, H = HEAD, P = POST
+//2 - connection header: C = close, K = keepalive
+
 // Event handler
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     //initial connection specific data structure
-    struct t_nc_user_data *nc_user_data = fn_data == NULL ? NULL : (struct t_nc_user_data *) fn_data;
+    struct mg_connection *backend_nc = fn_data;
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
     switch(ev) {
@@ -316,26 +320,16 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             #endif
             mg_user_data->connection_count++;
             MYMPD_LOG_DEBUG("New connection id %lu, connections %d", nc->id, mg_user_data->connection_count);
-            //Initialize connection specific data
-            nc_user_data = malloc(sizeof(struct t_nc_user_data));
-            nc_user_data->backend_nc = NULL;
-            nc_user_data->request_method = HTTP_GET;
-            nc_user_data->request_uri = sdsempty();
-            nc_user_data->request_close = false;
-            nc->fn_data = nc_user_data;
+            //set labels
+            nc->label[0] = 'F';
+            nc->label[1] = '-';
+            nc->label[2] = '-';
             break;
         }
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             MYMPD_LOG_INFO("HTTP request (%lu): %.*s %.*s", nc->id, (int)hm->method.len, hm->method.ptr, (int)hm->uri.len, hm->uri.ptr);
             
-            //safety check
-            if (nc_user_data == NULL) {
-                MYMPD_LOG_ERROR("nc_user_data is NULL, this should not occur");
-                nc->is_closing = 1;
-                return;
-            }
-
             //limit proto to HTTP/1.1
             if (strncmp(hm->proto.ptr, "HTTP/1.1", hm->proto.len) != 0) {
                 MYMPD_LOG_ERROR("Invalid http version, only http/1.1 is supported");
@@ -344,13 +338,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             //limit allowed http methods
             if (strncmp(hm->method.ptr, "GET", hm->method.len) == 0) {
-                nc_user_data->request_method = HTTP_GET;
+                nc->label[1] = 'G';
             }
             else if (strncmp(hm->method.ptr, "HEAD", hm->method.len) == 0) {
-                nc_user_data->request_method = HTTP_HEAD;
+                nc->label[1] = 'H';
             }
             else if (strncmp(hm->method.ptr, "POST", hm->method.len) == 0) {
-                nc_user_data->request_method = HTTP_POST;
+                nc->label[1] = 'P';
             }
             else {
                 MYMPD_LOG_ERROR("Invalid http method \"%.*s\"", hm->method.len, hm->method.ptr);
@@ -363,10 +357,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 nc->is_closing = 1;
                 return;
             }
-            nc_user_data->request_uri = sdsreplacelen(nc_user_data->request_uri, hm->uri.ptr, hm->uri.len);
 
             //check post requests length
-            if (nc_user_data->request_method == HTTP_POST && (hm->body.len == 0 || hm->body.len > 4096)) {
+            if (nc->label[1] == 'P' && (hm->body.len == 0 || hm->body.len > 4096)) {
                 MYMPD_LOG_ERROR("POST request with body of size %d is invalid", hm->body.len);
                 nc->is_closing = 1;
                 return;
@@ -375,8 +368,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             struct mg_str *connection_hdr = mg_http_get_header(hm, "Connection");
             if (connection_hdr != NULL) {
                 if (strncmp(connection_hdr->ptr, "close", connection_hdr->len) == 0) {
-                    MYMPD_LOG_DEBUG("Connection: close header found, marking connection");
-                    nc_user_data->request_close = true;
+                    MYMPD_LOG_DEBUG("Connection: close header found");
+                    nc->label[2] = 'C';
+                }
+                else if (strncmp(connection_hdr->ptr, "close", connection_hdr->len) == 0) {
+                    MYMPD_LOG_DEBUG("Connection: keepalive header found");
+                    nc->label[2] = 'K';
                 }
             }
 
@@ -386,22 +383,26 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     send_error(nc, 404, "MPD stream port not configured");
                     break;
                 }
-                if (nc_user_data->backend_nc == NULL) {
+                if (backend_nc == NULL) {
                     MYMPD_LOG_INFO("Creating new mpd stream proxy backend connection to %s", mg_user_data->stream_uri);
-                    nc_user_data->backend_nc = mg_connect(nc->mgr, mg_user_data->stream_uri, mpd_stream_proxy_ev_handler, nc);
-                    if (nc_user_data->backend_nc == NULL) {
+                    backend_nc = mg_connect(nc->mgr, mg_user_data->stream_uri, mpd_stream_proxy_ev_handler, nc);
+                    if (backend_nc == NULL) {
                         //no backend connection, close frontend connection
                         MYMPD_LOG_WARN("Can not create backend connection");
                         nc->is_closing = 1;
                     }
                 }
-                if (nc_user_data->backend_nc != NULL) {
+                if (backend_nc != NULL) {
                     //strip path
                     hm->uri.ptr = "/";
                     hm->uri.len = 1;
+                    //set labels
+                    backend_nc->label[0] = 'B';
+                    backend_nc->label[1] = nc->label[1];
+                    backend_nc->label[2] = nc->label[2];
                     //forward request
-					MYMPD_LOG_INFO("Forwarding client connection %lu to backend connection %lu", nc->id, nc_user_data->backend_nc->id);
-                    mpd_stream_proxy_forward(hm, nc_user_data->backend_nc);
+					MYMPD_LOG_INFO("Forwarding client connection %lu to backend connection %lu", nc->id, backend_nc->id);
+                    mpd_stream_proxy_forward(hm, backend_nc);
                 }
             }
             else if (mg_http_match_uri(hm, "/ws/")) {
@@ -545,18 +546,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         case MG_EV_CLOSE: {
             MYMPD_LOG_INFO("HTTP connection %lu closed", nc->id);
             mg_user_data->connection_count--;
-            if (nc_user_data == NULL) {
-                break;
-            }
-            if (nc_user_data->backend_nc != NULL) {
+            if (backend_nc != NULL) {
                 //remove pointer to frontend connection
-                nc_user_data->backend_nc->fn_data = NULL;
+                backend_nc->fn_data = NULL;
                 //close reverse proxy connection
-                nc_user_data->backend_nc->is_closing = 1;
+                backend_nc->is_closing = 1;
             }
-            sdsfree(nc_user_data->request_uri);
-            free(nc_user_data);
-            nc->fn_data = NULL;
             break;
         }
     }
