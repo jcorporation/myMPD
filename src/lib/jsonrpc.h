@@ -9,6 +9,7 @@
 
 #include "../../dist/src/sds/sds.h"
 #include "list.h"
+#include "mympd_state.h"
 #include "validate.h"
 
 #include <stdbool.h>
@@ -47,6 +48,7 @@ bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const 
 bool json_get_array_string(sds s, const char *path, struct list *l, validate_callback vcb, int max_elements, sds *error);
 bool json_get_object_string(sds s, const char *path, struct list *l, validate_callback vcb, int max_elements, sds *error);
 bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata, validate_callback vcb, int max_elements, sds *error);
+bool json_get_tags(sds s, const char *path, struct t_tags *tags, int max_elements, sds *error);
 
 sds list_to_json_array(sds s, struct list *l);
 

@@ -458,3 +458,23 @@ sds list_to_json_array(sds s, struct list *l) {
     }
     return s;
 }
+
+static bool icb_json_get_tag(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
+    (void) vcb;
+    (void) key;
+    if (vtype != MJSON_TOK_STRING) {
+        _set_parse_error(error, "Value is not a string \"%s\"", value);
+        return false;
+    }
+
+    struct t_tags *tags = (struct t_tags *) userdata;
+    enum mpd_tag_type tag = mpd_tag_name_iparse(value);
+    if (tag != MPD_TAG_UNKNOWN) {
+        tags->tags[tags->len++] = tag;
+    }
+    return true;
+}
+
+bool json_get_tags(sds s, const char *path, struct t_tags *tags, int max_elements, sds *error) {
+    return json_iterate_object(s, path, icb_json_get_tag, tags, NULL, max_elements, error);
+}
