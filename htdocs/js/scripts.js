@@ -44,7 +44,7 @@ function initScripts() {
 
     document.getElementById('modalScripts').addEventListener('shown.bs.modal', function () {
         showListScripts();
-        removeEnterPinFooter(document.getElementById('modalScripts').getElementsByClassName('enterPinFooter')[0]);
+        hideModalAlert();
     }, false);
     
     document.getElementById('btnDropdownAddAPIcall').parentNode.addEventListener('show.bs.dropdown', function() {
@@ -175,7 +175,18 @@ function saveScript() {
             "order": Number(orderEl.value),
             "content": document.getElementById('textareaScriptContent').value,
             "arguments": args
-            }, showListScripts, false);
+            }, saveScriptCheckError, true);
+    }
+}
+
+function saveScriptCheckError(obj) {
+    removeEnterPinFooter(document.getElementById('modalScripts').getElementsByClassName('enterPinFooter')[0]);
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        showListScripts();
     }
 }
 

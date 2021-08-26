@@ -22,17 +22,20 @@ function initSettings() {
 
     document.getElementById('modalSettings').addEventListener('shown.bs.modal', function () {
         getSettings();
+        hideModalAlert();
         removeIsInvalid(document.getElementById('modalSettings'));
         removeEnterPinFooter(document.getElementById('modalSettings').getElementsByClassName('enterPinFooter')[0]);
     });
     
     document.getElementById('modalQueueSettings').addEventListener('shown.bs.modal', function () {
         getSettings();
+        hideModalAlert();
         removeIsInvalid(document.getElementById('modalQueueSettings'));
     });
 
     document.getElementById('modalConnection').addEventListener('shown.bs.modal', function () {
         getSettings();
+        hideModalAlert();
         removeIsInvalid(document.getElementById('modalConnection'));
         removeEnterPinFooter(document.getElementById('modalConnection').getElementsByClassName('enterPinFooter')[0]);
     });
@@ -162,8 +165,14 @@ function saveConnection() {
 }
 
 function saveConnectionClose(obj) {
-    getSettings(obj);
-    uiElements.modalConnection.hide();
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        getSettings(false);
+        uiElements.modalConnection.hide();
+    }
 }
 
 function getSettings(onerror) {
@@ -898,22 +907,34 @@ function saveSettings(closeModal) {
         };
 
         if (closeModal === true) {
-            sendAPI("MYMPD_API_SETTINGS_SET", params, saveSettingsClose);
+            sendAPI("MYMPD_API_SETTINGS_SET", params, saveSettingsClose, true);
         }
         else {
-            sendAPI("MYMPD_API_SETTINGS_SET", params, saveSettingsApply);
+            sendAPI("MYMPD_API_SETTINGS_SET", params, saveSettingsApply, true);
         }
     }
 }
 
 function saveSettingsClose(obj) {
-    getSettings(obj);
-    uiElements.modalSettings.hide();
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        getSettings(true);
+        uiElements.modalSettings.hide();
+    }
 }
 
 function saveSettingsApply(obj) {
-    getSettings(obj);
-    btnWaiting(document.getElementById('btnApplySettings'), true);
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        getSettings(true);
+        btnWaiting(document.getElementById('btnApplySettings'), true);
+    }
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -951,7 +972,17 @@ function saveQueueSettings() {
             "jukeboxLastPlayed": Number(document.getElementById('inputJukeboxLastPlayed').value),
             "jukeboxUniqueTag": jukeboxUniqueTag,
             "autoPlay": (document.getElementById('btnAutoPlay').classList.contains('active') ? true : false)
-        }, getSettings);
+        }, saveQueueSettingsClose, true);
+    }
+}
+
+function saveQueueSettingsClose(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        getSettings(false);
         uiElements.modalQueueSettings.hide();
     }
 }

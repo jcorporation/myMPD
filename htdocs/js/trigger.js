@@ -25,6 +25,7 @@ function initTrigger() {
     }, false);
 
     document.getElementById('modalTrigger').addEventListener('shown.bs.modal', function () {
+        hideModalAlert();
         showListTrigger();
     });
 }
@@ -56,7 +57,18 @@ function saveTrigger() {
             "event": getSelectValue('selectTriggerEvent'),
             "script": getSelectValue('selectTriggerScript'),
             "arguments": args
-            }, showListTrigger, false);
+            }, saveTriggerCheckError, true);
+    }
+}
+
+function saveTriggerCheckError(obj) {
+    removeEnterPinFooter(document.getElementById('modalTrigger').getElementsByClassName('enterPinFooter')[0]);
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        showListTrigger();
     }
 }
 

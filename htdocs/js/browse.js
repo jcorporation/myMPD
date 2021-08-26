@@ -373,7 +373,7 @@ function addAllFromBrowseFilesystem(replace) {
     }
 }
 
-function addAllFromBrowseDatabasePlist(plist) {
+function addAllFromBrowseDatabasePlist(plist, callback) {
     if (app.current.search.length >= 2) {
         sendAPI("MYMPD_API_DATABASE_SEARCH", {
             "plist": plist,
@@ -383,7 +383,7 @@ function addAllFromBrowseDatabasePlist(plist) {
             "limit": 0,
             "cols": settings.colsSearch,
             "replace": false
-        });
+        }, callback, true);
     }
 }
 

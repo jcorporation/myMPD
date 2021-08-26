@@ -51,6 +51,7 @@ function initMounts() {
     document.getElementById('modalMounts').addEventListener('shown.bs.modal', function () {
         showListMounts();
         getUrlhandlers();
+        hideModalAlert();
         removeIsInvalid(document.getElementById('modalMounts'));
     });
 }
@@ -77,7 +78,18 @@ function mountMount() {
         sendAPI("MYMPD_API_MOUNT_MOUNT", {
             "mountUrl": getSelectValue('selectMountUrlhandler') + inputMountUrl.value,
             "mountPoint": inputMountPoint.value,
-            }, showListMounts, true);
+            }, mountMountCheckError, true);
+    }
+}
+
+function mountMountCheckError(obj) {
+    removeEnterPinFooter(document.getElementById('modalMounts').getElementsByClassName('enterPinFooter')[0]);
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        showListMounts();
     }
 }
 
@@ -115,15 +127,7 @@ function showEditMount(uri, storage) {
     removeIsInvalid(document.getElementById('modalMounts'));
 }
 
-function showListMounts(obj) {
-    removeEnterPinFooter(document.getElementById('modalMounts').getElementsByClassName('enterPinFooter')[0]);
-    if (obj && obj.error && obj.error.message) {
-        const emEl = document.getElementById('errorMount');
-        elClear(emEl);
-        addIconLine(emEl, 'error_outline', tn(obj.error.message));
-        emEl.classList.remove('hide');
-        return;
-    }
+function showListMounts() {
     document.getElementById('listMounts').classList.add('active');
     document.getElementById('editMount').classList.remove('active');
     document.getElementById('listMountsFooter').classList.remove('hide');

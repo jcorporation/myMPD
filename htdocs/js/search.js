@@ -111,7 +111,6 @@ function initSearch() {
 }
 
 function doSearch(x) {
-
     if (features.featAdvsearch) {
         const expression = createSearchExpression(document.getElementById('searchCrumb'), app.current.filter, getSelectValue('searchMatch'), x);
         appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', expression, 0);
@@ -160,7 +159,7 @@ function saveSearchAsSmartPlaylist() {
         "searchstr": app.current.search}});
 }
 
-function addAllFromSearchPlist(plist, searchstr, replace) {
+function addAllFromSearchPlist(plist, searchstr, replace, callback) {
     if (searchstr === null) {
         searchstr = app.current.search;    
     }
@@ -172,7 +171,8 @@ function addAllFromSearchPlist(plist, searchstr, replace) {
             "offset": 0,
             "limit": 0,
             "cols": settings.colsSearch, 
-            "replace": replace});
+            "replace": replace},
+            callback, true);
     }
     else {
         sendAPI("MYMPD_API_DATABASE_SEARCH", {"plist": plist, 
@@ -181,6 +181,7 @@ function addAllFromSearchPlist(plist, searchstr, replace) {
             "offset": 0,
             "limit": 0, 
             "cols": settings.colsSearch, 
-            "replace": replace});
+            "replace": replace},
+            callback, true);
     }
 }

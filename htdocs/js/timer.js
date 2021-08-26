@@ -46,6 +46,7 @@ function initTimer() {
 
     document.getElementById('modalTimer').addEventListener('shown.bs.modal', function () {
         showListTimer();
+        hideModalAlert();
     });
 }
 
@@ -133,7 +134,17 @@ function saveTimer() {
             "playlist": selectTimerPlaylist,
             "jukeboxMode": Number(jukeboxMode),
             "arguments": args
-            }, showListTimer);
+            }, saveTimerCheckError, true);
+    }
+}
+
+function saveTimerCheckError(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        showListTimer();
     }
 }
 

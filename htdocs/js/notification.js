@@ -276,3 +276,23 @@ function toggleTopAlert() {
         topAlert.classList.add('hide');
     }
 }
+
+function showModalAlert(obj) {
+    const aModal = getOpenModal();
+    const activeAlert = aModal.getElementsByClassName('modalAlert')[0];
+    const div = elCreate('div', {"class": ["alert", "alert-danger", "modalAlert"]}, '');
+    addIconLine(div, 'error_outline', tn(obj.error.message, obj.error.data));
+    if (activeAlert === undefined) {
+        aModal.getElementsByClassName('modal-body')[0].appendChild(div);
+    }
+    else {
+        aModal.getElementsByClassName('modal-body')[0].replaceChild(div, activeAlert);
+    }
+}
+
+function hideModalAlert() {
+    const activeAlerts = document.getElementsByClassName('modalAlert');
+    for (let i = activeAlerts - 1; i > 0; i--) {
+        activeAlerts[i].remove();
+    }
+}

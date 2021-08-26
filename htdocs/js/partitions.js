@@ -31,6 +31,8 @@ function initPartitions() {
 
     document.getElementById('modalPartitions').addEventListener('shown.bs.modal', function () {
         showListPartitions();
+        hideModalAlert();
+        removeEnterPinFooter(document.getElementById('modalPartitions').getElementsByClassName('enterPinFooter')[0]);
     });
 
     document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
@@ -76,7 +78,18 @@ function savePartition() {
     if (formOK === true) {
         sendAPI("MYMPD_API_PARTITION_NEW", {
             "name": nameEl.value
-            }, showListPartitions, false);
+            }, savePartitionCheckError, true);
+    }
+}
+
+function savePartitionCheckError(obj) {
+    removeEnterPinFooter(document.getElementById('modalPartitions').getElementsByClassName('enterPinFooter')[0]);
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        showListPartitions();
     }
 }
 
