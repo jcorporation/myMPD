@@ -175,7 +175,7 @@ sds mympd_api_script_get(struct t_config *config, sds buffer, sds method, long r
         buffer = tojson_char(buffer, "script", script, true);
         sds line = sdsempty();
         if (sdsgetline(&line, fp, 1000) == 0 && strncmp(line, "-- ", 3) == 0) {
-            sdsrange(line, 3, -2);
+            sdsrange(line, 3, -1);
             if (line[0] == '{' && line[sdslen(line) - 1] == '}') {
                 buffer = sdscat(buffer, "\"metadata\":");
                 buffer = sdscat(buffer, line);
