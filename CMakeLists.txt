@@ -10,7 +10,15 @@ set(CPACK_PACKAGE_VERSION_MINOR "1")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 cmake_minimum_required(VERSION 3.4)
+
+option(ENABLE_SSL "Enables OpenSSL usage, default ON" ON)
+option(ENABLE_LIBID3TAG "Enables libid3tag usage, default ON" ON)
+option(ENABLE_FLAC "Enables flac usage, default ON" ON)
+option(ENABLE_LUA "Enables lua usage, default ON" ON)
+
 include(GNUInstallDirs)
+include(CheckCSourceCompiles)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 
 if("${CMAKE_INSTALL_PREFIX}" MATCHES "/usr")
@@ -123,21 +131,20 @@ configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.s
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
 
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} dist/src/libmpdclient/include)
-include(CheckCSourceCompiles)
 
 if(${MEMCHECK} MATCHES "TRUE")
   #for use with valgrind
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -Wall -Werror -Wvla -Winit-self -Wuninitialized -Werror=array-bounds")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu17 -Wall -Werror -Wvla -Winit-self -Wuninitialized -Werror=array-bounds")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
 else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -O3 -Wall -Werror -Wvla -Winit-self -Wuninitialized -Werror=array-bounds \
-	-fstack-protector-strong -D_FORTIFY_SOURCE=2 -pie -fPIE")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu17 -O3 -Wall -Werror -Wvla -Winit-self -Wuninitialized -Werror=array-bounds \
+	  -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE")
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -fsanitize=address \
-	-fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
-	-fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
-	-fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow \
-	-fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -static-libasan")
+    -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
+    -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
+    -fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow \
+    -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -static-libasan")
 endif()
 
 set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_DIRECTORY_LISTING=1")
@@ -182,7 +189,7 @@ set_property(SOURCE dist/src/mjson/mjson.c PROPERTY COMPILE_FLAGS "${MJSON_FLAGS
 set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "${MONGOOSE_FLAGS}")
 
 #linker flags
-set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
+set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -pie")
 
 set(SOURCES
   dist/src/frozen/frozen.c
