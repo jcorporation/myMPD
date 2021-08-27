@@ -348,17 +348,17 @@ function gotoPlayingSong() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function playAfterCurrent(trackid, songpos) {
+function playAfterCurrent(songId, songPos) {
     if (settings.random === 0) {
         //not in random mode - move song after current playling song
         sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
-            "from": songpos,
+            "from": songPos,
             "to": lastState.songPos !== undefined ? lastState.songPos + 2 : 0
         });
     }
     else {
         //in random mode - set song priority
-        sendAPI("MYMPD_API_QUEUE_PRIO_SET_HIGHEST", {"trackid": trackid});
+        sendAPI("MYMPD_API_QUEUE_PRIO_SET_HIGHEST", {"songId": songId});
     }
 }
 

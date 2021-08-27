@@ -12,7 +12,7 @@ function initOutputs() {
     }
 
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
-        sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs);
+        sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {"partition": ""}, parseOutputs);
     });
 
     document.getElementById('outputs').addEventListener('click', function(event) {
@@ -55,7 +55,7 @@ function parseOutputs(obj) {
 }
 
 function showListOutputAttributes(outputName) {
-    sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
+    sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {"partition": ""}, function(obj) {
         uiElements.modalOutputAttributes.show();
         let output;
         for (let i = 0; i < obj.result.numOutputs; i++) {

@@ -337,7 +337,7 @@ function webSocketConnect() {
                     getSettings();
                     break;
                 case 'update_outputs':
-                    sendAPI('MYMPD_API_PLAYER_OUTPUT_LIST', {}, parseOutputs);
+                    sendAPI('MYMPD_API_PLAYER_OUTPUT_LIST', {"partition":""}, parseOutputs);
                     break;
                 case 'update_started':
                     updateDBstarted(false);
