@@ -58,7 +58,9 @@ function initMounts() {
 
 //eslint-disable-next-line no-unused-vars
 function unmountMount(mountPoint) {
-    sendAPI("MYMPD_API_MOUNT_UNMOUNT", {"mountPoint": mountPoint}, showListMounts);
+    sendAPI("MYMPD_API_MOUNT_UNMOUNT", {
+        "mountPoint": mountPoint
+    }, mountMountCheckError, true);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -111,7 +113,6 @@ function showEditMount(uri, storage) {
     document.getElementById('editMount').classList.add('active');
     document.getElementById('listMountsFooter').classList.add('hide');
     document.getElementById('editMountFooter').classList.remove('hide');
-    document.getElementById('errorMount').classList.add('hide');
 
     const c = uri.match(/^(\w+:\/\/)(.+)$/);
     if (c !== null && c.length > 2) {

@@ -8,12 +8,11 @@ function initTrigger() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            const id = decodeURI(event.target.parentNode.getAttribute('data-trigger-id'));
-            showEditTrigger(id);
+            showEditTrigger(Number(getCustomDomProperty(event.target.parentNode, 'data-trigger-id')));
         }
         else if (event.target.nodeName === 'A') {
-            const action = event.target.getAttribute('data-action');
-            const id = decodeURI(event.target.parentNode.parentNode.getAttribute('data-trigger-id'));
+            const action = getCustomDomProperty(event.target, 'data-action');
+            const id = Number(getCustomDomProperty(event.target.parentNode.parentNode, 'data-trigger-id'));
             if (action === 'delete') {
                 deleteTrigger(id);
             }
@@ -54,7 +53,7 @@ function saveTrigger() {
         sendAPI("MYMPD_API_TRIGGER_SAVE", {
             "id": Number(document.getElementById('inputTriggerId').value),
             "name": nameEl.value,
-            "event": getSelectValue('selectTriggerEvent'),
+            "event": Number(getSelectValue('selectTriggerEvent')),
             "script": getSelectValue('selectTriggerScript'),
             "arguments": args
             }, saveTriggerCheckError, true);
@@ -88,7 +87,9 @@ function showEditTrigger(id) {
     document.getElementById('selectTriggerEvent').selectedIndex = 0;
     document.getElementById('selectTriggerScript').selectedIndex = 0;
     if (id > -1) {
-        sendAPI("MYMPD_API_TRIGGER_GET", {"id": id}, parseTriggerEdit, false);
+        sendAPI("MYMPD_API_TRIGGER_GET", {
+            "id": id
+        }, parseTriggerEdit, false);
     }
     else {
         selectTriggerActionChange();
@@ -142,9 +143,9 @@ function showListTrigger() {
 }
 
 function deleteTrigger(id) {
-    sendAPI("MYMPD_API_TRIGGER_RM", {"id": id}, function() {
-        sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
-    }, true);
+    sendAPI("MYMPD_API_TRIGGER_RM", {
+        "id": id
+    }, saveTriggerCheckError, true);
 }
 
 function parseTriggerList(obj) {

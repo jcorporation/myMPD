@@ -100,8 +100,8 @@ function showNewPartition() {
     document.getElementById('listPartitionsFooter').classList.add('hide');
     document.getElementById('newPartitionFooter').classList.remove('hide');
     
-    const nameEl = document.getElementById('inputPartitionName');
     removeIsInvalid(document.getElementById('modalPartitions'));
+    const nameEl = document.getElementById('inputPartitionName');
     nameEl.value = '';
     nameEl.focus();
 }
@@ -111,29 +111,20 @@ function showListPartitions() {
     document.getElementById('newPartition').classList.remove('active');
     document.getElementById('listPartitionsFooter').classList.remove('hide');
     document.getElementById('newPartitionFooter').classList.add('hide');
-    document.getElementById('errorPartition').classList.add('hide');
     sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, false);
 }
 
 function deletePartition(partition) {
-    sendAPI("MYMPD_API_PARTITION_RM", {"name": partition}, function(obj) {
-        if (obj.error) {
-            const el = document.getElementById('errorPartition');
-            el.textContent = t(obj.error.message);
-            el.classList.remove('hide');
-        }
-        sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, false);
-    }, true);
+    sendAPI("MYMPD_API_PARTITION_RM", {
+        "name": partition
+    }, savePartitionCheckError, true);
 }
 
 function switchPartition(partition) {
-    sendAPI("MYMPD_API_PARTITION_SWITCH", {"name": partition}, function(obj) {
-        if (obj.error) {
-            const el = document.getElementById('errorPartition');
-            el.textContent = t(obj.error.message);
-            el.classList.remove('hide');
-        }
-        sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, false);
+    sendAPI("MYMPD_API_PARTITION_SWITCH", {
+        "name": partition
+    }, function(obj) {
+        savePartitionCheckError(obj);
         sendAPI("MYMPD_API_PLAYER_STATE", {}, parseState);
     }, true);
 }

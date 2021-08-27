@@ -417,6 +417,7 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('searchHomeIconCat').value = 'all';
         filterHomeIconLigatures();
         //show modal
+        hideModalAlert();
         uiElements.modalEditHomeIcon.show();
     });
 }

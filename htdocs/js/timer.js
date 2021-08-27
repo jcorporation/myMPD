@@ -52,7 +52,9 @@ function initTimer() {
 
 //eslint-disable-next-line no-unused-vars
 function deleteTimer(timerid) {
-    sendAPI("MYMPD_API_TIMER_RM", {"timerid": timerid}, showListTimer);
+    sendAPI("MYMPD_API_TIMER_RM", {
+        "timerid": timerid
+    }, saveTimerCheckError, true);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -139,6 +141,7 @@ function saveTimer() {
 }
 
 function saveTimerCheckError(obj) {
+    removeEnterPinFooter(document.getElementById('modalTimer').getElementsByClassName('enterPinFooter')[0]);
     if (obj.error) {
         showModalAlert(obj);
     }
