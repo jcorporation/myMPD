@@ -135,14 +135,18 @@ bool vcb_isfilepath(sds data) {
     if (sdslen(data) == 0) {
         return false;
     }
+    if (strstr(data, "://") != NULL) {
+        MYMPD_LOG_WARN("Illegal file path, found URI notation");
+        return false;
+    }
     if (strstr(data, "../") != NULL || strstr(data, "/./") != NULL || strstr(data, "//") != NULL) {
         //prevent dir traversal
-        MYMPD_LOG_WARN("Found dir traversal in path");
+        MYMPD_LOG_WARN("Found dir traversal in path \"%s\"", data);
         return false;
     }
     bool rc = _check_for_invalid_chars(data, invalid_filepath_chars);
     if (rc == false) {
-        MYMPD_LOG_WARN("Found illegal filepath character");
+        MYMPD_LOG_WARN("Found illegal character in file path");
     }
     return rc;
 }
