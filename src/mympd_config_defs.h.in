@@ -9,6 +9,8 @@
 #ifndef MYMPD_CONFIG_DEFS_H
 #define MYMPD_CONFIG_DEFS_H
 
+#include <limits.h>
+
 //Debug build
 #cmakedefine DEBUG
 
@@ -37,10 +39,13 @@
 //limits
 //max number of results to retrieve from mpd
 #define MAX_MPD_RESULTS 1000
+#define MAX_MPD_PLAYLIST_LENGTH 16384
 //limits for json parsing
 #define JSONRPC_INT_MIN INT_MIN
 #define JSONRPC_INT_MAX INT_MAX
 #define JSONRPC_UINT_MAX INT_MAX
+#define JSONRPC_FLOAT_MIN INT_MIN
+#define JSONRPC_FLOAT_MAX INT_MAX
 #define JSONRPC_STR_MAX 1000
 #define JSONRPC_KEY_MAX 50
 
