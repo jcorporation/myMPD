@@ -472,7 +472,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 json_get_string(request->data, "$.params.script", 0, 200, &sds_buf2, vcb_isfilename, &error) == true &&
                 json_get_int(request->data, "$.params.id", -1, 99, &int_buf1, &error) == true &&
                 json_get_int_max(request->data, "$.params.event", &int_buf2, &error) == true &&
-                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error))
+                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
             {
                 rc = list_push(&mympd_state->triggers, sds_buf1, int_buf2, sds_buf2, arguments);
                 if (rc == true) {
@@ -523,25 +523,25 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         }
-        case MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {outputId: %u}}", &uint_buf1);
-            if (je == 1) {
-                void *h = NULL;
-                struct json_token key;
-                struct json_token val;
-                while ((h = json_next_key(request->data, (int)sdslen(request->data), h, ".params.attributes", &key, &val)) != NULL) {
-                    sds attribute = sdsnewlen(key.ptr, key.len);
-                    sds value = sdsnewlen(val.ptr, val.len);
-                    rc = mpd_run_output_set(mympd_state->mpd_state->conn, uint_buf1, attribute, value);
-                    sdsfree(attribute);
-                    sdsfree(value);
+        case MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET: {
+            struct list attributes;
+            list_init(&attributes);
+            if (json_get_uint(request->data, "$.params.outputId", 0, 20, &uint_buf1, &error) == true &&
+                json_get_object_string(request->data, "$.params.attributes", &attributes, vcb_isname, 10, &error) == true)
+            {
+                struct list_node *current = attributes.head;
+                while (current != NULL) {
+                    rc = mpd_run_output_set(mympd_state->mpd_state->conn, uint_buf1, current->key, current->value_p);
                     response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_output_set");
                     if (rc == false) {
                         break;
                     }
+                    current = current->next;
                 }
             }
+            list_free(&attributes);
             break;
+        }
         case INTERNAL_API_STICKERCACHE_CREATED:
             sticker_cache_free(&mympd_state->sticker_cache);
             if (request->extra != NULL) {
@@ -569,9 +569,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             mympd_state->album_cache_building = false;
             break;
         case MYMPD_API_MESSAGE_SEND:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {channel: %Q, message: %Q}}", &p_charbuf1, &p_charbuf2);
-            if (je == 2) {
-                uint_buf1 = mpd_run_send_message(mympd_state->mpd_state->conn, p_charbuf1, p_charbuf2);
+            if (json_get_string(request->data, "$.params.channel", 1, 200, &sds_buf1, vcb_isname, &error) == true &&
+                json_get_string(request->data, "$.params.message", 1, 2000, &sds_buf2, vcb_isname, &error) == true)
+            {
+                uint_buf1 = mpd_run_send_message(mympd_state->mpd_state->conn, sds_buf1, sds_buf2);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, (uint_buf1 == 0 ? false : true), "mpd_run_send_message");
             }
             break;
@@ -581,17 +582,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 MYMPD_LOG_ERROR("MPD stickers are disabled");
                 break;
             }
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {uri: %Q, like: %d}}", &p_charbuf1, &int_buf1);
-            if (je == 2 && strlen(p_charbuf1) > 0) {
-                if (int_buf1 < 0 || int_buf1 > 2) {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "sticker", "error", "Failed to set like, invalid like value");
-                    break;
-                }
-                if (is_streamuri(p_charbuf1) == true) {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "sticker", "error", "Failed to set like, invalid song uri");
-                    break;
-                }
-                rc = mpd_client_sticker_like(mympd_state, p_charbuf1, int_buf1);
+            if (json_get_string(request->data, "$.params.uri", 1, 200, &sds_buf1, vcb_isfilepath, &error) == true &&
+                json_get_int(request->data, "$.params.like", 0, 2, &int_buf1, &error) == true)
+            {
+                rc = mpd_client_sticker_like(mympd_state, sds_buf1, int_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "sticker");
                 }
@@ -618,17 +612,17 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, "database", "info", "Database update already startet");
                 break;
             }
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                if (strcmp(p_charbuf1, "") == 0) {
-                    FREE_PTR(p_charbuf1);
+            if (json_get_string(request->data, "$.params.uri", 0, 200, &sds_buf1, vcb_isfilepath, &error) == true) {
+                if (sdslen(sds_buf1) == 0) {
+                    //path should be NULL to scan root directory
+                    FREE_SDS(sds_buf1);
                 }
                 if (request->cmd_id == MYMPD_API_DATABASE_UPDATE) {
-                    uint_buf1 = mpd_run_update(mympd_state->mpd_state->conn, p_charbuf1);
+                    uint_buf1 = mpd_run_update(mympd_state->mpd_state->conn, sds_buf1);
                     response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, (uint_buf1 == 0 ? false : true), "mpd_run_update");
                 }
                 else {
-                    uint_buf1 = mpd_run_rescan(mympd_state->mpd_state->conn, p_charbuf1);
+                    uint_buf1 = mpd_run_rescan(mympd_state->mpd_state->conn, sds_buf1);
                     response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, (uint_buf1 == 0 ? false : true), "mpd_run_rescan");
                 }
             }
