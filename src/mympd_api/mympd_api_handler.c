@@ -459,25 +459,22 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = trigger_list(mympd_state, response->data, request->method, request->id);
             break;
         case MYMPD_API_TRIGGER_GET:
-            if (json_get_int_max(request->data, "$.params.id", &int_buf1, &error) == true) {
-                response->data = trigger_get(mympd_state, response->data, request->method, request->id, int_buf1);
+            if (json_get_uint(request->data, "$.params.id", 0, 99, &uint_buf1, &error) == true) {
+                response->data = trigger_get(mympd_state, response->data, request->method, request->id, uint_buf1);
             }
             break;
-        case MYMPD_API_TRIGGER_SAVE:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {id: %d, name: %Q, event: %d, script: %Q}}", 
-                &int_buf1, &p_charbuf1, &int_buf2, &p_charbuf2);
-            if (je == 4 && validate_string_not_empty(p_charbuf1) == true && validate_string_not_empty(p_charbuf2) == true) {
-                struct list *arguments = (struct list *) malloc(sizeof(struct list));
-                assert(arguments);
-                list_init(arguments);
-                void *h = NULL;
-                struct json_token key;
-                struct json_token val;
-                while ((h = json_next_key(request->data, (int)sdslen(request->data), h, ".params.arguments", &key, &val)) != NULL) {
-                    list_push_len(arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
-                }
-                //add new entry
-                rc = list_push(&mympd_state->triggers, p_charbuf1, int_buf2, p_charbuf2, arguments);
+        case MYMPD_API_TRIGGER_SAVE: {
+            struct list *arguments = (struct list *) malloc(sizeof(struct list));
+            assert(arguments);
+            list_init(arguments);
+
+            if (json_get_string(request->data, "$.params.name", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.script", 0, 200, &sds_buf2, vcb_isfilename, &error) == true &&
+                json_get_int(request->data, "$.params.id", -1, 99, &int_buf1, &error) == true &&
+                json_get_int_max(request->data, "$.params.event", &int_buf2, &error) == true &&
+                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error))
+            {
+                rc = list_push(&mympd_state->triggers, sds_buf1, int_buf2, sds_buf2, arguments);
                 if (rc == true) {
                     if (int_buf1 >= 0) {
                         //delete old entry
@@ -485,22 +482,21 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                     }
                     if (rc == true) {
                         response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "trigger");
-                    }
-                    else {
-                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "trigger", "error", "Could not save trigger");
+                        break;
                     }
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "trigger", "error", "Could not save trigger");
+                    list_free(arguments);
                 }
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "trigger", "error", "Could not save trigger");
             }
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "trigger", "error", "Invalid trigger name");
+                list_free(arguments);
             }
             break;
+        }
         case MYMPD_API_TRIGGER_RM:
-            je = json_scanf(request->data, (int)sdslen(request->data), "{params: {id: %u}}", &uint_buf1);
-            if (je == 1) {
+            if (json_get_uint(request->data, "$.params.id", 0, 99, &uint_buf1, &error) == true) {
                 rc = delete_trigger(mympd_state, uint_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "trigger");

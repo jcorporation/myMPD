@@ -7,7 +7,6 @@
 #include "mympd_config_defs.h"
 #include "mpd_client_trigger.h"
 
-#include "../../dist/src/frozen/frozen.h"
 #include "../lib/api.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
@@ -131,7 +130,7 @@ sds trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long
     return buffer;
 }
 
-sds trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, int id) {
+sds trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, unsigned id) {
     struct list_node *current = list_node_at(&mympd_state->triggers, id);
     if (current != NULL) {
         buffer = jsonrpc_result_start(buffer, method, request_id);
@@ -188,24 +187,24 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
                 MYMPD_LOG_ERROR("Invalid line");
                 break;
             }
-            char *name = NULL;
-            char *script = NULL;
+            sds name = NULL;
+            sds script = NULL;
             int event;
-            int je = json_scanf(line, (int)sdslen(line), "{name: %Q, event: %d, script: %Q}", &name, &event, &script);
-            if (je == 3) {
-                struct list *arguments = (struct list *) malloc(sizeof(struct list));
-                assert(arguments);
-                list_init(arguments);
-                void *h = NULL;
-                struct json_token key;
-                struct json_token val;
-                while ((h = json_next_key(line, (int)sdslen(line), h, ".arguments", &key, &val)) != NULL) {
-                    list_push_len(arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
-                }
+            struct list *arguments = (struct list *) malloc(sizeof(struct list));
+            assert(arguments);
+            list_init(arguments);
+            if (json_get_string(line, "$.name", 1, 200, &name, vcb_isfilename, NULL) == true &&
+                json_get_string(line, "$.script", 0, 200, &script, vcb_isfilename, NULL) == true &&
+                json_get_int_max(line, "$.event", &event, NULL) == true &&
+                json_get_object_string(line, "$.arguments", arguments, vcb_isname, 10, NULL))
+            {
                 list_push(&mympd_state->triggers, name, event, script, arguments);
             }
-            FREE_PTR(name);
-            FREE_PTR(script);
+            else {
+                list_free(arguments);
+            }
+            FREE_SDS(name);
+            FREE_SDS(script);
         }
         sdsfree(line);
         fclose(fp);
@@ -240,7 +239,7 @@ bool triggerfile_save(struct t_mympd_state *mympd_state) {
         buffer = tojson_char(buffer, "name", current->key, true);
         buffer = tojson_long(buffer, "event", current->value_i, true);
         buffer = tojson_char(buffer, "script", current->value_p, true);
-        buffer = sdscat(buffer, "arguments: {");
+        buffer = sdscat(buffer, "\"arguments\":{");
         struct list *arguments = (struct list *)current->user_data;
         struct list_node *argument = arguments->head;
         int i = 0;
