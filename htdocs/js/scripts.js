@@ -180,7 +180,7 @@ function saveScript() {
 }
 
 function saveScriptCheckError(obj) {
-    removeEnterPinFooter(document.getElementById('modalScripts').getElementsByClassName('enterPinFooter')[0]);
+    removeEnterPinFooter();
     if (obj.error) {
         showModalAlert(obj);
     }
@@ -209,13 +209,13 @@ function removeScriptArgument(ev) {
 
 //eslint-disable-next-line no-unused-vars
 function showEditScript(script) {
-    removeEnterPinFooter(document.getElementById('modalScripts').getElementsByClassName('enterPinFooter')[0]);
+    removeEnterPinFooter();
+    removeIsInvalid(document.getElementById('modalScripts'));
+    
     document.getElementById('listScripts').classList.remove('active');
     document.getElementById('editScript').classList.add('active');
     document.getElementById('listScriptsFooter').classList.add('hide');
     document.getElementById('editScriptFooter').classList.remove('hide');
-    
-    removeIsInvalid(document.getElementById('modalScripts'));
       
     if (script !== '') {
         sendAPI("MYMPD_API_SCRIPT_GET", {"script": script}, parseEditScript, false);
@@ -247,7 +247,7 @@ function parseEditScript(obj) {
 }
 
 function showListScripts() {
-    removeEnterPinFooter(document.getElementById('modalScripts').getElementsByClassName('enterPinFooter')[0]);
+    removeEnterPinFooter();
     document.getElementById('listScripts').classList.add('active');
     document.getElementById('editScript').classList.remove('active');
     document.getElementById('listScriptsFooter').classList.remove('hide');

@@ -85,7 +85,7 @@ function mountMount() {
 }
 
 function mountMountCheckError(obj) {
-    removeEnterPinFooter(document.getElementById('modalMounts').getElementsByClassName('enterPinFooter')[0]);
+    removeEnterPinFooter();
     if (obj.error) {
         showModalAlert(obj);
     }
@@ -108,7 +108,7 @@ function updateMount(el, uri) {
 
 //eslint-disable-next-line no-unused-vars
 function showEditMount(uri, storage) {
-    removeEnterPinFooter(document.getElementById('modalMounts').getElementsByClassName('enterPinFooter')[0]);
+    removeEnterPinFooter();
     document.getElementById('listMounts').classList.remove('active');
     document.getElementById('editMount').classList.add('active');
     document.getElementById('listMountsFooter').classList.add('hide');

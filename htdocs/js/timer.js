@@ -141,7 +141,7 @@ function saveTimer() {
 }
 
 function saveTimerCheckError(obj) {
-    removeEnterPinFooter(document.getElementById('modalTimer').getElementsByClassName('enterPinFooter')[0]);
+    removeEnterPinFooter();
     if (obj.error) {
         showModalAlert(obj);
     }
@@ -153,7 +153,7 @@ function saveTimerCheckError(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function showEditTimer(timerid) {
-    removeEnterPinFooter(document.getElementById('modalTimer').getElementsByClassName('enterPinFooter')[0]);
+    removeEnterPinFooter();
     document.getElementById('timerActionPlay').classList.add('hide');
     document.getElementById('timerActionScript').classList.add('hide');
     document.getElementById('listTimer').classList.remove('active');
@@ -275,7 +275,7 @@ function showTimerScriptArgs(option, values) {
 }
 
 function showListTimer() {
-    removeEnterPinFooter(document.getElementById('modalTimer').getElementsByClassName('enterPinFooter')[0]);
+    removeEnterPinFooter();
     document.getElementById('listTimer').classList.add('active');
     document.getElementById('editTimer').classList.remove('active');
     document.getElementById('listTimerFooter').classList.remove('hide');

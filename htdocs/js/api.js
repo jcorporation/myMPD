@@ -6,9 +6,18 @@
 const ignoreMessages = ['No current song', 'No lyrics found'];
 
 function removeEnterPinFooter(footer) {
-    if (footer) {
+    if (footer !== undefined) {
         footer.previousElementSibling.classList.remove('hide');
         footer.remove();
+        return;
+    }
+    const f = document.getElementsByClassName('enterPinFooter');
+    for (let i = f.length - 1; i >= 0; i--) {
+        const prev = f[i].previousElementSibling;
+        if (prev.classList.contains('modal-footer')) {
+            prev.classList.remove('hide');
+        }
+        f[i].remove();
     }
 }
 

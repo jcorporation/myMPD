@@ -292,7 +292,7 @@ function showModalAlert(obj) {
 
 function hideModalAlert() {
     const activeAlerts = document.getElementsByClassName('modalAlert');
-    for (let i = activeAlerts - 1; i > 0; i--) {
+    for (let i = activeAlerts.length - 1; i >= 0; i--) {
         activeAlerts[i].remove();
     }
 }

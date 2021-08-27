@@ -544,6 +544,7 @@ function appInit() {
     initPlayback();
     initNavs();
     initPlaylists();
+    initOutputs();
     //init drag and drop
     dragAndDropTable('QueueCurrentList');
     dragAndDropTable('BrowsePlaylistsDetailList');
@@ -663,13 +664,6 @@ function initPlayback() {
 }
 
 function initNavs() {
-    //do not hide volume menu on click on volume change buttons
-    for (const elName of ['btnChVolumeDown', 'btnChVolumeUp', 'volumeBar']) {
-        document.getElementById(elName).addEventListener('click', function(event) {
-            event.stopPropagation();
-        }, false);
-    }
-
     //do not switch to first view by clicking on main menu logo
     document.getElementById('mainMenu').addEventListener('click', function(event) {
         event.preventDefault();
@@ -721,24 +715,6 @@ function initNavs() {
         parseCmd(event, href);
     }, false);
     
-    document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
-        sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs);
-    });
-
-    document.getElementById('outputs').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'A') {
-            event.preventDefault();
-            showListOutputAttributes(getCustomDomProperty(event.target.parentNode, 'data-output-name'));
-        }
-        else {
-            const target = event.target.nodeName === 'BUTTON' ? event.target : event.target.parentNode;
-            event.stopPropagation();
-            event.preventDefault();
-            sendAPI("MYMPD_API_PLAYER_OUTPUT_TOGGLE", {"outputId": getCustomDomProperty(target, 'data-output-id'), "state": (target.classList.contains('active') ? 0 : 1)});
-            toggleBtn(target.id);
-        }
-    }, false);
-
     document.getElementById('scripts').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             execScript(getCustomDomProperty(event.target, 'data-href'));

@@ -24,7 +24,7 @@ function initSettings() {
         getSettings();
         hideModalAlert();
         removeIsInvalid(document.getElementById('modalSettings'));
-        removeEnterPinFooter(document.getElementById('modalSettings').getElementsByClassName('enterPinFooter')[0]);
+        removeEnterPinFooter();
     });
     
     document.getElementById('modalQueueSettings').addEventListener('shown.bs.modal', function () {
@@ -37,7 +37,7 @@ function initSettings() {
         getSettings();
         hideModalAlert();
         removeIsInvalid(document.getElementById('modalConnection'));
-        removeEnterPinFooter(document.getElementById('modalConnection').getElementsByClassName('enterPinFooter')[0]);
+        removeEnterPinFooter();
     });
 
     document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {

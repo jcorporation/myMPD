@@ -61,7 +61,7 @@ function saveTrigger() {
 }
 
 function saveTriggerCheckError(obj) {
-    removeEnterPinFooter(document.getElementById('modalTrigger').getElementsByClassName('enterPinFooter')[0]);
+    removeEnterPinFooter();
     if (obj.error) {
         showModalAlert(obj);
     }
@@ -73,7 +73,7 @@ function saveTriggerCheckError(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function showEditTrigger(id) {
-    removeEnterPinFooter(document.getElementById('modalTrigger').getElementsByClassName('enterPinFooter')[0]);
+    removeEnterPinFooter();
     document.getElementById('listTrigger').classList.remove('active');
     document.getElementById('newTrigger').classList.add('active');
     document.getElementById('listTriggerFooter').classList.add('hide');
@@ -134,7 +134,7 @@ function showTriggerScriptArgs(option, values) {
 }
 
 function showListTrigger() {
-    removeEnterPinFooter(document.getElementById('modalTrigger').getElementsByClassName('enterPinFooter')[0]);
+    removeEnterPinFooter();
     document.getElementById('listTrigger').classList.add('active');
     document.getElementById('newTrigger').classList.remove('active');
     document.getElementById('listTriggerFooter').classList.remove('hide');

@@ -451,7 +451,7 @@ function saveHomeIcon() {
 }
 
 function saveHomeIconClose(obj) {
-    removeEnterPinFooter(document.getElementById('modalTrigger').getElementsByClassName('enterPinFooter')[0]);
+    removeEnterPinFooter();
     if (obj.error) {
         showModalAlert(obj);
     }

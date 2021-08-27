@@ -32,7 +32,7 @@ function initPartitions() {
     document.getElementById('modalPartitions').addEventListener('shown.bs.modal', function () {
         showListPartitions();
         hideModalAlert();
-        removeEnterPinFooter(document.getElementById('modalPartitions').getElementsByClassName('enterPinFooter')[0]);
+        removeEnterPinFooter();
     });
 
     document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
@@ -83,7 +83,7 @@ function savePartition() {
 }
 
 function savePartitionCheckError(obj) {
-    removeEnterPinFooter(document.getElementById('modalPartitions').getElementsByClassName('enterPinFooter')[0]);
+    removeEnterPinFooter();
     if (obj.error) {
         showModalAlert(obj);
     }
