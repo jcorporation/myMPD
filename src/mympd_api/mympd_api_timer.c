@@ -417,7 +417,7 @@ bool timerfile_read(struct t_mympd_state *mympd_state) {
             int timerid;            
             if (timer_def != NULL &&
                 json_get_int(param, "$.params.interval", -1, 604800, &interval, NULL) == true &&
-                json_get_int(param, "$.params.timerid", 0, 200, &timerid, NULL) == true) 
+                json_get_int(param, "$.params.timerid", 101, 200, &timerid, NULL) == true) 
             {
                 if (timerid > mympd_state->timer_list.last_id) {
                     mympd_state->timer_list.last_id = timerid;
