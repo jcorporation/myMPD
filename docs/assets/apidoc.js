@@ -1341,7 +1341,7 @@ const APImethods = {
     "MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET": {
         "desc": "Sets an MPD output attribute",
         "protected": true,
-        "params":{
+        "params": {
             "outputId": {
                 "type": "uint",
                 "example": 0,
@@ -1356,7 +1356,7 @@ const APImethods = {
     },
     "MYMPD_API_HOME_LIST": {
         "desc": "Lists all home icons",
-        "params":{}
+        "params": {}
     },
     "MYMPD_API_HOME_ICON_RM": {
         "desc": "Deletes a home icon",
