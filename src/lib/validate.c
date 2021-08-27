@@ -120,6 +120,17 @@ bool vcb_istext(sds data) {
     return rc;
 }
 
+bool vcb_isuri(sds data) {
+    if (sdslen(data) == 0) {
+        return false;
+    }
+    if (strstr(data, "://") != NULL) {
+        //uri notation
+        return true;
+    }
+    return vcb_isfilepath(data);
+}
+
 bool vcb_isfilename(sds data) {
     if (sdslen(data) == 0) {
         return false;
@@ -184,6 +195,13 @@ bool vcb_ismpdtag(sds data) {
         return false;
     }
     return true;
+}
+
+bool vcb_ismpdtag_or_any(sds data) {
+    if (strcmp(data, "any") == 0) {
+        return true;
+    }
+    return vcb_ismpdtag(data);
 }
 
 bool vcb_ismpdsort(sds data) {

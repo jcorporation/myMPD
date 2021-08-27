@@ -23,9 +23,11 @@ bool vcb_isname(sds data);
 bool vcb_istext(sds data);
 bool vcb_isfilename(sds data);
 bool vcb_isfilepath(sds data);
+bool vcb_isuri(sds data);
 bool vcb_iscolumn(sds data);
 bool vcb_istaglist(sds data);
 bool vcb_ismpdtag(sds data);
+bool vcb_ismpdtag_or_any(sds data);
 bool vcb_ismpdsort(sds data);
 
 //deprecated validation functions
