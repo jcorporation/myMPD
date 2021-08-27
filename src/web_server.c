@@ -676,6 +676,8 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
         }
         MYMPD_LOG_INFO("API request is authorized");
     }
+    #else
+    (void) auth_header;
     #endif
     
     switch(cmd_id) {
