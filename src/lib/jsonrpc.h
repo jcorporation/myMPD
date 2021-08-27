@@ -42,6 +42,8 @@ bool json_get_int_max(sds s, const char *path, int *result, sds *error);
 bool json_get_int(sds s, const char *path, int min, int max, int *result, sds *error);
 bool json_get_uint_max(sds s, const char *path, unsigned *result, sds *error);
 bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned *result, sds *error);
+bool json_get_float_max(sds s, const char *path, float *result, sds *error);
+bool json_get_float(sds s, const char *path, float min, float max, float *result, sds *error);
 bool json_get_string_max(sds s, const char *path, sds *result, validate_callback vcb, sds *error);
 bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, sds *error);
 bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const char *cmp, sds *result, sds *error);
