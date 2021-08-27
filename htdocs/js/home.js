@@ -446,12 +446,21 @@ function saveHomeIcon() {
             "image": image,
             "cmd": document.getElementById('selectHomeIconCmd').value,
             "options": options
-            }, function() {
-                uiElements.modalEditHomeIcon.hide();
-                sendAPI("MYMPD_API_HOME_LIST", {}, function(obj) {
-                    parseHome(obj);
-                });
-            });
+        }, saveHomeIconClose, true);
+    }
+}
+
+function saveHomeIconClose(obj) {
+    removeEnterPinFooter(document.getElementById('modalTrigger').getElementsByClassName('enterPinFooter')[0]);
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        uiElements.modalEditHomeIcon.hide();
+        sendAPI("MYMPD_API_HOME_LIST", {}, function(obj2) {
+            parseHome(obj2);
+        });
     }
 }
 
