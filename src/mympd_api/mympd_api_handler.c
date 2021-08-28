@@ -767,7 +767,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         case MYMPD_API_PLAYER_OUTPUT_TOGGLE:
             if (json_get_uint(request->data, "$.params.outputId", 0, 20, &uint_buf1, &error) == true &&
-                json_get_uint(request->data, "$.params.songId", 0, 1, &uint_buf1, &error) == true) 
+                json_get_uint(request->data, "$.params.state", 0, 1, &uint_buf2, &error) == true) 
             {
                 if (uint_buf2 == 1) {
                     rc = mpd_run_enable_output(mympd_state->mpd_state->conn, uint_buf1);
