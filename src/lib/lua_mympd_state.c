@@ -24,13 +24,6 @@ void set_lua_mympd_state_i(struct list *lua_mympd_state, const char *k, long v) 
     list_push(lua_mympd_state, k, LUA_TYPE_INTEGER, NULL, value);
 }
 
-void set_lua_mympd_state_f(struct list *lua_mympd_state, const char *k, double v) {
-    struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
-    assert(value);
-    value->f = v;
-    list_push(lua_mympd_state, k, LUA_TYPE_NUMBER, NULL, value);
-}
-
 void set_lua_mympd_state_b(struct list *lua_mympd_state, const char *k, bool v) {
     struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
     assert(value);

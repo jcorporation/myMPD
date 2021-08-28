@@ -23,8 +23,6 @@ This is the description of the lua table mympd_state. This table must be initial
 | single_state | Integer | MPD single option: 0 = off, 1 = on, 2 = oneshot, 3 = unknown |
 | consume | Boolean | MPD consume option |
 | crossfade  | Integer | MPD crossfade option |
-| mixrampdb | Float | MPD mixrampdb option |
-| mixrampdelay | Float | MPD mixrampdelay option |
 | music_directory | String | path to the music directory |
 | varlibdir | String | path to the myMPD localstatedir (default: /var/lib/mympd) |
 | jukebox_mode | Integer | Jukebox mode: 0 = off, 1 = on |

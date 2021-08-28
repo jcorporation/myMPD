@@ -169,8 +169,6 @@ bool mpd_client_get_lua_mympd_state(struct t_mympd_state *mympd_state, struct li
     set_lua_mympd_state_i(lua_mympd_state, "single_state", mpd_status_get_single_state(status));
     set_lua_mympd_state_i(lua_mympd_state, "consume", mpd_status_get_consume(status));
     set_lua_mympd_state_i(lua_mympd_state, "crossfade", mpd_status_get_crossfade(status));
-    set_lua_mympd_state_f(lua_mympd_state, "mixrampdb", mpd_status_get_mixrampdb(status));
-    set_lua_mympd_state_f(lua_mympd_state, "mixrampdelay", mpd_status_get_mixrampdelay(status));
     set_lua_mympd_state_p(lua_mympd_state, "music_directory", mympd_state->music_directory_value);
     set_lua_mympd_state_p(lua_mympd_state, "workdir", mympd_state->config->workdir);
     set_lua_mympd_state_i(lua_mympd_state, "jukebox_mode", mympd_state->jukebox_mode);
