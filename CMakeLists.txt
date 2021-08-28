@@ -161,7 +161,7 @@ endif()
 
 set(MYMPD_FLAGS "-Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
 	-Wformat=2  -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs \
-  -Wmissing-include-dirs -Wdouble-promotion -Wformat-truncation -Wundef")
+  -Wmissing-include-dirs -Wdouble-promotion -Wformat-truncation -Wundef -Wformat-nonliteral")
 
 #compiler flags for mympd src
 file(GLOB MYMPD_SRC_FILES1 "src/*.c")

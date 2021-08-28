@@ -49,10 +49,10 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     if (log_to_syslog == true) {
         va_list args;
         va_start(args, fmt);
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wformat-nonliteral"
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wformat-nonliteral"
             vsyslog(level, fmt, args); // NOLINT(clang-diagnostic-format-nonliteral)
-        #pragma clang diagnostic pop
+        #pragma GCC diagnostic pop
         va_end(args);
         return;
     }
