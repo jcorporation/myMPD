@@ -7,7 +7,6 @@
 #include "mympd_config_defs.h"
 #include "web_server_albumart.h"
 
-#include "../../dist/src/frozen/frozen.h"
 #include "../lib/api.h"
 #include "../lib/covercache.h"
 #include "../lib/jsonrpc.h"
@@ -36,12 +35,10 @@ static bool handle_coverextract_flac(struct t_config *config, const char *uri, c
 
 //public functions
 void send_albumart(struct mg_connection *nc, sds data, sds binary) {
-    char *p_charbuf1 = NULL;
-
-    int je = json_scanf(data, (int)sdslen(data), "{result: {mime_type:%Q}}", &p_charbuf1);
-    if (je == 1) {
-        MYMPD_LOG_DEBUG("Serving file from memory (%s - %u bytes)", p_charbuf1, sdslen(binary));
-        sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", p_charbuf1);
+    sds sds_buf1 = NULL;
+    if (json_get_string(data, "$.params.plist", 1, 200, &sds_buf1, vcb_isname, NULL) == true) {
+        MYMPD_LOG_DEBUG("Serving file from memory (%s - %u bytes)", sds_buf1, sdslen(binary));
+        sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", sds_buf1);
         header = sdscat(header, EXTRA_HEADERS_CACHE);
         http_send_header_ok(nc, sdslen(binary), header);
         mg_send(nc, binary, sdslen(binary));
@@ -53,7 +50,7 @@ void send_albumart(struct mg_connection *nc, sds data, sds binary) {
         populate_dummy_hm(nc, &hm);
         serve_na_image(nc, &hm);
     }
-    FREE_PTR(p_charbuf1);
+    FREE_SDS(sds_buf1);
 }
 
 //returns true if an image is served

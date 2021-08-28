@@ -399,7 +399,7 @@ static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script) {
         case LUA_ERRMEM:
             buffer = sdscatfmt(buffer, "Error executing script %s}: Memory allocation error", (phrase == true ? "%{script}" : script));
             break;
-        #if LUA_VERSION_5_3
+        #if LUA_VERSION_NUM >= 503 && LUA_VERSION_NUM < 504
         case LUA_ERRGCMM:
             buffer = sdscatfmt(buffer, "Error executing script %s: Error in garbage collector", (phrase == true ? "%{script}" : script));
             break;

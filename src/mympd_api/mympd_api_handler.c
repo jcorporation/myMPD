@@ -57,7 +57,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
     bool bool_buf1;
     bool bool_buf2;
     bool rc;
-    float float_buf;
     sds sds_buf1 = NULL;
     sds sds_buf2 = NULL;
     sds sds_buf3 = NULL;
@@ -795,10 +794,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = mpd_client_put_volume(mympd_state, response->data, request->method, request->id);
             break;            
         case MYMPD_API_PLAYER_SEEK_CURRENT:
-            if (json_get_float_max(request->data, "$.params.seek", &float_buf, &error) == true &&
+            if (json_get_int_max(request->data, "$.params.seek", &int_buf1, &error) == true &&
                 json_get_bool(request->data, "$.params.relative", &bool_buf1, &error) == true)
             {
-                rc = mpd_run_seek_current(mympd_state->mpd_state->conn, float_buf, bool_buf1);
+                rc = mpd_run_seek_current(mympd_state->mpd_state->conn, (float)int_buf1, bool_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_seek_current");
             }
             break;

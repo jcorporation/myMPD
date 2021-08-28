@@ -7,9 +7,10 @@
 #include "mympd_config_defs.h"
 #include "mpd_worker_smartpls.h"
 
-#include "../../dist/src/frozen/frozen.h"
+#include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mympd_configuration.h"
+#include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_shared/mpd_shared_playlists.h"
@@ -73,11 +74,9 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
 }
 
 bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, const char *playlist) {
-    char *smartpltype = NULL;
-    int je;
+    sds smartpltype = NULL;
     bool rc = true;
-    char *p_charbuf1 = NULL;
-    char *p_charbuf2 = NULL;
+    sds sds_buf1 = NULL;
     int int_buf1;
     int int_buf2;
     
@@ -91,22 +90,26 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     }
     
     sds filename = sdscatfmt(sdsempty(), "%s/smartpls/%s", mpd_worker_state->config->workdir, playlist);
-    char *content = json_fread(filename);
-    if (content == NULL) {
+    FILE *fp = fopen(filename, OPEN_FLAGS_READ);
+    if (fp == NULL) {
         MYMPD_LOG_ERROR("Cant read smart playlist \"%s\"", playlist);
         sdsfree(filename);
         return false;
     }
-    je = json_scanf(content, (int)strlen(content), "{type: %Q }", &smartpltype);
-    if (je != 1) {
+    sds content = sdsempty();
+    sdsgetfile(&content, fp, 2000);
+
+    if (json_get_string(content, "$.type", 1, 200, &smartpltype, vcb_isalnum, NULL) != true) {
         MYMPD_LOG_ERROR("Cant read smart playlist type from \"%s\"", filename);
         sdsfree(filename);
         return false;
     }
     if (strcmp(smartpltype, "sticker") == 0) {
-        je = json_scanf(content, (int)strlen(content), "{sticker: %Q, maxentries: %d, minvalue: %d}", &p_charbuf1, &int_buf1, &int_buf2);
-        if (je == 3) {
-            rc = mpd_worker_smartpls_update_sticker(mpd_worker_state, playlist, p_charbuf1, int_buf1, int_buf2);
+        if (json_get_string(content, "$.sticker", 1, 200, &sds_buf1, vcb_isalnum, NULL) == true &&
+            json_get_int(content, "$.maxentries", 0, MAX_MPD_PLAYLIST_LENGTH, &int_buf1, NULL) == true &&
+            json_get_int(content, "$.minvalue", 0, 100, &int_buf2, NULL) == true)
+        {
+            rc = mpd_worker_smartpls_update_sticker(mpd_worker_state, playlist, sds_buf1, int_buf1, int_buf2);
             if (rc == false) {
                 MYMPD_LOG_ERROR("Update of smart playlist \"%s\" failed.", playlist);
             }
@@ -115,11 +118,9 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
             MYMPD_LOG_ERROR("Can't parse smart playlist file \"%s\"", filename);
             rc = false;
         }
-        FREE_PTR(p_charbuf1);
     }
     else if (strcmp(smartpltype, "newest") == 0) {
-        je = json_scanf(content, (int)strlen(content), "{timerange: %d}", &int_buf1);
-        if (je == 1) {
+        if (json_get_int(content, "$.timerange", 0, JSONRPC_INT_MAX, &int_buf1, NULL) == true) {
             rc = mpd_worker_smartpls_update_newest(mpd_worker_state, playlist, int_buf1);
             if (rc == false) {
                 MYMPD_LOG_ERROR("Update of smart playlist \"%s\" failed", playlist);
@@ -131,9 +132,8 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         }
     }
     else if (strcmp(smartpltype, "search") == 0) {
-        je = json_scanf(content, (int)strlen(content), "{expression: %Q}", &p_charbuf1);
-        if (je == 1) {
-            rc = mpd_worker_smartpls_update_search(mpd_worker_state, playlist, p_charbuf1);
+        if (json_get_string(content, "$.params.expression", 1, 200, &sds_buf1, vcb_isname, NULL) == true) {
+            rc = mpd_worker_smartpls_update_search(mpd_worker_state, playlist, sds_buf1);
             if (rc == false) {
                 MYMPD_LOG_ERROR("Update of smart playlist \"%s\" failed", playlist);
             }
@@ -142,18 +142,17 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
             MYMPD_LOG_ERROR("Can't parse smart playlist file \"%s\"", filename);
             rc = false;
         }
-        FREE_PTR(p_charbuf1);
-        FREE_PTR(p_charbuf2);
     }
     if (rc == true) {
-        je = json_scanf(content, (int)strlen(content), "{sort: %Q}", &p_charbuf1);
-        if (je == 1 && strlen(p_charbuf1) > 0) {
-            mpd_shared_playlist_shuffle_sort(mpd_worker_state->mpd_state, NULL, NULL, 0, playlist, p_charbuf1);
+        if (json_get_string(content, "$.params.sort", 0, 100, &sds_buf1, vcb_ismpdsort, NULL) == true) {
+            if (sdslen(sds_buf1) > 0) {
+                mpd_shared_playlist_shuffle_sort(mpd_worker_state->mpd_state, NULL, NULL, 0, playlist, sds_buf1);
+            }
         }
-        FREE_PTR(p_charbuf1);
     }
-    FREE_PTR(smartpltype);
-    FREE_PTR(content);
+    FREE_SDS(smartpltype);
+    FREE_SDS(sds_buf1);
+    sdsfree(content);
     sdsfree(filename);
     return rc;
 }

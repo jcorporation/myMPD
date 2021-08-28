@@ -14,10 +14,6 @@
 #include <stdbool.h>
 
 #ifdef ENABLE_LUA
-    #define LUA_VERSION_5_3(major, minor) \
-            ((5) == LUA_VERSION_MAJOR && \
-            ((3) == LUA_VERSION_MINOR))
-
     bool mympd_api_script_save(struct t_config *config, const char *script, const char *oldscript, int order, const char *content, struct list *arguments);
     bool mympd_api_script_delete(struct t_config *config, const char *script);
     sds mympd_api_script_get(struct t_config *config, sds buffer, sds method, long request_id, const char *script);

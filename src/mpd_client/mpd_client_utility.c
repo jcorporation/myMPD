@@ -7,7 +7,6 @@
 #include "mympd_config_defs.h"
 #include "mpd_client_utility.h"
 
-#include "../../dist/src/frozen/frozen.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mympd_configuration.h"
@@ -48,21 +47,6 @@ sds put_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
     list_free(&images);
     sdsfree(booklet_path);
     return buffer;
-}
-
-void json_to_tags(const char *str, int len, void *user_data) {
-    struct json_token t;
-    int i;
-    struct t_tags *tags = (struct t_tags *) user_data;
-    tags->len = 0;
-    for (i = 0; json_scanf_array_elem(str, len, "", i, &t) > 0; i++) {
-        sds token = sdscatlen(sdsempty(), t.ptr, t.len);
-        enum mpd_tag_type tag = mpd_tag_name_iparse(token);
-        sdsfree(token);
-        if (tag != MPD_TAG_UNKNOWN) {
-            tags->tags[tags->len++] = tag;
-        }
-    }
 }
 
 bool is_smartpls(struct t_mympd_state *mympd_state, const char *plpath) {

@@ -7,7 +7,6 @@
 #include "mympd_config_defs.h"
 #include "mympd_api.h"
 
-#include "../dist/src/frozen/frozen.h"
 #include "lib/api.h"
 #include "lib/log.h"
 #include "lib/mympd_configuration.h"

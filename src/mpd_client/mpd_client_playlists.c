@@ -7,7 +7,6 @@
 #include "mympd_config_defs.h"
 #include "mpd_client_playlists.h"
 
-#include "../../dist/src/frozen/frozen.h"
 #include "../lib/api.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
@@ -287,51 +286,42 @@ sds mpd_client_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sd
 sds mpd_client_smartpls_put(struct t_config *config, sds buffer, sds method, long request_id,
                             const char *playlist)
 {
-    if (validate_string_not_dir(playlist) == false) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Can not read smart playlist file");
-        return buffer;
-    }
-    char *p_charbuf1 = NULL;
-    char *p_charbuf2 = NULL;
+    sds smartpltype = NULL;
+    sds sds_buf1 = NULL;
     int int_buf1 = 0;
     int int_buf2 = 0;
 
     sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->workdir, playlist);
-    char *content = json_fread(pl_file);
-    sdsfree(pl_file);
-    if (content == NULL) {
-        MYMPD_LOG_ERROR("Can't read smart playlist: %s", playlist);
+    FILE *fp = fopen(pl_file, OPEN_FLAGS_READ);
+    if (fp == NULL) {
+        MYMPD_LOG_ERROR("Cant read smart playlist \"%s\"", playlist);
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Can not read smart playlist file");
         return buffer;
     }
-    char *smartpltype = NULL;
-    int je = json_scanf(content, (int)strlen(content), "{type: %Q }", &smartpltype);
-    if (je == 1) {
+    sds content = sdsempty();
+    sdsgetfile(&content, fp, 2000);
+    sdsfree(pl_file);
+
+    if (json_get_string(content, "$.type", 1, 200, &smartpltype, vcb_isalnum, NULL) != true) {
         buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = tojson_char(buffer, "plist", playlist, true);
         buffer = tojson_char(buffer, "type", smartpltype, true);
         bool rc = true;
         if (strcmp(smartpltype, "sticker") == 0) {
-            je = json_scanf(content, (int)strlen(content), "{sticker: %Q, maxentries: %d, minvalue: %d}", &p_charbuf1, &int_buf1, &int_buf2);
-            if (je == 3) {
-                buffer = tojson_char(buffer, "sticker", p_charbuf1, true);
+            if (json_get_string(content, "$.params.sticker", 1, 200, &sds_buf1, vcb_isalnum, NULL) == true &&
+                json_get_int(content, "$.params.maxentries", 0, MAX_MPD_PLAYLIST_LENGTH, &int_buf1, NULL) == true &&
+                json_get_int(content, "$.params.minvalue", 0, 100, &int_buf2, NULL) == true)
+            {
+                buffer = tojson_char(buffer, "sticker", sds_buf1, true);
                 buffer = tojson_long(buffer, "maxentries", int_buf1, true);
                 buffer = tojson_long(buffer, "minvalue", int_buf2, true);
-            }
-            else if (je == 2) {
-                //only for backward compatibility
-                buffer = tojson_char(buffer, "sticker", p_charbuf1, true);
-                buffer = tojson_long(buffer, "maxentries", int_buf1, true);
-                buffer = tojson_long(buffer, "minvalue", 1, true);
             }
             else {
                 rc = false;
             }
-            FREE_PTR(p_charbuf1);
         }
         else if (strcmp(smartpltype, "newest") == 0) {
-            je = json_scanf(content, (int)strlen(content), "{timerange: %d}", &int_buf1);
-            if (je == 1) {
+            if (json_get_int(content, "$.params.timerange", 0, JSONRPC_INT_MAX, &int_buf1, NULL) == true) {
                 buffer = tojson_long(buffer, "timerange", int_buf1, true);
             }
             else {
@@ -339,41 +329,37 @@ sds mpd_client_smartpls_put(struct t_config *config, sds buffer, sds method, lon
             }
         }
         else if (strcmp(smartpltype, "search") == 0) {
-            je = json_scanf(content, (int)strlen(content), "{expression: %Q}", &p_charbuf1);
-            if (je == 1) {
-                buffer = tojson_char(buffer, "expression", p_charbuf1, true);
+            if (json_get_string(content, "$.params.expression", 1, 200, &sds_buf1, vcb_isname, NULL) == true) {
+                buffer = tojson_char(buffer, "expression", sds_buf1, true);
             }
             else {
                 rc = false;    
             }
-            FREE_PTR(p_charbuf1);
-            FREE_PTR(p_charbuf2);
         }
         else {
             rc = false;            
         }
         if (rc == true) {
-            je = json_scanf(content, (int)strlen(content), "{sort: %Q}", &p_charbuf1);
-            if (je == 1) {
-                buffer = tojson_char(buffer, "sort", p_charbuf1, false);
+            if (json_get_string(content, "$.params.sort", 0, 100, &sds_buf1, vcb_ismpdsort, NULL) == true) {
+                buffer = tojson_char(buffer, "sort", sds_buf1, false);
             }
             else {
                 buffer = tojson_char(buffer, "sort", "", false);
             }
-            FREE_PTR(p_charbuf1);            
             buffer = jsonrpc_result_end(buffer);
         }
         else {
             buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Can not parse smart playlist file");
             MYMPD_LOG_ERROR("Can't parse smart playlist file: %s", playlist);
         }
-        FREE_PTR(smartpltype);        
     }
     else {
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Unknown smart playlist type");
         MYMPD_LOG_ERROR("Unknown smart playlist type: %s", playlist);
     }
-    FREE_PTR(content);
+    FREE_SDS(smartpltype);
+    FREE_SDS(content);
+    FREE_SDS(sds_buf1);
     return buffer;
 }
 
