@@ -14,7 +14,7 @@ jobs:
       run: sudo apt-get install clang
     - name: build
       env:
-        CC=/usr/bin/clang
+        CC: /usr/bin/clang
       run: ./build.sh release
     - name: install
       run: sudo ./build.sh install
