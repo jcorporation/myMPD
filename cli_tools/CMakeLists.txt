@@ -13,13 +13,17 @@ project (cli_tools C)
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 include(CheckCSourceCompiles)
 
+if (CMAKE_C_COMPILER_ID MATCHES "Clang")
+  message("Compiling with clang")
+  add_compile_options(-Wno-unknown-warning-option)
+endif()
+
 if(${MEMCHECK} MATCHES "TRUE")
   #for use with valgrind
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Werror")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
 else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -O1 -Wall -Werror -fstack-protector -D_FORTIFY_SOURCE=2 -pie -fPIE")
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -O1 -Wall -Werror -fstack-protector -D_FORTIFY_SOURCE=2 -fPIE")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -fsanitize=address \
         -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
         -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
@@ -31,7 +35,7 @@ set(MYMPD_COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshado
         -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
 
 #linker flags
-set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
+set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -pie -s")
 
 configure_file(mympd_config_defs.h.in ${PROJECT_BINARY_DIR}/mympd_config_defs.h)
 

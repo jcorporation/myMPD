@@ -21,6 +21,11 @@ include(CheckCSourceCompiles)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 
+if (CMAKE_C_COMPILER_ID MATCHES "Clang")
+  message("Compiling with clang")
+  add_compile_options(-Wno-unknown-warning-option)
+endif()
+
 if("${CMAKE_INSTALL_PREFIX}" MATCHES "/usr")
   set(SUBDIR "/${PROJECT_NAME}")
   set(SUBDIRLIB "/lib")
@@ -139,7 +144,7 @@ if(${MEMCHECK} MATCHES "TRUE")
 else()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu17 -O3 -Wall -Werror -Wvla -Winit-self -Wuninitialized -Werror=array-bounds \
     -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE")
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
+  #set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -fsanitize=address \
     -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
     -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
@@ -187,7 +192,7 @@ set_property(SOURCE dist/src/mjson/mjson.c PROPERTY COMPILE_FLAGS "${MJSON_FLAGS
 set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "${MONGOOSE_FLAGS}")
 
 #linker flags
-set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -pie")
+set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -pie -s")
 
 set(SOURCES
   dist/src/mjson/mjson.c
