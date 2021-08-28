@@ -18,7 +18,6 @@
 #include "mpd_client/mpd_client_playlists.h"
 #include "mympd_api.h"
 #include "mympd_config.h"
-#include "mympd_migrate.h"
 #include "web_server.h"
 
 #ifdef ENABLE_SSL
@@ -308,9 +307,6 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //migrate old config
-    start_migrate_conf(config->workdir);
-
     //read configuration
     init_config = true;
     mympd_config_defaults(config);
@@ -375,9 +371,6 @@ int main(int argc, char **argv) {
     if (check_dirs(config) == false) {
         goto cleanup;
     }
-
-    //migrate old config
-    start_migrate_workdir(config->workdir);
 
     //Create working threads
     pthread_t web_server_thread;
