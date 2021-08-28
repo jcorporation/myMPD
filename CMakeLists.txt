@@ -138,7 +138,7 @@ if(${MEMCHECK} MATCHES "TRUE")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
 else()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu17 -O3 -Wall -Werror -Wvla -Winit-self -Wuninitialized -Werror=array-bounds \
-	  -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE")
+    -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE")
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -fsanitize=address \
     -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
@@ -154,8 +154,9 @@ if(CMAKE_BUILD_TYPE MATCHES RELEASE)
   set(MONGOOSE_FLAGS "${MONGOOSE_FLAGS} -DMG_ENABLE_LOG=0")
 endif()
 
-set(MYMPD_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
-	-Wformat=2  -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+set(MYMPD_FLAGS "-Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
+	-Wformat=2  -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs \
+  -Wmissing-include-dirs -Wdouble-promotion -Wformat-truncation -Wundef")
 
 #compiler flags for mympd src
 file(GLOB MYMPD_SRC_FILES1 "src/*.c")
@@ -179,9 +180,6 @@ set_property(SOURCE ${MYMPD_SRC_FILES5} PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS}")
 file(GLOB MYMPD_SRC_FILES6 "src/mpd_shared/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES6} PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS}")
 
-#compiler flags for frozen
-set_property(SOURCE dist/src/frozen/frozen.c PROPERTY COMPILE_FLAGS "-Wno-stringop-overflow")
-
 #compiler flags for mjson
 set_property(SOURCE dist/src/mjson/mjson.c PROPERTY COMPILE_FLAGS "${MJSON_FLAGS}")
 
@@ -192,7 +190,6 @@ set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "${MONGO
 set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -pie")
 
 set(SOURCES
-  dist/src/frozen/frozen.c
   dist/src/mjson/mjson.c
   dist/src/mongoose/mongoose.c
   dist/src/rax/rax.c
@@ -252,7 +249,6 @@ set(SOURCES
   src/mympd_api/mympd_api_utility.c
   src/mympd_autoconf.c
   src/mympd_config.c
-  src/mympd_migrate.c
   src/web_server.c
   src/web_server/web_server_albumart.c
   src/web_server/web_server_sessions.c
