@@ -369,12 +369,6 @@ check_docs() {
   do 
     grep -q "$F" htdocs/js/apidoc.js || echo "API $F not documented"
   done
-  O=$(md5sum htdocs/js/apidoc.js | awk '{print $1}')
-  C=$(md5sum docs/assets/apidoc.js | awk '{print $1}')
-  if [ "$O" != "$C" ]
-  then
-  	echo "apidoc.js in docs differs"
-  fi
 }
 
 check_includes() {
