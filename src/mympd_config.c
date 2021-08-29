@@ -91,27 +91,27 @@ void mympd_config_defaults_initial(struct t_config *config) {
 }
 
 bool mympd_read_config(struct t_config *config) {
-    config->http_host = state_file_rw_string_sds(config->workdir, "config", "http_host", config->http_host, false);
-    config->http_port = state_file_rw_string_sds(config->workdir, "config", "http_port", config->http_port, false);
+    config->http_host = state_file_rw_string_sds(config->workdir, "config", "http_host", config->http_host, vcb_isname, false);
+    config->http_port = state_file_rw_string_sds(config->workdir, "config", "http_port", config->http_port, vcb_isdigit, false);
     #ifdef ENABLE_SSL
         config->ssl = state_file_rw_bool(config->workdir, "config", "ssl", config->ssl, false);
-        config->ssl_port = state_file_rw_string_sds(config->workdir, "config", "ssl_port", config->ssl_port, false);
-        config->ssl_san = state_file_rw_string_sds(config->workdir, "config", "ssl_san", config->ssl_san, false);
+        config->ssl_port = state_file_rw_string_sds(config->workdir, "config", "ssl_port", config->ssl_port, vcb_isdigit, false);
+        config->ssl_san = state_file_rw_string_sds(config->workdir, "config", "ssl_san", config->ssl_san, vcb_isname, false);
         config->custom_cert = state_file_rw_bool(config->workdir, "config", "custom_cert", config->custom_cert, false);
         if (config->custom_cert == true) {
-            config->ssl_cert = state_file_rw_string_sds(config->workdir, "config", "ssl_cert", config->ssl_cert, false);
-            config->ssl_key = state_file_rw_string_sds(config->workdir, "config", "ssl_key", config->ssl_key, false);
+            config->ssl_cert = state_file_rw_string_sds(config->workdir, "config", "ssl_cert", config->ssl_cert, vcb_isname, false);
+            config->ssl_key = state_file_rw_string_sds(config->workdir, "config", "ssl_key", config->ssl_key, vcb_isname, false);
         }
-        config->pin_hash = state_file_rw_string_sds(config->workdir, "config", "pin_hash", config->pin_hash, false);
+        config->pin_hash = state_file_rw_string_sds(config->workdir, "config", "pin_hash", config->pin_hash, vcb_isname, false);
     #else
         MYMPD_LOG_NOTICE("OpenSSL is disabled, ignoring ssl and pin settings");
     #endif
-    config->acl = state_file_rw_string_sds(config->workdir, "config", "acl", config->acl, false);
-    config->scriptacl = state_file_rw_string_sds(config->workdir, "config", "scriptacl", config->scriptacl, false);
+    config->acl = state_file_rw_string_sds(config->workdir, "config", "acl", config->acl, vcb_isname, false);
+    config->scriptacl = state_file_rw_string_sds(config->workdir, "config", "scriptacl", config->scriptacl, vcb_isname, false);
     #ifdef ENABLE_LUA
-        config->lualibs = state_file_rw_string_sds(config->workdir, "config", "lualibs", config->lualibs, false);
+        config->lualibs = state_file_rw_string_sds(config->workdir, "config", "lualibs", config->lualibs, vcb_isname, false);
     #endif
-    config->loglevel = state_file_rw_int(config->workdir, "config", "loglevel", config->loglevel, false);
+    config->loglevel = state_file_rw_int(config->workdir, "config", "loglevel", config->loglevel, 0, 7, false);
     //overwrite configured loglevel
     config->loglevel = mympd_getenv_int("MYMPD_LOGLEVEL", config->loglevel, 0, 7, true);
     return true;

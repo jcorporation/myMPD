@@ -31,13 +31,13 @@ sds camel_to_snake(sds text) {
     return buffer;
 }
 
-sds state_file_rw_string_sds(const char *workdir, const char *dir, const char *name, sds old_value, bool warn) {
-    sds value = state_file_rw_string(workdir, dir, name, old_value, warn);
+sds state_file_rw_string_sds(const char *workdir, const char *dir, const char *name, sds old_value, validate_callback vcb, bool warn) {
+    sds value = state_file_rw_string(workdir, dir, name, old_value, vcb, warn);
     sdsfree(old_value);
     return value;
 }
 
-sds state_file_rw_string(const char *workdir, const char *dir, const char *name, const char *def_value, bool warn) {
+sds state_file_rw_string(const char *workdir, const char *dir, const char *name, const char *def_value, validate_callback vcb, bool warn) {
     sds result = sdsempty();  
     sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", workdir, dir, name);
     errno = 0;
@@ -62,8 +62,15 @@ sds state_file_rw_string(const char *workdir, const char *dir, const char *name,
     fclose(fp);
     if (n == 0) {
         //sucessfully read the value
-        MYMPD_LOG_DEBUG("State %s: %s", name, result);
-        return result;
+        if (vcb != NULL && vcb(result) == false) {
+            //validation failed
+            sdsclear(result);
+        }
+        else {
+            //got valid result
+            MYMPD_LOG_DEBUG("State %s: %s", name, result);
+            return result;
+        }
     }
     //blank value or too long line, return default value
     result = sdscat(result, def_value);
@@ -72,7 +79,7 @@ sds state_file_rw_string(const char *workdir, const char *dir, const char *name,
 
 bool state_file_rw_bool(const char *workdir, const char *dir, const char *name, const bool def_value, bool warn) {
     bool value = def_value;
-    sds line = state_file_rw_string(workdir, dir, name, def_value == true ? "true" : "false", warn);
+    sds line = state_file_rw_string(workdir, dir, name, def_value == true ? "true" : "false", NULL, warn);
     if (sdslen(line) > 0) {
         value = strtobool(line);
         sdsfree(line);
@@ -80,30 +87,32 @@ bool state_file_rw_bool(const char *workdir, const char *dir, const char *name, 
     return value;
 }
 
-int state_file_rw_int(const char *workdir, const char *dir, const char *name, const int def_value, bool warn) {
+int state_file_rw_int(const char *workdir, const char *dir, const char *name, const int def_value, const int min, const int max, bool warn) {
     char *crap = NULL;
     int value = def_value;
     sds def_value_str = sdsfromlonglong(def_value);
-    sds line = state_file_rw_string(workdir, dir, name, def_value_str, warn);
+    sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
     sdsfree(def_value_str);
-    if (sdslen(line) > 0) {
-        value = (int)strtoimax(line, &crap, 10);
-        sdsfree(line);
+    value = (int)strtoimax(line, &crap, 10);
+    sdsfree(line);
+    if (value >= min && value <= max) {
+        return value;
     }
-    return value;
+    return def_value;
 }
 
-unsigned state_file_rw_uint(const char *workdir, const char *dir, const char *name, const unsigned def_value, bool warn) {
+unsigned state_file_rw_uint(const char *workdir, const char *dir, const char *name, const unsigned def_value, const unsigned min, const unsigned max, bool warn) {
     char *crap = NULL;
     unsigned value = def_value;
     sds def_value_str = sdsfromlonglong(def_value);
-    sds line = state_file_rw_string(workdir, dir, name, def_value_str, warn);
+    sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
     sdsfree(def_value_str);
-    if (sdslen(line) > 0) {
-        value = (int)strtoimax(line, &crap, 10);
-        sdsfree(line);
+    value = (int)strtoimax(line, &crap, 10);
+    sdsfree(line);
+    if (value >= min && value <= max) {
+        return value;
     }
-    return value;
+    return def_value;
 }
 
 bool state_file_write(const char *workdir, const char *dir, const char *name, const char *value) {
