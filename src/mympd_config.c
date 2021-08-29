@@ -9,6 +9,7 @@
 
 #include "lib/log.h"
 #include "lib/state_files.h"
+#include "lib/validate.h"
 
 #include <inttypes.h>
 #include <stdlib.h>
@@ -17,8 +18,8 @@
 
 //private functions
 static const char *mympd_getenv(const char *env_var, bool first_startup);
-static sds mympd_getenv_string(const char *env_var, const char *default_value, bool first_startup);
-static int mympd_getenv_int(const char *env_var, int default_value, bool first_startup);
+static sds mympd_getenv_string(const char *env_var, const char *default_value, validate_callback vcb, bool first_startup);
+static int mympd_getenv_int(const char *env_var, int default_value, int min, int max, bool first_startup);
 
 #ifdef ENABLE_SSL
     static bool mympd_getenv_bool(const char *env_var, bool default_value, bool first_startup);
@@ -49,18 +50,18 @@ void mympd_free_config_initial(struct t_config *config) {
 
 void mympd_config_defaults(struct t_config *config) {
     //configureable with environment variables at first startup
-    config->http_host = mympd_getenv_string("MYMPD_HTTP_HOST", "0.0.0.0", config->first_startup);
-    config->http_port = mympd_getenv_string("MYMPD_HTTP_PORT", "80", config->first_startup);
+    config->http_host = mympd_getenv_string("MYMPD_HTTP_HOST", "0.0.0.0", vcb_isname, config->first_startup);
+    config->http_port = mympd_getenv_string("MYMPD_HTTP_PORT", "80", vcb_isdigit, config->first_startup);
     #ifdef ENABLE_SSL
         config->ssl = mympd_getenv_bool("MYMPD_SSL", true, config->first_startup);
-        config->ssl_port = mympd_getenv_string("MYMPD_SSL_PORT", "443", config->first_startup);
-        config->ssl_san = mympd_getenv_string("MYMPD_SSL_SAN", "", config->first_startup); 
+        config->ssl_port = mympd_getenv_string("MYMPD_SSL_PORT", "443", vcb_isdigit, config->first_startup);
+        config->ssl_san = mympd_getenv_string("MYMPD_SSL_SAN", "", vcb_isname, config->first_startup); 
         config->custom_cert = mympd_getenv_bool("MYMPD_CUSTOM_CERT", false, config->first_startup);
         sds default_cert = sdscatfmt(sdsempty(), "%s/ssl/server.pem", config->workdir);
         sds default_key = sdscatfmt(sdsempty(), "%s/ssl/server.key", config->workdir);
         if (config->custom_cert == true) {
-            config->ssl_cert = mympd_getenv_string("MYMPD_SSL_CERT", default_cert, config->first_startup);
-            config->ssl_key = mympd_getenv_string("MYMPD_SSL_KEY", default_key, config->first_startup);
+            config->ssl_cert = mympd_getenv_string("MYMPD_SSL_CERT", default_cert, vcb_isfilepath, config->first_startup);
+            config->ssl_key = mympd_getenv_string("MYMPD_SSL_KEY", default_key, vcb_isfilepath, config->first_startup);
             sdsfree(default_cert);
             sdsfree(default_key);
         }
@@ -69,10 +70,10 @@ void mympd_config_defaults(struct t_config *config) {
             config->ssl_key = default_key;
         }
     #endif
-    config->acl = mympd_getenv_string("MYMPD_ACL", "", config->first_startup);
-    config->scriptacl = mympd_getenv_string("MYMPD_SCRIPTACL", "+127.0.0.0/8", config->first_startup);
+    config->acl = mympd_getenv_string("MYMPD_ACL", "", vcb_isname, config->first_startup);
+    config->scriptacl = mympd_getenv_string("MYMPD_SCRIPTACL", "+127.0.0.0/8", vcb_isname, config->first_startup);
     #ifdef ENABLE_LUA
-        config->lualibs = mympd_getenv_string("MYMPD_LUALIBS", "all", config->first_startup);
+        config->lualibs = mympd_getenv_string("MYMPD_LUALIBS", "all", vcb_isalnum, config->first_startup);
     #endif
     config->loglevel = 5;
     config->pin_hash = sdsempty();
@@ -112,7 +113,7 @@ bool mympd_read_config(struct t_config *config) {
     #endif
     config->loglevel = state_file_rw_int(config->workdir, "config", "loglevel", config->loglevel, false);
     //overwrite configured loglevel
-    config->loglevel = mympd_getenv_int("MYMPD_LOGLEVEL", config->loglevel, true);
+    config->loglevel = mympd_getenv_int("MYMPD_LOGLEVEL", config->loglevel, 0, 7, true);
     return true;
 }
 
@@ -138,14 +139,33 @@ static const char *mympd_getenv(const char *env_var, bool first_startup) {
     return NULL;
 }
 
-static sds mympd_getenv_string(const char *env_var, const char *default_value, bool first_startup) {
+static sds mympd_getenv_string(const char *env_var, const char *default_value, validate_callback vcb, bool first_startup) {
     const char *env_value = mympd_getenv(env_var, first_startup);
-    return env_value != NULL ? sdsnew(env_value) : sdsnew(default_value);
+    if (env_value == NULL) {
+        return sdsnew(default_value);
+    }
+    sds value = sdsnew(env_value);
+    if (vcb == NULL) {
+        return value;
+    }
+    bool rc = vcb(value);
+    if (rc == true) {
+        return value;
+    }
+    return sdsnew(default_value);
 }
 
-static int mympd_getenv_int(const char *env_var, int default_value, bool first_startup) {
+static int mympd_getenv_int(const char *env_var, int default_value, int min, int max, bool first_startup) {
     const char *env_value = mympd_getenv(env_var, first_startup);
-    return env_value != NULL ? (int)strtoimax(env_value, NULL, 10) : default_value;
+    if (env_value == NULL) {
+        return default_value;
+    }
+    int value = (int)strtoimax(env_value, NULL, 10);
+    if (value >= min && value <= max) {
+        return value;
+    }
+    MYMPD_LOG_WARN("Invalid value for \"%s\" using default", env_var);
+    return default_value;
 }
 
 #ifdef ENABLE_SSL

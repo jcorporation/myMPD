@@ -84,6 +84,16 @@ bool vcb_isalnum(sds data) {
     return true;
 }
 
+bool vcb_isdigit(sds data) {
+    for (size_t i = 0; i < sdslen(data); i++) {
+        if (isdigit(data[i]) == 0) {
+            MYMPD_LOG_WARN("Found none numeric character in string");
+            return false;
+        }
+    }
+    return true;
+}
+
 bool vcb_isprint(sds data) {
     for (size_t i = 0; i < sdslen(data); i++) {
         if (isprint(data[i]) == 0) {

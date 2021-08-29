@@ -43,7 +43,7 @@ sds find_mpd_conf(void) {
     return filename;
 }
 
-sds get_mpd_conf(const char *key, const char *default_value) {
+sds get_mpd_conf(const char *key, const char *default_value, validate_callback vcb) {
     sds last_value = sdsnew(default_value);
     sds mpd_conf = find_mpd_conf();
     errno = 0;
@@ -66,7 +66,9 @@ sds get_mpd_conf(const char *key, const char *default_value) {
                     if (sdslen(last_value) == 0 || strncmp(value, "/", 1) == 0) {
                         //prefer socket connection
                         MYMPD_LOG_NOTICE("Found mpd host: %s", value);
-                        last_value = sdsreplace(last_value, value);
+                        if (vcb(value) == true) {
+                            last_value = sdsreplace(last_value, value);
+                        }
                     }
                 }
                 else if (strcasecmp(name, key) == 0 && strcasecmp(name, "password") == 0) {
@@ -76,15 +78,19 @@ sds get_mpd_conf(const char *key, const char *default_value) {
                     if (count == 2) {
                         if (sdslen(last_value) == 0 || strstr(pwtokens[1], "admin") != NULL) {
                             //use prefered the entry with admin privileges or as fallback the first entry
-                            last_value = sdsreplace(last_value, pwtokens[0]);
                             MYMPD_LOG_NOTICE("Found mpd password\n");
+                            if (vcb(pwtokens[0]) == true) {
+                                last_value = sdsreplace(last_value, pwtokens[0]);
+                            }
                         }
                     }
                     sdsfreesplitres(pwtokens, count);
                 }
                 else if (strcasecmp(name, key) == 0) {
                     MYMPD_LOG_NOTICE("Found %s: %s", key, value);
-                    last_value = sdsreplace(last_value, value);
+                    if (vcb(value) == true) {
+                        last_value = sdsreplace(last_value, value);
+                    }
                 }
             }
             sdsfree(name);

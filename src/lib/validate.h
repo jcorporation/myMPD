@@ -17,6 +17,7 @@ bool validate_json(sds data);
 bool validate_json_array(sds data);
 
 bool vcb_isalnum(sds data);
+bool vcb_isdigit(sds data);
 bool vcb_isprint(sds data);
 bool vcb_ishexcolor(sds data);
 bool vcb_isname(sds data);
