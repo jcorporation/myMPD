@@ -74,21 +74,17 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
 }
 
 bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, const char *playlist) {
+    if (mpd_worker_state->mpd_state->feat_playlists == false) {
+        MYMPD_LOG_WARN("Playlists are disabled");
+        return true;
+    }
+    
     sds smartpltype = NULL;
     bool rc = true;
     sds sds_buf1 = NULL;
     int int_buf1;
     int int_buf2;
-    
-    if (mpd_worker_state->mpd_state->feat_playlists == false) {
-        MYMPD_LOG_WARN("Playlists are disabled");
-        return true;
-    }
-    if (validate_string_not_dir(playlist) == false) {
-        MYMPD_LOG_ERROR("Invalid smart playlist name");
-        return false;
-    }
-    
+     
     sds filename = sdscatfmt(sdsempty(), "%s/smartpls/%s", mpd_worker_state->config->workdir, playlist);
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
     if (fp == NULL) {

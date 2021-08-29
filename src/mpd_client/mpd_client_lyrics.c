@@ -13,6 +13,7 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
+#include "mpd_client_utility.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -43,7 +44,7 @@ static const char *_id3_field_getlanguage(union id3_field const *field);
 #endif
 
 //public functions
-sds mpd_client_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, const char *uri) {
+sds mpd_client_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, sds uri) {
     if (is_streamuri(uri) == true) {
         MYMPD_LOG_ERROR("Can not get lyrics for stream uri");
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "lyrics", "error", "Can not get lyrics for stream uri");

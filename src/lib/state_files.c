@@ -107,10 +107,6 @@ unsigned state_file_rw_uint(const char *workdir, const char *dir, const char *na
 }
 
 bool state_file_write(const char *workdir, const char *dir, const char *name, const char *value) {
-    if (!validate_string(name)) {
-        MYMPD_LOG_ERROR("Invalid filename \"%s\"", name);
-        return false;
-    }
     sds tmp_file = sdscatfmt(sdsempty(), "%s/%s/%s.XXXXXX", workdir, dir, name);
     errno = 0;
     int fd = mkstemp(tmp_file);

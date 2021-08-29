@@ -12,6 +12,7 @@
 #include "../lib/validate.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
+#include "mpd_client_utility.h"
 
 #include <inttypes.h>
 #include <limits.h>

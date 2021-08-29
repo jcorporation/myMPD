@@ -81,13 +81,6 @@ bool strtobool(const char *value) {
     return strncmp(value, "true", 4) == 0 ? true : false;
 }
 
-char *strtolower(char *s) {
-    for (char *p = s; *p; p++) {
-        *p = tolower((unsigned char) *p);
-    }
-    return s;
-}
-
 int uri_to_filename(char *str) {
     int n = replacechar(str, '/', '_');
     n+= replacechar(str, '.', '_');

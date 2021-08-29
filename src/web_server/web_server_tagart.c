@@ -22,7 +22,7 @@ bool handle_tagart(struct mg_connection *nc, struct mg_http_message *hm,
         sdsfree(uri_decoded);
         return true;
     }
-    if (validate_uri(uri_decoded) == false) {
+    if (vcb_isfilepath(uri_decoded) == false) {
         MYMPD_LOG_ERROR("Invalid URI: %s", uri_decoded);
         serve_na_image(nc, hm);
         sdsfree(uri_decoded);

@@ -15,6 +15,7 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
+#include "../mpd_client/mpd_client_utility.h"
 
 #include <assert.h>
 #include <libgen.h>
@@ -67,7 +68,7 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
         sdsfree(uri_decoded);
         return true;
     }
-    if (validate_uri(uri_decoded) == false) {
+    if (vcb_isfilepath(uri_decoded) == false) {
         MYMPD_LOG_ERROR("Invalid URI: %s", uri_decoded);
         serve_na_image(nc, hm);
         sdsfree(uri_decoded);

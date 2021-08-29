@@ -49,16 +49,23 @@ sds put_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
     return buffer;
 }
 
-bool is_smartpls(struct t_mympd_state *mympd_state, const char *plpath) {
+bool is_smartpls(struct t_mympd_state *mympd_state, sds playlist) {
     bool smartpls = false;
-    sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, plpath);
-    if (validate_string(plpath) == true) {
+    if (vcb_isfilename(playlist) == true) {
+        sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, playlist);
         if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
             smartpls = true;
         }
+        sdsfree(smartpls_file);
     }
-    sdsfree(smartpls_file);
     return smartpls;
+}
+
+bool is_streamuri(const char *uri) {
+    if (uri != NULL && strstr(uri, "://") != NULL) {
+        return true;
+    }
+    return false;
 }
 
 bool mpd_client_set_binarylimit(struct t_mympd_state *mympd_state) {

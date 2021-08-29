@@ -14,8 +14,8 @@ sds mpd_client_put_fingerprint(struct t_mympd_state *mympd_state, sds buffer, sd
 sds mpd_client_put_songdetails(struct t_mympd_state *mympd_state, sds buffer, sds method,
                                long request_id, const char *uri);
 sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, 
-                              sds method, long request_id, const char *path, const unsigned int offset, 
-                              const unsigned int limit, const char *searchstr,
+                              sds method, long request_id, sds path, const unsigned int offset, 
+                              const unsigned int limit, sds searchstr,
                               const struct t_tags *tagcols);
 sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer, sds method,
                                   long request_id, const char *album, const char *albumartist, 
@@ -25,8 +25,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
                                        const char *sort, bool sortdesc, const unsigned int offset,
                                        unsigned int limit);
 sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
-                          const char *searchstr, const char *tag, 
-                          const unsigned int offset, const unsigned int limit);
+                          sds searchstr, sds tag, const unsigned int offset, const unsigned int limit);
 sds mpd_client_read_comments(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
                              const char *uri);
 #endif

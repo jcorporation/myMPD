@@ -226,10 +226,6 @@ bool mpd_shared_smartpls_save(const char *workdir, const char *smartpltype, cons
                               const char *expression, const int maxentries, 
                               const int timerange, const char *sort)
 {
-    if (validate_string_not_dir(playlist) == false) {
-        return false;
-    }
-    
     sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", workdir, playlist);
     errno = 0;
     int fd = mkstemp(tmp_file);

@@ -30,12 +30,4 @@ bool vcb_ismpdtag(sds data);
 bool vcb_ismpdtag_or_any(sds data);
 bool vcb_ismpdsort(sds data);
 
-//deprecated validation functions
-bool validate_string(const char *data);
-bool validate_string_not_empty(const char *data);
-bool validate_string_not_dir(const char *data);
-bool validate_songuri(const char *data);
-bool validate_uri(const char *data);
-bool is_streamuri(const char *uri);
-
 #endif
