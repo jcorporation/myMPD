@@ -128,7 +128,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         }
     }
     else if (strcmp(smartpltype, "search") == 0) {
-        if (json_get_string(content, "$.params.expression", 1, 200, &sds_buf1, vcb_isname, NULL) == true) {
+        if (json_get_string(content, "$.expression", 1, 200, &sds_buf1, vcb_isname, NULL) == true) {
             rc = mpd_worker_smartpls_update_search(mpd_worker_state, playlist, sds_buf1);
             if (rc == false) {
                 MYMPD_LOG_ERROR("Update of smart playlist \"%s\" (search) failed", playlist);
@@ -140,7 +140,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         }
     }
     if (rc == true) {
-        if (json_get_string(content, "$.params.sort", 0, 100, &sds_buf1, vcb_ismpdsort, NULL) == true) {
+        if (json_get_string(content, "$.sort", 0, 100, &sds_buf1, vcb_ismpdsort, NULL) == true) {
             if (sdslen(sds_buf1) > 0) {
                 mpd_shared_playlist_shuffle_sort(mpd_worker_state->mpd_state, NULL, NULL, 0, playlist, sds_buf1);
             }
