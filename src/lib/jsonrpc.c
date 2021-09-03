@@ -295,6 +295,10 @@ bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *resul
 }
 
 static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, sds *error) {
+    if (result != NULL && *result != NULL) {
+        MYMPD_LOG_ERROR("Result parameter must be NULL, path: \"%s\"", path);
+        return false;
+    }
     const char *p;
     int n;
     int vtype = mjson_find(s, (int)sdslen(s), path, &p, &n);
