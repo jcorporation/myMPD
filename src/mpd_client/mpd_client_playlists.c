@@ -56,7 +56,7 @@ bool smartpls_default(struct t_config *config) {
         return rc;
     }
     
-    sdscrop(smartpls_file);
+    sdsclear(smartpls_file);
     smartpls_file = sdscatfmt(smartpls_file, "%s%smostPlayed", prefix, (sdslen(prefix) > 0 ? "-" : ""));
     rc = smartpls_init(config, smartpls_file, 
         "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200, \"minvalue\": 0, \"sort\": \"\"}");
@@ -66,7 +66,7 @@ bool smartpls_default(struct t_config *config) {
         return rc;
     }
     
-    sdscrop(smartpls_file);
+    sdsclear(smartpls_file);
     smartpls_file = sdscatfmt(smartpls_file, "%s%snewestSongs", prefix, (sdslen(prefix) > 0 ? "-" : ""));
     rc = smartpls_init(config, smartpls_file, 
         "{\"type\": \"newest\", \"timerange\": 604800, \"sort\": \"\"}");
@@ -347,9 +347,9 @@ sds mpd_client_smartpls_put(struct t_config *config, sds buffer, sds method, lon
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Unknown smart playlist type");
         MYMPD_LOG_ERROR("Unknown smart playlist type: %s", playlist);
     }
-    FREE_SDS(smartpltype);
-    FREE_SDS(content);
-    FREE_SDS(sds_buf1);
+    sdsfree(smartpltype);
+    sdsfree(content);
+    sdsfree(sds_buf1);
     return buffer;
 }
 

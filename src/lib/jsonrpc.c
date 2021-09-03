@@ -55,7 +55,7 @@ void send_jsonrpc_event(const char *event) {
 }
 
 sds jsonrpc_event(sds buffer, const char *event) {
-    buffer = sdscrop(buffer);
+    sdsclear(buffer);
     buffer = sdscat(buffer, "{\"jsonrpc\":\"2.0\",");
     buffer = tojson_char(buffer, "method", event, false);
     buffer = sdscat(buffer, "}");
@@ -93,7 +93,7 @@ sds jsonrpc_notify_phrase(sds buffer, const char *facility, const char *severity
 }
 
 sds jsonrpc_notify_start(sds buffer, const char *method) {
-    buffer = sdscrop(buffer);
+    sdsclear(buffer);
     buffer = sdscat(buffer, "{\"jsonrpc\":\"2.0\",");
     buffer = tojson_char(buffer, "method", method, true);
     buffer = sdscat(buffer, "\"params\":{");
@@ -101,7 +101,7 @@ sds jsonrpc_notify_start(sds buffer, const char *method) {
 }
 
 sds jsonrpc_result_start(sds buffer, const char *method, long id) {
-    buffer = sdscrop(buffer);
+    sdsclear(buffer);
     buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"result\":{", id);
     buffer = tojson_char(buffer, "method", method, true);
     return buffer;
@@ -124,7 +124,7 @@ sds jsonrpc_respond_message(sds buffer, const char *method, long id, bool error,
 sds jsonrpc_respond_message_phrase(sds buffer, const char *method, long id, bool error, 
                             const char *facility, const char *severity, const char *message, int count, ...)
 {
-    buffer = sdscrop(buffer);
+    sdsclear(buffer);
     buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"%s\":{", 
         id, (error == true ? "error" : "result"));
     buffer = tojson_char(buffer, "method", method, true);

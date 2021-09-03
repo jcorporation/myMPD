@@ -624,8 +624,8 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
         json_get_int(body, "$.id", 0, 0, &id, NULL) == false)
     {
         MYMPD_LOG_ERROR("Invalid jsonrpc2 request");
-        FREE_SDS(cmd);
-        FREE_SDS(jsonrpc);
+        sdsfree(cmd);
+        sdsfree(jsonrpc);
         return false;
     }
 
@@ -670,8 +670,8 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
                 "Content-Length: %d\r\n\r\n", 
                 sdslen(response));
             mg_send(nc, response, sdslen(response));
-            FREE_SDS(cmd);
-            FREE_SDS(jsonrpc);
+            sdsfree(cmd);
+            sdsfree(jsonrpc);
             return true;
         }
         MYMPD_LOG_INFO("API request is authorized");
@@ -756,8 +756,8 @@ static bool handle_script_api(long long conn_id, sds body) {
         json_get_int(body, "$.id", 0, 0, &id, NULL) == false)
     {
         MYMPD_LOG_ERROR("Invalid jsonrpc2 request");
-        FREE_SDS(cmd);
-        FREE_SDS(jsonrpc);
+        sdsfree(cmd);
+        sdsfree(jsonrpc);
         return false;
     }
 

@@ -198,7 +198,7 @@ void album_cache_free(rax **album_cache) {
 
 //private functions
 static sds _mpd_shared_get_tags(struct mpd_song const *song, const enum mpd_tag_type tag, sds tags) {
-    tags = sdscrop(tags);
+    sdsclear(tags);
     char *value = NULL;
     int i = 0;
     while ((value = (char *)mpd_song_get_tag(song, tag, i)) != NULL) {

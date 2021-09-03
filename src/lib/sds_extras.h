@@ -12,17 +12,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define FREE_SDS(SDS) do { \
-    if (SDS != NULL) \
-        sdsfree(SDS); \
-    SDS = NULL; \
-} while (0)
-
 sds sdscatjson(sds s, const char *p, size_t len);
 sds sdscatjsonchar(sds s, const char p);
 bool sds_json_unescape(const char *src, int slen, sds *dst);
 sds sdsurldecode(sds s, const char *p, size_t len, int is_form_url_encoded);
-sds sdscrop(sds s);
 sds sdsreplacelen(sds s, const char *value, size_t len);
 sds sdsreplace(sds s, const char *value);
 int sdsgetline(sds *s, FILE *fp, size_t max);

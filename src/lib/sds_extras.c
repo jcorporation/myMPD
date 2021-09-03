@@ -137,7 +137,7 @@ sds sdsurldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
                 p += 2;
             } 
             else {
-                s = sdscrop(s);
+                sdsclear(s);
                 return s;
             }
             break;
@@ -156,7 +156,12 @@ sds sdsurldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
 }
 
 sds sdsreplacelen(sds s, const char *value, size_t len) {
-    s = sdscrop(s);
+    if (s != NULL) {
+        sdsclear(s);
+    }
+    else {
+        s = sdsempty();
+    }
     if (value != NULL) {
         s = sdscatlen(s, value, len);
     }
@@ -165,14 +170,6 @@ sds sdsreplacelen(sds s, const char *value, size_t len) {
 
 sds sdsreplace(sds s, const char *value) {
     return sdsreplacelen(s, value, strlen(value));
-}
-
-sds sdscrop(sds s) {
-    if (s == NULL) {
-        return sdsempty();
-    }
-    sdsclear(s);
-    return s;
 }
 
 //custom getline function

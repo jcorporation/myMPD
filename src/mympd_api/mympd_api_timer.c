@@ -284,10 +284,10 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, sds
 
     MYMPD_LOG_ERROR("Error parsing timer definition");
     list_free(&timer_def->arguments);
-    FREE_SDS(timer_def->name);
-    FREE_SDS(timer_def->action);
-    FREE_SDS(timer_def->subaction);
-    FREE_SDS(timer_def->playlist);
+    sdsfree(timer_def->name);
+    sdsfree(timer_def->action);
+    sdsfree(timer_def->subaction);
+    sdsfree(timer_def->playlist);
     free(timer_def);
 
     return NULL;

@@ -141,7 +141,7 @@ sds respond_with_command_error(sds buffer, sds method, long request_id, const ch
 sds respond_with_mpd_error_or_ok(struct t_mpd_state *mpd_state, sds buffer, sds method, 
                                  long request_id, bool rc, const char *command)
 {
-    buffer = sdscrop(buffer);
+    sdsclear(buffer);
     if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, 
                                    rc, command) == false)
     {

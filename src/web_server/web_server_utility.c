@@ -72,15 +72,15 @@ void manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bo
     sds dir_name = sdscatfmt(sdsempty(), "%s/empty/pics", workdir);
     rm_mk_dir(dir_name, pics);
     
-    dir_name = sdscrop(dir_name);
+    sdsclear(dir_name);
     dir_name = sdscatfmt(dir_name, "%s/empty/smartplaylists", workdir);
     rm_mk_dir(dir_name, smartplaylists);
     
-    dir_name = sdscrop(dir_name);
+    sdsclear(dir_name);
     dir_name = sdscatfmt(dir_name, "%s/empty/music", workdir);
     rm_mk_dir(dir_name, music);
     
-    dir_name = sdscrop(dir_name);
+    sdsclear(dir_name);
     dir_name = sdscatfmt(dir_name, "%s/empty/playlists", workdir);
     rm_mk_dir(dir_name, playlists);
     sdsfree(dir_name);
@@ -169,7 +169,7 @@ void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, con
         MYMPD_LOG_DEBUG("Serving custom asset image \"%s\" (%s)", asset_image, mime_type);
     }
     else {
-        asset_image = sdscrop(asset_image);
+        sdsclear(asset_image);
         #ifdef DEBUG
         asset_image = sdscatfmt(asset_image, "%s/assets/%s.svg", DOC_ROOT, name);
         mg_http_serve_file(nc, hm, asset_image, "image/svg+xml", EXTRA_HEADERS_CACHE);

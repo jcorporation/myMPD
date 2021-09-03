@@ -90,7 +90,7 @@ sds find_image_file(sds basefilename) {
         basefilename = sdscatfmt(basefilename, ".%s", p->extension);
     }
     else {
-        basefilename = sdscrop(basefilename);
+        sdsclear(basefilename);
     }
     return basefilename;
 }

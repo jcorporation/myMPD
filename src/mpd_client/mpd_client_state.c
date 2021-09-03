@@ -78,7 +78,7 @@ sds mpd_client_put_state(struct t_mympd_state *mympd_state, sds buffer, sds meth
             mpd_song_free(song);
         }
         else {
-            mympd_state->mpd_state->song_uri = sdscrop(mympd_state->mpd_state->song_uri);
+            sdsclear(mympd_state->mpd_state->song_uri);
         }
         mpd_response_finish(mympd_state->mpd_state->conn);
         check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);

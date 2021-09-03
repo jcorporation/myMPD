@@ -107,11 +107,11 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         {
             rc = mpd_worker_smartpls_update_sticker(mpd_worker_state, playlist, sds_buf1, int_buf1, int_buf2);
             if (rc == false) {
-                MYMPD_LOG_ERROR("Update of smart playlist \"%s\" failed.", playlist);
+                MYMPD_LOG_ERROR("Update of smart playlist \"%s\" (sticker) failed.", playlist);
             }
         }
         else {
-            MYMPD_LOG_ERROR("Can't parse smart playlist file \"%s\"", filename);
+            MYMPD_LOG_ERROR("Can't parse smart playlist file \"%s\" (sticker)", filename);
             rc = false;
         }
     }
@@ -119,11 +119,11 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         if (json_get_int(content, "$.timerange", 0, JSONRPC_INT_MAX, &int_buf1, NULL) == true) {
             rc = mpd_worker_smartpls_update_newest(mpd_worker_state, playlist, int_buf1);
             if (rc == false) {
-                MYMPD_LOG_ERROR("Update of smart playlist \"%s\" failed", playlist);
+                MYMPD_LOG_ERROR("Update of smart playlist \"%s\" failed (newest)", playlist);
             }
         }
         else {
-            MYMPD_LOG_ERROR("Can't parse smart playlist file \"%s\"", filename);
+            MYMPD_LOG_ERROR("Can't parse smart playlist file \"%s\" (newest)", filename);
             rc = false;
         }
     }
@@ -131,11 +131,11 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         if (json_get_string(content, "$.params.expression", 1, 200, &sds_buf1, vcb_isname, NULL) == true) {
             rc = mpd_worker_smartpls_update_search(mpd_worker_state, playlist, sds_buf1);
             if (rc == false) {
-                MYMPD_LOG_ERROR("Update of smart playlist \"%s\" failed", playlist);
+                MYMPD_LOG_ERROR("Update of smart playlist \"%s\" (search) failed", playlist);
             }
         }
         else {
-            MYMPD_LOG_ERROR("Can't parse smart playlist file \"%s\"", filename);
+            MYMPD_LOG_ERROR("Can't parse smart playlist file \"%s\" (search)", filename);
             rc = false;
         }
     }
@@ -146,8 +146,8 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
             }
         }
     }
-    FREE_SDS(smartpltype);
-    FREE_SDS(sds_buf1);
+    sdsfree(smartpltype);
+    sdsfree(sds_buf1);
     sdsfree(content);
     sdsfree(filename);
     return rc;

@@ -100,7 +100,7 @@ sds mympd_api_script_list(struct t_config *config, sds buffer, sds method, long 
             }
             buffer = sdscat(buffer, entry);
         }
-        entry = sdscrop(entry);
+        sdsclear(entry);
         sdsfree(scriptfilename);
     }
     closedir(script_dir);
@@ -377,7 +377,7 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
         ws_notify(buffer);
         sdsfree(buffer);
         //Error log message
-        err_str = sdscrop(err_str);
+        sdsclear(err_str);
         err_str = lua_err_to_str(err_str, rc, false, script_arg->script_name);
         if (script_return_text != NULL) {
             err_str = sdscatfmt(err_str, ": %s", script_return_text);
@@ -578,14 +578,14 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                 }
                 lua_pushinteger(lua_vm, 0);
                 lua_pushstring(lua_vm, sds_buf1);
-                FREE_SDS(sds_buf1);
+                sdsfree(sds_buf1);
                 free_result(response);
                 return 2;
             }
             if (json_get_string(request->data, "$.error.message", 1, 1000, &sds_buf1, vcb_isname, NULL) == true) {
                 lua_pushinteger(lua_vm, 1);
                 lua_pushstring(lua_vm, sds_buf1);
-                FREE_SDS(sds_buf1);
+                sdsfree(sds_buf1);
                 free_result(response);
                 return 2;
             }

@@ -189,7 +189,7 @@ static bool check_dirs(struct t_config *config) {
         return false;
     }
     //smart playlists
-    testdirname = sdscrop(testdirname);
+    sdsclear(testdirname);
     testdirname = sdscatfmt(testdirname, "%s/smartpls", config->workdir);
     testdir_rc = testdir("Smartpls dir", testdirname, true);
     if (testdir_rc == 1) {
@@ -202,7 +202,7 @@ static bool check_dirs(struct t_config *config) {
     }
 
     //for images
-    testdirname = sdscrop(testdirname);
+    sdsclear(testdirname);
     testdirname = sdscatfmt(testdirname, "%s/pics", config->workdir);
     testdir_rc = testdir("Pics dir", testdirname, true);
     if (testdir_rc > 1) {
@@ -211,7 +211,7 @@ static bool check_dirs(struct t_config *config) {
     }
     
     //create empty document_root
-    testdirname = sdscrop(testdirname);
+    sdsclear(testdirname);
     testdirname = sdscatfmt(testdirname, "%s/empty", config->workdir);
     testdir_rc = testdir("Empty dir", testdirname, true);
     if (testdir_rc > 1) {
@@ -221,7 +221,7 @@ static bool check_dirs(struct t_config *config) {
 
     //lua scripting
     #ifdef ENABLE_LUA
-    testdirname = sdscrop(testdirname);
+    sdsclear(testdirname);
     testdirname = sdscatfmt(testdirname, "%s/scripts", config->workdir);
     testdir_rc = testdir("Scripts dir", testdirname, true);
     if (testdir_rc > 1) {
@@ -230,7 +230,7 @@ static bool check_dirs(struct t_config *config) {
     }
     #endif
 
-    testdirname = sdscrop(testdirname);
+    sdsclear(testdirname);
     testdirname = sdscatfmt(testdirname, "%s/covercache", config->workdir);
     testdir_rc = testdir("Covercache dir", testdirname, true);
     if (testdir_rc > 1) {

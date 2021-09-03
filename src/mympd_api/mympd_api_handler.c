@@ -606,7 +606,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             if (json_get_string(request->data, "$.params.uri", 0, 200, &sds_buf1, vcb_isfilepath, &error) == true) {
                 if (sdslen(sds_buf1) == 0) {
                     //path should be NULL to scan root directory
-                    FREE_SDS(sds_buf1);
+                    sdsfree(sds_buf1);
+                    sds_buf1 = NULL;
                 }
                 if (request->cmd_id == MYMPD_API_DATABASE_UPDATE) {
                     uint_buf1 = mpd_run_update(mympd_state->mpd_state->conn, sds_buf1);
@@ -1170,12 +1171,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             MYMPD_LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
     }
    
-    FREE_SDS(sds_buf1);
-    FREE_SDS(sds_buf2);
-    FREE_SDS(sds_buf3);
-    FREE_SDS(sds_buf4);
-    FREE_SDS(sds_buf5);
-    FREE_SDS(sds_buf6);
+    sdsfree(sds_buf1);
+    sdsfree(sds_buf2);
+    sdsfree(sds_buf3);
+    sdsfree(sds_buf4);
+    sdsfree(sds_buf5);
+    sdsfree(sds_buf6);
 
     #ifdef DEBUG
     MEASURE_END

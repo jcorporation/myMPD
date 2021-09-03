@@ -51,7 +51,7 @@ void send_albumart(struct mg_connection *nc, sds data, sds binary) {
         populate_dummy_hm(nc, &hm);
         serve_na_image(nc, &hm);
     }
-    FREE_SDS(sds_buf1);
+    sdsfree(sds_buf1);
 }
 
 //returns true if an image is served

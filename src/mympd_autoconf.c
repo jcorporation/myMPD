@@ -39,7 +39,7 @@ sds find_mpd_conf(void) {
         }
     }
     MYMPD_LOG_WARN("No readable mpd.conf found");
-    filename = sdscrop(filename);
+    sdsclear(filename);
     return filename;
 }
 

@@ -278,8 +278,8 @@ bool list_replace(struct list *l, unsigned pos, const char *key, long value_i, c
     if (value_p != NULL) {
         current->value_p = sdsreplace(current->value_p, value_p);
     }
-    else {
-        current->value_p = sdscrop(current->value_p);
+    else if (current->value_p != NULL) {
+        sdsclear(current->value_p);
     }
     if (current->user_data != NULL) {
         free(current->user_data);

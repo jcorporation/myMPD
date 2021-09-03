@@ -218,7 +218,7 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
 
 static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_state->feat_library = false;
-    mympd_state->music_directory_value = sdscrop(mympd_state->music_directory_value);
+    sdsclear(mympd_state->music_directory_value);
 
     if (strncmp(mympd_state->mpd_state->mpd_host, "/", 1) == 0 && strncmp(mympd_state->music_directory, "auto", 4) == 0) {
         //get musicdirectory from mpd
@@ -265,6 +265,6 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
     else {
         MYMPD_LOG_WARN("Disabling featLibrary support");
         mympd_state->mpd_state->feat_library = false;
-        mympd_state->music_directory_value = sdscrop(mympd_state->music_directory_value);
+        sdsclear(mympd_state->music_directory_value);
     }
 }
