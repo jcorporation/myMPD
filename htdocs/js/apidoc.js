@@ -608,7 +608,13 @@ const APImethods = {
     },
     "MYMPD_API_PLAYER_OUTPUT_LIST": {
         "desc": "Lists the MPD outputs.",
-        "params": {}
+        "params": {
+            "partition": {
+                "type": "text",
+                "example": "",
+                "desc": "MPD partition, blank for default partition"
+            }
+        }
     },
     "MYMPD_API_PLAYER_OUTPUT_TOGGLE": {
         "desc": "Toggles the output state.",
