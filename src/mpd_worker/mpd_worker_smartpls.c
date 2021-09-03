@@ -88,7 +88,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     sds filename = sdscatfmt(sdsempty(), "%s/smartpls/%s", mpd_worker_state->config->workdir, playlist);
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
     if (fp == NULL) {
-        MYMPD_LOG_ERROR("Cant read smart playlist \"%s\"", playlist);
+        MYMPD_LOG_ERROR("Cant open smart playlist file \"%s\"", playlist);
         sdsfree(filename);
         return false;
     }
@@ -140,6 +140,8 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         }
     }
     if (rc == true) {
+        sdsfree(sds_buf1);
+        sds_buf1 = NULL;
         if (json_get_string(content, "$.sort", 0, 100, &sds_buf1, vcb_ismpdsort, NULL) == true) {
             if (sdslen(sds_buf1) > 0) {
                 mpd_shared_playlist_shuffle_sort(mpd_worker_state->mpd_state, NULL, NULL, 0, playlist, sds_buf1);

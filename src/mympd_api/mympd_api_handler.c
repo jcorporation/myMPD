@@ -648,8 +648,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }            
             else if (request->cmd_id == MYMPD_API_SMARTPLS_SEARCH_SAVE) {
                 if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
-                    json_get_string(request->data, "$.params.expression", 1, 200, &sds_buf1, vcb_isname, &error) == true &&
-                    json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf2, vcb_ismpdsort, &error) == true)
+                    json_get_string(request->data, "$.params.expression", 1, 200, &sds_buf2, vcb_isname, &error) == true &&
+                    json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf3, vcb_ismpdsort, &error) == true)
                 {
                     rc = mpd_shared_smartpls_save(mympd_state->config->workdir, "search", sds_buf1, sds_buf2, 0, 0, sds_buf3);
                 }
@@ -849,7 +849,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         case MYMPD_API_PLAYLIST_RENAME:
             if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_string(request->data, "$.params.newName", 1, 200, &sds_buf1, vcb_isfilename, &error) == true)
+                json_get_string(request->data, "$.params.newName", 1, 200, &sds_buf2, vcb_isfilename, &error) == true)
             {
                 response->data = mpd_client_playlist_rename(mympd_state, response->data, request->method, request->id, sds_buf1, sds_buf2);
             }
@@ -857,7 +857,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_PLAYLIST_LIST:          
             if (json_get_uint_max(request->data, "$.params.offset", &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
-                json_get_string(request->data, "$.params.searchstr", 1, 200, &sds_buf2, vcb_isname, &error) == true)
+                json_get_string(request->data, "$.params.searchstr", 0, 200, &sds_buf1, vcb_isname, &error) == true)
             {
                 response->data = mpd_client_put_playlists(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, sds_buf1);
             }
@@ -868,7 +868,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
-                json_get_string(request->data, "$.params.searchstr", 1, 200, &sds_buf2, vcb_isname, &error) == true &&
+                json_get_string(request->data, "$.params.searchstr", 0, 200, &sds_buf2, vcb_isname, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true)
             {
                 response->data = mpd_client_put_playlist_list(mympd_state, response->data, request->method, request->id, sds_buf1, uint_buf1, uint_buf2, sds_buf2, &tagcols);
@@ -915,7 +915,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         case MYMPD_API_PLAYLIST_SORT:
             if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_string(request->data, "$.params.tag", 1, 200, &sds_buf1, vcb_ismpdtag, &error) == true)
+                json_get_string(request->data, "$.params.tag", 1, 200, &sds_buf2, vcb_ismpdtag, &error) == true)
             {
                 response->data = mpd_shared_playlist_shuffle_sort(mympd_state->mpd_state, response->data, request->method, request->id, sds_buf1, sds_buf2);
             }
@@ -926,7 +926,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             if (json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
                 json_get_string(request->data, "$.params.searchstr", 1, 200, &sds_buf1, vcb_isname, &error) == true &&
-                json_get_string(request->data, "$.params.path", 1, 200, &sds_buf1, vcb_isfilepath, &error) == true &&
+                json_get_string(request->data, "$.params.path", 1, 200, &sds_buf2, vcb_isfilepath, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true)
             {
                 response->data = mpd_client_put_filesystem(mympd_state, response->data, request->method, request->id, sds_buf2, uint_buf1, uint_buf2, sds_buf1, &tagcols);
@@ -1004,7 +1004,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             reset_t_tags(&tagcols);          
             if (json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
-                json_get_string(request->data, "$.params.filter", 1, 200, &sds_buf2, vcb_ismpdtag_or_any, &error) == true &&
+                json_get_string(request->data, "$.params.filter", 1, 200, &sds_buf1, vcb_ismpdtag_or_any, &error) == true &&
                 json_get_string(request->data, "$.params.searchstr", 1, 200, &sds_buf2, vcb_isname, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true)
             {
@@ -1017,7 +1017,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             reset_t_tags(&tagcols);          
             if (json_get_string(request->data, "$.params.searchstr", 1, 200, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_string(request->data, "$.params.filter", 1, 200, &sds_buf2, vcb_ismpdtag_or_any, &error) == true &&
-                json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf3, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true && 
@@ -1041,7 +1041,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             if (json_get_string(request->data, "$.params.expression", 1, 200, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_string(request->data, "$.params.sort", 1, 200, &sds_buf2, vcb_ismpdtag, &error) == true &&
                 json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &error) == true &&
-                json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf3, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true && 
@@ -1101,7 +1101,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);          
             if (json_get_string(request->data, "$.params.album", 1, 200, &sds_buf1, vcb_isname, &error) == true &&
-                json_get_string(request->data, "$.params.albumartist", 1, 200, &sds_buf1, vcb_isname, &error) == true &&
+                json_get_string(request->data, "$.params.albumartist", 1, 200, &sds_buf2, vcb_isname, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true)
             {
                 response->data = mpd_client_put_songs_in_album(mympd_state, response->data, request->method, request->id, sds_buf1, sds_buf2, &tagcols);

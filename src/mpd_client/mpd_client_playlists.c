@@ -291,16 +291,17 @@ sds mpd_client_smartpls_put(struct t_config *config, sds buffer, sds method, lon
     sds content = sdsempty();
     sdsgetfile(&content, fp, 2000);
     sdsfree(pl_file);
+    fclose(fp);
 
-    if (json_get_string(content, "$.type", 1, 200, &smartpltype, vcb_isalnum, NULL) != true) {
+    if (json_get_string(content, "$.type", 1, 200, &smartpltype, vcb_isalnum, NULL) == true) {
         buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = tojson_char(buffer, "plist", playlist, true);
         buffer = tojson_char(buffer, "type", smartpltype, true);
         bool rc = true;
         if (strcmp(smartpltype, "sticker") == 0) {
-            if (json_get_string(content, "$.params.sticker", 1, 200, &sds_buf1, vcb_isalnum, NULL) == true &&
-                json_get_int(content, "$.params.maxentries", 0, MAX_MPD_PLAYLIST_LENGTH, &int_buf1, NULL) == true &&
-                json_get_int(content, "$.params.minvalue", 0, 100, &int_buf2, NULL) == true)
+            if (json_get_string(content, "$.sticker", 1, 200, &sds_buf1, vcb_isalnum, NULL) == true &&
+                json_get_int(content, "$.maxentries", 0, MAX_MPD_PLAYLIST_LENGTH, &int_buf1, NULL) == true &&
+                json_get_int(content, "$.minvalue", 0, 100, &int_buf2, NULL) == true)
             {
                 buffer = tojson_char(buffer, "sticker", sds_buf1, true);
                 buffer = tojson_long(buffer, "maxentries", int_buf1, true);
@@ -311,7 +312,7 @@ sds mpd_client_smartpls_put(struct t_config *config, sds buffer, sds method, lon
             }
         }
         else if (strcmp(smartpltype, "newest") == 0) {
-            if (json_get_int(content, "$.params.timerange", 0, JSONRPC_INT_MAX, &int_buf1, NULL) == true) {
+            if (json_get_int(content, "$.timerange", 0, JSONRPC_INT_MAX, &int_buf1, NULL) == true) {
                 buffer = tojson_long(buffer, "timerange", int_buf1, true);
             }
             else {
@@ -319,7 +320,7 @@ sds mpd_client_smartpls_put(struct t_config *config, sds buffer, sds method, lon
             }
         }
         else if (strcmp(smartpltype, "search") == 0) {
-            if (json_get_string(content, "$.params.expression", 1, 200, &sds_buf1, vcb_isname, NULL) == true) {
+            if (json_get_string(content, "$.expression", 1, 200, &sds_buf1, vcb_isname, NULL) == true) {
                 buffer = tojson_char(buffer, "expression", sds_buf1, true);
             }
             else {
@@ -330,7 +331,9 @@ sds mpd_client_smartpls_put(struct t_config *config, sds buffer, sds method, lon
             rc = false;            
         }
         if (rc == true) {
-            if (json_get_string(content, "$.params.sort", 0, 100, &sds_buf1, vcb_ismpdsort, NULL) == true) {
+            sdsfree(sds_buf1);
+            sds_buf1 = NULL;
+            if (json_get_string(content, "$.sort", 0, 100, &sds_buf1, vcb_ismpdsort, NULL) == true) {
                 buffer = tojson_char(buffer, "sort", sds_buf1, false);
             }
             else {
@@ -345,7 +348,7 @@ sds mpd_client_smartpls_put(struct t_config *config, sds buffer, sds method, lon
     }
     else {
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Unknown smart playlist type");
-        MYMPD_LOG_ERROR("Unknown smart playlist type: %s", playlist);
+        MYMPD_LOG_ERROR("Unknown type for smart playlist \"%s\"", playlist);
     }
     sdsfree(smartpltype);
     sdsfree(content);
