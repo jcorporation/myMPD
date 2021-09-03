@@ -76,8 +76,8 @@ const APIparams = {
     },
     "timerid": {
         "type": "uint",
-        "example": 1,
-        "desc": "timer id"
+        "example": 101,
+        "desc": "timer id, must be gt 100"
     },
     "script": {
         "type": "text",
@@ -1091,7 +1091,7 @@ const APImethods = {
         "params": {
             "timerid": {
                 "type": "uint",
-                "example": "0",
+                "example": 0,
                 "desc": "Timer id, 0 to create a new timer."
             },
             "interval": {
