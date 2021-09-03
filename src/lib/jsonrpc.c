@@ -297,9 +297,10 @@ bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *resul
 static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, sds *error) {
     const char *p;
     int n;
-    if (mjson_find(s, (int)sdslen(s), path, &p, &n) != MJSON_TOK_STRING) {
+    int vtype = mjson_find(s, (int)sdslen(s), path, &p, &n);
+    if (vtype != MJSON_TOK_STRING) {
         *result = NULL;
-        _set_parse_error(error, "JSON path \"%s\" not found or value is not string type", path);
+        _set_parse_error(error, "JSON path \"%s\" not found or value is not string type, found type is \"%d\"", path, vtype);
         return false;
     }
     *result = sdsempty();
