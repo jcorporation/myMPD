@@ -199,7 +199,7 @@ int sdsgetline(sds *s, FILE *fp, size_t max) {
             i++;
         }
         else {
-            MYMPD_LOG_ERROR("Line is too long, max length is 1000");
+            MYMPD_LOG_ERROR("Line is too long, max length is %u", max);
             return -2;
         }
     }
@@ -218,6 +218,7 @@ int sdsgetfile(sds *s, FILE *fp, size_t max) {
         int c = fgetc(fp);
         if (c == EOF) {
             sdstrim(*s, "\r \t\n");
+            MYMPD_LOG_DEBUG("Read %u bytes from file", sdslen(*s));
             if (sdslen(*s) > 0) {
                 return 0;
             }
@@ -228,7 +229,7 @@ int sdsgetfile(sds *s, FILE *fp, size_t max) {
             i++;
         }
         else {
-            MYMPD_LOG_ERROR("Line is too long, max length is 1000");
+            MYMPD_LOG_ERROR("File is too long, max length is %u", max);
             return -2;
         }
     }
