@@ -83,6 +83,9 @@ function apiParamsToObject(p) {
         if (p[param].params !== undefined) {
             args[param] = apiParamsToObject(p[param].params);
         }
+        else if (p[param].type === 'array' || p[param].type === 'object') {
+            args[param] = JSON.parse(p[param].example);
+        }
         else {
             args[param] = p[param].example;
         }

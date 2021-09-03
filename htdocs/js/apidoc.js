@@ -123,7 +123,7 @@ const APImethods = {
             "cols": APIparams.cols,
             "replace": {
                 "type": "bool",
-                "example": "false",
+                "example": false,
                 "desc": "true = replaces the queue, false = append to qeue"
             }
         }
@@ -143,7 +143,7 @@ const APImethods = {
             "cols": APIparams.cols,
             "replace": {
                 "type": "bool",
-                "example": "false",
+                "example": false,
                 "desc": "true = replaces the queue, false = append to qeue"
             }
         }
@@ -487,7 +487,7 @@ const APImethods = {
         "params": {
             "force": {
                 "type": "bool",
-                "example": "false",
+                "example": false,
                 "desc": "true = forces an update"
             }
         }
@@ -593,7 +593,7 @@ const APImethods = {
             },
             "relative": {
                 "type": "bool",
-                "example": "true",
+                "example": true,
                 "desc": "true = relative seek, false = goto seek seconds in song"
             }
         }
