@@ -224,7 +224,6 @@ bool vcb_ismpdsort(sds data) {
     {
         MYMPD_LOG_WARN("Unknown tag \"%s\"", data);
         return false;
-
     }
     return true;
 }
