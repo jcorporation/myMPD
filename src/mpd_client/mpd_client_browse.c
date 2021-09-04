@@ -589,7 +589,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
 }
 
 sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
-                           sds searchstr, sds tag, const unsigned int offset, const unsigned int limit)
+                          sds searchstr, sds tag, const unsigned int offset, const unsigned int limit)
 {
     sdstolower(searchstr);
     size_t searchstr_len = sdslen(searchstr);
@@ -614,16 +614,19 @@ sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds met
     enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
     unsigned real_limit = limit == 0 ? offset + MAX_MPD_RESULTS : offset + limit;
     while ((pair = mpd_recv_pair_tag(mympd_state->mpd_state->conn, mpdtag)) != NULL) {
+        if (pair->value[0] == '\0') {
+            MYMPD_LOG_DEBUG("Value is empty, skipping");
+            mpd_return_pair(mympd_state->mpd_state->conn, pair);
+            continue;
+        }
         sds value_lower = sdsnew(pair->value);
         sdstolower(value_lower);
         mpd_return_pair(mympd_state->mpd_state->conn, pair);
-        if (value_lower[0] == '\0') {
-            continue;
-        }
         if (searchstr_len == 0 ||
             (searchstr_len <= 2 && strncmp(searchstr, value_lower, searchstr_len) == 0) ||
             (searchstr_len > 2 && strstr(value_lower, searchstr) != NULL))
         {
+            entity_count++;
             if (entity_count > offset && entity_count <= real_limit) {
                 if (entities_returned++) {
                     buffer = sdscat(buffer, ",");
@@ -632,7 +635,6 @@ sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds met
                 buffer = tojson_char(buffer, "value", pair->value, false);
                 buffer = sdscat(buffer, "}");
             }
-            entity_count++;
         }
         FREE_SDS(value_lower);
     }
@@ -660,7 +662,7 @@ sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds met
     FREE_SDS(pic_path);
 
     buffer = sdscat(buffer, "],");
-    buffer = tojson_long(buffer, "totalEntities", -1, true);
+    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_char(buffer, "searchstr", searchstr, true);
