@@ -213,6 +213,7 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
         }
         else {
             list_free(arguments);
+            FREE_PTR(arguments);
         }
         FREE_SDS(name);
         FREE_SDS(script);
