@@ -157,9 +157,7 @@ bool add_timer(struct t_timer_list *l, unsigned int timeout, int interval, time_
     if (definition == NULL || definition->enabled == true) {
         l->active++;
     }
-    
     MYMPD_LOG_DEBUG("Added timer with id %d, start time in %ds", timer_id, timeout);
-    
     return true;
 }
  
