@@ -9,6 +9,7 @@
 
 #include "lib/api.h"
 #include "lib/log.h"
+#include "lib/mem.h"
 #include "lib/mympd_configuration.h"
 #include "lib/sds_extras.h"
 #include "lib/validate.h"
@@ -23,7 +24,6 @@
 #include "mympd_api/mympd_api_timer_handlers.h"
 #include "mympd_api/mympd_api_utility.h"
 
-#include <assert.h>
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,8 +39,7 @@ void *mympd_api_loop(void *arg_config) {
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
 
     //create mympd_state struct and set defaults
-    struct t_mympd_state *mympd_state = (struct t_mympd_state *)malloc(sizeof(struct t_mympd_state));
-    assert(mympd_state);
+    struct t_mympd_state *mympd_state = (struct t_mympd_state *)malloc_assert(sizeof(struct t_mympd_state));
     mympd_state->config = (struct t_config *) arg_config;
     default_mympd_state(mympd_state);
 

@@ -9,12 +9,11 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mem.h"
 #include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
-#include "../lib/utility.h"
 #include "mympd_api_timer_handlers.h"
 
-#include <assert.h>
 #include <errno.h>
 #include <poll.h>
 #include <stdlib.h>
@@ -124,8 +123,7 @@ bool add_timer(struct t_timer_list *l, unsigned int timeout, int interval, time_
         return false;
     }
 
-    struct t_timer_node *new_node = (struct t_timer_node *)malloc(sizeof(struct t_timer_node));
-    assert(new_node);
+    struct t_timer_node *new_node = (struct t_timer_node *)malloc_assert(sizeof(struct t_timer_node));
     if (new_node == NULL) {
         return false;
     }
@@ -409,8 +407,7 @@ bool timerfile_read(struct t_mympd_state *mympd_state) {
     FILE *fp = fopen(timer_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
         while (sdsgetline(&line, fp, 1000) == 0) {
-            struct t_timer_definition *timer_def = malloc(sizeof(struct t_timer_definition));
-            assert(timer_def);
+            struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
             sds param = sdscatfmt(sdsempty(), "{\"params\":%s}", line);
             timer_def = parse_timer(timer_def, param, NULL);
             int interval;

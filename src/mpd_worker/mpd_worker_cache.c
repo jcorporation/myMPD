@@ -9,12 +9,12 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mem.h"
 #include "../lib/sds_extras.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -118,8 +118,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             //sticker cache
             if (mpd_worker_state->mpd_state->feat_stickers == true) {
                 const char *uri = mpd_song_get_uri(song);
-                struct t_sticker *sticker = (struct t_sticker *) malloc(sizeof(struct t_sticker));
-                assert(sticker);
+                struct t_sticker *sticker = (struct t_sticker *) malloc_assert(sizeof(struct t_sticker));
                 raxInsert(sticker_cache, (unsigned char*)uri, strlen(uri), (void *)sticker, NULL);
                 song_count++;
             }

@@ -7,10 +7,10 @@
 #include "mympd_config_defs.h"
 #include "list.h"
 
+#include "mem.h"
 #include "random.h"
 #include "sds_extras.h"
 
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -19,6 +19,10 @@ static struct list_node *list_node_extract(struct list *l, unsigned idx);
 static bool _list_free(struct list *l, bool free_user_data);
 
 //public functions
+struct list *list_new(void) {
+    return (struct list *) malloc_assert(sizeof(struct list));
+}
+
 bool list_init(struct list *l) {
     l->length = 0;
     l->head = NULL;
@@ -289,8 +293,7 @@ bool list_replace(struct list *l, unsigned pos, const char *key, long value_i, c
 }
 
 bool list_push(struct list *l, const char *key, long value_i, const char *value_p, void *user_data) {
-    struct list_node *n = malloc(sizeof(struct list_node));
-    assert(n);
+    struct list_node *n = malloc_assert(sizeof(struct list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;
     if (value_p != NULL) {
@@ -321,8 +324,7 @@ bool list_push(struct list *l, const char *key, long value_i, const char *value_
 }
 
 bool list_push_len(struct list *l, const char *key, int key_len, long value_i, const char *value_p, int value_len, void *user_data) {
-    struct list_node *n = malloc(sizeof(struct list_node));
-    assert(n);
+    struct list_node *n = malloc_assert(sizeof(struct list_node));
     n->key = sdsnewlen(key, key_len);
     n->value_i = value_i;
     if (value_p != NULL) {
@@ -353,8 +355,7 @@ bool list_push_len(struct list *l, const char *key, int key_len, long value_i, c
 }
 
 bool list_insert(struct list *l, const char *key, long value_i, const char *value_p, void *user_data) {
-    struct list_node *n = malloc(sizeof(struct list_node));
-    assert(n);
+    struct list_node *n = malloc_assert(sizeof(struct list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;
     if (value_p != NULL) {
@@ -372,8 +373,7 @@ bool list_insert(struct list *l, const char *key, long value_i, const char *valu
 }
 
 bool list_insert_sorted_by_key(struct list *l, const char *key, long value_i, const char *value_p, void *user_data, bool order) {
-    struct list_node *n = malloc(sizeof(struct list_node));
-    assert(n);
+    struct list_node *n = malloc_assert(sizeof(struct list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;
     if (value_p != NULL) {
@@ -420,8 +420,7 @@ bool list_insert_sorted_by_key(struct list *l, const char *key, long value_i, co
 }
 
 bool list_insert_sorted_by_value_i(struct list *l, const char *key, long value_i, const char *value_p, void *user_data, bool order) {
-    struct list_node *n = malloc(sizeof(struct list_node));
-    assert(n);
+    struct list_node *n = malloc_assert(sizeof(struct list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;
     if (value_p != NULL) {

@@ -8,9 +8,8 @@
 #include "web_server_sessions.h"
 
 #include "../lib/log.h"
-#include "../lib/utility.h"
+#include "../lib/mem.h"
 
-#include <assert.h>
 #include <string.h>
 #include <time.h>
 
@@ -21,8 +20,7 @@
 sds new_session(struct list *session_list) {
     sds session = sdsempty();
     #ifdef ENABLE_SSL
-    unsigned char *buf = malloc(10 * sizeof(unsigned char));
-    assert(buf);
+    unsigned char *buf = malloc_assert(10 * sizeof(unsigned char));
     RAND_bytes(buf, 10);
     for (unsigned i = 0; i < 10; i++) {
         session = sdscatprintf(session, "%02x", buf[i]);

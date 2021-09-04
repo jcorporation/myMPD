@@ -9,7 +9,7 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
-#include "../lib/utility.h"
+#include "../lib/mem.h"
 #include "../lib/validate.h"
 #include "../mpd_shared.h"
 #include "../mpd_client/mpd_client_utility.h"

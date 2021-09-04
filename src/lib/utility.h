@@ -22,15 +22,9 @@ unsigned long substractUnsigned(unsigned long num1, unsigned long num2);
 char *basename_uri(char *uri);
 int unsigned_to_int(unsigned x);
 
-#define FREE_PTR(PTR) do { \
-    if (PTR != NULL) \
-        free(PTR); \
-    PTR = NULL; \
-} while (0)
-
-#endif
-
 //measure time
 #define MEASURE_START clock_t measure_start = clock();
 #define MEASURE_END clock_t measure_end = clock();
 #define MEASURE_PRINT(X) MYMPD_LOG_DEBUG("Execution time for %s: %lf", X, ((double) (measure_end - measure_start)) / CLOCKS_PER_SEC);
+
+#endif

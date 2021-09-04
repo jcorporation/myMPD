@@ -9,6 +9,7 @@
 
 #include "../dist/src/sds/sds.h"
 #include "lib/log.h"
+#include "lib/mem.h"
 #include "lib/sds_extras.h"
 #include "mpd_shared.h"
 #include "mpd_shared/mpd_shared_tags.h"
@@ -16,7 +17,6 @@
 #include "mpd_worker/mpd_worker_cache.h"
 #include "mpd_worker/mpd_worker_smartpls.h"
 
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/prctl.h>
@@ -39,8 +39,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, t_work_request *request
         return false;
     }
     //create mpd worker state from mympd_state
-    struct t_mpd_worker_state *mpd_worker_state = (struct t_mpd_worker_state *)malloc(sizeof(struct t_mpd_worker_state));
-    assert(mpd_worker_state);
+    struct t_mpd_worker_state *mpd_worker_state = (struct t_mpd_worker_state *)malloc_assert(sizeof(struct t_mpd_worker_state));
     mpd_worker_state->request = request;
     mpd_worker_state->smartpls = mympd_state->smartpls == true ? mympd_state->mpd_state->feat_smartpls == true ? true : false : false;
     mpd_worker_state->smartpls_sort = sdsdup(mympd_state->smartpls_sort);
@@ -49,8 +48,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, t_work_request *request
     copy_tag_types(&mympd_state->smartpls_generate_tag_types, &mpd_worker_state->smartpls_generate_tag_types);
 
     //mpd state
-    mpd_worker_state->mpd_state = (struct t_mpd_state *)malloc(sizeof(struct t_mpd_state));
-    assert(mpd_worker_state->mpd_state);
+    mpd_worker_state->mpd_state = (struct t_mpd_state *)malloc_assert(sizeof(struct t_mpd_state));
     mpd_shared_default_mpd_state(mpd_worker_state->mpd_state);
     mpd_worker_state->mpd_state->mpd_host = sdsreplace(mpd_worker_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_host);
     mpd_worker_state->mpd_state->mpd_port = mympd_state->mpd_state->mpd_port;

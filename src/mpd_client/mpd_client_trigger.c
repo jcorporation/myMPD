@@ -10,11 +10,11 @@
 #include "../lib/api.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mem.h"
 #include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 
-#include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
 
@@ -190,8 +190,7 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
             sds name = NULL;
             sds script = NULL;
             int event;
-            struct list *arguments = (struct list *) malloc(sizeof(struct list));
-            assert(arguments);
+            struct list *arguments = list_new();
             list_init(arguments);
             if (json_get_string(line, "$.name", 1, 200, &name, vcb_isfilename, NULL) == true &&
                 json_get_string(line, "$.script", 0, 200, &script, vcb_isfilename, NULL) == true &&

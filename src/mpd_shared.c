@@ -9,8 +9,8 @@
 
 #include "lib/jsonrpc.h"
 #include "lib/log.h"
+#include "lib/mem.h"
 #include "lib/sds_extras.h"
-#include "lib/utility.h"
 #include "mpd_shared/mpd_shared_tags.h"
 
 #include <stdlib.h>

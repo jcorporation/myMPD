@@ -12,11 +12,11 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/lua_mympd_state.h"
+#include "../lib/mem.h"
 #include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 
-#include <assert.h>
 #include <dirent.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -220,8 +220,7 @@ bool mympd_api_script_start(struct t_config *config, const char *script, struct 
         MYMPD_LOG_ERROR("Can not set mympd_script thread to detached");
         return false;
     }
-    struct t_script_thread_arg *script_thread_arg = (struct t_script_thread_arg *)malloc(sizeof(struct t_script_thread_arg));
-    assert(script_thread_arg);
+    struct t_script_thread_arg *script_thread_arg = (struct t_script_thread_arg *)malloc_assert(sizeof(struct t_script_thread_arg));
     script_thread_arg->config = config;
     script_thread_arg->localscript = localscript;
     script_thread_arg->arguments = arguments;

@@ -12,6 +12,7 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/lua_mympd_state.h"
+#include "../lib/mem.h"
 #include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
@@ -44,7 +45,6 @@
 #include "mympd_api_timer_handlers.h"
 #include "mympd_api_utility.h"
 
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -201,8 +201,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         }
         case MYMPD_API_SCRIPT_EXECUTE: {
             //malloc list - it is used in another thread
-            struct list *arguments = (struct list *) malloc(sizeof(struct list));
-            assert(arguments);
+            struct list *arguments = list_new();
             list_init(arguments);
             if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename, &error) == true && 
                 json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
@@ -226,8 +225,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         }
         case INTERNAL_API_SCRIPT_POST_EXECUTE: {
             //malloc list - it is used in another thread
-            struct list *arguments = (struct list *) malloc(sizeof(struct list));
-            assert(arguments);
+            struct list *arguments = list_new();
             list_init(arguments);
             if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_istext, &error) == true &&
                 json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
@@ -358,8 +356,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_TIMER_SAVE: {
-            struct t_timer_definition *timer_def = malloc(sizeof(struct t_timer_definition));
-            assert(timer_def);
+            struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
             timer_def = parse_timer(timer_def, request->data, &error);
             if (timer_def != NULL &&
                 json_get_int(request->data, "$.params.interval", -1, 604800, &int_buf2, &error) == true &&
@@ -455,8 +452,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_TRIGGER_SAVE: {
-            struct list *arguments = (struct list *) malloc(sizeof(struct list));
-            assert(arguments);
+            struct list *arguments = list_new();
             list_init(arguments);
 
             if (json_get_string(request->data, "$.params.name", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
@@ -498,8 +494,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case INTERNAL_API_SCRIPT_INIT: {
-            struct list *lua_mympd_state = (struct list *) malloc(sizeof(struct list));
-            assert(lua_mympd_state);
+            struct list *lua_mympd_state = list_new();
             list_init(lua_mympd_state);
             rc = mpd_client_get_lua_mympd_state(mympd_state, lua_mympd_state);
             if (rc == true) {

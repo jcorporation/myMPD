@@ -8,14 +8,14 @@
 #include "tiny_queue.h"
 
 #include "log.h"
+#include "mem.h"
 
 #include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
 
 tiny_queue_t *tiny_queue_create(const char *name) {
-    struct tiny_queue_t* queue = (struct tiny_queue_t *)malloc(sizeof(struct tiny_queue_t));
-    assert(queue);
+    struct tiny_queue_t* queue = (struct tiny_queue_t *)malloc_assert(sizeof(struct tiny_queue_t));
     queue->head = NULL;
     queue->tail = NULL;
     queue->length = 0;
@@ -45,8 +45,7 @@ int tiny_queue_push(tiny_queue_t *queue, void *data, long id) {
         MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
         return 0;
     }
-    struct tiny_msg_t* new_node = (struct tiny_msg_t*)malloc(sizeof(struct tiny_msg_t));
-    assert(new_node);
+    struct tiny_msg_t* new_node = (struct tiny_msg_t*)malloc_assert(sizeof(struct tiny_msg_t));
     new_node->data = data;
     new_node->id = id;
     new_node->timestamp = time(NULL);

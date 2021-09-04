@@ -9,6 +9,7 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mem.h"
 #include "../lib/mympd_configuration.h"
 #include "../lib/random.h"
 #include "../lib/sds_extras.h"
@@ -17,7 +18,6 @@
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 
-#include <assert.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -264,8 +264,7 @@ static bool add_album_to_queue(struct t_mympd_state *mympd_state, const char *al
 
 static struct list *mpd_client_jukebox_get_last_played(struct t_mympd_state *mympd_state, enum jukebox_modes jukebox_mode) {
     struct mpd_song *song;
-    struct list *queue_list = (struct list *) malloc(sizeof(struct list));
-    assert(queue_list);
+    struct list *queue_list = list_new();
     list_init(queue_list);
         
     bool rc = mpd_send_list_queue_meta(mympd_state->mpd_state->conn);

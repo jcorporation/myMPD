@@ -52,6 +52,7 @@ if (LUA_FOUND)
     ../dist/src/sds/sds.c
     ../src/lib/sds_extras.c
     ../src/lib/http_client.c
+    ../src/lib/mem.c
   )
 
   set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_FS=0")

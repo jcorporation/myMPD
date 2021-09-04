@@ -9,9 +9,9 @@
 
 #include "../../dist/src/mongoose/mongoose.h"
 #include "lua_mympd_state.h"
+#include "mem.h"
 #include "sds_extras.h"
 
-#include <assert.h>
 #include <mpd/client.h>
 #include <string.h>
 
@@ -104,8 +104,7 @@ t_work_result *create_result(t_work_request *request) {
 }
 
 t_work_result *create_result_new(long long conn_id, long request_id, unsigned cmd_id) {
-    t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
-    assert(response);
+    t_work_result *response = (t_work_result *)malloc_assert(sizeof(t_work_result));
     response->conn_id = conn_id;
     response->id = request_id;
     response->cmd_id = cmd_id;
@@ -118,8 +117,7 @@ t_work_result *create_result_new(long long conn_id, long request_id, unsigned cm
 }
 
 t_work_request *create_request(long long conn_id, long request_id, unsigned cmd_id, const char *data) {
-    t_work_request *request = (t_work_request *)malloc(sizeof(t_work_request));
-    assert(request);
+    t_work_request *request = (t_work_request *)malloc_assert(sizeof(t_work_request));
     request->conn_id = conn_id;
     request->cmd_id = cmd_id;
     request->id = request_id;

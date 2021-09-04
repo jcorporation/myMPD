@@ -9,14 +9,13 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mem.h"
 #include "../lib/sds_extras.h"
-#include "../lib/utility.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "mympd_api_timer.h"
 
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -77,8 +76,7 @@ void default_mympd_state(struct t_mympd_state *mympd_state) {
     list_init(&mympd_state->jukebox_queue);
     list_init(&mympd_state->jukebox_queue_tmp);
     //mpd state
-    mympd_state->mpd_state = (struct t_mpd_state *)malloc(sizeof(struct t_mpd_state));
-    assert(mympd_state->mpd_state);
+    mympd_state->mpd_state = (struct t_mpd_state *)malloc_assert(sizeof(struct t_mpd_state));
     mpd_shared_default_mpd_state(mympd_state->mpd_state);
     //triggers;
     list_init(&mympd_state->triggers);

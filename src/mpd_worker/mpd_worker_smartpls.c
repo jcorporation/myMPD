@@ -9,9 +9,9 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mem.h"
 #include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
-#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_shared/mpd_shared_playlists.h"
 #include "../mpd_shared/mpd_shared_search.h"

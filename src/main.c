@@ -12,6 +12,7 @@
 #include "handle_options.h"
 #include "lib/api.h"
 #include "lib/log.h"
+#include "lib/mem.h"
 #include "lib/random.h"
 #include "lib/sds_extras.h"
 #include "lib/utility.h"
@@ -24,7 +25,6 @@
   #include "lib/cert.h"
 #endif
 
-#include <assert.h>
 #include <grp.h>
 #include <mpd/client.h>
 #include <pthread.h>
@@ -277,15 +277,13 @@ int main(int argc, char **argv) {
     mympd_script_queue = tiny_queue_create("mympd_script_queue");
 
     //create mg_user_data struct for web_server
-    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)malloc(sizeof(struct t_mg_user_data));
-    assert(mg_user_data);
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)malloc_assert(sizeof(struct t_mg_user_data));
 
     //initialize random number generator
     tinymt32_init(&tinymt, (unsigned int)time(NULL));
     
     //mympd config defaults
-    struct t_config *config = (struct t_config *)malloc(sizeof(struct t_config));
-    assert(config);
+    struct t_config *config = (struct t_config *)malloc_assert(sizeof(struct t_config));
     mympd_config_defaults_initial(config);
    
     //command line option
