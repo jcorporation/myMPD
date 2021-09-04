@@ -452,6 +452,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_TRIGGER_SAVE: {
+            //malloc list - it is used in trigger list
             struct list *arguments = list_new();
             list_init(arguments);
 
@@ -472,14 +473,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                         break;
                     }
                 }
-                else {
-                    list_free(arguments);
-                }
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "trigger", "error", "Could not save trigger");
-            }
-            else {
                 list_free(arguments);
+                FREE_PTR(arguments);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "trigger", "error", "Could not save trigger");
+                break;
             }
+            list_free(arguments);
+            FREE_PTR(arguments);
             break;
         }
         case MYMPD_API_TRIGGER_RM:

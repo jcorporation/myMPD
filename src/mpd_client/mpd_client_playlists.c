@@ -276,22 +276,23 @@ sds mpd_client_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sd
 sds mpd_client_smartpls_put(struct t_config *config, sds buffer, sds method, long request_id,
                             const char *playlist)
 {
-    sds smartpltype = NULL;
-    sds sds_buf1 = NULL;
-    int int_buf1 = 0;
-    int int_buf2 = 0;
-
     sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->workdir, playlist);
     FILE *fp = fopen(pl_file, OPEN_FLAGS_READ);
     if (fp == NULL) {
         MYMPD_LOG_ERROR("Cant read smart playlist \"%s\"", playlist);
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Can not read smart playlist file");
+        FREE_SDS(pl_file);
         return buffer;
     }
     sds content = sdsempty();
     sdsgetfile(&content, fp, 2000);
     FREE_SDS(pl_file);
     fclose(fp);
+
+    sds smartpltype = NULL;
+    sds sds_buf1 = NULL;
+    int int_buf1 = 0;
+    int int_buf2 = 0;
 
     if (json_get_string(content, "$.type", 1, 200, &smartpltype, vcb_isalnum, NULL) == true) {
         buffer = jsonrpc_result_start(buffer, method, request_id);
