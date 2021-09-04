@@ -35,6 +35,27 @@ then
   export ENABLE_LUA="ON"
 fi
 
+CLANG_TIDY_CHECKS="*"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-altera-struct-pack-align,-clang-analyzer-optin.performance.Padding"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-macro-parentheses"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-reserved-identifier,-cert-dcl37-c,-cert-dcl51-cpp"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-signal-handler,-cert-sig30-c"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-concurrency-mt-unsafe"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-cppcoreguidelines*"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-google-readability-todo"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-hicpp-*"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvm-header-guard"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvm-include-order"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-misc-misplaced-const"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-misc-no-recursion"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-avoid-const-params-in-decls"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-function-cognitive-complexity,-google-readability-function-size,-readability-function-size"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-isolate-declaration"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-magic-numbers"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-non-const-parameter"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-uppercase-literal-suffix"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvmlibc-restrict-system-libc-headers"
+
 #save startpath
 STARTPATH=$(pwd)
 
@@ -107,7 +128,7 @@ setversion() {
   	mv -f contrib/packaging/gentoo/media-sound/mympd/mympd-*.ebuild "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild"
 
   echo "const myMPDversion = '${VERSION}';" > htdocs/js/version.js
-  printf "${VERSION}" > docs/_includes/version
+  printf "%s" "${VERSION}" > docs/_includes/version
 }
 
 minify() {
@@ -365,28 +386,72 @@ cleanuposc() {
 }
 
 check_docs() {
-  for F in $(grep 'X(MYMPD' src/lib/api.h | cut -d\( -f2 | cut -d\) -f1)
-  do 
-    grep -q "$F" htdocs/js/apidoc.js || echo "API $F not documented"
+  grep 'X(MYMPD' src/lib/api.h | cut -d\( -f2 | cut -d\) -f1 | while IFS= read -r METHOD
+  do
+    grep -q "$METHOD" htdocs/js/apidoc.js || echo "API $F not documented"
   done
 }
 
 check_includes() {
-  for F in $(find src/ -name \*.c)
+  find src/ -name \*.c | while IFS= read -r FILE
   do
-    if ! grep -m1 "#include" "$F" | grep -q "mympd_config_defs.h"
+    if ! grep -m1 "#include" "$FILE" | grep -q "mympd_config_defs.h"
     then
-      echo "First include is not mympd_config_defs.h: $F"
+      echo "First include is not mympd_config_defs.h: $FILE"
     fi
-    SRCDIR=$(dirname "$F")
-    for I in $(grep "#include \"" "$F" | grep -v "mympd_config_defs.h" | cut -d\" -f2)
+    SRCDIR=$(dirname "$FILE")
+    
+    grep "#include \"" "$FILE" | grep -v "mympd_config_defs.h" | cut -d\" -f2 | while IFS= read -r INCLUDE
     do
-      if ! realpath "$SRCDIR/$I" > /dev/null 2>&1
+      if ! realpath "$SRCDIR/$INCLUDE" > /dev/null 2>&1
       then
-        echo "Wrong include path in $F for $I"
+        echo "Wrong include path in $FILE for $INCLUDE"
       fi
     done
   done
+}
+
+check_file() {
+  FILE=$1
+  if check_cmd cppcheck
+  then
+    echo "Running cppcheck"
+    [ -z "${CPPCHECKOPTS+z}" ] && CPPCHECKOPTS="-q --force --enable=warning"
+    #shellcheck disable=SC2086
+    cppcheck $CPPCHECKOPTS "$FILE"
+  else
+    echo "cppcheck not found"
+  fi
+  
+  if check_cmd flawfinder
+  then
+    echo "Running flawfinder"
+    [ -z "${FLAWFINDEROPTS+z}" ] && FLAWFINDEROPTS="-m3 --quiet --dataonly"
+    #shellcheck disable=SC2086
+    flawfinder $FLAWFINDEROPTS "$FILE"
+  else
+    echo "flawfinder not found"
+  fi
+
+  if [ ! -f src/compile_commands.json ]
+  then
+    echo "src/compile_commands.json not found"
+    echo "run: ./build.sh debug"
+    exit 1
+  fi
+  
+  if check_cmd clang-tidy
+  then
+    echo "Running clang-tidy, output goes to clang-tidy.out"
+    rm -f clang-tidy.out
+    cd src || exit 1
+    clang-tidy \
+    	--checks="$CLANG_TIDY_CHECKS" \
+    	--header-filter=".*" "$FILE" >> ../clang-tidy.out 2>/dev/null
+    grep -v -E "(memset|memcpy|\^)" ../clang-tidy.out
+  else
+    echo "clang-tidy not found"  
+  fi
 }
 
 check() {
@@ -394,10 +459,15 @@ check() {
   then
     echo "Running cppcheck"
     [ -z "${CPPCHECKOPTS+z}" ] && CPPCHECKOPTS="-q --force --enable=warning"
+    #shellcheck disable=SC2086
     cppcheck $CPPCHECKOPTS src/*.c src/*.h
+    #shellcheck disable=SC2086
     cppcheck $CPPCHECKOPTS src/mpd_client/*.c src/mpd_client/*.h
+    #shellcheck disable=SC2086
     cppcheck $CPPCHECKOPTS src/mympd_api/*.c src/mympd_api/*.h
+    #shellcheck disable=SC2086
     cppcheck $CPPCHECKOPTS src/web_server/*.c src/web_server/*.h
+    #shellcheck disable=SC2086
     cppcheck $CPPCHECKOPTS cli_tools/*.c
   else
     echo "cppcheck not found"
@@ -407,7 +477,9 @@ check() {
   then
     echo "Running flawfinder"
     [ -z "${FLAWFINDEROPTS+z}" ] && FLAWFINDEROPTS="-m3 --quiet --dataonly"
+    #shellcheck disable=SC2086
     flawfinder $FLAWFINDEROPTS src
+    #shellcheck disable=SC2086
     flawfinder $FLAWFINDEROPTS cli_tools
   else
     echo "flawfinder not found"
@@ -425,29 +497,8 @@ check() {
     echo "Running clang-tidy, output goes to clang-tidy.out"
     rm -f clang-tidy.out
     cd src || exit 1
-    CHECKS="*"
-    CHECKS="$CHECKS,-altera-struct-pack-align,-clang-analyzer-optin.performance.Padding"
-    CHECKS="$CHECKS,-bugprone-macro-parentheses"
-    CHECKS="$CHECKS,-bugprone-reserved-identifier,-cert-dcl37-c,-cert-dcl51-cpp"
-    CHECKS="$CHECKS,-bugprone-signal-handler,-cert-sig30-c"
-    CHECKS="$CHECKS,-concurrency-mt-unsafe"
-    CHECKS="$CHECKS,-cppcoreguidelines*"
-	CHECKS="$CHECKS,-google-readability-todo"
-    CHECKS="$CHECKS,-hicpp-*"
-    CHECKS="$CHECKS,-llvm-header-guard"
-    CHECKS="$CHECKS,-llvm-include-order"
-    CHECKS="$CHECKS,-misc-misplaced-const"
-	CHECKS="$CHECKS,-misc-no-recursion"
-    CHECKS="$CHECKS,-readability-avoid-const-params-in-decls"
-    CHECKS="$CHECKS,-readability-function-cognitive-complexity,-google-readability-function-size,-readability-function-size"
-    CHECKS="$CHECKS,-readability-isolate-declaration"
-    CHECKS="$CHECKS,-readability-magic-numbers"
-    CHECKS="$CHECKS,-readability-non-const-parameter"
-    CHECKS="$CHECKS,-readability-uppercase-literal-suffix"
-    CHECKS="$CHECKS,-llvmlibc-restrict-system-libc-headers"
-
     find ./ -name '*.c' -exec clang-tidy \
-    	--checks="$CHECKS" \
+    	--checks="$CLANG_TIDY_CHECKS" \
     	--header-filter=".*" {}  \; >> ../clang-tidy.out 2>/dev/null
     grep -v -E "(memset|memcpy|\^)" ../clang-tidy.out
   else
@@ -995,6 +1046,9 @@ case "$ACTION" in
 	check)
 	  check
 	;;
+  check_file)
+	  check_file "$2"
+	;;
 	check_docs)
 	  check_docs
 	;;
@@ -1070,103 +1124,104 @@ case "$ACTION" in
 	  run_htmlhint
 	;;
 	*)
-	  echo "Usage: $0 <option>"
-	  echo "Version: ${VERSION}"
-	  echo ""
-	  echo "Build options:"
-	  echo "  release:          build release files in directory release"
-	  echo "  install:          installs release files from directory release"
-	  echo "                    following environment variables are respected"
-	  echo "                      - DESTDIR=\"\""
-	  echo "  releaseinstall:   calls release and install afterwards"
-	  echo "  debug:            builds debug files in directory debug,"
-	  echo "                    linked with libasan3, uses assets in htdocs"
-	  echo "  memcheck:         builds debug files in directory debug"
-	  echo "                    for use with valgrind, uses assets in htdocs"
-	  echo "  test:             builds the unit testing files in test/build"
-	  echo "  installdeps:      installs build and run dependencies"
-	  echo "  createassets:     creates the minfied and compressed dist files"
-	  echo "                    following environment variables are respected"
-	  echo "                      - MYMPD_BUILDDIR=\"release\""
-      echo ""
-	  echo "Translation options:"
-	  echo "  translate:        builds the translation file for debug builds"
-	  echo "  transstatus:      shows the translation status"
-	  echo ""
-      echo "Test options:"
-	  echo "  check:            runs cppcheck, flawfinder and clang-tidy on source files"
-	  echo "                    following environment variables are respected"
-	  echo "                      - CPPCHECKOPTS=\"-q --force --enable=warning\""
-	  echo "                      - FLAWFINDEROPTS=\"-m3 --quiet --dataonly\""
-	  echo "  check_docs        checks the documentation for missing API methods"
-	  echo "  check_includes    checks for rigth include paths"
-	  echo "  eslint:           combines javascript files and runs eslint"
-	  echo "  stylelint:        runs stylelint (lints css files)"
-	  echo "  htmlhint:         runs htmlhint (lints html files)"
-	  echo ""
-	  echo "Cleanup options:"
-	  echo "  cleanup:          cleanup source tree"
-	  echo "  uninstall:        removes myMPD files, leaves configuration and "
-	  echo "                    state files in place"
-	  echo "                    following environment variables are respected"
-	  echo "                      - DESTDIR=\"\""
-	  echo "  purge:            removes all myMPD files, also your init scripts"
-	  echo "                    following environment variables are respected"
-	  echo "                      - DESTDIR=\"\""
-	  echo ""
-	  echo "Packaging options:"
-	  echo "  pkgalpine:        creates the alpine package"
-	  echo "  pkgarch:          creates the arch package"
-	  echo "                    following environment variables are respected"
-	  echo "                      - SIGN=\"FALSE\""
-	  echo "                      - GPGKEYID=\"\""
-	  echo "  pkgdebian:        creates the debian package"
-	  echo "                    following environment variables are respected"
-	  echo "                      - SIGN=\"FALSE\""
-	  echo "                      - GPGKEYID=\"\""
-	  echo "  pkgdocker:        creates the docker image (debian based)"
-      echo "                    following environment variables are respected"
-      echo "                      - DOCKERFILE=\"Dockerfile.alpine\""
-      echo "  pkgbuildx:        creates a multiarch docker image with buildx"
-      echo "                    following environment variables are respected"
-      echo "                      - DOCKERFILE=\"Dockerfile.alpine\""
-      echo "                      - PLATFORMS=\"linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6\""
-	  echo "  pkgrpm:           creates the rpm package"
-	  echo "  pkgosc:           updates the open build service repository"
-	  echo "                    following environment variables are respected"
-	  echo "                      - OSC_REPO=\"home:jcorporation/myMPD\""
-	  echo "  sbuild_chroots:   creates chroots for debian crosscompile"
-	  echo "                    must be run as root"
-	  echo "                    following environment variables are respected"
-      echo "                      - WORKDIR=\"$STARTPATH/builder\""
-      echo "                      - DISTROS=\"buster stretch\""
-      echo "                      - TARGETS=\"armhf armel\""
-      echo "                      - DEBIAN_MIRROR=\"http://ftp.de.debian.org/debian\""
-	  echo "  sbuild_build:     builds the packages for targets and distros"
-	  echo "                    must be run as root"
-	  echo "                    following environment variables are respected"
-      echo "                      - WORKDIR=\"$STARTPATH/builder\""
-      echo "                      - DISTROS=\"buster stretch\""
-      echo "                      - TARGETS=\"armhf armel\""
-	  echo "  sbuild_cleanup:   removes the builder and package directory"
-	  echo "                    must be run as root"
-	  echo "                    following environment variables are respected"
-      echo "                      - WORKDIR=\"$STARTPATH/builder\""
-	  echo ""
-	  echo "Misc options:"
-	  echo "  setversion:       sets version and date in packaging files from CMakeLists.txt"
-	  echo "  addmympduser:     adds mympd group and user"
-	  echo "  libmympdclient:   updates libmympdclient (fork of libmpdclient)"
-	  echo ""
-	  echo "Environment variables for building"
-	  echo "  - MYMPD_INSTALL_PREFIX=\"/usr\""
-	  echo "  - ENABLE_SSL=\"ON\""
-	  echo "  - ENABLE_LIBID3TAG=\"ON\""
-	  echo "  - ENABLE_FLAC=\"ON\""
-	  echo "  - ENABLE_LUA=\"ON\""
-	  echo "  - MANPAGES=\"ON\""
-	  echo ""
-	  exit 1
+    echo "Usage: $0 <option>"
+    echo "Version: ${VERSION}"
+    echo ""
+    echo "Build options:"
+    echo "  release:          build release files in directory release"
+    echo "  install:          installs release files from directory release"
+    echo "                    following environment variables are respected"
+    echo "                      - DESTDIR=\"\""
+    echo "  releaseinstall:   calls release and install afterwards"
+    echo "  debug:            builds debug files in directory debug,"
+    echo "                    linked with libasan3, uses assets in htdocs"
+    echo "  memcheck:         builds debug files in directory debug"
+    echo "                    for use with valgrind, uses assets in htdocs"
+    echo "  test:             builds the unit testing files in test/build"
+    echo "  installdeps:      installs build and run dependencies"
+    echo "  createassets:     creates the minfied and compressed dist files"
+    echo "                    following environment variables are respected"
+    echo "                      - MYMPD_BUILDDIR=\"release\""
+    echo ""
+    echo "Translation options:"
+    echo "  translate:        builds the translation file for debug builds"
+    echo "  transstatus:      shows the translation status"
+    echo ""
+    echo "Test options:"
+    echo "  check:            runs cppcheck, flawfinder and clang-tidy on source files"
+    echo "                    following environment variables are respected"
+    echo "                      - CPPCHECKOPTS=\"-q --force --enable=warning\""
+    echo "                      - FLAWFINDEROPTS=\"-m3 --quiet --dataonly\""
+    echo "  check_file:       same as check, but for one file, second arg must be the file"
+    echo "  check_docs        checks the documentation for missing API methods"
+    echo "  check_includes    checks for rigth include paths"
+    echo "  eslint:           combines javascript files and runs eslint"
+    echo "  stylelint:        runs stylelint (lints css files)"
+    echo "  htmlhint:         runs htmlhint (lints html files)"
+    echo ""
+    echo "Cleanup options:"
+    echo "  cleanup:          cleanup source tree"
+    echo "  uninstall:        removes myMPD files, leaves configuration and "
+    echo "                    state files in place"
+    echo "                    following environment variables are respected"
+    echo "                      - DESTDIR=\"\""
+    echo "  purge:            removes all myMPD files, also your init scripts"
+    echo "                    following environment variables are respected"
+    echo "                      - DESTDIR=\"\""
+    echo ""
+    echo "Packaging options:"
+    echo "  pkgalpine:        creates the alpine package"
+    echo "  pkgarch:          creates the arch package"
+    echo "                    following environment variables are respected"
+    echo "                      - SIGN=\"FALSE\""
+    echo "                      - GPGKEYID=\"\""
+    echo "  pkgdebian:        creates the debian package"
+    echo "                    following environment variables are respected"
+    echo "                      - SIGN=\"FALSE\""
+    echo "                      - GPGKEYID=\"\""
+    echo "  pkgdocker:        creates the docker image (debian based)"
+    echo "                    following environment variables are respected"
+    echo "                      - DOCKERFILE=\"Dockerfile.alpine\""
+    echo "  pkgbuildx:        creates a multiarch docker image with buildx"
+    echo "                    following environment variables are respected"
+    echo "                      - DOCKERFILE=\"Dockerfile.alpine\""
+    echo "                      - PLATFORMS=\"linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6\""
+    echo "  pkgrpm:           creates the rpm package"
+    echo "  pkgosc:           updates the open build service repository"
+    echo "                    following environment variables are respected"
+    echo "                      - OSC_REPO=\"home:jcorporation/myMPD\""
+    echo "  sbuild_chroots:   creates chroots for debian crosscompile"
+    echo "                    must be run as root"
+    echo "                    following environment variables are respected"
+    echo "                      - WORKDIR=\"$STARTPATH/builder\""
+    echo "                      - DISTROS=\"buster stretch\""
+    echo "                      - TARGETS=\"armhf armel\""
+    echo "                      - DEBIAN_MIRROR=\"http://ftp.de.debian.org/debian\""
+    echo "  sbuild_build:     builds the packages for targets and distros"
+    echo "                    must be run as root"
+    echo "                    following environment variables are respected"
+    echo "                      - WORKDIR=\"$STARTPATH/builder\""
+    echo "                      - DISTROS=\"buster stretch\""
+    echo "                      - TARGETS=\"armhf armel\""
+    echo "  sbuild_cleanup:   removes the builder and package directory"
+    echo "                    must be run as root"
+    echo "                    following environment variables are respected"
+    echo "                      - WORKDIR=\"$STARTPATH/builder\""
+    echo ""
+    echo "Misc options:"
+    echo "  setversion:       sets version and date in packaging files from CMakeLists.txt"
+    echo "  addmympduser:     adds mympd group and user"
+    echo "  libmympdclient:   updates libmympdclient (fork of libmpdclient)"
+    echo ""
+    echo "Environment variables for building"
+    echo "  - MYMPD_INSTALL_PREFIX=\"/usr\""
+    echo "  - ENABLE_SSL=\"ON\""
+    echo "  - ENABLE_LIBID3TAG=\"ON\""
+    echo "  - ENABLE_FLAC=\"ON\""
+    echo "  - ENABLE_LUA=\"ON\""
+    echo "  - MANPAGES=\"ON\""
+    echo ""
+    exit 1
 	;;
 esac
 
