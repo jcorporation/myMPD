@@ -7,6 +7,8 @@
 #include "mympd_config_defs.h"
 #include "log.h"
 
+#include "sds_extras.h"
+
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h>
@@ -100,5 +102,5 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
         fputs(logline, stderr);
         fflush(stderr);
     }
-    sdsfree(logline);
+    FREE_SDS(logline);
 }

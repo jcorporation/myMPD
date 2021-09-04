@@ -37,7 +37,7 @@ bool mpd_client_last_played_list_save(struct t_mympd_state *mympd_state) {
     if (fd < 0 ) {
         MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(tmp_file);
+        FREE_SDS(tmp_file);
         return false;
     }    
     
@@ -60,7 +60,7 @@ bool mpd_client_last_played_list_save(struct t_mympd_state *mympd_state) {
             fprintf(fp, "%s\n", line);
             i++;
         }
-        sdsfree(line);
+        FREE_SDS(line);
         fclose(fi);
     }
     else {
@@ -75,12 +75,12 @@ bool mpd_client_last_played_list_save(struct t_mympd_state *mympd_state) {
     if (rename(tmp_file, lp_file) == -1) {
         MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, lp_file);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(tmp_file);
-        sdsfree(lp_file);
+        FREE_SDS(tmp_file);
+        FREE_SDS(lp_file);
         return false;
     }
-    sdsfree(tmp_file);
-    sdsfree(lp_file);
+    FREE_SDS(tmp_file);
+    FREE_SDS(lp_file);
     //empt list after write to disc
     list_free(&mympd_state->last_played);    
     return true;
@@ -166,7 +166,7 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
             }
         }
         fclose(fp);
-        sdsfree(line);
+        FREE_SDS(line);
     }
     else {
         //ignore error
@@ -175,7 +175,7 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
             MYMPD_LOG_ERRNO(errno);
         }
     }
-    sdsfree(lp_file);
+    FREE_SDS(lp_file);
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);
@@ -209,12 +209,12 @@ sds mpd_client_put_stats(struct t_mympd_state *mympd_state, sds buffer, sds meth
     buffer = tojson_char(buffer, "mpdVersion", mpd_version, true);
     sds libmympdclient_version = sdscatfmt(sdsempty(), "%i.%i.%i", LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION);
     buffer = tojson_char(buffer, "libmympdclientVersion", libmympdclient_version, true);
-    sdsfree(libmympdclient_version);
+    FREE_SDS(libmympdclient_version);
     buffer = tojson_char(buffer, "libmpdclientVersion", libmpdclient_version, false);
     buffer = jsonrpc_result_end(buffer);
 
-    sdsfree(mpd_version);
-    sdsfree(libmpdclient_version);
+    FREE_SDS(mpd_version);
+    FREE_SDS(libmpdclient_version);
     mpd_stats_free(stats);
 
     return buffer;

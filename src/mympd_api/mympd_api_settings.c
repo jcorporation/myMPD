@@ -171,7 +171,7 @@ bool mympd_api_connection_save(sds key, sds value, int vtype, validate_callback 
     if (rc == true) {
         sds state_filename = camel_to_snake(key);
         rc = state_file_write(mympd_state->config->workdir, "state", state_filename, value);
-        sdsfree(state_filename);
+        FREE_SDS(state_filename);
     }
     return rc;
 }
@@ -206,10 +206,10 @@ bool mympd_api_cols_save(struct t_mympd_state *mympd_state, sds table, sds cols)
     }
     sds tablename = camel_to_snake(table);
     if (!state_file_write(mympd_state->config->workdir, "state", tablename, cols)) {
-        sdsfree(tablename);
+        FREE_SDS(tablename);
         return false;
     }
-    sdsfree(tablename);
+    FREE_SDS(tablename);
     return true;
 }
 
@@ -380,7 +380,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
     }
     sds state_filename = camel_to_snake(key);
     bool rc = state_file_write(mympd_state->config->workdir, "state", state_filename, value);
-    sdsfree(state_filename);
+    FREE_SDS(state_filename);
     return rc;
 }
 
@@ -531,7 +531,7 @@ bool mpdclient_api_options_set(sds key, sds value, int vtype, validate_callback 
             ws_notify(message);
             rc = false;
         }
-        sdsfree(message);
+        FREE_SDS(message);
         write_state_file = false;
     }
     else {
@@ -545,7 +545,7 @@ bool mpdclient_api_options_set(sds key, sds value, int vtype, validate_callback 
     if (write_state_file == true) {
         sds state_filename = camel_to_snake(key);
         rc = state_file_write(mympd_state->config->workdir, "state", state_filename, value);
-        sdsfree(state_filename);
+        FREE_SDS(state_filename);
     }
     return rc;
 }
@@ -735,7 +735,7 @@ sds mympd_api_picture_list(struct t_mympd_state *mympd_state, sds buffer, sds me
             "general", "error", "Can not open directory pics");
         MYMPD_LOG_ERROR("Can not open directory \"%s\"", pic_dirname);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(pic_dirname);
+        FREE_SDS(pic_dirname);
         return buffer;
     }
 
@@ -762,7 +762,7 @@ sds mympd_api_picture_list(struct t_mympd_state *mympd_state, sds buffer, sds me
         }
     }
     closedir(pic_dir);
-    sdsfree(pic_dirname);
+    FREE_SDS(pic_dirname);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
     buffer = jsonrpc_result_end(buffer);
@@ -780,7 +780,7 @@ static sds set_default_navbar_icons(struct t_config *config, sds buffer) {
     if (fp == NULL) {
         MYMPD_LOG_ERROR("Can not open file \"%s\" for write", file_name);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(file_name);
+        FREE_SDS(file_name);
         return buffer;
     }
     int rc = fputs(buffer, fp);
@@ -788,7 +788,7 @@ static sds set_default_navbar_icons(struct t_config *config, sds buffer) {
         MYMPD_LOG_ERROR("Can not write to file \"%s\"", file_name);
     }
     fclose(fp);
-    sdsfree(file_name);
+    FREE_SDS(file_name);
     return buffer;
 }
 
@@ -803,10 +803,10 @@ static sds read_navbar_icons(struct t_config *config) {
             MYMPD_LOG_ERRNO(errno);
         }
         buffer = set_default_navbar_icons(config, buffer);
-        sdsfree(file_name);
+        FREE_SDS(file_name);
         return buffer;
     }
-    sdsfree(file_name);
+    FREE_SDS(file_name);
     sdsgetfile(&buffer, fp, 2000);
     fclose(fp);
     

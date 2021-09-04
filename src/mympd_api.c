@@ -87,7 +87,7 @@ void *mympd_api_loop(void *arg_config) {
     //free anything
     free_trigerlist_arguments(mympd_state);
     free_mympd_state(mympd_state);
-    sdsfree(thread_logname);
+    FREE_SDS(thread_logname);
     return NULL;
 }
 
@@ -99,26 +99,26 @@ void mympd_autoconf(struct t_mympd_state *mympd_state) {
         //get config from mpd configuration file
         sds mpd_host = get_mpd_conf("bind_to_address", mympd_state->mpd_state->mpd_host, vcb_isname);
         mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, mpd_host);
-        sdsfree(mpd_host);
+        FREE_SDS(mpd_host);
 
         sds mpd_pass = get_mpd_conf("password", mympd_state->mpd_state->mpd_pass, vcb_isname);
         mympd_state->mpd_state->mpd_pass = sdsreplace(mympd_state->mpd_state->mpd_pass, mpd_pass);
-        sdsfree(mpd_pass);
+        FREE_SDS(mpd_pass);
         
         sds mpd_port = get_mpd_conf("port", mympd_state->mpd_state->mpd_host, vcb_isdigit);
         int port = (int)strtoimax(mpd_port, NULL, 10);
         if (port > 1024 && port <= 65534) {
             mympd_state->mpd_state->mpd_port = port;
         }
-        sdsfree(mpd_port);
+        FREE_SDS(mpd_port);
         
         sds music_directory = get_mpd_conf("music_directory", mympd_state->music_directory, vcb_isfilepath);
         mympd_state->music_directory = sdsreplace(mympd_state->music_directory, music_directory);
-        sdsfree(music_directory);
+        FREE_SDS(music_directory);
         
         sds playlist_directory = get_mpd_conf("playlist_directory", mympd_state->playlist_directory, vcb_isfilepath);
         mympd_state->playlist_directory = sdsreplace(mympd_state->playlist_directory, playlist_directory);
-        sdsfree(playlist_directory);
+        FREE_SDS(playlist_directory);
     }
     else {
         MYMPD_LOG_NOTICE("Reading environment");
@@ -139,7 +139,7 @@ void mympd_autoconf(struct t_mympd_state *mympd_state) {
                 }
                 MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", mympd_state->mpd_state->mpd_host);
             }
-            sdsfree(mpd_host);
+            FREE_SDS(mpd_host);
         }
         const char *mpd_port_env = getenv("MPD_PORT"); /* Flawfinder: ignore */
         if (mpd_port_env != NULL && strlen(mpd_port_env) <= 5) {
@@ -154,8 +154,8 @@ void mympd_autoconf(struct t_mympd_state *mympd_state) {
                     MYMPD_LOG_WARN("MPD port must between 1024 and 65534, default is 6600");
                 }
             }
-            sdsfree(mpd_port);
+            FREE_SDS(mpd_port);
         }
     }
-    sdsfree(mpd_conf);
+    FREE_SDS(mpd_conf);
 }

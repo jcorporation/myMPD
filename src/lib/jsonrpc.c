@@ -28,7 +28,7 @@ static void _set_parse_error(sds *error, const char *fmt, ...) {
     else {
         sds e = sdscatvprintf(sdsempty(), fmt, args); // NOLINT(clang-diagnostic-format-nonliteral)
         MYMPD_LOG_WARN(e);
-        sdsfree(e);
+        FREE_SDS(e);
     }
     va_end(args);
 }
@@ -38,7 +38,7 @@ static void _set_parse_error(sds *error, const char *fmt, ...) {
 void send_jsonrpc_notify(const char *facility, const char *severity, const char *message) {
     sds buffer = jsonrpc_notify(sdsempty(), facility, severity, message);
     ws_notify(buffer);
-    sdsfree(buffer);
+    FREE_SDS(buffer);
 }
 
 void ws_notify(sds message) {
@@ -51,7 +51,7 @@ void ws_notify(sds message) {
 void send_jsonrpc_event(const char *event) {
     sds buffer = jsonrpc_event(sdsempty(), event);
     ws_notify(buffer);
-    sdsfree(buffer);
+    FREE_SDS(buffer);
 }
 
 sds jsonrpc_event(sds buffer, const char *event) {
@@ -369,8 +369,8 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
     for (off = 0; (off = mjson_next(p, n, off, &koff, &klen, &voff, &vlen, &vtype)) != 0;) {
         if (klen > JSONRPC_KEY_MAX) {
             _set_parse_error(error, "Key in JSON path \"%s\" is too long", path);
-            sdsfree(value);
-            sdsfree(key);
+            FREE_SDS(value);
+            FREE_SDS(key);
             return false;
         }
         if (klen > 2) {
@@ -378,15 +378,15 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
                 vcb_isalnum(value) == false)
             {
                 _set_parse_error(error, "Validation of key in path \"%s\" has failed. Key must be alphanumeric.", path);
-                sdsfree(value);
-                sdsfree(key);
+                FREE_SDS(value);
+                FREE_SDS(key);
                 return false;
             }
         }
         if (vlen > JSONRPC_STR_MAX) {
             _set_parse_error(error, "Value for key \"%s\" in JSON path \"%s\" is too long", key, path);
-            sdsfree(value);
-            sdsfree(key);
+            FREE_SDS(value);
+            FREE_SDS(key);
             return false;
         }
         switch(vtype) {
@@ -394,8 +394,8 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
                 if (vlen > 2) {
                     if (sds_json_unescape(p + voff + 1, vlen - 2, &value) == false) {
                         _set_parse_error(error, "JSON unescape error for value for key \"%s\" in JSON path \"%s\" has failed", key, path);
-                        sdsfree(value);
-                        sdsfree(key);
+                        FREE_SDS(value);
+                        FREE_SDS(key);
                         return false;
                     }
                 }
@@ -403,8 +403,8 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
             case MJSON_TOK_INVALID:
             case MJSON_TOK_NULL:
                 _set_parse_error(error, "Invalid json value type");
-                sdsfree(value);
-                sdsfree(key);
+                FREE_SDS(value);
+                FREE_SDS(key);
                 return false;
             default:
                 value = sdscatlen(value, p + voff, vlen);
@@ -413,8 +413,8 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
 
         if (icb(key, value, vtype, vcb, icb_userdata, error) == false) {
             MYMPD_LOG_WARN("Iteration callback for path \"%s\" has failed", path);
-            sdsfree(value);
-            sdsfree(key);
+            FREE_SDS(value);
+            FREE_SDS(key);
             return false;
         }
 
@@ -426,8 +426,8 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
             break;
         }
     }
-    sdsfree(value);
-    sdsfree(key);
+    FREE_SDS(value);
+    FREE_SDS(key);
     return true;
 }
 

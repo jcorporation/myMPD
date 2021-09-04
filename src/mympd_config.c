@@ -8,6 +8,7 @@
 #include "mympd_config.h"
 
 #include "lib/log.h"
+#include "lib/sds_extras.h"
 #include "lib/state_files.h"
 #include "lib/validate.h"
 
@@ -27,25 +28,25 @@ static int mympd_getenv_int(const char *env_var, int default_value, int min, int
 
 //public functions
 void mympd_free_config(struct t_config *config) {
-    sdsfree(config->http_host);
-    sdsfree(config->http_port);
+    FREE_SDS(config->http_host);
+    FREE_SDS(config->http_port);
     #ifdef ENABLE_SSL
-        sdsfree(config->ssl_port);
-        sdsfree(config->ssl_cert);
-        sdsfree(config->ssl_key);
-        sdsfree(config->ssl_san);
+        FREE_SDS(config->ssl_port);
+        FREE_SDS(config->ssl_cert);
+        FREE_SDS(config->ssl_key);
+        FREE_SDS(config->ssl_san);
     #endif
-    sdsfree(config->acl);
-    sdsfree(config->scriptacl);
+    FREE_SDS(config->acl);
+    FREE_SDS(config->scriptacl);
     #ifdef ENABLE_LUA
-        sdsfree(config->lualibs);
+        FREE_SDS(config->lualibs);
     #endif
-    sdsfree(config->pin_hash);
+    FREE_SDS(config->pin_hash);
 }
 
 void mympd_free_config_initial(struct t_config *config) {
-    sdsfree(config->user);
-    sdsfree(config->workdir);
+    FREE_SDS(config->user);
+    FREE_SDS(config->workdir);
 }
 
 void mympd_config_defaults(struct t_config *config) {
@@ -62,8 +63,8 @@ void mympd_config_defaults(struct t_config *config) {
         if (config->custom_cert == true) {
             config->ssl_cert = mympd_getenv_string("MYMPD_SSL_CERT", default_cert, vcb_isfilepath, config->first_startup);
             config->ssl_key = mympd_getenv_string("MYMPD_SSL_KEY", default_key, vcb_isfilepath, config->first_startup);
-            sdsfree(default_cert);
-            sdsfree(default_key);
+            FREE_SDS(default_cert);
+            FREE_SDS(default_key);
         }
         else {
             config->ssl_cert = default_cert;

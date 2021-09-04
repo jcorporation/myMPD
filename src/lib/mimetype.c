@@ -81,10 +81,10 @@ sds find_image_file(sds basefilename) {
     for (p = image_files; p->extension != NULL; p++) {
         sds testfilename = sdscatfmt(sdsempty(), "%s.%s", basefilename, p->extension);
         if (access(testfilename, F_OK) == 0) { /* Flawfinder: ignore */
-            sdsfree(testfilename);
+            FREE_SDS(testfilename);
             break;
         }
-        sdsfree(testfilename);
+        FREE_SDS(testfilename);
     }
     if (p->extension != NULL) {
         basefilename = sdscatfmt(basefilename, ".%s", p->extension);
@@ -112,7 +112,7 @@ const char *get_mime_type_by_ext(const char *filename) {
             }
         }
     }
-    sdsfree(ext);
+    FREE_SDS(ext);
     return p->mime_type;
 }
 
@@ -140,7 +140,7 @@ const char *get_mime_type_by_magic(const char *filename) {
     fclose(fp);
     sds stream = sdsnewlen(binary_buffer, read);
     const char *mime_type = get_mime_type_by_magic_stream(stream);
-    sdsfree(stream);
+    FREE_SDS(stream);
     return mime_type;
 }
 
@@ -160,6 +160,6 @@ const char *get_mime_type_by_magic_stream(sds stream) {
     if (p->magic_bytes == NULL) {
         MYMPD_LOG_WARN("Could not get mime type from bytes \"%s\"", hex_buffer);
     }
-    sdsfree(hex_buffer);
+    FREE_SDS(hex_buffer);
     return p->mime_type;
 }

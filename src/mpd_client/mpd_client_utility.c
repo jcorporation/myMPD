@@ -45,7 +45,7 @@ sds put_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
     }
     buffer = sdscat(buffer, "]");
     list_free(&images);
-    sdsfree(booklet_path);
+    FREE_SDS(booklet_path);
     return buffer;
 }
 
@@ -56,7 +56,7 @@ bool is_smartpls(struct t_mympd_state *mympd_state, sds playlist) {
         if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
             smartpls = true;
         }
-        sdsfree(smartpls_file);
+        FREE_SDS(smartpls_file);
     }
     return smartpls;
 }
@@ -79,7 +79,7 @@ bool mpd_client_set_binarylimit(struct t_mympd_state *mympd_state) {
             ws_notify(message);
             rc = false;
         }
-        sdsfree(message);
+        FREE_SDS(message);
     }
     return rc;
 }
@@ -114,7 +114,7 @@ static void detect_extra_files(struct t_mympd_state *mympd_state, const char *ur
                 {
                     sds fullpath = sdscatfmt(sdsempty(), "%s/%s", path, next_file->d_name);
                     list_push(images, fullpath, 0, NULL, NULL);
-                    sdsfree(fullpath);
+                    FREE_SDS(fullpath);
                 }
             }
         }
@@ -125,5 +125,5 @@ static void detect_extra_files(struct t_mympd_state *mympd_state, const char *ur
         MYMPD_LOG_ERRNO(errno);
     }
     FREE_PTR(uricpy);
-    sdsfree(albumpath);
+    FREE_SDS(albumpath);
 }

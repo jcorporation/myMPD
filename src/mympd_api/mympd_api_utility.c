@@ -107,31 +107,31 @@ void free_mympd_state(struct t_mympd_state *mympd_state) {
 }
 
 void free_mympd_state_sds(struct t_mympd_state *mympd_state) {
-    sdsfree(mympd_state->tag_list_search);
-    sdsfree(mympd_state->tag_list_browse);
-    sdsfree(mympd_state->smartpls_generate_tag_list);
-    sdsfree(mympd_state->jukebox_playlist);
-    sdsfree(mympd_state->cols_queue_current);
-    sdsfree(mympd_state->cols_search);
-    sdsfree(mympd_state->cols_browse_database_detail);
-    sdsfree(mympd_state->cols_browse_playlists_detail);
-    sdsfree(mympd_state->cols_browse_filesystem);
-    sdsfree(mympd_state->cols_playback);
-    sdsfree(mympd_state->cols_queue_last_played);
-    sdsfree(mympd_state->cols_queue_jukebox);
-    sdsfree(mympd_state->coverimage_names);
-    sdsfree(mympd_state->music_directory);
-    sdsfree(mympd_state->music_directory_value);
-    sdsfree(mympd_state->smartpls_sort);
-    sdsfree(mympd_state->smartpls_prefix);
-    sdsfree(mympd_state->booklet_name);
-    sdsfree(mympd_state->navbar_icons);
-    sdsfree(mympd_state->webui_settings);
-    sdsfree(mympd_state->playlist_directory);
-    sdsfree(mympd_state->lyrics_sylt_ext);
-    sdsfree(mympd_state->lyrics_uslt_ext);
-    sdsfree(mympd_state->lyrics_vorbis_uslt);
-    sdsfree(mympd_state->lyrics_vorbis_sylt);
+    FREE_SDS(mympd_state->tag_list_search);
+    FREE_SDS(mympd_state->tag_list_browse);
+    FREE_SDS(mympd_state->smartpls_generate_tag_list);
+    FREE_SDS(mympd_state->jukebox_playlist);
+    FREE_SDS(mympd_state->cols_queue_current);
+    FREE_SDS(mympd_state->cols_search);
+    FREE_SDS(mympd_state->cols_browse_database_detail);
+    FREE_SDS(mympd_state->cols_browse_playlists_detail);
+    FREE_SDS(mympd_state->cols_browse_filesystem);
+    FREE_SDS(mympd_state->cols_playback);
+    FREE_SDS(mympd_state->cols_queue_last_played);
+    FREE_SDS(mympd_state->cols_queue_jukebox);
+    FREE_SDS(mympd_state->coverimage_names);
+    FREE_SDS(mympd_state->music_directory);
+    FREE_SDS(mympd_state->music_directory_value);
+    FREE_SDS(mympd_state->smartpls_sort);
+    FREE_SDS(mympd_state->smartpls_prefix);
+    FREE_SDS(mympd_state->booklet_name);
+    FREE_SDS(mympd_state->navbar_icons);
+    FREE_SDS(mympd_state->webui_settings);
+    FREE_SDS(mympd_state->playlist_directory);
+    FREE_SDS(mympd_state->lyrics_sylt_ext);
+    FREE_SDS(mympd_state->lyrics_uslt_ext);
+    FREE_SDS(mympd_state->lyrics_vorbis_uslt);
+    FREE_SDS(mympd_state->lyrics_vorbis_sylt);
 }
 
 sds json_to_cols(sds cols, sds s, bool *error) {

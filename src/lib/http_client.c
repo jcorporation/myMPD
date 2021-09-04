@@ -49,7 +49,7 @@ sds get_dnsserver(void) {
             sdsclear(nameserver);
         }
     }
-    sdsfree(line);
+    FREE_SDS(line);
     fclose(fp);
     if (sdslen(nameserver) > 0) {
         buffer = sdscatprintf(buffer, "udp://%s:53", nameserver);
@@ -58,7 +58,7 @@ sds get_dnsserver(void) {
         MYMPD_LOG_WARN("No valid nameserver found");
         buffer = sdscat(buffer, "udp://8.8.8.8:53");
     }
-    sdsfree(nameserver);
+    FREE_SDS(nameserver);
     return buffer;
 }
 
@@ -81,7 +81,7 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
     while (mg_client_response->rc == -1) {
         mg_mgr_poll(&mgr_client, 1000);
     }
-    sdsfree(dns_uri);
+    FREE_SDS(dns_uri);
     mg_mgr_free(&mgr_client);
 }
 

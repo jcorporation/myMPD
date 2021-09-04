@@ -309,8 +309,8 @@ bool list_push(struct list *l, const char *key, long value_i, const char *value_
         l->tail->next = n;
     }
     else {
-        sdsfree(n->value_p);
-        sdsfree(n->key);
+        FREE_SDS(n->value_p);
+        FREE_SDS(n->key);
         free(n);
         return false;
     }
@@ -341,8 +341,8 @@ bool list_push_len(struct list *l, const char *key, int key_len, long value_i, c
         l->tail->next = n;
     }
     else {
-        sdsfree(n->value_p);
-        sdsfree(n->key);
+        FREE_SDS(n->value_p);
+        FREE_SDS(n->key);
         free(n);
         return false;
     }
@@ -483,8 +483,8 @@ struct list_node *list_shift_first(struct list *l) {
 }
 
 bool list_node_free(struct list_node *n) {
-    sdsfree(n->key);
-    sdsfree(n->value_p);
+    FREE_SDS(n->key);
+    FREE_SDS(n->value_p);
     if (n->user_data != NULL) {
         free(n->user_data);
     }
@@ -493,8 +493,8 @@ bool list_node_free(struct list_node *n) {
 }
 
 bool list_node_free_keep_user_data(struct list_node *n) {
-    sdsfree(n->key);
-    sdsfree(n->value_p);
+    FREE_SDS(n->key);
+    FREE_SDS(n->value_p);
     free(n);
     return true;
 }
@@ -504,8 +504,8 @@ bool list_shift(struct list *l, unsigned idx) {
     if (extracted == NULL) {
         return false;
     }
-    sdsfree(extracted->key);
-    sdsfree(extracted->value_p);
+    FREE_SDS(extracted->key);
+    FREE_SDS(extracted->value_p);
     if (extracted->user_data != NULL) {
         free(extracted->user_data);
     }
@@ -526,8 +526,8 @@ static bool _list_free(struct list *l, bool free_user_data) {
     struct list_node *current = l->head;
     struct list_node *tmp = NULL;
     while (current != NULL) {
-        sdsfree(current->key);
-        sdsfree(current->value_p);
+        FREE_SDS(current->key);
+        FREE_SDS(current->value_p);
         if (free_user_data == true && current->user_data != NULL) {
             free(current->user_data);
         }

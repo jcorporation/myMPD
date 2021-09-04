@@ -33,7 +33,7 @@ sds camel_to_snake(sds text) {
 
 sds state_file_rw_string_sds(const char *workdir, const char *dir, const char *name, sds old_value, validate_callback vcb, bool warn) {
     sds value = state_file_rw_string(workdir, dir, name, old_value, vcb, warn);
-    sdsfree(old_value);
+    FREE_SDS(old_value);
     return value;
 }
 
@@ -54,10 +54,10 @@ sds state_file_rw_string(const char *workdir, const char *dir, const char *name,
         //file does not exist, create it with default value and return
         state_file_write(workdir, dir, name, def_value);
         result = sdscat(result, def_value);
-        sdsfree(cfg_file);
+        FREE_SDS(cfg_file);
         return result;
     }
-    sdsfree(cfg_file);
+    FREE_SDS(cfg_file);
     int n = sdsgetline(&result, fp, 1000);
     fclose(fp);
     if (n == 0) {
@@ -82,7 +82,7 @@ bool state_file_rw_bool(const char *workdir, const char *dir, const char *name, 
     sds line = state_file_rw_string(workdir, dir, name, def_value == true ? "true" : "false", NULL, warn);
     if (sdslen(line) > 0) {
         value = strtobool(line);
-        sdsfree(line);
+        FREE_SDS(line);
     }
     return value;
 }
@@ -92,9 +92,9 @@ int state_file_rw_int(const char *workdir, const char *dir, const char *name, co
     int value = def_value;
     sds def_value_str = sdsfromlonglong(def_value);
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
-    sdsfree(def_value_str);
+    FREE_SDS(def_value_str);
     value = (int)strtoimax(line, &crap, 10);
-    sdsfree(line);
+    FREE_SDS(line);
     if (value >= min && value <= max) {
         return value;
     }
@@ -106,9 +106,9 @@ unsigned state_file_rw_uint(const char *workdir, const char *dir, const char *na
     unsigned value = def_value;
     sds def_value_str = sdsfromlonglong(def_value);
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
-    sdsfree(def_value_str);
+    FREE_SDS(def_value_str);
     value = (int)strtoimax(line, &crap, 10);
-    sdsfree(line);
+    FREE_SDS(line);
     if (value >= min && value <= max) {
         return value;
     }
@@ -122,7 +122,7 @@ bool state_file_write(const char *workdir, const char *dir, const char *name, co
     if (fd < 0) {
         MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(tmp_file);
+        FREE_SDS(tmp_file);
         return false;
     }
     FILE *fp = fdopen(fd, "w");
@@ -136,11 +136,11 @@ bool state_file_write(const char *workdir, const char *dir, const char *name, co
     if (rename(tmp_file, cfg_file) == -1) {
         MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, cfg_file);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(tmp_file);
-        sdsfree(cfg_file);
+        FREE_SDS(tmp_file);
+        FREE_SDS(cfg_file);
         return false;
     }
-    sdsfree(tmp_file);
-    sdsfree(cfg_file);
+    FREE_SDS(tmp_file);
+    FREE_SDS(cfg_file);
     return true;
 }

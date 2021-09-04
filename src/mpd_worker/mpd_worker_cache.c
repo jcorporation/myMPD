@@ -146,9 +146,9 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             }
             i++;
         }
-        sdsfree(album);
-        sdsfree(artist);
-        sdsfree(key);
+        FREE_SDS(album);
+        FREE_SDS(artist);
+        FREE_SDS(key);
         mpd_response_finish(mpd_worker_state->mpd_state->conn);
         if (check_error_and_recover2(mpd_worker_state->mpd_state, NULL, NULL, 0, false) == false) {
             MYMPD_LOG_ERROR("Cache update failed");
@@ -167,7 +167,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             uri = sdsreplacelen(uri, (char *)iter.key, iter.key_len);
             mpd_shared_get_sticker(mpd_worker_state->mpd_state, uri, (struct t_sticker *)iter.data);
         }
-        sdsfree(uri);
+        FREE_SDS(uri);
         raxStop(&iter);
     }
     MYMPD_LOG_INFO("Added %u albums to album cache", album_count);

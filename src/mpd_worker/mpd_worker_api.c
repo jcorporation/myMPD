@@ -84,7 +84,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Unknown request");
             MYMPD_LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
     }
-    sdsfree(sds_buf1);
+    FREE_SDS(sds_buf1);
 
     if (async == true) {
         return;

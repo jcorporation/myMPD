@@ -9,6 +9,7 @@
 
 #include "../lib/api.h"
 #include "../lib/log.h"
+#include "../lib/sds_extras.h"
 #include "../lib/validate.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
@@ -126,7 +127,7 @@ static bool _mpd_client_count_song_uri(struct t_mympd_state *mympd_state, const 
     sds value_str = sdsfromlonglong(old_value);
     MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
     bool rc = mpd_run_sticker_set(mympd_state->mpd_state->conn, "song", uri, name, value_str);
-    sdsfree(value_str);
+    FREE_SDS(value_str);
     if (rc == false) {
         check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
     }
@@ -147,7 +148,7 @@ static bool _mpd_client_set_sticker(struct t_mympd_state *mympd_state, const cha
     sds value_str = sdsfromlonglong(value);
     MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
     bool rc = mpd_run_sticker_set(mympd_state->mpd_state->conn, "song", uri, name, value_str);
-    sdsfree(value_str);
+    FREE_SDS(value_str);
     if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_sticker_set") == false) {
         return false;
     }

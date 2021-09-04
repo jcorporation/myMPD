@@ -110,10 +110,10 @@ bool create_certificates(sds dir, sds custom_san) {
         }
     }
 
-    sdsfree(cacert_file);
-    sdsfree(cakey_file);
-    sdsfree(servercert_file);
-    sdsfree(serverkey_file);
+    FREE_SDS(cacert_file);
+    FREE_SDS(cakey_file);
+    FREE_SDS(servercert_file);
+    FREE_SDS(serverkey_file);
     EVP_PKEY_free(ca_key);
     X509_free(ca_cert);
     EVP_PKEY_free(server_key);
@@ -131,14 +131,14 @@ bool cleanup_certificates(sds dir, const char *name) {
         MYMPD_LOG_ERROR("Error removing file \"%s\"", cert_file);
         MYMPD_LOG_ERRNO(errno);
     }
-    sdsfree(cert_file);
+    FREE_SDS(cert_file);
     sds key_file = sdscatfmt(sdsempty(), "%s/%s.key", dir, name);
     errno = 0;
     if (unlink(key_file) != 0) {
         MYMPD_LOG_ERROR("Error removing file \"%s\"", key_file);
         MYMPD_LOG_ERRNO(errno);
     }
-    sdsfree(key_file);
+    FREE_SDS(key_file);
     
     return true;
 }
@@ -202,10 +202,10 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
     *server_cert = sign_certificate_request(*ca_key, *ca_cert, server_req, san);
     X509_REQ_free(server_req);
     if (*server_cert == NULL) {
-        sdsfree(san);
+        FREE_SDS(san);
         return false;
     }
-    sdsfree(san);
+    FREE_SDS(san);
     bool rc_cert = write_to_disk(serverkey_file, *server_key, servercert_file, *server_cert);
     return rc_cert;
 }
@@ -293,7 +293,7 @@ static sds get_san(sds buffer) {
             ptr = NULL;
         }
         freeaddrinfo(res);
-        sdsfree(old_addrstr);
+        FREE_SDS(old_addrstr);
     }
     return buffer;
 }
@@ -334,7 +334,7 @@ static X509_REQ *generate_request(EVP_PKEY *pkey) {
     X509_NAME_add_entry_by_txt(name, "O",  MBSTRING_ASC, (unsigned char *)"myMPD", -1, -1, 0);
     X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, (unsigned char *)cn, -1, -1, 0);
     
-    sdsfree(cn);
+    FREE_SDS(cn);
     
     if (!X509_REQ_sign(req, pkey, EVP_sha256())) {
         MYMPD_LOG_ERROR("Error signing request");
@@ -462,7 +462,7 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
     X509_NAME_add_entry_by_txt(name, "C",  MBSTRING_ASC, (unsigned char *)"DE", -1, -1, 0);
     X509_NAME_add_entry_by_txt(name, "O",  MBSTRING_ASC, (unsigned char *)"myMPD", -1, -1, 0);
     X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, (unsigned char *)cn, -1, -1, 0);
-    sdsfree(cn);    
+    FREE_SDS(cn);    
 
     /* Now set the issuer name. */
     X509_set_issuer_name(cert, name);
@@ -492,7 +492,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     if (fd < 0) {
         MYMPD_LOG_ERROR("Can not open file \"%s\" for write", key_file_tmp);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(key_file_tmp);
+        FREE_SDS(key_file_tmp);
         return false;
     }
     FILE *key_file_fp = fdopen(fd, "w");
@@ -500,17 +500,17 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     fclose(key_file_fp);
     if (!rc) {
         MYMPD_LOG_ERROR("Unable to write private key to disk");
-        sdsfree(key_file_tmp);
+        FREE_SDS(key_file_tmp);
         return false;
     }
     errno = 0;
     if (rename(key_file_tmp, key_file) == -1) {
         MYMPD_LOG_ERROR("Renaming file from %s to %s failed", key_file_tmp, key_file);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(key_file_tmp);
+        FREE_SDS(key_file_tmp);
         return false;
     }
-    sdsfree(key_file_tmp);
+    FREE_SDS(key_file_tmp);
     
     /* Write the certificate to disk. */
     sds cert_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", cert_file);
@@ -518,7 +518,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     if ((fd = mkstemp(cert_file_tmp)) < 0 ) {
         MYMPD_LOG_ERROR("Can not open file \"%s\" for write", cert_file_tmp);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(cert_file_tmp);
+        FREE_SDS(cert_file_tmp);
         return false;
     }
     FILE *cert_file_fp = fdopen(fd, "w");
@@ -526,17 +526,17 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     fclose(cert_file_fp);
     if (!rc) {
         MYMPD_LOG_ERROR("Unable to write certificate to disk");
-        sdsfree(cert_file_tmp);
+        FREE_SDS(cert_file_tmp);
         return false;
     }
     errno = 0;
     if (rename(cert_file_tmp, cert_file) == -1) {
         MYMPD_LOG_ERROR("Renaming file from %s to %s failed", cert_file_tmp, cert_file);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(cert_file_tmp);
+        FREE_SDS(cert_file_tmp);
         return false;
     }
-    sdsfree(cert_file_tmp);
+    FREE_SDS(cert_file_tmp);
     
     return true;
 }

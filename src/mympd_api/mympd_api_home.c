@@ -55,7 +55,7 @@ bool mympd_api_save_home_icon(struct t_mympd_state *mympd_state, bool replace, u
     else {
         rc = list_push(&mympd_state->home_list, key, 0, NULL, NULL);
     }
-    sdsfree(key);
+    FREE_SDS(key);
     return rc;
 }
 
@@ -77,7 +77,7 @@ bool mympd_api_read_home_list(struct t_mympd_state *mympd_state) {
                 break;
             }
         }
-        sdsfree(line);
+        FREE_SDS(line);
         fclose(fp);
     }
     else {
@@ -86,10 +86,10 @@ bool mympd_api_read_home_list(struct t_mympd_state *mympd_state) {
         if (errno != ENOENT) {
             MYMPD_LOG_ERRNO(errno);
         }
-        sdsfree(home_file);
+        FREE_SDS(home_file);
         return false;
     }
-    sdsfree(home_file);
+    FREE_SDS(home_file);
     return true;
 }
 
@@ -101,7 +101,7 @@ bool mympd_api_write_home_list(struct t_mympd_state *mympd_state) {
     if (fd < 0 ) {
         MYMPD_LOG_ERROR("Can not open \"%s\" for write", tmp_file);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(tmp_file);
+        FREE_SDS(tmp_file);
         return false;
     }
     FILE *fp = fdopen(fd, "w");
@@ -110,7 +110,7 @@ bool mympd_api_write_home_list(struct t_mympd_state *mympd_state) {
         int rc = fprintf(fp,"%s\n", current->key);
         if (rc < 0) {
             MYMPD_LOG_ERROR("Can not write to file \"%s\"", tmp_file);
-            sdsfree(tmp_file);
+            FREE_SDS(tmp_file);
             fclose(fp);
             return false;
         }
@@ -122,12 +122,12 @@ bool mympd_api_write_home_list(struct t_mympd_state *mympd_state) {
     if (rename(tmp_file, home_file) == -1) {
         MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, home_file);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(tmp_file);
-        sdsfree(home_file);
+        FREE_SDS(tmp_file);
+        FREE_SDS(home_file);
         return false;
     }
-    sdsfree(tmp_file);    
-    sdsfree(home_file);
+    FREE_SDS(tmp_file);    
+    FREE_SDS(home_file);
     return true;
 }
 

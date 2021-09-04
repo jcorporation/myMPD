@@ -64,7 +64,7 @@ sds mpd_client_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds met
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
     buffer = jsonrpc_result_end(buffer);
-    sdsfree(mediafile);
+    FREE_SDS(mediafile);
     return buffer;
 }
 
@@ -107,10 +107,10 @@ static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool syn
     strip_extension(filename_cpy);
     sds lyricsfile = sdscatfmt(sdsempty(), "%s.%s", filename_cpy, ext);
     MYMPD_LOG_DEBUG("Trying to open lyrics file: %s", lyricsfile);
-    sdsfree(filename_cpy);
+    FREE_SDS(filename_cpy);
     errno = 0;
     FILE *fp = fopen(lyricsfile, OPEN_FLAGS_READ);
-    sdsfree(lyricsfile);
+    FREE_SDS(lyricsfile);
     if (fp != NULL) {
         if (returned_entities > 0) {
             *buffer = sdscatlen(*buffer, ",", 1);
@@ -124,7 +124,7 @@ static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool syn
         fclose(fp);
         *buffer = tojson_char(*buffer, "text", text, false);
         *buffer = sdscatlen(*buffer, "}", 1);
-        sdsfree(text);
+        FREE_SDS(text);
         returned_entities++;
     }
     else {
@@ -277,7 +277,7 @@ static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_en
             *buffer = sdscatfmt(*buffer, "\"text\":\"%s\"", text);
             
             //*buffer = tojson_char(*buffer, "text", text, false);
-            sdsfree(text);
+            FREE_SDS(text);
             *buffer = sdscatlen(*buffer, "}", 1);
             returned_entities++;
             MYMPD_LOG_DEBUG("Synced lyrics successfully extracted");
@@ -441,7 +441,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
             break;
         }
     }
-    sdsfree(text_buf);
+    FREE_SDS(text_buf);
     return sylt_text;
 }
 #endif

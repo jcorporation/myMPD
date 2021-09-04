@@ -203,10 +203,10 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
             else {
                 list_free(arguments);
             }
-            sdsfree(name);
-            sdsfree(script);
+            FREE_SDS(name);
+            FREE_SDS(script);
         }
-        sdsfree(line);
+        FREE_SDS(line);
         fclose(fp);
     }
     else {
@@ -216,7 +216,7 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
         }
     }
     MYMPD_LOG_INFO("Read %d triggers(s) from disc", mympd_state->triggers.length);
-    sdsfree(trigger_file);
+    FREE_SDS(trigger_file);
     return true;
 }
 
@@ -228,7 +228,7 @@ bool triggerfile_save(struct t_mympd_state *mympd_state) {
     if (fd < 0) {
         MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(tmp_file);
+        FREE_SDS(tmp_file);
         return false;
     }
     FILE *fp = fdopen(fd, "w");
@@ -255,18 +255,18 @@ bool triggerfile_save(struct t_mympd_state *mympd_state) {
         current = current->next;
     }
     fclose(fp);
-    sdsfree(buffer);
+    FREE_SDS(buffer);
     sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", mympd_state->config->workdir);
     errno = 0;
     if (rename(tmp_file, trigger_file) == -1) {
         MYMPD_LOG_ERROR("Renaming file from %s to %s failed", tmp_file, trigger_file);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(tmp_file);
-        sdsfree(trigger_file);
+        FREE_SDS(tmp_file);
+        FREE_SDS(trigger_file);
         return false;
     }
-    sdsfree(tmp_file);
-    sdsfree(trigger_file);
+    FREE_SDS(tmp_file);
+    FREE_SDS(trigger_file);
     return true;    
 }
 

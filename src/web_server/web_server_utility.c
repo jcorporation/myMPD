@@ -29,13 +29,13 @@ static void create_ipv6_mask(int *netmask, int mask);
 
 //public functions
 void free_mg_user_data(struct t_mg_user_data *mg_user_data) {
-    sdsfree(mg_user_data->browse_document_root);
-    sdsfree(mg_user_data->pics_document_root);
-    sdsfree(mg_user_data->smartpls_document_root);
-    sdsfree(mg_user_data->music_directory);
-    sdsfree(mg_user_data->playlist_directory);
+    FREE_SDS(mg_user_data->browse_document_root);
+    FREE_SDS(mg_user_data->pics_document_root);
+    FREE_SDS(mg_user_data->smartpls_document_root);
+    FREE_SDS(mg_user_data->music_directory);
+    FREE_SDS(mg_user_data->playlist_directory);
     sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
-    sdsfree(mg_user_data->stream_uri);
+    FREE_SDS(mg_user_data->stream_uri);
     list_free(&mg_user_data->session_list);
 }
 
@@ -83,7 +83,7 @@ void manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bo
     sdsclear(dir_name);
     dir_name = sdscatfmt(dir_name, "%s/empty/playlists", workdir);
     rm_mk_dir(dir_name, playlists);
-    sdsfree(dir_name);
+    FREE_SDS(dir_name);
 }
 
 //create an empty dummy message struct, used for async responses
@@ -179,7 +179,7 @@ void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, con
         #endif
         MYMPD_LOG_DEBUG("Serving asset image \"%s\" (image/svg+xml)", asset_image);
     }
-    sdsfree(asset_image);
+    FREE_SDS(asset_image);
 }
 
 #ifndef DEBUG
@@ -218,7 +218,7 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_mess
     sds uri_decoded = sdsurldecode(sdsempty(), uri, sdslen(uri), 0);
     if (sdslen(uri_decoded) == 0) {
         send_error(nc, 500, "Failed to decode uri");
-        sdsfree(uri_decoded);
+        FREE_SDS(uri_decoded);
         return false;
     }
     //find fileinfo
@@ -228,7 +228,7 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_mess
             break;
         }
     }
-    sdsfree(uri_decoded);
+    FREE_SDS(uri_decoded);
     
     if (p->uri != NULL) {
         //respond with error if browser don't support compression and asset is compressed
@@ -259,7 +259,7 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_mess
     else {
         sds errormsg = sdscatfmt(sdsempty(), "Embedded asset \"%s\" not found", uri);
         send_error(nc, 404, errormsg);
-        sdsfree(errormsg);
+        FREE_SDS(errormsg);
     }
     return false;
 }
@@ -368,7 +368,7 @@ static bool check_ipv6_acl(const char *acl, const uint8_t remote_ip[16]) {
             allowed = flag == '+' ? true : false;        
         }
     }
-    sdsfreesplitres(tokens, count);
+    FREE_SDSsplitres(tokens, count);
     return allowed;
 }
 

@@ -286,8 +286,8 @@ static struct list *mpd_client_jukebox_get_last_played(struct t_mympd_state *mym
             sds album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, sdsempty());
             sds albumartist = mpd_shared_get_tags(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
             list_push(queue_list, album, 0, albumartist, NULL);
-            sdsfree(album);
-            sdsfree(albumartist);
+            FREE_SDS(album);
+            FREE_SDS(albumartist);
         }
         mpd_song_free(song);
     }
@@ -308,8 +308,8 @@ static struct list *mpd_client_jukebox_get_last_played(struct t_mympd_state *mym
                     sds album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, sdsempty());
                     sds albumartist = mpd_shared_get_tags(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
                     list_push(queue_list, album, 0, albumartist, NULL);
-                    sdsfree(album);
-                    sdsfree(albumartist);
+                    FREE_SDS(album);
+                    FREE_SDS(albumartist);
                 }
                 mpd_song_free(song);
             }
@@ -341,8 +341,8 @@ static struct list *mpd_client_jukebox_get_last_played(struct t_mympd_state *mym
                                 sds album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, sdsempty());
                                 sds albumartist = mpd_shared_get_tags(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
                                 list_push(queue_list, album, 0, albumartist, NULL);
-                                sdsfree(album);
-                                sdsfree(albumartist);
+                                FREE_SDS(album);
+                                FREE_SDS(albumartist);
                             }
                             mpd_song_free(song);
                         }
@@ -356,14 +356,14 @@ static struct list *mpd_client_jukebox_get_last_played(struct t_mympd_state *mym
                 }
             }
             fclose(fp);
-            sdsfree(line);
+            FREE_SDS(line);
         }
         else {
             //ignore missing last_played file
             MYMPD_LOG_DEBUG("Can not open \"%s\"", lp_file);
             MYMPD_LOG_ERRNO(errno);
         }
-        sdsfree(lp_file);
+        FREE_SDS(lp_file);
     }
     MYMPD_LOG_DEBUG("Jukebox last_played list length: %d", queue_list->length);
     return queue_list;
@@ -571,8 +571,8 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
                 }
                 lineno++;
             }
-            sdsfree(album);
-            sdsfree(albumartist);
+            FREE_SDS(album);
+            FREE_SDS(albumartist);
         }
         raxStop(&iter);
         MYMPD_LOG_DEBUG("Jukebox iterated through %u albums, skipped %u", lineno, skipno);

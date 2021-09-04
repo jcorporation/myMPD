@@ -9,6 +9,7 @@
 
 #include "../../dist/src/mongoose/mongoose.h"
 #include "lua_mympd_state.h"
+#include "sds_extras.h"
 
 #include <assert.h>
 #include <mpd/client.h>
@@ -136,17 +137,17 @@ t_work_request *create_request(long long conn_id, long request_id, unsigned cmd_
 
 void free_request(t_work_request *request) {
     if (request != NULL) {
-        sdsfree(request->data);
-        sdsfree(request->method);
+        FREE_SDS(request->data);
+        FREE_SDS(request->method);
         free(request);
     }
 }
 
 void free_result(t_work_result *result) {
     if (result != NULL) {
-        sdsfree(result->data);
-        sdsfree(result->method);
-        sdsfree(result->binary);
+        FREE_SDS(result->data);
+        FREE_SDS(result->method);
+        FREE_SDS(result->binary);
         free(result);
     }
 }

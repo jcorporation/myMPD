@@ -80,7 +80,7 @@ static void *mpd_worker_run(void *arg) {
         mpd_shared_mpd_disconnect(mpd_worker_state->mpd_state);
     }
     MYMPD_LOG_NOTICE("Stopping mpd_worker thread");
-    sdsfree(thread_logname);
+    FREE_SDS(thread_logname);
     free_mpd_worker_state(mpd_worker_state);
     worker_threads--;
     return NULL;

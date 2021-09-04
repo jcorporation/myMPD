@@ -129,13 +129,13 @@ static bool check_ssl_certs(struct t_config *config) {
         if (!create_certificates(testdirname, config->ssl_san)) {
             //error creating certificates
             MYMPD_LOG_ERROR("Certificate creation failed");
-            sdsfree(testdirname);
+            FREE_SDS(testdirname);
             return false;
         }
-        sdsfree(testdirname);
+        FREE_SDS(testdirname);
     }
     else {
-        sdsfree(testdirname);
+        FREE_SDS(testdirname);
         return false;
     }
     return true;
@@ -165,10 +165,10 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     sds testdirname = sdscatfmt(sdsempty(), "%s/config", config->workdir);
     testdir_rc = testdir("Config dir", testdirname, true);
     if (testdir_rc > 1) {
-        sdsfree(testdirname);
+        FREE_SDS(testdirname);
         return false;
     }
-    sdsfree(testdirname);
+    FREE_SDS(testdirname);
     return true;
 }
 
@@ -185,7 +185,7 @@ static bool check_dirs(struct t_config *config) {
     sds testdirname = sdscatfmt(sdsempty(), "%s/state", config->workdir);
     testdir_rc = testdir("State dir", testdirname, true);
     if (testdir_rc > 1) {
-        sdsfree(testdirname);
+        FREE_SDS(testdirname);
         return false;
     }
     //smart playlists
@@ -197,7 +197,7 @@ static bool check_dirs(struct t_config *config) {
         smartpls_default(config);
     }
     else if (testdir_rc > 1) {
-        sdsfree(testdirname);
+        FREE_SDS(testdirname);
         return false;
     }
 
@@ -206,7 +206,7 @@ static bool check_dirs(struct t_config *config) {
     testdirname = sdscatfmt(testdirname, "%s/pics", config->workdir);
     testdir_rc = testdir("Pics dir", testdirname, true);
     if (testdir_rc > 1) {
-        sdsfree(testdirname);
+        FREE_SDS(testdirname);
         return false;
     }
     
@@ -215,7 +215,7 @@ static bool check_dirs(struct t_config *config) {
     testdirname = sdscatfmt(testdirname, "%s/empty", config->workdir);
     testdir_rc = testdir("Empty dir", testdirname, true);
     if (testdir_rc > 1) {
-        sdsfree(testdirname);
+        FREE_SDS(testdirname);
         return false;
     }
 
@@ -225,7 +225,7 @@ static bool check_dirs(struct t_config *config) {
     testdirname = sdscatfmt(testdirname, "%s/scripts", config->workdir);
     testdir_rc = testdir("Scripts dir", testdirname, true);
     if (testdir_rc > 1) {
-        sdsfree(testdirname);
+        FREE_SDS(testdirname);
         return false;
     }
     #endif
@@ -234,10 +234,10 @@ static bool check_dirs(struct t_config *config) {
     testdirname = sdscatfmt(testdirname, "%s/covercache", config->workdir);
     testdir_rc = testdir("Covercache dir", testdirname, true);
     if (testdir_rc > 1) {
-        sdsfree(testdirname);
+        FREE_SDS(testdirname);
         return false;
     }
-    sdsfree(testdirname);
+    FREE_SDS(testdirname);
     return true;
 }
 
@@ -441,6 +441,6 @@ int main(int argc, char **argv) {
     }
 
     end:
-    sdsfree(thread_logname);
+    FREE_SDS(thread_logname);
     return rc;
 }

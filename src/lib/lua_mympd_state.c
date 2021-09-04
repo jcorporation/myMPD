@@ -7,6 +7,8 @@
 #include "mympd_config_defs.h"
 #include "lua_mympd_state.h"
 
+#include "sds_extras.h"
+
 #include <assert.h>
 #include <stdlib.h>
 
@@ -36,7 +38,7 @@ void free_lua_mympd_state(struct list *lua_mympd_state) {
     while (current != NULL) {
         if (current->value_i == LUA_TYPE_STRING) {
             struct t_lua_mympd_state_value *u = (struct t_lua_mympd_state_value *)current->user_data;
-            sdsfree(u->p);
+            FREE_SDS(u->p);
             free(current->user_data);
             current->user_data = NULL;
         }

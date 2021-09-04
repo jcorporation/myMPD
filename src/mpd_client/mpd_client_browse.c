@@ -11,6 +11,7 @@
 #include "../lib/log.h"
 #include "../lib/mimetype.h"
 #include "../lib/mympd_configuration.h"
+#include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_shared/mpd_shared_search.h"
@@ -142,9 +143,9 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
                     sds key = sdscatprintf(sdsempty(), "2%s", mpd_song_get_uri(song));
                     sdstolower(key);
                     list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_SONG, entity_name, mpd_song_dup(song), false);
-                    sdsfree(key);
+                    FREE_SDS(key);
                 }
-                sdsfree(entity_name);
+                FREE_SDS(entity_name);
                 break;
             }
             case MPD_ENTITY_TYPE_DIRECTORY: {
@@ -163,9 +164,9 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
                     sds key = sdscatprintf(sdsempty(), "0%s", mpd_directory_get_path(dir));
                     sdstolower(key);
                     list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_DIRECTORY, dir_name, mpd_directory_dup(dir), false);
-                    sdsfree(key);
+                    FREE_SDS(key);
                 }
-                sdsfree(dir_name_lower);
+                FREE_SDS(dir_name_lower);
                 break;
             }
             case MPD_ENTITY_TYPE_PLAYLIST: {
@@ -176,11 +177,11 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
                 if (strcmp(path, "/") == 0) {
                     sds ext = get_extension_from_filename(entity_name);
                     if (strcmp(ext, "m3u") != 0 && strcmp(ext, "pls") != 0) {
-                        sdsfree(ext);
+                        FREE_SDS(ext);
                         FREE_PTR(entity_name);
                         break;
                     }
-                    sdsfree(ext);
+                    FREE_SDS(ext);
                 }
                 char *pl_name = strrchr(entity_name, '/');
                 if (pl_name != NULL) {
@@ -193,9 +194,9 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
                     sds key = sdscatprintf(sdsempty(), "1%s", mpd_playlist_get_path(pl));
                     sdstolower(key);
                     list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_PLAYLIST, pl_name, mpd_playlist_dup(pl), false);
-                    sdsfree(key);
+                    FREE_SDS(key);
                 }
-                sdsfree(entity_name);
+                FREE_SDS(entity_name);
                 break;
             }
         }
@@ -324,10 +325,10 @@ sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer,
     rc = mpd_search_add_expression(mympd_state->mpd_state->conn, expression);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_expression") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
-        sdsfree(expression);
+        FREE_SDS(expression);
         return buffer;
     }
-    sdsfree(expression);
+    FREE_SDS(expression);
     rc = mpd_search_add_sort_tag(mympd_state->mpd_state->conn, MPD_TAG_DISC, false);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_tag") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
@@ -460,9 +461,9 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
         }
         if (i + 1 >= sdslen(tokens[j])) {
             MYMPD_LOG_ERROR("Can not parse search expression");
-            sdsfree(tag);
-            sdsfree(op);
-            sdsfree(value);
+            FREE_SDS(tag);
+            FREE_SDS(op);
+            FREE_SDS(value);
             break;
         }
         i++;
@@ -476,9 +477,9 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
         }
         if (i + 2 >= sdslen(tokens[j])) {
             MYMPD_LOG_ERROR("Can not parse search expression");
-            sdsfree(tag);
-            sdsfree(op);
-            sdsfree(value);
+            FREE_SDS(tag);
+            FREE_SDS(op);
+            FREE_SDS(value);
             break;
         }
         i = i + 2;
@@ -500,9 +501,9 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
             list_push(&expr_list, value, tag_type, op , NULL);
         }
         MYMPD_LOG_DEBUG("Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, value);
-        sdsfree(tag);
-        sdsfree(op);
-        sdsfree(value);
+        FREE_SDS(tag);
+        FREE_SDS(op);
+        FREE_SDS(value);
     }
     sdsfreesplitres(tokens, count);
     
@@ -539,7 +540,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
         }
     }
     raxStop(&iter);
-    sdsfree(key);
+    FREE_SDS(key);
     list_free(&expr_list);
     
     //print album list
@@ -569,8 +570,8 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
             break;
         }
     }
-    sdsfree(album);
-    sdsfree(artist);
+    FREE_SDS(album);
+    FREE_SDS(artist);
     entity_count = album_list.length;
     list_free_keep_user_data(&album_list);
 
@@ -633,7 +634,7 @@ sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds met
             }
             entity_count++;
         }
-        sdsfree(value_lower);
+        FREE_SDS(value_lower);
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
@@ -656,7 +657,7 @@ sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds met
         }
         //ignore error
     }
-    sdsfree(pic_path);
+    FREE_SDS(pic_path);
 
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalEntities", -1, true);
@@ -708,14 +709,14 @@ static bool _search_song(struct mpd_song *song, struct list *expr_list, struct t
                 break;
             }
         }
-        sdsfree(key_lower);
+        FREE_SDS(key_lower);
         if (rc == false) {
-            sdsfree(value);
+            FREE_SDS(value);
             return false;
         }
         current = current->next;
     }
-    sdsfree(value);
+    FREE_SDS(value);
     return true;
 }
 

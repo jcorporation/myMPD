@@ -57,7 +57,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     //set state
     sds buffer = sdsempty();
     buffer = mpd_client_put_state(mympd_state, buffer, NULL, 0);
-    sdsfree(buffer);
+    FREE_SDS(buffer);
 
     if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 21, 0) >= 0) {
         mympd_state->mpd_state->feat_single_oneshot = true;
@@ -213,7 +213,7 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
     else {
         mympd_state->mpd_state->tag_albumartist = MPD_TAG_ARTIST;
     }
-    sdsfree(logline);
+    FREE_SDS(logline);
 }
 
 static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state) {

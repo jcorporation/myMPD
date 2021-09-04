@@ -8,6 +8,7 @@
 #include "mympd_pin.h"
 
 #include "log.h"
+#include "sds_extras.h"
 #include "state_files.h"
 
 #include <stdio.h>
@@ -48,7 +49,7 @@ void set_pin(sds workdir) {
         hex_hash = hash_pin(pin);
     }
     bool rc = state_file_write(workdir, "config", "pin_hash", hex_hash);
-    sdsfree(hex_hash);
+    FREE_SDS(hex_hash);
     tcsetattr(fileno(stdin), TCSAFLUSH, &old);
     printf("\n");
     if (rc == true) {
@@ -59,7 +60,7 @@ void set_pin(sds workdir) {
             printf("Pin is now cleared, restart myMPD to apply.\n");
         }
     }
-    sdsfree(pin);
+    FREE_SDS(pin);
 }
 
 bool validate_pin(const char *pin, const char *pin_hash) {
@@ -76,7 +77,7 @@ bool validate_pin(const char *pin, const char *pin_hash) {
     else {
         MYMPD_LOG_ERROR("Invalid pin entered");
     }
-    sdsfree(test_hash);
+    FREE_SDS(test_hash);
     return rc;
 }
 

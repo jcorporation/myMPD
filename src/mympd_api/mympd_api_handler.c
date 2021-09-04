@@ -270,7 +270,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
                         "general", "error", "Invalid column");
                 }
-                sdsfree(cols);
+                FREE_SDS(cols);
             }
             break;
         }
@@ -325,14 +325,14 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                     //feature detection
                     mpd_client_mpd_features(mympd_state);
                 }
-                sdsfree(new_mpd_settings);
+                FREE_SDS(new_mpd_settings);
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             }
             else {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                     "mpd", "error", "Can't save settings");
             }
-            sdsfree(old_mpd_settings);
+            FREE_SDS(old_mpd_settings);
             break;
         }
         case MYMPD_API_COVERCACHE_CROP:
@@ -606,7 +606,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             if (json_get_string(request->data, "$.params.uri", 0, 200, &sds_buf1, vcb_isfilepath, &error) == true) {
                 if (sdslen(sds_buf1) == 0) {
                     //path should be NULL to scan root directory
-                    sdsfree(sds_buf1);
+                    FREE_SDS(sds_buf1);
                     sds_buf1 = NULL;
                 }
                 if (request->cmd_id == MYMPD_API_DATABASE_UPDATE) {
@@ -1171,12 +1171,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             MYMPD_LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
     }
    
-    sdsfree(sds_buf1);
-    sdsfree(sds_buf2);
-    sdsfree(sds_buf3);
-    sdsfree(sds_buf4);
-    sdsfree(sds_buf5);
-    sdsfree(sds_buf6);
+    FREE_SDS(sds_buf1);
+    FREE_SDS(sds_buf2);
+    FREE_SDS(sds_buf3);
+    FREE_SDS(sds_buf4);
+    FREE_SDS(sds_buf5);
+    FREE_SDS(sds_buf6);
 
     #ifdef DEBUG
     MEASURE_END
@@ -1184,7 +1184,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
     #endif
 
     if (async == true) {
-        sdsfree(error);
+        FREE_SDS(error);
         return;
     }
 
@@ -1193,7 +1193,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             "general", "error", error);
         MYMPD_LOG_ERROR("Error processing method \"%s\"", request->method);
     }
-    sdsfree(error);
+    FREE_SDS(error);
     if (sdslen(response->data) == 0) {
         response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true, 
             "general", "error", "No response for method %{method}", 2, "method", request->method);

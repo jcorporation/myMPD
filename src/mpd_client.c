@@ -9,6 +9,7 @@
 
 #include "lib/jsonrpc.h"
 #include "lib/log.h"
+#include "lib/sds_extras.h"
 #include "lib/utility.h"
 #include "mpd_client/mpd_client_features.h"
 #include "mpd_client/mpd_client_jukebox.h"
@@ -118,7 +119,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
             if (sdslen(buffer) > 0) {
                 ws_notify(buffer);
             }
-            sdsfree(buffer);
+            FREE_SDS(buffer);
         }
     }
 }
@@ -179,7 +180,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 MYMPD_LOG_ERROR("MPD connection to failed: out-of-memory");
                 buffer = jsonrpc_event(buffer, "mpd_disconnected");
                 ws_notify(buffer);
-                sdsfree(buffer);
+                FREE_SDS(buffer);
                 mympd_state->mpd_state->conn_state = MPD_FAILURE;
                 mpd_connection_free(mympd_state->mpd_state->conn);
                 return;
@@ -190,7 +191,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 buffer = jsonrpc_notify_phrase(buffer, "mpd", "error", "MPD connection error: %{error}", 
                     2, "error", mpd_connection_get_error_message(mympd_state->mpd_state->conn));
                 ws_notify(buffer);
-                sdsfree(buffer);
+                FREE_SDS(buffer);
                 mympd_state->mpd_state->conn_state = MPD_FAILURE;
                 return;
             }
@@ -200,7 +201,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 buffer = jsonrpc_notify_phrase(buffer, "mpd", "error", "MPD connection error: %{error}", 2, 
                     "error", mpd_connection_get_error_message(mympd_state->mpd_state->conn));
                 ws_notify(buffer);
-                sdsfree(buffer);
+                FREE_SDS(buffer);
                 mympd_state->mpd_state->conn_state = MPD_FAILURE;
                 return;
             }
@@ -356,7 +357,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
         default:
             MYMPD_LOG_ERROR("Invalid mpd connection state");
     }
-    sdsfree(buffer);
+    FREE_SDS(buffer);
 }
 
 static bool update_mympd_caches(struct t_mympd_state *mympd_state) {

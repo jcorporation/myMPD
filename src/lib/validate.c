@@ -7,9 +7,9 @@
 #include "mympd_config_defs.h"
 #include "validate.h"
 
-#include "../../dist/src/sds/sds.h"
 #include "../../dist/src/utf8decode/utf8decode.h"
 #include "log.h"
+#include "sds_extras.h"
 
 #include <ctype.h>
 #include <limits.h>

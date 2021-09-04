@@ -9,6 +9,7 @@
 
 #include "log.h"
 #include "mimetype.h"
+#include "sds_extras.h"
 #include "utility.h"
 
 #include <dirent.h>
@@ -51,11 +52,11 @@ bool write_covercache_file(const char *workdir, const char *uri, const char *mim
             }
         }
         MYMPD_LOG_DEBUG("Write covercache file \"%s\" for uri \"%s\"", cover_file, uri);
-        sdsfree(cover_file);
+        FREE_SDS(cover_file);
         rc = true;
     }
-    sdsfree(tmp_file);
-    sdsfree(filename);
+    FREE_SDS(tmp_file);
+    FREE_SDS(filename);
     return rc;
 }
 
@@ -94,13 +95,13 @@ int clear_covercache(const char *workdir, int keepdays) {
             }
         }
         closedir(covercache_dir);
-        sdsfree(filepath);
+        FREE_SDS(filepath);
     }
     else {
         MYMPD_LOG_ERROR("Error opening directory %s", covercache);
         MYMPD_LOG_ERRNO(errno);
     }
     MYMPD_LOG_NOTICE("Deleted %d files from covercache", num_deleted);
-    sdsfree(covercache);
+    FREE_SDS(covercache);
     return error == false ? num_deleted : -1;
 }

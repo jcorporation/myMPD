@@ -52,11 +52,11 @@ void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state) {
 }
 
 void mpd_shared_free_mpd_state(struct t_mpd_state *mpd_state) {
-    sdsfree(mpd_state->mpd_host);
-    sdsfree(mpd_state->mpd_pass);
-    sdsfree(mpd_state->song_uri);
-    sdsfree(mpd_state->last_song_uri);
-    sdsfree(mpd_state->tag_list);
+    FREE_SDS(mpd_state->mpd_host);
+    FREE_SDS(mpd_state->mpd_pass);
+    FREE_SDS(mpd_state->song_uri);
+    FREE_SDS(mpd_state->last_song_uri);
+    FREE_SDS(mpd_state->tag_list);
     FREE_PTR(mpd_state);
 }
 

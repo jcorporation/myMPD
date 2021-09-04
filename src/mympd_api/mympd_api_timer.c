@@ -223,10 +223,10 @@ void truncate_timerlist(struct t_timer_list *l) {
 }
 
 void free_timer_definition(struct t_timer_definition *timer_def) {
-    sdsfree(timer_def->name);
-    sdsfree(timer_def->action);
-    sdsfree(timer_def->subaction);
-    sdsfree(timer_def->playlist);
+    FREE_SDS(timer_def->name);
+    FREE_SDS(timer_def->action);
+    FREE_SDS(timer_def->subaction);
+    FREE_SDS(timer_def->playlist);
     list_free(&timer_def->arguments);
     FREE_PTR(timer_def);
 }
@@ -284,10 +284,10 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, sds
 
     MYMPD_LOG_ERROR("Error parsing timer definition");
     list_free(&timer_def->arguments);
-    sdsfree(timer_def->name);
-    sdsfree(timer_def->action);
-    sdsfree(timer_def->subaction);
-    sdsfree(timer_def->playlist);
+    FREE_SDS(timer_def->name);
+    FREE_SDS(timer_def->action);
+    FREE_SDS(timer_def->subaction);
+    FREE_SDS(timer_def->playlist);
     free(timer_def);
 
     return NULL;
@@ -429,9 +429,9 @@ bool timerfile_read(struct t_mympd_state *mympd_state) {
                 MYMPD_LOG_ERROR("Invalid timer line");
                 MYMPD_LOG_DEBUG("Errorneous line: %s", line);
             }
-            sdsfree(param);
+            FREE_SDS(param);
         }
-        sdsfree(line);
+        FREE_SDS(line);
         fclose(fp);
     }
     else {
@@ -439,7 +439,7 @@ bool timerfile_read(struct t_mympd_state *mympd_state) {
         MYMPD_LOG_DEBUG("Can not open file \"%s\"", timer_file);
         MYMPD_LOG_ERRNO(errno);
     }
-    sdsfree(timer_file);
+    FREE_SDS(timer_file);
     MYMPD_LOG_INFO("Read %d timer(s) from disc", mympd_state->timer_list.length);
     return true;
 }
@@ -452,7 +452,7 @@ bool timerfile_save(struct t_mympd_state *mympd_state) {
     if (fd < 0) {
         MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(tmp_file);
+        FREE_SDS(tmp_file);
         return false;
     }
     FILE *fp = fdopen(fd, "w");
@@ -495,18 +495,18 @@ bool timerfile_save(struct t_mympd_state *mympd_state) {
         current = current->next;
     }
     fclose(fp);
-    sdsfree(buffer);
+    FREE_SDS(buffer);
     sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer_list", mympd_state->config->workdir);
     errno = 0;
     if (rename(tmp_file, timer_file) == -1) {
         MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, timer_file);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(tmp_file);
-        sdsfree(timer_file);
+        FREE_SDS(tmp_file);
+        FREE_SDS(timer_file);
         return false;
     }
-    sdsfree(tmp_file);
-    sdsfree(timer_file);
+    FREE_SDS(tmp_file);
+    FREE_SDS(timer_file);
     return true;    
 }
 

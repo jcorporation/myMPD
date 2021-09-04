@@ -51,10 +51,10 @@ sds get_mpd_conf(const char *key, const char *default_value, validate_callback v
     if (fp == NULL) {
         MYMPD_LOG_WARN("Error opening MPD configuration file \"%s\": ", mpd_conf);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(mpd_conf);
+        FREE_SDS(mpd_conf);
         return last_value;
     }
-    sdsfree(mpd_conf);
+    FREE_SDS(mpd_conf);
     sds line = sdsempty();
     sds name;
     sds value;
@@ -93,12 +93,12 @@ sds get_mpd_conf(const char *key, const char *default_value, validate_callback v
                     }
                 }
             }
-            sdsfree(name);
-            sdsfree(value);
+            FREE_SDS(name);
+            FREE_SDS(value);
         }
     }
     fclose(fp);
-    sdsfree(line);
+    FREE_SDS(line);
     return last_value;
 }
 

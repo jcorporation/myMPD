@@ -50,7 +50,7 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
     if (dir == NULL) {
         MYMPD_LOG_ERROR("Can't open smart playlist directory \"%s\"", dirname);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(dirname);
+        FREE_SDS(dirname);
         return false;
     }
     struct dirent *next_file;
@@ -69,7 +69,7 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
         }
     }
     closedir (dir);
-    sdsfree(dirname);
+    FREE_SDS(dirname);
     return true;
 }
 
@@ -89,7 +89,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
     if (fp == NULL) {
         MYMPD_LOG_ERROR("Cant open smart playlist file \"%s\"", playlist);
-        sdsfree(filename);
+        FREE_SDS(filename);
         return false;
     }
     sds content = sdsempty();
@@ -97,7 +97,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
 
     if (json_get_string(content, "$.type", 1, 200, &smartpltype, vcb_isalnum, NULL) != true) {
         MYMPD_LOG_ERROR("Cant read smart playlist type from \"%s\"", filename);
-        sdsfree(filename);
+        FREE_SDS(filename);
         return false;
     }
     if (strcmp(smartpltype, "sticker") == 0) {
@@ -140,18 +140,17 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         }
     }
     if (rc == true) {
-        sdsfree(sds_buf1);
-        sds_buf1 = NULL;
+        FREE_SDS(sds_buf1);
         if (json_get_string(content, "$.sort", 0, 100, &sds_buf1, vcb_ismpdsort, NULL) == true) {
             if (sdslen(sds_buf1) > 0) {
                 mpd_shared_playlist_shuffle_sort(mpd_worker_state->mpd_state, NULL, NULL, 0, playlist, sds_buf1);
             }
         }
     }
-    sdsfree(smartpltype);
-    sdsfree(sds_buf1);
-    sdsfree(content);
-    sdsfree(filename);
+    FREE_SDS(smartpltype);
+    FREE_SDS(sds_buf1);
+    FREE_SDS(content);
+    FREE_SDS(filename);
     return rc;
 }
 
@@ -194,10 +193,10 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
                 expression = escape_mpd_search_expression(expression, tagstr, "==", current->key);
                 expression = sdscat(expression, ")");
                 mpd_shared_smartpls_save(mpd_worker_state->config->workdir, "search", playlist, expression, 0, 0, mpd_worker_state->smartpls_sort);
-                sdsfree(expression);
+                FREE_SDS(expression);
             }
-            sdsfree(playlist);
-            sdsfree(plpath);
+            FREE_SDS(playlist);
+            FREE_SDS(plpath);
             current = current->next;
         }
         list_free(&tag_list);
@@ -243,7 +242,7 @@ static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_wor
     mpd_worker_smartpls_clear(mpd_worker_state, playlist);
     sds buffer = sdsempty();
     buffer = mpd_shared_search_adv(mpd_worker_state->mpd_state, buffer, NULL, 0, expression, NULL, true, NULL, playlist, 0, 0, NULL, NULL);
-    sdsfree(buffer);
+    FREE_SDS(buffer);
     MYMPD_LOG_INFO("Updated smart playlist %s", playlist);
     return true;
 }
@@ -351,10 +350,10 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
     if (value_max > 0) {
         sds searchstr = sdscatprintf(sdsempty(), "(modified-since '%lu')", value_max);
         buffer = mpd_shared_search_adv(mpd_worker_state->mpd_state, buffer, method, 0, searchstr, NULL, true, NULL, playlist, 0, 0, NULL, NULL);
-        sdsfree(searchstr);
+        FREE_SDS(searchstr);
         MYMPD_LOG_INFO("Updated smart playlist %s", playlist);
     }
-    sdsfree(buffer);
-    sdsfree(method);
+    FREE_SDS(buffer);
+    FREE_SDS(method);
     return true;
 }

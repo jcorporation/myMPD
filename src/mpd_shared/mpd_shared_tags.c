@@ -114,7 +114,7 @@ sds put_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags
         tag_value = mpd_shared_get_tags(song, MPD_TAG_TITLE, tag_value);
         buffer = tojson_char(buffer, "Title", tag_value, true);
     }
-    sdsfree(tag_value);
+    FREE_SDS(tag_value);
     buffer = tojson_long(buffer, "Duration", mpd_song_get_duration(song), true);
     buffer = tojson_long(buffer, "LastModified", mpd_song_get_last_modified(song), true);
     buffer = tojson_char(buffer, "uri", mpd_song_get_uri(song), false);
@@ -166,7 +166,7 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
     }
     sdsfreesplitres(tokens, tokens_count);
     MYMPD_LOG_NOTICE(logline);
-    sdsfree(logline);
+    FREE_SDS(logline);
 }
 
 bool mpd_shared_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, 

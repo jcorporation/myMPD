@@ -43,7 +43,7 @@ void send_albumart(struct mg_connection *nc, sds data, sds binary) {
         header = sdscat(header, EXTRA_HEADERS_CACHE);
         http_send_header_ok(nc, sdslen(binary), header);
         mg_send(nc, binary, sdslen(binary));
-        sdsfree(header);
+        FREE_SDS(header);
     }
     else {
         //create dummy http message and serve not available image
@@ -51,7 +51,7 @@ void send_albumart(struct mg_connection *nc, sds data, sds binary) {
         populate_dummy_hm(nc, &hm);
         serve_na_image(nc, &hm);
     }
-    sdsfree(sds_buf1);
+    FREE_SDS(sds_buf1);
 }
 
 //returns true if an image is served
@@ -65,13 +65,13 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
     if (sdslen(uri_decoded) == 0) {
         MYMPD_LOG_ERROR("Failed to decode uri");
         serve_na_image(nc, hm);
-        sdsfree(uri_decoded);
+        FREE_SDS(uri_decoded);
         return true;
     }
     if (vcb_isfilepath(uri_decoded) == false) {
         MYMPD_LOG_ERROR("Invalid URI: %s", uri_decoded);
         serve_na_image(nc, hm);
-        sdsfree(uri_decoded);
+        FREE_SDS(uri_decoded);
         return true;
     }
     MYMPD_LOG_DEBUG("Handle albumart for uri \"%s\"", uri_decoded);
@@ -81,7 +81,7 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
         if (strlen(name) < 4) {
             MYMPD_LOG_ERROR("Uri to short");
             serve_na_image(nc, hm);
-            sdsfree(uri_decoded);
+            FREE_SDS(uri_decoded);
             return true;
         }
         name += 3;
@@ -98,8 +98,8 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
         else {
             serve_stream_image(nc, hm);
         }
-        sdsfree(coverfile);
-        sdsfree(uri_decoded);
+        FREE_SDS(coverfile);
+        FREE_SDS(uri_decoded);
         return true;
     }
     //remove /albumart/
@@ -110,19 +110,19 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
         sds filename = sdsdup(uri_decoded);
         uri_to_filename(filename);
         sds covercachefile = sdscatfmt(sdsempty(), "%s/covercache/%s", config->workdir, filename);
-        sdsfree(filename);
+        FREE_SDS(filename);
         covercachefile = find_image_file(covercachefile);
         if (sdslen(covercachefile) > 0) {
             const char *mime_type = get_mime_type_by_ext(covercachefile);
             MYMPD_LOG_DEBUG("Serving file %s (%s)", covercachefile, mime_type);
             mg_http_serve_file(nc, hm, covercachefile, mime_type, EXTRA_HEADERS_CACHE);
-            sdsfree(uri_decoded);
-            sdsfree(covercachefile);
+            FREE_SDS(uri_decoded);
+            FREE_SDS(covercachefile);
             return true;
         }
 
         MYMPD_LOG_DEBUG("No covercache file found");
-        sdsfree(covercachefile);
+        FREE_SDS(covercachefile);
     }
     
     //create absolute file
@@ -146,27 +146,27 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
                     const char *mime_type = get_mime_type_by_ext(coverfile);
                     MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
                     mg_http_serve_file(nc, hm, coverfile, mime_type, EXTRA_HEADERS_CACHE);
-                    sdsfree(uri_decoded);
-                    sdsfree(coverfile);
-                    sdsfree(mediafile);
-                    sdsfree(path); 
+                    FREE_SDS(uri_decoded);
+                    FREE_SDS(coverfile);
+                    FREE_SDS(mediafile);
+                    FREE_SDS(path); 
                     return true;
                 }
-                sdsfree(coverfile);
+                FREE_SDS(coverfile);
             }
             MYMPD_LOG_DEBUG("No cover file found in music directory");
-            sdsfree(path);
+            FREE_SDS(path);
         }
 
         //try to extract albumart from media file
         bool rc = handle_coverextract(nc, config, uri_decoded, mediafile, mg_user_data->covercache);
         if (rc == true) {
-            sdsfree(uri_decoded);
-            sdsfree(mediafile);
+            FREE_SDS(uri_decoded);
+            FREE_SDS(mediafile);
             return true;
         }
     }
-    sdsfree(mediafile);
+    FREE_SDS(mediafile);
 
     //ask mpd
     if (mg_user_data->feat_mpd_albumart == true) {
@@ -175,12 +175,12 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
         request->data = tojson_char(request->data, "uri", uri_decoded, false);
         request->data = sdscat(request->data, "}}");
         tiny_queue_push(mympd_api_queue, request, 0);
-        sdsfree(uri_decoded);
+        FREE_SDS(uri_decoded);
         return false;
     }
 
     MYMPD_LOG_INFO("No coverimage found for \"%s\"", uri_decoded);
-    sdsfree(uri_decoded);
+    FREE_SDS(uri_decoded);
     serve_na_image(nc, hm);
     return true;
 }
@@ -210,9 +210,9 @@ static bool handle_coverextract(struct mg_connection *nc, struct t_config *confi
         header = sdscat(header, EXTRA_HEADERS_CACHE);
         http_send_header_ok(nc, sdslen(binary), header);
         mg_send(nc, binary, sdslen(binary));
-        sdsfree(header);
+        FREE_SDS(header);
     }
-    sdsfree(binary);
+    FREE_SDS(binary);
     return rc;
 }
 
