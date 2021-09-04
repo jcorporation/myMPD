@@ -165,12 +165,6 @@ Pos
 Invalid API request
 Richiesta API non valida
 
-Failed to set like, invalid like value
-Impossibile applicare il like, valore de like non valido
-
-Failed to set like, invalid song uri
-Impossibile applicare il like, URI della canzone non valido
-
 Database
 Database
 
@@ -752,9 +746,6 @@ Tutti i brani sono stati aggiunti
 
 Queue replaced with %{name}
 Coda sostituita con %{name}
-
-Saved smart playlist %{name}
-Lista di riproduzione %{name} salvata
 
 Focus table
 Focus table
@@ -1376,9 +1367,6 @@ Home
 
 Homescreen welcome
 Benvenuto
-
-Invalid uri
-URI non valido
 
 Invalid volume level
 Livello volume non valido

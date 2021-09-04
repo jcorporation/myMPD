@@ -183,12 +183,6 @@ Pos
 Invalid API request
 Ungültiger API Befehl
 
-Failed to set like, invalid like value
-Wertung konnte nicht gesetzt werden, ungültiger Wert
-
-Failed to set like, invalid song uri
-Wertung konnte nicht gesetzt werden, ungültige Lied URL
-
 LastPlayed
 Zuletzt gespielt
 
@@ -266,9 +260,6 @@ Stream URL
 
 http://uri.to/stream.mp3
 http://url.zum/stream.mp3
-
-Invalid URI
-Ungültige URL
 
 Please choose playlist
 Bitte Wiedergabeliste auswählen
@@ -732,9 +723,6 @@ Neue Wiedergabeliste
 never
 noch nie
 
-Failed to save smart playlist
-Intelligente Wiedergabeliste konnte nicht gespeichert werden
-
 Added %{uri} to playlist %{playlist}
 %{uri} zu Wiedergabeliste %{playlist} hinzugefügt
 
@@ -800,9 +788,6 @@ Alle Lieder hinzugefügt
 
 Queue replaced with %{name}
 Warteschlange mit %{name} ersetzt
-
-Saved smart playlist %{name}
-Intelligente Wiedergabeliste %{name} gespeichert
 
 Focus table
 In Tabelle navigieren
@@ -1497,7 +1482,7 @@ Folgende Tags sollten gepflegt und aktiviert sein: Artist, AlbumArtist, Album, T
 Failed to set like, unknown error
 Like konnte nicht gesetzt werden - unbekannter Fehler
 
-Invalid uri
+Invalid URI
 Ungültige URI
 
 Stop
@@ -1587,9 +1572,6 @@ Bist du sicher?
 
 Do you really want to clear the queue?
 Willst du die Warteschlange wirklich leeren?
-
-Number of songs to high
-Die Anzahl der Lieder ist zu hoch
 
 Playback controls
 Wiedergabe Steuerelemente
@@ -1881,3 +1863,12 @@ Pin eingeben
 
 Invalid script content
 Ungültige Zeichen im Skript
+
+Error in clearing the covercache
+Fehler beim Bereinigen des Covercaches
+
+Error in cropping covercache
+Fehler beim Abschneides des Covercaches
+
+Saved smart playlist
+Intelligente Wiedergabeliste wurde gespichert

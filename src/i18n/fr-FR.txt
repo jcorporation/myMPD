@@ -165,12 +165,6 @@ Pos
 Invalid API request
 Requête API non valide
 
-Failed to set like, invalid like value
-Like non appliqué, valeur de like non valide
-
-Failed to set like, invalid song uri
-Like non appliqué, URI de la chanson non valide
-
 Database
 Base de données
 
@@ -752,9 +746,6 @@ Toutes les chansons ont été ajoutées
 
 Queue replaced with %{name}
 Queue remplacée par %{name}
-
-Saved smart playlist %{name}
-Liste de lecture %{name} enregistrée
 
 Focus table
 Focus table (trad non trouvée)

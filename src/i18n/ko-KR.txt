@@ -183,12 +183,6 @@ Pos
 Invalid API request
 잘못된 API 요구
 
-Failed to set like, invalid like value
-잘못된 값으로 좋아요 설정 안 됨
-
-Failed to set like, invalid song uri
-잘못된 곡 주소로 좋아요 설정 안 됨
-
 LastPlayed
 앞서 연주함
 
@@ -732,9 +726,6 @@ New playlist
 never
 안 함
 
-Failed to save smart playlist
-스마트 연주목록 저장 안 됨
-
 Added %{uri} to playlist %{playlist}
 %{uri}의 %{playlist} 연주목록 추가에 실패함
 
@@ -800,9 +791,6 @@ Added all songs
 
 Queue replaced with %{name}
 %{name} 순서 바꿈
-
-Saved smart playlist %{name}
-%{name} 스마트 연주목록 저장함
 
 Focus table
 목록에서 찾기
@@ -1491,9 +1479,6 @@ MaintainEnableTagsText
 Failed to set like, unknown error
 좋아요 설정 안 됨, 알 수 없는 오류
 
-Invalid uri
-잘못된 URI
-
 Stop
 정지
 
@@ -1581,9 +1566,6 @@ Are you sure?
 
 Do you really want to clear the queue?
 캐시를 지울까요?
-
-Number of songs to high
-곡이 너무 많음
 
 Playback controls
 연주 관리

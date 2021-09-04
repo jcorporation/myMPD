@@ -162,12 +162,6 @@ Pos
 Invalid API request
 Solicitud API incorrecta
 
-Failed to set like, invalid like value
-Error al establecer me gusta, no válido
-
-Failed to set like, invalid song uri
-Error al establecer me gusta, URI de canción inválido
-
 Database
 Base de datos
 
@@ -746,9 +740,6 @@ Agregadas todas las canciones
 
 Queue replaced with %{name}
 Cola de reproducción reemplazada con %{name}
-
-Saved smart playlist %{name}
-Lista de reproducción inteligente guardada: %{name}
 
 Focus table
 Centrar en tabla

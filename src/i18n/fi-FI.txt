@@ -162,12 +162,6 @@ Pos
 Invalid API request
 Virheellinen API pyyntö
 
-Failed to set like, invalid like value
-Tykkäystä ei voitu asettaa, virheellinen tykkäys arvo
-
-Failed to set like, invalid song uri
-Tykkäystä ei voitu asettaa, virheellinen kappaleen URI
-
 Database
 Tietokanta
 
@@ -749,9 +743,6 @@ Kaikki kappaleet lisätty
 
 Queue replaced with %{name}
 Jono korvattu %{name}:lla
-
-Saved smart playlist %{name}
-Älykäs soittolista %{name} tallennettu
 
 Focus table
 Tarkenna taulu
