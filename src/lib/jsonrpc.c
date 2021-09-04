@@ -21,7 +21,7 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
 static void _set_parse_error(sds *error, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    if (error != NULL) {
+    if (error != NULL && *error != NULL) {
         *error = sdscatvprintf(*error, fmt, args); // NOLINT(clang-diagnostic-format-nonliteral)
         MYMPD_LOG_WARN(*error);
     }
@@ -295,7 +295,7 @@ bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *resul
 }
 
 static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, sds *error) {
-    if (result != NULL && *result != NULL) {
+    if (*result != NULL) {
         MYMPD_LOG_ERROR("Result parameter must be NULL, path: \"%s\"", path);
         return false;
     }
