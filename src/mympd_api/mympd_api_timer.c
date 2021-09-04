@@ -118,16 +118,7 @@ bool replace_timer(struct t_timer_list *l, unsigned int timeout, int interval, t
 bool add_timer(struct t_timer_list *l, unsigned int timeout, int interval, time_handler handler, 
                int timer_id, struct t_timer_definition *definition, void *user_data) 
 {
-    if (l->length == 100) {
-        MYMPD_LOG_ERROR("Maximum number of timers (100) reached");
-        return false;
-    }
-
     struct t_timer_node *new_node = (struct t_timer_node *)malloc_assert(sizeof(struct t_timer_node));
-    if (new_node == NULL) {
-        return false;
-    }
- 
     new_node->callback = handler;
     new_node->definition = definition;
     new_node->user_data = user_data;
@@ -405,37 +396,47 @@ bool timerfile_read(struct t_mympd_state *mympd_state) {
     sds line = sdsempty();
     errno = 0;
     FILE *fp = fopen(timer_file, OPEN_FLAGS_READ);
-    if (fp != NULL) {
-        while (sdsgetline(&line, fp, 1000) == 0) {
-            struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
-            sds param = sdscatfmt(sdsempty(), "{\"params\":%s}", line);
-            timer_def = parse_timer(timer_def, param, NULL);
-            int interval;
-            int timerid;            
-            if (timer_def != NULL &&
-                json_get_int(param, "$.params.interval", -1, 604800, &interval, NULL) == true &&
-                json_get_int(param, "$.params.timerid", 101, 200, &timerid, NULL) == true) 
-            {
-                if (timerid > mympd_state->timer_list.last_id) {
-                    mympd_state->timer_list.last_id = timerid;
-                }
-                time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute, interval);
-                add_timer(&mympd_state->timer_list, start, interval, timer_handler_select, timerid, timer_def, NULL);
-            }
-            else {
-                MYMPD_LOG_ERROR("Invalid timer line");
-                MYMPD_LOG_DEBUG("Errorneous line: %s", line);
-            }
-            FREE_SDS(param);
-        }
-        FREE_SDS(line);
-        fclose(fp);
-    }
-    else {
+    if (fp == NULL) {
         //ignore error
         MYMPD_LOG_DEBUG("Can not open file \"%s\"", timer_file);
-        MYMPD_LOG_ERRNO(errno);
+        if (errno != ENOENT) {
+            MYMPD_LOG_ERRNO(errno);
+        }
+        FREE_SDS(timer_file);
+        return false;
     }
+    int i = 0;
+    sds param = sdsempty();
+    while (sdsgetline(&line, fp, 1000) == 0) {
+        if (i > 99) {
+            MYMPD_LOG_WARN("Too many timers defined");
+            break;
+        }
+        struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
+        sdsclear(param);
+        param = sdscatfmt(param, "{\"params\":%s}", line);
+        timer_def = parse_timer(timer_def, param, NULL);
+        int interval;
+        int timerid;            
+        if (timer_def != NULL &&
+            json_get_int(param, "$.params.interval", -1, 604800, &interval, NULL) == true &&
+            json_get_int(param, "$.params.timerid", 101, 200, &timerid, NULL) == true) 
+        {
+            if (timerid > mympd_state->timer_list.last_id) {
+                mympd_state->timer_list.last_id = timerid;
+            }
+            time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute, interval);
+            add_timer(&mympd_state->timer_list, start, interval, timer_handler_select, timerid, timer_def, NULL);
+        }
+        else {
+            MYMPD_LOG_ERROR("Invalid timer line");
+            MYMPD_LOG_DEBUG("Errorneous line: %s", line);
+        }
+        i++;
+    }
+    FREE_SDS(param);
+    FREE_SDS(line);
+    fclose(fp);
     FREE_SDS(timer_file);
     MYMPD_LOG_INFO("Read %d timer(s) from disc", mympd_state->timer_list.length);
     return true;

@@ -356,6 +356,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_TIMER_SAVE: {
+            if (mympd_state->timer_list.length > 99) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
+                        "timer", "error", "Too many timers defined");
+                break;
+            }
             struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
             timer_def = parse_timer(timer_def, request->data, &error);
             if (timer_def != NULL &&
@@ -452,6 +457,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_TRIGGER_SAVE: {
+            if (mympd_state->triggers.length > 99) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "trigger", "error", "Too many triggers defined");
+                break;
+            }
+
             //malloc list - it is used in trigger list
             struct list *arguments = list_new();
             list_init(arguments);

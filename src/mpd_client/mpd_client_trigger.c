@@ -181,39 +181,45 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
     sds line = sdsempty();
     errno = 0;
     FILE *fp = fopen(trigger_file, OPEN_FLAGS_READ);
-    if (fp != NULL) {
-        while (sdsgetline(&line, fp, 1000) == 0) {
-            if (validate_json(line) == false) {
-                MYMPD_LOG_ERROR("Invalid line");
-                break;
-            }
-            sds name = NULL;
-            sds script = NULL;
-            int event;
-            struct list *arguments = list_new();
-            list_init(arguments);
-            if (json_get_string(line, "$.name", 1, 200, &name, vcb_isfilename, NULL) == true &&
-                json_get_string(line, "$.script", 0, 200, &script, vcb_isfilename, NULL) == true &&
-                json_get_int_max(line, "$.event", &event, NULL) == true &&
-                json_get_object_string(line, "$.arguments", arguments, vcb_isname, 10, NULL))
-            {
-                list_push(&mympd_state->triggers, name, event, script, arguments);
-            }
-            else {
-                list_free(arguments);
-            }
-            FREE_SDS(name);
-            FREE_SDS(script);
-        }
-        FREE_SDS(line);
-        fclose(fp);
-    }
-    else {
+    if (fp == NULL) {
         MYMPD_LOG_DEBUG("Can not open file \"%s\"", trigger_file);
         if (errno != ENOENT) {
             MYMPD_LOG_ERRNO(errno);
         }
+        FREE_SDS(trigger_file);
+        return false;
     }
+    int i = 0;
+    while (sdsgetline(&line, fp, 1000) == 0) {
+        if (i > 99) {
+            MYMPD_LOG_WARN("Too many triggers defined");
+            break;
+        }
+        if (validate_json(line) == false) {
+            MYMPD_LOG_ERROR("Invalid line");
+            break;
+        }
+        sds name = NULL;
+        sds script = NULL;
+        int event;
+        struct list *arguments = list_new();
+        list_init(arguments);
+        if (json_get_string(line, "$.name", 1, 200, &name, vcb_isfilename, NULL) == true &&
+            json_get_string(line, "$.script", 0, 200, &script, vcb_isfilename, NULL) == true &&
+            json_get_int_max(line, "$.event", &event, NULL) == true &&
+            json_get_object_string(line, "$.arguments", arguments, vcb_isname, 10, NULL))
+        {
+            list_push(&mympd_state->triggers, name, event, script, arguments);
+        }
+        else {
+            list_free(arguments);
+        }
+        FREE_SDS(name);
+        FREE_SDS(script);
+        i++;
+    }
+    FREE_SDS(line);
+    fclose(fp);
     MYMPD_LOG_INFO("Read %d triggers(s) from disc", mympd_state->triggers.length);
     FREE_SDS(trigger_file);
     return true;
