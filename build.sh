@@ -1047,7 +1047,12 @@ case "$ACTION" in
 	  check
 	;;
   check_file)
-	  check_file "$2"
+    if [ -z "${2+x}" ]
+    then
+      echo "Usage: $0 $1 <filename>"
+      exit 1
+    fi
+    check_file "$2"
 	;;
 	check_docs)
 	  check_docs
