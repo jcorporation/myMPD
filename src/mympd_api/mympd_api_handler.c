@@ -760,10 +760,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_PLAYER_OUTPUT_LIST:
             if (json_get_string(request->data, "$.params.partition", 0, 200, &sds_buf1, vcb_isname, &error) == true) {
                 if (sdslen(sds_buf1) == 0) {
-                    response->data = mpd_client_put_partition_outputs(mympd_state, response->data, request->method, request->id, sds_buf1);
+                    response->data = mpd_client_put_outputs(mympd_state, response->data, request->method, request->id);
                 }
                 else {
-                    response->data = mpd_client_put_outputs(mympd_state, response->data, request->method, request->id);
+                    response->data = mpd_client_put_partition_outputs(mympd_state, response->data, request->method, request->id, sds_buf1);
                 }
             }
             break;
