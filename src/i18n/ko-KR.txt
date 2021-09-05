@@ -1296,9 +1296,6 @@ New partition
 New trigger
 새 트리거
 
-No outputs
-출력 없음
-
 Output
 출력
 

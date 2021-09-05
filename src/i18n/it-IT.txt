@@ -1242,9 +1242,6 @@ Nuova partition
 New trigger
 Nuovo trigger
 
-No outputs
-Nessuna uscita
-
 Output
 Uscita
 

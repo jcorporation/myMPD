@@ -1239,9 +1239,6 @@ Nieuwe partitie
 New trigger
 Nieuwe trigger
 
-No outputs
-Geen output
-
 Output
 Output
 

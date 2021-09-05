@@ -1296,9 +1296,6 @@ Neue Partition
 New trigger
 Neuer Trigger
 
-No outputs
-Keine Ausgabegeräte
-
 Output
 Ausgabegerät
 
@@ -1872,3 +1869,9 @@ Fehler beim Abschneides des Covercaches
 
 Saved smart playlist
 Intelligente Wiedergabeliste wurde gespichert
+
+Too many timers defined
+Zu viele Timer definiert
+
+Too many triggers defined
+Zu viele Trigger definiert
