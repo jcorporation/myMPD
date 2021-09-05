@@ -180,7 +180,7 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
                     sds ext = get_extension_from_filename(entity_name);
                     if (strcmp(ext, "m3u") != 0 && strcmp(ext, "pls") != 0) {
                         FREE_SDS(ext);
-                        FREE_PTR(entity_name);
+                        FREE_SDS(entity_name);
                         break;
                     }
                     FREE_SDS(ext);

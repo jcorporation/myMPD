@@ -926,7 +926,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             reset_t_tags(&tagcols);          
             if (json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
-                json_get_string(request->data, "$.params.searchstr", 1, 200, &sds_buf1, vcb_isname, &error) == true &&
+                json_get_string(request->data, "$.params.searchstr", 0, 200, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_string(request->data, "$.params.path", 1, 200, &sds_buf2, vcb_isfilepath, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true)
             {
