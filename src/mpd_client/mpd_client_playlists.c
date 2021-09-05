@@ -96,13 +96,12 @@ sds mpd_client_put_playlists(struct t_mympd_state *mympd_state, sds buffer, sds 
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlists") == false) {
         return buffer;
     }
-
     sdstolower(searchstr);
+    size_t search_len = sdslen(searchstr);
 
     struct mpd_playlist *pl;
-    struct list entity_list;
+    struct t_list entity_list;
     list_init(&entity_list);
-    size_t search_len = strlen(searchstr);
     while ((pl = mpd_recv_playlist(mympd_state->mpd_state->conn)) != NULL) {
         const char *plpath = mpd_playlist_get_path(pl);
         sds plpath_lower = sdsnew(plpath);
@@ -126,7 +125,7 @@ sds mpd_client_put_playlists(struct t_mympd_state *mympd_state, sds buffer, sds 
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
     unsigned real_limit = limit == 0 ? offset + MAX_MPD_RESULTS : offset + limit;
-    struct list_node *current = entity_list.head;
+    struct t_list_node *current = entity_list.head;
     while (current != NULL) {
         entity_count++;
         if (entity_count > offset && entity_count <= real_limit) {
@@ -143,7 +142,7 @@ sds mpd_client_put_playlists(struct t_mympd_state *mympd_state, sds buffer, sds 
         }
         current = current->next;
     }
-    list_free(&entity_list);
+    list_clear(&entity_list);
     buffer = sdscat(buffer, "],");
     buffer = tojson_char(buffer, "searchstr", searchstr, true);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
@@ -364,7 +363,7 @@ sds mpd_client_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer
         return buffer;
     }
     
-    struct list playlists;
+    struct t_list playlists;
     list_init(&playlists);
     //get all mpd playlists
     struct mpd_playlist *pl;
@@ -375,7 +374,7 @@ sds mpd_client_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
-        list_free(&playlists);
+        list_clear(&playlists);
         return buffer;
     }
     //delete each smart playlist file that have no corresponding mpd playlist file
@@ -409,7 +408,7 @@ sds mpd_client_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer
     FREE_SDS(smartpls_path);
     
     if (strcmp(type, "deleteEmptyPlaylists") == 0) {
-        struct list_node *current = playlists.head;
+        struct t_list_node *current = playlists.head;
         while (current != NULL) {
             current->value_i = mpd_client_enum_playlist(mympd_state, current->key, true);
             current = current->next;
@@ -417,7 +416,7 @@ sds mpd_client_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer
     }
 
     if (mpd_command_list_begin(mympd_state->mpd_state->conn, false)) {
-        struct list_node *current = playlists.head;
+        struct t_list_node *current = playlists.head;
         while (current != NULL) {
             bool smartpls = false;
             if (strcmp(type, "deleteSmartPlaylists") == 0) {
@@ -445,15 +444,15 @@ sds mpd_client_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer
             mpd_response_finish(mympd_state->mpd_state->conn);
         }
         if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
-            list_free(&playlists);
+            list_clear(&playlists);
             return buffer;
         }
     }
     else if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
-        list_free(&playlists);
+        list_clear(&playlists);
         return buffer;
     }
-    list_free(&playlists);
+    list_clear(&playlists);
     buffer = jsonrpc_respond_message(buffer, method, request_id, false, "playlist", "info", "Playlists deleted");
     return buffer;
 }

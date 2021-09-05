@@ -57,7 +57,7 @@ struct t_mg_user_data {
     int connection_count;
     sds stream_uri;
     bool covercache;
-    struct list session_list;
+    struct t_list session_list;
 };
 
 #ifndef DEBUG

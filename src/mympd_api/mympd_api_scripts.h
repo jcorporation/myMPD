@@ -14,10 +14,10 @@
 #include <stdbool.h>
 
 #ifdef ENABLE_LUA
-    bool mympd_api_script_save(struct t_config *config, const char *script, const char *oldscript, int order, const char *content, struct list *arguments);
+    bool mympd_api_script_save(struct t_config *config, const char *script, const char *oldscript, int order, const char *content, struct t_list *arguments);
     bool mympd_api_script_delete(struct t_config *config, const char *script);
     sds mympd_api_script_get(struct t_config *config, sds buffer, sds method, long request_id, const char *script);
     sds mympd_api_script_list(struct t_config *config, sds buffer, sds method, long request_id, bool all);
-    bool mympd_api_script_start(struct t_config *config, const char *script, struct list *arguments, bool localscript);
+    bool mympd_api_script_start(struct t_config *config, const char *script,  struct t_list *arguments, bool localscript);
 #endif
 #endif

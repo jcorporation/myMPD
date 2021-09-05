@@ -149,7 +149,7 @@ sds mpd_client_put_state(struct t_mympd_state *mympd_state, sds buffer, sds meth
     return buffer;
 }
 
-bool mpd_client_get_lua_mympd_state(struct t_mympd_state *mympd_state, struct list *lua_mympd_state) {
+bool mpd_client_get_lua_mympd_state(struct t_mympd_state *mympd_state, struct t_list *lua_mympd_state) {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
     if (status == NULL) {
         return false;

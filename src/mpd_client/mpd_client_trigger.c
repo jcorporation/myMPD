@@ -19,7 +19,7 @@
 #include <stdlib.h>
 
 //private definitions
-void _trigger_execute(const char *script, struct list *arguments);
+void _trigger_execute(const char *script, struct t_list *arguments);
 
 static const char *const mpd_trigger_names[] = {
     "mpd_database",
@@ -82,11 +82,11 @@ sds print_trigger_list(sds buffer) {
 
 void trigger_execute(struct t_mympd_state *mympd_state, enum trigger_events event) {
     MYMPD_LOG_DEBUG("Trigger event: %s (%d)", trigger_name(event), event);
-    struct list_node *current = mympd_state->triggers.head;
+    struct t_list_node *current = mympd_state->triggers.head;
     while (current != NULL) {
         if (current->value_i == event) {
             MYMPD_LOG_NOTICE("Executing script %s for trigger %s (%d)", current->value_p, trigger_name(event), event);
-            _trigger_execute(current->value_p, (struct list *)current->user_data);
+            _trigger_execute(current->value_p, (struct t_list *)current->user_data);
         }
         current = current->next;
     }
@@ -96,7 +96,7 @@ sds trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int entities_returned = 0;
-    struct list_node *current = mympd_state->triggers.head;
+    struct t_list_node *current = mympd_state->triggers.head;
     int j = 0;
     while (current != NULL) {
         if (entities_returned++) {
@@ -109,8 +109,8 @@ sds trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long
         buffer = tojson_char(buffer, "eventName", trigger_name(current->value_i), true);
         buffer = tojson_char(buffer, "script", current->value_p, true);
         buffer = sdscat(buffer, "\"arguments\": {");
-        struct list *arguments = (struct list *)current->user_data;
-        struct list_node *argument = arguments->head;
+        struct t_list *arguments = ( struct t_list *)current->user_data;
+        struct t_list_node *argument = arguments->head;
         int i = 0;
         while (argument != NULL) {
             if (i++) {
@@ -131,7 +131,7 @@ sds trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long
 }
 
 sds trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, unsigned id) {
-    struct list_node *current = list_node_at(&mympd_state->triggers, id);
+    struct t_list_node *current = list_node_at(&mympd_state->triggers, id);
     if (current != NULL) {
         buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = tojson_long(buffer, "id", id, true);
@@ -139,8 +139,8 @@ sds trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long 
         buffer = tojson_long(buffer, "event", current->value_i, true);
         buffer = tojson_char(buffer, "script", current->value_p, true);
         buffer = sdscat(buffer, "\"arguments\": {");
-        struct list *arguments = (struct list *)current->user_data;
-        struct list_node *argument = arguments->head;
+        struct t_list *arguments = (struct t_list *)current->user_data;
+        struct t_list_node *argument = arguments->head;
         int i = 0;
         while (argument != NULL) {
             if (i++) {
@@ -160,18 +160,18 @@ sds trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long 
 }
 
 bool delete_trigger(struct t_mympd_state *mympd_state, unsigned idx) {
-    struct list_node *toremove = list_node_at(&mympd_state->triggers, idx);
+    struct t_list_node *toremove = list_node_at(&mympd_state->triggers, idx);
     if (toremove != NULL) {
-        list_free((struct list *)toremove->user_data);
+        list_clear((struct t_list *)toremove->user_data);
         return list_shift(&mympd_state->triggers, idx);
     }
     return false;
 }
 
 void free_trigerlist_arguments(struct t_mympd_state *mympd_state) {
-    struct list_node *current = mympd_state->triggers.head;
+    struct t_list_node *current = mympd_state->triggers.head;
     while (current != NULL) {
-        list_free((struct list *)current->user_data);
+        list_clear((struct t_list *)current->user_data);
         current = current->next;
     }
 }
@@ -202,8 +202,7 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
         sds name = NULL;
         sds script = NULL;
         int event;
-        struct list *arguments = list_new();
-        list_init(arguments);
+        struct t_list *arguments = list_new();
         if (json_get_string(line, "$.name", 1, 200, &name, vcb_isfilename, NULL) == true &&
             json_get_string(line, "$.script", 0, 200, &script, vcb_isfilename, NULL) == true &&
             json_get_int_max(line, "$.event", &event, NULL) == true &&
@@ -212,7 +211,7 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
             list_push(&mympd_state->triggers, name, event, script, arguments);
         }
         else {
-            list_free(arguments);
+            list_clear(arguments);
             FREE_PTR(arguments);
         }
         FREE_SDS(name);
@@ -238,7 +237,7 @@ bool triggerfile_save(struct t_mympd_state *mympd_state) {
         return false;
     }
     FILE *fp = fdopen(fd, "w");
-    struct list_node *current = mympd_state->triggers.head;
+    struct t_list_node *current = mympd_state->triggers.head;
     sds buffer = sdsempty();
     while (current != NULL) {
         buffer = sdsreplace(buffer, "{");
@@ -246,8 +245,8 @@ bool triggerfile_save(struct t_mympd_state *mympd_state) {
         buffer = tojson_long(buffer, "event", current->value_i, true);
         buffer = tojson_char(buffer, "script", current->value_p, true);
         buffer = sdscat(buffer, "\"arguments\":{");
-        struct list *arguments = (struct list *)current->user_data;
-        struct list_node *argument = arguments->head;
+        struct t_list *arguments = ( struct t_list *)current->user_data;
+        struct t_list_node *argument = arguments->head;
         int i = 0;
         while (argument != NULL) {
             if (i++) {
@@ -277,11 +276,11 @@ bool triggerfile_save(struct t_mympd_state *mympd_state) {
 }
 
 //private functions
-void _trigger_execute(const char *script, struct list *arguments) {
+void _trigger_execute(const char *script, struct t_list *arguments) {
     t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL);
     request->data = tojson_char(request->data, "script", script, true);
     request->data = sdscat(request->data, "arguments: {");
-    struct list_node *argument = arguments->head;
+    struct t_list_node *argument = arguments->head;
     int i = 0;
     while (argument != NULL) {
         if (i++) {

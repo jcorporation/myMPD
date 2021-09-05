@@ -68,7 +68,7 @@ bool mpd_client_sticker_dequeue(struct t_mympd_state *mympd_state) {
         return false;
     }
     
-    struct list_node *current = mympd_state->sticker_queue.head;
+    struct t_list_node *current = mympd_state->sticker_queue.head;
     while (current != NULL) {
         MYMPD_LOG_DEBUG("Setting %s = %ld for %s", current->value_p, current->value_i, current->key);
         if (strcmp(current->value_p, "playCount") == 0 || strcmp(current->value_p, "skipCount") == 0) {

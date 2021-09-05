@@ -104,7 +104,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
         return buffer;
     }
 
-    struct list plist;
+    struct t_list plist;
     list_init(&plist);
     struct mpd_song *song;
     while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
@@ -117,7 +117,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
     }
     mpd_response_finish(mpd_state->conn);
     if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
-        list_free(&plist);
+        list_clear(&plist);
         return buffer;
     }
     if (sort_tags.tags[0] == MPD_TAG_UNKNOWN) {
@@ -125,7 +125,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
             if (buffer != NULL) {
                 buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to shuffle");
             }
-            list_free(&plist);
+            list_clear(&plist);
             enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
             return buffer;
         }
@@ -136,7 +136,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
                 if (buffer != NULL) {
                     buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to sort");
                 }
-                list_free(&plist);
+                list_clear(&plist);
                 enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
                 return buffer;
             }
@@ -146,7 +146,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
                 if (buffer != NULL) {
                     buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to sort");
                 }
-                list_free(&plist);
+                list_clear(&plist);
                 enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
                 return buffer;
             }
@@ -159,7 +159,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
     
     //add sorted/shuffled songs to a new playlist
     if (mpd_command_list_begin(mpd_state->conn, false) == true) {
-        struct list_node *current = plist.head;
+        struct t_list_node *current = plist.head;
         while (current != NULL) {
             rc = mpd_send_playlist_add(mpd_state->conn, uri_tmp, current->key);
             if (rc == false) {
@@ -172,7 +172,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
             mpd_response_finish(mpd_state->conn);
         }
     }
-    list_free(&plist);
+    list_clear(&plist);
     if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
         rc = mpd_run_rm(mpd_state->conn, uri_tmp);
         check_rc_error_and_recover(mpd_state, NULL, method, request_id, false, rc, "mpd_run_rm");

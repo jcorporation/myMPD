@@ -44,7 +44,7 @@ bool mpd_client_last_played_list_save(struct t_mympd_state *mympd_state) {
     FILE *fp = fdopen(fd, "w");
     //first write last_played list to tmp file
     unsigned i = 0;
-    struct list_node *current = mympd_state->last_played.head;
+    struct t_list_node *current = mympd_state->last_played.head;
     while (current != NULL && i < mympd_state->last_played_count) {
         fprintf(fp, "%ld::%s\n", current->value_i, current->key);
         current = current->next;
@@ -82,7 +82,7 @@ bool mpd_client_last_played_list_save(struct t_mympd_state *mympd_state) {
     FREE_SDS(tmp_file);
     FREE_SDS(lp_file);
     //empt list after write to disc
-    list_free(&mympd_state->last_played);    
+    list_clear(&mympd_state->last_played);    
     return true;
 }
 
@@ -129,7 +129,7 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
     buffer = sdscat(buffer, "\"data\":[");
     
     if (mympd_state->last_played.length > 0) {
-        struct list_node *current = mympd_state->last_played.head;
+        struct t_list_node *current = mympd_state->last_played.head;
         while (current != NULL) {
             entity_count++;
             if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {

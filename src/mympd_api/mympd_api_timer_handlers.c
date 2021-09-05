@@ -52,7 +52,7 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
         t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL);
         request->data = tojson_char(request->data, "script", definition->subaction, true);
         request->data = sdscat(request->data, "arguments: {");
-        struct list_node *argument = definition->arguments.head;
+        struct t_list_node *argument = definition->arguments.head;
         int i = 0;
         while (argument != NULL) {
             if (i++) {

@@ -205,8 +205,8 @@ sds tojson_double(sds buffer, const char *key, double value, bool comma) {
 }
 
 //prints the keys of a list as a json array
-sds list_to_json_array(sds s, struct list *l) {
-    struct list_node *current = l->head;
+sds list_to_json_array(sds s, struct t_list *l) {
+    struct t_list_node *current = l->head;
     int i = 0;
     while (current != NULL) {
         if (i++) {
@@ -439,12 +439,12 @@ static bool icb_json_get_array_string(sds key, sds value, int vtype, validate_ca
         _set_parse_error(error, "Validation of value \"%s\" has failed", value);
         return false;
     }
-    struct list *l = (struct list *)userdata;
+    struct t_list *l = (struct t_list *)userdata;
     list_push(l, value, 0, NULL, NULL);
     return true;
 }
 
-bool json_get_array_string(sds s, const char *path, struct list *l, validate_callback vcb, int max_elements, sds *error) {
+bool json_get_array_string(sds s, const char *path, struct t_list *l, validate_callback vcb, int max_elements, sds *error) {
     return json_iterate_object(s, path, icb_json_get_array_string, l, vcb, max_elements, error);
 }
 
@@ -456,12 +456,12 @@ static bool icb_json_get_object_string(sds key, sds value, int vtype, validate_c
         _set_parse_error(error, "Validation of key \"%s\" with value \"%s\" has failed", key, value);
         return false;
     }
-    struct list *l = (struct list *)userdata;
+    struct t_list *l = (struct t_list *)userdata;
     list_push(l, key, 0, value, NULL);
     return true;
 }
 
-bool json_get_object_string(sds s, const char *path, struct list *l, validate_callback vcb, int max_elements, sds *error) {
+bool json_get_object_string(sds s, const char *path, struct t_list *l, validate_callback vcb, int max_elements, sds *error) {
     return json_iterate_object(s, path, icb_json_get_object_string, l, vcb, max_elements, error);
 }
 

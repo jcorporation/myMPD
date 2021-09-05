@@ -87,12 +87,12 @@ void default_mympd_state(struct t_mympd_state *mympd_state) {
 }
 
 void free_mympd_state(struct t_mympd_state *mympd_state) {
-    list_free(&mympd_state->jukebox_queue);
-    list_free(&mympd_state->jukebox_queue_tmp);
-    list_free(&mympd_state->sticker_queue);
-    list_free(&mympd_state->triggers);
-    list_free(&mympd_state->last_played);
-    list_free(&mympd_state->home_list);
+    list_clear(&mympd_state->jukebox_queue);
+    list_clear(&mympd_state->jukebox_queue_tmp);
+    list_clear(&mympd_state->sticker_queue);
+    list_clear(&mympd_state->triggers);
+    list_clear(&mympd_state->last_played);
+    list_clear(&mympd_state->home_list);
     free_timerlist(&mympd_state->timer_list);
     //mpd state
     mpd_shared_free_mpd_state(mympd_state->mpd_state);
@@ -133,7 +133,7 @@ void free_mympd_state_sds(struct t_mympd_state *mympd_state) {
 }
 
 sds json_to_cols(sds cols, sds s, bool *error) {
-    struct list col_list;
+    struct t_list col_list;
     list_init(&col_list);
     if (json_get_array_string(s, "$.params.cols", &col_list, vcb_iscolumn, 20, NULL) == true) {
         cols = list_to_json_array(cols, &col_list);
@@ -142,6 +142,6 @@ sds json_to_cols(sds cols, sds s, bool *error) {
     else {
         *error = true;
     }
-    list_free(&col_list);
+    list_clear(&col_list);
     return cols;
 }

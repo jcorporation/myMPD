@@ -540,7 +540,7 @@ bool mpdclient_api_options_set(sds key, sds value, int vtype, validate_callback 
     }
     if (jukebox_changed == true && mympd_state->jukebox_queue.length > 0) {
         MYMPD_LOG_INFO("Jukebox options changed, clearing jukebox queue");
-        list_free(&mympd_state->jukebox_queue);
+        list_clear(&mympd_state->jukebox_queue);
     }
     if (write_state_file == true) {
         sds state_filename = camel_to_snake(key);

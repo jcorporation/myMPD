@@ -214,7 +214,7 @@ void free_timer_definition(struct t_timer_definition *timer_def) {
     FREE_SDS(timer_def->action);
     FREE_SDS(timer_def->subaction);
     FREE_SDS(timer_def->playlist);
-    list_free(&timer_def->arguments);
+    list_clear(&timer_def->arguments);
     FREE_PTR(timer_def);
 }
 
@@ -270,7 +270,7 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, sds
     }
 
     MYMPD_LOG_ERROR("Error parsing timer definition");
-    list_free(&timer_def->arguments);
+    list_clear(&timer_def->arguments);
     FREE_SDS(timer_def->name);
     FREE_SDS(timer_def->action);
     FREE_SDS(timer_def->subaction);
@@ -364,7 +364,7 @@ sds timer_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long re
                 buffer = sdscat(buffer, current->definition->weekdays[i] == true ? "true" : "false");
             }
             buffer = sdscat(buffer, "],\"arguments\": {");
-            struct list_node *argument = current->definition->arguments.head;
+            struct t_list_node *argument = current->definition->arguments.head;
             int i = 0;
             while (argument != NULL) {
                 if (i++) {
@@ -476,7 +476,7 @@ bool timerfile_save(struct t_mympd_state *mympd_state) {
                 buffer = sdscat(buffer, current->definition->weekdays[i] == true ? "true" : "false");
             }
             buffer = sdscat(buffer, "],\"arguments\": {");
-            struct list_node *argument = current->definition->arguments.head;
+            struct t_list_node *argument = current->definition->arguments.head;
             int i = 0;
             while (argument != NULL) {
                 if (i++) {

@@ -42,12 +42,12 @@ struct t_script_thread_arg {
     sds script_fullpath;
     sds script_name;
     sds script_content;
-    struct list *arguments;
+    struct t_list *arguments;
 };
 
 static void *mympd_api_script_execute(void *script_thread_arg);
 static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script);
-static void populate_lua_table(lua_State *lua_vm, struct list *lua_mympd_state);
+static void populate_lua_table(lua_State *lua_vm, struct t_list *lua_mympd_state);
 static void populate_lua_table_field_p(lua_State *lua_vm, const char *key, const char *value);
 static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, long value);
 static void populate_lua_table_field_f(lua_State *lua_vm, const char *key, double value);
@@ -124,7 +124,7 @@ bool mympd_api_script_delete(struct t_config *config, const char *script) {
     return true;
 }
 
-bool mympd_api_script_save(struct t_config *config, const char *script, const char *oldscript, int order, const char *content, struct list *arguments) {
+bool mympd_api_script_save(struct t_config *config, const char *script, const char *oldscript, int order, const char *content, struct t_list *arguments) {
     sds tmp_file = sdscatfmt(sdsempty(), "%s/scripts/%.XXXXXX", config->workdir, script);
     errno = 0;
     int fd = mkstemp(tmp_file);
@@ -209,7 +209,7 @@ sds mympd_api_script_get(struct t_config *config, sds buffer, sds method, long r
     return buffer;
 }
 
-bool mympd_api_script_start(struct t_config *config, const char *script, struct list *arguments, bool localscript) {
+bool mympd_api_script_start(struct t_config *config, const char *script, struct t_list *arguments, bool localscript) {
     pthread_t mympd_script_thread;
     pthread_attr_t attr;
     if (pthread_attr_init(&attr) != 0) {
@@ -334,7 +334,7 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     if (rc == 0) {
         if (script_arg->arguments->length > 0) {
             lua_newtable(lua_vm);
-            struct list_node *current = script_arg->arguments->head;
+            struct t_list_node *current = script_arg->arguments->head;
             while (current != NULL) {
                 populate_lua_table_field_p(lua_vm, current->key, current->value_p);
                 current = current->next;
@@ -477,8 +477,8 @@ static void populate_lua_table_field_b(lua_State *lua_vm, const char *key, bool 
     lua_settable(lua_vm, -3);
 }
 
-static void populate_lua_table(lua_State *lua_vm, struct list *lua_mympd_state) {
-    struct list_node *current = lua_mympd_state->head;
+static void populate_lua_table(lua_State *lua_vm, struct t_list *lua_mympd_state) {
+    struct t_list_node *current = lua_mympd_state->head;
     while (current != NULL) {
         struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)current->user_data;
         switch (current->value_i) {
@@ -565,7 +565,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
             if (json_get_string(response->data, "$.result.message", 1, 1000, &sds_buf1, vcb_isname, NULL) == true) {
                 if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
                     MYMPD_LOG_DEBUG("Populating lua global state table mympd");
-                    struct list *lua_mympd_state = (struct list *) response->extra;
+                    struct t_list *lua_mympd_state = (struct t_list *) response->extra;
                     lua_newtable(lua_vm);
                     populate_lua_table(lua_vm, lua_mympd_state);    
                     lua_setglobal(lua_vm, "mympd_state");
@@ -601,7 +601,7 @@ static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_a
     FREE_SDS(script_thread_arg->script_name);
     FREE_SDS(script_thread_arg->script_fullpath);
     FREE_SDS(script_thread_arg->script_content);
-    list_free(script_thread_arg->arguments);
+    list_clear(script_thread_arg->arguments);
     free(script_thread_arg->arguments);
     free(script_thread_arg);
 }

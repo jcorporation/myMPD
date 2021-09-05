@@ -95,7 +95,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "home", "error", "Too many home icons");
                 break;
             }
-            struct list options;
+            struct t_list options;
             list_init(&options);
             if (json_get_bool(request->data, "$.params.replace", &bool_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.oldpos", 0, 99, &uint_buf1, &error) == true &&
@@ -115,7 +115,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "home", "error", "Can not save home icon");
                 }
             }
-            list_free(&options);
+            list_clear(&options);
             break;
         }
         case MYMPD_API_HOME_ICON_MOVE:
@@ -152,7 +152,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         #ifdef ENABLE_LUA
         case MYMPD_API_SCRIPT_SAVE: {
-            struct list arguments;
+            struct t_list arguments;
             list_init(&arguments);
             if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_string(request->data, "$.params.oldscript", 0, 200, &sds_buf2, vcb_isfilename, &error) == true &&
@@ -169,7 +169,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                         "script", "error", "Could not save script");
                 }
             }
-            list_free(&arguments);
+            list_clear(&arguments);
             break;
         }
         case MYMPD_API_SCRIPT_RM:
@@ -201,8 +201,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         }
         case MYMPD_API_SCRIPT_EXECUTE: {
             //malloc list - it is used in another thread
-            struct list *arguments = list_new();
-            list_init(arguments);
+            struct t_list *arguments = list_new();
             if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename, &error) == true && 
                 json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
             {
@@ -218,15 +217,14 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             else {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
                     "script", "error", "Invalid script name");
-                list_free(arguments);
+                list_clear(arguments);
                 FREE_PTR(arguments);
             }
             break;
         }
         case INTERNAL_API_SCRIPT_POST_EXECUTE: {
             //malloc list - it is used in another thread
-            struct list *arguments = list_new();
-            list_init(arguments);
+            struct t_list *arguments = list_new();
             if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_istext, &error) == true &&
                 json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
             {
@@ -242,7 +240,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             else {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
                     "script", "error", "Invalid script content");
-                list_free(arguments);
+                list_clear(arguments);
                 FREE_PTR(arguments);
             }
             break;
@@ -463,8 +461,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
 
             //malloc list - it is used in trigger list
-            struct list *arguments = list_new();
-            list_init(arguments);
+            struct t_list *arguments = list_new();
 
             if (json_get_string(request->data, "$.params.name", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_string(request->data, "$.params.script", 0, 200, &sds_buf2, vcb_isfilename, &error) == true &&
@@ -483,12 +480,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                         break;
                     }
                 }
-                list_free(arguments);
+                list_clear(arguments);
                 FREE_PTR(arguments);
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "trigger", "error", "Could not save trigger");
                 break;
             }
-            list_free(arguments);
+            list_clear(arguments);
             FREE_PTR(arguments);
             break;
         }
@@ -504,8 +501,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case INTERNAL_API_SCRIPT_INIT: {
-            struct list *lua_mympd_state = list_new();
-            list_init(lua_mympd_state);
+            struct t_list *lua_mympd_state = list_new();
             rc = mpd_client_get_lua_mympd_state(mympd_state, lua_mympd_state);
             if (rc == true) {
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
@@ -520,12 +516,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         }
         case MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET: {
-            struct list attributes;
+            struct t_list attributes;
             list_init(&attributes);
             if (json_get_uint(request->data, "$.params.outputId", 0, 20, &uint_buf1, &error) == true &&
                 json_get_object_string(request->data, "$.params.attributes", &attributes, vcb_isname, 10, &error) == true)
             {
-                struct list_node *current = attributes.head;
+                struct t_list_node *current = attributes.head;
                 while (current != NULL) {
                     rc = mpd_run_output_set(mympd_state->mpd_state->conn, uint_buf1, current->key, current->value_p);
                     response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_output_set");
@@ -535,7 +531,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                     current = current->next;
                 }
             }
-            list_free(&attributes);
+            list_clear(&attributes);
             break;
         }
         case INTERNAL_API_STICKERCACHE_CREATED:

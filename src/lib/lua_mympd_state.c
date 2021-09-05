@@ -12,35 +12,35 @@
 
 #include <stdlib.h>
 
-void set_lua_mympd_state_p(struct list *lua_mympd_state, const char *k, const char *v) {
+void set_lua_mympd_state_p(struct t_list *lua_mympd_state, const char *k, const char *v) {
     struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc_assert(sizeof(struct t_lua_mympd_state_value));
     value->p = sdsnew(v);
     list_push(lua_mympd_state, k, LUA_TYPE_STRING, NULL, value);
 }
 
-void set_lua_mympd_state_i(struct list *lua_mympd_state, const char *k, long v) {
+void set_lua_mympd_state_i(struct t_list *lua_mympd_state, const char *k, long v) {
     struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc_assert(sizeof(struct t_lua_mympd_state_value));
     value->i = v;
     list_push(lua_mympd_state, k, LUA_TYPE_INTEGER, NULL, value);
 }
 
-void set_lua_mympd_state_b(struct list *lua_mympd_state, const char *k, bool v) {
+void set_lua_mympd_state_b(struct t_list *lua_mympd_state, const char *k, bool v) {
     struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc_assert(sizeof(struct t_lua_mympd_state_value));
     value->b = v;
     list_push(lua_mympd_state, k, LUA_TYPE_BOOLEAN, NULL, value);
 }
 
-void free_lua_mympd_state(struct list *lua_mympd_state) {
-    struct list_node *current = lua_mympd_state->head;
+void free_lua_mympd_state(struct t_list *lua_mympd_state) {
+    struct t_list_node *current = lua_mympd_state->head;
     while (current != NULL) {
         if (current->value_i == LUA_TYPE_STRING) {
-            struct t_lua_mympd_state_value *u = (struct t_lua_mympd_state_value *)current->user_data;
-            FREE_SDS(u->p);
+            struct t_lua_mympd_state_value *user_data = (struct t_lua_mympd_state_value *)current->user_data;
+            FREE_SDS(user_data->p);
             free(current->user_data);
             current->user_data = NULL;
         }
         current = current->next;
     }
-    list_free(lua_mympd_state);
+    list_clear(lua_mympd_state);
     free(lua_mympd_state);
 }

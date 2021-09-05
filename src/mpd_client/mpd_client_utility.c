@@ -23,11 +23,11 @@
 #include <unistd.h>
 
 //private definitons
-static void detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct list *images, bool is_dirname);
+static void detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
 
 //public functions
 sds put_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *uri, bool is_dirname) {
-    struct list images;
+    struct t_list images;
     list_init(&images);
     sds booklet_path = sdsempty();
     if (is_streamuri(uri) == false && mympd_state->mpd_state->feat_library == true) {
@@ -35,7 +35,7 @@ sds put_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
     }
     buffer = tojson_char(buffer, "bookletPath", booklet_path, true);
     buffer = sdscat(buffer, "\"images\": [");
-    struct list_node *current = images.head;
+    struct t_list_node *current = images.head;
     while (current != NULL) {
         if (current != images.head) {
             buffer = sdscatlen(buffer, ",", 1);
@@ -44,7 +44,7 @@ sds put_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
         current = current->next;
     }
     buffer = sdscat(buffer, "]");
-    list_free(&images);
+    list_clear(&images);
     FREE_SDS(booklet_path);
     return buffer;
 }
@@ -90,7 +90,7 @@ unsigned mpd_client_get_elapsed_seconds(struct mpd_status *status) {
 }
 
 //private functions
-static void detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct list *images, bool is_dirname) {
+static void detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname) {
     char *uricpy = strdup(uri);
     
     const char *path = is_dirname == false ? dirname(uricpy) : uri;

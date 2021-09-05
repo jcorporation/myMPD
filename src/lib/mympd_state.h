@@ -131,7 +131,7 @@ struct t_timer_definition {
     sds playlist;
     unsigned jukebox_mode;
     bool weekdays[7];
-    struct list arguments;
+    struct t_list arguments;
 };
 
 typedef void (*time_handler)(struct t_timer_definition *definition, void *user_data);
@@ -161,14 +161,14 @@ struct t_mympd_state {
     struct t_mpd_state *mpd_state;
     //lists
     struct t_timer_list timer_list;    
-    struct list home_list;
-    struct list triggers;
-    struct list last_played;
-    struct list jukebox_queue;
-    struct list jukebox_queue_tmp;
+    struct t_list home_list;
+    struct t_list triggers;
+    struct t_list last_played;
+    struct t_list jukebox_queue;
+    struct t_list jukebox_queue_tmp;
     //caches
     rax *sticker_cache;
-    struct list sticker_queue;
+    struct t_list sticker_queue;
     bool sticker_cache_building;
     rax *album_cache;
     bool album_cache_building;

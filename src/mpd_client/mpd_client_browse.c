@@ -29,7 +29,7 @@
 #include <string.h>
 
 //private definitions
-static bool _search_song(struct mpd_song *song, struct list *expr_list, struct t_tags *browse_tag_types);
+static bool _search_song(struct mpd_song *song, struct t_list *expr_list, struct t_tags *browse_tag_types);
 static pcre *_compile_regex(const char *regex_str);
 static bool _cmp_regex(pcre *re_compiled, const char *value);
 
@@ -126,7 +126,7 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
 
     sdstolower(searchstr);
 
-    struct list entity_list;
+    struct t_list entity_list;
     list_init(&entity_list);
     struct mpd_entity *entity;
     size_t search_len = strlen(searchstr);
@@ -226,7 +226,7 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
     
     unsigned real_limit = limit == 0 ? offset + MAX_MPD_RESULTS : offset + limit;
     
-    struct list_node *current;
+    struct t_list_node *current;
     while ((current = list_shift_first(&entity_list)) != NULL) {
         entity_count++;
         if (entity_count > offset && entity_count <= real_limit) {
@@ -442,7 +442,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
         }
     }
     //parse mpd search expression
-    struct list expr_list;
+    struct t_list expr_list;
     list_init(&expr_list);
     int count;
     sds *tokens = sdssplitlen(expression, (ssize_t)strlen(expression), ") AND (", 7, &count);
@@ -509,7 +509,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
     sdsfreesplitres(tokens, count);
     
     //search and sort albumlist
-    struct list album_list;
+    struct t_list album_list;
     list_init(&album_list);
     raxIterator iter;
     raxStart(&iter, mympd_state->album_cache);
@@ -542,7 +542,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
     }
     raxStop(&iter);
     FREE_SDS(key);
-    list_free(&expr_list);
+    list_clear(&expr_list);
     
     //print album list
     unsigned entity_count = 0;
@@ -550,7 +550,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
     unsigned real_limit = limit == 0 ? offset + MAX_MPD_RESULTS : offset + limit;
     sds album = sdsempty();
     sds artist = sdsempty();
-    struct list_node *current;
+    struct t_list_node *current;
     while ((current = list_shift_first(&album_list)) != NULL) {
         entity_count++;
         if (entity_count > offset && entity_count <= real_limit) {
@@ -574,7 +574,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
     FREE_SDS(album);
     FREE_SDS(artist);
     entity_count = album_list.length;
-    list_free_keep_user_data(&album_list);
+    list_clear_keep_user_data(&album_list);
 
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
@@ -674,8 +674,8 @@ sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds met
 }
 
 //private functions
-static bool _search_song(struct mpd_song *song, struct list *expr_list, struct t_tags *browse_tag_types) {
-    struct list_node *current = expr_list->head;
+static bool _search_song(struct mpd_song *song, struct t_list *expr_list, struct t_tags *browse_tag_types) {
+    struct t_list_node *current = expr_list->head;
     sds value = sdsempty();
     (void) browse_tag_types;
     struct t_tags one_tag;

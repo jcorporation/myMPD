@@ -28,7 +28,7 @@ bool mympd_api_rm_home_icon(struct t_mympd_state *mympd_state, unsigned int pos)
 
 bool mympd_api_save_home_icon(struct t_mympd_state *mympd_state, bool replace, unsigned int oldpos,
     const char *name, const char *ligature, const char *bgcolor, const char *color, const char *image,
-    const char *cmd, struct list *option_list) 
+    const char *cmd, struct t_list *option_list) 
 {
     sds key = sdsnewlen("{", 1);
     key = tojson_char(key, "name", name, true);
@@ -38,7 +38,7 @@ bool mympd_api_save_home_icon(struct t_mympd_state *mympd_state, bool replace, u
     key = tojson_char(key, "image", image, true);
     key = tojson_char(key, "cmd", cmd, true);
     key = sdscat(key, "\"options\":[");
-    struct list_node *current = option_list->head;
+    struct t_list_node *current = option_list->head;
     int i = 0;
     while (current != NULL) {
         if (i++) {
@@ -105,7 +105,7 @@ bool mympd_api_write_home_list(struct t_mympd_state *mympd_state) {
         return false;
     }
     FILE *fp = fdopen(fd, "w");
-    struct list_node *current = mympd_state->home_list.head;
+    struct t_list_node *current = mympd_state->home_list.head;
     while (current != NULL) {
         int rc = fprintf(fp,"%s\n", current->key);
         if (rc < 0) {
@@ -135,7 +135,7 @@ sds mympd_api_put_home_list(struct t_mympd_state *mympd_state, sds buffer, sds m
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int returned_entities = 0;
-    struct list_node *current = mympd_state->home_list.head;
+    struct t_list_node *current = mympd_state->home_list.head;
     while (current != NULL) {
         if (returned_entities++) {
             buffer = sdscat(buffer, ",");
@@ -150,8 +150,7 @@ sds mympd_api_put_home_list(struct t_mympd_state *mympd_state, sds buffer, sds m
 }
 
 sds mympd_api_get_home_icon(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, unsigned pos) {
-    struct list_node *current = list_node_at(&mympd_state->home_list, pos);
-
+    struct t_list_node *current = list_node_at(&mympd_state->home_list, pos);
     if (current != NULL) {
         buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = sdscat(buffer, "\"data\":");
