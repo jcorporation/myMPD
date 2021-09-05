@@ -15,7 +15,6 @@
 #include "lib/mem.h"
 #include "lib/mympd_pin.h"
 #include "lib/sds_extras.h"
-//#include "lib/utility.h"
 #include "lib/validate.h"
 #include "web_server/web_server_albumart.h"
 #include "web_server/web_server_sessions.h"
