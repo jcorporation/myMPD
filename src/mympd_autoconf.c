@@ -74,10 +74,10 @@ sds get_mpd_conf(const char *key, const char *default_value, validate_callback v
                 else if (strcasecmp(name, key) == 0 && strcasecmp(name, "password") == 0) {
                     sds *pwtokens;
                     int count;
-                    pwtokens = sdssplitlen(value, (int)strlen(value), "@", 1, &count);
+                    pwtokens = sdssplitlen(value, (int)sdslen(value), "@", 1, &count);
                     if (count == 2) {
                         if (sdslen(last_value) == 0 || strstr(pwtokens[1], "admin") != NULL) {
-                            //use prefered the entry with admin privileges or as fallback the first entry
+                            //prefer the entry with admin privileges or as fallback the first entry
                             MYMPD_LOG_NOTICE("Found mpd password\n");
                             if (vcb(pwtokens[0]) == true) {
                                 last_value = sdsreplace(last_value, pwtokens[0]);

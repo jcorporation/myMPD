@@ -19,5 +19,5 @@ sds mpd_shared_search_adv(struct t_mpd_state *mympd_state, sds buffer, sds metho
                           const char *grouptag, const char *plist, const unsigned int offset,
                           unsigned int limit, const struct t_tags *tagcols, rax *sticker_cache);
 
-sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operator, const char *value);
+sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operator, sds value);
 #endif

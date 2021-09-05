@@ -124,7 +124,7 @@ bool mympd_api_script_delete(struct t_config *config, const char *script) {
     return true;
 }
 
-bool mympd_api_script_save(struct t_config *config, const char *script, const char *oldscript, int order, const char *content, struct t_list *arguments) {
+bool mympd_api_script_save(struct t_config *config, sds script, sds oldscript, int order, sds content, struct t_list *arguments) {
     sds tmp_file = sdscatfmt(sdsempty(), "%s/scripts/%.XXXXXX", config->workdir, script);
     errno = 0;
     int fd = mkstemp(tmp_file);
@@ -152,7 +152,7 @@ bool mympd_api_script_save(struct t_config *config, const char *script, const ch
         FREE_SDS(script_filename);
         return false;
     }
-    if (strlen(oldscript) > 0 && strcmp(script, oldscript) != 0) {
+    if (sdslen(oldscript) > 0 && strcmp(script, oldscript) != 0) {
         sds oldscript_filename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->workdir, oldscript);
         errno = 0;
         if (unlink(oldscript_filename) == -1) {

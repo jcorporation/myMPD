@@ -64,7 +64,7 @@ struct t_mg_user_data {
 bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_message *hm);
 #endif
 void manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bool playlists);
-sds *split_coverimage_names(const char *coverimage_name, sds *coverimage_names, int *count);
+sds *split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count);
 void send_error(struct mg_connection *nc, int code, const char *msg);
 void serve_na_image(struct mg_connection *nc, struct mg_http_message *hm);
 void serve_stream_image(struct mg_connection *nc, struct mg_http_message *hm);
@@ -74,7 +74,7 @@ void http_send_header_ok(struct mg_connection *nc, size_t len, const char *heade
 void http_send_header_redirect(struct mg_connection *nc, const char *location);
 void http_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers);
 void handle_connection_close(struct mg_connection *nc);
-bool check_ip_acl(const char *acl, struct mg_addr *peer);
+bool check_ip_acl(sds acl, struct mg_addr *peer);
 struct mg_str mg_str_strip_parent(struct mg_str *path, int count);
 void free_mg_user_data(struct t_mg_user_data *mg_user_data);
 #endif

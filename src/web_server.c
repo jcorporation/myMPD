@@ -46,7 +46,9 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     mg_user_data->smartpls_document_root = sdscatfmt(sdsempty(), "%s/smartpls", config->workdir);
     mg_user_data->music_directory = sdsempty();
     mg_user_data->playlist_directory = sdsempty();
-    mg_user_data->coverimage_names= split_coverimage_names("cover,folder", mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
+    sds default_coverimagename = sdsnew("cover,folder");
+    mg_user_data->coverimage_names= split_coverimage_names(default_coverimagename, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
+    FREE_SDS(default_coverimagename);
     mg_user_data->feat_library = false;
     mg_user_data->feat_mpd_albumart = false;
     mg_user_data->connection_count = 0;

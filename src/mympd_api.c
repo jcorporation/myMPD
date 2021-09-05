@@ -127,7 +127,7 @@ void mympd_autoconf(struct t_mympd_state *mympd_state) {
             if (vcb_isname(mpd_host) == true) {
                 if (mpd_host[0] != '@' && strstr(mpd_host, "@") != NULL) {
                     int count;
-                    sds *tokens = sdssplitlen(mpd_host, (ssize_t)strlen(mpd_host), "@", 1, &count);
+                    sds *tokens = sdssplitlen(mpd_host, (ssize_t)sdslen(mpd_host), "@", 1, &count);
                     mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, tokens[1]);
                     mympd_state->mpd_state->mpd_pass = sdsreplace(mympd_state->mpd_state->mpd_pass, tokens[0]);
                     sdsfreesplitres(tokens,count);

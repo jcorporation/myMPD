@@ -18,10 +18,10 @@
 
 //private definitions
 static bool rm_mk_dir(sds dir_name, bool create);
-static bool check_ipv4_acl(const char *acl, const uint32_t remote_ip);
+static bool check_ipv4_acl(sds acl, const uint32_t remote_ip);
 
 /*
-static bool check_ipv6_acl(const char *acl, const uint8_t remote_ip[16]);
+static bool check_ipv6_acl(sds acl, const uint8_t remote_ip[16]);
 static bool compare_ipv6_with_mask(const uint8_t addr1[16], const int addr2[16], 
     const int mask[16]);
 static void create_ipv6_mask(int *netmask, int mask);
@@ -56,7 +56,7 @@ struct mg_str mg_str_strip_parent(struct mg_str *path, int count) {
     return *path;
 }
 
-bool check_ip_acl(const char *acl, struct mg_addr *peer) {
+bool check_ip_acl(sds acl, struct mg_addr *peer) {
     /*
     if (peer->is_ip6 == true) {
         //ipv6
@@ -102,9 +102,9 @@ void populate_dummy_hm(struct mg_connection *nc, struct mg_http_message *hm) {
     hm->headers[0].value = mg_str("gzip");
 }
 
-sds *split_coverimage_names(const char *coverimage_name, sds *coverimage_names, int *count) {
+sds *split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count) {
     int j;
-    coverimage_names = sdssplitlen(coverimage_name, (ssize_t)strlen(coverimage_name), ",", 1, count);
+    coverimage_names = sdssplitlen(coverimage_name, (ssize_t)sdslen(coverimage_name), ",", 1, count);
     for (j = 0; j < *count; j++) {
         sdstrim(coverimage_names[j], " ");
     }
@@ -288,10 +288,10 @@ static bool rm_mk_dir(sds dir_name, bool create) {
     return true;
 }
 
-static bool check_ipv4_acl(const char *acl, uint32_t remote_ip) {
+static bool check_ipv4_acl(sds acl, uint32_t remote_ip) {
     bool allowed = false;
     int count;
-    sds *tokens = sdssplitlen(acl, (ssize_t)strlen(acl), ",", 1, &count);
+    sds *tokens = sdssplitlen(acl, (ssize_t)sdslen(acl), ",", 1, &count);
     for (int i = 0; i < count; i++) {
         if (strstr(tokens[i], ":") != NULL) {
             //ipv6 skip
@@ -332,10 +332,10 @@ static bool check_ipv4_acl(const char *acl, uint32_t remote_ip) {
 }
 
 /*
-static bool check_ipv6_acl(const char *acl, const uint8_t remote_ip[16]) {
+static bool check_ipv6_acl(sds acl, const uint8_t remote_ip[16]) {
     bool allowed = false;
     int count;
-    sds *tokens = sdssplitlen(acl, strlen(acl), ",", 1, &count);
+    sds *tokens = sdssplitlen(acl, sdslen(acl), ",", 1, &count);
     for (int i = 0; i < count; i++) {
         if (strstr(tokens[i], ":") == NULL) {
             //ipv4 skip
