@@ -234,12 +234,13 @@ function parseSettings(obj) {
         populateQueueSettingsFrm();
     }
     
-    //locales
-    if (settings.webuiSettings.uiLocale === 'default') {
-        locale = navigator.language || navigator.userLanguage;
-    }
-    else {
-        locale = settings.webuiSettings.uiLocale;
+    //locales    
+    locale = navigator.language || navigator.userLanguage;
+    for (const l in locales) {
+        if (l.code === settings.webuiSettings.uiLocale) {
+            locale = settings.webuiSettings.uiLocale;
+            break;
+        }
     }
 
     //theme
