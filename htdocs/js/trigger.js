@@ -139,7 +139,7 @@ function showListTrigger() {
     document.getElementById('newTrigger').classList.remove('active');
     document.getElementById('listTriggerFooter').classList.remove('hide');
     document.getElementById('newTriggerFooter').classList.add('hide');
-    sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
+    sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, true);
 }
 
 function deleteTrigger(id) {
@@ -149,24 +149,23 @@ function deleteTrigger(id) {
 }
 
 function parseTriggerList(obj) {
-    if (obj.result.returnedEntities > 0) {
-        let triggerList = '';
-        for (let i = 0; i < obj.result.returnedEntities; i++) {
-            triggerList += '<tr data-trigger-id="' + encodeURI(obj.result.data[i].id) + '"><td class="' +
-                (obj.result.data[i].name === settings.trigger ? 'font-weight-bold' : '') +
-                '">' + e(obj.result.data[i].name) + 
-                '</td>' +
-                '<td>' + t(obj.result.data[i].eventName) + '</td>' +
-                '<td>' + e(obj.result.data[i].script) + '</td>' +
-                '<td data-col="Action">' +
-                (obj.result.data[i].name === 'default' || obj.result.data[i].name === settings.trigger  ? '' : 
-                    '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>') +
-                '</td></tr>';
-        }
-        document.getElementById('listTriggerList').innerHTML = triggerList;
+    const tbody = document.getElementById('listTriggerList');
+    if (checkResult(obj, tbody, 3) === false) {
+        return;
     }
-    else {
-        document.getElementById('listTriggerList').innerHTML = '<tr class="not-clickable">' +
-            '<td colspan="3"><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
+
+    let triggerList = '';
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
+        triggerList += '<tr data-trigger-id="' + encodeURI(obj.result.data[i].id) + '"><td class="' +
+            (obj.result.data[i].name === settings.trigger ? 'font-weight-bold' : '') +
+            '">' + e(obj.result.data[i].name) + 
+            '</td>' +
+            '<td>' + t(obj.result.data[i].eventName) + '</td>' +
+            '<td>' + e(obj.result.data[i].script) + '</td>' +
+            '<td data-col="Action">' +
+            (obj.result.data[i].name === 'default' || obj.result.data[i].name === settings.trigger  ? '' : 
+                '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>') +
+            '</td></tr>';
     }
+    tbody.innerHTML = triggerList;
 }

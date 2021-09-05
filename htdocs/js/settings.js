@@ -223,7 +223,6 @@ function parseSettings(obj) {
     //execute only if settings modal is displayed
     if (document.getElementById('modalSettings').classList.contains('show')) {
         populateSettingsFrm();
-
     }
     //execute only if connection modal is displayed
     if (document.getElementById('modalConnection').classList.contains('show')) {
@@ -236,7 +235,7 @@ function parseSettings(obj) {
     
     //locales    
     locale = navigator.language || navigator.userLanguage;
-    for (const l in locales) {
+    for (const l of locales) {
         if (l.code === settings.webuiSettings.uiLocale) {
             locale = settings.webuiSettings.uiLocale;
             break;

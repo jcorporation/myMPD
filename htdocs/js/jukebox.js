@@ -21,17 +21,26 @@ function initJukebox() {
 
 //eslint-disable-next-line no-unused-vars
 function delQueueJukeboxSong(pos) {
-    sendAPI("MYMPD_API_JUKEBOX_RM", {"pos": pos}, function() {
-        sendAPI("MYMPD_API_JUKEBOX_LIST", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
+    sendAPI("MYMPD_API_JUKEBOX_RM", {
+        "pos": pos
+    }, function() {
+        sendAPI("MYMPD_API_JUKEBOX_LIST", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "cols": settings.colsQueueJukebox
+        }, parseJukeboxList);
     });
 }
 
 function parseJukeboxList(obj) {
-    if (obj.result.jukeboxMode === 0) {
-        document.getElementById('QueueJukeboxList').classList.add('hide');
-        document.getElementById('QueueJukeboxDisabled').classList.remove('hide');
+    if (checkResult(obj, 'QueueJukebox', null) === false) {
+        if (obj.result !== undefined && obj.result.jukeboxMode === 0) {
+            document.getElementById('QueueJukeboxList').classList.add('hide');
+            document.getElementById('QueueJukeboxDisabled').classList.remove('hide');
+        }
         return;
     }
+
     document.getElementById('QueueJukeboxDisabled').classList.add('hide');
     document.getElementById('QueueJukeboxList').classList.remove('hide');
 

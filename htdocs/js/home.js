@@ -172,6 +172,14 @@ function filterHomeIconLigatures() {
 function parseHome(obj) {
     const cardContainer = document.getElementById('HomeCards');
     const cols = cardContainer.getElementsByClassName('col');
+    if (obj.error !== undefined) {
+        elClear(cardContainer);
+        const div = elCreate('div', {"class": ["ml-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, '');
+        addIconLine(div, 'error_outline', t(obj.error.message, obj.error.data));
+        cardContainer.appendChild(div);
+        setPagination(obj.result.totalEntities, obj.result.returnedEntities);    
+        return;
+    }
     if (cols.length === 0) {
         elClear(cardContainer);
     }

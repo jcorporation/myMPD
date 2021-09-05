@@ -133,16 +133,14 @@ function showListMounts() {
     document.getElementById('editMount').classList.remove('active');
     document.getElementById('listMountsFooter').classList.remove('hide');
     document.getElementById('editMountFooter').classList.add('hide');
-    sendAPI("MYMPD_API_MOUNT_LIST", {}, parseListMounts);
+    sendAPI("MYMPD_API_MOUNT_LIST", {}, parseListMounts, true);
 }
 
 function parseListMounts(obj) {
     const tbody = document.getElementById('listMounts').getElementsByTagName('tbody')[0];
     const tr = tbody.getElementsByTagName('tr');
 
-    if (obj.result.returnedEntities === 0) {
-        elClear(tbody);
-        tbody.appendChild(emptyRow(5));
+    if (checkResult(obj, tbody, 5) === false) {
         return;
     }
 

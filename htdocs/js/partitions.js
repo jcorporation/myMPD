@@ -36,7 +36,9 @@ function initPartitions() {
     });
 
     document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
-        sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {"partition": "default"}, parsePartitionOutputsList, false);
+        sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {
+            "partition": "default"
+        }, parsePartitionOutputsList, true);
     });
 }
 
@@ -45,6 +47,11 @@ function moveOutput(output) {
 }
 
 function parsePartitionOutputsList(obj) {
+    const tbody = document.getElementById('partitionOutputsList');
+    if (checkResult(obj, tbody, 1) === false) {
+        return;
+    }
+
     const outputs = document.getElementById('outputs').getElementsByTagName('button');
     const outputIds = [];
     for (let i = 0, j= outputs.length; i < j; i++) {
@@ -60,10 +67,7 @@ function parsePartitionOutputsList(obj) {
             nr++;
         }
     }
-    if (nr === 0) {
-        outputList = '<tr class="not-clickable"><td><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
-    }
-    document.getElementById('partitionOutputsList').innerHTML = outputList;
+    tbody.innerHTML = outputList;
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -111,7 +115,7 @@ function showListPartitions() {
     document.getElementById('newPartition').classList.remove('active');
     document.getElementById('listPartitionsFooter').classList.remove('hide');
     document.getElementById('newPartitionFooter').classList.add('hide');
-    sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, false);
+    sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, true);
 }
 
 function deletePartition(partition) {
@@ -130,24 +134,23 @@ function switchPartition(partition) {
 }
 
 function parsePartitionList(obj) {
-    if (obj.result.data.length > 0) {
-        let partitionList = '';
-        for (let i = 0, j = obj.result.data.length; i < j; i++) {
-            partitionList += '<tr data-partition="' + encodeURI(obj.result.data[i].name) + '"><td class="' +
-                (obj.result.data[i].name === settings.partition ? 'font-weight-bold' : '') +
-                '">' + e(obj.result.data[i].name) + 
-                (obj.result.data[i].name === settings.partition ? '&nbsp;(' + t('current') + ')' : '') +
-                '</td>' +
-                '<td data-col="Action">' +
-                (obj.result.data[i].name === 'default' || obj.result.data[i].name === settings.partition  ? '' : 
-                    '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>') +
-                (obj.result.data[i].name !== settings.partition ? '<a href="#" title="' + t('Switch to') + '" data-action="switch" class="mi color-darkgrey">check_circle</a>' : '') +
-                '</td></tr>';
-        }
-        document.getElementById('listPartitionsList').innerHTML = partitionList;
+    const tbody = document.getElementById('listPartitionsList');
+    if (checkResult(obj, tbody, 3) === false) {
+        return;
     }
-    else {
-        document.getElementById('listPartitionsList').innerHTML = '<tr class="not-clickable">' +
-            '<td colspan="3"><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
+
+    let partitionList = '';
+    for (let i = 0, j = obj.result.data.length; i < j; i++) {
+        partitionList += '<tr data-partition="' + encodeURI(obj.result.data[i].name) + '"><td class="' +
+            (obj.result.data[i].name === settings.partition ? 'font-weight-bold' : '') +
+            '">' + e(obj.result.data[i].name) + 
+            (obj.result.data[i].name === settings.partition ? '&nbsp;(' + t('current') + ')' : '') +
+            '</td>' +
+            '<td data-col="Action">' +
+            (obj.result.data[i].name === 'default' || obj.result.data[i].name === settings.partition  ? '' : 
+                '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>') +
+            (obj.result.data[i].name !== settings.partition ? '<a href="#" title="' + t('Switch to') + '" data-action="switch" class="mi color-darkgrey">check_circle</a>' : '') +
+            '</td></tr>';
     }
+    tbody.innerHTML = partitionList;
 }

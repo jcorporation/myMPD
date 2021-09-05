@@ -67,8 +67,12 @@ function initPlaylists() {
 }
 
 function parsePlaylistsList(obj) {
+    if (checkResult(obj, 'BrowsePlaylistsList', 3) === false) {
+        return;
+    }
+
     const rowTitle = webuiSettingsDefault.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
-    updateTable(obj, app.current.app + app.current.tab + app.current.view, function(row, data) {
+    updateTable(obj, 'BrowsePlaylistsList', function(row, data) {
         setCustomDomProperty(row, 'data-uri', data.uri);
         setCustomDomProperty(row, 'data-type', data.Type);
         setCustomDomProperty(row, 'data-name', data.name);
@@ -82,6 +86,15 @@ function parsePlaylistsList(obj) {
 }
 
 function parsePlaylistsDetail(obj) {
+    const table = document.getElementById('BrowsePlaylistsDetailList');
+    const tfoot = table.getElementsByTagName('tfoot')[0];
+    const colspan = settings.colsBrowsePlaylistsDetail.length;
+
+    if (checkResult(obj, 'BrowsePlaylistsDetail', colspan) === false) {
+        elClear(tfoot);
+        return;
+    }
+
     if (obj.result.uri.indexOf('.') > -1 || obj.result.smartpls === true) {
         setCustomDomProperty(document.getElementById('BrowsePlaylistsDetailList'), 'data-ro', 'true');
         document.getElementById('playlistContentBtns').classList.add('hide');
@@ -96,11 +109,9 @@ function parsePlaylistsDetail(obj) {
     document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = 
         (obj.result.smartpls === true ? t('Smart playlist') : t('Playlist'))  + ': ' + obj.result.uri;
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
-    const table = document.getElementById('BrowsePlaylistsDetailList');
-    const tfoot = table.getElementsByTagName('tfoot')[0];
-    const colspan = settings.colsBrowsePlaylistsDetail.length;
-    tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
-    updateTable(obj, app.current.app + app.current.tab + app.current.view, function(row, data) {
+    tfoot.innerHTML = '<tr><td colspan="' + colspan + '"><small>' + t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
+    
+    updateTable(obj, 'BrowsePlaylistsDetail', function(row, data) {
         row.setAttribute('id','playlistTrackId' + data.Pos);
         row.setAttribute('draggable', 'true');
         row.setAttribute('tabindex', 0);

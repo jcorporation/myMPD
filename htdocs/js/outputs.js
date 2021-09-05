@@ -12,7 +12,9 @@ function initOutputs() {
     }
 
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
-        sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {"partition": ""}, parseOutputs);
+        sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {
+            "partition": ""
+        }, parseOutputs, true);
     });
 
     document.getElementById('outputs').addEventListener('click', function(event) {
@@ -24,13 +26,32 @@ function initOutputs() {
             const target = event.target.nodeName === 'BUTTON' ? event.target : event.target.parentNode;
             event.stopPropagation();
             event.preventDefault();
-            sendAPI("MYMPD_API_PLAYER_OUTPUT_TOGGLE", {"outputId": getCustomDomProperty(target, 'data-output-id'), "state": (target.classList.contains('active') ? 0 : 1)});
+            sendAPI("MYMPD_API_PLAYER_OUTPUT_TOGGLE", {
+                "outputId": getCustomDomProperty(target, 'data-output-id'),
+                "state": (target.classList.contains('active') ? 0 : 1)
+            });
             toggleBtn(target.id);
         }
     }, false);
 }
 
 function parseOutputs(obj) {
+    const outputList = document.getElementById('outputs');
+    if (obj.error) {
+        const div = elCreate('div', {"class": ["list-group-item"]}, '');
+        addIconLine(div, 'error_outline', tn(obj.error.message));
+        elClear(outputList);
+        outputList.appendChild(div);
+        return;
+    }
+    if (obj.result.returnedEntities === 0) {
+        const div = elCreate('div', {"class": ["list-group-item"]}, '');
+        addIconLine(div, 'info', tn('Empty list'));
+        elClear(outputList);
+        outputList.appendChild(div);
+        return;
+    }
+
     let btns = '';
     let nr = 0;
     for (let i = 0; i < obj.result.numOutputs; i++) {
@@ -48,10 +69,7 @@ function parseOutputs(obj) {
                 '</button>';
         }
     }
-    if (nr === 0) {
-        btns = '<span class="mi">error_outline</span> ' + t('No outputs');
-    }
-    document.getElementById('outputs').innerHTML = btns;
+    outputList.innerHTML = btns;
 }
 
 function showListOutputAttributes(outputName) {

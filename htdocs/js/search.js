@@ -121,6 +121,10 @@ function doSearch(x) {
 }
 
 function parseSearch(obj) {
+    if (checkResult(obj, 'Search', null) === false) {
+        return;
+    }
+
     if (obj.result.returnedEntities > 0) {
         elEnable('searchAddAllSongs');
         elEnable('searchAddAllSongsBtn');

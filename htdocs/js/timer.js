@@ -280,15 +280,19 @@ function showListTimer() {
     document.getElementById('editTimer').classList.remove('active');
     document.getElementById('listTimerFooter').classList.remove('hide');
     document.getElementById('editTimerFooter').classList.add('hide');
-    sendAPI("MYMPD_API_TIMER_LIST", {}, parseListTimer);
+    sendAPI("MYMPD_API_TIMER_LIST", {}, parseListTimer, true);
 }
 
 function parseListTimer(obj) {
     const tbody = document.getElementById('listTimer').getElementsByTagName('tbody')[0];
-    const tr = tbody.getElementsByTagName('tr');
+    
+    if (checkResult(obj, tbody, 5) === false) {
+        return;
+    }
     
     let activeRow = 0;
     const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const tr = tbody.getElementsByTagName('tr');
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const row = document.createElement('tr');
         setCustomDomProperty(row, 'data-id', obj.result.data[i].timerid);
@@ -326,11 +330,6 @@ function parseListTimer(obj) {
     for (let i = tr.length - 1; i >= obj.result.returnedEntities; i --) {
         tr[i].remove();
     }
-
-    if (obj.result.returnedEntities === 0) {
-        tbody.innerHTML = '<tr class="not-clickable">' +
-                          '<td colspan="5"><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
-    }     
 }
 
 function prettyTimerAction(action, subaction) {

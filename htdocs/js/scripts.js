@@ -252,7 +252,7 @@ function showListScripts() {
     document.getElementById('editScript').classList.remove('active');
     document.getElementById('listScriptsFooter').classList.remove('hide');
     document.getElementById('editScriptFooter').classList.add('hide');
-    sendAPI("MYMPD_API_SCRIPT_LIST", {"all": true}, parseScriptList);
+    getScriptList(true);
 }
 
 function deleteScript(el, script) {
@@ -264,10 +264,22 @@ function deleteScript(el, script) {
 }
 
 function getScriptList(all) {
-    sendAPI("MYMPD_API_SCRIPT_LIST", {"all": all}, parseScriptList, false);
+    sendAPI("MYMPD_API_SCRIPT_LIST", {
+        "all": all
+    }, parseScriptList, true);
 }
 
 function parseScriptList(obj) {
+    const tbodyScripts = document.getElementById('listScriptsList');
+    const mainmenuScripts = document.getElementById('scripts');
+    const triggerScripts = document.getElementById('selectTriggerScript');
+
+    if (checkResult(obj, tbodyScripts, 2) === false) {
+        elClear(mainmenuScripts);
+        elClear(triggerScripts);
+        return;
+    }
+
     const timerActions = document.createElement('optgroup');
     setCustomDomProperty(timerActions, 'data-value', 'script');
     timerActions.setAttribute('label', t('Script'));
@@ -307,13 +319,9 @@ function parseScriptList(obj) {
             timerActions.innerHTML += '<option data-arguments=\'{"arguments":[' + arglist + ']}\' value="' + 
                 e(obj.result.data[i].name) + '">' + e(obj.result.data[i].name) + '</option>';
         }
-        document.getElementById('listScriptsList').innerHTML = scriptList;
+        tbodyScripts.innerHTML = scriptList;
     }
-    else {
-        document.getElementById('listScriptsList').innerHTML = '<tr class="not-clickable">' +
-            '<td colspan="3"><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
-    }
-    document.getElementById('scripts').innerHTML = (showScriptListLen > scriptMaxListLen || showScriptListLen === 0 ? '' : '<div class="dropdown-divider"></div>') + scriptListMain;
+    mainmenuScripts.innerHTML = (showScriptListLen > scriptMaxListLen || showScriptListLen === 0 ? '' : '<div class="dropdown-divider"></div>') + scriptListMain;
         
     if (showScriptListLen > scriptMaxListLen) {
         document.getElementById('navScripting').classList.remove('hide');
@@ -324,7 +332,7 @@ function parseScriptList(obj) {
         document.getElementById('scripts').classList.remove('collapse', 'menu-indent');
     }
 
-    document.getElementById('selectTriggerScript').innerHTML = timerActions.innerHTML;
+    triggerScripts.innerHTML = timerActions.innerHTML;
     
     const old = document.getElementById('selectTimerAction').querySelector('optgroup[data-value="script"]');
     if (old) {

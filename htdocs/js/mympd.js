@@ -163,21 +163,21 @@ function appRoute() {
             "offset": app.current.offset,
             "limit": app.current.limit,
             "cols": settings.colsQueueLastPlayed
-        }, parseLastPlayed);
+        }, parseLastPlayed, true);
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
         sendAPI("MYMPD_API_JUKEBOX_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
             "cols": settings.colsQueueJukebox
-        }, parseJukeboxList);
+        }, parseJukeboxList, true);
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
         sendAPI("MYMPD_API_PLAYLIST_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
             "searchstr": app.current.search
-        }, parsePlaylistsList);
+        }, parsePlaylistsList, true);
         const searchPlaylistsStrEl = document.getElementById('searchPlaylistsListStr');
         if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
             searchPlaylistsStrEl.value = app.current.search;
@@ -190,7 +190,7 @@ function appRoute() {
             "searchstr": app.current.search,
             "plist": app.current.filter,
             "cols": settings.colsBrowsePlaylistsDetail
-        }, parsePlaylistsDetail);
+        }, parsePlaylistsDetail, true);
         const searchPlaylistsStrEl = document.getElementById('searchPlaylistsDetailStr');
         if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
             searchPlaylistsStrEl.value = app.current.search;
@@ -256,7 +256,7 @@ function appRoute() {
                 "expression": app.current.search, 
                 "sort": sort,
                 "sortdesc": sortdesc
-            }, parseDatabase);
+            }, parseDatabase, true);
         }
         else {
             document.getElementById('searchDatabaseCrumb').classList.add('hide');
@@ -269,7 +269,7 @@ function appRoute() {
                 "limit": app.current.limit,
                 "searchstr": app.current.search, 
                 "tag": app.current.tag
-            }, parseDatabase);
+            }, parseDatabase, true);
         }
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail') {
@@ -282,7 +282,7 @@ function appRoute() {
                 "album": app.current.tag,
                 "albumartist": app.current.search,
                 "cols": cols
-            }, parseAlbumDetails);
+            }, parseAlbumDetails, true);
         }    
     }
     else if (app.current.app === 'Search') {
@@ -321,7 +321,7 @@ function appRoute() {
                     "expression": app.current.search,
                     "cols": settings.colsSearchActions,
                     "replace": false
-                }, parseSearch);
+                }, parseSearch, true);
             }
             else {
                 sendAPI("MYMPD_API_DATABASE_SEARCH", {
@@ -332,7 +332,7 @@ function appRoute() {
                     "searchstr": app.current.search,
                     "cols": settings.colsSearchActions,
                     "replace": false
-                }, parseSearch);
+                }, parseSearch, true);
             }
         }
         else {

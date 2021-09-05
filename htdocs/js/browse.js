@@ -317,26 +317,29 @@ function parseFilesystem(obj) {
     const imageList = document.getElementById('BrowseFilesystemImages');
     elClear(imageList);
 
-    if (obj.result !== undefined) {
-        if ((obj.result.images.length === 0 && obj.result.bookletPath === '')) {
-            imageList.classList.add('hide');
-        }
-        else {
-            imageList.classList.remove('hide');
-        }
-        if (obj.result.bookletPath !== '') {
-            const img = document.createElement('div');
-            img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
-            img.classList.add('booklet');
-            setCustomDomProperty(img, 'data-href', subdir + '/browse/music/' + obj.result.bookletPath);
-            img.title = t('Booklet');
-            imageList.appendChild(img);
-        }
-        for (let i = 0, j = obj.result.images.length; i < j; i++) {
-            const img = document.createElement('div');
-            img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + myEncodeURI(obj.result.images[i]) + '"),url("assets/coverimage-loading.svg")';
-            imageList.appendChild(img);
-        }
+    if (checkResult(obj, 'BrowseFilesystem', null) === false) {
+        imageList.classList.add('hide');
+        return;
+    }
+
+    if ((obj.result.images.length === 0 && obj.result.bookletPath === '')) {
+        imageList.classList.add('hide');
+    }
+    else {
+        imageList.classList.remove('hide');
+    }
+    if (obj.result.bookletPath !== '') {
+        const img = document.createElement('div');
+        img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
+        img.classList.add('booklet');
+        setCustomDomProperty(img, 'data-href', subdir + '/browse/music/' + obj.result.bookletPath);
+        img.title = t('Booklet');
+        imageList.appendChild(img);
+    }
+    for (let i = 0, j = obj.result.images.length; i < j; i++) {
+        const img = document.createElement('div');
+        img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + myEncodeURI(obj.result.images[i]) + '"),url("assets/coverimage-loading.svg")';
+        imageList.appendChild(img);
     }
 
     const rowTitleSong = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
@@ -388,11 +391,20 @@ function addAllFromBrowseDatabasePlist(plist, callback) {
 }
 
 function parseDatabase(obj) {
-    const nrItems = obj.result.returnedEntities;
     const cardContainer = document.getElementById('BrowseDatabaseListList');
     const cols = cardContainer.getElementsByClassName('col');
     document.getElementById('BrowseDatabaseListList').classList.remove('opacity05');
 
+    if (obj.error !== undefined) {
+        elClear(cardContainer);
+        const div = elCreate('div', {"class": ["ml-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, '');
+        addIconLine(div, 'error_outline', t(obj.error.message, obj.error.data));
+        cardContainer.appendChild(div);
+        setPagination(obj.result.totalEntities, obj.result.returnedEntities);    
+        return;
+    }
+
+    const nrItems = obj.result.returnedEntities;
     if (nrItems === 0) {
         elClear(cardContainer);
         const div = elCreate('div', {"class": ["ml-3", "mb-3", "not-clickable"]}, '');
@@ -506,11 +518,21 @@ function addPlayButton(parentEl) {
 }
 
 function parseAlbumDetails(obj) {
+    const table = document.getElementById('BrowseDatabaseDetailList');
+    const tfoot = table.getElementsByTagName('tfoot')[0];
+    const colspan = settings.colsBrowseDatabaseDetail.length;
+    const infoEl = document.getElementById('viewDetailDatabaseInfo');
+
+    if (checkResult(obj, null, 3) === false) {
+        elClear(infoEl);
+        elClear(tfoot);
+        return;
+    }
+
     const coverEl = document.getElementById('viewDetailDatabaseCover');
     coverEl.style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(obj.result.data[0].uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
     setCustomDomProperty(coverEl, 'data-images', obj.result.images);
     setCustomDomProperty(coverEl, 'data-uri', obj.result.data[0].uri);
-    const infoEl = document.getElementById('viewDetailDatabaseInfo');
     infoEl.innerHTML = '<h1>' + e(obj.result.Album) + '</h1>' +
         '<small> ' + t('AlbumArtist') + '</small><p>' + e(obj.result.AlbumArtist) + '</p>' +
         (obj.result.bookletPath === '' || features.featLibrary === false ? '' : 
@@ -526,9 +548,6 @@ function parseAlbumDetails(obj) {
         row.setAttribute('title', rowTitle);
     });
 
-    const table = document.getElementById('BrowseDatabaseDetailList');
-    const tfoot = table.getElementsByTagName('tfoot')[0];
-    const colspan = settings.colsBrowseDatabaseDetail.length;
     tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + 
         t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + 
         beautifyDuration(obj.result.totalTime) + '</small></td></tr>';

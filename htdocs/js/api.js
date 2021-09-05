@@ -213,7 +213,7 @@ function sendAPI(method, params, callback, onerror) {
                 }
                 else if (obj.result && obj.result.message && obj.result.message !== 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
-                    if (ignoreMessages.includes(obj.result.message) === false) {
+                    if (ignoreMessages.includes(obj.result.message) === false && onerror !== true) {
                         showNotification(t(obj.result.message, obj.result.data), '', obj.result.facility, obj.result.severity);
                     }
                 }
