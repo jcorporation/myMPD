@@ -43,7 +43,9 @@ function initPartitions() {
 }
 
 function moveOutput(output) {
-    sendAPI("MYMPD_API_PARTITION_OUTPUT_MOVE", {"name": output});
+    sendAPI("MYMPD_API_PARTITION_OUTPUT_MOVE", {
+        "name": output
+    });
 }
 
 function parsePartitionOutputsList(obj) {
@@ -66,6 +68,9 @@ function parsePartitionOutputsList(obj) {
                 e(obj.result.data[i].name) + '</td></tr>';
             nr++;
         }
+    }
+    if (nr === 0) {
+        outputList = '<tr class="not-clickable"><td><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
     }
     tbody.innerHTML = outputList;
 }
