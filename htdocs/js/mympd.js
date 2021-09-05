@@ -586,7 +586,10 @@ function appInit() {
         'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsListList', 'BrowsePlaylistsDetailList'];
     for (const tableName of tables) {
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {
-            if (event.target.parentNode.classList.contains('not-clickable') || getCustomDomProperty(event.target.parentNode, 'data-type') === 'parentDir') {
+            if (event.target.parentNode.classList.contains('not-clickable') ||
+                event.target.parentNode.parentNode.classList.contains('not-clickable') ||
+                getCustomDomProperty(event.target.parentNode, 'data-type') === 'parentDir')
+            {
                 return;
             }
             showMenu(event.target, event);
@@ -595,7 +598,10 @@ function appInit() {
         }, false);
     
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('contextmenu', function(event) {
-            if (event.target.parentNode.classList.contains('not-clickable') || getCustomDomProperty(event.target.parentNode, 'data-type') === 'parentDir') {
+            if (event.target.parentNode.classList.contains('not-clickable') ||
+                event.target.parentNode.parentNode.classList.contains('not-clickable') ||
+                getCustomDomProperty(event.target.parentNode, 'data-type') === 'parentDir')
+            {
                 return;
             }
             showMenu(event.target, event);
