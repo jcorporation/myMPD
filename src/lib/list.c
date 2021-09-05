@@ -15,7 +15,6 @@
 #include <string.h>
 
 //private definitions
-static void _list_clear(struct t_list *l, bool free_user_data);
 static struct t_list_node *list_node_extract(struct t_list *l, unsigned idx);
 
 //public functions
@@ -36,12 +35,31 @@ void list_init(struct t_list *l) {
 
 //Clears the list and frees all nodes and there values
 void list_clear(struct t_list *l) {
-    _list_clear(l, true);
+    list_clear_user_data(l, NULL);
 }
 
-//Clears the list and frees all nodes and there values but user_data
-void list_clear_keep_user_data(struct t_list *l) {
-    _list_clear(l, false);
+void list_clear_user_data(struct t_list *l, user_data_callback free_cb) {
+    struct t_list_node *current = l->head;
+    struct t_list_node *tmp = NULL;
+    while (current != NULL) {
+        FREE_SDS(current->key);
+        FREE_SDS(current->value_p);
+        if (current->user_data != NULL && free_cb != NULL) {
+            free_cb(current);
+        }
+        else if (free_cb == NULL) {
+            FREE_PTR(current->user_data);
+        }
+        tmp = current;
+        current = current->next;
+        free(tmp);
+    }
+    list_init(l);
+}
+
+void list_free_cb_ignore_user_data(struct t_list_node *current) {
+    //this function should do nothing
+    (void) current;
 }
 
 long list_get_value_i(const struct t_list *l, const char *key) {
@@ -495,21 +513,20 @@ struct t_list_node *list_shift_first(struct t_list *l) {
     return extracted;
 }
 
-bool list_node_free(struct t_list_node *n) {
+void list_node_free(struct t_list_node *n) {
+    list_node_free_user_data(n, NULL);
+}
+
+void list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb) {
     FREE_SDS(n->key);
     FREE_SDS(n->value_p);
-    if (n->user_data != NULL) {
+    if (n->user_data != NULL && free_cb != NULL) {
+        free_cb(n);
+    }
+    else if (n->user_data != NULL) {
         free(n->user_data);
     }
     free(n);
-    return true;
-}
-
-bool list_node_free_keep_user_data(struct t_list_node *n) {
-    FREE_SDS(n->key);
-    FREE_SDS(n->value_p);
-    free(n);
-    return true;
 }
 
 bool list_shift(struct t_list *l, unsigned idx) {
@@ -524,23 +541,6 @@ bool list_shift(struct t_list *l, unsigned idx) {
     }
     free(extracted);
     return true;
-}
-
-//private functions
-static void _list_clear(struct t_list *l, bool free_user_data) {
-    struct t_list_node *current = l->head;
-    struct t_list_node *tmp = NULL;
-    while (current != NULL) {
-        FREE_SDS(current->key);
-        FREE_SDS(current->value_p);
-        if (free_user_data == true && current->user_data != NULL) {
-            free(current->user_data);
-        }
-        tmp = current;
-        current = current->next;
-        free(tmp);
-    }
-    list_init(l);
 }
 
 static struct t_list_node *list_node_extract(struct t_list *l, unsigned idx) {

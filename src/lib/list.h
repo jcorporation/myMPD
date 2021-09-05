@@ -7,9 +7,9 @@
 #ifndef MYMPD_LIST_H
 #define MYMPD_LIST_H
 
-#include <stdbool.h>
-
 #include "../../dist/src/sds/sds.h"
+
+#include <stdbool.h>
 
 struct t_list_node {
     sds key;
@@ -25,10 +25,16 @@ struct t_list {
     struct t_list_node *tail;
 };
 
+typedef void (*user_data_callback) (struct t_list_node *current);
+
 struct t_list *list_new(void);
 void list_init(struct t_list *l);
 void list_clear(struct t_list *l);
-void list_clear_keep_user_data(struct t_list *l);
+void list_clear_user_data(struct t_list *l, user_data_callback free_cb);
+void list_free_cb_ignore_user_data(struct t_list_node *current);
+void list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb);
+void list_node_free(struct t_list_node *n);
+
 bool list_push(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data);
 bool list_push_len(struct t_list *l, const char *key, int key_len, long value_i, const char *value_p, int value_len, void *user_data);
 bool list_insert(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data);
@@ -49,6 +55,4 @@ bool list_swap_item_pos(struct t_list *l, unsigned index1, unsigned index2);
 bool list_move_item_pos(struct t_list *l, unsigned from, unsigned to);
 struct t_list_node *list_node_at(const struct t_list * l, unsigned index);
 struct t_list_node *list_shift_first(struct t_list *l);
-bool list_node_free(struct t_list_node *n);
-bool list_node_free_keep_user_data(struct t_list_node *n);
 #endif
