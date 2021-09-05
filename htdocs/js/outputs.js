@@ -53,10 +53,8 @@ function parseOutputs(obj) {
     }
 
     let btns = '';
-    let nr = 0;
     for (let i = 0; i < obj.result.numOutputs; i++) {
         if (obj.result.data[i].plugin !== 'dummy') {
-            nr++;
             btns += '<button id="btnOutput' + obj.result.data[i].id +'" data-output-name="' + encodeURI(obj.result.data[i].name) + '" data-output-id="' + 
                 obj.result.data[i].id + '" class="btn btn-secondary btn-block d-flex justify-content-between';
             if (obj.result.data[i].state === 1) {
