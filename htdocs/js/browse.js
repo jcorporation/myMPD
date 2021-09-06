@@ -27,7 +27,7 @@ function initBrowse() {
     }, false);
     
     document.getElementById('BrowseDatabaseListList').addEventListener('contextmenu', function(event) {
-        if (event.target.classList.contains('row')) {
+        if (event.target.classList.contains('row') || event.target.parentNode.classList.contains('not-clickable')) {
             return;
         }
         if (app.current.tag === 'Album') {
@@ -398,9 +398,9 @@ function parseDatabase(obj) {
     if (obj.error !== undefined) {
         elClear(cardContainer);
         const div = elCreate('div', {"class": ["ml-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, '');
-        addIconLine(div, 'error_outline', t(obj.error.message, obj.error.data));
+        addIconLine(div, 'error_outline', tn(obj.error.message, obj.error.data));
         cardContainer.appendChild(div);
-        setPagination(obj.result.totalEntities, obj.result.returnedEntities);    
+        setPagination(0, 0);
         return;
     }
 
@@ -410,9 +410,11 @@ function parseDatabase(obj) {
         const div = elCreate('div', {"class": ["ml-3", "mb-3", "not-clickable"]}, '');
         addIconLine(div, 'info', tn('Empty list'));
         cardContainer.appendChild(div);
-        setPagination(obj.result.totalEntities, obj.result.returnedEntities);    
+        setPagination(0, 0);
         return;
     }
+
+    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
 
     if (cols.length === 0) {
         elClear(cardContainer);
