@@ -123,6 +123,9 @@ const char *get_ext_by_mime_type(const char *mime_type) {
             break;
         }
     }
+    if (p->extension == NULL) {
+        MYMPD_LOG_WARN("No extension found for mime_type \"%s\"", mime_type);
+    }
     return p->extension;
 }
 
