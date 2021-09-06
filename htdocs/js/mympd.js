@@ -300,6 +300,9 @@ function appRoute() {
                 '<td colspan="' + settings['cols' + app.current.app].length + '">' + t('Searching...') + '</td></tr>';
         }
 
+        if (app.current.search === '') {
+            document.getElementById('searchstr').value = '';
+        }
         if (document.getElementById('searchstr').value.length >= 2 || document.getElementById('searchCrumb').children.length > 0) {
             if (features.featAdvsearch) {
                 let sort = app.current.sort;
