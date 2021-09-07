@@ -157,10 +157,10 @@ function parseSearch(obj) {
 //eslint-disable-next-line no-unused-vars
 function saveSearchAsSmartPlaylist() {
     parseSmartPlaylist({"jsonrpc":"2.0","id":0,"result":{"method":"MYMPD_API_SMARTPLS_GET", 
-        "playlist":"",
-        "type":"search",
-        "tag": features.featAdvsearch === true ? 'expression' : app.current.filter,
-        "searchstr": app.current.search}});
+        "plist": "",
+        "type": "search",
+        "expression": app.current.search
+    }});
 }
 
 function addAllFromSearchPlist(plist, searchstr, replace, callback) {

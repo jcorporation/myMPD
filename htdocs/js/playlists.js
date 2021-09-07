@@ -88,7 +88,7 @@ function parsePlaylistsList(obj) {
 function parsePlaylistsDetail(obj) {
     const table = document.getElementById('BrowsePlaylistsDetailList');
     const tfoot = table.getElementsByTagName('tfoot')[0];
-    const colspan = settings.colsBrowsePlaylistsDetail.length;
+    const colspan = settings.colsBrowsePlaylistsDetail.length + 1;
 
     if (checkResult(obj, 'BrowsePlaylistsDetail', colspan) === false) {
         elClear(tfoot);
@@ -308,7 +308,8 @@ function addSmartpls(type) {
     else if (type === 'newest') {
         obj.result.plist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'newestSongs';
         obj.result.type = 'newest';
-        obj.result.timerange = 14 * 24 * 60 * 60;
+        //14 days
+        obj.result.timerange = 1209600;
     }
     else if (type === 'bestRated') {
         obj.result.plist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'bestRated';
@@ -323,7 +324,9 @@ function addSmartpls(type) {
 //eslint-disable-next-line no-unused-vars
 function deletePlaylists() {
     btnWaiting(document.getElementById('btnDeletePlaylists'), true);
-    sendAPI("MYMPD_API_PLAYLIST_RM_ALL", {"type": getSelectValue('selectDeletePlaylists')}, function() {
+    sendAPI("MYMPD_API_PLAYLIST_RM_ALL", {
+        "type": getSelectValue('selectDeletePlaylists')
+    }, function() {
         btnWaiting(document.getElementById('btnDeletePlaylists'), false);
     });
 }
@@ -338,6 +341,11 @@ function showAddToPlaylistCurrentSong() {
 
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistCurrentSearch() {
+    showAddToPlaylist('SEARCH', app.current.search);
+}
+
+//eslint-disable-next-line no-unused-vars
+function showAddToPlaylistFromFilesystem() {
     showAddToPlaylist(app.current.search, '');
 }
 
@@ -347,7 +355,7 @@ function showAddToPlaylist(uri, searchstr) {
     elClear(document.getElementById('addToPlaylistPlaylist'));
     document.getElementById('addToPlaylistNewPlaylist').value = '';
     document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
-    toggleBtn('toggleAddToPlaylistBtn',0);
+    toggleBtn('toggleAddToPlaylistBtn', 0);
     const streamUrl = document.getElementById('streamUrl');
     streamUrl.focus();
     streamUrl.value = '';
@@ -416,7 +424,6 @@ function addToPlaylist() {
             "plist": plist
         }, addToPlaylistClose, true);
     }
-    uiElements.modalAddToPlaylist.hide();
 }
 
 function addToPlaylistClose(obj) {

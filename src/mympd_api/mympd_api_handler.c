@@ -1040,7 +1040,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);          
             if (json_get_string(request->data, "$.params.expression", 0, 200, &sds_buf1, vcb_isname, &error) == true &&
-                json_get_string(request->data, "$.params.sort", 1, 200, &sds_buf2, vcb_ismpdsort, &error) == true &&
+                json_get_string(request->data, "$.params.sort", 0, 200, &sds_buf2, vcb_ismpdsort, &error) == true &&
                 json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &error) == true &&
                 json_get_string(request->data, "$.params.plist", 0, 200, &sds_buf3, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
