@@ -41,22 +41,22 @@ const struct mime_type_entry media_files[] = {
     {"flac", "audio/flac"},
     {"oga",  "audio/ogg"}, 
     {"ogg",  "audio/ogg"},
-    {"opus",  "audio/ogg"},
+    {"opus", "audio/ogg"},
     {"spx",  "audio/ogg"},
     {NULL,   "application/octet-stream"}
 };
 
 const struct magic_byte_entry magic_bytes[] = {
     {"89504E470D0A1A0A",  "image/png"},
-    {"FFD8FFDB",  "image/jpeg"},
-    {"FFD8FFE0",  "image/jpeg"},
-    {"FFD8FFEE", "image/jpeg"},
-    {"FFD8FFE1", "image/jpeg"},
-    {"49492A00", "image/tiff"},
-    {"4D4D002A", "image/tiff"},
-    {"424D",  "image/x-ms-bmp"},
-    {"52494646", "image/webp"},
-    {NULL,   "application/octet-stream"}
+    {"FFD8FFDB",          "image/jpeg"},
+    {"FFD8FFE0",          "image/jpeg"},
+    {"FFD8FFEE",          "image/jpeg"},
+    {"FFD8FFE1",          "image/jpeg"},
+    {"49492A00",          "image/tiff"},
+    {"4D4D002A",          "image/tiff"},
+    {"424D",              "image/x-ms-bmp"},
+    {"52494646",          "image/webp"},
+    {NULL,                "application/octet-stream"}
 };
 
 sds get_extension_from_filename(const char *filename) {

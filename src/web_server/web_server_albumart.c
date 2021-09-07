@@ -36,15 +36,17 @@ static bool handle_coverextract_flac(struct t_config *config, const char *uri, c
 
 //public functions
 void send_albumart(struct mg_connection *nc, sds data, sds binary) {
-    sds sds_buf1 = NULL;
-    if (sdslen(binary) > 0 &&
-        json_get_string(data, "$.params.mime_type", 1, 200, &sds_buf1, vcb_isname, NULL) == true)
+    size_t len = sdslen(binary);
+    sds mime_type = NULL;
+    if ( len > 0 &&
+        json_get_string(data, "$.params.mime_type", 1, 200, &mime_type, vcb_isname, NULL) == true &&
+        strcmp(mime_type, "application/octet-stream") != 0)
     {
-        MYMPD_LOG_DEBUG("Serving file from memory (%s - %u bytes)", sds_buf1, sdslen(binary));
-        sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", sds_buf1);
+        MYMPD_LOG_DEBUG("Serving file from memory (%s - %u bytes)", mime_type, len);
+        sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", mime_type);
         header = sdscat(header, EXTRA_HEADERS_CACHE);
-        http_send_header_ok(nc, sdslen(binary), header);
-        mg_send(nc, binary, sdslen(binary));
+        http_send_header_ok(nc, len, header);
+        mg_send(nc, binary, len);
         FREE_SDS(header);
     }
     else {
@@ -53,7 +55,7 @@ void send_albumart(struct mg_connection *nc, sds data, sds binary) {
         populate_dummy_hm(nc, &hm);
         serve_na_image(nc, &hm);
     }
-    FREE_SDS(sds_buf1);
+    FREE_SDS(mime_type);
 }
 
 //returns true if an image is served

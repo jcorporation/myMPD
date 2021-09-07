@@ -22,7 +22,12 @@
 
 bool write_covercache_file(const char *workdir, const char *uri, const char *mime_type, sds binary) {
     if (mime_type[0] == '\0') {
-        MYMPD_LOG_WARN("Covercache file for %s not written, mime_type is empty", uri);
+        MYMPD_LOG_WARN("Covercache file for \"%s\" not written, mime_type is empty", uri);
+        return false;
+    }
+    const char *ext = get_ext_by_mime_type(mime_type);
+    if (ext == NULL) {
+        MYMPD_LOG_WARN("Covercache file for \"%s\" not written, could not determine file extension", uri);
         return false;
     }
     bool rc = false;
@@ -39,7 +44,6 @@ bool write_covercache_file(const char *workdir, const char *uri, const char *mim
         FILE *fp = fdopen(fd, "w");
         fwrite(binary, 1, sdslen(binary), fp);
         fclose(fp);
-        const char *ext = get_ext_by_mime_type(mime_type);
         sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", workdir, filename, ext);
         errno = 0;
         if (rename(tmp_file, cover_file) == -1) {
