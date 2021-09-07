@@ -72,8 +72,8 @@ void streamuri_to_filename(sds s) {
         sdsclear(s);
         return;
     }
-    size_t i = 0;
-    for (i = 0; i < sdslen(s) - 2; i++) {
+    ssize_t i;
+    for (i = 0; i < (ssize_t)sdslen(s) - 2; i++) {
         if (s[i] == ':' && s[i + 1] == '/' && s[i + 2] == '/') {
             break;
         }
