@@ -18,6 +18,10 @@ function tn(phrase, number, data) {
 }
 
 function _translate(phrase, number, data) {
+    if (phrase === undefined) {
+        logWarn('Phrase is undefined');
+        return 'undefined';
+    }
     let result = undefined;
     if (isNaN(number)) {
         data = number;
