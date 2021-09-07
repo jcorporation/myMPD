@@ -12,8 +12,7 @@
 #include "../../dist/src/sds/sds.h"
 
 int testdir(const char *name, const char *dirname, bool create);
-int replacechar(char *str, const char orig, const char rep);
-int uri_to_filename(char *str);
+void streamuri_to_filename(sds s);
 bool strtobool(const char *value);
 int strip_extension(char *s);
 void strip_slash(sds s);

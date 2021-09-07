@@ -67,25 +67,23 @@ int strip_extension(char *s) {
     return -1;
 }
 
-int replacechar(char *str, const char orig, const char rep) {
-    char *ix = str;
-    int n = 0;
-    while ((ix = strchr(ix, orig)) != NULL) {
-        *ix++ = rep;
-        n++;
+void streamuri_to_filename(sds s) {
+    if (sdslen(s) < 4) {
+        sdsclear(s);
+        return;
     }
-    return n;
+    size_t i = 0;
+    for (i = 0; i < sdslen(s) - 2; i++) {
+        if (s[i] == ':' && s[i + 1] == '/' && s[i + 2] == '/') {
+            break;
+        }
+    }
+    sdsrange(s, i + 3, -1);
+    sdsmapchars(s, "/.:", "___", 3);
 }
 
 bool strtobool(const char *value) {
-    return strncmp(value, "true", 4) == 0 ? true : false;
-}
-
-int uri_to_filename(char *str) {
-    int n = replacechar(str, '/', '_');
-    n+= replacechar(str, '.', '_');
-    n+= replacechar(str, ':', '_');
-    return n;
+    return value[0] == 't' ? true : false;
 }
 
 void my_usleep(time_t usec) {

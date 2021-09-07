@@ -80,19 +80,22 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
         FREE_SDS(uri_decoded);
         return true;
     }
+
+    //remove /albumart/
+    sdsrange(uri_decoded, 10, -1);
+
     MYMPD_LOG_DEBUG("Handle albumart for uri \"%s\"", uri_decoded);
     //try image in /pics folder, if uri contains ://
     if (is_streamuri(uri_decoded) == true) {
-        char *name = strstr(uri_decoded, "://");
-        if (strlen(name) < 4) {
+        streamuri_to_filename(uri_decoded);
+        if (sdslen(uri_decoded) == 0) {
             MYMPD_LOG_ERROR("Uri to short");
             serve_na_image(nc, hm);
             FREE_SDS(uri_decoded);
             return true;
-        }
-        name += 3;
-        uri_to_filename(name);
-        sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, name);
+        }     
+
+        sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, uri_decoded);
         MYMPD_LOG_DEBUG("Check for stream cover %s", coverfile);
         coverfile = find_image_file(coverfile);
         
@@ -108,13 +111,11 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
         FREE_SDS(uri_decoded);
         return true;
     }
-    //remove /albumart/
-    sdsrange(uri_decoded, 10, -1);
     
     //check covercache
     if (mg_user_data->covercache == true) {
         sds filename = sdsdup(uri_decoded);
-        uri_to_filename(filename);
+        sdsmapchars(filename, "/", "_", 1);
         sds covercachefile = sdscatfmt(sdsempty(), "%s/covercache/%s", config->workdir, filename);
         FREE_SDS(filename);
         covercachefile = find_image_file(covercachefile);

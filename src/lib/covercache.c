@@ -32,7 +32,7 @@ bool write_covercache_file(const char *workdir, const char *uri, const char *mim
     }
     bool rc = false;
     sds filename = sdsnew(uri);
-    uri_to_filename(filename);
+    sdsmapchars(filename, "/", "_", 1);
     sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", workdir, filename);
     errno = 0;
     int fd = mkstemp(tmp_file);
