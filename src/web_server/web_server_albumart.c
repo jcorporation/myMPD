@@ -40,7 +40,7 @@ void send_albumart(struct mg_connection *nc, sds data, sds binary) {
     sds mime_type = NULL;
     if ( len > 0 &&
         json_get_string(data, "$.params.mime_type", 1, 200, &mime_type, vcb_isname, NULL) == true &&
-        strcmp(mime_type, "application/octet-stream") != 0)
+        strncmp(mime_type, "image/", 6) != 0)
     {
         MYMPD_LOG_DEBUG("Serving file from memory (%s - %u bytes)", mime_type, len);
         sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", mime_type);
