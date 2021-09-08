@@ -670,7 +670,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
                 "WWW-Authenticate: Bearer realm=\"myMPD\"\r\n"
                 "Content-Type: application/json; charset=utf-8\r\n"
                 "Content-Length: %d\r\n\r\n", 
-                sdslen(response));
+                (int)sdslen(response));
             mg_send(nc, response, sdslen(response));
             FREE_SDS(cmd);
             FREE_SDS(jsonrpc);
