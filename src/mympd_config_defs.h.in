@@ -4,22 +4,20 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __CONFIG_STRUCT_H__
-#define __CONFIG_STRUCT_H__
+//This file is configured by cmake
+
+#ifndef MYMPD_CONFIG_DEFS_H
+#define MYMPD_CONFIG_DEFS_H
+
+#include <limits.h>
 
 //Debug build
 #cmakedefine DEBUG
 
-//libid3tag
+//features
 #cmakedefine ENABLE_LIBID3TAG
-
-//flac
 #cmakedefine ENABLE_FLAC
-
-//openssl
 #cmakedefine ENABLE_SSL
-
-//lua
 #cmakedefine ENABLE_LUA
 
 //myMPD version from cmake
@@ -33,45 +31,21 @@
 #define VARLIB_PATH "${VARLIB_PATH}"
 #define LUALIBS_PATH "${LUALIBS_PATH}"
 
-//default navbar icons
-#define NAVBAR_ICONS "[{\"ligature\":\"home\",\"title\":\"Home\",\"options\":[\"Home\"],\"badge\":\"\"},"\
-    "{\"ligature\":\"equalizer\",\"title\":\"Playback\",\"options\":[\"Playback\"],\"badge\":\"\"},"\
-    "{\"ligature\":\"queue_music\",\"title\":\"Queue\",\"options\":[\"Queue\"],\"badge\":\"<span id=\\\"badgeQueueItems\\\" class=\\\"badge badge-secondary\\\"></span>\"},"\
-    "{\"ligature\":\"library_music\",\"title\":\"Browse\",\"options\":[\"Browse\"],\"badge\":\"\"},"\
-    "{\"ligature\":\"search\",\"title\":\"Search\",\"options\":[\"Search\"],\"badge\":\"\"}]"
+//io defaults
+#define OPEN_FLAGS_READ "re"
+#define OPEN_FLAGS_READ_BIN "rbe"
+#define OPEN_FLAGS_WRITE "we"
 
-//measure time
-#define MEASURE_START clock_t measure_start = clock();
-#define MEASURE_END clock_t measure_end = clock();
-#define MEASURE_PRINT(X) MYMPD_LOG_DEBUG("Execution time for %s: %lf", X, ((double) (measure_end - measure_start)) / CLOCKS_PER_SEC);
-
-//max results if limit is set to any
-#define MAX_RESULTS 1000
-
-//myMPD configuration
-struct t_config {
-    sds user;
-    sds workdir;
-    sds http_host;
-    sds http_port;
-#ifdef ENABLE_SSL
-    bool ssl;
-    sds ssl_port;
-    sds ssl_cert;
-    sds ssl_key;
-    bool custom_cert;
-    sds ssl_san;
-#endif
-    sds acl;
-    sds scriptacl;
-#ifdef ENABLE_LUA
-    sds lualibs;
-#endif
-    bool syslog;
-    int loglevel;
-    time_t startup_time;
-    bool first_startup;
-    bool bootstrap;
-};
+//limits
+//max number of results to retrieve from mpd
+#define MAX_MPD_RESULTS 1000
+#define MAX_MPD_PLAYLIST_LENGTH 16384
+#define MAX_MPD_BINARY_SIZE 5242880
+//limits for json parsing
+#define JSONRPC_INT_MIN INT_MIN
+#define JSONRPC_INT_MAX INT_MAX
+#define JSONRPC_UINT_MAX INT_MAX
+#define JSONRPC_STR_MAX 1000
+#define JSONRPC_KEY_MAX 50
 
 #endif

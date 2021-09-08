@@ -163,21 +163,21 @@ function appRoute() {
             "offset": app.current.offset,
             "limit": app.current.limit,
             "cols": settings.colsQueueLastPlayed
-        }, parseLastPlayed);
+        }, parseLastPlayed, true);
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
         sendAPI("MYMPD_API_JUKEBOX_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
             "cols": settings.colsQueueJukebox
-        }, parseJukeboxList);
+        }, parseJukeboxList, true);
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
         sendAPI("MYMPD_API_PLAYLIST_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
             "searchstr": app.current.search
-        }, parsePlaylistsList);
+        }, parsePlaylistsList, true);
         const searchPlaylistsStrEl = document.getElementById('searchPlaylistsListStr');
         if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
             searchPlaylistsStrEl.value = app.current.search;
@@ -190,7 +190,7 @@ function appRoute() {
             "searchstr": app.current.search,
             "plist": app.current.filter,
             "cols": settings.colsBrowsePlaylistsDetail
-        }, parsePlaylistsDetail);
+        }, parsePlaylistsDetail, true);
         const searchPlaylistsStrEl = document.getElementById('searchPlaylistsDetailStr');
         if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
             searchPlaylistsStrEl.value = app.current.search;
@@ -250,13 +250,13 @@ function appRoute() {
             document.getElementById('searchDatabaseMatch').classList.remove('hide');
             elEnable('btnDatabaseSortDropdown');
             elEnable('btnDatabaseSearchDropdown');
-            sendAPI("MYMPD_API_DATABASE_GET_ALBUMS", {
+            sendAPI("MYMPD_API_DATABASE_ALBUMS_GET", {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
                 "expression": app.current.search, 
                 "sort": sort,
                 "sortdesc": sortdesc
-            }, parseDatabase);
+            }, parseDatabase, true);
         }
         else {
             document.getElementById('searchDatabaseCrumb').classList.add('hide');
@@ -269,7 +269,7 @@ function appRoute() {
                 "limit": app.current.limit,
                 "searchstr": app.current.search, 
                 "tag": app.current.tag
-            }, parseDatabase);
+            }, parseDatabase, true);
         }
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail') {
@@ -282,7 +282,7 @@ function appRoute() {
                 "album": app.current.tag,
                 "albumartist": app.current.search,
                 "cols": cols
-            }, parseAlbumDetails);
+            }, parseAlbumDetails, true);
         }    
     }
     else if (app.current.app === 'Search') {
@@ -300,6 +300,9 @@ function appRoute() {
                 '<td colspan="' + settings['cols' + app.current.app].length + '">' + t('Searching...') + '</td></tr>';
         }
 
+        if (app.current.search === '') {
+            document.getElementById('searchstr').value = '';
+        }
         if (document.getElementById('searchstr').value.length >= 2 || document.getElementById('searchCrumb').children.length > 0) {
             if (features.featAdvsearch) {
                 let sort = app.current.sort;
@@ -321,7 +324,7 @@ function appRoute() {
                     "expression": app.current.search,
                     "cols": settings.colsSearchActions,
                     "replace": false
-                }, parseSearch);
+                }, parseSearch, true);
             }
             else {
                 sendAPI("MYMPD_API_DATABASE_SEARCH", {
@@ -332,7 +335,7 @@ function appRoute() {
                     "searchstr": app.current.search,
                     "cols": settings.colsSearchActions,
                     "replace": false
-                }, parseSearch);
+                }, parseSearch, true);
             }
         }
         else {
@@ -391,12 +394,7 @@ function a2hsInit() {
         deferredA2HSprompt.prompt();
         // Wait for the user to respond to the prompt
         deferredA2HSprompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                logDebug('User accepted the A2HS prompt');
-            }
-            else {
-                logDebug('User dismissed the A2HS prompt');
-            }
+            logDebug(choiceResult.outcome === 'accepted' ? 'User accepted the A2HS prompt' : 'User dismissed the A2HS prompt');
             deferredA2HSprompt = null;
         });
     });
@@ -434,8 +432,8 @@ function appInitStart() {
         settings.loglevel = 4;
     }
     //register serviceworker
-    if ('serviceWorker' in navigator && window.location.protocol === 'https:' 
-        && window.location.hostname !== 'localhost' && script === 'combined.js')
+    if ('serviceWorker' in navigator && window.location.protocol === 'https:' && 
+        window.location.hostname !== 'localhost' && script === 'combined.js')
     {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('/sw.js', {scope: '/'}).then(function(registration) {
@@ -549,6 +547,7 @@ function appInit() {
     initPlayback();
     initNavs();
     initPlaylists();
+    initOutputs();
     //init drag and drop
     dragAndDropTable('QueueCurrentList');
     dragAndDropTable('BrowsePlaylistsDetailList');
@@ -590,7 +589,10 @@ function appInit() {
         'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsListList', 'BrowsePlaylistsDetailList'];
     for (const tableName of tables) {
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {
-            if (event.target.parentNode.classList.contains('not-clickable') || getCustomDomProperty(event.target.parentNode, 'data-type') === 'parentDir') {
+            if (event.target.parentNode.classList.contains('not-clickable') ||
+                event.target.parentNode.parentNode.classList.contains('not-clickable') ||
+                getCustomDomProperty(event.target.parentNode, 'data-type') === 'parentDir')
+            {
                 return;
             }
             showMenu(event.target, event);
@@ -599,7 +601,10 @@ function appInit() {
         }, false);
     
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('contextmenu', function(event) {
-            if (event.target.parentNode.classList.contains('not-clickable') || getCustomDomProperty(event.target.parentNode, 'data-type') === 'parentDir') {
+            if (event.target.parentNode.classList.contains('not-clickable') ||
+                event.target.parentNode.parentNode.classList.contains('not-clickable') ||
+                getCustomDomProperty(event.target.parentNode, 'data-type') === 'parentDir')
+            {
                 return;
             }
             showMenu(event.target, event);
@@ -634,11 +639,21 @@ function initGlobalModals() {
             }
         }
         document.getElementById('shortcutList').innerHTML = list + '</div>';
-    });
+    }, false);
     
-    document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function() {
         document.getElementById('updateDBprogress').classList.remove('updateDBprogressAnimate');
-    });
+    }, false);
+
+    document.getElementById('modalEnterPin').addEventListener('shown.bs.modal', function() {
+        document.getElementById('inputPinModal').focus();
+    }, false);
+    
+    document.getElementById('inputPinModal').addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            document.getElementById('modalEnterPinEnterBtn').click();        
+        }
+    }, false);
 }
 
 function initPlayback() {
@@ -658,13 +673,6 @@ function initPlayback() {
 }
 
 function initNavs() {
-    //do not hide volume menu on click on volume change buttons
-    for (const elName of ['btnChVolumeDown', 'btnChVolumeUp', 'volumeBar']) {
-        document.getElementById(elName).addEventListener('click', function(event) {
-            event.stopPropagation();
-        }, false);
-    }
-
     //do not switch to first view by clicking on main menu logo
     document.getElementById('mainMenu').addEventListener('click', function(event) {
         event.preventDefault();
@@ -716,24 +724,6 @@ function initNavs() {
         parseCmd(event, href);
     }, false);
     
-    document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
-        sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs);
-    });
-
-    document.getElementById('outputs').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'A') {
-            event.preventDefault();
-            showListOutputAttributes(getCustomDomProperty(event.target.parentNode, 'data-output-name'));
-        }
-        else {
-            const target = event.target.nodeName === 'BUTTON' ? event.target : event.target.parentNode;
-            event.stopPropagation();
-            event.preventDefault();
-            sendAPI("MYMPD_API_PLAYER_TOGGLE_OUTPUT", {"outputId": getCustomDomProperty(target, 'data-output-id'), "state": (target.classList.contains('active') ? 0 : 1)});
-            toggleBtn(target.id);
-        }
-    }, false);
-
     document.getElementById('scripts').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             execScript(getCustomDomProperty(event.target, 'data-href'));

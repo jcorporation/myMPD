@@ -4,29 +4,16 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdlib.h>
-#include <libgen.h>
-#include <pthread.h>
-#include <string.h>
-#include <inttypes.h>
-#include <signal.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <mpd/client.h>
-
-#include "../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "sds_extras.h"
-#include "list.h"
 #include "mympd_config_defs.h"
-#include "tiny_queue.h"
-#include "api.h"
-#include "global.h"
-#include "utility.h"
-#include "log.h"
-#include "mympd_state.h"
-#include "mpd_shared/mpd_shared_tags.h"
 #include "mpd_shared.h"
+
+#include "lib/jsonrpc.h"
+#include "lib/log.h"
+#include "lib/mem.h"
+#include "lib/sds_extras.h"
+#include "mpd_shared/mpd_shared_tags.h"
+
+#include <stdlib.h>
 
 //mpd state
 void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state) {
@@ -65,11 +52,11 @@ void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state) {
 }
 
 void mpd_shared_free_mpd_state(struct t_mpd_state *mpd_state) {
-    sdsfree(mpd_state->mpd_host);
-    sdsfree(mpd_state->mpd_pass);
-    sdsfree(mpd_state->song_uri);
-    sdsfree(mpd_state->last_song_uri);
-    sdsfree(mpd_state->tag_list);
+    FREE_SDS(mpd_state->mpd_host);
+    FREE_SDS(mpd_state->mpd_pass);
+    FREE_SDS(mpd_state->song_uri);
+    FREE_SDS(mpd_state->last_song_uri);
+    FREE_SDS(mpd_state->tag_list);
     FREE_PTR(mpd_state);
 }
 
@@ -89,9 +76,14 @@ bool check_rc_error_and_recover(struct t_mpd_state *mpd_state, sds *buffer,
         return false;
     }
     if (rc == false) {
-        //TODO: implement notify jsonrpc message on demand
         if (buffer != NULL && *buffer != NULL) {
-            *buffer = respond_with_command_error(*buffer, method, request_id, command);
+            if (notify == false) {
+                *buffer = respond_with_command_error(*buffer, method, request_id, command);
+            }
+            else {
+                *buffer = jsonrpc_notify_phrase(*buffer, "mpd", "error", "Error in response to command: %{command}",
+                            2, "command", command);
+            }
         }
         MYMPD_LOG_ERROR("Error in response to command %s", command);
         return false;
@@ -149,7 +141,7 @@ sds respond_with_command_error(sds buffer, sds method, long request_id, const ch
 sds respond_with_mpd_error_or_ok(struct t_mpd_state *mpd_state, sds buffer, sds method, 
                                  long request_id, bool rc, const char *command)
 {
-    buffer = sdscrop(buffer);
+    sdsclear(buffer);
     if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, 
                                    rc, command) == false)
     {

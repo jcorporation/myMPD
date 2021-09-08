@@ -4,48 +4,31 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <poll.h>
-#include <pthread.h>
-#include <string.h>
-#include <signal.h>
-#include <assert.h>
-#include <unistd.h>
-
-#include <mpd/client.h>
-
-#include "../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "sds_extras.h"
-#include "log.h"
-#include "list.h"
 #include "mympd_config_defs.h"
-#include "tiny_queue.h"
-#include "api.h"
-#include "global.h"
-#include "utility.h"
-#include "lua_mympd_state.h"
-#include "mympd_state.h"
-#include "mpd_shared/mpd_shared_tags.h"
-#include "mpd_shared.h"
-#include "mpd_shared/mpd_shared_sticker.h"
-#include "mpd_client/mpd_client_utility.h"
-#include "mpd_client/mpd_client_browse.h"
+#include "mpd_client.h"
+
+#include "lib/jsonrpc.h"
+#include "lib/log.h"
+#include "lib/sds_extras.h"
+#include "lib/utility.h"
+#include "mpd_client/mpd_client_features.h"
 #include "mpd_client/mpd_client_jukebox.h"
-#include "mpd_client/mpd_client_playlists.h"
-#include "mpd_client/mpd_client_stats.h"
 #include "mpd_client/mpd_client_state.h"
-#include "mympd_state.h"
-#include "mpd_worker.h"
-#include "mpd_client/mpd_client_features.h"
+#include "mpd_client/mpd_client_stats.h"
 #include "mpd_client/mpd_client_queue.h"
-#include "mpd_client/mpd_client_features.h"
 #include "mpd_client/mpd_client_sticker.h"
 #include "mpd_client/mpd_client_timer.h"
 #include "mpd_client/mpd_client_trigger.h"
+#include "mpd_client/mpd_client_utility.h"
+#include "mpd_shared.h"
+#include "mpd_shared/mpd_shared_tags.h"
+#include "mpd_worker.h"
 #include "mympd_api/mympd_api_handler.h"
-#include "mpd_client.h"
+#include "mympd_api/mympd_api_timer.h"
+#include "mympd_api/mympd_api_timer_handlers.h"
+
+#include <poll.h>
+#include <string.h>
 
 //private definitions
 static bool update_mympd_caches(struct t_mympd_state *mympd_state);
@@ -136,7 +119,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
             if (sdslen(buffer) > 0) {
                 ws_notify(buffer);
             }
-            sdsfree(buffer);
+            FREE_SDS(buffer);
         }
     }
 }
@@ -197,7 +180,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 MYMPD_LOG_ERROR("MPD connection to failed: out-of-memory");
                 buffer = jsonrpc_event(buffer, "mpd_disconnected");
                 ws_notify(buffer);
-                sdsfree(buffer);
+                FREE_SDS(buffer);
                 mympd_state->mpd_state->conn_state = MPD_FAILURE;
                 mpd_connection_free(mympd_state->mpd_state->conn);
                 return;
@@ -208,7 +191,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 buffer = jsonrpc_notify_phrase(buffer, "mpd", "error", "MPD connection error: %{error}", 
                     2, "error", mpd_connection_get_error_message(mympd_state->mpd_state->conn));
                 ws_notify(buffer);
-                sdsfree(buffer);
+                FREE_SDS(buffer);
                 mympd_state->mpd_state->conn_state = MPD_FAILURE;
                 return;
             }
@@ -218,7 +201,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 buffer = jsonrpc_notify_phrase(buffer, "mpd", "error", "MPD connection error: %{error}", 2, 
                     "error", mpd_connection_get_error_message(mympd_state->mpd_state->conn));
                 ws_notify(buffer);
-                sdsfree(buffer);
+                FREE_SDS(buffer);
                 mympd_state->mpd_state->conn_state = MPD_FAILURE;
                 return;
             }
@@ -247,7 +230,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             //initiate cache updates
             update_mympd_caches(mympd_state);
             //set timer for smart playlist update
-            mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, mympd_state->smartpls_interval, "timer_handler_smartpls_update");
+            replace_timer(&mympd_state->timer_list, 10, (int)mympd_state->smartpls_interval, timer_handler_smartpls_update, 2, NULL, NULL);
             //jukebox
             if (mympd_state->jukebox_mode != JUKEBOX_OFF) {
                 mpd_client_jukebox(mympd_state, 0);
@@ -374,7 +357,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
         default:
             MYMPD_LOG_ERROR("Invalid mpd connection state");
     }
-    sdsfree(buffer);
+    FREE_SDS(buffer);
 }
 
 static bool update_mympd_caches(struct t_mympd_state *mympd_state) {
@@ -387,8 +370,8 @@ static bool update_mympd_caches(struct t_mympd_state *mympd_state) {
     if (mympd_state->mpd_state->feat_tags == true) {
         mympd_state->album_cache_building = true;
     }
-    t_work_request *request = create_request(-1, 0, MYMPD_API_CACHES_CREATE, "MYMPD_API_CACHES_CREATE", "");
-    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_CACHES_CREATE\",\"params\":{}}");
+    t_work_request *request = create_request(-1, 0, INTERNAL_API_CACHES_CREATE, NULL);
+    request->data = sdscat(request->data, "}}");
     bool rc = mpd_worker_start(mympd_state, request);
     if (rc == false) {
         mympd_state->sticker_cache_building = false;

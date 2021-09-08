@@ -8,12 +8,11 @@ function initTrigger() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            const id = decodeURI(event.target.parentNode.getAttribute('data-trigger-id'));
-            showEditTrigger(id);
+            showEditTrigger(Number(getCustomDomProperty(event.target.parentNode, 'data-trigger-id')));
         }
         else if (event.target.nodeName === 'A') {
-            const action = event.target.getAttribute('data-action');
-            const id = decodeURI(event.target.parentNode.parentNode.getAttribute('data-trigger-id'));
+            const action = getCustomDomProperty(event.target, 'data-action');
+            const id = Number(getCustomDomProperty(event.target.parentNode.parentNode, 'data-trigger-id'));
             if (action === 'delete') {
                 deleteTrigger(id);
             }
@@ -25,6 +24,7 @@ function initTrigger() {
     }, false);
 
     document.getElementById('modalTrigger').addEventListener('shown.bs.modal', function () {
+        hideModalAlert();
         showListTrigger();
     });
 }
@@ -53,15 +53,27 @@ function saveTrigger() {
         sendAPI("MYMPD_API_TRIGGER_SAVE", {
             "id": Number(document.getElementById('inputTriggerId').value),
             "name": nameEl.value,
-            "event": getSelectValue('selectTriggerEvent'),
+            "event": Number(getSelectValue('selectTriggerEvent')),
             "script": getSelectValue('selectTriggerScript'),
             "arguments": args
-            }, showListTrigger, false);
+            }, saveTriggerCheckError, true);
+    }
+}
+
+function saveTriggerCheckError(obj) {
+    removeEnterPinFooter();
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        showListTrigger();
     }
 }
 
 //eslint-disable-next-line no-unused-vars
 function showEditTrigger(id) {
+    removeEnterPinFooter();
     document.getElementById('listTrigger').classList.remove('active');
     document.getElementById('newTrigger').classList.add('active');
     document.getElementById('listTriggerFooter').classList.add('hide');
@@ -75,7 +87,9 @@ function showEditTrigger(id) {
     document.getElementById('selectTriggerEvent').selectedIndex = 0;
     document.getElementById('selectTriggerScript').selectedIndex = 0;
     if (id > -1) {
-        sendAPI("MYMPD_API_TRIGGER_GET", {"id": id}, parseTriggerEdit, false);
+        sendAPI("MYMPD_API_TRIGGER_GET", {
+            "id": id
+        }, parseTriggerEdit, false);
     }
     else {
         selectTriggerActionChange();
@@ -120,38 +134,38 @@ function showTriggerScriptArgs(option, values) {
 }
 
 function showListTrigger() {
+    removeEnterPinFooter();
     document.getElementById('listTrigger').classList.add('active');
     document.getElementById('newTrigger').classList.remove('active');
     document.getElementById('listTriggerFooter').classList.remove('hide');
     document.getElementById('newTriggerFooter').classList.add('hide');
-    sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
+    sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, true);
 }
 
 function deleteTrigger(id) {
-    sendAPI("MYMPD_API_TRIGGER_DELETE", {"id": id}, function() {
-        sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
-    }, true);
+    sendAPI("MYMPD_API_TRIGGER_RM", {
+        "id": id
+    }, saveTriggerCheckError, true);
 }
 
 function parseTriggerList(obj) {
-    if (obj.result.returnedEntities > 0) {
-        let triggerList = '';
-        for (let i = 0; i < obj.result.returnedEntities; i++) {
-            triggerList += '<tr data-trigger-id="' + encodeURI(obj.result.data[i].id) + '"><td class="' +
-                (obj.result.data[i].name === settings.trigger ? 'font-weight-bold' : '') +
-                '">' + e(obj.result.data[i].name) + 
-                '</td>' +
-                '<td>' + t(obj.result.data[i].eventName) + '</td>' +
-                '<td>' + e(obj.result.data[i].script) + '</td>' +
-                '<td data-col="Action">' +
-                (obj.result.data[i].name === 'default' || obj.result.data[i].name === settings.trigger  ? '' : 
-                    '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>') +
-                '</td></tr>';
-        }
-        document.getElementById('listTriggerList').innerHTML = triggerList;
+    const tbody = document.getElementById('listTriggerList');
+    if (checkResult(obj, tbody, 3) === false) {
+        return;
     }
-    else {
-        document.getElementById('listTriggerList').innerHTML = '<tr class="not-clickable">' +
-            '<td colspan="3"><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
+
+    let triggerList = '';
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
+        triggerList += '<tr data-trigger-id="' + encodeURI(obj.result.data[i].id) + '"><td class="' +
+            (obj.result.data[i].name === settings.trigger ? 'font-weight-bold' : '') +
+            '">' + e(obj.result.data[i].name) + 
+            '</td>' +
+            '<td>' + t(obj.result.data[i].eventName) + '</td>' +
+            '<td>' + e(obj.result.data[i].script) + '</td>' +
+            '<td data-col="Action">' +
+            (obj.result.data[i].name === 'default' || obj.result.data[i].name === settings.trigger  ? '' : 
+                '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>') +
+            '</td></tr>';
     }
+    tbody.innerHTML = triggerList;
 }

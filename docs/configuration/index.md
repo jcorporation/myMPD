@@ -19,7 +19,10 @@ The `workdir` option is useful if you want to run more then one instance of myMP
 | -u, --user `<username>`| username to drop privileges to (default: `mympd`) |
 | -s, --syslog | enable syslog logging (facility: daemon) |
 | -w, --workdir `<path>` | working directory (default: `/var/lib/mympd`) |
+| -p, --pin | sets a pin for myMPD settings |
 {: .table .table-sm }
+
+- Setting a pin is only supported with compiled in ssl support
 
 ## Configuration files
 
@@ -41,6 +44,7 @@ After first startup all environment variables are ignored and the files in the d
 | custom_cert | boolean | MYMPD_CUSTOM_CERT | false | `true` = use custom ssl key and certificate |
 | ssl_cert | string | MYMPD_SSL_CERT | | Path to custom ssl certificate file |
 | ssl_key | string | MYMPD_SSL_KEY | | Path to custom ssl key file |
+| pin_hash | string | N/A | | SHA256 hash of pin, create it with `mympd -p` |
 {: .table .table-sm }
 
 - More details on [SSL]({{ site.baseurl }}/configuration/ssl)
@@ -59,3 +63,5 @@ myMPD tries to autodetect the mpd connection at first startup.
 | MPD_HOST | `/run/mpd/socket` | MPD host or path to mpd socket |
 | MPD_PORT | 6600 | MPD port |
 {: .table .table-sm}
+
+This is done after droping privileges to the mympd user.

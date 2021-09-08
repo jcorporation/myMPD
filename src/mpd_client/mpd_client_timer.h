@@ -4,9 +4,13 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MPD_CLIENT_TIMER_H__
-#define __MPD_CLIENT_TIMER_H__
-void mpd_client_set_timer(enum mympd_cmd_ids cmd_id, const char *cmd, int timeout, int interval, const char *handler);
+#ifndef MYMPD_MPD_CLIENT_TIMER_H
+#define MYMPD_MPD_CLIENT_TIMER_H
+
+#include "../../dist/src/sds/sds.h"
+#include "../lib/api.h"
+#include "../lib/mympd_state.h"
+
 sds mpd_client_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
                                unsigned volume, const char *playlist, enum jukebox_modes jukebox_mode);
 #endif

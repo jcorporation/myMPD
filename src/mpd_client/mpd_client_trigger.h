@@ -4,10 +4,13 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MPD_CLIENT_TRIGGER_H
-#define MPD_CLIENT_TRIGGER_H
+#ifndef MYMPD_MPD_CLIENT_TRIGGER_H
+#define MYMPD_MPD_CLIENT_TRIGGER_H
+
+#include "../lib/mympd_state.h"
+
 sds trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
-sds trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, int id);
+sds trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, unsigned id);
 bool triggerfile_read(struct t_mympd_state *mympd_state);
 bool triggerfile_save(struct t_mympd_state *mympd_state);
 void free_trigerlist_arguments(struct t_mympd_state *mympd_state);

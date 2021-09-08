@@ -4,8 +4,12 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MPD_SHARED_TAGS_H__
-#define __MPD_SHARED_TAGS_H__
+#ifndef MYMPD_MPD_SHARED_TAGS_H
+#define MYMPD_MPD_SHARED_TAGS_H
+
+#include "../../dist/src/sds/sds.h"
+#include "../lib/mympd_state.h"
+
 void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list);
 void reset_t_tags(struct t_tags *tags);
 void disable_all_mpd_tags(struct t_mpd_state *mpd_state);

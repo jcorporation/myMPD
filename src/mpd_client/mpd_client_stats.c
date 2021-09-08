@@ -4,29 +4,25 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <inttypes.h>
-#include <time.h>
-#include <libgen.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../api.h"
-#include "../log.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../mympd_state.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
-#include "../mpd_shared.h"
-#include "mpd_client_utility.h"
 #include "mpd_client_stats.h"
+
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
+#include "../lib/mympd_configuration.h"
+#include "../lib/sds_extras.h"
+#include "../lib/utility.h"
+#include "../lib/validate.h"
+#include "../mpd_shared.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "mpd_client_utility.h"
+
+#include <errno.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 //private definitions
 static sds mpd_client_put_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, 
@@ -41,31 +37,30 @@ bool mpd_client_last_played_list_save(struct t_mympd_state *mympd_state) {
     if (fd < 0 ) {
         MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(tmp_file);
+        FREE_SDS(tmp_file);
         return false;
     }    
     
     FILE *fp = fdopen(fd, "w");
     //first write last_played list to tmp file
     unsigned i = 0;
-    struct list_node *current = mympd_state->last_played.head;
+    struct t_list_node *current = mympd_state->last_played.head;
     while (current != NULL && i < mympd_state->last_played_count) {
         fprintf(fp, "%ld::%s\n", current->value_i, current->key);
         current = current->next;
         i++;
     }
     //append current last_played file to tmp file
-    char *line = NULL;
-    size_t n = 0;
+    sds line = sdsempty();
     sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->workdir);
     errno = 0;
-    FILE *fi = fopen(lp_file, "r");
+    FILE *fi = fopen(lp_file, OPEN_FLAGS_READ);
     if (fi != NULL) {
-        while (getline(&line, &n, fi) > 0 && i < mympd_state->last_played_count) {
-            fputs(line, fp);
+        while (sdsgetline(&line, fi, 1000) == 0 && i < mympd_state->last_played_count) {
+            fprintf(fp, "%s\n", line);
             i++;
         }
-        FREE_PTR(line);
+        FREE_SDS(line);
         fclose(fi);
     }
     else {
@@ -80,14 +75,14 @@ bool mpd_client_last_played_list_save(struct t_mympd_state *mympd_state) {
     if (rename(tmp_file, lp_file) == -1) {
         MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, lp_file);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(tmp_file);
-        sdsfree(lp_file);
+        FREE_SDS(tmp_file);
+        FREE_SDS(lp_file);
         return false;
     }
-    sdsfree(tmp_file);
-    sdsfree(lp_file);
+    FREE_SDS(tmp_file);
+    FREE_SDS(lp_file);
     //empt list after write to disc
-    list_free(&mympd_state->last_played);    
+    list_clear(&mympd_state->last_played);    
     return true;
 }
 
@@ -134,7 +129,7 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
     buffer = sdscat(buffer, "\"data\":[");
     
     if (mympd_state->last_played.length > 0) {
-        struct list_node *current = mympd_state->last_played.head;
+        struct t_list_node *current = mympd_state->last_played.head;
         while (current != NULL) {
             entity_count++;
             if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
@@ -147,21 +142,18 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
         }
     }
 
-    char *line = NULL;
+    sds line = sdsempty();
     char *data = NULL;
-    char *crap = NULL;
-    size_t n = 0;
     sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->workdir);
     errno = 0;
-    FILE *fp = fopen(lp_file, "r");
+    FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
-        while (getline(&line, &n, fp) > 0) {
+        while (sdsgetline(&line, fp, 1000) == 0) {
             entity_count++;
             if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
-                int value = strtoimax(line, &data, 10);
+                int value = (int)strtoimax(line, &data, 10);
                 if (strlen(data) > 2) {
                     data = data + 2;
-                    strtok_r(data, "\n", &crap);
                     if (entities_returned++) {
                         buffer = sdscat(buffer, ",");
                     }
@@ -174,7 +166,7 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
             }
         }
         fclose(fp);
-        FREE_PTR(line);
+        FREE_SDS(line);
     }
     else {
         //ignore error
@@ -183,7 +175,7 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
             MYMPD_LOG_ERRNO(errno);
         }
     }
-    sdsfree(lp_file);
+    FREE_SDS(lp_file);
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);
@@ -217,12 +209,12 @@ sds mpd_client_put_stats(struct t_mympd_state *mympd_state, sds buffer, sds meth
     buffer = tojson_char(buffer, "mpdVersion", mpd_version, true);
     sds libmympdclient_version = sdscatfmt(sdsempty(), "%i.%i.%i", LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION);
     buffer = tojson_char(buffer, "libmympdclientVersion", libmympdclient_version, true);
-    sdsfree(libmympdclient_version);
+    FREE_SDS(libmympdclient_version);
     buffer = tojson_char(buffer, "libmpdclientVersion", libmpdclient_version, false);
     buffer = jsonrpc_result_end(buffer);
 
-    sdsfree(mpd_version);
-    sdsfree(libmpdclient_version);
+    FREE_SDS(mpd_version);
+    FREE_SDS(libmpdclient_version);
     mpd_stats_free(stats);
 
     return buffer;

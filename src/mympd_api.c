@@ -4,51 +4,31 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <libgen.h>
-#include <ctype.h>
-#include <libgen.h>
-#include <dirent.h>
-#include <stdbool.h>
-#include <pthread.h>
-#include <signal.h>
-#include <assert.h>
-#include <inttypes.h>
-
-#include <mpd/client.h>
-
-#include "../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "sds_extras.h"
-#include "../dist/src/frozen/frozen.h"
-#include "api.h"
-#include "log.h"
-#include "list.h"
-#include "tiny_queue.h"
 #include "mympd_config_defs.h"
-#include "utility.h"
-#include "global.h"
-#include "lua_mympd_state.h"
-#include "mympd_state.h"
+#include "mympd_api.h"
+
+#include "lib/api.h"
+#include "lib/log.h"
+#include "lib/mem.h"
+#include "lib/mympd_configuration.h"
+#include "lib/sds_extras.h"
+#include "lib/validate.h"
 #include "mpd_client.h"
-#include "covercache.h"
-#include "mympd_api/mympd_api_utility.h"
-#include "mympd_api/mympd_api_timer.h"
+#include "mpd_client/mpd_client_stats.h"
+#include "mpd_client/mpd_client_trigger.h"
+#include "mpd_shared.h"
+#include "mympd_autoconf.h"
+#include "mympd_api/mympd_api_home.h"
 #include "mympd_api/mympd_api_settings.h"
 #include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_timer_handlers.h"
-#include "mympd_api/mympd_api_scripts.h"
-#include "mympd_api/mympd_api_home.h"
-#include "mpd_client/mpd_client_trigger.h"
-#include "mpd_client/mpd_client_stats.h"
-#include "mpd_shared.h"
-#include "mpd_shared/mpd_shared_sticker.h"
-#include "mpd_shared/mpd_shared_tags.h"
-#include "mympd_autoconf.h"
-#include "mympd_api.h"
+#include "mympd_api/mympd_api_utility.h"
+
+#include <inttypes.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/prctl.h>
+#include <unistd.h>
 
 //private definitions
 void mympd_autoconf(struct t_mympd_state *mympd_state);
@@ -56,10 +36,10 @@ void mympd_autoconf(struct t_mympd_state *mympd_state);
 //public functions
 void *mympd_api_loop(void *arg_config) {
     thread_logname = sdsreplace(thread_logname, "mympdapi");
+    prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
 
     //create mympd_state struct and set defaults
-    struct t_mympd_state *mympd_state = (struct t_mympd_state *)malloc(sizeof(struct t_mympd_state));
-    assert(mympd_state);
+    struct t_mympd_state *mympd_state = (struct t_mympd_state *)malloc_assert(sizeof(struct t_mympd_state));
     mympd_state->config = (struct t_config *) arg_config;
     default_mympd_state(mympd_state);
 
@@ -106,7 +86,7 @@ void *mympd_api_loop(void *arg_config) {
     //free anything
     free_trigerlist_arguments(mympd_state);
     free_mympd_state(mympd_state);
-    sdsfree(thread_logname);
+    FREE_SDS(thread_logname);
     return NULL;
 }
 
@@ -116,49 +96,65 @@ void mympd_autoconf(struct t_mympd_state *mympd_state) {
     if (sdslen(mpd_conf) > 0) {
         MYMPD_LOG_NOTICE("Found %s", mpd_conf);
         //get config from mpd configuration file
-        sds mpd_host = get_mpd_conf("bind_to_address", mympd_state->mpd_state->mpd_host);
+        sds mpd_host = get_mpd_conf("bind_to_address", mympd_state->mpd_state->mpd_host, vcb_isname);
         mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, mpd_host);
-        sdsfree(mpd_host);
+        FREE_SDS(mpd_host);
 
-        sds mpd_pass = get_mpd_conf("password", mympd_state->mpd_state->mpd_pass);
+        sds mpd_pass = get_mpd_conf("password", mympd_state->mpd_state->mpd_pass, vcb_isname);
         mympd_state->mpd_state->mpd_pass = sdsreplace(mympd_state->mpd_state->mpd_pass, mpd_pass);
-        sdsfree(mpd_pass);
+        FREE_SDS(mpd_pass);
         
-        sds mpd_port = get_mpd_conf("port", mympd_state->mpd_state->mpd_host);
-        mympd_state->mpd_state->mpd_port = strtoimax(mpd_port, NULL, 10);
-        sdsfree(mpd_port);
+        sds mpd_port = get_mpd_conf("port", mympd_state->mpd_state->mpd_host, vcb_isdigit);
+        int port = (int)strtoimax(mpd_port, NULL, 10);
+        if (port > 1024 && port <= 65534) {
+            mympd_state->mpd_state->mpd_port = port;
+        }
+        FREE_SDS(mpd_port);
         
-        sds music_directory = get_mpd_conf("music_directory", mympd_state->music_directory);
+        sds music_directory = get_mpd_conf("music_directory", mympd_state->music_directory, vcb_isfilepath);
         mympd_state->music_directory = sdsreplace(mympd_state->music_directory, music_directory);
-        sdsfree(music_directory);
+        FREE_SDS(music_directory);
         
-        sds playlist_directory = get_mpd_conf("playlist_directory", mympd_state->playlist_directory);
+        sds playlist_directory = get_mpd_conf("playlist_directory", mympd_state->playlist_directory, vcb_isfilepath);
         mympd_state->playlist_directory = sdsreplace(mympd_state->playlist_directory, playlist_directory);
-        sdsfree(playlist_directory);
+        FREE_SDS(playlist_directory);
     }
     else {
         MYMPD_LOG_NOTICE("Reading environment");
-        //try env
-        const char *mpd_host = getenv("MPD_HOST");
-        if (mpd_host != NULL && strlen(mpd_host) <= 100) {
-            if (mpd_host[0] != '@' && strstr(mpd_host, "@") != NULL) {
-                int count;
-                sds *tokens = sdssplitlen(mpd_host, strlen(mpd_host), "@", 1, &count);
-                mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, tokens[1]);
-                mympd_state->mpd_state->mpd_pass = sdsreplace(mympd_state->mpd_state->mpd_pass, tokens[0]);
-                sdsfreesplitres(tokens,count);
+        const char *mpd_host_env = getenv("MPD_HOST"); /* Flawfinder: ignore */
+        if (mpd_host_env != NULL && strlen(mpd_host_env) <= 100) {
+            sds mpd_host = sdsnew(mpd_host_env);
+            if (vcb_isname(mpd_host) == true) {
+                if (mpd_host[0] != '@' && strstr(mpd_host, "@") != NULL) {
+                    int count;
+                    sds *tokens = sdssplitlen(mpd_host, (ssize_t)sdslen(mpd_host), "@", 1, &count);
+                    mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, tokens[1]);
+                    mympd_state->mpd_state->mpd_pass = sdsreplace(mympd_state->mpd_state->mpd_pass, tokens[0]);
+                    sdsfreesplitres(tokens,count);
+                }
+                else {
+                    //no password
+                    mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, mpd_host);
+                }
+                MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", mympd_state->mpd_state->mpd_host);
             }
-            else {
-                //no password
-                mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, mpd_host);
-            }
-            MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", mympd_state->mpd_state->mpd_host);
+            FREE_SDS(mpd_host);
         }
-        const char *mpd_port = getenv("MPD_PORT");
-        if (mpd_port != NULL && strlen(mpd_port) <= 5) {
-            mympd_state->mpd_state->mpd_port = strtoimax(mpd_port, NULL, 10);
-            MYMPD_LOG_NOTICE("Setting mpd host to \"%d\"", mympd_state->mpd_state->mpd_port);
+        const char *mpd_port_env = getenv("MPD_PORT"); /* Flawfinder: ignore */
+        if (mpd_port_env != NULL && strlen(mpd_port_env) <= 5) {
+            sds mpd_port = sdsnew(mpd_port_env);
+            if (vcb_isdigit(mpd_port) == true) {
+                int port = (int)strtoimax(mpd_port, NULL, 10);
+                if (port > 1024 && port <= 65534) {
+                    mympd_state->mpd_state->mpd_port = port;
+                    MYMPD_LOG_NOTICE("Setting mpd port to \"%d\"", mympd_state->mpd_state->mpd_port);
+                }
+                else {
+                    MYMPD_LOG_WARN("MPD port must between 1024 and 65534, default is 6600");
+                }
+            }
+            FREE_SDS(mpd_port);
         }
     }
-    sdsfree(mpd_conf);
+    FREE_SDS(mpd_conf);
 }

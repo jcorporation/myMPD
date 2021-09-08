@@ -4,7 +4,14 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __WEB_SERVER_TAGART_H__
-#define __WEB_SERVER_TAGART_H__
+#ifndef MYMPD_WEB_SERVER_TAGART_H
+#define MYMPD_WEB_SERVER_TAGART_H
+
+#include <stdbool.h>
+
+#include "../../dist/src/mongoose/mongoose.h"
+#include "../../dist/src/sds/sds.h"
+#include "web_server_utility.h"
+
 bool handle_tagart(struct mg_connection *nc, struct mg_http_message *hm, struct t_mg_user_data *mg_user_data);
 #endif

@@ -4,32 +4,20 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include "mympd_config_defs.h"
+#include "mpd_client_sticker.h"
+
+#include "../lib/api.h"
+#include "../lib/log.h"
+#include "../lib/sds_extras.h"
+#include "../lib/validate.h"
+#include "../mpd_shared.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
+#include "mpd_client_utility.h"
+
 #include <inttypes.h>
 #include <limits.h>
-#include <time.h>
-#include <assert.h>
-#include <signal.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../api.h"
-#include "../log.h"
-#include "../list.h"
-#include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../tiny_queue.h"
-#include "../global.h"
-#include "../mympd_state.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
-#include "../mpd_shared.h"
-#include "mpd_client_utility.h"
-#include "mpd_client_sticker.h"
+#include <string.h>
 
 //privat definitions
 static bool _mpd_client_count_song_uri(struct t_mympd_state *mympd_state, const char *uri, const char *name, const long value);
@@ -80,7 +68,7 @@ bool mpd_client_sticker_dequeue(struct t_mympd_state *mympd_state) {
         return false;
     }
     
-    struct list_node *current = mympd_state->sticker_queue.head;
+    struct t_list_node *current = mympd_state->sticker_queue.head;
     while (current != NULL) {
         MYMPD_LOG_DEBUG("Setting %s = %ld for %s", current->value_p, current->value_i, current->key);
         if (strcmp(current->value_p, "playCount") == 0 || strcmp(current->value_p, "skipCount") == 0) {
@@ -121,7 +109,7 @@ static bool _mpd_client_count_song_uri(struct t_mympd_state *mympd_state, const 
         }
         while ((pair = mpd_recv_sticker(mympd_state->mpd_state->conn)) != NULL) {
             if (strcmp(pair->name, name) == 0) {
-                old_value = strtoimax(pair->value, &crap, 10);
+                old_value = (int)strtoimax(pair->value, &crap, 10);
             }
             mpd_return_sticker(mympd_state->mpd_state->conn, pair);
         }
@@ -139,7 +127,7 @@ static bool _mpd_client_count_song_uri(struct t_mympd_state *mympd_state, const 
     sds value_str = sdsfromlonglong(old_value);
     MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
     bool rc = mpd_run_sticker_set(mympd_state->mpd_state->conn, "song", uri, name, value_str);
-    sdsfree(value_str);
+    FREE_SDS(value_str);
     if (rc == false) {
         check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
     }
@@ -160,7 +148,7 @@ static bool _mpd_client_set_sticker(struct t_mympd_state *mympd_state, const cha
     sds value_str = sdsfromlonglong(value);
     MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
     bool rc = mpd_run_sticker_set(mympd_state->mpd_state->conn, "song", uri, name, value_str);
-    sdsfree(value_str);
+    FREE_SDS(value_str);
     if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_sticker_set") == false) {
         return false;
     }

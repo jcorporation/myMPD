@@ -1,0 +1,43 @@
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
+//This file is configured by cmake
+
+#ifndef MYMPD_CONFIG_DEFS_H
+#define MYMPD_CONFIG_DEFS_H
+
+//Debug build
+#cmakedefine DEBUG
+
+//libid3tag
+#cmakedefine ENABLE_LIBID3TAG
+
+//flac
+#cmakedefine ENABLE_FLAC
+
+//openssl
+#cmakedefine ENABLE_SSL
+
+//lua
+#cmakedefine ENABLE_LUA
+
+//myMPD version from cmake
+#define MYMPD_VERSION_MAJOR ${CPACK_PACKAGE_VERSION_MAJOR}
+#define MYMPD_VERSION_MINOR ${CPACK_PACKAGE_VERSION_MINOR}
+#define MYMPD_VERSION_PATCH ${CPACK_PACKAGE_VERSION_PATCH}
+#define MYMPD_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}"
+
+//default paths
+#define DOC_ROOT "${ASSETS_PATH}"
+#define VARLIB_PATH "${VARLIB_PATH}"
+#define LUALIBS_PATH "${LUALIBS_PATH}"
+
+//io defaults
+#define OPEN_FLAGS_READ "re"
+#define OPEN_FLAGS_READ_BIN "rbe"
+#define OPEN_FLAGS_WRITE "we"
+
+#endif

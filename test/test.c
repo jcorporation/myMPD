@@ -4,27 +4,23 @@
  https://github.com/jcorporation/mympd
 */
 
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <pthread.h>
-#include <signal.h>
-#include <assert.h>
-#include <string.h>
-#include <stdbool.h>
+#include "mympd_config_defs.h"
 
 #include "../dist/src/sds/sds.h"
-#include "../src/sds_extras.h"
-#include "../src/tiny_queue.h"
-#include "../src/list.h"
+#include "../src/lib/tiny_queue.h"
+#include "../src/lib/list.h"
+
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 _Thread_local sds thread_logname;
 
 int main(void) {
-//tests tiny queue
+    //tests tiny queue
     thread_logname = sdsempty();
-    tiny_queue_t *test_queue = tiny_queue_create();
+    tiny_queue_t *test_queue = tiny_queue_create("test");
     sds test_data_in0 = sdsnew("test0");
     sds test_data_in1 = sdsnew("test0");
     sds test_data_in2 = sdsnew("test0");
@@ -135,6 +131,9 @@ int main(void) {
         i++;
     }
     printf("Tail is: %s\n", test_list->tail->key);
+
+    list_replace(test_list, 0, "test", 0, NULL, NULL);
+
     list_free(test_list);
     free(test_list);
 }

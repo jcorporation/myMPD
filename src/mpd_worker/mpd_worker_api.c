@@ -4,31 +4,17 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <assert.h>
-#include <inttypes.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../../dist/src/frozen/frozen.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../api.h"
-#include "../log.h"
-#include "../tiny_queue.h"
-#include "../global.h"
-#include "../mympd_state.h"
-#include "../mpd_shared.h"
-#include "mpd_worker_utility.h"
-#include "mpd_worker_smartpls.h"
-#include "mpd_worker_cache.h"
 #include "mpd_worker_api.h"
+
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
+#include "../lib/sds_extras.h"
+#include "../lib/utility.h"
+#include "mpd_worker_cache.h"
+#include "mpd_worker_smartpls.h"
+
+#include <stdlib.h>
 
 //public functions
 void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
@@ -36,12 +22,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     bool rc;
     bool bool_buf1;
     bool async = false;
-    int je;
-    char *p_charbuf1 = NULL;
-    char *p_charbuf2 = NULL;
-    char *p_charbuf3 = NULL;
-    char *p_charbuf4 = NULL;
-    char *p_charbuf5 = NULL;
+    sds sds_buf1 = NULL;
 
     MYMPD_LOG_INFO("MPD WORKER API request (%lld)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
@@ -54,8 +35,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                     "playlist", "error", "Smart playlists are disabled");
                 break;
             }
-            je = json_scanf(request->data, sdslen(request->data), "{params: {force: %B}}", &bool_buf1);
-            if (je == 1) {
+            if (json_get_bool(request->data, "$.params.force", &bool_buf1, NULL) == true) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
                     "playlist", "info", "Smart playlists update started");
                 if (request->conn_id > -1) {
@@ -82,20 +62,19 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                     "playlist", "error", "Smart playlists are disabled");
                 break;
             }
-            je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                rc = mpd_worker_smartpls_update(mpd_worker_state, p_charbuf1);
+            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, NULL) == true) {
+                rc = mpd_worker_smartpls_update(mpd_worker_state, sds_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
-                        "playlist", "info", "Smart playlist %{playlist} updated", 2, "playlist", p_charbuf1);
+                        "playlist", "info", "Smart playlist %{playlist} updated", 2, "playlist", sds_buf1);
                 }
                 else {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true,
-                        "playlist", "error", "Updating smart playlist %{playlist} failed", 2, "playlist", p_charbuf1);
+                        "playlist", "error", "Updating smart playlist %{playlist} failed", 2, "playlist", sds_buf1);
                 }
             }
             break;
-        case MYMPD_API_CACHES_CREATE:
+        case INTERNAL_API_CACHES_CREATE:
             mpd_worker_cache_init(mpd_worker_state);
             async = true;
             free_request(request);
@@ -105,11 +84,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Unknown request");
             MYMPD_LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
     }
-    FREE_PTR(p_charbuf1);
-    FREE_PTR(p_charbuf2);
-    FREE_PTR(p_charbuf3);                    
-    FREE_PTR(p_charbuf4);
-    FREE_PTR(p_charbuf5);
+    FREE_SDS(sds_buf1);
 
     if (async == true) {
         return;

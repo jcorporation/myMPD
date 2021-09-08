@@ -4,26 +4,19 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <inttypes.h>
-#include <limits.h>
-#include <time.h>
-#include <assert.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/rax/rax.h"
-#include "../../dist/src/sds/sds.h"
-#include "../sds_extras.h"
-#include "../api.h"
-#include "../log.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../mympd_state.h"
-#include "../mpd_shared.h"
 #include "mpd_shared_sticker.h"
+
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
+#include "../lib/mem.h"
+#include "../lib/validate.h"
+#include "../mpd_shared.h"
+#include "../mpd_client/mpd_client_utility.h"
+
+#include <inttypes.h>
+#include <stdlib.h>
+#include <string.h>
 
 sds mpd_shared_sticker_list(sds buffer, rax *sticker_cache, const char *uri) {
     struct t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
@@ -76,19 +69,19 @@ bool mpd_shared_get_sticker(struct t_mpd_state *mpd_state, const char *uri, stru
 
     while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
         if (strcmp(pair->name, "playCount") == 0) {
-            sticker->playCount = strtoimax(pair->value, &crap, 10);
+            sticker->playCount = (int)strtoimax(pair->value, &crap, 10);
         }
         else if (strcmp(pair->name, "skipCount") == 0) {
-            sticker->skipCount = strtoimax(pair->value, &crap, 10);
+            sticker->skipCount = (int)strtoimax(pair->value, &crap, 10);
         }
         else if (strcmp(pair->name, "lastPlayed") == 0) {
-            sticker->lastPlayed = strtoimax(pair->value, &crap, 10);
+            sticker->lastPlayed = (int)strtoimax(pair->value, &crap, 10);
         }
         else if (strcmp(pair->name, "lastSkipped") == 0) {
-            sticker->lastSkipped = strtoimax(pair->value, &crap, 10);
+            sticker->lastSkipped = (int)strtoimax(pair->value, &crap, 10);
         }
         else if (strcmp(pair->name, "like") == 0) {
-            sticker->like = strtoimax(pair->value, &crap, 10);
+            sticker->like = (int)strtoimax(pair->value, &crap, 10);
         }
         mpd_return_sticker(mpd_state->conn, pair);
     }

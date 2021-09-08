@@ -4,8 +4,13 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MPD_WORKER_SMARTPLS_H__
-#define __MPD_WORKER_SMARTPLS_H__
+#ifndef MYMPD_MPD_WORKER_SMARTPLS_H
+#define MYMPD_MPD_WORKER_SMARTPLS_H
+
+#include "mpd_worker_utility.h"
+
+#include <stdbool.h>
+
 bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state, bool force);
 bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, const char *playlist);
 #endif

@@ -4,40 +4,30 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <assert.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <libgen.h>
-#include <pthread.h>
-#include <string.h>
-#include <inttypes.h>
-#include <signal.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../../dist/src/frozen/frozen.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../tiny_queue.h"
-#include "../api.h"
-#include "../global.h"
-#include "../utility.h"
-#include "../log.h"
-#include "../mympd_state.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mpd_shared.h"
 #include "mpd_client_utility.h"
 
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
+#include "../lib/mem.h"
+#include "../lib/mympd_configuration.h"
+#include "../lib/sds_extras.h"
+#include "../lib/validate.h"
+#include "../mpd_shared.h"
+
+#include <dirent.h>
+#include <errno.h>
+#include <libgen.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
 //private definitons
-static void detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct list *images, bool is_dirname);
+static void detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
 
 //public functions
 sds put_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *uri, bool is_dirname) {
-    struct list images;
+    struct t_list images;
     list_init(&images);
     sds booklet_path = sdsempty();
     if (is_streamuri(uri) == false && mympd_state->mpd_state->feat_library == true) {
@@ -45,7 +35,7 @@ sds put_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
     }
     buffer = tojson_char(buffer, "bookletPath", booklet_path, true);
     buffer = sdscat(buffer, "\"images\": [");
-    struct list_node *current = images.head;
+    struct t_list_node *current = images.head;
     while (current != NULL) {
         if (current != images.head) {
             buffer = sdscatlen(buffer, ",", 1);
@@ -54,36 +44,28 @@ sds put_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
         current = current->next;
     }
     buffer = sdscat(buffer, "]");
-    list_free(&images);
-    sdsfree(booklet_path);
+    list_clear(&images);
+    FREE_SDS(booklet_path);
     return buffer;
 }
 
-void json_to_tags(const char *str, int len, void *user_data) {
-    struct json_token t;
-    int i;
-    struct t_tags *tags = (struct t_tags *) user_data;
-    tags->len = 0;
-    for (i = 0; json_scanf_array_elem(str, len, "", i, &t) > 0; i++) {
-        sds token = sdscatlen(sdsempty(), t.ptr, t.len);
-        enum mpd_tag_type tag = mpd_tag_name_iparse(token);
-        sdsfree(token);
-        if (tag != MPD_TAG_UNKNOWN) {
-            tags->tags[tags->len++] = tag;
-        }
-    }
-}
-
-bool is_smartpls(struct t_mympd_state *mympd_state, const char *plpath) {
+bool is_smartpls(struct t_mympd_state *mympd_state, sds playlist) {
     bool smartpls = false;
-    sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, plpath);
-    if (validate_string(plpath) == true) {
+    if (vcb_isfilename(playlist) == true) {
+        sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, playlist);
         if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
             smartpls = true;
         }
+        FREE_SDS(smartpls_file);
     }
-    sdsfree(smartpls_file);
     return smartpls;
+}
+
+bool is_streamuri(const char *uri) {
+    if (uri != NULL && strstr(uri, "://") != NULL) {
+        return true;
+    }
+    return false;
 }
 
 bool mpd_client_set_binarylimit(struct t_mympd_state *mympd_state) {
@@ -91,7 +73,13 @@ bool mpd_client_set_binarylimit(struct t_mympd_state *mympd_state) {
     if (mympd_state->mpd_state->feat_mpd_binarylimit == true) {
         MYMPD_LOG_INFO("Setting binarylimit to %u", mympd_state->mpd_state->mpd_binarylimit);
         rc = mpd_run_binarylimit(mympd_state->mpd_state->conn, mympd_state->mpd_state->mpd_binarylimit);
-        check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_binarylimit");
+        sds message = sdsempty();
+        rc = check_rc_error_and_recover(mympd_state->mpd_state, &message, NULL, 0, true, rc, "mpd_run_binarylimit");
+        if (sdslen(message) > 0) {
+            ws_notify(message);
+            rc = false;
+        }
+        FREE_SDS(message);
     }
     return rc;
 }
@@ -102,7 +90,7 @@ unsigned mpd_client_get_elapsed_seconds(struct mpd_status *status) {
 }
 
 //private functions
-static void detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct list *images, bool is_dirname) {
+static void detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname) {
     char *uricpy = strdup(uri);
     
     const char *path = is_dirname == false ? dirname(uricpy) : uri;
@@ -126,7 +114,7 @@ static void detect_extra_files(struct t_mympd_state *mympd_state, const char *ur
                 {
                     sds fullpath = sdscatfmt(sdsempty(), "%s/%s", path, next_file->d_name);
                     list_push(images, fullpath, 0, NULL, NULL);
-                    sdsfree(fullpath);
+                    FREE_SDS(fullpath);
                 }
             }
         }
@@ -137,5 +125,5 @@ static void detect_extra_files(struct t_mympd_state *mympd_state, const char *ur
         MYMPD_LOG_ERRNO(errno);
     }
     FREE_PTR(uricpy);
-    sdsfree(albumpath);
+    FREE_SDS(albumpath);
 }

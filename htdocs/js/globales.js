@@ -32,6 +32,10 @@ const hasIO = 'IntersectionObserver' in window ? true : false;
 const ligatureMore = 'menu';
 const progressBarTransition = 'width 1s linear';
 let tagAlbumArtist = 'AlbumArtist';
+const session = {"token": "", "timeout": 0};
+const sessionLifetime = 1780;
+const sessionRenewInterval = sessionLifetime * 500;
+let sessionTimer = null;
 
 //remember offset for filesystem browsing uris
 const browseFilesystemHistory = {};
@@ -462,7 +466,7 @@ const webuiSettingsDefault = {
         "reset": true
     },
     "uiBgImage": {
-        "defaultValue": "/assets/mympd-background-dark.svg",
+        "defaultValue": "",
         "inputType": "select",
         "title": "Image",
         "form": "bgFrm2"
@@ -583,6 +587,7 @@ uiElements.modalOutputAttributes = new BSN.Modal(document.getElementById('modalO
 uiElements.modalPicture = new BSN.Modal(document.getElementById('modalPicture'));
 uiElements.modalEditHomeIcon = new BSN.Modal(document.getElementById('modalEditHomeIcon'));
 uiElements.modalConfirm = new BSN.Modal(document.getElementById('modalConfirm'));
+uiElements.modalEnterPin = new BSN.Modal(document.getElementById('modalEnterPin'));
 
 uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 uiElements.dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));

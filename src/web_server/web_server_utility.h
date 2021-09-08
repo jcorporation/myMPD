@@ -4,8 +4,15 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __WEB_SERVER_UTILITY_H__
-#define __WEB_SERVER_UTILITY_H__
+#ifndef MYMPD_WEB_SERVER_UTILITY_H
+#define MYMPD_WEB_SERVER_UTILITY_H
+
+#include "../../dist/src/mongoose/mongoose.h"
+#include "../../dist/src/sds/sds.h"
+#include "../lib/list.h"
+#include "../lib/mympd_configuration.h"
+
+#include <stdbool.h>
 
 #define EXTRA_HEADERS_DIR "Content-Security-Policy: default-src 'none'; "\
                           "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; "\
@@ -35,6 +42,7 @@
       "td:last-child{text-align:right}a,a:visited,a:active{color:#212529;text-decoration:none}"\
       "a:hover{text-decoration:underline}"
 
+//struct for mg_mgr userdata
 struct t_mg_user_data {
     struct t_config *config; //pointer to mympd config
     sds browse_document_root;
@@ -49,22 +57,24 @@ struct t_mg_user_data {
     int connection_count;
     sds stream_uri;
     bool covercache;
+    struct t_list session_list;
 };
 
 #ifndef DEBUG
 bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_message *hm);
 #endif
 void manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bool playlists);
-sds *split_coverimage_names(const char *coverimage_name, sds *coverimage_names, int *count);
+sds *split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count);
 void send_error(struct mg_connection *nc, int code, const char *msg);
 void serve_na_image(struct mg_connection *nc, struct mg_http_message *hm);
 void serve_stream_image(struct mg_connection *nc, struct mg_http_message *hm);
 void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, const char *name);
-void populate_dummy_hm(struct mg_http_message *hm);
+void populate_dummy_hm(struct mg_connection *nc, struct mg_http_message *hm);
 void http_send_header_ok(struct mg_connection *nc, size_t len, const char *headers);
 void http_send_header_redirect(struct mg_connection *nc, const char *location);
 void http_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers);
-bool check_ip_acl(const char *acl, struct mg_addr *peer);
+void handle_connection_close(struct mg_connection *nc);
+bool check_ip_acl(sds acl, struct mg_addr *peer);
 struct mg_str mg_str_strip_parent(struct mg_str *path, int count);
 void free_mg_user_data(struct t_mg_user_data *mg_user_data);
 #endif

@@ -4,27 +4,21 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <assert.h>
-#include <limits.h>
-#include <stdbool.h>
-#include <signal.h>
-#include <string.h>
-#include <libgen.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../../dist/src/mongoose/mongoose.h"
-#include "../../dist/src/frozen/frozen.h"
-#include "../sds_extras.h"
-#include "../api.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../log.h"
-#include "../tiny_queue.h"
-#include "../global.h"
-#include "../covercache.h"
-#include "web_server_utility.h"
 #include "web_server_albumart.h"
+
+#include "../lib/api.h"
+#include "../lib/covercache.h"
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
+#include "../lib/mimetype.h"
+#include "../lib/sds_extras.h"
+#include "../lib/utility.h"
+#include "../lib/validate.h"
+#include "../mpd_client/mpd_client_utility.h"
+
+#include <assert.h>
+#include <libgen.h>
 
 //optional includes
 #ifdef ENABLE_LIBID3TAG
@@ -42,24 +36,26 @@ static bool handle_coverextract_flac(struct t_config *config, const char *uri, c
 
 //public functions
 void send_albumart(struct mg_connection *nc, sds data, sds binary) {
-    char *p_charbuf1 = NULL;
-
-    int je = json_scanf(data, sdslen(data), "{result: {mime_type:%Q}}", &p_charbuf1);
-    if (je == 1) {
-        MYMPD_LOG_DEBUG("Serving file from memory (%s - %u bytes)", p_charbuf1, sdslen(binary));
-        sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", p_charbuf1);
+    size_t len = sdslen(binary);
+    sds mime_type = NULL;
+    if ( len > 0 &&
+        json_get_string(data, "$.params.mime_type", 1, 200, &mime_type, vcb_isname, NULL) == true &&
+        strncmp(mime_type, "image/", 6) != 0)
+    {
+        MYMPD_LOG_DEBUG("Serving file from memory (%s - %u bytes)", mime_type, len);
+        sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", mime_type);
         header = sdscat(header, EXTRA_HEADERS_CACHE);
-        http_send_header_ok(nc, sdslen(binary), header);
-        mg_send(nc, binary, sdslen(binary));
-        sdsfree(header);
+        http_send_header_ok(nc, len, header);
+        mg_send(nc, binary, len);
+        FREE_SDS(header);
     }
     else {
         //create dummy http message and serve not available image
         struct mg_http_message hm;
-        populate_dummy_hm(&hm);
+        populate_dummy_hm(nc, &hm);
         serve_na_image(nc, &hm);
     }
-    FREE_PTR(p_charbuf1);
+    FREE_SDS(mime_type);
 }
 
 //returns true if an image is served
@@ -73,66 +69,67 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
     if (sdslen(uri_decoded) == 0) {
         MYMPD_LOG_ERROR("Failed to decode uri");
         serve_na_image(nc, hm);
-        sdsfree(uri_decoded);
+        FREE_SDS(uri_decoded);
         return true;
     }
-    if (validate_uri(uri_decoded) == false) {
+    if (is_streamuri(uri_decoded) == false &&
+        vcb_isfilepath(uri_decoded) == false)
+    {
         MYMPD_LOG_ERROR("Invalid URI: %s", uri_decoded);
         serve_na_image(nc, hm);
-        sdsfree(uri_decoded);
+        FREE_SDS(uri_decoded);
         return true;
     }
+
+    //remove /albumart/
+    sdsrange(uri_decoded, 10, -1);
+
     MYMPD_LOG_DEBUG("Handle albumart for uri \"%s\"", uri_decoded);
     //try image in /pics folder, if uri contains ://
     if (is_streamuri(uri_decoded) == true) {
-        char *name = strstr(uri_decoded, "://");
-        if (strlen(name) < 4) {
+        streamuri_to_filename(uri_decoded);
+        if (sdslen(uri_decoded) == 0) {
             MYMPD_LOG_ERROR("Uri to short");
             serve_na_image(nc, hm);
-            sdsfree(uri_decoded);
+            FREE_SDS(uri_decoded);
             return true;
-        }
-        name += 3;
-        uri_to_filename(name);
-        sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, name);
+        }     
+
+        sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, uri_decoded);
         MYMPD_LOG_DEBUG("Check for stream cover %s", coverfile);
         coverfile = find_image_file(coverfile);
         
         if (sdslen(coverfile) > 0) {
-            sds mime_type = get_mime_type_by_ext(coverfile);
+            const char *mime_type = get_mime_type_by_ext(coverfile);
             MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
             mg_http_serve_file(nc, hm, coverfile, mime_type, EXTRA_HEADERS_CACHE);
-            sdsfree(mime_type);
         }
         else {
             serve_stream_image(nc, hm);
         }
-        sdsfree(coverfile);
-        sdsfree(uri_decoded);
+        FREE_SDS(coverfile);
+        FREE_SDS(uri_decoded);
         return true;
     }
-    //remove /albumart/
-    sdsrange(uri_decoded, 10, -1);
     
     //check covercache
     if (mg_user_data->covercache == true) {
         sds filename = sdsdup(uri_decoded);
-        uri_to_filename(filename);
+        sdsmapchars(filename, "/", "_", 1);
         sds covercachefile = sdscatfmt(sdsempty(), "%s/covercache/%s", config->workdir, filename);
-        sdsfree(filename);
+        FREE_SDS(filename);
         covercachefile = find_image_file(covercachefile);
         if (sdslen(covercachefile) > 0) {
-            sds mime_type = get_mime_type_by_ext(covercachefile);
+            const char *mime_type = get_mime_type_by_ext(covercachefile);
             MYMPD_LOG_DEBUG("Serving file %s (%s)", covercachefile, mime_type);
             mg_http_serve_file(nc, hm, covercachefile, mime_type, EXTRA_HEADERS_CACHE);
-            sdsfree(uri_decoded);
-            sdsfree(covercachefile);
-            sdsfree(mime_type);
+            FREE_SDS(uri_decoded);
+            FREE_SDS(covercachefile);
             return true;
         }
 
         MYMPD_LOG_DEBUG("No covercache file found");
-        sdsfree(covercachefile);
+        FREE_SDS(covercachefile);
     }
     
     //create absolute file
@@ -153,46 +150,44 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
                     coverfile = find_image_file(coverfile);
                 }
                 if (sdslen(coverfile) > 0 && access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
-                    sds mime_type = get_mime_type_by_ext(coverfile);
+                    const char *mime_type = get_mime_type_by_ext(coverfile);
                     MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
                     mg_http_serve_file(nc, hm, coverfile, mime_type, EXTRA_HEADERS_CACHE);
-                    sdsfree(uri_decoded);
-                    sdsfree(coverfile);
-                    sdsfree(mediafile);
-                    sdsfree(mime_type);
-                    sdsfree(path); 
+                    FREE_SDS(uri_decoded);
+                    FREE_SDS(coverfile);
+                    FREE_SDS(mediafile);
+                    FREE_SDS(path); 
                     return true;
                 }
-                sdsfree(coverfile);
+                FREE_SDS(coverfile);
             }
             MYMPD_LOG_DEBUG("No cover file found in music directory");
-            sdsfree(path);
+            FREE_SDS(path);
         }
 
         //try to extract albumart from media file
         bool rc = handle_coverextract(nc, config, uri_decoded, mediafile, mg_user_data->covercache);
         if (rc == true) {
-            sdsfree(uri_decoded);
-            sdsfree(mediafile);
+            FREE_SDS(uri_decoded);
+            FREE_SDS(mediafile);
             return true;
         }
     }
-    sdsfree(mediafile);
+    FREE_SDS(mediafile);
 
     //ask mpd
     if (mg_user_data->feat_mpd_albumart == true) {
         MYMPD_LOG_DEBUG("Sending getalbumart to mpd_client_queue");
-        t_work_request *request = create_request(conn_id, 0, MYMPD_API_ALBUMART, "MYMPD_API_ALBUMART", "");
-        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_ALBUMART\",\"params\":{");
+        t_work_request *request = create_request(conn_id, 0, INTERNAL_API_ALBUMART, NULL);
         request->data = tojson_char(request->data, "uri", uri_decoded, false);
         request->data = sdscat(request->data, "}}");
         tiny_queue_push(mympd_api_queue, request, 0);
-        sdsfree(uri_decoded);
+        FREE_SDS(uri_decoded);
         return false;
     }
 
     MYMPD_LOG_INFO("No coverimage found for \"%s\"", uri_decoded);
-    sdsfree(uri_decoded);
+    FREE_SDS(uri_decoded);
     serve_na_image(nc, hm);
     return true;
 }
@@ -202,7 +197,7 @@ static bool handle_coverextract(struct mg_connection *nc, struct t_config *confi
                                 const char *uri, const char *media_file, bool covercache)
 {
     bool rc = false;
-    sds mime_type_media_file = get_mime_type_by_ext(media_file);
+    const char *mime_type_media_file = get_mime_type_by_ext(media_file);
     MYMPD_LOG_DEBUG("Handle coverextract for uri \"%s\"", uri);
     MYMPD_LOG_DEBUG("Mimetype of %s is %s", media_file, mime_type_media_file);
     sds binary = sdsempty();
@@ -215,18 +210,16 @@ static bool handle_coverextract(struct mg_connection *nc, struct t_config *confi
     else if (strcmp(mime_type_media_file, "audio/flac") == 0) {
         rc = handle_coverextract_flac(config, uri, media_file, &binary, false, covercache);
     }
-    sdsfree(mime_type_media_file);
     if (rc == true) {
-        sds mime_type = get_mime_type_by_magic_stream(binary);
+        const char *mime_type = get_mime_type_by_magic_stream(binary);
         MYMPD_LOG_DEBUG("Serving coverimage for \"%s\" (%s)", media_file, mime_type);
         sds header = sdscatfmt(sdsempty(), "Content-Type: %s", mime_type);
         header = sdscat(header, EXTRA_HEADERS_CACHE);
         http_send_header_ok(nc, sdslen(binary), header);
         mg_send(nc, binary, sdslen(binary));
-        sdsfree(header);
-        sdsfree(mime_type);
+        FREE_SDS(header);
     }
-    sdsfree(binary);
+    FREE_SDS(binary);
     return rc;
 }
 
@@ -252,17 +245,18 @@ static bool handle_coverextract_id3(struct t_config *config, const char *uri, co
         const id3_byte_t *pic = id3_field_getbinarydata(id3_frame_field(frame, 4), &length);
         if (length > 0) {
             *binary = sdscatlen(*binary, pic, length);
-            if (covercache == true) {
-                const char *mime_type = (char *)id3_field_getlatin1(id3_frame_field(frame, 1));
-                if (mime_type[0] == '\0') {
-                    MYMPD_LOG_DEBUG("No mime type set for APIC tag");
-                }
-                else {
+            const char *mime_type = get_mime_type_by_magic_stream(*binary);
+            if (mime_type != NULL) {
+                if (covercache == true) {
                     write_covercache_file(config->workdir, uri, mime_type, *binary);
                 }
+                MYMPD_LOG_DEBUG("Coverimage successfully extracted");
+                rc = true;
             }
-            MYMPD_LOG_DEBUG("Coverimage successfully extracted");
-            rc = true;
+            else {
+                MYMPD_LOG_WARN("Could not determine mimetype, discarding image");
+                sdsclear(*binary);
+            }
         }
         else {
             MYMPD_LOG_WARN("Embedded picture size is zero");
@@ -314,16 +308,21 @@ static bool handle_coverextract_flac(struct t_config *config, const char *uri, c
     }
     else if (metadata->data.picture.data_length > 0) {
         *binary = sdscatlen(*binary, metadata->data.picture.data, metadata->data.picture.data_length);
-        if (covercache == true) {
-            if (metadata->data.picture.mime_type[0] == '\0') {
-                MYMPD_LOG_DEBUG("No mime type set for embedded image");
+        const char *mime_type = get_mime_type_by_magic_stream(*binary);
+        if (mime_type != NULL) {
+            if (covercache == true) {
+                write_covercache_file(config->workdir, uri, mime_type, *binary);
             }
-            else {
-                write_covercache_file(config->workdir, uri, metadata->data.picture.mime_type, *binary);
-            }
+            MYMPD_LOG_DEBUG("Coverimage successfully extracted");
+            rc = true;
         }
-        MYMPD_LOG_DEBUG("Coverimage successfully extracted");
-        rc = true;
+        else {
+            MYMPD_LOG_WARN("Could not determine mimetype, discarding image");
+            sdsclear(*binary);
+        }
+    }
+    else {
+        MYMPD_LOG_WARN("Embedded picture size is zero");
     }
     else {
         MYMPD_LOG_WARN("Embedded picture size is zero");

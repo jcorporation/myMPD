@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MYMPD_API_H__
-#define __MYMPD_API_H__
+#ifndef MYMPD_MYMPD_API_H
+#define MYMPD_MYMPD_API_H
 void *mympd_api_loop(void *arg_config);
 #endif

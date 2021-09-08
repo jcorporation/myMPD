@@ -3,6 +3,14 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+function clearMPDerror() {
+    sendAPI('MYMPD_API_PLAYER_CLEARERROR',{}, function() {
+        sendAPI('MYMPD_API_PLAYER_STATE', {}, function(obj) {
+            parseState(obj);
+        }, false);
+    }, false);
+}
+
 function parseStats(obj) {
     document.getElementById('mpdstats_artists').textContent =  obj.result.artists;
     document.getElementById('mpdstats_albums').textContent = obj.result.albums;
@@ -36,73 +44,6 @@ function getServerinfo() {
         }
     };
     ajaxRequest.send();
-}
-
-function parseOutputs(obj) {
-    let btns = '';
-    let nr = 0;
-    for (let i = 0; i < obj.result.numOutputs; i++) {
-        if (obj.result.data[i].plugin !== 'dummy') {
-            nr++;
-            btns += '<button id="btnOutput' + obj.result.data[i].id +'" data-output-name="' + encodeURI(obj.result.data[i].name) + '" data-output-id="' + 
-                obj.result.data[i].id + '" class="btn btn-secondary btn-block d-flex justify-content-between';
-            if (obj.result.data[i].state === 1) {
-                btns += ' active';
-            }
-            btns += '"><span class="mi align-self-center">' + (obj.result.data[i].plugin === 'httpd' ? 'cast' : 'volume_up') + '</span> ' + 
-                '<span class="ml-2 mr-2 align-self-center">' + e(obj.result.data[i].name) + '</span>' +
-                '<a class="mi text-white align-self-center" title="' + 
-                (Object.keys(obj.result.data[i].attributes).length > 0 ? t('Edit attributes') : t('Show attributes')) + '">settings</a>' +
-                '</button>';
-        }
-    }
-    if (nr === 0) {
-        btns = '<span class="mi">error_outline</span> ' + t('No outputs');
-    }
-    document.getElementById('outputs').innerHTML = btns;
-}
-
-function showListOutputAttributes(outputName) {
-    sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
-        uiElements.modalOutputAttributes.show();
-        let output;
-        for (let i = 0; i < obj.result.numOutputs; i++) {
-            if (obj.result.data[i].name === outputName) {
-                output = obj.result.data[i];
-                break;
-            }
-        }
-        document.getElementById('modalOutputAttributesId').value = e(output.id);        
-        let list = '<tr><td>' + t('Name') + '</td><td>' + e(output.name) + '</td></tr>' +
-            '<tr><td>' + t('State') + '</td><td>' + (output.state === 1 ? t('enabled') : t('disabled')) + '</td></tr>' +
-            '<tr><td>' + t('Plugin') + '</td><td>' + e(output.plugin) + '</td></tr>';
-        let i = 0;
-        for (const key in output.attributes) {
-            i++;
-            list += '<tr><td>' + e(key) + '</td><td><input name="' + e(key) + '" class="form-control border-secondary" type="text" value="' + 
-                e(output.attributes[key]) + '"/></td></tr>';
-        }
-        if (i > 0) {
-            elEnable('btnOutputAttributesSave');
-        }
-        else {
-            elDisable('btnOutputAttributesSave');
-        }
-        document.getElementById('outputAttributesList').innerHTML = list;
-    });
-}
-
-//eslint-disable-next-line no-unused-vars
-function saveOutputAttributes() {
-    const params = {};
-    params.outputId =  Number(document.getElementById('modalOutputAttributesId').value);
-    params.attributes = {};
-    const els = document.getElementById('outputAttributesList').getElementsByTagName('input');
-    for (let i = 0, j = els.length; i < j; i++) {
-        params.attributes[els[i].name] = els[i].value;
-    }
-    sendAPI('MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET', params);
-    uiElements.modalOutputAttributes.hide();
 }
 
 function setCounter(currentSongId, totalTime, elapsedTime) {
@@ -225,27 +166,6 @@ function parseState(obj) {
         logDebug((settings.mpdConnected === false ? 'MPD disconnected' : 'UI disabled') + ' - refreshing settings');
         getSettings(true);
     }
-}
-
-function parseVolume(obj) {
-    if (obj.result.volume === -1) {
-        document.getElementById('volumePrct').textContent = t('Volumecontrol disabled');
-        document.getElementById('volumeControl').classList.add('hide');
-    } 
-    else {
-        document.getElementById('volumeControl').classList.remove('hide');
-        document.getElementById('volumePrct').textContent = obj.result.volume + ' %';
-        if (obj.result.volume === 0) {
-            document.getElementById('volumeMenu').firstChild.textContent = 'volume_off';
-        }
-        else if (obj.result.volume < 50) {
-            document.getElementById('volumeMenu').firstChild.textContent = 'volume_down';
-        }
-        else {
-            document.getElementById('volumeMenu').firstChild.textContent = 'volume_up';
-        }
-    }
-    document.getElementById('volumeBar').value = obj.result.volume;
 }
 
 function setBackgroundImage(url) {
@@ -496,26 +416,8 @@ function gotoTagList() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function volumeStep(dir) {
-    chVolume(dir === 'up' ? settings.volumeStep : 0 - settings.volumeStep);
-}
-
-function chVolume(increment) {
-    const volumeBar = document.getElementById('volumeBar');
-    let newValue = Number(volumeBar.value) + increment;
-    if (newValue < settings.volumeMin)  {
-        newValue = settings.volumeMin;
-    }
-    else if (newValue > settings.volumeMax) {
-        newValue = settings.volumeMax;
-    }
-    volumeBar.value = newValue;
-    sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {"volume": newValue});
-}
-
-//eslint-disable-next-line no-unused-vars
 function clickTitle() {
-    const uri = getCustomDomProperty(document.getElementById('currentTitle'), 'data-uri');
+    const uri = getCustomDomProperty('currentTitle', 'data-uri');
     if (isValidUri(uri) === true && isStreamUri(uri) === false) {
         songDetails(uri);
     }
@@ -543,7 +445,6 @@ function mediaSessionSetMetadata(title, artist, album, url) {
     if (settings.mediaSession === true && 'mediaSession' in navigator) {
         const artwork = window.location.protocol + '//' + window.location.hostname + 
             (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart/' + myEncodeURI(url);
-        //eslint-disable-next-line no-undef
         navigator.mediaSession.metadata = new MediaMetadata({
             title: title,
             artist: artist,

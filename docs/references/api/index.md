@@ -16,6 +16,44 @@ myMPD uses a json-rpc 2 api for the communication between frontend and backend.
 {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_PLAYER_STATE","params":{}}
 ```
 
+## Pin protection
+
+If myMPD is protected with a pin some methods require authentication with a bearer token.
+
+### Authenticate
+
+```
+{"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SESSION_LOGIN","params":{"pin": "<pin>"}}
+```
+
+Use the session string in the response for authenticated requests. The session is valid for 30 minutes.
+
+### Authenticated request
+
+To send a request with authentication data add an authorization header to it.
+
+```
+Authorization: Bearer <token>
+```
+
+### Validate the token
+
+```
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SESSION_VALIDATE","params":{}}
+```
+
+### Logout
+
+```
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SESSION_LOGOUT","params":{}}
+```
+
 ## Websocket Notifications
 
 myMPD uses the idle protocol from mpd to detect state changes. These status changes are broadcasted to all open websocket connections.

@@ -15,8 +15,8 @@ myMPD is opensource and build up on other great opensource software.
 
 ## Backend
 
+- [Mjson](https://github.com/cesanta/mjson) (json parsing)
 - [Mongoose](https://github.com/cesanta/mongoose) (web server)
-- [Frozen](https://github.com/cesanta/frozen) (json parsing)
 - [incbin](https://github.com/graphitemaster/incbin) (embedding assets)
 - [sds](https://github.com/antirez/sds) (safe string handling)
 - [rax](https://github.com/antirez/rax) (radix tree implementation)

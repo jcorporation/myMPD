@@ -35,6 +35,27 @@ then
   export ENABLE_LUA="ON"
 fi
 
+CLANG_TIDY_CHECKS="*"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-altera-struct-pack-align,-clang-analyzer-optin.performance.Padding"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-macro-parentheses"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-reserved-identifier,-cert-dcl37-c,-cert-dcl51-cpp"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-signal-handler,-cert-sig30-c"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-concurrency-mt-unsafe"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-cppcoreguidelines*"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-google-readability-todo"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-hicpp-*"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvm-header-guard"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvm-include-order"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-misc-misplaced-const"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-misc-no-recursion"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-avoid-const-params-in-decls"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-function-cognitive-complexity,-google-readability-function-size,-readability-function-size"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-isolate-declaration"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-magic-numbers"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-non-const-parameter"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-uppercase-literal-suffix"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvmlibc-restrict-system-libc-headers"
+
 #save startpath
 STARTPATH=$(pwd)
 
@@ -107,7 +128,7 @@ setversion() {
   	mv -f contrib/packaging/gentoo/media-sound/mympd/mympd-*.ebuild "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild"
 
   echo "const myMPDversion = '${VERSION}';" > htdocs/js/version.js
-  printf "${VERSION}" > docs/_includes/version
+  printf "%s" "${VERSION}" > docs/_includes/version
 }
 
 minify() {
@@ -245,6 +266,8 @@ createassets() {
 }
 
 buildrelease() {
+  check_docs
+  check_includes
   createassets
 
   echo "Compiling myMPD"
@@ -308,6 +331,8 @@ builddebug() {
 
   install -d debug/htdocs/js
   createi18n ../../debug/htdocs/js/i18n.js pretty
+  check_docs
+  check_includes
 
   echo "Copy dist assets"
   cp "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
@@ -323,7 +348,7 @@ builddebug() {
   	-DENABLE_LUA="$ENABLE_LUA" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
   make VERBOSE=1
   echo "Linking compilation database"
-  sed -e 's/\\t/ /g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' -e 's/-static-libasan//g' compile_commands.json > ../src/compile_commands.json
+  sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' -e 's/-static-libasan//g' compile_commands.json > ../src/compile_commands.json
 }
 
 buildtest() {
@@ -360,15 +385,89 @@ cleanuposc() {
   rm -rf osc
 }
 
+check_docs() {
+  grep 'X(MYMPD' src/lib/api.h | cut -d\( -f2 | cut -d\) -f1 | while IFS= read -r METHOD
+  do
+    grep -q "$METHOD" htdocs/js/apidoc.js || echo "API $F not documented"
+  done
+}
+
+check_includes() {
+  find src/ -name \*.c | while IFS= read -r FILE
+  do
+    if ! grep -m1 "#include" "$FILE" | grep -q "mympd_config_defs.h"
+    then
+      echo "First include is not mympd_config_defs.h: $FILE"
+    fi
+    SRCDIR=$(dirname "$FILE")
+    
+    grep "#include \"" "$FILE" | grep -v "mympd_config_defs.h" | cut -d\" -f2 | while IFS= read -r INCLUDE
+    do
+      if ! realpath "$SRCDIR/$INCLUDE" > /dev/null 2>&1
+      then
+        echo "Wrong include path in $FILE for $INCLUDE"
+      fi
+    done
+  done
+}
+
+check_file() {
+  FILE=$1
+  if check_cmd cppcheck
+  then
+    echo "Running cppcheck"
+    [ -z "${CPPCHECKOPTS+z}" ] && CPPCHECKOPTS="-q --force --enable=warning"
+    #shellcheck disable=SC2086
+    cppcheck $CPPCHECKOPTS "$FILE"
+  else
+    echo "cppcheck not found"
+  fi
+  
+  if check_cmd flawfinder
+  then
+    echo "Running flawfinder"
+    [ -z "${FLAWFINDEROPTS+z}" ] && FLAWFINDEROPTS="-m3 --quiet --dataonly"
+    #shellcheck disable=SC2086
+    flawfinder $FLAWFINDEROPTS "$FILE"
+  else
+    echo "flawfinder not found"
+  fi
+
+  if [ ! -f src/compile_commands.json ]
+  then
+    echo "src/compile_commands.json not found"
+    echo "run: ./build.sh debug"
+    exit 1
+  fi
+  
+  if check_cmd clang-tidy
+  then
+    echo "Running clang-tidy, output goes to clang-tidy.out"
+    rm -f clang-tidy.out
+    cd src || exit 1
+    clang-tidy \
+    	--checks="$CLANG_TIDY_CHECKS" \
+    	--header-filter=".*" "$FILE" >> ../clang-tidy.out 2>/dev/null
+    grep -v -E "(memset|memcpy|\^)" ../clang-tidy.out
+  else
+    echo "clang-tidy not found"  
+  fi
+}
+
 check() {
   if check_cmd cppcheck
   then
     echo "Running cppcheck"
-    [ -z "${CPPCHECKOPTS+z}" ] && CPPCHECKOPTS="--enable=warning"
+    [ -z "${CPPCHECKOPTS+z}" ] && CPPCHECKOPTS="-q --force --enable=warning"
+    #shellcheck disable=SC2086
     cppcheck $CPPCHECKOPTS src/*.c src/*.h
+    #shellcheck disable=SC2086
     cppcheck $CPPCHECKOPTS src/mpd_client/*.c src/mpd_client/*.h
+    #shellcheck disable=SC2086
     cppcheck $CPPCHECKOPTS src/mympd_api/*.c src/mympd_api/*.h
+    #shellcheck disable=SC2086
     cppcheck $CPPCHECKOPTS src/web_server/*.c src/web_server/*.h
+    #shellcheck disable=SC2086
     cppcheck $CPPCHECKOPTS cli_tools/*.c
   else
     echo "cppcheck not found"
@@ -377,8 +476,10 @@ check() {
   if check_cmd flawfinder
   then
     echo "Running flawfinder"
-    [ -z "${FLAWFINDEROPTS+z}" ] && FLAWFINDEROPTS="-m3"
+    [ -z "${FLAWFINDEROPTS+z}" ] && FLAWFINDEROPTS="-m3 --quiet --dataonly"
+    #shellcheck disable=SC2086
     flawfinder $FLAWFINDEROPTS src
+    #shellcheck disable=SC2086
     flawfinder $FLAWFINDEROPTS cli_tools
   else
     echo "flawfinder not found"
@@ -397,11 +498,15 @@ check() {
     rm -f clang-tidy.out
     cd src || exit 1
     find ./ -name '*.c' -exec clang-tidy \
-    	--checks="*,-bugprone-narrowing-conversions,-readability-function-cognitive-complexity,-altera-struct-pack-align,-google-readability-todo,-llvmlibc-restrict-system-libc-headers,-bugprone-reserved-identifier,-cert-dcl37-c,-cert-dcl51-cpp,-readability-isolate-declaration,-hicpp-multiway-paths-covered,-readability-uppercase-literal-suffix,-hicpp-uppercase-literal-suffix,-cert-msc51-cpp,-cert-msc32-c,-hicpp-no-assembler,-android*,-cert-env33-c,-cert-msc50-cpp,-bugprone-branch-clone,-misc-misplaced-const,-readability-non-const-parameter,-cert-msc30-c,-hicpp-signed-bitwise,-readability-magic-numbers,-readability-avoid-const-params-in-decls,-llvm-include-order,-bugprone-macro-parentheses,-modernize*,-cppcoreguidelines*,-llvm-header-guard,-clang-analyzer-optin.performance.Padding,-clang-diagnostic-embedded-directive" \
-    	-header-filter='.*' {}  \; >> ../clang-tidy.out
+    	--checks="$CLANG_TIDY_CHECKS" \
+    	--header-filter=".*" {}  \; >> ../clang-tidy.out 2>/dev/null
+    grep -v -E "(memset|memcpy|\^)" ../clang-tidy.out
   else
     echo "clang-tidy not found"  
   fi
+  cd .. || exit 1
+  check_docs
+  check_includes
 }
 
 prepare() {
@@ -941,6 +1046,20 @@ case "$ACTION" in
 	check)
 	  check
 	;;
+  check_file)
+    if [ -z "${2+x}" ]
+    then
+      echo "Usage: $0 $1 <filename>"
+      exit 1
+    fi
+    check_file "$2"
+	;;
+	check_docs)
+	  check_docs
+	;;
+	check_includes)
+	  check_includes
+	;;
 	pkgdebian)
 	  pkgdebian
 	;;
@@ -1033,11 +1152,14 @@ case "$ACTION" in
     echo "  translate:        builds the translation file for debug builds"
     echo "  transstatus:      shows the translation status"
     echo ""
-    echo "Test options:"
+    echo "Check options:"
     echo "  check:            runs cppcheck, flawfinder and clang-tidy on source files"
     echo "                    following environment variables are respected"
-    echo "                      - CPPCHECKOPTS=\"--enable=warning\""
-    echo "                      - FLAWFINDEROPTS=\"-m3\""
+    echo "                      - CPPCHECKOPTS=\"-q --force --enable=warning\""
+    echo "                      - FLAWFINDEROPTS=\"-m3 --quiet --dataonly\""
+    echo "  check_file:       same as check, but for one file, second arg must be the file"
+    echo "  check_docs        checks the documentation for missing API methods"
+    echo "  check_includes:   checks for valid include paths"
     echo "  eslint:           combines javascript files and runs eslint"
     echo "  stylelint:        runs stylelint (lints css files)"
     echo "  htmlhint:         runs htmlhint (lints html files)"

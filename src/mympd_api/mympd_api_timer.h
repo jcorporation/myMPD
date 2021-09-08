@@ -6,6 +6,10 @@
 
 #ifndef MYMPD_API_TIMER_H
 #define MYMPD_API_TIMER_H
+
+#include "../../dist/src/sds/sds.h"
+#include "../lib/mympd_state.h"
+
 void init_timerlist(struct t_timer_list *l);
 void truncate_timerlist(struct t_timer_list *l);
 void check_timer(struct t_timer_list *l);
@@ -18,7 +22,7 @@ void toggle_timer(struct t_timer_list *l, int timer_id);
 void free_timer_definition(struct t_timer_definition *timer_def);
 void free_timer_node(struct t_timer_node *node);
 bool free_timerlist(struct t_timer_list *l);
-struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, const char *str, size_t len);
+struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, sds str, sds *error);
 time_t timer_calc_starttime(int start_hour, int start_minute, int interval);
 sds timer_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
 sds timer_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, int timer_id);

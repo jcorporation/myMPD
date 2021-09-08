@@ -4,8 +4,16 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __WEB_SERVER_ALBUMART_H__
-#define __WEB_SERVER_ALBUMART_H__
+#ifndef MYMPD_WEB_SERVER_ALBUMART_H
+#define MYMPD_WEB_SERVER_ALBUMART_H
+
+#include "../../dist/src/mongoose/mongoose.h"
+#include "../../dist/src/sds/sds.h"
+#include "../lib/mympd_configuration.h"
+#include "web_server_utility.h"
+
+#include <stdbool.h>
+
 void send_albumart(struct mg_connection *nc, sds data, sds binary);
 bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm, struct t_mg_user_data *mg_user_data, struct t_config *config, long long conn_id);
 #endif

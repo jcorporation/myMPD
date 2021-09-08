@@ -4,14 +4,17 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MPD_CLIENT_PLAYLISTS_H__
-#define __MPD_CLIENT_PLAYLISTS_H__
+#ifndef MYMPD_MPD_CLIENT_PLAYLISTS_H
+#define MYMPD_MPD_CLIENT_PLAYLISTS_H
+
+#include "../lib/mympd_state.h"
+
 bool smartpls_default(struct t_config *config);
 sds mpd_client_put_playlists(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                             const unsigned int offset, const unsigned int limit, const char *searchstr);
+                             const unsigned int offset, const unsigned int limit, sds searchstr);
 sds mpd_client_put_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds method, 
-                                 long request_id, const char *uri, const unsigned int offset, 
-                                 const unsigned int limit, const char *searchstr,
+                                 long request_id, sds uri, const unsigned int offset, 
+                                 const unsigned int limit, sds searchstr,
                                  const struct t_tags *tagcols);
 sds mpd_client_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sds method,
                                long request_id, const char *playlist);

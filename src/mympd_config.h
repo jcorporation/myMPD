@@ -4,8 +4,14 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MYMPD_CONFIG_H__
-#define __MYMPD_CONFIG_H__
+#ifndef MYMPD_CONFIG_H
+#define MYMPD_CONFIG_H
+
+#include "lib/mympd_configuration.h"
+#include "mympd_config_defs.h"
+
+#include <stdbool.h>
+
 void mympd_config_defaults_initial(struct t_config *config);
 void mympd_config_defaults(struct t_config *config);
 void mympd_free_config_initial(struct t_config *config);

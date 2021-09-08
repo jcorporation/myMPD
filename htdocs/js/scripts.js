@@ -37,13 +37,14 @@ function initScripts() {
                 execScript(getCustomDomProperty(event.target.parentNode.parentNode, 'data-href'));
             }
             else if (action === 'add2home') {
-                addScriptToHome(script, getCustomDomProperty(event.target.parentNode.parentNode, 'data-href'))
+                addScriptToHome(script, getCustomDomProperty(event.target.parentNode.parentNode, 'data-href'));
             }
         }
     }, false);
 
     document.getElementById('modalScripts').addEventListener('shown.bs.modal', function () {
         showListScripts();
+        hideModalAlert();
     }, false);
     
     document.getElementById('btnDropdownAddAPIcall').parentNode.addEventListener('show.bs.dropdown', function() {
@@ -174,7 +175,18 @@ function saveScript() {
             "order": Number(orderEl.value),
             "content": document.getElementById('textareaScriptContent').value,
             "arguments": args
-            }, showListScripts, false);
+            }, saveScriptCheckError, true);
+    }
+}
+
+function saveScriptCheckError(obj) {
+    removeEnterPinFooter();
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        showListScripts();
     }
 }
 
@@ -197,12 +209,13 @@ function removeScriptArgument(ev) {
 
 //eslint-disable-next-line no-unused-vars
 function showEditScript(script) {
+    removeEnterPinFooter();
+    removeIsInvalid(document.getElementById('modalScripts'));
+    
     document.getElementById('listScripts').classList.remove('active');
     document.getElementById('editScript').classList.add('active');
     document.getElementById('listScriptsFooter').classList.add('hide');
     document.getElementById('editScriptFooter').classList.remove('hide');
-    
-    removeIsInvalid(document.getElementById('modalScripts'));
       
     if (script !== '') {
         sendAPI("MYMPD_API_SCRIPT_GET", {"script": script}, parseEditScript, false);
@@ -234,26 +247,39 @@ function parseEditScript(obj) {
 }
 
 function showListScripts() {
+    removeEnterPinFooter();
     document.getElementById('listScripts').classList.add('active');
     document.getElementById('editScript').classList.remove('active');
     document.getElementById('listScriptsFooter').classList.remove('hide');
     document.getElementById('editScriptFooter').classList.add('hide');
-    sendAPI("MYMPD_API_SCRIPT_LIST", {"all": true}, parseScriptList);
+    getScriptList(true);
 }
 
 function deleteScript(el, script) {
     showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the script?', {"script": script}), tn('Yes, delete it'), function() {
-        sendAPI("MYMPD_API_SCRIPT_DELETE", {"script": script}, function() {
+        sendAPI("MYMPD_API_SCRIPT_RM", {"script": script}, function() {
             getScriptList(true);
         }, false);
     });
 }
 
 function getScriptList(all) {
-    sendAPI("MYMPD_API_SCRIPT_LIST", {"all": all}, parseScriptList, false);
+    sendAPI("MYMPD_API_SCRIPT_LIST", {
+        "all": all
+    }, parseScriptList, true);
 }
 
 function parseScriptList(obj) {
+    const tbodyScripts = document.getElementById('listScriptsList');
+    const mainmenuScripts = document.getElementById('scripts');
+    const triggerScripts = document.getElementById('selectTriggerScript');
+
+    if (checkResult(obj, tbodyScripts, 2) === false) {
+        elClear(mainmenuScripts);
+        elClear(triggerScripts);
+        return;
+    }
+
     const timerActions = document.createElement('optgroup');
     setCustomDomProperty(timerActions, 'data-value', 'script');
     timerActions.setAttribute('label', t('Script'));
@@ -293,13 +319,9 @@ function parseScriptList(obj) {
             timerActions.innerHTML += '<option data-arguments=\'{"arguments":[' + arglist + ']}\' value="' + 
                 e(obj.result.data[i].name) + '">' + e(obj.result.data[i].name) + '</option>';
         }
-        document.getElementById('listScriptsList').innerHTML = scriptList;
+        tbodyScripts.innerHTML = scriptList;
     }
-    else {
-        document.getElementById('listScriptsList').innerHTML = '<tr class="not-clickable">' +
-            '<td colspan="3"><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
-    }
-    document.getElementById('scripts').innerHTML = (showScriptListLen > scriptMaxListLen || showScriptListLen === 0 ? '' : '<div class="dropdown-divider"></div>') + scriptListMain;
+    mainmenuScripts.innerHTML = (showScriptListLen > scriptMaxListLen || showScriptListLen === 0 ? '' : '<div class="dropdown-divider"></div>') + scriptListMain;
         
     if (showScriptListLen > scriptMaxListLen) {
         document.getElementById('navScripting').classList.remove('hide');
@@ -310,7 +332,7 @@ function parseScriptList(obj) {
         document.getElementById('scripts').classList.remove('collapse', 'menu-indent');
     }
 
-    document.getElementById('selectTriggerScript').innerHTML = timerActions.innerHTML;
+    triggerScripts.innerHTML = timerActions.innerHTML;
     
     const old = document.getElementById('selectTimerAction').querySelector('optgroup[data-value="script"]');
     if (old) {

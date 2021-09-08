@@ -6,15 +6,10 @@
 
 #define _GNU_SOURCE
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <inttypes.h>
-
 #include "../dist/src/mongoose/mongoose.h"
 #include "../dist/src/sds/sds.h"
-#include "../src/sds_extras.h"
-
-#include "../src/http_client.h"
+#include "../src/lib/http_client.h"
+#include "../src/lib/sds_extras.h"
 #include "log.h"
 
 static void print_usage(char **argv) {

@@ -4,33 +4,18 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <assert.h>
-#include <stdint.h>
-
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../api.h"
-#include "../log.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../lua_mympd_state.h"
-#include "../utility.h"
-#include "../mympd_state.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
-#include "../mpd_shared.h"
-#include "mpd_client_utility.h"
-#include "mpd_client_cover.h"
-#include "mpd_client_sticker.h"
 #include "mpd_client_state.h"
+
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
+#include "../lib/lua_mympd_state.h"
+#include "../lib/mympd_configuration.h"
+#include "../lib/sds_extras.h"
+#include "../mpd_shared.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "mpd_client_utility.h"
 
 //private definitions
 static sds _mpd_client_put_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
@@ -93,7 +78,7 @@ sds mpd_client_put_state(struct t_mympd_state *mympd_state, sds buffer, sds meth
             mpd_song_free(song);
         }
         else {
-            mympd_state->mpd_state->song_uri = sdscrop(mympd_state->mpd_state->song_uri);
+            sdsclear(mympd_state->mpd_state->song_uri);
         }
         mpd_response_finish(mympd_state->mpd_state->conn);
         check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
@@ -164,7 +149,7 @@ sds mpd_client_put_state(struct t_mympd_state *mympd_state, sds buffer, sds meth
     return buffer;
 }
 
-bool mpd_client_get_lua_mympd_state(struct t_mympd_state *mympd_state, struct list *lua_mympd_state) {
+bool mpd_client_get_lua_mympd_state(struct t_mympd_state *mympd_state, struct t_list *lua_mympd_state) {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
     if (status == NULL) {
         return false;
@@ -184,8 +169,6 @@ bool mpd_client_get_lua_mympd_state(struct t_mympd_state *mympd_state, struct li
     set_lua_mympd_state_i(lua_mympd_state, "single_state", mpd_status_get_single_state(status));
     set_lua_mympd_state_i(lua_mympd_state, "consume", mpd_status_get_consume(status));
     set_lua_mympd_state_i(lua_mympd_state, "crossfade", mpd_status_get_crossfade(status));
-    set_lua_mympd_state_f(lua_mympd_state, "mixrampdb", mpd_status_get_mixrampdb(status));
-    set_lua_mympd_state_f(lua_mympd_state, "mixrampdelay", mpd_status_get_mixrampdelay(status));
     set_lua_mympd_state_p(lua_mympd_state, "music_directory", mympd_state->music_directory_value);
     set_lua_mympd_state_p(lua_mympd_state, "workdir", mympd_state->config->workdir);
     set_lua_mympd_state_i(lua_mympd_state, "jukebox_mode", mympd_state->jukebox_mode);

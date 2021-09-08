@@ -4,7 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MPD_CLIENT_LYRICS_H__
-#define __MPD_CLIENT_LYRICS_H__
-sds mpd_client_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, const char *uri);
+#ifndef MYMPD_MPD_CLIENT_LYRICS_H
+#define MYMPD_MPD_CLIENT_LYRICS_H
+
+#include "../lib/mympd_state.h"
+
+sds mpd_client_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, sds uri);
 #endif

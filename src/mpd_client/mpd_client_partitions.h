@@ -4,7 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MPD_CLIENT_PARTITIONS_H__
-#define __MPD_CLIENT_PARTITIONS_H__
+#ifndef MYMPD_MPD_CLIENT_PARTITIONS_H
+#define MYMPD_MPD_CLIENT_PARTITIONS_H
+
+#include "../lib/mympd_state.h"
+
 sds mpd_client_put_partitions(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
 #endif

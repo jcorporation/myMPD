@@ -22,17 +22,22 @@ function initSettings() {
 
     document.getElementById('modalSettings').addEventListener('shown.bs.modal', function () {
         getSettings();
+        hideModalAlert();
         removeIsInvalid(document.getElementById('modalSettings'));
+        removeEnterPinFooter();
     });
     
     document.getElementById('modalQueueSettings').addEventListener('shown.bs.modal', function () {
         getSettings();
+        hideModalAlert();
         removeIsInvalid(document.getElementById('modalQueueSettings'));
     });
 
     document.getElementById('modalConnection').addEventListener('shown.bs.modal', function () {
         getSettings();
+        hideModalAlert();
         removeIsInvalid(document.getElementById('modalConnection'));
+        removeEnterPinFooter();
     });
 
     document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
@@ -155,8 +160,18 @@ function saveConnection() {
             "mpdBinarylimit": Number(mpdBinarylimitEl.value) * 1024,
             "mpdTimeout": Number(mpdTimeoutEl.value) * 1000,
             "mpdKeepalive": (document.getElementById('btnMpdKeepalive').classList.contains('active') ? true : false)
-        }, getSettings);
-        uiElements.modalConnection.hide();    
+        }, saveConnectionClose);
+    }
+}
+
+function saveConnectionClose(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        getSettings(false);
+        uiElements.modalConnection.hide();
     }
 }
 
@@ -198,6 +213,9 @@ function parseSettings(obj) {
             settings.webuiSettings[key] = webuiSettingsDefault[key].defaultValue;
         }
     }
+    
+    //set session state
+    setSessionState();
 
     //set features object from settings
     setFeatures();
@@ -205,7 +223,6 @@ function parseSettings(obj) {
     //execute only if settings modal is displayed
     if (document.getElementById('modalSettings').classList.contains('show')) {
         populateSettingsFrm();
-
     }
     //execute only if connection modal is displayed
     if (document.getElementById('modalConnection').classList.contains('show')) {
@@ -216,12 +233,13 @@ function parseSettings(obj) {
         populateQueueSettingsFrm();
     }
     
-    //locales
-    if (settings.webuiSettings.uiLocale === 'default') {
-        locale = navigator.language || navigator.userLanguage;
-    }
-    else {
-        locale = settings.webuiSettings.uiLocale;
+    //locales    
+    locale = navigator.language || navigator.userLanguage;
+    for (const l of locales) {
+        if (l.code === settings.webuiSettings.uiLocale) {
+            locale = settings.webuiSettings.uiLocale;
+            break;
+        }
     }
 
     //theme
@@ -865,7 +883,7 @@ function saveSettings(closeModal) {
     webuiSettings.enableLyrics = (document.getElementById('btnEnableLyrics').classList.contains('active') ? true : false);
     
     if (formOK === true) {
-        sendAPI("MYMPD_API_SETTINGS_SET", {
+        const params = {
             "coverimageNames": inputCoverimageNames.value,
             "lastPlayedCount": Number(document.getElementById('inputSettinglastPlayedCount').value),
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
@@ -886,13 +904,36 @@ function saveSettings(closeModal) {
             "lyricsVorbisSylt": document.getElementById('inputSettinglyricsVorbisSylt').value,
             "covercacheKeepDays": Number(document.getElementById('inputCovercacheKeepDays').value),
             "webuiSettings": webuiSettings
-        }, getSettings);
+        };
+
         if (closeModal === true) {
-            uiElements.modalSettings.hide();
+            sendAPI("MYMPD_API_SETTINGS_SET", params, saveSettingsClose, true);
         }
         else {
-            btnWaiting(document.getElementById('btnApplySettings'), true);
+            sendAPI("MYMPD_API_SETTINGS_SET", params, saveSettingsApply, true);
         }
+    }
+}
+
+function saveSettingsClose(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        getSettings(true);
+        uiElements.modalSettings.hide();
+    }
+}
+
+function saveSettingsApply(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        getSettings(true);
+        btnWaiting(document.getElementById('btnApplySettings'), true);
     }
 }
 
@@ -931,7 +972,17 @@ function saveQueueSettings() {
             "jukeboxLastPlayed": Number(document.getElementById('inputJukeboxLastPlayed').value),
             "jukeboxUniqueTag": jukeboxUniqueTag,
             "autoPlay": (document.getElementById('btnAutoPlay').classList.contains('active') ? true : false)
-        }, getSettings);
+        }, saveQueueSettingsClose, true);
+    }
+}
+
+function saveQueueSettingsClose(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        getSettings(false);
         uiElements.modalQueueSettings.hide();
     }
 }

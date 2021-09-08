@@ -122,14 +122,28 @@ function parseUpdateQueue(obj) {
 
 function getQueue() {
     if (app.current.search.length >= 2) {
-        sendAPI("MYMPD_API_QUEUE_SEARCH", {"filter": app.current.filter, "offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, "cols": settings.colsQueueCurrent}, parseQueue, false);
+        sendAPI("MYMPD_API_QUEUE_SEARCH", {
+            "filter": app.current.filter,
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "searchstr": app.current.search,
+            "cols": settings.colsQueueCurrent
+        }, parseQueue, true);
     }
     else {
-        sendAPI("MYMPD_API_QUEUE_LIST", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueCurrent}, parseQueue, false);
+        sendAPI("MYMPD_API_QUEUE_LIST", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "cols": settings.colsQueueCurrent
+        }, parseQueue, true);
     }
 }
 
 function parseQueue(obj) {
+    if (checkResult(obj, 'QueueCurrent', null) === false) {
+        return;
+    }
+
     if (obj.result.offset < app.current.offset) {
         gotoPage(obj.result.offset);
         return;
@@ -225,6 +239,10 @@ function setPlayingRow(row, elapsedTime, totalTime) {
 }
 
 function parseLastPlayed(obj) {
+    if (checkResult(obj, 'QueueLastPlayed', null) === false) {
+        return;
+    }
+
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
     updateTable(obj, 'QueueLastPlayed', function(row, data) {
         setCustomDomProperty(row, 'data-uri', data.uri);
@@ -348,17 +366,17 @@ function gotoPlayingSong() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function playAfterCurrent(trackid, songpos) {
+function playAfterCurrent(songId, songPos) {
     if (settings.random === 0) {
         //not in random mode - move song after current playling song
         sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
-            "from": songpos,
+            "from": songPos,
             "to": lastState.songPos !== undefined ? lastState.songPos + 2 : 0
         });
     }
     else {
         //in random mode - set song priority
-        sendAPI("MYMPD_API_QUEUE_PRIO_SET_HIGHEST", {"trackid": trackid});
+        sendAPI("MYMPD_API_QUEUE_PRIO_SET_HIGHEST", {"songId": songId});
     }
 }
 

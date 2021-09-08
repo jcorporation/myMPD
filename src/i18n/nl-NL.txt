@@ -165,12 +165,6 @@ Pos
 Invalid API request
 Ongeldig API-verzoek
 
-Failed to set like, invalid like value
-Like mislukt, ongeldige waarde
-
-Failed to set like, invalid song uri
-Like mislukt, ongeldige url
-
 Database
 Database
 
@@ -750,9 +744,6 @@ Alle nummers toegevoegd
 Queue replaced with %{name}
 Wachtrij vervangen door %{name}
 
-Saved smart playlist %{name}
-Slimme afspeellijst %{name} opgeslagen
-
 Focus table
 In tabel navigeren
 
@@ -791,9 +782,6 @@ Webserver
 
 Download
 Download
-
-Can't save setting %{setting}
-Kan instelling %{setting} niet saven
 
 No current song
 Geen nummer gekozen
@@ -1250,9 +1238,6 @@ Nieuwe partitie
 
 New trigger
 Nieuwe trigger
-
-No outputs
-Geen output
 
 Output
 Output

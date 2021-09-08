@@ -4,7 +4,7 @@
 # (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 
 Name:           mympd
-Version:        8.0.4
+Version:        8.1.0
 Release:        0 
 License:        GPL-2.0-or-later
 Group:          Productivity/Multimedia/Sound/Players
@@ -68,5 +68,5 @@ fi
 %license LICENSE
 
 %changelog
-* Thu Aug 12 2021 Juergen Mang <mail@jcgames.de> 8.0.4-0
+* Sun Aug 01 2021 Juergen Mang <mail@jcgames.de> 8.1.0-0
 - Version from master

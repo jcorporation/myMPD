@@ -803,7 +803,7 @@ int mg_http_upload(struct mg_connection *c, struct mg_http_message *hm,
     snprintf(path, sizeof(path), "%s%c%s", dir, MG_DIRSEP, name);
     LOG(LL_DEBUG,
         ("%p %d bytes @ %d [%s]", c->fd, (int) hm->body.len, (int) oft, name));
-    if ((fp = mg_fopen(path, oft == 0 ? "wb" : "ab")) == NULL) {
+    if ((fp = fopen(path, oft == 0 ? "wb" : "ab")) == NULL) {
       mg_http_reply(c, 400, "", "fopen(%s): %d", name, errno);
       return -2;
     } else {
@@ -929,7 +929,7 @@ void mg_http_serve_file(struct mg_connection *c, struct mg_http_message *hm,
   struct mg_str *inm = mg_http_get_header(hm, "If-None-Match");
   mg_stat_t st;
   char etag[64];
-  FILE *fp = mg_fopen(path, "rb");
+  FILE *fp = fopen(path, "rb");
   if (fp == NULL || mg_stat(path, &st) != 0 ||
       mg_http_etag(etag, sizeof(etag), &st) != etag) {
     LOG(LL_DEBUG, ("404 [%.*s] [%s] %p", (int) hm->uri.len, hm->uri.ptr, path,
@@ -1269,14 +1269,14 @@ void mg_http_serve_dir(struct mg_connection *c, struct mg_http_message *hm,
       mg_http_reply(c, 404, "", "Invalid URI [%.*s]\n", (int) hm->uri.len,
                     hm->uri.ptr);
     } else {
-      FILE *fp = mg_fopen(t2, "r");
+      FILE *fp = fopen(t2, "r");
 #if MG_ENABLE_SSI
       if (is_index && fp == NULL) {
         char *p = t2 + strlen(t2);
         while (p > t2 && p[-1] != '/') p--;
         strncpy(p, "index.shtml", (size_t)(&t2[sizeof(t2)] - p - 2));
         t2[sizeof(t2) - 1] = '\0';
-        fp = mg_fopen(t2, "r");
+        fp = fopen(t2, "r");
       }
 #endif
       if (is_index && fp == NULL) {
@@ -2390,22 +2390,20 @@ static void mg_set_non_blocking_mode(SOCKET fd) {
 #endif
 }
 
-SOCKET mg_open_listener(const char *url) {
-  struct mg_addr addr;
+SOCKET mg_open_listener(const char *url, struct mg_addr *addr) {
   SOCKET fd = INVALID_SOCKET;
-
-  memset(&addr, 0, sizeof(addr));
-  addr.port = mg_htons(mg_url_port(url));
-  if (!mg_aton(mg_url_host(url), &addr)) {
+  memset(addr, 0, sizeof(*addr));
+  addr->port = mg_htons(mg_url_port(url));
+  if (!mg_aton(mg_url_host(url), addr)) {
     LOG(LL_ERROR, ("invalid listening URL: %s", url));
   } else {
-    union usa usa = tousa(&addr);
+    union usa usa = tousa(addr);
     int on = 1, af = AF_INET;
     int type = strncmp(url, "udp:", 4) == 0 ? SOCK_DGRAM : SOCK_STREAM;
     int proto = type == SOCK_DGRAM ? IPPROTO_UDP : IPPROTO_TCP;
     socklen_t slen = sizeof(usa.sin);
 #if MG_ENABLE_IPV6
-    if (addr.is_ip6) af = AF_INET6, slen = sizeof(usa.sin6);
+    if (addr->is_ip6) af = AF_INET6, slen = sizeof(usa.sin6);
 #endif
 
     if ((fd = socket(af, type, proto)) != INVALID_SOCKET &&
@@ -2429,6 +2427,13 @@ SOCKET mg_open_listener(const char *url) {
         bind(fd, &usa.sa, slen) == 0 &&
         // NOTE(lsm): FreeRTOS uses backlog value as a connection limit
         (type == SOCK_DGRAM || listen(fd, 128) == 0)) {
+      // In case port was set to 0, get the real port number
+      if (getsockname(fd, &usa.sa, &slen) == 0) {
+        addr->port = usa.sin.sin_port;
+#if MG_ENABLE_IPV6
+        if (addr->is_ip6) addr->port = usa.sin6.sin6_port;
+#endif
+      }
       mg_set_non_blocking_mode(fd);
     } else if (fd != INVALID_SOCKET) {
       closesocket(fd);
@@ -2718,19 +2723,22 @@ struct mg_connection *mg_listen(struct mg_mgr *mgr, const char *url,
                                 mg_event_handler_t fn, void *fn_data) {
   struct mg_connection *c = NULL;
   bool is_udp = strncmp(url, "udp:", 4) == 0;
-  SOCKET fd = mg_open_listener(url);
+  struct mg_addr addr;
+  SOCKET fd = mg_open_listener(url, &addr);
   if (fd == INVALID_SOCKET) {
   } else if ((c = alloc_conn(mgr, 0, fd)) == NULL) {
     LOG(LL_ERROR, ("OOM %s", url));
     closesocket(fd);
   } else {
+    memcpy(&c->peer, &addr, sizeof(struct mg_addr));
     c->fd = sock2ptr(fd);
     c->is_listening = 1;
     c->is_udp = is_udp;
     LIST_ADD_HEAD(struct mg_connection, &mgr->conns, c);
     c->fn = fn;
     c->fn_data = fn_data;
-    LOG(LL_INFO, ("%lu accepting on %s", c->id, url));
+    LOG(LL_INFO,
+        ("%lu accepting on %s (port %u)", c->id, url, mg_ntohs(c->peer.port)));
   }
   return c;
 }
@@ -2855,7 +2863,7 @@ void mg_mgr_poll(struct mg_mgr *mgr, int ms) {
 #if MG_ENABLE_SSI
 static char *mg_ssi(const char *path, const char *root, int depth) {
   struct mg_iobuf b = {NULL, 0, 0};
-  FILE *fp = mg_fopen(path, "rb");
+  FILE *fp = fopen(path, "rb");
   if (fp != NULL) {
     char buf[BUFSIZ], arg[sizeof(buf)];
     int ch, intag = 0;
@@ -2924,8 +2932,9 @@ static char *mg_ssi(const char *path, const char *root, int depth) {
 
 void mg_http_serve_ssi(struct mg_connection *c, const char *root,
                        const char *fullpath) {
+  const char *headers = "Content-Type: text/html; charset=utf-8\r\n";
   char *data = mg_ssi(fullpath, root, 0);
-  mg_http_reply(c, 200, "", "%s", data == NULL ? "" : data);
+  mg_http_reply(c, 200, headers, "%s", data == NULL ? "" : data);
   free(data);
 }
 #endif
@@ -3566,17 +3575,6 @@ int mg_stat(const char *path, mg_stat_t *st) {
 #endif
 }
 
-FILE *mg_fopen(const char *path, const char *mode) {
-#ifdef _WIN32
-  wchar_t b1[MG_PATH_MAX], b2[10];
-  MultiByteToWideChar(CP_UTF8, 0, path, -1, b1, sizeof(b1) / sizeof(b1[0]));
-  MultiByteToWideChar(CP_UTF8, 0, mode, -1, b2, sizeof(b2) / sizeof(b2[0]));
-  return _wfopen(b1, b2);
-#else
-  return fopen(path, mode);
-#endif
-}
-
 int64_t mg_file_size(const char *path) {
 #if MG_ARCH == MG_ARCH_FREERTOS_TCP && defined(MG_ENABLE_FF)
   struct FF_STAT st;
@@ -3591,7 +3589,7 @@ char *mg_file_read(const char *path, size_t *sizep) {
   FILE *fp;
   char *data = NULL;
   size_t size = (size_t) mg_file_size(path);
-  if ((fp = mg_fopen(path, "rb")) != NULL) {
+  if ((fp = fopen(path, "rb")) != NULL) {
     data = (char *) calloc(1, size + 1);
     if (data != NULL) {
       if (fread(data, 1, size, fp) != size) {
@@ -3612,7 +3610,7 @@ bool mg_file_write(const char *path, const void *buf, size_t len) {
   FILE *fp;
   char tmp[MG_PATH_MAX];
   snprintf(tmp, sizeof(tmp), "%s.%d", path, rand());
-  fp = mg_fopen(tmp, "wb");
+  fp = fopen(tmp, "wb");
   if (fp != NULL) {
     result = fwrite(buf, 1, len, fp) == len;
     fclose(fp);
@@ -3647,7 +3645,7 @@ void mg_random(void *buf, size_t len) {
   while (len--) *p++ = (unsigned char) (esp_random() & 255);
 #elif MG_ARCH == MG_ARCH_WIN32
 #elif MG_ARCH_UNIX && MG_ENABLE_FS
-  FILE *fp = mg_fopen("/dev/urandom", "rb");
+  FILE *fp = fopen("/dev/urandom", "rb");
   if (fp != NULL) {
     if (fread(buf, 1, len, fp) == len) done = true;
     fclose(fp);

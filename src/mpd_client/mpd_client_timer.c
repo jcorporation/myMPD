@@ -4,39 +4,12 @@
  https://github.com/jcorporation/mympd
 */
 
-#include <stdlib.h>
-#include <libgen.h>
-#include <pthread.h>
-#include <string.h>
-#include <inttypes.h>
-#include <signal.h>
-#include <unistd.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../../dist/src/frozen/frozen.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../tiny_queue.h"
-#include "../api.h"
-#include "../global.h"
-#include "../utility.h"
-#include "../log.h"
-#include "../mympd_state.h"
-#include "../mpd_shared.h"
-#include "mpd_client_utility.h"
+#include "mpd_client_timer.h"
 
-void mpd_client_set_timer(enum mympd_cmd_ids cmd_id, const char *cmd, int timeout, int interval, const char *handler) {
-    t_work_request *request = create_request(-1, 0, cmd_id, cmd, "");
-    request->data = sdscatfmt(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"%s\",\"params\":{", cmd);
-    request->data = tojson_long(request->data, "timeout", timeout, true);
-    request->data = tojson_long(request->data, "interval", interval, true);
-    request->data = tojson_char(request->data, "handler", handler, false);
-    request->data = sdscat(request->data, "}}");
-    tiny_queue_push(mympd_api_queue, request, 0);
-}
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
+#include "../mpd_shared.h"
 
 sds mpd_client_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
                                unsigned volume, const char *playlist, enum jukebox_modes jukebox_mode) 
@@ -85,8 +58,7 @@ sds mpd_client_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sd
         }
     }
         
-    t_work_request *request = create_request(-1, 0, MYMPD_API_SETTINGS_SET, "MYMPD_API_SETTINGS_SET", "");
-    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SETTINGS_SET\",\"params\":{");
+    t_work_request *request = create_request(-1, 0, MYMPD_API_SETTINGS_SET, NULL);
     request->data = tojson_long(request->data, "jukeboxMode", jukebox_mode, true);
     
     if (jukebox_mode != JUKEBOX_OFF) {

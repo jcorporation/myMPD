@@ -51,13 +51,16 @@ function initMounts() {
     document.getElementById('modalMounts').addEventListener('shown.bs.modal', function () {
         showListMounts();
         getUrlhandlers();
+        hideModalAlert();
         removeIsInvalid(document.getElementById('modalMounts'));
     });
 }
 
 //eslint-disable-next-line no-unused-vars
 function unmountMount(mountPoint) {
-    sendAPI("MYMPD_API_MOUNT_UNMOUNT", {"mountPoint": mountPoint}, showListMounts);
+    sendAPI("MYMPD_API_MOUNT_UNMOUNT", {
+        "mountPoint": mountPoint
+    }, mountMountCheckError, true);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -77,7 +80,18 @@ function mountMount() {
         sendAPI("MYMPD_API_MOUNT_MOUNT", {
             "mountUrl": getSelectValue('selectMountUrlhandler') + inputMountUrl.value,
             "mountPoint": inputMountPoint.value,
-            }, showListMounts, true);
+            }, mountMountCheckError, true);
+    }
+}
+
+function mountMountCheckError(obj) {
+    removeEnterPinFooter();
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        showListMounts();
     }
 }
 
@@ -94,11 +108,11 @@ function updateMount(el, uri) {
 
 //eslint-disable-next-line no-unused-vars
 function showEditMount(uri, storage) {
+    removeEnterPinFooter();
     document.getElementById('listMounts').classList.remove('active');
     document.getElementById('editMount').classList.add('active');
     document.getElementById('listMountsFooter').classList.add('hide');
     document.getElementById('editMountFooter').classList.remove('hide');
-    document.getElementById('errorMount').classList.add('hide');
 
     const c = uri.match(/^(\w+:\/\/)(.+)$/);
     if (c !== null && c.length > 2) {
@@ -114,28 +128,19 @@ function showEditMount(uri, storage) {
     removeIsInvalid(document.getElementById('modalMounts'));
 }
 
-function showListMounts(obj) {
-    if (obj && obj.error && obj.error.message) {
-        const emEl = document.getElementById('errorMount');
-        elClear(emEl);
-        addIconLine(emEl, 'error_outline', tn(obj.error.message));
-        emEl.classList.remove('hide');
-        return;
-    }
+function showListMounts() {
     document.getElementById('listMounts').classList.add('active');
     document.getElementById('editMount').classList.remove('active');
     document.getElementById('listMountsFooter').classList.remove('hide');
     document.getElementById('editMountFooter').classList.add('hide');
-    sendAPI("MYMPD_API_MOUNT_LIST", {}, parseListMounts);
+    sendAPI("MYMPD_API_MOUNT_LIST", {}, parseListMounts, true);
 }
 
 function parseListMounts(obj) {
     const tbody = document.getElementById('listMounts').getElementsByTagName('tbody')[0];
     const tr = tbody.getElementsByTagName('tr');
 
-    if (obj.result.returnedEntities === 0) {
-        elClear(tbody);
-        tbody.appendChild(emptyRow(5));
+    if (checkResult(obj, tbody, 5) === false) {
         return;
     }
 

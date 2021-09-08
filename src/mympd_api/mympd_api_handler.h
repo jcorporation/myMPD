@@ -4,7 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MYMPD_API_HANDLER_H__
-#define __MYMPD_API_HANDLER_H__
+#ifndef MYMPD_API_HANDLER_H
+#define MYMPD_API_HANDLER_H
+
+#include "../lib/mympd_state.h"
+
 void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request);
 #endif
