@@ -222,20 +222,17 @@ sds mpd_client_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sd
 {
     sds old_pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, old_playlist);
     sds new_pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, new_playlist);
-    if (access(old_pl_file, F_OK ) != -1) { /* Flawfinder: ignore */
-        //smart playlist
-        if (access(new_pl_file, F_OK ) == -1) { /* Flawfinder: ignore */
-            //new playlist doesn't exist
-            errno = 0;
-            if (rename(old_pl_file, new_pl_file) == -1) {
-                MYMPD_LOG_ERROR("Renaming smart playlist %s to %s failed", old_pl_file, new_pl_file);
-                MYMPD_LOG_ERRNO(errno);
-                buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Renaming playlist failed");
-                FREE_SDS(old_pl_file);
-                FREE_SDS(new_pl_file);
-                return buffer;
-            }
-        } 
+    if (access(old_pl_file, F_OK ) != -1 && access(new_pl_file, F_OK ) == -1) { /* Flawfinder: ignore */
+        //smart playlist and new playlist doesn't exist
+        errno = 0;
+        if (rename(old_pl_file, new_pl_file) == -1) {
+            MYMPD_LOG_ERROR("Renaming smart playlist %s to %s failed", old_pl_file, new_pl_file);
+            MYMPD_LOG_ERRNO(errno);
+            buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Renaming playlist failed");
+            FREE_SDS(old_pl_file);
+            FREE_SDS(new_pl_file);
+            return buffer;
+        }
     }
     FREE_SDS(old_pl_file);
     FREE_SDS(new_pl_file);
