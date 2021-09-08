@@ -16,22 +16,9 @@
 #include <string.h>
 
 //private definitions
+static bool _icb_json_get_tag(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error);
 static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, sds *error);
-
-static void _set_parse_error(sds *error, const char *fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    if (error != NULL && *error != NULL) {
-        *error = sdscatvprintf(*error, fmt, args); // NOLINT(clang-diagnostic-format-nonliteral)
-        MYMPD_LOG_WARN(*error);
-    }
-    else {
-        sds e = sdscatvprintf(sdsempty(), fmt, args); // NOLINT(clang-diagnostic-format-nonliteral)
-        MYMPD_LOG_WARN(e);
-        FREE_SDS(e);
-    }
-    va_end(args);
-}
+static void _set_parse_error(sds *error, const char *fmt, ...);
 
 //public functions
 
@@ -294,51 +281,7 @@ bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *resul
     return _json_get_string(s, path, min, max, result, vcb, error);
 }
 
-static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, sds *error) {
-    if (*result != NULL) {
-        MYMPD_LOG_ERROR("Result parameter must be NULL, path: \"%s\"", path);
-        return false;
-    }
-    const char *p;
-    int n;
-    int vtype = mjson_find(s, (int)sdslen(s), path, &p, &n);
-    if (vtype != MJSON_TOK_STRING) {
-        *result = NULL;
-        _set_parse_error(error, "JSON path \"%s\" not found or value is not string type, found type is \"%d\"", path, vtype);
-        return false;
-    }
-    *result = sdsempty();
-    if (n <= 2) {
-        //empty string
-        if (min == 0) {
-            return true;
-        }
-        _set_parse_error(error, "Value length for JSON path \"%s\" is too short", path);
-        return false;
-    }
-    
-    //remove quotes
-    n = n - 2;
-    p++;
 
-    if ((sds_json_unescape(p, n, result) == false) ||
-        (sdslen(*result) < min && sdslen(*result) > max))
-    {
-        _set_parse_error(error, "Value length for JSON path \"%s\" is out of bounds", path);
-        sdsclear(*result);
-        return false;
-    }
-
-    if (vcb != NULL) {
-        if (vcb(*result) == false) {
-            _set_parse_error(error, "Validation of value for JSON path \"%s\" has failed", path);
-            sdsclear(*result);
-            return false;
-        }
-    }
-
-    return true;
-}
 
 bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata, validate_callback vcb, int max_elements, sds *error) {
     if (icb == NULL) {
@@ -465,7 +408,13 @@ bool json_get_object_string(sds s, const char *path, struct t_list *l, validate_
     return json_iterate_object(s, path, icb_json_get_object_string, l, vcb, max_elements, error);
 }
 
-static bool icb_json_get_tag(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
+bool json_get_tags(sds s, const char *path, struct t_tags *tags, int max_elements, sds *error) {
+    return json_iterate_object(s, path, _icb_json_get_tag, tags, NULL, max_elements, error);
+}
+
+//private functions
+
+static bool _icb_json_get_tag(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
     (void) vcb;
     (void) key;
     if (vtype != MJSON_TOK_STRING) {
@@ -481,6 +430,63 @@ static bool icb_json_get_tag(sds key, sds value, int vtype, validate_callback vc
     return true;
 }
 
-bool json_get_tags(sds s, const char *path, struct t_tags *tags, int max_elements, sds *error) {
-    return json_iterate_object(s, path, icb_json_get_tag, tags, NULL, max_elements, error);
+static void _set_parse_error(sds *error, const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    if (error != NULL && *error != NULL) {
+        *error = sdscatvprintf(*error, fmt, args); // NOLINT(clang-diagnostic-format-nonliteral)
+        MYMPD_LOG_WARN(*error);
+    }
+    else {
+        sds e = sdscatvprintf(sdsempty(), fmt, args); // NOLINT(clang-diagnostic-format-nonliteral)
+        MYMPD_LOG_WARN(e);
+        FREE_SDS(e);
+    }
+    va_end(args);
+}
+
+static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, sds *error) {
+    if (*result != NULL) {
+        MYMPD_LOG_ERROR("Result parameter must be NULL, path: \"%s\"", path);
+        return false;
+    }
+    const char *p;
+    int n;
+    int vtype = mjson_find(s, (int)sdslen(s), path, &p, &n);
+    if (vtype != MJSON_TOK_STRING) {
+        *result = NULL;
+        _set_parse_error(error, "JSON path \"%s\" not found or value is not string type, found type is \"%d\"", path, vtype);
+        return false;
+    }
+    *result = sdsempty();
+    if (n <= 2) {
+        //empty string
+        if (min == 0) {
+            return true;
+        }
+        _set_parse_error(error, "Value length for JSON path \"%s\" is too short", path);
+        return false;
+    }
+    
+    //remove quotes
+    n = n - 2;
+    p++;
+
+    if ((sds_json_unescape(p, n, result) == false) ||
+        (sdslen(*result) < min && sdslen(*result) > max))
+    {
+        _set_parse_error(error, "Value length for JSON path \"%s\" is out of bounds", path);
+        sdsclear(*result);
+        return false;
+    }
+
+    if (vcb != NULL) {
+        if (vcb(*result) == false) {
+            _set_parse_error(error, "Validation of value for JSON path \"%s\" has failed", path);
+            sdsclear(*result);
+            return false;
+        }
+    }
+
+    return true;
 }
