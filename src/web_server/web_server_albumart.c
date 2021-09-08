@@ -324,9 +324,6 @@ static bool handle_coverextract_flac(struct t_config *config, const char *uri, c
     else {
         MYMPD_LOG_WARN("Embedded picture size is zero");
     }
-    else {
-        MYMPD_LOG_WARN("Embedded picture size is zero");
-    }
     FLAC__metadata_iterator_delete(iterator);
     FLAC__metadata_chain_delete(chain);
     #else
