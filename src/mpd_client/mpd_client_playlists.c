@@ -223,7 +223,7 @@ sds mpd_client_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sd
     sds old_pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, old_playlist);
     sds new_pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, new_playlist);
     //first handle smart playlists
-    if (access(new_pl_file, F_OK ) != -1) {
+    if (access(new_pl_file, F_OK ) != -1) { /* Flawfinder: ignore */
         MYMPD_LOG_ERROR("A playlist with name \"%s\" already exists", new_pl_file);
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "A smart playlist with this name already exits");
         FREE_SDS(old_pl_file);
