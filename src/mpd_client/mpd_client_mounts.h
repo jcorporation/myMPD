@@ -9,7 +9,7 @@
 
 #include "../lib/mympd_state.h"
 
-sds mpd_client_put_mounts(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
-sds mpd_client_put_neighbors(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
-sds mpd_client_put_urlhandlers(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
+sds mpd_client_get_mounts(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
+sds mpd_client_get_neighbors(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
+sds mpd_client_get_urlhandlers(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
 #endif

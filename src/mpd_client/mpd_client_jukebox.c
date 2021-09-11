@@ -38,7 +38,7 @@ bool mpd_client_rm_jukebox_entry(struct t_mympd_state *mympd_state, unsigned pos
     return list_shift(&mympd_state->jukebox_queue, pos);
 }
 
-sds mpd_client_put_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
+sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
                                 const unsigned int offset, const unsigned int limit, const struct t_tags *tagcols)
 {
     unsigned entity_count = 0;
@@ -64,7 +64,7 @@ sds mpd_client_put_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
                         struct mpd_entity *entity;
                         if ((entity = mpd_recv_entity(mympd_state->mpd_state->conn)) != NULL) {
                             const struct mpd_song *song = mpd_entity_get_song(entity);
-                            buffer = put_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
+                            buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
                             if (mympd_state->mpd_state->feat_stickers == true && mympd_state->sticker_cache != NULL) {
                                 buffer = sdscat(buffer, ",");
                                 buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
@@ -73,11 +73,11 @@ sds mpd_client_put_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
                             mpd_response_finish(mympd_state->mpd_state->conn);
                         }
                         else {
-                            buffer = put_empty_song_tags(buffer, mympd_state->mpd_state, tagcols, current->key);
+                            buffer = get_empty_song_tags(buffer, mympd_state->mpd_state, tagcols, current->key);
                         }
                     }
                     else {
-                        buffer = put_empty_song_tags(buffer, mympd_state->mpd_state, tagcols, current->key);
+                        buffer = get_empty_song_tags(buffer, mympd_state->mpd_state, tagcols, current->key);
                     }
                     mpd_response_finish(mympd_state->mpd_state->conn);
                     check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);

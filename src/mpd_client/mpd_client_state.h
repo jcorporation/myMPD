@@ -11,11 +11,11 @@
 
 sds mpd_client_get_updatedb_state(struct t_mympd_state *mympd_state, sds buffer);
 long mpd_client_get_updatedb_id(struct t_mympd_state *mympd_state);
-sds mpd_client_put_state(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
-sds mpd_client_put_volume(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
-sds mpd_client_put_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
-sds mpd_client_put_partition_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mpd_client_get_state(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
+sds mpd_client_get_volume(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
+sds mpd_client_get_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
+sds mpd_client_get_partition_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                                      const char *partition);
-sds mpd_client_put_current_song(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
+sds mpd_client_get_current_song(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
 bool mpd_client_get_lua_mympd_state(struct t_mympd_state *mympd_state, struct t_list *lua_mympd_state);
 #endif

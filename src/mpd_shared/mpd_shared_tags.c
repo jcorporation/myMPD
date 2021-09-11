@@ -100,7 +100,7 @@ sds mpd_shared_get_tags(struct mpd_song const *song, const enum mpd_tag_type tag
     return tags;
 }
 
-sds put_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
+sds get_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
                   const struct mpd_song *song)
 {
     sds tag_value = sdsempty();
@@ -121,7 +121,7 @@ sds put_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags
     return buffer;
 }
 
-sds put_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
+sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
                         const char *uri)
 {
     if (mpd_state->feat_tags == true) {

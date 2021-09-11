@@ -80,7 +80,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case INTERNAL_API_CACHES_CREATE:
             if (worker_threads > 5) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
-                            "general", "error", "Too many worker threads are already running");
+                    "general", "error", "Too many worker threads are already running");
                 break;
             }
             async = true;
@@ -91,25 +91,25 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = mympd_api_picture_list(mympd_state, response->data, request->method, request->id);
             break;
         case MYMPD_API_HOME_ICON_SAVE: {
-            if (mympd_state->home_list.length == 100) {
+            if (mympd_state->home_list.length > MAX_LIST_HOME_ICONS) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "home", "error", "Too many home icons");
                 break;
             }
             struct t_list options;
             list_init(&options);
             if (json_get_bool(request->data, "$.params.replace", &bool_buf1, &error) == true &&
-                json_get_uint(request->data, "$.params.oldpos", 0, 99, &uint_buf1, &error) == true &&
+                json_get_uint(request->data, "$.params.oldpos", 0, MAX_LIST_HOME_ICONS, &uint_buf1, &error) == true &&
                 json_get_string_max(request->data, "$.params.name", &sds_buf1, vcb_isname, &error) == true &&
                 json_get_string_max(request->data, "$.params.ligature", &sds_buf2, vcb_isalnum, &error) == true &&
-                json_get_string_max(request->data, "$.params.bgcolor", &sds_buf3, vcb_ishexcolor, &error) == true &&
-                json_get_string_max(request->data, "$.params.color", &sds_buf4, vcb_ishexcolor, &error) == true &&
-                json_get_string_max(request->data, "$.params.image", &sds_buf5, vcb_isfilepath, &error) == true &&
+                json_get_string(request->data, "$.params.bgcolor", 1, 7, &sds_buf3, vcb_ishexcolor, &error) == true &&
+                json_get_string(request->data, "$.params.color", 1, 7, &sds_buf4, vcb_ishexcolor, &error) == true &&
+                json_get_string(request->data, "$.params.image", 0, MAX_FILEPATH_LEN, &sds_buf5, vcb_isfilepath, &error) == true &&
                 json_get_string_max(request->data, "$.params.cmd", &sds_buf6, vcb_isalnum, &error) == true &&
                 json_get_array_string(request->data, "$.params.options", &options, vcb_isname, 10, &error) == true)
             {
                 rc = mympd_api_save_home_icon(mympd_state, bool_buf1, uint_buf1, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, &options);                
                 if (rc == true) {
-                    response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
+                    response->data = mympd_api_get_home_list(mympd_state, response->data, request->method, request->id);
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "home", "error", "Can not save home icon");
@@ -119,12 +119,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         }
         case MYMPD_API_HOME_ICON_MOVE:
-            if (json_get_uint(request->data, "$.params.from", 0, 99, &uint_buf1, &error) == true &&
-                json_get_uint(request->data, "$.params.to", 0, 99, &uint_buf2, &error) == true)
+            if (json_get_uint(request->data, "$.params.from", 0, MAX_LIST_HOME_ICONS, &uint_buf1, &error) == true &&
+                json_get_uint(request->data, "$.params.to", 0, MAX_LIST_HOME_ICONS, &uint_buf2, &error) == true)
             {
                 rc = mympd_api_move_home_icon(mympd_state, uint_buf1, uint_buf2);
                 if (rc == true) {
-                    response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
+                    response->data = mympd_api_get_home_list(mympd_state, response->data, request->method, request->id);
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "home", "error", "Can not move home icon");
@@ -132,10 +132,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_HOME_ICON_RM:
-            if (json_get_uint(request->data, "$.params.pos", 0, 99, &uint_buf1, &error) == true) {
+            if (json_get_uint(request->data, "$.params.pos", 0, MAX_LIST_HOME_ICONS, &uint_buf1, &error) == true) {
                 rc = mympd_api_rm_home_icon(mympd_state, uint_buf1);
                 if (rc == true) {
-                    response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
+                    response->data = mympd_api_get_home_list(mympd_state, response->data, request->method, request->id);
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "home", "error", "Can not delete home icon");
@@ -143,21 +143,21 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_HOME_ICON_GET:
-            if (json_get_uint(request->data, "$.params.pos", 0, 99, &uint_buf1, &error) == true) {
+            if (json_get_uint(request->data, "$.params.pos", 0, MAX_LIST_HOME_ICONS, &uint_buf1, &error) == true) {
                 response->data = mympd_api_get_home_icon(mympd_state, response->data, request->method, request->id, uint_buf1);
             }
             break;
         case MYMPD_API_HOME_LIST:
-            response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
+            response->data = mympd_api_get_home_list(mympd_state, response->data, request->method, request->id);
             break;
         #ifdef ENABLE_LUA
         case MYMPD_API_SCRIPT_SAVE: {
             struct t_list arguments;
             list_init(&arguments);
-            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_string(request->data, "$.params.oldscript", 0, 200, &sds_buf2, vcb_isfilename, &error) == true &&
-                json_get_int(request->data, "$.params.order", 0, 99, &int_buf1, &error) == true &&
-                json_get_string(request->data, "$.params.content", 0, 2000, &sds_buf3, vcb_istext, &error) == true &&
+            if (json_get_string(request->data, "$.params.script", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.oldscript", 0, MAX_FILENAME_LEN, &sds_buf2, vcb_isfilename, &error) == true &&
+                json_get_int(request->data, "$.params.order", 0, MAX_LIST_TIMER, &int_buf1, &error) == true &&
+                json_get_string(request->data, "$.params.content", 0, MAX_CONTENT_LEN, &sds_buf3, vcb_istext, &error) == true &&
                 json_get_array_string(request->data, "$.params.arguments", &arguments, vcb_isalnum, 10, &error) == true)
             {
                 rc = mympd_api_script_save(mympd_state->config, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments);
@@ -173,7 +173,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         }
         case MYMPD_API_SCRIPT_RM:
-            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename, &error) == true) {
+            if (json_get_string(request->data, "$.params.script", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true) {
                 rc = mympd_api_script_delete(mympd_state->config, sds_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
@@ -189,7 +189,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_SCRIPT_GET:
-            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename, &error) == true) {
+            if (json_get_string(request->data, "$.params.script", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true) {
                 response->data = mympd_api_script_get(mympd_state->config, response->data, request->method, request->id, sds_buf1);
             }
             break;
@@ -202,7 +202,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_SCRIPT_EXECUTE: {
             //malloc list - it is used in another thread
             struct t_list *arguments = list_new();
-            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_isfilename, &error) == true && 
+            if (json_get_string(request->data, "$.params.script", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true && 
                 json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
             {
                 rc = mympd_api_script_start(mympd_state->config, sds_buf1, arguments, true);
@@ -225,7 +225,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case INTERNAL_API_SCRIPT_POST_EXECUTE: {
             //malloc list - it is used in another thread
             struct t_list *arguments = list_new();
-            if (json_get_string(request->data, "$.params.script", 1, 200, &sds_buf1, vcb_istext, &error) == true &&
+            if (json_get_string(request->data, "$.params.script", 1, MAX_CONTENT_LEN, &sds_buf1, vcb_istext, &error) == true &&
                 json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
             {
                 rc = mympd_api_script_start(mympd_state->config, sds_buf1, arguments, false);
@@ -247,7 +247,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         }
         #endif
         case MYMPD_API_COLS_SAVE: {
-            if (json_get_string(request->data, "$.params.table", 1, 200, &sds_buf1, vcb_isalnum, &error) == true) {
+            if (json_get_string(request->data, "$.params.table", 1, MAX_NAME_LEN, &sds_buf1, vcb_isalnum, &error) == true) {
                 bool rc_error = false;
                 sds cols = sdsnewlen("[", 1);
                 cols = json_to_cols(cols, request->data, &rc_error);
@@ -354,7 +354,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_TIMER_SAVE: {
-            if (mympd_state->timer_list.length > 99) {
+            if (mympd_state->timer_list.length > MAX_LIST_TIMER) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                         "timer", "error", "Too many timers defined");
                 break;
@@ -363,15 +363,15 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             timer_def = parse_timer(timer_def, request->data, &error);
             if (timer_def != NULL &&
                 json_get_int(request->data, "$.params.interval", -1, 604800, &int_buf2, &error) == true &&
-                json_get_int(request->data, "$.params.timerid", 0, 200, &int_buf1, &error) == true)
+                json_get_int(request->data, "$.params.timerid", 0, MAX_USER_TIMER_ID, &int_buf1, &error) == true)
             {
                 if (int_buf1 == 0) {
                     mympd_state->timer_list.last_id++;
                     int_buf1 = mympd_state->timer_list.last_id;
                 }
-                else if (int_buf1 <= 100) {
+                else if (int_buf1 < MIN_USER_TIMER_ID) {
                     //user defined timers must be gt 100
-                    MYMPD_LOG_ERROR("Timer id must be greater than 100, but id is: \"%d\"", int_buf1);
+                    MYMPD_LOG_ERROR("Timer id must be greater or equal %d, but id is: \"%d\"", MAX_USER_TIMER_ID, int_buf1);
                     error = sdscat(error, "Invalid timer id");
                     break;
                 }
@@ -396,24 +396,24 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = timer_list(mympd_state, response->data, request->method, request->id);
             break;
         case MYMPD_API_TIMER_GET:
-            if (json_get_int(request->data, "$.params.timerid", 100, 200, &int_buf1, &error) == true) {
+            if (json_get_int(request->data, "$.params.timerid", MIN_USER_TIMER_ID, MAX_USER_TIMER_ID, &int_buf1, &error) == true) {
                 response->data = timer_get(mympd_state, response->data, request->method, request->id, int_buf1);
             }
             break;
         case MYMPD_API_TIMER_RM:
-            if (json_get_int(request->data, "$.params.timerid", 100, 200, &int_buf1, &error) == true) {
+            if (json_get_int(request->data, "$.params.timerid", MIN_USER_TIMER_ID, MAX_USER_TIMER_ID, &int_buf1, &error) == true) {
                 remove_timer(&mympd_state->timer_list, int_buf1);
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "timer");
             }
             break;
         case MYMPD_API_TIMER_TOGGLE:
-            if (json_get_int(request->data, "$.params.timerid", 100, 200, &int_buf1, &error) == true) {
+            if (json_get_int(request->data, "$.params.timerid", MIN_USER_TIMER_ID, MAX_USER_TIMER_ID, &int_buf1, &error) == true) {
                 toggle_timer(&mympd_state->timer_list, int_buf1);
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "timer");
             }
             break;
         case MYMPD_API_LYRICS_GET:
-            if (json_get_string(request->data, "$.params.uri", 1, 200, &sds_buf1, vcb_isfilepath, &error) == true) {
+            if (json_get_string(request->data, "$.params.uri", 1, MAX_FILEPATH_LEN, &sds_buf1, vcb_isfilepath, &error) == true) {
                 response->data = mpd_client_lyrics_get(mympd_state, response->data, request->method, request->id, sds_buf1);
             }
             break;
@@ -440,9 +440,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             reset_t_tags(&tagcols);          
             if (json_get_uint_max(request->data, "$.params.offset", &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
-                json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true)
+                json_get_tags(request->data, "$.params.cols", &tagcols, MAX_COLS, &error) == true)
             {
-                response->data = mpd_client_put_jukebox_list(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, &tagcols);
+                response->data = mpd_client_get_jukebox_list(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, &tagcols);
             }
             break;
         }
@@ -450,12 +450,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = trigger_list(mympd_state, response->data, request->method, request->id);
             break;
         case MYMPD_API_TRIGGER_GET:
-            if (json_get_uint(request->data, "$.params.id", 0, 99, &uint_buf1, &error) == true) {
+            if (json_get_uint(request->data, "$.params.id", 0, MAX_LIST_TRIGGER, &uint_buf1, &error) == true) {
                 response->data = trigger_get(mympd_state, response->data, request->method, request->id, uint_buf1);
             }
             break;
         case MYMPD_API_TRIGGER_SAVE: {
-            if (mympd_state->triggers.length > 99) {
+            if (mympd_state->triggers.length > MAX_LIST_TRIGGER) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "trigger", "error", "Too many triggers defined");
                 break;
             }
@@ -463,9 +463,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             //malloc list - it is used in trigger list
             struct t_list *arguments = list_new();
 
-            if (json_get_string(request->data, "$.params.name", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_string(request->data, "$.params.script", 0, 200, &sds_buf2, vcb_isfilename, &error) == true &&
-                json_get_int(request->data, "$.params.id", -1, 99, &int_buf1, &error) == true &&
+            if (json_get_string(request->data, "$.params.name", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.script", 0, MAX_FILENAME_LEN, &sds_buf2, vcb_isfilename, &error) == true &&
+                json_get_int(request->data, "$.params.id", -1, MAX_LIST_TRIGGER, &int_buf1, &error) == true &&
                 json_get_int_max(request->data, "$.params.event", &int_buf2, &error) == true &&
                 json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
             {
@@ -490,7 +490,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         }
         case MYMPD_API_TRIGGER_RM:
-            if (json_get_uint(request->data, "$.params.id", 0, 99, &uint_buf1, &error) == true) {
+            if (json_get_uint(request->data, "$.params.id", 0, MAX_LIST_TRIGGER, &uint_buf1, &error) == true) {
                 rc = delete_trigger(mympd_state, uint_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "trigger");
@@ -518,8 +518,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET: {
             struct t_list attributes;
             list_init(&attributes);
-            if (json_get_uint(request->data, "$.params.outputId", 0, 20, &uint_buf1, &error) == true &&
-                json_get_object_string(request->data, "$.params.attributes", &attributes, vcb_isname, 10, &error) == true)
+            if (json_get_uint(request->data, "$.params.outputId", 0, MAX_MPD_OUTPUT_ID, &uint_buf1, &error) == true &&
+                json_get_object_string(request->data, "$.params.attributes", &attributes, vcb_isalnum, 10, &error) == true)
             {
                 struct t_list_node *current = attributes.head;
                 while (current != NULL) {
@@ -535,8 +535,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         }
         case INTERNAL_API_STICKERCACHE_CREATED:
-            sticker_cache_free(&mympd_state->sticker_cache);
             if (request->extra != NULL) {
+                sticker_cache_free(&mympd_state->sticker_cache);
                 mympd_state->sticker_cache = (rax *) request->extra;
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "sticker");
                 MYMPD_LOG_INFO("Sticker cache was replaced");
@@ -548,8 +548,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             mympd_state->sticker_cache_building = false;
             break;
         case INTERNAL_API_ALBUMCACHE_CREATED:
-            album_cache_free(&mympd_state->album_cache);
             if (request->extra != NULL) {
+                album_cache_free(&mympd_state->album_cache);
                 mympd_state->album_cache = (rax *) request->extra;
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "database");
                 MYMPD_LOG_INFO("Album cache was replaced");
@@ -561,8 +561,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             mympd_state->album_cache_building = false;
             break;
         case MYMPD_API_MESSAGE_SEND:
-            if (json_get_string(request->data, "$.params.channel", 1, 200, &sds_buf1, vcb_isname, &error) == true &&
-                json_get_string(request->data, "$.params.message", 1, 2000, &sds_buf2, vcb_isname, &error) == true)
+            if (json_get_string(request->data, "$.params.channel", 1, MAX_NAME_LEN, &sds_buf1, vcb_isname, &error) == true &&
+                json_get_string(request->data, "$.params.message", 1, MAX_CONTENT_LEN, &sds_buf2, vcb_isname, &error) == true)
             {
                 uint_buf1 = mpd_run_send_message(mympd_state->mpd_state->conn, sds_buf1, sds_buf2);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, (uint_buf1 == 0 ? false : true), "mpd_run_send_message");
@@ -574,7 +574,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 MYMPD_LOG_ERROR("MPD stickers are disabled");
                 break;
             }
-            if (json_get_string(request->data, "$.params.uri", 1, 200, &sds_buf1, vcb_isfilepath, &error) == true &&
+            if (json_get_string(request->data, "$.params.uri", 1, MAX_FILEPATH_LEN, &sds_buf1, vcb_isfilepath, &error) == true &&
                 json_get_int(request->data, "$.params.like", 0, 2, &int_buf1, &error) == true)
             {
                 rc = mpd_client_sticker_like(mympd_state, sds_buf1, int_buf1);
@@ -587,7 +587,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_PLAYER_STATE:
-            response->data = mpd_client_put_state(mympd_state, response->data, request->method, request->id);
+            response->data = mpd_client_get_state(mympd_state, response->data, request->method, request->id);
             break;
         case MYMPD_API_PLAYER_CLEARERROR:
             rc = mpd_run_clearerror(mympd_state->mpd_state->conn);
@@ -604,7 +604,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, "database", "info", "Database update already startet");
                 break;
             }
-            if (json_get_string(request->data, "$.params.uri", 0, 200, &sds_buf1, vcb_isfilepath, &error) == true) {
+            if (json_get_string(request->data, "$.params.uri", 0, MAX_FILEPATH_LEN, &sds_buf1, vcb_isfilepath, &error) == true) {
                 if (sdslen(sds_buf1) == 0) {
                     //path should be NULL to scan root directory
                     FREE_SDS(sds_buf1);
@@ -630,8 +630,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             rc = false;
             if (request->cmd_id == MYMPD_API_SMARTPLS_STICKER_SAVE) {
-                if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
-                    json_get_string(request->data, "$.params.sticker", 1, 200, &sds_buf2, vcb_isalnum, &error) == true &&
+                if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true &&
+                    json_get_string(request->data, "$.params.sticker", 1, MAX_NAME_LEN, &sds_buf2, vcb_isalnum, &error) == true &&
                     json_get_int(request->data, "$.params.maxentries", 0, MAX_MPD_PLAYLIST_LENGTH, &int_buf1, &error) == true &&
                     json_get_int(request->data, "$.params.minvalue", 0, 100, &int_buf2, &error) == true &&
                     json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf3, vcb_ismpdsort, &error) == true)
@@ -640,7 +640,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 }
             }
             else if (request->cmd_id == MYMPD_API_SMARTPLS_NEWEST_SAVE) {
-                if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
+                if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true &&
                     json_get_int(request->data, "$.params.timerange", 0, JSONRPC_INT_MAX, &int_buf1, &error) == true &&
                     json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf2, vcb_ismpdsort, &error) == true)
                 {
@@ -648,8 +648,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 }
             }            
             else if (request->cmd_id == MYMPD_API_SMARTPLS_SEARCH_SAVE) {
-                if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
-                    json_get_string(request->data, "$.params.expression", 1, 200, &sds_buf2, vcb_isname, &error) == true &&
+                if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true &&
+                    json_get_string(request->data, "$.params.expression", 1, MAX_EXPRESSION_LEN, &sds_buf2, vcb_isname, &error) == true &&
                     json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf3, vcb_ismpdsort, &error) == true)
                 {
                     rc = mpd_shared_smartpls_save(mympd_state->config->workdir, "search", sds_buf1, sds_buf2, 0, 0, sds_buf3);
@@ -661,7 +661,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_SMARTPLS_GET:
-            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true) {
+            if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true) {
                 response->data = mpd_client_smartpls_put(mympd_state->config, response->data, request->method, request->id, sds_buf1);
             }
             break;
@@ -738,7 +738,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_PLAYLIST_MOVE_SONG:
-            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
+            if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.from", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf2, &error) == true)
             {
@@ -758,17 +758,17 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_PLAYER_OUTPUT_LIST:
-            if (json_get_string(request->data, "$.params.partition", 0, 200, &sds_buf1, vcb_isname, &error) == true) {
+            if (json_get_string(request->data, "$.params.partition", 0, MAX_NAME_LEN, &sds_buf1, vcb_isname, &error) == true) {
                 if (sdslen(sds_buf1) == 0) {
-                    response->data = mpd_client_put_outputs(mympd_state, response->data, request->method, request->id);
+                    response->data = mpd_client_get_outputs(mympd_state, response->data, request->method, request->id);
                 }
                 else {
-                    response->data = mpd_client_put_partition_outputs(mympd_state, response->data, request->method, request->id, sds_buf1);
+                    response->data = mpd_client_get_partition_outputs(mympd_state, response->data, request->method, request->id, sds_buf1);
                 }
             }
             break;
         case MYMPD_API_PLAYER_OUTPUT_TOGGLE:
-            if (json_get_uint(request->data, "$.params.outputId", 0, 20, &uint_buf1, &error) == true &&
+            if (json_get_uint(request->data, "$.params.outputId", 0, MAX_MPD_OUTPUT_ID, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.state", 0, 1, &uint_buf2, &error) == true) 
             {
                 if (uint_buf2 == 1) {
@@ -793,7 +793,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_PLAYER_VOLUME_GET:
-            response->data = mpd_client_put_volume(mympd_state, response->data, request->method, request->id);
+            response->data = mpd_client_get_volume(mympd_state, response->data, request->method, request->id);
             break;            
         case MYMPD_API_PLAYER_SEEK_CURRENT:
             if (json_get_int_max(request->data, "$.params.seek", &int_buf1, &error) == true &&
@@ -808,9 +808,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             reset_t_tags(&tagcols);          
             if (json_get_uint_max(request->data, "$.params.offset", &uint_buf1, &error) == true &&
                 json_get_uint_max(request->data, "$.params.limit", &uint_buf2, &error) == true &&
-                json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true)
+                json_get_tags(request->data, "$.params.cols", &tagcols, MAX_COLS, &error) == true)
             {
-                response->data = mpd_client_put_queue(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, &tagcols);
+                response->data = mpd_client_get_queue(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, &tagcols);
             }
             break;
         }
@@ -819,23 +819,23 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             reset_t_tags(&tagcols);          
             if (json_get_uint_max(request->data, "$.params.offset", &uint_buf1, &error) == true &&
                 json_get_uint_max(request->data, "$.params.limit", &uint_buf2, &error) == true &&
-                json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true)
+                json_get_tags(request->data, "$.params.cols", &tagcols, MAX_COLS, &error) == true)
             {
-                response->data = mpd_client_put_last_played_songs(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, &tagcols);
+                response->data = mpd_client_get_last_played_songs(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, &tagcols);
             }
             break;
         }
         case MYMPD_API_PLAYER_CURRENT_SONG: {
-            response->data = mpd_client_put_current_song(mympd_state, response->data, request->method, request->id);
+            response->data = mpd_client_get_current_song(mympd_state, response->data, request->method, request->id);
             break;
         }
         case MYMPD_API_DATABASE_SONGDETAILS:
-            if (json_get_string(request->data, "$.params.uri", 1, 200, &sds_buf1, vcb_isfilepath, &error) == true) {
-                response->data = mpd_client_put_songdetails(mympd_state, response->data, request->method, request->id, sds_buf1);
+            if (json_get_string(request->data, "$.params.uri", 1, MAX_FILEPATH_LEN, &sds_buf1, vcb_isfilepath, &error) == true) {
+                response->data = mpd_client_get_songdetails(mympd_state, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_DATABASE_COMMENTS:
-            if (json_get_string(request->data, "$.params.uri", 1, 200, &sds_buf1, vcb_isfilepath, &error) == true) {
+            if (json_get_string(request->data, "$.params.uri", 1,MAX_FILEPATH_LEN, &sds_buf1, vcb_isfilepath, &error) == true) {
                 response->data = mpd_client_read_comments(mympd_state, response->data, request->method, request->id, sds_buf1);
             }
             break;
@@ -844,13 +844,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "database", "error", "Fingerprint command not supported");
                 break;
             }
-            if (json_get_string(request->data, "$.params.uri", 1, 200, &sds_buf1, vcb_isfilepath, &error) == true) {
-                response->data = mpd_client_put_fingerprint(mympd_state, response->data, request->method, request->id, sds_buf1);
+            if (json_get_string(request->data, "$.params.uri", 1, MAX_FILEPATH_LEN, &sds_buf1, vcb_isfilepath, &error) == true) {
+                response->data = mpd_client_get_fingerprint(mympd_state, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_PLAYLIST_RENAME:
-            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_string(request->data, "$.params.newName", 1, 200, &sds_buf2, vcb_isfilename, &error) == true)
+            if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.newName", 1, MAX_FILENAME_LEN, &sds_buf2, vcb_isfilename, &error) == true)
             {
                 response->data = mpd_client_playlist_rename(mympd_state, response->data, request->method, request->id, sds_buf1, sds_buf2);
             }
@@ -858,27 +858,27 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_PLAYLIST_LIST:          
             if (json_get_uint_max(request->data, "$.params.offset", &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
-                json_get_string(request->data, "$.params.searchstr", 0, 200, &sds_buf1, vcb_isname, &error) == true)
+                json_get_string(request->data, "$.params.searchstr", 0, MAX_NAME_LEN, &sds_buf1, vcb_isname, &error) == true)
             {
-                response->data = mpd_client_put_playlists(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, sds_buf1);
+                response->data = mpd_client_get_playlists(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, sds_buf1);
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_LIST: {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);          
-            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
+            if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
-                json_get_string(request->data, "$.params.searchstr", 0, 200, &sds_buf2, vcb_isname, &error) == true &&
-                json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true)
+                json_get_string(request->data, "$.params.searchstr", 0, MAX_NAME_LEN, &sds_buf2, vcb_isname, &error) == true &&
+                json_get_tags(request->data, "$.params.cols", &tagcols, MAX_COLS, &error) == true)
             {
-                response->data = mpd_client_put_playlist_list(mympd_state, response->data, request->method, request->id, sds_buf1, uint_buf1, uint_buf2, sds_buf2, &tagcols);
+                response->data = mpd_client_get_playlist_list(mympd_state, response->data, request->method, request->id, sds_buf1, uint_buf1, uint_buf2, sds_buf2, &tagcols);
             }
             break;
         }
         case MYMPD_API_PLAYLIST_ADD_URI:
-            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_string(request->data, "$.params.uri", 1, 200, &sds_buf2, vcb_isuri, &error) == true)
+            if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.uri", 1, MAX_FILEPATH_LEN, &sds_buf2, vcb_isuri, &error) == true)
             {
                 rc = mpd_run_playlist_add(mympd_state->mpd_state->conn, sds_buf1, sds_buf2);
                 if (check_error_and_recover2(mympd_state->mpd_state, &response->data, request->method, request->id, false) == true && rc == true) {
@@ -891,18 +891,18 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_PLAYLIST_CLEAR:
-            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true) {
+            if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true) {
                 rc = mpd_run_playlist_clear(mympd_state->mpd_state->conn, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_playlist_clear");
             }
             break;
         case MYMPD_API_PLAYLIST_RM_ALL:
-            if (json_get_string(request->data, "$.params.type", 1, 200, &sds_buf1, vcb_isalnum, &error) == true) {
+            if (json_get_string(request->data, "$.params.type", 1, MAX_NAME_LEN, &sds_buf1, vcb_isalnum, &error) == true) {
                 response->data = mpd_client_playlist_delete_all(mympd_state, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_PLAYLIST_RM_SONG:
-            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
+            if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.pos", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true)
             {
                 rc = mpd_run_playlist_delete(mympd_state->mpd_state->conn, sds_buf1, uint_buf1);
@@ -910,13 +910,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_PLAYLIST_SHUFFLE:
-            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true) {
+            if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true) {
                 response->data = mpd_shared_playlist_shuffle_sort(mympd_state->mpd_state, response->data, request->method, request->id, sds_buf1, "shuffle");
             }
             break;
         case MYMPD_API_PLAYLIST_SORT:
-            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_string(request->data, "$.params.tag", 1, 200, &sds_buf2, vcb_ismpdtag, &error) == true)
+            if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.tag", 1, MAX_NAME_LEN, &sds_buf2, vcb_ismpdtag, &error) == true)
             {
                 response->data = mpd_shared_playlist_shuffle_sort(mympd_state->mpd_state, response->data, request->method, request->id, sds_buf1, sds_buf2);
             }
@@ -926,16 +926,16 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             reset_t_tags(&tagcols);          
             if (json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
-                json_get_string(request->data, "$.params.searchstr", 0, 200, &sds_buf1, vcb_isname, &error) == true &&
-                json_get_string(request->data, "$.params.path", 1, 200, &sds_buf2, vcb_isfilepath, &error) == true &&
-                json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true)
+                json_get_string(request->data, "$.params.searchstr", 0, MAX_NAME_LEN, &sds_buf1, vcb_isname, &error) == true &&
+                json_get_string(request->data, "$.params.path", 1, MAX_FILEPATH_LEN, &sds_buf2, vcb_isfilepath, &error) == true &&
+                json_get_tags(request->data, "$.params.cols", &tagcols, MAX_COLS, &error) == true)
             {
-                response->data = mpd_client_put_filesystem(mympd_state, response->data, request->method, request->id, sds_buf2, uint_buf1, uint_buf2, sds_buf1, &tagcols);
+                response->data = mpd_client_get_filesystem(mympd_state, response->data, request->method, request->id, sds_buf2, uint_buf1, uint_buf2, sds_buf1, &tagcols);
             }
             break;
         }
         case MYMPD_API_QUEUE_ADD_URI_AFTER:
-            if (json_get_string(request->data, "$.params.uri", 1, 200, &sds_buf1, vcb_isuri, &error) == true &&
+            if (json_get_string(request->data, "$.params.uri", 1, MAX_FILEPATH_LEN, &sds_buf1, vcb_isuri, &error) == true &&
                 json_get_int(request->data, "$.params.to", 0, MAX_MPD_PLAYLIST_LENGTH, &int_buf1, &error) == true)
             {
                 rc = mpd_run_add_id_to(mympd_state->mpd_state->conn, sds_buf1, int_buf1);
@@ -943,19 +943,19 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_QUEUE_REPLACE_URI:
-            if (json_get_string(request->data, "$.params.uri", 1, 200, &sds_buf1, vcb_isuri, &error) == true) {
+            if (json_get_string(request->data, "$.params.uri", 1, MAX_FILEPATH_LEN, &sds_buf1, vcb_isuri, &error) == true) {
                 rc = mpd_client_queue_replace_with_song(mympd_state, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_client_queue_replace_with_song");
             }
             break;
         case MYMPD_API_QUEUE_ADD_URI:
-            if (json_get_string(request->data, "$.params.uri", 1, 200, &sds_buf1, vcb_isuri, &error) == true) {
+            if (json_get_string(request->data, "$.params.uri", 1, MAX_FILEPATH_LEN, &sds_buf1, vcb_isuri, &error) == true) {
                 rc = mpd_run_add(mympd_state->mpd_state->conn, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_add");
             }
             break;
         case MYMPD_API_QUEUE_ADD_PLAY_URI:
-            if (json_get_string(request->data, "$.params.uri", 1, 200, &sds_buf1, vcb_isuri, &error) == true) {
+            if (json_get_string(request->data, "$.params.uri", 1, MAX_FILEPATH_LEN, &sds_buf1, vcb_isuri, &error) == true) {
                 int_buf1 = mpd_run_add_id(mympd_state->mpd_state->conn, sds_buf1);
                 if (int_buf1 != -1) {
                     rc = mpd_run_play_id(mympd_state->mpd_state->conn, int_buf1);
@@ -967,15 +967,15 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_QUEUE_REPLACE_PLAYLIST:
-            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true) {
+            if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true) {
                 rc = mpd_client_queue_replace_with_playlist(mympd_state, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_client_queue_replace_with_playlist");
             }
             break;
         case MYMPD_API_QUEUE_ADD_RANDOM:
-            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
+            if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.mode", 0, 2, &uint_buf1, &error) == true &&
-                json_get_uint(request->data, "$.params.mode", 0, 1000, &uint_buf2, &error) == true)
+                json_get_uint(request->data, "$.params.quantity", 0, 1000, &uint_buf2, &error) == true)
             {
                 rc = mpd_client_jukebox_add_to_queue(mympd_state, uint_buf2, uint_buf1, sds_buf1, true);
                 if (rc == true) {
@@ -989,13 +989,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;
         case MYMPD_API_QUEUE_ADD_PLAYLIST:
-            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true) {
+            if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true) {
                 rc = mpd_run_load(mympd_state->mpd_state->conn, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_load");
             }
             break;
         case MYMPD_API_QUEUE_SAVE:
-            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true) {
+            if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true) {
                 rc = mpd_run_save(mympd_state->mpd_state->conn, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_save");
             }
@@ -1005,9 +1005,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             reset_t_tags(&tagcols);          
             if (json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
-                json_get_string(request->data, "$.params.filter", 1, 200, &sds_buf1, vcb_ismpdtag_or_any, &error) == true &&
-                json_get_string(request->data, "$.params.searchstr", 1, 200, &sds_buf2, vcb_isname, &error) == true &&
-                json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true)
+                json_get_string(request->data, "$.params.filter", 1, MAX_NAME_LEN, &sds_buf1, vcb_ismpdtag_or_any, &error) == true &&
+                json_get_string(request->data, "$.params.searchstr", 1, MAX_NAME_LEN, &sds_buf2, vcb_isname, &error) == true &&
+                json_get_tags(request->data, "$.params.cols", &tagcols, MAX_COLS, &error) == true)
             {
                 response->data = mpd_client_search_queue(mympd_state, response->data, request->method, request->id, sds_buf1, uint_buf1, uint_buf2, sds_buf2, &tagcols);
             }
@@ -1016,12 +1016,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_DATABASE_SEARCH: {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);          
-            if (json_get_string(request->data, "$.params.searchstr", 1, 200, &sds_buf1, vcb_isname, &error) == true &&
-                json_get_string(request->data, "$.params.filter", 1, 200, &sds_buf2, vcb_ismpdtag_or_any, &error) == true &&
-                json_get_string(request->data, "$.params.plist", 0, 200, &sds_buf3, vcb_isfilename, &error) == true &&
+            if (json_get_string(request->data, "$.params.searchstr", 1, MAX_NAME_LEN, &sds_buf1, vcb_isname, &error) == true &&
+                json_get_string(request->data, "$.params.filter", 1, MAX_NAME_LEN, &sds_buf2, vcb_ismpdtag_or_any, &error) == true &&
+                json_get_string(request->data, "$.params.plist", 0, MAX_FILENAME_LEN, &sds_buf3, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
-                json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true && 
+                json_get_tags(request->data, "$.params.cols", &tagcols, MAX_COLS, &error) == true && 
                 json_get_bool(request->data, "$.params.replace", &bool_buf1, &error) == true)
             {
                 if (bool_buf1 == true) {
@@ -1039,13 +1039,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_DATABASE_SEARCH_ADV: {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);          
-            if (json_get_string(request->data, "$.params.expression", 0, 200, &sds_buf1, vcb_isname, &error) == true &&
-                json_get_string(request->data, "$.params.sort", 0, 200, &sds_buf2, vcb_ismpdsort, &error) == true &&
+            if (json_get_string(request->data, "$.params.expression", 0, MAX_EXPRESSION_LEN, &sds_buf1, vcb_isname, &error) == true &&
+                json_get_string(request->data, "$.params.sort", 0, MAX_NAME_LEN, &sds_buf2, vcb_ismpdsort, &error) == true &&
                 json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &error) == true &&
-                json_get_string(request->data, "$.params.plist", 0, 200, &sds_buf3, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.plist", 0, MAX_FILENAME_LEN, &sds_buf3, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
-                json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true && 
+                json_get_tags(request->data, "$.params.cols", &tagcols, MAX_COLS, &error) == true && 
                 json_get_bool(request->data, "$.params.replace", &bool_buf2, &error) == true)
             {
                 if (bool_buf2 == true) {
@@ -1065,104 +1065,104 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_shuffle");
             break;
         case MYMPD_API_PLAYLIST_RM:
-            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true) {
+            if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true) {
                 response->data = mpd_client_playlist_delete(mympd_state, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_DATABASE_STATS:
-            response->data = mpd_client_put_stats(mympd_state, response->data, request->method, request->id);
+            response->data = mpd_client_get_stats(mympd_state, response->data, request->method, request->id);
             break;
         case INTERNAL_API_ALBUMART:
-            if (json_get_string(request->data, "$.params.uri", 1, 200, &sds_buf1, vcb_isfilepath, &error) == true) {
+            if (json_get_string(request->data, "$.params.uri", 1, MAX_FILEPATH_LEN, &sds_buf1, vcb_isfilepath, &error) == true) {
                 response->data = mpd_client_getcover(mympd_state, response->data, request->method, request->id, sds_buf1, &response->binary);
             }
             break;
         case MYMPD_API_DATABASE_ALBUMS_GET:         
             if (json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
-                json_get_string(request->data, "$.params.expression", 0, 200, &sds_buf1, vcb_isname, &error) == true &&
-                json_get_string(request->data, "$.params.sort", 1, 200, &sds_buf2, vcb_ismpdsort, &error) == true &&
+                json_get_string(request->data, "$.params.expression", 0, MAX_EXPRESSION_LEN, &sds_buf1, vcb_isname, &error) == true &&
+                json_get_string(request->data, "$.params.sort", 1, MAX_NAME_LEN, &sds_buf2, vcb_ismpdsort, &error) == true &&
                 json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &error) == true)
             {
-                response->data = mpd_client_put_firstsong_in_albums(mympd_state, response->data, request->method, request->id, 
+                response->data = mpd_client_get_firstsong_in_albums(mympd_state, response->data, request->method, request->id, 
                     sds_buf1, sds_buf2, bool_buf1, uint_buf1, uint_buf2);
             }
             break;
         case MYMPD_API_DATABASE_TAG_LIST:
             if (json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
-                json_get_string(request->data, "$.params.searchstr", 0, 200, &sds_buf1, vcb_isname, &error) == true &&
-                json_get_string(request->data, "$.params.tag", 1, 200, &sds_buf2, vcb_ismpdtag_or_any, &error) == true)
+                json_get_string(request->data, "$.params.searchstr", 0, MAX_NAME_LEN, &sds_buf1, vcb_isname, &error) == true &&
+                json_get_string(request->data, "$.params.tag", 1, MAX_NAME_LEN, &sds_buf2, vcb_ismpdtag_or_any, &error) == true)
             {
-                response->data = mpd_client_put_db_tag(mympd_state, response->data, request->method, request->id,
+                response->data = mpd_client_get_db_tag(mympd_state, response->data, request->method, request->id,
                     sds_buf1, sds_buf2, uint_buf1, uint_buf2);
             }
             break;
         case MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST: {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);          
-            if (json_get_string(request->data, "$.params.album", 1, 200, &sds_buf1, vcb_isname, &error) == true &&
-                json_get_string(request->data, "$.params.albumartist", 1, 200, &sds_buf2, vcb_isname, &error) == true &&
-                json_get_tags(request->data, "$.params.cols", &tagcols, 20, &error) == true)
+            if (json_get_string(request->data, "$.params.album", 1, MAX_NAME_LEN, &sds_buf1, vcb_isname, &error) == true &&
+                json_get_string(request->data, "$.params.albumartist", 1, MAX_NAME_LEN, &sds_buf2, vcb_isname, &error) == true &&
+                json_get_tags(request->data, "$.params.cols", &tagcols, MAX_COLS, &error) == true)
             {
-                response->data = mpd_client_put_songs_in_album(mympd_state, response->data, request->method, request->id, sds_buf1, sds_buf2, &tagcols);
+                response->data = mpd_client_get_songs_in_album(mympd_state, response->data, request->method, request->id, sds_buf1, sds_buf2, &tagcols);
             }
             break;
         }
         case INTERNAL_API_TIMER_STARTPLAY:
             if (json_get_uint(request->data, "$.params.volume", 0, 100, &uint_buf1, &error) == true &&
-                json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.jukeboxMode", 0, 2, &uint_buf2, &error) == true)
             {
                 response->data = mpd_client_timer_startplay(mympd_state, response->data, request->method, request->id, uint_buf1, sds_buf1, uint_buf2);
             }
             break;
         case MYMPD_API_URLHANDLERS:
-            response->data = mpd_client_put_urlhandlers(mympd_state, response->data, request->method, request->id);
+            response->data = mpd_client_get_urlhandlers(mympd_state, response->data, request->method, request->id);
             break;
         case MYMPD_API_PARTITION_LIST:
-            response->data = mpd_client_put_partitions(mympd_state, response->data, request->method, request->id);
+            response->data = mpd_client_get_partitions(mympd_state, response->data, request->method, request->id);
             break;
         case MYMPD_API_PARTITION_NEW:
-            if (json_get_string(request->data, "$.params.name", 1, 200, &sds_buf1, vcb_isname, &error) == true) {
+            if (json_get_string(request->data, "$.params.name", 1, MAX_NAME_LEN, &sds_buf1, vcb_isname, &error) == true) {
                 rc = mpd_run_newpartition(mympd_state->mpd_state->conn, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_newpartition");
             }
             break;
         case MYMPD_API_PARTITION_SWITCH:
-            if (json_get_string(request->data, "$.params.name", 1, 200, &sds_buf1, vcb_isname, &error) == true) {
+            if (json_get_string(request->data, "$.params.name", 1, MAX_NAME_LEN, &sds_buf1, vcb_isname, &error) == true) {
                 rc = mpd_run_switch_partition(mympd_state->mpd_state->conn, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_switch_partition");
             }
             break;
         case MYMPD_API_PARTITION_RM:
-            if (json_get_string(request->data, "$.params.name", 1, 200, &sds_buf1, vcb_isname, &error) == true) {
+            if (json_get_string(request->data, "$.params.name", 1, MAX_NAME_LEN, &sds_buf1, vcb_isname, &error) == true) {
                 rc = mpd_run_delete_partition(mympd_state->mpd_state->conn, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_delete_partition");
             }
             break;
         case MYMPD_API_PARTITION_OUTPUT_MOVE:
-            if (json_get_string(request->data, "$.params.name", 1, 200, &sds_buf1, vcb_isname, &error) == true) {
+            if (json_get_string(request->data, "$.params.name", 1, MAX_NAME_LEN, &sds_buf1, vcb_isname, &error) == true) {
                 rc = mpd_run_move_output(mympd_state->mpd_state->conn, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_move_output");
             }
             break;
         case MYMPD_API_MOUNT_LIST:
-            response->data = mpd_client_put_mounts(mympd_state, response->data, request->method, request->id);
+            response->data = mpd_client_get_mounts(mympd_state, response->data, request->method, request->id);
             break;
         case MYMPD_API_MOUNT_NEIGHBOR_LIST:
-            response->data = mpd_client_put_neighbors(mympd_state, response->data, request->method, request->id);
+            response->data = mpd_client_get_neighbors(mympd_state, response->data, request->method, request->id);
             break;
         case MYMPD_API_MOUNT_MOUNT:
-            if (json_get_string(request->data, "$.params.mountUrl", 1, 200, &sds_buf1, vcb_isuri, &error) == true &&
-                json_get_string(request->data, "$.params.mountPoint", 1, 200, &sds_buf2, vcb_isfilepath, &error) == true)
+            if (json_get_string(request->data, "$.params.mountUrl", 1, MAX_FILEPATH_LEN, &sds_buf1, vcb_isuri, &error) == true &&
+                json_get_string(request->data, "$.params.mountPoint", 1, MAX_FILEPATH_LEN, &sds_buf2, vcb_isfilepath, &error) == true)
             {
                 rc = mpd_run_mount(mympd_state->mpd_state->conn, sds_buf2, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_mount");
             }
             break;
         case MYMPD_API_MOUNT_UNMOUNT:
-            if (json_get_string(request->data, "$.params.mountPoint", 1, 200, &sds_buf1, vcb_isfilepath, &error) == true) {
+            if (json_get_string(request->data, "$.params.mountPoint", 1, MAX_FILEPATH_LEN, &sds_buf1, vcb_isfilepath, &error) == true) {
                 rc = mpd_run_unmount(mympd_state->mpd_state->conn, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_unmount");
             }

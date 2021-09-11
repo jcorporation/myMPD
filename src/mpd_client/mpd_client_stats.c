@@ -25,7 +25,7 @@
 #include <string.h>
 
 //private definitions
-static sds mpd_client_put_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, 
+static sds mpd_client_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, 
                                           unsigned entity_count, long last_played, const char *uri, const struct t_tags *tagcols);
 
 //public functions
@@ -118,7 +118,7 @@ bool mpd_client_add_song_to_last_played_list(struct t_mympd_state *mympd_state, 
     return true;
 }
 
-sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buffer, sds method, 
+sds mpd_client_get_last_played_songs(struct t_mympd_state *mympd_state, sds buffer, sds method, 
                                      long request_id, const unsigned int offset, 
                                      const unsigned int limit, const struct t_tags *tagcols)
 {
@@ -136,7 +136,7 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
                 if (entities_returned++) {
                     buffer = sdscat(buffer, ",");
                 }
-                buffer = mpd_client_put_last_played_obj(mympd_state, buffer, entity_count, current->value_i, current->key, tagcols);
+                buffer = mpd_client_get_last_played_obj(mympd_state, buffer, entity_count, current->value_i, current->key, tagcols);
             }
             current = current->next;
         }
@@ -157,7 +157,7 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
                     if (entities_returned++) {
                         buffer = sdscat(buffer, ",");
                     }
-                    buffer = mpd_client_put_last_played_obj(mympd_state, buffer, entity_count, value, data, tagcols);
+                    buffer = mpd_client_get_last_played_obj(mympd_state, buffer, entity_count, value, data, tagcols);
                 }
                 else {
                     MYMPD_LOG_ERROR("Reading last_played line failed");
@@ -185,7 +185,7 @@ sds mpd_client_put_last_played_songs(struct t_mympd_state *mympd_state, sds buff
     return buffer;
 }
 
-sds mpd_client_put_stats(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mpd_client_get_stats(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     struct mpd_stats *stats = mpd_run_stats(mympd_state->mpd_state->conn);
     if (stats == NULL) {
         buffer = check_error_and_recover(mympd_state->mpd_state, buffer, method, request_id);
@@ -222,7 +222,7 @@ sds mpd_client_put_stats(struct t_mympd_state *mympd_state, sds buffer, sds meth
 
 
 //private functions
-static sds mpd_client_put_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, 
+static sds mpd_client_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, 
                                           unsigned entity_count, long last_played, const char *uri, const struct t_tags *tagcols)
 {
     buffer = sdscat(buffer, "{");
@@ -230,14 +230,14 @@ static sds mpd_client_put_last_played_obj(struct t_mympd_state *mympd_state, sds
     buffer = tojson_long(buffer, "LastPlayed", last_played, true);
     bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, uri);
     if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == false) {
-        buffer = put_empty_song_tags(buffer, mympd_state->mpd_state, tagcols, uri);
+        buffer = get_empty_song_tags(buffer, mympd_state->mpd_state, tagcols, uri);
         mpd_response_finish(mympd_state->mpd_state->conn);
     }
     else {
         struct mpd_entity *entity;
         if ((entity = mpd_recv_entity(mympd_state->mpd_state->conn)) != NULL) {
             const struct mpd_song *song = mpd_entity_get_song(entity);
-            buffer = put_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
+            buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
             if (mympd_state->mpd_state->feat_stickers == true && mympd_state->sticker_cache != NULL) {
                 buffer = sdscatlen(buffer, ",", 1);
                 buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
@@ -245,7 +245,7 @@ static sds mpd_client_put_last_played_obj(struct t_mympd_state *mympd_state, sds
             mpd_entity_free(entity);
         }
         else {
-            buffer = put_empty_song_tags(buffer, mympd_state->mpd_state, tagcols, uri);
+            buffer = get_empty_song_tags(buffer, mympd_state->mpd_state, tagcols, uri);
         }
         check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
         mpd_response_finish(mympd_state->mpd_state->conn);

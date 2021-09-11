@@ -10,8 +10,7 @@
 #include "../lib/mympd_state.h"
 
 sds mpd_client_get_queue_state(struct t_mympd_state *mympd_state, sds buffer);
-sds mpd_client_put_queue_state(struct mpd_status *status, sds buffer);
-sds mpd_client_put_queue(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mpd_client_get_queue(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                          unsigned int offset, unsigned int limit, const struct t_tags *tagcols);
 sds mpd_client_crop_queue(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, bool or_clear);
 sds mpd_client_search_queue(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,

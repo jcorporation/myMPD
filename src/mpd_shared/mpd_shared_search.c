@@ -170,7 +170,7 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
             }
             buffer = sdscat(buffer, "{");
             buffer = tojson_char(buffer, "Type", "song", true);
-            buffer = put_song_tags(buffer, mpd_state, tagcols, song);
+            buffer = get_song_tags(buffer, mpd_state, tagcols, song);
             if (sticker_cache != NULL) {
                 buffer = sdscat(buffer, ",");
                 buffer = mpd_shared_sticker_list(buffer, sticker_cache, mpd_song_get_uri(song));

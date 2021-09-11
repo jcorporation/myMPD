@@ -16,9 +16,9 @@ void disable_all_mpd_tags(struct t_mpd_state *mpd_state);
 void enable_all_mpd_tags(struct t_mpd_state *mpd_state);
 void enable_mpd_tags(struct t_mpd_state *mpd_state, struct t_tags *enable_tags);
 enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag);
-sds put_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
+sds get_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
                   const struct mpd_song *song);
-sds put_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
+sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
                         const char *uri);
 void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
                 struct t_tags allowed_tag_types);

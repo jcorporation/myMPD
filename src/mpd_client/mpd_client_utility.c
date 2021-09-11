@@ -26,7 +26,7 @@
 static void detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
 
 //public functions
-sds put_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *uri, bool is_dirname) {
+sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *uri, bool is_dirname) {
     struct t_list images;
     list_init(&images);
     sds booklet_path = sdsempty();

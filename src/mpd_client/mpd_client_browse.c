@@ -35,7 +35,7 @@ static bool _cmp_regex(pcre *re_compiled, sds value);
 static void _free_filesystem_list_user_data(struct t_list_node *current);
 
 //public functions
-sds mpd_client_put_fingerprint(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mpd_client_get_fingerprint(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                                const char *uri)
 {   
     char fp_buffer[8192];
@@ -55,7 +55,7 @@ sds mpd_client_put_fingerprint(struct t_mympd_state *mympd_state, sds buffer, sd
     return buffer;
 }
 
-sds mpd_client_put_songdetails(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
+sds mpd_client_get_songdetails(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
                                const char *uri)
 {
     bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, uri);
@@ -67,7 +67,7 @@ sds mpd_client_put_songdetails(struct t_mympd_state *mympd_state, sds buffer, sd
 
     struct mpd_song *song;
     if ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
-        buffer = put_song_tags(buffer, mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd, song);
+        buffer = get_song_tags(buffer, mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd, song);
         mpd_song_free(song);
     }
 
@@ -82,7 +82,7 @@ sds mpd_client_put_songdetails(struct t_mympd_state *mympd_state, sds buffer, sd
     }
     
     buffer = sdscat(buffer, ",");
-    buffer = put_extra_files(mympd_state, buffer, uri, false);
+    buffer = get_extra_files(mympd_state, buffer, uri, false);
     buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
@@ -117,7 +117,7 @@ sds mpd_client_read_comments(struct t_mympd_state *mympd_state, sds buffer, sds 
     return buffer;
 }
 
-sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
+sds mpd_client_get_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
                               sds path, const unsigned int offset, const unsigned int limit, sds searchstr, const struct t_tags *tagcols)
 {
     bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, path);
@@ -238,7 +238,7 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
                 case MPD_ENTITY_TYPE_SONG: {
                     struct mpd_song *song = (struct mpd_song *)current->user_data;
                     buffer = sdscat(buffer, "{\"Type\":\"song\",");
-                    buffer = put_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
+                    buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
                     buffer = sdscatlen(buffer, ",", 1);
                     char *filename = strdup(mpd_song_get_uri(song));
                     buffer = tojson_char(buffer, "Filename", basename_uri(filename), false);
@@ -274,7 +274,7 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
     }
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = put_extra_files(mympd_state, buffer, path, true);
+    buffer = get_extra_files(mympd_state, buffer, path, true);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
@@ -284,7 +284,7 @@ sds mpd_client_put_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds
     return buffer;
 }
 
-sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mpd_client_get_songs_in_album(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                                   sds album, sds albumartist, const struct t_tags *tagcols)
 {
     buffer = jsonrpc_result_start(buffer, method, request_id);
@@ -348,7 +348,7 @@ sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer,
             }
         }
         buffer = sdscat(buffer, "{\"Type\": \"song\",");
-        buffer = put_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
+        buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
         if (mympd_state->mpd_state->feat_stickers) {
             buffer = sdscat(buffer, ",");
             buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
@@ -362,7 +362,7 @@ sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer,
     buffer = sdscat(buffer, "],");
     
     if (first_song != NULL) {
-        buffer = put_extra_files(mympd_state, buffer, mpd_song_get_uri(first_song), false);
+        buffer = get_extra_files(mympd_state, buffer, mpd_song_get_uri(first_song), false);
     }
     else {
         buffer = sdscat(buffer, "\"images\":[],\"bookletPath\":\"\"");
@@ -388,7 +388,7 @@ sds mpd_client_put_songs_in_album(struct t_mympd_state *mympd_state, sds buffer,
     return buffer;    
 }
 
-sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
+sds mpd_client_get_firstsong_in_albums(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
                                        sds expression, sds sort, bool sortdesc, const unsigned int offset, unsigned int limit)
 {
     if (mympd_state->album_cache == NULL) {
@@ -568,7 +568,7 @@ sds mpd_client_put_firstsong_in_albums(struct t_mympd_state *mympd_state, sds bu
     return buffer;    
 }
 
-sds mpd_client_put_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
+sds mpd_client_get_db_tag(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
                           sds searchstr, sds tag, const unsigned int offset, const unsigned int limit)
 {
     sdstolower(searchstr);

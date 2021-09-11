@@ -72,7 +72,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
                     break;
                 case MPD_IDLE_PLAYER:
                     //get and put mpd state                
-                    buffer = mpd_client_put_state(mympd_state, buffer, NULL, 0);
+                    buffer = mpd_client_get_state(mympd_state, buffer, NULL, 0);
                     //song has changed
                     if (mympd_state->mpd_state->song_id != mympd_state->mpd_state->last_song_id && 
                         mympd_state->mpd_state->last_skipped_id != mympd_state->mpd_state->last_song_id && 
@@ -96,7 +96,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
                     }
                     break;
                 case MPD_IDLE_MIXER:
-                    buffer = mpd_client_put_volume(mympd_state, buffer, NULL, 0);
+                    buffer = mpd_client_get_volume(mympd_state, buffer, NULL, 0);
                     break;
                 case MPD_IDLE_OUTPUT:
                     buffer = jsonrpc_event(buffer, "update_outputs");

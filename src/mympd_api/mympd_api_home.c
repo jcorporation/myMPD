@@ -18,15 +18,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-bool mympd_api_move_home_icon(struct t_mympd_state *mympd_state, unsigned int from, unsigned int to) {
+bool mympd_api_move_home_icon(struct t_mympd_state *mympd_state, unsigned from, unsigned to) {
     return list_move_item_pos(&mympd_state->home_list, from, to);
 }
 
-bool mympd_api_rm_home_icon(struct t_mympd_state *mympd_state, unsigned int pos) {
+bool mympd_api_rm_home_icon(struct t_mympd_state *mympd_state, unsigned pos) {
     return list_shift(&mympd_state->home_list, pos);
 }
 
-bool mympd_api_save_home_icon(struct t_mympd_state *mympd_state, bool replace, unsigned int oldpos,
+bool mympd_api_save_home_icon(struct t_mympd_state *mympd_state, bool replace, unsigned oldpos,
     const char *name, const char *ligature, const char *bgcolor, const char *color, const char *image,
     const char *cmd, struct t_list *option_list) 
 {
@@ -64,23 +64,7 @@ bool mympd_api_read_home_list(struct t_mympd_state *mympd_state) {
     errno = 0;
     FILE *fp = fopen(home_file, OPEN_FLAGS_READ);
     int i = 0;
-    if (fp != NULL) {
-        sds line = sdsempty();
-        while (sdsgetline(&line, fp, 1000) == 0) {
-            if (validate_json(line) == false) {
-                MYMPD_LOG_ERROR("Invalid line");
-                break;
-            }
-            list_push(&mympd_state->home_list, line, 0, NULL, NULL);
-            i++;
-            if (i == 100) {
-                break;
-            }
-        }
-        FREE_SDS(line);
-        fclose(fp);
-    }
-    else {
+    if (fp == NULL) {
         //ignore error
         MYMPD_LOG_DEBUG("Can not open file \"%s\"", home_file);
         if (errno != ENOENT) {
@@ -89,6 +73,22 @@ bool mympd_api_read_home_list(struct t_mympd_state *mympd_state) {
         FREE_SDS(home_file);
         return false;
     }
+    
+    sds line = sdsempty();
+    while (sdsgetline(&line, fp, 1000) == 0) {
+        if (validate_json(line) == false) {
+            MYMPD_LOG_ERROR("Invalid line");
+            break;
+        }
+        list_push(&mympd_state->home_list, line, 0, NULL, NULL);
+        i++;
+        if (i == MAX_LIST_HOME_ICONS) {
+            MYMPD_LOG_WARN("Too many lines in home_list");
+            break;
+        }
+    }
+    FREE_SDS(line);
+    fclose(fp);
     FREE_SDS(home_file);
     return true;
 }
@@ -131,7 +131,7 @@ bool mympd_api_write_home_list(struct t_mympd_state *mympd_state) {
     return true;
 }
 
-sds mympd_api_put_home_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_get_home_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int returned_entities = 0;

@@ -9,5 +9,5 @@
 
 #include "../lib/mympd_state.h"
 
-sds mpd_client_put_partitions(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
+sds mpd_client_get_partitions(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
 #endif

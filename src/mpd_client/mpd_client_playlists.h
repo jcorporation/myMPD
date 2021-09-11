@@ -10,9 +10,9 @@
 #include "../lib/mympd_state.h"
 
 bool smartpls_default(struct t_config *config);
-sds mpd_client_put_playlists(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mpd_client_get_playlists(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                              const unsigned int offset, const unsigned int limit, sds searchstr);
-sds mpd_client_put_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds method, 
+sds mpd_client_get_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds method, 
                                  long request_id, sds uri, const unsigned int offset, 
                                  const unsigned int limit, sds searchstr,
                                  const struct t_tags *tagcols);
