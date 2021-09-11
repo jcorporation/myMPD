@@ -261,9 +261,6 @@ Stream URI
 http://uri.to/stream.mp3
 http://주소/stream.mp3
 
-Invalid URI
-잘못된 주소
-
 Please choose playlist
 연주목록을 선택합니다
 
@@ -451,7 +448,7 @@ Smart playlists updated
 스마트 연주목록 업데이트됨
 
 Smart playlists update failed
-스마트 연주목록 업데이트 안 됨
+스마트 연주목록 업데이트 실패
 
 Smart playlist %{playlist} updated
 %{playlist} 스마트 연주목록 업데이트함
@@ -460,7 +457,7 @@ Smart playlists are not supported
 스마트 연주목록이 지원되지 않음
 
 Updating smart playlist %{playlist} failed
-%{playlist} 스마트 연주목록 업데이트 안 됨
+%{playlist} 스마트 연주목록 업데이트 실패
 
 Smart playlist
 스마트 연주목록
@@ -733,10 +730,10 @@ Successfully added random songs to queue
 무작위 곡을 순서에 추가함
 
 Adding random songs to queue failed
-순서에 무작위 곡 추가 안 됨
+순서에 무작위 곡 추가 실패
 
 Deleting smart playlist failed
-스마트 연주목록 지우기 안 됨
+스마트 연주목록 지우기 실패
 
 Unknown request
 알 수 없는 요구
@@ -831,6 +828,9 @@ Webserver
 Download
 내려받기
 
+Can't save settings
+설정을 저장할 수 없음
+
 No current song
 지금 곡 없음
 
@@ -868,13 +868,13 @@ Advanced
 고급
 
 Successfully croped covercache
-표지 캐시 잘라내기 완료
+음반 표지 캐시 잘라내기 완료
 
 Successfully cleared covercache
-표지 캐시 지우기 완료
+음반 표지 캐시 지우기 완료
 
 Clear covercache
-표지 캐시 지우기
+음반 표지 캐시 지우기
 
 Clear
 지우기
@@ -1368,6 +1368,9 @@ Can not delete home icon
 Can not save home icon
 홈 아이콘을 저장할 수 없음
 
+Too many home icons
+홈 아이콘이 너무 많음
+
 Home
 홈
 
@@ -1375,19 +1378,19 @@ Add to homescreen
 홈 화면에 추가
 
 Can not get home icon
-홈 화면을 가져올 수 없음
+홈 아이콘을 가져올 수 없음
 
 Can not move home icon
-홈 화면을 옮길 수 없음
+홈 아이콘을 옮길 수 없음
 
 Delete home icon
-홈 화면 지움
+홈 아이콘 지움
 
 Duplicate home icon
-홈 화면 복사
+홈 아이콘 복사
 
 Edit home icon
-홈 화면 수정
+홈 아이콘 수정
 
 Ligature
 연결
@@ -1476,6 +1479,9 @@ MaintainEnableTagsText
 Failed to set like, unknown error
 좋아요 설정 안 됨, 알 수 없는 오류
 
+Invalid URI
+잘못된 URI
+
 Stop
 정지
 
@@ -1547,13 +1553,13 @@ Homescreen
 홈 화면
 
 Homescreen help view
-보기를 홈 화면에 추가하려면 보기로 가서 [[add_to_home_screen]] 버튼을 누릅니다.
+보기로 가서 "홈 화면에 추가" 단추 누르기:
 
 Homescreen help playlist
-연주목록을 홈 화면에 추가하려면 연주목록의 연관 메뉴를 열고 "홈 화면에 추가"를 선택합니다.
+연주목록의 연관 메뉴를 열고 "홈 화면에 추가"를 선택합니다.
 
 Homescreen help script
-스크립트를 홈 화면에 추가하려면 스크립트 대화 상자를 열고 [[add_to_home_screen]] 버튼을 누릅니다.
+스크립트 대화 상자를 열고 "홈 화면에 추가" 단추 누르기:
 
 Help to improve myMPD
 myMPD 개선 도움
@@ -1727,7 +1733,7 @@ Actions
 기능
 
 Covercache expiration
-음반표지 캐시 만료
+음반 표지 캐시 만료
 
 Enable
 사용함
@@ -1815,3 +1821,57 @@ Keepalive
 
 Further Features
 부가 기능
+
+Comments
+설명
+
+Authentication required
+인증 필요함
+
+Enter
+입력
+
+Enter Pin
+Pin 입력
+
+Invalid pin
+잘못된 Pin
+
+Invalid session
+잘못된 세션
+
+Login
+로그인
+
+Logout
+로그아웃
+
+Pin
+Pin
+
+Session removed
+세션 지움
+
+Session successfully created
+세션 만듬
+
+Enter pin
+Pin 입력
+
+Invalid script content
+잘못된 스크립트 내용
+
+Error in clearing the covercache
+음반 표지 지우기 오류
+
+Error in cropping covercache
+음반 표지 잘라내기 오류
+
+Saved smart playlist
+스마트 연주목록 저장함
+
+Too many timers defined
+너무 많은 타이머가 정의됨
+
+Too many triggers defined
+너무 많은 트리거가 정의됨
