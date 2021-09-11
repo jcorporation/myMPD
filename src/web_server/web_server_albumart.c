@@ -15,7 +15,7 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
-#include "../mpd_client/mpd_client_utility.h"
+#include "../mympd_api/mympd_api_utility.h"
 
 #include <assert.h>
 #include <libgen.h>

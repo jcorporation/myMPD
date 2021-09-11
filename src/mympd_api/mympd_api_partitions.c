@@ -5,7 +5,7 @@
 */
 
 #include "mympd_config_defs.h"
-#include "mpd_client_partitions.h"
+#include "mympd_api_partitions.h"
 
 #include "../lib/jsonrpc.h"
 #include "../mpd_shared.h"

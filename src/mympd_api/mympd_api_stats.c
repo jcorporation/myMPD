@@ -5,7 +5,7 @@
 */
 
 #include "mympd_config_defs.h"
-#include "mpd_client_stats.h"
+#include "mympd_api_stats.h"
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
@@ -16,7 +16,7 @@
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
-#include "mpd_client_utility.h"
+#include "mympd_api_utility.h"
 
 #include <errno.h>
 #include <inttypes.h>

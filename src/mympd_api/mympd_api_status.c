@@ -5,7 +5,7 @@
 */
 
 #include "mympd_config_defs.h"
-#include "mpd_client_state.h"
+#include "mympd_api_status.h"
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
@@ -15,7 +15,7 @@
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
-#include "mpd_client_utility.h"
+#include "mympd_api_utility.h"
 
 //private definitions
 static sds _mpd_client_get_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);

@@ -12,16 +12,16 @@
 #include "lib/mem.h"
 #include "lib/mympd_configuration.h"
 #include "lib/sds_extras.h"
-#include "mpd_client.h"
-#include "mpd_client/mpd_client_stats.h"
-#include "mpd_client/mpd_client_trigger.h"
+#include "mpd_client/mpd_client_autoconf.h"
+#include "mpd_client/mpd_client_loop.h"
 #include "mpd_shared.h"
 #include "mympd_api/mympd_api_home.h"
 #include "mympd_api/mympd_api_settings.h"
+#include "mympd_api/mympd_api_stats.h"
 #include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_timer_handlers.h"
+#include "mympd_api/mympd_api_trigger.h"
 #include "mympd_api/mympd_api_utility.h"
-#include "mympd_api/mympd_autoconf.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -38,7 +38,7 @@ void *mympd_api_loop(void *arg_config) {
 
     if (mympd_state->config->first_startup == true) {
         MYMPD_LOG_NOTICE("Starting myMPD autoconfiguration");
-        mympd_autoconf(mympd_state);
+        mpd_client_autoconf(mympd_state);
     }
 
     //read myMPD states

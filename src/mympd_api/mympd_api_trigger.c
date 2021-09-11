@@ -5,7 +5,7 @@
 */
 
 #include "mympd_config_defs.h"
-#include "mpd_client_trigger.h"
+#include "mympd_api_trigger.h"
 
 #include "../lib/api.h"
 #include "../lib/jsonrpc.h"

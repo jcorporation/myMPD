@@ -5,7 +5,7 @@
 */
 
 #include "mympd_config_defs.h"
-#include "mpd_client_playlists.h"
+#include "mympd_api_playlists.h"
 
 #include "../lib/api.h"
 #include "../lib/jsonrpc.h"
@@ -16,7 +16,7 @@
 #include "../lib/validate.h"
 #include "../mpd_shared/mpd_shared_search.h"
 #include "../mpd_shared/mpd_shared_tags.h"
-#include "mpd_client_utility.h"
+#include "mympd_api_utility.h"
 
 #include <dirent.h>
 #include <errno.h>

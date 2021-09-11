@@ -12,7 +12,7 @@
 #include "../lib/mem.h"
 #include "../lib/validate.h"
 #include "../mpd_shared.h"
-#include "../mpd_client/mpd_client_utility.h"
+#include "../mympd_api/mympd_api_utility.h"
 
 #include <inttypes.h>
 #include <stdlib.h>

@@ -220,22 +220,10 @@ set(SOURCES
   src/lib/utility.c
   src/lib/validate.c
   src/main.c
-  src/mpd_client.c
-  src/mpd_client/mpd_client_browse.c
-  src/mpd_client/mpd_client_cover.c
+  src/mpd_client/mpd_client_autoconf.c
   src/mpd_client/mpd_client_features.c
   src/mpd_client/mpd_client_jukebox.c
-  src/mpd_client/mpd_client_lyrics.c
-  src/mpd_client/mpd_client_mounts.c
-  src/mpd_client/mpd_client_partitions.c
-  src/mpd_client/mpd_client_playlists.c
-  src/mpd_client/mpd_client_queue.c
-  src/mpd_client/mpd_client_state.c
-  src/mpd_client/mpd_client_stats.c
-  src/mpd_client/mpd_client_sticker.c
-  src/mpd_client/mpd_client_timer.c
-  src/mpd_client/mpd_client_trigger.c
-  src/mpd_client/mpd_client_utility.c
+  src/mpd_client/mpd_client_loop.c
   src/mpd_shared.c
   src/mpd_shared/mpd_shared_playlists.c
   src/mpd_shared/mpd_shared_search.c
@@ -247,14 +235,24 @@ set(SOURCES
   src/mpd_worker/mpd_worker_smartpls.c
   src/mpd_worker/mpd_worker_utility.c
   src/mympd_api.c
+  src/mympd_api/mympd_api_albumart.c
+  src/mympd_api/mympd_api_browse.c
   src/mympd_api/mympd_api_handler.c
   src/mympd_api/mympd_api_home.c
+  src/mympd_api/mympd_api_lyrics.c
+  src/mympd_api/mympd_api_mounts.c
+  src/mympd_api/mympd_api_partitions.c
+  src/mympd_api/mympd_api_playlists.c
+  src/mympd_api/mympd_api_queue.c
   src/mympd_api/mympd_api_scripts.c
   src/mympd_api/mympd_api_settings.c
+  src/mympd_api/mympd_api_stats.c
+  src/mympd_api/mympd_api_status.c
+  src/mympd_api/mympd_api_sticker.c
   src/mympd_api/mympd_api_timer.c
   src/mympd_api/mympd_api_timer_handlers.c
+  src/mympd_api/mympd_api_trigger.c
   src/mympd_api/mympd_api_utility.c
-  src/mympd_api/mympd_autoconf.c
   src/mympd_config.c
   src/web_server.c
   src/web_server/web_server_albumart.c

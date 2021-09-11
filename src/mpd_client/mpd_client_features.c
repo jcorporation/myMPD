@@ -14,7 +14,7 @@
 #include "../lib/utility.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_tags.h"
-#include "mpd_client_state.h"
+#include "../mympd_api/mympd_api_status.h"
 
 #include <stdlib.h>
 #include <string.h>

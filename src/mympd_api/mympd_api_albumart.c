@@ -5,7 +5,7 @@
 */
 
 #include "mympd_config_defs.h"
-#include "mpd_client_cover.h"
+#include "mympd_api_albumart.h"
 
 #include "../lib/covercache.h"
 #include "../lib/jsonrpc.h"

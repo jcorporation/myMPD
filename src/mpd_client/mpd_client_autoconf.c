@@ -5,7 +5,7 @@
 */
 
 #include "mympd_config_defs.h"
-#include "mympd_autoconf.h"
+#include "mpd_client_autoconf.h"
 
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
@@ -20,38 +20,38 @@
 #include <unistd.h>
 
 //private definitions
-static sds find_mpd_conf(void);
-static sds get_mpd_conf(const char *key, const char *default_value, validate_callback vcb);
-static int sdssplit_whitespace(sds line, sds *name, sds *value);
+static sds _find_mpd_conf(void);
+static sds _get_mpd_conf(const char *key, const char *default_value, validate_callback vcb);
+static int _sdssplit_whitespace(sds line, sds *name, sds *value);
 
 //public functions
 
-void mympd_autoconf(struct t_mympd_state *mympd_state) {
+void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
     //try reading mpd.conf
-    sds mpd_conf = find_mpd_conf();
+    sds mpd_conf = _find_mpd_conf();
     if (sdslen(mpd_conf) > 0) {
         MYMPD_LOG_NOTICE("Found %s", mpd_conf);
         //get config from mpd configuration file
-        sds mpd_host = get_mpd_conf("bind_to_address", mympd_state->mpd_state->mpd_host, vcb_isname);
+        sds mpd_host = _get_mpd_conf("bind_to_address", mympd_state->mpd_state->mpd_host, vcb_isname);
         mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, mpd_host);
         FREE_SDS(mpd_host);
 
-        sds mpd_pass = get_mpd_conf("password", mympd_state->mpd_state->mpd_pass, vcb_isname);
+        sds mpd_pass = _get_mpd_conf("password", mympd_state->mpd_state->mpd_pass, vcb_isname);
         mympd_state->mpd_state->mpd_pass = sdsreplace(mympd_state->mpd_state->mpd_pass, mpd_pass);
         FREE_SDS(mpd_pass);
         
-        sds mpd_port = get_mpd_conf("port", mympd_state->mpd_state->mpd_host, vcb_isdigit);
+        sds mpd_port = _get_mpd_conf("port", mympd_state->mpd_state->mpd_host, vcb_isdigit);
         int port = (int)strtoimax(mpd_port, NULL, 10);
         if (port > 1024 && port <= 65534) {
             mympd_state->mpd_state->mpd_port = port;
         }
         FREE_SDS(mpd_port);
         
-        sds music_directory = get_mpd_conf("music_directory", mympd_state->music_directory, vcb_isfilepath);
+        sds music_directory = _get_mpd_conf("music_directory", mympd_state->music_directory, vcb_isfilepath);
         mympd_state->music_directory = sdsreplace(mympd_state->music_directory, music_directory);
         FREE_SDS(music_directory);
         
-        sds playlist_directory = get_mpd_conf("playlist_directory", mympd_state->playlist_directory, vcb_isfilepath);
+        sds playlist_directory = _get_mpd_conf("playlist_directory", mympd_state->playlist_directory, vcb_isfilepath);
         mympd_state->playlist_directory = sdsreplace(mympd_state->playlist_directory, playlist_directory);
         FREE_SDS(playlist_directory);
         FREE_SDS(mpd_conf);
@@ -114,7 +114,7 @@ void mympd_autoconf(struct t_mympd_state *mympd_state) {
 
 //private functions
 
-static sds find_mpd_conf(void) {
+static sds _find_mpd_conf(void) {
     const char *filenames[] = { 
         "/etc/mpd.conf",
         "/usr/local/etc/mpd.conf",
@@ -137,9 +137,9 @@ static sds find_mpd_conf(void) {
     return filename;
 }
 
-static sds get_mpd_conf(const char *key, const char *default_value, validate_callback vcb) {
+static sds _get_mpd_conf(const char *key, const char *default_value, validate_callback vcb) {
     sds last_value = sdsnew(default_value);
-    sds mpd_conf = find_mpd_conf();
+    sds mpd_conf = _find_mpd_conf();
     errno = 0;
     FILE *fp = fopen(mpd_conf, OPEN_FLAGS_READ);
     if (fp == NULL) {
@@ -154,7 +154,7 @@ static sds get_mpd_conf(const char *key, const char *default_value, validate_cal
     sds value;
     while (sdsgetline(&line, fp, 1000) == 0) {
         if (sdslen(line) > 0) {
-            int tokens = sdssplit_whitespace(line, &name, &value);
+            int tokens = _sdssplit_whitespace(line, &name, &value);
             if (tokens == 2) {
                 if (strcasecmp(name, key) == 0 && strcasecmp(name, "bind_to_address") == 0) {
                     if (sdslen(last_value) == 0 || strncmp(value, "/", 1) == 0) {
@@ -196,7 +196,7 @@ static sds get_mpd_conf(const char *key, const char *default_value, validate_cal
     return last_value;
 }
 
-static int sdssplit_whitespace(sds line, sds *name, sds *value) {
+static int _sdssplit_whitespace(sds line, sds *name, sds *value) {
     *name = sdsempty();
     *value = sdsempty();
     int tokens = 0;

@@ -16,8 +16,8 @@
 #include "lib/random.h"
 #include "lib/sds_extras.h"
 #include "lib/utility.h"
-#include "mpd_client/mpd_client_playlists.h"
 #include "mympd_api.h"
+#include "mympd_api/mympd_api_playlists.h"
 #include "mympd_config.h"
 #include "web_server.h"
 

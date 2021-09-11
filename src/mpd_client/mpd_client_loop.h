@@ -4,10 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_MPD_CLIENT_H
-#define MYMPD_MPD_CLIENT_H
+#ifndef MYMPD_MPD_CLIENT_LOOP_H
+#define MYMPD_MPD_CLIENT_LOOP_H
 
-#include "lib/mympd_state.h"
+#include "../lib/mympd_state.h"
 
 void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask);
 void mpd_client_idle(struct t_mympd_state *mympd_state);

@@ -5,7 +5,7 @@
 */
 
 #include "mympd_config_defs.h"
-#include "mpd_client_mounts.h"
+#include "mympd_api_mounts.h"
 
 #include "../lib/jsonrpc.h"
 #include "../lib/sds_extras.h"
