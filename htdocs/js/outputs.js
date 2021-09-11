@@ -126,20 +126,14 @@ function saveOutputAttributesClose(obj) {
 function parseVolume(obj) {
     if (obj.result.volume === -1) {
         document.getElementById('volumePrct').textContent = t('Volumecontrol disabled');
-        document.getElementById('volumeControl').classList.add('hide');
+        elHide(document.getElementById('volumeControl'));
     } 
     else {
-        document.getElementById('volumeControl').classList.remove('hide');
+        elShow(document.getElementById('volumeControl'));
         document.getElementById('volumePrct').textContent = obj.result.volume + ' %';
-        if (obj.result.volume === 0) {
-            document.getElementById('volumeMenu').firstChild.textContent = 'volume_off';
-        }
-        else if (obj.result.volume < 50) {
-            document.getElementById('volumeMenu').firstChild.textContent = 'volume_down';
-        }
-        else {
-            document.getElementById('volumeMenu').firstChild.textContent = 'volume_up';
-        }
+        document.getElementById('volumeMenu').firstChild.textContent =
+            obj.result.volume === 0 ? 'volume_off' :
+                obj.result.volume < 50 ? 'volume_down' : 'volume_up';
     }
     document.getElementById('volumeBar').value = obj.result.volume;
 }
@@ -159,5 +153,7 @@ function chVolume(increment) {
         newValue = settings.volumeMax;
     }
     volumeBar.value = newValue;
-    sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {"volume": newValue});
+    sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {
+        "volume": newValue
+    });
 }
