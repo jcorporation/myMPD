@@ -7,9 +7,7 @@
 #ifndef MYMPD_AUTOCONF_H
 #define MYMPD_AUTOCONF_H
 
-#include "../dist/src/sds/sds.h"
-#include "lib/validate.h"
+#include "../lib/mympd_state.h"
 
-sds find_mpd_conf(void);
-sds get_mpd_conf(const char *key, const char *default_value, validate_callback vcb);
+void mympd_autoconf(struct t_mympd_state *mympd_state);
 #endif

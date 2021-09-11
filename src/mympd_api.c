@@ -12,28 +12,21 @@
 #include "lib/mem.h"
 #include "lib/mympd_configuration.h"
 #include "lib/sds_extras.h"
-#include "lib/validate.h"
 #include "mpd_client.h"
 #include "mpd_client/mpd_client_stats.h"
 #include "mpd_client/mpd_client_trigger.h"
 #include "mpd_shared.h"
-#include "mympd_autoconf.h"
 #include "mympd_api/mympd_api_home.h"
 #include "mympd_api/mympd_api_settings.h"
 #include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_timer_handlers.h"
 #include "mympd_api/mympd_api_utility.h"
+#include "mympd_api/mympd_autoconf.h"
 
-#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/prctl.h>
-#include <unistd.h>
 
-//private definitions
-void mympd_autoconf(struct t_mympd_state *mympd_state);
-
-//public functions
 void *mympd_api_loop(void *arg_config) {
     thread_logname = sdsreplace(thread_logname, "mympdapi");
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
@@ -88,91 +81,4 @@ void *mympd_api_loop(void *arg_config) {
     free_mympd_state(mympd_state);
     FREE_SDS(thread_logname);
     return NULL;
-}
-
-//private functions
-void mympd_autoconf(struct t_mympd_state *mympd_state) {
-    //try reading mpd.conf
-    sds mpd_conf = find_mpd_conf();
-    if (sdslen(mpd_conf) > 0) {
-        MYMPD_LOG_NOTICE("Found %s", mpd_conf);
-        //get config from mpd configuration file
-        sds mpd_host = get_mpd_conf("bind_to_address", mympd_state->mpd_state->mpd_host, vcb_isname);
-        mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, mpd_host);
-        FREE_SDS(mpd_host);
-
-        sds mpd_pass = get_mpd_conf("password", mympd_state->mpd_state->mpd_pass, vcb_isname);
-        mympd_state->mpd_state->mpd_pass = sdsreplace(mympd_state->mpd_state->mpd_pass, mpd_pass);
-        FREE_SDS(mpd_pass);
-        
-        sds mpd_port = get_mpd_conf("port", mympd_state->mpd_state->mpd_host, vcb_isdigit);
-        int port = (int)strtoimax(mpd_port, NULL, 10);
-        if (port > 1024 && port <= 65534) {
-            mympd_state->mpd_state->mpd_port = port;
-        }
-        FREE_SDS(mpd_port);
-        
-        sds music_directory = get_mpd_conf("music_directory", mympd_state->music_directory, vcb_isfilepath);
-        mympd_state->music_directory = sdsreplace(mympd_state->music_directory, music_directory);
-        FREE_SDS(music_directory);
-        
-        sds playlist_directory = get_mpd_conf("playlist_directory", mympd_state->playlist_directory, vcb_isfilepath);
-        mympd_state->playlist_directory = sdsreplace(mympd_state->playlist_directory, playlist_directory);
-        FREE_SDS(playlist_directory);
-        FREE_SDS(mpd_conf);
-        return;
-    }
-    FREE_SDS(mpd_conf);
-
-    //try environment
-    MYMPD_LOG_NOTICE("Reading environment");
-    bool mpd_configured = false;
-    const char *mpd_host_env = getenv("MPD_HOST"); /* Flawfinder: ignore */
-    if (mpd_host_env != NULL && strlen(mpd_host_env) <= 100) {
-        sds mpd_host = sdsnew(mpd_host_env);
-        if (vcb_isname(mpd_host) == true) {
-            if (mpd_host[0] != '@' && strstr(mpd_host, "@") != NULL) {
-                int count;
-                sds *tokens = sdssplitlen(mpd_host, (ssize_t)sdslen(mpd_host), "@", 1, &count);
-                mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, tokens[1]);
-                mympd_state->mpd_state->mpd_pass = sdsreplace(mympd_state->mpd_state->mpd_pass, tokens[0]);
-                sdsfreesplitres(tokens,count);
-            }
-            else {
-                //no password
-                mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, mpd_host);
-            }
-            MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", mympd_state->mpd_state->mpd_host);
-            mpd_configured = true;
-        }
-        FREE_SDS(mpd_host);
-    }
-    const char *mpd_port_env = getenv("MPD_PORT"); /* Flawfinder: ignore */
-    if (mpd_port_env != NULL && strlen(mpd_port_env) <= 5) {
-        sds mpd_port = sdsnew(mpd_port_env);
-        if (vcb_isdigit(mpd_port) == true) {
-            int port = (int)strtoimax(mpd_port, NULL, 10);
-            if (port > 1024 && port <= 65534) {
-                mympd_state->mpd_state->mpd_port = port;
-                MYMPD_LOG_NOTICE("Setting mpd port to \"%d\"", mympd_state->mpd_state->mpd_port);
-            }
-            else {
-                MYMPD_LOG_WARN("MPD port must between 1024 and 65534, default is 6600");
-            }
-        }
-        FREE_SDS(mpd_port);
-    }
-    if (mpd_configured == true) {
-        return;
-    }
-
-    //check for socket
-    if (access("/run/mpd/socket", F_OK ) == 0) { /* Flawfinder: ignore */
-        mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, "/run/mpd/socket");
-        return;
-    }
-    if (access("/var/run/mpd/socket", F_OK ) == 0) { /* Flawfinder: ignore */
-        mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, "/var/run/mpd/socket");
-        return;
-    }
 }
