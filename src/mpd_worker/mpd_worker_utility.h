@@ -22,6 +22,4 @@ struct t_mpd_worker_state {
 };
 
 void free_mpd_worker_state(struct t_mpd_worker_state *mpd_worker_state);
-void default_mpd_worker_state(struct t_mpd_worker_state *mpd_worker_state);
-void mpd_worker_features(struct t_mpd_worker_state *mpd_worker_state);
 #endif
