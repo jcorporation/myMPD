@@ -54,7 +54,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
                     buffer = jsonrpc_event(buffer, "update_stored_playlist");
                     break;
                 case MPD_IDLE_QUEUE:
-                    buffer = mpd_client_get_queue_state(mympd_state, buffer);
+                    buffer = mympd_api_queue_get_state(mympd_state, buffer);
                     //jukebox enabled
                     if (mympd_state->jukebox_mode != JUKEBOX_OFF && mympd_state->mpd_state->queue_length < mympd_state->jukebox_queue_length) {
                         mpd_client_jukebox(mympd_state, 0);
@@ -71,7 +71,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
                     break;
                 case MPD_IDLE_PLAYER:
                     //get and put mpd state                
-                    buffer = mpd_client_get_state(mympd_state, buffer, NULL, 0);
+                    buffer = mympd_api_get_status(mympd_state, buffer, NULL, 0);
                     //song has changed
                     if (mympd_state->mpd_state->song_id != mympd_state->mpd_state->last_song_id && 
                         mympd_state->mpd_state->last_skipped_id != mympd_state->mpd_state->last_song_id && 
@@ -87,25 +87,25 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
                                 sdslen(mympd_state->mpd_state->last_song_uri) > 0)
                             {
                                 MYMPD_LOG_DEBUG("Song \"%s\" skipped", mympd_state->mpd_state->last_song_uri);
-                                mpd_client_sticker_inc_skip_count(mympd_state, mympd_state->mpd_state->last_song_uri);
-                                mpd_client_sticker_last_skipped(mympd_state, mympd_state->mpd_state->last_song_uri);
+                                mympd_api_sticker_inc_skip_count(mympd_state, mympd_state->mpd_state->last_song_uri);
+                                mympd_api_sticker_last_skipped(mympd_state, mympd_state->mpd_state->last_song_uri);
                                 mympd_state->mpd_state->last_skipped_id = mympd_state->mpd_state->last_song_id;
                             }
                         }
                     }
                     break;
                 case MPD_IDLE_MIXER:
-                    buffer = mpd_client_get_volume(mympd_state, buffer, NULL, 0);
+                    buffer = mympd_api_get_volume(mympd_state, buffer, NULL, 0);
                     break;
                 case MPD_IDLE_OUTPUT:
                     buffer = jsonrpc_event(buffer, "update_outputs");
                     break;
                 case MPD_IDLE_OPTIONS:
-                    mpd_client_get_queue_state(mympd_state, NULL);
+                    mympd_api_queue_get_state(mympd_state, NULL);
                     buffer = jsonrpc_event(buffer, "update_options");
                     break;
                 case MPD_IDLE_UPDATE:
-                    buffer = mpd_client_get_updatedb_state(mympd_state, buffer);
+                    buffer = mympd_api_get_updatedb_state(mympd_state, buffer);
                     break;
                 case MPD_IDLE_PARTITION:
                     //TODO: check list of partitions and create new mpd_client threads
@@ -114,7 +114,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
                     //other idle events not used
                 }
             }
-            trigger_execute(mympd_state, (enum trigger_events)idle_event);
+            mympd_api_trigger_execute(mympd_state, (enum trigger_events)idle_event);
             if (sdslen(buffer) > 0) {
                 ws_notify(buffer);
             }
@@ -134,7 +134,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             if (now > mympd_state->mpd_state->reconnect_time) {
                 mympd_state->mpd_state->conn_state = MPD_DISCONNECTED;
             }
-            //mpd_client_api error response
+            //mympd_api_api error response
             mympd_api_queue_length = tiny_queue_length(mympd_api_queue, 50);
             if (mympd_api_queue_length > 0) {
                 //Handle request
@@ -225,11 +225,11 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             //get mpd features
             mpd_client_mpd_features(mympd_state);
             //set binarylimit
-            mpd_client_set_binarylimit(mympd_state);
+            mympd_api_set_binarylimit(mympd_state);
             //initiate cache updates
             update_mympd_caches(mympd_state);
             //set timer for smart playlist update
-            replace_timer(&mympd_state->timer_list, 10, (int)mympd_state->smartpls_interval, timer_handler_smartpls_update, 2, NULL, NULL);
+            mympd_api_timer_replace(&mympd_state->timer_list, 10, (int)mympd_state->smartpls_interval, timer_handler_smartpls_update, 2, NULL, NULL);
             //jukebox
             if (mympd_state->jukebox_mode != JUKEBOX_OFF) {
                 mpd_client_jukebox(mympd_state, 0);
@@ -238,14 +238,14 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 MYMPD_LOG_ERROR("Entering idle mode failed");
                 mympd_state->mpd_state->conn_state = MPD_FAILURE;
             }
-            trigger_execute(mympd_state, TRIGGER_MYMPD_CONNECTED);
+            mympd_api_trigger_execute(mympd_state, TRIGGER_MYMPD_CONNECTED);
             break;
 
         case MPD_FAILURE:
             MYMPD_LOG_ERROR("MPD connection failed");
             buffer = jsonrpc_event(buffer, "mpd_disconnected");
             ws_notify(buffer);
-            trigger_execute(mympd_state, TRIGGER_MYMPD_DISCONNECTED);
+            mympd_api_trigger_execute(mympd_state, TRIGGER_MYMPD_DISCONNECTED);
             // fall through
         case MPD_DISCONNECT:
         case MPD_DISCONNECT_INSTANT:
@@ -320,13 +320,13 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                     mympd_state->mpd_state->last_last_played_id = mympd_state->mpd_state->song_id;
                     
                     if (mympd_state->last_played_count > 0) {
-                        mpd_client_add_song_to_last_played_list(mympd_state, mympd_state->mpd_state->song_id);
+                        mympd_api_add_song_to_last_played_list(mympd_state, mympd_state->mpd_state->song_id);
                     }
                     if (mympd_state->mpd_state->feat_stickers == true) {
-                        mpd_client_sticker_inc_play_count(mympd_state, mympd_state->mpd_state->song_uri);
-                        mpd_client_sticker_last_played(mympd_state, mympd_state->mpd_state->song_uri);
+                        mympd_api_sticker_inc_play_count(mympd_state, mympd_state->mpd_state->song_uri);
+                        mympd_api_sticker_last_played(mympd_state, mympd_state->mpd_state->song_uri);
                     }
-                    trigger_execute(mympd_state, TRIGGER_MYMPD_SCROBBLE);
+                    mympd_api_trigger_execute(mympd_state, TRIGGER_MYMPD_SCROBBLE);
                 }
                 
                 if (jukebox_add_song == true) {
@@ -343,7 +343,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 }
                 
                 if (mympd_state->sticker_queue.length > 0) {
-                    mpd_client_sticker_dequeue(mympd_state);
+                    mympd_api_sticker_dequeue(mympd_state);
                 }
                 
                 MYMPD_LOG_DEBUG("Entering mpd idle mode");

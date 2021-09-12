@@ -4,26 +4,26 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_MPD_CLIENT_PLAYLISTS_H
-#define MYMPD_MPD_CLIENT_PLAYLISTS_H
+#ifndef MYMPD_API_PLAYLISTS_H
+#define MYMPD_API_PLAYLISTS_H
 
 #include "../lib/mympd_state.h"
 
 bool smartpls_default(struct t_config *config);
-sds mpd_client_get_playlists(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mympd_api_get_playlists(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                              const unsigned int offset, const unsigned int limit, sds searchstr);
-sds mpd_client_get_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds method, 
+sds mympd_api_get_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds method, 
                                  long request_id, sds uri, const unsigned int offset, 
                                  const unsigned int limit, sds searchstr,
                                  const struct t_tags *tagcols);
-sds mpd_client_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sds method,
+sds mympd_api_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sds method,
                                long request_id, const char *playlist);
-sds mpd_client_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sds method,
+sds mympd_api_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sds method,
                                long request_id, const char *old_playlist, const char *new_playlist);
-sds mpd_client_smartpls_put(struct t_config *config, sds buffer, sds method, long request_id,
+sds mympd_api_smartpls_put(struct t_config *config, sds buffer, sds method, long request_id,
                             const char *playlist);
-sds mpd_client_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer, sds method, 
+sds mympd_api_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer, sds method, 
                                    long request_id, const char *type);
-void mpd_client_smartpls_update(const char *playlist);
-void mpd_client_smartpls_update_all(void);
+void mympd_api_smartpls_update(const char *playlist);
+void mympd_api_smartpls_update_all(void);
 #endif

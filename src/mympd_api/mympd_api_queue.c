@@ -15,10 +15,10 @@
 #include "../mpd_shared/mpd_shared_tags.h"
 
 //private definitions
-static sds _mpd_client_get_queue_state(struct mpd_status *status, sds buffer);
+static sds _mympd_api_get_queue_state(struct mpd_status *status, sds buffer);
 
 //public
-bool mpd_client_queue_prio_set_highest(struct t_mympd_state *mympd_state, const unsigned trackid) {
+bool mympd_api_queue_prio_set_highest(struct t_mympd_state *mympd_state, const unsigned trackid) {
     //default prio is 10
     unsigned priority = 10;
     
@@ -54,7 +54,7 @@ bool mpd_client_queue_prio_set_highest(struct t_mympd_state *mympd_state, const 
     return true;
 }
 
-bool mpd_client_queue_replace_with_song(struct t_mympd_state *mympd_state, const char *uri) {
+bool mympd_api_queue_replace_with_song(struct t_mympd_state *mympd_state, const char *uri) {
     if (mpd_command_list_begin(mympd_state->mpd_state->conn, false)) {
         bool rc = mpd_send_clear(mympd_state->mpd_state->conn);
         if (rc == false) {
@@ -78,7 +78,7 @@ bool mpd_client_queue_replace_with_song(struct t_mympd_state *mympd_state, const
     return true;
 }
 
-bool mpd_client_queue_replace_with_playlist(struct t_mympd_state *mympd_state, const char *plist) {
+bool mympd_api_queue_replace_with_playlist(struct t_mympd_state *mympd_state, const char *plist) {
     if (mpd_command_list_begin(mympd_state->mpd_state->conn, false)) {
         mpd_send_clear(mympd_state->mpd_state->conn);
         mpd_send_load(mympd_state->mpd_state->conn, plist);
@@ -93,7 +93,7 @@ bool mpd_client_queue_replace_with_playlist(struct t_mympd_state *mympd_state, c
     return true;
 }
 
-sds mpd_client_get_queue_state(struct t_mympd_state *mympd_state, sds buffer) {
+sds mympd_api_queue_get_state(struct t_mympd_state *mympd_state, sds buffer) {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
     if (status == NULL) {
         check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
@@ -106,13 +106,13 @@ sds mpd_client_get_queue_state(struct t_mympd_state *mympd_state, sds buffer) {
     mympd_state->mpd_state->state = mpd_status_get_state(status);
 
     if (buffer != NULL) {
-        buffer = _mpd_client_get_queue_state(status, buffer);
+        buffer = _mympd_api_get_queue_state(status, buffer);
     }
     mpd_status_free(status);
     return buffer;
 }
 
-static sds _mpd_client_get_queue_state(struct mpd_status *status, sds buffer) {
+static sds _mympd_api_get_queue_state(struct mpd_status *status, sds buffer) {
     buffer = jsonrpc_notify_start(buffer, "update_queue");
     buffer = tojson_long(buffer, "state", mpd_status_get_state(status), true);
     buffer = tojson_long(buffer, "queueLength", mpd_status_get_queue_length(status), true);
@@ -123,7 +123,7 @@ static sds _mpd_client_get_queue_state(struct mpd_status *status, sds buffer) {
     return buffer;
 }
 
-sds mpd_client_get_queue(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                          unsigned int offset, unsigned int limit, const struct t_tags *tagcols)
 {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
@@ -187,7 +187,7 @@ sds mpd_client_get_queue(struct t_mympd_state *mympd_state, sds buffer, sds meth
     return buffer;
 }
 
-sds mpd_client_crop_queue(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, bool or_clear) {
+sds mympd_api_queue_crop(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, bool or_clear) {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
     if (status == NULL) {
         buffer = check_error_and_recover(mympd_state->mpd_state, buffer, method, request_id);
@@ -230,7 +230,7 @@ sds mpd_client_crop_queue(struct t_mympd_state *mympd_state, sds buffer, sds met
     return buffer;
 }
 
-sds mpd_client_search_queue(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                             const char *mpdtagtype, const unsigned int offset, const unsigned int limit, const char *searchstr, const struct t_tags *tagcols)
 {
     bool rc = mpd_search_queue_songs(mympd_state->mpd_state->conn, false);

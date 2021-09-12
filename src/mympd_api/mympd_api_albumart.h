@@ -4,11 +4,11 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_MPD_CLIENT_COVER_H
-#define MYMPD_MPD_CLIENT_COVER_H
+#ifndef MYMPD_API_COVER_H
+#define MYMPD_API_COVER_H
 
 #include "../lib/mympd_state.h"
 
-sds mpd_client_getcover(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                         const char *uri, sds *binary);
 #endif

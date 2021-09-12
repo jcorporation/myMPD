@@ -56,7 +56,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     
     //set state
     sds buffer = sdsempty();
-    buffer = mpd_client_get_state(mympd_state, buffer, NULL, 0);
+    buffer = mympd_api_get_status(mympd_state, buffer, NULL, 0);
     FREE_SDS(buffer);
 
     if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 21, 0) >= 0) {

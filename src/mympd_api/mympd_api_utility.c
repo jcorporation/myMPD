@@ -26,7 +26,7 @@
 #include <unistd.h>
 
 //private definitons
-static void detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
+static void _detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
 
 //public functions
 sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *uri, bool is_dirname) {
@@ -34,7 +34,7 @@ sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
     list_init(&images);
     sds booklet_path = sdsempty();
     if (is_streamuri(uri) == false && mympd_state->mpd_state->feat_library == true) {
-        detect_extra_files(mympd_state, uri, &booklet_path, &images, is_dirname);
+        _detect_extra_files(mympd_state, uri, &booklet_path, &images, is_dirname);
     }
     buffer = tojson_char(buffer, "bookletPath", booklet_path, true);
     buffer = sdscat(buffer, "\"images\": [");
@@ -71,7 +71,7 @@ bool is_streamuri(const char *uri) {
     return false;
 }
 
-bool mpd_client_set_binarylimit(struct t_mympd_state *mympd_state) {
+bool mympd_api_set_binarylimit(struct t_mympd_state *mympd_state) {
     bool rc = true;
     if (mympd_state->mpd_state->feat_mpd_binarylimit == true) {
         MYMPD_LOG_INFO("Setting binarylimit to %u", mympd_state->mpd_state->mpd_binarylimit);
@@ -88,47 +88,8 @@ bool mpd_client_set_binarylimit(struct t_mympd_state *mympd_state) {
 }
 
 //replacement for deprecated mpd_status_get_elapsed_time
-unsigned mpd_client_get_elapsed_seconds(struct mpd_status *status) {
+unsigned mympd_api_get_elapsed_seconds(struct mpd_status *status) {
     return mpd_status_get_elapsed_ms(status) / 1000;
-}
-
-//private functions
-static void detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname) {
-    char *uricpy = strdup(uri);
-    
-    const char *path = is_dirname == false ? dirname(uricpy) : uri;
-    sds albumpath = sdscatfmt(sdsempty(), "%s/%s", mympd_state->music_directory_value, path);
-    MYMPD_LOG_DEBUG("Read extra files from albumpath: %s", albumpath);
-    errno = 0;
-    DIR *album_dir = opendir(albumpath);
-    if (album_dir != NULL) {
-        struct dirent *next_file;
-        while ((next_file = readdir(album_dir)) != NULL) {
-            const char *ext = strrchr(next_file->d_name, '.');
-            if (strcmp(next_file->d_name, mympd_state->booklet_name) == 0) {
-                MYMPD_LOG_DEBUG("Found booklet for uri %s", uri);
-                *booklet_path = sdscatfmt(*booklet_path, "%s/%s", path, mympd_state->booklet_name);
-            }
-            else if (ext != NULL) {
-                if (strcasecmp(ext, ".webp") == 0 || strcasecmp(ext, ".jpg") == 0 ||
-                    strcasecmp(ext, ".jpeg") == 0 || strcasecmp(ext, ".png") == 0 ||
-                    strcasecmp(ext, ".tiff") == 0 || strcasecmp(ext, ".svg") == 0 ||
-                    strcasecmp(ext, ".bmp") == 0) 
-                {
-                    sds fullpath = sdscatfmt(sdsempty(), "%s/%s", path, next_file->d_name);
-                    list_push(images, fullpath, 0, NULL, NULL);
-                    FREE_SDS(fullpath);
-                }
-            }
-        }
-        closedir(album_dir);
-    }
-    else {
-        MYMPD_LOG_ERROR("Can not open directory \"%s\" to get list of extra files", albumpath);
-        MYMPD_LOG_ERRNO(errno);
-    }
-    FREE_PTR(uricpy);
-    FREE_SDS(albumpath);
 }
 
 void default_mympd_state(struct t_mympd_state *mympd_state) {
@@ -195,7 +156,7 @@ void default_mympd_state(struct t_mympd_state *mympd_state) {
     //home icons
     list_init(&mympd_state->home_list);
     //timer
-    init_timerlist(&mympd_state->timer_list);
+    mympd_api_timer_timerlist_init(&mympd_state->timer_list);
 }
 
 void free_mympd_state(struct t_mympd_state *mympd_state) {
@@ -205,7 +166,7 @@ void free_mympd_state(struct t_mympd_state *mympd_state) {
     list_clear(&mympd_state->triggers);
     list_clear(&mympd_state->last_played);
     list_clear(&mympd_state->home_list);
-    free_timerlist(&mympd_state->timer_list);
+    mympd_api_timer_timerlist_free(&mympd_state->timer_list);
     //mpd state
     mpd_shared_free_mpd_state(mympd_state->mpd_state);
     //caches
@@ -256,4 +217,43 @@ sds json_to_cols(sds cols, sds s, bool *error) {
     }
     list_clear(&col_list);
     return cols;
+}
+
+//private functions
+static void _detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname) {
+    char *uricpy = strdup(uri);
+    
+    const char *path = is_dirname == false ? dirname(uricpy) : uri;
+    sds albumpath = sdscatfmt(sdsempty(), "%s/%s", mympd_state->music_directory_value, path);
+    MYMPD_LOG_DEBUG("Read extra files from albumpath: %s", albumpath);
+    errno = 0;
+    DIR *album_dir = opendir(albumpath);
+    if (album_dir != NULL) {
+        struct dirent *next_file;
+        while ((next_file = readdir(album_dir)) != NULL) {
+            const char *ext = strrchr(next_file->d_name, '.');
+            if (strcmp(next_file->d_name, mympd_state->booklet_name) == 0) {
+                MYMPD_LOG_DEBUG("Found booklet for uri %s", uri);
+                *booklet_path = sdscatfmt(*booklet_path, "%s/%s", path, mympd_state->booklet_name);
+            }
+            else if (ext != NULL) {
+                if (strcasecmp(ext, ".webp") == 0 || strcasecmp(ext, ".jpg") == 0 ||
+                    strcasecmp(ext, ".jpeg") == 0 || strcasecmp(ext, ".png") == 0 ||
+                    strcasecmp(ext, ".tiff") == 0 || strcasecmp(ext, ".svg") == 0 ||
+                    strcasecmp(ext, ".bmp") == 0) 
+                {
+                    sds fullpath = sdscatfmt(sdsempty(), "%s/%s", path, next_file->d_name);
+                    list_push(images, fullpath, 0, NULL, NULL);
+                    FREE_SDS(fullpath);
+                }
+            }
+        }
+        closedir(album_dir);
+    }
+    else {
+        MYMPD_LOG_ERROR("Can not open directory \"%s\" to get list of extra files", albumpath);
+        MYMPD_LOG_ERRNO(errno);
+    }
+    FREE_PTR(uricpy);
+    FREE_SDS(albumpath);
 }

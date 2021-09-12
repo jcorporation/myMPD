@@ -71,7 +71,7 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
     (void) user_data;
 }
 
-sds mpd_client_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
+sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
                                unsigned volume, const char *playlist, enum jukebox_modes jukebox_mode) 
 {
     //disable jukebox to prevent adding songs to queue from old jukebox queue list
@@ -127,6 +127,6 @@ sds mpd_client_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sd
     request->data = sdscat(request->data, "}}");
     tiny_queue_push(mympd_api_queue, request, 0);
 
-    buffer = respond_with_mpd_error_or_ok(mympd_state->mpd_state, buffer, method, request_id, rc, "mpd_client_timer_startplay");
+    buffer = respond_with_mpd_error_or_ok(mympd_state->mpd_state, buffer, method, request_id, rc, "mympd_api_timer_startplay");
     return buffer;
 }

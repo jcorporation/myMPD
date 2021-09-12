@@ -49,7 +49,7 @@ static const char *const mympd_trigger_names[] = {
 };
 
 //public functions
-const char *trigger_name(long event) {
+const char *mympd_api_trigger_name(long event) {
     if (event < 0) {
         for (int i = 0; mympd_trigger_names[i] != NULL; ++i) {
             if (event == (-1 - i)) {
@@ -66,7 +66,7 @@ const char *trigger_name(long event) {
     return NULL;
 }
 
-sds print_trigger_list(sds buffer) {
+sds mympd_api_trigger_print_trigger_list(sds buffer) {
     for (int i = 0; mympd_trigger_names[i] != NULL; ++i) {
         buffer = tojson_long(buffer, mympd_trigger_names[i], (-1 -i), true);
     }
@@ -80,19 +80,20 @@ sds print_trigger_list(sds buffer) {
     return buffer;
 }
 
-void trigger_execute(struct t_mympd_state *mympd_state, enum trigger_events event) {
-    MYMPD_LOG_DEBUG("Trigger event: %s (%d)", trigger_name(event), event);
+void mympd_api_trigger_execute(struct t_mympd_state *mympd_state, enum trigger_events event) {
+    MYMPD_LOG_DEBUG("Trigger event: %s (%d)", mympd_api_trigger_name(event), event);
     struct t_list_node *current = mympd_state->triggers.head;
     while (current != NULL) {
         if (current->value_i == event) {
-            MYMPD_LOG_NOTICE("Executing script %s for trigger %s (%d)", current->value_p, trigger_name(event), event);
+            MYMPD_LOG_NOTICE("Executing script %s for trigger %s (%d)", current->value_p, 
+                mympd_api_trigger_name(event), event);
             _trigger_execute(current->value_p, (struct t_list *)current->user_data);
         }
         current = current->next;
     }
 }
 
-sds trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int entities_returned = 0;
@@ -106,7 +107,7 @@ sds trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long
         buffer = tojson_long(buffer, "id", j, true);
         buffer = tojson_char(buffer, "name", current->key, true);
         buffer = tojson_long(buffer, "event", current->value_i, true);
-        buffer = tojson_char(buffer, "eventName", trigger_name(current->value_i), true);
+        buffer = tojson_char(buffer, "eventName", mympd_api_trigger_name(current->value_i), true);
         buffer = tojson_char(buffer, "script", current->value_p, true);
         buffer = sdscat(buffer, "\"arguments\": {");
         struct t_list *arguments = ( struct t_list *)current->user_data;
@@ -130,7 +131,7 @@ sds trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long
     return buffer;
 }
 
-sds trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, unsigned id) {
+sds mympd_api_trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, unsigned id) {
     struct t_list_node *current = list_node_at(&mympd_state->triggers, id);
     if (current != NULL) {
         buffer = jsonrpc_result_start(buffer, method, request_id);
@@ -159,7 +160,7 @@ sds trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long 
     return buffer;
 }
 
-bool delete_trigger(struct t_mympd_state *mympd_state, unsigned idx) {
+bool mympd_api_trigger_delete(struct t_mympd_state *mympd_state, unsigned idx) {
     struct t_list_node *toremove = list_node_at(&mympd_state->triggers, idx);
     if (toremove != NULL) {
         list_clear((struct t_list *)toremove->user_data);
@@ -168,7 +169,7 @@ bool delete_trigger(struct t_mympd_state *mympd_state, unsigned idx) {
     return false;
 }
 
-void free_trigerlist_arguments(struct t_mympd_state *mympd_state) {
+void mympd_api_trigerlist_free_arguments(struct t_mympd_state *mympd_state) {
     struct t_list_node *current = mympd_state->triggers.head;
     while (current != NULL) {
         list_clear((struct t_list *)current->user_data);
@@ -176,7 +177,7 @@ void free_trigerlist_arguments(struct t_mympd_state *mympd_state) {
     }
 }
 
-bool triggerfile_read(struct t_mympd_state *mympd_state) {
+bool mympd_api_trigger_file_read(struct t_mympd_state *mympd_state) {
     sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", mympd_state->config->workdir);
     sds line = sdsempty();
     errno = 0;
@@ -225,7 +226,7 @@ bool triggerfile_read(struct t_mympd_state *mympd_state) {
     return true;
 }
 
-bool triggerfile_save(struct t_mympd_state *mympd_state) {
+bool mympd_api_trigger_file_save(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving triggers to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/trigger_list.XXXXXX", mympd_state->config->workdir);
     errno = 0;

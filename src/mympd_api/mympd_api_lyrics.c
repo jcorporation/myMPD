@@ -32,8 +32,8 @@
 #endif
 
 //privat definitions
-static int _mpd_client_lyrics_unsynced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, const char *mime_type_mediafile);
-static int _mpd_client_lyrics_synced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, const char *mime_type_mediafile);
+static int _mympd_api_lyrics_unsynced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, const char *mime_type_mediafile);
+static int _mympd_api_lyrics_synced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, const char *mime_type_mediafile);
 static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool synced, int returned_entities);
 static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_entities);
 static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_entities);
@@ -45,7 +45,7 @@ static const char *_id3_field_getlanguage(union id3_field const *field);
 #endif
 
 //public functions
-sds mpd_client_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, sds uri) {
+sds mympd_api_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, sds uri) {
     if (is_streamuri(uri) == true) {
         MYMPD_LOG_ERROR("Can not get lyrics for stream uri");
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "lyrics", "error", "Can not get lyrics for stream uri");
@@ -60,8 +60,8 @@ sds mpd_client_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds met
     buffer = sdscat(buffer, "\"data\":[");
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mympd_state->music_directory_value, uri);
     const char *mime_type_mediafile = get_mime_type_by_ext(mediafile);
-    int returned_entities = _mpd_client_lyrics_synced(mympd_state, &buffer, 0, mediafile, mime_type_mediafile);
-    returned_entities = _mpd_client_lyrics_unsynced(mympd_state, &buffer, returned_entities, mediafile, mime_type_mediafile);
+    int returned_entities = _mympd_api_lyrics_synced(mympd_state, &buffer, 0, mediafile, mime_type_mediafile);
+    returned_entities = _mympd_api_lyrics_unsynced(mympd_state, &buffer, returned_entities, mediafile, mime_type_mediafile);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
     buffer = jsonrpc_result_end(buffer);
@@ -70,7 +70,7 @@ sds mpd_client_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds met
 }
 
 //private functions
-static int _mpd_client_lyrics_unsynced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, const char *mime_type_mediafile) {
+static int _mympd_api_lyrics_unsynced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, const char *mime_type_mediafile) {
     //try .txt file in folder in the music directory
     returned_entities = lyrics_fromfile(buffer, mediafile, mympd_state->lyrics_uslt_ext, false, returned_entities);
     //get embedded lyrics
@@ -86,7 +86,7 @@ static int _mpd_client_lyrics_unsynced(struct t_mympd_state *mympd_state, sds *b
     return returned_entities;
 }
 
-static int _mpd_client_lyrics_synced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, const char *mime_type_mediafile) { 
+static int _mympd_api_lyrics_synced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, const char *mime_type_mediafile) { 
     //try .lrc file in folder in the music directory
     returned_entities = lyrics_fromfile(buffer, mediafile, mympd_state->lyrics_sylt_ext, true, returned_entities);
     //get embedded lyrics

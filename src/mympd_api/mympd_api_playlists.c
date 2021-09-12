@@ -25,7 +25,7 @@
 #include <unistd.h>
 
 //private definitions
-static int mpd_client_enum_playlist(struct t_mympd_state *mympd_state, const char *playlist, bool empty_check);
+static int mympd_api_enum_playlist(struct t_mympd_state *mympd_state, const char *playlist, bool empty_check);
 static bool smartpls_init(struct t_config *config, const char *name, const char *value);
 
 //public functions
@@ -76,20 +76,20 @@ bool smartpls_default(struct t_config *config) {
     return rc;
 }
 
-void mpd_client_smartpls_update(const char *playlist) {
+void mympd_api_smartpls_update(const char *playlist) {
     t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE, NULL);
     request->data = tojson_char(request->data, "plist", playlist, false);
     request->data = sdscat(request->data, "}}");
     tiny_queue_push(mympd_api_queue, request, 0);
 }
 
-void mpd_client_smartpls_update_all(void) {
+void mympd_api_smartpls_update_all(void) {
     t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL);
     request->data = sdscat(request->data, "}}");
     tiny_queue_push(mympd_api_queue, request, 0);
 }
 
-sds mpd_client_get_playlists(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mympd_api_get_playlists(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                              const unsigned int offset, const unsigned int limit, sds searchstr) 
 {
     bool rc = mpd_send_list_playlists(mympd_state->mpd_state->conn);
@@ -153,7 +153,7 @@ sds mpd_client_get_playlists(struct t_mympd_state *mympd_state, sds buffer, sds 
     return buffer;
 }
 
-sds mpd_client_get_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mympd_api_get_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                                  sds uri, const unsigned int offset, const unsigned int limit, sds searchstr, const struct t_tags *tagcols)
 {
     bool rc = mpd_send_list_playlist_meta(mympd_state->mpd_state->conn, uri);
@@ -217,7 +217,7 @@ sds mpd_client_get_playlist_list(struct t_mympd_state *mympd_state, sds buffer, 
     return buffer;
 }
 
-sds mpd_client_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sds method,
+sds mympd_api_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sds method,
                                long request_id, const char *old_playlist, const char *new_playlist)
 {
     sds old_pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, old_playlist);
@@ -252,7 +252,7 @@ sds mpd_client_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sd
     return buffer;
 }
 
-sds mpd_client_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sds method,
+sds mympd_api_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sds method,
                                long request_id, const char *playlist)
 {
     //remove smart playlist
@@ -277,7 +277,7 @@ sds mpd_client_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sd
     return buffer;
 }
 
-sds mpd_client_smartpls_put(struct t_config *config, sds buffer, sds method, long request_id,
+sds mympd_api_smartpls_put(struct t_config *config, sds buffer, sds method, long request_id,
                             const char *playlist)
 {
     sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->workdir, playlist);
@@ -360,7 +360,7 @@ sds mpd_client_smartpls_put(struct t_config *config, sds buffer, sds method, lon
     return buffer;
 }
 
-sds mpd_client_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer, sds method,
+sds mympd_api_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer, sds method,
                                    long request_id, const char *type)
 {
     bool rc = mpd_send_list_playlists(mympd_state->mpd_state->conn);
@@ -415,7 +415,7 @@ sds mpd_client_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer
     if (strcmp(type, "deleteEmptyPlaylists") == 0) {
         struct t_list_node *current = playlists.head;
         while (current != NULL) {
-            current->value_i = mpd_client_enum_playlist(mympd_state, current->key, true);
+            current->value_i = mympd_api_enum_playlist(mympd_state, current->key, true);
             current = current->next;
         }
     }
@@ -463,7 +463,7 @@ sds mpd_client_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer
 }
 
 //private functions
-static int mpd_client_enum_playlist(struct t_mympd_state *mympd_state, const char *playlist, bool empty_check) {
+static int mympd_api_enum_playlist(struct t_mympd_state *mympd_state, const char *playlist, bool empty_check) {
     bool rc = mpd_send_list_playlist(mympd_state->mpd_state->conn, playlist);
     if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_playlist") == false) {
         return -1;

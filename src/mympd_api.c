@@ -43,41 +43,36 @@ void *mympd_api_loop(void *arg_config) {
 
     //read myMPD states
     mympd_api_read_statefiles(mympd_state);
-
     //home icons
-    mympd_api_read_home_list(mympd_state);
-
+    mympd_api_home_file_read(mympd_state);
     //myMPD timer
-    timerfile_read(mympd_state);
-    
+    mympd_api_timer_file_read(mympd_state);
     //myMPD trigger
-    triggerfile_read(mympd_state);
-
+    mympd_api_trigger_file_read(mympd_state);
     //set timers
     if (mympd_state->covercache_keep_days > 0) {
         MYMPD_LOG_DEBUG("Setting timer action \"clear covercache\" to periodic each 7200s");
-        add_timer(&mympd_state->timer_list, 60, 7200, timer_handler_covercache, 1, NULL, (void *)mympd_state);
+        mympd_api_timer_add(&mympd_state->timer_list, 60, 7200, timer_handler_covercache, 1, NULL, (void *)mympd_state);
     }
-
+    //thread loop
     while (s_signal_received == 0) {
         mpd_client_idle(mympd_state);
         if (mympd_state->mpd_state->conn_state == MPD_TOO_OLD) {
             break;
         }
-        check_timer(&mympd_state->timer_list);
+        mympd_api_timer_check(&mympd_state->timer_list);
     }
-
     //cleanup trigger
-    trigger_execute(mympd_state, TRIGGER_MYMPD_STOP);
+    mympd_api_trigger_execute(mympd_state, TRIGGER_MYMPD_STOP);
     //disconnect from mpd
     mpd_shared_mpd_disconnect(mympd_state->mpd_state);
     //save states
-    mympd_api_write_home_list(mympd_state);
-    timerfile_save(mympd_state);
-    mpd_client_last_played_list_save(mympd_state);
-    triggerfile_save(mympd_state);
+    mympd_api_home_file_save(mympd_state);
+    mympd_api_timer_file_save(mympd_state);
+    mympd_api_last_played_list_save(mympd_state);
+    mympd_api_trigger_file_save(mympd_state);
     //free anything
-    free_trigerlist_arguments(mympd_state);
+    mympd_api_trigerlist_free_arguments(mympd_state);
     free_mympd_state(mympd_state);
     FREE_SDS(thread_logname);
     return NULL;

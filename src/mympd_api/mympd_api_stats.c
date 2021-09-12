@@ -25,11 +25,11 @@
 #include <string.h>
 
 //private definitions
-static sds mpd_client_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, 
+static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, 
                                           unsigned entity_count, long last_played, const char *uri, const struct t_tags *tagcols);
 
 //public functions
-bool mpd_client_last_played_list_save(struct t_mympd_state *mympd_state) {
+bool mympd_api_last_played_list_save(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving last_played list to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/last_played.XXXXXX", mympd_state->config->workdir);
     errno = 0;
@@ -86,7 +86,7 @@ bool mpd_client_last_played_list_save(struct t_mympd_state *mympd_state) {
     return true;
 }
 
-bool mpd_client_add_song_to_last_played_list(struct t_mympd_state *mympd_state, const int song_id) {
+bool mympd_api_add_song_to_last_played_list(struct t_mympd_state *mympd_state, const int song_id) {
     if (song_id > -1) {
         struct mpd_song *song = mpd_run_get_queue_song_id(mympd_state->mpd_state->conn, song_id);
         if (song) {
@@ -102,7 +102,7 @@ bool mpd_client_add_song_to_last_played_list(struct t_mympd_state *mympd_state, 
             if (mympd_state->last_played.length > 9 || 
                 mympd_state->last_played.length > mympd_state->last_played_count)
             {
-                mpd_client_last_played_list_save(mympd_state);
+                mympd_api_last_played_list_save(mympd_state);
             }
             //notify clients
             send_jsonrpc_event("update_lastplayed");
@@ -118,7 +118,7 @@ bool mpd_client_add_song_to_last_played_list(struct t_mympd_state *mympd_state, 
     return true;
 }
 
-sds mpd_client_get_last_played_songs(struct t_mympd_state *mympd_state, sds buffer, sds method, 
+sds mympd_api_get_last_played_songs(struct t_mympd_state *mympd_state, sds buffer, sds method, 
                                      long request_id, const unsigned int offset, 
                                      const unsigned int limit, const struct t_tags *tagcols)
 {
@@ -136,7 +136,7 @@ sds mpd_client_get_last_played_songs(struct t_mympd_state *mympd_state, sds buff
                 if (entities_returned++) {
                     buffer = sdscat(buffer, ",");
                 }
-                buffer = mpd_client_get_last_played_obj(mympd_state, buffer, entity_count, current->value_i, current->key, tagcols);
+                buffer = mympd_api_get_last_played_obj(mympd_state, buffer, entity_count, current->value_i, current->key, tagcols);
             }
             current = current->next;
         }
@@ -157,7 +157,7 @@ sds mpd_client_get_last_played_songs(struct t_mympd_state *mympd_state, sds buff
                     if (entities_returned++) {
                         buffer = sdscat(buffer, ",");
                     }
-                    buffer = mpd_client_get_last_played_obj(mympd_state, buffer, entity_count, value, data, tagcols);
+                    buffer = mympd_api_get_last_played_obj(mympd_state, buffer, entity_count, value, data, tagcols);
                 }
                 else {
                     MYMPD_LOG_ERROR("Reading last_played line failed");
@@ -185,7 +185,7 @@ sds mpd_client_get_last_played_songs(struct t_mympd_state *mympd_state, sds buff
     return buffer;
 }
 
-sds mpd_client_get_stats(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_get_stats(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     struct mpd_stats *stats = mpd_run_stats(mympd_state->mpd_state->conn);
     if (stats == NULL) {
         buffer = check_error_and_recover(mympd_state->mpd_state, buffer, method, request_id);
@@ -222,7 +222,7 @@ sds mpd_client_get_stats(struct t_mympd_state *mympd_state, sds buffer, sds meth
 
 
 //private functions
-static sds mpd_client_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, 
+static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, 
                                           unsigned entity_count, long last_played, const char *uri, const struct t_tags *tagcols)
 {
     buffer = sdscat(buffer, "{");

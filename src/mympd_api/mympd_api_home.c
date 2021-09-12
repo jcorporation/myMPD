@@ -18,15 +18,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-bool mympd_api_move_home_icon(struct t_mympd_state *mympd_state, unsigned from, unsigned to) {
+bool mympd_api_home_icon_move(struct t_mympd_state *mympd_state, unsigned from, unsigned to) {
     return list_move_item_pos(&mympd_state->home_list, from, to);
 }
 
-bool mympd_api_rm_home_icon(struct t_mympd_state *mympd_state, unsigned pos) {
+bool mympd_api_home_icon_delete(struct t_mympd_state *mympd_state, unsigned pos) {
     return list_shift(&mympd_state->home_list, pos);
 }
 
-bool mympd_api_save_home_icon(struct t_mympd_state *mympd_state, bool replace, unsigned oldpos,
+bool mympd_api_home_icon_save(struct t_mympd_state *mympd_state, bool replace, unsigned oldpos,
     const char *name, const char *ligature, const char *bgcolor, const char *color, const char *image,
     const char *cmd, struct t_list *option_list) 
 {
@@ -59,7 +59,7 @@ bool mympd_api_save_home_icon(struct t_mympd_state *mympd_state, bool replace, u
     return rc;
 }
 
-bool mympd_api_read_home_list(struct t_mympd_state *mympd_state) {
+bool mympd_api_home_file_read(struct t_mympd_state *mympd_state) {
     sds home_file = sdscatfmt(sdsempty(), "%s/state/home_list", mympd_state->config->workdir);
     errno = 0;
     FILE *fp = fopen(home_file, OPEN_FLAGS_READ);
@@ -93,7 +93,7 @@ bool mympd_api_read_home_list(struct t_mympd_state *mympd_state) {
     return true;
 }
 
-bool mympd_api_write_home_list(struct t_mympd_state *mympd_state) {
+bool mympd_api_home_file_save(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving home icons to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/home_list.XXXXXX", mympd_state->config->workdir);
     errno = 0;
@@ -131,7 +131,7 @@ bool mympd_api_write_home_list(struct t_mympd_state *mympd_state) {
     return true;
 }
 
-sds mympd_api_get_home_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_home_icon_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int returned_entities = 0;
@@ -149,7 +149,7 @@ sds mympd_api_get_home_list(struct t_mympd_state *mympd_state, sds buffer, sds m
     return buffer;
 }
 
-sds mympd_api_get_home_icon(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, unsigned pos) {
+sds mympd_api_home_icon_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, unsigned pos) {
     struct t_list_node *current = list_node_at(&mympd_state->home_list, pos);
     if (current != NULL) {
         buffer = jsonrpc_result_start(buffer, method, request_id);

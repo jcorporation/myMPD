@@ -4,15 +4,15 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_MPD_CLIENT_STICKER_H
-#define MYMPD_MPD_CLIENT_STICKER_H
+#ifndef MYMPD_API_STICKER_H
+#define MYMPD_API_STICKER_H
 
 #include "../lib/mympd_state.h"
 
-bool mpd_client_sticker_inc_play_count(struct t_mympd_state *mympd_state, const char *uri);
-bool mpd_client_sticker_inc_skip_count(struct t_mympd_state *mympd_state, const char *uri);
-bool mpd_client_sticker_like(struct t_mympd_state *mympd_state, const char *uri, int value);
-bool mpd_client_sticker_last_played(struct t_mympd_state *mympd_state, const char *uri);
-bool mpd_client_sticker_last_skipped(struct t_mympd_state *mympd_state, const char *uri);
-bool mpd_client_sticker_dequeue(struct t_mympd_state *mympd_state);
+bool mympd_api_sticker_inc_play_count(struct t_mympd_state *mympd_state, const char *uri);
+bool mympd_api_sticker_inc_skip_count(struct t_mympd_state *mympd_state, const char *uri);
+bool mympd_api_sticker_like(struct t_mympd_state *mympd_state, const char *uri, int value);
+bool mympd_api_sticker_last_played(struct t_mympd_state *mympd_state, const char *uri);
+bool mympd_api_sticker_last_skipped(struct t_mympd_state *mympd_state, const char *uri);
+bool mympd_api_sticker_dequeue(struct t_mympd_state *mympd_state);
 #endif

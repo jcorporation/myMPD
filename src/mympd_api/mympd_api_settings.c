@@ -115,7 +115,7 @@ bool mympd_api_connection_save(sds key, sds value, int vtype, validate_callback 
         if (binarylimit != mympd_state->mpd_state->mpd_binarylimit) {
             mympd_state->mpd_state->mpd_binarylimit = binarylimit;
             if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
-                mpd_client_set_binarylimit(mympd_state);
+                mympd_api_set_binarylimit(mympd_state);
             }
         }
     }
@@ -324,7 +324,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
         }
         if (interval != mympd_state->smartpls_interval) {
             mympd_state->smartpls_interval = interval;
-            replace_timer(&mympd_state->timer_list, interval, (int)interval, timer_handler_smartpls_update, 2, NULL, NULL);
+            mympd_api_timer_replace(&mympd_state->timer_list, interval, (int)interval, timer_handler_smartpls_update, 2, NULL, NULL);
         }
     }
     else if (strcmp(key, "smartplsGenerateTagList") == 0) {
@@ -715,7 +715,7 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = print_tags_array(buffer, "smartplsGenerateTagList", mympd_state->smartpls_generate_tag_types);
         
         buffer = sdscat(buffer, ",\"triggerEvents\":{");
-        buffer = print_trigger_list(buffer);
+        buffer = mympd_api_trigger_print_trigger_list(buffer);
         buffer = sdscat(buffer, "}");
 
     } 

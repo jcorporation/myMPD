@@ -14,7 +14,7 @@
 #include <string.h>
 
 //public functions
-sds mpd_client_get_mounts(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_get_mounts(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     bool rc = mpd_send_list_mounts(mympd_state->mpd_state->conn);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_mounts") == false) {
         return buffer;
@@ -52,7 +52,7 @@ sds mpd_client_get_mounts(struct t_mympd_state *mympd_state, sds buffer, sds met
     return buffer;
 }
 
-sds mpd_client_get_urlhandlers(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_get_urlhandlers(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     bool rc = mpd_send_command(mympd_state->mpd_state->conn, "urlhandlers", NULL);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "urlhandlers") == false) {
         return buffer;
@@ -83,7 +83,7 @@ sds mpd_client_get_urlhandlers(struct t_mympd_state *mympd_state, sds buffer, sd
     return buffer;
 }
 
-sds mpd_client_get_neighbors(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_get_neighbors(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     bool rc = mpd_send_list_neighbors(mympd_state->mpd_state->conn);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_neighbors") == false) {
         return buffer;

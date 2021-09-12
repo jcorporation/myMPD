@@ -16,7 +16,7 @@
 
 #include <stdlib.h>
 
-sds mpd_client_getcover(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                         const char *uri, sds *binary)
 {
     unsigned offset = 0;

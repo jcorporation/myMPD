@@ -4,19 +4,19 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_MPD_CLIENT_QUEUE_H
-#define MYMPD_MPD_CLIENT_QUEUE_H
+#ifndef MYMPD_API_QUEUE_H
+#define MYMPD_API_QUEUE_H
 
 #include "../lib/mympd_state.h"
 
-sds mpd_client_get_queue_state(struct t_mympd_state *mympd_state, sds buffer);
-sds mpd_client_get_queue(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mympd_api_queue_get_state(struct t_mympd_state *mympd_state, sds buffer);
+sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                          unsigned int offset, unsigned int limit, const struct t_tags *tagcols);
-sds mpd_client_crop_queue(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, bool or_clear);
-sds mpd_client_search_queue(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mympd_api_queue_crop(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, bool or_clear);
+sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                             const char *mpdtagtype, const unsigned int offset, const unsigned int limit, 
                             const char *searchstr, const struct t_tags *tagcols);
-bool mpd_client_queue_replace_with_song(struct t_mympd_state *mympd_state, const char *uri);
-bool mpd_client_queue_replace_with_playlist(struct t_mympd_state *mympd_state, const char *plist);
-bool mpd_client_queue_prio_set_highest(struct t_mympd_state *mympd_state, const unsigned trackid);
+bool mympd_api_queue_replace_with_song(struct t_mympd_state *mympd_state, const char *uri);
+bool mympd_api_queue_replace_with_playlist(struct t_mympd_state *mympd_state, const char *plist);
+bool mympd_api_queue_prio_set_highest(struct t_mympd_state *mympd_state, const unsigned trackid);
 #endif
