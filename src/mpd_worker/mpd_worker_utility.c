@@ -12,7 +12,7 @@
 
 #include <stdlib.h>
 
-void free_mpd_worker_state(struct t_mpd_worker_state *mpd_worker_state) {
+void mpd_worker_state_free(struct t_mpd_worker_state *mpd_worker_state) {
     FREE_SDS(mpd_worker_state->smartpls_sort);
     FREE_SDS(mpd_worker_state->smartpls_prefix);
     //mpd state

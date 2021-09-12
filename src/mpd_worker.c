@@ -61,7 +61,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, t_work_request *request
     
     if (pthread_create(&mpd_worker_thread, &attr, mpd_worker_run, mpd_worker_state) != 0) {
         MYMPD_LOG_ERROR("Can not create mpd_worker thread");
-        free_mpd_worker_state(mpd_worker_state);
+        mpd_worker_state_free(mpd_worker_state);
         return false;
     }
     worker_threads++;
@@ -79,7 +79,7 @@ static void *mpd_worker_run(void *arg) {
     }
     MYMPD_LOG_NOTICE("Stopping mpd_worker thread");
     FREE_SDS(thread_logname);
-    free_mpd_worker_state(mpd_worker_state);
+    mpd_worker_state_free(mpd_worker_state);
     worker_threads--;
     return NULL;
 }
