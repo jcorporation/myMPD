@@ -35,7 +35,7 @@ static bool handle_coverextract_id3(struct t_config *config, const char *uri, co
 static bool handle_coverextract_flac(struct t_config *config, const char *uri, const char *media_file, sds *binary, bool is_ogg, bool covercache);
 
 //public functions
-void send_albumart(struct mg_connection *nc, sds data, sds binary) {
+void webserver_albumart_send(struct mg_connection *nc, sds data, sds binary) {
     size_t len = sdslen(binary);
     sds mime_type = NULL;
     if ( len > 0 &&
@@ -45,22 +45,22 @@ void send_albumart(struct mg_connection *nc, sds data, sds binary) {
         MYMPD_LOG_DEBUG("Serving file from memory (%s - %u bytes)", mime_type, len);
         sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", mime_type);
         header = sdscat(header, EXTRA_HEADERS_CACHE);
-        http_send_header_ok(nc, len, header);
+        webserver_send_header_ok(nc, len, header);
         mg_send(nc, binary, len);
         FREE_SDS(header);
     }
     else {
         //create dummy http message and serve not available image
         struct mg_http_message hm;
-        populate_dummy_hm(nc, &hm);
-        serve_na_image(nc, &hm);
+        webserver_populate_dummy_hm(nc, &hm);
+        webserver_serve_na_image(nc, &hm);
     }
     FREE_SDS(mime_type);
 }
 
 //returns true if an image is served
 //returns false if waiting for mpd_client to handle request
-bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm, 
+bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message *hm, 
                      struct t_mg_user_data *mg_user_data, struct t_config *config, 
                      long long conn_id)
 {
@@ -68,7 +68,7 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
     sds uri_decoded = sdsurldecode(sdsempty(), hm->uri.ptr, (int)hm->uri.len, 0);
     if (sdslen(uri_decoded) == 0) {
         MYMPD_LOG_ERROR("Failed to decode uri");
-        serve_na_image(nc, hm);
+        webserver_serve_na_image(nc, hm);
         FREE_SDS(uri_decoded);
         return true;
     }
@@ -76,7 +76,7 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
         vcb_isfilepath(uri_decoded) == false)
     {
         MYMPD_LOG_ERROR("Invalid URI: %s", uri_decoded);
-        serve_na_image(nc, hm);
+        webserver_serve_na_image(nc, hm);
         FREE_SDS(uri_decoded);
         return true;
     }
@@ -90,7 +90,7 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
         streamuri_to_filename(uri_decoded);
         if (sdslen(uri_decoded) == 0) {
             MYMPD_LOG_ERROR("Uri to short");
-            serve_na_image(nc, hm);
+            webserver_serve_na_image(nc, hm);
             FREE_SDS(uri_decoded);
             return true;
         }     
@@ -105,7 +105,7 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
             mg_http_serve_file(nc, hm, coverfile, mime_type, EXTRA_HEADERS_CACHE);
         }
         else {
-            serve_stream_image(nc, hm);
+            webserver_serve_stream_image(nc, hm);
         }
         FREE_SDS(coverfile);
         FREE_SDS(uri_decoded);
@@ -188,7 +188,7 @@ bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm,
 
     MYMPD_LOG_INFO("No coverimage found for \"%s\"", uri_decoded);
     FREE_SDS(uri_decoded);
-    serve_na_image(nc, hm);
+    webserver_serve_na_image(nc, hm);
     return true;
 }
 
@@ -215,7 +215,7 @@ static bool handle_coverextract(struct mg_connection *nc, struct t_config *confi
         MYMPD_LOG_DEBUG("Serving coverimage for \"%s\" (%s)", media_file, mime_type);
         sds header = sdscatfmt(sdsempty(), "Content-Type: %s", mime_type);
         header = sdscat(header, EXTRA_HEADERS_CACHE);
-        http_send_header_ok(nc, sdslen(binary), header);
+        webserver_send_header_ok(nc, sdslen(binary), header);
         mg_send(nc, binary, sdslen(binary));
         FREE_SDS(header);
     }

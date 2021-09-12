@@ -32,6 +32,7 @@
 static sds set_default_navbar_icons(struct t_config *config, sds buffer);
 static sds read_navbar_icons(struct t_config *config);
 static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags);
+static sds set_invalid_value(sds error, sds key, sds value);
 
 //default navbar icons
 static const char *default_navbar_icons = "[{\"ligature\":\"home\",\"title\":\"Home\",\"options\":[\"Home\"],\"badge\":\"\"},"\
@@ -40,14 +41,8 @@ static const char *default_navbar_icons = "[{\"ligature\":\"home\",\"title\":\"H
     "{\"ligature\":\"library_music\",\"title\":\"Browse\",\"options\":[\"Browse\"],\"badge\":\"\"},"\
     "{\"ligature\":\"search\",\"title\":\"Search\",\"options\":[\"Search\"],\"badge\":\"\"}]";
 
-static sds set_invalid_value(sds error, sds key, sds value) {
-    error = sdscatprintf(error, "Invalid value for \"%s\": \"%s\"", key, value);
-    MYMPD_LOG_WARN(error);
-    return error;
-}
-
 //public functions
-bool mympd_api_connection_save(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
+bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
     (void) vcb;
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)userdata;
     bool check_for_mpd_error = false;
@@ -176,7 +171,7 @@ bool mympd_api_connection_save(sds key, sds value, int vtype, validate_callback 
     return rc;
 }
 
-bool mympd_api_cols_save(struct t_mympd_state *mympd_state, sds table, sds cols) {
+bool mympd_api_settings_cols_save(struct t_mympd_state *mympd_state, sds table, sds cols) {
     if (strcmp(table, "colsQueueCurrent") == 0) {
         mympd_state->cols_queue_current = sdsreplace(mympd_state->cols_queue_current, cols);
     }
@@ -384,7 +379,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
     return rc;
 }
 
-bool mpdclient_api_options_set(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
+bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
     (void) vcb;
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)userdata;
 
@@ -550,7 +545,7 @@ bool mpdclient_api_options_set(sds key, sds value, int vtype, validate_callback 
     return rc;
 }
 
-void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
+void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_NOTICE("Reading states");
     mympd_state->mpd_state->mpd_host = state_file_rw_string_sds(mympd_state->config->workdir, "state", "mpd_host", mympd_state->mpd_state->mpd_host, vcb_isname, false);
     mympd_state->mpd_state->mpd_port = state_file_rw_int(mympd_state->config->workdir, "state", "mpd_port", mympd_state->mpd_state->mpd_port, 1025, 65534, false);
@@ -601,7 +596,7 @@ void mympd_api_read_statefiles(struct t_mympd_state *mympd_state) {
     mympd_state->navbar_icons = read_navbar_icons(mympd_state->config);
 }
 
-sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
     buffer = tojson_char(buffer, "mpdHost", mympd_state->mpd_state->mpd_host, true);
@@ -726,7 +721,7 @@ sds mympd_api_settings_put(struct t_mympd_state *mympd_state, sds buffer, sds me
     return buffer;
 }
 
-sds mympd_api_picture_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_settings_picture_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     sds pic_dirname = sdscatfmt(sdsempty(), "%s/pics", mympd_state->config->workdir);
     errno = 0;
     DIR *pic_dir = opendir(pic_dirname);
@@ -832,4 +827,10 @@ static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags
     }
     buffer = sdscat(buffer, "]");
     return buffer;
+}
+
+static sds set_invalid_value(sds error, sds key, sds value) {
+    error = sdscatprintf(error, "Invalid value for \"%s\": \"%s\"", key, value);
+    MYMPD_LOG_WARN(error);
+    return error;
 }

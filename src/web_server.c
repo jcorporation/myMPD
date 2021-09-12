@@ -47,7 +47,7 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     mg_user_data->music_directory = sdsempty();
     mg_user_data->playlist_directory = sdsempty();
     sds default_coverimagename = sdsnew("cover,folder");
-    mg_user_data->coverimage_names= split_coverimage_names(default_coverimagename, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
+    mg_user_data->coverimage_names= webserver_split_coverimage_names(default_coverimagename, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
     FREE_SDS(default_coverimagename);
     mg_user_data->feat_library = false;
     mg_user_data->feat_mpd_albumart = false;
@@ -176,7 +176,7 @@ static bool parse_internal_message(t_work_result *response, struct t_mg_user_dat
         FREE_SDS(new_mg_user_data->playlist_directory);
         
         sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
-        mg_user_data->coverimage_names = split_coverimage_names(new_mg_user_data->coverimage_names, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
+        mg_user_data->coverimage_names = webserver_split_coverimage_names(new_mg_user_data->coverimage_names, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
         FREE_SDS(new_mg_user_data->coverimage_names);
         
         mg_user_data->feat_library = new_mg_user_data->feat_library;
@@ -193,7 +193,7 @@ static bool parse_internal_message(t_work_result *response, struct t_mg_user_dat
         
 		FREE_PTR(response->extra);
         rc = true;
-        manage_emptydir(mg_user_data->config->workdir, 
+        webserver_manage_emptydir(mg_user_data->config->workdir, 
             true, //pics
             true, //smart playlists
             mg_user_data->feat_library, 
@@ -237,10 +237,10 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
         if ((int)nc->is_websocket == 0 && nc->id == (long unsigned)response->conn_id) {
             MYMPD_LOG_DEBUG("Sending response to conn_id %lu (length: %d): %s", nc->id, sdslen(response->data), response->data);
             if (response->cmd_id == INTERNAL_API_ALBUMART) {
-                send_albumart(nc, response->data, response->binary);
+                webserver_albumart_send(nc, response->data, response->binary);
             }
             else {
-                http_send_data(nc, response->data, sdslen(response->data), "Content-Type: application/json; charset=utf-8\r\n");
+                webserver_send_data(nc, response->data, sdslen(response->data), "Content-Type: application/json; charset=utf-8\r\n");
             }
             break;
         }
@@ -300,13 +300,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             if (mg_user_data->connection_count > 100) {
                 nc->is_draining = 1;
                 MYMPD_LOG_DEBUG("Connections %d", mg_user_data->connection_count);
-                send_error(nc, 429, "Concurrent connections limit exceeded");
+                webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
                 break;
             }
             //check acl
-            if (sdslen(config->acl) > 0 && check_ip_acl(config->acl, &nc->peer) == false) {
+            if (sdslen(config->acl) > 0 && webserver_check_ip_acl(config->acl, &nc->peer) == false) {
                 nc->is_draining = 1;
-                send_error(nc, 403, "Request blocked by ACL");
+                webserver_send_error(nc, 403, "Request blocked by ACL");
                 break;
             }
             //ssl support
@@ -382,7 +382,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             if (mg_http_match_uri(hm, "/stream/")) {
                 if (sdslen(mg_user_data->stream_uri) == 0) {
                     nc->is_draining = 1;
-                    send_error(nc, 404, "MPD stream port not configured");
+                    webserver_send_error(nc, 404, "MPD stream port not configured");
                     break;
                 }
                 if (backend_nc == NULL) {
@@ -415,9 +415,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 FREE_SDS(response);
             }
             else if (mg_http_match_uri(hm, "/api/script")) {
-                if (sdslen(config->scriptacl) > 0 && check_ip_acl(config->scriptacl, &nc->peer) == false) {
+                if (sdslen(config->scriptacl) > 0 && webserver_check_ip_acl(config->scriptacl, &nc->peer) == false) {
                     nc->is_draining = 1;
-                    send_error(nc, 403, "Request blocked by ACL");
+                    webserver_send_error(nc, 403, "Request blocked by ACL");
                     break;
                 }
                 sds body = sdsnewlen(hm->body.ptr, hm->body.len);
@@ -427,7 +427,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     MYMPD_LOG_ERROR("Invalid script API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
                         "script", "error", "Invalid script API request");
-                    http_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
+                    webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
                     FREE_SDS(response);
                 }
             }
@@ -447,7 +447,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                         response = tojson_char(response, "ip", "", false);
                     }
                     response = jsonrpc_result_end(response);
-                    http_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
+                    webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
                     FREE_SDS(response);
                 }
             }
@@ -461,7 +461,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     MYMPD_LOG_ERROR("Invalid API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
                         "general", "error", "Invalid API request");
-                    http_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
+                    webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
                     FREE_SDS(response);
                 }
             }
@@ -474,15 +474,15 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     FREE_SDS(ca_file);
                 }
                 else {
-                    send_error(nc, 404, "Custom cert enabled, don't deliver myMPD ca");
+                    webserver_send_error(nc, 404, "Custom cert enabled, don't deliver myMPD ca");
                 }
             }
             #endif
             else if (mg_http_match_uri(hm, "/albumart/#")) {
-                handle_albumart(nc, hm, mg_user_data, config, (long long)nc->id);
+                webserver_albumart_handler(nc, hm, mg_user_data, config, (long long)nc->id);
             }
             else if (mg_http_match_uri(hm, "/tagart/#")) {
-                handle_tagart(nc, hm, mg_user_data);
+                webserver_tagart_handler(nc, hm, mg_user_data);
             }
             else if (mg_http_match_uri(hm, "/pics/#")) {
                 //serve directory
@@ -522,10 +522,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 mg_http_serve_dir(nc, hm, &s_http_server_opts);
             }
             else if (mg_vcmp(&hm->uri, "/index.html") == 0) {
-                http_send_header_redirect(nc, "/");
+                webserver_send_header_redirect(nc, "/");
             }
             else if (mg_vcmp(&hm->uri, "/favicon.ico") == 0) {
-                http_send_header_redirect(nc, "/assets/favicon.ico");
+                webserver_send_header_redirect(nc, "/assets/favicon.ico");
             }
             else {
                 //all other uris
@@ -568,13 +568,13 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
         //check connection count
         if (mg_user_data->connection_count > 100) {
             nc->is_draining = 1;
-            send_error(nc, 429, "Concurrent connections limit exceeded");
+            webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
             return;
         }
         //check acl
-        if (sdslen(config->acl) > 0 && check_ip_acl(config->acl, &nc->peer) == false) {
+        if (sdslen(config->acl) > 0 && webserver_check_ip_acl(config->acl, &nc->peer) == false) {
             nc->is_draining = 1;
-            send_error(nc, 403, "Request blocked by ACL");
+            webserver_send_error(nc, 403, "Request blocked by ACL");
             return;
         }
         mg_user_data->connection_count++;
@@ -596,7 +596,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
             s_redirect = sdscatfmt(s_redirect, ":%s", config->ssl_port);
         }
         MYMPD_LOG_INFO("Redirecting to %s", s_redirect);
-        http_send_header_redirect(nc, s_redirect);
+        webserver_send_header_redirect(nc, s_redirect);
         nc->is_draining = 1;
         sdsfreesplitres(tokens, count);
         FREE_SDS(host_header);
@@ -657,7 +657,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
         if (auth_header != NULL && auth_header->len == 27 && strncmp(auth_header->ptr, "Bearer ", 7) == 0) {
             session = sdscatlen(session, auth_header->ptr, auth_header->len);
             sdsrange(session, 7, -1);
-            rc = validate_session(&mg_user_data->session_list, session);
+            rc = webserver_session_validate(&mg_user_data->session_list, session);
         }
         else {
             MYMPD_LOG_ERROR("No valid Authorization header found");
@@ -692,7 +692,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
             FREE_SDS(pin);
             sds response = sdsempty();
             if (is_valid == true) {
-                sds ses = new_session(&mg_user_data->session_list);
+                sds ses = webserver_session_new(&mg_user_data->session_list);
                 response = jsonrpc_result_start(response, "MYMPD_API_SESSION_LOGIN", 0);
                 response = tojson_char(response, "session", ses, false);
                 response = jsonrpc_result_end(response);
@@ -701,7 +701,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
             else {
                 response = jsonrpc_respond_message(response, "MYMPD_API_SESSION_LOGIN", 0, true, "session", "error", "Invalid pin");
             }
-            http_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
+            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
             FREE_SDS(response);
             break;
         }
@@ -709,7 +709,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
             bool rc = false;
             sds response;
             if (sdslen(session) == 20) {
-                rc = remove_session(&mg_user_data->session_list, session);
+                rc = webserver_session_remove(&mg_user_data->session_list, session);
                 if (rc == true) {
                     response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, false, "session", "info", "Session removed");
                 }
@@ -718,14 +718,14 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
                 response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, true, "session", "error", "Invalid session");
             }
              
-            http_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
+            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
             FREE_SDS(response);
             break;
         }
         case MYMPD_API_SESSION_VALIDATE: {
             //session is already validated
             sds response = jsonrpc_respond_ok(sdsempty(), "MYMPD_API_SESSION_VALIDATE", 0, "session");
-            http_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
+            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
             FREE_SDS(response);
             break;
         }

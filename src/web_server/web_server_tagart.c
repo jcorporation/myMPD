@@ -12,19 +12,19 @@
 #include "../lib/sds_extras.h"
 #include "../lib/validate.h"
 
-bool handle_tagart(struct mg_connection *nc, struct mg_http_message *hm, 
+bool webserver_tagart_handler(struct mg_connection *nc, struct mg_http_message *hm, 
                    struct t_mg_user_data *mg_user_data) {
     //decode uri
     sds uri_decoded = sdsurldecode(sdsempty(), hm->uri.ptr, (int)hm->uri.len, 0);
     if (sdslen(uri_decoded) == 0) {
         MYMPD_LOG_ERROR("Failed to decode uri");
-        serve_na_image(nc, hm);
+        webserver_serve_na_image(nc, hm);
         FREE_SDS(uri_decoded);
         return true;
     }
     if (vcb_isfilepath(uri_decoded) == false) {
         MYMPD_LOG_ERROR("Invalid URI: %s", uri_decoded);
-        serve_na_image(nc, hm);
+        webserver_serve_na_image(nc, hm);
         FREE_SDS(uri_decoded);
         return true;
     }
@@ -41,7 +41,7 @@ bool handle_tagart(struct mg_connection *nc, struct mg_http_message *hm,
     }
     else {
         MYMPD_LOG_DEBUG("No image for tag found");
-        serve_na_image(nc, hm);
+        webserver_serve_na_image(nc, hm);
     }
     FREE_SDS(mediafile);
     FREE_SDS(uri_decoded);

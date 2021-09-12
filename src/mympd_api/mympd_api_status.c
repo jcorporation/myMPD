@@ -23,8 +23,8 @@ static int _mympd_api_get_volume(struct t_mympd_state *mympd_state);
 static unsigned get_current_song_start_time(struct t_mympd_state *mympd_state);
 
 //public functions
-sds mympd_api_get_updatedb_state(struct t_mympd_state *mympd_state, sds buffer) {
-    long update_id = mympd_api_get_updatedb_id(mympd_state);
+sds mympd_api_status_updatedb_state(struct t_mympd_state *mympd_state, sds buffer) {
+    long update_id = mympd_api_status_updatedb_id(mympd_state);
     if (update_id == -1) {
         buffer = jsonrpc_notify(buffer, "mpd", "error", "Error getting MPD status");
     }
@@ -39,7 +39,7 @@ sds mympd_api_get_updatedb_state(struct t_mympd_state *mympd_state, sds buffer) 
     return buffer;    
 }
 
-long mympd_api_get_updatedb_id(struct t_mympd_state *mympd_state) {
+long mympd_api_status_updatedb_id(struct t_mympd_state *mympd_state) {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
     if (status == NULL) {
         check_error_and_recover_notify(mympd_state->mpd_state, NULL);
@@ -53,7 +53,7 @@ long mympd_api_get_updatedb_id(struct t_mympd_state *mympd_state) {
     return update_id;
 }
 
-sds mympd_api_get_status(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
     if (status == NULL) {
         if (method == NULL) {
@@ -149,7 +149,7 @@ sds mympd_api_get_status(struct t_mympd_state *mympd_state, sds buffer, sds meth
     return buffer;
 }
 
-bool mympd_api_get_lua_mympd_state(struct t_mympd_state *mympd_state, struct t_list *lua_mympd_state) {
+bool mympd_api_status_lua_mympd_state_set(struct t_mympd_state *mympd_state, struct t_list *lua_mympd_state) {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
     if (status == NULL) {
         return false;
@@ -185,7 +185,7 @@ bool mympd_api_get_lua_mympd_state(struct t_mympd_state *mympd_state, struct t_l
     return true;
 }
 
-sds mympd_api_get_volume(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_status_volume_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     int volume = _mympd_api_get_volume(mympd_state);
     if (method == NULL) {
         buffer = jsonrpc_notify_start(buffer, "update_volume");
@@ -198,7 +198,7 @@ sds mympd_api_get_volume(struct t_mympd_state *mympd_state, sds buffer, sds meth
     return buffer;
 }
 
-sds mympd_api_get_partition_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mympd_api_status_partition_output_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                                      const char *partition)
 {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
@@ -217,11 +217,11 @@ sds mympd_api_get_partition_outputs(struct t_mympd_state *mympd_state, sds buffe
     return buffer;
 }
 
-sds mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_status_output_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     return _mympd_api_get_outputs(mympd_state, buffer, method, request_id);
 }
 
-sds mympd_api_get_current_song(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     struct mpd_song *song = mpd_run_current_song(mympd_state->mpd_state->conn);
     if (song == NULL) {
         if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {

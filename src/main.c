@@ -194,7 +194,7 @@ static bool check_dirs(struct t_config *config) {
     testdir_rc = testdir("Smartpls dir", testdirname, true);
     if (testdir_rc == 1) {
         //directory created, create default smart playlists
-        smartpls_default(config);
+        mympd_api_smartpls_default(config);
     }
     else if (testdir_rc > 1) {
         FREE_SDS(testdirname);
@@ -431,7 +431,7 @@ int main(int argc, char **argv) {
     free(config);
     if (init_mg_user_data == true) {
         free((char *)mgr.dns4.url);
-        free_mg_user_data(mg_user_data);
+        mg_user_data_free(mg_user_data);
     }
     FREE_PTR(mg_user_data);
     if (rc == EXIT_SUCCESS) {

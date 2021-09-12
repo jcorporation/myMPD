@@ -9,7 +9,7 @@
 
 #include "../lib/mympd_state.h"
 
-sds mympd_api_queue_get_state(struct t_mympd_state *mympd_state, sds buffer);
+sds mympd_api_queue_status(struct t_mympd_state *mympd_state, sds buffer);
 sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                          unsigned int offset, unsigned int limit, const struct t_tags *tagcols);
 sds mympd_api_queue_crop(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, bool or_clear);

@@ -92,7 +92,7 @@ unsigned mympd_api_get_elapsed_seconds(struct mpd_status *status) {
     return mpd_status_get_elapsed_ms(status) / 1000;
 }
 
-void default_mympd_state(struct t_mympd_state *mympd_state) {
+void mympd_state_default(struct t_mympd_state *mympd_state) {
     mympd_state->music_directory = sdsnew("auto");
     mympd_state->music_directory_value = sdsempty();
     mympd_state->playlist_directory = sdsnew("/var/lib/mpd/playlists");
@@ -159,7 +159,7 @@ void default_mympd_state(struct t_mympd_state *mympd_state) {
     mympd_api_timer_timerlist_init(&mympd_state->timer_list);
 }
 
-void free_mympd_state(struct t_mympd_state *mympd_state) {
+void mympd_state_free(struct t_mympd_state *mympd_state) {
     list_clear(&mympd_state->jukebox_queue);
     list_clear(&mympd_state->jukebox_queue_tmp);
     list_clear(&mympd_state->sticker_queue);
@@ -172,12 +172,7 @@ void free_mympd_state(struct t_mympd_state *mympd_state) {
     //caches
     sticker_cache_free(&mympd_state->sticker_cache);
     album_cache_free(&mympd_state->album_cache);
-    //struct itself
-    free_mympd_state_sds(mympd_state);
-    FREE_PTR(mympd_state);
-}
-
-void free_mympd_state_sds(struct t_mympd_state *mympd_state) {
+    //sds
     FREE_SDS(mympd_state->tag_list_search);
     FREE_SDS(mympd_state->tag_list_browse);
     FREE_SDS(mympd_state->smartpls_generate_tag_list);
@@ -203,6 +198,8 @@ void free_mympd_state_sds(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->lyrics_uslt_ext);
     FREE_SDS(mympd_state->lyrics_vorbis_uslt);
     FREE_SDS(mympd_state->lyrics_vorbis_sylt);
+    //struct itself
+    FREE_PTR(mympd_state);
 }
 
 sds json_to_cols(sds cols, sds s, bool *error) {

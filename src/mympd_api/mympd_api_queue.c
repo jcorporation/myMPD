@@ -93,7 +93,7 @@ bool mympd_api_queue_replace_with_playlist(struct t_mympd_state *mympd_state, co
     return true;
 }
 
-sds mympd_api_queue_get_state(struct t_mympd_state *mympd_state, sds buffer) {
+sds mympd_api_queue_status(struct t_mympd_state *mympd_state, sds buffer) {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
     if (status == NULL) {
         check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);

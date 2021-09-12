@@ -54,7 +54,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
                     buffer = jsonrpc_event(buffer, "update_stored_playlist");
                     break;
                 case MPD_IDLE_QUEUE:
-                    buffer = mympd_api_queue_get_state(mympd_state, buffer);
+                    buffer = mympd_api_queue_status(mympd_state, buffer);
                     //jukebox enabled
                     if (mympd_state->jukebox_mode != JUKEBOX_OFF && mympd_state->mpd_state->queue_length < mympd_state->jukebox_queue_length) {
                         mpd_client_jukebox(mympd_state, 0);
@@ -71,7 +71,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
                     break;
                 case MPD_IDLE_PLAYER:
                     //get and put mpd state                
-                    buffer = mympd_api_get_status(mympd_state, buffer, NULL, 0);
+                    buffer = mympd_api_status_get(mympd_state, buffer, NULL, 0);
                     //song has changed
                     if (mympd_state->mpd_state->song_id != mympd_state->mpd_state->last_song_id && 
                         mympd_state->mpd_state->last_skipped_id != mympd_state->mpd_state->last_song_id && 
@@ -95,17 +95,17 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
                     }
                     break;
                 case MPD_IDLE_MIXER:
-                    buffer = mympd_api_get_volume(mympd_state, buffer, NULL, 0);
+                    buffer = mympd_api_status_volume_get(mympd_state, buffer, NULL, 0);
                     break;
                 case MPD_IDLE_OUTPUT:
                     buffer = jsonrpc_event(buffer, "update_outputs");
                     break;
                 case MPD_IDLE_OPTIONS:
-                    mympd_api_queue_get_state(mympd_state, NULL);
+                    mympd_api_queue_status(mympd_state, NULL);
                     buffer = jsonrpc_event(buffer, "update_options");
                     break;
                 case MPD_IDLE_UPDATE:
-                    buffer = mympd_api_get_updatedb_state(mympd_state, buffer);
+                    buffer = mympd_api_status_updatedb_state(mympd_state, buffer);
                     break;
                 case MPD_IDLE_PARTITION:
                     //TODO: check list of partitions and create new mpd_client threads
@@ -320,7 +320,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                     mympd_state->mpd_state->last_last_played_id = mympd_state->mpd_state->song_id;
                     
                     if (mympd_state->last_played_count > 0) {
-                        mympd_api_add_song_to_last_played_list(mympd_state, mympd_state->mpd_state->song_id);
+                        mympd_api_stats_last_played_add_song(mympd_state, mympd_state->mpd_state->song_id);
                     }
                     if (mympd_state->mpd_state->feat_stickers == true) {
                         mympd_api_sticker_inc_play_count(mympd_state, mympd_state->mpd_state->song_uri);

@@ -29,7 +29,7 @@ static int mympd_api_enum_playlist(struct t_mympd_state *mympd_state, const char
 static bool smartpls_init(struct t_config *config, const char *name, const char *value);
 
 //public functions
-bool smartpls_default(struct t_config *config) {
+bool mympd_api_smartpls_default(struct t_config *config) {
     bool rc = true;
 
     //try to get prefix from state file, fallback to default value
@@ -89,7 +89,7 @@ void mympd_api_smartpls_update_all(void) {
     tiny_queue_push(mympd_api_queue, request, 0);
 }
 
-sds mympd_api_get_playlists(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                              const unsigned int offset, const unsigned int limit, sds searchstr) 
 {
     bool rc = mpd_send_list_playlists(mympd_state->mpd_state->conn);
@@ -153,10 +153,10 @@ sds mympd_api_get_playlists(struct t_mympd_state *mympd_state, sds buffer, sds m
     return buffer;
 }
 
-sds mympd_api_get_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                                 sds uri, const unsigned int offset, const unsigned int limit, sds searchstr, const struct t_tags *tagcols)
+sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+                                 sds plist, const unsigned int offset, const unsigned int limit, sds searchstr, const struct t_tags *tagcols)
 {
-    bool rc = mpd_send_list_playlist_meta(mympd_state->mpd_state->conn, uri);
+    bool rc = mpd_send_list_playlist_meta(mympd_state->mpd_state->conn, plist);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlist_meta") == false) {
         return buffer;
     }
@@ -202,7 +202,7 @@ sds mympd_api_get_playlist_list(struct t_mympd_state *mympd_state, sds buffer, s
         return buffer;
     }
     
-    bool smartpls = is_smartpls(mympd_state, uri);
+    bool smartpls = is_smartpls(mympd_state, plist);
 
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
@@ -210,7 +210,7 @@ sds mympd_api_get_playlist_list(struct t_mympd_state *mympd_state, sds buffer, s
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_char(buffer, "searchstr", searchstr, true);
-    buffer = tojson_char(buffer, "uri", uri, true);
+    buffer = tojson_char(buffer, "plist", plist, true);
     buffer = tojson_bool(buffer, "smartpls", smartpls, false);
     buffer = jsonrpc_result_end(buffer);
     

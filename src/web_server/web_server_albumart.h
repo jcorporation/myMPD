@@ -14,6 +14,6 @@
 
 #include <stdbool.h>
 
-void send_albumart(struct mg_connection *nc, sds data, sds binary);
-bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm, struct t_mg_user_data *mg_user_data, struct t_config *config, long long conn_id);
+void webserver_albumart_send(struct mg_connection *nc, sds data, sds binary);
+bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message *hm, struct t_mg_user_data *mg_user_data, struct t_config *config, long long conn_id);
 #endif

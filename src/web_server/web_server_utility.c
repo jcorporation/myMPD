@@ -28,7 +28,7 @@ static void create_ipv6_mask(int *netmask, int mask);
 */
 
 //public functions
-void free_mg_user_data(struct t_mg_user_data *mg_user_data) {
+void mg_user_data_free(struct t_mg_user_data *mg_user_data) {
     FREE_SDS(mg_user_data->browse_document_root);
     FREE_SDS(mg_user_data->pics_document_root);
     FREE_SDS(mg_user_data->smartpls_document_root);
@@ -56,7 +56,7 @@ struct mg_str mg_str_strip_parent(struct mg_str *path, int count) {
     return *path;
 }
 
-bool check_ip_acl(sds acl, struct mg_addr *peer) {
+bool webserver_check_ip_acl(sds acl, struct mg_addr *peer) {
     /*
     if (peer->is_ip6 == true) {
         //ipv6
@@ -68,7 +68,7 @@ bool check_ip_acl(sds acl, struct mg_addr *peer) {
     return check_ipv4_acl(acl, remote_ip);
 }
 
-void manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bool playlists) {
+void webserver_manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bool playlists) {
     sds dir_name = sdscatfmt(sdsempty(), "%s/empty/pics", workdir);
     rm_mk_dir(dir_name, pics);
     
@@ -87,7 +87,7 @@ void manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bo
 }
 
 //create an empty dummy message struct, used for async responses
-void populate_dummy_hm(struct mg_connection *nc, struct mg_http_message *hm) {
+void webserver_populate_dummy_hm(struct mg_connection *nc, struct mg_http_message *hm) {
     if (nc->label[1] == 'G') { hm->method = mg_str("GET"); }
     else if (nc->label[1] == 'H') { hm->method = mg_str("HEAD"); }
     else if (nc->label[1] == 'P') { hm->method = mg_str("POST"); }
@@ -102,7 +102,7 @@ void populate_dummy_hm(struct mg_connection *nc, struct mg_http_message *hm) {
     hm->headers[0].value = mg_str("gzip");
 }
 
-sds *split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count) {
+sds *webserver_split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count) {
     int j;
     coverimage_names = sdssplitlen(coverimage_name, (ssize_t)sdslen(coverimage_name), ",", 1, count);
     for (j = 0; j < *count; j++) {
@@ -111,7 +111,7 @@ sds *split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *cou
     return coverimage_names;
 }
 
-void send_error(struct mg_connection *nc, int code, const char *msg) {
+void webserver_send_error(struct mg_connection *nc, int code, const char *msg) {
     mg_http_reply(nc, code, "Content-Type: text/html\n\n", "<html><head><title>myMPD error</title></head><body>"
         "<h1>myMPD error</h1>"
         "<p>%s</p>"
@@ -122,42 +122,42 @@ void send_error(struct mg_connection *nc, int code, const char *msg) {
     }
 }
 
-void http_send_header_ok(struct mg_connection *nc, size_t len, const char *headers) {
+void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *headers) {
     mg_printf(nc, "HTTP/1.1 200 OK\r\n"
       "%s"
       "Content-Length: %lu\r\n\r\n",
       headers, len);
 }
 
-void http_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers) {
-    http_send_header_ok(nc, len, headers);
+void webserver_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers) {
+    webserver_send_header_ok(nc, len, headers);
     mg_send(nc, data, len);
-    handle_connection_close(nc);
+    webserver_handle_connection_close(nc);
 }
 
-void http_send_header_redirect(struct mg_connection *nc, const char *location) {
+void webserver_send_header_redirect(struct mg_connection *nc, const char *location) {
     mg_printf(nc, "HTTP/1.1 301 Moved Permanently\r\n"
       "Location: %s\r\n"
       "Content-Length: 0\r\n\r\n", 
       location);
 }
 
-void handle_connection_close(struct mg_connection *nc) {
+void webserver_handle_connection_close(struct mg_connection *nc) {
     if (nc->label[2] == 'C') {
         MYMPD_LOG_DEBUG("Set connection %lu to is_draining", nc->id);
         nc->is_draining = 1;
     }
 }
 
-void serve_na_image(struct mg_connection *nc, struct mg_http_message *hm) {
-    serve_asset_image(nc, hm, "coverimage-notavailable");
+void webserver_serve_na_image(struct mg_connection *nc, struct mg_http_message *hm) {
+    webserver_serve_asset_image(nc, hm, "coverimage-notavailable");
 }
 
-void serve_stream_image(struct mg_connection *nc, struct mg_http_message *hm) {
-    serve_asset_image(nc, hm, "coverimage-stream");
+void webserver_serve_stream_image(struct mg_connection *nc, struct mg_http_message *hm) {
+    webserver_serve_asset_image(nc, hm, "coverimage-stream");
 }
 
-void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, const char *name) {
+void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, const char *name) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
     
@@ -193,7 +193,7 @@ struct embedded_file {
     const unsigned size;
 };
 
-bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_message *hm) {
+bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_message *hm) {
     const struct embedded_file embedded_files[] = {
         {"/", 1, "text/html; charset=utf-8", true, false, index_html_data, index_html_size},
         {"/css/combined.css", 17, "text/css; charset=utf-8", true, false, combined_css_data, combined_css_size},

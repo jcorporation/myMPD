@@ -34,7 +34,7 @@ void *mympd_api_loop(void *arg_config) {
     //create mympd_state struct and set defaults
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)malloc_assert(sizeof(struct t_mympd_state));
     mympd_state->config = (struct t_config *) arg_config;
-    default_mympd_state(mympd_state);
+    mympd_state_default(mympd_state);
 
     if (mympd_state->config->first_startup == true) {
         MYMPD_LOG_NOTICE("Starting myMPD autoconfiguration");
@@ -42,7 +42,7 @@ void *mympd_api_loop(void *arg_config) {
     }
 
     //read myMPD states
-    mympd_api_read_statefiles(mympd_state);
+    mympd_api_settings_statefiles_read(mympd_state);
     //home icons
     mympd_api_home_file_read(mympd_state);
     //myMPD timer
@@ -69,11 +69,11 @@ void *mympd_api_loop(void *arg_config) {
     //save states
     mympd_api_home_file_save(mympd_state);
     mympd_api_timer_file_save(mympd_state);
-    mympd_api_last_played_list_save(mympd_state);
+    mympd_api_stats_last_played_file_save(mympd_state);
     mympd_api_trigger_file_save(mympd_state);
     //free anything
     mympd_api_trigerlist_free_arguments(mympd_state);
-    free_mympd_state(mympd_state);
+    mympd_state_free(mympd_state);
     FREE_SDS(thread_logname);
     return NULL;
 }

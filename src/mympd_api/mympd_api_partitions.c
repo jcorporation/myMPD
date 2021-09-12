@@ -11,7 +11,7 @@
 #include "../mpd_shared.h"
 
 //public functions
-sds mympd_api_get_partitions(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     bool rc = mpd_send_listpartitions(mympd_state->mpd_state->conn);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_listpartitions") == false) {
         return buffer;

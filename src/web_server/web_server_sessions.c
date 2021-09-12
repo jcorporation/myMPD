@@ -17,7 +17,7 @@
     #include <openssl/rand.h>
 #endif
 
-sds new_session(struct t_list *session_list) {
+sds webserver_session_new(struct t_list *session_list) {
     sds session = sdsempty();
     #ifdef ENABLE_SSL
     unsigned char *buf = malloc_assert(10 * sizeof(unsigned char));
@@ -30,7 +30,7 @@ sds new_session(struct t_list *session_list) {
     return session;
     #endif
     //timeout old sessions
-    validate_session(session_list, NULL);
+    webserver_session_validate(session_list, NULL);
     //add new session with 30 min timeout
     list_push(session_list, session, (time(NULL) + 1800), NULL, NULL);
     MYMPD_LOG_DEBUG("Created session %s", session);
@@ -42,7 +42,7 @@ sds new_session(struct t_list *session_list) {
     return session;
 }
 
-bool validate_session(struct t_list *session_list, const char *session) {
+bool webserver_session_validate(struct t_list *session_list, const char *session) {
     time_t now = time(NULL);
     struct t_list_node *current = session_list->head;
     unsigned i = 0;
@@ -71,7 +71,7 @@ bool validate_session(struct t_list *session_list, const char *session) {
     return false;
 }
 
-bool remove_session(struct t_list *session_list, const char *session) {
+bool webserver_session_remove(struct t_list *session_list, const char *session) {
     struct t_list_node *current = session_list->head;
     unsigned i = 0;
     while (current != NULL) {
