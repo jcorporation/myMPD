@@ -528,7 +528,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
 
     long tid = syscall(__NR_gettid);
     
-    t_work_request *request = create_request(-2, tid, method_id, NULL);
+    struct t_work_request *request = create_request(-2, tid, method_id, NULL);
     if (raw == false) {
         for (int i = 2; i < n; i = i + 2) {
             bool comma = i + 1 < n ? true : false;
@@ -553,12 +553,12 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
     }
     request->data = sdscat(request->data, "}");
     
-    tiny_queue_push(mympd_api_queue, request, tid);
+    mympd_queue_push(mympd_api_queue, request, tid);
 
     int i = 0;
     while (s_signal_received == 0 && i < 60) {
         i++;
-        t_work_result *response = tiny_queue_shift(mympd_script_queue, 1000000, tid);
+        struct t_work_result *response = mympd_queue_shift(mympd_script_queue, 1000000, tid);
         if (response != NULL) {
             MYMPD_LOG_DEBUG("Got result: %s", response->data);
             sds sds_buf1 = NULL;

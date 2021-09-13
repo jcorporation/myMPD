@@ -213,17 +213,17 @@ set(SOURCES
   src/lib/mem.c
   src/lib/mimetype.c
   src/lib/mympd_pin.c
+  src/lib/mympd_queue.c
   src/lib/random.c
   src/lib/sds_extras.c
   src/lib/state_files.c
-  src/lib/tiny_queue.c
   src/lib/utility.c
   src/lib/validate.c
   src/main.c
   src/mpd_client/mpd_client_autoconf.c
   src/mpd_client/mpd_client_features.c
+  src/mpd_client/mpd_client_idle.c
   src/mpd_client/mpd_client_jukebox.c
-  src/mpd_client/mpd_client_loop.c
   src/mpd_shared.c
   src/mpd_shared/mpd_shared_playlists.c
   src/mpd_shared/mpd_shared_search.c

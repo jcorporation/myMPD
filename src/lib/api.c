@@ -18,9 +18,9 @@
 //global variables
 _Atomic int worker_threads;
 sig_atomic_t s_signal_received;
-tiny_queue_t *web_server_queue;
-tiny_queue_t *mympd_api_queue;
-tiny_queue_t *mympd_script_queue;
+struct t_mympd_queue *web_server_queue;
+struct t_mympd_queue *mympd_api_queue;
+struct t_mympd_queue *mympd_script_queue;
 
 //method to id and reverse
 static const char *mympd_cmd_strs[] = { MYMPD_CMDS(GEN_STR) };
@@ -98,13 +98,13 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
 
 
 
-t_work_result *create_result(t_work_request *request) {
-    t_work_result *response = create_result_new(request->conn_id, request->id, request->cmd_id);
+struct t_work_result *create_result(struct t_work_request *request) {
+    struct t_work_result *response = create_result_new(request->conn_id, request->id, request->cmd_id);
     return response;
 }
 
-t_work_result *create_result_new(long long conn_id, long request_id, unsigned cmd_id) {
-    t_work_result *response = (t_work_result *)malloc_assert(sizeof(t_work_result));
+struct t_work_result *create_result_new(long long conn_id, long request_id, unsigned cmd_id) {
+    struct t_work_result *response = (struct t_work_result *)malloc_assert(sizeof(struct t_work_result));
     response->conn_id = conn_id;
     response->id = request_id;
     response->cmd_id = cmd_id;
@@ -116,8 +116,8 @@ t_work_result *create_result_new(long long conn_id, long request_id, unsigned cm
     return response;
 }
 
-t_work_request *create_request(long long conn_id, long request_id, unsigned cmd_id, const char *data) {
-    t_work_request *request = (t_work_request *)malloc_assert(sizeof(t_work_request));
+struct t_work_request *create_request(long long conn_id, long request_id, unsigned cmd_id, const char *data) {
+    struct t_work_request *request = (struct t_work_request *)malloc_assert(sizeof(struct t_work_request));
     request->conn_id = conn_id;
     request->cmd_id = cmd_id;
     request->id = request_id;
@@ -133,7 +133,7 @@ t_work_request *create_request(long long conn_id, long request_id, unsigned cmd_
     return request;
 }
 
-void free_request(t_work_request *request) {
+void free_request(struct t_work_request *request) {
     if (request != NULL) {
         FREE_SDS(request->data);
         FREE_SDS(request->method);
@@ -141,7 +141,7 @@ void free_request(t_work_request *request) {
     }
 }
 
-void free_result(t_work_result *result) {
+void free_result(struct t_work_result *result) {
     if (result != NULL) {
         FREE_SDS(result->data);
         FREE_SDS(result->method);
@@ -150,10 +150,10 @@ void free_result(t_work_result *result) {
     }
 }
 
-int expire_result_queue(tiny_queue_t *queue, time_t age) {
-    t_work_result *response = NULL;
+int expire_result_queue(struct t_mympd_queue *queue, time_t age) {
+    struct t_work_result *response = NULL;
     int i = 0;
-    while ((response = tiny_queue_expire(queue, age)) != NULL) {
+    while ((response = mympd_queue_expire(queue, age)) != NULL) {
         if (response->extra != NULL) {
             if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
                 free_lua_mympd_state(response->extra);
@@ -169,10 +169,10 @@ int expire_result_queue(tiny_queue_t *queue, time_t age) {
     return i;
 }
 
-int expire_request_queue(tiny_queue_t *queue, time_t age) {
-    t_work_request *request = NULL;
+int expire_request_queue(struct t_mympd_queue *queue, time_t age) {
+    struct t_work_request *request = NULL;
     int i = 0;
-    while ((request = tiny_queue_expire(queue, age)) != NULL) {
+    while ((request = mympd_queue_expire(queue, age)) != NULL) {
         if (request->extra != NULL) {
             if (request->cmd_id == INTERNAL_API_SCRIPT_INIT) {
                 free_lua_mympd_state(request->extra);

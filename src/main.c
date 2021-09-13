@@ -45,9 +45,9 @@ static void mympd_signal_handler(int sig_num) {
     }
     else if (sig_num == SIGHUP) {
         MYMPD_LOG_NOTICE("Signal SIGHUP received, saving states");
-        t_work_request *request = create_request(-1, 0, INTERNAL_API_STATE_SAVE, NULL);
+        struct t_work_request *request = create_request(-1, 0, INTERNAL_API_STATE_SAVE, NULL);
         request->data = sdscat(request->data, "}}");
-        tiny_queue_push(mympd_api_queue, request, 0);    
+        mympd_queue_push(mympd_api_queue, request, 0);    
     }
 }
 
@@ -272,9 +272,9 @@ int main(int argc, char **argv) {
     //get startup uid
     uid_t startup_uid = getuid();
     
-    mympd_api_queue = tiny_queue_create("mympd_api_queue");
-    web_server_queue = tiny_queue_create("web_server_queue");
-    mympd_script_queue = tiny_queue_create("mympd_script_queue");
+    mympd_api_queue = mympd_queue_create("mympd_api_queue");
+    web_server_queue = mympd_queue_create("web_server_queue");
+    mympd_script_queue = mympd_queue_create("mympd_script_queue");
 
     //create mg_user_data struct for web_server
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)malloc_assert(sizeof(struct t_mg_user_data));
@@ -409,19 +409,19 @@ int main(int argc, char **argv) {
         web_server_free(&mgr);
     }
     
-    MYMPD_LOG_DEBUG("Expiring web_server_queue: %u", tiny_queue_length(web_server_queue, 10));
+    MYMPD_LOG_DEBUG("Expiring web_server_queue: %u", mympd_queue_length(web_server_queue, 10));
     int expired = expire_result_queue(web_server_queue, 0);
-    tiny_queue_free(web_server_queue);
+    mympd_queue_free(web_server_queue);
     MYMPD_LOG_DEBUG("Expired %d entries", expired);
 
-    MYMPD_LOG_DEBUG("Expiring mympd_api_queue: %u", tiny_queue_length(mympd_api_queue, 10));
+    MYMPD_LOG_DEBUG("Expiring mympd_api_queue: %u", mympd_queue_length(mympd_api_queue, 10));
     expired = expire_request_queue(mympd_api_queue, 0);
-    tiny_queue_free(mympd_api_queue);
+    mympd_queue_free(mympd_api_queue);
     MYMPD_LOG_DEBUG("Expired %d entries", expired);
 
-    MYMPD_LOG_DEBUG("Expiring mympd_script_queue: %u", tiny_queue_length(mympd_script_queue, 10));
+    MYMPD_LOG_DEBUG("Expiring mympd_script_queue: %u", mympd_queue_length(mympd_script_queue, 10));
     expired = expire_result_queue(mympd_script_queue, 0);
-    tiny_queue_free(mympd_script_queue);
+    mympd_queue_free(mympd_script_queue);
     MYMPD_LOG_DEBUG("Expired %d entries", expired);
 
     mympd_free_config_initial(config);

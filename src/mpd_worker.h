@@ -10,5 +10,5 @@
 #include "lib/api.h"
 #include "lib/mympd_state.h"
 
-bool mpd_worker_start(struct t_mympd_state *mympd_state, t_work_request *request);
+bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *request);
 #endif

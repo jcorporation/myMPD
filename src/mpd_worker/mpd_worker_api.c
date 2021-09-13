@@ -18,7 +18,7 @@
 
 //public functions
 void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
-    t_work_request *request = mpd_worker_state->request;
+    struct t_work_request *request = mpd_worker_state->request;
     bool rc;
     bool bool_buf1;
     bool async = false;
@@ -26,7 +26,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
 
     MYMPD_LOG_INFO("MPD WORKER API request (%lld)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
-    t_work_result *response = create_result(request);
+    struct t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
@@ -40,7 +40,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                     "playlist", "info", "Smart playlists update started");
                 if (request->conn_id > -1) {
                     MYMPD_LOG_DEBUG("Push response to queue for connection %lld: %s", request->conn_id, response->data);
-                    tiny_queue_push(web_server_queue, response, 0);
+                    mympd_queue_push(web_server_queue, response, 0);
                 }
                 else {
                     free_result(response);
@@ -97,11 +97,11 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     }
     if (request->conn_id == -2) {
         MYMPD_LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
-        tiny_queue_push(mympd_script_queue, response, request->id);
+        mympd_queue_push(mympd_script_queue, response, request->id);
     }
     else if (request->conn_id > -1) {
         MYMPD_LOG_DEBUG("Push response to queue for connection %lld: %s", request->conn_id, response->data);
-        tiny_queue_push(web_server_queue, response, 0);
+        mympd_queue_push(web_server_queue, response, 0);
     }
     else {
         free_result(response);

@@ -8,7 +8,7 @@
 #define MYMPD_API_H
 
 #include "../../dist/src/sds/sds.h"
-#include "tiny_queue.h"
+#include "mympd_queue.h"
 
 #include <signal.h>
 #include <stdbool.h>
@@ -20,9 +20,9 @@ extern _Atomic int worker_threads;
 extern sig_atomic_t s_signal_received;
 
 //message queue
-extern tiny_queue_t *web_server_queue;
-extern tiny_queue_t *mympd_api_queue;
-extern tiny_queue_t *mympd_script_queue;
+extern struct t_mympd_queue *web_server_queue;
+extern struct t_mympd_queue *mympd_api_queue;
+extern struct t_mympd_queue *mympd_script_queue;
 
 //API cmds
 //all above INTERNAL_API_COUNT are internal
@@ -158,16 +158,16 @@ enum mympd_cmd_ids {
     MYMPD_CMDS(GEN_ENUM)
 };
 
-typedef struct t_work_request {
+struct t_work_request {
     long long conn_id; // needed to identify the connection where to send the reply
     long id; //the jsonrpc id
     sds method; //the jsonrpc method
     enum mympd_cmd_ids cmd_id;
     sds data;
     void *extra;
-} t_work_request;
+};
 
-typedef struct t_work_result {
+struct t_work_result {
     long long conn_id; // needed to identify the connection where to send the reply
     long id; //the jsonrpc id
     sds method; //the jsonrpc method
@@ -175,7 +175,7 @@ typedef struct t_work_result {
     sds data;
     sds binary;
     void *extra;
-} t_work_result;
+};
 
 //config data sent to webserver thread
 struct set_mg_user_data_request {
@@ -195,12 +195,12 @@ const char *get_cmd_id_method_name(enum mympd_cmd_ids cmd_id);
 bool is_protected_api_method(enum mympd_cmd_ids cmd_id);
 bool is_public_api_method(enum mympd_cmd_ids cmd_id);
 bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id);
-t_work_result *create_result(t_work_request *request);
-t_work_result *create_result_new(long long conn_id, long request_id, unsigned cmd_id);
-t_work_request *create_request(long long conn_id, long request_id, unsigned cmd_id, const char *data);
-int expire_request_queue(tiny_queue_t *queue, time_t age);
-int expire_result_queue(tiny_queue_t *queue, time_t age);
-void free_request(t_work_request *request);
-void free_result(t_work_result *result);
+struct t_work_result *create_result(struct t_work_request *request);
+struct t_work_result *create_result_new(long long conn_id, long request_id, unsigned cmd_id);
+struct t_work_request *create_request(long long conn_id, long request_id, unsigned cmd_id, const char *data);
+int expire_request_queue(struct t_mympd_queue *queue, time_t age);
+int expire_result_queue(struct t_mympd_queue *queue, time_t age);
+void free_request(struct t_work_request *request);
+void free_result(struct t_work_result *result);
 
 #endif

@@ -29,28 +29,28 @@ void timer_handler_smartpls_update(struct t_timer_definition *definition, void *
     MYMPD_LOG_INFO("Start timer_handler_smartpls_update");
     (void) definition;
     (void) user_data;
-    t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL);
+    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL);
     request->data = sdscat(request->data, "\"force\":false}}");
-    tiny_queue_push(mympd_api_queue, request, 0);
+    mympd_queue_push(mympd_api_queue, request, 0);
 }
 
 void timer_handler_select(struct t_timer_definition *definition, void *user_data) {
     MYMPD_LOG_INFO("Start timer_handler_select for timer \"%s\"", definition->name);
     if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "stopplay") == 0) {
-        t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_STOP, NULL);
+        struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_STOP, NULL);
         request->data = sdscat(request->data, "}}");
-        tiny_queue_push(mympd_api_queue, request, 0);
+        mympd_queue_push(mympd_api_queue, request, 0);
     }
     else if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "startplay") == 0) {
-        t_work_request *request = create_request(-1, 0, INTERNAL_API_TIMER_STARTPLAY, NULL);
+        struct t_work_request *request = create_request(-1, 0, INTERNAL_API_TIMER_STARTPLAY, NULL);
         request->data = tojson_long(request->data, "volume", definition->volume, true);
         request->data = tojson_char(request->data, "playlist", definition->playlist, true);
         request->data = tojson_long(request->data, "jukeboxMode", definition->jukebox_mode, false);
         request->data = sdscat(request->data, "}}");
-        tiny_queue_push(mympd_api_queue, request, 0);
+        mympd_queue_push(mympd_api_queue, request, 0);
     }
     else if (strcmp(definition->action, "script") == 0) {
-        t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL);
+        struct t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL);
         request->data = tojson_char(request->data, "script", definition->subaction, true);
         request->data = sdscat(request->data, "arguments: {");
         struct t_list_node *argument = definition->arguments.head;
@@ -63,7 +63,7 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
             argument = argument->next;
         }
         request->data = sdscat(request->data, "}}}");
-        tiny_queue_push(mympd_api_queue, request, 0);
+        mympd_queue_push(mympd_api_queue, request, 0);
     }
     else {
         MYMPD_LOG_ERROR("Unknown script action: %s - %s", definition->action, definition->subaction);
@@ -118,14 +118,14 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
         }
     }
         
-    t_work_request *request = create_request(-1, 0, MYMPD_API_SETTINGS_SET, NULL);
+    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SETTINGS_SET, NULL);
     request->data = tojson_long(request->data, "jukeboxMode", jukebox_mode, true);
     
     if (jukebox_mode != JUKEBOX_OFF) {
         request->data = tojson_char(request->data, "jukeboxPlaylist", playlist, false);
     }
     request->data = sdscat(request->data, "}}");
-    tiny_queue_push(mympd_api_queue, request, 0);
+    mympd_queue_push(mympd_api_queue, request, 0);
 
     buffer = respond_with_mpd_error_or_ok(mympd_state->mpd_state, buffer, method, request_id, rc, "mympd_api_timer_startplay");
     return buffer;

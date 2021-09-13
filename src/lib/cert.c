@@ -25,11 +25,6 @@
 
 //private definitions
 
-#define CA_LIFETIME 3650
-#define CA_MIN_LIFETIME 365
-#define CERT_LIFETIME 365
-#define CERT_MIN_LIFETIME 30
-
 static sds get_san(sds buffer);
 static int generate_set_random_serial(X509 *crt);
 static X509_REQ *generate_request(EVP_PKEY *pkey);

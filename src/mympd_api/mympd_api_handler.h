@@ -7,7 +7,8 @@
 #ifndef MYMPD_API_HANDLER_H
 #define MYMPD_API_HANDLER_H
 
+#include "../lib/api.h"
 #include "../lib/mympd_state.h"
 
-void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request);
+void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request *request);
 #endif

@@ -19,37 +19,34 @@
 #include "../lib/validate.h"
 #include "../mpd_client/mpd_client_features.h"
 #include "../mpd_client/mpd_client_jukebox.h"
-#include "mympd_api_browse.h"
-#include "mympd_api_albumart.h" 
-#include "mympd_api_lyrics.h"
-#include "mympd_api_mounts.h"
-#include "mympd_api_partitions.h"
-#include "mympd_api_playlists.h"
-#include "mympd_api_queue.h"
-#include "mympd_api_status.h"
-#include "mympd_api_stats.h"
-#include "mympd_api_sticker.h"
-#include "mympd_api_timer.h"
-#include "mympd_api_trigger.h"
-#include "mympd_api_utility.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_playlists.h"
 #include "../mpd_shared/mpd_shared_search.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "../mpd_worker.h"
+#include "mympd_api_albumart.h" 
+#include "mympd_api_browse.h"
 #include "mympd_api_home.h"
+#include "mympd_api_lyrics.h"
+#include "mympd_api_mounts.h"
+#include "mympd_api_partitions.h"
+#include "mympd_api_playlists.h"
+#include "mympd_api_queue.h"
 #include "mympd_api_scripts.h"
 #include "mympd_api_settings.h"
+#include "mympd_api_stats.h"
+#include "mympd_api_status.h"
+#include "mympd_api_sticker.h"
 #include "mympd_api_timer.h"
 #include "mympd_api_timer_handlers.h"
+#include "mympd_api_trigger.h"
 #include "mympd_api_utility.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
-    t_work_request *request = (t_work_request*) arg_request;
+void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request *request) {
     unsigned int uint_buf1;
     unsigned int uint_buf2;
     int int_buf1;
@@ -72,7 +69,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
 
     MYMPD_LOG_INFO("MYMPD API request (%lld)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
-    t_work_result *response = create_result(request);
+    struct t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
@@ -425,7 +422,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             break;
         case MYMPD_API_JUKEBOX_RM:
-            if (json_get_uint_max(request->data, "$.params.pos", &uint_buf1, &error) == true) {
+            if (json_get_uint(request->data, "$.params.pos", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true) {
                 rc = mpd_client_rm_jukebox_entry(mympd_state, uint_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "jukebox");
@@ -438,7 +435,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_JUKEBOX_LIST: {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);          
-            if (json_get_uint_max(request->data, "$.params.offset", &uint_buf1, &error) == true &&
+            if (json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, MAX_COLS, &error) == true)
             {
@@ -707,8 +704,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             break;
         case MYMPD_API_QUEUE_RM_RANGE:
             if (json_get_uint(request->data, "$.params.start", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
-                json_get_uint(request->data, "$.params.end", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf2, &error) == true)
+                json_get_int(request->data, "$.params.end", -1, MAX_MPD_PLAYLIST_LENGTH, &int_buf1, &error) == true)
             {
+                uint_buf2 = int_buf1 < 0 ? UINT_MAX : (unsigned)int_buf1;
                 rc = mpd_run_delete_range(mympd_state->mpd_state->conn, uint_buf1, uint_buf2);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_delete_range");
             }
@@ -806,8 +804,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_QUEUE_LIST: {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);          
-            if (json_get_uint_max(request->data, "$.params.offset", &uint_buf1, &error) == true &&
-                json_get_uint_max(request->data, "$.params.limit", &uint_buf2, &error) == true &&
+            if (json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
+                json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, MAX_COLS, &error) == true)
             {
                 response->data = mympd_api_queue_list(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, &tagcols);
@@ -817,8 +815,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
         case MYMPD_API_QUEUE_LAST_PLAYED: {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);          
-            if (json_get_uint_max(request->data, "$.params.offset", &uint_buf1, &error) == true &&
-                json_get_uint_max(request->data, "$.params.limit", &uint_buf2, &error) == true &&
+            if (json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
+                json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, MAX_COLS, &error) == true)
             {
                 response->data = mympd_api_stats_last_played_list(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, &tagcols);
@@ -856,7 +854,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             }
             break;            
         case MYMPD_API_PLAYLIST_LIST:          
-            if (json_get_uint_max(request->data, "$.params.offset", &uint_buf1, &error) == true &&
+            if (json_get_uint(request->data, "$.params.offset", 0, MAX_MPD_PLAYLIST_LENGTH, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MAX_MPD_RESULTS, &uint_buf2, &error) == true &&
                 json_get_string(request->data, "$.params.searchstr", 0, MAX_NAME_LEN, &sds_buf1, vcb_isname, &error) == true)
             {
@@ -1065,8 +1063,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
             response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_shuffle");
             break;
         case MYMPD_API_PLAYLIST_RM:
-            if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true) {
-                response->data = mympd_api_playlist_delete(mympd_state, response->data, request->method, request->id, sds_buf1);
+            if (json_get_string(request->data, "$.params.plist", 1, MAX_FILENAME_LEN, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_bool(request->data, "$.params.smartplsOnly", &bool_buf1, &error) == true) 
+            {
+                response->data = mympd_api_playlist_delete(mympd_state, response->data, request->method, request->id, sds_buf1, bool_buf1);
             }
             break;
         case MYMPD_API_DATABASE_STATS:
@@ -1202,11 +1202,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, void *arg_request) {
     }
     if (request->conn_id == -2) {
         MYMPD_LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
-        tiny_queue_push(mympd_script_queue, response, request->id);
+        mympd_queue_push(mympd_script_queue, response, request->id);
     }
     else if (request->conn_id > -1) {
         MYMPD_LOG_DEBUG("Push response to web_server_queue for connection %lld: %s", request->conn_id, response->data);
-        tiny_queue_push(web_server_queue, response, 0);
+        mympd_queue_push(web_server_queue, response, 0);
     }
     else {
         free_result(response);

@@ -5,7 +5,7 @@
 */
 
 #include "mympd_config_defs.h"
-#include "tiny_queue.h"
+#include "mympd_queue.h"
 
 #include "log.h"
 #include "mem.h"
@@ -14,8 +14,8 @@
 #include <errno.h>
 #include <stdlib.h>
 
-tiny_queue_t *tiny_queue_create(const char *name) {
-    struct tiny_queue_t* queue = (struct tiny_queue_t *)malloc_assert(sizeof(struct tiny_queue_t));
+struct t_mympd_queue *mympd_queue_create(const char *name) {
+    struct t_mympd_queue *queue = (struct t_mympd_queue *)malloc_assert(sizeof(struct t_mympd_queue));
     queue->head = NULL;
     queue->tail = NULL;
     queue->length = 0;
@@ -26,9 +26,9 @@ tiny_queue_t *tiny_queue_create(const char *name) {
     return queue;
 }
 
-void tiny_queue_free(tiny_queue_t *queue) {
-    struct tiny_msg_t *current = queue->head;
-    struct tiny_msg_t *tmp = NULL;
+void mympd_queue_free(struct t_mympd_queue *queue) {
+    struct t_mympd_msg *current = queue->head;
+    struct t_mympd_msg *tmp = NULL;
     while (current != NULL) {
         free(current->data);
         tmp = current;
@@ -38,14 +38,13 @@ void tiny_queue_free(tiny_queue_t *queue) {
     free(queue);
 }
 
-
-int tiny_queue_push(tiny_queue_t *queue, void *data, long id) {
+int mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
         return 0;
     }
-    struct tiny_msg_t* new_node = (struct tiny_msg_t*)malloc_assert(sizeof(struct tiny_msg_t));
+    struct t_mympd_msg* new_node = (struct t_mympd_msg*)malloc_assert(sizeof(struct t_mympd_msg));
     new_node->data = data;
     new_node->id = id;
     new_node->timestamp = time(NULL);
@@ -71,7 +70,7 @@ int tiny_queue_push(tiny_queue_t *queue, void *data, long id) {
     return 1;
 }
 
-unsigned tiny_queue_length(tiny_queue_t *queue, int timeout) {
+unsigned mympd_queue_length(struct t_mympd_queue *queue, int timeout) {
     timeout = timeout * 1000;  
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
@@ -110,7 +109,7 @@ unsigned tiny_queue_length(tiny_queue_t *queue, int timeout) {
     return len;
 }
 
-void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
+void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
     timeout = timeout * 1000;
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
@@ -163,8 +162,8 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
     }
     //queue has entry
     if (queue->head != NULL) {
-        struct tiny_msg_t *current = NULL;
-        struct tiny_msg_t *previous = NULL;
+        struct t_mympd_msg *current = NULL;
+        struct t_mympd_msg *previous = NULL;
         
         for (current = queue->head; current != NULL; previous = current, current = current->next) {
             if (id == 0 || id == current->id) {
@@ -203,7 +202,7 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
 }
 
 
-void *tiny_queue_expire(tiny_queue_t *queue, time_t max_age) {
+void *mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
@@ -211,8 +210,8 @@ void *tiny_queue_expire(tiny_queue_t *queue, time_t max_age) {
     }
     //queue has entry
     if (queue->head != NULL) {
-        struct tiny_msg_t *current = NULL;
-        struct tiny_msg_t *previous = NULL;
+        struct t_mympd_msg *current = NULL;
+        struct t_mympd_msg *previous = NULL;
         
         time_t expire_time = time(NULL) - max_age;
         

@@ -26,7 +26,7 @@ static void *mpd_worker_run(void *arg);
 static bool mpd_worker_connect(struct t_mpd_worker_state *mpd_worker_state);
 
 //public functions
-bool mpd_worker_start(struct t_mympd_state *mympd_state, t_work_request *request) {
+bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *request) {
     MYMPD_LOG_NOTICE("Starting mpd_worker thread for %s", request->method);
     pthread_t mpd_worker_thread;
     pthread_attr_t attr;

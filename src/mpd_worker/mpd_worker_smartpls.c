@@ -189,7 +189,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
             sds playlist = sdscatfmt(sdsempty(), "%s%s%s-%s", mpd_worker_state->smartpls_prefix, (sdslen(mpd_worker_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, current->key);
             sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", mpd_worker_state->config->workdir, playlist);
             if (access(plpath, F_OK) == -1) { /* Flawfinder: ignore */
-                MYMPD_LOG_INFO("Created smart playlist %s", playlist);
+                MYMPD_LOG_INFO("Created smart playlist \"%s\"", playlist);
                 sds expression = sdsnew("(");
                 expression = escape_mpd_search_expression(expression, tagstr, "==", current->key);
                 expression = sdscat(expression, ")");
@@ -244,7 +244,7 @@ static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_wor
     sds buffer = sdsempty();
     buffer = mpd_shared_search_adv(mpd_worker_state->mpd_state, buffer, NULL, 0, expression, NULL, true, NULL, playlist, 0, 0, NULL, NULL);
     FREE_SDS(buffer);
-    MYMPD_LOG_INFO("Updated smart playlist %s", playlist);
+    MYMPD_LOG_INFO("Updated smart playlist \"%s\"", playlist);
     return true;
 }
 
@@ -326,7 +326,7 @@ static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_wo
         }
     }
     list_clear(&add_list);
-    MYMPD_LOG_INFO("Updated smart playlist %s with %d songs, minValue: %d", playlist, i, value_max);
+    MYMPD_LOG_INFO("Updated smart playlist \"%s\" with %d songs, minValue: %d", playlist, i, value_max);
     return true;
 }
 
@@ -351,7 +351,7 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
         sds searchstr = sdscatprintf(sdsempty(), "(modified-since '%lu')", value_max);
         buffer = mpd_shared_search_adv(mpd_worker_state->mpd_state, buffer, method, 0, searchstr, NULL, true, NULL, playlist, 0, 0, NULL, NULL);
         FREE_SDS(searchstr);
-        MYMPD_LOG_INFO("Updated smart playlist %s", playlist);
+        MYMPD_LOG_INFO("Updated smart playlist \"%s\"", playlist);
     }
     FREE_SDS(buffer);
     FREE_SDS(method);

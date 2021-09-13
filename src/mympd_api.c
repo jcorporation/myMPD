@@ -13,7 +13,7 @@
 #include "lib/mympd_configuration.h"
 #include "lib/sds_extras.h"
 #include "mpd_client/mpd_client_autoconf.h"
-#include "mpd_client/mpd_client_loop.h"
+#include "mpd_client/mpd_client_idle.h"
 #include "mpd_shared.h"
 #include "mympd_api/mympd_api_home.h"
 #include "mympd_api/mympd_api_settings.h"

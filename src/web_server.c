@@ -23,13 +23,13 @@
 #include <sys/prctl.h>
 
 //private definitions
-static bool parse_internal_message(t_work_result *response, struct t_mg_user_data *mg_user_data);
+static bool parse_internal_message(struct t_work_result *response, struct t_mg_user_data *mg_user_data);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 #ifdef ENABLE_SSL
   static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data, void *fn_data);
 #endif
-static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response);
-static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
+static void send_ws_notify(struct mg_mgr *mgr, struct t_work_result *response);
+static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response);
 static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data);
 static bool handle_script_api(long long conn_id, sds body);
 static void mpd_stream_proxy_forward(struct mg_http_message *hm, struct mg_connection *nc);
@@ -129,7 +129,7 @@ void *web_server_loop(void *arg_mgr) {
     sds last_notify = sdsempty();
     time_t last_time = 0;
     while (s_signal_received == 0) {
-        t_work_result *response = tiny_queue_shift(web_server_queue, 50, 0);
+        struct t_work_result *response = mympd_queue_shift(web_server_queue, 50, 0);
         if (response != NULL) {
             if (response->conn_id == -1) {
                 //internal message
@@ -164,7 +164,7 @@ void *web_server_loop(void *arg_mgr) {
 }
 
 //private functions
-static bool parse_internal_message(t_work_result *response, struct t_mg_user_data *mg_user_data) {
+static bool parse_internal_message(struct t_work_result *response, struct t_mg_user_data *mg_user_data) {
     bool rc = false;
     if (response->extra != NULL) {	
 	    struct set_mg_user_data_request *new_mg_user_data = (struct set_mg_user_data_request *)response->extra;
@@ -207,7 +207,7 @@ static bool parse_internal_message(t_work_result *response, struct t_mg_user_dat
     return rc;
 }
 
-static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
+static void send_ws_notify(struct mg_mgr *mgr, struct t_work_result *response) {
     struct mg_connection *nc = mgr->conns;
     int i = 0;
     int j = 0;
@@ -231,7 +231,7 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
     }
 }
 
-static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
+static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response) {
     struct mg_connection *nc = mgr->conns;
     while (nc != NULL) {
         if ((int)nc->is_websocket == 0 && nc->id == (long unsigned)response->conn_id) {
@@ -299,7 +299,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             //check connection count
             if (mg_user_data->connection_count > 100) {
                 nc->is_draining = 1;
-                MYMPD_LOG_DEBUG("Connections %d", mg_user_data->connection_count);
+                MYMPD_LOG_DEBUG("Connections: %d", mg_user_data->connection_count);
                 webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
                 break;
             }
@@ -312,7 +312,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             //ssl support
             #ifdef ENABLE_SSL
             if (config->ssl == true) {
-                MYMPD_LOG_DEBUG("Init tls with cert %s and key %s", config->ssl_cert, config->ssl_key);
+                MYMPD_LOG_DEBUG("Init tls with cert \"%s\" and key \"%s\"", config->ssl_cert, config->ssl_key);
                 struct mg_tls_opts tls_opts = {
                     .cert = config->ssl_cert,
                     .certkey = config->ssl_key
@@ -321,7 +321,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             #endif
             mg_user_data->connection_count++;
-            MYMPD_LOG_DEBUG("New connection id %lu, connections %d", nc->id, mg_user_data->connection_count);
+            MYMPD_LOG_DEBUG("New connection id \"%lu\", connections: %d", nc->id, mg_user_data->connection_count);
             //set labels
             nc->label[0] = 'F';
             nc->label[1] = '-';
@@ -354,15 +354,15 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 return;
             }
             //check uri length
-            if (hm->uri.len > 500) {
-                MYMPD_LOG_ERROR("Uri is too long, length is %d, maximum length is 500", hm->uri.len);
+            if (hm->uri.len > MAX_URI_LENGTH) {
+                MYMPD_LOG_ERROR("Uri is too long, length is %d, maximum length is %d", hm->uri.len, MAX_URI_LENGTH);
                 nc->is_closing = 1;
                 return;
             }
 
             //check post requests length
-            if (nc->label[1] == 'P' && (hm->body.len == 0 || hm->body.len > 4096)) {
-                MYMPD_LOG_ERROR("POST request with body of size %d is invalid", hm->body.len);
+            if (nc->label[1] == 'P' && (hm->body.len == 0 || hm->body.len > MAX_BODY_SIZE)) {
+                MYMPD_LOG_ERROR("POST request with body of size %d is out of bounds", hm->body.len);
                 nc->is_closing = 1;
                 return;
             }
@@ -386,7 +386,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     break;
                 }
                 if (backend_nc == NULL) {
-                    MYMPD_LOG_INFO("Creating new mpd stream proxy backend connection to %s", mg_user_data->stream_uri);
+                    MYMPD_LOG_INFO("Creating new mpd stream proxy backend connection to \"%s\"", mg_user_data->stream_uri);
                     backend_nc = mg_connect(nc->mgr, mg_user_data->stream_uri, mpd_stream_proxy_ev_handler, nc);
                     if (backend_nc == NULL) {
                         //no backend connection, close frontend connection
@@ -403,7 +403,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     backend_nc->label[1] = nc->label[1];
                     backend_nc->label[2] = nc->label[2];
                     //forward request
-					MYMPD_LOG_INFO("Forwarding client connection %lu to backend connection %lu", nc->id, backend_nc->id);
+					MYMPD_LOG_INFO("Forwarding client connection \"%lu\" to backend connection \"%lu\"", nc->id, backend_nc->id);
                     mpd_stream_proxy_forward(hm, backend_nc);
                 }
             }
@@ -731,8 +731,8 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
         }
         default: {
             //forward API request to mympd_api_handler
-            t_work_request *request = create_request((long long)nc->id, id, cmd_id, body);
-            tiny_queue_push(mympd_api_queue, request, 0);
+            struct t_work_request *request = create_request((long long)nc->id, id, cmd_id, body);
+            mympd_queue_push(mympd_api_queue, request, 0);
         }
     }
     FREE_SDS(session);
@@ -773,8 +773,8 @@ static bool handle_script_api(long long conn_id, sds body) {
         return false;
     }
     
-    t_work_request *request = create_request(conn_id, id, cmd_id, body);
-    tiny_queue_push(mympd_api_queue, request, 0);
+    struct t_work_request *request = create_request(conn_id, id, cmd_id, body);
+    mympd_queue_push(mympd_api_queue, request, 0);
 
     FREE_SDS(cmd);
     FREE_SDS(jsonrpc);

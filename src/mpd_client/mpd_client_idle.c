@@ -5,7 +5,7 @@
 */
 
 #include "mympd_config_defs.h"
-#include "mpd_client_loop.h"
+#include "mpd_client_idle.h"
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
@@ -135,11 +135,11 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 mympd_state->mpd_state->conn_state = MPD_DISCONNECTED;
             }
             //mympd_api_api error response
-            mympd_api_queue_length = tiny_queue_length(mympd_api_queue, 50);
+            mympd_api_queue_length = mympd_queue_length(mympd_api_queue, 50);
             if (mympd_api_queue_length > 0) {
                 //Handle request
                 MYMPD_LOG_DEBUG("Handle request (mpd disconnected)");
-                t_work_request *request = tiny_queue_shift(mympd_api_queue, 50, 0);
+                struct t_work_request *request = mympd_queue_shift(mympd_api_queue, 50, 0);
                 if (request != NULL) {
                     if (is_mympd_only_api_method(request->cmd_id) == true) {
                         //reconnect instantly on change of mpd host
@@ -151,10 +151,10 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                     else {
                         //other requests not allowed
                         if (request->conn_id > -1) {
-                            t_work_result *response = create_result(request);
+                            struct t_work_result *response = create_result(request);
                             response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "mpd", "error", "MPD disconnected");
                             MYMPD_LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
-                            tiny_queue_push(web_server_queue, response, 0);
+                            mympd_queue_push(web_server_queue, response, 0);
                         }
                         free_request(request);
                     }
@@ -276,7 +276,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             pollrc = poll(fds, 1, 50);
             bool jukebox_add_song = false;
             bool set_played = false;
-            mympd_api_queue_length = tiny_queue_length(mympd_api_queue, 50);
+            mympd_api_queue_length = mympd_queue_length(mympd_api_queue, 50);
             time_t now = time(NULL);
             if (mympd_state->mpd_state->state == MPD_STATE_PLAY) {
                 //handle jukebox and last played only in mpd play state
@@ -336,7 +336,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 if (mympd_api_queue_length > 0) {
                     //Handle request
                     MYMPD_LOG_DEBUG("Handle request");
-                    t_work_request *request = tiny_queue_shift(mympd_api_queue, 50, 0);
+                    struct t_work_request *request = mympd_queue_shift(mympd_api_queue, 50, 0);
                     if (request != NULL) {
                         mympd_api_handler(mympd_state, request);
                     }
@@ -369,7 +369,7 @@ static bool update_mympd_caches(struct t_mympd_state *mympd_state) {
     if (mympd_state->mpd_state->feat_tags == true) {
         mympd_state->album_cache_building = true;
     }
-    t_work_request *request = create_request(-1, 0, INTERNAL_API_CACHES_CREATE, NULL);
+    struct t_work_request *request = create_request(-1, 0, INTERNAL_API_CACHES_CREATE, NULL);
     request->data = sdscat(request->data, "}}");
     bool rc = mpd_worker_start(mympd_state, request);
     if (rc == false) {

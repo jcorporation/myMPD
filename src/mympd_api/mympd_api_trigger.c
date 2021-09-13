@@ -278,7 +278,7 @@ bool mympd_api_trigger_file_save(struct t_mympd_state *mympd_state) {
 
 //private functions
 void _trigger_execute(const char *script, struct t_list *arguments) {
-    t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL);
+    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL);
     request->data = tojson_char(request->data, "script", script, true);
     request->data = sdscat(request->data, "arguments: {");
     struct t_list_node *argument = arguments->head;
@@ -291,5 +291,5 @@ void _trigger_execute(const char *script, struct t_list *arguments) {
         argument = argument->next;
     }
     request->data = sdscat(request->data, "}}}");
-    tiny_queue_push(mympd_api_queue, request, 0);
+    mympd_queue_push(mympd_api_queue, request, 0);
 }

@@ -18,7 +18,7 @@ struct t_mpd_worker_state {
     //mpd state
     struct t_mpd_state *mpd_state;
     struct t_config *config;
-    t_work_request *request;
+    struct t_work_request *request;
 };
 
 void mpd_worker_state_free(struct t_mpd_worker_state *mpd_worker_state);
