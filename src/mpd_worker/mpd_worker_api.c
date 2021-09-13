@@ -67,6 +67,9 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 if (rc == true) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
                         "playlist", "info", "Smart playlist %{playlist} updated", 2, "playlist", sds_buf1);
+                    //notify client
+                    //send mpd event manually as fallback if mpd playlist is not created (no songs are found)
+                    send_jsonrpc_event("update_stored_playlist");
                 }
                 else {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true,
