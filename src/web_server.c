@@ -539,7 +539,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 #else
                 //serve embedded files
                 sds uri = sdsnewlen(hm->uri.ptr, hm->uri.len);
-                serve_embedded_files(nc, uri, hm);
+                webserver_serve_embedded_files(nc, uri, hm);
                 FREE_SDS(uri);
                 #endif
             }
