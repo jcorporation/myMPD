@@ -389,7 +389,12 @@ const APImethods = {
     "MYMPD_API_PLAYLIST_RM": {
         "desc": "Removes the MPD playlist.",
         "params": {
-            "plist": APIparams.plist
+            "plist": APIparams.plist,
+            "smartplsOnly": {
+                "type": "bool",
+                "example": false,
+                "desc": "false = delete mpd playlist and smartpls definition, true = deletes only smartpls definition"
+            }
         }
     },
     "MYMPD_API_PLAYLIST_CLEAR": {

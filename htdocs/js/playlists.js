@@ -46,7 +46,12 @@ function initPlaylists() {
     
    document.getElementById('BrowsePlaylistsListList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            clickPlaylist(getCustomDomProperty(event.target.parentNode, 'data-uri'), getCustomDomProperty(event.target.parentNode, 'data-name'));
+            if (getCustomDomProperty(event.target.parentNode, 'data-smartpls-only') === false) {
+                clickPlaylist(getCustomDomProperty(event.target.parentNode, 'data-uri'), getCustomDomProperty(event.target.parentNode, 'data-name'));
+            }
+            else {
+                showNotification(tn('Playlist is empty'), '', 'playlist', 'warn')
+            }
         }
         else if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
@@ -76,11 +81,12 @@ function parsePlaylistsList(obj) {
         setCustomDomProperty(row, 'data-uri', data.uri);
         setCustomDomProperty(row, 'data-type', data.Type);
         setCustomDomProperty(row, 'data-name', data.name);
+        setCustomDomProperty(row, 'data-smartpls-only', data.smartplsOnly);
         row.setAttribute('title', t(rowTitle));
     }, function(row, data) {
         row.innerHTML = '<td data-col="Type"><span class="mi">' + (data.Type === 'smartpls' ? 'queue_music' : 'list') + '</span></td>' +
             '<td>' + e(data.name) + '</td>' +
-            '<td>'+ localeDate(data.last_modified) + '</td>' +
+            '<td>'+ localeDate(data.lastModified) + '</td>' +
             '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
     });
 }
@@ -95,7 +101,7 @@ function parsePlaylistsDetail(obj) {
         return;
     }
 
-    if (obj.result.uri.indexOf('.') > -1 || obj.result.smartpls === true) {
+    if (obj.result.plist.indexOf('.') > -1 || obj.result.smartpls === true) {
         setCustomDomProperty(document.getElementById('BrowsePlaylistsDetailList'), 'data-ro', 'true');
         document.getElementById('playlistContentBtns').classList.add('hide');
         document.getElementById('smartPlaylistContentBtns').classList.remove('hide');
@@ -105,9 +111,9 @@ function parsePlaylistsDetail(obj) {
         document.getElementById('playlistContentBtns').classList.remove('hide');
         document.getElementById('smartPlaylistContentBtns').classList.add('hide');
     }
-    setCustomDomProperty(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri', obj.result.uri);
+    setCustomDomProperty(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri', obj.result.plist);
     document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = 
-        (obj.result.smartpls === true ? t('Smart playlist') : t('Playlist'))  + ': ' + obj.result.uri;
+        (obj.result.smartpls === true ? t('Smart playlist') : t('Playlist'))  + ': ' + obj.result.plist;
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
     tfoot.innerHTML = '<tr><td colspan="' + colspan + '"><small>' + t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
     
@@ -493,10 +499,11 @@ function updateSmartPlaylistClick() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function showDelPlaylist(plist) {
+function showDelPlaylist(plist, smartplsOnly) {
     showConfirm(tn('Do you really want to delete the playlist?', {"playlist": plist}), tn('Yes, delete it'), function() {
         sendAPI("MYMPD_API_PLAYLIST_RM", {
-            "plist": plist
+            "plist": plist,
+            "smartplsOnly": smartplsOnly
         });
     });
 }

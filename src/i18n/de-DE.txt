@@ -1878,3 +1878,6 @@ Zu viele Trigger definiert
 
 A smart playlist with this name already exits
 Es existiert bereis eine intelligente Wiedergabeliste mit diesem Namen
+
+Playlist is empty
+Wiedergabelist ist leer

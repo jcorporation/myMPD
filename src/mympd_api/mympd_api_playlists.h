@@ -16,7 +16,7 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
                                  const unsigned int limit, sds searchstr,
                                  const struct t_tags *tagcols);
 sds mympd_api_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sds method,
-                               long request_id, const char *playlist);
+                               long request_id, const char *playlist, bool smartpls_only);
 sds mympd_api_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sds method,
                                long request_id, const char *old_playlist, const char *new_playlist);
 sds mympd_api_smartpls_put(struct t_config *config, sds buffer, sds method, long request_id,

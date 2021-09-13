@@ -328,9 +328,9 @@ function addToQueue() {
     }
     if (formOK === true) {
         sendAPI("MYMPD_API_QUEUE_ADD_RANDOM", {
-            "mode": getSelectValue('selectAddToQueueMode'),
-            "playlist": getSelectValue('selectAddToQueuePlaylist'),
-            "quantity": document.getElementById('inputAddToQueueQuantity').value
+            "mode": Number(getSelectValue('selectAddToQueueMode')),
+            "plist": getSelectValue('selectAddToQueuePlaylist'),
+            "quantity": Number(document.getElementById('inputAddToQueueQuantity').value)
         });
         uiElements.modalAddToQueue.hide();
     }
