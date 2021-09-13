@@ -126,7 +126,6 @@ static void mpd_client_feature_commands(struct t_mympd_state *mympd_state) {
             else if (strcmp(pair->value, "albumart") == 0) {
                 MYMPD_LOG_DEBUG("MPD supports albumart");
                 mympd_state->mpd_state->feat_mpd_albumart = true;
-
             }
             else if (strcmp(pair->value, "readpicture") == 0) {
                 MYMPD_LOG_DEBUG("MPD supports readpicture");
