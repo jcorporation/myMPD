@@ -569,7 +569,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                     lua_newtable(lua_vm);
                     populate_lua_table(lua_vm, lua_mympd_state);    
                     lua_setglobal(lua_vm, "mympd_state");
-                    free_lua_mympd_state(lua_mympd_state);
+                    lua_mympd_state_free(lua_mympd_state);
                     lua_mympd_state = NULL;
                     lua_pushinteger(lua_vm, 0);
                     lua_pushstring(lua_vm, "mympd_state is now populated");

@@ -25,9 +25,9 @@ struct t_lua_mympd_state_value {
     bool b;
 };
 
-void set_lua_mympd_state_p(struct t_list *lua_mympd_state, const char *k, const char *v);
-void set_lua_mympd_state_i(struct t_list *lua_mympd_state, const char *k, long v);
-void set_lua_mympd_state_b(struct t_list *lua_mympd_state, const char *k, bool v);
-void free_lua_mympd_state(struct t_list *lua_mympd_state);
+void lua_mympd_state_set_p(struct t_list *lua_mympd_state, const char *k, const char *v);
+void lua_mympd_state_set_i(struct t_list *lua_mympd_state, const char *k, long v);
+void lua_mympd_state_set_b(struct t_list *lua_mympd_state, const char *k, bool v);
+void lua_mympd_state_free(struct t_list *lua_mympd_state);
 
 #endif

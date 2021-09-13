@@ -156,7 +156,7 @@ int expire_result_queue(struct t_mympd_queue *queue, time_t age) {
     while ((response = mympd_queue_expire(queue, age)) != NULL) {
         if (response->extra != NULL) {
             if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
-                free_lua_mympd_state(response->extra);
+                lua_mympd_state_free(response->extra);
             }
             else {
                 free(response->extra);
@@ -175,7 +175,7 @@ int expire_request_queue(struct t_mympd_queue *queue, time_t age) {
     while ((request = mympd_queue_expire(queue, age)) != NULL) {
         if (request->extra != NULL) {
             if (request->cmd_id == INTERNAL_API_SCRIPT_INIT) {
-                free_lua_mympd_state(request->extra);
+                lua_mympd_state_free(request->extra);
             }
             else {
                 free(request->extra);

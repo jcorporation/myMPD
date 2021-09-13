@@ -154,34 +154,34 @@ bool mympd_api_status_lua_mympd_state_set(struct t_mympd_state *mympd_state, str
     if (status == NULL) {
         return false;
     }
-    set_lua_mympd_state_i(lua_mympd_state, "play_state", mpd_status_get_state(status));
-    set_lua_mympd_state_i(lua_mympd_state, "volume", mpd_status_get_volume(status));
-    set_lua_mympd_state_i(lua_mympd_state, "song_pos", mpd_status_get_song_pos(status));
-    set_lua_mympd_state_i(lua_mympd_state, "elapsed_time", mympd_api_get_elapsed_seconds(status));
-    set_lua_mympd_state_i(lua_mympd_state, "total_time", mpd_status_get_total_time(status));
-    set_lua_mympd_state_i(lua_mympd_state, "song_id", mpd_status_get_song_id(status));
-    set_lua_mympd_state_i(lua_mympd_state, "next_song_id", mpd_status_get_next_song_id(status));
-    set_lua_mympd_state_i(lua_mympd_state, "next_song_pos", mpd_status_get_next_song_pos(status));
-    set_lua_mympd_state_i(lua_mympd_state, "queue_length", mpd_status_get_queue_length(status));
-    set_lua_mympd_state_i(lua_mympd_state, "queue_version", mpd_status_get_queue_version(status));
-    set_lua_mympd_state_b(lua_mympd_state, "repeat", mpd_status_get_repeat(status));
-    set_lua_mympd_state_b(lua_mympd_state, "random", mpd_status_get_random(status));
-    set_lua_mympd_state_i(lua_mympd_state, "single_state", mpd_status_get_single_state(status));
-    set_lua_mympd_state_i(lua_mympd_state, "consume", mpd_status_get_consume(status));
-    set_lua_mympd_state_i(lua_mympd_state, "crossfade", mpd_status_get_crossfade(status));
-    set_lua_mympd_state_p(lua_mympd_state, "music_directory", mympd_state->music_directory_value);
-    set_lua_mympd_state_p(lua_mympd_state, "workdir", mympd_state->config->workdir);
-    set_lua_mympd_state_i(lua_mympd_state, "jukebox_mode", mympd_state->jukebox_mode);
-    set_lua_mympd_state_p(lua_mympd_state, "jukebox_playlist", mympd_state->jukebox_playlist);
-    set_lua_mympd_state_i(lua_mympd_state, "jukebox_queue_length", mympd_state->jukebox_queue_length);
-    set_lua_mympd_state_i(lua_mympd_state, "jukebox_last_played", mympd_state->jukebox_last_played);
+    lua_mympd_state_set_i(lua_mympd_state, "play_state", mpd_status_get_state(status));
+    lua_mympd_state_set_i(lua_mympd_state, "volume", mpd_status_get_volume(status));
+    lua_mympd_state_set_i(lua_mympd_state, "song_pos", mpd_status_get_song_pos(status));
+    lua_mympd_state_set_i(lua_mympd_state, "elapsed_time", mympd_api_get_elapsed_seconds(status));
+    lua_mympd_state_set_i(lua_mympd_state, "total_time", mpd_status_get_total_time(status));
+    lua_mympd_state_set_i(lua_mympd_state, "song_id", mpd_status_get_song_id(status));
+    lua_mympd_state_set_i(lua_mympd_state, "next_song_id", mpd_status_get_next_song_id(status));
+    lua_mympd_state_set_i(lua_mympd_state, "next_song_pos", mpd_status_get_next_song_pos(status));
+    lua_mympd_state_set_i(lua_mympd_state, "queue_length", mpd_status_get_queue_length(status));
+    lua_mympd_state_set_i(lua_mympd_state, "queue_version", mpd_status_get_queue_version(status));
+    lua_mympd_state_set_b(lua_mympd_state, "repeat", mpd_status_get_repeat(status));
+    lua_mympd_state_set_b(lua_mympd_state, "random", mpd_status_get_random(status));
+    lua_mympd_state_set_i(lua_mympd_state, "single_state", mpd_status_get_single_state(status));
+    lua_mympd_state_set_i(lua_mympd_state, "consume", mpd_status_get_consume(status));
+    lua_mympd_state_set_i(lua_mympd_state, "crossfade", mpd_status_get_crossfade(status));
+    lua_mympd_state_set_p(lua_mympd_state, "music_directory", mympd_state->music_directory_value);
+    lua_mympd_state_set_p(lua_mympd_state, "workdir", mympd_state->config->workdir);
+    lua_mympd_state_set_i(lua_mympd_state, "jukebox_mode", mympd_state->jukebox_mode);
+    lua_mympd_state_set_p(lua_mympd_state, "jukebox_playlist", mympd_state->jukebox_playlist);
+    lua_mympd_state_set_i(lua_mympd_state, "jukebox_queue_length", mympd_state->jukebox_queue_length);
+    lua_mympd_state_set_i(lua_mympd_state, "jukebox_last_played", mympd_state->jukebox_last_played);
     if (mympd_state->mpd_state->feat_mpd_partitions == true) {
-        set_lua_mympd_state_p(lua_mympd_state, "partition", mpd_status_get_partition(status));
+        lua_mympd_state_set_p(lua_mympd_state, "partition", mpd_status_get_partition(status));
     }
     mpd_status_free(status);
     mpd_response_finish(mympd_state->mpd_state->conn);
     check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
-    set_lua_mympd_state_p(lua_mympd_state, "jukebox_unique_tag", mpd_tag_name(mympd_state->jukebox_unique_tag.tags[0]));
+    lua_mympd_state_set_p(lua_mympd_state, "jukebox_unique_tag", mpd_tag_name(mympd_state->jukebox_unique_tag.tags[0]));
     return true;
 }
 
