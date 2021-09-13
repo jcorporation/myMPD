@@ -11,6 +11,6 @@
 
 #include "../../dist/src/sds/sds.h"
 
-void set_pin(sds workdir);
-bool validate_pin(const char *pin, const char *pin_hash);
+void pin_set(sds workdir);
+bool pin_validate(const char *pin, const char *pin_hash);
 #endif

@@ -43,7 +43,7 @@ bool handle_options(struct t_config *config, int argc, char **argv) {
                 break;
             #ifdef ENABLE_SSL
             case 'p':
-                set_pin(config->workdir);
+                pin_set(config->workdir);
                 return false;
                 break;
             #endif

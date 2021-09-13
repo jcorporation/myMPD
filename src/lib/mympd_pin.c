@@ -20,11 +20,11 @@
 #endif
 
 //private definitions
-static sds hash_pin(const char *pin);
+static sds pin_hash(const char *pin);
 
 //public functions
 
-void set_pin(sds workdir) {
+void pin_set(sds workdir) {
     struct termios old, new;
     if (tcgetattr(fileno(stdin), &old) != 0) {
         return;
@@ -46,7 +46,7 @@ void set_pin(sds workdir) {
         hex_hash = sdsempty();
     }
     else {
-        hex_hash = hash_pin(pin);
+        hex_hash = pin_hash(pin);
     }
     bool rc = state_file_write(workdir, "config", "pin_hash", hex_hash);
     FREE_SDS(hex_hash);
@@ -63,14 +63,14 @@ void set_pin(sds workdir) {
     FREE_SDS(pin);
 }
 
-bool validate_pin(const char *pin, const char *pin_hash) {
-    if (pin_hash[0] == '\0') {
+bool pin_validate(const char *pin, const char *hash) {
+    if (hash[0] == '\0') {
         MYMPD_LOG_ERROR("No pin is set");
         return false;
     }
-    sds test_hash = hash_pin(pin);
+    sds test_hash = pin_hash(pin);
     bool rc = false;
-    if (strcmp(test_hash, pin_hash) == 0) {
+    if (strcmp(test_hash, hash) == 0) {
         MYMPD_LOG_INFO("Valid pin entered");
         rc = true;
     }
@@ -83,7 +83,7 @@ bool validate_pin(const char *pin, const char *pin_hash) {
 
 //private functions
 
-static sds hash_pin(const char *pin) {
+static sds pin_hash(const char *pin) {
     sds hex_hash = sdsempty();
 #ifdef ENABLE_SSL
     EVP_MD_CTX* context = EVP_MD_CTX_new();

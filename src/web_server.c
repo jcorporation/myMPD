@@ -687,7 +687,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
             sds pin = NULL;
             bool is_valid = false;
             if (json_get_string(body, "$.params.pin", 1, 20, &pin, vcb_isalnum, NULL) == true) {
-                is_valid = validate_pin(pin, mg_user_data->config->pin_hash);
+                is_valid = pin_validate(pin, mg_user_data->config->pin_hash);
             }
             FREE_SDS(pin);
             sds response = sdsempty();
