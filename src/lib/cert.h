@@ -11,6 +11,7 @@
 
 #include "../dist/src/sds/sds.h"
 
+bool check_ssl_certs(sds workdir, sds ssl_san);
 bool create_certificates(sds dir, sds custom_san);
 bool cleanup_certificates(sds dir, const char *name);
 #endif

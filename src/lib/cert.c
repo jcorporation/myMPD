@@ -9,6 +9,7 @@
 
 #include "log.h"
 #include "sds_extras.h"
+#include "utility.h"
 
 #include <arpa/inet.h>
 #include <errno.h>
@@ -41,6 +42,26 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
 static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_days);
 
 //public functions
+
+bool check_ssl_certs(sds workdir, sds ssl_san) {
+    sds testdirname = sdscatfmt(sdsempty(), "%s/ssl", workdir);
+    int testdir_rc = testdir("SSL cert dir", testdirname, true);
+    if (testdir_rc < 2) {
+        //directory created, create certificates
+        if (!create_certificates(testdirname, ssl_san)) {
+            //error creating certificates
+            MYMPD_LOG_ERROR("Certificate creation failed");
+            FREE_SDS(testdirname);
+            return false;
+        }
+        FREE_SDS(testdirname);
+    }
+    else {
+        FREE_SDS(testdirname);
+        return false;
+    }
+    return true;
+}
 
 bool create_certificates(sds dir, sds custom_san) {
     bool rc_ca = false;
