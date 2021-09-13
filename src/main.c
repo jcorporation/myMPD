@@ -292,18 +292,18 @@ int main(int argc, char **argv) {
     //set signal handler
     signal(SIGTERM, mympd_signal_handler);
     signal(SIGINT, mympd_signal_handler);
-    signal(SIGHUP, mympd_signal_handler); 
+    signal(SIGHUP, mympd_signal_handler);
+
+    //set output buffers
     setvbuf(stdout, NULL, _IOLBF, 0);
     setvbuf(stderr, NULL, _IOLBF, 0);
 
     //init webserver    
     struct mg_mgr mgr;
     init_mg_user_data = true;
-    if (!web_server_init(&mgr, config, mg_user_data)) {
+    init_webserver = web_server_init(&mgr, config, mg_user_data);
+    if (init_webserver == false)
         goto cleanup;
-    }
-    else {
-        init_webserver = true;
     }
 
     //drop privileges
@@ -313,12 +313,12 @@ int main(int argc, char **argv) {
 
     //check for ssl certificates
     #ifdef ENABLE_SSL
-    if (config->ssl == true &&
-        config->custom_cert == false &&
-        check_ssl_certs(config->workdir, config->ssl_san) == false)
-    {
-        goto cleanup;
-    }
+        if (config->ssl == true &&
+            config->custom_cert == false &&
+            check_ssl_certs(config->workdir, config->ssl_san) == false)
+        {
+            goto cleanup;
+        }
     #endif
 
     //check for needed directories
@@ -365,20 +365,17 @@ int main(int argc, char **argv) {
         web_server_free(&mgr);
     }
     
-    MYMPD_LOG_DEBUG("Expiring web_server_queue: %u", mympd_queue_length(web_server_queue, 10));
     int expired = expire_result_queue(web_server_queue, 0);
     mympd_queue_free(web_server_queue);
-    MYMPD_LOG_DEBUG("Expired %d entries", expired);
+    MYMPD_LOG_DEBUG("Expired %d entries from web_server_queue", expired);
 
-    MYMPD_LOG_DEBUG("Expiring mympd_api_queue: %u", mympd_queue_length(mympd_api_queue, 10));
     expired = expire_request_queue(mympd_api_queue, 0);
     mympd_queue_free(mympd_api_queue);
-    MYMPD_LOG_DEBUG("Expired %d entries", expired);
+    MYMPD_LOG_DEBUG("Expired %d entries from mympd_api_queue", expired);
 
-    MYMPD_LOG_DEBUG("Expiring mympd_script_queue: %u", mympd_queue_length(mympd_script_queue, 10));
     expired = expire_result_queue(mympd_script_queue, 0);
     mympd_queue_free(mympd_script_queue);
-    MYMPD_LOG_DEBUG("Expired %d entries", expired);
+    MYMPD_LOG_DEBUG("Expired %d entries from mympd_script_queue", expired);
 
     mympd_free_config_initial(config);
     if (init_config == true) {
