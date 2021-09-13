@@ -117,31 +117,6 @@ static bool drop_privileges(struct t_config *config, uid_t startup_uid) {
     return true;
 }
 
-#ifdef ENABLE_SSL
-static bool check_ssl_certs(struct t_config *config) {
-    if (config->ssl == false || config->custom_cert == true) {
-        return true;
-    }
-    sds testdirname = sdscatfmt(sdsempty(), "%s/ssl", config->workdir);
-    int testdir_rc = testdir("SSL cert dir", testdirname, true);
-    if (testdir_rc < 2) {
-        //directory created, create certificates
-        if (!create_certificates(testdirname, config->ssl_san)) {
-            //error creating certificates
-            MYMPD_LOG_ERROR("Certificate creation failed");
-            FREE_SDS(testdirname);
-            return false;
-        }
-        FREE_SDS(testdirname);
-    }
-    else {
-        FREE_SDS(testdirname);
-        return false;
-    }
-    return true;
-}
-#endif
-
 static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     int testdir_rc = testdir("Workdir", config->workdir, true);
     if (testdir_rc == 1) {
@@ -172,70 +147,48 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     return true;
 }
 
+struct t_workdir_subdirs_entry {
+    const char *dirname;
+    const char *description;
+};
+
+const struct t_workdir_subdirs_entry workdir_subdirs[] = {
+    {"state",  "State dir"},
+    {"smartpls",  "Smartpls dir"},
+    {"pics", "Pics dir"},
+    {"empty",  "Empty dir"},
+    {"covercache", "Covercache dir"},
+    #ifdef ENABLE_LUA
+    {"scripts", "Scripts dir"},
+    #endif
+    {NULL, NULL}
+};
+
 static bool check_dirs(struct t_config *config) {
     int testdir_rc;
     #ifdef DEBUG
-    //release uses empty document root and delivers embedded files
-    testdir_rc = testdir("Document root", DOC_ROOT, false);
-    if (testdir_rc > 1) {
-        return false;
-    }
+        //release uses empty document root and delivers embedded files
+        testdir_rc = testdir("Document root", DOC_ROOT, false);
+        if (testdir_rc > 1) {
+            return false;
+        }
     #endif
-    //state directory
-    sds testdirname = sdscatfmt(sdsempty(), "%s/state", config->workdir);
-    testdir_rc = testdir("State dir", testdirname, true);
-    if (testdir_rc > 1) {
-        FREE_SDS(testdirname);
-        return false;
-    }
-    //smart playlists
-    sdsclear(testdirname);
-    testdirname = sdscatfmt(testdirname, "%s/smartpls", config->workdir);
-    testdir_rc = testdir("Smartpls dir", testdirname, true);
-    if (testdir_rc == 1) {
-        //directory created, create default smart playlists
-        mympd_api_smartpls_default(config);
-    }
-    else if (testdir_rc > 1) {
-        FREE_SDS(testdirname);
-        return false;
-    }
-
-    //for images
-    sdsclear(testdirname);
-    testdirname = sdscatfmt(testdirname, "%s/pics", config->workdir);
-    testdir_rc = testdir("Pics dir", testdirname, true);
-    if (testdir_rc > 1) {
-        FREE_SDS(testdirname);
-        return false;
-    }
-    
-    //create empty document_root
-    sdsclear(testdirname);
-    testdirname = sdscatfmt(testdirname, "%s/empty", config->workdir);
-    testdir_rc = testdir("Empty dir", testdirname, true);
-    if (testdir_rc > 1) {
-        FREE_SDS(testdirname);
-        return false;
-    }
-
-    //lua scripting
-    #ifdef ENABLE_LUA
-    sdsclear(testdirname);
-    testdirname = sdscatfmt(testdirname, "%s/scripts", config->workdir);
-    testdir_rc = testdir("Scripts dir", testdirname, true);
-    if (testdir_rc > 1) {
-        FREE_SDS(testdirname);
-        return false;
-    }
-    #endif
-
-    sdsclear(testdirname);
-    testdirname = sdscatfmt(testdirname, "%s/covercache", config->workdir);
-    testdir_rc = testdir("Covercache dir", testdirname, true);
-    if (testdir_rc > 1) {
-        FREE_SDS(testdirname);
-        return false;
+    sds testdirname = sdsempty();
+    const struct t_workdir_subdirs_entry *p = NULL;
+    for (p = workdir_subdirs; p->dirname != NULL; p++) {
+        testdirname = sdscatfmt(testdirname, "%s/%s", config->workdir, p->dirname);
+        testdir_rc = testdir(p->description, testdirname, true);
+        if (testdir_rc == 1) {
+            if (strcmp(p->dirname, "smartpls") == 0) {
+                //directory created, create default smart playlists
+                mympd_api_smartpls_default(config);
+            }
+        }
+        if (testdir_rc > 1) {
+            FREE_SDS(testdirname);
+            return false;
+        }
+        sdsclear(testdirname);
     }
     FREE_SDS(testdirname);
     return true;
@@ -360,7 +313,10 @@ int main(int argc, char **argv) {
 
     //check for ssl certificates
     #ifdef ENABLE_SSL
-    if (check_ssl_certs(config) == false) {
+    if (config->ssl == true &&
+        config->custom_cert == false &&
+        check_ssl_certs(config->workdir, config->ssl_san) == false)
+    {
         goto cleanup;
     }
     #endif
