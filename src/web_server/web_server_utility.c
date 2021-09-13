@@ -175,7 +175,7 @@ void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_messag
         mg_http_serve_file(nc, hm, asset_image, "image/svg+xml", EXTRA_HEADERS_CACHE);
         #else
         asset_image = sdscatfmt(asset_image, "/assets/%s.svg", name);
-        serve_embedded_files(nc, asset_image, hm);
+        webserver_serve_embedded_files(nc, asset_image, hm);
         #endif
         MYMPD_LOG_DEBUG("Serving asset image \"%s\" (image/svg+xml)", asset_image);
     }
@@ -217,7 +217,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri, struct mg
     //decode uri
     sds uri_decoded = sdsurldecode(sdsempty(), uri, sdslen(uri), 0);
     if (sdslen(uri_decoded) == 0) {
-        send_error(nc, 500, "Failed to decode uri");
+        webserver_send_error(nc, 500, "Failed to decode uri");
         FREE_SDS(uri_decoded);
         return false;
     }
@@ -236,7 +236,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri, struct mg
             struct mg_str *header_encoding = mg_http_get_header(hm, "Accept-Encoding");
             if (header_encoding == NULL || mg_strstr(*header_encoding, mg_str_n("gzip", 4)) == NULL) {
                 nc->is_draining = 1;
-                send_error(nc, 406, "Browser does not support gzip compression");
+                webserver_send_error(nc, 406, "Browser does not support gzip compression");
                 return false;
             }
         }
@@ -258,7 +258,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri, struct mg
     }
     else {
         sds errormsg = sdscatfmt(sdsempty(), "Embedded asset \"%s\" not found", uri);
-        send_error(nc, 404, errormsg);
+        webserver_send_error(nc, 404, errormsg);
         FREE_SDS(errormsg);
     }
     return false;
