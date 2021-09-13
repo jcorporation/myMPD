@@ -15,17 +15,17 @@
 #include <string.h>
 #include <unistd.h>
 
-struct mime_type_entry {
+struct t_mime_type_entry {
     const char *extension;
     const char *mime_type;
 };
 
-struct magic_byte_entry {
+struct t_magic_byte_entry {
     const char *magic_bytes;
     const char *mime_type;
 };
 
-const struct mime_type_entry image_files[] = {
+const struct t_mime_type_entry image_files[] = {
     {"png",  "image/png"},
     {"jpg",  "image/jpeg"},
     {"jpeg", "image/jpeg"},
@@ -36,7 +36,7 @@ const struct mime_type_entry image_files[] = {
     {NULL,   "application/octet-stream"}
 };
 
-const struct mime_type_entry media_files[] = {
+const struct t_mime_type_entry media_files[] = {
     {"mp3",  "audio/mpeg"},
     {"flac", "audio/flac"},
     {"oga",  "audio/ogg"}, 
@@ -46,7 +46,7 @@ const struct mime_type_entry media_files[] = {
     {NULL,   "application/octet-stream"}
 };
 
-const struct magic_byte_entry magic_bytes[] = {
+const struct t_magic_byte_entry magic_bytes[] = {
     {"89504E470D0A1A0A",  "image/png"},
     {"FFD8FFDB",          "image/jpeg"},
     {"FFD8FFE0",          "image/jpeg"},
@@ -77,7 +77,7 @@ sds get_extension_from_filename(const char *filename) {
 }
 
 sds find_image_file(sds basefilename) {
-    const struct mime_type_entry *p = NULL;
+    const struct t_mime_type_entry *p = NULL;
     for (p = image_files; p->extension != NULL; p++) {
         sds testfilename = sdscatfmt(sdsempty(), "%s.%s", basefilename, p->extension);
         if (access(testfilename, F_OK) == 0) { /* Flawfinder: ignore */
@@ -98,7 +98,7 @@ sds find_image_file(sds basefilename) {
 const char *get_mime_type_by_ext(const char *filename) {
     sds ext = get_extension_from_filename(filename);
 
-    const struct mime_type_entry *p = NULL;
+    const struct t_mime_type_entry *p = NULL;
     for (p = image_files; p->extension != NULL; p++) {
         if (strcmp(ext, p->extension) == 0) {
             break;
@@ -117,7 +117,7 @@ const char *get_mime_type_by_ext(const char *filename) {
 }
 
 const char *get_ext_by_mime_type(const char *mime_type) {
-    const struct mime_type_entry *p = NULL;
+    const struct t_mime_type_entry *p = NULL;
     for (p = image_files; p->extension != NULL; p++) {
         if (strcmp(mime_type, p->mime_type) == 0) {
             break;
@@ -153,7 +153,7 @@ const char *get_mime_type_by_magic_stream(sds stream) {
     for (size_t i = 0; i < len; i++) {
         hex_buffer = sdscatprintf(hex_buffer, "%02X", (unsigned char) stream[i]);
     }
-    const struct magic_byte_entry *p = NULL;
+    const struct t_magic_byte_entry *p = NULL;
     for (p = magic_bytes; p->magic_bytes != NULL; p++) {
         if (strncmp(hex_buffer, p->magic_bytes, strlen(p->magic_bytes)) == 0) {
             MYMPD_LOG_DEBUG("Matched magic bytes for mime_type: %s", p->mime_type);
