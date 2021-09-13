@@ -302,7 +302,7 @@ int main(int argc, char **argv) {
     struct mg_mgr mgr;
     init_mg_user_data = true;
     init_webserver = web_server_init(&mgr, config, mg_user_data);
-    if (init_webserver == false)
+    if (init_webserver == false) {
         goto cleanup;
     }
 
