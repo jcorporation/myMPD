@@ -706,8 +706,8 @@ pkgosc() {
   cd "$OSC_REPO" || exit 1
   osc addremove
   osc st
-  osc vc
-  osc commit
+  osc vc -m "Update"
+  osc commit -m "Update"
 }
 
 installdeps() {
