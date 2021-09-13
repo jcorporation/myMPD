@@ -20,7 +20,7 @@
 #include <time.h>
 #include <unistd.h>
 
-bool write_covercache_file(const char *workdir, const char *uri, const char *mime_type, sds binary) {
+bool covercache_write_file(const char *workdir, const char *uri, const char *mime_type, sds binary) {
     if (mime_type[0] == '\0') {
         MYMPD_LOG_WARN("Covercache file for \"%s\" not written, mime_type is empty", uri);
         return false;
@@ -64,7 +64,7 @@ bool write_covercache_file(const char *workdir, const char *uri, const char *mim
     return rc;
 }
 
-int clear_covercache(const char *workdir, int keepdays) {
+int covercache_clear(const char *workdir, int keepdays) {
     int num_deleted = 0;
     bool error = false;
     time_t expire_time = time(NULL) - keepdays * 24 * 60 * 60;

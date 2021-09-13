@@ -248,7 +248,7 @@ static bool handle_coverextract_id3(struct t_config *config, const char *uri, co
             const char *mime_type = get_mime_type_by_magic_stream(*binary);
             if (mime_type != NULL) {
                 if (covercache == true) {
-                    write_covercache_file(config->workdir, uri, mime_type, *binary);
+                    covercache_write_file(config->workdir, uri, mime_type, *binary);
                 }
                 MYMPD_LOG_DEBUG("Coverimage successfully extracted");
                 rc = true;
@@ -311,7 +311,7 @@ static bool handle_coverextract_flac(struct t_config *config, const char *uri, c
         const char *mime_type = get_mime_type_by_magic_stream(*binary);
         if (mime_type != NULL) {
             if (covercache == true) {
-                write_covercache_file(config->workdir, uri, mime_type, *binary);
+                covercache_write_file(config->workdir, uri, mime_type, *binary);
             }
             MYMPD_LOG_DEBUG("Coverimage successfully extracted");
             rc = true;
