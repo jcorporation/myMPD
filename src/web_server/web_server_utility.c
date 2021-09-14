@@ -111,6 +111,29 @@ sds *webserver_split_coverimage_names(sds coverimage_name, sds *coverimage_names
     return coverimage_names;
 }
 
+static const char *image_file_extensions[] = {"png", "jpg", "jpeg", "webp", "avif", NULL};
+
+sds webserver_find_image_file(sds basefilename) {
+    const char **p = image_file_extensions;
+    sds testfilename = sdsempty();
+    while (*p != NULL) {
+        testfilename = sdscatfmt(testfilename, "%s.%s", basefilename, *p);
+        if (access(testfilename, F_OK) == 0) { /* Flawfinder: ignore */
+            break;
+        }
+        sdsclear(testfilename);
+        p++;
+    }
+    FREE_SDS(testfilename);
+    if (*p != NULL) {
+        basefilename = sdscatfmt(basefilename, ".%s", *p);
+    }
+    else {
+        sdsclear(basefilename);
+    }
+    return basefilename;
+}
+
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg) {
     mg_http_reply(nc, code, "Content-Type: text/html\n\n", "<html><head><title>myMPD error</title></head><body>"
         "<h1>myMPD error</h1>"
@@ -162,7 +185,7 @@ void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_messag
     struct t_config *config = mg_user_data->config;
     
     sds asset_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, name);
-    asset_image = find_image_file(asset_image);
+    asset_image = webserver_find_image_file(asset_image);
     if (sdslen(asset_image) > 0) {
         const char *mime_type = get_mime_type_by_ext(asset_image);
         mg_http_serve_file(nc, hm, asset_image, mime_type, EXTRA_HEADERS_CACHE);

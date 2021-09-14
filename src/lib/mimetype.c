@@ -9,6 +9,7 @@
 
 #include "log.h"
 #include "sds_extras.h"
+#include "utility.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -38,46 +39,6 @@ const struct t_mime_type_entry mime_entries[] = {
     {0, "4F676753",         "spx",  "audio/ogg"},
     {0, NULL,               NULL,   "application/octet-stream"}
 };
-
-static const char *image_file_extensions[] = {"png", "jpg", "jpeg", "webp", "avif", NULL};
-
-sds get_extension_from_filename(const char *filename) {
-    const char *ext = strrchr(filename, '.');
-    if (ext == NULL) {
-        return sdsempty();
-    }
-    if (strlen(ext) > 1) {
-        //trim starting dot
-        ext++;
-    }
-    else {
-        return sdsempty();
-    }
-    sds extension = sdsnew(ext);
-    sdstolower(extension);
-    return extension;
-}
-
-sds find_image_file(sds basefilename) {
-    const char **p = image_file_extensions;
-    sds testfilename = sdsempty();
-    while (*p != NULL) {
-        testfilename = sdscatfmt(testfilename, "%s.%s", basefilename, *p);
-        if (access(testfilename, F_OK) == 0) { /* Flawfinder: ignore */
-            break;
-        }
-        sdsclear(testfilename);
-        p++;
-    }
-    FREE_SDS(testfilename);
-    if (*p != NULL) {
-        basefilename = sdscatfmt(basefilename, ".%s", *p);
-    }
-    else {
-        sdsclear(basefilename);
-    }
-    return basefilename;
-}
 
 const char *get_mime_type_by_ext(const char *filename) {
     sds ext = get_extension_from_filename(filename);

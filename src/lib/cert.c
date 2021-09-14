@@ -40,15 +40,15 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
                                       sds servercert_file, X509 **server_cert, 
                                       sds custom_san, EVP_PKEY **ca_key, X509 **ca_cert);
 static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_days);
-
+static bool certificates_cleanup(sds dir, const char *name);
 //public functions
 
-bool check_ssl_certs(sds workdir, sds ssl_san) {
+bool certificates_check(sds workdir, sds ssl_san) {
     sds testdirname = sdscatfmt(sdsempty(), "%s/ssl", workdir);
     int testdir_rc = testdir("SSL cert dir", testdirname, true);
     if (testdir_rc < 2) {
         //directory created, create certificates
-        if (!create_certificates(testdirname, ssl_san)) {
+        if (certificates_create(testdirname, ssl_san) == false) {
             //error creating certificates
             MYMPD_LOG_ERROR("Certificate creation failed");
             FREE_SDS(testdirname);
@@ -63,7 +63,7 @@ bool check_ssl_certs(sds workdir, sds ssl_san) {
     return true;
 }
 
-bool create_certificates(sds dir, sds custom_san) {
+bool certificates_create(sds dir, sds custom_san) {
     bool rc_ca = false;
     bool rc_cert = false;
     
@@ -87,9 +87,9 @@ bool create_certificates(sds dir, sds custom_san) {
             X509_free(ca_cert);
             ca_key = NULL;
             ca_cert = NULL;
-            rc_ca = cleanup_certificates(dir, "ca");
+            rc_ca = certificates_cleanup(dir, "ca");
             if (rc_ca == true) {
-                rc_ca = cleanup_certificates(dir, "server");
+                rc_ca = certificates_cleanup(dir, "server");
                 if (rc_ca == true) {
                     rc_ca = create_ca_certificate(cakey_file, &ca_key, cacert_file, &ca_cert);
                 }
@@ -118,7 +118,7 @@ bool create_certificates(sds dir, sds custom_san) {
             X509_free(server_cert);
             server_key = NULL;
             server_cert = NULL;
-            rc_cert = cleanup_certificates(dir, "server");
+            rc_cert = certificates_cleanup(dir, "server");
             if (rc_cert == true) {
                 rc_cert = create_server_certificate(serverkey_file, &server_key, servercert_file, &server_cert, 
                     custom_san, &ca_key, &ca_cert); 
@@ -140,7 +140,9 @@ bool create_certificates(sds dir, sds custom_san) {
     return true;
 }
 
-bool cleanup_certificates(sds dir, const char *name) {
+//private functions
+
+static bool certificates_cleanup(sds dir, const char *name) {
     sds cert_file = sdscatfmt(sdsempty(), "%s/%s.pem", dir, name);
     errno = 0;
     if (unlink(cert_file) != 0) {
@@ -158,8 +160,6 @@ bool cleanup_certificates(sds dir, const char *name) {
     
     return true;
 }
-
-//private functions
 
 static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_days) {
     ASN1_TIME *not_after = X509_get_notAfter(cert);

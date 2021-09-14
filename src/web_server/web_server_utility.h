@@ -65,6 +65,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri, struct mg
 #endif
 void webserver_manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bool playlists);
 sds *webserver_split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count);
+sds webserver_find_image_file(sds basefilename);
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg);
 void webserver_serve_na_image(struct mg_connection *nc, struct mg_http_message *hm);
 void webserver_serve_stream_image(struct mg_connection *nc, struct mg_http_message *hm);

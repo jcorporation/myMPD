@@ -33,7 +33,7 @@ bool webserver_tagart_handler(struct mg_connection *nc, struct mg_http_message *
     sdsrange(uri_decoded, 8, -1);
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mg_user_data->pics_document_root, uri_decoded);
     MYMPD_LOG_DEBUG("Absolut media_file: %s", mediafile);
-    mediafile = find_image_file(mediafile);
+    mediafile = webserver_find_image_file(mediafile);
     if (sdslen(mediafile) > 0) {
         const char *mime_type = get_mime_type_by_ext(mediafile);
         MYMPD_LOG_DEBUG("Serving file %s (%s)", mediafile, mime_type);

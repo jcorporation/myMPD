@@ -14,6 +14,7 @@
 int testdir(const char *name, const char *dirname, bool create);
 void streamuri_to_filename(sds s);
 bool strtobool(const char *value);
+sds get_extension_from_filename(const char *filename);
 int strip_extension(char *s);
 void strip_slash(sds s);
 void my_usleep(time_t usec);

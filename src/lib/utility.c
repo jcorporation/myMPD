@@ -54,6 +54,23 @@ void strip_slash(sds s) {
     }
 }
 
+sds get_extension_from_filename(const char *filename) {
+    const char *ext = strrchr(filename, '.');
+    if (ext == NULL) {
+        return sdsempty();
+    }
+    if (strlen(ext) > 1) {
+        //trim starting dot
+        ext++;
+    }
+    else {
+        return sdsempty();
+    }
+    sds extension = sdsnew(ext);
+    sdstolower(extension);
+    return extension;
+}
+
 int strip_extension(char *s) {
     for (size_t i = strlen(s) - 1 ; i > 0; i--) {
         if (s[i] == '.') {

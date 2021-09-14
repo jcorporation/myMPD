@@ -97,7 +97,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
 
         sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, uri_decoded);
         MYMPD_LOG_DEBUG("Check for stream cover %s", coverfile);
-        coverfile = find_image_file(coverfile);
+        coverfile = webserver_find_image_file(coverfile);
         
         if (sdslen(coverfile) > 0) {
             const char *mime_type = get_mime_type_by_ext(coverfile);
@@ -118,7 +118,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
         sdsmapchars(filename, "/", "_", 1);
         sds covercachefile = sdscatfmt(sdsempty(), "%s/covercache/%s", config->workdir, filename);
         FREE_SDS(filename);
-        covercachefile = find_image_file(covercachefile);
+        covercachefile = webserver_find_image_file(covercachefile);
         if (sdslen(covercachefile) > 0) {
             const char *mime_type = get_mime_type_by_ext(covercachefile);
             MYMPD_LOG_DEBUG("Serving file %s (%s)", covercachefile, mime_type);
@@ -147,7 +147,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
                 sds coverfile = sdscatfmt(sdsempty(), "%s/%s/%s", mg_user_data->music_directory, path, mg_user_data->coverimage_names[j]);
                 if (strchr(mg_user_data->coverimage_names[j], '.') == NULL) {
                     //basename, try extensions
-                    coverfile = find_image_file(coverfile);
+                    coverfile = webserver_find_image_file(coverfile);
                 }
                 if (sdslen(coverfile) > 0 && access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
                     const char *mime_type = get_mime_type_by_ext(coverfile);

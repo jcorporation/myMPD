@@ -315,7 +315,7 @@ int main(int argc, char **argv) {
     #ifdef ENABLE_SSL
         if (config->ssl == true &&
             config->custom_cert == false &&
-            check_ssl_certs(config->workdir, config->ssl_san) == false)
+            certificates_check(config->workdir, config->ssl_san) == false)
         {
             goto cleanup;
         }
