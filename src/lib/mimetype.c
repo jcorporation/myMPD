@@ -16,48 +16,30 @@
 #include <unistd.h>
 
 struct t_mime_type_entry {
+    unsigned skip;
+    const char *magic_bytes;
     const char *extension;
     const char *mime_type;
 };
 
-struct t_magic_byte_entry {
-    const char *magic_bytes;
-    const char *mime_type;
+const struct t_mime_type_entry mime_entries[] = {
+    {0, "89504E470D0A1A0A", "png",  "image/png"},
+    {0, "FFD8FFDB",         "jpg",  "image/jpeg"},
+    {0, "FFD8FFE0",         "jpeg", "image/jpeg"},
+    {0, "FFD8FFEE",         "jpeg", "image/jpeg"},
+    {0, "FFD8FFE1",         "jpeg", "image/jpeg"},
+    {0, "52494646",         "webp", "image/webp"},
+    {4, "667479706d696631", "avif", "image/avif"},
+    {0, "494433",           "mp3",  "audio/mpeg"},
+    {0, "664C6143",         "flac", "audio/flac"},
+    {0, "4F676753",         "oga",  "audio/ogg"}, 
+    {0, "4F676753",         "ogg",  "audio/ogg"},
+    {0, "4F676753",         "opus", "audio/ogg"},
+    {0, "4F676753",         "spx",  "audio/ogg"},
+    {0, NULL,               NULL,   "application/octet-stream"}
 };
 
-const struct t_mime_type_entry image_files[] = {
-    {"png",  "image/png"},
-    {"jpg",  "image/jpeg"},
-    {"jpeg", "image/jpeg"},
-    {"svg",  "image/svg+xml"},
-    {"webp", "image/webp"},
-    {"tiff", "image/tiff"},
-    {"bmp",  "image/x-ms-bmp"},
-    {NULL,   "application/octet-stream"}
-};
-
-const struct t_mime_type_entry media_files[] = {
-    {"mp3",  "audio/mpeg"},
-    {"flac", "audio/flac"},
-    {"oga",  "audio/ogg"}, 
-    {"ogg",  "audio/ogg"},
-    {"opus", "audio/ogg"},
-    {"spx",  "audio/ogg"},
-    {NULL,   "application/octet-stream"}
-};
-
-const struct t_magic_byte_entry magic_bytes[] = {
-    {"89504E470D0A1A0A",  "image/png"},
-    {"FFD8FFDB",          "image/jpeg"},
-    {"FFD8FFE0",          "image/jpeg"},
-    {"FFD8FFEE",          "image/jpeg"},
-    {"FFD8FFE1",          "image/jpeg"},
-    {"49492A00",          "image/tiff"},
-    {"4D4D002A",          "image/tiff"},
-    {"424D",              "image/x-ms-bmp"},
-    {"52494646",          "image/webp"},
-    {NULL,                "application/octet-stream"}
-};
+static const char *image_file_extensions[] = {"png", "jpg", "jpeg", "webp", "avif", NULL};
 
 sds get_extension_from_filename(const char *filename) {
     const char *ext = strrchr(filename, '.');
@@ -77,17 +59,19 @@ sds get_extension_from_filename(const char *filename) {
 }
 
 sds find_image_file(sds basefilename) {
-    const struct t_mime_type_entry *p = NULL;
-    for (p = image_files; p->extension != NULL; p++) {
-        sds testfilename = sdscatfmt(sdsempty(), "%s.%s", basefilename, p->extension);
+    const char **p = image_file_extensions;
+    sds testfilename = sdsempty();
+    while (*p != NULL) {
+        testfilename = sdscatfmt(testfilename, "%s.%s", basefilename, *p);
         if (access(testfilename, F_OK) == 0) { /* Flawfinder: ignore */
-            FREE_SDS(testfilename);
             break;
         }
-        FREE_SDS(testfilename);
+        sdsclear(testfilename);
+        p++;
     }
-    if (p->extension != NULL) {
-        basefilename = sdscatfmt(basefilename, ".%s", p->extension);
+    FREE_SDS(testfilename);
+    if (*p != NULL) {
+        basefilename = sdscatfmt(basefilename, ".%s", *p);
     }
     else {
         sdsclear(basefilename);
@@ -99,17 +83,9 @@ const char *get_mime_type_by_ext(const char *filename) {
     sds ext = get_extension_from_filename(filename);
 
     const struct t_mime_type_entry *p = NULL;
-    for (p = image_files; p->extension != NULL; p++) {
+    for (p = mime_entries; p->extension != NULL; p++) {
         if (strcmp(ext, p->extension) == 0) {
             break;
-        }
-    }
-    if (p->extension == NULL) {
-        p = NULL;
-        for (p = media_files; p->extension != NULL; p++) {
-            if (strcmp(ext, p->extension) == 0) {
-                break;
-            }
         }
     }
     FREE_SDS(ext);
@@ -118,7 +94,7 @@ const char *get_mime_type_by_ext(const char *filename) {
 
 const char *get_ext_by_mime_type(const char *mime_type) {
     const struct t_mime_type_entry *p = NULL;
-    for (p = image_files; p->extension != NULL; p++) {
+    for (p = mime_entries; p->extension != NULL; p++) {
         if (strcmp(mime_type, p->mime_type) == 0) {
             break;
         }
@@ -137,7 +113,7 @@ const char *get_mime_type_by_magic(const char *filename) {
         MYMPD_LOG_ERRNO(errno);
         return sdsempty();
     }
-    unsigned char binary_buffer[8];
+    unsigned char binary_buffer[12];
     size_t read = fread(binary_buffer, 1, sizeof(binary_buffer), fp);
     MYMPD_LOG_DEBUG("Read %u bytes from file %s", read, filename);
     fclose(fp);
@@ -149,19 +125,23 @@ const char *get_mime_type_by_magic(const char *filename) {
 
 const char *get_mime_type_by_magic_stream(sds stream) {
     sds hex_buffer = sdsempty();
-    size_t len = sdslen(stream) < 8 ? sdslen(stream) : 8;
+    size_t len = sdslen(stream) < 12 ? sdslen(stream) : 12;
     for (size_t i = 0; i < len; i++) {
         hex_buffer = sdscatprintf(hex_buffer, "%02X", (unsigned char) stream[i]);
     }
-    const struct t_magic_byte_entry *p = NULL;
-    for (p = magic_bytes; p->magic_bytes != NULL; p++) {
-        if (strncmp(hex_buffer, p->magic_bytes, strlen(p->magic_bytes)) == 0) {
+    const struct t_mime_type_entry *p = NULL;
+    for (p = mime_entries; p->magic_bytes != NULL; p++) {
+        char *tmp_buffer = hex_buffer;
+        if (p->skip > 0 && sdslen(hex_buffer) < p->skip) {
+            tmp_buffer += p->skip;
+        }
+        if (strncmp(tmp_buffer, p->magic_bytes, strlen(p->magic_bytes)) == 0) {
             MYMPD_LOG_DEBUG("Matched magic bytes for mime_type: %s", p->mime_type);
             break;
         }
     }
     if (p->magic_bytes == NULL) {
-        MYMPD_LOG_WARN("Could not get mime type from bytes \"%s\"", hex_buffer);
+        MYMPD_LOG_WARN("Could not determine mime type from bytes \"%s\"", hex_buffer);
     }
     FREE_SDS(hex_buffer);
     return p->mime_type;
