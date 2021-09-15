@@ -886,7 +886,7 @@ a.text-success:focus {
 .top-alert-dismissible .close {
   position: absolute;
   top: 0;
-  right: 0;
+  right: 4rem;
   z-index: 2;
   padding: 0.25rem 1.25rem;
   color: #721c24 !important;
