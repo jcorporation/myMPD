@@ -31,7 +31,7 @@ void send_jsonrpc_notify(const char *facility, const char *severity, const char 
 void ws_notify(sds message) {
     MYMPD_LOG_DEBUG("Push websocket notify to queue: %s", message);
     struct t_work_result *response = create_result_new(0, 0, INTERNAL_API_WEBSERVER_NOTIFY);
-    response->data = sdsreplace(response->data, message);
+    response->data = sds_replace(response->data, message);
     mympd_queue_push(web_server_queue, response, 0);
 }
 
@@ -67,11 +67,11 @@ sds jsonrpc_notify_phrase(sds buffer, const char *facility, const char *severity
             if (i > 0) {
                 buffer = sdscat(buffer, ",");
             }
-            buffer = sdscatjson(buffer, v, strlen(v));
+            buffer = sds_catjson(buffer, v, strlen(v));
             buffer = sdscat(buffer,":");
         }
         else {
-            buffer = sdscatjson(buffer, v, strlen(v));
+            buffer = sds_catjson(buffer, v, strlen(v));
         }
     }
     va_end(args);
@@ -127,11 +127,11 @@ sds jsonrpc_respond_message_phrase(sds buffer, const char *method, long id, bool
             if (i > 0) {
                 buffer = sdscat(buffer, ",");
             }
-            buffer = sdscatjson(buffer, v, strlen(v));
+            buffer = sds_catjson(buffer, v, strlen(v));
             buffer = sdscat(buffer,":");
         }
         else {
-            buffer = sdscatjson(buffer, v, strlen(v));
+            buffer = sds_catjson(buffer, v, strlen(v));
         }
     }
     va_end(args);
@@ -148,7 +148,7 @@ sds tojson_char(sds buffer, const char *key, const char *value, bool comma) {
 sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":", key);
     if (value != NULL) {
-        buffer = sdscatjson(buffer, value, len);
+        buffer = sds_catjson(buffer, value, len);
     }
     else {
         buffer = sdscat(buffer, "\"\"");
@@ -199,7 +199,7 @@ sds list_to_json_array(sds s, struct t_list *l) {
         if (i++) {
             s = sdscatlen(s, ",", 1);
         }
-        s = sdscatjson(s, current->key, sdslen(current->key));
+        s = sds_catjson(s, current->key, sdslen(current->key));
         current = current->next;
     }
     return s;

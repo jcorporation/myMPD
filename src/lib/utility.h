@@ -12,14 +12,9 @@
 #include "../../dist/src/sds/sds.h"
 
 int testdir(const char *name, const char *dirname, bool create);
-void streamuri_to_filename(sds s);
 bool strtobool(const char *value);
-sds get_extension_from_filename(const char *filename);
-int strip_extension(char *s);
-void strip_slash(sds s);
 void my_usleep(time_t usec);
 unsigned long substractUnsigned(unsigned long num1, unsigned long num2);
-char *basename_uri(char *uri);
 int unsigned_to_int(unsigned x);
 
 //measure time

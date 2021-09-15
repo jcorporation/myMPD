@@ -104,9 +104,8 @@ static int _mympd_api_lyrics_synced(struct t_mympd_state *mympd_state, sds *buff
 
 static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool synced, int returned_entities) {
     //try file in folder in the music directory
-    sds filename_cpy = sdsnew(mediafile);
-    strip_extension(filename_cpy);
-
+    sds filename_cpy = sdsdup(mediafile);
+    sds_strip_file_extension(filename_cpy);
     sds lyricsfile = sdscatfmt(sdsempty(), "%s.%s", filename_cpy, ext);
     MYMPD_LOG_DEBUG("Trying to open lyrics file: %s", lyricsfile);
     FREE_SDS(filename_cpy);
@@ -121,7 +120,7 @@ static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool syn
         *buffer = tojson_char(*buffer, "lang", "", true);
         *buffer = tojson_char(*buffer, "desc", "", true);
         sds text = sdsempty();
-        sdsgetfile(&text, fp, 10000);
+        sds_getfile(&text, fp, 10000);
         fclose(fp);
         *buffer = tojson_char(*buffer, "text", text, false);
         *buffer = sdscatlen(*buffer, "}", 1);
@@ -346,7 +345,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
         if (encoding == 0) {
             //latin - read text until \0 separator
             while (i < binary_length && binary_data[i] != '\0') {
-                text_buf = sdscatjsonchar(text_buf, (char)binary_data[i]);
+                text_buf = sds_catjsonchar(text_buf, (char)binary_data[i]);
                 i++;
             }
         }
@@ -355,7 +354,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
             while (i + 2 < binary_length && (binary_data[i] != '\0' || binary_data[i + 1] != '\0')) {
                 if ((binary_data[i] & 0x80) == 0x00 && binary_data[i + 1] == '\0') {
                     //printable ascii char
-                    text_buf = sdscatjsonchar(text_buf, (char)binary_data[i]);
+                    text_buf = sds_catjsonchar(text_buf, (char)binary_data[i]);
                 }
                 else {
                     unsigned c = (binary_data[i + 1] << 8) | binary_data[i];
@@ -379,7 +378,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
             while (i + 2 < binary_length && (binary_data[i] != '\0' || binary_data[i + 1] != '\0')) {
                 if ((binary_data[i + 1] & 0x80) == 0x00 && binary_data[i] == '\0') {
                     //printable ascii char
-                    text_buf = sdscatjsonchar(text_buf, (char)binary_data[i + 1]);
+                    text_buf = sds_catjsonchar(text_buf, (char)binary_data[i + 1]);
                 }
                 else {
                     unsigned c = (binary_data[i] << 8) | binary_data[i + 1];
@@ -407,7 +406,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
             while (i < binary_length && binary_data[i] != '\0') {
                 if ((binary_data[i] & 0x80) == 0x00) {
                     //ascii char
-                    text_buf = sdscatjsonchar(text_buf, (char)binary_data[i]);
+                    text_buf = sds_catjsonchar(text_buf, (char)binary_data[i]);
                 }
                 else if (!decode_utf8(&state, &codepoint, binary_data[i])) {
                     text_buf = sdscatprintf(text_buf, "\\u%04x", codepoint);

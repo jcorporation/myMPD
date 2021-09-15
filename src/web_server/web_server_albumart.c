@@ -65,7 +65,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
                      long long conn_id)
 {
     //decode uri
-    sds uri_decoded = sdsurldecode(sdsempty(), hm->uri.ptr, (int)hm->uri.len, 0);
+    sds uri_decoded = sds_urldecode(sdsempty(), hm->uri.ptr, (int)hm->uri.len, 0);
     if (sdslen(uri_decoded) == 0) {
         MYMPD_LOG_ERROR("Failed to decode uri");
         webserver_serve_na_image(nc, hm);
@@ -87,7 +87,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
     MYMPD_LOG_DEBUG("Handle albumart for uri \"%s\"", uri_decoded);
     //try image in /pics folder, if uri contains ://
     if (is_streamuri(uri_decoded) == true) {
-        streamuri_to_filename(uri_decoded);
+        sds_streamuri_to_filename(uri_decoded);
         if (sdslen(uri_decoded) == 0) {
             MYMPD_LOG_ERROR("Uri to short");
             webserver_serve_na_image(nc, hm);

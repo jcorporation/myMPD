@@ -191,7 +191,7 @@ bool mympd_api_trigger_file_read(struct t_mympd_state *mympd_state) {
         return false;
     }
     int i = 0;
-    while (sdsgetline(&line, fp, 1000) == 0) {
+    while (sds_getline(&line, fp, 1000) == 0) {
         if (i > MAX_LIST_TRIGGER) {
             MYMPD_LOG_WARN("Too many triggers defined");
             break;
@@ -241,7 +241,7 @@ bool mympd_api_trigger_file_save(struct t_mympd_state *mympd_state) {
     struct t_list_node *current = mympd_state->triggers.head;
     sds buffer = sdsempty();
     while (current != NULL) {
-        buffer = sdsreplace(buffer, "{");
+        buffer = sds_replace(buffer, "{");
         buffer = tojson_char(buffer, "name", current->key, true);
         buffer = tojson_long(buffer, "event", current->value_i, true);
         buffer = tojson_char(buffer, "script", current->value_p, true);

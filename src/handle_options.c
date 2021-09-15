@@ -30,13 +30,13 @@ bool handle_options(struct t_config *config, int argc, char **argv) {
     while((n = getopt_long(argc, argv, "hu:sw:cp", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
         switch (n) {
             case 'u':
-                config->user = sdsreplace(config->user, optarg);
+                config->user = sds_replace(config->user, optarg);
                 break;
             case 's':
                 config->log_to_syslog = true;
                 break;
             case 'w':
-                config->workdir = sdsreplace(config->workdir, optarg);
+                config->workdir = sds_replace(config->workdir, optarg);
                 break;
             case 'c':
                 config->bootstrap = true;

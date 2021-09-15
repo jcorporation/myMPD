@@ -163,7 +163,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         raxSeek(&iter, "^", NULL, 0);
         sds uri = sdsempty();
         while (raxNext(&iter)) {
-            uri = sdsreplacelen(uri, (char *)iter.key, iter.key_len);
+            uri = sds_replacelen(uri, (char *)iter.key, iter.key_len);
             mpd_shared_get_sticker(mpd_worker_state->mpd_state, uri, (struct t_sticker *)iter.data);
         }
         FREE_SDS(uri);

@@ -43,7 +43,7 @@ sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
         if (current != images.head) {
             buffer = sdscatlen(buffer, ",", 1);
         }
-        buffer = sdscatjson(buffer, current->key, sdslen(current->key));
+        buffer = sds_catjson(buffer, current->key, sdslen(current->key));
         current = current->next;
     }
     buffer = sdscat(buffer, "]");

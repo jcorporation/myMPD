@@ -79,18 +79,21 @@ sds mympd_api_script_list(struct t_config *config, sds buffer, sds method, long 
     struct dirent *next_file;
     int nr = 0;
     sds entry = sdsempty();
+    sds scriptname = sdsempty();
+    sds scriptfilename = sdsempty();
     while ((next_file = readdir(script_dir)) != NULL ) {
-        sds extension = get_extension_from_filename(next_file->d_name);
+        sds extension = sds_get_extension_from_filename(next_file->d_name);
         if (strcmp(extension, "lua") != 0) {
             FREE_SDS(extension);
             continue;
         }
         FREE_SDS(extension);
-            
-        strip_extension(next_file->d_name);
+
+        scriptname = sdscat(scriptname, next_file->d_name);
+        sds_strip_file_extension(scriptname);
         entry = sdscatlen(entry, "{", 1);
-        entry = tojson_char(entry, "name", next_file->d_name, true);
-        sds scriptfilename = sdscatfmt(sdsempty(), "%s/%s.lua", scriptdirname, next_file->d_name);
+        entry = tojson_char(entry, "name", scriptname, true);
+        scriptfilename = sdscatfmt(scriptfilename, "%s/%s", scriptdirname, next_file->d_name);
         int order = 0;
         entry = parse_script_metadata(entry, scriptfilename, &order);
         entry = sdscatlen(entry, "}", 1);
@@ -101,9 +104,12 @@ sds mympd_api_script_list(struct t_config *config, sds buffer, sds method, long 
             buffer = sdscat(buffer, entry);
         }
         sdsclear(entry);
-        FREE_SDS(scriptfilename);
+        sdsclear(scriptname);
+        sdsclear(scriptfilename);
     }
     closedir(script_dir);
+    FREE_SDS(scriptname);
+    FREE_SDS(scriptfilename);
     FREE_SDS(entry);
     FREE_SDS(scriptdirname);
     buffer = sdscat(buffer, "]");        
@@ -174,7 +180,7 @@ sds mympd_api_script_get(struct t_config *config, sds buffer, sds method, long r
         buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = tojson_char(buffer, "script", script, true);
         sds line = sdsempty();
-        if (sdsgetline(&line, fp, 1000) == 0 && strncmp(line, "-- ", 3) == 0) {
+        if (sds_getline(&line, fp, 1000) == 0 && strncmp(line, "-- ", 3) == 0) {
             sdsrange(line, 3, -1);
             if (line[0] == '{' && line[sdslen(line) - 1] == '}') {
                 buffer = sdscat(buffer, "\"metadata\":");
@@ -192,9 +198,9 @@ sds mympd_api_script_get(struct t_config *config, sds buffer, sds method, long r
         FREE_SDS(line);
         buffer = sdscat(buffer, ",\"content\":");
         sds content = sdsempty();
-        sdsgetfile(&content, fp, 10000);
+        sds_getfile(&content, fp, 10000);
         fclose(fp);
-        buffer = sdscatjson(buffer, content, sdslen(content));
+        buffer = sds_catjson(buffer, content, sdslen(content));
         FREE_SDS(content);
         buffer = jsonrpc_result_end(buffer);
     }
@@ -254,7 +260,7 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
     }
     
     sds line = sdsempty();
-    if (sdsgetline(&line, fp, 1000) == 0 && strncmp(line, "-- ", 3) == 0) {
+    if (sds_getline(&line, fp, 1000) == 0 && strncmp(line, "-- ", 3) == 0) {
         sdsrange(line, 3, -1);
         if (json_get_int(line, "$.order", 0, 99, order, NULL) == true) {
             entry = sdscat(entry, "\"metadata\":");
@@ -275,7 +281,7 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
 }
 
 static void *mympd_api_script_execute(void *script_thread_arg) {
-    thread_logname = sdsreplace(thread_logname, "script");
+    thread_logname = sds_replace(thread_logname, "script");
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
     struct t_script_thread_arg *script_arg = (struct t_script_thread_arg *) script_thread_arg;
     

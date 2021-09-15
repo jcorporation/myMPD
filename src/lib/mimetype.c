@@ -9,7 +9,6 @@
 
 #include "log.h"
 #include "sds_extras.h"
-#include "utility.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -41,7 +40,7 @@ const struct t_mime_type_entry mime_entries[] = {
 };
 
 const char *get_mime_type_by_ext(const char *filename) {
-    sds ext = get_extension_from_filename(filename);
+    sds ext = sds_get_extension_from_filename(filename);
 
     const struct t_mime_type_entry *p = NULL;
     for (p = mime_entries; p->extension != NULL; p++) {

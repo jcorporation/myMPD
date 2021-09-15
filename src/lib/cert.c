@@ -303,7 +303,7 @@ static sds get_san(sds buffer) {
                 inet_ntop(res->ai_family, ptr, addrstr, INET6_ADDRSTRLEN);
                 if (strcmp(old_addrstr, addrstr) != 0) {
                     buffer = sdscatfmt(buffer, ", IP:%s", addrstr);
-                    old_addrstr = sdsreplace(old_addrstr, addrstr);
+                    old_addrstr = sds_replace(old_addrstr, addrstr);
                 }
             }
             ptr = NULL;

@@ -44,7 +44,7 @@ bool mympd_api_home_icon_save(struct t_mympd_state *mympd_state, bool replace, u
         if (i++) {
             key = sdscatlen(key, ",", 1);
         }
-        key = sdscatjson(key, current->key, sdslen(current->key));
+        key = sds_catjson(key, current->key, sdslen(current->key));
         current = current->next;
     }    
     key = sdscatlen(key, "]}", 2);
@@ -75,7 +75,7 @@ bool mympd_api_home_file_read(struct t_mympd_state *mympd_state) {
     }
     
     sds line = sdsempty();
-    while (sdsgetline(&line, fp, 1000) == 0) {
+    while (sds_getline(&line, fp, 1000) == 0) {
         if (validate_json(line) == false) {
             MYMPD_LOG_ERROR("Invalid line");
             break;

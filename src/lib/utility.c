@@ -47,58 +47,6 @@ int testdir(const char *name, const char *dirname, bool create) {
     return 3;
 }
 
-void strip_slash(sds s) {
-    ssize_t len = (ssize_t)sdslen(s);
-    if (len > 1 && s[len - 1] == '/') {
-        sdsrange(s, 0, len - 2);
-    }
-}
-
-sds get_extension_from_filename(const char *filename) {
-    const char *ext = strrchr(filename, '.');
-    if (ext == NULL) {
-        return sdsempty();
-    }
-    if (strlen(ext) > 1) {
-        //trim starting dot
-        ext++;
-    }
-    else {
-        return sdsempty();
-    }
-    sds extension = sdsnew(ext);
-    sdstolower(extension);
-    return extension;
-}
-
-int strip_extension(char *s) {
-    for (size_t i = strlen(s) - 1 ; i > 0; i--) {
-        if (s[i] == '.') {
-            s[i] = '\0';
-            return (int)i;
-        }
-        if (s[i] == '/') {
-            return -1;
-        }
-    }
-    return -1;
-}
-
-void streamuri_to_filename(sds s) {
-    if (sdslen(s) < 4) {
-        sdsclear(s);
-        return;
-    }
-    ssize_t i;
-    for (i = 0; i < (ssize_t)sdslen(s) - 2; i++) {
-        if (s[i] == ':' && s[i + 1] == '/' && s[i + 2] == '/') {
-            break;
-        }
-    }
-    sdsrange(s, i + 3, -1);
-    sdsmapchars(s, "/.:", "___", 3);
-}
-
 bool strtobool(const char *value) {
     return value[0] == 't' ? true : false;
 }
@@ -116,23 +64,6 @@ unsigned long substractUnsigned(unsigned long num1, unsigned long num2) {
         return num1 - num2;
     }
     return 0;
-}
-
-char *basename_uri(char *uri) {
-    //filename
-    if (strstr(uri, "://") == NULL) {
-        char *b = basename(uri);
-        return b;
-    }
-    //uri, remove query and hash
-    char *b = uri;
-    for (size_t i = 0;  i < strlen(b); i++) {
-        if (b[i] == '#' || b[i] == '?') {
-            b[i] = '\0';
-            return b;
-        }
-    }
-    return b;
 }
 
 //converts unsigned to int and prevents wrap arround

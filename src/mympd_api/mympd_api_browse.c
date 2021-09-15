@@ -177,7 +177,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                 sdstolower(entity_name);
                 //do not show mpd playlists in root directory
                 if (strcmp(path, "/") == 0) {
-                    sds ext = get_extension_from_filename(entity_name);
+                    sds ext = sds_get_extension_from_filename(entity_name);
                     if (strcmp(ext, "m3u") != 0 && strcmp(ext, "pls") != 0) {
                         FREE_SDS(ext);
                         FREE_SDS(entity_name);
@@ -240,9 +240,10 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                     buffer = sdscat(buffer, "{\"Type\":\"song\",");
                     buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
                     buffer = sdscatlen(buffer, ",", 1);
-                    char *filename = strdup(mpd_song_get_uri(song));
-                    buffer = tojson_char(buffer, "Filename", basename_uri(filename), false);
-                    free(filename);
+                    sds filename = sdsnew(mpd_song_get_uri(song));
+                    sds_basename_uri(filename);
+                    buffer = tojson_char(buffer, "Filename", filename, false);
+                    FREE_SDS(filename);
                     if (mympd_state->mpd_state->feat_stickers) {
                         buffer = sdscat(buffer, ",");
                         buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));

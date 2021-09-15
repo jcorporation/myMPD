@@ -50,9 +50,9 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     //mpd state
     mpd_worker_state->mpd_state = (struct t_mpd_state *)malloc_assert(sizeof(struct t_mpd_state));
     mpd_shared_default_mpd_state(mpd_worker_state->mpd_state);
-    mpd_worker_state->mpd_state->mpd_host = sdsreplace(mpd_worker_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_host);
+    mpd_worker_state->mpd_state->mpd_host = sds_replace(mpd_worker_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_host);
     mpd_worker_state->mpd_state->mpd_port = mympd_state->mpd_state->mpd_port;
-    mpd_worker_state->mpd_state->mpd_pass = sdsreplace(mpd_worker_state->mpd_state->mpd_pass, mympd_state->mpd_state->mpd_pass);
+    mpd_worker_state->mpd_state->mpd_pass = sds_replace(mpd_worker_state->mpd_state->mpd_pass, mympd_state->mpd_state->mpd_pass);
     mpd_worker_state->mpd_state->feat_tags = mympd_state->mpd_state->feat_tags;
     mpd_worker_state->mpd_state->feat_stickers = mympd_state->mpd_state->feat_stickers;
     mpd_worker_state->mpd_state->feat_playlists = mympd_state->mpd_state->feat_playlists;
@@ -69,7 +69,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
 }
 
 static void *mpd_worker_run(void *arg) {
-    thread_logname = sdsreplace(thread_logname, "mpdworker");
+    thread_logname = sds_replace(thread_logname, "mpdworker");
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
     struct t_mpd_worker_state *mpd_worker_state = (struct t_mpd_worker_state *) arg;
 

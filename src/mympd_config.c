@@ -124,12 +124,12 @@ static const char *mympd_getenv(const char *env_var, bool first_startup) {
     if (env_value == NULL) {
         return NULL;
     }
-    if (strlen(env_value) > 100) {
-        MYMPD_LOG_WARN("Environment variable \"%s\" is too long", env_var);
+    if (env_value[0] == '\0') {
+        MYMPD_LOG_WARN("Environment variable \"%s\" is empty", env_var);
         return NULL;
     }
-    if (strlen(env_value) == 0) {
-        MYMPD_LOG_WARN("Environment variable \"%s\" is empty", env_var);
+    if (strlen(env_value) > 100) {
+        MYMPD_LOG_WARN("Environment variable \"%s\" is too long", env_var);
         return NULL;
     }
     if (first_startup == true) {

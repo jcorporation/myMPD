@@ -66,7 +66,7 @@ sds mympd_api_mounts_urlhandler_list(struct t_mympd_state *mympd_state, sds buff
         if (entity_count++) {
             buffer = sdscat(buffer, ",");
         }
-        buffer = sdscatjson(buffer, pair->value, strlen(pair->value));
+        buffer = sds_catjson(buffer, pair->value, strlen(pair->value));
         mpd_return_pair(mympd_state->mpd_state->conn, pair);
     }
 

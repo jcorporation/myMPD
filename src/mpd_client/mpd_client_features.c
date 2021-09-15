@@ -225,7 +225,7 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
             while ((pair = mpd_recv_pair(mympd_state->mpd_state->conn)) != NULL) {
                 if (strcmp(pair->name, "music_directory") == 0) {
                     if (strncmp(pair->value, "smb://", 6) != 0 && strncmp(pair->value, "nfs://", 6) != 0) {
-                        mympd_state->music_directory_value = sdsreplace(mympd_state->music_directory_value, pair->value);
+                        mympd_state->music_directory_value = sds_replace(mympd_state->music_directory_value, pair->value);
                     }
                 }
                 mpd_return_pair(mympd_state->mpd_state->conn, pair);
@@ -240,7 +240,7 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
         }
     }
     else if (strncmp(mympd_state->music_directory, "/", 1) == 0) {
-        mympd_state->music_directory_value = sdsreplace(mympd_state->music_directory_value, mympd_state->music_directory);
+        mympd_state->music_directory_value = sds_replace(mympd_state->music_directory_value, mympd_state->music_directory);
     }
     else if (strncmp(mympd_state->music_directory, "none", 4) == 0) {
         //empty music_directory
@@ -248,7 +248,7 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
     else {
         MYMPD_LOG_ERROR("Invalid music_directory value: \"%s\"", mympd_state->music_directory);
     }
-    strip_slash(mympd_state->music_directory_value);
+    sds_strip_slash(mympd_state->music_directory_value);
     MYMPD_LOG_INFO("Music directory is \"%s\"", mympd_state->music_directory_value);
     
     //set feat_library

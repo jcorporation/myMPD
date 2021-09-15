@@ -405,7 +405,7 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
     }
     int i = 0;
     sds param = sdsempty();
-    while (sdsgetline(&line, fp, 1000) == 0) {
+    while (sds_getline(&line, fp, 1000) == 0) {
         if (i > MAX_LIST_TIMER) {
             MYMPD_LOG_WARN("Too many timers defined");
             break;
@@ -456,7 +456,7 @@ bool mympd_api_timer_file_save(struct t_mympd_state *mympd_state) {
     sds buffer = sdsempty();
     while (current != NULL) {
         if (current->timer_id > 99 && current->definition != NULL) {
-            buffer = sdsreplace(buffer, "{");
+            buffer = sds_replace(buffer, "{");
             buffer = tojson_long(buffer, "timerid", current->timer_id, true);
             buffer = tojson_long(buffer, "interval", current->interval, true);
             buffer = tojson_char(buffer, "name", current->definition->name, true);

@@ -30,16 +30,16 @@ static int json_get_utf8_char_len(unsigned char ch) {
     }
 }
 
-sds sdscatjson(sds s, const char *p, size_t len) {
+sds sds_catjson(sds s, const char *p, size_t len) {
     s = sdscatlen(s, "\"", 1);
     while (len--) {
-        s = sdscatjsonchar(s, *p);
+        s = sds_catjsonchar(s, *p);
         p++;
     }
     return sdscatlen(s, "\"", 1);
 }
 
-sds sdscatjsonchar(sds s, const char p) {
+sds sds_catjsonchar(sds s, const char p) {
     switch(p) {
         case '\\':
         case '"':
@@ -119,7 +119,7 @@ bool sds_json_unescape(const char *src, int slen, sds *dst) {
     return true;
 }
 
-sds sdsurldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
+sds sds_urldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
     size_t i;
     int a;
     int b;
@@ -155,7 +155,7 @@ sds sdsurldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
     return s;
 }
 
-sds sdsreplacelen(sds s, const char *value, size_t len) {
+sds sds_replacelen(sds s, const char *value, size_t len) {
     if (s != NULL) {
         sdsclear(s);
     }
@@ -168,8 +168,8 @@ sds sdsreplacelen(sds s, const char *value, size_t len) {
     return s;
 }
 
-sds sdsreplace(sds s, const char *value) {
-    return sdsreplacelen(s, value, strlen(value));
+sds sds_replace(sds s, const char *value) {
+    return sds_replacelen(s, value, strlen(value));
 }
 
 //custom getline function
@@ -178,7 +178,7 @@ sds sdsreplace(sds s, const char *value) {
 //-1 for EOF
 //-2 for too long line
 
-int sdsgetline(sds *s, FILE *fp, size_t max) {
+int sds_getline(sds *s, FILE *fp, size_t max) {
     sdsclear(*s);
     size_t i = 0;
     for (;;) {
@@ -205,13 +205,13 @@ int sdsgetline(sds *s, FILE *fp, size_t max) {
     }
 }
 
-int sdsgetline_n(sds *s, FILE *fp, size_t max) {
-    int rc = sdsgetline(s, fp, max);
+int sds_getline_n(sds *s, FILE *fp, size_t max) {
+    int rc = sds_getline(s, fp, max);
     *s = sdscat(*s, "\n");
     return rc;
 }
 
-int sdsgetfile(sds *s, FILE *fp, size_t max) {
+int sds_getfile(sds *s, FILE *fp, size_t max) {
     sdsclear(*s);
     size_t i = 0;
     for (;;) {
@@ -231,6 +231,78 @@ int sdsgetfile(sds *s, FILE *fp, size_t max) {
         else {
             MYMPD_LOG_ERROR("File is too long, max length is %u", max);
             return -2;
+        }
+    }
+}
+
+void sds_basename_uri(sds uri) {
+    const int uri_len = (int)sdslen(uri);
+    int i;
+
+    if (uri_len == 0) {
+        return;
+    }
+    
+    if (strstr(uri, "://") == NULL) {
+        //filename, remove path
+        for (i = uri_len - 1; i >= 0; i--) {
+            if (uri[i] == '/') {
+                break;
+            }
+        }
+        sdsrange(uri, i + 1, -1);
+        return;
+    }
+
+    //uri, remove query and hash
+    for (i = 0;  i < uri_len; i++) {
+        if (uri[i] == '#' || uri[i] == '?') {
+            break;
+        }
+    }
+    if (i < uri_len - 1) {
+        sdsrange(uri, 0, i - 1);
+    }
+}
+
+void sds_strip_slash(sds s) {
+    ssize_t len = (ssize_t)sdslen(s);
+    if (len > 1 && s[len - 1] == '/') {
+        sdsrange(s, 0, len - 2);
+    }
+}
+
+sds sds_get_extension_from_filename(const char *filename) {
+    const char *ext = strrchr(filename, '.');
+    if (ext == NULL || ext[0] == '\0') {
+        return sdsempty();
+    }
+    sds extension = sdsnew(ext);
+    //trim starting dot
+    sdsrange(extension, 1, -1);
+    sdstolower(extension);
+    return extension;
+}
+
+void sds_strip_file_extension(sds s) {
+    for (size_t i = sdslen(s) - 1 ; i > 0; i--) {
+        if (s[i] == '.') {
+            sdsrange(s, 0, i - 1);
+            break;
+        }
+    }
+}
+
+void sds_streamuri_to_filename(sds s) {
+    if (sdslen(s) < 4) {
+        sdsclear(s);
+        return;
+    }
+    for (ssize_t i = 0; i < (ssize_t)sdslen(s) - 2; i++) {
+        if (s[i] == ':' && s[i + 1] == '/' && s[i + 2] == '/') {
+            sdsrange(s, i + 3, -1);
+            sdsmapchars(s, "/.:", "___", 3);
+            break;
         }
     }
 }

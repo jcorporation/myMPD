@@ -38,7 +38,7 @@ bool mympd_api_smartpls_default(struct t_config *config) {
     sds prefix_file = sdscatfmt(sdsempty(), "%s/state/smartpls_prefix", config->workdir);
     FILE *fp = fopen(prefix_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
-        if (sdsgetline(&prefix, fp, 50) != 0) {
+        if (sds_getline(&prefix, fp, 50) != 0) {
             prefix = sdscat(prefix, "myMPDsmart");
         }
         fclose(fp);
@@ -325,7 +325,7 @@ sds mympd_api_smartpls_put(struct t_config *config, sds buffer, sds method, long
         return buffer;
     }
     sds content = sdsempty();
-    sdsgetfile(&content, fp, 2000);
+    sds_getfile(&content, fp, 2000);
     FREE_SDS(pl_file);
     fclose(fp);
 

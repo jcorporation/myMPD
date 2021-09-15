@@ -26,10 +26,8 @@ struct t_mympd_queue *mympd_script_queue;
 static const char *mympd_cmd_strs[] = { MYMPD_CMDS(GEN_STR) };
 
 enum mympd_cmd_ids get_cmd_id(const char *cmd) {
-    const size_t cmd_len = strlen(cmd);
     for (unsigned i = 0; i < TOTAL_API_COUNT; i++) {
-        const size_t len = strlen(mympd_cmd_strs[i]);
-        if (cmd_len == len && strncmp(cmd, mympd_cmd_strs[i], len) == 0) {
+        if (strcmp(cmd, mympd_cmd_strs[i]) == 0) {
             return i;
         }
     }

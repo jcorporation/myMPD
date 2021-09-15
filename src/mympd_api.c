@@ -28,7 +28,7 @@
 #include <sys/prctl.h>
 
 void *mympd_api_loop(void *arg_config) {
-    thread_logname = sdsreplace(thread_logname, "mympdapi");
+    thread_logname = sds_replace(thread_logname, "mympdapi");
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
 
     //create mympd_state struct and set defaults

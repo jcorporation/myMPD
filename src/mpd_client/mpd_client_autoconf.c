@@ -33,11 +33,11 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
         MYMPD_LOG_NOTICE("Found %s", mpd_conf);
         //get config from mpd configuration file
         sds mpd_host = _get_mpd_conf("bind_to_address", mympd_state->mpd_state->mpd_host, vcb_isname);
-        mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, mpd_host);
+        mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, mpd_host);
         FREE_SDS(mpd_host);
 
         sds mpd_pass = _get_mpd_conf("password", mympd_state->mpd_state->mpd_pass, vcb_isname);
-        mympd_state->mpd_state->mpd_pass = sdsreplace(mympd_state->mpd_state->mpd_pass, mpd_pass);
+        mympd_state->mpd_state->mpd_pass = sds_replace(mympd_state->mpd_state->mpd_pass, mpd_pass);
         FREE_SDS(mpd_pass);
         
         sds mpd_port = _get_mpd_conf("port", mympd_state->mpd_state->mpd_host, vcb_isdigit);
@@ -48,11 +48,11 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
         FREE_SDS(mpd_port);
         
         sds music_directory = _get_mpd_conf("music_directory", mympd_state->music_directory, vcb_isfilepath);
-        mympd_state->music_directory = sdsreplace(mympd_state->music_directory, music_directory);
+        mympd_state->music_directory = sds_replace(mympd_state->music_directory, music_directory);
         FREE_SDS(music_directory);
         
         sds playlist_directory = _get_mpd_conf("playlist_directory", mympd_state->playlist_directory, vcb_isfilepath);
-        mympd_state->playlist_directory = sdsreplace(mympd_state->playlist_directory, playlist_directory);
+        mympd_state->playlist_directory = sds_replace(mympd_state->playlist_directory, playlist_directory);
         FREE_SDS(playlist_directory);
         FREE_SDS(mpd_conf);
         return;
@@ -69,13 +69,13 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
             if (mpd_host[0] != '@' && strstr(mpd_host, "@") != NULL) {
                 int count;
                 sds *tokens = sdssplitlen(mpd_host, (ssize_t)sdslen(mpd_host), "@", 1, &count);
-                mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, tokens[1]);
-                mympd_state->mpd_state->mpd_pass = sdsreplace(mympd_state->mpd_state->mpd_pass, tokens[0]);
+                mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, tokens[1]);
+                mympd_state->mpd_state->mpd_pass = sds_replace(mympd_state->mpd_state->mpd_pass, tokens[0]);
                 sdsfreesplitres(tokens,count);
             }
             else {
                 //no password
-                mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, mpd_host);
+                mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, mpd_host);
             }
             MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", mympd_state->mpd_state->mpd_host);
             mpd_configured = true;
@@ -103,11 +103,11 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
 
     //check for socket
     if (access("/run/mpd/socket", F_OK ) == 0) { /* Flawfinder: ignore */
-        mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, "/run/mpd/socket");
+        mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "/run/mpd/socket");
         return;
     }
     if (access("/var/run/mpd/socket", F_OK ) == 0) { /* Flawfinder: ignore */
-        mympd_state->mpd_state->mpd_host = sdsreplace(mympd_state->mpd_state->mpd_host, "/var/run/mpd/socket");
+        mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "/var/run/mpd/socket");
         return;
     }
 }
@@ -125,7 +125,7 @@ static sds _find_mpd_conf(void) {
 
     sds filename = sdsempty();
     for (const char **p = filenames; *p != NULL; p++) {
-        filename = sdsreplace(filename, *p);
+        filename = sds_replace(filename, *p);
         FILE *fp = fopen(filename, OPEN_FLAGS_READ);
         if (fp != NULL) { /* Flawfinder: ignore */
             fclose(fp);
@@ -152,7 +152,7 @@ static sds _get_mpd_conf(const char *key, const char *default_value, validate_ca
     sds line = sdsempty();
     sds name;
     sds value;
-    while (sdsgetline(&line, fp, 1000) == 0) {
+    while (sds_getline(&line, fp, 1000) == 0) {
         if (sdslen(line) > 0) {
             int tokens = _sdssplit_whitespace(line, &name, &value);
             if (tokens == 2) {
@@ -161,7 +161,7 @@ static sds _get_mpd_conf(const char *key, const char *default_value, validate_ca
                         //prefer socket connection
                         MYMPD_LOG_NOTICE("Found mpd host: %s", value);
                         if (vcb(value) == true) {
-                            last_value = sdsreplace(last_value, value);
+                            last_value = sds_replace(last_value, value);
                         }
                     }
                 }
@@ -174,7 +174,7 @@ static sds _get_mpd_conf(const char *key, const char *default_value, validate_ca
                             //prefer the entry with admin privileges or as fallback the first entry
                             MYMPD_LOG_NOTICE("Found mpd password\n");
                             if (vcb(pwtokens[0]) == true) {
-                                last_value = sdsreplace(last_value, pwtokens[0]);
+                                last_value = sds_replace(last_value, pwtokens[0]);
                             }
                         }
                     }
@@ -183,7 +183,7 @@ static sds _get_mpd_conf(const char *key, const char *default_value, validate_ca
                 else if (strcasecmp(name, key) == 0) {
                     MYMPD_LOG_NOTICE("Found %s: %s", key, value);
                     if (vcb(value) == true) {
-                        last_value = sdsreplace(last_value, value);
+                        last_value = sds_replace(last_value, value);
                     }
                 }
             }

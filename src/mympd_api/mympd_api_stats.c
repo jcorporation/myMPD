@@ -56,7 +56,7 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
     errno = 0;
     FILE *fi = fopen(lp_file, OPEN_FLAGS_READ);
     if (fi != NULL) {
-        while (sdsgetline(&line, fi, 1000) == 0 && i < mympd_state->last_played_count) {
+        while (sds_getline(&line, fi, 1000) == 0 && i < mympd_state->last_played_count) {
             fprintf(fp, "%s\n", line);
             i++;
         }
@@ -148,7 +148,7 @@ sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buff
     errno = 0;
     FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
-        while (sdsgetline(&line, fp, 1000) == 0) {
+        while (sds_getline(&line, fp, 1000) == 0) {
             entity_count++;
             if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
                 int value = (int)strtoimax(line, &data, 10);

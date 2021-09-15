@@ -309,10 +309,10 @@ bool list_replace(struct t_list *l, unsigned pos, const char *key, long value_i,
         i++;
     }
     
-    current->key = sdsreplace(current->key, key);
+    current->key = sds_replace(current->key, key);
     current->value_i = value_i;
     if (value_p != NULL) {
-        current->value_p = sdsreplace(current->value_p, value_p);
+        current->value_p = sds_replace(current->value_p, value_p);
     }
     else if (current->value_p != NULL) {
         sdsclear(current->value_p);

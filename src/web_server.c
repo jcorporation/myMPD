@@ -111,7 +111,7 @@ void web_server_free(void *arg_mgr) {
 }
 
 void *web_server_loop(void *arg_mgr) {
-    thread_logname = sdsreplace(thread_logname, "webserver");
+    thread_logname = sds_replace(thread_logname, "webserver");
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     
@@ -141,7 +141,7 @@ void *web_server_loop(void *arg_mgr) {
                 //websocket notify from mpd idle
                 time_t now = time(NULL);
                 if (strcmp(response->data, last_notify) != 0 || last_time < now - 1) {
-                    last_notify = sdsreplace(last_notify, response->data);
+                    last_notify = sds_replace(last_notify, response->data);
                     last_time = now;
                     send_ws_notify(mgr, response);
                 } 
@@ -169,10 +169,10 @@ static bool parse_internal_message(struct t_work_result *response, struct t_mg_u
     if (response->extra != NULL) {	
 	    struct set_mg_user_data_request *new_mg_user_data = (struct set_mg_user_data_request *)response->extra;
         
-        mg_user_data->music_directory = sdsreplace(mg_user_data->music_directory, new_mg_user_data->music_directory);
+        mg_user_data->music_directory = sds_replace(mg_user_data->music_directory, new_mg_user_data->music_directory);
         FREE_SDS(new_mg_user_data->music_directory);
         
-        mg_user_data->playlist_directory = sdsreplace(mg_user_data->playlist_directory, new_mg_user_data->playlist_directory);
+        mg_user_data->playlist_directory = sds_replace(mg_user_data->playlist_directory, new_mg_user_data->playlist_directory);
         FREE_SDS(new_mg_user_data->playlist_directory);
         
         sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);

@@ -324,7 +324,7 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
         errno = 0;
         FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
         if (fp != NULL) {
-            while (sdsgetline(&line, fp, 1000) == 0 && queue_list->length < 20) {
+            while (sds_getline(&line, fp, 1000) == 0 && queue_list->length < 20) {
                 int value = (int)strtoimax(line, &data, 10);
                 if (value > 0 && strlen(data) > 2) {
                     data = data + 2;
