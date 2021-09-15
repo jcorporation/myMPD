@@ -292,7 +292,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
     int n;
     int otype = mjson_find(s, (int)sdslen(s), path, &p, &n);
     if (otype != MJSON_TOK_OBJECT && otype != MJSON_TOK_ARRAY) {
-        _set_parse_error(error, "Invalid json object type for JSON path \"%s\"", path);
+        _set_parse_error(error, "Invalid json object type for JSON path \"%s\": %d", path, otype);
         return false;
     }
     if (n == 2) {
