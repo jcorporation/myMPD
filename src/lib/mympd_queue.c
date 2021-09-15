@@ -14,6 +14,12 @@
 #include <errno.h>
 #include <stdlib.h>
 
+//private definitions
+static int unlock_mutex(pthread_mutex_t *mutex);
+static void set_wait_time(int timeout, struct timespec *max_wait);
+
+//public functions
+
 struct t_mympd_queue *mympd_queue_create(const char *name) {
     struct t_mympd_queue *queue = (struct t_mympd_queue *)malloc_assert(sizeof(struct t_mympd_queue));
     queue->head = NULL;
@@ -57,9 +63,7 @@ int mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
         queue->tail->next = new_node;
         queue->tail = new_node;
     }
-    rc = pthread_mutex_unlock(&queue->mutex);
-    if (rc != 0) {
-        MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
+    if (unlock_mutex(&queue->mutex) != 0) {
         return 0;
     }
     rc = pthread_cond_signal(&queue->wakeup);
@@ -71,7 +75,6 @@ int mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
 }
 
 unsigned mympd_queue_length(struct t_mympd_queue *queue, int timeout) {
-    timeout = timeout * 1000;  
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
@@ -79,38 +82,20 @@ unsigned mympd_queue_length(struct t_mympd_queue *queue, int timeout) {
     }
     if (timeout > 0 && queue->length == 0) {
         struct timespec max_wait = {0, 0};
-        errno = 0;
-        if (clock_gettime(CLOCK_REALTIME, &max_wait) == -1) {
-            MYMPD_LOG_ERROR("Error getting realtime");
-            MYMPD_LOG_ERRNO(errno);
-            assert(NULL);
-        }
-        //timeout in ms
-        if (max_wait.tv_nsec <= (999999999 - timeout)) {
-            max_wait.tv_nsec += timeout;
-        } 
-        else {
-            max_wait.tv_sec += 1;
-            max_wait.tv_nsec = timeout - (999999999 - max_wait.tv_nsec);
-        }
+        set_wait_time(timeout, &max_wait);
         errno = 0;
         rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
         if (rc != 0 && rc != ETIMEDOUT) {
             MYMPD_LOG_ERROR("Error in pthread_cond_timedwait: %s", rc);
             MYMPD_LOG_ERRNO(errno);
-            MYMPD_LOG_ERROR("Max wait: %llu", (unsigned long long)max_wait.tv_nsec);
         }
     }
     unsigned len = queue->length;
-    rc = pthread_mutex_unlock(&queue->mutex);
-    if (rc != 0) {
-        MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
-    }
+    unlock_mutex(&queue->mutex);
     return len;
 }
 
 void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
-    timeout = timeout * 1000;
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
@@ -119,45 +104,22 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
     if (queue->length == 0) {
         if (timeout > 0) {
             struct timespec max_wait = {0, 0};
-            errno = 0;
-            if (clock_gettime(CLOCK_REALTIME, &max_wait) == -1) {
-                MYMPD_LOG_ERROR("Error getting realtime");
-                MYMPD_LOG_ERRNO(errno);
-                return NULL;
-            }
-            //timeout in ms
-            if (max_wait.tv_nsec <= (999999999 - timeout)) {
-                max_wait.tv_nsec += timeout;
-            }
-            else {
-                max_wait.tv_sec += 1;
-                max_wait.tv_nsec = timeout - (999999999 - max_wait.tv_nsec);
-            }
+            set_wait_time(timeout, &max_wait);
             errno = 0;
             rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
-            if (rc != 0) {
-                if (rc != ETIMEDOUT) {
-                    MYMPD_LOG_ERROR("Error in pthread_cond_timedwait: %d", rc);
-                    MYMPD_LOG_ERRNO(errno);
-                    MYMPD_LOG_ERROR("Max wait: %llu", (unsigned long long)max_wait.tv_nsec);
-                }
-                rc = pthread_mutex_unlock(&queue->mutex);
-                if (rc != 0) {
-                    MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
-                }
-                return NULL;
-            }
         }
         else {
+            errno = 0;
             rc = pthread_cond_wait(&queue->wakeup, &queue->mutex);
-            if (rc != 0) {
-                MYMPD_LOG_ERROR("Error in pthread_cond_wait: %d", rc);
-                rc = pthread_mutex_unlock(&queue->mutex);
-                if (rc != 0) {
-                    MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
-                }
-                return NULL;
+        }
+
+        if (rc != 0) {
+            if (rc != ETIMEDOUT) {
+                MYMPD_LOG_ERROR("Error in pthread_cond_timedwait: %d", rc);
+                MYMPD_LOG_ERRNO(errno);
             }
+            unlock_mutex(&queue->mutex);
+            return NULL;
         }
     }
     //queue has entry
@@ -184,23 +146,16 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
 
                 free(current);
                 queue->length--;
-                rc = pthread_mutex_unlock(&queue->mutex);
-                if (rc != 0) {
-                    MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
-                }
+                unlock_mutex(&queue->mutex);
                 return data;
             }
             MYMPD_LOG_DEBUG("Skipping queue entry with id %d", current->id);
         }
     }
 
-    rc = pthread_mutex_unlock(&queue->mutex);
-    if (rc != 0) {
-        MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
-    }
+    unlock_mutex(&queue->mutex);
     return NULL;
 }
-
 
 void *mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age) {
     int rc = pthread_mutex_lock(&queue->mutex);
@@ -234,19 +189,41 @@ void *mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age) {
 
                 free(current);
                 queue->length--;
-                rc = pthread_mutex_unlock(&queue->mutex);
-                if (rc != 0) {
-                    MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
-                }
+                unlock_mutex(&queue->mutex);
                 MYMPD_LOG_WARN("Found expired entry in queue");
                 return data;
             }
         }
     }
 
-    rc = pthread_mutex_unlock(&queue->mutex);
+    unlock_mutex(&queue->mutex);
+    return NULL;
+}
+
+//private functions
+
+static int unlock_mutex(pthread_mutex_t *mutex) {
+    int rc = pthread_mutex_unlock(mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
     }
-    return NULL;
+    return rc;
+}
+
+static void set_wait_time(int timeout, struct timespec *max_wait) {
+    timeout = timeout * 1000;
+    errno = 0;
+    if (clock_gettime(CLOCK_REALTIME, max_wait) == -1) {
+        MYMPD_LOG_ERROR("Error getting realtime");
+        MYMPD_LOG_ERRNO(errno);
+        assert(NULL);
+    }
+    //timeout in ms
+    if (max_wait->tv_nsec <= (999999999 - timeout)) {
+        max_wait->tv_nsec += timeout;
+    }
+    else {
+        max_wait->tv_sec += 1;
+        max_wait->tv_nsec = timeout - (999999999 - max_wait->tv_nsec);
+    }
 }
