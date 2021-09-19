@@ -4,7 +4,12 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef TEST_LIST_H
-#define TEST_LIST_H
-void test_list(void);
+#ifndef TEST_UTILITY_H
+#define TEST_UTILITY_H
+
+struct t_input_result {
+    const char *input;
+    const char *result;
+};
+
 #endif

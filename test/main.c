@@ -6,21 +6,16 @@
 
 #include "mympd_config_defs.h"
 
+#include "../dist/src/utest/utest.h"
 #include "../src/lib/sds_extras.h"
-
-#include "tests/test_list.h"
-#include "tests/test_queue.h"
-#include "tests/test_sds.h"
 
 _Thread_local sds thread_logname;
 
-int main(void) {
-    thread_logname = sdsempty();
+UTEST_STATE();
 
-    test_queue();
-    test_list();
-    test_sds();
-    
-    sdsfree(thread_logname);
-    return 0;
+int main(int argc, const char *const argv[]) {
+    thread_logname = sdsempty();
+    int rc = utest_main(argc, argv);
+    FREE_SDS(thread_logname);
+    return rc;
 }
