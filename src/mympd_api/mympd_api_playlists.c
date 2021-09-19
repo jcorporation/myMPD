@@ -146,7 +146,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
     FREE_SDS(smartpls_path);
     FREE_SDS(plpath_lower);    
 
-    list_sort_by_key(&entity_list, true);
+    list_sort_by_key(&entity_list, LIST_SORT_ASC);
     
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer,"\"data\":[");

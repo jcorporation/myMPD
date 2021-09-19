@@ -298,7 +298,7 @@ static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_wo
         value_max = value_max / 2;
     }
 
-    list_sort_by_value_i(&add_list, false);
+    list_sort_by_value_i(&add_list, LIST_SORT_DESC);
 
     int i = 0;
     if (mpd_command_list_begin(mpd_worker_state->mpd_state->conn, false)) {

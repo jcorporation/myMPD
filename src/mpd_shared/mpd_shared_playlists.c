@@ -132,7 +132,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
     }
     else {
         if (mpd_state->feat_tags == false || strcmp(tagstr, "filename") == 0) {
-            if (list_sort_by_key(&plist, true) == false) {
+            if (list_sort_by_key(&plist, LIST_SORT_ASC) == false) {
                 if (buffer != NULL) {
                     buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to sort");
                 }
@@ -142,7 +142,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
             }
         }
         else {
-            if (list_sort_by_value_p(&plist, true) == false) {
+            if (list_sort_by_value_p(&plist, LIST_SORT_ASC) == false) {
                 if (buffer != NULL) {
                     buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to sort");
                 }

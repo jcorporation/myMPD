@@ -143,7 +143,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                 if (search_len == 0  || strstr(entity_name, searchstr) != NULL) {
                     sds key = sdscatprintf(sdsempty(), "2%s", mpd_song_get_uri(song));
                     sdstolower(key);
-                    list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_SONG, entity_name, mpd_song_dup(song), false);
+                    list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_SONG, entity_name, mpd_song_dup(song), LIST_SORT_ASC);
                     FREE_SDS(key);
                 }
                 FREE_SDS(entity_name);
@@ -164,7 +164,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                 if (search_len == 0  || strstr(dir_name_lower, searchstr) != NULL) {
                     sds key = sdscatprintf(sdsempty(), "0%s", mpd_directory_get_path(dir));
                     sdstolower(key);
-                    list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_DIRECTORY, dir_name, mpd_directory_dup(dir), false);
+                    list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_DIRECTORY, dir_name, mpd_directory_dup(dir), LIST_SORT_ASC);
                     FREE_SDS(key);
                 }
                 FREE_SDS(dir_name_lower);
@@ -194,7 +194,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                 if (search_len == 0  || strstr(pl_name, searchstr) != NULL) {
                     sds key = sdscatprintf(sdsempty(), "1%s", mpd_playlist_get_path(pl));
                     sdstolower(key);
-                    list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_PLAYLIST, pl_name, mpd_playlist_dup(pl), false);
+                    list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_PLAYLIST, pl_name, mpd_playlist_dup(pl), LIST_SORT_ASC);
                     FREE_SDS(key);
                 }
                 FREE_SDS(entity_name);
@@ -499,18 +499,21 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
         if (_search_song(song, &expr_list, &mympd_state->tag_types_browse) == true) {
             if (sort_by_last_modified == true) {
                 key = sdscatlen(key, iter.key, iter.key_len);
-                list_insert_sorted_by_value_i(&album_list, key, mpd_song_get_last_modified(song), NULL, iter.data, sortdesc);
+                list_insert_sorted_by_value_i(&album_list, key, mpd_song_get_last_modified(song), NULL, iter.data,
+                    (sortdesc == false ? LIST_SORT_ASC : LIST_SORT_DESC));
                 sdsclear(key);
             }
             else {
                 const char *sort_value = mpd_song_get_tag(song, sort_tag, 0);
                 if (sort_value != NULL) {
-                    list_insert_sorted_by_key(&album_list, sort_value, 0, NULL, iter.data, sortdesc);
+                    list_insert_sorted_by_key(&album_list, sort_value, 0, NULL, iter.data,
+                        (sortdesc == false ? LIST_SORT_ASC : LIST_SORT_DESC));
                 }
                 else if (sort_tag == MPD_TAG_ALBUM_ARTIST) {
                     //fallback to artist tag if albumartist tag is not set
                     sort_value = mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
-                    list_insert_sorted_by_key(&album_list, sort_value, 0, NULL, iter.data, sortdesc);
+                    list_insert_sorted_by_key(&album_list, sort_value, 0, NULL, iter.data,
+                        (sortdesc == false ? LIST_SORT_ASC : LIST_SORT_DESC));
                 }
                 else {
                     //sort tag not present, append to end of the list
