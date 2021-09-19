@@ -13,7 +13,6 @@
 #include "../lib/log.h"
 #include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
-#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mympd_api/mympd_api_utility.h"
 

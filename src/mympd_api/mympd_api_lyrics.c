@@ -12,7 +12,6 @@
 #include "../lib/mem.h"
 #include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
-#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "mympd_api_utility.h"
 

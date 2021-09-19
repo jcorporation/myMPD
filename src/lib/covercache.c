@@ -10,7 +10,6 @@
 #include "log.h"
 #include "mimetype.h"
 #include "sds_extras.h"
-#include "utility.h"
 
 #include <dirent.h>
 #include <errno.h>

@@ -12,7 +12,6 @@
 #include "../lib/log.h"
 #include "../lib/mimetype.h"
 #include "../lib/mympd_configuration.h"
-#include "../lib/utility.h"
 
 #include <stdlib.h>
 

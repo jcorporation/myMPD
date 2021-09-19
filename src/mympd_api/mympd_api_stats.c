@@ -11,7 +11,6 @@
 #include "../lib/log.h"
 #include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
-#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
@@ -56,8 +55,8 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
     errno = 0;
     FILE *fi = fopen(lp_file, OPEN_FLAGS_READ);
     if (fi != NULL) {
-        while (sds_getline(&line, fi, 1000) == 0 && i < mympd_state->last_played_count) {
-            fprintf(fp, "%s\n", line);
+        while (sds_getline_n(&line, fi, 1000) == 0 && i < mympd_state->last_played_count) {
+            fputs(line, fp);
             i++;
         }
         FREE_SDS(line);

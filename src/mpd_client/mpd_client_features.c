@@ -256,7 +256,7 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
         MYMPD_LOG_WARN("Disabling featLibrary support");
         mympd_state->mpd_state->feat_library = false;
     }
-    else if (testdir("MPD music_directory", mympd_state->music_directory_value, false) == 0) {
+    else if (testdir("MPD music_directory", mympd_state->music_directory_value, false) == DIR_EXISTS) {
         MYMPD_LOG_NOTICE("Enabling featLibrary support");
         mympd_state->mpd_state->feat_library = true;
     }

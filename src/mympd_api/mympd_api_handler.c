@@ -833,7 +833,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_DATABASE_COMMENTS:
-            if (json_get_string(request->data, "$.params.uri", 1,MAX_FILEPATH_LEN, &sds_buf1, vcb_isfilepath, &error) == true) {
+            if (json_get_string(request->data, "$.params.uri", 1, MAX_FILEPATH_LEN, &sds_buf1, vcb_isfilepath, &error) == true) {
                 response->data = mympd_api_browse_read_comments(mympd_state, response->data, request->method, request->id, sds_buf1);
             }
             break;

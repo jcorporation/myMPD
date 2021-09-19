@@ -285,6 +285,9 @@ sds sds_get_extension_from_filename(const char *filename) {
 }
 
 void sds_strip_file_extension(sds s) {
+    if (sdslen(s) == 0) {
+        return;
+    }
     for (size_t i = sdslen(s) - 1 ; i > 0; i--) {
         if (s[i] == '.') {
             sdsrange(s, 0, i - 1);
@@ -301,8 +304,8 @@ void sds_streamuri_to_filename(sds s) {
     for (ssize_t i = 0; i < (ssize_t)sdslen(s) - 2; i++) {
         if (s[i] == ':' && s[i + 1] == '/' && s[i + 2] == '/') {
             sdsrange(s, i + 3, -1);
-            sdsmapchars(s, "/.:", "___", 3);
             break;
         }
     }
+    sdsmapchars(s, "/.:?#", "_____", 5);
 }

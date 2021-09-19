@@ -13,7 +13,6 @@
 #include "../lib/mimetype.h"
 #include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
-#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_shared/mpd_shared_search.h"
 #include "../mpd_shared/mpd_shared_sticker.h"

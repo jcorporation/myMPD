@@ -9,7 +9,6 @@
 
 #include "log.h"
 #include "sds_extras.h"
-#include "utility.h"
 #include "validate.h"
 
 #include <ctype.h>
@@ -81,9 +80,9 @@ bool state_file_rw_bool(const char *workdir, const char *dir, const char *name, 
     bool value = def_value;
     sds line = state_file_rw_string(workdir, dir, name, def_value == true ? "true" : "false", NULL, warn);
     if (sdslen(line) > 0) {
-        value = strtobool(line);
-        FREE_SDS(line);
+        value = line[0] == 't' ? true : false;
     }
+    FREE_SDS(line);
     return value;
 }
 

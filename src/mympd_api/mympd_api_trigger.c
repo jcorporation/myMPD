@@ -13,7 +13,6 @@
 #include "../lib/mem.h"
 #include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
-#include "../lib/utility.h"
 
 #include <errno.h>
 #include <stdlib.h>

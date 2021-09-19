@@ -13,7 +13,6 @@
 #include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
 #include "../lib/state_files.h"
-#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mympd_api/mympd_api_trigger.h"
 #include "../mympd_api/mympd_api_utility.h"

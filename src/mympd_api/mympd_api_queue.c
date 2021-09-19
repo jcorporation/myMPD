@@ -9,7 +9,6 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
-#include "../lib/utility.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
@@ -47,7 +46,7 @@ bool mympd_api_queue_prio_set_highest(struct t_mympd_state *mympd_state, const u
     }
     
     //set priority, priority have only an effect in random mode
-    bool rc = mpd_run_prio_id(mympd_state->mpd_state->conn, unsigned_to_int(priority), trackid);
+    bool rc = mpd_run_prio_id(mympd_state->mpd_state->conn, (int)priority, trackid);
     if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_prio_id") == false) {
         return false;
     }
