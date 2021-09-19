@@ -36,6 +36,8 @@ UTEST(list, manipulate) {
     ASSERT_STREQ("key0", test_list.head->key);
     ASSERT_STREQ("key5", test_list.tail->key);
 
+    ASSERT_EQ(6, test_list.length);
+
     //move node
     list_move_item_pos(&test_list, 4, 2);
     current = list_node_at(&test_list, 2);
@@ -43,11 +45,24 @@ UTEST(list, manipulate) {
     current = list_node_at(&test_list, 4);
     ASSERT_STREQ("key3", current->key);
 
-/*
+    ASSERT_EQ(6, test_list.length);
+
     //remove middle item
-    list_shift(test_list,3);
+    list_shift(&test_list, 3);
+    current = list_node_at(&test_list, 4);
+    ASSERT_STREQ("key5", current->key);
+    ASSERT_EQ(5, test_list.length);
+
     //remove last item
-    list_shift(test_list, 5);
+    list_shift(&test_list, test_list.length - 1);
+    ASSERT_STREQ("key3", test_list.tail->key);
+    ASSERT_EQ(4, test_list.length);
+
+    //check tail
+    current = list_node_at(&test_list, test_list.length - 1);
+    ASSERT_STREQ(current->key, test_list.tail->key);
+
+/*
     //remove first item
     list_shift(test_list, 0);
     list_push(test_list, "key6", 6, "value6", NULL);
