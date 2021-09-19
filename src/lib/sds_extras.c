@@ -265,11 +265,15 @@ void sds_basename_uri(sds uri) {
     }
 }
 
-void sds_strip_slash(sds s) {
-    ssize_t len = (ssize_t)sdslen(s);
-    if (len > 1 && s[len - 1] == '/') {
-        sdsrange(s, 0, len - 2);
+void sds_strip_slash(sds s) {      
+    char *sp = s;
+    char *ep = s + sdslen(s) - 1;
+    while(ep >= sp && strchr("/", *ep)) {
+        ep--;
     }
+    size_t len = (sp > ep) ? 0 : ((ep-sp)+1);
+    s[len] = '\0';
+    sdssetlen(s, len);
 }
 
 sds sds_get_extension_from_filename(const char *filename) {
