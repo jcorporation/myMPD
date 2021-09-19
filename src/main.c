@@ -36,7 +36,7 @@ _Thread_local sds thread_logname;
 static void mympd_signal_handler(int sig_num) {
     signal(sig_num, mympd_signal_handler);  // Reinstantiate signal handler
     if (sig_num == SIGTERM || sig_num == SIGINT) {
-        //Set loop end condiftion for threads
+        //Set loop end condition for threads
         s_signal_received = sig_num;
         //Wakeup queue loops
         pthread_cond_signal(&mympd_api_queue->wakeup);
@@ -119,27 +119,25 @@ static bool drop_privileges(struct t_config *config, uid_t startup_uid) {
 
 static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     int testdir_rc = testdir("Workdir", config->workdir, true);
-    if (testdir_rc == 1) {
-        config->first_startup = true;
-    }
-    if (testdir_rc < 2) {
-        //directory exists or was created; set user and group, if uid = 0
-        if (startup_uid == 0) {
-            if (do_chown(config->workdir, config->user) == false) {
-                return false;
-            }
-        }
-    }
-    else {
+    if (testdir_rc == DIR_CREATE_FAILED) {
         //workdir is not accessible
-        MYMPD_LOG_ERROR("Can not access %s", config->workdir);
         return false;
+    }
+    
+    if (testdir_rc == DIR_CREATED) {
+        config->first_startup = true;
+        //directory exists or was created; set user and group, if uid = 0
+        if (startup_uid == 0 &&
+            do_chown(config->workdir, config->user) == false)
+        {
+            return false;
+        }
     }
 
     //config directory
     sds testdirname = sdscatfmt(sdsempty(), "%s/config", config->workdir);
     testdir_rc = testdir("Config dir", testdirname, true);
-    if (testdir_rc > 1) {
+    if (testdir_rc == DIR_CREATE_FAILED) {
         FREE_SDS(testdirname);
         return false;
     }
@@ -153,13 +151,13 @@ struct t_workdir_subdirs_entry {
 };
 
 const struct t_workdir_subdirs_entry workdir_subdirs[] = {
-    {"state",  "State dir"},
-    {"smartpls",  "Smartpls dir"},
-    {"pics", "Pics dir"},
-    {"empty",  "Empty dir"},
+    {"state",      "State dir"},
+    {"smartpls",   "Smartpls dir"},
+    {"pics",       "Pics dir"},
+    {"empty",      "Empty dir"},
     {"covercache", "Covercache dir"},
     #ifdef ENABLE_LUA
-    {"scripts", "Scripts dir"},
+    {"scripts",    "Scripts dir"},
     #endif
     {NULL, NULL}
 };
@@ -169,7 +167,7 @@ static bool check_dirs(struct t_config *config) {
     #ifdef DEBUG
         //release uses empty document root and delivers embedded files
         testdir_rc = testdir("Document root", DOC_ROOT, false);
-        if (testdir_rc > 1) {
+        if (testdir_rc != DIR_EXISTS) {
             return false;
         }
     #endif
@@ -178,13 +176,13 @@ static bool check_dirs(struct t_config *config) {
     for (p = workdir_subdirs; p->dirname != NULL; p++) {
         testdirname = sdscatfmt(testdirname, "%s/%s", config->workdir, p->dirname);
         testdir_rc = testdir(p->description, testdirname, true);
-        if (testdir_rc == 1) {
+        if (testdir_rc == DIR_CREATED) {
             if (strcmp(p->dirname, "smartpls") == 0) {
                 //directory created, create default smart playlists
                 mympd_api_smartpls_default(config);
             }
         }
-        if (testdir_rc > 1) {
+        if (testdir_rc == DIR_CREATE_FAILED) {
             FREE_SDS(testdirname);
             return false;
         }

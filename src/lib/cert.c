@@ -46,8 +46,7 @@ static bool certificates_cleanup(sds dir, const char *name);
 bool certificates_check(sds workdir, sds ssl_san) {
     sds testdirname = sdscatfmt(sdsempty(), "%s/ssl", workdir);
     int testdir_rc = testdir("SSL cert dir", testdirname, true);
-    if (testdir_rc < 2) {
-        //directory created, create certificates
+    if (testdir_rc == DIR_EXISTS || testdir_rc == DIR_CREATED) {
         if (certificates_create(testdirname, ssl_san) == false) {
             //error creating certificates
             MYMPD_LOG_ERROR("Certificate creation failed");

@@ -26,7 +26,7 @@ int testdir(const char *name, const char *dirname, bool create) {
         closedir(dir);
         MYMPD_LOG_NOTICE("%s: \"%s\"", name, dirname);
         //directory exists
-        return 0;
+        return DIR_EXISTS;
     }
 
     if (create == true) {
@@ -35,20 +35,16 @@ int testdir(const char *name, const char *dirname, bool create) {
             MYMPD_LOG_ERROR("%s: creating \"%s\" failed", name, dirname);
             MYMPD_LOG_ERRNO(errno);
             //directory does not exist and creating it failed
-            return 2;
+            return DIR_CREATE_FAILED;
         }
         MYMPD_LOG_NOTICE("%s: \"%s\" created", name, dirname);
         //directory successfully created
-        return 1;
+        return DIR_CREATED;
     }
 
     MYMPD_LOG_ERROR("%s: \"%s\" does not exist", name, dirname);
     //directory does not exist
-    return 3;
-}
-
-bool strtobool(const char *value) {
-    return value[0] == 't' ? true : false;
+    return DIR_NOT_EXISTS;
 }
 
 void my_usleep(time_t usec) {
@@ -64,9 +60,4 @@ unsigned long substractUnsigned(unsigned long num1, unsigned long num2) {
         return num1 - num2;
     }
     return 0;
-}
-
-//converts unsigned to int and prevents wrap arround
-int unsigned_to_int(unsigned x) {
-    return x < INT_MAX ? (int) x : INT_MAX;
 }

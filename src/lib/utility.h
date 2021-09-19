@@ -11,11 +11,16 @@
 
 #include "../../dist/src/sds/sds.h"
 
+enum testdir_status {
+    DIR_EXISTS = 0,
+    DIR_CREATED = 1,
+    DIR_CREATE_FAILED = 2,
+    DIR_NOT_EXISTS = 3
+};
+
 int testdir(const char *name, const char *dirname, bool create);
-bool strtobool(const char *value);
 void my_usleep(time_t usec);
 unsigned long substractUnsigned(unsigned long num1, unsigned long num2);
-int unsigned_to_int(unsigned x);
 
 //measure time
 #define MEASURE_START clock_t measure_start = clock();
