@@ -593,7 +593,7 @@ int mjson_print_dbl(mjson_print_fn_t fn, void *fnd, double d, int width) {
     n += addexp(buf + s + n, -e, '-');
     return fn(buf, s + n, fnd);
   } else {
-    for (i = 0, t = mul; d >= 1.0 && s + n < (int) sizeof(buf); i++) {
+    for (i = 0, t = mul; t >= 1.0 && s + n < (int) sizeof(buf); i++) {
       int ch = (int) (d / t);
       if (n > 0 || ch > 0) buf[s + n++] = (char) (ch + '0');
       d -= ch * t;
@@ -613,6 +613,7 @@ int mjson_print_dbl(mjson_print_fn_t fn, void *fnd, double d, int width) {
   }
   while (n > 0 && buf[s + n - 1] == '0') n--;  // Trim trailing zeros
   if (n > 0 && buf[s + n - 1] == '.') n--;     // Trim trailing dot
+  buf[s + n] = '\0';
   return fn(buf, s + n, fnd);
 }
 
@@ -823,7 +824,7 @@ int mjson_merge(const char *s, int n, const char *s2, int n2,
     char *path = (char *) alloca((size_t) klen + 1);
     const char *val;
     memcpy(path, "$.", 2);
-    memcpy(path + 2, s + koff + 1, (size_t)(klen - 2));
+    memcpy(path + 2, s + koff + 1, (size_t) (klen - 2));
     path[klen] = '\0';
     if ((t2 = mjson_find(s2, n2, path, &val, &k)) != MJSON_TOK_INVALID) {
       if (t2 == MJSON_TOK_NULL) continue;  // null deletes the key
@@ -848,7 +849,7 @@ int mjson_merge(const char *s, int n, const char *s2, int n2,
     const char *val;
     if (t == MJSON_TOK_NULL) continue;
     memcpy(path, "$.", 2);
-    memcpy(path + 2, s2 + koff + 1, (size_t)(klen - 2));
+    memcpy(path + 2, s2 + koff + 1, (size_t) (klen - 2));
     path[klen] = '\0';
     if (mjson_find(s, n, path, &val, &vlen) != MJSON_TOK_INVALID) continue;
     if (comma) len += fn(",", 1, userdata);
