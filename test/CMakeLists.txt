@@ -25,6 +25,9 @@ include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ../dist/src/libm
 include(CheckCSourceCompiles)
 
 set(SOURCES
+  ../dist/src/mjson/mjson.c
+  ../dist/src/sds/sds.c
+  ../dist/src/utf8decode/utf8decode.c
   ../src/lib/api.c
   ../src/lib/jsonrpc.c
   ../src/lib/list.c
@@ -37,9 +40,6 @@ set(SOURCES
   ../src/lib/sds_extras.c
   ../src/lib/utility.c
   ../src/lib/validate.c
-  ../dist/src/mjson/mjson.c
-  ../dist/src/sds/sds.c
-  ../dist/src/utf8decode/utf8decode.c
   main.c
   tests/test_jsonrpc.c
   tests/test_list.c
