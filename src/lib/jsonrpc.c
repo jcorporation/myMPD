@@ -10,6 +10,7 @@
 #include "../../dist/src/mjson/mjson.h"
 #include "log.h"
 #include "sds_extras.h"
+#include "utility.h"
 
 #include <limits.h>
 #include <string.h>
@@ -20,6 +21,18 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
 static void _set_parse_error(sds *error, const char *fmt, ...);
 
 //public functions
+
+void send_jsonrpc_notify(const char *facility, const char *severity, const char *message) {
+    sds buffer = jsonrpc_notify(sdsempty(), facility, severity, message);
+    ws_notify(buffer);
+    FREE_SDS(buffer);
+}
+
+void send_jsonrpc_event(const char *event) {
+    sds buffer = jsonrpc_event(sdsempty(), event);
+    ws_notify(buffer);
+    FREE_SDS(buffer);
+}
 
 sds jsonrpc_event(sds buffer, const char *event) {
     sdsclear(buffer);

@@ -18,6 +18,8 @@ enum testdir_status {
     DIR_NOT_EXISTS = 3
 };
 
+void ws_notify(sds message);
+
 int testdir(const char *name, const char *dirname, bool create);
 void my_usleep(time_t usec);
 unsigned long substractUnsigned(unsigned long num1, unsigned long num2);

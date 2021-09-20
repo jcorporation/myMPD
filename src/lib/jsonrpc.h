@@ -16,6 +16,9 @@
 
 typedef bool (*iterate_callback) (sds, sds, int, validate_callback, void *, sds *);
 
+void send_jsonrpc_notify(const char *facility, const char *severity, const char *message);
+void send_jsonrpc_event(const char *event);
+
 sds jsonrpc_event(sds buffer, const char *event);
 sds jsonrpc_notify(sds buffer, const char *facility, const char *severity, const char *message);
 sds jsonrpc_notify_phrase(sds buffer, const char *facility, const char *severity, const char *message, int count, ...);

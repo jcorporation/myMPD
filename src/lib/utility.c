@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "utility.h"
 
+#include "api.h"
 #include "log.h"
 #include "sds_extras.h"
 
@@ -19,6 +20,13 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
+
+void ws_notify(sds message) {
+    MYMPD_LOG_DEBUG("Push websocket notify to queue: %s", message);
+    struct t_work_result *response = create_result_new(0, 0, INTERNAL_API_WEBSERVER_NOTIFY);
+    response->data = sds_replace(response->data, message);
+    mympd_queue_push(web_server_queue, response, 0);
+}
 
 int testdir(const char *name, const char *dirname, bool create) {
     DIR* dir = opendir(dirname);
