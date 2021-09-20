@@ -18,17 +18,19 @@
 
 //private
 
-static const char *invalid_json_chars = "\a\b\f\v\0";
-static const char *invalid_name_chars = "\a\b\f\n\r\t\v\0";
-static const char *invalid_filename_chars = "\a\b\f\n\r\t\v\0\\/?*|<>/";
-static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v\0\\/?*|<>";
+static const char *invalid_json_chars = "\a\b\f\v";
+static const char *invalid_name_chars = "\a\b\f\n\r\t\v";
+static const char *invalid_filename_chars = "\a\b\f\n\r\t\v\\?*|<>/";
+static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v\\?*|<>";
 
 static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", 
     "Lyrics", "stickerPlayCount", "stickerSkipCount", "stickerLastPlayed", "stickerLastSkipped", "stickerLike", 0};
 
 static bool _check_for_invalid_chars(sds data, const char *invalid_chars) {
     for (size_t i = 0; i < sdslen(data); i++) {
-        if (strchr(invalid_chars, data[i]) != NULL) {
+        if (data[i] == '\0' ||
+            strchr(invalid_chars, data[i]) != NULL)
+        {
             return false;
         }
     }
@@ -105,8 +107,11 @@ bool vcb_isprint(sds data) {
 }
 
 bool vcb_ishexcolor(sds data) {
-    for (size_t i = 0; i < sdslen(data); i++) {
-        if (isxdigit(data[i]) == 0 && data[i] != '#') {
+    if (data[0] != '#') {
+        return false;
+    }
+    for (size_t i = 1; i < sdslen(data); i++) {
+        if (isxdigit(data[i]) == 0) {
             MYMPD_LOG_WARN("Found none hex character in string");
             return false;
         }
