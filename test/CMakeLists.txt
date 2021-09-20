@@ -25,14 +25,17 @@ include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ../dist/src/libm
 include(CheckCSourceCompiles)
 
 set(SOURCES
+  ../src/lib/api.c
   ../src/lib/jsonrpc.c
   ../src/lib/list.c
+  ../src/lib/lua_mympd_state.c
   ../src/lib/mem.c
   ../src/lib/mimetype.c
   ../src/lib/mympd_queue.c
   ../src/lib/log.c
   ../src/lib/random.c
   ../src/lib/sds_extras.c
+  ../src/lib/utility.c
   ../src/lib/validate.c
   ../dist/src/mjson/mjson.c
   ../dist/src/sds/sds.c
