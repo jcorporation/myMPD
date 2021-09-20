@@ -245,7 +245,7 @@ bool mympd_api_trigger_file_save(struct t_mympd_state *mympd_state) {
         buffer = tojson_long(buffer, "event", current->value_i, true);
         buffer = tojson_char(buffer, "script", current->value_p, true);
         buffer = sdscat(buffer, "\"arguments\":{");
-        struct t_list *arguments = ( struct t_list *)current->user_data;
+        struct t_list *arguments = (struct t_list *)current->user_data;
         struct t_list_node *argument = arguments->head;
         int i = 0;
         while (argument != NULL) {
