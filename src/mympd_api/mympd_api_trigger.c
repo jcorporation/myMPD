@@ -178,7 +178,6 @@ void mympd_api_trigerlist_free_arguments(struct t_mympd_state *mympd_state) {
 
 bool mympd_api_trigger_file_read(struct t_mympd_state *mympd_state) {
     sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", mympd_state->config->workdir);
-    sds line = sdsempty();
     errno = 0;
     FILE *fp = fopen(trigger_file, OPEN_FLAGS_READ);
     if (fp == NULL) {
@@ -190,6 +189,7 @@ bool mympd_api_trigger_file_read(struct t_mympd_state *mympd_state) {
         return false;
     }
     int i = 0;
+    sds line = sdsempty();
     while (sds_getline(&line, fp, 1000) == 0) {
         if (i > MAX_LIST_TRIGGER) {
             MYMPD_LOG_WARN("Too many triggers defined");

@@ -59,7 +59,6 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
             fputs(line, fp);
             i++;
         }
-        FREE_SDS(line);
         fclose(fi);
     }
     else {
@@ -70,6 +69,7 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
         }
     }
     fclose(fp);
+    FREE_SDS(line);
     errno = 0;
     if (rename(tmp_file, lp_file) == -1) {
         MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, lp_file);

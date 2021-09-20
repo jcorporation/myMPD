@@ -391,7 +391,6 @@ sds mympd_api_timer_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
 
 bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
     sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer_list", mympd_state->config->workdir);
-    sds line = sdsempty();
     errno = 0;
     FILE *fp = fopen(timer_file, OPEN_FLAGS_READ);
     if (fp == NULL) {
@@ -404,6 +403,7 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
         return false;
     }
     int i = 0;
+    sds line = sdsempty();
     sds param = sdsempty();
     while (sds_getline(&line, fp, 1000) == 0) {
         if (i > MAX_LIST_TIMER) {
