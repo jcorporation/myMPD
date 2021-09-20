@@ -456,7 +456,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "trigger", "error", "Too many triggers defined");
                 break;
             }
-
             //malloc list - it is used in trigger list
             struct t_list *arguments = list_new();
 
@@ -470,17 +469,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 if (rc == true) {
                     if (int_buf1 >= 0) {
                         //delete old entry
-                        rc = mympd_api_trigger_delete(mympd_state, int_buf1);
+                        mympd_api_trigger_delete(mympd_state, int_buf1);
                     }
-                    if (rc == true) {
-                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "trigger");
-                        break;
-                    }
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "trigger");
+                    break;
                 }
-                list_clear(arguments);
-                FREE_PTR(arguments);
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "trigger", "error", "Could not save trigger");
-                break;
             }
             list_clear(arguments);
             FREE_PTR(arguments);
