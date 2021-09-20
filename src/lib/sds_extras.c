@@ -268,10 +268,10 @@ void sds_basename_uri(sds uri) {
 void sds_strip_slash(sds s) {      
     char *sp = s;
     char *ep = s + sdslen(s) - 1;
-    while(ep >= sp && strchr("/", *ep)) {
+    while(ep >= sp && *ep == '/') {
         ep--;
     }
-    size_t len = (sp > ep) ? 0 : ((ep-sp)+1);
+    size_t len = (sp > ep) ? 0 : ((ep - sp) + 1);
     s[len] = '\0';
     sdssetlen(s, len);
 }
@@ -289,14 +289,16 @@ sds sds_get_extension_from_filename(const char *filename) {
 }
 
 void sds_strip_file_extension(sds s) {
-    if (sdslen(s) == 0) {
-        return;
-    }
-    for (size_t i = sdslen(s) - 1 ; i > 0; i--) {
-        if (s[i] == '.') {
-            sdsrange(s, 0, i - 1);
+    char *sp = s;
+    char *ep = s + sdslen(s) - 1;
+    while (ep >= sp) {
+        if (*ep == '.') {
+            size_t len = (sp > ep) ? 0 : (ep - sp);
+            s[len] = '\0';
+            sdssetlen(s, len);
             break;
         }
+        ep --;
     }
 }
 
