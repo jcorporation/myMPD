@@ -9,6 +9,9 @@
 
 #include "../lib/mympd_state.h"
 
+void send_jsonrpc_notify(const char *facility, const char *severity, const char *message);
+void send_jsonrpc_event(const char *event);
+void ws_notify(sds message);
 sds json_to_cols(sds cols, sds s, bool *error);
 void mympd_state_default(struct t_mympd_state *mympd_state);
 void mympd_state_free(struct t_mympd_state *mympd_state);

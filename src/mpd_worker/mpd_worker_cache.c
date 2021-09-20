@@ -14,6 +14,7 @@
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
+#include "../mympd_api/mympd_api_utility.h"
 
 #include <stdio.h>
 #include <string.h>

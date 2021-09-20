@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "mympd_api_utility.h"
 
+#include "../lib/api.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
@@ -29,6 +30,25 @@
 static void _detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
 
 //public functions
+void send_jsonrpc_notify(const char *facility, const char *severity, const char *message) {
+    sds buffer = jsonrpc_notify(sdsempty(), facility, severity, message);
+    ws_notify(buffer);
+    FREE_SDS(buffer);
+}
+
+void send_jsonrpc_event(const char *event) {
+    sds buffer = jsonrpc_event(sdsempty(), event);
+    ws_notify(buffer);
+    FREE_SDS(buffer);
+}
+
+void ws_notify(sds message) {
+    MYMPD_LOG_DEBUG("Push websocket notify to queue: %s", message);
+    struct t_work_result *response = create_result_new(0, 0, INTERNAL_API_WEBSERVER_NOTIFY);
+    response->data = sds_replace(response->data, message);
+    mympd_queue_push(web_server_queue, response, 0);
+}
+
 sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *uri, bool is_dirname) {
     struct t_list images;
     list_init(&images);
