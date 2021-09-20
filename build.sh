@@ -356,6 +356,7 @@ buildtest() {
   cd test/build || exit 1
   cmake ..
   make VERBOSE=1
+  ./test
 }
 
 cleanup() {

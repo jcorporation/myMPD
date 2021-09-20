@@ -26,6 +26,7 @@ include(CheckCSourceCompiles)
 set(SOURCES
   ../src/lib/list.c
   ../src/lib/mem.c
+  ../src/lib/mimetype.c
   ../src/lib/mympd_queue.c
   ../src/lib/log.c
   ../src/lib/random.c
@@ -33,8 +34,9 @@ set(SOURCES
   ../dist/src/sds/sds.c
   main.c
   tests/test_list.c
-  tests/test_queue.c
-  tests/test_sds.c
+  tests/test_mimetype.c
+  tests/test_mympd_queue.c
+  tests/test_sds_extras.c
 )
 
 add_executable(test ${SOURCES})

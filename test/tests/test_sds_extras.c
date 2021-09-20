@@ -6,11 +6,11 @@
 
 #include "mympd_config_defs.h"
 
-#include "../dist/src/utest/utest.h"
-#include "../src/lib/sds_extras.h"
+#include "../../dist/src/utest/utest.h"
+#include "../../src/lib/sds_extras.h"
 #include "../utility.h"
 
-UTEST(sds, test_sds_strip_file_extension) {
+UTEST(sds_extras, test_sds_strip_file_extension) {
     struct t_input_result testcases[] = {
         {"/test/test.mp3",   "/test/test"},
         {"/test/woext",      "/test/woext"},
@@ -30,7 +30,7 @@ UTEST(sds, test_sds_strip_file_extension) {
     sdsfree(test_input);
 }
 
-UTEST(sds, test_sds_streamuri_to_filename) {
+UTEST(sds_extras, test_sds_streamuri_to_filename) {
     struct t_input_result testcases[] = {
         {"http://host:80/verz/verz/test?safsaf#798234",   "host_80_verz_verz_test_safsaf_798234" },
         {"https://host:443/verz/verz/test?safsaf#798234", "host_443_verz_verz_test_safsaf_798234" },
@@ -51,7 +51,7 @@ UTEST(sds, test_sds_streamuri_to_filename) {
     sdsfree(test_input);
 }
 
-UTEST(sds, sds_get_extension_from_filename) {
+UTEST(sds_extras, sds_get_extension_from_filename) {
     struct t_input_result testcases[] = {
         {"/test/test.mp3",   "mp3"},
         {"/test/woext",      ""},
@@ -69,7 +69,7 @@ UTEST(sds, sds_get_extension_from_filename) {
     }
 }
 
-UTEST(sds, sds_strip_slash) {
+UTEST(sds_extras, sds_strip_slash) {
     struct t_input_result testcases[] = {
         {"//",           ""},
         {"/test/woext/", "/test/woext"},
@@ -90,7 +90,7 @@ UTEST(sds, sds_strip_slash) {
     sdsfree(testfilename);
 }
 
-UTEST(sds, sds_basename_uri) {
+UTEST(sds_extras, sds_basename_uri) {
     struct t_input_result testcases[] = {
         {"http://host:80/verz/verz/test?safsaf#798234",   "http://host:80/verz/verz/test" },
         {"https://host:443/verz/verz/test?safsaf#798234", "https://host:443/verz/verz/test" },
