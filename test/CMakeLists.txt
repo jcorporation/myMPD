@@ -1,5 +1,5 @@
 #
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 # myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 #
@@ -26,6 +26,7 @@ include(CheckCSourceCompiles)
 
 set(SOURCES
   ../dist/src/mjson/mjson.c
+  ../dist/src/rax/rax.c
   ../dist/src/sds/sds.c
   ../dist/src/utf8decode/utf8decode.c
   ../src/lib/api.c
@@ -40,6 +41,8 @@ set(SOURCES
   ../src/lib/sds_extras.c
   ../src/lib/utility.c
   ../src/lib/validate.c
+  ../src/mpd_shared.c
+  ../src/mpd_shared/mpd_shared_tags.c
   main.c
   tests/test_jsonrpc.c
   tests/test_list.c
