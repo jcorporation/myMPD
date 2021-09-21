@@ -1,9 +1,10 @@
 #
 # Copyright (C) 2021 Tomasz Maciej Nowak <tmn505@gmail.com>
 #
-# This is free software, licensed under the GNU General Public License v2.
-# See /LICENSE for more information.
-#
+# SPDX-License-Identifier: GPL-3.0-or-later
+# myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+# https://github.com/jcorporation/mympd
+
 include $(TOPDIR)/rules.mk
 
 PKG_NAME := mympd
@@ -15,7 +16,7 @@ PKG_SOURCE_URL := https://codeload.github.com/jcorporation/myMPD/tar.gz/refs/tag
 PKG_HASH := skip
 
 PKG_LICENSE := GPL-3.0
-PKG_LICENSE_FILE := LICENSE
+PKG_LICENSE_FILE := LICENSE.md
 
 PKG_MAINTAINER := Juergen Mang <mail [at] jcgames [dot] de>
 

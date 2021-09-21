@@ -65,7 +65,7 @@ fi
 /usr/lib/systemd/system/mympd.service
 %{_mandir}/man1/mympd.1.gz
 %{_mandir}/man1/mympd-script.1.gz
-%license LICENSE
+%license LICENSE.md
 
 %changelog
 * Tue Sep 21 2021 Juergen Mang <mail@jcgames.de> 8.1.0-0
