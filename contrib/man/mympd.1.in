@@ -28,6 +28,9 @@ print all valid options and exits
 \fB\-u\fR, \fB\-\-user USERNAME\fR
 username to drop privileges to (default: mympd)
 .TP
+\fB\-p\fR, \fB\-\-pin
+sets a pin for myMPD settings
+.TP
 \fB\-s\fR, \fB\-\-syslog\fR
 enable syslog logging (facility: daemon)
 .TP
