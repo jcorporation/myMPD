@@ -11,3 +11,5 @@ An example script is in the `contrib/scripts` directory named `ListenBrainz-Scro
 After copy & paste the file content in a new script (ommit the first comment line) you must add your ListenBraniz token (`token = "<musicbrainz token>"`).
 
 To automatically call this script add trigger to the event `Scrobble` with this script as action.
+
+You should enable the listenbrainz related tags in mpd and myMPD to scrobble MBIDs.
