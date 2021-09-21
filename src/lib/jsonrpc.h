@@ -1,5 +1,5 @@
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
@@ -51,5 +51,6 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
 bool json_get_tags(sds s, const char *path, struct t_tags *tags, int max_elements, sds *error);
 
 sds list_to_json_array(sds s, struct t_list *l);
+sds json_get_cols_as_string(sds s, sds cols, bool *rc);
 
 #endif

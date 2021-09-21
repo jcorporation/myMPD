@@ -1,5 +1,5 @@
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
@@ -198,6 +198,20 @@ sds list_to_json_array(sds s, struct t_list *l) {
     return s;
 }
 
+sds json_get_cols_as_string(sds s, sds cols, bool *rc) {
+    struct t_list col_list;
+    list_init(&col_list);
+    if (json_get_array_string(s, "$.params.cols", &col_list, vcb_iscolumn, 20, NULL) == true) {
+        cols = list_to_json_array(cols, &col_list);
+        *rc = true;
+    }
+    else {
+        *rc = false;
+    }
+    list_clear(&col_list);
+    return cols;
+}
+
 bool json_get_bool(sds s, const char *path, bool *result, sds *error) {
     int v = 0;
     if (mjson_get_bool(s, (int)sdslen(s), path, &v) != 0) {
@@ -273,8 +287,6 @@ bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *resul
     }
     return _json_get_string(s, path, min, max, result, vcb, error);
 }
-
-
 
 bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata, validate_callback vcb, int max_elements, sds *error) {
     if (icb == NULL) {
@@ -461,14 +473,14 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
         return false;
     }
     
-    //remove quotes
+    //strip quotes
     n = n - 2;
     p++;
 
     if ((sds_json_unescape(p, n, result) == false) ||
-        (sdslen(*result) < min && sdslen(*result) > max))
+        (sdslen(*result) < min || sdslen(*result) > max))
     {
-        _set_parse_error(error, "Value length for JSON path \"%s\" is out of bounds", path);
+        _set_parse_error(error, "Value length %u for JSON path \"%s\" is out of bounds", sdslen(*result), path);
         sdsclear(*result);
         return false;
     }
