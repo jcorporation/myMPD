@@ -1,5 +1,5 @@
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
@@ -245,12 +245,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         #endif
         case MYMPD_API_COLS_SAVE: {
             if (json_get_string(request->data, "$.params.table", 1, MAX_NAME_LEN, &sds_buf1, vcb_isalnum, &error) == true) {
-                bool rc_error = false;
+                rc = false;
                 sds cols = sdsnewlen("[", 1);
-                cols = json_to_cols(cols, request->data, &rc_error);
-                if (rc_error == false) {
+                cols = json_get_cols_as_string(request->data, cols, &rc);
+                if (rc == true) {
                     cols = sdscatlen(cols, "]", 1);
-                    if (mympd_api_settings_cols_save(mympd_state, sds_buf1, cols)) {
+                    if (mympd_api_settings_cols_save(mympd_state, sds_buf1, cols) == true) {
                         response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
                     }
                     else {

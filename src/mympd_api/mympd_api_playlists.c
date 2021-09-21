@@ -1,5 +1,5 @@
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
@@ -161,7 +161,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
             if (entities_returned++) {
                 buffer = sdscat(buffer,",");
             }
-            bool smartpls = is_smartpls(mympd_state, current->key);
+            bool smartpls = is_smartpls(mympd_state->config->workdir, current->key);
             buffer = sdscat(buffer, "{");
             buffer = tojson_char(buffer, "Type", (smartpls == true ? "smartpls" : "plist"), true);
             buffer = tojson_char(buffer, "uri", current->key, true);
@@ -232,7 +232,7 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
         return buffer;
     }
     
-    bool smartpls = is_smartpls(mympd_state, plist);
+    bool smartpls = is_smartpls(mympd_state->config->workdir, plist);
 
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);

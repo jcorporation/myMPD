@@ -6,7 +6,7 @@
 Name:           mympd
 Version:        8.1.0
 Release:        0 
-License:        GPL-2.0-or-later
+License:        GPL-3.0-or-later
 Group:          Productivity/Multimedia/Sound/Players
 Summary:        A standalone and mobile friendly web-based MPD client
 Url:            https://jcorporation.github.io/myMPD/

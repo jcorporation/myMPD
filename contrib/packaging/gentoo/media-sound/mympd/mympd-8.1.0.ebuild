@@ -11,7 +11,7 @@ DESCRIPTION="myMPD is a standalone and mobile friendly web-based MPD client"
 HOMEPAGE="https://jcorporation.github.io/myMPD"
 SRC_URI="https://github.com/jcorporation/${MY_PN}/archive/v${PV}.tar.gz -> ${PN}-${PV}.tar.gz"
 
-LICENSE="GPL-2"
+LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm ~arm64"
 IUSE="+flac +id3tag +ssl +lua systemd"

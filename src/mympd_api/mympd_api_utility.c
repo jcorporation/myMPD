@@ -1,5 +1,5 @@
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
@@ -53,10 +53,10 @@ sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
     return buffer;
 }
 
-bool is_smartpls(struct t_mympd_state *mympd_state, sds playlist) {
+bool is_smartpls(const char *workdir, sds playlist) {
     bool smartpls = false;
     if (vcb_isfilename(playlist) == true) {
-        sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, playlist);
+        sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", workdir, playlist);
         if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
             smartpls = true;
         }
@@ -201,20 +201,6 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->lyrics_vorbis_sylt);
     //struct itself
     FREE_PTR(mympd_state);
-}
-
-sds json_to_cols(sds cols, sds s, bool *error) {
-    struct t_list col_list;
-    list_init(&col_list);
-    if (json_get_array_string(s, "$.params.cols", &col_list, vcb_iscolumn, 20, NULL) == true) {
-        cols = list_to_json_array(cols, &col_list);
-        *error = false;
-    }
-    else {
-        *error = true;
-    }
-    list_clear(&col_list);
-    return cols;
 }
 
 //private functions

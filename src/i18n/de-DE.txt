@@ -1881,3 +1881,6 @@ Es existiert bereis eine intelligente Wiedergabeliste mit diesem Namen
 
 Playlist is empty
 Wiedergabelist ist leer
+
+License
+Lizenz

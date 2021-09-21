@@ -14,7 +14,7 @@ PKG_SOURCE := $(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL := https://codeload.github.com/jcorporation/myMPD/tar.gz/refs/tags/v$(PKG_VERSION)?
 PKG_HASH := skip
 
-PKG_LICENSE := GPL-2.0
+PKG_LICENSE := GPL-3.0
 PKG_LICENSE_FILE := LICENSE
 
 PKG_MAINTAINER := Juergen Mang <mail [at] jcgames [dot] de>

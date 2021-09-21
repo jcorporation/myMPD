@@ -1,5 +1,5 @@
 #
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 # myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 #
@@ -11,7 +11,7 @@ pkgrel=0
 pkgdesc="myMPD is a standalone and mobile friendly web-based MPD client."
 url="https://jcorporation.github.io/myMPD/"
 arch="all"
-license="GPL-2.0-or-later"
+license="GPL-3.0-or-later"
 depends="libid3tag flac openssl lua5.3 pcre"
 makedepends="cmake perl libid3tag-dev flac-dev openssl-dev linux-headers lua5.3-dev pcre-dev"
 install="$pkgname.pre-install $pkgname.post-install"
