@@ -477,9 +477,6 @@ Version
 Homepage
 Homepage
 
-Author
-Autor
-
 Database statistics
 Datenbank Statistiken
 
@@ -1535,16 +1532,16 @@ Click album play button
 Klick auf Album abspielen
 
 Click folder
-Click auf Verzeichnis
+Klick auf Verzeichnis
 
 Click playlist
-Click auf Wiedergabeliste
+Klick auf Wiedergabeliste
 
 Click song in queue
-Click auf Lied in Warteschlange
+Klick auf Lied in Warteschlange
 
 Click song
-Click auf ein Lied
+Klick auf ein Lied
 
 Play
 Abspielen
@@ -1884,3 +1881,6 @@ Wiedergabelist ist leer
 
 License
 Lizenz
+
+Default actions
+Standardaktionen

@@ -435,9 +435,6 @@ Versie
 Homepage
 Website
 
-Author
-Auteur
-
 Database statistics
 Database statistieken
 

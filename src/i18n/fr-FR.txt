@@ -1,4 +1,4 @@
-Français
+;Français
 
 MPD connection
 Connection MPD
@@ -434,9 +434,6 @@ Version
 
 Homepage
 Page web
-
-Author
-Auteur
 
 Database statistics
 Statistiques de la base de données

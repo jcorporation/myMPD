@@ -432,9 +432,6 @@ Versio
 Homepage
 Kotisivu
 
-Author
-Luoja
-
 Database statistics
 Tietokanta tilastot
 

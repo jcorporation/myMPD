@@ -477,9 +477,6 @@ Version
 Homepage
 홈페이지
 
-Author
-저자
-
 Database statistics
 데이터베이스 통계
 

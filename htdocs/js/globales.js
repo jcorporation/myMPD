@@ -243,7 +243,7 @@ const webuiSettingsDefault = {
         }, 
         "inputType": "select",
         "title": "Click song",
-        "form": "advancedSettingsFrm"
+        "form": "clickSettingsFrm"
     },
     "clickQueueSong": { 
         "defaultValue": "play", 
@@ -253,7 +253,7 @@ const webuiSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click song in queue",
-        "form": "advancedSettingsFrm"
+        "form": "clickSettingsFrm"
     },
     "clickPlaylist": { 
         "defaultValue": "append", 
@@ -264,7 +264,7 @@ const webuiSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click playlist",
-        "form": "advancedSettingsFrm"
+        "form": "clickSettingsFrm"
     },
     "clickFolder": { 
         "defaultValue": "view", 
@@ -275,7 +275,7 @@ const webuiSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click folder",
-        "form": "advancedSettingsFrm"
+        "form": "clickSettingsFrm"
     },
     "clickAlbumPlay": { 
         "defaultValue": "replace", 
@@ -285,7 +285,7 @@ const webuiSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click album play button",
-        "form": "advancedSettingsFrm"
+        "form": "clickSettingsFrm"
     },
     "notificationAAASection": {
         "inputType": "section",

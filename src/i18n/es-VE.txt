@@ -432,9 +432,6 @@ Versión
 Homepage
 Página de Inicio
 
-Author
-Autor
-
 Database statistics
 Estadísticas de Base de datos
 

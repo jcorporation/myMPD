@@ -571,7 +571,7 @@
                   <option value="!~">!~</option>
                 </select>
               </div>
-              <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchstr"/>
+              <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-right" id="searchstr"/>
             </div>
           </form>
           <div class="input-group mr-2">
@@ -1098,8 +1098,8 @@
               </form>
             </div>
             <div class="tab-pane" id="tabAdvancedSettings">
-              <h4 data-phrase="Advanced"></h4>
-              <form id="advancedSettingsFrm">
+              <h4 data-phrase="Default actions"></h4>
+              <form id="clickSettingsFrm">
               </form>
               <hr/>
               <h4 data-phrase="Volume control"></h4>
