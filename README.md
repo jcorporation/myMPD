@@ -1,5 +1,8 @@
 ![image](https://jcorporation.github.io/assets/mympd-logo-schriftzug.svg)
 
+[![release](https://github.com/jcorporation/myMPD/actions/workflows/build_release.yml/badge.svg)](https://github.com/jcorporation/myMPD/actions/workflows/build_release.yml)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 myMPD is a standalone and lightweight web-based MPD client. It's tuned for minimal resource usage and requires only very few dependencies. Therefore myMPD is ideal for raspberry pis and similar devices.
 
 The backend is written in C and has no dependencies to external databases or webservers. The configuration is stored in plain text files and all the data is pulled on demand from MPD. The MPD database is the only source of truth for myMPD.
@@ -48,7 +51,7 @@ To use all myMPD functions you should use the latest stable MPD version (0.22.x)
 
 myMPD is in active development. If you like myMPD, you can help to improve it (no programming skills are required).
 
-- Star this repository
+- Star this repository to make it more popular.
 - [Help to improve myMPD](https://github.com/jcorporation/myMPD/issues/167).
 - Use [issues](https://github.com/jcorporation/myMPD/issues) for bug reports only.
 - Use [discussion](https://github.com/jcorporation/myMPD/discussions) for feature requests, questions and general feedback.
