@@ -44,6 +44,26 @@ class inputReset extends HTMLElement {
     set value(newValue) {
         this.input.value = newValue;
     }
-}
+};
 
+class inputClear extends HTMLInputElement {
+    constructor() {
+        super();
+        const button = elCreate('button', {"class": ["mi", "mi-small", "clear-button", "btn-secondary"]}, 'clear');
+        this.parentNode.insertBefore(button, this.nextSibling);
+        this.button = button;
+    }
+    connectedCallback() {
+        this.button.addEventListener('click', function(event) {
+            event.target.previousSibling.value = '';
+            const dataClearEvent = event.target.previousSibling.getAttribute('data-clear-event');
+            if (dataClearEvent !== null) {
+                const clearEvent = new Event(dataClearEvent);
+                event.target.previousSibling.dispatchEvent(clearEvent);
+            }
+        }, false);
+    }
+};
+
+customElements.define('mympd-input-clear', inputClear, {extends: 'input'});
 customElements.define('mympd-input-reset', inputReset);

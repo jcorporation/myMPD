@@ -98,10 +98,6 @@ main {
   word-break: break-all;
 }
 
-td[data-col=Action] {
-  text-align: right;
-}
-
 .albumartbg {
   position: fixed;
   width: 100%;
@@ -311,10 +307,14 @@ button {
 }
 
 [data-col=Pos],
-[data-col=Type],
 [data-col=Track],
 [data-col=Duration] {
   max-width: 5rem;
+  word-break: keep-all;
+}
+
+[data-col=Type] {
+  width: 1rem;
   word-break: keep-all;
 }
 
@@ -1105,4 +1105,16 @@ body.locked button.protected::before {
   text-rendering: optimizeLegibility;
   font-feature-settings: 'liga';
   margin-right: 0.5rem;
+}
+
+button.clear-button {
+  border: none;
+  background: none !important;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  padding-right: .5rem;
+  padding-left: .5rem;
+  top: 0;
+  z-index: 3;
 }
