@@ -10,27 +10,53 @@ class inputReset extends HTMLElement {
         const placeholder = this.getAttribute('placeholder');
         const invalidPhrase = this.getAttribute('data-invalid-phrase');
         const unitPhrase = this.getAttribute('data-unit-phrase');
-        const inputType = this.getAttribute('type');
+        let inputType = this.getAttribute('type');
+        inputType = inputType === null ? 'text' : inputType;
         const alwaysEnabled = this.classList.contains('alwaysEnabled') ? 'alwaysEnabled' : '';
-        this.innerHTML = 
-            '<div class="input-group">' +
-                '<input id="' + this.getAttribute('id') + '" placeholder="' + (placeholder === null ? '' : e(placeholder)) + '" type="' + 
-                    (inputType === null ? 'text' : inputType) + '" class="form-control border-secondary ' + alwaysEnabled + '"/>' +
-                '<div class="input-group-append">' +
-                    '<button data-title-phrase="Reset to default" class="btn btn-secondary resetBtn rounded-right ' + alwaysEnabled + '">' +
-                        '<span class="mi">settings_backup_restore</span>' +
-                    '</button>' +
-                    (unitPhrase === null ? '' : '<div class="input-group-text-nobg" data-phrase="' + e(unitPhrase) + '"></div>') +
-                '</div>' + 
-                (invalidPhrase === null ? '' : '<div class="invalid-feedback" data-phrase="' + e(invalidPhrase) + '"></div>') +
-            '</div>';
-        
-        this.input = this.getElementsByTagName('input')[0];
-        this.button = this.getElementsByTagName('button')[0];
+
+        const inputGroup = elCreate('div', {"class": ["input-group"]}, '');
+        const input = elCreate('input', {
+            "id": this.getAttribute('id'),
+            "placeholder": placeholder === null ? '' : placeholder,
+            "type": inputType,
+            "class": ["form-control", "border-secondary"]
+        }, '');
+        if (this.classList.contains('alwaysEnabled')) {
+            input.classList.add('alwaysEnabled');
+        }
+        inputGroup.appendChild(input);
+
+        const inputGroupAppend = elCreate('div', {"class": ["input-group-append"]}, '');
+        const resetButton = elCreate('button', {
+            "class": ["btn", "btn-secondary", "rounded-right", "resetBtn"],
+            "data-title-phrase": "Reset to default"
+        }, '');
+        resetButton.appendChild(elCreate('span', {"class": ["mi"]}, 'settings_backup_restore'));
+        inputGroupAppend.appendChild(resetButton);
+        if (unitPhrase !== null) {
+            const unitText = elCreate('div', {
+                "class": ["input-group-text-nobg"],
+                "data-phrase": unitPhrase
+            }, '');
+            inputGroupAppend.appendChild(unitText);
+        }
+        inputGroup.appendChild(inputGroupAppend);
+        if (invalidPhrase !== null) {
+            const invalidText = elCreate('div', {
+                "class": ["invalid-feedback"],
+                "data-phrase": invalidPhrase
+            }, '');
+            inputGroup.appendChild(invalidText);
+        }
+
+        this.appendChild(inputGroup);
+
+        this.input = input;
+        this.resetButton = resetButton;
     }
-    
+
     connectedCallback() {
-        this.button.addEventListener('click', function(event) {
+        this.resetButton.addEventListener('click', function(event) {
             resetToDefault(event.target);
         }, false);
         //populate input value from elements value attribute
@@ -40,7 +66,7 @@ class inputReset extends HTMLElement {
     get value() {
         return this.input.value
     }
-    
+
     set value(newValue) {
         this.input.value = newValue;
     }
@@ -52,8 +78,22 @@ class inputClear extends HTMLInputElement {
         const button = elCreate('button', {"class": ["mi", "mi-small", "clear-button", "btn-secondary"]}, 'clear');
         this.parentNode.insertBefore(button, this.nextSibling);
         this.button = button;
+        if (this.value === '')  {
+            elHide(this.button);
+        }
+        else {
+            elShow(this.button);
+        }
     }
     connectedCallback() {
+        this.addEventListener('keyup', function(event) {
+            if (event.target.value === '') {
+                elHide(this.button);
+            }
+            else {
+                elShow(this.button);
+            }
+        }, false);
         this.button.addEventListener('click', function(event) {
             event.target.previousSibling.value = '';
             const dataClearEvent = event.target.previousSibling.getAttribute('data-clear-event');
@@ -65,5 +105,5 @@ class inputClear extends HTMLInputElement {
     }
 };
 
-customElements.define('mympd-input-clear', inputClear, {extends: 'input'});
 customElements.define('mympd-input-reset', inputReset);
+customElements.define('mympd-input-clear', inputClear, {extends: 'input'});
