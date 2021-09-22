@@ -57,6 +57,7 @@ myMPD tries to autodetect the mpd connection at first startup.
 
 1. Searches for a valid `mpd.conf` file and reads all interesting settings
 2. Uses the default MPD environment variables
+3. Tries `/run/mpd/socket` and `/var/run/mpd/socket`
 
 | ENVIRONMENT | DEFAULT | DESCRIPTION |
 | ----------- | ------- | ----------- |
