@@ -279,7 +279,7 @@ bool mympd_api_trigger_file_save(struct t_mympd_state *mympd_state) {
 void _trigger_execute(const char *script, struct t_list *arguments) {
     struct t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL);
     request->data = tojson_char(request->data, "script", script, true);
-    request->data = sdscat(request->data, "arguments: {");
+    request->data = sdscat(request->data, "\"arguments\": {");
     struct t_list_node *argument = arguments->head;
     int i = 0;
     while (argument != NULL) {
