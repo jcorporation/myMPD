@@ -107,9 +107,6 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
                 case MPD_IDLE_UPDATE:
                     buffer = mympd_api_status_updatedb_state(mympd_state, buffer);
                     break;
-                case MPD_IDLE_PARTITION:
-                    //TODO: check list of partitions and create new mpd_client threads
-                    break;
                 default: {
                     //other idle events not used
                 }
