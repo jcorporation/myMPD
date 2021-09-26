@@ -333,7 +333,7 @@ sds mympd_api_timer_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
         current = current->next;
     }
     
-    buffer = sdscatlen(buffer, "],", 1);
+    buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_result_end(buffer);
     return buffer;
