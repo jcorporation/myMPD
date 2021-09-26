@@ -19,6 +19,7 @@
 static bool _icb_json_get_tag(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error);
 static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, sds *error);
 static void _set_parse_error(sds *error, const char *fmt, ...);
+static const char *get_mjson_toktype_name(unsigned vtype);
 
 //public functions
 
@@ -417,6 +418,13 @@ bool json_get_tags(sds s, const char *path, struct t_tags *tags, int max_element
     return json_iterate_object(s, path, _icb_json_get_tag, tags, NULL, max_elements, error);
 }
 
+bool json_find_key(sds s, const char *path) {
+    const char *p;
+    int n;
+    int vtype = mjson_find(s, (int)sdslen(s), path, &p, &n);
+    return vtype == MJSON_TOK_INVALID ? false : true;
+}
+
 //private functions
 
 static bool _icb_json_get_tag(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
@@ -460,7 +468,8 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
     int vtype = mjson_find(s, (int)sdslen(s), path, &p, &n);
     if (vtype != MJSON_TOK_STRING) {
         *result = NULL;
-        _set_parse_error(error, "JSON path \"%s\" not found or value is not string type, found type is \"%d\"", path, vtype);
+        _set_parse_error(error, "JSON path \"%s\" not found or value is not string type, found type is \"%s\"", 
+            path, get_mjson_toktype_name(vtype));
         return false;
     }
     *result = sdsempty();
@@ -494,4 +503,19 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
     }
 
     return true;
+}
+
+static const char *get_mjson_toktype_name(unsigned vtype) {
+    switch(vtype) {
+        case MJSON_TOK_INVALID: return "MJSON_TOK_INVALID";
+        case MJSON_TOK_KEY:     return "MJSON_TOK_KEY";
+        case MJSON_TOK_STRING:  return "MJSON_TOK_STRING";
+        case MJSON_TOK_NUMBER:  return "MJSON_TOK_NUMBER";
+        case MJSON_TOK_TRUE:    return "MJSON_TOK_TRUE";
+        case MJSON_TOK_FALSE:   return "MJSON_TOK_FALSE";
+        case MJSON_TOK_NULL:    return "MJSON_TOK_NULL";
+        case MJSON_TOK_ARRAY:   return "MJSON_TOK_ARRAY";
+        case MJSON_TOK_OBJECT:  return "MJSON_TOK_OBJECT";
+        default:                return "MJSON_TOK_UNKNOWN";
+    }
 }
