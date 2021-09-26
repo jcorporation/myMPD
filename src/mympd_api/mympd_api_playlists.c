@@ -255,7 +255,7 @@ sds mympd_api_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sds
     //first handle smart playlists
     if (access(new_pl_file, F_OK ) != -1) { /* Flawfinder: ignore */
         MYMPD_LOG_ERROR("A playlist with name \"%s\" already exists", new_pl_file);
-        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "A smart playlist with this name already exits");
+        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "A smart playlist with this name already exists");
         FREE_SDS(old_pl_file);
         FREE_SDS(new_pl_file);
         return buffer;

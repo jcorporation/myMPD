@@ -1873,7 +1873,7 @@ Zu viele Timer definiert
 Too many triggers defined
 Zu viele Trigger definiert
 
-A smart playlist with this name already exits
+A smart playlist with this name already exists
 Es existiert bereis eine intelligente Wiedergabeliste mit diesem Namen
 
 Playlist is empty
