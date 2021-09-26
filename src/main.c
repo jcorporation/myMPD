@@ -22,7 +22,19 @@
 #include "web_server.h"
 
 #ifdef ENABLE_SSL
-  #include "lib/cert.h"
+    #include "lib/cert.h"
+#endif
+
+#ifdef ENABLE_LUA
+    #include <lua.h>
+#endif
+
+#ifdef ENABLE_LIBID3TAG
+    #include <id3tag.h>
+#endif
+
+#ifdef ENABLE_FLAC
+    #include <FLAC/export.h>
 #endif
 
 #include <grp.h>
@@ -32,6 +44,12 @@
 #include <signal.h>
 
 _Thread_local sds thread_logname;
+
+#ifdef DEBUG
+const char *__asan_default_options(void) {
+    return "verbosity=1:malloc_context_size=50:abort_on_error=true";
+}
+#endif
 
 static void mympd_signal_handler(int sig_num) {
     signal(sig_num, mympd_signal_handler);  // Reinstantiate signal handler
@@ -286,7 +304,16 @@ int main(int argc, char **argv) {
             LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION,
             LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
     MYMPD_LOG_NOTICE("Mongoose %s", MG_VERSION);
-
+    #ifdef ENABLE_LUA
+        MYMPD_LOG_NOTICE(LUA_RELEASE);
+    #endif
+    #ifdef ENABLE_LIBID3TAG
+        MYMPD_LOG_NOTICE("Libid3tag %s", ID3_VERSION);
+    #endif
+    #ifdef ENABLE_FLAC
+        MYMPD_LOG_NOTICE("FLAC %d.%d.%d", FLAC_API_VERSION_CURRENT, FLAC_API_VERSION_REVISION, FLAC_API_VERSION_AGE);
+    #endif
+    
     //set signal handler
     signal(SIGTERM, mympd_signal_handler);
     signal(SIGINT, mympd_signal_handler);
