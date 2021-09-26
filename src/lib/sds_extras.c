@@ -19,15 +19,14 @@ sds sds_catjson(sds s, const char *p, size_t len) {
     s = sdscatlen(s, "\"", 1);
     uint32_t codepoint;
     uint32_t state = UTF8_ACCEPT;
-    while (len--) {
-        if ((*p & 0x80) == 0x00) {
+    for (size_t i = 0; i < len; i++) {
+        if ((p[i] & 0x80) == 0x00) {
             //ascii char
-            s = sds_catjsonchar(s, *p);
+            s = sds_catjsonchar(s, p[i]);
         }
-        else if (!decode_utf8(&state, &codepoint, *p)) {
+        else if (!decode_utf8(&state, &codepoint, (uint8_t)p[i])) {
             s = sdscatprintf(s, "\\u%04x", codepoint);
         }
-        p++;
     }
     return sdscatlen(s, "\"", 1);
 }
