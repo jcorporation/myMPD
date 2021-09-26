@@ -13,22 +13,6 @@
 #include <string.h>
 
 #define HEXTOI(x) (x >= '0' && x <= '9' ? x - '0' : x - 'W')
-static const char *hex_digits = "0123456789abcdef";
-
-static int json_get_utf8_char_len(unsigned char ch) {
-    if ((ch & 0x80) == 0) {
-        return 1;
-    }
-
-    switch (ch & 0xf0) {
-        case 0xf0:
-            return 4;
-        case 0xe0:
-            return 3;
-        default:
-            return 2;
-    }
-}
 
 sds sds_catjson(sds s, const char *p, size_t len) {
     s = sdscatlen(s, "\"", 1);
@@ -58,21 +42,10 @@ sds sds_catjsonchar(sds s, const char p) {
             //this escapes are not accepted in the unescape function
             break;
         default:
-            if (isprint(p) || json_get_utf8_char_len(p) != 1) {
-                s = sdscatprintf(s, "%c", p);
-            }
-            else {
-                s = sdscatprintf(s, "\\u00%s%s", &hex_digits[(p >> 4) % 0xf], &hex_digits[p % 0xf]);
-            } 
+            s = sdscatprintf(s, "%c", p);
             break;
     }
     return s;
-}
-
-static unsigned char hexdec(const char *s) {
-    int a = tolower(*(const unsigned char *) s);
-    int b = tolower(*(const unsigned char *) (s + 1));
-    return (HEXTOI(a) << 4) | HEXTOI(b);
 }
 
 bool sds_json_unescape(const char *src, int slen, sds *dst) {
@@ -90,17 +63,7 @@ bool sds_json_unescape(const char *src, int slen, sds *dst) {
                 if (send - src < 5) {
                     return false;
                 }
-                //\u.... escape. Process simple one-byte chars
-                if (src[1] == '0' && src[2] == '0') {
-                    /* This is \u00xx character from the ASCII range */
-                    *dst = sdscatprintf(*dst, "%c", hexdec(src + 3));
-                    src += 4;
-                }
-                else {
-                    //Complex \uXXXX escapes
-                    //TODO: use utf8decode
-                    return false;
-                }
+                src += 4;
             }
             else if ((p = strchr(esc1, *src)) != NULL) {
                 *dst = sdscatprintf(*dst, "%c", esc2[p - esc1]);
