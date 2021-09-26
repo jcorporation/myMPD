@@ -4,7 +4,7 @@ about: Create a report to help us improve
 
 ---
 
-myMPD version: [e.g. 5.6.2]
+myMPD version: [e.g. 8.1.0]
 
 **Describe the bug**
 
@@ -40,18 +40,18 @@ If applicable, add screenshots to help explain your problem.
 
 **Debug logs (please attach if it can be usefull)**
 
-See https://github.com/jcorporation/myMPD/wiki/Debug
+Look at https://jcorporation.github.io/myMPD/debug
 
  - myMPD debug log
  - MPD verbose log
  - Browser error console
  - Browser network console
  
- **Configuration (please attach if it can be usefull)**
+**Configuration (please attach if it can be usefull)**
 
- - /etc/mympd.conf
  - tarball of /var/lib/mympd/state (``tar -cf mympd_state.tar /var/lib/mympd/state``)
+ - tarball of /var/lib/mympd/config (``tar -cf mympd_config.tar /var/lib/mympd/config``)
  
- **Additional context**
+**Additional context**
 
 Add any other context about the problem here.
