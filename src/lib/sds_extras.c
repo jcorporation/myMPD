@@ -317,10 +317,5 @@ void sds_streamuri_to_filename(sds s) {
 }
 
 sds sds_catbool(sds s, bool v) {
-    if (v == true) {
-        return sdscatlen(s, "true", 4);
-    }
-    else {
-        return sdscatlen(s, "false", 5);
-    }
+    return v == true ? sdscatlen(s, "true", 4) : sdscatlen(s, "false", 5);
 }
