@@ -50,6 +50,7 @@ if (LUA_FOUND)
     log.c
     ../dist/src/mongoose/mongoose.c
     ../dist/src/sds/sds.c
+    ../dist/src/utf8decode/utf8decode.c
     ../src/lib/sds_extras.c
     ../src/lib/http_client.c
     ../src/lib/mem.c

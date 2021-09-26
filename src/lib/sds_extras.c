@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "sds_extras.h"
 
+#include "../../dist/src/utf8decode/utf8decode.h"
 #include "log.h"
 
 #include <ctype.h>
@@ -16,8 +17,16 @@
 
 sds sds_catjson(sds s, const char *p, size_t len) {
     s = sdscatlen(s, "\"", 1);
+    uint32_t codepoint;
+    uint32_t state = UTF8_ACCEPT;
     while (len--) {
-        s = sds_catjsonchar(s, *p);
+        if ((*p & 0x80) == 0x00) {
+            //ascii char
+            s = sds_catjsonchar(s, *p);
+        }
+        else if (!decode_utf8(&state, &codepoint, *p)) {
+            s = sdscatprintf(s, "\\u%04x", codepoint);
+        }
         p++;
     }
     return sdscatlen(s, "\"", 1);
