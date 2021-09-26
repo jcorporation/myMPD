@@ -12,7 +12,6 @@ class inputReset extends HTMLElement {
         const unitPhrase = this.getAttribute('data-unit-phrase');
         let inputType = this.getAttribute('type');
         inputType = inputType === null ? 'text' : inputType;
-        const alwaysEnabled = this.classList.contains('alwaysEnabled') ? 'alwaysEnabled' : '';
 
         const inputGroup = elCreate('div', {"class": ["input-group"]}, '');
         const input = elCreate('input', {
@@ -70,7 +69,7 @@ class inputReset extends HTMLElement {
     set value(newValue) {
         this.input.value = newValue;
     }
-};
+}
 
 class inputClear extends HTMLInputElement {
     constructor() {
@@ -88,10 +87,10 @@ class inputClear extends HTMLInputElement {
     connectedCallback() {
         this.addEventListener('keyup', function(event) {
             if (event.target.value === '') {
-                elHide(this.button);
+                elHide(event.target.button);
             }
             else {
-                elShow(this.button);
+                elShow(event.target.button);
             }
         }, false);
         this.button.addEventListener('click', function(event) {
@@ -103,7 +102,7 @@ class inputClear extends HTMLInputElement {
             }
         }, false);
     }
-};
+}
 
 customElements.define('mympd-input-reset', inputReset);
 customElements.define('mympd-input-clear', inputClear, {extends: 'input'});
