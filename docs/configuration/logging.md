@@ -15,7 +15,7 @@ The log levels are unix default.
 | 2 | critical |
 | 3 | error |
 | 4 | warn |
-| 5 | notice |
+| 5 | notice (default) |
 | 6 | info |
 | 7 | debug |
 {: .table .table-sm}

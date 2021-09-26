@@ -39,7 +39,7 @@ services:
       - /path/to/mpd/socket:/run/mpd/socket #optional, use if you connect to mpd using sockets
       - /path/to/mympd/docker/dir:/var/lib/mympd/
       - /path/to/music/dir/:/music/:ro
-      - /path/to/playlists/dir/:/playlists/
+      - /path/to/playlists/dir/:/playlists/:ro
     restart: unless-stopped
 ```
 
@@ -56,7 +56,7 @@ docker run -d \
   -v /path/to/mpd/socket:/run/mpd/socket #optional, use if you connect to mpd using sockets
   -v /path/to/mympd/docker/dir:/var/lib/mympd/ \
   -v /path/to/music/dir/:/music/:ro \
-  -v /path/to/playlists/dir/:/playlists/ \
+  -v /path/to/playlists/dir/:/playlists/:ro \
   --restart unless-stopped \
   ghcr.io/jcorporation/mympd/mympd
 ```

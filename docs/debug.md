@@ -13,7 +13,7 @@ Tips to debug problems with myMPD. Try these steps and reproduce the error.
 - Start it in the console ``mympd``
 - Debug output is printed to the console
 - Press Ctrl + C to abort
-- Set loglevel to notice: ``unset MYMPD_LOGLEVEL``
+- Reset loglevel: ``unset MYMPD_LOGLEVEL``
 
 ## Webbrowser logging
 
