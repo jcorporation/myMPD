@@ -264,7 +264,8 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                     bool smartpls = is_smartpls(mympd_state->config->workdir, current->value_p);
                     buffer = sdscatfmt(buffer, "{\"Type\": \"%s\",", (smartpls == true ? "smartpls" : "plist"));
                     buffer = tojson_char(buffer, "uri", mpd_playlist_get_path(pl), true);
-                    buffer = tojson_char(buffer, "name", current->value_p, false);
+                    buffer = tojson_char(buffer, "name", current->value_p, true);
+                    buffer = tojson_char(buffer, "Filename", current->value_p, false);
                     buffer = sdscat(buffer, "}");
                     break;
                 }
