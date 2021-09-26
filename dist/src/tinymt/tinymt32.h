@@ -94,7 +94,8 @@ inline static void tinymt32_next_state(tinymt32_t * random) {
  * @return 32-bit unsigned pseudorandom number
  */
 inline static uint32_t tinymt32_temper(tinymt32_t * random) {
-    uint32_t t0, t1;
+    uint32_t t0;
+    uint32_t t1;
     t0 = random->status[3];
 #if defined(LINEARITY_CHECK)
     t1 = random->status[0]
@@ -117,7 +118,8 @@ inline static uint32_t tinymt32_temper(tinymt32_t * random) {
  * @return floating point number r (1.0 <= r < 2.0)
  */
 inline static float tinymt32_temper_conv(tinymt32_t * random) {
-    uint32_t t0, t1;
+    uint32_t t0;
+    uint32_t t1;
     union {
         uint32_t u;
         float f;
@@ -147,7 +149,8 @@ inline static float tinymt32_temper_conv(tinymt32_t * random) {
  * @return floating point number r (1.0 < r < 2.0)
  */
 inline static float tinymt32_temper_conv_open(tinymt32_t * random) {
-    uint32_t t0, t1;
+    uint32_t t0;
+    uint32_t t1;
     union {
         uint32_t u;
         float f;
@@ -212,7 +215,7 @@ inline static float tinymt32_generate_float12(tinymt32_t * random) {
  */
 inline static float tinymt32_generate_float01(tinymt32_t * random) {
     tinymt32_next_state(random);
-    return tinymt32_temper_conv(random) - 1.0f;
+    return tinymt32_temper_conv(random) - 1.0F;
 }
 
 /**
@@ -223,7 +226,7 @@ inline static float tinymt32_generate_float01(tinymt32_t * random) {
  */
 inline static float tinymt32_generate_floatOC(tinymt32_t * random) {
     tinymt32_next_state(random);
-    return 1.0f - tinymt32_generate_float(random);
+    return 1.0F - tinymt32_generate_float(random);
 }
 
 /**
@@ -234,7 +237,7 @@ inline static float tinymt32_generate_floatOC(tinymt32_t * random) {
  */
 inline static float tinymt32_generate_floatOO(tinymt32_t * random) {
     tinymt32_next_state(random);
-    return tinymt32_temper_conv_open(random) - 1.0f;
+    return tinymt32_temper_conv_open(random) - 1.0F;
 }
 
 /**

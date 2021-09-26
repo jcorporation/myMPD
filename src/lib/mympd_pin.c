@@ -25,11 +25,11 @@ static sds pin_hash(const char *pin);
 //public functions
 
 void pin_set(sds workdir) {
-    struct termios old, new;
+    struct termios old;
     if (tcgetattr(fileno(stdin), &old) != 0) {
         return;
     }
-    new = old;
+    struct termios new = old;
     new.c_lflag &= ~ECHO;
     if (tcsetattr(fileno(stdin), TCSAFLUSH, &new) != 0) {
         return;
