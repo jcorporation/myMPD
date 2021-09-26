@@ -1,9 +1,8 @@
 #!/bin/sh
 #
-# SPDX-License-Identifier: GPL-3.0-or-later
-# myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
-# https://github.com/jcorporation/mympd
-#
+#SPDX-License-Identifier: GPL-3.0-or-later
+#myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+#https://github.com/jcorporation/mympd
 
 #exit on error
 set -e
@@ -35,6 +34,22 @@ then
   export ENABLE_LUA="ON"
 fi
 
+#colorful warnings and errors
+echo_error() {
+  printf "\e[0;31ERROR: "
+  #shellcheck disable=SC2068
+  echo $@
+  printf "\e[m"
+}
+
+echo_warn() {
+  printf "\e[1;33mWARN: "
+  #shellcheck disable=SC2068
+  echo $@
+  printf "\e[m"
+}
+
+#clang tidy options
 CLANG_TIDY_CHECKS="*"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-altera-struct-pack-align,-clang-analyzer-optin.performance.Padding"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-macro-parentheses"
@@ -71,7 +86,7 @@ check_cmd() {
   do
     if ! check_cmd_silent "$@"
     then
-      echo "ERROR: ${DEPENDENCY} not found"
+      echo_error "${DEPENDENCY} not found"
       return 1
     fi
   done
@@ -144,7 +159,7 @@ minify() {
     if ! perl -pe 's/^<!--debug-->.*\n//gm; s/<!--release\s+(.+)-->/$1/g; s/<!--(.+)-->//g; s/^\s*//gm; s/\s*$//gm' "$SRC" > "${DST}.tmp"
     then
       rm -f "${DST}.tmp"
-      echo "Error minifying $SRC"
+      echo_error "Error minifying $SRC"
       exit 1
     fi
   elif [ "$TYPE" = "js" ]
@@ -153,7 +168,7 @@ minify() {
     if ! perl -pe 's/^\s*//gm; s/^\/\/.+$//g; s/^logDebug\(.*$//g; s/\s*$//gm;' "$SRC" > "${DST}.tmp"
     then
       rm -f "${DST}.tmp"
-      echo "Error minifying $SRC"
+      echo_error "Error minifying $SRC"
       exit 1
     fi
   elif [ "$TYPE" = "css" ]
@@ -162,7 +177,7 @@ minify() {
     if ! perl -pe 's/^\s*//gm; s/\s*$//gm; s/: /:/g;' "$SRC" | perl -pe 's/\/\*[^*]+\*\///g;' > "${DST}.tmp"
     then
       rm -f "${DST}.tmp"
-      echo "Error minifying $SRC"
+      echo_error "Error minifying $SRC"
       exit 1
     fi
   fi
@@ -197,7 +212,7 @@ createassets() {
   
   echo "Minifying javascript"
   JSSRCFILES=""
-  # shellcheck disable=SC2013
+  #shellcheck disable=SC2013
   for F in $(grep -E '<!--debug-->\s+<script' htdocs/index.html | cut -d\" -f2)
   do
     [ "$F" = "js/bootstrap-native.js" ] && continue;
@@ -206,13 +221,13 @@ createassets() {
     JSSRCFILES="$JSSRCFILES htdocs/$F"
     if tail -1 "htdocs/$F" | perl -npe 'exit 1 if m/\n/; exit 0'
     then
-      echo "ERROR: $F don't end with newline character"
+      echo_error "$F don't end with newline character"
       exit 1
     fi
   done
   echo "Creating mympd.js"
-  # shellcheck disable=SC2086
-  # shellcheck disable=SC2002
+  #shellcheck disable=SC2086
+  #shellcheck disable=SC2002
   cat $JSSRCFILES | grep -v "\"use strict\";" > "$MYMPD_BUILDDIR/htdocs/js/mympd.js"
   minify js htdocs/sw.js "$MYMPD_BUILDDIR/htdocs/sw.min.js"
   minify js "$MYMPD_BUILDDIR/htdocs/js/mympd.js" "$MYMPD_BUILDDIR/htdocs/js/mympd.min.js"
@@ -224,13 +239,13 @@ createassets() {
   do
     if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
     then
-      echo "ERROR: $F don't end with newline character"
+      echo_error "$F don't end with newline character"
       exit 1
     fi
   done
   echo "\"use strict\";" > "$MYMPD_BUILDDIR/htdocs/js/combined.js"
-  # shellcheck disable=SC2086
-  # shellcheck disable=SC2002
+  #shellcheck disable=SC2086
+  #shellcheck disable=SC2002
   cat $JSFILES >> "$MYMPD_BUILDDIR/htdocs/js/combined.js"
   $GZIP "$MYMPD_BUILDDIR/htdocs/js/combined.js"
   
@@ -248,7 +263,7 @@ createassets() {
   echo "Combining and compressing stylesheets"
   echo "/* myMPD ${VERSION} | (c) 2018-2021 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-2.0-or-later | https://github.com/jcorporation/mympd */" > "$MYMPD_BUILDDIR/htdocs/css/copyright.min.css"
   CSSFILES="dist/htdocs/css/*.min.css $MYMPD_BUILDDIR/htdocs/css/*.min.css"
-  # shellcheck disable=SC2086
+  #shellcheck disable=SC2086
   cat $CSSFILES > "$MYMPD_BUILDDIR/htdocs/css/combined.css"
   $GZIP "$MYMPD_BUILDDIR/htdocs/css/combined.css"
   
@@ -295,7 +310,7 @@ addmympduser() {
       #alpine
       addgroup -S mympd
     else
-      echo "Can not add group mympd"
+      echo_error "Can not add group mympd"
       return 1
     fi
   fi
@@ -310,7 +325,7 @@ addmympduser() {
       #alpine
       adduser -S -D -H -h /var/lib/mympd -s /sbin/nologin -G mympd -g myMPD mympd
     else
-      echo "Can not add user mympd"
+      echo_error "Can not add user mympd"
       return 1
     fi
   fi
@@ -389,13 +404,13 @@ cleanuposc() {
 check_docs() {
   grep 'X(MYMPD' src/lib/api.h | cut -d\( -f2 | cut -d\) -f1 | while IFS= read -r METHOD
   do
-    grep -q "$METHOD" htdocs/js/apidoc.js || echo "API $F not documented"
+    grep -q "$METHOD" htdocs/js/apidoc.js || echo_warn "API $F not documented"
   done
   O=$(md5sum htdocs/js/apidoc.js | awk '{print $1}')
   C=$(md5sum docs/assets/apidoc.js | awk '{print $1}')
   if [ "$O" != "$C" ]
   then
-  	echo "apidoc.js in docs differs"
+  	echo_warn "apidoc.js in docs differs"
   fi
 }
 
@@ -404,7 +419,7 @@ check_includes() {
   do
     if ! grep -m1 "#include" "$FILE" | grep -q "mympd_config_defs.h"
     then
-      echo "First include is not mympd_config_defs.h: $FILE"
+      echo_warn "First include is not mympd_config_defs.h: $FILE"
     fi
     SRCDIR=$(dirname "$FILE")
     
@@ -412,7 +427,7 @@ check_includes() {
     do
       if ! realpath "$SRCDIR/$INCLUDE" > /dev/null 2>&1
       then
-        echo "Wrong include path in $FILE for $INCLUDE"
+        echo_error "Wrong include path in $FILE for $INCLUDE"
       fi
     done
   done
@@ -427,7 +442,7 @@ check_file() {
     #shellcheck disable=SC2086
     cppcheck $CPPCHECKOPTS "$FILE"
   else
-    echo "cppcheck not found"
+    echo_warn "cppcheck not found"
   fi
   
   if check_cmd flawfinder
@@ -437,7 +452,7 @@ check_file() {
     #shellcheck disable=SC2086
     flawfinder $FLAWFINDEROPTS "$FILE"
   else
-    echo "flawfinder not found"
+    echo_warn "flawfinder not found"
   fi
 
   if [ ! -f src/compile_commands.json ]
@@ -457,7 +472,7 @@ check_file() {
     	--header-filter=".*" "$FILE" >> ../clang-tidy.out 2>/dev/null
     grep -v -E "(memset|memcpy|\^)" ../clang-tidy.out
   else
-    echo "clang-tidy not found"  
+    echo_warn "clang-tidy not found"  
   fi
 }
 
@@ -477,7 +492,7 @@ check() {
     #shellcheck disable=SC2086
     cppcheck $CPPCHECKOPTS cli_tools/*.c
   else
-    echo "cppcheck not found"
+    echo_warn "cppcheck not found"
   fi
   
   if check_cmd flawfinder
@@ -489,7 +504,7 @@ check() {
     #shellcheck disable=SC2086
     flawfinder $FLAWFINDEROPTS cli_tools
   else
-    echo "flawfinder not found"
+    echo_warn "flawfinder not found"
   fi
 
   if [ ! -f src/compile_commands.json ]
@@ -509,7 +524,7 @@ check() {
     	--header-filter=".*" {}  \; >> ../clang-tidy.out 2>/dev/null
     grep -v -E "(memset|memcpy|\^)" ../clang-tidy.out
   else
-    echo "clang-tidy not found"  
+    echo_warn "clang-tidy not found"  
   fi
   cd .. || exit 1
   check_docs
@@ -541,7 +556,7 @@ pkgdebian() {
   then
 	SIGNOPT="--sign-key=$GPGKEYID"  
   else
-    echo "Package would not be signed"
+    echo_warn "Package would not be signed"
   fi
   #shellcheck disable=SC2086
   dpkg-buildpackage -rfakeroot $SIGNOPT
@@ -550,7 +565,7 @@ pkgdebian() {
   PACKAGE=$(ls ../mympd_"${VERSION}"-1_*.deb)
   if [ "$PACKAGE" = "" ]
   then
-    echo "Can't find package"
+    echo_error "Can't find package"
   fi
 
   if check_cmd lintian
@@ -558,7 +573,7 @@ pkgdebian() {
     echo "Checking package with lintian"
     lintian "$PACKAGE"
   else
-    echo "WARNING: lintian not found, can't check package"
+    echo_warn "lintian not found, can't check package"
   fi
 }
 
@@ -639,7 +654,7 @@ pkgrpm() {
     ARCH=$(uname -p)
     rpmlint "$HOME/rpmbuild/RPMS/${ARCH}/mympd-${VERSION}-0.${ARCH}.rpm"
   else
-    echo "WARNING: rpmlint not found, can't check package"
+    echo_warn "rpmlint not found, can't check package"
   fi
 }
 
@@ -662,7 +677,7 @@ pkgarch() {
     namcap PKGBUILD
     namcap mympd-*.pkg.tar.xz
   else
-    echo "WARNING: namcap not found, can't check package"
+    echo_warn "namcap not found, can't check package"
   fi
 }
 
@@ -746,7 +761,7 @@ installdeps() {
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
 	lua-devel unzip pcre-devel
   else 
-    echo "Unsupported distribution detected."
+    echo_warn "Unsupported distribution detected."
     echo "You should manually install:"
     echo "  - gcc"
     echo "  - cmake"
@@ -787,12 +802,11 @@ updatelibmympdclient() {
   rm -rf "$TMPDIR"
 }
 
-# Also deletes stale installations in other locations.
+#Also deletes stale installations in other locations.
 #
 uninstall() {
-  # cmake does not provide an uninstall target,
-  # instead its manifest is of use at least for
-  # the binaries
+  #cmake does not provide an uninstall target, instead its manifest is of use at least for
+  #the binaries
   if [ -f release/install_manifest.txt ]
   then
     xargs rm < release/install_manifest.txt
@@ -842,7 +856,7 @@ purge() {
       #alpine
       deluser mympd
     else
-      echo "Can not del user mygpiod"
+      echo_error "Can not remove user mympd"
       return 1
     fi
   fi
@@ -856,7 +870,7 @@ purge() {
     then
       deluser mympd
     else
-      echo "Can not del user mympd"
+      echo_error "Can not remove user mympd"
       return 1
     fi
   fi
@@ -883,7 +897,7 @@ materialicons() {
   if ! wget -q https://raw.githubusercontent.com/google/material-design-icons/master/update/current_versions.json \
 	-O current_version.json
   then
-    echo "Error downloading json file"
+    echo_error "Error downloading json file"
     exit 1
   fi
   EXCLUDE="face_unlock|battery_\\d|battery_charging_\\d|signal_cellular_|signal_wifi_\\d_bar"
@@ -965,7 +979,7 @@ sbuild_build() {
   export LC_TIME="en_GB.UTF-8"
   tar -czf "../mympd_${VERSION}.orig.tar.gz" -- *
   cd ..
-  # Compile for target distro/arch
+  #Compile for target distro/arch
   for DIST in ${DISTROS}
   do
     for ARCH in ${TARGETS}
