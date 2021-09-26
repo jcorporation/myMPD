@@ -99,7 +99,7 @@ sds mympd_api_script_list(struct t_config *config, sds buffer, sds method, long 
         entry = sdscatlen(entry, "}", 1);
         if (all == true || order > 0) {
             if (nr++) {
-                buffer = sdscat(buffer, ",");
+                buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscat(buffer, entry);
         }
@@ -112,7 +112,7 @@ sds mympd_api_script_list(struct t_config *config, sds buffer, sds method, long 
     FREE_SDS(scriptfilename);
     FREE_SDS(entry);
     FREE_SDS(scriptdirname);
-    buffer = sdscat(buffer, "]");        
+    buffer = sdscatlen(buffer, "]", 1);        
     buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
@@ -264,7 +264,7 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
         sdsrange(line, 3, -1);
         if (json_get_int(line, "$.order", 0, 99, order, NULL) == true) {
             entry = sdscat(entry, "\"metadata\":");
-            entry = sdscat(entry, line);
+            entry = sdscatsds(entry, line);
         }
         else {
             MYMPD_LOG_WARN("Invalid metadata for script %s", scriptfilename);
@@ -551,13 +551,13 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                 request->data = tojson_char(request->data, lua_tostring(lua_vm, i), lua_tostring(lua_vm, i + 1), comma);
             }
         }
-        request->data = sdscat(request->data, "}");
+        request->data = sdscatlen(request->data, "}", 1);
     }
     else if (n == 2) {
         sdsrange(request->data, 0, -1);  //remove {
         request->data = sdscat(request->data, lua_tostring(lua_vm, 2));
     }
-    request->data = sdscat(request->data, "}");
+    request->data = sdscatlen(request->data, "}", 1);
     
     mympd_queue_push(mympd_api_queue, request, tid);
 

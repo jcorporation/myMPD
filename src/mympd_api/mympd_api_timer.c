@@ -326,14 +326,14 @@ sds mympd_api_timer_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
                 if (i > 0) {
                     buffer = sdscatlen(buffer, ",", 1);
                 }
-                buffer = sdscat(buffer, current->definition->weekdays[i] == true ? "true" : "false");
+                buffer = sds_catbool(buffer, current->definition->weekdays[i]);
             }
             buffer = sdscatlen(buffer, "]}", 2);
         }
         current = current->next;
     }
     
-    buffer = sdscat(buffer, "],");
+    buffer = sdscatlen(buffer, "],", 1);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_result_end(buffer);
     return buffer;
@@ -361,7 +361,7 @@ sds mympd_api_timer_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
                 if (i > 0) {
                     buffer = sdscatlen(buffer, ",", 1);
                 }
-                buffer = sdscat(buffer, current->definition->weekdays[i] == true ? "true" : "false");
+                buffer = sds_catbool(buffer, current->definition->weekdays[i]);
             }
             buffer = sdscat(buffer, "],\"arguments\": {");
             struct t_list_node *argument = current->definition->arguments.head;
@@ -473,7 +473,7 @@ bool mympd_api_timer_file_save(struct t_mympd_state *mympd_state) {
                 if (i > 0) {
                     buffer = sdscatlen(buffer, ",", 1);
                 }
-                buffer = sdscat(buffer, current->definition->weekdays[i] == true ? "true" : "false");
+                buffer = sds_catbool(buffer, current->definition->weekdays[i]);
             }
             buffer = sdscat(buffer, "],\"arguments\": {");
             struct t_list_node *argument = current->definition->arguments.head;

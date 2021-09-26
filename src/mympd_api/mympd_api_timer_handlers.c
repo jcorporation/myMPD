@@ -38,7 +38,7 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
     MYMPD_LOG_INFO("Start timer_handler_select for timer \"%s\"", definition->name);
     if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "stopplay") == 0) {
         struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_STOP, NULL);
-        request->data = sdscat(request->data, "}}");
+        request->data = sdscatlen(request->data, "}}", 2);
         mympd_queue_push(mympd_api_queue, request, 0);
     }
     else if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "startplay") == 0) {
@@ -46,7 +46,7 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
         request->data = tojson_long(request->data, "volume", definition->volume, true);
         request->data = tojson_char(request->data, "playlist", definition->playlist, true);
         request->data = tojson_long(request->data, "jukeboxMode", definition->jukebox_mode, false);
-        request->data = sdscat(request->data, "}}");
+        request->data = sdscatlen(request->data, "}}", 2);
         mympd_queue_push(mympd_api_queue, request, 0);
     }
     else if (strcmp(definition->action, "script") == 0) {
@@ -62,7 +62,7 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
             request->data = tojson_char(request->data, argument->key, argument->value_p, false);
             argument = argument->next;
         }
-        request->data = sdscat(request->data, "}}}");
+        request->data = sdscatlen(request->data, "}}}", 3);
         mympd_queue_push(mympd_api_queue, request, 0);
     }
     else {
@@ -124,7 +124,7 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
     if (jukebox_mode != JUKEBOX_OFF) {
         request->data = tojson_char(request->data, "jukeboxPlaylist", playlist, false);
     }
-    request->data = sdscat(request->data, "}}");
+    request->data = sdscatlen(request->data, "}}", 2);
     mympd_queue_push(mympd_api_queue, request, 0);
 
     buffer = respond_with_mpd_error_or_ok(mympd_state->mpd_state, buffer, method, request_id, rc, "mympd_api_timer_startplay");

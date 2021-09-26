@@ -191,7 +191,7 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
     check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
 
     if (mympd_state->mpd_state->tag_types_mpd.len == 0) {
-        logline = sdscat(logline, "none");
+        logline = sdscatlen(logline, "none", 4);
         MYMPD_LOG_NOTICE(logline);
         MYMPD_LOG_NOTICE("Tags are disabled");
         mympd_state->mpd_state->feat_tags = false;

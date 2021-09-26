@@ -137,7 +137,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
             keepalive = false;
         }
         else {
-            *error = sdscatprintf(*error, "Invalid value for \"%s\": \"%s\"", key, value);
+            *error = sdscatfmt(*error, "Invalid value for \"%s\": \"%s\"", key, value);
             MYMPD_LOG_WARN(*error);
             return false;
         }
@@ -150,7 +150,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
         }
     }
     else {
-        *error = sdscatprintf(*error, "Unknown setting \"%s\": \"%s\"", key, value);
+        *error = sdscatfmt(*error, "Unknown setting \"%s\": \"%s\"", key, value);
         MYMPD_LOG_WARN(*error);
         return true;
     }
@@ -369,7 +369,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
         mympd_state->covercache_keep_days = covercache_keep_days;
     }
     else {
-        *error = sdscatprintf(*error, "Unknown setting \"%s\": \"%s\"", key, value);
+        *error = sdscatfmt(*error, "Unknown setting \"%s\": \"%s\"", key, value);
         MYMPD_LOG_WARN(*error);
         return true;
     }
@@ -700,18 +700,18 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = tojson_bool(buffer, "featSmartpls", mympd_state->mpd_state->feat_smartpls, true);
         
         buffer = print_tags_array(buffer, "tagList", mympd_state->mpd_state->tag_types_mympd);
-        buffer = sdscat(buffer, ",");
+        buffer = sdscatlen(buffer, ",", 1);
         buffer = print_tags_array(buffer, "tagListSearch", mympd_state->tag_types_search);
-        buffer = sdscat(buffer, ",");
+        buffer = sdscatlen(buffer, ",", 1);
         buffer = print_tags_array(buffer, "tagListBrowse", mympd_state->tag_types_browse);
-        buffer = sdscat(buffer, ",");
+        buffer = sdscatlen(buffer, ",", 1);
         buffer = print_tags_array(buffer, "tagListMpd", mympd_state->mpd_state->tag_types_mpd);
-        buffer = sdscat(buffer, ",");
+        buffer = sdscatlen(buffer, ",", 1);
         buffer = print_tags_array(buffer, "smartplsGenerateTagList", mympd_state->smartpls_generate_tag_types);
         
         buffer = sdscat(buffer, ",\"triggerEvents\":{");
         buffer = mympd_api_trigger_print_trigger_list(buffer);
-        buffer = sdscat(buffer, "}");
+        buffer = sdscatlen(buffer, "}", 1);
 
     } 
     else {
@@ -750,7 +750,7 @@ sds mympd_api_settings_picture_list(struct t_mympd_state *mympd_state, sds buffe
                 strcasecmp(ext, ".bmp") == 0) 
             {
                 if (returned_entities++) {
-                    buffer = sdscat(buffer, ",");
+                    buffer = sdscatlen(buffer, ",", 1);
                 }
                 buffer = sds_catjson(buffer, next_file->d_name, strlen(next_file->d_name));
             }
@@ -820,17 +820,17 @@ static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags
     buffer = sdscatfmt(buffer, "\"%s\": [", tagsname);
     for (size_t i = 0; i < tags.len; i++) {
         if (i > 0) {
-            buffer = sdscat(buffer, ",");
+            buffer = sdscatlen(buffer, ",", 1);
         }
         const char *tagname = mpd_tag_name(tags.tags[i]);
         buffer = sds_catjson(buffer, tagname, strlen(tagname));
     }
-    buffer = sdscat(buffer, "]");
+    buffer = sdscatlen(buffer, "]", 1);
     return buffer;
 }
 
 static sds set_invalid_value(sds error, sds key, sds value) {
-    error = sdscatprintf(error, "Invalid value for \"%s\": \"%s\"", key, value);
+    error = sdscatfmt(error, "Invalid value for \"%s\": \"%s\"", key, value);
     MYMPD_LOG_WARN(error);
     return error;
 }

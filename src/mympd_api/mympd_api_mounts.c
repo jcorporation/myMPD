@@ -29,17 +29,17 @@ sds mympd_api_mounts_list(struct t_mympd_state *mympd_state, sds buffer, sds met
         const char *storage = mpd_mount_get_storage(mount);
         if (uri != NULL && storage != NULL) {
             if (entity_count++) {
-                buffer = sdscat(buffer, ",");
+                buffer = sdscatlen(buffer, ",", 1);
             }
-            buffer = sdscat(buffer, "{");
+            buffer = sdscatlen(buffer, "{", 1);
             buffer = tojson_char(buffer, "mountPoint", uri, true);
             buffer = tojson_char(buffer, "mountUrl", storage, false);
-            buffer = sdscat(buffer, "}");
+            buffer = sdscatlen(buffer, "}", 1);
         }
         mpd_mount_free(mount);
     }
 
-    buffer = sdscat(buffer, "],");
+    buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
     buffer = jsonrpc_result_end(buffer);
@@ -64,13 +64,13 @@ sds mympd_api_mounts_urlhandler_list(struct t_mympd_state *mympd_state, sds buff
     struct mpd_pair *pair;
     while ((pair = mpd_recv_pair(mympd_state->mpd_state->conn)) != NULL) {
         if (entity_count++) {
-            buffer = sdscat(buffer, ",");
+            buffer = sdscatlen(buffer, ",", 1);
         }
         buffer = sds_catjson(buffer, pair->value, strlen(pair->value));
         mpd_return_pair(mympd_state->mpd_state->conn, pair);
     }
 
-    buffer = sdscat(buffer, "],");
+    buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
     buffer = jsonrpc_result_end(buffer);
@@ -98,17 +98,17 @@ sds mympd_api_mounts_neighbor_list(struct t_mympd_state *mympd_state, sds buffer
         //upnp uris can not be mounted
         if (strncmp(uri, "upnp://", 7) != 0) {
             if (entity_count++) {
-                buffer = sdscat(buffer, ",");
+                buffer = sdscatlen(buffer, ",", 1);
             }
-            buffer = sdscat(buffer, "{");
+            buffer = sdscatlen(buffer, "{", 1);
             buffer = tojson_char(buffer, "uri", uri, true);
             buffer = tojson_char(buffer, "displayName", mpd_neighbor_get_display_name(neighbor), false);
-            buffer = sdscat(buffer, "}");
+            buffer = sdscatlen(buffer, "}", 1);
         }
         mpd_neighbor_free(neighbor);
     }
 
-    buffer = sdscat(buffer, "],");
+    buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
     buffer = jsonrpc_result_end(buffer);

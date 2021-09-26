@@ -137,7 +137,7 @@ sds mympd_api_home_icon_list(struct t_mympd_state *mympd_state, sds buffer, sds 
     struct t_list_node *current = mympd_state->home_list.head;
     while (current != NULL) {
         if (returned_entities++) {
-            buffer = sdscat(buffer, ",");
+            buffer = sdscatlen(buffer, ",", 1);
         }
         buffer = sdscat(buffer, current->key);
         current = current->next;

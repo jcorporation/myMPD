@@ -370,7 +370,7 @@ static bool update_mympd_caches(struct t_mympd_state *mympd_state) {
         mympd_state->album_cache_building = true;
     }
     struct t_work_request *request = create_request(-1, 0, INTERNAL_API_CACHES_CREATE, NULL);
-    request->data = sdscat(request->data, "}}");
+    request->data = sdscatlen(request->data, "}}", 2);
     bool rc = mpd_worker_start(mympd_state, request);
     if (rc == false) {
         mympd_state->sticker_cache_building = false;

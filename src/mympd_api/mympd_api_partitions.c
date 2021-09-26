@@ -23,15 +23,15 @@ sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, sds 
     struct mpd_pair *partition;
     while ((partition = mpd_recv_partition_pair(mympd_state->mpd_state->conn)) != NULL) {
         if (entity_count++) {
-            buffer = sdscat(buffer, ",");
+            buffer = sdscatlen(buffer, ",", 1);
         }
-        buffer = sdscat(buffer, "{");
+        buffer = sdscatlen(buffer, "{", 1);
         buffer = tojson_char(buffer, "name", partition->value, false);
-        buffer = sdscat(buffer, "}");
+        buffer = sdscatlen(buffer, "}", 1);
         mpd_return_pair(mympd_state->mpd_state->conn, partition);
     }
 
-    buffer = sdscat(buffer, "],");
+    buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
     buffer = jsonrpc_result_end(buffer);

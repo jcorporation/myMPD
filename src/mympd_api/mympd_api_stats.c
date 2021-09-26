@@ -133,7 +133,7 @@ sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buff
             entity_count++;
             if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
                 if (entities_returned++) {
-                    buffer = sdscat(buffer, ",");
+                    buffer = sdscatlen(buffer, ",", 1);
                 }
                 buffer = mympd_api_get_last_played_obj(mympd_state, buffer, entity_count, current->value_i, current->key, tagcols);
             }
@@ -154,7 +154,7 @@ sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buff
                 if (strlen(data) > 2) {
                     data = data + 2;
                     if (entities_returned++) {
-                        buffer = sdscat(buffer, ",");
+                        buffer = sdscatlen(buffer, ",", 1);
                     }
                     buffer = mympd_api_get_last_played_obj(mympd_state, buffer, entity_count, value, data, tagcols);
                 }
@@ -175,7 +175,7 @@ sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buff
         }
     }
     FREE_SDS(lp_file);
-    buffer = sdscat(buffer, "],");
+    buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
@@ -249,6 +249,6 @@ static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds 
         check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
         mpd_response_finish(mympd_state->mpd_state->conn);
     }
-    buffer = sdscat(buffer, "}");
+    buffer = sdscatlen(buffer, "}", 1);
     return buffer;
 }

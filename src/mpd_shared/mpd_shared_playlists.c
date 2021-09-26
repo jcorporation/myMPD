@@ -238,7 +238,7 @@ bool mpd_shared_smartpls_save(const char *workdir, const char *smartpltype, cons
     }
     FILE *fp = fdopen(fd, "w");
 
-    sds line = sdscat(sdsempty(), "{");
+    sds line = sdscatlen(sdsempty(), "{", 1);
     line = tojson_char(line, "type", smartpltype, true);
     if (strcmp(smartpltype, "sticker") == 0) {
         line = tojson_char(line, "sticker", expression, true);
@@ -252,7 +252,7 @@ bool mpd_shared_smartpls_save(const char *workdir, const char *smartpltype, cons
         line = tojson_char(line, "expression", expression, true);
     }
     line = tojson_char(line, "sort", sort, false);
-    line = sdscat(line, "}");
+    line = sdscatlen(line, "}", 1);
     int rc = fputs(line, fp);
     FREE_SDS(line);
     if (rc < 0) {

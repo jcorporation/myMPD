@@ -141,7 +141,7 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     buffer = tojson_long(buffer, "sampleRate", (audioformat ? audioformat->sample_rate : 0), true);
     buffer = tojson_long(buffer, "bits", (audioformat ? audioformat->bits : 0), true);
     buffer = tojson_long(buffer, "channels", (audioformat ? audioformat->channels : 0), false);
-    buffer = sdscat(buffer, "},");
+    buffer = sdscatlen(buffer, "},", 2);
     buffer = tojson_char(buffer, "lastError", mpd_status_get_error(status), false);
     buffer = jsonrpc_result_end(buffer);
 
@@ -238,10 +238,10 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer,
     buffer = tojson_long(buffer, "currentSongId", mympd_state->mpd_state->song_id, true);
     buffer = get_song_tags(buffer, mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd, song);
     if (mympd_state->mpd_state->feat_stickers && mympd_state->sticker_cache != NULL) {
-        buffer = sdscat(buffer, ",");
+        buffer = sdscatlen(buffer, ",", 1);
         buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
     }
-    buffer = sdscat(buffer, ",");
+    buffer = sdscatlen(buffer, ",", 1);
     buffer = get_extra_files(mympd_state, buffer, uri, false);
     mpd_song_free(song);
 
@@ -249,7 +249,7 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer,
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
     }
-    buffer = sdscat(buffer, ",");
+    buffer = sdscatlen(buffer, ",", 1);
     unsigned start_time = get_current_song_start_time(mympd_state);
     buffer = tojson_long(buffer, "startTime", start_time, false);
     buffer = jsonrpc_result_end(buffer);
@@ -286,9 +286,9 @@ static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer,
     struct mpd_output *output;
     while ((output = mpd_recv_output(mympd_state->mpd_state->conn)) != NULL) {
         if (nr++) {
-            buffer = sdscat(buffer, ",");
+            buffer = sdscatlen(buffer, ",", 1);
         }
-        buffer = sdscat(buffer, "{");
+        buffer = sdscatlen(buffer, "{", 1);
         buffer = tojson_long(buffer, "id", mpd_output_get_id(output), true);
         buffer = tojson_char(buffer, "name", mpd_output_get_name(output), true);
         buffer = tojson_long(buffer, "state", mpd_output_get_enabled(output), true);
@@ -298,11 +298,11 @@ static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer,
         if (attributes != NULL) {
             buffer = tojson_char(buffer, attributes->name, attributes->value, false);
             while ((attributes = mpd_output_next_attribute(output)) != NULL) {
-                buffer = sdscat(buffer, ",");
+                buffer = sdscatlen(buffer, ",", 1);
                 buffer = tojson_char(buffer, attributes->name, attributes->value, false);
             }
         }
-        buffer = sdscat(buffer, "}}");
+        buffer = sdscatlen(buffer, "}}", 2);
         mpd_output_free(output);
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
@@ -310,7 +310,7 @@ static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer,
         return buffer;
     }
 
-    buffer = sdscat(buffer, "],");
+    buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "numOutputs", nr, false);
     buffer = jsonrpc_result_end(buffer);
     

@@ -192,7 +192,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
                 MYMPD_LOG_INFO("Created smart playlist \"%s\"", playlist);
                 sds expression = sdsnew("(");
                 expression = escape_mpd_search_expression(expression, tagstr, "==", current->key);
-                expression = sdscat(expression, ")");
+                expression = sdscatlen(expression, ")", 1);
                 mpd_shared_smartpls_save(mpd_worker_state->config->workdir, "search", playlist, expression, 0, 0, mpd_worker_state->smartpls_sort);
                 FREE_SDS(expression);
             }

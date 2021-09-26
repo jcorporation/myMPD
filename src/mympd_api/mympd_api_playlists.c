@@ -79,13 +79,13 @@ bool mympd_api_smartpls_default(struct t_config *config) {
 void mympd_api_smartpls_update(const char *playlist) {
     struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE, NULL);
     request->data = tojson_char(request->data, "plist", playlist, false);
-    request->data = sdscat(request->data, "}}");
+    request->data = sdscatlen(request->data, "}}", 2);
     mympd_queue_push(mympd_api_queue, request, 0);
 }
 
 void mympd_api_smartpls_update_all(void) {
     struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL);
-    request->data = sdscat(request->data, "}}");
+    request->data = sdscatlen(request->data, "}}", 2);
     mympd_queue_push(mympd_api_queue, request, 0);
 }
 
@@ -159,7 +159,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
         entity_count++;
         if (entity_count > offset && entity_count <= real_limit) {
             if (entities_returned++) {
-                buffer = sdscat(buffer,",");
+                buffer = sdscatlen(buffer, ",", 1);
             }
             bool smartpls = is_smartpls(mympd_state->config->workdir, current->key);
             buffer = sdscat(buffer, "{");
@@ -173,7 +173,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
         current = current->next;
     }
     list_clear(&entity_list);
-    buffer = sdscat(buffer, "],");
+    buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_char(buffer, "searchstr", searchstr, true);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
@@ -211,13 +211,13 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
             sdstolower(entityName);
             if (search_len == 0  || strstr(entityName, searchstr) != NULL) {
                 if (entities_returned++) {
-                    buffer= sdscat(buffer, ",");
+                    buffer= sdscatlen(buffer, ",", 1);
                 }
-                buffer = sdscat(buffer, "{");
+                buffer = sdscatlen(buffer, "{", 1);
                 buffer = tojson_char(buffer, "Type", "song", true);
                 buffer = tojson_long(buffer, "Pos", entity_count, true);
                 buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
-                buffer = sdscat(buffer, "}");
+                buffer = sdscatlen(buffer, "}", 1);
             }
             else {
                 entity_count--;
@@ -234,7 +234,7 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
     
     bool smartpls = is_smartpls(mympd_state->config->workdir, plist);
 
-    buffer = sdscat(buffer, "],");
+    buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "totalTime", total_time, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);

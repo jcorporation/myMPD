@@ -52,7 +52,7 @@ sds get_dnsserver(void) {
     FREE_SDS(line);
     fclose(fp);
     if (sdslen(nameserver) > 0) {
-        buffer = sdscatprintf(buffer, "udp://%s:53", nameserver);
+        buffer = sdscatfmt(buffer, "udp://%s:53", nameserver);
     }
     else {
         MYMPD_LOG_WARN("No valid nameserver found");

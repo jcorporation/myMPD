@@ -47,7 +47,7 @@ sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
         buffer = sds_catjson(buffer, current->key, sdslen(current->key));
         current = current->next;
     }
-    buffer = sdscat(buffer, "]");
+    buffer = sdscatlen(buffer, "]", 1);
     list_clear(&images);
     FREE_SDS(booklet_path);
     return buffer;

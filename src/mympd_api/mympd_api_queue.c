@@ -152,9 +152,9 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
         total_time += mpd_song_get_duration(song);
         entity_count++;
         if (entities_returned++) {
-            buffer = sdscat(buffer, ",");
+            buffer = sdscatlen(buffer, ",", 1);
         }
-        buffer = sdscat(buffer, "{");
+        buffer = sdscatlen(buffer, "{", 1);
         buffer = tojson_long(buffer, "id", mpd_song_get_id(song), true);
         buffer = tojson_long(buffer, "Pos", mpd_song_get_pos(song), true);
         buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
@@ -162,11 +162,11 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
             buffer = sdscat(buffer, ",");
             buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
         }
-        buffer = sdscat(buffer, "}");
+        buffer = sdscatlen(buffer, "}", 1);
         mpd_song_free(song);
     }
 
-    buffer = sdscat(buffer, "],");
+    buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalTime", total_time, true);
     buffer = tojson_long(buffer, "totalEntities", mpd_status_get_queue_length(status), true);
     buffer = tojson_long(buffer, "offset", offset, true);
@@ -267,22 +267,22 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
         entity_count++;
         if (entity_count > offset && entity_count <= real_limit) {
             if (entities_returned++) {
-                buffer= sdscat(buffer, ",");
+                buffer= sdscatlen(buffer, ",", 1);
             }
-            buffer = sdscat(buffer, "{");
+            buffer = sdscatlen(buffer, "{", 1);
             buffer = tojson_long(buffer, "id", mpd_song_get_id(song), true);
             buffer = tojson_long(buffer, "Pos", mpd_song_get_pos(song), true);
             buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
             if (mympd_state->mpd_state->feat_stickers == true && mympd_state->sticker_cache != NULL) {
-                buffer= sdscat(buffer, ",");
+                buffer= sdscatlen(buffer, ",", 1);
                 buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
             }
-            buffer = sdscat(buffer, "}");
+            buffer = sdscatlen(buffer, "}", 1);
         }
         mpd_song_free(song);
     }
 
-    buffer = sdscat(buffer, "],");
+    buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);

@@ -31,5 +31,6 @@ void sds_basename_uri(sds uri);
 void sds_streamuri_to_filename(sds s);
 void sds_strip_file_extension(sds s);
 void sds_strip_slash(sds s);
+sds sds_catbool(sds s, bool v);
 
 #endif

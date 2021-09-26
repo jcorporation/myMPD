@@ -315,3 +315,12 @@ void sds_streamuri_to_filename(sds s) {
     }
     sdsmapchars(s, "/.:?#", "_____", 5);
 }
+
+sds sds_catbool(sds s, bool v) {
+    if (v == true) {
+        return sdscatlen(s, "true", 4);
+    }
+    else {
+        return sdscatlen(s, "false", 5);
+    }
+}

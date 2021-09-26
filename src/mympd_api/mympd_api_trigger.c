@@ -124,7 +124,7 @@ sds mympd_api_trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds me
         j++;
     }
     
-    buffer = sdscat(buffer, "],");
+    buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_result_end(buffer);
     return buffer;
@@ -289,6 +289,6 @@ void _trigger_execute(const char *script, struct t_list *arguments) {
         request->data = tojson_char(request->data, argument->key, argument->value_p, false);
         argument = argument->next;
     }
-    request->data = sdscat(request->data, "}}}");
+    request->data = sdscatlen(request->data, "}}}", 3);
     mympd_queue_push(mympd_api_queue, request, 0);
 }

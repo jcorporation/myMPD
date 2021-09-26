@@ -39,7 +39,7 @@ sds jsonrpc_event(sds buffer, const char *event) {
     sdsclear(buffer);
     buffer = sdscat(buffer, "{\"jsonrpc\":\"2.0\",");
     buffer = tojson_char(buffer, "method", event, false);
-    buffer = sdscat(buffer, "}");
+    buffer = sdscatlen(buffer, "}", 1);
     return buffer;
 }
 
@@ -69,7 +69,7 @@ sds jsonrpc_notify_phrase(sds buffer, const char *facility, const char *severity
         }
     }
     va_end(args);
-    buffer = sdscat(buffer, "}}}");
+    buffer = sdscatlen(buffer, "}}}", 3);
     return buffer;
 }
 
@@ -89,7 +89,7 @@ sds jsonrpc_result_start(sds buffer, const char *method, long id) {
 }
 
 sds jsonrpc_result_end(sds buffer) {
-    return sdscat(buffer, "}}");
+    return sdscatlen(buffer, "}}", 2);
 }
 
 sds jsonrpc_respond_ok(sds buffer, const char *method, long id, const char *facility) {
@@ -119,17 +119,17 @@ sds jsonrpc_respond_message_phrase(sds buffer, const char *method, long id, bool
         const char *v = va_arg(args, char *);
         if (i % 2 == 0) {
             if (i > 0) {
-                buffer = sdscat(buffer, ",");
+                buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sds_catjson(buffer, v, strlen(v));
-            buffer = sdscat(buffer,":");
+            buffer = sdscatlen(buffer, ":", 1);
         }
         else {
             buffer = sds_catjson(buffer, v, strlen(v));
         }
     }
     va_end(args);
-    buffer = sdscat(buffer, "}}}");
+    buffer = sdscatlen(buffer, "}}}", 3);
     return buffer;
 }
 
@@ -145,10 +145,10 @@ sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, 
         buffer = sds_catjson(buffer, value, len);
     }
     else {
-        buffer = sdscat(buffer, "\"\"");
+        buffer = sdscatlen(buffer, "\"\"", 2);
     }
     if (comma) {
-        buffer = sdscat(buffer, ",");
+        buffer = sdscatlen(buffer, ",", 1);
     }
     return buffer;
 }
@@ -156,7 +156,7 @@ sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, 
 sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%s", key, value == true ? "true" : "false");
     if (comma) {
-        buffer = sdscat(buffer, ",");
+        buffer = sdscatlen(buffer, ",", 1);
     }
     return buffer;
 }
@@ -164,7 +164,7 @@ sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
 sds tojson_long(sds buffer, const char *key, long long value, bool comma) {
     buffer = sdscatprintf(buffer, "\"%s\":%lld", key, value);
     if (comma) {
-        buffer = sdscat(buffer, ",");
+        buffer = sdscatlen(buffer, ",", 1);
     }
     return buffer;
 }
@@ -172,7 +172,7 @@ sds tojson_long(sds buffer, const char *key, long long value, bool comma) {
 sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma) {
     buffer = sdscatprintf(buffer, "\"%s\":%lu", key, value);
     if (comma) {
-        buffer = sdscat(buffer, ",");
+        buffer = sdscatlen(buffer, ",", 1);
     }
     return buffer;
 }
@@ -180,7 +180,7 @@ sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma) {
 sds tojson_double(sds buffer, const char *key, double value, bool comma) {
     buffer = sdscatprintf(buffer, "\"%s\":%f", key, value);
     if (comma) {
-        buffer = sdscat(buffer, ",");
+        buffer = sdscatlen(buffer, ",", 1);
     }
     return buffer;
 }

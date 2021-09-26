@@ -43,7 +43,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     if (mpd_worker_state->mpd_state->feat_tags == true) {
         if (rc == true) {
             struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_CREATED, NULL);
-            request->data = sdscat(request->data, "}}");
+            request->data = sdscatlen(request->data, "}}", 2);
             request->extra = (void *) album_cache;
             mympd_queue_push(mympd_api_queue, request, 0);
             send_jsonrpc_notify("database", "info", "Updated album cache");
@@ -61,7 +61,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     if (mpd_worker_state->mpd_state->feat_stickers == true) {
         if (rc == true) {
             struct t_work_request *request2 = create_request(-1, 0, INTERNAL_API_STICKERCACHE_CREATED, NULL);
-            request2->data = sdscat(request2->data, "}}");
+            request2->data = sdscatlen(request2->data, "}}", 2);
             request2->extra = (void *) sticker_cache;
             mympd_queue_push(mympd_api_queue, request2, 0);
             send_jsonrpc_notify("database", "info", "Updated sticker cache");
