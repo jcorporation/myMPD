@@ -47,7 +47,7 @@ _Thread_local sds thread_logname;
 
 #ifdef DEBUG
 const char *__asan_default_options(void) {
-    return "verbosity=1:malloc_context_size=50:abort_on_error=true";
+    return "verbosity=1:malloc_context_size=50:abort_on_error=true:log_threads=1";
 }
 #endif
 
