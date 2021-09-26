@@ -489,7 +489,7 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
     if ((sds_json_unescape(p, n, result) == false) ||
         (sdslen(*result) < min || sdslen(*result) > max))
     {
-        _set_parse_error(error, "Value length %u for JSON path \"%s\" is out of bounds", sdslen(*result), path);
+        _set_parse_error(error, "Value length %lu for JSON path \"%s\" is out of bounds", sdslen(*result), path);
         sdsclear(*result);
         return false;
     }
