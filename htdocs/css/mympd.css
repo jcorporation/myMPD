@@ -1109,8 +1109,8 @@ button.clear-button {
   height: 100%;
   position: absolute;
   right: 0;
-  padding-right: .5rem;
-  padding-left: .5rem;
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
   top: 0;
   z-index: 3;
 }
