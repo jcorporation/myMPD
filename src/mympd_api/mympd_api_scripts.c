@@ -568,7 +568,9 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         if (response != NULL) {
             MYMPD_LOG_DEBUG("Got result: %s", response->data);
             sds sds_buf1 = NULL;
-            if (json_get_string(response->data, "$.result.message", 1, 1000, &sds_buf1, vcb_isname, NULL) == true) {
+            if (json_find_key(response->data, "$.result.message") == true &&
+                json_get_string(response->data, "$.result.message", 1, 1000, &sds_buf1, vcb_isname, NULL) == true)
+            {
                 if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
                     MYMPD_LOG_DEBUG("Populating lua global state table mympd");
                     struct t_list *lua_mympd_state = (struct t_list *) response->extra;
@@ -579,23 +581,23 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                     lua_mympd_state = NULL;
                     lua_pushinteger(lua_vm, 0);
                     lua_pushstring(lua_vm, "mympd_state is now populated");
-                    return 2;
                 }
-                lua_pushinteger(lua_vm, 0);
-                lua_pushstring(lua_vm, sds_buf1);
-                FREE_SDS(sds_buf1);
-                free_result(response);
-                return 2;
+                else {
+                    lua_pushinteger(lua_vm, 0);
+                    lua_pushstring(lua_vm, sds_buf1);
+                }
             }
-            if (json_get_string(request->data, "$.error.message", 1, 1000, &sds_buf1, vcb_isname, NULL) == true) {
+            else if (json_find_key(response->data, "$.error.message") == true &&
+                     json_get_string(response->data, "$.error.message", 1, 1000, &sds_buf1, vcb_isname, NULL) == true)
+            {
                 lua_pushinteger(lua_vm, 1);
                 lua_pushstring(lua_vm, sds_buf1);
-                FREE_SDS(sds_buf1);
-                free_result(response);
-                return 2;
             }
-            lua_pushinteger(lua_vm, 0);            
-            lua_pushlstring(lua_vm, response->data, sdslen(response->data));
+            else {
+                lua_pushinteger(lua_vm, 0);
+                lua_pushlstring(lua_vm, response->data, sdslen(response->data));
+            }
+            FREE_SDS(sds_buf1);
             free_result(response);
             return 2;
         }
