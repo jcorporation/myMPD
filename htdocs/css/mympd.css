@@ -302,10 +302,6 @@ button {
   cursor: default !important;
 }
 
-.not-clickable-nobg {
-  cursor: default !important;
-}
-
 [data-col=Pos],
 [data-col=Track],
 [data-col=Duration] {
@@ -314,7 +310,7 @@ button {
 }
 
 [data-col=Type] {
-  width: 1rem;
+  width: 3rem;
   word-break: keep-all;
 }
 
@@ -1117,4 +1113,8 @@ button.clear-button {
   padding-left: .5rem;
   top: 0;
   z-index: 3;
+}
+
+.form-check {
+  white-space: nowrap;
 }
