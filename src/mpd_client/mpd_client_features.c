@@ -1,33 +1,23 @@
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../log.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../api.h"
-#include "../tiny_queue.h"
-#include "../global.h"
-#include "../lua_mympd_state.h"
-#include "../mympd_state.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mpd_shared.h"
-#include "mpd_client_state.h"
-#include "mpd_client_utility.h"
 #include "mpd_client_features.h"
+
+#include "../lib/api.h"
+#include "../lib/log.h"
+#include "../lib/mem.h"
+#include "../lib/sds_extras.h"
+#include "../lib/utility.h"
+#include "../mpd_shared.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "../mympd_api/mympd_api_status.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 //private definitions
 static void mpd_client_feature_commands(struct t_mympd_state *mympd_state);
@@ -66,8 +56,8 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     
     //set state
     sds buffer = sdsempty();
-    buffer = mpd_client_put_state(mympd_state, buffer, NULL, 0);
-    sdsfree(buffer);
+    buffer = mympd_api_status_get(mympd_state, buffer, NULL, 0);
+    FREE_SDS(buffer);
 
     if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 21, 0) >= 0) {
         mympd_state->mpd_state->feat_single_oneshot = true;
@@ -101,8 +91,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     }
     
     //push settings to web_server_queue
-    struct set_mg_user_data_request *extra = (struct set_mg_user_data_request*)malloc(sizeof(struct set_mg_user_data_request));
-    assert(extra);
+    struct set_mg_user_data_request *extra = (struct set_mg_user_data_request*)malloc_assert(sizeof(struct set_mg_user_data_request));
     extra->music_directory = sdsdup(mympd_state->music_directory_value);
     extra->playlist_directory = sdsdup(mympd_state->playlist_directory);
     extra->coverimage_names = sdsdup(mympd_state->coverimage_names);
@@ -112,9 +101,9 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     extra->mpd_host = sdsdup(mympd_state->mpd_state->mpd_host);
     extra->covercache = mympd_state->covercache_keep_days > 0 ? true : false;
 
-    t_work_result *web_server_response = create_result_new(-1, 0, 0, "");
+    struct t_work_result *web_server_response = create_result_new(-1, 0, INTERNAL_API_WEBSERVER_SETTINGS);
     web_server_response->extra = extra;
-    tiny_queue_push(web_server_queue, web_server_response, 0);
+    mympd_queue_push(web_server_queue, web_server_response, 0);
 }
 
 //private functions
@@ -137,7 +126,6 @@ static void mpd_client_feature_commands(struct t_mympd_state *mympd_state) {
             else if (strcmp(pair->value, "albumart") == 0) {
                 MYMPD_LOG_DEBUG("MPD supports albumart");
                 mympd_state->mpd_state->feat_mpd_albumart = true;
-
             }
             else if (strcmp(pair->value, "readpicture") == 0) {
                 MYMPD_LOG_DEBUG("MPD supports readpicture");
@@ -203,7 +191,7 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
     check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
 
     if (mympd_state->mpd_state->tag_types_mpd.len == 0) {
-        logline = sdscat(logline, "none");
+        logline = sdscatlen(logline, "none", 4);
         MYMPD_LOG_NOTICE(logline);
         MYMPD_LOG_NOTICE("Tags are disabled");
         mympd_state->mpd_state->feat_tags = false;
@@ -223,12 +211,12 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
     else {
         mympd_state->mpd_state->tag_albumartist = MPD_TAG_ARTIST;
     }
-    sdsfree(logline);
+    FREE_SDS(logline);
 }
 
 static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_state->feat_library = false;
-    mympd_state->music_directory_value = sdscrop(mympd_state->music_directory_value);
+    sdsclear(mympd_state->music_directory_value);
 
     if (strncmp(mympd_state->mpd_state->mpd_host, "/", 1) == 0 && strncmp(mympd_state->music_directory, "auto", 4) == 0) {
         //get musicdirectory from mpd
@@ -237,7 +225,7 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
             while ((pair = mpd_recv_pair(mympd_state->mpd_state->conn)) != NULL) {
                 if (strcmp(pair->name, "music_directory") == 0) {
                     if (strncmp(pair->value, "smb://", 6) != 0 && strncmp(pair->value, "nfs://", 6) != 0) {
-                        mympd_state->music_directory_value = sdsreplace(mympd_state->music_directory_value, pair->value);
+                        mympd_state->music_directory_value = sds_replace(mympd_state->music_directory_value, pair->value);
                     }
                 }
                 mpd_return_pair(mympd_state->mpd_state->conn, pair);
@@ -252,7 +240,7 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
         }
     }
     else if (strncmp(mympd_state->music_directory, "/", 1) == 0) {
-        mympd_state->music_directory_value = sdsreplace(mympd_state->music_directory_value, mympd_state->music_directory);
+        mympd_state->music_directory_value = sds_replace(mympd_state->music_directory_value, mympd_state->music_directory);
     }
     else if (strncmp(mympd_state->music_directory, "none", 4) == 0) {
         //empty music_directory
@@ -260,7 +248,7 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
     else {
         MYMPD_LOG_ERROR("Invalid music_directory value: \"%s\"", mympd_state->music_directory);
     }
-    strip_slash(mympd_state->music_directory_value);
+    sds_strip_slash(mympd_state->music_directory_value);
     MYMPD_LOG_INFO("Music directory is \"%s\"", mympd_state->music_directory_value);
     
     //set feat_library
@@ -268,13 +256,13 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
         MYMPD_LOG_WARN("Disabling featLibrary support");
         mympd_state->mpd_state->feat_library = false;
     }
-    else if (testdir("MPD music_directory", mympd_state->music_directory_value, false) == 0) {
+    else if (testdir("MPD music_directory", mympd_state->music_directory_value, false) == DIR_EXISTS) {
         MYMPD_LOG_NOTICE("Enabling featLibrary support");
         mympd_state->mpd_state->feat_library = true;
     }
     else {
         MYMPD_LOG_WARN("Disabling featLibrary support");
         mympd_state->mpd_state->feat_library = false;
-        mympd_state->music_directory_value = sdscrop(mympd_state->music_directory_value);
+        sdsclear(mympd_state->music_directory_value);
     }
 }

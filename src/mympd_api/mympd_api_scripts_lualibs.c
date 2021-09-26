@@ -1,12 +1,19 @@
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
+#ifndef MYMPD_EMBEDDED_LUALIBS_C
+#define MYMPD_EMBEDDED_LUALIBS_C
+
 #define INCBIN_PREFIX 
 #define INCBIN_STYLE INCBIN_STYLE_SNAKE
+
+#include "mympd_config_defs.h"
 #include "../../dist/src/incbin/incbin.h"
 
 INCBIN(json_lua, "../contrib/lualibs/json.lua");
 INCBIN(mympd_lua, "../contrib/lualibs/mympd.lua");
+
+#endif

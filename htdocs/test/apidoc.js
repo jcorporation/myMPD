@@ -1,6 +1,6 @@
 "use strict";
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
@@ -11,7 +11,8 @@ function init() {
     for (const method of methods) {
         let tr = document.createElement('tr');
         tr.setAttribute('id', method);
-        tr.innerHTML = '<td>' + method + '<br/><small>' + APImethods[method].desc + '</small></td><td>' +
+        tr.innerHTML = '<td>' + method + '<br/><small>' + APImethods[method].desc + '<br/>' +
+            'Protected: ' + (APImethods[method].protected === true ? 'yes' : 'no') + '</small></td><td>' +
             paramsToString(APImethods[method].params) + '</td></tr>';
         tbody.appendChild(tr);
     }

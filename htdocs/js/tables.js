@@ -1,5 +1,5 @@
 "use strict";
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
@@ -226,7 +226,7 @@ function dragAndDropTable(table) {
         if (event.target.nodeName === 'TD') {
             target = event.target.parentNode;
         }
-        const oldSongpos = getCustomDomProperty(document.getElementById(event.dataTransfer.getData('Text')), 'data-songpos');
+        const oldSongpos = getCustomDomProperty(event.dataTransfer.getData('Text'), 'data-songpos');
         const newSongpos = getCustomDomProperty(target, 'data-songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.classList.remove('opacity05');
@@ -531,14 +531,6 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const tbody = table.getElementsByTagName('tbody')[0];
     const colspan = settings['cols' + list] !== undefined ? settings['cols' + list].length : 0;
 
-    if (obj.error) {
-        tbody.innerHTML = '<tr class="not-clickable"><td colspan="' + (colspan + 1) + '">' +
-            '<div class="alert alert-danger">' +
-            '<span class="mi">error_outline</span>&nbsp;&nbsp;' + t(obj.error.message, obj.error.data) + '</div></td></tr>';
-        table.classList.remove('opacity05');
-        return;
-    }
-
     const nrItems = obj.result.returnedEntities;
     const tr = tbody.getElementsByTagName('tr');
     const navigate = document.activeElement.parentNode.parentNode === table ? true : false;
@@ -644,4 +636,39 @@ function emptyRow(colspan) {
     addIconLine(td, 'info', tn('Empty list'));
     tr.appendChild(td);
     return tr;
+}
+
+function errorRow(obj, colspan) {
+    const tr = elCreate('tr', {"class": ["not-clickable"]}, '');
+    const td = elCreate('td', {"colspan": colspan}, '');
+    const div = elCreate('div', {"class": ["alert", "alert-danger"]}, '');
+    addIconLine(div, 'error_outline', tn(obj.error.message, obj.error.data));
+    td.appendChild(div);
+    tr.appendChild(td);
+    return tr;
+}
+
+function checkResult(obj, tbody, colspan) {
+    const list = tbody;
+    if (typeof tbody === 'string') {
+        tbody = document.getElementById(tbody + 'List').getElementsByTagName('tbody')[0];
+    }
+    if (colspan === null) {
+        colspan = settings['cols' + list] !== undefined ? settings['cols' + list].length : 0;
+        colspan++;
+    }
+
+    if (obj.error) {
+        elClear(tbody);
+        tbody.appendChild(errorRow(obj, colspan));
+        tbody.parentNode.classList.remove('opacity05');
+        return false;
+    }
+    if (obj.result.returnedEntities === 0) {
+        elClear(tbody);
+        tbody.appendChild(emptyRow(colspan));
+        tbody.parentNode.classList.remove('opacity05');
+        return false;
+    }
+    return true;
 }

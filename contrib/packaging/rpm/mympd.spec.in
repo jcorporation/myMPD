@@ -6,7 +6,7 @@
 Name:           mympd
 Version:        __VERSION__
 Release:        0 
-License:        GPL-2.0-or-later
+License:        GPL-3.0-or-later
 Group:          Productivity/Multimedia/Sound/Players
 Summary:        A standalone and mobile friendly web-based MPD client
 Url:            https://jcorporation.github.io/myMPD/
@@ -65,7 +65,7 @@ fi
 /usr/lib/systemd/system/mympd.service
 %{_mandir}/man1/mympd.1.gz
 %{_mandir}/man1/mympd-script.1.gz
-%license LICENSE
+%license LICENSE.md
 
 %changelog
 * __DATE_F1__ Juergen Mang <mail@jcgames.de> __VERSION__-0

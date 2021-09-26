@@ -1,5 +1,5 @@
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
@@ -96,10 +96,6 @@ main {
 
 .breakAll {
   word-break: break-all;
-}
-
-td[data-col=Action] {
-  text-align: right;
 }
 
 .albumartbg {
@@ -304,18 +300,17 @@ button {
 
 .not-clickable {
   cursor: default !important;
-  background-color: inherit !important;
-}
-
-.not-clickable-nobg {
-  cursor: default !important;
 }
 
 [data-col=Pos],
-[data-col=Type],
 [data-col=Track],
 [data-col=Duration] {
   max-width: 5rem;
+  word-break: keep-all;
+}
+
+[data-col=Type] {
+  width: 3rem;
   word-break: keep-all;
 }
 
@@ -884,6 +879,15 @@ a.text-success:focus {
   margin-bottom: 0;
 }
 
+.top-alert-dismissible .close {
+  position: absolute;
+  top: 0;
+  right: 4rem;
+  z-index: 2;
+  padding: 0.25rem 1.25rem;
+  color: #721c24 !important;
+}
+
 .lyricsText {
   padding-bottom: 1rem;
   padding-left: 0.2rem;
@@ -1080,4 +1084,37 @@ div.album-grid-mouseover {
 
 #viewDetailDatabaseCover {
   float: left;
+}
+
+body.locked button.protected::before {
+  content: "lock";
+  float: left;
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  vertical-align: top;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'liga';
+  margin-right: 0.5rem;
+}
+
+button.clear-button {
+  border: none;
+  background: none !important;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  padding-right: .5rem;
+  padding-left: .5rem;
+  top: 0;
+  z-index: 3;
+}
+
+.form-check {
+  white-space: nowrap;
 }

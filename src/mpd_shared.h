@@ -1,11 +1,16 @@
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MPD_SHARED_H__
-#define __MPD_SHARED_H__
+#ifndef MYMPD_MPD_SHARED_H
+#define MYMPD_MPD_SHARED_H
+
+#include "../dist/src/sds/sds.h"
+
+#include "lib/mympd_state.h"
+
 void mpd_shared_free_mpd_state(struct t_mpd_state *mpd_state);
 void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state);
 void mpd_shared_mpd_disconnect(struct t_mpd_state *mpd_state);

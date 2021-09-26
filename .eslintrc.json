@@ -10,7 +10,8 @@
         "BSN": true,
         "phrases": true,
         "locales": true,
-        "missingPhrases": true
+        "missingPhrases": true,
+        "MediaMetadata": true
     },
     "parserOptions": {
         "ecmaVersion": 2018

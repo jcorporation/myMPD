@@ -1,18 +1,204 @@
 "use strict";
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 const ignoreMessages = ['No current song', 'No lyrics found'];
 
+function removeEnterPinFooter(footer) {
+    if (footer !== undefined) {
+        footer.previousElementSibling.classList.remove('hide');
+        footer.remove();
+        return;
+    }
+    const f = document.getElementsByClassName('enterPinFooter');
+    for (let i = f.length - 1; i >= 0; i--) {
+        const prev = f[i].previousElementSibling;
+        if (prev.classList.contains('modal-footer')) {
+            prev.classList.remove('hide');
+        }
+        f[i].remove();
+    }
+}
+
+function createEnterPinFooter(footer, method, params, callback, onerror) {
+    const div = elCreate('div', {"class": ["row", "w-100"]}, '');
+    div.appendChild(elCreate('div', {"class": ["col-4", "pl-0"]}, tn('Enter pin')));
+    const gr = elCreate('div', {"class": ["input-group"]}, '');
+    const input = elCreate('input', {"type": "password", "class": ["form-control", "border-secondary"]}, '');
+    gr.appendChild(input);
+    const ap = elCreate('div', {"class": ["input-group-append"]}, '');
+    const btn = elCreate('button', {"class": ["btn", "btn-success"]}, 'Enter');
+    ap.appendChild(btn);
+    gr.appendChild(ap);
+    const col2 = elCreate('div', {"class": ["col-8", "pr-0"]}, '');
+    col2.appendChild(gr);
+    div.appendChild(col2);
+    footer.classList.add('hide');
+    const newFooter = elCreate('div', {"class": ["modal-footer", "enterPinFooter"]}, '');
+    newFooter.appendChild(div);
+    footer.parentNode.appendChild(newFooter);
+    input.focus();
+    btn.addEventListener('click', function() {
+        sendAPI('MYMPD_API_SESSION_LOGIN', {"pin": input.value}, function(obj) {
+            input.value = '';
+            const alert = footer.getElementsByClassName('alert')[0];
+            if (alert !== undefined) {
+                alert.remove();
+            }
+            if (obj.error) {
+                const em = elCreate('div', {"class": ["alert", "alert-danger", "p-2", "w-100"]}, '');
+                addIconLine(em, 'error_outline', tn(obj.error.message));
+                newFooter.appendChild(em);
+            }
+            else if (obj.result.session !== '') {
+                session.token = obj.result.session;
+                session.timeout = getTimestamp() + sessionLifetime;
+                setSessionState();
+                removeEnterPinFooter(newFooter);
+                showNotification(tn('Session successfully created'), '', 'session', 'info');
+                if (method !== undefined) {
+                    //call original API
+                    sendAPI(method, params, callback, onerror);
+                }
+            }
+        }, true);
+    }, false);
+    input.addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            btn.click();
+        }
+    }, false);
+}
+
+function enterPin(method, params, callback, onerror) {
+    session.timeout = 0;
+    setSessionState();
+    const modal = getOpenModal();
+    if (modal !== null) {
+        logDebug('Show pin dialog in modal');
+        //a modal is already opened, show enter pin dialog in footer
+        const footer = modal.getElementsByClassName('modal-footer')[0];
+        createEnterPinFooter(footer, method, params, callback, onerror);
+    }
+    else {
+        logDebug('Open pin modal');
+        //open modal to enter pin and resend API request
+        const enterBtn = elCreate('button', {"id": "modalEnterPinEnterBtn", "class": ["btn", "btn-success"]}, tn('Enter'));
+        enterBtn.addEventListener('click', function() {
+            sendAPI('MYMPD_API_SESSION_LOGIN', {"pin": document.getElementById('inputPinModal').value}, function(obj) {
+                document.getElementById('inputPinModal').value = '';
+                if (obj.error) {
+                    const em = document.getElementById('modalEnterPinMessage');
+                    addIconLine(em, 'error_outline', tn(obj.error.message));
+                    em.classList.remove('hide');
+                }
+                else if (obj.result.session !== '') {
+                    session.token = obj.result.session;
+                    session.timeout = getTimestamp() + sessionLifetime;
+                    setSessionState();
+                    uiElements.modalEnterPin.hide();
+                    showNotification(tn('Session successfully created'), '', 'session', 'info');
+                    if (method !== undefined) {
+                        //call original API
+                        sendAPI(method, params, callback, onerror);
+                    }
+                }
+            }, true);
+        }, false);
+        document.getElementById('modalEnterPinEnterBtn').replaceWith(enterBtn);
+        document.getElementById('modalEnterPinMessage').classList.add('hide');
+        document.getElementById('inputPinModal').value = '';
+        uiElements.modalEnterPin.show();
+    }
+}
+
+function setSessionState() {
+    if (session.timeout < getTimestamp()) {
+        logDebug('Session expired: ' + session.timeout);
+        session.timeout = 0;
+        session.token = '';
+    }
+    if (settings.pin === true && session.token === '') {
+        domCache.body.classList.add('locked');
+        document.getElementById('mmLogin').classList.remove('hide');
+        document.getElementById('mmLogout').classList.add('hide');
+    }
+    else {
+        domCache.body.classList.remove('locked');
+        if (settings.pin === true && session.token !== '') {
+            document.getElementById('mmLogin').classList.add('hide');
+            document.getElementById('mmLogout').classList.remove('hide');
+        }
+    }
+
+    if (settings.pin === true && session.token !== '') {
+        resetSessionTimer();
+    }
+}
+
+function resetSessionTimer() {
+    if (sessionTimer !== null) {
+        clearTimeout(sessionTimer);
+        sessionTimer = null;
+    }
+    sessionTimer = setTimeout(function() {
+        validateSession();
+    }, sessionRenewInterval);
+}
+
+function validateSession() {
+    sendAPI('MYMPD_API_SESSION_VALIDATE', {}, function(obj) {
+        if (obj.result !== undefined && obj.result.message === 'ok') {
+            session.timeout = getTimestamp() + sessionLifetime;
+        }
+        else {
+            session.timeout = 0;
+        }
+        setSessionState();
+    }, true);
+}
+
+//eslint-disable-next-line no-unused-vars
+function removeSession() {
+    sendAPI('MYMPD_API_SESSION_LOGOUT', {}, function() {
+        session.timeout = 0;
+        setSessionState();
+    }, false);
+}
+
 function sendAPI(method, params, callback, onerror) {
+    if (APImethods[method] === undefined) {
+        logError('Method "' + method + '" is not defined');
+    }
+    if (settings.pin === true && session.token === '' && 
+        session.timeout < getTimestamp() && APImethods[method].protected === true)
+    {
+        logDebug('Request must be authorized but we have no session');
+        enterPin(method, params, callback, onerror);
+        return false;
+    }
     const request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": params};
     const ajaxRequest = new XMLHttpRequest();
     ajaxRequest.open('POST', subdir + '/api/', true);
-    ajaxRequest.setRequestHeader('Content-type', 'application/json');
+    ajaxRequest.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+    if (session.token !== '') {
+        ajaxRequest.setRequestHeader('Authorization', 'Bearer ' + session.token);
+    }
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {
-            if (ajaxRequest.responseText !== '') {
+            if (ajaxRequest.status === 401 && method !== 'MYMPD_API_SESSION_VALIDATE') {
+                logDebug('Authorization required for ' + method);
+                enterPin(method, params, callback, onerror);
+            }
+            else if (ajaxRequest.responseText !== '') {
+                if (settings.pin === true && session.token !== '' && 
+                    APImethods[method].protected === true)
+                {
+                    //session was extended through request
+                    session.timeout = getTimestamp() + sessionLifetime;
+                    resetSessionTimer();
+                }
                 let obj;
                 try {
                     obj = JSON.parse(ajaxRequest.responseText);
@@ -27,7 +213,7 @@ function sendAPI(method, params, callback, onerror) {
                 }
                 else if (obj.result && obj.result.message && obj.result.message !== 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
-                    if (ignoreMessages.includes(obj.result.message) === false) {
+                    if (ignoreMessages.includes(obj.result.message) === false && onerror !== true) {
                         showNotification(t(obj.result.message, obj.result.data), '', obj.result.facility, obj.result.severity);
                     }
                 }
@@ -55,6 +241,7 @@ function sendAPI(method, params, callback, onerror) {
             }
             else {
                 logError('Empty response for request: ' + JSON.stringify(request));
+                logError('Response code: ' + ajaxRequest.status);
                 if (onerror === true) {
                     if (callback !== undefined && typeof(callback) === 'function') {
                         logDebug('Got empty API response calling ' + callback.name);
@@ -66,6 +253,7 @@ function sendAPI(method, params, callback, onerror) {
     };
     ajaxRequest.send(JSON.stringify(request));
     logDebug('Send API request: ' + method);
+    return true;
 }
 
 function webSocketConnect() {
@@ -114,6 +302,9 @@ function webSocketConnect() {
                     showNotification(t('Connected to myMPD'), wsUrl, 'general', 'info');
                     //appRoute();
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, true);
+                    if (session.token !== '') {
+                        validateSession();
+                    }
                     break;
                 case 'update_state':
                     //rename param to result
@@ -146,7 +337,7 @@ function webSocketConnect() {
                     getSettings();
                     break;
                 case 'update_outputs':
-                    sendAPI('MYMPD_API_PLAYER_OUTPUT_LIST', {}, parseOutputs);
+                    sendAPI('MYMPD_API_PLAYER_OUTPUT_LIST', {"partition":""}, parseOutputs);
                     break;
                 case 'update_started':
                     updateDBstarted(false);

@@ -1,5 +1,5 @@
 "use strict";
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
@@ -32,6 +32,10 @@ const hasIO = 'IntersectionObserver' in window ? true : false;
 const ligatureMore = 'menu';
 const progressBarTransition = 'width 1s linear';
 let tagAlbumArtist = 'AlbumArtist';
+const session = {"token": "", "timeout": 0};
+const sessionLifetime = 1780;
+const sessionRenewInterval = sessionLifetime * 500;
+let sessionTimer = null;
 
 //remember offset for filesystem browsing uris
 const browseFilesystemHistory = {};
@@ -239,7 +243,7 @@ const webuiSettingsDefault = {
         }, 
         "inputType": "select",
         "title": "Click song",
-        "form": "advancedSettingsFrm"
+        "form": "clickSettingsFrm"
     },
     "clickQueueSong": { 
         "defaultValue": "play", 
@@ -249,7 +253,7 @@ const webuiSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click song in queue",
-        "form": "advancedSettingsFrm"
+        "form": "clickSettingsFrm"
     },
     "clickPlaylist": { 
         "defaultValue": "append", 
@@ -260,7 +264,7 @@ const webuiSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click playlist",
-        "form": "advancedSettingsFrm"
+        "form": "clickSettingsFrm"
     },
     "clickFolder": { 
         "defaultValue": "view", 
@@ -271,7 +275,7 @@ const webuiSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click folder",
-        "form": "advancedSettingsFrm"
+        "form": "clickSettingsFrm"
     },
     "clickAlbumPlay": { 
         "defaultValue": "replace", 
@@ -281,7 +285,7 @@ const webuiSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click album play button",
-        "form": "advancedSettingsFrm"
+        "form": "clickSettingsFrm"
     },
     "notificationAAASection": {
         "inputType": "section",
@@ -462,7 +466,7 @@ const webuiSettingsDefault = {
         "reset": true
     },
     "uiBgImage": {
-        "defaultValue": "/assets/mympd-background-dark.svg",
+        "defaultValue": "",
         "inputType": "select",
         "title": "Image",
         "form": "bgFrm2"
@@ -583,6 +587,7 @@ uiElements.modalOutputAttributes = new BSN.Modal(document.getElementById('modalO
 uiElements.modalPicture = new BSN.Modal(document.getElementById('modalPicture'));
 uiElements.modalEditHomeIcon = new BSN.Modal(document.getElementById('modalEditHomeIcon'));
 uiElements.modalConfirm = new BSN.Modal(document.getElementById('modalConfirm'));
+uiElements.modalEnterPin = new BSN.Modal(document.getElementById('modalEnterPin'));
 
 uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 uiElements.dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));

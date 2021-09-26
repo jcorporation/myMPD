@@ -1,13 +1,14 @@
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MPD_WORKER_UTILITY_H__
-#define __MPD_WORKER_UTILITY_H__
+#ifndef MYMPD_MPD_WORKER_UTILITY_H
+#define MYMPD_MPD_WORKER_UTILITY_H
 
-#include "../mympd_state.h"
+#include "../lib/api.h"
+#include "../lib/mympd_state.h"
 
 struct t_mpd_worker_state {
     bool smartpls;
@@ -17,10 +18,8 @@ struct t_mpd_worker_state {
     //mpd state
     struct t_mpd_state *mpd_state;
     struct t_config *config;
-    t_work_request *request;
+    struct t_work_request *request;
 };
 
-void free_mpd_worker_state(struct t_mpd_worker_state *mpd_worker_state);
-void default_mpd_worker_state(struct t_mpd_worker_state *mpd_worker_state);
-void mpd_worker_features(struct t_mpd_worker_state *mpd_worker_state);
+void mpd_worker_state_free(struct t_mpd_worker_state *mpd_worker_state);
 #endif

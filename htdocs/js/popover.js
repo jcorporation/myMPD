@@ -1,5 +1,5 @@
 "use strict";
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
@@ -150,14 +150,17 @@ function showMenuTd(el) {
             (features.featPlaylists === true ? addMenuItem({"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, t('Add to playlist')) : '');
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
-        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
-            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
-            (settings.smartpls === true && type === 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('Edit playlist')))+
-            (settings.smartpls === true && type === 'smartpls' ? addMenuItem({"cmd": "showSmartPlaylist", "options": [uri]}, t('Edit smart playlist')) : '') +
+        const smartplsOnly = getCustomDomProperty(dataNode, 'data-smartpls-only');
+        if (smartplsOnly === false || type !== 'smartpls') {
+            menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
+                addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
+                (settings.smartpls === true && type === 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('Edit playlist'))) +
+                addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, t('Rename playlist'));
+        }
+        menu += (settings.smartpls === true && type === 'smartpls' ? addMenuItem({"cmd": "showSmartPlaylist", "options": [uri]}, t('Edit smart playlist')) : '') +
             (settings.smartpls === true && type === 'smartpls' ? addMenuItem({"cmd": "updateSmartPlaylist", "options": [uri]}, t('Update smart playlist')) : '') +
-            addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, t('Rename playlist')) + 
-            addMenuItem({"cmd": "showDelPlaylist", "options": [uri]}, t('Delete playlist')) +
-            (features.featHome === true ?addMenuItem({"cmd": "addPlistToHome", "options": [uri, name]}, t('Add to homescreen')) : '');
+            addMenuItem({"cmd": "showDelPlaylist", "options": [uri, smartplsOnly]}, t('Delete playlist')) +
+            (features.featHome === true ? addMenuItem({"cmd": "addPlistToHome", "options": [uri, name]}, t('Add to homescreen')) : '');
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
         const x = document.getElementById('BrowsePlaylistsDetailList');
@@ -166,7 +169,7 @@ function showMenuTd(el) {
             (getCustomDomProperty(x, 'data-ro') === 'false' ? addMenuItem({"cmd": "removeFromPlaylist", "options": [getCustomDomProperty(x, 'data-uri'), 
                     getCustomDomProperty(el.parentNode.parentNode, 'data-songpos')]}, t('Remove')) : '') +
             (features.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
-            (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
+            (isStreamUri(uri) === false ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'Current') {
         const trackid = getCustomDomProperty(dataNode, 'data-trackid');
@@ -175,7 +178,8 @@ function showMenuTd(el) {
             addMenuItem({"cmd": "delQueueSong", "options": ["single", trackid]}, t('Remove')) +
             addMenuItem({"cmd": "delQueueSong", "options": ["range", 0, songpos]}, t('Remove all upwards')) +
             addMenuItem({"cmd": "delQueueSong", "options": ["range", (songpos - 1), -1]}, t('Remove all downwards')) +
-            (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
+            (features.featPlaylists === true ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
+            (isStreamUri(uri) === false ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
         menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
@@ -257,7 +261,7 @@ function showMenuTd(el) {
                         if ( idx === 0 || idx === menuItems.length -1 ) {
                             break;
                         }
-                    } while ( !menuItems[idx].offsetHeight )
+                    } while (!menuItems[idx].offsetHeight);
                     if (menuItems[idx]) {
                         menuItems[idx].focus();
                     }

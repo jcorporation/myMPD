@@ -6,15 +6,10 @@
 
 #define _GNU_SOURCE
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <inttypes.h>
-
 #include "../dist/src/mongoose/mongoose.h"
 #include "../dist/src/sds/sds.h"
-#include "../src/sds_extras.h"
-
-#include "../src/http_client.h"
+#include "../src/lib/http_client.h"
+#include "../src/lib/sds_extras.h"
 #include "log.h"
 
 static void print_usage(char **argv) {
@@ -37,9 +32,9 @@ static sds parse_arguments(sds post_data, char **argv, int argc) {
         int count;
         sds *kv = sdssplitlen(argv[i], strlen(argv[i]), "=", 1, &count);
         if (count == 2) {
-            post_data = sdscatjson(post_data, kv[0], sdslen(kv[0]));
+            post_data = sds_catjson(post_data, kv[0], sdslen(kv[0]));
             post_data = sdscat(post_data, ":");
-            post_data = sdscatjson(post_data, kv[1], sdslen(kv[1]));
+            post_data = sds_catjson(post_data, kv[1], sdslen(kv[1]));
         }
         else {
             fprintf(stderr, "Invalid key/value pair: %s\n", argv[i]);
@@ -68,7 +63,7 @@ int main(int argc, char **argv) {
             script_data = sdscatlen(script_data, &c, 1);
         }
         post_data = sdscat(post_data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SCRIPT_POST_EXECUTE\",\"params\":{\"script\":");
-        post_data = sdscatjson(post_data, script_data, sdslen(script_data));
+        post_data = sds_catjson(post_data, script_data, sdslen(script_data));
         post_data = sdscat(post_data, ",arguments:{");
         post_data = parse_arguments(post_data, argv, argc);
         post_data = sdscat(post_data, "}}}");
@@ -77,7 +72,7 @@ int main(int argc, char **argv) {
     else {
         uri = sdscat(uri, "/api/");
         post_data = sdscat(post_data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SCRIPT_EXECUTE\",\"params\":{\"script\":");
-        post_data = sdscatjson(post_data, argv[2], strlen(argv[2]));
+        post_data = sds_catjson(post_data, argv[2], strlen(argv[2]));
         post_data = sdscat(post_data, ",arguments:{");
         post_data = parse_arguments(post_data, argv, argc);
         post_data = sdscat(post_data, "}}}");

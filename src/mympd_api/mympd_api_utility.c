@@ -1,35 +1,99 @@
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
-#include <assert.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <signal.h>
-#include <string.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../../dist/src/frozen/frozen.h"
-#include "../sds_extras.h"
-#include "../log.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../mympd_state.h"
-#include "../api.h"
-#include "../tiny_queue.h"
-#include "../global.h"
-#include "../utility.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
-#include "../mpd_shared.h"
-#include "mympd_api_timer.h"
 #include "mympd_api_utility.h"
 
-void default_mympd_state(struct t_mympd_state *mympd_state) {
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
+#include "../lib/mem.h"
+#include "../lib/mympd_configuration.h"
+#include "../lib/sds_extras.h"
+#include "../lib/utility.h"
+#include "../lib/validate.h"
+#include "../mpd_shared.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "mympd_api_timer.h"
+
+#include <dirent.h>
+#include <errno.h>
+#include <libgen.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+//private definitons
+static void _detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
+
+//public functions
+sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *uri, bool is_dirname) {
+    struct t_list images;
+    list_init(&images);
+    sds booklet_path = sdsempty();
+    if (is_streamuri(uri) == false && mympd_state->mpd_state->feat_library == true) {
+        _detect_extra_files(mympd_state, uri, &booklet_path, &images, is_dirname);
+    }
+    buffer = tojson_char(buffer, "bookletPath", booklet_path, true);
+    buffer = sdscat(buffer, "\"images\": [");
+    struct t_list_node *current = images.head;
+    while (current != NULL) {
+        if (current != images.head) {
+            buffer = sdscatlen(buffer, ",", 1);
+        }
+        buffer = sds_catjson(buffer, current->key, sdslen(current->key));
+        current = current->next;
+    }
+    buffer = sdscatlen(buffer, "]", 1);
+    list_clear(&images);
+    FREE_SDS(booklet_path);
+    return buffer;
+}
+
+bool is_smartpls(const char *workdir, sds playlist) {
+    bool smartpls = false;
+    if (vcb_isfilename(playlist) == true) {
+        sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", workdir, playlist);
+        if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
+            smartpls = true;
+        }
+        FREE_SDS(smartpls_file);
+    }
+    return smartpls;
+}
+
+bool is_streamuri(const char *uri) {
+    if (uri != NULL && strstr(uri, "://") != NULL) {
+        return true;
+    }
+    return false;
+}
+
+bool mympd_api_set_binarylimit(struct t_mympd_state *mympd_state) {
+    bool rc = true;
+    if (mympd_state->mpd_state->feat_mpd_binarylimit == true) {
+        MYMPD_LOG_INFO("Setting binarylimit to %u", mympd_state->mpd_state->mpd_binarylimit);
+        rc = mpd_run_binarylimit(mympd_state->mpd_state->conn, mympd_state->mpd_state->mpd_binarylimit);
+        sds message = sdsempty();
+        rc = check_rc_error_and_recover(mympd_state->mpd_state, &message, NULL, 0, true, rc, "mpd_run_binarylimit");
+        if (sdslen(message) > 0) {
+            ws_notify(message);
+            rc = false;
+        }
+        FREE_SDS(message);
+    }
+    return rc;
+}
+
+//replacement for deprecated mpd_status_get_elapsed_time
+unsigned mympd_api_get_elapsed_seconds(struct mpd_status *status) {
+    return mpd_status_get_elapsed_ms(status) / 1000;
+}
+
+void mympd_state_default(struct t_mympd_state *mympd_state) {
     mympd_state->music_directory = sdsnew("auto");
     mympd_state->music_directory_value = sdsempty();
     mympd_state->playlist_directory = sdsnew("/var/lib/mpd/playlists");
@@ -86,95 +150,94 @@ void default_mympd_state(struct t_mympd_state *mympd_state) {
     list_init(&mympd_state->jukebox_queue);
     list_init(&mympd_state->jukebox_queue_tmp);
     //mpd state
-    mympd_state->mpd_state = (struct t_mpd_state *)malloc(sizeof(struct t_mpd_state));
-    assert(mympd_state->mpd_state);
+    mympd_state->mpd_state = (struct t_mpd_state *)malloc_assert(sizeof(struct t_mpd_state));
     mpd_shared_default_mpd_state(mympd_state->mpd_state);
     //triggers;
     list_init(&mympd_state->triggers);
     //home icons
     list_init(&mympd_state->home_list);
     //timer
-    init_timerlist(&mympd_state->timer_list);
+    mympd_api_timer_timerlist_init(&mympd_state->timer_list);
 }
 
-void free_mympd_state(struct t_mympd_state *mympd_state) {
-    list_free(&mympd_state->jukebox_queue);
-    list_free(&mympd_state->jukebox_queue_tmp);
-    list_free(&mympd_state->sticker_queue);
-    list_free(&mympd_state->triggers);
-    list_free(&mympd_state->last_played);
-    list_free(&mympd_state->home_list);
-    free_timerlist(&mympd_state->timer_list);
+void mympd_state_free(struct t_mympd_state *mympd_state) {
+    list_clear(&mympd_state->jukebox_queue);
+    list_clear(&mympd_state->jukebox_queue_tmp);
+    list_clear(&mympd_state->sticker_queue);
+    list_clear(&mympd_state->triggers);
+    list_clear(&mympd_state->last_played);
+    list_clear(&mympd_state->home_list);
+    mympd_api_timer_timerlist_free(&mympd_state->timer_list);
     //mpd state
     mpd_shared_free_mpd_state(mympd_state->mpd_state);
     //caches
     sticker_cache_free(&mympd_state->sticker_cache);
     album_cache_free(&mympd_state->album_cache);
+    //sds
+    FREE_SDS(mympd_state->tag_list_search);
+    FREE_SDS(mympd_state->tag_list_browse);
+    FREE_SDS(mympd_state->smartpls_generate_tag_list);
+    FREE_SDS(mympd_state->jukebox_playlist);
+    FREE_SDS(mympd_state->cols_queue_current);
+    FREE_SDS(mympd_state->cols_search);
+    FREE_SDS(mympd_state->cols_browse_database_detail);
+    FREE_SDS(mympd_state->cols_browse_playlists_detail);
+    FREE_SDS(mympd_state->cols_browse_filesystem);
+    FREE_SDS(mympd_state->cols_playback);
+    FREE_SDS(mympd_state->cols_queue_last_played);
+    FREE_SDS(mympd_state->cols_queue_jukebox);
+    FREE_SDS(mympd_state->coverimage_names);
+    FREE_SDS(mympd_state->music_directory);
+    FREE_SDS(mympd_state->music_directory_value);
+    FREE_SDS(mympd_state->smartpls_sort);
+    FREE_SDS(mympd_state->smartpls_prefix);
+    FREE_SDS(mympd_state->booklet_name);
+    FREE_SDS(mympd_state->navbar_icons);
+    FREE_SDS(mympd_state->webui_settings);
+    FREE_SDS(mympd_state->playlist_directory);
+    FREE_SDS(mympd_state->lyrics_sylt_ext);
+    FREE_SDS(mympd_state->lyrics_uslt_ext);
+    FREE_SDS(mympd_state->lyrics_vorbis_uslt);
+    FREE_SDS(mympd_state->lyrics_vorbis_sylt);
     //struct itself
-    free_mympd_state_sds(mympd_state);
     FREE_PTR(mympd_state);
 }
 
-void free_mympd_state_sds(struct t_mympd_state *mympd_state) {
-    sdsfree(mympd_state->tag_list_search);
-    sdsfree(mympd_state->tag_list_browse);
-    sdsfree(mympd_state->smartpls_generate_tag_list);
-    sdsfree(mympd_state->jukebox_playlist);
-    sdsfree(mympd_state->cols_queue_current);
-    sdsfree(mympd_state->cols_search);
-    sdsfree(mympd_state->cols_browse_database_detail);
-    sdsfree(mympd_state->cols_browse_playlists_detail);
-    sdsfree(mympd_state->cols_browse_filesystem);
-    sdsfree(mympd_state->cols_playback);
-    sdsfree(mympd_state->cols_queue_last_played);
-    sdsfree(mympd_state->cols_queue_jukebox);
-    sdsfree(mympd_state->coverimage_names);
-    sdsfree(mympd_state->music_directory);
-    sdsfree(mympd_state->music_directory_value);
-    sdsfree(mympd_state->smartpls_sort);
-    sdsfree(mympd_state->smartpls_prefix);
-    sdsfree(mympd_state->booklet_name);
-    sdsfree(mympd_state->navbar_icons);
-    sdsfree(mympd_state->webui_settings);
-    sdsfree(mympd_state->playlist_directory);
-    sdsfree(mympd_state->lyrics_sylt_ext);
-    sdsfree(mympd_state->lyrics_uslt_ext);
-    sdsfree(mympd_state->lyrics_vorbis_uslt);
-    sdsfree(mympd_state->lyrics_vorbis_sylt);
-}
-
-static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", 
-    "Lyrics", "stickerPlayCount", "stickerSkipCount", "stickerLastPlayed", "stickerLastSkipped", "stickerLike", 0};
-
-static bool is_mympd_col(sds token) {
-    const char** ptr = mympd_cols;
-    while (*ptr != 0) {
-        if (strncmp(token, *ptr, sdslen(token)) == 0) {
-            return true;
-        }
-        ++ptr;
-    }
-    return false;
-}
-
-sds json_to_cols(sds cols, char *str, size_t len, bool *error) {
-    struct json_token t;
-    int j = 0;
-    *error = false;
-    for (int i = 0; json_scanf_array_elem(str, len, ".params.cols", i, &t) > 0; i++) {
-        sds token = sdscatlen(sdsempty(), t.ptr, t.len);
-        if (mpd_tag_name_iparse(token) != MPD_TAG_UNKNOWN || is_mympd_col(token) == true) {
-            if (j > 0) {
-                cols = sdscatlen(cols, ",", 1);
+//private functions
+static void _detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname) {
+    char *uricpy = strdup(uri);
+    
+    const char *path = is_dirname == false ? dirname(uricpy) : uri;
+    sds albumpath = sdscatfmt(sdsempty(), "%s/%s", mympd_state->music_directory_value, path);
+    MYMPD_LOG_DEBUG("Read extra files from albumpath: %s", albumpath);
+    errno = 0;
+    DIR *album_dir = opendir(albumpath);
+    if (album_dir != NULL) {
+        struct dirent *next_file;
+        while ((next_file = readdir(album_dir)) != NULL) {
+            const char *ext = strrchr(next_file->d_name, '.');
+            if (strcmp(next_file->d_name, mympd_state->booklet_name) == 0) {
+                MYMPD_LOG_DEBUG("Found booklet for uri %s", uri);
+                *booklet_path = sdscatfmt(*booklet_path, "%s/%s", path, mympd_state->booklet_name);
             }
-            cols = sdscatjson(cols, t.ptr, t.len);
-            j++;
+            else if (ext != NULL) {
+                if (strcasecmp(ext, ".webp") == 0 || strcasecmp(ext, ".jpg") == 0 ||
+                    strcasecmp(ext, ".jpeg") == 0 || strcasecmp(ext, ".png") == 0 ||
+                    strcasecmp(ext, ".tiff") == 0 || strcasecmp(ext, ".svg") == 0 ||
+                    strcasecmp(ext, ".bmp") == 0) 
+                {
+                    sds fullpath = sdscatfmt(sdsempty(), "%s/%s", path, next_file->d_name);
+                    list_push(images, fullpath, 0, NULL, NULL);
+                    FREE_SDS(fullpath);
+                }
+            }
         }
-        else {
-            MYMPD_LOG_WARN("Unknown column: %s", token);
-            *error = true;
-        }
-        sdsfree(token);
+        closedir(album_dir);
     }
-    return cols;
+    else {
+        MYMPD_LOG_ERROR("Can not open directory \"%s\" to get list of extra files", albumpath);
+        MYMPD_LOG_ERRNO(errno);
+    }
+    FREE_PTR(uricpy);
+    FREE_SDS(albumpath);
 }

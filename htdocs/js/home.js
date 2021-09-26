@@ -1,5 +1,5 @@
 "use strict";
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
@@ -36,12 +36,15 @@ function initHome() {
     selectHomeIconCmd.addEventListener('change', function() {
         showHomeIconCmdOptions();
     }, false);
+    elClear(selectHomeIconCmd);
     selectHomeIconCmd.appendChild(elCreate('option', {"value": "appGoto"}, tn('Goto view')));
     setCustomDomProperty(selectHomeIconCmd.childNodes[0], 'data-options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
     selectHomeIconCmd.appendChild(elCreate('option', {"value": "replaceQueue"}, tn('Replace queue')));
     setCustomDomProperty(selectHomeIconCmd.childNodes[1], 'data-options', {"options": ["Type", "Uri", "Name"]});
+    selectHomeIconCmd.appendChild(elCreate('option', {"value": "appendQueue"}, tn('Append to queue')));
+    setCustomDomProperty(selectHomeIconCmd.childNodes[2], 'data-options', {"options": ["Type", "Uri", "Name"]});
     selectHomeIconCmd.appendChild(elCreate('option', {"value": "execScriptFromOptions"}, tn('Execute Script')));
-    setCustomDomProperty(selectHomeIconCmd.childNodes[2], 'data-options', {"options":["Script","Arguments"]});
+    setCustomDomProperty(selectHomeIconCmd.childNodes[3], 'data-options', {"options":["Script","Arguments"]});
 
     document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
         document.getElementById('homeIconPreview').style.backgroundColor = event.target.value;
@@ -169,6 +172,14 @@ function filterHomeIconLigatures() {
 function parseHome(obj) {
     const cardContainer = document.getElementById('HomeCards');
     const cols = cardContainer.getElementsByClassName('col');
+    if (obj.error !== undefined) {
+        elClear(cardContainer);
+        const div = elCreate('div', {"class": ["ml-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, '');
+        addIconLine(div, 'error_outline', t(obj.error.message, obj.error.data));
+        cardContainer.appendChild(div);
+        setPagination(obj.result.totalEntities, obj.result.returnedEntities);    
+        return;
+    }
     if (cols.length === 0) {
         elClear(cardContainer);
     }
@@ -414,6 +425,7 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('searchHomeIconCat').value = 'all';
         filterHomeIconLigatures();
         //show modal
+        hideModalAlert();
         uiElements.modalEditHomeIcon.show();
     });
 }
@@ -429,8 +441,7 @@ function saveHomeIcon() {
         const options = [];
         const optionEls = document.getElementById('divHomeIconOptions').getElementsByTagName('input');
         for (const optionEl of optionEls) {
-            //workarround for parsing arrays with empty values in frozen
-            options.push(optionEl.value !== '' ? optionEl.value : '!undefined!');
+            options.push(optionEl.value);
         }
         const image = getSelectValue('selectHomeIconImage');
         sendAPI("MYMPD_API_HOME_ICON_SAVE", {
@@ -443,23 +454,37 @@ function saveHomeIcon() {
             "image": image,
             "cmd": document.getElementById('selectHomeIconCmd').value,
             "options": options
-            }, function() {
-                uiElements.modalEditHomeIcon.hide();
-                sendAPI("MYMPD_API_HOME_LIST", {}, function(obj) {
-                    parseHome(obj);
-                });
-            });
+        }, saveHomeIconClose, true);
+    }
+}
+
+function saveHomeIconClose(obj) {
+    removeEnterPinFooter();
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        uiElements.modalEditHomeIcon.hide();
+        sendAPI("MYMPD_API_HOME_LIST", {}, function(obj2) {
+            parseHome(obj2);
+        });
     }
 }
 
 //eslint-disable-next-line no-unused-vars
 function deleteHomeIcon(pos) {
-    sendAPI("MYMPD_API_HOME_ICON_DELETE", {"pos": pos}, function(obj) {
+    sendAPI("MYMPD_API_HOME_ICON_RM", {"pos": pos}, function(obj) {
         parseHome(obj);
     });
 }
 
 function showHomeIconCmdOptions(values) {
+    const oldOptions = [];
+    const optionEls = document.getElementById('divHomeIconOptions').getElementsByTagName('input');
+    for (const optionEl of optionEls) {
+        oldOptions.push(optionEl.value);
+    }
     const divHomeIconOptions = document.getElementById('divHomeIconOptions');
     elClear(divHomeIconOptions);
     const options = getSelectedOptionAttribute('selectHomeIconCmd', 'data-options');
@@ -468,8 +493,11 @@ function showHomeIconCmdOptions(values) {
             const row = elCreate('div', {"class": ["form-group", "row"]}, '');
             row.appendChild(elCreate('label', {"class": ["col-sm-4"]}, tn(options.options[i])));
             const div = elCreate('div', {"class": ["col-sm-8"]}, '');
-            const value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
-            div.appendChild(elCreate('input', {"class": ["form-control", "border-secondary"], "value": value}, ''));
+            let value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
+            if (value === '' && oldOptions[i] !== undefined) {
+                value = oldOptions[i];
+            }
+            div.appendChild(elCreate('input', {"class": ["form-control", "border-secondary"], "name": options.options[i], "value": value}, ''));
             row.appendChild(div);
             divHomeIconOptions.appendChild(row);
         }

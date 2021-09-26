@@ -93,6 +93,12 @@ You can use `./build.sh releaseinstall` to compile and install in one step.
   - Plain assets in htdocs directory
   - Use this to debug mympd with valgrind or gdb
 
+### Test
+
+To run the unit tests:
+
+- `./build.sh test`
+
 ### Removing
 
 - `./build.sh uninstall` to remove only binaries

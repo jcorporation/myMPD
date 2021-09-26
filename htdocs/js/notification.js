@@ -1,5 +1,5 @@
 "use strict";
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
@@ -21,6 +21,13 @@ function toggleAlert(alertBox, state, msg) {
     else {
         elClear(alertBoxEl);
         addIconLine(alertBoxEl, 'error', msg);
+        if (alertBox === 'alertMpdStatusError') {
+            const clBtn = elCreate('button', {"class": ["close"]}, '×');
+            alertBoxEl.appendChild(clBtn);
+            clBtn.addEventListener('click', function() {
+                clearMPDerror();
+            }, false);
+        }
         elShow(alertBoxEl);
     }
 }
@@ -44,7 +51,8 @@ const facilities = {
     "script": "Script",
     "sticker": "Sticker",
     "home": "Home",
-    "timer": "Timer"
+    "timer": "Timer",
+    "session": "Session"
 };
 
 function showNotification(title, text, facility, severity) {
@@ -266,5 +274,25 @@ function toggleTopAlert() {
     else {
         document.getElementsByTagName('main')[0].style.marginTop = 0;
         topAlert.classList.add('hide');
+    }
+}
+
+function showModalAlert(obj) {
+    const aModal = getOpenModal();
+    const activeAlert = aModal.getElementsByClassName('modalAlert')[0];
+    const div = elCreate('div', {"class": ["alert", "alert-danger", "modalAlert"]}, '');
+    addIconLine(div, 'error_outline', tn(obj.error.message, obj.error.data));
+    if (activeAlert === undefined) {
+        aModal.getElementsByClassName('modal-body')[0].appendChild(div);
+    }
+    else {
+        aModal.getElementsByClassName('modal-body')[0].replaceChild(div, activeAlert);
+    }
+}
+
+function hideModalAlert() {
+    const activeAlerts = document.getElementsByClassName('modalAlert');
+    for (let i = activeAlerts.length - 1; i >= 0; i--) {
+        activeAlerts[i].remove();
     }
 }

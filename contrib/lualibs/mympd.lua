@@ -1,18 +1,18 @@
 --
 -- mympd.lua
 --
---  SPDX-License-Identifier: GPL-2.0-or-later
+--  SPDX-License-Identifier: GPL-3.0-or-later
 -- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 -- https://github.com/jcorporation/mympd
 --
 
-mympd = { _version = "0.2.0" }
+mympd = { _version = "0.2.1" }
 
 --
 -- Function to retriebe mympd_state
 -- 
 function mympd.init()
-  return mympd_api("MPD_API_SCRIPT_INIT")
+  return mympd_api("INTERNAL_API_SCRIPT_INIT")
 end
 
 --

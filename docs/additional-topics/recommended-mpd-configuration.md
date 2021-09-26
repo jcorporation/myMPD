@@ -28,9 +28,6 @@ database {
 
 # Enable neighbor plugins
 neighbors {
-        plugin          "smbclient"
-}
-neighbors {
         plugin          "udisks"
 }
 neighbors {

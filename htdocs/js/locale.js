@@ -1,5 +1,5 @@
 "use strict";
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
@@ -18,6 +18,10 @@ function tn(phrase, number, data) {
 }
 
 function _translate(phrase, number, data) {
+    if (phrase === undefined) {
+        logWarn('Phrase is undefined');
+        return 'undefined';
+    }
     let result = undefined;
     if (isNaN(number)) {
         data = number;

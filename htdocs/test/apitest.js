@@ -1,6 +1,6 @@
 "use strict";
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
@@ -82,6 +82,9 @@ function apiParamsToObject(p) {
     for (const param in p) {
         if (p[param].params !== undefined) {
             args[param] = apiParamsToObject(p[param].params);
+        }
+        else if (p[param].type === 'array' || p[param].type === 'object') {
+            args[param] = JSON.parse(p[param].example);
         }
         else {
             args[param] = p[param].example;

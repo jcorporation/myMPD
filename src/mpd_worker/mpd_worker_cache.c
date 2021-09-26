@@ -1,35 +1,24 @@
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
+#include "mympd_config_defs.h"
+#include "mpd_worker_cache.h"
+
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
+#include "../lib/mem.h"
+#include "../lib/sds_extras.h"
+#include "../mpd_shared.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "../mympd_api/mympd_api_utility.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <inttypes.h>
-#include <limits.h>
-#include <time.h>
-#include <assert.h>
-#include <signal.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../api.h"
-#include "../log.h"
-#include "../list.h"
-#include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../tiny_queue.h"
-#include "../global.h"
-#include "../mympd_state.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mpd_shared.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
-#include "mpd_worker_utility.h"
-#include "mpd_worker_cache.h"
 
 //privat definitions
 static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache);
@@ -53,10 +42,10 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     //push album cache building response to mpd_client thread
     if (mpd_worker_state->mpd_state->feat_tags == true) {
         if (rc == true) {
-            t_work_request *request = create_request(-1, 0, MYMPD_API_ALBUMCACHE_CREATED, "MYMPD_API_ALBUMCACHE_CREATED", "");
-            request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_ALBUMCACHE_CREATED\",\"params\":{}}");
+            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_CREATED, NULL);
+            request->data = sdscatlen(request->data, "}}", 2);
             request->extra = (void *) album_cache;
-            tiny_queue_push(mympd_api_queue, request, 0);
+            mympd_queue_push(mympd_api_queue, request, 0);
             send_jsonrpc_notify("database", "info", "Updated album cache");
         }
         else {
@@ -71,10 +60,10 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     //push sticker cache building response to mpd_client thread
     if (mpd_worker_state->mpd_state->feat_stickers == true) {
         if (rc == true) {
-            t_work_request *request2 = create_request(-1, 0, MYMPD_API_STICKERCACHE_CREATED, "MYMPD_API_STICKERCACHE_CREATED", "");
-            request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_STICKERCACHE_CREATED\",\"params\":{}}");
+            struct t_work_request *request2 = create_request(-1, 0, INTERNAL_API_STICKERCACHE_CREATED, NULL);
+            request2->data = sdscatlen(request2->data, "}}", 2);
             request2->extra = (void *) sticker_cache;
-            tiny_queue_push(mympd_api_queue, request2, 0);
+            mympd_queue_push(mympd_api_queue, request2, 0);
             send_jsonrpc_notify("database", "info", "Updated sticker cache");
         }
         else {
@@ -92,7 +81,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
 static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache) {
     MYMPD_LOG_INFO("Creating caches");
     unsigned start = 0;
-    unsigned end = start + 1000;
+    unsigned end = start + MAX_MPD_RESULTS;
     unsigned i = 0;   
     unsigned album_count = 0;
     unsigned song_count = 0;
@@ -130,8 +119,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             //sticker cache
             if (mpd_worker_state->mpd_state->feat_stickers == true) {
                 const char *uri = mpd_song_get_uri(song);
-                struct t_sticker *sticker = (struct t_sticker *) malloc(sizeof(struct t_sticker));
-                assert(sticker);
+                struct t_sticker *sticker = (struct t_sticker *) malloc_assert(sizeof(struct t_sticker));
                 raxInsert(sticker_cache, (unsigned char*)uri, strlen(uri), (void *)sticker, NULL);
                 song_count++;
             }
@@ -158,16 +146,16 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             }
             i++;
         }
-        sdsfree(album);
-        sdsfree(artist);
-        sdsfree(key);
+        FREE_SDS(album);
+        FREE_SDS(artist);
+        FREE_SDS(key);
         mpd_response_finish(mpd_worker_state->mpd_state->conn);
         if (check_error_and_recover2(mpd_worker_state->mpd_state, NULL, NULL, 0, false) == false) {
             MYMPD_LOG_ERROR("Cache update failed");
             return false;        
         }
         start = end;
-        end = end + 1000;
+        end = end + MAX_MPD_RESULTS;
     } while (i >= start);
     //get sticker values
     if (mpd_worker_state->mpd_state->feat_stickers == true) {
@@ -176,10 +164,10 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         raxSeek(&iter, "^", NULL, 0);
         sds uri = sdsempty();
         while (raxNext(&iter)) {
-            uri = sdsreplacelen(uri, (char *)iter.key, iter.key_len);
+            uri = sds_replacelen(uri, (char *)iter.key, iter.key_len);
             mpd_shared_get_sticker(mpd_worker_state->mpd_state, uri, (struct t_sticker *)iter.data);
         }
-        sdsfree(uri);
+        FREE_SDS(uri);
         raxStop(&iter);
     }
     MYMPD_LOG_INFO("Added %u albums to album cache", album_count);

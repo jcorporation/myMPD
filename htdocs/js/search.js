@@ -1,5 +1,5 @@
 "use strict";
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
@@ -111,7 +111,6 @@ function initSearch() {
 }
 
 function doSearch(x) {
-
     if (features.featAdvsearch) {
         const expression = createSearchExpression(document.getElementById('searchCrumb'), app.current.filter, getSelectValue('searchMatch'), x);
         appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', expression, 0);
@@ -122,6 +121,10 @@ function doSearch(x) {
 }
 
 function parseSearch(obj) {
+    if (checkResult(obj, 'Search', null) === false) {
+        return;
+    }
+
     if (obj.result.returnedEntities > 0) {
         elEnable('searchAddAllSongs');
         elEnable('searchAddAllSongsBtn');
@@ -154,13 +157,13 @@ function parseSearch(obj) {
 //eslint-disable-next-line no-unused-vars
 function saveSearchAsSmartPlaylist() {
     parseSmartPlaylist({"jsonrpc":"2.0","id":0,"result":{"method":"MYMPD_API_SMARTPLS_GET", 
-        "playlist":"",
-        "type":"search",
-        "tag": features.featAdvsearch === true ? 'expression' : app.current.filter,
-        "searchstr": app.current.search}});
+        "plist": "",
+        "type": "search",
+        "expression": app.current.search
+    }});
 }
 
-function addAllFromSearchPlist(plist, searchstr, replace) {
+function addAllFromSearchPlist(plist, searchstr, replace, callback) {
     if (searchstr === null) {
         searchstr = app.current.search;    
     }
@@ -172,7 +175,8 @@ function addAllFromSearchPlist(plist, searchstr, replace) {
             "offset": 0,
             "limit": 0,
             "cols": settings.colsSearch, 
-            "replace": replace});
+            "replace": replace},
+            callback, true);
     }
     else {
         sendAPI("MYMPD_API_DATABASE_SEARCH", {"plist": plist, 
@@ -181,6 +185,7 @@ function addAllFromSearchPlist(plist, searchstr, replace) {
             "offset": 0,
             "limit": 0, 
             "cols": settings.colsSearch, 
-            "replace": replace});
+            "replace": replace},
+            callback, true);
     }
 }

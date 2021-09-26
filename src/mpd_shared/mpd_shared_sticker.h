@@ -1,13 +1,14 @@
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MPD_SHARED_STICKER_H__
-#define __MPD_SHARED_STICKER_H__
+#ifndef MYMPD_MPD_SHARED_STICKER_H
+#define MYMPD_MPD_SHARED_STICKER_H
 
 #include "../../dist/src/rax/rax.h"
+#include "../lib/mympd_state.h"
 
 struct t_sticker *get_sticker_from_cache(rax *sticker_cache, const char *uri);
 sds mpd_shared_sticker_list(sds buffer, rax *sticker_cache, const char *uri);

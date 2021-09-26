@@ -4,9 +4,9 @@
 # (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 
 Name:           mympd
-Version:        8.0.4
+Version:        8.1.0
 Release:        0 
-License:        GPL-2.0-or-later
+License:        GPL-3.0-or-later
 Group:          Productivity/Multimedia/Sound/Players
 Summary:        A standalone and mobile friendly web-based MPD client
 Url:            https://jcorporation.github.io/myMPD/
@@ -65,8 +65,8 @@ fi
 /usr/lib/systemd/system/mympd.service
 %{_mandir}/man1/mympd.1.gz
 %{_mandir}/man1/mympd-script.1.gz
-%license LICENSE
+%license LICENSE.md
 
 %changelog
-* Thu Aug 12 2021 Juergen Mang <mail@jcgames.de> 8.0.4-0
+* Tue Sep 21 2021 Juergen Mang <mail@jcgames.de> 8.1.0-0
 - Version from master

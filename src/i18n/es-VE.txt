@@ -162,12 +162,6 @@ Pos
 Invalid API request
 Solicitud API incorrecta
 
-Failed to set like, invalid like value
-Error al establecer me gusta, no válido
-
-Failed to set like, invalid song uri
-Error al establecer me gusta, URI de canción inválido
-
 Database
 Base de datos
 
@@ -437,9 +431,6 @@ Versión
 
 Homepage
 Página de Inicio
-
-Author
-Autor
 
 Database statistics
 Estadísticas de Base de datos
@@ -747,9 +738,6 @@ Agregadas todas las canciones
 Queue replaced with %{name}
 Cola de reproducción reemplazada con %{name}
 
-Saved smart playlist %{name}
-Lista de reproducción inteligente guardada: %{name}
-
 Focus table
 Centrar en tabla
 
@@ -788,9 +776,6 @@ Servidor Web
 
 Download
 Descargar
-
-Can't save setting %{setting}
-Error al guardar la configuración: %{setting}
 
 No current song
 No hay canción actual

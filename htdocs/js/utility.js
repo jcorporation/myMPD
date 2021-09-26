@@ -1,5 +1,5 @@
 "use strict";
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
@@ -32,13 +32,31 @@ function elClear(el) {
 }
 
 function elDisable(el) {
-    typeof el === 'string' ? document.getElementById(el).setAttribute('disabled', 'disabled')
-                           : el.setAttribute('disabled', 'disabled');
+    if (typeof el === 'string') {
+        document.getElementById(el).setAttribute('disabled', 'disabled');
+    }
+    else {
+        el.setAttribute('disabled', 'disabled');
+    }
 }
 
 function elEnable(el) {
-    typeof el === 'string' ? document.getElementById(el).removeAttribute('disabled')
-                           : el.removeAttribute('disabled');
+    if (typeof el === 'string') {
+        document.getElementById(el).removeAttribute('disabled');
+    }
+    else {
+        el.removeAttribute('disabled');
+    }
+}
+
+function getOpenModal() {
+    const modals = document.getElementsByClassName('modal');
+    for (const modal of modals) {
+        if (modal.classList.contains('show')) {
+            return modal;
+        }
+    }
+    return null;
 }
 
 //escapes html characters to avoid xss
@@ -96,9 +114,9 @@ function showConfirmInline(el, text, btnText, callback) {
         if (callback !== undefined && typeof(callback) === 'function') {
             callback();
         }
+        this.parentNode.remove();
     }, false);
     confirm.appendChild(yesBtn);
-
     el.appendChild(confirm);
 }
 
@@ -876,4 +894,8 @@ function addIconLine(el, ligature, text) {
     const span = elCreate('span', {}, text);
     el.appendChild(icon);
     el.appendChild(span);
+}
+
+function getTimestamp() {
+    return Math.floor(Date.now() / 1000);
 }

@@ -1,5 +1,5 @@
 "use strict";
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
@@ -139,6 +139,8 @@ function parseSongDetails(obj) {
     if (features.featLyrics === true) {
         getLyrics(obj.result.uri, document.getElementById('lyricsText'));
     }
+    
+    getComments(obj.result.uri, document.getElementById('tbodySongComments'));
 
     const pictureEls = document.getElementsByClassName('featPictures');
     for (let i = 0, j = pictureEls.length; i < j; i++) {
@@ -175,6 +177,25 @@ function isCoverfile(uri) {
         }
     }
     return false;
+}
+
+function getComments(uri, el) {
+    el.classList.add('opacity05');
+    sendAPI("MYMPD_API_DATABASE_COMMENTS", {"uri": uri}, function(obj) {
+        elClear(el);
+        if (obj.result.returnedEntities === 0) {
+            el.appendChild(emptyRow(2));
+            el.classList.remove('opacity05');
+            return false;
+        }
+        for (const key in obj.result.data) {
+            const tr = elCreate('tr', {}, '');
+            tr.appendChild(elCreate('td', {}, key));
+            tr.appendChild(elCreate('td', {}, obj.result.data[key]));
+            el.appendChild(tr);
+        }
+        el.classList.remove('opacity05');
+    }, false);
 }
 
 function getLyrics(uri, el) {
@@ -318,7 +339,7 @@ function voteSong(el, vote) {
 
 //eslint-disable-next-line no-unused-vars
 function voteCurrentSong(vote) {
-    const uri = getCustomDomProperty(document.getElementById('currentTitle'), 'data-uri');
+    const uri = getCustomDomProperty('currentTitle', 'data-uri');
     if (uri === '') {
         return;
     }

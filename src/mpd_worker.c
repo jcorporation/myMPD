@@ -1,49 +1,32 @@
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <poll.h>
-#include <pthread.h>
-#include <string.h>
-#include <signal.h>
-#include <assert.h>
-#include <unistd.h>
-
-#include <mpd/client.h>
+#include "mympd_config_defs.h"
+#include "mpd_worker.h"
 
 #include "../dist/src/sds/sds.h"
-#include "../dist/src/rax/rax.h"
-#include "sds_extras.h"
-#include "log.h"
-#include "list.h"
-#include "mympd_config_defs.h"
-#include "mympd_state.h"
-#include "tiny_queue.h"
-#include "api.h"
-#include "global.h"
-#include "utility.h"
-#include "mympd_state.h"
+#include "lib/log.h"
+#include "lib/mem.h"
+#include "lib/sds_extras.h"
 #include "mpd_shared.h"
 #include "mpd_shared/mpd_shared_tags.h"
-#include "mpd_shared/mpd_shared_sticker.h"
-#include "mpd_worker/mpd_worker_utility.h"
 #include "mpd_worker/mpd_worker_api.h"
-#include "mpd_worker/mpd_worker_smartpls.h"
 #include "mpd_worker/mpd_worker_cache.h"
-#include "mpd_worker.h"
+#include "mpd_worker/mpd_worker_smartpls.h"
+
+#include <stdlib.h>
+#include <string.h>
+#include <sys/prctl.h>
 
 //private definitions
 static void *mpd_worker_run(void *arg);
 static bool mpd_worker_connect(struct t_mpd_worker_state *mpd_worker_state);
 
 //public functions
-bool mpd_worker_start(struct t_mympd_state *mympd_state, t_work_request *request) {
+bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *request) {
     MYMPD_LOG_NOTICE("Starting mpd_worker thread for %s", request->method);
     pthread_t mpd_worker_thread;
     pthread_attr_t attr;
@@ -56,8 +39,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, t_work_request *request
         return false;
     }
     //create mpd worker state from mympd_state
-    struct t_mpd_worker_state *mpd_worker_state = (struct t_mpd_worker_state *)malloc(sizeof(struct t_mpd_worker_state));
-    assert(mpd_worker_state);
+    struct t_mpd_worker_state *mpd_worker_state = (struct t_mpd_worker_state *)malloc_assert(sizeof(struct t_mpd_worker_state));
     mpd_worker_state->request = request;
     mpd_worker_state->smartpls = mympd_state->smartpls == true ? mympd_state->mpd_state->feat_smartpls == true ? true : false : false;
     mpd_worker_state->smartpls_sort = sdsdup(mympd_state->smartpls_sort);
@@ -66,12 +48,11 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, t_work_request *request
     copy_tag_types(&mympd_state->smartpls_generate_tag_types, &mpd_worker_state->smartpls_generate_tag_types);
 
     //mpd state
-    mpd_worker_state->mpd_state = (struct t_mpd_state *)malloc(sizeof(struct t_mpd_state));
-    assert(mpd_worker_state->mpd_state);
+    mpd_worker_state->mpd_state = (struct t_mpd_state *)malloc_assert(sizeof(struct t_mpd_state));
     mpd_shared_default_mpd_state(mpd_worker_state->mpd_state);
-    mpd_worker_state->mpd_state->mpd_host = sdsreplace(mpd_worker_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_host);
+    mpd_worker_state->mpd_state->mpd_host = sds_replace(mpd_worker_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_host);
     mpd_worker_state->mpd_state->mpd_port = mympd_state->mpd_state->mpd_port;
-    mpd_worker_state->mpd_state->mpd_pass = sdsreplace(mpd_worker_state->mpd_state->mpd_pass, mympd_state->mpd_state->mpd_pass);
+    mpd_worker_state->mpd_state->mpd_pass = sds_replace(mpd_worker_state->mpd_state->mpd_pass, mympd_state->mpd_state->mpd_pass);
     mpd_worker_state->mpd_state->feat_tags = mympd_state->mpd_state->feat_tags;
     mpd_worker_state->mpd_state->feat_stickers = mympd_state->mpd_state->feat_stickers;
     mpd_worker_state->mpd_state->feat_playlists = mympd_state->mpd_state->feat_playlists;
@@ -80,16 +61,16 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, t_work_request *request
     
     if (pthread_create(&mpd_worker_thread, &attr, mpd_worker_run, mpd_worker_state) != 0) {
         MYMPD_LOG_ERROR("Can not create mpd_worker thread");
-        free_mpd_worker_state(mpd_worker_state);
+        mpd_worker_state_free(mpd_worker_state);
         return false;
     }
-    pthread_setname_np(mpd_worker_thread, "mpd_worker");
     worker_threads++;
     return true;
 }
 
 static void *mpd_worker_run(void *arg) {
-    thread_logname = sdsreplace(thread_logname, "mpdworker");
+    thread_logname = sds_replace(thread_logname, "mpdworker");
+    prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
     struct t_mpd_worker_state *mpd_worker_state = (struct t_mpd_worker_state *) arg;
 
     if (mpd_worker_connect(mpd_worker_state) == true) {
@@ -97,8 +78,8 @@ static void *mpd_worker_run(void *arg) {
         mpd_shared_mpd_disconnect(mpd_worker_state->mpd_state);
     }
     MYMPD_LOG_NOTICE("Stopping mpd_worker thread");
-    sdsfree(thread_logname);
-    free_mpd_worker_state(mpd_worker_state);
+    FREE_SDS(thread_logname);
+    mpd_worker_state_free(mpd_worker_state);
     worker_threads--;
     return NULL;
 }

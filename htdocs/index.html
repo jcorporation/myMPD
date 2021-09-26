@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 -->
@@ -68,11 +68,14 @@
             <a data-phrase="Timer" class="dropdown-item text-light featTimer" href="#" data-toggle="modal" data-target="#modalTimer"></a>
             <a data-phrase="Trigger" class="dropdown-item text-light featTrigger" href="#" data-toggle="modal" data-target="#modalTrigger"></a>
             <a data-phrase="Mounts" class="dropdown-item text-light featMounts" href="#" data-toggle="modal" data-target="#modalMounts"></a>
-            <a data-phrase="Fullscreen" class="dropdown-item text-light" href="#" data-href='{"cmd": "openFullscreen", "options": []}'></a>
+            <a data-phrase="Partitions" class="dropdown-item text-light featPartitions" href="#" data-toggle="modal" data-target="#modalPartitions"></a>
           </div>
+          <a data-phrase="Fullscreen" class="dropdown-item text-light" href="#" data-href='{"cmd": "openFullscreen", "options": []}'></a>
           <a data-phrase="Browse directories" class="dropdown-item text-light featLibrary" href="browse/" target="_blank"></a>
           <a data-phrase="About" class="dropdown-item text-light" href="#" data-toggle="modal" data-target="#modalAbout"></a>
-          <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item text-light bg-lite-dark hide" href="#"></a>
+          <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item text-light hide" href="#"></a>
+          <a data-phrase="Login" id="mmLogin" data-href='{"cmd": "enterPin", "options": []}' class="dropdown-item text-light" href="#"></a>
+          <a data-phrase="Logout" id="mmLogout" data-href='{"cmd": "removeSession", "options": []}' class="dropdown-item text-light hide" href="#"></a>
           <a id="navScripting" class="subMenu featScripting dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#scripts"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
           <div id="scripts" class="featScripting noInitChilds collapse"></div>
           <div class="dropdown-divider"></div>
@@ -92,7 +95,7 @@
       <div data-phrase="JavaScript is disabled" class="alert alert-danger top-alert"></div>
     </noscript>
     <div id="alertMpdState" class="alert alert-danger top-alert d-flex flex-row hide"></div>
-    <div id="alertMpdStatusError" class="alert alert-danger top-alert d-flex flex-row hide"></div>
+    <div id="alertMpdStatusError" class="alert alert-danger top-alert-dismissible top-alert d-flex flex-row hide"></div>
     <div id="alertMympdState" class="alert alert-danger top-alert d-flex flex-row hide"></div>
   </div>
   <!-- Main content -->
@@ -177,7 +180,7 @@
                 <div class="dropdown-menu bg-lite-dark px-2" id="searchqueuetags">
                 </div>
               </div>
-              <input data-placeholder-phrase="Search queue" type="text" class="form-control border-secondary" id="searchqueuestr"/>
+              <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search queue" type="text" class="form-control border-secondary rounded-right" id="searchqueuestr"/>
             </div>
           </form>
           <div class="btn-group mr-2">
@@ -301,7 +304,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text border-secondary text-light bg-secondary"><span class="mi">search</span></span>
               </div>
-              <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchPlaylistsListStr"/>
+              <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-right" id="searchPlaylistsListStr"/>
             </div>
           </form>          
           <div class="btn-group mr-2 featSmartpls">
@@ -345,7 +348,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text border-secondary text-light bg-secondary"><span class="mi">search</span></span>
                 </div>
-                <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchPlaylistsDetailStr"/>
+                <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-right" id="searchPlaylistsDetailStr"/>
               </div>
             </form>          
             <div class="btn-group mr-2" id="playlistContentBtns">
@@ -420,7 +423,7 @@
                     <option value="!~">!~</option>
                   </select>
                 </div>            
-                <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchDatabaseStr"/>
+                <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-right" id="searchDatabaseStr"/>
               </div>
             </form>
             <div class="btn-group mr-2">
@@ -504,7 +507,7 @@
               <div class="dropdown-menu bg-lite-dark px-2" id="BrowseFilesystemAddAllSongsDropdown">
                 <button data-href='{"cmd": "addAllFromBrowseFilesystem", "options": [false]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
                 <button data-href='{"cmd": "addAllFromBrowseFilesystem", "options": [true]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
-                <button data-href='{"cmd": "showAddToPlaylistCurrentSearch", "options": []}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
+                <button data-href='{"cmd": "showAddToPlaylistFromFilesystem", "options": []}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
               </div>
             </div>
           </div>
@@ -513,7 +516,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text border-secondary text-light bg-secondary"><span class="mi">search</span></span>
               </div>
-              <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchFilesystemStr"/>
+              <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-right" id="searchFilesystemStr"/>
             </div>
           </form>
           <div class="btn-group mr-2 featHome">
@@ -568,7 +571,7 @@
                   <option value="!~">!~</option>
                 </select>
               </div>
-              <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchstr"/>
+              <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-right" id="searchstr"/>
             </div>
           </form>
           <div class="input-group mr-2">
@@ -578,7 +581,7 @@
               <div class="dropdown-menu bg-lite-dark px-2" id="searchAddAllSongsDropdown">
                   <button data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
                   <button data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, true]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
-                  <button data-href='{"cmd": "showAddToPlaylist", "options": ["SEARCH", ""]}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
+                  <button data-href='{"cmd": "showAddToPlaylistCurrentSearch", "options": []}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
                   <button data-href='{"cmd": "saveSearchAsSmartPlaylist", "options": []}' data-phrase="Save as smart playlist" type="button" class="btn btn-secondary btn-sm btn-block featSmartpls"></button>
               </div>
             </div>
@@ -1060,9 +1063,9 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnClearCovercache" data-phrase="Clear covercache"></label>
                   <div class="col-sm-8">
-                    <button type="button" id="btnClearCovercache" class="btn btn-secondary btnCleanup" data-href='{"cmd": "clearCovercache", "options": []}' data-phrase="Clear"></button>
+                    <button type="button" id="btnClearCovercache" class="btn btn-secondary btnCleanup protected" data-href='{"cmd": "clearCovercache", "options": []}' data-phrase="Clear"></button>
                     &nbsp;
-                    <button type="button" id="btnCropCovercache" class="btn btn-secondary btnCleanup" data-href='{"cmd": "cropCovercache", "options": []}' data-phrase="Crop"></button>
+                    <button type="button" id="btnCropCovercache" class="btn btn-secondary btnCleanup protected" data-href='{"cmd": "cropCovercache", "options": []}' data-phrase="Crop"></button>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -1081,7 +1084,7 @@
                         <option value="deleteAllPlaylists" data-phrase="Delete all playlists"></option>
                       </select>
                       <div class="input-group-append">
-                        <button id="btnDeletePlaylists" data-href='{"cmd": "deletePlaylists", "options": []}' type="button" class="btn btn-secondary" data-phrase="Delete"></button>
+                        <button id="btnDeletePlaylists" data-href='{"cmd": "deletePlaylists", "options": []}' type="button" class="btn btn-secondary protected" data-phrase="Delete"></button>
                       </div>
                     </div>
                   </div>
@@ -1095,8 +1098,8 @@
               </form>
             </div>
             <div class="tab-pane" id="tabAdvancedSettings">
-              <h4 data-phrase="Advanced"></h4>
-              <form id="advancedSettingsFrm">
+              <h4 data-phrase="Default actions"></h4>
+              <form id="clickSettingsFrm">
               </form>
               <hr/>
               <h4 data-phrase="Volume control"></h4>
@@ -1108,8 +1111,8 @@
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
           <div>
-            <button id="btnApplySettings" type="button" class="btn btn-success mr-2" data-href='{"cmd": "saveSettings", "options": [false]}' data-phrase="Apply"></button>
-            <button type="button" class="btn btn-success" data-href='{"cmd": "saveSettings", "options": [true]}' data-phrase="Save"></button>
+            <button id="btnApplySettings" type="button" class="btn btn-success mr-2 protected" data-href='{"cmd": "saveSettings", "options": [false]}' data-phrase="Apply"></button>
+            <button type="button" class="btn btn-success protected" data-href='{"cmd": "saveSettings", "options": [true]}' data-phrase="Save"></button>
           </div>
         </div>
       </div>
@@ -1283,8 +1286,8 @@
               </svg>&nbsp;&nbsp;myMPD</h4>
               <ul>
                 <li><span data-phrase="Version"></span>: <span id="mympdVersion"></span></li>
-                <li><span data-phrase="Homepage"></span>: <a class="text-success" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/mympd">https://github.com/jcorporation/mympd</a></li>
-                <li><span data-phrase="Author"></span>: Jürgen Mang &lt;<a class="text-success" href="mailto:mail@jcgames.de">mail@jcgames.de</a>&gt;</li>
+                <li><span data-phrase="License"></span>: <a class="text-success" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/myMPD/blob/master/LICENSE.md"><span class="mi">open_in_browser</span>&nbsp;GPLv3</a></li>
+                <li><span data-phrase="Homepage"></span>: <a class="text-success" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/mympd"><span class="mi">open_in_browser</span>&nbsp;https://github.com/jcorporation/mympd</a></li>
                 <li><a target="_blank" rel="noreferrer" href="https://github.com/jcorporation/myMPD/issues/167" class="text-success"><span class="mi">open_in_browser</span>&nbsp;<span data-phrase="Help to improve myMPD"></span></a></li>
               </ul>
               <div class="table-responsive-md">
@@ -1411,7 +1414,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary alwaysEnabled" data-dismiss="modal" data-phrase="Cancel"></button>
-          <button type="button" class="btn btn-success alwaysEnabled" data-href='{"cmd": "saveConnection", "options": []}' data-phrase="Save"></button>
+          <button type="button" class="btn btn-success alwaysEnabled protected" data-href='{"cmd": "saveConnection", "options": []}' data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -1498,6 +1501,9 @@
             <li class="nav-item">
               <a class="nav-link text-dark featLyrics" href="#tabSongLyrics" data-toggle="tab" data-height="true" data-phrase="Lyrics"></a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link text-dark" href="#tabSongComments" data-toggle="tab" data-height="true" data-phrase="Comments"></a>
+            </li>
           </ul>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -1522,6 +1528,14 @@
             <div class="tab-pane" id="tabSongLyrics">
               <h1 class="text-break"></h1>
               <div id="lyricsText"></div>
+            </div>
+            <div class="tab-pane" id="tabSongComments">
+              <div class="col table-responsive-md">
+                <table class="table table-sm">
+                  <tbody id="tbodySongComments">
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -1683,11 +1697,11 @@
         </div>
         <div class="modal-footer justify-content-between" id="listTimerFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showEditTimer","options":[0]}' class="btn btn-success" data-phrase="New timer"></button>
+          <button data-href='{"cmd":"showEditTimer","options":[0]}' class="btn btn-success protected" data-phrase="New timer"></button>
         </div>
         <div id="editTimerFooter" class="modal-footer justify-content-between hide">
           <button data-href='{"cmd":"showListTimer","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
-          <button data-href='{"cmd":"saveTimer","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+          <button data-href='{"cmd":"saveTimer","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -1751,11 +1765,11 @@
         </div>
         <div class="modal-footer justify-content-between" id="listMountsFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showEditMount","options":["",""]}' class="btn btn-success" data-phrase="New mount"></button>
+          <button data-href='{"cmd":"showEditMount","options":["",""]}' class="btn btn-success protected" data-phrase="New mount"></button>
         </div>
-        <div id="editMountFooter" class="modal-footer hide">
+        <div class="modal-footer  justify-content-between hide" id="editMountFooter">
           <button data-href='{"cmd":"showListMounts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
-          <button data-href='{"cmd":"mountMount","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+          <button data-href='{"cmd":"mountMount","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -1884,11 +1898,11 @@
         </div>
         <div class="modal-footer justify-content-between" id="listScriptsFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success" data-phrase="New script"></button>
+          <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success protected" data-phrase="New script"></button>
         </div>
         <div id="editScriptFooter" class="modal-footer justify-content-between hide">
           <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
-          <button data-href='{"cmd":"saveScript","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+          <button data-href='{"cmd":"saveScript","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -1927,17 +1941,16 @@
                 </tbody>
               </table>
             </div>
-            <div id="errorPartition" class="alert alert-danger hide"></div>
           </div>  
         </div>
         </div>
         <div class="modal-footer justify-content-between" id="listPartitionsFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showNewPartition","options":["",""]}' class="btn btn-success" data-phrase="New partition"></button>
+          <button data-href='{"cmd":"showNewPartition","options":["",""]}' class="btn btn-success protected" data-phrase="New partition"></button>
         </div>
         <div id="newPartitionFooter" class="modal-footer justify-content-between hide">
           <button data-href='{"cmd":"showListPartitions","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
-          <button data-href='{"cmd":"savePartition","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+          <button data-href='{"cmd":"savePartition","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -1990,7 +2003,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
-          <button id="btnOutputAttributesSave" data-href='{"cmd":"saveOutputAttributes","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+          <button id="btnOutputAttributesSave" data-href='{"cmd":"saveOutputAttributes","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -2067,11 +2080,11 @@
         </div>
         <div class="modal-footer justify-content-between" id="listTriggerFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showEditTrigger","options":[-1]}' class="btn btn-success" data-phrase="New trigger"></button>
+          <button data-href='{"cmd":"showEditTrigger","options":[-1]}' class="btn btn-success protected" data-phrase="New trigger"></button>
         </div>
         <div id="newTriggerFooter" class="modal-footer justify-content-between hide">
           <button data-href='{"cmd":"showListTrigger","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
-          <button data-href='{"cmd":"saveTrigger","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+          <button data-href='{"cmd":"saveTrigger","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -2181,6 +2194,30 @@
     </div>
   </div>
 
+  <div class="modal fade" id="modalEnterPin" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="mi title-icon">password</span> <span data-phrase="Enter Pin"></span></h5>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+        </div>
+        <div class="modal-body">
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label" for="inputPinModal" data-phrase="Pin"></label>
+            <div class="col-sm-8">
+              <input id="inputPinModal" class="form-control border-secondary" type="password"/>
+            </div>
+          </div>
+          <div id="modalEnterPinMessage" class="alert alert-danger p-2 hide"></div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button id="modalEnterPinEnterBtn" type="button" class="btn btn-success" data-phrase="Enter"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <!--debug-->  <script src="js/version.js"></script>
 <!--debug-->  <script src="js/long-press-event.js"></script>
 <!--debug-->  <script src="js/bootstrap-native.js"></script>
@@ -2205,6 +2242,7 @@
 <!--debug-->  <script src="js/playlists.js"></script>
 <!--debug-->  <script src="js/browse.js"></script>
 <!--debug-->  <script src="js/state.js"></script>
+<!--debug-->  <script src="js/outputs.js"></script>
 <!--debug-->  <script src="js/song.js"></script>
 <!--debug-->  <script src="js/misc.js"></script>
 <!--debug-->  <script src="js/scripts.js"></script>

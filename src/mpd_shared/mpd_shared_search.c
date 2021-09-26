@@ -1,29 +1,18 @@
 /*
- SPDX-License-Identifier: GPL-2.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <limits.h>
-#include <mpd/client.h>
-
-#include "../../dist/src/sds/sds.h"
-#include "../../dist/src/rax/rax.h"
-#include "../sds_extras.h"
-#include "../api.h"
-#include "../log.h"
-#include "../list.h"
 #include "mympd_config_defs.h"
-#include "../utility.h"
-#include "../mympd_state.h"
-#include "../mpd_shared.h"
-#include "mpd_shared_tags.h"
 #include "mpd_shared_search.h"
+
+#include "../lib/jsonrpc.h"
+#include "../lib/log.h"
 #include "mpd_shared_sticker.h"
+#include "mpd_shared_tags.h"
+
+#include <string.h>
 
 //private definitions
 static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
@@ -52,15 +41,16 @@ sds mpd_shared_search_adv(struct t_mpd_state *mpd_state, sds buffer, sds method,
                               tagcols, true, NULL, sticker_cache);
 }
 
-sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operator, const char *value) {
+
+sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operator, sds value) {
     buffer = sdscatfmt(buffer, "(%s %s '", tag, operator);
-    for (size_t i = 0;  i < strlen(value); i++) {
+    for (size_t i = 0;  i < sdslen(value); i++) {
         if (value[i] == '\\' || value[i] == '\'') {
-            buffer = sdscat(buffer, "\\");
+            buffer = sdscatlen(buffer, "\\", 1);
         }
         buffer = sdscatprintf(buffer, "%c", value[i]);
     }
-    buffer = sdscat(buffer, "')");
+    buffer = sdscatlen(buffer, "')", 2);
     return buffer;
 }
 
@@ -158,7 +148,7 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
             }
         }
         
-        unsigned real_limit = limit == 0 ? offset + MAX_RESULTS : offset + limit;
+        unsigned real_limit = limit == 0 ? offset + MAX_MPD_RESULTS : offset + limit;
         bool rc = mpd_search_add_window(mpd_state->conn, offset, real_limit);
         if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
             mpd_search_cancel(mpd_state->conn);
@@ -176,19 +166,19 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
         unsigned entities_returned = 0;
         while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
             if (entities_returned++) {
-                buffer = sdscat(buffer,",");
+                buffer = sdscatlen(buffer, ",", 1);
             }
-            buffer = sdscat(buffer, "{");
+            buffer = sdscatlen(buffer, "{", 1);
             buffer = tojson_char(buffer, "Type", "song", true);
-            buffer = put_song_tags(buffer, mpd_state, tagcols, song);
+            buffer = get_song_tags(buffer, mpd_state, tagcols, song);
             if (sticker_cache != NULL) {
-                buffer = sdscat(buffer, ",");
+                buffer = sdscatlen(buffer, ",", 1);
                 buffer = mpd_shared_sticker_list(buffer, sticker_cache, mpd_song_get_uri(song));
             }
-            buffer = sdscat(buffer, "}");
+            buffer = sdscatlen(buffer, "}", 1);
             mpd_song_free(song);
         }
-        buffer = sdscat(buffer, "],");
+        buffer = sdscatlen(buffer, "],", 2);
         buffer = tojson_long(buffer, "totalEntities", -1, true);
         buffer = tojson_long(buffer, "offset", offset, true);
         buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
