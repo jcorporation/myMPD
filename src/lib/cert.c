@@ -181,7 +181,7 @@ static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_day
 
 static bool create_ca_certificate(sds cakey_file, EVP_PKEY **ca_key, sds cacert_file, X509 **ca_cert) {
     MYMPD_LOG_NOTICE("Creating self signed ca certificate");
-    *ca_key = generate_keypair(4096);
+    *ca_key = generate_keypair(CA_KEY_LENGTH);
     if (*ca_key == NULL) {
         return false;
     }
@@ -199,7 +199,7 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
                                       sds custom_san, EVP_PKEY **ca_key, X509 **ca_cert)
 {
     MYMPD_LOG_NOTICE("Creating server certificate");
-    *server_key = generate_keypair(2048);
+    *server_key = generate_keypair(CERT_KEY_LENGTH);
     if (*server_key == NULL) {
         return false;
     }

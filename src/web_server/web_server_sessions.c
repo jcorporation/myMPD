@@ -35,7 +35,7 @@ sds webserver_session_new(struct t_list *session_list) {
     list_push(session_list, session, (time(NULL) + 1800), NULL, NULL);
     MYMPD_LOG_DEBUG("Created session %s", session);
     //limit sessions to 10 
-    if (session_list->length > 10) {
+    if (session_list->length > MAX_HTTP_SESSIONS) {
         list_shift(session_list, 0);
         MYMPD_LOG_WARN("To many sessions, discarding oldest session");
     }

@@ -37,11 +37,17 @@
 #define OPEN_FLAGS_READ_BIN "rbe"
 #define OPEN_FLAGS_WRITE "we"
 
+//http limits
+#define MAX_HTTP_CONNECTIONS 100
+#define MAX_HTTP_SESSIONS 10
+
 //certificates
 #define CA_LIFETIME 3650
 #define CA_MIN_LIFETIME 365
+#define CA_KEY_LENGTH 4096
 #define CERT_LIFETIME 365
 #define CERT_MIN_LIFETIME 30
+#define CERT_KEY_LENGTH 2048
 
 //http limits
 #define MAX_URI_LENGTH 500

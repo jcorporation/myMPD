@@ -297,7 +297,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
     switch(ev) {
         case MG_EV_ACCEPT: {
             //check connection count
-            if (mg_user_data->connection_count > 100) {
+            if (mg_user_data->connection_count > MAX_HTTP_CONNECTIONS) {
                 nc->is_draining = 1;
                 MYMPD_LOG_DEBUG("Connections: %d", mg_user_data->connection_count);
                 webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
@@ -566,7 +566,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
     struct t_config *config = mg_user_data->config;
     if (ev == MG_EV_ACCEPT) {
         //check connection count
-        if (mg_user_data->connection_count > 100) {
+        if (mg_user_data->connection_count > MAX_HTTP_CONNECTIONS) {
             nc->is_draining = 1;
             webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
             return;
