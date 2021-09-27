@@ -9,8 +9,49 @@
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.BSN = factory());
 }(this, (function () { 'use strict';
 
-  function addClass(element, classNAME) {
-    element.classList.add(classNAME);
+  const transitionEndEvent = 'webkitTransition' in document.head.style ? 'webkitTransitionEnd' : 'transitionend';
+
+  const supportTransition = 'webkitTransition' in document.head.style || 'transition' in document.head.style;
+
+  const transitionDuration = 'webkitTransition' in document.head.style ? 'webkitTransitionDuration' : 'transitionDuration';
+
+  const transitionProperty = 'webkitTransition' in document.head.style ? 'webkitTransitionProperty' : 'transitionProperty';
+
+  function getElementTransitionDuration(element) {
+    const computedStyle = getComputedStyle(element);
+    const propertyValue = computedStyle[transitionProperty];
+    const durationValue = computedStyle[transitionDuration];
+    const durationScale = durationValue.includes('ms') ? 1 : 1000;
+    const duration = supportTransition && propertyValue && propertyValue !== 'none'
+      ? parseFloat(durationValue) * durationScale : 0;
+
+    return !Number.isNaN(duration) ? duration : 0;
+  }
+
+  function emulateTransitionEnd(element, handler) {
+    let called = 0;
+    const endEvent = new Event(transitionEndEvent);
+    const duration = getElementTransitionDuration(element);
+
+    if (duration) {
+      element.addEventListener(transitionEndEvent, function transitionEndWrapper(e) {
+        if (e.target === element) {
+          handler.apply(element, [e]);
+          element.removeEventListener(transitionEndEvent, transitionEndWrapper);
+          called = 1;
+        }
+      });
+      setTimeout(() => {
+        if (!called) element.dispatchEvent(endEvent);
+      }, duration + 17);
+    } else {
+      handler.apply(element, [endEvent]);
+    }
+  }
+
+  function queryElement(selector, parent) {
+    const lookUp = parent && parent instanceof Element ? parent : document;
+    return selector instanceof Element ? selector : lookUp.querySelector(selector);
   }
 
   function hasClass(element, classNAME) {
@@ -25,13 +66,23 @@
 
   const removeEventListener = 'removeEventListener';
 
-  const activeClass = 'active';
+  const fadeClass = 'fade';
 
-  const dataBsToggle = 'data-bs-toggle';
+  const showClass = 'show';
 
-  function queryElement(selector, parent) {
-    const lookUp = parent && parent instanceof Element ? parent : document;
-    return selector instanceof Element ? selector : lookUp.querySelector(selector);
+  const dataBsDismiss = 'data-bs-dismiss';
+
+  function bootstrapCustomEvent(namespacedEventType, eventProperties) {
+    const OriginalCustomEvent = new CustomEvent(namespacedEventType, { cancelable: true });
+
+    if (eventProperties instanceof Object) {
+      Object.keys(eventProperties).forEach((key) => {
+        Object.defineProperty(OriginalCustomEvent, key, {
+          value: eventProperties[key],
+        });
+      });
+    }
+    return OriginalCustomEvent;
   }
 
   function normalizeValue(value) {
@@ -111,6 +162,105 @@
       Object.keys(self).forEach((prop) => { self[prop] = null; });
     }
   }
+
+  /* Native JavaScript for Bootstrap 5 | Alert
+  -------------------------------------------- */
+
+  // ALERT PRIVATE GC
+  // ================
+  const alertString = 'alert';
+  const alertComponent = 'Alert';
+  const alertSelector = `.${alertString}`;
+  const alertDismissSelector = `[${dataBsDismiss}="${alertString}"]`;
+
+  // ALERT CUSTOM EVENTS
+  // ===================
+  const closeAlertEvent = bootstrapCustomEvent(`close.bs.${alertString}`);
+  const closedAlertEvent = bootstrapCustomEvent(`closed.bs.${alertString}`);
+
+  // ALERT EVENT HANDLERS
+  // ====================
+  function alertTransitionEnd(self) {
+    const { element, relatedTarget } = self;
+    toggleAlertHandler(self);
+
+    if (relatedTarget) closedAlertEvent.relatedTarget = relatedTarget;
+    element.dispatchEvent(closedAlertEvent);
+
+    self.dispose();
+    element.parentNode.removeChild(element);
+  }
+
+  // ALERT PRIVATE METHOD
+  // ====================
+  function toggleAlertHandler(self, add) {
+    const action = add ? addEventListener : removeEventListener;
+    if (self.dismiss) self.dismiss[action]('click', self.close);
+  }
+
+  // ALERT DEFINITION
+  // ================
+  class Alert extends BaseComponent {
+    constructor(target) {
+      super(alertComponent, target);
+      // bind
+      const self = this;
+
+      // initialization element
+      const { element } = self;
+
+      // the dismiss button
+      self.dismiss = queryElement(alertDismissSelector, element);
+      self.relatedTarget = null;
+
+      // add event listener
+      toggleAlertHandler(self, 1);
+    }
+
+    // ALERT PUBLIC METHODS
+    // ====================
+    close(e) {
+      const target = e ? e.target : null;
+      const self = e
+        ? e.target.closest(alertSelector)[alertComponent]
+        : this;
+      const { element } = self;
+
+      if (self && element && hasClass(element, showClass)) {
+        if (target) {
+          closeAlertEvent.relatedTarget = target;
+          self.relatedTarget = target;
+        }
+        element.dispatchEvent(closeAlertEvent);
+        if (closeAlertEvent.defaultPrevented) return;
+
+        removeClass(element, showClass);
+
+        if (hasClass(element, fadeClass)) {
+          emulateTransitionEnd(element, () => alertTransitionEnd(self));
+        } else alertTransitionEnd(self);
+      }
+    }
+
+    dispose() {
+      toggleAlertHandler(this);
+      super.dispose(alertComponent);
+    }
+  }
+
+  Alert.init = {
+    component: alertComponent,
+    selector: alertSelector,
+    constructor: Alert,
+  };
+
+  function addClass(element, classNAME) {
+    element.classList.add(classNAME);
+  }
+
+  const activeClass = 'active';
+
+  const dataBsToggle = 'data-bs-toggle';
 
   /* Native JavaScript for Bootstrap 5 | Button
   ---------------------------------------------*/
@@ -201,67 +351,14 @@
 
   var passiveHandler = supportPassive ? { passive: true } : false;
 
-  const supportTransition = 'webkitTransition' in document.head.style || 'transition' in document.head.style;
-
-  const transitionDuration = 'webkitTransition' in document.head.style ? 'webkitTransitionDuration' : 'transitionDuration';
-
-  const transitionProperty = 'webkitTransition' in document.head.style ? 'webkitTransitionProperty' : 'transitionProperty';
-
-  function getElementTransitionDuration(element) {
-    const computedStyle = getComputedStyle(element);
-    const propertyValue = computedStyle[transitionProperty];
-    const durationValue = computedStyle[transitionDuration];
-    const durationScale = durationValue.includes('ms') ? 1 : 1000;
-    const duration = supportTransition && propertyValue && propertyValue !== 'none'
-      ? parseFloat(durationValue) * durationScale : 0;
-
-    return !Number.isNaN(duration) ? duration : 0;
-  }
-
   function reflow(element) {
     return element.offsetHeight;
-  }
-
-  const transitionEndEvent = 'webkitTransition' in document.head.style ? 'webkitTransitionEnd' : 'transitionend';
-
-  function emulateTransitionEnd(element, handler) {
-    let called = 0;
-    const endEvent = new Event(transitionEndEvent);
-    const duration = getElementTransitionDuration(element);
-
-    if (duration) {
-      element.addEventListener(transitionEndEvent, function transitionEndWrapper(e) {
-        if (e.target === element) {
-          handler.apply(element, [e]);
-          element.removeEventListener(transitionEndEvent, transitionEndWrapper);
-          called = 1;
-        }
-      });
-      setTimeout(() => {
-        if (!called) element.dispatchEvent(endEvent);
-      }, duration + 17);
-    } else {
-      handler.apply(element, [endEvent]);
-    }
   }
 
   function isElementInScrollRange(element) {
     const bcr = element.getBoundingClientRect();
     const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
     return bcr.top <= viewportHeight && bcr.bottom >= 0; // bottom && top
-  }
-
-  function bootstrapCustomEvent(namespacedEventType, eventProperties) {
-    const OriginalCustomEvent = new CustomEvent(namespacedEventType, { cancelable: true });
-
-    if (eventProperties instanceof Object) {
-      Object.keys(eventProperties).forEach((key) => {
-        Object.defineProperty(OriginalCustomEvent, key, {
-          value: eventProperties[key],
-        });
-      });
-    }
-    return OriginalCustomEvent;
   }
 
   /* Native JavaScript for Bootstrap 5 | Carousel
@@ -705,8 +802,6 @@
 
   // collapse / tab
   const collapsingClass = 'collapsing';
-
-  const showClass = 'show';
 
   const dataBsTarget = 'data-bs-target';
 
@@ -1315,10 +1410,6 @@
   };
 
   const ariaHidden = 'aria-hidden';
-
-  const dataBsDismiss = 'data-bs-dismiss';
-
-  const fadeClass = 'fade';
 
   const ariaModal = 'aria-modal';
 
@@ -2774,732 +2865,6 @@
 
   var version = "4.0.6";
 
-  /* Native JavaScript for Bootstrap 5 | Alert
-  -------------------------------------------- */
-
-  // ALERT PRIVATE GC
-  // ================
-  const alertString = 'alert';
-  const alertComponent = 'Alert';
-  const alertSelector = `.${alertString}`;
-  const alertDismissSelector = `[${dataBsDismiss}="${alertString}"]`;
-
-  // ALERT CUSTOM EVENTS
-  // ===================
-  const closeAlertEvent = bootstrapCustomEvent(`close.bs.${alertString}`);
-  const closedAlertEvent = bootstrapCustomEvent(`closed.bs.${alertString}`);
-
-  // ALERT EVENT HANDLERS
-  // ====================
-  function alertTransitionEnd(self) {
-    const { element, relatedTarget } = self;
-    toggleAlertHandler(self);
-
-    if (relatedTarget) closedAlertEvent.relatedTarget = relatedTarget;
-    element.dispatchEvent(closedAlertEvent);
-
-    self.dispose();
-    element.parentNode.removeChild(element);
-  }
-
-  // ALERT PRIVATE METHOD
-  // ====================
-  function toggleAlertHandler(self, add) {
-    const action = add ? addEventListener : removeEventListener;
-    if (self.dismiss) self.dismiss[action]('click', self.close);
-  }
-
-  // ALERT DEFINITION
-  // ================
-  class Alert extends BaseComponent {
-    constructor(target) {
-      super(alertComponent, target);
-      // bind
-      const self = this;
-
-      // initialization element
-      const { element } = self;
-
-      // the dismiss button
-      self.dismiss = queryElement(alertDismissSelector, element);
-      self.relatedTarget = null;
-
-      // add event listener
-      toggleAlertHandler(self, 1);
-    }
-
-    // ALERT PUBLIC METHODS
-    // ====================
-    close(e) {
-      const target = e ? e.target : null;
-      const self = e
-        ? e.target.closest(alertSelector)[alertComponent]
-        : this;
-      const { element } = self;
-
-      if (self && element && hasClass(element, showClass)) {
-        if (target) {
-          closeAlertEvent.relatedTarget = target;
-          self.relatedTarget = target;
-        }
-        element.dispatchEvent(closeAlertEvent);
-        if (closeAlertEvent.defaultPrevented) return;
-
-        removeClass(element, showClass);
-
-        if (hasClass(element, fadeClass)) {
-          emulateTransitionEnd(element, () => alertTransitionEnd(self));
-        } else alertTransitionEnd(self);
-      }
-    }
-
-    dispose() {
-      toggleAlertHandler(this);
-      super.dispose(alertComponent);
-    }
-  }
-
-  Alert.init = {
-    component: alertComponent,
-    selector: alertSelector,
-    constructor: Alert,
-  };
-
-  /* Native JavaScript for Bootstrap 5 | ScrollSpy
-  ------------------------------------------------ */
-
-  // SCROLLSPY PRIVATE GC
-  // ====================
-  const scrollspyString = 'scrollspy';
-  const scrollspyComponent = 'ScrollSpy';
-  const scrollspySelector = '[data-bs-spy="scroll"]';
-  const scrollSpyDefaultOptions = {
-    offset: 10,
-    target: null,
-  };
-
-  // SCROLLSPY CUSTOM EVENT
-  // ======================
-  const activateScrollSpy = bootstrapCustomEvent(`activate.bs.${scrollspyString}`);
-
-  // SCROLLSPY PRIVATE METHODS
-  // =========================
-  function updateSpyTargets(self) {
-    const {
-      target, scrollTarget, isWindow, options, itemsLength, scrollHeight,
-    } = self;
-    const { offset } = options;
-    const links = target.getElementsByTagName('A');
-
-    self.scrollTop = isWindow
-      ? scrollTarget.pageYOffset
-      : scrollTarget.scrollTop;
-
-    // only update items/offsets once or with each mutation
-    if (itemsLength !== links.length || getScrollHeight(scrollTarget) !== scrollHeight) {
-      let href;
-      let targetItem;
-      let rect;
-
-      // reset arrays & update
-      self.items = [];
-      self.offsets = [];
-      self.scrollHeight = getScrollHeight(scrollTarget);
-      self.maxScroll = self.scrollHeight - getOffsetHeight(self);
-
-      Array.from(links).forEach((link) => {
-        href = link.getAttribute('href');
-        targetItem = href && href.charAt(0) === '#' && href.slice(-1) !== '#' && queryElement(href);
-
-        if (targetItem) {
-          self.items.push(link);
-          rect = targetItem.getBoundingClientRect();
-          self.offsets.push((isWindow ? rect.top + self.scrollTop : targetItem.offsetTop) - offset);
-        }
-      });
-      self.itemsLength = self.items.length;
-    }
-  }
-
-  function getScrollHeight(scrollTarget) {
-    return scrollTarget.scrollHeight || Math.max(
-      document.body.scrollHeight,
-      document.documentElement.scrollHeight,
-    );
-  }
-
-  function getOffsetHeight({ element, isWindow }) {
-    if (!isWindow) return element.getBoundingClientRect().height;
-    return window.innerHeight;
-  }
-
-  function clear(target) {
-    Array.from(target.getElementsByTagName('A')).forEach((item) => {
-      if (hasClass(item, activeClass)) removeClass(item, activeClass);
-    });
-  }
-
-  function activate(self, item) {
-    const { target, element } = self;
-    clear(target);
-    self.activeItem = item;
-    addClass(item, activeClass);
-
-    // activate all parents
-    const parents = [];
-    let parentItem = item;
-    while (parentItem !== document.body) {
-      parentItem = parentItem.parentNode;
-      if (hasClass(parentItem, 'nav') || hasClass(parentItem, 'dropdown-menu')) parents.push(parentItem);
-    }
-
-    parents.forEach((menuItem) => {
-      const parentLink = menuItem.previousElementSibling;
-
-      if (parentLink && !hasClass(parentLink, activeClass)) {
-        addClass(parentLink, activeClass);
-      }
-    });
-
-    // update relatedTarget and dispatch
-    activateScrollSpy.relatedTarget = item;
-    element.dispatchEvent(activateScrollSpy);
-  }
-
-  function toggleSpyHandlers(self, add) {
-    const action = add ? addEventListener : removeEventListener;
-    self.scrollTarget[action]('scroll', self.refresh, passiveHandler);
-  }
-
-  // SCROLLSPY DEFINITION
-  // ====================
-  class ScrollSpy extends BaseComponent {
-    constructor(target, config) {
-      super(scrollspyComponent, target, scrollSpyDefaultOptions, config);
-      // bind
-      const self = this;
-
-      // initialization element & options
-      const { element, options } = self;
-
-      // additional properties
-      self.target = queryElement(options.target);
-
-      // invalidate
-      if (!self.target) return;
-
-      // set initial state
-      self.scrollTarget = element.clientHeight < element.scrollHeight ? element : window;
-      self.isWindow = self.scrollTarget === window;
-      self.scrollTop = 0;
-      self.maxScroll = 0;
-      self.scrollHeight = 0;
-      self.activeItem = null;
-      self.items = [];
-      self.offsets = [];
-
-      // bind events
-      self.refresh = self.refresh.bind(self);
-
-      // add event handlers
-      toggleSpyHandlers(self, 1);
-
-      self.refresh();
-    }
-
-    // SCROLLSPY PUBLIC METHODS
-    // ========================
-    refresh() {
-      const self = this;
-      const { target } = self;
-
-      // check if target is visible and invalidate
-      if (target.offsetHeight === 0) return;
-
-      updateSpyTargets(self);
-
-      const {
-        scrollTop, maxScroll, itemsLength, items, activeItem,
-      } = self;
-
-      if (scrollTop >= maxScroll) {
-        const newActiveItem = items[itemsLength - 1];
-
-        if (activeItem !== newActiveItem) {
-          activate(self, newActiveItem);
-        }
-        return;
-      }
-
-      const { offsets } = self;
-
-      if (activeItem && scrollTop < offsets[0] && offsets[0] > 0) {
-        self.activeItem = null;
-        clear(target);
-        return;
-      }
-
-      items.forEach((item, i) => {
-        if (activeItem !== item && scrollTop >= offsets[i]
-          && (typeof offsets[i + 1] === 'undefined' || scrollTop < offsets[i + 1])) {
-          activate(self, item);
-        }
-      });
-    }
-
-    dispose() {
-      toggleSpyHandlers(this);
-      super.dispose(scrollspyComponent);
-    }
-  }
-
-  ScrollSpy.init = {
-    component: scrollspyComponent,
-    selector: scrollspySelector,
-    constructor: ScrollSpy,
-  };
-
-  /* Native JavaScript for Bootstrap 5 | Toast
-  -------------------------------------------- */
-
-  // TOAST PRIVATE GC
-  // ================
-  const toastString = 'toast';
-  const toastComponent = 'Toast';
-  const toastSelector = `.${toastString}`;
-  const toastDismissSelector = `[${dataBsDismiss}="${toastString}"]`;
-  const showingClass = 'showing';
-  const hideClass = 'hide';
-  const toastDefaultOptions = {
-    animation: true,
-    autohide: true,
-    delay: 500,
-  };
-
-  // TOAST CUSTOM EVENTS
-  // ===================
-  const showToastEvent = bootstrapCustomEvent(`show.bs.${toastString}`);
-  const hideToastEvent = bootstrapCustomEvent(`hide.bs.${toastString}`);
-  const shownToastEvent = bootstrapCustomEvent(`shown.bs.${toastString}`);
-  const hiddenToastEvent = bootstrapCustomEvent(`hidden.bs.${toastString}`);
-
-  // TOAST PRIVATE METHODS
-  // =====================
-  function showToastComplete(self) {
-    const { element, options } = self;
-    if (!options.animation) {
-      removeClass(element, showingClass);
-      addClass(element, showClass);
-    }
-
-    element.dispatchEvent(shownToastEvent);
-    if (options.autohide) self.hide();
-  }
-
-  function hideToastComplete(self) {
-    const { element } = self;
-    addClass(element, hideClass);
-    element.dispatchEvent(hiddenToastEvent);
-  }
-
-  function closeToast(self) {
-    const { element, options } = self;
-    removeClass(element, showClass);
-
-    if (options.animation) {
-      reflow(element);
-      emulateTransitionEnd(element, () => hideToastComplete(self));
-    } else {
-      hideToastComplete(self);
-    }
-  }
-
-  function openToast(self) {
-    const { element, options } = self;
-    removeClass(element, hideClass);
-
-    if (options.animation) {
-      reflow(element);
-      addClass(element, showingClass);
-      addClass(element, showClass);
-
-      emulateTransitionEnd(element, () => showToastComplete(self));
-    } else {
-      showToastComplete(self);
-    }
-  }
-
-  function toggleToastHandler(self, add) {
-    const action = add ? addEventListener : removeEventListener;
-    if (self.dismiss) {
-      self.dismiss[action]('click', self.hide);
-    }
-  }
-
-  // TOAST EVENT HANDLERS
-  // ====================
-  function completeDisposeToast(self) {
-    clearTimeout(self.timer);
-    toggleToastHandler(self);
-  }
-
-  // TOAST DEFINITION
-  // ================
-  class Toast extends BaseComponent {
-    constructor(target, config) {
-      super(toastComponent, target, toastDefaultOptions, config);
-      // bind
-      const self = this;
-
-      // dismiss button
-      self.dismiss = queryElement(toastDismissSelector, self.element);
-
-      // bind
-      self.show = self.show.bind(self);
-      self.hide = self.hide.bind(self);
-
-      // add event listener
-      toggleToastHandler(self, 1);
-    }
-
-    // TOAST PUBLIC METHODS
-    // ====================
-    show() {
-      const self = this;
-      const { element } = self;
-      if (element && hasClass(element, hideClass)) {
-        element.dispatchEvent(showToastEvent);
-        if (showToastEvent.defaultPrevented) return;
-
-        addClass(element, fadeClass);
-        clearTimeout(self.timer);
-        self.timer = setTimeout(() => openToast(self), 10);
-      }
-    }
-
-    hide(noTimer) {
-      const self = this;
-      const { element, options } = self;
-
-      if (element && hasClass(element, showClass)) {
-        element.dispatchEvent(hideToastEvent);
-        if (hideToastEvent.defaultPrevented) return;
-
-        clearTimeout(self.timer);
-        self.timer = setTimeout(() => closeToast(self),
-          noTimer ? 10 : options.delay);
-      }
-    }
-
-    dispose() {
-      const self = this;
-      const { element, options } = self;
-      self.hide();
-
-      if (options.animation) emulateTransitionEnd(element, () => completeDisposeToast(self));
-      else completeDisposeToast(self);
-
-      super.dispose(toastComponent);
-    }
-  }
-
-  Toast.init = {
-    component: toastComponent,
-    selector: toastSelector,
-    constructor: Toast,
-  };
-
-  const dataOriginalTitle = 'data-original-title';
-
-  /* Native JavaScript for Bootstrap 5 | Tooltip
-  ---------------------------------------------- */
-
-  // TOOLTIP PRIVATE GC
-  // ==================
-  const tooltipString = 'tooltip';
-  const tooltipComponent = 'Tooltip';
-  const tooltipSelector = `[${dataBsToggle}="${tooltipString}"],[data-tip="${tooltipString}"]`;
-
-  const titleAttr = 'title';
-  const tooltipInnerClass = `${tooltipString}-inner`;
-  const tooltipDefaultOptions = {
-    title: null,
-    template: '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
-    placement: 'top',
-    animation: true,
-    customClass: null,
-    delay: 200,
-    sanitizeFn: null,
-  };
-
-  // TOOLTIP CUSTOM EVENTS
-  // =====================
-  const showTooltipEvent = bootstrapCustomEvent(`show.bs.${tooltipString}`);
-  const shownTooltipEvent = bootstrapCustomEvent(`shown.bs.${tooltipString}`);
-  const hideTooltipEvent = bootstrapCustomEvent(`hide.bs.${tooltipString}`);
-  const hiddenTooltipEvent = bootstrapCustomEvent(`hidden.bs.${tooltipString}`);
-
-  // TOOLTIP PRIVATE METHODS
-  // =======================
-  function createTooltip(self) {
-    const { options, id } = self;
-    const placementClass = `bs-${tooltipString}-${tipClassPositions[options.placement]}`;
-    let titleString = options.title.trim();
-
-    // sanitize stuff
-    if (options.sanitizeFn) {
-      titleString = options.sanitizeFn(titleString);
-      options.template = options.sanitizeFn(options.template);
-    }
-
-    if (!titleString) return;
-
-    // create tooltip
-    self.tooltip = document.createElement('div');
-    const { tooltip } = self;
-
-    // set aria
-    tooltip.setAttribute('id', id);
-
-    // set markup
-    const tooltipMarkup = document.createElement('div');
-    tooltipMarkup.innerHTML = options.template.trim();
-
-    tooltip.className = tooltipMarkup.firstChild.className;
-    tooltip.innerHTML = tooltipMarkup.firstChild.innerHTML;
-
-    queryElement(`.${tooltipInnerClass}`, tooltip).innerHTML = titleString;
-
-    // set arrow
-    self.arrow = queryElement(`.${tooltipString}-arrow`, tooltip);
-
-    // set class and role attribute
-    tooltip.setAttribute('role', tooltipString);
-    // set classes
-    if (!hasClass(tooltip, tooltipString)) addClass(tooltip, tooltipString);
-    if (options.animation && !hasClass(tooltip, fadeClass)) addClass(tooltip, fadeClass);
-    if (options.customClass && !hasClass(tooltip, options.customClass)) {
-      addClass(tooltip, options.customClass);
-    }
-    if (!hasClass(tooltip, placementClass)) addClass(tooltip, placementClass);
-  }
-
-  function removeTooltip(self) {
-    const { element, options, tooltip } = self;
-    element.removeAttribute(ariaDescribedBy);
-    options.container.removeChild(tooltip);
-    self.timer = null;
-  }
-
-  function disposeTooltipComplete(self) {
-    const { element } = self;
-    toggleTooltipHandlers(self);
-    if (element.hasAttribute(dataOriginalTitle)) toggleTooltipTitle(self);
-  }
-  function toggleTooltipAction(self, add) {
-    const action = add ? addEventListener : removeEventListener;
-
-    document[action]('touchstart', tooltipTouchHandler, passiveHandler);
-
-    if (!isMedia(self.element)) {
-      window[action]('scroll', self.update, passiveHandler);
-      window[action]('resize', self.update, passiveHandler);
-    }
-  }
-  function tooltipShownAction(self) {
-    toggleTooltipAction(self, 1);
-    self.element.dispatchEvent(shownTooltipEvent);
-  }
-  function tooltipHiddenAction(self) {
-    toggleTooltipAction(self);
-    removeTooltip(self);
-    self.element.dispatchEvent(hiddenTooltipEvent);
-  }
-  function toggleTooltipHandlers(self, add) {
-    const action = add ? addEventListener : removeEventListener;
-    const { element } = self;
-
-    if (isMedia(element)) element[action]('mousemove', self.update, passiveHandler);
-    element[action]('mousedown', self.show);
-    element[action]('mouseenter', self.show);
-    element[action]('mouseleave', self.hide);
-  }
-
-  function toggleTooltipTitle(self, content) {
-    // [0 - add, 1 - remove] | [0 - remove, 1 - add]
-    const titleAtt = [dataOriginalTitle, titleAttr];
-    const { element } = self;
-
-    element.setAttribute(titleAtt[content ? 0 : 1],
-      (content || element.getAttribute(titleAtt[0])));
-    element.removeAttribute(titleAtt[content ? 1 : 0]);
-  }
-
-  // TOOLTIP EVENT HANDLERS
-  // ======================
-  function tooltipTouchHandler({ target }) {
-    const { tooltip, element } = this;
-    if (tooltip.contains(target) || target === element || element.contains(target)) ; else {
-      this.hide();
-    }
-  }
-
-  // TOOLTIP DEFINITION
-  // ==================
-  class Tooltip extends BaseComponent {
-    constructor(target, config) {
-      // initialization element
-      const element = queryElement(target);
-      tooltipDefaultOptions.title = element.getAttribute(titleAttr);
-      tooltipDefaultOptions.container = getTipContainer(element);
-      super(tooltipComponent, element, tooltipDefaultOptions, config);
-
-      // bind
-      const self = this;
-
-      // additional properties
-      self.tooltip = null;
-      self.arrow = null;
-      self.timer = null;
-      self.enabled = false;
-
-      // instance options
-      const { options } = self;
-
-      // media elements only work with body as a container
-      self.options.container = isMedia(element)
-        ? tooltipDefaultOptions.container
-        : queryElement(options.container);
-
-      // reset default options
-      tooltipDefaultOptions.container = null;
-      tooltipDefaultOptions[titleAttr] = null;
-
-      // invalidate
-      if (!options.title) return;
-
-      // all functions bind
-      tooltipTouchHandler.bind(self);
-      self.update = self.update.bind(self);
-
-      // set title attributes and add event listeners
-      if (element.hasAttribute(titleAttr)) toggleTooltipTitle(self, options.title);
-
-      // create tooltip here
-      self.id = `${tooltipString}-${getUID(element)}`;
-      createTooltip(self);
-
-      // attach events
-      toggleTooltipHandlers(self, 1);
-    }
-
-    // TOOLTIP PUBLIC METHODS
-    // ======================
-    show(e) {
-      const self = e ? this[tooltipComponent] : this;
-      const {
-        options, tooltip, element, id,
-      } = self;
-      clearTimeout(self.timer);
-      self.timer = setTimeout(() => {
-        if (!isVisibleTip(tooltip, options.container)) {
-          element.dispatchEvent(showTooltipEvent);
-          if (showTooltipEvent.defaultPrevented) return;
-
-          // append to container
-          options.container.appendChild(tooltip);
-          element.setAttribute(ariaDescribedBy, id);
-
-          self.update(e);
-          if (!hasClass(tooltip, showClass)) addClass(tooltip, showClass);
-          if (options.animation) emulateTransitionEnd(tooltip, () => tooltipShownAction(self));
-          else tooltipShownAction(self);
-        }
-      }, 20);
-    }
-
-    hide(e) {
-      const self = e ? this[tooltipComponent] : this;
-      const { options, tooltip, element } = self;
-
-      clearTimeout(self.timer);
-      self.timer = setTimeout(() => {
-        if (isVisibleTip(tooltip, options.container)) {
-          element.dispatchEvent(hideTooltipEvent);
-          if (hideTooltipEvent.defaultPrevented) return;
-
-          removeClass(tooltip, showClass);
-          if (options.animation) emulateTransitionEnd(tooltip, () => tooltipHiddenAction(self));
-          else tooltipHiddenAction(self);
-        }
-      }, options.delay);
-    }
-
-    update(e) {
-      styleTip(this, e);
-    }
-
-    toggle() {
-      const self = this;
-      const { tooltip, options } = self;
-      if (!isVisibleTip(tooltip, options.container)) self.show();
-      else self.hide();
-    }
-
-    enable() {
-      const self = this;
-      const { enabled } = self;
-      if (!enabled) {
-        toggleTooltipHandlers(self, 1);
-        self.enabled = !enabled;
-      }
-    }
-
-    disable() {
-      const self = this;
-      const { tooltip, options, enabled } = self;
-      if (enabled) {
-        if (!isVisibleTip(tooltip, options.container) && options.animation) {
-          self.hide();
-
-          setTimeout(
-            () => toggleTooltipHandlers(self),
-            getElementTransitionDuration(tooltip) + options.delay + 17,
-          );
-        } else {
-          toggleTooltipHandlers(self);
-        }
-        self.enabled = !enabled;
-      }
-    }
-
-    toggleEnabled() {
-      const self = this;
-      if (!self.enabled) self.enable();
-      else self.disable();
-    }
-
-    dispose() {
-      const self = this;
-      const { tooltip, options } = self;
-
-      if (options.animation && isVisibleTip(tooltip, options.container)) {
-        options.delay = 0; // reset delay
-        self.hide();
-        emulateTransitionEnd(tooltip, () => disposeTooltipComplete(self));
-      } else {
-        disposeTooltipComplete(self);
-      }
-      super.dispose(tooltipComponent);
-    }
-  }
-
-  Tooltip.init = {
-    component: tooltipComponent,
-    selector: tooltipSelector,
-    constructor: Tooltip,
-  };
-
   // import { alertInit } from '../components/alert-native.js';
   // import { buttonInit } from '../components/button-native.js';
   // import { carouselInit } from '../components/carousel-native.js';
@@ -3522,10 +2887,7 @@
     Modal: Modal.init,
     Offcanvas: Offcanvas.init,
     Popover: Popover.init,
-    ScrollSpy: ScrollSpy.init,
     Tab: Tab.init,
-    Toast: Toast.init,
-    Tooltip: Tooltip.init,
   };
 
   function initializeDataAPI(Konstructor, collection) {
@@ -3548,6 +2910,7 @@
   }
 
   var indexMympd = {
+    Alert,
     Button,
     Carousel,
     Collapse,
