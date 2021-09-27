@@ -86,6 +86,12 @@ UTEST(validate, test_validate_isname) {
     //invalid
     data = sdscat(data, "asdfsfdjl\n");
     ASSERT_FALSE(vcb_isname(data));
+    sdsclear(data);
+    data = sdscat(data, "sdaf\\u4589");
+    ASSERT_FALSE(vcb_isname(data));
+    sdsclear(data);
+    data = sdscat(data, "sdaf\a4589");
+    ASSERT_FALSE(vcb_isname(data));
     sdsfree(data);    
 }
 
