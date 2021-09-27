@@ -242,7 +242,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
     }
     else if (strcmp(key, "volumeMin") == 0) {
         int volume_min = (int)strtoimax(value, NULL, 10);
-        if (volume_min < 0 || volume_min > 100) {
+        if (volume_min < VOLUME_MIN || volume_min > VOLUME_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
         }
@@ -250,7 +250,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
     }
     else if (strcmp(key, "volumeMax") == 0) {
         int volume_max = (int)strtoimax(value, NULL, 10);
-        if (volume_max < 0 || volume_max > 100) {
+        if (volume_max < VOLUME_MIN || volume_max > VOLUME_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
         }
@@ -258,7 +258,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
     }
     else if (strcmp(key, "volumeStep") == 0) {
         int volume_step = (int)strtoimax(value, NULL, 10);
-        if (volume_step < 1 || volume_step > 25) {
+        if (volume_step < VOLUME_STEP_MIN || volume_step > VOLUME_STEP_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
         }
@@ -313,7 +313,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
     }
     else if (strcmp(key, "smartplsInterval") == 0) {
         time_t interval = strtoimax(value, NULL, 10);
-        if (interval < 360 || interval > 604800) {
+        if (interval < TIMER_INTERVAL_MIN || interval > TIMER_INTERVAL_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
         }
@@ -323,7 +323,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
         }
     }
     else if (strcmp(key, "smartplsGenerateTagList") == 0) {
-        if (vcb_ismpdtag(value) == false) {
+        if (sdslen(value) > 0 && vcb_ismpdtag(value) == false) {
             *error = set_invalid_value(*error, key, value);
             return false;
         }
@@ -362,7 +362,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
     }
     else if (strcmp(key, "covercacheKeepDays") == 0) {
         int covercache_keep_days = (int)strtoimax(value, NULL, 10);
-        if (covercache_keep_days < 0 || covercache_keep_days > 365) {
+        if (covercache_keep_days < COVERCACHE_AGE_MIN || covercache_keep_days > COVERCACHE_AGE_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
         }
@@ -423,7 +423,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
     }
     else if (strcmp(key, "jukeboxQueueLength") == 0) {
         int jukebox_queue_length = (int)strtoimax(value, NULL, 10);
-        if (jukebox_queue_length <= 0 || jukebox_queue_length > 999) {
+        if (jukebox_queue_length <= 0 || jukebox_queue_length > JUKEBOX_QUEUE_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
         }
