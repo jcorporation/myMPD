@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
- SPDX-License-Identifier: GPL-3.0-or-later
+ SPDX-License-Identifier: Gps-3.0-or-later
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 -->
@@ -54,34 +54,34 @@
         </a>
         <div class="dropdown-menu bg-lite-dark" id="mainMenuDropdown">
           <a data-phrase="Add stream" class="dropdown-item text-light" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["stream"]}'></a>
-          <a id="navDBupdate" class="subMenu dropdown-item text-light" data-toggle="collapse" href="#menu-dbupdate"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Update"></span></a>
+          <a id="navDBupdate" class="subMenu dropdown-item text-light" data-bs-toggle="collapse" href="#menu-dbupdate"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Update"></span></a>
           <div class="collapse menu-indent" id="menu-dbupdate">
             <a data-phrase="Update database" class="dropdown-item text-light" href="#" data-href='{"cmd": "updateDB", "options": ["", true, false]}'></a>
             <a data-phrase="Rescan database" class="dropdown-item text-light" href="#" data-href='{"cmd": "updateDB", "options": ["", true, true]}'></a>
             <a data-phrase="Update smart playlists" class="dropdown-item text-light bg-lite-dark featSmartpls" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": [false]}'></a>
           </div>
-          <a id="navSettings" class="subMenu dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#menu-settings"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Settings"></span></a>
+          <a id="navSettings" class="subMenu dropdown-item text-light alwaysEnabled" data-bs-toggle="collapse" href="#menu-settings"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Settings"></span></a>
           <div id="menu-settings" class="collapse menu-indent">
-            <a data-phrase="MPD connection" class="dropdown-item text-light alwaysEnabled" href="#" data-toggle="modal" data-target="#modalConnection"></a>
-            <a data-phrase="Settings" class="dropdown-item text-light" href="#" data-toggle="modal" data-target="#modalSettings"></a>
-            <a data-phrase="Scripts" class="dropdown-item text-light featScripting" href="#" data-toggle="modal" data-target="#modalScripts"></a>
-            <a data-phrase="Timer" class="dropdown-item text-light featTimer" href="#" data-toggle="modal" data-target="#modalTimer"></a>
-            <a data-phrase="Trigger" class="dropdown-item text-light featTrigger" href="#" data-toggle="modal" data-target="#modalTrigger"></a>
-            <a data-phrase="Mounts" class="dropdown-item text-light featMounts" href="#" data-toggle="modal" data-target="#modalMounts"></a>
-            <a data-phrase="Partitions" class="dropdown-item text-light featPartitions" href="#" data-toggle="modal" data-target="#modalPartitions"></a>
+            <a data-phrase="MPD connection" class="dropdown-item text-light alwaysEnabled" href="#" data-bs-toggle="modal" data-bs-target="#modalConnection"></a>
+            <a data-phrase="Settings" class="dropdown-item text-light" href="#" data-bs-toggle="modal" data-bs-target="#modalSettings"></a>
+            <a data-phrase="Scripts" class="dropdown-item text-light featScripting" href="#" data-bs-toggle="modal" data-bs-target="#modalScripts"></a>
+            <a data-phrase="Timer" class="dropdown-item text-light featTimer" href="#" data-bs-toggle="modal" data-bs-target="#modalTimer"></a>
+            <a data-phrase="Trigger" class="dropdown-item text-light featTrigger" href="#" data-bs-toggle="modal" data-bs-target="#modalTrigger"></a>
+            <a data-phrase="Mounts" class="dropdown-item text-light featMounts" href="#" data-bs-toggle="modal" data-bs-target="#modalMounts"></a>
+            <a data-phrase="Partitions" class="dropdown-item text-light featPartitions" href="#" data-bs-toggle="modal" data-bs-target="#modalPartitions"></a>
           </div>
           <a data-phrase="Fullscreen" class="dropdown-item text-light" href="#" data-href='{"cmd": "openFullscreen", "options": []}'></a>
           <a data-phrase="Browse directories" class="dropdown-item text-light featLibrary" href="browse/" target="_blank"></a>
-          <a data-phrase="About" class="dropdown-item text-light" href="#" data-toggle="modal" data-target="#modalAbout"></a>
+          <a data-phrase="About" class="dropdown-item text-light" href="#" data-bs-toggle="modal" data-bs-target="#modalAbout"></a>
           <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item text-light hide" href="#"></a>
           <a data-phrase="Login" id="mmLogin" data-href='{"cmd": "enterPin", "options": []}' class="dropdown-item text-light" href="#"></a>
           <a data-phrase="Logout" id="mmLogout" data-href='{"cmd": "removeSession", "options": []}' class="dropdown-item text-light hide" href="#"></a>
-          <a id="navScripting" class="subMenu featScripting dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#scripts"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
+          <a id="navScripting" class="subMenu featScripting dropdown-item text-light alwaysEnabled" data-bs-toggle="collapse" href="#scripts"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
           <div id="scripts" class="featScripting noInitChilds collapse"></div>
           <div class="dropdown-divider"></div>
-          <a id="navNotifications" class="subMenu dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#menu-notifications"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Notifications"></span></a>
+          <a id="navNotifications" class="subMenu dropdown-item text-light alwaysEnabled" data-bs-toggle="collapse" href="#menu-notifications"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Notifications"></span></a>
           <div id="menu-notifications" class="collapse menu-indent">
-            <div id="logOverview" class="pl-2 pb-0 pr-2"></div>
+            <div id="logOverview" class="ps-2 pb-0 pe-2"></div>
           </div>
         </div>
       </div>
@@ -115,14 +115,14 @@
             <button disabled="disabled" data-title-phrase="Dislike song" id="btnVoteDown" data-href='{"cmd": "voteCurrentSong", "options": [0]}' class="btn btn-secondary mi">thumb_down</button>
             <button disabled="disabled" data-title-phrase="Like song" id="btnVoteUp" data-href='{"cmd": "voteCurrentSong", "options": [2]}' class="btn btn-secondary mi">thumb_up</button>
           </div>
-          <div class="btn-group btn-group featPlaylists ml-2">
+          <div class="btn-group btn-group featPlaylists ms-2">
             <button disabled="disabled" id="addCurrentSongToPlaylist" data-title-phrase="Add to playlist" data-href='{"cmd": "showAddToPlaylistCurrentSong", "options": []}' class="btn btn-secondary mi">playlist_add</button>
           </div>
-          <div class="btn-group ml-2">
-            <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary mi" data-toggle="modal" data-target="#modalQueueSettings">tune</button>
+          <div class="btn-group ms-2">
+            <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalQueueSettings">tune</button>
           </div>
-          <div class="btn-group ml-2 featTags">
-            <button data-title-phrase="Display tags" id="PlaybackColsBtn" class="btn btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">settings</span></button>
+          <div class="btn-group ms-2 featTags">
+            <button data-title-phrase="Display tags" id="PlaybackColsBtn" class="btn btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">settings</span></button>
             <div class="dropdown-menu text-light bg-lite-dark px-2" id="PlaybackColsDropdown"><form></form>
               <button data-phrase="Apply" data-href='{"cmd": "saveColsPlayback", "options": ["Playback"]}' class="btn btn-success btn-block btn-sm mt-2"></button>
             </div>
@@ -142,38 +142,38 @@
     <div class="card hide" id="cardQueue">
       <div class="card-body hide" id="tabQueueCurrent">
         <div class="btn-toolbar card-toolbar" id="QueueCurrentButtonsTop">
-          <div class="btn-group mr-2">
-            <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
+          <div class="btn-group me-2">
+            <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
               <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
               <button data-phrase="LastPlayed" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
               <button data-phrase="Jukebox" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Jukebox"]}'></button>
             </div>
           </div>
-          <div class="btn-group mr-2">
-            <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary mi" data-toggle="modal" data-target="#modalQueueSettings">tune</button>
+          <div class="btn-group me-2">
+            <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalQueueSettings">tune</button>
           </div>
-          <div class="btn-group mr-2 featPlaylists">
-            <button data-title-phrase="Save queue" type="button" class="btn btn-secondary mi" data-toggle="modal" data-target="#modalSaveQueue">save</button>
+          <div class="btn-group me-2 featPlaylists">
+            <button data-title-phrase="Save queue" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalSaveQueue">save</button>
           </div>
-          <div class="btn-group mr-2">
+          <div class="btn-group me-2">
             <button data-title-phrase="Shuffle queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_SHUFFLE"}]}'>shuffle</button>
           </div>
-          <div class="btn-group mr-2">
-            <button data-title-phrase="Add to queue" type="button" class="btn btn-secondary mi" data-toggle="modal" data-target="#modalAddToQueue">add_to_queue</button>
+          <div class="btn-group me-2">
+            <button data-title-phrase="Add to queue" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalAddToQueue">add_to_queue</button>
           </div>
-          <div class="btn-group mr-2">
+          <div class="btn-group me-2">
             <button data-title-phrase="Crop queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "clearQueue", "options": []}'>clear_all</button>
-            <button id="clearQueueBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
+            <button id="clearQueueBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-bs-toggle="dropdown"></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="clearQueueDropdown">
               <button data-phrase="Clear queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}]}' ></button>
               <button data-phrase="Crop queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}]}' ></button>
             </div>
           </div>
-          <form id="searchqueue" class="flex-grow-1 mr-2">
+          <form id="searchqueue" class="flex-grow-1 me-2">
             <div class="input-group">
               <div class="input-group-prepend">
-                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                   <span class="mi">search</span>
                   <span data-phrase="Any Tag" id="searchqueuetagsdesc"></span>
                 </button>
@@ -183,13 +183,13 @@
               <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search queue" type="text" class="form-control border-secondary rounded-right" id="searchqueuestr"/>
             </div>
           </form>
-          <div class="btn-group mr-2">
+          <div class="btn-group me-2">
             <button id="btnQueueGotoPlayingSong" data-title-phrase="Goto playing song" type="button" class="btn btn-secondary mi" data-href='{"cmd": "gotoPlayingSong", "options": []}'>playlist_play</button>
           </div>
-          <div class="btn-group mr-2 featHome">
+          <div class="btn-group me-2 featHome">
             <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
-          <div id="QueueCurrentPaginationTop" class="btn-group mr-2 pagination hide">
+          <div id="QueueCurrentPaginationTop" class="btn-group me-2 pagination hide">
           </div>
         </div>
 
@@ -217,18 +217,18 @@
 
       <div class="card-body hide" id="tabQueueLastPlayed">
         <div class="btn-toolbar card-toolbar">
-          <div class="btn-group mr-2">
-            <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
+          <div class="btn-group me-2">
+            <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
               <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
               <button data-phrase="LastPlayed" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
               <button data-phrase="Jukebox" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Jukebox"]}'></button>
             </div>
           </div>
-          <div class="btn-group mr-2 featHome">
+          <div class="btn-group me-2 featHome">
             <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
-          <div id="QueueLastPlayedPaginationTop" class="btn-group mr-2 pagination hide">
+          <div id="QueueLastPlayedPaginationTop" class="btn-group me-2 pagination hide">
           </div>
         </div>
 
@@ -254,18 +254,18 @@
 
       <div class="card-body hide" id="tabQueueJukebox">
         <div class="btn-toolbar card-toolbar">
-          <div class="btn-group mr-2">
-            <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
+          <div class="btn-group me-2">
+            <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
               <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
               <button data-phrase="LastPlayed" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
               <button data-phrase="Jukebox" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "Jukebox"]}'></button>
             </div>
           </div>
-          <div class="btn-group mr-2 featHome">
+          <div class="btn-group me-2 featHome">
             <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
-          <div id="QueueJukeboxPaginationTop" class="btn-group mr-2 pagination hide">
+          <div id="QueueJukeboxPaginationTop" class="btn-group me-2 pagination hide">
           </div>
         </div>
         <div class="table-responsive-md">
@@ -294,21 +294,21 @@
       <div class="card-body hide" id="tabBrowsePlaylists">
         <div id="viewBrowsePlaylistsList">
           <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsAllButtons">
-            <div class="btn-group mr-2">
-              <button data-title-phrase="Select view" id="BrowseNavPlaylists" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
+            <div class="btn-group me-2">
+              <button data-title-phrase="Select view" id="BrowseNavPlaylists" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
               <div class="dropdown-menu bg-lite-dark px-2" id="BrowseNavPlaylistsDropdown">
               </div>
             </div>
           <form id="searchPlaylistsAll" class="flex-grow-1">
-            <div class="input-group mr-2">
+            <div class="input-group me-2">
               <div class="input-group-prepend">
                 <span class="input-group-text border-secondary text-light bg-secondary"><span class="mi">search</span></span>
               </div>
               <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-right" id="searchPlaylistsListStr"/>
             </div>
           </form>          
-          <div class="btn-group mr-2 featSmartpls">
-            <button data-title-phrase="Add smart playlist" id="btnAddSmartpls" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">playlist_add</span></button>
+          <div class="btn-group me-2 featSmartpls">
+            <button data-title-phrase="Add smart playlist" id="btnAddSmartpls" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">playlist_add</span></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="dropdownAddSmartpls">
               <h2 class="dropdown-header text-light" data-phrase="Add smart playlist"></h2>
               <button data-phrase="Best rated" data-href='{"cmd": "addSmartpls", "options": ["bestRated"]}' type="button" class="btn btn-secondary btn-block"></button>
@@ -316,10 +316,10 @@
               <button data-phrase="Newest songs" data-href='{"cmd": "addSmartpls", "options": ["newest"]}' type="button" class="btn btn-secondary btn-block"></button>
             </div>
           </div>
-          <div class="btn-group mr-2 featHome">
+          <div class="btn-group me-2 featHome">
             <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
-          <div id="BrowsePlaylistsListPaginationTop" class="btn-group mr-2 pagination hide">
+          <div id="BrowsePlaylistsListPaginationTop" class="btn-group me-2 pagination hide">
           </div>
         </div>
           <div class="table-responsive-md">
@@ -340,22 +340,22 @@
         </div>
         <div id="viewBrowsePlaylistsDetail">
           <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsDetailButtons">
-            <div class="btn-group mr-2">
+            <div class="btn-group me-2">
               <button data-title-phrase="Playlists" data-href='{"cmd": "appGoto", "options": ["Browse", "Playlists", "List"]}' id="btnBrowsePlaylistsAll" type="button" class="btn btn-secondary"><span class="mi">apps</span></button>
             </div>
             <form id="searchPlaylistsDetail" class="flex-grow-1">
-              <div class="input-group mr-2">
+              <div class="input-group me-2">
                 <div class="input-group-prepend">
                   <span class="input-group-text border-secondary text-light bg-secondary"><span class="mi">search</span></span>
                 </div>
                 <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-right" id="searchPlaylistsDetailStr"/>
               </div>
             </form>          
-            <div class="btn-group mr-2" id="playlistContentBtns">
-              <button data-title-phrase="Clear playlist" type="button" class="btn btn-secondary mi rounded-right mr-2" data-href='{"cmd": "showClearPlaylist", "options": []}'>clear_all</button>
-              <button data-href='{"cmd": "playlistShuffle", "options": []}' class="btn btn-secondary mi rounded mr-2" type="button" data-title-phrase="Shuffle playlist">shuffle</button>
-              <div class="btn-group mr-2">
-                <button data-title-phrase="Sort playlist" id="btnSortPlaylist" class="btn btn-secondary dropdown-toggle rounded-left" type="button" data-toggle="dropdown"><span class="mi">sort</span></button>
+            <div class="btn-group me-2" id="playlistContentBtns">
+              <button data-title-phrase="Clear playlist" type="button" class="btn btn-secondary mi rounded-right me-2" data-href='{"cmd": "showClearPlaylist", "options": []}'>clear_all</button>
+              <button data-href='{"cmd": "playlistShuffle", "options": []}' class="btn btn-secondary mi rounded me-2" type="button" data-title-phrase="Shuffle playlist">shuffle</button>
+              <div class="btn-group me-2">
+                <button data-title-phrase="Sort playlist" id="btnSortPlaylist" class="btn btn-secondary dropdown-toggle rounded-left" type="button" data-bs-toggle="dropdown"><span class="mi">sort</span></button>
                 <div class="dropdown-menu bg-lite-dark px-2" id="dropdownSortPlaylist">
                   <h2 class="dropdown-header text-light" data-phrase="Sort playlist"></h2>
                   <div id="dropdownSortPlaylistTags">
@@ -364,12 +364,12 @@
               </div>
             </div>
             <div class="hide btn-group" id="smartPlaylistContentBtns">
-              <button data-title-phrase="Update smart playlist" type="button" class="btn btn-secondary mi rounded-right mr-2" data-href='{"cmd": "updateSmartPlaylistClick", "options": []}'>refresh</button>
+              <button data-title-phrase="Update smart playlist" type="button" class="btn btn-secondary mi rounded-right me-2" data-href='{"cmd": "updateSmartPlaylistClick", "options": []}'>refresh</button>
             </div>
-            <div class="btn-group mr-2 featHome">
+            <div class="btn-group me-2 featHome">
               <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
             </div>
-            <div id="BrowsePlaylistsDetailPaginationTop" class="btn-group mr-2 pagination hide">
+            <div id="BrowsePlaylistsDetailPaginationTop" class="btn-group me-2 pagination hide">
             </div>
           </div>
           <div class="table-responsive-md">
@@ -398,15 +398,15 @@
       <div class="card-body hide" id="tabBrowseDatabase">
         <div id="viewBrowseDatabaseList">
           <div class="btn-toolbar card-toolbar" id="BrowseDatabaseButtons">
-            <div class="btn-group mr-2">
-              <button data-title-phrase="Select view" id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
+            <div class="btn-group me-2">
+              <button data-title-phrase="Select view" id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
               <div class="dropdown-menu bg-lite-dark px-2" id="BrowseDatabaseByTagDropdown">
               </div>
             </div>
             <form id="searchdatabase" class="flex-grow-1">
-              <div class="input-group mr-2">
+              <div class="input-group me-2">
                 <div class="input-group-prepend">
-                  <button id="btnDatabaseSearchDropdown" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                  <button id="btnDatabaseSearchDropdown" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                     <span class="mi">search</span>
                     <span data-phrase="AlbumArtist" id="searchDatabaseTagsDesc"></span>
                   </button>
@@ -426,8 +426,8 @@
                 <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-right" id="searchDatabaseStr"/>
               </div>
             </form>
-            <div class="btn-group mr-2">
-              <button id="btnDatabaseSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">sort</span></button>
+            <div class="btn-group me-2">
+              <button id="btnDatabaseSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">sort</span></button>
               <div class="dropdown-menu bg-lite-dark px-2" id="databaseSortTags">
                 <div id="databaseSortTagsList">
                 </div>
@@ -438,10 +438,10 @@
                 </div>
               </div>
             </div>
-            <div class="btn-group mr-2 featHome">
+            <div class="btn-group me-2 featHome">
               <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
             </div>
-            <div id="BrowseDatabaseListPaginationTop" class="btn-group mr-2 pagination hide">
+            <div id="BrowseDatabaseListPaginationTop" class="btn-group me-2 pagination hide">
             </div>
           </div>
           <ol class="featAdvsearch breadcrumb hide" id="searchDatabaseCrumb"></ol>
@@ -454,25 +454,23 @@
         </div>
         <div id="viewBrowseDatabaseDetail">
           <div class="btn-toolbar card-toolbar">
-            <div class="input-group mr-2">
+            <div class="input-group me-2">
               <button class="btn btn-secondary mi" data-href='{"cmd": "backToAlbumGrid", "options": []}'>apps</button>
             </div>
-            <div class="input-group mr-2">
-              <div class="input-group-prepend">
-                <button data-title-phrase="Append to queue" class="btn btn-secondary mi" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}'>library_add</button>
-                <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
-                <div class="dropdown-menu bg-lite-dark px-2">
-                  <button data-phrase="Append to queue" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}' type="button" class="btn btn-secondary btn-sm btn-block"></button>
-                  <button data-phrase="Replace queue" data-href='{"cmd": "addAlbum", "options": ["replaceQueue"]}' type="button" class="btn btn-secondary btn-sm btn-block"></button>
-                  <button data-phrase="Add to playlist" data-href='{"cmd": "addAlbum", "options": ["addPlaylist"]}' type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
-                </div>
+            <div class="btn-group me-2">
+              <button data-title-phrase="Append to queue" class="btn btn-secondary mi" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}'>library_add</button>
+              <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-bs-toggle="dropdown"></button>
+              <div class="dropdown-menu bg-lite-dark px-2">
+                <button data-phrase="Append to queue" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}' type="button" class="btn btn-secondary btn-sm btn-block"></button>
+                <button data-phrase="Replace queue" data-href='{"cmd": "addAlbum", "options": ["replaceQueue"]}' type="button" class="btn btn-secondary btn-sm btn-block"></button>
+                <button data-phrase="Add to playlist" data-href='{"cmd": "addAlbum", "options": ["addPlaylist"]}' type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
               </div>
             </div>
-            <div class="btn-group mr-2 featHome">
+            <div class="btn-group me-2 featHome">
               <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
             </div>
           </div>
-          <div id="viewDetailDatabaseCover" class="mr-4 mb-3 album-cover album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'></div>
+          <div id="viewDetailDatabaseCover" class="me-4 mb-3 album-cover album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'></div>
           <div id="viewDetailDatabaseInfo"></div>
           <table id="BrowseDatabaseDetailList" class="table table-hover table-sm">
             <thead>
@@ -495,15 +493,15 @@
 
       <div class="card-body hide" id="tabBrowseFilesystem">
         <div class="btn-toolbar card-toolbar" id="BrowseFilesystemButtons">
-          <div class="btn-group mr-2">
-            <button data-title-phrase="Select view" id="BrowseNavFilesystem" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">layers</span></button>
+          <div class="btn-group me-2">
+            <button data-title-phrase="Select view" id="BrowseNavFilesystem" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="BrowseNavFilesystemDropdown">
             </div>
           </div>
-          <div class="input-group mr-2">
+          <div class="input-group me-2">
             <div class="input-group-prepend">
               <button data-title-phrase="Append to queue" data-href='{"cmd": "addAllFromBrowseFilesystem", "options": []}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary mi">library_add</button>
-              <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
+              <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-bs-toggle="dropdown"></button>
               <div class="dropdown-menu bg-lite-dark px-2" id="BrowseFilesystemAddAllSongsDropdown">
                 <button data-href='{"cmd": "addAllFromBrowseFilesystem", "options": [false]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
                 <button data-href='{"cmd": "addAllFromBrowseFilesystem", "options": [true]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
@@ -512,17 +510,17 @@
             </div>
           </div>
           <form class="flex-grow-1">
-            <div class="input-group mr-2">
+            <div class="input-group me-2">
               <div class="input-group-prepend">
                 <span class="input-group-text border-secondary text-light bg-secondary"><span class="mi">search</span></span>
               </div>
               <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-right" id="searchFilesystemStr"/>
             </div>
           </form>
-          <div class="btn-group mr-2 featHome">
+          <div class="btn-group me-2 featHome">
             <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
           </div>
-          <div id="BrowseFilesystemPaginationTop" class="btn-group mr-2 pagination hide">
+          <div id="BrowseFilesystemPaginationTop" class="btn-group me-2 pagination hide">
           </div>
         </div>
         <ol id="BrowseBreadcrumb" class="breadcrumb"></ol>
@@ -552,9 +550,9 @@
       <div class="card-body">
         <div class="btn-toolbar card-toolbar" id="SearchButtons">
           <form id="search" class="flex-grow-1">
-            <div class="input-group mr-2">
+            <div class="input-group me-2">
               <div class="input-group-prepend">
-                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                   <span class="mi">search</span>
                   <span data-phrase="Any Tag" id="searchtagsdesc"></span>
                 </button>
@@ -574,22 +572,20 @@
               <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-right" id="searchstr"/>
             </div>
           </form>
-          <div class="input-group mr-2">
-            <div class="input-group-prepend">
-              <button data-title-phrase="Append to queue" id="searchAddAllSongs" class="btn btn-secondary mi" data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}'>library_add</button>
-              <button id="searchAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
-              <div class="dropdown-menu bg-lite-dark px-2" id="searchAddAllSongsDropdown">
-                  <button data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
-                  <button data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, true]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
-                  <button data-href='{"cmd": "showAddToPlaylistCurrentSearch", "options": []}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
-                  <button data-href='{"cmd": "saveSearchAsSmartPlaylist", "options": []}' data-phrase="Save as smart playlist" type="button" class="btn btn-secondary btn-sm btn-block featSmartpls"></button>
-              </div>
+          <div class="btn-group me-2">
+            <button data-title-phrase="Append to queue" id="searchAddAllSongs" class="btn btn-secondary mi" data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}'>library_add</button>
+            <button id="searchAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown"></button>
+            <div class="dropdown-menu bg-lite-dark px-2" id="searchAddAllSongsDropdown">
+              <button data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
+              <button data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, true]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
+              <button data-href='{"cmd": "showAddToPlaylistCurrentSearch", "options": []}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
+              <button data-href='{"cmd": "saveSearchAsSmartPlaylist", "options": []}' data-phrase="Save as smart playlist" type="button" class="btn btn-secondary btn-sm btn-block featSmartpls"></button>
             </div>
           </div>
-          <div class="btn-group mr-2 featHome">
+          <div class="btn-group me-2 featHome">
             <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
           </div>
-          <div id="SearchPaginationTop" class="btn-group mr-2 pagination hide">
+          <div id="SearchPaginationTop" class="btn-group me-2 pagination hide">
           </div>
         </div>
         <ol class="featAdvsearch breadcrumb hide" id="searchCrumb"></ol>
@@ -622,30 +618,30 @@
     </div>
     <nav class="navbar navbar-expand navbar-dark bg-dark">
       <div class="btn-toolbar nav-item flex-nowrap">
-        <div class="btn-group mr-2" id="playControlBtns">
-          <button data-title-phrase="Previous" data-href='{"cmd": "clickPrev", "options": []}' id="btnPrev" type="button" class="btn btn-dark pl-2 pr-2 mi">skip_previous</button>
-          <button data-title-phrase="Stop" data-href='{"cmd": "clickStop", "options": []}' id="btnStop" type="button" class="btn btn-dark pl-2 pr-2 mi hide">stop</button>
-          <button data-title-phrase="Toggle play" data-href='{"cmd": "clickPlay", "options": []}' id="btnPlay" type="button" class="btnPlay btn btn-lg btn-dark pl-2 pr-2 mi mi-lg">pause</button>
-          <button data-title-phrase="Next" data-href='{"cmd": "clickNext", "options": []}' id="btnNext" type="button" class="btn btn-dark pl-2 pr-2 mi">skip_next</button>
+        <div class="btn-group me-2" id="playControlBtns">
+          <button data-title-phrase="Previous" data-href='{"cmd": "clickPrev", "options": []}' id="btnPrev" type="button" class="btn btn-dark ps-2 pe-2 mi">skip_previous</button>
+          <button data-title-phrase="Stop" data-href='{"cmd": "clickStop", "options": []}' id="btnStop" type="button" class="btn btn-dark ps-2 pe-2 mi hide">stop</button>
+          <button data-title-phrase="Toggle play" data-href='{"cmd": "clickPlay", "options": []}' id="btnPlay" type="button" class="btnPlay btn btn-lg btn-dark ps-2 pe-2 mi mi-lg">pause</button>
+          <button data-title-phrase="Next" data-href='{"cmd": "clickNext", "options": []}' id="btnNext" type="button" class="btn btn-dark ps-2 pe-2 mi">skip_next</button>
         </div>
         <div class="align-self-center footerCounter">
           <small id="counter" class="text-light">0:00&nbsp;/&nbsp;0:00</small>
         </div>
       </div>
-      <div class="d-flex flex-fill navbar-nav ml-3 text-light" id="footerInfo">
-        <div data-title-phrase="Show cover" id="footerCover" class="album-cover-loading rounded mr-3 clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'>
+      <div class="d-flex flex-fill navbar-nav ms-3 text-light" id="footerInfo">
+        <div data-title-phrase="Show cover" id="footerCover" class="album-cover-loading rounded me-3 clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'>
         </div>
         <div id="footerPlaying">
           <span id="footerTitle" class="notclickable" data-href='{"cmd": "clickTitle", "options": []}'>Title</span><br/>
           <span data-tag="Artist" id="footerArtist" data-href='{"cmd": "gotoBrowse", "options": ["event"]}'>Artist</span>&nbsp;&ndash;&nbsp;<span data-tag="Album" id="footerAlbum" data-href='{"cmd": "gotoBrowse", "options": ["event"]}'>Album</span>
         </div>
       </div>
-      <div class="btn-toolbar nav-item flex-nowrap ml-3">
-        <div class="btn-group ml-2 hide" id="footerQueueSettings">
-          <button data-title-phrase="Playback settings" type="button" class="btn btn-dark mi" data-toggle="modal" data-target="#modalQueueSettings">tune</button>
+      <div class="btn-toolbar nav-item flex-nowrap ms-3">
+        <div class="btn-group ms-2 hide" id="footerQueueSettings">
+          <button data-title-phrase="Playback settings" type="button" class="btn btn-dark mi" data-bs-toggle="modal" data-bs-target="#modalQueueSettings">tune</button>
         </div>
         <div class="btn-group dropup">
-          <button data-title-phrase="Outputs" id="volumeMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2" type="button" data-toggle="dropdown"><span class="mi">volume_up</span></button>
+          <button data-title-phrase="Outputs" id="volumeMenu" class="btn btn-dark dropdown-toggle ps-2 pe-2" type="button" data-bs-toggle="dropdown"><span class="mi">volume_up</span></button>
           <div class="dropdown-menu bg-lite-dark">
             <h2 class="dropdown-header text-light"><span data-phrase="Volume"></span>: <span id="volumePrct"></span></h2>
             <form class="px-4 py-0 pb-3" id="volumeControl">
@@ -660,12 +656,12 @@
             <div class="dropdown-divider"></div>
             <form id="outputs" class="px-4 py-3"></form>
             <div class="dropdown-divider featPartitions"></div>
-            <a class="dropdown-item text-light featPartitions" href="#" data-title-phrase="Manage partitions" data-toggle="modal" data-target="#modalPartitions"><span data-phrase="Current partition"></span>: <span id="partitionName"></span></a>
-            <a data-phrase="Move an output to this partition" class="dropdown-item text-light featPartitions" href="#" data-toggle="modal" data-target="#modalPartitionOutputs"></a>
+            <a class="dropdown-item text-light featPartitions" href="#" data-title-phrase="Manage partitions" data-bs-toggle="modal" data-bs-target="#modalPartitions"><span data-phrase="Current partition"></span>: <span id="partitionName"></span></a>
+            <a data-phrase="Move an output to this partition" class="dropdown-item text-light featPartitions" href="#" data-bs-toggle="modal" data-bs-target="#modalPartitionOutputs"></a>
           </div>
         </div>
-        <div class="btn-group dropup featLocalPlayback ml-2">
-          <button data-title-phrase="Local playback" id="localPlaybackMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2" type="button" data-toggle="dropdown"><span class="mi">airplay</span></button>
+        <div class="btn-group dropup featLocalPlayback ms-2">
+          <button data-title-phrase="Local playback" id="localPlaybackMenu" class="btn btn-dark dropdown-toggle ps-2 pe-2" type="button" data-bs-toggle="dropdown"><span class="mi">airplay</span></button>
           <div class="dropdown-menu bg-lite-dark">
             <h2 data-phrase="Local playback" class="dropdown-header dropdown-header-lx text-light"></h2>
             <div id="alertLocalPlayback" class="alert alert-warning mx-4 p-2 hide">
@@ -689,7 +685,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">update</span> <span data-phrase="Updating MPD database"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
           <p data-phrase="Dependent on the size of your music collection this can take a while"></p>
@@ -701,7 +697,7 @@
           <div id="errorUpdateDB" class="alert alert-danger hide" data-phrase="Database update failed"></div>
         </div>
         <div class="modal-footer hide" id="updateDBfooter">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>        
       </div>
     </div>
@@ -712,7 +708,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">playlist_add</span> <span id="addToPlaylistCaption" data-phrase="Add to playlist"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
           <form id="addStreamFrm" class="hide">
@@ -746,11 +742,11 @@
           </form>
         </div>
         <div class="modal-footer justify-content-between" id="addToPlaylistFooter">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "addToPlaylist", "options": []}' data-phrase="Add"></button>
         </div>
         <div class="modal-footer justify-content-between hide" id="addStreamFooter">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "addStream", "options": []}' data-phrase="Add"></button>
         </div>
       </div>
@@ -762,7 +758,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">playlist_add</span> <span data-phrase="Rename playlist"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
           <form id="renamePlaylistFrm">
@@ -778,7 +774,7 @@
           </form>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "renamePlaylist", "options": []}' data-phrase="Save"></button>
         </div>        
       </div>
@@ -790,7 +786,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">queue_music</span> <span data-phrase="Save smart playlist"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
           <form id="saveSmartPlaylistFrm">
@@ -860,7 +856,7 @@
           </form>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "saveSmartPlaylist", "options": []}' data-phrase="Save"></button>
         </div>        
       </div>
@@ -873,25 +869,25 @@
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
-              <a class="nav-link text-dark active" href="#tabGeneralSettings" data-toggle="tab" data-height="true" data-phrase="General"></a>
+              <a class="nav-link text-dark active" href="#tabGeneralSettings" data-bs-toggle="tab" data-height="true" data-phrase="General"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabInterfaceSettings" data-toggle="tab" data-height="true" data-phrase="Appearance"></a>
+              <a class="nav-link text-dark" href="#tabInterfaceSettings" data-bs-toggle="tab" data-height="true" data-phrase="Appearance"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabEnableFeatures" data-toggle="tab" data-height="true" data-phrase="Features"></a>
+              <a class="nav-link text-dark" href="#tabEnableFeatures" data-bs-toggle="tab" data-height="true" data-phrase="Features"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabNotificationSettings" data-toggle="tab" data-height="true" data-phrase="Notifications"></a>
+              <a class="nav-link text-dark" href="#tabNotificationSettings" data-bs-toggle="tab" data-height="true" data-phrase="Notifications"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabAdvancedSettings" data-toggle="tab" data-height="true" data-phrase="Advanced"></a>
+              <a class="nav-link text-dark" href="#tabAdvancedSettings" data-bs-toggle="tab" data-height="true" data-phrase="Advanced"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabMaintenance" data-toggle="tab" data-height="true" data-phrase="Maintenance"></a>
+              <a class="nav-link text-dark" href="#tabMaintenance" data-bs-toggle="tab" data-height="true" data-phrase="Maintenance"></a>
             </li>
           </ul>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
           <div class="tab-content">
@@ -957,13 +953,13 @@
                   <div class="form-group row">
                     <label class="col-sm-4 col-form-label" for="btnEnabledTags">
                       <span data-phrase="Tags to use"></span>
-                      <small class="mi mi-small ml-1" data-title-phrase="MaintainEnableTagsText">help</small>
+                      <small class="mi mi-small ms-1" data-title-phrase="MaintainEnableTagsText">help</small>
                     </label>
                     <div class="col-sm-8 input-group">
                       <input type="text" class="form-control border-secondary" id="inputEnabledTags" readonly="readonly"/>
                       <div class="input-group-append">
-                        <button id="btnEnabledTags" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
-                        <div id="listEnabledTags" class="dropdown-menu px-2 mr-3"></div>
+                        <button id="btnEnabledTags" type="button" data-bs-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
+                        <div id="listEnabledTags" class="dropdown-menu px-2 me-3"></div>
                       </div>
                     </div>
                   </div>
@@ -972,8 +968,8 @@
                     <div class="col-sm-8 input-group">
                       <input type="text" class="form-control border-secondary" id="inputSearchTags" readonly="readonly"/>
                       <div class="input-group-append">
-                        <button id="btnSearchTags" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
-                        <div id="listSearchTags" class="dropdown-menu px-2 mr-3"></div>
+                        <button id="btnSearchTags" type="button" data-bs-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
+                        <div id="listSearchTags" class="dropdown-menu px-2 me-3"></div>
                       </div>
                     </div>
                   </div>
@@ -982,8 +978,8 @@
                     <div class="col-sm-8 input-group">
                       <input type="text" class="form-control border-secondary" id="inputBrowseTags" readonly="readonly"/>
                       <div class="input-group-append">
-                        <button id="btnBrowseTags" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
-                        <div id="listBrowseTags" class="dropdown-menu px-2 mr-3"></div>
+                        <button id="btnBrowseTags" type="button" data-bs-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
+                        <div id="listBrowseTags" class="dropdown-menu px-2 me-3"></div>
                       </div>
                     </div>
                   </div>
@@ -998,7 +994,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnSmartpls" data-phrase="Smart playlists"></label>
                   <div class="col-sm-8 ">
-                    <button data-toggle="collapse" data-target="#collapseSmartpls" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnSmartpls"></button>
+                    <button data-bs-toggle="collapse" data-bs-target="#collapseSmartpls" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnSmartpls"></button>
                   </div>
                 </div>
                 <div class="collapse" id="collapseSmartpls">
@@ -1007,8 +1003,8 @@
                     <div class="col-sm-8 input-group">
                       <input type="text" class="form-control border-secondary" id="inputGeneratePlsTags" readonly="readonly"/>
                       <div class="input-group-append">
-                        <button id="btnGeneratePlsTags" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
-                        <div id="listGeneratePlsTags" class="dropdown-menu px-2 mr-3"></div>
+                        <button id="btnGeneratePlsTags" type="button" data-bs-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
+                        <div id="listGeneratePlsTags" class="dropdown-menu px-2 me-3"></div>
                       </div>
                     </div>
                   </div>
@@ -1039,7 +1035,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnEnableLyrics" data-phrase="Enable"></label>
                   <div class="col-sm-8 ">
-                    <button data-toggle="collapse" data-target="#collapseEnableLyrics" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnableLyrics"></button>
+                    <button data-bs-toggle="collapse" data-bs-target="#collapseEnableLyrics" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnableLyrics"></button>
                   </div>
                 </div>
                 <div class="collapse" id="collapseEnableLyrics">
@@ -1109,9 +1105,9 @@
           </div>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <div>
-            <button id="btnApplySettings" type="button" class="btn btn-success mr-2 protected" data-href='{"cmd": "saveSettings", "options": [false]}' data-phrase="Apply"></button>
+            <button id="btnApplySettings" type="button" class="btn btn-success me-2 protected" data-href='{"cmd": "saveSettings", "options": [false]}' data-phrase="Apply"></button>
             <button type="button" class="btn btn-success protected" data-href='{"cmd": "saveSettings", "options": [true]}' data-phrase="Save"></button>
           </div>
         </div>
@@ -1125,13 +1121,13 @@
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
-              <a class="nav-link active text-dark" href="#tabQueueSettings" data-toggle="tab" data-height="true" data-phrase="Playback"></a>
+              <a class="nav-link active text-dark" href="#tabQueueSettings" data-bs-toggle="tab" data-height="true" data-phrase="Playback"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabJukeboxSettings" data-toggle="tab" data-height="true" data-phrase="Jukebox"></a>
+              <a class="nav-link text-dark" href="#tabJukeboxSettings" data-bs-toggle="tab" data-height="true" data-phrase="Jukebox"></a>
             </li>
           </ul>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
           <div class="tab-content">
@@ -1202,7 +1198,7 @@
                 <h4 data-phrase="Jukebox"></h4>
                 <div id="warnConsume" class="alert alert-warning hide" data-phrase="Consume must be enabled"></div>
                 <div class="form-group row">
-                  <label id="labelJukeboxMode" class="col-sm-4 col-form-label" for="btnJukeboxModeGroup" data-phrase="Jukebox mode" data-toggle="collapse" data-target="#collapseJukeboxMode"></label>
+                  <label id="labelJukeboxMode" class="col-sm-4 col-form-label" for="btnJukeboxModeGroup" data-phrase="Jukebox mode" data-bs-toggle="collapse" data-bs-target="#collapseJukeboxMode"></label>
                   <div class="col-sm-8">
                     <div class="btn-group" id="btnJukeboxModeGroup">
                       <button data-collapse="hide" data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Off"></button>
@@ -1252,7 +1248,7 @@
           </div>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "saveQueueSettings", "options": []}' data-phrase="Save"></button>
         </div>
       </div>
@@ -1265,13 +1261,13 @@
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
-              <a class="nav-link active text-dark alwaysEnabled" href="#tabAbout" data-toggle="tab" data-height="true" data-phrase="About"></a>
+              <a class="nav-link active text-dark alwaysEnabled" href="#tabAbout" data-bs-toggle="tab" data-height="true" data-phrase="About"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark alwaysEnabled" href="#tabShortcuts" data-toggle="tab" data-height="true" data-phrase="Shortcuts"></a>
+              <a class="nav-link text-dark alwaysEnabled" href="#tabShortcuts" data-bs-toggle="tab" data-height="true" data-phrase="Shortcuts"></a>
             </li>
           </ul>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
           <div class="tab-content">
@@ -1333,7 +1329,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">settings_ethernet</span> <span data-phrase="MPD connection"></span></h5>
-          <button type="button" class="close alwaysEnabled" data-dismiss="modal">&times;</button>          
+          <button type="button" class="btn-close alwaysEnabled" data-bs-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
           <form id="connectionFrm">
@@ -1352,7 +1348,7 @@
             <hr/>
             <div class="form-group row">
               <div class="col-sm-8">
-                <button data-href='{"cmd": "toggleBtn", "options": []}' data-toggle="collapse" data-target="#collapseConnectionAdv" class="btn btn-secondary alwaysEnabled" data-phrase="Advanced"></button>
+                <button data-href='{"cmd": "toggleBtn", "options": []}' data-bs-toggle="collapse" data-bs-target="#collapseConnectionAdv" class="btn btn-secondary alwaysEnabled" data-phrase="Advanced"></button>
               </div>
             </div>
             <div id="collapseConnectionAdv" class="collapse">
@@ -1403,7 +1399,7 @@
               <div class="form-group row featBinarylimit">
                 <label class="col-sm-4 col-form-label" for="inputMpdBinarylimit">
                   <span data-phrase="Binary limit"></span>
-                  <small class="mi mi-small ml-1" data-title-phrase="BinaryLimitHelpText">help</small>
+                  <small class="mi mi-small ms-1" data-title-phrase="BinaryLimitHelpText">help</small>
                 </label>
                 <div class="col-sm-8">
                   <mympd-input-reset class="alwaysEnabled" id="inputMpdBinarylimit" placeholder="8" value="" data-unit-phrase="kB" data-invalid-phrase="Invalid binary limit"></mympd-input-reset>
@@ -1413,7 +1409,7 @@
           </form>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary alwaysEnabled" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-secondary alwaysEnabled" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success alwaysEnabled protected" data-href='{"cmd": "saveConnection", "options": []}' data-phrase="Save"></button>
         </div>
       </div>
@@ -1425,7 +1421,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">save</span> <span data-phrase="Save queue"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
           <form id="saveQueueFrm">
@@ -1439,7 +1435,7 @@
           </form>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "saveQueue", "options": []}' data-phrase="Save queue"></button>
         </div>
       </div>
@@ -1451,7 +1447,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">add_to_queue</span> <span data-phrase="Add to queue"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
           <form id="addToQueueFrm">
@@ -1480,7 +1476,7 @@
           <div id="warnJukeboxPlaylist2" class="alert alert-warning hide" data-phrase="Sorry, your MPD version is too old"></div>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "addToQueue", "options": []}' data-phrase="Add"></button>
         </div>
       </div>
@@ -1493,19 +1489,19 @@
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
-              <a class="nav-link active text-dark" href="#tabSongDetails" data-toggle="tab" data-height="true" data-phrase="Song details"></a>
+              <a class="nav-link active text-dark" href="#tabSongDetails" data-bs-toggle="tab" data-height="true" data-phrase="Song details"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark featPictures" href="#tabSongPics" data-toggle="tab" data-height="true" data-phrase="Pictures"></a>
+              <a class="nav-link text-dark featPictures" href="#tabSongPics" data-bs-toggle="tab" data-height="true" data-phrase="Pictures"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark featLyrics" href="#tabSongLyrics" data-toggle="tab" data-height="true" data-phrase="Lyrics"></a>
+              <a class="nav-link text-dark featLyrics" href="#tabSongLyrics" data-bs-toggle="tab" data-height="true" data-phrase="Lyrics"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabSongComments" data-toggle="tab" data-height="true" data-phrase="Comments"></a>
+              <a class="nav-link text-dark" href="#tabSongComments" data-bs-toggle="tab" data-height="true" data-phrase="Comments"></a>
             </li>
           </ul>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
           <div class="tab-content">
@@ -1540,7 +1536,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
         </div>
       </div>
     </div>
@@ -1551,7 +1547,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">timer</span> <span data-phrase="Timer"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
         <div class="tab-content">
@@ -1645,7 +1641,7 @@
                   <div class="col-sm-7 mt-2">
                     <input type="range" min="0" max="100" step="1" class="form-control-range" id="inputTimerVolume"/>
                   </div>
-                  <div class="col-sm-1 mt-2 pl-0 text-right" id="textTimerVolume">
+                  <div class="col-sm-1 mt-2 ps-0 text-right" id="textTimerVolume">
                     50&nbsp;%
                   </div>
                 </div>
@@ -1696,7 +1692,7 @@
         </div>
         </div>
         <div class="modal-footer justify-content-between" id="listTimerFooter">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button data-href='{"cmd":"showEditTimer","options":[0]}' class="btn btn-success protected" data-phrase="New timer"></button>
         </div>
         <div id="editTimerFooter" class="modal-footer justify-content-between hide">
@@ -1712,7 +1708,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">dns</span> <span data-phrase="Mounts"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
         <div class="tab-content">
@@ -1734,7 +1730,7 @@
                     </div>
                     <input id="inputMountUrl" class="form-control border-secondary" type="text"/>
                     <div class="input-group-append">
-                      <button id="btnDropdownNeighbors" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
+                      <button id="btnDropdownNeighbors" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-bs-toggle="dropdown"></button>
                       <div id="dropdownNeighbors" class="dropdown-menu border-0 p-0 dropdown-menu-right">
                         <div class="list-group"></div>
                       </div>
@@ -1764,7 +1760,7 @@
         </div>
         </div>
         <div class="modal-footer justify-content-between" id="listMountsFooter">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button data-href='{"cmd":"showEditMount","options":["",""]}' class="btn btn-success protected" data-phrase="New mount"></button>
         </div>
         <div class="modal-footer  justify-content-between hide" id="editMountFooter">
@@ -1780,7 +1776,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">save</span> <span data-phrase="Execute script"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
           <form id="execScriptFrm">
@@ -1796,7 +1792,7 @@
           </form>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "execScriptArgs", "options": []}' data-phrase="Execute"></button>
         </div>
       </div>
@@ -1808,7 +1804,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">code</span> <span data-phrase="Scripts"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
         <div class="tab-content">
@@ -1824,7 +1820,7 @@
               </div>
               <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="inputScriptOrder">
-                  <span data-phrase="Order"></span><small class="mi mi-small ml-1" data-title-phrase="Sort order of the script, 0 disables listing in main menu">help</small>
+                  <span data-phrase="Order"></span><small class="mi mi-small ms-1" data-title-phrase="Sort order of the script, 0 disables listing in main menu">help</small>
                 </label>
                 <div class="col-sm-8">
                   <input id="inputScriptOrder" class="form-control border-secondary" type="text"/>
@@ -1848,8 +1844,8 @@
               <div class="form-group">
                 <label for="textareaScriptContent" data-phrase="Script"></label>
                 <textarea class="form-control text-monospace border-secondary" id="textareaScriptContent" rows="10"></textarea>
-                <div class="btn-group mt-2 mr-2">
-                  <button id="btnDropdownAddAPIcall" data-title-phrase="Insert API call" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">api</span></button>
+                <div class="btn-group mt-2 me-2">
+                  <button id="btnDropdownAddAPIcall" data-title-phrase="Insert API call" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">api</span></button>
                   <div class="dropdown-menu bg-lite-dark px-2" id="dropdownAddAPIcall">
                     <div class="input-group">
                       <select class="form-control custom-select border-secondary" id="selectAPIcall"></select>
@@ -1857,8 +1853,8 @@
                         <button class="btn btn-success" id="btnAddAPIcall" data-title-phrase="Add"><span class="mi">add</span></button>
                       </div>
                     </div>
-                    <div id="APIdesc" class="mt-2 pl-1"></div>
-                    <div class="mt-2 pl-1">
+                    <div id="APIdesc" class="mt-2 ps-1"></div>
+                    <div class="mt-2 ps-1">
                       <a target="_blank" rel="noreferrer" href="https://jcorporation.github.io/mympd/apidoc.html" class="text-success">
                         <span class="mi">open_in_browser</span>&nbsp;<span data-phrase="Open documentation"></span>
                       </a>
@@ -1866,7 +1862,7 @@
                   </div>
                 </div>
                 <div class="btn-group mt-2">
-                  <button id="btnDropdownAddFunction" data-title-phrase="Insert function" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="mi">functions</span></button>
+                  <button id="btnDropdownAddFunction" data-title-phrase="Insert function" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">functions</span></button>
                   <div class="dropdown-menu bg-lite-dark px-2" id="dropdownAddFunction">
                     <div class="input-group">
                       <select class="form-control custom-select border-secondary" id="selectFunction"></select>
@@ -1874,7 +1870,7 @@
                         <button class="btn btn-success" id="btnAddFunction" data-title-phrase="Add"><span class="mi">add</span></button>
                       </div>
                     </div>
-                    <div id="functionDesc" class="mt-2 pl-1"></div>
+                    <div id="functionDesc" class="mt-2 ps-1"></div>
                   </div>
                 </div>
               </div>
@@ -1897,7 +1893,7 @@
         </div>
         </div>
         <div class="modal-footer justify-content-between" id="listScriptsFooter">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success protected" data-phrase="New script"></button>
         </div>
         <div id="editScriptFooter" class="modal-footer justify-content-between hide">
@@ -1913,7 +1909,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">dashboard</span> <span data-phrase="Partitions"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
         <div class="tab-content">
@@ -1945,7 +1941,7 @@
         </div>
         </div>
         <div class="modal-footer justify-content-between" id="listPartitionsFooter">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button data-href='{"cmd":"showNewPartition","options":["",""]}' class="btn btn-success protected" data-phrase="New partition"></button>
         </div>
         <div id="newPartitionFooter" class="modal-footer justify-content-between hide">
@@ -1961,7 +1957,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">volume_up</span> <span data-phrase="Move an output to this partition"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
           <div class="table-responsive-md overflow-auto">
@@ -1977,7 +1973,7 @@
           </div>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
         </div>
       </div>
     </div>
@@ -1988,7 +1984,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">volume_up</span> <span data-phrase="Output attributes"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
           <form>
@@ -2002,7 +1998,7 @@
           </form>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button id="btnOutputAttributesSave" data-href='{"cmd":"saveOutputAttributes","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
@@ -2016,7 +2012,7 @@
           <div id="modalPictureImg" class="coverimage-loading"></div>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button id="modalPictureZoom" data-href='{"cmd":"zoomZoomPicture","options":[]}' type="button" class="btn btn-success" data-phrase="Zoom"></button>
         </div>
       </div>
@@ -2028,7 +2024,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">bolt</span> <span data-phrase="Trigger"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
         <div class="tab-content">
@@ -2079,7 +2075,7 @@
         </div>
         </div>
         <div class="modal-footer justify-content-between" id="listTriggerFooter">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button data-href='{"cmd":"showEditTrigger","options":[-1]}' class="btn btn-success protected" data-phrase="New trigger"></button>
         </div>
         <div id="newTriggerFooter" class="modal-footer justify-content-between hide">
@@ -2095,7 +2091,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">home</span> <span id="modalEditHomeIconTitle" data-phrase="Edit home icon"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
           <form id="editHomeIconForm">
@@ -2119,7 +2115,7 @@
                 <div class="col-sm-8 input-group">
                   <input type="text" class="form-control border-secondary" id="inputHomeIconLigature" readonly="readonly"/>
                   <div class="input-group-append">
-                    <button id="btnHomeIconLigature" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
+                    <button id="btnHomeIconLigature" type="button" data-bs-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
                     <div id="dropdownHomeIconLigature" class="dropdown-menu px-2">
                       <div class="row">
                         <div class="col">
@@ -2169,7 +2165,7 @@
           </form>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button data-href='{"cmd":"saveHomeIcon","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
         </div>
       </div>
@@ -2181,13 +2177,13 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">contact_support</span> <span data-phrase="Are you sure?"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
         <p id="modalConfirmText"></p>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button id="modalConfirmYesBtn" type="button" class="btn btn-danger" data-phrase="Yes, do it"></button>
         </div>
       </div>
@@ -2199,7 +2195,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">password</span> <span data-phrase="Enter Pin"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
           <div class="form-group row">
@@ -2211,7 +2207,7 @@
           <div id="modalEnterPinMessage" class="alert alert-danger p-2 hide"></div>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button id="modalEnterPinEnterBtn" type="button" class="btn btn-success" data-phrase="Enter"></button>
         </div>
       </div>
