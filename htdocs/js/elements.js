@@ -93,7 +93,7 @@ class inputClear extends HTMLInputElement {
                 elShow(event.target.button);
             }
         }, false);
-        this.button.addEventListener('click', function(event) {
+        this.button.addEventListener('mouseup', function(event) {
             event.target.previousSibling.value = '';
             const dataClearEvent = event.target.previousSibling.getAttribute('data-clear-event');
             if (dataClearEvent !== null) {
