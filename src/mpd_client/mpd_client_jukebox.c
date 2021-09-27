@@ -25,6 +25,7 @@
 #include <string.h>
 
 //private definitions
+static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state);
 static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *mympd_state, enum jukebox_modes jukebox_mode);
 static bool mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_state, 
     unsigned add_songs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual);
@@ -44,7 +45,7 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
 {
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    unsigned real_limit = limit == 0 ? offset + MAX_MPD_RESULTS : offset + limit;
+    unsigned real_limit = limit == 0 ? offset + MPD_RESULTS_MAX : offset + limit;
     
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
@@ -105,7 +106,20 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
     return buffer;
 }
 
-bool mpd_client_jukebox(struct t_mympd_state *mympd_state, unsigned attempt) {
+bool mpd_client_jukebox(struct t_mympd_state *mympd_state) {
+    for (int i = 1; i < 3; i++) {
+         if (_mpd_client_jukebox(mympd_state) == true) {
+             return true;
+         }
+         if (mympd_state->jukebox_mode == JUKEBOX_OFF) {
+             return false;
+         }
+         MYMPD_LOG_ERROR("Jukebox: trying again, attempt %d", i);
+    }
+    return false;
+}
+
+static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
     if (status == NULL) {
         check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
@@ -154,19 +168,14 @@ bool mpd_client_jukebox(struct t_mympd_state *mympd_state, unsigned attempt) {
     if (rc == true) {
         bool rc2 = mpd_run_play(mympd_state->mpd_state->conn);
         check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc2, "mpd_run_play");
+        //notify clients
+        send_jsonrpc_event("update_jukebox");
+        return true;
     }
-    else {
-        MYMPD_LOG_DEBUG("Jukebox mode: %d", mympd_state->jukebox_mode);
-        MYMPD_LOG_ERROR("Jukebox: Error adding song(s)");
-        if (mympd_state->jukebox_mode != JUKEBOX_OFF && attempt == 0) {
-            MYMPD_LOG_ERROR("Jukebox: trying again");
-            //retry it only one time
-            mpd_client_jukebox(mympd_state, 1);
-        }
-    }
-    //notify clients
-    send_jsonrpc_event("update_jukebox");
-    return rc;
+
+    MYMPD_LOG_DEBUG("Jukebox mode: %d", mympd_state->jukebox_mode);
+    MYMPD_LOG_ERROR("Jukebox: Error adding song(s)");
+    return false;
 }
 
 bool mpd_client_jukebox_add_to_queue(struct t_mympd_state *mympd_state, unsigned add_songs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
@@ -414,7 +423,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
     if (jukebox_mode == JUKEBOX_ADD_SONG) {
         //add songs
         int start = 0;
-        int end = start + MAX_MPD_RESULTS;
+        int end = start + MPD_RESULTS_MAX;
         time_t now = time(NULL);
         now = now - mympd_state->jukebox_last_played * 60 * 60;
         
@@ -519,7 +528,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
                 return false;
             }
             start = end;
-            end = end + MAX_MPD_RESULTS;
+            end = end + MPD_RESULTS_MAX;
         } while (strcmp(playlist, "Database") == 0 && lineno + skipno > start);
         MYMPD_LOG_DEBUG("Jukebox iterated through %u songs, skipped %u", lineno, skipno);
     }
