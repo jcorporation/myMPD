@@ -57,12 +57,10 @@ CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-reserved-identifier,-cert-dcl37-
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-signal-handler,-cert-sig30-c"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-concurrency-mt-unsafe"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-cppcoreguidelines*"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-google-readability-todo"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-hicpp-*"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvm-header-guard"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvm-include-order"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-misc-misplaced-const"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-misc-no-recursion"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-avoid-const-params-in-decls"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-function-cognitive-complexity,-google-readability-function-size,-readability-function-size"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-magic-numbers"
@@ -119,7 +117,6 @@ then
 fi
 
 setversion() {
-  check_cmd bzcat
   TS=$(stat -c%Y CMakeLists.txt)
   export LC_TIME="en_GB.UTF-8"
   DATE_F1=$(date --date=@"${TS}" +"%a %b %d %Y")
