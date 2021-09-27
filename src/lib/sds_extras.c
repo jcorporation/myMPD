@@ -17,15 +17,22 @@
 
 sds sds_catjson(sds s, const char *p, size_t len) {
     s = sdscatlen(s, "\"", 1);
+/*
     uint32_t codepoint;
     uint32_t state = UTF8_ACCEPT;
+*/
     for (size_t i = 0; i < len; i++) {
         if ((p[i] & 0x80) == 0x00) {
             //ascii char
             s = sds_catjsonchar(s, p[i]);
         }
+/*        
         else if (!decode_utf8(&state, &codepoint, (uint8_t)p[i])) {
             s = sdscatprintf(s, "\\u%04x", codepoint);
+        }
+*/
+        else {
+            s = sdscatprintf(s, "%c", p[i]);
         }
     }
     return sdscatlen(s, "\"", 1);
@@ -42,8 +49,6 @@ sds sds_catjsonchar(sds s, const char p) {
         case '\n': s = sdscatlen(s, "\\n", 2);     break;
         case '\r': s = sdscatlen(s, "\\r", 2);     break;
         case '\t': s = sdscatlen(s, "\\t", 2);     break;
-        // Escape < to prevent script execution
-        case '<' : s = sdscatlen(s, "\\u003C", 6); break;
         //ignore vertical tabulator and alert
         case '\v': 
         case '\a':
