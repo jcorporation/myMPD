@@ -406,7 +406,7 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
     sds line = sdsempty();
     sds param = sdsempty();
     while (sds_getline(&line, fp, 1000) == 0) {
-        if (i > MAX_LIST_TIMER) {
+        if (i > LIST_TIMER_MAX) {
             MYMPD_LOG_WARN("Too many timers defined");
             break;
         }

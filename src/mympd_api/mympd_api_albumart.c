@@ -25,7 +25,7 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
         MYMPD_LOG_DEBUG("Try mpd command albumart for \"%s\"", uri);
         while ((recv_len = mpd_run_albumart(mympd_state->mpd_state->conn, uri, offset, binary_buffer, mympd_state->mpd_state->mpd_binarylimit)) > 0) {
             *binary = sdscatlen(*binary, binary_buffer, recv_len);
-            if (sdslen(*binary) > MAX_MPD_BINARY_SIZE) {
+            if (sdslen(*binary) > MPD_BINARY_SIZE_MAX) {
                 MYMPD_LOG_WARN("Retrieved binary data is too large, discarding");
                 sdsclear(*binary);
                 offset = 0;
@@ -44,7 +44,7 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
         MYMPD_LOG_DEBUG("Try mpd command readpicture for \"%s\"", uri);
         while ((recv_len = mpd_run_readpicture(mympd_state->mpd_state->conn, uri, offset, binary_buffer, mympd_state->mpd_state->mpd_binarylimit)) > 0) {
             *binary = sdscatlen(*binary, binary_buffer, recv_len);
-            if (sdslen(*binary) > MAX_MPD_BINARY_SIZE) {
+            if (sdslen(*binary) > MPD_BINARY_SIZE_MAX) {
                 MYMPD_LOG_WARN("Retrieved binary data is too large, discarding");
                 sdsclear(*binary);
                 offset = 0;

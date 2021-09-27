@@ -32,10 +32,10 @@ sds webserver_session_new(struct t_list *session_list) {
     //timeout old sessions
     webserver_session_validate(session_list, NULL);
     //add new session with 30 min timeout
-    list_push(session_list, session, (time(NULL) + 1800), NULL, NULL);
+    list_push(session_list, session, (time(NULL) + HTTP_SESSION_TIMEOUT), NULL, NULL);
     MYMPD_LOG_DEBUG("Created session %s", session);
     //limit sessions to 10 
-    if (session_list->length > MAX_HTTP_SESSIONS) {
+    if (session_list->length > HTTP_SESSIONS_MAX) {
         list_shift(session_list, 0);
         MYMPD_LOG_WARN("To many sessions, discarding oldest session");
     }

@@ -224,7 +224,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
         free(path_cpy);
     }
     
-    unsigned real_limit = limit == 0 ? offset + MAX_MPD_RESULTS : offset + limit;
+    unsigned real_limit = limit == 0 ? offset + MPD_RESULTS_MAX : offset + limit;
     
     struct t_list_node *current;
     while ((current = list_shift_first(&entity_list)) != NULL) {
@@ -315,7 +315,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return buffer;
     }
-    rc = mpd_search_add_window(mympd_state->mpd_state->conn, 0, MAX_MPD_RESULTS);
+    rc = mpd_search_add_window(mympd_state->mpd_state->conn, 0, MPD_RESULTS_MAX);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return buffer;
@@ -530,7 +530,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     //print album list
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    unsigned real_limit = limit == 0 ? offset + MAX_MPD_RESULTS : offset + limit;
+    unsigned real_limit = limit == 0 ? offset + MPD_RESULTS_MAX : offset + limit;
     sds album = sdsempty();
     sds artist = sdsempty();
     struct t_list_node *current;
@@ -596,7 +596,7 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
     enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
-    unsigned real_limit = limit == 0 ? offset + MAX_MPD_RESULTS : offset + limit;
+    unsigned real_limit = limit == 0 ? offset + MPD_RESULTS_MAX : offset + limit;
     while ((pair = mpd_recv_pair_tag(mympd_state->mpd_state->conn, mpdtag)) != NULL) {
         if (pair->value[0] == '\0') {
             MYMPD_LOG_DEBUG("Value is empty, skipping");

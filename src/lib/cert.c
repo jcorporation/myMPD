@@ -77,7 +77,7 @@ bool certificates_create(sds dir, sds custom_san) {
     }
     else {
         MYMPD_LOG_NOTICE("CA certificate and private key found");
-        int rc_expires = check_expiration(ca_cert, cacert_file, CA_MIN_LIFETIME, CA_LIFETIME);
+        int rc_expires = check_expiration(ca_cert, cacert_file, CA_LIFETIME_MIN, CA_LIFETIME);
         if (rc_expires == 0) {
             rc_ca = true;
         }
@@ -108,7 +108,7 @@ bool certificates_create(sds dir, sds custom_san) {
     }
     else {
         MYMPD_LOG_NOTICE("Server certificate and private key found");
-        int rc_expires = check_expiration(server_cert, servercert_file, CERT_MIN_LIFETIME, CERT_LIFETIME);
+        int rc_expires = check_expiration(server_cert, servercert_file, CERT_LIFETIME_MIN, CERT_LIFETIME);
         if (rc_expires == 0) {
             rc_cert = true;
         }

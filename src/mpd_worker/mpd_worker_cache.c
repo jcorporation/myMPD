@@ -81,7 +81,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
 static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache) {
     MYMPD_LOG_INFO("Creating caches");
     unsigned start = 0;
-    unsigned end = start + MAX_MPD_RESULTS;
+    unsigned end = start + MPD_RESULTS_MAX;
     unsigned i = 0;   
     unsigned album_count = 0;
     unsigned song_count = 0;
@@ -155,7 +155,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             return false;        
         }
         start = end;
-        end = end + MAX_MPD_RESULTS;
+        end = end + MPD_RESULTS_MAX;
     } while (i >= start);
     //get sticker values
     if (mpd_worker_state->mpd_state->feat_stickers == true) {

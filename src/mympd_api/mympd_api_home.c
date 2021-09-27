@@ -81,7 +81,7 @@ bool mympd_api_home_file_read(struct t_mympd_state *mympd_state) {
         }
         list_push(&mympd_state->home_list, line, 0, NULL, NULL);
         i++;
-        if (i == MAX_LIST_HOME_ICONS) {
+        if (i == LIST_HOME_ICONS_MAX) {
             MYMPD_LOG_WARN("Too many lines in home_list");
             break;
         }
