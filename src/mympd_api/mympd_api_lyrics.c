@@ -317,8 +317,11 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
 
     unsigned sep_len = encoding == 0 || encoding == 3 ? 1 : 2;
     unsigned i = 0;
+/*
     uint32_t codepoint;
     uint32_t state = UTF8_ACCEPT;
+*/
+    MYMPD_LOG_DEBUG("Sylt encoding: %u", encoding);
     
     while (i + sep_len + 4 < binary_length) {
         //look for bom and skip it
@@ -407,8 +410,13 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
                     //ascii char
                     text_buf = sds_catjsonchar(text_buf, (char)binary_data[i]);
                 }
+/*
                 else if (!decode_utf8(&state, &codepoint, binary_data[i])) {
                     text_buf = sdscatprintf(text_buf, "\\u%04x", codepoint);
+                }
+*/
+                else {
+                    text_buf = sdscatprintf(text_buf, "%c", binary_data[i]);
                 }
                 i++;
             }
