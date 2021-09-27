@@ -27,10 +27,15 @@ static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filen
     "Lyrics", "stickerPlayCount", "stickerSkipCount", "stickerLastPlayed", "stickerLastSkipped", "stickerLike", 0};
 
 static bool _check_for_invalid_chars(sds data, const char *invalid_chars) {
-    for (size_t i = 0; i < sdslen(data); i++) {
+    size_t len = sdslen(data);
+    for (size_t i = 0; i < len; i++) {
         if (data[i] == '\0' ||
             strchr(invalid_chars, data[i]) != NULL)
         {
+            return false;
+        }
+        if (i + 1 < len && data[i] == '\\' && data[i + 1] == 'u') {
+            MYMPD_LOG_ERROR("Unicode escapes are not supported");
             return false;
         }
     }
