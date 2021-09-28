@@ -233,14 +233,8 @@ function parseSettings(obj) {
         populateQueueSettingsFrm();
     }
     
-    //locales    
-    locale = navigator.language || navigator.userLanguage;
-    for (const l of locales) {
-        if (l.code === settings.webuiSettings.uiLocale) {
-            locale = settings.webuiSettings.uiLocale;
-            break;
-        }
-    }
+    //locales
+    setLocale(settings.webuiSettings.uiLocale);
 
     //theme
     let setTheme = settings.webuiSettings.uiTheme;
@@ -374,8 +368,6 @@ function parseSettings(obj) {
         appRoute();
     }
 
-    i18nHtml(domCache.body);
-
     if (settings.mediaSession === true && 'mediaSession' in navigator) {
         navigator.mediaSession.setActionHandler('play', clickPlay);
         navigator.mediaSession.setActionHandler('pause', clickPlay);
@@ -397,6 +389,28 @@ function parseSettings(obj) {
     toggleUI();
     btnWaiting(document.getElementById('btnApplySettings'), false);
     settingsParsed = 'parsed';
+}
+
+function setLocale(newLocale) {
+    if (newLocale === 'default') {
+        locale = navigator.language || navigator.userLanguage;
+    }
+    else {
+        locale = newLocale;
+    }
+    let localeFound = false;
+    for (const l of locales) {
+        if (l.code === locale) {
+            localeFound = true;
+            break;
+        }
+    }
+    if (localeFound === false) {
+        logError('Locale ' + locale + 'not defined');
+        locale = 'en-US';
+    }
+
+    i18nHtml(domCache.body);
 }
 
 function populateQueueSettingsFrm() {
