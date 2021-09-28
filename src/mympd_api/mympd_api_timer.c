@@ -250,7 +250,7 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
     if (json_get_string_max(str, "$.params.name", &timer_def->name, vcb_isname, error) == true &&
         json_get_bool(str, "$.params.enabled", &timer_def->enabled, error) == true &&
         json_get_int(str, "$.params.startHour", 0, 23, &timer_def->start_hour, error) == true &&
-        json_get_int(str, "$.params.startMinute", 0, 23, &timer_def->start_minute, error) == true &&
+        json_get_int(str, "$.params.startMinute", 0, 59, &timer_def->start_minute, error) == true &&
         json_get_string_max(str, "$.params.action", &timer_def->action, vcb_isalnum, error) == true &&
         json_get_string_max(str, "$.params.subaction", &timer_def->subaction, vcb_isname, error) == true &&
         json_get_int(str, "$.params.volume", 0, 100, &timer_def->volume, error) == true &&
