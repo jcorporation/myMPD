@@ -61,7 +61,7 @@ function parseOutputs(obj) {
                 btns += ' active';
             }
             btns += '"><span class="mi align-self-center">' + (obj.result.data[i].plugin === 'httpd' ? 'cast' : 'volume_up') + '</span> ' + 
-                '<span class="ml-2 mr-2 align-self-center">' + e(obj.result.data[i].name) + '</span>' +
+                '<span class="mx-2 align-self-center">' + e(obj.result.data[i].name) + '</span>' +
                 '<a class="mi text-white align-self-center" title="' + 
                 (Object.keys(obj.result.data[i].attributes).length > 0 ? t('Edit attributes') : t('Show attributes')) + '">settings</a>' +
                 '</button>';

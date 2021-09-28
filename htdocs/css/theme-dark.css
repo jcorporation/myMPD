@@ -42,6 +42,10 @@ body.theme-dark .show {
   box-shadow: none;
 }
 
+body.theme-dark .btn-close {
+  color: #f8f9fa;
+}
+
 body.theme-dark .btn-success {
   background-color: #28a745;
 }

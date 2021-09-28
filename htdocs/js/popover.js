@@ -56,11 +56,10 @@ function showMenuTh(el) {
     menu += setColsChecklist(table);
     menu += '<button class="btn btn-success btn-block btn-sm mt-2">' + t('Apply') + '</button>';
     menu += '</form>';
-    new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover">' +
-        '<div class="arrow"></div>' +
+    const popoverInit = new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover">' +
+        '<div class="popover-arrow"></div>' +
         '<div class="popover-content" id="' + table + 'ColsDropdown">' + menu + '</div>' +
-        '</div>', content: ' '});
-    const popoverInit = el.Popover;
+        '</div>', content: 'content'});
     if (el.getAttribute('data-init') === null) {
         el.setAttribute('data-init', 'true');
         el.addEventListener('shown.bs.popover', function(event) {
@@ -226,11 +225,10 @@ function showMenuTd(el) {
                 addMenuItem({"cmd": "deleteHomeIcon", "options": [pos]}, t('Delete home icon'));
     }
 
-    new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover">' +
-        '<div class="arrow"></div>' +
+    const popoverInit = new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover">' +
+        '<div class="popover-arrow"></div>' +
         '<div class="popover-content">' + menu + '</div>' +
-        '</div>', content: ' '});
-    const popoverInit = el.Popover;
+        '</div>', content: 'content'});
     if (el.getAttribute('data-init') === null) {
         el.setAttribute('data-init', 'true');
         el.addEventListener('shown.bs.popover', function(event) {

@@ -626,12 +626,12 @@ function _createSettingsFrm(fields, defaults, prefix) {
             }
             continue;
         }
-        advFrm[form] += '<div class="form-group row">' +
+        advFrm[form] += '<div class="mb-3 row">' +
                     '<label class="col-sm-4 col-form-label" for="' + prefix + r(key) + '" data-phrase="' + 
                     e(defaults[key].title) + '">' + t(defaults[key].title) + '</label>' +
                     '<div class="col-sm-8 ">';
         if (defaults[key].inputType === 'select') {
-            advFrm[form] += '<select id="' + prefix + r(key) + '" class="form-control border-secondary custom-select">';
+            advFrm[form] += '<select id="' + prefix + r(key) + '" class="form-control border-secondary form-select">';
             for (let value in defaults[key].validValues) {
                 if (defaults[key].contentType === 'integer') {
                     value = Number(value);

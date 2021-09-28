@@ -25,21 +25,19 @@ class inputReset extends HTMLElement {
         }
         inputGroup.appendChild(input);
 
-        const inputGroupAppend = elCreate('div', {"class": ["input-group-append"]}, '');
         const resetButton = elCreate('button', {
-            "class": ["btn", "btn-secondary", "rounded-right", "resetBtn"],
+            "class": ["btn", "btn-secondary", "rounded-end", "resetBtn"],
             "data-title-phrase": "Reset to default"
         }, '');
         resetButton.appendChild(elCreate('span', {"class": ["mi"]}, 'settings_backup_restore'));
-        inputGroupAppend.appendChild(resetButton);
+        inputGroup.appendChild(resetButton);
         if (unitPhrase !== null) {
             const unitText = elCreate('div', {
                 "class": ["input-group-text-nobg"],
                 "data-phrase": unitPhrase
             }, '');
-            inputGroupAppend.appendChild(unitText);
+            inputGroup.appendChild(unitText);
         }
-        inputGroup.appendChild(inputGroupAppend);
         if (invalidPhrase !== null) {
             const invalidText = elCreate('div', {
                 "class": ["invalid-feedback"],

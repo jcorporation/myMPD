@@ -673,16 +673,6 @@ function initPlayback() {
 }
 
 function initNavs() {
-    //do not switch to first view by clicking on main menu logo
-    document.getElementById('mainMenu').addEventListener('click', function(event) {
-        event.preventDefault();
-    }, false);
-    
-    //hides main menu after opening the modal
-    document.getElementById('mainMenuDropdown').addEventListener('click', function() {
-        uiElements.dropdownMainMenu.hide();
-    }, false);
-
     document.getElementById('volumeBar').addEventListener('change', function() {
         sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {"volume": Number(document.getElementById('volumeBar').value)});
     }, false);

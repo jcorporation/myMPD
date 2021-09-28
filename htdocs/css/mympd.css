@@ -94,6 +94,16 @@ main {
   padding-top: 0.5rem;
 }
 
+.navbar {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.square-end {
+  border-bottom-right-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+
 .breakAll {
   word-break: break-all;
 }
@@ -702,6 +712,11 @@ ol#searchDatabaseCrumb {
   max-height: calc(100vh - 9rem);
 }
 
+#mainMenuDropdown .dropdown-item {
+  padding-left: 2rem;
+  padding-right: 1rem;
+}
+
 tr:focus {
   background-color: rgba(0, 0, 0, 0.075);
 }
@@ -710,14 +725,14 @@ textarea.small {
   font-size: 80%;
 }
 
-.input-group-append {
-  align-self: baseline;
-}
-
 .form-control:focus {
   border-color: var(--mympd-highlightcolor, #28a745) !important;
   outline: 0;
   box-shadow: none !important;
+}
+
+.btn-dark {
+  border-color: #343a40 !important;
 }
 
 .btn-dark:not(:disabled):not(.disabled):active,
@@ -813,6 +828,10 @@ div#playDropdown .row {
   background-color: #494f56 !important;
 }
 
+.bg-dark {
+  background-color: #343a40 !important;
+}
+
 .btn:focus,
 .btn.focus {
   box-shadow: none;
@@ -835,6 +854,10 @@ div#playDropdown .row {
 .btn-success {
   background-color: var(--mympd-highlightcolor, #28a745) !important;
   border-color: var(--mympd-highlightcolor, #28a745) !important;
+}
+
+a {
+  text-decoration: none;
 }
 
 .text-success,
@@ -1076,6 +1099,10 @@ div.album-grid-mouseover {
   line-height: 1.5;
   text-align: center;
   white-space: nowrap;
+}
+
+input[type=color] {
+  height: auto;
 }
 
 .nav-link {

@@ -249,21 +249,13 @@ function getSelectedOptionAttribute(selectId, attribute) {
 }
 
 function alignDropdown(el) {
-    const x = getXpos(el.children[0]);
-    
+    const toggleEl = el.getElementsByClassName('dropdown-toggle')[0];
+    const x = getXpos(toggleEl);
     if (x < domCache.body.offsetWidth * 0.66) {
-        if (el.id === 'navState') {
-            el.classList.remove('dropdown');
-            el.classList.add('dropright');
-        }
-        else {
-            el.getElementsByClassName('dropdown-menu')[0].classList.remove('dropdown-menu-right');
-        }
+        el.getElementsByClassName('dropdown-menu')[0].classList.remove('dropdown-menu-end');
     }
     else {
-        el.getElementsByClassName('dropdown-menu')[0].classList.add('dropdown-menu-right');
-        el.classList.add('dropdown');
-        el.classList.remove('dropright');
+        el.getElementsByClassName('dropdown-menu')[0].classList.add('dropdown-menu-end');
     }
 }
 
