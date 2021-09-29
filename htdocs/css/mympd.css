@@ -601,6 +601,10 @@ div.alertBoxActive {
   opacity: 1 !important;
 }
 
+.popover-header {
+  background-color: inherit;
+}
+
 .popover-content {
   padding-top: 4px;
   padding-bottom: 4px;

@@ -61,6 +61,7 @@ function createMenuTh(el) {
     menu += '</form>';
     const popoverInit = new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover">' +
         '<div class="popover-arrow"></div>' +
+        '<div class="popover-header">' + tn('Columns') + '</div>' +
         '<div class="popover-content" id="' + table + 'ColsDropdown">' + menu + '</div>' +
         '</div>', content: 'content'});
     el.addEventListener('shown.bs.popover', function(event) {
