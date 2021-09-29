@@ -337,42 +337,50 @@ function selectTag(btnsEl, desc, setTo) {
     }
 }
 
-function addTagList(el, list) {
-    let tagList = '';
+function addTagList(elId, list) {
+    const stack = elCreate('div', {"class": ["d-grid", "gap-2"]}, '');
     if (list === 'tagListSearch') {
         if (features.featTags === true) {
-            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">' + t('Any Tag') + '</button>';
+            stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "any"}, tn('Any Tag')));
         }
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="filename">' + t('Filename') + '</button>';
+        stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "filename"}, tn('Filename')));
     }
-    if (el === 'searchDatabaseTags') {
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">' + t('Any Tag') + '</button>';
+    if (elId === 'searchDatabaseTags') {
+        stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "any"}, tn('Any Tag')));
     }
     for (let i = 0, j = settings[list].length; i < j; i++) {
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + t(settings[list][i]) + '</button>';
+        stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": settings[list][i]}, tn(settings[list][i])));
     }
-    if (el === 'BrowseNavFilesystemDropdown' || el === 'BrowseNavPlaylistsDropdown') {
+    if (elId === 'BrowseNavFilesystemDropdown' || elId === 'BrowseNavPlaylistsDropdown') {
         if (features.featTags === true && features.featAdvsearch === true) {
-            tagList = '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Database">' + t('Database') + '</button>';
+            stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "Database"}, tn('Database')));
         }
         else {
-            tagList = '';
+            elClear(stack);
         }
     }
-    if (el === 'BrowseDatabaseByTagDropdown' || el === 'BrowseNavFilesystemDropdown' || el === 'BrowseNavPlaylistsDropdown') {
-        if (el === 'BrowseDatabaseByTagDropdown') {
-            tagList += '<div class="dropdown-divider"></div>';
+    if (elId === 'BrowseDatabaseByTagDropdown' || elId === 'BrowseNavFilesystemDropdown' || elId === 'BrowseNavPlaylistsDropdown') {
+        if (elId === 'BrowseDatabaseByTagDropdown') {
+            stack.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
         }
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block' + (el === 'BrowseNavPlaylistsDropdown' ? ' active' : '') + '" data-tag="Playlists">' + t('Playlists') + '</button>' +
-            '<button type="button" class="btn btn-secondary btn-sm btn-block' + (el === 'BrowseNavFilesystemDropdown' ? ' active' : '') + '" data-tag="Filesystem">' + t('Filesystem') + '</button>'
+        stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "Playlists"}, tn('Playlists')));
+        if (elId === 'BrowseNavPlaylistsDropdown') {
+            stack.lastChild.classList.add('active');
+        }
+        stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "Filesystem"}, tn('Filesystem')));
+        if (elId === 'BrowseNavFilesystemDropdown') {
+            stack.lastChild.classList.add('active');
+        }
     }
-    else if (el === 'databaseSortTagsList') {
+    else if (elId === 'databaseSortTagsList') {
         if (settings.tagList.includes('Date') === true && settings[list].includes('Date') === false) {
-            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Date">' + t('Date') + '</button>';
+            stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "Date"}, tn('Date')));
         }
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Last-Modified">' + t('Last modified') + '</button>';
+        stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "Last-Modified"}, tn('Last modified')));
     }
-    document.getElementById(el).innerHTML = tagList;
+    const el = document.getElementById(elId);
+    elClear(el);
+    el.appendChild(stack);
 }
 
 function addTagListSelect(el, list) {
