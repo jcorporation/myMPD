@@ -406,12 +406,12 @@ function addTagListSelect(el, list) {
 
 //eslint-disable-next-line no-unused-vars
 function openModal(modal) {
-    window[modal].show();
+    uiElements[modal].show();
 }
 
 //eslint-disable-next-line no-unused-vars
 function openDropdown(dropdown) {
-    window[dropdown].toggle();
+    uiElements[dropdown].toggle();
 }
 
 //eslint-disable-next-line no-unused-vars
