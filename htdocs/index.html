@@ -549,26 +549,24 @@
     <div class="card hide" id="cardSearch">
       <div class="card-body">
         <div class="btn-toolbar card-toolbar" id="SearchButtons">
+          <div class="btn-group">
+            <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
+              <span class="mi">search</span>
+              <span data-phrase="Any Tag" id="searchtagsdesc"></span>
+            </button>
+            <div class="dropdown-menu bg-lite-dark px-2" id="searchtags">
+            </div>
+          </div>
           <form id="search" class="flex-grow-1">
             <div class="input-group me-2">
-              <div>
-                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
-                  <span class="mi">search</span>
-                  <span data-phrase="Any Tag" id="searchtagsdesc"></span>
-                </button>
-                <div class="dropdown-menu bg-lite-dark px-2" id="searchtags">
-                </div>
-              </div>
-              <div>
-                <select class="featAdvsearch form-control form-select border-secondary rounded-0" id="searchMatch">
-                  <option data-phrase="contains" value="contains"></option>
-                  <option data-phrase="starts_with" value="starts_with"></option>
-                  <option value="==">==</option>
-                  <option value="=~">=~</option>
-                  <option value="!=">!=</option>
-                  <option value="!~">!~</option>
-                </select>
-              </div>
+              <select class="featAdvsearch form-control form-select border-secondary rounded-0" id="searchMatch">
+                <option data-phrase="contains" value="contains"></option>
+                <option data-phrase="starts_with" value="starts_with"></option>
+                <option value="==">==</option>
+                <option value="=~">=~</option>
+                <option value="!=">!=</option>
+                <option value="!~">!~</option>
+              </select>
               <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-end" id="searchstr"/>
             </div>
           </form>
