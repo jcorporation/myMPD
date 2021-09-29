@@ -23,8 +23,7 @@ function addMenuItem(href, text) {
 function hideMenu() {
     const menuEl = document.querySelector('[data-popover]');
     if (menuEl) {
-        const m = new BSN.Popover(menuEl, {});
-        m.hide();
+        menuEl.Popover.hide();
         menuEl.removeAttribute('data-popover');
         if (menuEl.parentNode.parentNode.classList.contains('selected')) {
             focusTable(undefined, menuEl.parentNode.parentNode.parentNode.parentNode);
@@ -42,15 +41,19 @@ function showMenu(el, event) {
     event.preventDefault();
     event.stopPropagation();
     hideMenu();
-    if (el.parentNode.nodeName === 'TH') {
-        showMenuTh(el);
+    let popoverInit = el.Popover;
+    if (popoverInit === undefined) {
+        if (el.parentNode.nodeName === 'TH') {
+            popoverInit = createMenuTh(el);
+        }
+        else {
+            popoverInit = createMenuTd(el);
+        }
     }
-    else {
-        showMenuTd(el);
-    }
+    popoverInit.show();
 }
 
-function showMenuTh(el) {
+function createMenuTh(el) {
     const table = app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '');
     let menu = '<form class="p-2" id="colChecklist' + table + '">';
     menu += setColsChecklist(table);
@@ -60,27 +63,24 @@ function showMenuTh(el) {
         '<div class="popover-arrow"></div>' +
         '<div class="popover-content" id="' + table + 'ColsDropdown">' + menu + '</div>' +
         '</div>', content: 'content'});
-    if (el.getAttribute('data-init') === null) {
-        el.setAttribute('data-init', 'true');
-        el.addEventListener('shown.bs.popover', function(event) {
-            event.target.setAttribute('data-popover', 'true');
-            document.getElementById('colChecklist' + table).addEventListener('click', function(eventClick) {
-                if (eventClick.target.nodeName === 'BUTTON' && eventClick.target.classList.contains('mi')) {
-                    toggleBtnChk(eventClick.target);
-                    eventClick.preventDefault();
-                    eventClick.stopPropagation();
-                }
-                else if (eventClick.target.nodeName === 'BUTTON') {
-                    eventClick.preventDefault();
-                    saveCols(table);
-                }
-            }, false);
+    el.addEventListener('shown.bs.popover', function(event) {
+        event.target.setAttribute('data-popover', 'true');
+        document.getElementById('colChecklist' + table).addEventListener('click', function(eventClick) {
+            if (eventClick.target.nodeName === 'BUTTON' && eventClick.target.classList.contains('mi')) {
+                toggleBtnChk(eventClick.target);
+                eventClick.preventDefault();
+                eventClick.stopPropagation();
+            }
+            else if (eventClick.target.nodeName === 'BUTTON') {
+                eventClick.preventDefault();
+                saveCols(table);
+            }
         }, false);
-    }
-    popoverInit.show();
+    }, false);
+    return popoverInit;
 }
 
-function showMenuTd(el) {
+function createMenuTd(el) {
     let type = getCustomDomProperty(el, 'data-type');
     let uri = getCustomDomProperty(el, 'data-uri');
     let name = getCustomDomProperty(el, 'data-name');
@@ -229,63 +229,62 @@ function showMenuTd(el) {
         '<div class="popover-arrow"></div>' +
         '<div class="popover-content">' + menu + '</div>' +
         '</div>', content: 'content'});
-    if (el.getAttribute('data-init') === null) {
-        el.setAttribute('data-init', 'true');
-        el.addEventListener('shown.bs.popover', function(event) {
-            event.target.setAttribute('data-popover', 'true');
-            document.getElementsByClassName('popover-content')[0].addEventListener('click', function(eventClick) {
-                eventClick.preventDefault();
-                eventClick.stopPropagation();
-                if (eventClick.target.nodeName === 'A') {
-                    const dh = eventClick.target.getAttribute('data-href');
-                    if (dh) {
-                        const cmd = JSON.parse(b64DecodeUnicode(dh));
-                        parseCmd(event, cmd);
-                        hideMenu();
-                    }
-                }
-            }, false);
-            document.getElementsByClassName('popover-content')[0].addEventListener('keydown', function(eventKey) {
-                eventKey.preventDefault();
-                eventKey.stopPropagation();
-                if (eventKey.key === 'ArrowDown' || eventKey.key === 'ArrowUp') {
-                    const menuItemsHtml = this.getElementsByTagName('a');
-                    const menuItems = Array.prototype.slice.call(menuItemsHtml);
-                    let idx = menuItems.indexOf(document.activeElement);
-                    do {
-                        idx = eventKey.key === 'ArrowUp' ? (idx > 1 ? idx - 1 : 0)
-                                                 : eventKey.key === 'ArrowDown' ? ( idx < menuItems.length - 1 ? idx + 1 : idx)
-                                                                            : idx;
-                        if ( idx === 0 || idx === menuItems.length -1 ) {
-                            break;
-                        }
-                    } while (!menuItems[idx].offsetHeight);
-                    if (menuItems[idx]) {
-                        menuItems[idx].focus();
-                    }
-                }
-                else if (eventKey.key === 'Enter') {
-                    eventKey.target.click();
-                }
-                else if (eventKey.key === 'Escape') {
+
+    el.addEventListener('shown.bs.popover', function(event) {
+        event.target.setAttribute('data-popover', 'true');
+        document.getElementsByClassName('popover-content')[0].addEventListener('click', function(eventClick) {
+            eventClick.preventDefault();
+            eventClick.stopPropagation();
+            if (eventClick.target.nodeName === 'A') {
+                const dh = eventClick.target.getAttribute('data-href');
+                if (dh) {
+                    const cmd = JSON.parse(b64DecodeUnicode(dh));
+                    parseCmd(event, cmd);
                     hideMenu();
                 }
-            }, false);
-            const collapseLink = document.getElementById('advancedMenuLink');
-            if (collapseLink) {
-                collapseLink.addEventListener('click', function() {
-                    const icon = this.getElementsByTagName('span')[0];
-                    if (icon.textContent === 'keyboard_arrow_right') {
-                        icon.textContent = 'keyboard_arrow_down';
-                    }
-                    else {
-                        icon.textContent = 'keyboard_arrow_right';
-                    }
-                }, false);
-                new BSN.Collapse(collapseLink);
             }
-            document.getElementsByClassName('popover-content')[0].firstChild.focus();
         }, false);
-    }
-    popoverInit.show();
+        document.getElementsByClassName('popover-content')[0].addEventListener('keydown', function(eventKey) {
+            eventKey.preventDefault();
+            eventKey.stopPropagation();
+            if (eventKey.key === 'ArrowDown' || eventKey.key === 'ArrowUp') {
+                const menuItemsHtml = this.getElementsByTagName('a');
+                const menuItems = Array.prototype.slice.call(menuItemsHtml);
+                let idx = menuItems.indexOf(document.activeElement);
+                do {
+                    idx = eventKey.key === 'ArrowUp' ? (idx > 1 ? idx - 1 : 0)
+                                                : eventKey.key === 'ArrowDown' ? ( idx < menuItems.length - 1 ? idx + 1 : idx)
+                                                                        : idx;
+                    if ( idx === 0 || idx === menuItems.length -1 ) {
+                        break;
+                    }
+                } while (!menuItems[idx].offsetHeight);
+                if (menuItems[idx]) {
+                    menuItems[idx].focus();
+                }
+            }
+            else if (eventKey.key === 'Enter') {
+                eventKey.target.click();
+            }
+            else if (eventKey.key === 'Escape') {
+                hideMenu();
+            }
+        }, false);
+        const collapseLink = document.getElementById('advancedMenuLink');
+        if (collapseLink) {
+            collapseLink.addEventListener('click', function() {
+                const icon = this.getElementsByTagName('span')[0];
+                if (icon.textContent === 'keyboard_arrow_right') {
+                    icon.textContent = 'keyboard_arrow_down';
+                }
+                else {
+                    icon.textContent = 'keyboard_arrow_right';
+                }
+            }, false);
+            new BSN.Collapse(collapseLink);
+        }
+        document.getElementsByClassName('popover-content')[0].firstChild.focus();
+    }, false);
+
+    return popoverInit;
 }
