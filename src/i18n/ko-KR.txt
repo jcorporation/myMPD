@@ -1872,3 +1872,15 @@ Too many timers defined
 
 Too many triggers defined
 너무 많은 트리거가 정의됨
+
+A smart playlist with this name already exists
+같은 이름의 스마트 연주목록이 이미 있음
+
+Playlist is empty
+연주목록이 비었음
+
+License
+라이센스
+
+Default actions
+기본 기능
