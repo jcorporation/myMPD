@@ -27,7 +27,7 @@ function initOutputs() {
             event.stopPropagation();
             event.preventDefault();
             sendAPI("MYMPD_API_PLAYER_OUTPUT_TOGGLE", {
-                "outputId": getCustomDomProperty(target, 'data-output-id'),
+                "outputId": Number(getCustomDomProperty(target, 'data-output-id')),
                 "state": (target.classList.contains('active') ? 0 : 1)
             });
             toggleBtn(target.id);
