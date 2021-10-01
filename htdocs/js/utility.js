@@ -341,42 +341,40 @@ function addTagList(elId, list) {
     const stack = elCreate('div', {"class": ["d-grid", "gap-2"]}, '');
     if (list === 'tagListSearch') {
         if (features.featTags === true) {
-            stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "any"}, tn('Any Tag')));
+            stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "any"}, tn('Any Tag')));
         }
-        stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "filename"}, tn('Filename')));
+        stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "filename"}, tn('Filename')));
     }
     if (elId === 'searchDatabaseTags') {
-        stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "any"}, tn('Any Tag')));
+        stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "any"}, tn('Any Tag')));
     }
     for (let i = 0, j = settings[list].length; i < j; i++) {
-        stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": settings[list][i]}, tn(settings[list][i])));
+        stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": settings[list][i]}, tn(settings[list][i])));
     }
     if (elId === 'BrowseNavFilesystemDropdown' || elId === 'BrowseNavPlaylistsDropdown') {
         if (features.featTags === true && features.featAdvsearch === true) {
-            stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "Database"}, tn('Database')));
-        }
-        else {
             elClear(stack);
+            stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "Database"}, tn('Database')));
         }
     }
     if (elId === 'BrowseDatabaseByTagDropdown' || elId === 'BrowseNavFilesystemDropdown' || elId === 'BrowseNavPlaylistsDropdown') {
         if (elId === 'BrowseDatabaseByTagDropdown') {
             stack.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
         }
-        stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "Playlists"}, tn('Playlists')));
+        stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "Playlists"}, tn('Playlists')));
         if (elId === 'BrowseNavPlaylistsDropdown') {
             stack.lastChild.classList.add('active');
         }
-        stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "Filesystem"}, tn('Filesystem')));
+        stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "Filesystem"}, tn('Filesystem')));
         if (elId === 'BrowseNavFilesystemDropdown') {
             stack.lastChild.classList.add('active');
         }
     }
     else if (elId === 'databaseSortTagsList') {
         if (settings.tagList.includes('Date') === true && settings[list].includes('Date') === false) {
-            stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "Date"}, tn('Date')));
+            stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "Date"}, tn('Date')));
         }
-        stack.appendChild(elCreate('div', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "Last-Modified"}, tn('Last modified')));
+        stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm", "btn-block"], "data-tag": "Last-Modified"}, tn('Last modified')));
     }
     const el = document.getElementById(elId);
     elClear(el);

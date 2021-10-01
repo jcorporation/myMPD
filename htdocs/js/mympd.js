@@ -518,13 +518,6 @@ function appInit() {
             parseCmd(event, getCustomDomProperty(this, 'data-href'));
         }, false);
     }
-    //do not submit forms
-    const noFormSubmit = ['search', 'searchqueue', 'searchdatabase'];
-    for (const formName of noFormSubmit) {
-        document.getElementById(formName).addEventListener('submit', function(event) {
-            event.preventDefault();
-        }, false);
-    }
     //hide popover
     domCache.body.addEventListener('click', function() {
         hideMenu();

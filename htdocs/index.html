@@ -145,9 +145,11 @@
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
-              <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
-              <button data-phrase="LastPlayed" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
-              <button data-phrase="Jukebox" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Jukebox"]}'></button>
+              <div class="d-grid gap-2">
+                <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
+                <button data-phrase="LastPlayed" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
+                <button data-phrase="Jukebox" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Jukebox"]}'></button>
+              </div>
             </div>
           </div>
           <div class="btn-group me-2">
@@ -166,23 +168,22 @@
             <button data-title-phrase="Crop queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "clearQueue", "options": []}'>clear_all</button>
             <button id="clearQueueBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="clearQueueDropdown">
-              <button data-phrase="Clear queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}]}' ></button>
-              <button data-phrase="Crop queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}]}' ></button>
+              <div class="d-grid gap-2">
+                <button data-phrase="Clear queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}]}' ></button>
+                <button data-phrase="Crop queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}]}' ></button>
+            </div>
             </div>
           </div>
-          <form id="searchqueue" class="flex-grow-1 me-2">
-            <div class="input-group">
-              <div>
-                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
-                  <span class="mi">search</span>
-                  <span data-phrase="Any Tag" id="searchqueuetagsdesc"></span>
-                </button>
-                <div class="dropdown-menu bg-lite-dark px-2" id="searchqueuetags">
-                </div>
-              </div>
-              <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search queue" type="text" class="form-control border-secondary rounded-end" id="searchqueuestr"/>
-            </div>
-          </form>
+          <div class="btn-group">
+            <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
+              <span class="mi">search</span>
+              <span data-phrase="Any Tag" id="searchqueuetagsdesc"></span>
+            </button>
+            <div class="dropdown-menu bg-lite-dark px-2" id="searchqueuetags"></div>
+          </div>
+          <div class="input-group me-2">
+            <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search queue" type="text" class="form-control border-secondary square-start rounded-end" id="searchqueuestr"/>
+          </div>
           <div class="btn-group me-2">
             <button id="btnQueueGotoPlayingSong" data-title-phrase="Goto playing song" type="button" class="btn btn-secondary mi" data-href='{"cmd": "gotoPlayingSong", "options": []}'>playlist_play</button>
           </div>
@@ -220,9 +221,11 @@
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
-              <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
-              <button data-phrase="LastPlayed" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
-              <button data-phrase="Jukebox" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Jukebox"]}'></button>
+              <div class="d-grid gap-2">
+                <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
+                <button data-phrase="LastPlayed" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
+                <button data-phrase="Jukebox" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Jukebox"]}'></button>
+            </div>
             </div>
           </div>
           <div class="btn-group me-2 featHome">
@@ -257,9 +260,11 @@
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
-              <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
-              <button data-phrase="LastPlayed" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
-              <button data-phrase="Jukebox" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "Jukebox"]}'></button>
+              <div class="d-grid gap-2">
+                <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
+                <button data-phrase="LastPlayed" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
+                <button data-phrase="Jukebox" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "Jukebox"]}'></button>
+            </div>
             </div>
           </div>
           <div class="btn-group me-2 featHome">
@@ -400,32 +405,26 @@
           <div class="btn-toolbar card-toolbar" id="BrowseDatabaseButtons">
             <div class="btn-group me-2">
               <button data-title-phrase="Select view" id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
-              <div class="dropdown-menu bg-lite-dark px-2" id="BrowseDatabaseByTagDropdown">
-              </div>
+              <div class="dropdown-menu bg-lite-dark px-2" id="BrowseDatabaseByTagDropdown"></div>
             </div>
-            <form id="searchdatabase" class="flex-grow-1">
-              <div class="input-group me-2">
-                <div>
-                  <button id="btnDatabaseSearchDropdown" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
-                    <span class="mi">search</span>
-                    <span data-phrase="AlbumArtist" id="searchDatabaseTagsDesc"></span>
-                  </button>
-                  <div class="dropdown-menu bg-lite-dark px-2" id="searchDatabaseTags">
-                  </div>
-                </div>
-                <div class="featAdvsearch">
-                  <select class="form-control form-select border-secondary rounded-0" id="searchDatabaseMatch">
-                    <option data-phrase="contains" value="contains"></option>
-                    <option data-phrase="starts_with" value="starts_with"></option>
-                    <option value="==">==</option>
-                    <option value="=~">=~</option>
-                    <option value="!=">!=</option>
-                    <option value="!~">!~</option>
-                  </select>
-                </div>            
+              <div class="btn-group">
+                <button id="btnDatabaseSearchDropdown" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
+                  <span class="mi">search</span>
+                  <span data-phrase="AlbumArtist" id="searchDatabaseTagsDesc"></span>
+                </button>
+                <div class="dropdown-menu bg-lite-dark px-2" id="searchDatabaseTags"></div>
+              </div>
+              <div class="input-group me-2 flex-grow-1">
+                <select class="featAdvsearch form-control form-select border-secondary rounded-0 no-flex" id="searchDatabaseMatch">
+                  <option data-phrase="contains" value="contains"></option>
+                  <option data-phrase="starts_with" value="starts_with"></option>
+                  <option value="==">==</option>
+                  <option value="=~">=~</option>
+                  <option value="!=">!=</option>
+                  <option value="!~">!~</option>
+                </select>
                 <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-end" id="searchDatabaseStr"/>
               </div>
-            </form>
             <div class="btn-group me-2">
               <button id="btnDatabaseSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">sort</span></button>
               <div class="dropdown-menu bg-lite-dark px-2" id="databaseSortTags">
@@ -444,7 +443,7 @@
             <div id="BrowseDatabaseListPaginationTop" class="btn-group me-2 pagination hide">
             </div>
           </div>
-          <ol class="featAdvsearch breadcrumb hide" id="searchDatabaseCrumb"></ol>
+          <ol class="featAdvsearch breadcrumb p-2 rounded-2 hide" id="searchDatabaseCrumb"></ol>
           <div class="container BrowseDatabaseCardsContainer">
             <div id="BrowseDatabaseListList" class="row">
             </div>
@@ -461,9 +460,11 @@
               <button data-title-phrase="Append to queue" class="btn btn-secondary mi" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}'>library_add</button>
               <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
               <div class="dropdown-menu bg-lite-dark px-2">
-                <button data-phrase="Append to queue" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}' type="button" class="btn btn-secondary btn-sm btn-block"></button>
-                <button data-phrase="Replace queue" data-href='{"cmd": "addAlbum", "options": ["replaceQueue"]}' type="button" class="btn btn-secondary btn-sm btn-block"></button>
-                <button data-phrase="Add to playlist" data-href='{"cmd": "addAlbum", "options": ["addPlaylist"]}' type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
+                <div class="d-grid gap-2">
+                  <button data-phrase="Append to queue" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}' type="button" class="btn btn-secondary btn-sm btn-block"></button>
+                  <button data-phrase="Replace queue" data-href='{"cmd": "addAlbum", "options": ["replaceQueue"]}' type="button" class="btn btn-secondary btn-sm btn-block"></button>
+                  <button data-phrase="Add to playlist" data-href='{"cmd": "addAlbum", "options": ["addPlaylist"]}' type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
+              </div>
               </div>
             </div>
             <div class="btn-group me-2 featHome">
@@ -503,9 +504,11 @@
               <button data-title-phrase="Append to queue" data-href='{"cmd": "addAllFromBrowseFilesystem", "options": []}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary mi">library_add</button>
               <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
               <div class="dropdown-menu bg-lite-dark px-2" id="BrowseFilesystemAddAllSongsDropdown">
-                <button data-href='{"cmd": "addAllFromBrowseFilesystem", "options": [false]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
-                <button data-href='{"cmd": "addAllFromBrowseFilesystem", "options": [true]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
-                <button data-href='{"cmd": "showAddToPlaylistFromFilesystem", "options": []}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
+                <div class="d-grid gap-2">
+                  <button data-href='{"cmd": "addAllFromBrowseFilesystem", "options": [false]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
+                  <button data-href='{"cmd": "addAllFromBrowseFilesystem", "options": [true]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
+                  <button data-href='{"cmd": "showAddToPlaylistFromFilesystem", "options": []}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
+                </div>
               </div>
             </div>
           </div>
@@ -523,7 +526,7 @@
           <div id="BrowseFilesystemPaginationTop" class="btn-group me-2 pagination hide">
           </div>
         </div>
-        <ol id="BrowseBreadcrumb" class="breadcrumb"></ol>
+        <ol id="BrowseBreadcrumb" class="breadcrumb p-2 rounded-2"></ol>
         <div id="BrowseFilesystemImages" class="featLibrary not-clickable" data-href='{"cmd": "zoomPicture", "options": []}'></div>
         <div class="table-responsive-md">
           <table id="BrowseFilesystemList" class="table table-hover table-sm">
@@ -554,30 +557,29 @@
               <span class="mi">search</span>
               <span data-phrase="Any Tag" id="searchtagsdesc"></span>
             </button>
-            <div class="dropdown-menu bg-lite-dark px-2" id="searchtags">
-            </div>
+            <div class="dropdown-menu bg-lite-dark px-2" id="searchtags"></div>
           </div>
-          <form id="search" class="flex-grow-1">
-            <div class="input-group me-2">
-              <select class="featAdvsearch form-control form-select border-secondary rounded-0" id="searchMatch">
-                <option data-phrase="contains" value="contains"></option>
-                <option data-phrase="starts_with" value="starts_with"></option>
-                <option value="==">==</option>
-                <option value="=~">=~</option>
-                <option value="!=">!=</option>
-                <option value="!~">!~</option>
-              </select>
-              <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-end" id="searchstr"/>
-            </div>
-          </form>
+          <div class="input-group me-2 flex-grow-1">
+            <select class="featAdvsearch form-control form-select border-secondary rounded-0 no-flex" id="searchMatch">
+              <option data-phrase="contains" value="contains"></option>
+              <option data-phrase="starts_with" value="starts_with"></option>
+              <option value="==">==</option>
+              <option value="=~">=~</option>
+              <option value="!=">!=</option>
+              <option value="!~">!~</option>
+            </select>
+            <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-end" id="searchstr"/>
+          </div>
           <div class="btn-group me-2">
             <button data-title-phrase="Append to queue" id="searchAddAllSongs" class="btn btn-secondary mi" data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}'>library_add</button>
             <button id="searchAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown"></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="searchAddAllSongsDropdown">
-              <button data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
-              <button data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, true]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
-              <button data-href='{"cmd": "showAddToPlaylistCurrentSearch", "options": []}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
-              <button data-href='{"cmd": "saveSearchAsSmartPlaylist", "options": []}' data-phrase="Save as smart playlist" type="button" class="btn btn-secondary btn-sm btn-block featSmartpls"></button>
+              <div class="d-grid gap-2">
+                <button data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
+                <button data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, true]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
+                <button data-href='{"cmd": "showAddToPlaylistCurrentSearch", "options": []}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
+                <button data-href='{"cmd": "saveSearchAsSmartPlaylist", "options": []}' data-phrase="Save as smart playlist" type="button" class="btn btn-secondary btn-sm btn-block featSmartpls"></button>
+            </div>
             </div>
           </div>
           <div class="btn-group me-2 featHome">
@@ -586,7 +588,7 @@
           <div id="SearchPaginationTop" class="btn-group me-2 pagination hide">
           </div>
         </div>
-        <ol class="featAdvsearch breadcrumb hide" id="searchCrumb"></ol>
+        <ol class="featAdvsearch breadcrumb p-2 rounded-2 hide" id="searchCrumb"></ol>
         <div class="table-responsive-md">
           <table id="SearchList" class="table table-hover table-sm">
             <thead>

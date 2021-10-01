@@ -104,6 +104,11 @@ main {
   border-top-right-radius: 0 !important;
 }
 
+.square-start {
+  border-bottom-left-radius: 0 !important;
+  border-top-left-radius: 0 !important;
+}
+
 .breakAll {
   word-break: break-all;
 }
@@ -1148,4 +1153,9 @@ button.clear-button {
 
 .form-check {
   white-space: nowrap;
+}
+
+.no-flex {
+  width: auto !important;
+  flex: unset !important;
 }
