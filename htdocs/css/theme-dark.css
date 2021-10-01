@@ -16,6 +16,10 @@ body.theme-dark .btn {
   color: #f8f9fa;
 }
 
+body.theme-dark .btn-dark {
+  border-color: #343a40 !important;
+}
+
 body.theme-dark .btn:hover,
 body.theme-dark .btn:focus {
   border-color: transparent;

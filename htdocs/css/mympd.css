@@ -741,7 +741,8 @@ textarea.small {
 }
 
 .btn-dark {
-  border-color: #343a40 !important;
+  background-color: #343a40;
+  border-color: #343a40;
 }
 
 .btn-dark:not(:disabled):not(.disabled):active,
