@@ -298,10 +298,10 @@ Delete
 Löschen
 
 Dislike song
-Schlechtes Lied
+Gefällt mir nicht
 
 Like song
-Gutes Lied
+Gefällt mir
 
 MPD stickers are disabled
 MPD Sticker sind deaktiviert
