@@ -56,7 +56,7 @@ if (LUA_FOUND)
     ../src/lib/mem.c
   )
 
-  set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_FS=0")
+  set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_FS=0 -DMG_ENABLE_SSI=0")
   set_property(SOURCE "mympd-script.c" PROPERTY COMPILE_FLAGS "${MYMPD_COMPILE_FLAGS} ${MONGOOSE_FLAGS}")
   set_property(SOURCE "../dist/src/mongoose/mongoose.c" PROPERTY COMPILE_FLAGS ${MONGOOSE_FLAGS})
 

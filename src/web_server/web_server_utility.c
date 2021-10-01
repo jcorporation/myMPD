@@ -16,17 +16,6 @@
 #include "web_server_embedded_files.c"
 #endif
 
-//private definitions
-static bool rm_mk_dir(sds dir_name, bool create);
-static bool check_ipv4_acl(sds acl, const uint32_t remote_ip);
-
-/*
-static bool check_ipv6_acl(sds acl, const uint8_t remote_ip[16]);
-static bool compare_ipv6_with_mask(const uint8_t addr1[16], const int addr2[16], 
-    const int mask[16]);
-static void create_ipv6_mask(int *netmask, int mask);
-*/
-
 //public functions
 void mg_user_data_free(struct t_mg_user_data *mg_user_data) {
     FREE_SDS(mg_user_data->browse_document_root);
@@ -54,36 +43,6 @@ struct mg_str mg_str_strip_parent(struct mg_str *path, int count) {
         path->ptr++;
     }
     return *path;
-}
-
-bool webserver_check_ip_acl(sds acl, struct mg_addr *peer) {
-    /*
-    if (peer->is_ip6 == true) {
-        //ipv6
-        return check_ipv6_acl(acl, peer->ip6);
-    }
-    */
-    //ipv4
-    uint32_t remote_ip = ntohl(peer->ip);
-    return check_ipv4_acl(acl, remote_ip);
-}
-
-void webserver_manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bool playlists) {
-    sds dir_name = sdscatfmt(sdsempty(), "%s/empty/pics", workdir);
-    rm_mk_dir(dir_name, pics);
-    
-    sdsclear(dir_name);
-    dir_name = sdscatfmt(dir_name, "%s/empty/smartplaylists", workdir);
-    rm_mk_dir(dir_name, smartplaylists);
-    
-    sdsclear(dir_name);
-    dir_name = sdscatfmt(dir_name, "%s/empty/music", workdir);
-    rm_mk_dir(dir_name, music);
-    
-    sdsclear(dir_name);
-    dir_name = sdscatfmt(dir_name, "%s/empty/playlists", workdir);
-    rm_mk_dir(dir_name, playlists);
-    FREE_SDS(dir_name);
 }
 
 //create an empty dummy message struct, used for async responses
@@ -135,7 +94,7 @@ sds webserver_find_image_file(sds basefilename) {
 }
 
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg) {
-    mg_http_reply(nc, code, "Content-Type: text/html\n\n", "<html><head><title>myMPD error</title></head><body>"
+    mg_http_reply(nc, code, "Content-Type: text/html\r\n", "<!DOCTYPE html><html><head><title>myMPD error</title></head><body>"
         "<h1>myMPD error</h1>"
         "<p>%s</p>"
         "</body></html>",
@@ -188,14 +147,22 @@ void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_messag
     asset_image = webserver_find_image_file(asset_image);
     if (sdslen(asset_image) > 0) {
         const char *mime_type = get_mime_type_by_ext(asset_image);
-        mg_http_serve_file(nc, hm, asset_image, mime_type, EXTRA_HEADERS_CACHE);
+        static struct mg_http_serve_opts s_http_server_opts;
+        s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+        s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
+        s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+        mg_http_serve_file(nc, hm, asset_image, &s_http_server_opts);
         MYMPD_LOG_DEBUG("Serving custom asset image \"%s\" (%s)", asset_image, mime_type);
     }
     else {
         sdsclear(asset_image);
         #ifdef DEBUG
         asset_image = sdscatfmt(asset_image, "%s/assets/%s.svg", DOC_ROOT, name);
-        mg_http_serve_file(nc, hm, asset_image, "image/svg+xml", EXTRA_HEADERS_CACHE);
+        static struct mg_http_serve_opts s_http_server_opts;
+        s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+        s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
+        s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+        mg_http_serve_file(nc, hm, asset_image, &s_http_server_opts);
         #else
         asset_image = sdscatfmt(asset_image, "/assets/%s.svg", name);
         webserver_serve_embedded_files(nc, asset_image, hm);
@@ -287,135 +254,3 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri, struct mg
     return false;
 }
 #endif
-
-//private functions
-static bool rm_mk_dir(sds dir_name, bool create) {
-    if (create == true) { 
-        errno = 0;
-        int rc = mkdir(dir_name, 0700);
-        if (rc != 0 && errno != EEXIST) {
-            MYMPD_LOG_ERROR("Can not create directory \"%s\"", dir_name);
-            MYMPD_LOG_ERRNO(errno);
-            return false;
-        }
-    }
-    else { 
-        errno = 0;
-        int rc = rmdir(dir_name);
-        if (rc != 0 && errno != ENOENT) {
-            MYMPD_LOG_ERROR("Can not remove directory \"%s\"", dir_name);
-            MYMPD_LOG_ERRNO(errno);
-            return false;
-        }
-    }
-    return true;
-}
-
-static bool check_ipv4_acl(sds acl, uint32_t remote_ip) {
-    bool allowed = false;
-    int count;
-    sds *tokens = sdssplitlen(acl, (ssize_t)sdslen(acl), ",", 1, &count);
-    for (int i = 0; i < count; i++) {
-        if (strstr(tokens[i], ":") != NULL) {
-            //ipv6 skip
-            continue;
-        }
-        int flag = (unsigned char) tokens[i][0];
-        char *acl_str = tokens[i];
-        acl_str++;
-        char *mask_str;
-        char *net_str = strtok_r(acl_str, "/", &mask_str);
-        if (net_str == NULL || mask_str == NULL) {
-            continue;
-        }
-        uint32_t mask = (int)strtoimax(mask_str, NULL, 10);
-        if (mask == 0) {
-            //mask of 0 matches always
-            allowed = flag == '+' ? true : false;        
-            continue;
-        }
-        if (mask > 32) {
-            //invalid mask
-            continue;
-        }
-        uint32_t net;
-        if (inet_pton(AF_INET, net_str, &net) != 1) {
-            MYMPD_LOG_WARN("Invalid acl entry: \"%s\"", tokens[i]);
-            continue;
-        }
-        uint32_t net_ip = ntohl(net);        
-        uint32_t mask_bits = 0xffffffffU << (32 - mask);
-        MYMPD_LOG_DEBUG("remote ip: %u, acl: %u", (remote_ip & mask_bits), (net_ip & mask_bits));
-        if ((remote_ip & mask_bits) == (net_ip & mask_bits)) {
-            allowed = flag == '+' ? true : false;        
-        }
-    }
-    sdsfreesplitres(tokens, count);
-    return allowed;
-}
-
-/*
-static bool check_ipv6_acl(sds acl, const uint8_t remote_ip[16]) {
-    bool allowed = false;
-    int count;
-    sds *tokens = sdssplitlen(acl, sdslen(acl), ",", 1, &count);
-    for (int i = 0; i < count; i++) {
-        if (strstr(tokens[i], ":") == NULL) {
-            //ipv4 skip
-            continue;
-        }
-        int flag = tokens[i][0];
-        char *acl_str = tokens[i];
-        acl_str++;
-        char *mask_str;
-        char *net_str = strtok_r(acl_str, "/", &mask_str);
-        uint32_t mask = (int)strtoimax(mask_str, NULL, 10);
-        if (mask == 0) {
-            //mask of 0 matches always
-            allowed = flag == '+' ? true : false;        
-            continue;
-        }
-        else if (mask > 128) {
-            //invalid mask
-            continue;
-        }
-        int net[16];
-        if (inet_pton(AF_INET6, net_str, &net) != 1) {
-            MYMPD_LOG_WARN("Invalid acl entry: \"%s\"", tokens[i]);
-            continue;
-        }
-        
-        int mask_struct[16];
-        create_ipv6_mask(&mask_struct[0], mask);
-        if (compare_ipv6_with_mask(remote_ip, net, mask_struct) == true) {
-            allowed = flag == '+' ? true : false;        
-        }
-    }
-    FREE_SDSsplitres(tokens, count);
-    return allowed;
-}
-
-static bool compare_ipv6_with_mask(const uint8_t addr1[16], const int addr2[16], 
-    const int mask[16])
-{
-    int masked[16];
-	for (unsigned i = 0; i < 16; i++) {
-	    masked[i] = addr2[i];
-	    masked[i] &= mask[i];
-    }
-	return memcmp(addr1, &masked, sizeof(int[16])) == 0 ? true : false;
-}
-
-static void create_ipv6_mask(int *netmask, int mask) {
-	memset(netmask, 0, sizeof(int[16]));
-	int *p_netmask = netmask;
-	while (8 < mask) {
-		*p_netmask = 0xff;
-		p_netmask++;
-		mask -= 8;
-	}
-	if (mask != 0) {
-		*p_netmask = htonl(0xff << (8 - mask));
-	}
-}
-*/

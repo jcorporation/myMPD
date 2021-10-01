@@ -101,7 +101,11 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
         if (sdslen(coverfile) > 0) {
             const char *mime_type = get_mime_type_by_ext(coverfile);
             MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
-            mg_http_serve_file(nc, hm, coverfile, mime_type, EXTRA_HEADERS_CACHE);
+            static struct mg_http_serve_opts s_http_server_opts;
+            s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+            s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
+            s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+            mg_http_serve_file(nc, hm, coverfile, &s_http_server_opts);
         }
         else {
             webserver_serve_stream_image(nc, hm);
@@ -121,7 +125,11 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
         if (sdslen(covercachefile) > 0) {
             const char *mime_type = get_mime_type_by_ext(covercachefile);
             MYMPD_LOG_DEBUG("Serving file %s (%s)", covercachefile, mime_type);
-            mg_http_serve_file(nc, hm, covercachefile, mime_type, EXTRA_HEADERS_CACHE);
+            static struct mg_http_serve_opts s_http_server_opts;
+            s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+            s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
+            s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+            mg_http_serve_file(nc, hm, covercachefile, &s_http_server_opts);
             FREE_SDS(uri_decoded);
             FREE_SDS(covercachefile);
             return true;
@@ -151,7 +159,11 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
                 if (sdslen(coverfile) > 0 && access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
                     const char *mime_type = get_mime_type_by_ext(coverfile);
                     MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
-                    mg_http_serve_file(nc, hm, coverfile, mime_type, EXTRA_HEADERS_CACHE);
+                    static struct mg_http_serve_opts s_http_server_opts;
+                    s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+                    s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
+                    s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+                    mg_http_serve_file(nc, hm, coverfile, &s_http_server_opts);
                     FREE_SDS(uri_decoded);
                     FREE_SDS(coverfile);
                     FREE_SDS(mediafile);

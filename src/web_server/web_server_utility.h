@@ -42,6 +42,10 @@
       "td:last-child{text-align:right}a,a:visited,a:active{color:#212529;text-decoration:none}"\
       "a:hover{text-decoration:underline}"
 
+#define EXTRA_MIME_TYPES "jpg=image/jpeg,jpeg=image/jpeg,webp=image/webp,avif=image/avif,"\
+    "mp3=audio/mpeg,flac=audio/flac,oga=audio/ogg,ogg=audio/ogg,opus=audio/ogg,spx=audio/ogg,"\
+    "svg=image/svg+xml,crt=application/x-x509-ca-cert,pem=application/x-x509-ca-cert"
+
 //struct for mg_mgr userdata
 struct t_mg_user_data {
     struct t_config *config; //pointer to mympd config
@@ -75,7 +79,6 @@ void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *
 void webserver_send_header_redirect(struct mg_connection *nc, const char *location);
 void webserver_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers);
 void webserver_handle_connection_close(struct mg_connection *nc);
-bool webserver_check_ip_acl(sds acl, struct mg_addr *peer);
 struct mg_str mg_str_strip_parent(struct mg_str *path, int count);
 void mg_user_data_free(struct t_mg_user_data *mg_user_data);
 #endif
