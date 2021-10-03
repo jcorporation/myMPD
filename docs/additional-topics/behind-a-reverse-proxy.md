@@ -22,6 +22,10 @@ In this examples myMPD is proxied behind the path `/mympd`.
 
 ```
 location /mympd/ {
+  proxy_set_header Host $host;
+  proxy_set_header X-Real-IP $remote_addr;
+  # nginx's default HTTP 1.0 not supported by myMPD:
+  proxy_http_version 1.1;
   proxy_pass http://127.0.0.1:8080/;
 }
 ```
