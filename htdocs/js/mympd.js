@@ -719,6 +719,9 @@ function initNavs() {
 
     document.getElementById('navbar-main').addEventListener('click', function(event) {
         event.preventDefault();
+        if (event.target.nodeName === 'DIV') {
+            return;
+        }
         const target = event.target.nodeName === 'A' ? event.target : event.target.parentNode;
         const href = getCustomDomProperty(target, 'data-href');
         parseCmd(event, href);
