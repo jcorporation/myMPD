@@ -334,7 +334,7 @@ function parseScriptList(obj) {
 
     triggerScripts.innerHTML = timerActions.innerHTML;
     
-    const old = document.getElementById('selectTimerAction').querySelector('optgroup[data-value="script"]');
+    const old = document.getElementById('selectTimerAction').querySelector('optgroup[label="Script"]');
     if (old) {
         old.replaceWith(timerActions);
     }
