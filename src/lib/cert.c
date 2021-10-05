@@ -17,6 +17,7 @@
 #include <netinet/in.h>
 #include <openssl/bn.h>
 #include <openssl/err.h>
+#include <openssl/evp.h>
 #include <openssl/conf.h>
 #include <openssl/pem.h>
 #include <openssl/rand.h>
@@ -412,36 +413,26 @@ static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ 
 }
 
 static EVP_PKEY *generate_keypair(int rsa_key_bits) {
-    RSA *rsa = RSA_new();
-    if (!rsa) {
-        MYMPD_LOG_ERROR("Unable to create RSA structure");
+    EVP_PKEY_CTX *ctx;
+    EVP_PKEY *pkey = NULL;
+
+    ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
+    if (!ctx) {
         return NULL;
     }
-    
-    /* Allocate memory for the EVP_PKEY structure. */
-    EVP_PKEY *pkey = EVP_PKEY_new();
-    if (!pkey) {
-        MYMPD_LOG_ERROR("Unable to create EVP_PKEY structure");
+    if (EVP_PKEY_keygen_init(ctx) <= 0) {
+        EVP_PKEY_CTX_free(ctx);
         return NULL;
     }
-    
-    /* Generate the RSA key and assign it to pkey. */
-    BIGNUM *e = BN_new();
-    if (!e) {
-        MYMPD_LOG_ERROR("Unable to create BN structure");
-        EVP_PKEY_free(pkey);
+    if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, rsa_key_bits) <= 0) {
+        EVP_PKEY_CTX_free(ctx);
         return NULL;
     }
-    BN_set_word(e, 65537);
-    RSA_generate_key_ex(rsa, rsa_key_bits, e, NULL);
-    if (!EVP_PKEY_assign_RSA(pkey, rsa)) {
-        MYMPD_LOG_ERROR("Unable to generate RSA key");
-        BN_free(e);
-        EVP_PKEY_free(pkey);
+    if (EVP_PKEY_keygen(ctx, &pkey) <= 0) {
+        EVP_PKEY_CTX_free(ctx);
         return NULL;
     }
-    
-    BN_free(e);
+    EVP_PKEY_CTX_free(ctx);
     return pkey;
 }
 

@@ -23,6 +23,7 @@
 
 #ifdef ENABLE_SSL
     #include "lib/cert.h"
+    #include <openssl/opensslv.h>
 #endif
 
 #ifdef ENABLE_LUA
@@ -312,6 +313,9 @@ int main(int argc, char **argv) {
     #endif
     #ifdef ENABLE_FLAC
         MYMPD_LOG_NOTICE("FLAC %d.%d.%d", FLAC_API_VERSION_CURRENT, FLAC_API_VERSION_REVISION, FLAC_API_VERSION_AGE);
+    #endif
+    #ifdef ENABLE_SSL
+        MYMPD_LOG_NOTICE("%s", OPENSSL_VERSION_TEXT);
     #endif
     
     //set signal handler
