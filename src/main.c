@@ -45,7 +45,7 @@
 
 _Thread_local sds thread_logname;
 
-#ifdef DEBUG
+#ifdef ENABLE_LIBASAN
 const char *__asan_default_options(void) {
     return "verbosity=1:malloc_context_size=50:abort_on_error=true:log_threads=1";
 }
@@ -182,7 +182,7 @@ const struct t_workdir_subdirs_entry workdir_subdirs[] = {
 
 static bool check_dirs(struct t_config *config) {
     int testdir_rc;
-    #ifdef DEBUG
+    #ifndef EMBEDDED_ASSETS
         //release uses empty document root and delivers embedded files
         testdir_rc = testdir("Document root", DOC_ROOT, false);
         if (testdir_rc != DIR_EXISTS) {

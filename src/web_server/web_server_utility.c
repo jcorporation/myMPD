@@ -11,7 +11,7 @@
 #include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
 
-#ifndef DEBUG
+#ifdef EMBEDDED_ASSETS
 //embedded files for release build
 #include "web_server_embedded_files.c"
 #endif
@@ -156,23 +156,23 @@ void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_messag
     }
     else {
         sdsclear(asset_image);
-        #ifdef DEBUG
-        asset_image = sdscatfmt(asset_image, "%s/assets/%s.svg", DOC_ROOT, name);
-        static struct mg_http_serve_opts s_http_server_opts;
-        s_http_server_opts.root_dir = mg_user_data->browse_document_root;
-        s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
-        s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-        mg_http_serve_file(nc, hm, asset_image, &s_http_server_opts);
+        #ifndef EMBEDDED_ASSETS
+            asset_image = sdscatfmt(asset_image, "%s/assets/%s.svg", DOC_ROOT, name);
+            static struct mg_http_serve_opts s_http_server_opts;
+            s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+            s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
+            s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+            mg_http_serve_file(nc, hm, asset_image, &s_http_server_opts);
         #else
-        asset_image = sdscatfmt(asset_image, "/assets/%s.svg", name);
-        webserver_serve_embedded_files(nc, asset_image, hm);
+            asset_image = sdscatfmt(asset_image, "/assets/%s.svg", name);
+            webserver_serve_embedded_files(nc, asset_image, hm);
         #endif
         MYMPD_LOG_DEBUG("Serving asset image \"%s\" (image/svg+xml)", asset_image);
     }
     FREE_SDS(asset_image);
 }
 
-#ifndef DEBUG
+#ifdef EMBEDDED_ASSETS
 struct embedded_file {
     const char *uri;
     const size_t uri_len;

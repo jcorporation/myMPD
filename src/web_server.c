@@ -102,6 +102,7 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
         MYMPD_LOG_NOTICE("Listening on https://%s:%s", config->http_host, config->ssl_port);
     }
     #endif
+    MYMPD_LOG_NOTICE("Serving files from \"%s\"", DOC_ROOT);
     return mgr;
 }
 
@@ -558,18 +559,18 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             else {
                 //all other uris
-                #ifdef DEBUG
-                //serve all files from filesystem
-                static struct mg_http_serve_opts s_http_server_opts;
-                s_http_server_opts.root_dir = DOC_ROOT;
-                s_http_server_opts.extra_headers = EXTRA_HEADERS;
-                s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-                mg_http_serve_dir(nc, hm, &s_http_server_opts);
+                #ifndef EMBEDDED_ASSETS
+                    //serve all files from filesystem
+                    static struct mg_http_serve_opts s_http_server_opts;
+                    s_http_server_opts.root_dir = DOC_ROOT;
+                    s_http_server_opts.extra_headers = EXTRA_HEADERS;
+                    s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 #else
-                //serve embedded files
-                sds uri = sdsnewlen(hm->uri.ptr, hm->uri.len);
-                webserver_serve_embedded_files(nc, uri, hm);
-                FREE_SDS(uri);
+                    //serve embedded files
+                    sds uri = sdsnewlen(hm->uri.ptr, hm->uri.len);
+                    webserver_serve_embedded_files(nc, uri, hm);
+                    FREE_SDS(uri);
                 #endif
             }
             break;

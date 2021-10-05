@@ -12,8 +12,10 @@
 
 #include <limits.h>
 
-//debug build
+//build options
 #cmakedefine DEBUG
+#cmakedefine ENABLE_LIBASAN
+#cmakedefine EMBEDDED_ASSETS
 
 //features
 #cmakedefine ENABLE_LIBID3TAG

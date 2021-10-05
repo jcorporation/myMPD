@@ -65,7 +65,9 @@ Compile time options are set through environment variables.
 | ENABLE_LIBID3TAG | ON | ON = Enables libid3tag usage for extracting coverimages |
 | ENABLE_FLAC | ON | ON = Enables flac usage for extracting coverimages |
 | ENABLE_LUA | ON | ON =  Enables scripting support with lua |
+| EMBEDDED_ASSETS | - | ON = Embeds assets in binary, default ON for release else OFF |
 | MANPAGES | ON | ON = build manpages |
+| ENABLE_LIBASAN | - | ON = compile with libasan, default ON for memcheck else OFF |
 {: .table .table-sm}
 
 There are three compile targets for myMPD.
@@ -87,11 +89,12 @@ You can use `./build.sh releaseinstall` to compile and install in one step.
 - `./build.sh debug` builds the debug binaries
   - Directory: debug
   - Plain assets in htdocs directory
-  - Binary is statically linked with libasan3
+  - Use this to debug mympd with valgrind or gdb
+  
 - `./build.sh memcheck` builds the debug binaries
   - Directory: debug
   - Plain assets in htdocs directory
-  - Use this to debug mympd with valgrind or gdb
+  - Binary is statically linked with libasan3
 
 ### Test
 

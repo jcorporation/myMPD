@@ -13,6 +13,14 @@ set -u
 #print out commands
 [ -z "${DEBUG+x}" ] || set -x
 
+#get action
+if [ -z "${1+x}" ]
+then
+  ACTION=""
+else
+  ACTION="$1"
+fi
+
 #default compile settings
 if [ -z "${ENABLE_SSL+x}" ]
 then
@@ -32,6 +40,26 @@ fi
 if [ -z "${ENABLE_LUA+x}" ]
 then
   export ENABLE_LUA="ON"
+fi
+
+if [ -z "${EMBEDDED_ASSETS+x}" ]
+then
+  if [ "$ACTION" = "release" ]
+  then
+    export EMBEDDED_ASSETS="ON"
+  else
+    export EMBEDDED_ASSETS="OFF"
+  fi
+fi
+
+if [ -z "${ENABLE_LIBASAN+x}" ]
+then
+  if [ "$ACTION" = "memcheck" ]
+  then
+    export ENABLE_LIBASAN="ON"
+  else
+    export ENABLE_LIBASAN="OFF"
+  fi
 fi
 
 #colorful warnings and errors
@@ -99,14 +127,6 @@ check_cmd_silent() {
   done
   return 0
 }
-
-#get action
-if [ -z "${1+x}" ]
-then
-  ACTION=""
-else
-  ACTION="$1"
-fi
 
 if [ "$ACTION" != "installdeps" ] && [ "$ACTION" != "" ]
 then
@@ -279,6 +299,7 @@ buildrelease() {
   check_docs
   check_includes
   createassets
+  EMBEDDED_ASSETS="ON"
 
   echo "Compiling myMPD"
   install -d release
@@ -289,7 +310,8 @@ buildrelease() {
   export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
   cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE \
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
-  	-DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" ..
+  	-DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" \
+    -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DENABLE_LIBASAN="$ENABLE_LIBASAN" ..
   make
 }
 
@@ -337,25 +359,31 @@ installrelease() {
 }
 
 builddebug() {
-  MEMCHECK=$1
-
   install -d debug/htdocs/js
   createi18n ../../debug/htdocs/js/i18n.js pretty
   check_docs
   check_includes
 
-  echo "Copy dist assets"
-  cp "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
-  cp "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
-  cp "$PWD/dist/htdocs/js/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
-  cp "$PWD/dist/htdocs/assets/MaterialIcons-Regular.woff2" "$PWD/htdocs/assets/MaterialIcons-Regular.woff2"
-  cp "$PWD/debug/htdocs/js/i18n.js" "$PWD/htdocs/js/i18n.js"
+  if [ "$EMBEDDED_ASSETS" = "OFF" ]
+  then
+    echo "Copy dist assets"
+    cp "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
+    cp "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
+    cp "$PWD/dist/htdocs/js/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
+    cp "$PWD/dist/htdocs/assets/MaterialIcons-Regular.woff2" "$PWD/htdocs/assets/MaterialIcons-Regular.woff2"
+    cp "$PWD/debug/htdocs/js/i18n.js" "$PWD/htdocs/js/i18n.js"
+  else
+    MYMPD_BUILDDIR="debug"
+    createassets
+  fi
 
   echo "Compiling myMPD"
   cd debug || exit 1
-  cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -DMEMCHECK="$MEMCHECK" \
-  	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" -DENABLE_FLAC="$ENABLE_FLAC" \
-  	-DENABLE_LUA="$ENABLE_LUA" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+  cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG \
+  	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
+    -DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" \
+    -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DENABLE_LIBASAN="$ENABLE_LIBASAN" \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
   make VERBOSE=1
   echo "Linking compilation database"
   sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' -e 's/-static-libasan//g' compile_commands.json > ../src/compile_commands.json
@@ -1044,10 +1072,10 @@ case "$ACTION" in
 	  installrelease
 	;;
 	debug)
-	  builddebug "FALSE"
+	  builddebug
 	;;
 	memcheck)
-	  builddebug "TRUE"
+	  builddebug
 	;;
 	test)
 	  buildtest
@@ -1155,9 +1183,9 @@ case "$ACTION" in
     echo "                      - DESTDIR=\"\""
     echo "  releaseinstall:   calls release and install afterwards"
     echo "  debug:            builds debug files in directory debug,"
-    echo "                    linked with libasan3, uses assets in htdocs"
+    echo "                    serves assets from htdocs"
     echo "  memcheck:         builds debug files in directory debug"
-    echo "                    for use with valgrind, uses assets in htdocs"
+    echo "                    linked with libasan3 and not embedding assets"
     echo "  test:             builds the unit testing files in test/build"
     echo "  installdeps:      installs build and run dependencies"
     echo "  createassets:     creates the minfied and compressed dist files"
@@ -1240,7 +1268,9 @@ case "$ACTION" in
     echo "  - ENABLE_LIBID3TAG=\"ON\""
     echo "  - ENABLE_FLAC=\"ON\""
     echo "  - ENABLE_LUA=\"ON\""
+    echo "  - EMBEDDED_ASSETS=\"ON\""
     echo "  - MANPAGES=\"ON\""
+    echo "  - ENABLE_LIBASAN=\"OFF\""
     echo ""
     exit 1
 	;;

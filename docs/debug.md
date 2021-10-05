@@ -28,7 +28,7 @@ Tips to debug problems with myMPD. Try these steps and reproduce the error.
 
 ## myMPD debug build
 
-- Build: ``./build.sh memcheck``
+- Build: ``./build.sh debug``
 
 ### If myMPD aborts with a segmentation fault
 

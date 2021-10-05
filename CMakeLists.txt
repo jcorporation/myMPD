@@ -15,6 +15,8 @@ option(ENABLE_SSL "Enables OpenSSL usage, default ON" ON)
 option(ENABLE_LIBID3TAG "Enables libid3tag usage, default ON" ON)
 option(ENABLE_FLAC "Enables flac usage, default ON" ON)
 option(ENABLE_LUA "Enables lua usage, default ON" ON)
+option(EMBEDDED_ASSETS "Embeds assets in binary, default ON" ON)
+option(ENABLE_LIBASAN "Enables build with libasan, default OFF" OFF)
 
 include(GNUInstallDirs)
 include(CheckCSourceCompiles)
@@ -25,6 +27,8 @@ if (CMAKE_C_COMPILER_ID MATCHES "Clang")
   message("Compiling with clang")
   add_compile_options(-Wno-unknown-warning-option)
 endif()
+
+message("Compiler: ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}")
 
 if("${CMAKE_INSTALL_PREFIX}" MATCHES "/usr")
   set(SUBDIR "/${PROJECT_NAME}")
@@ -42,16 +46,22 @@ if("${CMAKE_INSTALL_PREFIX}" MATCHES "/usr/local")
 endif()
 message("VARLIB_PATH: ${VARLIB_PATH}")
 
-if(CMAKE_BUILD_TYPE MATCHES RELEASE)
+if("${EMBEDDED_ASSETS}" MATCHES "ON")
   set(ASSETS_PATH "${VARLIB_PATH}/empty")
   set(LUALIBS_PATH "")
-  set(DEBUG "OFF")
+  message("Emedding assets in binary")
 else()
   set(ASSETS_PATH "${PROJECT_SOURCE_DIR}/htdocs")
   set(LUALIBS_PATH "${PROJECT_SOURCE_DIR}/contrib/lualibs")
-  set(DEBUG "ON")
+  message("Serving assets from filesystem")
 endif()
 message("ASSETS_PATH: ${ASSETS_PATH}")
+
+if(CMAKE_BUILD_TYPE MATCHES RELEASE)
+  set(DEBUG "OFF")
+else()
+  set(DEBUG "ON")
+endif()
 
 find_package(Threads REQUIRED)
 find_package(PCRE REQUIRED)
@@ -137,20 +147,20 @@ configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.ope
 
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} dist/src/libmpdclient/include)
 
-if(${MEMCHECK} MATCHES "TRUE")
-  #for use with valgrind
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu17 -Wall -Werror -Wvla -Winit-self -Wuninitialized -Werror=array-bounds")
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
-else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu17 -O3 -Wall -Werror -Wvla -Winit-self -Wuninitialized -Werror=array-bounds \
-    -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE")
-  #set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -fsanitize=address \
+if("${ENABLE_LIBASAN}" MATCHES "ON")
+  message("Compiling with libasan")
+  set(LIBASAN_FLAGS "-fsanitize=address \
     -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
     -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
     -fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow \
-    -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -static-libasan")
+    -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -static-libasan") 
+else()
+  set(LIBASAN_FLAGS "")
 endif()
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -Wall -Werror -Wvla -Winit-self -Wuninitialized -Werror=array-bounds \
+    -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE ${LIBASAN_FLAGS}")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
 
 set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_DIRECTORY_LISTING=1 -DMG_ENABLE_SSI=0")
 set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABLE_RPC=0 -D MJSON_ENABLE_PRETTY=0 -D MJSON_ENABLE_MERGE=0")

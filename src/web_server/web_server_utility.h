@@ -64,7 +64,7 @@ struct t_mg_user_data {
     struct t_list session_list;
 };
 
-#ifndef DEBUG
+#ifdef EMBEDDED_ASSETS
 bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_message *hm);
 #endif
 void webserver_manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bool playlists);
