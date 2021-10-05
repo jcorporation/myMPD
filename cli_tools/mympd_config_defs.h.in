@@ -11,19 +11,15 @@
 
 #include "../dist/src/sds/sds.h"
 
-//Debug build
+//build options
 #cmakedefine DEBUG
+#cmakedefine ENABLE_LIBASAN
+#cmakedefine EMBEDDED_ASSETS
 
-//libid3tag
+//features
 #cmakedefine ENABLE_LIBID3TAG
-
-//flac
 #cmakedefine ENABLE_FLAC
-
-//openssl
 #cmakedefine ENABLE_SSL
-
-//lua
 #cmakedefine ENABLE_LUA
 
 //myMPD version from cmake
