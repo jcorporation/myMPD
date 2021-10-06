@@ -448,11 +448,11 @@ static void _set_parse_error(sds *error, const char *fmt, ...) {
     va_start(args, fmt);
     if (error != NULL && *error != NULL) {
         *error = sdscatvprintf(*error, fmt, args); // NOLINT(clang-diagnostic-format-nonliteral)
-        MYMPD_LOG_WARN(*error);
+        MYMPD_LOG_WARN("%s", *error);
     }
     else {
         sds e = sdscatvprintf(sdsempty(), fmt, args); // NOLINT(clang-diagnostic-format-nonliteral)
-        MYMPD_LOG_WARN(e);
+        MYMPD_LOG_WARN("%s", e);
         FREE_SDS(e);
     }
     va_end(args);

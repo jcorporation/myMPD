@@ -306,7 +306,7 @@ int main(int argc, char **argv) {
             LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
     MYMPD_LOG_NOTICE("Mongoose %s", MG_VERSION);
     #ifdef ENABLE_LUA
-        MYMPD_LOG_NOTICE(LUA_RELEASE);
+        MYMPD_LOG_NOTICE("%s", LUA_RELEASE);
     #endif
     #ifdef ENABLE_LIBID3TAG
         MYMPD_LOG_NOTICE("Libid3tag %s", ID3_VERSION);

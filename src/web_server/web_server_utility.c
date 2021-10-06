@@ -100,7 +100,8 @@ void webserver_send_error(struct mg_connection *nc, int code, const char *msg) {
         "</body></html>",
         msg);
     if (code >= 400) {
-        MYMPD_LOG_ERROR(msg);
+        //log msg not directly to prevent format string errors
+        MYMPD_LOG_ERROR("%s", msg);
     }
 }
 
@@ -218,7 +219,6 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri, struct mg
             break;
         }
     }
-    FREE_SDS(uri_decoded);
     
     if (p->uri != NULL) {
         //respond with error if browser don't support compression and asset is compressed
@@ -244,13 +244,15 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri, struct mg
                  );
         //send data
         mg_send(nc, p->data, p->size);
+        FREE_SDS(uri_decoded);
         return true;
     }
     else {
-        sds errormsg = sdscatfmt(sdsempty(), "Embedded asset \"%s\" not found", uri);
+        sds errormsg = sdscatfmt(sdsempty(), "Embedded asset \"%s\" not found", uri_decoded);
         webserver_send_error(nc, 404, errormsg);
         FREE_SDS(errormsg);
     }
+    FREE_SDS(uri_decoded);
     return false;
 }
 #endif

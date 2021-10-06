@@ -192,13 +192,13 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
 
     if (mympd_state->mpd_state->tag_types_mpd.len == 0) {
         logline = sdscatlen(logline, "none", 4);
-        MYMPD_LOG_NOTICE(logline);
+        MYMPD_LOG_NOTICE("%s", logline);
         MYMPD_LOG_NOTICE("Tags are disabled");
         mympd_state->mpd_state->feat_tags = false;
     }
     else {
         mympd_state->mpd_state->feat_tags = true;
-        MYMPD_LOG_NOTICE(logline);
+        MYMPD_LOG_NOTICE("%s", logline);
 
         check_tags(mympd_state->mpd_state->tag_list, "tag_list", &mympd_state->mpd_state->tag_types_mympd, mympd_state->mpd_state->tag_types_mpd);
         enable_mpd_tags(mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd);

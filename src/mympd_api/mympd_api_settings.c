@@ -138,7 +138,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
         }
         else {
             *error = sdscatfmt(*error, "Invalid value for \"%s\": \"%s\"", key, value);
-            MYMPD_LOG_WARN(*error);
+            MYMPD_LOG_WARN("%s", *error);
             return false;
         }
         if (keepalive != mympd_state->mpd_state->mpd_keepalive) {
@@ -151,7 +151,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
     }
     else {
         *error = sdscatfmt(*error, "Unknown setting \"%s\": \"%s\"", key, value);
-        MYMPD_LOG_WARN(*error);
+        MYMPD_LOG_WARN("%s", *error);
         return true;
     }
 
@@ -370,7 +370,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
     }
     else {
         *error = sdscatfmt(*error, "Unknown setting \"%s\": \"%s\"", key, value);
-        MYMPD_LOG_WARN(*error);
+        MYMPD_LOG_WARN("%s", *error);
         return true;
     }
     sds state_filename = camel_to_snake(key);
@@ -831,6 +831,6 @@ static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags
 
 static sds set_invalid_value(sds error, sds key, sds value) {
     error = sdscatfmt(error, "Invalid value for \"%s\": \"%s\"", key, value);
-    MYMPD_LOG_WARN(error);
+    MYMPD_LOG_WARN("%s", error);
     return error;
 }

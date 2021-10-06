@@ -168,7 +168,7 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
         }
     }
     sdsfreesplitres(tokens, tokens_count);
-    MYMPD_LOG_NOTICE(logline);
+    MYMPD_LOG_NOTICE("%s", logline);
     FREE_SDS(logline);
 }
 

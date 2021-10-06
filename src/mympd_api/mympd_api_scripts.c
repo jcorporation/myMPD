@@ -387,7 +387,7 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
         if (script_return_text != NULL) {
             err_str = sdscatfmt(err_str, ": %s", script_return_text);
         }
-        MYMPD_LOG_ERROR(err_str);
+        MYMPD_LOG_ERROR("%s", err_str);
         FREE_SDS(err_str);
     }
     lua_close(lua_vm);
@@ -447,13 +447,13 @@ static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
     int nr_return = lua_gettop(lua_vm);
     MYMPD_LOG_DEBUG("Lua library returns %d values", nr_return);
     for (int i = 1; i <= nr_return; i++) {
-        MYMPD_LOG_DEBUG("Lua library return value %d: %s", i, lua_tostring(lua_vm, i));
+        MYMPD_LOG_DEBUG("Lua library return value \"%d\": \"%s\"", i, lua_tostring(lua_vm, i));
         lua_pop(lua_vm, i);
     }
     if (rc != 0) {
         if (lua_gettop(lua_vm) == 1) {
             //return value on stack
-            MYMPD_LOG_ERROR("Error loading library %s: %s", lualib, lua_tostring(lua_vm, 1));
+            MYMPD_LOG_ERROR("Error loading library \"%s\": \"%s\"", lualib, lua_tostring(lua_vm, 1));
         }
     }
     return rc;

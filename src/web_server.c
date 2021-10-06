@@ -291,6 +291,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
     struct t_config *config = mg_user_data->config;
     switch(ev) {
         case MG_EV_ACCEPT: {
+            mg_user_data->connection_count++;
             //check connection count
             if (mg_user_data->connection_count > HTTP_CONNECTIONS_MAX) {
                 nc->is_draining = 1;
@@ -315,8 +316,16 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 mg_tls_init(nc, &tls_opts);
             }
             #endif
-            mg_user_data->connection_count++;
-            MYMPD_LOG_DEBUG("New connection id \"%lu\", connections: %d", nc->id, mg_user_data->connection_count);
+            if (loglevel == LOG_DEBUG) {
+                char addr_str[INET6_ADDRSTRLEN];
+                const char *addr_str_ptr = inet_ntop((nc->peer.is_ip6 == true ? AF_INET6 : AF_INET), &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
+                if (addr_str_ptr == NULL) {
+                    webserver_send_error(nc, 500, "Internal error");
+                    nc->is_draining = 1;
+                    break;
+                }
+                MYMPD_LOG_DEBUG("New connection id \"%lu\" from %s, connections: %d", nc->id, addr_str_ptr, mg_user_data->connection_count);
+            }
             //set labels
             nc->label[0] = 'F';
             nc->label[1] = '-';
@@ -432,8 +441,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 if (getsockname((int)(long)nc->fd, (struct sockaddr *)&localip, &len) == 0) {
                     sds response = jsonrpc_result_start(sdsempty(), "", 0);
                     response = tojson_char(response, "version", MG_VERSION, true);
-                    char addr[INET_ADDRSTRLEN];
-                    const char *str = inet_ntop(AF_INET, &localip.sin_addr, addr, INET_ADDRSTRLEN);
+                    char addr[INET6_ADDRSTRLEN];
+                    const char *str = inet_ntop(localip.sin_family, &localip.sin_addr, addr, INET6_ADDRSTRLEN);
                     if (str != NULL) {
                         response = tojson_char(response, "ip", str, false);
                     }
