@@ -414,8 +414,20 @@ function openDropdown(dropdown) {
 
 //eslint-disable-next-line no-unused-vars
 function focusSearch() {
-    if (app.current.app === 'Queue') {
+    if (app.current.app === 'Queue' && app.current.tab === 'Current') {
         document.getElementById('searchqueuestr').focus();
+    }
+    else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
+        document.getElementById('searchDatabaseStr').focus();
+    }
+    else if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
+        document.getElementById('searchFilesystemStr').focus();
+    }
+    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
+        document.getElementById('searchPlaylistsListStr').focus();
+    }
+    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
+        document.getElementById('searchPlaylistsDetailStr').focus();
     }
     else if (app.current.app === 'Search') {
         document.getElementById('searchstr').focus();
