@@ -490,7 +490,7 @@ function showHomeIconCmdOptions(values) {
     const options = getSelectedOptionAttribute('selectHomeIconCmd', 'data-options');
     if (options !== undefined) {
         for (let i = 0, j = options.options.length; i < j; i++) {
-            const row = elCreate('div', {"class": ["form-group", "row"]}, '');
+            const row = elCreate('div', {"class": ["mb-3", "row"]}, '');
             row.appendChild(elCreate('label', {"class": ["col-sm-4"]}, tn(options.options[i])));
             const div = elCreate('div', {"class": ["col-sm-8"]}, '');
             let value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
