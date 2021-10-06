@@ -50,6 +50,10 @@ body.theme-light .bg-dark {
   background-color: #f8f9fa !important;
 }
 
+body.theme-light .btn-close {
+  filter: none;
+}
+
 body.theme-light a.bg-dark:hover,
 body.theme-light a.bg-dark:focus,
 body.theme-light button.bg-dark:hover,
