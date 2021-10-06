@@ -547,11 +547,6 @@ const keymap = {
     "C": {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}], "desc": "Crop queue"},
     "?": {"cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
     "/": {"cmd": "focusSearch", "options": [], "desc": "Focus search"},
-    "n": {"cmd": "focusTable", "options": [], "desc": "Focus table"},
-    "q": {"cmd": "queueSelectedItem", "options": [true], "desc": "Append item to queue"},
-    "Q": {"cmd": "queueSelectedItem", "options": [false], "desc": "Replace queue with item"},
-    "d": {"cmd": "dequeueSelectedItem", "options": [], "desc": "Remove item from queue"},
-    "x": {"cmd": "addSelectedItemToPlaylist", "options": [], "desc": "Append item to playlist"},
     "F": {"cmd": "openFullscreen", "options": [], "desc": "Open fullscreen"}
 };
 
@@ -589,7 +584,6 @@ uiElements.modalEditHomeIcon = new BSN.Modal(document.getElementById('modalEditH
 uiElements.modalConfirm = new BSN.Modal(document.getElementById('modalConfirm'));
 uiElements.modalEnterPin = new BSN.Modal(document.getElementById('modalEnterPin'));
 
-uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 uiElements.dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
 uiElements.dropdownLocalPlayer = new BSN.Dropdown(document.getElementById('localPlaybackMenu'));
 uiElements.dropdownDatabaseSort = new BSN.Dropdown(document.getElementById('btnDatabaseSortDropdown'));

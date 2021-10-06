@@ -526,14 +526,3 @@ function playlistMoveTrack(from, to) {
         "to": to
     });
 }
-
-//eslint-disable-next-line no-unused-vars
-function addSelectedItemToPlaylist() {
-    const item = document.activeElement;
-    if (item) {
-        if (item.parentNode.parentNode.id === 'BrowsePlaylistsListList') {
-            return;
-        }
-        showAddToPlaylist(getCustomDomProperty(item, 'data-uri'), '');
-    }
-}

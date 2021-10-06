@@ -253,33 +253,6 @@ function parseLastPlayed(obj) {
     });
 }
 
-//eslint-disable-next-line no-unused-vars
-function queueSelectedItem(append) {
-    const item = document.activeElement;
-    if (item) {
-        if (item.parentNode.parentNode.id === 'QueueCurrentList') {
-            return;
-        }
-        if (append === true) {
-            appendQueue(getCustomDomProperty(item, 'data-type'), getCustomDomProperty(item, 'data-uri'), getCustomDomProperty(item, 'data-name'));
-        }
-        else {
-            replaceQueue(getCustomDomProperty(item, 'data-type'), getCustomDomProperty(item, 'data-uri'), getCustomDomProperty(item, 'data-name'));
-        }
-    }
-}
-
-//eslint-disable-next-line no-unused-vars
-function dequeueSelectedItem() {
-    const item = document.activeElement;
-    if (item) {
-        if (item.parentNode.parentNode.id !== 'QueueCurrentList') {
-            return;
-        }
-        delQueueSong('single', getCustomDomProperty(item, 'data-trackid'));
-    }
-}
-
 function appendQueue(type, uri, name) {
     switch(type) {
         case 'song':

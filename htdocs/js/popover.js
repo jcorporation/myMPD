@@ -245,32 +245,6 @@ function createMenuTd(el) {
                 }
             }
         }, false);
-        document.getElementsByClassName('popover-content')[0].addEventListener('keydown', function(eventKey) {
-            eventKey.preventDefault();
-            eventKey.stopPropagation();
-            if (eventKey.key === 'ArrowDown' || eventKey.key === 'ArrowUp') {
-                const menuItemsHtml = this.getElementsByTagName('a');
-                const menuItems = Array.prototype.slice.call(menuItemsHtml);
-                let idx = menuItems.indexOf(document.activeElement);
-                do {
-                    idx = eventKey.key === 'ArrowUp' ? (idx > 1 ? idx - 1 : 0)
-                                                : eventKey.key === 'ArrowDown' ? ( idx < menuItems.length - 1 ? idx + 1 : idx)
-                                                                        : idx;
-                    if ( idx === 0 || idx === menuItems.length -1 ) {
-                        break;
-                    }
-                } while (!menuItems[idx].offsetHeight);
-                if (menuItems[idx]) {
-                    menuItems[idx].focus();
-                }
-            }
-            else if (eventKey.key === 'Enter') {
-                eventKey.target.click();
-            }
-            else if (eventKey.key === 'Escape') {
-                hideMenu();
-            }
-        }, false);
         const collapseLink = document.getElementById('advancedMenuLink');
         if (collapseLink) {
             collapseLink.addEventListener('click', function() {
@@ -284,7 +258,6 @@ function createMenuTd(el) {
             }, false);
             new BSN.Collapse(collapseLink);
         }
-        document.getElementsByClassName('popover-content')[0].firstChild.focus();
     }, false);
 
     return popoverInit;
