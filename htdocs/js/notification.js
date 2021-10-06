@@ -80,49 +80,32 @@ function showNotification(title, text, facility, severity) {
             return;
         }
     }
-        
-    if (alertTimeout) {
-        clearTimeout(alertTimeout);
-    }
-    let alertBox = document.getElementById('alertBox');
-    if (alertBox === null) {
-        alertBox = document.createElement('div');
-        alertBox.setAttribute('id', 'alertBox');
-        alertBox.classList.add('toast', 'show');
-    }
-        
-    let toast = '<div class="toast-header">';
+    
+    const toast = elCreate('div', {"class": ["toast"], "id": "alertBox"}, '');
+    const toastHeader = elCreate('div', {"class": ["toast-header"]}, '');
     if (severity === 'info' ) {
-        toast += '<span class="mi text-success me-2">info</span>';
+        toastHeader.appendChild(elCreate('span', {"class": ["mi", "text-success", "me-2"]}, 'info'));
     }
     else if (severity === 'warn' ) {
-        toast += '<span class="mi text-warning me-2">warning</span>';
+        toastHeader.appendChild(elCreate('span', {"class": ["mi", "text-warning", "me-2"]}, 'warning'));
     }
     else {
-        toast += '<span class="mi text-danger me-2">error</span>';
+        toastHeader.appendChild(elCreate('span', {"class": ["mi", "text-danger", "me-2"]}, 'error'));
     }
-    toast += '<strong class="me-auto">' + e(title) + '</strong>' +
-             '<button type="button" class="btn-close"></button></div>' +
-             (text === '' ? '' : '<div class="toast-body">' + e(text) + '</div>') +
-             '</div>';
-    alertBox.innerHTML = toast;
-        
-    if (!document.getElementById('alertBox')) {
-        document.getElementsByTagName('main')[0].append(alertBox);
-        requestAnimationFrame(function() {
-            const ab = document.getElementById('alertBox');
-            if (ab) {
-                ab.classList.add('alertBoxActive');
-            }
-        });
+    toastHeader.appendChild(elCreate('strong', {"class": ["me-auto"]}, title));
+    toastHeader.appendChild(elCreate('button', {"type": "button", "class": ["btn-close"]}, ''));
+    toast.appendChild(toastHeader);
+    if (text !== '') {
+        toast.appendChild(elCreate('div', {"class": ["toast-body"]}, text));
     }
-    alertBox.getElementsByTagName('button')[0].addEventListener('click', function() {
-        hideNotification();
-    }, false);
-
-    alertTimeout = setTimeout(function() {
-        hideNotification();
-    }, 3000);
+    if (uiElements.toast !== null) {
+        uiElements.toast.dispose();
+        uiElements.toast = null;
+        document.getElementsByClassName('toast')[0].remove();
+    }
+    document.getElementsByTagName('main')[0].appendChild(toast);
+    uiElements.toast = new BSN.Toast(document.getElementsByClassName('toast')[0]);
+    uiElements.toast.show();
 }
 
 function logMessage(title, text, facility, severity) {

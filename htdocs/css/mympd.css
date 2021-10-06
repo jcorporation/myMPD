@@ -598,12 +598,6 @@ div#alertBox {
   width: 80%;
   max-width: 400px;
   z-index: 1000;
-  opacity: 0;
-  transition: opacity 0.7s ease-in;
-}
-
-div.alertBoxActive {
-  opacity: 1 !important;
 }
 
 .popover-header {

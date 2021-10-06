@@ -14,7 +14,6 @@ const currentSong = {};
 let playstate = '';
 let settings = {"loglevel": 2};
 let settingsParsed = 'no';
-let alertTimeout = null;
 let progressTimer = null;
 let deferredA2HSprompt;
 let dragSrc;
@@ -588,6 +587,8 @@ uiElements.collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupd
 uiElements.collapseSettings = new BSN.Collapse(document.getElementById('navSettings'));
 uiElements.collapseScripting = new BSN.Collapse(document.getElementById('navScripting'));
 uiElements.collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukeboxMode'));
+
+uiElements.toast = null;
 
 const LUAfunctions = {
     "mympd_api_http_client": {
