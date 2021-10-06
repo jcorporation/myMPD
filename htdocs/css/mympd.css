@@ -1160,3 +1160,15 @@ button.clear-button {
   width: auto !important;
   flex: unset !important;
 }
+
+.offcanvas-header .btn-close {
+  margin-top: -2rem;
+}
+
+.offcanvas-body {
+  padding: 1rem 0rem;
+}
+
+.offcanvas-body .dropdown-item {
+  padding: 0.2rem 2rem;
+}
