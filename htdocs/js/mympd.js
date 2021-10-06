@@ -704,6 +704,7 @@ function initNavs() {
     }, false);
     
     document.getElementById('scripts').addEventListener('click', function(event) {
+        event.preventDefault();
         if (event.target.nodeName === 'A') {
             execScript(getCustomDomProperty(event.target, 'data-href'));
         }

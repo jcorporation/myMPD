@@ -900,7 +900,7 @@ function printValue(key, value) {
 }
 
 function addIconLine(el, ligature, text) {
-    const icon = elCreate('span', {"class": ["mi", "mr-2"]}, ligature);
+    const icon = elCreate('span', {"class": ["mi", "me-2"]}, ligature);
     const span = elCreate('span', {}, text);
     el.appendChild(icon);
     el.appendChild(span);

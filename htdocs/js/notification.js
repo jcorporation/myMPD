@@ -88,21 +88,21 @@ function showNotification(title, text, facility, severity) {
     if (alertBox === null) {
         alertBox = document.createElement('div');
         alertBox.setAttribute('id', 'alertBox');
-        alertBox.classList.add('toast');
+        alertBox.classList.add('toast', 'show');
     }
         
     let toast = '<div class="toast-header">';
     if (severity === 'info' ) {
-        toast += '<span class="mi text-success mr-2">info</span>';
+        toast += '<span class="mi text-success me-2">info</span>';
     }
     else if (severity === 'warn' ) {
-        toast += '<span class="mi text-warning mr-2">warning</span>';
+        toast += '<span class="mi text-warning me-2">warning</span>';
     }
     else {
-        toast += '<span class="mi text-danger mr-2">error</span>';
+        toast += '<span class="mi text-danger me-2">error</span>';
     }
-    toast += '<strong class="mr-auto">' + e(title) + '</strong>' +
-             '<button type="button" class="ml-2 mb-1 close">&times;</button></div>' +
+    toast += '<strong class="me-auto">' + e(title) + '</strong>' +
+             '<button type="button" class="btn-close"></button></div>' +
              (text === '' ? '' : '<div class="toast-body">' + e(text) + '</div>') +
              '</div>';
     alertBox.innerHTML = toast;
