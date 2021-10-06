@@ -357,17 +357,10 @@ function saveColsPlayback(table) {
 
 function replaceTblRow(row, el) {
     const menuEl = row.querySelector('[data-popover]');
-    let result = false;
     if (menuEl) {
         hideMenu();
     }
-    if (row.classList.contains('selected')) {
-        el.classList.add('selected');
-        el.focus();
-        result = true;
-    }
     row.replaceWith(el);
-    return result;
 }
 
 function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
@@ -377,8 +370,6 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
 
     const nrItems = obj.result.returnedEntities;
     const tr = tbody.getElementsByTagName('tr');
-    const navigate = document.activeElement.parentNode.parentNode === table ? true : false;
-    let activeRow = 0;
     //disc handling for album view
     let z = 0;
     let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined ? Number(obj.result.data[0].Disc) : 0;
@@ -387,7 +378,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         row.classList.add('not-clickable');
         row.innerHTML = '<td><span class="mi">album</span></td><td colspan="' + colspan +'">' + t('Disc 1') + '</td>';
         if (z < tr.length) {
-            activeRow = replaceTblRow(tr[z], row) === true ? z : activeRow;
+            replaceTblRow(tr[z], row);
         }
         else {
             tbody.append(row);
@@ -402,7 +393,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             row.innerHTML = '<td><span class="mi">album</span></td><td colspan="' + colspan +'">' + 
                 t('Disc') + ' ' + e(obj.result.data[i].Disc) + '</td></tr>';
             if (i + z < tr.length) {
-                activeRow = replaceTblRow(tr[i + z], row) === true ? i + z : activeRow;
+                replaceTblRow(tr[i + z], row);
             }
             else {
                 tbody.append(row);
@@ -443,7 +434,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             }
         }
         if (i + z < tr.length) {
-            activeRow = replaceTblRow(tr[i + z], row) === true ? i + z : activeRow;
+            replaceTblRow(tr[i + z], row);
         }
         else {
             tbody.append(row);
@@ -460,10 +451,6 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         row.classList.add('not-clickable');
         row.innerHTML = '<td><span class="mi">warning</span></td><td colspan="' + colspan +'">' + t('Too many results, list is cropped') + '</td>';
         tbody.append(row);
-    }
-
-    if (navigate === true) {
-        focusTable(activeRow);
     }
 
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);

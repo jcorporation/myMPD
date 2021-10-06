@@ -569,15 +569,8 @@ function appInit() {
         }        
         
     }, false);
-    //make tables navigateable by keyboard
-    let tables = document.getElementsByTagName('table');
-    for (const tableName of tables) {
-        tableName.setAttribute('tabindex', 0);
-        tableName.addEventListener('keydown', function(event) {
-            navigateTable(this, event.key);
-        }, false);
-    }
     //contextmenu for tables
+    let tables = document.getElementsByTagName('table');
     tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList', 
         'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsListList', 'BrowsePlaylistsDetailList'];
     for (const tableName of tables) {
