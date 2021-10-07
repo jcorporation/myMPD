@@ -31,6 +31,9 @@ function hideMenu() {
 function showMenu(el, event) {
     event.preventDefault();
     event.stopPropagation();
+    if (el.getAttribute('data-popover') !== null) {
+        return;
+    }
     hideMenu();
     let popoverInit = el.Popover;
     if (popoverInit === undefined) {
