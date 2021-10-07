@@ -143,10 +143,6 @@ main {
   margin-left: 0 !important;
 }
 
-#navQueue > a {
-  padding-right: 1rem;
-}
-
 @media only screen and (orientation: landscape) {
   #header {
     height: 100vw;
@@ -262,6 +258,20 @@ div.footerCounter {
 
 button {
   overflow: hidden;
+}
+
+a {
+  text-decoration: none;
+}
+
+#navQueue > a {
+  padding-right: 1rem;
+}
+
+.text-success,
+a.text-success:hover,
+a.text-success:focus {
+  color: var(--mympd-highlightcolor) !important;
 }
 
 #BrowseBreadcrumb {
@@ -571,26 +581,27 @@ th {
   width: 160px;
 }
 
-.form-range:focus::-webkit-slider-thumb {
-  box-shadow: none;
-}
-.form-range:focus::-moz-range-thumb {
-  box-shadow: none;
-}
-
 .form-range::-webkit-slider-thumb {
   background-color: var(--mympd-highlightcolor);
+}
+
+.form-range:focus::-webkit-slider-thumb {
+  box-shadow: none;
 }
 
 .form-range::-webkit-slider-thumb:active {
   background-color: var(--mympd-highlightcolor);
 }
 
-.form-range::-moz-range-thumb:active {
+.form-range::-moz-range-thumb {
   background-color: var(--mympd-highlightcolor);
 }
 
-.form-range::-moz-range-thumb {
+.form-range:focus::-moz-range-thumb {
+  box-shadow: none;
+}
+
+.form-range::-moz-range-thumb:active {
   background-color: var(--mympd-highlightcolor);
 }
 
@@ -731,6 +742,23 @@ ol#searchDatabaseCrumb {
   color: var(--mympd-highlightcolor) !important;
 }
 
+.dropdown-item:focus {
+  background-color: inherit;
+}
+
+.dropdown-item:hover {
+  background-color: var(--bs-gray-800);
+}
+
+.offcanvas-body .dropdown-item {
+  padding: 0.2rem 2rem;
+}
+
+.popover-content .dropdown-item:hover,
+.popover-content .dropdown-item:focus {
+  background-color: var(--bs-gray-200);
+}
+
 #mainMenuDropdown {
   overflow-y: auto;
   max-height: calc(100vh - 9rem);
@@ -848,32 +876,9 @@ div#playDropdown .row {
   padding-left: 0;
 }
 
-.dropdown-item:focus {
-  background-color: inherit;
-}
-
-.dropdown-item:hover {
-  background-color: var(--bs-gray-800);
-}
-
-.popover-content .dropdown-item:hover,
-.popover-content .dropdown-item:focus {
-  background-color: var(--bs-gray-200);
-}
-
 .btn-success {
   background-color: var(--mympd-highlightcolor) !important;
   border-color: var(--mympd-highlightcolor) !important;
-}
-
-a {
-  text-decoration: none;
-}
-
-.text-success,
-a.text-success:hover,
-a.text-success:focus {
-  color: var(--mympd-highlightcolor) !important;
 }
 
 #dropdownAddSmartpls {
@@ -1157,9 +1162,9 @@ button.clear-button {
 }
 
 .offcanvas-body {
-  padding: 1rem 0rem;
+  padding: 1rem 0;
 }
 
-.offcanvas-body .dropdown-item {
-  padding: 0.2rem 2rem;
+.btn-close:focus {
+  box-shadow: none;
 }

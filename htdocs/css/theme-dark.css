@@ -85,17 +85,17 @@ body.theme-dark .table {
   color: var(--bs-gray-100);
 }
 
+body.theme-dark tr.selected,
+body.theme-dark tr:focus {
+  background-color: var(--bs-gray-900);
+}
+
 body.theme-dark .table-hover > tbody > tr:hover {
   background-color: var(--bs-gray-900);
 }
 
 body.theme-dark .table-hover > tbody > tr:hover > * {
   color: var(--bs-gray-100);
-}
-
-body.theme-dark tr.selected,
-body.theme-dark tr:focus {
-  background-color: var(--bs-gray-900);
 }
 
 body.theme-dark .breadcrumb {
@@ -125,7 +125,7 @@ body.theme-dark .dropdown-item {
   color: var(--bs-gray-100);
 }
 
-body.theme-dark .popover-content .dropdown-item:hover, 
+body.theme-dark .popover-content .dropdown-item:hover,
 body.theme-dark .popover-content .dropdown-item:focus {
   background-color: var(--bs-gray-800);
 }
