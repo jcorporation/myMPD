@@ -47,7 +47,7 @@ body.theme-light .navbar-dark .navbar-text a:focus {
 }
 
 body.theme-light .bg-dark {
-  background-color: var(--bs-gray-200) !important;
+  background-color: var(--bs-gray-300) !important;
 }
 
 body.theme-light .btn-close {
@@ -73,25 +73,25 @@ body.theme-light a.text-light:focus {
 body.theme-light .btn-secondary,
 body.theme-light .bg-secondary {
   color: var(--bs-gray-800);
-  background-color: var(--bs-gray-300) !important;
-  border-color: var(--bs-gray-300);
+  background-color: var(--bs-gray-400) !important;
+  border-color: var(--bs-gray-400);
 }
 
 body.theme-light .border-secondary {
-  border-color: var(--bs-gray-300) !important;
+  border-color: var(--bs-gray-400) !important;
 }
 
 body.theme-light .btn-secondary:hover {
   color: var(--bs-gray-800);
-  background-color: var(--bs-gray-400);
-  border-color: var(--bs-gray-400);
+  background-color: var(--bs-gray-500);
+  border-color: var(--bs-gray-500);
 }
 
 body.theme-light .btn-secondary:focus,
 body.theme-light .btn-secondary.focus {
   color: var(--bs-gray-800);
-  background-color: var(--bs-gray-400);
-  border-color: var(--bs-gray-400);
+  background-color: var(--bs-gray-500);
+  border-color: var(--bs-gray-500);
   box-shadow: none;
 }
 
@@ -118,25 +118,8 @@ body.theme-light .show > .btn-secondary.dropdown-toggle:focus {
 
 body.theme-light .btn-dark {
   color: var(--bs-gray-800);
-  background-color: var(--bs-gray-200);
-  border-color: var(--bs-gray-200);
-}
-
-body.theme-light .badge-secondary {
-  color: var(--bs-gray-800);
   background-color: var(--bs-gray-300);
-}
-
-body.theme-light a.badge-secondary:hover,
-body.theme-light a.badge-secondary:focus {
-  color: var(--bs-gray-800);
-  background-color: var(--bs-gray-300);
-}
-
-body.theme-light a.badge-secondary:focus,
-body.theme-light a.badge-secondary.focus {
-  outline: 0;
-  box-shadow: none;
+  border-color: var(--bs-gray-300);
 }
 
 body.theme-light .input-group-append > .dropdown-toggle {
@@ -144,7 +127,7 @@ body.theme-light .input-group-append > .dropdown-toggle {
 }
 
 body.theme-light .dropdown-item:hover {
-  background-color: var(--bs-gray-200) !important;
+  background-color: var(--bs-gray-400) !important;
 }
 
 body.theme-light .bg-lite-dark {
@@ -156,5 +139,5 @@ body.theme-light .form-control[readonly] {
 }
 
 body.theme-light #navbar-main div.active {
-  background-color: var(--bs-gray-300);
+  background-color: var(--bs-gray-400);
 }

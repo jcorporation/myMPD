@@ -642,6 +642,7 @@ caption {
 
 tfoot td {
   text-align: right;
+  border-bottom: none;
 }
 
 #dropdownHomeIconLigature {
