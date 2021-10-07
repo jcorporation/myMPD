@@ -80,8 +80,8 @@ function showNotification(title, text, facility, severity) {
             return;
         }
     }
-    
-    const toast = elCreate('div', {"class": ["toast"], "id": "alertBox"}, '');
+
+    const toast = elCreate('div', {"class": ["toast", "hide"]}, '');
     const toastHeader = elCreate('div', {"class": ["toast-header"]}, '');
     if (severity === 'info' ) {
         toastHeader.appendChild(elCreate('span', {"class": ["mi", "text-success", "me-2"]}, 'info'));
@@ -93,19 +93,17 @@ function showNotification(title, text, facility, severity) {
         toastHeader.appendChild(elCreate('span', {"class": ["mi", "text-danger", "me-2"]}, 'error'));
     }
     toastHeader.appendChild(elCreate('strong', {"class": ["me-auto"]}, title));
-    toastHeader.appendChild(elCreate('button', {"type": "button", "class": ["btn-close"]}, ''));
+    toastHeader.appendChild(elCreate('button', {"type": "button", "class": ["btn-close"], "data-bs-dismiss": "toast"}, ''));
     toast.appendChild(toastHeader);
     if (text !== '') {
         toast.appendChild(elCreate('div', {"class": ["toast-body"]}, text));
     }
-    if (uiElements.toast !== null) {
-        uiElements.toast.dispose();
-        uiElements.toast = null;
-        document.getElementsByClassName('toast')[0].remove();
-    }
-    document.getElementsByTagName('main')[0].appendChild(toast);
-    uiElements.toast = new BSN.Toast(document.getElementsByClassName('toast')[0]);
-    uiElements.toast.show();
+    document.getElementById('alertBox').prepend(toast);
+    const toastInit = new BSN.Toast(toast, {delay: 2500});
+    toast.addEventListener('hidden.bs.toast', function(event) {
+        this.remove();
+    }, false);
+    toastInit.show();
 }
 
 function logMessage(title, text, facility, severity) {

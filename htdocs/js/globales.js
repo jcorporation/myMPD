@@ -588,8 +588,6 @@ uiElements.collapseSettings = new BSN.Collapse(document.getElementById('navSetti
 uiElements.collapseScripting = new BSN.Collapse(document.getElementById('navScripting'));
 uiElements.collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukeboxMode'));
 
-uiElements.toast = null;
-
 const LUAfunctions = {
     "mympd_api_http_client": {
         "desc": "HTTP client",

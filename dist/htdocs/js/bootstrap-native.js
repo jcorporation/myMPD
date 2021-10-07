@@ -2891,7 +2891,7 @@
   // =====================
   function showToastComplete(self) {
     const { element, options } = self;
-    if (!options.animation) {
+    if (options.animation) {
       removeClass(element, showingClass);
       addClass(element, showClass);
     }

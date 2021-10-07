@@ -90,6 +90,7 @@ function enterPin(method, params, callback, onerror) {
                 document.getElementById('inputPinModal').value = '';
                 if (obj.error) {
                     const em = document.getElementById('modalEnterPinMessage');
+                    elClear(em);
                     addIconLine(em, 'error_outline', tn(obj.error.message));
                     em.classList.remove('hide');
                 }

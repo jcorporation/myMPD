@@ -616,7 +616,7 @@ div#alertBox {
   bottom: 6rem;
   right: 1rem;
   width: 80%;
-  max-width: 400px;
+  max-width: 350px;
   z-index: 1000;
 }
 
