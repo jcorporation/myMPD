@@ -300,6 +300,10 @@ int main(int argc, char **argv) {
         log_to_syslog = true;
     }
 
+    #ifdef ENABLE_LIBASAN
+        MYMPD_LOG_NOTICE("Running with libasan memory checker");
+    #endif
+
     MYMPD_LOG_NOTICE("Starting myMPD %s", MYMPD_VERSION);
     MYMPD_LOG_NOTICE("Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i", 
             LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION,
