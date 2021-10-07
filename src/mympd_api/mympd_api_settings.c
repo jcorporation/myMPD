@@ -35,11 +35,11 @@ static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags
 static sds set_invalid_value(sds error, sds key, sds value);
 
 //default navbar icons
-static const char *default_navbar_icons = "[{\"ligature\":\"home\",\"title\":\"Home\",\"options\":[\"Home\"],\"badge\":\"\"},"\
-    "{\"ligature\":\"equalizer\",\"title\":\"Playback\",\"options\":[\"Playback\"],\"badge\":\"\"},"\
-    "{\"ligature\":\"queue_music\",\"title\":\"Queue\",\"options\":[\"Queue\"],\"badge\":\"<span id=\\\"badgeQueueItems\\\" class=\\\"badge bg-secondary\\\"></span>\"},"\
-    "{\"ligature\":\"library_music\",\"title\":\"Browse\",\"options\":[\"Browse\"],\"badge\":\"\"},"\
-    "{\"ligature\":\"search\",\"title\":\"Search\",\"options\":[\"Search\"],\"badge\":\"\"}]";
+static const char *default_navbar_icons = "[{\"ligature\":\"home\",\"title\":\"Home\",\"options\":[\"Home\"]},"\
+    "{\"ligature\":\"equalizer\",\"title\":\"Playback\",\"options\":[\"Playback\"]},"\
+    "{\"ligature\":\"queue_music\",\"title\":\"Queue\",\"options\":[\"Queue\"]},"\
+    "{\"ligature\":\"library_music\",\"title\":\"Browse\",\"options\":[\"Browse\"]},"\
+    "{\"ligature\":\"search\",\"title\":\"Search\",\"options\":[\"Search\"]}]";
 
 //public functions
 bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
