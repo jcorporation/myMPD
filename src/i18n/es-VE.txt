@@ -549,9 +549,6 @@ Abrir configuraciones
 Open song details
 Abrir detalles de canción
 
-Open local player
-Abrir reproductor local
-
 Goto playback
 Ir a lista de reproducción
 
@@ -572,12 +569,6 @@ Ir a explorar sistema de archivos
 
 Goto search
 Ir a buscar
-
-Open main menu
-Abrir menú principal
-
-Open volume menu
-Abrir menú de volumen
 
 Open about
 Abrir acerca de 
@@ -738,23 +729,8 @@ Agregadas todas las canciones
 Queue replaced with %{name}
 Cola de reproducción reemplazada con %{name}
 
-Focus table
-Centrar en tabla
-
-Append item to queue
-Agregar elemento a la cola de reproducción
-
-Replace queue with item
-Reemplazar cola de reproducción con esto
-
 Type
 Tipo
-
-Remove item from queue
-Eliminar elemento de la cola de reproducción
-
-Append item to playlist
-Agregar elemento a lista de reproducción
 
 Fingerprint
 Huella

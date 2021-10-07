@@ -594,9 +594,6 @@ Einstellungen
 Open song details
 Lieddetails
 
-Open local player
-Lokale Wiedergabe
-
 Goto home
 Gehe zur Startseite
 
@@ -623,12 +620,6 @@ Gehe zu Dateisystem
 
 Goto search
 Gehe zur Suche
-
-Open main menu
-Öffne Hauptmenü
-
-Open volume menu
-Öffne Lautstärkemenü
 
 Open about
 Öffne Über myMPD
@@ -786,23 +777,8 @@ Alle Lieder hinzugefügt
 Queue replaced with %{name}
 Warteschlange mit %{name} ersetzt
 
-Focus table
-In Tabelle navigieren
-
-Append item to queue
-Ausgewähltes Element an Warteschlange anhängen
-
-Replace queue with item
-Warteschlange mit ausgewähltem Element ersetzen
-
 Type
 Typ
-
-Remove item from queue
-Ausgewähltes Element aus Warteschlange entfernen
-
-Append item to playlist
-Ausgewähltes Element zu einer Wiedergabeliste hinzufügen
 
 Fingerprint
 Fingerabdruck

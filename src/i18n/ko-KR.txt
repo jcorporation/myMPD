@@ -594,9 +594,6 @@ Open settings
 Open song details
 곡 정보 열기
 
-Open local player
-로컬 연주기 열기
-
 Goto home
 홈으로 가기
 
@@ -623,12 +620,6 @@ Goto browse filesystem
 
 Goto search
 찾기로 가기
-
-Open main menu
-주 메뉴로 가기
-
-Open volume menu
-음량 메뉴 열기
 
 Open about
 정보 열기
@@ -786,23 +777,8 @@ Added all songs
 Queue replaced with %{name}
 %{name} 순서 바꿈
 
-Focus table
-목록에서 찾기
-
-Append item to queue
-순서에 항목 추가
-
-Replace queue with item
-순서에 항목 대체
-
 Type
 형식
-
-Remove item from queue
-순서에서 항목 지우기
-
-Append item to playlist
-연주목록에 항목 추가
 
 Fingerprint
 지문

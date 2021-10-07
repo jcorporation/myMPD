@@ -552,9 +552,6 @@ Instellingen
 Open song details
 Nummerdetails
 
-Open local player
-Lokaal afspelen
-
 Goto playback
 Afspelen openen
 
@@ -575,12 +572,6 @@ Bestandssysteem openen
 
 Goto search
 Zoeken openen
-
-Open main menu
-Hoofdmenu openen
-
-Open volume menu
-Volumeregeing openen
 
 Open about
 Over myMPD openen
@@ -741,23 +732,8 @@ Alle nummers toegevoegd
 Queue replaced with %{name}
 Wachtrij vervangen door %{name}
 
-Focus table
-In tabel navigeren
-
-Append item to queue
-Selectie aan wachtrij toevoegen
-
-Replace queue with item
-Vervang wachtrij met selectie
-
 Type
 Type
-
-Remove item from queue
-Verwijder selectie uit wachtrij
-
-Append item to playlist
-Selectie aan afspeellijst toevoegen
 
 Fingerprint
 Fingerprint

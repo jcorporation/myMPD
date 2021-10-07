@@ -549,9 +549,6 @@ Avaa asetukset
 Open song details
 Avaa kappaleen tiedot
 
-Open local player
-Avaa paikallinen soitin
-
 Goto playback
 Siirry toistoon
 
@@ -572,12 +569,6 @@ Siirry tiedostojärjelmän selaukseen
 
 Goto search
 Siirry hakuun
-
-Open main menu
-Avaa päävalikko
-
-Open volume menu
-Avaa äänenvoimakkuus valikko
 
 Open about
 Avaa tiedot
@@ -741,23 +732,8 @@ Kaikki kappaleet lisätty
 Queue replaced with %{name}
 Jono korvattu %{name}:lla
 
-Focus table
-Tarkenna taulu
-
-Append item to queue
-Lisää kohde jonoon
-
-Replace queue with item
-Korvaa jono kohteella
-
 Type
 Tyyppi
-
-Remove item from queue
-Poista jonosta
-
-Append item to playlist
-Lisää kohde soittolistaan
 
 Fingerprint
 Sormenjälki

@@ -552,9 +552,6 @@ Ouvrir les paramètres
 Open song details
 Afficher les détails de la chanson
 
-Open local player
-Lancer le lecteur local
-
 Goto playback
 Aller à la chanson en cours
 
@@ -575,12 +572,6 @@ Aller au système de fichiers
 
 Goto search
 Aller à la recherche
-
-Open main menu
-Ouvrir le menu principal
-
-Open volume menu
-ouvrir le menu du volume
 
 Open about
 Ouvrir A propos
@@ -744,23 +735,8 @@ Toutes les chansons ont été ajoutées
 Queue replaced with %{name}
 Queue remplacée par %{name}
 
-Focus table
-Focus table (trad non trouvée)
-
-Append item to queue
-Ajouter l'élément à la queue
-
-Replace queue with item
-Remplacer la queue par l'élément
-
 Type
 Type
-
-Remove item from queue
-Enlever l'élément de la queue
-
-Append item to playlist
-Ajouter l'élément à la liste de lecture
 
 Fingerprint
 Empreinte
