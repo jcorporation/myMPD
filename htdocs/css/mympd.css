@@ -15,15 +15,16 @@
 }
 
 .highlight {
-  color: var(--mympd-highlightcolor, #28a745) !important;
+  color: var(--mympd-highlightcolor) !important;
 }
 
 .highlight-bg {
-  background-color: var(--mympd-highlightcolor, #28a745) !important;
+  background-color: var(--mympd-highlightcolor) !important;
 }
 
 #navbar-main div.active {
   border-radius: 0.25rem;
+  background-color: var(--bs-gray-800);
 }
 
 #highlightColorPreview,
@@ -60,7 +61,7 @@ h4 svg,
 #splashScreenAlert {
   min-height: 25vh;
   width: 100vw;
-  color: #f8f9fa;
+  color: var(--bs-light);
   position: absolute;
   bottom: 0;
   left: 0;
@@ -235,8 +236,8 @@ div.footerCounter {
 }
 
 #footerProgress:hover div#footerProgressBar {
-  border-top: 0.4rem solid var(--mympd-highlightcolor, #28a745);
-  border-bottom: 0.4rem solid var(--mympd-highlightcolor, #28a745);
+  border-top: 0.4rem solid var(--mympd-highlightcolor);
+  border-bottom: 0.4rem solid var(--mympd-highlightcolor);
 }
 
 #footerProgressBar {
@@ -399,7 +400,7 @@ th {
   padding: 1rem 0 0 0;
   background-size: cover;
   background-position: center center;
-  background-color: var(--mympd-highlightcolor, #28a745);
+  background-color: var(--mympd-highlightcolor);
   margin-left: auto;
   margin-right: auto;
   text-align: center;
@@ -411,7 +412,7 @@ th {
 }
 
 .dragover-icon {
-  border-left: 1px solid var(--mympd-highlightcolor, #28a745);
+  border-left: 1px solid var(--mympd-highlightcolor);
 }
 
 .card-grid {
@@ -431,7 +432,7 @@ th {
 
 .card-grid:focus,
 .home-icons:focus {
-  box-shadow: 0 0 1px 1px var(--mympd-highlightcolor, #28a745);
+  box-shadow: 0 0 1px 1px var(--mympd-highlightcolor);
 }
 
 .album-cover-grid {
@@ -531,7 +532,7 @@ th {
 
 .color-darkgrey,
 .color-darkgrey:hover {
-  color: #6c757d !important;
+  color: var(--bs-gray-600) !important;
 }
 
 .letters > button {
@@ -561,9 +562,36 @@ th {
   min-width: 8rem;
 }
 
+#volumeDiv {
+  padding-bottom: 0;
+  padding-top: 0.4rem;
+}
+
 #volumeBar {
-  margin-top: 2px;
   width: 160px;
+}
+
+.form-range:focus::-webkit-slider-thumb {
+  box-shadow: none;
+}
+.form-range:focus::-moz-range-thumb {
+  box-shadow: none;
+}
+
+.form-range::-webkit-slider-thumb {
+  background-color: var(--mympd-highlightcolor);
+}
+
+.form-range::-webkit-slider-thumb:active {
+  background-color: var(--mympd-highlightcolor);
+}
+
+.form-range::-moz-range-thumb:active {
+  background-color: var(--mympd-highlightcolor);
+}
+
+.form-range::-moz-range-thumb {
+  background-color: var(--mympd-highlightcolor);
 }
 
 .title-icon {
@@ -578,17 +606,9 @@ th {
 }
 
 button.active {
-  color: #fff;
-  background-color: var(--mympd-highlightcolor, #28a745) !important;
-  border-color: var(--mympd-highlightcolor, #28a745) !important;
-}
-
-button.active-fg-green {
-  color: var(--mympd-highlightcolor, #28a745) !important;
-}
-
-button.active-fg-red {
-  color: #bd2130 !important;
+  color: var(--bs-white);
+  background-color: var(--mympd-highlightcolor) !important;
+  border-color: var(--mympd-highlightcolor) !important;
 }
 
 div#alertBox {
@@ -629,11 +649,11 @@ tfoot td {
 }
 
 .dragover > td {
-  border-top: 2px solid var(--mympd-highlightcolor, #28a745);
+  border-top: 2px solid var(--mympd-highlightcolor);
 }
 
 .dragover-th {
-  border-left: 2px solid var(--mympd-highlightcolor, #28a745);
+  border-left: 2px solid var(--mympd-highlightcolor);
 }
 
 [draggable] {
@@ -672,8 +692,8 @@ tfoot td {
 }
 
 div.key {
-  border: 1px solid #bbb;
-  background-color: #eee;
+  border: 1px solid var(--bs-gray-200);
+  background-color: var(--bs-gray-500);
   border-radius: 2px;
   width: 2rem;
   height: 2rem;
@@ -707,7 +727,7 @@ ol#searchDatabaseCrumb {
 .connected,
 .connected:focus,
 .connected:hover {
-  color: var(--mympd-highlightcolor, #28a745) !important;
+  color: var(--mympd-highlightcolor) !important;
 }
 
 #mainMenuDropdown {
@@ -729,22 +749,17 @@ textarea.small {
 }
 
 .form-control:focus {
-  border-color: var(--mympd-highlightcolor, #28a745) !important;
+  border-color: var(--mympd-highlightcolor) !important;
   outline: 0;
   box-shadow: none !important;
-}
-
-.btn-dark {
-  background-color: #343a40;
-  border-color: #343a40;
 }
 
 .btn-dark:not(:disabled):not(.disabled):active,
 .btn-dark:not(:disabled):not(.disabled).active,
 .show > .btn-dark.dropdown-toggle {
-  color: #fff;
-  background-color: var(--mympd-highlightcolor, #28a745) !important;
-  border-color: var(--mympd-highlightcolor, #28a745) !important;
+  color: var(--bs-white);
+  background-color: var(--mympd-highlightcolor) !important;
+  border-color: var(--mympd-highlightcolor) !important;
 }
 
 .btn-dark:not(:disabled):not(.disabled):active:focus,
@@ -757,7 +772,7 @@ textarea.small {
 .btn-light.focus,
 .btn-secondary:focus,
 .btn-secondary.focus {
-  color: #fff;
+  color: var(--bs-white);
   box-shadow: none;
 }
 
@@ -767,9 +782,9 @@ textarea.small {
 .btn-secondary:not(:disabled):not(.disabled):active,
 .btn-secondary:not(:disabled):not(.disabled).active,
 .show > .btn-secondary.dropdown-toggle {
-  color: #fff;
-  background-color: var(--mympd-highlightcolor, #28a745) !important;
-  border-color: var(--mympd-highlightcolor, #28a745) !important;
+  color: var(--bs-white);
+  background-color: var(--mympd-highlightcolor) !important;
+  border-color: var(--mympd-highlightcolor) !important;
 }
 
 .btn-light:not(:disabled):not(.disabled):active:focus,
@@ -779,11 +794,6 @@ textarea.small {
 .btn-secondary:not(:disabled):not(.disabled).active:focus,
 .show > .btn-secondary.dropdown-toggle:focus {
   box-shadow: none !important;
-}
-
-.custom-select:focus {
-  border-color: #218838;
-  box-shadow: none;
 }
 
 .btn-xs,
@@ -828,14 +838,6 @@ div#playDropdown .row {
   white-space: nowrap;
 }
 
-.bg-lite-dark {
-  background-color: #494f56 !important;
-}
-
-.bg-dark {
-  background-color: #343a40 !important;
-}
-
 .btn:focus,
 .btn.focus {
   box-shadow: none;
@@ -845,19 +847,22 @@ div#playDropdown .row {
   padding-left: 0;
 }
 
-.dropdown-item:hover,
 .dropdown-item:focus {
-  background-color: #3c4248;
+  background-color: inherit;
+}
+
+.dropdown-item:hover {
+  background-color: var(--bs-gray-800);
 }
 
 .popover-content .dropdown-item:hover,
 .popover-content .dropdown-item:focus {
-  background-color: #e9ecef;
+  background-color: var(--bs-gray-200);
 }
 
 .btn-success {
-  background-color: var(--mympd-highlightcolor, #28a745) !important;
-  border-color: var(--mympd-highlightcolor, #28a745) !important;
+  background-color: var(--mympd-highlightcolor) !important;
+  border-color: var(--mympd-highlightcolor) !important;
 }
 
 a {
@@ -867,7 +872,7 @@ a {
 .text-success,
 a.text-success:hover,
 a.text-success:focus {
-  color: var(--mympd-highlightcolor, #28a745) !important;
+  color: var(--mympd-highlightcolor) !important;
 }
 
 #dropdownAddSmartpls {
@@ -912,7 +917,7 @@ a.text-success:focus {
   right: 4rem;
   z-index: 2;
   padding: 0.25rem 1.25rem;
-  color: #721c24 !important;
+  color: var(--bs-danger) !important;
 }
 
 .lyricsText {
@@ -975,20 +980,11 @@ a.text-success:focus {
   cursor: not-allowed;
 }
 
-.btn-warning {
-  background-color: #ffc107 !important;
-}
-
 div#footerProgressPos {
   display: none;
   position: absolute;
   bottom: 6rem;
   left: 0;
-}
-
-#navbar-main div.active {
-  border-radius: 0.25rem;
-  background-color: #1d2124;
 }
 
 div.active #badgeQueueItems {

@@ -109,7 +109,7 @@ function showConfirmInline(el, text, btnText, callback) {
     }, false);
     confirm.appendChild(cancelBtn);
 
-    const yesBtn = elCreate('button', {"class": ["btn", "btn-danger", "float-right"]}, btnText);
+    const yesBtn = elCreate('button', {"class": ["btn", "btn-danger", "float-end"]}, btnText);
     yesBtn.addEventListener('click', function() {
         if (callback !== undefined && typeof(callback) === 'function') {
             callback();
@@ -588,18 +588,18 @@ function setPagination(total, returned) {
     }
     const curPage = app.current.limit > 0 ? app.current.offset / app.current.limit + 1 : 1;
     
-    const paginationHTML = '<button title="' + t('First page') + '" type="button" class="btn btn-group-prepend btn-secondary mi">first_page</button>' +
-          '<button title="' + t('Previous page') + '" type="button" class="btn btn-group-prepend btn-secondary mi">navigate_before</button>' +
+    const paginationHTML = '<button title="' + t('First page') + '" type="button" class="btn btn-secondary"><span class="mi">first_page</span></button>' +
+          '<button title="' + t('Previous page') + '" type="button" class="btn btn-secondary"><span class="mi">navigate_before</span></button>' +
           '<div class="btn-group">' +
             '<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>' +
             '<div class="dropdown-menu bg-lite-dark px-2 pages dropdown-menu-right"></div>' +
           '</div>' +
-          '<button title="' + t('Next page') + '" type="button" class="btn btn-secondary btn-group-append mi">navigate_next</button>' +
-          '<button title="' + t('Last page') + '" type="button" class="btn btn-secondary btn-group-append mi">last_page</button>';
+          '<button title="' + t('Next page') + '" type="button" class="btn btn-secondary"><span class="mi">navigate_next</span></button>' +
+          '<button title="' + t('Last page') + '" type="button" class="btn btn-secondary"><span class="mi">last_page</span></button>';
 
     let bottomBarHTML = '<button type="button" class="btn btn-secondary mi" title="' + t('To top') + '">keyboard_arrow_up</button>' +
           '<div>' +
-          '<select class="form-control custom-select border-secondary" title="' + t('Elements per page') + '">';
+          '<select class="form-control form-select border-secondary" title="' + t('Elements per page') + '">';
     for (const i of [25, 50, 100, 200, 0]) {
         bottomBarHTML += '<option value="' + i + '"' + (app.current.limit === i ? ' selected' : '') + '>' + (i > 0 ? i : t('All')) + '</option>';
     }

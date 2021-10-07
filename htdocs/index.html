@@ -126,14 +126,14 @@
       <div class="card-body">
         <div class="btn-toolbar card-toolbar" id="PlaybackButtonsTop">
           <div class="btn-group btn-group featStickers">
-            <button disabled="disabled" data-title-phrase="Dislike song" id="btnVoteDown" data-href='{"cmd": "voteCurrentSong", "options": [0]}' class="btn btn-secondary mi">thumb_down</button>
-            <button disabled="disabled" data-title-phrase="Like song" id="btnVoteUp" data-href='{"cmd": "voteCurrentSong", "options": [2]}' class="btn btn-secondary mi">thumb_up</button>
+            <button disabled="disabled" data-title-phrase="Dislike song" id="btnVoteDown" data-href='{"cmd": "voteCurrentSong", "options": [0]}' class="btn btn-secondary"><span class="mi">thumb_down</span></button>
+            <button disabled="disabled" data-title-phrase="Like song" id="btnVoteUp" data-href='{"cmd": "voteCurrentSong", "options": [2]}' class="btn btn-secondary"><span class="mi">thumb_up</span></button>
           </div>
           <div class="btn-group btn-group featPlaylists ms-2">
-            <button disabled="disabled" id="addCurrentSongToPlaylist" data-title-phrase="Add to playlist" data-href='{"cmd": "showAddToPlaylistCurrentSong", "options": []}' class="btn btn-secondary mi">playlist_add</button>
+            <button disabled="disabled" id="addCurrentSongToPlaylist" data-title-phrase="Add to playlist" data-href='{"cmd": "showAddToPlaylistCurrentSong", "options": []}' class="btn btn-secondary"><span class="mi">playlist_add</span></button>
           </div>
           <div class="btn-group ms-2">
-            <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalQueueSettings">tune</button>
+            <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalQueueSettings"><span class="mi">tune</span></button>
           </div>
           <div class="btn-group ms-2 featTags">
             <button data-title-phrase="Display tags" id="PlaybackColsBtn" class="btn btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">settings</span></button>
@@ -167,19 +167,19 @@
             </div>
           </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalQueueSettings">tune</button>
+            <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalQueueSettings"><span class="mi">tune</span></button>
           </div>
           <div class="btn-group me-2 featPlaylists">
-            <button data-title-phrase="Save queue" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalSaveQueue">save</button>
+            <button data-title-phrase="Save queue" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalSaveQueue"><span class="mi">save</span></button>
           </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Shuffle queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_SHUFFLE"}]}'>shuffle</button>
+            <button data-title-phrase="Shuffle queue" type="button" class="btn btn-secondary" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_SHUFFLE"}]}'><span class="mi">shuffle</span></button>
           </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Add to queue" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalAddToQueue">add_to_queue</button>
+            <button data-title-phrase="Add to queue" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalAddToQueue"><span class="mi">add_to_queue</span></button>
           </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Crop queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "clearQueue", "options": []}'>clear_all</button>
+            <button data-title-phrase="Crop queue" type="button" class="btn btn-secondary" data-href='{"cmd": "clearQueue", "options": []}'><span class="mi">clear_all</span></button>
             <button id="clearQueueBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="clearQueueDropdown">
               <div class="d-grid gap-2">
@@ -512,7 +512,7 @@
             </div>
           </div>
           <div class="input-group me-2">
-            <button data-title-phrase="Append to queue" data-href='{"cmd": "addAllFromBrowseFilesystem", "options": []}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary mi">library_add</button>
+            <button data-title-phrase="Append to queue" data-href='{"cmd": "addAllFromBrowseFilesystem", "options": []}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary"><span class="mi">library_add</span></button>
             <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="BrowseFilesystemAddAllSongsDropdown">
               <div class="d-grid gap-2">
@@ -579,7 +579,7 @@
             <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-end" id="searchstr"/>
           </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Append to queue" id="searchAddAllSongs" class="btn btn-secondary mi" data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}'>library_add</button>
+            <button data-title-phrase="Append to queue" id="searchAddAllSongs" class="btn btn-secondary" data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}'><span class="mi">library_add</span></button>
             <button id="searchAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown"></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="searchAddAllSongsDropdown">
               <div class="d-grid gap-2">
@@ -627,10 +627,10 @@
     <nav class="navbar navbar-expand navbar-dark bg-dark">
       <div class="btn-toolbar nav-item flex-nowrap">
         <div class="btn-group me-2" id="playControlBtns">
-          <button data-title-phrase="Previous" data-href='{"cmd": "clickPrev", "options": []}' id="btnPrev" type="button" class="btn btn-dark ps-2 pe-2 mi">skip_previous</button>
-          <button data-title-phrase="Stop" data-href='{"cmd": "clickStop", "options": []}' id="btnStop" type="button" class="btn btn-dark ps-2 pe-2 mi hide">stop</button>
-          <button data-title-phrase="Toggle play" data-href='{"cmd": "clickPlay", "options": []}' id="btnPlay" type="button" class="btnPlay btn btn-lg btn-dark ps-2 pe-2 mi mi-lg">pause</button>
-          <button data-title-phrase="Next" data-href='{"cmd": "clickNext", "options": []}' id="btnNext" type="button" class="btn btn-dark ps-2 pe-2 mi">skip_next</button>
+          <button data-title-phrase="Previous" data-href='{"cmd": "clickPrev", "options": []}' id="btnPrev" type="button" class="btn btn-dark px-2 mi rounded-2">skip_previous</button>
+          <button data-title-phrase="Stop" data-href='{"cmd": "clickStop", "options": []}' id="btnStop" type="button" class="btn btn-dark px-2 mi rounded-2 hide">stop</button>
+          <button data-title-phrase="Toggle play" data-href='{"cmd": "clickPlay", "options": []}' id="btnPlay" type="button" class="btnPlay btn btn-lg btn-dark px-2 mi mi-lg rounded-2">pause</button>
+          <button data-title-phrase="Next" data-href='{"cmd": "clickNext", "options": []}' id="btnNext" type="button" class="btn btn-dark px-2 mi rounded-2">skip_next</button>
         </div>
         <div class="align-self-center footerCounter">
           <small id="counter" class="text-light">0:00&nbsp;/&nbsp;0:00</small>
@@ -655,8 +655,8 @@
             <form class="px-3 py-0 pb-3" id="volumeControl">
               <div class="btn-group">
                 <button id="btnChVolumeDown" data-href='{"cmd": "volumeStep", "options": ["down"]}' class="btn btn-secondary">&minus;</button>
-                  <div class="btn btn-secondary">
-                    <input type="range" min="0" max="100" step="1" class="form-control-range" id="volumeBar"/>
+                  <div class="bg-secondary" id="volumeDiv">
+                    <input type="range" min="0" max="100" step="1" class="form-range" id="volumeBar"/>
                   </div>
                 <button id="btnChVolumeUp" data-href='{"cmd": "volumeStep", "options": ["up"]}' class="btn btn-secondary">+</button>
               </div>
@@ -672,15 +672,15 @@
           <button data-title-phrase="Local playback" id="localPlaybackMenu" class="btn btn-dark dropdown-toggle px-2" type="button" data-bs-toggle="dropdown"><span class="mi">airplay</span></button>
           <div class="dropdown-menu bg-lite-dark">
             <h2 data-phrase="Local playback" class="dropdown-header dropdown-header-lx text-light"></h2>
-            <div id="alertLocalPlayback" class="alert alert-warning mx-4 p-2 hide">
+            <div id="alertLocalPlayback" class="alert alert-warning mx-3 p-2 hide">
               <span data-phrase="Connecting to stream..."></span>
-              <a class="btn btn-sm btn-warning float-right mi mi-small px-1">refresh</a>
+              <a class="btn btn-sm btn-warning float-end mi mi-small px-1">refresh</a>
             </div>
-            <div id="errorLocalPlayback" class="alert alert-danger mx-4 p-2 hide">
+            <div id="errorLocalPlayback" class="alert alert-danger mx-3 p-2 hide">
               <span data-phrase="Error loading stream"></span>
-              <a class="btn btn-sm btn-danger float-right mi mi-small px-1">refresh</a>
+              <a class="btn btn-sm btn-danger float-end mi mi-small px-1">refresh</a>
             </div>
-            <audio class="mx-4" id="localPlayer" preload="none" controls=""></audio>
+            <audio class="mx-3" id="localPlayer" preload="none" controls=""></audio>
           </div>
         </div>
       </div>

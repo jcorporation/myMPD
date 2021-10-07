@@ -1107,38 +1107,30 @@ function setNavbarIcons() {
         oldQueueLength = oldBadgeQueueItems.textContent;
     }
     
-    let btns = '';
-    for (const icon of settings.navbarIcons) {
-        let hide = '';
-        if (features.featHome === false && icon.options[0] === 'Home') {
-            hide = 'hide';
-        }
-        btns += '<div id="nav' + icon.options.join('') + '" class="nav-item flex-fill text-center ' + hide + '">' +
-          '<a data-title-phrase="' + t(icon.title) + '" data-href="" class="nav-link text-light" href="#">' +
-            '<span class="mi">' + icon.ligature + '</span>' + 
-            '<span class="navText" data-phrase="' + t(icon.title) + '"></span>' +
-            (icon.badge !== '' ? icon.badge : '') +
-          '</a>' +
-        '</div>';
-    }
     const container = document.getElementById('navbar-main');
-    container.innerHTML = btns;
-
-    const badgeQueueItemsEl = document.getElementById('badgeQueueItems');
-    if (badgeQueueItemsEl) {
-        document.getElementById('badgeQueueItems').textContent = oldQueueLength;
+    elClear(container);
+    for (const icon of settings.navbarIcons) {
+        const id = "nav" + icon.options.join('');
+        const btn = elCreate('div', {"id": id, "class": ["nav-item", "flex-fill", "text-center"]}, '');
+        if (id === 'nav' + app.current.app) {
+            btn.classList.add('active');
+        }
+        if (features.featHome === false && icon.options[0] === 'Home') {
+            btn.classList.add('hide');
+        }
+        const a = elCreate('a', {"data-title-phrase": icon.title, "title": tn(icon.title), "href": "#", "class": ["nav-link", "text-light"]}, '');
+        a.appendChild(elCreate('span', {"class": ["mi"]}, icon.ligature));
+        if (icon.options[0] === 'Queue' && icon.options.length === 1) {
+            a.appendChild(elCreate('span', {"id": "badgeQueueItems", "class": ["badge", "bg-secondary"]}, oldQueueLength));
+        }
+        btn.appendChild(a);
+        container.appendChild(btn);
+        setCustomDomProperty(a, 'data-href', JSON.stringify({"cmd": "appGoto", "options": icon.options}));
     }
-
-    if (document.getElementById('nav' + app.current.app)) {
-        document.getElementById('nav' + app.current.app).classList.add('active');
-    }
-
+    
     //cache elements, reused in appPrepare
     domCache.navbarBtns = container.getElementsByTagName('div');
     domCache.navbarBtnsLen = domCache.navbarBtns.length;
-    for (let i = 0; i < domCache.navbarBtnsLen; i++) {
-        setCustomDomProperty(domCache.navbarBtns[i].firstChild, 'data-href', JSON.stringify({"cmd": "appGoto", "options": settings.navbarIcons[i].options}));
-    }
 }
 
 //eslint-disable-next-line no-unused-vars
