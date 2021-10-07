@@ -100,7 +100,7 @@ function showNotification(title, text, facility, severity) {
     }
     document.getElementById('alertBox').prepend(toast);
     const toastInit = new BSN.Toast(toast, {delay: 2500});
-    toast.addEventListener('hidden.bs.toast', function(event) {
+    toast.addEventListener('hidden.bs.toast', function() {
         this.remove();
     }, false);
     toastInit.show();
@@ -162,22 +162,6 @@ function clearLogOverview() {
         overviewEls[i].remove();
     }
     setStateIcon();
-}
-
-function hideNotification() {
-    if (alertTimeout) {
-        clearTimeout(alertTimeout);
-    }
-
-    if (document.getElementById('alertBox')) {
-        document.getElementById('alertBox').classList.remove('alertBoxActive');
-        setTimeout(function() {
-            const alertBox = document.getElementById('alertBox');
-            if (alertBox) {
-                alertBox.remove();
-            }
-        }, 750);
-    }
 }
 
 function notificationsSupported() {

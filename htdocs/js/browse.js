@@ -44,10 +44,6 @@ function initBrowse() {
         }
     }, false);
     
-    document.getElementById('BrowseDatabaseListList').addEventListener('keydown', function(event) {
-        navigateGrid(event.target, event.key);
-    }, false);
-    
     if (isMobile === false) {
         document.getElementById('BrowseDatabaseListList').addEventListener('mouseover', function(event) {
             if (app.current.tag !== 'Album') {
