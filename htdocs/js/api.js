@@ -119,21 +119,23 @@ function setSessionState() {
         session.timeout = 0;
         session.token = '';
     }
-    if (settings.pin === true && session.token === '') {
-        domCache.body.classList.add('locked');
-        document.getElementById('mmLogin').classList.remove('hide');
-        document.getElementById('mmLogout').classList.add('hide');
+    if (settings.pin === true) {
+        if (session.token === '') {
+            domCache.body.classList.add('locked');
+            document.getElementById('mmLogin').classList.remove('hide');
+            document.getElementById('mmLogout').classList.add('hide');
+        }
+        else {
+            domCache.body.classList.remove('locked');
+            document.getElementById('mmLogin').classList.add('hide');
+            document.getElementById('mmLogout').classList.remove('hide');
+            resetSessionTimer();
+        }
     }
     else {
         domCache.body.classList.remove('locked');
-        if (settings.pin === true && session.token !== '') {
-            document.getElementById('mmLogin').classList.add('hide');
-            document.getElementById('mmLogout').classList.remove('hide');
-        }
-    }
-
-    if (settings.pin === true && session.token !== '') {
-        resetSessionTimer();
+        document.getElementById('mmLogin').classList.add('hide');
+        document.getElementById('mmLogout').classList.add('hide');
     }
 }
 
