@@ -18,3 +18,4 @@ title: References
 - [Tags]({{ site.baseurl }}/references/tags)
 - [Translating]({{ site.baseurl }}/references/translating)
 - [Trigger]({{ site.baseurl }}/references/trigger)
+- [Webserver uris]({{ site.baseurl }}/references/webserver-uris)

@@ -47,6 +47,7 @@ This documentation is for myMPD version {% include version %}.
   - [Tags]({{ site.baseurl }}/references/tags)
   - [Translating]({{ site.baseurl }}/references/translating)
   - [Trigger]({{ site.baseurl }}/references/trigger)
+  - [Webserver uris]({{ site.baseurl }}/references/webserver-uris)
 - [Additional topics]({{ site.baseurl }}/additional-topics/)
   - [Behind a reverse proxy]({{ site.baseurl }}/additional-topics/behind-a-reverse-proxy)
   - [Multiple myMPD instances on same host]({{ site.baseurl }}/additional-topics/multiple-myMPD-instances-on-same-host)
