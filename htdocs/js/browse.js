@@ -552,11 +552,11 @@ function parseAlbumDetails(obj) {
     }
     infoEl.appendChild(p);
     if (obj.result.bookletPath !== '' && features.featLibrary === true) {
-        const p = elCreate('p', {}, '');
-        p.appendChild(elCreate('span', {"class": ["text-light", "mi", "me-2"]}, 'description'));
-        p.appendChild(elCreate('a', {"class": ["text-light"], "target": "_blank", "href": subdir + '/browse/music/' + 
+        const booklet = elCreate('p', {}, '');
+        booklet.appendChild(elCreate('span', {"class": ["text-light", "mi", "me-2"]}, 'description'));
+        booklet.appendChild(elCreate('a', {"class": ["text-light"], "target": "_blank", "href": subdir + '/browse/music/' + 
             myEncodeURI(obj.result.bookletPath)}, tn('Download booklet')));
-        infoEl.appendChild(p);
+        infoEl.appendChild(booklet);
     }
     
     const rowTitle = tn(webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong]);
