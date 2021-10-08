@@ -1,5 +1,5 @@
 /*!
-  * Native JavaScript for Bootstrap v4.0.6 (https://thednp.github.io/bootstrap.native/)
+  * Native JavaScript for Bootstrap v4.0.7 (https://thednp.github.io/bootstrap.native/)
   * Copyright 2015-2021 © dnp_theme
   * Licensed under MIT (https://github.com/thednp/bootstrap.native/blob/master/LICENSE)
   */
@@ -7,7 +7,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.BSN = factory());
-}(this, (function () { 'use strict';
+})(this, (function () { 'use strict';
 
   const transitionEndEvent = 'webkitTransition' in document.head.style ? 'webkitTransitionEnd' : 'transitionend';
 
@@ -1928,7 +1928,7 @@
 
     if ((!element.contains(target) && options.backdrop
       && (!trigger || (trigger && !triggers.includes(trigger))))
-      || offCanvasDismiss.contains(target)) {
+      || (offCanvasDismiss && offCanvasDismiss.contains(target))) {
       self.relatedTarget = target === offCanvasDismiss ? offCanvasDismiss : null;
       self.hide();
     }
@@ -2873,7 +2873,7 @@
   const toastSelector = `.${toastString}`;
   const toastDismissSelector = `[${dataBsDismiss}="${toastString}"]`;
   const showingClass = 'showing';
-  const hideClass = 'hide';
+  const hideClass = 'hide'; // marked as deprecated
   const toastDefaultOptions = {
     animation: true,
     autohide: true,
@@ -2891,10 +2891,7 @@
   // =====================
   function showToastComplete(self) {
     const { element, options } = self;
-    if (options.animation) {
-      removeClass(element, showingClass);
-      addClass(element, showClass);
-    }
+    removeClass(element, showingClass);
 
     element.dispatchEvent(shownToastEvent);
     if (options.autohide) self.hide();
@@ -2902,13 +2899,15 @@
 
   function hideToastComplete(self) {
     const { element } = self;
-    addClass(element, hideClass);
+    removeClass(element, showingClass);
+    removeClass(element, showClass);
+    addClass(element, hideClass); // B/C
     element.dispatchEvent(hiddenToastEvent);
   }
 
-  function closeToast(self) {
+  function hideToast(self) {
     const { element, options } = self;
-    removeClass(element, showClass);
+    addClass(element, showingClass);
 
     if (options.animation) {
       reflow(element);
@@ -2918,15 +2917,14 @@
     }
   }
 
-  function openToast(self) {
+  function showToast(self) {
     const { element, options } = self;
-    removeClass(element, hideClass);
+    removeClass(element, hideClass); // B/C
+    reflow(element);
+    addClass(element, showClass);
+    addClass(element, showingClass);
 
     if (options.animation) {
-      reflow(element);
-      addClass(element, showingClass);
-      addClass(element, showClass);
-
       emulateTransitionEnd(element, () => showToastComplete(self));
     } else {
       showToastComplete(self);
@@ -2954,9 +2952,13 @@
       super(toastComponent, target, toastDefaultOptions, config);
       // bind
       const self = this;
+      const { element, options } = self;
 
+      // set fadeClass, the options.animation will override the markup
+      if (options.animation && !hasClass(element, fadeClass)) addClass(element, fadeClass);
+      else if (!options.animation && hasClass(element, fadeClass)) removeClass(element, fadeClass);
       // dismiss button
-      self.dismiss = queryElement(toastDismissSelector, self.element);
+      self.dismiss = queryElement(toastDismissSelector, element);
 
       // bind
       self.show = self.show.bind(self);
@@ -2971,13 +2973,12 @@
     show() {
       const self = this;
       const { element } = self;
-      if (element && hasClass(element, hideClass)) {
+      if (element && !hasClass(element, showClass)) {
         element.dispatchEvent(showToastEvent);
         if (showToastEvent.defaultPrevented) return;
 
-        addClass(element, fadeClass);
         clearTimeout(self.timer);
-        self.timer = setTimeout(() => openToast(self), 10);
+        self.timer = setTimeout(() => showToast(self), 10);
       }
     }
 
@@ -2990,7 +2991,7 @@
         if (hideToastEvent.defaultPrevented) return;
 
         clearTimeout(self.timer);
-        self.timer = setTimeout(() => closeToast(self),
+        self.timer = setTimeout(() => hideToast(self),
           noTimer ? 10 : options.delay);
       }
     }
@@ -2998,7 +2999,7 @@
     dispose() {
       const self = this;
       const { element, options } = self;
-      self.hide();
+      self.hide(1);
 
       if (options.animation) emulateTransitionEnd(element, () => completeDisposeToast(self));
       else completeDisposeToast(self);
@@ -3013,7 +3014,7 @@
     constructor: Toast,
   };
 
-  var version = "4.0.6";
+  var version = "4.0.7";
 
   // import { alertInit } from '../components/alert-native.js';
   // import { buttonInit } from '../components/button-native.js';
@@ -3077,4 +3078,4 @@
 
   return indexMympd;
 
-})));
+}));
