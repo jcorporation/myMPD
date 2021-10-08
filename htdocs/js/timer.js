@@ -95,7 +95,7 @@ function saveTimer() {
     }
     const selectTimerAction  = document.getElementById('selectTimerAction');
     const jukeboxMode = getCustomDomProperty(document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
-    const selectTimerPlaylist = getSelectValue('selectTimerPlaylist');
+    const selectTimerPlaylist = getSelectValueId('selectTimerPlaylist');
 
     if (selectTimerAction.selectedIndex === -1) {
         formOK = false;
@@ -127,8 +127,8 @@ function saveTimer() {
             "name": nameEl.value,
             "interval": interval,
             "enabled": (document.getElementById('btnTimerEnabled').classList.contains('active') ? true : false),
-            "startHour": Number(getSelectValue('selectTimerHour')),
-            "startMinute": Number(getSelectValue('selectTimerMinute')),
+            "startHour": Number(getSelectValueId('selectTimerHour')),
+            "startMinute": Number(getSelectValueId('selectTimerMinute')),
             "weekdays": weekdays,
             "action": getCustomDomProperty(selectTimerAction.options[selectTimerAction.selectedIndex].parentNode, 'data-value'),
             "subaction": getSelectValue(selectTimerAction),
@@ -154,12 +154,12 @@ function saveTimerCheckError(obj) {
 //eslint-disable-next-line no-unused-vars
 function showEditTimer(timerid) {
     removeEnterPinFooter();
-    document.getElementById('timerActionPlay').classList.add('hide');
-    document.getElementById('timerActionScript').classList.add('hide');
+    elHideId('timerActionPlay');
+    elHideId('timerActionScript');
     document.getElementById('listTimer').classList.remove('active');
     document.getElementById('editTimer').classList.add('active');
-    document.getElementById('listTimerFooter').classList.add('hide');
-    document.getElementById('editTimerFooter').classList.remove('hide');
+    elHideId('listTimerFooter');
+    elShowId('editTimerFooter');
         
     if (timerid !== 0) {
         sendAPI("MYMPD_API_TIMER_GET", {"timerid": timerid}, parseEditTimer);
@@ -170,7 +170,7 @@ function showEditTimer(timerid) {
         });
         document.getElementById('inputTimerId').value = '0';
         document.getElementById('inputTimerName').value = '';
-        toggleBtnChk('btnTimerEnabled', true);
+        toggleBtnChkId('btnTimerEnabled', true);
         document.getElementById('selectTimerHour').value = '12';
         document.getElementById('selectTimerMinute').value = '0';
         document.getElementById('selectTimerAction').value = 'startplay';
@@ -183,7 +183,7 @@ function showEditTimer(timerid) {
         for (let i = 0, j = weekdayBtns.length; i < j; i++) {
             toggleBtnChk(weekdayBtns[i], false);
         }
-        document.getElementById('timerActionPlay').classList.remove('hide');
+        elShowId('timerActionPlay');
     }
     document.getElementById('inputTimerName').focus();
     removeIsInvalid(document.getElementById('editTimerForm'));    
@@ -197,7 +197,7 @@ function parseEditTimer(obj) {
     });
     document.getElementById('inputTimerId').value = obj.result.timerid;
     document.getElementById('inputTimerName').value = obj.result.name;
-    toggleBtnChk('btnTimerEnabled', obj.result.enabled);
+    toggleBtnChkId('btnTimerEnabled', obj.result.enabled);
     document.getElementById('selectTimerHour').value = obj.result.startHour;
     document.getElementById('selectTimerMinute').value = obj.result.startMinute;
     document.getElementById('selectTimerAction').value = obj.result.subaction;
@@ -213,7 +213,7 @@ function parseEditTimer(obj) {
 
 function selectTimerIntervalChange(value) {
     if (value === undefined) {
-        value = Number(getSelectValue('selectTimerInterval'));
+        value = Number(getSelectValueId('selectTimerInterval'));
     }
     else {
         if (isNaN(value) || (value > 0 && value !== 86400 && value !== 604800)) {
@@ -224,12 +224,12 @@ function selectTimerIntervalChange(value) {
         }
     }
     if (isNaN(value) || (value > 0 && value !== 86400 && value !== 604800)) {
-        document.getElementById('inputTimerInterval').classList.remove('hide');
-        document.getElementById('inputTimerIntervalLabel').classList.remove('hide');
+        elShowId('inputTimerInterval');
+        elShowId('inputTimerIntervalLabel');
     }
     else {
-        document.getElementById('inputTimerInterval').classList.add('hide');
-        document.getElementById('inputTimerIntervalLabel').classList.add('hide');
+        elHideId('inputTimerInterval');
+        elHideId('inputTimerIntervalLabel');
     }
     document.getElementById('inputTimerInterval').value = isNaN(value) ? 1 : value > 0 ? (value / 60 / 60) : value;
 }
@@ -238,17 +238,17 @@ function selectTimerActionChange(values) {
     const el = document.getElementById('selectTimerAction');
     
     if (getSelectValue(el) === 'startplay') {
-        document.getElementById('timerActionPlay').classList.remove('hide');
-        document.getElementById('timerActionScript').classList.add('hide');
+        elShowId('timerActionPlay');
+        elHideId('timerActionScript');
     }
     else if (el.selectedIndex > -1 && getCustomDomProperty(el.options[el.selectedIndex].parentNode, 'data-value') === 'script') {
-        document.getElementById('timerActionScript').classList.remove('hide');
-        document.getElementById('timerActionPlay').classList.add('hide');
+        elShowId('timerActionScript');
+        elHideId('timerActionPlay');
         showTimerScriptArgs(el.options[el.selectedIndex], values);
     }
     else {
-        document.getElementById('timerActionPlay').classList.add('hide');
-        document.getElementById('timerActionScript').classList.add('hide');
+        elHideId('timerActionPlay');
+        elHideId('timerActionScript');
     }
 }
 
@@ -278,8 +278,8 @@ function showListTimer() {
     removeEnterPinFooter();
     document.getElementById('listTimer').classList.add('active');
     document.getElementById('editTimer').classList.remove('active');
-    document.getElementById('listTimerFooter').classList.remove('hide');
-    document.getElementById('editTimerFooter').classList.add('hide');
+    elShowId('listTimerFooter');
+    elHideId('editTimerFooter');
     sendAPI("MYMPD_API_TIMER_LIST", {}, parseListTimer, true);
 }
 

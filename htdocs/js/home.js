@@ -54,12 +54,12 @@ function initHome() {
         const value = getSelectValue(event.target);
         if (value !== '') {
             document.getElementById('homeIconPreview').style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(value)  + '")';
-            document.getElementById('divHomeIconLigature').classList.add('hide');
-            elClear(document.getElementById('homeIconPreview'));
+            elHideId('divHomeIconLigature');
+            elClearId('homeIconPreview');
         }
         else {
             document.getElementById('homeIconPreview').style.backgroundImage = '';
-            document.getElementById('divHomeIconLigature').classList.remove('hide');
+            elShowId('divHomeIconLigature');
             document.getElementById('homeIconPreview').textContent = document.getElementById('inputHomeIconLigature').value;
         }
     }, false);
@@ -135,11 +135,11 @@ function selectHomeIconLigature(x) {
 
 function filterHomeIconLigatures() {
     const str = document.getElementById('searchHomeIconLigature').value.toLowerCase();
-    const cat = getSelectValue('searchHomeIconCat');
+    const cat = getSelectValueId('searchHomeIconCat');
     const els = document.getElementById('listHomeIconLigature').getElementsByTagName('button');
     for (let i = 0, j = els.length; i < j; i++) {
         if ((str === '' || els[i].getAttribute('title').indexOf(str) > -1) && (cat === 'all' || els[i].getAttribute('data-cat') === cat)) {
-            els[i].classList.remove('hide');
+            elShow(els[i]);
             if (els[i].getAttribute('title') === str) {
                 els[i].classList.add('active');
             }
@@ -148,19 +148,19 @@ function filterHomeIconLigatures() {
             }
         }
         else {
-            els[i].classList.add('hide');
+            elHide(els[i]);
             els[i].classList.remove('active' );
         }
     }
     const catTitles = document.getElementById('listHomeIconLigature').getElementsByTagName('h5');
     if (cat === '') {
         for (let i = 0, j = catTitles.length; i < j; i++) {
-            catTitles[i].classList.remove('hide');
+            elShow(catTitles[i]);
         }
     }
     else {
         for (let i = 0, j = catTitles.length; i < j; i++) {
-            catTitles[i].classList.add('hide');
+            elHide(catTitles[i]);
         }
     }
 }
@@ -376,7 +376,7 @@ function _addHomeIcon(cmd, name, ligature, options) {
     document.getElementById('homeIconPreview').style.backgroundColor = '#28a745';
     document.getElementById('homeIconPreview').style.color = '#ffffff';
     document.getElementById('homeIconPreview').style.backgroundImage = '';
-    document.getElementById('divHomeIconLigature').classList.remove('hide');
+    elShowId('divHomeIconLigature');
     uiElements.modalEditHomeIcon.show();
 }
 
@@ -409,11 +409,11 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('homeIconPreview').style.color = obj.result.data.color;
         
         if (obj.result.data.image === '') {
-            document.getElementById('divHomeIconLigature').classList.remove('hide');
+            elShowId('divHomeIconLigature');
             document.getElementById('homeIconPreview').style.backgroundImage = '';
         }
         else {
-            document.getElementById('divHomeIconLigature').classList.add('hide');
+            elHideId('divHomeIconLigature');
             document.getElementById('homeIconPreview').style.backgroundImage = 'url(' + subdir + '"/pics/' + myEncodeURI(obj.result.data.image) + '")';
         }
         //reset ligature selection
@@ -439,7 +439,7 @@ function saveHomeIcon() {
         for (const optionEl of optionEls) {
             options.push(optionEl.value);
         }
-        const image = getSelectValue('selectHomeIconImage');
+        const image = getSelectValueId('selectHomeIconImage');
         sendAPI("MYMPD_API_HOME_ICON_SAVE", {
             "replace": (document.getElementById('inputHomeIconReplace').value === 'true' ? true : false),
             "oldpos": Number(document.getElementById('inputHomeIconOldpos').value),

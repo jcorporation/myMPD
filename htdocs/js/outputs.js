@@ -91,10 +91,10 @@ function showListOutputAttributes(outputName) {
                 e(output.attributes[key]) + '"/></td></tr>';
         }
         if (i > 0) {
-            elEnable('btnOutputAttributesSave');
+            elEnableId('btnOutputAttributesSave');
         }
         else {
-            elDisable('btnOutputAttributesSave');
+            elDisableId('btnOutputAttributesSave');
         }
         document.getElementById('outputAttributesList').innerHTML = list;
     });

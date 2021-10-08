@@ -288,42 +288,42 @@ function songChange(obj) {
         textNotification += obj.result.Artist;
         pageTitle += obj.result.Artist + ' - ';
         document.getElementById('footerArtist').textContent = obj.result.Artist;
-        setCustomDomProperty(document.getElementById('footerArtist'), 'data-name', obj.result.Artist);
+        setCustomDomPropertyId('footerArtist', 'data-name', obj.result.Artist);
         if (features.featAdvsearch === true) {
             document.getElementById('footerArtist').classList.add('clickable');
         }
     }
     else {
         document.getElementById('footerArtist').textContent = '';
-        setCustomDomProperty(document.getElementById('footerArtist'), 'data-name', '');
+        setCustomDomPropertyId('footerArtist', 'data-name', '');
     }
 
     if (obj.result.Album !== undefined && obj.result.Album.length > 0 && obj.result.Album !== '-') {
         textNotification += ' - ' + obj.result.Album;
         document.getElementById('footerAlbum').textContent = obj.result.Album;
-        setCustomDomProperty(document.getElementById('footerAlbum'), 'data-name', obj.result.Album);
-        setCustomDomProperty(document.getElementById('footerAlbum'), 'data-albumartist', obj.result[tagAlbumArtist]);
+        setCustomDomPropertyId('footerAlbum', 'data-name', obj.result.Album);
+        setCustomDomPropertyId('footerAlbum', 'data-albumartist', obj.result[tagAlbumArtist]);
         if (features.featAdvsearch === true) {
             document.getElementById('footerAlbum').classList.add('clickable');
         }
     }
     else {
         document.getElementById('footerAlbum').textContent = '';
-        setCustomDomProperty(document.getElementById('footerAlbum'), 'data-name', '');
+        setCustomDomPropertyId('footerAlbum', 'data-name', '');
     }
 
     if (obj.result.Title !== undefined && obj.result.Title.length > 0) {
         pageTitle += obj.result.Title;
         document.getElementById('currentTitle').textContent = obj.result.Title;
-        setCustomDomProperty(document.getElementById('currentTitle'), 'data-uri', obj.result.uri);
+        setCustomDomPropertyId('currentTitle', 'data-uri', obj.result.uri);
         document.getElementById('footerTitle').textContent = obj.result.Title;
         document.getElementById('footerCover').classList.add('clickable');
     }
     else {
         document.getElementById('currentTitle').textContent = '';
-        setCustomDomProperty(document.getElementById('currentTitle'), 'data-uri', '');
+        setCustomDomPropertyId('currentTitle', 'data-uri', '');
         document.getElementById('footerTitle').textContent = '';
-        setCustomDomProperty(document.getElementById('footerTitle'), 'data-name', '');
+        setCustomDomPropertyId('footerTitle', 'data-name', '');
         document.getElementById('currentTitle').classList.remove('clickable');
         document.getElementById('footerTitle').classList.remove('clickable');
         document.getElementById('footerCover').classList.remove('clickable');
@@ -342,11 +342,11 @@ function songChange(obj) {
 
     if (obj.result.uri !== undefined) {
         obj.result['Filetype'] = filetype(obj.result.uri);
-        elEnable('addCurrentSongToPlaylist');
+        elEnableId('addCurrentSongToPlaylist');
     }
     else {
         obj.result['Filetype'] = '';
-        elDisable('addCurrentSongToPlaylist');
+        elDisableId('addCurrentSongToPlaylist');
     }
     
     if (features.featStickers === true) {
@@ -417,7 +417,7 @@ function gotoTagList() {
 
 //eslint-disable-next-line no-unused-vars
 function clickTitle() {
-    const uri = getCustomDomProperty('currentTitle', 'data-uri');
+    const uri = getCustomDomPropertyId('currentTitle', 'data-uri');
     if (isValidUri(uri) === true && isStreamUri(uri) === false) {
         songDetails(uri);
     }

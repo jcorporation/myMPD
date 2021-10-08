@@ -91,9 +91,9 @@
       <a data-phrase="Fullscreen" class="dropdown-item text-light" href="#" data-href='{"cmd": "openFullscreen", "options": []}'></a>
       <a data-phrase="Browse directories" class="dropdown-item text-light featLibrary" href="browse/" target="_blank"></a>
       <a data-phrase="About" class="dropdown-item text-light" href="#" data-bs-toggle="modal" data-bs-target="#modalAbout"></a>
-      <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item text-light hide" href="#"></a>
+      <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item text-light d-none" href="#"></a>
       <a data-phrase="Login" id="mmLogin" data-href='{"cmd": "enterPin", "options": []}' class="dropdown-item text-light" href="#"></a>
-      <a data-phrase="Logout" id="mmLogout" data-href='{"cmd": "removeSession", "options": []}' class="dropdown-item text-light hide" href="#"></a>
+      <a data-phrase="Logout" id="mmLogout" data-href='{"cmd": "removeSession", "options": []}' class="dropdown-item text-light d-none" href="#"></a>
       <a id="navScripting" class="subMenu featScripting dropdown-item text-light alwaysEnabled" data-bs-toggle="collapse" href="#scripts"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
       <div id="scripts" class="featScripting noInitChilds collapse"></div>
       <div class="dropdown-divider"></div>
@@ -104,13 +104,13 @@
     </div>
   </div>
   <!-- Alerts -->
-  <div id="top-alerts" class="hide">
+  <div id="top-alerts" class="d-none">
     <noscript>
       <div data-phrase="JavaScript is disabled" class="alert alert-danger top-alert"></div>
     </noscript>
-    <div id="alertMpdState" class="alert alert-danger top-alert d-flex flex-row hide"></div>
-    <div id="alertMpdStatusError" class="alert alert-danger top-alert-dismissible top-alert d-flex flex-row hide"></div>
-    <div id="alertMympdState" class="alert alert-danger top-alert d-flex flex-row hide"></div>
+    <div id="alertMpdState" class="alert alert-danger top-alert d-flex flex-row d-none"></div>
+    <div id="alertMpdStatusError" class="alert alert-danger top-alert-dismissible top-alert d-flex flex-row d-none"></div>
+    <div id="alertMympdState" class="alert alert-danger top-alert d-flex flex-row d-none"></div>
   </div>
   <!-- Main content -->
   <main>
@@ -153,8 +153,8 @@
       </div>
     </div>
     
-    <div class="card hide" id="cardQueue">
-      <div class="card-body hide" id="tabQueueCurrent">
+    <div class="card d-none" id="cardQueue">
+      <div class="card-body d-none" id="tabQueueCurrent">
         <div class="btn-toolbar card-toolbar" id="QueueCurrentButtonsTop">
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
@@ -204,7 +204,7 @@
           <div class="btn-group me-2 featHome">
             <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
-          <div id="QueueCurrentPaginationTop" class="btn-group me-2 pagination hide">
+          <div id="QueueCurrentPaginationTop" class="btn-group me-2 pagination d-none">
           </div>
         </div>
 
@@ -226,11 +226,11 @@
             </tfoot>
           </table>
         </div>
-        <div class="btn-toolbar hide justify-content-between" id="QueueCurrentButtonsBottom">
+        <div class="btn-toolbar d-none justify-content-between" id="QueueCurrentButtonsBottom">
         </div>
       </div>
 
-      <div class="card-body hide" id="tabQueueLastPlayed">
+      <div class="card-body d-none" id="tabQueueLastPlayed">
         <div class="btn-toolbar card-toolbar">
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
@@ -245,7 +245,7 @@
           <div class="btn-group me-2 featHome">
             <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
-          <div id="QueueLastPlayedPaginationTop" class="btn-group me-2 pagination hide">
+          <div id="QueueLastPlayedPaginationTop" class="btn-group me-2 pagination d-none">
           </div>
         </div>
 
@@ -265,11 +265,11 @@
             </tbody>
           </table>
         </div>
-        <div class="btn-toolbar hide justify-content-between" id="QueueLastPlayedButtonsBottom">
+        <div class="btn-toolbar d-none justify-content-between" id="QueueLastPlayedButtonsBottom">
         </div>
       </div>
 
-      <div class="card-body hide" id="tabQueueJukebox">
+      <div class="card-body d-none" id="tabQueueJukebox">
         <div class="btn-toolbar card-toolbar">
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
@@ -284,7 +284,7 @@
           <div class="btn-group me-2 featHome">
             <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
-          <div id="QueueJukeboxPaginationTop" class="btn-group me-2 pagination hide">
+          <div id="QueueJukeboxPaginationTop" class="btn-group me-2 pagination d-none">
           </div>
         </div>
         <div class="table-responsive-md">
@@ -304,13 +304,13 @@
             </tbody>
           </table>
         </div>
-        <div class="btn-toolbar hide justify-content-between" id="QueueJukeboxButtonsBottom">
+        <div class="btn-toolbar d-none justify-content-between" id="QueueJukeboxButtonsBottom">
         </div>
       </div>
     </div>
     
-    <div class="card hide" id="cardBrowse">
-      <div class="card-body hide" id="tabBrowsePlaylists">
+    <div class="card d-none" id="cardBrowse">
+      <div class="card-body d-none" id="tabBrowsePlaylists">
         <div id="viewBrowsePlaylistsList">
           <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsAllButtons">
             <div class="btn-group me-2">
@@ -338,7 +338,7 @@
           <div class="btn-group me-2 featHome">
             <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
-          <div id="BrowsePlaylistsListPaginationTop" class="btn-group me-2 pagination hide">
+          <div id="BrowsePlaylistsListPaginationTop" class="btn-group me-2 pagination d-none">
           </div>
         </div>
           <div class="table-responsive-md">
@@ -355,7 +355,7 @@
               </tbody>
             </table>
           </div>
-          <div class="btn-toolbar hide justify-content-between" id="BrowsePlaylistsListButtonsBottom"></div>
+          <div class="btn-toolbar d-none justify-content-between" id="BrowsePlaylistsListButtonsBottom"></div>
         </div>
         <div id="viewBrowsePlaylistsDetail">
           <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsDetailButtons">
@@ -380,13 +380,13 @@
                 </div>
               </div>
             </div>
-            <div class="hide btn-group" id="smartPlaylistContentBtns">
+            <div class="d-none btn-group" id="smartPlaylistContentBtns">
               <button data-title-phrase="Update smart playlist" type="button" class="btn btn-secondary mi rounded-end me-2" data-href='{"cmd": "updateSmartPlaylistClick", "options": []}'>refresh</button>
             </div>
             <div class="btn-group me-2 featHome">
               <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
             </div>
-            <div id="BrowsePlaylistsDetailPaginationTop" class="btn-group me-2 pagination hide">
+            <div id="BrowsePlaylistsDetailPaginationTop" class="btn-group me-2 pagination d-none">
             </div>
           </div>
           <div class="table-responsive-md">
@@ -408,11 +408,11 @@
               </tfoot>
             </table>          
           </div>
-          <div class="btn-toolbar hide justify-content-between" id="BrowsePlaylistsDetailButtonsBottom"></div>
+          <div class="btn-toolbar d-none justify-content-between" id="BrowsePlaylistsDetailButtonsBottom"></div>
         </div>
       </div>
 
-      <div class="card-body hide" id="tabBrowseDatabase">
+      <div class="card-body d-none" id="tabBrowseDatabase">
         <div id="viewBrowseDatabaseList">
           <div class="btn-toolbar card-toolbar" id="BrowseDatabaseButtons">
             <div class="btn-group me-2">
@@ -452,24 +452,24 @@
             <div class="btn-group me-2 featHome">
               <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
             </div>
-            <div id="BrowseDatabaseListPaginationTop" class="btn-group me-2 pagination hide">
+            <div id="BrowseDatabaseListPaginationTop" class="btn-group me-2 pagination d-none">
             </div>
           </div>
-          <ol class="featAdvsearch breadcrumb p-2 rounded-2 hide" id="searchDatabaseCrumb"></ol>
+          <ol class="featAdvsearch breadcrumb p-2 rounded-2 d-none" id="searchDatabaseCrumb"></ol>
           <div class="container BrowseDatabaseCardsContainer">
             <div id="BrowseDatabaseListList" class="row">
             </div>
           </div>
-          <div class="btn-toolbar hide justify-content-between" id="BrowseDatabaseListButtonsBottom">
+          <div class="btn-toolbar d-none justify-content-between" id="BrowseDatabaseListButtonsBottom">
           </div>
         </div>
         <div id="viewBrowseDatabaseDetail">
           <div class="btn-toolbar card-toolbar">
             <div class="input-group me-2">
-              <button class="btn btn-secondary mi" data-href='{"cmd": "backToAlbumGrid", "options": []}'>apps</button>
+              <button class="btn btn-secondary" data-href='{"cmd": "backToAlbumGrid", "options": []}'><span class="mi">apps</span></button>
             </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Append to queue" class="btn btn-secondary mi" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}'>library_add</button>
+              <button data-title-phrase="Append to queue" class="btn btn-secondary" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}'><span class="mi">library_add</span></button>
               <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
               <div class="dropdown-menu bg-lite-dark px-2">
                 <div class="d-grid gap-2">
@@ -504,7 +504,7 @@
         </div>
       </div>
 
-      <div class="card-body hide" id="tabBrowseFilesystem">
+      <div class="card-body d-none" id="tabBrowseFilesystem">
         <div class="btn-toolbar card-toolbar" id="BrowseFilesystemButtons">
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" id="BrowseNavFilesystem" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
@@ -531,7 +531,7 @@
           <div class="btn-group me-2 featHome">
             <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
           </div>
-          <div id="BrowseFilesystemPaginationTop" class="btn-group me-2 pagination hide">
+          <div id="BrowseFilesystemPaginationTop" class="btn-group me-2 pagination d-none">
           </div>
         </div>
         <ol id="BrowseBreadcrumb" class="breadcrumb p-2 rounded-2"></ol>
@@ -552,12 +552,12 @@
             </tbody>
           </table>
         </div>
-        <div class="btn-toolbar hide justify-content-between" id="BrowseFilesystemButtonsBottom">
+        <div class="btn-toolbar d-none justify-content-between" id="BrowseFilesystemButtonsBottom">
         </div>
       </div>
     </div>        
 
-    <div class="card hide" id="cardSearch">
+    <div class="card d-none" id="cardSearch">
       <div class="card-body">
         <div class="btn-toolbar card-toolbar" id="SearchButtons">
           <div class="btn-group">
@@ -593,10 +593,10 @@
           <div class="btn-group me-2 featHome">
             <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
           </div>
-          <div id="SearchPaginationTop" class="btn-group me-2 pagination hide">
+          <div id="SearchPaginationTop" class="btn-group me-2 pagination d-none">
           </div>
         </div>
-        <ol class="featAdvsearch breadcrumb p-2 rounded-2 hide" id="searchCrumb"></ol>
+        <ol class="featAdvsearch breadcrumb p-2 rounded-2 d-none" id="searchCrumb"></ol>
         <div class="table-responsive-md">
           <table id="SearchList" class="table table-hover table-sm">
             <thead>
@@ -613,7 +613,7 @@
             </tbody>
           </table>
         </div>
-        <div class="btn-toolbar hide justify-content-between" id="SearchButtonsBottom">
+        <div class="btn-toolbar d-none justify-content-between" id="SearchButtonsBottom">
         </div>
       </div>
     </div>
@@ -629,7 +629,7 @@
       <div class="btn-toolbar nav-item flex-nowrap">
         <div class="btn-group me-2" id="playControlBtns">
           <button data-title-phrase="Previous" data-href='{"cmd": "clickPrev", "options": []}' id="btnPrev" type="button" class="btn btn-dark px-2 mi rounded-2">skip_previous</button>
-          <button data-title-phrase="Stop" data-href='{"cmd": "clickStop", "options": []}' id="btnStop" type="button" class="btn btn-dark px-2 mi rounded-2 hide">stop</button>
+          <button data-title-phrase="Stop" data-href='{"cmd": "clickStop", "options": []}' id="btnStop" type="button" class="btn btn-dark px-2 mi rounded-2 d-none">stop</button>
           <button data-title-phrase="Toggle play" data-href='{"cmd": "clickPlay", "options": []}' id="btnPlay" type="button" class="btnPlay btn btn-lg btn-dark px-2 mi mi-lg rounded-2">pause</button>
           <button data-title-phrase="Next" data-href='{"cmd": "clickNext", "options": []}' id="btnNext" type="button" class="btn btn-dark px-2 mi rounded-2">skip_next</button>
         </div>
@@ -646,7 +646,7 @@
         </div>
       </div>
       <div class="btn-toolbar nav-item flex-nowrap ms-3">
-        <div class="btn-group ms-2 hide" id="footerQueueSettings">
+        <div class="btn-group ms-2 d-none" id="footerQueueSettings">
           <button data-title-phrase="Playback settings" type="button" class="btn btn-dark mi" data-bs-toggle="modal" data-bs-target="#modalQueueSettings">tune</button>
         </div>
         <div class="btn-group dropup">
@@ -673,11 +673,11 @@
           <button data-title-phrase="Local playback" id="localPlaybackMenu" class="btn btn-dark dropdown-toggle px-2" type="button" data-bs-toggle="dropdown"><span class="mi">airplay</span></button>
           <div class="dropdown-menu bg-lite-dark">
             <h2 data-phrase="Local playback" class="dropdown-header dropdown-header-lx text-light"></h2>
-            <div id="alertLocalPlayback" class="alert alert-warning mx-3 p-2 hide">
+            <div id="alertLocalPlayback" class="alert alert-warning mx-3 p-2 d-none">
               <span data-phrase="Connecting to stream..."></span>
               <a class="btn btn-sm btn-warning float-end mi mi-small px-1">refresh</a>
             </div>
-            <div id="errorLocalPlayback" class="alert alert-danger mx-3 p-2 hide">
+            <div id="errorLocalPlayback" class="alert alert-danger mx-3 p-2 d-none">
               <span data-phrase="Error loading stream"></span>
               <a class="btn btn-sm btn-danger float-end mi mi-small px-1">refresh</a>
             </div>
@@ -703,9 +703,9 @@
           </div>
           <br/>
           <p id="updateDBfinished"></p>
-          <div id="errorUpdateDB" class="alert alert-danger hide" data-phrase="Database update failed"></div>
+          <div id="errorUpdateDB" class="alert alert-danger d-none" data-phrase="Database update failed"></div>
         </div>
-        <div class="modal-footer hide" id="updateDBfooter">
+        <div class="modal-footer d-none" id="updateDBfooter">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>        
       </div>
@@ -720,7 +720,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form id="addStreamFrm" class="hide">
+          <form id="addStreamFrm" class="d-none">
             <div class="row mb-3">
               <label class="col-sm-4 col-form-label" for="streamUrl" data-phrase="Stream URI"></label>
               <div class="col-sm-8">
@@ -736,7 +736,7 @@
             </div>
           </form>        
 
-          <form class="hide" id="addToPlaylistFrm">
+          <form class="d-none" id="addToPlaylistFrm">
             <input type="hidden" id="addToPlaylistUri"/>
             <input type="hidden" id="addToPlaylistSearch"/>
             <div class="row mb-3">
@@ -746,7 +746,7 @@
                 <div class="invalid-feedback" data-phrase="Please choose playlist"></div>
               </div>
             </div>
-            <div class="row mb-3 hide" id="addToPlaylistNewPlaylistDiv">
+            <div class="row mb-3 d-none" id="addToPlaylistNewPlaylistDiv">
               <label class="col-sm-4 col-form-label" for="addToPlaylistNewPlaylist" data-phrase="Create Playlist"></label>
               <div class="col-sm-8">
                 <input id="addToPlaylistNewPlaylist" class="form-control"/>
@@ -759,7 +759,7 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "addToPlaylist", "options": []}' data-phrase="Add"></button>
         </div>
-        <div class="modal-footer justify-content-between hide" id="addStreamFooter">
+        <div class="modal-footer justify-content-between d-none" id="addStreamFooter">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "addStream", "options": []}' data-phrase="Add"></button>
         </div>
@@ -829,7 +829,7 @@
               </div>
             </div>
             <hr/>
-            <div class="hide" id="saveSmartPlaylistSearch">
+            <div class="d-none" id="saveSmartPlaylistSearch">
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistExpression" data-phrase="Expression"></label>
                 <div class="col-sm-8">
@@ -837,7 +837,7 @@
                 </div>
               </div>
             </div>
-            <div class="hide" id="saveSmartPlaylistSticker">
+            <div class="d-none" id="saveSmartPlaylistSticker">
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="selectSaveSmartPlaylistSticker" data-phrase="Sticker"></label>
                 <div class="col-sm-8">
@@ -862,7 +862,7 @@
                 </div>
               </div>
             </div>
-            <div class="hide" id="saveSmartPlaylistNewest">
+            <div class="d-none" id="saveSmartPlaylistNewest">
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistNewestTimerange" data-phrase="Timerange (days)"></label>
                 <div class="col-sm-8">
@@ -945,7 +945,7 @@
                 <hr/>
                 <h4 data-phrase="Locale"></h4>
                 <div id="localeFrm"></div>
-                <div id="warnMissingPhrases" class="alert alert-warning hide mt-2"></div>
+                <div id="warnMissingPhrases" class="alert alert-warning d-none mt-2"></div>
                 <hr/>
                 <h4 data-phrase="Footer"></h4>
                 <div id="footerFrm"></div>
@@ -959,7 +959,7 @@
               <h4 data-phrase="Notifications"></h4>
               <form id="NotificationSettingsFrm">
               </form>
-              <div id="warnNotifyWeb" class="alert alert-warning hide" data-phrase="Notifications are blocked"></div>
+              <div id="warnNotifyWeb" class="alert alert-warning d-none" data-phrase="Notifications are blocked"></div>
               <hr/>
               <form id="NotificationSettingsAdvFrm">
               </form>
@@ -1008,7 +1008,7 @@
                 </div>
                 <hr/>
                 <h4 data-phrase="Smart playlists"></h4>
-                <div id="warnSmartpls" class="alert alert-warning hide" data-phrase="Too old MPD version for smart playlists"></div>
+                <div id="warnSmartpls" class="alert alert-warning d-none" data-phrase="Too old MPD version for smart playlists"></div>
                 <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="btnSmartpls" data-phrase="Smart playlists"></label>
                   <div class="col-sm-8 ">
@@ -1210,12 +1210,12 @@
             <div class="tab-pane" id="tabJukeboxSettings">
               <form id="jukeboxSettingsFrm">
                 <h4 data-phrase="Jukebox"></h4>
-                <div id="warnConsume" class="alert alert-warning hide" data-phrase="Consume must be enabled"></div>
+                <div id="warnConsume" class="alert alert-warning d-none" data-phrase="Consume must be enabled"></div>
                 <div class="mb-3 row">
                   <label id="labelJukeboxMode" class="col-sm-4 col-form-label" for="btnJukeboxModeGroup" data-phrase="Jukebox mode" data-bs-toggle="collapse" data-bs-target="#collapseJukeboxMode"></label>
                   <div class="col-sm-8">
                     <div class="btn-group" id="btnJukeboxModeGroup">
-                      <button data-collapse="hide" data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Off"></button>
+                      <button data-collapse="d-none" data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Off"></button>
                       <button data-collapse="show" data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Song"></button>
                       <button data-collapse="show" data-value="2" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Album"></button>
                     </div>
@@ -1252,7 +1252,7 @@
                       <div class="invalid-feedback" data-phrase="Must be a number and equal or greater than zero"></div>
                     </div>
                   </div>
-                  <div id="warnPlaybackStatistics" class="alert alert-warning hide" data-phrase="Playback statistics are disabled"></div>
+                  <div id="warnPlaybackStatistics" class="alert alert-warning d-none" data-phrase="Playback statistics are disabled"></div>
                 </div>
               </form>
             </div>
@@ -1382,7 +1382,7 @@
                   <div class="invalid-feedback" data-phrase="Invalid music directory"></div>
                 </div>
               </div>
-              <div id="warnMusicDirectory" class="alert alert-warning hide" data-phrase="Music directory not found"></div>
+              <div id="warnMusicDirectory" class="alert alert-warning d-none" data-phrase="Music directory not found"></div>
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="inputPlaylistDirectory" data-phrase="Playlist directory"></label>
                 <div class="col-sm-8">
@@ -1486,7 +1486,7 @@
               </div>
             </div>
           </form>
-          <div id="warnJukeboxPlaylist2" class="alert alert-warning hide" data-phrase="Sorry, your MPD version is too old"></div>
+          <div id="warnJukeboxPlaylist2" class="alert alert-warning d-none" data-phrase="Sorry, your MPD version is too old"></div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
@@ -1635,10 +1635,10 @@
                   </select>
                 </div>
                 <div class="col-sm-2">
-                  <input type="text" class="form-control border-secondary hide" id="inputTimerInterval"/>
+                  <input type="text" class="form-control border-secondary d-none" id="inputTimerInterval"/>
                   <div id="invalidTimerInterval" class="invalid-feedback" data-phrase="Invalid timer interval"></div>
                 </div>
-                <label id="inputTimerIntervalLabel" class="col-sm-2 col-form-label hide" for="selectInputInterval" data-phrase="Hours"></label>
+                <label id="inputTimerIntervalLabel" class="col-sm-2 col-form-label d-none" for="selectInputInterval" data-phrase="Hours"></label>
               </div>
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="selectTimerAction" data-phrase="Action"></label>
@@ -1708,7 +1708,7 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button data-href='{"cmd":"showEditTimer","options":[0]}' class="btn btn-success protected" data-phrase="New timer"></button>
         </div>
-        <div id="editTimerFooter" class="modal-footer justify-content-between hide">
+        <div id="editTimerFooter" class="modal-footer justify-content-between d-none">
           <button data-href='{"cmd":"showListTimer","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
           <button data-href='{"cmd":"saveTimer","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
@@ -1749,7 +1749,7 @@
                 </div>
               </div>
             </form>
-            <div id="errorMount" class="alert alert-danger hide"></div>
+            <div id="errorMount" class="alert alert-danger d-none"></div>
           </div>
           <div class="tab-pane active" id="listMounts">
             <div class="table-responsive-md overflow-auto">
@@ -1772,7 +1772,7 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button data-href='{"cmd":"showEditMount","options":["",""]}' class="btn btn-success protected" data-phrase="New mount"></button>
         </div>
-        <div class="modal-footer  justify-content-between hide" id="editMountFooter">
+        <div class="modal-footer  justify-content-between d-none" id="editMountFooter">
           <button data-href='{"cmd":"showListMounts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
           <button data-href='{"cmd":"mountMount","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
@@ -1899,7 +1899,7 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success protected" data-phrase="New script"></button>
         </div>
-        <div id="editScriptFooter" class="modal-footer justify-content-between hide">
+        <div id="editScriptFooter" class="modal-footer justify-content-between d-none">
           <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
           <button data-href='{"cmd":"saveScript","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
@@ -1947,7 +1947,7 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button data-href='{"cmd":"showNewPartition","options":["",""]}' class="btn btn-success protected" data-phrase="New partition"></button>
         </div>
-        <div id="newPartitionFooter" class="modal-footer justify-content-between hide">
+        <div id="newPartitionFooter" class="modal-footer justify-content-between d-none">
           <button data-href='{"cmd":"showListPartitions","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
           <button data-href='{"cmd":"savePartition","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
@@ -2081,7 +2081,7 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button data-href='{"cmd":"showEditTrigger","options":[-1]}' class="btn btn-success protected" data-phrase="New trigger"></button>
         </div>
-        <div id="newTriggerFooter" class="modal-footer justify-content-between hide">
+        <div id="newTriggerFooter" class="modal-footer justify-content-between d-none">
           <button data-href='{"cmd":"showListTrigger","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
           <button data-href='{"cmd":"saveTrigger","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
@@ -2112,7 +2112,7 @@
                 <select id="selectHomeIconImage" class="form-control form-select border-secondary"></select>
               </div>
             </div>
-            <div id="divHomeIconLigature" class="hide">
+            <div id="divHomeIconLigature" class="d-none">
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="inputHomeIconLigature" data-phrase="Ligature"></label>
                 <div class="col-sm-8">
@@ -2207,7 +2207,7 @@
               <input id="inputPinModal" class="form-control border-secondary" type="password"/>
             </div>
           </div>
-          <div id="modalEnterPinMessage" class="alert alert-danger p-2 hide"></div>
+          <div id="modalEnterPinMessage" class="alert alert-danger p-2 d-none"></div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>

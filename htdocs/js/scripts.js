@@ -76,7 +76,7 @@ function initScripts() {
     document.getElementById('btnAddAPIcall').addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
-        const method = getSelectValue('selectAPIcall');
+        const method = getSelectValueId('selectAPIcall');
         if (method === '') {
             return;
         }
@@ -112,7 +112,7 @@ function initScripts() {
     document.getElementById('btnAddFunction').addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
-        const value = getSelectValue('selectFunction');
+        const value = getSelectValueId('selectFunction');
         if (value === '') {
             return;
         }
@@ -214,8 +214,8 @@ function showEditScript(script) {
     
     document.getElementById('listScripts').classList.remove('active');
     document.getElementById('editScript').classList.add('active');
-    document.getElementById('listScriptsFooter').classList.add('hide');
-    document.getElementById('editScriptFooter').classList.remove('hide');
+    elHideId('listScriptsFooter');
+    elShowId('editScriptFooter');
       
     if (script !== '') {
         sendAPI("MYMPD_API_SCRIPT_GET", {"script": script}, parseEditScript, false);
@@ -250,8 +250,8 @@ function showListScripts() {
     removeEnterPinFooter();
     document.getElementById('listScripts').classList.add('active');
     document.getElementById('editScript').classList.remove('active');
-    document.getElementById('listScriptsFooter').classList.remove('hide');
-    document.getElementById('editScriptFooter').classList.add('hide');
+    elShowId('listScriptsFooter');
+    elHideId('editScriptFooter');
     getScriptList(true);
 }
 
@@ -324,11 +324,11 @@ function parseScriptList(obj) {
     mainmenuScripts.innerHTML = (showScriptListLen > scriptMaxListLen || showScriptListLen === 0 ? '' : '<div class="dropdown-divider"></div>') + scriptListMain;
         
     if (showScriptListLen > scriptMaxListLen) {
-        document.getElementById('navScripting').classList.remove('hide');
+        elShowId('navScripting');
         document.getElementById('scripts').classList.add('collapse', 'menu-indent');
     }
     else {
-        document.getElementById('navScripting').classList.add('hide');
+        elHideId('navScripting');
         document.getElementById('scripts').classList.remove('collapse', 'menu-indent');
     }
 

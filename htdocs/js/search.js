@@ -26,9 +26,9 @@ function initSearch() {
         }
         else if (event.key === 'Enter' && features.featAdvsearch) {
             if (this.value !== '') {
-                const op = getSelectValue(document.getElementById('searchMatch'));
+                const op = getSelectValueId('searchMatch');
                 document.getElementById('searchCrumb').appendChild(createSearchCrumb(app.current.filter, op, this.value));
-                document.getElementById('searchCrumb').classList.remove('hide');
+                elShowId('searchCrumb');
                 this.value = '';
             }
             else {
@@ -59,7 +59,7 @@ function initSearch() {
             app.current.filter = getCustomDomProperty(event.target,'data-filter-tag');
             doSearch(document.getElementById('searchstr').value);
             if (document.getElementById('searchCrumb').childElementCount === 0) {
-                document.getElementById('searchCrumb').classList.add('hide');
+                elHideId('searchCrumb');
             }
         }
     }, false);
@@ -103,7 +103,7 @@ function initSearch() {
             s[i].remove();
         }
         app.current.sort = sortcol;
-        event.target.innerHTML = t(col) + '<span class="sort-dir mi pull-right">' + 
+        event.target.innerHTML = t(col) + '<span class="sort-dir mi float-end">' + 
             (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
         appGoto(app.current.app, app.current.tab, app.current.view,
             app.current.offset, app.current.limit, app.current.filter,  app.current.sort, '-', app.current.search);
@@ -112,7 +112,7 @@ function initSearch() {
 
 function doSearch(x) {
     if (features.featAdvsearch) {
-        const expression = createSearchExpression(document.getElementById('searchCrumb'), app.current.filter, getSelectValue('searchMatch'), x);
+        const expression = createSearchExpression(document.getElementById('searchCrumb'), app.current.filter, getSelectValueId('searchMatch'), x);
         appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', expression, 0);
     }
     else {
@@ -126,12 +126,12 @@ function parseSearch(obj) {
     }
 
     if (obj.result.returnedEntities > 0) {
-        elEnable('searchAddAllSongs');
-        elEnable('searchAddAllSongsBtn');
+        elEnableId('searchAddAllSongs');
+        elEnableId('searchAddAllSongsBtn');
     } 
     else {
-        elDisable('searchAddAllSongs');
-        elDisable('searchAddAllSongsBtn');
+        elDisableId('searchAddAllSongs');
+        elDisableId('searchAddAllSongsBtn');
     }
 
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];

@@ -117,13 +117,13 @@ function updateDBerror(showModal, message) {
     const msg = t('Database update failed') + ': ' + t(message);
     if (showModal === true) {
         document.getElementById('updateDBfinished').textContent = '';
-        document.getElementById('updateDBfooter').classList.remove('hide');
+        elShowId('updateDBfooter');
         const updateDBprogress = document.getElementById('updateDBprogress');
         updateDBprogress.classList.remove('updateDBprogressAnimate');
         updateDBprogress.style.width = '0';
         updateDBprogress.style.marginLeft = '0px';
         const errorUpdateDB = document.getElementById('errorUpdateDB');
-        errorUpdateDB.classList.remove('hide');
+        elShow(errorUpdateDB);
         errorUpdateDB.innerHTML = msg;
         uiElements.modalUpdateDB.show();
     }
@@ -133,12 +133,12 @@ function updateDBerror(showModal, message) {
 function updateDBstarted(showModal) {
     if (showModal === true) {
         document.getElementById('updateDBfinished').textContent = '';
-        document.getElementById('updateDBfooter').classList.add('hide');
+        elHideId('updateDBfooter');
         const updateDBprogress = document.getElementById('updateDBprogress');
         updateDBprogress.style.width = '20px';
         updateDBprogress.style.marginLeft = '-20px';
         const errorUpdateDB = document.getElementById('errorUpdateDB');
-        errorUpdateDB.classList.add('hide');
+        elHide(errorUpdateDB);
         errorUpdateDB.textContent = '';
         uiElements.modalUpdateDB.show();
         updateDBprogress.classList.add('updateDBprogressAnimate');
@@ -165,7 +165,7 @@ function _updateDBfinished(idleEvent) {
         const parent = el.parentNode;
         el.remove();
         for (let i = 0, j = parent.children.length; i < j; i++) {
-            parent.children[i].classList.remove('hide');
+            elShow(parent.children[i]);
         }
     }
 
@@ -181,7 +181,7 @@ function _updateDBfinished(idleEvent) {
         updateDBprogress.classList.remove('updateDBprogressAnimate');
         updateDBprogress.style.width = '100%';
         updateDBprogress.style.marginLeft = '0px';
-        document.getElementById('updateDBfooter').classList.remove('hide');
+        elShowId('updateDBfooter');
     }
 
     //general notification
@@ -229,7 +229,7 @@ function zoomPicture(el) {
         const imgEl = document.getElementById('modalPictureImg');
         imgEl.style.paddingTop = 0;
         createImgCarousel(imgEl, 'picsCarousel', aImages);
-        document.getElementById('modalPictureZoom').classList.add('hide');
+        elHideId('modalPictureZoom');
         uiElements.modalPicture.show();
         return;
     }
@@ -239,7 +239,7 @@ function zoomPicture(el) {
         elClear(imgEl);
         imgEl.style.paddingTop = '100%';
         imgEl.style.backgroundImage = el.style.backgroundImage;
-        document.getElementById('modalPictureZoom').classList.remove('hide');
+        elShowId('modalPictureZoom');
         uiElements.modalPicture.show();
     }
 }

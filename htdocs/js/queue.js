@@ -41,20 +41,20 @@ function initQueue() {
     document.getElementById('selectAddToQueueMode').addEventListener('change', function () {
         const value = getSelectValue(this);
         if (value === '2') {
-            elDisable('inputAddToQueueQuantity');
+            elDisableId('inputAddToQueueQuantity');
             document.getElementById('inputAddToQueueQuantity').value = '1';
-            elDisable('selectAddToQueuePlaylist');
+            elDisableId('selectAddToQueuePlaylist');
             document.getElementById('selectAddToQueuePlaylist').value = 'Database';
         }
         else if (value === '1') {
-            elEnable('inputAddToQueueQuantity');
-            elEnable('selectAddToQueuePlaylist');
+            elEnableId('inputAddToQueueQuantity');
+            elEnableId('selectAddToQueuePlaylist');
         }
     });
 
     document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function () {
         removeIsInvalid(document.getElementById('modalAddToQueue'));
-        document.getElementById('warnJukeboxPlaylist2').classList.add('hide');
+        elHideId('warnJukeboxPlaylist2');
         if (features.featPlaylists === true) {
             sendAPI("MYMPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) { 
                 getAllPlaylists(obj, 'selectAddToQueuePlaylist');
@@ -91,10 +91,10 @@ function parseUpdateQueue(obj) {
     }
 
     if (obj.result.queueLength === 0) {
-        elDisable('btnPlay');
+        elDisableId('btnPlay');
     }
     else {
-        elEnable('btnPlay');
+        elEnableId('btnPlay');
     }
 
     mediaSessionSetState();
@@ -106,17 +106,17 @@ function parseUpdateQueue(obj) {
     }
     
     if (obj.result.nextSongPos === -1 && settings.jukeboxMode === false) {
-        elDisable('btnNext');
+        elDisableId('btnNext');
     }
     else {
-        elEnable('btnNext');
+        elEnableId('btnNext');
     }
     
     if (obj.result.songPos < 0) {
-        elDisable('btnPrev');
+        elDisableId('btnPrev');
     }
     else {
-        elEnable('btnPrev');
+        elEnableId('btnPrev');
     }
 }
 
@@ -151,10 +151,10 @@ function parseQueue(obj) {
 
     //goto playing song button
     if (obj.result.totalEntities > app.current.limit && app.current.limit !== 0) {
-        document.getElementById('btnQueueGotoPlayingSong').parentNode.classList.remove('hide');
+        elShowId('btnQueueGotoPlayingSong');
     }
     else {
-        document.getElementById('btnQueueGotoPlayingSong').parentNode.classList.add('hide');
+        elHideId('btnQueueGotoPlayingSong');
     }
 
     const rowTitle = webuiSettingsDefault.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
@@ -301,8 +301,8 @@ function addToQueue() {
     }
     if (formOK === true) {
         sendAPI("MYMPD_API_QUEUE_ADD_RANDOM", {
-            "mode": Number(getSelectValue('selectAddToQueueMode')),
-            "plist": getSelectValue('selectAddToQueuePlaylist'),
+            "mode": Number(getSelectValueId('selectAddToQueueMode')),
+            "plist": getSelectValueId('selectAddToQueuePlaylist'),
             "quantity": Number(document.getElementById('inputAddToQueueQuantity').value)
         });
         uiElements.modalAddToQueue.hide();

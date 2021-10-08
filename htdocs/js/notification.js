@@ -81,7 +81,7 @@ function showNotification(title, text, facility, severity) {
         }
     }
 
-    const toast = elCreate('div', {"class": ["toast", "hide"]}, '');
+    const toast = elCreate('div', {"class": ["toast"]}, '');
     const toastHeader = elCreate('div', {"class": ["toast-header"]}, '');
     if (severity === 'info' ) {
         toastHeader.appendChild(elCreate('span', {"class": ["mi", "text-success", "me-2"]}, 'info'));
@@ -232,13 +232,13 @@ function toggleTopAlert() {
             topPadding = document.getElementById('header').offsetHeight;
         }
         topAlert.style.paddingTop = topPadding + 'px';
-        topAlert.classList.remove('hide');
+        elShow(topAlert);
         const mt = topAlert.offsetHeight - parseInt(topAlert.style.paddingTop);
         document.getElementsByTagName('main')[0].style.marginTop = mt + 'px';
     }
     else {
         document.getElementsByTagName('main')[0].style.marginTop = 0;
-        topAlert.classList.add('hide');
+        elHide(topAlert);
     }
 }
 

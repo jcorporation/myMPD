@@ -16,17 +16,17 @@ function appPrepare(scrollPos) {
             'tabBrowsePlaylists', 'viewBrowsePlaylistsDetail', 'viewBrowsePlaylistsList', 
             'tabBrowseDatabase', 'viewBrowseDatabaseDetail', 'viewBrowseDatabaseList'];
         for (const card of cards) {
-            document.getElementById(card).classList.add('hide');
+            elHideId(card);
         }
         //show active card
-        document.getElementById('card' + app.current.app).classList.remove('hide');
+        elShowId('card' + app.current.app);
         //show active tab
         if (app.current.tab !== undefined) {
-            document.getElementById('tab' + app.current.app + app.current.tab).classList.remove('hide');
+            elShowId('tab' + app.current.app + app.current.tab);
         }
         //show active view
         if (app.current.view !== undefined) {
-            document.getElementById('view' + app.current.app + app.current.tab + app.current.view).classList.remove('hide');
+            elShowId('view' + app.current.app + app.current.tab + app.current.view);
         }
         //show active navbar icon
         let nav = document.getElementById('nav' + app.current.app + app.current.tab);
@@ -206,12 +206,12 @@ function appRoute() {
         }, parseFilesystem, true);
         //Don't add all songs from root
         if (app.current.search) {
-            elEnable('BrowseFilesystemAddAllSongs');
-            elEnable('BrowseFilesystemAddAllSongsBtn');
+            elEnableId('BrowseFilesystemAddAllSongs');
+            elEnableId('BrowseFilesystemAddAllSongsBtn');
         }
         else {
-            elDisable('BrowseFilesystemAddAllSongs');
-            elDisable('BrowseFilesystemAddAllSongsBtn');
+            elDisableId('BrowseFilesystemAddAllSongs');
+            elDisableId('BrowseFilesystemAddAllSongsBtn');
         }
         //Create breadcrumb
         let breadcrumbs = '<li class="breadcrumb-item"><a data-uri="" class="text-body mi">home</a></li>';
@@ -239,17 +239,17 @@ function appRoute() {
         if (app.current.sort.charAt(0) === '-') {
             sortdesc = true;
             sort = app.current.sort.substr(1);
-            toggleBtnChk('databaseSortDesc', true);
+            toggleBtnChkId('databaseSortDesc', true);
         }
         else {
-            toggleBtnChk('databaseSortDesc', false);
+            toggleBtnChkId('databaseSortDesc', false);
         }
         selectTag('databaseSortTags', undefined, sort);
         if (app.current.tag === 'Album') {
             createSearchCrumbs(app.current.search, document.getElementById('searchDatabaseStr'), document.getElementById('searchDatabaseCrumb'));
-            document.getElementById('searchDatabaseMatch').classList.remove('hide');
-            elEnable('btnDatabaseSortDropdown');
-            elEnable('btnDatabaseSearchDropdown');
+            elShowId('searchDatabaseMatch');
+            elEnableId('btnDatabaseSortDropdown');
+            elEnableId('btnDatabaseSearchDropdown');
             sendAPI("MYMPD_API_DATABASE_ALBUMS_GET", {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
@@ -259,10 +259,10 @@ function appRoute() {
             }, parseDatabase, true);
         }
         else {
-            document.getElementById('searchDatabaseCrumb').classList.add('hide');
-            document.getElementById('searchDatabaseMatch').classList.add('hide');
-            elDisable('btnDatabaseSortDropdown');
-            elDisable('btnDatabaseSearchDropdown');
+            elHideId('searchDatabaseCrumb');
+            elHideId('searchDatabaseMatch');
+            elDisableId('btnDatabaseSortDropdown');
+            elDisableId('btnDatabaseSearchDropdown');
             document.getElementById('searchDatabaseStr').value = app.current.search;
             sendAPI("MYMPD_API_DATABASE_TAG_LIST", {
                 "offset": app.current.offset,
@@ -309,7 +309,7 @@ function appRoute() {
                 let sortdesc = false;
                 if (sort === '-') {
                     sort = settings.tagList.includes('Title') ? 'Title' : '-';
-                    setCustomDomProperty(document.getElementById('SearchList'), 'data-sort', sort);
+                    setCustomDomPropertyId('SearchList', 'data-sort', sort);
                 }
                 else if (sort.indexOf('-') === 0) {
                     sortdesc = true;
@@ -340,8 +340,8 @@ function appRoute() {
         }
         else {
             elClear(document.getElementById('SearchList').getElementsByTagName('tbody')[0]);
-            elDisable('searchAddAllSongs');
-            elDisable('searchAddAllSongsBtn');
+            elDisableId('searchAddAllSongs');
+            elDisableId('searchAddAllSongsBtn');
             document.getElementById('SearchList').classList.remove('opacity05');
             setPagination(0, 0);
         }
@@ -384,12 +384,12 @@ function a2hsInit() {
         // Stash the event so it can be triggered later
         deferredA2HSprompt = event;
         // Update UI notify the user they can add to home screen
-        document.getElementById('nav-add2homescreen').classList.remove('hide');
+        elShowId('nav-add2homescreen');
     });
 
     document.getElementById('nav-add2homescreen').addEventListener('click', function(event) {
         // Hide our user interface that shows our A2HS button
-        event.target.classList.add('hide');
+        elHide(event.target);
         // Show the prompt
         deferredA2HSprompt.prompt();
         // Wait for the user to respond to the prompt
@@ -419,7 +419,7 @@ function appInitStart() {
     else {
         const ms = document.getElementsByClassName('featMobile');
         for (const m of ms) {
-            m.classList.add('hide');
+            elHide(m);
         }        
     }
 
@@ -448,9 +448,9 @@ function appInitStart() {
     }
 
     //show splash screen
-    document.getElementById('splashScreen').classList.remove('hide');
+    elShowId('splashScreen');
     domCache.body.classList.add('overflow-hidden');
-    document.getElementById('splashScreenAlert').textContent = t('Fetch myMPD settings');
+    document.getElementById('splashScreenAlert').textContent = tn('Fetch myMPD settings');
     
     //init add to home screen feature
     a2hsInit();
@@ -466,10 +466,10 @@ function appInitStart() {
                 webSocketConnect();
             }, 0);
             //app initialized
-            document.getElementById('splashScreenAlert').textContent = t('Applying settings');
+            document.getElementById('splashScreenAlert').textContent = tn('Applying settings');
             document.getElementById('splashScreen').classList.add('hide-fade');
             setTimeout(function() {
-                document.getElementById('splashScreen').classList.add('hide');
+                elHideId('splashScreen');
                 document.getElementById('splashScreen').classList.remove('hide-fade');
                 domCache.body.classList.remove('overflow-hidden');
             }, 500);

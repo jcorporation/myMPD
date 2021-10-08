@@ -7,7 +7,7 @@ const ignoreMessages = ['No current song', 'No lyrics found'];
 
 function removeEnterPinFooter(footer) {
     if (footer !== undefined) {
-        footer.previousElementSibling.classList.remove('hide');
+        elShow(footer.previousElementSibling);
         footer.remove();
         return;
     }
@@ -15,7 +15,7 @@ function removeEnterPinFooter(footer) {
     for (let i = f.length - 1; i >= 0; i--) {
         const prev = f[i].previousElementSibling;
         if (prev.classList.contains('modal-footer')) {
-            prev.classList.remove('hide');
+            elShow(prev);
         }
         f[i].remove();
     }
@@ -34,7 +34,7 @@ function createEnterPinFooter(footer, method, params, callback, onerror) {
     const col2 = elCreate('div', {"class": ["col-8", "pr-0"]}, '');
     col2.appendChild(gr);
     div.appendChild(col2);
-    footer.classList.add('hide');
+    footer.classList.add('d-none');
     const newFooter = elCreate('div', {"class": ["modal-footer", "enterPinFooter"]}, '');
     newFooter.appendChild(div);
     footer.parentNode.appendChild(newFooter);
@@ -92,7 +92,7 @@ function enterPin(method, params, callback, onerror) {
                     const em = document.getElementById('modalEnterPinMessage');
                     elClear(em);
                     addIconLine(em, 'error_outline', tn(obj.error.message));
-                    em.classList.remove('hide');
+                    elShow(em);
                 }
                 else if (obj.result.session !== '') {
                     session.token = obj.result.session;
@@ -108,7 +108,7 @@ function enterPin(method, params, callback, onerror) {
             }, true);
         }, false);
         document.getElementById('modalEnterPinEnterBtn').replaceWith(enterBtn);
-        document.getElementById('modalEnterPinMessage').classList.add('hide');
+        elHideId('modalEnterPinMessage');
         document.getElementById('inputPinModal').value = '';
         uiElements.modalEnterPin.show();
     }
@@ -123,20 +123,20 @@ function setSessionState() {
     if (settings.pin === true) {
         if (session.token === '') {
             domCache.body.classList.add('locked');
-            document.getElementById('mmLogin').classList.remove('hide');
-            document.getElementById('mmLogout').classList.add('hide');
+            elShowId('mmLogin');
+            elHideId('mmLogout');
         }
         else {
             domCache.body.classList.remove('locked');
-            document.getElementById('mmLogin').classList.add('hide');
-            document.getElementById('mmLogout').classList.remove('hide');
+            elShowId('mmLogout');
+            elHideId('mmLogin');
             resetSessionTimer();
         }
     }
     else {
         domCache.body.classList.remove('locked');
-        document.getElementById('mmLogin').classList.add('hide');
-        document.getElementById('mmLogout').classList.add('hide');
+        elHideId('mmLogin');
+        elHideId('mmLogout');
     }
 }
 

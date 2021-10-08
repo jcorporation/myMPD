@@ -16,11 +16,11 @@ function initPlaylists() {
     
     document.getElementById('addToPlaylistPlaylist').addEventListener('change', function () {
         if (getSelectValue(this) === 'new') {
-            document.getElementById('addToPlaylistNewPlaylistDiv').classList.remove('hide');
+            elShowId('addToPlaylistNewPlaylistDiv');
             document.getElementById('addToPlaylistNewPlaylist').focus();
         }
         else {
-            document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
+            elHideId('addToPlaylistNewPlaylistDiv');
         }
     }, false);
 
@@ -102,16 +102,16 @@ function parsePlaylistsDetail(obj) {
     }
 
     if (obj.result.plist.indexOf('.') > -1 || obj.result.smartpls === true) {
-        setCustomDomProperty(document.getElementById('BrowsePlaylistsDetailList'), 'data-ro', 'true');
-        document.getElementById('playlistContentBtns').classList.add('hide');
-        document.getElementById('smartPlaylistContentBtns').classList.remove('hide');
+        setCustomDomPropertyId('BrowsePlaylistsDetailList', 'data-ro', 'true');
+        elHideId('playlistContentBtns');
+        elShowId('smartPlaylistContentBtns');
     }
     else {
-        setCustomDomProperty(document.getElementById('BrowsePlaylistsDetailList'), 'data-ro', 'false');
-        document.getElementById('playlistContentBtns').classList.remove('hide');
-        document.getElementById('smartPlaylistContentBtns').classList.add('hide');
+        setCustomDomPropertyId('BrowsePlaylistsDetailList', 'data-ro', 'false');
+        elShowId('playlistContentBtns');
+        elHideId('smartPlaylistContentBtns');
     }
-    setCustomDomProperty(document.getElementById('BrowsePlaylistsDetailList'), 'data-uri', obj.result.plist);
+    setCustomDomPropertyId('BrowsePlaylistsDetailList', 'data-uri', obj.result.plist);
     document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = 
         (obj.result.smartpls === true ? t('Smart playlist') : t('Playlist'))  + ': ' + obj.result.plist;
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
@@ -138,7 +138,7 @@ function playlistDetails(uri) {
 //eslint-disable-next-line no-unused-vars
 function playlistShuffle() {
     sendAPI("MYMPD_API_PLAYLIST_SHUFFLE", {
-        "plist": getCustomDomProperty('BrowsePlaylistsDetailList', 'data-uri')
+        "plist": getCustomDomPropertyId('BrowsePlaylistsDetailList', 'data-uri')
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
@@ -146,7 +146,7 @@ function playlistShuffle() {
 //eslint-disable-next-line no-unused-vars
 function playlistSort(tag) {
     sendAPI("MYMPD_API_PLAYLIST_SORT", {
-        "plist": getCustomDomProperty('BrowsePlaylistsDetailList', 'data-uri'),
+        "plist": getCustomDomPropertyId('BrowsePlaylistsDetailList', 'data-uri'),
         "tag": tag
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
@@ -198,16 +198,16 @@ function removeFromPlaylist(plist, pos) {
 //eslint-disable-next-line no-unused-vars
 function toggleAddToPlaylistFrm() {
     const btn = document.getElementById('toggleAddToPlaylistBtn');
-    toggleBtn('toggleAddToPlaylistBtn');
+    toggleBtnId('toggleAddToPlaylistBtn');
     if (btn.classList.contains('active')) {
-        document.getElementById('addToPlaylistFrm').classList.remove('hide');
-        document.getElementById('addStreamFooter').classList.add('hide');
-        document.getElementById('addToPlaylistFooter').classList.remove('hide');
+        elShowId('addToPlaylistFrm');
+        elHideId('addStreamFooter');
+        elShowId('addToPlaylistFooter');
     }    
     else {
-        document.getElementById('addToPlaylistFrm').classList.add('hide');
-        document.getElementById('addStreamFooter').classList.remove('hide');
-        document.getElementById('addToPlaylistFooter').classList.add('hide');
+        elHideId('addToPlaylistFrm');
+        elShowId('addStreamFooter');
+        elHideId('addToPlaylistFooter');
     }
 }
 
@@ -216,23 +216,23 @@ function parseSmartPlaylist(obj) {
     nameEl.value = obj.result.plist;
     removeIsInvalid(document.getElementById('modalSaveSmartPlaylist'));
     document.getElementById('saveSmartPlaylistType').value = t(obj.result.type);
-    setCustomDomProperty(document.getElementById('saveSmartPlaylistType'), 'data-value', obj.result.type);
-    document.getElementById('saveSmartPlaylistSearch').classList.add('hide');
-    document.getElementById('saveSmartPlaylistSticker').classList.add('hide');
-    document.getElementById('saveSmartPlaylistNewest').classList.add('hide');
+    setCustomDomPropertyId('saveSmartPlaylistType', 'data-value', obj.result.type);
+    elHideId('saveSmartPlaylistSearch');
+    elHideId('saveSmartPlaylistSticker');
+    elHideId('saveSmartPlaylistNewest');
     
     if (obj.result.type === 'search') {
-        document.getElementById('saveSmartPlaylistSearch').classList.remove('hide');
+        elShowId('saveSmartPlaylistSearch');
         document.getElementById('inputSaveSmartPlaylistExpression').value = obj.result.expression;
     }
     else if (obj.result.type === 'sticker') {
-        document.getElementById('saveSmartPlaylistSticker').classList.remove('hide');
+        elShowId('saveSmartPlaylistSticker');
         document.getElementById('selectSaveSmartPlaylistSticker').value = obj.result.sticker;
         document.getElementById('inputSaveSmartPlaylistStickerMaxentries').value = obj.result.maxentries;
         document.getElementById('inputSaveSmartPlaylistStickerMinvalue').value = obj.result.minvalue;
     }
     else if (obj.result.type === 'newest') {
-        document.getElementById('saveSmartPlaylistNewest').classList.remove('hide');
+        elShowId('saveSmartPlaylistNewest');
         document.getElementById('inputSaveSmartPlaylistNewestTimerange').value = obj.result.timerange / 24 / 60 / 60;
     }
     hideModalAlert();
@@ -243,8 +243,8 @@ function parseSmartPlaylist(obj) {
 //eslint-disable-next-line no-unused-vars
 function saveSmartPlaylist() {
     const name = document.getElementById('saveSmartPlaylistName').value;
-    const type = getCustomDomProperty('saveSmartPlaylistType', 'data-value');
-    const sort = getSelectValue('saveSmartPlaylistSort');
+    const type = getCustomDomPropertyId('saveSmartPlaylistType', 'data-value');
+    const sort = getSelectValueId('saveSmartPlaylistSort');
     if (validatePlname(name) === false) {
         document.getElementById('saveSmartPlaylistName').classList.add('is-invalid');
         return;
@@ -268,7 +268,7 @@ function saveSmartPlaylist() {
         }
         sendAPI("MYMPD_API_SMARTPLS_STICKER_SAVE", {
             "plist": name,
-            "sticker": getSelectValue('selectSaveSmartPlaylistSticker'),
+            "sticker": getSelectValueId('selectSaveSmartPlaylistSticker'),
             "maxentries": Number(maxentriesEl.value), 
             "minvalue": Number(minvalueEl.value),
             "sort": sort
@@ -331,7 +331,7 @@ function addSmartpls(type) {
 function deletePlaylists() {
     btnWaiting(document.getElementById('btnDeletePlaylists'), true);
     sendAPI("MYMPD_API_PLAYLIST_RM_ALL", {
-        "type": getSelectValue('selectDeletePlaylists')
+        "type": getSelectValueId('selectDeletePlaylists')
     }, function() {
         btnWaiting(document.getElementById('btnDeletePlaylists'), false);
     });
@@ -339,7 +339,7 @@ function deletePlaylists() {
 
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistCurrentSong() {
-    const uri = getCustomDomProperty('currentTitle', 'data-uri');
+    const uri = getCustomDomPropertyId('currentTitle', 'data-uri');
     if (uri !== '') {
         showAddToPlaylist(uri, '');
     }
@@ -360,25 +360,25 @@ function showAddToPlaylist(uri, searchstr) {
     document.getElementById('addToPlaylistSearch').value = searchstr;
     elClear(document.getElementById('addToPlaylistPlaylist'));
     document.getElementById('addToPlaylistNewPlaylist').value = '';
-    document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
-    toggleBtn('toggleAddToPlaylistBtn', 0);
+    elHideId('addToPlaylistNewPlaylistDiv');
+    toggleBtnId('toggleAddToPlaylistBtn', 0);
     const streamUrl = document.getElementById('streamUrl');
     streamUrl.focus();
     streamUrl.value = '';
     removeIsInvalid(document.getElementById('modalAddToPlaylist'));
     if (uri !== 'stream') {
-        document.getElementById('addStreamFooter').classList.add('hide');
-        document.getElementById('addStreamFrm').classList.add('hide');
-        document.getElementById('addToPlaylistFooter').classList.remove('hide');
-        document.getElementById('addToPlaylistFrm').classList.remove('hide');
+        elHideId('addStreamFooter');
+        elHideId('addStreamFrm');
+        elShowId('addToPlaylistFooter');
+        elShowId('addToPlaylistFrm');
         document.getElementById('addToPlaylistCaption').textContent = t('Add to playlist');
     }
     else {
-        document.getElementById('addStreamFooter').classList.remove('hide');
-        document.getElementById('addStreamFrm').classList.remove('hide');
-        document.getElementById('addToPlaylistFooter').classList.add('hide');
-        document.getElementById('addToPlaylistFrm').classList.add('hide');
-        document.getElementById('addToPlaylistCaption').textContent = t('Add stream');
+        elShowId('addStreamFooter');
+        elShowId('addStreamFrm');
+        elHideId('addToPlaylistFooter');
+        elHideId('addToPlaylistFrm');
+        document.getElementById('addToPlaylistCaption').textContent = tn('Add stream');
     }
     uiElements.modalAddToPlaylist.show();
     if (features.featPlaylists) {
@@ -398,7 +398,7 @@ function addToPlaylist() {
             return;
         }
     }
-    let plist = getSelectValue('addToPlaylistPlaylist');
+    let plist = getSelectValueId('addToPlaylistPlaylist');
     if (plist === 'new') {
         const newPl = document.getElementById('addToPlaylistNewPlaylist').value;
         if (validatePlname(newPl) === true) {
@@ -493,7 +493,7 @@ function updateSmartPlaylist(plist) {
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylistClick() {
     sendAPI("MYMPD_API_SMARTPLS_UPDATE", {
-        "plist": getCustomDomProperty('BrowsePlaylistsDetailList', 'data-uri')
+        "plist": getCustomDomPropertyId('BrowsePlaylistsDetailList', 'data-uri')
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
@@ -510,7 +510,7 @@ function showDelPlaylist(plist, smartplsOnly) {
 
 //eslint-disable-next-line no-unused-vars
 function showClearPlaylist() {
-    const plist = getCustomDomProperty('BrowsePlaylistsDetailList', 'data-uri');
+    const plist = getCustomDomPropertyId('BrowsePlaylistsDetailList', 'data-uri');
     showConfirm(tn('Do you really want to clear the playlist?', {"playlist": plist}), tn('Yes, clear it'), function() {
         sendAPI("MYMPD_API_PLAYLIST_CLEAR", {
             "plist": plist

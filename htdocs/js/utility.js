@@ -19,34 +19,44 @@ function elCreate(tagName, attributes, textContent) {
     return tag;
 }
 
+function elHideId(id) {
+    document.getElementById(id).classList.add('d-none');
+}
+
+function elShowId(id) {
+    document.getElementById(id).classList.remove('d-none');
+}
+
+function elClearId(id) {
+    document.getElementById(id).textContent = '';
+}
+
 function elHide(el) {
-    el.classList.add('hide');
+    el.classList.add('d-none');
 }
 
 function elShow(el) {
-    el.classList.remove('hide');
+    el.classList.remove('d-none');
 }
 
 function elClear(el) {
     el.textContent = '';
 }
 
+function elDisableId(el) {
+    document.getElementById(el).setAttribute('disabled', 'disabled');
+}
+
 function elDisable(el) {
-    if (typeof el === 'string') {
-        document.getElementById(el).setAttribute('disabled', 'disabled');
-    }
-    else {
-        el.setAttribute('disabled', 'disabled');
-    }
+    el.setAttribute('disabled', 'disabled');
+}
+
+function elEnableId(el) {
+    document.getElementById(el).removeAttribute('disabled');
 }
 
 function elEnable(el) {
-    if (typeof el === 'string') {
-        document.getElementById(el).removeAttribute('disabled');
-    }
-    else {
-        el.removeAttribute('disabled');
-    }
+    el.removeAttribute('disabled');
 }
 
 function getOpenModal() {
@@ -209,17 +219,19 @@ function unescapeMPD(x) {
 
 //get and set custom dom properties
 //replaces data-* attributes
+function setCustomDomPropertyId(id, attribute, value) {
+    document.getElementById(id)['myMPD-' + attribute] = value;
+}
+
 function setCustomDomProperty(el, attribute, value) {
-    if (typeof el === 'string') {
-        el = document.getElementById(el);
-    }
     el['myMPD-' + attribute] = value;
 }
 
+function getCustomDomPropertyId(id, attribute) {
+    return getCustomDomProperty(document.getElementById(id), attribute);
+}
+
 function getCustomDomProperty(el, attribute) {
-    if (typeof el === 'string') {
-        el = document.getElementById(el);
-    }
     let value = el['myMPD-' + attribute];
     if (value === undefined) {
         //fallback to attribute
@@ -230,10 +242,11 @@ function getCustomDomProperty(el, attribute) {
 }
 
 //utility functions
+function getSelectValueId(id) {
+    return getSelectValue(document.getElementById(id));
+}
+
 function getSelectValue(el) {
-    if (typeof el === 'string')	{
-        el = document.getElementById(el);
-    }
     if (el && el.selectedIndex >= 0) {
         return getCustomDomProperty(el.options[el.selectedIndex], 'value');
     }
@@ -481,21 +494,21 @@ function toggleBtnGroupValueCollapse(btngrp, collapse, value) {
     }
 }
 
+function toggleBtnGroupId(id) {
+    return toggleBtnGroup(document.getElementById(id));
+}
+
 function toggleBtnGroup(btn) {
-    let b = btn;
-    if (typeof btn === 'string') {
-        b = document.getElementById(btn);
-    }
-    const btns = b.parentNode.getElementsByTagName('button');
+    const btns = btn.parentNode.getElementsByTagName('button');
     for (let i = 0, j = btns.length; i < j; i++) {
-        if (btns[i] === b) {
+        if (btns[i] === btn) {
             btns[i].classList.add('active');
         }
         else {
             btns[i].classList.remove('active');
         }
     }
-    return b;
+    return btn;
 }
 
 function getBtnGroupValue(btnGroup) {
@@ -507,8 +520,8 @@ function getBtnGroupValue(btnGroup) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function toggleBtnGroupCollapse(btn, collapse) {
-    const activeBtn = toggleBtnGroup(btn);
+function toggleBtnGroupCollapse(id, collapse) {
+    const activeBtn = toggleBtnGroupId(id);
     if (activeBtn.getAttribute('data-collapse') === 'show') {
         if (document.getElementById(collapse).classList.contains('show') === false) {
             uiElements[collapse].show();
@@ -519,48 +532,42 @@ function toggleBtnGroupCollapse(btn, collapse) {
     }
 }
 
+function toggleBtnId(id, state) {
+    toggleBtn(document.getElementById(id), state);
+}
+
 function toggleBtn(btn, state) {
-    let b = btn;
-    if (typeof btn === 'string') {
-        b = document.getElementById(btn);
-    }
-    if (!b) {
-        return;
-    }
     if (state === undefined) {
         //toggle state
-        state = b.classList.contains('active') ? false : true;
+        state = btn.classList.contains('active') ? false : true;
     }
 
     if (state === true || state === 1) {
-        b.classList.add('active');
+        btn.classList.add('active');
     }
     else {
-        b.classList.remove('active');
+        btn.classList.remove('active');
     }
 }
 
+function toggleBtnChkId(id, state) {
+    toggleBtnChk(document.getElementById(id), state);
+}
+
 function toggleBtnChk(btn, state) {
-    let b = btn;
-    if (typeof btn === 'string') {
-        b = document.getElementById(btn);
-    }
-    if (!b) {
-        return;
-    }
     if (state === undefined) {
         //toggle state
-        state = b.classList.contains('active') ? false : true;
+        state = btn.classList.contains('active') ? false : true;
     }
 
     if (state === true || state === 1) {
-        b.classList.add('active');
-        b.textContent = 'check';
+        btn.classList.add('active');
+        btn.textContent = 'check';
         return true;
     }
     else {
-        b.classList.remove('active');
-        b.textContent = 'radio_button_unchecked';
+        btn.classList.remove('active');
+        btn.textContent = 'radio_button_unchecked';
         return false;
     }
 }
@@ -665,7 +672,7 @@ function setPagination(total, returned) {
             }
             else {
                 elEnable(last);
-                last.classList.remove('hide');
+                elShow(last);
                 next.classList.remove('rounded-right');
                 last.addEventListener('click', function() {
                     event.preventDefault();
@@ -678,7 +685,7 @@ function setPagination(total, returned) {
             page.textContent = curPage;
             page.classList.add('nodropdown');
             elDisable(last);
-            last.classList.add('hide');
+            elHide(last);
             next.classList.add('rounded-right');
         }
         else {
@@ -689,7 +696,7 @@ function setPagination(total, returned) {
         
         if (app.current.limit > 0 && ((total > offsetLast && offsetLast > 0) || (total === -1 && returned >= app.current.limit))) {
             elEnable(next);
-            p[i].classList.remove('hide');
+            elShow(p[i]);
             next.addEventListener('click', function() {
                 event.preventDefault();
                 gotoPage('next');
@@ -698,13 +705,13 @@ function setPagination(total, returned) {
         else {
             elDisable(next);
             if (i === 0) {
-                p[i].classList.add('hide');
+                elHide(p[i]);
             }
         }
         
         if (app.current.offset > 0) {
             elEnable(prev);
-            p[i].classList.remove('hide');
+            elShow(p[i]);
             prev.addEventListener('click', function() {
                 event.preventDefault();
                 gotoPage('prev');
@@ -723,10 +730,10 @@ function setPagination(total, returned) {
     
     //hide bottom pagination bar if returned < limit
     if (returned < app.current.limit) {
-        document.getElementById(cat + 'ButtonsBottom').classList.add('hide');
+        elHideId(cat + 'ButtonsBottom');
     }
     else {
-        document.getElementById(cat + 'ButtonsBottom').classList.remove('hide');
+        elShowId(cat + 'ButtonsBottom');
     }
 }
 
@@ -830,7 +837,7 @@ function createSearchCrumb(filter, op, value) {
     setCustomDomProperty(btn, 'data-filter-tag', filter);
     setCustomDomProperty(btn, 'data-filter-op', op);
     setCustomDomProperty(btn, 'data-filter-value', value);
-    const badge = elCreate('span', {"class": ["ml-2", "badge", "badge-secondary"]}, '×');
+    const badge = elCreate('span', {"class": ["ml-2", "badge", "bg-secondary"]}, '×');
     btn.appendChild(badge);
     return btn;
 }

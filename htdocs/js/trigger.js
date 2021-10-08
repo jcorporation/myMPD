@@ -53,8 +53,8 @@ function saveTrigger() {
         sendAPI("MYMPD_API_TRIGGER_SAVE", {
             "id": Number(document.getElementById('inputTriggerId').value),
             "name": nameEl.value,
-            "event": Number(getSelectValue('selectTriggerEvent')),
-            "script": getSelectValue('selectTriggerScript'),
+            "event": Number(getSelectValueId('selectTriggerEvent')),
+            "script": getSelectValueId('selectTriggerScript'),
             "arguments": args
             }, saveTriggerCheckError, true);
     }
@@ -76,8 +76,8 @@ function showEditTrigger(id) {
     removeEnterPinFooter();
     document.getElementById('listTrigger').classList.remove('active');
     document.getElementById('newTrigger').classList.add('active');
-    document.getElementById('listTriggerFooter').classList.add('hide');
-    document.getElementById('newTriggerFooter').classList.remove('hide');
+    elHideId('listTriggerFooter');
+    elShowId('newTriggerFooter');
     
     const nameEl = document.getElementById('inputTriggerName');
     removeIsInvalid(document.getElementById('modalTrigger'));
@@ -137,8 +137,8 @@ function showListTrigger() {
     removeEnterPinFooter();
     document.getElementById('listTrigger').classList.add('active');
     document.getElementById('newTrigger').classList.remove('active');
-    document.getElementById('listTriggerFooter').classList.remove('hide');
-    document.getElementById('newTriggerFooter').classList.add('hide');
+    elShowId('listTriggerFooter');
+    elHideId('newTriggerFooter');
     sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, true);
 }
 

@@ -65,7 +65,7 @@ function unmountMount(mountPoint) {
 
 //eslint-disable-next-line no-unused-vars
 function mountMount() {
-    document.getElementById('errorMount').classList.add('hide');
+    elHideId('errorMount');
     removeIsInvalid(document.getElementById('modalMounts'));
     let formOK = true;
     const inputMountUrl = document.getElementById('inputMountUrl');
@@ -78,7 +78,7 @@ function mountMount() {
     }
     if (formOK === true) {
         sendAPI("MYMPD_API_MOUNT_MOUNT", {
-            "mountUrl": getSelectValue('selectMountUrlhandler') + inputMountUrl.value,
+            "mountUrl": getSelectValueId('selectMountUrlhandler') + inputMountUrl.value,
             "mountPoint": inputMountPoint.value,
             }, mountMountCheckError, true);
     }
@@ -99,7 +99,7 @@ function mountMountCheckError(obj) {
 function updateMount(el, uri) {
     const parent = el.parentNode;
     for (let i = 0, j = parent.children.length; i < j; i++) {
-        parent.children[i].classList.add('hide');
+        elHide(parent.children[i]);
     }
     const spinner = elCreate('div', {"id": "spinnerUpdateProgress", "class": ["spinner-border", "spinner-border-sm"]}, '');
     el.parentNode.insertBefore(spinner, el);
@@ -111,8 +111,8 @@ function showEditMount(uri, storage) {
     removeEnterPinFooter();
     document.getElementById('listMounts').classList.remove('active');
     document.getElementById('editMount').classList.add('active');
-    document.getElementById('listMountsFooter').classList.add('hide');
-    document.getElementById('editMountFooter').classList.remove('hide');
+    elHideId('listMountsFooter');
+    elShowId('editMountFooter');
 
     const c = uri.match(/^(\w+:\/\/)(.+)$/);
     if (c !== null && c.length > 2) {
@@ -131,8 +131,8 @@ function showEditMount(uri, storage) {
 function showListMounts() {
     document.getElementById('listMounts').classList.add('active');
     document.getElementById('editMount').classList.remove('active');
-    document.getElementById('listMountsFooter').classList.remove('hide');
-    document.getElementById('editMountFooter').classList.add('hide');
+    elShowId('listMountsFooter');
+    elHideId('editMountFooter');
     sendAPI("MYMPD_API_MOUNT_LIST", {}, parseListMounts, true);
 }
 

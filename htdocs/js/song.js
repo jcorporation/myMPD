@@ -11,7 +11,7 @@ function initSong() {
                 event.preventDefault();
                 const spinner = document.createElement('div');
                 spinner.classList.add('spinner-border', 'spinner-border-sm');
-                event.target.classList.add('hide');
+                elHide(event.target);
                 event.target.parentNode.appendChild(spinner);
             }
             else if (event.target.classList.contains('external')) {
@@ -144,7 +144,7 @@ function parseSongDetails(obj) {
 
     const pictureEls = document.getElementsByClassName('featPictures');
     for (let i = 0, j = pictureEls.length; i < j; i++) {
-        pictureEls[i].classList.remove('hide');
+        elShow(pictureEls[i]);
     }
     
     //add uri to image list to get embedded albumart
@@ -232,7 +232,7 @@ function getLyrics(uri, el) {
                 }
                 lyricsHeader += '<label data-num="' + i + '" class="btn btn-sm btn-outline-secondary mr-2 lyricsChangeButton' + (i === 0 ? ' active' : '') + '" title="' + 
                     (obj.result.data[i].synced === true ? t('Synced lyrics') : t('Unsynced lyrics')) + ': ' + e(ht) + '">' + e(ht) + '</label>';
-                lyrics += '<div class="lyricsText ' + (i > 0 ? 'hide' : '') + (obj.result.data[i].synced === true ? 'lyricsSyncedText' : '') + 
+                lyrics += '<div class="lyricsText ' + (i > 0 ? 'd-none' : '') + (obj.result.data[i].synced === true ? 'lyricsSyncedText' : '') + 
                     (clickable === true ? '' : ' fullHeight') + '">' +
                     (obj.result.data[i].synced === true ? parseSyncedLyrics(obj.result.data[i].text, clickable) : e(obj.result.data[i].text).replace(/\n/g, "<br/>")) + 
                     '</div>';
@@ -254,10 +254,10 @@ function getLyrics(uri, el) {
                         const tEls = el.getElementsByClassName('lyricsText');
                         for (let i = 0, j = tEls.length; i < j; i++) {
                             if (i === nr) {
-                                tEls[i].classList.remove('hide');
+                                elShow(tEls[i]);
                             }
                             else {
-                                tEls[i].classList.add('hide');
+                                elHide(tEls[i]);
                             }
                         }
                     }
@@ -339,7 +339,7 @@ function voteSong(el, vote) {
 
 //eslint-disable-next-line no-unused-vars
 function voteCurrentSong(vote) {
-    const uri = getCustomDomProperty('currentTitle', 'data-uri');
+    const uri = getCustomDomPropertyId('currentTitle', 'data-uri');
     if (uri === '') {
         return;
     }
@@ -360,14 +360,14 @@ function setVoteSongBtns(vote, uri) {
     }
 
     if (isValidUri(uri) === false || isStreamUri(uri) === true) {
-        elDisable('btnVoteUp');
-        elDisable('btnVoteDown');
+        elDisableId('btnVoteUp');
+        elDisableId('btnVoteDown');
         document.getElementById('btnVoteUp').classList.remove('highlight');
         document.getElementById('btnVoteDown').classList.remove('highlight');
     }
     else {
-        elEnable('btnVoteUp');
-        elEnable('btnVoteDown');
+        elEnableId('btnVoteUp');
+        elEnableId('btnVoteDown');
     }
     
     if (vote === 0) {

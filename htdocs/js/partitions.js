@@ -106,8 +106,8 @@ function savePartitionCheckError(obj) {
 function showNewPartition() {
     document.getElementById('listPartitions').classList.remove('active');
     document.getElementById('newPartition').classList.add('active');
-    document.getElementById('listPartitionsFooter').classList.add('hide');
-    document.getElementById('newPartitionFooter').classList.remove('hide');
+    elHideId('listPartitionsFooter');
+    elShowId('newPartitionFooter');
     
     removeIsInvalid(document.getElementById('modalPartitions'));
     const nameEl = document.getElementById('inputPartitionName');
@@ -118,8 +118,8 @@ function showNewPartition() {
 function showListPartitions() {
     document.getElementById('listPartitions').classList.add('active');
     document.getElementById('newPartition').classList.remove('active');
-    document.getElementById('listPartitionsFooter').classList.remove('hide');
-    document.getElementById('newPartitionFooter').classList.add('hide');
+    elShowId('listPartitionsFooter');
+    elHideId('newPartitionFooter');
     sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, true);
 }
 
