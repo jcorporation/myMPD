@@ -18,6 +18,8 @@ body.theme-dark .btn:focus {
 
 body.theme-dark .btn-light {
   border-color: var(--bs-gray-800);
+  background-color: var(--bs-gray-800);
+  color: var(--bs-light);
 }
 
 body.theme-dark .btn-light:focus,

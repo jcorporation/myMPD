@@ -47,6 +47,11 @@
   margin-top: 25vh;
 }
 
+.hide-fade {
+  opacity: 0;
+  transition: opacity 0.5s linear;
+}
+
 h4 svg,
 #mainMenu svg {
   width: 2.5rem;
@@ -469,21 +474,8 @@ th {
   padding-bottom: 1.25rem;
 }
 
-.hide {
-  display: none !important;
-}
-
-.hide-fade {
-  opacity: 0;
-  transition: opacity 0.5s linear;
-}
-
 .unvisible {
   visibility: hidden;
-}
-
-.pull-right {
-  float: right !important;
 }
 
 .card-toolbar {
