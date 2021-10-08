@@ -30,7 +30,7 @@ function initOutputs() {
                 "outputId": Number(getCustomDomProperty(target, 'data-output-id')),
                 "state": (target.classList.contains('active') ? 0 : 1)
             });
-            toggleBtn(target.id);
+            toggleBtn(target);
         }
     }, false);
 }

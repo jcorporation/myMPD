@@ -564,8 +564,10 @@ function appInit() {
         }
         const cmd = keymap[event.key];
         if (cmd && typeof window[cmd.cmd] === 'function') {
-            if (keymap[event.key].req === undefined || settings[keymap[event.key].req] === true)
+            if (keymap[event.key].req === undefined || settings[keymap[event.key].req] === true) {
                 parseCmd(event, cmd);
+            }
+            event.stopPropagation();
         }        
         
     }, false);
