@@ -182,7 +182,7 @@ function getSettings(onerror) {
 
 function checkConsume() {
     const stateConsume = document.getElementById('btnConsume').classList.contains('active') ? true : false;
-    const stateJukeboxMode = getBtnGroupValue('btnJukeboxModeGroup');
+    const stateJukeboxMode = getBtnGroupValueId('btnJukeboxModeGroup');
     if (stateJukeboxMode > 0 && stateConsume === false) {
         elShowId('warnConsume');
     }
@@ -545,12 +545,12 @@ function populateSettingsFrm() {
     //smart playlists
     if (settings.featSmartpls === true) {
         elEnableId('btnSmartpls');
-        toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
+        toggleBtnChkCollapseId('btnSmartpls', 'collapseSmartpls', settings.smartpls);
         elHideId('warnSmartpls');
     }
     else {
         elDisableId('btnSmartpls');
-        toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', false);
+        toggleBtnChkCollapseId('btnSmartpls', 'collapseSmartpls', false);
         elShowId('warnSmartpls');
     }
     document.getElementById('inputSmartplsPrefix').value = settings.smartplsPrefix;
@@ -562,7 +562,7 @@ function populateSettingsFrm() {
         //lyrics need access to library
         settings.webuiSettings.enableLyrics = false;
     }
-    toggleBtnChkCollapse('btnEnableLyrics', 'collapseEnableLyrics', settings.webuiSettings.enableLyrics);
+    toggleBtnChkCollapseId('btnEnableLyrics', 'collapseEnableLyrics', settings.webuiSettings.enableLyrics);
 
     const inputWebUIsettinguiBgCover = document.getElementById('inputWebUIsettinguiBgCover');
     inputWebUIsettinguiBgCover.setAttribute('data-toggle', 'collapse');
@@ -571,7 +571,7 @@ function populateSettingsFrm() {
         uiElements.collapseuiBgCover.dispose();
     }
     uiElements.collapseuiBgCover = new BSN.Collapse(inputWebUIsettinguiBgCover);
-    toggleBtnChkCollapse('inputWebUIsettinguiBgCover', 'bgCssFilterFrm', settings.webuiSettings.uiBgCover);
+    toggleBtnChkCollapseId('inputWebUIsettinguiBgCover', 'bgCssFilterFrm', settings.webuiSettings.uiBgCover);
 
     //tag multiselects
     initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.tagListMpd, settings.tagList);
@@ -579,21 +579,21 @@ function populateSettingsFrm() {
     initTagMultiSelect('inputBrowseTags', 'listBrowseTags', settings.tagList, settings.tagListBrowse);
     initTagMultiSelect('inputGeneratePlsTags', 'listGeneratePlsTags', settings.tagListBrowse, settings.smartplsGenerateTagList);
     //features - show or hide warnings - use settings object
-    setFeatureBtn('btnEnableLyrics', settings.featLibrary);
-    setFeatureBtn('inputWebUIsettingenableScripting', settings.featScripting);
-    setFeatureBtn('inputWebUIsettingenableMounts', settings.featMounts);
-    setFeatureBtn('inputWebUIsettingenablePartitions', settings.featPartitions);
+    setFeatureBtnId('btnEnableLyrics', settings.featLibrary);
+    setFeatureBtnId('inputWebUIsettingenableScripting', settings.featScripting);
+    setFeatureBtnId('inputWebUIsettingenableMounts', settings.featMounts);
+    setFeatureBtnId('inputWebUIsettingenablePartitions', settings.featPartitions);
 }
 
-function setFeatureBtn(btn, value) {
+function setFeatureBtnId(id, value) {
     if (value === true) {
-        elEnable(btn);
-        elHideId('warn' + btn);
+        elEnableId(id);
+        elHideId('warn' + id);
     }
     else {
-        elDisable(btn);
-        toggleBtnChk(btn, false);
-        elShowId('warn' + btn);
+        elDisableId(id);
+        toggleBtnChkId(id, false);
+        elShowId('warn' + id);
     }
 }
 
@@ -962,9 +962,9 @@ function saveQueueSettings() {
         }
     }
 
-    const singleState = getBtnGroupValue('btnSingleGroup');
-    const jukeboxMode = getBtnGroupValue('btnJukeboxModeGroup');
-    const replaygain = getBtnGroupValue('btnReplaygainGroup');
+    const singleState = getBtnGroupValueId('btnSingleGroup');
+    const jukeboxMode = getBtnGroupValueId('btnJukeboxModeGroup');
+    const replaygain = getBtnGroupValueId('btnReplaygainGroup');
     let jukeboxUniqueTag = getSelectValueId('selectJukeboxUniqueTag');
     const jukeboxPlaylist = getSelectValueId('selectJukeboxPlaylist');
     

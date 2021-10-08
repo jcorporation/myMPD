@@ -394,25 +394,25 @@ function addTagList(elId, list) {
     el.appendChild(stack);
 }
 
-function addTagListSelect(el, list) {
+function addTagListSelect(elId, list) {
     let tagList = '';
-    if (el === 'saveSmartPlaylistSort' || el === 'selectSmartplsSort') {
+    if (elId === 'saveSmartPlaylistSort' || elId === 'selectSmartplsSort') {
         tagList += '<option value="">' + t('Disabled') + '</option>';
         tagList += '<option value="shuffle">' + t('Shuffle') + '</option>';
         tagList += '<optgroup label="' + t('Sort by tag') + '">';
         tagList += '<option value="filename">' + t('Filename') + '</option>';
     }
-    else if (el === 'selectJukeboxUniqueTag' && settings.tagListBrowse.includes('Title') === false) {
+    else if (elId === 'selectJukeboxUniqueTag' && settings.tagListBrowse.includes('Title') === false) {
         //Title tag should be always in the list
         tagList = '<option value="Title">' + t('Song') + '</option>';
     }
     for (let i = 0, j = settings[list].length; i < j; i++) {
         tagList += '<option value="' + settings[list][i] + '">' + t(settings[list][i]) + '</option>';
     }
-    if (el === 'saveSmartPlaylistSort' || el === 'selectSmartplsSort') {
+    if (elId === 'saveSmartPlaylistSort' || elId === 'selectSmartplsSort') {
         tagList += '</optgroup>';
     }
-    document.getElementById(el).innerHTML = tagList;
+    document.getElementById(elId).innerHTML = tagList;
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -511,10 +511,10 @@ function toggleBtnGroup(btn) {
     return btn;
 }
 
-function getBtnGroupValue(btnGroup) {
-    let activeBtn = document.getElementById(btnGroup).getElementsByClassName('active');
+function getBtnGroupValueId(id) {
+    let activeBtn = document.getElementById(id).getElementsByClassName('active');
     if (activeBtn.length === 0) {
-        activeBtn = document.getElementById(btnGroup).getElementsByTagName('button');    
+        activeBtn = document.getElementById(id).getElementsByTagName('button');    
     }
     return getCustomDomProperty(activeBtn[0], 'data-value');
 }
@@ -570,6 +570,10 @@ function toggleBtnChk(btn, state) {
         btn.textContent = 'radio_button_unchecked';
         return false;
     }
+}
+
+function toggleBtnChkCollapseId(id, collapse, state) {
+    toggleBtnChkCollapse(document.getElementById(id), collapse, state);
 }
 
 function toggleBtnChkCollapse(btn, collapse, state) {
