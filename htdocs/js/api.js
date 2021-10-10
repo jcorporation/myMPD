@@ -375,9 +375,7 @@ function webSocketConnect() {
                     }
                     break;
                 case 'notify':
-                    if (document.getElementById('alertMpdState').classList.contains('hide')) {
-                        showNotification(t(obj.params.message, obj.params.data), '', obj.params.facility, obj.params.severity);
-                    }
+                    showNotification(t(obj.params.message, obj.params.data), '', obj.params.facility, obj.params.severity);
                     break;
                 default:
                     break;
