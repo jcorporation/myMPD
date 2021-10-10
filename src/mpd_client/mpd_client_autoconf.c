@@ -67,7 +67,7 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
         sds mpd_host = sdsnew(mpd_host_env);
         if (vcb_isname(mpd_host) == true) {
             if (mpd_host[0] != '@' && strstr(mpd_host, "@") != NULL) {
-                int count;
+                int count = 0;
                 sds *tokens = sdssplitlen(mpd_host, (ssize_t)sdslen(mpd_host), "@", 1, &count);
                 mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, tokens[1]);
                 mympd_state->mpd_state->mpd_pass = sds_replace(mympd_state->mpd_state->mpd_pass, tokens[0]);
@@ -167,7 +167,7 @@ static sds _get_mpd_conf(const char *key, const char *default_value, validate_ca
                 }
                 else if (strcasecmp(name, key) == 0 && strcasecmp(name, "password") == 0) {
                     sds *pwtokens;
-                    int count;
+                    int count = 0;
                     pwtokens = sdssplitlen(value, (int)sdslen(value), "@", 1, &count);
                     if (count == 2) {
                         if (sdslen(last_value) == 0 || strstr(pwtokens[1], "admin") != NULL) {

@@ -628,7 +628,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
         }
 
         sds host_header = sdscatlen(sdsempty(), host_hdr->ptr, (int)host_hdr->len);
-        int count;
+        int count = 0;
         sds *tokens = sdssplitlen(host_header, (ssize_t)sdslen(host_header), ":", 1, &count);
         sds s_redirect = sdscatfmt(sdsempty(), "https://%s", tokens[0]);
         if (strcmp(config->ssl_port, "443") != 0) {

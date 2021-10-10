@@ -29,7 +29,7 @@ static sds parse_arguments(sds post_data, char **argv, int argc) {
         if (i > 3) {
             post_data = sdscatlen(post_data, ",", 1);
         }
-        int count;
+        int count = 0;
         sds *kv = sdssplitlen(argv[i], strlen(argv[i]), "=", 1, &count);
         if (count == 2) {
             post_data = sds_catjson(post_data, kv[0], sdslen(kv[0]));
