@@ -163,7 +163,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wvla -Winit-self -Wuninitiali
 	-Werror=array-bounds -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE -O3 \
 	${LIBASAN_FLAGS}")
 
-foreach(FLAG IN ITEMS "-std=gnu17" "-fstack-clash-protection" "-fcf-protection")
+foreach(FLAG IN ITEMS "-std=gnu17" "-fstack-clash-protection" "-fcf-protection" "-fno-plt")
   message("Checking for compiler flag ${FLAG}")
   unset(COMPILER_SUPPORTS_FLAG CACHE)
   unset(COMPILER_SUPPORTS_FLAG)
