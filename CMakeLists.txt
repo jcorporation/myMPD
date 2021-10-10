@@ -20,6 +20,7 @@ option(ENABLE_LIBASAN "Enables build with libasan, default OFF" OFF)
 
 include(GNUInstallDirs)
 include(CheckCSourceCompiles)
+include(CheckCCompilerFlag)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 
@@ -158,9 +159,20 @@ else()
   set(LIBASAN_FLAGS "")
 endif()
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -Wall -Werror -Wvla -Winit-self -Wuninitialized \
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wvla -Winit-self -Wuninitialized \
 	-Werror=array-bounds -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE -O3 \
-	-fstack-clash-protection -fcf-protection ${LIBASAN_FLAGS}")
+	${LIBASAN_FLAGS}")
+
+foreach(FLAG IN ITEMS "-std=gnu17" "-fstack-clash-protection" "-fcf-protection")
+  message("Checking for compiler flag ${FLAG}")
+  unset(COMPILER_SUPPORTS_FLAG CACHE)
+  unset(COMPILER_SUPPORTS_FLAG)
+  CHECK_C_COMPILER_FLAG("${FLAG}" COMPILER_SUPPORTS_FLAG)
+  if(COMPILER_SUPPORTS_FLAG MATCHES "1")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${FLAG}")
+  endif()
+endforeach()
+
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
 
 set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_DIRECTORY_LISTING=1 -DMG_ENABLE_SSI=0")
