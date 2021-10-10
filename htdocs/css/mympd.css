@@ -877,12 +877,6 @@ div#playDropdown .row {
   white-space: nowrap;
 }
 
-#logOverview {
-  max-height: 50vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
 .carousel-item > div {
   background-position: center center;
   background-size: cover;
