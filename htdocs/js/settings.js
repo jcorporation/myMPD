@@ -309,7 +309,10 @@ function parseSettings(obj) {
 
     //default limit for all apps
     //convert from string to int
-    const limit = Number(settings.webuiSettings.uiMaxElementsPerPage);
+    let limit = settings.webuiSettings.uiMaxElementsPerPage
+    if (limit === 0) {
+        limit = 500;
+    }
     app.apps.Home.limit = limit;
     app.apps.Playback.limit = limit;
     app.apps.Queue.tabs.Current.limit = limit;

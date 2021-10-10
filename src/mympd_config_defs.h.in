@@ -64,6 +64,7 @@
 #define COLS_MAX 20
 
 //max number of results to retrieve from mpd
+#define MPD_RESULTS_MIN 25
 #define MPD_RESULTS_MAX 1000
 #define MPD_PLAYLIST_LENGTH_MAX 16384
 #define MPD_BINARY_SIZE_MAX 5242880 //5 MB

@@ -231,7 +231,7 @@ const settingFields = {
     }
 };
 
-//advanced settings default values
+//webui settings default values
 const webuiSettingsDefault = {
     "clickSong": { 
         "defaultValue": "append", 
@@ -368,8 +368,8 @@ const webuiSettingsDefault = {
             "25": "25",
             "50": "50",
             "100": "100",
-            "200": "200",
-            "0": "All"
+            "250": "250",
+            "500": "500"
         },
         "inputType": "select",
         "contentType": "integer",

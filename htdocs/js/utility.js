@@ -593,11 +593,15 @@ function setPagination(total, returned) {
         return;
     }
 
-    let totalPages = app.current.limit > 0 ? Math.ceil(total / app.current.limit) : 1;
+    if (app.current.limit === 0) {
+        app.current.limit = 500;
+    }
+
+    let totalPages = Math.ceil(total / app.current.limit);
     if (totalPages === 0) {
         totalPages = 1;
     }
-    const curPage = app.current.limit > 0 ? app.current.offset / app.current.limit + 1 : 1;
+    const curPage = Math.ceil(app.current.offset / app.current.limit + 1);
     
     const paginationHTML = '<button title="' + t('First page') + '" type="button" class="btn btn-secondary"><span class="mi">first_page</span></button>' +
           '<button title="' + t('Previous page') + '" type="button" class="btn btn-secondary"><span class="mi">navigate_before</span></button>' +
@@ -611,8 +615,8 @@ function setPagination(total, returned) {
     let bottomBarHTML = '<button type="button" class="btn btn-secondary mi" title="' + t('To top') + '">keyboard_arrow_up</button>' +
           '<div>' +
           '<select class="form-control form-select border-secondary" title="' + t('Elements per page') + '">';
-    for (const i of [25, 50, 100, 200, 0]) {
-        bottomBarHTML += '<option value="' + i + '"' + (app.current.limit === i ? ' selected' : '') + '>' + (i > 0 ? i : t('All')) + '</option>';
+    for (const i in webuiSettingsDefault.uiMaxElementsPerPage.validValues) {
+        bottomBarHTML += '<option value="' + i + '"' + (app.current.limit === i ? ' selected' : '') + '>' + i + '</option>';
     }
     bottomBarHTML += '</select>' +
           '</div>' +
@@ -625,7 +629,7 @@ function setPagination(total, returned) {
     bottomBar.innerHTML = bottomBarHTML;
     
     const buttons = bottomBar.getElementsByTagName('button');
-    buttons[0].addEventListener('click', function() {
+    buttons[0].addEventListener('click', function(event) {
         event.preventDefault();
         scrollToPosY(0);
     }, false);
@@ -678,7 +682,7 @@ function setPagination(total, returned) {
                 elEnable(last);
                 elShow(last);
                 next.classList.remove('rounded-right');
-                last.addEventListener('click', function() {
+                last.addEventListener('click', function(event) {
                     event.preventDefault();
                     gotoPage(lastPageOffset);
                 }, false);
@@ -698,10 +702,10 @@ function setPagination(total, returned) {
             elDisable(last);
         }
         
-        if (app.current.limit > 0 && ((total > offsetLast && offsetLast > 0) || (total === -1 && returned >= app.current.limit))) {
+        if ((total > offsetLast && offsetLast > 0) || (total === -1 && returned >= app.current.limit)) {
             elEnable(next);
             elShow(p[i]);
-            next.addEventListener('click', function() {
+            next.addEventListener('click', function(event) {
                 event.preventDefault();
                 gotoPage('next');
             }, false);
@@ -716,12 +720,12 @@ function setPagination(total, returned) {
         if (app.current.offset > 0) {
             elEnable(prev);
             elShow(p[i]);
-            prev.addEventListener('click', function() {
+            prev.addEventListener('click', function(event) {
                 event.preventDefault();
                 gotoPage('prev');
             }, false);
             elEnable(first);
-            first.addEventListener('click', function() {
+            first.addEventListener('click', function(event) {
                 event.preventDefault();
                 gotoPage(0);
             }, false);
@@ -733,6 +737,7 @@ function setPagination(total, returned) {
     }
     
     //hide bottom pagination bar if returned < limit
+
     if (returned < app.current.limit) {
         elHideId(cat + 'ButtonsBottom');
     }
@@ -801,11 +806,11 @@ function gotoPage(x, limit) {
             app.current.offset = x;
     }
     if (limit !== undefined) {
-        app.current.limit = limit;
-        if (app.current.limit === 0) {
-            app.current.offset = 0;
+        if (limit === 0) {
+            limit = 500;
         }
-        else if (app.current.offset % app.current.limit > 0) {
+        app.current.limit = limit;
+        if (app.current.offset % app.current.limit > 0) {
             app.current.offset = Math.floor(app.current.offset / app.current.limit);
         }
     }
