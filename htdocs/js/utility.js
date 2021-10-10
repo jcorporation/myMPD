@@ -587,9 +587,7 @@ function toggleBtnChkCollapse(btn, collapse, state) {
 }
 
 function setPagination(total, returned) {
-    const cat = app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + (app.current.view === undefined ? '' : app.current.view);
-
-    if (document.getElementById(cat + 'PaginationTop') === null) {
+    if (document.getElementById(app.id + 'PaginationTop') === null) {
         return;
     }
 
@@ -620,12 +618,12 @@ function setPagination(total, returned) {
     }
     bottomBarHTML += '</select>' +
           '</div>' +
-          '<div id="' + cat + 'PaginationBottom" class="btn-group dropup pagination">' +
+          '<div id="' + app.id + 'PaginationBottom" class="btn-group dropup pagination">' +
           paginationHTML +
           '</div>' +
           '</div>';
 
-    const bottomBar = document.getElementById(cat + 'ButtonsBottom');
+    const bottomBar = document.getElementById(app.id + 'ButtonsBottom');
     bottomBar.innerHTML = bottomBarHTML;
     
     const buttons = bottomBar.getElementsByTagName('button');
@@ -641,10 +639,10 @@ function setPagination(total, returned) {
         }
     }, false);
     
-    document.getElementById(cat + 'PaginationTop').innerHTML = paginationHTML;
+    document.getElementById(app.id + 'PaginationTop').innerHTML = paginationHTML;
     
     const offsetLast = app.current.offset + app.current.limit;
-    const p = [ document.getElementById(cat + 'PaginationTop'), document.getElementById(cat + 'PaginationBottom') ];
+    const p = [ document.getElementById(app.id + 'PaginationTop'), document.getElementById(app.id + 'PaginationBottom') ];
     
     for (let i = 0, j = p.length; i < j; i++) {
         const first = p[i].children[0];
@@ -739,10 +737,10 @@ function setPagination(total, returned) {
     //hide bottom pagination bar if returned < limit
 
     if (returned < app.current.limit) {
-        elHideId(cat + 'ButtonsBottom');
+        elHideId(app.id + 'ButtonsBottom');
     }
     else {
-        elShowId(cat + 'ButtonsBottom');
+        elShowId(app.id + 'ButtonsBottom');
     }
 }
 

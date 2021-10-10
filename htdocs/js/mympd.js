@@ -41,9 +41,7 @@ function appPrepare(scrollPos) {
         }
     }
     scrollToPosY(scrollPos);
-    const list = document.getElementById(app.current.app + 
-        (app.current.tab === undefined ? '' : app.current.tab) + 
-        (app.current.view === undefined ? '' : app.current.view) + 'List');
+    const list = document.getElementById(app.id + 'List');
     if (list) {
         list.classList.add('opacity05');
     }
@@ -112,6 +110,8 @@ function appRoute() {
         app.current.sort = decodeURIComponent(params[7]);
         app.current.tag = decodeURIComponent(params[8]);
         app.current.search = decodeURIComponent(params[9]);
+
+        app.id = app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + (app.current.view === undefined ? '' : app.current.view);
 
         //get ptr to app options and set active tab/view        
         let ptr;
