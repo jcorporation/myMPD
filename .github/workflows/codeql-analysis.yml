@@ -50,7 +50,7 @@ jobs:
     #    uses a compiled language
 
     - run: |
-       ./build.sh release
+       ./build.sh debug
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
