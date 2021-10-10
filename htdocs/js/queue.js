@@ -150,7 +150,7 @@ function parseQueue(obj) {
     }
 
     //goto playing song button
-    if (obj.result.totalEntities > app.current.limit && app.current.limit !== 0) {
+    if (obj.result.totalEntities > 1) {
         elShowId('btnQueueGotoPlayingSong');
     }
     else {
@@ -333,10 +333,13 @@ function delQueueSong(mode, start, end) {
 
 //eslint-disable-next-line no-unused-vars
 function gotoPlayingSong() {
-    if (app.current.limit === 0) {
-        return;
+    if (lastState.songPos >= app.current.offset && lastState.songPos < app.current.offset + app.current.limit) {
+        //playing song is in this page
+        document.getElementsByClassName('queue-playing')[0].scrollIntoView(true);
     }
-    gotoPage(lastState.songPos < app.current.limit ? 0 : Math.floor(lastState.songPos / app.current.limit) * app.current.limit);
+    else {
+        gotoPage(Math.floor(lastState.songPos / app.current.limit) * app.current.limit);
+    }
 }
 
 //eslint-disable-next-line no-unused-vars
