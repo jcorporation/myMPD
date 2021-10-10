@@ -304,7 +304,7 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
         mympd_luaopen(lua_vm, "mympd");
     }
     else {
-        int count;
+        int count = 0;
         sds *tokens = sdssplitlen(script_arg->config->lualibs, (ssize_t)sdslen(script_arg->config->lualibs), ",", 1, &count);
         for (int i = 0; i < count; i++) {
             sdstrim(tokens[i], " ");

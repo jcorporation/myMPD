@@ -424,7 +424,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     //parse mpd search expression
     struct t_list expr_list;
     list_init(&expr_list);
-    int count;
+    int count = 0;
     sds *tokens = sdssplitlen(expression, (ssize_t)sdslen(expression), ") AND (", 7, &count);
     for (int j = 0; j < count; j++) {
         sdstrim(tokens[j], "() ");

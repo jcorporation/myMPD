@@ -193,7 +193,7 @@ bool vcb_iscolumn(sds data) {
 }
 
 bool vcb_istaglist(sds data) {
-    int tokens_count;
+    int tokens_count = 0;
     sds *tokens = sdssplitlen(data, (ssize_t)sdslen(data), ",", 1, &tokens_count);
     for (int i = 0; i < tokens_count; i++) {
         sdstrim(tokens[i], " ");

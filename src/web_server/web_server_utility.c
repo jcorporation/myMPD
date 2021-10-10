@@ -62,9 +62,9 @@ void webserver_populate_dummy_hm(struct mg_connection *nc, struct mg_http_messag
 }
 
 sds *webserver_split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count) {
-    int j;
+    *count = 0;
     coverimage_names = sdssplitlen(coverimage_name, (ssize_t)sdslen(coverimage_name), ",", 1, count);
-    for (j = 0; j < *count; j++) {
+    for (int j = 0; j < *count; j++) {
         sdstrim(coverimage_names[j], " ");
     }
     return coverimage_names;
