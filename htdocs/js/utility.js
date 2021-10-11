@@ -587,161 +587,172 @@ function toggleBtnChkCollapse(btn, collapse, state) {
 }
 
 function setPagination(total, returned) {
-    if (document.getElementById(app.id + 'PaginationTop') === null) {
+    const curPaginationTop = document.getElementById(app.id + 'PaginationTop');
+    if (curPaginationTop === null) {
         return;
     }
 
     if (app.current.limit === 0) {
         app.current.limit = 500;
     }
-
-    let totalPages = Math.ceil(total / app.current.limit);
-    if (totalPages === 0) {
-        totalPages = 1;
-    }
-    const curPage = Math.ceil(app.current.offset / app.current.limit + 1);
     
-    const paginationHTML = '<button title="' + t('First page') + '" type="button" class="btn btn-secondary"><span class="mi">first_page</span></button>' +
-          '<button title="' + t('Previous page') + '" type="button" class="btn btn-secondary"><span class="mi">navigate_before</span></button>' +
-          '<div class="btn-group">' +
-            '<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>' +
-            '<div class="dropdown-menu bg-lite-dark px-2 pages dropdown-menu-right"></div>' +
-          '</div>' +
-          '<button title="' + t('Next page') + '" type="button" class="btn btn-secondary"><span class="mi">navigate_next</span></button>' +
-          '<button title="' + t('Last page') + '" type="button" class="btn btn-secondary"><span class="mi">last_page</span></button>';
-
-    let bottomBarHTML = '<button type="button" class="btn btn-secondary mi" title="' + t('To top') + '">keyboard_arrow_up</button>' +
-          '<div>' +
-          '<select class="form-control form-select border-secondary" title="' + t('Elements per page') + '">';
-    for (const i in webuiSettingsDefault.uiMaxElementsPerPage.validValues) {
-        bottomBarHTML += '<option value="' + i + '"' + (app.current.limit === i ? ' selected' : '') + '>' + i + '</option>';
+    let totalPages = total < app.current.limit ? 
+        total === -1 ? -1 : 1 :  Math.ceil(total / app.current.limit);
+    const curPage = Math.ceil(app.current.offset / app.current.limit) + 1;
+    if (app.current.limit > returned) {
+        totalPages = curPage;
     }
-    bottomBarHTML += '</select>' +
-          '</div>' +
-          '<div id="' + app.id + 'PaginationBottom" class="btn-group dropup pagination">' +
-          paginationHTML +
-          '</div>' +
-          '</div>';
-
+    
+    //toolbar    
+    const paginationTop = createPaginationEls(totalPages, curPage);
+    paginationTop.classList.add('me-2');
+    paginationTop.setAttribute('id', curPaginationTop.id);
+    curPaginationTop.replaceWith(paginationTop);
+    
+    //bottom
     const bottomBar = document.getElementById(app.id + 'ButtonsBottom');
-    bottomBar.innerHTML = bottomBarHTML;
-    
-    const buttons = bottomBar.getElementsByTagName('button');
-    buttons[0].addEventListener('click', function(event) {
+    if (returned < 25) {
+        elHide(bottomBar);
+        return;
+    }
+    elClear(bottomBar);
+    const toTop = elCreate('button', {"class": ["btn", "btn-secondary", "mi"], "title": tn('To top')}, 'keyboard_arrow_up');
+    toTop.addEventListener('click', function() {
         event.preventDefault();
         scrollToPosY(0);
     }, false);
+    bottomBar.appendChild(toTop);
+    const paginationBottom = createPaginationEls(totalPages, curPage);
+    paginationBottom.classList.add('dropup');
+    bottomBar.appendChild(paginationBottom);
+    elShow(bottomBar);
+}
+
+function createPaginationEls(totalPages, curPage) {
+    const prev = elCreate('button', {"title": tn('Previous page'), "type": "button", "class": ["btn", "btn-secondary"]}, '');
+    prev.appendChild(elCreate('span', {"class": ["mi"]}, 'navigate_before'));
+    if (curPage === 1) {
+        elDisable(prev);
+    }
+    else {
+        prev.addEventListener('click', function(event) {
+            event.preventDefault();
+            gotoPage('prev');
+        }, false);
+    }
     
-    bottomBar.getElementsByTagName('select')[0].addEventListener('change', function(event) {
+    const pageDropdownBtn = elCreate('button', {"type": "button", "data-bs-toggle": "dropdown", "class": ["square-end", "btn", "btn-secondary", "dropdown-toggle", "px-2"]}, curPage);
+    const pageDropdownMenu = elCreate('div', {"class": ["dropdown-menu", "bg-lite-dark", "px-2", "pages", "dropdown-menu-right"]}, '');
+    
+    const row = elCreate('div', {"class": ["row"]}, '');
+    row.appendChild(elCreate('label', {"class": ["col-sm-8", "col-form-label"]}, tn('Elements per page')));
+    row.appendChild(elCreate('div', {"class": ["col-sm-4"]}, ''));
+    const elPerPage = elCreate('select', {"class": ["form-control", "form-select", "border-secondary"]}, '');
+    for (const i in webuiSettingsDefault.uiMaxElementsPerPage.validValues) {
+        elPerPage.appendChild(elCreate('option', {"value": i}, i));
+        if (Number(i) === app.current.limit) {
+            elPerPage.lastChild.setAttribute('selected', 'selected');
+        }
+    }
+    elPerPage.addEventListener('click', function(event) {
+        event.stopPropagation();
+    }, false);
+    elPerPage.addEventListener('change', function(event) {
         const newLimit = Number(getSelectValue(event.target));
         if (app.current.limit !== newLimit) {
+            event.target.parentNode.parentNode.parentNode.previousElementSibling.Dropdown.hide();
             gotoPage(app.current.offset, newLimit);
         }
     }, false);
+    row.lastChild.appendChild(elPerPage);
     
-    document.getElementById(app.id + 'PaginationTop').innerHTML = paginationHTML;
+    const pageList = elCreate('div', {"class": ["row", "mb-3"]}, '');
+    const pageGrp = elCreate('div', {"class": ["btn-group"]}, '');
     
-    const offsetLast = app.current.offset + app.current.limit;
-    const p = [ document.getElementById(app.id + 'PaginationTop'), document.getElementById(app.id + 'PaginationBottom') ];
-    
-    for (let i = 0, j = p.length; i < j; i++) {
-        const first = p[i].children[0];
-        const prev = p[i].children[1];
-        const page = p[i].children[2].children[0];
-        const pages = p[i].children[2].children[1];
-        const next = p[i].children[3];
-        const last = p[i].children[4];
-    
-        page.textContent = curPage + ' / ' + totalPages;
-        if (totalPages > 1) {
-            elEnable(page);
-            let pl = '';
-            for (let k = 0; k < totalPages; k++) {
-                const o = k * app.current.limit;
-                pl += '<button data-offset="' + o + '" type="button" class="btn-sm btn btn-secondary' +
-                      ( o === app.current.offset ? ' active' : '') + '">' +
-                      ( k + 1) + '</button>';
-            }
-            pages.innerHTML = pl;
-            page.classList.remove('nodropdown');
-            pages.addEventListener('click', function(event) {
-                if (event.target.nodeName === 'BUTTON') {
-                    gotoPage(getCustomDomProperty(event.target, 'data-offset'));
-                }
-            }, false);
-            //eslint-disable-next-line no-unused-vars
-            const pagesDropdown = new BSN.Dropdown(page);
-            
-            const lastPageOffset = (totalPages - 1) * app.current.limit;
-            if (lastPageOffset === app.current.offset) {
-                elDisable(last);
-            }
-            else {
-                elEnable(last);
-                elShow(last);
-                next.classList.remove('rounded-right');
-                last.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    gotoPage(lastPageOffset);
-                }, false);
-            }
-        }
-        else if (total === -1) {
-            elDisable(page);
-            page.textContent = curPage;
-            page.classList.add('nodropdown');
-            elDisable(last);
-            elHide(last);
-            next.classList.add('rounded-right');
-        }
-        else {
-            elDisable(page);
-            page.classList.add('nodropdown');
-            elDisable(last);
-        }
-        
-        if ((total > offsetLast && offsetLast > 0) || (total === -1 && returned >= app.current.limit)) {
-            elEnable(next);
-            elShow(p[i]);
-            next.addEventListener('click', function(event) {
-                event.preventDefault();
-                gotoPage('next');
-            }, false);
-        }
-        else {
-            elDisable(next);
-            if (i === 0) {
-                elHide(p[i]);
-            }
-        }
-        
-        if (app.current.offset > 0) {
-            elEnable(prev);
-            elShow(p[i]);
-            prev.addEventListener('click', function(event) {
-                event.preventDefault();
-                gotoPage('prev');
-            }, false);
-            elEnable(first);
-            first.addEventListener('click', function(event) {
-                event.preventDefault();
-                gotoPage(0);
-            }, false);
-        }
-        else {
-            elDisable(prev);
-            elDisable(first);
-        }
-    }
-    
-    //hide bottom pagination bar if returned < limit
-
-    if (returned < app.current.limit) {
-        elHideId(app.id + 'ButtonsBottom');
+    const first = elCreate('button', {"title": tn('First page'), "type": "button", "class": ["btn", "btn-secondary"]}, '');
+    first.appendChild(elCreate('span', {"class": ["mi"]}, 'first_page'));
+    if (curPage === 1) {
+        elDisable(first);
+        first.classList.add('active');
     }
     else {
-        elShowId(app.id + 'ButtonsBottom');
+        first.addEventListener('click', function(event) {
+            event.preventDefault();
+            gotoPage(0);
+        }, false);
     }
+    pageGrp.appendChild(first);
+    
+    let start = curPage - 3;
+    if (start < 1) {
+        start = 1;
+    }
+    let end = start + 5;
+    if (end >= totalPages) {
+        end = totalPages - 1;
+        start = end - 6 > 1 ? end - 6 : 1;
+    }
+
+    for (let i = start; i < end; i++) {
+        pageGrp.appendChild(elCreate('button', {"class": ["btn", "btn-secondary"]}, i + 1));
+        if (i + 1 === curPage) {
+            pageGrp.lastChild.classList.add('active');
+        }
+        if (totalPages === -1) {
+            elDisable(pageGrp.lastChild);
+        }
+        else {
+            pageGrp.lastChild.addEventListener('click', function(event) {
+                event.preventDefault();
+                gotoPage(i * app.current.limit);
+            }, false);
+        }
+    }
+    
+    const last = elCreate('button', {"title": tn('Last page'), "type": "button", "class": ["btn", "btn-secondary"]}, '');
+    last.appendChild(elCreate('span', {"class": ["mi"]}, 'last_page'));
+    if (totalPages === -1) {
+        elDisable(last);
+    }
+    else if (totalPages === curPage) {
+        if (curPage !== 1) {
+            last.classList.add('active');
+        }
+        elDisable(last);
+    }
+    else {
+        last.addEventListener('click', function(event) {
+            event.preventDefault();
+            gotoPage(totalPages * app.current.limit - app.current.limit);
+        }, false);
+    }
+    pageGrp.appendChild(last);
+    pageList.appendChild(pageGrp);
+    
+    pageDropdownMenu.appendChild(pageList);
+    pageDropdownMenu.appendChild(row);
+    
+    const next = elCreate('button', {"title": tn('Next page'), "type": "button", "class": ["btn", "btn-secondary"]}, '');
+    next.appendChild(elCreate('span', {"class": ["mi"]}, 'navigate_next'));
+    if (totalPages !== -1 && totalPages == curPage) {
+        elDisable(next);
+    }
+    else {
+        next.addEventListener('click', function(event) {
+            event.preventDefault();
+            gotoPage('next');
+        }, false);
+    }
+
+    const outer = elCreate('div', {"class": ["btn-group", "pagination"]}, '');
+    outer.appendChild(prev);
+    const btnGrp = elCreate('div', {"class": ["btn-group"]}, '');
+    btnGrp.appendChild(pageDropdownBtn);
+    btnGrp.appendChild(pageDropdownMenu);
+    outer.appendChild(btnGrp);
+    outer.appendChild(next);
+    new BSN.Dropdown(pageDropdownBtn);
+    return outer;
 }
 
 function genId(x) {

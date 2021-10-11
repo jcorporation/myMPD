@@ -410,8 +410,6 @@ function parseDatabase(obj) {
         return;
     }
 
-    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
-
     if (cols.length === 0) {
         elClear(cardContainer);
     }
