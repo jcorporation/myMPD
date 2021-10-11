@@ -734,7 +734,7 @@ function createPaginationEls(totalPages, curPage) {
     
     const next = elCreate('button', {"title": tn('Next page'), "type": "button", "class": ["btn", "btn-secondary"]}, '');
     next.appendChild(elCreate('span', {"class": ["mi"]}, 'navigate_next'));
-    if (totalPages !== -1 && totalPages == curPage) {
+    if (totalPages !== -1 && totalPages === curPage) {
         elDisable(next);
     }
     else {
