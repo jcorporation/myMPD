@@ -1149,3 +1149,16 @@ button.clear-button {
 .btn-close:focus {
   box-shadow: none;
 }
+
+.not-mobile .table-responsive-md {
+  overflow-y: scroll;
+}
+
+.not-mobile .BrowseDatabaseCardsContainer {
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.not-mobile .card {
+  margin-bottom: 0;
+}

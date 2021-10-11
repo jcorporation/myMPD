@@ -551,6 +551,20 @@ function appInit() {
     dragAndDropTableHeader('BrowseFilesystem');
     dragAndDropTableHeader('BrowsePlaylistsDetail');
     dragAndDropTableHeader('BrowseDatabaseDetail');
+
+    //set max table height for fixed toolbar and working drag and drop
+    //Todo: workarround for: "ResizeObserver loop completed with undelivered notifications"
+    /*
+    if (isMobile === false) {
+        domCache.body.classList.add('not-mobile');
+        setTableHeight();
+        const resizeObserver = new ResizeObserver(function() {
+            setTableHeight();
+        });
+        resizeObserver.observe(domCache.body);
+    }
+    */
+
     //update state on window focus - browser pauses javascript
     window.addEventListener('focus', function() {
         logDebug('Browser tab gots the focus -> update player state');
