@@ -1543,6 +1543,12 @@ Bist du sicher?
 Do you really want to clear the queue?
 Willst du die Warteschlange wirklich leeren?
 
+Do you really want to delete the timer?
+Willst du den Timer wirklich löschen?
+
+Do you really want to delete the trigger?
+Willst du den Trigger wirklich löschen?
+
 Playback controls
 Wiedergabe Steuerelemente
 
@@ -1863,3 +1869,4 @@ Standardaktionen
 
 Priority
 Priorität
+

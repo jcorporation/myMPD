@@ -102,3 +102,4 @@ Last played list count
 Reset to default
 Image
 Authentication required
+Priority
