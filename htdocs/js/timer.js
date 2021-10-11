@@ -13,7 +13,7 @@ function initTimer() {
             }
         }
         else if (event.target.nodeName === 'A') {
-            deleteTimer(getCustomDomProperty(event.target.parentNode.parentNode, 'data-id'));
+            deleteTimer(event.target, getCustomDomProperty(event.target.parentNode.parentNode, 'data-id'));
         }
         else if (event.target.nodeName === 'BUTTON') {
             toggleTimer(event.target, getCustomDomProperty(event.target.parentNode.parentNode, 'data-id'));
@@ -51,10 +51,12 @@ function initTimer() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function deleteTimer(timerid) {
-    sendAPI("MYMPD_API_TIMER_RM", {
-        "timerid": timerid
-    }, saveTimerCheckError, true);
+function deleteTimer(el, timerid) {
+    showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the timer?'), tn('Yes, delete it'), function() {
+        sendAPI("MYMPD_API_TIMER_RM", {
+            "timerid": timerid
+        }, saveTimerCheckError, true);
+    });
 }
 
 //eslint-disable-next-line no-unused-vars

@@ -14,7 +14,7 @@ function initTrigger() {
             const action = getCustomDomProperty(event.target, 'data-action');
             const id = Number(getCustomDomProperty(event.target.parentNode.parentNode, 'data-trigger-id'));
             if (action === 'delete') {
-                deleteTrigger(id);
+                deleteTrigger(event.target, id);
             }
         }
     }, false);
@@ -142,15 +142,17 @@ function showListTrigger() {
     sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, true);
 }
 
-function deleteTrigger(id) {
-    sendAPI("MYMPD_API_TRIGGER_RM", {
-        "id": id
-    }, saveTriggerCheckError, true);
+function deleteTrigger(el, id) {
+    showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the trigger?'), tn('Yes, delete it'), function() {
+        sendAPI("MYMPD_API_TRIGGER_RM", {
+            "id": id
+        }, saveTriggerCheckError, true);
+    });
 }
 
 function parseTriggerList(obj) {
     const tbody = document.getElementById('listTriggerList');
-    if (checkResult(obj, tbody, 3) === false) {
+    if (checkResult(obj, tbody, 4) === false) {
         return;
     }
 

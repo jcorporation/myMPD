@@ -114,13 +114,15 @@ function showConfirmInline(el, text, btnText, callback) {
     confirm.appendChild(p);
 
     const cancelBtn = elCreate('button', {"class": ["btn", "btn-secondary"]}, t('Cancel'));
-    cancelBtn.addEventListener('click', function() {
+    cancelBtn.addEventListener('click', function(event) {
+        event.stopPropagation();
         this.parentNode.remove();
     }, false);
     confirm.appendChild(cancelBtn);
 
     const yesBtn = elCreate('button', {"class": ["btn", "btn-danger", "float-end"]}, btnText);
-    yesBtn.addEventListener('click', function() {
+    yesBtn.addEventListener('click', function(event) {
+        event.stopPropagation();
         if (callback !== undefined && typeof(callback) === 'function') {
             callback();
         }
