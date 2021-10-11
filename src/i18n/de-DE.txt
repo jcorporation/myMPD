@@ -1860,3 +1860,6 @@ Lizenz
 
 Default actions
 Standardaktionen
+
+Priority
+Priorität

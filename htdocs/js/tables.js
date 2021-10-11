@@ -178,6 +178,7 @@ function setColTags(table) {
 
     switch(table) {
         case 'QueueCurrent':
+            tags.push('Priority');
         case 'BrowsePlaylistsDetail':
         case 'QueueJukebox':
             tags.push('Pos');
