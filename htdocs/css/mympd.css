@@ -1162,3 +1162,7 @@ button.clear-button {
 .not-mobile .card {
   margin-bottom: 0;
 }
+
+.carousel-indicators > button {
+  border-color: transparent !important;
+}

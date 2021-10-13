@@ -251,36 +251,36 @@ function zoomZoomPicture() {
 
 function createImgCarousel(imgEl, name, images) {
     const nrImages = images.length;
-    let carousel = '<div id="' + name + '" class="carousel slide" data-ride="carousel">';
-    if (nrImages > 1) {
-        carousel += '<ol class="carousel-indicators">';
+    const carousel = elCreate('div', {"id": name, "class": ["carousel", "slide"], "data-bs-ride": "carousel"}, '');
+    if (nrImages > 0) {
+        const carouselIndicators = elCreate('div', {"class": ["carousel-indicators"]}, '');
         for (let i = 0; i < nrImages; i++) {
-            carousel += '<li data-target="#' + name + '" data-slide-to="' + i + '"' +
-                (i === 0 ? ' class="active"' : '') + '></li>';
+            carouselIndicators.appendChild(elCreate('button', {"type": "button", "data-bs-target": "#" + name, "data-bs-slide-to": i}, ''));
+            if (i === 0) {
+                carouselIndicators.lastChild.classList.add('active');
+            }
         }
-        carousel += '</ol>';
+        carousel.appendChild(carouselIndicators);
     }
-    carousel += '<div class="carousel-inner">';
+    const carouselInner = elCreate('div', {"class": ["carousel-inner"]}, '');
     for (let i = 0; i < nrImages; i++) {
-        carousel += '<div class="carousel-item' + (i === 0 ? ' active' : '') + '"><div></div></div>';
+        carouselInner.appendChild(elCreate('div', {"class": ["carousel-item"]}, ''));
+        carouselInner.lastChild.appendChild(elCreate('div', {}, ''));
+        carouselInner.lastChild.style.backgroundImage = 'url("' + myEncodeURI(images[i]) + '")';
     }
-    carousel += '</div>';
-    if (nrImages > 1) {
-        carousel += '<a class="carousel-control-prev" href="#' + name + '" data-slide="prev">' +
-                '<span class="carousel-control-prev-icon"></span>' +
-            '</a>' +
-            '<a class="carousel-control-next" href="#' + name + '" data-slide="next">' +
-                '<span class="carousel-control-next-icon"></span>' +
-            '</a>';
+    carousel.appendChild(carouselInner);
+    if (nrImages > 0) {
+        const prev = elCreate('a', {"href": "#" + name, "data-bs-slide": "prev", "class": ["carousel-control-prev"]}, '');
+        prev.appendChild(elCreate('span', {"class": ["carousel-control-prev-icon"]}, ''));
+        carousel.appendChild(prev);
+        const next = elCreate('a', {"href": "#" + name, "data-bs-slide": "next", "class": ["carousel-control-next"]}, '');
+        next.appendChild(elCreate('span', {"class": ["carousel-control-next-icon"]}, ''));
+        carousel.appendChild(next);
     }
-    carousel += '</div>';
-    imgEl.innerHTML = carousel;
-    const carouselItems = imgEl.getElementsByClassName('carousel-item');
-    for (let i = 0, j = carouselItems.length; i < j; i++) {
-        carouselItems[i].children[0].style.backgroundImage = 'url("' + myEncodeURI(images[i]) + '")';
-    }
-    
-    uiElements.albumartCarousel = new BSN.Carousel(document.getElementById(name), {
+
+    elClear(imgEl);
+    imgEl.appendChild(carousel);  
+    uiElements.albumartCarousel = new BSN.Carousel(carousel, {
         interval: false,
         pause: false
     });
