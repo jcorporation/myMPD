@@ -19,5 +19,19 @@
   ],
   "name": "myMPD",
   "short_name": "myMPD",
-  "start_url": "."
+  "start_url": ".",
+  "shortcuts": [
+    {
+      "name": "Play",
+      "url": "./?action=clickPlay"
+    },
+    {
+      "name": "Stop",
+      "url": "./?action=clickStop"
+    },
+    {
+      "name": "Next",
+      "url": "./?action=clickNext"
+    }
+  ]
 }

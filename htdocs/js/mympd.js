@@ -405,6 +405,19 @@ function a2hsInit() {
 }
 
 function appInitStart() {
+    //webapp manifest shortcuts
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get('action');
+    if (action === 'clickPlay') {
+        clickPlay();
+    }
+    else if (action === 'clickStop') {
+        clickStop();
+    }
+    else if (action === 'clickNext') {
+        clickNext();
+    }
+
     //add app routing event handler
     window.addEventListener('hashchange', appRoute, false);
 
@@ -432,8 +445,9 @@ function appInitStart() {
         settings.loglevel = 4;
     }
     //register serviceworker
-    if ('serviceWorker' in navigator && window.location.protocol === 'https:' && 
-        window.location.hostname !== 'localhost' && script === 'combined.js')
+    if ('serviceWorker' in navigator &&
+        window.location.protocol === 'https:' && 
+        script === 'combined.js')
     {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('/sw.js', {scope: '/'}).then(function(registration) {

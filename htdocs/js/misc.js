@@ -73,6 +73,10 @@ function clickPlay() {
     else if (playstate === 'pause') {
         sendAPI("MYMPD_API_PLAYER_RESUME", {});
     }
+    else {
+        //fallback if playstate is unknown
+        sendAPI("MYMPD_API_PLAYER_PLAY", {});
+    }
 }
 
 //eslint-disable-next-line no-unused-vars
