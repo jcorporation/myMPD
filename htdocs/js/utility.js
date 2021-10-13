@@ -134,14 +134,14 @@ function showConfirmInline(el, text, btnText, callback) {
 
 function myEncodeURI(x) {
     return encodeURI(x).replace(/([#])/g, function(m0, m1) {
-            if (m1 === '#') return '%23';
+        if (m1 === '#') return '%23';
     });
 }
 
 //eslint-disable-next-line no-unused-vars
 function myDecodeURI(x) {
     return decodeURI(x).replace(/(%23)/g, function(m0, m1) {
-            if (m1 === '%23') return '#';
+        if (m1 === '%23') return '#';
     });
 }
 
@@ -476,7 +476,7 @@ function focusSearch() {
 function btnWaiting(btn, waiting) {
     if (waiting === true) {
         const spinner = document.createElement('span');
-        spinner.classList.add('spinner-border', 'spinner-border-sm', 'mr-2');
+        spinner.classList.add('spinner-border', 'spinner-border-sm', 'me-2');
         btn.insertBefore(spinner, btn.firstChild);
         elDisable(btn);
     }
@@ -692,8 +692,23 @@ function createPaginationEls(totalPages, curPage) {
     const pageList = elCreate('div', {"class": ["row", "mb-3"]}, '');
     const pageGrp = elCreate('div', {"class": ["btn-group"]}, '');
     
+    let start = curPage - 3;
+    if (start < 1) {
+        start = 1;
+    }
+    let end = start + 5;
+    if (end >= totalPages) {
+        end = totalPages - 1;
+        start = end - 6 > 1 ? end - 6 : 1;
+    }
+
     const first = elCreate('button', {"title": tn('First page'), "type": "button", "class": ["btn", "btn-secondary"]}, '');
-    first.appendChild(elCreate('span', {"class": ["mi"]}, 'first_page'));
+    if (start === 1) {
+        first.textContent = '1';
+    }
+    else {
+        first.appendChild(elCreate('span', {"class": ["mi"]}, 'first_page'));
+    }
     if (curPage === 1) {
         elDisable(first);
         first.classList.add('active');
@@ -705,16 +720,6 @@ function createPaginationEls(totalPages, curPage) {
         }, false);
     }
     pageGrp.appendChild(first);
-    
-    let start = curPage - 3;
-    if (start < 1) {
-        start = 1;
-    }
-    let end = start + 5;
-    if (end >= totalPages) {
-        end = totalPages - 1;
-        start = end - 6 > 1 ? end - 6 : 1;
-    }
 
     for (let i = start; i < end; i++) {
         pageGrp.appendChild(elCreate('button', {"class": ["btn", "btn-secondary"]}, i + 1));
@@ -733,7 +738,12 @@ function createPaginationEls(totalPages, curPage) {
     }
     
     const last = elCreate('button', {"title": tn('Last page'), "type": "button", "class": ["btn", "btn-secondary"]}, '');
-    last.appendChild(elCreate('span', {"class": ["mi"]}, 'last_page'));
+    if (totalPages === end + 1) {
+        last.textContent = end + 1;
+    }
+    else {
+        last.appendChild(elCreate('span', {"class": ["mi"]}, 'last_page'));
+    }
     if (totalPages === -1) {
         elDisable(last);
     }
