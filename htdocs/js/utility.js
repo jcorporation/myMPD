@@ -292,6 +292,7 @@ function getYpos(el) {
     return yPos;
 }
 
+//eslint-disable-next-line no-unused-vars
 function setTableHeight() {
     const footerHeight = document.getElementsByTagName('footer')[0].offsetHeight;
     const tables = ["BrowseDatabaseDetail", "BrowseFilesystem", "BrowsePlaylistsDetail",
