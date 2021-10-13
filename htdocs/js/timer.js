@@ -138,7 +138,7 @@ function saveTimer() {
             "playlist": selectTimerPlaylist,
             "jukeboxMode": Number(jukeboxMode),
             "arguments": args
-            }, saveTimerCheckError, true);
+        }, saveTimerCheckError, true);
     }
 }
 
@@ -209,7 +209,7 @@ function parseEditTimer(obj) {
     toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), obj.result.jukeboxMode);
     const weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     for (let i = 0, j = weekdayBtns.length; i < j; i++) {
-        toggleBtnChk(weekdayBtns[i], obj.result.weekdays[i]);
+        toggleBtnChkId(weekdayBtns[i], obj.result.weekdays[i]);
     }
 }
 
