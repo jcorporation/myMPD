@@ -383,7 +383,8 @@ const APImethods = {
         "params": {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
-            "cols": APIparams.cols
+            "cols": APIparams.cols,
+            "searchstr": APIparams.searchstr
         }
     },
     "MYMPD_API_PLAYLIST_RM": {
@@ -1458,7 +1459,8 @@ const APImethods = {
         "params": {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
-            "cols": APIparams.cols
+            "cols": APIparams.cols,
+            "searchstr": APIparams.searchstr
         }
     },
     "MYMPD_API_JUKEBOX_RM": {

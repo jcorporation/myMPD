@@ -437,9 +437,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             reset_t_tags(&tagcols);          
             if (json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
+                json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
-                response->data = mpd_client_get_jukebox_list(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, &tagcols);
+                response->data = mpd_client_get_jukebox_list(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, sds_buf1, &tagcols);
             }
             break;
         }
@@ -811,9 +812,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             reset_t_tags(&tagcols);          
             if (json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
+                json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
-                response->data = mympd_api_stats_last_played_list(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, &tagcols);
+                response->data = mympd_api_stats_last_played_list(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, sds_buf1, &tagcols);
             }
             break;
         }

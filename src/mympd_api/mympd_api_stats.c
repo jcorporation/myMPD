@@ -24,8 +24,8 @@
 #include <string.h>
 
 //private definitions
-static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, 
-                                          unsigned entity_count, long last_played, const char *uri, const struct t_tags *tagcols);
+static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, unsigned entity_count,
+                                         long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols);
 
 //public functions
 bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
@@ -118,50 +118,63 @@ bool mympd_api_stats_last_played_add_song(struct t_mympd_state *mympd_state, con
 }
 
 sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buffer, sds method, 
-                                     long request_id, const unsigned int offset, 
-                                     const unsigned int limit, const struct t_tags *tagcols)
+                                     long request_id, const unsigned int offset, const unsigned int limit, 
+                                     sds searchstr, const struct t_tags *tagcols)
 {
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    
+    sdstolower(searchstr);
+
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    
+    sds obj = sdsempty();
+
+    unsigned real_limit = offset + limit;
+
     if (mympd_state->last_played.length > 0) {
         struct t_list_node *current = mympd_state->last_played.head;
         while (current != NULL) {
-            entity_count++;
-            if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
-                if (entities_returned++) {
-                    buffer = sdscatlen(buffer, ",", 1);
+            obj = mympd_api_get_last_played_obj(mympd_state, obj, entity_count, current->value_i, current->key, searchstr, tagcols);
+            if (sdslen(obj) > 0) {
+                entity_count++;
+                if (entity_count > offset && entity_count <= real_limit) {
+                    if (entities_returned++) {
+                        buffer = sdscatlen(buffer, ",", 1);
+                    }
+                    buffer = sdscatsds(buffer, obj);
+                    sdsclear(obj);
                 }
-                buffer = mympd_api_get_last_played_obj(mympd_state, buffer, entity_count, current->value_i, current->key, tagcols);
             }
             current = current->next;
         }
     }
 
     sds line = sdsempty();
+    sdsclear(obj);
     char *data = NULL;
     sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->workdir);
     errno = 0;
     FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
         while (sds_getline(&line, fp, 1000) == 0) {
-            entity_count++;
-            if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
-                int value = (int)strtoimax(line, &data, 10);
-                if (strlen(data) > 2) {
-                    data = data + 2;
-                    if (entities_returned++) {
-                        buffer = sdscatlen(buffer, ",", 1);
+            int value = (int)strtoimax(line, &data, 10);
+            if (strlen(data) > 2) {
+                data = data + 2;
+                obj = mympd_api_get_last_played_obj(mympd_state, obj, entity_count, value, data, searchstr, tagcols);
+                if (sdslen(obj) > 0) {
+                    entity_count++;
+                    if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
+                        if (entities_returned++) {
+                            buffer = sdscatlen(buffer, ",", 1);
+                        }
+                        buffer = sdscatsds(buffer, obj);
+                        sdsclear(obj);
                     }
-                    buffer = mympd_api_get_last_played_obj(mympd_state, buffer, entity_count, value, data, tagcols);
                 }
-                else {
-                    MYMPD_LOG_ERROR("Reading last_played line failed");
-                    MYMPD_LOG_DEBUG("Errorneous line: %s", line);
-                }
+            }
+            else {
+                MYMPD_LOG_ERROR("Reading last_played line failed");
+                MYMPD_LOG_DEBUG("Errorneous line: %s", line);
             }
         }
         fclose(fp);
@@ -175,6 +188,7 @@ sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buff
         }
     }
     FREE_SDS(lp_file);
+    FREE_SDS(obj);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);
@@ -221,34 +235,43 @@ sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
 
 
 //private functions
-static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, 
-                                          unsigned entity_count, long last_played, const char *uri, const struct t_tags *tagcols)
+static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, unsigned entity_count, 
+                                         long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols)
 {
-    buffer = sdscat(buffer, "{");
+    buffer = sdscatlen(buffer, "{", 1);
     buffer = tojson_long(buffer, "Pos", entity_count, true);
     buffer = tojson_long(buffer, "LastPlayed", last_played, true);
     bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, uri);
     if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == false) {
-        buffer = get_empty_song_tags(buffer, mympd_state->mpd_state, tagcols, uri);
         mpd_response_finish(mympd_state->mpd_state->conn);
+        rc = false;
     }
     else {
         struct mpd_entity *entity;
         if ((entity = mpd_recv_entity(mympd_state->mpd_state->conn)) != NULL) {
             const struct mpd_song *song = mpd_entity_get_song(entity);
-            buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
-            if (mympd_state->mpd_state->feat_stickers == true && mympd_state->sticker_cache != NULL) {
-                buffer = sdscatlen(buffer, ",", 1);
-                buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
+            if (filter_mpd_song(song, searchstr, tagcols) == true) {
+                buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
+                if (mympd_state->mpd_state->feat_stickers == true && mympd_state->sticker_cache != NULL) {
+                    buffer = sdscatlen(buffer, ",", 1);
+                    buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
+                }
+                rc = true;
+            }
+            else {
+                rc = false;
             }
             mpd_entity_free(entity);
         }
         else {
-            buffer = get_empty_song_tags(buffer, mympd_state->mpd_state, tagcols, uri);
+            rc = false;
         }
         check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
         mpd_response_finish(mympd_state->mpd_state->conn);
     }
     buffer = sdscatlen(buffer, "}", 1);
+    if (rc == false) {
+        sdsclear(buffer);
+    }
     return buffer;
 }

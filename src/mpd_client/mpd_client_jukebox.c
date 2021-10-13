@@ -41,61 +41,80 @@ bool mpd_client_rm_jukebox_entry(struct t_mympd_state *mympd_state, unsigned pos
 }
 
 sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
-                                const unsigned int offset, const unsigned int limit, const struct t_tags *tagcols)
+                                const unsigned int offset, const unsigned int limit, sds searchstr, const struct t_tags *tagcols)
 {
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
     unsigned real_limit = offset + limit;
+
+    sdstolower(searchstr);
     
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-
-    if (mympd_state->jukebox_queue.length > 0) {
+    if (mympd_state->jukebox_mode == JUKEBOX_ADD_SONG) {
         struct t_list_node *current = mympd_state->jukebox_queue.head;
         while (current != NULL) {
-            entity_count++;
-            if (entity_count > offset && entity_count <= real_limit) {
-                if (entities_returned++) {
-                    buffer = sdscatlen(buffer, ",", 1);
-                }
-                buffer = sdscatlen(buffer, "{", 1);
-                buffer = tojson_long(buffer, "Pos", entity_count, true);
-                if (mympd_state->jukebox_mode == JUKEBOX_ADD_SONG) {
-                    bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, current->key);
-                    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == true) {
-                        struct mpd_entity *entity;
-                        if ((entity = mpd_recv_entity(mympd_state->mpd_state->conn)) != NULL) {
-                            const struct mpd_song *song = mpd_entity_get_song(entity);
+            bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, current->key);
+            if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == true) {
+                struct mpd_entity *entity;
+                if ((entity = mpd_recv_entity(mympd_state->mpd_state->conn)) != NULL) {
+                    const struct mpd_song *song = mpd_entity_get_song(entity);
+                    if (filter_mpd_song(song, searchstr, tagcols) == true) {
+                        entity_count++;
+                        if (entity_count > offset && entity_count <= real_limit) {
+                            if (entities_returned++) {
+                                buffer = sdscatlen(buffer, ",", 1);
+                            }
+                            buffer = sdscatlen(buffer, "{", 1);
+                            buffer = tojson_long(buffer, "Pos", entity_count, true);    
                             buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
                             if (mympd_state->mpd_state->feat_stickers == true && mympd_state->sticker_cache != NULL) {
                                 buffer = sdscatlen(buffer, ",", 1);
                                 buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
                             }
-                            mpd_entity_free(entity);
-                            mpd_response_finish(mympd_state->mpd_state->conn);
-                        }
-                        else {
-                            buffer = get_empty_song_tags(buffer, mympd_state->mpd_state, tagcols, current->key);
+                            buffer = sdscatlen(buffer, "}", 1);
                         }
                     }
-                    else {
-                        buffer = get_empty_song_tags(buffer, mympd_state->mpd_state, tagcols, current->key);
-                    }
-                    mpd_response_finish(mympd_state->mpd_state->conn);
-                    check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
                 }
-                else if (mympd_state->jukebox_mode == JUKEBOX_ADD_ALBUM) {
+            }
+            mpd_response_finish(mympd_state->mpd_state->conn);
+            check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
+            current = current->next;
+        }
+    }
+    else if (mympd_state->jukebox_mode == JUKEBOX_ADD_ALBUM) {
+        struct t_list_node *current = mympd_state->jukebox_queue.head;
+        sds album_lower = sdsempty();
+        sds artist_lower = sdsempty();
+        while (current != NULL) {
+            album_lower = sdscatsds(album_lower, current->key);
+            sdstolower(album_lower);
+            artist_lower = sdscatsds(artist_lower, current->value_p);
+            sdstolower(album_lower);
+            if (strstr(album_lower, searchstr) != NULL || strstr(artist_lower, searchstr) != NULL) {
+                entity_count++;
+                if (entity_count > offset && entity_count <= real_limit) {
+                    if (entities_returned++) {
+                        buffer = sdscatlen(buffer, ",", 1);
+                    }
+                    buffer = sdscatlen(buffer, "{", 1);
+                    buffer = tojson_long(buffer, "Pos", entity_count, true);
                     buffer = tojson_char(buffer, "uri", "Album", true);
                     buffer = tojson_char(buffer, "Title", "", true);
                     buffer = tojson_char(buffer, "Album", current->key, true);
                     buffer = tojson_char(buffer, "AlbumArtist", current->value_p, true);
                     buffer = tojson_char(buffer, "Artist", current->value_p, false);
+                    buffer = sdscatlen(buffer, "}", 1);
                 }
-                buffer = sdscatlen(buffer, "}", 1);
             }
+            sdsclear(album_lower);
+            sdsclear(artist_lower);
             current = current->next;
         }
+        FREE_SDS(album_lower);
+        FREE_SDS(artist_lower);
     }
+
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "jukeboxMode", mympd_state->jukebox_mode, true);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);

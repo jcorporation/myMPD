@@ -162,15 +162,25 @@ function appRoute() {
         sendAPI("MYMPD_API_QUEUE_LAST_PLAYED", {
             "offset": app.current.offset,
             "limit": app.current.limit,
-            "cols": settings.colsQueueLastPlayed
+            "cols": settings.colsQueueLastPlayed,
+            "searchstr": app.current.search
         }, parseLastPlayed, true);
+        const searchQueueLastPlayedStrEl = document.getElementById('searchQueueLastPlayedStr');
+        if (searchQueueLastPlayedStrEl.value === '' && app.current.search !== '') {
+            searchQueueLastPlayedStrEl.value = app.current.search;
+        }
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
         sendAPI("MYMPD_API_JUKEBOX_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
-            "cols": settings.colsQueueJukebox
+            "cols": settings.colsQueueJukebox,
+            "searchstr": app.current.search
         }, parseJukeboxList, true);
+        const searchQueueJukeboxStrEl = document.getElementById('searchQueueJukeboxStr');
+        if (searchQueueJukeboxStrEl.value === '' && app.current.search !== '') {
+            searchQueueJukeboxStrEl.value = app.current.search;
+        }
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
         sendAPI("MYMPD_API_PLAYLIST_LIST", {

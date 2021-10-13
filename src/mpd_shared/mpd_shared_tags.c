@@ -145,6 +145,23 @@ sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct 
     return buffer;
 }
 
+bool filter_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_tags *tagcols) {
+    if (sdslen(searchstr) == 0) {
+        return true;
+    }
+    sds value = sdsempty();
+    bool rc = false;
+    for (size_t i = 0; i < tagcols->len; i++) {
+        value = _mpd_shared_get_tags(song, tagcols->tags[i], value);
+        sdstolower(value);
+        if (strstr(value, searchstr) != NULL) {
+            rc = true;
+        }
+    }
+    FREE_SDS(value);
+    return rc;
+}
+
 void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
                 struct t_tags allowed_tag_types)
 {
