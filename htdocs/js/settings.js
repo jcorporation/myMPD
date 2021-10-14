@@ -81,19 +81,14 @@ function eventChangeTheme(event) {
     const value = getSelectValue(event.target);
     const bgImageEl = document.getElementById('inputWebUIsettinguiBgImage');
     const bgImageValue = getSelectValue(bgImageEl);
-    if (value === 'theme-default') { 
-        document.getElementById('inputWebUIsettinguiBgColor').value = '#aaaaaa';
-        if (bgImageValue.indexOf('/assets/') === 0) {
-            bgImageEl.value = '/assets/mympd-background-default.svg';
-        }
-    }
-    else if (value === 'theme-light') {
+    if (value === 'theme-light') {
         document.getElementById('inputWebUIsettinguiBgColor').value = '#ffffff';
         if (bgImageValue.indexOf('/assets/') === 0) {
             bgImageEl.value = '/assets/mympd-background-light.svg';
         }
     }
-    else if (value === 'theme-dark') {
+    else {
+        //theme-dark is the default
         document.getElementById('inputWebUIsettinguiBgColor').value = '#060708';
         if (bgImageValue.indexOf('/assets/') === 0) {
             bgImageEl.value = '/assets/mympd-background-dark.svg';
@@ -238,9 +233,12 @@ function parseSettings(obj) {
 
     //theme
     let setTheme = settings.webuiSettings.uiTheme;
-    if (settings.webuiSettings.uiTheme === 'theme-autodetect') {
-        setTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-default';
-    }    
+    if (setTheme === 'theme-default') {
+        setTheme = 'theme-dark';
+    }
+    else if (setTheme === 'theme-autodetect') {
+        setTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-light';
+    }
 
     for (const theme in webuiSettingsDefault.uiTheme.validValues) {
         if (theme === setTheme) {

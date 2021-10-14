@@ -426,7 +426,6 @@ const webuiSettingsDefault = {
         "defaultValue": "theme-dark",
         "validValues": {
             "theme-autodetect": "Autodetect",
-            "theme-default": "Default",
             "theme-dark": "Dark",
             "theme-light": "Light"
         },
