@@ -50,7 +50,7 @@ function showMenu(el, event) {
 function createMenuTh(el) {
     let menu = '<form class="p-2" id="colChecklist' + app.id + '">';
     menu += setColsChecklist(app.id);
-    menu += '<button class="btn btn-success btn-block btn-sm mt-2">' + t('Apply') + '</button>';
+    menu += '<button class="btn btn-success w-100 btn-sm mt-2">' + t('Apply') + '</button>';
     menu += '</form>';
     const popoverInit = new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover">' +
         '<div class="popover-arrow"></div>' +
