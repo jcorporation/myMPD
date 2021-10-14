@@ -1014,7 +1014,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_string(request->data, "$.params.filter", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag_or_any, &error) == true &&
                 json_get_string(request->data, "$.params.plist", 0, FILENAME_LEN_MAX, &sds_buf3, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
-                json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
+                json_get_uint(request->data, "$.params.limit", 0, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true && 
                 json_get_bool(request->data, "$.params.replace", &bool_buf1, &error) == true)
             {
@@ -1038,7 +1038,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &error) == true &&
                 json_get_string(request->data, "$.params.plist", 0, FILENAME_LEN_MAX, &sds_buf3, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
-                json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
+                json_get_uint(request->data, "$.params.limit", 0, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true && 
                 json_get_bool(request->data, "$.params.replace", &bool_buf2, &error) == true)
             {
