@@ -845,6 +845,11 @@ updatebootstrapnative() {
 
   cd "$STARTDIR" || exit 1
   rm -rf "$TMPDIR"
+  
+  if [ -d ../../debug ]
+  then
+  	cp bootstrap-native.js ../../htdocs/js/
+  fi
 }
 
 updatebootstrap() {
@@ -853,6 +858,11 @@ updatebootstrap() {
   npm i
   npm run build
   sed -i '$ d' compiled/custom.css
+  rm compiled/custom.css.map
+  if [ -d ../../debug ]
+  then
+  	cp compiled/custom.css ../../htdocs/css/bootstrap.css
+  fi
 }
 
 #Also deletes stale installations in other locations.
