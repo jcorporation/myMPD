@@ -2,6 +2,17 @@
 @import "../node_modules/bootstrap/scss/functions";
 
 // 2. Include any default variable overrides here
+$box-shadow: none;
+$box-shadow-sm: none;
+$box-shadow-lg: none;
+$box-shadow-inset: none;
+$input-btn-focus-box-shadow: none;
+$btn-box-shadow: none;
+$btn-active-box-shadow: none;
+$form-select-focus-box-shadow: none;
+$form-range-thumb-box-shadow: none;
+$form-range-thumb-focus-box-shadow: none;
+$btn-focus-width: 0;
 
 // 3. Include remainder of required Bootstrap stylesheets
 @import "../node_modules/bootstrap/scss/variables";
@@ -40,8 +51,6 @@
 @import "../node_modules/bootstrap/scss/spinners";
 @import "../node_modules/bootstrap/scss/offcanvas";
 //@import "../node_modules/bootstrap/scss/placeholders";
-
-
 @import "../node_modules/bootstrap/scss/helpers";
 
 // 5. Optionally include utilities API last to generate classes based on the Sass map in `_utilities.scss`

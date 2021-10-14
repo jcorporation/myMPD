@@ -4,10 +4,6 @@
  https://github.com/jcorporation/mympd
 */
 
-*:focus {
-  outline: none;
-}
-
 :root {
   --mympd-coverimagesize: 250px;
   --mympd-coverimagesizesmall: 175px;
@@ -534,12 +530,7 @@ th {
 
 .color-darkgrey,
 .color-darkgrey:hover {
-  color: var(--bs-gray-600) !important;
-}
-
-.letters > button {
-  width: 28px;
-  height: 28px;
+  color: var(--bs-gray-600);
 }
 
 .pagination button {
@@ -746,70 +737,20 @@ ol#searchDatabaseCrumb {
   background-color: var(--bs-gray-200);
 }
 
-#mainMenuDropdown {
-  overflow-y: auto;
-  max-height: calc(100vh - 9rem);
-}
-
-#mainMenuDropdown .dropdown-item {
-  padding-left: 2rem;
-  padding-right: 1rem;
-}
-
-tr:focus {
-  background-color: rgba(0, 0, 0, 0.075);
-}
-
 textarea.small {
   font-size: 80%;
 }
 
 .form-control:focus {
   border-color: var(--mympd-highlightcolor) !important;
-  outline: 0;
-  box-shadow: none !important;
 }
 
-.btn-dark:not(:disabled):not(.disabled):active,
-.btn-dark:not(:disabled):not(.disabled).active,
-.show > .btn-dark.dropdown-toggle {
+.btn:not(:disabled):not(.disabled):active,
+.btn:not(:disabled):not(.disabled).active,
+.show > .btn.dropdown-toggle {
   color: var(--bs-white);
   background-color: var(--mympd-highlightcolor) !important;
   border-color: var(--mympd-highlightcolor) !important;
-}
-
-.btn-dark:not(:disabled):not(.disabled):active:focus,
-.btn-dark:not(:disabled):not(.disabled).active:focus,
-.show > .btn-dark.dropdown-toggle:focus {
-  box-shadow: none !important;
-}
-
-.btn-light:focus,
-.btn-light.focus,
-.btn-secondary:focus,
-.btn-secondary.focus {
-  color: var(--bs-white);
-  box-shadow: none;
-}
-
-.btn-light:not(:disabled):not(.disabled):active,
-.btn-light:not(:disabled):not(.disabled).active,
-.show > .btn-light.dropdown-toggle,
-.btn-secondary:not(:disabled):not(.disabled):active,
-.btn-secondary:not(:disabled):not(.disabled).active,
-.show > .btn-secondary.dropdown-toggle {
-  color: var(--bs-white);
-  background-color: var(--mympd-highlightcolor) !important;
-  border-color: var(--mympd-highlightcolor) !important;
-}
-
-.btn-light:not(:disabled):not(.disabled):active:focus,
-.btn-light:not(:disabled):not(.disabled).active:focus,
-.show > .btn-light.dropdown-toggle:focus,
-.btn-secondary:not(:disabled):not(.disabled):active:focus,
-.btn-secondary:not(:disabled):not(.disabled).active:focus,
-.show > .btn-secondary.dropdown-toggle:focus {
-  box-shadow: none !important;
 }
 
 .btn-xs,
@@ -852,11 +793,6 @@ div.database-header {
 div#playDropdown .row {
   flex-wrap: nowrap;
   white-space: nowrap;
-}
-
-.btn:focus,
-.btn.focus {
-  box-shadow: none;
 }
 
 .form-check {
@@ -1144,10 +1080,6 @@ button.clear-button {
 
 .offcanvas-body {
   padding: 1rem 0;
-}
-
-.btn-close:focus {
-  box-shadow: none;
 }
 
 .carousel-indicators > button {
