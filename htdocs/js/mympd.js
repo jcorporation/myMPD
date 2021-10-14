@@ -374,7 +374,6 @@ function showAppInitAlert(text) {
     }, false);
 }
 
-
 function clearAndReload() {
     if ('serviceWorker' in navigator) {
         caches.keys().then(function(cacheNames) {
