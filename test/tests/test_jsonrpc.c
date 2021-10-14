@@ -6,7 +6,7 @@
 
 #include "mympd_config_defs.h"
 
-#include "../../dist/src/utest/utest.h"
+#include "../../dist/utest/utest.h"
 #include "../../src/lib/jsonrpc.h"
 #include "../../src/lib/list.h"
 #include "../../src/mpd_shared/mpd_shared_tags.h"
