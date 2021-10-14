@@ -1150,19 +1150,6 @@ button.clear-button {
   box-shadow: none;
 }
 
-.not-mobile .table-responsive-md {
-  overflow-y: scroll;
-}
-
-.not-mobile .BrowseDatabaseCardsContainer {
-  overflow-y: scroll;
-  overflow-x: hidden;
-}
-
-.not-mobile .card {
-  margin-bottom: 0;
-}
-
 .carousel-indicators > button {
   border-color: transparent !important;
 }

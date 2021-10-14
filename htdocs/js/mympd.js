@@ -574,19 +574,10 @@ function appInit() {
     dragAndDropTableHeader('BrowseFilesystem');
     dragAndDropTableHeader('BrowsePlaylistsDetail');
     dragAndDropTableHeader('BrowseDatabaseDetail');
-
-    //set max table height for fixed toolbar and working drag and drop
-    //Todo: workarround for: "ResizeObserver loop completed with undelivered notifications"
-    /*
-    if (isMobile === false) {
-        domCache.body.classList.add('not-mobile');
-        setTableHeight();
-        const resizeObserver = new ResizeObserver(function() {
-            setTableHeight();
-        });
-        resizeObserver.observe(domCache.body);
+  
+    if (isMobile === true) {
+        domCache.body.classList.add('mobile');
     }
-    */
 
     //update state on window focus - browser pauses javascript
     window.addEventListener('focus', function() {
@@ -609,8 +600,7 @@ function appInit() {
         
     }, false);
     //contextmenu for tables
-    let tables = document.getElementsByTagName('table');
-    tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList', 
+    const tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList', 
         'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsListList', 'BrowsePlaylistsDetailList'];
     for (const tableName of tables) {
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {

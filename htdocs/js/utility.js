@@ -292,19 +292,6 @@ function getYpos(el) {
     return yPos;
 }
 
-//eslint-disable-next-line no-unused-vars
-function setTableHeight() {
-    const footerHeight = document.getElementsByTagName('footer')[0].offsetHeight;
-    const tables = ["BrowseDatabaseDetail", "BrowseFilesystem", "BrowsePlaylistsDetail",
-        "QueueCurrent", "QueueJukebox", "QueueLastPlayed", "Search", "BrowseDatabaseList"];
-    for (const tableId of tables) {
-        const table = document.getElementById(tableId + 'List');
-        const tpos = getYpos(table);
-        const maxHeight = window.innerHeight - tpos - footerHeight;
-        table.parentNode.style.maxHeight = maxHeight + 'px';
-    }
-}
-
 function zeroPad(num, places) {
   const zero = places - num.toString().length + 1;
   return Array(+(zero > 0 && zero)).join("0") + num;
@@ -636,7 +623,7 @@ function setPagination(total, returned) {
     //bottom
     const bottomBar = document.getElementById(app.id + 'ButtonsBottom');
     elClear(bottomBar);
-    if (domCache.body.classList.contains('not-mobile') || returned < 25) {
+    if (returned < 25) {
         elHide(bottomBar);
         return;
     }
