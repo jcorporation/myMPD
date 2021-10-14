@@ -9,7 +9,7 @@
 
 #include <stdbool.h>
 
-#include "../../dist/src/sds/sds.h"
+#include "../../dist/sds/sds.h"
 
 enum testdir_status {
     DIR_EXISTS = 0,

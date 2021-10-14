@@ -7,7 +7,7 @@
 #ifndef MYMPD_JSONRPC_H
 #define MYMPD_JSONRPC_H
 
-#include "../../dist/src/sds/sds.h"
+#include "../../dist/sds/sds.h"
 #include "list.h"
 #include "mympd_state.h"
 #include "validate.h"

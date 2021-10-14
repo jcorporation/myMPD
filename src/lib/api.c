@@ -7,7 +7,7 @@
 #include "mympd_config_defs.h"
 #include "api.h"
 
-#include "../../dist/src/mongoose/mongoose.h"
+#include "../../dist/mongoose/mongoose.h"
 #include "lua_mympd_state.h"
 #include "mem.h"
 #include "sds_extras.h"

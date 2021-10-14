@@ -7,7 +7,7 @@
 #ifndef MYMPD_API_H
 #define MYMPD_API_H
 
-#include "../../dist/src/sds/sds.h"
+#include "../../dist/sds/sds.h"
 #include "mympd_queue.h"
 
 #include <signal.h>

@@ -249,7 +249,7 @@ createassets() {
   
   echo "Combining and compressing javascript"
   echo "//myMPD ${VERSION} | (c) 2018-2021 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-2.0-or-later | https://github.com/jcorporation/mympd" > "$MYMPD_BUILDDIR/htdocs/js/copyright.min.js"
-  JSFILES="dist/htdocs/js/*.min.js $MYMPD_BUILDDIR/htdocs/js/*.min.js"
+  JSFILES="dist/bootstrap-native/bootstrap-native.min.js dist/long-press-event/long-press-event.min.js $MYMPD_BUILDDIR/htdocs/js/*.min.js"
   for F in $JSFILES
   do
     if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
@@ -277,7 +277,7 @@ createassets() {
   
   echo "Combining and compressing stylesheets"
   echo "/* myMPD ${VERSION} | (c) 2018-2021 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-2.0-or-later | https://github.com/jcorporation/mympd */" > "$MYMPD_BUILDDIR/htdocs/css/copyright.min.css"
-  CSSFILES="dist/htdocs/css/*.min.css $MYMPD_BUILDDIR/htdocs/css/*.min.css"
+  CSSFILES="dist/bootstrap/bootstrap.min.css $MYMPD_BUILDDIR/htdocs/css/*.min.css"
   #shellcheck disable=SC2086
   cat $CSSFILES > "$MYMPD_BUILDDIR/htdocs/css/combined.css"
   $GZIP "$MYMPD_BUILDDIR/htdocs/css/combined.css"
@@ -367,10 +367,10 @@ builddebug() {
   if [ "$EMBEDDED_ASSETS" = "OFF" ]
   then
     echo "Copy dist assets"
-    cp "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
-    cp "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
-    cp "$PWD/dist/htdocs/js/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
-    cp "$PWD/dist/htdocs/assets/MaterialIcons-Regular.woff2" "$PWD/htdocs/assets/MaterialIcons-Regular.woff2"
+    cp "$PWD/dist/bootstrap/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
+    cp "$PWD/dist/bootstrap-native/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
+    cp "$PWD/dist/long-press-event/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
+    cp "$PWD/dist/material-icons/MaterialIcons-Regular.woff2" "$PWD/htdocs/assets/MaterialIcons-Regular.woff2"
     cp "$PWD/debug/htdocs/js/i18n.js" "$PWD/htdocs/js/i18n.js"
   else
     MYMPD_BUILDDIR="debug"

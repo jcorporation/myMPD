@@ -9,7 +9,7 @@
 
 #include <stdbool.h>
 
-#include "../dist/src/sds/sds.h"
+#include "../dist/sds/sds.h"
 
 bool certificates_check(sds workdir, sds ssl_san);
 bool certificates_create(sds dir, sds custom_san);

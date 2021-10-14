@@ -50,9 +50,9 @@ if (LUA_FOUND)
   set(MYMPD_SCRIPT_SOURCES
     mympd-script.c
     log.c
-    ../dist/src/mongoose/mongoose.c
-    ../dist/src/sds/sds.c
-    ../dist/src/utf8decode/utf8decode.c
+    ../dist/mongoose/mongoose.c
+    ../dist/sds/sds.c
+    ../dist/utf8decode/utf8decode.c
     ../src/lib/sds_extras.c
     ../src/lib/http_client.c
     ../src/lib/mem.c
@@ -60,7 +60,7 @@ if (LUA_FOUND)
 
   set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_FS=0 -DMG_ENABLE_SSI=0")
   set_property(SOURCE "mympd-script.c" PROPERTY COMPILE_FLAGS "${MYMPD_COMPILE_FLAGS} ${MONGOOSE_FLAGS}")
-  set_property(SOURCE "../dist/src/mongoose/mongoose.c" PROPERTY COMPILE_FLAGS ${MONGOOSE_FLAGS})
+  set_property(SOURCE "../dist/mongoose/mongoose.c" PROPERTY COMPILE_FLAGS ${MONGOOSE_FLAGS})
 
   add_executable(mympd-script ${MYMPD_SCRIPT_SOURCES})
   target_link_libraries(mympd-script)

@@ -7,8 +7,8 @@
 #ifndef MYMPD_STATE_H
 #define MYMPD_STATE_H
 
-#include "../dist/src/rax/rax.h"
-#include "../dist/src/sds/sds.h"
+#include "../dist/rax/rax.h"
+#include "../dist/sds/sds.h"
 #include "list.h"
 
 #include <mpd/client.h>

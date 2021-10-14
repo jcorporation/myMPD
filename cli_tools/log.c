@@ -10,7 +10,7 @@
 #include <stdarg.h>
 #include <time.h>
 
-#include "../dist/src/sds/sds.h"
+#include "../dist/sds/sds.h"
 #include "log.h"
 
 int loglevel;

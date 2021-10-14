@@ -23,7 +23,7 @@
 //optional includes
 #ifdef ENABLE_LIBID3TAG
     #include <id3tag.h>
-    #include "../../dist/src/utf8decode/utf8decode.h"
+    #include "../../dist/utf8decode/utf8decode.h"
 #endif
 
 #ifdef ENABLE_FLAC

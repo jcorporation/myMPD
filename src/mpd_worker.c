@@ -7,7 +7,7 @@
 #include "mympd_config_defs.h"
 #include "mpd_worker.h"
 
-#include "../dist/src/sds/sds.h"
+#include "../dist/sds/sds.h"
 #include "lib/log.h"
 #include "lib/mem.h"
 #include "lib/sds_extras.h"

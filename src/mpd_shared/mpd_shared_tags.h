@@ -7,7 +7,7 @@
 #ifndef MYMPD_MPD_SHARED_TAGS_H
 #define MYMPD_MPD_SHARED_TAGS_H
 
-#include "../../dist/src/sds/sds.h"
+#include "../../dist/sds/sds.h"
 #include "../lib/mympd_state.h"
 
 bool filter_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_tags *tagcols);

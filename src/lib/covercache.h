@@ -9,7 +9,7 @@
 
 #include <stdbool.h>
 
-#include "../../dist/src/sds/sds.h"
+#include "../../dist/sds/sds.h"
 
 bool covercache_write_file(const char *workdir, const char *uri, const char *mime_type, sds binary);
 int covercache_clear(const char *workdir, int keepdays);

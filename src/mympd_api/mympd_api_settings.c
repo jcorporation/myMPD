@@ -7,7 +7,7 @@
 #include "mympd_config_defs.h"
 #include "mympd_api_settings.h"
 
-#include "../../dist/src/mjson/mjson.h"
+#include "../../dist/mjson/mjson.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mympd_configuration.h"

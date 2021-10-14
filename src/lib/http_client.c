@@ -7,7 +7,7 @@
 #include "mympd_config_defs.h"
 #include "http_client.h"
 
-#include "../../dist/src/mongoose/mongoose.h"
+#include "../../dist/mongoose/mongoose.h"
 #include "log.h"
 #include "sds_extras.h"
 

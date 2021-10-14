@@ -6,9 +6,9 @@
 
 #include "mympd_config_defs.h"
 
-#include "../dist/src/mongoose/mongoose.h"
-#include "../dist/src/rax/rax.h"
-#include "../dist/src/sds/sds.h"
+#include "../dist/mongoose/mongoose.h"
+#include "../dist/rax/rax.h"
+#include "../dist/sds/sds.h"
 #include "handle_options.h"
 #include "lib/api.h"
 #include "lib/log.h"

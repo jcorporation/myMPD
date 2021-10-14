@@ -9,8 +9,8 @@
 
 #include <stdbool.h>
 
-#include "../../dist/src/mongoose/mongoose.h"
-#include "../../dist/src/sds/sds.h"
+#include "../../dist/mongoose/mongoose.h"
+#include "../../dist/sds/sds.h"
 #include "web_server_utility.h"
 
 bool webserver_tagart_handler(struct mg_connection *nc, struct mg_http_message *hm, struct t_mg_user_data *mg_user_data);

@@ -7,7 +7,7 @@
 #include "mympd_config_defs.h"
 #include "jsonrpc.h"
 
-#include "../../dist/src/mjson/mjson.h"
+#include "../../dist/mjson/mjson.h"
 #include "log.h"
 #include "sds_extras.h"
 #include "utility.h"

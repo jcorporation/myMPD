@@ -7,8 +7,8 @@
 #ifndef MYMPD_WEB_SERVER_ALBUMART_H
 #define MYMPD_WEB_SERVER_ALBUMART_H
 
-#include "../../dist/src/mongoose/mongoose.h"
-#include "../../dist/src/sds/sds.h"
+#include "../../dist/mongoose/mongoose.h"
+#include "../../dist/sds/sds.h"
 #include "../lib/mympd_configuration.h"
 #include "web_server_utility.h"
 

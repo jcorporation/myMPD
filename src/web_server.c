@@ -7,7 +7,7 @@
 #include "mympd_config_defs.h"
 #include "web_server.h"
 
-#include "../dist/src/utf8decode/utf8decode.h"
+#include "../dist/utf8decode/utf8decode.h"
 #include "lib/api.h"
 #include "lib/http_client.h"
 #include "lib/jsonrpc.h"
