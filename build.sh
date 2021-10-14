@@ -270,14 +270,14 @@ createassets() {
   echo "Minifying stylesheets"
   for F in htdocs/css/*.css
   do
-	[ "$F" = "htdocs/css/bootstrap.css" ] && continue;
+	  [ "$F" = "htdocs/css/bootstrap.css" ] && continue;
     DST=$(basename "$F" .css)
     minify css "$F" "$MYMPD_BUILDDIR/htdocs/css/${DST}.min.css"
   done
   
   echo "Combining and compressing stylesheets"
   echo "/* myMPD ${VERSION} | (c) 2018-2021 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-2.0-or-later | https://github.com/jcorporation/mympd */" > "$MYMPD_BUILDDIR/htdocs/css/copyright.min.css"
-  CSSFILES="dist/bootstrap/bootstrap.min.css $MYMPD_BUILDDIR/htdocs/css/*.min.css"
+  CSSFILES="dist/bootstrap/compiled/custom.css $MYMPD_BUILDDIR/htdocs/css/*.min.css"
   #shellcheck disable=SC2086
   cat $CSSFILES > "$MYMPD_BUILDDIR/htdocs/css/combined.css"
   $GZIP "$MYMPD_BUILDDIR/htdocs/css/combined.css"
@@ -367,7 +367,7 @@ builddebug() {
   if [ "$EMBEDDED_ASSETS" = "OFF" ]
   then
     echo "Copy dist assets"
-    cp "$PWD/dist/bootstrap/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
+    cp "$PWD/dist/bootstrap/compiled/custom.css" "$PWD/htdocs/css/bootstrap.css"
     cp "$PWD/dist/bootstrap-native/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
     cp "$PWD/dist/long-press-event/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
     cp "$PWD/dist/material-icons/MaterialIcons-Regular.woff2" "$PWD/htdocs/assets/MaterialIcons-Regular.woff2"
@@ -847,6 +847,14 @@ updatebootstrapnative() {
   rm -rf "$TMPDIR"
 }
 
+updatebootstrap() {
+  check_cmd npm
+  cd dist/bootstrap || exit 1
+  npm i
+  npm run build
+  sed -i '$ d' compiled/custom.css
+}
+
 #Also deletes stale installations in other locations.
 #
 uninstall() {
@@ -1159,6 +1167,9 @@ case "$ACTION" in
   bootstrapnative)
     updatebootstrapnative
   ;;
+  bootstrap)
+    updatebootstrap
+  ;;
 	uninstall)
 	  uninstall
 	;;
@@ -1286,6 +1297,7 @@ case "$ACTION" in
     echo "  addmympduser:     adds mympd group and user"
     echo ""
     echo "Source update options:"
+    echo "  bootstrap:        updates bootstrap"
     echo "  bootstrapnative:  updates bootstrap.native"
     echo "  libmympdclient:   updates libmympdclient (fork of libmpdclient)"
     echo "  materialicons:    updates the materialicons json"
