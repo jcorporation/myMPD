@@ -800,12 +800,12 @@ installdeps() {
 updatelibmympdclient() {
   check_cmd git meson
 
-  cd dist/src/libmpdclient || exit 1
+  cd dist/libmpdclient || exit 1
   STARTDIR=$(pwd)
 
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
-  git clone -b libmympdclient https://github.com/jcorporation/libmpdclient.git
+  git clone --depth=1 -b libmympdclient https://github.com/jcorporation/libmpdclient.git
   cd libmpdclient || exit 1
   meson . output -Dbuffer_size=8192
 
@@ -822,6 +822,27 @@ updatelibmympdclient() {
   rsync -av "$TMPDIR/libmpdclient/COPYING" COPYING
   rsync -av "$TMPDIR/libmpdclient/AUTHORS" AUTHORS
 
+  rm -rf "$TMPDIR"
+}
+
+updatebootstrapnative() {
+  check_cmd git npm
+  cd dist/bootstrap-native || exit 1
+  STARTDIR=$(pwd)
+
+  TMPDIR=$(mktemp -d)
+  cd "$TMPDIR" || exit 1
+  git clone --depth=1 -b master https://github.com/thednp/bootstrap.native
+  cd bootstrap.native
+  npm install @rollup/plugin-buble
+  cp "$STARTDIR/mympd-config.js" src/index-mympd.js
+  npm run custom INPUTFILE:src/index-mympd.js,OUTPUTFILE:dist/bootstrap-mympd.js,MIN:false,FORMAT:umd
+  npm run custom INPUTFILE:src/index-mympd.js,OUTPUTFILE:dist/bootstrap-mympd.min.js,MIN:true,FORMAT:umd
+
+  cp dist/bootstrap-mympd.js "$STARTDIR/bootstrap-native.js"
+  cp dist/bootstrap-mympd.min.js "$STARTDIR/bootstrap-native.min.js"
+
+  cd "$STARTDIR" || exit 1
   rm -rf "$TMPDIR"
 }
 
@@ -1134,6 +1155,9 @@ case "$ACTION" in
 	libmympdclient)
 	  updatelibmympdclient
 	;;
+  bootstrapnative)
+    updatebootstrapnative
+  ;;
 	uninstall)
 	  uninstall
 	;;
@@ -1258,9 +1282,13 @@ case "$ACTION" in
     echo "                      - WORKDIR=\"$STARTPATH/builder\""
     echo ""
     echo "Misc options:"
-    echo "  setversion:       sets version and date in packaging files from CMakeLists.txt"
     echo "  addmympduser:     adds mympd group and user"
+    echo ""
+    echo "Source update options:"
+    echo "  bootstrapnative:  updates bootstrap.native"
     echo "  libmympdclient:   updates libmympdclient (fork of libmpdclient)"
+    echo "  materialicons:    updates the materialicons json"
+    echo "  setversion:       sets version and date in packaging files from CMakeLists.txt"
     echo ""
     echo "Environment variables for building"
     echo "  - MYMPD_INSTALL_PREFIX=\"/usr\""
