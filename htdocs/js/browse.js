@@ -388,6 +388,7 @@ function addAllFromBrowseDatabasePlist(plist, callback) {
 
 function parseDatabase(obj) {
     const cardContainer = document.getElementById('BrowseDatabaseListList');
+    setScrollViewHeight(cardContainer);
     const cols = cardContainer.getElementsByClassName('col');
     document.getElementById('BrowseDatabaseListList').classList.remove('opacity05');
 

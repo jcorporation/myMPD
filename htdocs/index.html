@@ -208,7 +208,7 @@
           </div>
         </div>
 
-        <div class="table-responsive-md">
+        <div class="table-responsive-md scrollContainer">
           <table id="QueueCurrentList" class="table table-hover table-sm" data-version="">
             <thead>
               <tr>
@@ -255,7 +255,7 @@
           </div>
         </div>
 
-        <div class="table-responsive-md">
+        <div class="table-responsive-md scrollContainer">
           <table id="QueueLastPlayedList" class="table table-hover table-sm">
             <thead>
               <tr>
@@ -299,7 +299,7 @@
           <div id="QueueJukeboxPaginationTop" class="btn-group me-2 pagination">
           </div>
         </div>
-        <div class="table-responsive-md">
+        <div class="table-responsive-md scrollContainer">
           <div id="QueueJukeboxDisabled" class="alert alert-warning" data-phrase="Jukebox is disabled"></div>
           <table id="QueueJukeboxList" class="table table-hover table-sm">
             <thead>
@@ -353,7 +353,7 @@
           <div id="BrowsePlaylistsListPaginationTop" class="btn-group me-2 pagination">
           </div>
         </div>
-          <div class="table-responsive-md">
+          <div class="table-responsive-md scrollContainer">
             <table id="BrowsePlaylistsListList" class="table table-hover table-sm">
               <thead>
                 <tr>
@@ -401,7 +401,7 @@
             <div id="BrowsePlaylistsDetailPaginationTop" class="btn-group me-2 pagination">
             </div>
           </div>
-          <div class="table-responsive-md">
+          <div class="table-responsive-md scrollContainer">
             <table id="BrowsePlaylistsDetailList" class="table table-hover table-sm">
               <caption>Playlistname</caption>
               <thead>
@@ -468,7 +468,7 @@
             </div>
           </div>
           <ol class="featAdvsearch breadcrumb p-2 rounded-2 d-none" id="searchDatabaseCrumb"></ol>
-          <div class="container BrowseDatabaseCardsContainer">
+          <div class="container BrowseDatabaseCardsContainer scrollContainer">
             <div id="BrowseDatabaseListList" class="row">
             </div>
           </div>
@@ -495,24 +495,26 @@
               <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
             </div>
           </div>
-          <div id="viewDetailDatabaseCover" class="me-4 mb-3 album-cover album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'></div>
-          <div id="viewDetailDatabaseInfo"></div>
-          <table id="BrowseDatabaseDetailList" class="table table-hover table-sm">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th data-phrase="Title"></th>
-                <th data-phrase="Artist"></th>
-                <th data-phrase="Album"></th>
-                <th data-phrase="Duration"></th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody class="clickable">
-            </tbody>
-            <tfoot>
-            </tfoot>
-          </table>
+          <div class="table-responsive-md scrollContainer">
+            <div id="viewDetailDatabaseCover" class="me-4 mb-3 album-cover album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'></div>
+            <div id="viewDetailDatabaseInfo"></div>
+            <table id="BrowseDatabaseDetailList" class="table table-hover table-sm">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th data-phrase="Title"></th>
+                  <th data-phrase="Artist"></th>
+                  <th data-phrase="Album"></th>
+                  <th data-phrase="Duration"></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody class="clickable">
+              </tbody>
+              <tfoot>
+              </tfoot>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -548,7 +550,7 @@
         </div>
         <ol id="BrowseBreadcrumb" class="breadcrumb p-2 rounded-2"></ol>
         <div id="BrowseFilesystemImages" class="featLibrary not-clickable" data-href='{"cmd": "zoomPicture", "options": []}'></div>
-        <div class="table-responsive-md">
+        <div class="table-responsive-md scrollContainer">
           <table id="BrowseFilesystemList" class="table table-hover table-sm">
             <thead>
               <tr>
@@ -609,7 +611,7 @@
           </div>
         </div>
         <ol class="featAdvsearch breadcrumb p-2 rounded-2 d-none" id="searchCrumb"></ol>
-        <div class="table-responsive-md">
+        <div class="table-responsive-md scrollContainer">
           <table id="SearchList" class="table table-hover table-sm">
             <thead>
               <tr>

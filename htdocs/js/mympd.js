@@ -40,7 +40,9 @@ function appPrepare(scrollPos) {
             }
         }
     }
-    scrollToPosY(scrollPos);
+    if (isMobile === true) {
+        scrollToPosY(scrollPos);
+    }
     const list = document.getElementById(app.id + 'List');
     if (list) {
         list.classList.add('opacity05');
@@ -430,6 +432,14 @@ function appInitStart() {
     //add app routing event handler
     window.addEventListener('hashchange', appRoute, false);
 
+    //update table height on window resize
+    window.addEventListener('resize', function() {
+        const list = document.getElementById(app.id + 'List');
+        if (list) {
+            setScrollViewHeight(list);
+        }
+    }, false);
+
     //set initial scale
     if (isMobile === true) {
         scale = localStorage.getItem('scale-ratio');
@@ -437,12 +447,14 @@ function appInitStart() {
             scale = '1.0';
         }
         setViewport(false);
+        domCache.body.classList.add('mobile');
     }
     else {
         const ms = document.getElementsByClassName('featMobile');
         for (const m of ms) {
             elHide(m);
-        }        
+        }
+        domCache.body.classList.add('not-mobile');
     }
 
     subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
@@ -575,10 +587,6 @@ function appInit() {
     dragAndDropTableHeader('BrowsePlaylistsDetail');
     dragAndDropTableHeader('BrowseDatabaseDetail');
   
-    if (isMobile === true) {
-        domCache.body.classList.add('mobile');
-    }
-
     //update state on window focus - browser pauses javascript
     window.addEventListener('focus', function() {
         logDebug('Browser tab gots the focus -> update player state');

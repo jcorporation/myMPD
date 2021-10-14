@@ -367,6 +367,7 @@ function replaceTblRow(row, el) {
 
 function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const table = document.getElementById(list + 'List');
+    setScrollViewHeight(table);
     const tbody = table.getElementsByTagName('tbody')[0];
     const colspan = settings['cols' + list] !== undefined ? settings['cols' + list].length : 0;
 

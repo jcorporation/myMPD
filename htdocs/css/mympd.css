@@ -1153,3 +1153,16 @@ button.clear-button {
 .carousel-indicators > button {
   border-color: transparent !important;
 }
+
+body.not-mobile {
+  overflow: hidden;
+}
+
+body.not-mobile .scrollContainer {
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+body.not-mobile .card {
+  margin-bottom: 0;
+}

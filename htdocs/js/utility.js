@@ -286,7 +286,7 @@ function getXpos(el) {
 function getYpos(el) {
     let yPos = 0;
     while (el) {
-        yPos += (el.offsetTop - el.scrollTop + el.clientTop);
+        yPos += (el.offsetTop + el.clientTop);
         el = el.offsetParent;
     }
     return yPos;
@@ -623,7 +623,7 @@ function setPagination(total, returned) {
     //bottom
     const bottomBar = document.getElementById(app.id + 'ButtonsBottom');
     elClear(bottomBar);
-    if (returned < 25) {
+    if (domCache.body.classList.contains('not-mobile') || returned < 25) {
         elHide(bottomBar);
         return;
     }
@@ -954,4 +954,12 @@ function addIconLine(el, ligature, text) {
 
 function getTimestamp() {
     return Math.floor(Date.now() / 1000);
+}
+
+//eslint-disable-next-line no-unused-vars
+function setScrollViewHeight(container) {
+    const footerHeight = document.getElementsByTagName('footer')[0].offsetHeight;
+    const tpos = getYpos(container.parentNode);
+    const maxHeight = window.innerHeight - tpos - footerHeight;
+    container.parentNode.style.maxHeight = maxHeight + 'px';
 }
