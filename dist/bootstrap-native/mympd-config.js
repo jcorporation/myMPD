@@ -10,7 +10,7 @@ import Tab from './components/tab-native.js';
 import Toast from './components/toast-native.js';
 
 import { version as Version } from '../package.json';
-import { initCallback } from './util/init.js';
+import { initCallback } from './util/mympd-init.js';
 
 export default {
   Alert,

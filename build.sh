@@ -835,9 +835,10 @@ updatebootstrapnative() {
   git clone --depth=1 -b master https://github.com/thednp/bootstrap.native
   cd bootstrap.native
   npm install @rollup/plugin-buble
-  cp "$STARTDIR/mympd-config.js" src/index-mympd.js
-  npm run custom INPUTFILE:src/index-mympd.js,OUTPUTFILE:dist/bootstrap-mympd.js,MIN:false,FORMAT:umd
-  npm run custom INPUTFILE:src/index-mympd.js,OUTPUTFILE:dist/bootstrap-mympd.min.js,MIN:true,FORMAT:umd
+  cp "$STARTDIR/mympd-config.js" src/
+  cp "$STARTDIR/mympd-init.js" src/util/
+  npm run custom INPUTFILE:src/mympd-config.js,OUTPUTFILE:dist/bootstrap-mympd.js,MIN:false,FORMAT:umd
+  npm run custom INPUTFILE:src/mympd-config.js,OUTPUTFILE:dist/bootstrap-mympd.min.js,MIN:true,FORMAT:umd
 
   cp dist/bootstrap-mympd.js "$STARTDIR/bootstrap-native.js"
   cp dist/bootstrap-mympd.min.js "$STARTDIR/bootstrap-native.min.js"
