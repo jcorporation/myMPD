@@ -104,3 +104,7 @@ body.theme-light .breadcrumb-item.active {
 body.theme-light .border-secondary {
   border-color: var(--bs-gray-400) !important;
 }
+
+body.theme-light div.key {
+  background-color: var(--bs-gray-400);
+}
