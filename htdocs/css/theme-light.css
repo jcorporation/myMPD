@@ -60,8 +60,8 @@ body.theme-light .modal-footer {
   border-top-color: var(--bs-gray-400);
 }
 
-body.theme-light .form-control:focus,
 body.theme-light .form-control,
+body.theme-light .form-control:focus,
 body.theme-light .form-select {
   background-color: var(--bs-gray-200);
   color: var(--bs-gray-800);
@@ -78,6 +78,7 @@ body.theme-light .btn-close {
 
 body.theme-light .table-hover > tbody > tr:hover > * {
   color: var(--bs-gray-800);
+
   --bs-table-accent-bg: var(--bs-gray-400);
 }
 

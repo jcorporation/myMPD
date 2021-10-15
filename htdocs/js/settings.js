@@ -399,14 +399,14 @@ function setCssVars(theme) {
             document.documentElement.style.setProperty('--bs-body-color', '#343a40');
             document.documentElement.style.setProperty('--bs-body-color-rgb', '52, 58, 64');
             document.documentElement.style.setProperty('--bs-body-bg', 'white');
-            document.documentElement.style.setProperty('--bs-dark-rgb', '206,212,218');
+            document.documentElement.style.setProperty('--bs-dark-rgb', '206, 212, 218');
             document.documentElement.style.setProperty('--mympd-black-light', '#f8f9fa');
             break;
         default:
             document.documentElement.style.setProperty('--bs-body-color', '#f8f9fa');
             document.documentElement.style.setProperty('--bs-body-color-rgb', '248, 249, 250');
             document.documentElement.style.setProperty('--bs-body-bg', 'black');
-            document.documentElement.style.setProperty('--bs-dark-rgb', '52,58,64');
+            document.documentElement.style.setProperty('--bs-dark-rgb', '52, 58, 64');
             document.documentElement.style.setProperty('--mympd-black-light', '#1d2124');
     }
 }

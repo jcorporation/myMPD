@@ -647,7 +647,7 @@ tfoot td {
 
 div.key {
   border: 1px solid var(--bs-gray-200);
-  background-color: var(--bs-gray-500);
+  background-color: var(--bs-gray-600);
   border-radius: 2px;
   width: 2rem;
   height: 2rem;
@@ -655,7 +655,6 @@ div.key {
   line-height: 2rem;
   margin-right: 1rem;
   flex-shrink: 0;
-  background-color: var(--bs-gray-600);
 }
 
 div.row-keymap {
@@ -705,18 +704,18 @@ textarea.small {
   border-color: var(--mympd-highlightcolor) !important;
 }
 
+.btn-xs,
+.btn-group-xs > .btn {
+  padding: 0.12rem;
+  border-radius: 0.2rem;
+}
+
 .btn:not(:disabled):not(.disabled):active,
 .btn:not(:disabled):not(.disabled).active,
 .show > .btn.dropdown-toggle {
   color: var(--bs-white);
   background-color: var(--mympd-highlightcolor) !important;
   border-color: var(--mympd-highlightcolor) !important;
-}
-
-.btn-xs,
-.btn-group-xs > .btn {
-  padding: 0.12rem;
-  border-radius: 0.2rem;
 }
 
 img.database-header {
