@@ -243,6 +243,7 @@ function parseSettings(obj) {
     for (const theme in webuiSettingsDefault.uiTheme.validValues) {
         if (theme === setTheme) {
             domCache.body.classList.add(theme);
+            setCssVars(theme);
         }
         else {
             domCache.body.classList.remove(theme);
@@ -259,7 +260,7 @@ function parseSettings(obj) {
     else {
         domCache.body.style.backgroundImage = '';
     }
-    domCache.body.style.backgroundColor = settings.webuiSettings.uiBgColor;
+    document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.webuiSettings.uiBgColor);
 
     const albumartbg = document.querySelectorAll('.albumartbg');
     for (let i = 0, j = albumartbg.length; i < j; i++) {
@@ -390,6 +391,24 @@ function parseSettings(obj) {
     toggleUI();
     btnWaiting(document.getElementById('btnApplySettings'), false);
     settingsParsed = 'parsed';
+}
+
+function setCssVars(theme) {
+    switch(theme) {
+        case 'theme-light':
+            document.documentElement.style.setProperty('--bs-body-color', '#343a40');
+            document.documentElement.style.setProperty('--bs-body-color-rgb', '52, 58, 64');
+            document.documentElement.style.setProperty('--bs-body-bg', 'white');
+            document.documentElement.style.setProperty('--bs-dark-rgb', '206,212,218');
+            document.documentElement.style.setProperty('--mympd-black-light', '#f8f9fa');
+            break;
+        default:
+            document.documentElement.style.setProperty('--bs-body-color', '#f8f9fa');
+            document.documentElement.style.setProperty('--bs-body-color-rgb', '248, 249, 250');
+            document.documentElement.style.setProperty('--bs-body-bg', 'black');
+            document.documentElement.style.setProperty('--bs-dark-rgb', '52,58,64');
+            document.documentElement.style.setProperty('--mympd-black-light', '#1d2124');
+    }
 }
 
 function setLocale(newLocale) {
@@ -632,7 +651,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
                     e(defaults[key].title) + '">' + t(defaults[key].title) + '</label>' +
                     '<div class="col-sm-8 ">';
         if (defaults[key].inputType === 'select') {
-            advFrm[form] += '<select id="' + prefix + r(key) + '" class="form-control border-secondary form-select">';
+            advFrm[form] += '<select id="' + prefix + r(key) + '" class="form-select">';
             for (let value in defaults[key].validValues) {
                 if (defaults[key].contentType === 'integer') {
                     value = Number(value);
@@ -1119,7 +1138,7 @@ function setNavbarIcons() {
         if (features.featHome === false && icon.options[0] === 'Home') {
             elHide(btn);
         }
-        const a = elCreate('a', {"data-title-phrase": icon.title, "title": tn(icon.title), "href": "#", "class": ["nav-link", "text-light"]}, '');
+        const a = elCreate('a', {"data-title-phrase": icon.title, "title": tn(icon.title), "href": "#", "class": ["nav-link"]}, '');
         a.appendChild(elCreate('span', {"class": ["mi"]}, icon.ligature));
         if (icon.options[0] === 'Queue' && icon.options.length === 1) {
             a.appendChild(elCreate('span', {"id": "badgeQueueItems", "class": ["badge", "bg-secondary"]}, oldQueueLength));

@@ -537,7 +537,7 @@ function parseAlbumDetails(obj) {
     const p = elCreate('p', {}, '');
     
     if (settings.tagListBrowse.includes(tagAlbumArtist)) {
-        const artistLink = elCreate('a', {"href": "#", "class": ["text-light"]}, obj.result.AlbumArtist);
+        const artistLink = elCreate('a', {"href": "#"}, obj.result.AlbumArtist);
         setCustomDomProperty(artistLink, 'data-tag', tagAlbumArtist);
         setCustomDomProperty(artistLink, 'data-name', obj.result.AlbumArtist);
         artistLink.addEventListener('click', function(event) {

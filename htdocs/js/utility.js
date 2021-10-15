@@ -656,7 +656,7 @@ function createPaginationEls(totalPages, curPage) {
     pageDropdownBtn.addEventListener('show.bs.dropdown', function () {
         alignDropdown(this);
     });
-    const pageDropdownMenu = elCreate('div', {"class": ["dropdown-menu", "bg-lite-dark", "px-2", "pages", "dropdown-menu-dark"]}, '');
+    const pageDropdownMenu = elCreate('div', {"class": ["dropdown-menu", "bg-lite-dark", "px-2", "page-dropdown", "dropdown-menu-dark"]}, '');
     
     const row = elCreate('div', {"class": ["row"]}, '');
     row.appendChild(elCreate('label', {"class": ["col-sm-8", "col-form-label"]}, tn('Elements per page')));

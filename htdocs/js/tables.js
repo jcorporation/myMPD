@@ -222,7 +222,7 @@ function setColsChecklist(table) {
             tagChks += '<h6 class="dropdown-header pl-0">' + t('Sticker') + '</h6>';
         }
         else {
-            tagChks += '<div>' +
+            tagChks += '<div class="form-check">' +
                 '<button class="btn btn-secondary btn-xs clickable mi mi-small' +
                 (settings['cols' + table].includes(tags[i]) ? ' active' : '') + '" name="' + tags[i] + '">' +
                 (settings['cols' + table].includes(tags[i]) ? 'check' : 'radio_button_unchecked') + '</button>' +

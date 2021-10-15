@@ -113,7 +113,7 @@ function createMenuTd(el) {
             const vAlbumArtist = getCustomDomProperty(dataNode, 'data-albumartist');
             if (vAlbum !== undefined && vAlbumArtist !== undefined) {
                 menu += '<div class="dropdown-divider"></div>' +
-                    '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="mi mi-left">keyboard_arrow_right</span>Album actions</a>' +
+                    '<a class="dropdown-item" id="advancedMenuLink" data-bs-toggle="collapse" href="#advancedMenu"><span class="mi mi-left">keyboard_arrow_right</span>Album actions</a>' +
                     '<div class="collapse" id="advancedMenu">' +
                         addMenuItem({"cmd": "_addAlbum", "options": ["appendQueue", vAlbumArtist, vAlbum]}, t('Append to queue')) +
                         addMenuItem({"cmd": "_addAlbum", "options": ["replaceQueue", vAlbumArtist, vAlbum]}, t('Replace queue')) +
@@ -124,7 +124,7 @@ function createMenuTd(el) {
                 //songs must be arragend in one album per folder
                 const baseuri = dirname(uri);
                 menu += '<div class="dropdown-divider"></div>' +
-                    '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="mi mi-left">keyboard_arrow_right</span>Folder actions</a>' +
+                    '<a class="dropdown-item" id="advancedMenuLink" data-bs-toggle="collapse" href="#advancedMenu"><span class="mi mi-left">keyboard_arrow_right</span>Folder actions</a>' +
                     '<div class="collapse" id="advancedMenu">' +
                         addMenuItem({"cmd": "appendQueue", "options": [type, baseuri, name]}, t('Append to queue')) +
                         addMenuItem({"cmd": "appendAfterQueue", "options": [type, baseuri, nextSongPos, name]}, t('Add after current playing song')) +

@@ -52,6 +52,7 @@ $card-border-color: transparent;
 
 //dark popover / dropdown / offcanvas / toast / modal
 $offcanvas-bg-color: $gray-800;
+$offcanvas-padding-x: 0;
 $popover-bg: $gray-800;
 $popover-max-width: none;
 $dropdown-link-color: $gray-100;
@@ -69,6 +70,7 @@ $toast-header-color: $gray-100;
 $toast-header-background-color: rgba($gray-700, .85);
 $modal-content-bg: $gray-800;
 $modal-header-border-color: $gray-900;
+$btn-close-color: $gray-100;
 
 //dark forms
 $input-bg: $gray-800;
@@ -80,6 +82,7 @@ $list-group-bg: transparent;
 $list-group-hover-bg: $gray-800;
 $list-group-action-color: $gray-100;
 $list-group-action-hover-color: $gray-100;
+$form-select-indicator-color: white;
 
 
 // 3. Include remainder of required Bootstrap stylesheets

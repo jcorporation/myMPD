@@ -271,6 +271,9 @@ function createImgCarousel(imgEl, name, images) {
         carouselInner.appendChild(elCreate('div', {"class": ["carousel-item"]}, ''));
         carouselInner.lastChild.appendChild(elCreate('div', {}, ''));
         carouselInner.lastChild.style.backgroundImage = 'url("' + myEncodeURI(images[i]) + '")';
+        if (i === 0) {
+            carouselInner.lastChild.classList.add('active');
+        }
     }
     carousel.appendChild(carouselInner);
     if (nrImages > 0) {

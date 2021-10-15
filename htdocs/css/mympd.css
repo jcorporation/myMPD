@@ -9,6 +9,7 @@
   --mympd-coverimagesizesmall: 175px;
   --mympd-highlightcolor: #28a745;
   --mympd-highlightcolor-contrast: white;
+  --mympd-backgroundcolor: black;
   --mympd-black-light: #1d2124;
 }
 
@@ -37,6 +38,20 @@
 #navbar-main div.active {
   border-radius: 0.25rem;
   background-color: var(--mympd-black-light);
+}
+
+button.active,
+.btn-success,
+.btn-success:hover {
+  color: var(--mympd-highlightcolor-contrast);
+  background-color: var(--mympd-highlightcolor);
+  border-color: var(--mympd-highlightcolor);
+}
+
+.text-success,
+a.text-success:hover,
+a.text-success:focus {
+  color: var(--mympd-highlightcolor) !important;
 }
 
 #highlightColorPreview,
@@ -88,10 +103,6 @@ h4 svg,
   text-align: center;
 }
 
-.overflow-hidden {
-  overflow: hidden;
-}
-
 html {
   position: relative;
   min-height: 100%;
@@ -101,7 +112,7 @@ body {
   min-height: 100vh;
   padding-top: 3rem;
   padding-bottom: 4rem;
-  background-color: #000;
+  background-color: var(--mympd-backgroundcolor);
   background-position: center center;
   background-attachment: fixed;
   background-size: cover;
@@ -281,12 +292,6 @@ button {
   padding-right: 1rem;
 }
 
-.text-success,
-a.text-success:hover,
-a.text-success:focus {
-  color: var(--mympd-highlightcolor) !important;
-}
-
 #BrowseBreadcrumb {
   overflow: auto;
   white-space: nowrap;
@@ -433,7 +438,7 @@ th {
 }
 
 .card-grid {
-  width: var(--mympd-coverimagesizesmall, 175px);
+  width: var(--mympd-coverimagesizesmall);
   min-height: 0 !important;
   margin-bottom: 1.25rem;
   overflow: hidden;
@@ -455,8 +460,8 @@ th {
 .album-cover-grid {
   background-size: cover;
   overflow: hidden;
-  width: var(--mympd-coverimagesizesmall, 175px);
-  height: var(--mympd-coverimagesizesmall, 175px);
+  width: var(--mympd-coverimagesizesmall);
+  height: var(--mympd-coverimagesizesmall);
   max-width: 100%;
   padding: 0.5rem;
 }
@@ -626,10 +631,6 @@ tfoot td {
   to { margin-left: 100%; }
 }
 
-#updateDBprogress {
-  width: 20px;
-}
-
 .updateDBprogressAnimate {
   animation-duration: 2s;
   animation-name: changewidth;
@@ -753,18 +754,6 @@ div#playDropdown .row {
   padding-left: 0;
 }
 
-button.active,
-.btn-success,
-.btn-success:hover {
-  color: var(--mympd-highlightcolor-contrast);
-  background-color: var(--mympd-highlightcolor);
-  border-color: var(--mympd-highlightcolor);
-}
-
-#dropdownAddSmartpls {
-  white-space: nowrap;
-}
-
 .carousel-item > div {
   background-position: center center;
   background-size: cover;
@@ -815,17 +804,8 @@ button.active,
   margin-bottom: 0;
 }
 
-.rounded-right-0 {
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
-}
-
 #currentLyrics > p.expanded {
   max-height: none;
-}
-
-.col {
-  min-width: unset;
 }
 
 /*resize coverimage in playback card*/
@@ -880,14 +860,8 @@ div.HomeContainer {
 
 div.BrowseDatabaseCardsContainer .col,
 div.HomeContainer .col {
-  margin-left: 10px;
-  margin-right: 10px;
-}
-
-.btn.disabled,
-.btn:disabled {
-  cursor: default;
-  opacity: 0.5;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 div#modalPictureImg {
@@ -937,7 +911,7 @@ div.album-grid-mouseover {
   font-size: 2.4rem;
 }
 
-.pages {
+.page-dropdown {
   min-width: 20rem;
 }
 
@@ -961,32 +935,12 @@ div.album-grid-mouseover {
   font-weight: bold;
 }
 
-#PlaybackColsDropdown {
-  white-space: nowrap;
-}
-
 .input-group-text-nobg {
-  display: flex;
-  align-items: center;
   padding: 0.375rem 0.75rem;
-  margin-bottom: 0;
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5;
-  text-align: center;
-  white-space: nowrap;
 }
 
 input[type=color] {
   height: 2.35rem;
-}
-
-.nav-link {
-  white-space: nowrap;
-}
-
-#viewDetailDatabaseCover {
-  float: left;
 }
 
 body.locked button.protected::before {
@@ -1006,6 +960,7 @@ body.locked button.protected::before {
   margin-right: 0.5rem;
 }
 
+/* clear icon for search inputs */
 button.clear-button {
   border: none;
   background: none !important;
@@ -1018,6 +973,7 @@ button.clear-button {
   z-index: 3;
 }
 
+.nav-link,
 .form-check {
   white-space: nowrap;
 }
@@ -1027,21 +983,18 @@ button.clear-button {
   flex: unset !important;
 }
 
-.offcanvas-body {
-  padding: 1rem 0;
-}
-
-.carousel-indicators > button {
-  border-color: transparent !important;
-}
-
+/* sticky toolbar for desktop devices */
 body.not-mobile {
   overflow: hidden;
 }
 
 body.not-mobile .scrollContainer {
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: auto;
+}
+
+body.not-mobile .BrowseDatabaseCardsContainer {
+  overflow-x: hidden;
 }
 
 body.not-mobile .card {

@@ -18,7 +18,7 @@ class inputReset extends HTMLElement {
             "id": this.getAttribute('id'),
             "placeholder": placeholder === null ? '' : placeholder,
             "type": inputType,
-            "class": ["form-control", "border-secondary"]
+            "class": ["form-control"]
         }, '');
         if (this.classList.contains('alwaysEnabled')) {
             input.classList.add('alwaysEnabled');

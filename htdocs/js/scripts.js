@@ -304,7 +304,7 @@ function parseScriptList(obj) {
             }
             if (obj.result.data[i].metadata.order > 0) {
                 showScriptListLen++;
-                scriptListMain += '<a class="dropdown-item text-light alwaysEnabled" href="#" data-href=\'{"script": "' + 
+                scriptListMain += '<a class="dropdown-item alwaysEnabled" href="#" data-href=\'{"script": "' + 
                     e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>' + e(obj.result.data[i].name) + '</a>';
                 
             }
