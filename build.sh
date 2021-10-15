@@ -1086,7 +1086,7 @@ run_eslint() {
 
 run_stylelint() {
   check_cmd npx
-  for F in mympd.css theme-light.css theme-dark.css
+  for F in mympd.css theme-light.css
   do
     echo "Linting $F"
     npx stylelint "htdocs/css/$F"
