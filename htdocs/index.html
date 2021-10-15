@@ -58,9 +58,9 @@
     </nav>
   </header>
   <!-- Main menu -->
-  <div class="offcanvas offcanvas-start bg-dark" tabindex="-1" id="offcanvasMenu">
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu">
     <div class="offcanvas-header">
-      <h4 class="offcanvas-title text-light">
+      <h4 class="offcanvas-title">
         <svg version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
           <ellipse cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
           <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
@@ -71,33 +71,33 @@
       <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body">
-      <a data-phrase="Add stream" class="dropdown-item text-light" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["stream"]}'></a>
-      <a id="navDBupdate" class="subMenu dropdown-item text-light" data-bs-toggle="collapse" href="#menu-dbupdate"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Update"></span></a>
+      <a data-phrase="Add stream" class="dropdown-item" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["stream"]}'></a>
+      <a id="navDBupdate" class="subMenu dropdown-item" data-bs-toggle="collapse" href="#menu-dbupdate"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Update"></span></a>
       <div class="collapse menu-indent" id="menu-dbupdate">
-        <a data-phrase="Update database" class="dropdown-item text-light" href="#" data-href='{"cmd": "updateDB", "options": ["", true, false]}'></a>
-        <a data-phrase="Rescan database" class="dropdown-item text-light" href="#" data-href='{"cmd": "updateDB", "options": ["", true, true]}'></a>
-        <a data-phrase="Update smart playlists" class="dropdown-item text-light featSmartpls" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": [false]}'></a>
+        <a data-phrase="Update database" class="dropdown-item" href="#" data-href='{"cmd": "updateDB", "options": ["", true, false]}'></a>
+        <a data-phrase="Rescan database" class="dropdown-item" href="#" data-href='{"cmd": "updateDB", "options": ["", true, true]}'></a>
+        <a data-phrase="Update smart playlists" class="dropdown-item featSmartpls" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": [false]}'></a>
       </div>
-      <a id="navSettings" class="subMenu dropdown-item text-light alwaysEnabled" data-bs-toggle="collapse" href="#menu-settings"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Settings"></span></a>
+      <a id="navSettings" class="subMenu dropdown-item alwaysEnabled" data-bs-toggle="collapse" href="#menu-settings"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Settings"></span></a>
       <div id="menu-settings" class="collapse menu-indent">
-        <a data-phrase="MPD connection" class="dropdown-item text-light alwaysEnabled" href="#" data-bs-toggle="modal" data-bs-target="#modalConnection"></a>
-        <a data-phrase="Settings" class="dropdown-item text-light" href="#" data-bs-toggle="modal" data-bs-target="#modalSettings"></a>
-        <a data-phrase="Scripts" class="dropdown-item text-light featScripting" href="#" data-bs-toggle="modal" data-bs-target="#modalScripts"></a>
-        <a data-phrase="Timer" class="dropdown-item text-light featTimer" href="#" data-bs-toggle="modal" data-bs-target="#modalTimer"></a>
-        <a data-phrase="Trigger" class="dropdown-item text-light featTrigger" href="#" data-bs-toggle="modal" data-bs-target="#modalTrigger"></a>
-        <a data-phrase="Mounts" class="dropdown-item text-light featMounts" href="#" data-bs-toggle="modal" data-bs-target="#modalMounts"></a>
-        <a data-phrase="Partitions" class="dropdown-item text-light featPartitions" href="#" data-bs-toggle="modal" data-bs-target="#modalPartitions"></a>
+        <a data-phrase="MPD connection" class="dropdown-item alwaysEnabled" href="#" data-bs-toggle="modal" data-bs-target="#modalConnection"></a>
+        <a data-phrase="Settings" class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalSettings"></a>
+        <a data-phrase="Scripts" class="dropdown-item featScripting" href="#" data-bs-toggle="modal" data-bs-target="#modalScripts"></a>
+        <a data-phrase="Timer" class="dropdown-item featTimer" href="#" data-bs-toggle="modal" data-bs-target="#modalTimer"></a>
+        <a data-phrase="Trigger" class="dropdown-item featTrigger" href="#" data-bs-toggle="modal" data-bs-target="#modalTrigger"></a>
+        <a data-phrase="Mounts" class="dropdown-item featMounts" href="#" data-bs-toggle="modal" data-bs-target="#modalMounts"></a>
+        <a data-phrase="Partitions" class="dropdown-item featPartitions" href="#" data-bs-toggle="modal" data-bs-target="#modalPartitions"></a>
       </div>
-      <a data-phrase="Fullscreen" class="dropdown-item text-light" href="#" data-href='{"cmd": "openFullscreen", "options": []}'></a>
-      <a data-phrase="Browse directories" class="dropdown-item text-light featLibrary" href="browse/" target="_blank"></a>
-      <a data-phrase="About" class="dropdown-item text-light" href="#" data-bs-toggle="modal" data-bs-target="#modalAbout"></a>
-      <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item text-light d-none" href="#"></a>
-      <a data-phrase="Login" id="mmLogin" data-href='{"cmd": "enterPin", "options": []}' class="dropdown-item text-light" href="#"></a>
-      <a data-phrase="Logout" id="mmLogout" data-href='{"cmd": "removeSession", "options": []}' class="dropdown-item text-light d-none" href="#"></a>
-      <a id="navScripting" class="subMenu featScripting dropdown-item text-light alwaysEnabled" data-bs-toggle="collapse" href="#scripts"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
+      <a data-phrase="Fullscreen" class="dropdown-item" href="#" data-href='{"cmd": "openFullscreen", "options": []}'></a>
+      <a data-phrase="Browse directories" class="dropdown-item featLibrary" href="browse/" target="_blank"></a>
+      <a data-phrase="About" class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalAbout"></a>
+      <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item d-none" href="#"></a>
+      <a data-phrase="Login" id="mmLogin" data-href='{"cmd": "enterPin", "options": []}' class="dropdown-item" href="#"></a>
+      <a data-phrase="Logout" id="mmLogout" data-href='{"cmd": "removeSession", "options": []}' class="dropdown-item d-none" href="#"></a>
+      <a id="navScripting" class="subMenu featScripting dropdown-item alwaysEnabled" data-bs-toggle="collapse" href="#scripts"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
       <div id="scripts" class="featScripting noInitChilds collapse"></div>
       <div class="dropdown-divider"></div>
-      <a id="navNotifications" class="subMenu dropdown-item text-light alwaysEnabled" data-bs-toggle="collapse" href="#menu-notifications"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Notifications"></span></a>
+      <a id="navNotifications" class="subMenu dropdown-item alwaysEnabled" data-bs-toggle="collapse" href="#menu-notifications"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Notifications"></span></a>
       <div id="menu-notifications" class="collapse menu-indent">
         <div id="logOverview" class="ps-2 pb-0 pe-2"></div>
       </div>
@@ -137,7 +137,7 @@
           </div>
           <div class="btn-group ms-2 featTags">
             <button data-title-phrase="Display tags" id="PlaybackColsBtn" class="btn btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">settings</span></button>
-            <div class="dropdown-menu text-light bg-lite-dark px-2" id="PlaybackColsDropdown"><form></form>
+            <div class="dropdown-menu dropdown-menu-dark px-2" id="PlaybackColsDropdown"><form></form>
               <button data-phrase="Apply" data-href='{"cmd": "saveColsPlayback", "options": ["Playback"]}' class="btn btn-success w-100 btn-sm mt-2"></button>
             </div>
           </div>
@@ -158,7 +158,7 @@
         <div class="btn-toolbar card-toolbar" id="QueueCurrentButtonsTop">
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
-            <div class="dropdown-menu bg-lite-dark px-2">
+            <div class="dropdown-menu dropdown-menu-dark px-2">
               <div class="d-grid gap-2">
                 <button data-phrase="Queue" class="btn btn-sm btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
                 <button data-phrase="LastPlayed" class="btn btn-sm btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
@@ -181,7 +181,7 @@
           <div class="btn-group me-2">
             <button data-title-phrase="Crop queue" type="button" class="btn btn-secondary" data-href='{"cmd": "clearQueue", "options": []}'><span class="mi">clear_all</span></button>
             <button id="clearQueueBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
-            <div class="dropdown-menu bg-lite-dark px-2" id="clearQueueDropdown">
+            <div class="dropdown-menu dropdown-menu-dark px-2" id="clearQueueDropdown">
               <div class="d-grid gap-2">
                 <button data-phrase="Clear queue" type="button" class="btn btn-secondary btn-sm" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}]}' ></button>
                 <button data-phrase="Crop queue" type="button" class="btn btn-secondary btn-sm" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}]}' ></button>
@@ -193,7 +193,7 @@
               <span class="mi">search</span>
               <span data-phrase="Any Tag" id="searchqueuetagsdesc"></span>
             </button>
-            <div class="dropdown-menu bg-lite-dark px-2" id="searchqueuetags"></div>
+            <div class="dropdown-menu dropdown-menu-dark px-2" id="searchqueuetags"></div>
           </div>
           <div class="input-group me-2 flex-grow-1">
             <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search queue" type="text" class="form-control border-secondary square-start rounded-end" id="searchqueuestr"/>
@@ -234,7 +234,7 @@
         <div class="btn-toolbar card-toolbar">
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
-            <div class="dropdown-menu bg-lite-dark px-2">
+            <div class="dropdown-menu dropdown-menu-dark px-2">
               <div class="d-grid gap-2">
                 <button data-phrase="Queue" class="btn btn-sm btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
                 <button data-phrase="LastPlayed" class="btn btn-sm btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
@@ -244,7 +244,7 @@
           </div>
           <form class="flex-grow-1">
             <div class="input-group me-2">
-              <span class="input-group-text border-secondary text-light bg-secondary"><span class="mi">search</span></span>
+              <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
               <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-end" id="searchQueueLastPlayedStr"/>
             </div>
           </form>
@@ -279,7 +279,7 @@
         <div class="btn-toolbar card-toolbar">
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
-            <div class="dropdown-menu bg-lite-dark px-2">
+            <div class="dropdown-menu dropdown-menu-dark px-2">
               <div class="d-grid gap-2">
                 <button data-phrase="Queue" class="btn btn-sm btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
                 <button data-phrase="LastPlayed" class="btn btn-sm btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
@@ -289,7 +289,7 @@
           </div>
           <form class="flex-grow-1">
             <div class="input-group me-2">
-              <span class="input-group-text border-secondary text-light bg-secondary"><span class="mi">search</span></span>
+              <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
               <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-end" id="searchQueueJukeboxStr"/>
             </div>
           </form>
@@ -327,19 +327,19 @@
           <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsAllButtons">
             <div class="btn-group me-2">
               <button data-title-phrase="Select view" id="BrowseNavPlaylists" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
-              <div class="dropdown-menu bg-lite-dark px-2" id="BrowseNavPlaylistsDropdown">
+              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavPlaylistsDropdown">
               </div>
             </div>
           <form id="searchPlaylistsAll" class="flex-grow-1">
             <div class="input-group me-2">
-              <span class="input-group-text border-secondary text-light bg-secondary"><span class="mi">search</span></span>
+              <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
               <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-end" id="searchPlaylistsListStr"/>
             </div>
           </form>
           <div class="btn-group me-2 featSmartpls">
             <button data-title-phrase="Add smart playlist" id="btnAddSmartpls" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">playlist_add</span></button>
-            <div class="dropdown-menu bg-lite-dark px-2" id="dropdownAddSmartpls">
-              <h2 class="dropdown-header text-light" data-phrase="Add smart playlist"></h2>
+            <div class="dropdown-menu dropdown-menu-dark px-2" id="dropdownAddSmartpls">
+              <h2 class="dropdown-header" data-phrase="Add smart playlist"></h2>
               <div class="d-grid gap-2">
                 <button data-phrase="Best rated" data-href='{"cmd": "addSmartpls", "options": ["bestRated"]}' type="button" class="btn btn-secondary"></button>
                 <button data-phrase="Most played" data-href='{"cmd": "addSmartpls", "options": ["mostPlayed"]}' type="button" class="btn btn-secondary"></button>
@@ -376,7 +376,7 @@
             </div>
             <form id="searchPlaylistsDetail" class="flex-grow-1">
               <div class="input-group me-2">
-                <span class="input-group-text border-secondary text-light bg-secondary"><span class="mi">search</span></span>
+                <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
                 <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-end" id="searchPlaylistsDetailStr"/>
               </div>
             </form>          
@@ -385,8 +385,8 @@
               <button data-href='{"cmd": "playlistShuffle", "options": []}' class="btn btn-secondary mi rounded me-2" type="button" data-title-phrase="Shuffle playlist">shuffle</button>
               <div class="btn-group me-2">
                 <button data-title-phrase="Sort playlist" id="btnSortPlaylist" class="btn btn-secondary dropdown-toggle rounded-start" type="button" data-bs-toggle="dropdown"><span class="mi">sort</span></button>
-                <div class="dropdown-menu bg-lite-dark px-2" id="dropdownSortPlaylist">
-                  <h2 class="dropdown-header text-light" data-phrase="Sort playlist"></h2>
+                <div class="dropdown-menu dropdown-menu-dark px-2" id="dropdownSortPlaylist">
+                  <h2 class="dropdown-header" data-phrase="Sort playlist"></h2>
                   <div id="dropdownSortPlaylistTags">
                   </div>
                 </div>
@@ -429,14 +429,14 @@
           <div class="btn-toolbar card-toolbar" id="BrowseDatabaseButtons">
             <div class="btn-group me-2">
               <button data-title-phrase="Select view" id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
-              <div class="dropdown-menu bg-lite-dark px-2" id="BrowseDatabaseByTagDropdown"></div>
+              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseDatabaseByTagDropdown"></div>
             </div>
               <div class="btn-group">
                 <button id="btnDatabaseSearchDropdown" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
                   <span class="mi">search</span>
                   <span data-phrase="AlbumArtist" id="searchDatabaseTagsDesc"></span>
                 </button>
-                <div class="dropdown-menu bg-lite-dark px-2" id="searchDatabaseTags"></div>
+                <div class="dropdown-menu dropdown-menu-dark px-2" id="searchDatabaseTags"></div>
               </div>
               <div class="input-group me-2 flex-grow-1">
                 <select class="featAdvsearch form-control form-select border-secondary rounded-0 no-flex" id="searchDatabaseMatch">
@@ -451,7 +451,7 @@
               </div>
             <div class="btn-group me-2">
               <button id="btnDatabaseSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">sort</span></button>
-              <div class="dropdown-menu bg-lite-dark px-2" id="databaseSortTags">
+              <div class="dropdown-menu dropdown-menu-dark px-2" id="databaseSortTags">
                 <div id="databaseSortTagsList"></div>
                 <div class="dropdown-divider"></div>
                 <div class="form-check">
@@ -480,7 +480,7 @@
             <div class="btn-group me-2">
               <button data-title-phrase="Append to queue" class="btn btn-secondary" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}'><span class="mi">library_add</span></button>
               <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
-              <div class="dropdown-menu bg-lite-dark px-2">
+              <div class="dropdown-menu dropdown-menu-dark px-2">
                 <div class="d-grid gap-2">
                   <button data-phrase="Append to queue" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
                   <button data-phrase="Replace queue" data-href='{"cmd": "addAlbum", "options": ["replaceQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
@@ -519,13 +519,13 @@
         <div class="btn-toolbar card-toolbar" id="BrowseFilesystemButtons">
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" id="BrowseNavFilesystem" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
-            <div class="dropdown-menu bg-lite-dark px-2" id="BrowseNavFilesystemDropdown">
+            <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavFilesystemDropdown">
             </div>
           </div>
-          <div class="input-group me-2">
+          <div class="btn-group me-2">
             <button data-title-phrase="Append to queue" data-href='{"cmd": "addAllFromBrowseFilesystem", "options": []}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary"><span class="mi">library_add</span></button>
             <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
-            <div class="dropdown-menu bg-lite-dark px-2" id="BrowseFilesystemAddAllSongsDropdown">
+            <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseFilesystemAddAllSongsDropdown">
               <div class="d-grid gap-2">
                 <button data-href='{"cmd": "addAllFromBrowseFilesystem", "options": [false]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm"></button>
                 <button data-href='{"cmd": "addAllFromBrowseFilesystem", "options": [true]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm"></button>
@@ -535,7 +535,7 @@
           </div>
           <form class="flex-grow-1">
             <div class="input-group me-2">
-              <span class="input-group-text border-secondary text-light bg-secondary"><span class="mi">search</span></span>
+              <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
               <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control border-secondary rounded-end" id="searchFilesystemStr"/>
             </div>
           </form>
@@ -576,7 +576,7 @@
               <span class="mi">search</span>
               <span data-phrase="Any Tag" id="searchtagsdesc"></span>
             </button>
-            <div class="dropdown-menu bg-lite-dark px-2" id="searchtags"></div>
+            <div class="dropdown-menu dropdown-menu-dark px-2" id="searchtags"></div>
           </div>
           <div class="input-group me-2 flex-grow-1">
             <select class="featAdvsearch form-control form-select border-secondary rounded-0 no-flex" id="searchMatch">
@@ -592,7 +592,7 @@
           <div class="btn-group me-2">
             <button data-title-phrase="Append to queue" id="searchAddAllSongs" class="btn btn-secondary" data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}'><span class="mi">library_add</span></button>
             <button id="searchAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown"></button>
-            <div class="dropdown-menu bg-lite-dark px-2" id="searchAddAllSongsDropdown">
+            <div class="dropdown-menu dropdown-menu-dark px-2" id="searchAddAllSongsDropdown">
               <div class="d-grid gap-2">
                 <button data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm"></button>
                 <button data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, true]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm"></button>
@@ -648,7 +648,7 @@
           <small id="counter" class="text-light">0:00&nbsp;/&nbsp;0:00</small>
         </div>
       </div>
-      <div class="d-flex flex-fill navbar-nav ms-3 text-light" id="footerInfo">
+      <div class="d-flex flex-fill navbar-nav ms-3" id="footerInfo">
         <div data-title-phrase="Show cover" id="footerCover" class="album-cover-loading rounded me-3 clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'>
         </div>
         <div id="footerPlaying">
@@ -662,8 +662,8 @@
         </div>
         <div class="btn-group dropup">
           <button data-title-phrase="Outputs" id="volumeMenu" class="btn btn-dark dropdown-toggle px-2" type="button" data-bs-toggle="dropdown"><span class="mi">volume_up</span></button>
-          <div class="dropdown-menu bg-lite-dark">
-            <h2 class="dropdown-header text-light"><span data-phrase="Volume"></span>: <span id="volumePrct"></span></h2>
+          <div class="dropdown-menu dropdown-menu-dark">
+            <h2 class="dropdown-header"><span data-phrase="Volume"></span>: <span id="volumePrct"></span></h2>
             <form class="px-3 py-0 pb-3" id="volumeControl">
               <div class="btn-group">
                 <button id="btnChVolumeDown" data-href='{"cmd": "volumeStep", "options": ["down"]}' class="btn btn-secondary">&minus;</button>
@@ -676,14 +676,14 @@
             <div class="dropdown-divider"></div>
             <form id="outputs" class="px-3 py-3 d-grid gap-2"></form>
             <div class="dropdown-divider featPartitions"></div>
-            <a class="dropdown-item text-light featPartitions" href="#" data-title-phrase="Manage partitions" data-bs-toggle="modal" data-bs-target="#modalPartitions"><span data-phrase="Current partition"></span>: <span id="partitionName"></span></a>
-            <a data-phrase="Move an output to this partition" class="dropdown-item text-light featPartitions" href="#" data-bs-toggle="modal" data-bs-target="#modalPartitionOutputs"></a>
+            <a class="dropdown-item featPartitions" href="#" data-title-phrase="Manage partitions" data-bs-toggle="modal" data-bs-target="#modalPartitions"><span data-phrase="Current partition"></span>: <span id="partitionName"></span></a>
+            <a data-phrase="Move an output to this partition" class="dropdown-item featPartitions" href="#" data-bs-toggle="modal" data-bs-target="#modalPartitionOutputs"></a>
           </div>
         </div>
         <div class="btn-group dropup featLocalPlayback ms-2">
           <button data-title-phrase="Local playback" id="localPlaybackMenu" class="btn btn-dark dropdown-toggle px-2" type="button" data-bs-toggle="dropdown"><span class="mi">airplay</span></button>
-          <div class="dropdown-menu bg-lite-dark">
-            <h2 data-phrase="Local playback" class="dropdown-header dropdown-header-lx text-light"></h2>
+          <div class="dropdown-menu dropdown-menu-dark">
+            <h2 data-phrase="Local playback" class="dropdown-header dropdown-header-lx"></h2>
             <div id="alertLocalPlayback" class="alert alert-warning mx-3 p-2 d-none">
               <span data-phrase="Connecting to stream..."></span>
               <a class="btn btn-sm btn-warning float-end mi mi-small px-1">refresh</a>
@@ -898,22 +898,22 @@
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
-              <a class="nav-link text-dark active" href="#tabGeneralSettings" data-bs-toggle="tab" data-height="true" data-phrase="General"></a>
+              <a class="nav-link active" href="#tabGeneralSettings" data-bs-toggle="tab" data-height="true" data-phrase="General"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabInterfaceSettings" data-bs-toggle="tab" data-height="true" data-phrase="Appearance"></a>
+              <a class="nav-link" href="#tabInterfaceSettings" data-bs-toggle="tab" data-height="true" data-phrase="Appearance"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabEnableFeatures" data-bs-toggle="tab" data-height="true" data-phrase="Features"></a>
+              <a class="nav-link" href="#tabEnableFeatures" data-bs-toggle="tab" data-height="true" data-phrase="Features"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabNotificationSettings" data-bs-toggle="tab" data-height="true" data-phrase="Notifications"></a>
+              <a class="nav-link" href="#tabNotificationSettings" data-bs-toggle="tab" data-height="true" data-phrase="Notifications"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabAdvancedSettings" data-bs-toggle="tab" data-height="true" data-phrase="Advanced"></a>
+              <a class="nav-link" href="#tabAdvancedSettings" data-bs-toggle="tab" data-height="true" data-phrase="Advanced"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabMaintenance" data-bs-toggle="tab" data-height="true" data-phrase="Maintenance"></a>
+              <a class="nav-link" href="#tabMaintenance" data-bs-toggle="tab" data-height="true" data-phrase="Maintenance"></a>
             </li>
           </ul>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -989,7 +989,7 @@
                         <input type="text" class="form-control border-secondary" id="inputEnabledTags" readonly="readonly"/>
                         <div class="btn-group">
                           <button id="btnEnabledTags" type="button" data-bs-toggle="dropdown" class="square-start text-left btn btn-secondary dropdown-toggle"></button>
-                          <div id="listEnabledTags" class="dropdown-menu px-2"></div>
+                          <div id="listEnabledTags" class="dropdown-menu dropdown-menu-dark px-2"></div>
                       </div>
                       </div>
                     </div>
@@ -1001,7 +1001,7 @@
                         <input type="text" class="form-control border-secondary" id="inputSearchTags" readonly="readonly"/>
                         <div class="btn-group">
                           <button id="btnSearchTags" type="button" data-bs-toggle="dropdown" class="square-start text-left btn btn-secondary dropdown-toggle"></button>
-                          <div id="listSearchTags" class="dropdown-menu px-2"></div>
+                          <div id="listSearchTags" class="dropdown-menu dropdown-menu-dark px-2"></div>
                         </div>
                       </div>
                     </div>
@@ -1013,7 +1013,7 @@
                         <input type="text" class="form-control border-secondary" id="inputBrowseTags" readonly="readonly"/>
                         <div class="btn-group">
                           <button id="btnBrowseTags" type="button" data-bs-toggle="dropdown" class="square-start text-left btn btn-secondary dropdown-toggle"></button>
-                          <div id="listBrowseTags" class="dropdown-menu px-2"></div>
+                          <div id="listBrowseTags" class="dropdown-menu dropdown-menu-dark px-2"></div>
                         </div>
                       </div>
                     </div>
@@ -1040,7 +1040,7 @@
                         <input type="text" class="form-control border-secondary" id="inputGeneratePlsTags" readonly="readonly"/>
                         <div class="btn-group">
                           <button id="btnGeneratePlsTags" type="button" data-bs-toggle="dropdown" class="square-start text-left btn btn-secondary dropdown-toggle"></button>
-                          <div id="listGeneratePlsTags" class="dropdown-menu px-2"></div>
+                          <div id="listGeneratePlsTags" class="dropdown-menu dropdown-menu-dark px-2"></div>
                         </div>
                       </div>
                     </div>
@@ -1156,10 +1156,10 @@
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
-              <a class="nav-link active text-dark" href="#tabQueueSettings" data-bs-toggle="tab" data-height="true" data-phrase="Playback"></a>
+              <a class="nav-link active" href="#tabQueueSettings" data-bs-toggle="tab" data-height="true" data-phrase="Playback"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabJukeboxSettings" data-bs-toggle="tab" data-height="true" data-phrase="Jukebox"></a>
+              <a class="nav-link" href="#tabJukeboxSettings" data-bs-toggle="tab" data-height="true" data-phrase="Jukebox"></a>
             </li>
           </ul>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -1291,10 +1291,10 @@
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
-              <a class="nav-link active text-dark alwaysEnabled" href="#tabAbout" data-bs-toggle="tab" data-height="true" data-phrase="About"></a>
+              <a class="nav-link active alwaysEnabled" href="#tabAbout" data-bs-toggle="tab" data-height="true" data-phrase="About"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark alwaysEnabled" href="#tabShortcuts" data-bs-toggle="tab" data-height="true" data-phrase="Shortcuts"></a>
+              <a class="nav-link alwaysEnabled" href="#tabShortcuts" data-bs-toggle="tab" data-height="true" data-phrase="Shortcuts"></a>
             </li>
           </ul>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -1521,16 +1521,16 @@
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
-              <a class="nav-link active text-dark" href="#tabSongDetails" data-bs-toggle="tab" data-height="true" data-phrase="Song details"></a>
+              <a class="nav-link active" href="#tabSongDetails" data-bs-toggle="tab" data-height="true" data-phrase="Song details"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark featPictures" href="#tabSongPics" data-bs-toggle="tab" data-height="true" data-phrase="Pictures"></a>
+              <a class="nav-link featPictures" href="#tabSongPics" data-bs-toggle="tab" data-height="true" data-phrase="Pictures"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark featLyrics" href="#tabSongLyrics" data-bs-toggle="tab" data-height="true" data-phrase="Lyrics"></a>
+              <a class="nav-link featLyrics" href="#tabSongLyrics" data-bs-toggle="tab" data-height="true" data-phrase="Lyrics"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabSongComments" data-bs-toggle="tab" data-height="true" data-phrase="Comments"></a>
+              <a class="nav-link" href="#tabSongComments" data-bs-toggle="tab" data-height="true" data-phrase="Comments"></a>
             </li>
           </ul>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -1759,9 +1759,11 @@
                   <div class="input-group">
                     <select id="selectMountUrlhandler" class="form-control form-select border-secondary rounded-end-0"></select>
                     <input id="inputMountUrl" class="form-control border-secondary" type="text"/>
-                    <button id="btnDropdownNeighbors" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
-                    <div id="dropdownNeighbors" class="dropdown-menu border-0 p-0 dropdown-menu-right">
-                      <div class="list-group"></div>
+                    <div class="btn-group">
+                      <button id="btnDropdownNeighbors" class="btn btn-secondary dropdown-toggle dropdown-toggle-split square-start rounded-end" type="button" data-bs-toggle="dropdown"></button>
+                      <div id="dropdownNeighbors" class="dropdown-menu dropdown-menu-dark dropdown-menu-right border-0 p-0 ">
+                        <div class="list-group"></div>
+                      </div>
                     </div>
                     <div class="invalid-feedback" data-phrase="Invalid backend uri"></div>
                   </div>
@@ -1872,7 +1874,7 @@
                 <textarea class="form-control text-monospace border-secondary" id="textareaScriptContent" rows="10"></textarea>
                 <div class="btn-group mt-2 me-2">
                   <button id="btnDropdownAddAPIcall" data-title-phrase="Insert API call" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">api</span></button>
-                  <div class="dropdown-menu bg-lite-dark px-2" id="dropdownAddAPIcall">
+                  <div class="dropdown-menu  dropdown-menu-dark px-2" id="dropdownAddAPIcall">
                     <div class="input-group">
                       <select class="form-control form-select border-secondary" id="selectAPIcall"></select>
                       <button class="btn btn-success" id="btnAddAPIcall" data-title-phrase="Add"><span class="mi">add</span></button>
@@ -1887,7 +1889,7 @@
                 </div>
                 <div class="btn-group mt-2">
                   <button id="btnDropdownAddFunction" data-title-phrase="Insert function" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">functions</span></button>
-                  <div class="dropdown-menu bg-lite-dark px-2" id="dropdownAddFunction">
+                  <div class="dropdown-menu  dropdown-menu-dark px-2" id="dropdownAddFunction">
                     <div class="input-group">
                       <select class="form-control form-select border-secondary" id="selectFunction"></select>
                       <button class="btn btn-success" id="btnAddFunction" data-title-phrase="Add"><span class="mi">add</span></button>
@@ -2138,7 +2140,7 @@
                   <div class=" input-group">
                     <input type="text" class="form-control border-secondary" id="inputHomeIconLigature" readonly="readonly"/>
                     <button id="btnHomeIconLigature" type="button" data-bs-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
-                    <div id="dropdownHomeIconLigature" class="dropdown-menu px-2">
+                    <div id="dropdownHomeIconLigature" class="dropdown-menu  dropdown-menu-dark px-2">
                       <div class="row">
                         <div class="col">
                           <input id="searchHomeIconLigature" type="text" class="form-control border-secondary" data-placeholder-phrase="Filter"/>

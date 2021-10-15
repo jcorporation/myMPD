@@ -18,10 +18,16 @@ function initHome() {
     }, false);
     
     document.getElementById('HomeCards').addEventListener('contextmenu', function(event) {
+        if (event.target.id === 'HomeCards') {
+            return;
+        }
         popoverMenuHome(event);
     }, false);
 
     document.getElementById('HomeCards').addEventListener('long-press', function(event) {
+        if (event.target.id === 'HomeCards') {
+            return;
+        }
         popoverMenuHome(event);
     }, false);
    

@@ -434,7 +434,7 @@ function parseDatabase(obj) {
         if (obj.result.tag === 'Album') {
             picture = subdir + '/albumart/' + obj.result.data[i].FirstSongUri;
         
-            const cardBody = elCreate('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "bg-white", "d-flex"], "id": id}, '');
+            const cardBody = elCreate('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id}, '');
             const cardFooter = elCreate('div', {"class": ["card-footer", "card-footer-grid", "p-2"], 
                 "title": obj.result.data[i].AlbumArtist + ': ' + obj.result.data[i].Album}, obj.result.data[i].Album);
             cardFooter.appendChild(elCreate('br', {}, ''));
@@ -455,7 +455,7 @@ function parseDatabase(obj) {
             picture = subdir + '/tagart/' + obj.result.tag + '/' + obj.result.data[i].value;
 
             if (obj.result.pics === true) {
-                const cardBody = elCreate('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "bg-white", "d-flex"], "id": id}, '');
+                const cardBody = elCreate('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id}, '');
                 card.appendChild(cardBody);
             }
             

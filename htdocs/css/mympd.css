@@ -8,6 +8,22 @@
   --mympd-coverimagesize: 250px;
   --mympd-coverimagesizesmall: 175px;
   --mympd-highlightcolor: #28a745;
+  --mympd-highlightcolor-contrast: white;
+  --mympd-black-light: #1d2124;
+}
+
+.color-darkgrey {
+  color: var(--bs-gray-600);
+}
+
+.color-darkgrey:hover {
+  color: var(--bs-gray-100);
+}
+
+.bg-gray-800,
+.bg-gray-800:hover {
+  border-color: var(--bs-gray-800);
+  background-color: var(--bs-gray-800);
 }
 
 .highlight {
@@ -20,7 +36,7 @@
 
 #navbar-main div.active {
   border-radius: 0.25rem;
-  background-color: var(--bs-gray-800);
+  background-color: var(--mympd-black-light);
 }
 
 #highlightColorPreview,
@@ -261,10 +277,6 @@ button {
   overflow: hidden;
 }
 
-a {
-  text-decoration: none;
-}
-
 #navQueue > a {
   padding-right: 1rem;
 }
@@ -286,10 +298,6 @@ a.text-success:focus {
 
 .nowrap {
   white-space: nowrap;
-}
-
-#mainMenu::after {
-  display: none !important;
 }
 
 @media only screen and (max-width: 440px) {
@@ -352,8 +360,6 @@ th {
 
 .card {
   word-break: break-word;
-  background-color: transparent !important;
-  border: none;
   margin-bottom: 2rem;
 }
 
@@ -449,7 +455,6 @@ th {
 .album-cover-grid {
   background-size: cover;
   overflow: hidden;
-  background-color: #eee;
   width: var(--mympd-coverimagesizesmall, 175px);
   height: var(--mympd-coverimagesizesmall, 175px);
   max-width: 100%;
@@ -507,10 +512,6 @@ th {
   font-feature-settings: 'liga';
 }
 
-.mi:hover {
-  text-decoration: none;
-}
-
 .mi-left {
   margin-left: -1em;
 }
@@ -528,22 +529,9 @@ th {
   padding: 0.05rem 0.25rem !important;
 }
 
-.color-darkgrey,
-.color-darkgrey:hover {
-  color: var(--bs-gray-600);
-}
-
 .pagination button {
   padding-left: 0.375rem;
   padding-right: 0.375rem;
-}
-
-#btn-outputs-block > button {
-  margin-bottom: 10px;
-}
-
-#btn-outputs-block > button:last-child {
-  margin-bottom: 0;
 }
 
 .btnCleanup {
@@ -556,15 +544,11 @@ th {
 }
 
 #volumeBar {
-  width: 160px;
+  width: 10rem;
 }
 
 .form-range::-webkit-slider-thumb {
   background-color: var(--mympd-highlightcolor);
-}
-
-.form-range:focus::-webkit-slider-thumb {
-  box-shadow: none;
 }
 
 .form-range::-webkit-slider-thumb:active {
@@ -575,29 +559,18 @@ th {
   background-color: var(--mympd-highlightcolor);
 }
 
-.form-range:focus::-moz-range-thumb {
-  box-shadow: none;
-}
-
 .form-range::-moz-range-thumb:active {
   background-color: var(--mympd-highlightcolor);
 }
 
 .title-icon {
-  float: left;
-  margin-right: 5px;
+  margin-right: 0.5rem;
   font-size: 1.8rem;
 }
 
 .col-md {
   max-width: 250px;
   min-width: 250px;
-}
-
-button.active {
-  color: var(--bs-white);
-  background-color: var(--mympd-highlightcolor) !important;
-  border-color: var(--mympd-highlightcolor) !important;
 }
 
 div#alertBox {
@@ -609,15 +582,6 @@ div#alertBox {
   z-index: 1000;
 }
 
-.popover-header {
-  background-color: inherit;
-}
-
-.popover-content {
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
-
 .opacity05 {
   opacity: 0.5;
 }
@@ -626,7 +590,6 @@ caption {
   caption-side: top;
   font-size: 120%;
   font-weight: bold;
-  color: black;
 }
 
 tfoot td {
@@ -691,6 +654,7 @@ div.key {
   line-height: 2rem;
   margin-right: 1rem;
   flex-shrink: 0;
+  background-color: var(--bs-gray-600);
 }
 
 div.row-keymap {
@@ -725,16 +689,11 @@ ol#searchDatabaseCrumb {
 }
 
 .dropdown-item:hover {
-  background-color: var(--bs-gray-800);
+  background-color: var(--bs-gray-700);
 }
 
 .offcanvas-body .dropdown-item {
   padding: 0.2rem 2rem;
-}
-
-.popover-content .dropdown-item:hover,
-.popover-content .dropdown-item:focus {
-  background-color: var(--bs-gray-200);
 }
 
 textarea.small {
@@ -757,11 +716,6 @@ textarea.small {
 .btn-group-xs > .btn {
   padding: 0.12rem;
   border-radius: 0.2rem;
-}
-
-.popover {
-  font-size: 1rem;
-  max-width: none;
 }
 
 img.database-header {
@@ -799,9 +753,12 @@ div#playDropdown .row {
   padding-left: 0;
 }
 
-.btn-success {
-  background-color: var(--mympd-highlightcolor) !important;
-  border-color: var(--mympd-highlightcolor) !important;
+button.active,
+.btn-success,
+.btn-success:hover {
+  color: var(--mympd-highlightcolor-contrast);
+  background-color: var(--mympd-highlightcolor);
+  border-color: var(--mympd-highlightcolor);
 }
 
 #dropdownAddSmartpls {
@@ -834,7 +791,7 @@ div#playDropdown .row {
   margin-bottom: 0;
 }
 
-.top-alert-dismissible .close {
+.top-alert-dismissible .btn-close {
   position: absolute;
   top: 0;
   right: 4rem;
@@ -869,10 +826,6 @@ div#playDropdown .row {
 
 .col {
   min-width: unset;
-}
-
-.toast-header {
-  border-bottom-color: rgba(0, 0, 0, 0.125);
 }
 
 /*resize coverimage in playback card*/
@@ -1074,10 +1027,6 @@ button.clear-button {
   flex: unset !important;
 }
 
-.offcanvas-header .btn-close {
-  margin-top: -2rem;
-}
-
 .offcanvas-body {
   padding: 1rem 0;
 }
@@ -1092,7 +1041,7 @@ body.not-mobile {
 
 body.not-mobile .scrollContainer {
   overflow-y: scroll;
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 body.not-mobile .card {

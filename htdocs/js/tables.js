@@ -272,7 +272,7 @@ function setCols(table) {
             heading += '</th>';
         }
         if (features.featTags === true) {
-            heading += '<th data-col="Action"><a data-title-phrase="' +t('Columns') + '" href="#" class="text-secondary align-middle mi mi-small">settings</a></th>';
+            heading += '<th data-col="Action"><a data-title-phrase="' +t('Columns') + '" href="#" class="align-middle mi mi-small">settings</a></th>';
         }
         else {
             heading += '<th></th>';

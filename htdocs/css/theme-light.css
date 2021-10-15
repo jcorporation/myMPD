@@ -92,7 +92,6 @@ body.theme-light .btn-secondary.focus {
   color: var(--bs-gray-800);
   background-color: var(--bs-gray-500);
   border-color: var(--bs-gray-500);
-  box-shadow: none;
 }
 
 body.theme-light .btn-secondary.disabled,
@@ -108,12 +107,6 @@ body.theme-light .show > .btn-secondary.dropdown-toggle {
   color: var(--bs-gray-800);
   background-color: var(--bs-gray-400);
   border-color: var(--bs-gray-400);
-}
-
-body.theme-light .btn-secondary:not(:disabled):not(.disabled):active:focus,
-body.theme-light .btn-secondary:not(:disabled):not(.disabled).active:focus,
-body.theme-light .show > .btn-secondary.dropdown-toggle:focus {
-  box-shadow: none;
 }
 
 body.theme-light .btn-dark {

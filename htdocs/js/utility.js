@@ -653,7 +653,10 @@ function createPaginationEls(totalPages, curPage) {
     }
     
     const pageDropdownBtn = elCreate('button', {"type": "button", "data-bs-toggle": "dropdown", "class": ["square-end", "btn", "btn-secondary", "dropdown-toggle", "px-2"]}, curPage);
-    const pageDropdownMenu = elCreate('div', {"class": ["dropdown-menu", "bg-lite-dark", "px-2", "pages", "dropdown-menu-right"]}, '');
+    pageDropdownBtn.addEventListener('show.bs.dropdown', function () {
+        alignDropdown(this);
+    });
+    const pageDropdownMenu = elCreate('div', {"class": ["dropdown-menu", "bg-lite-dark", "px-2", "pages", "dropdown-menu-dark"]}, '');
     
     const row = elCreate('div', {"class": ["row"]}, '');
     row.appendChild(elCreate('label', {"class": ["col-sm-8", "col-form-label"]}, tn('Elements per page')));
@@ -872,7 +875,7 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
 }
 
 function createSearchCrumb(filter, op, value) {
-    const btn = elCreate('button', {"class": ["btn", "btn-light", "mr-2"]}, filter + ' ' + op + ' \'' + value + '\'');
+    const btn = elCreate('button', {"class": ["btn", "btn-secondary", "bg-gray-800", "mr-2"]}, filter + ' ' + op + ' \'' + value + '\'');
     setCustomDomProperty(btn, 'data-filter-tag', filter);
     setCustomDomProperty(btn, 'data-filter-op', op);
     setCustomDomProperty(btn, 'data-filter-value', value);
