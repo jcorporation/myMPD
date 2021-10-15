@@ -63,11 +63,12 @@
 #define MPD_OUTPUT_ID_MAX 20
 #define COLS_MAX 20
 
-//max number of results to retrieve from mpd
+//mpd limits
 #define MPD_RESULTS_MIN 25
 #define MPD_RESULTS_MAX 1000
 #define MPD_PLAYLIST_LENGTH_MAX 16384
 #define MPD_BINARY_SIZE_MAX 5242880 //5 MB
+#define MPD_QUEUE_PRIO_MAX 255
 
 //limits for json parsing
 #define JSONRPC_INT_MIN INT_MIN

@@ -18,5 +18,6 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
                             const char *searchstr, const struct t_tags *tagcols);
 bool mympd_api_queue_replace_with_song(struct t_mympd_state *mympd_state, const char *uri);
 bool mympd_api_queue_replace_with_playlist(struct t_mympd_state *mympd_state, const char *plist);
+bool mympd_api_queue_prio_set(struct t_mympd_state *mympd_state, const unsigned trackid, const unsigned priority);
 bool mympd_api_queue_prio_set_highest(struct t_mympd_state *mympd_state, const unsigned trackid);
 #endif

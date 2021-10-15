@@ -719,6 +719,19 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_move");
             }
             break;
+        case MYMPD_API_QUEUE_PRIO_SET:
+            if (json_get_uint_max(request->data, "$.params.songId", &uint_buf1, &error) == true &&
+                json_get_uint(request->data, "$.params.to", 0, MPD_QUEUE_PRIO_MAX, &uint_buf2, &error) == true)
+            {
+                rc = mympd_api_queue_prio_set(mympd_state, uint_buf1, uint_buf2);
+                if (rc == true) {
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "queue");
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "queue", "error", "Failed to set song priority");
+                }
+            }
+            break;
         case MYMPD_API_QUEUE_PRIO_SET_HIGHEST:
             if (json_get_uint_max(request->data, "$.params.songId", &uint_buf1, &error) == true) {
                 rc = mympd_api_queue_prio_set_highest(mympd_state, uint_buf1);

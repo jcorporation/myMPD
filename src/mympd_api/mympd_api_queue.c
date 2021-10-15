@@ -17,9 +17,18 @@
 static sds _mympd_api_get_queue_state(struct mpd_status *status, sds buffer);
 
 //public
+bool mympd_api_queue_prio_set(struct t_mympd_state *mympd_state, const unsigned trackid, const unsigned priority) {
+    //set priority, priority have only an effect in random mode
+    bool rc = mpd_run_prio_id(mympd_state->mpd_state->conn, priority, trackid);
+    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_prio_id") == false) {
+        return false;
+    }
+    return true;
+}
+
 bool mympd_api_queue_prio_set_highest(struct t_mympd_state *mympd_state, const unsigned trackid) {
-    //default prio is 10
-    unsigned priority = 10;
+    //default prio is 0
+    unsigned priority = 1;
     
     //try to get prio of next song
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
@@ -44,13 +53,11 @@ bool mympd_api_queue_prio_set_highest(struct t_mympd_state *mympd_state, const u
             return false;
         }
     }
-    
-    //set priority, priority have only an effect in random mode
-    bool rc = mpd_run_prio_id(mympd_state->mpd_state->conn, (int)priority, trackid);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_prio_id") == false) {
-        return false;
+    if (priority > MPD_QUEUE_PRIO_MAX) {
+        MYMPD_LOG_WARN("MPD queue priority limit reached, setting it to max %d", MPD_QUEUE_PRIO_MAX);
+        priority = MPD_QUEUE_PRIO_MAX;
     }
-    return true;
+    return mympd_api_queue_prio_set(mympd_state, trackid, priority);
 }
 
 bool mympd_api_queue_replace_with_song(struct t_mympd_state *mympd_state, const char *uri) {

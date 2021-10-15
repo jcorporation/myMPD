@@ -372,8 +372,19 @@ const APImethods = {
         "desc": "Shuffles the queue.",
         "params": {}
     },
+    "MYMPD_API_QUEUE_PRIO_SET": {
+        "desc": "Set highest prio for specified song in queue.",
+        "params": {
+            "songId": APIparams.songId,
+            "priority": {
+                "type": "uint",
+                "example": 10,
+                "desc": "Priority of song in queue, max is 255."
+            }
+        }
+    },
     "MYMPD_API_QUEUE_PRIO_SET_HIGHEST": {
-        "desc": "Set highest prio for specified song",
+        "desc": "Set highest priority for specified song in queue.",
         "params": {
             "songId": APIparams.songId
         }
