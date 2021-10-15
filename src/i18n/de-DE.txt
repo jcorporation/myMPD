@@ -637,7 +637,7 @@ Websocket connection failed
 Websocket Verbindung fehlgeschlagen
 
 Connected to myMPD
-Verbindung zu myMPD hergestellt
+myMPD Verbindung hergestellt
 
 Connected to MPD
 Verbindung zu MPD hergestellt
