@@ -321,12 +321,12 @@ set(LIBMPDCLIENT_SOURCES
   dist/libmpdclient/src/mount.c
   dist/libmpdclient/src/neighbor.c
   dist/libmpdclient/src/output.c
-  dist/libmpdclient/src/position.c
   dist/libmpdclient/src/parser.c
   dist/libmpdclient/src/partition.c
   dist/libmpdclient/src/password.c
   dist/libmpdclient/src/player.c
   dist/libmpdclient/src/playlist.c
+  dist/libmpdclient/src/position.c
   dist/libmpdclient/src/queue.c
   dist/libmpdclient/src/quote.c
   dist/libmpdclient/src/replay_gain.c

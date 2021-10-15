@@ -88,6 +88,7 @@ set(LIBMPDCLIENT_SOURCES
   ../dist/libmpdclient/src/password.c
   ../dist/libmpdclient/src/player.c
   ../dist/libmpdclient/src/playlist.c
+  ../dist/libmpdclient/src/position.c
   ../dist/libmpdclient/src/queue.c
   ../dist/libmpdclient/src/quote.c
   ../dist/libmpdclient/src/replay_gain.c
