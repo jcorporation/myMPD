@@ -321,6 +321,7 @@ set(LIBMPDCLIENT_SOURCES
   dist/libmpdclient/src/mount.c
   dist/libmpdclient/src/neighbor.c
   dist/libmpdclient/src/output.c
+  dist/libmpdclient/src/position.c
   dist/libmpdclient/src/parser.c
   dist/libmpdclient/src/partition.c
   dist/libmpdclient/src/password.c

@@ -195,6 +195,18 @@ mpd_send_add_id_to(struct mpd_connection *connection, const char *uri,
 	return mpd_send_s_u_command(connection, "addid", uri, to);
 }
 
+bool
+mpd_send_add_id_whence(struct mpd_connection *connection, const char *uri,
+		   unsigned to, enum mpd_position_whence whence)
+{
+	const char *whence_s = mpd_position_whence_char(whence);
+
+	char to_str[64] = "";
+	snprintf(to_str, 64, "%s%u", whence_s, to);
+
+	return mpd_send_s_s_command(connection, "addid", uri, to_str);
+}
+
 int
 mpd_recv_song_id(struct mpd_connection *connection)
 {
@@ -235,6 +247,24 @@ mpd_run_add_id_to(struct mpd_connection *connection, const char *uri,
 
 	if (!mpd_run_check(connection) ||
 	    !mpd_send_add_id_to(connection, uri, to))
+		return -1;
+
+	id = mpd_recv_song_id(connection);
+
+	if (!mpd_response_finish(connection))
+		id = -1;
+
+	return id;
+}
+
+int
+mpd_run_add_id_whence(struct mpd_connection *connection, const char *uri,
+		  unsigned to, enum mpd_position_whence whence)
+{
+	int id;
+
+	if (!mpd_run_check(connection) ||
+	    !mpd_send_add_id_whence(connection, uri, to, whence))
 		return -1;
 
 	id = mpd_recv_song_id(connection);
@@ -453,14 +483,14 @@ mpd_run_clear_all_tags_id(struct mpd_connection *connection, unsigned id)
 }
 
 bool
-mpd_send_prio(struct mpd_connection *connection, int priority,
+mpd_send_prio(struct mpd_connection *connection, unsigned priority,
 	      unsigned position)
 {
 	return mpd_send_int2_command(connection, "prio", priority, position);
 }
 
 bool
-mpd_run_prio(struct mpd_connection *connection, int priority,
+mpd_run_prio(struct mpd_connection *connection, unsigned priority,
 	     unsigned position)
 {
 	return mpd_run_check(connection) &&
@@ -469,7 +499,7 @@ mpd_run_prio(struct mpd_connection *connection, int priority,
 }
 
 bool
-mpd_send_prio_range(struct mpd_connection *connection, int priority,
+mpd_send_prio_range(struct mpd_connection *connection, unsigned priority,
 		    unsigned start, unsigned end)
 {
 	return mpd_send_i_range_command(connection, "prio", priority,
@@ -477,7 +507,7 @@ mpd_send_prio_range(struct mpd_connection *connection, int priority,
 }
 
 bool
-mpd_run_prio_range(struct mpd_connection *connection, int priority,
+mpd_run_prio_range(struct mpd_connection *connection, unsigned priority,
 		   unsigned start, unsigned end)
 {
 	return mpd_run_check(connection) &&
@@ -486,14 +516,14 @@ mpd_run_prio_range(struct mpd_connection *connection, int priority,
 }
 
 bool
-mpd_send_prio_id(struct mpd_connection *connection, int priority,
+mpd_send_prio_id(struct mpd_connection *connection, unsigned priority,
 		 unsigned id)
 {
 	return mpd_send_int2_command(connection, "prioid", priority, id);
 }
 
 bool
-mpd_run_prio_id(struct mpd_connection *connection, int priority,
+mpd_run_prio_id(struct mpd_connection *connection, unsigned priority,
 		unsigned id)
 {
 	return mpd_run_check(connection) &&

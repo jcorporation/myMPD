@@ -38,6 +38,7 @@
 #define MPD_QUEUE_H
 
 #include "compiler.h"
+#include "position.h"
 #include "tag.h"
 
 #include <stdbool.h>
@@ -254,6 +255,20 @@ mpd_send_add_id_to(struct mpd_connection *connection, const char *uri,
 		   unsigned to);
 
 /**
+ * Inserts a song into the playlist for a given position, and returns its id.
+ * file is always a single file or URL.
+ *
+ * @param connection the connection to MPD
+ * @param uri the URI of the song to be added
+ * @param to the desired position of the song
+ * @param whence how to interpret the position parameter
+ * @return true on success, false on error
+ */
+bool
+mpd_send_add_id_whence(struct mpd_connection *connection, const char *uri,
+		   unsigned to, enum mpd_position_whence whence);
+
+/**
  * Returns the id of the new song in the playlist.  To be called after
  * mpd_send_add_id() or mpd_send_add_id_to().
  *
@@ -286,6 +301,20 @@ mpd_run_add_id(struct mpd_connection *connection, const char *file);
 int
 mpd_run_add_id_to(struct mpd_connection *connection, const char *uri,
 		  unsigned to);
+
+/**
+ * Executes the "addid" command and reads the response.
+ * file is always a single file or URL.
+ *
+ * @param connection the connection to MPD
+ * @param uri the URI of the song to be added
+ * @param to the desired position of the song
+ * @param whence how to interpret the position parameter
+ * @return the new song id, -1 on error or if MPD did not send an id
+ */
+int
+mpd_run_add_id_whence(struct mpd_connection *connection, const char *uri,
+		  unsigned to, enum mpd_position_whence whence);
 
 /**
  * Deletes a song from the queue.
@@ -636,7 +665,7 @@ mpd_run_clear_all_tags_id(struct mpd_connection *connection, unsigned id);
  * @since libmpdclient 2.6
  */
 bool
-mpd_send_prio(struct mpd_connection *connection, int priority,
+mpd_send_prio(struct mpd_connection *connection, unsigned priority,
 	      unsigned position);
 
 /**
@@ -650,7 +679,7 @@ mpd_send_prio(struct mpd_connection *connection, int priority,
  * @since libmpdclient 2.6
  */
 bool
-mpd_run_prio(struct mpd_connection *connection, int priority,
+mpd_run_prio(struct mpd_connection *connection, unsigned priority,
 	     unsigned position);
 
 /**
@@ -667,7 +696,7 @@ mpd_run_prio(struct mpd_connection *connection, int priority,
  * @since libmpdclient 2.8 added support for "UINT_MAX"
  */
 bool
-mpd_send_prio_range(struct mpd_connection *connection, int priority,
+mpd_send_prio_range(struct mpd_connection *connection, unsigned priority,
 		    unsigned start, unsigned end);
 
 /**
@@ -684,7 +713,7 @@ mpd_send_prio_range(struct mpd_connection *connection, int priority,
  * @since libmpdclient 2.8 added support for "UINT_MAX"
  */
 bool
-mpd_run_prio_range(struct mpd_connection *connection, int priority,
+mpd_run_prio_range(struct mpd_connection *connection, unsigned priority,
 		   unsigned start, unsigned end);
 
 /**
@@ -698,7 +727,7 @@ mpd_run_prio_range(struct mpd_connection *connection, int priority,
  * @since libmpdclient 2.6
  */
 bool
-mpd_send_prio_id(struct mpd_connection *connection, int priority,
+mpd_send_prio_id(struct mpd_connection *connection, unsigned priority,
 		 unsigned id);
 
 /**
@@ -712,7 +741,7 @@ mpd_send_prio_id(struct mpd_connection *connection, int priority,
  * @since libmpdclient 2.6
  */
 bool
-mpd_run_prio_id(struct mpd_connection *connection, int priority,
+mpd_run_prio_id(struct mpd_connection *connection, unsigned priority,
 		unsigned id);
 
 /**

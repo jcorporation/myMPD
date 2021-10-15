@@ -38,11 +38,12 @@
  * Do not include this header directly.  Use mpd/client.h instead.
  */
 
-#ifndef MPD_DB_H
-#define MPD_DB_H
+#ifndef LIBMPDCLIENT_SEARCH_H
+#define LIBMPDCLIENT_SEARCH_H
 
 #include "connection.h"
 #include "tag.h"
+#include "position.h"
 #include "compiler.h"
 
 #include <stdbool.h>
@@ -285,6 +286,17 @@ mpd_search_add_sort_tag(struct mpd_connection *connection,
 bool
 mpd_search_add_window(struct mpd_connection *connection,
 		      unsigned start, unsigned end);
+
+/**
+ * Adds the search to the specified position in the queue.
+ *
+ * @param connection a #mpd_connection
+ * @param position the position in the queue
+ * @param whence how to interpret the position parameter
+ */
+bool
+mpd_search_add_position(struct mpd_connection *connection,
+			unsigned position, enum mpd_position_whence whence);
 
 /**
  * Starts the real search with constraints added with

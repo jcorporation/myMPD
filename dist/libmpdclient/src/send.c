@@ -230,6 +230,14 @@ mpd_send_u_s_s_command(struct mpd_connection *connection, const char *command,
 }
 
 bool
+mpd_send_s_s_command(struct mpd_connection *connection, const char *command,
+		       const char *arg1, const char *arg2)
+{
+	return mpd_send_command(connection, command,
+				arg1, arg2, NULL);
+}
+
+bool
 mpd_send_s_u_command(struct mpd_connection *connection, const char *command,
 		     const char *arg1, unsigned arg2)
 {
