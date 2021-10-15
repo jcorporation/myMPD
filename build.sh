@@ -166,7 +166,7 @@ minify() {
   SRC="$2"
   DST="$3"
 
-  #We remove only line-breaks, comments and truncate spaces of lines
+  #We remove only line-breaks, comments, blank lines and trim whitespaces
   echo "Minifying $SRC"
   if [ "$TYPE" = "html" ]
   then
