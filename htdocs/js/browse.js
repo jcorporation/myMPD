@@ -81,7 +81,7 @@ function initBrowse() {
             clickSong(getCustomDomProperty(event.target.parentNode, 'data-uri'), getCustomDomProperty(event.target.parentNode, 'data-name'));
         }
         else if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
+            showPopover(event);
         }
     }, false);
 
@@ -221,7 +221,7 @@ function initBrowse() {
             }
         }
         else if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
+            showPopover(event);
         }
     }, false);
 
@@ -263,7 +263,7 @@ function popoverMenuAlbumCards(event) {
     if (event.target.classList.contains('row')) {
         return;
     }
-    showMenu(event.target, event);
+    showPopover(event);
     const selCards = document.getElementById('BrowseDatabaseListList').getElementsByClassName('selected');
     for (let i = 0, j = selCards.length; i < j; i++) {
         selCards[i].classList.remove('selected');

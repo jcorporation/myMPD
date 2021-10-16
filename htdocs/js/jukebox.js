@@ -14,7 +14,7 @@ function initJukebox() {
             }
         }
         else if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
+            showPopover(event);
         }
     }, false);
     document.getElementById('searchQueueJukeboxStr').addEventListener('keyup', function(event) {

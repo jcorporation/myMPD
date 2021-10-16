@@ -254,7 +254,7 @@ function popoverMenuHome(event) {
         sels[i].classList.remove('selected');
     }
     event.target.parentNode.classList.add('selected');
-    showMenu(event.target, event);
+    showPopover(event);
     event.preventDefault();
     event.stopPropagation();
 }

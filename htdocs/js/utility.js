@@ -966,3 +966,8 @@ function setScrollViewHeight(container) {
     const maxHeight = window.innerHeight - tpos - footerHeight;
     container.parentNode.style.maxHeight = maxHeight + 'px';
 }
+
+function toggleCollapseArrow(el) {
+    const icon = el.getElementsByTagName('span')[0];
+    icon.textContent = icon.textContent === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
+}

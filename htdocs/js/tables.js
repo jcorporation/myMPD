@@ -7,7 +7,7 @@ function dragAndDropTable(table) {
     const tableBody = document.getElementById(table).getElementsByTagName('tbody')[0];
     tableBody.addEventListener('dragstart', function(event) {
         if (event.target.nodeName === 'TR') {
-            hideMenu();
+            hidePopover();
             event.target.classList.add('opacity05');
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
@@ -355,7 +355,7 @@ function saveColsPlayback(table) {
 function replaceTblRow(row, el) {
     const menuEl = row.querySelector('[data-popover]');
     if (menuEl) {
-        hideMenu();
+        hidePopover();
     }
     row.replaceWith(el);
 }

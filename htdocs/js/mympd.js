@@ -523,9 +523,7 @@ function appInit() {
         collapseArrow.addEventListener('click', function(event) {
             event.stopPropagation();
             event.preventDefault();
-            const icon = this.getElementsByTagName('span')[0];
-            icon.textContent = icon.textContent === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
-            event.stopPropagation();
+            toggleCollapseArrow(this);
         }, false);
     }    
     //align dropdowns
@@ -555,7 +553,7 @@ function appInit() {
     }
     //hide popover
     domCache.body.addEventListener('click', function() {
-        hideMenu();
+        hidePopover();
     }, false);
     //init moduls
     initGlobalModals();
@@ -618,7 +616,7 @@ function appInit() {
             {
                 return;
             }
-            showMenu(event.target, event);
+            showPopover(event);
             event.preventDefault();
             event.stopPropagation();
         }, false);
@@ -630,7 +628,7 @@ function appInit() {
             {
                 return;
             }
-            showMenu(event.target, event);
+            showPopover(event);
             event.preventDefault();
             event.stopPropagation();
         }, false);
