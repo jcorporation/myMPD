@@ -31,7 +31,7 @@ function showPopover(event) {
 
 function createPopoverTh(el) {
     const popoverInit = new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: false, title: tn('Columns'), content: 'content'});
-    el.addEventListener('show.bs.popover', function(event) {
+    el.addEventListener('show.bs.popover', function() {
         const menu = elCreate('form', {}, '');
         setColsChecklist(app.id, menu);
         menu.appendChild(elCreate('button', {"class": ["btn", "btn-success", "btn-sm", "w-100", "mt-2"]}, tn('Apply')));
@@ -56,7 +56,7 @@ function createPopoverTh(el) {
 
 function createPopoverTd(el) {
     const popoverInit = new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: false, content: 'content'});
-    el.addEventListener('show.bs.popover', function(event) {
+    el.addEventListener('show.bs.popover', function() {
         const menu = elCreate('div', {}, '');
         createMenuTd(el, menu);
         menu.addEventListener('click', function(eventClick) {
@@ -96,6 +96,15 @@ function addMenuItem(menu, cmd, text) {
 }
 
 function createMenuTd(el, menu) {
+    if (app.current.app === 'Home') {
+        createMenuHome(el, menu);
+    }
+    else {
+        createMenuGeneric(el, menu);
+    }
+}
+
+function createMenuGeneric(el, menu) {
     let type = getCustomDomProperty(el, 'data-type');
     let uri = getCustomDomProperty(el, 'data-uri');
     let name = getCustomDomProperty(el, 'data-name');
@@ -156,6 +165,7 @@ function createMenuTd(el, menu) {
                 }
             }
             else {
+                const baseuri = dirname(uri);
                 //songs must be arragend in one album per folder
                 addMenuItem(div, {"cmd": "appendQueue", "options": [type, baseuri, name]}, 'Append to queue');
                 //add after playing song works only for single songs
@@ -166,6 +176,8 @@ function createMenuTd(el, menu) {
                 }
             }
             menu.appendChild(div);
+            //collapsible elements are not supported by bootstrap.native
+            //we show/hide the collapse manually
             //new BSN.Collapse(a);
         }
     }
@@ -252,36 +264,38 @@ function createMenuTd(el, menu) {
         addMenuItem(menu, {"cmd": "appGoto", "options": ["Browse", "Database", "Detail", 0, 50, "Album", tagAlbumArtist, vAlbum, vAlbumArtist]}, 'Show album');
         addMenuItem(menu, {"cmd": "delQueueJukeboxSong", "options": [pos]}, 'Remove');
     }
-    else if (app.current.app === 'Home') {
-        const pos = getCustomDomProperty(el.parentNode, 'data-pos');
-        const href = getCustomDomProperty(el.parentNode, 'data-href');
-        if (href === null || href === undefined) {
-            return;
-        }
-        let actionDesc = '';
-        if (href.cmd === 'replaceQueue' && href.options[0] === 'plist') {
-            type = 'plist';
-            uri = href.options[1];
-            actionDesc = 'Add and play playlist';
-            name = 'Playlist';
-        }
-        else if (href.cmd === 'appGoto') {
-            type = 'view';
-            actionDesc = 'Goto view';
-            name = 'View';
-        }
-        else if (href.cmd === 'execScriptFromOptions') {
-            type = 'script';
-            actionDesc = 'Execute script';
-            name = 'Script';
-        }
-        menu.appendChild(elCreate('h6', {"class": ["dropdown-header"]}, tn(name)));
-        addMenuItem(menu, {"cmd": "executeHomeIcon", "options": [pos]}, actionDesc);
-        if (type === 'plist') {
-            addMenuItem(menu, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
-        }
-        addMenuItem(menu, {"cmd": "editHomeIcon", "options": [pos]}, 'Edit home icon');
-        addMenuItem(menu, {"cmd": "duplicateHomeIcon", "options": [pos]}, 'Duplicate home icon');
-        addMenuItem(menu, {"cmd": "deleteHomeIcon", "options": [pos]}, 'Delete home icon');
+}
+
+function createMenuHome(el, menu) {
+    const pos = getCustomDomProperty(el.parentNode, 'data-pos');
+    const href = getCustomDomProperty(el.parentNode, 'data-href');
+    if (href === null || href === undefined) {
+        return;
     }
+    let type = '';
+    let actionDesc = '';
+    let name = '';
+    if (href.cmd === 'replaceQueue' && href.options[0] === 'plist') {
+        type = 'plist';
+        actionDesc = 'Add and play playlist';
+        name = 'Playlist';
+    }
+    else if (href.cmd === 'appGoto') {
+        type = 'view';
+        actionDesc = 'Goto view';
+        name = 'View';
+    }
+    else if (href.cmd === 'execScriptFromOptions') {
+        type = 'script';
+        actionDesc = 'Execute script';
+        name = 'Script';
+    }
+    menu.appendChild(elCreate('h6', {"class": ["dropdown-header"]}, tn(name)));
+    addMenuItem(menu, {"cmd": "executeHomeIcon", "options": [pos]}, actionDesc);
+    if (type === 'plist') {
+        addMenuItem(menu, {"cmd": "playlistDetails", "options": [href.options[1]]}, 'View playlist');
+    }
+    addMenuItem(menu, {"cmd": "editHomeIcon", "options": [pos]}, 'Edit home icon');
+    addMenuItem(menu, {"cmd": "duplicateHomeIcon", "options": [pos]}, 'Duplicate home icon');
+    addMenuItem(menu, {"cmd": "deleteHomeIcon", "options": [pos]}, 'Delete home icon');
 }
