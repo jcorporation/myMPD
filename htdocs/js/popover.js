@@ -48,18 +48,13 @@ function showMenu(el, event) {
 }
 
 function createMenuTh(el) {
-    let menu = '<form class="p-2" id="colChecklist' + app.id + '">';
-    menu += setColsChecklist(app.id);
-    menu += '<button class="btn btn-success w-100 btn-sm mt-2">' + t('Apply') + '</button>';
-    menu += '</form>';
-    const popoverInit = new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover">' +
-        '<div class="popover-arrow"></div>' +
-        '<div class="popover-header">' + tn('Columns') + '</div>' +
-        '<div class="popover-content" id="' + app.id + 'ColsDropdown">' + menu + '</div>' +
-        '</div>', content: 'content'});
-    el.addEventListener('shown.bs.popover', function(event) {
+    const popoverInit = new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: false, title: tn('Columns'), content: 'content'});
+    el.addEventListener('show.bs.popover', function(event) {
         event.target.setAttribute('data-popover', 'true');
-        document.getElementById('colChecklist' + app.id).addEventListener('click', function(eventClick) {
+        const menu = elCreate('form', {}, '');
+        setColsChecklist(app.id, menu);
+        menu.appendChild(elCreate('button', {"class": ["btn", "btn-success", "btn-sm", "w-100", "mt-2"]}, tn('Apply')));
+        menu.addEventListener('click', function(eventClick) {
             if (eventClick.target.nodeName === 'BUTTON' && eventClick.target.classList.contains('mi')) {
                 toggleBtnChk(eventClick.target);
                 eventClick.preventDefault();
@@ -70,6 +65,10 @@ function createMenuTh(el) {
                 saveCols(app.id);
             }
         }, false);
+        const popoverBody = popoverInit.popover.getElementsByClassName('popover-body')[0];
+        elClear(popoverBody);
+        popoverBody.appendChild(menu);
+        popoverBody.setAttribute('id', app.id + 'ColsDropdown');
     }, false);
     return popoverInit;
 }

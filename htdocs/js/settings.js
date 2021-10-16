@@ -804,6 +804,10 @@ function parseMPDSettings() {
         if (lastSongObj !== null) {
             setPlaybackCardTags(lastSongObj);
         }
+        //tagselect dropdown
+        const menu = document.getElementById('PlaybackColsDropdown').getElementsByTagName('form')[0];
+        elClear(menu);
+        setColsChecklist('Playback', menu);
     }
 
     if (settings.tagList.includes('Title')) {
@@ -832,14 +836,14 @@ function parseMPDSettings() {
         }
     }
 
+    //set table columns
     setCols('QueueCurrent');
-    setCols('Search');
     setCols('QueueLastPlayed');
     setCols('QueueJukebox');
     setCols('BrowseFilesystem');
     setCols('BrowsePlaylistsDetail');
     setCols('BrowseDatabaseDetail');
-    setCols('Playback');
+    setCols('Search');
 
     addTagList('BrowseDatabaseByTagDropdown', 'tagListBrowse');
     addTagList('BrowseNavPlaylistsDropdown', 'tagListBrowse');

@@ -42,6 +42,7 @@
 
 button.active,
 .btn-success,
+.btn-success:focus,
 .btn-success:hover {
   color: var(--mympd-highlightcolor-contrast);
   background-color: var(--mympd-highlightcolor);

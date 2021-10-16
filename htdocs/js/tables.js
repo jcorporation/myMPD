@@ -211,33 +211,30 @@ function setColTags(table) {
     return tags;
 }
 
-function setColsChecklist(table) {
-    let tagChks = '';
+function setColsChecklist(table, menu) {
     const tags = setColTags(table);
     for (let i = 0, j = tags.length; i < j; i++) {
         if (table === 'Playback' && tags[i] === 'Title') {
             continue;
         }
         if (tags[i] === 'dropdownTitleSticker') {
-            tagChks += '<h6 class="dropdown-header pl-0">' + t('Sticker') + '</h6>';
+            menu.appendChild(elCreate('h6', {"class": ["dropdown-header"]}, tn('Sticker')));
         }
         else {
-            tagChks += '<div class="form-check">' +
-                '<button class="btn btn-secondary btn-xs clickable mi mi-small' +
-                (settings['cols' + table].includes(tags[i]) ? ' active' : '') + '" name="' + tags[i] + '">' +
-                (settings['cols' + table].includes(tags[i]) ? 'check' : 'radio_button_unchecked') + '</button>' +
-                '<label class="form-check-label" for="' + tags[i] + '">&nbsp;&nbsp;' + t(tags[i]) + '</label>' +
-                '</div>';
+            const div = elCreate('div', {"class": ["form-check"]}, '');
+            const btn = elCreate('button', {"class": ["btn", "btn-secondary", "btn-xs", "clickable", "mi", "mi-small", "me-2"], "name": tags[i]}, 'radio_button_unchecked');
+            if (settings['cols' + table].includes(tags[i])) {
+                btn.classList.add('active');
+                btn.textContent = 'check'
+            }
+            div.appendChild(btn);
+            div.appendChild(elCreate('lable', {"class": ["form-check-label"], "for": tags[i]}, tn(tags[i])));
+            menu.appendChild(div);
         }
     }
-    return tagChks;
 }
 
 function setCols(table) {
-    const colsChkList = document.getElementById(table + 'ColsDropdown');
-    if (colsChkList) {
-        colsChkList.firstChild.innerHTML = setColsChecklist(table);
-    }
     let sort = app.current.sort;
     
     if (table === 'Search' && app.apps.Search.sort === 'Title') {
@@ -252,33 +249,31 @@ function setCols(table) {
         }
     }
     
-    if (table !== 'Playback') {
-        let heading = '';
-        for (let i = 0, j = settings['cols' + table].length; i < j; i++) {
-            let h = settings['cols' + table][i];
-            heading += '<th draggable="true" data-col="' + h  + '">';
-            if (h === 'Track' || h === 'Pos') {
-                h = '#';
-            }
-            heading += t(h);
+    const thead = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+    elClear(thead);
 
-            if (table === 'Search' && (h === sort || '-' + h === sort) ) {
-                let sortdesc = false;
-                if (app.current.sort.indexOf('-') === 0) {
-                    sortdesc = true;
-                }
-                heading += '<span class="sort-dir mi float-end">' + (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
+    for (let i = 0, j = settings['cols' + table].length; i < j; i++) {
+        const hname = settings['cols' + table][i];
+        const th = elCreate('th', {"draggable": "true", "data-col": settings['cols' + table][i]}, tn(hname));
+        if (hname === 'Track' || hname === 'Pos') {
+            th.textContent = '#';
+        }
+
+        if (table === 'Search' && (hname === sort || ('-' + hname) === sort) ) {
+            let sortdesc = false;
+            if (app.current.sort.indexOf('-') === 0) {
+                sortdesc = true;
             }
-            heading += '</th>';
+            th.appendChild(elCreate('span', {"class": ["sort-dir", "mi", "float-end"]}, (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down')));
         }
-        if (features.featTags === true) {
-            heading += '<th data-col="Action"><a data-title-phrase="' +t('Columns') + '" href="#" class="align-middle mi mi-small">settings</a></th>';
-        }
-        else {
-            heading += '<th></th>';
-        }
-        document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
+        thead.appendChild(th);
     }
+    //append action column
+    const th = elCreate('th', {"data-col": "Action"}, '');
+    if (features.featTags === true) {
+        th.appendChild(elCreate('a', {"class": ["align-middle", "mi", "mi-small", "clickable"], "data-title-phrase": tn('Columns')}, 'settings'));
+    }
+    thead.appendChild(th);
 }
 
 function saveCols(table, tableEl) {
