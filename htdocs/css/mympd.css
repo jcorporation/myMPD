@@ -1000,3 +1000,7 @@ body.not-mobile .BrowseDatabaseCardsContainer {
 body.not-mobile .card {
   margin-bottom: 0;
 }
+
+.popover .dropdown-item {
+  padding-left: 1.5rem;
+}

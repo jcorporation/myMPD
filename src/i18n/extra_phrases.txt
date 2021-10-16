@@ -103,3 +103,18 @@ Reset to default
 Image
 Authentication required
 Priority
+Add after current playing song
+Add and play playlist
+Delete home icon
+Delete playlist
+Duplicate home icon
+Edit playlist
+Edit smart playlist
+Play after current playing song
+Remove
+Remove all downwards
+Remove all upwards
+Rescan directory
+Show album
+Update directory
+View playlist

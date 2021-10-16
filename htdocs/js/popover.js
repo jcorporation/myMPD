@@ -166,7 +166,6 @@ function createMenuTd(el, menu) {
                 }
             }
             menu.appendChild(div);
-            //collapse not working in popovers
             //new BSN.Collapse(a);
         }
     }

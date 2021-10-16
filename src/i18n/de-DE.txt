@@ -1870,3 +1870,5 @@ Standardaktionen
 Priority
 Priorität
 
+Album actions
+Album Aktionen
