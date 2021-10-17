@@ -51,7 +51,8 @@ Look at https://jcorporation.github.io/myMPD/debug
 
  - tarball of /var/lib/mympd/state (``tar -cf mympd_state.tar /var/lib/mympd/state``)
  - tarball of /var/lib/mympd/config (``tar -cf mympd_config.tar /var/lib/mympd/config``)
- 
+ - `mpd.conf` 
+
 **Additional context**
 
 Add any other context about the problem here.
