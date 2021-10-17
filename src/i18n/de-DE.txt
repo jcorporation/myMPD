@@ -1881,3 +1881,9 @@ Setzen
 
 Set song priority
 Setze Liedpriorität
+
+Set priority
+Setze Priorität
+
+Show album
+Album anzeigen

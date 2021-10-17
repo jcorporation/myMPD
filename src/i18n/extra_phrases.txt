@@ -118,3 +118,4 @@ Rescan directory
 Show album
 Update directory
 View playlist
+Set priority

@@ -279,6 +279,10 @@ function gotoBrowse(event) {
     }
 }
 
+function gotoAlbum(artist, album) {
+    appGoto('Browse', 'Database', 'Detail', '0', undefined, 'Album', tagAlbumArtist, album, artist);
+}
+
 function parseFilesystem(obj) {
     //show images in folder
     const imageList = document.getElementById('BrowseFilesystemImages');

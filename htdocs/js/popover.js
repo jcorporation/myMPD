@@ -65,13 +65,13 @@ function createPopoverTd(el) {
             '<li class="nav-item"><a class="nav-link" href="#"></a></li>' +
             '</ul>' +
             '<div class="tab-content">' +
-            '<div class="tab-pane fade active show" id="popoverTab0">...</div>' +
-            '<div class="tab-pane fade" id="popoverTab1">...</div>' +
+            '<div class="tab-pane pt-2 active show" id="popoverTab0"></div>' +
+            '<div class="tab-pane pt-2" id="popoverTab1"></div>' +
             '</div>' +
             '</div></div>'});
     
     const tabHeader = popoverInit.popover.getElementsByClassName('nav-link');
-    const tabPanes = popoverInit.popover.getElementsByClassName('tab-pane');  
+    const tabPanes = popoverInit.popover.getElementsByClassName('tab-pane');
     for (let i = 0; i < 2; i++) {
         tabHeader[i].addEventListener('click', function(event) {
             tabHeader[i].classList.add('active');
@@ -84,8 +84,8 @@ function createPopoverTd(el) {
         }, false);
 
         elClear(tabPanes[i]);
-        createMenuTd(el, tabHeader[i], tabPanes[i], i);
-        if (tabHeader.textContent !== '') {
+        const created = createMenuTd(el, tabHeader[i], tabPanes[i], i);
+        if (created === true) {
             tabPanes[i].addEventListener('click', function(eventClick) {
                 const target = eventClick.target.nodeName === 'SPAN' ? eventClick.target.parentNode : eventClick.target;
                 if (target.nodeName === 'A') {
@@ -100,7 +100,8 @@ function createPopoverTd(el) {
             }, false);
         }
         else {
-            elHide(tabHeader[i].parentNode);
+            popoverInit.popover.getElementsByClassName('popover-header')[0].textContent = tabHeader[0].textContent;
+            tabHeader[0].parentNode.parentNode.remove();
         }
     }
     return popoverInit;
@@ -114,14 +115,14 @@ function addMenuItem(tabContent, cmd, text) {
 
 function createMenuTd(el, tabHeader, tabContent, tabNr) {
     if (app.current.app === 'Home' && tabNr === 0) {
-        createMenuHome(el, tabHeader, tabContent);
+        return createMenuHome(el, tabHeader, tabContent);
     }
-    else if (tabNr === 0) {
-        createMenuGeneric(el, tabHeader, tabContent);
+    
+    if (tabNr === 0) {
+        return createMenuGeneric(el, tabHeader, tabContent);
     }
-    else {
-        createMenuSecondary(el, tabHeader, tabContent);
-    }
+    
+    return createMenuSecondary(el, tabHeader, tabContent);
 }
 
 function createMenuGeneric(el, tabHeader, tabContent) {
@@ -178,8 +179,10 @@ function createMenuGeneric(el, tabHeader, tabContent) {
             addMenuItem(tabContent, {"cmd": "updateDB", "options": [dirname(uri), true]}, 'Update directory');
             addMenuItem(tabContent, {"cmd": "rescanDB", "options": [dirname(uri), true]}, 'Rescan directory');
         }
+        return true;
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
+    
+    if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
         const albumArtist = getCustomDomProperty(dataNode, 'data-albumartist');
         const album = getCustomDomProperty(dataNode, 'data-album');
         addMenuItem(tabContent, {"cmd": "appGoto", "options": ["Browse", "Database", "Detail", 0, undefined, "Album", tagAlbumArtist, album, albumArtist]}, 'Show album');
@@ -188,8 +191,10 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         if (features.featPlaylists === true) {
             addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, 'Add to playlist');
         }
+        return true;
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
+    
+    if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
         const smartplsOnly = getCustomDomProperty(dataNode, 'data-smartpls-only');
         if (smartplsOnly === false || type !== 'smartpls') {
             addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue');
@@ -210,8 +215,10 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         if (features.featHome === true) {
             addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, name]}, 'Add to homescreen');
         }
+        return true;
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
+    
+    if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
         const x = document.getElementById('BrowsePlaylistsDetailList');
         addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue');
         addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue');
@@ -225,8 +232,10 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         if (isStreamUri(uri) === false) {
             addMenuItem(tabContent, {"cmd": "songDetails", "options": [uri]}, 'Song details');
         }
+        return true;
     }
-    else if (app.current.app === 'Queue' && app.current.tab === 'Current') {
+    
+    if (app.current.app === 'Queue' && app.current.tab === 'Current') {
         const trackid = getCustomDomProperty(dataNode, 'data-trackid');
         const songpos = getCustomDomProperty(dataNode, 'data-songpos');
         if (isStreamUri(uri) === false) {
@@ -242,8 +251,10 @@ function createMenuGeneric(el, tabHeader, tabContent) {
             addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [uri, ""]}, 'Add to playlist');
         }
         addMenuItem(tabContent, {"cmd": "showSetSongPriority", "options": [trackid]}, 'Set priority');
+        return true;
     }
-    else if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
+    
+    if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
         addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue');
         addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue');
         if (features.featPlaylists === true) {
@@ -252,8 +263,10 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         if (isStreamUri(uri) === false) {
             addMenuItem(tabContent, {"cmd": "songDetails", "options": [uri]}, 'Song details');
         }
+        return true;
     }
-    else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
+    
+    if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
         const pos = Number(getCustomDomProperty(dataNode, 'data-pos'));
         const vAlbum = getCustomDomProperty(dataNode, 'data-album');
         const vAlbumArtist = getCustomDomProperty(dataNode, 'data-albumartist');
@@ -262,7 +275,9 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         }
         addMenuItem(tabContent, {"cmd": "appGoto", "options": ["Browse", "Database", "Detail", 0, 50, "Album", tagAlbumArtist, vAlbum, vAlbumArtist]}, 'Show album');
         addMenuItem(tabContent, {"cmd": "delQueueJukeboxSong", "options": [pos]}, 'Remove');
+        return true;
     }
+    return false;
 }
 
 function createMenuSecondary(el, tabHeader, tabContent) {
@@ -291,6 +306,7 @@ function createMenuSecondary(el, tabHeader, tabContent) {
             if (features.featPlaylists === true) {
                 addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["addPlaylist", vAlbumArtist, vAlbum]}, 'Add to playlist');
             }
+            addMenuItem(tabContent, {"cmd": "gotoAlbum", "options": [vAlbumArtist, vAlbum]}, 'Show album');
         }
         else {
             tabHeader.textContent = tn('Directory');
@@ -304,7 +320,9 @@ function createMenuSecondary(el, tabHeader, tabContent) {
                 addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [baseuri, ""]}, 'Add to playlist');
             }
         }
+        return true;
     }
+    return false;
 }
 
 function createMenuHome(el, tabHeader, tabContent) {
@@ -339,4 +357,5 @@ function createMenuHome(el, tabHeader, tabContent) {
     addMenuItem(tabContent, {"cmd": "editHomeIcon", "options": [pos]}, 'Edit home icon');
     addMenuItem(tabContent, {"cmd": "duplicateHomeIcon", "options": [pos]}, 'Duplicate home icon');
     addMenuItem(tabContent, {"cmd": "deleteHomeIcon", "options": [pos]}, 'Delete home icon');
+    return true;
 }
