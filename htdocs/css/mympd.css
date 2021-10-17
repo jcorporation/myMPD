@@ -4,6 +4,32 @@
  https://github.com/jcorporation/mympd
 */
 
+/* sticky toolbar for desktop devices */
+body.not-mobile {
+  overflow: hidden;
+}
+
+body.not-mobile .scrollContainer {
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+body.not-mobile .BrowseDatabaseCardsContainer {
+  overflow-x: hidden;
+}
+
+body.not-mobile .card {
+  margin-bottom: 0;
+}
+
+body.not-mobile .album-cover-grid > div {
+  display: none;
+}
+
+body.not-mobile .album-cover-grid:hover > div {
+  display: block;
+}
+
 :root {
   --mympd-coverimagesize: 250px;
   --mympd-coverimagesizesmall: 175px;
@@ -364,7 +390,7 @@ th {
   white-space: nowrap;
 }
 
-.card {
+div.card {
   word-break: break-word;
   margin-bottom: 2rem;
 }
@@ -485,13 +511,13 @@ th {
   visibility: hidden;
 }
 
-.card-toolbar {
+div.card-toolbar {
   margin-bottom: 0.8rem;
   margin-right: -0.5rem;
 }
 
-.card-toolbar > div,
-.card-toolbar > form {
+div.card-toolbar > div,
+div.card-toolbar > form {
   margin-bottom: 0.6rem;
 }
 
@@ -984,24 +1010,6 @@ button.input-inner-button:focus {
 .no-flex {
   width: auto !important;
   flex: unset !important;
-}
-
-/* sticky toolbar for desktop devices */
-body.not-mobile {
-  overflow: hidden;
-}
-
-body.not-mobile .scrollContainer {
-  overflow-y: auto;
-  overflow-x: auto;
-}
-
-body.not-mobile .BrowseDatabaseCardsContainer {
-  overflow-x: hidden;
-}
-
-body.not-mobile .card {
-  margin-bottom: 0;
 }
 
 .popover .dropdown-item {

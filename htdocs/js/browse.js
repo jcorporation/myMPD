@@ -43,36 +43,7 @@ function initBrowse() {
             popoverMenuAlbumCards(event);
         }
     }, false);
-    
-    if (isMobile === false) {
-        document.getElementById('BrowseDatabaseListList').addEventListener('mouseover', function(event) {
-            if (app.current.tag !== 'Album') {
-                return;
-            }
-            if (event.target.classList.contains('card-body') && event.target.childNodes.length === 0) {
-                const oldEls = document.getElementById('BrowseDatabaseListList').getElementsByClassName('album-grid-mouseover');
-                const oldElsLen = oldEls.length;
-                if (oldElsLen > 1) {
-                    for (let i = 0; i < oldElsLen; i++) {
-                        if (oldEls[i] !== undefined) {
-                            oldEls[i].remove();
-                        }
-                    }
-                }
-                addPlayButton(event.target);
-            }
-        }, false);
-
-        document.getElementById('BrowseDatabaseListList').addEventListener('mouseout', function(event) {
-            if (app.current.tag !== 'Album') {
-                return;
-            }
-            if (event.target.classList.contains('card-body') && (event.relatedTarget === null || ! event.relatedTarget.classList.contains('album-grid-mouseover'))) {
-                elClear(event.target);
-            }
-        }, false);
-    }
-    
+   
     document.getElementById('BrowseDatabaseDetailList').addEventListener('click', function(event) {
         if (event.target.parentNode.parentNode.nodeName === 'TFOOT') {
             return;
@@ -447,9 +418,7 @@ function parseDatabase(obj) {
             setCustomDomProperty(card, 'data-name', obj.result.data[i].Album);
             setCustomDomProperty(card, 'data-album', obj.result.data[i].Album);
             setCustomDomProperty(card, 'data-albumartist', obj.result.data[i].AlbumArtist);
-            if (isMobile === true) {
-                addPlayButton(cardBody);
-            }
+            addPlayButton(cardBody);
         }
         else {
             picture = subdir + '/tagart/' + obj.result.tag + '/' + obj.result.data[i].value;
