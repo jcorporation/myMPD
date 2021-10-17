@@ -2157,19 +2157,21 @@
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="inputHomeIconLigature" data-phrase="Ligature"></label>
                 <div class="col-sm-8">
-                  <div class=" input-group">
+                  <div class="input-group">
                     <input type="text" class="form-control" id="inputHomeIconLigature" readonly="readonly"/>
-                    <button id="btnHomeIconLigature" type="button" data-bs-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
-                    <div id="dropdownHomeIconLigature" class="dropdown-menu  dropdown-menu-dark px-2">
-                      <div class="row">
-                        <div class="col">
-                          <input id="searchHomeIconLigature" type="text" class="form-control" data-placeholder-phrase="Filter"/>
+                    <div class="btn-group">
+                      <button id="btnHomeIconLigature" type="button" data-bs-toggle="dropdown" class="square-start text-left btn btn-secondary dropdown-toggle"></button>
+                      <div id="dropdownHomeIconLigature" class="dropdown-menu  dropdown-menu-dark px-2">
+                        <div class="row">
+                          <div class="col">
+                            <input id="searchHomeIconLigature" type="text" class="form-control" data-placeholder-phrase="Filter"/>
+                          </div>
+                          <div class="col">
+                            <select id="searchHomeIconCat" class="form-select"></select>
+                          </div>
                         </div>
-                        <div class="col">
-                          <select id="searchHomeIconCat" class="form-select"></select>
-                        </div>
+                        <div id="listHomeIconLigature"></div>
                       </div>
-                      <div id="listHomeIconLigature"></div>
                     </div>
                   </div>
                 </div>
