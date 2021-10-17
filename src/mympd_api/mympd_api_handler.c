@@ -721,7 +721,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_QUEUE_PRIO_SET:
             if (json_get_uint_max(request->data, "$.params.songId", &uint_buf1, &error) == true &&
-                json_get_uint(request->data, "$.params.to", 0, MPD_QUEUE_PRIO_MAX, &uint_buf2, &error) == true)
+                json_get_uint(request->data, "$.params.priority", 0, MPD_QUEUE_PRIO_MAX, &uint_buf2, &error) == true)
             {
                 rc = mympd_api_queue_prio_set(mympd_state, uint_buf1, uint_buf2);
                 if (rc == true) {

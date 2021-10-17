@@ -1870,5 +1870,14 @@ Standardaktionen
 Priority
 Priorität
 
-Album actions
-Album Aktionen
+Directory
+Verzeichnis
+
+Priority must be in range 0 - 255
+Prioritat muss zwischen 0 und 255 sein
+
+Set
+Setzen
+
+Set song priority
+Setze Liedpriorität

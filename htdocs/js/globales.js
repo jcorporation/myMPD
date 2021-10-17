@@ -576,6 +576,7 @@ uiElements.modalPicture = new BSN.Modal(document.getElementById('modalPicture'))
 uiElements.modalEditHomeIcon = new BSN.Modal(document.getElementById('modalEditHomeIcon'));
 uiElements.modalConfirm = new BSN.Modal(document.getElementById('modalConfirm'));
 uiElements.modalEnterPin = new BSN.Modal(document.getElementById('modalEnterPin'));
+uiElements.modalSetSongPriority = new BSN.Modal(document.getElementById('modalSetSongPriority'));
 
 uiElements.dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
 uiElements.dropdownLocalPlayer = new BSN.Dropdown(document.getElementById('localPlaybackMenu'));

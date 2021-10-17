@@ -78,6 +78,13 @@ function initQueue() {
         plName.value = '';
         removeIsInvalid(document.getElementById('modalSaveQueue'));
     });
+
+    document.getElementById('modalSetSongPriority').addEventListener('shown.bs.modal', function () {
+        const prioEl = document.getElementById('inputSongPriority');
+        prioEl.focus();
+        prioEl.value = '';
+        removeIsInvalid(document.getElementById('modalSetSongPriority'));
+    });
 }
 
 function parseUpdateQueue(obj) {
@@ -321,13 +328,49 @@ function addToQueue() {
 
 //eslint-disable-next-line no-unused-vars
 function saveQueue() {
-    const plName = document.getElementById('saveQueueName').value;
-    if (validatePlname(plName) === true) {
-        sendAPI("MYMPD_API_QUEUE_SAVE", {"plist": plName});
-        uiElements.modalSaveQueue.hide();
+    const plNameEl = document.getElementById('saveQueueName');
+    if (validatePlnameEl(plName) === true) {
+        sendAPI("MYMPD_API_QUEUE_SAVE", {
+            "plist": plNameEl.value
+        }, saveQueueCheckError, true);
+    }
+}
+
+function saveQueueCheckError(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
     }
     else {
-        document.getElementById('saveQueueName').classList.add('is-invalid');
+        hideModalAlert();
+        uiElements.modalSaveQueue.hide();
+    }
+}
+
+//eslint-disable-next-line no-unused-vars
+function showSetSongPriority(trackId) {
+    document.getElementById('inputSongPriorityTrackId').value = trackId;
+    uiElements.modalSetSongPriority.show();
+}
+
+//eslint-disable-next-line no-unused-vars
+function setSongPriority() {
+    const trackId = Number(document.getElementById('inputSongPriorityTrackId').value);
+    const priorityEl = document.getElementById('inputSongPriority');
+    if (validateIntRange(priorityEl, 0, 255) === true) {
+        sendAPI("MYMPD_API_QUEUE_PRIO_SET", {
+            "songId": trackId,
+            "priority": Number(priorityEl.value)
+        }, setSongPriorityCheckError, true);
+    }
+}
+
+function setSongPriorityCheckError(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        hideModalAlert();
+        uiElements.modalSetSongPriority.hide();
     }
 }
 
