@@ -960,16 +960,19 @@ body.locked button.protected::before {
   margin-right: 0.5rem;
 }
 
-/* clear icon for search inputs */
-button.clear-button {
+/* inner button for inputs */
+button.input-inner-button,
+button.input-inner-button:hover,
+button.input-inner-button:active,
+button.input-inner-button:focus {
   border: none;
-  background: none !important;
-  height: 100%;
+  background: none;
+  height: 2.4rem;
   position: absolute;
+  top: 0;
   right: 0;
   padding-right: 0.5rem;
   padding-left: 0.5rem;
-  top: 0;
   z-index: 3;
 }
 

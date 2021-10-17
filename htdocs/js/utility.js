@@ -808,7 +808,6 @@ function parseCmd(event, href) {
             case 'toggleBtnGroupCollapse':
             case 'zoomPicture':
             case 'setPlaySettings':
-            case 'resetToDefault':
             case 'voteSong':
                 window[cmd.cmd](event.target, ... cmd.options);
                 break;

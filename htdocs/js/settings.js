@@ -668,10 +668,11 @@ function _createSettingsFrm(fields, defaults, prefix) {
                 (fields[key] === false ? 'radio_button_unchecked' : 'check') + '</button>';
         }
         else {
-            advFrm[form] += '<mympd-input-reset id="' + prefix + r(key) + '" placeholder="' + defaults[key].defaultValue + '" ' +
-                'value="' + e(fields[key]) + '" ' +
-                (defaults[key].invalid !== undefined ? 'data-invalid-phrase="' + t(defaults[key].invalid) +'"' : '') +
-                ' type="' + (defaults[key].inputType === 'color' ? 'color' : 'text') + '"></mympd-input-reset>';
+            advFrm[form] += '<input is="mympd-input-reset" id="' + prefix + r(key) + '" placeholder="' + defaults[key].defaultValue + '" ' +
+                'value="' + e(fields[key]) + '"  class="form-control" type="' + (defaults[key].inputType === 'color' ? 'color' : 'text') + '"/>';
+        }
+        if (defaults[key].invalid !== undefined) {
+            advFrm[form] += '<div class="invalid-feedback" data-phrase="' + defaults[key].invalid + '"></div>';
         }
         advFrm[form] += '</div></div>';
         if (defaults[key].warn !== undefined) {
@@ -1155,13 +1156,6 @@ function setNavbarIcons() {
     //cache elements, reused in appPrepare
     domCache.navbarBtns = container.getElementsByTagName('div');
     domCache.navbarBtnsLen = domCache.navbarBtns.length;
-}
-
-//eslint-disable-next-line no-unused-vars
-function resetToDefault(button) {
-    const el = button.nodeName === 'BUTTON' ? button.parentNode.previousElementSibling : button.parentNode.parentNode.previousElementSibling;
-    el.value = getCustomDomProperty(el, 'data-default') !== null ? getCustomDomProperty(el, 'data-default') : 
-        (el.getAttribute( 'placeholder') !== null ? el.getAttribute('placeholder') : '');
 }
 
 function getBgImageList(image) {
