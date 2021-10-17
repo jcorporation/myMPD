@@ -101,6 +101,15 @@ mpd_send_i_range_command(struct mpd_connection *connection,
 			 const char *command, int arg1,
 			 unsigned start, unsigned end);
 
+/**
+ * Send command with one integer argument followed by a range argument
+ * and a to parameter.
+ */
+bool
+mpd_send_s_range_to_command(struct mpd_connection *connection,
+			 const char *command, const char *arg1,
+			 unsigned start, unsigned end, char *to);
+
 bool
 mpd_send_u_range_command(struct mpd_connection *connection,
 			 const char *command, unsigned arg1,

@@ -42,6 +42,7 @@
 #define LIBMPDCLIENT_PLAYLIST_H
 
 #include "compiler.h"
+#include "position.h"
 
 #include <stdbool.h>
 #include <time.h>
@@ -333,6 +334,43 @@ mpd_send_load_range(struct mpd_connection *connection, const char *name,
 bool
 mpd_run_load_range(struct mpd_connection *connection, const char *name,
 		   unsigned start, unsigned end);
+
+/**
+ * Like mpd_send_load() or mpd_send_load_range(), but with range 
+ * and to parameters.
+ *
+ * @param connection the connection to MPD
+ * @param name the name of the playlist file
+ * @param start the start position of the range (including)
+ * @param end the end position of the range (excluding); the special
+ * value "UINT_MAX" makes the end of the range open
+ * @param to the desired position of the song
+ * @param whence how to interpret the position parameter
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.20
+ */
+bool
+mpd_send_load_range_to(struct mpd_connection *connection, const char *name,
+		   unsigned start, unsigned end, unsigned to, enum mpd_position_whence whence);
+
+/**
+ * Shortcut for mpd_send_load_range_to() and mpd_response_finish().
+ *
+ * @param connection the connection to MPD
+ * @param name the name of the playlist file
+ * @param start the start position of the range (including)
+ * @param end the end position of the range (excluding); the special
+ * value "UINT_MAX" makes the end of the range open
+ * @param to the desired position of the song
+ * @param whence how to interpret the position parameter
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.20
+ */
+bool
+mpd_run_load_range_to(struct mpd_connection *connection, const char *name,
+		   unsigned start, unsigned end, unsigned to, enum mpd_position_whence whence);
 
 /**
  * Rename a playlist in the playlist directory.

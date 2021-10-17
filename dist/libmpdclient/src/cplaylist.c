@@ -27,6 +27,7 @@
 */
 
 #include <mpd/playlist.h>
+#include <mpd/position.h>
 #include <mpd/send.h>
 #include <mpd/response.h>
 #include "isend.h"
@@ -172,6 +173,27 @@ mpd_run_load_range(struct mpd_connection *connection, const char *name,
 {
 	return mpd_run_check(connection) &&
 		mpd_send_load_range(connection, name, start, end) &&
+		mpd_response_finish(connection);
+}
+
+bool
+mpd_send_load_range_to(struct mpd_connection *connection, const char *name,
+		    unsigned start, unsigned end, unsigned to, enum mpd_position_whence whence)
+{
+	const char *whence_s = mpd_position_whence_char(whence);
+	char to_str[64] = "";
+	snprintf(to_str, 64, "%s%u", whence_s, to);
+
+	return mpd_send_s_range_to_command(connection, "load", name,
+					start, end, to_str);
+}
+
+bool
+mpd_run_load_range_to(struct mpd_connection *connection, const char *name,
+		   unsigned start, unsigned end, unsigned to, enum mpd_position_whence whence)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_load_range_to(connection, name, start, end, to, whence) &&
 		mpd_response_finish(connection);
 }
 

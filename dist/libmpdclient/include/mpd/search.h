@@ -293,6 +293,8 @@ mpd_search_add_window(struct mpd_connection *connection,
  * @param connection a #mpd_connection
  * @param position the position in the queue
  * @param whence how to interpret the position parameter
+ * 
+ * @since libmpdclient 2.20
  */
 bool
 mpd_search_add_position(struct mpd_connection *connection,

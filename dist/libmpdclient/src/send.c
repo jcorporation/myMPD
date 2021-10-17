@@ -271,6 +271,18 @@ mpd_send_s_range_command(struct mpd_connection *connection,
 }
 
 bool
+mpd_send_s_range_to_command(struct mpd_connection *connection,
+			 const char *command, const char *arg1,
+			 unsigned start, unsigned end, char *to)
+{
+	char range_string[INTLEN * 2 + 1];
+
+	format_range(range_string, sizeof(range_string), start, end);
+	return mpd_send_command(connection, command,
+				arg1, range_string, to, NULL);
+}
+
+bool
 mpd_send_i_range_command(struct mpd_connection *connection,
 			 const char *command, int arg1,
 			 unsigned start, unsigned end)

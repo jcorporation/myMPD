@@ -263,6 +263,8 @@ mpd_send_add_id_to(struct mpd_connection *connection, const char *uri,
  * @param to the desired position of the song
  * @param whence how to interpret the position parameter
  * @return true on success, false on error
+ * 
+ * @since libmpdclient 2.20
  */
 bool
 mpd_send_add_id_whence(struct mpd_connection *connection, const char *uri,
@@ -311,6 +313,8 @@ mpd_run_add_id_to(struct mpd_connection *connection, const char *uri,
  * @param to the desired position of the song
  * @param whence how to interpret the position parameter
  * @return the new song id, -1 on error or if MPD did not send an id
+ * 
+ * @since libmpdclient 2.20
  */
 int
 mpd_run_add_id_whence(struct mpd_connection *connection, const char *uri,
