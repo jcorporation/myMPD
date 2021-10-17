@@ -507,10 +507,6 @@ div.card {
   padding-bottom: 1.25rem;
 }
 
-.unvisible {
-  visibility: hidden;
-}
-
 div.card-toolbar {
   margin-bottom: 0.8rem;
   margin-right: -0.5rem;
@@ -755,10 +751,6 @@ img.database-header {
 
 div.database-header {
   padding: 0.37rem 0.75rem !important;
-}
-
-.container {
-  max-width: none;
 }
 
 #dropdownHomeIconLigature .row {
@@ -1010,8 +1002,4 @@ button.input-inner-button:focus {
 .no-flex {
   width: auto !important;
   flex: unset !important;
-}
-
-.popover .dropdown-item {
-  padding-left: 1.5rem;
 }
