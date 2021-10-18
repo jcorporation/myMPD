@@ -43,6 +43,9 @@ class inputReset extends HTMLInputElement {
         if (this.parentNode.firstElementChild.getAttribute('type') === 'color') {
             button.style.right = '1.5rem';
         }
+        else if (this.parentNode.classList.contains('col-sm-8')) {
+            button.style.right = '1rem';
+        }
         this.parentNode.insertBefore(button, this.nextSibling);
         this.button = button;
     }

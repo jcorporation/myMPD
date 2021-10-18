@@ -649,7 +649,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
         advFrm[form] += '<div class="mb-3 row">' +
                     '<label class="col-sm-4 col-form-label" for="' + prefix + r(key) + '" data-phrase="' + 
                     e(defaults[key].title) + '">' + t(defaults[key].title) + '</label>' +
-                    '<div class="col-sm-8 ">';
+                    '<div class="col-sm-8 position-relative">';
         if (defaults[key].inputType === 'select') {
             advFrm[form] += '<select id="' + prefix + r(key) + '" class="form-select">';
             for (let value in defaults[key].validValues) {

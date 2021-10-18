@@ -941,7 +941,7 @@
                 <h4 data-phrase="Albumart"></h4>
                 <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="inputCoverimageNames" data-phrase="Name"></label>
-                  <div class="col-sm-8 ">
+                  <div class="col-sm-8 position-relative">
                     <input is="mympd-input-reset" id="inputCoverimageNames" type="text" class="form-control" placeholder="folder,cover"/>
                     <div class="invalid-feedback" data-phrase="Invalid filename"></div>
                   </div>
@@ -949,7 +949,7 @@
                 <div id="coverimageFrm"></div>
                 <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="inputBookletName" data-phrase="Booklet filename"></label>
-                  <div class="col-sm-8 ">
+                  <div class="col-sm-8 position-relative">
                     <input is="mympd-input-reset" id="inputBookletName" type="text" class="form-control" placeholder="booklet.pdf"/>
                     <div class="invalid-feedback" data-phrase="Invalid filename"></div>
                   </div>
@@ -1048,7 +1048,7 @@
                   </div>
                   <div class="mb-3 row">
                     <label class="col-sm-4 col-form-label" for="inputSmartplsPrefix" data-phrase="Smart playlists prefix"></label>
-                    <div class="col-sm-8">
+                    <div class="col-sm-8 position-relative">
                       <input is="mympd-input-reset" id="inputSmartplsPrefix" type="text" class="form-control" placeholder="myMPDsmart"/>
                       <div class="invalid-feedback" data-phrase="Invalid prefix"></div>
                     </div>
@@ -1061,11 +1061,15 @@
                   </div>
                   <div class="mb-3 row">
                     <label class="col-sm-4 col-form-label" for="inputSmartplsInterval" data-phrase="Update interval"></label>
-                    <div class="col-sm-7">
-                      <input is="mympd-input-reset" id="inputSmartplsInterval" type="text" class="form-control rounded" placeholder="4"/>  
-                      <div class="invalid-feedback" data-phrase="Invalid number"></div>
+                    <div class="col-sm-8">
+                      <div class="input-group">
+                        <div class="flex-grow position-relative">
+                          <input is="mympd-input-reset" id="inputSmartplsInterval" type="text" class="form-control rounded" placeholder="4"/>  
+                        </div>
+                        <span class="input-group-text-nobg" data-phrase="Hours"></span>
+                        <div class="invalid-feedback" data-phrase="Invalid number"></div>
+                      </div>
                     </div>
-                    <div class="col-sm-1 col-form-label" data-phrase="Hours"></div>
                   </div>
                 </div>
               </form>
@@ -1107,12 +1111,14 @@
                 </div>
                 <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="inputCovercacheKeepDays" data-phrase="Covercache expiration"></label>
-                  <div class="col-sm-7">
-                    <input is="mympd-input-reset" id="inputCovercacheKeepDays" type="text" class="form-control rounded" placeholder="7"/>
+                  <div class="col-sm-8">
+                    <div class="input-group">
+                      <div class="flex-grow position-relative">
+                        <input is="mympd-input-reset" id="inputCovercacheKeepDays" type="text" class="form-control rounded" placeholder="7"/>
+                      </div>
+                      <span class="input-group-text-nobg" data-phrase="Days"></span>
+                    </div>
                     <div class="invalid-feedback" data-phrase="Invalid number"></div>
-                  </div>
-                  <div class="col-sm-1 col-form-label">
-                    <span data-phrase="Days"></span>
                   </div>
                 </div>
                 <div class="mb-3 row featPlaylists">
@@ -1256,7 +1262,7 @@
                   </div>
                   <div class="mb-3 row">
                     <label class="col-sm-4 col-form-label" for="inputJukeboxQueueLength" data-phrase="Keep queue length"></label>
-                    <div class="col-sm-8">
+                    <div class="col-sm-8 position-relative">
                       <input is="mympd-input-reset" id="inputJukeboxQueueLength" type="text" class="form-control" placeholder="1"/>
                       <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
                     </div>
@@ -1373,14 +1379,14 @@
           <form id="connectionFrm">
             <div class="mb-3 row">
               <label class="col-sm-4 col-form-label" for="inputMpdHost" data-phrase="MPD host"></label>
-              <div class="col-sm-8">
+              <div class="col-sm-8 position-relative">
                 <input is="mympd-input-reset" id="inputMpdHost" type="text" class="form-control alwaysEnabled" placeholder="/run/mpd/socket"/>
                 <div class="invalid-feedback" data-phrase="Invalid MPD host"></div>
               </div>
             </div>
             <div class="mb-3 row">
               <label class="col-sm-4 col-form-label" for="inputMpdPort" data-phrase="MPD port"></label>
-              <div class="col-sm-8">
+              <div class="col-sm-8 position-relative">
                 <input is="mympd-input-reset" id="inputMpdPort" type="text" class="form-control alwaysEnabled" placeholder="6600"/>
                 <div class="invalid-feedback" data-phrase="Invalid MPD port"></div>
               </div>
@@ -1414,26 +1420,28 @@
               <div id="warnMusicDirectory" class="alert alert-warning d-none" data-phrase="Music directory not found"></div>
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="inputPlaylistDirectory" data-phrase="Playlist directory"></label>
-                <div class="col-sm-8">
+                <div class="col-sm-8 position-relative">
                   <input is="mympd-input-reset" id="inputPlaylistDirectory" type="text" class="form-control alwaysEnabled" placeholder="/var/lib/mpd/playlists"/>
                   <div class="invalid-feedback" data-phrase="Invalid playlist directory"></div>
                 </div>
               </div>
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="inputMpdStreamPort" data-phrase="Stream port"></label>
-                <div class="col-sm-8">
+                <div class="col-sm-8 position-relative">
                   <input is="mympd-input-reset" id="inputMpdStreamPort" type="text" class="form-control alwaysEnabled" placeholder="8080"/>
                   <div class="invalid-feedback" data-phrase="Invalid stream port"></div>
                 </div>
               </div>
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="inputMpdTimeout" data-phrase="Timeout"></label>
-                <div class="col-sm-7">
-                  <input is="mympd-input-reset" id="inputMpdTimeout" type="text" class="form-control alwaysEnabled" placeholder="10"/>
+                <div class="col-sm-8">
+                  <div class="input-group">
+                    <div class="flex-grow position-relative">
+                      <input is="mympd-input-reset" id="inputMpdTimeout" type="text" class="form-control alwaysEnabled" placeholder="10"/>
+                    </div>
+                    <span class="input-group-text-nobg" data-phrase="Seconds"></span>
+                  </div>
                   <div class="invalid-feedback" data-phrase="Invalid timeout"></div>
-                </div>
-                <div class="col-sm-1  col-form-label">
-                  <span data-phrase="Seconds"></span>
                 </div>
               </div>
               <div class="mb-3 row">
@@ -1447,12 +1455,14 @@
                   <span data-phrase="Binary limit"></span>
                   <small class="mi mi-small ms-1" data-title-phrase="BinaryLimitHelpText">help</small>
                 </label>
-                <div class="col-sm-7">
-                  <input is="mympd-input-reset" id="inputMpdBinarylimit" type="text" class="form-control alwaysEnabled" placeholder="8"/>
+                <div class="col-sm-8">
+                  <div class="input-group">
+                    <div class="flex-grow position-relative">
+                      <input is="mympd-input-reset" id="inputMpdBinarylimit" type="text" class="form-control alwaysEnabled" placeholder="8"/>
+                    </div>
+                    <span class="input-group-text-nobg data-phrase="kB"></span>
+                  </div>
                   <div class="invalid-feedback" data-phrase="Invalid binary limit"></div>
-                </div>
-                <div class="col-sm-1 col-form-label">
-                  <span data-phrase="kB"></span>
                 </div>
               </div>
             </div>
