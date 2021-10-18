@@ -8,6 +8,13 @@ function hidePopover() {
     if (menuEl) {
         menuEl.Popover.hide();
     }
+    else {
+        //remove popover with no trigger element
+        const popover = document.getElementsByClassName('popover')[0];
+        if (popover) {
+            popover.remove();
+        }
+    }
 }
 
 function showPopover(event) {
@@ -50,6 +57,19 @@ function createPopoverTh(el) {
         elClear(popoverBody);
         popoverBody.appendChild(menu);
         popoverBody.setAttribute('id', app.id + 'ColsDropdown');
+    }, false);
+    el.addEventListener('shown.bs.popover', function(event) {
+        //resize popover-body to prevent screen overflow
+        const popoverId = event.target.getAttribute('aria-describedby');
+        const popover = document.getElementById(popoverId);
+        const offsetTop = popover.offsetTop;
+        if (offsetTop < 0) {
+            const b = popover.getElementsByClassName('popover-body')[0];
+            const h = popover.getElementsByClassName('popover-header')[0];
+            b.style.maxHeight = (popover.offsetHeight + offsetTop - h.offsetHeight) + 'px';
+            popover.style.top = 0;
+            b.style.overflow = 'auto';
+        }
     }, false);
     return popoverInit;
 }
@@ -125,6 +145,49 @@ function createMenuTd(el, tabHeader, tabContent, tabNr) {
     return createMenuSecondary(el, tabHeader, tabContent);
 }
 
+function addMenuItemsAlbumActions(tabContent, albumArtist, album) {
+    addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album]}, 'Append to queue');
+    addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album]}, 'Replace queue');
+    if (features.featPlaylists === true) {
+        addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, 'Add to playlist');
+    }
+    tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
+    addMenuItem(tabContent, {"cmd": "gotoAlbum", "options": [albumArtist, album]}, 'Albumdetails');
+    addMenuItem(tabContent, {"cmd": "gotoAlbumList", "options": [tagAlbumArtist, albumArtist]}, 'Show all albums from artist');
+}
+
+function addMenuItemsSongActions(tabContent, uri, name) {
+    if (app.id !== 'QueueCurrent') {
+        addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["song", uri, name]}, 'Append to queue');
+        //todo: use new mpd 0.23 api
+        //addMenuItem(tabContent, {"cmd": "appendAfterQueue", "options": ["song", uri, nextSongPos, name]}, 'Add after current playing song');
+        addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["song", uri, name]}, 'Replace queue');
+    }
+    if (features.featPlaylists === true) {
+        addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [uri, ""]}, 'Add to playlist');
+    }
+    if (isStreamUri(uri) === false) {
+        tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
+        addMenuItem(tabContent, {"cmd": "songDetails", "options": [uri]}, 'Song details');
+    }
+}
+
+function addMenuItemsDirectoryActions(tabContent, baseuri, name) {
+    //songs must be arragend in one album per folder
+    addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["dir", baseuri, name]}, 'Append to queue');
+    //add after playing song works only for single songs
+    //addMenuItem(div, {"cmd": "appendAfterQueue", "options": ["dir", baseuri, nextSongPos, name]}, 'Add after current playing song');
+    addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["dir", baseuri, name]}, 'Replace queue');
+    if (features.featPlaylists === true) {
+        addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [baseuri, ""]}, 'Add to playlist');
+    }
+    if (app.id === 'BrowseFilesystem') {
+        tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
+        addMenuItem(tabContent, {"cmd": "updateDB", "options": [dirname(uri), true]}, 'Update directory');
+        addMenuItem(tabContent, {"cmd": "rescanDB", "options": [dirname(uri), true]}, 'Rescan directory');
+    }
+}
+
 function createMenuGeneric(el, tabHeader, tabContent) {
     let type = getCustomDomProperty(el, 'data-type');
     let uri = getCustomDomProperty(el, 'data-uri');
@@ -145,10 +208,11 @@ function createMenuGeneric(el, tabHeader, tabContent) {
     }
 
     let pType = type;
-    if (type === 'song') { pType = 'Song'; }
+    if (type === 'song') {
+        pType = isStreamUri(uri) === false ? 'Song' : 'Stream';
+    }
     else if (type === 'dir') {
-        if (app.current.tab === 'Database') { pType = 'Album'; }
-        else { pType = 'Directory'; }
+        pType = app.current.tab === 'Database' ? 'Album' : 'Directory';
     }
     else if (type === 'smartpls') { pType = 'Smart playlist'; }
     else if (type === 'plist') { pType = 'Playlist'; }
@@ -158,26 +222,20 @@ function createMenuGeneric(el, tabHeader, tabContent) {
     if ((app.current.app === 'Browse' && app.current.tab === 'Filesystem') || app.current.app === 'Search' ||
         (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail'))
     {
-        addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue');
         if (type === 'song') {
-            addMenuItem(tabContent, {"cmd": "appendAfterQueue", "options": [type, uri, nextSongPos, name]}, 'Add after current playing song');
-        }    
-        addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue');
-        if (type !== 'plist' && type !== 'smartpls' && features.featPlaylists === true) {
-            addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [uri, ""]}, 'Add to playlist');
+            addMenuItemsSongActions(tabContent, uri, name);
         }
-        if (type === 'song') {
-            addMenuItem(tabContent, {"cmd": "songDetails", "options": [uri]}, 'Song details');
+        else if (type === 'dir') {
+            addMenuItemsDirectoryActions(tabContent, uri, name);
         }
-        if (type === 'plist' || type === 'smartpls') {
+        else {
+            addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue');
+            addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue');
+            tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
             addMenuItem(tabContent, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
-        }
-        if ((type === 'plist' || type === 'smartpls') && features.featHome === true) {
-            addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, name]}, 'Add to homescreen');
-        }
-        if (app.current.tab === 'Filesystem' && type === 'dir') {
-            addMenuItem(tabContent, {"cmd": "updateDB", "options": [dirname(uri), true]}, 'Update directory');
-            addMenuItem(tabContent, {"cmd": "rescanDB", "options": [dirname(uri), true]}, 'Rescan directory');
+            if (features.featHome === true) {
+                addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, name]}, 'Add to homescreen');
+            }
         }
         return true;
     }
@@ -185,12 +243,7 @@ function createMenuGeneric(el, tabHeader, tabContent) {
     if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
         const albumArtist = getCustomDomProperty(dataNode, 'data-albumartist');
         const album = getCustomDomProperty(dataNode, 'data-album');
-        addMenuItem(tabContent, {"cmd": "appGoto", "options": ["Browse", "Database", "Detail", 0, undefined, "Album", tagAlbumArtist, album, albumArtist]}, 'Show album');
-        addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album]}, 'Append to queue');
-        addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album]}, 'Replace queue');
-        if (features.featPlaylists === true) {
-            addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, 'Add to playlist');
-        }
+        addMenuItemsAlbumActions(tabContent, albumArtist, album);
         return true;
     }
     
@@ -220,17 +273,11 @@ function createMenuGeneric(el, tabHeader, tabContent) {
     
     if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
         const x = document.getElementById('BrowsePlaylistsDetailList');
-        addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue');
-        addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue');
+        addMenuItemsSongActions(tabContent, uri, name);
+        tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
         if (getCustomDomProperty(x, 'data-ro') === 'false') {
             addMenuItem(tabContent, {"cmd": "removeFromPlaylist", "options": [getCustomDomProperty(x, 'data-uri'), 
                     getCustomDomProperty(el.parentNode.parentNode, 'data-songpos')]}, 'Remove');
-        }
-        if (features.featPlaylists === true) {
-            addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [uri, ""]}, 'Add to playlist');
-        }
-        if (isStreamUri(uri) === false) {
-            addMenuItem(tabContent, {"cmd": "songDetails", "options": [uri]}, 'Song details');
         }
         return true;
     }
@@ -238,31 +285,22 @@ function createMenuGeneric(el, tabHeader, tabContent) {
     if (app.current.app === 'Queue' && app.current.tab === 'Current') {
         const trackid = getCustomDomProperty(dataNode, 'data-trackid');
         const songpos = getCustomDomProperty(dataNode, 'data-songpos');
-        if (isStreamUri(uri) === false) {
-            addMenuItem(tabContent, {"cmd": "songDetails", "options": [uri]}, 'Song details');
-        }
+        addMenuItemsSongActions(tabContent, uri, name);
+        tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
         if (trackid !== lastState.currentSongId) {
             addMenuItem(tabContent, {"cmd": "playAfterCurrent", "options": [trackid, songpos]}, 'Play after current playing song');
         }
+        addMenuItem(tabContent, {"cmd": "showSetSongPriority", "options": [trackid]}, 'Set priority');
+        tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
         addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["single", trackid]}, 'Remove');
         addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", 0, songpos]}, 'Remove all upwards');
         addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", (songpos - 1), -1]}, 'Remove all downwards');
-        if (features.featPlaylists === true) {
-            addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [uri, ""]}, 'Add to playlist');
-        }
-        addMenuItem(tabContent, {"cmd": "showSetSongPriority", "options": [trackid]}, 'Set priority');
+        
         return true;
     }
     
     if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
-        addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue');
-        addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue');
-        if (features.featPlaylists === true) {
-            addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [uri, ""]}, 'Add to playlist');
-        }
-        if (isStreamUri(uri) === false) {
-            addMenuItem(tabContent, {"cmd": "songDetails", "options": [uri]}, 'Song details');
-        }
+        addMenuItemsSongActions(tabContent, uri, name);
         return true;
     }
     
@@ -271,9 +309,12 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         const vAlbum = getCustomDomProperty(dataNode, 'data-album');
         const vAlbumArtist = getCustomDomProperty(dataNode, 'data-albumartist');
         if (settings.jukeboxMode === 1) {
-            addMenuItem(tabContent, {"cmd": "songDetails", "options": [uri]}, 'Song details');
+            addMenuItemsSongActions(tabContent, uri, name);
         }
-        addMenuItem(tabContent, {"cmd": "appGoto", "options": ["Browse", "Database", "Detail", 0, 50, "Album", tagAlbumArtist, vAlbum, vAlbumArtist]}, 'Show album');
+        else if (settings.jukeboxMode === 2) {
+            addMenuItemsAlbumActions(tabContent, vAlbumArtist, vAlbum)
+        }
+        tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
         addMenuItem(tabContent, {"cmd": "delQueueJukeboxSong", "options": [pos]}, 'Remove');
         return true;
     }
@@ -295,30 +336,21 @@ function createMenuSecondary(el, tabHeader, tabContent) {
         if (depth < 2) { depth++; } else { break; }
     }
     
-    if (app.current.app === 'Search') {
+    if (app.current.app === 'Search' ||
+        (app.id === 'QueueCurrent') ||
+        (app.id === 'QueueLastPlayed') ||
+        (app.id === 'QueueJukebox' && settings.jukeboxMode === 1)) {
         //album actions
-        const vAlbum = getCustomDomProperty(dataNode, 'data-album');
-        const vAlbumArtist = getCustomDomProperty(dataNode, 'data-albumartist');
-        if (vAlbum !== undefined && vAlbumArtist !== undefined) {
+        const album = getCustomDomProperty(dataNode, 'data-album');
+        const albumArtist = getCustomDomProperty(dataNode, 'data-albumartist');
+        if (album !== undefined && albumArtist !== undefined) {
             tabHeader.textContent = tn('Album');
-            addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["appendQueue", vAlbumArtist, vAlbum]}, 'Append to queue');
-            addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["replaceQueue", vAlbumArtist, vAlbum]}, 'Replace queue');
-            if (features.featPlaylists === true) {
-                addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["addPlaylist", vAlbumArtist, vAlbum]}, 'Add to playlist');
-            }
-            addMenuItem(tabContent, {"cmd": "gotoAlbum", "options": [vAlbumArtist, vAlbum]}, 'Show album');
+            addMenuItemsAlbumActions(tabContent, albumArtist, album);
         }
         else {
             tabHeader.textContent = tn('Directory');
             const baseuri = dirname(uri);
-            //songs must be arragend in one album per folder
-            addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, baseuri, name]}, 'Append to queue');
-            //add after playing song works only for single songs
-            //addMenuItem(div, {"cmd": "appendAfterQueue", "options": [type, baseuri, nextSongPos, name]}, 'Add after current playing song');
-            addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, baseuri, name]}, 'Replace queue');
-            if (features.featPlaylists === true) {
-                addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [baseuri, ""]}, 'Add to playlist');
-            }
+            addMenuItemsDirectoryActions(tabContent, baseuri, name);
         }
         return true;
     }
