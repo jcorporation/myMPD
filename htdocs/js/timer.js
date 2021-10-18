@@ -164,10 +164,16 @@ function showEditTimer(timerid) {
     elShowId('editTimerFooter');
         
     if (timerid !== 0) {
-        sendAPI("MYMPD_API_TIMER_GET", {"timerid": timerid}, parseEditTimer);
+        sendAPI("MYMPD_API_TIMER_GET", {
+            "timerid": timerid
+        }, parseEditTimer);
     }
     else {
-        sendAPI("MYMPD_API_PLAYLIST_LIST", {"searchstr":"", "offset": 0, "limit": 0}, function(obj2) { 
+        sendAPI("MYMPD_API_PLAYLIST_LIST", {
+            "searchstr":"",
+            "offset": 0,
+            "limit": 0
+        }, function(obj2) {
             getAllPlaylists(obj2, 'selectTimerPlaylist', 'Database');
         });
         document.getElementById('inputTimerId').value = '0';
@@ -183,7 +189,7 @@ function showEditTimer(timerid) {
         toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), 1);
         const weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
         for (let i = 0, j = weekdayBtns.length; i < j; i++) {
-            toggleBtnChk(weekdayBtns[i], false);
+            toggleBtnChkId(weekdayBtns[i], false);
         }
         elShowId('timerActionPlay');
     }
@@ -194,7 +200,11 @@ function showEditTimer(timerid) {
 
 function parseEditTimer(obj) {
     const playlistValue = obj.result.playlist;
-    sendAPI("MYMPD_API_PLAYLIST_LIST", {"searchstr":"", "offset": 0, "limit": 0}, function(obj2) { 
+    sendAPI("MYMPD_API_PLAYLIST_LIST", {
+        "searchstr":"",
+        "offset": 0,
+        "limit": 0
+    }, function(obj2) {
         getAllPlaylists(obj2, 'selectTimerPlaylist', playlistValue);
     });
     document.getElementById('inputTimerId').value = obj.result.timerid;
