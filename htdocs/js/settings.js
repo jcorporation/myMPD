@@ -770,7 +770,7 @@ function parseMPDSettings() {
         setCols(table);
         //enforce albumartist and album for albumactions
         const col = 'cols' + table + 'Fetch';
-        settings[col] = settings.colsSearch.slice();
+        settings[col] = settings['cols' + table].slice();
         if (settings[col].includes('Album') === false && settings.tagList.includes('Album')) {
             settings[col].push('Album');
         }
@@ -778,9 +778,9 @@ function parseMPDSettings() {
             settings[col].push(tagAlbumArtist);
         }
     }
-    
-    if (settings.colsBrowseDatabaseDetail.includes('Disc') === false && settings.tagList.includes('Disc')) {
-        settings.colsBrowseDatabaseDetail.push('Disc');
+    //enforce disc for album details view
+    if (settings.colsBrowseDatabaseDetailFetch.includes('Disc') === false && settings.tagList.includes('Disc')) {
+        settings.colsBrowseDatabaseDetailFetch.push('Disc');
     }
 
     if (features.featTags === false) {
