@@ -98,7 +98,7 @@
       <div class="dropdown-divider"></div>
       <a id="navNotifications" class="subMenu dropdown-item alwaysEnabled" data-bs-toggle="collapse" href="#menu-notifications"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Notifications"></span></a>
       <div id="menu-notifications" class="collapse menu-indent">
-        <div id="logOverview" class="ps-2 pb-0 pe-2"></div>
+        <div id="logOverview" class="ps-4 pe-2"></div>
       </div>
     </div>
   </div>
@@ -1207,13 +1207,11 @@
                 </div>
                 <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="inputCrossfade" data-phrase="Crossfade"></label>
-                  <div class="col-sm-8">
-                    <div class="input-group">
-                      <input id="inputCrossfade" type="text" class="form-control rounded"/>
-                      <div class="input-group-text-nobg" data-phrase="Seconds"></div>
-                    </div>
+                  <div class="col-sm-7">
+                    <input id="inputCrossfade" type="text" class="form-control rounded"/>
                     <div class="invalid-feedback" data-phrase="Must be a number"></div>
                   </div>
+                  <div class="col-sm-1 col-form-label" data-phrase="Seconds"></div>
                 </div>
                 <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="btnReplaygainGroup" data-phrase="Replaygain"></label>
@@ -1273,8 +1271,10 @@
                     <label class="col-sm-4 col-form-label" for="inputJukeboxLastPlayed" data-phrase="Last played older than"></label>
                     <div class="col-sm-8">
                       <div class="input-group">
-                        <input is="mympd-input-reset" id="inputJukeboxLastPlayed" type="text" class="form-control rounded" placeholder="24"/>
-                        <div class="input-group-text-nobg" data-phrase="Hours"></div>
+                        <div class="flex-grow position-relative">
+                          <input is="mympd-input-reset" id="inputJukeboxLastPlayed" type="text" class="form-control rounded" placeholder="24"/>
+                        </div>
+                        <span class="input-group-text-nobg" data-phrase="Hours"></span>
                       </div>
                       <div class="invalid-feedback" data-phrase="Must be a number and equal or greater than zero"></div>
                     </div>
@@ -1632,31 +1632,31 @@
                 <label class="col-sm-4 col-form-label" for="TimerWeekdays" data-phrase="Weekdays"></label>
                 <div class="col-sm-8 mt-3">
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs clickable mi mi-small" id="btnTimerMon">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs mi mi-small" id="btnTimerMon">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerMon" data-phrase="Mon"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs clickable mi mi-small" id="btnTimerTue">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs mi mi-small" id="btnTimerTue">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerTue" data-phrase="Tue"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs clickable mi mi-small" id="btnTimerWed">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs mi mi-small" id="btnTimerWed">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerWed" data-phrase="Wed"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}'  class="btn btn-secondary btn-xs clickable mi mi-small" id="btnTimerThu">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs mi mi-small" id="btnTimerThu">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerThu" data-phrase="Thu"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}'  class="btn btn-secondary btn-xs clickable mi mi-small" id="btnTimerFri">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs mi mi-small" id="btnTimerFri">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerFri" data-phrase="Fri"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}'  class="btn btn-secondary btn-xs clickable mi mi-small" id="btnTimerSat">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs mi mi-small" id="btnTimerSat">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerSat" data-phrase="Sat"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}'  class="btn btn-secondary btn-xs clickable mi mi-small" id="btnTimerSun">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs mi mi-small" id="btnTimerSun">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerSun" data-phrase="Sun"></label>
                   </div>
                   <div id="invalidTimerWeekdays" class="invalid-feedback" data-phrase="Minimum one weekday must be selected"></div>
@@ -1759,7 +1759,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="mi title-icon">dns</span> <span data-phrase="Mounts"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">dns</span><span data-phrase="Mounts"></span></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>          
         </div>
         <div class="modal-body">
@@ -1825,7 +1825,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="mi title-icon">save</span> <span data-phrase="Execute script"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">code</span><span data-phrase="Execute script"></span></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>          
         </div>
         <div class="modal-body">

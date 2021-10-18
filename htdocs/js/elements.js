@@ -43,13 +43,7 @@ class inputReset extends HTMLInputElement {
         if (this.parentNode.firstElementChild.getAttribute('type') === 'color') {
             button.style.right = '1.5rem';
         }
-        else if (this.parentNode.classList.contains('col-sm-7') ||
-        this.parentNode.classList.contains('col-sm-8'))
-        {
-            button.style.right = '1rem';
-        }
         this.parentNode.insertBefore(button, this.nextSibling);
-        this.parentNode.style.position = 'relative';
         this.button = button;
     }
     connectedCallback() {
@@ -60,25 +54,6 @@ class inputReset extends HTMLInputElement {
         }, false);
     }
 }
-
-/*
-class inputReset extends HTMLInputElement {
-    constructor() {
-        super();
-        const button = elCreate('button', {"class": ["mi", "mi-small", "input-inner-button", "btn-secondary"]}, 'settings_backup_restore');
-        this.parentNode.insertBefore(button, this.nextSibling);
-        this.button = button;
-        
-    }
-    connectedCallback() {
-        this.button.addEventListener('mouseup', function(event) {
-            const input = event.target.previousSibling;
-            input.value = getCustomDomProperty(input, 'data-default') !== null ? getCustomDomProperty(input, 'data-default') : 
-                (input.getAttribute('placeholder') !== null ? input.getAttribute('placeholder') : '');
-        }, false);
-    }
-}
-*/
 
 customElements.define('mympd-input-clear', inputClear, {extends: 'input'});
 customElements.define('mympd-input-reset', inputReset, {extends: 'input'});

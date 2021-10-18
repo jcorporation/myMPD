@@ -81,6 +81,10 @@ a.text-success:focus {
   color: var(--mympd-highlightcolor) !important;
 }
 
+.form-select:focus {
+  border-color: var(--mympd-highlightcolor);
+}
+
 #highlightColorPreview,
 #bgColorPreview {
   cursor: default;
@@ -997,4 +1001,8 @@ button.input-inner-button:focus {
 .no-flex {
   width: auto !important;
   flex: unset !important;
+}
+
+.flex-grow {
+  flex-grow: 1;
 }
