@@ -144,14 +144,14 @@ function getQueue() {
             "offset": app.current.offset,
             "limit": app.current.limit,
             "searchstr": app.current.search,
-            "cols": settings.colsQueueCurrent
+            "cols": settings.colsQueueCurrentFetch
         }, parseQueue, true);
     }
     else {
         sendAPI("MYMPD_API_QUEUE_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
-            "cols": settings.colsQueueCurrent
+            "cols": settings.colsQueueCurrentFetch
         }, parseQueue, true);
     }
 }
@@ -186,6 +186,12 @@ function parseQueue(obj) {
         setCustomDomProperty(row, 'data-duration', data.Duration);
         setCustomDomProperty(row, 'data-uri', data.uri);
         setCustomDomProperty(row, 'data-type', 'song');
+        if (data.Album !== undefined) {
+            setCustomDomProperty(row, 'data-album', data.Album);
+        }
+        if (data[tagAlbumArtist] !== undefined) {
+            setCustomDomProperty(row, 'data-albumartist', data[tagAlbumArtist]);
+        }
     }, function(row, data) {
         const list = 'QueueCurrent';
         let tds = '';

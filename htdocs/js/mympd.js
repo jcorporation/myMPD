@@ -164,7 +164,7 @@ function appRoute() {
         sendAPI("MYMPD_API_QUEUE_LAST_PLAYED", {
             "offset": app.current.offset,
             "limit": app.current.limit,
-            "cols": settings.colsQueueLastPlayed,
+            "cols": settings.colsQueueLastPlayedFetch,
             "searchstr": app.current.search
         }, parseLastPlayed, true);
         const searchQueueLastPlayedStrEl = document.getElementById('searchQueueLastPlayedStr');
@@ -176,7 +176,7 @@ function appRoute() {
         sendAPI("MYMPD_API_JUKEBOX_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
-            "cols": settings.colsQueueJukebox,
+            "cols": settings.colsQueueJukeboxFetch,
             "searchstr": app.current.search
         }, parseJukeboxList, true);
         const searchQueueJukeboxStrEl = document.getElementById('searchQueueJukeboxStr');
@@ -214,7 +214,7 @@ function appRoute() {
             "limit": app.current.limit,
             "path": (app.current.search ? app.current.search : "/"), 
             "searchstr": (app.current.filter !== '-' ? app.current.filter : ''),
-            "cols": settings.colsBrowseFilesystem
+            "cols": settings.colsBrowseFilesystemFetch
         }, parseFilesystem, true);
         //Don't add all songs from root
         if (app.current.search) {
@@ -286,14 +286,10 @@ function appRoute() {
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail') {
         if (app.current.filter === 'Album') {
-            const cols = settings.colsBrowseDatabaseDetail.slice();
-            if (cols.includes('Disc') === false) {
-                cols.push('Disc');
-            }
             sendAPI("MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {
                 "album": app.current.tag,
                 "albumartist": app.current.search,
-                "cols": cols
+                "cols": settings.colsBrowseDatabaseDetailFetch
             }, parseAlbumDetails, true);
         }    
     }
@@ -334,7 +330,7 @@ function appRoute() {
                     "sort": sort,
                     "sortdesc": sortdesc,
                     "expression": app.current.search,
-                    "cols": settings.colsSearchActions,
+                    "cols": settings.colsSearchFetch,
                     "replace": false
                 }, parseSearch, true);
             }
@@ -345,7 +341,7 @@ function appRoute() {
                     "limit": app.current.limit,
                     "filter": app.current.filter,
                     "searchstr": app.current.search,
-                    "cols": settings.colsSearchActions,
+                    "cols": settings.colsSearchFetch,
                     "replace": false
                 }, parseSearch, true);
             }

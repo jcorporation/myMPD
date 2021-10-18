@@ -760,24 +760,29 @@ function parseMPDSettings() {
     settings.tagList.sort();
     settings.tagListSearch.sort();
     settings.tagListBrowse.sort();
-    filterCols('Search');
-    filterCols('QueueCurrent');
-    filterCols('QueueLastPlayed');
-    filterCols('QueueJukebox');
-    filterCols('BrowsePlaylistsDetail');
-    filterCols('BrowseFilesystem');
-    filterCols('BrowseDatabaseDetail');
+
     filterCols('Playback');
 
-    //enforce albumartist and album for albumactions
-    settings.colsSearchActions = settings.colsSearch.slice();
-    if (settings.colsSearchActions.includes('Album') === false && settings.tagList.includes('Album')) {
-        settings.colsSearchActions.push('Album');
-    }
-    if (settings.colsSearchActions.includes(tagAlbumArtist) === false && settings.tagList.includes(tagAlbumArtist)) {
-        settings.colsSearchActions.push(tagAlbumArtist);
+    for (const table of ['Search', 'QueueCurrent', 'QueueLastPlayed', 'QueueJukebox', 
+        'BrowsePlaylistsDetail', 'BrowseFilesystem', 'BrowseDatabaseDetail'])
+    {
+        filterCols(table);
+        setCols(table);
+        //enforce albumartist and album for albumactions
+        const col = 'cols' + table + 'Fetch';
+        settings[col] = settings.colsSearch.slice();
+        if (settings[col].includes('Album') === false && settings.tagList.includes('Album')) {
+            settings[col].push('Album');
+        }
+        if (settings[col].includes(tagAlbumArtist) === false && settings.tagList.includes(tagAlbumArtist)) {
+            settings[col].push(tagAlbumArtist);
+        }
     }
     
+    if (settings.colsBrowseDatabaseDetail.includes('Disc') === false && settings.tagList.includes('Disc')) {
+        settings.colsBrowseDatabaseDetail.push('Disc');
+    }
+
     if (features.featTags === false) {
         app.apps.Browse.active = 'Filesystem';
         app.apps.Search.sort = 'filename';
@@ -836,15 +841,6 @@ function parseMPDSettings() {
             tagEls[i].classList.remove('clickable');
         }
     }
-
-    //set table columns
-    setCols('QueueCurrent');
-    setCols('QueueLastPlayed');
-    setCols('QueueJukebox');
-    setCols('BrowseFilesystem');
-    setCols('BrowsePlaylistsDetail');
-    setCols('BrowseDatabaseDetail');
-    setCols('Search');
 
     addTagList('BrowseDatabaseByTagDropdown', 'tagListBrowse');
     addTagList('BrowseNavPlaylistsDropdown', 'tagListBrowse');

@@ -286,6 +286,11 @@ function gotoAlbumList(tag, value) {
     appGoto('Browse', 'Database', 'List', '0', undefined, tag, tagAlbumArtist, 'Album', '((' + tag + ' == \'' + escapeMPD(value) + '\'))');
 }
 
+function gotoFilesystem(uri) {
+    document.getElementById('searchFilesystemStr').value = '';
+    appGoto('Browse', 'Filesystem', undefined, '0', undefined, '-','-','-', uri);
+}
+
 function parseFilesystem(obj) {
     //show images in folder
     const imageList = document.getElementById('BrowseFilesystemImages');
@@ -358,7 +363,7 @@ function addAllFromBrowseDatabasePlist(plist, callback) {
             "searchstr": app.current.search,
             "offset": 0,
             "limit": 0,
-            "cols": settings.colsSearch,
+            "cols": settings.colsSearchFetch,
             "replace": false
         }, callback, true);
     }
@@ -421,7 +426,7 @@ function parseDatabase(obj) {
             card.appendChild(cardFooter);
             setCustomDomProperty(card, 'data-picture', picture);
             setCustomDomProperty(card, 'data-uri', obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, ''));
-            setCustomDomProperty(card, 'data-type', 'dir');
+            setCustomDomProperty(card, 'data-type', 'album');
             setCustomDomProperty(card, 'data-name', obj.result.data[i].Album);
             setCustomDomProperty(card, 'data-album', obj.result.data[i].Album);
             setCustomDomProperty(card, 'data-albumartist', obj.result.data[i].AlbumArtist);

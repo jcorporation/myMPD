@@ -406,6 +406,13 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         //data row
         let tds = '';
         row.setAttribute('tabindex', 0);
+        //set artist and album data
+        if (obj.result.data[i].Album !== undefined) {
+            setCustomDomProperty(row, 'data-album', obj.result.data[i].Album);
+        }
+        if (obj.result.data[i][tagAlbumArtist] !== undefined) {
+            setCustomDomProperty(row, 'data-albumartist', obj.result.data[i][tagAlbumArtist]);
+        }
         //set Title to name if not defined - for folders and playlists
         if (obj.result.data[i].Title === undefined) {
             obj.result.data[i].Title = obj.result.data[i].name;

@@ -141,15 +141,6 @@ function parseSearch(obj) {
         setCustomDomProperty(row, 'data-uri', data.uri);
         row.setAttribute('tabindex', 0);
         row.setAttribute('title', rowTitle);
-        if (features.featTags === true && features.featAdvsearch === true) {
-            //add artist and album information for album actions
-            if (data.Album !== undefined) {
-                setCustomDomProperty(row, 'data-album', data.Album);
-            }
-            if (data[tagAlbumArtist] !== undefined) {
-                setCustomDomProperty(row, 'data-albumartist', data[tagAlbumArtist]);
-            }
-        }
         setCustomDomProperty(row, 'data-name', data.Title);
     });
 }
@@ -174,7 +165,7 @@ function addAllFromSearchPlist(plist, searchstr, replace, callback) {
             "expression": searchstr,
             "offset": 0,
             "limit": 0,
-            "cols": settings.colsSearch, 
+            "cols": settings.colsSearchFetch,
             "replace": replace},
             callback, true);
     }
@@ -184,7 +175,7 @@ function addAllFromSearchPlist(plist, searchstr, replace, callback) {
             "searchstr": searchstr,
             "offset": 0,
             "limit": 0, 
-            "cols": settings.colsSearch, 
+            "cols": settings.colsSearchFetch,
             "replace": replace},
             callback, true);
     }
