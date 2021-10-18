@@ -267,20 +267,23 @@ function gotoBrowse(event) {
             }
             else {
                 //show filtered album list
-                document.getElementById('searchDatabaseStr').value = '';
-                appGoto('Browse', 'Database', 'List', '0', undefined, tag, tagAlbumArtist, 'Album', '((' + tag + ' == \'' + escapeMPD(name) + '\'))');
+                gotoAlbumList(tag, name);
             }
         }
         else {
             //show filtered album list
-            document.getElementById('searchDatabaseStr').value = '';
-            appGoto('Browse', 'Database', 'List', '0', undefined, tag, tagAlbumArtist, 'Album', '((' + tag + ' == \'' + escapeMPD(name) + '\'))');
+            gotoAlbumList(tag, name);
         }
     }
 }
 
 function gotoAlbum(artist, album) {
     appGoto('Browse', 'Database', 'Detail', '0', undefined, 'Album', tagAlbumArtist, album, artist);
+}
+
+function gotoAlbumList(tag, value) {
+    document.getElementById('searchDatabaseStr').value = '';
+    appGoto('Browse', 'Database', 'List', '0', undefined, tag, tagAlbumArtist, 'Album', '((' + tag + ' == \'' + escapeMPD(value) + '\'))');
 }
 
 function parseFilesystem(obj) {

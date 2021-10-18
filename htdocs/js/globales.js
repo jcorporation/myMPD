@@ -587,7 +587,7 @@ uiElements.dropdownHomeIconLigature = new BSN.Dropdown(document.getElementById('
 uiElements.collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
 uiElements.collapseSettings = new BSN.Collapse(document.getElementById('navSettings'));
 uiElements.collapseScripting = new BSN.Collapse(document.getElementById('navScripting'));
-uiElements.collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukeboxMode'));
+uiElements.collapseJukeboxMode = new BSN.Collapse(document.getElementById('collapseJukeboxMode'));
 
 const LUAfunctions = {
     "mympd_api_http_client": {

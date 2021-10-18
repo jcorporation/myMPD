@@ -61,7 +61,7 @@ function getMBtagLink(tag, value) {
             MBentity = 'recording';
             break;
     }
-    if (MBentity === '') {
+    if (MBentity === '' || value === '-') {
         return e(value);
     }
     else {

@@ -531,8 +531,8 @@ function getBtnGroupValueId(id) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function toggleBtnGroupCollapse(id, collapse) {
-    const activeBtn = toggleBtnGroupId(id);
+function toggleBtnGroupCollapse(el, collapse) {
+    const activeBtn = toggleBtnGroup(el);
     if (activeBtn.getAttribute('data-collapse') === 'show') {
         if (document.getElementById(collapse).classList.contains('show') === false) {
             uiElements[collapse].show();
