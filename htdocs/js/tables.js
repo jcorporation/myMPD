@@ -374,7 +374,11 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     if (obj.result.Discs !== undefined && obj.result.Discs > 1) {
         const row = document.createElement('tr');
         row.classList.add('not-clickable');
-        row.innerHTML = '<td><span class="mi">album</span></td><td colspan="' + colspan +'">' + t('Disc 1') + '</td>';
+        setCustomDomProperty(row, 'data-disc', '1');
+        setCustomDomProperty(row, 'data-album', obj.result.data[0].Album);
+        setCustomDomProperty(row, 'data-albumartist', obj.result.data[0][tagAlbumArtist]);
+        row.innerHTML = '<td><span class="mi">album</span></td><td colspan="' + (colspan - 1) +'">' + t('Disc 1') + '</td>' +
+            '<td data-col="Action"><a data-popover="disc" href="#" class="mi color-darkgrey" title="' + t('Actions') + '">' + ligatureMore + '</a></td>';
         if (z < tr.length) {
             replaceTblRow(tr[z], row);
         }
@@ -388,8 +392,12 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         if (obj.result.data[0].Disc !== undefined && lastDisc < Number(obj.result.data[i].Disc)) {
             const row = document.createElement('tr');
             row.classList.add('not-clickable');
-            row.innerHTML = '<td><span class="mi">album</span></td><td colspan="' + colspan +'">' + 
-                t('Disc') + ' ' + e(obj.result.data[i].Disc) + '</td></tr>';
+            setCustomDomProperty(row, 'data-disc', obj.result.data[i].Disc);
+            setCustomDomProperty(row, 'data-album', obj.result.data[i].Album);
+            setCustomDomProperty(row, 'data-albumartist', obj.result.data[i][tagAlbumArtist]);
+            row.innerHTML = '<td><span class="mi">album</span></td><td colspan="' + (colspan - 1) +'">' + 
+                t('Disc') + ' ' + e(obj.result.data[i].Disc) + '</td>' +
+                '<td data-col="Action"><a data-popover="disc" href="#" class="mi color-darkgrey" title="' + t('Actions') + '">' + ligatureMore + '</a></td>';
             if (i + z < tr.length) {
                 replaceTblRow(tr[i + z], row);
             }

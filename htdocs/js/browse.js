@@ -571,8 +571,9 @@ function addAlbum(action) {
     _addAlbum(action, albumArtist, album);
 }
 
-function _addAlbum(action, albumArtist, album) {
-    const expression = '((Album == \'' + escapeMPD(album) + '\') AND (' + tagAlbumArtist + ' == \'' + escapeMPD(albumArtist) + '\'))';
+function _addAlbum(action, albumArtist, album, disc) {
+    const expression = '((Album == \'' + escapeMPD(album) + '\') AND (' + tagAlbumArtist + ' == \'' + escapeMPD(albumArtist) + '\')' +
+        (disc !== null ? ' AND (Disc == \'' + disc + '\')' : '') + ')';
     if (action === 'appendQueue') {
         addAllFromSearchPlist('queue', expression, false);
     }

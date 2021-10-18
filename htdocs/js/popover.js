@@ -29,6 +29,9 @@ function showPopover(event) {
         if (event.target.parentNode.nodeName === 'TH') {
             popoverInit = createPopoverTh(event.target);
         }
+        else if (event.target.getAttribute('data-popover') === 'disc') {
+            popoverInit = createPopoverDisc(event.target);
+        }
         else {
             popoverInit = createPopoverTd(event.target);
         }
@@ -74,6 +77,39 @@ function createPopoverTh(el) {
     return popoverInit;
 }
 
+function createPopoverDisc(el) {
+    const disc = getCustomDomProperty(el.parentNode.parentNode, 'data-disc');
+    const album = getCustomDomProperty(el.parentNode.parentNode, 'data-album');
+    const albumArtist = getCustomDomProperty(el.parentNode.parentNode, 'data-albumartist');
+
+    console.log(album);
+    console.log(albumArtist);
+    console.log(disc);
+    const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false, title: tn('Disc') + ' ' + disc, content: 'content'});
+    el.addEventListener('show.bs.popover', function() {
+        const popoverBody = popoverInit.popover.getElementsByClassName('popover-body')[0];
+        popoverBody.classList.add('px-0');
+        elClear(popoverBody);
+        addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album, disc]}, 'Append to queue');
+        addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album, disc]}, 'Replace queue');
+        if (features.featPlaylists === true) {
+            addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album, disc]}, 'Add to playlist');
+        }
+        popoverBody.addEventListener('click', function(eventClick) {
+            if (eventClick.target.nodeName === 'A') {
+                const cmd = getCustomDomProperty(eventClick.target, 'data-href');
+                if (cmd) {
+                    parseCmd(eventClick, cmd);
+                    hidePopover();
+                }
+            }
+            eventClick.preventDefault();
+            eventClick.stopPropagation();
+        }, false);
+    }, false);
+    return popoverInit;
+}
+
 function createPopoverTd(el) {
     const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false, content: 'content',
         template: '<div class="popover" role="tooltip">' +
@@ -107,8 +143,7 @@ function createPopoverTd(el) {
         const created = createMenuTd(el, tabHeader[i], tabPanes[i], i);
         if (created === true) {
             tabPanes[i].addEventListener('click', function(eventClick) {
-                const target = eventClick.target.nodeName === 'SPAN' ? eventClick.target.parentNode : eventClick.target;
-                if (target.nodeName === 'A') {
+                if (eventClick.target.nodeName === 'A') {
                     const cmd = getCustomDomProperty(eventClick.target, 'data-href');
                     if (cmd) {
                         parseCmd(eventClick, cmd);
