@@ -120,7 +120,6 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     else {
         buffer = jsonrpc_result_start(buffer, method, request_id);
     }
-    const struct mpd_audio_format *audioformat = mpd_status_get_audio_format(status);
     buffer = tojson_long(buffer, "state", mpd_status_get_state(status), true);
     buffer = tojson_long(buffer, "volume", mpd_status_get_volume(status), true);
     buffer = tojson_long(buffer, "songPos", mpd_status_get_song_pos(status), true);
@@ -137,11 +136,9 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     if (mympd_state->mpd_state->feat_mpd_partitions == true) {
         buffer = tojson_char(buffer, "partition", mpd_status_get_partition(status), true);
     }
-    buffer = sdscat(buffer, "\"audioFormat\":{");
-    buffer = tojson_long(buffer, "sampleRate", (audioformat ? audioformat->sample_rate : 0), true);
-    buffer = tojson_long(buffer, "bits", (audioformat ? audioformat->bits : 0), true);
-    buffer = tojson_long(buffer, "channels", (audioformat ? audioformat->channels : 0), false);
-    buffer = sdscatlen(buffer, "},", 2);
+    const struct mpd_audio_format *audioformat = mpd_status_get_audio_format(status);
+    buffer = printAudioFormat(buffer, audioformat);
+    buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_char(buffer, "lastError", mpd_status_get_error(status), false);
     buffer = jsonrpc_result_end(buffer);
 

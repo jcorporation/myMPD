@@ -141,9 +141,9 @@ function parseState(obj) {
         }
     }
     else {
-        const cff = document.getElementById('currentFileformat');
+        const cff = document.getElementById('currentAudioFormat');
         if (cff) {
-            cff.getElementsByTagName('p')[0].textContent = fileformat(obj.result.audioFormat);
+            cff.getElementsByTagName('p')[0].textContent = printValue('AudioFormat', obj.result.AudioFormat);
         }
     }
 
@@ -353,13 +353,6 @@ function songChange(obj) {
         setVoteSongBtns(obj.result.like, obj.result.uri);
     }
     
-    if (lastState) {
-        obj.result['Fileformat'] = fileformat(lastState.audioFormat);
-    }
-    else {
-        obj.result['Fileformat'] = '';
-    }
-
     setPlaybackCardTags(obj.result);
 
     document.getElementById('currentBooklet').innerHTML = obj.result.bookletPath === '' || obj.result.bookletPath === undefined || features.featLibrary === false ? '' : 
@@ -389,6 +382,9 @@ function setPlaybackCardTags(songObj) {
         const c = document.getElementById('current' + col);
         if (c && col === 'Lyrics') {
             getLyrics(songObj.uri, c.getElementsByTagName('p')[0]);
+        }
+        else if (c && col === 'AudioFormat' && lastState !== undefined) {
+            c.getElementsByTagName('p')[0].innerHTML = printValue('AudioFormat', lastState.AudioFormat);
         }
         else if (c) {
             let value = songObj[col];

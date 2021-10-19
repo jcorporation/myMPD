@@ -165,9 +165,12 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
         buffer = tojson_long(buffer, "id", mpd_song_get_id(song), true);
         buffer = tojson_long(buffer, "Pos", mpd_song_get_pos(song), true);
         buffer = tojson_long(buffer, "Priority", mpd_song_get_prio(song), true);
+        const struct mpd_audio_format *audioformat = mpd_song_get_audio_format(song);
+        buffer = printAudioFormat(buffer, audioformat);
+        buffer = sdscatlen(buffer, ",", 1);
         buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
         if (mympd_state->mpd_state->feat_stickers == true && mympd_state->sticker_cache != NULL) {
-            buffer = sdscat(buffer, ",");
+            buffer = sdscatlen(buffer, ",", 1);
             buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
         }
         buffer = sdscatlen(buffer, "}", 1);
@@ -281,6 +284,9 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
             buffer = tojson_long(buffer, "id", mpd_song_get_id(song), true);
             buffer = tojson_long(buffer, "Pos", mpd_song_get_pos(song), true);
             buffer = tojson_long(buffer, "Priority", mpd_song_get_prio(song), true);
+            const struct mpd_audio_format *audioformat = mpd_song_get_audio_format(song);
+            buffer = printAudioFormat(buffer, audioformat);
+            buffer = sdscatlen(buffer, ",", 1);
             buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
             if (mympd_state->mpd_state->feat_stickers == true && mympd_state->sticker_cache != NULL) {
                 buffer= sdscatlen(buffer, ",", 1);

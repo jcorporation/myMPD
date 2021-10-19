@@ -121,6 +121,15 @@ sds get_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags
     return buffer;
 }
 
+sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat) {
+    buffer = sdscat(buffer, "\"AudioFormat\":{");
+    buffer = tojson_long(buffer, "sampleRate", (audioformat ? audioformat->sample_rate : 0), true);
+    buffer = tojson_long(buffer, "bits", (audioformat ? audioformat->bits : 0), true);
+    buffer = tojson_long(buffer, "channels", (audioformat ? audioformat->channels : 0), false);
+    buffer = sdscatlen(buffer, "}", 1);
+    return buffer;
+}
+
 sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
                         const char *uri)
 {

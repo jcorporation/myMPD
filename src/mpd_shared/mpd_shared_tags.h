@@ -10,6 +10,7 @@
 #include "../../dist/sds/sds.h"
 #include "../lib/mympd_state.h"
 
+sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat);
 bool filter_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_tags *tagcols);
 void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list);
 void reset_t_tags(struct t_tags *tags);

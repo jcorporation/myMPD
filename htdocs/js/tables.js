@@ -178,6 +178,7 @@ function setColTags(table) {
 
     switch(table) {
         case 'QueueCurrent':
+            tags.push('AudioFormat');
             tags.push('Priority');
             //fall through
         case 'BrowsePlaylistsDetail':
@@ -189,8 +190,8 @@ function setColTags(table) {
             tags.push('Filename');
             break;
         case 'Playback':
+            tags.push('AudioFormat');
             tags.push('Filetype');
-            tags.push('Fileformat');
             if (features.featLyrics === true) {
                 tags.push('Lyrics');
             }

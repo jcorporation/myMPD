@@ -66,6 +66,9 @@ sds mympd_api_browse_songdetails(struct t_mympd_state *mympd_state, sds buffer, 
 
     struct mpd_song *song;
     if ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
+        const struct mpd_audio_format *audioformat = mpd_song_get_audio_format(song);
+        buffer = printAudioFormat(buffer, audioformat);
+        buffer = sdscatlen(buffer, ",", 1);
         buffer = get_song_tags(buffer, mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd, song);
         mpd_song_free(song);
     }

@@ -331,10 +331,6 @@ function filetype(uri) {
     }
 }
 
-function fileformat(audioformat) {
-    return audioformat.bits + t('bits') + ' - ' + audioformat.sampleRate / 1000 + t('kHz');
-}
-
 function scrollToPosY(pos) {
     // For Safari
     document.body.scrollTop = pos;
@@ -930,6 +926,8 @@ function printValue(key, value) {
             return '<span class="mi">radio_button_unchecked</span>';
         case 'Duration':
             return beautifySongDuration(value);
+        case 'AudioFormat':
+            return value.bits + t('bits') + ' - ' + value.sampleRate / 1000 + t('kHz');
         case 'LastModified': 
         case 'LastPlayed':
         case 'stickerLastPlayed':

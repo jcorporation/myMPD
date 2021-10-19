@@ -110,6 +110,7 @@ function parseSongDetails(obj) {
         songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td class="text-break"><span title="' + e(obj.result.uri) + '">' + 
             e(basename(obj.result.uri, true)) + '</span></td></tr>';
     }
+    songDetailsHTML += '<tr><th>' + t('AudioFormat') + '</th><td>' + printValue('AudioFormat', obj.result.AudioFormat) + '</td></tr>';
     songDetailsHTML += '<tr><th>' + t('Filetype') + '</th><td>' + filetype(obj.result.uri) + '</td></tr>';
     songDetailsHTML += '<tr><th>' + t('LastModified') + '</th><td>' + localeDate(obj.result.LastModified) + '</td></tr>';
     if (features.featFingerprint === true) {
