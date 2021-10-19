@@ -391,6 +391,8 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const actionTd = elCreate('td', {}, '');
     actionTd.appendChild(elCreate('a', {"data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore));
 
+    const smallWidth = window.innerWidth < 576 ? true : false;
+
     //disc handling for album view
     let z = 0;
     let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined ? Number(obj.result.data[0].Disc) : 0;
@@ -446,9 +448,21 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
                 row.appendChild(elCreate('td', {"colspan": (colspan + 1), "title": tn('Open parent folder')}, '..'));
             }
             else {
-                for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
-                    row.appendChild(elCreate('td', {"data-col": settings['cols' + list][c]},
-                        printValue(settings['cols' + list][c], obj.result.data[i][settings['cols' + list][c]])));
+                if (smallWidth === true) {
+                    const td = elCreate('td', {"colspan": colspan}, '');
+                    for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
+                        const p = elCreate('div', {"class": ["row"]}, '');
+                        p.appendChild(elCreate('small', {"class": ["col-3"]}, tn(settings['cols' + list][c])));
+                        p.appendChild(elCreate('span', {"class": ["col-9"]}, printValue(settings['cols' + list][c], obj.result.data[i][settings['cols' + list][c]])));
+                        td.appendChild(p);
+                    }
+                    row.appendChild(td);
+                }
+                else {
+                    for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
+                        row.appendChild(elCreate('td', {"data-col": settings['cols' + list][c]},
+                            printValue(settings['cols' + list][c], obj.result.data[i][settings['cols' + list][c]])));
+                    }
                 }
                 row.appendChild(actionTd.cloneNode(true));
             }

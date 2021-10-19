@@ -374,9 +374,13 @@ button {
 }
 
 [data-col=Pos],
-[data-col=Track],
-[data-col=Duration] {
+[data-col=Track] {
   max-width: 5rem;
+  word-break: keep-all;
+}
+
+[data-col=Duration] {
+  max-width: 8rem;
   word-break: keep-all;
 }
 

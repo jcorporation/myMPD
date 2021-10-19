@@ -174,6 +174,11 @@ function parseQueue(obj) {
         elHideId('btnQueueGotoPlayingSong');
     }
 
+    const actionTd = elCreate('td', {}, '');
+    actionTd.appendChild(elCreate('a', {"data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore));
+    const colspan = settings['colsQueueCurrent'].length;
+    const smallWidth = window.innerWidth < 576 ? true : false;
+
     const rowTitle = webuiSettingsDefault.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
     updateTable(obj, 'QueueCurrent', function(row, data) {
         data.Pos++;
@@ -193,15 +198,24 @@ function parseQueue(obj) {
             setCustomDomProperty(row, 'data-albumartist', data[tagAlbumArtist]);
         }
     }, function(row, data) {
-        const list = 'QueueCurrent';
-        let tds = '';
-        for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
-            tds += '<td data-col="' + encodeURI(settings['cols' + list][c]) + '">' +
-                printValue(settings['cols' + list][c], data[settings['cols' + list][c]]) +
-                '</td>';
+        if (smallWidth === true) {
+            const td = elCreate('td', {"colspan": colspan}, '');
+            for (let c = 0, d = settings.colsQueueCurrent.length; c < d; c++) {
+                const p = elCreate('div', {"class": ["row"]}, '');
+                p.appendChild(elCreate('small', {"class": ["col-3"]}, tn(settings.colsQueueCurrent[c])));
+                p.appendChild(elCreate('span', {"data-col": settings.colsQueueCurrent[c], "class": ["col-9"]}, 
+                    printValue(settings.colsQueueCurrent[c], data[settings.colsQueueCurrent[c]])));
+                td.appendChild(p);
+            }
+            row.appendChild(td);
         }
-        tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey" title="' + t('Actions') + '">' + ligatureMore + '</a></td>';
-        row.innerHTML = tds;
+        else {
+            for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
+                row.appendChild(elCreate('td', {"data-col": settings.colsQueueCurrent[c]},
+                    printValue(settings.colsQueueCurrent[c], data[settings.colsQueueCurrent[c]])));
+            }
+        }
+        row.appendChild(actionTd.cloneNode(true));
         if (lastState && lastState.currentSongId === data.id) {
             setPlayingRow(row, lastState.elapsedTime, data.Duration);
         }
@@ -209,7 +223,6 @@ function parseQueue(obj) {
 
     const table = document.getElementById('QueueCurrentList');
     setCustomDomProperty(table, 'data-version', obj.result.queueVersion);
-    const colspan = settings['colsQueueCurrent'].length;
     const tfoot = table.getElementsByTagName('tfoot')[0];
     if (obj.result.totalTime && obj.result.totalTime > 0 && obj.result.totalEntities <= app.current.limit ) {
         tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
@@ -247,9 +260,11 @@ function queueSetCurrentSong(currentSongId, elapsedTime, totalTime) {
 }
 
 function setPlayingRow(row, elapsedTime, totalTime) {
+    const smallWidth = window.innerWidth < 576 ? true : false;
+
     const durationTd = row.querySelector('[data-col=Duration]');
     if (durationTd) {
-        durationTd.innerHTML = beautifySongDuration(elapsedTime) + "&nbsp;/&nbsp;" + beautifySongDuration(totalTime);
+        durationTd.textContent = beautifySongDuration(elapsedTime) + " / " + beautifySongDuration(totalTime);
     }
     const posTd = row.querySelector('[data-col=Pos]');
     if (posTd) {

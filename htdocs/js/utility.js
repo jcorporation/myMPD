@@ -941,7 +941,7 @@ function printValue(key, value) {
             if (key.indexOf('MUSICBRAINZ') === 0) {
                 return getMBtagLink(key, value);
             }
-            return e(value);
+            return value;
     }
 }
 
