@@ -329,19 +329,23 @@ function saveColsPlayback(table) {
     for (let i = 0, j = colInputs.length - 1; i < j; i++) {
         let th = document.getElementById('current' + colInputs[i].name);
         if (colInputs[i].classList.contains('active') === false) {
+            //remove disabled tags
             if (th) {
                 th.remove();
             }
         } 
         else if (!th) {
+            //add enabled tags if nt already shown
             th = document.createElement('div');
-            th.innerHTML = '<small>' + t(colInputs[i].name) + '</small><p></p>';
+            th.appendChild(elCreate('small', {}, tn(colInputs[i].name)));
+            th.appendChild(elCreate('p', {}, ''))
             th.setAttribute('id', 'current' + colInputs[i].name);
             setCustomDomProperty(th, 'data-tag', colInputs[i].name);
             header.appendChild(th);
         }
     }
     
+    //construct columns to save from actual playback card
     const params = {"table": "cols" + table, "cols": []};
     const ths = header.getElementsByTagName('div');
     for (let i = 0, j = ths.length; i < j; i++) {
@@ -383,6 +387,10 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
 
     const nrItems = obj.result.returnedEntities;
     const tr = tbody.getElementsByTagName('tr');
+
+    const actionTd = elCreate('td', {}, '');
+    actionTd.appendChild(elCreate('a', {"data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore));
+
     //disc handling for album view
     let z = 0;
     let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined ? Number(obj.result.data[0].Disc) : 0;
@@ -435,17 +443,14 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         else {
             //default row content
             if (obj.result.data[i].Type === 'parentDir') {
-                row.innerHTML = '<td colspan="' + (colspan + 1) + '">..</td>';
-                row.setAttribute('title', t('Open parent folder'));
+                row.appendChild(elCreate('td', {"colspan": (colspan + 1), "title": tn('Open parent folder')}, '..'));
             }
             else {
                 for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
-                    tds += '<td data-col="' + encodeURI(settings['cols' + list][c]) + '">' +
-                        printValue(settings['cols' + list][c], obj.result.data[i][settings['cols' + list][c]]) +
-                        '</td>';
+                    row.appendChild(elCreate('td', {"data-col": settings['cols' + list][c]},
+                        printValue(settings['cols' + list][c], obj.result.data[i][settings['cols' + list][c]])));
                 }
-                tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey" title="' + t('Actions') + '">' + ligatureMore + '</a></td>';
-                row.innerHTML = tds;
+                row.appendChild(actionTd.cloneNode(true));
             }
         }
         if (i + z < tr.length) {
@@ -462,10 +467,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     }
 
     if (nrItems === 1000) {
-        const row = document.createElement('tr');
-        row.classList.add('not-clickable');
-        row.innerHTML = '<td><span class="mi">warning</span></td><td colspan="' + colspan +'">' + t('Too many results, list is cropped') + '</td>';
-        tbody.append(row);
+        tbody.appendChild(warningRow('Too many results, list is cropped', colspan + 1));
     }
 
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
@@ -489,6 +491,16 @@ function errorRow(obj, colspan) {
     const td = elCreate('td', {"colspan": colspan}, '');
     const div = elCreate('div', {"class": ["alert", "alert-danger"]}, '');
     addIconLine(div, 'error_outline', tn(obj.error.message, obj.error.data));
+    td.appendChild(div);
+    tr.appendChild(td);
+    return tr;
+}
+
+function warningRow(message, colspan) {
+    const tr = elCreate('tr', {"class": ["not-clickable"]}, '');
+    const td = elCreate('td', {"colspan": colspan}, '');
+    const div = elCreate('div', {"class": ["alert", "alert-warning"]}, '');
+    addIconLine(div, 'warning', tn(message));
     td.appendChild(div);
     tr.appendChild(td);
     return tr;
