@@ -108,3 +108,7 @@ body.theme-light .border-secondary {
 body.theme-light div.key {
   background-color: var(--bs-gray-400);
 }
+
+body.theme-light #badgeQueueItems {
+  background-color: var(--bs-gray-500) !important;
+}

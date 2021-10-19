@@ -983,7 +983,8 @@ button.input-inner-button:hover,
 button.input-inner-button:active,
 button.input-inner-button:focus {
   border: none;
-  background: none;
+  color: inherit;
+  background-color: transparent !important;
   height: 2.4rem;
   position: absolute;
   top: 0;

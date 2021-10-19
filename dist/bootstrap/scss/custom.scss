@@ -84,6 +84,7 @@ $list-group-hover-bg: $gray-800;
 $list-group-action-color: $gray-100;
 $list-group-action-hover-color: $gray-100;
 $form-select-indicator-color: white;
+$form-select-disabled-bg: $gray-600;
 
 // 3. Include remainder of required Bootstrap stylesheets
 @import "../node_modules/bootstrap/scss/variables";

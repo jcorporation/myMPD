@@ -39,7 +39,7 @@ class inputClear extends HTMLInputElement {
 class inputReset extends HTMLInputElement {
     constructor() {
         super();
-        const button = elCreate('button', {"class": ["mi", "mi-small", "input-inner-button", "btn-secondary"]}, 'settings_backup_restore');
+        const button = elCreate('button', {"class": ["mi", "mi-small", "input-inner-button"]}, 'settings_backup_restore');
         if (this.parentNode.firstElementChild.getAttribute('type') === 'color') {
             button.style.right = '1.5rem';
         }
