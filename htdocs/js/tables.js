@@ -361,6 +361,20 @@ function replaceTblRow(row, el) {
     row.replaceWith(el);
 }
 
+function addDiscRow(disc, album, albumartist, colspan) {
+    const row = document.createElement('tr');
+    row.classList.add('not-clickable');
+    setCustomDomProperty(row, 'data-disc', disc);
+    setCustomDomProperty(row, 'data-album', album);
+    setCustomDomProperty(row, 'data-albumartist', albumartist);
+    row.appendChild(elCreate('td', {}, ''));
+    row.lastChild.appendChild(elCreate('span', {"class": ["mi"]}, 'album'));
+    row.appendChild(elCreate('td', {"colspan": (colspan - 1)}, tn('Disc') + ' ' + disc));
+    row.appendChild(elCreate('td', {}, ''));
+    row.lastChild.appendChild(elCreate('a', {"data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore));
+    return row;
+}
+
 function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const table = document.getElementById(list + 'List');
     setScrollViewHeight(table);
@@ -373,13 +387,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     let z = 0;
     let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined ? Number(obj.result.data[0].Disc) : 0;
     if (obj.result.Discs !== undefined && obj.result.Discs > 1) {
-        const row = document.createElement('tr');
-        row.classList.add('not-clickable');
-        setCustomDomProperty(row, 'data-disc', '1');
-        setCustomDomProperty(row, 'data-album', obj.result.data[0].Album);
-        setCustomDomProperty(row, 'data-albumartist', obj.result.data[0][tagAlbumArtist]);
-        row.innerHTML = '<td><span class="mi">album</span></td><td colspan="' + (colspan - 1) +'">' + t('Disc 1') + '</td>' +
-            '<td data-col="Action"><a data-popover="disc" href="#" class="mi color-darkgrey" title="' + t('Actions') + '">' + ligatureMore + '</a></td>';
+        const row = addDiscRow(1, obj.result.data[0].Album, obj.result.data[0][tagAlbumArtist], colspan);
         if (z < tr.length) {
             replaceTblRow(tr[z], row);
         }
@@ -391,14 +399,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     for (let i = 0; i < nrItems; i++) {
         //disc handling for album view
         if (obj.result.data[0].Disc !== undefined && lastDisc < Number(obj.result.data[i].Disc)) {
-            const row = document.createElement('tr');
-            row.classList.add('not-clickable');
-            setCustomDomProperty(row, 'data-disc', obj.result.data[i].Disc);
-            setCustomDomProperty(row, 'data-album', obj.result.data[i].Album);
-            setCustomDomProperty(row, 'data-albumartist', obj.result.data[i][tagAlbumArtist]);
-            row.innerHTML = '<td><span class="mi">album</span></td><td colspan="' + (colspan - 1) +'">' + 
-                t('Disc') + ' ' + e(obj.result.data[i].Disc) + '</td>' +
-                '<td data-col="Action"><a data-popover="disc" href="#" class="mi color-darkgrey" title="' + t('Actions') + '">' + ligatureMore + '</a></td>';
+            const row = addDiscRow(obj.result.data[i].Disc, obj.result.data[i].Album, obj.result.data[i][tagAlbumArtist], colspan);
             if (i + z < tr.length) {
                 replaceTblRow(tr[i + z], row);
             }
