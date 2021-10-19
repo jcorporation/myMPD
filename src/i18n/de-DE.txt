@@ -1483,9 +1483,6 @@ Erste Seite
 Last page
 Letzte Seite
 
-Show album
-Album anzeigen
-
 Can not get lyrics for stream uri
 Liedtexte für Streams sind nicht unterstützt
 
@@ -1885,5 +1882,5 @@ Setze Liedpriorität
 Set priority
 Setze Priorität
 
-Show album
-Album anzeigen
+Album details
+Album Details

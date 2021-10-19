@@ -115,7 +115,7 @@ Remove
 Remove all downwards
 Remove all upwards
 Rescan directory
-Show album
 Update directory
 View playlist
 Set priority
+Album details

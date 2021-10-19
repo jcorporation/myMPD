@@ -1483,9 +1483,6 @@ First page
 Last page
 끝 페이지
 
-Show album
-음반 보기
-
 Can not get lyrics for stream uri
 스트리밍 URI의 가사를 가져올 수 없음
 
