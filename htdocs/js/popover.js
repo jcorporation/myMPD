@@ -82,9 +82,6 @@ function createPopoverDisc(el) {
     const album = getCustomDomProperty(el.parentNode.parentNode, 'data-album');
     const albumArtist = getCustomDomProperty(el.parentNode.parentNode, 'data-albumartist');
 
-    console.log(album);
-    console.log(albumArtist);
-    console.log(disc);
     const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false, title: tn('Disc') + ' ' + disc, content: 'content'});
     el.addEventListener('show.bs.popover', function() {
         const popoverBody = popoverInit.popover.getElementsByClassName('popover-body')[0];
@@ -189,7 +186,7 @@ function addMenuItemsAlbumActions(tabContent, albumArtist, album) {
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, 'Add to playlist');
     }
     tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
-    addMenuItem(tabContent, {"cmd": "gotoAlbum", "options": [albumArtist, album]}, 'Albumdetails');
+    addMenuItem(tabContent, {"cmd": "gotoAlbum", "options": [albumArtist, album]}, 'Album details');
     addMenuItem(tabContent, {"cmd": "gotoAlbumList", "options": [tagAlbumArtist, albumArtist]}, 'Show all albums from artist');
 }
 
@@ -380,9 +377,14 @@ function createMenuSecondary(el, tabHeader, tabContent) {
             if (depth < 2) { depth++; } else { break; }
         }
 
+        if (isStreamUri(uri) === true) {
+            return false;
+        }
         const album = getCustomDomProperty(dataNode, 'data-album');
         const albumArtist = getCustomDomProperty(dataNode, 'data-albumartist');
-        if (album !== null && albumArtist !== null) {
+        if (album !== null && albumArtist !== null &&
+            album !== '-' && albumArtist !== '-')
+        {
             tabHeader.textContent = tn('Album');
             addMenuItemsAlbumActions(tabContent, albumArtist, album);
         }
