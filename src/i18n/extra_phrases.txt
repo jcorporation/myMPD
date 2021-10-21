@@ -119,3 +119,4 @@ Update directory
 View playlist
 Set priority
 Album details
+Too many results, list is cropped
