@@ -387,10 +387,6 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
 
     const nrItems = obj.result.returnedEntities;
     const tr = tbody.getElementsByTagName('tr');
-
-    const actionTd = elCreate('td', {}, '');
-    actionTd.appendChild(elCreate('a', {"data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore));
-
     const smallWidth = window.innerWidth < 576 ? true : false;
 
     //disc handling for album view
@@ -444,28 +440,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         }
         else {
             //default row content
-            if (obj.result.data[i].Type === 'parentDir') {
-                row.appendChild(elCreate('td', {"colspan": (colspan + 1), "title": tn('Open parent folder')}, '..'));
-            }
-            else {
-                if (smallWidth === true) {
-                    const td = elCreate('td', {"colspan": colspan}, '');
-                    for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
-                        const p = elCreate('div', {"class": ["row"]}, '');
-                        p.appendChild(elCreate('small', {"class": ["col-3"]}, tn(settings['cols' + list][c])));
-                        p.appendChild(elCreate('span', {"class": ["col-9"]}, printValue(settings['cols' + list][c], obj.result.data[i][settings['cols' + list][c]])));
-                        td.appendChild(p);
-                    }
-                    row.appendChild(td);
-                }
-                else {
-                    for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
-                        row.appendChild(elCreate('td', {"data-col": settings['cols' + list][c]},
-                            printValue(settings['cols' + list][c], obj.result.data[i][settings['cols' + list][c]])));
-                    }
-                }
-                row.appendChild(actionTd.cloneNode(true));
-            }
+            tableRow(row, obj.result.data[i], list, colspan, smallWidth);
         }
         if (i + z < tr.length) {
             replaceTblRow(tr[i + z], row);
@@ -490,6 +465,33 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         tbody.appendChild(emptyRow(colspan + 1));
     }
     table.classList.remove('opacity05');
+}
+
+function tableRow(row, data, list, colspan, smallWidth) {
+    if (data.Type === 'parentDir') {
+        row.appendChild(elCreate('td', {"colspan": (colspan + 1), "title": tn('Open parent folder')}, '..'));
+    }
+    else {
+        if (smallWidth === true) {
+            const td = elCreate('td', {"colspan": colspan}, '');
+            for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
+                const p = elCreate('div', {"class": ["row"]}, '');
+                p.appendChild(elCreate('small', {"class": ["col-3"]}, tn(settings['cols' + list][c])));
+                p.appendChild(elCreate('span', {"class": ["col-9"]}, printValue(settings['cols' + list][c], data[settings['cols' + list][c]])));
+                td.appendChild(p);
+            }
+            row.appendChild(td);
+        }
+        else {
+            for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
+                row.appendChild(elCreate('td', {"data-col": settings['cols' + list][c]},
+                    printValue(settings['cols' + list][c], data[settings['cols' + list][c]])));
+            }
+        }
+        const actionTd = elCreate('td', {}, '');
+        actionTd.appendChild(elCreate('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore));
+        row.appendChild(actionTd);
+    }
 }
 
 function emptyRow(colspan) {

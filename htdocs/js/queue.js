@@ -174,8 +174,6 @@ function parseQueue(obj) {
         elHideId('btnQueueGotoPlayingSong');
     }
 
-    const actionTd = elCreate('td', {}, '');
-    actionTd.appendChild(elCreate('a', {"data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore));
     const colspan = settings['colsQueueCurrent'].length;
     const smallWidth = window.innerWidth < 576 ? true : false;
 
@@ -198,24 +196,8 @@ function parseQueue(obj) {
             setCustomDomProperty(row, 'data-albumartist', data[tagAlbumArtist]);
         }
     }, function(row, data) {
-        if (smallWidth === true) {
-            const td = elCreate('td', {"colspan": colspan}, '');
-            for (let c = 0, d = settings.colsQueueCurrent.length; c < d; c++) {
-                const p = elCreate('div', {"class": ["row"]}, '');
-                p.appendChild(elCreate('small', {"class": ["col-3"]}, tn(settings.colsQueueCurrent[c])));
-                p.appendChild(elCreate('span', {"data-col": settings.colsQueueCurrent[c], "class": ["col-9"]}, 
-                    printValue(settings.colsQueueCurrent[c], data[settings.colsQueueCurrent[c]])));
-                td.appendChild(p);
-            }
-            row.appendChild(td);
-        }
-        else {
-            for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
-                row.appendChild(elCreate('td', {"data-col": settings.colsQueueCurrent[c]},
-                    printValue(settings.colsQueueCurrent[c], data[settings.colsQueueCurrent[c]])));
-            }
-        }
-        row.appendChild(actionTd.cloneNode(true));
+        tableRow(row, data, app.id, colspan, smallWidth);
+
         if (lastState && lastState.currentSongId === data.id) {
             setPlayingRow(row, lastState.elapsedTime, data.Duration);
         }
@@ -250,6 +232,7 @@ function queueSetCurrentSong(currentSongId, elapsedTime, totalTime) {
                     posTd.textContent = getCustomDomProperty(tr, 'data-songpos');
                 }
                 tr.classList.remove('queue-playing');
+                tr.style = '';
             }
         }
     }
@@ -274,6 +257,13 @@ function setPlayingRow(row, elapsedTime, totalTime) {
         }
     }
     row.classList.add('queue-playing');
+    
+    let progressPrct = totalTime > 0 ? (100 / totalTime) * elapsedTime : 100;
+    if (playstate === 'stop') {
+        progressPrct = 100;
+    }
+    row.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
+        progressPrct + '%, transparent ' + progressPrct +'%)';
 }
 
 function parseLastPlayed(obj) {

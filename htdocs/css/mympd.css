@@ -373,6 +373,15 @@ button {
   cursor: default !important;
 }
 
+.queue-playing [data-col=Action] {
+  color: inherit;
+}
+
+.queue-playing:hover > * {
+  background-color: unset;
+  --bs-table-accent-bg: unset !important;
+}
+
 [data-col=Pos],
 [data-col=Track] {
   max-width: 5rem;
@@ -381,6 +390,7 @@ button {
 
 [data-col=Duration] {
   max-width: 8rem;
+  min-width: 8rem;
   word-break: keep-all;
 }
 
@@ -775,9 +785,12 @@ div#playDropdown .row {
   padding-left: 0;
 }
 
-.carousel-item > div {
+.carousel-item {
   background-position: center center;
   background-size: cover;
+}
+
+.carousel-item > div {
   padding-top: 100%;
 }
 
@@ -952,10 +965,6 @@ div.album-grid-mouseover {
   font-size: 90%;
 }
 
-.queue-playing {
-  font-weight: bold;
-}
-
 .input-group-text-nobg {
   padding: 0.375rem 0.75rem;
 }
@@ -967,6 +976,38 @@ input[type=color] {
 body.locked button.protected::before {
   content: "lock";
   float: left;
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  vertical-align: top;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'liga';
+  margin-right: 0.5rem;
+}
+
+a.external::before {
+  content: "open_in_browser";
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  vertical-align: top;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'liga';
+  margin-right: 0.5rem;
+}
+
+a.download::before {
+  content: "download";
   font-family: 'Material Icons';
   font-weight: normal;
   font-style: normal;
