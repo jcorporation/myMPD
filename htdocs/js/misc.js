@@ -118,7 +118,7 @@ function updateDB(uri, showModal, rescan) {
 }
 
 function updateDBerror(showModal, message) {
-    const msg = t('Database update failed') + ': ' + t(message);
+    const msg = tn('Database update failed') + ': ' + tn(message);
     if (showModal === true) {
         document.getElementById('updateDBfinished').textContent = '';
         elShowId('updateDBfooter');
@@ -128,7 +128,7 @@ function updateDBerror(showModal, message) {
         updateDBprogress.style.marginLeft = '0px';
         const errorUpdateDB = document.getElementById('errorUpdateDB');
         elShow(errorUpdateDB);
-        errorUpdateDB.innerHTML = msg;
+        errorUpdateDB.textContent = msg;
         uiElements.modalUpdateDB.show();
     }
     showNotification(msg, '', 'database', 'error');

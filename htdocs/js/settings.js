@@ -1180,10 +1180,11 @@ function getImageList(selectEl, value, addOptions) {
 
 function warnLocale(value) {
     const warnEl = document.getElementById('warnMissingPhrases');
+    elClear(warnEl);
     if (missingPhrases[value] !== undefined) {
-        warnEl.innerHTML = t('Missing translations', missingPhrases[value]) + '<br/>' +
-            '<a class="alert-link" target="_blank" href="https://github.com/jcorporation/myMPD/discussions/167">' +
-            '<span class="mi">open_in_browser</span>&nbsp;' + t('Help to improve myMPD') + '</a>';
+        warnEl.appendChild(elCreateText('p', {}, tn('Missing translations', missingPhrases[value])));
+        warnEl.appendChild(elCreateText('a', {"class": ["alert-link", "external"], "target": "_blank",
+            "href": "https://github.com/jcorporation/myMPD/discussions/167"}, tn('Help to improve myMPD')));
         elShow(warnEl);
     }
     else {

@@ -232,7 +232,7 @@ function getComments(uri, el) {
 
 function getLyrics(uri, el) {
     if (isValidUri(uri) === false || isStreamUri(uri) === true) {
-        el.innerHTML = t('No lyrics found');
+        el.textContent = tn('No lyrics found');
         return;
     }
     el.classList.add('opacity05');

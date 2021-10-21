@@ -69,8 +69,10 @@ function initSearch() {
     }, false);
     
     document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
-        if (features.featAdvsearch === false || event.target.nodeName !== 'TH' ||
-            event.target.innerHTML === '') {
+        if (features.featAdvsearch === false ||
+            event.target.nodeName !== 'TH' ||
+            event.target.textContent === '')
+        {
             return;
         }
         let col = event.target.getAttribute('data-col');
@@ -103,8 +105,8 @@ function initSearch() {
             s[i].remove();
         }
         app.current.sort = sortcol;
-        event.target.innerHTML = t(col) + '<span class="sort-dir mi float-end">' + 
-            (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
+
+        elReplaceChild(event.target, elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down')));
         appGoto(app.current.app, app.current.tab, app.current.view,
             app.current.offset, app.current.limit, app.current.filter,  app.current.sort, '-', app.current.search);
     }, false);

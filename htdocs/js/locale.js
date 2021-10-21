@@ -73,10 +73,10 @@ function beautifyDuration(x) {
     const minutes = Math.floor(x / 60) - hours * 60 - days * 1440;
     const seconds = x - days * 86400 - hours * 3600 - minutes * 60;
 
-    return (days > 0 ? days + '\u2009' + tn('Days') + ' ' : '') +
-        (hours > 0 ? hours + '\u2009' + tn('Hours') + ' ' + 
-        (minutes < 10 ? '0' : '') : '') + minutes + '\u2009' + tn('Minutes') + ' ' + 
-        (seconds < 10 ? '0' : '') + seconds + '\u2009' + tn('Seconds');
+    return (days > 0 ? days + smallSpace + tn('Days') + ' ' : '') +
+        (hours > 0 ? hours + smallSpace + tn('Hours') + ' ' + 
+        (minutes < 10 ? '0' : '') : '') + minutes + smallSpace + tn('Minutes') + ' ' + 
+        (seconds < 10 ? '0' : '') + seconds + smallSpace + tn('Seconds');
 }
 
 function beautifySongDuration(x) {
@@ -102,7 +102,8 @@ function gtPage(phrase, returnedEntities, totalEntities, maxElements) {
 }
 
 function i18nHtml(root) {
-    const attributes = [['data-phrase', 'innerHTML'], 
+    const attributes = [
+        ['data-phrase', 'textContent'], 
         ['data-title-phrase', 'title'], 
         ['data-placeholder-phrase', 'placeholder']
     ];
@@ -110,7 +111,7 @@ function i18nHtml(root) {
         const els = root.querySelectorAll('[' + attributes[i][0] + ']');
         const elsLen = els.length;
         for (let k = 0, l = elsLen; k < l; k++) {
-            els[k][attributes[i][1]] = t(els[k].getAttribute(attributes[i][0]));
+            els[k][attributes[i][1]] = tn(els[k].getAttribute(attributes[i][0]));
         }
     }
 }

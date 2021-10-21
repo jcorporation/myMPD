@@ -698,12 +698,10 @@ div.key {
   flex-shrink: 0;
 }
 
-div.row-keymap {
-  overflow: hidden;
-}
-
-div.col-keymap {
-  min-width: 20rem;
+@media only screen and (max-width: 576px) {
+  div#shortcutList > div.col-6 {
+    width: 100%;
+  }
 }
 
 ol#searchCrumb,

@@ -207,10 +207,16 @@ function parseQueue(obj) {
     setCustomDomProperty(table, 'data-version', obj.result.queueVersion);
     const tfoot = table.getElementsByTagName('tfoot')[0];
     if (obj.result.totalTime && obj.result.totalTime > 0 && obj.result.totalEntities <= app.current.limit ) {
-        tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
+        elReplaceChild(tfoot, elCreateNode('tr', {}, 
+            elCreateNode('td', {"colspan": (colspan + 1)}, 
+                elCreateText('small', {}, tn('Num songs', obj.result.totalEntities) + ' - ' + beautifyDuration(obj.result.totalTime))))
+        );
     }
     else if (obj.result.totalEntities > 0) {
-        tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + t('Num songs', obj.result.totalEntities) + '</small></td></tr>';
+        elReplaceChild(tfoot, elCreateNode('tr', {}, 
+            elCreateNode('td', {"colspan": (colspan + 1)}, 
+                elCreateText('small', {}, tn('Num songs', obj.result.totalEntities))))
+        );
     }
     else {
         elClear(tfoot);
@@ -245,7 +251,7 @@ function queueSetCurrentSong(currentSongId, elapsedTime, totalTime) {
 function setPlayingRow(row, elapsedTime, totalTime) {
     const durationTd = row.querySelector('[data-col=Duration]');
     if (durationTd) {
-        durationTd.textContent = beautifySongDuration(elapsedTime) + " / " + beautifySongDuration(totalTime);
+        durationTd.textContent = beautifySongDuration(elapsedTime) + smallSpace + "/" + smallSpace + beautifySongDuration(totalTime);
     }
     const posTd = row.querySelector('[data-col=Pos]');
     if (posTd) {

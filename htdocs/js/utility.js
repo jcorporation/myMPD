@@ -416,24 +416,25 @@ function addTagList(elId, list) {
 }
 
 function addTagListSelect(elId, list) {
-    let tagList = '';
+    const select = document.getElementById(elId);
+    elClear(select);
     if (elId === 'saveSmartPlaylistSort' || elId === 'selectSmartplsSort') {
-        tagList += '<option value="">' + t('Disabled') + '</option>';
-        tagList += '<option value="shuffle">' + t('Shuffle') + '</option>';
-        tagList += '<optgroup label="' + t('Sort by tag') + '">';
-        tagList += '<option value="filename">' + t('Filename') + '</option>';
+        select.appendChild(elCreateText('option', {"value": ""}, tn('Disabled')));
+        select.appendChild(elCreateText('option', {"value": "shuffle"}, tn('Shuffle')));
+        const optGroup = elCreateEmpty('optgroup', {"label": tn('Sort by tag')});
+        optGroup.appendChild(elCreateText('option', {"value": "filename"}, tn('Filename')));
+        for (let i = 0, j = settings[list].length; i < j; i++) {
+            optGroup.appendChild(elCreateText('option', {"value": settings[list][i]}, tn(settings[list][i])));
+        }
+        select.appendChild(optGroup);
     }
     else if (elId === 'selectJukeboxUniqueTag' && settings.tagListBrowse.includes('Title') === false) {
         //Title tag should be always in the list
-        tagList = '<option value="Title">' + t('Song') + '</option>';
+        select.appendChild(elCreateText('option', {"value": "Title"}, tn('Song')));
+        for (let i = 0, j = settings[list].length; i < j; i++) {
+            select.appendChild(elCreateText('option', {"value": settings[list][i]}, tn(settings[list][i])));
+        }
     }
-    for (let i = 0, j = settings[list].length; i < j; i++) {
-        tagList += '<option value="' + settings[list][i] + '">' + t(settings[list][i]) + '</option>';
-    }
-    if (elId === 'saveSmartPlaylistSort' || elId === 'selectSmartplsSort') {
-        tagList += '</optgroup>';
-    }
-    document.getElementById(elId).innerHTML = tagList;
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -931,7 +932,7 @@ function createSearchExpression(crumbsEl, tag, op, value) {
 
 function printValue(key, value) {
     if (value === undefined || value === null) {
-        return '-';
+        return document.createTextNode('-');
     }
     switch (key) {
         case 'Type':

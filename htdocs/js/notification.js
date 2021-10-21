@@ -83,15 +83,7 @@ function showNotification(title, text, facility, severity) {
 
     const toast = elCreateEmpty('div', {"class": ["toast"]});
     const toastHeader = elCreateEmpty('div', {"class": ["toast-header"]});
-    if (severity === 'info' ) {
-        toastHeader.appendChild(elCreateText('span', {"class": ["mi", "text-success", "me-2"]}, 'info'));
-    }
-    else if (severity === 'warn' ) {
-        toastHeader.appendChild(elCreateText('span', {"class": ["mi", "text-warning", "me-2"]}, 'warning'));
-    }
-    else {
-        toastHeader.appendChild(elCreateText('span', {"class": ["mi", "text-danger", "me-2"]}, 'error'));
-    }
+    toastHeader.appendChild(getSeverityIcon(severity));
     toastHeader.appendChild(elCreateText('strong', {"class": ["me-auto"]}, title));
     toastHeader.appendChild(elCreateEmpty('button', {"type": "button", "class": ["btn-close"], "data-bs-dismiss": "toast"}));
     toast.appendChild(toastHeader);
@@ -106,11 +98,19 @@ function showNotification(title, text, facility, severity) {
     toastInit.show();
 }
 
-function logMessage(title, text, facility, severity) {
-    if (severities[severity] !== undefined) {
-        severity = severities[severity];
+function getSeverityIcon(severity) {
+    switch(severity) {
+        case 'info':
+            return elCreateText('span', {"class": ["mi", "text-success", "me-2"]}, 'info');
+        case 'warn':
+            return elCreateText('span', {"class": ["mi", "text-warning", "me-2"]}, 'warning');
+        default:
+            return elCreateText('span', {"class": ["mi", "text-danger", "me-2"]}, 'error');
     }
-    else { 
+}
+
+function logMessage(title, text, facility, severity) {
+    if (severities[severity] === undefined) {
         logDebug('Unknown severity: ' + severity);
     }
     
@@ -129,18 +129,22 @@ function logMessage(title, text, facility, severity) {
         append = false;        
     }
 
-    const entry = document.createElement('div');
-    entry.classList.add('text-light');
+    const entry = elCreateEmpty('div', {"class": ["row", "align-items-center", "mb-2", "me-0"]});
     setCustomDomProperty(entry, 'data-title', title);
     let occurence = 1;
     if (append === false) {
         occurence += Number(getCustomDomProperty(lastEntry, 'data-occurence'));
     }
     setCustomDomProperty(entry, 'data-occurence', occurence);
-    entry.innerHTML = '<small>' + localeDate() + '&nbsp;&ndash;&nbsp;' + t(facility) +
-        ':&nbsp;' + t(severity) +
-        (occurence > 1 ? '&nbsp;(' + occurence + ')' : '') + '</small>' +
-        '<p>' + e(title) + (text === '' ? '' : '<br/>' + e(text)) + '</p>';
+    entry.appendChild(elCreateNode('div', {"class": ["col", "col-1", "ps-0"]}, getSeverityIcon(severity)));
+    const col = elCreateEmpty('div', {"class": ["col", "col-11"]});  
+    col.appendChild(elCreateText('small', {}, localeDate() + ' - ' + tn(facility) +
+        (occurence > 1 ? '&nbsp;(' + occurence + ')' : '')));
+    col.appendChild(elCreateText('p', {"class": ["mb-0"]}, title));
+    if (text !== '') {
+        col.appendChild(elCreateText('p', {"class": ["mb-0"]}, text));
+    }
+    entry.appendChild(col);
 
     if (append === true) {
         overview.insertBefore(entry, overview.firstElementChild);

@@ -30,6 +30,7 @@ const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const hasIO = 'IntersectionObserver' in window ? true : false;
 const ligatureMore = 'menu';
 const progressBarTransition = 'width 1s linear';
+const smallSpace = "\u2009";
 let tagAlbumArtist = 'AlbumArtist';
 const session = {"token": "", "timeout": 0};
 const sessionLifetime = 1780;

@@ -226,20 +226,26 @@ function appRoute() {
             elDisableId('BrowseFilesystemAddAllSongsBtn');
         }
         //Create breadcrumb
-        let breadcrumbs = '<li class="breadcrumb-item"><a data-uri="" class="text-body mi">home</a></li>';
+        const crumbEl = document.getElementById('BrowseBreadcrumb');
+        elClear(crumbEl);
+        const home = elCreateText('a', {"class": ["mi"]}, 'home');
+        setCustomDomProperty(home, 'data-uri', '');
+        crumbEl.appendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, home));
+
         const pathArray = app.current.search.split('/');
         const pathArrayLen = pathArray.length;
         let fullPath = '';
         for (let i = 0; i < pathArrayLen; i++) {
             if (pathArrayLen - 1 === i) {
-                breadcrumbs += '<li class="breadcrumb-item active">' + e(pathArray[i]) + '</li>';
+                crumbEl.appendChild(elCreateText('li', {"class": ["breadcrumb-item", "active"]}, pathArray[i]));
                 break;
             }
             fullPath += pathArray[i];
-            breadcrumbs += '<li class="breadcrumb-item"><a class="text-body" href="#" data-uri="' + encodeURI(fullPath) + '">' + e(pathArray[i]) + '</a></li>';
+            const a = elCreateText('a', {"href": "#"}, pathArray[i])
+            setCustomDomProperty(a, 'data-uri', fullPath);
+            crumbEl.appendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, a));
             fullPath += '/';
         }
-        document.getElementById('BrowseBreadcrumb').innerHTML = breadcrumbs;
         const searchFilesystemStrEl = document.getElementById('searchFilesystemStr');
         searchFilesystemStrEl.value = app.current.filter === '-' ? '' :  app.current.filter;
     }
@@ -301,13 +307,6 @@ function appRoute() {
         else if (document.getElementById('searchstr').value === '' && app.current.search !== '') {
             document.getElementById('searchstr').value = app.current.search;
         }
-        
-        if (app.last.app !== app.current.app && app.current.search !== '') {
-            document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML=
-                '<tr><td><span class="mi">search</span></td>' +
-                '<td colspan="' + settings['cols' + app.current.app].length + '">' + t('Searching...') + '</td></tr>';
-        }
-
         if (app.current.search === '') {
             document.getElementById('searchstr').value = '';
         }
@@ -365,11 +364,14 @@ function appRoute() {
 }
 
 function showAppInitAlert(text) {
-    document.getElementById('splashScreenAlert').innerHTML = '<p class="text-danger">' + t(text) + '</p>' +
-        '<p><a id="appReloadBtn" class="btn btn-danger text-light clickable">' + t('Reload') + '</a></p>';
-    document.getElementById('appReloadBtn').addEventListener('click', function() {
+    const spa = document.getElementById('splashScreenAlert');
+    elClear(spa);
+    spa.appendChild(elCreateText('p', {"class": ["text-danger"]}, tn(text)));
+    btn = elCreateText('button', {"class": ["btn", "btn-danger"]}, tn('Reload'));
+    btn.addEventListener('click', function() {
         clearAndReload();
     }, false);
+    spa.appendChild(elCreateNode('p', {}, btn));    
 }
 
 function clearAndReload() {
@@ -640,22 +642,18 @@ function initGlobalModals() {
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI("MYMPD_API_DATABASE_STATS", {}, parseStats);
         getServerinfo();
-        let list = '';
-        let i = 0;
+        const list = document.getElementById('shortcutList');
+        elClear(list);
         for (const key in keymap) {
-            if (i % 2 === 0) {
-                if (i > 0) {
-                    list += '</div>';
-                }
-                list += '<div class="row row-keymap">';
+            const col = elCreateEmpty('div', {"class": ["col", "col-6", "mb-3", "align-items-center"]});
+            const k = elCreateText('div', {"class": ["key", "float-start"]}, (keymap[key].key !== undefined ? keymap[key].key : key))
+            if (keymap[key].key && keymap[key].key.length > 1) {
+                k.classList.add('mi', 'mi-small');
             }
-            if (keymap[key].req === undefined || settings[keymap[key].req] === true) {
-                list += '<div class="col col-keymap mb-1 d-flex"><div class="align-self-center key' + (keymap[key].key && keymap[key].key.length > 1 ? ' mi mi-small' : '') + 
-                       '">' + (keymap[key].key !== undefined ? keymap[key].key : key ) + '</div><div class="align-self-center">' + t(keymap[key].desc) + '</div></div>';
-                i++;
-            }
+            col.appendChild(k);
+            col.appendChild(elCreateText('div', {}, tn(keymap[key].desc)));
+            list.appendChild(col);
         }
-        document.getElementById('shortcutList').innerHTML = list + '</div>';
     }, false);
     
     document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function() {

@@ -67,7 +67,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     //Set playing track in queue view
     queueSetCurrentSong(currentSongId, elapsedTime, totalTime);
 
-    domCache.counter.innerHTML = beautifySongDuration(elapsedTime) + "&nbsp;/&nbsp;" + beautifySongDuration(totalTime);
+    domCache.counter.textContent = beautifySongDuration(elapsedTime) + smallSpace + "/" + smallSpace + beautifySongDuration(totalTime);
 
     //synced lyrics
     if (showSyncedLyrics === true && settings.colsPlayback.includes('Lyrics')) {
@@ -355,9 +355,13 @@ function songChange(obj) {
     
     setPlaybackCardTags(obj.result);
 
-    document.getElementById('currentBooklet').innerHTML = obj.result.bookletPath === '' || obj.result.bookletPath === undefined || features.featLibrary === false ? '' : 
-            '<span class="text-light mi">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
-            myEncodeURI(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>';
+    const bookletEl = document.getElementById('currentBooklet');
+    elClear(bookletEl);
+    if (obj.result.bookletPath !== '' && obj.result.bookletPath !== undefined && features.featLibrary === true) {
+        bookletEl.appendChild(elCreateText('span', {"class": ["mi", "me-2"]}, 'description'));
+        bookletEl.appendChild(elCreateText('a', {"target": "_blank", "href": subdir + '/browse/music/' + 
+            myEncodeURI(obj.result.bookletPath)}, tn('Download booklet')));
+    }
     
     //Update title in queue view for http streams
     const playingTr = document.getElementById('queueTrackId' + obj.result.currentSongId);
