@@ -1884,3 +1884,6 @@ Album Details
 
 AudioFormat
 Audioformat
+
+Not playing
+gestoppt

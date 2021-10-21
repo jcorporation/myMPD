@@ -1299,9 +1299,6 @@ Impossibile togliere il brano dalla lista del jukebox
 Delete home icon
 Cancella l'icona della home
 
-Disc 1
-Disco 1
-
 Display tags
 Mostra tag
 
