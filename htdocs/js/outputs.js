@@ -55,16 +55,17 @@ function parseOutputs(obj) {
         if (obj.result.data[i].plugin === 'dummy') {
             continue;
         }
-        const btn = elCreateEmpty('button', {"class": ["btn btn-secondary d-flex justify-content-between"], "id": "btnOutput" + obj.result.data[i].id});
+        const btn = elCreateEmpty('button', {"class": ["btn", "btn-secondary", "d-flex", "justify-content-between"], "id": "btnOutput" + obj.result.data[i].id});
         setCustomDomProperty(btn, 'data-output-name', obj.result.data[i].name);
         setCustomDomProperty(btn, 'data-output-id', obj.result.data[i].id);
         if (obj.result.data[i].state === 1) {
             btn.classList.add('active');
         }
-        btn.appendChild(elCreateText('span', {"class": ["mi", "align-self-center"]}, obj.result.data[i].plugin === 'httpd' ? 'cast' : 'volume_up'));
+        btn.appendChild(elCreateText('span', {"class": ["mi", "align-self-center"]}, (obj.result.data[i].plugin === 'httpd' ? 'cast' : 'volume_up')));
         btn.appendChild(elCreateText('span', {"class": ["mx-2", "align-self-center"]}, obj.result.data[i].name));
         btn.appendChild(elCreateText('a', {"class": ["mi", "text-white", "align-self-center"],
-            "title": (Object.keys(obj.result.data[i].attributes).length > 0 ? tn('Edit attributes') : tn('Show attributes'))}, settings));        
+            "title": (Object.keys(obj.result.data[i].attributes).length > 0 ? tn('Edit attributes') : tn('Show attributes'))}, 'settings'));
+        outputList.appendChild(btn);
     }
 }
 

@@ -75,6 +75,11 @@ button.active,
   border-color: var(--mympd-highlightcolor);
 }
 
+.btn-success:disabled, .btn-success.disabled {
+  color: inherit;
+}
+
+
 .text-success,
 a.text-success:hover,
 a.text-success:focus {
