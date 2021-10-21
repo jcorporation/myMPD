@@ -243,8 +243,6 @@ function queueSetCurrentSong(currentSongId, elapsedTime, totalTime) {
 }
 
 function setPlayingRow(row, elapsedTime, totalTime) {
-    const smallWidth = window.innerWidth < 576 ? true : false;
-
     const durationTd = row.querySelector('[data-col=Duration]');
     if (durationTd) {
         durationTd.textContent = beautifySongDuration(elapsedTime) + " / " + beautifySongDuration(totalTime);
@@ -340,7 +338,7 @@ function addToQueue() {
 //eslint-disable-next-line no-unused-vars
 function saveQueue() {
     const plNameEl = document.getElementById('saveQueueName');
-    if (validatePlnameEl(plName) === true) {
+    if (validatePlnameEl(plNameEl) === true) {
         sendAPI("MYMPD_API_QUEUE_SAVE", {
             "plist": plNameEl.value
         }, saveQueueCheckError, true);

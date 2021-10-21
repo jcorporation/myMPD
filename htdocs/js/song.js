@@ -38,11 +38,9 @@ function songDetails(uri) {
 }
 
 function parseFingerprint(obj) {
-    const textarea = elCreate('textarea', {"class": ["form-control", "text-monospace", "small", "breakAll"], "rows": 5}, '');
+    const textarea = elCreateEmpty('textarea', {"class": ["form-control", "text-monospace", "small", "breakAll"], "rows": 5});
     textarea.value = obj.result.fingerprint;
-    const fpTd = document.getElementById('fingerprint');
-    elClear(fpTd);
-    fpTd.appendChild(textarea);
+    elReplaceChild(document.getElementById('fingerprint'), textarea);
 }
 
 function getMBtagLink(tag, value) {
@@ -63,18 +61,18 @@ function getMBtagLink(tag, value) {
             break;
     }
     if (MBentity === '' || value === '-') {
-        return elCreate('span', {}, value);
+        return elCreateText('span', {}, value);
     }
     else {
-        return elCreate('a', {"title": tn('Lookup at musicbrainz'), "class": ["text-success", "external"], "target": "_musicbrainz",
+        return elCreateText('a', {"title": tn('Lookup at musicbrainz'), "class": ["text-success", "external"], "target": "_musicbrainz",
             "href": "https://musicbrainz.org/" + MBentity + "/" + myEncodeURI(value)}, value);
     }
 }
 
 function songDetailsRow(thContent, tdContent) {
-    const tr = elCreate('tr', {}, '');
-    tr.appendChild(elCreate('th', {}, tn(thContent)));
-    const td = elCreate('td', {}, '');
+    const tr = elCreateEmpty('tr', {});
+    tr.appendChild(elCreateText('th', {}, tn(thContent)));
+    const td = elCreateEmpty('td', {});
     if (typeof tdContent === 'object') {
         td.appendChild(tdContent);
     }
@@ -99,16 +97,16 @@ function parseSongDetails(obj) {
         if (settings.tagList[i] === 'Title' || obj.result[settings.tagList[i]] === '-') {
             continue;
         }
-        const tr = elCreate('tr', {}, '');
-        tr.appendChild(elCreate('th', {}, tn(settings.tagList[i])));
-        const td = elCreate('td', {}, '');
+        const tr = elCreateEmpty('tr', {});
+        tr.appendChild(elCreateText('th', {}, tn(settings.tagList[i])));
+        const td = elCreateEmpty('td', {});
         setCustomDomProperty(td, 'data-tag', settings.tagList[i]);
         setCustomDomProperty(td, 'data-name', obj.result[settings.tagList[i]]);
         if (settings.tagList[i] === 'Album' && obj.result[tagAlbumArtist] !== null) {
             setCustomDomProperty(td, 'data-albumartist', obj.result[tagAlbumArtist]);
         }
         if (settings.tagListBrowse.includes(settings.tagList[i]) && obj.result[settings.tagList[i]] !== '-') {
-            td.appendChild(elCreate('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]]));
+            td.appendChild(elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]]));
         }
         else if (settings.tagList[i].indexOf('MUSICBRAINZ') === 0) {
             td.appendChild(getMBtagLink(settings.tagList[i], obj.result[settings.tagList[i]]));
@@ -121,40 +119,40 @@ function parseSongDetails(obj) {
     }
     tbody.appendChild(songDetailsRow('Duration', beautifyDuration(obj.result.Duration)));
     if (features.featLibrary === true) {
-        tbody.appendChild(songDetailsRow('Filename', elCreate('a', {"class": ["text-break", "text-success", "downdload"], "href": "#", "target": "_blank", "title": tn(obj.result.uri)},
-            basename(obj.result.uri, false))));
+        tbody.appendChild(songDetailsRow('Filename', elCreateText('a', {"class": ["text-break", "text-success", "downdload"], "href": "#", 
+            "target": "_blank", "title": tn(obj.result.uri)}, basename(obj.result.uri, false))));
     }
     else {
-        tbody.appendChild(songDetailsRow('Filename', elCreate('span', {"class": ["text-break"], "title": tn(obj.result.uri)},
+        tbody.appendChild(songDetailsRow('Filename', elCreateText('span', {"class": ["text-break"], "title": tn(obj.result.uri)},
             basename(obj.result.uri, false))));
     }
     tbody.appendChild(songDetailsRow('AudioFormat', printValue('AudioFormat', obj.result.AudioFormat)));
     tbody.appendChild(songDetailsRow('Filetype', filetype(obj.result.uri)));
     tbody.appendChild(songDetailsRow('LastModified', localeDate(obj.result.LastModified)));
     if (features.featFingerprint === true) {
-        const a = elCreate('a', {"class": "text-success", "id": "calcFingerprint", "href": "#"}, tn('Calculate'));
+        const a = elCreateText('a', {"class": "text-success", "id": "calcFingerprint", "href": "#"}, tn('Calculate'));
         setCustomDomProperty(a, 'data-uri', obj.result.uri);
         tbody.appendChild(songDetailsRow('Fingerprint', a));
         tbody.lastChild.lastChild.setAttribute('id', 'fingerprint');
     }
     if (obj.result.bookletPath !== '') {
-        tbody.appendChild(songDetailsRow('Booklet', elCreate('a', {"class": ["text-success"], 
+        tbody.appendChild(songDetailsRow('Booklet', elCreateText('a', {"class": ["text-success"], 
             "href": myEncodeURI(subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName), "target": "_blank"},
             tn('Download'))));
     }
     if (features.featStickers === true) {
-        tbody.appendChild(elCreate('tr', {}, elCreate('th', {"colspan": "2", "class": ["pt-3"]}, elCreate('h5', {}, tn('Statistics')))));
+        tbody.appendChild(elCreateNode('tr', {}, elCreateNode('th', {"colspan": "2", "class": ["pt-3"]}, elCreateText('h5', {}, tn('Statistics')))));
         for (const sticker of stickerList) {
             if (sticker === 'stickerLike') {
-                const tr = elCreate('tr', {}, '');
-                tr.appendChild(elCreate('th', {}, tn('Like')));
-                const td = elCreate('td', {}, '');
-                const grp = elCreate('div', {"class": ["btn-group", "btn-group-sm"]}, '');
+                const tr = elCreateEmpty('tr', {});
+                tr.appendChild(elCreateText('th', {}, tn('Like')));
+                const td = elCreateEmpty('td', {});
+                const grp = elCreateEmpty('div', {"class": ["btn-group", "btn-group-sm"]});
                 setCustomDomProperty(grp, 'data-uri', obj.result.uri);
-                const thDown = elCreate('button', {"title": tn('Dislike song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_down');
+                const thDown = elCreateText('button', {"title": tn('Dislike song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_down');
                 setCustomDomProperty(thDown, 'data-href', {"cmd": "voteSong", "options": [0]});
                 if (obj.result[sticker] === 0) { thDown.classList.add('active'); }
-                const thUp = elCreate('button', {"title": tn('Dislike song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_up');
+                const thUp = elCreateText('button', {"title": tn('Dislike song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_up');
                 setCustomDomProperty(thUp, 'data-href', {"cmd": "voteSong", "options": [2]});
                 if (obj.result[sticker] === 2) { thUp.classList.add('active'); }
                 grp.appendChild(thDown);
@@ -223,9 +221,9 @@ function getComments(uri, el) {
             return false;
         }
         for (const key in obj.result.data) {
-            const tr = elCreate('tr', {}, '');
-            tr.appendChild(elCreate('td', {}, key));
-            tr.appendChild(elCreate('td', {}, obj.result.data[key]));
+            const tr = elCreateEmpty('tr', {});
+            tr.appendChild(elCreateText('td', {}, key));
+            tr.appendChild(elCreateText('td', {}, obj.result.data[key]));
             el.appendChild(tr);
         }
         el.classList.remove('opacity05');

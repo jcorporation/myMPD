@@ -6,7 +6,7 @@
 class inputClear extends HTMLInputElement {
     constructor() {
         super();
-        const button = elCreate('button', {"class": ["mi", "mi-small", "input-inner-button", "btn-secondary"]}, 'clear');
+        const button = elCreateText('button', {"class": ["mi", "mi-small", "input-inner-button", "btn-secondary"]}, 'clear');
         this.parentNode.insertBefore(button, this.nextSibling);
         this.button = button;
         if (this.value === '')  {
@@ -39,7 +39,7 @@ class inputClear extends HTMLInputElement {
 class inputReset extends HTMLInputElement {
     constructor() {
         super();
-        const button = elCreate('button', {"class": ["mi", "mi-small", "input-inner-button"]}, 'settings_backup_restore');
+        const button = elCreateText('button', {"class": ["mi", "mi-small", "input-inner-button"]}, 'settings_backup_restore');
         if (this.parentNode.firstElementChild.getAttribute('type') === 'color') {
             button.style.right = '1.5rem';
         }

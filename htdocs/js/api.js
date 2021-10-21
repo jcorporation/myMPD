@@ -22,20 +22,20 @@ function removeEnterPinFooter(footer) {
 }
 
 function createEnterPinFooter(footer, method, params, callback, onerror) {
-    const div = elCreate('div', {"class": ["row", "w-100"]}, '');
-    div.appendChild(elCreate('div', {"class": ["col-4", "pl-0"]}, tn('Enter pin')));
-    const gr = elCreate('div', {"class": ["input-group"]}, '');
-    const input = elCreate('input', {"type": "password", "class": ["form-control", "border-secondary"]}, '');
+    const div = elCreateEmpty('div', {"class": ["row", "w-100"]});
+    div.appendChild(elCreateText('div', {"class": ["col-4", "pl-0"]}, tn('Enter pin')));
+    const gr = elCreateEmpty('div', {"class": ["input-group"]});
+    const input = elCreateEmpty('input', {"type": "password", "class": ["form-control", "border-secondary"]});
     gr.appendChild(input);
-    const ap = elCreate('div', {"class": ["input-group-append"]}, '');
-    const btn = elCreate('button', {"class": ["btn", "btn-success"]}, 'Enter');
+    const ap = elCreateEmpty('div', {"class": ["input-group-append"]});
+    const btn = elCreateText('button', {"class": ["btn", "btn-success"]}, tn('Enter'));
     ap.appendChild(btn);
     gr.appendChild(ap);
-    const col2 = elCreate('div', {"class": ["col-8", "pr-0"]}, '');
+    const col2 = elCreateEmpty('div', {"class": ["col-8", "pr-0"]});
     col2.appendChild(gr);
     div.appendChild(col2);
     footer.classList.add('d-none');
-    const newFooter = elCreate('div', {"class": ["modal-footer", "enterPinFooter"]}, '');
+    const newFooter = elCreateEmpty('div', {"class": ["modal-footer", "enterPinFooter"]});
     newFooter.appendChild(div);
     footer.parentNode.appendChild(newFooter);
     input.focus();
@@ -47,7 +47,7 @@ function createEnterPinFooter(footer, method, params, callback, onerror) {
                 alert.remove();
             }
             if (obj.error) {
-                const em = elCreate('div', {"class": ["alert", "alert-danger", "p-2", "w-100"]}, '');
+                const em = elCreateEmpty('div', {"class": ["alert", "alert-danger", "p-2", "w-100"]});
                 addIconLine(em, 'error_outline', tn(obj.error.message));
                 newFooter.appendChild(em);
             }
@@ -84,7 +84,7 @@ function enterPin(method, params, callback, onerror) {
     else {
         logDebug('Open pin modal');
         //open modal to enter pin and resend API request
-        const enterBtn = elCreate('button', {"id": "modalEnterPinEnterBtn", "class": ["btn", "btn-success"]}, tn('Enter'));
+        const enterBtn = elCreateText('button', {"id": "modalEnterPinEnterBtn", "class": ["btn", "btn-success"]}, tn('Enter'));
         enterBtn.addEventListener('click', function() {
             sendAPI('MYMPD_API_SESSION_LOGIN', {"pin": document.getElementById('inputPinModal').value}, function(obj) {
                 document.getElementById('inputPinModal').value = '';

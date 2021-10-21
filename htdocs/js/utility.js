@@ -4,7 +4,19 @@
 // https://github.com/jcorporation/mympd
 
 //element handling shortcuts
-function elCreate(tagName, attributes, textContent) {
+function elCreateText(tagName, attributes, text) {
+    const tag = elCreateEmpty(tagName, attributes);
+    tag.textContent = text;
+    return tag;
+}
+
+function elCreateNode(tagName, attributes, node) {
+    const tag = elCreateEmpty(tagName, attributes);
+    tag.appendChild(node);
+    return tag;
+}
+
+function elCreateEmpty(tagName, attributes) {
     const tag = document.createElement(tagName);
     for (const key in attributes) {
         switch(key) {
@@ -14,12 +26,6 @@ function elCreate(tagName, attributes, textContent) {
             default:
                 tag.setAttribute(key, attributes[key]);
         }
-    }
-    if (typeof textContent === 'object') {
-        tag.appendChild(textContent);
-    }
-    else {
-        tag.textContent = textContent;
     }
     return tag;
 }
@@ -107,7 +113,7 @@ function r(x) {
 //confirmation dialogs
 function showConfirm(text, btnText, callback) {
     document.getElementById('modalConfirmText').textContent = text;
-    const yesBtn = elCreate('button', {"id": "modalConfirmYesBtn", "class": ["btn", "btn-danger"]}, btnText);
+    const yesBtn = elCreateText('button', {"id": "modalConfirmYesBtn", "class": ["btn", "btn-danger"]}, btnText);
     yesBtn.addEventListener('click', function() {
         if (callback !== undefined && typeof(callback) === 'function') {
             callback();
@@ -119,18 +125,16 @@ function showConfirm(text, btnText, callback) {
 }
 
 function showConfirmInline(el, text, btnText, callback) {
-    const confirm = elCreate('div', {"class": ["alert", "alert-danger", "mt-2"]}, '');
-    const p = elCreate('p', {}, text);
-    confirm.appendChild(p);
+    const confirm = elCreateNode('div', {"class": ["alert", "alert-danger", "mt-2"]}, elCreateText('p', {}, text));
 
-    const cancelBtn = elCreate('button', {"class": ["btn", "btn-secondary"]}, t('Cancel'));
+    const cancelBtn = elCreateText('button', {"class": ["btn", "btn-secondary"]}, tn('Cancel'));
     cancelBtn.addEventListener('click', function(event) {
         event.stopPropagation();
         this.parentNode.remove();
     }, false);
     confirm.appendChild(cancelBtn);
 
-    const yesBtn = elCreate('button', {"class": ["btn", "btn-danger", "float-end"]}, btnText);
+    const yesBtn = elCreateText('button', {"class": ["btn", "btn-danger", "float-end"]}, btnText);
     yesBtn.addEventListener('click', function(event) {
         event.stopPropagation();
         if (callback !== undefined && typeof(callback) === 'function') {
@@ -368,43 +372,43 @@ function selectTag(btnsEl, desc, setTo) {
 }
 
 function addTagList(elId, list) {
-    const stack = elCreate('div', {"class": ["d-grid", "gap-2"]}, '');
+    const stack = elCreateEmpty('div', {"class": ["d-grid", "gap-2"]});
     if (list === 'tagListSearch') {
         if (features.featTags === true) {
-            stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, tn('Any Tag')));
+            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, tn('Any Tag')));
         }
-        stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "filename"}, tn('Filename')));
+        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "filename"}, tn('Filename')));
     }
     if (elId === 'searchDatabaseTags') {
-        stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, tn('Any Tag')));
+        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, tn('Any Tag')));
     }
     for (let i = 0, j = settings[list].length; i < j; i++) {
-        stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, tn(settings[list][i])));
+        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, tn(settings[list][i])));
     }
     if (elId === 'BrowseNavFilesystemDropdown' || elId === 'BrowseNavPlaylistsDropdown') {
         if (features.featTags === true && features.featAdvsearch === true) {
             elClear(stack);
-            stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Database"}, tn('Database')));
+            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Database"}, tn('Database')));
         }
     }
     if (elId === 'BrowseDatabaseByTagDropdown' || elId === 'BrowseNavFilesystemDropdown' || elId === 'BrowseNavPlaylistsDropdown') {
         if (elId === 'BrowseDatabaseByTagDropdown') {
-            stack.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
+            stack.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         }
-        stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Playlists"}, tn('Playlists')));
+        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Playlists"}, tn('Playlists')));
         if (elId === 'BrowseNavPlaylistsDropdown') {
             stack.lastChild.classList.add('active');
         }
-        stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Filesystem"}, tn('Filesystem')));
+        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Filesystem"}, tn('Filesystem')));
         if (elId === 'BrowseNavFilesystemDropdown') {
             stack.lastChild.classList.add('active');
         }
     }
     else if (elId === 'databaseSortTagsList') {
         if (settings.tagList.includes('Date') === true && settings[list].includes('Date') === false) {
-            stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Date"}, tn('Date')));
+            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Date"}, tn('Date')));
         }
-        stack.appendChild(elCreate('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Last-Modified"}, tn('Last modified')));
+        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Last-Modified"}, tn('Last modified')));
     }
     const el = document.getElementById(elId);
     elClear(el);
@@ -511,6 +515,7 @@ function toggleBtnGroupValueCollapse(btngrp, collapse, value) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function toggleBtnGroupId(id) {
     return toggleBtnGroup(document.getElementById(id));
 }
@@ -633,7 +638,7 @@ function setPagination(total, returned) {
         elHide(bottomBar);
         return;
     }
-    const toTop = elCreate('button', {"class": ["btn", "btn-secondary", "mi"], "title": tn('To top')}, 'keyboard_arrow_up');
+    const toTop = elCreateText('button', {"class": ["btn", "btn-secondary", "mi"], "title": tn('To top')}, 'keyboard_arrow_up');
     toTop.addEventListener('click', function(event) {
         event.preventDefault();
         scrollToPosY(0);
@@ -646,8 +651,8 @@ function setPagination(total, returned) {
 }
 
 function createPaginationEls(totalPages, curPage) {
-    const prev = elCreate('button', {"title": tn('Previous page'), "type": "button", "class": ["btn", "btn-secondary"]}, '');
-    prev.appendChild(elCreate('span', {"class": ["mi"]}, 'navigate_before'));
+    const prev = elCreateNode('button', {"title": tn('Previous page'), "type": "button", "class": ["btn", "btn-secondary"]}, 
+    elCreateText('span', {"class": ["mi"]}, 'navigate_before'));
     if (curPage === 1) {
         elDisable(prev);
     }
@@ -658,18 +663,19 @@ function createPaginationEls(totalPages, curPage) {
         }, false);
     }
     
-    const pageDropdownBtn = elCreate('button', {"type": "button", "data-bs-toggle": "dropdown", "class": ["square-end", "btn", "btn-secondary", "dropdown-toggle", "px-2"]}, curPage);
+    const pageDropdownBtn = elCreateText('button', {"type": "button", "data-bs-toggle": "dropdown", 
+        "class": ["square-end", "btn", "btn-secondary", "dropdown-toggle", "px-2"]}, curPage);
     pageDropdownBtn.addEventListener('show.bs.dropdown', function () {
         alignDropdown(this);
     });
-    const pageDropdownMenu = elCreate('div', {"class": ["dropdown-menu", "bg-lite-dark", "px-2", "page-dropdown", "dropdown-menu-dark"]}, '');
+    const pageDropdownMenu = elCreateEmpty('div', {"class": ["dropdown-menu", "bg-lite-dark", "px-2", "page-dropdown", "dropdown-menu-dark"]});
     
-    const row = elCreate('div', {"class": ["row"]}, '');
-    row.appendChild(elCreate('label', {"class": ["col-sm-8", "col-form-label"]}, tn('Elements per page')));
-    row.appendChild(elCreate('div', {"class": ["col-sm-4"]}, ''));
-    const elPerPage = elCreate('select', {"class": ["form-control", "form-select", "border-secondary"]}, '');
+    const row = elCreateEmpty('div', {"class": ["row"]});
+    row.appendChild(elCreateText('label', {"class": ["col-sm-8", "col-form-label"]}, tn('Elements per page')));
+    row.appendChild(elCreateEmpty('div', {"class": ["col-sm-4"]}));
+    const elPerPage = elCreateEmpty('select', {"class": ["form-control", "form-select", "border-secondary"]});
     for (const i in webuiSettingsDefault.uiMaxElementsPerPage.validValues) {
-        elPerPage.appendChild(elCreate('option', {"value": i}, i));
+        elPerPage.appendChild(elCreateText('option', {"value": i}, i));
         if (Number(i) === app.current.limit) {
             elPerPage.lastChild.setAttribute('selected', 'selected');
         }
@@ -686,8 +692,8 @@ function createPaginationEls(totalPages, curPage) {
     }, false);
     row.lastChild.appendChild(elPerPage);
     
-    const pageList = elCreate('div', {"class": ["row", "mb-3"]}, '');
-    const pageGrp = elCreate('div', {"class": ["btn-group"]}, '');
+    const pageList = elCreateEmpty('div', {"class": ["row", "mb-3"]});
+    const pageGrp = elCreateEmpty('div', {"class": ["btn-group"]});
     
     let start = curPage - 3;
     if (start < 1) {
@@ -699,12 +705,12 @@ function createPaginationEls(totalPages, curPage) {
         start = end - 6 > 1 ? end - 6 : 1;
     }
 
-    const first = elCreate('button', {"title": tn('First page'), "type": "button", "class": ["btn", "btn-secondary"]}, '');
+    const first = elCreateEmpty('button', {"title": tn('First page'), "type": "button", "class": ["btn", "btn-secondary"]});
     if (start === 1) {
         first.textContent = '1';
     }
     else {
-        first.appendChild(elCreate('span', {"class": ["mi"]}, 'first_page'));
+        first.appendChild(elCreateText('span', {"class": ["mi"]}, 'first_page'));
     }
     if (curPage === 1) {
         elDisable(first);
@@ -719,7 +725,7 @@ function createPaginationEls(totalPages, curPage) {
     pageGrp.appendChild(first);
 
     for (let i = start; i < end; i++) {
-        pageGrp.appendChild(elCreate('button', {"class": ["btn", "btn-secondary"]}, i + 1));
+        pageGrp.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary"]}, i + 1));
         if (i + 1 === curPage) {
             pageGrp.lastChild.classList.add('active');
         }
@@ -734,12 +740,12 @@ function createPaginationEls(totalPages, curPage) {
         }
     }
     
-    const last = elCreate('button', {"title": tn('Last page'), "type": "button", "class": ["btn", "btn-secondary"]}, '');
+    const last = elCreateEmpty('button', {"title": tn('Last page'), "type": "button", "class": ["btn", "btn-secondary"]});
     if (totalPages === end + 1) {
         last.textContent = end + 1;
     }
     else {
-        last.appendChild(elCreate('span', {"class": ["mi"]}, 'last_page'));
+        last.appendChild(elCreateText('span', {"class": ["mi"]}, 'last_page'));
     }
     if (totalPages === -1) {
         elDisable(last);
@@ -762,8 +768,8 @@ function createPaginationEls(totalPages, curPage) {
     pageDropdownMenu.appendChild(pageList);
     pageDropdownMenu.appendChild(row);
     
-    const next = elCreate('button', {"title": tn('Next page'), "type": "button", "class": ["btn", "btn-secondary"]}, '');
-    next.appendChild(elCreate('span', {"class": ["mi"]}, 'navigate_next'));
+    const next = elCreateEmpty('button', {"title": tn('Next page'), "type": "button", "class": ["btn", "btn-secondary"]});
+    next.appendChild(elCreateText('span', {"class": ["mi"]}, 'navigate_next'));
     if (totalPages !== -1 && totalPages === curPage) {
         elDisable(next);
     }
@@ -774,9 +780,9 @@ function createPaginationEls(totalPages, curPage) {
         }, false);
     }
 
-    const outer = elCreate('div', {"class": ["btn-group", "pagination"]}, '');
+    const outer = elCreateEmpty('div', {"class": ["btn-group", "pagination"]});
     outer.appendChild(prev);
-    const btnGrp = elCreate('div', {"class": ["btn-group"]}, '');
+    const btnGrp = elCreateEmpty('div', {"class": ["btn-group"]});
     btnGrp.appendChild(pageDropdownBtn);
     btnGrp.appendChild(pageDropdownMenu);
     outer.appendChild(btnGrp);
@@ -880,11 +886,11 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
 }
 
 function createSearchCrumb(filter, op, value) {
-    const btn = elCreate('button', {"class": ["btn", "btn-secondary", "bg-gray-800", "mr-2"]}, filter + ' ' + op + ' \'' + value + '\'');
+    const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "bg-gray-800", "mr-2"]}, filter + ' ' + op + ' \'' + value + '\'');
     setCustomDomProperty(btn, 'data-filter-tag', filter);
     setCustomDomProperty(btn, 'data-filter-op', op);
     setCustomDomProperty(btn, 'data-filter-value', value);
-    const badge = elCreate('span', {"class": ["ml-2", "badge", "bg-secondary"]}, '×');
+    const badge = elCreateText('span', {"class": ["ml-2", "badge", "bg-secondary"]}, '×');
     btn.appendChild(badge);
     return btn;
 }
@@ -929,11 +935,11 @@ function printValue(key, value) {
     }
     switch (key) {
         case 'Type':
-            if (value === 'song') { return elCreate('span', {"class": ["mi"]}, 'music_note'); }
-            if (value === 'smartpls') { return elCreate('span', {"class": ["mi"]}, 'queue_music'); }
-            if (value === 'plist') { return elCreate('span', {"class": ["mi"]}, 'list'); }
-            if (value === 'dir') { return elCreate('span', {"class": ["mi"]}, 'folder_open'); }
-            return elCreate('span', {"class": ["mi"]}, 'radio_button_unchecked');
+            if (value === 'song') { return elCreateText('span', {"class": ["mi"]}, 'music_note'); }
+            if (value === 'smartpls') { return elCreateText('span', {"class": ["mi"]}, 'queue_music'); }
+            if (value === 'plist') { return elCreateText('span', {"class": ["mi"]}, 'list'); }
+            if (value === 'dir') { return elCreateText('span', {"class": ["mi"]}, 'folder_open'); }
+            return elCreateText('span', {"class": ["mi"]}, 'radio_button_unchecked');
         case 'Duration':
             return document.createTextNode(beautifySongDuration(value));
         case 'AudioFormat':
@@ -944,7 +950,7 @@ function printValue(key, value) {
         case 'stickerLastSkipped':
             return document.createTextNode(value === 0 ? tn('never') : localeDate(value));
         case 'stickerLike':
-            return elCreate('span', {"class": ["mi"]}, 
+            return elCreateText('span', {"class": ["mi"]}, 
                 value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up');
         default:
             if (key.indexOf('MUSICBRAINZ') === 0) {
@@ -955,8 +961,8 @@ function printValue(key, value) {
 }
 
 function addIconLine(el, ligature, text) {
-    const icon = elCreate('span', {"class": ["mi", "me-2"]}, ligature);
-    const span = elCreate('span', {}, text);
+    const icon = elCreateText('span', {"class": ["mi", "me-2"]}, ligature);
+    const span = elCreateText('span', {}, text);
     el.appendChild(icon);
     el.appendChild(span);
 }

@@ -255,21 +255,21 @@ function zoomZoomPicture() {
 
 function createImgCarousel(imgEl, name, images) {
     const nrImages = images.length;
-    const carousel = elCreate('div', {"id": name, "class": ["carousel", "slide"], "data-bs-ride": "carousel"}, '');
+    const carousel = elCreateEmpty('div', {"id": name, "class": ["carousel", "slide"], "data-bs-ride": "carousel"});
     if (nrImages > 0) {
-        const carouselIndicators = elCreate('div', {"class": ["carousel-indicators"]}, '');
+        const carouselIndicators = elCreateEmpty('div', {"class": ["carousel-indicators"]});
         for (let i = 0; i < nrImages; i++) {
-            carouselIndicators.appendChild(elCreate('button', {"type": "button", "data-bs-target": "#" + name, "data-bs-slide-to": i}, ''));
+            carouselIndicators.appendChild(elCreateEmpty('button', {"type": "button", "data-bs-target": "#" + name, "data-bs-slide-to": i}));
             if (i === 0) {
                 carouselIndicators.lastChild.classList.add('active');
             }
         }
         carousel.appendChild(carouselIndicators);
     }
-    const carouselInner = elCreate('div', {"class": ["carousel-inner"]}, '');
+    const carouselInner = elCreateEmpty('div', {"class": ["carousel-inner"]});
     for (let i = 0; i < nrImages; i++) {
-        carouselInner.appendChild(elCreate('div', {"class": ["carousel-item"]}, ''));
-        carouselInner.lastChild.appendChild(elCreate('div', {}, ''));
+        carouselInner.appendChild(elCreateEmpty('div', {"class": ["carousel-item"]}));
+        carouselInner.lastChild.appendChild(elCreateEmpty('div', {}));
         carouselInner.lastChild.style.backgroundImage = 'url("' + myEncodeURI(images[i]) + '")';
         if (i === 0) {
             carouselInner.lastChild.classList.add('active');
@@ -277,11 +277,11 @@ function createImgCarousel(imgEl, name, images) {
     }
     carousel.appendChild(carouselInner);
     if (nrImages > 0) {
-        const prev = elCreate('a', {"href": "#" + name, "data-bs-slide": "prev", "class": ["carousel-control-prev"]}, '');
-        prev.appendChild(elCreate('span', {"class": ["carousel-control-prev-icon"]}, ''));
+        const prev = elCreateEmpty('a', {"href": "#" + name, "data-bs-slide": "prev", "class": ["carousel-control-prev"]});
+        prev.appendChild(elCreateEmpty('span', {"class": ["carousel-control-prev-icon"]}));
         carousel.appendChild(prev);
-        const next = elCreate('a', {"href": "#" + name, "data-bs-slide": "next", "class": ["carousel-control-next"]}, '');
-        next.appendChild(elCreate('span', {"class": ["carousel-control-next-icon"]}, ''));
+        const next = elCreateEmpty('a', {"href": "#" + name, "data-bs-slide": "next", "class": ["carousel-control-next"]});
+        next.appendChild(elCreateEmpty('span', {"class": ["carousel-control-next-icon"]}));
         carousel.appendChild(next);
     }
 

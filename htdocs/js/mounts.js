@@ -32,7 +32,7 @@ function initMounts() {
         else {
             const dropdownNeighbors = document.getElementById('dropdownNeighbors').children[0];
             elClear(dropdownNeighbors);
-            const div = elCreate('div', {"class": ["list-group-item", "nowrap"]}, '');
+            const div = elCreateEmpty('div', {"class": ["list-group-item", "nowrap"]});
             addIconLine(div, 'warning', tn('Neighbors are disabled'));
             dropdownNeighbors.appendChild(div);
         }
@@ -101,7 +101,7 @@ function updateMount(el, uri) {
     for (let i = 0, j = parent.children.length; i < j; i++) {
         elHide(parent.children[i]);
     }
-    const spinner = elCreate('div', {"id": "spinnerUpdateProgress", "class": ["spinner-border", "spinner-border-sm"]}, '');
+    const spinner = elCreateEmpty('div', {"id": "spinnerUpdateProgress", "class": ["spinner-border", "spinner-border-sm"]});
     el.parentNode.insertBefore(spinner, el);
     updateDB(uri, false);    
 }
@@ -152,20 +152,20 @@ function parseListMounts(obj) {
         if (obj.result.data[i].mountPoint === '') {
             row.classList.add('not-clickable');
         }
-        const td1 = elCreate('td', {}, '');
+        const td1 = elCreateEmpty('td', {});
         if (obj.result.data[i].mountPoint === '') {
-            td1.appendChild(elCreate('span', {"class": ["mi"]}, 'home'));
+            td1.appendChild(elCreateText('span', {"class": ["mi"]}, 'home'));
         }
         else {
             td1.textContent = obj.result.data[i].mountPoint;
         }
         row.appendChild(td1);
-        row.appendChild(elCreate('td', {}, obj.result.data[i].mountUrl));
-        const actionTd = elCreate('td', {"data-col": "Action"}, '');
+        row.appendChild(elCreateText('td', {}, obj.result.data[i].mountUrl));
+        const actionTd = elCreateEmpty('td', {"data-col": "Action"});
         
         if (obj.result.data[i].mountPoint !== '') {
-            const a1 = elCreate('a', {"href": "#", "title": tn('Unmount'), "data-action": "unmount", "class": ["mi", "color-darkgrey"]}, 'delete');
-            const a2 = elCreate('a', {"href": "#", "title": tn('Update'), "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh');
+            const a1 = elCreateText('a', {"href": "#", "title": tn('Unmount'), "data-action": "unmount", "class": ["mi", "color-darkgrey"]}, 'delete');
+            const a2 = elCreateText('a', {"href": "#", "title": tn('Update'), "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh');
             actionTd.appendChild(a1);
             actionTd.appendChild(a2);
         }
@@ -187,24 +187,24 @@ function parseNeighbors(obj) {
     elClear(dropdownNeighbors);
 
     if (obj.error) {
-        const div = elCreate('div', {"class": ["list-group-item"]}, '');
+        const div = elCreateEmpty('div', {"class": ["list-group-item"]});
         addIconLine(div, 'error_outline', tn(obj.error.message));
         dropdownNeighbors.appendChild(div);
         return;
     }
     if (obj.result.returnedEntities === 0) {
-        const div = elCreate('div', {"class": ["list-group-item"]}, '');
+        const div = elCreateEmpty('div', {"class": ["list-group-item"]});
         addIconLine(div, 'info', tn('Empty list'));
         dropdownNeighbors.appendChild(div);
         return;
     }
 
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const a = elCreate('a', {"href": "#", "class": ["list-group-item", "list-group-item-action"]}, '');
+        const a = elCreateEmpty('a', {"href": "#", "class": ["list-group-item", "list-group-item-action"]});
         setCustomDomProperty(a, 'data-value', obj.result.data[i].uri);
-        const span = elCreate('span', {}, obj.result.data[i].uri);
-        const br = elCreate('br', {}, '');
-        const small = elCreate('small', {}, obj.result.data[i].displayName);
+        const span = elCreateText('span', {}, obj.result.data[i].uri);
+        const br = elCreateEmpty('br', {});
+        const small = elCreateText('small', {}, obj.result.data[i].displayName);
         a.appendChild(span);
         a.appendChild(br);
         a.appendChild(small);
@@ -222,7 +222,7 @@ function getUrlhandlers() {
                 case 'http://':
                 case 'https://':
                 case 'nfs://':
-                    selectMountUrlhandler.appendChild(elCreate('option', {"value": obj.result.data[i]}, obj.result.data[i]));
+                    selectMountUrlhandler.appendChild(elCreateText('option', {"value": obj.result.data[i]}, obj.result.data[i]));
                     break;
             }
         }

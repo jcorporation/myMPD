@@ -39,13 +39,13 @@ function initHome() {
         showHomeIconCmdOptions();
     }, false);
     elClear(selectHomeIconCmd);
-    selectHomeIconCmd.appendChild(elCreate('option', {"value": "appGoto"}, tn('Goto view')));
+    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appGoto"}, tn('Goto view')));
     setCustomDomProperty(selectHomeIconCmd.childNodes[0], 'data-options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
-    selectHomeIconCmd.appendChild(elCreate('option', {"value": "replaceQueue"}, tn('Replace queue')));
+    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueue"}, tn('Replace queue')));
     setCustomDomProperty(selectHomeIconCmd.childNodes[1], 'data-options', {"options": ["Type", "Uri", "Name"]});
-    selectHomeIconCmd.appendChild(elCreate('option', {"value": "appendQueue"}, tn('Append to queue')));
+    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueue"}, tn('Append to queue')));
     setCustomDomProperty(selectHomeIconCmd.childNodes[2], 'data-options', {"options": ["Type", "Uri", "Name"]});
-    selectHomeIconCmd.appendChild(elCreate('option', {"value": "execScriptFromOptions"}, tn('Execute Script')));
+    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "execScriptFromOptions"}, tn('Execute Script')));
     setCustomDomProperty(selectHomeIconCmd.childNodes[3], 'data-options', {"options":["Script","Arguments"]});
 
     document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
@@ -83,12 +83,12 @@ function initHome() {
 
     elClear(listHomeIconLigature);
     elClear(searchHomeIconCat);
-    searchHomeIconCat.appendChild(elCreate('option', {"value": "all"}, tn('All')));
+    searchHomeIconCat.appendChild(elCreateText('option', {"value": "all"}, tn('All')));
     for (const cat in materialIcons) {
-        listHomeIconLigature.appendChild(elCreate('h5', {"class": ["ml-1", "mt-2"]}, ucFirst(cat)));
-        searchHomeIconCat.appendChild(elCreate('option', {"value": cat}, ucFirst(cat)));
+        listHomeIconLigature.appendChild(elCreateText('h5', {"class": ["ml-1", "mt-2"]}, ucFirst(cat)));
+        searchHomeIconCat.appendChild(elCreateText('option', {"value": cat}, ucFirst(cat)));
         for (const icon of materialIcons[cat]) {
-            listHomeIconLigature.appendChild(elCreate('button', {"class": ["btn", "btn-sm", "mi", "m-1"], "title": icon, "data-cat": cat}, icon));
+            listHomeIconLigature.appendChild(elCreateText('button', {"class": ["btn", "btn-sm", "mi", "m-1"], "title": icon, "data-cat": cat}, icon));
         }
     }
 
@@ -176,7 +176,7 @@ function parseHome(obj) {
     const cols = cardContainer.getElementsByClassName('col');
     if (obj.error !== undefined) {
         elClear(cardContainer);
-        const div = elCreate('div', {"class": ["ml-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, '');
+        const div = elCreateEmpty('div', {"class": ["ml-3", "mb-3", "not-clickable", "alert", "alert-danger"]});
         addIconLine(div, 'error_outline', t(obj.error.message, obj.error.data));
         cardContainer.appendChild(div);
         setPagination(obj.result.totalEntities, obj.result.returnedEntities);    
@@ -187,29 +187,29 @@ function parseHome(obj) {
     }
     if (obj.result.returnedEntities === 0) {
         elClear(cardContainer);
-        const div = elCreate('div', {"class": ["ml-3"]}, '');
-        div.appendChild(elCreate('h3', {}, tn('Homescreen')));
-        div.appendChild(elCreate('p', {}, tn('Homescreen welcome')));
-        const ul = elCreate('ul', {}, '');
-        ul.appendChild(elCreate('li', {}, ''));
-        ul.childNodes[0].appendChild(elCreate('b', {}, tn('View')));
-        ul.childNodes[0].appendChild(elCreate('span', {}, ': ' + tn('Homescreen help view')));
-        ul.childNodes[0].appendChild(elCreate('span', {"class": ["mi"]}, 'add_to_home_screen'));
-        ul.appendChild(elCreate('li', {}, ''));
-        ul.childNodes[1].appendChild(elCreate('b', {}, tn('Playlist')));
-        ul.childNodes[1].appendChild(elCreate('span', {}, ': ' + tn('Homescreen help playlist')));
+        const div = elCreateEmpty('div', {"class": ["ml-3"]});
+        div.appendChild(elCreateText('h3', {}, tn('Homescreen')));
+        div.appendChild(elCreateText('p', {}, tn('Homescreen welcome')));
+        const ul = elCreateEmpty('ul', {});
+        ul.appendChild(elCreateEmpty('li', {}));
+        ul.childNodes[0].appendChild(elCreateText('b', {}, tn('View')));
+        ul.childNodes[0].appendChild(elCreateText('span', {}, ': ' + tn('Homescreen help view')));
+        ul.childNodes[0].appendChild(elCreateText('span', {"class": ["mi"]}, 'add_to_home_screen'));
+        ul.appendChild(elCreateEmpty('li', {}));
+        ul.childNodes[1].appendChild(elCreateText('b', {}, tn('Playlist')));
+        ul.childNodes[1].appendChild(elCreateText('span', {}, ': ' + tn('Homescreen help playlist')));
         if (features.featScripting === true) {
-            ul.appendChild(elCreate('li', {}, ''));
-            ul.childNodes[2].appendChild(elCreate('b', {}, tn('Script')));
-            ul.childNodes[2].appendChild(elCreate('span', {}, ': ' + tn('Homescreen help script')));
-            ul.childNodes[2].appendChild(elCreate('span', {"class": ["mi"]}, 'add_to_home_screen'));
+            ul.appendChild(elCreateEmpty('li', {}));
+            ul.childNodes[2].appendChild(elCreateText('b', {}, tn('Script')));
+            ul.childNodes[2].appendChild(elCreateText('span', {}, ': ' + tn('Homescreen help script')));
+            ul.childNodes[2].appendChild(elCreateText('span', {"class": ["mi"]}, 'add_to_home_screen'));
         }
         div.appendChild(ul);
         cardContainer.appendChild(div);
         return;
     }
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const col = elCreate('div', {"class": ["col", "px-0", "flex-grow-0"]}, '');
+        const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0"]});
         if (obj.result.data[i].AlbumArtist === '') {
             obj.result.data[i].AlbumArtist = tn('Unknown artist');
         }
@@ -219,11 +219,11 @@ function parseHome(obj) {
         const homeType = obj.result.data[i].cmd === 'replaceQueue' ? 'Playlist' :
             obj.result.data[i].cmd === 'appGoto' ? 'View' : 'Script';
         
-        const card = elCreate('div', {"class": ["card", "home-icons", "clickable"], "tabindex": 0, "draggable": "true",
-            "title": tn(homeType) + ': ' + obj.result.data[i].name}, '');
+        const card = elCreateEmpty('div', {"class": ["card", "home-icons", "clickable"], "tabindex": 0, "draggable": "true",
+            "title": tn(homeType) + ': ' + obj.result.data[i].name});
         setCustomDomProperty(card, 'data-href', {"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
         setCustomDomProperty(card, 'data-pos', i);
-        const cardBody = elCreate('div', {"class": ["card-body", "mi", "rounded"]}, obj.result.data[i].ligature);
+        const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded"]}, obj.result.data[i].ligature);
         if (obj.result.data[i].image !== '') {
             cardBody.style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(obj.result.data[i].image) + '")';
         }
@@ -234,7 +234,7 @@ function parseHome(obj) {
             cardBody.style.color = obj.result.data[i].color;
         }
         card.appendChild(cardBody);
-        card.appendChild(elCreate('div', {"class": ["card-footer", "card-footer-grid", "p-2"]}, obj.result.data[i].name));
+        card.appendChild(elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2"]}, obj.result.data[i].name));
         col.appendChild(card);
         if (i < cols.length) {
             cols[i].replaceWith(col);
@@ -492,14 +492,14 @@ function showHomeIconCmdOptions(values) {
     const options = getSelectedOptionAttribute('selectHomeIconCmd', 'data-options');
     if (options !== undefined) {
         for (let i = 0, j = options.options.length; i < j; i++) {
-            const row = elCreate('div', {"class": ["mb-3", "row"]}, '');
-            row.appendChild(elCreate('label', {"class": ["col-sm-4"]}, tn(options.options[i])));
-            const div = elCreate('div', {"class": ["col-sm-8"]}, '');
+            const row = elCreateEmpty('div', {"class": ["mb-3", "row"]});
+            row.appendChild(elCreateText('label', {"class": ["col-sm-4"]}, tn(options.options[i])));
+            const div = elCreateEmpty('div', {"class": ["col-sm-8"]});
             let value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
             if (value === '' && oldOptions[i] !== undefined) {
                 value = oldOptions[i];
             }
-            div.appendChild(elCreate('input', {"class": ["form-control", "border-secondary"], "name": options.options[i], "value": value}, ''));
+            div.appendChild(elCreateEmpty('input', {"class": ["form-control", "border-secondary"], "name": options.options[i], "value": value}));
             row.appendChild(div);
             divHomeIconOptions.appendChild(row);
         }

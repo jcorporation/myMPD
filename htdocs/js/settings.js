@@ -1132,17 +1132,17 @@ function setNavbarIcons() {
     elClear(container);
     for (const icon of settings.navbarIcons) {
         const id = "nav" + icon.options.join('');
-        const btn = elCreate('div', {"id": id, "class": ["nav-item", "flex-fill", "text-center"]}, '');
+        const btn = elCreateEmpty('div', {"id": id, "class": ["nav-item", "flex-fill", "text-center"]});
         if (id === 'nav' + app.current.app) {
             btn.classList.add('active');
         }
         if (features.featHome === false && icon.options[0] === 'Home') {
             elHide(btn);
         }
-        const a = elCreate('a', {"data-title-phrase": icon.title, "title": tn(icon.title), "href": "#", "class": ["nav-link"]}, '');
-        a.appendChild(elCreate('span', {"class": ["mi"]}, icon.ligature));
+        const a = elCreateEmpty('a', {"data-title-phrase": icon.title, "title": tn(icon.title), "href": "#", "class": ["nav-link"]});
+        a.appendChild(elCreateText('span', {"class": ["mi"]}, icon.ligature));
         if (icon.options[0] === 'Queue' && icon.options.length === 1) {
-            a.appendChild(elCreate('span', {"id": "badgeQueueItems", "class": ["badge", "bg-secondary"]}, oldQueueLength));
+            a.appendChild(elCreateText('span', {"id": "badgeQueueItems", "class": ["badge", "bg-secondary"]}, oldQueueLength));
         }
         btn.appendChild(a);
         container.appendChild(btn);

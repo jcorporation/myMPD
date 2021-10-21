@@ -219,17 +219,17 @@ function setColsChecklist(table, menu) {
             continue;
         }
         if (tags[i] === 'dropdownTitleSticker') {
-            menu.appendChild(elCreate('h6', {"class": ["dropdown-header"]}, tn('Sticker')));
+            menu.appendChild(elCreateText('h6', {"class": ["dropdown-header"]}, tn('Sticker')));
         }
         else {
-            const div = elCreate('div', {"class": ["form-check"]}, '');
-            const btn = elCreate('button', {"class": ["btn", "btn-secondary", "btn-xs", "clickable", "mi", "mi-small", "me-2"], "name": tags[i]}, 'radio_button_unchecked');
+            const div = elCreateEmpty('div', {"class": ["form-check"]});
+            const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "clickable", "mi", "mi-small", "me-2"], "name": tags[i]}, 'radio_button_unchecked');
             if (settings['cols' + table].includes(tags[i])) {
                 btn.classList.add('active');
                 btn.textContent = 'check'
             }
             div.appendChild(btn);
-            div.appendChild(elCreate('lable', {"class": ["form-check-label"], "for": tags[i]}, tn(tags[i])));
+            div.appendChild(elCreateText('lable', {"class": ["form-check-label"], "for": tags[i]}, tn(tags[i])));
             menu.appendChild(div);
         }
     }
@@ -255,7 +255,7 @@ function setCols(table) {
 
     for (let i = 0, j = settings['cols' + table].length; i < j; i++) {
         const hname = settings['cols' + table][i];
-        const th = elCreate('th', {"draggable": "true", "data-col": settings['cols' + table][i]}, tn(hname));
+        const th = elCreateText('th', {"draggable": "true", "data-col": settings['cols' + table][i]}, tn(hname));
         if (hname === 'Track' || hname === 'Pos') {
             th.textContent = '#';
         }
@@ -265,14 +265,14 @@ function setCols(table) {
             if (app.current.sort.indexOf('-') === 0) {
                 sortdesc = true;
             }
-            th.appendChild(elCreate('span', {"class": ["sort-dir", "mi", "float-end"]}, (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down')));
+            th.appendChild(elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down')));
         }
         thead.appendChild(th);
     }
     //append action column
-    const th = elCreate('th', {"data-col": "Action"}, '');
+    const th = elCreateEmpty('th', {"data-col": "Action"});
     if (features.featTags === true) {
-        th.appendChild(elCreate('a', {"class": ["align-middle", "mi", "mi-small", "clickable"], "data-title-phrase": tn('Columns')}, 'settings'));
+        th.appendChild(elCreateText('a', {"class": ["align-middle", "mi", "mi-small", "clickable"], "data-title-phrase": tn('Columns')}, 'settings'));
     }
     thead.appendChild(th);
 }
@@ -337,8 +337,8 @@ function saveColsPlayback(table) {
         else if (!th) {
             //add enabled tags if nt already shown
             th = document.createElement('div');
-            th.appendChild(elCreate('small', {}, tn(colInputs[i].name)));
-            th.appendChild(elCreate('p', {}, ''))
+            th.appendChild(elCreateText('small', {}, tn(colInputs[i].name)));
+            th.appendChild(elCreateEmpty('p', {}));
             th.setAttribute('id', 'current' + colInputs[i].name);
             setCustomDomProperty(th, 'data-tag', colInputs[i].name);
             header.appendChild(th);
@@ -371,11 +371,11 @@ function addDiscRow(disc, album, albumartist, colspan) {
     setCustomDomProperty(row, 'data-disc', disc);
     setCustomDomProperty(row, 'data-album', album);
     setCustomDomProperty(row, 'data-albumartist', albumartist);
-    row.appendChild(elCreate('td', {}, ''));
-    row.lastChild.appendChild(elCreate('span', {"class": ["mi"]}, 'album'));
-    row.appendChild(elCreate('td', {"colspan": (colspan - 1)}, tn('Disc') + ' ' + disc));
-    row.appendChild(elCreate('td', {}, ''));
-    row.lastChild.appendChild(elCreate('a', {"data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore));
+    row.appendChild(elCreateEmpty('td', {}));
+    row.lastChild.appendChild(elCreateText('span', {"class": ["mi"]}, 'album'));
+    row.appendChild(elCreateText('td', {"colspan": (colspan - 1)}, tn('Disc') + ' ' + disc));
+    row.appendChild(elCreateEmpty('td', {}));
+    row.lastChild.appendChild(elCreateText('a', {"data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore));
     return row;
 }
 
@@ -420,7 +420,6 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             perRowCallback(row, obj.result.data[i]);
         }
         //data row
-        let tds = '';
         row.setAttribute('tabindex', 0);
         //set artist and album data
         if (obj.result.data[i].Album !== undefined) {
@@ -469,43 +468,43 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
 
 function tableRow(row, data, list, colspan, smallWidth) {
     if (data.Type === 'parentDir') {
-        row.appendChild(elCreate('td', {"colspan": (colspan + 1), "title": tn('Open parent folder')}, '..'));
+        row.appendChild(elCreateText('td', {"colspan": (colspan + 1), "title": tn('Open parent folder')}, '..'));
     }
     else {
         if (smallWidth === true) {
-            const td = elCreate('td', {"colspan": colspan}, '');
+            const td = elCreateEmpty('td', {"colspan": colspan});
             for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
-                const p = elCreate('div', {"class": ["row"]}, '');
-                p.appendChild(elCreate('small', {"class": ["col-3"]}, tn(settings['cols' + list][c])));
-                p.appendChild(elCreate('span', {"class": ["col-9"]}, printValue(settings['cols' + list][c], data[settings['cols' + list][c]])));
+                const p = elCreateEmpty('div', {"class": ["row"]});
+                p.appendChild(elCreateText('small', {"class": ["col-3"]}, tn(settings['cols' + list][c])));
+                p.appendChild(elCreateText('span', {"class": ["col-9"]}, printValue(settings['cols' + list][c], data[settings['cols' + list][c]])));
                 td.appendChild(p);
             }
             row.appendChild(td);
         }
         else {
             for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
-                row.appendChild(elCreate('td', {"data-col": settings['cols' + list][c]},
+                row.appendChild(elCreateNode('td', {"data-col": settings['cols' + list][c]},
                     printValue(settings['cols' + list][c], data[settings['cols' + list][c]])));
             }
         }
-        const actionTd = elCreate('td', {}, '');
-        actionTd.appendChild(elCreate('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore));
+        const actionTd = elCreateEmpty('td', {});
+        actionTd.appendChild(elCreateText('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore));
         row.appendChild(actionTd);
     }
 }
 
 function emptyRow(colspan) {
-    const tr = elCreate('tr', {"class": ["not-clickable"]}, '');
-    const td = elCreate('td', {"colspan": colspan}, '');
+    const tr = elCreateText('tr', {"class": ["not-clickable"]});
+    const td = elCreateText('td', {"colspan": colspan});
     addIconLine(td, 'info', tn('Empty list'));
     tr.appendChild(td);
     return tr;
 }
 
 function errorRow(obj, colspan) {
-    const tr = elCreate('tr', {"class": ["not-clickable"]}, '');
-    const td = elCreate('td', {"colspan": colspan}, '');
-    const div = elCreate('div', {"class": ["alert", "alert-danger"]}, '');
+    const tr = elCreateEmpty('tr', {"class": ["not-clickable"]});
+    const td = elCreateEmpty('td', {"colspan": colspan});
+    const div = elCreateEmpty('div', {"class": ["alert", "alert-danger"]});
     addIconLine(div, 'error_outline', tn(obj.error.message, obj.error.data));
     td.appendChild(div);
     tr.appendChild(td);
@@ -513,9 +512,9 @@ function errorRow(obj, colspan) {
 }
 
 function warningRow(message, colspan) {
-    const tr = elCreate('tr', {"class": ["not-clickable"]}, '');
-    const td = elCreate('td', {"colspan": colspan}, '');
-    const div = elCreate('div', {"class": ["alert", "alert-warning"]}, '');
+    const tr = elCreateEmpty('tr', {"class": ["not-clickable"]});
+    const td = elCreateEmpty('td', {"colspan": colspan});
+    const div = elCreateEmpty('div', {"class": ["alert", "alert-warning"]});
     addIconLine(div, 'warning', tn(message));
     td.appendChild(div);
     tr.appendChild(td);

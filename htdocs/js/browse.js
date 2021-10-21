@@ -277,15 +277,18 @@ function gotoBrowse(event) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function gotoAlbum(artist, album) {
     appGoto('Browse', 'Database', 'Detail', '0', undefined, 'Album', tagAlbumArtist, album, artist);
 }
 
+//eslint-disable-next-line no-unused-vars
 function gotoAlbumList(tag, value) {
     document.getElementById('searchDatabaseStr').value = '';
     appGoto('Browse', 'Database', 'List', '0', undefined, tag, tagAlbumArtist, 'Album', '((' + tag + ' == \'' + escapeMPD(value) + '\'))');
 }
 
+//eslint-disable-next-line no-unused-vars
 function gotoFilesystem(uri) {
     document.getElementById('searchFilesystemStr').value = '';
     appGoto('Browse', 'Filesystem', undefined, '0', undefined, '-','-','-', uri);
@@ -377,7 +380,7 @@ function parseDatabase(obj) {
 
     if (obj.error !== undefined) {
         elClear(cardContainer);
-        const div = elCreate('div', {"class": ["ml-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, '');
+        const div = elCreateEmpty('div', {"class": ["ml-3", "mb-3", "not-clickable", "alert", "alert-danger"]});
         addIconLine(div, 'error_outline', tn(obj.error.message, obj.error.data));
         cardContainer.appendChild(div);
         setPagination(0, 0);
@@ -387,7 +390,7 @@ function parseDatabase(obj) {
     const nrItems = obj.result.returnedEntities;
     if (nrItems === 0) {
         elClear(cardContainer);
-        const div = elCreate('div', {"class": ["ml-3", "mb-3", "not-clickable"]}, '');
+        const div = elCreateEmpty('div', {"class": ["ml-3", "mb-3", "not-clickable"]});
         addIconLine(div, 'info', tn('Empty list'));
         cardContainer.appendChild(div);
         setPagination(0, 0);
@@ -412,16 +415,16 @@ function parseDatabase(obj) {
         }
 
         let picture = '';
-        const col = elCreate('div', {"class": ["col", "px-0", "flex-grow-0"]}, '');
-        const card = elCreate('div', {"class": ["card", "card-grid", "clickable"], "tabindex": 0}, '');
+        const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0"]});
+        const card = elCreateEmpty('div', {"class": ["card", "card-grid", "clickable"], "tabindex": 0});
         if (obj.result.tag === 'Album') {
             picture = subdir + '/albumart/' + obj.result.data[i].FirstSongUri;
         
-            const cardBody = elCreate('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id}, '');
-            const cardFooter = elCreate('div', {"class": ["card-footer", "card-footer-grid", "p-2"], 
+            const cardBody = elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id});
+            const cardFooter = elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2"], 
                 "title": obj.result.data[i].AlbumArtist + ': ' + obj.result.data[i].Album}, obj.result.data[i].Album);
-            cardFooter.appendChild(elCreate('br', {}, ''));
-            cardFooter.appendChild(elCreate('small', {}, obj.result.data[i].AlbumArtist));
+            cardFooter.appendChild(elCreateEmpty('br', {}));
+            cardFooter.appendChild(elCreateText('small', {}, obj.result.data[i].AlbumArtist));
             card.appendChild(cardBody);
             card.appendChild(cardFooter);
             setCustomDomProperty(card, 'data-picture', picture);
@@ -436,11 +439,11 @@ function parseDatabase(obj) {
             picture = subdir + '/tagart/' + obj.result.tag + '/' + obj.result.data[i].value;
 
             if (obj.result.pics === true) {
-                const cardBody = elCreate('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id}, '');
+                const cardBody = elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id});
                 card.appendChild(cardBody);
             }
             
-            const cardFooter = elCreate('div', {"class": ["card-footer", "card-footer-grid", "p-2"], 
+            const cardFooter = elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2"], 
                 "title": obj.result.data[i].value}, obj.result.data[i].value);
             card.appendChild(cardFooter);
             setCustomDomProperty(card, 'data-picture', picture);
@@ -513,12 +516,12 @@ function parseAlbumDetails(obj) {
     setCustomDomProperty(coverEl, 'data-uri', obj.result.data[0].uri);
     
     elClear(infoEl);
-    infoEl.appendChild(elCreate('h1', {}, obj.result.Album));
-    infoEl.appendChild(elCreate('small', {}, tn('AlbumArtist')));
-    const p = elCreate('p', {}, '');
+    infoEl.appendChild(elCreateText('h1', {}, obj.result.Album));
+    infoEl.appendChild(elCreateText('small', {}, tn('AlbumArtist')));
+    const p = elCreateEmpty('p', {}, '');
     
     if (settings.tagListBrowse.includes(tagAlbumArtist)) {
-        const artistLink = elCreate('a', {"href": "#"}, obj.result.AlbumArtist);
+        const artistLink = elCreateText('a', {"href": "#"}, obj.result.AlbumArtist);
         setCustomDomProperty(artistLink, 'data-tag', tagAlbumArtist);
         setCustomDomProperty(artistLink, 'data-name', obj.result.AlbumArtist);
         artistLink.addEventListener('click', function(event) {
@@ -532,9 +535,9 @@ function parseAlbumDetails(obj) {
     }
     infoEl.appendChild(p);
     if (obj.result.bookletPath !== '' && features.featLibrary === true) {
-        const booklet = elCreate('p', {}, '');
-        booklet.appendChild(elCreate('span', {"class": ["text-light", "mi", "me-2"]}, 'description'));
-        booklet.appendChild(elCreate('a', {"class": ["text-light"], "target": "_blank", "href": subdir + '/browse/music/' + 
+        const booklet = elCreateEmpty('p', {});
+        booklet.appendChild(elCreateText('span', {"class": ["mi", "me-2"]}, 'description'));
+        booklet.appendChild(elCreateText('a', {"target": "_blank", "href": subdir + '/browse/music/' + 
             myEncodeURI(obj.result.bookletPath)}, tn('Download booklet')));
         infoEl.appendChild(booklet);
     }
@@ -547,12 +550,12 @@ function parseAlbumDetails(obj) {
         row.setAttribute('title', rowTitle);
     });
 
-    const tr = elCreate('tr', {}, '');
-    const td = elCreate('td', {"colspan": colspan + 1}, '');
-    const small = elCreate('small', {}, '');
-    small.appendChild(elCreate('span', {}, tn('Num songs', obj.result.totalEntities)));
-    small.appendChild(elCreate('span', {}, ' – '));
-    small.appendChild(elCreate('span', {}, beautifyDuration(obj.result.totalTime)));
+    const tr = elCreateEmpty('tr', {});
+    const td = elCreateEmpty('td', {"colspan": colspan + 1});
+    const small = elCreateEmpty('small', {});
+    small.appendChild(elCreateText('span', {}, tn('Num songs', obj.result.totalEntities)));
+    small.appendChild(elCreateText('span', {}, ' – '));
+    small.appendChild(elCreateText('span', {}, beautifyDuration(obj.result.totalTime)));
     td.appendChild(small);
     tr.appendChild(td);
     elClear(tfoot);

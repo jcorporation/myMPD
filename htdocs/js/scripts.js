@@ -355,13 +355,13 @@ function execScript(href) {
         sendAPI("MYMPD_API_SCRIPT_EXECUTE", {"script": cmd.script, "arguments": {}});
     }
     else {
-        let arglist = document.getElementById('execScriptArguments');
+        const arglist = document.getElementById('execScriptArguments');
         elClear(arglist);
         for (let i = 0, j = cmd.arguments.length; i < j; i++) {
-            const row = elCreate('div', {"class": ["form-group", "row", "mb-3"]}, '');
-            row.appendChild(elCreate('label', {"class": ["col-sm-4", "col-form-label"]}, cmd.arguments[i]));
-            const col = elCreate('div', {"class": ["col-sm-8"]}, '');
-            col.appendChild(elCreate('input', {"name": cmd.arguments[i], "id": "inputScriptArg" + i, "type": "text", "class": ["form-control"]},''));
+            const row = elCreateEmpty('div', {"class": ["form-group", "row", "mb-3"]});
+            row.appendChild(elCreateText('label', {"class": ["col-sm-4", "col-form-label"]}, cmd.arguments[i]));
+            const col = elCreateEmpty('div', {"class": ["col-sm-8"]});
+            col.appendChild(elCreateEmpty('input', {"name": cmd.arguments[i], "id": "inputScriptArg" + i, "type": "text", "class": ["form-control"]}));
             row.appendChild(col);
             arglist.appendChild(row);
         }

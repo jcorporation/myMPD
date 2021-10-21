@@ -42,9 +42,9 @@ function showPopover(event) {
 function createPopoverTh(el) {
     const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false, title: tn('Columns'), content: 'content'});
     el.addEventListener('show.bs.popover', function() {
-        const menu = elCreate('form', {}, '');
+        const menu = elCreateEmpty('form', {});
         setColsChecklist(app.id, menu);
-        menu.appendChild(elCreate('button', {"class": ["btn", "btn-success", "btn-sm", "w-100", "mt-2"]}, tn('Apply')));
+        menu.appendChild(elCreateText('button', {"class": ["btn", "btn-success", "btn-sm", "w-100", "mt-2"]}, tn('Apply')));
         menu.addEventListener('click', function(eventClick) {
             if (eventClick.target.nodeName === 'BUTTON' && eventClick.target.classList.contains('mi')) {
                 toggleBtnChk(eventClick.target);
@@ -160,7 +160,7 @@ function createPopoverTd(el) {
 }
 
 function addMenuItem(tabContent, cmd, text) {
-    const a = elCreate('a', {"class": ["dropdown-item"], "href": "#"}, tn(text));
+    const a = elCreateText('a', {"class": ["dropdown-item"], "href": "#"}, tn(text));
     setCustomDomProperty(a, 'data-href', cmd);
     tabContent.appendChild(a);
 }
@@ -185,7 +185,7 @@ function addMenuItemsAlbumActions(tabContent, albumArtist, album) {
     if (features.featPlaylists === true) {
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, 'Add to playlist');
     }
-    tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
+    tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
     addMenuItem(tabContent, {"cmd": "gotoAlbum", "options": [albumArtist, album]}, 'Album details');
     addMenuItem(tabContent, {"cmd": "gotoAlbumList", "options": [tagAlbumArtist, albumArtist]}, 'Show all albums from artist');
 }
@@ -201,7 +201,7 @@ function addMenuItemsSongActions(tabContent, uri, name) {
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [uri, ""]}, 'Add to playlist');
     }
     if (isStreamUri(uri) === false) {
-        tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "songDetails", "options": [uri]}, 'Song details');
     }
 }
@@ -216,7 +216,7 @@ function addMenuItemsDirectoryActions(tabContent, baseuri, name) {
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [baseuri, ""]}, 'Add to playlist');
     }
     if (app.id === 'BrowseFilesystem') {
-        tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "updateDB", "options": [baseuri, true]}, 'Update directory');
         addMenuItem(tabContent, {"cmd": "rescanDB", "options": [baseuri, true]}, 'Rescan directory');
     }
@@ -228,7 +228,7 @@ function addMenuItemsDirectoryActions(tabContent, baseuri, name) {
 function addMenuItemsPlaylistActions(tabContent, type, uri, name) {
     addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue');
     addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue');
-    tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
+    tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
     if (features.featHome === true) {
         addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, name]}, 'Add to homescreen');
     }
@@ -289,7 +289,7 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         const smartplsOnly = getCustomDomProperty(dataNode, 'data-smartpls-only');
         if (smartplsOnly === false || type !== 'smartpls') {
             addMenuItemsPlaylistActions(tabContent, type, uri, name);
-            tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
+            tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
             if (settings.smartpls === true && type === 'smartpls') {
                 addMenuItem(tabContent, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
             }
@@ -309,7 +309,7 @@ function createMenuGeneric(el, tabHeader, tabContent) {
     if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
         const x = document.getElementById('BrowsePlaylistsDetailList');
         addMenuItemsSongActions(tabContent, uri, name);
-        tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         if (getCustomDomProperty(x, 'data-ro') === 'false') {
             addMenuItem(tabContent, {"cmd": "removeFromPlaylist", "options": [getCustomDomProperty(x, 'data-uri'), 
                 getCustomDomProperty(el.parentNode.parentNode, 'data-songpos')]}, 'Remove');
@@ -321,12 +321,12 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         const trackid = getCustomDomProperty(dataNode, 'data-trackid');
         const songpos = getCustomDomProperty(dataNode, 'data-songpos');
         addMenuItemsSongActions(tabContent, uri, name);
-        tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         if (trackid !== lastState.currentSongId) {
             addMenuItem(tabContent, {"cmd": "playAfterCurrent", "options": [trackid, songpos]}, 'Play after current playing song');
         }
         addMenuItem(tabContent, {"cmd": "showSetSongPriority", "options": [trackid]}, 'Set priority');
-        tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["single", trackid]}, 'Remove');
         addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", 0, songpos]}, 'Remove all upwards');
         addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", (songpos - 1), -1]}, 'Remove all downwards');
@@ -349,7 +349,7 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         else if (settings.jukeboxMode === 2) {
             addMenuItemsAlbumActions(tabContent, vAlbumArtist, vAlbum)
         }
-        tabContent.appendChild(elCreate('div', {"class": ["dropdown-divider"]}, ''));
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "delQueueJukeboxSong", "options": [pos]}, 'Remove');
         return true;
     }
