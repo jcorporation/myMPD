@@ -73,10 +73,10 @@ function beautifyDuration(x) {
     const minutes = Math.floor(x / 60) - hours * 60 - days * 1440;
     const seconds = x - days * 86400 - hours * 3600 - minutes * 60;
 
-    return (days > 0 ? days + '\u2009'+ t('Days') + ' ' : '') +
-        (hours > 0 ? hours + '\u2009' + t('Hours') + ' ' + 
-        (minutes < 10 ? '0' : '') : '') + minutes + '\u2009' + t('Minutes') + ' ' + 
-        (seconds < 10 ? '0' : '') + seconds + '\u2009' + t('Seconds');
+    return (days > 0 ? days + '\u2009' + tn('Days') + ' ' : '') +
+        (hours > 0 ? hours + '\u2009' + tn('Hours') + ' ' + 
+        (minutes < 10 ? '0' : '') : '') + minutes + '\u2009' + tn('Minutes') + ' ' + 
+        (seconds < 10 ? '0' : '') + seconds + '\u2009' + tn('Seconds');
 }
 
 function beautifySongDuration(x) {

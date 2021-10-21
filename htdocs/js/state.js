@@ -53,22 +53,21 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
 
     const progressPx = totalTime > 0 ? Math.ceil(domCache.progress.offsetWidth * elapsedTime / totalTime) : 0;
     if (progressPx === 0 || progressPx < domCache.progressBar.style.width) {
+        //prevent transition
         domCache.progressBar.style.transition = 'none';
-        //Trigger a reflow, flushing the CSS changes
-        domCache.progressBar.offsetHeight;
-        setTimeout(function() {
-            domCache.progressBar.style.transition = progressBarTransition;
-            domCache.progressBar.offsetHeight;
-        }, 1000);
+        reflow(domCache.progressBar);
+        domCache.progressBar.style.transition = progressBarTransition;
+        reflow(domCache.progressBar);
     }
-    domCache.progressBar.style.width = progressPx + 'px';
-    domCache.progress.style.cursor = totalTime <= 0 ? 'default' : 'pointer';    
-
-    const counterText = beautifySongDuration(elapsedTime) + "&nbsp;/&nbsp;" + beautifySongDuration(totalTime);
-    domCache.counter.innerHTML = counterText;
+    else {
+        domCache.progressBar.style.width = progressPx + 'px';
+    }
+    domCache.progress.style.cursor = totalTime <= 0 ? 'default' : 'pointer';
     
     //Set playing track in queue view
     queueSetCurrentSong(currentSongId, elapsedTime, totalTime);
+
+    domCache.counter.innerHTML = beautifySongDuration(elapsedTime) + "&nbsp;/&nbsp;" + beautifySongDuration(totalTime);
 
     //synced lyrics
     if (showSyncedLyrics === true && settings.colsPlayback.includes('Lyrics')) {
@@ -124,9 +123,9 @@ function parseState(obj) {
     }
     //clear playback card if no current song
     if (obj.result.songPos === -1) {
-        document.getElementById('currentTitle').textContent = 'Not playing';
+        document.getElementById('currentTitle').textContent = tn('Not playing');
         document.title = 'myMPD';
-        document.getElementById('footerTitle').textContent = '';
+        elClear(document.getElementById('footerTitle'));
         document.getElementById('footerTitle').removeAttribute('title');
         document.getElementById('footerTitle').classList.remove('clickable');
         document.getElementById('footerCover').classList.remove('clickable');
@@ -137,13 +136,14 @@ function parseState(obj) {
         }
         const pb = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
         for (let i = 0, j = pb.length; i < j; i++) {
-            pb[i].textContent = '';
+            elClear(pb[i]);
         }
     }
     else {
         const cff = document.getElementById('currentAudioFormat');
         if (cff) {
-            cff.getElementsByTagName('p')[0].textContent = printValue('AudioFormat', obj.result.AudioFormat);
+            elClear(cff.getElementsByTagName('p')[0]);
+            cff.getElementsByTagName('p')[0].appendChild(printValue('AudioFormat', obj.result.AudioFormat));
         }
     }
 
@@ -384,14 +384,14 @@ function setPlaybackCardTags(songObj) {
             getLyrics(songObj.uri, c.getElementsByTagName('p')[0]);
         }
         else if (c && col === 'AudioFormat' && lastState !== undefined) {
-            c.getElementsByTagName('p')[0].innerHTML = printValue('AudioFormat', lastState.AudioFormat);
+            elReplaceChild(c.getElementsByTagName('p')[0], printValue('AudioFormat', lastState.AudioFormat));
         }
         else if (c) {
             let value = songObj[col];
             if (value === undefined) {
                 value = '-';
             }
-            c.getElementsByTagName('p')[0].innerHTML = printValue(col, value);
+            elReplaceChild(c.getElementsByTagName('p')[0], printValue(col, value));
             if (value === '-' || settings.tagListBrowse.includes(col) === false) {
                 c.getElementsByTagName('p')[0].classList.remove('clickable');
             }

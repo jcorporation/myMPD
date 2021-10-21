@@ -573,7 +573,7 @@ function addAlbum(action) {
 
 function _addAlbum(action, albumArtist, album, disc) {
     const expression = '((Album == \'' + escapeMPD(album) + '\') AND (' + tagAlbumArtist + ' == \'' + escapeMPD(albumArtist) + '\')' +
-        (disc !== null ? ' AND (Disc == \'' + disc + '\')' : '') + ')';
+        (disc !== undefined ? ' AND (Disc == \'' + escapeMPD(disc) + '\')' : '') + ')';
     if (action === 'appendQueue') {
         addAllFromSearchPlist('queue', expression, false);
     }

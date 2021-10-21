@@ -15,8 +15,18 @@ function elCreate(tagName, attributes, textContent) {
                 tag.setAttribute(key, attributes[key]);
         }
     }
-    tag.textContent = textContent;
+    if (typeof textContent === 'object') {
+        tag.appendChild(textContent);
+    }
+    else {
+        tag.textContent = textContent;
+    }
     return tag;
+}
+
+function elReplaceChild(el, child) {
+    elClear(el);
+    el.appendChild(child);
 }
 
 function elHideId(id) {
@@ -919,29 +929,28 @@ function printValue(key, value) {
     }
     switch (key) {
         case 'Type':
-            if (value === 'song') { return '<span class="mi">music_note</span>'; }
-            if (value === 'smartpls') { return '<span class="mi">queue_music</span>'; }
-            if (value === 'plist') { return '<span class="mi">list</span>'; }
-            if (value === 'dir') { return '<span class="mi">folder_open</span>'; }
-            return '<span class="mi">radio_button_unchecked</span>';
+            if (value === 'song') { return elCreate('span', {"class": ["mi"]}, 'music_note'); }
+            if (value === 'smartpls') { return elCreate('span', {"class": ["mi"]}, 'queue_music'); }
+            if (value === 'plist') { return elCreate('span', {"class": ["mi"]}, 'list'); }
+            if (value === 'dir') { return elCreate('span', {"class": ["mi"]}, 'folder_open'); }
+            return elCreate('span', {"class": ["mi"]}, 'radio_button_unchecked');
         case 'Duration':
-            return beautifySongDuration(value);
+            return document.createTextNode(beautifySongDuration(value));
         case 'AudioFormat':
-            return value.bits + t('bits') + ' - ' + value.sampleRate / 1000 + t('kHz');
+            return document.createTextNode(value.bits + tn('bits') + ' - ' + value.sampleRate / 1000 + tn('kHz'));
         case 'LastModified': 
         case 'LastPlayed':
         case 'stickerLastPlayed':
         case 'stickerLastSkipped':
-            return value === 0 ? t('never') : localeDate(value);
+            return document.createTextNode(value === 0 ? tn('never') : localeDate(value));
         case 'stickerLike':
-            return '<span class="mi mi-small">'+
-                (value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up') +
-                '</span>';
+            return elCreate('span', {"class": ["mi"]}, 
+                value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up');
         default:
             if (key.indexOf('MUSICBRAINZ') === 0) {
                 return getMBtagLink(key, value);
             }
-            return value;
+            return document.createTextNode(value);
     }
 }
 
@@ -967,4 +976,8 @@ function setScrollViewHeight(container) {
 function toggleCollapseArrow(el) {
     const icon = el.getElementsByTagName('span')[0];
     icon.textContent = icon.textContent === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
+}
+
+function reflow(el) {
+    return el.offsetHeight;
 }
