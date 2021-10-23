@@ -58,5 +58,42 @@ class inputReset extends HTMLInputElement {
     }
 }
 
+class selectSearch extends HTMLInputElement {
+    constructor() {
+        super();
+        const filterInput = elCreateEmpty('input', {"class": ["form-control", "form-control-sm", "mb-1"], "placeholder": tn('Filter')});
+        const filterResult = elCreateEmpty('select', {"class": ["form-select", "form-select-sm"], "size": 10});
+        const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "dropdown-menu-dark", "p-2", "w-100"]},
+            [
+                filterInput,
+                filterResult
+            ]);
+        this.parentNode.insertBefore(dropdown, this.nextSibling);
+        
+        const button = elCreateEmpty('button', {"class": ["input-inner-button", "select-inner-button"], "data-bs-toggle": "dropdown"});
+        if (this.parentNode.classList.contains('col-sm-8')) {
+            button.style.right = '1rem';
+        }
+        this.parentNode.insertBefore(button, this.nextSibling);
+        new BSN.Dropdown(button);
+        this.dropdownButton = button;
+        this.filterInput = filterInput;
+        this.filterResult = filterResult;
+    }
+    connectedCallback() {
+        const input = this;
+        this.filterResult.addEventListener('click', function(event) {
+            input.value = event.target.value;
+            input.dropdownButton.Dropdown.hide();
+        }, false);
+        this.filterInput.addEventListener('keyup', function(event) {
+            const cb = getCustomDomProperty(input, 'data-cb-filter');
+            const cbOptions = getCustomDomProperty(input, 'data-cb-filter-options');
+            window[cb](... cbOptions, event.target.value);
+        }, false);
+    }
+}
+
 customElements.define('mympd-input-clear', inputClear, {extends: 'input'});
 customElements.define('mympd-input-reset', inputReset, {extends: 'input'});
+customElements.define('mympd-select-search', selectSearch, {extends: 'input'});

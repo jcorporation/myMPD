@@ -172,9 +172,11 @@ function showEditTimer(timerid) {
         sendAPI("MYMPD_API_PLAYLIST_LIST", {
             "searchstr":"",
             "offset": 0,
-            "limit": 0
+            "limit": settings.webuiSettings.uiMaxElementsPerPage,
+            "type": 0
         }, function(obj2) {
             getAllPlaylists(obj2, 'selectTimerPlaylist', 'Database');
+            //populatePlaylistSelect(obj, 'selectTimerPlaylist');
         });
         document.getElementById('inputTimerId').value = '0';
         document.getElementById('inputTimerName').value = '';
@@ -203,9 +205,11 @@ function parseEditTimer(obj) {
     sendAPI("MYMPD_API_PLAYLIST_LIST", {
         "searchstr":"",
         "offset": 0,
-        "limit": 0
+        "limit": 0,
+        "type": settings.webuiSettings.uiMaxElementsPerPage
     }, function(obj2) {
         getAllPlaylists(obj2, 'selectTimerPlaylist', playlistValue);
+        //populatePlaylistSelect(obj, 'selectTimerPlaylist');
     });
     document.getElementById('inputTimerId').value = obj.result.timerid;
     document.getElementById('inputTimerName').value = obj.result.name;

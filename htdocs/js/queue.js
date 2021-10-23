@@ -66,8 +66,14 @@ function initQueue() {
         removeIsInvalid(document.getElementById('modalAddToQueue'));
         elHideId('warnJukeboxPlaylist2');
         if (features.featPlaylists === true) {
-            sendAPI("MYMPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) { 
+            sendAPI("MYMPD_API_PLAYLIST_LIST", {
+                "searchstr": "",
+                "offset": 0,
+                "limit": settings.webuiSettings.uiMaxElementsPerPage,
+                "type": 0
+            }, function(obj) { 
                 getAllPlaylists(obj, 'selectAddToQueuePlaylist');
+                //populatePlaylistSelect(obj, 'selectAddToQueuePlaylist');
             });
         }
     });

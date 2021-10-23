@@ -358,20 +358,38 @@ function webSocketConnect() {
                     break;
                 case 'update_stored_playlist':
                     if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
-                        sendAPI('MYMPD_API_PLAYLIST_LIST', {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search}, parsePlaylistsList);
+                        sendAPI('MYMPD_API_PLAYLIST_LIST', {
+                            "offset": app.current.offset,
+                            "limit": app.current.limit,
+                            "searchstr": app.current.search,
+                            "type": 0
+                        }, parsePlaylistsList);
                     }
                     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-                        sendAPI('MYMPD_API_PLAYLIST_CONTENT_LIST', {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, "plist": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylistsDetail);
+                        sendAPI('MYMPD_API_PLAYLIST_CONTENT_LIST', {
+                            "offset": app.current.offset,
+                            "limit": app.current.limit,
+                            "searchstr": app.current.search,
+                            "plist": app.current.filter,
+                            "cols": settings.colsBrowsePlaylistsDetail
+                        }, parsePlaylistsDetail);
                     }
                     break;
                 case 'update_lastplayed':
                     if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
-                        sendAPI('MYMPD_API_QUEUE_LAST_PLAYED', {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
+                        sendAPI('MYMPD_API_QUEUE_LAST_PLAYED', {
+                            "offset": app.current.offset,
+                            "limit": app.current.limit,
+                            "cols": settings.colsQueueLastPlayed
+                        }, parseLastPlayed);
                     }
                     break;
                 case 'update_jukebox':
                     if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
-                        sendAPI('MYMPD_API_JUKEBOX_LIST', {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
+                        sendAPI('MYMPD_API_JUKEBOX_LIST', {
+                            "offset": app.current.offset,
+                            "limit": app.current.limit,
+                            "cols": settings.colsQueueJukebox}, parseJukeboxList);
                     }
                     break;
                 case 'notify':

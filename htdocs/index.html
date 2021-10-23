@@ -751,16 +751,11 @@
             <input type="hidden" id="addToPlaylistSearch"/>
             <div class="row mb-3">
               <label class="col-sm-4 col-form-label" for="addToPlaylistPlaylist" data-phrase="Playlist"></label>
-              <div class="col-sm-8">
-                <select id="addToPlaylistPlaylist" class="form-select"></select>
-                <div class="invalid-feedback" data-phrase="Please choose playlist"></div>
-              </div>
-            </div>
-            <div class="row mb-3 d-none" id="addToPlaylistNewPlaylistDiv">
-              <label class="col-sm-4 col-form-label" for="addToPlaylistNewPlaylist" data-phrase="Create Playlist"></label>
-              <div class="col-sm-8">
-                <input id="addToPlaylistNewPlaylist" class="form-control"/>
-                <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+              <div class="col-sm-8 position-relative">
+                <div class="btn-group d-flex">
+                  <input is="mympd-select-search" id="addToPlaylistPlaylist" data-placeholder-phrase="Choose a playlist or enter a new playlist name" class="form-control"/>
+                  <div class="invalid-feedback" data-phrase="Choose a playlist or enter a new playlist name"></div>
+                </div>
               </div>
             </div>
           </form>
@@ -2296,13 +2291,13 @@
 <!--debug-->  <script src="js/version.js"></script>
 <!--debug-->  <script src="js/long-press-event.js"></script>
 <!--debug-->  <script src="js/bootstrap-native.js"></script>
+<!--debug-->  <script src="js/globales.js"></script>
+<!--debug-->  <script src="js/i18n.js"></script>
+<!--debug-->  <script src="js/locale.js"></script>
 <!--debug-->  <script src="js/apidoc.js"></script>
 <!--debug-->  <script src="js/utility.js"></script>
 <!--debug-->  <script src="js/elements.js"></script>
-<!--debug-->  <script src="js/globales.js"></script>
 <!--debug-->  <script src="js/log.js"></script>
-<!--debug-->  <script src="js/i18n.js"></script>
-<!--debug-->  <script src="js/locale.js"></script>
 <!--debug-->  <script src="js/validate.js"></script>
 <!--debug-->  <script src="js/notification.js"></script>
 <!--debug-->  <script src="js/settings.js"></script>

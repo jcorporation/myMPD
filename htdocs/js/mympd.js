@@ -188,7 +188,8 @@ function appRoute() {
         sendAPI("MYMPD_API_PLAYLIST_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
-            "searchstr": app.current.search
+            "searchstr": app.current.search,
+            "type": 0
         }, parsePlaylistsList, true);
         const searchPlaylistsStrEl = document.getElementById('searchPlaylistsListStr');
         if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {

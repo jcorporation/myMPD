@@ -468,7 +468,12 @@ const APImethods = {
         "params": {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
-            "searchstr": APIparams.searchstr
+            "searchstr": APIparams.searchstr,
+            "type": {
+                "type": "uint",
+                "exmaple": 0,
+                "desc": "0 = all playlists, 1 = static playlists, 2 = smart playlists"
+            }
         }
     },
     "MYMPD_API_PLAYLIST_CONTENT_LIST": {
