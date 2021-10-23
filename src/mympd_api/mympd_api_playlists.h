@@ -10,7 +10,7 @@
 #include "../lib/mympd_state.h"
 
 sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                             const unsigned int offset, const unsigned int limit, sds searchstr);
+                             const unsigned int offset, const unsigned int limit, sds searchstr, const unsigned int type);
 sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffer, sds method, 
                                  long request_id, sds plist, const unsigned int offset, 
                                  const unsigned int limit, sds searchstr,

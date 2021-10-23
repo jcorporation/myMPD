@@ -90,7 +90,7 @@ void mympd_api_smartpls_update_all(void) {
 }
 
 sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                             const unsigned int offset, const unsigned int limit, sds searchstr) 
+                             const unsigned int offset, const unsigned int limit, sds searchstr, const unsigned int type)
 {
     bool rc = mpd_send_list_playlists(mympd_state->mpd_state->conn);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlists") == false) {
@@ -106,9 +106,17 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
     while ((pl = mpd_recv_playlist(mympd_state->mpd_state->conn)) != NULL) {
         const char *plpath = mpd_playlist_get_path(pl);
         plpath_lower = sdscat(plpath_lower, plpath);
+        bool smartpls = is_smartpls(mympd_state->config->workdir, plpath_lower);
         sdstolower(plpath_lower);
-        if (search_len == 0  || strstr(plpath_lower, searchstr) != NULL) {
-            list_push(&entity_list, plpath, mpd_playlist_get_last_modified(pl), "f", NULL);
+        if ((search_len == 0  || strstr(plpath_lower, searchstr) != NULL) &&
+            (type == PLTYPE_ALL || (type == PLTYPE_STATIC && smartpls == false) || (type == PLTYPE_SMART && smartpls == true)))
+        {
+            if (smartpls == true) {
+                list_push(&entity_list, plpath, mpd_playlist_get_last_modified(pl), "s", NULL);
+            }
+            else {
+                list_push(&entity_list, plpath, mpd_playlist_get_last_modified(pl), "f", NULL);
+            }
         }
         mpd_playlist_free(pl);
         sdsclear(plpath_lower);
@@ -119,31 +127,33 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
     }
 
     //add empty smart playlists
-    sdsclear(plpath_lower);
-    sds smartpls_path = sdscatfmt(sdsempty(), "%s/smartpls", mympd_state->config->workdir);
-    errno = 0;
-    DIR *smartpls_dir = opendir(smartpls_path);
-    if (smartpls_dir != NULL) {
-        struct dirent *next_file;
-        while ((next_file = readdir(smartpls_dir)) != NULL ) {
-            plpath_lower = sdscat(plpath_lower, next_file->d_name);
-            sdstolower(plpath_lower);
-            if (next_file->d_type == DT_REG &&
-                (search_len == 0 || strstr(plpath_lower, searchstr) != NULL) &&
-                list_get_node(&entity_list, next_file->d_name) == NULL)
-            {
-                unsigned long last_modified = mpd_shared_get_smartpls_mtime(mympd_state->config, next_file->d_name);
-                list_push(&entity_list, next_file->d_name, (long)last_modified, "t", NULL);
+    if (type != 1) {
+        sdsclear(plpath_lower);
+        sds smartpls_path = sdscatfmt(sdsempty(), "%s/smartpls", mympd_state->config->workdir);
+        errno = 0;
+        DIR *smartpls_dir = opendir(smartpls_path);
+        if (smartpls_dir != NULL) {
+            struct dirent *next_file;
+            while ((next_file = readdir(smartpls_dir)) != NULL ) {
+                plpath_lower = sdscat(plpath_lower, next_file->d_name);
+                sdstolower(plpath_lower);
+                if (next_file->d_type == DT_REG &&
+                    (search_len == 0 || strstr(plpath_lower, searchstr) != NULL) &&
+                    list_get_node(&entity_list, next_file->d_name) == NULL)
+                {
+                    unsigned long last_modified = mpd_shared_get_smartpls_mtime(mympd_state->config, next_file->d_name);
+                    list_push(&entity_list, next_file->d_name, (long)last_modified, "t", NULL);
+                }
+                sdsclear(plpath_lower);
             }
-            sdsclear(plpath_lower);
+            closedir(smartpls_dir);
         }
-        closedir(smartpls_dir);
+        else {
+            MYMPD_LOG_ERROR("Can not open smartpls dir \"%s\"", smartpls_path);
+            MYMPD_LOG_ERRNO(errno);
+        }
+        FREE_SDS(smartpls_path);
     }
-    else {
-        MYMPD_LOG_ERROR("Can not open smartpls dir \"%s\"", smartpls_path);
-        MYMPD_LOG_ERRNO(errno);
-    }
-    FREE_SDS(smartpls_path);
     FREE_SDS(plpath_lower);    
 
     list_sort_by_key(&entity_list, LIST_SORT_ASC);
@@ -161,9 +171,8 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
-            bool smartpls = is_smartpls(mympd_state->config->workdir, current->key);
             buffer = sdscat(buffer, "{");
-            buffer = tojson_char(buffer, "Type", (smartpls == true ? "smartpls" : "plist"), true);
+            buffer = tojson_char(buffer, "Type", (current->value_p[0] == 'f' ? "plist" : "smartpls"), true);
             buffer = tojson_char(buffer, "uri", current->key, true);
             buffer = tojson_char(buffer, "name", current->key, true);
             buffer = tojson_long(buffer, "lastModified", current->value_i, true);

@@ -49,6 +49,7 @@
 void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request *request) {
     unsigned int uint_buf1;
     unsigned int uint_buf2;
+    unsigned int uint_buf3;
     int int_buf1;
     int int_buf2; 
     bool bool_buf1;
@@ -865,9 +866,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         case MYMPD_API_PLAYLIST_LIST:          
             if (json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", 0, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
-                json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true)
+                json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
+                json_get_uint(request->data, "$.params.type", 0, 2, &uint_buf3, &error) == true)
             {
-                response->data = mympd_api_playlist_list(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, sds_buf1);
+                response->data = mympd_api_playlist_list(mympd_state, response->data, request->method, request->id, uint_buf1, uint_buf2, sds_buf1, uint_buf3);
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_LIST: {
