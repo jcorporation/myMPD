@@ -153,9 +153,9 @@ function logMessage(title, text, facility, severity) {
         overview.replaceChild(entry, lastEntry);
     }
    
-    const overviewEls = overview.getElementsByTagName('div');
-    if (overviewEls.length > 10) {
-        overviewEls[10].remove();
+    const overviewRowss = overview.getElementsByClassName('row');
+    if (overviewRowss.length > 10) {
+        overviewRowss[10].remove();
     }
 }
 

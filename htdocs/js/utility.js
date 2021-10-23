@@ -16,6 +16,14 @@ function elCreateNode(tagName, attributes, node) {
     return tag;
 }
 
+function elCreateNodes(tagName, attributes, nodes) {
+    const tag = elCreateEmpty(tagName, attributes);
+    for (const node of nodes) {
+        tag.appendChild(node);
+    }
+    return tag;
+}
+
 function elCreateEmpty(tagName, attributes) {
     const tag = document.createElement(tagName);
     for (const key in attributes) {

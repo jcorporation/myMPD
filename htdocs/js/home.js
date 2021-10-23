@@ -176,7 +176,7 @@ function parseHome(obj) {
     const cols = cardContainer.getElementsByClassName('col');
     if (obj.error !== undefined) {
         elClear(cardContainer);
-        const div = elCreateEmpty('div', {"class": ["ml-3", "mb-3", "not-clickable", "alert", "alert-danger"]});
+        const div = elCreateEmpty('div', {"class": ["ms-3", "mb-3", "not-clickable", "alert", "alert-danger"]});
         addIconLine(div, 'error_outline', t(obj.error.message, obj.error.data));
         cardContainer.appendChild(div);
         setPagination(obj.result.totalEntities, obj.result.returnedEntities);    
@@ -187,7 +187,7 @@ function parseHome(obj) {
     }
     if (obj.result.returnedEntities === 0) {
         elClear(cardContainer);
-        const div = elCreateEmpty('div', {"class": ["ml-3"]});
+        const div = elCreateEmpty('div', {"class": ["ms-3"]});
         div.appendChild(elCreateText('h3', {}, tn('Homescreen')));
         div.appendChild(elCreateText('p', {}, tn('Homescreen welcome')));
         const ul = elCreateEmpty('ul', {});

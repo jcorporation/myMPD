@@ -367,7 +367,7 @@ function showAppInitAlert(text) {
     const spa = document.getElementById('splashScreenAlert');
     elClear(spa);
     spa.appendChild(elCreateText('p', {"class": ["text-danger"]}, tn(text)));
-    btn = elCreateText('button', {"class": ["btn", "btn-danger"]}, tn('Reload'));
+    const btn = elCreateText('button', {"class": ["btn", "btn-danger"]}, tn('Reload'));
     btn.addEventListener('click', function() {
         clearAndReload();
     }, false);
@@ -409,7 +409,7 @@ function a2hsInit() {
     });
     
     window.addEventListener('appinstalled', function() {
-        showNotification(t('myMPD installed as app'), '', 'general', 'info');
+        showNotification(tn('myMPD installed as app'), '', 'general', 'info');
     });
 }
 
@@ -509,7 +509,7 @@ function appInitStart() {
             appInit();
             appInited = true;
             appRoute();
-            logInfo('Startup duration: ' + (Date.now() - startTime) + 'ms');
+            logDebug('Startup duration: ' + (Date.now() - startTime) + 'ms');
         }
     }, true);
 }
@@ -745,10 +745,10 @@ window.onerror = function(msg, url, line) {
     logError('JavaScript error: ' + msg + ' (' + url + ': ' + line + ')');
     if (settings.loglevel >= 4) {
         if (appInited === true) {
-            showNotification(t('JavaScript error'), msg + ' (' + url + ': ' + line + ')', 'general', 'error');
+            showNotification(tn('JavaScript error'), msg + ' (' + url + ': ' + line + ')', 'general', 'error');
         }
         else {
-            showAppInitAlert(t('JavaScript error') + ': ' + msg + ' (' + url + ': ' + line + ')');
+            showAppInitAlert(tn('JavaScript error') + ': ' + msg + ' (' + url + ': ' + line + ')');
         }
     }
     return true;

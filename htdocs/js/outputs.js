@@ -70,7 +70,9 @@ function parseOutputs(obj) {
 }
 
 function showListOutputAttributes(outputName) {
-    sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {"partition": ""}, function(obj) {
+    sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {
+        "partition": ""
+    }, function(obj) {
         uiElements.modalOutputAttributes.show();
         let output;
         for (let i = 0; i < obj.result.numOutputs; i++) {
@@ -79,15 +81,32 @@ function showListOutputAttributes(outputName) {
                 break;
             }
         }
-        document.getElementById('modalOutputAttributesId').value = e(output.id);        
-        let list = '<tr><td>' + t('Name') + '</td><td>' + e(output.name) + '</td></tr>' +
-            '<tr><td>' + t('State') + '</td><td>' + (output.state === 1 ? t('enabled') : t('disabled')) + '</td></tr>' +
-            '<tr><td>' + t('Plugin') + '</td><td>' + e(output.plugin) + '</td></tr>';
+        document.getElementById('modalOutputAttributesId').value = e(output.id);
+        const list = document.getElementById('outputAttributesList');
+        elClear(list);
+        for (const n of ['name', 'state', 'plugin']) {
+            list.appendChild(
+                elCreateNodes('tr', {},
+                    [
+                        elCreateText('td', {}, tn(ucFirst(n))),
+                        elCreateText('td', {}, output[n])
+                    ]
+                )
+            );
+        }
         let i = 0;
         for (const key in output.attributes) {
             i++;
-            list += '<tr><td>' + e(key) + '</td><td><input name="' + e(key) + '" class="form-control border-secondary" type="text" value="' + 
-                e(output.attributes[key]) + '"/></td></tr>';
+            list.appendChild(
+                elCreateNodes('tr', {},
+                    [
+                        elCreateText('td', {}, key),
+                        elCreateNode('td', {},
+                            elCreateEmpty('input', {"name": key, "class": ["form-control"], "type": "text", "value": output.attributes[key]})
+                        )
+                    ]
+                )
+            );
         }
         if (i > 0) {
             elEnableId('btnOutputAttributesSave');
@@ -95,7 +114,6 @@ function showListOutputAttributes(outputName) {
         else {
             elDisableId('btnOutputAttributesSave');
         }
-        document.getElementById('outputAttributesList').innerHTML = list;
     });
 }
 

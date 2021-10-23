@@ -380,7 +380,7 @@ function parseDatabase(obj) {
 
     if (obj.error !== undefined) {
         elClear(cardContainer);
-        const div = elCreateEmpty('div', {"class": ["ml-3", "mb-3", "not-clickable", "alert", "alert-danger"]});
+        const div = elCreateEmpty('div', {"class": ["col", "not-clickable", "alert", "alert-danger"]});
         addIconLine(div, 'error_outline', tn(obj.error.message, obj.error.data));
         cardContainer.appendChild(div);
         setPagination(0, 0);
@@ -390,14 +390,14 @@ function parseDatabase(obj) {
     const nrItems = obj.result.returnedEntities;
     if (nrItems === 0) {
         elClear(cardContainer);
-        const div = elCreateEmpty('div', {"class": ["ml-3", "mb-3", "not-clickable"]});
+        const div = elCreateEmpty('div', {"class": ["col", "not-clickable"]});
         addIconLine(div, 'info', tn('Empty list'));
         cardContainer.appendChild(div);
         setPagination(0, 0);
         return;
     }
 
-    if (cols.length === 0) {
+    if (cardContainer.getElementsByClassName('not-clickable').length > 0) {
         elClear(cardContainer);
     }
     for (let i = 0; i < nrItems; i++) {

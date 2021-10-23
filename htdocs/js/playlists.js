@@ -84,10 +84,19 @@ function parsePlaylistsList(obj) {
         setCustomDomProperty(row, 'data-smartpls-only', data.smartplsOnly);
         row.setAttribute('title', t(rowTitle));
     }, function(row, data) {
-        row.innerHTML = '<td data-col="Type"><span class="mi">' + (data.Type === 'smartpls' ? 'queue_music' : 'list') + '</span></td>' +
-            '<td>' + e(data.name) + '</td>' +
-            '<td>'+ localeDate(data.lastModified) + '</td>' +
-            '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
+        row.appendChild(
+            elCreateNode('td', {"data-col": "Type"},
+                elCreateText('span', {"class": ["mi"]}, (data.Type === 'smartpls' ? 'queue_music' : 'list'))
+            )
+        );
+        row.appendChild(
+            elCreateText('td', {}, data.name)
+        );
+        row.appendChild(
+            elCreateNode('td', {},
+                elCreateText('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
+            )
+        );
     });
 }
 
@@ -115,7 +124,11 @@ function parsePlaylistsDetail(obj) {
     document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].textContent = 
         (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist'))  + ': ' + obj.result.plist;
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
-    tfoot.innerHTML = '<tr><td colspan="' + colspan + '"><small>' + t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
+
+    elReplaceChild(tfoot, elCreateNode('tr', {}, 
+        elCreateNode('td', {"colspan": colspan}, 
+            elCreateText('small', {}, tn('Num songs', obj.result.totalEntities) + ' - ' + beautifyDuration(obj.result.totalTime))))
+    );
     
     updateTable(obj, 'BrowsePlaylistsDetail', function(row, data) {
         row.setAttribute('id','playlistTrackId' + data.Pos);

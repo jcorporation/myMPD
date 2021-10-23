@@ -41,7 +41,7 @@ function addStream() {
     if (validateStream(streamUriEl) === true) {
         sendAPI("MYMPD_API_QUEUE_ADD_URI", {"uri": streamUriEl.value});
         uiElements.modalAddToPlaylist.hide();
-        showNotification(t('Added stream %{streamUri} to queue', {"streamUri": streamUriEl.value}), '', 'queue', 'info');
+        showNotification(tn('Added stream %{streamUri} to queue', {"streamUri": streamUriEl.value}), '', 'queue', 'info');
     }
 }
 
@@ -147,7 +147,7 @@ function updateDBstarted(showModal) {
         uiElements.modalUpdateDB.show();
         updateDBprogress.classList.add('updateDBprogressAnimate');
     }
-    showNotification(t('Database update started'), '', 'database', 'info');
+    showNotification(tn('Database update started'), '', 'database', 'info');
 }
 
 function updateDBfinished(idleEvent) {
@@ -190,10 +190,10 @@ function _updateDBfinished(idleEvent) {
 
     //general notification
     if (idleEvent === 'update_database') {
-        showNotification(t('Database successfully updated'), '', 'database', 'info');
+        showNotification(tn('Database successfully updated'), '', 'database', 'info');
     }
     else if (idleEvent === 'update_finished') {
-        showNotification(t('Database update finished'), '', 'database', 'info');
+        showNotification(tn('Database update finished'), '', 'database', 'info');
     }
 }
 

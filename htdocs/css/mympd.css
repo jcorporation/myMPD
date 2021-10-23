@@ -1055,3 +1055,7 @@ button.input-inner-button:focus {
 .flex-grow {
   flex-grow: 1;
 }
+
+.modal-footer button {
+  min-width: 6rem;
+}

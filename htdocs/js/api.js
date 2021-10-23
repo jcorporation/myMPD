@@ -207,17 +207,17 @@ function sendAPI(method, params, callback, onerror) {
                     obj = JSON.parse(ajaxRequest.responseText);
                 }
                 catch(error) {
-                    showNotification(t('Can not parse response to json object'), '', 'general', 'error');
+                    showNotification(tn('Can not parse response to json object'), '', 'general', 'error');
                     logError('Can not parse response to json object:' + ajaxRequest.responseText);
                 }
                 if (obj.error) {
-                    showNotification(t(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
+                    showNotification(tn(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
                     logError(JSON.stringify(obj.error));
                 }
                 else if (obj.result && obj.result.message && obj.result.message !== 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
                     if (ignoreMessages.includes(obj.result.message) === false && onerror !== true) {
-                        showNotification(t(obj.result.message, obj.result.data), '', obj.result.facility, obj.result.severity);
+                        showNotification(tn(obj.result.message, obj.result.data), '', obj.result.facility, obj.result.severity);
                     }
                 }
                 else if (obj.result && obj.result.message && obj.result.message === 'ok') {
@@ -276,11 +276,11 @@ function webSocketConnect() {
         window.location.hostname + 
         (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/ws/';
     socket = new WebSocket(wsUrl);
-    logInfo('Connecting to ' + wsUrl);
+    logDebug('Connecting to ' + wsUrl);
 
     try {
         socket.onopen = function() {
-            logInfo('Websocket is connected');
+            logDebug('Websocket is connected');
             websocketConnected = true;
             if (websocketTimer !== null) {
                 clearTimeout(websocketTimer);
@@ -302,7 +302,7 @@ function webSocketConnect() {
             switch (obj.method) {
                 case 'welcome':
                     websocketConnected = true;
-                    showNotification(t('Connected to myMPD'), wsUrl, 'general', 'info');
+                    showNotification(tn('Connected to myMPD'), wsUrl, 'general', 'info');
                     //appRoute();
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, true);
                     if (session.token !== '') {
@@ -323,7 +323,7 @@ function webSocketConnect() {
                     break;
                 case 'mpd_connected':
                     //MPD connection established get state and settings
-                    showNotification(t('Connected to MPD'), '', 'general', 'info');
+                    showNotification(tn('Connected to MPD'), '', 'general', 'info');
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState);
                     getSettings(true);
                     break;
@@ -375,7 +375,7 @@ function webSocketConnect() {
                     }
                     break;
                 case 'notify':
-                    showNotification(t(obj.params.message, obj.params.data), '', obj.params.facility, obj.params.severity);
+                    showNotification(tn(obj.params.message, obj.params.data), '', obj.params.facility, obj.params.severity);
                     break;
                 default:
                     break;
@@ -400,7 +400,7 @@ function webSocketConnect() {
                 websocketTimer = null;
             }
             websocketTimer = setTimeout(function() {
-                logInfo('Reconnecting websocket');
+                logDebug('Reconnecting websocket');
                 toggleAlert('alertMympdState', true, tn('Websocket connection failed, trying to reconnect'));
                 webSocketConnect();
             }, 3000);

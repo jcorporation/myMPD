@@ -36,7 +36,7 @@ function getServerinfo() {
                 obj = JSON.parse(ajaxRequest.responseText);
             }
             catch(error) {
-                showNotification(t('Can not parse response to json object'), '', 'general', 'error');
+                showNotification(tn('Can not parse response to json object'), '', 'general', 'error');
                 logError('Can not parse response to json object:' + ajaxRequest.responseText);
             }
             document.getElementById('wsIP').textContent = obj.result.ip;
@@ -52,9 +52,11 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     currentSong.currentSongId = currentSongId;
 
     const progressPx = totalTime > 0 ? Math.ceil(domCache.progress.offsetWidth * elapsedTime / totalTime) : 0;
-    if (progressPx === 0 || progressPx < domCache.progressBar.style.width) {
+    if (progressPx < domCache.progressBar.offsetWidth) {
         //prevent transition
         domCache.progressBar.style.transition = 'none';
+        reflow(domCache.progressBar);
+        domCache.progressBar.style.width = progressPx + 'px';
         reflow(domCache.progressBar);
         domCache.progressBar.style.transition = progressBarTransition;
         reflow(domCache.progressBar);
@@ -67,6 +69,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     //Set playing track in queue view
     queueSetCurrentSong(currentSongId, elapsedTime, totalTime);
 
+    //Set counter in footer
     domCache.counter.textContent = beautifySongDuration(elapsedTime) + smallSpace + "/" + smallSpace + beautifySongDuration(totalTime);
 
     //synced lyrics
@@ -92,7 +95,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     }
     if (playstate === 'play') {
         progressTimer = setTimeout(function() {
-            currentSong.elapsedTime++;
+            currentSong.elapsedTime += 1;
             requestAnimationFrame(function() {
                 setCounter(currentSong.currentSongId, currentSong.totalTime, currentSong.elapsedTime);
             });

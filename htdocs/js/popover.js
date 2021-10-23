@@ -20,7 +20,9 @@ function hidePopover() {
 function showPopover(event) {
     event.preventDefault();
     event.stopPropagation();
-    if (event.target.getAttribute('aria-describedby') !== null) {
+    if (event.target.getAttribute('aria-describedby') !== null ||
+        event.target.classList.contains('not-clickable'))
+    {
         return;
     }
     hidePopover();

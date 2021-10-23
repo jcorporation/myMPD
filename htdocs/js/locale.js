@@ -82,7 +82,7 @@ function beautifyDuration(x) {
 function beautifySongDuration(x) {
     const hours = Math.floor(x / 3600);
     const minutes = Math.floor(x / 60) - hours * 60;
-    const seconds = x - hours * 3600 - minutes * 60;
+    const seconds = Math.floor(x - hours * 3600 - minutes * 60);
 
     return (hours > 0 ? hours + ':' + (minutes < 10 ? '0' : '') : '') + 
         minutes + ':' + (seconds < 10 ? '0' : '') + seconds;

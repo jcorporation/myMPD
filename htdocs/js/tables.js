@@ -476,7 +476,7 @@ function tableRow(row, data, list, colspan, smallWidth) {
             for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
                 const p = elCreateEmpty('div', {"class": ["row"]});
                 p.appendChild(elCreateText('small', {"class": ["col-3"]}, tn(settings['cols' + list][c])));
-                p.appendChild(elCreateText('span', {"class": ["col-9"]}, printValue(settings['cols' + list][c], data[settings['cols' + list][c]])));
+                p.appendChild(elCreateNode('span', {"class": ["col-9"]}, printValue(settings['cols' + list][c], data[settings['cols' + list][c]])));
                 td.appendChild(p);
             }
             row.appendChild(td);
@@ -487,9 +487,11 @@ function tableRow(row, data, list, colspan, smallWidth) {
                     printValue(settings['cols' + list][c], data[settings['cols' + list][c]])));
             }
         }
-        const actionTd = elCreateEmpty('td', {});
-        actionTd.appendChild(elCreateText('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore));
-        row.appendChild(actionTd);
+        row.appendChild(
+            elCreateNode('td', {},
+                elCreateText('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
+            )
+        );
     }
 }
 
