@@ -74,8 +74,8 @@ class selectSearch extends HTMLInputElement {
         if (this.parentNode.classList.contains('col-sm-8')) {
             button.style.right = '1rem';
         }
+        button.style.cursor = 'default';
         this.parentNode.insertBefore(button, this.nextSibling);
-        new BSN.Dropdown(button);
         this.dropdownButton = button;
         this.filterInput = filterInput;
         this.filterResult = filterResult;
@@ -83,7 +83,8 @@ class selectSearch extends HTMLInputElement {
     connectedCallback() {
         const input = this;
         this.filterResult.addEventListener('click', function(event) {
-            input.value = event.target.value;
+            input.value = event.target.text;
+            setCustomDomProperty(input, 'data-value', event.target.value);
             input.dropdownButton.Dropdown.hide();
         }, false);
         this.filterInput.addEventListener('keyup', function(event) {
@@ -91,6 +92,12 @@ class selectSearch extends HTMLInputElement {
             const cbOptions = getCustomDomProperty(input, 'data-cb-filter-options');
             window[cb](... cbOptions, event.target.value);
         }, false);
+        new BSN.Dropdown(input.dropdownButton);
+        if (input.getAttribute('readonly') === 'readonly') {
+            input.addEventListener('click', function() {
+                input.dropdownButton.Dropdown.toggle();
+            }, false);
+        }
     }
 }
 

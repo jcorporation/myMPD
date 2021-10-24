@@ -865,7 +865,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;            
         case MYMPD_API_PLAYLIST_LIST:          
             if (json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
-                json_get_uint(request->data, "$.params.limit", 0, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
+                json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
                 json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_uint(request->data, "$.params.type", 0, 2, &uint_buf3, &error) == true)
             {

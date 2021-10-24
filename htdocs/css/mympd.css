@@ -1067,3 +1067,8 @@ button.select-inner-button {
 .modal-footer button {
   min-width: 6rem;
 }
+
+input[is=mympd-select-search][readonly] {
+  background-color: inherit;
+  cursor: default;
+}

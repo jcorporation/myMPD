@@ -14,8 +14,8 @@ function initPlaylists() {
         }
     });
     
-    setCustomDomProperty(document.getElementById('addToPlaylistPlaylist'), 'data-cb-filter', 'filterPlaylistsSelect');
-    setCustomDomProperty(document.getElementById('addToPlaylistPlaylist'), 'data-cb-filter-options', [1, 'addToPlaylistPlaylist']);
+    setCustomDomPropertyId('addToPlaylistPlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
+    setCustomDomPropertyId('addToPlaylistPlaylist', 'data-cb-filter-options', [1, 'addToPlaylistPlaylist']);
 
     document.getElementById('searchPlaylistsDetailStr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
@@ -159,28 +159,6 @@ function playlistSort(tag) {
         "tag": tag
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
-}
-
-//populates the custom input element mympd-select-search
-function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
-    const selectEl = document.getElementById(playlistSelectId);
-    if (selectedPlaylist !== undefined) {
-        selectEl.value = selectedPlaylist;
-    }
-    elClear(selectEl.filterResult);
-    if (playlistSelectId === 'selectJukeboxPlaylist' || 
-             playlistSelectId === 'selectAddToQueuePlaylist' ||
-             playlistSelectId === 'selectTimerPlaylist') 
-    {
-        selectEl.filterResult.appendChild(elCreateText('option', {"value": "Database"}, tn('Database')));
-    }
-
-    for (let i = 0; i < obj.result.returnedEntities; i++) {
-        selectEl.filterResult.appendChild(elCreateText('option', {"value": obj.result.data[i].uri}, obj.result.data[i].uri));
-        if (obj.result.data[i].uri === selectedPlaylist) {
-            selectEl.filterResult.lastChild.setAttribute('selected', 'selected');
-        }
-    }
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -390,15 +368,37 @@ function showAddToPlaylist(uri, searchstr) {
     }
 }
 
-function filterPlaylistsSelect(type, elId, searchstr) {
+function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
     sendAPI("MYMPD_API_PLAYLIST_LIST", {
         "searchstr": searchstr,
         "offset": 0,
         "limit": settings.webuiSettings.uiMaxElementsPerPage,
         "type": type
     }, function(obj) {
-        populatePlaylistSelect(obj, elId);
+        populatePlaylistSelect(obj, elId, selectedPlaylist);
     });
+}
+
+//populates the custom input element mympd-select-search
+function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
+    const selectEl = document.getElementById(playlistSelectId);
+    if (selectedPlaylist !== undefined) {
+        selectEl.value = selectedPlaylist;
+    }
+    elClear(selectEl.filterResult);
+    if (playlistSelectId === 'selectJukeboxPlaylist' || 
+             playlistSelectId === 'selectAddToQueuePlaylist' ||
+             playlistSelectId === 'selectTimerPlaylist') 
+    {
+        selectEl.filterResult.appendChild(elCreateText('option', {"value": "Database"}, tn('Database')));
+    }
+
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
+        selectEl.filterResult.appendChild(elCreateText('option', {"value": obj.result.data[i].uri}, obj.result.data[i].uri));
+        if (obj.result.data[i].uri === selectedPlaylist) {
+            selectEl.filterResult.lastChild.setAttribute('selected', 'selected');
+        }
+    }
 }
 
 //eslint-disable-next-line no-unused-vars

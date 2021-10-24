@@ -25,12 +25,7 @@ function removeIsInvalid(parentEl) {
 }
 
 function setIsInvalid(el) {
-    if (el.nodeName === 'MYMPD-INPUT-RESET') {
-        el.getElementsByTagName('input')[0].classList.add('is-invalid');
-    }
-    else {
-        el.classList.add('is-invalid');
-    }
+    el.classList.add('is-invalid');
 }
 
 function validateFilenameString(str) {

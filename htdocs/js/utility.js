@@ -495,6 +495,10 @@ function btnWaiting(btn, waiting) {
     }
 }
 
+function toggleBtnGroupValueId(id, value) {
+    return toggleBtnGroupValue(document.getElementById(id), value)
+}
+
 function toggleBtnGroupValue(btngrp, value) {
     const btns = btngrp.getElementsByTagName('button');
     let b = btns[0];

@@ -33,6 +33,9 @@ function initSettings() {
         removeIsInvalid(document.getElementById('modalQueueSettings'));
     });
 
+    setCustomDomPropertyId('selectJukeboxPlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
+    setCustomDomPropertyId('selectJukeboxPlaylist', 'data-cb-filter-options', [0, 'selectJukeboxPlaylist']);
+
     document.getElementById('modalConnection').addEventListener('shown.bs.modal', function () {
         getSettings();
         hideModalAlert();
@@ -457,18 +460,11 @@ function populateQueueSettingsFrm() {
     
     if (settings.mpdConnected === true) {
         if (features.featPlaylists === true) {
-            sendAPI("MYMPD_API_PLAYLIST_LIST", {
-                "searchstr": "",
-                "offset": 0,
-                "limit": settings.webuiSettings.uiMaxElementsPerPage,
-                "type": 0
-            }, function(obj) {
-                getAllPlaylists(obj, 'selectJukeboxPlaylist', settings.jukeboxPlaylist);
-                //populatePlaylistSelect(obj, 'selectJukeboxPlaylist');
-            });
+            filterPlaylistsSelect(0, 'selectJukeboxPlaylist', '', settings.jukeboxPlaylist);
         }
         else {
-            document.getElementById('selectJukeboxPlaylist').innerHTML = '<option value="Database">' + t('Database') + '</option>';
+            document.getElementById('selectJukeboxPlaylist').value = tn('Database');
+            setCustomDomPropertyId('selectJukeboxPlaylist', 'data-value', 'Database');
         }
         toggleBtnChkId('btnRandom', settings.random);
         toggleBtnChkId('btnConsume', settings.consume);
@@ -993,7 +989,7 @@ function saveQueueSettings() {
     const jukeboxMode = getBtnGroupValueId('btnJukeboxModeGroup');
     const replaygain = getBtnGroupValueId('btnReplaygainGroup');
     let jukeboxUniqueTag = getSelectValueId('selectJukeboxUniqueTag');
-    const jukeboxPlaylist = getSelectValueId('selectJukeboxPlaylist');
+    const jukeboxPlaylist = getCustomDomPropertyId('selectJukeboxPlaylist', 'data-value');
     
     if (jukeboxMode === '2') {
         jukeboxUniqueTag = 'Album';

@@ -65,18 +65,15 @@ function initQueue() {
     document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function () {
         removeIsInvalid(document.getElementById('modalAddToQueue'));
         elHideId('warnJukeboxPlaylist2');
+        document.getElementById('selectAddToQueuePlaylist').value = tn('Database');
+        setCustomDomPropertyId('selectAddToQueuePlaylist', 'data-value', 'Database');
         if (features.featPlaylists === true) {
-            sendAPI("MYMPD_API_PLAYLIST_LIST", {
-                "searchstr": "",
-                "offset": 0,
-                "limit": settings.webuiSettings.uiMaxElementsPerPage,
-                "type": 0
-            }, function(obj) { 
-                getAllPlaylists(obj, 'selectAddToQueuePlaylist');
-                //populatePlaylistSelect(obj, 'selectAddToQueuePlaylist');
-            });
+            filterPlaylistsSelect(0, 'selectAddToQueuePlaylist', '');
         }
     });
+
+    setCustomDomPropertyId('selectAddToQueuePlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
+    setCustomDomPropertyId('selectAddToQueuePlaylist', 'data-cb-filter-options', [0, 'selectAddToQueuePlaylist']);
 
     document.getElementById('modalSaveQueue').addEventListener('shown.bs.modal', function () {
         const plName = document.getElementById('saveQueueName');
@@ -337,10 +334,11 @@ function addToQueue() {
     if (!validateInt(inputAddToQueueQuantityEl)) {
         formOK = false;
     }
+    const selectAddToQueuePlaylistValue = getCustomDomProperty(document.getElementById('selectAddToQueuePlaylist'), 'data-value');
     if (formOK === true) {
         sendAPI("MYMPD_API_QUEUE_ADD_RANDOM", {
             "mode": Number(getSelectValueId('selectAddToQueueMode')),
-            "plist": getSelectValueId('selectAddToQueuePlaylist'),
+            "plist": selectAddToQueuePlaylistValue,
             "quantity": Number(document.getElementById('inputAddToQueueQuantity').value)
         });
         uiElements.modalAddToQueue.hide();

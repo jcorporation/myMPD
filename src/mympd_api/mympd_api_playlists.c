@@ -163,7 +163,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
 
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    unsigned real_limit = limit == 0 ? offset + MPD_RESULTS_MAX : offset + limit;
+    unsigned real_limit = offset + limit;
     struct t_list_node *current = entity_list.head;
     while (current != NULL) {
         entity_count++;

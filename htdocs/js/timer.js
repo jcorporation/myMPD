@@ -48,6 +48,9 @@ function initTimer() {
         showListTimer();
         hideModalAlert();
     });
+
+    setCustomDomPropertyId('selectTimerPlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
+    setCustomDomPropertyId('selectTimerPlaylist', 'data-cb-filter-options', [0, 'selectTimerPlaylist']);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -63,11 +66,17 @@ function deleteTimer(el, timerid) {
 function toggleTimer(target, timerid) {
     if (target.classList.contains('active')) {
         target.classList.remove('active');
-        sendAPI("MYMPD_API_TIMER_TOGGLE", {"timerid": timerid, "enabled": false}, showListTimer);
+        sendAPI("MYMPD_API_TIMER_TOGGLE", {
+            "timerid": timerid,
+            "enabled": false
+        }, showListTimer);
     }
     else {
         target.classList.add('active');
-        sendAPI("MYMPD_API_TIMER_TOGGLE", {"timerid": timerid, "enabled": true}, showListTimer);
+        sendAPI("MYMPD_API_TIMER_TOGGLE", {
+            "timerid": timerid,
+            "enabled": true
+        }, showListTimer);
     }
 }
 
@@ -90,14 +99,14 @@ function saveTimer() {
     }
     if (minOneDay === false) {
         formOK = false;
-        document.getElementById('invalidTimerWeekdays').style.display = 'block';
+        elShowId('invalidTimerWeekdays');
     }
     else {
-        document.getElementById('invalidTimerWeekdays').style.display = 'none';
+        elHideId('invalidTimerWeekdays');
     }
     const selectTimerAction  = document.getElementById('selectTimerAction');
     const jukeboxMode = getCustomDomProperty(document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
-    const selectTimerPlaylist = getSelectValueId('selectTimerPlaylist');
+    const selectTimerPlaylist = getCustomDomPropertyId('selectTimerPlaylist', 'data-value');
 
     if (selectTimerAction.selectedIndex === -1) {
         formOK = false;
@@ -169,15 +178,10 @@ function showEditTimer(timerid) {
         }, parseEditTimer);
     }
     else {
-        sendAPI("MYMPD_API_PLAYLIST_LIST", {
-            "searchstr":"",
-            "offset": 0,
-            "limit": settings.webuiSettings.uiMaxElementsPerPage,
-            "type": 0
-        }, function(obj2) {
-            getAllPlaylists(obj2, 'selectTimerPlaylist', 'Database');
-            //populatePlaylistSelect(obj, 'selectTimerPlaylist');
-        });
+        filterPlaylistsSelect(1, 'selectTimerPlaylist', '', 'Database');
+        document.getElementById('selectTimerPlaylist'). value = playlistValue === 'Datbase' ? tn('Database'): playlistValue;
+        setCustomDomPropertyId('selectTimerPlaylist', 'data-value', 'Database');
+
         document.getElementById('inputTimerId').value = '0';
         document.getElementById('inputTimerName').value = '';
         toggleBtnChkId('btnTimerEnabled', true);
@@ -202,15 +206,10 @@ function showEditTimer(timerid) {
 
 function parseEditTimer(obj) {
     const playlistValue = obj.result.playlist;
-    sendAPI("MYMPD_API_PLAYLIST_LIST", {
-        "searchstr":"",
-        "offset": 0,
-        "limit": 0,
-        "type": settings.webuiSettings.uiMaxElementsPerPage
-    }, function(obj2) {
-        getAllPlaylists(obj2, 'selectTimerPlaylist', playlistValue);
-        //populatePlaylistSelect(obj, 'selectTimerPlaylist');
-    });
+    filterPlaylistsSelect(1, 'selectTimerPlaylist', '', playlistValue);
+    document.getElementById('selectTimerPlaylist'). value = playlistValue === 'Datbase' ? tn('Database'): playlistValue;
+    setCustomDomPropertyId('selectTimerPlaylist', 'data-value', playlistValue);
+
     document.getElementById('inputTimerId').value = obj.result.timerid;
     document.getElementById('inputTimerName').value = obj.result.name;
     toggleBtnChkId('btnTimerEnabled', obj.result.enabled);
@@ -220,7 +219,7 @@ function parseEditTimer(obj) {
     selectTimerActionChange(obj.result.arguments);
     selectTimerIntervalChange(obj.result.interval);
     document.getElementById('inputTimerVolume').value = obj.result.volume;
-    toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), obj.result.jukeboxMode);
+    toggleBtnGroupValueId('btnTimerJukeboxModeGroup', obj.result.jukeboxMode);
     const weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     for (let i = 0, j = weekdayBtns.length; i < j; i++) {
         toggleBtnChkId(weekdayBtns[i], obj.result.weekdays[i]);
