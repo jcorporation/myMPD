@@ -20,20 +20,18 @@ function initTimer() {
         }
     }, false);
 
-    let selectTimerHour = ''; 
+    const selectTimerHourEl = document.getElementById('selectTimerHour');
     for (let i = 0; i < 24; i++) {
-        selectTimerHour += '<option value="' + i + '">' + zeroPad(i, 2) + '</option>';
+        selectTimerHourEl.appendChild(elCreateText('option', {"value": i}, zeroPad(i, 2)));
     }
-    document.getElementById('selectTimerHour').innerHTML = selectTimerHour;
     
-    let selectTimerMinute = ''; 
+    const selectTimerMinuteEl = document.getElementById('selectTimerMinute');
     for (let i = 0; i < 60; i = i + 5) {
-        selectTimerMinute += '<option value="' + i + '">' + zeroPad(i, 2) + '</option>';
+        selectTimerMinuteEl.appendChild(elCreateText('option', {"value": i}, zeroPad(i, 2)));
     }
-    document.getElementById('selectTimerMinute').innerHTML = selectTimerMinute;
 
     document.getElementById('inputTimerVolume').addEventListener('change', function() {
-        document.getElementById('textTimerVolume').innerHTML = e(this.value) + '&nbsp;%';
+        document.getElementById('textTimerVolume').textContent = this.value + ' %';
     }, false);
     
     document.getElementById('selectTimerAction').addEventListener('change', function() {
@@ -171,6 +169,7 @@ function showEditTimer(timerid) {
     document.getElementById('editTimer').classList.add('active');
     elHideId('listTimerFooter');
     elShowId('editTimerFooter');
+    document.getElementById('selectTimerPlaylist').filterInput.value = '';
         
     if (timerid !== 0) {
         sendAPI("MYMPD_API_TIMER_GET", {
@@ -179,7 +178,7 @@ function showEditTimer(timerid) {
     }
     else {
         filterPlaylistsSelect(1, 'selectTimerPlaylist', '', 'Database');
-        document.getElementById('selectTimerPlaylist'). value = playlistValue === 'Datbase' ? tn('Database'): playlistValue;
+        document.getElementById('selectTimerPlaylist').value = tn('Database');
         setCustomDomPropertyId('selectTimerPlaylist', 'data-value', 'Database');
 
         document.getElementById('inputTimerId').value = '0';
@@ -207,7 +206,7 @@ function showEditTimer(timerid) {
 function parseEditTimer(obj) {
     const playlistValue = obj.result.playlist;
     filterPlaylistsSelect(1, 'selectTimerPlaylist', '', playlistValue);
-    document.getElementById('selectTimerPlaylist'). value = playlistValue === 'Datbase' ? tn('Database'): playlistValue;
+    document.getElementById('selectTimerPlaylist').value = playlistValue === 'Datbase' ? tn('Database'): playlistValue;
     setCustomDomPropertyId('selectTimerPlaylist', 'data-value', playlistValue);
 
     document.getElementById('inputTimerId').value = obj.result.timerid;
@@ -272,21 +271,23 @@ function showTimerScriptArgs(option, values) {
         values = {};
     }
     const args = JSON.parse(getCustomDomProperty(option, 'data-arguments'));
-    let list = '';
+    const list = document.getElementById('timerActionScriptArguments');
+    elClear(list);
     for (let i = 0, j = args.arguments.length; i < j; i++) {
-        list += '<div class="form-group row">' +
-                  '<label class="col-sm-4 col-form-label" for="timerActionScriptArguments' + i + '">' + e(args.arguments[i]) + '</label>' +
-                  '<div class="col-sm-8">' +
-                    '<input name="timerActionScriptArguments' + i + '" class="form-control border-secondary" type="text" value="' +
-                    (values[args.arguments[i]] ? e(values[args.arguments[i]]) : '') + '"' +
-                    'data-name="' + encodeURI(args.arguments[i]) + '">' +
-                  '</div>' +
-                '</div>';
+        const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "timerActionScriptArguments" + i, 
+            "value": (values[args.arguments[i]] ? e(values[args.arguments[i]]) : '')});
+        setCustomDomProperty(input, 'data-name', args.arguments[i]);
+        const fg = elCreateNodes('div', {"class": ["form-group", "row"]},
+            [
+                elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": "timerActionScriptArguments" + i}, args.arguments[i]),
+                elCreateNode('div', {"class": ["col-sm-8"]}, input)
+            ]
+        );
+        list.appendChild(fg);
     }
     if (args.arguments.length === 0) {
-        list = 'No arguments';
+        list.textContent = tn('No arguments');
     }
-    document.getElementById('timerActionScriptArguments').innerHTML = list;
 }
 
 function showListTimer() {
@@ -304,26 +305,35 @@ function parseListTimer(obj) {
     if (checkResult(obj, tbody, 5) === false) {
         return;
     }
-    
-    let activeRow = 0;
+    elClear(tbody);
     const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const tr = tbody.getElementsByTagName('tr');
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const row = document.createElement('tr');
         setCustomDomProperty(row, 'data-id', obj.result.data[i].timerid);
-        let tds = '<td>' + e(obj.result.data[i].name) + '</td>' +
-                  '<td><button name="enabled" class="btn btn-secondary btn-xs clickable mi mi-small' +
-                  (obj.result.data[i].enabled === true ? ' active' : '') + '">' +
-                  (obj.result.data[i].enabled === true ? 'check' : 'radio_button_unchecked') + '</button></td>';
-        tds += '<td>' + zeroPad(obj.result.data[i].startHour, 2) + ':' + zeroPad(obj.result.data[i].startMinute,2) + ' ' + t('on') + ' ';
+        row.appendChild(
+            elCreateText('td', {}, obj.result.data[i].name)
+        );
+        const btn = elCreateEmpty('button', {"name": "enabled", "class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-small"]});
+        if (obj.result.data[i].enabled === true) {
+            btn.classList.add('active');
+            btn.textContent = 'check';
+        }
+        else {
+            btn.textContent = 'radio_button_unchecked';
+        }
+        row.appendChild(elCreateNode('td', {}, btn));
         const days = [];
         for (let j = 0; j < 7; j++) {
             if (obj.result.data[i].weekdays[j] === true) {
                 days.push(t(weekdays[j]));
             }
         }
-        tds += days.join(', ')  + '</td>';
-                let interval = '';
+        row.appendChild(
+            elCreateText('td', {}, zeroPad(obj.result.data[i].startHour, 2) + ':' + zeroPad(obj.result.data[i].startMinute, 2) +
+                ' ' + t('on') + ' ' + days.join(', '))
+        );
+
+        let interval = '';
         switch (obj.result.data[i].interval) {
             case 604800: interval = t('Weekly'); break;
             case 86400: interval = t('Daily'); break;
@@ -331,19 +341,18 @@ function parseListTimer(obj) {
             case 0: interval = t('One shot and disable'); break;
             default: interval = t('Each hours', obj.result.data[i].interval / 3600);
         }
-        tds += '<td>' + interval + '</td>';
-        tds += '<td>' + prettyTimerAction(obj.result.data[i].action, obj.result.data[i].subaction) + '</td>' +
-               '<td data-col="Action"><a href="#" class="mi color-darkgrey">delete</a></td>';
-        row.innerHTML = tds;
-        if (i < tr.length) {
-            activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
-        }
-        else {
-            tbody.append(row);
-        }
-    }
-    for (let i = tr.length - 1; i >= obj.result.returnedEntities; i --) {
-        tr[i].remove();
+        row.appendChild(
+            elCreateText('td', {}, interval)
+        );
+        row.appendChild(
+            elCreateText('td', {}, prettyTimerAction(obj.result.data[i].action, obj.result.data[i].subaction))
+        );
+        row.appendChild(
+            elCreateNode('td', {"data-col": "Action"},
+                elCreateText('a', {"class": ["mi", "color-darkgrey"], "href": "#"}, 'delete')
+            )
+        );
+        tbody.append(row);
     }
 }
 

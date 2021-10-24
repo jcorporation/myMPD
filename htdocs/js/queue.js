@@ -67,6 +67,7 @@ function initQueue() {
         elHideId('warnJukeboxPlaylist2');
         document.getElementById('selectAddToQueuePlaylist').value = tn('Database');
         setCustomDomPropertyId('selectAddToQueuePlaylist', 'data-value', 'Database');
+        document.getElementById('selectAddToQueuePlaylist').filterInput.value = '';
         if (features.featPlaylists === true) {
             filterPlaylistsSelect(0, 'selectAddToQueuePlaylist', '');
         }

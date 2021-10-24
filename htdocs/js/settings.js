@@ -458,6 +458,8 @@ function populateQueueSettingsFrm() {
         elEnableId('selectJukeboxPlaylist');
     }
     
+    document.getElementById('selectJukeboxPlaylist').filterInput.value = '';
+
     if (settings.mpdConnected === true) {
         if (features.featPlaylists === true) {
             filterPlaylistsSelect(0, 'selectJukeboxPlaylist', '', settings.jukeboxPlaylist);

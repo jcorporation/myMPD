@@ -341,8 +341,8 @@ function showAddToPlaylistFromFilesystem() {
 function showAddToPlaylist(uri, searchstr) {
     document.getElementById('addToPlaylistUri').value = uri;
     document.getElementById('addToPlaylistSearch').value = searchstr;
-    document.getElementById('addToPlaylistPlaylist').value = ''
-    document.getElementById('addToPlaylistPlaylist').filterInput.value = ''
+    document.getElementById('addToPlaylistPlaylist').value = '';
+    document.getElementById('addToPlaylistPlaylist').filterInput.value = '';
     toggleBtnId('toggleAddToPlaylistBtn', 0);
     const streamUrl = document.getElementById('streamUrl');
     streamUrl.focus();
@@ -411,9 +411,8 @@ function addToPlaylist() {
             return;
         }
     }
-    let plist = document.getElementById('addToPlaylistPlaylist').value;
-    if (validatePlname(plist) === false) {
-        document.getElementById('addToPlaylistPlaylist').classList.add('is-invalid');
+    const plist = document.getElementById('addToPlaylistPlaylist').value;
+    if (validatePlnameEl(plist) === false) {
         return;
     }
 

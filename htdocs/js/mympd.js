@@ -242,7 +242,7 @@ function appRoute() {
                 break;
             }
             fullPath += pathArray[i];
-            const a = elCreateText('a', {"href": "#"}, pathArray[i])
+            const a = elCreateText('a', {"href": "#"}, pathArray[i]);
             setCustomDomProperty(a, 'data-uri', fullPath);
             crumbEl.appendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, a));
             fullPath += '/';
@@ -647,7 +647,7 @@ function initGlobalModals() {
         elClear(list);
         for (const key in keymap) {
             const col = elCreateEmpty('div', {"class": ["col", "col-6", "mb-3", "align-items-center"]});
-            const k = elCreateText('div', {"class": ["key", "float-start"]}, (keymap[key].key !== undefined ? keymap[key].key : key))
+            const k = elCreateText('div', {"class": ["key", "float-start"]}, (keymap[key].key !== undefined ? keymap[key].key : key));
             if (keymap[key].key && keymap[key].key.length > 1) {
                 k.classList.add('mi', 'mi-small');
             }
