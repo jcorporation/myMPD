@@ -116,21 +116,23 @@ function showTriggerScriptArgs(option, values) {
         values = {};
     }
     const args = JSON.parse(getCustomDomProperty(option, 'data-arguments'));
-    let list = '';
+    const list = document.getElementById('triggerActionScriptArguments');
+    elClear(list);
     for (let i = 0, j = args.arguments.length; i < j; i++) {
-        list += '<div class="form-group row">' +
-                  '<label class="col-sm-4 col-form-label" for="triggerActionScriptArguments' + i + '">' + e(args.arguments[i]) + '</label>' +
-                  '<div class="col-sm-8">' +
-                    '<input name="triggerActionScriptArguments' + i + '" class="form-control border-secondary" type="text" value="' +
-                    (values[args.arguments[i]] ? e(values[args.arguments[i]]) : '') + '"' +
-                    'data-name="' + encodeURI(args.arguments[i]) + '">' +
-                  '</div>' +
-                '</div>';
+        const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "triggerActionScriptArguments" + i, 
+            "value": (values[args.arguments[i]] ? values[args.arguments[i]] : '')});
+        setCustomDomProperty(input, 'data-name', args.arguments[i]);
+        const fg = elCreateNodes('div', {"class": ["form-group", "row"]},
+            [
+                elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": "triggerActionScriptArguments" + i}, args.arguments[i]),
+                elCreateNode('div', {"class": ["col-sm-8"]}, input)
+            ]
+        );
+        list.appendChild(fg);
     }
     if (args.arguments.length === 0) {
-        list = t('No arguments');
+        list.textContent = tn('No arguments');
     }
-    document.getElementById('triggerActionScriptArguments').innerHTML = list;
 }
 
 function showListTrigger() {
@@ -156,18 +158,36 @@ function parseTriggerList(obj) {
         return;
     }
 
-    let triggerList = '';
+    elClear(tbody);
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        triggerList += '<tr data-trigger-id="' + encodeURI(obj.result.data[i].id) + '"><td class="' +
+        const row = elCreateEmpty('tr', {});
+        setCustomDomProperty(row, 'data-trigger-id', obj.result.data[i].id);
+        row.appendChild(
+            elCreateText('td', {}, obj.result.data[i].name)
+        );
+        row.appendChild(
+            elCreateText('td', {}, tn(obj.result.data[i].eventName))
+        );
+        row.appendChild(
+            elCreateText('td', {}, obj.result.data[i].script)
+        );
+        row.appendChild(
+            elCreateNode('td', {"data-col": "Action"},
+                elCreateText('a', {"href": "#", "title": tn("Delete"), "data-action": "delete", "class": ["mi", "color-darkgrey"]}, 'delete')
+            )
+        );
+/*
+        triggerList += '<tr data-trigger-id="' + encodeURI() + '"><td class="' +
             (obj.result.data[i].name === settings.trigger ? 'font-weight-bold' : '') +
             '">' + e(obj.result.data[i].name) + 
             '</td>' +
-            '<td>' + t(obj.result.data[i].eventName) + '</td>' +
+            '<td>' +  + '</td>' +
             '<td>' + e(obj.result.data[i].script) + '</td>' +
             '<td data-col="Action">' +
             (obj.result.data[i].name === 'default' || obj.result.data[i].name === settings.trigger  ? '' : 
                 '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>') +
             '</td></tr>';
+*/
+        tbody.appendChild(row);
     }
-    tbody.innerHTML = triggerList;
 }

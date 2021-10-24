@@ -329,10 +329,16 @@ function parseSettings(obj) {
 
     //scripts
     if (scriptsInited === false) {
-        document.getElementById('selectTimerAction').innerHTML = '<optgroup data-value="player" label="' + t('Playback') + '">' +
-            '<option value="startplay">' + t('Start playback') + '</option>' +
-            '<option value="stopplay">' + t('Stop playback') + '</option>' +
-            '</optgroup>';
+        const selectTimerAction = document.getElementById('selectTimerAction');
+        elClear(document.getElementById('selectTimerAction'));
+        selectTimerAction.appendChild(
+            elCreateNodes('optgroup', {"data-value": "player", "label": tn('Playbacl')},
+                [
+                    elCreateText('option', {"value": "startplay"}, tn('Start playback')),
+                    elCreateText('option', {"value": "stopplay"}, tn('Stop playback'))
+                ]
+            )
+        );
 
         if (features.featScripting === true) {
             getScriptList(true);
@@ -528,13 +534,16 @@ function populateSettingsFrm() {
     getBgImageList(settings.webuiSettings.uiBgImage);
 
     //locales
-    let localeList = '';
+    const localeList = document.getElementById('inputWebUIsettinguiLocale');
+    elClear(localeList);
     for (const l of locales) {
-        localeList += '<option value="' + e(l.code) + '"' + 
-            (l.code === settings.webuiSettings.uiLocale ? ' selected="selected"' : '') + '>' + 
-            e(l.desc) + ' (' + e(l.code) + ')</option>';
+        localeList.appendChild(
+            elCreateText('option', {"value": l.code}, l.desc + ' (' + l.code + ')')
+        );
+        if (l.code === settings.webuiSettings.uiLocale) {
+            localeList.lastChild.setAttribute('selected', 'selected');
+        }
     }
-    document.getElementById('inputWebUIsettinguiLocale').innerHTML = localeList;
     warnLocale(settings.webuiSettings.uiLocale);
 
     //web notifications - check permission
@@ -755,11 +764,13 @@ function parseMPDSettings() {
         clearBackgroundImage();
     }
 
-    let triggerEventList = '';
+    const triggerEventList = document.getElementById('selectTriggerEvent');
+    elClear(triggerEventList);
     for (const event in settings.triggerEvents) {
-        triggerEventList += '<option value="' + e(settings.triggerEvents[event]) + '">' + t(event) + '</option>';
+        triggerEventList.appendChild(
+            elCreateText('option', {"value": settings.triggerEvents[event]}, tn(event))
+        );
     }
-    document.getElementById('selectTriggerEvent').innerHTML = triggerEventList;
     
     settings.tagList.sort();
     settings.tagListSearch.sort();

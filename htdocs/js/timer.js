@@ -275,7 +275,7 @@ function showTimerScriptArgs(option, values) {
     elClear(list);
     for (let i = 0, j = args.arguments.length; i < j; i++) {
         const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "timerActionScriptArguments" + i, 
-            "value": (values[args.arguments[i]] ? e(values[args.arguments[i]]) : '')});
+            "value": (values[args.arguments[i]] ? values[args.arguments[i]] : '')});
         setCustomDomProperty(input, 'data-name', args.arguments[i]);
         const fg = elCreateNodes('div', {"class": ["form-group", "row"]},
             [
