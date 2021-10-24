@@ -86,6 +86,9 @@ function parsePlaylistsList(obj) {
             elCreateText('td', {}, data.name)
         );
         row.appendChild(
+            elCreateText('td', {}, localeDate(data.lastModified))
+        );
+        row.appendChild(
             elCreateNode('td', {},
                 elCreateText('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
             )
