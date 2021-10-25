@@ -115,7 +115,7 @@ function showTriggerScriptArgs(option, values) {
     if (values === undefined) {
         values = {};
     }
-    const args = JSON.parse(getCustomDomProperty(option, 'data-arguments'));
+    const args = getCustomDomProperty(option, 'data-arguments');
     const list = document.getElementById('triggerActionScriptArguments');
     elClear(list);
     for (let i = 0, j = args.arguments.length; i < j; i++) {

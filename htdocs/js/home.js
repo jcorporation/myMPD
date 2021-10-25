@@ -354,8 +354,7 @@ function addViewToHome() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function addScriptToHome(name, scriptDef) {
-    const script = JSON.parse(scriptDef);
+function addScriptToHome(name, script) {
     const options = [script.script, script.arguments.join(',')];
     _addHomeIcon('execScriptFromOptions', name, 'description', options);
 }

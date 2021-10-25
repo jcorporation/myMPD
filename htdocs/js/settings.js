@@ -647,68 +647,80 @@ function _createSettingsFrm(fields, defaults, prefix) {
         }
         const form = defaults[key].form;
         if (advFrm[form] === undefined) {
-            advFrm[form] = '';
+            advFrm[form] = document.getElementById(form);
+            elClear(advFrm[form]);
         }
-        
+
         if (defaults[key].inputType === 'section') {
             if (defaults[key].title !== undefined) {
-                advFrm[form] += '<hr/><h4>' + t(defaults[key].title) + '</h4>';
+                advFrm[form].appendChild(elCreateEmpty('hr', {}));
+                advFrm[form].appendChild(elCreateText('h4', {}, tn(defaults[key].title)));
             }
             else if (defaults[key].subtitle !== undefined) {
-                advFrm[form] += '<h5>' + t(defaults[key].subtitle) + '</h5>';
+                advFrm[form].appendChild(elCreateText('h4', {}, tn(defaults[key].subtitle)));
             }
             continue;
         }
-        advFrm[form] += '<div class="mb-3 row">' +
-                    '<label class="col-sm-4 col-form-label" for="' + prefix + r(key) + '" data-phrase="' + 
-                    e(defaults[key].title) + '">' + t(defaults[key].title) + '</label>' +
-                    '<div class="col-sm-8 position-relative">';
+        
+        const col = elCreateEmpty('div', {"class": ["col-sm-8", "position-relative"]});
         if (defaults[key].inputType === 'select') {
-            advFrm[form] += '<select id="' + prefix + r(key) + '" class="form-select">';
+            const select = elCreateEmpty('select', {"class": ["form-select"], "id": prefix + r(key)});
             for (let value in defaults[key].validValues) {
                 if (defaults[key].contentType === 'integer') {
                     value = Number(value);
                 }
-                advFrm[form] += '<option value="' + e(value) + '"' +
-                    (fields[key] === value ? ' selected="selected"' : '') +
-                    '>' + t(defaults[key].validValues[value]) + '</option>';
+                select.appendChild(elCreateText('option', {"value": value}, tn(defaults[key].validValues[value])));
+                if (fields[key] === value) {
+                    select.lastChild.setAttribute('selected', 'selected');
+                }
             }
-            advFrm[form] += '</select>';
+            col.appendChild(select);
         }
-        else if (defaults[key].inputType === 'checkbox') {
-            advFrm[form] += '<button type="button" class="btn btn-sm btn-secondary mi chkBtn ' + 
-                (fields[key] === false ? '' : 'active') + ' clickable" id="' + prefix + r(key) + '">' +
-                (fields[key] === false ? 'radio_button_unchecked' : 'check') + '</button>';
-        }
-        else {
-            advFrm[form] += '<input is="mympd-input-reset" id="' + prefix + r(key) + '" placeholder="' + defaults[key].defaultValue + '" ' +
-                'value="' + e(fields[key]) + '"  class="form-control" type="' + (defaults[key].inputType === 'color' ? 'color' : 'text') + '"/>';
-        }
-        if (defaults[key].invalid !== undefined) {
-            advFrm[form] += '<div class="invalid-feedback" data-phrase="' + defaults[key].invalid + '"></div>';
-        }
-        advFrm[form] += '</div></div>';
-        if (defaults[key].warn !== undefined) {
-            advFrm[form] += '<div id="warn' + prefix + r(key) + '" class="alert alert-warning d-none">' + t(defaults[key].warn) + '</div>';
-        }
-    }
-    for (const key in advFrm) {
-        document.getElementById(key).innerHTML = advFrm[key];
-        const advFrmBtns = document.getElementById(key).getElementsByClassName('chkBtn');
-        for (const btn of advFrmBtns) {
+        else if (defaults[key].inputType === 'checkbox') {           
+            const btn = elCreateEmpty('button', {"type": "button", "id": prefix + r(key), "class": ["btn", "btn-sm", "btn-secondary", "mi", "chkBtn"]});
+            if (fields[key] === true) {
+                btn.classList.add('active');
+                btn.textContent = 'check';
+            }
+            else {
+                btn.textContent = 'radio_button_unchecked';
+            }
             btn.addEventListener('click', function(event) {
                 toggleBtnChk(event.target);
             }, false);
+            col.appendChild(btn);
         }
+        else {
+            const it = defaults[key].inputType === 'color' ? 'color' : 'text';
+            col.appendChild(elCreateEmpty('input', {"is": "mympd-input-reset", "id": prefix + r(key), "placeholder": defaults[key].defaultValue,
+                "value": fields[key], "class": ["form-control"], "type": it}));
+        }
+        if (defaults[key].invalid !== undefined) {
+            col.appendChild(elCreateText('div', {"class": ["invalid-feedback"], "data-phrase": defaults[key].invalid}, tn(defaults[key].invalid)));
+        }
+        if (defaults[key].warn !== undefined) {
+            col.appendChild(elCreateText('div', {"id": "warn" + prefix + r(key), "class": ["alert", "alert-warning", "d-none"]}, tn(defaults[key].warn)));
+        }
+
+        advFrm[form].appendChild(
+            elCreateNodes('div', {"class": ["mb-3", "row"]},
+                [
+                    elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": prefix + r(key), "data-phrase": defaults[key].title}, defaults[key].title),
+                    col
+                ]
+            )
+        );
     }
-    
+    console.log(advFrm);
+/*   
     for (const key in defaults) {
         if (defaults[key].onChange !== undefined) {
-            document.getElementById(prefix + key).addEventListener('change', function(event) {
+            document.getElementById(prefix + r(key)).addEventListener('change', function(event) {
                 window[defaults[key].onChange](event);
             }, false);
         }
     }
+*/
 }
 
 function setFeatures() {
@@ -813,14 +825,18 @@ function parseMPDSettings() {
     }
     else {
         //construct playback view
-        let pbtl = '';
+        const pbtl = document.getElementById('cardPlaybackTags');
+        elClear(pbtl);
         for (let i = 0, j = settings.colsPlayback.length; i < j; i++) {
-            pbtl += '<div id="current' + settings.colsPlayback[i]  + '" data-tag="' + 
-                settings.colsPlayback[i] + '">' +
-                '<small>' + t(settings.colsPlayback[i]) + '</small>' +
-                '<p></p></div>';
+            const div = elCreateNodes('div', {"id": "current" + settings.colsPlayback[i]},
+                [
+                    elCreateText('small', {}, settings.colsPlayback[i]),
+                    elCreateEmpty('p', {})
+                ]
+            );
+            setCustomDomProperty(div, 'data-tag', settings.colsPlayback[i]);
+            pbtl.appendChild(div);
         }
-        document.getElementById('cardPlaybackTags').innerHTML = pbtl;
         //fill blank card with lastSongObj
         if (lastSongObj !== null) {
             setPlaybackCardTags(lastSongObj);
@@ -1058,19 +1074,28 @@ function getTagMultiSelectValues(taglist, translated) {
 
 function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
     const values = [];
-    let list = '';
+    const list = document.getElementById(listId);
     for (let i = 0, j = allTags.length; i < j; i++) {
         if (enabledTags.includes(allTags[i])) {
             values.push(t(allTags[i]));
         }
-        list += '<div class="form-check">' +
-            '<button class="btn btn-secondary btn-xs clickable mi mi-small' + 
-            (enabledTags.includes(allTags[i]) ? ' active' : '') + '" name="' + allTags[i] + '">' +
-            (enabledTags.includes(allTags[i]) ? 'check' : 'radio_button_unchecked') + '</button>' +
-            '<label class="form-check-label" for="' + allTags[i] + '">&nbsp;&nbsp;' + t(allTags[i]) + '</label>' +
-            '</div>';
+        const btn = elCreateEmpty('button', {"class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-small", "me-2"], "name": allTags[i]});
+        if (enabledTags.includes(allTags[i])) {
+            btn.classList.add('active');
+            btn.textContent = 'check';
+        }
+        else {
+            btn.textContent = 'radio_button_unchecked';
+        }
+        list.appendChild(
+            elCreateNodes('div', {"class": "form-check"},
+                [
+                    btn,
+                    elCreateText('label', {"class": ["form-check-label"], "for": allTags[i]}, allTags[i])
+                ]
+            )
+        );
     }
-    document.getElementById(listId).innerHTML = list;
 
     const inputEl = document.getElementById(inputId);
     inputEl.value = values.join(', ');
@@ -1180,15 +1205,14 @@ function getBgImageList(image) {
 
 function getImageList(selectEl, value, addOptions) {
     sendAPI("MYMPD_API_PICTURE_LIST", {}, function(obj) {
-        let options = '';
+        const sel = document.getElementById(selectEl);
+        elClear(sel);
         for (const option of addOptions) {
-            options += '<option value="' + e(option.value) + '">' + t(option.text) + '</option>';
+            sel.appendChild(elCreateText('option', {"value": option.value}, option.text));
         }
         for (let i = 0; i < obj.result.returnedEntities; i++) {
-            options += '<option value="' + e(obj.result.data[i]) + '">' + e(obj.result.data[i])  + '</option>';
+            sel.appendChild(elCreateText('option', {"value": obj.result.data[i]}, obj.result.data[i]));
         }
-        const sel = document.getElementById(selectEl);
-        sel.innerHTML = options;
         sel.value = value;
     });
 }

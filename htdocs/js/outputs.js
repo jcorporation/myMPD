@@ -44,7 +44,7 @@ function parseOutputs(obj) {
         outputList.appendChild(div);
         return;
     }
-    if (obj.result.returnedEntities === 0) {
+    if (obj.result.numOutputs === 0) {
         const div = elCreateEmpty('div', {"class": ["list-group-item"]});
         addIconLine(div, 'info', tn('Empty list'));
         outputList.appendChild(div);

@@ -22,7 +22,7 @@ function toggleAlert(alertBox, state, msg) {
         elClear(alertBoxEl);
         addIconLine(alertBoxEl, 'error', msg);
         if (alertBox === 'alertMpdStatusError') {
-            const clBtn = elCreateEmpty('button', {"class": ["btn-close"]});
+            const clBtn = elCreateEmpty('button', {"class": ["btn-close", "btn-close-alert"]});
             alertBoxEl.appendChild(clBtn);
             clBtn.addEventListener('click', function() {
                 clearMPDerror();

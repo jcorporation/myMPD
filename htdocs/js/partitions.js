@@ -8,8 +8,8 @@ function initPartitions() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'A') {
-            const action = event.target.getAttribute('data-action');
-            const partition = decodeURI(event.target.parentNode.parentNode.getAttribute('data-partition'));
+            const action = getCustomDomProperty(event.target, 'data-action');
+            const partition = getCustomDomProperty(event.target.parentNode.parentNode, 'data-partition');
             if (action === 'delete') {
                 deletePartition(partition);
             }
@@ -23,7 +23,7 @@ function initPartitions() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            const outputName = decodeURI(event.target.parentNode.getAttribute('data-output'));
+            const outputName = getCustomDomProperty(event.target.parentNode, 'data-output');
             moveOutput(outputName);
             uiElements.modalPartitionOutputs.hide();
         }
@@ -49,30 +49,32 @@ function moveOutput(output) {
 }
 
 function parsePartitionOutputsList(obj) {
-    const tbody = document.getElementById('partitionOutputsList');
-    if (checkResult(obj, tbody, 1) === false) {
+    const outputList = document.getElementById('partitionOutputsList');
+    if (checkResult(obj, outputList, 1) === false) {
         return;
     }
 
+    elClear(outputList);
     const outputs = document.getElementById('outputs').getElementsByTagName('button');
     const outputIds = [];
     for (let i = 0, j= outputs.length; i < j; i++) {
-        outputIds.push(Number(outputs[i].getAttribute('data-output-id')));
+        outputIds.push(getCustomDomProperty(outputs[i], 'data-output-id'));
     }
 
-    let outputList = '';
     let nr = 0;
     for (let i = 0, j = obj.result.data.length; i < j; i++) {
         if (outputIds.includes(obj.result.data[i].id) === false) {
-            outputList += '<tr data-output="' + encodeURI(obj.result.data[i].name) + '"><td>' +
-                e(obj.result.data[i].name) + '</td></tr>';
+            const tr = elCreateNode('tr', {}, 
+                elCreateText('td', {}, obj.result.data[i].name)
+            );
+            setCustomDomProperty(tr, 'data-output', obj.result.data[i].name);
+            outputList.appendChild(tr);
             nr++;
         }
     }
     if (nr === 0) {
-        outputList = '<tr class="not-clickable"><td><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
+        outputList.appendChild(emptyRow(1));
     }
-    tbody.innerHTML = outputList;
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -139,23 +141,37 @@ function switchPartition(partition) {
 }
 
 function parsePartitionList(obj) {
-    const tbody = document.getElementById('listPartitionsList');
-    if (checkResult(obj, tbody, 3) === false) {
+    const partitionList = document.getElementById('listPartitionsList');
+    if (checkResult(obj, partitionList, 3) === false) {
         return;
     }
 
-    let partitionList = '';
+    elClear(partitionList);
+
     for (let i = 0, j = obj.result.data.length; i < j; i++) {
-        partitionList += '<tr data-partition="' + encodeURI(obj.result.data[i].name) + '"><td class="' +
-            (obj.result.data[i].name === settings.partition ? 'font-weight-bold' : '') +
-            '">' + e(obj.result.data[i].name) + 
-            (obj.result.data[i].name === settings.partition ? '&nbsp;(' + t('current') + ')' : '') +
-            '</td>' +
-            '<td data-col="Action">' +
-            (obj.result.data[i].name === 'default' || obj.result.data[i].name === settings.partition  ? '' : 
-                '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>') +
-            (obj.result.data[i].name !== settings.partition ? '<a href="#" title="' + t('Switch to') + '" data-action="switch" class="mi color-darkgrey">check_circle</a>' : '') +
-            '</td></tr>';
+        const tr = elCreateEmpty('tr', {});
+        setCustomDomProperty(tr, 'data-partition', obj.result.data[i].name);
+        const td = elCreateEmpty('td', {});
+        if (obj.result.data[i].name === settings.partition) {
+            td.classList.add('font-weight-bold');
+            td.textContent = obj.result.data[i].name + ' (' + tn('current') + ')';
+        }
+        else {
+            td.textContent = obj.result.data[i].name;
+        }
+        tr.appendChild(td);
+        const actionTd = elCreateEmpty('td', {"data-col": "Action"});
+        if (obj.result.data[i].name !== 'default' && obj.result.data[i].name !== settings.partition) {
+            actionTd.appendChild(
+                elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "delete", "class": ["mi", "color-darkgrey", "me-2"]}, 'delete')
+            );
+        }
+        if (obj.result.data[i].name !== settings.partition) {
+            actionTd.appendChild(
+                elCreateText('a', {"href": "#", "title": tn('Switch to'), "data-action": "switch", "class": ["mi", "color-darkgrey"]}, 'check_circle')
+            );
+        }
+        tr.appendChild(actionTd);
+        partitionList.appendChild(tr);
     }
-    tbody.innerHTML = partitionList;
 }

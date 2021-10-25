@@ -213,7 +213,9 @@ function isCoverfile(uri) {
 
 function getComments(uri, el) {
     el.classList.add('opacity05');
-    sendAPI("MYMPD_API_DATABASE_COMMENTS", {"uri": uri}, function(obj) {
+    sendAPI("MYMPD_API_DATABASE_COMMENTS", {
+        "uri": uri
+    }, function(obj) {
         elClear(el);
         if (obj.result.returnedEntities === 0) {
             el.appendChild(emptyRow(2));
@@ -309,7 +311,10 @@ function getLyrics(uri, el) {
                     textEls[i].addEventListener('click', function(event) {
                         const sec = event.target.getAttribute('data-sec');
                         if (sec !== null) {
-                            sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {"seek": Number(sec), "relative": false});
+                            sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
+                                "seek": Number(sec),
+                                "relative": false
+                            });
                         }
                     }, false); 
                 }
@@ -366,7 +371,10 @@ function voteSong(el, vote) {
         el.classList.add('active');
     }
     const uri = getCustomDomProperty(el.parentNode, 'data-uri');
-    sendAPI("MYMPD_API_LIKE", {"uri": uri, "like": vote});
+    sendAPI("MYMPD_API_LIKE", {
+        "uri": uri,
+        "like": vote
+    });
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -382,7 +390,10 @@ function voteCurrentSong(vote) {
     else if (vote === 0 && document.getElementById('btnVoteDown').classList.contains('highlight')) {
         vote = 1;
     }
-    sendAPI("MYMPD_API_LIKE", {"uri": uri, "like": vote});
+    sendAPI("MYMPD_API_LIKE", {
+        "uri": uri,
+        "like": vote
+    });
     setVoteSongBtns(vote, uri);
 }
 

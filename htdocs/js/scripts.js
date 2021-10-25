@@ -57,13 +57,17 @@ function initScripts() {
         document.getElementById('dropdownAddFunction').style.width = dw + 'px';
     }, false);
     
-    let methodList = '<option value="">' + t('Select method') + '</option>';
-    for (const m in APImethods) {
-        methodList += '<option value="' + m + '">' + m + '</option>';
-    }
     const selectAPIcallEl = document.getElementById('selectAPIcall');
-    selectAPIcallEl.innerHTML = methodList;
-    
+    elClear(selectAPIcallEl);
+    selectAPIcallEl.appendChild(
+        elCreateText('option', {"value": ""}, tn('Select method'))
+    );
+    for (const m in APImethods) {
+        selectAPIcallEl.appendChild(
+            elCreateText('option', {"value": m}, m)
+        );
+    }
+        
     selectAPIcallEl.addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
@@ -93,12 +97,16 @@ function initScripts() {
         el.focus();
     }, false);
     
-    let functionList = '<option value="">' + t('Select function') + '</option>';
-    for (const m in LUAfunctions) {
-        functionList += '<option value="' + m + '">' + m + '</option>';
-    }
     const selectFunctionEl = document.getElementById('selectFunction');
-    selectFunctionEl.innerHTML = functionList;
+    elClear(selectFunctionEl);
+    selectFunctionEl.appendChild(
+        elCreateText('option', {"value": ""}, tn('Select function'))
+    );
+    for (const m in LUAfunctions) {
+        selectFunctionEl.appendChild(
+            elCreateText('option', {"value": m}, m)
+        );
+    }
     
     selectFunctionEl.addEventListener('click', function(event) {
         event.stopPropagation();
@@ -271,23 +279,20 @@ function getScriptList(all) {
 
 function parseScriptList(obj) {
     const tbodyScripts = document.getElementById('listScriptsList');
+    elClear(tbodyScripts);
     const mainmenuScripts = document.getElementById('scripts');
+    elClear(mainmenuScripts);
     const triggerScripts = document.getElementById('selectTriggerScript');
+    elClear(triggerScripts);
 
     if (checkResult(obj, tbodyScripts, 2) === false) {
-        elClear(mainmenuScripts);
-        elClear(triggerScripts);
         return;
     }
 
     const timerActions = document.createElement('optgroup');
     setCustomDomProperty(timerActions, 'data-value', 'script');
-    timerActions.setAttribute('label', t('Script'));
+    timerActions.setAttribute('label', tn('Script'));
     const scriptMaxListLen = 4;
-    //list in main menu
-    let scriptListMain = '';
-    //list in scripts dialog
-    let scriptList = '';
     const scriptListLen = obj.result.data.length;
     let showScriptListLen = 0;
     if (scriptListLen > 0) {
@@ -295,45 +300,52 @@ function parseScriptList(obj) {
             return a.metadata.order - b.metadata.order;
         });
         for (let i = 0; i < scriptListLen; i++) {
-            let arglist = '';
-            if (obj.result.data[i].metadata.arguments.length > 0) {
-                for (let j = 0, k = obj.result.data[i].metadata.arguments.length; j < k; j++) {
-                    obj.result.data[i].metadata.arguments[j] = e(obj.result.data[i].metadata.arguments[j]);
-                }
-                arglist = '"' + obj.result.data[i].metadata.arguments.join('","') + '"';
-            }
+            //scriptlist in main menu
             if (obj.result.data[i].metadata.order > 0) {
                 showScriptListLen++;
-                scriptListMain += '<a class="dropdown-item alwaysEnabled" href="#" data-href=\'{"script": "' + 
-                    e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>' + e(obj.result.data[i].name) + '</a>';
-                
+                const a = elCreateText('a', {"class": ["dropdown-item", "alwaysEnabled"], "href": "#"}, obj.result.data[i].name);
+                setCustomDomProperty(a, 'data-href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
+                mainmenuScripts.appendChild(a);               
             }
-            scriptList += '<tr data-script="' + encodeURI(obj.result.data[i].name) + '" ' +
-                'data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>' +
-                '<td>' + e(obj.result.data[i].name) + '</td>' +
-                '<td data-col="Action">' +
-                    '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>' +
-                    '<a href="#" title="' + t('Execute') + '" data-action="execute" class="mi color-darkgrey">play_arrow</a>' +
-                    '<a href="#" title="' + t('Add to homescreen') + '" data-action="add2home" class="mi color-darkgrey">add_to_home_screen</a>' +
-                '</td></tr>';
-            timerActions.innerHTML += '<option data-arguments=\'{"arguments":[' + arglist + ']}\' value="' + 
-                e(obj.result.data[i].name) + '">' + e(obj.result.data[i].name) + '</option>';
+            //scriptlist in scripts modal
+            const tr = elCreateNodes('tr', {}, 
+                [
+                    elCreateText('td', {}, obj.result.data[i].name),
+                    elCreateNodes('td', {"data-col": "Action"}, 
+                        [
+                            elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "delete", "class": ["me-2", "mi", "color-darkgrey"]}, 'delete'),
+                            elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "execute", "class": ["me-2", "mi", "color-darkgrey"]}, 'play_arrow'),
+                            elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "add2home", "class": ["me-2", "mi", "color-darkgrey"]}, 'add_to_home_screen')
+                        ]
+                    )
+                ]
+            );
+            setCustomDomProperty(tr, 'data-script', obj.result.data[i].name);
+            setCustomDomProperty(tr, 'data-href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
+            tbodyScripts.appendChild(tr);
+            
+            //scriptlist select for timers and triggers
+            const option = elCreateText('option', {"value": obj.result.data[i].name}, obj.result.data[i].name);
+            setCustomDomProperty(option, 'data-arguments', {"arguments": obj.result.data[i].metadata.arguments});
+            timerActions.appendChild(option);
+            const option2 = option.cloneNode(true);
+            setCustomDomProperty(option2, 'data-arguments', {"arguments": obj.result.data[i].metadata.arguments});
+            triggerScripts.appendChild(option2);
         }
-        tbodyScripts.innerHTML = scriptList;
     }
-    mainmenuScripts.innerHTML = (showScriptListLen > scriptMaxListLen || showScriptListLen === 0 ? '' : '<div class="dropdown-divider"></div>') + scriptListMain;
-        
+    
+    const navScripting = document.getElementById('navScripting');
     if (showScriptListLen > scriptMaxListLen) {
-        elShowId('navScripting');
+        elShow(navScripting);
+        elHide(navScripting.previousElementSibling);
         document.getElementById('scripts').classList.add('collapse', 'menu-indent');
     }
     else {
-        elHideId('navScripting');
+        elHide(navScripting);
+        elShow(navScripting.previousElementSibling);
         document.getElementById('scripts').classList.remove('collapse', 'menu-indent');
     }
-
-    triggerScripts.innerHTML = timerActions.innerHTML;
-    
+   
     const old = document.getElementById('selectTimerAction').querySelector('optgroup[label="Script"]');
     if (old) {
         old.replaceWith(timerActions);
@@ -346,13 +358,15 @@ function parseScriptList(obj) {
 //eslint-disable-next-line no-unused-vars
 function execScriptFromOptions(cmd, options) {
     const args = options !== undefined && options !== '' ? options.split(',') : [];
-    execScript(JSON.stringify({"script": cmd, "arguments": args}));
+    execScript({"script": cmd, "arguments": args});
 }
 
-function execScript(href) {
-    const cmd = JSON.parse(href);
+function execScript(cmd) {
     if (cmd.arguments.length === 0) {
-        sendAPI("MYMPD_API_SCRIPT_EXECUTE", {"script": cmd.script, "arguments": {}});
+        sendAPI("MYMPD_API_SCRIPT_EXECUTE", {
+            "script": cmd.script, 
+            "arguments": {}
+        });
     }
     else {
         const arglist = document.getElementById('execScriptArguments');
@@ -378,6 +392,9 @@ function execScriptArgs() {
     for (let i = 0, j = inputs.length; i < j; i++) {
         args[inputs[i].name] = inputs[i].value;
     }
-    sendAPI("MYMPD_API_SCRIPT_EXECUTE", {"script": script, "arguments": args});
+    sendAPI("MYMPD_API_SCRIPT_EXECUTE", {
+        "script": script,
+        "arguments": args
+    });
     uiElements.modalExecScript.hide();
 }
