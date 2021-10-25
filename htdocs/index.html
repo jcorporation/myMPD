@@ -1208,11 +1208,13 @@
                 </div>
                 <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="inputCrossfade" data-phrase="Crossfade"></label>
-                  <div class="col-sm-7">
-                    <input id="inputCrossfade" type="text" class="form-control rounded"/>
-                    <div class="invalid-feedback" data-phrase="Must be a number"></div>
+                  <div class="col-sm-8">
+                    <div class="input-group">
+                        <input id="inputCrossfade" type="text" class="form-control rounded"/>
+                        <div class="input-group-text-nobg" data-phrase="Seconds"></div>
+                        <div class="invalid-feedback" data-phrase="Must be a number"></div>
+                    </div>
                   </div>
-                  <div class="col-sm-1 col-form-label" data-phrase="Seconds"></div>
                 </div>
                 <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="btnReplaygainGroup" data-phrase="Replaygain"></label>
@@ -1342,10 +1344,7 @@
                     <tr><td colspan="2" class="pt-3"><h5>MPD</h5></td></tr>
                     <tr><th data-phrase="Connection"></th><td id="mpdInfo_host"></td></tr>
                     <tr><th data-phrase="Protocol version"></th><td id="mpdInfo_version"></td></tr>
-                    <tr><th data-phrase="Libmpdclient version"></th><td id="mpdInfo_libmpdclientVersion"></td></tr>
-                    <tr><th data-phrase="Libmympdclient version"></th><td id="mpdInfo_libmympdclientVersion"></td></tr>
                     <tr><td colspan="2" class="pt-3"><h5 data-phrase="Webserver"></h5></td></tr>
-                    <tr><th data-phrase="Mongoose version"></th><td id="wsMongooseVersion"></td></tr>
                     <tr><th data-phrase="IP-Address"></th><td id="wsIP"></td></tr>
                     <tr class="featCacert"><th data-phrase="myMPD CA"></th>
                       <td><a class="text-success download alwaysEnabled" href="/ca.crt" target="_blank" data-phrase="Download"></a></td>

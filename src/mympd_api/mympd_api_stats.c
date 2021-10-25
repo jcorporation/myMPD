@@ -206,8 +206,7 @@ sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
     }
     
     const unsigned *version = mpd_connection_get_server_version(mympd_state->mpd_state->conn);
-    sds mpd_version = sdscatfmt(sdsempty(),"%u.%u.%u", version[0], version[1], version[2]);
-    sds libmpdclient_version = sdscatfmt(sdsempty(), "%i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+    sds mpd_protocol_version = sdscatfmt(sdsempty(),"%u.%u.%u", version[0], version[1], version[2]);
 
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = tojson_long(buffer, "artists", mpd_stats_get_number_of_artists(stats), true);
@@ -219,15 +218,10 @@ sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
     buffer = tojson_ulong(buffer, "dbUpdated", mpd_stats_get_db_update_time(stats), true);
     buffer = tojson_ulong(buffer, "dbPlaytime", mpd_stats_get_db_play_time(stats), true);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
-    buffer = tojson_char(buffer, "mpdVersion", mpd_version, true);
-    sds libmympdclient_version = sdscatfmt(sdsempty(), "%i.%i.%i", LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION);
-    buffer = tojson_char(buffer, "libmympdclientVersion", libmympdclient_version, true);
-    FREE_SDS(libmympdclient_version);
-    buffer = tojson_char(buffer, "libmpdclientVersion", libmpdclient_version, false);
+    buffer = tojson_char(buffer, "mpdProtocolVersion", mpd_protocol_version, false);
     buffer = jsonrpc_result_end(buffer);
 
-    FREE_SDS(mpd_version);
-    FREE_SDS(libmpdclient_version);
+    FREE_SDS(mpd_protocol_version);
     mpd_stats_free(stats);
 
     return buffer;

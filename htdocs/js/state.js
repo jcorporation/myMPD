@@ -21,9 +21,7 @@ function parseStats(obj) {
     document.getElementById('mpdstats_mympd_uptime').textContent = beautifyDuration(obj.result.myMPDuptime);
     document.getElementById('mpdstats_dbUpdated').textContent = localeDate(obj.result.dbUpdated);
     document.getElementById('mympdVersion').textContent = obj.result.mympdVersion;
-    document.getElementById('mpdInfo_version').textContent = obj.result.mpdVersion;
-    document.getElementById('mpdInfo_libmpdclientVersion').textContent = obj.result.libmpdclientVersion;
-    document.getElementById('mpdInfo_libmympdclientVersion').textContent = obj.result.libmympdclientVersion;
+    document.getElementById('mpdInfo_version').textContent = obj.result.mpdProtocolVersion;
 }
 
 function getServerinfo() {
@@ -40,7 +38,6 @@ function getServerinfo() {
                 logError('Can not parse response to json object:' + ajaxRequest.responseText);
             }
             document.getElementById('wsIP').textContent = obj.result.ip;
-            document.getElementById('wsMongooseVersion').textContent = obj.result.version;
         }
     };
     ajaxRequest.send();

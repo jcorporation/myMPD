@@ -440,7 +440,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 socklen_t len = sizeof(localip);
                 if (getsockname((int)(long)nc->fd, (struct sockaddr *)&localip, &len) == 0) {
                     sds response = jsonrpc_result_start(sdsempty(), "", 0);
-                    response = tojson_char(response, "version", MG_VERSION, true);
                     char addr[INET6_ADDRSTRLEN];
                     const char *str = inet_ntop(localip.sin_family, &localip.sin_addr, addr, INET6_ADDRSTRLEN);
                     if (str != NULL) {
