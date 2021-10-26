@@ -64,11 +64,17 @@
 #define COLS_MAX 20
 
 //mpd limits
+#define MPD_PORT_MIN 1024
+#define MPD_PORT_MAX 65535
+#define MPD_TIMEOUT_MIN 1000 //ms
+#define MPD_TIMEOUT_MAX 1000000 //ms
 #define MPD_RESULTS_MIN 25
 #define MPD_RESULTS_MAX 1000
-#define MPD_PLAYLIST_LENGTH_MAX 16384
+#define MPD_PLAYLIST_LENGTH_MAX 16384 //mpd default
+#define MPD_BINARY_SIZE_MIN 4096 //4 kb mpd default
 #define MPD_BINARY_SIZE_MAX 5242880 //5 MB
 #define MPD_QUEUE_PRIO_MAX 255
+#define MPD_CROSSFADE_MAX 100
 
 //limits for json parsing
 #define JSONRPC_INT_MIN INT_MIN
@@ -86,6 +92,7 @@
 #define VOLUME_STEP_MIN 1
 #define VOLUME_STEP_MAX 25
 #define JUKEBOX_QUEUE_MAX 999
+#define JUKEBOX_LAST_PLAYED_MAX 5000
 
 //limits for lists
 #define LIST_HOME_ICONS_MAX 99
