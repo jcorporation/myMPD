@@ -106,7 +106,7 @@ function parsePlaylistsDetail(obj) {
         return;
     }
 
-    if (obj.result.plist.indexOf('.') > -1 || obj.result.smartpls === true) {
+    if (isMPDplaylist(obj.result.plist) === false || obj.result.smartpls === true) {
         setCustomDomPropertyId('BrowsePlaylistsDetailList', 'data-ro', 'true');
         elHideId('playlistContentBtns');
         elShowId('smartPlaylistContentBtns');
@@ -163,7 +163,7 @@ function playlistSort(tag) {
 
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylists(force) {
-    sendAPI("MPDWORKER_API_SMARTPLS_UPDATE_ALL", {
+    sendAPI("MYMPD_API_SMARTPLS_UPDATE_ALL", {
         "force":force
     });
 }
@@ -406,7 +406,7 @@ function addToPlaylist() {
     let uri = document.getElementById('addToPlaylistUri').value;
     if (uri === 'stream') {
         uri = document.getElementById('streamUrl').value;
-        if (uri === '' || uri.indexOf('http') === -1) {
+        if (uri === '' || isStreamUri(uri) === false) {
             document.getElementById('streamUrl').classList.add('is-invalid');
             return;
         }
@@ -527,4 +527,14 @@ function playlistMoveTrack(from, to) {
         "from": from,
         "to": to
     });
+}
+
+function isMPDplaylist(uri) {
+    if (uri.indexOf('/') > -1 ||
+        uri.indexOf('.m3u') > -1 ||
+        uri.indexOf('.pls') > -1)
+    {
+        return false;
+    }
+    return true;
 }

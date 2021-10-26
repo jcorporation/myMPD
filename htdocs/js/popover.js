@@ -411,7 +411,7 @@ function createMenuHome(el, tabHeader, tabContent) {
     let name = '';
     if (href.cmd === 'replaceQueue' && href.options[0] === 'plist') {
         type = 'plist';
-        actionDesc = 'Add and play playlist';
+        actionDesc = 'Replace queue with playlist';
         name = 'Playlist';
     }
     else if (href.cmd === 'appGoto') {
@@ -426,7 +426,7 @@ function createMenuHome(el, tabHeader, tabContent) {
     }
     tabHeader.textContent = tn(name);
     addMenuItem(tabContent, {"cmd": "executeHomeIcon", "options": [pos]}, actionDesc);
-    if (type === 'plist') {
+    if (type === 'plist' && isMPDplaylist(href.options[1]) === true) {
         addMenuItem(tabContent, {"cmd": "playlistDetails", "options": [href.options[1]]}, 'View playlist');
     }
     addMenuItem(tabContent, {"cmd": "editHomeIcon", "options": [pos]}, 'Edit home icon');
