@@ -513,7 +513,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
             }
             rc = mpd_run_crossfade(mympd_state->mpd_state->conn, uint_buf);
         }
-        else if (strcmp(key, "replaygain") == 0 && vtype == MJSON_TOK_NUMBER) {
+        else if (strcmp(key, "replaygain") == 0 && vtype == MJSON_TOK_STRING) {
             enum mpd_replay_gain_mode mode = mpd_parse_replay_gain_name(value);
             if (mode == MPD_REPLAY_UNKNOWN) {
                 *error = set_invalid_value(*error, key, value);
