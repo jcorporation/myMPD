@@ -332,7 +332,7 @@ function parseSettings(obj) {
         const selectTimerAction = document.getElementById('selectTimerAction');
         elClear(document.getElementById('selectTimerAction'));
         selectTimerAction.appendChild(
-            elCreateNodes('optgroup', {"data-value": "player", "label": tn('Playbacl')},
+            elCreateNodes('optgroup', {"data-value": "player", "label": tn('Playback')},
                 [
                     elCreateText('option', {"value": "startplay"}, tn('Start playback')),
                     elCreateText('option', {"value": "stopplay"}, tn('Stop playback'))
@@ -711,8 +711,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
             )
         );
     }
-    console.log(advFrm);
-/*   
+   
     for (const key in defaults) {
         if (defaults[key].onChange !== undefined) {
             document.getElementById(prefix + r(key)).addEventListener('change', function(event) {
@@ -720,7 +719,6 @@ function _createSettingsFrm(fields, defaults, prefix) {
             }, false);
         }
     }
-*/
 }
 
 function setFeatures() {
@@ -1075,6 +1073,7 @@ function getTagMultiSelectValues(taglist, translated) {
 function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
     const values = [];
     const list = document.getElementById(listId);
+    elClear(list);
     for (let i = 0, j = allTags.length; i < j; i++) {
         if (enabledTags.includes(allTags[i])) {
             values.push(t(allTags[i]));
