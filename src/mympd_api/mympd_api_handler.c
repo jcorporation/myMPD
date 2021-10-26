@@ -47,9 +47,9 @@
 #include <string.h>
 
 void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request *request) {
-    unsigned int uint_buf1;
-    unsigned int uint_buf2;
-    unsigned int uint_buf3;
+    unsigned uint_buf1;
+    unsigned uint_buf2;
+    unsigned uint_buf3;
     int int_buf1;
     int int_buf2; 
     bool bool_buf1;

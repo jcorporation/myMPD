@@ -54,11 +54,11 @@ enum mpd_conn_states {
 };
 
 struct t_sticker {
-    unsigned int playCount;
-    unsigned int skipCount;
-    unsigned int lastPlayed;
-    unsigned int lastSkipped;
-    unsigned int like;
+    unsigned playCount;
+    unsigned skipCount;
+    unsigned lastPlayed;
+    unsigned lastSkipped;
+    unsigned like;
 };
 
 struct t_tags {
@@ -141,7 +141,7 @@ struct t_timer_node {
     time_handler callback;
     struct t_timer_definition *definition;
     void *user_data;
-    unsigned int timeout;
+    unsigned timeout;
     int interval;
     int timer_id;
     struct t_timer_node *next;

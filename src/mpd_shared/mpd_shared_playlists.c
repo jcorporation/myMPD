@@ -153,7 +153,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
         }
     }
     
-    unsigned int randnr = randrange(100000, 999999);
+    unsigned randnr = randrange(100000, 999999);
     sds uri_tmp = sdscatprintf(sdsempty(), "%u-tmp-%s", randnr, uri);
     sds uri_old = sdscatprintf(sdsempty(), "%u-old-%s", randnr, uri);
     

@@ -118,7 +118,7 @@ bool mympd_api_stats_last_played_add_song(struct t_mympd_state *mympd_state, con
 }
 
 sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buffer, sds method, 
-                                     long request_id, const unsigned int offset, const unsigned int limit, 
+                                     long request_id, const unsigned offset, const unsigned limit, 
                                      sds searchstr, const struct t_tags *tagcols)
 {
     unsigned entity_count = 0;

@@ -120,7 +120,7 @@ sds mympd_api_browse_read_comments(struct t_mympd_state *mympd_state, sds buffer
 }
 
 sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
-                              sds path, const unsigned int offset, const unsigned int limit, sds searchstr, const struct t_tags *tagcols)
+                              sds path, const unsigned offset, const unsigned limit, sds searchstr, const struct t_tags *tagcols)
 {
     bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, path);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_meta") == false) {
@@ -333,7 +333,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     struct mpd_song *first_song = NULL;
     int entity_count = 0;
     int entities_returned = 0;
-    unsigned int totalTime = 0;
+    unsigned totalTime = 0;
     int discs = 1;
 
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
@@ -393,7 +393,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
 }
 
 sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
-                                       sds expression, sds sort, bool sortdesc, const unsigned int offset, unsigned int limit)
+                                       sds expression, sds sort, bool sortdesc, const unsigned offset, unsigned limit)
 {
     if (mympd_state->album_cache == NULL) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "database", "error", "Albumcache not ready");
@@ -576,7 +576,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
 }
 
 sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
-                          sds searchstr, sds tag, const unsigned int offset, const unsigned int limit)
+                          sds searchstr, sds tag, const unsigned offset, const unsigned limit)
 {
     sdstolower(searchstr);
     size_t searchstr_len = sdslen(searchstr);

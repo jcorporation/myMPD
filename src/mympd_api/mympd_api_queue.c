@@ -130,7 +130,7 @@ static sds _mympd_api_get_queue_state(struct mpd_status *status, sds buffer) {
 }
 
 sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                         unsigned int offset, unsigned int limit, const struct t_tags *tagcols)
+                         unsigned offset, unsigned limit, const struct t_tags *tagcols)
 {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
     if (status == NULL) {
@@ -241,7 +241,7 @@ sds mympd_api_queue_crop(struct t_mympd_state *mympd_state, sds buffer, sds meth
 }
 
 sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                            const char *mpdtagtype, const unsigned int offset, const unsigned int limit, const char *searchstr, const struct t_tags *tagcols)
+                            const char *mpdtagtype, const unsigned offset, const unsigned limit, const char *searchstr, const struct t_tags *tagcols)
 {
     bool rc = mpd_search_queue_songs(mympd_state->mpd_state->conn, false);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_queue_songs") == false) {

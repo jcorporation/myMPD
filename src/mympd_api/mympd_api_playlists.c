@@ -90,7 +90,7 @@ void mympd_api_smartpls_update_all(void) {
 }
 
 sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                             const unsigned int offset, const unsigned int limit, sds searchstr, const unsigned int type)
+                             const unsigned offset, const unsigned limit, sds searchstr, const unsigned type)
 {
     bool rc = mpd_send_list_playlists(mympd_state->mpd_state->conn);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlists") == false) {
@@ -193,7 +193,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
 }
 
 sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                                 sds plist, const unsigned int offset, const unsigned int limit, sds searchstr, const struct t_tags *tagcols)
+                                 sds plist, const unsigned offset, const unsigned limit, sds searchstr, const struct t_tags *tagcols)
 {
     bool rc = mpd_send_list_playlist_meta(mympd_state->mpd_state->conn, plist);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlist_meta") == false) {

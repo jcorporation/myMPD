@@ -41,7 +41,7 @@ bool mpd_client_rm_jukebox_entry(struct t_mympd_state *mympd_state, unsigned pos
 }
 
 sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
-                                const unsigned int offset, const unsigned int limit, sds searchstr, const struct t_tags *tagcols)
+                                const unsigned offset, const unsigned limit, sds searchstr, const struct t_tags *tagcols)
 {
     unsigned entity_count = 0;
     unsigned entities_returned = 0;

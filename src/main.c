@@ -250,7 +250,7 @@ int main(int argc, char **argv) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)malloc_assert(sizeof(struct t_mg_user_data));
 
     //initialize random number generator
-    tinymt32_init(&tinymt, (unsigned int)time(NULL));
+    tinymt32_init(&tinymt, (unsigned)time(NULL));
     
     //mympd config defaults
     struct t_config *config = (struct t_config *)malloc_assert(sizeof(struct t_config));

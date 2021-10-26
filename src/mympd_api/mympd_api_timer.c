@@ -108,14 +108,14 @@ void mympd_api_timer_check(struct t_timer_list *l) {
     }
 }
 
-bool mympd_api_timer_replace(struct t_timer_list *l, unsigned int timeout, int interval, time_handler handler, 
+bool mympd_api_timer_replace(struct t_timer_list *l, unsigned timeout, int interval, time_handler handler, 
                    int timer_id, struct t_timer_definition *definition, void *user_data)
 {
     mympd_api_timer_remove(l, timer_id);
     return mympd_api_timer_add(l, timeout, interval, handler, timer_id, definition, user_data);
 }
 
-bool mympd_api_timer_add(struct t_timer_list *l, unsigned int timeout, int interval, time_handler handler, 
+bool mympd_api_timer_add(struct t_timer_list *l, unsigned timeout, int interval, time_handler handler, 
                int timer_id, struct t_timer_definition *definition, void *user_data) 
 {
     struct t_timer_node *new_node = (struct t_timer_node *)malloc_assert(sizeof(struct t_timer_node));

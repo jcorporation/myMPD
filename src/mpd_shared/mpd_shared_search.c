@@ -17,13 +17,13 @@
 //private definitions
 static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *expression, const char *sort, const bool sortdesc, 
-                      const char *grouptag, const char *plist, const unsigned int offset,
-                      unsigned int limit, const struct t_tags *tagcols, bool adv, const char *searchtag,
+                      const char *grouptag, const char *plist, const unsigned offset,
+                      unsigned limit, const struct t_tags *tagcols, bool adv, const char *searchtag,
                       rax *sticker_cache);
 //public functions
 sds mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *searchstr, const char *searchtag, const char *plist, 
-                      const unsigned int offset, unsigned int limit, const struct t_tags *tagcols,
+                      const unsigned offset, unsigned limit, const struct t_tags *tagcols,
                       rax *sticker_cache)
 {
     return _mpd_shared_search(mpd_state, buffer, method, request_id, 
@@ -33,8 +33,8 @@ sds mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds method, lon
 
 sds mpd_shared_search_adv(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                           const char *expression, const char *sort, const bool sortdesc, 
-                          const char *grouptag, const char *plist, const unsigned int offset,
-                          unsigned int limit, const struct t_tags *tagcols, rax *sticker_cache)
+                          const char *grouptag, const char *plist, const unsigned offset,
+                          unsigned limit, const struct t_tags *tagcols, rax *sticker_cache)
 {
     return _mpd_shared_search(mpd_state, buffer, method, request_id, 
                               expression, sort, sortdesc, grouptag, plist, offset, limit,
@@ -57,8 +57,8 @@ sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operat
 //private functions
 static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *expression, const char *sort, const bool sortdesc, 
-                      const char *grouptag, const char *plist, const unsigned int offset,
-                      unsigned int limit, const struct t_tags *tagcols, bool adv, const char *searchtag,
+                      const char *grouptag, const char *plist, const unsigned offset,
+                      unsigned limit, const struct t_tags *tagcols, bool adv, const char *searchtag,
                       rax *sticker_cache)
 {
     if (strcmp(expression, "") == 0) {
