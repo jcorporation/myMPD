@@ -1,4 +1,4 @@
-;Français
+Français
 
 MPD connection
 Connection MPD
@@ -234,12 +234,6 @@ http://uri.to/stream.mp3
 Invalid URI
 URL non valide
 
-Please choose playlist
-Choisissez une liste de lecture
-
-Create Playlist
-Nouvelle liste de lecture
-
 Invalid filename
 Nom de fichier non valide
 
@@ -468,12 +462,6 @@ Connection
 Protocol version
 Version de protocole
 
-Libmpdclient version
-Version de Libmpdclient
-
-Libmympdclient version
-Version de Libmympdclient
-
 Action
 Action
 
@@ -525,9 +513,6 @@ Détails de la chanson
 Close
 Fermer
 
-Searching...
-Recherche...
-
 Previous song
 Chanson précédente
 
@@ -548,9 +533,6 @@ Monter le volulme
 
 Open settings
 Ouvrir les paramètres
-
-Open song details
-Afficher les détails de la chanson
 
 Goto playback
 Aller à la chanson en cours
@@ -663,9 +645,6 @@ Chansons ajoutées à la queue
 Add random
 Ajout aléatoire
 
-New playlist
-Nouvelle liste de lecture
-
 never
 jamais
 
@@ -749,9 +728,6 @@ Certificat myMPD
 
 IP-Address
 Adresse IP
-
-Mongoose version
-Version Mongoose
 
 Webserver
 Serveur Web
@@ -1185,9 +1161,6 @@ Ordre de tri du script, 0 désactive le listing dans le menu principal
 Fullscreen
 Plein écran
 
-Open fullscreen
-Ouvrir en pein écran
-
 Could not save trigger
 Le déclencheur ne peut être enregistré
 
@@ -1248,20 +1221,8 @@ Editer les attributs
 Output attributes
 Attribus de sortie
 
-Plugin
-Plugin
-
 Show attributes
 Montrer les attributs
-
-State
-Etat
-
-disabled
-désactivé
-
-enabled
-activé
 
 Websocket is disconnected
 La websocket est déconnectée

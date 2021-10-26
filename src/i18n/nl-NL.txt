@@ -234,12 +234,6 @@ http://url.naar/stream.mp3
 Invalid URI
 Ongeldige url
 
-Please choose playlist
-Kies afspeellijst
-
-Create Playlist
-Maak afspeellijst
-
 Invalid filename
 Ongeldige bestandsnaam
 
@@ -468,12 +462,6 @@ Verbinding
 Protocol version
 Versie protocol
 
-Libmpdclient version
-Versie libmpdclient
-
-Libmympdclient version
-Versie libmympdclient
-
 Action
 Aktie
 
@@ -525,9 +513,6 @@ Nummerdetails
 Close
 Sluit
 
-Searching...
-Zoek...
-
 Previous song
 Vorig nummer
 
@@ -548,9 +533,6 @@ Volume plus
 
 Open settings
 Instellingen
-
-Open song details
-Nummerdetails
 
 Goto playback
 Afspelen openen
@@ -660,9 +642,6 @@ Nummer aan wachtrij toegevoegd
 Add random
 Voeg willekeurige toe
 
-New playlist
-Nieuwe afspeellijst
-
 never
 nooit
 
@@ -746,9 +725,6 @@ myMPD CA
 
 IP-Address
 IP-adres
-
-Mongoose version
-Versie Mongoose
 
 Webserver
 Webserver
@@ -1182,9 +1158,6 @@ Sorteervolgorde van het script, 0 schakelt lijst in hoofdmenu uit
 Fullscreen
 Schermvullend
 
-Open fullscreen
-Open schermvullend
-
 Could not save trigger
 Kan trigger niet saven
 
@@ -1245,20 +1218,8 @@ Pas parameters aan
 Output attributes
 Outputparameters
 
-Plugin
-Plug-in
-
 Show attributes
 Toon parameters
-
-State
-Status
-
-disabled
-uitgeschakeld
-
-enabled
-ingeschakeld
 
 Websocket is disconnected
 Websocket niet verbonden

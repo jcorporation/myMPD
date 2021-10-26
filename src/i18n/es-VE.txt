@@ -231,12 +231,6 @@ http://url.to/stream.mp3
 Invalid URI
 URL Inválida
 
-Please choose playlist
-Seleccione lista de reproducción
-
-Create Playlist
-Crear lista de reproducción
-
 Invalid filename
 Nombre de archivo inválido
 
@@ -465,12 +459,6 @@ Conexión
 Protocol version
 Versión de protocolo
 
-Libmpdclient version
-Versión Libmpdclient
-
-Libmympdclient version
-Versión Libmympdclient
-
 Action
 Acción
 
@@ -522,9 +510,6 @@ Detalles de canción
 Close
 Cerrar
 
-Searching...
-Buscando...
-
 Previous song
 Canción anterior
 
@@ -545,9 +530,6 @@ Volumen +
 
 Open settings
 Abrir configuraciones
-
-Open song details
-Abrir detalles de canción
 
 Goto playback
 Ir a lista de reproducción
@@ -660,9 +642,6 @@ Canciones agregadas a la cola de reproducción
 Add random
 Agregar aleatorio
 
-New playlist
-Nueva lista de reproducción
-
 never
 nunca
 
@@ -743,9 +722,6 @@ myMPD CA
 
 IP-Address
 Dirección IP
-
-Mongoose version
-Versión Mongoose
 
 Webserver
 Servidor Web

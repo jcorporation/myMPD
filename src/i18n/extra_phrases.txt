@@ -104,7 +104,7 @@ Image
 Authentication required
 Priority
 Add after current playing song
-Add and play playlist
+Replace queue with playlist
 Delete home icon
 Delete playlist
 Duplicate home icon

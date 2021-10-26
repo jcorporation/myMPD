@@ -231,12 +231,6 @@ http://url.to/stream.mp3
 Invalid URI
 Epäkelpo URI
 
-Please choose playlist
-Valitse soittolista
-
-Create Playlist
-Luo soittolista
-
 Invalid filename
 Väärä tiedostonimi
 
@@ -465,12 +459,6 @@ Yhteys
 Protocol version
 Protokolla Versio
 
-Libmpdclient version
-Libmpdclient Versio
-
-Libmympdclient version
-Libmympdclient Versio
-
 Action
 Toiminto
 
@@ -522,9 +510,6 @@ Kappaleen tiedot
 Close
 Sulje
 
-Searching...
-Etsitään...
-
 Previous song
 Edellinen kappale
 
@@ -545,9 +530,6 @@ Isommalle
 
 Open settings
 Avaa asetukset
-
-Open song details
-Avaa kappaleen tiedot
 
 Goto playback
 Siirry toistoon
@@ -660,9 +642,6 @@ Kappaleet lisätty jonoon
 Add random
 Lisää satunnainen
 
-New playlist
-Uusi soittolista
-
 never
 Ei koskaan
 
@@ -746,9 +725,6 @@ myMPD Sertifikaatti
 
 IP-Address
 IP-osoite
-
-Mongoose version
-Mongoose Versio
 
 Webserver
 Webserver

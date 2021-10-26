@@ -234,12 +234,6 @@ http://uri.to/stream.mp3
 Invalid URI
 URI non valido
 
-Please choose playlist
-Scegliere una lista di riproduzione
-
-Create Playlist
-Crea lista di riproduzione
-
 Invalid filename
 Nome file non valido
 
@@ -468,12 +462,6 @@ Connessione
 Protocol version
 Versione del protocollo
 
-Libmpdclient version
-Versione di Libmpdclient
-
-Libmympdclient version
-Versione di Libmympdclient
-
 Action
 Azione
 
@@ -525,9 +513,6 @@ Dettagli brano
 Close
 Chiudi
 
-Searching...
-Ricerca...
-
 Previous song
 Brano precedente
 
@@ -548,9 +533,6 @@ Alza volume
 
 Open settings
 Apri parametri
-
-Open song details
-Apri dettagli brano
 
 Goto playback
 Vai alla riproduzione corrente
@@ -663,9 +645,6 @@ Canzoni aggiunte alla coda
 Add random
 Aggiunta casuale
 
-New playlist
-Nuova lista di riproduzione
-
 never
 mai
 
@@ -749,9 +728,6 @@ CA myMPD
 
 IP-Address
 Indirizzo IP
-
-Mongoose version
-Versione Mongoose
 
 Webserver
 Server Web
@@ -1185,9 +1161,6 @@ Ordinamento degli script, 0 disabilita l'elenco nel menù pricipale
 Fullscreen
 Schermo intero
 
-Open fullscreen
-Apri a schermo intero
-
 Could not save trigger
 Impossibile salvare il trigger
 
@@ -1248,26 +1221,11 @@ Modifica gli attributi
 Output attributes
 Attributi dell'uscita
 
-Plugin
-Plugin
-
 Show attributes
 Mostra attributi
 
-State
-Stato
-
-disabled
-disabilitato
-
-enabled
-abilitato
-
 Websocket is disconnected
 Websocket disconnesso
-
-Add and play playlist
-Aggiungi e riproduci la lista si riproduzione
 
 Add to homescreen
 Aggiungi alla pagina di home

@@ -261,12 +261,6 @@ Stream URI
 http://uri.to/stream.mp3
 http://주소/stream.mp3
 
-Please choose playlist
-연주목록을 선택합니다
-
-Create Playlist
-연주목록 만들기
-
 Invalid filename
 잘못된 파일 이름
 
@@ -510,12 +504,6 @@ Connection
 Protocol version
 프로토콜 버전
 
-Libmpdclient version
-Libmpdclient 버전
-
-Libmympdclient version
-Libmympdclient 버전
-
 Action
 기능
 
@@ -567,9 +555,6 @@ Song details
 Close
 닫기
 
-Searching...
-찾는 중...
-
 Previous song
 이전 곡
 
@@ -590,9 +575,6 @@ Volume up
 
 Open settings
 설정 열기
-
-Open song details
-곡 정보 열기
 
 Goto home
 홈으로 가기
@@ -705,9 +687,6 @@ Added songs to queue
 Add random
 무작위 추가
 
-New playlist
-새 연주목록
-
 never
 안 함
 
@@ -791,9 +770,6 @@ myMPD 인증서
 
 IP-Address
 IP 주소
-
-Mongoose version
-Mongoose 버전
 
 Webserver
 웹서버
@@ -1239,9 +1215,6 @@ Sort order of the script, 0 disables listing in main menu
 Fullscreen
 전체 화면
 
-Open fullscreen
-전체 화면 열기
-
 Could not save trigger
 트리거를 저장할 수 없음
 
@@ -1302,20 +1275,8 @@ Edit attributes
 Output attributes
 출력 속성
 
-Plugin
-플러그인
-
 Show attributes
 속성 보기
-
-State
-상태
-
-disabled
-사용 안 함
-
-enabled
-사용함
 
 Websocket is disconnected
 웹소켓 연결 안 됨
@@ -1379,9 +1340,6 @@ Can not open directory pics
 
 Use ligature
 연결 사용
-
-Add and play playlist
-연주목록에 추가하고 연주하기
 
 Goto view
 보기로 가기

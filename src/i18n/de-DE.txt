@@ -261,12 +261,6 @@ Stream URL
 http://uri.to/stream.mp3
 http://url.zum/stream.mp3
 
-Please choose playlist
-Bitte Wiedergabeliste auswählen
-
-Create Playlist
-Neue Wiedergabeliste erstellen
-
 Invalid filename
 Ungültiger Dateiname
 
@@ -510,12 +504,6 @@ Verbindung
 Protocol version
 Protokoll Version
 
-Libmpdclient version
-Libmpdclient Version
-
-Libmympdclient version
-Libmympdclient Version
-
 Action
 Aktion
 
@@ -567,9 +555,6 @@ Lieddetails
 Close
 Schließen
 
-Searching...
-Suche...
-
 Previous song
 Voriges Lied
 
@@ -590,9 +575,6 @@ Lauter
 
 Open settings
 Einstellungen
-
-Open song details
-Lieddetails
 
 Goto home
 Gehe zur Startseite
@@ -705,9 +687,6 @@ Lieder zur Warteschlange hinzugefügt
 Add random
 Zufällig hinzufügen
 
-New playlist
-Neue Wiedergabeliste
-
 never
 noch nie
 
@@ -791,9 +770,6 @@ myMPD Stammzertifikat
 
 IP-Address
 IP-Adresse
-
-Mongoose version
-Mongoose Version
 
 Webserver
 Webserver
@@ -1239,9 +1215,6 @@ Sortierreihenfolge der Skripts, 0 deaktiviert die Anzeige im Hauptmenü
 Fullscreen
 Vollbild
 
-Open fullscreen
-Öffnet den Vollbildmodus
-
 Could not save trigger
 Konnte Trigger nicht speichern
 
@@ -1302,20 +1275,8 @@ Eigenschaften editieren
 Output attributes
 Ausgabeeigenschaften
 
-Plugin
-Plugin
-
 Show attributes
 Eigenschaften anzeigen
-
-State
-Status
-
-disabled
-deaktiviert
-
-enabled
-aktiviert
 
 Websocket is disconnected
 Websocket ist nicht verbunden
@@ -1380,8 +1341,8 @@ Konnte Verzeichnis pics nicht öffnen
 Use ligature
 Ligatur benutzen
 
-Add and play playlist
-Spiele Wiedergabeliste ab
+Replace queue with playlist
+Warteschlange mit Wiedergabeliste ersetzen
 
 Goto view
 Gehe zur Ansicht
@@ -1887,3 +1848,18 @@ Audioformat
 
 Not playing
 gestoppt
+
+Choose a playlist or enter a new playlist name
+Wiedergabeliste wählen oder neuen Namen eingeben
+
+Dialogs
+Dialoge
+
+Navigation
+Naviagtion
+
+Open queue settings
+Öffne Wiedergabeeinstellungen
+
+Select a playlist
+Wiedergabeliste auswählen
