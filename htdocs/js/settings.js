@@ -469,6 +469,7 @@ function populateQueueSettingsFrm() {
     if (settings.mpdConnected === true) {
         if (features.featPlaylists === true) {
             filterPlaylistsSelect(0, 'selectJukeboxPlaylist', '', settings.jukeboxPlaylist);
+            setCustomDomPropertyId('selectJukeboxPlaylist', 'data-value', settings.jukeboxPlaylist);
         }
         else {
             document.getElementById('selectJukeboxPlaylist').value = tn('Database');
