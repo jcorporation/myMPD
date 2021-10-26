@@ -249,8 +249,8 @@ function getLyrics(uri, el) {
             el.textContent = tn('No lyrics found');
         }
         else {
-            let lyricsHeader = '<span class="lyricsHeader" class="btn-group-toggle" data-toggle="buttons">';
-            let lyrics = '<div class="lyricsTextContainer">';
+            const lyricsHeader = elCreateEmpty('span', {"class": [ "lyricsHeader", "btn-group-toggle"], "data-toggle": "buttons"});
+            const lyrics = elCreateEmpty('div', {"class": "lyricsTextContainer"});
             const clickable = el.parentNode.getAttribute('id') === 'currentLyrics' ? true : false;
             showSyncedLyrics = false;
             for (let i = 0; i < obj.result.returnedEntities; i++) {
@@ -264,22 +264,43 @@ function getLyrics(uri, el) {
                 else {
                     ht = i;
                 }
-                lyricsHeader += '<label data-num="' + i + '" class="btn btn-sm btn-outline-secondary mr-2 lyricsChangeButton' + (i === 0 ? ' active' : '') + '" title="' + 
-                    (obj.result.data[i].synced === true ? t('Synced lyrics') : t('Unsynced lyrics')) + ': ' + e(ht) + '">' + e(ht) + '</label>';
-                lyrics += '<div class="lyricsText ' + (i > 0 ? 'd-none' : '') + (obj.result.data[i].synced === true ? 'lyricsSyncedText' : '') + 
-                    (clickable === true ? '' : ' fullHeight') + '">' +
-                    (obj.result.data[i].synced === true ? parseSyncedLyrics(obj.result.data[i].text, clickable) : e(obj.result.data[i].text).replace(/\n/g, "<br/>")) + 
-                    '</div>';
+                lyricsHeader.appendChild(elCreateText('label', {"data-num": i, "class": ["btn", "btn-sm", "btn-outline-secondary", "me-2", "lyricsChangeButton"],
+                    "title": (obj.result.data[i].synced === true ? tn('Synced lyrics') : tn('Unsynced lyrics')) + ': ' + ht}, ht));
+                if (i === 0) {
+                    lyricsHeader.lastChild.classList.add('active');
+                }
+               
+                const div = elCreateEmpty('div', {"class": "lyricsText"});
+                if (i > 0) {
+                    div.classList.add('d-none');
+                }
+                if (obj.result.data[i].synced === true) {
+                    div.classList.add('lyricsSyncedText');
+                }
+                if (clickable === false) {
+                    div.classList.add('fullHeight');
+                }
+                if (obj.result.data[i].synced === true) {
+                    parseSyncedLyrics(div, obj.result.data[i].text, clickable);
+                }
+                else {
+                    parseUnsyncedLyrics(div, obj.result.data[i].text);
+                }
+                lyrics.appendChild(div);
+
                 if (obj.result.data[i].synced === true) {
                     showSyncedLyrics = true;
                 }
             }
-            lyricsHeader += '</span>';
-            lyrics += '</div>';
-            const lyricsScroll = showSyncedLyrics === false || clickable === false ? '' :
-                '<button class="btn btn-sm mi mr-2 active" id="lyricsScroll">autorenew</button>';
+            const lyricsScroll = showSyncedLyrics === false || clickable === false ? null :
+                elCreateText('button', {"class": ["btn", "btn-sm", "mi", "mr-2", "active"], "id": "lyricsScroll"}, 'autorenew');
             if (obj.result.returnedEntities > 1) {
-                el.innerHTML = lyricsScroll + lyricsHeader + lyrics;
+                elClear(el);
+                if (lyricsScroll !== null) {
+                    el.appendChild(lyricsScroll);
+                }
+                el.appendChild(lyricsHeader);
+                el.appendChild(lyrics);
                 el.getElementsByClassName('lyricsHeader')[0].addEventListener('click', function(event) {
                     if (event.target.nodeName === 'LABEL') {
                         event.target.parentNode.getElementsByClassName('active')[0].classList.remove('active');
@@ -298,7 +319,11 @@ function getLyrics(uri, el) {
                 }, false);
             }
             else {
-                el.innerHTML = lyricsScroll + lyrics;
+                elClear(el);
+                if (lyricsScroll !== null) {
+                    el.appendChild(lyricsScroll);
+                }
+                el.appendChild(lyrics);
             }
             if (showSyncedLyrics === true && clickable === true) {
                 document.getElementById('lyricsScroll').addEventListener('click', function(event) {
@@ -324,32 +349,30 @@ function getLyrics(uri, el) {
     }, true);
 }
 
-function parseSyncedLyrics(text, clickable) {
-    let html = '';
-    const lines = text.replace(/\r/g, '').split('\n');
-    for (let i = 0, j = lines.length; i < j; i++) {
+function parseUnsyncedLyrics(parent, text) {
+    for (const line of text.replace('\r').split('\n')) {
+        parent.appendChild(document.createTextNode(line));
+        parent.appendChild(elCreateEmpty('br', {}));
+    }
+}
+
+function parseSyncedLyrics(parent, text, clickable) {
+    for (const line of text.replace('\r').split('\n')) {
         //line must start with timestamp
-        const line = lines[i].match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
-        if (line) {
-            const sec = Number(line[1]) * 60 + Number(line[2]);
+        const elements = line.match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
+        if (elements) {
+            const sec = Number(elements[1]) * 60 + Number(elements[2]);
             //line[3] are hundreths of a seconde - ignore it for the moment
-            html += '<p><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + sec + '">';
-            if (line[4].match(/^\s+$/)) {
-                html += '&nbsp;';
+            //remove extended lrc format - timestamps for word
+            const text = elements[4].replace(/(.+)<(\d+):(\d+)\.\d+>/, '').replace(/^\s+$/, ' ');
+            const span = elCreateText('span', {"data-sec": sec}, text);
+            if (clickable === true) {
+                span.classList.add('clickable');
             }
-            else {
-                //support of extended lrc format - timestamps for words
-                html += line[4].replace(/<(\d+):(\d+)\.\d+>/g, function(m0, m1, m2) {
-                    //hundreths of a secondes are ignored
-                    const wsec = Number(m1) * 60 + Number(m2);
-                    return '</span><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + wsec + '">';
-                });
-            }
-            html += '</span></p>';
+            const p = elCreateNode('p', {}, span);
+            parent.appendChild(p);
         }
     }
-    html += '';
-    return html;
 }
 
 //used in songdetails modal
