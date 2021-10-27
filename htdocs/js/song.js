@@ -77,7 +77,7 @@ function songDetailsRow(thContent, tdContent) {
         td.appendChild(tdContent);
     }
     else {
-        td.innerText = tdContent;
+        td.textContent = tdContent;
     }
     tr.appendChild(td);
     return tr;
@@ -361,15 +361,30 @@ function parseSyncedLyrics(parent, text, clickable) {
         //line must start with timestamp
         const elements = line.match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
         if (elements) {
-            const sec = Number(elements[1]) * 60 + Number(elements[2]);
-            //line[3] are hundreths of a seconde - ignore it for the moment
-            //remove extended lrc format - timestamps for word
-            const text = elements[4].replace(/(.+)<(\d+):(\d+)\.\d+>/, '').replace(/^\s+$/, ' ');
-            const span = elCreateText('span', {"data-sec": sec}, text);
-            if (clickable === true) {
-                span.classList.add('clickable');
+            //elements[3] are hundreths of a seconde - ignore it for the moment
+            let ts = [Number(elements[1]) * 60 + Number(elements[2])];
+            let text = [];
+            //support of timestamps per word
+            const regex = /(.+)(<(\d+):(\d+)\.\d+>)?/g;
+            let match;
+            while ((match = regex.exec(elements[4])) !== null) {
+                text.push(match[1]);
+                if (regex[2] !== undefined) {
+                    ts.push(Number(match[3]) * 60 + Number(match[4]));
+                }
             }
-            const p = elCreateNode('p', {}, span);
+            if (text.length === 0) {
+                //handle empty lines
+                text.push(' ');
+            }
+            const p = elCreateEmpty('p', {});
+            for (let i = 0, j = ts.length; i < j; i++) {
+                const span = elCreateText('span', {"data-sec": ts[i]}, text[i]);
+                if (clickable === true) {
+                    span.classList.add('clickable');
+                }
+                p.appendChild(span);
+            }
             parent.appendChild(p);
         }
     }
