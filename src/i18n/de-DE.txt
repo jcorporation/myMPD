@@ -1866,3 +1866,6 @@ Wiedergabeliste auswählen
 
 Toggle autoscrolling
 Autoscrolling
+
+Resize
+Größe ändern
