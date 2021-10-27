@@ -1863,3 +1863,6 @@ Open queue settings
 
 Select a playlist
 Wiedergabeliste auswählen
+
+Toggle autoscrolling
+Autoscrolling
