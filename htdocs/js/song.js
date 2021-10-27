@@ -249,8 +249,8 @@ function getLyrics(uri, el) {
             el.textContent = tn('No lyrics found');
         }
         else {
-            const lyricsHeader = elCreateEmpty('span', {"class": [ "lyricsHeader", "btn-group-toggle"], "data-toggle": "buttons"});
-            const lyrics = elCreateEmpty('div', {"class": "lyricsTextContainer"});
+            const lyricsTabs = elCreateEmpty('div', {"class": [ "lyricsTabs"]});
+            const lyrics = elCreateEmpty('div', {"class": ["lyricsTextContainer", "mt-3"]});
             const clickable = el.parentNode.getAttribute('id') === 'currentLyrics' ? true : false;
             showSyncedLyrics = false;
             for (let i = 0; i < obj.result.returnedEntities; i++) {
@@ -264,13 +264,13 @@ function getLyrics(uri, el) {
                 else {
                     ht = i;
                 }
-                lyricsHeader.appendChild(elCreateText('label', {"data-num": i, "class": ["btn", "btn-sm", "btn-outline-secondary", "me-2", "lyricsChangeButton"],
+                lyricsTabs.appendChild(elCreateText('button', {"data-num": i, "class": ["btn", "btn-sm", "btn-outline-secondary", "me-2", "lyricsChangeButton"],
                     "title": (obj.result.data[i].synced === true ? tn('Synced lyrics') : tn('Unsynced lyrics')) + ': ' + ht}, ht));
                 if (i === 0) {
-                    lyricsHeader.lastChild.classList.add('active');
+                    lyricsTabs.lastChild.classList.add('active');
                 }
                
-                const div = elCreateEmpty('div', {"class": "lyricsText"});
+                const div = elCreateEmpty('div', {"class": ["lyricsText"]});
                 if (i > 0) {
                     div.classList.add('d-none');
                 }
@@ -293,16 +293,20 @@ function getLyrics(uri, el) {
                 }
             }
             const lyricsScroll = showSyncedLyrics === false || clickable === false ? null :
-                elCreateText('button', {"class": ["btn", "btn-sm", "mi", "mr-2", "active"], "id": "lyricsScroll"}, 'autorenew');
+                elCreateNode('button', {"class": ["btn", "btn-sm", "me-2", "active"], "id": "lyricsScroll"}, 
+                    elCreateText('span', {"class": ["mi", "mi-small"]}, 'autorenew')
+                );
+            const lyricsHeader = elCreateEmpty('div', {"class": ["lyricsHeader", "btn-toolbar", "mt-2"]});
+            elClear(el);
             if (obj.result.returnedEntities > 1) {
-                elClear(el);
                 if (lyricsScroll !== null) {
-                    el.appendChild(lyricsScroll);
+                    lyricsHeader.appendChild(lyricsScroll);
                 }
+                lyricsHeader.appendChild(lyricsTabs);
                 el.appendChild(lyricsHeader);
                 el.appendChild(lyrics);
-                el.getElementsByClassName('lyricsHeader')[0].addEventListener('click', function(event) {
-                    if (event.target.nodeName === 'LABEL') {
+                el.getElementsByClassName('lyricsTabs')[0].addEventListener('click', function(event) {
+                    if (event.target.nodeName === 'BUTTON') {
                         event.target.parentNode.getElementsByClassName('active')[0].classList.remove('active');
                         event.target.classList.add('active');
                         const nr = Number(event.target.getAttribute('data-num'));
@@ -319,16 +323,17 @@ function getLyrics(uri, el) {
                 }, false);
             }
             else {
-                elClear(el);
                 if (lyricsScroll !== null) {
-                    el.appendChild(lyricsScroll);
+                    lyricsHeader.appendChild(lyricsScroll);
                 }
+                el.appendChild(lyricsHeader);
                 el.appendChild(lyrics);
             }
-            if (showSyncedLyrics === true && clickable === true) {
+            if (showSyncedLyrics === true && clickable === true && lyricsScroll !== null) {
                 document.getElementById('lyricsScroll').addEventListener('click', function(event) {
-                    toggleBtn(event.target);
-                    scrollSyncedLyrics = event.target.classList.contains('active');
+                    const target = event.target.nodeName === 'SPAN' ? event.target.parentNode : event.target;
+                    toggleBtn(target);
+                    scrollSyncedLyrics = target.classList.contains('active');
                 }, false);
                 const textEls = el.getElementsByClassName('lyricsSyncedText');
                 for (let i = 0, j = textEls.length; i < j; i++) {
