@@ -31,7 +31,7 @@
                       "X-Frame-Options: deny\r\n"
 
 //waits for bootstrap native
-//"require-trusted-types-for 'script'\r\n"\
+//"require-trusted-types-for 'script'\r\n"
 
 #define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800\r\n"
 
