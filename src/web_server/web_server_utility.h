@@ -17,7 +17,7 @@
 #define EXTRA_HEADERS_DIR "Content-Security-Policy: default-src 'none'; "\
                           "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; "\
                           "connect-src 'self' ws: wss:; manifest-src 'self'; "\
-                          "media-src *; frame-ancestors *; base-uri 'none';\r\n"\
+                          "media-src 'self'; frame-ancestors *; base-uri 'none';\r\n"\
                           "X-Content-Type-Options: nosniff\r\n"\
                           "X-XSS-Protection: 1; mode=block\r\n"\
                           "X-Frame-Options: deny\r\n"
@@ -25,10 +25,13 @@
 #define EXTRA_HEADERS "Content-Security-Policy: default-src 'none'; "\
                       "style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; "\
                       "connect-src 'self' ws: wss:; manifest-src 'self'; "\
-                      "media-src *; frame-ancestors *; base-uri 'none';\r\n"\
+                      "media-src 'self'; frame-ancestors *; base-uri 'none';\r\n"\
                       "X-Content-Type-Options: nosniff\r\n"\
                       "X-XSS-Protection: 1; mode=block\r\n"\
                       "X-Frame-Options: deny\r\n"
+
+//waits for bootstrap native
+//"require-trusted-types-for 'script'\r\n"\
 
 #define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800\r\n"
 
