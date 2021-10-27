@@ -151,9 +151,15 @@ function appRoute() {
     appPrepare(app.current.scrollPos);
 
     if (app.current.app === 'Home') {
+        const list = document.getElementById('HomeList');
+        list.classList.remove('opacity05');
+        setScrollViewHeight(list);
         sendAPI("MYMPD_API_HOME_LIST", {}, parseHome);
     }
     else if (app.current.app === 'Playback') {
+        const list = document.getElementById('PlaybackList');
+        list.classList.remove('opacity05');
+        setScrollViewHeight(list);
         sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, songChange);
     }    
     else if (app.current.app === 'Queue' && app.current.tab === 'Current' ) {

@@ -5,7 +5,7 @@
 
 function initHome() {
     //home screen
-    document.getElementById('HomeCards').addEventListener('click', function(event) {
+    document.getElementById('HomeList').addEventListener('click', function(event) {
         if (event.target.classList.contains('card-body')) {
             const href = getCustomDomProperty(event.target.parentNode, 'data-href');
             if (href !== undefined) {
@@ -17,15 +17,15 @@ function initHome() {
         }
     }, false);
     
-    document.getElementById('HomeCards').addEventListener('contextmenu', function(event) {
-        if (event.target.id === 'HomeCards') {
+    document.getElementById('HomeList').addEventListener('contextmenu', function(event) {
+        if (event.target.id === 'HomeList') {
             return;
         }
         popoverMenuHome(event);
     }, false);
 
-    document.getElementById('HomeCards').addEventListener('long-press', function(event) {
-        if (event.target.id === 'HomeCards') {
+    document.getElementById('HomeList').addEventListener('long-press', function(event) {
+        if (event.target.id === 'HomeList') {
             return;
         }
         popoverMenuHome(event);
@@ -172,7 +172,7 @@ function filterHomeIconLigatures() {
 }
 
 function parseHome(obj) {
-    const cardContainer = document.getElementById('HomeCards');
+    const cardContainer = document.getElementById('HomeList');
     const cols = cardContainer.getElementsByClassName('col');
     if (obj.error !== undefined) {
         elClear(cardContainer);
@@ -249,10 +249,6 @@ function parseHome(obj) {
 }
 
 function popoverMenuHome(event) {
-    const sels = document.getElementById('HomeCards').getElementsByClassName('selected');
-    for (let i = 0, j = sels.length; i < j; i++) {
-        sels[i].classList.remove('selected');
-    }
     event.target.parentNode.classList.add('selected');
     showPopover(event);
     event.preventDefault();
@@ -260,9 +256,9 @@ function popoverMenuHome(event) {
 }
 
 function dragAndDropHome() {
-    const homeCards = document.getElementById('HomeCards');
+    const HomeList = document.getElementById('HomeList');
 
-    homeCards.addEventListener('dragstart', function(event) {
+    HomeList.addEventListener('dragstart', function(event) {
         if (event.target.classList.contains('home-icons')) {
             event.target.classList.add('opacity05');
             event.dataTransfer.setDragImage(event.target, 0, 0);
@@ -272,7 +268,7 @@ function dragAndDropHome() {
         }
     }, false);
 
-    homeCards.addEventListener('dragleave', function(event) {
+    HomeList.addEventListener('dragleave', function(event) {
         event.preventDefault();
         if (dragEl.classList.contains('home-icons') === false) {
             return;
@@ -282,12 +278,12 @@ function dragAndDropHome() {
         }
     }, false);
 
-    homeCards.addEventListener('dragover', function(event) {
+    HomeList.addEventListener('dragover', function(event) {
         event.preventDefault();
         if (dragEl.classList.contains('home-icons') === false) {
             return;
         }
-        const ths = homeCards.getElementsByClassName('dragover-icon');
+        const ths = HomeList.getElementsByClassName('dragover-icon');
         for (const th of ths) {
             th.classList.remove('dragover-icon');
         }
@@ -300,19 +296,19 @@ function dragAndDropHome() {
         event.dataTransfer.dropEffect = 'move';
     }, false);
 
-    homeCards.addEventListener('dragend', function(event) {
+    HomeList.addEventListener('dragend', function(event) {
         event.preventDefault();
         if (dragEl.classList.contains('home-icons') === false) {
             return;
         }
-        const ths = homeCards.getElementsByClassName('dragover-icon');
+        const ths = HomeList.getElementsByClassName('dragover-icon');
         for (const th of ths) {
             th.classList.remove('dragover-icon');
         }
         dragSrc.classList.remove('opacity05');
     }, false);
 
-    homeCards.addEventListener('drop', function(event) {
+    HomeList.addEventListener('drop', function(event) {
         event.preventDefault();
         event.stopPropagation();
         if (dragEl.classList.contains('home-icons') === false) {
@@ -334,7 +330,7 @@ function dragAndDropHome() {
                 }
             }
         }
-        const ths = homeCards.getElementsByClassName('dragover-icon');
+        const ths = HomeList.getElementsByClassName('dragover-icon');
         for (const th of ths) {
             th.classList.remove('dragover-icon');
         }
@@ -343,7 +339,7 @@ function dragAndDropHome() {
 
 //eslint-disable-next-line no-unused-vars
 function executeHomeIcon(pos) {
-    const el = document.getElementById('HomeCards').children[pos].firstChild;
+    const el = document.getElementById('HomeList').children[pos].firstChild;
     parseCmd(null, getCustomDomProperty(el, 'data-href'));
 }
 

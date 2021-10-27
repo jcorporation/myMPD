@@ -292,16 +292,17 @@ function getLyrics(uri, el) {
                     showSyncedLyrics = true;
                 }
             }
-            const lyricsScroll = showSyncedLyrics === false || clickable === false ? null :
-                elCreateNode('button', {"class": ["btn", "btn-sm", "me-2", "active"], "id": "lyricsScroll"}, 
-                    elCreateText('span', {"class": ["mi", "mi-small"]}, 'autorenew')
-                );
+            const lyricsScroll = elCreateNode('button', {"title": tn('Toggle autoscrolling'), "class": ["btn", "btn-sm", "me-2", "active", "d-none"], "id": "lyricsScroll"}, 
+                elCreateText('span', {"class": ["mi", "mi-small"]}, 'autorenew')
+            );
+            const lyricsResize = elCreateNode('button', {"title": tn('Resize'), "class": ["btn", "btn-sm", "me-2", "active", "d-none"], "id": "lyricsResize"}, 
+                elCreateText('span', {"class": ["mi", "mi-small"]}, 'aspect_ratio')
+            );
             const lyricsHeader = elCreateEmpty('div', {"class": ["lyricsHeader", "btn-toolbar", "mt-2"]});
+            lyricsHeader.appendChild(lyricsScroll);
+            lyricsHeader.appendChild(lyricsResize);
             elClear(el);
             if (obj.result.returnedEntities > 1) {
-                if (lyricsScroll !== null) {
-                    lyricsHeader.appendChild(lyricsScroll);
-                }
                 lyricsHeader.appendChild(lyricsTabs);
                 el.appendChild(lyricsHeader);
                 el.appendChild(lyrics);
@@ -323,14 +324,13 @@ function getLyrics(uri, el) {
                 }, false);
             }
             else {
-                if (lyricsScroll !== null) {
-                    lyricsHeader.appendChild(lyricsScroll);
-                }
                 el.appendChild(lyricsHeader);
                 el.appendChild(lyrics);
             }
-            if (showSyncedLyrics === true && clickable === true && lyricsScroll !== null) {
-                document.getElementById('lyricsScroll').addEventListener('click', function(event) {
+            const ls = document.getElementById('lyricsScroll');
+            if (ls !== null && showSyncedLyrics === true && clickable === true) {
+                elShow(ls);
+                ls.addEventListener('click', function(event) {
                     const target = event.target.nodeName === 'SPAN' ? event.target.parentNode : event.target;
                     toggleBtn(target);
                     scrollSyncedLyrics = target.classList.contains('active');
@@ -349,6 +349,19 @@ function getLyrics(uri, el) {
                     }, false); 
                 }
             }
+            const lr = document.getElementById('lyricsResize');
+            if (lr !== null) {
+                elShow(lr);
+                lr.addEventListener('click', function(event) {
+                    const target = event.target.nodeName === 'SPAN' ? event.target.parentNode : event.target;
+                    toggleBtn(target);
+                    const mh = target.classList.contains('active') ? '16rem' : 'unset';
+                    const lt = document.getElementsByClassName('lyricsText');
+                    for (const l of lt) {
+                        l.style.maxHeight = mh;
+                    }
+                }, false);
+            }
         }
         el.classList.remove('opacity05');
     }, true);
@@ -361,14 +374,14 @@ function parseUnsyncedLyrics(parent, text) {
     }
 }
 
-function parseSyncedLyrics(parent, text, clickable) {
-    for (const line of text.replace('\r').split('\n')) {
+function parseSyncedLyrics(parent, lyrics, clickable) {
+    for (const line of lyrics.replace('\r').split('\n')) {
         //line must start with timestamp
         const elements = line.match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
         if (elements) {
             //elements[3] are hundreths of a seconde - ignore it for the moment
-            let ts = [Number(elements[1]) * 60 + Number(elements[2])];
-            let text = [];
+            const ts = [Number(elements[1]) * 60 + Number(elements[2])];
+            const text = [];
             //support of timestamps per word
             const regex = /(.+)(<(\d+):(\d+)\.\d+>)?/g;
             let match;

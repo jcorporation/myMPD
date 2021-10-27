@@ -116,8 +116,8 @@
   <main>
     <div class="card" id="cardHome">
       <div class="card-body">
-        <div class="container-fluid HomeContainer">
-          <div id="HomeCards" class="row noInitChilds">
+        <div class="container-fluid HomeContainer scrollContainer">
+          <div id="HomeList" class="row noInitChilds">
           </div>
         </div>      
       </div>
@@ -142,13 +142,17 @@
             </div>
           </div>
         </div>
-        <div class="coverPanel">
-          <div class="album-cover album-cover-loading clickable carousel" id="currentCover" data-href='{"cmd": "zoomPicture", "options": []}'></div>
-        </div>
-        <div class="album-desc text-break">
-          <h2 id="currentTitle" class="notclickable"  data-href='{"cmd": "clickTitle", "options": []}'></h2>
-          <div class="featTags" id="cardPlaybackTags"></div>
-          <div id="currentBooklet"></div>
+        <div class="scrollContainer">
+          <div id="PlaybackList">
+            <div class="coverPanel">
+              <div class="album-cover album-cover-loading clickable carousel" id="currentCover" data-href='{"cmd": "zoomPicture", "options": []}'></div>
+            </div>
+            <div class="album-desc text-break">
+              <h2 id="currentTitle" class="notclickable"  data-href='{"cmd": "clickTitle", "options": []}'></h2>
+              <div class="featTags" id="cardPlaybackTags"></div>
+              <div id="currentBooklet"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

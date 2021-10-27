@@ -901,6 +901,10 @@ div.HomeContainer .col {
   margin-right: 0.5rem;
 }
 
+div#HomeList {
+  margin-right: 0;
+}
+
 div#modalPictureImg {
   background-position: center center;
   background-size: cover;

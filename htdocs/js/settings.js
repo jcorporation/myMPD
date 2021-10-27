@@ -829,7 +829,7 @@ function parseMPDSettings() {
         for (let i = 0, j = settings.colsPlayback.length; i < j; i++) {
             const div = elCreateNodes('div', {"id": "current" + settings.colsPlayback[i]},
                 [
-                    elCreateText('small', {}, settings.colsPlayback[i]),
+                    elCreateText('small', {}, tn(settings.colsPlayback[i])),
                     elCreateEmpty('p', {})
                 ]
             );
@@ -1058,7 +1058,7 @@ function getTagMultiSelectValues(taglist, translated) {
     for (let i = 0, j = chkBoxes.length; i < j; i++) {
         if (chkBoxes[i].classList.contains('active')) {
             if (translated === true) {
-                values.push(t(chkBoxes[i].name));
+                values.push(tn(chkBoxes[i].name));
             }
             else {
                 values.push(chkBoxes[i].name);
@@ -1077,7 +1077,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
     elClear(list);
     for (let i = 0, j = allTags.length; i < j; i++) {
         if (enabledTags.includes(allTags[i])) {
-            values.push(t(allTags[i]));
+            values.push(tn(allTags[i]));
         }
         const btn = elCreateEmpty('button', {"class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-small", "me-2"], "name": allTags[i]});
         if (enabledTags.includes(allTags[i])) {

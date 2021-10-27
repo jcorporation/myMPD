@@ -213,7 +213,7 @@ function toggleUI() {
     }
     else {
         toggleAlert('alertMpdState', true, tn('MPD disconnected'));
-        logMessage(t('MPD disconnected'), '', 'mpd', 'error');
+        logMessage(tn('MPD disconnected'), '', 'mpd', 'error');
     }
 
     if (websocketConnected === true) {
@@ -221,7 +221,7 @@ function toggleUI() {
     }
     else if (appInited === true) {
         toggleAlert('alertMympdState', true, tn('Websocket is disconnected'));
-        logMessage(t('Websocket is disconnected'), '', 'general', 'error');
+        logMessage(tn('Websocket is disconnected'), '', 'general', 'error');
     }
 
     toggleTopAlert();
