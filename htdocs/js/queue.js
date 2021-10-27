@@ -187,7 +187,7 @@ function parseQueue(obj) {
         row.setAttribute('draggable', 'true');
         row.setAttribute('id','queueTrackId' + data.id);
         row.setAttribute('tabindex', 0);
-        row.setAttribute('title', t(rowTitle));
+        row.setAttribute('title', tn(rowTitle));
         setCustomDomProperty(row, 'data-trackid', data.id);
         setCustomDomProperty(row, 'data-songpos', data.Pos);
         setCustomDomProperty(row, 'data-duration', data.Duration);
@@ -285,7 +285,7 @@ function parseLastPlayed(obj) {
         setCustomDomProperty(row, 'data-name', data.Title);
         setCustomDomProperty(row, 'data-type', 'song');
         row.setAttribute('tabindex', 0);
-        row.setAttribute('title', t(rowTitle));
+        row.setAttribute('title', tn(rowTitle));
     });
 }
 

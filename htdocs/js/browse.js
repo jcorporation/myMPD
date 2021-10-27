@@ -299,6 +299,10 @@ function parseFilesystem(obj) {
     const imageList = document.getElementById('BrowseFilesystemImages');
     elClear(imageList);
 
+    const table = document.getElementById('BrowseFilesystemList');
+    const tfoot = table.getElementsByTagName('tfoot')[0];
+    elClear(tfoot);
+
     if (checkResult(obj, 'BrowseFilesystem', null) === false) {
         elHide(imageList);
         return;
@@ -315,7 +319,7 @@ function parseFilesystem(obj) {
         img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
         img.classList.add('booklet');
         setCustomDomProperty(img, 'data-href', subdir + '/browse/music/' + obj.result.bookletPath);
-        img.title = t('Booklet');
+        img.title = tn('Booklet');
         imageList.appendChild(img);
     }
     for (let i = 0, j = obj.result.images.length; i < j; i++) {
@@ -336,10 +340,17 @@ function parseFilesystem(obj) {
             data.Title = data.name;
         }
         setCustomDomProperty(row, 'data-name', data.Title);
-        row.setAttribute('title', t(data.Type === 'song' ? rowTitleSong : 
+        row.setAttribute('title', tn(data.Type === 'song' ? rowTitleSong : 
                 data.Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
     });
     scrollToPosY(app.current.scrollPos);
+
+    const colspan = settings.colsBrowseFilesystem.length + 1;
+    tfoot.appendChild(
+        elCreateNode('tr', {},
+            elCreateText('td', {"colspan": colspan}, tn('Num entries', obj.result.totalEntities))
+        )
+    );
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -475,7 +486,6 @@ function setGridImage(changes, observer) {
     changes.forEach(change => {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);
-            //use URI encoded attribute
             const uri = getCustomDomProperty(change.target.firstChild, 'data-picture');
             const body = change.target.firstChild.getElementsByClassName('card-body')[0];
             if (body) {
@@ -489,7 +499,7 @@ function addPlayButton(parentEl) {
     const div = document.createElement('div');
     div.classList.add('align-self-end', 'album-grid-mouseover', 'mi', 'rounded-circle', 'clickable');
     div.textContent = 'play_arrow';
-    div.title = t(webuiSettingsDefault.clickAlbumPlay.validValues[settings.webuiSettings.clickAlbumPlay]);
+    div.title = tn(webuiSettingsDefault.clickAlbumPlay.validValues[settings.webuiSettings.clickAlbumPlay]);
     parentEl.appendChild(div);
     div.addEventListener('click', function(event) {
         event.preventDefault();

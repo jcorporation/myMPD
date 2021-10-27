@@ -81,7 +81,7 @@ function showListOutputAttributes(outputName) {
                 break;
             }
         }
-        document.getElementById('modalOutputAttributesId').value = e(output.id);
+        document.getElementById('modalOutputAttributesId').value = output.id;
         const list = document.getElementById('outputAttributesList');
         elClear(list);
         for (const n of ['name', 'state', 'plugin']) {
@@ -142,7 +142,7 @@ function saveOutputAttributesClose(obj) {
 
 function parseVolume(obj) {
     if (obj.result.volume === -1) {
-        document.getElementById('volumePrct').textContent = t('Volumecontrol disabled');
+        document.getElementById('volumePrct').textContent = tn('Volumecontrol disabled');
         elHide(document.getElementById('volumeControl'));
     } 
     else {

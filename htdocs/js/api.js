@@ -410,7 +410,7 @@ function webSocketConnect() {
                 }
             }
             else {
-                showAppInitAlert(t('Websocket connection failed'));
+                showAppInitAlert(tn('Websocket connection failed'));
                 logError('Websocket connection failed: ' + event.code);
             }
             if (websocketTimer !== null) {

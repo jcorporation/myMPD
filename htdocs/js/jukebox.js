@@ -65,7 +65,7 @@ function parseJukeboxList(obj) {
         if (data[tagAlbumArtist] !== undefined) {
             setCustomDomProperty(row, 'data-albumartist', data[tagAlbumArtist]);
         }
-        row.setAttribute('title', t(rowTitle));
+        row.setAttribute('title', tn(rowTitle));
         row.setAttribute('tabindex', 0);
     });
 }

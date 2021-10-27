@@ -330,16 +330,16 @@ function parseListTimer(obj) {
         }
         row.appendChild(
             elCreateText('td', {}, zeroPad(obj.result.data[i].startHour, 2) + ':' + zeroPad(obj.result.data[i].startMinute, 2) +
-                ' ' + t('on') + ' ' + days.join(', '))
+                ' ' + tn('on') + ' ' + days.join(', '))
         );
 
         let interval = '';
         switch (obj.result.data[i].interval) {
-            case 604800: interval = t('Weekly'); break;
-            case 86400: interval = t('Daily'); break;
-            case -1: interval = t('One shot and delete'); break;
-            case 0: interval = t('One shot and disable'); break;
-            default: interval = t('Each hours', obj.result.data[i].interval / 3600);
+            case 604800: interval = tn('Weekly'); break;
+            case 86400: interval = tn('Daily'); break;
+            case -1: interval = tn('One shot and delete'); break;
+            case 0: interval = tn('One shot and disable'); break;
+            default: interval = tn('Each hours', obj.result.data[i].interval / 3600);
         }
         row.appendChild(
             elCreateText('td', {}, interval)
@@ -358,13 +358,13 @@ function parseListTimer(obj) {
 
 function prettyTimerAction(action, subaction) {
     if (action === 'player' && subaction === 'startplay') {
-        return t('Start playback');
+        return tn('Start playback');
     }
     if (action === 'player' && subaction === 'stopplay') {
-        return t('Stop playback');
+        return tn('Stop playback');
     }
     if (action === 'script') {
-        return t('Script') + ': ' + e(subaction);
+        return tn('Script') + ': ' + subaction;
     }
-    return e(action) + ': ' + e(subaction);
+    return action + ': ' + subaction;
 }

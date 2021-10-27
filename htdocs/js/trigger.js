@@ -176,18 +176,6 @@ function parseTriggerList(obj) {
                 elCreateText('a', {"href": "#", "title": tn("Delete"), "data-action": "delete", "class": ["mi", "color-darkgrey"]}, 'delete')
             )
         );
-/*
-        triggerList += '<tr data-trigger-id="' + encodeURI() + '"><td class="' +
-            (obj.result.data[i].name === settings.trigger ? 'font-weight-bold' : '') +
-            '">' + e(obj.result.data[i].name) + 
-            '</td>' +
-            '<td>' +  + '</td>' +
-            '<td>' + e(obj.result.data[i].script) + '</td>' +
-            '<td data-col="Action">' +
-            (obj.result.data[i].name === 'default' || obj.result.data[i].name === settings.trigger  ? '' : 
-                '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>') +
-            '</td></tr>';
-*/
         tbody.appendChild(row);
     }
 }

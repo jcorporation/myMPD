@@ -75,7 +75,7 @@ function parsePlaylistsList(obj) {
         setCustomDomProperty(row, 'data-type', data.Type);
         setCustomDomProperty(row, 'data-name', data.name);
         setCustomDomProperty(row, 'data-smartpls-only', data.smartplsOnly);
-        row.setAttribute('title', t(rowTitle));
+        row.setAttribute('title', tn(rowTitle));
     }, function(row, data) {
         row.appendChild(
             elCreateNode('td', {"data-col": "Type"},
@@ -134,7 +134,7 @@ function parsePlaylistsDetail(obj) {
         setCustomDomProperty(row, 'data-uri', data.uri);
         setCustomDomProperty(row, 'data-name', data.Title);
         setCustomDomProperty(row, 'data-songpos', data.Pos);
-        row.setAttribute('title', t(rowTitle));
+        row.setAttribute('title', tn(rowTitle));
     });
 }
 
@@ -198,7 +198,7 @@ function parseSmartPlaylist(obj) {
     const nameEl = document.getElementById('saveSmartPlaylistName');
     nameEl.value = obj.result.plist;
     removeIsInvalid(document.getElementById('modalSaveSmartPlaylist'));
-    document.getElementById('saveSmartPlaylistType').value = t(obj.result.type);
+    document.getElementById('saveSmartPlaylistType').value = tn(obj.result.type);
     setCustomDomPropertyId('saveSmartPlaylistType', 'data-value', obj.result.type);
     elHideId('saveSmartPlaylistSearch');
     elHideId('saveSmartPlaylistSticker');
@@ -353,7 +353,7 @@ function showAddToPlaylist(uri, searchstr) {
         elHideId('addStreamFrm');
         elShowId('addToPlaylistFooter');
         elShowId('addToPlaylistFrm');
-        document.getElementById('addToPlaylistCaption').textContent = t('Add to playlist');
+        document.getElementById('addToPlaylistCaption').textContent = tn('Add to playlist');
     }
     else {
         elShowId('addStreamFooter');

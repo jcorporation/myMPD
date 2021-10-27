@@ -9,15 +9,7 @@ function smartCount(number) {
     else { return 1; }
 }
 
-function t(phrase, number, data) {
-    return e(_translate(phrase, number, data));
-}
-
 function tn(phrase, number, data) {
-    return _translate(phrase, number, data);
-}
-
-function _translate(phrase, number, data) {
     if (phrase === undefined) {
         logWarn('Phrase is undefined');
         return 'undefined';
@@ -86,19 +78,6 @@ function beautifySongDuration(x) {
 
     return (hours > 0 ? hours + ':' + (minutes < 10 ? '0' : '') : '') + 
         minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-}
-
-//eslint-disable-next-line no-unused-vars
-function gtPage(phrase, returnedEntities, totalEntities, maxElements) {
-    if (totalEntities > -1) {
-        return t(phrase, totalEntities);
-    }
-    else if (returnedEntities + app.current.offset < maxElements) {
-        return t(phrase, returnedEntities);
-    }
-    else {
-        return '> ' + t(phrase, maxElements);
-    }
 }
 
 function i18nHtml(root) {

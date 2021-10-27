@@ -93,26 +93,6 @@ function getOpenModal() {
     return null;
 }
 
-//escapes html characters to avoid xss
-function e(x) {
-    if (isNaN(x)) {
-        return x.replace(/([<>"'])/g, function(m0, m1) {
-            if (m1 === '<') return '&lt;';
-            else if (m1 === '>') return '&gt;';
-            else if (m1 === '"') return '&quot;';
-            else if (m1 === '\'') return '&apos;';
-        }).replace(/\\u(003C|003E|0022|0027)/gi, function(m0, m1) {
-            if (m1 === '003C') return '&lt;';
-            else if (m1 === '003E') return '&gt;';
-            else if (m1 === '0022') return '&quot;';
-            else if (m1 === '0027') return '&apos;';
-        }).replace(/\[\[(\w+)\]\]/g, function(m0, m1) {
-            return '<span class="mi">' + m1 + '</span>';
-        });
-    }
-    return x;
-}
-
 //removes special characters
 function r(x) {
     return x.replace(/[^\w-]/g, '_');
@@ -259,8 +239,11 @@ function getCustomDomProperty(el, attribute) {
     let value = el['myMPD-' + attribute];
     if (value === undefined) {
         //fallback to attribute
-        const encValue = el.getAttribute(attribute);
-        value = encValue !== null ? decodeURI(encValue) : null;
+        value = el.getAttribute(attribute);
+        if (value === null) {
+            //return undefined if attribute is null 
+            value = undefined;
+        }
     }
     return value;
 }

@@ -176,10 +176,10 @@ function _updateDBfinished(idleEvent) {
     //update database modal
     if (document.getElementById('modalUpdateDB').classList.contains('show')) {
         if (idleEvent === 'update_database') {
-            document.getElementById('updateDBfinished').textContent = t('Database successfully updated');
+            document.getElementById('updateDBfinished').textContent = tn('Database successfully updated');
         }
         else if (idleEvent === 'update_finished') {
-            document.getElementById('updateDBfinished').textContent = t('Database update finished');
+            document.getElementById('updateDBfinished').textContent = tn('Database update finished');
         }
         const updateDBprogress = document.getElementById('updateDBprogress');
         updateDBprogress.classList.remove('updateDBprogressAnimate');
@@ -219,10 +219,9 @@ function zoomPicture(el) {
         
         //add uri to image list to get embedded albumart
         let aImages = [];
-        //use uri encoded attribute
         const uri = getCustomDomProperty(el, 'data-uri');
         if (uri) {
-            aImages = [ subdir + '/albumart/' + uri ];
+            aImages = [ subdir + '/albumart/' + myEncodeURI(uri) ];
         }
         //add all but coverfiles to image list
         for (let i = 0, j = images.length; i < j; i++) {

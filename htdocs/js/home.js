@@ -177,7 +177,7 @@ function parseHome(obj) {
     if (obj.error !== undefined) {
         elClear(cardContainer);
         const div = elCreateEmpty('div', {"class": ["ms-3", "mb-3", "not-clickable", "alert", "alert-danger"]});
-        addIconLine(div, 'error_outline', t(obj.error.message, obj.error.data));
+        addIconLine(div, 'error_outline', tn(obj.error.message, obj.error.data));
         cardContainer.appendChild(div);
         setPagination(obj.result.totalEntities, obj.result.returnedEntities);    
         return;
