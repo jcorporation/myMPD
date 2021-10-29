@@ -20,8 +20,8 @@
 
 static const char *invalid_json_chars = "\a\b\f\v";
 static const char *invalid_name_chars = "\a\b\f\n\r\t\v";
-static const char *invalid_filename_chars = "\a\b\f\n\r\t\v\\?*|<>/";
-static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v\\?*|<>";
+static const char *invalid_filename_chars = "\a\b\f\n\r\t\v/\\";
+static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v";
 
 static const char *mympd_cols[]={"Pos", "Duration", "Type", "Priority", "LastPlayed", "Filename", "Filetype", "AudioFormat", "LastModified", 
     "Lyrics", "stickerPlayCount", "stickerSkipCount", "stickerLastPlayed", "stickerLastSkipped", "stickerLike", 0};
@@ -170,7 +170,11 @@ bool vcb_isfilepath(sds data) {
         MYMPD_LOG_WARN("Illegal file path, found URI notation");
         return false;
     }
-    if (strstr(data, "../") != NULL || strstr(data, "/./") != NULL || strstr(data, "//") != NULL) {
+    if (strncmp(data, "../", 3) == 0 ||
+        strstr(data, "/../") != NULL ||
+        strstr(data, "/./") != NULL ||
+        strstr(data, "//") != NULL)
+    {
         //prevent dir traversal
         MYMPD_LOG_WARN("Found dir traversal in path \"%s\"", data);
         return false;
@@ -229,7 +233,7 @@ bool vcb_ismpdsort(sds data) {
     if (tag == MPD_TAG_UNKNOWN &&
         strcmp(data, "filename") != 0 &&
         strcmp(data, "shuffle") != 0 &&
-        strcmp(data, "Last-Modified") != 0 &&
+        strcmp(data, "LastModified") != 0 &&
         strcmp(data, "Date") != 0)
     {
         MYMPD_LOG_WARN("Unknown tag \"%s\"", data);
