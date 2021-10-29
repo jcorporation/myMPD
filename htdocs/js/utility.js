@@ -134,16 +134,13 @@ function showConfirmInline(el, text, btnText, callback) {
     el.appendChild(confirm);
 }
 
-function myEncodeURI(x) {
-    return encodeURI(x).replace(/([#])/g, function(m0, m1) {
-        if (m1 === '#') return '%23';
-    });
-}
-
-//eslint-disable-next-line no-unused-vars
-function myDecodeURI(x) {
-    return decodeURI(x).replace(/(%23)/g, function(m0, m1) {
-        if (m1 === '%23') return '#';
+//custom encoding function
+//works like encodeURIComponent but
+//- does not escape /
+//- escapes further reserved characters
+function myEncodeURI(str) {
+    return encodeURI(str).replace(/[!'()*#?;,:@&=+$~]/g, function(c) {
+        return '%' + c.charCodeAt(0).toString(16);
     });
 }
 

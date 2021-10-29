@@ -538,21 +538,25 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 else if (mg_http_match_uri(hm, "/browse/pics/#")) {
                     s_http_server_opts.root_dir = mg_user_data->pics_document_root;
                     hm->uri = mg_str_strip_parent(&hm->uri, 2);
+                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 }
                 else if (mg_http_match_uri(hm, "/browse/smartplaylists/#")) {
                     s_http_server_opts.root_dir = mg_user_data->smartpls_document_root;
                     hm->uri = mg_str_strip_parent(&hm->uri, 2);
+                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 }
                 else if (sdslen(mg_user_data->playlist_directory) > 0 && mg_http_match_uri(hm, "/browse/playlists/#")) {
                     s_http_server_opts.root_dir = mg_user_data->playlist_directory;
                     hm->uri = mg_str_strip_parent(&hm->uri, 2);
+                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 }
                 else if (mg_user_data->feat_library == true && mg_http_match_uri(hm, "/browse/music/#")) {
                     s_http_server_opts.root_dir = mg_user_data->music_directory;
                     hm->uri = mg_str_strip_parent(&hm->uri, 2);
+                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 }
                 else {
