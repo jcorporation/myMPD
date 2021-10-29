@@ -168,10 +168,18 @@ function initBrowse() {
     }, false);
 
     document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            const uri = getData(event.target.parentNode, 'data-uri');
-            const name = getData(event.target.parentNode, 'data-name');
-            const dataType = getData(event.target.parentNode, 'data-type');
+        let target;
+        switch(event.target.nodeName) {
+             case 'TD': target = event.target.parentNode; break;
+             case 'DIV': target = event.target.parentNode; break;
+             case 'SPAN':
+             case 'SMALL': target = event.target.parentNode.parentNode.parentNode; break;
+             default: target = event.target;
+        }
+        if (target.nodeName === 'TR') {
+            const uri = getData(target, 'data-uri');
+            const name = getData(target, 'data-name');
+            const dataType = getData(target, 'data-type');
             switch(dataType) {
                 case 'parentDir': {
                     const offset = browseFilesystemHistory[uri] !== undefined ? browseFilesystemHistory[uri].offset : 0;
@@ -191,7 +199,7 @@ function initBrowse() {
                     break;
             }
         }
-        else if (event.target.nodeName === 'A') {
+        else if (target.nodeName === 'A') {
             showPopover(event);
         }
     }, false);
@@ -318,7 +326,7 @@ function parseFilesystem(obj) {
         const img = document.createElement('div');
         img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
         img.classList.add('booklet');
-        setData(img, 'data-href', subdir + '/browse/music/' + obj.result.bookletPath);
+        setData(img, 'data-href', subdir + '/browse/music/' + myEncodeURI(obj.result.bookletPath));
         img.title = tn('Booklet');
         imageList.appendChild(img);
     }

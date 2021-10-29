@@ -144,6 +144,16 @@ function myEncodeURI(str) {
     });
 }
 
+function myEncodeURIComponent(str) {
+    return encodeURIComponent(str).replace(/[!'()*~]/g, function(c) {
+        return '%' + c.charCodeAt(0).toString(16);
+    });
+}
+
+function myDecodeURIComponent(str) {
+    return decodeURIComponent(str);
+}
+
 //functions to get custom actions
 function clickAlbumPlay(albumArtist, album) {
     switch (settings.webuiSettings.clickAlbumPlay) {

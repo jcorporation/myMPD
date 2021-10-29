@@ -89,10 +89,12 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
         ptr.scrollPos = newScrollPos;
     }
     //build hash
-    location.hash = '/' + encodeURIComponent(card) + (tab === undefined ? '' : '/' + encodeURIComponent(tab) + 
-        (view === undefined ? '' : '/' + encodeURIComponent(view))) + '!' + 
-        encodeURIComponent(offset) + '/' + encodeURIComponent(limit) + '/' + encodeURIComponent(filter) + '/' + 
-        encodeURIComponent(sort) + '/' + encodeURIComponent(tag) + '/' + encodeURIComponent(search);
+    location.hash = '/' + myEncodeURIComponent(card) + 
+        (tab === undefined ? '' : '/' + myEncodeURIComponent(tab) + 
+        (view === undefined ? '' : '/' + myEncodeURIComponent(view))) + '!' + 
+        myEncodeURIComponent(offset) + '/' + myEncodeURIComponent(limit) + '/' + 
+        myEncodeURIComponent(filter) + '/' + myEncodeURIComponent(sort) + '/' + 
+        myEncodeURIComponent(tag) + '/' + myEncodeURIComponent(search);
 }
 
 function appRoute() {
@@ -103,15 +105,15 @@ function appRoute() {
     }
     const params = location.hash.match(/^#\/(\w+)\/?(\w+)?\/?(\w+)?!(\d+)\/(\d+)\/([^/]+)\/([^/]+)\/([^/]+)\/(.*)$/);
     if (params) {
-        app.current.app = decodeURIComponent(params[1]);
-        app.current.tab = params[2] !== undefined ? decodeURIComponent(params[2]) : undefined;
-        app.current.view = params[3] !== undefined ? decodeURIComponent(params[3]) : undefined;
-        app.current.offset = Number(decodeURIComponent(params[4]));
-        app.current.limit = Number(decodeURIComponent(params[5]));
-        app.current.filter = decodeURIComponent(params[6]);
-        app.current.sort = decodeURIComponent(params[7]);
-        app.current.tag = decodeURIComponent(params[8]);
-        app.current.search = decodeURIComponent(params[9]);
+        app.current.app = myDecodeURIComponent(params[1]);
+        app.current.tab = params[2] !== undefined ? myDecodeURIComponent(params[2]) : undefined;
+        app.current.view = params[3] !== undefined ? myDecodeURIComponent(params[3]) : undefined;
+        app.current.offset = Number(myDecodeURIComponent(params[4]));
+        app.current.limit = Number(myDecodeURIComponent(params[5]));
+        app.current.filter = myDecodeURIComponent(params[6]);
+        app.current.sort = myDecodeURIComponent(params[7]);
+        app.current.tag = myDecodeURIComponent(params[8]);
+        app.current.search = myDecodeURIComponent(params[9]);
 
         app.id = app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + (app.current.view === undefined ? '' : app.current.view);
 
