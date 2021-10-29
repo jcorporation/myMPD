@@ -79,21 +79,25 @@ echo_warn() {
 
 #clang tidy options
 CLANG_TIDY_CHECKS="*"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-altera-id-dependent-backward-branch"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-altera-unroll-loops"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-altera-struct-pack-align,-clang-analyzer-optin.performance.Padding"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-easily-swappable-parameters"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-macro-parentheses"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-reserved-identifier,-cert-dcl37-c,-cert-dcl51-cpp"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-signal-handler,-cert-sig30-c"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-clang-diagnostic-invalid-command-line-argument"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-concurrency-mt-unsafe"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-cppcoreguidelines*"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-hicpp-*"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvm-header-guard"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvm-include-order"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvmlibc-restrict-system-libc-headers"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-misc-misplaced-const"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-avoid-const-params-in-decls"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-function-cognitive-complexity,-google-readability-function-size,-readability-function-size"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-magic-numbers"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-non-const-parameter"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvmlibc-restrict-system-libc-headers"
 
 #save startpath
 STARTPATH=$(pwd)
@@ -489,11 +493,10 @@ check_file() {
   then
     echo "Running clang-tidy, output goes to clang-tidy.out"
     rm -f clang-tidy.out
-    cd src || exit 1
     clang-tidy \
     	--checks="$CLANG_TIDY_CHECKS" \
-    	--header-filter=".*" "$FILE" >> ../clang-tidy.out 2>/dev/null
-    grep -v -E "(memset|memcpy|\^)" ../clang-tidy.out
+    	--header-filter=".*" "$FILE" > ../clang-tidy.out 2>/dev/null
+    grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out
   else
     echo_warn "clang-tidy not found"  
   fi
@@ -545,7 +548,7 @@ check() {
     find ./ -name '*.c' -exec clang-tidy \
     	--checks="$CLANG_TIDY_CHECKS" \
     	--header-filter=".*" {}  \; >> ../clang-tidy.out 2>/dev/null
-    grep -v -E "(memset|memcpy|\^)" ../clang-tidy.out
+    grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out
   else
     echo_warn "clang-tidy not found"  
   fi
