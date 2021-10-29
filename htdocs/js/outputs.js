@@ -20,14 +20,14 @@ function initOutputs() {
     document.getElementById('outputs').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
-            showListOutputAttributes(getCustomDomProperty(event.target.parentNode, 'data-output-name'));
+            showListOutputAttributes(getData(event.target.parentNode, 'data-output-name'));
         }
         else {
             const target = event.target.nodeName === 'BUTTON' ? event.target : event.target.parentNode;
             event.stopPropagation();
             event.preventDefault();
             sendAPI("MYMPD_API_PLAYER_OUTPUT_TOGGLE", {
-                "outputId": Number(getCustomDomProperty(target, 'data-output-id')),
+                "outputId": Number(getData(target, 'data-output-id')),
                 "state": (target.classList.contains('active') ? 0 : 1)
             });
             toggleBtn(target);
@@ -56,8 +56,8 @@ function parseOutputs(obj) {
             continue;
         }
         const btn = elCreateEmpty('button', {"class": ["btn", "btn-secondary", "d-flex", "justify-content-between"], "id": "btnOutput" + obj.result.data[i].id});
-        setCustomDomProperty(btn, 'data-output-name', obj.result.data[i].name);
-        setCustomDomProperty(btn, 'data-output-id', obj.result.data[i].id);
+        setData(btn, 'data-output-name', obj.result.data[i].name);
+        setData(btn, 'data-output-id', obj.result.data[i].id);
         if (obj.result.data[i].state === 1) {
             btn.classList.add('active');
         }

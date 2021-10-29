@@ -70,8 +70,8 @@ function dragAndDropTable(table) {
         if (event.target.nodeName === 'TD') {
             target = event.target.parentNode;
         }
-        const oldSongpos = getCustomDomPropertyId(event.dataTransfer.getData('Text'), 'data-songpos');
-        const newSongpos = getCustomDomProperty(target, 'data-songpos');
+        const oldSongpos = getDataId(event.dataTransfer.getData('Text'), 'data-songpos');
+        const newSongpos = getData(target, 'data-songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.classList.remove('opacity05');
         tableBody.insertBefore(dragEl, target);
@@ -340,7 +340,7 @@ function saveColsPlayback(table) {
             th.appendChild(elCreateText('small', {}, tn(colInputs[i].name)));
             th.appendChild(elCreateEmpty('p', {}));
             th.setAttribute('id', 'current' + colInputs[i].name);
-            setCustomDomProperty(th, 'data-tag', colInputs[i].name);
+            setData(th, 'data-tag', colInputs[i].name);
             header.appendChild(th);
         }
     }
@@ -349,7 +349,7 @@ function saveColsPlayback(table) {
     const params = {"table": "cols" + table, "cols": []};
     const ths = header.getElementsByTagName('div');
     for (let i = 0, j = ths.length; i < j; i++) {
-        const name = getCustomDomProperty(ths[i], 'data-tag');
+        const name = getData(ths[i], 'data-tag');
         if (name) {
             params.cols.push(name);
         }
@@ -368,9 +368,9 @@ function replaceTblRow(row, el) {
 function addDiscRow(disc, album, albumartist, colspan) {
     const row = document.createElement('tr');
     row.classList.add('not-clickable');
-    setCustomDomProperty(row, 'data-disc', disc);
-    setCustomDomProperty(row, 'data-album', album);
-    setCustomDomProperty(row, 'data-albumartist', albumartist);
+    setData(row, 'data-disc', disc);
+    setData(row, 'data-album', album);
+    setData(row, 'data-albumartist', albumartist);
     row.appendChild(elCreateEmpty('td', {}));
     row.lastChild.appendChild(elCreateText('span', {"class": ["mi"]}, 'album'));
     row.appendChild(elCreateText('td', {"colspan": (colspan - 1)}, tn('Disc') + ' ' + disc));
@@ -423,10 +423,10 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         row.setAttribute('tabindex', 0);
         //set artist and album data
         if (obj.result.data[i].Album !== undefined) {
-            setCustomDomProperty(row, 'data-album', obj.result.data[i].Album);
+            setData(row, 'data-album', obj.result.data[i].Album);
         }
         if (obj.result.data[i][tagAlbumArtist] !== undefined) {
-            setCustomDomProperty(row, 'data-albumartist', obj.result.data[i][tagAlbumArtist]);
+            setData(row, 'data-albumartist', obj.result.data[i][tagAlbumArtist]);
         }
         //set Title to name if not defined - for folders and playlists
         if (obj.result.data[i].Title === undefined) {

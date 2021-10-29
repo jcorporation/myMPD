@@ -8,11 +8,11 @@ function initTrigger() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            showEditTrigger(Number(getCustomDomProperty(event.target.parentNode, 'data-trigger-id')));
+            showEditTrigger(Number(getData(event.target.parentNode, 'data-trigger-id')));
         }
         else if (event.target.nodeName === 'A') {
-            const action = getCustomDomProperty(event.target, 'data-action');
-            const id = Number(getCustomDomProperty(event.target.parentNode.parentNode, 'data-trigger-id'));
+            const action = getData(event.target, 'data-action');
+            const id = Number(getData(event.target.parentNode.parentNode, 'data-trigger-id'));
             if (action === 'delete') {
                 deleteTrigger(event.target, id);
             }
@@ -47,7 +47,7 @@ function saveTrigger() {
         const args = {};
         const argEls = document.getElementById('triggerActionScriptArguments').getElementsByTagName('input');
         for (let i = 0, j = argEls.length; i < j; i ++) {
-            args[getCustomDomProperty(argEls[i], 'data-name')] = argEls[i].value;
+            args[getData(argEls[i], 'data-name')] = argEls[i].value;
         }
 
         sendAPI("MYMPD_API_TRIGGER_SAVE", {
@@ -115,13 +115,13 @@ function showTriggerScriptArgs(option, values) {
     if (values === undefined) {
         values = {};
     }
-    const args = getCustomDomProperty(option, 'data-arguments');
+    const args = getData(option, 'data-arguments');
     const list = document.getElementById('triggerActionScriptArguments');
     elClear(list);
     for (let i = 0, j = args.arguments.length; i < j; i++) {
         const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "triggerActionScriptArguments" + i, 
             "value": (values[args.arguments[i]] ? values[args.arguments[i]] : '')});
-        setCustomDomProperty(input, 'data-name', args.arguments[i]);
+        setData(input, 'data-name', args.arguments[i]);
         const fg = elCreateNodes('div', {"class": ["form-group", "row"]},
             [
                 elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": "triggerActionScriptArguments" + i}, args.arguments[i]),
@@ -161,7 +161,7 @@ function parseTriggerList(obj) {
     elClear(tbody);
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const row = elCreateEmpty('tr', {});
-        setCustomDomProperty(row, 'data-trigger-id', obj.result.data[i].id);
+        setData(row, 'data-trigger-id', obj.result.data[i].id);
         row.appendChild(
             elCreateText('td', {}, obj.result.data[i].name)
         );

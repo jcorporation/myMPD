@@ -7,10 +7,10 @@ function initJukebox() {
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             if (settings.jukeboxMode === 1) {
-                clickSong(getCustomDomProperty(event.target.parentNode, 'data-uri'), getCustomDomProperty(event.target.parentNode, 'data-name'));
+                clickSong(getData(event.target.parentNode, 'data-uri'), getData(event.target.parentNode, 'data-name'));
             }
             else if (settings.jukeboxMode === 2) {
-                clickAlbumPlay(getCustomDomProperty(event.target.parentNode, 'data-albumartist'), getCustomDomProperty(event.target.parentNode, 'data-album'));
+                clickAlbumPlay(getData(event.target.parentNode, 'data-albumartist'), getData(event.target.parentNode, 'data-album'));
             }
         }
         else if (event.target.nodeName === 'A') {
@@ -55,15 +55,15 @@ function parseJukeboxList(obj) {
 
     const rowTitle = webuiSettingsDefault.clickAlbumPlay.validValues[settings.webuiSettings.clickAlbumPlay];
     updateTable(obj, 'QueueJukebox', function(row, data) {
-        setCustomDomProperty(row, 'data-uri', data.uri);
-        setCustomDomProperty(row, 'data-name', data.Title);
-        setCustomDomProperty(row, 'data-type', data.uri === 'Album' ? 'album' : 'song');
-        setCustomDomProperty(row, 'data-pos', (data.Pos - 1));
+        setData(row, 'data-uri', data.uri);
+        setData(row, 'data-name', data.Title);
+        setData(row, 'data-type', data.uri === 'Album' ? 'album' : 'song');
+        setData(row, 'data-pos', (data.Pos - 1));
         if (data.Album !== undefined) {
-            setCustomDomProperty(row, 'data-album', data.Album);
+            setData(row, 'data-album', data.Album);
         }
         if (data[tagAlbumArtist] !== undefined) {
-            setCustomDomProperty(row, 'data-albumartist', data[tagAlbumArtist]);
+            setData(row, 'data-albumartist', data[tagAlbumArtist]);
         }
         row.setAttribute('title', tn(rowTitle));
         row.setAttribute('tabindex', 0);

@@ -200,13 +200,13 @@ function _updateDBfinished(idleEvent) {
 //eslint-disable-next-line no-unused-vars
 function zoomPicture(el) {
     if (el.classList.contains('booklet')) {
-        window.open(getCustomDomProperty(el, 'data-href'));
+        window.open(getData(el, 'data-href'));
         return;
     }
     
     if (el.classList.contains('carousel')) {
         let images;
-        const dataImages = getCustomDomProperty(el, 'data-images');
+        const dataImages = getData(el, 'data-images');
         if (dataImages !== undefined && dataImages !== null) {
             images = dataImages.slice();
         }
@@ -219,7 +219,7 @@ function zoomPicture(el) {
         
         //add uri to image list to get embedded albumart
         let aImages = [];
-        const uri = getCustomDomProperty(el, 'data-uri');
+        const uri = getData(el, 'data-uri');
         if (uri) {
             aImages = [ subdir + '/albumart/' + myEncodeURI(uri) ];
         }

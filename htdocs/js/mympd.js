@@ -236,7 +236,7 @@ function appRoute() {
         const crumbEl = document.getElementById('BrowseBreadcrumb');
         elClear(crumbEl);
         const home = elCreateText('a', {"class": ["mi"]}, 'home');
-        setCustomDomProperty(home, 'data-uri', '');
+        setData(home, 'data-uri', '');
         crumbEl.appendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, home));
 
         const pathArray = app.current.search.split('/');
@@ -249,7 +249,7 @@ function appRoute() {
             }
             fullPath += pathArray[i];
             const a = elCreateText('a', {"href": "#"}, pathArray[i]);
-            setCustomDomProperty(a, 'data-uri', fullPath);
+            setData(a, 'data-uri', fullPath);
             crumbEl.appendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, a));
             fullPath += '/';
         }
@@ -326,7 +326,7 @@ function appRoute() {
                 let sortdesc = false;
                 if (sort === '-') {
                     sort = settings.tagList.includes('Title') ? 'Title' : '-';
-                    setCustomDomPropertyId('SearchList', 'data-sort', sort);
+                    setDataId('SearchList', 'data-sort', sort);
                 }
                 else if (sort.indexOf('-') === 0) {
                     sortdesc = true;
@@ -556,7 +556,7 @@ function appInit() {
             continue;
         }
         href.addEventListener('click', function(event) {
-            parseCmd(event, getCustomDomProperty(this, 'data-href'));
+            parseCmd(event, getData(this, 'data-href'));
         }, false);
     }
     //hide popover
@@ -620,7 +620,7 @@ function appInit() {
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {
             if (event.target.parentNode.classList.contains('not-clickable') ||
                 event.target.parentNode.parentNode.classList.contains('not-clickable') ||
-                getCustomDomProperty(event.target.parentNode, 'data-type') === 'parentDir')
+                getData(event.target.parentNode, 'data-type') === 'parentDir')
             {
                 return;
             }
@@ -632,7 +632,7 @@ function appInit() {
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('contextmenu', function(event) {
             if (event.target.parentNode.classList.contains('not-clickable') ||
                 event.target.parentNode.parentNode.classList.contains('not-clickable') ||
-                getCustomDomProperty(event.target.parentNode, 'data-type') === 'parentDir')
+                getData(event.target.parentNode, 'data-type') === 'parentDir')
             {
                 return;
             }
@@ -753,14 +753,14 @@ function initNavs() {
             return;
         }
         const target = event.target.nodeName === 'A' ? event.target : event.target.parentNode;
-        const href = getCustomDomProperty(target, 'data-href');
+        const href = getData(target, 'data-href');
         parseCmd(event, href);
     }, false);
     
     document.getElementById('scripts').addEventListener('click', function(event) {
         event.preventDefault();
         if (event.target.nodeName === 'A') {
-            execScript(getCustomDomProperty(event.target, 'data-href'));
+            execScript(getData(event.target, 'data-href'));
         }
     }, false);
 }

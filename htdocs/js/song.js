@@ -7,7 +7,7 @@ function initSong() {
     document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             if (event.target.id === 'calcFingerprint') {
-                sendAPI("MYMPD_API_DATABASE_FINGERPRINT", {"uri": getCustomDomProperty(event.target, 'data-uri')}, parseFingerprint);
+                sendAPI("MYMPD_API_DATABASE_FINGERPRINT", {"uri": getData(event.target, 'data-uri')}, parseFingerprint);
                 event.preventDefault();
                 const spinner = document.createElement('div');
                 spinner.classList.add('spinner-border', 'spinner-border-sm');
@@ -24,7 +24,7 @@ function initSong() {
             } 
         }
         else if (event.target.nodeName === 'BUTTON') {
-            const cmd = getCustomDomProperty(event.target, 'data-href');
+            const cmd = getData(event.target, 'data-href');
             if (cmd !== undefined) {
                 parseCmd(event, cmd);
             }
@@ -100,10 +100,10 @@ function parseSongDetails(obj) {
         const tr = elCreateEmpty('tr', {});
         tr.appendChild(elCreateText('th', {}, tn(settings.tagList[i])));
         const td = elCreateEmpty('td', {});
-        setCustomDomProperty(td, 'data-tag', settings.tagList[i]);
-        setCustomDomProperty(td, 'data-name', obj.result[settings.tagList[i]]);
+        setData(td, 'data-tag', settings.tagList[i]);
+        setData(td, 'data-name', obj.result[settings.tagList[i]]);
         if (settings.tagList[i] === 'Album' && obj.result[tagAlbumArtist] !== null) {
-            setCustomDomProperty(td, 'data-albumartist', obj.result[tagAlbumArtist]);
+            setData(td, 'data-albumartist', obj.result[tagAlbumArtist]);
         }
         if (settings.tagListBrowse.includes(settings.tagList[i]) && obj.result[settings.tagList[i]] !== '-') {
             td.appendChild(elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]]));
@@ -131,7 +131,7 @@ function parseSongDetails(obj) {
     tbody.appendChild(songDetailsRow('LastModified', localeDate(obj.result.LastModified)));
     if (features.featFingerprint === true) {
         const a = elCreateText('a', {"class": "text-success", "id": "calcFingerprint", "href": "#"}, tn('Calculate'));
-        setCustomDomProperty(a, 'data-uri', obj.result.uri);
+        setData(a, 'data-uri', obj.result.uri);
         tbody.appendChild(songDetailsRow('Fingerprint', a));
         tbody.lastChild.lastChild.setAttribute('id', 'fingerprint');
     }
@@ -148,12 +148,12 @@ function parseSongDetails(obj) {
                 tr.appendChild(elCreateText('th', {}, tn('Like')));
                 const td = elCreateEmpty('td', {});
                 const grp = elCreateEmpty('div', {"class": ["btn-group", "btn-group-sm"]});
-                setCustomDomProperty(grp, 'data-uri', obj.result.uri);
+                setData(grp, 'data-uri', obj.result.uri);
                 const thDown = elCreateText('button', {"title": tn('Dislike song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_down');
-                setCustomDomProperty(thDown, 'data-href', {"cmd": "voteSong", "options": [0]});
+                setData(thDown, 'data-href', {"cmd": "voteSong", "options": [0]});
                 if (obj.result[sticker] === 0) { thDown.classList.add('active'); }
                 const thUp = elCreateText('button', {"title": tn('Dislike song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_up');
-                setCustomDomProperty(thUp, 'data-href', {"cmd": "voteSong", "options": [2]});
+                setData(thUp, 'data-href', {"cmd": "voteSong", "options": [2]});
                 if (obj.result[sticker] === 2) { thUp.classList.add('active'); }
                 grp.appendChild(thDown);
                 grp.appendChild(thUp);
@@ -426,7 +426,7 @@ function voteSong(el, vote) {
     if (vote === 0 || vote === 2) {
         el.classList.add('active');
     }
-    const uri = getCustomDomProperty(el.parentNode, 'data-uri');
+    const uri = getData(el.parentNode, 'data-uri');
     sendAPI("MYMPD_API_LIKE", {
         "uri": uri,
         "like": vote
@@ -435,7 +435,7 @@ function voteSong(el, vote) {
 
 //eslint-disable-next-line no-unused-vars
 function voteCurrentSong(vote) {
-    const uri = getCustomDomPropertyId('currentTitle', 'data-uri');
+    const uri = getDataId('currentTitle', 'data-uri');
     if (uri === '') {
         return;
     }

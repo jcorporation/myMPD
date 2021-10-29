@@ -223,19 +223,19 @@ function unescapeMPD(x) {
 
 //get and set custom dom properties
 //replaces data-* attributes
-function setCustomDomPropertyId(id, attribute, value) {
+function setDataId(id, attribute, value) {
     document.getElementById(id)['myMPD-' + attribute] = value;
 }
 
-function setCustomDomProperty(el, attribute, value) {
+function setData(el, attribute, value) {
     el['myMPD-' + attribute] = value;
 }
 
-function getCustomDomPropertyId(id, attribute) {
-    return getCustomDomProperty(document.getElementById(id), attribute);
+function getDataId(id, attribute) {
+    return getData(document.getElementById(id), attribute);
 }
 
-function getCustomDomProperty(el, attribute) {
+function getData(el, attribute) {
     let value = el['myMPD-' + attribute];
     if (value === undefined) {
         //fallback to attribute
@@ -255,7 +255,7 @@ function getSelectValueId(id) {
 
 function getSelectValue(el) {
     if (el && el.selectedIndex >= 0) {
-        return getCustomDomProperty(el.options[el.selectedIndex], 'value');
+        return getData(el.options[el.selectedIndex], 'value');
     }
     return undefined;
 }
@@ -263,7 +263,7 @@ function getSelectValue(el) {
 function getSelectedOptionAttribute(selectId, attribute) {
     const el = document.getElementById(selectId);
     if (el && el.selectedIndex >= 0) {
-        return getCustomDomProperty(el.options[el.selectedIndex], attribute);
+        return getData(el.options[el.selectedIndex], attribute);
     }
     return undefined;
 }
@@ -490,7 +490,7 @@ function toggleBtnGroupValue(btngrp, value) {
         valuestr = value.toString();
     }
     for (let i = 0, j = btns.length; i < j; i++) {
-        if (getCustomDomProperty(btns[i], 'data-value') === valuestr) {
+        if (getData(btns[i], 'data-value') === valuestr) {
             btns[i].classList.add('active');
             b = btns[i];
         }
@@ -534,7 +534,7 @@ function getBtnGroupValueId(id) {
     if (activeBtn.length === 0) {
         activeBtn = document.getElementById(id).getElementsByTagName('button');    
     }
-    return getCustomDomProperty(activeBtn[0], 'data-value');
+    return getData(activeBtn[0], 'data-value');
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -883,9 +883,9 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
 
 function createSearchCrumb(filter, op, value) {
     const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "bg-gray-800", "mr-2"]}, filter + ' ' + op + ' \'' + value + '\'');
-    setCustomDomProperty(btn, 'data-filter-tag', filter);
-    setCustomDomProperty(btn, 'data-filter-op', op);
-    setCustomDomProperty(btn, 'data-filter-value', value);
+    setData(btn, 'data-filter-tag', filter);
+    setData(btn, 'data-filter-op', op);
+    setData(btn, 'data-filter-value', value);
     const badge = elCreateText('span', {"class": ["ml-2", "badge", "bg-secondary"]}, '×');
     btn.appendChild(badge);
     return btn;
@@ -898,13 +898,13 @@ function createSearchExpression(crumbsEl, tag, op, value) {
         if (i > 0) {
             expression += ' AND ';
         }
-        let crumbOp = getCustomDomProperty(crumbs[i], 'data-filter-op');
-        let crumbValue = getCustomDomProperty(crumbs[i], 'data-filter-value');
+        let crumbOp = getData(crumbs[i], 'data-filter-op');
+        let crumbValue = getData(crumbs[i], 'data-filter-value');
         if (app.current.app === 'Search' && crumbOp === 'starts_with') {
             crumbOp = '=~';
             crumbValue = '^' + crumbValue;
         }
-        expression += '(' + getCustomDomProperty(crumbs[i], 'data-filter-tag') + ' ' + 
+        expression += '(' + getData(crumbs[i], 'data-filter-tag') + ' ' + 
             crumbOp + ' \'' + escapeMPD(crumbValue) + '\')';
     }
     if (value !== '') {

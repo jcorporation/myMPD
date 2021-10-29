@@ -14,8 +14,8 @@ function initPlaylists() {
         }
     });
     
-    setCustomDomPropertyId('addToPlaylistPlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
-    setCustomDomPropertyId('addToPlaylistPlaylist', 'data-cb-filter-options', [1, 'addToPlaylistPlaylist']);
+    setDataId('addToPlaylistPlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
+    setDataId('addToPlaylistPlaylist', 'data-cb-filter-options', [1, 'addToPlaylistPlaylist']);
 
     document.getElementById('searchPlaylistsDetailStr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
@@ -39,8 +39,8 @@ function initPlaylists() {
     
    document.getElementById('BrowsePlaylistsListList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            if (getCustomDomProperty(event.target.parentNode, 'data-smartpls-only') === false) {
-                clickPlaylist(getCustomDomProperty(event.target.parentNode, 'data-uri'), getCustomDomProperty(event.target.parentNode, 'data-name'));
+            if (getData(event.target.parentNode, 'data-smartpls-only') === false) {
+                clickPlaylist(getData(event.target.parentNode, 'data-uri'), getData(event.target.parentNode, 'data-name'));
             }
             else {
                 showNotification(tn('Playlist is empty'), '', 'playlist', 'warn')
@@ -56,7 +56,7 @@ function initPlaylists() {
             return;
         }
         if (event.target.nodeName === 'TD') {
-            clickSong(getCustomDomProperty(event.target.parentNode, 'data-uri'), getCustomDomProperty(event.target.parentNode, 'data-name'));
+            clickSong(getData(event.target.parentNode, 'data-uri'), getData(event.target.parentNode, 'data-name'));
         }
         else if (event.target.nodeName === 'A') {
             showPopover(event);
@@ -71,10 +71,10 @@ function parsePlaylistsList(obj) {
 
     const rowTitle = webuiSettingsDefault.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
     updateTable(obj, 'BrowsePlaylistsList', function(row, data) {
-        setCustomDomProperty(row, 'data-uri', data.uri);
-        setCustomDomProperty(row, 'data-type', data.Type);
-        setCustomDomProperty(row, 'data-name', data.name);
-        setCustomDomProperty(row, 'data-smartpls-only', data.smartplsOnly);
+        setData(row, 'data-uri', data.uri);
+        setData(row, 'data-type', data.Type);
+        setData(row, 'data-name', data.name);
+        setData(row, 'data-smartpls-only', data.smartplsOnly);
         row.setAttribute('title', tn(rowTitle));
     }, function(row, data) {
         row.appendChild(
@@ -107,16 +107,16 @@ function parsePlaylistsDetail(obj) {
     }
 
     if (isMPDplaylist(obj.result.plist) === false || obj.result.smartpls === true) {
-        setCustomDomPropertyId('BrowsePlaylistsDetailList', 'data-ro', 'true');
+        setDataId('BrowsePlaylistsDetailList', 'data-ro', 'true');
         elHideId('playlistContentBtns');
         elShowId('smartPlaylistContentBtns');
     }
     else {
-        setCustomDomPropertyId('BrowsePlaylistsDetailList', 'data-ro', 'false');
+        setDataId('BrowsePlaylistsDetailList', 'data-ro', 'false');
         elShowId('playlistContentBtns');
         elHideId('smartPlaylistContentBtns');
     }
-    setCustomDomPropertyId('BrowsePlaylistsDetailList', 'data-uri', obj.result.plist);
+    setDataId('BrowsePlaylistsDetailList', 'data-uri', obj.result.plist);
     document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].textContent = 
         (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist'))  + ': ' + obj.result.plist;
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
@@ -130,10 +130,10 @@ function parsePlaylistsDetail(obj) {
         row.setAttribute('id','playlistTrackId' + data.Pos);
         row.setAttribute('draggable', 'true');
         row.setAttribute('tabindex', 0);
-        setCustomDomProperty(row, 'data-type', data.Type);
-        setCustomDomProperty(row, 'data-uri', data.uri);
-        setCustomDomProperty(row, 'data-name', data.Title);
-        setCustomDomProperty(row, 'data-songpos', data.Pos);
+        setData(row, 'data-type', data.Type);
+        setData(row, 'data-uri', data.uri);
+        setData(row, 'data-name', data.Title);
+        setData(row, 'data-songpos', data.Pos);
         row.setAttribute('title', tn(rowTitle));
     });
 }
@@ -147,7 +147,7 @@ function playlistDetails(uri) {
 //eslint-disable-next-line no-unused-vars
 function playlistShuffle() {
     sendAPI("MYMPD_API_PLAYLIST_SHUFFLE", {
-        "plist": getCustomDomPropertyId('BrowsePlaylistsDetailList', 'data-uri')
+        "plist": getDataId('BrowsePlaylistsDetailList', 'data-uri')
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
@@ -155,7 +155,7 @@ function playlistShuffle() {
 //eslint-disable-next-line no-unused-vars
 function playlistSort(tag) {
     sendAPI("MYMPD_API_PLAYLIST_SORT", {
-        "plist": getCustomDomPropertyId('BrowsePlaylistsDetailList', 'data-uri'),
+        "plist": getDataId('BrowsePlaylistsDetailList', 'data-uri'),
         "tag": tag
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
@@ -199,7 +199,7 @@ function parseSmartPlaylist(obj) {
     nameEl.value = obj.result.plist;
     removeIsInvalid(document.getElementById('modalSaveSmartPlaylist'));
     document.getElementById('saveSmartPlaylistType').value = tn(obj.result.type);
-    setCustomDomPropertyId('saveSmartPlaylistType', 'data-value', obj.result.type);
+    setDataId('saveSmartPlaylistType', 'data-value', obj.result.type);
     elHideId('saveSmartPlaylistSearch');
     elHideId('saveSmartPlaylistSticker');
     elHideId('saveSmartPlaylistNewest');
@@ -226,7 +226,7 @@ function parseSmartPlaylist(obj) {
 //eslint-disable-next-line no-unused-vars
 function saveSmartPlaylist() {
     const name = document.getElementById('saveSmartPlaylistName').value;
-    const type = getCustomDomPropertyId('saveSmartPlaylistType', 'data-value');
+    const type = getDataId('saveSmartPlaylistType', 'data-value');
     const sort = getSelectValueId('saveSmartPlaylistSort');
     if (validatePlname(name) === false) {
         document.getElementById('saveSmartPlaylistName').classList.add('is-invalid');
@@ -322,7 +322,7 @@ function deletePlaylists() {
 
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistCurrentSong() {
-    const uri = getCustomDomPropertyId('currentTitle', 'data-uri');
+    const uri = getDataId('currentTitle', 'data-uri');
     if (uri !== '') {
         showAddToPlaylist(uri, '');
     }
@@ -495,7 +495,7 @@ function updateSmartPlaylist(plist) {
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylistClick() {
     sendAPI("MYMPD_API_SMARTPLS_UPDATE", {
-        "plist": getCustomDomPropertyId('BrowsePlaylistsDetailList', 'data-uri')
+        "plist": getDataId('BrowsePlaylistsDetailList', 'data-uri')
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
@@ -512,7 +512,7 @@ function showDelPlaylist(plist, smartplsOnly) {
 
 //eslint-disable-next-line no-unused-vars
 function showClearPlaylist() {
-    const plist = getCustomDomPropertyId('BrowsePlaylistsDetailList', 'data-uri');
+    const plist = getDataId('BrowsePlaylistsDetailList', 'data-uri');
     showConfirm(tn('Do you really want to clear the playlist?', {"playlist": plist}), tn('Yes, clear it'), function() {
         sendAPI("MYMPD_API_PLAYLIST_CLEAR", {
             "plist": plist

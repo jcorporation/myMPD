@@ -7,7 +7,7 @@ function initHome() {
     //home screen
     document.getElementById('HomeList').addEventListener('click', function(event) {
         if (event.target.classList.contains('card-body')) {
-            const href = getCustomDomProperty(event.target.parentNode, 'data-href');
+            const href = getData(event.target.parentNode, 'data-href');
             if (href !== undefined) {
                parseCmd(event, href);
             }
@@ -40,13 +40,13 @@ function initHome() {
     }, false);
     elClear(selectHomeIconCmd);
     selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appGoto"}, tn('Goto view')));
-    setCustomDomProperty(selectHomeIconCmd.childNodes[0], 'data-options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
+    setData(selectHomeIconCmd.childNodes[0], 'data-options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
     selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueue"}, tn('Replace queue')));
-    setCustomDomProperty(selectHomeIconCmd.childNodes[1], 'data-options', {"options": ["Type", "Uri", "Name"]});
+    setData(selectHomeIconCmd.childNodes[1], 'data-options', {"options": ["Type", "Uri", "Name"]});
     selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueue"}, tn('Append to queue')));
-    setCustomDomProperty(selectHomeIconCmd.childNodes[2], 'data-options', {"options": ["Type", "Uri", "Name"]});
+    setData(selectHomeIconCmd.childNodes[2], 'data-options', {"options": ["Type", "Uri", "Name"]});
     selectHomeIconCmd.appendChild(elCreateText('option', {"value": "execScriptFromOptions"}, tn('Execute Script')));
-    setCustomDomProperty(selectHomeIconCmd.childNodes[3], 'data-options', {"options":["Script","Arguments"]});
+    setData(selectHomeIconCmd.childNodes[3], 'data-options', {"options":["Script","Arguments"]});
 
     document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
         document.getElementById('homeIconPreview').style.backgroundColor = event.target.value;
@@ -221,8 +221,8 @@ function parseHome(obj) {
         
         const card = elCreateEmpty('div', {"class": ["card", "home-icons", "clickable"], "tabindex": 0, "draggable": "true",
             "title": tn(homeType) + ': ' + obj.result.data[i].name});
-        setCustomDomProperty(card, 'data-href', {"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
-        setCustomDomProperty(card, 'data-pos', i);
+        setData(card, 'data-href', {"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
+        setData(card, 'data-pos', i);
         const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded"]}, obj.result.data[i].ligature);
         if (obj.result.data[i].image !== '') {
             cardBody.style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(obj.result.data[i].image) + '")';
@@ -321,8 +321,8 @@ function dragAndDropHome() {
             }
             if (dst.classList.contains('home-icons')) {
                 dragEl.classList.remove('opacity05');
-                const to = getCustomDomProperty(dst, 'data-pos');
-                const from = getCustomDomProperty(dragSrc, 'data-pos');
+                const to = getData(dst, 'data-pos');
+                const from = getData(dragSrc, 'data-pos');
                 if (isNaN(to) === false && isNaN(from) === false && from !== to) {
                     sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, function(obj) {
                         parseHome(obj);
@@ -340,7 +340,7 @@ function dragAndDropHome() {
 //eslint-disable-next-line no-unused-vars
 function executeHomeIcon(pos) {
     const el = document.getElementById('HomeList').children[pos].firstChild;
-    parseCmd(null, getCustomDomProperty(el, 'data-href'));
+    parseCmd(null, getData(el, 'data-href'));
 }
 
 //eslint-disable-next-line no-unused-vars

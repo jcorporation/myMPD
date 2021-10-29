@@ -80,9 +80,9 @@ function createPopoverTh(el) {
 }
 
 function createPopoverDisc(el) {
-    const disc = getCustomDomProperty(el.parentNode.parentNode, 'data-disc');
-    const album = getCustomDomProperty(el.parentNode.parentNode, 'data-album');
-    const albumArtist = getCustomDomProperty(el.parentNode.parentNode, 'data-albumartist');
+    const disc = getData(el.parentNode.parentNode, 'data-disc');
+    const album = getData(el.parentNode.parentNode, 'data-album');
+    const albumArtist = getData(el.parentNode.parentNode, 'data-albumartist');
 
     const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false, title: tn('Disc') + ' ' + disc, content: 'content'});
     el.addEventListener('show.bs.popover', function() {
@@ -96,7 +96,7 @@ function createPopoverDisc(el) {
         }
         popoverBody.addEventListener('click', function(eventClick) {
             if (eventClick.target.nodeName === 'A') {
-                const cmd = getCustomDomProperty(eventClick.target, 'data-href');
+                const cmd = getData(eventClick.target, 'data-href');
                 if (cmd) {
                     parseCmd(eventClick, cmd);
                     hidePopover();
@@ -143,7 +143,7 @@ function createPopoverTd(el) {
         if (created === true) {
             tabPanes[i].addEventListener('click', function(eventClick) {
                 if (eventClick.target.nodeName === 'A') {
-                    const cmd = getCustomDomProperty(eventClick.target, 'data-href');
+                    const cmd = getData(eventClick.target, 'data-href');
                     if (cmd) {
                         parseCmd(eventClick, cmd);
                         hidePopover();
@@ -163,7 +163,7 @@ function createPopoverTd(el) {
 
 function addMenuItem(tabContent, cmd, text) {
     const a = elCreateText('a', {"class": ["dropdown-item"], "href": "#"}, tn(text));
-    setCustomDomProperty(a, 'data-href', cmd);
+    setData(a, 'data-href', cmd);
     tabContent.appendChild(a);
 }
 
@@ -237,16 +237,16 @@ function addMenuItemsPlaylistActions(tabContent, type, uri, name) {
 }
 
 function createMenuGeneric(el, tabHeader, tabContent) {
-    let type = getCustomDomProperty(el, 'data-type');
-    let uri = getCustomDomProperty(el, 'data-uri');
-    let name = getCustomDomProperty(el, 'data-name');
+    let type = getData(el, 'data-type');
+    let uri = getData(el, 'data-uri');
+    let name = getData(el, 'data-name');
     let dataNode = el;
     let depth = 0;
     while (type === null || type === undefined || uri === null || uri === undefined) {
         dataNode = dataNode.parentNode;
-        type = getCustomDomProperty(dataNode, 'data-type');
-        uri = getCustomDomProperty(dataNode, 'data-uri');
-        name = getCustomDomProperty(dataNode, 'data-name');
+        type = getData(dataNode, 'data-type');
+        uri = getData(dataNode, 'data-uri');
+        name = getData(dataNode, 'data-name');
         if (depth < 2) { depth++; } else { break; }
     }
 
@@ -281,14 +281,14 @@ function createMenuGeneric(el, tabHeader, tabContent) {
     }
     
     if (app.id === 'BrowseDatabaseList') {
-        const albumArtist = getCustomDomProperty(dataNode, 'data-albumartist');
-        const album = getCustomDomProperty(dataNode, 'data-album');
+        const albumArtist = getData(dataNode, 'data-albumartist');
+        const album = getData(dataNode, 'data-album');
         addMenuItemsAlbumActions(tabContent, albumArtist, album);
         return true;
     }
     
     if (app.id === 'BrowsePlaylistsList') {
-        const smartplsOnly = getCustomDomProperty(dataNode, 'data-smartpls-only');
+        const smartplsOnly = getData(dataNode, 'data-smartpls-only');
         if (smartplsOnly === false || type !== 'smartpls') {
             addMenuItemsPlaylistActions(tabContent, type, uri, name);
             tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
@@ -312,16 +312,16 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         const x = document.getElementById('BrowsePlaylistsDetailList');
         addMenuItemsSongActions(tabContent, uri, name);
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-        if (getCustomDomProperty(x, 'data-ro') === 'false') {
-            addMenuItem(tabContent, {"cmd": "removeFromPlaylist", "options": [getCustomDomProperty(x, 'data-uri'), 
-                getCustomDomProperty(el.parentNode.parentNode, 'data-songpos')]}, 'Remove');
+        if (getData(x, 'data-ro') === 'false') {
+            addMenuItem(tabContent, {"cmd": "removeFromPlaylist", "options": [getData(x, 'data-uri'), 
+                getData(el.parentNode.parentNode, 'data-songpos')]}, 'Remove');
         }
         return true;
     }
     
     if (app.current.app === 'Queue' && app.current.tab === 'Current') {
-        const trackid = getCustomDomProperty(dataNode, 'data-trackid');
-        const songpos = getCustomDomProperty(dataNode, 'data-songpos');
+        const trackid = getData(dataNode, 'data-trackid');
+        const songpos = getData(dataNode, 'data-songpos');
         addMenuItemsSongActions(tabContent, uri, name);
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         if (trackid !== lastState.currentSongId) {
@@ -342,9 +342,9 @@ function createMenuGeneric(el, tabHeader, tabContent) {
     }
     
     if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
-        const pos = Number(getCustomDomProperty(dataNode, 'data-pos'));
-        const vAlbum = getCustomDomProperty(dataNode, 'data-album');
-        const vAlbumArtist = getCustomDomProperty(dataNode, 'data-albumartist');
+        const pos = Number(getData(dataNode, 'data-pos'));
+        const vAlbum = getData(dataNode, 'data-album');
+        const vAlbumArtist = getData(dataNode, 'data-albumartist');
         if (settings.jukeboxMode === 1) {
             addMenuItemsSongActions(tabContent, uri, name);
         }
@@ -366,24 +366,24 @@ function createMenuSecondary(el, tabHeader, tabContent) {
         app.id === 'BrowseFileSystem' ||
         app.id === 'BrowsePlaylistsDetail')
     {
-        let type = getCustomDomProperty(el, 'data-type');
-        let uri = getCustomDomProperty(el, 'data-uri');
-        let name = getCustomDomProperty(el, 'data-name');
+        let type = getData(el, 'data-type');
+        let uri = getData(el, 'data-uri');
+        let name = getData(el, 'data-name');
         let dataNode = el;
         let depth = 0;
         while (type === null || type === undefined || uri === null || uri === undefined) {
             dataNode = dataNode.parentNode;
-            type = getCustomDomProperty(dataNode, 'data-type');
-            uri = getCustomDomProperty(dataNode, 'data-uri');
-            name = getCustomDomProperty(dataNode, 'data-name');
+            type = getData(dataNode, 'data-type');
+            uri = getData(dataNode, 'data-uri');
+            name = getData(dataNode, 'data-name');
             if (depth < 2) { depth++; } else { break; }
         }
 
         if (isStreamUri(uri) === true) {
             return false;
         }
-        const album = getCustomDomProperty(dataNode, 'data-album');
-        const albumArtist = getCustomDomProperty(dataNode, 'data-albumartist');
+        const album = getData(dataNode, 'data-album');
+        const albumArtist = getData(dataNode, 'data-albumartist');
         if (album !== null && albumArtist !== null &&
             album !== '-' && albumArtist !== '-')
         {
@@ -401,8 +401,8 @@ function createMenuSecondary(el, tabHeader, tabContent) {
 }
 
 function createMenuHome(el, tabHeader, tabContent) {
-    const pos = getCustomDomProperty(el.parentNode, 'data-pos');
-    const href = getCustomDomProperty(el.parentNode, 'data-href');
+    const pos = getData(el.parentNode, 'data-pos');
+    const href = getData(el.parentNode, 'data-href');
     if (href === null || href === undefined) {
         return;
     }

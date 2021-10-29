@@ -26,13 +26,13 @@ function initQueue() {
     document.getElementById('searchqueuetags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             appGoto(app.current.app, app.current.tab, app.current.view, 
-                app.current.offset, app.current.limit, getCustomDomProperty(event.target, 'data-tag'), app.current.sort, '-', app.current.search);
+                app.current.offset, app.current.limit, getData(event.target, 'data-tag'), app.current.sort, '-', app.current.search);
         }
     }, false);
 
     document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            clickQueueSong(getCustomDomProperty(event.target.parentNode, 'data-trackid'), getCustomDomProperty(event.target.parentNode, 'data-uri'));
+            clickQueueSong(getData(event.target.parentNode, 'data-trackid'), getData(event.target.parentNode, 'data-uri'));
         }
         else if (event.target.nodeName === 'A') {
             showPopover(event);
@@ -41,7 +41,7 @@ function initQueue() {
     
     document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            clickSong(getCustomDomProperty(event.target.parentNode, 'data-uri'), getCustomDomProperty(event.target.parentNode, 'data-name'));
+            clickSong(getData(event.target.parentNode, 'data-uri'), getData(event.target.parentNode, 'data-name'));
         }
         else if (event.target.nodeName === 'A') {
             showPopover(event);
@@ -66,15 +66,15 @@ function initQueue() {
         removeIsInvalid(document.getElementById('modalAddToQueue'));
         elHideId('warnJukeboxPlaylist2');
         document.getElementById('selectAddToQueuePlaylist').value = tn('Database');
-        setCustomDomPropertyId('selectAddToQueuePlaylist', 'data-value', 'Database');
+        setDataId('selectAddToQueuePlaylist', 'data-value', 'Database');
         document.getElementById('selectAddToQueuePlaylist').filterInput.value = '';
         if (features.featPlaylists === true) {
             filterPlaylistsSelect(0, 'selectAddToQueuePlaylist', '');
         }
     });
 
-    setCustomDomPropertyId('selectAddToQueuePlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
-    setCustomDomPropertyId('selectAddToQueuePlaylist', 'data-cb-filter-options', [0, 'selectAddToQueuePlaylist']);
+    setDataId('selectAddToQueuePlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
+    setDataId('selectAddToQueuePlaylist', 'data-cb-filter-options', [0, 'selectAddToQueuePlaylist']);
 
     document.getElementById('modalSaveQueue').addEventListener('shown.bs.modal', function () {
         const plName = document.getElementById('saveQueueName');
@@ -188,16 +188,16 @@ function parseQueue(obj) {
         row.setAttribute('id','queueTrackId' + data.id);
         row.setAttribute('tabindex', 0);
         row.setAttribute('title', tn(rowTitle));
-        setCustomDomProperty(row, 'data-trackid', data.id);
-        setCustomDomProperty(row, 'data-songpos', data.Pos);
-        setCustomDomProperty(row, 'data-duration', data.Duration);
-        setCustomDomProperty(row, 'data-uri', data.uri);
-        setCustomDomProperty(row, 'data-type', 'song');
+        setData(row, 'data-trackid', data.id);
+        setData(row, 'data-songpos', data.Pos);
+        setData(row, 'data-duration', data.Duration);
+        setData(row, 'data-uri', data.uri);
+        setData(row, 'data-type', 'song');
         if (data.Album !== undefined) {
-            setCustomDomProperty(row, 'data-album', data.Album);
+            setData(row, 'data-album', data.Album);
         }
         if (data[tagAlbumArtist] !== undefined) {
-            setCustomDomProperty(row, 'data-albumartist', data[tagAlbumArtist]);
+            setData(row, 'data-albumartist', data[tagAlbumArtist]);
         }
     }, function(row, data) {
         tableRow(row, data, app.id, colspan, smallWidth);
@@ -208,7 +208,7 @@ function parseQueue(obj) {
     });
 
     const table = document.getElementById('QueueCurrentList');
-    setCustomDomProperty(table, 'data-version', obj.result.queueVersion);
+    setData(table, 'data-version', obj.result.queueVersion);
     const tfoot = table.getElementsByTagName('tfoot')[0];
     if (obj.result.totalTime && obj.result.totalTime > 0 && obj.result.totalEntities <= app.current.limit ) {
         elReplaceChild(tfoot, elCreateNode('tr', {}, 
@@ -234,12 +234,12 @@ function queueSetCurrentSong(currentSongId, elapsedTime, totalTime) {
             if (tr) {
                 const durationTd = tr.querySelector('[data-col=Duration]');
                 if (durationTd) {
-                    durationTd.textContent = beautifySongDuration(getCustomDomProperty(tr, 'data-duration'));
+                    durationTd.textContent = beautifySongDuration(getData(tr, 'data-duration'));
                 }
                 const posTd = tr.querySelector('[data-col=Pos]');
                 if (posTd) {
                     posTd.classList.remove('mi');
-                    posTd.textContent = getCustomDomProperty(tr, 'data-songpos');
+                    posTd.textContent = getData(tr, 'data-songpos');
                 }
                 tr.classList.remove('queue-playing');
                 tr.style = '';
@@ -281,9 +281,9 @@ function parseLastPlayed(obj) {
 
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
     updateTable(obj, 'QueueLastPlayed', function(row, data) {
-        setCustomDomProperty(row, 'data-uri', data.uri);
-        setCustomDomProperty(row, 'data-name', data.Title);
-        setCustomDomProperty(row, 'data-type', 'song');
+        setData(row, 'data-uri', data.uri);
+        setData(row, 'data-name', data.Title);
+        setData(row, 'data-type', 'song');
         row.setAttribute('tabindex', 0);
         row.setAttribute('title', tn(rowTitle));
     });
@@ -335,7 +335,7 @@ function addToQueue() {
     if (!validateInt(inputAddToQueueQuantityEl)) {
         formOK = false;
     }
-    const selectAddToQueuePlaylistValue = getCustomDomProperty(document.getElementById('selectAddToQueuePlaylist'), 'data-value');
+    const selectAddToQueuePlaylistValue = getData(document.getElementById('selectAddToQueuePlaylist'), 'data-value');
     if (formOK === true) {
         sendAPI("MYMPD_API_QUEUE_ADD_RANDOM", {
             "mode": Number(getSelectValueId('selectAddToQueueMode')),

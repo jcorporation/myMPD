@@ -9,14 +9,14 @@ function initTimer() {
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
             if (!event.target.parentNode.classList.contains('not-clickable')) {
-                showEditTimer(getCustomDomProperty(event.target.parentNode, 'data-id'));
+                showEditTimer(getData(event.target.parentNode, 'data-id'));
             }
         }
         else if (event.target.nodeName === 'A') {
-            deleteTimer(event.target, getCustomDomProperty(event.target.parentNode.parentNode, 'data-id'));
+            deleteTimer(event.target, getData(event.target.parentNode.parentNode, 'data-id'));
         }
         else if (event.target.nodeName === 'BUTTON') {
-            toggleTimer(event.target, getCustomDomProperty(event.target.parentNode.parentNode, 'data-id'));
+            toggleTimer(event.target, getData(event.target.parentNode.parentNode, 'data-id'));
         }
     }, false);
 
@@ -47,8 +47,8 @@ function initTimer() {
         hideModalAlert();
     });
 
-    setCustomDomPropertyId('selectTimerPlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
-    setCustomDomPropertyId('selectTimerPlaylist', 'data-cb-filter-options', [0, 'selectTimerPlaylist']);
+    setDataId('selectTimerPlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
+    setDataId('selectTimerPlaylist', 'data-cb-filter-options', [0, 'selectTimerPlaylist']);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -103,8 +103,8 @@ function saveTimer() {
         elHideId('invalidTimerWeekdays');
     }
     const selectTimerAction  = document.getElementById('selectTimerAction');
-    const jukeboxMode = getCustomDomProperty(document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
-    const selectTimerPlaylist = getCustomDomPropertyId('selectTimerPlaylist', 'data-value');
+    const jukeboxMode = getData(document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
+    const selectTimerPlaylist = getDataId('selectTimerPlaylist', 'data-value');
 
     if (selectTimerAction.selectedIndex === -1) {
         formOK = false;
@@ -125,7 +125,7 @@ function saveTimer() {
         const args = {};
         const argEls = document.getElementById('timerActionScriptArguments').getElementsByTagName('input');
         for (let i = 0, j = argEls.length; i < j; i++) {
-            args[getCustomDomProperty(argEls[i], 'data-name')] = argEls[i].value;
+            args[getData(argEls[i], 'data-name')] = argEls[i].value;
         }
         let interval = Number(inputTimerIntervalEl.value);
         if (interval > 0) {
@@ -139,7 +139,7 @@ function saveTimer() {
             "startHour": Number(getSelectValueId('selectTimerHour')),
             "startMinute": Number(getSelectValueId('selectTimerMinute')),
             "weekdays": weekdays,
-            "action": getCustomDomProperty(selectTimerAction.options[selectTimerAction.selectedIndex].parentNode, 'data-value'),
+            "action": getData(selectTimerAction.options[selectTimerAction.selectedIndex].parentNode, 'data-value'),
             "subaction": getSelectValue(selectTimerAction),
             "volume": Number(document.getElementById('inputTimerVolume').value), 
             "playlist": selectTimerPlaylist,
@@ -179,7 +179,7 @@ function showEditTimer(timerid) {
     else {
         filterPlaylistsSelect(1, 'selectTimerPlaylist', '', 'Database');
         document.getElementById('selectTimerPlaylist').value = tn('Database');
-        setCustomDomPropertyId('selectTimerPlaylist', 'data-value', 'Database');
+        setDataId('selectTimerPlaylist', 'data-value', 'Database');
 
         document.getElementById('inputTimerId').value = '0';
         document.getElementById('inputTimerName').value = '';
@@ -207,7 +207,7 @@ function parseEditTimer(obj) {
     const playlistValue = obj.result.playlist;
     filterPlaylistsSelect(1, 'selectTimerPlaylist', '', playlistValue);
     document.getElementById('selectTimerPlaylist').value = playlistValue === 'Datbase' ? tn('Database'): playlistValue;
-    setCustomDomPropertyId('selectTimerPlaylist', 'data-value', playlistValue);
+    setDataId('selectTimerPlaylist', 'data-value', playlistValue);
 
     document.getElementById('inputTimerId').value = obj.result.timerid;
     document.getElementById('inputTimerName').value = obj.result.name;
@@ -255,7 +255,7 @@ function selectTimerActionChange(values) {
         elShowId('timerActionPlay');
         elHideId('timerActionScript');
     }
-    else if (el.selectedIndex > -1 && getCustomDomProperty(el.options[el.selectedIndex].parentNode, 'data-value') === 'script') {
+    else if (el.selectedIndex > -1 && getData(el.options[el.selectedIndex].parentNode, 'data-value') === 'script') {
         elShowId('timerActionScript');
         elHideId('timerActionPlay');
         showTimerScriptArgs(el.options[el.selectedIndex], values);
@@ -270,13 +270,13 @@ function showTimerScriptArgs(option, values) {
     if (values === undefined) {
         values = {};
     }
-    const args = JSON.parse(getCustomDomProperty(option, 'data-arguments'));
+    const args = JSON.parse(getData(option, 'data-arguments'));
     const list = document.getElementById('timerActionScriptArguments');
     elClear(list);
     for (let i = 0, j = args.arguments.length; i < j; i++) {
         const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "timerActionScriptArguments" + i, 
             "value": (values[args.arguments[i]] ? values[args.arguments[i]] : '')});
-        setCustomDomProperty(input, 'data-name', args.arguments[i]);
+        setData(input, 'data-name', args.arguments[i]);
         const fg = elCreateNodes('div', {"class": ["form-group", "row"]},
             [
                 elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": "timerActionScriptArguments" + i}, args.arguments[i]),
@@ -309,7 +309,7 @@ function parseListTimer(obj) {
     const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const row = document.createElement('tr');
-        setCustomDomProperty(row, 'data-id', obj.result.data[i].timerid);
+        setData(row, 'data-id', obj.result.data[i].timerid);
         row.appendChild(
             elCreateText('td', {}, obj.result.data[i].name)
         );

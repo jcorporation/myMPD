@@ -125,17 +125,17 @@ function logMessage(title, text, facility, severity) {
 
     let append = true;
     const lastEntry = overview.firstElementChild;
-    if (lastEntry && getCustomDomProperty(lastEntry, 'data-title') === title) {
+    if (lastEntry && getData(lastEntry, 'data-title') === title) {
         append = false;        
     }
 
     const entry = elCreateEmpty('div', {"class": ["row", "align-items-center", "mb-2", "me-0"]});
-    setCustomDomProperty(entry, 'data-title', title);
+    setData(entry, 'data-title', title);
     let occurence = 1;
     if (append === false) {
-        occurence += Number(getCustomDomProperty(lastEntry, 'data-occurence'));
+        occurence += Number(getData(lastEntry, 'data-occurence'));
     }
-    setCustomDomProperty(entry, 'data-occurence', occurence);
+    setData(entry, 'data-occurence', occurence);
     entry.appendChild(elCreateNode('div', {"class": ["col", "col-1", "ps-0"]}, getSeverityIcon(severity)));
     const col = elCreateEmpty('div', {"class": ["col", "col-11"]});  
     col.appendChild(elCreateText('small', {}, localeDate() + ' - ' + tn(facility) +

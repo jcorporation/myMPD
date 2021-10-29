@@ -52,7 +52,7 @@ class inputReset extends HTMLInputElement {
     connectedCallback() {
         this.button.addEventListener('mouseup', function(event) {
             const input = event.target.previousSibling;
-            input.value = getCustomDomProperty(input, 'data-default') !== null ? getCustomDomProperty(input, 'data-default') : 
+            input.value = getData(input, 'data-default') !== null ? getData(input, 'data-default') : 
                 (input.getAttribute('placeholder') !== null ? input.getAttribute('placeholder') : '');
         }, false);
     }
@@ -84,12 +84,12 @@ class selectSearch extends HTMLInputElement {
         const input = this;
         this.filterResult.addEventListener('click', function(event) {
             input.value = event.target.text;
-            setCustomDomProperty(input, 'data-value', event.target.value);
+            setData(input, 'data-value', event.target.value);
             input.dropdownButton.Dropdown.hide();
         }, false);
         this.filterInput.addEventListener('keyup', function(event) {
-            const cb = getCustomDomProperty(input, 'data-cb-filter');
-            const cbOptions = getCustomDomProperty(input, 'data-cb-filter-options');
+            const cb = getData(input, 'data-cb-filter');
+            const cbOptions = getData(input, 'data-cb-filter-options');
             window[cb](... cbOptions, event.target.value);
         }, false);
         new BSN.Dropdown(input.dropdownButton);
