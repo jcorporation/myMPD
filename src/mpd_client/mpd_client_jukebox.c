@@ -444,7 +444,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
         int start = 0;
         int end = start + MPD_RESULTS_MAX;
         time_t now = time(NULL);
-        now = now - mympd_state->jukebox_last_played * 60 * 60;
+        now = now - (long)(mympd_state->jukebox_last_played * 3600);
         
         if (mympd_state->sticker_cache == NULL) {
             MYMPD_LOG_WARN("Sticker cache is null, jukebox doesn't respect last played constraint");
