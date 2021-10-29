@@ -6,7 +6,7 @@
 function initSearch() {
     document.getElementById('SearchList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            clickSong(getCustomDomProperty(event.target.parentNode, 'data-uri'), getCustomDomProperty(event.target.parentNode, 'data-name'));
+            clickSong(getData(event.target.parentNode, 'data-uri'), getData(event.target.parentNode, 'data-name'));
         }
         else if (event.target.nodeName === 'A') {
             showPopover(event);
@@ -15,7 +15,7 @@ function initSearch() {
     
     document.getElementById('searchtags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
-            app.current.filter = getCustomDomProperty(event.target, 'data-tag');
+            app.current.filter = getData(event.target, 'data-tag');
             doSearch(document.getElementById('searchstr').value);
         }
     }, false);
@@ -52,11 +52,11 @@ function initSearch() {
             //edit search expression
             event.preventDefault();
             event.stopPropagation();
-            document.getElementById('searchstr').value = unescapeMPD(getCustomDomProperty(event.target, 'data-filter-value'));
-            selectTag('searchtags', 'searchtagsdesc', getCustomDomProperty(event.target, 'data-filter-tag'));
-            document.getElementById('searchMatch').value = getCustomDomProperty(event.target, 'data-filter-op');
+            document.getElementById('searchstr').value = unescapeMPD(getData(event.target, 'data-filter-value'));
+            selectTag('searchtags', 'searchtagsdesc', getData(event.target, 'data-filter-tag'));
+            document.getElementById('searchMatch').value = getData(event.target, 'data-filter-op');
             event.target.remove();
-            app.current.filter = getCustomDomProperty(event.target,'data-filter-tag');
+            app.current.filter = getData(event.target,'data-filter-tag');
             doSearch(document.getElementById('searchstr').value);
             if (document.getElementById('searchCrumb').childElementCount === 0) {
                 elHideId('searchCrumb');
@@ -106,7 +106,17 @@ function initSearch() {
         }
         app.current.sort = sortcol;
 
-        elReplaceChild(event.target, elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down')));
+        elClear(event.target);
+        event.target.appendChild(
+            document.createTextNode(
+                tn(
+                    event.target.getAttribute('data-col')
+                )
+            )
+        );
+        event.target.appendChild(
+            elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down'))
+        );
         appGoto(app.current.app, app.current.tab, app.current.view,
             app.current.offset, app.current.limit, app.current.filter,  app.current.sort, '-', app.current.search);
     }, false);
@@ -139,11 +149,11 @@ function parseSearch(obj) {
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
 
     updateTable(obj, 'Search', function(row, data) {
-        setCustomDomProperty(row, 'data-type', data.Type);
-        setCustomDomProperty(row, 'data-uri', data.uri);
+        setData(row, 'data-type', data.Type);
+        setData(row, 'data-uri', data.uri);
         row.setAttribute('tabindex', 0);
         row.setAttribute('title', rowTitle);
-        setCustomDomProperty(row, 'data-name', data.Title);
+        setData(row, 'data-name', data.Title);
     });
 }
 
