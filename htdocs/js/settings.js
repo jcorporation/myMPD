@@ -686,9 +686,16 @@ function _createSettingsFrm(fields, defaults, prefix) {
             else {
                 btn.textContent = 'radio_button_unchecked';
             }
-            btn.addEventListener('click', function(event) {
-                toggleBtnChk(event.target);
-            }, false);
+            if (defaults[key].onClick !== undefined) {
+                btn.addEventListener('click', function(event) {
+                    window[defaults[key].onClick](event);
+                }, false);
+            }
+            else {
+                btn.addEventListener('click', function(event) {
+                    toggleBtnChk(event.target);
+                }, false);
+            }
             col.appendChild(btn);
         }
         else {
@@ -1128,8 +1135,8 @@ function filterCols(x) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function toggleBtnNotifyWeb() {
-    const btnNotifyWeb = document.getElementById('btnNotifyWeb');
+function toggleBtnNotifyWeb(event) {
+    const btnNotifyWeb = event.target;
     const notifyWebState = btnNotifyWeb.classList.contains('active') ? true : false;
     if (notificationsSupported()) {
         if (notifyWebState === false) {
@@ -1138,25 +1145,25 @@ function toggleBtnNotifyWeb() {
                     Notification.permission = permission;
                 }
                 if (permission === 'granted') {
-                    toggleBtnChkId('btnNotifyWeb', true);
+                    toggleBtnChk(btnNotifyWeb, true);
                     settings.notificationWeb = true;
                     elHideId('warnNotifyWeb');
                 } 
                 else {
-                    toggleBtnChkId('btnNotifyWeb', false);
+                    toggleBtnChk(btnNotifyWeb, false);
                     settings.notificationWeb = false;
                     elShowId('warnNotifyWeb');
                 }
             });
         }
         else {
-            toggleBtnChkId('btnNotifyWeb', false);
+            toggleBtnChk(btnNotifyWeb, false);
             settings.notificationWeb = false;
             elHideId('warnNotifyWeb');
         }
     }
     else {
-        toggleBtnChkId('btnNotifyWeb', false);
+        toggleBtnChk(btnNotifyWeb, false);
         settings.notificationWeb = false;
     }
 }

@@ -339,7 +339,8 @@ const webuiSettingsDefault = {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Web notifications",
-        "form": "NotificationSettingsFrm"
+        "form": "NotificationSettingsFrm",
+        "onClick": "toggleBtnNotifyWeb"
     },
     "mediaSession": {
         "defaultValue": false,
