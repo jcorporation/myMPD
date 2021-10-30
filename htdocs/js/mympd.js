@@ -481,7 +481,7 @@ function appInitStart() {
         script === 'combined.js')
     {
         window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/sw.js', {scope: '/'}).then(function(registration) {
+            navigator.serviceWorker.register('sw.js', {scope: subdir + '/'}).then(function(registration) {
                 //Registration was successful
                 logInfo('ServiceWorker registration successful.');
                 registration.update();
