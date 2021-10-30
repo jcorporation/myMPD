@@ -1,1 +1,1 @@
-const myMPDversion = '8.1.3';
+const myMPDversion = '8.1.4';
