@@ -206,7 +206,7 @@ function clickFolder(uri, name) {
             };
             //reset filter and open folder
             app.current.filter = '-';
-            appGoto('Browse', 'Filesystem', undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', uri);
+            appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', uri);
             break;
     }
 }

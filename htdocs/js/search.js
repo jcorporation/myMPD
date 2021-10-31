@@ -125,10 +125,10 @@ function initSearch() {
 function doSearch(x) {
     if (features.featAdvsearch) {
         const expression = createSearchExpression(document.getElementById('searchCrumb'), app.current.filter, getSelectValueId('searchMatch'), x);
-        appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', expression, 0);
+        appGoto('Search', undefined, undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', expression, 0);
     }
     else {
-        appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', x, 0);
+        appGoto('Search', undefined, undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', x, 0);
     }
 }
 

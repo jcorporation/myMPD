@@ -5,7 +5,7 @@
 
 /* eslint-enable no-unused-vars */
 function appPrepare(scrollPos) {
-    if (app.current.app !== app.last.app || app.current.tab !== app.last.tab || app.current.view !== app.last.view) {
+    if (app.current.card !== app.last.card || app.current.tab !== app.last.tab || app.current.view !== app.last.view) {
         //Hide all cards + nav
         for (let i = 0; i < domCache.navbarBtnsLen; i++) {
             domCache.navbarBtns[i].classList.remove('active');
@@ -19,24 +19,24 @@ function appPrepare(scrollPos) {
             elHideId(card);
         }
         //show active card
-        elShowId('card' + app.current.app);
+        elShowId('card' + app.current.card);
         //show active tab
         if (app.current.tab !== undefined) {
-            elShowId('tab' + app.current.app + app.current.tab);
+            elShowId('tab' + app.current.card + app.current.tab);
         }
         //show active view
         if (app.current.view !== undefined) {
-            elShowId('view' + app.current.app + app.current.tab + app.current.view);
+            elShowId('view' + app.current.card + app.current.tab + app.current.view);
         }
         //show active navbar icon
-        let nav = document.getElementById('nav' + app.current.app + app.current.tab);
+        let nav = document.getElementById('nav' + app.current.card + app.current.tab);
         if (nav) {
             nav.classList.add('active');
         }
         else {
-            nav = document.getElementById('nav' + app.current.app);
+            nav = document.getElementById('nav' + app.current.card);
             if (nav) {
-                document.getElementById('nav' + app.current.app).classList.add('active');
+                document.getElementById('nav' + app.current.card).classList.add('active');
             }
         }
     }
@@ -51,26 +51,26 @@ function appPrepare(scrollPos) {
 
 function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newScrollPos) {
     //old app
-    const oldptr = app.apps[app.current.app].offset !== undefined ? app.apps[app.current.app] :
-        app.apps[app.current.app].tabs[app.current.tab].offset !== undefined ? app.apps[app.current.app].tabs[app.current.tab] :
-            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view];
+    const oldptr = app.cards[app.current.card].offset !== undefined ? app.cards[app.current.card] :
+        app.cards[app.current.card].tabs[app.current.tab].offset !== undefined ? app.cards[app.current.card].tabs[app.current.tab] :
+            app.cards[app.current.card].tabs[app.current.tab].views[app.current.view];
 
     //get default active tab or view from state
-    if (app.apps[card].tabs) {
+    if (app.cards[card].tabs) {
         if (tab === undefined) {
-            tab = app.apps[card].active;
+            tab = app.cards[card].active;
         }
-        if (app.apps[card].tabs[tab].views) {
+        if (app.cards[card].tabs[tab].views) {
             if (view === undefined) {
-                view = app.apps[card].tabs[tab].active;
+                view = app.cards[card].tabs[tab].active;
             }
         }
     }
 
     //get ptr to new app
-    const ptr = app.apps[card].offset !== undefined ? app.apps[card] :
-                app.apps[card].tabs[tab].offset !== undefined ? app.apps[card].tabs[tab] :
-                app.apps[card].tabs[tab].views[view];
+    const ptr = app.cards[card].offset !== undefined ? app.cards[card] :
+                app.cards[card].tabs[tab].offset !== undefined ? app.cards[card].tabs[tab] :
+                app.cards[card].tabs[tab].views[view];
                 
     //save scrollPos of old app
     if (oldptr !== ptr) {
@@ -89,6 +89,7 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
         ptr.scrollPos = newScrollPos;
     }
     //build hash
+    app.goto = true;
     location.hash = myEncodeURIComponent(
         JSON.stringify({
             "card": card,
@@ -102,6 +103,7 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
             "search": search
         })
     );
+    app.goto = false;
     appRoute(card, tab, view, offset, limit, filter, sort, tag, search);
 }
 
@@ -111,7 +113,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         appInitStart();
         return;
     }
-    if (card === undefined) {
+    if (card === undefined || card === null) {
         const hash = location.hash.match(/^#(.*)$/);
         let json_hash = null;
         if (hash !== null) {
@@ -133,7 +135,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         }
     }
     else {
-        app.current.app = card;
+        app.current.card = card;
         app.current.tab = tab;
         app.current.view = view;
         app.current.offset = offset;
@@ -143,21 +145,21 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         app.current.tag = tag;
         app.current.search = search;
     }
-    app.id = app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + (app.current.view === undefined ? '' : app.current.view);
+    app.id = app.current.card + (app.current.tab === undefined ? '' : app.current.tab) + (app.current.view === undefined ? '' : app.current.view);
 
     //get ptr to app options and set active tab/view        
     let ptr;
-    if (app.apps[app.current.app].offset !== undefined) {
-        ptr = app.apps[app.current.app];
+    if (app.cards[app.current.card].offset !== undefined) {
+        ptr = app.cards[app.current.card];
     }
-    else if (app.apps[app.current.app].tabs[app.current.tab].offset !== undefined) {
-        ptr = app.apps[app.current.app].tabs[app.current.tab];
-        app.apps[app.current.app].active = app.current.tab;
+    else if (app.cards[app.current.card].tabs[app.current.tab].offset !== undefined) {
+        ptr = app.cards[app.current.card].tabs[app.current.tab];
+        app.cards[app.current.card].active = app.current.tab;
     }
-    else if (app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].offset !== undefined) {
-        ptr = app.apps[app.current.app].tabs[app.current.tab].views[app.current.view];
-        app.apps[app.current.app].active = app.current.tab;
-        app.apps[app.current.app].tabs[app.current.tab].active = app.current.view;
+    else if (app.cards[app.current.card].tabs[app.current.tab].views[app.current.view].offset !== undefined) {
+        ptr = app.cards[app.current.card].tabs[app.current.tab].views[app.current.view];
+        app.cards[app.current.card].active = app.current.tab;
+        app.cards[app.current.card].tabs[app.current.tab].active = app.current.view;
     }
     //set app options
     ptr.offset = app.current.offset;
@@ -170,23 +172,23 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
 
     appPrepare(app.current.scrollPos);
 
-    if (app.current.app === 'Home') {
+    if (app.current.card === 'Home') {
         const list = document.getElementById('HomeList');
         list.classList.remove('opacity05');
         setScrollViewHeight(list);
         sendAPI("MYMPD_API_HOME_LIST", {}, parseHome);
     }
-    else if (app.current.app === 'Playback') {
+    else if (app.current.card === 'Playback') {
         const list = document.getElementById('PlaybackList');
         list.classList.remove('opacity05');
         setScrollViewHeight(list);
         sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, songChange);
     }    
-    else if (app.current.app === 'Queue' && app.current.tab === 'Current' ) {
+    else if (app.current.card === 'Queue' && app.current.tab === 'Current' ) {
         selectTag('searchqueuetags', 'searchqueuetagsdesc', app.current.filter);
         getQueue();
     }
-    else if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
+    else if (app.current.card === 'Queue' && app.current.tab === 'LastPlayed') {
         sendAPI("MYMPD_API_QUEUE_LAST_PLAYED", {
             "offset": app.current.offset,
             "limit": app.current.limit,
@@ -198,7 +200,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             searchQueueLastPlayedStrEl.value = app.current.search;
         }
     }
-    else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
+    else if (app.current.card === 'Queue' && app.current.tab === 'Jukebox') {
         sendAPI("MYMPD_API_JUKEBOX_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
@@ -210,7 +212,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             searchQueueJukeboxStrEl.value = app.current.search;
         }
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
+    else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
         sendAPI("MYMPD_API_PLAYLIST_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
@@ -222,7 +224,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             searchPlaylistsStrEl.value = app.current.search;
         }
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
+    else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
         sendAPI("MYMPD_API_PLAYLIST_CONTENT_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
@@ -235,7 +237,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             searchPlaylistsStrEl.value = app.current.search;
         }
     }    
-    else if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
+    else if (app.current.card === 'Browse' && app.current.tab === 'Filesystem') {
         sendAPI("MYMPD_API_DATABASE_FILESYSTEM_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
@@ -257,26 +259,26 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         elClear(crumbEl);
         const home = elCreateText('a', {"class": ["mi"]}, 'home');
         setData(home, 'data-uri', '');
-        crumbEl.appendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, home));
+        crumbEl.cardendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, home));
 
         const pathArray = app.current.search.split('/');
         const pathArrayLen = pathArray.length;
         let fullPath = '';
         for (let i = 0; i < pathArrayLen; i++) {
             if (pathArrayLen - 1 === i) {
-                crumbEl.appendChild(elCreateText('li', {"class": ["breadcrumb-item", "active"]}, pathArray[i]));
+                crumbEl.cardendChild(elCreateText('li', {"class": ["breadcrumb-item", "active"]}, pathArray[i]));
                 break;
             }
             fullPath += pathArray[i];
             const a = elCreateText('a', {"href": "#"}, pathArray[i]);
             setData(a, 'data-uri', fullPath);
-            crumbEl.appendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, a));
+            crumbEl.cardendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, a));
             fullPath += '/';
         }
         const searchFilesystemStrEl = document.getElementById('searchFilesystemStr');
         searchFilesystemStrEl.value = app.current.filter === '-' ? '' :  app.current.filter;
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
+    else if (app.current.card === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
         selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', app.current.filter);
         selectTag('BrowseDatabaseByTagDropdown', 'btnBrowseDatabaseByTagDesc', app.current.tag);
         let sort = app.current.sort;
@@ -320,16 +322,16 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             }, parseDatabase, true);
         }
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail') {
+    else if (app.current.card === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail') {
         if (app.current.filter === 'Album') {
             sendAPI("MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {
                 "album": app.current.tag,
-                "albumartist": JSON.stringify(app.current.search),
+                "albumartist": app.current.search,
                 "cols": settings.colsBrowseDatabaseDetailFetch
             }, parseAlbumDetails, true);
         }    
     }
-    else if (app.current.app === 'Search') {
+    else if (app.current.card === 'Search') {
         document.getElementById('searchstr').focus();
         if (features.featAdvsearch) {
             createSearchCrumbs(app.current.search, document.getElementById('searchstr'), document.getElementById('searchCrumb'));
@@ -388,7 +390,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         appGoto("Home");
     }
 
-    app.last.app = app.current.app;
+    app.last.card = app.current.card;
     app.last.tab = app.current.tab;
     app.last.view = app.current.view;
 }
@@ -444,6 +446,13 @@ function a2hsInit() {
 }
 
 function appInitStart() {
+    //add app routing event handler
+    window.addEventListener('hashchange', function() {
+        if (app.goto === false) {
+            appRoute();
+        }
+    }, false);
+
     //webapp manifest shortcuts
     const params = new URLSearchParams(window.location.search);
     const action = params.get('action');

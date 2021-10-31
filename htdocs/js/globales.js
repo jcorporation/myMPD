@@ -46,7 +46,7 @@ const stickerList = ['stickerPlayCount', 'stickerSkipCount', 'stickerLastPlayed'
 
 //application state
 const app = {};
-app.apps = { 
+app.cards = { 
     "Home": { 
         "offset": 0,
         "limit": 100,
@@ -169,8 +169,9 @@ app.apps = {
 };
 
 app.id = "Home";
-app.current = { "app": "Home", "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
-app.last = { "app": undefined, "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
+app.current = { "card": "Home", "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
+app.last = { "card": undefined, "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
+app.goto = false;
 
 //normal settings
 const settingFields = {

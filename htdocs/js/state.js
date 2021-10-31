@@ -412,7 +412,7 @@ function setPlaybackCardTags(songObj) {
 
 //eslint-disable-next-line no-unused-vars
 function gotoTagList() {
-    appGoto(app.current.app, app.current.tab, app.current.view, '0', undefined, '-', '-', '-', '');
+    appGoto(app.current.app, app.current.tab, app.current.view, 0, undefined, '-', '-', '-', '');
 }
 
 //eslint-disable-next-line no-unused-vars

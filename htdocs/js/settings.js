@@ -309,23 +309,23 @@ function parseSettings(obj) {
     document.documentElement.style.setProperty('--mympd-coverimagesizesmall', settings.webuiSettings.uiCoverimageSizeSmall + "px");
     document.documentElement.style.setProperty('--mympd-highlightcolor', settings.webuiSettings.uiHighlightColor);
 
-    //default limit for all apps
+    //default limit for all cards
     //convert from string to int
     let limit = settings.webuiSettings.uiMaxElementsPerPage;
     if (limit === 0) {
         limit = 500;
     }
-    app.apps.Home.limit = limit;
-    app.apps.Playback.limit = limit;
-    app.apps.Queue.tabs.Current.limit = limit;
-    app.apps.Queue.tabs.LastPlayed.limit = limit;
-    app.apps.Queue.tabs.Jukebox.limit = limit;
-    app.apps.Browse.tabs.Filesystem.limit = limit;
-    app.apps.Browse.tabs.Playlists.views.List.limit = limit;
-    app.apps.Browse.tabs.Playlists.views.Detail.limit = limit;
-    app.apps.Browse.tabs.Database.views.List.limit = limit;
-    app.apps.Browse.tabs.Database.views.Detail.limit = limit;
-    app.apps.Search.limit = limit;
+    app.cards.Home.limit = limit;
+    app.cards.Playback.limit = limit;
+    app.cards.Queue.tabs.Current.limit = limit;
+    app.cards.Queue.tabs.LastPlayed.limit = limit;
+    app.cards.Queue.tabs.Jukebox.limit = limit;
+    app.cards.Browse.tabs.Filesystem.limit = limit;
+    app.cards.Browse.tabs.Playlists.views.List.limit = limit;
+    app.cards.Browse.tabs.Playlists.views.Detail.limit = limit;
+    app.cards.Browse.tabs.Database.views.List.limit = limit;
+    app.cards.Browse.tabs.Database.views.Detail.limit = limit;
+    app.cards.Search.limit = limit;
 
     //scripts
     if (scriptsInited === false) {
@@ -817,10 +817,10 @@ function parseMPDSettings() {
     }
 
     if (features.featTags === false) {
-        app.apps.Browse.active = 'Filesystem';
-        app.apps.Search.sort = 'filename';
-        app.apps.Search.filter = 'filename';
-        app.apps.Queue.tabs.Current.filter = 'filename';
+        app.cards.Browse.active = 'Filesystem';
+        app.cards.Search.sort = 'filename';
+        app.cards.Search.filter = 'filename';
+        app.cards.Queue.tabs.Current.filter = 'filename';
         settings.colsQueueCurrent = ["Pos", "Title", "Duration"];
         settings.colsQueueLastPlayed = ["Pos", "Title", "LastPlayed"];
         settings.colsQueueJukebox = ["Pos", "Title"];
@@ -854,7 +854,7 @@ function parseMPDSettings() {
     }
 
     if (settings.tagList.includes('Title')) {
-        app.apps.Search.sort = 'Title';
+        app.cards.Search.sort = 'Title';
     }
     
     if (settings.tagList.includes('AlbumArtist')) {
@@ -864,12 +864,12 @@ function parseMPDSettings() {
         tagAlbumArtist = 'Artist';        
     }
     
-    if (!settings.tagList.includes('AlbumArtist') && app.apps.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
-        app.apps.Browse.tabs.Database.views.List.sort = 'Artist';
+    if (!settings.tagList.includes('AlbumArtist') && app.cards.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
+        app.cards.Browse.tabs.Database.views.List.sort = 'Artist';
     }
 
-    if (features.featAdvsearch === false && app.apps.Browse.active === 'Database') {
-        app.apps.Browse.active = 'Filesystem';
+    if (features.featAdvsearch === false && app.cards.Browse.active === 'Database') {
+        app.cards.Browse.active = 'Filesystem';
     }
 
     if (features.featAdvsearch === false) {

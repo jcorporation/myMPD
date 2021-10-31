@@ -9,7 +9,7 @@ function initQueue() {
             this.blur();
         }
         else {
-            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter , app.current.sort, '-', this.value);
+            appGoto(app.current.app, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter , app.current.sort, '-', this.value);
         }
     }, false);
 
@@ -19,7 +19,7 @@ function initQueue() {
         }
         else {
             appGoto(app.current.app, app.current.tab, app.current.view, 
-                '0', app.current.limit, app.current.filter, app.current.sort, '-', this.value);
+                0, app.current.limit, app.current.filter, app.current.sort, '-', this.value);
         }
     }, false);
 

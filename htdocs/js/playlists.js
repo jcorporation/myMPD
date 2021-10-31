@@ -23,7 +23,7 @@ function initPlaylists() {
         }
         else {
             appGoto(app.current.app, app.current.tab, app.current.view, 
-                '0', app.current.limit, app.current.filter, app.current.sort, '-', this.value);
+                0, app.current.limit, app.current.filter, app.current.sort, '-', this.value);
         }
     }, false);
     
@@ -33,7 +33,7 @@ function initPlaylists() {
         }
         else {
             appGoto(app.current.app, app.current.tab, app.current.view, 
-                '0', app.current.limit, app.current.filter, app.current.sort, '-', this.value);
+                0, app.current.limit, app.current.filter, app.current.sort, '-', this.value);
         }
     }, false);
     
@@ -141,7 +141,7 @@ function parsePlaylistsDetail(obj) {
 //eslint-disable-next-line no-unused-vars
 function playlistDetails(uri) {
     document.getElementById('BrowsePlaylistsListList').classList.add('opacity05');
-    appGoto('Browse', 'Playlists', 'Detail', '0', undefined, uri, '-', '-', '');
+    appGoto('Browse', 'Playlists', 'Detail', 0, undefined, uri, '-', '-', '');
 }
 
 //eslint-disable-next-line no-unused-vars

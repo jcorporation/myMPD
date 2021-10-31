@@ -225,7 +225,7 @@ function navBrowseHandler(event) {
         }
         
         if (app.current.app === 'Browse' && app.current.tab !== 'Database') {
-            appGoto('Browse', 'Database', app.apps.Browse.tabs.Database.active);
+            appGoto('Browse', 'Database', app.cards.Browse.tabs.Database.active);
             return;
         }
         if (tag !== 'Album') {

@@ -238,7 +238,7 @@ function setColsChecklist(table, menu) {
 function setCols(table) {
     let sort = app.current.sort;
     
-    if (table === 'Search' && app.apps.Search.sort === 'Title') {
+    if (table === 'Search' && app.cards.Search.sort === 'Title') {
         if (settings.tagList.includes('Title')) {
             sort = 'Title';
         }
