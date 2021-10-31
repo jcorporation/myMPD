@@ -1118,12 +1118,14 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST: {
             struct t_tags tagcols;
-            reset_t_tags(&tagcols);          
+            reset_t_tags(&tagcols);
+            struct t_list albumartists;
+            list_init(&albumartists);
             if (json_get_string(request->data, "$.params.album", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
-                json_get_string(request->data, "$.params.albumartist", 1, NAME_LEN_MAX, &sds_buf2, vcb_isname, &error) == true &&
+                json_get_array_string(request->data, "$.params.albumartist", &albumartists, vcb_isname, 10, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
-                response->data = mympd_api_browse_album_songs(mympd_state, response->data, request->method, request->id, sds_buf1, sds_buf2, &tagcols);
+                response->data = mympd_api_browse_album_songs(mympd_state, response->data, request->method, request->id, sds_buf1, &albumartists, &tagcols);
             }
             break;
         }

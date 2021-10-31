@@ -289,7 +289,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
 }
 
 sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                                  sds album, sds albumartist, const struct t_tags *tagcols)
+                                 sds album, struct t_list *albumartists, const struct t_tags *tagcols)
 {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
@@ -301,8 +301,12 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     }
 
     sds expression = sdsnewlen("(", 1);
-    expression = escape_mpd_search_expression(expression, mpd_tag_name(mympd_state->mpd_state->tag_albumartist), "==", albumartist);
-    expression = sdscat(expression, " AND ");
+    struct t_list_node *current = albumartists->head;
+    while (current != NULL) {
+        expression = escape_mpd_search_expression(expression, mpd_tag_name(mympd_state->mpd_state->tag_albumartist), "==", current->key);
+        expression = sdscat(expression, " AND ");
+        current = current->next;
+    }
     expression = escape_mpd_search_expression(expression, "Album", "==", album);
     expression = sdscatlen(expression, ")", 1);
     
@@ -365,8 +369,10 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
 
     buffer = sdscatlen(buffer, "],", 2);
     
+    sds albumartist = sdsempty();
     if (first_song != NULL) {
         buffer = get_extra_files(mympd_state, buffer, mpd_song_get_uri(first_song), false);
+        albumartist = mpd_shared_get_tags(first_song, MPD_TAG_ALBUM_ARTIST, albumartist);
     }
     else {
         buffer = sdscat(buffer, "\"images\":[],\"bookletPath\":\"\"");
@@ -380,7 +386,8 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     buffer = tojson_long(buffer, "Discs", discs, true);
     buffer = tojson_long(buffer, "totalTime", totalTime, false);
     buffer = jsonrpc_result_end(buffer);
-        
+    
+    sdsfree(albumartist);
     if (first_song != NULL) {
         mpd_song_free(first_song);
     }
@@ -547,8 +554,8 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
             album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, album);
             artist = mpd_shared_get_tags(song, mympd_state->mpd_state->tag_albumartist, artist);
             buffer = sdscat(buffer, "{\"Type\": \"album\",");
-            buffer = tojson_char(buffer, "Album", album, true);
-            buffer = tojson_char(buffer, "AlbumArtist", artist, true);
+            buffer = sdscatfmt(buffer, "\"Album\":%s,", album);
+            buffer = sdscatfmt(buffer, "\"AlbumArtist\":%s,", artist);
             buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
             buffer = sdscatlen(buffer, "}", 1);
         }

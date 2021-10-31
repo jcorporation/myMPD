@@ -18,7 +18,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer,
                               const unsigned limit, sds searchstr,
                               const struct t_tags *tagcols);
 sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, sds method,
-                                  long request_id, sds album, sds albumartist, 
+                                  long request_id, sds album, struct t_list *albumartists, 
                                   const struct t_tags *tagcols);
 sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, sds method,
                                        long request_id, sds expression, sds sort, bool sortdesc, 

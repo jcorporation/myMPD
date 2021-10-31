@@ -932,8 +932,12 @@ function createSearchExpression(crumbsEl, tag, op, value) {
     return expression;
 }
 
+function joinValues(values) {
+    return values.join(', ');
+}
+
 function printValue(key, value) {
-    if (value === undefined || value === null) {
+    if (value === undefined || value === null || value === '') {
         return document.createTextNode('-');
     }
     switch (key) {
@@ -955,11 +959,25 @@ function printValue(key, value) {
         case 'stickerLike':
             return elCreateText('span', {"class": ["mi"]}, 
                 value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up');
-        default:
-            if (key.indexOf('MUSICBRAINZ') === 0) {
-                return getMBtagLink(key, value);
-            }
+        case 'Pos':
+        case 'Priority':
+        case 'stickerPlayCount':
+        case 'stickerSkipCount':
             return document.createTextNode(value);
+        default:
+            const span = elCreateEmpty('span', {});
+            for (let i = 0, j = value.length; i < j; i++) {
+                if (i > 0) {
+                    span.appendChild(elCreateEmpty('br', {}));
+                }
+                if (key.indexOf('MUSICBRAINZ') === 0) {
+                    span.appendChild(getMBtagLink(key, value[i]));
+                }
+                else {
+                    span.appendChild(document.createTextNode(value[i]));
+                }
+            }
+            return span;
     }
 }
 
