@@ -89,67 +89,85 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
         ptr.scrollPos = newScrollPos;
     }
     //build hash
-    location.hash = '/' + myEncodeURIComponent(card) + 
-        (tab === undefined ? '' : '/' + myEncodeURIComponent(tab) + 
-        (view === undefined ? '' : '/' + myEncodeURIComponent(view))) + '!' + 
-        myEncodeURIComponent(offset) + '/' + myEncodeURIComponent(limit) + '/' + 
-        myEncodeURIComponent(filter) + '/' + myEncodeURIComponent(sort) + '/' + 
-        myEncodeURIComponent(tag) + '/' + myEncodeURIComponent(search);
+    location.hash = myEncodeURIComponent(
+        JSON.stringify({
+            "card": card,
+            "tab": tab,
+            "view": view,
+            "offset": offset,
+            "limit": limit,
+            "filter": filter,
+            "sort": sort,
+            "tag": tag,
+            "search": search
+        })
+    );
+    appRoute(card, tab, view, offset, limit, filter, sort, tag, search);
 }
 
-function appRoute() {
+function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
     //called on hash change
     if (settingsParsed === false) {
         appInitStart();
         return;
     }
-    const params = location.hash.match(/^#\/(\w+)\/?(\w+)?\/?(\w+)?!(\d+)\/(\d+)\/([^/]+)\/([^/]+)\/([^/]+)\/(.*)$/);
-    if (params) {
-        app.current.app = myDecodeURIComponent(params[1]);
-        app.current.tab = params[2] !== undefined ? myDecodeURIComponent(params[2]) : undefined;
-        app.current.view = params[3] !== undefined ? myDecodeURIComponent(params[3]) : undefined;
-        app.current.offset = Number(myDecodeURIComponent(params[4]));
-        app.current.limit = Number(myDecodeURIComponent(params[5]));
-        app.current.filter = myDecodeURIComponent(params[6]);
-        app.current.sort = myDecodeURIComponent(params[7]);
-        app.current.tag = myDecodeURIComponent(params[8]);
-        app.current.search = myDecodeURIComponent(params[9]);
-
-        app.id = app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + (app.current.view === undefined ? '' : app.current.view);
-
-        //get ptr to app options and set active tab/view        
-        let ptr;
-        if (app.apps[app.current.app].offset !== undefined) {
-            ptr = app.apps[app.current.app];
+    if (card === undefined) {
+        const hash = location.hash.match(/^#(.*)$/);
+        let json_hash = null;
+        if (hash !== null) {
+            try {
+                json_hash = JSON.parse(decodeURIComponent(hash[1]));
+                app.current = json_hash;
+            }
+            catch(error) {}
         }
-        else if (app.apps[app.current.app].tabs[app.current.tab].offset !== undefined) {
-            ptr = app.apps[app.current.app].tabs[app.current.tab];
-            app.apps[app.current.app].active = app.current.tab;
+        if (json_hash === null) {
+            appPrepare(0);
+            if (features.featHome === true) {
+                appGoto('Home');
+            }
+            else {
+                appGoto('Playback');
+            }
+            return;
         }
-        else if (app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].offset !== undefined) {
-            ptr = app.apps[app.current.app].tabs[app.current.tab].views[app.current.view];
-            app.apps[app.current.app].active = app.current.tab;
-            app.apps[app.current.app].tabs[app.current.tab].active = app.current.view;
-        }
-        //set app options
-        ptr.offset = app.current.offset;
-        ptr.limit = app.current.limit;
-        ptr.filter = app.current.filter;
-        ptr.sort = app.current.sort;
-        ptr.tag = app.current.tag;
-        ptr.search = app.current.search;
-        app.current.scrollPos = ptr.scrollPos;
     }
     else {
-        appPrepare(0);
-        if (features.featHome === true) {
-            appGoto('Home');
-        }
-        else {
-            appGoto('Playback');
-        }
-        return;
+        app.current.app = card;
+        app.current.tab = tab;
+        app.current.view = view;
+        app.current.offset = offset;
+        app.current.limit = limit;
+        app.current.filter = filter;
+        app.current.sort = sort;
+        app.current.tag = tag;
+        app.current.search = search;
     }
+    app.id = app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + (app.current.view === undefined ? '' : app.current.view);
+
+    //get ptr to app options and set active tab/view        
+    let ptr;
+    if (app.apps[app.current.app].offset !== undefined) {
+        ptr = app.apps[app.current.app];
+    }
+    else if (app.apps[app.current.app].tabs[app.current.tab].offset !== undefined) {
+        ptr = app.apps[app.current.app].tabs[app.current.tab];
+        app.apps[app.current.app].active = app.current.tab;
+    }
+    else if (app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].offset !== undefined) {
+        ptr = app.apps[app.current.app].tabs[app.current.tab].views[app.current.view];
+        app.apps[app.current.app].active = app.current.tab;
+        app.apps[app.current.app].tabs[app.current.tab].active = app.current.view;
+    }
+    //set app options
+    ptr.offset = app.current.offset;
+    ptr.limit = app.current.limit;
+    ptr.filter = app.current.filter;
+    ptr.sort = app.current.sort;
+    ptr.tag = app.current.tag;
+    ptr.search = app.current.search;
+    app.current.scrollPos = ptr.scrollPos;
+
     appPrepare(app.current.scrollPos);
 
     if (app.current.app === 'Home') {
@@ -306,7 +324,7 @@ function appRoute() {
         if (app.current.filter === 'Album') {
             sendAPI("MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {
                 "album": app.current.tag,
-                "albumartist": app.current.search,
+                "albumartist": JSON.stringify(app.current.search),
                 "cols": settings.colsBrowseDatabaseDetailFetch
             }, parseAlbumDetails, true);
         }    
@@ -438,9 +456,6 @@ function appInitStart() {
     else if (action === 'clickNext') {
         clickNext();
     }
-
-    //add app routing event handler
-    window.addEventListener('hashchange', appRoute, false);
 
     //update table height on window resize
     window.addEventListener('resize', function() {

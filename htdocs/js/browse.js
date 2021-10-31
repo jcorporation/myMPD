@@ -12,7 +12,8 @@ function initBrowse() {
             if (event.target.classList.contains('card-body')) {
                 appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', 'AlbumArtist', 
                     getData(event.target.parentNode, 'data-album'),
-                    getData(event.target.parentNode, 'data-albumartist'));
+                    getData(event.target.parentNode, 'data-albumartist')
+                );
             }
             else if (event.target.classList.contains('card-footer')){
                 popoverMenuAlbumCards(event);
@@ -73,7 +74,7 @@ function initBrowse() {
         else {
             app.current.sort = '-' + app.current.sort;
         }
-        appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
+        appGoto(app.current.app, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
     }, false);
 
     document.getElementById('databaseSortTags').addEventListener('click', function(event) {
@@ -81,7 +82,7 @@ function initBrowse() {
             event.preventDefault();
             event.stopPropagation();
             app.current.sort = getData(event.target, 'data-tag');
-            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
+            appGoto(app.current.app, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
         }
     }, false);
 
@@ -110,7 +111,7 @@ function initBrowse() {
         }
         else {
             appGoto(app.current.app, app.current.tab, app.current.view, 
-                '0', app.current.limit, (this.value !== '' ? this.value : '-'), app.current.sort, '-', app.current.search);
+                0, app.current.limit, (this.value !== '' ? this.value : '-'), app.current.sort, '-', app.current.search);
         }
     }, false);
     
@@ -135,7 +136,7 @@ function initBrowse() {
         }
         else {
             appGoto(app.current.app, app.current.tab, app.current.view, 
-                '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, this.value);
+                0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, this.value);
         }
     }, false);
 
@@ -234,7 +235,7 @@ function navBrowseHandler(event) {
         app.current.search = '';
         document.getElementById('searchDatabaseMatch').value = 'contains';
         appGoto(app.current.app, app.current.tab, app.current.view, 
-            '0', app.current.limit, app.current.filter, app.current.sort, tag, app.current.search);
+            0, app.current.limit, app.current.filter, app.current.sort, tag, app.current.search);
     }
 }
 
@@ -271,7 +272,7 @@ function gotoBrowse(event) {
             }
             if (artist !== null) {
                 //Show album details
-                appGoto('Browse', 'Database', 'Detail', '0', undefined, tag, tagAlbumArtist, name, artist);
+                appGoto('Browse', 'Database', 'Detail', 0, undefined, tag, tagAlbumArtist, name, artist);
             }
             else {
                 //show filtered album list
@@ -287,19 +288,19 @@ function gotoBrowse(event) {
 
 //eslint-disable-next-line no-unused-vars
 function gotoAlbum(artist, album) {
-    appGoto('Browse', 'Database', 'Detail', '0', undefined, 'Album', tagAlbumArtist, album, artist);
+    appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', tagAlbumArtist, album, artist);
 }
 
 //eslint-disable-next-line no-unused-vars
 function gotoAlbumList(tag, value) {
     document.getElementById('searchDatabaseStr').value = '';
-    appGoto('Browse', 'Database', 'List', '0', undefined, tag, tagAlbumArtist, 'Album', '((' + tag + ' == \'' + escapeMPD(value) + '\'))');
+    appGoto('Browse', 'Database', 'List', 0, undefined, tag, tagAlbumArtist, 'Album', '((' + tag + ' == \'' + escapeMPD(value) + '\'))');
 }
 
 //eslint-disable-next-line no-unused-vars
 function gotoFilesystem(uri) {
     document.getElementById('searchFilesystemStr').value = '';
-    appGoto('Browse', 'Filesystem', undefined, '0', undefined, '-','-','-', uri);
+    appGoto('Browse', 'Filesystem', undefined, 0, undefined, '-','-','-', uri);
 }
 
 function parseFilesystem(obj) {
@@ -440,10 +441,11 @@ function parseDatabase(obj) {
             picture = subdir + '/albumart/' + obj.result.data[i].FirstSongUri;
         
             const cardBody = elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id});
-            const cardFooter = elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2"], 
-                "title": obj.result.data[i].AlbumArtist + ': ' + obj.result.data[i].Album}, obj.result.data[i].Album);
+            const cardFooter = elCreateNode('div', {"class": ["card-footer", "card-footer-grid", "p-2"], 
+                "title": obj.result.data[i][tagAlbumArtist] + ': ' + obj.result.data[i].Album}, 
+                printValue('Album', obj.result.data[i].Album));
             cardFooter.appendChild(elCreateEmpty('br', {}));
-            cardFooter.appendChild(elCreateText('small', {}, obj.result.data[i].AlbumArtist));
+            cardFooter.appendChild(elCreateNode('small', {}, printValue(tagAlbumArtist, obj.result.data[i][tagAlbumArtist])));
             card.appendChild(cardBody);
             card.appendChild(cardFooter);
             setData(card, 'data-picture', picture);
@@ -539,7 +541,7 @@ function parseAlbumDetails(obj) {
     const p = elCreateEmpty('p', {}, '');
     
     if (settings.tagListBrowse.includes(tagAlbumArtist)) {
-        const artistLink = elCreateText('a', {"href": "#"}, obj.result.AlbumArtist);
+        const artistLink = elCreateNode('a', {"href": "#"}, printValue('AlbumArtist', obj.result.AlbumArtist));
         setData(artistLink, 'data-tag', tagAlbumArtist);
         setData(artistLink, 'data-name', obj.result.AlbumArtist);
         artistLink.addEventListener('click', function(event) {
@@ -609,5 +611,5 @@ function _addAlbum(action, albumArtist, album, disc) {
 function searchAlbumgrid(x) {
     const expression = createSearchExpression(document.getElementById('searchDatabaseCrumb'), app.current.filter, getSelectValueId('searchDatabaseMatch'), x);
     appGoto(app.current.app, app.current.tab, app.current.view, 
-        '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression, 0);
+        0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression, 0);
 }
