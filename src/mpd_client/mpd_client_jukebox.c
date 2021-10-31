@@ -658,12 +658,7 @@ static bool mpd_client_jukebox_unique_album(struct t_mympd_state *mympd_state, c
         current = current->next;
     }
     
-    if (manual == false) {
-        current = mympd_state->jukebox_queue.head;
-    }
-    else {
-        current = mympd_state->jukebox_queue_tmp.head;
-    }
+    current = manual == false ? mympd_state->jukebox_queue.head : mympd_state->jukebox_queue_tmp.head;
     while (current != NULL) {
         if (strcmp(current->key, album) == 0 && strcmp(current->value_p, albumartist) == 0) {
             return false;
