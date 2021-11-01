@@ -30,8 +30,20 @@ Open the script dialog and click the "Add to homescreen" button:
 MaintainEnableTagsText
 You should maintain and enable the tags Artist, AlbumArtist, Album, Track, Disc and Genre for best user experience.
 
-Each hours
-each hour |||| each %{smart_count} hours
+Each 1
+each second |||| each %{smart_count} seconds
+
+Each 60
+each minute |||| each %{smart_count} minutes
+
+Each 3600
+hourly |||| each %{smart_count} hours
+
+Each 86400
+daily |||| each %{smart_count} days
+
+Each 604800
+weekly |||| each %{smart_count} weeks
 
 LastPlayed
 Last played

@@ -732,6 +732,12 @@ Unbekannter intelligenter Wiedergabenlisten Typ
 Background
 Hintergrund
 
+Repeat each
+Wiederhole
+
+Weeks
+Wochen
+
 Days
 Tage
 
@@ -1564,8 +1570,20 @@ Einmalig und deaktivieren
 Weekly
 Wöchentlich
 
-Each hours
+Each 1
+jede Sekunde |||| jede %{smart_count}. Sekunde
+
+Each 60
+jede Minute |||| jede %{smart_count}. Minute
+
+Each 3600
 jede Stunde |||| jede %{smart_count}. Stunde
+
+Each 86400
+jeden Tag |||| jeden %{smart_count}. Tag
+
+Each 604800
+jede Woche |||| jede %{smart_count} Woche
 
 Missing translations
 Für die ausgewählte Sprache fehlt %{smart_count} Übersetzung |||| Für die ausgewähle Sprache fehlen %{smart_count} Übersetzungen

@@ -129,7 +129,9 @@ function saveTimer() {
         }
         let interval = Number(inputTimerIntervalEl.value);
         if (interval > 0) {
-            interval = interval * 60 * 60;
+            //convert interval to seconds
+            const unit = Number(getSelectValueId('selectTimerIntervalUnit'));
+            interval = interval * unit;
         }
         sendAPI("MYMPD_API_TIMER_SAVE", {
             "timerid": Number(document.getElementById('inputTimerId').value),
@@ -230,22 +232,36 @@ function selectTimerIntervalChange(value) {
         value = Number(getSelectValueId('selectTimerInterval'));
     }
     else {
-        if (value == -2 || (value > 0 && value !== 86400 && value !== 604800)) {
+        if (value !== -1 && value !== 0) {
+            //repeat
             document.getElementById('selectTimerInterval').value = '-2';
         }
         else {
+            //one shot
             document.getElementById('selectTimerInterval').value = value;
         }
     }
-    if (value === -2 || (value > 0 && value !== 86400 && value !== 604800)) {
-        elShowId('inputTimerInterval');
-        elShowId('inputTimerIntervalLabel');
+    if (value !== -1 && value !== 0) {
+        //repeat
+        elShowId('groupTimerInterval');
+        if (value === -2) {
+            value = 86400;
+        }
     }
     else {
-        elHideId('inputTimerInterval');
-        elHideId('inputTimerIntervalLabel');
+        //one shot
+        elHideId('groupTimerInterval');
     }
-    document.getElementById('inputTimerInterval').value = value === -2 ? 1 : value > 0 ? (value / 60 / 60) : value;
+
+    const inputTimerInterval = document.getElementById('inputTimerInterval');
+    const selectTimerIntervalUnit = document.getElementById('selectTimerIntervalUnit');
+    for (const unit of [604800, 86400, 3600, 60, 1]) {
+        if (value > unit && value % unit === 0) { 
+            inputTimerInterval.value = value / unit;
+            selectTimerIntervalUnit.value = unit;
+            break;
+        }
+    }
 }
 
 function selectTimerActionChange(values) {
@@ -335,11 +351,15 @@ function parseListTimer(obj) {
 
         let interval = '';
         switch (obj.result.data[i].interval) {
-            case 604800: interval = tn('Weekly'); break;
-            case 86400: interval = tn('Daily'); break;
             case -1: interval = tn('One shot and delete'); break;
             case 0: interval = tn('One shot and disable'); break;
-            default: interval = tn('Each hours', obj.result.data[i].interval / 3600);
+            default: 
+                for (const unit of [604800, 86400, 3600, 60, 1]) {
+                    if (obj.result.data[i].interval > unit && obj.result.data[i].interval % unit === 0) { 
+                        interval = tn('Each ' + unit, obj.result.data[i].interval / unit);
+                        break;
+                    }
+                }
         }
         row.appendChild(
             elCreateText('td', {}, interval)

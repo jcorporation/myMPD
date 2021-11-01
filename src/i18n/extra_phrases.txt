@@ -124,3 +124,8 @@ AudioFormat
 Filetype
 Fingerprint
 LastModified
+Each 1
+Each 3600
+Each 60
+Each 604800
+Each 8640

@@ -360,7 +360,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
             timer_def = mympd_api_timer_parse(timer_def, request->data, &error);
             if (timer_def != NULL &&
-                json_get_int(request->data, "$.params.interval", -1, 604800, &int_buf2, &error) == true &&
+                json_get_int(request->data, "$.params.interval", -1, TIMER_INTERVAL_MAX, &int_buf2, &error) == true &&
                 json_get_int(request->data, "$.params.timerid", 0, USER_TIMER_ID_MAX, &int_buf1, &error) == true)
             {
                 if (int_buf1 == 0) {
@@ -373,6 +373,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     error = sdscat(error, "Invalid timer id");
                     break;
                 }
+                if (int_buf2 > 0 && int_buf2 < TIMER_INTERVAL_MIN) {
+                    //interval must be gt 5 seconds
+                    MYMPD_LOG_ERROR("Timer interval must be greater or equal %d, but id is: \"%d\"", TIMER_INTERVAL_MIN, int_buf2);
+                    error = sdscat(error, "Invalid timer id");
+                    break;
+                }
+
                 time_t start = mympd_api_timer_calc_starttime(timer_def->start_hour, timer_def->start_minute, int_buf2);
                 rc = mympd_api_timer_replace(&mympd_state->timer_list, start, int_buf2, timer_handler_select, int_buf1, timer_def, NULL);
                 if (rc == true) {

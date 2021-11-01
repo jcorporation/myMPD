@@ -1680,16 +1680,22 @@
                   <select id="selectTimerInterval" class="form-select">
                     <option value="-1" data-phrase="One shot and delete"></option>
                     <option value="0" data-phrase="One shot and disable"></option>
-                    <option value="86400" data-phrase="Daily"></option>
-                    <option value="604800" data-phrase="Weekly"></option>
-                    <option value="-2" data-phrase="Custom"></option>
+                    <option value="-2" data-phrase="Repeat each"></option>
                   </select>
                 </div>
-                <div class="col-sm-2">
-                  <input type="text" class="form-control d-none" id="inputTimerInterval"/>
+                <div class="col-sm-4">
+                  <div class="input-group d-none" id="groupTimerInterval">
+                    <input type="text" class="form-control" id="inputTimerInterval"/>
+                    <select class="form-select" id="selectTimerIntervalUnit">
+                      <option value="1" data-phrase="Seconds"></option>
+                      <option value="60" data-phrase="Minutes"></option>
+                      <option value="3600" data-phrase="Hours"></option>
+                      <option value="86400" data-phrase="Days"></option>
+                      <option value="604800" data-phrase="Weeks"></option>
+                    </select>
+                  </div>
                   <div id="invalidTimerInterval" class="invalid-feedback" data-phrase="Invalid timer interval"></div>
                 </div>
-                <label id="inputTimerIntervalLabel" class="col-sm-2 col-form-label d-none" for="selectInputInterval" data-phrase="Hours"></label>
               </div>
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="selectTimerAction" data-phrase="Action"></label>
