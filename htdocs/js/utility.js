@@ -889,7 +889,7 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
 }
 
 function createSearchCrumb(filter, op, value) {
-    const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "bg-gray-800", "mr-2"]}, filter + ' ' + op + ' \'' + value + '\'');
+    const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "bg-gray-800", "me-2"]}, filter + ' ' + op + ' \'' + value + '\'');
     setData(btn, 'data-filter-tag', filter);
     setData(btn, 'data-filter-op', op);
     setData(btn, 'data-filter-value', value);

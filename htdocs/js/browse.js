@@ -294,7 +294,15 @@ function gotoAlbum(artist, album) {
 //eslint-disable-next-line no-unused-vars
 function gotoAlbumList(tag, value) {
     document.getElementById('searchDatabaseStr').value = '';
-    appGoto('Browse', 'Database', 'List', 0, undefined, tag, tagAlbumArtist, 'Album', '((' + tag + ' == \'' + escapeMPD(value) + '\'))');
+    let expression = '(';
+    for (let i = 0, j = value.length; i < j; i++) {
+        if (i > 0) {
+            expression += ' AND '
+        }
+        expression += '(' + tag + ' == \'' + escapeMPD(value[i]) + '\')';
+    }
+    expression += ')';
+    appGoto('Browse', 'Database', 'List', 0, undefined, tag, tagAlbumArtist, 'Album', expression);
 }
 
 //eslint-disable-next-line no-unused-vars
