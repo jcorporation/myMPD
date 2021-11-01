@@ -518,15 +518,15 @@ function populateSettingsFrm() {
     document.getElementById('warnNotifyWeb').classList.add('hide');
     if (notificationsSupported()) {
         if (Notification.permission !== 'granted') {
-            if (settings.notificationWeb === true) {
+            if (settings.webuiSettings.notifyWeb === true) {
                 document.getElementById('warnNotifyWeb').classList.remove('hide');
             }
-            settings.notificationWeb = false;
+            settings.webuiSettings.notifyWeb = false;
         }
         if (Notification.permission === 'denied') {
             document.getElementById('warnNotifyWeb').classList.remove('hide');
         }
-        toggleBtnChk(btnNotifyWeb, settings.notificationWeb);
+        toggleBtnChk(btnNotifyWeb, settings.webuiSettings.notifyWeb);
         elEnable(btnNotifyWeb);
     }
     else {
@@ -1068,7 +1068,7 @@ function filterCols(x) {
 
 //eslint-disable-next-line no-unused-vars
 function toggleBtnNotifyWeb() {
-    const btnNotifyWeb = document.getElementById('btnNotifyWeb');
+    const btnNotifyWeb = document.getElementById('inputWebUIsettingnotifyWeb');
     const notifyWebState = btnNotifyWeb.classList.contains('active') ? true : false;
     if (notificationsSupported()) {
         if (notifyWebState === false) {
@@ -1077,26 +1077,26 @@ function toggleBtnNotifyWeb() {
                     Notification.permission = permission;
                 }
                 if (permission === 'granted') {
-                    toggleBtnChk('btnNotifyWeb', true);
-                    settings.notificationWeb = true;
+                    toggleBtnChk(btnNotifyWeb, true);
+                    settings.webuiSettings.notifyWeb = true;
                     document.getElementById('warnNotifyWeb').classList.add('hide');
                 } 
                 else {
-                    toggleBtnChk('btnNotifyWeb', false);
-                    settings.notificationWeb = false;
+                    toggleBtnChk(btnNotifyWeb, false);
+                    settings.webuiSettings.notifyWeb = false;
                     document.getElementById('warnNotifyWeb').classList.remove('hide');
                 }
             });
         }
         else {
-            toggleBtnChk('btnNotifyWeb', false);
-            settings.notificationWeb = false;
+            toggleBtnChk(btnNotifyWeb, false);
+            settings.webuiSettings.notifyWeb = false;
             document.getElementById('warnNotifyWeb').classList.add('hide');
         }
     }
     else {
-        toggleBtnChk('btnNotifyWeb', false);
-        settings.notificationWeb = false;
+        toggleBtnChk(btnNotifyWeb, false);
+        settings.webuiSettings.notifyWeb = false;
     }
 }
 
