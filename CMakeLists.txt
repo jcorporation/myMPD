@@ -161,7 +161,7 @@ endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wvla -Winit-self -Wuninitialized \
 	-Werror=array-bounds -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE -O3 \
-	-ffunction-sections -fdata-sections -Wl,--gc-sections \
+	-ffunction-sections -fdata-sections \
 	${LIBASAN_FLAGS}")
 
 foreach(FLAG IN ITEMS "-std=gnu17" "-fstack-clash-protection" "-fcf-protection" "-fno-plt")
@@ -182,7 +182,7 @@ set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABL
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
   set(MONGOOSE_FLAGS "${MONGOOSE_FLAGS} -DMG_ENABLE_LOG=0")
   #linker flags
-  set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -pie -s")
+  set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -pie -s -Wl,--gc-sections")
 else()
   set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
 endif()

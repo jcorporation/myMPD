@@ -38,7 +38,13 @@ set(MYMPD_FLAGS "-Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
   -Wmissing-include-dirs -Wdouble-promotion -Wundef -Wformat-nonliteral")
 
 #linker flags
-set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -pie -s")
+if(CMAKE_BUILD_TYPE MATCHES RELEASE)
+  set(MONGOOSE_FLAGS "${MONGOOSE_FLAGS} -DMG_ENABLE_LOG=0")
+  #linker flags
+  set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -pie -s -Wl,--gc-sections")
+else()
+  set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
+endif()
 
 configure_file(mympd_config_defs.h.in ${PROJECT_BINARY_DIR}/mympd_config_defs.h)
 
