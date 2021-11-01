@@ -59,7 +59,7 @@ function showNotification(title, text, facility, severity) {
     setStateIcon();
     logMessage(title, text, facility, severity);
     
-    if (settings.notificationWeb === true) {
+    if (settings.webuiSettings.notifyWeb === true) {
         const notification = new Notification(title, {icon: 'assets/favicon.ico', body: text});
         setTimeout(notification.close.bind(notification), 3000);
     }

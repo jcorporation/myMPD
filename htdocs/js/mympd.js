@@ -115,15 +115,17 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
     }
     if (card === undefined || card === null) {
         const hash = location.hash.match(/^#(.*)$/);
-        let json_hash = null;
+        let jsonHash = null;
         if (hash !== null) {
             try {
-                json_hash = JSON.parse(decodeURIComponent(hash[1]));
-                app.current = json_hash;
+                jsonHash = JSON.parse(myDecodeURIComponent(hash[1]));
+                app.current = jsonHash;
             }
-            catch(error) {}
+            catch(error) {
+                //do nothing
+            }
         }
-        if (json_hash === null) {
+        if (jsonHash === null) {
             appPrepare(0);
             if (features.featHome === true) {
                 appGoto('Home');
@@ -281,17 +283,17 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
     else if (app.current.card === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
         selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', app.current.filter);
         selectTag('BrowseDatabaseByTagDropdown', 'btnBrowseDatabaseByTagDesc', app.current.tag);
-        let sort = app.current.sort;
+        let tsort = app.current.sort;
         let sortdesc = false;
-        if (app.current.sort.charAt(0) === '-') {
+        if (tsort.charAt(0) === '-') {
             sortdesc = true;
-            sort = app.current.sort.substr(1);
+            tsort = tsort.substr(1);
             toggleBtnChkId('databaseSortDesc', true);
         }
         else {
             toggleBtnChkId('databaseSortDesc', false);
         }
-        selectTag('databaseSortTags', undefined, sort);
+        selectTag('databaseSortTags', undefined, tsort);
         if (app.current.tag === 'Album') {
             createSearchCrumbs(app.current.search, document.getElementById('searchDatabaseStr'), document.getElementById('searchDatabaseCrumb'));
             if (app.current.search === '') {
@@ -304,7 +306,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
                 "expression": app.current.search, 
-                "sort": sort,
+                "sort": tsort,
                 "sortdesc": sortdesc
             }, parseDatabase, true);
         }
@@ -344,21 +346,21 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         }
         if (document.getElementById('searchstr').value.length >= 2 || document.getElementById('searchCrumb').children.length > 0) {
             if (features.featAdvsearch) {
-                let sort = app.current.sort;
+                let tsort = app.current.sort;
                 let sortdesc = false;
-                if (sort === '-') {
-                    sort = settings.tagList.includes('Title') ? 'Title' : '-';
-                    setDataId('SearchList', 'data-sort', sort);
+                if (tsort === '-') {
+                    tsort = settings.tagList.includes('Title') ? 'Title' : '-';
+                    setDataId('SearchList', 'data-sort', tsort);
                 }
-                else if (sort.indexOf('-') === 0) {
+                else if (tsort.charAt(0) === '-') {
                     sortdesc = true;
-                    sort = sort.substring(1);
+                    tsort = tsort.substring(1);
                 }
                 sendAPI("MYMPD_API_DATABASE_SEARCH_ADV", {
                     "plist": "",
                     "offset": app.current.offset,
                     "limit": app.current.limit,
-                    "sort": sort,
+                    "sort": tsort,
                     "sortdesc": sortdesc,
                     "expression": app.current.search,
                     "cols": settings.colsSearchFetch,
