@@ -216,7 +216,7 @@ function selectTimerIntervalChange(value) {
         value = Number(getSelectValue('selectTimerInterval'));
     }
     else {
-        if (value == -2 || (value > 0 && value !== 86400 && value !== 604800)) {
+        if (value === -2 || (value > 0 && value !== 86400 && value !== 604800)) {
             document.getElementById('selectTimerInterval').value = '-2';
         }
         else {
