@@ -58,15 +58,12 @@ const facilities = {
 function showNotification(title, text, facility, severity) {
     setStateIcon();
     logMessage(title, text, facility, severity);
-    
-    if (settings.notificationWeb === true) {
-        const notification = new Notification(title, {icon: 'assets/favicon.ico', body: text});
-        setTimeout(notification.close.bind(notification), 3000);
-    }
-    
+   
     if (severity === 'info') {
         //notifications with severity info can be hidden
-        if (settings.notificationPage === false) { 
+        if (settings.webuiSettings.notifyPage === false &&
+            settings.webuiSettings.notifyWeb === false)
+        { 
             return;
         }
         //disabled notification for facility in advanced setting
@@ -79,6 +76,11 @@ function showNotification(title, text, facility, severity) {
         if (show === false) { 
             return;
         }
+    }
+
+    if (settings.webuiSettings.notifyWeb === true) {
+        const notification = new Notification(title, {icon: 'assets/favicon.ico', body: text});
+        setTimeout(notification.close.bind(notification), 3000);
     }
         
     if (alertTimeout) {

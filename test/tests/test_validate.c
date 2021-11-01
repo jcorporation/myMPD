@@ -129,7 +129,7 @@ UTEST(validate, test_validate_isfilepath) {
     data = sdscat(data, "asdfs\bfdjl");
     ASSERT_FALSE(vcb_isfilepath(data));
     sdsclear(data);
-    data = sdscat(data, "asdfsfd|jl");
+    data = sdscat(data, "asdfsfd\\u5676jl");
     ASSERT_FALSE(vcb_isfilepath(data));
     sdsclear(data);
     data = sdscatlen(data, "asdfsfd\0jl", 10);
