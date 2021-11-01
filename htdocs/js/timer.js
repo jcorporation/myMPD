@@ -230,14 +230,14 @@ function selectTimerIntervalChange(value) {
         value = Number(getSelectValueId('selectTimerInterval'));
     }
     else {
-        if (isNaN(value) || (value > 0 && value !== 86400 && value !== 604800)) {
-            document.getElementById('selectTimerInterval').value = '';
+        if (value == -2 || (value > 0 && value !== 86400 && value !== 604800)) {
+            document.getElementById('selectTimerInterval').value = '-2';
         }
         else {
             document.getElementById('selectTimerInterval').value = value;
         }
     }
-    if (isNaN(value) || (value > 0 && value !== 86400 && value !== 604800)) {
+    if (value === -2 || (value > 0 && value !== 86400 && value !== 604800)) {
         elShowId('inputTimerInterval');
         elShowId('inputTimerIntervalLabel');
     }
@@ -245,7 +245,7 @@ function selectTimerIntervalChange(value) {
         elHideId('inputTimerInterval');
         elHideId('inputTimerIntervalLabel');
     }
-    document.getElementById('inputTimerInterval').value = isNaN(value) ? 1 : value > 0 ? (value / 60 / 60) : value;
+    document.getElementById('inputTimerInterval').value = value === -2 ? 1 : value > 0 ? (value / 60 / 60) : value;
 }
 
 function selectTimerActionChange(values) {
