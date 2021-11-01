@@ -9,7 +9,7 @@ function initQueue() {
             this.blur();
         }
         else {
-            appGoto(app.current.app, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter , app.current.sort, '-', this.value);
+            appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter , app.current.sort, '-', this.value);
         }
     }, false);
 
@@ -18,14 +18,14 @@ function initQueue() {
             this.blur();
         }
         else {
-            appGoto(app.current.app, app.current.tab, app.current.view, 
+            appGoto(app.current.card, app.current.tab, app.current.view, 
                 0, app.current.limit, app.current.filter, app.current.sort, '-', this.value);
         }
     }, false);
 
     document.getElementById('searchqueuetags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
-            appGoto(app.current.app, app.current.tab, app.current.view, 
+            appGoto(app.current.card, app.current.tab, app.current.view, 
                 app.current.offset, app.current.limit, getData(event.target, 'data-tag'), app.current.sort, '-', app.current.search);
         }
     }, false);

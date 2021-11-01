@@ -216,7 +216,7 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
         entity_count++;
         total_time += mpd_song_get_duration(song);
         if (entity_count > offset && entity_count <= real_limit) {
-            entityName = mpd_shared_get_tags(song, MPD_TAG_TITLE, entityName);
+            entityName = mpd_shared_get_tag_values(song, MPD_TAG_TITLE, entityName);
             sdstolower(entityName);
             if (search_len == 0  || strstr(entityName, searchstr) != NULL) {
                 if (entities_returned++) {

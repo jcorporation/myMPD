@@ -168,7 +168,7 @@ function addMenuItem(tabContent, cmd, text) {
 }
 
 function createMenuTd(el, tabHeader, tabContent, tabNr) {
-    if (app.current.app === 'Home' && tabNr === 0) {
+    if (app.current.card === 'Home' && tabNr === 0) {
         return createMenuHome(el, tabHeader, tabContent);
     }
     
@@ -308,7 +308,7 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         return true;
     }
     
-    if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
+    if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
         const x = document.getElementById('BrowsePlaylistsDetailList');
         addMenuItemsSongActions(tabContent, uri, name);
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
@@ -319,7 +319,7 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         return true;
     }
     
-    if (app.current.app === 'Queue' && app.current.tab === 'Current') {
+    if (app.current.card === 'Queue' && app.current.tab === 'Current') {
         const trackid = getData(dataNode, 'data-trackid');
         const songpos = getData(dataNode, 'data-songpos');
         addMenuItemsSongActions(tabContent, uri, name);
@@ -336,12 +336,12 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         return true;
     }
     
-    if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
+    if (app.current.card === 'Queue' && app.current.tab === 'LastPlayed') {
         addMenuItemsSongActions(tabContent, uri, name);
         return true;
     }
     
-    if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
+    if (app.current.card === 'Queue' && app.current.tab === 'Jukebox') {
         const pos = Number(getData(dataNode, 'data-pos'));
         const vAlbum = getData(dataNode, 'data-album');
         const vAlbumArtist = getData(dataNode, 'data-albumartist');
@@ -359,7 +359,7 @@ function createMenuGeneric(el, tabHeader, tabContent) {
 }
 
 function createMenuSecondary(el, tabHeader, tabContent) {
-    if (app.current.app === 'Search' ||
+    if (app.current.card === 'Search' ||
         app.id === 'QueueCurrent' ||
         app.id === 'QueueLastPlayed' ||
         (app.id === 'QueueJukebox' && settings.jukeboxMode === 1) ||

@@ -117,7 +117,7 @@ function initSearch() {
         event.target.appendChild(
             elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down'))
         );
-        appGoto(app.current.app, app.current.tab, app.current.view,
+        appGoto(app.current.card, app.current.tab, app.current.view,
             app.current.offset, app.current.limit, app.current.filter,  app.current.sort, '-', app.current.search);
     }, false);
 }

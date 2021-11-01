@@ -447,22 +447,22 @@ function openDropdown(dropdown) {
 
 //eslint-disable-next-line no-unused-vars
 function focusSearch() {
-    if (app.current.app === 'Queue' && app.current.tab === 'Current') {
+    if (app.current.card === 'Queue' && app.current.tab === 'Current') {
         document.getElementById('searchqueuestr').focus();
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
+    else if (app.current.card === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
         document.getElementById('searchDatabaseStr').focus();
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
+    else if (app.current.card === 'Browse' && app.current.tab === 'Filesystem') {
         document.getElementById('searchFilesystemStr').focus();
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
+    else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
         document.getElementById('searchPlaylistsListStr').focus();
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
+    else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
         document.getElementById('searchPlaylistsDetailStr').focus();
     }
-    else if (app.current.app === 'Search') {
+    else if (app.current.card === 'Search') {
         document.getElementById('searchstr').focus();
     }
     else {
@@ -861,7 +861,7 @@ function gotoPage(x, limit) {
             app.current.offset = Math.floor(app.current.offset / app.current.limit);
         }
     }
-    appGoto(app.current.app, app.current.tab, app.current.view, 
+    appGoto(app.current.card, app.current.tab, app.current.view, 
         app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search, 0);
 }
 
@@ -907,7 +907,7 @@ function createSearchExpression(crumbsEl, tag, op, value) {
         }
         let crumbOp = getData(crumbs[i], 'data-filter-op');
         let crumbValue = getData(crumbs[i], 'data-filter-value');
-        if (app.current.app === 'Search' && crumbOp === 'starts_with') {
+        if (app.current.card === 'Search' && crumbOp === 'starts_with') {
             crumbOp = '=~';
             crumbValue = '^' + crumbValue;
         }
@@ -918,7 +918,7 @@ function createSearchExpression(crumbsEl, tag, op, value) {
         if (expression.length > 1) {
             expression += ' AND ';
         }
-        if (app.current.app === 'Search' && op === 'starts_with') {
+        if (app.current.card === 'Search' && op === 'starts_with') {
             //mpd does not support starts_with, convert it to regex
             op = '=~';
             value = '^' + value;
@@ -959,12 +959,16 @@ function printValue(key, value) {
         case 'stickerLike':
             return elCreateText('span', {"class": ["mi"]}, 
                 value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up');
-        case 'Pos':
-        case 'Priority':
-        case 'stickerPlayCount':
-        case 'stickerSkipCount':
-            return document.createTextNode(value);
-        default:
+        case 'Artist':
+        case 'AlbumArtist':
+        case 'Genre':
+        case 'Composer':
+        case 'Performer':
+        case 'Conductor':
+        case 'Ensemble':
+        case 'MUSICBRAINZ_ARTISTID':
+        case 'MUSICBRAINZ_ALBUMARTISTID':
+            //multi value tags
             const span = elCreateEmpty('span', {});
             for (let i = 0, j = value.length; i < j; i++) {
                 if (i > 0) {
@@ -978,6 +982,13 @@ function printValue(key, value) {
                 }
             }
             return span;
+        default:
+            if (key.indexOf('MUSICBRAINZ') === 0) {
+                return getMBtagLink(key, value);
+            }
+            else {
+                return document.createTextNode(value);
+            }
     }
 }
 

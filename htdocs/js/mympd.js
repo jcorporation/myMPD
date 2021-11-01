@@ -261,20 +261,20 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         elClear(crumbEl);
         const home = elCreateText('a', {"class": ["mi"]}, 'home');
         setData(home, 'data-uri', '');
-        crumbEl.cardendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, home));
+        crumbEl.appendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, home));
 
         const pathArray = app.current.search.split('/');
         const pathArrayLen = pathArray.length;
         let fullPath = '';
         for (let i = 0; i < pathArrayLen; i++) {
             if (pathArrayLen - 1 === i) {
-                crumbEl.cardendChild(elCreateText('li', {"class": ["breadcrumb-item", "active"]}, pathArray[i]));
+                crumbEl.appendChild(elCreateText('li', {"class": ["breadcrumb-item", "active"]}, pathArray[i]));
                 break;
             }
             fullPath += pathArray[i];
             const a = elCreateText('a', {"href": "#"}, pathArray[i]);
             setData(a, 'data-uri', fullPath);
-            crumbEl.cardendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, a));
+            crumbEl.appendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, a));
             fullPath += '/';
         }
         const searchFilesystemStrEl = document.getElementById('searchFilesystemStr');

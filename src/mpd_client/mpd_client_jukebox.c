@@ -310,8 +310,8 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
             list_push(queue_list, mpd_song_get_uri(song), 0, tag_value, NULL);
         }
         else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
-            sds album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, sdsempty());
-            sds albumartist = mpd_shared_get_tags(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
+            sds album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, sdsempty());
+            sds albumartist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
             list_push(queue_list, album, 0, albumartist, NULL);
             FREE_SDS(album);
             FREE_SDS(albumartist);
@@ -332,8 +332,8 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
                     list_push(queue_list, current->key, 0, mpd_song_get_tag(song, mympd_state->jukebox_unique_tag.tags[0], 0), NULL);
                 }
                 else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
-                    sds album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, sdsempty());
-                    sds albumartist = mpd_shared_get_tags(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
+                    sds album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, sdsempty());
+                    sds albumartist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
                     list_push(queue_list, album, 0, albumartist, NULL);
                     FREE_SDS(album);
                     FREE_SDS(albumartist);
@@ -365,8 +365,8 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
                                 list_push(queue_list, data, 0, mpd_song_get_tag(song, mympd_state->jukebox_unique_tag.tags[0], 0), NULL);
                             }
                             else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
-                                sds album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, sdsempty());
-                                sds albumartist = mpd_shared_get_tags(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
+                                sds album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, sdsempty());
+                                sds albumartist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
                                 list_push(queue_list, album, 0, albumartist, NULL);
                                 FREE_SDS(album);
                                 FREE_SDS(albumartist);
@@ -563,8 +563,8 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
         struct mpd_song *song;
         while (raxNext(&iter)) { 
             song = (struct mpd_song *)iter.data;
-            sds album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, sdsempty());
-            sds albumartist = mpd_shared_get_tags(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
+            sds album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, sdsempty());
+            sds albumartist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
             if (mympd_state->jukebox_enforce_unique == false || 
                 mpd_client_jukebox_unique_album(mympd_state, album, albumartist, manual, queue_list) == true)
             {

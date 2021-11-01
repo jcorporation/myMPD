@@ -141,7 +141,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
             case MPD_ENTITY_TYPE_SONG: {
                 const struct mpd_song *song = mpd_entity_get_song(entity);
                 sds entity_name = sdsempty();
-                entity_name = mpd_shared_get_tags(song, MPD_TAG_TITLE, entity_name);
+                entity_name = mpd_shared_get_tag_values(song, MPD_TAG_TITLE, entity_name);
                 sdstolower(entity_name);
                 if (search_len == 0  || strstr(entity_name, searchstr) != NULL) {
                     sds key = sdscatfmt(sdsempty(), "2%s", mpd_song_get_uri(song));
@@ -372,7 +372,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     sds albumartist = sdsempty();
     if (first_song != NULL) {
         buffer = get_extra_files(mympd_state, buffer, mpd_song_get_uri(first_song), false);
-        albumartist = mpd_shared_get_tags(first_song, MPD_TAG_ALBUM_ARTIST, albumartist);
+        albumartist = mpd_shared_get_tag_values(first_song, MPD_TAG_ALBUM_ARTIST, albumartist);
     }
     else {
         buffer = sdscat(buffer, "\"images\":[],\"bookletPath\":\"\"");
@@ -382,7 +382,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_char(buffer, "Album", album, true);
-    buffer = tojson_char(buffer, "AlbumArtist", albumartist, true);
+    buffer = sdscatfmt(buffer, "\"AlbumArtist\":%s,", albumartist);
     buffer = tojson_long(buffer, "Discs", discs, true);
     buffer = tojson_long(buffer, "totalTime", totalTime, false);
     buffer = jsonrpc_result_end(buffer);
@@ -551,8 +551,8 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
                 buffer = sdscatlen(buffer, ",", 1);
             }
             song = (struct mpd_song *)current->user_data;
-            album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, album);
-            artist = mpd_shared_get_tags(song, mympd_state->mpd_state->tag_albumartist, artist);
+            album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, album);
+            artist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, artist);
             buffer = sdscat(buffer, "{\"Type\": \"album\",");
             buffer = sdscatfmt(buffer, "\"Album\":%s,", album);
             buffer = sdscatfmt(buffer, "\"AlbumArtist\":%s,", artist);
@@ -668,10 +668,10 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
 
 //private functions
 static bool _search_song(struct mpd_song *song, struct t_list *expr_list, struct t_tags *browse_tag_types) {
-    sds value = sdsempty();
     (void) browse_tag_types;
     struct t_tags one_tag;
     one_tag.len = 1;
+    sds value_lower = sdsempty();
     struct t_list_node *current = expr_list->head;
     while (current != NULL) {
         struct t_tags *tags = NULL;
@@ -688,29 +688,42 @@ static bool _search_song(struct mpd_song *song, struct t_list *expr_list, struct
         sdstolower(current->key);
         for (unsigned i = 0; i < tags->len; i++) {
             rc = true;
-            value = mpd_shared_get_tags(song, tags->tags[i], value);
-            sdstolower(value);
-            if ((strcmp(current->value_p, "contains") == 0 && strstr(value, current->key) == NULL) ||
-                (strcmp(current->value_p, "starts_with") == 0 && strncmp(current->key, value, sdslen(current->key)) != 0) ||
-                (strcmp(current->value_p, "==") == 0 && strcmp(value, current->key) != 0) ||
-                (strcmp(current->value_p, "!=") == 0 && strcmp(value, current->key) == 0) ||
-                (strcmp(current->value_p, "=~") == 0 && _cmp_regex((pcre *)current->user_data, value) == false) ||
-                (strcmp(current->value_p, "!~") == 0 && _cmp_regex((pcre *)current->user_data, value) == true))
-            {
+            int j = 0;
+            const char *value = NULL;
+            while ((value = mpd_song_get_tag(song, tags->tags[i], j)) != NULL) {
+                j++;
+                sdsclear(value_lower);
+                value_lower = sdscat(value_lower, value);
+                sdstolower(value_lower);
+                if ((strcmp(current->value_p, "contains") == 0 && strstr(value_lower, current->key) == NULL) ||
+                    (strcmp(current->value_p, "starts_with") == 0 && strncmp(current->key, value_lower, sdslen(current->key)) != 0) ||
+                    (strcmp(current->value_p, "==") == 0 && strcmp(value_lower, current->key) != 0) ||
+                    (strcmp(current->value_p, "!=") == 0 && strcmp(value_lower, current->key) == 0) ||
+                    (strcmp(current->value_p, "=~") == 0 && _cmp_regex((pcre *)current->user_data, value_lower) == false) ||
+                    (strcmp(current->value_p, "!~") == 0 && _cmp_regex((pcre *)current->user_data, value_lower) == true))
+                {
+                    rc = false;
+                }
+                else {
+                    //tag value matched
+                    rc = true;
+                    break;
+                }
+            }
+            if (j == 0) {
                 rc = false;
             }
-            else {
-                //tag value matched
+            if (rc == true) {
                 break;
             }
         }
         if (rc == false) {
-            FREE_SDS(value);
+            FREE_SDS(value_lower);
             return false;
         }
         current = current->next;
     }
-    FREE_SDS(value);
+    FREE_SDS(value_lower);
     return true;
 }
 

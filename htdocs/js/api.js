@@ -328,7 +328,7 @@ function webSocketConnect() {
                     getSettings(true);
                     break;
                 case 'update_queue':
-                    if (app.current.app === 'Queue') {
+                    if (app.current.card === 'Queue') {
                         getQueue();
                     }
                     //rename param to result
@@ -357,7 +357,7 @@ function webSocketConnect() {
                     parseVolume(obj);
                     break;
                 case 'update_stored_playlist':
-                    if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
+                    if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
                         sendAPI('MYMPD_API_PLAYLIST_LIST', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
@@ -365,7 +365,7 @@ function webSocketConnect() {
                             "type": 0
                         }, parsePlaylistsList);
                     }
-                    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
+                    else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
                         sendAPI('MYMPD_API_PLAYLIST_CONTENT_LIST', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
@@ -376,7 +376,7 @@ function webSocketConnect() {
                     }
                     break;
                 case 'update_lastplayed':
-                    if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
+                    if (app.current.card === 'Queue' && app.current.tab === 'LastPlayed') {
                         sendAPI('MYMPD_API_QUEUE_LAST_PLAYED', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
@@ -385,7 +385,7 @@ function webSocketConnect() {
                     }
                     break;
                 case 'update_jukebox':
-                    if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
+                    if (app.current.card === 'Queue' && app.current.tab === 'Jukebox') {
                         sendAPI('MYMPD_API_JUKEBOX_LIST', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,

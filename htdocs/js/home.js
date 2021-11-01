@@ -345,7 +345,7 @@ function executeHomeIcon(pos) {
 
 //eslint-disable-next-line no-unused-vars
 function addViewToHome() {
-    _addHomeIcon('appGoto', '', 'preview', [app.current.app, app.current.tab, app.current.view, 
+    _addHomeIcon('appGoto', '', 'preview', [app.current.card, app.current.tab, app.current.view, 
         app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search]); 
 }
 

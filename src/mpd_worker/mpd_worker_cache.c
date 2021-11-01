@@ -125,9 +125,9 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             }
             //album cache
             if (mpd_worker_state->mpd_state->feat_tags == true) {
-                album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, album);
-                artist = mpd_shared_get_tags(song, MPD_TAG_ALBUM_ARTIST, artist);
-                if (strcmp(album, "-") > 0 && strcmp(artist, "-") > 0) {
+                album = mpd_shared_get_tag_value_string(song, MPD_TAG_ALBUM, album);
+                artist = mpd_shared_get_tag_value_string(song, MPD_TAG_ALBUM_ARTIST, artist);
+                if (sdslen(album) > 0 && sdslen(artist) > 0) {
                     sdsclear(key);
                     key = sdscatfmt(key, "%s::%s", album, artist);
                     if (raxTryInsert(album_cache, (unsigned char*)key, sdslen(key), (void *)song, NULL) == 0) {

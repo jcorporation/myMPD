@@ -357,25 +357,25 @@ function parseSettings(obj) {
     document.getElementById('volumeBar').setAttribute('max', settings.volumeMax);
 
     //update columns
-    if (app.current.app === 'Queue' && app.current.tab === 'Current') {
+    if (app.current.card === 'Queue' && app.current.tab === 'Current') {
         getQueue();
     }
-    else if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
+    else if (app.current.card === 'Queue' && app.current.tab === 'LastPlayed') {
         appRoute();
     }
-    else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
+    else if (app.current.card === 'Queue' && app.current.tab === 'Jukebox') {
         appRoute();
     }
-    else if (app.current.app === 'Search') {
+    else if (app.current.card === 'Search') {
         appRoute();
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
+    else if (app.current.card === 'Browse' && app.current.tab === 'Filesystem') {
         appRoute();
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
+    else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
         appRoute();
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.search !== '') {
+    else if (app.current.card === 'Browse' && app.current.tab === 'Database' && app.current.search !== '') {
         appRoute();
     }
 
@@ -1180,7 +1180,7 @@ function setNavbarIcons() {
     for (const icon of settings.navbarIcons) {
         const id = "nav" + icon.options.join('');
         const btn = elCreateEmpty('div', {"id": id, "class": ["nav-item", "flex-fill", "text-center"]});
-        if (id === 'nav' + app.current.app) {
+        if (id === 'nav' + app.current.card) {
             btn.classList.add('active');
         }
         if (features.featHome === false && icon.options[0] === 'Home') {

@@ -22,7 +22,7 @@ function initBrowse() {
         else {
             app.current.search = '';
             document.getElementById('searchDatabaseStr').value = '';
-            appGoto(app.current.app, app.current.card, undefined, 0, undefined, 'Album', 'AlbumArtist', 'Album', 
+            appGoto(app.current.card, app.current.card, undefined, 0, undefined, 'Album', 'AlbumArtist', 'Album', 
                 '((' + app.current.tag + ' == \'' + escapeMPD(getData(event.target.parentNode, 'data-tag')) + '\'))');
         }
     }, false);
@@ -74,7 +74,7 @@ function initBrowse() {
         else {
             app.current.sort = '-' + app.current.sort;
         }
-        appGoto(app.current.app, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
+        appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
     }, false);
 
     document.getElementById('databaseSortTags').addEventListener('click', function(event) {
@@ -82,7 +82,7 @@ function initBrowse() {
             event.preventDefault();
             event.stopPropagation();
             app.current.sort = getData(event.target, 'data-tag');
-            appGoto(app.current.app, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
+            appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
         }
     }, false);
 
@@ -110,7 +110,7 @@ function initBrowse() {
             this.blur();
         }
         else {
-            appGoto(app.current.app, app.current.tab, app.current.view, 
+            appGoto(app.current.card, app.current.tab, app.current.view, 
                 0, app.current.limit, (this.value !== '' ? this.value : '-'), app.current.sort, '-', app.current.search);
         }
     }, false);
@@ -135,7 +135,7 @@ function initBrowse() {
             searchAlbumgrid(this.value);
         }
         else {
-            appGoto(app.current.app, app.current.tab, app.current.view, 
+            appGoto(app.current.card, app.current.tab, app.current.view, 
                 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, this.value);
         }
     }, false);
@@ -224,7 +224,7 @@ function navBrowseHandler(event) {
             return;
         }
         
-        if (app.current.app === 'Browse' && app.current.tab !== 'Database') {
+        if (app.current.card === 'Browse' && app.current.tab !== 'Database') {
             appGoto('Browse', 'Database', app.cards.Browse.tabs.Database.active);
             return;
         }
@@ -234,7 +234,7 @@ function navBrowseHandler(event) {
         }
         app.current.search = '';
         document.getElementById('searchDatabaseMatch').value = 'contains';
-        appGoto(app.current.app, app.current.tab, app.current.view, 
+        appGoto(app.current.card, app.current.tab, app.current.view, 
             0, app.current.limit, app.current.filter, app.current.sort, tag, app.current.search);
     }
 }
@@ -541,17 +541,20 @@ function parseAlbumDetails(obj) {
     const p = elCreateEmpty('p', {}, '');
     
     if (settings.tagListBrowse.includes(tagAlbumArtist)) {
-        const artistLink = elCreateNode('a', {"href": "#"}, printValue('AlbumArtist', obj.result.AlbumArtist));
-        setData(artistLink, 'data-tag', tagAlbumArtist);
-        setData(artistLink, 'data-name', obj.result.AlbumArtist);
-        artistLink.addEventListener('click', function(event) {
-            event.preventDefault();
-            gotoBrowse(event);
-        }, false);
-        p.appendChild(artistLink);
+        for (const artist of obj.result.AlbumArtist) {
+            const artistLink = elCreateText('a', {"href": "#"}, artist);
+            setData(artistLink, 'data-tag', tagAlbumArtist);
+            setData(artistLink, 'data-name', artist);
+            artistLink.addEventListener('click', function(event) {
+                event.preventDefault();
+                gotoBrowse(event);
+            }, false);
+            p.appendChild(artistLink);
+            p.appendChild(elCreateEmpty('br', {}));
+        }
     }
     else {
-        p.textContent = obj.result.AlbumArtist;
+        p.textContent.appendChild(printValue('AlbumArtist', obj.result.AlbumArtist));
     }
     infoEl.appendChild(p);
     if (obj.result.bookletPath !== '' && features.featLibrary === true) {
@@ -595,8 +598,14 @@ function addAlbum(action) {
 }
 
 function _addAlbum(action, albumArtist, album, disc) {
-    const expression = '((Album == \'' + escapeMPD(album) + '\') AND (' + tagAlbumArtist + ' == \'' + escapeMPD(albumArtist) + '\')' +
-        (disc !== undefined ? ' AND (Disc == \'' + escapeMPD(disc) + '\')' : '') + ')';
+    let expression = '((Album == \'' + escapeMPD(album) + '\')';
+    for (const artist of albumArtist) {
+        expression += ' AND (' + tagAlbumArtist + ' == \'' + escapeMPD(artist) + '\')';
+    }
+    if (disc !== undefined) {
+        expression += ' AND (Disc == \'' + escapeMPD(disc) + '\')';
+    }
+    expression += ')';
     if (action === 'appendQueue') {
         addAllFromSearchPlist('queue', expression, false);
     }
@@ -610,6 +619,6 @@ function _addAlbum(action, albumArtist, album, disc) {
 
 function searchAlbumgrid(x) {
     const expression = createSearchExpression(document.getElementById('searchDatabaseCrumb'), app.current.filter, getSelectValueId('searchDatabaseMatch'), x);
-    appGoto(app.current.app, app.current.tab, app.current.view, 
+    appGoto(app.current.card, app.current.tab, app.current.view, 
         0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression, 0);
 }
