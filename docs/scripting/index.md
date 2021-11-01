@@ -59,9 +59,9 @@ Further examples can be found in the [repository](https://github.com/jcorporatio
 
 ```
 -- load a playlist
-mympd_api("MPD_API_QUEUE_REPLACE_PLAYLIST", "plist", "NonPop")
+mympd_api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", "plist", "NonPop")
 -- start playing
-mympd_api("MPD_API_PLAYER_PLAY")
+mympd_api("MYMPD_API_PLAYER_PLAY")
 ```
 
 ### With arguments
@@ -69,9 +69,9 @@ mympd_api("MPD_API_PLAYER_PLAY")
 Script should be called with an argument named playlist.
 ```
 -- load a playlist
-mympd_api("MPD_API_QUEUE_REPLACE_PLAYLIST", "plist", arguments["playlist"])
+mympd_api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", "plist", arguments["playlist"])
 -- start playing
-mympd_api("MPD_API_PLAYER_PLAY")
+mympd_api("MYMPD_API_PLAYER_PLAY")
 -- broadcast message to all connected myMPD clients
 return("Loaded playlist: " .. arguments["playlist"])
 ```
@@ -79,7 +79,7 @@ return("Loaded playlist: " .. arguments["playlist"])
 ### JSON parsing
 
 ```
-rc, raw_result = mympd_api("MPD_API_PLAYER_CURRENT_SONG")
+rc, raw_result = mympd_api("MYMPD_API_PLAYER_CURRENT_SONG")
 if rc == 0 then
   current_song = json.decode(raw_result)
   return current_song["result"]["Artist"]
