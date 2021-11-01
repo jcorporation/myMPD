@@ -161,6 +161,7 @@ endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wvla -Winit-self -Wuninitialized \
 	-Werror=array-bounds -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE -O3 \
+	-ffunction-sections -fdata-sections -Wl,--gc-sections \
 	${LIBASAN_FLAGS}")
 
 foreach(FLAG IN ITEMS "-std=gnu17" "-fstack-clash-protection" "-fcf-protection" "-fno-plt")
