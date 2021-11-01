@@ -60,6 +60,16 @@ function showNotification(title, text, facility, severity) {
     logMessage(title, text, facility, severity);
     
     if (settings.webuiSettings.notifyWeb === true) {
+        //disabled notification for facility in advanced setting
+        let show = settings.webuiSettings['notification' + facilities[facility]];
+        if (show === null ) {
+            logDebug('Unknown facility: ' + facility);
+            //fallback to general
+            show = settings.webuiSettings['notificationGeneral'];    
+        }
+        if (show === false) { 
+            return;
+        }
         const notification = new Notification(title, {icon: 'assets/favicon.ico', body: text});
         setTimeout(notification.close.bind(notification), 3000);
     }
