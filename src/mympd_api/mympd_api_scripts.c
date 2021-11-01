@@ -554,7 +554,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         request->data = sdscatlen(request->data, "}", 1);
     }
     else if (n == 2) {
-        sdsrange(request->data, 0, -1);  //remove {
+        sdsrange(request->data, 0, -2);  //trim {
         request->data = sdscat(request->data, lua_tostring(lua_vm, 2));
     }
     request->data = sdscatlen(request->data, "}", 1);
@@ -567,37 +567,28 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         struct t_work_result *response = mympd_queue_shift(mympd_script_queue, 1000000, tid);
         if (response != NULL) {
             MYMPD_LOG_DEBUG("Got result: %s", response->data);
-            sds sds_buf1 = NULL;
-            if (json_find_key(response->data, "$.result.message") == true &&
-                json_get_string(response->data, "$.result.message", 1, 1000, &sds_buf1, vcb_isname, NULL) == true)
-            {
-                if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
-                    MYMPD_LOG_DEBUG("Populating lua global state table mympd");
-                    struct t_list *lua_mympd_state = (struct t_list *) response->extra;
-                    lua_newtable(lua_vm);
-                    populate_lua_table(lua_vm, lua_mympd_state);    
-                    lua_setglobal(lua_vm, "mympd_state");
-                    lua_mympd_state_free(lua_mympd_state);
-                    lua_mympd_state = NULL;
-                    lua_pushinteger(lua_vm, 0);
-                    lua_pushstring(lua_vm, "mympd_state is now populated");
+            if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
+                MYMPD_LOG_DEBUG("Populating lua global state table mympd");
+                struct t_list *lua_mympd_state = (struct t_list *)response->extra;
+                lua_newtable(lua_vm);
+                populate_lua_table(lua_vm, lua_mympd_state);    
+                lua_setglobal(lua_vm, "mympd_state");
+                lua_mympd_state_free(lua_mympd_state);
+                lua_mympd_state = NULL;
+                lua_pushinteger(lua_vm, 0);
+                lua_pushstring(lua_vm, "mympd_state is now populated");
+            }
+            else {
+                //return code
+                if (json_find_key(response->data, "$.error.message") == true) {
+                    lua_pushinteger(lua_vm, 1);
                 }
                 else {
                     lua_pushinteger(lua_vm, 0);
-                    lua_pushstring(lua_vm, sds_buf1);
                 }
-            }
-            else if (json_find_key(response->data, "$.error.message") == true &&
-                     json_get_string(response->data, "$.error.message", 1, 1000, &sds_buf1, vcb_isname, NULL) == true)
-            {
-                lua_pushinteger(lua_vm, 1);
-                lua_pushstring(lua_vm, sds_buf1);
-            }
-            else {
-                lua_pushinteger(lua_vm, 0);
+                //result
                 lua_pushlstring(lua_vm, response->data, sdslen(response->data));
             }
-            FREE_SDS(sds_buf1);
             free_result(response);
             return 2;
         }
