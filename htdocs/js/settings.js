@@ -552,15 +552,15 @@ function populateSettingsFrm() {
     elHideId('warnNotifyWeb');
     if (notificationsSupported()) {
         if (Notification.permission !== 'granted') {
-            if (settings.notificationWeb === true) {
+            if (settings.webuiSettings.notifyWeb === true) {
                 elShowId('warnNotifyWeb');
             }
-            settings.notificationWeb = false;
+            settings.webuiSettings.notifyWeb = false;
         }
         if (Notification.permission === 'denied') {
             elShowId('warnNotifyWeb');
         }
-        toggleBtnChk(btnNotifyWeb, settings.notificationWeb);
+        toggleBtnChk(btnNotifyWeb, settings.webuiSettings.notifyWeb);
         elEnable(btnNotifyWeb);
     }
     else {
@@ -1146,25 +1146,25 @@ function toggleBtnNotifyWeb(event) {
                 }
                 if (permission === 'granted') {
                     toggleBtnChk(btnNotifyWeb, true);
-                    settings.notificationWeb = true;
+                    settings.webuiSettings.notifyWeb = true;
                     elHideId('warnNotifyWeb');
                 } 
                 else {
                     toggleBtnChk(btnNotifyWeb, false);
-                    settings.notificationWeb = false;
+                    settings.webuiSettings.notifyWeb = false;
                     elShowId('warnNotifyWeb');
                 }
             });
         }
         else {
             toggleBtnChk(btnNotifyWeb, false);
-            settings.notificationWeb = false;
+            settings.webuiSettings.notifyWeb = false;
             elHideId('warnNotifyWeb');
         }
     }
     else {
         toggleBtnChk(btnNotifyWeb, false);
-        settings.notificationWeb = false;
+        settings.webuiSettings.notifyWeb = false;
     }
 }
 
