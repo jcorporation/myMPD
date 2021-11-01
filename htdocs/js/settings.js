@@ -1068,7 +1068,7 @@ function filterCols(x) {
 
 //eslint-disable-next-line no-unused-vars
 function toggleBtnNotifyWeb() {
-    const btnNotifyWeb = document.getElementById('btnNotifyWeb');
+    const btnNotifyWeb = document.getElementById('inputWebUIsettingnotifyWeb');
     const notifyWebState = btnNotifyWeb.classList.contains('active') ? true : false;
     if (notificationsSupported()) {
         if (notifyWebState === false) {
@@ -1077,25 +1077,25 @@ function toggleBtnNotifyWeb() {
                     Notification.permission = permission;
                 }
                 if (permission === 'granted') {
-                    toggleBtnChk('btnNotifyWeb', true);
+                    toggleBtnChk(btnNotifyWeb, true);
                     settings.notificationWeb = true;
                     document.getElementById('warnNotifyWeb').classList.add('hide');
                 } 
                 else {
-                    toggleBtnChk('btnNotifyWeb', false);
+                    toggleBtnChk(btnNotifyWeb, false);
                     settings.notificationWeb = false;
                     document.getElementById('warnNotifyWeb').classList.remove('hide');
                 }
             });
         }
         else {
-            toggleBtnChk('btnNotifyWeb', false);
+            toggleBtnChk(btnNotifyWeb, false);
             settings.notificationWeb = false;
             document.getElementById('warnNotifyWeb').classList.add('hide');
         }
     }
     else {
-        toggleBtnChk('btnNotifyWeb', false);
+        toggleBtnChk(btnNotifyWeb, false);
         settings.notificationWeb = false;
     }
 }
