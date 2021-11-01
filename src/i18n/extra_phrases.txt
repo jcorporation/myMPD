@@ -128,4 +128,6 @@ Each 1
 Each 3600
 Each 60
 Each 604800
-Each 8640
+Each 86400
+Show all albums from artist
+Show directory

@@ -1534,12 +1534,6 @@ Song change
 Show playback settings in footer
 아래에 연주 설정 보기
 
-Custom
-사용자
-
-Daily
-매일
-
 Interval
 간격
 
@@ -1551,9 +1545,6 @@ One shot and delete
 
 One shot and disable
 한 번에 사용 안 함
-
-Weekly
-매주
 
 Each hours
 매시간 |||| 매 %{smart_count}시간

@@ -1549,12 +1549,6 @@ Neues Lied
 Show playback settings in footer
 Wiedergabeeinstellungen im Footer anzeigen
 
-Custom
-Benutzerdefiniert
-
-Daily
-Täglich
-
 Interval
 Interval
 
@@ -1566,9 +1560,6 @@ Einmalig und löschen
 
 One shot and disable
 Einmalig und deaktivieren
-
-Weekly
-Wöchentlich
 
 Each 1
 jede Sekunde |||| jede %{smart_count}. Sekunde
@@ -1887,3 +1878,9 @@ Autoscrolling
 
 Resize
 Größe ändern
+
+Show all albums from artist
+Zeige alle Alben des Interpreten an
+
+Show directory
+Zeige Verzeichnis an
