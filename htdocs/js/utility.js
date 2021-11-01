@@ -932,10 +932,6 @@ function createSearchExpression(crumbsEl, tag, op, value) {
     return expression;
 }
 
-function joinValues(values) {
-    return values.join(', ');
-}
-
 function printValue(key, value) {
     if (value === undefined || value === null || value === '') {
         return document.createTextNode('-');
@@ -967,7 +963,7 @@ function printValue(key, value) {
         case 'Conductor':
         case 'Ensemble':
         case 'MUSICBRAINZ_ARTISTID':
-        case 'MUSICBRAINZ_ALBUMARTISTID':
+        case 'MUSICBRAINZ_ALBUMARTISTID': {
             //multi value tags
             const span = elCreateEmpty('span', {});
             for (let i = 0, j = value.length; i < j; i++) {
@@ -982,6 +978,7 @@ function printValue(key, value) {
                 }
             }
             return span;
+        }
         default:
             if (key.indexOf('MUSICBRAINZ') === 0) {
                 return getMBtagLink(key, value);
