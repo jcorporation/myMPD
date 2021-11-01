@@ -15,6 +15,7 @@ function initScripts() {
     document.getElementById('selectScriptArguments').addEventListener('click', function(event) {
         if (event.target.nodeName === 'OPTION') {
             removeScriptArgument(event);
+            event.stopPropagation();
         }
     }, false);
 
