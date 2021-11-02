@@ -424,7 +424,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
                 sort_tag = sort_tag_org;
             }
         }
-        else if (strcmp(sort, "Last-Modified") == 0) {
+        else if (strcmp(sort, "LastModified") == 0) {
             sort_by_last_modified = true;
         }
         else {
