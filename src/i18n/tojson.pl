@@ -48,9 +48,6 @@ for my $filename (@files) {
             while ($line =~ /(\s+|\(|\+)tn?\('([^']+)'/g) {
                 $phrases->{$2} = 1;
             }
-            while ($line =~ /gtPage\('([^']+)'/g) {
-                $phrases->{$1} = 1;
-            }
             while ($line =~ /"desc":\s*"([^"]+)"/g) {
                 $phrases->{$1} = 1;
             }
