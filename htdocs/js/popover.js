@@ -324,7 +324,7 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         const songpos = getData(dataNode, 'data-songpos');
         addMenuItemsSongActions(tabContent, uri, name);
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-        if (trackid !== lastState.currentSongId) {
+        if (trackid !== currentState.currentSongId) {
             addMenuItem(tabContent, {"cmd": "playAfterCurrent", "options": [trackid, songpos]}, 'Play after current playing song');
         }
         addMenuItem(tabContent, {"cmd": "showSetSongPriority", "options": [trackid]}, 'Set priority');

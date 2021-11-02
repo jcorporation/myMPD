@@ -272,7 +272,7 @@ function setCols(table) {
     //append action column
     const th = elCreateEmpty('th', {"data-col": "Action"});
     if (features.featTags === true) {
-        th.appendChild(elCreateText('a', {"class": ["align-middle", "mi", "mi-small", "clickable"], "data-title-phrase": tn('Columns')}, 'settings'));
+        th.appendChild(elCreateText('a', {"href": "#", "class": ["align-middle", "mi", "mi-small", "clickable"], "data-title-phrase": 'Columns', "title": tn('Columns')}, 'settings'));
     }
     thead.appendChild(th);
 }

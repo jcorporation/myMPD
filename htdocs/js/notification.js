@@ -232,7 +232,7 @@ function toggleUI() {
 
 function toggleTopAlert() {
     const topAlert = document.getElementById('top-alerts');
-    if (uiEnabled === false || (lastState !== undefined && lastState.lastError !== '')) {
+    if (uiEnabled === false || (currentState !== undefined && currentState.lastError !== '')) {
         let topPadding = 0;
         if (window.innerWidth < window.innerHeight) {
             topPadding = document.getElementById('header').offsetHeight;

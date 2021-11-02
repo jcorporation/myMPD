@@ -52,7 +52,7 @@ class inputReset extends HTMLInputElement {
     connectedCallback() {
         this.button.addEventListener('mouseup', function(event) {
             const input = event.target.previousSibling;
-            input.value = getData(input, 'data-default') !== null ? getData(input, 'data-default') : 
+            input.value = getData(input, 'data-default') !== undefined ? getData(input, 'data-default') : 
                 (input.getAttribute('placeholder') !== null ? input.getAttribute('placeholder') : '');
         }, false);
     }
@@ -61,7 +61,7 @@ class inputReset extends HTMLInputElement {
 class selectSearch extends HTMLInputElement {
     constructor() {
         super();
-        const filterInput = elCreateEmpty('input', {"class": ["form-control", "form-control-sm", "mb-1"], "placeholder": tn('Filter')});
+        const filterInput = elCreateEmpty('input', {"class": ["form-control", "form-control-sm", "mb-1"], "data-placeholder-phrase": "Filter", "placeholder": tn('Filter')});
         const filterResult = elCreateEmpty('select', {"class": ["form-select", "form-select-sm"], "size": 10});
         const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "dropdown-menu-dark", "p-2", "w-100"]},
             [

@@ -267,8 +267,11 @@ function getSelectValue(el) {
     return undefined;
 }
 
-function getSelectedOptionAttribute(selectId, attribute) {
-    const el = document.getElementById(selectId);
+function getSelectedOptionAttributeId(id, attribute) {
+    getSelectedOptionAttribute(document.getElementById(id), attribute)
+}
+
+function getSelectedOptionAttribute(el, attribute) {
     if (el && el.selectedIndex >= 0) {
         return getData(el.options[el.selectedIndex], attribute);
     }
@@ -406,7 +409,7 @@ function addTagList(elId, list) {
         if (settings.tagList.includes('Date') === true && settings[list].includes('Date') === false) {
             stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Date"}, tn('Date')));
         }
-        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Last-Modified"}, tn('Last modified')));
+        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "LastModified"}, tn('Last modified')));
     }
     const el = document.getElementById(elId);
     elClear(el);
@@ -438,11 +441,6 @@ function addTagListSelect(elId, list) {
 //eslint-disable-next-line no-unused-vars
 function openModal(modal) {
     uiElements[modal].show();
-}
-
-//eslint-disable-next-line no-unused-vars
-function openDropdown(dropdown) {
-    uiElements[dropdown].toggle();
 }
 
 //eslint-disable-next-line no-unused-vars

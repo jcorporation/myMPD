@@ -84,6 +84,9 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
     if (sort === null || sort === undefined)     { sort = ptr.sort; }
     if (tag === null || tag === undefined)       { tag = ptr.tag; }
     if (search === null || search === undefined) { search = ptr.search; }
+    //enforce number type
+    offset = Number(offset);
+    limit = Number(limit);
     //set new scrollpos
     if (newScrollPos !== undefined) {
         ptr.scrollPos = newScrollPos;
@@ -509,7 +512,7 @@ function appInitStart() {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('sw.js', {scope: subdir + '/'}).then(function(registration) {
                 //Registration was successful
-                logInfo('ServiceWorker registration successful.');
+                logDebug('ServiceWorker registration successful.');
                 registration.update();
             }, function(err) {
                 //Registration failed
@@ -746,8 +749,8 @@ function initNavs() {
     }, false);
 
     domCache.progress.addEventListener('click', function(event) {
-        if (currentSong && currentSong.currentSongId >= 0 && currentSong.totalTime > 0) {
-            const seekVal = Math.ceil((currentSong.totalTime * event.clientX) / domCache.progress.offsetWidth);
+        if (currentSong && currentSongObj.currentSongId >= 0 && currentSongObj.totalTime > 0) {
+            const seekVal = Math.ceil((currentSongObj.totalTime * event.clientX) / domCache.progress.offsetWidth);
             sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {"seek": seekVal, "relative": false});
             domCache.progressBar.style.transition = 'none';
             domCache.progressBar.offsetHeight;
@@ -760,8 +763,8 @@ function initNavs() {
     }, false);
 
     domCache.progress.addEventListener('mousemove', function(event) {
-        if ((playstate === 'pause' || playstate === 'play') && currentSong.totalTime > 0) {
-            domCache.progressPos.textContent = beautifySongDuration(Math.ceil((currentSong.totalTime / event.target.offsetWidth) * event.clientX));
+        if ((currentState.state === 'pause' || currentState.state === 'play') && currentSongObj.totalTime > 0) {
+            domCache.progressPos.textContent = beautifySongDuration(Math.ceil((currentSongObj.totalTime / event.target.offsetWidth) * event.clientX));
             domCache.progressPos.style.display = 'block';
             const w = domCache.progressPos.offsetWidth / 2;
             const posX = event.clientX < w ? event.clientX : (event.clientX < window.innerWidth - w ? event.clientX - w : event.clientX - (w * 2));

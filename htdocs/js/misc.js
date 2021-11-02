@@ -59,10 +59,10 @@ function seekRelative(offset) {
 
 //eslint-disable-next-line no-unused-vars
 function clickPlay() {
-    if (playstate === 'stop') {
+    if (currentState.state === 'stop') {
         sendAPI("MYMPD_API_PLAYER_PLAY", {});
     }
-    else if (playstate === 'play') {
+    else if (currentState.state === 'play') {
         if (settings.webuiSettings.uiFooterPlaybackControls === 'stop') {
             sendAPI("MYMPD_API_PLAYER_STOP", {});
         }
@@ -70,7 +70,7 @@ function clickPlay() {
             sendAPI("MYMPD_API_PLAYER_PAUSE", {});
         }
     }
-    else if (playstate === 'pause') {
+    else if (currentState.state === 'pause') {
         sendAPI("MYMPD_API_PLAYER_RESUME", {});
     }
     else {
@@ -210,8 +210,8 @@ function zoomPicture(el) {
         if (dataImages !== undefined && dataImages !== null) {
             images = dataImages.slice();
         }
-        else if (lastSongObj.images) {
-            images = lastSongObj.images.slice();
+        else if (currentSongObj.images) {
+            images = currentSongObj.images.slice();
         }
         else {
             return;

@@ -776,7 +776,7 @@ function parseMPDSettings() {
     document.getElementById('partitionName').textContent = settings.partition;
     
     if (settings.webuiSettings.uiBgCover === true) {
-        setBackgroundImage(lastSongObj.uri);
+        setBackgroundImage(currentSongObj.uri);
     }
     else {
         clearBackgroundImage();
@@ -843,9 +843,9 @@ function parseMPDSettings() {
             setData(div, 'data-tag', settings.colsPlayback[i]);
             pbtl.appendChild(div);
         }
-        //fill blank card with lastSongObj
-        if (lastSongObj !== null) {
-            setPlaybackCardTags(lastSongObj);
+        //fill blank card with currentSongObj
+        if (currentSongObj !== null) {
+            setPlaybackCardTags(currentSongObj);
         }
         //tagselect dropdown
         const menu = document.getElementById('PlaybackColsDropdown').getElementsByTagName('form')[0];
@@ -1204,7 +1204,6 @@ function setNavbarIcons() {
 function getBgImageList(image) {
     getImageList('inputWebUIsettinguiBgImage', image, [
         {"value": "", "text": "None"},
-        {"value": "/assets/mympd-background-default.svg", "text": "Default image"},
         {"value": "/assets/mympd-background-dark.svg", "text": "Default image dark"},
         {"value": "/assets/mympd-background-light.svg", "text": "Default image light"},
     ]);

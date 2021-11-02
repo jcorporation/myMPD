@@ -484,7 +484,7 @@ function showHomeIconCmdOptions(values) {
     }
     const divHomeIconOptions = document.getElementById('divHomeIconOptions');
     elClear(divHomeIconOptions);
-    const options = getSelectedOptionAttribute('selectHomeIconCmd', 'data-options');
+    const options = getSelectedOptionAttributeId('selectHomeIconCmd', 'data-options');
     if (options !== undefined) {
         for (let i = 0, j = options.options.length; i < j; i++) {
             const row = elCreateEmpty('div', {"class": ["mb-3", "row"]});

@@ -7,11 +7,9 @@ const startTime = Date.now();
 let socket = null;
 let websocketConnected = false;
 let websocketTimer = null;
-let lastSong = '';
-let lastSongObj = {};
-let lastState;
-const currentSong = {};
-let playstate = '';
+let currentSong = '';
+let currentSongObj = {};
+let currentState = {};
 let settings = {"loglevel": 2};
 let settingsParsed = 'no';
 let progressTimer = null;
@@ -169,8 +167,8 @@ app.cards = {
 };
 
 app.id = "Home";
-app.current = { "card": "Home", "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
-app.last = { "card": undefined, "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
+app.current = {"card": "Home", "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0};
+app.last = {"card": undefined, "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0};
 app.goto = false;
 
 //normal settings
@@ -532,9 +530,10 @@ const keymap = {
         "r": {"order": 102, "cmd": "updateDB", "options": ["", true, true], "desc": "Rescan database"},
         "p": {"order": 103, "cmd": "updateSmartPlaylists", "options": [false], "desc": "Update smart playlists", "req": "featSmartpls"},
     "modals": {"order": 200, "desc": "Dialogs"},
-        "t": {"order": 201, "cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
-        "q": {"order": 202, "cmd": "openModal", "options": ["modalQueueSettings"], "desc": "Open queue settings"},
-        "?": {"order": 203, "cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
+        "c": {"order": 201, "cmd": "openModal", "options": ["modalConnection"], "desc": "Open MPD connection"},
+        "t": {"order": 202, "cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
+        "q": {"order": 203, "cmd": "openModal", "options": ["modalQueueSettings"], "desc": "Open queue settings"},
+        "?": {"order": 204, "cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
     "navigation": {"order": 300, "desc": "Navigation"},
         "0": {"order": 301, "cmd": "appGoto", "options": ["Home"], "desc": "Goto home"},
         "1": {"order": 302, "cmd": "appGoto", "options": ["Playback"], "desc": "Goto playback"},
@@ -556,43 +555,15 @@ domCache.progress = document.getElementById('footerProgress');
 domCache.progressBar = document.getElementById('footerProgressBar');
 domCache.progressPos = document.getElementById('footerProgressPos');
 
-//BSN ui objects
+//Get BSN object references for fast access
 const uiElements = {};
-uiElements.modalConnection = new BSN.Modal(document.getElementById('modalConnection'));
-uiElements.modalSettings = new BSN.Modal(document.getElementById('modalSettings'));
-uiElements.modalQueueSettings = new BSN.Modal(document.getElementById('modalQueueSettings'));
-uiElements.modalAbout = new BSN.Modal(document.getElementById('modalAbout')); 
-uiElements.modalSaveQueue = new BSN.Modal(document.getElementById('modalSaveQueue'));
-uiElements.modalAddToQueue = new BSN.Modal(document.getElementById('modalAddToQueue'));
-uiElements.modalSongDetails = new BSN.Modal(document.getElementById('modalSongDetails'));
-uiElements.modalAddToPlaylist = new BSN.Modal(document.getElementById('modalAddToPlaylist'));
-uiElements.modalRenamePlaylist = new BSN.Modal(document.getElementById('modalRenamePlaylist'));
-uiElements.modalUpdateDB = new BSN.Modal(document.getElementById('modalUpdateDB'));
-uiElements.modalSaveSmartPlaylist = new BSN.Modal(document.getElementById('modalSaveSmartPlaylist'));
-uiElements.modalTimer = new BSN.Modal(document.getElementById('modalTimer'));
-uiElements.modalMounts = new BSN.Modal(document.getElementById('modalMounts'));
-uiElements.modalExecScript = new BSN.Modal(document.getElementById('modalExecScript'));
-uiElements.modalScripts = new BSN.Modal(document.getElementById('modalScripts'));
-uiElements.modalPartitions = new BSN.Modal(document.getElementById('modalPartitions'));
-uiElements.modalPartitionOutputs = new BSN.Modal(document.getElementById('modalPartitionOutputs'));
-uiElements.modalTrigger = new BSN.Modal(document.getElementById('modalTrigger'));
-uiElements.modalOutputAttributes = new BSN.Modal(document.getElementById('modalOutputAttributes'));
-uiElements.modalPicture = new BSN.Modal(document.getElementById('modalPicture'));
-uiElements.modalEditHomeIcon = new BSN.Modal(document.getElementById('modalEditHomeIcon'));
-uiElements.modalConfirm = new BSN.Modal(document.getElementById('modalConfirm'));
-uiElements.modalEnterPin = new BSN.Modal(document.getElementById('modalEnterPin'));
-uiElements.modalSetSongPriority = new BSN.Modal(document.getElementById('modalSetSongPriority'));
-
-uiElements.dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
-uiElements.dropdownLocalPlayer = new BSN.Dropdown(document.getElementById('localPlaybackMenu'));
-uiElements.dropdownDatabaseSort = new BSN.Dropdown(document.getElementById('btnDatabaseSortDropdown'));
-uiElements.dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNeighbors'));
-uiElements.dropdownHomeIconLigature = new BSN.Dropdown(document.getElementById('btnHomeIconLigature'));
-
-uiElements.collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
-uiElements.collapseSettings = new BSN.Collapse(document.getElementById('navSettings'));
-uiElements.collapseScripting = new BSN.Collapse(document.getElementById('navScripting'));
-uiElements.collapseJukeboxMode = new BSN.Collapse(document.getElementById('collapseJukeboxMode'));
+//all modals
+for (const m of document.getElementsByClassName('modal')) {
+    uiElements[m.id] = document.getElementById(m.id).Modal;
+}
+//other directly accessed BSN objects
+uiElements.dropdownHomeIconLigature = document.getElementById('btnHomeIconLigature').Dropdown;
+uiElements.collapseJukeboxMode = document.getElementById('collapseJukeboxMode').Collapse;
 
 const LUAfunctions = {
     "mympd_api_http_client": {

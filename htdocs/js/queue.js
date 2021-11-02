@@ -92,23 +92,21 @@ function initQueue() {
 }
 
 function parseUpdateQueue(obj) {
-    //Set playstate
-    if (obj.result.state === 1) {
+    //Set playback buttons
+    if (obj.result.state === 'stop') {
         document.getElementById('btnPlay').textContent = 'play_arrow';
-        playstate = 'stop';
         domCache.progressBar.style.transition = 'none';
         domCache.progressBar.style.width = '0';
         setTimeout(function() {
             domCache.progressBar.style.transition = progressBarTransition;
         }, 10);
     }
-    else if (obj.result.state === 2) {
+    else if (obj.result.state === 'play') {
         document.getElementById('btnPlay').textContent = settings.webuiSettings.uiFooterPlaybackControls === 'stop' ? 'stop' : 'pause';
-        playstate = 'play';
     }
     else {
+        //pause
         document.getElementById('btnPlay').textContent = 'play_arrow';
-        playstate = 'pause';
     }
 
     if (obj.result.queueLength === 0) {
@@ -202,8 +200,8 @@ function parseQueue(obj) {
     }, function(row, data) {
         tableRow(row, data, app.id, colspan, smallWidth);
 
-        if (lastState && lastState.currentSongId === data.id) {
-            setPlayingRow(row, lastState.elapsedTime, data.Duration);
+        if (currentState && currentState.currentSongId === data.id) {
+            setPlayingRow(row, currentState.elapsedTime, data.Duration);
         }
     });
 
@@ -228,9 +226,9 @@ function parseQueue(obj) {
 }
 
 function queueSetCurrentSong(currentSongId, elapsedTime, totalTime) {
-    if (lastState) {
-        if (lastState.currentSongId !== currentSongId) {
-            const tr = document.getElementById('queueTrackId' + lastState.currentSongId);
+    if (currentState) {
+        if (currentState.currentSongId !== currentSongId) {
+            const tr = document.getElementById('queueTrackId' + currentState.currentSongId);
             if (tr) {
                 const durationTd = tr.querySelector('[data-col=Duration]');
                 if (durationTd) {
@@ -267,7 +265,7 @@ function setPlayingRow(row, elapsedTime, totalTime) {
     row.classList.add('queue-playing');
     
     let progressPrct = totalTime > 0 ? (100 / totalTime) * elapsedTime : 100;
-    if (playstate === 'stop') {
+    if (currentState.state === 'stop') {
         progressPrct = 100;
     }
     row.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
@@ -406,12 +404,12 @@ function delQueueSong(mode, start, end) {
 
 //eslint-disable-next-line no-unused-vars
 function gotoPlayingSong() {
-    if (lastState.songPos >= app.current.offset && lastState.songPos < app.current.offset + app.current.limit) {
+    if (currentState.songPos >= app.current.offset && currentState.songPos < app.current.offset + app.current.limit) {
         //playing song is in this page
         document.getElementsByClassName('queue-playing')[0].scrollIntoView(true);
     }
     else {
-        gotoPage(Math.floor(lastState.songPos / app.current.limit) * app.current.limit);
+        gotoPage(Math.floor(currentState.songPos / app.current.limit) * app.current.limit);
     }
 }
 
@@ -421,7 +419,7 @@ function playAfterCurrent(songId, songPos) {
         //not in random mode - move song after current playling song
         sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
             "from": songPos,
-            "to": lastState.songPos !== undefined ? lastState.songPos + 2 : 0
+            "to": currentState.songPos !== undefined ? currentState.songPos + 2 : 0
         });
     }
     else {

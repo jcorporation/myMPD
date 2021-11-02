@@ -44,9 +44,9 @@ function getServerinfo() {
 }
 
 function setCounter(currentSongId, totalTime, elapsedTime) {
-    currentSong.totalTime = totalTime;
-    currentSong.elapsedTime = elapsedTime;
-    currentSong.currentSongId = currentSongId;
+    currentSongObj.totalTime = totalTime;
+    currentSongObj.elapsedTime = elapsedTime;
+    currentSongObj.currentSongId = currentSongId;
 
     const progressPx = totalTime > 0 ? Math.ceil(domCache.progress.offsetWidth * elapsedTime / totalTime) : 0;
     if (progressPx < domCache.progressBar.offsetWidth) {
@@ -90,18 +90,18 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     if (progressTimer) {
         clearTimeout(progressTimer);
     }
-    if (playstate === 'play') {
+    if (currentState.state === 'play') {
         progressTimer = setTimeout(function() {
-            currentSong.elapsedTime += 1;
+            currentSongObj.elapsedTime += 1;
             requestAnimationFrame(function() {
-                setCounter(currentSong.currentSongId, currentSong.totalTime, currentSong.elapsedTime);
+                setCounter(currentSongObj.currentSongId, currentSongObj.totalTime, currentSongObj.elapsedTime);
             });
         }, 1000);
     }
 }
 
 function parseState(obj) {
-    if (JSON.stringify(obj.result) === JSON.stringify(lastState)) {
+    if (JSON.stringify(obj.result) === JSON.stringify(currentState)) {
         toggleUI();
         return;
     }
@@ -116,8 +116,8 @@ function parseState(obj) {
     setCounter(obj.result.currentSongId, obj.result.totalTime, obj.result.elapsedTime);
     
     //Get current song
-    if (!lastState || lastState.currentSongId !== obj.result.currentSongId ||
-        lastState.queueVersion !== obj.result.queueVersion)
+    if (!currentState || currentState.currentSongId !== obj.result.currentSongId ||
+        currentState.queueVersion !== obj.result.queueVersion)
     {
         sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, songChange);
     }
@@ -148,10 +148,10 @@ function parseState(obj) {
     }
 
     //save state
-    lastState = obj.result;
+    currentState = obj.result;
 
     //handle error from mpd status response
-    //lastState must be updated before
+    //currentState must be updated before
     if (obj.result.lastError === '') {
         toggleAlert('alertMpdStatusError', false, '');
     }
@@ -268,8 +268,8 @@ function _clearCurrentCover(el) {
 }
 
 function songChange(obj) {
-    const curSong = obj.result.Title + ':' + obj.result.Artist + ':' + obj.result.Album + ':' + obj.result.uri + ':' + obj.result.currentSongId;
-    if (lastSong === curSong) {
+    const newSong = obj.result.Title + ':' + obj.result.Artist + ':' + obj.result.Album + ':' + obj.result.uri + ':' + obj.result.currentSongId;
+    if (currentSong === newSong) {
         return;
     }
     let textNotification = '';
@@ -372,13 +372,13 @@ function songChange(obj) {
         }
     }
 
-    if (playstate === 'play') {
+    if (currentState.state === 'play') {
         showNotification(obj.result.Title, textNotification, 'player', 'info');
     }
     
-    //remember lastSong
-    lastSong = curSong;
-    lastSongObj = obj.result;
+    //remember current song
+    currentSong = newSong;
+    currentSongObj = obj.result;
 }
 
 function setPlaybackCardTags(songObj) {
@@ -387,8 +387,8 @@ function setPlaybackCardTags(songObj) {
         if (c && col === 'Lyrics') {
             getLyrics(songObj.uri, c.getElementsByTagName('p')[0]);
         }
-        else if (c && col === 'AudioFormat' && lastState !== undefined) {
-            elReplaceChild(c.getElementsByTagName('p')[0], printValue('AudioFormat', lastState.AudioFormat));
+        else if (c && col === 'AudioFormat' && currentState !== undefined) {
+            elReplaceChild(c.getElementsByTagName('p')[0], printValue('AudioFormat', currentState.AudioFormat));
         }
         else if (c) {
             let value = songObj[col];
@@ -437,7 +437,7 @@ function mediaSessionSetPositionState(duration, position) {
 
 function mediaSessionSetState() {
     if (settings.mediaSession === true && 'mediaSession' in navigator) {
-        navigator.mediaSession.playbackState = playstate === 'play' ? 'playing' : 'paused';
+        navigator.mediaSession.playbackState = currentState.state === 'play' ? 'playing' : 'paused';
     }
 }
 
