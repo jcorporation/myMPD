@@ -1546,9 +1546,6 @@ One shot and delete
 One shot and disable
 한 번에 사용 안 함
 
-Each hours
-매시간 |||| 매 %{smart_count}시간
-
 Missing translations
 선택한 언어에 % {smart_count}개의 번역이 없습니다 |||| 선택한 언어에 % {smart_count}개의 번역이 없습니다
 

@@ -573,8 +573,11 @@ Leiser
 Volume up
 Lauter
 
+Open MPD connection
+Öffne MPD Verbindung
+
 Open settings
-Einstellungen
+Öffne Einstellungen
 
 Goto home
 Gehe zur Startseite
@@ -1865,7 +1868,7 @@ Dialogs
 Dialoge
 
 Navigation
-Naviagtion
+Navigation
 
 Open queue settings
 Öffne Wiedergabeeinstellungen
@@ -1884,3 +1887,6 @@ Zeige alle Alben des Interpreten an
 
 Show directory
 Zeige Verzeichnis an
+
+Each 
+Jede
