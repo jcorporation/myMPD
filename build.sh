@@ -64,7 +64,7 @@ fi
 
 #colorful warnings and errors
 echo_error() {
-  printf "\e[0;31ERROR: "
+  printf "\e[0;31mERROR: "
   #shellcheck disable=SC2068
   echo $@
   printf "\e[m"
@@ -1084,6 +1084,15 @@ run_eslint() {
   do
     echo "Linting $F"
     eslint -c .eslintrc-min.json $F
+  done
+  echo "Check for forbidden js functions"
+  FORBIDDEN_CMDS="innerHTML innerText"
+  for F in $FORBIDDEN_CMDS
+  do
+  	if grep -q "$F" release/htdocs/js/mympd.min.js
+  	then
+  		echo_error "Found $F usage"
+  	fi
   done
 }
 
