@@ -17,7 +17,6 @@ const urlsToCache = [
     subdir + '/assets/favicon.ico',
     subdir + '/assets/MaterialIcons-Regular.woff2',
 	subdir + '/assets/mympd-background-dark.svg',
-	subdir + '/assets/mympd-background-default.svg',
 	subdir + '/assets/mympd-background-light.svg'
 ];
 
