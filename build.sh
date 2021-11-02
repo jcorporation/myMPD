@@ -1086,7 +1086,7 @@ run_eslint() {
     eslint -c .eslintrc-min.json $F
   done
   echo "Check for forbidden js functions"
-  FORBIDDEN_CMDS="innerHTML innerText"
+  FORBIDDEN_CMDS="innerHTML outerHTML insertAdjacentHTML innerText"
   for F in $FORBIDDEN_CMDS
   do
   	if grep -q "$F" release/htdocs/js/mympd.min.js
