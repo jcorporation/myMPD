@@ -120,7 +120,13 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     else {
         buffer = jsonrpc_result_start(buffer, method, request_id);
     }
-    buffer = tojson_long(buffer, "state", mpd_status_get_state(status), true);
+    enum mpd_state playstate = mpd_status_get_state(status);
+    const char *playstate_str =
+        playstate == MPD_STATE_STOP ? "stop" :
+        playstate == MPD_STATE_PLAY ? "play" :
+        playstate == MPD_STATE_PAUSE ? "pause" : "unknown";
+
+    buffer = tojson_char(buffer, "state", playstate_str, true);
     buffer = tojson_long(buffer, "volume", mpd_status_get_volume(status), true);
     buffer = tojson_long(buffer, "songPos", mpd_status_get_song_pos(status), true);
     buffer = tojson_long(buffer, "elapsedTime", mympd_api_get_elapsed_seconds(status), true);
