@@ -156,27 +156,29 @@ function myDecodeURIComponent(str) {
 
 //functions to get custom actions
 function clickAlbumPlay(albumArtist, album) {
-    switch (settings.webuiSettings.clickAlbumPlay) {
-        case 'append': return _addAlbum('appendQueue', albumArtist, album);
+    switch(settings.webuiSettings.clickAlbumPlay) {
+        case 'append':  return _addAlbum('appendQueue', albumArtist, album);
         case 'replace': return _addAlbum('replaceQueue', albumArtist, album);
     }
 }
 
 function clickSong(uri, name) {
     switch (settings.webuiSettings.clickSong) {
-        case 'append': return appendQueue('song', uri, name);
+        case 'append':  return appendQueue('song', uri, name);
         case 'replace': return replaceQueue('song', uri, name);
-        case 'view': return songDetails(uri);
+        case 'view':    return songDetails(uri);
     }
 }
 
 function clickQueueSong(songid, uri) {
-    switch (settings.webuiSettings.clickQueueSong) {
+    switch(settings.webuiSettings.clickQueueSong) {
         case 'play':
             if (songid === null) {
                 return;
             }
-            sendAPI("MYMPD_API_PLAYER_PLAY_SONG", {"songId": songid});
+            sendAPI("MYMPD_API_PLAYER_PLAY_SONG", {
+                "songId": songid
+            });
             break;
         case 'view': 
             if (uri === null) {
@@ -187,15 +189,15 @@ function clickQueueSong(songid, uri) {
 }
 
 function clickPlaylist(uri, name) {
-    switch (settings.webuiSettings.clickPlaylist) {
-        case 'append': return appendQueue('plist', uri, name);
+    switch(settings.webuiSettings.clickPlaylist) {
+        case 'append':  return appendQueue('plist', uri, name);
         case 'replace': return replaceQueue('plist', uri, name);
-        case 'view': return playlistDetails(uri);
+        case 'view':    return playlistDetails(uri);
     }
 }
 
 function clickFolder(uri, name) {
-    switch (settings.webuiSettings.clickFolder) {
+    switch(settings.webuiSettings.clickFolder) {
         case 'append': return appendQueue('dir', uri, name);
         case 'replace': return replaceQueue('dir', uri, name);
         case 'view':
@@ -207,24 +209,80 @@ function clickFolder(uri, name) {
             //reset filter and open folder
             app.current.filter = '-';
             appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', uri);
-            break;
     }
 }
+
+function seekRelativeForward() {
+    seekRelative(5);
+}
+
+function seekRelativeBackward() {
+    seekRelative(-5);
+}
+
+function seekRelative(offset) {
+    sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
+        "seek": offset,
+        "relative": true
+    });
+}
+
+//eslint-disable-next-line no-unused-vars
+function clickPlay() {
+    if (currentState.state === 'stop') {
+        sendAPI("MYMPD_API_PLAYER_PLAY", {});
+    }
+    else if (currentState.state === 'play') {
+        if (settings.webuiSettings.uiFooterPlaybackControls === 'stop') {
+            sendAPI("MYMPD_API_PLAYER_STOP", {});
+        }
+        else {
+            sendAPI("MYMPD_API_PLAYER_PAUSE", {});
+        }
+    }
+    else if (currentState.state === 'pause') {
+        sendAPI("MYMPD_API_PLAYER_RESUME", {});
+    }
+    else {
+        //fallback if playstate is unknown
+        sendAPI("MYMPD_API_PLAYER_PLAY", {});
+    }
+}
+
+//eslint-disable-next-line no-unused-vars
+function clickStop() {
+    sendAPI("MYMPD_API_PLAYER_STOP", {});
+}
+
+//eslint-disable-next-line no-unused-vars
+function clickPrev() {
+    sendAPI("MYMPD_API_PLAYER_PREV", {});
+}
+
+//eslint-disable-next-line no-unused-vars
+function clickNext() {
+    sendAPI("MYMPD_API_PLAYER_NEXT", {});
+}
+
 
 //escape and unescape MPD filter values
 function escapeMPD(x) {
     return x.replace(/(["'])/g, function(m0, m1) {
-        if (m1 === '"') return '\\"';
-        else if (m1 === '\'') return '\\\'';
-        else if (m1 === '\\') return '\\\\';
+        switch(m1) {
+            case '"':  return '\\"';
+            case '\'': return '\\\'';
+            case '\\': return '\\\\';
+        }
     });
 }
 
 function unescapeMPD(x) {
     return x.replace(/(\\'|\\"|\\\\)/g, function(m0, m1) {
-        if (m1 === '\\"') return '"';
-        else if (m1 === '\\\'') return '\'';
-        else if (m1 === '\\\\') return '\\';
+        switch(m1) {
+            case '\\"':  return '"';
+            case '\\\'': return '\'';
+            case '\\\\': return '\\';
+        }
     });
 }
 
@@ -320,9 +378,7 @@ function basename(uri, removeQuery) {
     if (removeQuery === true) {
         return uri.split('/').reverse()[0].split(/[?#]/)[0];
     }
-    else {
-        return uri.split('/').reverse()[0];
-    }
+    return uri.split('/').reverse()[0];
 }
 
 function filetype(uri) {
@@ -330,7 +386,7 @@ function filetype(uri) {
         return '';
     }
     const ext = uri.split('.').pop().toUpperCase();
-    switch (ext) {
+    switch(ext) {
         case 'MP3':  return ext + ' - MPEG-1 Audio Layer III';
         case 'FLAC': return ext + ' - Free Lossless Audio Codec';
         case 'OGG':  return ext + ' - Ogg Vorbis';
@@ -988,17 +1044,18 @@ function printValue(key, value) {
 }
 
 function addIconLine(el, ligature, text) {
-    const icon = elCreateText('span', {"class": ["mi", "me-2"]}, ligature);
-    const span = elCreateText('span', {}, text);
-    el.appendChild(icon);
-    el.appendChild(span);
+    el.appendChild(
+        elCreateText('span', {"class": ["mi", "me-2"]}, ligature)
+    );
+    el.appendChild(
+        document.createTextNode(text)
+    );
 }
 
 function getTimestamp() {
     return Math.floor(Date.now() / 1000);
 }
 
-//eslint-disable-next-line no-unused-vars
 function setScrollViewHeight(container) {
     const footerHeight = document.getElementsByTagName('footer')[0].offsetHeight;
     const tpos = getYpos(container.parentNode);
@@ -1013,4 +1070,145 @@ function toggleCollapseArrow(el) {
 
 function reflow(el) {
     return el.offsetHeight;
+}
+
+function ucFirst(string) {
+    return string[0].toUpperCase() + string.slice(1);
+}
+
+//eslint-disable-next-line no-unused-vars
+function openFullscreen() {
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    }
+    else if (elem.mozRequestFullScreen) {
+        //Firefox
+        elem.mozRequestFullScreen();
+    }
+    else if (elem.webkitRequestFullscreen) {
+        //Chrome, Safari and Opera
+        elem.webkitRequestFullscreen();
+    }
+    else if (elem.msRequestFullscreen) {
+        //IE and Edge
+        elem.msRequestFullscreen();
+    }
+}
+
+function setViewport(store) {
+    document.querySelector("meta[name=viewport]").setAttribute('content', 'width=device-width, initial-scale=' + scale + ', maximum-scale=' + scale);
+    if (store === true) {
+        try {
+            localStorage.setItem('scale-ratio', scale);
+        }
+        catch(err) {
+            logError('Can not save scale-ratio in localStorage: ' + err.message);
+        }
+    }
+}
+
+//eslint-disable-next-line no-unused-vars
+function clearCovercache() {
+    sendAPI("MYMPD_API_COVERCACHE_CLEAR", {});
+}
+
+//eslint-disable-next-line no-unused-vars
+function cropCovercache() {
+    sendAPI("MYMPD_API_COVERCACHE_CROP", {});
+}
+
+//eslint-disable-next-line no-unused-vars
+function zoomPicture(el) {
+    if (el.classList.contains('booklet')) {
+        window.open(getData(el, 'data-href'));
+        return;
+    }
+    
+    if (el.classList.contains('carousel')) {
+        let images;
+        const dataImages = getData(el, 'data-images');
+        if (dataImages !== undefined && dataImages !== null) {
+            images = dataImages.slice();
+        }
+        else if (currentSongObj.images) {
+            images = currentSongObj.images.slice();
+        }
+        else {
+            return;
+        }
+        
+        //add uri to image list to get embedded albumart
+        let aImages = [];
+        const uri = getData(el, 'data-uri');
+        if (uri) {
+            aImages = [ subdir + '/albumart/' + myEncodeURI(uri) ];
+        }
+        //add all but coverfiles to image list
+        for (let i = 0, j = images.length; i < j; i++) {
+            if (isCoverfile(images[i]) === false) {
+                aImages.push(subdir + '/browse/music/' + images[i]);
+            }
+        }
+        const imgEl = document.getElementById('modalPictureImg');
+        imgEl.style.paddingTop = 0;
+        createImgCarousel(imgEl, 'picsCarousel', aImages);
+        elHideId('modalPictureZoom');
+        uiElements.modalPicture.show();
+        return;
+    }
+    
+    if (el.style.backgroundImage !== '') {
+        const imgEl = document.getElementById('modalPictureImg');
+        elClear(imgEl);
+        imgEl.style.paddingTop = '100%';
+        imgEl.style.backgroundImage = el.style.backgroundImage;
+        elShowId('modalPictureZoom');
+        uiElements.modalPicture.show();
+    }
+}
+
+//eslint-disable-next-line no-unused-vars
+function zoomZoomPicture() {
+    window.open(document.getElementById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
+}
+
+function createImgCarousel(imgEl, name, images) {
+    const nrImages = images.length;
+    const carousel = elCreateEmpty('div', {"id": name, "class": ["carousel", "slide"], "data-bs-ride": "carousel"});
+    if (nrImages > 0) {
+        const carouselIndicators = elCreateEmpty('div', {"class": ["carousel-indicators"]});
+        for (let i = 0; i < nrImages; i++) {
+            carouselIndicators.appendChild(elCreateEmpty('button', {"type": "button", "data-bs-target": "#" + name, "data-bs-slide-to": i}));
+            if (i === 0) {
+                carouselIndicators.lastChild.classList.add('active');
+            }
+        }
+        carousel.appendChild(carouselIndicators);
+    }
+    const carouselInner = elCreateEmpty('div', {"class": ["carousel-inner"]});
+    for (let i = 0; i < nrImages; i++) {
+        carouselInner.appendChild(elCreateEmpty('div', {"class": ["carousel-item"]}));
+        carouselInner.lastChild.appendChild(elCreateEmpty('div', {}));
+        carouselInner.lastChild.style.backgroundImage = 'url("' + myEncodeURI(images[i]) + '")';
+        if (i === 0) {
+            carouselInner.lastChild.classList.add('active');
+        }
+    }
+    carousel.appendChild(carouselInner);
+    if (nrImages > 0) {
+        const prev = elCreateEmpty('a', {"href": "#" + name, "data-bs-slide": "prev", "class": ["carousel-control-prev"]});
+        prev.appendChild(elCreateEmpty('span', {"class": ["carousel-control-prev-icon"]}));
+        carousel.appendChild(prev);
+        const next = elCreateEmpty('a', {"href": "#" + name, "data-bs-slide": "next", "class": ["carousel-control-next"]});
+        next.appendChild(elCreateEmpty('span', {"class": ["carousel-control-next-icon"]}));
+        carousel.appendChild(next);
+    }
+
+    elClear(imgEl);
+    imgEl.appendChild(carousel);
+    uiElements.albumartCarousel = new BSN.Carousel(carousel, {
+        interval: false,
+        pause: false
+    });
 }

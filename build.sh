@@ -985,7 +985,7 @@ materialicons() {
 	printf "]" >> "$STARTPATH/htdocs/js/ligatures.js"
 	I=$((I+1))
   done 
-  printf "};\\n"  >> "$STARTPATH/htdocs/js/ligatures.js"
+  echo "};"  >> "$STARTPATH/htdocs/js/ligatures.js"
   cd / || exit 1
   rm -fr "$TMPDIR"
 }

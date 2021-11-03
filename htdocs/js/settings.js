@@ -299,10 +299,10 @@ function parseSettings(obj) {
     
     //Info in about modal
     if (settings.mpdHost.indexOf('/') !== 0) {
-        document.getElementById('mpdInfo_host').textContent = settings.mpdHost + ':' + settings.mpdPort;
+        document.getElementById('mpdInfoHost').textContent = settings.mpdHost + ':' + settings.mpdPort;
     }
     else {
-        document.getElementById('mpdInfo_host').textContent = settings.mpdHost;
+        document.getElementById('mpdInfoHost').textContent = settings.mpdHost;
     }
 
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.webuiSettings.uiCoverimageSize + "px");
