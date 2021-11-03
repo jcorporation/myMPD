@@ -42,7 +42,15 @@ function showPopover(event) {
 }
 
 function createPopoverTh(el) {
-    const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false, title: tn('Columns'), content: 'content'});
+    const template = elCreateNodes('div', {"class": ["popover"]}, [
+        elCreateEmpty('div', {"class": ["popover-arrow"]}),
+        elCreateEmpty('h3', {"class": ["popover-header"]}),
+        elCreateEmpty('div', {"class": ["popover-body"]})
+    ]);
+
+    const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false,
+        title: document.createTextNode(tn('Columns')), template: template, content: document.createTextNode('dummy')});
+    
     el.addEventListener('show.bs.popover', function() {
         const menu = elCreateEmpty('form', {});
         setColsChecklist(app.id, menu);
@@ -63,6 +71,7 @@ function createPopoverTh(el) {
         popoverBody.appendChild(menu);
         popoverBody.setAttribute('id', app.id + 'ColsDropdown');
     }, false);
+
     el.addEventListener('shown.bs.popover', function(event) {
         //resize popover-body to prevent screen overflow
         const popoverId = event.target.getAttribute('aria-describedby');
@@ -84,7 +93,15 @@ function createPopoverDisc(el) {
     const album = getData(el.parentNode.parentNode, 'data-album');
     const albumArtist = getData(el.parentNode.parentNode, 'data-albumartist');
 
-    const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false, title: tn('Disc') + ' ' + disc, content: 'content'});
+    const template = elCreateNodes('div', {"class": ["popover"]}, [
+        elCreateEmpty('div', {"class": ["popover-arrow"]}),
+        elCreateEmpty('h3', {"class": ["popover-header"]}),
+        elCreateEmpty('div', {"class": ["popover-body"]})
+    ]);
+
+    const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false,
+        title: document.createTextNode(tn('Disc') + ' ' + disc), template: template, content: document.createTextNode('dummy')});
+    
     el.addEventListener('show.bs.popover', function() {
         const popoverBody = popoverInit.popover.getElementsByClassName('popover-body')[0];
         popoverBody.classList.add('px-0');
@@ -110,20 +127,27 @@ function createPopoverDisc(el) {
 }
 
 function createPopoverTd(el) {
-    const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false, content: 'content',
-        template: '<div class="popover" role="tooltip">' +
-            '<div class="popover-arrow"></div>' +
-            '<h3 class="popover-header"></h3>' +
-            '<div class="popover-tabs py-2">' +
-            '<ul class="nav nav-tabs px-2">' +
-            '<li class="nav-item"><a class="nav-link active" href="#"></a></li>' +
-            '<li class="nav-item"><a class="nav-link" href="#"></a></li>' +
-            '</ul>' +
-            '<div class="tab-content">' +
-            '<div class="tab-pane pt-2 active show" id="popoverTab0"></div>' +
-            '<div class="tab-pane pt-2" id="popoverTab1"></div>' +
-            '</div>' +
-            '</div></div>'});
+    const template = elCreateNodes('div', {"class": ["popover"]}, [
+        elCreateEmpty('div', {"class": ["popover-arrow"]}),
+        elCreateEmpty('h3', {"class": ["popover-header"]}),
+        elCreateNodes('div', {"class": ["popover-tabs", "py-2"]}, [
+            elCreateNodes('ul', {"class": ["nav", "nav-tabs", "px-2"]}, [
+                elCreateNode('li', {"class": ["nav-item"]},
+                    elCreateEmpty('a', {"class": ["nav-link", "active"], "href": "#"})
+                ),
+                elCreateNode('li', {"class": ["nav-item"]},
+                    elCreateEmpty('a', {"class": ["nav-link"], "href": "#"})
+                )
+            ]),
+            elCreateNodes('div', {"class": ["tab-content"]}, [
+                elCreateEmpty('div', {"class": ["tab-pane", "pt-2", "active", "show"], "id": "popoverTab0"}),
+                elCreateEmpty('div', {"class": ["tab-pane", "pt-2"], "id": "popoverTab1"})
+            ])
+        ])
+    ]);
+
+    const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false,
+        content: document.createTextNode('dummy'), template: template});
     
     const tabHeader = popoverInit.popover.getElementsByClassName('nav-link');
     const tabPanes = popoverInit.popover.getElementsByClassName('tab-pane');
