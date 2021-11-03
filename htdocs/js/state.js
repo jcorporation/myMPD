@@ -12,16 +12,16 @@ function clearMPDerror() {
 }
 
 function parseStats(obj) {
-    document.getElementById('mpdstats_artists').textContent =  obj.result.artists;
-    document.getElementById('mpdstats_albums').textContent = obj.result.albums;
-    document.getElementById('mpdstats_songs').textContent = obj.result.songs;
-    document.getElementById('mpdstats_dbPlaytime').textContent = beautifyDuration(obj.result.dbPlaytime);
-    document.getElementById('mpdstats_playtime').textContent = beautifyDuration(obj.result.playtime);
-    document.getElementById('mpdstats_uptime').textContent = beautifyDuration(obj.result.uptime);
-    document.getElementById('mpdstats_mympd_uptime').textContent = beautifyDuration(obj.result.myMPDuptime);
-    document.getElementById('mpdstats_dbUpdated').textContent = localeDate(obj.result.dbUpdated);
+    document.getElementById('mpdstatsArtists').textContent =  obj.result.artists;
+    document.getElementById('mpdstatsAlbums').textContent = obj.result.albums;
+    document.getElementById('mpdstatsSongs').textContent = obj.result.songs;
+    document.getElementById('mpdstatsDbPlaytime').textContent = beautifyDuration(obj.result.dbPlaytime);
+    document.getElementById('mpdstatsPlaytime').textContent = beautifyDuration(obj.result.playtime);
+    document.getElementById('mpdstatsUptime').textContent = beautifyDuration(obj.result.uptime);
+    document.getElementById('mpdstatsMympd_uptime').textContent = beautifyDuration(obj.result.myMPDuptime);
+    document.getElementById('mpdstatsDbUpdated').textContent = localeDate(obj.result.dbUpdated);
     document.getElementById('mympdVersion').textContent = obj.result.mympdVersion;
-    document.getElementById('mpdInfo_version').textContent = obj.result.mpdProtocolVersion;
+    document.getElementById('mpdInfoVersion').textContent = obj.result.mpdProtocolVersion;
 }
 
 function getServerinfo() {
@@ -46,7 +46,6 @@ function getServerinfo() {
 function setCounter(currentSongId, totalTime, elapsedTime) {
     currentSongObj.totalTime = totalTime;
     currentSongObj.elapsedTime = elapsedTime;
-    currentSongObj.currentSongId = currentSongId;
 
     const progressPx = totalTime > 0 ? Math.ceil(domCache.progress.offsetWidth * elapsedTime / totalTime) : 0;
     if (progressPx < domCache.progressBar.offsetWidth) {
@@ -92,9 +91,9 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     }
     if (currentState.state === 'play') {
         progressTimer = setTimeout(function() {
-            currentSongObj.elapsedTime += 1;
+            currentState.elapsedTime += 1;
             requestAnimationFrame(function() {
-                setCounter(currentSongObj.currentSongId, currentSongObj.totalTime, currentSongObj.elapsedTime);
+                setCounter(currentState.currentSongId, currentState.totalTime, currentState.elapsedTime);
             });
         }, 1000);
     }
@@ -268,14 +267,14 @@ function _clearCurrentCover(el) {
 }
 
 function songChange(obj) {
-    const newSong = obj.result.Title + ':' + obj.result.Artist + ':' + obj.result.Album + ':' + obj.result.uri + ':' + obj.result.currentSongId;
+    const newSong = obj.result.Title + ':' + obj.result.Artist.join(', ') + ':' + obj.result.Album + ':' + obj.result.uri + ':' + obj.result.currentSongId;
     if (currentSong === newSong) {
         return;
     }
     let textNotification = '';
     let pageTitle = '';
 
-    mediaSessionSetMetadata(obj.result.Title, obj.result.Artist, obj.result.Album, obj.result.uri);
+    mediaSessionSetMetadata(obj.result.Title, obj.result.Artist.join(', '), obj.result.Album, obj.result.uri);
     
     setCurrentCover(obj.result.uri);
     setBackgroundImage(obj.result.uri);
@@ -284,9 +283,9 @@ function songChange(obj) {
         document.getElementById(elName).classList.remove('clickable');
     }
 
-    if (obj.result.Artist !== undefined && obj.result.Artist.length > 0 && obj.result.Artist !== '-') {
-        textNotification += obj.result.Artist;
-        pageTitle += obj.result.Artist + ' - ';
+    if (obj.result.Artist !== undefined && obj.result.Artist[0] !== '-') {
+        textNotification += obj.result.Artist.join(', ');
+        pageTitle += obj.result.Artist.join(', ') + smallSpace + nDash + smallSpace;
         document.getElementById('footerArtist').textContent = obj.result.Artist;
         setDataId('footerArtist', 'data-name', obj.result.Artist);
         if (features.featAdvsearch === true) {

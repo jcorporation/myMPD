@@ -434,3 +434,13 @@ function clearQueue() {
         sendAPI("MYMPD_API_QUEUE_CROP_OR_CLEAR", {});
     });
 }
+
+//eslint-disable-next-line no-unused-vars
+function addStream() {
+    const streamUriEl = document.getElementById('streamUrl');
+    if (validateStream(streamUriEl) === true) {
+        sendAPI("MYMPD_API_QUEUE_ADD_URI", {"uri": streamUriEl.value});
+        uiElements.modalAddToPlaylist.hide();
+        showNotification(tn('Added stream %{streamUri} to queue', {"streamUri": streamUriEl.value}), '', 'queue', 'info');
+    }
+}
