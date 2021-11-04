@@ -233,7 +233,9 @@ function clickPlay() {
         sendAPI("MYMPD_API_PLAYER_PLAY", {});
     }
     else if (currentState.state === 'play') {
-        if (settings.webuiSettings.uiFooterPlaybackControls === 'stop') {
+        if (settings.webuiSettings.uiFooterPlaybackControls === 'stop' ||
+            isStreamUri(currentSongObj.uri) === true)
+        {
             sendAPI("MYMPD_API_PLAYER_STOP", {});
         }
         else {
