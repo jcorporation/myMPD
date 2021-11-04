@@ -1322,18 +1322,18 @@ static void printdirentry(const char *name, void *userdata) {
   struct printdirentrydata *d = (struct printdirentrydata *) userdata;
   struct mg_fs *fs = d->opts->fs == NULL ? &mg_fs_posix : d->opts->fs;
   size_t size = 0;
-  time_t mtime = 0;
+  time_t t = 0;
   char path[MG_PATH_MAX], sz[64], mod[64];
   int flags, n = 0;
 
   // LOG(LL_DEBUG, ("[%s] [%s]", d->dir, name));
   if (snprintf(path, sizeof(path), "%s%c%s", d->dir, '/', name) < 0) {
     LOG(LL_ERROR, ("%s truncated", name));
-  } else if ((flags = fs->stat(path, &size, &mtime)) == 0) {
+  } else if ((flags = fs->stat(path, &size, &t)) == 0) {
     LOG(LL_ERROR, ("%lu stat(%s): %d", d->c->id, path, errno));
   } else {
     const char *slash = flags & MG_FS_DIR ? "/" : "";
-    struct tm t;
+    struct tm tm;
     if (flags & MG_FS_DIR) {
       snprintf(sz, sizeof(sz), "%s", "[DIR]");
     } else if (size < 1024) {
@@ -1345,26 +1345,18 @@ static void printdirentry(const char *name, void *userdata) {
     } else {
       snprintf(sz, sizeof(sz), "%.1fG", (double) size / 1073741824);
     }
-    strftime(mod, sizeof(mod), "%d-%b-%Y %H:%M", localtime_r(&mtime, &t));
+    strftime(mod, sizeof(mod), "%d-%b-%Y %H:%M", localtime_r(&t, &tm));
     n = (int) mg_url_encode(name, strlen(name), path, sizeof(path));
     mg_printf(d->c,
               "  <tr><td><a href=\"%.*s%s\">%s%s</a></td>"
-              "<td>%s</td><td>%s</td></tr>\n",
-              n, path, slash, name, slash, mod, sz);
+              "<td name=%lu>%s</td><td name=" MG_INT64_FMT ">%s</td></tr>\n",
+              n, path, slash, name, slash, (unsigned long) t, mod,
+              flags & MG_FS_DIR ? (int64_t) -1 : (int64_t) size, sz);
   }
 }
 
 static void listdir(struct mg_connection *c, struct mg_http_message *hm,
                     struct mg_http_serve_opts *opts, char *dir) {
-
-  char decoded_uri[MG_PATH_MAX] = "";
-  char *decoded_uri_ptr = decoded_uri;
-  int decoded_uri_len = mg_url_decode(hm->uri.ptr, hm->uri.len, decoded_uri_ptr, MG_PATH_MAX, 0);
-  if (decoded_uri_len < 0) {
-    mg_printf(c, "HTTP/1.1 500 Internal Server Error\r\n\r\n");
-    return;
-  }       
-
   static const char *sort_js_code =
       "<script>function srt(tb, sc, so, d) {"
       "var tr = Array.prototype.slice.call(tb.rows, 0),"
@@ -1390,8 +1382,10 @@ static void listdir(struct mg_connection *c, struct mg_http_message *hm,
       "</script>";
   struct mg_fs *fs = opts->fs == NULL ? &mg_fs_posix : opts->fs;
   struct printdirentrydata d = {c, hm, opts, dir};
-  char tmp[10];
+  char tmp[10], buf[MG_PATH_MAX];
   size_t off, n;
+  int len = mg_url_decode(hm->uri.ptr, hm->uri.len, buf, sizeof(buf), 0);
+  struct mg_str uri = len > 0 ? mg_str_n(buf, (size_t) len) : hm->uri;
 
   mg_printf(c,
             "HTTP/1.1 200 OK\r\n"
@@ -1400,19 +1394,21 @@ static void listdir(struct mg_connection *c, struct mg_http_message *hm,
             "Content-Length:         \r\n\r\n",
             opts->extra_headers == NULL ? "" : opts->extra_headers);
   off = c->send.len;  // Start of body
+
   mg_printf(c,
-            "<!DOCTYPE html><html><head><title>Index of %.*s</title>%s%s"
+            "<!DOCTYPE html><html><head><title>Index of %.*s</title>"
+            "%s%s"
             "<style>%s</style></style></head>"
             "<body><h1>Index of %.*s</h1><table cellpadding=\"0\"><thead>"
             "<tr><th><a href=\"#\" rel=\"0\">Name</a></th><th>"
             "<a href=\"#\" rel=\"1\">Modified</a></th>"
             "<th><a href=\"#\" rel=\"2\">Size</a></th></tr>"
             "</thead>"
-            "<tbody id=\"tb\">\n"
-            "<tr><td><a href=\"../\">../</a></td><td></td><td>[DIR]</td></tr>",
-            decoded_uri_len, decoded_uri, sort_js_code, sort_js_code2,
+            "<tbody id=\"tb\">",
+            (int) uri.len, uri.ptr, 
+            sort_js_code, sort_js_code2,
             c->mgr->directory_listing_css,
-            decoded_uri_len, decoded_uri);
+            (int) uri.len, uri.ptr);
 
   fs->list(dir, printdirentry, &d);
   mg_printf(c,
@@ -2983,7 +2979,7 @@ static void mg_set_non_blocking_mode(SOCKET fd) {
 #elif MG_ARCH == MG_ARCH_AZURERTOS
   fcntl(fd, F_SETFL, O_NONBLOCK);
 #else
-  fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) | O_NONBLOCK, FD_CLOEXEC);
+  fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) | O_NONBLOCK | FD_CLOEXEC);
 #endif
 }
 

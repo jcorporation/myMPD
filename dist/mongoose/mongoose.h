@@ -776,14 +776,14 @@ struct mg_addr {
 };
 
 struct mg_mgr {
-  const char *product_name;	// Procuct name used in directory listing
-  const char *directory_listing_css; // css for directory listing
   struct mg_connection *conns;  // List of active connections
   struct mg_dns dns4;           // DNS for IPv4
   struct mg_dns dns6;           // DNS for IPv6
   int dnstimeout;               // DNS resolve timeout in milliseconds
   unsigned long nextid;         // Next connection ID
   void *userdata;               // Arbitrary user data pointer
+  const char *product_name;	// Procuct name used in directory listing
+  const char *directory_listing_css; // css for directory listing
 #if MG_ARCH == MG_ARCH_FREERTOS_TCP
   SocketSet_t ss;  // NOTE(lsm): referenced from socket struct
 #endif
