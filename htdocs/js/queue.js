@@ -169,11 +169,12 @@ function parseQueue(obj) {
     }
 
     //goto playing song button
+    const btnQueueGotoPlayingSongParent = document.getElementById('btnQueueGotoPlayingSong').parentNode;
     if (obj.result.totalEntities > 1) {
-        elShowId('btnQueueGotoPlayingSong');
+        elShow(btnQueueGotoPlayingSongParent);
     }
     else {
-        elHideId('btnQueueGotoPlayingSong');
+        elHide(btnQueueGotoPlayingSongParent);
     }
 
     const colspan = settings['colsQueueCurrent'].length;
