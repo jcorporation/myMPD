@@ -9,9 +9,10 @@ function hidePopover() {
         menuEl.Popover.hide();
     }
     else {
-        //remove popover with no trigger element
+        //handle popover dom nodes without a trigger element
         const popover = document.getElementsByClassName('popover')[0];
         if (popover) {
+            //simply remove the popover dom node
             popover.remove();
         }
     }
@@ -20,14 +21,18 @@ function hidePopover() {
 function showPopover(event) {
     event.preventDefault();
     event.stopPropagation();
+    //we want only to show one popover at a time
+    hidePopover();
+    //popover is shown
     if (event.target.getAttribute('aria-describedby') !== null ||
         event.target.classList.contains('not-clickable'))
     {
         return;
     }
-    hidePopover();
+    //check for existing popover instance
     let popoverInit = event.target.Popover;
     if (popoverInit === undefined) {
+        //create it if no popover instance is found
         if (event.target.parentNode.nodeName === 'TH') {
             popoverInit = createPopoverTh(event.target);
         }
@@ -38,6 +43,7 @@ function showPopover(event) {
             popoverInit = createPopoverTd(event.target);
         }
     }
+    //show the popover
     popoverInit.show();
 }
 
