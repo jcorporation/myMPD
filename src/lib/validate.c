@@ -234,6 +234,7 @@ bool vcb_ismpdsort(sds data) {
         strcmp(data, "filename") != 0 &&
         strcmp(data, "shuffle") != 0 &&
         strcmp(data, "LastModified") != 0 &&
+        strcmp(data, "Last-Modified") != 0 &&
         strcmp(data, "Date") != 0)
     {
         MYMPD_LOG_WARN("Unknown tag \"%s\"", data);
