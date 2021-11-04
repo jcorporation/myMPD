@@ -188,7 +188,7 @@
     element.dispatchEvent(closedAlertEvent);
 
     self.dispose();
-    element.parentNode.removeChild(element);
+    element.remove();
   }
 
   // ALERT PRIVATE METHOD
@@ -1487,7 +1487,7 @@
 
   function appendOverlay(hasFade, isModal) {
     toggleOverlayType(isModal);
-    document.body.appendChild(overlay);
+    document.body.append(overlay);
     if (hasFade) addClass(overlay, fadeClass);
   }
 
@@ -1501,12 +1501,11 @@
   }
 
   function removeOverlay() {
-    const bd = document.body;
     const currentOpen = getCurrentOpen();
 
     if (!currentOpen) {
       removeClass(overlay, fadeClass);
-      bd.removeChild(overlay);
+      overlay.remove();
       resetScrollbar();
     }
   }
@@ -2330,7 +2329,7 @@
   function setHtml(element, content, sanitizeFn) {
     if (typeof content === 'string' && !content.length) return;
 
-    if (content instanceof Element) {
+    if (typeof content === 'object') {
       element.append(content);
     } else {
       let dirty = content.trim(); // fixing #233
@@ -2416,19 +2415,23 @@
     // set initial popover class
     const placementClass = `bs-${popoverString}-${tipClassPositions[placement]}`;
 
-    self.popover = document.createElement('div');
+    // load template
+    let popoverTemplate;
+    if (typeof template === 'object') {
+      popoverTemplate = template;
+    } else {
+      const htmlMarkup = document.createElement('div');
+      setHtml(htmlMarkup, template, sanitizeFn);
+      popoverTemplate = htmlMarkup.firstChild;
+    }
+    // set popover markup
+    self.popover = popoverTemplate.cloneNode(true);
+
     const { popover } = self;
 
     // set id and role attributes
     popover.setAttribute('id', id);
     popover.setAttribute('role', 'tooltip');
-
-    // load template
-    const popoverTemplate = document.createElement('div');
-    setHtml(popoverTemplate, template, sanitizeFn);
-    const htmlMarkup = popoverTemplate.firstChild;
-    popover.className = htmlMarkup.className;
-    setHtml(popover, htmlMarkup.innerHTML);
 
     const popoverHeader = queryElement(`.${popoverHeaderClass}`, popover);
     const popoverBody = queryElement(`.${popoverBodyClass}`, popover);
