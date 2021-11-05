@@ -266,8 +266,9 @@ function getLyrics(uri, el) {
             else {
                 el.innerHTML = lyricsScroll + lyrics;
             }
-            if (showSyncedLyrics === true && clickable === true) {
-                document.getElementById('lyricsScroll').addEventListener('click', function(event) {
+            const ls = document.getElementById('lyricsScroll');
+            if (ls !== null && showSyncedLyrics === true && clickable === true) {
+                ls.addEventListener('click', function(event) {
                     toggleBtn(event.target);
                     scrollSyncedLyrics = event.target.classList.contains('active');
                 }, false);
