@@ -63,7 +63,7 @@ function parseOutputs(obj) {
         }
         btn.appendChild(elCreateText('span', {"class": ["mi", "align-self-center"]}, (obj.result.data[i].plugin === 'httpd' ? 'cast' : 'volume_up')));
         btn.appendChild(elCreateText('span', {"class": ["mx-2", "align-self-center"]}, obj.result.data[i].name));
-        btn.appendChild(elCreateText('a', {"class": ["mi", "text-white", "align-self-center"],
+        btn.appendChild(elCreateText('a', {"class": ["mi", "text-light", "align-self-center"],
             "title": (Object.keys(obj.result.data[i].attributes).length > 0 ? tn('Edit attributes') : tn('Show attributes'))}, 'settings'));
         outputList.appendChild(btn);
     }
