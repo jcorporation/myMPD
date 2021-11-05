@@ -48,6 +48,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_state->feat_mpd_partitions = false;
     mympd_state->mpd_state->feat_mpd_binarylimit = false;
     mympd_state->mpd_state->feat_smartpls = false;
+    mympd_state->mpd_state->feat_mpd_playlist_rm_range = false;
     
     //get features
     mpd_client_feature_commands(mympd_state);
@@ -84,6 +85,14 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     }
     else {
         MYMPD_LOG_WARN("Disabling binarylimit support, depends on mpd >= 0.22.4");
+    }
+
+    if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 23, 3) >= 0 ) {
+        mympd_state->mpd_state->feat_mpd_playlist_rm_range = true;
+        MYMPD_LOG_NOTICE("Enabling delete playlist range feature");
+    }
+    else {
+        MYMPD_LOG_WARN("Disabling delete playlist range support, depends on mpd >= 0.23.3");
     }
     
     if (mympd_state->mpd_state->feat_advsearch == true && mympd_state->mpd_state->feat_playlists == true) {

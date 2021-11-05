@@ -926,6 +926,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_PLAYLIST_RM_RANGE:
+            if (mympd_state->mpd_state->feat_mpd_playlist_rm_range == true) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Method not supported");
+                break;
+            }
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.start", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_int(request->data, "$.params.end", -1, MPD_PLAYLIST_LENGTH_MAX, &int_buf1, &error) == true)
