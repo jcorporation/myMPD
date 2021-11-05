@@ -127,7 +127,7 @@ function parsePlaylistsDetail(obj) {
     );
     
     updateTable(obj, 'BrowsePlaylistsDetail', function(row, data) {
-        row.setAttribute('id','playlistTrackId' + data.Pos);
+        row.setAttribute('id', 'playlistTrackId' + data.Pos);
         row.setAttribute('draggable', 'true');
         row.setAttribute('tabindex', 0);
         setData(row, 'data-type', data.Type);
@@ -169,12 +169,20 @@ function updateSmartPlaylists(force) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function removeFromPlaylist(plist, pos) {
-    pos--;
-    sendAPI("MYMPD_API_PLAYLIST_RM_SONG", {
-        "plist": plist,
-        "pos": pos
-    });
+function removeFromPlaylist(mode, plist, start, end) {
+    if (mode === 'range') {
+        sendAPI("MYMPD_API_PLAYLIST_RM_RANGE", {
+            "plist": plist,
+            "start": start,
+            "end": end
+        });
+    }
+    else if (mode === 'single') {
+        sendAPI("MYMPD_API_PLAYLIST_RM_SONG", {
+            "plist": plist,
+            "pos": start
+        });
+    }
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 

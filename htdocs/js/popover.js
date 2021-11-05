@@ -343,11 +343,16 @@ function createMenuGeneric(el, tabHeader, tabContent) {
     
     if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
         const x = document.getElementById('BrowsePlaylistsDetailList');
+        const songpos = getData(dataNode, 'data-songpos');
         addMenuItemsSongActions(tabContent, uri, name);
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         if (getData(x, 'data-ro') === 'false') {
-            addMenuItem(tabContent, {"cmd": "removeFromPlaylist", "options": [getData(x, 'data-uri'), 
-                getData(el.parentNode.parentNode, 'data-songpos')]}, 'Remove');
+            const plist = getData(x, 'data-uri');
+            addMenuItem(tabContent, {"cmd": "removeFromPlaylist", "options": ["single", plist, songpos]}, 'Remove');
+            if (features.featPlaylistRmRange === true) {
+                addMenuItem(tabContent, {"cmd": "removeFromPlaylist", "options": ["range", plist, 0, songpos]}, 'Remove all upwards');
+                addMenuItem(tabContent, {"cmd": "removeFromPlaylist", "options": ["range", plist, songpos, -1]}, 'Remove all downwards');
+            }
         }
         return true;
     }
@@ -364,8 +369,7 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["single", trackid]}, 'Remove');
         addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", 0, songpos]}, 'Remove all upwards');
-        addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", (songpos - 1), -1]}, 'Remove all downwards');
-        
+        addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", songpos, -1]}, 'Remove all downwards');
         return true;
     }
     
