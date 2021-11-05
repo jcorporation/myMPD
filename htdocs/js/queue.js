@@ -396,10 +396,15 @@ function setSongPriorityCheckError(obj) {
 //eslint-disable-next-line no-unused-vars
 function delQueueSong(mode, start, end) {
     if (mode === 'range') {
-        sendAPI("MYMPD_API_QUEUE_RM_RANGE", {"start": start, "end": end});
+        sendAPI("MYMPD_API_QUEUE_RM_RANGE", {
+            "start": start,
+            "end": end
+        });
     }
     else if (mode === 'single') {
-        sendAPI("MYMPD_API_QUEUE_RM_SONG", { "songId": start});
+        sendAPI("MYMPD_API_QUEUE_RM_SONG", {
+            "songId": start
+        });
     }
 }
 
