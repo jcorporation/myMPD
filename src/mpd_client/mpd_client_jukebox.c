@@ -56,9 +56,8 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
         while (current != NULL) {
             bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, current->key);
             if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == true) {
-                struct mpd_entity *entity;
-                if ((entity = mpd_recv_entity(mympd_state->mpd_state->conn)) != NULL) {
-                    const struct mpd_song *song = mpd_entity_get_song(entity);
+                struct mpd_song *song;
+                if ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
                     if (filter_mpd_song(song, searchstr, tagcols) == true) {
                         entity_count++;
                         if (entity_count > offset && entity_count <= real_limit) {
@@ -75,6 +74,7 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
                             buffer = sdscatlen(buffer, "}", 1);
                         }
                     }
+                    mpd_song_free(song);
                 }
             }
             mpd_response_finish(mympd_state->mpd_state->conn);
