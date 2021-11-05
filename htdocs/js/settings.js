@@ -761,6 +761,7 @@ function setFeatures() {
         features.featBinarylimit = settings.featBinarylimit;
         features.featFingerprint = settings.featFingerprint;
         features.featPlaylistRmRange = settings.featPlaylistRmRange;
+        features.featWhence = settings.featWhence;
     }
 
     //show or hide elements

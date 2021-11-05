@@ -119,6 +119,7 @@ struct t_mpd_state {
     bool feat_mpd_binarylimit;
     bool feat_smartpls;
     bool feat_mpd_playlist_rm_range;
+    bool feat_whence;
 };
 
 struct t_timer_definition {
