@@ -1003,6 +1003,9 @@ function printValue(key, value) {
             return document.createTextNode(beautifySongDuration(value));
         case 'AudioFormat':
             return document.createTextNode(value.bits + tn('bits') + ' - ' + value.sampleRate / 1000 + tn('kHz'));
+        case 'Pos':
+            //mpd is 0-indexed but humans wants 1-indexed lists
+            return document.createTextNode(value + 1);
         case 'LastModified': 
         case 'LastPlayed':
         case 'stickerLastPlayed':

@@ -166,8 +166,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
     unsigned real_limit = offset + limit;
     struct t_list_node *current = entity_list.head;
     while (current != NULL) {
-        entity_count++;
-        if (entity_count > offset && entity_count <= real_limit) {
+        if (entity_count >= offset && entity_count < real_limit) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
@@ -180,6 +179,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
             buffer = sdscat(buffer, "}");
         }
         current = current->next;
+        entity_count++;
     }
     list_clear(&entity_list);
     buffer = sdscatlen(buffer, "],", 2);
@@ -213,9 +213,8 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
     sds entityName = sdsempty();
     size_t search_len = sdslen(searchstr);
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
-        entity_count++;
         total_time += mpd_song_get_duration(song);
-        if (entity_count > offset && entity_count <= real_limit) {
+        if (entity_count >= offset && entity_count < real_limit) {
             entityName = mpd_shared_get_tag_values(song, MPD_TAG_TITLE, entityName);
             sdstolower(entityName);
             if (search_len == 0  || strstr(entityName, searchstr) != NULL) {
@@ -233,6 +232,7 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
             }
         }
         mpd_song_free(song);
+        entity_count++;
     }
     FREE_SDS(entityName);
     

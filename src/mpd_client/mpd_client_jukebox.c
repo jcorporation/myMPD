@@ -59,8 +59,7 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
                 struct mpd_song *song;
                 if ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
                     if (filter_mpd_song(song, searchstr, tagcols) == true) {
-                        entity_count++;
-                        if (entity_count > offset && entity_count <= real_limit) {
+                        if (entity_count >= offset && entity_count < real_limit) {
                             if (entities_returned++) {
                                 buffer = sdscatlen(buffer, ",", 1);
                             }
@@ -73,6 +72,7 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
                             }
                             buffer = sdscatlen(buffer, "}", 1);
                         }
+                        entity_count++;
                     }
                     mpd_song_free(song);
                 }

@@ -231,8 +231,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
     
     struct t_list_node *current;
     while ((current = list_shift_first(&entity_list)) != NULL) {
-        entity_count++;
-        if (entity_count > offset && entity_count <= real_limit) {
+        if (entity_count >= offset && entity_count < real_limit) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
@@ -275,6 +274,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
             }
         }
         list_node_free_user_data(current, _free_filesystem_list_user_data);
+        entity_count++;
     }
 
     buffer = sdscatlen(buffer, "],", 2);
@@ -341,7 +341,6 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     int discs = 1;
 
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
-        entity_count++;
         if (entities_returned++) {
             buffer = sdscatlen(buffer, ",", 1);
         }
@@ -365,6 +364,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
 
         totalTime += mpd_song_get_duration(song);
         mpd_song_free(song);
+        entity_count++;
     }
 
     buffer = sdscatlen(buffer, "],", 2);
@@ -545,8 +545,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     sds artist = sdsempty();
     struct t_list_node *current;
     while ((current = list_shift_first(&album_list)) != NULL) {
-        entity_count++;
-        if (entity_count > offset && entity_count <= real_limit) {
+        if (entity_count >= offset && entity_count < real_limit) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
@@ -560,9 +559,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
             buffer = sdscatlen(buffer, "}", 1);
         }
         list_node_free_user_data(current, list_free_cb_ignore_user_data);
-        if (entity_count > real_limit) {
-            break;
-        }
+        entity_count++;
     }
     FREE_SDS(album);
     FREE_SDS(artist);
@@ -620,8 +617,7 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
             (searchstr_len <= 2 && strncmp(searchstr, value_lower, searchstr_len) == 0) ||
             (searchstr_len > 2 && strstr(value_lower, searchstr) != NULL))
         {
-            entity_count++;
-            if (entity_count > offset && entity_count <= real_limit) {
+            if (entity_count >= offset && entity_count < real_limit) {
                 if (entities_returned++) {
                     buffer = sdscatlen(buffer, ",", 1);
                 }
@@ -629,6 +625,7 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
                 buffer = tojson_char(buffer, "value", pair->value, false);
                 buffer = sdscatlen(buffer, "}", 1);
             }
+            entity_count++;
         }
         FREE_SDS(value_lower);
     }

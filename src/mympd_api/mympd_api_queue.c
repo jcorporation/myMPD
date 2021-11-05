@@ -156,8 +156,6 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
     unsigned entities_returned = 0;
     struct mpd_song *song;
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
-        total_time += mpd_song_get_duration(song);
-        entity_count++;
         if (entities_returned++) {
             buffer = sdscatlen(buffer, ",", 1);
         }
@@ -174,7 +172,9 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
             buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
         }
         buffer = sdscatlen(buffer, "}", 1);
+        total_time += mpd_song_get_duration(song);
         mpd_song_free(song);
+        entity_count++;
     }
 
     buffer = sdscatlen(buffer, "],", 2);
@@ -275,7 +275,6 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
     unsigned entities_returned = 0;
     unsigned real_limit = offset + limit;
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
-        entity_count++;
         if (entity_count > offset && entity_count <= real_limit) {
             if (entities_returned++) {
                 buffer= sdscatlen(buffer, ",", 1);
@@ -295,6 +294,7 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
             buffer = sdscatlen(buffer, "}", 1);
         }
         mpd_song_free(song);
+        entity_count++;
     }
 
     buffer = sdscatlen(buffer, "],", 2);

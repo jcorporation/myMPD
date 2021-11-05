@@ -182,9 +182,8 @@ function parseQueue(obj) {
 
     const rowTitle = webuiSettingsDefault.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
     updateTable(obj, 'QueueCurrent', function(row, data) {
-        data.Pos++;
         row.setAttribute('draggable', 'true');
-        row.setAttribute('id','queueTrackId' + data.id);
+        row.setAttribute('id', 'queueTrackId' + data.id);
         row.setAttribute('tabindex', 0);
         row.setAttribute('title', tn(rowTitle));
         setData(row, 'data-trackid', data.id);

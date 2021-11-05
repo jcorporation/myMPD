@@ -233,7 +233,7 @@ static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds 
                                          long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols)
 {
     buffer = sdscatlen(buffer, "{", 1);
-    buffer = tojson_long(buffer, "Pos", entity_count + 1, true);
+    buffer = tojson_long(buffer, "Pos", entity_count, true);
     buffer = tojson_long(buffer, "LastPlayed", last_played, true);
     bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, uri);
     if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == false) {
