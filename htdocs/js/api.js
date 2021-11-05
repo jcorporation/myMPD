@@ -380,7 +380,8 @@ function webSocketConnect() {
                         sendAPI('MYMPD_API_QUEUE_LAST_PLAYED', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
-                            "cols": settings.colsQueueLastPlayed
+                            "cols": settings.colsQueueLastPlayed,
+                            "searchstr": app.current.search
                         }, parseLastPlayed);
                     }
                     break;
@@ -389,7 +390,9 @@ function webSocketConnect() {
                         sendAPI('MYMPD_API_JUKEBOX_LIST', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
-                            "cols": settings.colsQueueJukebox}, parseJukeboxList);
+                            "cols": settings.colsQueueJukebox,
+                            "searchstr": app.current.search
+                        }, parseJukeboxList);
                     }
                     break;
                 case 'notify':
