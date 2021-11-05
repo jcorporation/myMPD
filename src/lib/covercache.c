@@ -69,7 +69,7 @@ int covercache_clear(const char *workdir, int keepdays) {
     time_t expire_time = time(NULL) - (long)(keepdays * 24 * 60 * 60);
     
     sds covercache = sdscatfmt(sdsempty(), "%s/covercache", workdir);
-    MYMPD_LOG_NOTICE("Cleaning covercache %s", covercache);
+    MYMPD_LOG_NOTICE("Cleaning covercache \"%s\"", covercache);
     MYMPD_LOG_DEBUG("Remove files older than %ld sec", expire_time);
     errno = 0;
     DIR *covercache_dir = opendir(covercache);
@@ -82,7 +82,7 @@ int covercache_clear(const char *workdir, int keepdays) {
                 struct stat status;
                 if (stat(filepath, &status) == 0) {
                     if (status.st_mtime < expire_time) {
-                        MYMPD_LOG_DEBUG("Deleting %s: %ld", filepath, status.st_mtime);
+                        MYMPD_LOG_DEBUG("Deleting \"%s\": %ld", filepath, status.st_mtime);
                         errno = 0;
                         if (unlink(filepath) != 0) {
                             MYMPD_LOG_ERROR("Error removing file \"%s\"", filepath);
@@ -101,7 +101,7 @@ int covercache_clear(const char *workdir, int keepdays) {
         FREE_SDS(filepath);
     }
     else {
-        MYMPD_LOG_ERROR("Error opening directory %s", covercache);
+        MYMPD_LOG_ERROR("Error opening directory \"%s\"", covercache);
         MYMPD_LOG_ERRNO(errno);
     }
     MYMPD_LOG_NOTICE("Deleted %d files from covercache", num_deleted);
