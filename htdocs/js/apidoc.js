@@ -320,7 +320,7 @@ const APImethods = {
             "end": {
                 "type": "uint",
                 "example": 1,
-                "desc": "End queue position"
+                "desc": "End queue position, use -1 for open end"
             }
         }
     },
@@ -450,6 +450,22 @@ const APImethods = {
         "params": {
             "plist": APIparams.plist,
             "pos": APIparams.pos
+        }
+    },
+    "MYMPD_API_PLAYLIST_RM_RANGE": {
+        "desc": "Removes a range from the playlist.",
+        "params": {
+            "plist": APIparams.plist,
+            "start": {
+                "type": "uint",
+                "example": 0,
+                "desc": "Start playlist position",
+            },
+            "end": {
+                "type": "uint",
+                "example": 1,
+                "desc": "End playlist position, use -1 for open end"
+            }
         }
     },
     "MYMPD_API_PLAYLIST_RM_ALL": {
