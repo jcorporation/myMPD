@@ -3,8 +3,12 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-function hidePopover() {
+function hidePopover(el) {
     const menuEl = document.querySelector('[aria-describedby]');
+    if (el === menuEl) {
+        //do not hide popover that should be opened
+        return;
+    }
     if (menuEl) {
         menuEl.Popover.hide();
     }
@@ -21,8 +25,7 @@ function hidePopover() {
 function showPopover(event) {
     event.preventDefault();
     event.stopPropagation();
-    //we want only to show one popover at a time
-    hidePopover();
+    hidePopover(event.target);
     //popover is shown
     if (event.target.getAttribute('aria-describedby') !== null ||
         event.target.classList.contains('not-clickable'))
