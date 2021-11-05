@@ -327,11 +327,11 @@ function getSelectValue(el) {
     return undefined;
 }
 
-function getSelectedOptionAttributeId(id, attribute) {
-    getSelectedOptionAttribute(document.getElementById(id), attribute)
+function getSelectedOptionDataId(id, attribute) {
+    return getSelectedOptionData(document.getElementById(id), attribute)
 }
 
-function getSelectedOptionAttribute(el, attribute) {
+function getSelectedOptionData(el, attribute) {
     if (el && el.selectedIndex >= 0) {
         return getData(el.options[el.selectedIndex], attribute);
     }
