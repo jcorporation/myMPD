@@ -90,6 +90,22 @@ mpd_run_playlist_add(struct mpd_connection *connection,
 }
 
 bool
+mpd_send_playlist_add_to(struct mpd_connection *connection, const char *name,
+		      const char *path, unsigned to)
+{
+	return mpd_send_s_s_u_command(connection, "playlistadd", name, path, to);
+}
+
+bool
+mpd_run_playlist_add_to(struct mpd_connection *connection,
+		     const char *name, const char *path, unsigned to)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_playlist_add_to(connection, name, path, to) &&
+		mpd_response_finish(connection);
+}
+
+bool
 mpd_send_playlist_move(struct mpd_connection *connection, const char *name,
 		       unsigned from, unsigned to)
 {
@@ -128,6 +144,23 @@ mpd_run_playlist_delete(struct mpd_connection *connection,
 {
 	return mpd_run_check(connection) &&
 		mpd_send_playlist_delete(connection, name, pos) &&
+		mpd_response_finish(connection);
+}
+
+bool
+mpd_send_playlist_delete_range(struct mpd_connection *connection, const char *name,
+			 unsigned start, unsigned end)
+{
+	return mpd_send_s_range_command(connection, "playlistdelete", name,
+					start, end);
+}
+
+bool
+mpd_run_playlist_delete_range(struct mpd_connection *connection,
+			const char *name, unsigned start, unsigned end)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_playlist_delete_range(connection, name, start, end) &&
 		mpd_response_finish(connection);
 }
 

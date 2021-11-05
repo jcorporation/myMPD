@@ -207,6 +207,37 @@ mpd_run_playlist_add(struct mpd_connection *connection,
 		     const char *name, const char *path);
 
 /**
+ * Inserts a uri to a playlist for a given position. The playlist 
+ * will be created if it does not exist.
+ *
+ * @param connection the connection to MPD
+ * @param name the name of the playlist
+ * @param uri URI to be added
+ * @param to the desired position
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.20
+ */
+bool
+mpd_send_playlist_add_to(struct mpd_connection *connection, const char *name,
+		      const char *uri, unsigned to);
+
+/**
+ * Shortcut for mpd_send_playlist_add_to() and mpd_response_finish().
+ *
+ * @param connection the connection to MPD
+ * @param name the name of the playlist
+ * @param uri URI to be added
+ * @param to the desired position
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.20
+ */
+bool
+mpd_run_playlist_add_to(struct mpd_connection *connection,
+		     const char *name, const char *uri, unsigned to);
+
+/**
  * Move a song from one position to another in the same playlist.
  *
  * @param connection the connection to MPD
@@ -257,6 +288,36 @@ mpd_send_playlist_delete(struct mpd_connection *connection, const char *name,
 bool
 mpd_run_playlist_delete(struct mpd_connection *connection,
 			const char *name, unsigned pos);
+
+/**
+ * Delete a range from a playlist.
+ *
+ * @param connection the connection to MPD
+ * @param name the name of the playlist
+ * @param start the start position of the range (including)
+ * @param end the end position of the range (excluding)
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.20
+ */
+bool
+mpd_send_playlist_delete_range(struct mpd_connection *connection, const char *name,
+			 unsigned start, unsigned end);
+
+/**
+ * Shortcut for mpd_send_playlist_delete_range() and mpd_response_finish().
+ *
+ * @param connection the connection to MPD
+ * @param name the name of the playlist
+ * @param start the start position of the range (including)
+ * @param end the end position of the range (excluding)
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.20
+ */
+bool
+mpd_run_playlist_delete_range(struct mpd_connection *connection,
+			const char *name, unsigned start, unsigned end);
 
 /**
  * Saves the current queue as a m3u file in the playlist directory
