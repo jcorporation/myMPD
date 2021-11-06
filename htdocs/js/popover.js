@@ -109,7 +109,8 @@ function createPopoverDisc(el) {
     ]);
 
     const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false,
-        title: document.createTextNode(tn('Disc') + ' ' + disc), template: template, content: document.createTextNode('dummy')});
+        title: document.createTextNode(tn('Disc') + ' ' + disc), template: template,
+        content: document.createTextNode('dummy')});
     
     el.addEventListener('show.bs.popover', function() {
         const popoverBody = popoverInit.popover.getElementsByClassName('popover-body')[0];
@@ -296,17 +297,24 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         type = getData(dataNode, 'data-type');
         uri = getData(dataNode, 'data-uri');
         name = getData(dataNode, 'data-name');
-        if (depth < 2) { depth++; } else { break; }
+        if (depth < 2) { 
+            depth++;
+        }
+        else { 
+            break;
+        }
     }
 
     let pType = type;
-    if (type === 'song') {
-        pType = isStreamUri(uri) === false ? 'Song' : 'Stream';
+    switch(type) {
+        case 'song':
+            pType = isStreamUri(uri) === false ? 'Song' : 'Stream';
+            break;
+        case 'dir':      pType = 'Directory'; break;
+        case 'album':    pType = 'Album'; break;
+        case 'smartpls': pType = 'Smart playlist'; break;
+        case 'plist':    pType = 'Playlist'; break;
     }
-    else if (type === 'dir') { pType = 'Directory'; }
-    else if (type === 'album') { pType = 'Album'; }
-    else if (type === 'smartpls') { pType = 'Smart playlist'; }
-    else if (type === 'plist') { pType = 'Playlist'; }
 
     tabHeader.textContent = tn(pType);
 
@@ -314,17 +322,15 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         app.id === 'Search' ||
         app.id === 'BrowseDatabaseDetail')
     {
-        if (type === 'song') {
-            addMenuItemsSongActions(tabContent, uri, name);
-        }
-        else if (type === 'dir') {
-            addMenuItemsDirectoryActions(tabContent, uri, name);
-        }
-        else if (type === 'plist' || type === 'smartpls') {
-            addMenuItemsPlaylistActions(tabContent, type, uri, name);
-        }
-        else {
-            return false;
+        switch(type) {
+            case 'song': addMenuItemsSongActions(tabContent, uri); break;
+            case 'dir':  addMenuItemsDirectoryActions(tabContent, uri); break;
+            case 'plist':
+            case 'smartpls':
+                addMenuItemsPlaylistActions(tabContent, type, uri, name);
+                break;
+            default:
+                return false;
         }
         return true;
     }
