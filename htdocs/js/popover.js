@@ -268,7 +268,7 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
 function addMenuItemsPlaylistActions(tabContent, type, uri, name) {
     addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri]}, 'Append to queue');
     if (features.featWhence === true) {
-        addMenuItem(div, {"cmd": "insertQueue", "options": [type, uri, 0, 1]}, 'Add after current playing song');
+        addMenuItem(tabContent, {"cmd": "insertQueue", "options": [type, uri, 0, 1]}, 'Add after current playing song');
     }
     addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, uri]}, 'Replace queue');
     tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
