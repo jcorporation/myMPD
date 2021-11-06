@@ -342,6 +342,19 @@ function getSelectedOptionData(el, attribute) {
     return undefined;
 }
 
+function getRadioBoxValueId(id) {
+    return getRadioBoxValue(document.getElementById(id));
+}
+
+function getRadioBoxValue(el) {
+    const radius = el.getElementsByClassName('form-check-input');
+    for(const r of radius) {
+        if (r.checked === true){
+            return r.value;
+        }
+    }
+}
+
 function alignDropdown(el) {
     const toggleEl = el.getElementsByClassName('dropdown-toggle')[0];
     const x = getXpos(toggleEl);

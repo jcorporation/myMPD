@@ -189,16 +189,16 @@ function removeFromPlaylist(mode, plist, start, end) {
 //eslint-disable-next-line no-unused-vars
 function toggleAddToPlaylistFrm() {
     const btn = document.getElementById('toggleAddToPlaylistBtn');
-    toggleBtnId('toggleAddToPlaylistBtn');
+    toggleBtn(toggleAddToPlaylistBtn);
     if (btn.classList.contains('active')) {
+        //add to playlist
         elShowId('addToPlaylistFrm');
-        elHideId('addStreamFooter');
-        elShowId('addToPlaylistFooter');
+        document.getElementById('addToPlaylistPosInsert').nextElementSibling.textContent = tn('Insert at start of playlist');
     }    
     else {
+        //add to queue
         elHideId('addToPlaylistFrm');
-        elShowId('addStreamFooter');
-        elHideId('addToPlaylistFooter');
+        document.getElementById('addToPlaylistPosInsert').nextElementSibling.textContent = tn('Insert after current playing song');
     }
 }
 
@@ -351,22 +351,19 @@ function showAddToPlaylist(uri, searchstr) {
     document.getElementById('addToPlaylistSearch').value = searchstr;
     document.getElementById('addToPlaylistPlaylist').value = '';
     document.getElementById('addToPlaylistPlaylist').filterInput.value = '';
+    document.getElementById('addToPlaylistPosAppend').checked = 'checked';
     toggleBtnId('toggleAddToPlaylistBtn', 0);
     const streamUrl = document.getElementById('streamUrl');
     streamUrl.focus();
     streamUrl.value = '';
     removeIsInvalid(document.getElementById('modalAddToPlaylist'));
     if (uri !== 'stream') {
-        elHideId('addStreamFooter');
         elHideId('addStreamFrm');
-        elShowId('addToPlaylistFooter');
         elShowId('addToPlaylistFrm');
         document.getElementById('addToPlaylistCaption').textContent = tn('Add to playlist');
     }
     else {
-        elShowId('addStreamFooter');
         elShowId('addStreamFrm');
-        elHideId('addToPlaylistFooter');
         elHideId('addToPlaylistFrm');
         document.getElementById('addToPlaylistCaption').textContent = tn('Add stream');
     }
@@ -412,40 +409,56 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
 //eslint-disable-next-line no-unused-vars
 function addToPlaylist() {
     let uri = document.getElementById('addToPlaylistUri').value;
-    if (uri === 'stream') {
-        uri = document.getElementById('streamUrl').value;
-        if (uri === '' || isStreamUri(uri) === false) {
-            document.getElementById('streamUrl').classList.add('is-invalid');
-            return;
-        }
-    }
-    const plist = document.getElementById('addToPlaylistPlaylist').value;
-    if (validatePlnameEl(plist) === false) {
-        return;
+    const mode = getRadioBoxValueId('addToPlaylistPos');
+    let type;
+    switch(uri) {
+        case 'SEARCH':
+            uri = app.current.search;
+            type = 'search';
+            break;
+        case 'ALBUM':
+            uri = document.getElementById('addToPlaylistSearch').value;
+            type = 'search';
+            break;
+        case 'stream':
+            uri = document.getElementById('streamUrl').value;
+            if (uri === '' || isStreamUri(uri) === false) {
+                document.getElementById('streamUrl').classList.add('is-invalid');
+                return;
+            }
+            type = 'song'
+        default:
+            type = 'song';
     }
 
-    if (plist === 'queue') {
-        if (uri === 'SEARCH') {
-            appendQueue('search', app.current.search, 'search', addToPlaylistClose);
+    if (document.getElementById('toggleAddToPlaylistBtn').classList.contains('active')) {
+        //add to playlist
+        const plist = document.getElementById('addToPlaylistPlaylist').value;
+        if (validatePlnameEl(plist) === false) {
+            return;
         }
-        else if (uri === 'ALBUM') {
-            const expression = document.getElementById('addToPlaylistSearch').value;
-            appendQueue('search', expression, addToPlaylistClose);
-        }
-        else {
-            appendQueue('search', uri, addToPlaylistClose);
+        switch(mode) {
+            case 'append': 
+                appendPlaylist(type, uri, plist, addToPlaylistClose);
+                break;
+            case 'insert':
+                insertPlaylist(type, uri, plist, 0, 1, addToPlaylistClose);
+                break;
+            case 'replace':
+                replacePlaylist(type, uri, plist, addToPlaylistClose);
         }
     }
     else {
-        if (uri === 'SEARCH') {
-            appendPlaylist('search', app.current.search, plist, addToPlaylistClose);
-        }
-        else if (uri === 'ALBUM') {
-            const expression = document.getElementById('addToPlaylistSearch').value;
-            appendPlaylist('search', expression, plist, addToPlaylistClose);
-        }
-        else {
-            appendPlaylist('search', uri, plist, addToPlaylistClose);
+        //add to queue
+        switch(mode) {
+            case 'append': 
+                appendQueue(type, uri, addToPlaylistClose);
+                break;
+            case 'insert':
+                insertQueue(type, uri, 0, 1, addToPlaylistClose);
+                break;
+            case 'replace':
+                replaceQueue(type, uri, addToPlaylistClose);
         }
     }
 }

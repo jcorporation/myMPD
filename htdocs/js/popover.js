@@ -359,7 +359,7 @@ function createMenuGeneric(el, tabHeader, tabContent) {
             addMenuItem(tabContent, {"cmd": "removeFromPlaylist", "options": ["single", plist, songpos]}, 'Remove');
             if (features.featPlaylistRmRange === true) {
                 addMenuItem(tabContent, {"cmd": "removeFromPlaylist", "options": ["range", plist, 0, songpos]}, 'Remove all upwards');
-                addMenuItem(tabContent, {"cmd": "removeFromPlaylist", "options": ["range", plist, songpos, -1]}, 'Remove all downwards');
+                addMenuItem(tabContent, {"cmd": "removeFromPlaylist", "options": ["range", plist, songpos + 1, -1]}, 'Remove all downwards');
             }
         }
         return true;
@@ -377,7 +377,7 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["single", trackid]}, 'Remove');
         addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", 0, songpos]}, 'Remove all upwards');
-        addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", songpos, -1]}, 'Remove all downwards');
+        addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", songpos + 1, -1]}, 'Remove all downwards');
         return true;
     }
     

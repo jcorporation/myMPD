@@ -748,14 +748,30 @@
                 <div class="invalid-feedback" data-phrase="Invalid URI"></div>
               </div>
             </div>
+            <div class="row mb-3">
+              <label class="col-sm-4 col-form-label" data-phrase="Insert mode"></label>
+              <div class="col-sm-8" id="addToPlaylistPos">
+                <div class="form-check ms-4">
+                  <input class="form-check-input" type="radio" name="addToPlaylistPos" value="append" id="addToPlaylistPosAppend">
+                  <label class="form-check-label" for="addToPlaylistPosAppend" data-phrase="Append"></label>
+                </div>
+                <div class="form-check ms-4">
+                  <input class="form-check-input" type="radio" name="addToPlaylistPos" value="insert" id="addToPlaylistPosInsert">
+                  <label class="form-check-label" for="addToPlaylistPosInsert" data-phrase="Insert after current playing song"></label>
+                </div>
+                <div class="form-check ms-4">
+                  <input class="form-check-input" type="radio" name="addToPlaylistPos" value="replace" id="addToPlaylistPosReplace">
+                  <label class="form-check-label" for="addToPlaylistPosReplace" data-phrase="Replace"></label>
+                </div>
+              </div>
+            </div>
             <div class="row mb-3 featPlaylists">
               <div class="col-sm-4"></div>
               <div class="col-sm-8">
                 <button id="toggleAddToPlaylistBtn" class="btn btn-secondary" data-href='{"cmd": "toggleAddToPlaylistFrm", "options":[]}' data-phrase="Add to playlist"></button>
               </div>
             </div>
-          </form>        
-
+          </form>
           <form class="d-none" id="addToPlaylistFrm">
             <input type="hidden" id="addToPlaylistUri"/>
             <input type="hidden" id="addToPlaylistSearch"/>
@@ -770,13 +786,9 @@
             </div>
           </form>
         </div>
-        <div class="modal-footer justify-content-between" id="addToPlaylistFooter">
+        <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "addToPlaylist", "options": []}' data-phrase="Add"></button>
-        </div>
-        <div class="modal-footer justify-content-between d-none" id="addStreamFooter">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <button type="button" class="btn btn-success" data-href='{"cmd": "addStream", "options": []}' data-phrase="Add"></button>
         </div>
       </div>
     </div>

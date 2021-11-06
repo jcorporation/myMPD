@@ -17,6 +17,7 @@ $btn-focus-width: 0;
 //colors
 $green: #28a745;
 $gray-100: #f8f9fa;
+$gray-200: #e9ecef;
 $gray-600: #6c757d;
 $gray-700: #495057;
 $gray-800: #343a40;
@@ -85,6 +86,9 @@ $list-group-action-color: $gray-100;
 $list-group-action-hover-color: $gray-100;
 $form-select-indicator-color: white;
 $form-select-disabled-bg: $gray-600;
+$form-check-input-border: 1px solid $gray-600;
+$form-check-input-bg: $gray-200;
+
 
 // 3. Include remainder of required Bootstrap stylesheets
 @import "../node_modules/bootstrap/scss/variables";

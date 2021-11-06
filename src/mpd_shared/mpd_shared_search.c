@@ -94,14 +94,6 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
             return buffer;
         }
     }
-
-    if (to < UINT_MAX) {
-        bool rc = mpd_search_add_position(mpd_state->conn, to, whence);
-        if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_position") == false) {
-            mpd_search_cancel(mpd_state->conn);
-            return buffer;
-        }
-    }
     
     if (adv == true) {
         bool rc = mpd_search_add_expression(mpd_state->conn, expression);
@@ -128,6 +120,14 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
         mpd_search_cancel(mpd_state->conn);
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "mpd", "error", "No search tag defined and advanced search is disabled");
         return buffer;
+    }
+
+    if (to < UINT_MAX) {
+        bool rc = mpd_search_add_position(mpd_state->conn, to, whence);
+        if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_position") == false) {
+            mpd_search_cancel(mpd_state->conn);
+            return buffer;
+        }
     }
 
     if (plist == NULL) {

@@ -1089,7 +1089,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         case MYMPD_API_QUEUE_APPEND_SEARCH:
             if (json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
-                    sds_buf1, NULL, false, NULL, NULL, UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache);
+                    sds_buf1, NULL, false, NULL, "queue", UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache);
             }
             break;
         case MYMPD_API_QUEUE_INSERT_SEARCH:
@@ -1102,7 +1102,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &error) == true)
             {
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
-                    sds_buf1, NULL, false, NULL, NULL, uint_buf1, uint_buf2, 0, 0, NULL, mympd_state->sticker_cache);
+                    sds_buf1, NULL, false, NULL, "queue", uint_buf1, uint_buf2, 0, 0, NULL, mympd_state->sticker_cache);
             }
             break;
         case MYMPD_API_QUEUE_REPLACE_SEARCH:
@@ -1113,7 +1113,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     break;
                 }
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
-                    sds_buf1, NULL, false, NULL, NULL, UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache);
+                    sds_buf1, NULL, false, NULL, "queue", UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache);
             }
             break;
         case MYMPD_API_QUEUE_ADD_RANDOM:
