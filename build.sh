@@ -429,9 +429,9 @@ cleanuposc() {
 }
 
 check_docs() {
-  grep 'X(MYMPD' src/lib/api.h | cut -d\( -f2 | cut -d\) -f1 | while IFS= read -r METHOD
+  grep -v '//' src/lib/api.h | grep 'X(MYMPD' | cut -d\( -f2 | cut -d\) -f1 | while IFS= read -r METHOD
   do
-    grep -q "$METHOD" htdocs/js/apidoc.js || echo_warn "API $F not documented"
+    grep -q "$METHOD" htdocs/js/apidoc.js || echo_warn "API $METHOD not documented"
   done
   O=$(md5sum htdocs/js/apidoc.js | awk '{print $1}')
   C=$(md5sum docs/assets/apidoc.js | awk '{print $1}')
