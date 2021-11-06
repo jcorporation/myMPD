@@ -2979,7 +2979,8 @@ static void mg_set_non_blocking_mode(SOCKET fd) {
 #elif MG_ARCH == MG_ARCH_AZURERTOS
   fcntl(fd, F_SETFL, O_NONBLOCK);
 #else
-  fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) | O_NONBLOCK | FD_CLOEXEC);
+  fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);  // Set non-blocking mode
+  fcntl(fd, F_SETFD, FD_CLOEXEC);                       // Set close-on-exec
 #endif
 }
 
@@ -3651,7 +3652,7 @@ struct mg_timer *g_timers;
 
 void mg_timer_init(struct mg_timer *t, unsigned long ms, unsigned flags,
                    void (*fn)(void *), void *arg) {
-  struct mg_timer tmp = {ms, flags, fn, arg, 0UL, g_timers};
+  struct mg_timer tmp = {ms, 0UL, flags, fn, arg, g_timers};
   *t = tmp;
   g_timers = t;
   if (flags & MG_TIMER_RUN_NOW) fn(arg);
