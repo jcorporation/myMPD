@@ -86,6 +86,7 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
 
     mympd_state->mpd_state->state = mpd_status_get_state(status);
     mympd_state->mpd_state->song_id = song_id;
+    mympd_state->mpd_state->song_pos = mpd_status_get_song_pos(status);
     mympd_state->mpd_state->next_song_id = mpd_status_get_next_song_id(status);
     mympd_state->mpd_state->queue_version = mpd_status_get_queue_version(status);
     mympd_state->mpd_state->queue_length = mpd_status_get_queue_length(status);

@@ -186,22 +186,6 @@ function removeFromPlaylist(mode, plist, start, end) {
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
-//eslint-disable-next-line no-unused-vars
-function toggleAddToPlaylistFrm() {
-    const btn = document.getElementById('toggleAddToPlaylistBtn');
-    toggleBtn(toggleAddToPlaylistBtn);
-    if (btn.classList.contains('active')) {
-        //add to playlist
-        elShowId('addToPlaylistFrm');
-        document.getElementById('addToPlaylistPosInsert').nextElementSibling.textContent = tn('Insert at start of playlist');
-    }    
-    else {
-        //add to queue
-        elHideId('addToPlaylistFrm');
-        document.getElementById('addToPlaylistPosInsert').nextElementSibling.textContent = tn('Insert after current playing song');
-    }
-}
-
 function parseSmartPlaylist(obj) {
     const nameEl = document.getElementById('saveSmartPlaylistName');
     nameEl.value = obj.result.plist;
@@ -328,6 +312,39 @@ function deletePlaylists() {
     });
 }
 
+function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
+    sendAPI("MYMPD_API_PLAYLIST_LIST", {
+        "searchstr": searchstr,
+        "offset": 0,
+        "limit": settings.webuiSettings.uiMaxElementsPerPage,
+        "type": type
+    }, function(obj) {
+        populatePlaylistSelect(obj, elId, selectedPlaylist);
+    });
+}
+
+//populates the custom input element mympd-select-search
+function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
+    const selectEl = document.getElementById(playlistSelectId);
+    if (selectedPlaylist !== undefined) {
+        selectEl.value = selectedPlaylist;
+    }
+    elClear(selectEl.filterResult);
+    if (playlistSelectId === 'selectJukeboxPlaylist' || 
+             playlistSelectId === 'selectAddToQueuePlaylist' ||
+             playlistSelectId === 'selectTimerPlaylist') 
+    {
+        selectEl.filterResult.appendChild(elCreateText('option', {"value": "Database"}, tn('Database')));
+    }
+
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
+        selectEl.filterResult.appendChild(elCreateText('option', {"value": obj.result.data[i].uri}, obj.result.data[i].uri));
+        if (obj.result.data[i].uri === selectedPlaylist) {
+            selectEl.filterResult.lastChild.setAttribute('selected', 'selected');
+        }
+    }
+}
+
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistCurrentSong() {
     const uri = getDataId('currentTitle', 'data-uri');
@@ -360,11 +377,13 @@ function showAddToPlaylist(uri, searchstr) {
     if (uri !== 'stream') {
         elHideId('addStreamFrm');
         elShowId('addToPlaylistFrm');
+        elHideId('addToPlaylistPosInsertRow');
         document.getElementById('addToPlaylistCaption').textContent = tn('Add to playlist');
     }
     else {
         elShowId('addStreamFrm');
         elHideId('addToPlaylistFrm');
+        elShowId('addToPlaylistPosInsertRow');
         document.getElementById('addToPlaylistCaption').textContent = tn('Add stream');
     }
     uiElements.modalAddToPlaylist.show();
@@ -373,36 +392,19 @@ function showAddToPlaylist(uri, searchstr) {
     }
 }
 
-function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
-    sendAPI("MYMPD_API_PLAYLIST_LIST", {
-        "searchstr": searchstr,
-        "offset": 0,
-        "limit": settings.webuiSettings.uiMaxElementsPerPage,
-        "type": type
-    }, function(obj) {
-        populatePlaylistSelect(obj, elId, selectedPlaylist);
-    });
-}
-
-//populates the custom input element mympd-select-search
-function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
-    const selectEl = document.getElementById(playlistSelectId);
-    if (selectedPlaylist !== undefined) {
-        selectEl.value = selectedPlaylist;
-    }
-    elClear(selectEl.filterResult);
-    if (playlistSelectId === 'selectJukeboxPlaylist' || 
-             playlistSelectId === 'selectAddToQueuePlaylist' ||
-             playlistSelectId === 'selectTimerPlaylist') 
-    {
-        selectEl.filterResult.appendChild(elCreateText('option', {"value": "Database"}, tn('Database')));
-    }
-
-    for (let i = 0; i < obj.result.returnedEntities; i++) {
-        selectEl.filterResult.appendChild(elCreateText('option', {"value": obj.result.data[i].uri}, obj.result.data[i].uri));
-        if (obj.result.data[i].uri === selectedPlaylist) {
-            selectEl.filterResult.lastChild.setAttribute('selected', 'selected');
-        }
+//eslint-disable-next-line no-unused-vars
+function toggleAddToPlaylistFrm() {
+    const btn = document.getElementById('toggleAddToPlaylistBtn');
+    toggleBtn(toggleAddToPlaylistBtn);
+    if (btn.classList.contains('active')) {
+        //add to playlist
+        elShowId('addToPlaylistFrm');
+        document.getElementById('addToPlaylistPosInsert').nextElementSibling.textContent = tn('Insert at start of playlist');
+    }    
+    else {
+        //add to queue
+        elHideId('addToPlaylistFrm');
+        document.getElementById('addToPlaylistPosInsert').nextElementSibling.textContent = tn('Insert after current playing song');
     }
 }
 
@@ -487,7 +489,6 @@ function appendPlaylist(type, uri, plist, callback) {
                 "expression": uri,
                 "plist": plist
             }, callback, true);
-            break;
     }
 }
 
@@ -502,14 +503,14 @@ function insertPlaylist(type, uri, plist, to, whence, callback) {
                 "whence": whence
             }, callback, true);
             break;
-        case 'search':
-            sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH", {
-                "expression": uri,
-                "plist": plist,
-                "to": to,
-                "whence": whence
-            }, callback, true);
-            break;
+//        case 'search':
+//not implemented by mpd
+//            sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH", {
+//                "uri": uri,
+//                "plist": plist,
+//                "to": to
+//            }, callback, true);
+//            break;
     }
 }
 
@@ -527,7 +528,6 @@ function replacePlaylist(type, uri, plist, callback) {
                 "expression": uri,
                 "plist": plist
             }, callback, true);
-            break;
     }
 }
 

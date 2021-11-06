@@ -481,14 +481,6 @@ const APImethods = {
             "expression": APIparams.expression
         }
     },
-    "MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH": {
-        "desc": "Inserts the search result to the playlist.",
-        "params": {
-            "plist": APIparams.plist,
-            "expression": APIparams.expression,
-            "to": APIparams.to
-        }
-    },
     "MYMPD_API_PLAYLIST_CONTENT_REPLACE_SEARCH": {
         "desc": "Replaces the playlist content with the search result",
         "params": {

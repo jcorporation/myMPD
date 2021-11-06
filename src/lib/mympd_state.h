@@ -84,6 +84,7 @@ struct t_mpd_state {
     int song_id;
     int next_song_id;
     int last_song_id;
+    unsigned song_pos;
     sds song_uri;
     sds last_song_uri;
     unsigned queue_version;

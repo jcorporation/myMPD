@@ -748,23 +748,6 @@
                 <div class="invalid-feedback" data-phrase="Invalid URI"></div>
               </div>
             </div>
-            <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" data-phrase="Insert mode"></label>
-              <div class="col-sm-8" id="addToPlaylistPos">
-                <div class="form-check ms-4">
-                  <input class="form-check-input" type="radio" name="addToPlaylistPos" value="append" id="addToPlaylistPosAppend">
-                  <label class="form-check-label" for="addToPlaylistPosAppend" data-phrase="Append"></label>
-                </div>
-                <div class="form-check ms-4">
-                  <input class="form-check-input" type="radio" name="addToPlaylistPos" value="insert" id="addToPlaylistPosInsert">
-                  <label class="form-check-label" for="addToPlaylistPosInsert" data-phrase="Insert after current playing song"></label>
-                </div>
-                <div class="form-check ms-4">
-                  <input class="form-check-input" type="radio" name="addToPlaylistPos" value="replace" id="addToPlaylistPosReplace">
-                  <label class="form-check-label" for="addToPlaylistPosReplace" data-phrase="Replace"></label>
-                </div>
-              </div>
-            </div>
             <div class="row mb-3 featPlaylists">
               <div class="col-sm-4"></div>
               <div class="col-sm-8">
@@ -785,6 +768,23 @@
               </div>
             </div>
           </form>
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" data-phrase="Insert mode"></label>
+            <div class="col-sm-8" id="addToPlaylistPos">
+              <div class="form-check ms-4">
+                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="append" id="addToPlaylistPosAppend">
+                <label class="form-check-label" for="addToPlaylistPosAppend" data-phrase="Append"></label>
+              </div>
+              <div class="form-check ms-4 featWhence" id="addToPlaylistPosInsertRow">
+                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="insert" id="addToPlaylistPosInsert">
+                <label class="form-check-label" for="addToPlaylistPosInsert" data-phrase="Insert after current playing song"></label>
+              </div>
+              <div class="form-check ms-4">
+                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="replace" id="addToPlaylistPosReplace">
+                <label class="form-check-label" for="addToPlaylistPosReplace" data-phrase="Replace"></label>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
