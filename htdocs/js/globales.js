@@ -240,6 +240,7 @@ const webuiSettingsDefault = {
         "validValues": { 
             "append": "Append to queue",
             "insert": "Insert after current playing song",
+            "play": "Add to queue and play",
             "replace": "Replace queue",
             "view": "Song details"
         }, 
@@ -262,6 +263,7 @@ const webuiSettingsDefault = {
         "validValues": {
             "append": "Append to queue",
             "insert": "Insert after current playing song",
+            "play": "Add to queue and play",
             "replace": "Replace queue",
             "view": "View playlist"
         },
@@ -274,6 +276,7 @@ const webuiSettingsDefault = {
         "validValues": {
             "append": "Append to queue",
             "insert": "Insert after current playing song",
+            "play": "Add to queue and play",
             "replace": "Replace queue",
             "view": "Open folder"
         },
@@ -286,6 +289,7 @@ const webuiSettingsDefault = {
         "validValues": {
             "append": "Append to queue",
             "insert": "Insert after current playing song",
+            "play": "Add to queue and play",
             "replace": "Replace queue",
         },
         "inputType": "select",

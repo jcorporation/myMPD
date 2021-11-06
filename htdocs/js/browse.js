@@ -593,7 +593,10 @@ function _addAlbum(action, albumArtist, album, disc) {
             replaceQueue('search', expression);
             break;
         case 'insertQueue':
-            insertQueue('search', expression, 0, 1);
+            insertQueue('search', expression, 0, 1, false);
+            break;
+        case 'playQueue':
+            insertQueue('search', expression, 0, 1, true);
             break;
         case 'addPlaylist':
             showAddToPlaylist('ALBUM', expression);

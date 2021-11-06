@@ -17,6 +17,24 @@
 static sds _mympd_api_get_queue_state(struct mpd_status *status, sds buffer);
 
 //public
+bool mympd_api_queue_play_newly_inserted(struct t_mympd_state *mympd_state) {
+    bool rc = mpd_send_queue_changes_brief(mympd_state->mpd_state->conn, mympd_state->mpd_state->queue_version);
+    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_queue_changes_brief") == false) {
+        return false;
+    }
+    unsigned song_pos;
+    unsigned song_id;
+    rc = mpd_recv_queue_change_brief(mympd_state->mpd_state->conn, &song_pos, &song_id);
+    mpd_response_finish(mympd_state->mpd_state->conn);
+    if (rc == true) {
+        rc = mpd_run_play_id(mympd_state->mpd_state->conn, song_id);
+    }
+    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_play_id") == false) {
+        return false;
+    }
+    return rc;
+}
+
 bool mympd_api_queue_prio_set(struct t_mympd_state *mympd_state, const unsigned trackid, const unsigned priority) {
     //set priority, priority have only an effect in random mode
     bool rc = mpd_run_prio_id(mympd_state->mpd_state->conn, priority, trackid);

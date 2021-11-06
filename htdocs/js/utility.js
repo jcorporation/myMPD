@@ -159,6 +159,7 @@ function clickAlbumPlay(albumArtist, album) {
     switch(settings.webuiSettings.clickAlbumPlay) {
         case 'append':  return _addAlbum('appendQueue', albumArtist, album);
         case 'insert':  return _addAlbum('insertQueue', albumArtist, album);
+        case 'play':    return _addAlbum('playQueue', albumArtist, album);
         case 'replace': return _addAlbum('replaceQueue', albumArtist, album);
     }
 }
@@ -166,7 +167,8 @@ function clickAlbumPlay(albumArtist, album) {
 function clickSong(uri, name) {
     switch (settings.webuiSettings.clickSong) {
         case 'append':  return appendQueue('song', uri);
-        case 'insert':  return insertQueue('song', uri, 0, 1);
+        case 'insert':  return insertQueue('song', uri, 0, 1, false);
+        case 'play':    return insertQueue('song', uri, 0, 1, true);
         case 'replace': return replaceQueue('song', uri);
         case 'view':    return songDetails(uri);
     }
@@ -193,7 +195,8 @@ function clickQueueSong(songid, uri) {
 function clickPlaylist(uri, name) {
     switch(settings.webuiSettings.clickPlaylist) {
         case 'append':  return appendQueue('plist', uri);
-        case 'insert':  return insertQueue('plist', uri, 0, 1);
+        case 'insert':  return insertQueue('plist', uri, 0, 1, false);
+        case 'play':  return insertQueue('plist', uri, 0, 1, true);
         case 'replace': return replaceQueue('plist', uri);
         case 'view':    return playlistDetails(uri);
     }
@@ -202,7 +205,8 @@ function clickPlaylist(uri, name) {
 function clickFolder(uri, name) {
     switch(settings.webuiSettings.clickFolder) {
         case 'append':  return appendQueue('dir', uri);
-        case 'insert':  return insertQueue('dir', uri, 0, 1);
+        case 'insert':  return insertQueue('dir', uri, 0, 1, false);
+        case 'play':  return insertQueue('dir', uri, 0, 1, true);
         case 'replace': return replaceQueue('dir', uri);
         case 'view':
             //remember offset for current browse uri

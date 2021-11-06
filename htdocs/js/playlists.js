@@ -374,16 +374,18 @@ function showAddToPlaylist(uri, searchstr) {
     streamUrl.focus();
     streamUrl.value = '';
     removeIsInvalid(document.getElementById('modalAddToPlaylist'));
-    if (uri !== 'stream') {
+    if (uri !== 'STREAM') {
         elHideId('addStreamFrm');
         elShowId('addToPlaylistFrm');
         elHideId('addToPlaylistPosInsertRow');
+        elHideId('addToPlaylistPosPlayRow');
         document.getElementById('addToPlaylistCaption').textContent = tn('Add to playlist');
     }
     else {
         elShowId('addStreamFrm');
         elHideId('addToPlaylistFrm');
         elShowId('addToPlaylistPosInsertRow');
+        elShowId('addToPlaylistPosPlayRow');
         document.getElementById('addToPlaylistCaption').textContent = tn('Add stream');
     }
     uiElements.modalAddToPlaylist.show();
@@ -400,11 +402,13 @@ function toggleAddToPlaylistFrm() {
         //add to playlist
         elShowId('addToPlaylistFrm');
         document.getElementById('addToPlaylistPosInsert').nextElementSibling.textContent = tn('Insert at start of playlist');
+        elHideId('addToPlaylistPosPlayRow');
     }    
     else {
         //add to queue
         elHideId('addToPlaylistFrm');
         document.getElementById('addToPlaylistPosInsert').nextElementSibling.textContent = tn('Insert after current playing song');
+        elShowId('addToPlaylistPosPlayRow');
     }
 }
 
@@ -422,7 +426,7 @@ function addToPlaylist() {
             uri = document.getElementById('addToPlaylistSearch').value;
             type = 'search';
             break;
-        case 'stream':
+        case 'STREAM':
             uri = document.getElementById('streamUrl').value;
             if (uri === '' || isStreamUri(uri) === false) {
                 document.getElementById('streamUrl').classList.add('is-invalid');
@@ -433,21 +437,21 @@ function addToPlaylist() {
             type = 'song';
     }
 
-    if (document.getElementById('toggleAddToPlaylistBtn').classList.contains('active')) {
+    if (document.getElementById('addToPlaylistFrm').classList.contains('d-none') == false) {
         //add to playlist
-        const plist = document.getElementById('addToPlaylistPlaylist').value;
-        if (validatePlnameEl(plist) === false) {
+        const plistEl = document.getElementById('addToPlaylistPlaylist');
+        if (validatePlnameEl(plistEl) === false) {
             return;
         }
         switch(mode) {
             case 'append': 
-                appendPlaylist(type, uri, plist, addToPlaylistClose);
+                appendPlaylist(type, uri, plistEl.value, addToPlaylistClose);
                 break;
             case 'insert':
-                insertPlaylist(type, uri, plist, 0, 1, addToPlaylistClose);
+                insertPlaylist(type, uri, plistEl.value, 0, 1, addToPlaylistClose);
                 break;
             case 'replace':
-                replacePlaylist(type, uri, plist, addToPlaylistClose);
+                replacePlaylist(type, uri, plistEl.value, addToPlaylistClose);
         }
     }
     else {
@@ -457,7 +461,10 @@ function addToPlaylist() {
                 appendQueue(type, uri, addToPlaylistClose);
                 break;
             case 'insert':
-                insertQueue(type, uri, 0, 1, addToPlaylistClose);
+                insertQueue(type, uri, 0, 1, false, addToPlaylistClose);
+                break;
+            case 'insert':
+                insertQueue(type, uri, 0, 1, true, addToPlaylistClose);
                 break;
             case 'replace':
                 replaceQueue(type, uri, addToPlaylistClose);

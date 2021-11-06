@@ -97,7 +97,7 @@ const APIparams = {
     "partName": {
         "type": "text",
         "example": "partition1",
-        "desc": "Name of the new partition"
+        "desc": "Name of the new partition."
     },
     "triggerId": {
         "type": "uint",
@@ -108,6 +108,11 @@ const APIparams = {
         "type": "uint",
         "example": 2,
         "desc": "Position"
+    },
+    "play": {
+        "type": "bool",
+        "example": true,
+        "desc": "true = play first inserted song."
     }
 };
 
@@ -321,7 +326,8 @@ const APImethods = {
         "params": {
             "plist": APIparams.plist,
             "to": APIparams.to,
-            "whence": APIparams.whence
+            "whence": APIparams.whence,
+            "play": APIparams.play
         }
     },
     "MYMPD_API_QUEUE_INSERT_URI": {
@@ -329,7 +335,8 @@ const APImethods = {
         "params": {
             "uri": APIparams.uri,
             "to": APIparams.to,
-            "whence": APIparams.whence
+            "whence": APIparams.whence,
+            "play": APIparams.play
         }
     },
     "MYMPD_API_QUEUE_INSERT_SEARCH": {
@@ -337,7 +344,8 @@ const APImethods = {
         "params": {
             "expression": APIparams.expression,
             "to": APIparams.to,
-            "whence": APIparams.whence
+            "whence": APIparams.whence,
+            "play": APIparams.play
         }
     },
     "MYMPD_API_QUEUE_APPEND_PLAYLIST": {
@@ -374,12 +382,6 @@ const APImethods = {
         "desc": "Replaces the queue with search result.",
         "params": {
             "expression": APIparams.expression,
-        }
-    },
-    "MYMPD_API_QUEUE_ADD_PLAY_URI": {
-        "desc": "Appends songs to the queue and plays it.",
-        "params": {
-            "uri": APIparams.uri
         }
     },
     "MYMPD_API_QUEUE_SHUFFLE": {

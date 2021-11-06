@@ -288,31 +288,20 @@ function parseLastPlayed(obj) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function addAllFromBrowseFilesystem(mode) {
+//wrapper used in index.html
+function addAllFromSearch(mode, type) {
     switch(mode) {
         case 'append':
-            appendQueue('dir', app.current.search);
+            appendQueue(type, app.current.search);
             break;
         case 'insert':
-            insertQueue('dir', app.current.search, 0, 1);
+            insertQueue(type, app.current.search, 0, 1, false);
+            break;
+        case 'play':
+            insertQueue(type, app.current.search, 0, 1, true);
             break;
         case 'replace':
-            replaceQueue('dir', app.current.search);
-            break;
-    }
-}
-
-//eslint-disable-next-line no-unused-vars
-function addAllFromSearch(mode) {
-    switch(mode) {
-        case 'append':
-            appendQueue('search', app.current.search);
-            break;
-        case 'insert':
-            insertQueue('search', app.current.search, 0, 1);
-            break;
-        case 'replace':
-            replaceQueue('search', app.current.search);
+            replaceQueue(type, app.current.search);
             break;
     }
 }
@@ -338,28 +327,31 @@ function appendQueue(type, uri, callback) {
     }
 }
 
-function insertQueue(type, uri, to, whence, callback) {
+function insertQueue(type, uri, to, whence, play, callback) {
     switch(type) {
         case 'song':
         case 'dir':
             sendAPI("MYMPD_API_QUEUE_INSERT_URI", {
                 "uri": uri,
                 "to": to,
-                "whence": whence
+                "whence": whence,
+                "play": play
             }, callback, true);
             break;
         case 'plist':
             sendAPI("MYMPD_API_QUEUE_INSERT_PLAYLIST", {
                 "plist": uri,
                 "to": to,
-                "whence": whence
+                "whence": whence,
+                "play": play
             }, callback, true);
             break;
         case 'search':
             sendAPI("MYMPD_API_QUEUE_INSERT_SEARCH", {
                 "expression": uri,
                 "to": to,
-                "whence": whence
+                "whence": whence,
+                "play": play
             }, callback, true);
             break;
     }
