@@ -1890,3 +1890,21 @@ Zeige Verzeichnis an
 
 Each 
 Jede
+
+Insert after current playing song
+Nach aktuell gespieltem Lied einfügen
+
+Append
+Anhängen
+
+Replace
+Ersetzen
+
+Add to queue and play
+Zur Warteschlange hinzufügen und abspielen
+
+Insert at start of playlist
+Am Anfang der Wiedergabeliste einfügen
+
+Insert mode
+Einfügemodus
