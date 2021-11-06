@@ -1908,3 +1908,9 @@ Am Anfang der Wiedergabeliste einfügen
 
 Insert mode
 Einfügemodus
+
+Method not supported
+Methode ist nicht unterstützt
+
+Start playing newly added song failed
+Neu hinzugefügte Lieder konnten nicht wiedergegeben werden
