@@ -177,23 +177,23 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
 
     appPrepare(app.current.scrollPos);
 
-    if (app.current.card === 'Home') {
+    if (app.id === 'Home') {
         const list = document.getElementById('HomeList');
         list.classList.remove('opacity05');
         setScrollViewHeight(list);
         sendAPI("MYMPD_API_HOME_LIST", {}, parseHome);
     }
-    else if (app.current.card === 'Playback') {
+    else if (app.id === 'Playback') {
         const list = document.getElementById('PlaybackList');
         list.classList.remove('opacity05');
         setScrollViewHeight(list);
         sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, songChange);
     }    
-    else if (app.current.card === 'Queue' && app.current.tab === 'Current' ) {
+    else if (app.id === 'QueueCurrent' ) {
         selectTag('searchqueuetags', 'searchqueuetagsdesc', app.current.filter);
         getQueue();
     }
-    else if (app.current.card === 'Queue' && app.current.tab === 'LastPlayed') {
+    else if (app.id === 'QueueLastPlayed') {
         sendAPI("MYMPD_API_QUEUE_LAST_PLAYED", {
             "offset": app.current.offset,
             "limit": app.current.limit,
@@ -205,7 +205,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             searchQueueLastPlayedStrEl.value = app.current.search;
         }
     }
-    else if (app.current.card === 'Queue' && app.current.tab === 'Jukebox') {
+    else if (app.id === 'QueueJukebox') {
         sendAPI("MYMPD_API_JUKEBOX_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
@@ -217,7 +217,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             searchQueueJukeboxStrEl.value = app.current.search;
         }
     }
-    else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
+    else if (app.id === 'BrowsePlaylistsList') {
         sendAPI("MYMPD_API_PLAYLIST_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
@@ -229,7 +229,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             searchPlaylistsStrEl.value = app.current.search;
         }
     }
-    else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
+    else if (app.id === 'BrowsePlaylistsDetail') {
         sendAPI("MYMPD_API_PLAYLIST_CONTENT_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
@@ -242,7 +242,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             searchPlaylistsStrEl.value = app.current.search;
         }
     }    
-    else if (app.current.card === 'Browse' && app.current.tab === 'Filesystem') {
+    else if (app.id === 'BrowseFilesystem') {
         sendAPI("MYMPD_API_DATABASE_FILESYSTEM_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
@@ -283,7 +283,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         const searchFilesystemStrEl = document.getElementById('searchFilesystemStr');
         searchFilesystemStrEl.value = app.current.filter === '-' ? '' :  app.current.filter;
     }
-    else if (app.current.card === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
+    else if (app.id === 'BrowseDatabaseList') {
         selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', app.current.filter);
         selectTag('BrowseDatabaseByTagDropdown', 'btnBrowseDatabaseByTagDesc', app.current.tag);
         let tsort = app.current.sort;
@@ -327,7 +327,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             }, parseDatabase, true);
         }
     }
-    else if (app.current.card === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail') {
+    else if (app.id === 'BrowseDatabaseDetail') {
         if (app.current.filter === 'Album') {
             sendAPI("MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {
                 "album": app.current.tag,
@@ -336,7 +336,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             }, parseAlbumDetails, true);
         }    
     }
-    else if (app.current.card === 'Search') {
+    else if (app.id === 'Search') {
         document.getElementById('searchstr').focus();
         if (features.featAdvsearch) {
             createSearchCrumbs(app.current.search, document.getElementById('searchstr'), document.getElementById('searchCrumb'));
@@ -347,7 +347,9 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         if (app.current.search === '') {
             document.getElementById('searchstr').value = '';
         }
-        if (document.getElementById('searchstr').value.length >= 2 || document.getElementById('searchCrumb').children.length > 0) {
+        if (document.getElementById('searchstr').value.length >= 2 ||
+            document.getElementById('searchCrumb').children.length > 0)
+        {
             if (features.featAdvsearch) {
                 let tsort = app.current.sort;
                 let sortdesc = false;
@@ -360,25 +362,21 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                     tsort = tsort.substring(1);
                 }
                 sendAPI("MYMPD_API_DATABASE_SEARCH_ADV", {
-                    "plist": "",
                     "offset": app.current.offset,
                     "limit": app.current.limit,
                     "sort": tsort,
                     "sortdesc": sortdesc,
                     "expression": app.current.search,
-                    "cols": settings.colsSearchFetch,
-                    "replace": false
+                    "cols": settings.colsSearchFetch
                 }, parseSearch, true);
             }
             else {
                 sendAPI("MYMPD_API_DATABASE_SEARCH", {
-                    "plist": "",
                     "offset": app.current.offset,
                     "limit": app.current.limit,
                     "filter": app.current.filter,
                     "searchstr": app.current.search,
-                    "cols": settings.colsSearchFetch,
-                    "replace": false
+                    "cols": settings.colsSearchFetch
                 }, parseSearch, true);
             }
         }

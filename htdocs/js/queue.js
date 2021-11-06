@@ -287,41 +287,101 @@ function parseLastPlayed(obj) {
     });
 }
 
-function appendQueue(type, uri, name) {
-    switch(type) {
-        case 'song':
-        case 'dir':
-            sendAPI("MYMPD_API_QUEUE_ADD_URI", {"uri": uri});
-            showNotification(tn('%{name} added to queue', {"name": name}), '', 'queue', 'info');
+//eslint-disable-next-line no-unused-vars
+function addAllFromBrowseFilesystem(mode) {
+    switch(mode) {
+        case 'append':
+            appendQueue('dir', app.current.search);
             break;
-        case 'plist':
-            sendAPI("MYMPD_API_QUEUE_ADD_PLAYLIST", {"plist": uri});
-            showNotification(tn('%{name} added to queue', {"name": name}), '', 'queue', 'info');
+        case 'insert':
+            insertQueue('dir', app.current.search, 0, 1);
+            break;
+        case 'replace':
+            replaceQueue('dir', app.current.search);
             break;
     }
 }
 
 //eslint-disable-next-line no-unused-vars
-function appendAfterQueue(type, uri, to, name) {
-    switch(type) {
-        case 'song':
-            sendAPI("MYMPD_API_QUEUE_ADD_URI_AFTER", {"uri": uri, "to": to});
-            to++;
-            showNotification(tn('%{name} added to queue position %{to}', {"name": name, "to": to}), '', 'queue', 'info');
+function addAllFromSearch(mode) {
+    switch(mode) {
+        case 'append':
+            appendQueue('search', app.current.search);
+            break;
+        case 'insert':
+            insertQueue('search', app.current.search, 0, 1);
+            break;
+        case 'replace':
+            replaceQueue('search', app.current.search);
             break;
     }
 }
 
-function replaceQueue(type, uri, name) {
+function appendQueue(type, uri, callback) {
     switch(type) {
         case 'song':
         case 'dir':
-            sendAPI("MYMPD_API_QUEUE_REPLACE_URI", {"uri": uri});
-            showNotification(tn('Queue replaced with %{name}', {"name": name}), '', 'queue', 'info');
+            sendAPI("MYMPD_API_QUEUE_APPEND_URI", {
+                "uri": uri
+            }, callback, true);
             break;
         case 'plist':
-            sendAPI("MYMPD_API_QUEUE_REPLACE_PLAYLIST", {"plist": uri});
-            showNotification(tn('Queue replaced with %{name}', {"name": name}), '', 'queue', 'info');
+            sendAPI("MYMPD_API_QUEUE_APPEND_PLAYLIST", {
+                "plist": uri
+            }, callback, true);
+            break;
+        case 'search':
+            sendAPI("MYMPD_API_QUEUE_APPEND_SEARCH", {
+                "expression": uri
+            }, callback, true);
+            break;
+    }
+}
+
+function insertQueue(type, uri, to, whence, callback) {
+    switch(type) {
+        case 'song':
+        case 'dir':
+            sendAPI("MYMPD_API_QUEUE_INSERT_URI", {
+                "uri": uri,
+                "to": to,
+                "whence": whence
+            }, callback, true);
+            break;
+        case 'plist':
+            sendAPI("MYMPD_API_QUEUE_INSERT_PLAYLIST", {
+                "plist": uri,
+                "to": to,
+                "whence": whence
+            }, callback, true);
+            break;
+        case 'search':
+            sendAPI("MYMPD_API_QUEUE_INSERT_SEARCH", {
+                "expression": uri,
+                "to": to,
+                "whence": whence
+            }, callback, true);
+            break;
+    }
+}
+
+function replaceQueue(type, uri, callback) {
+    switch(type) {
+        case 'song':
+        case 'dir':
+            sendAPI("MYMPD_API_QUEUE_REPLACE_URI", {
+                "uri": uri
+            }, callback, true);
+            break;
+        case 'plist':
+            sendAPI("MYMPD_API_QUEUE_REPLACE_PLAYLIST", {
+                "plist": uri
+            }, callback, true);
+            break;
+        case 'search':
+            sendAPI("MYMPD_API_QUEUE_REPLACE_SEARCH", {
+                "expression": uri
+            }, callback, true);
             break;
     }
 }

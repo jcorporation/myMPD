@@ -146,7 +146,7 @@ function playlistDetails(uri) {
 
 //eslint-disable-next-line no-unused-vars
 function playlistShuffle() {
-    sendAPI("MYMPD_API_PLAYLIST_SHUFFLE", {
+    sendAPI("MYMPD_API_PLAYLIST_CONTENT_SHUFFLE", {
         "plist": getDataId('BrowsePlaylistsDetailList', 'data-uri')
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
@@ -154,7 +154,7 @@ function playlistShuffle() {
 
 //eslint-disable-next-line no-unused-vars
 function playlistSort(tag) {
-    sendAPI("MYMPD_API_PLAYLIST_SORT", {
+    sendAPI("MYMPD_API_PLAYLIST_CONTENT_SORT", {
         "plist": getDataId('BrowsePlaylistsDetailList', 'data-uri'),
         "tag": tag
     });
@@ -171,14 +171,14 @@ function updateSmartPlaylists(force) {
 //eslint-disable-next-line no-unused-vars
 function removeFromPlaylist(mode, plist, start, end) {
     if (mode === 'range') {
-        sendAPI("MYMPD_API_PLAYLIST_RM_RANGE", {
+        sendAPI("MYMPD_API_PLAYLIST_CONTENT_RM_RANGE", {
             "plist": plist,
             "start": start,
             "end": end
         });
     }
     else if (mode === 'single') {
-        sendAPI("MYMPD_API_PLAYLIST_RM_SONG", {
+        sendAPI("MYMPD_API_PLAYLIST_CONTENT_RM_SONG", {
             "plist": plist,
             "pos": start
         });
@@ -424,21 +424,29 @@ function addToPlaylist() {
         return;
     }
 
-    if (uri === 'SEARCH') {
-        addAllFromSearchPlist(plist, null, false, addToPlaylistClose);
-    }
-    else if (uri === 'ALBUM') {
-        const expression = document.getElementById('addToPlaylistSearch').value;
-        addAllFromSearchPlist(plist, expression, false, addToPlaylistClose);
-    }
-    else if (uri === 'DATABASE') {
-        addAllFromBrowseDatabasePlist(plist, addToPlaylistClose);
+    if (plist === 'queue') {
+        if (uri === 'SEARCH') {
+            appendQueue('search', app.current.search, 'search', addToPlaylistClose);
+        }
+        else if (uri === 'ALBUM') {
+            const expression = document.getElementById('addToPlaylistSearch').value;
+            appendQueue('search', expression, addToPlaylistClose);
+        }
+        else {
+            appendQueue('search', uri, addToPlaylistClose);
+        }
     }
     else {
-        sendAPI("MYMPD_API_PLAYLIST_ADD_URI", {
-            "uri": uri,
-            "plist": plist
-        }, addToPlaylistClose, true);
+        if (uri === 'SEARCH') {
+            appendPlaylist('search', app.current.search, plist, addToPlaylistClose);
+        }
+        else if (uri === 'ALBUM') {
+            const expression = document.getElementById('addToPlaylistSearch').value;
+            appendPlaylist('search', expression, plist, addToPlaylistClose);
+        }
+        else {
+            appendPlaylist('search', uri, plist, addToPlaylistClose);
+        }
     }
 }
 
@@ -449,6 +457,64 @@ function addToPlaylistClose(obj) {
     else {
         hideModalAlert();
         uiElements.modalAddToPlaylist.hide();
+    }
+}
+
+function appendPlaylist(type, uri, plist, callback) {
+    switch(type) {
+        case 'song':
+        case 'dir':
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_APPEND_URI", {
+                "uri": uri,
+                "plist": plist
+            }, callback, true);
+            break;
+        case 'search':
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_APPEND_SEARCH", {
+                "expression": uri,
+                "plist": plist
+            }, callback, true);
+            break;
+    }
+}
+
+function insertPlaylist(type, uri, plist, to, whence, callback) {
+    switch(type) {
+        case 'song':
+        case 'dir':
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_URI", {
+                "uri": uri,
+                "plist": plist,
+                "to": to,
+                "whence": whence
+            }, callback, true);
+            break;
+        case 'search':
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH", {
+                "expression": uri,
+                "plist": plist,
+                "to": to,
+                "whence": whence
+            }, callback, true);
+            break;
+    }
+}
+
+function replacePlaylist(type, uri, plist, callback) {
+    switch(type) {
+        case 'song':
+        case 'dir':
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_REPLACE_URI", {
+                "uri": uri,
+                "plist": plist
+            }, callback, true);
+            break;
+        case 'search':
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_REPLACE_SEARCH", {
+                "expression": uri,
+                "plist": plist
+            }, callback, true);
+            break;
     }
 }
 
@@ -522,7 +588,7 @@ function showDelPlaylist(plist, smartplsOnly) {
 function showClearPlaylist() {
     const plist = getDataId('BrowsePlaylistsDetailList', 'data-uri');
     showConfirm(tn('Do you really want to clear the playlist?', {"playlist": plist}), tn('Yes, clear it'), function() {
-        sendAPI("MYMPD_API_PLAYLIST_CLEAR", {
+        sendAPI("MYMPD_API_PLAYLIST_CONTENT_CLEAR", {
             "plist": plist
         });
         document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');
@@ -530,7 +596,7 @@ function showClearPlaylist() {
 }
 
 function playlistMoveTrack(from, to) {
-    sendAPI("MYMPD_API_PLAYLIST_MOVE_SONG", {
+    sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_SONG", {
         "plist": app.current.filter,
         "from": from,
         "to": to

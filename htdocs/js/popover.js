@@ -215,6 +215,9 @@ function createMenuTd(el, tabHeader, tabContent, tabNr) {
 function addMenuItemsAlbumActions(tabContent, albumArtist, album) {
     if (app.id !== 'QueueCurrent') {
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album]}, 'Append to queue');
+        if (features.featWhence === true) {
+            addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["insertQueue", albumArtist, album]}, 'Insert after current playing song');
+        }
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album]}, 'Replace queue');
     }
     if (features.featPlaylists === true) {
@@ -225,12 +228,13 @@ function addMenuItemsAlbumActions(tabContent, albumArtist, album) {
     addMenuItem(tabContent, {"cmd": "gotoAlbumList", "options": [tagAlbumArtist, albumArtist]}, 'Show all albums from artist');
 }
 
-function addMenuItemsSongActions(tabContent, uri, name) {
+function addMenuItemsSongActions(tabContent, uri) {
     if (app.id !== 'QueueCurrent') {
-        addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["song", uri, name]}, 'Append to queue');
-        //todo: use new mpd 0.23 api
-        //addMenuItem(tabContent, {"cmd": "appendAfterQueue", "options": ["song", uri, nextSongPos, name]}, 'Add after current playing song');
-        addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["song", uri, name]}, 'Replace queue');
+        addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["song", uri]}, 'Append to queue');
+        if (features.featWhence === true) {
+            addMenuItem(tabContent, {"cmd": "insertQueue", "options": ["song", uri, 0, 1]}, 'Insert after current playing song');
+        }
+        addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["song", uri]}, 'Replace queue');
     }
     if (features.featPlaylists === true) {
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [uri, ""]}, 'Add to playlist');
@@ -241,12 +245,13 @@ function addMenuItemsSongActions(tabContent, uri, name) {
     }
 }
 
-function addMenuItemsDirectoryActions(tabContent, baseuri, name) {
+function addMenuItemsDirectoryActions(tabContent, baseuri) {
     //songs must be arragend in one album per folder
-    addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["dir", baseuri, name]}, 'Append to queue');
-    //add after playing song works only for single songs
-    //addMenuItem(div, {"cmd": "appendAfterQueue", "options": ["dir", baseuri, nextSongPos, name]}, 'Add after current playing song');
-    addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["dir", baseuri, name]}, 'Replace queue');
+    addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["dir", baseuri]}, 'Append to queue');
+    if (features.featWhence === true) {
+        addMenuItem(div, {"cmd": "insertQueue", "options": ["dir", baseuri, 0, 1]}, 'Insert after current playing song');
+    }
+    addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["dir", baseuri]}, 'Replace queue');
     if (features.featPlaylists === true) {
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [baseuri, ""]}, 'Add to playlist');
     }
@@ -261,8 +266,11 @@ function addMenuItemsDirectoryActions(tabContent, baseuri, name) {
 }
 
 function addMenuItemsPlaylistActions(tabContent, type, uri, name) {
-    addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue');
-    addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue');
+    addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri]}, 'Append to queue');
+    if (features.featWhence === true) {
+        addMenuItem(div, {"cmd": "insertQueue", "options": [type, uri, 0, 1]}, 'Add after current playing song');
+    }
+    addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, uri]}, 'Replace queue');
     tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
     if (features.featHome === true) {
         addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, name]}, 'Add to homescreen');

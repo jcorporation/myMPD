@@ -165,30 +165,3 @@ function saveSearchAsSmartPlaylist() {
         "expression": app.current.search
     }});
 }
-
-function addAllFromSearchPlist(plist, searchstr, replace, callback) {
-    if (searchstr === null) {
-        searchstr = app.current.search;    
-    }
-    if (features.featAdvsearch) {
-        sendAPI("MYMPD_API_DATABASE_SEARCH_ADV", {"plist": plist, 
-            "sort": "", 
-            "sortdesc": false, 
-            "expression": searchstr,
-            "offset": 0,
-            "limit": 0,
-            "cols": settings.colsSearchFetch,
-            "replace": replace},
-            callback, true);
-    }
-    else {
-        sendAPI("MYMPD_API_DATABASE_SEARCH", {"plist": plist, 
-            "filter": app.current.filter, 
-            "searchstr": searchstr,
-            "offset": 0,
-            "limit": 0, 
-            "cols": settings.colsSearchFetch,
-            "replace": replace},
-            callback, true);
-    }
-}

@@ -16,8 +16,8 @@ sds mpd_shared_search(struct t_mpd_state *mympd_state, sds buffer, sds method, l
 
 sds mpd_shared_search_adv(struct t_mpd_state *mympd_state, sds buffer, sds method, long request_id,
                           const char *expression, const char *sort, const bool sortdesc, 
-                          const char *grouptag, const char *plist, const unsigned offset,
-                          unsigned limit, const struct t_tags *tagcols, rax *sticker_cache);
+                          const char *grouptag, const char *plist, unsigned to, unsigned whence,
+                          const unsigned offset, unsigned limit, const struct t_tags *tagcols, rax *sticker_cache);
 
 sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operator, sds value);
 #endif

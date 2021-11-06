@@ -370,36 +370,6 @@ function parseFilesystem(obj) {
     );
 }
 
-//eslint-disable-next-line no-unused-vars
-function addAllFromBrowseFilesystem(replace) {
-    if (replace === true) {
-        sendAPI("MYMPD_API_QUEUE_REPLACE_URI", {
-            "uri": app.current.search
-        });
-        showNotification(tn('Replaced queue'), '', 'queue', 'info');
-    }
-    else {
-        sendAPI("MYMPD_API_QUEUE_ADD_URI", {
-            "uri": app.current.search
-        });
-        showNotification(tn('Added all songs'), '', 'queue', 'info');
-    }
-}
-
-function addAllFromBrowseDatabasePlist(plist, callback) {
-    if (app.current.search.length >= 2) {
-        sendAPI("MYMPD_API_DATABASE_SEARCH", {
-            "plist": plist,
-            "filter": app.current.view,
-            "searchstr": app.current.search,
-            "offset": 0,
-            "limit": 0,
-            "cols": settings.colsSearchFetch,
-            "replace": false
-        }, callback, true);
-    }
-}
-
 function parseDatabase(obj) {
     const cardContainer = document.getElementById('BrowseDatabaseListList');
     setScrollViewHeight(cardContainer);
@@ -600,8 +570,8 @@ function backToAlbumGrid() {
 
 //eslint-disable-next-line no-unused-vars
 function addAlbum(action) {
-    const album = decodeURI(app.current.tag);
-    const albumArtist = decodeURI(app.current.search);
+    const album = app.current.tag;
+    const albumArtist = app.current.search;
     _addAlbum(action, albumArtist, album);
 }
 
@@ -614,14 +584,20 @@ function _addAlbum(action, albumArtist, album, disc) {
         expression += ' AND (Disc == \'' + escapeMPD(disc) + '\')';
     }
     expression += ')';
-    if (action === 'appendQueue') {
-        addAllFromSearchPlist('queue', expression, false);
-    }
-    else if (action === 'replaceQueue') {
-        addAllFromSearchPlist('queue', expression, true);
-    }
-    else if (action === 'addPlaylist') {
-        showAddToPlaylist('ALBUM', expression);
+
+    switch(action) {
+        case 'appendQueue':
+            appendQueue('search', expression);
+            break;
+        case 'replaceQueue':
+            replaceQueue('search', expression);
+            break;
+        case 'insertQueue':
+            insertQueue('search', expression);
+            break;
+        case 'addPlaylist':
+            showAddToPlaylist('ALBUM', expression);
+            break;
     }
 }
 

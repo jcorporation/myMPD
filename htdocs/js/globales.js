@@ -238,8 +238,9 @@ const webuiSettingsDefault = {
     "clickSong": { 
         "defaultValue": "append", 
         "validValues": { 
-            "append": "Append to queue", 
-            "replace": "Replace queue", 
+            "append": "Append to queue",
+            "insert": "Insert after current playing song",
+            "replace": "Replace queue",
             "view": "Song details"
         }, 
         "inputType": "select",
@@ -260,6 +261,7 @@ const webuiSettingsDefault = {
         "defaultValue": "append", 
         "validValues": {
             "append": "Append to queue",
+            "insert": "Insert after current playing song",
             "replace": "Replace queue",
             "view": "View playlist"
         },
@@ -271,6 +273,7 @@ const webuiSettingsDefault = {
         "defaultValue": "view", 
         "validValues": {
             "append": "Append to queue",
+            "insert": "Insert after current playing song",
             "replace": "Replace queue",
             "view": "Open folder"
         },
@@ -282,6 +285,7 @@ const webuiSettingsDefault = {
         "defaultValue": "replace", 
         "validValues": {
             "append": "Append to queue",
+            "insert": "Insert after current playing song",
             "replace": "Replace queue",
         },
         "inputType": "select",

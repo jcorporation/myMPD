@@ -357,25 +357,16 @@ function parseSettings(obj) {
     document.getElementById('volumeBar').setAttribute('max', settings.volumeMax);
 
     //update columns
-    if (app.current.card === 'Queue' && app.current.tab === 'Current') {
+    if (app.id === 'QueueCurrent') {
         getQueue();
     }
-    else if (app.current.card === 'Queue' && app.current.tab === 'LastPlayed') {
-        appRoute();
-    }
-    else if (app.current.card === 'Queue' && app.current.tab === 'Jukebox') {
-        appRoute();
-    }
-    else if (app.current.card === 'Search') {
-        appRoute();
-    }
-    else if (app.current.card === 'Browse' && app.current.tab === 'Filesystem') {
-        appRoute();
-    }
-    else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-        appRoute();
-    }
-    else if (app.current.card === 'Browse' && app.current.tab === 'Database' && app.current.search !== '') {
+    else if (app.id === 'QueueLastPlayed' ||
+        app.id === 'QueueJukebox' ||
+        app.id === 'Search' ||
+        app.id === 'BrowseFilesystem' ||
+        app.id === 'BrowsePlaylistsDetail' ||
+        app.id === 'BrowseDatabase')
+    {
         appRoute();
     }
 
