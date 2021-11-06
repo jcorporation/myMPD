@@ -100,22 +100,14 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
 }
 
 function parseState(obj) {
-    if (JSON.stringify(obj.result) === JSON.stringify(currentState)) {
-        toggleUI();
-        return;
-    }
-
     //Set play and queue state
-    parseUpdateQueue(obj);
-    
+    parseUpdateQueue(obj);    
     //Set volume
     parseVolume(obj);
-
     //Set play counters
     setCounter(obj.result.currentSongId, obj.result.totalTime, obj.result.elapsedTime);
-    
     //Get current song
-    if (!currentState || currentState.currentSongId !== obj.result.currentSongId ||
+    if (currentState.currentSongId !== obj.result.currentSongId ||
         currentState.queueVersion !== obj.result.queueVersion)
     {
         sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, songChange);
