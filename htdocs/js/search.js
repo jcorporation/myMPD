@@ -6,7 +6,7 @@
 function initSearch() {
     document.getElementById('SearchList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            clickSong(getData(event.target.parentNode, 'data-uri'), getData(event.target.parentNode, 'data-name'));
+            clickSong(getData(event.target.parentNode, 'data-uri'));
         }
         else if (event.target.nodeName === 'A') {
             showPopover(event);

@@ -164,7 +164,7 @@ function clickAlbumPlay(albumArtist, album) {
     }
 }
 
-function clickSong(uri, name) {
+function clickSong(uri) {
     switch (settings.webuiSettings.clickSong) {
         case 'append':  return appendQueue('song', uri);
         case 'insert':  return insertQueue('song', uri, 0, 1, false);
@@ -192,7 +192,7 @@ function clickQueueSong(songid, uri) {
     }
 }
 
-function clickPlaylist(uri, name) {
+function clickPlaylist(uri) {
     switch(settings.webuiSettings.clickPlaylist) {
         case 'append':  return appendQueue('plist', uri);
         case 'insert':  return insertQueue('plist', uri, 0, 1, false);
@@ -202,7 +202,7 @@ function clickPlaylist(uri, name) {
     }
 }
 
-function clickFolder(uri, name) {
+function clickFolder(uri) {
     switch(settings.webuiSettings.clickFolder) {
         case 'append':  return appendQueue('dir', uri);
         case 'insert':  return insertQueue('dir', uri, 0, 1, false);
@@ -351,10 +351,10 @@ function getRadioBoxValueId(id) {
 }
 
 function getRadioBoxValue(el) {
-    const radius = el.getElementsByClassName('form-check-input');
-    for(const r of radius) {
-        if (r.checked === true){
-            return r.value;
+    const radiobuttons = el.getElementsByClassName('form-check-input');
+    for(const button of radiobuttons) {
+        if (button.checked === true){
+            return button.value;
         }
     }
 }

@@ -117,8 +117,8 @@ function createPopoverDisc(el) {
         elClear(popoverBody);
         addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album, disc]}, 'Append to queue');
         if (features.featWhence === true) {
-            addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["insertQueue", albumArtist, album]}, 'Insert after current playing song');
-            addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["playQueue", albumArtist, album]}, 'Add to queue and play');
+            addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["insertQueue", albumArtist, album]}, 'Insert after current playing song');
+            addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["playQueue", albumArtist, album]}, 'Add to queue and play');
         }
         addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album, disc]}, 'Replace queue');
         if (features.featPlaylists === true) {
@@ -255,7 +255,7 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
     //songs must be arragend in one album per folder
     addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["dir", baseuri]}, 'Append to queue');
     if (features.featWhence === true) {
-        addMenuItem(div, {"cmd": "insertQueue", "options": ["dir", baseuri, 0, 1, false]}, 'Insert after current playing song');
+        addMenuItem(tabContent, {"cmd": "insertQueue", "options": ["dir", baseuri, 0, 1, false]}, 'Insert after current playing song');
         addMenuItem(tabContent, {"cmd": "insertQueue", "options": ["song", baseuri, 0, 1, true]}, 'Add to queue and play');
     }
     addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["dir", baseuri]}, 'Replace queue');

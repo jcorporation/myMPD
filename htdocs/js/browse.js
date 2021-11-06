@@ -179,7 +179,6 @@ function initBrowse() {
         }
         if (target.nodeName === 'TR') {
             const uri = getData(target, 'data-uri');
-            const name = getData(target, 'data-name');
             const dataType = getData(target, 'data-type');
             switch(dataType) {
                 case 'parentDir': {
@@ -190,13 +189,13 @@ function initBrowse() {
                     break;
                 }
                 case 'dir':
-                    clickFolder(uri, name);
+                    clickFolder(uri);
                     break;
                 case 'song':
-                    clickSong(uri, name);
+                    clickSong(uri);
                     break;
                 case 'plist':
-                    clickPlaylist(uri, name);
+                    clickPlaylist(uri);
                     break;
             }
         }

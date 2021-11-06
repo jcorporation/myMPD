@@ -41,7 +41,7 @@ function initQueue() {
     
     document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            clickSong(getData(event.target.parentNode, 'data-uri'), getData(event.target.parentNode, 'data-name'));
+            clickSong(getData(event.target.parentNode, 'data-uri'));
         }
         else if (event.target.nodeName === 'A') {
             showPopover(event);
@@ -288,7 +288,6 @@ function parseLastPlayed(obj) {
 }
 
 //eslint-disable-next-line no-unused-vars
-//wrapper used in index.html
 function addAllFromSearch(mode, type) {
     switch(mode) {
         case 'append':

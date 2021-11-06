@@ -397,7 +397,7 @@ function showAddToPlaylist(uri, searchstr) {
 //eslint-disable-next-line no-unused-vars
 function toggleAddToPlaylistFrm() {
     const btn = document.getElementById('toggleAddToPlaylistBtn');
-    toggleBtn(toggleAddToPlaylistBtn);
+    toggleBtn(btn);
     if (btn.classList.contains('active')) {
         //add to playlist
         elShowId('addToPlaylistFrm');
@@ -426,18 +426,20 @@ function addToPlaylist() {
             uri = document.getElementById('addToPlaylistSearch').value;
             type = 'search';
             break;
-        case 'STREAM':
-            uri = document.getElementById('streamUrl').value;
-            if (uri === '' || isStreamUri(uri) === false) {
-                document.getElementById('streamUrl').classList.add('is-invalid');
+        case 'STREAM': {
+            const streamUrlEl = document.getElementById('streamUrl');
+            if (validateStream(streamUrlEl) === false) {
                 return;
             }
-            type = 'song'
+            uri = streamUrlEl.value;
+            type = 'song';
+            break;
+        }
         default:
             type = 'song';
     }
 
-    if (document.getElementById('addToPlaylistFrm').classList.contains('d-none') == false) {
+    if (document.getElementById('addToPlaylistFrm').classList.contains('d-none') === false) {
         //add to playlist
         const plistEl = document.getElementById('addToPlaylistPlaylist');
         if (validatePlnameEl(plistEl) === false) {
@@ -463,7 +465,7 @@ function addToPlaylist() {
             case 'insert':
                 insertQueue(type, uri, 0, 1, false, addToPlaylistClose);
                 break;
-            case 'insert':
+            case 'play':
                 insertQueue(type, uri, 0, 1, true, addToPlaylistClose);
                 break;
             case 'replace':
