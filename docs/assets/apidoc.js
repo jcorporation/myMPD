@@ -532,7 +532,7 @@ const APImethods = {
             "searchstr": APIparams.searchstr,
             "type": {
                 "type": "uint",
-                "exmaple": 0,
+                "example": 0,
                 "desc": "0 = all playlists, 1 = static playlists, 2 = smart playlists"
             }
         }
@@ -787,7 +787,7 @@ const APImethods = {
             },
             "mpdPort": {
                 "type": "uint",
-                "example": "6000",
+                "example": 66000,
                 "desc": "MPD port to use"
             },
             "musicDirectory": {
