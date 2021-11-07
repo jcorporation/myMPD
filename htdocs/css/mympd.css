@@ -664,7 +664,6 @@ tfoot td {
   /* Required to make elements draggable in old WebKit */
   -khtml-user-drag: element;
   -webkit-user-drag: element;
-  cursor: pointer;
 }
 
 @keyframes changewidth {

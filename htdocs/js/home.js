@@ -18,10 +18,11 @@ function initHome() {
     }, false);
     
     document.getElementById('HomeList').addEventListener('contextmenu', function(event) {
-        if (event.target.id === 'HomeList') {
-            return;
+        if (event.target.classList.contains('card-body') ||
+            event.target.classList.contains('card-footer'))
+        {
+            popoverMenuHome(event);
         }
-        popoverMenuHome(event);
     }, false);
 
     document.getElementById('HomeList').addEventListener('long-press', function(event) {
@@ -187,22 +188,29 @@ function parseHome(obj) {
     }
     if (obj.result.returnedEntities === 0) {
         elClear(cardContainer);
-        const div = elCreateEmpty('div', {"class": ["ms-3"]});
-        div.appendChild(elCreateText('h3', {}, tn('Homescreen')));
-        div.appendChild(elCreateText('p', {}, tn('Homescreen welcome')));
-        const ul = elCreateEmpty('ul', {});
-        ul.appendChild(elCreateEmpty('li', {}));
-        ul.childNodes[0].appendChild(elCreateText('b', {}, tn('View')));
-        ul.childNodes[0].appendChild(elCreateText('span', {}, ': ' + tn('Homescreen help view')));
-        ul.childNodes[0].appendChild(elCreateText('span', {"class": ["mi"]}, 'add_to_home_screen'));
-        ul.appendChild(elCreateEmpty('li', {}));
-        ul.childNodes[1].appendChild(elCreateText('b', {}, tn('Playlist')));
-        ul.childNodes[1].appendChild(elCreateText('span', {}, ': ' + tn('Homescreen help playlist')));
+        const div = elCreateNodes('div', {"class": ["px-3", "py-1"]}, [
+            elCreateText('h3', {}, tn('Homescreen')),
+            elCreateText('p', {}, tn('Homescreen welcome'))
+        ]);
+        const ul = elCreateNodes('ul', {}, [
+            elCreateNodes('li', {}, [
+                elCreateText('b', {}, tn('View')),
+                elCreateText('span', {}, ': ' + tn('Homescreen help view')),
+                elCreateText('span', {"class": ["mi"]}, 'add_to_home_screen')
+            ]),
+            elCreateNodes('li', {}, [
+                elCreateText('b', {}, tn('Playlist')),
+                elCreateText('span', {}, ': ' + tn('Homescreen help playlist'))
+            ])
+        ]);
         if (features.featScripting === true) {
-            ul.appendChild(elCreateEmpty('li', {}));
-            ul.childNodes[2].appendChild(elCreateText('b', {}, tn('Script')));
-            ul.childNodes[2].appendChild(elCreateText('span', {}, ': ' + tn('Homescreen help script')));
-            ul.childNodes[2].appendChild(elCreateText('span', {"class": ["mi"]}, 'add_to_home_screen'));
+            ul.appendChild(
+                elCreateNodes('li', {}, [
+                    elCreateText('b', {}, tn('Script')),
+                    elCreateText('span', {}, ': ' + tn('Homescreen help script')),
+                    elCreateText('span', {"class": ["mi"]}, 'add_to_home_screen')
+                ])
+            );
         }
         div.appendChild(ul);
         cardContainer.appendChild(div);
@@ -219,11 +227,11 @@ function parseHome(obj) {
         const homeType = obj.result.data[i].cmd === 'replaceQueue' ? 'Playlist' :
             obj.result.data[i].cmd === 'appGoto' ? 'View' : 'Script';
         
-        const card = elCreateEmpty('div', {"class": ["card", "home-icons", "clickable"], "tabindex": 0, "draggable": "true",
+        const card = elCreateEmpty('div', {"class": ["card", "home-icons"], "tabindex": 0, "draggable": "true",
             "title": tn(homeType) + ': ' + obj.result.data[i].name});
         setData(card, 'data-href', {"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
         setData(card, 'data-pos', i);
-        const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded"]}, obj.result.data[i].ligature);
+        const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded", "clickable"]}, obj.result.data[i].ligature);
         if (obj.result.data[i].image !== '') {
             cardBody.style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(obj.result.data[i].image) + '")';
         }
@@ -234,7 +242,7 @@ function parseHome(obj) {
             cardBody.style.color = obj.result.data[i].color;
         }
         card.appendChild(cardBody);
-        card.appendChild(elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2"]}, obj.result.data[i].name));
+        card.appendChild(elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2", "clickable"]}, obj.result.data[i].name));
         col.appendChild(card);
         if (i < cols.length) {
             cols[i].replaceWith(col);
@@ -352,7 +360,7 @@ function addViewToHome() {
 //eslint-disable-next-line no-unused-vars
 function addScriptToHome(name, script) {
     const options = [script.script, script.arguments.join(',')];
-    _addHomeIcon('execScriptFromOptions', name, 'description', options);
+    _addHomeIcon('execScriptFromOptions', name, 'code', options);
 }
 
 //eslint-disable-next-line no-unused-vars
