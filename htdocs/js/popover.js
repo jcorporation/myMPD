@@ -486,27 +486,6 @@ function createMenuSecondary(el, tabHeader, tabContent) {
     return false;
 }
 
-const actionDescFriendly = {
-    'replaceQueue': 'Replace queue',
-    'appendQueue': 'Append to queue',
-    'insertAndPlayQueue': 'Add to queue and play',
-    'insertAfterCurrentQueue': 'Insert after current playing song',
-    'replaceQueueAlbum': 'Replace queue',
-    'appendQueueAlbum': 'Append to queue',
-    'playQueueAlbum': 'Add to queue and play',
-    'insertQueueAlbum': 'Insert after current playing song',
-};
-
-const typeFriendly = {
-    'plist': 'Playlist',
-    'smartpls': 'Smart playlist',
-    'dir': 'Directory',
-    'song': 'Song',
-    'search': 'Search',
-    'album': 'Album',
-    'stream': 'Stream'
-};
-
 function createMenuHome(el, tabHeader, tabContent) {
     const pos = getData(el.parentNode, 'data-pos');
     const href = getData(el.parentNode, 'data-href');
@@ -514,33 +493,28 @@ function createMenuHome(el, tabHeader, tabContent) {
         return;
     }
     let type = '';
-    let actionDesc = '';
     let title = '';
     switch(href.cmd) {
         case 'appGoto':
             type = 'view';
-            actionDesc = 'Goto view';
             title = 'View';
             break;
         case 'execScriptFromOptions':
             type = 'script';
-            actionDesc = 'Execute script';
             title = 'Script';
             break;
         case 'replaceQueueAlbum':
         case 'appendQueueAlbum':
         case 'playQueueAlbum':
         case 'insertQueueAlbum':
-            actionDesc = actionDescFriendly[href.cmd];
-            type = href.options[0]
+            type = href.options[0];
             title = typeFriendly[href.options[0]];
             break;
         case 'replaceQueue':
         case 'appendQueue':
         case 'insertAndPlayQueue':
         case 'insertAfterCurrentQueue':
-            actionDesc = actionDescFriendly[href.cmd];
-            type = href.options[0]
+            type = href.options[0];
             title = typeFriendly[href.options[0]];
             break;
     }

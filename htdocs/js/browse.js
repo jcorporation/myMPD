@@ -574,18 +574,22 @@ function addAlbum(action) {
     _addAlbum(action, albumArtist, album);
 }
 
+//eslint-disable-next-line no-unused-vars
 function appendQueueAlbum(albumArtist, album) {
     _addAlbum('appendQueue', albumArtist, album, undefined);
 }
 
+//eslint-disable-next-line no-unused-vars
 function replaceQueueAlbum(albumArtist, album) {
     _addAlbum('replaceQueue', albumArtist, album, undefined);
 }
 
+//eslint-disable-next-line no-unused-vars
 function insertQueueAlbum(albumArtist, album) {
     _addAlbum('insertQueue', albumArtist, album, undefined);
 }
 
+//eslint-disable-next-line no-unused-vars
 function playQueueAlbum(albumArtist, album) {
     _addAlbum('replaceQueue', albumArtist, album, undefined);
 }

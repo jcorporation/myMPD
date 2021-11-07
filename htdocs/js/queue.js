@@ -326,10 +326,12 @@ function appendQueue(type, uri, callback) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function insertAndPlayQueue(type, uri, callback) {
     insertQueue(type, uri, 0, 1, true, callback)
 }
 
+//eslint-disable-next-line no-unused-vars
 function insertAfterCurrentQueue(type, uri, callback) {
     insertQueue(type, uri, 0, 1, false, callback)
 }

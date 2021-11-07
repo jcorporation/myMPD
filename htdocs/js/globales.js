@@ -588,3 +588,13 @@ const LUAfunctions = {
         "func": "output = mympd.os_capture(command)"
     }
 };
+
+const typeFriendly = {
+    'plist': 'Playlist',
+    'smartpls': 'Smart playlist',
+    'dir': 'Directory',
+    'song': 'Song',
+    'search': 'Search',
+    'album': 'Album',
+    'stream': 'Stream'
+};
