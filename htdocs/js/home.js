@@ -417,6 +417,20 @@ function addAlbumToHome(albumArtist, album) {
     _addHomeIcon('replaceQueueAlbum', album, 'album', ['album', JSON.stringify(albumArtist), album]);
 }
 
+//eslint-disable-next-line no-unused-vars
+function addStreamToHome() {
+    const mode = getRadioBoxValueId('addToPlaylistPos');
+    const uri = document.getElementById('streamUrl').value;
+    let action;
+    switch(mode) {
+        case 'append': action = 'appendQueue'; break;
+        case 'insert': action = 'insertAfterCurrentQueue'; break;
+        case 'play': action = 'insertAndPlayQueue'; break;
+        case 'replace': action = 'replaceQueue'; break;
+    }
+    _addHomeIcon(action, '', 'stream', ['stream', uri]);
+}
+
 function _addHomeIcon(cmd, name, ligature, options) {
     document.getElementById('modalEditHomeIconTitle').textContent = tn('Add to homescreen');
     document.getElementById('inputHomeIconReplace').value = 'false';
@@ -425,9 +439,9 @@ function _addHomeIcon(cmd, name, ligature, options) {
     document.getElementById('inputHomeIconLigature').value = ligature;
     document.getElementById('inputHomeIconBgcolor').value = '#28a745';
     document.getElementById('inputHomeIconColor').value = '#ffffff';
-    document.getElementById('selectHomeIconCmd').value = cmd;
     
     populateHomeIconCmdSelect(options[0]);
+    document.getElementById('selectHomeIconCmd').value = cmd;
     showHomeIconCmdOptions(options);
     getHomeIconPictureList('');
     

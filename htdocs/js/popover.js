@@ -503,7 +503,8 @@ const typeFriendly = {
     'dir': 'Directory',
     'song': 'Song',
     'search': 'Search',
-    'album': 'Album'
+    'album': 'Album',
+    'stream': 'Stream'
 };
 
 function createMenuHome(el, tabHeader, tabContent) {
@@ -550,7 +551,7 @@ function createMenuHome(el, tabHeader, tabContent) {
     else if (type === 'dir') {
         addMenuItemsDirectoryActions(tabContent, href.options[1]);
     }
-    else if (type === 'song') {
+    else if (type === 'song' || type === 'stream') {
         addMenuItemsSongActions(tabContent, href.options[1], href.options[1]);
     }
     else if (type === 'search') {
