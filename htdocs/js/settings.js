@@ -390,6 +390,7 @@ function parseSettings(obj) {
     //finished parse setting, set ui state
     toggleUI();
     btnWaiting(document.getElementById('btnApplySettings'), false);
+    applyFeatures();
     settingsParsed = 'parsed';
 }
 
@@ -718,6 +719,18 @@ function _createSettingsFrm(fields, defaults, prefix) {
             }, false);
         }
     }
+
+    for (const sel of ['inputWebUIsettingclickAlbumPlay', 'inputWebUIsettingclickFolder',
+            'inputWebUIsettingclickPlaylist', 'inputWebUIsettingclickSong'])
+    {
+        const options = document.getElementById(sel).getElementsByTagName('option');
+        for (const opt of options) {
+            if (opt.value === 'insert' ||
+                opt.value === 'play') {
+                    opt.classList.add('featWhence');
+                }
+        }
+    }
 }
 
 function setFeatures() {
@@ -754,7 +767,9 @@ function setFeatures() {
         features.featPlaylistRmRange = settings.featPlaylistRmRange;
         features.featWhence = settings.featWhence;
     }
+}
 
+function applyFeatures() {
     //show or hide elements
     for (const feature in features) {
         const els = document.getElementsByClassName(feature);
