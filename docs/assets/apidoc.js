@@ -204,8 +204,8 @@ const APImethods = {
                 "desc": "Album to display"
             },
             "albumartist": {
-                "type": "text",
-                "example": "Einstürzende Neubauten",
+                "type": "array",
+                "example": "[\"Einstürzende Neubauten\"]",
                 "desc": "Albumartist"
             },
             "cols": APIparams.cols
@@ -787,7 +787,7 @@ const APImethods = {
             },
             "mpdPort": {
                 "type": "uint",
-                "example": 66000,
+                "example": 6600,
                 "desc": "MPD port to use"
             },
             "musicDirectory": {
