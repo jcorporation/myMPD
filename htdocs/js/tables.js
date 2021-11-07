@@ -543,6 +543,7 @@ function checkResult(obj, tbody, colspan) {
         elClear(tbody);
         tbody.appendChild(emptyRow(colspan));
         tbody.parentNode.classList.remove('opacity05');
+        setPagination(0, 0);
         return false;
     }
     return true;

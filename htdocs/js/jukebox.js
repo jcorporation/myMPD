@@ -47,6 +47,7 @@ function parseJukeboxList(obj) {
             elHideId('QueueJukeboxList');
             elShowId('QueueJukeboxDisabled');
         }
+        setPagination(0,0);
         return;
     }
 
