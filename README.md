@@ -45,7 +45,7 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - Progressiv Web App enabled
 - Support of Media Session API
 
-To use all myMPD functions you should use the latest stable MPD version (0.22.x).
+To use all myMPD functions you should use the latest stable MPD version.
 
 ## Contribution
 
