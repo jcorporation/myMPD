@@ -22,6 +22,6 @@ sds check_error_and_recover(struct t_mpd_state *mpd_state, sds buffer, sds metho
 sds check_error_and_recover_notify(struct t_mpd_state *mpd_state, sds buffer);
 sds respond_with_command_error(sds buffer, sds method, long request_id, const char *command);
 sds respond_with_mpd_error_or_ok(struct t_mpd_state *mpd_state, sds buffer, sds method, 
-                                 long request_id, bool rc, const char *command);
+                                 long request_id, bool rc, const char *command, bool *result);
 bool mpd_shared_set_keepalive(struct t_mpd_state *mpd_state);
 #endif
