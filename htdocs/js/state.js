@@ -259,14 +259,14 @@ function _clearCurrentCover(el) {
 }
 
 function songChange(obj) {
-    const newSong = obj.result.Title + ':' + obj.result.Artist.join(', ') + ':' + obj.result.Album + ':' + obj.result.uri + ':' + obj.result.currentSongId;
+    const newSong = obj.result.uri + ':' + obj.result.currentSongId;
     if (currentSong === newSong) {
         return;
     }
     let textNotification = '';
     let pageTitle = '';
 
-    mediaSessionSetMetadata(obj.result.Title, obj.result.Artist.join(', '), obj.result.Album, obj.result.uri);
+    mediaSessionSetMetadata(obj.result.Title, joinArray(obj.result.Artist), obj.result.Album, obj.result.uri);
     
     setCurrentCover(obj.result.uri);
     setBackgroundImage(obj.result.uri);
@@ -276,7 +276,7 @@ function songChange(obj) {
     }
 
     if (obj.result.Artist !== undefined && obj.result.Artist[0] !== '-') {
-        textNotification += obj.result.Artist.join(', ');
+        textNotification += joinArray(obj.result.Artist);
         pageTitle += obj.result.Artist.join(', ') + smallSpace + nDash + smallSpace;
         document.getElementById('footerArtist').textContent = obj.result.Artist;
         setDataId('footerArtist', 'data-name', obj.result.Artist);

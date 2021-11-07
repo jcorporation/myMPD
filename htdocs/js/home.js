@@ -41,13 +41,19 @@ function initHome() {
     }, false);
     elClear(selectHomeIconCmd);
     selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appGoto"}, tn('Goto view')));
-    setData(selectHomeIconCmd.childNodes[0], 'data-options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
+    setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
     selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueue"}, tn('Replace queue')));
-    setData(selectHomeIconCmd.childNodes[1], 'data-options', {"options": ["Type", "Uri", "Name"]});
+    setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
+    if (features.featWhence === true) {
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAfterCurrentQueue"}, tn('Insert after current playing song')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAndPlayQueue"}, tn('Add to queue and play')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
+    }
     selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueue"}, tn('Append to queue')));
-    setData(selectHomeIconCmd.childNodes[2], 'data-options', {"options": ["Type", "Uri", "Name"]});
+    setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
     selectHomeIconCmd.appendChild(elCreateText('option', {"value": "execScriptFromOptions"}, tn('Execute Script')));
-    setData(selectHomeIconCmd.childNodes[3], 'data-options', {"options":["Script","Arguments"]});
+    setData(selectHomeIconCmd.lastChild, 'data-options', {"options":["Script","Arguments"]});
 
     document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
         document.getElementById('homeIconPreview').style.backgroundColor = event.target.value;
@@ -364,8 +370,23 @@ function addScriptToHome(name, script) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function addPlistToHome(uri, name) {
-    _addHomeIcon('replaceQueue', name, 'list', ['plist', uri, name]);
+function addPlistToHome(uri, type, name) {
+    _addHomeIcon('replaceQueue', name, 'list', [type, uri]);
+}
+
+//eslint-disable-next-line no-unused-vars
+function addDirToHome(uri, name) {
+    _addHomeIcon('replaceQueue', name, 'folder_open', ['dir', uri]);
+}
+
+//eslint-disable-next-line no-unused-vars
+function addSongToHome(uri, name) {
+    _addHomeIcon('replaceQueue', name, 'music_note', ['song', uri]);
+}
+
+//eslint-disable-next-line no-unused-vars
+function addSearchToHome() {
+    _addHomeIcon('replaceQueue', tn('Current search'), 'saved_search', ['search', app.current.search]);
 }
 
 function _addHomeIcon(cmd, name, ligature, options) {

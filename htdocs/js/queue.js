@@ -326,6 +326,14 @@ function appendQueue(type, uri, callback) {
     }
 }
 
+function insertAndPlayQueue(type, uri, callback) {
+    insertQueue(type, uri, 0, 1, true, callback)
+}
+
+function insertAfterCurrentQueue(type, uri, callback) {
+    insertQueue(type, uri, 0, 1, false, callback)
+}
+
 function insertQueue(type, uri, to, whence, play, callback) {
     switch(type) {
         case 'song':

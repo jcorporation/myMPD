@@ -3,16 +3,16 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-function hidePopover(el) {
-    const menuEl = document.querySelector('[aria-describedby]');
-    if (el === menuEl) {
-        //do not hide popover that should be opened
-        return;
+function hidePopover(thisEl) {
+    const menuEls = document.querySelectorAll('[aria-describedby]');
+    for (const el of menuEls) {
+        if (thisEl === el) {
+            //do not hide popover that should be opened
+            continue;
+        }
+        el.Popover.hide();
     }
-    if (menuEl) {
-        menuEl.Popover.hide();
-    }
-    else {
+    if (menuEls.length === 0) {
         //handle popover dom nodes without a trigger element
         const popover = document.getElementsByClassName('popover')[0];
         if (popover) {
@@ -234,7 +234,7 @@ function addMenuItemsAlbumActions(tabContent, albumArtist, album) {
     addMenuItem(tabContent, {"cmd": "gotoAlbumList", "options": [tagAlbumArtist, albumArtist]}, 'Show all albums from artist');
 }
 
-function addMenuItemsSongActions(tabContent, uri) {
+function addMenuItemsSongActions(tabContent, uri, name) {
     if (app.id !== 'QueueCurrent') {
         addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["song", uri]}, 'Append to queue');
         if (features.featWhence === true) {
@@ -249,6 +249,21 @@ function addMenuItemsSongActions(tabContent, uri) {
     if (isStreamUri(uri) === false) {
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "songDetails", "options": [uri]}, 'Song details');
+    }
+    if (features.featHome === true && app.id !== 'Home') {
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addMenuItem(tabContent, {"cmd": "addSongToHome", "options": [uri, name]}, 'Add to homescreen');
+    }
+}
+
+function addMenuItemsSearchActions(tabContent, uri) {
+    if (app.id !== 'QueueCurrent') {
+        addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["search", uri]}, 'Append to queue');
+        if (features.featWhence === true) {
+            addMenuItem(tabContent, {"cmd": "insertQueue", "options": ["search", uri, 0, 1, false]}, 'Insert after current playing song');
+            addMenuItem(tabContent, {"cmd": "insertQueue", "options": ["search", uri, 0, 1, true]}, 'Add to queue and play');
+        }
+        addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["search", uri]}, 'Replace queue');
     }
 }
 
@@ -271,6 +286,10 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
     else {
         addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [baseuri]}, 'Show directory');
     }
+    if (features.featHome === true && app.id !== 'Home') {
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addMenuItem(tabContent, {"cmd": "addDirToHome", "options": [baseuri, baseuri]}, 'Add to homescreen');
+    }
 }
 
 function addMenuItemsPlaylistActions(tabContent, type, uri, name) {
@@ -280,9 +299,9 @@ function addMenuItemsPlaylistActions(tabContent, type, uri, name) {
         addMenuItem(tabContent, {"cmd": "insertQueue", "options": [type, uri, 0, 1, true]}, 'Add to queue and play');
     }
     addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, uri]}, 'Replace queue');
-    tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-    if (features.featHome === true) {
-        addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, name]}, 'Add to homescreen');
+    if (features.featHome === true && app.id !== 'Home') {
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, type, name]}, 'Add to homescreen');
     }
 }
 
@@ -323,7 +342,7 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         app.id === 'BrowseDatabaseDetail')
     {
         switch(type) {
-            case 'song': addMenuItemsSongActions(tabContent, uri); break;
+            case 'song': addMenuItemsSongActions(tabContent, uri, name); break;
             case 'dir':  addMenuItemsDirectoryActions(tabContent, uri); break;
             case 'plist':
             case 'smartpls':
@@ -422,7 +441,7 @@ function createMenuSecondary(el, tabHeader, tabContent) {
         app.id === 'QueueCurrent' ||
         app.id === 'QueueLastPlayed' ||
         (app.id === 'QueueJukebox' && settings.jukeboxMode === 1) ||
-        app.id === 'BrowseFileSystem' ||
+        app.id === 'BrowseFilesystem' ||
         app.id === 'BrowsePlaylistsDetail')
     {
         let type = getData(el, 'data-type');
@@ -430,7 +449,7 @@ function createMenuSecondary(el, tabHeader, tabContent) {
         let name = getData(el, 'data-name');
         let dataNode = el;
         let depth = 0;
-        while (type === null || type === undefined || uri === null || uri === undefined) {
+        while (type === undefined || uri === undefined) {
             dataNode = dataNode.parentNode;
             type = getData(dataNode, 'data-type');
             uri = getData(dataNode, 'data-uri');
@@ -438,12 +457,16 @@ function createMenuSecondary(el, tabHeader, tabContent) {
             if (depth < 2) { depth++; } else { break; }
         }
 
-        if (isStreamUri(uri) === true) {
+        if (isStreamUri(uri) === true ||
+            app.id === 'BrowseFilesystem' && type === 'dir' ||
+            app.id === 'BrowseFilesystem' && type === 'plist' ||
+            app.id === 'BrowseFilesystem' && type === 'smartpls')
+        {
             return false;
         }
         const album = getData(dataNode, 'data-album');
         const albumArtist = getData(dataNode, 'data-albumartist');
-        if (album !== null && albumArtist !== null &&
+        if (album !== undefined && albumArtist !== undefined &&
             album !== '-' && albumArtist !== '-')
         {
             tabHeader.textContent = tn('Album');
@@ -459,6 +482,21 @@ function createMenuSecondary(el, tabHeader, tabContent) {
     return false;
 }
 
+const actionDescFriendly = {
+    'replaceQueue': 'Replace queue',
+    'appendQueue': 'Append to queue',
+    'insertAndPlayQueue': 'Add to queue and play',
+    'insertAfterCurrentQueue': 'Insert after current playing song'
+};
+
+const typeFriendly = {
+    'plist': 'Playlist',
+    'smartpls': 'Smart playlist',
+    'dir': 'Directory',
+    'song': 'Song',
+    'search': 'Search'
+};
+
 function createMenuHome(el, tabHeader, tabContent) {
     const pos = getData(el.parentNode, 'data-pos');
     const href = getData(el.parentNode, 'data-href');
@@ -467,27 +505,42 @@ function createMenuHome(el, tabHeader, tabContent) {
     }
     let type = '';
     let actionDesc = '';
-    let name = '';
-    if (href.cmd === 'replaceQueue' && href.options[0] === 'plist') {
-        type = 'plist';
-        actionDesc = 'Replace queue with playlist';
-        name = 'Playlist';
+    let title = '';
+    switch(href.cmd) {
+        case 'appGoto':
+            type = 'view';
+            actionDesc = 'Goto view';
+            title = 'View';
+            break;
+        case 'execScriptFromOptions':
+            type = 'script';
+            actionDesc = 'Execute script';
+            title = 'Script';
+            break;
+        case 'replaceQueue':
+        case 'appendQueue':
+        case 'insertAndPlayQueue':
+        case 'insertAfterCurrentQueue':
+            actionDesc = actionDescFriendly[href.cmd];
+            type = href.options[0]
+            title = typeFriendly[href.options[0]];
+            break;
     }
-    else if (href.cmd === 'appGoto') {
-        type = 'view';
-        actionDesc = 'Goto view';
-        name = 'View';
+    tabHeader.textContent = tn(title);
+    if (type === 'plist' || type === 'smartpls') {
+        addMenuItemsPlaylistActions(tabContent, type, href.options[1], href.options[1]);
     }
-    else if (href.cmd === 'execScriptFromOptions') {
-        type = 'script';
-        actionDesc = 'Execute script';
-        name = 'Script';
+    else if (type === 'dir') {
+        addMenuItemsDirectoryActions(tabContent, href.options[1]);
     }
-    tabHeader.textContent = tn(name);
-    addMenuItem(tabContent, {"cmd": "executeHomeIcon", "options": [pos]}, actionDesc);
-    if (type === 'plist' && isMPDplaylist(href.options[1]) === true) {
-        addMenuItem(tabContent, {"cmd": "playlistDetails", "options": [href.options[1]]}, 'View playlist');
+    else if (type === 'song') {
+        addMenuItemsSongActions(tabContent, href.options[1], href.options[1]);
     }
+    else if (type === 'search') {
+        addMenuItemsSearchActions(tabContent, href.options[1]);
+    }
+    tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+    tabContent.appendChild(elCreateText('h2', {"class": ["dropdown-header"]}, tn('Home icon')));
     addMenuItem(tabContent, {"cmd": "editHomeIcon", "options": [pos]}, 'Edit home icon');
     addMenuItem(tabContent, {"cmd": "duplicateHomeIcon", "options": [pos]}, 'Duplicate home icon');
     addMenuItem(tabContent, {"cmd": "deleteHomeIcon", "options": [pos]}, 'Delete home icon');

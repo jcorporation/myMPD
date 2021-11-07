@@ -484,7 +484,7 @@
             <div class="btn-group me-2">
               <button data-title-phrase="Append to queue" class="btn btn-secondary" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}'><span class="mi">library_add</span></button>
               <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
-              <div class="dropdown-menu dropdown-menu-dark px-2">
+              <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide">
                 <div class="d-grid gap-2">
                   <button data-phrase="Append to queue" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
                   <button data-phrase="Insert after current playing song" data-href='{"cmd": "addAlbum", "options": ["insertQueue"]}' type="button" class="featWhence btn btn-secondary btn-sm"></button>
@@ -537,7 +537,7 @@
           <div class="btn-group me-2">
             <button data-title-phrase="Append to queue" data-href='{"cmd": "addAllFromSearch", "options": ["append", "dir"]}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary"><span class="mi">library_add</span></button>
             <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
-            <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseFilesystemAddAllSongsDropdown">
+            <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide" id="BrowseFilesystemAddAllSongsDropdown">
               <div class="d-grid gap-2">
                 <button data-href='{"cmd": "addAllFromSearch", "options": ["append", "dir"]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm"></button>
                 <button data-href='{"cmd": "addAllFromSearch", "options": ["insert", "dir"]}' data-phrase="Insert after current playing song" type="button" class="featWhence btn btn-secondary btn-sm"></button>
@@ -602,7 +602,7 @@
           <div class="btn-group me-2">
             <button data-title-phrase="Append to queue" id="searchAddAllSongs" class="btn btn-secondary" data-href='{"cmd": "addAllFromSearch", "options": ["append", "search"]}'><span class="mi">library_add</span></button>
             <button id="searchAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown"></button>
-            <div class="dropdown-menu dropdown-menu-dark px-2" id="searchAddAllSongsDropdown">
+            <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide" id="searchAddAllSongsDropdown">
               <div class="d-grid gap-2">
                 <button data-href='{"cmd": "addAllFromSearch", "options": ["append", "search"]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm"></button>
                 <button data-href='{"cmd": "addAllFromSearch", "options": ["insert", "search"]}' data-phrase="Insert after current playing song" type="button" class="featWhence btn btn-secondary btn-sm"></button>
@@ -610,6 +610,7 @@
                 <button data-href='{"cmd": "addAllFromSearch", "options": ["replace", "search"]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm"></button>
                 <button data-href='{"cmd": "showAddToPlaylistCurrentSearch", "options": []}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm featPlaylists"></button>
                 <button data-href='{"cmd": "saveSearchAsSmartPlaylist", "options": []}' data-phrase="Save as smart playlist" type="button" class="btn btn-secondary btn-sm featSmartpls"></button>
+                <button data-href='{"cmd": "addSearchToHome", "options": []}' data-phrase="Add to home screen" type="button" class="btn btn-secondary btn-sm featHome"></button>
             </div>
             </div>
           </div>

@@ -154,6 +154,13 @@ function myDecodeURIComponent(str) {
     return decodeURIComponent(str);
 }
 
+function joinArray(a) {
+    if (a === undefined) {
+        return '';
+    }
+    return a.join(', ');
+}
+
 //functions to get custom actions
 function clickAlbumPlay(albumArtist, album) {
     switch(settings.webuiSettings.clickAlbumPlay) {

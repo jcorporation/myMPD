@@ -296,7 +296,7 @@ function parseSettings(obj) {
     if (settings.mpdConnected === true) {
         parseMPDSettings();
     }
-    
+
     //Info in about modal
     if (settings.mpdHost.indexOf('/') !== 0) {
         document.getElementById('mpdInfoHost').textContent = settings.mpdHost + ':' + settings.mpdPort;

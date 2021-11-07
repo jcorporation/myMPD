@@ -570,6 +570,10 @@ div.card-toolbar > form {
   font-size: 2.4rem;
 }
 
+.mi-xs {
+  font-size: 0.8rem;
+}
+
 .btn-sm-big-icon {
   font-size: 1.4rem !important;
   padding: 0.05rem 0.25rem !important;
@@ -1091,4 +1095,8 @@ input[is=mympd-select-search][readonly] {
 
 #SearchList > thead > tr > th {
   padding-right: 1.5rem;
+}
+
+.dropdownWide {
+  min-width: 15rem;
 }
