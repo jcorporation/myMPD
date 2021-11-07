@@ -438,6 +438,7 @@ check_docs() {
   if [ "$O" != "$C" ]
   then
   	echo_warn "apidoc.js in docs differs"
+    cp htdocs/js/apidoc.js docs/assets/apidoc.js
   fi
 }
 
