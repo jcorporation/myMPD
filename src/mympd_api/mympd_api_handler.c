@@ -989,7 +989,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_RM_RANGE:
-            if (mympd_state->mpd_state->feat_mpd_playlist_rm_range == true) {
+            if (mympd_state->mpd_state->feat_mpd_playlist_rm_range == false) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Method not supported");
                 break;
             }
