@@ -39,21 +39,6 @@ function initHome() {
     selectHomeIconCmd.addEventListener('change', function() {
         showHomeIconCmdOptions();
     }, false);
-    elClear(selectHomeIconCmd);
-    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appGoto"}, tn('Goto view')));
-    setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
-    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueue"}, tn('Replace queue')));
-    setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
-    if (features.featWhence === true) {
-        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAfterCurrentQueue"}, tn('Insert after current playing song')));
-        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
-        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAndPlayQueue"}, tn('Add to queue and play')));
-        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
-    }
-    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueue"}, tn('Append to queue')));
-    setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
-    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "execScriptFromOptions"}, tn('Execute Script')));
-    setData(selectHomeIconCmd.lastChild, 'data-options', {"options":["Script","Arguments"]});
 
     document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
         document.getElementById('homeIconPreview').style.backgroundColor = event.target.value;
@@ -224,17 +209,14 @@ function parseHome(obj) {
     }
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0"]});
-        if (obj.result.data[i].AlbumArtist === '') {
-            obj.result.data[i].AlbumArtist = tn('Unknown artist');
-        }
-        if (obj.result.data[i].Album === '') {
-            obj.result.data[i].Album = tn('Unknown album');
-        }
-        const homeType = obj.result.data[i].cmd === 'replaceQueue' ? 'Playlist' :
-            obj.result.data[i].cmd === 'appGoto' ? 'View' : 'Script';
+        const homeType = typeFriendly[obj.result.data[i].options[0]];
         
         const card = elCreateEmpty('div', {"class": ["card", "home-icons"], "tabindex": 0, "draggable": "true",
             "title": tn(homeType) + ': ' + obj.result.data[i].name});
+        if (obj.result.data[i].options[0] === 'album'){
+            //AlbumArtist must be an array
+            obj.result.data[i].options[1] = JSON.parse(obj.result.data[i].options[1]);
+        }
         setData(card, 'data-href', {"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
         setData(card, 'data-pos', i);
         const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded", "clickable"]}, obj.result.data[i].ligature);
@@ -351,6 +333,43 @@ function dragAndDropHome() {
     }, false);
 }
 
+function populateHomeIconCmdSelect(type) {
+    const selectHomeIconCmd = document.getElementById('selectHomeIconCmd');
+    elClear(selectHomeIconCmd);
+    if (type === 'view') {
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appGoto"}, tn('Goto view')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
+    }
+    else if (type === 'script') {
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "execScriptFromOptions"}, tn('Execute Script')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options":["Script", "Arguments"]});
+    }
+    else if (type === 'album') {
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueueAlbum"}, tn('Replace queue')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Albumartist", "Album"]});
+        if (features.featWhence === true) {
+            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertQueueAlbum"}, tn('Insert after current playing song')));
+            setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Albumartist", "Album"]});
+            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "playQueueAlbum"}, tn('Add to queue and play')));
+            setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Albumartist", "Album"]});
+        }
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueueAlbum"}, tn('Append to queue')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Albumartist", "Album"]});
+    }
+    else {
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueue"}, tn('Replace queue')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
+        if (features.featWhence === true) {
+            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAfterCurrentQueue"}, tn('Insert after current playing song')));
+            setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
+            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAndPlayQueue"}, tn('Add to queue and play')));
+            setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
+        }
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueue"}, tn('Append to queue')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
+    }
+}
+
 //eslint-disable-next-line no-unused-vars
 function executeHomeIcon(pos) {
     const el = document.getElementById('HomeList').children[pos].firstChild;
@@ -389,6 +408,15 @@ function addSearchToHome() {
     _addHomeIcon('replaceQueue', tn('Current search'), 'saved_search', ['search', app.current.search]);
 }
 
+//eslint-disable-next-line no-unused-vars
+function addAlbumToHome(albumArtist, album) {
+    if (albumArtist === undefined) {
+        album = app.current.tag;
+        albumArtist = app.current.search;
+    }
+    _addHomeIcon('replaceQueueAlbum', album, 'album', ['album', JSON.stringify(albumArtist), album]);
+}
+
 function _addHomeIcon(cmd, name, ligature, options) {
     document.getElementById('modalEditHomeIconTitle').textContent = tn('Add to homescreen');
     document.getElementById('inputHomeIconReplace').value = 'false';
@@ -399,6 +427,7 @@ function _addHomeIcon(cmd, name, ligature, options) {
     document.getElementById('inputHomeIconColor').value = '#ffffff';
     document.getElementById('selectHomeIconCmd').value = cmd;
     
+    populateHomeIconCmdSelect(options[0]);
     showHomeIconCmdOptions(options);
     getHomeIconPictureList('');
     
@@ -431,6 +460,7 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('inputHomeIconColor').value = obj.result.data.color;
         document.getElementById('selectHomeIconCmd').value = obj.result.data.cmd;
 
+        populateHomeIconCmdSelect(obj.result.data.options[0]);
         showHomeIconCmdOptions(obj.result.data.options);
         getHomeIconPictureList(obj.result.data.image);
 

@@ -232,6 +232,10 @@ function addMenuItemsAlbumActions(tabContent, albumArtist, album) {
     tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
     addMenuItem(tabContent, {"cmd": "gotoAlbum", "options": [albumArtist, album]}, 'Album details');
     addMenuItem(tabContent, {"cmd": "gotoAlbumList", "options": [tagAlbumArtist, albumArtist]}, 'Show all albums from artist');
+    if (features.featHome === true && app.id !== 'Home') {
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addMenuItem(tabContent, {"cmd": "addAlbumToHome", "options": [albumArtist, album]}, 'Add to homescreen');
+    }
 }
 
 function addMenuItemsSongActions(tabContent, uri, name) {
@@ -486,7 +490,11 @@ const actionDescFriendly = {
     'replaceQueue': 'Replace queue',
     'appendQueue': 'Append to queue',
     'insertAndPlayQueue': 'Add to queue and play',
-    'insertAfterCurrentQueue': 'Insert after current playing song'
+    'insertAfterCurrentQueue': 'Insert after current playing song',
+    'replaceQueueAlbum': 'Replace queue',
+    'appendQueueAlbum': 'Append to queue',
+    'playQueueAlbum': 'Add to queue and play',
+    'insertQueueAlbum': 'Insert after current playing song',
 };
 
 const typeFriendly = {
@@ -494,7 +502,8 @@ const typeFriendly = {
     'smartpls': 'Smart playlist',
     'dir': 'Directory',
     'song': 'Song',
-    'search': 'Search'
+    'search': 'Search',
+    'album': 'Album'
 };
 
 function createMenuHome(el, tabHeader, tabContent) {
@@ -517,6 +526,14 @@ function createMenuHome(el, tabHeader, tabContent) {
             actionDesc = 'Execute script';
             title = 'Script';
             break;
+        case 'replaceQueueAlbum':
+        case 'appendQueueAlbum':
+        case 'playQueueAlbum':
+        case 'insertQueueAlbum':
+            actionDesc = actionDescFriendly[href.cmd];
+            type = href.options[0]
+            title = typeFriendly[href.options[0]];
+            break;
         case 'replaceQueue':
         case 'appendQueue':
         case 'insertAndPlayQueue':
@@ -538,6 +555,9 @@ function createMenuHome(el, tabHeader, tabContent) {
     }
     else if (type === 'search') {
         addMenuItemsSearchActions(tabContent, href.options[1]);
+    }
+    else if (type === 'album') {
+        addMenuItemsAlbumActions(tabContent, href.options[1], href.options[2]);
     }
     tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
     tabContent.appendChild(elCreateText('h2', {"class": ["dropdown-header"]}, tn('Home icon')));

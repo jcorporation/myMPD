@@ -574,6 +574,22 @@ function addAlbum(action) {
     _addAlbum(action, albumArtist, album);
 }
 
+function appendQueueAlbum(albumArtist, album) {
+    _addAlbum('appendQueue', albumArtist, album, undefined);
+}
+
+function replaceQueueAlbum(albumArtist, album) {
+    _addAlbum('replaceQueue', albumArtist, album, undefined);
+}
+
+function insertQueueAlbum(albumArtist, album) {
+    _addAlbum('insertQueue', albumArtist, album, undefined);
+}
+
+function playQueueAlbum(albumArtist, album) {
+    _addAlbum('replaceQueue', albumArtist, album, undefined);
+}
+
 function _addAlbum(action, albumArtist, album, disc) {
     let expression = '((Album == \'' + escapeMPD(album) + '\')';
     for (const artist of albumArtist) {
