@@ -591,9 +591,6 @@ Volume
 Empty list
 Liste vide
 
-Added stream %{streamUri} to queue
-Flux %{streamUri} ajouté à la queue
-
 Append to queue
 Ajouter à la queue
 
@@ -648,9 +645,6 @@ Ajout aléatoire
 never
 jamais
 
-Added %{uri} to playlist %{playlist}
-Ajout de %{uri} à la iste de lecture %{playlist}
-
 Successfully added random songs to queue
 Chansons aléatoires ajoutées à la queue
 
@@ -701,18 +695,6 @@ Min
 
 Seconds
 Sec
-
-Added all songs
-Toutes les chansons ont été ajoutées
-
-%{name} added to queue
-%{name} ajouté à la queue
-
-%{name} added to queue position %{to}
-%{name} à la queue en position %{to}
-
-Queue replaced with %{name}
-Queue remplacée par %{name}
 
 Type
 Type

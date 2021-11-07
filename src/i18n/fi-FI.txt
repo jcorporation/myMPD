@@ -588,9 +588,6 @@ Volume
 Empty list
 Tyhjä lista
 
-Added stream %{streamUri} to queue
-Streami %{streamUri} lisätty jonoon
-
 Append to queue
 Lisää jonoon
 
@@ -645,9 +642,6 @@ Lisää satunnainen
 never
 Ei koskaan
 
-Added %{uri} to playlist %{playlist}
-%{uri} lisätty soittolistaan %{playlist}
-
 Successfully added random songs to queue
 Satunnaisten kappaleiden lisääminen jonoon onnistui
 
@@ -698,18 +692,6 @@ Min
 
 Seconds
 Sekuntia
-
-Added all songs
-Kaikki kappaleet lisätty
-
-%{name} added to queue
-%{name} lisätty jonoon
-
-%{name} added to queue position %{to}
-%{name} lisätty jonossa kohtaan %{to}
-
-Queue replaced with %{name}
-Jono korvattu %{name}:lla
 
 Type
 Tyyppi

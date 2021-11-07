@@ -588,9 +588,6 @@ Volumen
 Empty list
 Lista vacía
 
-Added stream %{streamUri} to queue
-Agregar Fuente %{streamUri} a la cola de reproducción
-
 Append to queue
 Añadir a la cola de reproducción
 
@@ -645,9 +642,6 @@ Agregar aleatorio
 never
 nunca
 
-Added %{uri} to playlist %{playlist}
-%{uri} agregado a lista de reproducción %{playlist}
-
 Successfully added random songs to queue
 Agregadas canciones aleatorias a la cola de reproducción exitosamente
 
@@ -695,18 +689,6 @@ Min
 
 Seconds
 Seg
-
-Added all songs
-Agregadas todas las canciones
-
-%{name} added to queue
-%{name} agregado a la cola de reproducción
-
-%{name} added to queue position %{to}
-%{name} agregado a la cola de reproducción en la posición %{to}
-
-Queue replaced with %{name}
-Cola de reproducción reemplazada con %{name}
 
 Type
 Tipo

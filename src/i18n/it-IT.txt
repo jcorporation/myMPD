@@ -591,9 +591,6 @@ Volume
 Empty list
 Lista vuota
 
-Added stream %{streamUri} to queue
-Flusso %{streamUri} aggiunto alla coda
-
 Append to queue
 Aggiungi in fondo alla coda
 
@@ -648,9 +645,6 @@ Aggiunta casuale
 never
 mai
 
-Added %{uri} to playlist %{playlist}
-Aggiunta di %{uri} alla lista di riproduzione %{playlist}
-
 Successfully added random songs to queue
 Brani casuali aggiunti con successo alla coda
 
@@ -701,18 +695,6 @@ Minuti
 
 Seconds
 Secondi
-
-Added all songs
-Tutti i brani sono stati aggiunti
-
-%{name} added to queue
-%{name} aggiunto alla coda
-
-%{name} added to queue position %{to}
-%{name} aggiunto alla coda in posizione %{to}
-
-Queue replaced with %{name}
-Coda sostituita con %{name}
 
 Type
 Tipo

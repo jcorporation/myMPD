@@ -591,9 +591,6 @@ Volume
 Empty list
 Lege lijst
 
-Added stream %{streamUri} to queue
-Stream %{streamUri} aan wachtrij toevoegen
-
 Append to queue
 Aan wachtrij toevoegen
 
@@ -645,9 +642,6 @@ Voeg willekeurige toe
 never
 nooit
 
-Added %{uri} to playlist %{playlist}
-%{uri} aan afspeellijst %{playlist} toegevoegd
-
 Successfully added random songs to queue
 Willekeurig nummer aan wachtrij toegevoegd
 
@@ -698,18 +692,6 @@ min
 
 Seconds
 sec
-
-Added all songs
-Alle nummers toegevoegd
-
-%{name} added to queue
-%{name} toegevoegd
-
-%{name} added to queue position %{to}
-%{name} toegevoegd aan wachtrijpositie %{to}
-
-Queue replaced with %{name}
-Wachtrij vervangen door %{name}
 
 Type
 Type

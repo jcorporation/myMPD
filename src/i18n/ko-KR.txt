@@ -639,9 +639,6 @@ Volume
 Empty list
 목록 비우기
 
-Added stream %{streamUri} to queue
-%{streamUri} 스트리밍을 순서에 추가함
-
 Append to queue
 순서에 추가
 
@@ -689,9 +686,6 @@ Add random
 
 never
 안 함
-
-Added %{uri} to playlist %{playlist}
-%{uri}의 %{playlist} 연주목록 추가에 실패함
 
 Successfully added random songs to queue
 무작위 곡을 순서에 추가함
@@ -743,18 +737,6 @@ Minutes
 
 Seconds
 초
-
-Added all songs
-모든 곡을 추가함
-
-%{name} added to queue
-순서에 %{name} 추가함
-
-%{name} added to queue position %{to}
-%{to} 순서 위치에 %{name} 추가함
-
-Queue replaced with %{name}
-%{name} 순서 바꿈
 
 Type
 형식
@@ -1428,9 +1410,6 @@ Lookup at musicbrainz
 
 Play after current playing song
 현재 연주 중인 곡 다음에 연주
-
-Replaced queue
-순서 바꿈
 
 First page
 첫 페이지

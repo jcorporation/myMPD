@@ -642,9 +642,6 @@ Lautstärke
 Empty list
 Leere Liste
 
-Added stream %{streamUri} to queue
-Stream %{streamUri} zu Warteschlange hinzugefügt
-
 Append to queue
 An Warteschlange anhängen
 
@@ -692,9 +689,6 @@ Zufällig hinzufügen
 
 never
 noch nie
-
-Added %{uri} to playlist %{playlist}
-%{uri} zu Wiedergabeliste %{playlist} hinzugefügt
 
 Successfully added random songs to queue
 Zufällige Lieder wurden zur Warteschlange hinzugefügt
@@ -752,18 +746,6 @@ Min
 
 Seconds
 Sek
-
-Added all songs
-Alle Lieder hinzugefügt
-
-%{name} added to queue
-%{name} hinzugefügt
-
-%{name} added to queue position %{to}
-%{name} an Warteschlangenposition %{to} hinzugefügt
-
-Queue replaced with %{name}
-Warteschlange mit %{name} ersetzt
 
 Type
 Typ
@@ -1437,12 +1419,8 @@ Priorität des Liedes konnte nicht gesetzt werden
 Lookup at musicbrainz
 Bei Musicbraonz nachschlagen
 
-
 Play after current playing song
 Nach aktuellem Lied abspielen
-
-Replaced queue
-Warteschlange ersetzt
 
 First page
 Erste Seite
@@ -1914,3 +1892,21 @@ Methode ist nicht unterstützt
 
 Start playing newly added song failed
 Neu hinzugefügte Lieder konnten nicht wiedergegeben werden
+
+Current search
+Aktuelle Suche
+
+Home icon
+Homeicon
+
+Replaced the queue
+Warteschlange wurde ersetzt
+
+Updated the queue
+Warteschlange wurde aktualisiert
+
+Replaced the playlist %{playlist}
+Wiedergabeliste %{playlist} wurde ersetzt
+
+Updated the playlist %{playlist}
+Wiedergabeliste %{playlist} wurde aktualisiert
