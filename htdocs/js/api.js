@@ -22,21 +22,20 @@ function removeEnterPinFooter(footer) {
 }
 
 function createEnterPinFooter(footer, method, params, callback, onerror) {
-    const div = elCreateEmpty('div', {"class": ["row", "w-100"]});
-    div.appendChild(elCreateText('div', {"class": ["col-4", "pl-0"]}, tn('Enter pin')));
-    const gr = elCreateEmpty('div', {"class": ["input-group"]});
     const input = elCreateEmpty('input', {"type": "password", "class": ["form-control", "border-secondary"]});
-    gr.appendChild(input);
-    const ap = elCreateEmpty('div', {"class": ["input-group-append"]});
     const btn = elCreateText('button', {"class": ["btn", "btn-success"]}, tn('Enter'));
-    ap.appendChild(btn);
-    gr.appendChild(ap);
-    const col2 = elCreateEmpty('div', {"class": ["col-8", "pr-0"]});
-    col2.appendChild(gr);
-    div.appendChild(col2);
+    const newFooter = elCreateNode('div', {"class": ["modal-footer", "enterPinFooter"]}, 
+        elCreateNodes('div', {"class": ["row", "w-100"]}, [
+            elCreateText('label', {"class": ["col-4", "col-form-label", "ps-0"]}, tn('Enter pin')),
+            elCreateNode('div', {"class": ["col-8", "pe-0"]},
+                elCreateNodes('div', {"class": ["input-group"]}, [
+                    input,
+                    btn
+                ])
+            )
+        ])
+    );
     footer.classList.add('d-none');
-    const newFooter = elCreateEmpty('div', {"class": ["modal-footer", "enterPinFooter"]});
-    newFooter.appendChild(div);
     footer.parentNode.appendChild(newFooter);
     input.focus();
     btn.addEventListener('click', function() {

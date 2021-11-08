@@ -376,8 +376,7 @@ function parseDatabase(obj) {
     document.getElementById('BrowseDatabaseListList').classList.remove('opacity05');
 
     if (obj.error !== undefined) {
-        elClear(cardContainer);
-        cardContainer.appendChild(
+        elReplaceChild(cardContainer,
             elCreateText('div', {"class": ["col", "not-clickable", "alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
         );
         setPagination(0, 0);
@@ -386,8 +385,7 @@ function parseDatabase(obj) {
 
     const nrItems = obj.result.returnedEntities;
     if (nrItems === 0) {
-        elClear(cardContainer);
-        cardContainer.appendChild(
+        elReplaceChild(cardContainer,
             elCreateEmpty('div', {"class": ["col", "not-clickable", "alert", "alert-secondary"]}, tn('Empty list'))
         );
         setPagination(0, 0);
@@ -550,16 +548,15 @@ function parseAlbumDetails(obj) {
         row.setAttribute('title', rowTitle);
     });
 
-    const tr = elCreateEmpty('tr', {});
-    const td = elCreateEmpty('td', {"colspan": colspan + 1});
-    const small = elCreateEmpty('small', {});
-    small.appendChild(elCreateText('span', {}, tn('Num songs', obj.result.totalEntities)));
-    small.appendChild(elCreateText('span', {}, ' – '));
-    small.appendChild(elCreateText('span', {}, beautifyDuration(obj.result.totalTime)));
-    td.appendChild(small);
-    tr.appendChild(td);
-    elClear(tfoot);
-    tfoot.appendChild(tr);
+    elReplaceChild(tfoot,
+        elCreateNode('tr', {},
+            elCreateNode('td', {"colspan": colspan + 1},
+                elCreateNode('small', {},
+                    document.createTextNode(tn('Num songs', obj.result.totalEntities) + ' – ' + beautifyDuration(obj.result.totalTime))
+                )
+            )
+        )
+    );
 }
 
 //eslint-disable-next-line no-unused-vars

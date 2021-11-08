@@ -159,14 +159,17 @@ function parseListMounts(obj) {
             td1.textContent = obj.result.data[i].mountPoint;
         }
         row.appendChild(td1);
-        row.appendChild(elCreateText('td', {}, obj.result.data[i].mountUrl));
+        row.appendChild(
+            elCreateText('td', {}, obj.result.data[i].mountUrl)
+        );
         const actionTd = elCreateEmpty('td', {"data-col": "Action"});
-        
         if (obj.result.data[i].mountPoint !== '') {
-            const a1 = elCreateText('a', {"href": "#", "title": tn('Unmount'), "data-action": "unmount", "class": ["mi", "color-darkgrey"]}, 'delete');
-            const a2 = elCreateText('a', {"href": "#", "title": tn('Update'), "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh');
-            actionTd.appendChild(a1);
-            actionTd.appendChild(a2);
+            actionTd.appendChild(
+                elCreateText('a', {"href": "#", "title": tn('Unmount'), "data-action": "unmount", "class": ["mi", "color-darkgrey"]}, 'delete')
+            );
+            actionTd.appendChild(
+                elCreateText('a', {"href": "#", "title": tn('Update'), "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh')
+            );
         }
         row.appendChild(actionTd);
         if (i < tr.length) {
@@ -199,14 +202,12 @@ function parseNeighbors(obj) {
     }
 
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const a = elCreateEmpty('a', {"href": "#", "class": ["list-group-item", "list-group-item-action"]});
+        const a = elCreateNodes('a', {"href": "#", "class": ["list-group-item", "list-group-item-action"]}, [
+            elCreateText('span', {}, obj.result.data[i].uri),
+            elCreateEmpty('br', {}),
+            elCreateText('small', {}, obj.result.data[i].displayName)
+        ]);
         setData(a, 'data-value', obj.result.data[i].uri);
-        const span = elCreateText('span', {}, obj.result.data[i].uri);
-        const br = elCreateEmpty('br', {});
-        const small = elCreateText('small', {}, obj.result.data[i].displayName);
-        a.appendChild(span);
-        a.appendChild(br);
-        a.appendChild(small);
         dropdownNeighbors.appendChild(a);
     }    
 }
