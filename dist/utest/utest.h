@@ -43,6 +43,24 @@
    Disable warning about inlining functions that are not marked 'inline'.
 */
 #pragma warning(disable : 4711)
+
+#if _MSC_VER > 1900
+/*
+  Disable warning about preprocessor macros not being defined in MSVC headers.
+*/
+#pragma warning(disable : 4668)
+
+/*
+  Disable warning about no function prototype given in MSVC headers.
+*/
+#pragma warning(disable : 4255)
+
+/*
+  Disable warning about pointer or reference to potentially throwing function.
+*/
+#pragma warning(disable : 5039)
+#endif
+
 #pragma warning(push, 1)
 #endif
 
@@ -71,7 +89,16 @@ typedef uint64_t utest_uint64_t;
 #define UTEST_C_FUNC
 #endif
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) \
+	|| defined(__MINGW64__) \
+	|| defined(__MINGW32__)
+
+#if defined(__MINGW64__) || defined(__MINGW32__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpragmas"
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#endif
+
 // define UTEST_USE_OLD_QPC before #include "utest.h" to use old QueryPerformanceCounter
 #ifndef UTEST_USE_OLD_QPC
 #pragma warning(push, 0)
@@ -98,9 +125,13 @@ UTEST_C_FUNC __declspec(dllimport) int __stdcall QueryPerformanceCounter(
     utest_large_integer *);
 UTEST_C_FUNC __declspec(dllimport) int __stdcall QueryPerformanceFrequency(
     utest_large_integer *);
-#endif
-#elif defined(__linux__)
 
+#if defined(__MINGW64__) || defined(__MINGW32__)
+#pragma GCC diagnostic pop
+#endif
+#endif
+
+#elif defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 /*
    slightly obscure include here - we need to include glibc's features.h, but
    we don't want to just include a header that might not be defined for other
@@ -138,7 +169,25 @@ UTEST_C_FUNC __declspec(dllimport) int __stdcall QueryPerformanceFrequency(
 #define UTEST_PRIu64 PRIu64
 #endif
 
-#if defined(_MSC_VER)
+#if defined(__cplusplus)
+#define UTEST_INLINE inline
+
+#if defined(__clang__)
+#define UTEST_INITIALIZER_BEGIN_DISABLE_WARNINGS                               \
+  _Pragma("clang diagnostic push")                                             \
+      _Pragma("clang diagnostic ignored \"-Wglobal-constructors\"")
+
+#define UTEST_INITIALIZER_END_DISABLE_WARNINGS _Pragma("clang diagnostic pop")
+#else
+#define UTEST_INITIALIZER_BEGIN_DISABLE_WARNINGS
+#define UTEST_INITIALIZER_END_DISABLE_WARNINGS
+#endif
+
+#define UTEST_INITIALIZER(f)                                                   \
+  struct f##_cpp_struct { f##_cpp_struct(); }; \
+  UTEST_INITIALIZER_BEGIN_DISABLE_WARNINGS static f##_cpp_struct f##_cpp_global UTEST_INITIALIZER_END_DISABLE_WARNINGS; \
+  f##_cpp_struct::f##_cpp_struct()
+#elif defined(_MSC_VER)
 #define UTEST_INLINE __forceinline
 
 #if defined(_WIN64)
@@ -236,16 +285,16 @@ static UTEST_INLINE void *utest_realloc(void *const pointer, size_t new_size) {
 }
 
 static UTEST_INLINE utest_int64_t utest_ns(void) {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW64__) || defined(__MINGW32__)
   utest_large_integer counter;
   utest_large_integer frequency;
   QueryPerformanceCounter(&counter);
   QueryPerformanceFrequency(&frequency);
   return UTEST_CAST(utest_int64_t,
                     (counter.QuadPart * 1000000000) / frequency.QuadPart);
-#elif defined(__linux) && defined(__STRICT_ANSI__)
+#elif defined(__linux__) && defined(__STRICT_ANSI__)
   return UTEST_CAST(utest_int64_t, clock()) * 1000000000 / CLOCKS_PER_SEC;
-#elif defined(__linux)
+#elif defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
   struct timespec ts;
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
   timespec_get(&ts, TIME_UTC);
@@ -261,7 +310,9 @@ static UTEST_INLINE utest_int64_t utest_ns(void) {
 #elif __APPLE__
   return UTEST_CAST(utest_int64_t, mach_absolute_time());
 #elif __EMSCRIPTEN__	                                    
-	return emscripten_performance_now()*1000000.0; 
+	return emscripten_performance_now() * 1000000.0;
+#else
+#error Unsupported platform!
 #endif
 }
 
@@ -1036,7 +1087,9 @@ int utest_main(int argc, const char *const argv[]) {
       failed_testcases = UTEST_PTR_CAST(
           size_t *, utest_realloc(UTEST_PTR_CAST(void *, failed_testcases),
                                   sizeof(size_t) * failed_testcases_length));
-      failed_testcases[failed_testcase_index] = index;
+      if (UTEST_NULL != failed_testcases) {
+        failed_testcases[failed_testcase_index] = index;
+      }
       failed++;
       printf("%s[  FAILED  ]%s %s (%" UTEST_PRId64 "ns)\n", colours[RED],
              colours[RESET], utest_state.tests[index].name, ns);
