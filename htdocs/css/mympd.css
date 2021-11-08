@@ -1151,3 +1151,10 @@ div.alert-secondary::before {
   font-feature-settings: 'liga';
   margin-right: 0.5rem;
 }
+
+div.alert-secondary {
+  background-color: transparent;
+  border-color: transparent;
+  color: inherit;
+  margin-bottom: 0;
+}
