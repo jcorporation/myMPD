@@ -7,7 +7,7 @@
 project (mympd C)
 set(CPACK_PACKAGE_VERSION_MAJOR "8")
 set(CPACK_PACKAGE_VERSION_MINOR "1")
-set(CPACK_PACKAGE_VERSION_PATCH "5")
+set(CPACK_PACKAGE_VERSION_PATCH "6")
 
 cmake_minimum_required(VERSION 3.4)
 
