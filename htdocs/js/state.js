@@ -21,7 +21,23 @@ function parseStats(obj) {
     document.getElementById('mpdstatsMympd_uptime').textContent = beautifyDuration(obj.result.myMPDuptime);
     document.getElementById('mpdstatsDbUpdated').textContent = localeDate(obj.result.dbUpdated);
     document.getElementById('mympdVersion').textContent = obj.result.mympdVersion;
-    document.getElementById('mpdInfoVersion').textContent = obj.result.mpdProtocolVersion;
+    
+    const mpdInfoVersionEl = document.getElementById('mpdInfoVersion');
+    elClear(mpdInfoVersionEl);
+    mpdInfoVersionEl.appendChild(document.createTextNode(obj.result.mpdProtocolVersion));
+    
+    const mpdProtocolVersion = obj.result.mpdProtocolVersion.match(/(\d+)\.(\d+)\.(\d+)/);
+    if (mpdProtocolVersion[1] >= 0 &&
+        mpdProtocolVersion[2] >= 23 &&
+        mpdProtocolVersion[3] >= 3)
+    {
+        //up2date mpd version
+    }
+    else {
+        mpdInfoVersionEl.appendChild(
+            elCreateText('div', {"class": ["alert", "alert-warning", "mt-2", "mb-1"], "data-phrase": 'MPD version is outdated'}, tn('MPD version is outdated'))
+        );
+    }
 }
 
 function getServerinfo() {
@@ -259,7 +275,9 @@ function _clearCurrentCover(el) {
 }
 
 function songChange(obj) {
-    const newSong = obj.result.uri + ':' + obj.result.currentSongId;
+    //check for song change
+    //use title to detect stream changes
+    const newSong = obj.result.uri + ':' + obj.result.Title + ':' + obj.result.currentSongId;
     if (currentSong === newSong) {
         return;
     }

@@ -97,7 +97,7 @@
       <a id="navScripting" class="subMenu featScripting dropdown-item alwaysEnabled" data-bs-toggle="collapse" href="#scripts"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
       <div id="scripts" class="featScripting noInitChilds collapse"></div>
       <div class="dropdown-divider"></div>
-      <a id="navNotifications" class="subMenu dropdown-item alwaysEnabled" data-bs-toggle="collapse" href="#menu-notifications"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Notifications"></span></a>
+      <a id="navNotifications" class="subMenu dropdown-item alwaysEnabled" data-bs-toggle="collapse" href="#menu-notifications"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Notifications"></span> <span class="badge bg-secondary" id="notificationCount">0</span></a>
       <div id="menu-notifications" class="collapse menu-indent">
         <div id="logOverview" class="ps-4 pe-2"></div>
       </div>
@@ -206,7 +206,7 @@
             <button id="btnQueueGotoPlayingSong" data-title-phrase="Goto playing song" type="button" class="btn btn-secondary mi" data-href='{"cmd": "gotoPlayingSong", "options": []}'>playlist_play</button>
           </div>
           <div class="btn-group me-2 featHome">
-            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
           <div id="QueueCurrentPaginationTop" class="btn-group me-2 pagination">
           </div>
@@ -253,7 +253,7 @@
             </div>
           </form>
           <div class="btn-group me-2 featHome">
-            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
           <div id="QueueLastPlayedPaginationTop" class="btn-group me-2 pagination">
           </div>
@@ -298,7 +298,7 @@
             </div>
           </form>
           <div class="btn-group me-2 featHome">
-            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
           <div id="QueueJukeboxPaginationTop" class="btn-group me-2 pagination">
           </div>
@@ -352,7 +352,7 @@
             </div>
           </div>
           <div class="btn-group me-2 featHome">
-            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
           <div id="BrowsePlaylistsListPaginationTop" class="btn-group me-2 pagination">
           </div>
@@ -400,7 +400,7 @@
               <button data-title-phrase="Update smart playlist" type="button" class="btn btn-secondary mi rounded-end me-2" data-href='{"cmd": "updateSmartPlaylistClick", "options": []}'>refresh</button>
             </div>
             <div class="btn-group me-2 featHome">
-              <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
             </div>
             <div id="BrowsePlaylistsDetailPaginationTop" class="btn-group me-2 pagination">
             </div>
@@ -465,7 +465,7 @@
               </div>
             </div>
             <div class="btn-group me-2 featHome">
-              <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
+              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
             </div>
             <div id="BrowseDatabaseListPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
@@ -496,7 +496,7 @@
               </div>
             </div>
             <div class="btn-group me-2 featHome">
-              <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
+              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
             </div>
           </div>
           <div class="table-responsive-md scrollContainer">
@@ -549,7 +549,7 @@
             </div>
           </div>
           <div class="btn-group me-2 featHome">
-            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
+            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
           <div id="BrowseFilesystemPaginationTop" class="btn-group me-2 pagination">
           </div>
@@ -616,7 +616,7 @@
             </div>
           </div>
           <div class="btn-group me-2 featHome">
-            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>              
+            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
           <div id="SearchPaginationTop" class="btn-group me-2 pagination">
           </div>
@@ -756,7 +756,7 @@
             <div class="row mb-3 featPlaylists">
               <div class="col-sm-4"></div>
               <div class="col-sm-8">
-                <button id="toggleAddToPlaylistBtn" class="btn btn-secondary me-2" data-href='{"cmd": "toggleAddToPlaylistFrm", "options":[]}' data-phrase="Add to playlist"></button>
+                <button id="toggleAddToPlaylistBtn" class="btn btn-secondary me-2 mb-2" data-href='{"cmd": "toggleAddToPlaylistFrm", "options":[]}' data-phrase="Add to playlist"></button>
                 <button type="button" class="btn btn-secondary" data-href='{"cmd": "addStreamToHome", "options": []}' data-phrase="Add to home screen"></button>
               </div>
             </div>
@@ -1110,14 +1110,12 @@
                     <button data-bs-toggle="collapse" data-bs-target="#collapseEnableLyrics" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnableLyrics"></button>
                   </div>
                 </div>
-                <div class="collapse" id="collapseEnableLyrics">
-                </div>
+                <div class="collapse" id="collapseEnableLyrics"></div>
                 <div id="warnbtnEnableLyrics" class="alert alert-warning" data-phrase="Music directory not available"></div>
               </form>
               <hr/>
               <h4 data-phrase="Further Features"></h4>
-              <form id="enableFeaturesFrm">
-              </form>
+              <form id="enableFeaturesFrm"></form>
             </div>
             <div class="tab-pane" id="tabMaintenance">
               <form id="MaintenanceFrm">
@@ -1562,7 +1560,6 @@
               </div>
             </div>
           </form>
-          <div id="warnJukeboxPlaylist2" class="alert alert-warning d-none" data-phrase="Sorry, your MPD version is too old"></div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>

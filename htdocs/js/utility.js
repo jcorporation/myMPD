@@ -1076,15 +1076,6 @@ function printValue(key, value) {
     }
 }
 
-function addIconLine(el, ligature, text) {
-    el.appendChild(
-        elCreateText('span', {"class": ["mi", "me-2"]}, ligature)
-    );
-    el.appendChild(
-        document.createTextNode(text)
-    );
-}
-
 function getTimestamp() {
     return Math.floor(Date.now() / 1000);
 }

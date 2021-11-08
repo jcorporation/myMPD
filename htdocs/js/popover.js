@@ -494,14 +494,17 @@ function createMenuHome(el, tabHeader, tabContent) {
     }
     let type = '';
     let title = '';
+    let actionDesc = '';
     switch(href.cmd) {
         case 'appGoto':
             type = 'view';
             title = 'View';
+            actionDesc = 'Goto view';
             break;
         case 'execScriptFromOptions':
             type = 'script';
             title = 'Script';
+            actionDesc = 'Execute script';
             break;
         case 'replaceQueueAlbum':
         case 'appendQueueAlbum':
@@ -516,23 +519,29 @@ function createMenuHome(el, tabHeader, tabContent) {
         case 'insertAfterCurrentQueue':
             type = href.options[0];
             title = typeFriendly[href.options[0]];
-            break;
     }
     tabHeader.textContent = tn(title);
-    if (type === 'plist' || type === 'smartpls') {
-        addMenuItemsPlaylistActions(tabContent, type, href.options[1], href.options[1]);
-    }
-    else if (type === 'dir') {
-        addMenuItemsDirectoryActions(tabContent, href.options[1]);
-    }
-    else if (type === 'song' || type === 'stream') {
-        addMenuItemsSongActions(tabContent, href.options[1], href.options[1]);
-    }
-    else if (type === 'search') {
-        addMenuItemsSearchActions(tabContent, href.options[1]);
-    }
-    else if (type === 'album') {
-        addMenuItemsAlbumActions(tabContent, href.options[1], href.options[2]);
+    switch(type) {
+        case 'plist':
+        case 'smartpls':
+            addMenuItemsPlaylistActions(tabContent, type, href.options[1], href.options[1]);
+            break;
+        case 'dir':
+            addMenuItemsDirectoryActions(tabContent, href.options[1]);
+            break;
+        case 'song':
+        case 'stream':
+            addMenuItemsSongActions(tabContent, href.options[1], href.options[1]);
+            break;
+        case 'search':
+            addMenuItemsSearchActions(tabContent, href.options[1]);
+            break;
+        case 'album':
+            addMenuItemsAlbumActions(tabContent, href.options[1], href.options[2]);
+            break;
+        case 'view':
+        case 'script':
+            addMenuItem(tabContent, {"cmd": "executeHomeIcon", "options": [pos]}, actionDesc);
     }
     tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
     tabContent.appendChild(elCreateText('h2', {"class": ["dropdown-header"]}, tn('Home icon')));

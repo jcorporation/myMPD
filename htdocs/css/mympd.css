@@ -1100,3 +1100,54 @@ input[is=mympd-select-search][readonly] {
 .dropdownWide {
   min-width: 15rem;
 }
+
+div.alert-warning::before {
+  content: "warning";
+  float: left;
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  vertical-align: top;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'liga';
+  margin-right: 0.5rem;
+}
+
+div.alert-danger::before {
+  content: "error_outline";
+  float: left;
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  vertical-align: top;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'liga';
+  margin-right: 0.5rem;
+}
+
+div.alert-secondary::before {
+  content: "info";
+  float: left;
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  vertical-align: top;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'liga';
+  margin-right: 0.5rem;
+}

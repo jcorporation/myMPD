@@ -31,10 +31,9 @@ function initMounts() {
         }
         else {
             const dropdownNeighbors = document.getElementById('dropdownNeighbors').children[0];
-            elClear(dropdownNeighbors);
-            const div = elCreateEmpty('div', {"class": ["list-group-item", "nowrap"]});
-            addIconLine(div, 'warning', tn('Neighbors are disabled'));
-            dropdownNeighbors.appendChild(div);
+            elReplaceChild(dropdownNeighbors,
+                elCreateEmpty('div', {"class": ["list-group-item", "nowrap"]}, tn('Neighbors are disabled'))
+            );
         }
     }, false);
     
@@ -187,15 +186,15 @@ function parseNeighbors(obj) {
     elClear(dropdownNeighbors);
 
     if (obj.error) {
-        const div = elCreateEmpty('div', {"class": ["list-group-item"]});
-        addIconLine(div, 'error_outline', tn(obj.error.message));
-        dropdownNeighbors.appendChild(div);
+        dropdownNeighbors.appendChild(
+            elCreateText('div', {"class": ["list-group-item", "alert", "alert-danger"]}, tn(obj.error.message))
+        );
         return;
     }
     if (obj.result.returnedEntities === 0) {
-        const div = elCreateEmpty('div', {"class": ["list-group-item"]});
-        addIconLine(div, 'info', tn('Empty list'));
-        dropdownNeighbors.appendChild(div);
+        dropdownNeighbors.appendChild(
+            elCreateText('div', {"class": ["list-group-item", "alert", "alert-secondary"]}, tn('Empty list'))
+        );
         return;
     }
 

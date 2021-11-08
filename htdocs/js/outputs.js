@@ -39,15 +39,15 @@ function parseOutputs(obj) {
     const outputList = document.getElementById('outputs');
     elClear(outputList);
     if (obj.error) {
-        const div = elCreateEmpty('div', {"class": ["list-group-item"]});
-        addIconLine(div, 'error_outline', tn(obj.error.message));
-        outputList.appendChild(div);
+        outputList.appendChild(
+            elCreateEmpty('div', {"class": ["list-group-item", "alert", "alert-danger"]}, tn(obj.error.message))
+        );
         return;
     }
     if (obj.result.numOutputs === 0) {
-        const div = elCreateEmpty('div', {"class": ["list-group-item"]});
-        addIconLine(div, 'info', tn('Empty list'));
-        outputList.appendChild(div);
+        outputList.appendChild(
+            elCreateEmpty('div', {"class": ["list-group-item", "alert", "alert-secondary"]}, tn('Empty list'))
+        );
         return;
     }
 

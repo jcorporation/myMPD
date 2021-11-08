@@ -496,31 +496,27 @@ function tableRow(row, data, list, colspan, smallWidth) {
 }
 
 function emptyRow(colspan) {
-    const tr = elCreateText('tr', {"class": ["not-clickable"]});
-    const td = elCreateText('td', {"colspan": colspan});
-    addIconLine(td, 'info', tn('Empty list'));
-    tr.appendChild(td);
-    return tr;
+    return elCreateNode('tr', {"class": ["not-clickable"]},
+        elCreateNode('td', {"colspan": colspan},
+            elCreateText('div', {"class": ["alert", "alert-secondary"]}, tn('Empty list'))
+        )
+    );
 }
 
 function errorRow(obj, colspan) {
-    const tr = elCreateEmpty('tr', {"class": ["not-clickable"]});
-    const td = elCreateEmpty('td', {"colspan": colspan});
-    const div = elCreateEmpty('div', {"class": ["alert", "alert-danger"]});
-    addIconLine(div, 'error_outline', tn(obj.error.message, obj.error.data));
-    td.appendChild(div);
-    tr.appendChild(td);
-    return tr;
+    return elCreateNode('tr', {"class": ["not-clickable"]},
+        elCreateNode('td', {"colspan": colspan},
+            elCreateText('div', {"class": ["alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
+        )
+    );
 }
 
 function warningRow(message, colspan) {
-    const tr = elCreateEmpty('tr', {"class": ["not-clickable"]});
-    const td = elCreateEmpty('td', {"colspan": colspan});
-    const div = elCreateEmpty('div', {"class": ["alert", "alert-warning"]});
-    addIconLine(div, 'warning', tn(message));
-    td.appendChild(div);
-    tr.appendChild(td);
-    return tr;
+    return elCreateNode('tr', {"class": ["not-clickable"]},
+        elCreateNode('td', {"colspan": colspan},
+            elCreateText('div', {"class": ["alert", "alert-warning"]}, tn(message))
+        )
+    );
 }
 
 function checkResult(obj, tbody, colspan) {

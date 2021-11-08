@@ -167,10 +167,9 @@ function parseHome(obj) {
     const cardContainer = document.getElementById('HomeList');
     const cols = cardContainer.getElementsByClassName('col');
     if (obj.error !== undefined) {
-        elClear(cardContainer);
-        const div = elCreateEmpty('div', {"class": ["ms-3", "mb-3", "not-clickable", "alert", "alert-danger"]});
-        addIconLine(div, 'error_outline', tn(obj.error.message, obj.error.data));
-        cardContainer.appendChild(div);
+        elReplaceChild(cardContainer,
+            elCreateText('div', {"class": ["ms-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
+        );
         setPagination(obj.result.totalEntities, obj.result.returnedEntities);    
         return;
     }
@@ -209,7 +208,9 @@ function parseHome(obj) {
     }
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0"]});
-        const homeType = typeFriendly[obj.result.data[i].options[0]];
+        const homeType = obj.result.data[i].cmd === 'appGoto' ? 'View' :
+            obj.result.data[i].cmd === 'execScriptFromOptions' ? 'Script' :
+            typeFriendly[obj.result.data[i].options[0]];
         
         const card = elCreateEmpty('div', {"class": ["card", "home-icons"], "tabindex": 0, "draggable": "true",
             "title": tn(homeType) + ': ' + obj.result.data[i].name});
@@ -333,14 +334,14 @@ function dragAndDropHome() {
     }, false);
 }
 
-function populateHomeIconCmdSelect(type) {
+function populateHomeIconCmdSelect(cmd, type) {
     const selectHomeIconCmd = document.getElementById('selectHomeIconCmd');
     elClear(selectHomeIconCmd);
-    if (type === 'view') {
+    if (cmd === 'appGoto') {
         selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appGoto"}, tn('Goto view')));
         setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
     }
-    else if (type === 'script') {
+    else if (cmd === 'execScriptFromOptions') {
         selectHomeIconCmd.appendChild(elCreateText('option', {"value": "execScriptFromOptions"}, tn('Execute Script')));
         setData(selectHomeIconCmd.lastChild, 'data-options', {"options":["Script", "Arguments"]});
     }
@@ -440,7 +441,7 @@ function _addHomeIcon(cmd, name, ligature, options) {
     document.getElementById('inputHomeIconBgcolor').value = '#28a745';
     document.getElementById('inputHomeIconColor').value = '#ffffff';
     
-    populateHomeIconCmdSelect(options[0]);
+    populateHomeIconCmdSelect(cmd, options[0]);
     document.getElementById('selectHomeIconCmd').value = cmd;
     showHomeIconCmdOptions(options);
     getHomeIconPictureList('');
@@ -474,7 +475,7 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('inputHomeIconColor').value = obj.result.data.color;
         document.getElementById('selectHomeIconCmd').value = obj.result.data.cmd;
 
-        populateHomeIconCmdSelect(obj.result.data.options[0]);
+        populateHomeIconCmdSelect(obj.result.data.cmd, obj.result.data.options[0]);
         showHomeIconCmdOptions(obj.result.data.options);
         getHomeIconPictureList(obj.result.data.image);
 

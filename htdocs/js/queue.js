@@ -48,7 +48,7 @@ function initQueue() {
         }
     }, false);
 
-    document.getElementById('selectAddToQueueMode').addEventListener('change', function () {
+    document.getElementById('selectAddToQueueMode').addEventListener('change', function() {
         const value = getSelectValue(this);
         if (value === '2') {
             elDisableId('inputAddToQueueQuantity');
@@ -62,9 +62,8 @@ function initQueue() {
         }
     });
 
-    document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function () {
+    document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function() {
         removeIsInvalid(document.getElementById('modalAddToQueue'));
-        elHideId('warnJukeboxPlaylist2');
         document.getElementById('selectAddToQueuePlaylist').value = tn('Database');
         setDataId('selectAddToQueuePlaylist', 'data-value', 'Database');
         document.getElementById('selectAddToQueuePlaylist').filterInput.value = '';
@@ -76,14 +75,14 @@ function initQueue() {
     setDataId('selectAddToQueuePlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
     setDataId('selectAddToQueuePlaylist', 'data-cb-filter-options', [0, 'selectAddToQueuePlaylist']);
 
-    document.getElementById('modalSaveQueue').addEventListener('shown.bs.modal', function () {
+    document.getElementById('modalSaveQueue').addEventListener('shown.bs.modal', function() {
         const plName = document.getElementById('saveQueueName');
         plName.focus();
         plName.value = '';
         removeIsInvalid(document.getElementById('modalSaveQueue'));
     });
 
-    document.getElementById('modalSetSongPriority').addEventListener('shown.bs.modal', function () {
+    document.getElementById('modalSetSongPriority').addEventListener('shown.bs.modal', function() {
         const prioEl = document.getElementById('inputSongPriority');
         prioEl.focus();
         prioEl.value = '';
@@ -199,7 +198,6 @@ function parseQueue(obj) {
         }
     }, function(row, data) {
         tableRow(row, data, app.id, colspan, smallWidth);
-
         if (currentState && currentState.currentSongId === data.id) {
             setPlayingRow(row, currentState.elapsedTime, data.Duration);
         }
@@ -309,6 +307,7 @@ function appendQueue(type, uri, callback) {
     switch(type) {
         case 'song':
         case 'dir':
+        case 'stream':
             sendAPI("MYMPD_API_QUEUE_APPEND_URI", {
                 "uri": uri
             }, callback, true);
@@ -328,18 +327,19 @@ function appendQueue(type, uri, callback) {
 
 //eslint-disable-next-line no-unused-vars
 function insertAndPlayQueue(type, uri, callback) {
-    insertQueue(type, uri, 0, 1, true, callback)
+    insertQueue(type, uri, 0, 1, true, callback);
 }
 
 //eslint-disable-next-line no-unused-vars
 function insertAfterCurrentQueue(type, uri, callback) {
-    insertQueue(type, uri, 0, 1, false, callback)
+    insertQueue(type, uri, 0, 1, false, callback);
 }
 
 function insertQueue(type, uri, to, whence, play, callback) {
     switch(type) {
         case 'song':
         case 'dir':
+        case 'stream':
             sendAPI("MYMPD_API_QUEUE_INSERT_URI", {
                 "uri": uri,
                 "to": to,
@@ -369,6 +369,7 @@ function insertQueue(type, uri, to, whence, play, callback) {
 function replaceQueue(type, uri, callback) {
     switch(type) {
         case 'song':
+        case 'stream':
         case 'dir':
             sendAPI("MYMPD_API_QUEUE_REPLACE_URI", {
                 "uri": uri

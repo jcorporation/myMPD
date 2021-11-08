@@ -19,8 +19,7 @@ function toggleAlert(alertBox, state, msg) {
         elClear(alertBoxEl);
     }
     else {
-        elClear(alertBoxEl);
-        addIconLine(alertBoxEl, 'error', msg);
+        alertBoxEl.textContent = msg;
         if (alertBox === 'alertMpdStatusError') {
             const clBtn = elCreateEmpty('button', {"class": ["btn-close", "btn-close-alert"]});
             alertBoxEl.appendChild(clBtn);
@@ -58,7 +57,6 @@ const facilities = {
 function showNotification(title, text, facility, severity) {
     setStateIcon();
     logMessage(title, text, facility, severity);
-
     if (severity === 'info') {
         //notifications with severity info can be hidden
         if (settings.webuiSettings.notifyPage === false &&
@@ -82,22 +80,23 @@ function showNotification(title, text, facility, severity) {
         const notification = new Notification(title, {icon: 'assets/favicon.ico', body: text});
         setTimeout(notification.close.bind(notification), 3000);
     }
-
-    const toast = elCreateEmpty('div', {"class": ["toast"]});
-    const toastHeader = elCreateEmpty('div', {"class": ["toast-header"]});
-    toastHeader.appendChild(getSeverityIcon(severity));
-    toastHeader.appendChild(elCreateText('strong', {"class": ["me-auto"]}, title));
-    toastHeader.appendChild(elCreateEmpty('button', {"type": "button", "class": ["btn-close"], "data-bs-dismiss": "toast"}));
-    toast.appendChild(toastHeader);
-    if (text !== '') {
-        toast.appendChild(elCreateText('div', {"class": ["toast-body"]}, text));
+    if (settings.webuiSettings.notifyPage === true) {
+        const toast = elCreateEmpty('div', {"class": ["toast"]});
+        const toastHeader = elCreateEmpty('div', {"class": ["toast-header"]});
+        toastHeader.appendChild(getSeverityIcon(severity));
+        toastHeader.appendChild(elCreateText('strong', {"class": ["me-auto"]}, title));
+        toastHeader.appendChild(elCreateEmpty('button', {"type": "button", "class": ["btn-close"], "data-bs-dismiss": "toast"}));
+        toast.appendChild(toastHeader);
+        if (text !== '') {
+            toast.appendChild(elCreateText('div', {"class": ["toast-body"]}, text));
+        }
+        document.getElementById('alertBox').prepend(toast);
+        const toastInit = new BSN.Toast(toast, {delay: 2500});
+        toast.addEventListener('hidden.bs.toast', function() {
+            this.remove();
+        }, false);
+        toastInit.show();
     }
-    document.getElementById('alertBox').prepend(toast);
-    const toastInit = new BSN.Toast(toast, {delay: 2500});
-    toast.addEventListener('hidden.bs.toast', function() {
-        this.remove();
-    }, false);
-    toastInit.show();
 }
 
 function getSeverityIcon(severity) {
@@ -140,8 +139,10 @@ function logMessage(title, text, facility, severity) {
     setData(entry, 'data-occurence', occurence);
     entry.appendChild(elCreateNode('div', {"class": ["col", "col-1", "ps-0"]}, getSeverityIcon(severity)));
     const col = elCreateEmpty('div', {"class": ["col", "col-11"]});  
-    col.appendChild(elCreateText('small', {}, localeDate() + ' - ' + tn(facility) +
-        (occurence > 1 ? '&nbsp;(' + occurence + ')' : '')));
+    col.appendChild(elCreateText('small', {}, localeDate() + ' - ' + tn(facility) + '  '));
+    if (occurence > 1) {
+        col.appendChild(elCreateText('div', {"class": ["badge", "bg-secondary"]}, occurence));
+    }
     col.appendChild(elCreateText('p', {"class": ["mb-0"]}, title));
     if (text !== '') {
         col.appendChild(elCreateText('p', {"class": ["mb-0"]}, text));
@@ -155,10 +156,11 @@ function logMessage(title, text, facility, severity) {
         overview.replaceChild(entry, lastEntry);
     }
    
-    const overviewRowss = overview.getElementsByClassName('row');
-    if (overviewRowss.length > 10) {
-        overviewRowss[10].remove();
+    const overviewRows = overview.getElementsByClassName('row');
+    if (overviewRows.length > 10) {
+        overviewRows[10].remove();
     }
+    document.getElementById('notificationCount').innerText = overviewRows.length;
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -251,8 +253,7 @@ function toggleTopAlert() {
 function showModalAlert(obj) {
     const aModal = getOpenModal();
     const activeAlert = aModal.getElementsByClassName('modalAlert')[0];
-    const div = elCreateEmpty('div', {"class": ["alert", "alert-danger", "modalAlert"]});
-    addIconLine(div, 'error_outline', tn(obj.error.message, obj.error.data));
+    const div = elCreateText('div', {"class": ["alert", "alert-danger", "modalAlert"]}, tn(obj.error.message, obj.error.data));
     if (activeAlert === undefined) {
         aModal.getElementsByClassName('modal-body')[0].appendChild(div);
     }

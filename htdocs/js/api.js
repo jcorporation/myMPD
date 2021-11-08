@@ -47,9 +47,9 @@ function createEnterPinFooter(footer, method, params, callback, onerror) {
                 alert.remove();
             }
             if (obj.error) {
-                const em = elCreateEmpty('div', {"class": ["alert", "alert-danger", "p-2", "w-100"]});
-                addIconLine(em, 'error_outline', tn(obj.error.message));
-                newFooter.appendChild(em);
+                newFooter.appendChild(
+                    elCreateText('div', {"class": ["alert", "alert-danger", "p-2", "w-100"]}, tn(obj.error.message))
+                );
             }
             else if (obj.result.session !== '') {
                 session.token = obj.result.session;
@@ -90,8 +90,7 @@ function enterPin(method, params, callback, onerror) {
                 document.getElementById('inputPinModal').value = '';
                 if (obj.error) {
                     const em = document.getElementById('modalEnterPinMessage');
-                    elClear(em);
-                    addIconLine(em, 'error_outline', tn(obj.error.message));
+                    em.textContent = tn(obj.error.message);
                     elShow(em);
                 }
                 else if (obj.result.session !== '') {
@@ -216,7 +215,7 @@ function sendAPI(method, params, callback, onerror) {
                 }
                 else if (obj.result && obj.result.message && obj.result.message !== 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
-                    if (ignoreMessages.includes(obj.result.message) === false && onerror !== true) {
+                    if (ignoreMessages.includes(obj.result.message) === false) {
                         showNotification(tn(obj.result.message, obj.result.data), '', obj.result.facility, obj.result.severity);
                     }
                 }

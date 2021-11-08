@@ -377,9 +377,9 @@ function parseDatabase(obj) {
 
     if (obj.error !== undefined) {
         elClear(cardContainer);
-        const div = elCreateEmpty('div', {"class": ["col", "not-clickable", "alert", "alert-danger"]});
-        addIconLine(div, 'error_outline', tn(obj.error.message, obj.error.data));
-        cardContainer.appendChild(div);
+        cardContainer.appendChild(
+            elCreateText('div', {"class": ["col", "not-clickable", "alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
+        );
         setPagination(0, 0);
         return;
     }
@@ -387,9 +387,9 @@ function parseDatabase(obj) {
     const nrItems = obj.result.returnedEntities;
     if (nrItems === 0) {
         elClear(cardContainer);
-        const div = elCreateEmpty('div', {"class": ["col", "not-clickable"]});
-        addIconLine(div, 'info', tn('Empty list'));
-        cardContainer.appendChild(div);
+        cardContainer.appendChild(
+            elCreateEmpty('div', {"class": ["col", "not-clickable", "alert", "alert-secondary"]}, tn('Empty list'))
+        );
         setPagination(0, 0);
         return;
     }

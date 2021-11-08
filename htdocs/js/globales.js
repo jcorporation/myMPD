@@ -596,5 +596,7 @@ const typeFriendly = {
     'song': 'Song',
     'search': 'Search',
     'album': 'Album',
-    'stream': 'Stream'
+    'stream': 'Stream',
+    'view': 'View',
+    'script': 'Script'
 };

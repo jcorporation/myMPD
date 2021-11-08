@@ -699,7 +699,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
             col.appendChild(elCreateText('div', {"class": ["invalid-feedback"], "data-phrase": defaults[key].invalid}, tn(defaults[key].invalid)));
         }
         if (defaults[key].warn !== undefined) {
-            col.appendChild(elCreateText('div', {"id": "warn" + prefix + r(key), "class": ["alert", "alert-warning", "d-none"]}, tn(defaults[key].warn)));
+            col.appendChild(elCreateText('div', {"id": "warn" + prefix + r(key), "class": ["mt-2", "mb-1", "alert", "alert-warning", "d-none"], "data-prase": defaults[key].warn}, tn(defaults[key].warn)));
         }
 
         advFrm[form].appendChild(
