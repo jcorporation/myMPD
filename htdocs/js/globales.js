@@ -12,6 +12,7 @@ let lastSongObj = {};
 let lastState;
 const currentSong = {};
 let playstate = '';
+let websocketKeepAliveTimer = null;
 let settings = {"loglevel": 2};
 let settingsParsed = 'no';
 let alertTimeout = null;
