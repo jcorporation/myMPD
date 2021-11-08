@@ -19,27 +19,27 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
                       const char *expression, const char *sort, const bool sortdesc, 
                       const char *grouptag, const char *plist, unsigned to, unsigned whence,
                       const unsigned offset, unsigned limit, const struct t_tags *tagcols, bool adv,
-                      const char *searchtag, rax *sticker_cache);
+                      const char *searchtag, rax *sticker_cache, bool *result);
 //public functions
 sds mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *searchstr, const char *searchtag, const char *plist, 
                       const unsigned offset, unsigned limit, const struct t_tags *tagcols,
-                      rax *sticker_cache)
+                      rax *sticker_cache, bool *result)
 {
     return _mpd_shared_search(mpd_state, buffer, method, request_id, 
                               searchstr, NULL, false, NULL, plist, 0, 0, offset, limit,
-                              tagcols, false, searchtag, sticker_cache);
+                              tagcols, false, searchtag, sticker_cache, result);
 }
 
 sds mpd_shared_search_adv(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                           const char *expression, const char *sort, const bool sortdesc, 
                           const char *grouptag, const char *plist, unsigned to, unsigned whence,
                           const unsigned offset, unsigned limit, const struct t_tags *tagcols,
-                          rax *sticker_cache)
+                          rax *sticker_cache, bool *result)
 {
     return _mpd_shared_search(mpd_state, buffer, method, request_id, 
                               expression, sort, sortdesc, grouptag, plist, to, whence, offset, limit,
-                              tagcols, true, NULL, sticker_cache);
+                              tagcols, true, NULL, sticker_cache, result);
 }
 
 
@@ -60,8 +60,9 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
                       const char *expression, const char *sort, const bool sortdesc, 
                       const char *grouptag, const char *plist, unsigned to, unsigned whence,
                       const unsigned offset, unsigned limit, const struct t_tags *tagcols, bool adv,
-                      const char *searchtag, rax *sticker_cache)
+                      const char *searchtag, rax *sticker_cache, bool *result)
 {
+    *result = false;
     if (strcmp(expression, "") == 0) {
         MYMPD_LOG_ERROR("No search expression defined");
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "mpd", "error", "No search expression defined");
@@ -223,5 +224,6 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
     if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
        return buffer;
     }
+    *result = true;
     return buffer;
 }

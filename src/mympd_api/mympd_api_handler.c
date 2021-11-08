@@ -941,7 +941,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf2, vcb_isname, &error) == true)
             {
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
-                    sds_buf2, NULL, false, NULL, sds_buf1, UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache);
+                    sds_buf2, NULL, false, NULL, sds_buf1, UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
                 if (result == true) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
                         "playlist", "info", "Updated the playlist %{playlist}", 2, "playlist", sds_buf1);
@@ -974,7 +974,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     break;
                 }
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
-                    sds_buf2, NULL, false, NULL, sds_buf1, UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache);
+                    sds_buf2, NULL, false, NULL, sds_buf1, UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
                 if (result == true) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
                         "playlist", "info", "Replaced the playlist %{playlist}", 2, "playlist", sds_buf1);
@@ -1146,7 +1146,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         case MYMPD_API_QUEUE_APPEND_SEARCH:
             if (json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
-                    sds_buf1, NULL, false, NULL, "queue", UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache);
+                    sds_buf1, NULL, false, NULL, "queue", UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
+                if (result == true) {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
+                        "queue", "info", "Updated the queue");
+                }
             }
             break;
         case MYMPD_API_QUEUE_INSERT_SEARCH:
@@ -1168,14 +1172,19 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 }
                 //stop workaround for missing whence feature
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
-                    sds_buf1, NULL, false, NULL, "queue", uint_buf1, uint_buf2, 0, 0, NULL, mympd_state->sticker_cache);
-                if (bool_buf1 == true) {
-                    //add and play
-                    rc = mympd_api_queue_play_newly_inserted(mympd_state);
-                    if (rc == false) {
-                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
-                            "queue", "error", "Start playing newly added song failed");
+                    sds_buf1, NULL, false, NULL, "queue", uint_buf1, uint_buf2, 0, 0, NULL, mympd_state->sticker_cache, &result);
+                if (result == true) {
+                    if (bool_buf1 == true) {
+                        //add and play
+                        rc = mympd_api_queue_play_newly_inserted(mympd_state);
+                        if (rc == false) {
+                            response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                                "queue", "error", "Start playing newly added song failed");
+                            break;
+                        }
                     }
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                        "queue", "info", "Updated the queue");
                 }
             }
             break;
@@ -1187,7 +1196,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     break;
                 }
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
-                    sds_buf1, NULL, false, NULL, "queue", UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache);
+                    sds_buf1, NULL, false, NULL, "queue", UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
+                if (result == true) {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
+                        "queue", "info", "Replaced the queue");
+                }
             }
             break;
         case MYMPD_API_QUEUE_ADD_RANDOM:
@@ -1235,7 +1248,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
                 response->data = mpd_shared_search(mympd_state->mpd_state, response->data, request->method, request->id, 
-                    sds_buf1, sds_buf2, NULL, uint_buf1, uint_buf2, &tagcols, mympd_state->sticker_cache);
+                    sds_buf1, sds_buf2, NULL, uint_buf1, uint_buf2, &tagcols, mympd_state->sticker_cache, &result);
             }
             break;
         }
@@ -1250,7 +1263,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
-                    sds_buf1, sds_buf2, bool_buf1, NULL, NULL, UINT_MAX, 0, uint_buf1, uint_buf2, &tagcols, mympd_state->sticker_cache);
+                    sds_buf1, sds_buf2, bool_buf1, NULL, NULL, UINT_MAX, 0, uint_buf1, uint_buf2, &tagcols, mympd_state->sticker_cache, &result);
             }
             break;
         }
