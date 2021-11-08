@@ -1047,9 +1047,6 @@ Adding timer failed
 Browse directories
 디렉터리 열기
 
-Sorry, your MPD version is too old
-MPD 버전이 낮음
-
 Mounts
 마운트
 

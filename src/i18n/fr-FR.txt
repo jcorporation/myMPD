@@ -996,9 +996,6 @@ Echec de l'ajout de temporisation
 Browse directories
 Parcourir les dossiers
 
-Sorry, your MPD version is too old
-Désolé, votre version MPD est trop vieille
-
 Mounts
 Montages (dossier)
 

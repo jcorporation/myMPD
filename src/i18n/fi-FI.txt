@@ -996,9 +996,6 @@ Ajastimen lisäys epäonnistui
 Browse directories
 Selaa kansioita
 
-Sorry, your MPD version is too old
-Liian vanha MPD versio
-
 Mounts
 Liitokset
 

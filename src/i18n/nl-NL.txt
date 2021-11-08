@@ -993,9 +993,6 @@ Toevoegen timer mislukt
 Browse directories
 Browse bestanden
 
-Sorry, your MPD version is too old
-Sorry, je MPD-versie is te oud
-
 Mounts
 Aankoppelpunten
 

@@ -996,9 +996,6 @@ Impossibile aggiungere il timer
 Browse directories
 Sfoglia le cartelle
 
-Sorry, your MPD version is too old
-Peccato, la tua versione di MPD è troppo vecchia
-
 Mounts
 Montaggi (filesystem)
 

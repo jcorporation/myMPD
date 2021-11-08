@@ -993,9 +993,6 @@ Fallo al agregar Temporizador
 Browse directories
 Explorar directorios
 
-Sorry, your MPD version is too old
-Su versión de MPD es muy vieja
-
 Mounts
 Montar
 
