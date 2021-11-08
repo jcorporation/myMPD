@@ -896,6 +896,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             {
                 rc = mpd_run_playlist_add(mympd_state->mpd_state->conn, sds_buf1, sds_buf2);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_playlist_add", &result);
+                if (result == true) {
+                    response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
+                        "playlist", "info", "Updated the playlist %{playlist}", 2, "playlist", sds_buf1);
+                }
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_INSERT_URI:
@@ -909,6 +913,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             {
                 rc = mpd_run_playlist_add_to(mympd_state->mpd_state->conn, sds_buf1, sds_buf2, uint_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_playlist_add_to", &result);
+                if (result == true) {
+                    response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
+                        "playlist", "info", "Updated the playlist %{playlist}", 2, "playlist", sds_buf1);
+                }
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_REPLACE_URI:
@@ -922,6 +930,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 }
                 rc = mpd_run_playlist_add(mympd_state->mpd_state->conn, sds_buf1, sds_buf2);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_playlist_add", &result);
+                if (result == true) {
+                    response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
+                        "playlist", "info", "Replaced the playlist %{playlist}", 2, "playlist", sds_buf1);
+                }
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_APPEND_SEARCH:
@@ -930,6 +942,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             {
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
                     sds_buf2, NULL, false, NULL, sds_buf1, UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache);
+                if (result == true) {
+                    response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
+                        "playlist", "info", "Updated the playlist %{playlist}", 2, "playlist", sds_buf1);
+                }
             }
             break;
         /*
@@ -959,12 +975,20 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 }
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
                     sds_buf2, NULL, false, NULL, sds_buf1, UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache);
+                if (result == true) {
+                    response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
+                        "playlist", "info", "Replaced the playlist %{playlist}", 2, "playlist", sds_buf1);
+                }
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_CLEAR:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
                 rc = mpd_run_playlist_clear(mympd_state->mpd_state->conn, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_playlist_clear", &result);
+                if (result == true) {
+                    response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
+                        "playlist", "info", "Cleared the playlist %{playlist}", 2, "playlist", sds_buf1);
+                }
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_MOVE_SONG:
@@ -1077,8 +1101,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 rc = mpd_run_load(mympd_state->mpd_state->conn, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_load", &result);
                 if (result == true) {
-                    response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
-                        "playlist", "info", "Updated the playlist %{playlist}", 2, "playlist", sds_buf1);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
+                        "queue", "info", "Updated the queue");
                 }
             }
             break;
@@ -1104,8 +1128,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                             break;
                         }
                     }
-                    response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false, 
-                        "playlist", "info", "Updated the playlist %{playlist}", 2, "playlist", sds_buf1);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                        "queue", "info", "Updated the queue");
                 }
             }
             break;
@@ -1114,8 +1138,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 rc = mympd_api_queue_replace_with_playlist(mympd_state, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mympd_api_queue_replace_with_playlist", &result);
                 if (result == true) {
-                    response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
-                        "playlist", "info", "Replaced the playlist %{playlist}", 2, "playlist", sds_buf1);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
+                        "queue", "info", "Replaced the queue");
                 }
             }
             break;
