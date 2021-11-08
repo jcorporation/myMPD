@@ -160,7 +160,7 @@ function logMessage(title, text, facility, severity) {
     if (overviewRows.length > 10) {
         overviewRows[10].remove();
     }
-    document.getElementById('notificationCount').innerText = overviewRows.length;
+    document.getElementById('notificationCount').textContent = overviewRows.length;
 }
 
 //eslint-disable-next-line no-unused-vars
