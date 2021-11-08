@@ -415,11 +415,11 @@ function setLocale(newLocale) {
 
 function populateQueueSettingsFrm() {
     toggleBtnGroupValueCollapse(document.getElementById('btnJukeboxModeGroup'), 'collapseJukeboxMode', settings.jukeboxMode);
+    addTagListSelect('selectJukeboxUniqueTag', 'tagListBrowse');
+
     document.getElementById('selectJukeboxUniqueTag').value = settings.jukeboxUniqueTag;
     document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
     document.getElementById('inputJukeboxLastPlayed').value = settings.jukeboxLastPlayed;
-
-    addTagListSelect('selectJukeboxUniqueTag', 'tagListBrowse');
     
     if (settings.jukeboxMode === 0) {
         elDisable('inputJukeboxQueueLength');
