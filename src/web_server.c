@@ -332,6 +332,18 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             nc->label[2] = '-';
             break;
         }
+        case MG_EV_WS_MSG: {
+            struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
+            MYMPD_LOG_DEBUG("WS message (%lu): %.*s", nc->id, wm->data.len, wm->data.ptr);
+            if (strncmp(wm->data.ptr, "ping", wm->data.len) == 0) {
+                size_t sent = mg_ws_send(nc, "pong", 4, WEBSOCKET_OP_TEXT);
+                if (sent != 6) {
+                    MYMPD_LOG_WARN("WS could not reply with pong, closing connection");
+                    nc->is_closing = 1;
+                }
+            }
+            break;
+        }
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             MYMPD_LOG_INFO("HTTP request (%lu): %.*s %.*s", nc->id, (int)hm->method.len, hm->method.ptr, (int)hm->uri.len, hm->uri.ptr);

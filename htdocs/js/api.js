@@ -285,9 +285,17 @@ function webSocketConnect() {
                 clearTimeout(websocketTimer);
                 websocketTimer = null;
             }
+            if (websocketKeepAliveTimer === null) {
+                websocketKeepAliveTimer = setInterval(websocketKeepAlive, 25000);
+            }
         };
 
         socket.onmessage = function(msg) {
+            if (msg.data === 'pong') {
+                //websocket keepalive
+                logDebug('Got websocket pong');
+                return;
+            }
             let obj;
             try {
                 obj = JSON.parse(msg.data);
@@ -419,6 +427,10 @@ function webSocketConnect() {
                 clearTimeout(websocketTimer);
                 websocketTimer = null;
             }
+            if (websocketKeepAliveTimer !== null) {
+                clearInterval(websocketKeepAliveTimer);
+                websocketKeepAliveTimer = null;
+            }
             websocketTimer = setTimeout(function() {
                 logDebug('Reconnecting websocket');
                 toggleAlert('alertMympdState', true, tn('Websocket connection failed, trying to reconnect'));
@@ -444,6 +456,10 @@ function webSocketClose() {
         clearTimeout(websocketTimer);
         websocketTimer = null;
     }
+    if (websocketKeepAliveTimer) {
+        clearInterval(websocketKeepAliveTimer);
+        websocketKeepAliveTimer = null;
+    }
     if (socket !== null) {
         //disable onclose handler first
         socket.onclose = function () {}; 
@@ -451,4 +467,10 @@ function webSocketClose() {
         socket = null;
     }
     websocketConnected = false;
+}
+
+function websocketKeepAlive() {
+    if (socket !== null && socket.readyState === WebSocket.OPEN) {
+        socket.send('ping');
+    }
 }

@@ -7,6 +7,7 @@ const startTime = Date.now();
 let socket = null;
 let websocketConnected = false;
 let websocketTimer = null;
+let websocketKeepAliveTimer = null;
 let currentSong = '';
 let currentSongObj = {};
 let currentState = {};
