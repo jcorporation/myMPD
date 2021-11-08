@@ -30,7 +30,7 @@
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>  
-#ifndef DEBUG
+#ifdef EMBEDDED_ASSETS
     //embedded files for release build
     #include "mympd_api_scripts_lualibs.c"
 #endif
