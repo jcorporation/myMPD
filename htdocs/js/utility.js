@@ -25,11 +25,14 @@ function elCreateNodes(tagName, attributes, nodes) {
 }
 
 function elCreateEmpty(tagName, attributes) {
-    const tag = document.createElement(tagName);
+    const tag = attributes['is'] === undefined ?
+        document.createElement(tagName) : document.createElement(tagName, {is: attributes['is']});
     for (const key in attributes) {
         switch(key) {
             case "class":
                 tag.classList.add(...attributes[key]);
+                break;
+            case "is":
                 break;
             default:
                 tag.setAttribute(key, attributes[key]);

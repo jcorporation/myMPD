@@ -7,16 +7,16 @@ class inputClear extends HTMLInputElement {
     constructor() {
         super();
         const button = elCreateText('button', {"class": ["mi", "mi-small", "input-inner-button", "btn-secondary"]}, 'clear');
-        this.parentNode.insertBefore(button, this.nextSibling);
         this.button = button;
+    }
+    connectedCallback() {
+        this.parentNode.insertBefore(this.button, this.nextElementSibling);
         if (this.value === '')  {
             elHide(this.button);
         }
         else {
             elShow(this.button);
         }
-    }
-    connectedCallback() {
         this.addEventListener('keyup', function(event) {
             if (event.target.value === '') {
                 elHide(event.target.button);
@@ -30,7 +30,7 @@ class inputClear extends HTMLInputElement {
             const dataClearEvent = event.target.previousSibling.getAttribute('data-clear-event');
             if (dataClearEvent !== null) {
                 const clearEvent = new Event(dataClearEvent);
-                event.target.previousSibling.dispatchEvent(clearEvent);
+                event.target.previousElementSibling.dispatchEvent(clearEvent);
             }
         }, false);
     }
@@ -40,18 +40,23 @@ class inputReset extends HTMLInputElement {
     constructor() {
         super();
         const button = elCreateText('button', {"class": ["mi", "mi-small", "input-inner-button"]}, 'settings_backup_restore');
-        if (this.parentNode.firstElementChild.getAttribute('type') === 'color') {
-            button.style.right = '1.5rem';
-        }
-        else if (this.parentNode.classList.contains('col-sm-8')) {
-            button.style.right = '1rem';
-        }
-        this.parentNode.insertBefore(button, this.nextSibling);
         this.button = button;
     }
     connectedCallback() {
+        if (this.parentNode.firstElementChild.getAttribute('type') === 'color') {
+            this.button.style.right = '1.5rem';
+        }
+        else if (this.parentNode.classList.contains('col-sm-8')) {
+            this.button.style.right = '1rem';
+        }
+        if (this.nextElementSibling) {
+            this.parentNode.insertBefore(this.button, this.nextElementSibling);
+        }
+        else {
+            this.parentNode.appendChild(this.button);
+        }
         this.button.addEventListener('mouseup', function(event) {
-            const input = event.target.previousSibling;
+            const input = event.target.previousElementSibling;
             input.value = getData(input, 'data-default') !== undefined ? getData(input, 'data-default') : 
                 (input.getAttribute('placeholder') !== null ? input.getAttribute('placeholder') : '');
         }, false);
@@ -63,11 +68,10 @@ class selectSearch extends HTMLInputElement {
         super();
         const filterInput = elCreateEmpty('input', {"class": ["form-control", "form-control-sm", "mb-1"], "data-placeholder-phrase": "Filter", "placeholder": tn('Filter')});
         const filterResult = elCreateEmpty('select', {"class": ["form-select", "form-select-sm"], "size": 10});
-        const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "dropdown-menu-dark", "p-2", "w-100"]},
-            [
-                filterInput,
-                filterResult
-            ]);
+        const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "dropdown-menu-dark", "p-2", "w-100"]}, [
+            filterInput,
+            filterResult
+        ]);
         this.parentNode.insertBefore(dropdown, this.nextSibling);
         
         const button = elCreateEmpty('button', {"class": ["input-inner-button", "select-inner-button"], "data-bs-toggle": "dropdown"});

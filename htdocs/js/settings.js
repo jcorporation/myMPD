@@ -298,12 +298,8 @@ function parseSettings(obj) {
     }
 
     //Info in about modal
-    if (settings.mpdHost.indexOf('/') !== 0) {
-        document.getElementById('mpdInfoHost').textContent = settings.mpdHost + ':' + settings.mpdPort;
-    }
-    else {
-        document.getElementById('mpdInfoHost').textContent = settings.mpdHost;
-    }
+    document.getElementById('mpdInfoHost').textContent = settings.mpdHost.indexOf('/') !== 0 ?
+        settings.mpdHost + ':' + settings.mpdPort :  settings.mpdHost;
 
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.webuiSettings.uiCoverimageSize + "px");
     document.documentElement.style.setProperty('--mympd-coverimagesizesmall', settings.webuiSettings.uiCoverimageSizeSmall + "px");
@@ -690,8 +686,9 @@ function _createSettingsFrm(fields, defaults, prefix) {
         }
         else {
             const it = defaults[key].inputType === 'color' ? 'color' : 'text';
-            col.appendChild(elCreateEmpty('input', {"is": "mympd-input-reset", "id": prefix + r(key), "placeholder": defaults[key].defaultValue,
-                "value": fields[key], "class": ["form-control"], "type": it}));
+            const input = elCreateEmpty('input', {"is": "mympd-input-reset", "id": prefix + r(key), "placeholder": defaults[key].defaultValue,
+                "value": fields[key], "class": ["form-control"], "type": it});
+            col.appendChild(input);
         }
         if (defaults[key].invalid !== undefined) {
             col.appendChild(elCreateText('div', {"class": ["invalid-feedback"], "data-phrase": defaults[key].invalid}, tn(defaults[key].invalid)));
