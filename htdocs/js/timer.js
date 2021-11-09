@@ -81,6 +81,7 @@ function toggleTimer(target, timerid) {
 //eslint-disable-next-line no-unused-vars
 function saveTimer() {
     let formOK = true;
+    removeIsInvalidId('editTimerForm');
     const nameEl = document.getElementById('inputTimerName');
     if (!validateNotBlank(nameEl)) {
         formOK = false;
@@ -97,10 +98,7 @@ function saveTimer() {
     }
     if (minOneDay === false) {
         formOK = false;
-        elShowId('invalidTimerWeekdays');
-    }
-    else {
-        elHideId('invalidTimerWeekdays');
+        setIsInvalid(document.getElementById('btnTimerSun').parentNode);
     }
     const selectTimerAction  = document.getElementById('selectTimerAction');
     const jukeboxMode = getData(document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
@@ -108,12 +106,12 @@ function saveTimer() {
 
     if (selectTimerAction.selectedIndex === -1) {
         formOK = false;
-        selectTimerAction.classList.add('is-invalid');
+        setIsInvalid(selectTimerAction);
     }
 
     if (jukeboxMode === '0' &&  selectTimerPlaylist === 'Database'&& getSelectValue(selectTimerAction) === 'startplay') {
         formOK = false;
-        document.getElementById('btnTimerJukeboxModeGroup').classList.add('is-invalid');
+        setIsInvalidId('btnTimerJukeboxModeGroup');
     }
 
     const inputTimerIntervalEl = document.getElementById('inputTimerInterval');
@@ -201,8 +199,7 @@ function showEditTimer(timerid) {
         elShowId('timerActionPlay');
     }
     document.getElementById('inputTimerName').focus();
-    removeIsInvalid(document.getElementById('editTimerForm'));    
-    document.getElementById('invalidTimerWeekdays').style.display = 'none';
+    removeIsInvalidId('editTimerForm');
 }
 
 function parseEditTimer(obj) {
