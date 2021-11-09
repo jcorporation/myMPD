@@ -81,12 +81,13 @@ function showNotification(title, text, facility, severity) {
         setTimeout(notification.close.bind(notification), 3000);
     }
     if (settings.webuiSettings.notifyPage === true) {
-        const toast = elCreateEmpty('div', {"class": ["toast"]});
-        const toastHeader = elCreateEmpty('div', {"class": ["toast-header"]});
-        toastHeader.appendChild(getSeverityIcon(severity));
-        toastHeader.appendChild(elCreateText('strong', {"class": ["me-auto"]}, title));
-        toastHeader.appendChild(elCreateEmpty('button', {"type": "button", "class": ["btn-close"], "data-bs-dismiss": "toast"}));
-        toast.appendChild(toastHeader);
+        const toast = elCreateNode('div', {"class": ["toast"]},
+            elCreateNodes('div', {"class": ["toast-header"]}, [
+                getSeverityIcon(severity),
+                elCreateText('strong', {"class": ["me-auto"]}, title),
+                elCreateEmpty('button', {"type": "button", "class": ["btn-close"], "data-bs-dismiss": "toast"})
+            ])
+        );
         if (text !== '') {
             toast.appendChild(elCreateText('div', {"class": ["toast-body"]}, text));
         }
