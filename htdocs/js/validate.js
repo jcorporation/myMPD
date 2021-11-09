@@ -17,11 +17,19 @@ function isStreamUri(uri) {
     return false;
 }
 
+function removeIsInvalidId(parentElId) {
+    removeIsInvalid(document.getElementById(parentElId));
+}
+
 function removeIsInvalid(parentEl) {
     const els = parentEl.getElementsByClassName('is-invalid');
     for (let i = els.length - 1; i >= 0; i--) {
         els[i].classList.remove('is-invalid');
     }
+}
+
+function setIsInvalidId(id) {
+    setIsInvalid(document.getElementById(id));
 }
 
 function setIsInvalid(el) {
