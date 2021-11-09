@@ -166,14 +166,14 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
         case MPD_DISCONNECTED:
             /* Try to connect */
             if (strncmp(mympd_state->mpd_state->mpd_host, "/", 1) == 0) {
-                MYMPD_LOG_NOTICE("MPD connecting to socket %s", mympd_state->mpd_state->mpd_host);
+                MYMPD_LOG_NOTICE("Connecting to MPD socket %s", mympd_state->mpd_state->mpd_host);
             }
             else {
-                MYMPD_LOG_NOTICE("MPD connecting to %s:%d", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port);
+                MYMPD_LOG_NOTICE("Connecting to MPD host %s:%d", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port);
             }
             mympd_state->mpd_state->conn = mpd_connection_new(mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_timeout);
             if (mympd_state->mpd_state->conn == NULL) {
-                MYMPD_LOG_ERROR("MPD connection to failed: out-of-memory");
+                MYMPD_LOG_ERROR("MPD connection failed: out-of-memory");
                 buffer = jsonrpc_event(buffer, "mpd_disconnected");
                 ws_notify(buffer);
                 FREE_SDS(buffer);
