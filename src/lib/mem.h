@@ -7,10 +7,20 @@
 #ifndef MYMPD_MEM_H
 #define MYMPD_MEM_H
 
+#include <assert.h>
 #include <stdlib.h>
 
-void *malloc_assert(size_t size);
-void *realloc_assert(void *ptr, size_t size);
+static inline void *malloc_assert(size_t size) {
+    void *p = malloc(size);
+    assert(p);
+    return p;
+}
+
+static inline void *realloc_assert(void *ptr, size_t size) {
+    void *p = realloc(ptr, size);
+    assert(p);
+    return p;
+}
 
 #define FREE_PTR(PTR) do { \
     if (PTR != NULL) \
@@ -19,4 +29,3 @@ void *realloc_assert(void *ptr, size_t size);
 } while (0)
 
 #endif
-

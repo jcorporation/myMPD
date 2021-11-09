@@ -234,7 +234,6 @@ set(SOURCES
   src/lib/list.c
   src/lib/log.c
   src/lib/lua_mympd_state.c
-  src/lib/mem.c
   src/lib/mimetype.c
   src/lib/mympd_pin.c
   src/lib/mympd_queue.c
