@@ -33,7 +33,6 @@ set(SOURCES
   ../src/lib/jsonrpc.c
   ../src/lib/list.c
   ../src/lib/lua_mympd_state.c
-  ../src/lib/mem.c
   ../src/lib/mimetype.c
   ../src/lib/mympd_queue.c
   ../src/lib/log.c
