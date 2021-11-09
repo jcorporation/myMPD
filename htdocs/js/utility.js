@@ -113,7 +113,9 @@ function showConfirm(text, btnText, callback) {
 }
 
 function showConfirmInline(el, text, btnText, callback) {
-    const confirm = elCreateNode('div', {"class": ["alert", "alert-danger", "mt-2"]}, elCreateText('p', {}, text));
+    const confirm = elCreateNode('div', {"class": ["alert", "alert-danger", "mt-2"]},
+        elCreateText('p', {}, text)
+    );
 
     const cancelBtn = elCreateText('button', {"class": ["btn", "btn-secondary"]}, tn('Cancel'));
     cancelBtn.addEventListener('click', function(event) {
@@ -203,7 +205,7 @@ function clickPlaylist(uri) {
     switch(settings.webuiSettings.clickPlaylist) {
         case 'append':  return appendQueue('plist', uri);
         case 'insert':  return insertQueue('plist', uri, 0, 1, false);
-        case 'play':  return insertQueue('plist', uri, 0, 1, true);
+        case 'play':    return insertQueue('plist', uri, 0, 1, true);
         case 'replace': return replaceQueue('plist', uri);
         case 'view':    return playlistDetails(uri);
     }
@@ -213,7 +215,7 @@ function clickFolder(uri) {
     switch(settings.webuiSettings.clickFolder) {
         case 'append':  return appendQueue('dir', uri);
         case 'insert':  return insertQueue('dir', uri, 0, 1, false);
-        case 'play':  return insertQueue('dir', uri, 0, 1, true);
+        case 'play':    return insertQueue('dir', uri, 0, 1, true);
         case 'replace': return replaceQueue('dir', uri);
         case 'view':
             //remember offset for current browse uri
@@ -498,8 +500,7 @@ function addTagList(elId, list) {
         stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "LastModified"}, tn('Last modified')));
     }
     const el = document.getElementById(elId);
-    elClear(el);
-    el.appendChild(stack);
+    elReplaceChild(el, stack);
 }
 
 function addTagListSelect(elId, list) {

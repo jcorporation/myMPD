@@ -86,26 +86,22 @@ function showListOutputAttributes(outputName) {
         elClear(list);
         for (const n of ['name', 'state', 'plugin']) {
             list.appendChild(
-                elCreateNodes('tr', {},
-                    [
-                        elCreateText('td', {}, tn(ucFirst(n))),
-                        elCreateText('td', {}, output[n])
-                    ]
-                )
+                elCreateNodes('tr', {}, [
+                    elCreateText('td', {}, tn(ucFirst(n))),
+                    elCreateText('td', {}, output[n])
+                ])
             );
         }
         let i = 0;
         for (const key in output.attributes) {
             i++;
             list.appendChild(
-                elCreateNodes('tr', {},
-                    [
-                        elCreateText('td', {}, key),
-                        elCreateNode('td', {},
-                            elCreateEmpty('input', {"name": key, "class": ["form-control"], "type": "text", "value": output.attributes[key]})
-                        )
-                    ]
-                )
+                elCreateNodes('tr', {}, [
+                    elCreateText('td', {}, key),
+                    elCreateNode('td', {},
+                        elCreateEmpty('input', {"name": key, "class": ["form-control"], "type": "text", "value": output.attributes[key]})
+                    )
+                ])
             );
         }
         if (i > 0) {

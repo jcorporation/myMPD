@@ -184,7 +184,7 @@ function saveScript() {
             "order": Number(orderEl.value),
             "content": document.getElementById('textareaScriptContent').value,
             "arguments": args
-            }, saveScriptCheckError, true);
+        }, saveScriptCheckError, true);
     }
 }
 
@@ -266,7 +266,9 @@ function showListScripts() {
 
 function deleteScript(el, script) {
     showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the script?', {"script": script}), tn('Yes, delete it'), function() {
-        sendAPI("MYMPD_API_SCRIPT_RM", {"script": script}, function() {
+        sendAPI("MYMPD_API_SCRIPT_RM", {
+            "script": script
+        }, function() {
             getScriptList(true);
         }, false);
     });
@@ -309,18 +311,14 @@ function parseScriptList(obj) {
                 mainmenuScripts.appendChild(a);               
             }
             //scriptlist in scripts modal
-            const tr = elCreateNodes('tr', {}, 
-                [
-                    elCreateText('td', {}, obj.result.data[i].name),
-                    elCreateNodes('td', {"data-col": "Action"}, 
-                        [
-                            elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "delete", "class": ["me-2", "mi", "color-darkgrey"]}, 'delete'),
-                            elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "execute", "class": ["me-2", "mi", "color-darkgrey"]}, 'play_arrow'),
-                            elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "add2home", "class": ["me-2", "mi", "color-darkgrey"]}, 'add_to_home_screen')
-                        ]
-                    )
-                ]
-            );
+            const tr = elCreateNodes('tr', {}, [
+                elCreateText('td', {}, obj.result.data[i].name),
+                elCreateNodes('td', {"data-col": "Action"}, [
+                    elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "delete", "class": ["me-2", "mi", "color-darkgrey"]}, 'delete'),
+                    elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "execute", "class": ["me-2", "mi", "color-darkgrey"]}, 'play_arrow'),
+                    elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "add2home", "class": ["me-2", "mi", "color-darkgrey"]}, 'add_to_home_screen')
+                ])
+            ]);
             setData(tr, 'data-script', obj.result.data[i].name);
             setData(tr, 'data-href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
             tbodyScripts.appendChild(tr);

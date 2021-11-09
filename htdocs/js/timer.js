@@ -253,7 +253,7 @@ function selectTimerIntervalChange(value) {
     const inputTimerInterval = document.getElementById('inputTimerInterval');
     const selectTimerIntervalUnit = document.getElementById('selectTimerIntervalUnit');
     for (const unit of [604800, 86400, 3600, 60, 1]) {
-        if (value > unit && value % unit === 0) { 
+        if (value >= unit && value % unit === 0) { 
             inputTimerInterval.value = value / unit;
             selectTimerIntervalUnit.value = unit;
             break;
@@ -290,12 +290,10 @@ function showTimerScriptArgs(option, values) {
         const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "timerActionScriptArguments" + i, 
             "value": (values[args.arguments[i]] ? values[args.arguments[i]] : '')});
         setData(input, 'data-name', args.arguments[i]);
-        const fg = elCreateNodes('div', {"class": ["form-group", "row"]},
-            [
-                elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": "timerActionScriptArguments" + i}, args.arguments[i]),
-                elCreateNode('div', {"class": ["col-sm-8"]}, input)
-            ]
-        );
+        const fg = elCreateNodes('div', {"class": ["form-group", "row"]}, [
+            elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": "timerActionScriptArguments" + i}, args.arguments[i]),
+            elCreateNode('div', {"class": ["col-sm-8"]}, input)
+        ]);
         list.appendChild(fg);
     }
     if (args.arguments.length === 0) {
@@ -321,11 +319,6 @@ function parseListTimer(obj) {
     elClear(tbody);
     const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const row = document.createElement('tr');
-        setData(row, 'data-id', obj.result.data[i].timerid);
-        row.appendChild(
-            elCreateText('td', {}, obj.result.data[i].name)
-        );
         const btn = elCreateEmpty('button', {"name": "enabled", "class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-small"]});
         if (obj.result.data[i].enabled === true) {
             btn.classList.add('active');
@@ -334,17 +327,13 @@ function parseListTimer(obj) {
         else {
             btn.textContent = 'radio_button_unchecked';
         }
-        row.appendChild(elCreateNode('td', {}, btn));
+
         const days = [];
         for (let j = 0; j < 7; j++) {
             if (obj.result.data[i].weekdays[j] === true) {
                 days.push(tn(weekdays[j]));
             }
         }
-        row.appendChild(
-            elCreateText('td', {}, zeroPad(obj.result.data[i].startHour, 2) + ':' + zeroPad(obj.result.data[i].startMinute, 2) +
-                ' ' + tn('on') + ' ' + days.join(', '))
-        );
 
         let interval = '';
         switch (obj.result.data[i].interval) {
@@ -352,23 +341,25 @@ function parseListTimer(obj) {
             case 0: interval = tn('One shot and disable'); break;
             default: 
                 for (const unit of [604800, 86400, 3600, 60, 1]) {
-                    if (obj.result.data[i].interval > unit && obj.result.data[i].interval % unit === 0) { 
+                    if (obj.result.data[i].interval >= unit && obj.result.data[i].interval % unit === 0) { 
                         interval = tn('Each ' + unit, obj.result.data[i].interval / unit);
                         break;
                     }
                 }
         }
-        row.appendChild(
-            elCreateText('td', {}, interval)
-        );
-        row.appendChild(
-            elCreateText('td', {}, prettyTimerAction(obj.result.data[i].action, obj.result.data[i].subaction))
-        );
-        row.appendChild(
+
+        const row = elCreateNodes('tr', {}, [
+            elCreateText('td', {}, obj.result.data[i].name),
+            elCreateNode('td', {}, btn),
+            elCreateText('td', {}, zeroPad(obj.result.data[i].startHour, 2) + ':' + zeroPad(obj.result.data[i].startMinute, 2) +
+                ' ' + tn('on') + ' ' + days.join(', ')),
+            elCreateText('td', {}, interval),
+            elCreateText('td', {}, prettyTimerAction(obj.result.data[i].action, obj.result.data[i].subaction)),
             elCreateNode('td', {"data-col": "Action"},
                 elCreateText('a', {"class": ["mi", "color-darkgrey"], "href": "#"}, 'delete')
             )
-        );
+        ]);
+        setData(row, 'data-id', obj.result.data[i].timerid);
         tbody.append(row);
     }
 }

@@ -8,11 +8,11 @@ function initTrigger() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            showEditTrigger(Number(getData(event.target.parentNode, 'data-trigger-id')));
+            showEditTrigger(getData(event.target.parentNode, 'data-trigger-id'));
         }
         else if (event.target.nodeName === 'A') {
             const action = getData(event.target, 'data-action');
-            const id = Number(getData(event.target.parentNode.parentNode, 'data-trigger-id'));
+            const id = getData(event.target.parentNode.parentNode, 'data-trigger-id');
             if (action === 'delete') {
                 deleteTrigger(event.target, id);
             }
@@ -122,12 +122,10 @@ function showTriggerScriptArgs(option, values) {
         const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "triggerActionScriptArguments" + i, 
             "value": (values[args.arguments[i]] ? values[args.arguments[i]] : '')});
         setData(input, 'data-name', args.arguments[i]);
-        const fg = elCreateNodes('div', {"class": ["form-group", "row"]},
-            [
-                elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": "triggerActionScriptArguments" + i}, args.arguments[i]),
-                elCreateNode('div', {"class": ["col-sm-8"]}, input)
-            ]
-        );
+        const fg = elCreateNodes('div', {"class": ["form-group", "row"]}, [
+            elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": "triggerActionScriptArguments" + i}, args.arguments[i]),
+            elCreateNode('div', {"class": ["col-sm-8"]}, input)
+        ]);
         list.appendChild(fg);
     }
     if (args.arguments.length === 0) {
@@ -160,22 +158,15 @@ function parseTriggerList(obj) {
 
     elClear(tbody);
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const row = elCreateEmpty('tr', {});
-        setData(row, 'data-trigger-id', obj.result.data[i].id);
-        row.appendChild(
-            elCreateText('td', {}, obj.result.data[i].name)
-        );
-        row.appendChild(
-            elCreateText('td', {}, tn(obj.result.data[i].eventName))
-        );
-        row.appendChild(
-            elCreateText('td', {}, obj.result.data[i].script)
-        );
-        row.appendChild(
+        const row = elCreateNodes('tr', {}, [
+            elCreateText('td', {}, obj.result.data[i].name),
+            elCreateText('td', {}, tn(obj.result.data[i].eventName)),
+            elCreateText('td', {}, obj.result.data[i].script),
             elCreateNode('td', {"data-col": "Action"},
                 elCreateText('a', {"href": "#", "title": tn("Delete"), "data-action": "delete", "class": ["mi", "color-darkgrey"]}, 'delete')
             )
-        );
+        ]);
+        setData(row, 'data-trigger-id', obj.result.data[i].id);
         tbody.appendChild(row);
     }
 }

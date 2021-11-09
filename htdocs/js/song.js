@@ -33,7 +33,9 @@ function initSong() {
 }
 
 function songDetails(uri) {
-    sendAPI("MYMPD_API_DATABASE_SONGDETAILS", {"uri": uri}, parseSongDetails);
+    sendAPI("MYMPD_API_DATABASE_SONGDETAILS", {
+        "uri": uri
+    }, parseSongDetails);
     uiElements.modalSongDetails.show();
 }
 
@@ -70,8 +72,6 @@ function getMBtagLink(tag, value) {
 }
 
 function songDetailsRow(thContent, tdContent) {
-    const tr = elCreateEmpty('tr', {});
-    tr.appendChild(elCreateText('th', {}, tn(thContent)));
     const td = elCreateEmpty('td', {});
     if (typeof tdContent === 'object') {
         td.appendChild(tdContent);
@@ -79,7 +79,10 @@ function songDetailsRow(thContent, tdContent) {
     else {
         td.textContent = tdContent;
     }
-    tr.appendChild(td);
+    const tr = elCreateNodes('tr', {}, [
+        elCreateText('th', {}, tn(thContent)),
+        td
+    ]);
     return tr;
 }
 
@@ -144,23 +147,27 @@ function parseSongDetails(obj) {
         tbody.appendChild(elCreateNode('tr', {}, elCreateNode('th', {"colspan": "2", "class": ["pt-3"]}, elCreateText('h5', {}, tn('Statistics')))));
         for (const sticker of stickerList) {
             if (sticker === 'stickerLike') {
-                const tr = elCreateEmpty('tr', {});
-                tr.appendChild(elCreateText('th', {}, tn('Like')));
-                const td = elCreateEmpty('td', {});
-                const grp = elCreateEmpty('div', {"class": ["btn-group", "btn-group-sm"]});
-                setData(grp, 'data-uri', obj.result.uri);
                 const thDown = elCreateText('button', {"title": tn('Dislike song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_down');
                 setData(thDown, 'data-href', {"cmd": "voteSong", "options": [0]});
-                if (obj.result[sticker] === 0) { thDown.classList.add('active'); }
+                if (obj.result[sticker] === 0) {
+                    thDown.classList.add('active');
+                }
                 const thUp = elCreateText('button', {"title": tn('Dislike song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_up');
                 setData(thUp, 'data-href', {"cmd": "voteSong", "options": [2]});
-                if (obj.result[sticker] === 2) { thUp.classList.add('active'); }
-                grp.appendChild(thDown);
-                grp.appendChild(thUp);
-                td.appendChild(grp);
-                tr.appendChild(td);
-                tr.appendChild(td);
-                tbody.appendChild(tr);
+                if (obj.result[sticker] === 2) {
+                    thUp.classList.add('active');
+                }
+                const grp = elCreateNodes('div', {"class": ["btn-group", "btn-group-sm"]},[
+                    thDown,
+                    thUp
+                ]);
+                setData(grp, 'data-uri', obj.result.uri);
+                tbody.appendChild(
+                    elCreateNodes('tr', {}, [
+                        elCreateText('th', {}, tn('Like')),
+                        elCreateNode('td', {}, grp)
+                    ])
+                );
             }
             else {
                 tbody.appendChild(songDetailsRow(sticker, printValue(sticker, obj.result[sticker])));
@@ -223,10 +230,12 @@ function getComments(uri, el) {
             return false;
         }
         for (const key in obj.result.data) {
-            const tr = elCreateEmpty('tr', {});
-            tr.appendChild(elCreateText('td', {}, key));
-            tr.appendChild(elCreateText('td', {}, obj.result.data[key]));
-            el.appendChild(tr);
+            el.appendChild(
+                elCreateNodes('tr', {}, [
+                    elCreateText('td', {}, key),
+                    elCreateText('td', {}, obj.result.data[key])
+                ])
+            );
         }
         el.classList.remove('opacity05');
     }, false);
@@ -238,7 +247,9 @@ function getLyrics(uri, el) {
         return;
     }
     el.classList.add('opacity05');
-    sendAPI("MYMPD_API_LYRICS_GET", {"uri": uri}, function(obj) {
+    sendAPI("MYMPD_API_LYRICS_GET", {
+        "uri": uri
+    }, function(obj) {
         if (obj.error) {
             el.textContent = tn(obj.error.message);
         }

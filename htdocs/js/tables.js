@@ -474,17 +474,22 @@ function tableRow(row, data, list, colspan, smallWidth) {
         if (smallWidth === true) {
             const td = elCreateEmpty('td', {"colspan": colspan});
             for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
-                const p = elCreateEmpty('div', {"class": ["row"]});
-                p.appendChild(elCreateText('small', {"class": ["col-3"]}, tn(settings['cols' + list][c])));
-                p.appendChild(elCreateNode('span', {"class": ["col-9"]}, printValue(settings['cols' + list][c], data[settings['cols' + list][c]])));
-                td.appendChild(p);
+                td.appendChild(
+                    elCreateNodes('div', {"class": ["row"]}, [
+                        elCreateText('small', {"class": ["col-3"]}, tn(settings['cols' + list][c])),
+                        elCreateNode('span', {"class": ["col-9"]}, printValue(settings['cols' + list][c], data[settings['cols' + list][c]]))
+                    ])
+                );
             }
             row.appendChild(td);
         }
         else {
             for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
-                row.appendChild(elCreateNode('td', {"data-col": settings['cols' + list][c]},
-                    printValue(settings['cols' + list][c], data[settings['cols' + list][c]])));
+                row.appendChild(
+                    elCreateNode('td', {"data-col": settings['cols' + list][c]},
+                        printValue(settings['cols' + list][c], data[settings['cols' + list][c]])
+                    )
+                );
             }
         }
         row.appendChild(

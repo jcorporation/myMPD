@@ -224,22 +224,20 @@ function parseQueue(obj) {
 }
 
 function queueSetCurrentSong(currentSongId, elapsedTime, totalTime) {
-    if (currentState) {
-        if (currentState.currentSongId !== currentSongId) {
-            const tr = document.getElementById('queueTrackId' + currentState.currentSongId);
-            if (tr) {
-                const durationTd = tr.querySelector('[data-col=Duration]');
-                if (durationTd) {
-                    durationTd.textContent = beautifySongDuration(getData(tr, 'data-duration'));
-                }
-                const posTd = tr.querySelector('[data-col=Pos]');
-                if (posTd) {
-                    posTd.classList.remove('mi');
-                    posTd.textContent = getData(tr, 'data-songpos');
-                }
-                tr.classList.remove('queue-playing');
-                tr.style = '';
+    if (currentState && currentState.currentSongId !== currentSongId) {
+        const tr = document.getElementById('queueTrackId' + currentState.currentSongId);
+        if (tr) {
+            const durationTd = tr.querySelector('[data-col=Duration]');
+            if (durationTd) {
+                durationTd.textContent = beautifySongDuration(getData(tr, 'data-duration'));
             }
+            const posTd = tr.querySelector('[data-col=Pos]');
+            if (posTd) {
+                posTd.classList.remove('mi');
+                posTd.textContent = getData(tr, 'data-songpos');
+            }
+            tr.classList.remove('queue-playing');
+            tr.style = '';
         }
     }
     const tr = document.getElementById('queueTrackId' + currentSongId);
@@ -491,7 +489,9 @@ function playAfterCurrent(songId, songPos) {
     }
     else {
         //in random mode - set song priority
-        sendAPI("MYMPD_API_QUEUE_PRIO_SET_HIGHEST", {"songId": songId});
+        sendAPI("MYMPD_API_QUEUE_PRIO_SET_HIGHEST", {
+            "songId": songId
+        });
     }
 }
 

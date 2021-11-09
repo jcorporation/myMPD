@@ -332,12 +332,10 @@ function parseSettings(obj) {
         const selectTimerAction = document.getElementById('selectTimerAction');
         elClear(document.getElementById('selectTimerAction'));
         selectTimerAction.appendChild(
-            elCreateNodes('optgroup', {"data-value": "player", "label": tn('Playback')},
-                [
-                    elCreateText('option', {"value": "startplay"}, tn('Start playback')),
-                    elCreateText('option', {"value": "stopplay"}, tn('Stop playback'))
-                ]
-            )
+            elCreateNodes('optgroup', {"data-value": "player", "label": tn('Playback')}, [
+                elCreateText('option', {"value": "startplay"}, tn('Start playback')),
+                elCreateText('option', {"value": "stopplay"}, tn('Stop playback'))
+            ])
         );
 
         if (features.featScripting === true) {
@@ -703,12 +701,10 @@ function _createSettingsFrm(fields, defaults, prefix) {
         }
 
         advFrm[form].appendChild(
-            elCreateNodes('div', {"class": ["mb-3", "row"]},
-                [
-                    elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": prefix + r(key), "data-phrase": defaults[key].title}, defaults[key].title),
-                    col
-                ]
-            )
+            elCreateNodes('div', {"class": ["mb-3", "row"]}, [
+                elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": prefix + r(key), "data-phrase": defaults[key].title}, defaults[key].title),
+                col
+            ])
         );
     }
    
@@ -725,10 +721,9 @@ function _createSettingsFrm(fields, defaults, prefix) {
     {
         const options = document.getElementById(sel).getElementsByTagName('option');
         for (const opt of options) {
-            if (opt.value === 'insert' ||
-                opt.value === 'play') {
-                    opt.classList.add('featWhence');
-                }
+            if (opt.value === 'insert' || opt.value === 'play') {
+                opt.classList.add('featWhence');
+            }
         }
     }
 }
@@ -805,7 +800,7 @@ function parseMPDSettings() {
     filterCols('Playback');
 
     for (const table of ['Search', 'QueueCurrent', 'QueueLastPlayed', 'QueueJukebox', 
-        'BrowsePlaylistsDetail', 'BrowseFilesystem', 'BrowseDatabaseDetail'])
+            'BrowsePlaylistsDetail', 'BrowseFilesystem', 'BrowseDatabaseDetail'])
     {
         filterCols(table);
         setCols(table);
@@ -842,12 +837,10 @@ function parseMPDSettings() {
         const pbtl = document.getElementById('cardPlaybackTags');
         elClear(pbtl);
         for (let i = 0, j = settings.colsPlayback.length; i < j; i++) {
-            const div = elCreateNodes('div', {"id": "current" + settings.colsPlayback[i]},
-                [
-                    elCreateText('small', {}, tn(settings.colsPlayback[i])),
-                    elCreateEmpty('p', {})
-                ]
-            );
+            const div = elCreateNodes('div', {"id": "current" + settings.colsPlayback[i]}, [
+                elCreateText('small', {}, tn(settings.colsPlayback[i])),
+                elCreateEmpty('p', {})
+            ]);
             setData(div, 'data-tag', settings.colsPlayback[i]);
             pbtl.appendChild(div);
         }
@@ -1103,12 +1096,10 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
             btn.textContent = 'radio_button_unchecked';
         }
         list.appendChild(
-            elCreateNodes('div', {"class": "form-check"},
-                [
-                    btn,
-                    elCreateText('label', {"class": ["form-check-label"], "for": allTags[i]}, allTags[i])
-                ]
-            )
+            elCreateNodes('div', {"class": "form-check"}, [
+                btn,
+                elCreateText('label', {"class": ["form-check-label"], "for": allTags[i]}, allTags[i])
+            ])
         );
     }
 
