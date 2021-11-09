@@ -396,6 +396,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             else if (timer_def != NULL) {
                 MYMPD_LOG_ERROR("No timer id or interval, discarding timer definition");
                 mympd_api_timer_free_definition(timer_def);
+                FREE_PTR(timer_def);
             }
             break;
         }

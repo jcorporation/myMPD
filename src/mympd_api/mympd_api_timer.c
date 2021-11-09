@@ -273,7 +273,6 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
     MYMPD_LOG_ERROR("Error parsing timer definition");
     mympd_api_timer_free_definition(timer_def);
     FREE_PTR(timer_def);
-    timer_def = NULL;
 
     return NULL;
 }
@@ -427,9 +426,10 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
         else {
             MYMPD_LOG_ERROR("Invalid timer line");
             MYMPD_LOG_DEBUG("Errorneous line: %s", line);
-            mympd_api_timer_free_definition(timer_def);
-            FREE_PTR(timer_def);
-            timer_def = NULL;
+            if (timer_def != NULL) {
+                mympd_api_timer_free_definition(timer_def);
+                FREE_PTR(timer_def);
+            }
         }
         i++;
     }
