@@ -728,6 +728,8 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
             mg_send(nc, response, sdslen(response));
             FREE_SDS(cmd);
             FREE_SDS(jsonrpc);
+            FREE_SDS(session);
+            FREE_SDS(response);
             return true;
         }
         MYMPD_LOG_INFO("API request is authorized");
