@@ -21,7 +21,7 @@ function removeEnterPinFooter(footer) {
     }
 }
 
-function createEnterPinFooter(footer, method, params, callback, onerror) {
+function createEnterPinFooter(footers, method, params, callback, onerror) {
     const input = elCreateEmpty('input', {"type": "password", "class": ["form-control", "border-secondary"]});
     const btn = elCreateText('button', {"class": ["btn", "btn-success"]}, tn('Enter'));
     const newFooter = elCreateNode('div', {"class": ["modal-footer", "enterPinFooter"]}, 
@@ -35,13 +35,15 @@ function createEnterPinFooter(footer, method, params, callback, onerror) {
             )
         ])
     );
-    footer.classList.add('d-none');
-    footer.parentNode.appendChild(newFooter);
+    for (const footer of footers) {
+        footer.classList.add('d-none');
+    }
+    footers[0].parentNode.appendChild(newFooter);
     input.focus();
     btn.addEventListener('click', function() {
         sendAPI('MYMPD_API_SESSION_LOGIN', {"pin": input.value}, function(obj) {
             input.value = '';
-            const alert = footer.getElementsByClassName('alert')[0];
+            const alert = footers[0].parentNode.getElementsByClassName('alert')[0];
             if (alert !== undefined) {
                 alert.remove();
             }
@@ -77,7 +79,7 @@ function enterPin(method, params, callback, onerror) {
     if (modal !== null) {
         logDebug('Show pin dialog in modal');
         //a modal is already opened, show enter pin dialog in footer
-        const footer = modal.getElementsByClassName('modal-footer')[0];
+        const footer = modal.getElementsByClassName('modal-footer');
         createEnterPinFooter(footer, method, params, callback, onerror);
     }
     else {
