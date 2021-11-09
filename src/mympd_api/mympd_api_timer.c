@@ -215,7 +215,6 @@ void mympd_api_timer_free_definition(struct t_timer_definition *timer_def) {
     FREE_SDS(timer_def->subaction);
     FREE_SDS(timer_def->playlist);
     list_clear(&timer_def->arguments);
-    FREE_PTR(timer_def);
 }
 
 void mympd_api_timer_free_node(struct t_timer_node *node) {
@@ -224,8 +223,10 @@ void mympd_api_timer_free_node(struct t_timer_node *node) {
     }
     if (node->definition != NULL) {
         mympd_api_timer_free_definition(node->definition);
+        free(node->definition);
+        node->definition = NULL;
     }
-    free(node);
+    FREE_PTR(node);
 }
 
 bool mympd_api_timer_timerlist_free(struct t_timer_list *l) {
@@ -270,12 +271,9 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
     }
 
     MYMPD_LOG_ERROR("Error parsing timer definition");
-    list_clear(&timer_def->arguments);
-    FREE_SDS(timer_def->name);
-    FREE_SDS(timer_def->action);
-    FREE_SDS(timer_def->subaction);
-    FREE_SDS(timer_def->playlist);
-    free(timer_def);
+    mympd_api_timer_free_definition(timer_def);
+    FREE_PTR(timer_def);
+    timer_def = NULL;
 
     return NULL;
 }
@@ -417,8 +415,7 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
         int interval;
         int timerid;            
         if (timer_def != NULL &&
-            json_get_int(param, "$.params.interval", -1, TIMER_INTERVAL_MAX, &interval, NULL) == true &&
-            (interval <= 0 && interval >= TIMER_INTERVAL_MIN) &&
+            json_get_int(param, "$.params.interval", TIMER_INTERVAL_MIN, TIMER_INTERVAL_MAX, &interval, NULL) == true &&
             json_get_int(param, "$.params.timerid", 101, 200, &timerid, NULL) == true) 
         {
             if (timerid > mympd_state->timer_list.last_id) {
@@ -430,6 +427,9 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
         else {
             MYMPD_LOG_ERROR("Invalid timer line");
             MYMPD_LOG_DEBUG("Errorneous line: %s", line);
+            mympd_api_timer_free_definition(timer_def);
+            FREE_PTR(timer_def);
+            timer_def = NULL;
         }
         i++;
     }

@@ -389,6 +389,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                         "timer", "error", "Adding timer failed");
                     mympd_api_timer_free_definition(timer_def);
+                    FREE_PTR(timer_def);
+                    timer_def = NULL;
                 }
             }
             else if (timer_def != NULL) {
