@@ -117,9 +117,8 @@
     <div class="card" id="cardHome">
       <div class="card-body">
         <div class="container-fluid HomeContainer scrollContainer">
-          <div id="HomeList" class="row noInitChilds">
-          </div>
-        </div>      
+          <div id="HomeList" class="row noInitChilds"></div>
+        </div>
       </div>
     </div>
     <div class="card" id="cardPlayback">
@@ -148,7 +147,7 @@
               <div class="album-cover album-cover-loading clickable carousel" id="currentCover" data-href='{"cmd": "zoomPicture", "options": []}'></div>
             </div>
             <div class="album-desc text-break">
-              <h2 id="currentTitle" class="notclickable"  data-href='{"cmd": "clickTitle", "options": []}'></h2>
+              <h2 id="currentTitle" class="notclickable" data-href='{"cmd": "clickTitle", "options": []}'></h2>
               <div class="featTags" id="cardPlaybackTags"></div>
               <div id="currentBooklet"></div>
             </div>
@@ -199,17 +198,16 @@
               <div class="d-grid gap-2">
                 <button data-phrase="Clear queue" type="button" class="btn btn-secondary btn-sm" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}]}' ></button>
                 <button data-phrase="Crop queue" type="button" class="btn btn-secondary btn-sm" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}]}' ></button>
-            </div>
+              </div>
             </div>
           </div>
           <div class="btn-group me-2">
             <button id="btnQueueGotoPlayingSong" data-title-phrase="Goto playing song" type="button" class="btn btn-secondary mi" data-href='{"cmd": "gotoPlayingSong", "options": []}'>playlist_play</button>
           </div>
           <div class="btn-group me-2 featHome">
-            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
-          <div id="QueueCurrentPaginationTop" class="btn-group me-2 pagination">
-          </div>
+          <div id="QueueCurrentPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
 
         <div class="table-responsive-md scrollContainer">
@@ -230,8 +228,7 @@
             </tfoot>
           </table>
         </div>
-        <div class="btn-toolbar d-none justify-content-between" id="QueueCurrentButtonsBottom">
-        </div>
+        <div class="btn-toolbar d-none justify-content-between" id="QueueCurrentButtonsBottom"></div>
       </div>
 
       <div class="card-body d-none" id="tabQueueLastPlayed">
@@ -243,7 +240,7 @@
                 <button data-phrase="Queue" class="btn btn-sm btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
                 <button data-phrase="LastPlayed" class="btn btn-sm btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
                 <button data-phrase="Jukebox" class="btn btn-sm btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Jukebox"]}'></button>
-            </div>
+              </div>
             </div>
           </div>
           <form class="flex-grow-1">
@@ -253,10 +250,9 @@
             </div>
           </form>
           <div class="btn-group me-2 featHome">
-            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
-          <div id="QueueLastPlayedPaginationTop" class="btn-group me-2 pagination">
-          </div>
+          <div id="QueueLastPlayedPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
 
         <div class="table-responsive-md scrollContainer">
@@ -275,8 +271,7 @@
             </tbody>
           </table>
         </div>
-        <div class="btn-toolbar d-none justify-content-between" id="QueueLastPlayedButtonsBottom">
-        </div>
+        <div class="btn-toolbar d-none justify-content-between" id="QueueLastPlayedButtonsBottom"></div>
       </div>
 
       <div class="card-body d-none" id="tabQueueJukebox">
@@ -288,7 +283,7 @@
                 <button data-phrase="Queue" class="btn btn-sm btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
                 <button data-phrase="LastPlayed" class="btn btn-sm btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
                 <button data-phrase="Jukebox" class="btn btn-sm btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "Jukebox"]}'></button>
-            </div>
+              </div>
             </div>
           </div>
           <form class="flex-grow-1">
@@ -298,7 +293,7 @@
             </div>
           </form>
           <div class="btn-group me-2 featHome">
-            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
           <div id="QueueJukeboxPaginationTop" class="btn-group me-2 pagination">
           </div>
@@ -316,8 +311,7 @@
                 <th></th>
               </tr>
             </thead>
-            <tbody class="clickable">
-            </tbody>
+            <tbody class="clickable"></tbody>
           </table>
         </div>
         <div class="btn-toolbar d-none justify-content-between" id="QueueJukeboxButtonsBottom">
@@ -352,7 +346,7 @@
             </div>
           </div>
           <div class="btn-group me-2 featHome">
-            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
           <div id="BrowsePlaylistsListPaginationTop" class="btn-group me-2 pagination">
           </div>
@@ -367,8 +361,7 @@
                   <th></th>
                 </tr>
               </thead>
-              <tbody class="clickable">
-              </tbody>
+              <tbody class="clickable"></tbody>
             </table>
           </div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowsePlaylistsListButtonsBottom"></div>
@@ -383,7 +376,7 @@
                 <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
                 <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchPlaylistsDetailStr"/>
               </div>
-            </form>          
+            </form>
             <div class="btn-group me-2" id="playlistContentBtns">
               <button data-title-phrase="Clear playlist" type="button" class="btn btn-secondary mi rounded-end me-2" data-href='{"cmd": "showClearPlaylist", "options": []}'>clear_all</button>
               <button data-href='{"cmd": "playlistShuffle", "options": []}' class="btn btn-secondary mi rounded me-2" type="button" data-title-phrase="Shuffle playlist">shuffle</button>
@@ -402,8 +395,7 @@
             <div class="btn-group me-2 featHome">
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
             </div>
-            <div id="BrowsePlaylistsDetailPaginationTop" class="btn-group me-2 pagination">
-            </div>
+            <div id="BrowsePlaylistsDetailPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="table-responsive-md scrollContainer">
             <table id="BrowsePlaylistsDetailList" class="table table-hover table-sm">
@@ -422,7 +414,7 @@
               </tbody>
               <tfoot>
               </tfoot>
-            </table>          
+            </table>
           </div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowsePlaylistsDetailButtonsBottom"></div>
         </div>
@@ -465,7 +457,7 @@
               </div>
             </div>
             <div class="btn-group me-2 featHome">
-              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
             </div>
             <div id="BrowseDatabaseListPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
@@ -473,8 +465,7 @@
           <div class="container-fluid BrowseDatabaseCardsContainer scrollContainer">
             <div id="BrowseDatabaseListList" class="row"></div>
           </div>
-          <div class="btn-toolbar d-none justify-content-between" id="BrowseDatabaseListButtonsBottom">
-          </div>
+          <div class="btn-toolbar d-none justify-content-between" id="BrowseDatabaseListButtonsBottom"></div>
         </div>
         <div id="viewBrowseDatabaseDetail">
           <div class="btn-toolbar card-toolbar">
@@ -496,7 +487,7 @@
               </div>
             </div>
             <div class="btn-group me-2 featHome">
-              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
             </div>
           </div>
           <div class="table-responsive-md scrollContainer">
@@ -513,10 +504,8 @@
                   <th></th>
                 </tr>
               </thead>
-              <tbody class="clickable">
-              </tbody>
-              <tfoot>
-              </tfoot>
+              <tbody class="clickable"></tbody>
+              <tfoot></tfoot>
             </table>
           </div>
         </div>
@@ -549,10 +538,9 @@
             </div>
           </div>
           <div class="btn-group me-2 featHome">
-            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
-          <div id="BrowseFilesystemPaginationTop" class="btn-group me-2 pagination">
-          </div>
+          <div id="BrowseFilesystemPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
         <ol id="BrowseBreadcrumb" class="breadcrumb p-2 rounded-2"></ol>
         <div id="BrowseFilesystemImages" class="featLibrary not-clickable" data-href='{"cmd": "zoomPicture", "options": []}'></div>
@@ -568,16 +556,13 @@
                 <th></th>
               </tr>
             </thead>
-            <tbody class="clickable">
-            </tbody>
-            <tfoot>
-            </tfoot>
+            <tbody class="clickable"></tbody>
+            <tfoot></tfoot>
           </table>
         </div>
-        <div class="btn-toolbar d-none justify-content-between" id="BrowseFilesystemButtonsBottom">
-        </div>
+        <div class="btn-toolbar d-none justify-content-between" id="BrowseFilesystemButtonsBottom"></div>
       </div>
-    </div>        
+    </div>
 
     <div class="card d-none" id="cardSearch">
       <div class="card-body">
@@ -612,14 +597,13 @@
                 <button data-href='{"cmd": "showAddToPlaylistCurrentSearch", "options": []}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm featPlaylists"></button>
                 <button data-href='{"cmd": "saveSearchAsSmartPlaylist", "options": []}' data-phrase="Save as smart playlist" type="button" class="btn btn-secondary btn-sm featSmartpls"></button>
                 <button data-href='{"cmd": "addSearchToHome", "options": []}' data-phrase="Add to home screen" type="button" class="btn btn-secondary btn-sm featHome"></button>
-            </div>
+              </div>
             </div>
           </div>
           <div class="btn-group me-2 featHome">
-            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
-          <div id="SearchPaginationTop" class="btn-group me-2 pagination">
-          </div>
+          <div id="SearchPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
         <ol class="featAdvsearch breadcrumb p-2 rounded-2 d-none" id="searchCrumb"></ol>
         <div class="table-responsive-md scrollContainer">
@@ -634,17 +618,15 @@
                 <th></th>
               </tr>
             </thead>
-            <tbody class="clickable">
-            </tbody>
+            <tbody class="clickable"></tbody>
           </table>
         </div>
-        <div class="btn-toolbar d-none justify-content-between" id="SearchButtonsBottom">
-        </div>
+        <div class="btn-toolbar d-none justify-content-between" id="SearchButtonsBottom"></div>
       </div>
     </div>
     <div id="alertBox"></div>
-  </main>    
-  <!-- Footer -->  
+  </main>
+  <!-- Footer -->
   <footer class="footer fixed-bottom">
     <div id="footerProgressPos" class="bg-secondary px-2 py-1 rounded-sm"></div>
     <div id="footerProgress" class="progress clickable align-items-center">
@@ -663,8 +645,7 @@
         </div>
       </div>
       <div class="d-flex flex-fill navbar-nav ms-3" id="footerInfo">
-        <div data-title-phrase="Show cover" id="footerCover" class="album-cover-loading rounded me-3 clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'>
-        </div>
+        <div data-title-phrase="Show cover" id="footerCover" class="album-cover-loading rounded me-3 clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'></div>
         <div id="footerPlaying">
           <span id="footerTitle" class="notclickable" data-href='{"cmd": "clickTitle", "options": []}'>Title</span><br/>
           <span data-tag="Artist" id="footerArtist" data-href='{"cmd": "gotoBrowse", "options": ["event"]}'>Artist</span>&nbsp;&ndash;&nbsp;<span data-tag="Album" id="footerAlbum" data-href='{"cmd": "gotoBrowse", "options": ["event"]}'>Album</span>
@@ -732,10 +713,10 @@
         </div>
         <div class="modal-footer d-none" id="updateDBfooter">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>        
+        </div>
       </div>
     </div>
-  </div>  
+  </div>
 
   <div class="modal fade" id="modalAddToPlaylist" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -778,19 +759,19 @@
             <label class="col-sm-4 col-form-label" data-phrase="Insert mode"></label>
             <div class="col-sm-8" id="addToPlaylistPos">
               <div class="form-check ms-4">
-                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="append" id="addToPlaylistPosAppend">
+                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="append" id="addToPlaylistPosAppend"/>
                 <label class="form-check-label" for="addToPlaylistPosAppend" data-phrase="Append"></label>
               </div>
               <div class="form-check ms-4 featWhence" id="addToPlaylistPosInsertRow">
-                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="insert" id="addToPlaylistPosInsert">
+                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="insert" id="addToPlaylistPosInsert"/>
                 <label class="form-check-label" for="addToPlaylistPosInsert" data-phrase="Insert after current playing song"></label>
               </div>
               <div class="form-check ms-4 featWhence" id="addToPlaylistPosPlayRow">
-                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="play" id="addToPlaylistPosPlay">
+                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="play" id="addToPlaylistPosPlay"/>
                 <label class="form-check-label" for="addToPlaylistPosPlay" data-phrase="Add to queue and play"></label>
               </div>
               <div class="form-check ms-4">
-                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="replace" id="addToPlaylistPosReplace">
+                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="replace" id="addToPlaylistPosReplace"/>
                 <label class="form-check-label" for="addToPlaylistPosReplace" data-phrase="Replace"></label>
               </div>
             </div>
@@ -831,9 +812,9 @@
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "renamePlaylist", "options": []}' data-phrase="Save"></button>
-        </div>        
+        </div>
       </div>
-      </div>
+    </div>
   </div>
 
   <div class="modal fade" id="modalSaveSmartPlaylist" tabindex="-1">
@@ -851,7 +832,7 @@
                 <input type="text" class="form-control" id="saveSmartPlaylistName"/>
                 <div class="invalid-feedback" data-phrase="Invalid filename"></div>
               </div>
-            </div>            
+            </div>
             <div class="mb-3 row">
               <label class="col-sm-4 col-form-label" for="saveSmartPlaylistType" data-phrase="Type"></label>
               <div class="col-sm-8">
@@ -890,7 +871,7 @@
                   <input type="text" class="form-control" id="inputSaveSmartPlaylistStickerMinvalue"/>
                   <div class="invalid-feedback" data-phrase="Must be a number"></div>
                 </div>
-              </div>           
+              </div>
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistStickerMaxentries" data-phrase="Max. songs"></label>
                 <div class="col-sm-8">
@@ -906,17 +887,17 @@
                   <input type="text" class="form-control" id="inputSaveSmartPlaylistNewestTimerange"/>
                   <div class="invalid-feedback" data-phrase="Must be a number"></div>
                 </div>
-              </div>            
-            </div>            
+              </div>
+            </div>
           </form>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "saveSmartPlaylist", "options": []}' data-phrase="Save"></button>
-        </div>        
+        </div>
       </div>
       </div>
-  </div>  
+  </div>
 
   <div class="modal fade" id="modalSettings" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -960,9 +941,8 @@
                 <hr/>
                 <h4 data-phrase="Background"></h4>
                 <div id="bgFrm"></div>
-                <div class="collapse" id="bgCssFilterFrm">
-                </div>
-                <div class="invalid-feedback" data-phrase="Invalid CSS filter"></div>  
+                <div class="collapse" id="bgCssFilterFrm"></div>
+                <div class="invalid-feedback" data-phrase="Invalid CSS filter"></div>
                 <div id="bgFrm2"></div>
                 <hr/>
                 <h4 data-phrase="Albumart"></h4>
@@ -990,18 +970,15 @@
                 <div id="footerFrm"></div>
                 <hr/>
                 <h4 data-phrase="Lists"></h4>
-                <div id="appearanceSettingsFrm">
-                </div>
+                <div id="appearanceSettingsFrm"></div>
               </form>
             </div>
             <div class="tab-pane" id="tabNotificationSettings">
               <h4 data-phrase="Notifications"></h4>
-              <form id="NotificationSettingsFrm">
-              </form>
+              <form id="NotificationSettingsFrm"></form>
               <div id="warnNotifyWeb" class="alert alert-warning d-none" data-phrase="Notifications are blocked"></div>
               <hr/>
-              <form id="NotificationSettingsAdvFrm">
-              </form>
+              <form id="NotificationSettingsAdvFrm"></form>
             </div>
             <div class="tab-pane active" id="tabGeneralSettings">
               <form id="GeneralSettingsFrm">
@@ -1018,7 +995,7 @@
                         <div class="btn-group">
                           <button id="btnEnabledTags" type="button" data-bs-toggle="dropdown" class="square-start text-left btn btn-secondary dropdown-toggle"></button>
                           <div id="listEnabledTags" class="dropdown-menu dropdown-menu-dark px-2"></div>
-                      </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1046,11 +1023,10 @@
                       </div>
                     </div>
                   </div>
-                </div>  
+                </div>
                 <hr/>
                 <h4 data-phrase="Statistics"></h4>
-                <div id="statisticsFrm">
-                </div>
+                <div id="statisticsFrm"></div>
                 <hr/>
                 <h4 data-phrase="Smart playlists"></h4>
                 <div id="warnSmartpls" class="alert alert-warning d-none" data-phrase="Too old MPD version for smart playlists"></div>
@@ -1091,7 +1067,7 @@
                     <div class="col-sm-8">
                       <div class="input-group">
                         <div class="flex-grow position-relative">
-                          <input is="mympd-input-reset" id="inputSmartplsInterval" type="text" class="form-control rounded" placeholder="4"/>  
+                          <input is="mympd-input-reset" id="inputSmartplsInterval" type="text" class="form-control rounded" placeholder="4"/>
                         </div>
                         <span class="input-group-text-nobg" data-phrase="Hours"></span>
                         <div class="invalid-feedback" data-phrase="Invalid number"></div>
@@ -1129,8 +1105,7 @@
                 <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="btnClearCovercache" data-phrase="Clear covercache"></label>
                   <div class="col-sm-8">
-                    <button type="button" id="btnClearCovercache" class="btn btn-secondary btnCleanup protected" data-href='{"cmd": "clearCovercache", "options": []}' data-phrase="Clear"></button>
-                    &nbsp;
+                    <button type="button" id="btnClearCovercache" class="me-2 btn btn-secondary btnCleanup protected" data-href='{"cmd": "clearCovercache", "options": []}' data-phrase="Clear"></button>
                     <button type="button" id="btnCropCovercache" class="btn btn-secondary btnCleanup protected" data-href='{"cmd": "cropCovercache", "options": []}' data-phrase="Crop"></button>
                   </div>
                 </div>
@@ -1169,12 +1144,10 @@
             </div>
             <div class="tab-pane" id="tabAdvancedSettings">
               <h4 data-phrase="Default actions"></h4>
-              <form id="clickSettingsFrm">
-              </form>
+              <form id="clickSettingsFrm"></form>
               <hr/>
               <h4 data-phrase="Volume control"></h4>
-              <form id="volumeSettingsFrm">
-              </form>
+              <form id="volumeSettingsFrm"></form>
             </div>
           </div>
         </div>
@@ -1188,7 +1161,7 @@
       </div>
     </div>
   </div>
-  
+
   <div class="modal fade" id="modalQueueSettings" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -1216,7 +1189,7 @@
                 </div>
                 <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="btnConsume" data-phrase="Consume"></label>
-                  <div class="col-sm-8">          
+                  <div class="col-sm-8">
                     <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnConsume" type="button" class="btn btn-secondary btn-sm mi"></button>
                   </div>
                 </div>
@@ -1259,7 +1232,7 @@
                 </div>
                 <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="btnAutoPlay" data-phrase="Autoplay"></label>
-                  <div class="col-sm-8">          
+                  <div class="col-sm-8">
                     <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnAutoPlay" type="button" class="btn btn-secondary btn-sm mi"></button>
                   </div>
                 </div>
@@ -1397,7 +1370,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">settings_ethernet</span> <span data-phrase="MPD connection"></span></h5>
-          <button type="button" class="btn-close alwaysEnabled" data-bs-dismiss="modal"></button>          
+          <button type="button" class="btn-close alwaysEnabled" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form id="connectionFrm">
@@ -1484,7 +1457,7 @@
                     <div class="flex-grow position-relative">
                       <input is="mympd-input-reset" id="inputMpdBinarylimit" type="text" class="form-control alwaysEnabled" placeholder="8"/>
                     </div>
-                    <span class="input-group-text-nobg data-phrase="kB"></span>
+                    <span class="input-group-text-nobg" data-phrase="kB"></span>
                   </div>
                   <div class="invalid-feedback" data-phrase="Invalid binary limit"></div>
                 </div>
@@ -1505,7 +1478,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">save</span> <span data-phrase="Save queue"></span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form id="saveQueueFrm">
@@ -1531,7 +1504,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">add_to_queue</span> <span data-phrase="Add to queue"></span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form id="addToQueueFrm">
@@ -1614,8 +1587,7 @@
             <div class="tab-pane" id="tabSongComments">
               <div class="col table-responsive-md">
                 <table class="table table-sm">
-                  <tbody id="tbodySongComments">
-                  </tbody>
+                  <tbody id="tbodySongComments"></tbody>
                 </table>
               </div>
             </div>
@@ -1633,7 +1605,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">timer</span> <span data-phrase="Timer"></span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
         <div class="tab-content">
@@ -1759,8 +1731,7 @@
               </div>
               <div id="timerActionScript">
                 <h5 data-phrase="Script arguments"></h5>
-                <div id="timerActionScriptArguments">
-                </div>
+                <div id="timerActionScriptArguments"></div>
               </div>
             </form>
           </div>
@@ -1777,11 +1748,10 @@
                     <th>&nbsp;</th>
                   </tr>
                 </thead>
-                <tbody class="clickable" id="listTimerList">
-                </tbody>
+                <tbody class="clickable" id="listTimerList"></tbody>
               </table>
             </div>
-          </div>  
+          </div>
         </div>
         </div>
         <div class="modal-footer justify-content-between" id="listTimerFooter">
@@ -1801,7 +1771,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">dns</span><span data-phrase="Mounts"></span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
         <div class="tab-content">
@@ -1831,7 +1801,6 @@
                 </div>
               </div>
             </form>
-            <div id="errorMount" class="alert alert-danger d-none"></div>
           </div>
           <div class="tab-pane active" id="listMounts">
             <div class="table-responsive-md overflow-auto">
@@ -1843,18 +1812,17 @@
                     <th>&nbsp;</th>
                   </tr>
                 </thead>
-                <tbody class="clickable" id="listMountsList">
-                </tbody>
+                <tbody class="clickable" id="listMountsList"></tbody>
               </table>
             </div>
-          </div>  
+          </div>
         </div>
         </div>
         <div class="modal-footer justify-content-between" id="listMountsFooter">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button data-href='{"cmd":"showEditMount","options":["",""]}' class="btn btn-success protected" data-phrase="New mount"></button>
         </div>
-        <div class="modal-footer  justify-content-between d-none" id="editMountFooter">
+        <div class="modal-footer justify-content-between d-none" id="editMountFooter">
           <button data-href='{"cmd":"showListMounts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
           <button data-href='{"cmd":"mountMount","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
@@ -1867,7 +1835,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">code</span><span data-phrase="Execute script"></span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form id="execScriptFrm">
@@ -1878,8 +1846,7 @@
               </div>
             </div>
             <hr/>
-            <div id="execScriptArguments">
-            </div>
+            <div id="execScriptArguments"></div>
           </form>
         </div>
         <div class="modal-footer justify-content-between">
@@ -1895,7 +1862,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">code</span> <span data-phrase="Scripts"></span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
         <div class="tab-content">
@@ -1935,7 +1902,7 @@
                 <textarea class="form-control text-monospace border-secondary" id="textareaScriptContent" rows="10"></textarea>
                 <div class="btn-group mt-2 me-2">
                   <button id="btnDropdownAddAPIcall" data-title-phrase="Insert API call" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">api</span></button>
-                  <div class="dropdown-menu  dropdown-menu-dark px-2" id="dropdownAddAPIcall">
+                  <div class="dropdown-menu dropdown-menu-dark px-2" id="dropdownAddAPIcall">
                     <div class="input-group">
                       <select class="form-select" id="selectAPIcall"></select>
                       <button class="btn btn-success" id="btnAddAPIcall" data-title-phrase="Add"><span class="mi">add</span></button>
@@ -1950,7 +1917,7 @@
                 </div>
                 <div class="btn-group mt-2">
                   <button id="btnDropdownAddFunction" data-title-phrase="Insert function" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">functions</span></button>
-                  <div class="dropdown-menu  dropdown-menu-dark px-2" id="dropdownAddFunction">
+                  <div class="dropdown-menu dropdown-menu-dark px-2" id="dropdownAddFunction">
                     <div class="input-group">
                       <select class="form-select" id="selectFunction"></select>
                       <button class="btn btn-success" id="btnAddFunction" data-title-phrase="Add"><span class="mi">add</span></button>
@@ -1970,11 +1937,10 @@
                     <th>&nbsp;</th>
                   </tr>
                 </thead>
-                <tbody class="clickable" id="listScriptsList">
-                </tbody>
+                <tbody class="clickable" id="listScriptsList"></tbody>
               </table>
             </div>
-          </div>  
+          </div>
         </div>
         </div>
         <div class="modal-footer justify-content-between" id="listScriptsFooter">
@@ -1994,7 +1960,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">dashboard</span> <span data-phrase="Partitions"></span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
         <div class="tab-content">
@@ -2018,11 +1984,10 @@
                     <th>&nbsp;</th>
                   </tr>
                 </thead>
-                <tbody id="listPartitionsList">
-                </tbody>
+                <tbody id="listPartitionsList"></tbody>
               </table>
             </div>
-          </div>  
+          </div>
         </div>
         </div>
         <div class="modal-footer justify-content-between" id="listPartitionsFooter">
@@ -2042,7 +2007,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">volume_up</span> <span data-phrase="Move an output to this partition"></span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <div class="table-responsive-md overflow-auto">
@@ -2052,8 +2017,7 @@
                   <th data-phrase="Output"></th>
                 </tr>
               </thead>
-              <tbody id="partitionOutputsList" class="clickable">
-              </tbody>
+              <tbody id="partitionOutputsList" class="clickable"></tbody>
             </table>
           </div>
         </div>
@@ -2069,15 +2033,14 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">volume_up</span> <span data-phrase="Output attributes"></span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form>
             <input type="hidden" id="modalOutputAttributesId"/>
             <div class="table-responsive-md overflow-auto">
               <table class="table table-sm">
-                <tbody id="outputAttributesList">
-                </tbody>
+                <tbody id="outputAttributesList"></tbody>
               </table>
             </div>
           </form>
@@ -2109,7 +2072,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">bolt</span> <span data-phrase="Trigger"></span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
         <div class="tab-content">
@@ -2137,8 +2100,7 @@
                 </div>
               </div>
               <h5 data-phrase="Script arguments"></h5>
-              <div id="triggerActionScriptArguments">
-              </div>
+              <div id="triggerActionScriptArguments"></div>
             </form>
           </div>
           <div class="tab-pane active" id="listTrigger">
@@ -2156,7 +2118,7 @@
                 </tbody>
               </table>
             </div>
-          </div>  
+          </div>
         </div>
         </div>
         <div class="modal-footer justify-content-between" id="listTriggerFooter">
@@ -2176,7 +2138,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">home</span> <span id="modalEditHomeIconTitle" data-phrase="Edit home icon"></span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form id="editHomeIconForm">
@@ -2263,10 +2225,10 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">contact_support</span> <span data-phrase="Are you sure?"></span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-         <p id="modalConfirmText"></p>
+          <p id="modalConfirmText"></p>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
@@ -2281,7 +2243,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">password</span> <span data-phrase="Enter Pin"></span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3 row">
@@ -2305,7 +2267,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">priority_high</span> <span data-phrase="Set song priority"></span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>          
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <input type="hidden" id="inputSongPriorityTrackId"/>
