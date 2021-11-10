@@ -31,6 +31,7 @@ function initTrigger() {
 
 //eslint-disable-next-line no-unused-vars
 function saveTrigger() {
+    removeIsInvalid(document.getElementById('modalTrigger'));
     let formOK = true;
     
     const nameEl = document.getElementById('inputTriggerName');

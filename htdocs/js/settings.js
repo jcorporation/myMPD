@@ -101,6 +101,7 @@ function eventChangeTheme(event) {
 
 //eslint-disable-next-line no-unused-vars
 function saveConnection() {
+    removeIsInvalid(document.getElementById('modalConnection'));
     let formOK = true;
     const mpdHostEl = document.getElementById('inputMpdHost');
     const mpdPortEl = document.getElementById('inputMpdPort');
@@ -898,6 +899,7 @@ function resetSettings() {
 
 //eslint-disable-next-line no-unused-vars
 function saveSettings(closeModal) {
+    removeIsInvalid(document.getElementById('modalSettings'));
     let formOK = true;
 
     for (const inputId of ['inputWebUIsettinguiCoverimageSize', 'inputWebUIsettinguiCoverimageSizeSmall',
@@ -1009,6 +1011,7 @@ function saveSettingsApply(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function saveQueueSettings() {
+    removeIsInvalid(document.getElementById('modalQueueSettings'));
     let formOK = true;
 
     for (const inputId of ['inputCrossfade', 'inputJukeboxQueueLength', 'inputJukeboxLastPlayed']) {

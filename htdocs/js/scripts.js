@@ -160,6 +160,7 @@ function apiParamsToArgs(p) {
 
 //eslint-disable-next-line no-unused-vars
 function saveScript() {
+    removeIsInvalid(document.getElementById('modalScripts'));
     let formOK = true;
     
     const nameEl = document.getElementById('inputScriptName');

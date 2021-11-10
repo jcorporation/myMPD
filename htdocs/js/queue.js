@@ -388,6 +388,7 @@ function replaceQueue(type, uri, callback) {
 
 //eslint-disable-next-line no-unused-vars
 function addToQueue() {
+    removeIsInvalid(document.getElementById('modalAddToQueue'));
     let formOK = true;
     const inputAddToQueueQuantityEl = document.getElementById('inputAddToQueueQuantity');
     if (!validateInt(inputAddToQueueQuantityEl)) {
@@ -406,6 +407,7 @@ function addToQueue() {
 
 //eslint-disable-next-line no-unused-vars
 function saveQueue() {
+    removeIsInvalid(document.getElementById('modalSaveQueue'));
     const plNameEl = document.getElementById('saveQueueName');
     if (validatePlnameEl(plNameEl) === true) {
         sendAPI("MYMPD_API_QUEUE_SAVE", {
@@ -432,6 +434,8 @@ function showSetSongPriority(trackId) {
 
 //eslint-disable-next-line no-unused-vars
 function setSongPriority() {
+    removeIsInvalid(document.getElementById('modalSetSongPriority'));
+
     const trackId = Number(document.getElementById('inputSongPriorityTrackId').value);
     const priorityEl = document.getElementById('inputSongPriority');
     if (validateIntRange(priorityEl, 0, 255) === true) {

@@ -217,6 +217,8 @@ function parseSmartPlaylist(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function saveSmartPlaylist() {
+    removeIsInvalid(document.getElementById('modalSaveSmartPlaylist'));
+
     const name = document.getElementById('saveSmartPlaylistName').value;
     const type = getDataId('saveSmartPlaylistType', 'data-value');
     const sort = getSelectValueId('saveSmartPlaylistSort');
@@ -414,6 +416,8 @@ function toggleAddToPlaylistFrm() {
 
 //eslint-disable-next-line no-unused-vars
 function addToPlaylist() {
+    removeIsInvalid(document.getElementById('modalAddToPlaylist'));
+
     let uri = document.getElementById('addToPlaylistUri').value;
     const mode = getRadioBoxValueId('addToPlaylistPos');
     let type;
@@ -551,6 +555,8 @@ function showRenamePlaylist(from) {
 
 //eslint-disable-next-line no-unused-vars
 function renamePlaylist() {
+    removeIsInvalid(document.getElementById('modalRenamePlaylist'));
+
     const from = document.getElementById('renamePlaylistFrom').value;
     const to = document.getElementById('renamePlaylistTo').value;
     if (to !== from && validatePlname(to) === true) {

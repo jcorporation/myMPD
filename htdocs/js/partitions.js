@@ -79,6 +79,7 @@ function parsePartitionOutputsList(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function savePartition() {
+    removeIsInvalid(document.getElementById('modalPartitions'));
     let formOK = true;
     
     const nameEl = document.getElementById('inputPartitionName');

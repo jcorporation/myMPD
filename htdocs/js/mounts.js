@@ -51,7 +51,6 @@ function initMounts() {
         showListMounts();
         getUrlhandlers();
         hideModalAlert();
-        removeIsInvalid(document.getElementById('modalMounts'));
     });
 }
 
@@ -64,7 +63,6 @@ function unmountMount(mountPoint) {
 
 //eslint-disable-next-line no-unused-vars
 function mountMount() {
-    elHideId('errorMount');
     removeIsInvalid(document.getElementById('modalMounts'));
     let formOK = true;
     const inputMountUrl = document.getElementById('inputMountUrl');
