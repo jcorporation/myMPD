@@ -181,3 +181,13 @@ function validateSelect(el) {
     setIsInvalid(el);
     return false;
 }
+
+function validatePrintable(el) {
+    const value = el.value.replace(/[\w-]+/g, '');
+    if (value !== '') {
+        setIsInvalid(el);
+        return false;
+    }
+    removeIsInvalid(el);
+    return true;
+}
