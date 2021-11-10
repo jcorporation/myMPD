@@ -201,7 +201,7 @@ function saveScriptCheckError(obj) {
 
 function addScriptArgument() {
     const el = document.getElementById('inputScriptArgument');
-    if (validatePlnameEl(el)) {
+    if (validatePrintable(el)) {
         const o = document.createElement('option');
         o.text = el.value;
         document.getElementById('selectScriptArguments').appendChild(o);

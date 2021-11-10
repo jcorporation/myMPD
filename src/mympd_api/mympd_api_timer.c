@@ -426,6 +426,10 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
         else {
             MYMPD_LOG_ERROR("Invalid timer line");
             MYMPD_LOG_DEBUG("Errorneous line: %s", line);
+            if (timer_def != NULL) {
+                mympd_api_timer_free_definition(timer_def);
+                FREE_PTR(timer_def);
+            }
         }
         i++;
     }
