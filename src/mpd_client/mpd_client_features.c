@@ -92,11 +92,17 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
         mympd_state->mpd_state->feat_mpd_playlist_rm_range = true;
         mympd_state->mpd_state->feat_whence = true;
         MYMPD_LOG_NOTICE("Enabling delete playlist range feature");
-        MYMPD_LOG_NOTICE("Enabling support for position whence feature");
     }
     else {
         MYMPD_LOG_WARN("Disabling delete playlist range support, depends on mpd >= 0.23.3");
-        MYMPD_LOG_WARN("Disabling position whence support, depends on mpd >= 0.23.3");
+    }
+
+    if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 23, 4) >= 0 ) {
+        mympd_state->mpd_state->feat_whence = true;
+        MYMPD_LOG_NOTICE("Enabling support for position whence feature");
+    }
+    else {
+        MYMPD_LOG_WARN("Disabling position whence support, depends on mpd >= 0.23.4");
     }
     
     if (mympd_state->mpd_state->feat_advsearch == true && mympd_state->mpd_state->feat_playlists == true) {

@@ -73,6 +73,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
     struct t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
+        case MYMPD_API_LOGLEVEL:
+            if (json_get_int(request->data, "$.params.loglevel", 0, 7, &int_buf1, &error) == true) {
+                MYMPD_LOG_INFO("Setting loglevel to %d", int_buf1);
+                loglevel = int_buf1;
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
+            }
+            break;
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
         case MYMPD_API_SMARTPLS_UPDATE:
         case INTERNAL_API_CACHES_CREATE:
@@ -951,8 +958,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 }
             }
             break;
-        /*
-        not yet supported by mpd
         case MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH:
             if (mympd_state->mpd_state->feat_whence == false) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Method not supported");
@@ -963,10 +968,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true)
             {
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
-                    sds_buf2, NULL, false, NULL, sds_buf1, uint_buf1, 0, 0, 0, NULL, mympd_state->sticker_cache);
+                    sds_buf2, NULL, false, NULL, sds_buf1, uint_buf1, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
+                if (result == true) {
+                    response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
+                        "playlist", "info", "Updated the playlist %{playlist}", 2, "playlist", sds_buf1);
+                }
             }
             break;
-        */
         case MYMPD_API_PLAYLIST_CONTENT_REPLACE_SEARCH:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf2, vcb_isname, &error) == true)
@@ -1167,12 +1175,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
                 //start workaround for missing whence feature
-                if (uint_buf2 == 1) {
+                if (uint_buf2 == MPD_POSITION_AFTER_CURRENT) {
                     uint_buf1 = mympd_state->mpd_state->song_pos + 1 + uint_buf1;
                 }
-                else if (uint_buf2 == 2) {
+                else if (uint_buf2 == MPD_POSITION_BEFORE_CURRENT) {
                     uint_buf1 = mympd_state->mpd_state->song_pos - uint_buf1;
                 }
+                uint_buf2 = MPD_POSITION_ABSOLUTE;
                 //stop workaround for missing whence feature
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
                     sds_buf1, NULL, false, NULL, "queue", uint_buf1, uint_buf2, 0, 0, NULL, mympd_state->sticker_cache, &result);

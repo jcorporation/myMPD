@@ -469,6 +469,14 @@ const APImethods = {
             "to": APIparams.to
         }
     },
+    "MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH": {
+        "desc": "Inserts the search result into the playlist.",
+        "params": {
+            "plist": APIparams.plist,
+            "expression": APIparams.expression,
+            "to": APIparams.to
+        }
+    },
     "MYMPD_API_PLAYLIST_CONTENT_REPLACE_URI": {
         "desc": "Replaces the playlist content with uri.",
         "params": {
@@ -1579,5 +1587,16 @@ const APImethods = {
     "MYMPD_API_COVERCACHE_CROP": {
         "desc": "Clears the covercache",
         "params": {}
+    },
+    "MYMPD_API_LOGLEVEL": {
+        "desc": "Sets the loglevel",
+        "protected": true,
+        "params": {
+            "loglevel": {
+                "type": "uint",
+                "example": 5,
+                "desc": "https://jcorporation.github.io/myMPD/configuration/logging"
+            }
+        }
     }
 };
