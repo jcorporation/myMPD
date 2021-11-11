@@ -10,8 +10,9 @@ myMPD support only MPD 0.20.0 and above.
 
 | MYMPD FEATURE | MPD FEATURE | MPD VERSION | DESCRIPTION |
 | ------------- | ----------- | ----------- | ----------- | 
-| Add after current song | position/whence arg for load/findadd | 0.23.3 | |
-| Add and play | position/whence arg for load/findadd | 0.23.3 | |
+| Add after current song | position/whence arg for load/findadd | 0.23.4 | |
+| Insert into playlist | position arg for playlist commands | 0.23.4 | |
+| Add and play | position/whence arg for load/findadd | 0.23.4 | |
 | Partitions | Partition | 0.22.0 | |
 | Embedded albumart| Readpicture | 0.22.0 | myMPD can read pictures tags directly if it has access to the musicdirectory |
 | Albumart in album folder | Albumart | 0.21.0 | myMPD can read pictures tags directly if it has access to the musicdirectory |
