@@ -123,14 +123,11 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
         return buffer;
     }
 
-    if (plist != NULL && strcmp(plist, "queue") == 0) {
-        //mpd supports position argument only for queue
-        if (to < UINT_MAX) {
-            bool rc = mpd_search_add_position(mpd_state->conn, to, whence);
-            if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_position") == false) {
-                mpd_search_cancel(mpd_state->conn);
-                return buffer;
-            }
+    if (plist != NULL) {
+        bool rc = mpd_search_add_position(mpd_state->conn, to, whence);
+        if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_position") == false) {
+            mpd_search_cancel(mpd_state->conn);
+            return buffer;
         }
     }
 

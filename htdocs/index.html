@@ -374,7 +374,7 @@
                 <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchPlaylistsDetailStr"/>
               </div>
             </form>
-            <div class="btn-group me-2" id="playlistContentBtns">
+            <div class="btn-group" id="playlistContentBtns">
               <button data-title-phrase="Clear playlist" type="button" class="btn btn-secondary mi rounded-end me-2" data-href='{"cmd": "showClearPlaylist", "options": []}'>clear_all</button>
               <button data-href='{"cmd": "playlistShuffle", "options": []}' class="btn btn-secondary mi rounded me-2" type="button" data-title-phrase="Shuffle playlist">shuffle</button>
               <div class="btn-group me-2">
@@ -745,8 +745,8 @@
               <div class="col-sm-8 position-relative">
                 <div class="btn-group d-flex">
                   <input is="mympd-select-search" id="addToPlaylistPlaylist" data-placeholder-phrase="Choose a playlist or enter a new playlist name" class="form-control"/>
-                  <div class="invalid-feedback" data-phrase="Choose a playlist or enter a new playlist name"></div>
                 </div>
+                <div class="invalid-feedback" data-phrase="Choose a playlist or enter a new playlist name"></div>
               </div>
             </div>
           </form>

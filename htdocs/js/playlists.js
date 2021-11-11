@@ -379,16 +379,16 @@ function showAddToPlaylist(uri, searchstr) {
     if (uri !== 'STREAM') {
         elHideId('addStreamFrm');
         elShowId('addToPlaylistFrm');
-        document.getElementById('addToPlaylistPosInsertLabel').textContent = tn('Insert after current playing song');
         elHideId('addToPlaylistPosPlayRow');
         document.getElementById('addToPlaylistCaption').textContent = tn('Add to playlist');
+        document.getElementById('addToPlaylistPosInsertLabel').textContent = tn('Insert at start of playlist');
     }
     else {
         elShowId('addStreamFrm');
         elHideId('addToPlaylistFrm');
         elShowId('addToPlaylistPosPlayRow');
-        document.getElementById('addToPlaylistPosInsertLabel').textContent = tn('Insert at start of playlist');
         document.getElementById('addToPlaylistCaption').textContent = tn('Add stream');
+        document.getElementById('addToPlaylistPosInsert').nextElementSibling.textContent = tn('Insert after current playing song');
     }
     uiElements.modalAddToPlaylist.show();
     if (features.featPlaylists) {
@@ -520,7 +520,7 @@ function insertPlaylist(type, uri, plist, to, callback) {
             break;
         case 'search':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH", {
-                "uri": uri,
+                "expression": uri,
                 "plist": plist,
                 "to": to
             }, callback, true);
