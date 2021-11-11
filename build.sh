@@ -959,35 +959,45 @@ translate() {
 }
 
 materialicons() {
+  check_cmd jq
+  check_cmd wget
+  
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
-  if ! wget -q https://raw.githubusercontent.com/google/material-design-icons/master/update/current_versions.json \
-	-O current_version.json
+  FONT_URI=$(wget -q https://fonts.googleapis.com/css2?family=Material+Icons -O - | grep url | cut -d\( -f2 | cut -d\) -f1)
+  if ! wget -q "$FONT_URI" -O MaterialIcons-Regular.woff2
   then
-    echo_error "Error downloading json file"
+    echo_error "Error downloading font file"
     exit 1
   fi
-  EXCLUDE="face_unlock|battery_\\d|battery_charging_\\d|signal_cellular_|signal_wifi_\\d_bar"
-  printf "const materialIcons={" > "$STARTPATH/htdocs/js/ligatures.js"
+  METADATA_URI="https://fonts.google.com/metadata/icons"
+  if ! wget -q "$METADATA_URI" -O metadata.json
+  then
+    echo_error "Error downloading metadata"
+    exit 1
+  fi
+  sed -i '1d' metadata.json  
+  printf "const materialIcons={" > "ligatures.js"
   I=0
-  #shellcheck disable=SC2013
-  for CAT in $(grep "^\\s" current_version.json | cut -d\" -f2 | cut -d: -f1 | sort -u)
+  for CAT in $(jq -r ".icons[].categories | .[]" < metadata.json | sort -u)
   do
-    [ "$I" -gt 0 ] && printf "," >> "$STARTPATH/htdocs/js/ligatures.js"
-    printf "\"%s\": [" "$CAT" >> "$STARTPATH/htdocs/js/ligatures.js"
-	J=0
-	#shellcheck disable=SC2013
-	for MI in $(cut -d\" -f2 current_version.json | grep "$CAT::" | cut -d: -f3 | grep -v -P "$EXCLUDE")
-	do
-	  [ "$J" -gt 0 ] && printf "," >> "$STARTPATH/htdocs/js/ligatures.js"
-	  printf "\"%s\"" "$MI" >> "$STARTPATH/htdocs/js/ligatures.js"
-	  J=$((J+1))	
-	done
-	printf "]" >> "$STARTPATH/htdocs/js/ligatures.js"
-	I=$((I+1))
-  done 
-  echo "};"  >> "$STARTPATH/htdocs/js/ligatures.js"
-  cd / || exit 1
+    [ "$I" -gt 0 ] && printf "," >> "ligatures.js"
+    printf "\"%s\":[" "$CAT" >> "ligatures.js"
+    J=0
+    for ICON in $(jq -r ".icons[] | select(.categories[]==\"$CAT\") | .name" < metadata.json)
+    do
+      [ "$J" -gt 0 ] && printf "," >> "ligatures.js"
+      printf "\"%s\"" "$ICON" >> "ligatures.js"
+      J=$((J+1))
+    done
+    printf "]" >> "ligatures.js"
+    I=$((I+1))
+  done
+  echo "};"  >> "ligatures.js"
+  cp ligatures.js "$STARTPATH/htdocs/js/"
+  cp MaterialIcons-Regular.woff2 "$STARTPATH/htdocs/assets/"
+  cp MaterialIcons-Regular.woff2 "$STARTPATH/dist/material-icons/"
+  cd "$STARTPATH"
   rm -fr "$TMPDIR"
 }
 
