@@ -89,6 +89,8 @@ $form-select-disabled-bg: $gray-600;
 $form-check-input-border: 1px solid $gray-600;
 $form-check-input-bg: $gray-200;
 
+$form-feedback-icon-valid: "";
+$form-feedback-icon-invalid: "";
 
 // 3. Include remainder of required Bootstrap stylesheets
 @import "../node_modules/bootstrap/scss/variables";
