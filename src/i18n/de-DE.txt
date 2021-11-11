@@ -667,7 +667,7 @@ Remove all upwards
 Alle Lieder darüber entfernen
 
 Remove all downwards
-Aller Lieder darunter entfernen
+Alle Lieder darunter entfernen
 
 Database update started
 Datenbankaktualisierung gestartet
