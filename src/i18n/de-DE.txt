@@ -1949,3 +1949,6 @@ Covercache
 
 7 Debug
 7 Debug
+
+Temporary setting
+Temporäre Einstellung
