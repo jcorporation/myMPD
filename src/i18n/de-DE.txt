@@ -1919,3 +1919,33 @@ Die MPD Version ist veraltet
 
 Loglevel
 Loglevel
+
+Open maintenance
+Öffne Wartung
+
+Covercache
+Covercache
+
+0 Emerg
+0 Notfall
+
+1 Alert
+1 Alarm
+
+2 Critical
+2 Kritisch
+
+3 Error
+3 Fehler
+
+4 Warn
+4 Warnung
+
+5 Notice
+5 Hinweis
+
+6 Info
+6 Info
+
+7 Debug
+7 Debug
