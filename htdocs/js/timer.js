@@ -313,7 +313,7 @@ function showListTimer() {
 function parseListTimer(obj) {
     const tbody = document.getElementById('listTimer').getElementsByTagName('tbody')[0];
     
-    if (checkResult(obj, tbody, 5) === false) {
+    if (checkResult(obj, tbody, 6) === false) {
         return;
     }
     elClear(tbody);

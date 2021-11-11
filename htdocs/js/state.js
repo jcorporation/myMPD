@@ -27,9 +27,9 @@ function parseStats(obj) {
     mpdInfoVersionEl.appendChild(document.createTextNode(obj.result.mpdProtocolVersion));
     
     const mpdProtocolVersion = obj.result.mpdProtocolVersion.match(/(\d+)\.(\d+)\.(\d+)/);
-    if (mpdProtocolVersion[1] >= 0 &&
-        mpdProtocolVersion[2] >= 23 &&
-        mpdProtocolVersion[3] >= 3)
+    if (mpdProtocolVersion[1] >= mpdVersion.major &&
+        mpdProtocolVersion[2] >= mpdVersion.minor &&
+        mpdProtocolVersion[3] >= mpdVersion.patch)
     {
         //up2date mpd version
     }

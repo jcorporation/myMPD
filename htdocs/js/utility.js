@@ -1240,3 +1240,14 @@ function createImgCarousel(imgEl, name, images) {
         pause: false
     });
 }
+
+function setLoglevel() {
+    removeIsInvalid(document.getElementById('modalSettings'));    
+    const loglevelEl = document.getElementById('inputSetLoglevel');
+    if (!validateIntRange(loglevelEl, 0, 7)) {
+        return;
+    }
+    sendAPI("MYMPD_API_LOGLEVEL", {
+        "loglevel": Number(loglevelEl.value)
+    });
+}

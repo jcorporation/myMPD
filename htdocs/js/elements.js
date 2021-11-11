@@ -8,8 +8,12 @@ class inputClear extends HTMLInputElement {
         super();
         const button = elCreateText('button', {"class": ["mi", "mi-small", "input-inner-button", "btn-secondary"]}, 'clear');
         this.button = button;
+        this.classList.add('innerButton');
     }
     connectedCallback() {
+        if (this.parentNode.classList.contains('col')) {
+            this.button.style.right = '1rem';
+        }
         this.parentNode.insertBefore(this.button, this.nextElementSibling);
         if (this.value === '')  {
             elHide(this.button);
@@ -26,8 +30,8 @@ class inputClear extends HTMLInputElement {
             }
         }, false);
         this.button.addEventListener('mouseup', function(event) {
-            event.target.previousSibling.value = '';
-            const dataClearEvent = event.target.previousSibling.getAttribute('data-clear-event');
+            event.target.previousElementSibling.value = '';
+            const dataClearEvent = event.target.previousElementSibling.getAttribute('data-clear-event');
             if (dataClearEvent !== null) {
                 const clearEvent = new Event(dataClearEvent);
                 event.target.previousElementSibling.dispatchEvent(clearEvent);
@@ -41,6 +45,7 @@ class inputReset extends HTMLInputElement {
         super();
         const button = elCreateText('button', {"class": ["mi", "mi-small", "input-inner-button"]}, 'settings_backup_restore');
         this.button = button;
+        this.classList.add('innerButton');
     }
     connectedCallback() {
         if (this.parentNode.firstElementChild.getAttribute('type') === 'color') {
@@ -72,17 +77,18 @@ class selectSearch extends HTMLInputElement {
             filterInput,
             filterResult
         ]);
-        this.parentNode.insertBefore(dropdown, this.nextSibling);
+        this.parentNode.insertBefore(dropdown, this.nextElementSibling);
         
         const button = elCreateEmpty('button', {"class": ["input-inner-button", "select-inner-button"], "data-bs-toggle": "dropdown"});
         if (this.parentNode.classList.contains('col-sm-8')) {
             button.style.right = '1rem';
         }
         button.style.cursor = 'default';
-        this.parentNode.insertBefore(button, this.nextSibling);
+        this.parentNode.insertBefore(button, this.nextElementSibling);
         this.dropdownButton = button;
         this.filterInput = filterInput;
         this.filterResult = filterResult;
+        this.classList.add('innerButton');
     }
     connectedCallback() {
         const input = this;

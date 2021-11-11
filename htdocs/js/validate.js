@@ -33,6 +33,10 @@ function setIsInvalidId(id) {
 }
 
 function setIsInvalid(el) {
+    if (el.parentNode.getElementsByClassName('is-invalid').length === 0) {
+        //set is-invalid on parent node
+        el.parentNode.classList.add('is-invalid');
+    }
     el.classList.add('is-invalid');
 }
 

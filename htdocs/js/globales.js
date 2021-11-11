@@ -37,6 +37,13 @@ const sessionLifetime = 1780;
 const sessionRenewInterval = sessionLifetime * 500;
 let sessionTimer = null;
 
+//minimum mpd version to support all myMPD features
+const mpdVersion = {
+    "major": 0,
+    "minor": 23,
+    "patch": 4
+}
+
 //remember offset for filesystem browsing uris
 const browseFilesystemHistory = {};
 

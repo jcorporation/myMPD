@@ -66,6 +66,12 @@ function initHome() {
         const selLig = document.getElementById('inputHomeIconLigature').value;
         if (selLig !== '') {
             document.getElementById('searchHomeIconLigature').value = selLig;
+            if (selLig !== '') {
+                elShow(document.getElementById('searchHomeIconLigature').nextElementSibling);
+            }
+            else {
+                elHide(document.getElementById('searchHomeIconLigature').nextElementSibling);
+            }
             filterHomeIconLigatures();
         }
     }, false);

@@ -757,9 +757,9 @@
                 <input class="form-check-input" type="radio" name="addToPlaylistPos" value="append" id="addToPlaylistPosAppend"/>
                 <label class="form-check-label" for="addToPlaylistPosAppend" data-phrase="Append"></label>
               </div>
-              <div class="form-check ms-4 featWhence" id="addToPlaylistPosInsertRow">
+              <div class="form-check ms-4 featWhence">
                 <input class="form-check-input" type="radio" name="addToPlaylistPos" value="insert" id="addToPlaylistPosInsert"/>
-                <label class="form-check-label" for="addToPlaylistPosInsert" data-phrase="Insert after current playing song"></label>
+                <label class="form-check-label" for="addToPlaylistPosInsert" id="addToPlaylistPosInsertLabel" data-phrase="Insert after current playing song"></label>
               </div>
               <div class="form-check ms-4 featWhence" id="addToPlaylistPosPlayRow">
                 <input class="form-check-input" type="radio" name="addToPlaylistPos" value="play" id="addToPlaylistPosPlay"/>
@@ -1135,6 +1135,15 @@
                     <button type="button" id="btnForceSmartplsUpdate" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateSmartPlaylists", "options": [true]}' data-phrase="Force update"></button>
                   </div>
                 </div>
+                <div class="mb-3 row featPlaylists">
+                  <label class="col-sm-4 col-form-label" for="btnSetLoglevel" data-phrase="Loglevel"></label>
+                  <div class="col-sm-8">
+                    <div class="input-group">
+                      <input id="inputSetLoglevel" class="form-control" value="" data-placeholder="5"/>
+                      <button id="btnSetLoglevel" data-href='{"cmd": "setLoglevel", "options": []}' type="button" class="btn btn-secondary protected" data-phrase="Set"></button>
+                    </div>
+                  </div>
+                </div>
               </form>
             </div>
             <div class="tab-pane" id="tabAdvancedSettings">
@@ -1277,8 +1286,8 @@
                           <input is="mympd-input-reset" id="inputJukeboxLastPlayed" type="text" class="form-control rounded" placeholder="24"/>
                         </div>
                         <span class="input-group-text-nobg" data-phrase="Hours"></span>
+                        <div class="invalid-feedback" data-phrase="Must be a number and equal or greater than zero"></div>
                       </div>
-                      <div class="invalid-feedback" data-phrase="Must be a number and equal or greater than zero"></div>
                     </div>
                   </div>
                   <div id="warnPlaybackStatistics" class="alert alert-warning d-none" data-phrase="Playback statistics are disabled"></div>
@@ -1385,6 +1394,7 @@
             </div>
             <hr/>
             <div class="mb-3 row">
+              <div class="col-sm-4"></div>
               <div class="col-sm-8">
                 <button data-href='{"cmd": "toggleBtn", "options": []}' data-bs-toggle="collapse" data-bs-target="#collapseConnectionAdv" class="btn btn-secondary alwaysEnabled" data-phrase="Advanced"></button>
               </div>
@@ -1432,8 +1442,8 @@
                       <input is="mympd-input-reset" id="inputMpdTimeout" type="text" class="form-control alwaysEnabled" placeholder="10"/>
                     </div>
                     <span class="input-group-text-nobg" data-phrase="Seconds"></span>
+                    <div class="invalid-feedback" data-phrase="Invalid timeout"></div>
                   </div>
-                  <div class="invalid-feedback" data-phrase="Invalid timeout"></div>
                 </div>
               </div>
               <div class="mb-3 row">
@@ -1633,31 +1643,31 @@
                 <label class="col-sm-4 col-form-label" for="TimerWeekdays" data-phrase="Weekdays"></label>
                 <div class="col-sm-8 mt-3">
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs mi mi-small" id="btnTimerMon">radio_button_unchecked</button>
-                    &nbsp;<label class="form-check-label" for="btnTimerMon" data-phrase="Mon"></label>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="me-2 btn btn-secondary btn-xs mi mi-small" id="btnTimerMon">radio_button_unchecked</button>
+                    <label class="form-check-label" for="btnTimerMon" data-phrase="Mon"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs mi mi-small" id="btnTimerTue">radio_button_unchecked</button>
-                    &nbsp;<label class="form-check-label" for="btnTimerTue" data-phrase="Tue"></label>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="me-2 btn btn-secondary btn-xs mi mi-small" id="btnTimerTue">radio_button_unchecked</button>
+                    <label class="form-check-label" for="btnTimerTue" data-phrase="Tue"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs mi mi-small" id="btnTimerWed">radio_button_unchecked</button>
-                    &nbsp;<label class="form-check-label" for="btnTimerWed" data-phrase="Wed"></label>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="me-2 btn btn-secondary btn-xs mi mi-small" id="btnTimerWed">radio_button_unchecked</button>
+                    <label class="form-check-label" for="btnTimerWed" data-phrase="Wed"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs mi mi-small" id="btnTimerThu">radio_button_unchecked</button>
-                    &nbsp;<label class="form-check-label" for="btnTimerThu" data-phrase="Thu"></label>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="me-2 btn btn-secondary btn-xs mi mi-small" id="btnTimerThu">radio_button_unchecked</button>
+                    <label class="form-check-label" for="btnTimerThu" data-phrase="Thu"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs mi mi-small" id="btnTimerFri">radio_button_unchecked</button>
-                    &nbsp;<label class="form-check-label" for="btnTimerFri" data-phrase="Fri"></label>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="me-2 btn btn-secondary btn-xs mi mi-small" id="btnTimerFri">radio_button_unchecked</button>
+                    <label class="form-check-label" for="btnTimerFri" data-phrase="Fri"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs mi mi-small" id="btnTimerSat">radio_button_unchecked</button>
-                    &nbsp;<label class="form-check-label" for="btnTimerSat" data-phrase="Sat"></label>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="me-2 btn btn-secondary btn-xs mi mi-small" id="btnTimerSat">radio_button_unchecked</button>
+                    <label class="form-check-label" for="btnTimerSat" data-phrase="Sat"></label>
                   </div>
-                  <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs mi mi-small" id="btnTimerSun">radio_button_unchecked</button>
+                  <div class="form-check form-check-inline me-0">
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="me-2 btn btn-secondary btn-xs mi mi-small" id="btnTimerSun">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerSun" data-phrase="Sun"></label>
                   </div>
                   <div id="invalidTimerWeekdays" class="invalid-feedback" data-phrase="Minimum one weekday must be selected"></div>
@@ -1689,8 +1699,7 @@
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="selectTimerAction" data-phrase="Action"></label>
                 <div class="col-sm-8">
-                  <select id="selectTimerAction" class="form-select">
-                  </select>
+                  <select id="selectTimerAction" class="form-select"></select>
                   <div class="invalid-feedback" data-phrase="No action selected"></div>
                 </div>
               </div>
@@ -1700,9 +1709,7 @@
                   <div class="col-sm-7 mt-2">
                     <input type="range" min="0" max="100" step="1" class="form-range" id="inputTimerVolume"/>
                   </div>
-                  <div class="col-sm-1 mt-2 ps-0 text-right" id="textTimerVolume">
-                    50&nbsp;%
-                  </div>
+                  <div class="col-sm-1 mt-2 ps-0 text-right" id="textTimerVolume">50&nbsp;%</div>
                 </div>
                 <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="btnTimerJukeboxModeGroup" data-phrase="Jukebox mode"></label>
@@ -2109,8 +2116,7 @@
                     <th>&nbsp;</th>
                   </tr>
                 </thead>
-                <tbody id="listTriggerList" class="clickable">
-                </tbody>
+                <tbody id="listTriggerList" class="clickable"></tbody>
               </table>
             </div>
           </div>
@@ -2161,8 +2167,8 @@
                       <button id="btnHomeIconLigature" type="button" data-bs-toggle="dropdown" class="square-start text-left btn btn-secondary dropdown-toggle"></button>
                       <div id="dropdownHomeIconLigature" class="dropdown-menu  dropdown-menu-dark px-2">
                         <div class="row">
-                          <div class="col">
-                            <input id="searchHomeIconLigature" type="text" class="form-control" data-placeholder-phrase="Filter"/>
+                          <div class="col position-relative">
+                            <input is="mympd-input-clear" data-clear-event="keyup" id="searchHomeIconLigature" type="text" class="form-control" data-placeholder-phrase="Filter"/>
                           </div>
                           <div class="col">
                             <select id="searchHomeIconCat" class="form-select"></select>
