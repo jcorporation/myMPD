@@ -64,6 +64,7 @@ extern struct t_mympd_queue *mympd_script_queue;
     X(MYMPD_API_JUKEBOX_LIST) \
     X(MYMPD_API_JUKEBOX_RM) \
     X(MYMPD_API_LIKE) \
+    X(MYMPD_API_LOGLEVEL) \
     X(MYMPD_API_LYRICS_GET) \
     X(MYMPD_API_MESSAGE_SEND) \
     X(MYMPD_API_MOUNT_LIST) \
@@ -96,6 +97,7 @@ extern struct t_mympd_queue *mympd_script_queue;
     X(MYMPD_API_PLAYLIST_CONTENT_APPEND_SEARCH) \
     X(MYMPD_API_PLAYLIST_CONTENT_APPEND_URI) \
     X(MYMPD_API_PLAYLIST_CONTENT_CLEAR) \
+    X(MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH) \
     X(MYMPD_API_PLAYLIST_CONTENT_INSERT_URI) \
     X(MYMPD_API_PLAYLIST_CONTENT_LIST) \
     X(MYMPD_API_PLAYLIST_CONTENT_MOVE_SONG) \
@@ -159,9 +161,6 @@ extern struct t_mympd_queue *mympd_script_queue;
     X(MYMPD_API_TRIGGER_SAVE) \
     X(MYMPD_API_URLHANDLERS) \
     X(TOTAL_API_COUNT)
-
-//not yet supported by MPD
-//X(MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH)
 
 #define GEN_ENUM(X) X,
 #define GEN_STR(X) #X,

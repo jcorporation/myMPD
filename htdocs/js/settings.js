@@ -128,6 +128,9 @@ function saveConnection() {
     if (mpdPortEl.value === '') {
         mpdPortEl.value = '6600';
     }
+    if (!validateIntRange(mpdPortEl, 1024, 65535)) {
+        formOK = false;
+    }
     if (mpdHostEl.value.indexOf('/') !== 0) {
         if (!validateInt(mpdPortEl)) {
             formOK = false;        
@@ -159,7 +162,7 @@ function saveConnection() {
             "mpdBinarylimit": Number(mpdBinarylimitEl.value) * 1024,
             "mpdTimeout": Number(mpdTimeoutEl.value) * 1000,
             "mpdKeepalive": (document.getElementById('btnMpdKeepalive').classList.contains('active') ? true : false)
-        }, saveConnectionClose);
+        }, saveConnectionClose, true);
     }
 }
 
@@ -593,6 +596,8 @@ function populateSettingsFrm() {
     }
     uiElements.collapseuiBgCover = new BSN.Collapse(inputWebUIsettinguiBgCover);
     toggleBtnChkCollapseId('inputWebUIsettinguiBgCover', 'bgCssFilterFrm', settings.webuiSettings.uiBgCover);
+
+    document.getElementById('inputSetLoglevel').value = settings.loglevel;
 
     //tag multiselects
     initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.tagListMpd, settings.tagList);

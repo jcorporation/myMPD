@@ -23,7 +23,7 @@
 
 #define MYMPD_LOG_ERRNO(ERRNUM) mympd_log_errno(__FILE__, __LINE__, ERRNUM)
 
-extern int loglevel;
+extern _Atomic int loglevel;
 extern bool log_on_tty;
 extern bool log_to_syslog;
 _Thread_local extern sds thread_logname;
