@@ -1241,8 +1241,9 @@ function createImgCarousel(imgEl, name, images) {
     });
 }
 
+//eslint-disable-next-line no-unused-vars
 function setLoglevel() {
-    removeIsInvalid(document.getElementById('modalSettings'));    
+    removeIsInvalid(document.getElementById('modalSettings'));
     const loglevelEl = document.getElementById('inputSetLoglevel');
     if (!validateIntRange(loglevelEl, 0, 7)) {
         return;

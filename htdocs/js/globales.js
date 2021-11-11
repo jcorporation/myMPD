@@ -42,7 +42,7 @@ const mpdVersion = {
     "major": 0,
     "minor": 23,
     "patch": 4
-}
+};
 
 //remember offset for filesystem browsing uris
 const browseFilesystemHistory = {};
