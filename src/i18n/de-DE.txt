@@ -919,7 +919,7 @@ Tue
 Di
 
 Wed
-Mit
+Mi
 
 Thu
 Do
@@ -1645,7 +1645,7 @@ Invalid binary limit
 Ungültiger Binary Limit Wert
 
 Invalid timeout
-Ungültiger Timeit
+Ungültiger Timeout
 
 Timeout
 Timeout
@@ -1916,3 +1916,6 @@ Ansicht zum Homescreen hinzufügen
 
 MPD version is outdated
 Die MPD Version ist veraltet
+
+Loglevel
+Loglevel
