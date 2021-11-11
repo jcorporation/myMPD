@@ -109,7 +109,7 @@ function showConfirm(text, btnText, callback) {
         if (callback !== undefined && typeof(callback) === 'function') {
             callback();
         }
-        uiElements.modalConfirm.hide();        
+        uiElements.modalConfirm.hide();
     }, false);
     document.getElementById('modalConfirmYesBtn').replaceWith(yesBtn);
     uiElements.modalConfirm.show();
@@ -627,7 +627,7 @@ function toggleBtnGroup(btn) {
 function getBtnGroupValueId(id) {
     let activeBtn = document.getElementById(id).getElementsByClassName('active');
     if (activeBtn.length === 0) {
-        activeBtn = document.getElementById(id).getElementsByTagName('button');    
+        activeBtn = document.getElementById(id).getElementsByTagName('button');
     }
     return getData(activeBtn[0], 'data-value');
 }
@@ -710,13 +710,13 @@ function setPagination(total, returned) {
     }
     
     let totalPages = total < app.current.limit ? 
-        total === -1 ? -1 : 1 :  Math.ceil(total / app.current.limit);
+        total === -1 ? -1 : 1 : Math.ceil(total / app.current.limit);
     const curPage = Math.ceil(app.current.offset / app.current.limit) + 1;
     if (app.current.limit > returned) {
         totalPages = curPage;
     }
     
-    //toolbar    
+    //toolbar
     const paginationTop = createPaginationEls(totalPages, curPage);
     paginationTop.classList.add('me-2');
     paginationTop.setAttribute('id', curPaginationTop.id);
@@ -973,7 +973,7 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
             }
         }
     }
-    crumbEl.childElementCount > 0 ? elShow(crumbEl) : elHide(crumbEl);    
+    crumbEl.childElementCount > 0 ? elShow(crumbEl) : elHide(crumbEl);
 }
 
 function createSearchCrumb(filter, op, value) {

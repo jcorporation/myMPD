@@ -141,9 +141,9 @@ function apiParamsToArgs(p) {
             args += ', ';
         }
         i++;
-        args += param + ' =  ';
+        args += param + ' = ';
         if (p[param].params !== undefined) {
-            args += apiParamsToArgs(p[param].params);            
+            args += apiParamsToArgs(p[param].params);
         }
         else {
             if (p[param].type === 'text') {
@@ -309,7 +309,7 @@ function parseScriptList(obj) {
                 showScriptListLen++;
                 const a = elCreateText('a', {"class": ["dropdown-item", "alwaysEnabled"], "href": "#"}, obj.result.data[i].name);
                 setData(a, 'data-href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
-                mainmenuScripts.appendChild(a);               
+                mainmenuScripts.appendChild(a);
             }
             //scriptlist in scripts modal
             const tr = elCreateNodes('tr', {}, [

@@ -106,7 +106,7 @@ app.cards = {
     },
     "Browse": { 
         "active": "Database", 
-        "tabs":  { 
+        "tabs": { 
             "Filesystem": { 
                 "offset": 0,
                 "limit": 100,

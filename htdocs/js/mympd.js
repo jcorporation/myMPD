@@ -152,7 +152,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
     }
     app.id = app.current.card + (app.current.tab === undefined ? '' : app.current.tab) + (app.current.view === undefined ? '' : app.current.view);
 
-    //get ptr to app options and set active tab/view        
+    //get ptr to app options and set active tab/view
     let ptr;
     if (app.cards[app.current.card].offset !== undefined) {
         ptr = app.cards[app.current.card];
@@ -406,7 +406,7 @@ function showAppInitAlert(text) {
     btn.addEventListener('click', function() {
         clearAndReload();
     }, false);
-    spa.appendChild(elCreateNode('p', {}, btn));    
+    spa.appendChild(elCreateNode('p', {}, btn));
 }
 
 function clearAndReload() {
@@ -720,7 +720,7 @@ function initGlobalModals() {
     
     document.getElementById('inputPinModal').addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
-            document.getElementById('modalEnterPinEnterBtn').click();        
+            document.getElementById('modalEnterPinEnterBtn').click();
         }
     }, false);
 }

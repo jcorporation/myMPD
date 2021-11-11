@@ -177,7 +177,7 @@ function parseHome(obj) {
         elReplaceChild(cardContainer,
             elCreateText('div', {"class": ["ms-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
         );
-        setPagination(obj.result.totalEntities, obj.result.returnedEntities);    
+        setPagination(obj.result.totalEntities, obj.result.returnedEntities);
         return;
     }
     if (cols.length === 0) {

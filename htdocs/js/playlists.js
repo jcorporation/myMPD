@@ -118,7 +118,7 @@ function parsePlaylistsDetail(obj) {
     }
     setDataId('BrowsePlaylistsDetailList', 'data-uri', obj.result.plist);
     document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].textContent = 
-        (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist'))  + ': ' + obj.result.plist;
+        (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist')) + ': ' + obj.result.plist;
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
 
     elReplaceChild(tfoot, elCreateNode('tr', {}, 
@@ -149,7 +149,7 @@ function playlistShuffle() {
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_SHUFFLE", {
         "plist": getDataId('BrowsePlaylistsDetailList', 'data-uri')
     });
-    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
+    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -158,7 +158,7 @@ function playlistSort(tag) {
         "plist": getDataId('BrowsePlaylistsDetailList', 'data-uri'),
         "tag": tag
     });
-    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
+    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -183,7 +183,7 @@ function removeFromPlaylist(mode, plist, start, end) {
             "pos": start
         });
     }
-    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
+    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');
 }
 
 function parseSmartPlaylist(obj) {
@@ -602,7 +602,7 @@ function updateSmartPlaylistClick() {
     sendAPI("MYMPD_API_SMARTPLS_UPDATE", {
         "plist": getDataId('BrowsePlaylistsDetailList', 'data-uri')
     });
-    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
+    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');
 }
 
 //eslint-disable-next-line no-unused-vars

@@ -69,7 +69,7 @@ function showNotification(title, text, facility, severity) {
         if (show === null ) {
             logDebug('Unknown facility: ' + facility);
             //fallback to general
-            show = settings.webuiSettings['notificationGeneral'];    
+            show = settings.webuiSettings['notificationGeneral'];
         }
         if (show === false) { 
             return;
@@ -128,7 +128,7 @@ function logMessage(title, text, facility, severity) {
     let append = true;
     const lastEntry = overview.firstElementChild;
     if (lastEntry && getData(lastEntry, 'data-title') === title) {
-        append = false;        
+        append = false;
     }
 
     const entry = elCreateEmpty('div', {"class": ["row", "align-items-center", "mb-2", "me-0"]});
@@ -139,7 +139,7 @@ function logMessage(title, text, facility, severity) {
     }
     setData(entry, 'data-occurence', occurence);
     entry.appendChild(elCreateNode('div', {"class": ["col", "col-1", "ps-0"]}, getSeverityIcon(severity)));
-    const col = elCreateEmpty('div', {"class": ["col", "col-11"]});  
+    const col = elCreateEmpty('div', {"class": ["col", "col-11"]});
     col.appendChild(elCreateText('small', {}, localeDate() + ' - ' + tn(facility) + '  '));
     if (occurence > 1) {
         col.appendChild(elCreateText('div', {"class": ["badge", "bg-secondary"]}, occurence));

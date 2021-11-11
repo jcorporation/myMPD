@@ -26,7 +26,7 @@ function initBrowse() {
                 '((' + app.current.tag + ' == \'' + escapeMPD(getData(event.target.parentNode, 'data-tag')) + '\'))');
         }
     }, false);
-    
+
     document.getElementById('BrowseDatabaseListList').addEventListener('contextmenu', function(event) {
         if (event.target.classList.contains('row') || event.target.parentNode.classList.contains('not-clickable')) {
             return;
@@ -35,7 +35,7 @@ function initBrowse() {
             popoverMenuAlbumCards(event);
         }
     }, false);
-    
+
     document.getElementById('BrowseDatabaseListList').addEventListener('long-press', function(event) {
         if (event.target.classList.contains('row')) {
             return;
@@ -44,7 +44,7 @@ function initBrowse() {
             popoverMenuAlbumCards(event);
         }
     }, false);
-   
+
     document.getElementById('BrowseDatabaseDetailList').addEventListener('click', function(event) {
         if (event.target.parentNode.parentNode.nodeName === 'TFOOT') {
             return;
@@ -63,7 +63,7 @@ function initBrowse() {
             searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
         }
     }, false);
-    
+
     document.getElementById('databaseSortDesc').addEventListener('click', function(event) {
         toggleBtnChk(this);
         event.stopPropagation();
@@ -89,11 +89,11 @@ function initBrowse() {
     document.getElementById('BrowseDatabaseByTagDropdown').addEventListener('click', function(event) {
         navBrowseHandler(event);
     }, false);
-    
+
     document.getElementById('BrowseNavPlaylistsDropdown').addEventListener('click', function(event) {
         navBrowseHandler(event);
     }, false);
-    
+
     document.getElementById('BrowseNavFilesystemDropdown').addEventListener('click', function(event) {
         navBrowseHandler(event);
     }, false);
@@ -114,7 +114,7 @@ function initBrowse() {
                 0, app.current.limit, (this.value !== '' ? this.value : '-'), app.current.sort, '-', app.current.search);
         }
     }, false);
-    
+
     document.getElementById('searchDatabaseStr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
             this.blur();
@@ -464,7 +464,7 @@ function parseDatabase(obj) {
         cols[i].remove();
     }
     
-    setPagination(obj.result.totalEntities, obj.result.returnedEntities);    
+    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
 }
 
 function setGridImage(changes, observer) {
@@ -562,7 +562,7 @@ function parseAlbumDetails(obj) {
 //eslint-disable-next-line no-unused-vars
 function backToAlbumGrid() {
     appGoto('Browse', 'Database', 'List');
-}  
+}
 
 //eslint-disable-next-line no-unused-vars
 function addAlbum(action) {

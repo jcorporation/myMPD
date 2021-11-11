@@ -15,7 +15,7 @@ class inputClear extends HTMLInputElement {
             this.button.style.right = '1rem';
         }
         this.parentNode.insertBefore(this.button, this.nextElementSibling);
-        if (this.value === '')  {
+        if (this.value === '') {
             elHide(this.button);
         }
         else {

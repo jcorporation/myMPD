@@ -66,7 +66,7 @@ function initSettings() {
                 elEnableId('selectJukeboxPlaylist');
             }
             if (value !== '0') {
-                toggleBtnChkId('btnConsume', true);            
+                toggleBtnChkId('btnConsume', true);
             }
             checkConsume();
         }, 100);
@@ -125,9 +125,9 @@ function saveConnection() {
     }
     
     if (musicDirectory === 'custom') {
-        const musicDirectoryValueEl  = document.getElementById('inputMusicDirectory');
+        const musicDirectoryValueEl = document.getElementById('inputMusicDirectory');
         if (!validatePath(musicDirectoryValueEl)) {
-            formOK = false;        
+            formOK = false;
         }
         musicDirectory = musicDirectoryValueEl.value;
     }    
@@ -139,10 +139,10 @@ function saveConnection() {
     }
     if (mpdHostEl.value.indexOf('/') !== 0) {
         if (!validateInt(mpdPortEl)) {
-            formOK = false;        
+            formOK = false;
         }
         if (!validateHost(mpdHostEl)) {
-            formOK = false;        
+            formOK = false;
         }
     }
     if (!validatePath(playlistDirectoryEl)) {
@@ -297,7 +297,7 @@ function parseSettings(obj) {
         elHideId('btnStop');
     }
 
-    //set local playback url    
+    //set local playback url
     if (settings.webuiSettings.enableLocalPlayback === true) {
         setLocalPlayerUrl();
     }
@@ -309,7 +309,7 @@ function parseSettings(obj) {
 
     //Info in about modal
     document.getElementById('mpdInfoHost').textContent = settings.mpdHost.indexOf('/') !== 0 ?
-        settings.mpdHost + ':' + settings.mpdPort :  settings.mpdHost;
+        settings.mpdHost + ':' + settings.mpdPort : settings.mpdHost;
 
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.webuiSettings.uiCoverimageSize + "px");
     document.documentElement.style.setProperty('--mympd-coverimagesizesmall', settings.webuiSettings.uiCoverimageSizeSmall + "px");
@@ -477,7 +477,7 @@ function populateQueueSettingsFrm() {
         toggleBtnChkId('btnAutoPlay', settings.autoPlay);
         toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.single);
         toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.replaygain);
-        document.getElementById('inputCrossfade').value = settings.crossfade;    
+        document.getElementById('inputCrossfade').value = settings.crossfade;
         if (features.featStickers === false) {
             elShowId('warnPlaybackStatistics');
             elDisableId('inputJukeboxLastPlayed');
@@ -564,7 +564,7 @@ function populateSettingsFrm() {
         toggleBtnChk(btnNotifyWeb, false);
     }
 
-    if (isMobile === true) {    
+    if (isMobile === true) {
         document.getElementById('inputScaleRatio').value = scale;
     }
     
@@ -673,7 +673,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
             }
             col.appendChild(select);
         }
-        else if (defaults[key].inputType === 'checkbox') {           
+        else if (defaults[key].inputType === 'checkbox') {
             const btn = elCreateEmpty('button', {"type": "button", "id": prefix + r(key), "class": ["btn", "btn-sm", "btn-secondary", "mi", "chkBtn"]});
             if (fields[key] === true) {
                 btn.classList.add('active');
@@ -866,10 +866,10 @@ function parseMPDSettings() {
     }
     
     if (settings.tagList.includes('AlbumArtist')) {
-        tagAlbumArtist = 'AlbumArtist';        
+        tagAlbumArtist = 'AlbumArtist';
     }
     else if (settings.tagList.includes('Artist')) {
-        tagAlbumArtist = 'Artist';        
+        tagAlbumArtist = 'Artist';
     }
     
     if (!settings.tagList.includes('AlbumArtist') && app.cards.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
@@ -950,7 +950,7 @@ function saveSettings(closeModal) {
         const el = document.getElementById('inputWebUIsetting' + r(key));
         if (el) {
             if (webuiSettingsDefault[key].inputType === 'select') {
-                webuiSettings[key] =  webuiSettingsDefault[key].contentType === 'integer' ? Number(getSelectValue(el)) : getSelectValue(el);
+                webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(getSelectValue(el)) : getSelectValue(el);
             }
             else if (webuiSettingsDefault[key].inputType === 'checkbox') {
                 webuiSettings[key] = el.classList.contains('active') ? true : false;

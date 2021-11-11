@@ -100,7 +100,7 @@ function saveTimer() {
         formOK = false;
         setIsInvalid(document.getElementById('btnTimerSun').parentNode);
     }
-    const selectTimerAction  = document.getElementById('selectTimerAction');
+    const selectTimerAction = document.getElementById('selectTimerAction');
     const jukeboxMode = getData(document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
     const selectTimerPlaylist = getDataId('selectTimerPlaylist', 'data-value');
 
@@ -109,7 +109,7 @@ function saveTimer() {
         setIsInvalid(selectTimerAction);
     }
 
-    if (jukeboxMode === '0' &&  selectTimerPlaylist === 'Database'&& getSelectValue(selectTimerAction) === 'startplay') {
+    if (jukeboxMode === '0' && selectTimerPlaylist === 'Database'&& getSelectValue(selectTimerAction) === 'startplay') {
         formOK = false;
         setIsInvalidId('btnTimerJukeboxModeGroup');
     }

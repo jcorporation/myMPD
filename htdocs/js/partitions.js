@@ -18,7 +18,7 @@ function initPartitions() {
             }
         }
     }, false);
-    
+
     document.getElementById('partitionOutputsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
@@ -90,7 +90,7 @@ function savePartition() {
     if (formOK === true) {
         sendAPI("MYMPD_API_PARTITION_NEW", {
             "name": nameEl.value
-            }, savePartitionCheckError, true);
+        }, savePartitionCheckError, true);
     }
 }
 

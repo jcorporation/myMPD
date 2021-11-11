@@ -12,7 +12,7 @@ function clearMPDerror() {
 }
 
 function parseStats(obj) {
-    document.getElementById('mpdstatsArtists').textContent =  obj.result.artists;
+    document.getElementById('mpdstatsArtists').textContent = obj.result.artists;
     document.getElementById('mpdstatsAlbums').textContent = obj.result.albums;
     document.getElementById('mpdstatsSongs').textContent = obj.result.songs;
     document.getElementById('mpdstatsDbPlaytime').textContent = beautifyDuration(obj.result.dbPlaytime);
@@ -117,7 +117,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
 
 function parseState(obj) {
     //Set play and queue state
-    parseUpdateQueue(obj);    
+    parseUpdateQueue(obj);
     //Set volume
     parseVolume(obj);
     //Set play counters
@@ -213,7 +213,7 @@ function clearBackgroundImage() {
     const old = document.querySelectorAll('.albumartbg');
     for (let i = 0, j = old.length; i < j; i++) {
         if (old[i].style.zIndex === '-10') {
-            old[i].remove();        
+            old[i].remove();
         }
         else {
             old[i].style.zIndex = '-10';
@@ -235,7 +235,7 @@ function _setCurrentCover(url, el) {
     const old = el.querySelectorAll('.coverbg');
     for (let i = 0, j = old.length; i < j; i++) {
         if (old[i].style.zIndex === '2') {
-            old[i].remove();        
+            old[i].remove();
         }
         else {
             old[i].style.zIndex = '2';
@@ -265,7 +265,7 @@ function _clearCurrentCover(el) {
     const old = el.querySelectorAll('.coverbg');
     for (let i = 0, j = old.length; i < j; i++) {
         if (old[i].style.zIndex === '2') {
-            old[i].remove();        
+            old[i].remove();
         }
         else {
             old[i].style.zIndex = '2';

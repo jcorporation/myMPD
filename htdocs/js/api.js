@@ -354,7 +354,6 @@ function webSocketConnect() {
                     updateDBstarted(false);
                     break;
                 case 'update_database':
-                    //fall through
                 case 'update_finished':
                     updateDBfinished(obj.method);
                     break;
