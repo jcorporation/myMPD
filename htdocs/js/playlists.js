@@ -366,6 +366,7 @@ function showAddToPlaylistFromFilesystem() {
 }
 
 function showAddToPlaylist(uri, searchstr) {
+    hideModalAlert();
     document.getElementById('addToPlaylistUri').value = uri;
     document.getElementById('addToPlaylistSearch').value = searchstr;
     document.getElementById('addToPlaylistPlaylist').value = '';

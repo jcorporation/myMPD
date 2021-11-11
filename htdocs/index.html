@@ -81,6 +81,7 @@
       <div id="menu-settings" class="collapse menu-indent">
         <a data-phrase="MPD connection" class="dropdown-item alwaysEnabled" href="#" data-bs-toggle="modal" data-bs-target="#modalConnection"></a>
         <a data-phrase="Settings" class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalSettings"></a>
+        <a data-phrase="Maintenance" class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalMaintenance"></a>
         <a data-phrase="Scripts" class="dropdown-item featScripting" href="#" data-bs-toggle="modal" data-bs-target="#modalScripts"></a>
         <a data-phrase="Timer" class="dropdown-item featTimer" href="#" data-bs-toggle="modal" data-bs-target="#modalTimer"></a>
         <a data-phrase="Trigger" class="dropdown-item featTrigger" href="#" data-bs-toggle="modal" data-bs-target="#modalTrigger"></a>
@@ -914,9 +915,6 @@
             <li class="nav-item">
               <a class="nav-link" href="#tabAdvancedSettings" data-bs-toggle="tab" data-height="true" data-phrase="Advanced"></a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#tabMaintenance" data-bs-toggle="tab" data-height="true" data-phrase="Maintenance"></a>
-            </li>
           </ul>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
@@ -1088,70 +1086,26 @@
               <h4 data-phrase="Further Features"></h4>
               <form id="enableFeaturesFrm"></form>
             </div>
-            <div class="tab-pane" id="tabMaintenance">
-              <form id="MaintenanceFrm">
-                <h4 data-phrase="Maintenance"></h4>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="btnClearAndReload" data-phrase="Clear app cache and reload"></label>
-                  <div class="col-sm-8">
-                    <button type="button" id="btnClearAndReload" class="btn btn-secondary btnCleanup" data-href='{"cmd": "clearAndReload", "options": []}' data-phrase="Reload"></button>
-                  </div>
-                </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="btnClearCovercache" data-phrase="Clear covercache"></label>
-                  <div class="col-sm-8">
-                    <button type="button" id="btnClearCovercache" class="me-2 btn btn-secondary btnCleanup protected" data-href='{"cmd": "clearCovercache", "options": []}' data-phrase="Clear"></button>
-                    <button type="button" id="btnCropCovercache" class="btn btn-secondary btnCleanup protected" data-href='{"cmd": "cropCovercache", "options": []}' data-phrase="Crop"></button>
-                  </div>
-                </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="inputCovercacheKeepDays" data-phrase="Covercache expiration"></label>
-                  <div class="col-sm-8">
-                    <div class="input-group">
-                      <div class="flex-grow position-relative">
-                        <input is="mympd-input-reset" id="inputCovercacheKeepDays" type="text" class="form-control rounded" placeholder="7"/>
-                      </div>
-                      <span class="input-group-text-nobg" data-phrase="Days"></span>
-                    </div>
-                    <div class="invalid-feedback" data-phrase="Invalid number"></div>
-                  </div>
-                </div>
-                <div class="mb-3 row featPlaylists">
-                  <label class="col-sm-4 col-form-label" for="tbnDeletePlaylists" data-phrase="Delete playlists"></label>
-                  <div class="col-sm-8">
-                    <div class="input-group">
-                      <select id="selectDeletePlaylists" class="form-select">
-                        <option value="deleteEmptyPlaylists" data-phrase="Delete empty playlists"></option>
-                        <option value="deleteSmartPlaylists" data-phrase="Delete all smart playlists"></option>
-                        <option value="deleteAllPlaylists" data-phrase="Delete all playlists"></option>
-                      </select>
-                      <button id="btnDeletePlaylists" data-href='{"cmd": "deletePlaylists", "options": []}' type="button" class="btn btn-secondary protected" data-phrase="Delete"></button>
-                    </div>
-                  </div>
-                </div>
-                <div class="mb-3 row featPlaylists">
-                  <label class="col-sm-4 col-form-label" for="btnForceSmartplsUpdate" data-phrase="Force smart playlist update"></label>
-                  <div class="col-sm-8">
-                    <button type="button" id="btnForceSmartplsUpdate" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateSmartPlaylists", "options": [true]}' data-phrase="Force update"></button>
-                  </div>
-                </div>
-                <div class="mb-3 row featPlaylists">
-                  <label class="col-sm-4 col-form-label" for="btnSetLoglevel" data-phrase="Loglevel"></label>
-                  <div class="col-sm-8">
-                    <div class="input-group">
-                      <input id="inputSetLoglevel" class="form-control" value="" data-placeholder="5"/>
-                      <button id="btnSetLoglevel" data-href='{"cmd": "setLoglevel", "options": []}' type="button" class="btn btn-secondary protected" data-phrase="Set"></button>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
             <div class="tab-pane" id="tabAdvancedSettings">
               <h4 data-phrase="Default actions"></h4>
               <form id="clickSettingsFrm"></form>
               <hr/>
               <h4 data-phrase="Volume control"></h4>
               <form id="volumeSettingsFrm"></form>
+              <hr/>
+              <h4 data-phrase="Covercache"></h4>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="inputCovercacheKeepDays" data-phrase="Covercache expiration"></label>
+                <div class="col-sm-8">
+                  <div class="input-group">
+                    <div class="flex-grow position-relative">
+                      <input is="mympd-input-reset" id="inputCovercacheKeepDays" type="text" class="form-control rounded" placeholder="7"/>
+                    </div>
+                    <span class="input-group-text-nobg" data-phrase="Days"></span>
+                  </div>
+                  <div class="invalid-feedback" data-phrase="Invalid number"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -2283,6 +2237,74 @@
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button data-href='{"cmd":"setSongPriority","options":[]}' type="button" class="btn btn-success" data-phrase="Set"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalMaintenance" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="mi title-icon">build</span> <span data-phrase="Maintenance"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="MaintenanceFrm">
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="btnClearAndReload" data-phrase="Clear app cache and reload"></label>
+              <div class="col-sm-8">
+                <button type="button" id="btnClearAndReload" class="btn btn-secondary btnCleanup" data-href='{"cmd": "clearAndReload", "options": []}' data-phrase="Reload"></button>
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="btnClearCovercache" data-phrase="Clear covercache"></label>
+              <div class="col-sm-8">
+                <button type="button" id="btnClearCovercache" class="me-2 btn btn-secondary btnCleanup protected" data-href='{"cmd": "clearCovercache", "options": []}' data-phrase="Clear"></button>
+                <button type="button" id="btnCropCovercache" class="btn btn-secondary btnCleanup protected" data-href='{"cmd": "cropCovercache", "options": []}' data-phrase="Crop"></button>
+              </div>
+            </div>
+            <div class="mb-3 row featPlaylists">
+              <label class="col-sm-4 col-form-label" for="tbnDeletePlaylists" data-phrase="Delete playlists"></label>
+              <div class="col-sm-8">
+                <div class="input-group">
+                  <select id="selectDeletePlaylists" class="form-select">
+                    <option value="deleteEmptyPlaylists" data-phrase="Delete empty playlists"></option>
+                    <option value="deleteSmartPlaylists" data-phrase="Delete all smart playlists"></option>
+                    <option value="deleteAllPlaylists" data-phrase="Delete all playlists"></option>
+                  </select>
+                  <button id="btnDeletePlaylists" data-href='{"cmd": "deletePlaylists", "options": []}' type="button" class="btn btn-secondary protected" data-phrase="Delete"></button>
+                </div>
+              </div>
+            </div>
+            <div class="mb-3 row featPlaylists">
+              <label class="col-sm-4 col-form-label" for="btnForceSmartplsUpdate" data-phrase="Force smart playlist update"></label>
+              <div class="col-sm-8">
+                <button type="button" id="btnForceSmartplsUpdate" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateSmartPlaylists", "options": [true]}' data-phrase="Force update"></button>
+              </div>
+            </div>
+            <div class="mb-3 row featPlaylists">
+              <label class="col-sm-4 col-form-label" for="btnSetLoglevel" data-phrase="Loglevel"></label>
+              <div class="col-sm-8">
+                <div class="input-group">
+                  <select id="selectSetLoglevel" class="form-select">
+                      <option value="0" data-phrase="Emerg"></option>
+                      <option value="1" data-phrase="Alert"></option>
+                      <option value="2" data-phrase="Critical"></option>
+                      <option value="3" data-phrase="Error"></option>
+                      <option value="4" data-phrase="Warn"></option>
+                      <option value="5" data-phrase="Notice"></option>
+                      <option value="6" data-phrase="Info"></option>
+                      <option value="7" data-phrase="Debug"></option>
+                  </select>
+                  <button id="btnSetLoglevel" data-href='{"cmd": "setLoglevel", "options": []}' type="button" class="btn btn-secondary protected" data-phrase="Set"></button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
         </div>
       </div>
     </div>

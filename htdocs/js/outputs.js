@@ -73,6 +73,7 @@ function showListOutputAttributes(outputName) {
     sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {
         "partition": ""
     }, function(obj) {
+        hideModalAlert();
         uiElements.modalOutputAttributes.show();
         let output;
         for (let i = 0; i < obj.result.numOutputs; i++) {

@@ -26,6 +26,12 @@ function initSettings() {
         removeIsInvalid(document.getElementById('modalSettings'));
         removeEnterPinFooter();
     });
+
+    document.getElementById('modalMaintenance').addEventListener('shown.bs.modal', function () {
+        document.getElementById('selectSetLoglevel').value = settings.loglevel;
+        hideModalAlert();
+        removeEnterPinFooter();
+    });
     
     document.getElementById('modalQueueSettings').addEventListener('shown.bs.modal', function () {
         getSettings();
@@ -596,8 +602,6 @@ function populateSettingsFrm() {
     }
     uiElements.collapseuiBgCover = new BSN.Collapse(inputWebUIsettinguiBgCover);
     toggleBtnChkCollapseId('inputWebUIsettinguiBgCover', 'bgCssFilterFrm', settings.webuiSettings.uiBgCover);
-
-    document.getElementById('inputSetLoglevel').value = settings.loglevel;
 
     //tag multiselects
     initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.tagListMpd, settings.tagList);
@@ -1239,4 +1243,12 @@ function warnLocale(value) {
     else {
         elHide(warnEl);
     }
+}
+
+//eslint-disable-next-line no-unused-vars
+function setLoglevel() {
+    const loglevel = getSelectValueId('selectSetLoglevel');
+    sendAPI("MYMPD_API_LOGLEVEL", {
+        "loglevel": Number(loglevel)
+    });
 }
