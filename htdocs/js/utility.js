@@ -927,6 +927,7 @@ function parseCmd(event, href) {
             case 'zoomPicture':
             case 'setPlaySettings':
             case 'voteSong':
+            case 'toggleAddToPlaylistFrm':
                 window[cmd.cmd](event.target, ... cmd.options);
                 break;
             case 'toggleBtnChkCollapse':

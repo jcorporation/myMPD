@@ -370,7 +370,7 @@ function showAddToPlaylist(uri, searchstr) {
     document.getElementById('addToPlaylistPlaylist').value = '';
     document.getElementById('addToPlaylistPlaylist').filterInput.value = '';
     document.getElementById('addToPlaylistPosAppend').checked = 'checked';
-    toggleBtnId('toggleAddToPlaylistBtn', 0);
+    toggleBtnGroupId('toggleAddToPlaylistQueue');
     const streamUrl = document.getElementById('streamUrl');
     streamUrl.focus();
     streamUrl.value = '';
@@ -395,15 +395,14 @@ function showAddToPlaylist(uri, searchstr) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function toggleAddToPlaylistFrm() {
-    const btn = document.getElementById('toggleAddToPlaylistBtn');
-    toggleBtn(btn);
-    if (btn.classList.contains('active')) {
+function toggleAddToPlaylistFrm(target) {
+    toggleBtnGroup(target);
+    if (target.getAttribute('id') === 'toggleAddToPlaylistPlaylist') {
         //add to playlist
         elShowId('addToPlaylistFrm');
         document.getElementById('addToPlaylistPosInsert').nextElementSibling.textContent = tn('Insert at start of playlist');
         elHideId('addToPlaylistPosPlayRow');
-    }    
+    }
     else {
         //add to queue
         elHideId('addToPlaylistFrm');
