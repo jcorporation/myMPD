@@ -503,13 +503,14 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('searchHomeIconCat').value = 'all';
         filterHomeIconLigatures();
         //show modal
-        hideModalAlert();
+        cleanupModalId('modalEditHomeIcon');
         uiElements.modalEditHomeIcon.show();
     });
 }
 
 //eslint-disable-next-line no-unused-vars
 function saveHomeIcon() {
+    cleanupModalId('modalEditHomeIcon');
     let formOK = true;
     const nameEl = document.getElementById('inputHomeIconName');
     if (!validateNotBlank(nameEl)) {
@@ -537,12 +538,10 @@ function saveHomeIcon() {
 }
 
 function saveHomeIconClose(obj) {
-    removeEnterPinFooter();
     if (obj.error) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         uiElements.modalEditHomeIcon.hide();
         sendAPI("MYMPD_API_HOME_LIST", {}, function(obj2) {
             parseHome(obj2);

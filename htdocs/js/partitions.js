@@ -31,8 +31,6 @@ function initPartitions() {
 
     document.getElementById('modalPartitions').addEventListener('shown.bs.modal', function () {
         showListPartitions();
-        hideModalAlert();
-        removeEnterPinFooter();
     });
 
     document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
@@ -79,7 +77,7 @@ function parsePartitionOutputsList(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function savePartition() {
-    removeIsInvalid(document.getElementById('modalPartitions'));
+    cleanupModalId('modalPartitions');
     let formOK = true;
     
     const nameEl = document.getElementById('inputPartitionName');
@@ -95,30 +93,28 @@ function savePartition() {
 }
 
 function savePartitionCheckError(obj) {
-    removeEnterPinFooter();
     if (obj.error) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         showListPartitions();
     }
 }
 
 //eslint-disable-next-line no-unused-vars
 function showNewPartition() {
+    cleanupModalId('modalPartitions');
     document.getElementById('listPartitions').classList.remove('active');
     document.getElementById('newPartition').classList.add('active');
     elHideId('listPartitionsFooter');
     elShowId('newPartitionFooter');
-    
-    removeIsInvalid(document.getElementById('modalPartitions'));
     const nameEl = document.getElementById('inputPartitionName');
     nameEl.value = '';
     nameEl.focus();
 }
 
 function showListPartitions() {
+    cleanupModalId('modalPartitions');
     document.getElementById('listPartitions').classList.add('active');
     document.getElementById('newPartition').classList.remove('active');
     elShowId('listPartitionsFooter');

@@ -72,11 +72,16 @@ function parseOutputs(obj) {
 }
 
 function showListOutputAttributes(outputName) {
+    cleanupModalId('modalOutputAttributes');
+    uiElements.modalOutputAttributes.show();
     sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {
         "partition": ""
     }, function(obj) {
-        hideModalAlert();
-        uiElements.modalOutputAttributes.show();
+        const tbody = document.getElementById('outputAttributesList');
+        if (checkResult(obj, tbody, 5) === false) {
+            return;
+        }
+
         let output;
         for (let i = 0; i < obj.result.numOutputs; i++) {
             if (obj.result.data[i].name === outputName) {
@@ -85,10 +90,10 @@ function showListOutputAttributes(outputName) {
             }
         }
         document.getElementById('modalOutputAttributesId').value = output.id;
-        const list = document.getElementById('outputAttributesList');
-        elClear(list);
+
+        elClear(tbody);
         for (const n of ['name', 'state', 'plugin']) {
-            list.appendChild(
+            tbody.appendChild(
                 elCreateNodes('tr', {}, [
                     elCreateText('td', {}, tn(ucFirst(n))),
                     elCreateText('td', {}, output[n])
@@ -98,7 +103,7 @@ function showListOutputAttributes(outputName) {
         let i = 0;
         for (const key in output.attributes) {
             i++;
-            list.appendChild(
+            tbody.appendChild(
                 elCreateNodes('tr', {}, [
                     elCreateText('td', {}, key),
                     elCreateNode('td', {},
@@ -113,11 +118,12 @@ function showListOutputAttributes(outputName) {
         else {
             elDisableId('btnOutputAttributesSave');
         }
-    });
+    }, false);
 }
 
 //eslint-disable-next-line no-unused-vars
 function saveOutputAttributes() {
+    cleanupModalId('modalOutputAttributes');
     const params = {};
     params.outputId = Number(document.getElementById('modalOutputAttributesId').value);
     params.attributes = {};
@@ -129,12 +135,10 @@ function saveOutputAttributes() {
 }
 
 function saveOutputAttributesClose(obj) {
-    removeEnterPinFooter();
     if (obj.error) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         uiElements.modalOutputAttributes.hide();
     }
 }

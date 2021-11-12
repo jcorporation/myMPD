@@ -101,6 +101,10 @@ function r(x) {
     return x.replace(/[^\w-]/g, '_');
 }
 
+function cleanupModalId(id) {
+    cleanupModal(document.getElementById(id));
+}
+
 function cleanupModal(el) {
     //remove validation warnings
     removeIsInvalid(el);

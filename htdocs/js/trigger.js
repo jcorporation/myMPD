@@ -24,14 +24,13 @@ function initTrigger() {
     }, false);
 
     document.getElementById('modalTrigger').addEventListener('shown.bs.modal', function () {
-        hideModalAlert();
         showListTrigger();
     });
 }
 
 //eslint-disable-next-line no-unused-vars
 function saveTrigger() {
-    removeIsInvalid(document.getElementById('modalTrigger'));
+    cleanupModalId('modalTrigger');
     let formOK = true;
     
     const nameEl = document.getElementById('inputTriggerName');
@@ -62,26 +61,23 @@ function saveTrigger() {
 }
 
 function saveTriggerCheckError(obj) {
-    removeEnterPinFooter();
     if (obj.error) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         showListTrigger();
     }
 }
 
 //eslint-disable-next-line no-unused-vars
 function showEditTrigger(id) {
-    removeEnterPinFooter();
+    cleanupModalId('modalTrigger');
     document.getElementById('listTrigger').classList.remove('active');
     document.getElementById('newTrigger').classList.add('active');
     elHideId('listTriggerFooter');
     elShowId('newTriggerFooter');
-    
+
     const nameEl = document.getElementById('inputTriggerName');
-    removeIsInvalid(document.getElementById('modalTrigger'));
     nameEl.value = '';
     nameEl.focus();
     document.getElementById('inputTriggerId').value = '-1';
@@ -135,7 +131,7 @@ function showTriggerScriptArgs(option, values) {
 }
 
 function showListTrigger() {
-    removeEnterPinFooter();
+    cleanupModalId('modalTrigger');
     document.getElementById('listTrigger').classList.add('active');
     document.getElementById('newTrigger').classList.remove('active');
     elShowId('listTriggerFooter');

@@ -44,7 +44,6 @@ function initTimer() {
 
     document.getElementById('modalTimer').addEventListener('shown.bs.modal', function () {
         showListTimer();
-        hideModalAlert();
     });
 
     setDataId('selectTimerPlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
@@ -80,8 +79,8 @@ function toggleTimer(target, timerid) {
 
 //eslint-disable-next-line no-unused-vars
 function saveTimer() {
+    cleanupModalId('modalTimer');
     let formOK = true;
-    removeIsInvalidId('editTimerForm');
     const nameEl = document.getElementById('inputTimerName');
     if (!validateNotBlank(nameEl)) {
         formOK = false;
@@ -150,19 +149,17 @@ function saveTimer() {
 }
 
 function saveTimerCheckError(obj) {
-    removeEnterPinFooter();
     if (obj.error) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         showListTimer();
     }
 }
 
 //eslint-disable-next-line no-unused-vars
 function showEditTimer(timerid) {
-    removeEnterPinFooter();
+    cleanupModalId('modalTimer');
     elHideId('timerActionPlay');
     elHideId('timerActionScript');
     document.getElementById('listTimer').classList.remove('active');
@@ -199,7 +196,6 @@ function showEditTimer(timerid) {
         elShowId('timerActionPlay');
     }
     document.getElementById('inputTimerName').focus();
-    removeIsInvalidId('editTimerForm');
 }
 
 function parseEditTimer(obj) {
@@ -302,7 +298,7 @@ function showTimerScriptArgs(option, values) {
 }
 
 function showListTimer() {
-    removeEnterPinFooter();
+    cleanupModalId('modalTimer');
     document.getElementById('listTimer').classList.add('active');
     document.getElementById('editTimer').classList.remove('active');
     elShowId('listTimerFooter');

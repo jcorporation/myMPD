@@ -17,10 +17,6 @@ function isStreamUri(uri) {
     return false;
 }
 
-function removeIsInvalidId(parentElId) {
-    removeIsInvalid(document.getElementById(parentElId));
-}
-
 function removeIsInvalid(parentEl) {
     const els = parentEl.getElementsByClassName('is-invalid');
     for (let i = els.length - 1; i >= 0; i--) {
@@ -55,13 +51,10 @@ function validateFilename(el) {
         setIsInvalid(el);
         return false;
     }
-    removeIsInvalid(el);
     return true;
 }
 
 function validateFilenameList(el) {
-    removeIsInvalid(el);
-    
     const filenames = el.value.split(',');
     for (let i = 0, j = filenames.length; i < j; i++) {
         if (validateFilenameString(filenames[i].trim()) === false) {
@@ -78,7 +71,6 @@ function validatePath(el) {
         return false;
     }
     if (el.value.match(/^\/[/.\w-]+$/) !== null) {
-        removeIsInvalid(el);
         return true;
     }
     setIsInvalid(el);
@@ -90,7 +82,6 @@ function validatePlnameEl(el) {
         setIsInvalid(el);
         return false;
     }
-    removeIsInvalid(el);
     return true;
 }
 
@@ -110,7 +101,6 @@ function validateNotBlank(el) {
         setIsInvalid(el);
         return false;
     }
-    removeIsInvalid(el);
     return true;
 }
 
@@ -120,7 +110,6 @@ function validateInt(el) {
         setIsInvalid(el);
         return false;
     }
-    removeIsInvalid(el);
     return true;
 }
 
@@ -130,7 +119,6 @@ function validateUint(el) {
         setIsInvalid(el);
         return false;
     }
-    removeIsInvalid(el);
     return true;
 }
 
@@ -145,7 +133,6 @@ function validateIntRange(el, min, max) {
         setIsInvalid(el);
         return false;
     }
-    removeIsInvalid(el);
     return true;
 }
 
@@ -155,13 +142,11 @@ function validateFloat(el) {
         setIsInvalid(el);
         return false;
     }
-    removeIsInvalid(el);
     return true;
 }
 
 function validateStream(el) {
     if (isStreamUri(el.value) === true) {
-        removeIsInvalid(el);
         return true;
     }
     setIsInvalid(el);
@@ -170,7 +155,6 @@ function validateStream(el) {
 
 function validateHost(el) {
     if (el.value.match(/^([\w-.]+)$/) !== null) {
-        removeIsInvalid(el);
         return true;
     }
     setIsInvalid(el);
@@ -179,7 +163,6 @@ function validateHost(el) {
 
 function validateSelect(el) {
     if (getSelectValue(el) !== undefined) {
-        removeIsInvalid(el);
         return true;
     }
     setIsInvalid(el);
@@ -192,6 +175,5 @@ function validatePrintable(el) {
         setIsInvalid(el);
         return false;
     }
-    removeIsInvalid(el);
     return true;
 }

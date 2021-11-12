@@ -63,7 +63,7 @@ function initQueue() {
     });
 
     document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function() {
-        removeIsInvalid(document.getElementById('modalAddToQueue'));
+        cleanupModalId('modalAddToQueue');
         document.getElementById('selectAddToQueuePlaylist').value = tn('Database');
         setDataId('selectAddToQueuePlaylist', 'data-value', 'Database');
         document.getElementById('selectAddToQueuePlaylist').filterInput.value = '';
@@ -79,14 +79,14 @@ function initQueue() {
         const plName = document.getElementById('saveQueueName');
         plName.focus();
         plName.value = '';
-        removeIsInvalid(document.getElementById('modalSaveQueue'));
+        cleanupModalId('modalSaveQueue');
     });
 
     document.getElementById('modalSetSongPriority').addEventListener('shown.bs.modal', function() {
         const prioEl = document.getElementById('inputSongPriority');
         prioEl.focus();
         prioEl.value = '';
-        removeIsInvalid(document.getElementById('modalSetSongPriority'));
+        cleanupModalId('modalSetSongPriority');
     });
 }
 
@@ -388,7 +388,7 @@ function replaceQueue(type, uri, callback) {
 
 //eslint-disable-next-line no-unused-vars
 function addToQueue() {
-    removeIsInvalid(document.getElementById('modalAddToQueue'));
+    cleanupModalId('modalAddToQueue');
     let formOK = true;
     const inputAddToQueueQuantityEl = document.getElementById('inputAddToQueueQuantity');
     if (!validateInt(inputAddToQueueQuantityEl)) {
@@ -407,7 +407,7 @@ function addToQueue() {
 
 //eslint-disable-next-line no-unused-vars
 function saveQueue() {
-    removeIsInvalid(document.getElementById('modalSaveQueue'));
+    cleanupModalId('modalSaveQueue');
     const plNameEl = document.getElementById('saveQueueName');
     if (validatePlnameEl(plNameEl) === true) {
         sendAPI("MYMPD_API_QUEUE_SAVE", {
@@ -421,20 +421,20 @@ function saveQueueCheckError(obj) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         uiElements.modalSaveQueue.hide();
     }
 }
 
 //eslint-disable-next-line no-unused-vars
 function showSetSongPriority(trackId) {
+    cleanupModalId('modalSetSongPriority');
     document.getElementById('inputSongPriorityTrackId').value = trackId;
     uiElements.modalSetSongPriority.show();
 }
 
 //eslint-disable-next-line no-unused-vars
 function setSongPriority() {
-    removeIsInvalid(document.getElementById('modalSetSongPriority'));
+    cleanupModalId('modalSetSongPriority');
 
     const trackId = Number(document.getElementById('inputSongPriorityTrackId').value);
     const priorityEl = document.getElementById('inputSongPriority');
@@ -451,7 +451,6 @@ function setSongPriorityCheckError(obj) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         uiElements.modalSetSongPriority.hide();
     }
 }

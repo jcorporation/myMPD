@@ -21,22 +21,18 @@ function initSettings() {
     }, false);
 
     document.getElementById('modalSettings').addEventListener('shown.bs.modal', function () {
+        cleanupModalId('modalSettings');
         getSettings();
-        hideModalAlert();
-        removeIsInvalid(document.getElementById('modalSettings'));
-        removeEnterPinFooter();
     });
 
     document.getElementById('modalMaintenance').addEventListener('shown.bs.modal', function () {
         document.getElementById('selectSetLoglevel').value = settings.loglevel;
-        hideModalAlert();
-        removeEnterPinFooter();
+        cleanupModalId('modalMaintenance');
     });
-    
+
     document.getElementById('modalQueueSettings').addEventListener('shown.bs.modal', function () {
+        cleanupModalId('modalQueueSettings');
         getSettings();
-        hideModalAlert();
-        removeIsInvalid(document.getElementById('modalQueueSettings'));
     });
 
     setDataId('selectJukeboxPlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
@@ -44,9 +40,7 @@ function initSettings() {
 
     document.getElementById('modalConnection').addEventListener('shown.bs.modal', function () {
         getSettings();
-        hideModalAlert();
-        removeIsInvalid(document.getElementById('modalConnection'));
-        removeEnterPinFooter();
+        cleanupModalId('modalConnection');
     });
 
     document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
@@ -71,7 +65,7 @@ function initSettings() {
             checkConsume();
         }, 100);
     });
-    
+
     document.getElementById('btnConsume').addEventListener('mouseup', function() {
         setTimeout(function() { 
             checkConsume(); 
@@ -107,7 +101,7 @@ function eventChangeTheme(event) {
 
 //eslint-disable-next-line no-unused-vars
 function saveConnection() {
-    removeIsInvalid(document.getElementById('modalConnection'));
+    cleanupModalId('modalConnection');
     let formOK = true;
     const mpdHostEl = document.getElementById('inputMpdHost');
     const mpdPortEl = document.getElementById('inputMpdPort');
@@ -177,7 +171,6 @@ function saveConnectionClose(obj) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         getSettings(false);
         uiElements.modalConnection.hide();
     }
@@ -240,7 +233,7 @@ function parseSettings(obj) {
     if (document.getElementById('modalQueueSettings').classList.contains('show')) {
         populateQueueSettingsFrm();
     }
-    
+
     //locales
     setLocale(settings.webuiSettings.uiLocale);
 
@@ -459,7 +452,7 @@ function populateQueueSettingsFrm() {
         elEnableId('inputJukeboxQueueLength');
         elEnableId('selectJukeboxPlaylist');
     }
-    
+
     document.getElementById('selectJukeboxPlaylist').filterInput.value = '';
 
     if (settings.mpdConnected === true) {
@@ -567,11 +560,11 @@ function populateSettingsFrm() {
     if (isMobile === true) {
         document.getElementById('inputScaleRatio').value = scale;
     }
-    
+
     document.getElementById('inputBookletName').value = settings.bookletName;
     document.getElementById('inputCoverimageNames').value = settings.coverimageNames;
     document.getElementById('inputCovercacheKeepDays').value = settings.covercacheKeepDays;
-    
+
     //smart playlists
     if (settings.featSmartpls === true) {
         elEnableId('btnSmartpls');
@@ -784,7 +777,7 @@ function applyFeatures() {
 
 function parseMPDSettings() {
     document.getElementById('partitionName').textContent = settings.partition;
-    
+
     if (settings.webuiSettings.uiBgCover === true) {
         setBackgroundImage(currentSongObj.uri);
     }
@@ -799,7 +792,7 @@ function parseMPDSettings() {
             elCreateText('option', {"value": settings.triggerEvents[event]}, tn(event))
         );
     }
-    
+
     settings.tagList.sort();
     settings.tagListSearch.sort();
     settings.tagListBrowse.sort();
@@ -890,7 +883,7 @@ function parseMPDSettings() {
     addTagList('BrowseDatabaseByTagDropdown', 'tagListBrowse');
     addTagList('BrowseNavPlaylistsDropdown', 'tagListBrowse');
     addTagList('BrowseNavFilesystemDropdown', 'tagListBrowse');
-    
+
     addTagList('searchqueuetags', 'tagListSearch');
     addTagList('searchtags', 'tagListSearch');
     addTagList('searchDatabaseTags', 'tagListBrowse');
@@ -908,7 +901,7 @@ function resetSettings() {
 
 //eslint-disable-next-line no-unused-vars
 function saveSettings(closeModal) {
-    removeIsInvalid(document.getElementById('modalSettings'));
+    cleanupModalId('modalSettings');
     let formOK = true;
 
     for (const inputId of ['inputWebUIsettinguiCoverimageSize', 'inputWebUIsettinguiCoverimageSizeSmall',
@@ -925,12 +918,12 @@ function saveSettings(closeModal) {
     if (!validateFilenameList(inputCoverimageNames)) {
         formOK = false;
     }
-    
+
     const inputBookletName = document.getElementById('inputBookletName');
     if (!validateFilename(inputBookletName)) {
         formOK = false;
     }
-    
+
     if (isMobile === true) {
         const inputScaleRatio = document.getElementById('inputScaleRatio');
         if (!validateFloat(inputScaleRatio)) {
@@ -960,9 +953,9 @@ function saveSettings(closeModal) {
             }
         }
     }
-    
+
     webuiSettings.enableLyrics = (document.getElementById('btnEnableLyrics').classList.contains('active') ? true : false);
-    
+
     if (formOK === true) {
         const params = {
             "coverimageNames": inputCoverimageNames.value,
@@ -1001,7 +994,6 @@ function saveSettingsClose(obj) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         getSettings(true);
         uiElements.modalSettings.hide();
     }
@@ -1012,7 +1004,6 @@ function saveSettingsApply(obj) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         getSettings(true);
         btnWaiting(document.getElementById('btnApplySettings'), true);
     }
@@ -1020,7 +1011,7 @@ function saveSettingsApply(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function saveQueueSettings() {
-    removeIsInvalid(document.getElementById('modalQueueSettings'));
+    cleanupModalId('modalQueueSettings');
     let formOK = true;
 
     for (const inputId of ['inputCrossfade', 'inputJukeboxQueueLength', 'inputJukeboxLastPlayed']) {
@@ -1035,11 +1026,11 @@ function saveQueueSettings() {
     const replaygain = getBtnGroupValueId('btnReplaygainGroup');
     let jukeboxUniqueTag = getSelectValueId('selectJukeboxUniqueTag');
     const jukeboxPlaylist = getDataId('selectJukeboxPlaylist', 'data-value');
-    
+
     if (jukeboxMode === '2') {
         jukeboxUniqueTag = 'Album';
     }
-    
+
     if (formOK === true) {
         sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
@@ -1063,7 +1054,6 @@ function saveQueueSettingsClose(obj) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         getSettings(false);
         uiElements.modalQueueSettings.hide();
     }
@@ -1131,7 +1121,6 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
 function filterCols(x) {
     const tags = setColTags(x);
     const set = "cols" + x;
-    
     const cols = [];
     for (let i = 0, j = settings[set].length; i < j; i++) {
         if (tags.includes(settings[set][i])) {
@@ -1182,7 +1171,7 @@ function setNavbarIcons() {
     if (oldBadgeQueueItems) {
         oldQueueLength = oldBadgeQueueItems.textContent;
     }
-    
+
     const container = document.getElementById('navbar-main');
     elClear(container);
     for (const icon of settings.navbarIcons) {
@@ -1203,7 +1192,7 @@ function setNavbarIcons() {
         container.appendChild(btn);
         setData(a, 'data-href', JSON.stringify({"cmd": "appGoto", "options": icon.options}));
     }
-    
+
     //cache elements, reused in appPrepare
     domCache.navbarBtns = container.getElementsByTagName('div');
     domCache.navbarBtnsLen = domCache.navbarBtns.length;

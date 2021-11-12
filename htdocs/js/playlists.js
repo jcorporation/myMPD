@@ -13,7 +13,7 @@ function initPlaylists() {
             document.getElementById('addToPlaylistPlaylist').focus();
         }
     });
-    
+
     setDataId('addToPlaylistPlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
     setDataId('addToPlaylistPlaylist', 'data-cb-filter-options', [1, 'addToPlaylistPlaylist']);
 
@@ -26,7 +26,7 @@ function initPlaylists() {
                 0, app.current.limit, app.current.filter, app.current.sort, '-', this.value);
         }
     }, false);
-    
+
     document.getElementById('searchPlaylistsListStr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
             this.blur();
@@ -36,7 +36,7 @@ function initPlaylists() {
                 0, app.current.limit, app.current.filter, app.current.sort, '-', this.value);
         }
     }, false);
-    
+
    document.getElementById('BrowsePlaylistsListList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             if (getData(event.target.parentNode, 'data-smartpls-only') === false) {
@@ -189,7 +189,6 @@ function removeFromPlaylist(mode, plist, start, end) {
 function parseSmartPlaylist(obj) {
     const nameEl = document.getElementById('saveSmartPlaylistName');
     nameEl.value = obj.result.plist;
-    removeIsInvalid(document.getElementById('modalSaveSmartPlaylist'));
     document.getElementById('saveSmartPlaylistType').value = tn(obj.result.type);
     setDataId('saveSmartPlaylistType', 'data-value', obj.result.type);
     elHideId('saveSmartPlaylistSearch');
@@ -210,14 +209,14 @@ function parseSmartPlaylist(obj) {
         elShowId('saveSmartPlaylistNewest');
         document.getElementById('inputSaveSmartPlaylistNewestTimerange').value = obj.result.timerange / 24 / 60 / 60;
     }
-    hideModalAlert();
+    cleanupModalId('modalSaveSmartPlaylist');
     uiElements.modalSaveSmartPlaylist.show();
     nameEl.focus();
 }
 
 //eslint-disable-next-line no-unused-vars
 function saveSmartPlaylist() {
-    removeIsInvalid(document.getElementById('modalSaveSmartPlaylist'));
+    cleanupModalId('modalSaveSmartPlaylist');
 
     const name = document.getElementById('saveSmartPlaylistName').value;
     const type = getDataId('saveSmartPlaylistType', 'data-value');
@@ -272,7 +271,6 @@ function saveSmartPlaylistClose(obj) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         uiElements.modalSaveSmartPlaylist.hide();
         showNotification(tn('Saved smart playlist'), '', 'playlist', 'info');
     }
@@ -366,7 +364,7 @@ function showAddToPlaylistFromFilesystem() {
 }
 
 function showAddToPlaylist(uri, searchstr) {
-    hideModalAlert();
+    cleanupModalId('modalAddToPlaylist');
     document.getElementById('addToPlaylistUri').value = uri;
     document.getElementById('addToPlaylistSearch').value = searchstr;
     document.getElementById('addToPlaylistPlaylist').value = '';
@@ -376,7 +374,6 @@ function showAddToPlaylist(uri, searchstr) {
     const streamUrl = document.getElementById('streamUrl');
     streamUrl.focus();
     streamUrl.value = '';
-    removeIsInvalid(document.getElementById('modalAddToPlaylist'));
     if (uri !== 'STREAM') {
         elHideId('addStreamFrm');
         elShowId('addToPlaylistFrm');
@@ -417,8 +414,7 @@ function toggleAddToPlaylistFrm() {
 
 //eslint-disable-next-line no-unused-vars
 function addToPlaylist() {
-    removeIsInvalid(document.getElementById('modalAddToPlaylist'));
-
+    cleanupModalId('modalAddToPlaylist');
     let uri = document.getElementById('addToPlaylistUri').value;
     const mode = getRadioBoxValueId('addToPlaylistPos');
     let type;
@@ -486,7 +482,6 @@ function addToPlaylistClose(obj) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         uiElements.modalAddToPlaylist.hide();
     }
 }
@@ -549,8 +544,7 @@ function replacePlaylist(type, uri, plist, callback) {
 
 //eslint-disable-next-line no-unused-vars
 function showRenamePlaylist(from) {
-    removeIsInvalid(document.getElementById('modalRenamePlaylist'));
-    hideModalAlert();
+    cleanupModalId('modalRenamePlaylist');
     uiElements.modalRenamePlaylist.show();
     document.getElementById('renamePlaylistFrom').value = from;
     document.getElementById('renamePlaylistTo').value = '';
@@ -558,7 +552,7 @@ function showRenamePlaylist(from) {
 
 //eslint-disable-next-line no-unused-vars
 function renamePlaylist() {
-    removeIsInvalid(document.getElementById('modalRenamePlaylist'));
+    cleanupModalId('modalRenamePlaylist');
 
     const from = document.getElementById('renamePlaylistFrom').value;
     const to = document.getElementById('renamePlaylistTo').value;
@@ -578,7 +572,6 @@ function renamePlaylistClose(obj) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         uiElements.modalRenamePlaylist.hide();
     }
 }

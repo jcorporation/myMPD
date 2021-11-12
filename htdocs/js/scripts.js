@@ -47,19 +47,18 @@ function initScripts() {
 
     document.getElementById('modalScripts').addEventListener('shown.bs.modal', function () {
         showListScripts();
-        hideModalAlert();
     }, false);
-    
+
     document.getElementById('btnDropdownAddAPIcall').parentNode.addEventListener('show.bs.dropdown', function() {
         const dw = document.getElementById('textareaScriptContent').offsetWidth - document.getElementById('btnDropdownAddAPIcall').parentNode.offsetLeft;
         document.getElementById('dropdownAddAPIcall').style.width = dw + 'px';
     }, false);
-    
+
     document.getElementById('btnDropdownAddFunction').parentNode.addEventListener('show.bs.dropdown', function() {
         const dw = document.getElementById('textareaScriptContent').offsetWidth - document.getElementById('btnDropdownAddFunction').parentNode.offsetLeft;
         document.getElementById('dropdownAddFunction').style.width = dw + 'px';
     }, false);
-    
+
     const selectAPIcallEl = document.getElementById('selectAPIcall');
     elClear(selectAPIcallEl);
     selectAPIcallEl.appendChild(
@@ -70,16 +69,16 @@ function initScripts() {
             elCreateText('option', {"value": m}, m)
         );
     }
-        
+
     selectAPIcallEl.addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
-    
+
     selectAPIcallEl.addEventListener('change', function(event) {
         const value = getSelectValue(event.target);
         document.getElementById('APIdesc').textContent = value !== '' ? APImethods[value].desc : '';
     }, false);
-    
+
     document.getElementById('btnAddAPIcall').addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -99,7 +98,7 @@ function initScripts() {
         document.getElementById('btnDropdownAddAPIcall').Dropdown.hide();
         el.focus();
     }, false);
-    
+
     const selectFunctionEl = document.getElementById('selectFunction');
     elClear(selectFunctionEl);
     selectFunctionEl.appendChild(
@@ -110,16 +109,16 @@ function initScripts() {
             elCreateText('option', {"value": m}, m)
         );
     }
-    
+
     selectFunctionEl.addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
-    
+
     selectFunctionEl.addEventListener('change', function(event) {
         const value = getSelectValue(event.target);
         document.getElementById('functionDesc').textContent = value !== '' ? LUAfunctions[value].desc : '';
     }, false);
-    
+
     document.getElementById('btnAddFunction').addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -162,19 +161,19 @@ function apiParamsToArgs(p) {
 
 //eslint-disable-next-line no-unused-vars
 function saveScript() {
-    removeIsInvalid(document.getElementById('modalScripts'));
+    cleanupModalId('modalScripts');
     let formOK = true;
-    
+
     const nameEl = document.getElementById('inputScriptName');
     if (!validatePlnameEl(nameEl)) {
         formOK = false;
     }
-    
+
     const orderEl = document.getElementById('inputScriptOrder');
     if (!validateInt(orderEl)) {
         formOK = false;
     }
-    
+
     if (formOK === true) {
         const args = [];
         const argSel = document.getElementById('selectScriptArguments');
@@ -192,12 +191,10 @@ function saveScript() {
 }
 
 function saveScriptCheckError(obj) {
-    removeEnterPinFooter();
     if (obj.error) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         showListScripts();
     }
 }
@@ -221,14 +218,13 @@ function removeScriptArgument(ev) {
 
 //eslint-disable-next-line no-unused-vars
 function showEditScript(script) {
-    removeEnterPinFooter();
-    removeIsInvalid(document.getElementById('modalScripts'));
-    
+    cleanupModalId('modalScripts');
+
     document.getElementById('listScripts').classList.remove('active');
     document.getElementById('editScript').classList.add('active');
     elHideId('listScriptsFooter');
     elShowId('editScriptFooter');
-      
+
     if (script !== '') {
         sendAPI("MYMPD_API_SCRIPT_GET", {"script": script}, parseEditScript, false);
     }
@@ -259,7 +255,7 @@ function parseEditScript(obj) {
 }
 
 function showListScripts() {
-    removeEnterPinFooter();
+    cleanupModalId('modalScripts');
     document.getElementById('listScripts').classList.add('active');
     document.getElementById('editScript').classList.remove('active');
     elShowId('listScriptsFooter');
@@ -324,7 +320,7 @@ function parseScriptList(obj) {
             setData(tr, 'data-script', obj.result.data[i].name);
             setData(tr, 'data-href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
             tbodyScripts.appendChild(tr);
-            
+
             //scriptlist select for timers and triggers
             const option = elCreateText('option', {"value": obj.result.data[i].name}, obj.result.data[i].name);
             setData(option, 'data-arguments', {"arguments": obj.result.data[i].metadata.arguments});
@@ -334,7 +330,7 @@ function parseScriptList(obj) {
             triggerScripts.appendChild(option2);
         }
     }
-    
+
     const navScripting = document.getElementById('navScripting');
     if (showScriptListLen > scriptMaxListLen) {
         elShow(navScripting);
@@ -346,7 +342,7 @@ function parseScriptList(obj) {
         elShow(navScripting.previousElementSibling);
         document.getElementById('scripts').classList.remove('collapse', 'menu-indent');
     }
-   
+
     const old = document.getElementById('selectTimerAction').querySelector('optgroup[label="Script"]');
     if (old) {
         old.replaceWith(timerActions);
