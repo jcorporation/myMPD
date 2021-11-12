@@ -195,8 +195,7 @@ function setBackgroundImage(url) {
             old[i].style.opacity = '0';
         }
     }
-    const div = document.createElement('div');
-    div.classList.add('albumartbg');
+    const div = elCreateEmpty('div', {"class": ["albumartbg"]});
     div.style.filter = settings.webuiSettings.uiBgCssFilter;
     div.style.backgroundImage = bgImageUrl;
     div.style.opacity = 0;
@@ -242,8 +241,7 @@ function _setCurrentCover(url, el) {
         }
     }
 
-    const div = document.createElement('div');
-    div.classList.add('coverbg', 'carousel', 'rounded');
+    const div = elCreateEmpty('div', {"class": ["coverbg", "carousel", "rounded"]});
     div.style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(url) + '")';
     div.style.opacity = 0;
     setData(div, 'data-uri', url);

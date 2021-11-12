@@ -143,12 +143,6 @@ function parseListMounts(obj) {
 
     let activeRow = 0;
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const row = document.createElement('tr');
-        setData(row, 'data-url', obj.result.data[i].mountUrl);
-        setData(row, 'data-point', obj.result.data[i].mountPoint);
-        if (obj.result.data[i].mountPoint === '') {
-            row.classList.add('not-clickable');
-        }
         const td1 = elCreateEmpty('td', {});
         if (obj.result.data[i].mountPoint === '') {
             td1.appendChild(elCreateText('span', {"class": ["mi"]}, 'home'));
@@ -156,10 +150,6 @@ function parseListMounts(obj) {
         else {
             td1.textContent = obj.result.data[i].mountPoint;
         }
-        row.appendChild(td1);
-        row.appendChild(
-            elCreateText('td', {}, obj.result.data[i].mountUrl)
-        );
         const actionTd = elCreateEmpty('td', {"data-col": "Action"});
         if (obj.result.data[i].mountPoint !== '') {
             actionTd.appendChild(
@@ -169,7 +159,18 @@ function parseListMounts(obj) {
                 elCreateText('a', {"href": "#", "title": tn('Update'), "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh')
             );
         }
-        row.appendChild(actionTd);
+        const row = elCreateNodes('tr', {}, [
+            td1,
+            elCreateText('td', {}, obj.result.data[i].mountUrl),
+            actionTd
+            
+        ]);
+        setData(row, 'data-url', obj.result.data[i].mountUrl);
+        setData(row, 'data-point', obj.result.data[i].mountPoint);
+        if (obj.result.data[i].mountPoint === '') {
+            row.classList.add('not-clickable');
+        }
+        
         if (i < tr.length) {
             activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
         }

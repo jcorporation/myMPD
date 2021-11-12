@@ -96,9 +96,21 @@ function getOpenModal() {
     return null;
 }
 
-//removes special characters
+//replaces special characters with underscore
 function r(x) {
     return x.replace(/[^\w-]/g, '_');
+}
+
+function cleanupModal(el) {
+    //remove validation warnings
+    removeIsInvalid(el);
+    //remove enter pin footer
+    const enterPinFooter = el.getElementsByClassName('enterPinFooter');
+    if (enterPinFooter.length > 0) {
+        removeEnterPinFooter(enterPinFooter[0]);
+    }
+    //remove error messages
+    hideModalAlert(el);
 }
 
 //confirmation dialogs
@@ -560,8 +572,7 @@ function focusSearch() {
 
 function btnWaiting(btn, waiting) {
     if (waiting === true) {
-        const spinner = document.createElement('span');
-        spinner.classList.add('spinner-border', 'spinner-border-sm', 'me-2');
+        const spinner = elCreateEmpty('span', {"class": ["spinner-border", "spinner-border-sm", "me-2"]});
         btn.insertBefore(spinner, btn.firstChild);
         elDisable(btn);
     }

@@ -333,8 +333,8 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
     }
     elClear(selectEl.filterResult);
     if (playlistSelectId === 'selectJukeboxPlaylist' || 
-             playlistSelectId === 'selectAddToQueuePlaylist' ||
-             playlistSelectId === 'selectTimerPlaylist') 
+        playlistSelectId === 'selectAddToQueuePlaylist' ||
+        playlistSelectId === 'selectTimerPlaylist') 
     {
         selectEl.filterResult.appendChild(elCreateText('option', {"value": "Database"}, tn('Database')));
     }

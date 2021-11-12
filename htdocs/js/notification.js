@@ -263,8 +263,8 @@ function showModalAlert(obj) {
     }
 }
 
-function hideModalAlert() {
-    const activeAlerts = document.getElementsByClassName('modalAlert');
+function hideModalAlert(el) {
+    const activeAlerts = el.getElementsByClassName('modalAlert');
     for (let i = activeAlerts.length - 1; i >= 0; i--) {
         activeAlerts[i].remove();
     }

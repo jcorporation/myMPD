@@ -31,14 +31,16 @@ function initScripts() {
         else if (event.target.nodeName === 'A') {
             const action = getData(event.target, 'data-action');
             const script = getData(event.target.parentNode.parentNode, 'data-script');
-            if (action === 'delete') {
-                deleteScript(event.target, script);
-            }
-            else if (action === 'execute') {
-                execScript(getData(event.target.parentNode.parentNode, 'data-href'));
-            }
-            else if (action === 'add2home') {
-                addScriptToHome(script, getData(event.target.parentNode.parentNode, 'data-href'));
+            switch(action) {
+                case 'delete':
+                    deleteScript(event.target, script);
+                    break;
+                case 'execute':
+                    execScript(getData(event.target.parentNode.parentNode, 'data-href'));
+                    break;
+                case 'add2home':
+                    addScriptToHome(script, getData(event.target.parentNode.parentNode, 'data-href'));
+                    break;
             }
         }
     }, false);
@@ -203,9 +205,9 @@ function saveScriptCheckError(obj) {
 function addScriptArgument() {
     const el = document.getElementById('inputScriptArgument');
     if (validatePrintable(el)) {
-        const o = document.createElement('option');
-        o.text = el.value;
-        document.getElementById('selectScriptArguments').appendChild(o);
+        document.getElementById('selectScriptArguments').appendChild(
+            elCreateText('option', {}, el.value)
+        );
         el.value = '';
     }
 }
@@ -249,9 +251,9 @@ function parseEditScript(obj) {
     const selSA = document.getElementById('selectScriptArguments');
     selSA.textContent = '';
     for (let i = 0, j = obj.result.metadata.arguments.length; i < j; i++) {
-        const o = document.createElement('option');
-        o.textContent = obj.result.metadata.arguments[i];
-        selSA.appendChild(o);
+        selSA.appendChild(
+            elCreateText('option', {}, obj.result.metadata.arguments[i])
+        );
     }
     document.getElementById('textareaScriptContent').value = obj.result.content;
 }
@@ -293,9 +295,8 @@ function parseScriptList(obj) {
         return;
     }
 
-    const timerActions = document.createElement('optgroup');
+    const timerActions = elCreateEmpty('optgroup', {"label": tn('Script')});
     setData(timerActions, 'data-value', 'script');
-    timerActions.setAttribute('label', tn('Script'));
     const scriptMaxListLen = 4;
     const scriptListLen = obj.result.data.length;
     let showScriptListLen = 0;
@@ -316,8 +317,8 @@ function parseScriptList(obj) {
                 elCreateText('td', {}, obj.result.data[i].name),
                 elCreateNodes('td', {"data-col": "Action"}, [
                     elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "delete", "class": ["me-2", "mi", "color-darkgrey"]}, 'delete'),
-                    elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "execute", "class": ["me-2", "mi", "color-darkgrey"]}, 'play_arrow'),
-                    elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "add2home", "class": ["me-2", "mi", "color-darkgrey"]}, 'add_to_home_screen')
+                    elCreateText('a', {"href": "#", "title": tn('Execute'), "data-action": "execute", "class": ["me-2", "mi", "color-darkgrey"]}, 'play_arrow'),
+                    elCreateText('a', {"href": "#", "title": tn('Add to homescreen'), "data-action": "add2home", "class": ["me-2", "mi", "color-darkgrey"]}, 'add_to_home_screen')
                 ])
             ]);
             setData(tr, 'data-script', obj.result.data[i].name);
@@ -372,12 +373,14 @@ function execScript(cmd) {
         const arglist = document.getElementById('execScriptArguments');
         elClear(arglist);
         for (let i = 0, j = cmd.arguments.length; i < j; i++) {
-            const row = elCreateEmpty('div', {"class": ["form-group", "row", "mb-3"]});
-            row.appendChild(elCreateText('label', {"class": ["col-sm-4", "col-form-label"]}, cmd.arguments[i]));
-            const col = elCreateEmpty('div', {"class": ["col-sm-8"]});
-            col.appendChild(elCreateEmpty('input', {"name": cmd.arguments[i], "id": "inputScriptArg" + i, "type": "text", "class": ["form-control"]}));
-            row.appendChild(col);
-            arglist.appendChild(row);
+            arglist.appendChild(
+                elCreateNodes('div', {"class": ["form-group", "row", "mb-3"]}, [
+                    elCreateText('label', {"class": ["col-sm-4", "col-form-label"]}, cmd.arguments[i]),
+                    elCreateNode('div', {"class": ["col-sm-8"]},
+                        elCreateEmpty('input', {"name": cmd.arguments[i], "id": "inputScriptArg" + i, "type": "text", "class": ["form-control"]})
+                    )
+                ])
+            );
         }
         document.getElementById('modalExecScriptScriptname').value = cmd.script;
         uiElements.modalExecScript.show();

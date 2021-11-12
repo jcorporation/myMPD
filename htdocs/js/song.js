@@ -9,8 +9,7 @@ function initSong() {
             if (event.target.id === 'calcFingerprint') {
                 sendAPI("MYMPD_API_DATABASE_FINGERPRINT", {"uri": getData(event.target, 'data-uri')}, parseFingerprint);
                 event.preventDefault();
-                const spinner = document.createElement('div');
-                spinner.classList.add('spinner-border', 'spinner-border-sm');
+                const spinner = elCreateEmpty('div', {"class": ["spinner-border", "spinner-border-sm"]});
                 elHide(event.target);
                 event.target.parentNode.appendChild(spinner);
             }

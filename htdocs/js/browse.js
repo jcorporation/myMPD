@@ -256,18 +256,18 @@ function gotoBrowse(event) {
     if (features.featAdvsearch === false) {
         return;
     }
-    const x = event.target;
-    let tag = getData(x, 'data-tag');
-    let name = getData(x, 'data-name');
+    const target = event.target;
+    let tag = getData(target, 'data-tag');
+    let name = getData(target, 'data-name');
     if (tag === null) {
-        tag = getData(x.parentNode, 'data-tag');
-        name = getData(x.parentNode, 'data-name');
+        tag = getData(target.parentNode, 'data-tag');
+        name = getData(target.parentNode, 'data-name');
     }
     if (tag !== '' && name !== '' && name !== '-' && settings.tagListBrowse.includes(tag)) {
         if (tag === 'Album') {
-            let artist = getData(x, 'data-albumartist');
+            let artist = getData(target, 'data-albumartist');
             if (artist === null) {
-                artist = getData(x.parentNode, 'data-albumartist');
+                artist = getData(target.parentNode, 'data-albumartist');
             }
             if (artist !== null) {
                 //Show album details
@@ -307,7 +307,7 @@ function gotoAlbumList(tag, value) {
 //eslint-disable-next-line no-unused-vars
 function gotoFilesystem(uri) {
     document.getElementById('searchFilesystemStr').value = '';
-    appGoto('Browse', 'Filesystem', undefined, 0, undefined, '-','-','-', uri);
+    appGoto('Browse', 'Filesystem', undefined, 0, undefined, '-', '-', '-', uri);
 }
 
 function parseFilesystem(obj) {
@@ -324,22 +324,20 @@ function parseFilesystem(obj) {
         return;
     }
 
-    if ((obj.result.images.length === 0 && obj.result.bookletPath === '')) {
+    if (obj.result.images.length === 0 && obj.result.bookletPath === '') {
         elHide(imageList);
     }
     else {
         elShow(imageList);
     }
     if (obj.result.bookletPath !== '') {
-        const img = document.createElement('div');
+        const img = elCreateEmpty('div', {"class": ["booklet"], "title": tn('Booklet')});
         img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
-        img.classList.add('booklet');
         setData(img, 'data-href', subdir + '/browse/music/' + myEncodeURI(obj.result.bookletPath));
-        img.title = tn('Booklet');
         imageList.appendChild(img);
     }
     for (let i = 0, j = obj.result.images.length; i < j; i++) {
-        const img = document.createElement('div');
+        const img = elCreateEmpty('div', {});
         img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + myEncodeURI(obj.result.images[i]) + '"),url("assets/coverimage-loading.svg")';
         imageList.appendChild(img);
     }
@@ -410,42 +408,44 @@ function parseDatabase(obj) {
         }
 
         let picture = '';
-        const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0"]});
         const card = elCreateEmpty('div', {"class": ["card", "card-grid", "clickable"], "tabindex": 0});
         if (obj.result.tag === 'Album') {
             picture = subdir + '/albumart/' + obj.result.data[i].FirstSongUri;
-        
-            const cardBody = elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id});
-            const cardFooter = elCreateNode('div', {"class": ["card-footer", "card-footer-grid", "p-2"], 
-                "title": obj.result.data[i][tagAlbumArtist] + ': ' + obj.result.data[i].Album}, 
-                printValue('Album', obj.result.data[i].Album));
-            cardFooter.appendChild(elCreateEmpty('br', {}));
-            cardFooter.appendChild(elCreateNode('small', {}, printValue(tagAlbumArtist, obj.result.data[i][tagAlbumArtist])));
-            card.appendChild(cardBody);
-            card.appendChild(cardFooter);
+            card.appendChild(
+                elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
+            );
+            card.appendChild(    
+                elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "p-2"], 
+                    "title": obj.result.data[i][tagAlbumArtist] + ': ' + obj.result.data[i].Album}, [
+                        printValue('Album', obj.result.data[i].Album),
+                        elCreateEmpty('br', {}),
+                        elCreateNode('small', {}, printValue(tagAlbumArtist, obj.result.data[i][tagAlbumArtist]))
+                ])
+            );
             setData(card, 'data-picture', picture);
             setData(card, 'data-uri', obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, ''));
             setData(card, 'data-type', 'album');
             setData(card, 'data-name', obj.result.data[i].Album);
             setData(card, 'data-album', obj.result.data[i].Album);
             setData(card, 'data-albumartist', obj.result.data[i].AlbumArtist);
-            addPlayButton(cardBody);
+            addPlayButton(card.firstChild);
         }
         else {
             picture = subdir + '/tagart/' + obj.result.tag + '/' + obj.result.data[i].value;
-
             if (obj.result.pics === true) {
-                const cardBody = elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id});
-                card.appendChild(cardBody);
+                card.appendChild(
+                    elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
+                );
             }
-            
-            const cardFooter = elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2"], 
-                "title": obj.result.data[i].value}, obj.result.data[i].value);
-            card.appendChild(cardFooter);
+            card.appendChild(
+                elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2"], 
+                    "title": obj.result.data[i].value}, obj.result.data[i].value)
+            );
             setData(card, 'data-picture', picture);
             setData(card, 'data-tag', obj.result.data[i].value);
         }
-        col.appendChild(card);
+        const col = elCreateNode('div', {"class": ["col", "px-0", "flex-grow-0"]}, card);
+
         i < cols.length ? cols[i].replaceWith(col) : cardContainer.append(col);
 
         if (hasIO === true) {
@@ -481,10 +481,8 @@ function setGridImage(changes, observer) {
 }
 
 function addPlayButton(parentEl) {
-    const div = document.createElement('div');
-    div.classList.add('align-self-end', 'album-grid-mouseover', 'mi', 'rounded-circle', 'clickable');
-    div.textContent = 'play_arrow';
-    div.title = tn(webuiSettingsDefault.clickAlbumPlay.validValues[settings.webuiSettings.clickAlbumPlay]);
+    const div = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"], 
+        "title": tn(webuiSettingsDefault.clickAlbumPlay.validValues[settings.webuiSettings.clickAlbumPlay])}, 'play_arrow');
     parentEl.appendChild(div);
     div.addEventListener('click', function(event) {
         event.preventDefault();
@@ -533,11 +531,13 @@ function parseAlbumDetails(obj) {
     }
     infoEl.appendChild(p);
     if (obj.result.bookletPath !== '' && features.featLibrary === true) {
-        const booklet = elCreateEmpty('p', {});
-        booklet.appendChild(elCreateText('span', {"class": ["mi", "me-2"]}, 'description'));
-        booklet.appendChild(elCreateText('a', {"target": "_blank", "href": subdir + '/browse/music/' + 
-            myEncodeURI(obj.result.bookletPath)}, tn('Download booklet')));
-        infoEl.appendChild(booklet);
+        infoEl.appendChild(
+            elCreateNodes('p', {}, [
+                elCreateText('span', {"class": ["mi", "me-2"]}, 'description'),
+                elCreateText('a', {"target": "_blank", "href": subdir + '/browse/music/' + 
+                    myEncodeURI(obj.result.bookletPath)}, tn('Download booklet'))
+            ])
+        );
     }
     
     const rowTitle = tn(webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong]);

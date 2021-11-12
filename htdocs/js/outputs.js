@@ -20,6 +20,7 @@ function initOutputs() {
     document.getElementById('outputs').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
+            document.getElementById('volumeMenu').Dropdown.toggle();
             showListOutputAttributes(getData(event.target.parentNode, 'data-output-name'));
         }
         else {
@@ -55,16 +56,17 @@ function parseOutputs(obj) {
         if (obj.result.data[i].plugin === 'dummy') {
             continue;
         }
-        const btn = elCreateEmpty('button', {"class": ["btn", "btn-secondary", "d-flex", "justify-content-between"], "id": "btnOutput" + obj.result.data[i].id});
+        const btn = elCreateNodes('button', {"class": ["btn", "btn-secondary", "d-flex", "justify-content-between"], "id": "btnOutput" + obj.result.data[i].id}, [
+            elCreateText('span', {"class": ["mi", "align-self-center"]}, (obj.result.data[i].plugin === 'httpd' ? 'cast' : 'volume_up')),
+            elCreateText('span', {"class": ["mx-2", "align-self-center"]}, obj.result.data[i].name),
+            elCreateText('a', {"class": ["mi", "text-light", "align-self-center"],
+                "title": (Object.keys(obj.result.data[i].attributes).length > 0 ? tn('Edit attributes') : tn('Show attributes'))}, 'settings')
+        ]);
         setData(btn, 'data-output-name', obj.result.data[i].name);
         setData(btn, 'data-output-id', obj.result.data[i].id);
         if (obj.result.data[i].state === 1) {
             btn.classList.add('active');
         }
-        btn.appendChild(elCreateText('span', {"class": ["mi", "align-self-center"]}, (obj.result.data[i].plugin === 'httpd' ? 'cast' : 'volume_up')));
-        btn.appendChild(elCreateText('span', {"class": ["mx-2", "align-self-center"]}, obj.result.data[i].name));
-        btn.appendChild(elCreateText('a', {"class": ["mi", "text-light", "align-self-center"],
-            "title": (Object.keys(obj.result.data[i].attributes).length > 0 ? tn('Edit attributes') : tn('Show attributes'))}, 'settings'));
         outputList.appendChild(btn);
     }
 }
