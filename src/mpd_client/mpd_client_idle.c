@@ -78,7 +78,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
                         mympd_state->mpd_state->last_song_uri != NULL)
                     {
                         time_t now = time(NULL);
-                        if (mympd_state->mpd_state->feat_stickers && //stickers enabled
+                        if (mympd_state->mpd_state->feat_mpd_stickers && //stickers enabled
                             mympd_state->mpd_state->last_song_set_song_played_time > now) //time in the future
                         {
                             //last song skipped
@@ -319,7 +319,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                     if (mympd_state->last_played_count > 0) {
                         mympd_api_stats_last_played_add_song(mympd_state, mympd_state->mpd_state->song_id);
                     }
-                    if (mympd_state->mpd_state->feat_stickers == true) {
+                    if (mympd_state->mpd_state->feat_mpd_stickers == true) {
                         mympd_api_sticker_inc_play_count(mympd_state, mympd_state->mpd_state->song_uri);
                         mympd_api_sticker_last_played(mympd_state, mympd_state->mpd_state->song_uri);
                     }
@@ -357,13 +357,15 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
 }
 
 static bool update_mympd_caches(struct t_mympd_state *mympd_state) {
-    if (mympd_state->mpd_state->feat_stickers == false && mympd_state->mpd_state->feat_tags == false) {
+    if (mympd_state->mpd_state->feat_mpd_stickers == false &&
+        mympd_state->mpd_state->feat_mpd_tags == false)
+    {
         return true;
     }
-    if (mympd_state->mpd_state->feat_stickers == true) {
+    if (mympd_state->mpd_state->feat_mpd_stickers == true) {
         mympd_state->sticker_cache_building = true;
     }
-    if (mympd_state->mpd_state->feat_tags == true) {
+    if (mympd_state->mpd_state->feat_mpd_tags == true) {
         mympd_state->album_cache_building = true;
     }
     struct t_work_request *request = create_request(-1, 0, INTERNAL_API_CACHES_CREATE, NULL);

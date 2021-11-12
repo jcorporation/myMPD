@@ -50,7 +50,7 @@ sds mympd_api_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "lyrics", "error", "Can not get lyrics for stream uri");
         return buffer;
     }
-    if (mympd_state->mpd_state->feat_library == false) {
+    if (mympd_state->mpd_state->feat_mpd_library == false) {
         MYMPD_LOG_DEBUG("Can not get lyrics, no access to music directory");
         buffer = jsonrpc_respond_message(buffer, method, request_id, false, "lyrics", "info", "No lyrics found");
         return buffer;

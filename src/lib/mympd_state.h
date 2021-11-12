@@ -105,22 +105,22 @@ struct t_mpd_state {
     unsigned tag_albumartist;
     //Feats
     const unsigned* protocol;
-    bool feat_library;
-    bool feat_tags;
-    bool feat_advsearch;
-    bool feat_stickers;
-    bool feat_playlists;
-    bool feat_fingerprint;
+    bool feat_mpd_library;
+    bool feat_mpd_tags;
+    bool feat_mpd_advsearch;
+    bool feat_mpd_stickers;
+    bool feat_mpd_playlists;
+    bool feat_mpd_fingerprint;
     bool feat_mpd_albumart;
     bool feat_mpd_readpicture;
-    bool feat_single_oneshot;
+    bool feat_mpd_single_oneshot;
     bool feat_mpd_mount;
     bool feat_mpd_neighbor;
     bool feat_mpd_partitions;
     bool feat_mpd_binarylimit;
-    bool feat_smartpls;
+    bool feat_mpd_smartpls;
     bool feat_mpd_playlist_rm_range;
-    bool feat_whence;
+    bool feat_mpd_whence;
 };
 
 struct t_timer_definition {

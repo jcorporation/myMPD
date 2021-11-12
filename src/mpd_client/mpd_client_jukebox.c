@@ -66,7 +66,7 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
                             buffer = sdscatlen(buffer, "{", 1);
                             buffer = tojson_long(buffer, "Pos", entity_count, true);    
                             buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
-                            if (mympd_state->mpd_state->feat_stickers == true && mympd_state->sticker_cache != NULL) {
+                            if (mympd_state->mpd_state->feat_mpd_stickers == true && mympd_state->sticker_cache != NULL) {
                                 buffer = sdscatlen(buffer, ",", 1);
                                 buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
                             }
@@ -177,7 +177,7 @@ static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
         add_songs = 99;
     }
         
-    if (mympd_state->mpd_state->feat_playlists == false && strcmp(mympd_state->jukebox_playlist, "Database") != 0) {
+    if (mympd_state->mpd_state->feat_mpd_playlists == false && strcmp(mympd_state->jukebox_playlist, "Database") != 0) {
         MYMPD_LOG_WARN("Jukebox: Playlists are disabled");
         return true;
     }
@@ -400,7 +400,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_st
     unsigned add_songs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual)
 {
     MYMPD_LOG_DEBUG("Jukebox queue to small, adding entities");
-    if (mympd_state->mpd_state->feat_tags == true) {
+    if (mympd_state->mpd_state->feat_mpd_tags == true) {
         if (mympd_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
             enable_mpd_tags(mympd_state->mpd_state, &mympd_state->jukebox_unique_tag);
         }
@@ -409,7 +409,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_st
         }
     }
     bool rc = _mpd_client_jukebox_fill_jukebox_queue(mympd_state, add_songs, jukebox_mode, playlist, manual);
-    if (mympd_state->mpd_state->feat_tags == true) {
+    if (mympd_state->mpd_state->feat_mpd_tags == true) {
         enable_mpd_tags(mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd);
     }
     

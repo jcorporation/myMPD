@@ -579,7 +579,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_LIKE:
-            if (mympd_state->mpd_state->feat_stickers == false) {
+            if (mympd_state->mpd_state->feat_mpd_stickers == false) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "sticker", "error", "MPD stickers are disabled");
                 MYMPD_LOG_ERROR("MPD stickers are disabled");
                 break;
@@ -634,7 +634,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         case MYMPD_API_SMARTPLS_STICKER_SAVE:
         case MYMPD_API_SMARTPLS_NEWEST_SAVE:
         case MYMPD_API_SMARTPLS_SEARCH_SAVE:
-            if (mympd_state->mpd_state->feat_smartpls == false) {
+            if (mympd_state->mpd_state->feat_mpd_smartpls == false) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "playlist", "error", "Smart playlists are not supported");
                 break;
             }
@@ -851,7 +851,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_DATABASE_FINGERPRINT:
-            if (mympd_state->mpd_state->feat_fingerprint == true) {
+            if (mympd_state->mpd_state->feat_mpd_fingerprint == true) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "database", "error", "Fingerprint command not supported");
                 break;
             }
@@ -913,7 +913,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_INSERT_URI:
-            if (mympd_state->mpd_state->feat_whence == false) {
+            if (mympd_state->mpd_state->feat_mpd_whence == false) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Method not supported");
                 break;
             }
@@ -959,7 +959,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH:
-            if (mympd_state->mpd_state->feat_whence == false) {
+            if (mympd_state->mpd_state->feat_mpd_whence == false) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Method not supported");
                 break;
             }
@@ -1064,7 +1064,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         }
         case MYMPD_API_QUEUE_INSERT_URI:
-            if (mympd_state->mpd_state->feat_whence == false) {
+            if (mympd_state->mpd_state->feat_mpd_whence == false) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Method not supported");
                 break;
             }
@@ -1118,7 +1118,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_QUEUE_INSERT_PLAYLIST:
-            if (mympd_state->mpd_state->feat_whence == false) {
+            if (mympd_state->mpd_state->feat_mpd_whence == false) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Method not supported");
                 break;
             }
@@ -1165,7 +1165,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_QUEUE_INSERT_SEARCH:
-            if (mympd_state->mpd_state->feat_whence == false) {
+            if (mympd_state->mpd_state->feat_mpd_whence == false) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Method not supported");
                 break;
             }

@@ -34,7 +34,9 @@ sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
     struct t_list images;
     list_init(&images);
     sds booklet_path = sdsempty();
-    if (is_streamuri(uri) == false && mympd_state->mpd_state->feat_library == true) {
+    if (is_streamuri(uri) == false &&
+        mympd_state->mpd_state->feat_mpd_library == true)
+    {
         _detect_extra_files(mympd_state, uri, &booklet_path, &images, is_dirname);
     }
     buffer = tojson_char(buffer, "bookletPath", booklet_path, true);

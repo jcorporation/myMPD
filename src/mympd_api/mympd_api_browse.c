@@ -78,7 +78,7 @@ sds mympd_api_browse_songdetails(struct t_mympd_state *mympd_state, sds buffer, 
         return buffer;
     }
     
-    if (mympd_state->mpd_state->feat_stickers) {
+    if (mympd_state->mpd_state->feat_mpd_stickers) {
         buffer = sdscatlen(buffer, ",", 1);
         buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, uri);
     }
@@ -245,7 +245,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                     sds_basename_uri(filename);
                     buffer = tojson_char(buffer, "Filename", filename, false);
                     FREE_SDS(filename);
-                    if (mympd_state->mpd_state->feat_stickers) {
+                    if (mympd_state->mpd_state->feat_mpd_stickers) {
                         buffer = sdscatlen(buffer, ",", 1);
                         buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
                     }
@@ -356,7 +356,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
         }
         buffer = sdscat(buffer, "{\"Type\": \"song\",");
         buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
-        if (mympd_state->mpd_state->feat_stickers) {
+        if (mympd_state->mpd_state->feat_mpd_stickers) {
             buffer = sdscatlen(buffer, ",", 1);
             buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
         }

@@ -123,7 +123,10 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
         return buffer;
     }
 
-    if (plist != NULL && to < UINT_MAX) {
+    if (mpd_state->feat_mpd_whence == true &&
+        plist != NULL &&
+        to < UINT_MAX)
+    {
         //to = UINT_MAX is append
         bool rc = mpd_search_add_position(mpd_state->conn, to, whence);
         if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_position") == false) {
@@ -134,7 +137,11 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
 
     if (plist == NULL) {
         //use sort, group and window only if displaing search results
-        if (sort != NULL && strcmp(sort, "") != 0 && strcmp(sort, "-") != 0 && mpd_state->feat_tags == true) {
+        if (sort != NULL &&
+            strcmp(sort, "") != 0 &&
+            strcmp(sort, "-") != 0 &&
+            mpd_state->feat_mpd_tags == true)
+        {
             enum mpd_tag_type sort_tag = mpd_tag_name_parse(sort);
             if (sort_tag != MPD_TAG_UNKNOWN) {
                 sort_tag = get_sort_tag(sort_tag);
@@ -155,7 +162,10 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
                 MYMPD_LOG_WARN("Unknown sort tag: %s", sort);
             }
         }
-        if (grouptag != NULL && strcmp(grouptag, "") != 0 && mpd_state->feat_tags == true) {
+        if (grouptag != NULL &&
+            strcmp(grouptag, "") != 0 &&
+            mpd_state->feat_mpd_tags == true)
+        {
             bool rc = mpd_search_add_group_tag(mpd_state->conn, mpd_tag_name_parse(grouptag));
             if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_group_tag") == false) {
                 mpd_search_cancel(mpd_state->conn);

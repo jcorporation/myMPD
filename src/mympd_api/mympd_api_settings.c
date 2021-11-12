@@ -483,7 +483,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
             rc = mpd_run_consume(mympd_state->mpd_state->conn, uint_buf);
         }
         else if (strcmp(key, "single") == 0 && vtype == MJSON_TOK_NUMBER) {
-            if (mympd_state->mpd_state->feat_single_oneshot == true) {
+            if (mympd_state->mpd_state->feat_mpd_single_oneshot == true) {
                 enum mpd_single_state state;
                 if (value[0] == '0') { state = MPD_SINGLE_OFF; }
                 else if (value[0] == '1') { state = MPD_SINGLE_ON; }
@@ -670,7 +670,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
         const char *replaygain = mpd_lookup_replay_gain_mode(replay_gain_mode);
         
         buffer = tojson_long(buffer, "repeat", mpd_status_get_repeat(status), true);
-        if (mympd_state->mpd_state->feat_single_oneshot == true) {
+        if (mympd_state->mpd_state->feat_mpd_single_oneshot == true) {
             buffer = tojson_long(buffer, "single", mpd_status_get_single_state(status), true);
         }
         else {
@@ -685,21 +685,21 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = tojson_char(buffer, "replaygain", replaygain == NULL ? "" : replaygain, true);
         mpd_status_free(status);
         
-        buffer = tojson_bool(buffer, "featPlaylists", mympd_state->mpd_state->feat_playlists, true);
-        buffer = tojson_bool(buffer, "featTags", mympd_state->mpd_state->feat_tags, true);
-        buffer = tojson_bool(buffer, "featLibrary", mympd_state->mpd_state->feat_library, true);
-        buffer = tojson_bool(buffer, "featAdvsearch", mympd_state->mpd_state->feat_advsearch, true);
-        buffer = tojson_bool(buffer, "featStickers", mympd_state->mpd_state->feat_stickers, true);
-        buffer = tojson_bool(buffer, "featFingerprint", mympd_state->mpd_state->feat_fingerprint, true);
-        buffer = tojson_bool(buffer, "featSingleOneshot", mympd_state->mpd_state->feat_single_oneshot, true);
+        buffer = tojson_bool(buffer, "featPlaylists", mympd_state->mpd_state->feat_mpd_playlists, true);
+        buffer = tojson_bool(buffer, "featTags", mympd_state->mpd_state->feat_mpd_tags, true);
+        buffer = tojson_bool(buffer, "featLibrary", mympd_state->mpd_state->feat_mpd_library, true);
+        buffer = tojson_bool(buffer, "featAdvsearch", mympd_state->mpd_state->feat_mpd_advsearch, true);
+        buffer = tojson_bool(buffer, "featStickers", mympd_state->mpd_state->feat_mpd_stickers, true);
+        buffer = tojson_bool(buffer, "featFingerprint", mympd_state->mpd_state->feat_mpd_fingerprint, true);
+        buffer = tojson_bool(buffer, "featSingleOneshot", mympd_state->mpd_state->feat_mpd_single_oneshot, true);
         buffer = tojson_bool(buffer, "featPartitions", mympd_state->mpd_state->feat_mpd_partitions, true);
         buffer = tojson_char(buffer, "musicDirectoryValue", mympd_state->music_directory_value, true);
         buffer = tojson_bool(buffer, "featMounts", mympd_state->mpd_state->feat_mpd_mount, true);
         buffer = tojson_bool(buffer, "featNeighbors", mympd_state->mpd_state->feat_mpd_neighbor, true);
         buffer = tojson_bool(buffer, "featBinarylimit", mympd_state->mpd_state->feat_mpd_binarylimit, true);
-        buffer = tojson_bool(buffer, "featSmartpls", mympd_state->mpd_state->feat_smartpls, true);
+        buffer = tojson_bool(buffer, "featSmartpls", mympd_state->mpd_state->feat_mpd_smartpls, true);
         buffer = tojson_bool(buffer, "featPlaylistRmRange", mympd_state->mpd_state->feat_mpd_playlist_rm_range, true);
-        buffer = tojson_bool(buffer, "featWhence", mympd_state->mpd_state->feat_whence, true);
+        buffer = tojson_bool(buffer, "featWhence", mympd_state->mpd_state->feat_mpd_whence, true);
         
         buffer = print_tags_array(buffer, "tagList", mympd_state->mpd_state->tag_types_mympd);
         buffer = sdscatlen(buffer, ",", 1);

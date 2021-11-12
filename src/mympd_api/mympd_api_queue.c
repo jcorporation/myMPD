@@ -185,7 +185,9 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
         buffer = printAudioFormat(buffer, audioformat);
         buffer = sdscatlen(buffer, ",", 1);
         buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
-        if (mympd_state->mpd_state->feat_stickers == true && mympd_state->sticker_cache != NULL) {
+        if (mympd_state->mpd_state->feat_mpd_stickers == true &&
+            mympd_state->sticker_cache != NULL)
+        {
             buffer = sdscatlen(buffer, ",", 1);
             buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
         }
@@ -305,7 +307,9 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
             buffer = printAudioFormat(buffer, audioformat);
             buffer = sdscatlen(buffer, ",", 1);
             buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
-            if (mympd_state->mpd_state->feat_stickers == true && mympd_state->sticker_cache != NULL) {
+            if (mympd_state->mpd_state->feat_mpd_stickers == true &&
+                mympd_state->sticker_cache != NULL)
+            {
                 buffer= sdscatlen(buffer, ",", 1);
                 buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
             }

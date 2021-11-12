@@ -35,21 +35,21 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     );
 
     // Defaults
-    mympd_state->mpd_state->feat_stickers = false;
-    mympd_state->mpd_state->feat_playlists = false;
-    mympd_state->mpd_state->feat_tags = false;
-    mympd_state->mpd_state->feat_advsearch = false;
-    mympd_state->mpd_state->feat_fingerprint = false;
+    mympd_state->mpd_state->feat_mpd_stickers = false;
+    mympd_state->mpd_state->feat_mpd_playlists = false;
+    mympd_state->mpd_state->feat_mpd_tags = false;
+    mympd_state->mpd_state->feat_mpd_advsearch = false;
+    mympd_state->mpd_state->feat_mpd_fingerprint = false;
     mympd_state->mpd_state->feat_mpd_albumart = false;
     mympd_state->mpd_state->feat_mpd_readpicture = false;
-    mympd_state->mpd_state->feat_single_oneshot = false;
+    mympd_state->mpd_state->feat_mpd_single_oneshot = false;
     mympd_state->mpd_state->feat_mpd_mount = false;
     mympd_state->mpd_state->feat_mpd_neighbor = false;
     mympd_state->mpd_state->feat_mpd_partitions = false;
     mympd_state->mpd_state->feat_mpd_binarylimit = false;
-    mympd_state->mpd_state->feat_smartpls = false;
+    mympd_state->mpd_state->feat_mpd_smartpls = false;
     mympd_state->mpd_state->feat_mpd_playlist_rm_range = false;
-    mympd_state->mpd_state->feat_whence = false;
+    mympd_state->mpd_state->feat_mpd_whence = false;
     
     //get features
     mpd_client_feature_commands(mympd_state);
@@ -62,9 +62,9 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     FREE_SDS(buffer);
 
     if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 21, 0) >= 0) {
-        mympd_state->mpd_state->feat_single_oneshot = true;
+        mympd_state->mpd_state->feat_mpd_single_oneshot = true;
         MYMPD_LOG_NOTICE("Enabling single oneshot feature");
-        mympd_state->mpd_state->feat_advsearch = true;
+        mympd_state->mpd_state->feat_mpd_advsearch = true;
         MYMPD_LOG_INFO("Enabling advanced search");
     }
     else {
@@ -90,7 +90,6 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
 
     if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 23, 3) >= 0 ) {
         mympd_state->mpd_state->feat_mpd_playlist_rm_range = true;
-        mympd_state->mpd_state->feat_whence = true;
         MYMPD_LOG_NOTICE("Enabling delete playlist range feature");
     }
     else {
@@ -98,15 +97,19 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     }
 
     if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 23, 4) >= 0 ) {
-        mympd_state->mpd_state->feat_whence = true;
+        mympd_state->mpd_state->feat_mpd_whence = true;
         MYMPD_LOG_NOTICE("Enabling support for position whence feature");
     }
     else {
         MYMPD_LOG_WARN("Disabling position whence support, depends on mpd >= 0.23.4");
     }
     
-    if (mympd_state->mpd_state->feat_advsearch == true && mympd_state->mpd_state->feat_playlists == true) {
-        mympd_state->mpd_state->feat_smartpls = true;
+    if (mympd_state->mpd_state->feat_mpd_advsearch == true && mympd_state->mpd_state->feat_mpd_playlists == true) {
+        MYMPD_LOG_NOTICE("Enabling support of smart playlists");
+        mympd_state->mpd_state->feat_mpd_smartpls = true;
+    }
+    else {
+        MYMPD_LOG_WARN("Disabling support of smart playlists");
     }
     
     //push settings to web_server_queue
@@ -114,7 +117,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     extra->music_directory = sdsdup(mympd_state->music_directory_value);
     extra->playlist_directory = sdsdup(mympd_state->playlist_directory);
     extra->coverimage_names = sdsdup(mympd_state->coverimage_names);
-    extra->feat_library = mympd_state->mpd_state->feat_library;
+    extra->feat_library = mympd_state->mpd_state->feat_mpd_library;
     extra->feat_mpd_albumart = mympd_state->mpd_state->feat_mpd_albumart;
     extra->mpd_stream_port = mympd_state->mpd_stream_port;
     extra->mpd_host = sdsdup(mympd_state->mpd_state->mpd_host);
@@ -132,15 +135,15 @@ static void mpd_client_feature_commands(struct t_mympd_state *mympd_state) {
         while ((pair = mpd_recv_command_pair(mympd_state->mpd_state->conn)) != NULL) {
             if (strcmp(pair->value, "sticker") == 0) {
                 MYMPD_LOG_DEBUG("MPD supports stickers");
-                mympd_state->mpd_state->feat_stickers = true;
+                mympd_state->mpd_state->feat_mpd_stickers = true;
             }
             else if (strcmp(pair->value, "listplaylists") == 0) {
                 MYMPD_LOG_DEBUG("MPD supports playlists");
-                mympd_state->mpd_state->feat_playlists = true;
+                mympd_state->mpd_state->feat_mpd_playlists = true;
             }
             else if (strcmp(pair->value, "getfingerprint") == 0) {
                 MYMPD_LOG_DEBUG("MPD supports fingerprint");
-                mympd_state->mpd_state->feat_fingerprint = true;
+                mympd_state->mpd_state->feat_mpd_fingerprint = true;
             }
             else if (strcmp(pair->value, "albumart") == 0) {
                 MYMPD_LOG_DEBUG("MPD supports albumart");
@@ -175,7 +178,7 @@ static void mpd_client_feature_tags(struct t_mympd_state *mympd_state) {
 
     mpd_client_feature_mpd_tags(mympd_state);
 
-    if (mympd_state->mpd_state->feat_tags == true) {
+    if (mympd_state->mpd_state->feat_mpd_tags == true) {
         check_tags(mympd_state->tag_list_search, "tag_list_search", &mympd_state->tag_types_search, mympd_state->mpd_state->tag_types_mympd);
         check_tags(mympd_state->tag_list_browse, "tag_list_browse", &mympd_state->tag_types_browse, mympd_state->mpd_state->tag_types_mympd);
         check_tags(mympd_state->smartpls_generate_tag_list, "smartpls_generate_tag_list", &mympd_state->smartpls_generate_tag_types, mympd_state->mpd_state->tag_types_mympd);
@@ -213,10 +216,10 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
         logline = sdscatlen(logline, "none", 4);
         MYMPD_LOG_NOTICE("%s", logline);
         MYMPD_LOG_NOTICE("Tags are disabled");
-        mympd_state->mpd_state->feat_tags = false;
+        mympd_state->mpd_state->feat_mpd_tags = false;
     }
     else {
-        mympd_state->mpd_state->feat_tags = true;
+        mympd_state->mpd_state->feat_mpd_tags = true;
         MYMPD_LOG_NOTICE("%s", logline);
 
         check_tags(mympd_state->mpd_state->tag_list, "tag_list", &mympd_state->mpd_state->tag_types_mympd, mympd_state->mpd_state->tag_types_mpd);
@@ -234,7 +237,7 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
 }
 
 static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state) {
-    mympd_state->mpd_state->feat_library = false;
+    mympd_state->mpd_state->feat_mpd_library = false;
     sdsclear(mympd_state->music_directory_value);
 
     if (strncmp(mympd_state->mpd_state->mpd_host, "/", 1) == 0 && strncmp(mympd_state->music_directory, "auto", 4) == 0) {
@@ -273,15 +276,15 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
     //set feat_library
     if (sdslen(mympd_state->music_directory_value) == 0) {
         MYMPD_LOG_WARN("Disabling featLibrary support");
-        mympd_state->mpd_state->feat_library = false;
+        mympd_state->mpd_state->feat_mpd_library = false;
     }
     else if (testdir("MPD music_directory", mympd_state->music_directory_value, false) == DIR_EXISTS) {
         MYMPD_LOG_NOTICE("Enabling featLibrary support");
-        mympd_state->mpd_state->feat_library = true;
+        mympd_state->mpd_state->feat_mpd_library = true;
     }
     else {
         MYMPD_LOG_WARN("Disabling featLibrary support");
-        mympd_state->mpd_state->feat_library = false;
+        mympd_state->mpd_state->feat_mpd_library = false;
         sdsclear(mympd_state->music_directory_value);
     }
 }
