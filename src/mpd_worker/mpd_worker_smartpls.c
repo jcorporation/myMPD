@@ -34,7 +34,7 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
 
 //public functions
 bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state, bool force) {
-    if (mpd_worker_state->mpd_state->feat_playlists == false) {
+    if (mpd_worker_state->mpd_state->feat_mpd_playlists == false) {
         MYMPD_LOG_DEBUG("Playlists are disabled");
         return true;
     }
@@ -74,7 +74,7 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
 }
 
 bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, const char *playlist) {
-    if (mpd_worker_state->mpd_state->feat_playlists == false) {
+    if (mpd_worker_state->mpd_state->feat_mpd_playlists == false) {
         MYMPD_LOG_WARN("Playlists are disabled");
         return true;
     }
@@ -243,7 +243,7 @@ static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_wor
     mpd_worker_smartpls_clear(mpd_worker_state, playlist);
     sds buffer = sdsempty();
     bool result;
-    buffer = mpd_shared_search_adv(mpd_worker_state->mpd_state, buffer, NULL, 0, expression, NULL, true, NULL, playlist, 0, 0, 0, 0, NULL, NULL, &result);
+    buffer = mpd_shared_search_adv(mpd_worker_state->mpd_state, buffer, NULL, 0, expression, NULL, true, NULL, playlist, UINT_MAX, 0, 0, 0, NULL, NULL, &result);
     FREE_SDS(buffer);
     if (result == true) {
         MYMPD_LOG_INFO("Updated smart playlist \"%s\"", playlist);
