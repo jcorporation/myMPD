@@ -119,3 +119,14 @@ UTEST(sds_extras, sds_urldecode) {
     sdsfree(test_input);
     sdsfree(s);
 }
+
+UTEST(sds_extras, sds_utf8_tolower) {
+    sds test_input= sdsnew("EINSTÜRZENDE NEUBAUTEN");
+    sds_utf8_tolower(test_input);
+    ASSERT_STREQ("einstürzende neubauten", test_input);
+    sdsclear(test_input);
+    test_input = sdscat(test_input, "sdfßSdf");
+    sds_utf8_tolower(test_input);
+    ASSERT_STREQ("sdfßsdf", test_input);
+    sdsfree(test_input);
+}

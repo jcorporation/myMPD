@@ -47,7 +47,7 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
     unsigned entities_returned = 0;
     unsigned real_limit = offset + limit;
 
-    sdstolower(searchstr);
+    sds_utf8_tolower(searchstr);
     
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
@@ -88,9 +88,9 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
         sds artist_lower = sdsempty();
         while (current != NULL) {
             album_lower = sdscatsds(album_lower, current->key);
-            sdstolower(album_lower);
+            sds_utf8_tolower(album_lower);
             artist_lower = sdscatsds(artist_lower, current->value_p);
-            sdstolower(album_lower);
+            sds_utf8_tolower(album_lower);
             if (strstr(album_lower, searchstr) != NULL || strstr(artist_lower, searchstr) != NULL) {
                 entity_count++;
                 if (entity_count > offset && entity_count <= real_limit) {

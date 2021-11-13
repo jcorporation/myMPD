@@ -96,7 +96,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlists") == false) {
         return buffer;
     }
-    sdstolower(searchstr);
+    sds_utf8_tolower(searchstr);
     size_t search_len = sdslen(searchstr);
 
     struct mpd_playlist *pl;
@@ -107,7 +107,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
         const char *plpath = mpd_playlist_get_path(pl);
         plpath_lower = sdscat(plpath_lower, plpath);
         bool smartpls = is_smartpls(mympd_state->config->workdir, plpath_lower);
-        sdstolower(plpath_lower);
+        sds_utf8_tolower(plpath_lower);
         if ((search_len == 0  || strstr(plpath_lower, searchstr) != NULL) &&
             (type == PLTYPE_ALL || (type == PLTYPE_STATIC && smartpls == false) || (type == PLTYPE_SMART && smartpls == true)))
         {
@@ -136,7 +136,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
             struct dirent *next_file;
             while ((next_file = readdir(smartpls_dir)) != NULL ) {
                 plpath_lower = sdscat(plpath_lower, next_file->d_name);
-                sdstolower(plpath_lower);
+                sds_utf8_tolower(plpath_lower);
                 if (next_file->d_type == DT_REG &&
                     (search_len == 0 || strstr(plpath_lower, searchstr) != NULL) &&
                     list_get_node(&entity_list, next_file->d_name) == NULL)
@@ -200,7 +200,7 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
         return buffer;
     }
 
-    sdstolower(searchstr);
+    sds_utf8_tolower(searchstr);
    
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer,"\"data\":[");
@@ -216,7 +216,7 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
         total_time += mpd_song_get_duration(song);
         if (entity_count >= offset && entity_count < real_limit) {
             entityName = mpd_shared_get_tag_values(song, MPD_TAG_TITLE, entityName);
-            sdstolower(entityName);
+            sds_utf8_tolower(entityName);
             if (search_len == 0  || strstr(entityName, searchstr) != NULL) {
                 if (entities_returned++) {
                     buffer= sdscatlen(buffer, ",", 1);

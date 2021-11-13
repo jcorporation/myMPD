@@ -28,7 +28,6 @@ set(SOURCES
   ../dist/mjson/mjson.c
   ../dist/rax/rax.c
   ../dist/sds/sds.c
-  ../dist/utf8decode/utf8decode.c
   ../src/lib/api.c
   ../src/lib/jsonrpc.c
   ../src/lib/list.c

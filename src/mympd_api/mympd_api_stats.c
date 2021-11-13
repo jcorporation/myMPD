@@ -123,7 +123,7 @@ sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buff
 {
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    sdstolower(searchstr);
+    sds_utf8_tolower(searchstr);
 
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");

@@ -375,6 +375,7 @@ function showAddToPlaylist(uri, searchstr) {
     streamUrl.focus();
     streamUrl.value = '';
     if (uri !== 'STREAM') {
+        //add to playlist
         elHideId('addStreamFrm');
         elShowId('addToPlaylistFrm');
         elHideId('addToPlaylistPosPlayRow');
@@ -382,6 +383,7 @@ function showAddToPlaylist(uri, searchstr) {
         document.getElementById('addToPlaylistPosInsertLabel').textContent = tn('Insert at start of playlist');
     }
     else {
+        //add to queue
         elShowId('addStreamFrm');
         elHideId('addToPlaylistFrm');
         elShowId('addToPlaylistPosPlayRow');
