@@ -23,4 +23,4 @@ myMPD is opensource and build on top off other great opensource software.
 - [sds](https://github.com/antirez/sds) (safe string handling)
 - [TinyMT](https://github.com/MersenneTwister-Lab/TinyMT) (prng)
 - [utest](https://github.com/sheredom/utest.h) (unit tests)
-- [utf8decode](https://github.com/sheredom/utest.h) (utf8 decode/validate)
+- [utf8](https://github.com/sheredom/utf8.h) (utf8 handling)

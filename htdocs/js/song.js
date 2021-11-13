@@ -7,11 +7,10 @@ function initSong() {
     document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             if (event.target.id === 'calcFingerprint') {
-                sendAPI("MYMPD_API_DATABASE_FINGERPRINT", {"uri": getCustomDomProperty(event.target, 'data-uri')}, parseFingerprint);
+                sendAPI("MYMPD_API_DATABASE_FINGERPRINT", {"uri": getData(event.target, 'data-uri')}, parseFingerprint);
                 event.preventDefault();
-                const spinner = document.createElement('div');
-                spinner.classList.add('spinner-border', 'spinner-border-sm');
-                event.target.classList.add('hide');
+                const spinner = elCreateEmpty('div', {"class": ["spinner-border", "spinner-border-sm"]});
+                elHide(event.target);
                 event.target.parentNode.appendChild(spinner);
             }
             else if (event.target.classList.contains('external')) {
@@ -23,25 +22,26 @@ function initSong() {
                 gotoBrowse(event);
             } 
         }
-        else if (event.target.nodeName === 'BUTTON') { 
-            if (event.target.getAttribute('data-href')) {
-                parseCmd(event, event.target.getAttribute('data-href'));
+        else if (event.target.nodeName === 'BUTTON') {
+            const cmd = getData(event.target, 'data-href');
+            if (cmd !== undefined) {
+                parseCmd(event, cmd);
             }
         }
     }, false);
 }
 
 function songDetails(uri) {
-    sendAPI("MYMPD_API_DATABASE_SONGDETAILS", {"uri": uri}, parseSongDetails);
+    sendAPI("MYMPD_API_DATABASE_SONGDETAILS", {
+        "uri": uri
+    }, parseSongDetails);
     uiElements.modalSongDetails.show();
 }
 
 function parseFingerprint(obj) {
-    const textarea = elCreate('textarea', {"class": ["form-control", "text-monospace", "small", "breakAll"], "rows": 5}, '');
+    const textarea = elCreateEmpty('textarea', {"class": ["form-control", "text-monospace", "small", "breakAll"], "rows": 5});
     textarea.value = obj.result.fingerprint;
-    const fpTd = document.getElementById('fingerprint');
-    elClear(fpTd);
-    fpTd.appendChild(textarea);
+    elReplaceChild(document.getElementById('fingerprint'), textarea);
 }
 
 function getMBtagLink(tag, value) {
@@ -61,92 +61,131 @@ function getMBtagLink(tag, value) {
             MBentity = 'recording';
             break;
     }
-    if (MBentity === '') {
-        return e(value);
+    if (MBentity === '' || value === '-') {
+        return elCreateText('span', {}, value);
     }
     else {
-        return '<a title="' + t('Lookup at musicbrainz') + '" class="text-success external" target="_musicbrainz" href="https://musicbrainz.org/' + MBentity + '/' + myEncodeURI(value) + '">' +
-            '<span class="mi">open_in_browser</span>&nbsp;' + value + '</a>';
+        return elCreateText('a', {"title": tn('Lookup at musicbrainz'), "class": ["text-success", "external"], "target": "_musicbrainz",
+            "href": "https://musicbrainz.org/" + MBentity + "/" + myEncodeURI(value)}, value);
     }
+}
+
+function songDetailsRow(thContent, tdContent) {
+    const td = elCreateEmpty('td', {});
+    if (typeof tdContent === 'object') {
+        td.appendChild(tdContent);
+    }
+    else {
+        td.textContent = tdContent;
+    }
+    const tr = elCreateNodes('tr', {}, [
+        elCreateText('th', {}, tn(thContent)),
+        td
+    ]);
+    return tr;
 }
 
 function parseSongDetails(obj) {
     const modal = document.getElementById('modalSongDetails');
-    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(obj.result.uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + 
+        subdir + '/albumart/' + myEncodeURI(obj.result.uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
 
     const elH1s = modal.getElementsByTagName('h1');
     for (let i = 0, j = elH1s.length; i < j; i++) {
         elH1s[i].textContent = obj.result.Title;
     }
-    
-    let songDetailsHTML = '';
+    const tbody = document.getElementById('tbodySongDetails');
+    elClear(tbody);
     for (let i = 0, j = settings.tagList.length; i < j; i++) {
         if (settings.tagList[i] === 'Title' || obj.result[settings.tagList[i]] === '-') {
             continue;
         }
-        songDetailsHTML += '<tr><th>' + t(settings.tagList[i]) + '</th><td data-tag="' + settings.tagList[i] + '" data-name="' + encodeURI(obj.result[settings.tagList[i]]) + '"';
+        const tr = elCreateEmpty('tr', {});
+        tr.appendChild(elCreateText('th', {}, tn(settings.tagList[i])));
+        const td = elCreateEmpty('td', {});
+        setData(td, 'data-tag', settings.tagList[i]);
+        setData(td, 'data-name', obj.result[settings.tagList[i]]);
         if (settings.tagList[i] === 'Album' && obj.result[tagAlbumArtist] !== null) {
-            songDetailsHTML += ' data-albumartist="' + encodeURI(obj.result[tagAlbumArtist]) + '"';
+            setData(td, 'data-albumartist', obj.result[tagAlbumArtist]);
         }
-        songDetailsHTML += '>';
         if (settings.tagListBrowse.includes(settings.tagList[i]) && obj.result[settings.tagList[i]] !== '-') {
-            songDetailsHTML += '<a class="text-success" href="#">' + e(obj.result[settings.tagList[i]]) + '</a>';
+            td.appendChild(elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]]));
         }
         else if (settings.tagList[i].indexOf('MUSICBRAINZ') === 0) {
-            songDetailsHTML += getMBtagLink(settings.tagList[i], obj.result[settings.tagList[i]]);
+            td.appendChild(getMBtagLink(settings.tagList[i], obj.result[settings.tagList[i]]));
         }
         else {
-            songDetailsHTML += obj.result[settings.tagList[i]];
+            td.textContent = obj.result[settings.tagList[i]];
         }
-        songDetailsHTML += '</td></tr>';
+        tr.appendChild(td);
+        tbody.appendChild(tr);
     }
-    songDetailsHTML += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.result.Duration) + '</td></tr>';
+    tbody.appendChild(songDetailsRow('Duration', beautifyDuration(obj.result.Duration)));
     if (features.featLibrary === true) {
-        songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td><a class="text-break text-success" href="/browse/music/' + 
-            myEncodeURI(obj.result.uri) + '" target="_blank" title="' + e(obj.result.uri) + '">' + 
-            e(basename(obj.result.uri, false)) + '</a></td></tr>';
+        tbody.appendChild(songDetailsRow('Filename', elCreateText('a', {"class": ["text-break", "text-success", "downdload"], "href": "#", 
+            "target": "_blank", "title": tn(obj.result.uri)}, basename(obj.result.uri, false))));
     }
     else {
-        songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td class="text-break"><span title="' + e(obj.result.uri) + '">' + 
-            e(basename(obj.result.uri, true)) + '</span></td></tr>';
+        tbody.appendChild(songDetailsRow('Filename', elCreateText('span', {"class": ["text-break"], "title": tn(obj.result.uri)},
+            basename(obj.result.uri, false))));
     }
-    songDetailsHTML += '<tr><th>' + t('Filetype') + '</th><td>' + filetype(obj.result.uri) + '</td></tr>';
-    songDetailsHTML += '<tr><th>' + t('LastModified') + '</th><td>' + localeDate(obj.result.LastModified) + '</td></tr>';
+    tbody.appendChild(songDetailsRow('AudioFormat', printValue('AudioFormat', obj.result.AudioFormat)));
+    tbody.appendChild(songDetailsRow('Filetype', filetype(obj.result.uri)));
+    tbody.appendChild(songDetailsRow('LastModified', localeDate(obj.result.LastModified)));
     if (features.featFingerprint === true) {
-        songDetailsHTML += '<tr><th>' + t('Fingerprint') + '</th><td id="fingerprint"><a class="text-success" data-uri="' + 
-            myEncodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
+        const a = elCreateText('a', {"class": "text-success", "id": "calcFingerprint", "href": "#"}, tn('Calculate'));
+        setData(a, 'data-uri', obj.result.uri);
+        tbody.appendChild(songDetailsRow('Fingerprint', a));
+        tbody.lastChild.lastChild.setAttribute('id', 'fingerprint');
     }
     if (obj.result.bookletPath !== '') {
-        songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="' + myEncodeURI(subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName) + '" target="_blank">' + t('Download') + '</a></td></tr>';
+        tbody.appendChild(songDetailsRow('Booklet', elCreateText('a', {"class": ["text-success"], 
+            "href": myEncodeURI(subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName), "target": "_blank"},
+            tn('Download'))));
     }
     if (features.featStickers === true) {
-        songDetailsHTML += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>';
+        tbody.appendChild(elCreateNode('tr', {}, elCreateNode('th', {"colspan": "2", "class": ["pt-3"]}, elCreateText('h5', {}, tn('Statistics')))));
         for (const sticker of stickerList) {
             if (sticker === 'stickerLike') {
-                songDetailsHTML += '<tr><th>' + t('Like') + '</th><td><div class="btn-group btn-group-sm" data-uri="' + myEncodeURI(obj.result.uri) + '">' +
-                    '<button title="' + t('Dislike song') + '" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-secondary mi' + (obj.result[sticker] === 0 ? ' active' : '') + '">thumb_down</button>' +
-                    '<button title="' + t('Like song') + '" data-href=\'{"cmd": "voteSong", "options": [2]}\' class="btn btn-sm btn-secondary mi' + (obj.result[sticker] === 2 ? ' active' : '') + '">thumb_up</button>' +
-                    '</div></td></tr>';
+                const thDown = elCreateText('button', {"title": tn('Dislike song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_down');
+                setData(thDown, 'data-href', {"cmd": "voteSong", "options": [0]});
+                if (obj.result[sticker] === 0) {
+                    thDown.classList.add('active');
+                }
+                const thUp = elCreateText('button', {"title": tn('Dislike song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_up');
+                setData(thUp, 'data-href', {"cmd": "voteSong", "options": [2]});
+                if (obj.result[sticker] === 2) {
+                    thUp.classList.add('active');
+                }
+                const grp = elCreateNodes('div', {"class": ["btn-group", "btn-group-sm"]},[
+                    thDown,
+                    thUp
+                ]);
+                setData(grp, 'data-uri', obj.result.uri);
+                tbody.appendChild(
+                    elCreateNodes('tr', {}, [
+                        elCreateText('th', {}, tn('Like')),
+                        elCreateNode('td', {}, grp)
+                    ])
+                );
             }
             else {
-                songDetailsHTML += '<tr><th>' + t(sticker) + '</th><td>' + printValue(sticker,  obj.result[sticker]) + '</td></tr>';
+                tbody.appendChild(songDetailsRow(sticker, printValue(sticker, obj.result[sticker])));
             }
         }
     }
-    
-    document.getElementById('tbodySongDetails').innerHTML = songDetailsHTML;
-    
+
     if (features.featLyrics === true) {
         getLyrics(obj.result.uri, document.getElementById('lyricsText'));
     }
-    
+
     getComments(obj.result.uri, document.getElementById('tbodySongComments'));
 
     const pictureEls = document.getElementsByClassName('featPictures');
     for (let i = 0, j = pictureEls.length; i < j; i++) {
-        pictureEls[i].classList.remove('hide');
+        elShow(pictureEls[i]);
     }
-    
+
     //add uri to image list to get embedded albumart
     const images = [ subdir + '/albumart/' + obj.result.uri ];
     //add all but coverfiles to image list
@@ -162,8 +201,8 @@ function parseSongDetails(obj) {
 function isCoverfile(uri) {
     const filename = basename(uri).toLowerCase();
     const fileparts = filename.split('.');
-    
-    const extensions = ['png', 'jpg', 'jpeg', 'svg', 'webp', 'tiff', 'bmp'];
+
+    const extensions = ['png', 'jpg', 'jpeg', 'svg', 'webp', 'avif'];
     const coverimageNames = settings.coverimageNames.split(',');
     for (let i = 0, j = coverimageNames.length; i < j; i++) {
         const name = coverimageNames[i].trim();
@@ -181,7 +220,9 @@ function isCoverfile(uri) {
 
 function getComments(uri, el) {
     el.classList.add('opacity05');
-    sendAPI("MYMPD_API_DATABASE_COMMENTS", {"uri": uri}, function(obj) {
+    sendAPI("MYMPD_API_DATABASE_COMMENTS", {
+        "uri": uri
+    }, function(obj) {
         elClear(el);
         if (obj.result.returnedEntities === 0) {
             el.appendChild(emptyRow(2));
@@ -189,10 +230,12 @@ function getComments(uri, el) {
             return false;
         }
         for (const key in obj.result.data) {
-            const tr = elCreate('tr', {}, '');
-            tr.appendChild(elCreate('td', {}, key));
-            tr.appendChild(elCreate('td', {}, obj.result.data[key]));
-            el.appendChild(tr);
+            el.appendChild(
+                elCreateNodes('tr', {}, [
+                    elCreateText('td', {}, key),
+                    elCreateText('td', {}, obj.result.data[key])
+                ])
+            );
         }
         el.classList.remove('opacity05');
     }, false);
@@ -200,23 +243,25 @@ function getComments(uri, el) {
 
 function getLyrics(uri, el) {
     if (isValidUri(uri) === false || isStreamUri(uri) === true) {
-        el.innerHTML = t('No lyrics found');
+        el.textContent = tn('No lyrics found');
         return;
     }
     el.classList.add('opacity05');
-    sendAPI("MYMPD_API_LYRICS_GET", {"uri": uri}, function(obj) {
+    sendAPI("MYMPD_API_LYRICS_GET", {
+        "uri": uri
+    }, function(obj) {
         if (obj.error) {
-            el.textContent = t(obj.error.message);
+            el.textContent = tn(obj.error.message);
         }
         else if (obj.result.message) {
-            el.textContent = t(obj.result.message);
+            el.textContent = tn(obj.result.message);
         }
         else if (obj.result.returnedEntities === 0) {
-            el.innerHTML = t('No lyrics found');
+            el.textContent = tn('No lyrics found');
         }
         else {
-            let lyricsHeader = '<span class="lyricsHeader" class="btn-group-toggle" data-toggle="buttons">';
-            let lyrics = '<div class="lyricsTextContainer">';
+            const lyricsTabs = elCreateEmpty('div', {"class": [ "lyricsTabs"]});
+            const lyrics = elCreateEmpty('div', {"class": ["lyricsTextContainer", "mt-3"]});
             const clickable = el.parentNode.getAttribute('id') === 'currentLyrics' ? true : false;
             showSyncedLyrics = false;
             for (let i = 0; i < obj.result.returnedEntities; i++) {
@@ -230,47 +275,76 @@ function getLyrics(uri, el) {
                 else {
                     ht = i;
                 }
-                lyricsHeader += '<label data-num="' + i + '" class="btn btn-sm btn-outline-secondary mr-2 lyricsChangeButton' + (i === 0 ? ' active' : '') + '" title="' + 
-                    (obj.result.data[i].synced === true ? t('Synced lyrics') : t('Unsynced lyrics')) + ': ' + e(ht) + '">' + e(ht) + '</label>';
-                lyrics += '<div class="lyricsText ' + (i > 0 ? 'hide' : '') + (obj.result.data[i].synced === true ? 'lyricsSyncedText' : '') + 
-                    (clickable === true ? '' : ' fullHeight') + '">' +
-                    (obj.result.data[i].synced === true ? parseSyncedLyrics(obj.result.data[i].text, clickable) : e(obj.result.data[i].text).replace(/\n/g, "<br/>")) + 
-                    '</div>';
+                lyricsTabs.appendChild(elCreateText('button', {"data-num": i, "class": ["btn", "btn-sm", "btn-outline-secondary", "me-2", "lyricsChangeButton"],
+                    "title": (obj.result.data[i].synced === true ? tn('Synced lyrics') : tn('Unsynced lyrics')) + ': ' + ht}, ht));
+                if (i === 0) {
+                    lyricsTabs.lastChild.classList.add('active');
+                }
+
+                const div = elCreateEmpty('div', {"class": ["lyricsText"]});
+                if (i > 0) {
+                    div.classList.add('d-none');
+                }
+                if (obj.result.data[i].synced === true) {
+                    div.classList.add('lyricsSyncedText');
+                }
+                if (clickable === false) {
+                    div.classList.add('fullHeight');
+                }
+                if (obj.result.data[i].synced === true) {
+                    parseSyncedLyrics(div, obj.result.data[i].text, clickable);
+                }
+                else {
+                    parseUnsyncedLyrics(div, obj.result.data[i].text);
+                }
+                lyrics.appendChild(div);
+
                 if (obj.result.data[i].synced === true) {
                     showSyncedLyrics = true;
                 }
             }
-            lyricsHeader += '</span>';
-            lyrics += '</div>';
-            const lyricsScroll = showSyncedLyrics === false || clickable === false ? '' :
-                '<button class="btn btn-sm mi mr-2 active" id="lyricsScroll">autorenew</button>';
+            const lyricsScroll = elCreateNode('button', {"title": tn('Toggle autoscrolling'), "class": ["btn", "btn-sm", "me-2", "active", "d-none"], "id": "lyricsScroll"}, 
+                elCreateText('span', {"class": ["mi", "mi-small"]}, 'autorenew')
+            );
+            const lyricsResize = elCreateNode('button', {"title": tn('Resize'), "class": ["btn", "btn-sm", "me-2", "active", "d-none"], "id": "lyricsResize"}, 
+                elCreateText('span', {"class": ["mi", "mi-small"]}, 'aspect_ratio')
+            );
+            const lyricsHeader = elCreateEmpty('div', {"class": ["lyricsHeader", "btn-toolbar", "mt-2"]});
+            lyricsHeader.appendChild(lyricsScroll);
+            lyricsHeader.appendChild(lyricsResize);
+            elClear(el);
             if (obj.result.returnedEntities > 1) {
-                el.innerHTML = lyricsScroll + lyricsHeader + lyrics;
-                el.getElementsByClassName('lyricsHeader')[0].addEventListener('click', function(event) {
-                    if (event.target.nodeName === 'LABEL') {
+                lyricsHeader.appendChild(lyricsTabs);
+                el.appendChild(lyricsHeader);
+                el.appendChild(lyrics);
+                el.getElementsByClassName('lyricsTabs')[0].addEventListener('click', function(event) {
+                    if (event.target.nodeName === 'BUTTON') {
                         event.target.parentNode.getElementsByClassName('active')[0].classList.remove('active');
                         event.target.classList.add('active');
                         const nr = Number(event.target.getAttribute('data-num'));
                         const tEls = el.getElementsByClassName('lyricsText');
                         for (let i = 0, j = tEls.length; i < j; i++) {
                             if (i === nr) {
-                                tEls[i].classList.remove('hide');
+                                elShow(tEls[i]);
                             }
                             else {
-                                tEls[i].classList.add('hide');
+                                elHide(tEls[i]);
                             }
                         }
                     }
                 }, false);
             }
             else {
-                el.innerHTML = lyricsScroll + lyrics;
+                el.appendChild(lyricsHeader);
+                el.appendChild(lyrics);
             }
             const ls = document.getElementById('lyricsScroll');
             if (ls !== null && showSyncedLyrics === true && clickable === true) {
+                elShow(ls);
                 ls.addEventListener('click', function(event) {
-                    toggleBtn(event.target);
-                    scrollSyncedLyrics = event.target.classList.contains('active');
+                    const target = event.target.nodeName === 'SPAN' ? event.target.parentNode : event.target;
+                    toggleBtn(target);
+                    scrollSyncedLyrics = target.classList.contains('active');
                 }, false);
                 const textEls = el.getElementsByClassName('lyricsSyncedText');
                 for (let i = 0, j = textEls.length; i < j; i++) {
@@ -278,42 +352,71 @@ function getLyrics(uri, el) {
                     textEls[i].addEventListener('click', function(event) {
                         const sec = event.target.getAttribute('data-sec');
                         if (sec !== null) {
-                            sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {"seek": Number(sec), "relative": false});
+                            sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
+                                "seek": Number(sec),
+                                "relative": false
+                            });
                         }
                     }, false); 
                 }
+            }
+            const lr = document.getElementById('lyricsResize');
+            if (lr !== null) {
+                elShow(lr);
+                lr.addEventListener('click', function(event) {
+                    const target = event.target.nodeName === 'SPAN' ? event.target.parentNode : event.target;
+                    toggleBtn(target);
+                    const mh = target.classList.contains('active') ? '16rem' : 'unset';
+                    const lt = document.getElementsByClassName('lyricsText');
+                    for (const l of lt) {
+                        l.style.maxHeight = mh;
+                    }
+                }, false);
             }
         }
         el.classList.remove('opacity05');
     }, true);
 }
 
-function parseSyncedLyrics(text, clickable) {
-    let html = '';
-    const lines = text.replace(/\r/g, '').split('\n');
-    for (let i = 0, j = lines.length; i < j; i++) {
+function parseUnsyncedLyrics(parent, text) {
+    for (const line of text.replace('\r').split('\n')) {
+        parent.appendChild(document.createTextNode(line));
+        parent.appendChild(elCreateEmpty('br', {}));
+    }
+}
+
+function parseSyncedLyrics(parent, lyrics, clickable) {
+    for (const line of lyrics.replace('\r').split('\n')) {
         //line must start with timestamp
-        const line = lines[i].match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
-        if (line) {
-            const sec = Number(line[1]) * 60 + Number(line[2]);
-            //line[3] are hundreths of a seconde - ignore it for the moment
-            html += '<p><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + sec + '">';
-            if (line[4].match(/^\s+$/)) {
-                html += '&nbsp;';
+        const elements = line.match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
+        if (elements) {
+            //elements[3] are hundreths of a seconde - ignore it for the moment
+            const ts = [Number(elements[1]) * 60 + Number(elements[2])];
+            const text = [];
+            //support of timestamps per word
+            const regex = /(.+)(<(\d+):(\d+)\.\d+>)?/g;
+            let match;
+            while ((match = regex.exec(elements[4])) !== null) {
+                text.push(match[1]);
+                if (regex[2] !== undefined) {
+                    ts.push(Number(match[3]) * 60 + Number(match[4]));
+                }
             }
-            else {
-                //support of extended lrc format - timestamps for words
-                html += line[4].replace(/<(\d+):(\d+)\.\d+>/g, function(m0, m1, m2) {
-                    //hundreths of a secondes are ignored
-                    const wsec = Number(m1) * 60 + Number(m2);
-                    return '</span><span class="' + (clickable === true ? 'clickable' : '') + '" data-sec="' + wsec + '">';
-                });
+            if (text.length === 0) {
+                //handle empty lines
+                text.push(' ');
             }
-            html += '</span></p>';
+            const p = elCreateEmpty('p', {});
+            for (let i = 0, j = ts.length; i < j; i++) {
+                const span = elCreateText('span', {"data-sec": ts[i]}, text[i]);
+                if (clickable === true) {
+                    span.classList.add('clickable');
+                }
+                p.appendChild(span);
+            }
+            parent.appendChild(p);
         }
     }
-    html += '';
-    return html;
 }
 
 //used in songdetails modal
@@ -334,24 +437,30 @@ function voteSong(el, vote) {
     if (vote === 0 || vote === 2) {
         el.classList.add('active');
     }
-    const uri = getCustomDomProperty(el.parentNode, 'data-uri');
-    sendAPI("MYMPD_API_LIKE", {"uri": uri, "like": vote});
+    const uri = getData(el.parentNode, 'data-uri');
+    sendAPI("MYMPD_API_LIKE", {
+        "uri": uri,
+        "like": vote
+    });
 }
 
 //eslint-disable-next-line no-unused-vars
 function voteCurrentSong(vote) {
-    const uri = getCustomDomProperty('currentTitle', 'data-uri');
+    const uri = getDataId('currentTitle', 'data-uri');
     if (uri === '') {
         return;
     }
-        
-    if (vote === 2 && document.getElementById('btnVoteUp').classList.contains('highlight')) {
+
+    if ((vote === 2 && document.getElementById('btnVoteUp').classList.contains('highlight')) ||
+        (vote === 0 && document.getElementById('btnVoteDown').classList.contains('highlight')))
+    {
         vote = 1;
     }
-    else if (vote === 0 && document.getElementById('btnVoteDown').classList.contains('highlight')) {
-        vote = 1;
-    }
-    sendAPI("MYMPD_API_LIKE", {"uri": uri, "like": vote});
+
+    sendAPI("MYMPD_API_LIKE", {
+        "uri": uri,
+        "like": vote
+    });
     setVoteSongBtns(vote, uri);
 }
 
@@ -361,16 +470,16 @@ function setVoteSongBtns(vote, uri) {
     }
 
     if (isValidUri(uri) === false || isStreamUri(uri) === true) {
-        elDisable('btnVoteUp');
-        elDisable('btnVoteDown');
+        elDisableId('btnVoteUp');
+        elDisableId('btnVoteDown');
         document.getElementById('btnVoteUp').classList.remove('highlight');
         document.getElementById('btnVoteDown').classList.remove('highlight');
     }
     else {
-        elEnable('btnVoteUp');
-        elEnable('btnVoteDown');
+        elEnableId('btnVoteUp');
+        elEnableId('btnVoteDown');
     }
-    
+
     if (vote === 0) {
         document.getElementById('btnVoteUp').classList.remove('highlight');
         document.getElementById('btnVoteDown').classList.add('highlight');

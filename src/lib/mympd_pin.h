@@ -9,8 +9,8 @@
 
 #include <stdbool.h>
 
-#include "../../dist/src/sds/sds.h"
+#include "../../dist/sds/sds.h"
 
-void pin_set(sds workdir);
+bool pin_set(sds workdir);
 bool pin_validate(const char *pin, const char *pin_hash);
 #endif

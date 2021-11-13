@@ -2,7 +2,7 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-const CACHE = 'myMPD-cache-v8.1.6';
+const CACHE = 'myMPD-cache-v8.2.0';
 const subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
 const urlsToCache = [
     subdir + '/',
@@ -17,7 +17,6 @@ const urlsToCache = [
     subdir + '/assets/favicon.ico',
     subdir + '/assets/MaterialIcons-Regular.woff2',
 	subdir + '/assets/mympd-background-dark.svg',
-	subdir + '/assets/mympd-background-default.svg',
 	subdir + '/assets/mympd-background-light.svg'
 ];
 

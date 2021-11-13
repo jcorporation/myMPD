@@ -8,8 +8,8 @@ function initPartitions() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'A') {
-            const action = event.target.getAttribute('data-action');
-            const partition = decodeURI(event.target.parentNode.parentNode.getAttribute('data-partition'));
+            const action = getData(event.target, 'data-action');
+            const partition = getData(event.target.parentNode.parentNode, 'data-partition');
             if (action === 'delete') {
                 deletePartition(partition);
             }
@@ -18,12 +18,12 @@ function initPartitions() {
             }
         }
     }, false);
-    
+
     document.getElementById('partitionOutputsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            const outputName = decodeURI(event.target.parentNode.getAttribute('data-output'));
+            const outputName = getData(event.target.parentNode, 'data-output');
             moveOutput(outputName);
             uiElements.modalPartitionOutputs.hide();
         }
@@ -31,8 +31,6 @@ function initPartitions() {
 
     document.getElementById('modalPartitions').addEventListener('shown.bs.modal', function () {
         showListPartitions();
-        hideModalAlert();
-        removeEnterPinFooter();
     });
 
     document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
@@ -49,34 +47,37 @@ function moveOutput(output) {
 }
 
 function parsePartitionOutputsList(obj) {
-    const tbody = document.getElementById('partitionOutputsList');
-    if (checkResult(obj, tbody, 1) === false) {
+    const outputList = document.getElementById('partitionOutputsList');
+    if (checkResult(obj, outputList) === false) {
         return;
     }
 
+    elClear(outputList);
     const outputs = document.getElementById('outputs').getElementsByTagName('button');
     const outputIds = [];
     for (let i = 0, j= outputs.length; i < j; i++) {
-        outputIds.push(Number(outputs[i].getAttribute('data-output-id')));
+        outputIds.push(getData(outputs[i], 'data-output-id'));
     }
 
-    let outputList = '';
     let nr = 0;
     for (let i = 0, j = obj.result.data.length; i < j; i++) {
         if (outputIds.includes(obj.result.data[i].id) === false) {
-            outputList += '<tr data-output="' + encodeURI(obj.result.data[i].name) + '"><td>' +
-                e(obj.result.data[i].name) + '</td></tr>';
+            const tr = elCreateNode('tr', {}, 
+                elCreateText('td', {}, obj.result.data[i].name)
+            );
+            setData(tr, 'data-output', obj.result.data[i].name);
+            outputList.appendChild(tr);
             nr++;
         }
     }
     if (nr === 0) {
-        outputList = '<tr class="not-clickable"><td><span class="mi">info</span>&nbsp;&nbsp;' + t('Empty list') + '</td></tr>';
+        outputList.appendChild(emptyRow(1));
     }
-    tbody.innerHTML = outputList;
 }
 
 //eslint-disable-next-line no-unused-vars
 function savePartition() {
+    cleanupModalId('modalPartitions');
     let formOK = true;
     
     const nameEl = document.getElementById('inputPartitionName');
@@ -87,39 +88,37 @@ function savePartition() {
     if (formOK === true) {
         sendAPI("MYMPD_API_PARTITION_NEW", {
             "name": nameEl.value
-            }, savePartitionCheckError, true);
+        }, savePartitionCheckError, true);
     }
 }
 
 function savePartitionCheckError(obj) {
-    removeEnterPinFooter();
     if (obj.error) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         showListPartitions();
     }
 }
 
 //eslint-disable-next-line no-unused-vars
 function showNewPartition() {
+    cleanupModalId('modalPartitions');
     document.getElementById('listPartitions').classList.remove('active');
     document.getElementById('newPartition').classList.add('active');
-    document.getElementById('listPartitionsFooter').classList.add('hide');
-    document.getElementById('newPartitionFooter').classList.remove('hide');
-    
-    removeIsInvalid(document.getElementById('modalPartitions'));
+    elHideId('listPartitionsFooter');
+    elShowId('newPartitionFooter');
     const nameEl = document.getElementById('inputPartitionName');
     nameEl.value = '';
     nameEl.focus();
 }
 
 function showListPartitions() {
+    cleanupModalId('modalPartitions');
     document.getElementById('listPartitions').classList.add('active');
     document.getElementById('newPartition').classList.remove('active');
-    document.getElementById('listPartitionsFooter').classList.remove('hide');
-    document.getElementById('newPartitionFooter').classList.add('hide');
+    elShowId('listPartitionsFooter');
+    elHideId('newPartitionFooter');
     sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, true);
 }
 
@@ -139,23 +138,37 @@ function switchPartition(partition) {
 }
 
 function parsePartitionList(obj) {
-    const tbody = document.getElementById('listPartitionsList');
-    if (checkResult(obj, tbody, 3) === false) {
+    const partitionList = document.getElementById('listPartitionsList');
+    if (checkResult(obj, partitionList) === false) {
         return;
     }
 
-    let partitionList = '';
+    elClear(partitionList);
+
     for (let i = 0, j = obj.result.data.length; i < j; i++) {
-        partitionList += '<tr data-partition="' + encodeURI(obj.result.data[i].name) + '"><td class="' +
-            (obj.result.data[i].name === settings.partition ? 'font-weight-bold' : '') +
-            '">' + e(obj.result.data[i].name) + 
-            (obj.result.data[i].name === settings.partition ? '&nbsp;(' + t('current') + ')' : '') +
-            '</td>' +
-            '<td data-col="Action">' +
-            (obj.result.data[i].name === 'default' || obj.result.data[i].name === settings.partition  ? '' : 
-                '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>') +
-            (obj.result.data[i].name !== settings.partition ? '<a href="#" title="' + t('Switch to') + '" data-action="switch" class="mi color-darkgrey">check_circle</a>' : '') +
-            '</td></tr>';
+        const tr = elCreateEmpty('tr', {});
+        setData(tr, 'data-partition', obj.result.data[i].name);
+        const td = elCreateEmpty('td', {});
+        if (obj.result.data[i].name === settings.partition) {
+            td.classList.add('font-weight-bold');
+            td.textContent = obj.result.data[i].name + ' (' + tn('current') + ')';
+        }
+        else {
+            td.textContent = obj.result.data[i].name;
+        }
+        tr.appendChild(td);
+        const actionTd = elCreateEmpty('td', {"data-col": "Action"});
+        if (obj.result.data[i].name !== 'default' && obj.result.data[i].name !== settings.partition) {
+            actionTd.appendChild(
+                elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "delete", "class": ["mi", "color-darkgrey", "me-2"]}, 'delete')
+            );
+        }
+        if (obj.result.data[i].name !== settings.partition) {
+            actionTd.appendChild(
+                elCreateText('a', {"href": "#", "title": tn('Switch to'), "data-action": "switch", "class": ["mi", "color-darkgrey"]}, 'check_circle')
+            );
+        }
+        tr.appendChild(actionTd);
+        partitionList.appendChild(tr);
     }
-    tbody.innerHTML = partitionList;
 }

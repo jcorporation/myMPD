@@ -203,7 +203,7 @@ bool list_shuffle(struct t_list *l) {
     int n = 0;
     struct t_list_node *current = l->head;
     while (current != NULL) {
-        unsigned int pos = randrange(0, l->length);
+        unsigned pos = randrange(0, l->length);
         list_swap_item(current, list_node_at(l, pos));
         n++;
         current = current->next;

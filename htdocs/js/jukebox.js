@@ -7,14 +7,23 @@ function initJukebox() {
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             if (settings.jukeboxMode === 1) {
-                clickSong(getCustomDomProperty(event.target.parentNode, 'data-uri'), getCustomDomProperty(event.target.parentNode, 'data-name'));
+                clickSong(getData(event.target.parentNode, 'data-uri'), getData(event.target.parentNode, 'data-name'));
             }
             else if (settings.jukeboxMode === 2) {
-                clickAlbumPlay(getCustomDomProperty(event.target.parentNode, 'data-albumartist'), getCustomDomProperty(event.target.parentNode, 'data-album'));
+                clickAlbumPlay(getData(event.target.parentNode, 'data-albumartist'), getData(event.target.parentNode, 'data-album'));
             }
         }
         else if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
+            showPopover(event);
+        }
+    }, false);
+    document.getElementById('searchQueueJukeboxStr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else {
+            appGoto(app.current.card, app.current.tab, app.current.view, 
+                0, app.current.limit, app.current.filter, app.current.sort, '-', this.value);
         }
     }, false);
 }
@@ -33,30 +42,31 @@ function delQueueJukeboxSong(pos) {
 }
 
 function parseJukeboxList(obj) {
-    if (checkResult(obj, 'QueueJukebox', null) === false) {
+    if (checkResultId(obj, 'QueueJukeboxList') === false) {
         if (obj.result !== undefined && obj.result.jukeboxMode === 0) {
-            document.getElementById('QueueJukeboxList').classList.add('hide');
-            document.getElementById('QueueJukeboxDisabled').classList.remove('hide');
+            elHideId('QueueJukeboxList');
+            elShowId('QueueJukeboxDisabled');
         }
+        setPagination(0,0);
         return;
     }
 
-    document.getElementById('QueueJukeboxDisabled').classList.add('hide');
-    document.getElementById('QueueJukeboxList').classList.remove('hide');
+    elHideId('QueueJukeboxDisabled');
+    elShowId('QueueJukeboxList');
 
     const rowTitle = webuiSettingsDefault.clickAlbumPlay.validValues[settings.webuiSettings.clickAlbumPlay];
     updateTable(obj, 'QueueJukebox', function(row, data) {
-        setCustomDomProperty(row, 'data-uri', data.uri);
-        setCustomDomProperty(row, 'data-name', data.Title);
-        setCustomDomProperty(row, 'data-type', data.uri === 'Album' ? 'album' : 'song');
-        setCustomDomProperty(row, 'data-pos', (data.Pos - 1));
+        setData(row, 'data-uri', data.uri);
+        setData(row, 'data-name', data.Title);
+        setData(row, 'data-type', data.uri === 'Album' ? 'album' : 'song');
+        setData(row, 'data-pos', (data.Pos - 1));
         if (data.Album !== undefined) {
-            setCustomDomProperty(row, 'data-album', data.Album);
+            setData(row, 'data-album', data.Album);
         }
         if (data[tagAlbumArtist] !== undefined) {
-            setCustomDomProperty(row, 'data-albumartist', data[tagAlbumArtist]);
+            setData(row, 'data-albumartist', data[tagAlbumArtist]);
         }
-        row.setAttribute('title', t(rowTitle));
+        row.setAttribute('title', tn(rowTitle));
         row.setAttribute('tabindex', 0);
     });
 }

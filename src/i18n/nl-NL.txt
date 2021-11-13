@@ -234,12 +234,6 @@ http://url.naar/stream.mp3
 Invalid URI
 Ongeldige url
 
-Please choose playlist
-Kies afspeellijst
-
-Create Playlist
-Maak afspeellijst
-
 Invalid filename
 Ongeldige bestandsnaam
 
@@ -468,12 +462,6 @@ Verbinding
 Protocol version
 Versie protocol
 
-Libmpdclient version
-Versie libmpdclient
-
-Libmympdclient version
-Versie libmympdclient
-
 Action
 Aktie
 
@@ -525,9 +513,6 @@ Nummerdetails
 Close
 Sluit
 
-Searching...
-Zoek...
-
 Previous song
 Vorig nummer
 
@@ -548,12 +533,6 @@ Volume plus
 
 Open settings
 Instellingen
-
-Open song details
-Nummerdetails
-
-Open local player
-Lokaal afspelen
 
 Goto playback
 Afspelen openen
@@ -576,12 +555,6 @@ Bestandssysteem openen
 Goto search
 Zoeken openen
 
-Open main menu
-Hoofdmenu openen
-
-Open volume menu
-Volumeregeing openen
-
 Open about
 Over myMPD openen
 
@@ -594,7 +567,7 @@ myMPD werd als app geïnstalleerd
 MPD disconnected
 MPD niet verbonden
 
-Websocket connection failed
+Websocket connection closed
 Websocket Verbinding mislukt
 
 Connected to myMPD
@@ -617,9 +590,6 @@ Volume
 
 Empty list
 Lege lijst
-
-Added stream %{streamUri} to queue
-Stream %{streamUri} aan wachtrij toevoegen
 
 Append to queue
 Aan wachtrij toevoegen
@@ -669,14 +639,8 @@ Nummer aan wachtrij toegevoegd
 Add random
 Voeg willekeurige toe
 
-New playlist
-Nieuwe afspeellijst
-
 never
 nooit
-
-Added %{uri} to playlist %{playlist}
-%{uri} aan afspeellijst %{playlist} toegevoegd
 
 Successfully added random songs to queue
 Willekeurig nummer aan wachtrij toegevoegd
@@ -729,35 +693,8 @@ min
 Seconds
 sec
 
-Added all songs
-Alle nummers toegevoegd
-
-%{name} added to queue
-%{name} toegevoegd
-
-%{name} added to queue position %{to}
-%{name} toegevoegd aan wachtrijpositie %{to}
-
-Queue replaced with %{name}
-Wachtrij vervangen door %{name}
-
-Focus table
-In tabel navigeren
-
-Append item to queue
-Selectie aan wachtrij toevoegen
-
-Replace queue with item
-Vervang wachtrij met selectie
-
 Type
 Type
-
-Remove item from queue
-Verwijder selectie uit wachtrij
-
-Append item to playlist
-Selectie aan afspeellijst toevoegen
 
 Fingerprint
 Fingerprint
@@ -770,9 +707,6 @@ myMPD CA
 
 IP-Address
 IP-adres
-
-Mongoose version
-Versie Mongoose
 
 Webserver
 Webserver
@@ -1059,9 +993,6 @@ Toevoegen timer mislukt
 Browse directories
 Browse bestanden
 
-Sorry, your MPD version is too old
-Sorry, je MPD-versie is te oud
-
 Mounts
 Aankoppelpunten
 
@@ -1206,9 +1137,6 @@ Sorteervolgorde van het script, 0 schakelt lijst in hoofdmenu uit
 Fullscreen
 Schermvullend
 
-Open fullscreen
-Open schermvullend
-
 Could not save trigger
 Kan trigger niet saven
 
@@ -1269,20 +1197,8 @@ Pas parameters aan
 Output attributes
 Outputparameters
 
-Plugin
-Plug-in
-
 Show attributes
 Toon parameters
-
-State
-Status
-
-disabled
-uitgeschakeld
-
-enabled
-ingeschakeld
 
 Websocket is disconnected
 Websocket niet verbonden
@@ -1295,9 +1211,6 @@ Download boekje
 
 Zoom
 Zoom
-
-Disc 1
-Disc 1
 
 Disc
 Disc

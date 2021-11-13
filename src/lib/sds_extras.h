@@ -7,7 +7,7 @@
 #ifndef MYMPD_SDS_EXTRAS_H
 #define MYMPD_SDS_EXTRAS_H
 
-#include "../../dist/src/sds/sds.h"
+#include "../../dist/sds/sds.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -17,6 +17,7 @@
     SDS_PTR = NULL; \
 } while (0)
 
+void sds_utf8_tolower(sds s);
 sds sds_catjson(sds s, const char *p, size_t len);
 sds sds_catjsonchar(sds s, const char p);
 bool sds_json_unescape(const char *src, int slen, sds *dst);

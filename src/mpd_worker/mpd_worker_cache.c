@@ -26,21 +26,23 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
 //public functions
 bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     rax *album_cache = NULL;
-    if (mpd_worker_state->mpd_state->feat_tags == true) {
+    if (mpd_worker_state->mpd_state->feat_mpd_tags == true) {
         album_cache = raxNew();
     }
     rax *sticker_cache = NULL;
-    if (mpd_worker_state->mpd_state->feat_stickers == true) {
+    if (mpd_worker_state->mpd_state->feat_mpd_stickers == true) {
         sticker_cache = raxNew();
     }
     
     bool rc = true;
-    if (mpd_worker_state->mpd_state->feat_tags == true || mpd_worker_state->mpd_state->feat_stickers == true) {
+    if (mpd_worker_state->mpd_state->feat_mpd_tags == true ||
+        mpd_worker_state->mpd_state->feat_mpd_stickers == true)
+    {
         rc =_cache_init(mpd_worker_state, album_cache, sticker_cache);
     }
 
     //push album cache building response to mpd_client thread
-    if (mpd_worker_state->mpd_state->feat_tags == true) {
+    if (mpd_worker_state->mpd_state->feat_mpd_tags == true) {
         if (rc == true) {
             struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_CREATED, NULL);
             request->data = sdscatlen(request->data, "}}", 2);
@@ -58,7 +60,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     }
 
     //push sticker cache building response to mpd_client thread
-    if (mpd_worker_state->mpd_state->feat_stickers == true) {
+    if (mpd_worker_state->mpd_state->feat_mpd_stickers == true) {
         if (rc == true) {
             struct t_work_request *request2 = create_request(-1, 0, INTERNAL_API_STICKERCACHE_CREATED, NULL);
             request2->data = sdscatlen(request2->data, "}}", 2);
@@ -117,17 +119,17 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         sds key = sdsempty();
         while ((song = mpd_recv_song(mpd_worker_state->mpd_state->conn)) != NULL) {
             //sticker cache
-            if (mpd_worker_state->mpd_state->feat_stickers == true) {
+            if (mpd_worker_state->mpd_state->feat_mpd_stickers == true) {
                 const char *uri = mpd_song_get_uri(song);
                 struct t_sticker *sticker = (struct t_sticker *) malloc_assert(sizeof(struct t_sticker));
                 raxInsert(sticker_cache, (unsigned char*)uri, strlen(uri), (void *)sticker, NULL);
                 song_count++;
             }
             //album cache
-            if (mpd_worker_state->mpd_state->feat_tags == true) {
-                album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, album);
-                artist = mpd_shared_get_tags(song, MPD_TAG_ALBUM_ARTIST, artist);
-                if (strcmp(album, "-") > 0 && strcmp(artist, "-") > 0) {
+            if (mpd_worker_state->mpd_state->feat_mpd_tags == true) {
+                album = mpd_shared_get_tag_value_string(song, MPD_TAG_ALBUM, album);
+                artist = mpd_shared_get_tag_value_string(song, MPD_TAG_ALBUM_ARTIST, artist);
+                if (sdslen(album) > 0 && sdslen(artist) > 0) {
                     sdsclear(key);
                     key = sdscatfmt(key, "%s::%s", album, artist);
                     if (raxTryInsert(album_cache, (unsigned char*)key, sdslen(key), (void *)song, NULL) == 0) {
@@ -158,7 +160,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         end = end + MPD_RESULTS_MAX;
     } while (i >= start);
     //get sticker values
-    if (mpd_worker_state->mpd_state->feat_stickers == true) {
+    if (mpd_worker_state->mpd_state->feat_mpd_stickers == true) {
         raxIterator iter;
         raxStart(&iter, sticker_cache);
         raxSeek(&iter, "^", NULL, 0);

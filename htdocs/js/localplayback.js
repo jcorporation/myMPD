@@ -9,13 +9,13 @@ function initLocalplayer() {
         event.preventDefault();
         clickCheckLocalPlayerState(event);
     }, false);
-    
+
     document.getElementById('errorLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         clickCheckLocalPlayerState(event);
     }, false);
-    
+
     initLocalPlaybackControl();
 }
 
@@ -23,18 +23,18 @@ function initLocalPlaybackControl() {
     document.getElementById('localPlayer').addEventListener('click', function(event) {
         event.stopPropagation();
     });
-    
+
     document.getElementById('localPlayer').addEventListener('canplay', function() {
         logDebug('localPlayer event: canplay');
-        document.getElementById('alertLocalPlayback').classList.add('hide');
-        document.getElementById('errorLocalPlayback').classList.add('hide');
+        elHideId('alertLocalPlayback');
+        elHideId('errorLocalPlayback');
     });
 
 
     for (const ev of ['error', 'abort', 'stalled']) {
         document.getElementById('localPlayer').addEventListener(ev, function() {
             logError('localPlayer event: ' + ev);
-            document.getElementById('errorLocalPlayback').classList.remove('hide');
+            elShowId('errorLocalPlayback');
         });
     }
 }
@@ -59,11 +59,7 @@ function clickCheckLocalPlayerState(event) {
     el.classList.add('disabled');
     const parent = document.getElementById('localPlayer').parentNode;
     document.getElementById('localPlayer').remove();
-    const localPlayer = document.createElement('audio');
-    localPlayer.setAttribute('preload', 'none');
-    localPlayer.setAttribute('controls', '');
-    localPlayer.setAttribute('id', 'localPlayer');
-    localPlayer.classList.add('mx-4');
+    const localPlayer = elCreateEmpty('audio', {"class": ["mx-4"], "preload": "none", "controls": "", "id": "localPlayer"});
     parent.appendChild(localPlayer);
     initLocalPlaybackControl();
     setLocalPlayerUrl();
@@ -75,17 +71,17 @@ function clickCheckLocalPlayerState(event) {
 
 function checkLocalPlayerState() {
     const localPlayer = document.getElementById('localPlayer');
-    document.getElementById('errorLocalPlayback').classList.add('hide');
-    document.getElementById('alertLocalPlayback').classList.add('hide');
+    elHideId('errorLocalPlayback');
+    elHideId('alertLocalPlayback');
     if (localPlayer.networkState === 0) {
         logDebug('localPlayer networkState: ' + localPlayer.networkState);
-        document.getElementById('alertLocalPlayback').classList.remove('hide');
+        elShowId('alertLocalPlayback');
     }
     else if (localPlayer.networkState >=1) {
         logDebug('localPlayer networkState: ' + localPlayer.networkState);
     }
     if (localPlayer.networkState === 3) {
         logError('localPlayer networkState: ' + localPlayer.networkState);
-        document.getElementById('errorLocalPlayback').classList.remove('hide');
+        elShowId('errorLocalPlayback');
     }
 }

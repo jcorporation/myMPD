@@ -4,49 +4,86 @@
 // https://github.com/jcorporation/mympd
 
 //element handling shortcuts
-function elCreate(tagName, attributes, textContent) {
-    const tag = document.createElement(tagName);
+function elCreateText(tagName, attributes, text) {
+    const tag = elCreateEmpty(tagName, attributes);
+    tag.textContent = text;
+    return tag;
+}
+
+function elCreateNode(tagName, attributes, node) {
+    const tag = elCreateEmpty(tagName, attributes);
+    tag.appendChild(node);
+    return tag;
+}
+
+function elCreateNodes(tagName, attributes, nodes) {
+    const tag = elCreateEmpty(tagName, attributes);
+    for (const node of nodes) {
+        tag.appendChild(node);
+    }
+    return tag;
+}
+
+function elCreateEmpty(tagName, attributes) {
+    const tag = attributes['is'] === undefined ?
+        document.createElement(tagName) : document.createElement(tagName, {is: attributes['is']});
     for (const key in attributes) {
         switch(key) {
             case "class":
                 tag.classList.add(...attributes[key]);
                 break;
+            case "is":
+                break;
             default:
                 tag.setAttribute(key, attributes[key]);
         }
     }
-    tag.textContent = textContent;
     return tag;
 }
 
+function elReplaceChild(el, child) {
+    elClear(el);
+    el.appendChild(child);
+}
+
+function elHideId(id) {
+    document.getElementById(id).classList.add('d-none');
+}
+
+function elShowId(id) {
+    document.getElementById(id).classList.remove('d-none');
+}
+
+function elClearId(id) {
+    document.getElementById(id).textContent = '';
+}
+
 function elHide(el) {
-    el.classList.add('hide');
+    el.classList.add('d-none');
 }
 
 function elShow(el) {
-    el.classList.remove('hide');
+    el.classList.remove('d-none');
 }
 
 function elClear(el) {
     el.textContent = '';
 }
 
+function elDisableId(el) {
+    document.getElementById(el).setAttribute('disabled', 'disabled');
+}
+
 function elDisable(el) {
-    if (typeof el === 'string') {
-        document.getElementById(el).setAttribute('disabled', 'disabled');
-    }
-    else {
-        el.setAttribute('disabled', 'disabled');
-    }
+    el.setAttribute('disabled', 'disabled');
+}
+
+function elEnableId(el) {
+    document.getElementById(el).removeAttribute('disabled');
 }
 
 function elEnable(el) {
-    if (typeof el === 'string') {
-        document.getElementById(el).removeAttribute('disabled');
-    }
-    else {
-        el.removeAttribute('disabled');
-    }
+    el.removeAttribute('disabled');
 }
 
 function getOpenModal() {
@@ -59,58 +96,56 @@ function getOpenModal() {
     return null;
 }
 
-//escapes html characters to avoid xss
-function e(x) {
-    if (isNaN(x)) {
-        return x.replace(/([<>"'])/g, function(m0, m1) {
-            if (m1 === '<') return '&lt;';
-            else if (m1 === '>') return '&gt;';
-            else if (m1 === '"') return '&quot;';
-            else if (m1 === '\'') return '&apos;';
-        }).replace(/\\u(003C|003E|0022|0027)/gi, function(m0, m1) {
-            if (m1 === '003C') return '&lt;';
-            else if (m1 === '003E') return '&gt;';
-            else if (m1 === '0022') return '&quot;';
-            else if (m1 === '0027') return '&apos;';
-        }).replace(/\[\[(\w+)\]\]/g, function(m0, m1) {
-            return '<span class="mi">' + m1 + '</span>';
-        });
-    }
-    return x;
-}
-
-//removes special characters
+//replaces special characters with underscore
 function r(x) {
     return x.replace(/[^\w-]/g, '_');
+}
+
+function cleanupModalId(id) {
+    cleanupModal(document.getElementById(id));
+}
+
+function cleanupModal(el) {
+    //remove validation warnings
+    removeIsInvalid(el);
+    //remove enter pin footer
+    const enterPinFooter = el.getElementsByClassName('enterPinFooter');
+    if (enterPinFooter.length > 0) {
+        removeEnterPinFooter(enterPinFooter[0]);
+    }
+    //remove error messages
+    hideModalAlert(el);
 }
 
 //confirmation dialogs
 function showConfirm(text, btnText, callback) {
     document.getElementById('modalConfirmText').textContent = text;
-    const yesBtn = elCreate('button', {"id": "modalConfirmYesBtn", "class": ["btn", "btn-danger"]}, btnText);
+    const yesBtn = elCreateText('button', {"id": "modalConfirmYesBtn", "class": ["btn", "btn-danger"]}, btnText);
     yesBtn.addEventListener('click', function() {
         if (callback !== undefined && typeof(callback) === 'function') {
             callback();
         }
-        uiElements.modalConfirm.hide();        
+        uiElements.modalConfirm.hide();
     }, false);
     document.getElementById('modalConfirmYesBtn').replaceWith(yesBtn);
     uiElements.modalConfirm.show();
 }
 
 function showConfirmInline(el, text, btnText, callback) {
-    const confirm = elCreate('div', {"class": ["alert", "alert-danger", "mt-2"]}, '');
-    const p = elCreate('p', {}, text);
-    confirm.appendChild(p);
+    const confirm = elCreateNode('div', {"class": ["alert", "alert-danger", "mt-2"]},
+        elCreateText('p', {}, text)
+    );
 
-    const cancelBtn = elCreate('button', {"class": ["btn", "btn-secondary"]}, t('Cancel'));
-    cancelBtn.addEventListener('click', function() {
+    const cancelBtn = elCreateText('button', {"class": ["btn", "btn-secondary"]}, tn('Cancel'));
+    cancelBtn.addEventListener('click', function(event) {
+        event.stopPropagation();
         this.parentNode.remove();
     }, false);
     confirm.appendChild(cancelBtn);
 
-    const yesBtn = elCreate('button', {"class": ["btn", "btn-danger", "float-right"]}, btnText);
-    yesBtn.addEventListener('click', function() {
+    const yesBtn = elCreateText('button', {"class": ["btn", "btn-danger", "float-end"]}, btnText);
+    yesBtn.addEventListener('click', function(event) {
+        event.stopPropagation();
         if (callback !== undefined && typeof(callback) === 'function') {
             callback();
         }
@@ -120,42 +155,62 @@ function showConfirmInline(el, text, btnText, callback) {
     el.appendChild(confirm);
 }
 
-function myEncodeURI(x) {
-    return encodeURI(x).replace(/([#])/g, function(m0, m1) {
-            if (m1 === '#') return '%23';
+//custom encoding function
+//works like encodeURIComponent but
+//- does not escape /
+//- escapes further reserved characters
+function myEncodeURI(str) {
+    return encodeURI(str).replace(/[!'()*#?;,:@&=+$~]/g, function(c) {
+        return '%' + c.charCodeAt(0).toString(16);
     });
 }
 
-//eslint-disable-next-line no-unused-vars
-function myDecodeURI(x) {
-    return decodeURI(x).replace(/(%23)/g, function(m0, m1) {
-            if (m1 === '%23') return '#';
+function myEncodeURIComponent(str) {
+    return encodeURIComponent(str).replace(/[!'()*~]/g, function(c) {
+        return '%' + c.charCodeAt(0).toString(16);
     });
+}
+
+function myDecodeURIComponent(str) {
+    return decodeURIComponent(str);
+}
+
+function joinArray(a) {
+    if (a === undefined) {
+        return '';
+    }
+    return a.join(', ');
 }
 
 //functions to get custom actions
 function clickAlbumPlay(albumArtist, album) {
-    switch (settings.webuiSettings.clickAlbumPlay) {
-        case 'append': return _addAlbum('appendQueue', albumArtist, album);
+    switch(settings.webuiSettings.clickAlbumPlay) {
+        case 'append':  return _addAlbum('appendQueue', albumArtist, album);
+        case 'insert':  return _addAlbum('insertQueue', albumArtist, album);
+        case 'play':    return _addAlbum('playQueue', albumArtist, album);
         case 'replace': return _addAlbum('replaceQueue', albumArtist, album);
     }
 }
 
-function clickSong(uri, name) {
+function clickSong(uri) {
     switch (settings.webuiSettings.clickSong) {
-        case 'append': return appendQueue('song', uri, name);
-        case 'replace': return replaceQueue('song', uri, name);
-        case 'view': return songDetails(uri);
+        case 'append':  return appendQueue('song', uri);
+        case 'insert':  return insertQueue('song', uri, 0, 1, false);
+        case 'play':    return insertQueue('song', uri, 0, 1, true);
+        case 'replace': return replaceQueue('song', uri);
+        case 'view':    return songDetails(uri);
     }
 }
 
 function clickQueueSong(songid, uri) {
-    switch (settings.webuiSettings.clickQueueSong) {
+    switch(settings.webuiSettings.clickQueueSong) {
         case 'play':
             if (songid === null) {
                 return;
             }
-            sendAPI("MYMPD_API_PLAYER_PLAY_SONG", {"songId": songid});
+            sendAPI("MYMPD_API_PLAYER_PLAY_SONG", {
+                "songId": songid
+            });
             break;
         case 'view': 
             if (uri === null) {
@@ -165,105 +220,181 @@ function clickQueueSong(songid, uri) {
     }
 }
 
-function clickPlaylist(uri, name) {
-    switch (settings.webuiSettings.clickPlaylist) {
-        case 'append': return appendQueue('plist', uri, name);
-        case 'replace': return replaceQueue('plist', uri, name);
-        case 'view': return playlistDetails(uri);
+function clickPlaylist(uri) {
+    switch(settings.webuiSettings.clickPlaylist) {
+        case 'append':  return appendQueue('plist', uri);
+        case 'insert':  return insertQueue('plist', uri, 0, 1, false);
+        case 'play':    return insertQueue('plist', uri, 0, 1, true);
+        case 'replace': return replaceQueue('plist', uri);
+        case 'view':    return playlistDetails(uri);
     }
 }
 
-function clickFolder(uri, name) {
-    switch (settings.webuiSettings.clickFolder) {
-        case 'append': return appendQueue('dir', uri, name);
-        case 'replace': return replaceQueue('dir', uri, name);
+function clickFolder(uri) {
+    switch(settings.webuiSettings.clickFolder) {
+        case 'append':  return appendQueue('dir', uri);
+        case 'insert':  return insertQueue('dir', uri, 0, 1, false);
+        case 'play':    return insertQueue('dir', uri, 0, 1, true);
+        case 'replace': return replaceQueue('dir', uri);
         case 'view':
             //remember offset for current browse uri
             browseFilesystemHistory[app.current.search] = {
-                "offset":  app.current.offset,
+                "offset": app.current.offset,
                 "scrollPos": document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop
             };
             //reset filter and open folder
             app.current.filter = '-';
-            appGoto('Browse', 'Filesystem', undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', uri);
-            break;
+            appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', uri);
     }
 }
+
+function seekRelativeForward() {
+    seekRelative(5);
+}
+
+function seekRelativeBackward() {
+    seekRelative(-5);
+}
+
+function seekRelative(offset) {
+    sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
+        "seek": offset,
+        "relative": true
+    });
+}
+
+//eslint-disable-next-line no-unused-vars
+function clickPlay() {
+    if (currentState.state === 'stop') {
+        sendAPI("MYMPD_API_PLAYER_PLAY", {});
+    }
+    else if (currentState.state === 'play') {
+        if (settings.webuiSettings.uiFooterPlaybackControls === 'stop' ||
+            isStreamUri(currentSongObj.uri) === true)
+        {
+            sendAPI("MYMPD_API_PLAYER_STOP", {});
+        }
+        else {
+            sendAPI("MYMPD_API_PLAYER_PAUSE", {});
+        }
+    }
+    else if (currentState.state === 'pause') {
+        sendAPI("MYMPD_API_PLAYER_RESUME", {});
+    }
+    else {
+        //fallback if playstate is unknown
+        sendAPI("MYMPD_API_PLAYER_PLAY", {});
+    }
+}
+
+//eslint-disable-next-line no-unused-vars
+function clickStop() {
+    sendAPI("MYMPD_API_PLAYER_STOP", {});
+}
+
+//eslint-disable-next-line no-unused-vars
+function clickPrev() {
+    sendAPI("MYMPD_API_PLAYER_PREV", {});
+}
+
+//eslint-disable-next-line no-unused-vars
+function clickNext() {
+    sendAPI("MYMPD_API_PLAYER_NEXT", {});
+}
+
 
 //escape and unescape MPD filter values
 function escapeMPD(x) {
     return x.replace(/(["'])/g, function(m0, m1) {
-        if (m1 === '"') return '\\"';
-        else if (m1 === '\'') return '\\\'';
-        else if (m1 === '\\') return '\\\\';
+        switch(m1) {
+            case '"':  return '\\"';
+            case '\'': return '\\\'';
+            case '\\': return '\\\\';
+        }
     });
 }
 
 function unescapeMPD(x) {
     return x.replace(/(\\'|\\"|\\\\)/g, function(m0, m1) {
-        if (m1 === '\\"') return '"';
-        else if (m1 === '\\\'') return '\'';
-        else if (m1 === '\\\\') return '\\';
+        switch(m1) {
+            case '\\"':  return '"';
+            case '\\\'': return '\'';
+            case '\\\\': return '\\';
+        }
     });
 }
 
 //get and set custom dom properties
 //replaces data-* attributes
-function setCustomDomProperty(el, attribute, value) {
-    if (typeof el === 'string') {
-        el = document.getElementById(el);
-    }
+function setDataId(id, attribute, value) {
+    document.getElementById(id)['myMPD-' + attribute] = value;
+}
+
+function setData(el, attribute, value) {
     el['myMPD-' + attribute] = value;
 }
 
-function getCustomDomProperty(el, attribute) {
-    if (typeof el === 'string') {
-        el = document.getElementById(el);
-    }
+function getDataId(id, attribute) {
+    return getData(document.getElementById(id), attribute);
+}
+
+function getData(el, attribute) {
     let value = el['myMPD-' + attribute];
     if (value === undefined) {
         //fallback to attribute
-        const encValue = el.getAttribute(attribute);
-        value = encValue !== null ? decodeURI(encValue) : null;
+        value = el.getAttribute(attribute);
+        if (value === null) {
+            //return undefined if attribute is null 
+            value = undefined;
+        }
     }
     return value;
 }
 
 //utility functions
+function getSelectValueId(id) {
+    return getSelectValue(document.getElementById(id));
+}
+
 function getSelectValue(el) {
-    if (typeof el === 'string')	{
-        el = document.getElementById(el);
-    }
     if (el && el.selectedIndex >= 0) {
-        return getCustomDomProperty(el.options[el.selectedIndex], 'value');
+        return getData(el.options[el.selectedIndex], 'value');
     }
     return undefined;
 }
 
-function getSelectedOptionAttribute(selectId, attribute) {
-    const el = document.getElementById(selectId);
+function getSelectedOptionDataId(id, attribute) {
+    return getSelectedOptionData(document.getElementById(id), attribute)
+}
+
+function getSelectedOptionData(el, attribute) {
     if (el && el.selectedIndex >= 0) {
-        return getCustomDomProperty(el.options[el.selectedIndex], attribute);
+        return getData(el.options[el.selectedIndex], attribute);
     }
     return undefined;
+}
+
+function getRadioBoxValueId(id) {
+    return getRadioBoxValue(document.getElementById(id));
+}
+
+function getRadioBoxValue(el) {
+    const radiobuttons = el.getElementsByClassName('form-check-input');
+    for(const button of radiobuttons) {
+        if (button.checked === true){
+            return button.value;
+        }
+    }
 }
 
 function alignDropdown(el) {
-    const x = getXpos(el.children[0]);
-    
+    const toggleEl = el.getElementsByClassName('dropdown-toggle')[0];
+    const x = getXpos(toggleEl);
     if (x < domCache.body.offsetWidth * 0.66) {
-        if (el.id === 'navState') {
-            el.classList.remove('dropdown');
-            el.classList.add('dropright');
-        }
-        else {
-            el.getElementsByClassName('dropdown-menu')[0].classList.remove('dropdown-menu-right');
-        }
+        el.getElementsByClassName('dropdown-menu')[0].classList.remove('dropdown-menu-end');
     }
     else {
-        el.getElementsByClassName('dropdown-menu')[0].classList.add('dropdown-menu-right');
-        el.classList.add('dropdown');
-        el.classList.remove('dropright');
+        el.getElementsByClassName('dropdown-menu')[0].classList.add('dropdown-menu-end');
     }
 }
 
@@ -276,9 +407,18 @@ function getXpos(el) {
     return xPos;
 }
 
+function getYpos(el) {
+    let yPos = 0;
+    while (el) {
+        yPos += (el.offsetTop + el.clientTop);
+        el = el.offsetParent;
+    }
+    return yPos;
+}
+
 function zeroPad(num, places) {
-  const zero = places - num.toString().length + 1;
-  return Array(+(zero > 0 && zero)).join("0") + num;
+    const zero = places - num.toString().length + 1;
+    return Array(+(zero > 0 && zero)).join("0") + num;
 }
 
 function dirname(uri) {
@@ -289,9 +429,7 @@ function basename(uri, removeQuery) {
     if (removeQuery === true) {
         return uri.split('/').reverse()[0].split(/[?#]/)[0];
     }
-    else {
-        return uri.split('/').reverse()[0];
-    }
+    return uri.split('/').reverse()[0];
 }
 
 function filetype(uri) {
@@ -299,7 +437,7 @@ function filetype(uri) {
         return '';
     }
     const ext = uri.split('.').pop().toUpperCase();
-    switch (ext) {
+    switch(ext) {
         case 'MP3':  return ext + ' - MPEG-1 Audio Layer III';
         case 'FLAC': return ext + ' - Free Lossless Audio Codec';
         case 'OGG':  return ext + ' - Ogg Vorbis';
@@ -313,10 +451,6 @@ function filetype(uri) {
         case 'WMA':  return ext + ' - Windows Media Audio';
         default:     return ext;
     }
-}
-
-function fileformat(audioformat) {
-    return audioformat.bits + t('bits') + ' - ' + audioformat.sampleRate / 1000 + t('kHz');
 }
 
 function scrollToPosY(pos) {
@@ -345,63 +479,76 @@ function selectTag(btnsEl, desc, setTo) {
     }
 }
 
-function addTagList(el, list) {
-    let tagList = '';
+function addTagList(elId, list) {
+    const stack = elCreateEmpty('div', {"class": ["d-grid", "gap-2"]});
     if (list === 'tagListSearch') {
         if (features.featTags === true) {
-            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">' + t('Any Tag') + '</button>';
+            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, tn('Any Tag')));
         }
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="filename">' + t('Filename') + '</button>';
+        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "filename"}, tn('Filename')));
     }
-    if (el === 'searchDatabaseTags') {
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">' + t('Any Tag') + '</button>';
+    if (elId === 'searchDatabaseTags') {
+        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, tn('Any Tag')));
     }
     for (let i = 0, j = settings[list].length; i < j; i++) {
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + t(settings[list][i]) + '</button>';
+        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, tn(settings[list][i])));
     }
-    if (el === 'BrowseNavFilesystemDropdown' || el === 'BrowseNavPlaylistsDropdown') {
+    if (elId === 'BrowseNavFilesystemDropdown' ||
+        elId === 'BrowseNavPlaylistsDropdown')
+    {
         if (features.featTags === true && features.featAdvsearch === true) {
-            tagList = '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Database">' + t('Database') + '</button>';
-        }
-        else {
-            tagList = '';
+            elClear(stack);
+            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Database"}, tn('Database')));
         }
     }
-    if (el === 'BrowseDatabaseByTagDropdown' || el === 'BrowseNavFilesystemDropdown' || el === 'BrowseNavPlaylistsDropdown') {
-        if (el === 'BrowseDatabaseByTagDropdown') {
-            tagList += '<div class="dropdown-divider"></div>';
+    if (elId === 'BrowseDatabaseByTagDropdown' ||
+        elId === 'BrowseNavFilesystemDropdown' ||
+        elId === 'BrowseNavPlaylistsDropdown')
+    {
+        if (elId === 'BrowseDatabaseByTagDropdown') {
+            stack.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         }
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block' + (el === 'BrowseNavPlaylistsDropdown' ? ' active' : '') + '" data-tag="Playlists">' + t('Playlists') + '</button>' +
-            '<button type="button" class="btn btn-secondary btn-sm btn-block' + (el === 'BrowseNavFilesystemDropdown' ? ' active' : '') + '" data-tag="Filesystem">' + t('Filesystem') + '</button>'
-    }
-    else if (el === 'databaseSortTagsList') {
-        if (settings.tagList.includes('Date') === true && settings[list].includes('Date') === false) {
-            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Date">' + t('Date') + '</button>';
+        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Playlists"}, tn('Playlists')));
+        if (elId === 'BrowseNavPlaylistsDropdown') {
+            stack.lastChild.classList.add('active');
         }
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Last-Modified">' + t('Last modified') + '</button>';
+        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Filesystem"}, tn('Filesystem')));
+        if (elId === 'BrowseNavFilesystemDropdown') {
+            stack.lastChild.classList.add('active');
+        }
     }
-    document.getElementById(el).innerHTML = tagList;
+    else if (elId === 'databaseSortTagsList') {
+        if (settings.tagList.includes('Date') === true &&
+            settings[list].includes('Date') === false)
+        {
+            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Date"}, tn('Date')));
+        }
+        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "LastModified"}, tn('Last modified')));
+    }
+    const el = document.getElementById(elId);
+    elReplaceChild(el, stack);
 }
 
-function addTagListSelect(el, list) {
-    let tagList = '';
-    if (el === 'saveSmartPlaylistSort' || el === 'selectSmartplsSort') {
-        tagList += '<option value="">' + t('Disabled') + '</option>';
-        tagList += '<option value="shuffle">' + t('Shuffle') + '</option>';
-        tagList += '<optgroup label="' + t('Sort by tag') + '">';
-        tagList += '<option value="filename">' + t('Filename') + '</option>';
+function addTagListSelect(elId, list) {
+    const select = document.getElementById(elId);
+    elClear(select);
+    if (elId === 'saveSmartPlaylistSort' || elId === 'selectSmartplsSort') {
+        select.appendChild(elCreateText('option', {"value": ""}, tn('Disabled')));
+        select.appendChild(elCreateText('option', {"value": "shuffle"}, tn('Shuffle')));
+        const optGroup = elCreateEmpty('optgroup', {"label": tn('Sort by tag')});
+        optGroup.appendChild(elCreateText('option', {"value": "filename"}, tn('Filename')));
+        for (let i = 0, j = settings[list].length; i < j; i++) {
+            optGroup.appendChild(elCreateText('option', {"value": settings[list][i]}, tn(settings[list][i])));
+        }
+        select.appendChild(optGroup);
     }
-    else if (el === 'selectJukeboxUniqueTag' && settings.tagListBrowse.includes('Title') === false) {
+    else if (elId === 'selectJukeboxUniqueTag' && settings.tagListBrowse.includes('Title') === false) {
         //Title tag should be always in the list
-        tagList = '<option value="Title">' + t('Song') + '</option>';
+        select.appendChild(elCreateText('option', {"value": "Title"}, tn('Song')));
+        for (let i = 0, j = settings[list].length; i < j; i++) {
+            select.appendChild(elCreateText('option', {"value": settings[list][i]}, tn(settings[list][i])));
+        }
     }
-    for (let i = 0, j = settings[list].length; i < j; i++) {
-        tagList += '<option value="' + settings[list][i] + '">' + t(settings[list][i]) + '</option>';
-    }
-    if (el === 'saveSmartPlaylistSort' || el === 'selectSmartplsSort') {
-        tagList += '</optgroup>';
-    }
-    document.getElementById(el).innerHTML = tagList;
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -410,16 +557,23 @@ function openModal(modal) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function openDropdown(dropdown) {
-    uiElements[dropdown].toggle();
-}
-
-//eslint-disable-next-line no-unused-vars
 function focusSearch() {
-    if (app.current.app === 'Queue') {
+    if (app.current.card === 'Queue' && app.current.tab === 'Current') {
         document.getElementById('searchqueuestr').focus();
     }
-    else if (app.current.app === 'Search') {
+    else if (app.current.card === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
+        document.getElementById('searchDatabaseStr').focus();
+    }
+    else if (app.current.card === 'Browse' && app.current.tab === 'Filesystem') {
+        document.getElementById('searchFilesystemStr').focus();
+    }
+    else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
+        document.getElementById('searchPlaylistsListStr').focus();
+    }
+    else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
+        document.getElementById('searchPlaylistsDetailStr').focus();
+    }
+    else if (app.current.card === 'Search') {
         document.getElementById('searchstr').focus();
     }
     else {
@@ -429,8 +583,7 @@ function focusSearch() {
 
 function btnWaiting(btn, waiting) {
     if (waiting === true) {
-        const spinner = document.createElement('span');
-        spinner.classList.add('spinner-border', 'spinner-border-sm', 'mr-2');
+        const spinner = elCreateEmpty('span', {"class": ["spinner-border", "spinner-border-sm", "me-2"]});
         btn.insertBefore(spinner, btn.firstChild);
         elDisable(btn);
     }
@@ -442,6 +595,10 @@ function btnWaiting(btn, waiting) {
     }
 }
 
+function toggleBtnGroupValueId(id, value) {
+    return toggleBtnGroupValue(document.getElementById(id), value)
+}
+
 function toggleBtnGroupValue(btngrp, value) {
     const btns = btngrp.getElementsByTagName('button');
     let b = btns[0];
@@ -450,7 +607,7 @@ function toggleBtnGroupValue(btngrp, value) {
         valuestr = value.toString();
     }
     for (let i = 0, j = btns.length; i < j; i++) {
-        if (getCustomDomProperty(btns[i], 'data-value') === valuestr) {
+        if (getData(btns[i], 'data-value') === valuestr) {
             btns[i].classList.add('active');
             b = btns[i];
         }
@@ -471,34 +628,35 @@ function toggleBtnGroupValueCollapse(btngrp, collapse, value) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
+function toggleBtnGroupId(id) {
+    return toggleBtnGroup(document.getElementById(id));
+}
+
 function toggleBtnGroup(btn) {
-    let b = btn;
-    if (typeof btn === 'string') {
-        b = document.getElementById(btn);
-    }
-    const btns = b.parentNode.getElementsByTagName('button');
+    const btns = btn.parentNode.getElementsByTagName('button');
     for (let i = 0, j = btns.length; i < j; i++) {
-        if (btns[i] === b) {
+        if (btns[i] === btn) {
             btns[i].classList.add('active');
         }
         else {
             btns[i].classList.remove('active');
         }
     }
-    return b;
+    return btn;
 }
 
-function getBtnGroupValue(btnGroup) {
-    let activeBtn = document.getElementById(btnGroup).getElementsByClassName('active');
+function getBtnGroupValueId(id) {
+    let activeBtn = document.getElementById(id).getElementsByClassName('active');
     if (activeBtn.length === 0) {
-        activeBtn = document.getElementById(btnGroup).getElementsByTagName('button');    
+        activeBtn = document.getElementById(id).getElementsByTagName('button');
     }
-    return getCustomDomProperty(activeBtn[0], 'data-value');
+    return getData(activeBtn[0], 'data-value');
 }
 
 //eslint-disable-next-line no-unused-vars
-function toggleBtnGroupCollapse(btn, collapse) {
-    const activeBtn = toggleBtnGroup(btn);
+function toggleBtnGroupCollapse(el, collapse) {
+    const activeBtn = toggleBtnGroup(el);
     if (activeBtn.getAttribute('data-collapse') === 'show') {
         if (document.getElementById(collapse).classList.contains('show') === false) {
             uiElements[collapse].show();
@@ -509,50 +667,49 @@ function toggleBtnGroupCollapse(btn, collapse) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
+function toggleBtnId(id, state) {
+    toggleBtn(document.getElementById(id), state);
+}
+
 function toggleBtn(btn, state) {
-    let b = btn;
-    if (typeof btn === 'string') {
-        b = document.getElementById(btn);
-    }
-    if (!b) {
-        return;
-    }
     if (state === undefined) {
         //toggle state
-        state = b.classList.contains('active') ? false : true;
+        state = btn.classList.contains('active') ? false : true;
     }
 
     if (state === true || state === 1) {
-        b.classList.add('active');
+        btn.classList.add('active');
     }
     else {
-        b.classList.remove('active');
+        btn.classList.remove('active');
     }
 }
 
+function toggleBtnChkId(id, state) {
+    toggleBtnChk(document.getElementById(id), state);
+}
+
 function toggleBtnChk(btn, state) {
-    let b = btn;
-    if (typeof btn === 'string') {
-        b = document.getElementById(btn);
-    }
-    if (!b) {
-        return;
-    }
     if (state === undefined) {
         //toggle state
-        state = b.classList.contains('active') ? false : true;
+        state = btn.classList.contains('active') ? false : true;
     }
 
     if (state === true || state === 1) {
-        b.classList.add('active');
-        b.textContent = 'check';
+        btn.classList.add('active');
+        btn.textContent = 'check';
         return true;
     }
     else {
-        b.classList.remove('active');
-        b.textContent = 'radio_button_unchecked';
+        btn.classList.remove('active');
+        btn.textContent = 'radio_button_unchecked';
         return false;
     }
+}
+
+function toggleBtnChkCollapseId(id, collapse, state) {
+    toggleBtnChkCollapse(document.getElementById(id), collapse, state);
 }
 
 function toggleBtnChkCollapse(btn, collapse, state) {
@@ -566,158 +723,189 @@ function toggleBtnChkCollapse(btn, collapse, state) {
 }
 
 function setPagination(total, returned) {
-    const cat = app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + (app.current.view === undefined ? '' : app.current.view);
-
-    if (document.getElementById(cat + 'PaginationTop') === null) {
+    const curPaginationTop = document.getElementById(app.id + 'PaginationTop');
+    if (curPaginationTop === null) {
         return;
     }
 
-    let totalPages = app.current.limit > 0 ? Math.ceil(total / app.current.limit) : 1;
-    if (totalPages === 0) {
-        totalPages = 1;
+    if (app.current.limit === 0) {
+        app.current.limit = 500;
     }
-    const curPage = app.current.limit > 0 ? app.current.offset / app.current.limit + 1 : 1;
-    
-    const paginationHTML = '<button title="' + t('First page') + '" type="button" class="btn btn-group-prepend btn-secondary mi">first_page</button>' +
-          '<button title="' + t('Previous page') + '" type="button" class="btn btn-group-prepend btn-secondary mi">navigate_before</button>' +
-          '<div class="btn-group">' +
-            '<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>' +
-            '<div class="dropdown-menu bg-lite-dark px-2 pages dropdown-menu-right"></div>' +
-          '</div>' +
-          '<button title="' + t('Next page') + '" type="button" class="btn btn-secondary btn-group-append mi">navigate_next</button>' +
-          '<button title="' + t('Last page') + '" type="button" class="btn btn-secondary btn-group-append mi">last_page</button>';
 
-    let bottomBarHTML = '<button type="button" class="btn btn-secondary mi" title="' + t('To top') + '">keyboard_arrow_up</button>' +
-          '<div>' +
-          '<select class="form-control custom-select border-secondary" title="' + t('Elements per page') + '">';
-    for (const i of [25, 50, 100, 200, 0]) {
-        bottomBarHTML += '<option value="' + i + '"' + (app.current.limit === i ? ' selected' : '') + '>' + (i > 0 ? i : t('All')) + '</option>';
+    let totalPages = total < app.current.limit ? 
+        total === -1 ? -1 : 1 : Math.ceil(total / app.current.limit);
+    const curPage = Math.ceil(app.current.offset / app.current.limit) + 1;
+    if (app.current.limit > returned) {
+        totalPages = curPage;
     }
-    bottomBarHTML += '</select>' +
-          '</div>' +
-          '<div id="' + cat + 'PaginationBottom" class="btn-group dropup pagination">' +
-          paginationHTML +
-          '</div>' +
-          '</div>';
 
-    const bottomBar = document.getElementById(cat + 'ButtonsBottom');
-    bottomBar.innerHTML = bottomBarHTML;
-    
-    const buttons = bottomBar.getElementsByTagName('button');
-    buttons[0].addEventListener('click', function() {
+    //toolbar
+    const paginationTop = createPaginationEls(totalPages, curPage);
+    paginationTop.classList.add('me-2');
+    paginationTop.setAttribute('id', curPaginationTop.id);
+    curPaginationTop.replaceWith(paginationTop);
+
+    //bottom
+    const bottomBar = document.getElementById(app.id + 'ButtonsBottom');
+    elClear(bottomBar);
+    if (domCache.body.classList.contains('not-mobile') || returned < 25) {
+        elHide(bottomBar);
+        return;
+    }
+    const toTop = elCreateText('button', {"class": ["btn", "btn-secondary", "mi"], "title": tn('To top')}, 'keyboard_arrow_up');
+    toTop.addEventListener('click', function(event) {
         event.preventDefault();
         scrollToPosY(0);
     }, false);
-    
-    bottomBar.getElementsByTagName('select')[0].addEventListener('change', function(event) {
+    bottomBar.appendChild(toTop);
+    const paginationBottom = createPaginationEls(totalPages, curPage);
+    paginationBottom.classList.add('dropup');
+    bottomBar.appendChild(paginationBottom);
+    elShow(bottomBar);
+}
+
+function createPaginationEls(totalPages, curPage) {
+    const prev = elCreateNode('button', {"title": tn('Previous page'), "type": "button", "class": ["btn", "btn-secondary"]}, 
+        elCreateText('span', {"class": ["mi"]}, 'navigate_before'));
+    if (curPage === 1) {
+        elDisable(prev);
+    }
+    else {
+        prev.addEventListener('click', function(event) {
+            event.preventDefault();
+            gotoPage('prev');
+        }, false);
+    }
+
+    const pageDropdownBtn = elCreateText('button', {"type": "button", "data-bs-toggle": "dropdown", 
+        "class": ["square-end", "btn", "btn-secondary", "dropdown-toggle", "px-2"]}, curPage);
+    pageDropdownBtn.addEventListener('show.bs.dropdown', function () {
+        alignDropdown(this);
+    });
+    const pageDropdownMenu = elCreateEmpty('div', {"class": ["dropdown-menu", "bg-lite-dark", "px-2", "page-dropdown", "dropdown-menu-dark"]});
+
+    const row = elCreateNodes('div', {"class": ["row"]}, [
+        elCreateText('label', {"class": ["col-sm-8", "col-form-label"]}, tn('Elements per page')),
+        elCreateEmpty('div', {"class": ["col-sm-4"]})
+    ]);
+
+    const elPerPage = elCreateEmpty('select', {"class": ["form-control", "form-select", "border-secondary"]});
+    for (const i in webuiSettingsDefault.uiMaxElementsPerPage.validValues) {
+        elPerPage.appendChild(elCreateText('option', {"value": i}, i));
+        if (Number(i) === app.current.limit) {
+            elPerPage.lastChild.setAttribute('selected', 'selected');
+        }
+    }
+    elPerPage.addEventListener('click', function(event) {
+        event.stopPropagation();
+    }, false);
+    elPerPage.addEventListener('change', function(event) {
         const newLimit = Number(getSelectValue(event.target));
         if (app.current.limit !== newLimit) {
+            event.target.parentNode.parentNode.parentNode.previousElementSibling.Dropdown.hide();
             gotoPage(app.current.offset, newLimit);
         }
     }, false);
-    
-    document.getElementById(cat + 'PaginationTop').innerHTML = paginationHTML;
-    
-    const offsetLast = app.current.offset + app.current.limit;
-    const p = [ document.getElementById(cat + 'PaginationTop'), document.getElementById(cat + 'PaginationBottom') ];
-    
-    for (let i = 0, j = p.length; i < j; i++) {
-        const first = p[i].children[0];
-        const prev = p[i].children[1];
-        const page = p[i].children[2].children[0];
-        const pages = p[i].children[2].children[1];
-        const next = p[i].children[3];
-        const last = p[i].children[4];
-    
-        page.textContent = curPage + ' / ' + totalPages;
-        if (totalPages > 1) {
-            elEnable(page);
-            let pl = '';
-            for (let k = 0; k < totalPages; k++) {
-                const o = k * app.current.limit;
-                pl += '<button data-offset="' + o + '" type="button" class="btn-sm btn btn-secondary' +
-                      ( o === app.current.offset ? ' active' : '') + '">' +
-                      ( k + 1) + '</button>';
-            }
-            pages.innerHTML = pl;
-            page.classList.remove('nodropdown');
-            pages.addEventListener('click', function(event) {
-                if (event.target.nodeName === 'BUTTON') {
-                    gotoPage(getCustomDomProperty(event.target, 'data-offset'));
-                }
-            }, false);
-            //eslint-disable-next-line no-unused-vars
-            const pagesDropdown = new BSN.Dropdown(page);
-            
-            const lastPageOffset = (totalPages - 1) * app.current.limit;
-            if (lastPageOffset === app.current.offset) {
-                elDisable(last);
-            }
-            else {
-                elEnable(last);
-                last.classList.remove('hide');
-                next.classList.remove('rounded-right');
-                last.addEventListener('click', function() {
-                    event.preventDefault();
-                    gotoPage(lastPageOffset);
-                }, false);
-            }
-        }
-        else if (total === -1) {
-            elDisable(page);
-            page.textContent = curPage;
-            page.classList.add('nodropdown');
-            elDisable(last);
-            last.classList.add('hide');
-            next.classList.add('rounded-right');
-        }
-        else {
-            elDisable(page);
-            page.classList.add('nodropdown');
-            elDisable(last);
-        }
-        
-        if (app.current.limit > 0 && ((total > offsetLast && offsetLast > 0) || (total === -1 && returned >= app.current.limit))) {
-            elEnable(next);
-            p[i].classList.remove('hide');
-            next.addEventListener('click', function() {
-                event.preventDefault();
-                gotoPage('next');
-            }, false);
-        }
-        else {
-            elDisable(next);
-            if (i === 0) {
-                p[i].classList.add('hide');
-            }
-        }
-        
-        if (app.current.offset > 0) {
-            elEnable(prev);
-            p[i].classList.remove('hide');
-            prev.addEventListener('click', function() {
-                event.preventDefault();
-                gotoPage('prev');
-            }, false);
-            elEnable(first);
-            first.addEventListener('click', function() {
-                event.preventDefault();
-                gotoPage(0);
-            }, false);
-        }
-        else {
-            elDisable(prev);
-            elDisable(first);
-        }
+    row.lastChild.appendChild(elPerPage);
+
+    const pageGrp = elCreateEmpty('div', {"class": ["btn-group"]});
+
+    let start = curPage - 3;
+    if (start < 1) {
+        start = 1;
     }
-    
-    //hide bottom pagination bar if returned < limit
-    if (returned < app.current.limit) {
-        document.getElementById(cat + 'ButtonsBottom').classList.add('hide');
+    let end = start + 5;
+    if (end >= totalPages) {
+        end = totalPages - 1;
+        start = end - 6 > 1 ? end - 6 : 1;
+    }
+
+    const first = elCreateEmpty('button', {"title": tn('First page'), "type": "button", "class": ["btn", "btn-secondary"]});
+    if (start === 1) {
+        first.textContent = '1';
     }
     else {
-        document.getElementById(cat + 'ButtonsBottom').classList.remove('hide');
+        first.appendChild(elCreateText('span', {"class": ["mi"]}, 'first_page'));
     }
+    if (curPage === 1) {
+        elDisable(first);
+        first.classList.add('active');
+    }
+    else {
+        first.addEventListener('click', function(event) {
+            event.preventDefault();
+            gotoPage(0);
+        }, false);
+    }
+    pageGrp.appendChild(first);
+
+    for (let i = start; i < end; i++) {
+        pageGrp.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary"]}, i + 1));
+        if (i + 1 === curPage) {
+            pageGrp.lastChild.classList.add('active');
+        }
+        if (totalPages === -1) {
+            elDisable(pageGrp.lastChild);
+        }
+        else {
+            pageGrp.lastChild.addEventListener('click', function(event) {
+                event.preventDefault();
+                gotoPage(i * app.current.limit);
+            }, false);
+        }
+    }
+
+    const last = elCreateEmpty('button', {"title": tn('Last page'), "type": "button", "class": ["btn", "btn-secondary"]});
+    if (totalPages === end + 1) {
+        last.textContent = end + 1;
+    }
+    else {
+        last.appendChild(elCreateText('span', {"class": ["mi"]}, 'last_page'));
+    }
+    if (totalPages === -1) {
+        elDisable(last);
+    }
+    else if (totalPages === curPage) {
+        if (curPage !== 1) {
+            last.classList.add('active');
+        }
+        elDisable(last);
+    }
+    else {
+        last.addEventListener('click', function(event) {
+            event.preventDefault();
+            gotoPage(totalPages * app.current.limit - app.current.limit);
+        }, false);
+    }
+    pageGrp.appendChild(last);
+
+    pageDropdownMenu.appendChild(
+        elCreateNode('div', {"class": ["row", "mb-3"]}, pageGrp)
+    );
+    pageDropdownMenu.appendChild(row);
+
+    const next = elCreateEmpty('button', {"title": tn('Next page'), "type": "button", "class": ["btn", "btn-secondary"]});
+    next.appendChild(elCreateText('span', {"class": ["mi"]}, 'navigate_next'));
+    if (totalPages !== -1 && totalPages === curPage) {
+        elDisable(next);
+    }
+    else {
+        next.addEventListener('click', function(event) {
+            event.preventDefault();
+            gotoPage('next');
+        }, false);
+    }
+
+    const outer = elCreateNodes('div', {"class": ["btn-group", "pagination"]}, [
+        prev,
+        elCreateNodes('div', {"class": ["btn-group"]}, [
+            pageDropdownBtn,
+            pageDropdownMenu
+        ]),
+        next
+    ]);
+    new BSN.Dropdown(pageDropdownBtn);
+    return outer;
 }
 
 function genId(x) {
@@ -749,8 +937,8 @@ function parseCmd(event, href) {
             case 'toggleBtnGroupCollapse':
             case 'zoomPicture':
             case 'setPlaySettings':
-            case 'resetToDefault':
             case 'voteSong':
+            case 'toggleAddToPlaylistFrm':
                 window[cmd.cmd](event.target, ... cmd.options);
                 break;
             case 'toggleBtnChkCollapse':
@@ -780,15 +968,15 @@ function gotoPage(x, limit) {
             app.current.offset = x;
     }
     if (limit !== undefined) {
-        app.current.limit = limit;
-        if (app.current.limit === 0) {
-            app.current.offset = 0;
+        if (limit === 0) {
+            limit = 500;
         }
-        else if (app.current.offset % app.current.limit > 0) {
+        app.current.limit = limit;
+        if (app.current.offset % app.current.limit > 0) {
             app.current.offset = Math.floor(app.current.offset / app.current.limit);
         }
     }
-    appGoto(app.current.app, app.current.tab, app.current.view, 
+    appGoto(app.current.card, app.current.tab, app.current.view, 
         app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search, 0);
 }
 
@@ -812,16 +1000,17 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
             }
         }
     }
-    crumbEl.childElementCount > 0 ? elShow(crumbEl) : elHide(crumbEl);    
+    crumbEl.childElementCount > 0 ? elShow(crumbEl) : elHide(crumbEl);
 }
 
 function createSearchCrumb(filter, op, value) {
-    const btn = elCreate('button', {"class": ["btn", "btn-light", "mr-2"]}, filter + ' ' + op + ' \'' + value + '\'');
-    setCustomDomProperty(btn, 'data-filter-tag', filter);
-    setCustomDomProperty(btn, 'data-filter-op', op);
-    setCustomDomProperty(btn, 'data-filter-value', value);
-    const badge = elCreate('span', {"class": ["ml-2", "badge", "badge-secondary"]}, '×');
-    btn.appendChild(badge);
+    const btn = elCreateNodes('button', {"class": ["btn", "btn-secondary", "bg-gray-800", "me-2"]}, [
+        document.createTextNode(filter + ' ' + op + ' \'' + value + '\''),
+        elCreateText('span', {"class": ["ml-2", "badge", "bg-secondary"]}, '×')
+    ]);
+    setData(btn, 'data-filter-tag', filter);
+    setData(btn, 'data-filter-op', op);
+    setData(btn, 'data-filter-value', value);
     return btn;
 }
 
@@ -832,20 +1021,20 @@ function createSearchExpression(crumbsEl, tag, op, value) {
         if (i > 0) {
             expression += ' AND ';
         }
-        let crumbOp = getCustomDomProperty(crumbs[i], 'data-filter-op');
-        let crumbValue = getCustomDomProperty(crumbs[i], 'data-filter-value');
-        if (app.current.app === 'Search' && crumbOp === 'starts_with') {
+        let crumbOp = getData(crumbs[i], 'data-filter-op');
+        let crumbValue = getData(crumbs[i], 'data-filter-value');
+        if (app.current.card === 'Search' && crumbOp === 'starts_with') {
             crumbOp = '=~';
             crumbValue = '^' + crumbValue;
         }
-        expression += '(' + getCustomDomProperty(crumbs[i], 'data-filter-tag') + ' ' + 
+        expression += '(' + getData(crumbs[i], 'data-filter-tag') + ' ' + 
             crumbOp + ' \'' + escapeMPD(crumbValue) + '\')';
     }
     if (value !== '') {
         if (expression.length > 1) {
             expression += ' AND ';
         }
-        if (app.current.app === 'Search' && op === 'starts_with') {
+        if (app.current.card === 'Search' && op === 'starts_with') {
             //mpd does not support starts_with, convert it to regex
             op = '=~';
             value = '^' + value;
@@ -860,42 +1049,230 @@ function createSearchExpression(crumbsEl, tag, op, value) {
 }
 
 function printValue(key, value) {
-    if (value === undefined || value === null) {
-        return '-';
+    if (value === undefined || value === null || value === '') {
+        return document.createTextNode('-');
     }
-    switch (key) {
+    switch(key) {
         case 'Type':
-            if (value === 'song') { return '<span class="mi">music_note</span>'; }
-            if (value === 'smartpls') { return '<span class="mi">queue_music</span>'; }
-            if (value === 'plist') { return '<span class="mi">list</span>'; }
-            if (value === 'dir') { return '<span class="mi">folder_open</span>'; }
-            return '<span class="mi">radio_button_unchecked</span>';
+            switch(value) {
+                case 'song':     return elCreateText('span', {"class": ["mi"]}, 'music_note');
+                case 'smartpls': return elCreateText('span', {"class": ["mi"]}, 'queue_music');
+                case 'plist':    return elCreateText('span', {"class": ["mi"]}, 'list');
+                case 'dir':      return elCreateText('span', {"class": ["mi"]}, 'folder_open');
+                default:         return elCreateText('span', {"class": ["mi"]}, 'radio_button_unchecked');
+            }
         case 'Duration':
-            return beautifySongDuration(value);
+            return document.createTextNode(beautifySongDuration(value));
+        case 'AudioFormat':
+            return document.createTextNode(value.bits + tn('bits') + smallSpace + nDash + smallSpace + value.sampleRate / 1000 + tn('kHz'));
+        case 'Pos':
+            //mpd is 0-indexed but humans wants 1-indexed lists
+            return document.createTextNode(value + 1);
         case 'LastModified': 
         case 'LastPlayed':
         case 'stickerLastPlayed':
         case 'stickerLastSkipped':
-            return value === 0 ? t('never') : localeDate(value);
+            return document.createTextNode(value === 0 ? tn('never') : localeDate(value));
         case 'stickerLike':
-            return '<span class="mi mi-small">'+
-                (value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up') +
-                '</span>';
+            return elCreateText('span', {"class": ["mi"]}, 
+                value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up');
+        case 'Artist':
+        case 'AlbumArtist':
+        case 'Genre':
+        case 'Composer':
+        case 'Performer':
+        case 'Conductor':
+        case 'Ensemble':
+        case 'MUSICBRAINZ_ARTISTID':
+        case 'MUSICBRAINZ_ALBUMARTISTID': {
+            //multi value tags
+            const span = elCreateEmpty('span', {});
+            for (let i = 0, j = value.length; i < j; i++) {
+                if (i > 0) {
+                    span.appendChild(elCreateEmpty('br', {}));
+                }
+                if (key.indexOf('MUSICBRAINZ') === 0) {
+                    span.appendChild(getMBtagLink(key, value[i]));
+                }
+                else {
+                    span.appendChild(document.createTextNode(value[i]));
+                }
+            }
+            return span;
+        }
         default:
             if (key.indexOf('MUSICBRAINZ') === 0) {
                 return getMBtagLink(key, value);
             }
-            return e(value);
+            else {
+                return document.createTextNode(value);
+            }
     }
-}
-
-function addIconLine(el, ligature, text) {
-    const icon = elCreate('span', {"class": ["mi", "mr-2"]}, ligature);
-    const span = elCreate('span', {}, text);
-    el.appendChild(icon);
-    el.appendChild(span);
 }
 
 function getTimestamp() {
     return Math.floor(Date.now() / 1000);
+}
+
+function setScrollViewHeight(container) {
+    const footerHeight = document.getElementsByTagName('footer')[0].offsetHeight;
+    const tpos = getYpos(container.parentNode);
+    const maxHeight = window.innerHeight - tpos - footerHeight;
+    container.parentNode.style.maxHeight = maxHeight + 'px';
+}
+
+function toggleCollapseArrow(el) {
+    const icon = el.getElementsByTagName('span')[0];
+    icon.textContent = icon.textContent === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
+}
+
+function reflow(el) {
+    return el.offsetHeight;
+}
+
+function ucFirst(string) {
+    return string[0].toUpperCase() + string.slice(1);
+}
+
+//eslint-disable-next-line no-unused-vars
+function openFullscreen() {
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    }
+    else if (elem.mozRequestFullScreen) {
+        //Firefox
+        elem.mozRequestFullScreen();
+    }
+    else if (elem.webkitRequestFullscreen) {
+        //Chrome, Safari and Opera
+        elem.webkitRequestFullscreen();
+    }
+    else if (elem.msRequestFullscreen) {
+        //IE and Edge
+        elem.msRequestFullscreen();
+    }
+}
+
+function setViewport(store) {
+    document.querySelector("meta[name=viewport]").setAttribute('content', 'width=device-width, initial-scale=' + scale + ', maximum-scale=' + scale);
+    if (store === true) {
+        try {
+            localStorage.setItem('scale-ratio', scale);
+        }
+        catch(err) {
+            logError('Can not save scale-ratio in localStorage: ' + err.message);
+        }
+    }
+}
+
+//eslint-disable-next-line no-unused-vars
+function clearCovercache() {
+    sendAPI("MYMPD_API_COVERCACHE_CLEAR", {});
+}
+
+//eslint-disable-next-line no-unused-vars
+function cropCovercache() {
+    sendAPI("MYMPD_API_COVERCACHE_CROP", {});
+}
+
+//eslint-disable-next-line no-unused-vars
+function zoomPicture(el) {
+    if (el.classList.contains('booklet')) {
+        window.open(getData(el, 'data-href'));
+        return;
+    }
+
+    if (el.classList.contains('carousel')) {
+        let images;
+        const dataImages = getData(el, 'data-images');
+        if (dataImages !== undefined && dataImages !== null) {
+            images = dataImages.slice();
+        }
+        else if (currentSongObj.images) {
+            images = currentSongObj.images.slice();
+        }
+        else {
+            return;
+        }
+
+        //add uri to image list to get embedded albumart
+        let aImages = [];
+        const uri = getData(el, 'data-uri');
+        if (uri) {
+            aImages = [ subdir + '/albumart/' + myEncodeURI(uri) ];
+        }
+        //add all but coverfiles to image list
+        for (let i = 0, j = images.length; i < j; i++) {
+            if (isCoverfile(images[i]) === false) {
+                aImages.push(subdir + '/browse/music/' + images[i]);
+            }
+        }
+        const imgEl = document.getElementById('modalPictureImg');
+        imgEl.style.paddingTop = 0;
+        createImgCarousel(imgEl, 'picsCarousel', aImages);
+        elHideId('modalPictureZoom');
+        uiElements.modalPicture.show();
+        return;
+    }
+
+    if (el.style.backgroundImage !== '') {
+        const imgEl = document.getElementById('modalPictureImg');
+        elClear(imgEl);
+        imgEl.style.paddingTop = '100%';
+        imgEl.style.backgroundImage = el.style.backgroundImage;
+        elShowId('modalPictureZoom');
+        uiElements.modalPicture.show();
+    }
+}
+
+//eslint-disable-next-line no-unused-vars
+function zoomZoomPicture() {
+    window.open(document.getElementById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
+}
+
+function createImgCarousel(imgEl, name, images) {
+    const nrImages = images.length;
+    const carousel = elCreateEmpty('div', {"id": name, "class": ["carousel", "slide"], "data-bs-ride": "carousel"});
+    if (nrImages > 0) {
+        const carouselIndicators = elCreateEmpty('div', {"class": ["carousel-indicators"]});
+        for (let i = 0; i < nrImages; i++) {
+            carouselIndicators.appendChild(elCreateEmpty('button', {"type": "button", "data-bs-target": "#" + name, "data-bs-slide-to": i}));
+            if (i === 0) {
+                carouselIndicators.lastChild.classList.add('active');
+            }
+        }
+        carousel.appendChild(carouselIndicators);
+    }
+    const carouselInner = elCreateEmpty('div', {"class": ["carousel-inner"]});
+    for (let i = 0; i < nrImages; i++) {
+        const carouselItem = elCreateNode('div', {"class": ["carousel-item"]}, 
+            elCreateEmpty('div', {})
+        );
+        carouselItem.style.backgroundImage = 'url("' + myEncodeURI(images[i]) + '")';
+        carouselInner.appendChild(carouselItem);
+        if (i === 0) {
+            carouselItem.classList.add('active');
+        }
+    }
+    carousel.appendChild(carouselInner);
+    if (nrImages > 0) {
+        carousel.appendChild(
+            elCreateNode('a', {"href": "#" + name, "data-bs-slide": "prev", "class": ["carousel-control-prev"]},
+                elCreateEmpty('span', {"class": ["carousel-control-prev-icon"]})
+            )
+        );
+        carousel.appendChild(
+            elCreateNode('a', {"href": "#" + name, "data-bs-slide": "next", "class": ["carousel-control-next"]},
+                elCreateEmpty('span', {"class": ["carousel-control-next-icon"]})
+            )
+        );
+    }
+
+    elClear(imgEl);
+    imgEl.appendChild(carousel);
+    uiElements.albumartCarousel = new BSN.Carousel(carousel, {
+        interval: false,
+        pause: false
+    });
 }

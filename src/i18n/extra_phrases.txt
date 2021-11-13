@@ -102,3 +102,32 @@ Last played list count
 Reset to default
 Image
 Authentication required
+Priority
+Add after current playing song
+Replace queue with playlist
+Delete home icon
+Delete playlist
+Duplicate home icon
+Edit playlist
+Edit smart playlist
+Play after current playing song
+Remove
+Remove all downwards
+Remove all upwards
+Rescan directory
+Update directory
+View playlist
+Set priority
+Album details
+Too many results, list is cropped
+AudioFormat
+Filetype
+Fingerprint
+LastModified
+Each 1
+Each 3600
+Each 60
+Each 604800
+Each 86400
+Show all albums from artist
+Show directory

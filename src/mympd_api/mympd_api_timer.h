@@ -7,16 +7,16 @@
 #ifndef MYMPD_API_TIMER_H
 #define MYMPD_API_TIMER_H
 
-#include "../../dist/src/sds/sds.h"
+#include "../../dist/sds/sds.h"
 #include "../lib/mympd_state.h"
 
 void mympd_api_timer_timerlist_init(struct t_timer_list *l);
 void mympd_api_timer_timerlist_truncate(struct t_timer_list *l);
 bool mympd_api_timer_timerlist_free(struct t_timer_list *l);
 void mympd_api_timer_check(struct t_timer_list *l);
-bool mympd_api_timer_add(struct t_timer_list *l, unsigned int timeout, int interval,
+bool mympd_api_timer_add(struct t_timer_list *l, unsigned timeout, int interval,
     time_handler handler, int timer_id, struct t_timer_definition *definition, void *user_data);
-bool mympd_api_timer_replace(struct t_timer_list *l, unsigned int timeout, int interval, 
+bool mympd_api_timer_replace(struct t_timer_list *l, unsigned timeout, int interval, 
     time_handler handler, int timer_id, struct t_timer_definition *definition, void *user_data);
 void mympd_api_timer_remove(struct t_timer_list *l, int timer_id);
 void mympd_api_timer_toggle(struct t_timer_list *l, int timer_id);

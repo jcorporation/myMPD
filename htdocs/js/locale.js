@@ -9,15 +9,7 @@ function smartCount(number) {
     else { return 1; }
 }
 
-function t(phrase, number, data) {
-    return e(_translate(phrase, number, data));
-}
-
 function tn(phrase, number, data) {
-    return _translate(phrase, number, data);
-}
-
-function _translate(phrase, number, data) {
     if (phrase === undefined) {
         logWarn('Phrase is undefined');
         return 'undefined';
@@ -73,36 +65,24 @@ function beautifyDuration(x) {
     const minutes = Math.floor(x / 60) - hours * 60 - days * 1440;
     const seconds = x - days * 86400 - hours * 3600 - minutes * 60;
 
-    return (days > 0 ? days + '\u2009'+ t('Days') + ' ' : '') +
-        (hours > 0 ? hours + '\u2009' + t('Hours') + ' ' + 
-        (minutes < 10 ? '0' : '') : '') + minutes + '\u2009' + t('Minutes') + ' ' + 
-        (seconds < 10 ? '0' : '') + seconds + '\u2009' + t('Seconds');
+    return (days > 0 ? days + smallSpace + tn('Days') + ' ' : '') +
+        (hours > 0 ? hours + smallSpace + tn('Hours') + ' ' + 
+        (minutes < 10 ? '0' : '') : '') + minutes + smallSpace + tn('Minutes') + ' ' + 
+        (seconds < 10 ? '0' : '') + seconds + smallSpace + tn('Seconds');
 }
 
 function beautifySongDuration(x) {
     const hours = Math.floor(x / 3600);
     const minutes = Math.floor(x / 60) - hours * 60;
-    const seconds = x - hours * 3600 - minutes * 60;
+    const seconds = Math.floor(x - hours * 3600 - minutes * 60);
 
     return (hours > 0 ? hours + ':' + (minutes < 10 ? '0' : '') : '') + 
         minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
 }
 
-//eslint-disable-next-line no-unused-vars
-function gtPage(phrase, returnedEntities, totalEntities, maxElements) {
-    if (totalEntities > -1) {
-        return t(phrase, totalEntities);
-    }
-    else if (returnedEntities + app.current.offset < maxElements) {
-        return t(phrase, returnedEntities);
-    }
-    else {
-        return '> ' + t(phrase, maxElements);
-    }
-}
-
 function i18nHtml(root) {
-    const attributes = [['data-phrase', 'innerHTML'], 
+    const attributes = [
+        ['data-phrase', 'textContent'], 
         ['data-title-phrase', 'title'], 
         ['data-placeholder-phrase', 'placeholder']
     ];
@@ -110,7 +90,7 @@ function i18nHtml(root) {
         const els = root.querySelectorAll('[' + attributes[i][0] + ']');
         const elsLen = els.length;
         for (let k = 0, l = elsLen; k < l; k++) {
-            els[k][attributes[i][1]] = t(els[k].getAttribute(attributes[i][0]));
+            els[k][attributes[i][1]] = tn(els[k].getAttribute(attributes[i][0]));
         }
     }
 }

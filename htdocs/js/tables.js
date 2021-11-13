@@ -3,167 +3,11 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-function focusTable(rownr, table) {
-    if (table === undefined) {
-        table = document.getElementById(app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '') + 'List');
-    }
-
-    if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
-        const tables = document.getElementsByClassName('card-grid');
-        if (tables.length === 0 ) {
-            return; 
-        }
-        table = tables[0];
-        for (let i = 0, j = tables.length; i < j; i++) {
-            if (tables[i].classList.contains('selected')) {
-                table = tables[i];
-                break;
-            }
-        }
-        table.focus();
-        return;
-    }
-    else if (app.current.app === 'Home') {
-        const tables = document.getElementsByClassName('home-icons');
-        if (tables.length === 0 ) {
-            return; 
-        }
-        table = tables[0];
-        for (let i = 0, j = tables.length; i < j; i++) {
-            if (tables[i].classList.contains('selected')) {
-                table = tables[i];
-                break;
-            }
-        }
-        table.focus();
-        return;
-    }
-
-    if (table !== null) {
-        const sel = table.getElementsByClassName('selected');
-        if (rownr === undefined) {
-            if (sel.length === 0) {
-                let row = table.getElementsByTagName('tbody')[0].rows[0];
-                if (row === null) {
-                    return;
-                }
-                if (row.classList.contains('not-clickable')) {
-                    row = table.getElementsByTagName('tbody')[0].rows[1];
-                }
-                if (row === null) {
-                    return;
-                }
-                row.focus();
-                row.classList.add('selected');
-            }
-            else {
-                sel[0].focus();
-            }
-        }
-        else {
-            if (sel && sel.length > 0) {
-                sel[0].classList.remove('selected');
-            }
-            const rows = table.getElementsByTagName('tbody')[0].rows;
-            const rowsLen = rows.length;
-            if (rowsLen < rownr) {
-                rownr = 0;
-            }
-            if (rowsLen > rownr) {
-                rows[rownr].focus();
-                rows[rownr].classList.add('selected');
-            }
-        }
-        scrollFocusIntoView();
-    }
-}
-
-function scrollFocusIntoView() {
-    const el = document.activeElement;
-    const posY = el.getBoundingClientRect().top;
-    const height = el.offsetHeight;
-    let headerHeight = el.parentNode.parentNode.offsetTop;
-    if (window.innerHeight > window.innerWidth) {
-        headerHeight += document.getElementById('header').offsetHeight;
-    }
-    const footerHeight = document.getElementsByTagName('footer')[0].offsetHeight;
-    const parentHeight = window.innerHeight - headerHeight - footerHeight;
-    const treshold = height / 2;
-    //console.log('posY: ' + posY);
-    //console.log('height: ' + height);
-    //console.log('treshold: ' + treshold);
-    //console.log('parentHeight: ' + parentHeight);
-    //console.log('headerHeight:' + headerHeight);
-    //console.log('footerHeight:' + footerHeight);
-    if (posY <= headerHeight + treshold) {
-        //console.log('0, - height');
-        window.scrollBy(0, - height);
-    }
-    else if (posY + height > parentHeight - treshold) {
-        //console.log('0, height');
-        window.scrollBy(0, height);
-    }
-}
-
-function navigateTable(table, keyCode) {
-    const cur = document.activeElement;
-    if (cur) {
-        let next = null;
-        let handled = false;
-        if (keyCode === 'ArrowDown') {
-            next = cur.nextElementSibling;
-            if (next === null) {
-                return;
-            }
-            if (next.classList.contains('not-clickable')) {
-                next = next.nextElementSibling;
-            }
-            handled = true;
-        }
-        else if (keyCode === 'ArrowUp') {
-            next = cur.previousElementSibling;
-            if (next === null) {
-                return;
-            }
-            if (next.classList.contains('not-clickable')) {
-                next = next.previousElementSibling;
-            }
-            handled = true;
-        }
-        else if (keyCode === ' ') {
-            const popupBtn = cur.lastChild.firstChild;
-            if (popupBtn.nodeName === 'A') {
-                popupBtn.click();
-            }
-            handled = true;
-        }
-        else if (keyCode === 'Enter') {
-            cur.firstChild.click();
-            handled = true;
-        }
-        else if (keyCode === 'Escape') {
-            cur.blur();
-            cur.classList.remove('selected');
-            handled = true;
-        }
-        if (handled === true) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-        if (next) {
-            cur.classList.remove('selected');
-            next.classList.add('selected');
-            next.focus();
-            scrollFocusIntoView();
-        }
-    }
-}
-
 function dragAndDropTable(table) {
     const tableBody = document.getElementById(table).getElementsByTagName('tbody')[0];
     tableBody.addEventListener('dragstart', function(event) {
         if (event.target.nodeName === 'TR') {
-            hideMenu();
+            hidePopover();
             event.target.classList.add('opacity05');
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
@@ -226,8 +70,8 @@ function dragAndDropTable(table) {
         if (event.target.nodeName === 'TD') {
             target = event.target.parentNode;
         }
-        const oldSongpos = getCustomDomProperty(event.dataTransfer.getData('Text'), 'data-songpos');
-        const newSongpos = getCustomDomProperty(target, 'data-songpos');
+        const oldSongpos = getDataId(event.dataTransfer.getData('Text'), 'data-songpos');
+        const newSongpos = getData(target, 'data-songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.classList.remove('opacity05');
         tableBody.insertBefore(dragEl, target);
@@ -236,10 +80,10 @@ function dragAndDropTable(table) {
             tr[i].classList.remove('dragover');
         }
         document.getElementById(table).classList.add('opacity05');
-        if (app.current.app === 'Queue' && app.current.tab === 'Current') {
+        if (app.current.card === 'Queue' && app.current.tab === 'Current') {
             sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {"from": oldSongpos, "to": newSongpos});
         }
-        else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
+        else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
             playlistMoveTrack(oldSongpos, newSongpos);
         }
     }, false);
@@ -334,6 +178,9 @@ function setColTags(table) {
 
     switch(table) {
         case 'QueueCurrent':
+            tags.push('AudioFormat');
+            tags.push('Priority');
+            //fall through
         case 'BrowsePlaylistsDetail':
         case 'QueueJukebox':
             tags.push('Pos');
@@ -343,8 +190,8 @@ function setColTags(table) {
             tags.push('Filename');
             break;
         case 'Playback':
+            tags.push('AudioFormat');
             tags.push('Filetype');
-            tags.push('Fileformat');
             if (features.featLyrics === true) {
                 tags.push('Lyrics');
             }
@@ -365,36 +212,33 @@ function setColTags(table) {
     return tags;
 }
 
-function setColsChecklist(table) {
-    let tagChks = '';
+function setColsChecklist(table, menu) {
     const tags = setColTags(table);
     for (let i = 0, j = tags.length; i < j; i++) {
         if (table === 'Playback' && tags[i] === 'Title') {
             continue;
         }
         if (tags[i] === 'dropdownTitleSticker') {
-            tagChks += '<h6 class="dropdown-header pl-0">' + t('Sticker') + '</h6>';
+            menu.appendChild(elCreateText('h6', {"class": ["dropdown-header"]}, tn('Sticker')));
         }
         else {
-            tagChks += '<div>' +
-                '<button class="btn btn-secondary btn-xs clickable mi mi-small' +
-                (settings['cols' + table].includes(tags[i]) ? ' active' : '') + '" name="' + tags[i] + '">' +
-                (settings['cols' + table].includes(tags[i]) ? 'check' : 'radio_button_unchecked') + '</button>' +
-                '<label class="form-check-label" for="' + tags[i] + '">&nbsp;&nbsp;' + t(tags[i]) + '</label>' +
-                '</div>';
+            const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "clickable", "mi", "mi-small", "me-2"], "name": tags[i]}, 'radio_button_unchecked');
+            if (settings['cols' + table].includes(tags[i])) {
+                btn.classList.add('active');
+                btn.textContent = 'check'
+            }
+            const div = elCreateNodes('div', {"class": ["form-check"]}, [
+                btn,
+                elCreateText('lable', {"class": ["form-check-label"], "for": tags[i]}, tn(tags[i]))
+            ]);
+            menu.appendChild(div);
         }
     }
-    return tagChks;
 }
 
 function setCols(table) {
-    const colsChkList = document.getElementById(table + 'ColsDropdown');
-    if (colsChkList) {
-        colsChkList.firstChild.innerHTML = setColsChecklist(table);
-    }
     let sort = app.current.sort;
-    
-    if (table === 'Search' && app.apps.Search.sort === 'Title') {
+    if (table === 'Search' && app.cards.Search.sort === 'Title') {
         if (settings.tagList.includes('Title')) {
             sort = 'Title';
         }
@@ -405,34 +249,36 @@ function setCols(table) {
             sort = '-';
         }
     }
-    
-    if (table !== 'Playback') {
-        let heading = '';
-        for (let i = 0, j = settings['cols' + table].length; i < j; i++) {
-            let h = settings['cols' + table][i];
-            heading += '<th draggable="true" data-col="' + h  + '">';
-            if (h === 'Track' || h === 'Pos') {
-                h = '#';
-            }
-            heading += t(h);
 
-            if (table === 'Search' && (h === sort || '-' + h === sort) ) {
-                let sortdesc = false;
-                if (app.current.sort.indexOf('-') === 0) {
-                    sortdesc = true;
-                }
-                heading += '<span class="sort-dir mi pull-right">' + (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
+    const thead = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+    elClear(thead);
+
+    for (let i = 0, j = settings['cols' + table].length; i < j; i++) {
+        const hname = settings['cols' + table][i];
+        const th = elCreateText('th', {"draggable": "true", "data-col": settings['cols' + table][i]}, tn(hname));
+        if (hname === 'Track' || hname === 'Pos') {
+            th.textContent = '#';
+        }
+
+        if (table === 'Search' && (hname === sort || ('-' + hname) === sort) ) {
+            let sortdesc = false;
+            if (app.current.sort.indexOf('-') === 0) {
+                sortdesc = true;
             }
-            heading += '</th>';
+            th.appendChild(
+                elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down'))
+            );
         }
-        if (features.featTags === true) {
-            heading += '<th data-col="Action"><a data-title-phrase="' +t('Columns') + '" href="#" class="text-secondary align-middle mi mi-small">settings</a></th>';
-        }
-        else {
-            heading += '<th></th>';
-        }
-        document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
+        thead.appendChild(th);
     }
+    //append action column
+    const th = elCreateEmpty('th', {"data-col": "Action"});
+    if (features.featTags === true) {
+        th.appendChild(
+            elCreateText('a', {"href": "#", "class": ["align-middle", "mi", "mi-small", "clickable"], "data-title-phrase": 'Columns', "title": tn('Columns')}, 'settings')
+        );
+    }
+    thead.appendChild(th);
 }
 
 function saveCols(table, tableEl) {
@@ -460,14 +306,12 @@ function saveCols(table, tableEl) {
                 }
             } 
             else if (!th) {
-                th = document.createElement('th');
-                th.textContent = colInputs[i].name;
-                th.setAttribute('data-col', colInputs[i].name);
+                th = elCreateText('th', {"data-col": colInputs[i].name}, colInputs[i].name);
                 header.insertBefore(th, header.lastChild);
             }
         }
     }
-    
+
     const params = {"table": "cols" + table, "cols": []};
     const ths = header.getElementsByTagName('th');
     for (let i = 0, j = ths.length; i < j; i++) {
@@ -487,23 +331,27 @@ function saveColsPlayback(table) {
     for (let i = 0, j = colInputs.length - 1; i < j; i++) {
         let th = document.getElementById('current' + colInputs[i].name);
         if (colInputs[i].classList.contains('active') === false) {
+            //remove disabled tags
             if (th) {
                 th.remove();
             }
         } 
         else if (!th) {
-            th = document.createElement('div');
-            th.innerHTML = '<small>' + t(colInputs[i].name) + '</small><p></p>';
-            th.setAttribute('id', 'current' + colInputs[i].name);
-            setCustomDomProperty(th, 'data-tag', colInputs[i].name);
+            //add enabled tags if not already shown
+            th = elCreateNodes('div', {"id": "current" + colInputs[i].name}, [
+                elCreateText('small', {}, tn(colInputs[i].name)),
+                elCreateEmpty('p', {})
+            ]);
+            setData(th, 'data-tag', colInputs[i].name);
             header.appendChild(th);
         }
     }
-    
+
+    //construct columns to save from actual playback card
     const params = {"table": "cols" + table, "cols": []};
     const ths = header.getElementsByTagName('div');
     for (let i = 0, j = ths.length; i < j; i++) {
-        const name = getCustomDomProperty(ths[i], 'data-tag');
+        const name = getData(ths[i], 'data-tag');
         if (name) {
             params.cols.push(name);
         }
@@ -513,37 +361,45 @@ function saveColsPlayback(table) {
 
 function replaceTblRow(row, el) {
     const menuEl = row.querySelector('[data-popover]');
-    let result = false;
     if (menuEl) {
-        hideMenu();
-    }
-    if (row.classList.contains('selected')) {
-        el.classList.add('selected');
-        el.focus();
-        result = true;
+        hidePopover();
     }
     row.replaceWith(el);
-    return result;
+}
+
+function addDiscRow(disc, album, albumartist, colspan) {
+    const row = elCreateNodes('tr', {"class": ["not-clickable"]}, [
+        elCreateNode('td', {}, 
+            elCreateText('span', {"class": ["mi"]}, 'album')
+        ),
+        elCreateText('td', {"colspan": (colspan - 1)}, tn('Disc') + ' ' + disc),
+        elCreateNode('td', {},
+            elCreateText('a', {"data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
+        )
+    ]);
+    setData(row, 'data-disc', disc);
+    setData(row, 'data-album', album);
+    setData(row, 'data-albumartist', albumartist);
+    return row;
 }
 
 function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const table = document.getElementById(list + 'List');
+    setScrollViewHeight(table);
     const tbody = table.getElementsByTagName('tbody')[0];
     const colspan = settings['cols' + list] !== undefined ? settings['cols' + list].length : 0;
 
     const nrItems = obj.result.returnedEntities;
     const tr = tbody.getElementsByTagName('tr');
-    const navigate = document.activeElement.parentNode.parentNode === table ? true : false;
-    let activeRow = 0;
+    const smallWidth = window.innerWidth < 576 ? true : false;
+
     //disc handling for album view
     let z = 0;
     let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined ? Number(obj.result.data[0].Disc) : 0;
     if (obj.result.Discs !== undefined && obj.result.Discs > 1) {
-        const row = document.createElement('tr');
-        row.classList.add('not-clickable');
-        row.innerHTML = '<td><span class="mi">album</span></td><td colspan="' + colspan +'">' + t('Disc 1') + '</td>';
+        const row = addDiscRow(1, obj.result.data[0].Album, obj.result.data[0][tagAlbumArtist], colspan);
         if (z < tr.length) {
-            activeRow = replaceTblRow(tr[z], row) === true ? z : activeRow;
+            replaceTblRow(tr[z], row);
         }
         else {
             tbody.append(row);
@@ -553,12 +409,9 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     for (let i = 0; i < nrItems; i++) {
         //disc handling for album view
         if (obj.result.data[0].Disc !== undefined && lastDisc < Number(obj.result.data[i].Disc)) {
-            const row = document.createElement('tr');
-            row.classList.add('not-clickable');
-            row.innerHTML = '<td><span class="mi">album</span></td><td colspan="' + colspan +'">' + 
-                t('Disc') + ' ' + e(obj.result.data[i].Disc) + '</td></tr>';
+            const row = addDiscRow(obj.result.data[i].Disc, obj.result.data[i].Album, obj.result.data[i][tagAlbumArtist], colspan);
             if (i + z < tr.length) {
-                activeRow = replaceTblRow(tr[i + z], row) === true ? i + z : activeRow;
+                replaceTblRow(tr[i + z], row);
             }
             else {
                 tbody.append(row);
@@ -566,13 +419,19 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             z++;
             lastDisc = obj.result.data[i].Disc;
         }
-        const row = document.createElement('tr');
+        const row = elCreateEmpty('tr', {});
         if (perRowCallback !== undefined && typeof(perRowCallback) === 'function') {
             perRowCallback(row, obj.result.data[i]);
         }
         //data row
-        let tds = '';
         row.setAttribute('tabindex', 0);
+        //set artist and album data
+        if (obj.result.data[i].Album !== undefined) {
+            setData(row, 'data-album', obj.result.data[i].Album);
+        }
+        if (obj.result.data[i][tagAlbumArtist] !== undefined) {
+            setData(row, 'data-albumartist', obj.result.data[i][tagAlbumArtist]);
+        }
         //set Title to name if not defined - for folders and playlists
         if (obj.result.data[i].Title === undefined) {
             obj.result.data[i].Title = obj.result.data[i].name;
@@ -584,22 +443,10 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         }
         else {
             //default row content
-            if (obj.result.data[i].Type === 'parentDir') {
-                row.innerHTML = '<td colspan="' + (colspan + 1) + '">..</td>';
-                row.setAttribute('title', t('Open parent folder'));
-            }
-            else {
-                for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
-                    tds += '<td data-col="' + encodeURI(settings['cols' + list][c]) + '">' +
-                        printValue(settings['cols' + list][c], obj.result.data[i][settings['cols' + list][c]]) +
-                        '</td>';
-                }
-                tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey" title="' + t('Actions') + '">' + ligatureMore + '</a></td>';
-                row.innerHTML = tds;
-            }
+            tableRow(row, obj.result.data[i], list, colspan, smallWidth);
         }
         if (i + z < tr.length) {
-            activeRow = replaceTblRow(tr[i + z], row) === true ? i + z : activeRow;
+            replaceTblRow(tr[i + z], row);
         }
         else {
             tbody.append(row);
@@ -612,14 +459,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     }
 
     if (nrItems === 1000) {
-        const row = document.createElement('tr');
-        row.classList.add('not-clickable');
-        row.innerHTML = '<td><span class="mi">warning</span></td><td colspan="' + colspan +'">' + t('Too many results, list is cropped') + '</td>';
-        tbody.append(row);
-    }
-
-    if (navigate === true) {
-        focusTable(activeRow);
+        tbody.appendChild(warningRow('Too many results, list is cropped', colspan + 1));
     }
 
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
@@ -630,44 +470,82 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     table.classList.remove('opacity05');
 }
 
+function tableRow(row, data, list, colspan, smallWidth) {
+    if (data.Type === 'parentDir') {
+        row.appendChild(elCreateText('td', {"colspan": (colspan + 1), "title": tn('Open parent folder')}, '..'));
+    }
+    else {
+        if (smallWidth === true) {
+            const td = elCreateEmpty('td', {"colspan": colspan});
+            for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
+                td.appendChild(
+                    elCreateNodes('div', {"class": ["row"]}, [
+                        elCreateText('small', {"class": ["col-3"]}, tn(settings['cols' + list][c])),
+                        elCreateNode('span', {"class": ["col-9"]}, printValue(settings['cols' + list][c], data[settings['cols' + list][c]]))
+                    ])
+                );
+            }
+            row.appendChild(td);
+        }
+        else {
+            for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
+                row.appendChild(
+                    elCreateNode('td', {"data-col": settings['cols' + list][c]},
+                        printValue(settings['cols' + list][c], data[settings['cols' + list][c]])
+                    )
+                );
+            }
+        }
+        row.appendChild(
+            elCreateNode('td', {},
+                elCreateText('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
+            )
+        );
+    }
+}
+
 function emptyRow(colspan) {
-    const tr = elCreate('tr', {"class": ["not-clickable"]}, '');
-    const td = elCreate('td', {"colspan": colspan}, '');
-    addIconLine(td, 'info', tn('Empty list'));
-    tr.appendChild(td);
-    return tr;
+    return elCreateNode('tr', {"class": ["not-clickable"]},
+        elCreateNode('td', {"colspan": colspan},
+            elCreateText('div', {"class": ["alert", "alert-secondary"]}, tn('Empty list'))
+        )
+    );
 }
 
 function errorRow(obj, colspan) {
-    const tr = elCreate('tr', {"class": ["not-clickable"]}, '');
-    const td = elCreate('td', {"colspan": colspan}, '');
-    const div = elCreate('div', {"class": ["alert", "alert-danger"]}, '');
-    addIconLine(div, 'error_outline', tn(obj.error.message, obj.error.data));
-    td.appendChild(div);
-    tr.appendChild(td);
-    return tr;
+    return elCreateNode('tr', {"class": ["not-clickable"]},
+        elCreateNode('td', {"colspan": colspan},
+            elCreateText('div', {"class": ["alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
+        )
+    );
 }
 
-function checkResult(obj, tbody, colspan) {
-    const list = tbody;
-    if (typeof tbody === 'string') {
-        tbody = document.getElementById(tbody + 'List').getElementsByTagName('tbody')[0];
-    }
-    if (colspan === null) {
-        colspan = settings['cols' + list] !== undefined ? settings['cols' + list].length : 0;
-        colspan++;
-    }
+function warningRow(message, colspan) {
+    return elCreateNode('tr', {"class": ["not-clickable"]},
+        elCreateNode('td', {"colspan": colspan},
+            elCreateText('div', {"class": ["alert", "alert-warning"]}, tn(message))
+        )
+    );
+}
 
+function checkResultId(obj, id) {
+    return checkResult(obj, document.getElementById(id).getElementsByTagName('tbody')[0]);
+}
+
+function checkResult(obj, tbody) {
+    const colspan = tbody.parentNode.getElementsByTagName('tr')[0].getElementsByTagName('th').length;
     if (obj.error) {
         elClear(tbody);
         tbody.appendChild(errorRow(obj, colspan));
         tbody.parentNode.classList.remove('opacity05');
+        setPagination(0, 0);
         return false;
     }
     if (obj.result.returnedEntities === 0) {
         elClear(tbody);
         tbody.appendChild(emptyRow(colspan));
         tbody.parentNode.classList.remove('opacity05');
+        setPagination(0, 0);
         return false;
     }
     return true;

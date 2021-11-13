@@ -24,13 +24,16 @@ function removeIsInvalid(parentEl) {
     }
 }
 
+function setIsInvalidId(id) {
+    setIsInvalid(document.getElementById(id));
+}
+
 function setIsInvalid(el) {
-    if (el.nodeName === 'MYMPD-INPUT-RESET') {
-        el.getElementsByTagName('input')[0].classList.add('is-invalid');
+    if (el.parentNode.getElementsByClassName('is-invalid').length === 0) {
+        //set is-invalid on parent node
+        el.parentNode.classList.add('is-invalid');
     }
-    else {
-        el.classList.add('is-invalid');
-    }
+    el.classList.add('is-invalid');
 }
 
 function validateFilenameString(str) {
@@ -48,13 +51,10 @@ function validateFilename(el) {
         setIsInvalid(el);
         return false;
     }
-    removeIsInvalid(el);
     return true;
 }
 
 function validateFilenameList(el) {
-    removeIsInvalid(el);
-    
     const filenames = el.value.split(',');
     for (let i = 0, j = filenames.length; i < j; i++) {
         if (validateFilenameString(filenames[i].trim()) === false) {
@@ -71,7 +71,6 @@ function validatePath(el) {
         return false;
     }
     if (el.value.match(/^\/[/.\w-]+$/) !== null) {
-        removeIsInvalid(el);
         return true;
     }
     setIsInvalid(el);
@@ -83,7 +82,6 @@ function validatePlnameEl(el) {
         setIsInvalid(el);
         return false;
     }
-    removeIsInvalid(el);
     return true;
 }
 
@@ -103,7 +101,6 @@ function validateNotBlank(el) {
         setIsInvalid(el);
         return false;
     }
-    removeIsInvalid(el);
     return true;
 }
 
@@ -113,7 +110,6 @@ function validateInt(el) {
         setIsInvalid(el);
         return false;
     }
-    removeIsInvalid(el);
     return true;
 }
 
@@ -123,7 +119,6 @@ function validateUint(el) {
         setIsInvalid(el);
         return false;
     }
-    removeIsInvalid(el);
     return true;
 }
 
@@ -138,7 +133,6 @@ function validateIntRange(el, min, max) {
         setIsInvalid(el);
         return false;
     }
-    removeIsInvalid(el);
     return true;
 }
 
@@ -148,13 +142,11 @@ function validateFloat(el) {
         setIsInvalid(el);
         return false;
     }
-    removeIsInvalid(el);
     return true;
 }
 
 function validateStream(el) {
     if (isStreamUri(el.value) === true) {
-        removeIsInvalid(el);
         return true;
     }
     setIsInvalid(el);
@@ -163,7 +155,6 @@ function validateStream(el) {
 
 function validateHost(el) {
     if (el.value.match(/^([\w-.]+)$/) !== null) {
-        removeIsInvalid(el);
         return true;
     }
     setIsInvalid(el);
@@ -172,9 +163,17 @@ function validateHost(el) {
 
 function validateSelect(el) {
     if (getSelectValue(el) !== undefined) {
-        removeIsInvalid(el);
         return true;
     }
     setIsInvalid(el);
     return false;
+}
+
+function validatePrintable(el) {
+    const value = el.value.replace(/[\w-]+/g, '');
+    if (value !== '') {
+        setIsInvalid(el);
+        return false;
+    }
+    return true;
 }

@@ -5,7 +5,7 @@
 
 /* eslint-enable no-unused-vars */
 function appPrepare(scrollPos) {
-    if (app.current.app !== app.last.app || app.current.tab !== app.last.tab || app.current.view !== app.last.view) {
+    if (app.current.card !== app.last.card || app.current.tab !== app.last.tab || app.current.view !== app.last.view) {
         //Hide all cards + nav
         for (let i = 0; i < domCache.navbarBtnsLen; i++) {
             domCache.navbarBtns[i].classList.remove('active');
@@ -16,34 +16,34 @@ function appPrepare(scrollPos) {
             'tabBrowsePlaylists', 'viewBrowsePlaylistsDetail', 'viewBrowsePlaylistsList', 
             'tabBrowseDatabase', 'viewBrowseDatabaseDetail', 'viewBrowseDatabaseList'];
         for (const card of cards) {
-            document.getElementById(card).classList.add('hide');
+            elHideId(card);
         }
         //show active card
-        document.getElementById('card' + app.current.app).classList.remove('hide');
+        elShowId('card' + app.current.card);
         //show active tab
         if (app.current.tab !== undefined) {
-            document.getElementById('tab' + app.current.app + app.current.tab).classList.remove('hide');
+            elShowId('tab' + app.current.card + app.current.tab);
         }
         //show active view
         if (app.current.view !== undefined) {
-            document.getElementById('view' + app.current.app + app.current.tab + app.current.view).classList.remove('hide');
+            elShowId('view' + app.current.card + app.current.tab + app.current.view);
         }
         //show active navbar icon
-        let nav = document.getElementById('nav' + app.current.app + app.current.tab);
+        let nav = document.getElementById('nav' + app.current.card + app.current.tab);
         if (nav) {
             nav.classList.add('active');
         }
         else {
-            nav = document.getElementById('nav' + app.current.app);
+            nav = document.getElementById('nav' + app.current.card);
             if (nav) {
-                document.getElementById('nav' + app.current.app).classList.add('active');
+                document.getElementById('nav' + app.current.card).classList.add('active');
             }
         }
     }
-    scrollToPosY(scrollPos);
-    const list = document.getElementById(app.current.app + 
-        (app.current.tab === undefined ? '' : app.current.tab) + 
-        (app.current.view === undefined ? '' : app.current.view) + 'List');
+    if (isMobile === true) {
+        scrollToPosY(scrollPos);
+    }
+    const list = document.getElementById(app.id + 'List');
     if (list) {
         list.classList.add('opacity05');
     }
@@ -51,32 +51,32 @@ function appPrepare(scrollPos) {
 
 function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newScrollPos) {
     //old app
-    const oldptr = app.apps[app.current.app].offset !== undefined ? app.apps[app.current.app] :
-        app.apps[app.current.app].tabs[app.current.tab].offset !== undefined ? app.apps[app.current.app].tabs[app.current.tab] :
-            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view];
+    const oldptr = app.cards[app.current.card].offset !== undefined ? app.cards[app.current.card] :
+        app.cards[app.current.card].tabs[app.current.tab].offset !== undefined ? app.cards[app.current.card].tabs[app.current.tab] :
+            app.cards[app.current.card].tabs[app.current.tab].views[app.current.view];
 
     //get default active tab or view from state
-    if (app.apps[card].tabs) {
+    if (app.cards[card].tabs) {
         if (tab === undefined) {
-            tab = app.apps[card].active;
+            tab = app.cards[card].active;
         }
-        if (app.apps[card].tabs[tab].views) {
+        if (app.cards[card].tabs[tab].views) {
             if (view === undefined) {
-                view = app.apps[card].tabs[tab].active;
+                view = app.cards[card].tabs[tab].active;
             }
         }
     }
 
     //get ptr to new app
-    const ptr = app.apps[card].offset !== undefined ? app.apps[card] :
-                app.apps[card].tabs[tab].offset !== undefined ? app.apps[card].tabs[tab] :
-                app.apps[card].tabs[tab].views[view];
-                
+    const ptr = app.cards[card].offset !== undefined ? app.cards[card] :
+                app.cards[card].tabs[tab].offset !== undefined ? app.cards[card].tabs[tab] :
+                app.cards[card].tabs[tab].views[view];
+
     //save scrollPos of old app
     if (oldptr !== ptr) {
         oldptr.scrollPos = document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
     }
-    
+
     //set options to default, if not defined
     if (offset === null || offset === undefined) { offset = ptr.offset; }
     if (limit === null || limit === undefined)   { limit = ptr.limit; }
@@ -84,286 +84,345 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
     if (sort === null || sort === undefined)     { sort = ptr.sort; }
     if (tag === null || tag === undefined)       { tag = ptr.tag; }
     if (search === null || search === undefined) { search = ptr.search; }
+    //enforce number type
+    offset = Number(offset);
+    limit = Number(limit);
     //set new scrollpos
     if (newScrollPos !== undefined) {
         ptr.scrollPos = newScrollPos;
     }
     //build hash
-    location.hash = '/' + encodeURIComponent(card) + (tab === undefined ? '' : '/' + encodeURIComponent(tab) + 
-        (view === undefined ? '' : '/' + encodeURIComponent(view))) + '!' + 
-        encodeURIComponent(offset) + '/' + encodeURIComponent(limit) + '/' + encodeURIComponent(filter) + '/' + 
-        encodeURIComponent(sort) + '/' + encodeURIComponent(tag) + '/' + encodeURIComponent(search);
+    app.goto = true;
+    location.hash = myEncodeURIComponent(
+        JSON.stringify({
+            "card": card,
+            "tab": tab,
+            "view": view,
+            "offset": offset,
+            "limit": limit,
+            "filter": filter,
+            "sort": sort,
+            "tag": tag,
+            "search": search
+        })
+    );
+    app.goto = false;
+    appRoute(card, tab, view, offset, limit, filter, sort, tag, search);
 }
 
-function appRoute() {
+function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
     //called on hash change
     if (settingsParsed === false) {
         appInitStart();
         return;
     }
-    const params = location.hash.match(/^#\/(\w+)\/?(\w+)?\/?(\w+)?!(\d+)\/(\d+)\/([^/]+)\/([^/]+)\/([^/]+)\/(.*)$/);
-    if (params) {
-        app.current.app = decodeURIComponent(params[1]);
-        app.current.tab = params[2] !== undefined ? decodeURIComponent(params[2]) : undefined;
-        app.current.view = params[3] !== undefined ? decodeURIComponent(params[3]) : undefined;
-        app.current.offset = Number(decodeURIComponent(params[4]));
-        app.current.limit = Number(decodeURIComponent(params[5]));
-        app.current.filter = decodeURIComponent(params[6]);
-        app.current.sort = decodeURIComponent(params[7]);
-        app.current.tag = decodeURIComponent(params[8]);
-        app.current.search = decodeURIComponent(params[9]);
-
-        //get ptr to app options and set active tab/view        
-        let ptr;
-        if (app.apps[app.current.app].offset !== undefined) {
-            ptr = app.apps[app.current.app];
-        }
-        else if (app.apps[app.current.app].tabs[app.current.tab].offset !== undefined) {
-            ptr = app.apps[app.current.app].tabs[app.current.tab];
-            app.apps[app.current.app].active = app.current.tab;
-        }
-        else if (app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].offset !== undefined) {
-            ptr = app.apps[app.current.app].tabs[app.current.tab].views[app.current.view];
-            app.apps[app.current.app].active = app.current.tab;
-            app.apps[app.current.app].tabs[app.current.tab].active = app.current.view;
-        }
-        //set app options
-        ptr.offset = app.current.offset;
-        ptr.limit = app.current.limit;
-        ptr.filter = app.current.filter;
-        ptr.sort = app.current.sort;
-        ptr.tag = app.current.tag;
-        ptr.search = app.current.search;
-        app.current.scrollPos = ptr.scrollPos;
-    }
-    else {
-        appPrepare(0);
-        if (features.featHome === true) {
-            appGoto('Home');
-        }
-        else {
-            appGoto('Playback');
-        }
-        return;
-    }
-    appPrepare(app.current.scrollPos);
-
-    if (app.current.app === 'Home') {
-        sendAPI("MYMPD_API_HOME_LIST", {}, parseHome);
-    }
-    else if (app.current.app === 'Playback') {
-        sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, songChange);
-    }    
-    else if (app.current.app === 'Queue' && app.current.tab === 'Current' ) {
-        selectTag('searchqueuetags', 'searchqueuetagsdesc', app.current.filter);
-        getQueue();
-    }
-    else if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
-        sendAPI("MYMPD_API_QUEUE_LAST_PLAYED", {
-            "offset": app.current.offset,
-            "limit": app.current.limit,
-            "cols": settings.colsQueueLastPlayed
-        }, parseLastPlayed, true);
-    }
-    else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
-        sendAPI("MYMPD_API_JUKEBOX_LIST", {
-            "offset": app.current.offset,
-            "limit": app.current.limit,
-            "cols": settings.colsQueueJukebox
-        }, parseJukeboxList, true);
-    }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
-        sendAPI("MYMPD_API_PLAYLIST_LIST", {
-            "offset": app.current.offset,
-            "limit": app.current.limit,
-            "searchstr": app.current.search
-        }, parsePlaylistsList, true);
-        const searchPlaylistsStrEl = document.getElementById('searchPlaylistsListStr');
-        if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
-            searchPlaylistsStrEl.value = app.current.search;
-        }
-    }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-        sendAPI("MYMPD_API_PLAYLIST_CONTENT_LIST", {
-            "offset": app.current.offset,
-            "limit": app.current.limit,
-            "searchstr": app.current.search,
-            "plist": app.current.filter,
-            "cols": settings.colsBrowsePlaylistsDetail
-        }, parsePlaylistsDetail, true);
-        const searchPlaylistsStrEl = document.getElementById('searchPlaylistsDetailStr');
-        if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
-            searchPlaylistsStrEl.value = app.current.search;
-        }
-    }    
-    else if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
-        sendAPI("MYMPD_API_DATABASE_FILESYSTEM_LIST", {
-            "offset": app.current.offset,
-            "limit": app.current.limit,
-            "path": (app.current.search ? app.current.search : "/"), 
-            "searchstr": (app.current.filter !== '-' ? app.current.filter : ''),
-            "cols": settings.colsBrowseFilesystem
-        }, parseFilesystem, true);
-        //Don't add all songs from root
-        if (app.current.search) {
-            elEnable('BrowseFilesystemAddAllSongs');
-            elEnable('BrowseFilesystemAddAllSongsBtn');
-        }
-        else {
-            elDisable('BrowseFilesystemAddAllSongs');
-            elDisable('BrowseFilesystemAddAllSongsBtn');
-        }
-        //Create breadcrumb
-        let breadcrumbs = '<li class="breadcrumb-item"><a data-uri="" class="text-body mi">home</a></li>';
-        const pathArray = app.current.search.split('/');
-        const pathArrayLen = pathArray.length;
-        let fullPath = '';
-        for (let i = 0; i < pathArrayLen; i++) {
-            if (pathArrayLen - 1 === i) {
-                breadcrumbs += '<li class="breadcrumb-item active">' + e(pathArray[i]) + '</li>';
-                break;
+    if (card === undefined || card === null) {
+        const hash = location.hash.match(/^#(.*)$/);
+        let jsonHash = null;
+        if (hash !== null) {
+            try {
+                jsonHash = JSON.parse(myDecodeURIComponent(hash[1]));
+                app.current = jsonHash;
             }
-            fullPath += pathArray[i];
-            breadcrumbs += '<li class="breadcrumb-item"><a class="text-body" href="#" data-uri="' + encodeURI(fullPath) + '">' + e(pathArray[i]) + '</a></li>';
-            fullPath += '/';
-        }
-        document.getElementById('BrowseBreadcrumb').innerHTML = breadcrumbs;
-        const searchFilesystemStrEl = document.getElementById('searchFilesystemStr');
-        searchFilesystemStrEl.value = app.current.filter === '-' ? '' :  app.current.filter;
-    }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
-        selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', app.current.filter);
-        selectTag('BrowseDatabaseByTagDropdown', 'btnBrowseDatabaseByTagDesc', app.current.tag);
-        let sort = app.current.sort;
-        let sortdesc = false;
-        if (app.current.sort.charAt(0) === '-') {
-            sortdesc = true;
-            sort = app.current.sort.substr(1);
-            toggleBtnChk('databaseSortDesc', true);
-        }
-        else {
-            toggleBtnChk('databaseSortDesc', false);
-        }
-        selectTag('databaseSortTags', undefined, sort);
-        if (app.current.tag === 'Album') {
-            createSearchCrumbs(app.current.search, document.getElementById('searchDatabaseStr'), document.getElementById('searchDatabaseCrumb'));
-            document.getElementById('searchDatabaseMatch').classList.remove('hide');
-            elEnable('btnDatabaseSortDropdown');
-            elEnable('btnDatabaseSearchDropdown');
-            sendAPI("MYMPD_API_DATABASE_ALBUMS_GET", {
-                "offset": app.current.offset,
-                "limit": app.current.limit,
-                "expression": app.current.search, 
-                "sort": sort,
-                "sortdesc": sortdesc
-            }, parseDatabase, true);
-        }
-        else {
-            document.getElementById('searchDatabaseCrumb').classList.add('hide');
-            document.getElementById('searchDatabaseMatch').classList.add('hide');
-            elDisable('btnDatabaseSortDropdown');
-            elDisable('btnDatabaseSearchDropdown');
-            document.getElementById('searchDatabaseStr').value = app.current.search;
-            sendAPI("MYMPD_API_DATABASE_TAG_LIST", {
-                "offset": app.current.offset,
-                "limit": app.current.limit,
-                "searchstr": app.current.search, 
-                "tag": app.current.tag
-            }, parseDatabase, true);
-        }
-    }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail') {
-        if (app.current.filter === 'Album') {
-            const cols = settings.colsBrowseDatabaseDetail.slice();
-            if (cols.includes('Disc') === false) {
-                cols.push('Disc');
+            catch(error) {
+                //do nothing
             }
-            sendAPI("MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {
-                "album": app.current.tag,
-                "albumartist": app.current.search,
-                "cols": cols
-            }, parseAlbumDetails, true);
-        }    
-    }
-    else if (app.current.app === 'Search') {
-        document.getElementById('searchstr').focus();
-        if (features.featAdvsearch) {
-            createSearchCrumbs(app.current.search, document.getElementById('searchstr'), document.getElementById('searchCrumb'));
         }
-        else if (document.getElementById('searchstr').value === '' && app.current.search !== '') {
-            document.getElementById('searchstr').value = app.current.search;
-        }
-        
-        if (app.last.app !== app.current.app && app.current.search !== '') {
-            document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML=
-                '<tr><td><span class="mi">search</span></td>' +
-                '<td colspan="' + settings['cols' + app.current.app].length + '">' + t('Searching...') + '</td></tr>';
-        }
-
-        if (app.current.search === '') {
-            document.getElementById('searchstr').value = '';
-        }
-        if (document.getElementById('searchstr').value.length >= 2 || document.getElementById('searchCrumb').children.length > 0) {
-            if (features.featAdvsearch) {
-                let sort = app.current.sort;
-                let sortdesc = false;
-                if (sort === '-') {
-                    sort = settings.tagList.includes('Title') ? 'Title' : '-';
-                    setCustomDomProperty(document.getElementById('SearchList'), 'data-sort', sort);
-                }
-                else if (sort.indexOf('-') === 0) {
-                    sortdesc = true;
-                    sort = sort.substring(1);
-                }
-                sendAPI("MYMPD_API_DATABASE_SEARCH_ADV", {
-                    "plist": "",
-                    "offset": app.current.offset,
-                    "limit": app.current.limit,
-                    "sort": sort,
-                    "sortdesc": sortdesc,
-                    "expression": app.current.search,
-                    "cols": settings.colsSearchActions,
-                    "replace": false
-                }, parseSearch, true);
+        if (jsonHash === null) {
+            appPrepare(0);
+            if (features.featHome === true) {
+                appGoto('Home');
             }
             else {
-                sendAPI("MYMPD_API_DATABASE_SEARCH", {
-                    "plist": "",
-                    "offset": app.current.offset,
-                    "limit": app.current.limit,
-                    "filter": app.current.filter,
-                    "searchstr": app.current.search,
-                    "cols": settings.colsSearchActions,
-                    "replace": false
-                }, parseSearch, true);
+                appGoto('Playback');
             }
+            return;
         }
-        else {
-            elClear(document.getElementById('SearchList').getElementsByTagName('tbody')[0]);
-            elDisable('searchAddAllSongs');
-            elDisable('searchAddAllSongsBtn');
-            document.getElementById('SearchList').classList.remove('opacity05');
-            setPagination(0, 0);
-        }
-        selectTag('searchtags', 'searchtagsdesc', app.current.filter);
     }
     else {
-        appGoto("Home");
+        app.current.card = card;
+        app.current.tab = tab;
+        app.current.view = view;
+        app.current.offset = offset;
+        app.current.limit = limit;
+        app.current.filter = filter;
+        app.current.sort = sort;
+        app.current.tag = tag;
+        app.current.search = search;
+    }
+    app.id = app.current.card +
+        (app.current.tab === undefined ? '' : app.current.tab) +
+        (app.current.view === undefined ? '' : app.current.view);
+
+    //get ptr to app options and set active tab/view
+    let ptr;
+    if (app.cards[app.current.card].offset !== undefined) {
+        ptr = app.cards[app.current.card];
+    }
+    else if (app.cards[app.current.card].tabs[app.current.tab].offset !== undefined) {
+        ptr = app.cards[app.current.card].tabs[app.current.tab];
+        app.cards[app.current.card].active = app.current.tab;
+    }
+    else if (app.cards[app.current.card].tabs[app.current.tab].views[app.current.view].offset !== undefined) {
+        ptr = app.cards[app.current.card].tabs[app.current.tab].views[app.current.view];
+        app.cards[app.current.card].active = app.current.tab;
+        app.cards[app.current.card].tabs[app.current.tab].active = app.current.view;
+    }
+    //set app options
+    ptr.offset = app.current.offset;
+    ptr.limit = app.current.limit;
+    ptr.filter = app.current.filter;
+    ptr.sort = app.current.sort;
+    ptr.tag = app.current.tag;
+    ptr.search = app.current.search;
+    app.current.scrollPos = ptr.scrollPos;
+
+    appPrepare(app.current.scrollPos);
+
+    switch(app.id) {
+        case 'Home': {
+            const list = document.getElementById('HomeList');
+            list.classList.remove('opacity05');
+            setScrollViewHeight(list);
+            sendAPI("MYMPD_API_HOME_LIST", {}, parseHome);
+            break;
+        }
+        case 'Playback': {
+            const list = document.getElementById('PlaybackList');
+            list.classList.remove('opacity05');
+            setScrollViewHeight(list);
+            sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, songChange);
+            break;
+        }
+        case 'QueueCurrent': {
+            selectTag('searchqueuetags', 'searchqueuetagsdesc', app.current.filter);
+            getQueue();
+            break;
+        }
+        case 'QueueLastPlayed': {
+            sendAPI("MYMPD_API_QUEUE_LAST_PLAYED", {
+                "offset": app.current.offset,
+                "limit": app.current.limit,
+                "cols": settings.colsQueueLastPlayedFetch,
+                "searchstr": app.current.search
+            }, parseLastPlayed, true);
+            const searchQueueLastPlayedStrEl = document.getElementById('searchQueueLastPlayedStr');
+            if (searchQueueLastPlayedStrEl.value === '' && app.current.search !== '') {
+                searchQueueLastPlayedStrEl.value = app.current.search;
+            }
+            break;
+        }
+        case 'QueueJukebox': {
+            sendAPI("MYMPD_API_JUKEBOX_LIST", {
+                "offset": app.current.offset,
+                "limit": app.current.limit,
+                "cols": settings.colsQueueJukeboxFetch,
+                "searchstr": app.current.search
+            }, parseJukeboxList, true);
+            const searchQueueJukeboxStrEl = document.getElementById('searchQueueJukeboxStr');
+            if (searchQueueJukeboxStrEl.value === '' && app.current.search !== '') {
+                searchQueueJukeboxStrEl.value = app.current.search;
+            }
+            break;
+        }
+        case 'BrowsePlaylistsList': {
+            sendAPI("MYMPD_API_PLAYLIST_LIST", {
+                "offset": app.current.offset,
+                "limit": app.current.limit,
+                "searchstr": app.current.search,
+                "type": 0
+            }, parsePlaylistsList, true);
+            const searchPlaylistsStrEl = document.getElementById('searchPlaylistsListStr');
+            if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
+                searchPlaylistsStrEl.value = app.current.search;
+            }
+            break;
+        }
+        case 'BrowsePlaylistsDetail': {
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_LIST", {
+                "offset": app.current.offset,
+                "limit": app.current.limit,
+                "searchstr": app.current.search,
+                "plist": app.current.filter,
+                "cols": settings.colsBrowsePlaylistsDetail
+            }, parsePlaylistsDetail, true);
+            const searchPlaylistsStrEl = document.getElementById('searchPlaylistsDetailStr');
+            if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
+                searchPlaylistsStrEl.value = app.current.search;
+            }
+            break;
+        }
+        case 'BrowseFilesystem': {
+            sendAPI("MYMPD_API_DATABASE_FILESYSTEM_LIST", {
+                "offset": app.current.offset,
+                "limit": app.current.limit,
+                "path": (app.current.search ? app.current.search : "/"), 
+                "searchstr": (app.current.filter !== '-' ? app.current.filter : ''),
+                "cols": settings.colsBrowseFilesystemFetch
+            }, parseFilesystem, true);
+            //Don't add all songs from root
+            if (app.current.search) {
+                elEnableId('BrowseFilesystemAddAllSongs');
+                elEnableId('BrowseFilesystemAddAllSongsBtn');
+            }
+            else {
+                elDisableId('BrowseFilesystemAddAllSongs');
+                elDisableId('BrowseFilesystemAddAllSongsBtn');
+            }
+            //Create breadcrumb
+            const crumbEl = document.getElementById('BrowseBreadcrumb');
+            elClear(crumbEl);
+            const home = elCreateText('a', {"class": ["mi"]}, 'home');
+            setData(home, 'data-uri', '');
+            crumbEl.appendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, home));
+
+            const pathArray = app.current.search.split('/');
+            const pathArrayLen = pathArray.length;
+            let fullPath = '';
+            for (let i = 0; i < pathArrayLen; i++) {
+                if (pathArrayLen - 1 === i) {
+                    crumbEl.appendChild(elCreateText('li', {"class": ["breadcrumb-item", "active"]}, pathArray[i]));
+                    break;
+                }
+                fullPath += pathArray[i];
+                const a = elCreateText('a', {"href": "#"}, pathArray[i]);
+                setData(a, 'data-uri', fullPath);
+                crumbEl.appendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, a));
+                fullPath += '/';
+            }
+            const searchFilesystemStrEl = document.getElementById('searchFilesystemStr');
+            searchFilesystemStrEl.value = app.current.filter === '-' ? '' :  app.current.filter;
+            break;
+        }
+        case 'BrowseDatabaseList': {
+            selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', app.current.filter);
+            selectTag('BrowseDatabaseByTagDropdown', 'btnBrowseDatabaseByTagDesc', app.current.tag);
+            let tsort = app.current.sort;
+            let sortdesc = false;
+            if (tsort.charAt(0) === '-') {
+                sortdesc = true;
+                tsort = tsort.substr(1);
+                toggleBtnChkId('databaseSortDesc', true);
+            }
+            else {
+                toggleBtnChkId('databaseSortDesc', false);
+            }
+            selectTag('databaseSortTags', undefined, tsort);
+            if (app.current.tag === 'Album') {
+                createSearchCrumbs(app.current.search, document.getElementById('searchDatabaseStr'), document.getElementById('searchDatabaseCrumb'));
+                if (app.current.search === '') {
+                    document.getElementById('searchDatabaseStr').value = '';
+                }
+                elShowId('searchDatabaseMatch');
+                elEnableId('btnDatabaseSortDropdown');
+                elEnableId('btnDatabaseSearchDropdown');
+                sendAPI("MYMPD_API_DATABASE_ALBUMS_GET", {
+                    "offset": app.current.offset,
+                    "limit": app.current.limit,
+                    "expression": app.current.search, 
+                    "sort": tsort,
+                    "sortdesc": sortdesc
+                }, parseDatabase, true);
+            }
+            else {
+                elHideId('searchDatabaseCrumb');
+                elHideId('searchDatabaseMatch');
+                elDisableId('btnDatabaseSortDropdown');
+                elDisableId('btnDatabaseSearchDropdown');
+                document.getElementById('searchDatabaseStr').value = app.current.search;
+                sendAPI("MYMPD_API_DATABASE_TAG_LIST", {
+                    "offset": app.current.offset,
+                    "limit": app.current.limit,
+                    "searchstr": app.current.search, 
+                    "tag": app.current.tag
+                }, parseDatabase, true);
+            }
+            break;
+        }
+        case 'BrowseDatabaseDetail': {
+            if (app.current.filter === 'Album') {
+                sendAPI("MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {
+                    "album": app.current.tag,
+                    "albumartist": app.current.search,
+                    "cols": settings.colsBrowseDatabaseDetailFetch
+                }, parseAlbumDetails, true);
+            }
+            //more detail views coming
+            break;
+        }
+        case 'Search': {
+            document.getElementById('searchstr').focus();
+            if (features.featAdvsearch) {
+                createSearchCrumbs(app.current.search, document.getElementById('searchstr'), document.getElementById('searchCrumb'));
+            }
+            else if (document.getElementById('searchstr').value === '' && app.current.search !== '') {
+                document.getElementById('searchstr').value = app.current.search;
+            }
+            if (app.current.search === '') {
+                document.getElementById('searchstr').value = '';
+            }
+            if (document.getElementById('searchstr').value.length >= 2 ||
+                document.getElementById('searchCrumb').children.length > 0)
+            {
+                if (features.featAdvsearch) {
+                    let tsort = app.current.sort;
+                    let sortdesc = false;
+                    if (tsort === '-') {
+                        tsort = settings.tagList.includes('Title') ? 'Title' : '-';
+                        setDataId('SearchList', 'data-sort', tsort);
+                    }
+                    else if (tsort.charAt(0) === '-') {
+                        sortdesc = true;
+                        tsort = tsort.substring(1);
+                    }
+                    sendAPI("MYMPD_API_DATABASE_SEARCH_ADV", {
+                        "offset": app.current.offset,
+                        "limit": app.current.limit,
+                        "sort": tsort,
+                        "sortdesc": sortdesc,
+                        "expression": app.current.search,
+                        "cols": settings.colsSearchFetch
+                    }, parseSearch, true);
+                }
+                else {
+                    sendAPI("MYMPD_API_DATABASE_SEARCH", {
+                        "offset": app.current.offset,
+                        "limit": app.current.limit,
+                        "filter": app.current.filter,
+                        "searchstr": app.current.search,
+                        "cols": settings.colsSearchFetch
+                    }, parseSearch, true);
+                }
+            }
+            else {
+                elClear(document.getElementById('SearchList').getElementsByTagName('tbody')[0]);
+                elDisableId('searchAddAllSongs');
+                elDisableId('searchAddAllSongsBtn');
+                document.getElementById('SearchList').classList.remove('opacity05');
+                setPagination(0, 0);
+            }
+            selectTag('searchtags', 'searchtagsdesc', app.current.filter);
+            break;
+        }
+        default:
+            appGoto("Home");
     }
 
-    app.last.app = app.current.app;
+    app.last.card = app.current.card;
     app.last.tab = app.current.tab;
     app.last.view = app.current.view;
 }
 
 function showAppInitAlert(text) {
-    document.getElementById('splashScreenAlert').innerHTML = '<p class="text-danger">' + t(text) + '</p>' +
-        '<p><a id="appReloadBtn" class="btn btn-danger text-light clickable">' + t('Reload') + '</a></p>';
-    document.getElementById('appReloadBtn').addEventListener('click', function() {
+    const spa = document.getElementById('splashScreenAlert');
+    elClear(spa);
+    spa.appendChild(elCreateText('p', {"class": ["text-danger"]}, tn(text)));
+    const btn = elCreateText('button', {"class": ["btn", "btn-danger"]}, tn('Reload'));
+    btn.addEventListener('click', function() {
         clearAndReload();
     }, false);
+    spa.appendChild(elCreateNode('p', {}, btn));
 }
-
 
 function clearAndReload() {
     if ('serviceWorker' in navigator) {
@@ -384,12 +443,12 @@ function a2hsInit() {
         // Stash the event so it can be triggered later
         deferredA2HSprompt = event;
         // Update UI notify the user they can add to home screen
-        document.getElementById('nav-add2homescreen').classList.remove('hide');
+        elShowId('nav-add2homescreen');
     });
 
     document.getElementById('nav-add2homescreen').addEventListener('click', function(event) {
         // Hide our user interface that shows our A2HS button
-        event.target.classList.add('hide');
+        elHide(event.target);
         // Show the prompt
         deferredA2HSprompt.prompt();
         // Wait for the user to respond to the prompt
@@ -398,15 +457,40 @@ function a2hsInit() {
             deferredA2HSprompt = null;
         });
     });
-    
+
     window.addEventListener('appinstalled', function() {
-        showNotification(t('myMPD installed as app'), '', 'general', 'info');
+        showNotification(tn('myMPD installed as app'), '', 'general', 'info');
     });
 }
 
 function appInitStart() {
     //add app routing event handler
-    window.addEventListener('hashchange', appRoute, false);
+    window.addEventListener('hashchange', function() {
+        if (app.goto === false) {
+            appRoute();
+        }
+    }, false);
+
+    //webapp manifest shortcuts
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get('action');
+    if (action === 'clickPlay') {
+        clickPlay();
+    }
+    else if (action === 'clickStop') {
+        clickStop();
+    }
+    else if (action === 'clickNext') {
+        clickNext();
+    }
+
+    //update table height on window resize
+    window.addEventListener('resize', function() {
+        const list = document.getElementById(app.id + 'List');
+        if (list) {
+            setScrollViewHeight(list);
+        }
+    }, false);
 
     //set initial scale
     if (isMobile === true) {
@@ -415,30 +499,33 @@ function appInitStart() {
             scale = '1.0';
         }
         setViewport(false);
+        domCache.body.classList.add('mobile');
     }
     else {
         const ms = document.getElementsByClassName('featMobile');
         for (const m of ms) {
-            m.classList.add('hide');
-        }        
+            elHide(m);
+        }
+        domCache.body.classList.add('not-mobile');
     }
 
     subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
     i18nHtml(document.getElementById('splashScreenAlert'));
-    
+
     //set loglevel
     const script = document.getElementsByTagName("script")[0].src.replace(/^.*[/]/, '');
     if (script !== 'combined.js') {
         settings.loglevel = 4;
     }
     //register serviceworker
-    if ('serviceWorker' in navigator && window.location.protocol === 'https:' && 
-        window.location.hostname !== 'localhost' && script === 'combined.js')
+    if ('serviceWorker' in navigator &&
+        window.location.protocol === 'https:' && 
+        script === 'combined.js')
     {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('sw.js', {scope: subdir + '/'}).then(function(registration) {
                 //Registration was successful
-                logInfo('ServiceWorker registration successful.');
+                logDebug('ServiceWorker registration successful.');
                 registration.update();
             }, function(err) {
                 //Registration failed
@@ -448,10 +535,10 @@ function appInitStart() {
     }
 
     //show splash screen
-    document.getElementById('splashScreen').classList.remove('hide');
+    elShowId('splashScreen');
     domCache.body.classList.add('overflow-hidden');
-    document.getElementById('splashScreenAlert').textContent = t('Fetch myMPD settings');
-    
+    document.getElementById('splashScreenAlert').textContent = tn('Fetch myMPD settings');
+
     //init add to home screen feature
     a2hsInit();
 
@@ -466,17 +553,17 @@ function appInitStart() {
                 webSocketConnect();
             }, 0);
             //app initialized
-            document.getElementById('splashScreenAlert').textContent = t('Applying settings');
+            document.getElementById('splashScreenAlert').textContent = tn('Applying settings');
             document.getElementById('splashScreen').classList.add('hide-fade');
             setTimeout(function() {
-                document.getElementById('splashScreen').classList.add('hide');
+                elHideId('splashScreen');
                 document.getElementById('splashScreen').classList.remove('hide-fade');
                 domCache.body.classList.remove('overflow-hidden');
             }, 500);
             appInit();
             appInited = true;
             appRoute();
-            logInfo('Startup duration: ' + (Date.now() - startTime) + 'ms');
+            logDebug('Startup duration: ' + (Date.now() - startTime) + 'ms');
         }
     }, true);
 }
@@ -488,11 +575,9 @@ function appInit() {
         collapseArrow.addEventListener('click', function(event) {
             event.stopPropagation();
             event.preventDefault();
-            const icon = this.getElementsByTagName('span')[0];
-            icon.textContent = icon.textContent === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
-            event.stopPropagation();
+            toggleCollapseArrow(this);
         }, false);
-    }    
+    }
     //align dropdowns
     const dropdowns = document.querySelectorAll('.dropdown-toggle');
     for (const dropdown of dropdowns) {
@@ -515,19 +600,12 @@ function appInit() {
             continue;
         }
         href.addEventListener('click', function(event) {
-            parseCmd(event, getCustomDomProperty(this, 'data-href'));
-        }, false);
-    }
-    //do not submit forms
-    const noFormSubmit = ['search', 'searchqueue', 'searchdatabase'];
-    for (const formName of noFormSubmit) {
-        document.getElementById(formName).addEventListener('submit', function(event) {
-            event.preventDefault();
+            parseCmd(event, getData(this, 'data-href'));
         }, false);
     }
     //hide popover
     domCache.body.addEventListener('click', function() {
-        hideMenu();
+        hidePopover();
     }, false);
     //init moduls
     initGlobalModals();
@@ -558,6 +636,7 @@ function appInit() {
     dragAndDropTableHeader('BrowseFilesystem');
     dragAndDropTableHeader('BrowsePlaylistsDetail');
     dragAndDropTableHeader('BrowseDatabaseDetail');
+
     //update state on window focus - browser pauses javascript
     window.addEventListener('focus', function() {
         logDebug('Browser tab gots the focus -> update player state');
@@ -571,43 +650,37 @@ function appInit() {
         }
         const cmd = keymap[event.key];
         if (cmd && typeof window[cmd.cmd] === 'function') {
-            if (keymap[event.key].req === undefined || settings[keymap[event.key].req] === true)
+            if (keymap[event.key].req === undefined || settings[keymap[event.key].req] === true) {
                 parseCmd(event, cmd);
-        }        
-        
+            }
+            event.stopPropagation();
+        }
+
     }, false);
-    //make tables navigateable by keyboard
-    let tables = document.getElementsByTagName('table');
-    for (const tableName of tables) {
-        tableName.setAttribute('tabindex', 0);
-        tableName.addEventListener('keydown', function(event) {
-            navigateTable(this, event.key);
-        }, false);
-    }
     //contextmenu for tables
-    tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList', 
+    const tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList', 
         'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsListList', 'BrowsePlaylistsDetailList'];
     for (const tableName of tables) {
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {
             if (event.target.parentNode.classList.contains('not-clickable') ||
                 event.target.parentNode.parentNode.classList.contains('not-clickable') ||
-                getCustomDomProperty(event.target.parentNode, 'data-type') === 'parentDir')
+                getData(event.target.parentNode, 'data-type') === 'parentDir')
             {
                 return;
             }
-            showMenu(event.target, event);
+            showPopover(event);
             event.preventDefault();
             event.stopPropagation();
         }, false);
-    
+
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('contextmenu', function(event) {
             if (event.target.parentNode.classList.contains('not-clickable') ||
                 event.target.parentNode.parentNode.classList.contains('not-clickable') ||
-                getCustomDomProperty(event.target.parentNode, 'data-type') === 'parentDir')
+                getData(event.target.parentNode, 'data-type') === 'parentDir')
             {
                 return;
             }
-            showMenu(event.target, event);
+            showPopover(event);
             event.preventDefault();
             event.stopPropagation();
         }, false);
@@ -620,27 +693,38 @@ function appInit() {
 }
 
 function initGlobalModals() {
+    const tab = document.getElementById('tabShortcuts');
+    elClear(tab);
+    const keys = Object.keys(keymap).sort((a, b) => { 
+        return keymap[a].order - keymap[b].order
+    });
+    for (const key of keys) {
+        if (keymap[key].cmd === undefined) {
+            tab.appendChild(
+                elCreateNode('div', {"class": ["row", "mb-2", "mt-3"]}, 
+                    elCreateNode('div', {"class": ["col-12"]}, 
+                        elCreateText('h5', {}, tn(keymap[key].desc))
+                    )
+                )
+            );
+            tab.appendChild(elCreateEmpty('div', {"class": ["row"]}));
+            continue;
+        }
+        const col = elCreateEmpty('div', {"class": ["col", "col-6", "mb-3", "align-items-center"]});
+        const k = elCreateText('div', {"class": ["key", "float-start"]}, (keymap[key].key !== undefined ? keymap[key].key : key));
+        if (keymap[key].key && keymap[key].key.length > 1) {
+            k.classList.add('mi', 'mi-small');
+        }
+        col.appendChild(k);
+        col.appendChild(elCreateText('div', {}, tn(keymap[key].desc)));
+        tab.lastChild.appendChild(col);
+    }
+
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI("MYMPD_API_DATABASE_STATS", {}, parseStats);
         getServerinfo();
-        let list = '';
-        let i = 0;
-        for (const key in keymap) {
-            if (i % 2 === 0) {
-                if (i > 0) {
-                    list += '</div>';
-                }
-                list += '<div class="row row-keymap">';
-            }
-            if (keymap[key].req === undefined || settings[keymap[key].req] === true) {
-                list += '<div class="col col-keymap mb-1 d-flex"><div class="align-self-center key' + (keymap[key].key && keymap[key].key.length > 1 ? ' mi mi-small' : '') + 
-                       '">' + (keymap[key].key !== undefined ? keymap[key].key : key ) + '</div><div class="align-self-center">' + t(keymap[key].desc) + '</div></div>';
-                i++;
-            }
-        }
-        document.getElementById('shortcutList').innerHTML = list + '</div>';
     }, false);
-    
+
     document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function() {
         document.getElementById('updateDBprogress').classList.remove('updateDBprogressAnimate');
     }, false);
@@ -648,10 +732,10 @@ function initGlobalModals() {
     document.getElementById('modalEnterPin').addEventListener('shown.bs.modal', function() {
         document.getElementById('inputPinModal').focus();
     }, false);
-    
+
     document.getElementById('inputPinModal').addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
-            document.getElementById('modalEnterPinEnterBtn').click();        
+            document.getElementById('modalEnterPinEnterBtn').click();
         }
     }, false);
 }
@@ -673,23 +757,13 @@ function initPlayback() {
 }
 
 function initNavs() {
-    //do not switch to first view by clicking on main menu logo
-    document.getElementById('mainMenu').addEventListener('click', function(event) {
-        event.preventDefault();
-    }, false);
-    
-    //hides main menu after opening the modal
-    document.getElementById('mainMenuDropdown').addEventListener('click', function() {
-        uiElements.dropdownMainMenu.hide();
-    }, false);
-
     document.getElementById('volumeBar').addEventListener('change', function() {
         sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {"volume": Number(document.getElementById('volumeBar').value)});
     }, false);
 
     domCache.progress.addEventListener('click', function(event) {
-        if (currentSong && currentSong.currentSongId >= 0 && currentSong.totalTime > 0) {
-            const seekVal = Math.ceil((currentSong.totalTime * event.clientX) / domCache.progress.offsetWidth);
+        if (currentSong && currentSongObj.currentSongId >= 0 && currentSongObj.totalTime > 0) {
+            const seekVal = Math.ceil((currentSongObj.totalTime * event.clientX) / domCache.progress.offsetWidth);
             sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {"seek": seekVal, "relative": false});
             domCache.progressBar.style.transition = 'none';
             domCache.progressBar.offsetHeight;
@@ -702,8 +776,8 @@ function initNavs() {
     }, false);
 
     domCache.progress.addEventListener('mousemove', function(event) {
-        if ((playstate === 'pause' || playstate === 'play') && currentSong.totalTime > 0) {
-            domCache.progressPos.textContent = beautifySongDuration(Math.ceil((currentSong.totalTime / event.target.offsetWidth) * event.clientX));
+        if ((currentState.state === 'pause' || currentState.state === 'play') && currentSongObj.totalTime > 0) {
+            domCache.progressPos.textContent = beautifySongDuration(Math.ceil((currentSongObj.totalTime / event.target.offsetWidth) * event.clientX));
             domCache.progressPos.style.display = 'block';
             const w = domCache.progressPos.offsetWidth / 2;
             const posX = event.clientX < w ? event.clientX : (event.clientX < window.innerWidth - w ? event.clientX - w : event.clientX - (w * 2));
@@ -723,13 +797,14 @@ function initNavs() {
             return;
         }
         const target = event.target.nodeName === 'A' ? event.target : event.target.parentNode;
-        const href = getCustomDomProperty(target, 'data-href');
+        const href = getData(target, 'data-href');
         parseCmd(event, href);
     }, false);
-    
+
     document.getElementById('scripts').addEventListener('click', function(event) {
+        event.preventDefault();
         if (event.target.nodeName === 'A') {
-            execScript(getCustomDomProperty(event.target, 'data-href'));
+            execScript(getData(event.target, 'data-href'));
         }
     }, false);
 }
@@ -739,14 +814,26 @@ window.onerror = function(msg, url, line) {
     logError('JavaScript error: ' + msg + ' (' + url + ': ' + line + ')');
     if (settings.loglevel >= 4) {
         if (appInited === true) {
-            showNotification(t('JavaScript error'), msg + ' (' + url + ': ' + line + ')', 'general', 'error');
+            showNotification(tn('JavaScript error'), msg + ' (' + url + ': ' + line + ')', 'general', 'error');
         }
         else {
-            showAppInitAlert(t('JavaScript error') + ': ' + msg + ' (' + url + ': ' + line + ')');
+            showAppInitAlert(tn('JavaScript error') + ': ' + msg + ' (' + url + ': ' + line + ')');
         }
     }
     return true;
 };
+
+//allow service worker registration
+if (window.trustedTypes && window.trustedTypes.createPolicy) {
+    window.trustedTypes.createPolicy('default', {
+        createScriptURL(dirty) {
+            if (dirty === 'sw.js') {
+                return 'sw.js'
+            }
+            throw new Error('Script not allowed: ' + dirty);
+       }
+    });
+}
 
 //Start app
 appInitStart();

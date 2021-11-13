@@ -15,9 +15,30 @@
 #include <string.h>
 
 //private definitions
-static sds _mpd_shared_get_tags(struct mpd_song const *song, const enum mpd_tag_type tag, sds tags);
+static sds _mpd_shared_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values);
+static sds _mpd_shared_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values, const bool multi);
 
 //public functions
+bool is_multivalue_tag(enum mpd_tag_type tag) {
+    switch(tag) {
+        case MPD_TAG_ARTIST:
+        case MPD_TAG_ARTIST_SORT:
+        case MPD_TAG_ALBUM_ARTIST:
+        case MPD_TAG_ALBUM_ARTIST_SORT:
+        case MPD_TAG_GENRE:
+        case MPD_TAG_COMPOSER:
+        case MPD_TAG_COMPOSER_SORT:
+        case MPD_TAG_PERFORMER:
+        case MPD_TAG_CONDUCTOR:
+        case MPD_TAG_ENSEMBLE:
+        case MPD_TAG_MUSICBRAINZ_ARTISTID:
+        case MPD_TAG_MUSICBRAINZ_ALBUMARTISTID:
+            return true;
+        default:
+            return false;
+    }
+}
+
 enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag) {
     if (tag == MPD_TAG_ARTIST) {
         return MPD_TAG_ARTIST_SORT;
@@ -81,38 +102,63 @@ void enable_mpd_tags(struct t_mpd_state *mpd_state, struct t_tags *enable_tags) 
     }
 }
 
-sds mpd_shared_get_tags(struct mpd_song const *song, const enum mpd_tag_type tag, sds tags) {
-    tags = _mpd_shared_get_tags(song, tag, tags);
-    if (sdslen(tags) == 0) {
+sds mpd_shared_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values) {
+    tag_values = _mpd_shared_get_tag_value_string(song, tag, tag_values);
+    if (sdslen(tag_values) == 0) {
         if (tag == MPD_TAG_TITLE) {
             //title fallback to filename
-            tags = sdscat(tags, mpd_song_get_uri(song));
-            sds_basename_uri(tags);
+            tag_values = sdscat(tag_values, mpd_song_get_uri(song));
+            sds_basename_uri(tag_values);
         }
         else if (tag == MPD_TAG_ALBUM_ARTIST) {
             //albumartist fallback to artist tag
-            tags = _mpd_shared_get_tags(song, MPD_TAG_ARTIST, tags);
-        }
-        if (sdslen(tags) == 0) {
-            tags = sdscatlen(tags, "-", 1);
+            tag_values = _mpd_shared_get_tag_value_string(song, MPD_TAG_ARTIST, tag_values);
         }
     }
-    return tags;
+    return tag_values;
+}
+
+sds mpd_shared_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values) {
+    const bool multi = is_multivalue_tag(tag);
+    tag_values = _mpd_shared_get_tag_values(song, tag, tag_values, multi);
+    if (sdslen(tag_values) == 0) {
+        if (tag == MPD_TAG_TITLE) {
+            //title fallback to filename
+            sds filename = sdsnew(mpd_song_get_uri(song));
+            sds_basename_uri(filename);
+            tag_values = sds_catjson(tag_values, filename, sdslen(filename));
+            sdsfree(filename);
+        }
+        else if (tag == MPD_TAG_ALBUM_ARTIST) {
+            //albumartist fallback to artist tag
+            tag_values = _mpd_shared_get_tag_values(song, MPD_TAG_ARTIST, tag_values, multi);
+        }
+        if (sdslen(tag_values) == 0) {
+            //replace empty tag value(s) with dash
+            if (multi == true) {
+                tag_values = sdscatlen(tag_values, "[\"-\"]", 5);
+            }
+            else {
+                tag_values = sdscatlen(tag_values, "\"-\"", 3);
+            }
+        }
+    }
+    return tag_values;
 }
 
 sds get_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
                   const struct mpd_song *song)
 {
     sds tag_value = sdsempty();
-    if (mpd_state->feat_tags == true) {
+    if (mpd_state->feat_mpd_tags == true) {
         for (size_t tagnr = 0; tagnr < tagcols->len; ++tagnr) {
-            tag_value = mpd_shared_get_tags(song, tagcols->tags[tagnr], tag_value);
-            buffer = tojson_char(buffer, mpd_tag_name(tagcols->tags[tagnr]), tag_value, true);
+            tag_value = mpd_shared_get_tag_values(song, tagcols->tags[tagnr], tag_value);
+            buffer = sdscatfmt(buffer, "\"%s\":%s,", mpd_tag_name(tagcols->tags[tagnr]), tag_value);
         }
     }
     else {
-        tag_value = mpd_shared_get_tags(song, MPD_TAG_TITLE, tag_value);
-        buffer = tojson_char(buffer, "Title", tag_value, true);
+        tag_value = mpd_shared_get_tag_values(song, MPD_TAG_TITLE, tag_value);
+        buffer = sdscatfmt(buffer, "\"Title\":%s,", tag_value);
     }
     FREE_SDS(tag_value);
     buffer = tojson_long(buffer, "Duration", mpd_song_get_duration(song), true);
@@ -126,23 +172,59 @@ sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct 
 {
     sds filename = sdsnew(uri);
     sds_basename_uri(filename);
-    if (mpd_state->feat_tags == true) {
+    if (mpd_state->feat_mpd_tags == true) {
         for (size_t tagnr = 0; tagnr < tagcols->len; ++tagnr) {
+            const bool multi = is_multivalue_tag(tagcols->tags[tagnr]);
+            buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(tagcols->tags[tagnr]));
+            if (multi == true) {
+                buffer = sdscatlen(buffer, "[", 1);
+            }
             if (tagcols->tags[tagnr] == MPD_TAG_TITLE) {
-                buffer = tojson_char(buffer, "Title", filename, true);
+                buffer = sds_catjson(buffer, filename, sdslen(filename));
             }
             else {
-                buffer = tojson_char(buffer, mpd_tag_name(tagcols->tags[tagnr]), "-", true);
+                buffer = sdscatlen(buffer, "\"-\"", 3);
             }
+            if (multi == true) {
+                buffer = sdscatlen(buffer, "]", 1);
+            }
+            buffer = sdscatlen(buffer, ",", 1);
         }
     }
     else {
         buffer = tojson_char(buffer, "Title", filename, true);
     }
     buffer = tojson_long(buffer, "Duration", 0, true);
+    buffer = tojson_long(buffer, "LastModified", 0, true);
     buffer = tojson_char(buffer, "uri", uri, false);
     sdsfree(filename);
     return buffer;
+}
+
+sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat) {
+    buffer = sdscat(buffer, "\"AudioFormat\":{");
+    buffer = tojson_long(buffer, "sampleRate", (audioformat ? audioformat->sample_rate : 0), true);
+    buffer = tojson_long(buffer, "bits", (audioformat ? audioformat->bits : 0), true);
+    buffer = tojson_long(buffer, "channels", (audioformat ? audioformat->channels : 0), false);
+    buffer = sdscatlen(buffer, "}", 1);
+    return buffer;
+}
+
+bool filter_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_tags *tagcols) {
+    if (sdslen(searchstr) == 0) {
+        return true;
+    }
+    sds value = sdsempty();
+    bool rc = false;
+    for (size_t i = 0; i < tagcols->len; i++) {
+        value = _mpd_shared_get_tag_values(song, tagcols->tags[i], value, false);
+        sdstolower(value);
+        if (strstr(value, searchstr) != NULL) {
+            rc = true;
+        }
+    }
+    FREE_SDS(value);
+    return rc;
 }
 
 void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
@@ -200,15 +282,53 @@ void album_cache_free(rax **album_cache) {
 }
 
 //private functions
-static sds _mpd_shared_get_tags(struct mpd_song const *song, const enum mpd_tag_type tag, sds tags) {
-    sdsclear(tags);
+static sds _mpd_shared_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values) {
+    sdsclear(tag_values);
     char *value = NULL;
     int i = 0;
+    //return json string
     while ((value = (char *)mpd_song_get_tag(song, tag, i)) != NULL) {
         if (i++) {
-            tags = sdscatlen(tags, ", ", 2);
+            tag_values = sdscatlen(tag_values, ", ", 2);
         }
-        tags = sdscat(tags, value);
+        tag_values = sdscat(tag_values, value);
     }
-    return tags;
+    return tag_values;
+}
+
+static sds _mpd_shared_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values, const bool multi) {
+    sdsclear(tag_values);
+    char *value = NULL;
+    int i = 0;
+    if (multi == true) {
+        //return json array
+        tag_values = sdscatlen(tag_values, "[", 1);
+        while ((value = (char *)mpd_song_get_tag(song, tag, i)) != NULL) {
+            if (i++) {
+                tag_values = sdscatlen(tag_values, ",", 1);
+            }
+            tag_values = sds_catjson(tag_values, value, strlen(value));
+        }
+        if (i > 0) {
+            tag_values = sdscatlen(tag_values, "]", 1);
+        }
+        else {
+            sdsclear(tag_values);
+        }
+    }
+    else {
+        //return json string
+        sds v = sdsempty();
+        while ((value = (char *)mpd_song_get_tag(song, tag, i)) != NULL) {
+            if (i++) {
+                v = sdscatlen(v, ", ", 2);
+            }
+            v = sdscat(v, value);
+        }
+        if (i > 0) {
+            tag_values = sds_catjson(tag_values, v, sdslen(v));
+        }
+        sdsfree(v);
+    }
+    return tag_values;
 }

@@ -38,7 +38,13 @@ set(MYMPD_FLAGS "-Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
   -Wmissing-include-dirs -Wdouble-promotion -Wundef -Wformat-nonliteral")
 
 #linker flags
-set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -pie -s")
+if(CMAKE_BUILD_TYPE MATCHES RELEASE)
+  set(MONGOOSE_FLAGS "${MONGOOSE_FLAGS} -DMG_ENABLE_LOG=0")
+  #linker flags
+  set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -pie -s -Wl,--gc-sections")
+else()
+  set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
+endif()
 
 configure_file(mympd_config_defs.h.in ${PROJECT_BINARY_DIR}/mympd_config_defs.h)
 
@@ -50,17 +56,15 @@ if (LUA_FOUND)
   set(MYMPD_SCRIPT_SOURCES
     mympd-script.c
     log.c
-    ../dist/src/mongoose/mongoose.c
-    ../dist/src/sds/sds.c
-    ../dist/src/utf8decode/utf8decode.c
+    ../dist/mongoose/mongoose.c
+    ../dist/sds/sds.c
     ../src/lib/sds_extras.c
     ../src/lib/http_client.c
-    ../src/lib/mem.c
   )
 
   set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_FS=0 -DMG_ENABLE_SSI=0")
   set_property(SOURCE "mympd-script.c" PROPERTY COMPILE_FLAGS "${MYMPD_COMPILE_FLAGS} ${MONGOOSE_FLAGS}")
-  set_property(SOURCE "../dist/src/mongoose/mongoose.c" PROPERTY COMPILE_FLAGS ${MONGOOSE_FLAGS})
+  set_property(SOURCE "../dist/mongoose/mongoose.c" PROPERTY COMPILE_FLAGS ${MONGOOSE_FLAGS})
 
   add_executable(mympd-script ${MYMPD_SCRIPT_SOURCES})
   target_link_libraries(mympd-script)

@@ -4,154 +4,111 @@
  https://github.com/jcorporation/mympd
 */
 
-body.theme-light .navbar-dark .navbar-nav .nav-link {
-  color: rgba(0, 0, 0, 0.5);
+body.theme-light .btn-dark {
+  color: var(--bs-gray-800);
+  background-color: var(--bs-gray-400);
+  border-color: var(--bs-gray-400);
 }
 
-body.theme-light .navbar-dark .navbar-nav .nav-link:hover,
-body.theme-light .navbar-dark .navbar-nav .nav-link:focus {
-  color: rgba(0, 0, 0, 0.7);
-}
-
-body.theme-light .navbar-dark .navbar-nav .nav-link.disabled {
-  color: rgba(0, 0, 0, 0.3);
-}
-
-body.theme-light .navbar-dark .navbar-nav .show > .nav-link,
-body.theme-light .navbar-dark .navbar-nav .active > .nav-link,
-body.theme-light .navbar-dark .navbar-nav .nav-link.show,
-body.theme-light .navbar-dark .navbar-nav .nav-link.active {
-  color: rgba(0, 0, 0, 0.9);
-}
-
-body.theme-light .navbar-dark .navbar-toggler {
-  color: rgba(0, 0, 0, 0.5);
-  border-color: rgba(0, 0, 0, 0.1);
-}
-
-body.theme-light .navbar-dark .navbar-toggler-icon {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0, 0, 0, 0.5)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-}
-
-body.theme-light .navbar-dark .navbar-text {
-  color: rgba(0, 0, 0, 0.5);
-}
-
-body.theme-light .navbar-dark .navbar-text a {
-  color: rgba(0, 0, 0, 0.9);
-}
-
-body.theme-light .navbar-dark .navbar-text a:hover,
-body.theme-light .navbar-dark .navbar-text a:focus {
-  color: rgba(0, 0, 0, 0.9);
-}
-
-body.theme-light .bg-dark {
-  background-color: #f8f9fa !important;
-}
-
-body.theme-light a.bg-dark:hover,
-body.theme-light a.bg-dark:focus,
-body.theme-light button.bg-dark:hover,
-body.theme-light button.bg-dark:focus {
-  background-color: #cfd4da !important;
-}
-
-body.theme-light .text-light {
-  color: #343a40 !important;
-}
-
-body.theme-light a.text-light:hover,
-body.theme-light a.text-light:focus {
-  color: #121416 !important;
+body.theme-light .list-group-item,
+body.theme-light .nav-link {
+  color: var(--bs-gray-800);
 }
 
 body.theme-light .btn-secondary,
 body.theme-light .bg-secondary {
-  color: #212529;
-  background-color: #e8eaea !important;
-  border-color: #e8eaea;
+  color: var(--bs-gray-800);
+  background-color: var(--bs-gray-400) !important;
+  border-color: var(--bs-gray-400);
 }
 
 body.theme-light .border-secondary {
-  border-color: #e8eaea !important;
+  border-color: var(--bs-gray-400);
 }
 
-body.theme-light .btn-secondary:hover {
-  color: #212529;
-  background-color: #e2e6ea;
-  border-color: #e2e6ea;
-}
-
-body.theme-light .btn-secondary:focus,
-body.theme-light .btn-secondary.focus {
-  color: #212529;
-  background-color: #e2e6ea;
-  border-color: #e2e6ea;
-  box-shadow: none;
-}
-
-body.theme-light .btn-secondary.disabled,
-body.theme-light .btn-secondary:disabled {
-  color: #212529;
-  background-color: #e8eaea;
-  border-color: #e8eaea;
-}
-
-body.theme-light .btn-secondary:not(:disabled):not(.disabled):active,
-body.theme-light .btn-secondary:not(:disabled):not(.disabled).active,
-body.theme-light .show > .btn-secondary.dropdown-toggle {
-  color: #212529;
-  background-color: #cfd4da;
-  border-color: #d3d9df;
-}
-
-body.theme-light .btn-secondary:not(:disabled):not(.disabled):active:focus,
-body.theme-light .btn-secondary:not(:disabled):not(.disabled).active:focus,
-body.theme-light .show > .btn-secondary.dropdown-toggle:focus {
-  box-shadow: none;
-}
-
-body.theme-light .btn-dark {
-  color: #212529;
-  background-color: #f8f9fa;
-  border-color: #f8f9fa;
-}
-
-body.theme-light .badge-secondary {
-  color: #212529;
-  background-color: #e8eaea;
-}
-
-body.theme-light a.badge-secondary:hover,
-body.theme-light a.badge-secondary:focus {
-  color: #212529;
-  background-color: #e8eaea;
-}
-
-body.theme-light a.badge-secondary:focus,
-body.theme-light a.badge-secondary.focus {
-  outline: 0;
-  box-shadow: none;
-}
-
-body.theme-light .input-group-append > .dropdown-toggle {
-  border-color: #e9ecef !important;
-}
-
-body.theme-light .dropdown-item:hover,
-body.theme-light .dropdown-item:focus {
-  background-color: #e9ecef !important;
-}
-
-body.theme-light .bg-lite-dark {
-  background-color: #f8f9fa !important;
-}
-
-body.theme-light .form-control[readonly] {
+body.theme-light .modal-content,
+body.theme-light .offcanvas,
+body.theme-light .dropdown-menu,
+body.theme-light .popover,
+body.theme-light .popover-header {
   background-color: #fff;
+  color: var(--bs-gray-800);
 }
 
-body.theme-light #navbar-main div.active {
-  background-color: #e8eaea;
+body.theme-light a,
+body.theme-light .dropdown-item,
+body.theme-light table {
+  color: var(--bs-gray-800);
+}
+
+body.theme-light .nav-tabs .nav-link.active,
+body.theme-light .dropdown-item:hover {
+  background-color: var(--bs-gray-400);
+  color: var(--bs-gray-800);
+}
+
+body.theme-light .nav-tabs .nav-link:hover,
+body.theme-light .nav-tabs .nav-link.active {
+  border-color: var(--bs-gray-400);
+}
+
+body.theme-light .modal-header {
+  border-bottom-color: var(--bs-gray-400);
+}
+
+body.theme-light .modal-footer {
+  border-top-color: var(--bs-gray-400);
+}
+
+body.theme-light .form-control,
+body.theme-light .form-control:focus,
+body.theme-light .form-select {
+  background-color: var(--bs-gray-200);
+  color: var(--bs-gray-800);
+  border-color: var(--bs-gray-400);
+}
+
+body.theme-light .form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+}
+
+body.theme-light .btn-close {
+  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23343a40'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+}
+
+body.theme-light .table-hover > tbody > tr:hover > * {
+  color: var(--bs-gray-800);
+
+  --bs-table-accent-bg: var(--bs-gray-400);
+}
+
+body.theme-light .toast-header,
+body.theme-light .toast {
+  background-color: rgba(206, 212, 218, 0.85);
+  color: var(--bs-gray-800);
+}
+
+body.theme-light .dropdown-divider {
+  border-top-color: var(--bs-gray-800);
+}
+
+body.theme-light .breadcrumb {
+  background-color: var(--bs-gray-200);
+}
+
+body.theme-light .breadcrumb-item + .breadcrumb-item::before,
+body.theme-light .breadcrumb-item.active {
+  color: inherit;
+}
+
+body.theme-light .border-secondary {
+  border-color: var(--bs-gray-400) !important;
+}
+
+body.theme-light div.key {
+  background-color: var(--bs-gray-400);
+}
+
+body.theme-light #badgeQueueItems {
+  background-color: var(--bs-gray-500) !important;
 }

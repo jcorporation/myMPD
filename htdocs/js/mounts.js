@@ -8,14 +8,14 @@ function initMounts() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            if (getCustomDomProperty(event.target.parentNode, 'data-point') === '') {
+            if (getData(event.target.parentNode, 'data-point') === '') {
                 return false;
             }
-            showEditMount(getCustomDomProperty(event.target.parentNode, 'data-url'), getCustomDomProperty(event.target.parentNode, 'data-point'));
+            showEditMount(getData(event.target.parentNode, 'data-url'), getData(event.target.parentNode, 'data-point'));
         }
         else if (event.target.nodeName === 'A') {
             const action = event.target.getAttribute('data-action');
-            const mountPoint = getCustomDomProperty(event.target.parentNode.parentNode, 'data-point');
+            const mountPoint = getData(event.target.parentNode.parentNode, 'data-point');
             if (action === 'unmount') {
                 unmountMount(mountPoint);
             }
@@ -31,17 +31,16 @@ function initMounts() {
         }
         else {
             const dropdownNeighbors = document.getElementById('dropdownNeighbors').children[0];
-            elClear(dropdownNeighbors);
-            const div = elCreate('div', {"class": ["list-group-item", "nowrap"]}, '');
-            addIconLine(div, 'warning', tn('Neighbors are disabled'));
-            dropdownNeighbors.appendChild(div);
+            elReplaceChild(dropdownNeighbors,
+                elCreateEmpty('div', {"class": ["list-group-item", "nowrap"]}, tn('Neighbors are disabled'))
+            );
         }
     }, false);
     
     document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
         event.preventDefault();
         if (event.target.nodeName === 'A') {
-            const ec = getCustomDomProperty(event.target, 'data-value');
+            const ec = getData(event.target, 'data-value');
             const c = ec.match(/^(\w+:\/\/)(.+)$/);
             document.getElementById('selectMountUrlhandler').value = c[1];
             document.getElementById('inputMountUrl').value = c[2];
@@ -51,8 +50,6 @@ function initMounts() {
     document.getElementById('modalMounts').addEventListener('shown.bs.modal', function () {
         showListMounts();
         getUrlhandlers();
-        hideModalAlert();
-        removeIsInvalid(document.getElementById('modalMounts'));
     });
 }
 
@@ -65,8 +62,7 @@ function unmountMount(mountPoint) {
 
 //eslint-disable-next-line no-unused-vars
 function mountMount() {
-    document.getElementById('errorMount').classList.add('hide');
-    removeIsInvalid(document.getElementById('modalMounts'));
+    cleanupModalId('modalMounts');
     let formOK = true;
     const inputMountUrl = document.getElementById('inputMountUrl');
     const inputMountPoint = document.getElementById('inputMountPoint');
@@ -78,19 +74,17 @@ function mountMount() {
     }
     if (formOK === true) {
         sendAPI("MYMPD_API_MOUNT_MOUNT", {
-            "mountUrl": getSelectValue('selectMountUrlhandler') + inputMountUrl.value,
+            "mountUrl": getSelectValueId('selectMountUrlhandler') + inputMountUrl.value,
             "mountPoint": inputMountPoint.value,
             }, mountMountCheckError, true);
     }
 }
 
 function mountMountCheckError(obj) {
-    removeEnterPinFooter();
     if (obj.error) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         showListMounts();
     }
 }
@@ -99,20 +93,20 @@ function mountMountCheckError(obj) {
 function updateMount(el, uri) {
     const parent = el.parentNode;
     for (let i = 0, j = parent.children.length; i < j; i++) {
-        parent.children[i].classList.add('hide');
+        elHide(parent.children[i]);
     }
-    const spinner = elCreate('div', {"id": "spinnerUpdateProgress", "class": ["spinner-border", "spinner-border-sm"]}, '');
+    const spinner = elCreateEmpty('div', {"id": "spinnerUpdateProgress", "class": ["spinner-border", "spinner-border-sm"]});
     el.parentNode.insertBefore(spinner, el);
-    updateDB(uri, false);    
+    updateDB(uri, false);
 }
 
 //eslint-disable-next-line no-unused-vars
 function showEditMount(uri, storage) {
-    removeEnterPinFooter();
+    cleanupModalId('modalMounts');
     document.getElementById('listMounts').classList.remove('active');
     document.getElementById('editMount').classList.add('active');
-    document.getElementById('listMountsFooter').classList.add('hide');
-    document.getElementById('editMountFooter').classList.remove('hide');
+    elHideId('listMountsFooter');
+    elShowId('editMountFooter');
 
     const c = uri.match(/^(\w+:\/\/)(.+)$/);
     if (c !== null && c.length > 2) {
@@ -125,14 +119,14 @@ function showEditMount(uri, storage) {
         document.getElementById('inputMountPoint').value = '';
     }
     document.getElementById('inputMountPoint').focus();
-    removeIsInvalid(document.getElementById('modalMounts'));
 }
 
 function showListMounts() {
+    cleanupModalId('modalMounts');
     document.getElementById('listMounts').classList.add('active');
     document.getElementById('editMount').classList.remove('active');
-    document.getElementById('listMountsFooter').classList.remove('hide');
-    document.getElementById('editMountFooter').classList.add('hide');
+    elShowId('listMountsFooter');
+    elHideId('editMountFooter');
     sendAPI("MYMPD_API_MOUNT_LIST", {}, parseListMounts, true);
 }
 
@@ -140,36 +134,40 @@ function parseListMounts(obj) {
     const tbody = document.getElementById('listMounts').getElementsByTagName('tbody')[0];
     const tr = tbody.getElementsByTagName('tr');
 
-    if (checkResult(obj, tbody, 5) === false) {
+    if (checkResult(obj, tbody) === false) {
         return;
     }
 
     let activeRow = 0;
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const row = document.createElement('tr');
-        setCustomDomProperty(row, 'data-url', obj.result.data[i].mountUrl);
-        setCustomDomProperty(row, 'data-point', obj.result.data[i].mountPoint);
+        const td1 = elCreateEmpty('td', {});
         if (obj.result.data[i].mountPoint === '') {
-            row.classList.add('not-clickable');
-        }
-        const td1 = elCreate('td', {}, '');
-        if (obj.result.data[i].mountPoint === '') {
-            td1.appendChild(elCreate('span', {"class": ["mi"]}, 'home'));
+            td1.appendChild(elCreateText('span', {"class": ["mi"]}, 'home'));
         }
         else {
             td1.textContent = obj.result.data[i].mountPoint;
         }
-        row.appendChild(td1);
-        row.appendChild(elCreate('td', {}, obj.result.data[i].mountUrl));
-        const actionTd = elCreate('td', {"data-col": "Action"}, '');
-        
+        const actionTd = elCreateEmpty('td', {"data-col": "Action"});
         if (obj.result.data[i].mountPoint !== '') {
-            const a1 = elCreate('a', {"href": "#", "title": tn('Unmount'), "data-action": "unmount", "class": ["mi", "color-darkgrey"]}, 'delete');
-            const a2 = elCreate('a', {"href": "#", "title": tn('Update'), "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh');
-            actionTd.appendChild(a1);
-            actionTd.appendChild(a2);
+            actionTd.appendChild(
+                elCreateText('a', {"href": "#", "title": tn('Unmount'), "data-action": "unmount", "class": ["mi", "color-darkgrey"]}, 'delete')
+            );
+            actionTd.appendChild(
+                elCreateText('a', {"href": "#", "title": tn('Update'), "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh')
+            );
         }
-        row.appendChild(actionTd);
+        const row = elCreateNodes('tr', {}, [
+            td1,
+            elCreateText('td', {}, obj.result.data[i].mountUrl),
+            actionTd
+            
+        ]);
+        setData(row, 'data-url', obj.result.data[i].mountUrl);
+        setData(row, 'data-point', obj.result.data[i].mountPoint);
+        if (obj.result.data[i].mountPoint === '') {
+            row.classList.add('not-clickable');
+        }
+        
         if (i < tr.length) {
             activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
         }
@@ -187,27 +185,25 @@ function parseNeighbors(obj) {
     elClear(dropdownNeighbors);
 
     if (obj.error) {
-        const div = elCreate('div', {"class": ["list-group-item"]}, '');
-        addIconLine(div, 'error_outline', tn(obj.error.message));
-        dropdownNeighbors.appendChild(div);
+        dropdownNeighbors.appendChild(
+            elCreateText('div', {"class": ["list-group-item", "alert", "alert-danger"]}, tn(obj.error.message))
+        );
         return;
     }
     if (obj.result.returnedEntities === 0) {
-        const div = elCreate('div', {"class": ["list-group-item"]}, '');
-        addIconLine(div, 'info', tn('Empty list'));
-        dropdownNeighbors.appendChild(div);
+        dropdownNeighbors.appendChild(
+            elCreateText('div', {"class": ["list-group-item", "alert", "alert-secondary"]}, tn('Empty list'))
+        );
         return;
     }
 
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const a = elCreate('a', {"href": "#", "class": ["list-group-item", "list-group-item-action"]}, '');
-        setCustomDomProperty(a, 'data-value', obj.result.data[i].uri);
-        const span = elCreate('span', {}, obj.result.data[i].uri);
-        const br = elCreate('br', {}, '');
-        const small = elCreate('small', {}, obj.result.data[i].displayName);
-        a.appendChild(span);
-        a.appendChild(br);
-        a.appendChild(small);
+        const a = elCreateNodes('a', {"href": "#", "class": ["list-group-item", "list-group-item-action"]}, [
+            elCreateText('span', {}, obj.result.data[i].uri),
+            elCreateEmpty('br', {}),
+            elCreateText('small', {}, obj.result.data[i].displayName)
+        ]);
+        setData(a, 'data-value', obj.result.data[i].uri);
         dropdownNeighbors.appendChild(a);
     }    
 }
@@ -222,7 +218,7 @@ function getUrlhandlers() {
                 case 'http://':
                 case 'https://':
                 case 'nfs://':
-                    selectMountUrlhandler.appendChild(elCreate('option', {"value": obj.result.data[i]}, obj.result.data[i]));
+                    selectMountUrlhandler.appendChild(elCreateText('option', {"value": obj.result.data[i]}, obj.result.data[i]));
                     break;
             }
         }

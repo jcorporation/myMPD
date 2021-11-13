@@ -7,15 +7,12 @@ const startTime = Date.now();
 let socket = null;
 let websocketConnected = false;
 let websocketTimer = null;
-let lastSong = '';
-let lastSongObj = {};
-let lastState;
-const currentSong = {};
-let playstate = '';
 let websocketKeepAliveTimer = null;
+let currentSong = '';
+let currentSongObj = {};
+let currentState = {};
 let settings = {"loglevel": 2};
 let settingsParsed = 'no';
-let alertTimeout = null;
 let progressTimer = null;
 let deferredA2HSprompt;
 let dragSrc;
@@ -32,11 +29,20 @@ const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const hasIO = 'IntersectionObserver' in window ? true : false;
 const ligatureMore = 'menu';
 const progressBarTransition = 'width 1s linear';
+const smallSpace = "\u2009";
+const nDash = "\u2013";
 let tagAlbumArtist = 'AlbumArtist';
 const session = {"token": "", "timeout": 0};
 const sessionLifetime = 1780;
 const sessionRenewInterval = sessionLifetime * 500;
 let sessionTimer = null;
+
+//minimum mpd version to support all myMPD features
+const mpdVersion = {
+    "major": 0,
+    "minor": 23,
+    "patch": 4
+};
 
 //remember offset for filesystem browsing uris
 const browseFilesystemHistory = {};
@@ -47,7 +53,7 @@ const stickerList = ['stickerPlayCount', 'stickerSkipCount', 'stickerLastPlayed'
 
 //application state
 const app = {};
-app.apps = { 
+app.cards = { 
     "Home": { 
         "offset": 0,
         "limit": 100,
@@ -100,7 +106,7 @@ app.apps = {
     },
     "Browse": { 
         "active": "Database", 
-        "tabs":  { 
+        "tabs": { 
             "Filesystem": { 
                 "offset": 0,
                 "limit": 100,
@@ -169,8 +175,10 @@ app.apps = {
     }
 };
 
-app.current = { "app": "Home", "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
-app.last = { "app": undefined, "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
+app.id = "Home";
+app.current = {"card": "Home", "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0};
+app.last = {"card": undefined, "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0};
+app.goto = false;
 
 //normal settings
 const settingFields = {
@@ -233,13 +241,15 @@ const settingFields = {
     }
 };
 
-//advanced settings default values
+//webui settings default values
 const webuiSettingsDefault = {
     "clickSong": { 
         "defaultValue": "append", 
         "validValues": { 
-            "append": "Append to queue", 
-            "replace": "Replace queue", 
+            "append": "Append to queue",
+            "insert": "Insert after current playing song",
+            "play": "Add to queue and play",
+            "replace": "Replace queue",
             "view": "Song details"
         }, 
         "inputType": "select",
@@ -260,6 +270,8 @@ const webuiSettingsDefault = {
         "defaultValue": "append", 
         "validValues": {
             "append": "Append to queue",
+            "insert": "Insert after current playing song",
+            "play": "Add to queue and play",
             "replace": "Replace queue",
             "view": "View playlist"
         },
@@ -271,6 +283,8 @@ const webuiSettingsDefault = {
         "defaultValue": "view", 
         "validValues": {
             "append": "Append to queue",
+            "insert": "Insert after current playing song",
+            "play": "Add to queue and play",
             "replace": "Replace queue",
             "view": "Open folder"
         },
@@ -282,6 +296,8 @@ const webuiSettingsDefault = {
         "defaultValue": "replace", 
         "validValues": {
             "append": "Append to queue",
+            "insert": "Insert after current playing song",
+            "play": "Add to queue and play",
             "replace": "Replace queue",
         },
         "inputType": "select",
@@ -339,7 +355,8 @@ const webuiSettingsDefault = {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Web notifications",
-        "form": "NotificationSettingsFrm"
+        "form": "NotificationSettingsFrm",
+        "onClick": "toggleBtnNotifyWeb"
     },
     "mediaSession": {
         "defaultValue": false,
@@ -370,8 +387,8 @@ const webuiSettingsDefault = {
             "25": "25",
             "50": "50",
             "100": "100",
-            "200": "200",
-            "0": "All"
+            "250": "250",
+            "500": "500"
         },
         "inputType": "select",
         "contentType": "integer",
@@ -427,7 +444,6 @@ const webuiSettingsDefault = {
         "defaultValue": "theme-dark",
         "validValues": {
             "theme-autodetect": "Autodetect",
-            "theme-default": "Default",
             "theme-dark": "Dark",
             "theme-light": "Light"
         },
@@ -519,41 +535,35 @@ const features = {
 
 //keyboard shortcuts
 const keymap = {
-    "ArrowLeft": {"cmd": "clickPrev", "options": [], "desc": "Previous song", "key": "keyboard_arrow_left"},
-    "ArrowRight": {"cmd": "clickNext", "options": [], "desc": "Next song", "key": "keyboard_arrow_right"},
-    " ": {"cmd": "clickPlay", "options": [], "desc": "Toggle play / pause", "key": "space_bar"},
-    "s": {"cmd": "clickStop", "options": [], "desc": "Stop playing"},
-    "-": {"cmd": "volumeStep", "options": ["down"], "desc": "Volume down"},
-    "+": {"cmd": "volumeStep", "options": ["up"], "desc": "Volume up"},
-    "c": {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}], "desc": "Clear queue"},
-    "u": {"cmd": "updateDB", "options": ["", true, false], "desc": "Update database"},
-    "r": {"cmd": "updateDB", "options": ["", true, true], "desc": "Rescan database"},
-    "p": {"cmd": "updateSmartPlaylists", "options": [false], "desc": "Update smart playlists", "req": "featSmartpls"},
-    "a": {"cmd": "showAddToPlaylist", "options": ["stream", ""], "desc": "Add stream"},
-    "t": {"cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
-    "i": {"cmd": "clickTitle", "options": [], "desc": "Open song details"},
-    "l": {"cmd": "openDropdown", "options": ["dropdownLocalPlayer"], "desc": "Open local player"},
-    "0": {"cmd": "appGoto", "options": ["Home"], "desc": "Goto home"},
-    "1": {"cmd": "appGoto", "options": ["Playback"], "desc": "Goto playback"},
-    "2": {"cmd": "appGoto", "options": ["Queue", "Current"], "desc": "Goto queue"},
-    "3": {"cmd": "appGoto", "options": ["Queue", "LastPlayed"], "desc": "Goto last played"},
-    "4": {"cmd": "appGoto", "options": ["Queue", "Jukebox"], "desc": "Goto jukebox queue"},
-    "5": {"cmd": "appGoto", "options": ["Browse", "Database"], "desc": "Goto browse database", "req": "featTags"},
-    "6": {"cmd": "appGoto", "options": ["Browse", "Playlists"], "desc": "Goto browse playlists", "req": "featPlaylists"},
-    "7": {"cmd": "appGoto", "options": ["Browse", "Filesystem"], "desc": "Goto browse filesystem"},
-    "8": {"cmd": "appGoto", "options": ["Search"], "desc": "Goto search"},
-    "m": {"cmd": "openDropdown", "options": ["dropdownMainMenu"], "desc": "Open main menu"},
-    "v": {"cmd": "openDropdown", "options": ["dropdownVolumeMenu"], "desc": "Open volume menu"},
-    "S": {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_SHUFFLE"}], "desc": "Shuffle queue"},
-    "C": {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}], "desc": "Crop queue"},
-    "?": {"cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
-    "/": {"cmd": "focusSearch", "options": [], "desc": "Focus search"},
-    "n": {"cmd": "focusTable", "options": [], "desc": "Focus table"},
-    "q": {"cmd": "queueSelectedItem", "options": [true], "desc": "Append item to queue"},
-    "Q": {"cmd": "queueSelectedItem", "options": [false], "desc": "Replace queue with item"},
-    "d": {"cmd": "dequeueSelectedItem", "options": [], "desc": "Remove item from queue"},
-    "x": {"cmd": "addSelectedItemToPlaylist", "options": [], "desc": "Append item to playlist"},
-    "F": {"cmd": "openFullscreen", "options": [], "desc": "Open fullscreen"}
+    "playback": {"order": 0, "desc": "Playback"},
+        " ": {"order": 1, "cmd": "clickPlay", "options": [], "desc": "Toggle play / pause", "key": "space_bar"},
+        "s": {"order": 2, "cmd": "clickStop", "options": [], "desc": "Stop playing"},
+        "ArrowLeft": {"order": 3, "cmd": "clickPrev", "options": [], "desc": "Previous song", "key": "keyboard_arrow_left"},
+        "ArrowRight": {"order": 4, "cmd": "clickNext", "options": [], "desc": "Next song", "key": "keyboard_arrow_right"},
+        "-": {"order": 5, "cmd": "volumeStep", "options": ["down"], "desc": "Volume down"},
+        "+": {"order": 6, "cmd": "volumeStep", "options": ["up"], "desc": "Volume up"},
+    "update": {"order": 100, "desc": "Update"},
+        "u": {"order": 101, "cmd": "updateDB", "options": ["", true, false], "desc": "Update database"},
+        "r": {"order": 102, "cmd": "updateDB", "options": ["", true, true], "desc": "Rescan database"},
+        "p": {"order": 103, "cmd": "updateSmartPlaylists", "options": [false], "desc": "Update smart playlists", "req": "featSmartpls"},
+    "modals": {"order": 200, "desc": "Dialogs"},
+        "a": {"order": 201, "cmd": "showAddToPlaylist", "options": ["STREAM"], "desc": "Add stream"},
+        "c": {"order": 202, "cmd": "openModal", "options": ["modalConnection"], "desc": "Open MPD connection"},
+        "q": {"order": 203, "cmd": "openModal", "options": ["modalQueueSettings"], "desc": "Open queue settings"},
+        "t": {"order": 204, "cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
+        "m": {"order": 205, "cmd": "openModal", "options": ["modalMaintenance"], "desc": "Open maintenance"},
+        "?": {"order": 206, "cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
+    "navigation": {"order": 300, "desc": "Navigation"},
+        "0": {"order": 301, "cmd": "appGoto", "options": ["Home"], "desc": "Goto home"},
+        "1": {"order": 302, "cmd": "appGoto", "options": ["Playback"], "desc": "Goto playback"},
+        "2": {"order": 303, "cmd": "appGoto", "options": ["Queue", "Current"], "desc": "Goto queue"},
+        "3": {"order": 304, "cmd": "appGoto", "options": ["Queue", "LastPlayed"], "desc": "Goto last played"},
+        "4": {"order": 305, "cmd": "appGoto", "options": ["Queue", "Jukebox"], "desc": "Goto jukebox queue"},
+        "5": {"order": 306, "cmd": "appGoto", "options": ["Browse", "Database"], "desc": "Goto browse database", "req": "featTags"},
+        "6": {"order": 307, "cmd": "appGoto", "options": ["Browse", "Playlists"], "desc": "Goto browse playlists", "req": "featPlaylists"},
+        "7": {"order": 308, "cmd": "appGoto", "options": ["Browse", "Filesystem"], "desc": "Goto browse filesystem"},
+        "8": {"order": 309, "cmd": "appGoto", "options": ["Search"], "desc": "Goto search"},
+        "/": {"order": 310, "cmd": "focusSearch", "options": [], "desc": "Focus search"}
 };
 
 //cache often accessed dom elements
@@ -564,43 +574,15 @@ domCache.progress = document.getElementById('footerProgress');
 domCache.progressBar = document.getElementById('footerProgressBar');
 domCache.progressPos = document.getElementById('footerProgressPos');
 
-//BSN ui objects
+//Get BSN object references for fast access
 const uiElements = {};
-uiElements.modalConnection = new BSN.Modal(document.getElementById('modalConnection'));
-uiElements.modalSettings = new BSN.Modal(document.getElementById('modalSettings'));
-uiElements.modalQueueSettings = new BSN.Modal(document.getElementById('modalQueueSettings'));
-uiElements.modalAbout = new BSN.Modal(document.getElementById('modalAbout')); 
-uiElements.modalSaveQueue = new BSN.Modal(document.getElementById('modalSaveQueue'));
-uiElements.modalAddToQueue = new BSN.Modal(document.getElementById('modalAddToQueue'));
-uiElements.modalSongDetails = new BSN.Modal(document.getElementById('modalSongDetails'));
-uiElements.modalAddToPlaylist = new BSN.Modal(document.getElementById('modalAddToPlaylist'));
-uiElements.modalRenamePlaylist = new BSN.Modal(document.getElementById('modalRenamePlaylist'));
-uiElements.modalUpdateDB = new BSN.Modal(document.getElementById('modalUpdateDB'));
-uiElements.modalSaveSmartPlaylist = new BSN.Modal(document.getElementById('modalSaveSmartPlaylist'));
-uiElements.modalTimer = new BSN.Modal(document.getElementById('modalTimer'));
-uiElements.modalMounts = new BSN.Modal(document.getElementById('modalMounts'));
-uiElements.modalExecScript = new BSN.Modal(document.getElementById('modalExecScript'));
-uiElements.modalScripts = new BSN.Modal(document.getElementById('modalScripts'));
-uiElements.modalPartitions = new BSN.Modal(document.getElementById('modalPartitions'));
-uiElements.modalPartitionOutputs = new BSN.Modal(document.getElementById('modalPartitionOutputs'));
-uiElements.modalTrigger = new BSN.Modal(document.getElementById('modalTrigger'));
-uiElements.modalOutputAttributes = new BSN.Modal(document.getElementById('modalOutputAttributes'));
-uiElements.modalPicture = new BSN.Modal(document.getElementById('modalPicture'));
-uiElements.modalEditHomeIcon = new BSN.Modal(document.getElementById('modalEditHomeIcon'));
-uiElements.modalConfirm = new BSN.Modal(document.getElementById('modalConfirm'));
-uiElements.modalEnterPin = new BSN.Modal(document.getElementById('modalEnterPin'));
-
-uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
-uiElements.dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
-uiElements.dropdownLocalPlayer = new BSN.Dropdown(document.getElementById('localPlaybackMenu'));
-uiElements.dropdownDatabaseSort = new BSN.Dropdown(document.getElementById('btnDatabaseSortDropdown'));
-uiElements.dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNeighbors'));
-uiElements.dropdownHomeIconLigature = new BSN.Dropdown(document.getElementById('btnHomeIconLigature'));
-
-uiElements.collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
-uiElements.collapseSettings = new BSN.Collapse(document.getElementById('navSettings'));
-uiElements.collapseScripting = new BSN.Collapse(document.getElementById('navScripting'));
-uiElements.collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukeboxMode'));
+//all modals
+for (const m of document.getElementsByClassName('modal')) {
+    uiElements[m.id] = document.getElementById(m.id).Modal;
+}
+//other directly accessed BSN objects
+uiElements.dropdownHomeIconLigature = document.getElementById('btnHomeIconLigature').Dropdown;
+uiElements.collapseJukeboxMode = document.getElementById('collapseJukeboxMode').Collapse;
 
 const LUAfunctions = {
     "mympd_api_http_client": {
@@ -615,4 +597,16 @@ const LUAfunctions = {
         "desc":	"Executes a system command and capture its output.",
         "func": "output = mympd.os_capture(command)"
     }
+};
+
+const typeFriendly = {
+    'plist': 'Playlist',
+    'smartpls': 'Smart playlist',
+    'dir': 'Directory',
+    'song': 'Song',
+    'search': 'Search',
+    'album': 'Album',
+    'stream': 'Stream',
+    'view': 'View',
+    'script': 'Script'
 };

@@ -20,59 +20,68 @@ function initOutputs() {
     document.getElementById('outputs').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
-            showListOutputAttributes(getCustomDomProperty(event.target.parentNode, 'data-output-name'));
+            document.getElementById('volumeMenu').Dropdown.toggle();
+            showListOutputAttributes(getData(event.target.parentNode, 'data-output-name'));
         }
         else {
             const target = event.target.nodeName === 'BUTTON' ? event.target : event.target.parentNode;
             event.stopPropagation();
             event.preventDefault();
             sendAPI("MYMPD_API_PLAYER_OUTPUT_TOGGLE", {
-                "outputId": Number(getCustomDomProperty(target, 'data-output-id')),
+                "outputId": Number(getData(target, 'data-output-id')),
                 "state": (target.classList.contains('active') ? 0 : 1)
             });
-            toggleBtn(target.id);
+            toggleBtn(target);
         }
     }, false);
 }
 
 function parseOutputs(obj) {
     const outputList = document.getElementById('outputs');
+    elClear(outputList);
     if (obj.error) {
-        const div = elCreate('div', {"class": ["list-group-item"]}, '');
-        addIconLine(div, 'error_outline', tn(obj.error.message));
-        elClear(outputList);
-        outputList.appendChild(div);
+        outputList.appendChild(
+            elCreateEmpty('div', {"class": ["list-group-item", "alert", "alert-danger"]}, tn(obj.error.message))
+        );
         return;
     }
-    if (obj.result.returnedEntities === 0) {
-        const div = elCreate('div', {"class": ["list-group-item"]}, '');
-        addIconLine(div, 'info', tn('Empty list'));
-        elClear(outputList);
-        outputList.appendChild(div);
+    if (obj.result.numOutputs === 0) {
+        outputList.appendChild(
+            elCreateEmpty('div', {"class": ["list-group-item", "alert", "alert-secondary"]}, tn('Empty list'))
+        );
         return;
     }
 
-    let btns = '';
     for (let i = 0; i < obj.result.numOutputs; i++) {
-        if (obj.result.data[i].plugin !== 'dummy') {
-            btns += '<button id="btnOutput' + obj.result.data[i].id +'" data-output-name="' + encodeURI(obj.result.data[i].name) + '" data-output-id="' + 
-                obj.result.data[i].id + '" class="btn btn-secondary btn-block d-flex justify-content-between';
-            if (obj.result.data[i].state === 1) {
-                btns += ' active';
-            }
-            btns += '"><span class="mi align-self-center">' + (obj.result.data[i].plugin === 'httpd' ? 'cast' : 'volume_up') + '</span> ' + 
-                '<span class="ml-2 mr-2 align-self-center">' + e(obj.result.data[i].name) + '</span>' +
-                '<a class="mi text-white align-self-center" title="' + 
-                (Object.keys(obj.result.data[i].attributes).length > 0 ? t('Edit attributes') : t('Show attributes')) + '">settings</a>' +
-                '</button>';
+        if (obj.result.data[i].plugin === 'dummy') {
+            continue;
         }
+        const btn = elCreateNodes('button', {"class": ["btn", "btn-secondary", "d-flex", "justify-content-between"], "id": "btnOutput" + obj.result.data[i].id}, [
+            elCreateText('span', {"class": ["mi", "align-self-center"]}, (obj.result.data[i].plugin === 'httpd' ? 'cast' : 'volume_up')),
+            elCreateText('span', {"class": ["mx-2", "align-self-center"]}, obj.result.data[i].name),
+            elCreateText('a', {"class": ["mi", "text-light", "align-self-center"],
+                "title": (Object.keys(obj.result.data[i].attributes).length > 0 ? tn('Edit attributes') : tn('Show attributes'))}, 'settings')
+        ]);
+        setData(btn, 'data-output-name', obj.result.data[i].name);
+        setData(btn, 'data-output-id', obj.result.data[i].id);
+        if (obj.result.data[i].state === 1) {
+            btn.classList.add('active');
+        }
+        outputList.appendChild(btn);
     }
-    outputList.innerHTML = btns;
 }
 
 function showListOutputAttributes(outputName) {
-    sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {"partition": ""}, function(obj) {
-        uiElements.modalOutputAttributes.show();
+    cleanupModalId('modalOutputAttributes');
+    uiElements.modalOutputAttributes.show();
+    sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {
+        "partition": ""
+    }, function(obj) {
+        const tbody = document.getElementById('outputAttributesList');
+        if (checkResult(obj, tbody) === false) {
+            return;
+        }
+
         let output;
         for (let i = 0; i < obj.result.numOutputs; i++) {
             if (obj.result.data[i].name === outputName) {
@@ -80,30 +89,43 @@ function showListOutputAttributes(outputName) {
                 break;
             }
         }
-        document.getElementById('modalOutputAttributesId').value = e(output.id);        
-        let list = '<tr><td>' + t('Name') + '</td><td>' + e(output.name) + '</td></tr>' +
-            '<tr><td>' + t('State') + '</td><td>' + (output.state === 1 ? t('enabled') : t('disabled')) + '</td></tr>' +
-            '<tr><td>' + t('Plugin') + '</td><td>' + e(output.plugin) + '</td></tr>';
+        document.getElementById('modalOutputAttributesId').value = output.id;
+
+        elClear(tbody);
+        for (const n of ['name', 'state', 'plugin']) {
+            tbody.appendChild(
+                elCreateNodes('tr', {}, [
+                    elCreateText('td', {}, tn(ucFirst(n))),
+                    elCreateText('td', {}, output[n])
+                ])
+            );
+        }
         let i = 0;
         for (const key in output.attributes) {
             i++;
-            list += '<tr><td>' + e(key) + '</td><td><input name="' + e(key) + '" class="form-control border-secondary" type="text" value="' + 
-                e(output.attributes[key]) + '"/></td></tr>';
+            tbody.appendChild(
+                elCreateNodes('tr', {}, [
+                    elCreateText('td', {}, key),
+                    elCreateNode('td', {},
+                        elCreateEmpty('input', {"name": key, "class": ["form-control"], "type": "text", "value": output.attributes[key]})
+                    )
+                ])
+            );
         }
         if (i > 0) {
-            elEnable('btnOutputAttributesSave');
+            elEnableId('btnOutputAttributesSave');
         }
         else {
-            elDisable('btnOutputAttributesSave');
+            elDisableId('btnOutputAttributesSave');
         }
-        document.getElementById('outputAttributesList').innerHTML = list;
-    });
+    }, false);
 }
 
 //eslint-disable-next-line no-unused-vars
 function saveOutputAttributes() {
+    cleanupModalId('modalOutputAttributes');
     const params = {};
-    params.outputId =  Number(document.getElementById('modalOutputAttributesId').value);
+    params.outputId = Number(document.getElementById('modalOutputAttributesId').value);
     params.attributes = {};
     const els = document.getElementById('outputAttributesList').getElementsByTagName('input');
     for (let i = 0, j = els.length; i < j; i++) {
@@ -113,19 +135,17 @@ function saveOutputAttributes() {
 }
 
 function saveOutputAttributesClose(obj) {
-    removeEnterPinFooter();
     if (obj.error) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         uiElements.modalOutputAttributes.hide();
     }
 }
 
 function parseVolume(obj) {
     if (obj.result.volume === -1) {
-        document.getElementById('volumePrct').textContent = t('Volumecontrol disabled');
+        document.getElementById('volumePrct').textContent = tn('Volumecontrol disabled');
         elHide(document.getElementById('volumeControl'));
     } 
     else {
@@ -146,7 +166,7 @@ function volumeStep(dir) {
 function chVolume(increment) {
     const volumeBar = document.getElementById('volumeBar');
     let newValue = Number(volumeBar.value) + increment;
-    if (newValue < settings.volumeMin)  {
+    if (newValue < settings.volumeMin) {
         newValue = settings.volumeMin;
     }
     else if (newValue > settings.volumeMax) {

@@ -7,7 +7,7 @@
 #ifndef MYMPD_API_SCRIPTS_H
 #define MYMPD_API_SCRIPTS_H
 
-#include "../../dist/src/sds/sds.h"
+#include "../../dist/sds/sds.h"
 #include "../lib/list.h"
 #include "../lib/mympd_configuration.h"
 

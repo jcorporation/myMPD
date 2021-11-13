@@ -234,12 +234,6 @@ http://uri.to/stream.mp3
 Invalid URI
 URI non valido
 
-Please choose playlist
-Scegliere una lista di riproduzione
-
-Create Playlist
-Crea lista di riproduzione
-
 Invalid filename
 Nome file non valido
 
@@ -468,12 +462,6 @@ Connessione
 Protocol version
 Versione del protocollo
 
-Libmpdclient version
-Versione di Libmpdclient
-
-Libmympdclient version
-Versione di Libmympdclient
-
 Action
 Azione
 
@@ -525,9 +513,6 @@ Dettagli brano
 Close
 Chiudi
 
-Searching...
-Ricerca...
-
 Previous song
 Brano precedente
 
@@ -548,12 +533,6 @@ Alza volume
 
 Open settings
 Apri parametri
-
-Open song details
-Apri dettagli brano
-
-Open local player
-Avvia riproduttore locale
 
 Goto playback
 Vai alla riproduzione corrente
@@ -576,12 +555,6 @@ Vai a filesystem
 Goto search
 Vai a ricerca
 
-Open main menu
-Apri il menù pricipale
-
-Open volume menu
-Apri il menù del volume
-
 Open about
 Apri le informazioni
 
@@ -594,7 +567,7 @@ Applicazione myMPD installata
 MPD disconnected
 MPD disconnesso
 
-Websocket connection failed
+Websocket connection closed
 Impossibile stabilire connessione Websocket
 
 Connected to myMPD
@@ -617,9 +590,6 @@ Volume
 
 Empty list
 Lista vuota
-
-Added stream %{streamUri} to queue
-Flusso %{streamUri} aggiunto alla coda
 
 Append to queue
 Aggiungi in fondo alla coda
@@ -672,14 +642,8 @@ Canzoni aggiunte alla coda
 Add random
 Aggiunta casuale
 
-New playlist
-Nuova lista di riproduzione
-
 never
 mai
-
-Added %{uri} to playlist %{playlist}
-Aggiunta di %{uri} alla lista di riproduzione %{playlist}
 
 Successfully added random songs to queue
 Brani casuali aggiunti con successo alla coda
@@ -732,35 +696,8 @@ Minuti
 Seconds
 Secondi
 
-Added all songs
-Tutti i brani sono stati aggiunti
-
-%{name} added to queue
-%{name} aggiunto alla coda
-
-%{name} added to queue position %{to}
-%{name} aggiunto alla coda in posizione %{to}
-
-Queue replaced with %{name}
-Coda sostituita con %{name}
-
-Focus table
-Focus table
-
-Append item to queue
-Aggiungi elemento alla coda
-
-Replace queue with item
-Sostituisci la coda con l'elemento
-
 Type
 Tipo
-
-Remove item from queue
-Rimuovi l'elemento dalla coda
-
-Append item to playlist
-Aggiungi l'elemento alla lista di riproduzione
 
 Fingerprint
 Impronta
@@ -773,9 +710,6 @@ CA myMPD
 
 IP-Address
 Indirizzo IP
-
-Mongoose version
-Versione Mongoose
 
 Webserver
 Server Web
@@ -1062,9 +996,6 @@ Impossibile aggiungere il timer
 Browse directories
 Sfoglia le cartelle
 
-Sorry, your MPD version is too old
-Peccato, la tua versione di MPD è troppo vecchia
-
 Mounts
 Montaggi (filesystem)
 
@@ -1209,9 +1140,6 @@ Ordinamento degli script, 0 disabilita l'elenco nel menù pricipale
 Fullscreen
 Schermo intero
 
-Open fullscreen
-Apri a schermo intero
-
 Could not save trigger
 Impossibile salvare il trigger
 
@@ -1272,26 +1200,11 @@ Modifica gli attributi
 Output attributes
 Attributi dell'uscita
 
-Plugin
-Plugin
-
 Show attributes
 Mostra attributi
 
-State
-Stato
-
-disabled
-disabilitato
-
-enabled
-abilitato
-
 Websocket is disconnected
 Websocket disconnesso
-
-Add and play playlist
-Aggiungi e riproduci la lista si riproduzione
 
 Add to homescreen
 Aggiungi alla pagina di home
@@ -1322,9 +1235,6 @@ Impossibile togliere il brano dalla lista del jukebox
 
 Delete home icon
 Cancella l'icona della home
-
-Disc 1
-Disco 1
 
 Display tags
 Mostra tag

@@ -7,7 +7,7 @@
 #include "mympd_config_defs.h"
 #include "sds_extras.h"
 
-#include "../../dist/src/utf8decode/utf8decode.h"
+#include "../../dist/utf8/utf8.h"
 #include "log.h"
 
 #include <ctype.h>
@@ -15,25 +15,28 @@
 
 #define HEXTOI(x) (x >= '0' && x <= '9' ? x - '0' : x - 'W')
 
+void sds_utf8_tolower(sds s) {
+    utf8_int32_t cp;
+
+    void *pn = utf8codepoint(s, &cp);
+    while (cp != 0) {
+        const size_t size = utf8codepointsize(cp);
+        const utf8_int32_t lwr_cp = utf8lwrcodepoint(cp);
+        const size_t lwr_size = utf8codepointsize(lwr_cp);
+
+        if (lwr_cp != cp && lwr_size == size) {
+            utf8catcodepoint(s, lwr_cp, lwr_size);
+        }
+
+        s = pn;
+        pn = utf8codepoint(s, &cp);
+    }
+}
+
 sds sds_catjson(sds s, const char *p, size_t len) {
     s = sdscatlen(s, "\"", 1);
-/*
-    uint32_t codepoint;
-    uint32_t state = UTF8_ACCEPT;
-*/
     for (size_t i = 0; i < len; i++) {
-        if ((p[i] & 0x80) == 0x00) {
-            //ascii char
             s = sds_catjsonchar(s, p[i]);
-        }
-/*        
-        else if (!decode_utf8(&state, &codepoint, (uint8_t)p[i])) {
-            s = sdscatprintf(s, "\\u%04x", codepoint);
-        }
-*/
-        else {
-            s = sdscatprintf(s, "%c", p[i]);
-        }
     }
     return sdscatlen(s, "\"", 1);
 }

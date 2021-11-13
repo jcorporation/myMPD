@@ -34,7 +34,9 @@ sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
     struct t_list images;
     list_init(&images);
     sds booklet_path = sdsempty();
-    if (is_streamuri(uri) == false && mympd_state->mpd_state->feat_library == true) {
+    if (is_streamuri(uri) == false &&
+        mympd_state->mpd_state->feat_mpd_library == true)
+    {
         _detect_extra_files(mympd_state, uri, &booklet_path, &images, is_dirname);
     }
     buffer = tojson_char(buffer, "bookletPath", booklet_path, true);
@@ -205,15 +207,25 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
 
 //private functions
 static void _detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname) {
-    char *uricpy = strdup(uri);
-    
-    const char *path = is_dirname == false ? dirname(uricpy) : uri;
+    sds path = sdsnew(uri);
+    if (is_dirname == false) {
+        dirname(path);
+        sdsupdatelen(path);
+    }
+
+    if (is_virtual_cuedir(mympd_state->music_directory_value, path)) {
+        //fix virtual cue sheet directories
+        dirname(path);
+        sdsupdatelen(path);
+    }
     sds albumpath = sdscatfmt(sdsempty(), "%s/%s", mympd_state->music_directory_value, path);
-    MYMPD_LOG_DEBUG("Read extra files from albumpath: %s", albumpath);
+
+    MYMPD_LOG_DEBUG("Read extra files from albumpath: \"%s\"", albumpath);
     errno = 0;
     DIR *album_dir = opendir(albumpath);
     if (album_dir != NULL) {
         struct dirent *next_file;
+        sds fullpath = sdsempty();
         while ((next_file = readdir(album_dir)) != NULL) {
             const char *ext = strrchr(next_file->d_name, '.');
             if (strcmp(next_file->d_name, mympd_state->booklet_name) == 0) {
@@ -223,21 +235,21 @@ static void _detect_extra_files(struct t_mympd_state *mympd_state, const char *u
             else if (ext != NULL) {
                 if (strcasecmp(ext, ".webp") == 0 || strcasecmp(ext, ".jpg") == 0 ||
                     strcasecmp(ext, ".jpeg") == 0 || strcasecmp(ext, ".png") == 0 ||
-                    strcasecmp(ext, ".tiff") == 0 || strcasecmp(ext, ".svg") == 0 ||
-                    strcasecmp(ext, ".bmp") == 0) 
+                    strcasecmp(ext, ".avif") == 0 || strcasecmp(ext, ".svg") == 0) 
                 {
-                    sds fullpath = sdscatfmt(sdsempty(), "%s/%s", path, next_file->d_name);
+                    fullpath = sdscatfmt(fullpath, "%s/%s", path, next_file->d_name);
                     list_push(images, fullpath, 0, NULL, NULL);
-                    FREE_SDS(fullpath);
+                    sdsclear(fullpath);
                 }
             }
         }
         closedir(album_dir);
+        FREE_SDS(fullpath);
     }
     else {
         MYMPD_LOG_ERROR("Can not open directory \"%s\" to get list of extra files", albumpath);
         MYMPD_LOG_ERRNO(errno);
     }
-    FREE_PTR(uricpy);
+    FREE_SDS(path);
     FREE_SDS(albumpath);
 }

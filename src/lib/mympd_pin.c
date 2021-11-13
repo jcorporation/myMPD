@@ -24,23 +24,39 @@ static sds pin_hash(const char *pin);
 
 //public functions
 
-void pin_set(sds workdir) {
+bool pin_set(sds workdir) {
     struct termios old;
     if (tcgetattr(fileno(stdin), &old) != 0) {
-        return;
+        return false;
     }
     struct termios new = old;
     new.c_lflag &= ~ECHO;
     if (tcsetattr(fileno(stdin), TCSAFLUSH, &new) != 0) {
-        return;
+        return false;
     }
         
-    printf("Enter pin: ");
     int c;
     sds pin = sdsempty();
+    sds pin2 = sdsempty();
+
+    printf("Enter pin: ");
     while ((c = getc(stdin)) != '\n') {
         pin = sdscatprintf(pin, "%c", c);
     }
+    
+    printf("\nRe-enter pin: ");
+    while ((c = getc(stdin)) != '\n') {
+        pin2 = sdscatprintf(pin2, "%c", c);
+    }
+    tcsetattr(fileno(stdin), TCSAFLUSH, &old);
+    
+    if (strcmp(pin, pin2) != 0) {
+        FREE_SDS(pin);
+        FREE_SDS(pin2);
+        printf("\nPins do not match, please try again.\n");
+        return false;
+    }
+
     sds hex_hash;
     if (sdslen(pin) == 0) {
         hex_hash = sdsempty();
@@ -50,7 +66,7 @@ void pin_set(sds workdir) {
     }
     bool rc = state_file_write(workdir, "config", "pin_hash", hex_hash);
     FREE_SDS(hex_hash);
-    tcsetattr(fileno(stdin), TCSAFLUSH, &old);
+    
     printf("\n");
     if (rc == true) {
         if (sdslen(pin) > 0) {
@@ -60,7 +76,12 @@ void pin_set(sds workdir) {
             printf("Pin is now cleared, restart myMPD to apply.\n");
         }
     }
+    else {
+        printf("Error setting pin.\n");
+    }
     FREE_SDS(pin);
+    FREE_SDS(pin2);
+    return true;
 }
 
 bool pin_validate(const char *pin, const char *hash) {
@@ -99,13 +120,13 @@ static sds pin_hash(const char *pin) {
         return hex_hash;
     }
     unsigned char hash[EVP_MAX_MD_SIZE];
-    unsigned int hash_len = 0;
+    unsigned hash_len = 0;
     if(EVP_DigestFinal_ex(context, hash, &hash_len) == 0) {
         EVP_MD_CTX_free(context);
         return hex_hash;
     }
     
-    for (unsigned int i = 0; i < hash_len; i++) {
+    for (unsigned i = 0; i < hash_len; i++) {
         hex_hash = sdscatprintf(hex_hash, "%02x", hash[i]);
     }
     EVP_MD_CTX_free(context);

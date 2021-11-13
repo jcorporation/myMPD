@@ -11,7 +11,7 @@
 #define INCBIN_STYLE INCBIN_STYLE_SNAKE
 
 #include "mympd_config_defs.h"
-#include "../../dist/src/incbin/incbin.h"
+#include "../../dist/incbin/incbin.h"
 
 //compressed assets
 INCBIN(sw_js, "htdocs/sw.js.gz");
@@ -24,13 +24,12 @@ INCBIN(coverimage_booklet_svg, "htdocs/assets/coverimage-booklet.svg.gz");
 INCBIN(coverimage_mympd_svg, "htdocs/assets/coverimage-mympd.svg.gz");
 INCBIN(mympd_background_dark_svg, "htdocs/assets/mympd-background-dark.svg.gz");
 INCBIN(mympd_background_light_svg, "htdocs/assets/mympd-background-light.svg.gz");
-INCBIN(mympd_background_default_svg, "htdocs/assets/mympd-background-default.svg.gz");
 INCBIN(combined_css, "htdocs/css/combined.css.gz");
 INCBIN(combined_js, "htdocs/js/combined.js.gz");
 //uncompressed assets
 INCBIN(favicon_ico, "../htdocs/assets/favicon.ico");
 INCBIN(appicon_192_png, "../htdocs/assets/appicon-192.png");
 INCBIN(appicon_512_png, "../htdocs/assets/appicon-512.png");
-INCBIN(MaterialIcons_Regular_woff2, "../dist/htdocs/assets/MaterialIcons-Regular.woff2");
+INCBIN(MaterialIcons_Regular_woff2, "../dist/material-icons/MaterialIcons-Regular.woff2");
 
 #endif

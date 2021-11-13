@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int loglevel;
+_Atomic int loglevel;
 bool log_to_syslog;
 bool log_on_tty;
 

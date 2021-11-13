@@ -11,18 +11,13 @@
 #include "log.h"
 #include "sds_extras.h"
 
-#include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
-#include <libgen.h>
-#include <limits.h>
-#include <stdio.h>
-#include <string.h>
 #include <sys/stat.h>
 #include <time.h>
 
 void ws_notify(sds message) {
-    MYMPD_LOG_DEBUG("Push websocket notify to queue: %s", message);
+    MYMPD_LOG_DEBUG("Push websocket notify to queue: \"%s\"", message);
     struct t_work_result *response = create_result_new(0, 0, INTERNAL_API_WEBSERVER_NOTIFY);
     response->data = sds_replace(response->data, message);
     mympd_queue_push(web_server_queue, response, 0);
@@ -68,4 +63,18 @@ unsigned long substractUnsigned(unsigned long num1, unsigned long num2) {
         return num1 - num2;
     }
     return 0;
+}
+
+bool is_virtual_cuedir(sds music_directory, sds filename) {
+    sds full_path = sdscatfmt(sdsempty(), "%s/%s", music_directory, filename);
+    bool is_file = false;
+    struct stat stat_buf;
+    if (stat(full_path, &stat_buf) == 0) {
+        if (S_ISREG(stat_buf.st_mode)) {
+            MYMPD_LOG_DEBUG("Path \"%s\" is a virtual cuesheet directory", filename);
+            is_file = true;
+        }
+    }
+    sdsfree(full_path);
+    return is_file;
 }

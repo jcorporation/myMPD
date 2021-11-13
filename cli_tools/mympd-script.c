@@ -6,8 +6,8 @@
 
 #define _GNU_SOURCE
 
-#include "../dist/src/mongoose/mongoose.h"
-#include "../dist/src/sds/sds.h"
+#include "../dist/mongoose/mongoose.h"
+#include "../dist/sds/sds.h"
 #include "../src/lib/http_client.h"
 #include "../src/lib/sds_extras.h"
 #include "log.h"

@@ -86,6 +86,7 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
 
     mympd_state->mpd_state->state = mpd_status_get_state(status);
     mympd_state->mpd_state->song_id = song_id;
+    mympd_state->mpd_state->song_pos = mpd_status_get_song_pos(status);
     mympd_state->mpd_state->next_song_id = mpd_status_get_next_song_id(status);
     mympd_state->mpd_state->queue_version = mpd_status_get_queue_version(status);
     mympd_state->mpd_state->queue_length = mpd_status_get_queue_length(status);
@@ -120,8 +121,13 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     else {
         buffer = jsonrpc_result_start(buffer, method, request_id);
     }
-    const struct mpd_audio_format *audioformat = mpd_status_get_audio_format(status);
-    buffer = tojson_long(buffer, "state", mpd_status_get_state(status), true);
+    enum mpd_state playstate = mpd_status_get_state(status);
+    const char *playstate_str =
+        playstate == MPD_STATE_STOP ? "stop" :
+        playstate == MPD_STATE_PLAY ? "play" :
+        playstate == MPD_STATE_PAUSE ? "pause" : "unknown";
+
+    buffer = tojson_char(buffer, "state", playstate_str, true);
     buffer = tojson_long(buffer, "volume", mpd_status_get_volume(status), true);
     buffer = tojson_long(buffer, "songPos", mpd_status_get_song_pos(status), true);
     buffer = tojson_long(buffer, "elapsedTime", mympd_api_get_elapsed_seconds(status), true);
@@ -137,11 +143,9 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     if (mympd_state->mpd_state->feat_mpd_partitions == true) {
         buffer = tojson_char(buffer, "partition", mpd_status_get_partition(status), true);
     }
-    buffer = sdscat(buffer, "\"audioFormat\":{");
-    buffer = tojson_long(buffer, "sampleRate", (audioformat ? audioformat->sample_rate : 0), true);
-    buffer = tojson_long(buffer, "bits", (audioformat ? audioformat->bits : 0), true);
-    buffer = tojson_long(buffer, "channels", (audioformat ? audioformat->channels : 0), false);
-    buffer = sdscatlen(buffer, "},", 2);
+    const struct mpd_audio_format *audioformat = mpd_status_get_audio_format(status);
+    buffer = printAudioFormat(buffer, audioformat);
+    buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_char(buffer, "lastError", mpd_status_get_error(status), false);
     buffer = jsonrpc_result_end(buffer);
 
@@ -237,7 +241,9 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer,
     buffer = tojson_long(buffer, "pos", mpd_song_get_pos(song), true);
     buffer = tojson_long(buffer, "currentSongId", mympd_state->mpd_state->song_id, true);
     buffer = get_song_tags(buffer, mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd, song);
-    if (mympd_state->mpd_state->feat_stickers && mympd_state->sticker_cache != NULL) {
+    if (mympd_state->mpd_state->feat_mpd_stickers &&
+        mympd_state->sticker_cache != NULL)
+    {
         buffer = sdscatlen(buffer, ",", 1);
         buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
     }

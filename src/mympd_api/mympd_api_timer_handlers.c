@@ -127,6 +127,7 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
     request->data = sdscatlen(request->data, "}}", 2);
     mympd_queue_push(mympd_api_queue, request, 0);
 
-    buffer = respond_with_mpd_error_or_ok(mympd_state->mpd_state, buffer, method, request_id, rc, "mympd_api_timer_startplay");
+    bool result;
+    buffer = respond_with_mpd_error_or_ok(mympd_state->mpd_state, buffer, method, request_id, rc, "mympd_api_timer_startplay", &result);
     return buffer;
 }

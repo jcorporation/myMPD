@@ -41,61 +41,80 @@ bool mpd_client_rm_jukebox_entry(struct t_mympd_state *mympd_state, unsigned pos
 }
 
 sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
-                                const unsigned int offset, const unsigned int limit, const struct t_tags *tagcols)
+                                const unsigned offset, const unsigned limit, sds searchstr, const struct t_tags *tagcols)
 {
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    unsigned real_limit = limit == 0 ? offset + MPD_RESULTS_MAX : offset + limit;
+    unsigned real_limit = offset + limit;
+
+    sds_utf8_tolower(searchstr);
     
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-
-    if (mympd_state->jukebox_queue.length > 0) {
+    if (mympd_state->jukebox_mode == JUKEBOX_ADD_SONG) {
         struct t_list_node *current = mympd_state->jukebox_queue.head;
         while (current != NULL) {
-            entity_count++;
-            if (entity_count > offset && entity_count <= real_limit) {
-                if (entities_returned++) {
-                    buffer = sdscatlen(buffer, ",", 1);
-                }
-                buffer = sdscatlen(buffer, "{", 1);
-                buffer = tojson_long(buffer, "Pos", entity_count, true);
-                if (mympd_state->jukebox_mode == JUKEBOX_ADD_SONG) {
-                    bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, current->key);
-                    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == true) {
-                        struct mpd_entity *entity;
-                        if ((entity = mpd_recv_entity(mympd_state->mpd_state->conn)) != NULL) {
-                            const struct mpd_song *song = mpd_entity_get_song(entity);
+            bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, current->key);
+            if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == true) {
+                struct mpd_song *song;
+                if ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
+                    if (filter_mpd_song(song, searchstr, tagcols) == true) {
+                        if (entity_count >= offset && entity_count < real_limit) {
+                            if (entities_returned++) {
+                                buffer = sdscatlen(buffer, ",", 1);
+                            }
+                            buffer = sdscatlen(buffer, "{", 1);
+                            buffer = tojson_long(buffer, "Pos", entity_count, true);    
                             buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
-                            if (mympd_state->mpd_state->feat_stickers == true && mympd_state->sticker_cache != NULL) {
+                            if (mympd_state->mpd_state->feat_mpd_stickers == true && mympd_state->sticker_cache != NULL) {
                                 buffer = sdscatlen(buffer, ",", 1);
                                 buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
                             }
-                            mpd_entity_free(entity);
-                            mpd_response_finish(mympd_state->mpd_state->conn);
+                            buffer = sdscatlen(buffer, "}", 1);
                         }
-                        else {
-                            buffer = get_empty_song_tags(buffer, mympd_state->mpd_state, tagcols, current->key);
-                        }
+                        entity_count++;
                     }
-                    else {
-                        buffer = get_empty_song_tags(buffer, mympd_state->mpd_state, tagcols, current->key);
-                    }
-                    mpd_response_finish(mympd_state->mpd_state->conn);
-                    check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
+                    mpd_song_free(song);
                 }
-                else if (mympd_state->jukebox_mode == JUKEBOX_ADD_ALBUM) {
+            }
+            mpd_response_finish(mympd_state->mpd_state->conn);
+            check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
+            current = current->next;
+        }
+    }
+    else if (mympd_state->jukebox_mode == JUKEBOX_ADD_ALBUM) {
+        struct t_list_node *current = mympd_state->jukebox_queue.head;
+        sds album_lower = sdsempty();
+        sds artist_lower = sdsempty();
+        while (current != NULL) {
+            album_lower = sdscatsds(album_lower, current->key);
+            sds_utf8_tolower(album_lower);
+            artist_lower = sdscatsds(artist_lower, current->value_p);
+            sds_utf8_tolower(album_lower);
+            if (strstr(album_lower, searchstr) != NULL || strstr(artist_lower, searchstr) != NULL) {
+                entity_count++;
+                if (entity_count > offset && entity_count <= real_limit) {
+                    if (entities_returned++) {
+                        buffer = sdscatlen(buffer, ",", 1);
+                    }
+                    buffer = sdscatlen(buffer, "{", 1);
+                    buffer = tojson_long(buffer, "Pos", entity_count, true);
                     buffer = tojson_char(buffer, "uri", "Album", true);
                     buffer = tojson_char(buffer, "Title", "", true);
                     buffer = tojson_char(buffer, "Album", current->key, true);
                     buffer = tojson_char(buffer, "AlbumArtist", current->value_p, true);
                     buffer = tojson_char(buffer, "Artist", current->value_p, false);
+                    buffer = sdscatlen(buffer, "}", 1);
                 }
-                buffer = sdscatlen(buffer, "}", 1);
             }
+            sdsclear(album_lower);
+            sdsclear(artist_lower);
             current = current->next;
         }
+        FREE_SDS(album_lower);
+        FREE_SDS(artist_lower);
     }
+
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "jukeboxMode", mympd_state->jukebox_mode, true);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
@@ -158,7 +177,7 @@ static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
         add_songs = 99;
     }
         
-    if (mympd_state->mpd_state->feat_playlists == false && strcmp(mympd_state->jukebox_playlist, "Database") != 0) {
+    if (mympd_state->mpd_state->feat_mpd_playlists == false && strcmp(mympd_state->jukebox_playlist, "Database") != 0) {
         MYMPD_LOG_WARN("Jukebox: Playlists are disabled");
         return true;
     }
@@ -291,8 +310,8 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
             list_push(queue_list, mpd_song_get_uri(song), 0, tag_value, NULL);
         }
         else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
-            sds album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, sdsempty());
-            sds albumartist = mpd_shared_get_tags(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
+            sds album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, sdsempty());
+            sds albumartist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
             list_push(queue_list, album, 0, albumartist, NULL);
             FREE_SDS(album);
             FREE_SDS(albumartist);
@@ -313,8 +332,8 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
                     list_push(queue_list, current->key, 0, mpd_song_get_tag(song, mympd_state->jukebox_unique_tag.tags[0], 0), NULL);
                 }
                 else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
-                    sds album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, sdsempty());
-                    sds albumartist = mpd_shared_get_tags(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
+                    sds album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, sdsempty());
+                    sds albumartist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
                     list_push(queue_list, album, 0, albumartist, NULL);
                     FREE_SDS(album);
                     FREE_SDS(albumartist);
@@ -346,8 +365,8 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
                                 list_push(queue_list, data, 0, mpd_song_get_tag(song, mympd_state->jukebox_unique_tag.tags[0], 0), NULL);
                             }
                             else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
-                                sds album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, sdsempty());
-                                sds albumartist = mpd_shared_get_tags(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
+                                sds album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, sdsempty());
+                                sds albumartist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
                                 list_push(queue_list, album, 0, albumartist, NULL);
                                 FREE_SDS(album);
                                 FREE_SDS(albumartist);
@@ -381,7 +400,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_st
     unsigned add_songs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual)
 {
     MYMPD_LOG_DEBUG("Jukebox queue to small, adding entities");
-    if (mympd_state->mpd_state->feat_tags == true) {
+    if (mympd_state->mpd_state->feat_mpd_tags == true) {
         if (mympd_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
             enable_mpd_tags(mympd_state->mpd_state, &mympd_state->jukebox_unique_tag);
         }
@@ -390,7 +409,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_st
         }
     }
     bool rc = _mpd_client_jukebox_fill_jukebox_queue(mympd_state, add_songs, jukebox_mode, playlist, manual);
-    if (mympd_state->mpd_state->feat_tags == true) {
+    if (mympd_state->mpd_state->feat_mpd_tags == true) {
         enable_mpd_tags(mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd);
     }
     
@@ -425,7 +444,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
         int start = 0;
         int end = start + MPD_RESULTS_MAX;
         time_t now = time(NULL);
-        now = now - mympd_state->jukebox_last_played * 60 * 60;
+        now = now - (long)(mympd_state->jukebox_last_played * 3600);
         
         if (mympd_state->sticker_cache == NULL) {
             MYMPD_LOG_WARN("Sticker cache is null, jukebox doesn't respect last played constraint");
@@ -544,8 +563,8 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
         struct mpd_song *song;
         while (raxNext(&iter)) { 
             song = (struct mpd_song *)iter.data;
-            sds album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, sdsempty());
-            sds albumartist = mpd_shared_get_tags(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
+            sds album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, sdsempty());
+            sds albumartist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
             if (mympd_state->jukebox_enforce_unique == false || 
                 mpd_client_jukebox_unique_album(mympd_state, album, albumartist, manual, queue_list) == true)
             {
@@ -639,12 +658,7 @@ static bool mpd_client_jukebox_unique_album(struct t_mympd_state *mympd_state, c
         current = current->next;
     }
     
-    if (manual == false) {
-        current = mympd_state->jukebox_queue.head;
-    }
-    else {
-        current = mympd_state->jukebox_queue_tmp.head;
-    }
+    current = manual == false ? mympd_state->jukebox_queue.head : mympd_state->jukebox_queue_tmp.head;
     while (current != NULL) {
         if (strcmp(current->key, album) == 0 && strcmp(current->value_p, albumartist) == 0) {
             return false;

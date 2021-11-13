@@ -7,7 +7,6 @@
 #include "mympd_config_defs.h"
 #include "web_server.h"
 
-#include "../dist/src/utf8decode/utf8decode.h"
 #include "lib/api.h"
 #include "lib/http_client.h"
 #include "lib/jsonrpc.h"
@@ -452,7 +451,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 socklen_t len = sizeof(localip);
                 if (getsockname((int)(long)nc->fd, (struct sockaddr *)&localip, &len) == 0) {
                     sds response = jsonrpc_result_start(sdsempty(), "", 0);
-                    response = tojson_char(response, "version", MG_VERSION, true);
                     char addr[INET6_ADDRSTRLEN];
                     const char *str = inet_ntop(localip.sin_family, &localip.sin_addr, addr, INET6_ADDRSTRLEN);
                     if (str != NULL) {
@@ -551,21 +549,25 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 else if (mg_http_match_uri(hm, "/browse/pics/#")) {
                     s_http_server_opts.root_dir = mg_user_data->pics_document_root;
                     hm->uri = mg_str_strip_parent(&hm->uri, 2);
+                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 }
                 else if (mg_http_match_uri(hm, "/browse/smartplaylists/#")) {
                     s_http_server_opts.root_dir = mg_user_data->smartpls_document_root;
                     hm->uri = mg_str_strip_parent(&hm->uri, 2);
+                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 }
                 else if (sdslen(mg_user_data->playlist_directory) > 0 && mg_http_match_uri(hm, "/browse/playlists/#")) {
                     s_http_server_opts.root_dir = mg_user_data->playlist_directory;
                     hm->uri = mg_str_strip_parent(&hm->uri, 2);
+                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 }
                 else if (mg_user_data->feat_library == true && mg_http_match_uri(hm, "/browse/music/#")) {
                     s_http_server_opts.root_dir = mg_user_data->music_directory;
                     hm->uri = mg_str_strip_parent(&hm->uri, 2);
+                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 }
                 else {
@@ -725,6 +727,8 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
             mg_send(nc, response, sdslen(response));
             FREE_SDS(cmd);
             FREE_SDS(jsonrpc);
+            FREE_SDS(session);
+            FREE_SDS(response);
             return true;
         }
         MYMPD_LOG_INFO("API request is authorized");

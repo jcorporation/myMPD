@@ -8,12 +8,16 @@ myMPD uses a json-rpc 2 api for the communication between frontend and backend.
 
 **API endpoint:** /api/
 
-- [All API methods]({{ site.baseurl }}/references/api/methods)
+- [API reference]({{ site.baseurl }}/references/api/methods)
 
 ### Example API call
 
 ```
 {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_PLAYER_STATE","params":{}}
+```
+
+```
+{"jsonrpc":"2.0","id":0,"method":"MYMPD_API_PLAYER_VOLUME_SET","params":{"volume":60}}
 ```
 
 ## Pin protection

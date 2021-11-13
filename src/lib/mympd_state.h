@@ -7,8 +7,8 @@
 #ifndef MYMPD_STATE_H
 #define MYMPD_STATE_H
 
-#include "../dist/src/rax/rax.h"
-#include "../dist/src/sds/sds.h"
+#include "../dist/rax/rax.h"
+#include "../dist/sds/sds.h"
 #include "list.h"
 
 #include <mpd/client.h>
@@ -54,11 +54,11 @@ enum mpd_conn_states {
 };
 
 struct t_sticker {
-    unsigned int playCount;
-    unsigned int skipCount;
-    unsigned int lastPlayed;
-    unsigned int lastSkipped;
-    unsigned int like;
+    unsigned playCount;
+    unsigned skipCount;
+    unsigned lastPlayed;
+    unsigned lastSkipped;
+    unsigned like;
 };
 
 struct t_tags {
@@ -84,6 +84,7 @@ struct t_mpd_state {
     int song_id;
     int next_song_id;
     int last_song_id;
+    unsigned song_pos;
     sds song_uri;
     sds last_song_uri;
     unsigned queue_version;
@@ -104,20 +105,22 @@ struct t_mpd_state {
     unsigned tag_albumartist;
     //Feats
     const unsigned* protocol;
-    bool feat_library;
-    bool feat_tags;
-    bool feat_advsearch;
-    bool feat_stickers;
-    bool feat_playlists;
-    bool feat_fingerprint;
+    bool feat_mpd_library;
+    bool feat_mpd_tags;
+    bool feat_mpd_advsearch;
+    bool feat_mpd_stickers;
+    bool feat_mpd_playlists;
+    bool feat_mpd_fingerprint;
     bool feat_mpd_albumart;
     bool feat_mpd_readpicture;
-    bool feat_single_oneshot;
+    bool feat_mpd_single_oneshot;
     bool feat_mpd_mount;
     bool feat_mpd_neighbor;
     bool feat_mpd_partitions;
     bool feat_mpd_binarylimit;
-    bool feat_smartpls;
+    bool feat_mpd_smartpls;
+    bool feat_mpd_playlist_rm_range;
+    bool feat_mpd_whence;
 };
 
 struct t_timer_definition {
@@ -141,7 +144,7 @@ struct t_timer_node {
     time_handler callback;
     struct t_timer_definition *definition;
     void *user_data;
-    unsigned int timeout;
+    unsigned timeout;
     int interval;
     int timer_id;
     struct t_timer_node *next;

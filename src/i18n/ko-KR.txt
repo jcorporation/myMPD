@@ -261,12 +261,6 @@ Stream URI
 http://uri.to/stream.mp3
 http://주소/stream.mp3
 
-Please choose playlist
-연주목록을 선택합니다
-
-Create Playlist
-연주목록 만들기
-
 Invalid filename
 잘못된 파일 이름
 
@@ -510,12 +504,6 @@ Connection
 Protocol version
 프로토콜 버전
 
-Libmpdclient version
-Libmpdclient 버전
-
-Libmympdclient version
-Libmympdclient 버전
-
 Action
 기능
 
@@ -567,9 +555,6 @@ Song details
 Close
 닫기
 
-Searching...
-찾는 중...
-
 Previous song
 이전 곡
 
@@ -590,12 +575,6 @@ Volume up
 
 Open settings
 설정 열기
-
-Open song details
-곡 정보 열기
-
-Open local player
-로컬 연주기 열기
 
 Goto home
 홈으로 가기
@@ -624,12 +603,6 @@ Goto browse filesystem
 Goto search
 찾기로 가기
 
-Open main menu
-주 메뉴로 가기
-
-Open volume menu
-음량 메뉴 열기
-
 Open about
 정보 열기
 
@@ -642,7 +615,7 @@ myMPD가 앱으로 설치됨
 MPD disconnected
 MPD 연결 끊어짐
 
-Websocket connection failed
+Websocket connection closed
 웹소켓 연결 안 됨
 
 Connected to myMPD
@@ -665,9 +638,6 @@ Volume
 
 Empty list
 목록 비우기
-
-Added stream %{streamUri} to queue
-%{streamUri} 스트리밍을 순서에 추가함
 
 Append to queue
 순서에 추가
@@ -714,14 +684,8 @@ Added songs to queue
 Add random
 무작위 추가
 
-New playlist
-새 연주목록
-
 never
 안 함
-
-Added %{uri} to playlist %{playlist}
-%{uri}의 %{playlist} 연주목록 추가에 실패함
 
 Successfully added random songs to queue
 무작위 곡을 순서에 추가함
@@ -774,35 +738,8 @@ Minutes
 Seconds
 초
 
-Added all songs
-모든 곡을 추가함
-
-%{name} added to queue
-순서에 %{name} 추가함
-
-%{name} added to queue position %{to}
-%{to} 순서 위치에 %{name} 추가함
-
-Queue replaced with %{name}
-%{name} 순서 바꿈
-
-Focus table
-목록에서 찾기
-
-Append item to queue
-순서에 항목 추가
-
-Replace queue with item
-순서에 항목 대체
-
 Type
 형식
-
-Remove item from queue
-순서에서 항목 지우기
-
-Append item to playlist
-연주목록에 항목 추가
 
 Fingerprint
 지문
@@ -815,9 +752,6 @@ myMPD 인증서
 
 IP-Address
 IP 주소
-
-Mongoose version
-Mongoose 버전
 
 Webserver
 웹서버
@@ -1113,9 +1047,6 @@ Adding timer failed
 Browse directories
 디렉터리 열기
 
-Sorry, your MPD version is too old
-MPD 버전이 낮음
-
 Mounts
 마운트
 
@@ -1263,9 +1194,6 @@ Sort order of the script, 0 disables listing in main menu
 Fullscreen
 전체 화면
 
-Open fullscreen
-전체 화면 열기
-
 Could not save trigger
 트리거를 저장할 수 없음
 
@@ -1326,20 +1254,8 @@ Edit attributes
 Output attributes
 출력 속성
 
-Plugin
-플러그인
-
 Show attributes
 속성 보기
-
-State
-상태
-
-disabled
-사용 안 함
-
-enabled
-사용함
 
 Websocket is disconnected
 웹소켓 연결 안 됨
@@ -1352,9 +1268,6 @@ Download booklet
 
 Zoom
 확대
-
-Disc 1
-디스크 1
 
 Disc
 디스크
@@ -1406,9 +1319,6 @@ Can not open directory pics
 
 Use ligature
 연결 사용
-
-Add and play playlist
-연주목록에 추가하고 연주하기
 
 Goto view
 보기로 가기
@@ -1498,17 +1408,11 @@ Lookup at musicbrainz
 Play after current playing song
 현재 연주 중인 곡 다음에 연주
 
-Replaced queue
-순서 바꿈
-
 First page
 첫 페이지
 
 Last page
 끝 페이지
-
-Show album
-음반 보기
 
 Can not get lyrics for stream uri
 스트리밍 URI의 가사를 가져올 수 없음
@@ -1606,12 +1510,6 @@ Song change
 Show playback settings in footer
 아래에 연주 설정 보기
 
-Custom
-사용자
-
-Daily
-매일
-
 Interval
 간격
 
@@ -1623,12 +1521,6 @@ One shot and delete
 
 One shot and disable
 한 번에 사용 안 함
-
-Weekly
-매주
-
-Each hours
-매시간 |||| 매 %{smart_count}시간
 
 Missing translations
 선택한 언어에 % {smart_count}개의 번역이 없습니다 |||| 선택한 언어에 % {smart_count}개의 번역이 없습니다

@@ -7,7 +7,7 @@
 #ifndef MYMPD_HTTP_CLIENT_H
 #define MYMPD_HTTP_CLIENT_H
 
-#include "../../dist/src/sds/sds.h"
+#include "../../dist/sds/sds.h"
 
 struct mg_client_request_t {
     const char *method;

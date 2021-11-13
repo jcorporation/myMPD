@@ -6,7 +6,7 @@
 
 #include "mympd_config_defs.h"
 
-#include "../../dist/src/utest/utest.h"
+#include "../../dist/utest/utest.h"
 #include "../../src/lib/sds_extras.h"
 #include "../utility.h"
 
@@ -118,4 +118,15 @@ UTEST(sds_extras, sds_urldecode) {
     ASSERT_STREQ("/Musict/Led Zeppelin/1975 - Physical Graffiti [1994, Atlantic, 7567-92442-2]/CD 1/folder.jpg", s);
     sdsfree(test_input);
     sdsfree(s);
+}
+
+UTEST(sds_extras, sds_utf8_tolower) {
+    sds test_input= sdsnew("EINSTÜRZENDE NEUBAUTEN");
+    sds_utf8_tolower(test_input);
+    ASSERT_STREQ("einstürzende neubauten", test_input);
+    sdsclear(test_input);
+    test_input = sdscat(test_input, "sdfßSdf");
+    sds_utf8_tolower(test_input);
+    ASSERT_STREQ("sdfßsdf", test_input);
+    sdsfree(test_input);
 }

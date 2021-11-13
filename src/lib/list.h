@@ -7,7 +7,7 @@
 #ifndef MYMPD_LIST_H
 #define MYMPD_LIST_H
 
-#include "../../dist/src/sds/sds.h"
+#include "../../dist/sds/sds.h"
 
 #include <stdbool.h>
 

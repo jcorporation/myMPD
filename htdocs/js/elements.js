@@ -3,88 +3,24 @@
 // myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-class inputReset extends HTMLElement {
-    constructor() {
-        super();
-
-        const placeholder = this.getAttribute('placeholder');
-        const invalidPhrase = this.getAttribute('data-invalid-phrase');
-        const unitPhrase = this.getAttribute('data-unit-phrase');
-        let inputType = this.getAttribute('type');
-        inputType = inputType === null ? 'text' : inputType;
-
-        const inputGroup = elCreate('div', {"class": ["input-group"]}, '');
-        const input = elCreate('input', {
-            "id": this.getAttribute('id'),
-            "placeholder": placeholder === null ? '' : placeholder,
-            "type": inputType,
-            "class": ["form-control", "border-secondary"]
-        }, '');
-        if (this.classList.contains('alwaysEnabled')) {
-            input.classList.add('alwaysEnabled');
-        }
-        inputGroup.appendChild(input);
-
-        const inputGroupAppend = elCreate('div', {"class": ["input-group-append"]}, '');
-        const resetButton = elCreate('button', {
-            "class": ["btn", "btn-secondary", "rounded-right", "resetBtn"],
-            "data-title-phrase": "Reset to default"
-        }, '');
-        resetButton.appendChild(elCreate('span', {"class": ["mi"]}, 'settings_backup_restore'));
-        inputGroupAppend.appendChild(resetButton);
-        if (unitPhrase !== null) {
-            const unitText = elCreate('div', {
-                "class": ["input-group-text-nobg"],
-                "data-phrase": unitPhrase
-            }, '');
-            inputGroupAppend.appendChild(unitText);
-        }
-        inputGroup.appendChild(inputGroupAppend);
-        if (invalidPhrase !== null) {
-            const invalidText = elCreate('div', {
-                "class": ["invalid-feedback"],
-                "data-phrase": invalidPhrase
-            }, '');
-            inputGroup.appendChild(invalidText);
-        }
-
-        this.appendChild(inputGroup);
-
-        this.input = input;
-        this.resetButton = resetButton;
-    }
-
-    connectedCallback() {
-        this.resetButton.addEventListener('click', function(event) {
-            resetToDefault(event.target);
-        }, false);
-        //populate input value from elements value attribute
-        this.input.value = this.getAttribute('value');
-    }
-
-    get value() {
-        return this.input.value
-    }
-
-    set value(newValue) {
-        this.input.value = newValue;
-    }
-}
-
 class inputClear extends HTMLInputElement {
     constructor() {
         super();
-        const button = elCreate('button', {"class": ["mi", "mi-small", "clear-button", "btn-secondary"]}, 'clear');
-        this.parentNode.insertBefore(button, this.nextSibling);
+        const button = elCreateText('button', {"class": ["mi", "mi-small", "input-inner-button", "btn-secondary"]}, 'clear');
         this.button = button;
-        if (this.value === '')  {
+        this.classList.add('innerButton');
+    }
+    connectedCallback() {
+        if (this.parentNode.classList.contains('col')) {
+            this.button.style.right = '1rem';
+        }
+        this.parentNode.insertBefore(this.button, this.nextElementSibling);
+        if (this.value === '') {
             elHide(this.button);
         }
         else {
             elShow(this.button);
         }
-    }
-    connectedCallback() {
         this.addEventListener('keyup', function(event) {
             if (event.target.value === '') {
                 elHide(event.target.button);
@@ -94,15 +30,87 @@ class inputClear extends HTMLInputElement {
             }
         }, false);
         this.button.addEventListener('mouseup', function(event) {
-            event.target.previousSibling.value = '';
-            const dataClearEvent = event.target.previousSibling.getAttribute('data-clear-event');
+            event.target.previousElementSibling.value = '';
+            const dataClearEvent = event.target.previousElementSibling.getAttribute('data-clear-event');
             if (dataClearEvent !== null) {
                 const clearEvent = new Event(dataClearEvent);
-                event.target.previousSibling.dispatchEvent(clearEvent);
+                event.target.previousElementSibling.dispatchEvent(clearEvent);
             }
         }, false);
     }
 }
 
-customElements.define('mympd-input-reset', inputReset);
+class inputReset extends HTMLInputElement {
+    constructor() {
+        super();
+        const button = elCreateText('button', {"class": ["mi", "mi-small", "input-inner-button"]}, 'settings_backup_restore');
+        this.button = button;
+        this.classList.add('innerButton');
+    }
+    connectedCallback() {
+        if (this.parentNode.firstElementChild.getAttribute('type') === 'color') {
+            this.button.style.right = '1.5rem';
+        }
+        else if (this.parentNode.classList.contains('col-sm-8')) {
+            this.button.style.right = '1rem';
+        }
+        if (this.nextElementSibling) {
+            this.parentNode.insertBefore(this.button, this.nextElementSibling);
+        }
+        else {
+            this.parentNode.appendChild(this.button);
+        }
+        this.button.addEventListener('mouseup', function(event) {
+            const input = event.target.previousElementSibling;
+            input.value = getData(input, 'data-default') !== undefined ? getData(input, 'data-default') : 
+                (input.getAttribute('placeholder') !== null ? input.getAttribute('placeholder') : '');
+        }, false);
+    }
+}
+
+class selectSearch extends HTMLInputElement {
+    constructor() {
+        super();
+        const filterInput = elCreateEmpty('input', {"class": ["form-control", "form-control-sm", "mb-1"], "data-placeholder-phrase": "Filter", "placeholder": tn('Filter')});
+        const filterResult = elCreateEmpty('select', {"class": ["form-select", "form-select-sm"], "size": 10});
+        const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "dropdown-menu-dark", "p-2", "w-100"]}, [
+            filterInput,
+            filterResult
+        ]);
+        this.parentNode.insertBefore(dropdown, this.nextElementSibling);
+        
+        const button = elCreateEmpty('button', {"class": ["input-inner-button", "select-inner-button"], "data-bs-toggle": "dropdown"});
+        if (this.parentNode.classList.contains('col-sm-8')) {
+            button.style.right = '1rem';
+        }
+        button.style.cursor = 'default';
+        this.parentNode.insertBefore(button, this.nextElementSibling);
+        this.dropdownButton = button;
+        this.filterInput = filterInput;
+        this.filterResult = filterResult;
+        this.classList.add('innerButton');
+    }
+    connectedCallback() {
+        const input = this;
+        this.filterResult.addEventListener('click', function(event) {
+            input.value = event.target.text;
+            setData(input, 'data-value', event.target.value);
+            input.dropdownButton.Dropdown.hide();
+        }, false);
+        this.filterInput.addEventListener('keyup', function(event) {
+            const cb = getData(input, 'data-cb-filter');
+            const cbOptions = getData(input, 'data-cb-filter-options');
+            window[cb](... cbOptions, event.target.value);
+        }, false);
+        new BSN.Dropdown(input.dropdownButton);
+        if (input.getAttribute('readonly') === 'readonly') {
+            input.addEventListener('click', function() {
+                input.dropdownButton.Dropdown.toggle();
+            }, false);
+        }
+    }
+}
+
 customElements.define('mympd-input-clear', inputClear, {extends: 'input'});
+customElements.define('mympd-input-reset', inputReset, {extends: 'input'});
+customElements.define('mympd-select-search', selectSearch, {extends: 'input'});

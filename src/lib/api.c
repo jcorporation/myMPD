@@ -7,7 +7,7 @@
 #include "mympd_config_defs.h"
 #include "api.h"
 
-#include "../../dist/src/mongoose/mongoose.h"
+#include "../../dist/mongoose/mongoose.h"
 #include "lua_mympd_state.h"
 #include "mem.h"
 #include "sds_extras.h"
@@ -64,6 +64,7 @@ bool is_protected_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_TIMER_TOGGLE:
         case MYMPD_API_TRIGGER_RM:
         case MYMPD_API_TRIGGER_SAVE:
+        case MYMPD_API_LOGLEVEL:
             return true;
         default:
             return false;
@@ -93,8 +94,6 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
             return false;
     }
 }
-
-
 
 struct t_work_result *create_result(struct t_work_request *request) {
     struct t_work_result *response = create_result_new(request->conn_id, request->id, request->cmd_id);

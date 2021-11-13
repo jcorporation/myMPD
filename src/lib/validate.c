@@ -7,7 +7,7 @@
 #include "mympd_config_defs.h"
 #include "validate.h"
 
-#include "../../dist/src/utf8decode/utf8decode.h"
+#include "../../dist/utf8/utf8.h"
 #include "log.h"
 #include "sds_extras.h"
 
@@ -23,7 +23,7 @@ static const char *invalid_name_chars = "\a\b\f\n\r\t\v";
 static const char *invalid_filename_chars = "\a\b\f\n\r\t\v/\\";
 static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v";
 
-static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", 
+static const char *mympd_cols[]={"Pos", "Duration", "Type", "Priority", "LastPlayed", "Filename", "Filetype", "AudioFormat", "LastModified", 
     "Lyrics", "stickerPlayCount", "stickerSkipCount", "stickerLastPlayed", "stickerLastSkipped", "stickerLike", 0};
 
 static bool _check_for_invalid_chars(sds data, const char *invalid_chars) {
@@ -45,7 +45,7 @@ static bool _check_for_invalid_chars(sds data, const char *invalid_chars) {
 static bool _validate_json(sds data, char start, char end) {
     size_t len = sdslen(data);
     //check if it is valid utf8
-    if (check_utf8((uint8_t *)data, len) == UTF8_REJECT) {
+    if (utf8valid(data) != 0) {
         MYMPD_LOG_ERROR("String is not valid utf8");
         return false;
     }
@@ -234,7 +234,6 @@ bool vcb_ismpdsort(sds data) {
         strcmp(data, "filename") != 0 &&
         strcmp(data, "shuffle") != 0 &&
         strcmp(data, "LastModified") != 0 &&
-        strcmp(data, "Last-Modified") != 0 &&
         strcmp(data, "Date") != 0)
     {
         MYMPD_LOG_WARN("Unknown tag \"%s\"", data);

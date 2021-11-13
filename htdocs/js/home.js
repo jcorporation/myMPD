@@ -5,9 +5,9 @@
 
 function initHome() {
     //home screen
-    document.getElementById('HomeCards').addEventListener('click', function(event) {
+    document.getElementById('HomeList').addEventListener('click', function(event) {
         if (event.target.classList.contains('card-body')) {
-            const href = getCustomDomProperty(event.target.parentNode, 'data-href');
+            const href = getData(event.target.parentNode, 'data-href');
             if (href !== undefined) {
                parseCmd(event, href);
             }
@@ -17,18 +17,21 @@ function initHome() {
         }
     }, false);
     
-    document.getElementById('HomeCards').addEventListener('contextmenu', function(event) {
-        popoverMenuHome(event);
+    document.getElementById('HomeList').addEventListener('contextmenu', function(event) {
+        if (event.target.classList.contains('card-body') ||
+            event.target.classList.contains('card-footer'))
+        {
+            popoverMenuHome(event);
+        }
     }, false);
 
-    document.getElementById('HomeCards').addEventListener('long-press', function(event) {
+    document.getElementById('HomeList').addEventListener('long-press', function(event) {
+        if (event.target.id === 'HomeList') {
+            return;
+        }
         popoverMenuHome(event);
     }, false);
-    
-    document.getElementById('HomeCards').addEventListener('keydown', function(event) {
-        navigateGrid(event.target, event.key);
-    }, false);
-    
+   
     dragAndDropHome();
 
     //modals
@@ -36,15 +39,6 @@ function initHome() {
     selectHomeIconCmd.addEventListener('change', function() {
         showHomeIconCmdOptions();
     }, false);
-    elClear(selectHomeIconCmd);
-    selectHomeIconCmd.appendChild(elCreate('option', {"value": "appGoto"}, tn('Goto view')));
-    setCustomDomProperty(selectHomeIconCmd.childNodes[0], 'data-options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
-    selectHomeIconCmd.appendChild(elCreate('option', {"value": "replaceQueue"}, tn('Replace queue')));
-    setCustomDomProperty(selectHomeIconCmd.childNodes[1], 'data-options', {"options": ["Type", "Uri", "Name"]});
-    selectHomeIconCmd.appendChild(elCreate('option', {"value": "appendQueue"}, tn('Append to queue')));
-    setCustomDomProperty(selectHomeIconCmd.childNodes[2], 'data-options', {"options": ["Type", "Uri", "Name"]});
-    selectHomeIconCmd.appendChild(elCreate('option', {"value": "execScriptFromOptions"}, tn('Execute Script')));
-    setCustomDomProperty(selectHomeIconCmd.childNodes[3], 'data-options', {"options":["Script","Arguments"]});
 
     document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
         document.getElementById('homeIconPreview').style.backgroundColor = event.target.value;
@@ -58,12 +52,12 @@ function initHome() {
         const value = getSelectValue(event.target);
         if (value !== '') {
             document.getElementById('homeIconPreview').style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(value)  + '")';
-            document.getElementById('divHomeIconLigature').classList.add('hide');
-            elClear(document.getElementById('homeIconPreview'));
+            elHideId('divHomeIconLigature');
+            elClearId('homeIconPreview');
         }
         else {
             document.getElementById('homeIconPreview').style.backgroundImage = '';
-            document.getElementById('divHomeIconLigature').classList.remove('hide');
+            elShowId('divHomeIconLigature');
             document.getElementById('homeIconPreview').textContent = document.getElementById('inputHomeIconLigature').value;
         }
     }, false);
@@ -72,6 +66,12 @@ function initHome() {
         const selLig = document.getElementById('inputHomeIconLigature').value;
         if (selLig !== '') {
             document.getElementById('searchHomeIconLigature').value = selLig;
+            if (selLig !== '') {
+                elShow(document.getElementById('searchHomeIconLigature').nextElementSibling);
+            }
+            else {
+                elHide(document.getElementById('searchHomeIconLigature').nextElementSibling);
+            }
             filterHomeIconLigatures();
         }
     }, false);
@@ -81,12 +81,12 @@ function initHome() {
 
     elClear(listHomeIconLigature);
     elClear(searchHomeIconCat);
-    searchHomeIconCat.appendChild(elCreate('option', {"value": "all"}, tn('All')));
+    searchHomeIconCat.appendChild(elCreateText('option', {"value": "all"}, tn('All')));
     for (const cat in materialIcons) {
-        listHomeIconLigature.appendChild(elCreate('h5', {"class": ["ml-1", "mt-2"]}, ucFirst(cat)));
-        searchHomeIconCat.appendChild(elCreate('option', {"value": cat}, ucFirst(cat)));
+        listHomeIconLigature.appendChild(elCreateText('h5', {"class": ["ml-1", "mt-2"]}, ucFirst(cat)));
+        searchHomeIconCat.appendChild(elCreateText('option', {"value": cat}, ucFirst(cat)));
         for (const icon of materialIcons[cat]) {
-            listHomeIconLigature.appendChild(elCreate('button', {"class": ["btn", "btn-sm", "mi", "m-1"], "title": icon, "data-cat": cat}, icon));
+            listHomeIconLigature.appendChild(elCreateText('button', {"class": ["btn", "btn-sm", "mi", "m-1"], "title": icon, "data-cat": cat}, icon));
         }
     }
 
@@ -94,6 +94,7 @@ function initHome() {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             selectHomeIconLigature(event.target);
+            document.getElementById('btnHomeIconLigature').Dropdown.hide();
         }
     });
     
@@ -139,11 +140,11 @@ function selectHomeIconLigature(x) {
 
 function filterHomeIconLigatures() {
     const str = document.getElementById('searchHomeIconLigature').value.toLowerCase();
-    const cat = getSelectValue('searchHomeIconCat');
+    const cat = getSelectValueId('searchHomeIconCat');
     const els = document.getElementById('listHomeIconLigature').getElementsByTagName('button');
     for (let i = 0, j = els.length; i < j; i++) {
         if ((str === '' || els[i].getAttribute('title').indexOf(str) > -1) && (cat === 'all' || els[i].getAttribute('data-cat') === cat)) {
-            els[i].classList.remove('hide');
+            elShow(els[i]);
             if (els[i].getAttribute('title') === str) {
                 els[i].classList.add('active');
             }
@@ -152,32 +153,31 @@ function filterHomeIconLigatures() {
             }
         }
         else {
-            els[i].classList.add('hide');
+            elHide(els[i]);
             els[i].classList.remove('active' );
         }
     }
     const catTitles = document.getElementById('listHomeIconLigature').getElementsByTagName('h5');
     if (cat === '') {
         for (let i = 0, j = catTitles.length; i < j; i++) {
-            catTitles[i].classList.remove('hide');
+            elShow(catTitles[i]);
         }
     }
     else {
         for (let i = 0, j = catTitles.length; i < j; i++) {
-            catTitles[i].classList.add('hide');
+            elHide(catTitles[i]);
         }
     }
 }
 
 function parseHome(obj) {
-    const cardContainer = document.getElementById('HomeCards');
+    const cardContainer = document.getElementById('HomeList');
     const cols = cardContainer.getElementsByClassName('col');
     if (obj.error !== undefined) {
-        elClear(cardContainer);
-        const div = elCreate('div', {"class": ["ml-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, '');
-        addIconLine(div, 'error_outline', t(obj.error.message, obj.error.data));
-        cardContainer.appendChild(div);
-        setPagination(obj.result.totalEntities, obj.result.returnedEntities);    
+        elReplaceChild(cardContainer,
+            elCreateText('div', {"class": ["ms-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
+        );
+        setPagination(obj.result.totalEntities, obj.result.returnedEntities);
         return;
     }
     if (cols.length === 0) {
@@ -185,43 +185,49 @@ function parseHome(obj) {
     }
     if (obj.result.returnedEntities === 0) {
         elClear(cardContainer);
-        const div = elCreate('div', {"class": ["ml-3"]}, '');
-        div.appendChild(elCreate('h3', {}, tn('Homescreen')));
-        div.appendChild(elCreate('p', {}, tn('Homescreen welcome')));
-        const ul = elCreate('ul', {}, '');
-        ul.appendChild(elCreate('li', {}, ''));
-        ul.childNodes[0].appendChild(elCreate('b', {}, tn('View')));
-        ul.childNodes[0].appendChild(elCreate('span', {}, ': ' + tn('Homescreen help view')));
-        ul.childNodes[0].appendChild(elCreate('span', {"class": ["mi"]}, 'add_to_home_screen'));
-        ul.appendChild(elCreate('li', {}, ''));
-        ul.childNodes[1].appendChild(elCreate('b', {}, tn('Playlist')));
-        ul.childNodes[1].appendChild(elCreate('span', {}, ': ' + tn('Homescreen help playlist')));
+        const div = elCreateNodes('div', {"class": ["px-3", "py-1"]}, [
+            elCreateText('h3', {}, tn('Homescreen')),
+            elCreateText('p', {}, tn('Homescreen welcome'))
+        ]);
+        const ul = elCreateNodes('ul', {}, [
+            elCreateNodes('li', {}, [
+                elCreateText('b', {}, tn('View')),
+                elCreateText('span', {}, ': ' + tn('Homescreen help view')),
+                elCreateText('span', {"class": ["mi"]}, 'add_to_home_screen')
+            ]),
+            elCreateNodes('li', {}, [
+                elCreateText('b', {}, tn('Playlist')),
+                elCreateText('span', {}, ': ' + tn('Homescreen help playlist'))
+            ])
+        ]);
         if (features.featScripting === true) {
-            ul.appendChild(elCreate('li', {}, ''));
-            ul.childNodes[2].appendChild(elCreate('b', {}, tn('Script')));
-            ul.childNodes[2].appendChild(elCreate('span', {}, ': ' + tn('Homescreen help script')));
-            ul.childNodes[2].appendChild(elCreate('span', {"class": ["mi"]}, 'add_to_home_screen'));
+            ul.appendChild(
+                elCreateNodes('li', {}, [
+                    elCreateText('b', {}, tn('Script')),
+                    elCreateText('span', {}, ': ' + tn('Homescreen help script')),
+                    elCreateText('span', {"class": ["mi"]}, 'add_to_home_screen')
+                ])
+            );
         }
         div.appendChild(ul);
         cardContainer.appendChild(div);
         return;
     }
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const col = elCreate('div', {"class": ["col", "px-0", "flex-grow-0"]}, '');
-        if (obj.result.data[i].AlbumArtist === '') {
-            obj.result.data[i].AlbumArtist = tn('Unknown artist');
-        }
-        if (obj.result.data[i].Album === '') {
-            obj.result.data[i].Album = tn('Unknown album');
-        }
-        const homeType = obj.result.data[i].cmd === 'replaceQueue' ? 'Playlist' :
-            obj.result.data[i].cmd === 'appGoto' ? 'View' : 'Script';
+        const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0"]});
+        const homeType = obj.result.data[i].cmd === 'appGoto' ? 'View' :
+            obj.result.data[i].cmd === 'execScriptFromOptions' ? 'Script' :
+            typeFriendly[obj.result.data[i].options[0]];
         
-        const card = elCreate('div', {"class": ["card", "home-icons", "clickable"], "tabindex": 0, "draggable": "true",
-            "title": tn(homeType) + ': ' + obj.result.data[i].name}, '');
-        setCustomDomProperty(card, 'data-href', {"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
-        setCustomDomProperty(card, 'data-pos', i);
-        const cardBody = elCreate('div', {"class": ["card-body", "mi", "rounded"]}, obj.result.data[i].ligature);
+        const card = elCreateEmpty('div', {"class": ["card", "home-icons"], "tabindex": 0, "draggable": "true",
+            "title": tn(homeType) + ': ' + obj.result.data[i].name});
+        if (obj.result.data[i].options[0] === 'album'){
+            //AlbumArtist must be an array
+            obj.result.data[i].options[1] = JSON.parse(obj.result.data[i].options[1]);
+        }
+        setData(card, 'data-href', {"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
+        setData(card, 'data-pos', i);
+        const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded", "clickable"]}, obj.result.data[i].ligature);
         if (obj.result.data[i].image !== '') {
             cardBody.style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(obj.result.data[i].image) + '")';
         }
@@ -232,7 +238,7 @@ function parseHome(obj) {
             cardBody.style.color = obj.result.data[i].color;
         }
         card.appendChild(cardBody);
-        card.appendChild(elCreate('div', {"class": ["card-footer", "card-footer-grid", "p-2"]}, obj.result.data[i].name));
+        card.appendChild(elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2", "clickable"]}, obj.result.data[i].name));
         col.appendChild(card);
         if (i < cols.length) {
             cols[i].replaceWith(col);
@@ -247,20 +253,16 @@ function parseHome(obj) {
 }
 
 function popoverMenuHome(event) {
-    const sels = document.getElementById('HomeCards').getElementsByClassName('selected');
-    for (let i = 0, j = sels.length; i < j; i++) {
-        sels[i].classList.remove('selected');
-    }
     event.target.parentNode.classList.add('selected');
-    showMenu(event.target, event);
+    showPopover(event);
     event.preventDefault();
     event.stopPropagation();
 }
 
 function dragAndDropHome() {
-    const homeCards = document.getElementById('HomeCards');
+    const HomeList = document.getElementById('HomeList');
 
-    homeCards.addEventListener('dragstart', function(event) {
+    HomeList.addEventListener('dragstart', function(event) {
         if (event.target.classList.contains('home-icons')) {
             event.target.classList.add('opacity05');
             event.dataTransfer.setDragImage(event.target, 0, 0);
@@ -270,7 +272,7 @@ function dragAndDropHome() {
         }
     }, false);
 
-    homeCards.addEventListener('dragleave', function(event) {
+    HomeList.addEventListener('dragleave', function(event) {
         event.preventDefault();
         if (dragEl.classList.contains('home-icons') === false) {
             return;
@@ -280,12 +282,12 @@ function dragAndDropHome() {
         }
     }, false);
 
-    homeCards.addEventListener('dragover', function(event) {
+    HomeList.addEventListener('dragover', function(event) {
         event.preventDefault();
         if (dragEl.classList.contains('home-icons') === false) {
             return;
         }
-        const ths = homeCards.getElementsByClassName('dragover-icon');
+        const ths = HomeList.getElementsByClassName('dragover-icon');
         for (const th of ths) {
             th.classList.remove('dragover-icon');
         }
@@ -298,19 +300,19 @@ function dragAndDropHome() {
         event.dataTransfer.dropEffect = 'move';
     }, false);
 
-    homeCards.addEventListener('dragend', function(event) {
+    HomeList.addEventListener('dragend', function(event) {
         event.preventDefault();
         if (dragEl.classList.contains('home-icons') === false) {
             return;
         }
-        const ths = homeCards.getElementsByClassName('dragover-icon');
+        const ths = HomeList.getElementsByClassName('dragover-icon');
         for (const th of ths) {
             th.classList.remove('dragover-icon');
         }
         dragSrc.classList.remove('opacity05');
     }, false);
 
-    homeCards.addEventListener('drop', function(event) {
+    HomeList.addEventListener('drop', function(event) {
         event.preventDefault();
         event.stopPropagation();
         if (dragEl.classList.contains('home-icons') === false) {
@@ -323,8 +325,8 @@ function dragAndDropHome() {
             }
             if (dst.classList.contains('home-icons')) {
                 dragEl.classList.remove('opacity05');
-                const to = getCustomDomProperty(dst, 'data-pos');
-                const from = getCustomDomProperty(dragSrc, 'data-pos');
+                const to = getData(dst, 'data-pos');
+                const from = getData(dragSrc, 'data-pos');
                 if (isNaN(to) === false && isNaN(from) === false && from !== to) {
                     sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, function(obj) {
                         parseHome(obj);
@@ -332,35 +334,109 @@ function dragAndDropHome() {
                 }
             }
         }
-        const ths = homeCards.getElementsByClassName('dragover-icon');
+        const ths = HomeList.getElementsByClassName('dragover-icon');
         for (const th of ths) {
             th.classList.remove('dragover-icon');
         }
     }, false);
 }
 
+function populateHomeIconCmdSelect(cmd, type) {
+    const selectHomeIconCmd = document.getElementById('selectHomeIconCmd');
+    elClear(selectHomeIconCmd);
+    if (cmd === 'appGoto') {
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appGoto"}, tn('Goto view')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
+    }
+    else if (cmd === 'execScriptFromOptions') {
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "execScriptFromOptions"}, tn('Execute Script')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options":["Script", "Arguments"]});
+    }
+    else if (type === 'album') {
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueueAlbum"}, tn('Replace queue')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Albumartist", "Album"]});
+        if (features.featWhence === true) {
+            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertQueueAlbum"}, tn('Insert after current playing song')));
+            setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Albumartist", "Album"]});
+            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "playQueueAlbum"}, tn('Add to queue and play')));
+            setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Albumartist", "Album"]});
+        }
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueueAlbum"}, tn('Append to queue')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Albumartist", "Album"]});
+    }
+    else {
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueue"}, tn('Replace queue')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
+        if (features.featWhence === true) {
+            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAfterCurrentQueue"}, tn('Insert after current playing song')));
+            setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
+            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAndPlayQueue"}, tn('Add to queue and play')));
+            setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
+        }
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueue"}, tn('Append to queue')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
+    }
+}
+
 //eslint-disable-next-line no-unused-vars
 function executeHomeIcon(pos) {
-    const el = document.getElementById('HomeCards').children[pos].firstChild;
-    parseCmd(null, getCustomDomProperty(el, 'data-href'));
+    const el = document.getElementById('HomeList').children[pos].firstChild;
+    parseCmd(null, getData(el, 'data-href'));
 }
 
 //eslint-disable-next-line no-unused-vars
 function addViewToHome() {
-    _addHomeIcon('appGoto', '', 'preview', [app.current.app, app.current.tab, app.current.view, 
+    _addHomeIcon('appGoto', '', 'preview', [app.current.card, app.current.tab, app.current.view, 
         app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search]); 
 }
 
 //eslint-disable-next-line no-unused-vars
-function addScriptToHome(name, scriptDef) {
-    const script = JSON.parse(scriptDef);
+function addScriptToHome(name, script) {
     const options = [script.script, script.arguments.join(',')];
-    _addHomeIcon('execScriptFromOptions', name, 'description', options);
+    _addHomeIcon('execScriptFromOptions', name, 'code', options);
 }
 
 //eslint-disable-next-line no-unused-vars
-function addPlistToHome(uri, name) {
-    _addHomeIcon('replaceQueue', name, 'list', ['plist', uri, name]);
+function addPlistToHome(uri, type, name) {
+    _addHomeIcon('replaceQueue', name, 'list', [type, uri]);
+}
+
+//eslint-disable-next-line no-unused-vars
+function addDirToHome(uri, name) {
+    _addHomeIcon('replaceQueue', name, 'folder_open', ['dir', uri]);
+}
+
+//eslint-disable-next-line no-unused-vars
+function addSongToHome(uri, name) {
+    _addHomeIcon('replaceQueue', name, 'music_note', ['song', uri]);
+}
+
+//eslint-disable-next-line no-unused-vars
+function addSearchToHome() {
+    _addHomeIcon('replaceQueue', tn('Current search'), 'saved_search', ['search', app.current.search]);
+}
+
+//eslint-disable-next-line no-unused-vars
+function addAlbumToHome(albumArtist, album) {
+    if (albumArtist === undefined) {
+        album = app.current.tag;
+        albumArtist = app.current.search;
+    }
+    _addHomeIcon('replaceQueueAlbum', album, 'album', ['album', JSON.stringify(albumArtist), album]);
+}
+
+//eslint-disable-next-line no-unused-vars
+function addStreamToHome() {
+    const mode = getRadioBoxValueId('addToPlaylistPos');
+    const uri = document.getElementById('streamUrl').value;
+    let action;
+    switch(mode) {
+        case 'append': action = 'appendQueue'; break;
+        case 'insert': action = 'insertAfterCurrentQueue'; break;
+        case 'play': action = 'insertAndPlayQueue'; break;
+        case 'replace': action = 'replaceQueue'; break;
+    }
+    _addHomeIcon(action, '', 'stream', ['stream', uri]);
 }
 
 function _addHomeIcon(cmd, name, ligature, options) {
@@ -371,8 +447,9 @@ function _addHomeIcon(cmd, name, ligature, options) {
     document.getElementById('inputHomeIconLigature').value = ligature;
     document.getElementById('inputHomeIconBgcolor').value = '#28a745';
     document.getElementById('inputHomeIconColor').value = '#ffffff';
-    document.getElementById('selectHomeIconCmd').value = cmd;
     
+    populateHomeIconCmdSelect(cmd, options[0]);
+    document.getElementById('selectHomeIconCmd').value = cmd;
     showHomeIconCmdOptions(options);
     getHomeIconPictureList('');
     
@@ -380,7 +457,7 @@ function _addHomeIcon(cmd, name, ligature, options) {
     document.getElementById('homeIconPreview').style.backgroundColor = '#28a745';
     document.getElementById('homeIconPreview').style.color = '#ffffff';
     document.getElementById('homeIconPreview').style.backgroundImage = '';
-    document.getElementById('divHomeIconLigature').classList.remove('hide');
+    elShowId('divHomeIconLigature');
     uiElements.modalEditHomeIcon.show();
 }
 
@@ -405,6 +482,7 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('inputHomeIconColor').value = obj.result.data.color;
         document.getElementById('selectHomeIconCmd').value = obj.result.data.cmd;
 
+        populateHomeIconCmdSelect(obj.result.data.cmd, obj.result.data.options[0]);
         showHomeIconCmdOptions(obj.result.data.options);
         getHomeIconPictureList(obj.result.data.image);
 
@@ -413,11 +491,11 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('homeIconPreview').style.color = obj.result.data.color;
         
         if (obj.result.data.image === '') {
-            document.getElementById('divHomeIconLigature').classList.remove('hide');
+            elShowId('divHomeIconLigature');
             document.getElementById('homeIconPreview').style.backgroundImage = '';
         }
         else {
-            document.getElementById('divHomeIconLigature').classList.add('hide');
+            elHideId('divHomeIconLigature');
             document.getElementById('homeIconPreview').style.backgroundImage = 'url(' + subdir + '"/pics/' + myEncodeURI(obj.result.data.image) + '")';
         }
         //reset ligature selection
@@ -425,13 +503,14 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('searchHomeIconCat').value = 'all';
         filterHomeIconLigatures();
         //show modal
-        hideModalAlert();
+        cleanupModalId('modalEditHomeIcon');
         uiElements.modalEditHomeIcon.show();
     });
 }
 
 //eslint-disable-next-line no-unused-vars
 function saveHomeIcon() {
+    cleanupModalId('modalEditHomeIcon');
     let formOK = true;
     const nameEl = document.getElementById('inputHomeIconName');
     if (!validateNotBlank(nameEl)) {
@@ -443,7 +522,7 @@ function saveHomeIcon() {
         for (const optionEl of optionEls) {
             options.push(optionEl.value);
         }
-        const image = getSelectValue('selectHomeIconImage');
+        const image = getSelectValueId('selectHomeIconImage');
         sendAPI("MYMPD_API_HOME_ICON_SAVE", {
             "replace": (document.getElementById('inputHomeIconReplace').value === 'true' ? true : false),
             "oldpos": Number(document.getElementById('inputHomeIconOldpos').value),
@@ -459,12 +538,10 @@ function saveHomeIcon() {
 }
 
 function saveHomeIconClose(obj) {
-    removeEnterPinFooter();
     if (obj.error) {
         showModalAlert(obj);
     }
     else {
-        hideModalAlert();
         uiElements.modalEditHomeIcon.hide();
         sendAPI("MYMPD_API_HOME_LIST", {}, function(obj2) {
             parseHome(obj2);
@@ -487,17 +564,17 @@ function showHomeIconCmdOptions(values) {
     }
     const divHomeIconOptions = document.getElementById('divHomeIconOptions');
     elClear(divHomeIconOptions);
-    const options = getSelectedOptionAttribute('selectHomeIconCmd', 'data-options');
+    const options = getSelectedOptionDataId('selectHomeIconCmd', 'data-options');
     if (options !== undefined) {
         for (let i = 0, j = options.options.length; i < j; i++) {
-            const row = elCreate('div', {"class": ["form-group", "row"]}, '');
-            row.appendChild(elCreate('label', {"class": ["col-sm-4"]}, tn(options.options[i])));
-            const div = elCreate('div', {"class": ["col-sm-8"]}, '');
+            const row = elCreateEmpty('div', {"class": ["mb-3", "row"]});
+            row.appendChild(elCreateText('label', {"class": ["col-sm-4"]}, tn(options.options[i])));
+            const div = elCreateEmpty('div', {"class": ["col-sm-8"]});
             let value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
             if (value === '' && oldOptions[i] !== undefined) {
                 value = oldOptions[i];
             }
-            div.appendChild(elCreate('input', {"class": ["form-control", "border-secondary"], "name": options.options[i], "value": value}, ''));
+            div.appendChild(elCreateEmpty('input', {"class": ["form-control", "border-secondary"], "name": options.options[i], "value": value}));
             row.appendChild(div);
             divHomeIconOptions.appendChild(row);
         }

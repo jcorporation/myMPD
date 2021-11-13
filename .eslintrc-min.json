@@ -27,6 +27,7 @@
         "no-empty": "off",
         "no-eq-null": "error",
         "no-eval": "error",
+        "no-fallthrough": "off",
         "no-implied-eval": "error",
         "no-invalid-this": "error",
         "no-redeclare": ["error", { "builtinGlobals": false }],

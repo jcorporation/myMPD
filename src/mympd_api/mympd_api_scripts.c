@@ -30,7 +30,7 @@
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>  
-#ifndef DEBUG
+#ifdef EMBEDDED_ASSETS
     //embedded files for release build
     #include "mympd_api_scripts_lualibs.c"
 #endif
@@ -426,11 +426,7 @@ static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script) {
 
 static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
     MYMPD_LOG_DEBUG("Loading embedded lua library %s", lualib);
-    #ifdef DEBUG
-        sds filename = sdscatfmt(sdsempty(), "%s/%s.lua", LUALIBS_PATH, lualib);
-        int rc = luaL_dofile(lua_vm, filename);
-        FREE_SDS(filename);
-    #else
+    #ifdef EMBEDDED_ASSETS
         sds lib_string;
         if (strcmp(lualib, "json") == 0) {
             lib_string = sdscatlen(sdsempty(), json_lua_data, json_lua_size);
@@ -443,6 +439,10 @@ static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
         }
         int rc = luaL_dostring(lua_vm, lib_string);
         FREE_SDS(lib_string);
+    #else
+        sds filename = sdscatfmt(sdsempty(), "%s/%s.lua", LUALIBS_PATH, lualib);
+        int rc = luaL_dofile(lua_vm, filename);
+        FREE_SDS(filename);
     #endif
     int nr_return = lua_gettop(lua_vm);
     MYMPD_LOG_DEBUG("Lua library returns %d values", nr_return);

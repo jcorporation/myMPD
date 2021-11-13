@@ -7,44 +7,44 @@
 #ifndef MYMPD_WEB_SERVER_UTILITY_H
 #define MYMPD_WEB_SERVER_UTILITY_H
 
-#include "../../dist/src/mongoose/mongoose.h"
-#include "../../dist/src/sds/sds.h"
+#include "../../dist/mongoose/mongoose.h"
+#include "../../dist/sds/sds.h"
 #include "../lib/list.h"
 #include "../lib/mympd_configuration.h"
 
 #include <stdbool.h>
 
 #define EXTRA_HEADERS_DIR "Content-Security-Policy: default-src 'none'; "\
-                          "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; "\
-                          "connect-src 'self' ws: wss:; manifest-src 'self'; "\
-                          "media-src *; frame-ancestors *; base-uri 'none';\r\n"\
-                          "X-Content-Type-Options: nosniff\r\n"\
-                          "X-XSS-Protection: 1; mode=block\r\n"\
-                          "X-Frame-Options: deny\r\n"
+    "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; "\
+    "connect-src 'self' ws: wss:; manifest-src 'self'; "\
+    "media-src 'self'; frame-ancestors *; base-uri 'none';\r\n"\
+    "X-Content-Type-Options: nosniff\r\n"\
+    "X-XSS-Protection: 1; mode=block\r\n"\
+    "X-Frame-Options: deny\r\n"
 
 #define EXTRA_HEADERS "Content-Security-Policy: default-src 'none'; "\
-                      "style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; "\
-                      "connect-src 'self' ws: wss:; manifest-src 'self'; "\
-                      "media-src *; frame-ancestors *; base-uri 'none';\r\n"\
-                      "X-Content-Type-Options: nosniff\r\n"\
-                      "X-XSS-Protection: 1; mode=block\r\n"\
-                      "X-Frame-Options: deny\r\n"
+    "style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; "\
+    "connect-src 'self' ws: wss:; manifest-src 'self'; "\
+    "media-src 'self'; frame-ancestors *; base-uri 'none'; "\
+    "require-trusted-types-for 'script'\r\n"\
+    "X-Content-Type-Options: nosniff\r\n"\
+    "X-XSS-Protection: 1; mode=block\r\n"\
+    "X-Frame-Options: deny\r\n"
 
 #define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800\r\n"
 
 #define DIRECTORY_LISTING_CSS "h1{top:0;font-size:inherit;font-weight:inherit}address{bottom:0;font-style:normal}"\
-      "h1,address{background-color:#343a40;color:#f8f9fa;padding:1rem;position:fixed;"\
-      "box-sizing:border-box;width:100%;margin-top:0}body{margin:5rem 0;background-color:#f7f7f7;"\
-      "color:#212529;font-family:sans-serif;font-size:1rem;font-weight:400;line-height:1.5}"\
-      "table{border-collapse:collapse;margin:1rem}th{border-bottom:2px solid #dee2e6;"\
-      "border-top:1px solid #dee2e6;text-align:left;padding:.3rem;font-family:inherit}"\
-      "td{text-align:left;padding:.3rem;font-family:inherit;border-bottom:1px solid #dee2e6}"\
-      "td:last-child{text-align:right}a,a:visited,a:active{color:#212529;text-decoration:none}"\
-      "a:hover{text-decoration:underline}"
+    "h1,address{background-color:#343a40;color:#f8f9fa;padding:1rem;position:fixed;"\
+    "box-sizing:border-box;width:100%;margin-top:0}body{margin:5rem 0;background-color:#f7f7f7;"\
+    "color:#212529;font-family:sans-serif;font-size:1rem;font-weight:400;line-height:1.5}"\
+    "table{border-collapse:collapse;margin:1rem}th{border-bottom:2px solid #dee2e6;"\
+    "border-top:1px solid #dee2e6;text-align:left;padding:.3rem;font-family:inherit}"\
+    "td{text-align:left;padding:.3rem;font-family:inherit;border-bottom:1px solid #dee2e6}"\
+    "td:last-child{text-align:right}a,a:visited,a:active{color:#212529;text-decoration:none}"\
+    "a:hover{text-decoration:underline}"
 
-#define EXTRA_MIME_TYPES "jpg=image/jpeg,jpeg=image/jpeg,webp=image/webp,avif=image/avif,"\
-    "mp3=audio/mpeg,flac=audio/flac,oga=audio/ogg,ogg=audio/ogg,opus=audio/ogg,spx=audio/ogg,"\
-    "svg=image/svg+xml,crt=application/x-x509-ca-cert,pem=application/x-x509-ca-cert"
+#define EXTRA_MIME_TYPES "avif=image/avif,flac=audio/flac,oga=audio/ogg,ogg=audio/ogg,"\
+    "opus=audio/ogg,spx=audio/ogg,pem=application/x-x509-ca-cert,woff2=font/woff2"
 
 //struct for mg_mgr userdata
 struct t_mg_user_data {

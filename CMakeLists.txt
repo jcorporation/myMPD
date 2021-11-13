@@ -6,8 +6,8 @@
 
 project (mympd C)
 set(CPACK_PACKAGE_VERSION_MAJOR "8")
-set(CPACK_PACKAGE_VERSION_MINOR "1")
-set(CPACK_PACKAGE_VERSION_PATCH "6")
+set(CPACK_PACKAGE_VERSION_MINOR "2")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 cmake_minimum_required(VERSION 3.4)
 
@@ -146,7 +146,7 @@ configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.se
 configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.sysVinit @ONLY)
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
 
-include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} dist/src/libmpdclient/include)
+include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} dist/libmpdclient/include)
 
 if("${ENABLE_LIBASAN}" MATCHES "ON")
   message("Compiling with libasan")
@@ -161,9 +161,10 @@ endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wvla -Winit-self -Wuninitialized \
 	-Werror=array-bounds -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE -O3 \
+	-ffunction-sections -fdata-sections \
 	${LIBASAN_FLAGS}")
 
-foreach(FLAG IN ITEMS "-std=gnu17" "-fstack-clash-protection" "-fcf-protection")
+foreach(FLAG IN ITEMS "-std=gnu17" "-fstack-clash-protection" "-fcf-protection" "-fno-plt")
   message("Checking for compiler flag ${FLAG}")
   unset(COMPILER_SUPPORTS_FLAG CACHE)
   unset(COMPILER_SUPPORTS_FLAG)
@@ -181,7 +182,7 @@ set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABL
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
   set(MONGOOSE_FLAGS "${MONGOOSE_FLAGS} -DMG_ENABLE_LOG=0")
   #linker flags
-  set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -pie -s")
+  set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -pie -s -Wl,--gc-sections")
 else()
   set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
 endif()
@@ -213,18 +214,17 @@ file(GLOB MYMPD_SRC_FILES6 "src/mpd_shared/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES6} PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS}")
 
 #compiler flags for mjson
-set_property(SOURCE dist/src/mjson/mjson.c PROPERTY COMPILE_FLAGS "${MJSON_FLAGS}")
+set_property(SOURCE dist/mjson/mjson.c PROPERTY COMPILE_FLAGS "${MJSON_FLAGS}")
 
 #compiler flags for mongoose
-set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "${MONGOOSE_FLAGS}")
+set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "${MONGOOSE_FLAGS}")
 
 set(SOURCES
-  dist/src/mjson/mjson.c
-  dist/src/mongoose/mongoose.c
-  dist/src/rax/rax.c
-  dist/src/sds/sds.c
-  dist/src/tinymt/tinymt32.c
-  dist/src/utf8decode/utf8decode.c
+  dist/mjson/mjson.c
+  dist/mongoose/mongoose.c
+  dist/rax/rax.c
+  dist/sds/sds.c
+  dist/tinymt/tinymt32.c
   src/handle_options.c
   src/lib/api.c
   src/lib/covercache.c
@@ -233,7 +233,6 @@ set(SOURCES
   src/lib/list.c
   src/lib/log.c
   src/lib/lua_mympd_state.c
-  src/lib/mem.c
   src/lib/mimetype.c
   src/lib/mympd_pin.c
   src/lib/mympd_queue.c
@@ -291,62 +290,63 @@ if("${ENABLE_SSL}" MATCHES "ON")
 endif()
 
 set(LIBMPDCLIENT_SOURCES
-  dist/src/libmpdclient/src/albumart.c
-  dist/src/libmpdclient/src/async.c
-  dist/src/libmpdclient/src/audio_format.c
-  dist/src/libmpdclient/src/binary.c
-  dist/src/libmpdclient/src/capabilities.c
-  dist/src/libmpdclient/src/cmessage.c
-  dist/src/libmpdclient/src/cmount.c
-  dist/src/libmpdclient/src/cneighbor.c
-  dist/src/libmpdclient/src/connection.c
-  dist/src/libmpdclient/src/coutput.c
-  dist/src/libmpdclient/src/cpartition.c
-  dist/src/libmpdclient/src/cplaylist.c
-  dist/src/libmpdclient/src/cstats.c
-  dist/src/libmpdclient/src/cstatus.c
-  dist/src/libmpdclient/src/database.c
-  dist/src/libmpdclient/src/directory.c
-  dist/src/libmpdclient/src/entity.c
-  dist/src/libmpdclient/src/error.c
-  dist/src/libmpdclient/src/fd_util.c
-  dist/src/libmpdclient/src/fingerprint.c
-  dist/src/libmpdclient/src/idle.c
-  dist/src/libmpdclient/src/ierror.c
-  dist/src/libmpdclient/src/iso8601.c
-  dist/src/libmpdclient/src/kvlist.c
-  dist/src/libmpdclient/src/list.c
-  dist/src/libmpdclient/src/message.c
-  dist/src/libmpdclient/src/mixer.c
-  dist/src/libmpdclient/src/mount.c
-  dist/src/libmpdclient/src/neighbor.c
-  dist/src/libmpdclient/src/output.c
-  dist/src/libmpdclient/src/parser.c
-  dist/src/libmpdclient/src/partition.c
-  dist/src/libmpdclient/src/password.c
-  dist/src/libmpdclient/src/player.c
-  dist/src/libmpdclient/src/playlist.c
-  dist/src/libmpdclient/src/queue.c
-  dist/src/libmpdclient/src/quote.c
-  dist/src/libmpdclient/src/replay_gain.c
-  dist/src/libmpdclient/src/rdirectory.c
-  dist/src/libmpdclient/src/readpicture.c
-  dist/src/libmpdclient/src/recv.c
-  dist/src/libmpdclient/src/replay_gain.c
-  dist/src/libmpdclient/src/resolver.c
-  dist/src/libmpdclient/src/response.c
-  dist/src/libmpdclient/src/rplaylist.c
-  dist/src/libmpdclient/src/run.c
-  dist/src/libmpdclient/src/search.c
-  dist/src/libmpdclient/src/send.c
-  dist/src/libmpdclient/src/settings.c
-  dist/src/libmpdclient/src/socket.c
-  dist/src/libmpdclient/src/song.c
-  dist/src/libmpdclient/src/stats.c
-  dist/src/libmpdclient/src/status.c
-  dist/src/libmpdclient/src/sticker.c
-  dist/src/libmpdclient/src/sync.c
-  dist/src/libmpdclient/src/tag.c
+  dist/libmpdclient/src/albumart.c
+  dist/libmpdclient/src/async.c
+  dist/libmpdclient/src/audio_format.c
+  dist/libmpdclient/src/binary.c
+  dist/libmpdclient/src/capabilities.c
+  dist/libmpdclient/src/cmessage.c
+  dist/libmpdclient/src/cmount.c
+  dist/libmpdclient/src/cneighbor.c
+  dist/libmpdclient/src/connection.c
+  dist/libmpdclient/src/coutput.c
+  dist/libmpdclient/src/cpartition.c
+  dist/libmpdclient/src/cplaylist.c
+  dist/libmpdclient/src/cstats.c
+  dist/libmpdclient/src/cstatus.c
+  dist/libmpdclient/src/database.c
+  dist/libmpdclient/src/directory.c
+  dist/libmpdclient/src/entity.c
+  dist/libmpdclient/src/error.c
+  dist/libmpdclient/src/fd_util.c
+  dist/libmpdclient/src/fingerprint.c
+  dist/libmpdclient/src/idle.c
+  dist/libmpdclient/src/ierror.c
+  dist/libmpdclient/src/iso8601.c
+  dist/libmpdclient/src/kvlist.c
+  dist/libmpdclient/src/list.c
+  dist/libmpdclient/src/message.c
+  dist/libmpdclient/src/mixer.c
+  dist/libmpdclient/src/mount.c
+  dist/libmpdclient/src/neighbor.c
+  dist/libmpdclient/src/output.c
+  dist/libmpdclient/src/parser.c
+  dist/libmpdclient/src/partition.c
+  dist/libmpdclient/src/password.c
+  dist/libmpdclient/src/player.c
+  dist/libmpdclient/src/playlist.c
+  dist/libmpdclient/src/position.c
+  dist/libmpdclient/src/queue.c
+  dist/libmpdclient/src/quote.c
+  dist/libmpdclient/src/replay_gain.c
+  dist/libmpdclient/src/rdirectory.c
+  dist/libmpdclient/src/readpicture.c
+  dist/libmpdclient/src/recv.c
+  dist/libmpdclient/src/replay_gain.c
+  dist/libmpdclient/src/resolver.c
+  dist/libmpdclient/src/response.c
+  dist/libmpdclient/src/rplaylist.c
+  dist/libmpdclient/src/run.c
+  dist/libmpdclient/src/search.c
+  dist/libmpdclient/src/send.c
+  dist/libmpdclient/src/settings.c
+  dist/libmpdclient/src/socket.c
+  dist/libmpdclient/src/song.c
+  dist/libmpdclient/src/stats.c
+  dist/libmpdclient/src/status.c
+  dist/libmpdclient/src/sticker.c
+  dist/libmpdclient/src/sync.c
+  dist/libmpdclient/src/tag.c
 )
 
 add_executable(mympd ${SOURCES} ${LIBMPDCLIENT_SOURCES} ${CERT_SOURCES})

@@ -261,12 +261,6 @@ Stream URL
 http://uri.to/stream.mp3
 http://url.zum/stream.mp3
 
-Please choose playlist
-Bitte Wiedergabeliste auswählen
-
-Create Playlist
-Neue Wiedergabeliste erstellen
-
 Invalid filename
 Ungültiger Dateiname
 
@@ -298,10 +292,10 @@ Delete
 Löschen
 
 Dislike song
-Schlechtes Lied
+Gefällt mir nicht
 
 Like song
-Gutes Lied
+Gefällt mir
 
 MPD stickers are disabled
 MPD Sticker sind deaktiviert
@@ -510,12 +504,6 @@ Verbindung
 Protocol version
 Protokoll Version
 
-Libmpdclient version
-Libmpdclient Version
-
-Libmympdclient version
-Libmympdclient Version
-
 Action
 Aktion
 
@@ -567,9 +555,6 @@ Lieddetails
 Close
 Schließen
 
-Searching...
-Suche...
-
 Previous song
 Voriges Lied
 
@@ -588,14 +573,11 @@ Leiser
 Volume up
 Lauter
 
+Open MPD connection
+Öffne MPD Verbindung
+
 Open settings
-Einstellungen
-
-Open song details
-Lieddetails
-
-Open local player
-Lokale Wiedergabe
+Öffne Einstellungen
 
 Goto home
 Gehe zur Startseite
@@ -624,12 +606,6 @@ Gehe zu Dateisystem
 Goto search
 Gehe zur Suche
 
-Open main menu
-Öffne Hauptmenü
-
-Open volume menu
-Öffne Lautstärkemenü
-
 Open about
 Öffne Über myMPD
 
@@ -642,11 +618,11 @@ myMPD wurde als App installiert
 MPD disconnected
 MPD nicht verbunden
 
-Websocket connection failed
-Websocket Verbindung fehlgeschlagen
+Websocket connection closed
+Websocket Verbindung geschlossen
 
 Connected to myMPD
-Verbindung zu myMPD hergestellt
+myMPD Verbindung hergestellt
 
 Connected to MPD
 Verbindung zu MPD hergestellt
@@ -665,9 +641,6 @@ Lautstärke
 
 Empty list
 Leere Liste
-
-Added stream %{streamUri} to queue
-Stream %{streamUri} zu Warteschlange hinzugefügt
 
 Append to queue
 An Warteschlange anhängen
@@ -694,7 +667,7 @@ Remove all upwards
 Alle Lieder darüber entfernen
 
 Remove all downwards
-Aller Lieder darunter entfernen
+Alle Lieder darunter entfernen
 
 Database update started
 Datenbankaktualisierung gestartet
@@ -714,14 +687,8 @@ Lieder zur Warteschlange hinzugefügt
 Add random
 Zufällig hinzufügen
 
-New playlist
-Neue Wiedergabeliste
-
 never
 noch nie
-
-Added %{uri} to playlist %{playlist}
-%{uri} zu Wiedergabeliste %{playlist} hinzugefügt
 
 Successfully added random songs to queue
 Zufällige Lieder wurden zur Warteschlange hinzugefügt
@@ -762,6 +729,12 @@ Unbekannter intelligenter Wiedergabenlisten Typ
 Background
 Hintergrund
 
+Repeat each
+Wiederhole
+
+Weeks
+Wochen
+
 Days
 Tage
 
@@ -774,35 +747,8 @@ Min
 Seconds
 Sek
 
-Added all songs
-Alle Lieder hinzugefügt
-
-%{name} added to queue
-%{name} hinzugefügt
-
-%{name} added to queue position %{to}
-%{name} an Warteschlangenposition %{to} hinzugefügt
-
-Queue replaced with %{name}
-Warteschlange mit %{name} ersetzt
-
-Focus table
-In Tabelle navigieren
-
-Append item to queue
-Ausgewähltes Element an Warteschlange anhängen
-
-Replace queue with item
-Warteschlange mit ausgewähltem Element ersetzen
-
 Type
 Typ
-
-Remove item from queue
-Ausgewähltes Element aus Warteschlange entfernen
-
-Append item to playlist
-Ausgewähltes Element zu einer Wiedergabeliste hinzufügen
 
 Fingerprint
 Fingerabdruck
@@ -815,9 +761,6 @@ myMPD Stammzertifikat
 
 IP-Address
 IP-Adresse
-
-Mongoose version
-Mongoose Version
 
 Webserver
 Webserver
@@ -976,7 +919,7 @@ Tue
 Di
 
 Wed
-Mit
+Mi
 
 Thu
 Do
@@ -1112,9 +1055,6 @@ Timer konnte nicht hinzugefügt werden
 
 Browse directories
 Verzeichnisse anzeigen
-
-Sorry, your MPD version is too old
-Entschuldige, deine MPD version ist zu alt
 
 Mounts
 Einhängepunkte
@@ -1263,9 +1203,6 @@ Sortierreihenfolge der Skripts, 0 deaktiviert die Anzeige im Hauptmenü
 Fullscreen
 Vollbild
 
-Open fullscreen
-Öffnet den Vollbildmodus
-
 Could not save trigger
 Konnte Trigger nicht speichern
 
@@ -1326,20 +1263,8 @@ Eigenschaften editieren
 Output attributes
 Ausgabeeigenschaften
 
-Plugin
-Plugin
-
 Show attributes
 Eigenschaften anzeigen
-
-State
-Status
-
-disabled
-deaktiviert
-
-enabled
-aktiviert
 
 Websocket is disconnected
 Websocket ist nicht verbunden
@@ -1352,9 +1277,6 @@ Booklet herunterladen
 
 Zoom
 Zoom
-
-Disc 1
-Disc 1
 
 Disc
 Disc
@@ -1407,8 +1329,8 @@ Konnte Verzeichnis pics nicht öffnen
 Use ligature
 Ligatur benutzen
 
-Add and play playlist
-Spiele Wiedergabeliste ab
+Replace queue with playlist
+Warteschlange mit Wiedergabeliste ersetzen
 
 Goto view
 Gehe zur Ansicht
@@ -1494,21 +1416,14 @@ Priorität des Liedes konnte nicht gesetzt werden
 Lookup at musicbrainz
 Bei Musicbraonz nachschlagen
 
-
 Play after current playing song
 Nach aktuellem Lied abspielen
-
-Replaced queue
-Warteschlange ersetzt
 
 First page
 Erste Seite
 
 Last page
 Letzte Seite
-
-Show album
-Album anzeigen
 
 Can not get lyrics for stream uri
 Liedtexte für Streams sind nicht unterstützt
@@ -1567,6 +1482,12 @@ Bist du sicher?
 Do you really want to clear the queue?
 Willst du die Warteschlange wirklich leeren?
 
+Do you really want to delete the timer?
+Willst du den Timer wirklich löschen?
+
+Do you really want to delete the trigger?
+Willst du den Trigger wirklich löschen?
+
 Playback controls
 Wiedergabe Steuerelemente
 
@@ -1606,12 +1527,6 @@ Neues Lied
 Show playback settings in footer
 Wiedergabeeinstellungen im Footer anzeigen
 
-Custom
-Benutzerdefiniert
-
-Daily
-Täglich
-
 Interval
 Interval
 
@@ -1624,11 +1539,20 @@ Einmalig und löschen
 One shot and disable
 Einmalig und deaktivieren
 
-Weekly
-Wöchentlich
+Each 1
+jede Sekunde |||| jede %{smart_count}. Sekunde
 
-Each hours
+Each 60
+jede Minute |||| jede %{smart_count}. Minute
+
+Each 3600
 jede Stunde |||| jede %{smart_count}. Stunde
+
+Each 86400
+jeden Tag |||| jeden %{smart_count}. Tag
+
+Each 604800
+jede Woche |||| jede %{smart_count} Woche
 
 Missing translations
 Für die ausgewählte Sprache fehlt %{smart_count} Übersetzung |||| Für die ausgewähle Sprache fehlen %{smart_count} Übersetzungen
@@ -1721,7 +1645,7 @@ Invalid binary limit
 Ungültiger Binary Limit Wert
 
 Invalid timeout
-Ungültiger Timeit
+Ungültiger Timeout
 
 Timeout
 Timeout
@@ -1884,3 +1808,153 @@ Lizenz
 
 Default actions
 Standardaktionen
+
+Priority
+Priorität
+
+Directory
+Verzeichnis
+
+Priority must be in range 0 - 255
+Prioritat muss zwischen 0 und 255 sein
+
+Set
+Setzen
+
+Set song priority
+Setze Liedpriorität
+
+Set priority
+Setze Priorität
+
+Album details
+Album Details
+
+AudioFormat
+Audioformat
+
+Not playing
+gestoppt
+
+Choose a playlist or enter a new playlist name
+Wiedergabeliste wählen oder neuen Namen eingeben
+
+Dialogs
+Dialoge
+
+Navigation
+Navigation
+
+Open queue settings
+Öffne Wiedergabeeinstellungen
+
+Select a playlist
+Wiedergabeliste auswählen
+
+Toggle autoscrolling
+Autoscrolling
+
+Resize
+Größe ändern
+
+Show all albums from artist
+Zeige alle Alben des Interpreten an
+
+Show directory
+Zeige Verzeichnis an
+
+Each 
+Jede
+
+Insert after current playing song
+Nach aktuell gespieltem Lied einfügen
+
+Append
+Anhängen
+
+Replace
+Ersetzen
+
+Add to queue and play
+Zur Warteschlange hinzufügen und abspielen
+
+Insert at start of playlist
+Am Anfang der Wiedergabeliste einfügen
+
+Insert mode
+Einfügemodus
+
+Method not supported
+Methode ist nicht unterstützt
+
+Start playing newly added song failed
+Neu hinzugefügte Lieder konnten nicht wiedergegeben werden
+
+Current search
+Aktuelle Suche
+
+Home icon
+Homeicon
+
+Replaced the queue
+Warteschlange wurde ersetzt
+
+Updated the queue
+Warteschlange wurde aktualisiert
+
+Replaced the playlist %{playlist}
+Wiedergabeliste %{playlist} wurde ersetzt
+
+Updated the playlist %{playlist}
+Wiedergabeliste %{playlist} wurde aktualisiert
+
+Cleared the playlist %{playlist}
+Wiedergabeliste %{playlist} wurde geleert
+
+Add view to homescreen
+Ansicht zum Homescreen hinzufügen
+
+MPD version is outdated
+Die MPD Version ist veraltet
+
+Loglevel
+Loglevel
+
+Open maintenance
+Öffne Wartung
+
+Covercache
+Covercache
+
+0 - Emerg
+0 - Notfall
+
+1 - Alert
+1 - Alarm
+
+2 - Critical
+2 - Kritisch
+
+3 - Error
+3 - Fehler
+
+4 - Warn
+4 - Warnung
+
+5 - Notice
+5 - Hinweis
+
+6 - Info
+6 - Info
+
+7 - Debug
+7 -  Debug
+
+Temporary setting
+Temporäre Einstellung
+
+Add to
+Hinzufügen zu
+
+Home screen
+Startbildschirm

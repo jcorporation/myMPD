@@ -13,6 +13,7 @@
 #include "../lib/log.h"
 #include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mympd_api/mympd_api_utility.h"
 
@@ -143,15 +144,20 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mg_user_data->music_directory, uri_decoded);
     MYMPD_LOG_DEBUG("Absolut media_file: %s", mediafile);
     
-    if (mg_user_data->feat_library == true && 
-        access(mediafile, F_OK) == 0) /* Flawfinder: ignore */
-    {
+    if (mg_user_data->feat_library == true) {
         //try image in folder under music_directory
         if (mg_user_data->coverimage_names_len > 0) {
             sds path = sdsdup(uri_decoded);
             dirname(path);
+            sdsupdatelen(path);
+            if (is_virtual_cuedir(mg_user_data->music_directory, path)) {
+                //fix virtual cue sheet directories
+                dirname(path);
+                sdsupdatelen(path);
+            }
+            sds coverfile = sdsempty();
             for (int j = 0; j < mg_user_data->coverimage_names_len; j++) {
-                sds coverfile = sdscatfmt(sdsempty(), "%s/%s/%s", mg_user_data->music_directory, path, mg_user_data->coverimage_names[j]);
+                coverfile = sdscatfmt(coverfile, "%s/%s/%s", mg_user_data->music_directory, path, mg_user_data->coverimage_names[j]);
                 if (strchr(mg_user_data->coverimage_names[j], '.') == NULL) {
                     //basename, try extensions
                     coverfile = webserver_find_image_file(coverfile);
@@ -170,18 +176,21 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
                     FREE_SDS(path); 
                     return true;
                 }
-                FREE_SDS(coverfile);
+                sdsclear(coverfile);
             }
+            FREE_SDS(coverfile);
             MYMPD_LOG_DEBUG("No cover file found in music directory");
             FREE_SDS(path);
         }
 
-        //try to extract albumart from media file
-        bool rc = handle_coverextract(nc, config, uri_decoded, mediafile, mg_user_data->covercache);
-        if (rc == true) {
-            FREE_SDS(uri_decoded);
-            FREE_SDS(mediafile);
-            return true;
+        if (access(mediafile, F_OK) == 0) { /* Flawfinder: ignore */ 
+            //try to extract albumart from media file
+            bool rc = handle_coverextract(nc, config, uri_decoded, mediafile, mg_user_data->covercache);
+            if (rc == true) {
+                FREE_SDS(uri_decoded);
+                FREE_SDS(mediafile);
+                return true;
+            }
         }
     }
     FREE_SDS(mediafile);

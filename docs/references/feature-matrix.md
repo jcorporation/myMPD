@@ -10,10 +10,14 @@ myMPD support only MPD 0.20.0 and above.
 
 | MYMPD FEATURE | MPD FEATURE | MPD VERSION | DESCRIPTION |
 | ------------- | ----------- | ----------- | ----------- | 
-| Partitions | Partition | 0.22.x | |
-| Embedded albumart| Readpicture | 0.22.x | myMPD can read pictures tags directly if it has access to the musicdirectory |
-| Albumart in album folder | Albumart | 0.21.x | myMPD can read pictures tags directly if it has access to the musicdirectory |
-| Database View | Search expressions | 0.21.x | |
-| Advanced search | Search expressions | 0.21.x | |
-| Single one shot | Single one shot | 0.21.x | |
+| Add after current song | position/whence arg for load/findadd | 0.23.4 | |
+| Insert into playlist | position arg for playlist commands | 0.23.4 | |
+| Add and play | position/whence arg for load/findadd | 0.23.4 | |
+| Partitions | Partition | 0.22.0 | |
+| Embedded albumart| Readpicture | 0.22.0 | myMPD can read pictures tags directly if it has access to the musicdirectory |
+| Albumart in album folder | Albumart | 0.21.0 | myMPD can read pictures tags directly if it has access to the musicdirectory |
+| Database View | Search expressions | 0.21.0 | |
+| Smart playlists | Search expressions | 0.21.0 | |
+| Advanced search | Search expressions | 0.21.0 | |
+| Single one shot | Single one shot | 0.21.0 | |
 {: .table .table-sm }

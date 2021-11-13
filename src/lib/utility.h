@@ -9,7 +9,7 @@
 
 #include <stdbool.h>
 
-#include "../../dist/src/sds/sds.h"
+#include "../../dist/sds/sds.h"
 
 enum testdir_status {
     DIR_EXISTS = 0,
@@ -19,7 +19,7 @@ enum testdir_status {
 };
 
 void ws_notify(sds message);
-
+bool is_virtual_cuedir(sds music_directory, sds filename);
 int testdir(const char *name, const char *dirname, bool create);
 void my_usleep(time_t usec);
 unsigned long substractUnsigned(unsigned long num1, unsigned long num2);

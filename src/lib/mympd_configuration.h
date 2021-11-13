@@ -8,7 +8,7 @@
 #define MYMPD_CONFIGURATION_H
 
 #include "mympd_config_defs.h"
-#include "../dist/src/sds/sds.h"
+#include "../dist/sds/sds.h"
 
 #include <stdbool.h>
 

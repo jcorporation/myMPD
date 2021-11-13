@@ -7,7 +7,7 @@
 #ifndef MYMPD_API_SETTINGS_H
 #define MYMPD_API_SETTINGS_H
 
-#include "../../dist/src/sds/sds.h"
+#include "../../dist/sds/sds.h"
 #include "../lib/mympd_state.h"
 #include "../lib/validate.h"
 

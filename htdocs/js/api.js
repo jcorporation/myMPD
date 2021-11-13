@@ -7,7 +7,7 @@ const ignoreMessages = ['No current song', 'No lyrics found'];
 
 function removeEnterPinFooter(footer) {
     if (footer !== undefined) {
-        footer.previousElementSibling.classList.remove('hide');
+        elShow(footer.previousElementSibling);
         footer.remove();
         return;
     }
@@ -15,41 +15,42 @@ function removeEnterPinFooter(footer) {
     for (let i = f.length - 1; i >= 0; i--) {
         const prev = f[i].previousElementSibling;
         if (prev.classList.contains('modal-footer')) {
-            prev.classList.remove('hide');
+            elShow(prev);
         }
         f[i].remove();
     }
 }
 
-function createEnterPinFooter(footer, method, params, callback, onerror) {
-    const div = elCreate('div', {"class": ["row", "w-100"]}, '');
-    div.appendChild(elCreate('div', {"class": ["col-4", "pl-0"]}, tn('Enter pin')));
-    const gr = elCreate('div', {"class": ["input-group"]}, '');
-    const input = elCreate('input', {"type": "password", "class": ["form-control", "border-secondary"]}, '');
-    gr.appendChild(input);
-    const ap = elCreate('div', {"class": ["input-group-append"]}, '');
-    const btn = elCreate('button', {"class": ["btn", "btn-success"]}, 'Enter');
-    ap.appendChild(btn);
-    gr.appendChild(ap);
-    const col2 = elCreate('div', {"class": ["col-8", "pr-0"]}, '');
-    col2.appendChild(gr);
-    div.appendChild(col2);
-    footer.classList.add('hide');
-    const newFooter = elCreate('div', {"class": ["modal-footer", "enterPinFooter"]}, '');
-    newFooter.appendChild(div);
-    footer.parentNode.appendChild(newFooter);
+function createEnterPinFooter(footers, method, params, callback, onerror) {
+    const input = elCreateEmpty('input', {"type": "password", "class": ["form-control", "border-secondary"]});
+    const btn = elCreateText('button', {"class": ["btn", "btn-success"]}, tn('Enter'));
+    const newFooter = elCreateNode('div', {"class": ["modal-footer", "enterPinFooter"]}, 
+        elCreateNodes('div', {"class": ["row", "w-100"]}, [
+            elCreateText('label', {"class": ["col-4", "col-form-label", "ps-0"]}, tn('Enter pin')),
+            elCreateNode('div', {"class": ["col-8", "pe-0"]},
+                elCreateNodes('div', {"class": ["input-group"]}, [
+                    input,
+                    btn
+                ])
+            )
+        ])
+    );
+    for (const footer of footers) {
+        footer.classList.add('d-none');
+    }
+    footers[0].parentNode.appendChild(newFooter);
     input.focus();
     btn.addEventListener('click', function() {
         sendAPI('MYMPD_API_SESSION_LOGIN', {"pin": input.value}, function(obj) {
             input.value = '';
-            const alert = footer.getElementsByClassName('alert')[0];
+            const alert = footers[0].parentNode.getElementsByClassName('alert')[0];
             if (alert !== undefined) {
                 alert.remove();
             }
             if (obj.error) {
-                const em = elCreate('div', {"class": ["alert", "alert-danger", "p-2", "w-100"]}, '');
-                addIconLine(em, 'error_outline', tn(obj.error.message));
-                newFooter.appendChild(em);
+                newFooter.appendChild(
+                    elCreateText('div', {"class": ["alert", "alert-danger", "p-2", "w-100"]}, tn(obj.error.message))
+                );
             }
             else if (obj.result.session !== '') {
                 session.token = obj.result.session;
@@ -78,20 +79,20 @@ function enterPin(method, params, callback, onerror) {
     if (modal !== null) {
         logDebug('Show pin dialog in modal');
         //a modal is already opened, show enter pin dialog in footer
-        const footer = modal.getElementsByClassName('modal-footer')[0];
+        const footer = modal.getElementsByClassName('modal-footer');
         createEnterPinFooter(footer, method, params, callback, onerror);
     }
     else {
         logDebug('Open pin modal');
         //open modal to enter pin and resend API request
-        const enterBtn = elCreate('button', {"id": "modalEnterPinEnterBtn", "class": ["btn", "btn-success"]}, tn('Enter'));
+        const enterBtn = elCreateText('button', {"id": "modalEnterPinEnterBtn", "class": ["btn", "btn-success"]}, tn('Enter'));
         enterBtn.addEventListener('click', function() {
             sendAPI('MYMPD_API_SESSION_LOGIN', {"pin": document.getElementById('inputPinModal').value}, function(obj) {
                 document.getElementById('inputPinModal').value = '';
                 if (obj.error) {
                     const em = document.getElementById('modalEnterPinMessage');
-                    addIconLine(em, 'error_outline', tn(obj.error.message));
-                    em.classList.remove('hide');
+                    em.textContent = tn(obj.error.message);
+                    elShow(em);
                 }
                 else if (obj.result.session !== '') {
                     session.token = obj.result.session;
@@ -107,7 +108,7 @@ function enterPin(method, params, callback, onerror) {
             }, true);
         }, false);
         document.getElementById('modalEnterPinEnterBtn').replaceWith(enterBtn);
-        document.getElementById('modalEnterPinMessage').classList.add('hide');
+        elHideId('modalEnterPinMessage');
         document.getElementById('inputPinModal').value = '';
         uiElements.modalEnterPin.show();
     }
@@ -122,20 +123,20 @@ function setSessionState() {
     if (settings.pin === true) {
         if (session.token === '') {
             domCache.body.classList.add('locked');
-            document.getElementById('mmLogin').classList.remove('hide');
-            document.getElementById('mmLogout').classList.add('hide');
+            elShowId('mmLogin');
+            elHideId('mmLogout');
         }
         else {
             domCache.body.classList.remove('locked');
-            document.getElementById('mmLogin').classList.add('hide');
-            document.getElementById('mmLogout').classList.remove('hide');
+            elShowId('mmLogout');
+            elHideId('mmLogin');
             resetSessionTimer();
         }
     }
     else {
         domCache.body.classList.remove('locked');
-        document.getElementById('mmLogin').classList.add('hide');
-        document.getElementById('mmLogout').classList.add('hide');
+        elHideId('mmLogin');
+        elHideId('mmLogout');
     }
 }
 
@@ -151,7 +152,9 @@ function resetSessionTimer() {
 
 function validateSession() {
     sendAPI('MYMPD_API_SESSION_VALIDATE', {}, function(obj) {
-        if (obj.result !== undefined && obj.result.message === 'ok') {
+        if (obj.result !== undefined &&
+            obj.result.message === 'ok')
+        {
             session.timeout = getTimestamp() + sessionLifetime;
         }
         else {
@@ -173,7 +176,8 @@ function sendAPI(method, params, callback, onerror) {
     if (APImethods[method] === undefined) {
         logError('Method "' + method + '" is not defined');
     }
-    if (settings.pin === true && session.token === '' && 
+    if (settings.pin === true &&
+        session.token === '' && 
         session.timeout < getTimestamp() && APImethods[method].protected === true)
     {
         logDebug('Request must be authorized but we have no session');
@@ -206,17 +210,17 @@ function sendAPI(method, params, callback, onerror) {
                     obj = JSON.parse(ajaxRequest.responseText);
                 }
                 catch(error) {
-                    showNotification(t('Can not parse response to json object'), '', 'general', 'error');
+                    showNotification(tn('Can not parse response to json object'), '', 'general', 'error');
                     logError('Can not parse response to json object:' + ajaxRequest.responseText);
                 }
                 if (obj.error) {
-                    showNotification(t(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
+                    showNotification(tn(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
                     logError(JSON.stringify(obj.error));
                 }
                 else if (obj.result && obj.result.message && obj.result.message !== 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
-                    if (ignoreMessages.includes(obj.result.message) === false && onerror !== true) {
-                        showNotification(t(obj.result.message, obj.result.data), '', obj.result.facility, obj.result.severity);
+                    if (ignoreMessages.includes(obj.result.message) === false) {
+                        showNotification(tn(obj.result.message, obj.result.data), '', obj.result.facility, obj.result.severity);
                     }
                 }
                 else if (obj.result && obj.result.message && obj.result.message === 'ok') {
@@ -260,26 +264,26 @@ function sendAPI(method, params, callback, onerror) {
 
 function webSocketConnect() {
     if (socket !== null && socket.readyState === WebSocket.OPEN) {
-        logInfo('Socket already connected');
+        logDebug('Socket already connected');
         websocketConnected = true;
         return;
     }
     else if (socket !== null && socket.readyState === WebSocket.CONNECTING) {
-        logInfo('Socket connection in progress');
+        logDebug('Socket connection in progress');
         websocketConnected = false;
         return;
     }
 
-    websocketConnected = false;  
+    websocketConnected = false;
     const wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
         window.location.hostname + 
         (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/ws/';
     socket = new WebSocket(wsUrl);
-    logInfo('Connecting to ' + wsUrl);
+    logDebug('Connecting to ' + wsUrl);
 
     try {
         socket.onopen = function() {
-            logInfo('Websocket is connected');
+            logDebug('Websocket is connected');
             websocketConnected = true;
             if (websocketTimer !== null) {
                 clearTimeout(websocketTimer);
@@ -305,11 +309,11 @@ function webSocketConnect() {
                 logError('Invalid JSON data received: ' + msg.data);
                 return;
             }
-            
+
             switch (obj.method) {
                 case 'welcome':
                     websocketConnected = true;
-                    showNotification(t('Connected to myMPD'), wsUrl, 'general', 'info');
+                    showNotification(tn('Connected to myMPD'), wsUrl, 'general', 'info');
                     //appRoute();
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, true);
                     if (session.token !== '') {
@@ -330,12 +334,12 @@ function webSocketConnect() {
                     break;
                 case 'mpd_connected':
                     //MPD connection established get state and settings
-                    showNotification(t('Connected to MPD'), '', 'general', 'info');
+                    showNotification(tn('Connected to MPD'), '', 'general', 'info');
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState);
                     getSettings(true);
                     break;
                 case 'update_queue':
-                    if (app.current.app === 'Queue') {
+                    if (app.current.card === 'Queue') {
                         getQueue();
                     }
                     //rename param to result
@@ -353,7 +357,6 @@ function webSocketConnect() {
                     updateDBstarted(false);
                     break;
                 case 'update_database':
-                    //fall through
                 case 'update_finished':
                     updateDBfinished(obj.method);
                     break;
@@ -364,27 +367,46 @@ function webSocketConnect() {
                     parseVolume(obj);
                     break;
                 case 'update_stored_playlist':
-                    if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
-                        sendAPI('MYMPD_API_PLAYLIST_LIST', {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search}, parsePlaylistsList);
+                    if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
+                        sendAPI('MYMPD_API_PLAYLIST_LIST', {
+                            "offset": app.current.offset,
+                            "limit": app.current.limit,
+                            "searchstr": app.current.search,
+                            "type": 0
+                        }, parsePlaylistsList);
                     }
-                    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-                        sendAPI('MYMPD_API_PLAYLIST_CONTENT_LIST', {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, "plist": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylistsDetail);
+                    else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
+                        sendAPI('MYMPD_API_PLAYLIST_CONTENT_LIST', {
+                            "offset": app.current.offset,
+                            "limit": app.current.limit,
+                            "searchstr": app.current.search,
+                            "plist": app.current.filter,
+                            "cols": settings.colsBrowsePlaylistsDetail
+                        }, parsePlaylistsDetail);
                     }
                     break;
                 case 'update_lastplayed':
-                    if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
-                        sendAPI('MYMPD_API_QUEUE_LAST_PLAYED', {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
+                    if (app.current.card === 'Queue' && app.current.tab === 'LastPlayed') {
+                        sendAPI('MYMPD_API_QUEUE_LAST_PLAYED', {
+                            "offset": app.current.offset,
+                            "limit": app.current.limit,
+                            "cols": settings.colsQueueLastPlayed,
+                            "searchstr": app.current.search
+                        }, parseLastPlayed);
                     }
                     break;
                 case 'update_jukebox':
-                    if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
-                        sendAPI('MYMPD_API_JUKEBOX_LIST', {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
+                    if (app.current.card === 'Queue' && app.current.tab === 'Jukebox') {
+                        sendAPI('MYMPD_API_JUKEBOX_LIST', {
+                            "offset": app.current.offset,
+                            "limit": app.current.limit,
+                            "cols": settings.colsQueueJukebox,
+                            "searchstr": app.current.search
+                        }, parseJukeboxList);
                     }
                     break;
                 case 'notify':
-                    if (document.getElementById('alertMpdState').classList.contains('hide')) {
-                        showNotification(t(obj.params.message, obj.params.data), '', obj.params.facility, obj.params.severity);
-                    }
+                    showNotification(tn(obj.params.message, obj.params.data), '', obj.params.facility, obj.params.severity);
                     break;
                 default:
                     break;
@@ -392,7 +414,7 @@ function webSocketConnect() {
         };
 
         socket.onclose = function(event) {
-            logError('Websocket is disconnected');
+            logError('Websocket connection closed: ' + event.code);
             websocketConnected = false;
             if (appInited === true) {
                 toggleUI();
@@ -401,8 +423,7 @@ function webSocketConnect() {
                 }
             }
             else {
-                showAppInitAlert(t('Websocket connection failed'));
-                logError('Websocket connection failed: ' + event.code);
+                showAppInitAlert(tn('Websocket connection closed'));
             }
             if (websocketTimer !== null) {
                 clearTimeout(websocketTimer);
@@ -413,13 +434,13 @@ function webSocketConnect() {
                 websocketKeepAliveTimer = null;
             }
             websocketTimer = setTimeout(function() {
-                logInfo('Reconnecting websocket');
+                logDebug('Reconnecting websocket');
                 toggleAlert('alertMympdState', true, tn('Websocket connection failed, trying to reconnect'));
                 webSocketConnect();
             }, 3000);
             socket = null;
         };
-        
+
         socket.onerror = function() {
             logError('Websocket error occured');
             if (socket !== null) {

@@ -6,9 +6,9 @@
 
 #include "mympd_config_defs.h"
 
-#include "../dist/src/mongoose/mongoose.h"
-#include "../dist/src/rax/rax.h"
-#include "../dist/src/sds/sds.h"
+#include "../dist/mongoose/mongoose.h"
+#include "../dist/rax/rax.h"
+#include "../dist/sds/sds.h"
 #include "handle_options.h"
 #include "lib/api.h"
 #include "lib/log.h"
@@ -48,7 +48,7 @@ _Thread_local sds thread_logname;
 
 #ifdef ENABLE_LIBASAN
 const char *__asan_default_options(void) {
-    return "verbosity=1:malloc_context_size=50:abort_on_error=true:log_threads=1";
+    return "verbosity=1:malloc_context_size=50:abort_on_error=true:detect_stack_use_after_return=true";
 }
 #endif
 
@@ -250,7 +250,7 @@ int main(int argc, char **argv) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)malloc_assert(sizeof(struct t_mg_user_data));
 
     //initialize random number generator
-    tinymt32_init(&tinymt, (unsigned int)time(NULL));
+    tinymt32_init(&tinymt, (unsigned)time(NULL));
     
     //mympd config defaults
     struct t_config *config = (struct t_config *)malloc_assert(sizeof(struct t_config));
@@ -299,6 +299,10 @@ int main(int argc, char **argv) {
         openlog("mympd", LOG_CONS, LOG_DAEMON);
         log_to_syslog = true;
     }
+
+    #ifdef ENABLE_LIBASAN
+        MYMPD_LOG_NOTICE("Running with libasan memory checker");
+    #endif
 
     MYMPD_LOG_NOTICE("Starting myMPD %s", MYMPD_VERSION);
     MYMPD_LOG_NOTICE("Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i", 

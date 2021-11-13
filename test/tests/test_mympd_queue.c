@@ -6,7 +6,7 @@
 
 #include "mympd_config_defs.h"
 
-#include "../../dist/src/utest/utest.h"
+#include "../../dist/utest/utest.h"
 #include "../../src/lib/mympd_queue.h"
 #include "../../src/lib/sds_extras.h"
 

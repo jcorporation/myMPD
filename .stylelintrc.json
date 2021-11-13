@@ -4,6 +4,7 @@
     "comment-empty-line-before": null,
     "comment-whitespace-inside": null,
     "font-family-no-missing-generic-family-keyword": null,
-    "no-duplicate-selectors": null
+    "no-duplicate-selectors": null,
+    "no-descending-specificity": null
   }
 }

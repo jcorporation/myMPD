@@ -25,7 +25,7 @@ if rc == 0 then
             current_song["result"]["MUSICBRAINZ_ALBUMARTISTID"]
           }
         },
-        artist_name = current_song["result"]["Artist"],
+        artist_name = current_song["result"]["Artist"][0],
         track_name = current_song["result"]["Title"],
         release_name = current_song["result"]["Album"]
       }
