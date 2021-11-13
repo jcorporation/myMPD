@@ -1932,7 +1932,7 @@ Covercache
 1 - Alert
 1 - Alarm
 
-2 Critical
+2 - Critical
 2 - Kritisch
 
 3 - Error
