@@ -417,8 +417,8 @@ function getYpos(el) {
 }
 
 function zeroPad(num, places) {
-  const zero = places - num.toString().length + 1;
-  return Array(+(zero > 0 && zero)).join("0") + num;
+    const zero = places - num.toString().length + 1;
+    return Array(+(zero > 0 && zero)).join("0") + num;
 }
 
 function dirname(uri) {
@@ -493,13 +493,18 @@ function addTagList(elId, list) {
     for (let i = 0, j = settings[list].length; i < j; i++) {
         stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, tn(settings[list][i])));
     }
-    if (elId === 'BrowseNavFilesystemDropdown' || elId === 'BrowseNavPlaylistsDropdown') {
+    if (elId === 'BrowseNavFilesystemDropdown' ||
+        elId === 'BrowseNavPlaylistsDropdown')
+    {
         if (features.featTags === true && features.featAdvsearch === true) {
             elClear(stack);
             stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Database"}, tn('Database')));
         }
     }
-    if (elId === 'BrowseDatabaseByTagDropdown' || elId === 'BrowseNavFilesystemDropdown' || elId === 'BrowseNavPlaylistsDropdown') {
+    if (elId === 'BrowseDatabaseByTagDropdown' ||
+        elId === 'BrowseNavFilesystemDropdown' ||
+        elId === 'BrowseNavPlaylistsDropdown')
+    {
         if (elId === 'BrowseDatabaseByTagDropdown') {
             stack.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         }
@@ -513,7 +518,9 @@ function addTagList(elId, list) {
         }
     }
     else if (elId === 'databaseSortTagsList') {
-        if (settings.tagList.includes('Date') === true && settings[list].includes('Date') === false) {
+        if (settings.tagList.includes('Date') === true &&
+            settings[list].includes('Date') === false)
+        {
             stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Date"}, tn('Date')));
         }
         stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "LastModified"}, tn('Last modified')));
@@ -660,6 +667,7 @@ function toggleBtnGroupCollapse(el, collapse) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function toggleBtnId(id, state) {
     toggleBtn(document.getElementById(id), state);
 }
@@ -723,20 +731,20 @@ function setPagination(total, returned) {
     if (app.current.limit === 0) {
         app.current.limit = 500;
     }
-    
+
     let totalPages = total < app.current.limit ? 
         total === -1 ? -1 : 1 : Math.ceil(total / app.current.limit);
     const curPage = Math.ceil(app.current.offset / app.current.limit) + 1;
     if (app.current.limit > returned) {
         totalPages = curPage;
     }
-    
+
     //toolbar
     const paginationTop = createPaginationEls(totalPages, curPage);
     paginationTop.classList.add('me-2');
     paginationTop.setAttribute('id', curPaginationTop.id);
     curPaginationTop.replaceWith(paginationTop);
-    
+
     //bottom
     const bottomBar = document.getElementById(app.id + 'ButtonsBottom');
     elClear(bottomBar);
@@ -758,7 +766,7 @@ function setPagination(total, returned) {
 
 function createPaginationEls(totalPages, curPage) {
     const prev = elCreateNode('button', {"title": tn('Previous page'), "type": "button", "class": ["btn", "btn-secondary"]}, 
-    elCreateText('span', {"class": ["mi"]}, 'navigate_before'));
+        elCreateText('span', {"class": ["mi"]}, 'navigate_before'));
     if (curPage === 1) {
         elDisable(prev);
     }
@@ -768,17 +776,19 @@ function createPaginationEls(totalPages, curPage) {
             gotoPage('prev');
         }, false);
     }
-    
+
     const pageDropdownBtn = elCreateText('button', {"type": "button", "data-bs-toggle": "dropdown", 
         "class": ["square-end", "btn", "btn-secondary", "dropdown-toggle", "px-2"]}, curPage);
     pageDropdownBtn.addEventListener('show.bs.dropdown', function () {
         alignDropdown(this);
     });
     const pageDropdownMenu = elCreateEmpty('div', {"class": ["dropdown-menu", "bg-lite-dark", "px-2", "page-dropdown", "dropdown-menu-dark"]});
-    
-    const row = elCreateEmpty('div', {"class": ["row"]});
-    row.appendChild(elCreateText('label', {"class": ["col-sm-8", "col-form-label"]}, tn('Elements per page')));
-    row.appendChild(elCreateEmpty('div', {"class": ["col-sm-4"]}));
+
+    const row = elCreateNodes('div', {"class": ["row"]}, [
+        elCreateText('label', {"class": ["col-sm-8", "col-form-label"]}, tn('Elements per page')),
+        elCreateEmpty('div', {"class": ["col-sm-4"]})
+    ]);
+
     const elPerPage = elCreateEmpty('select', {"class": ["form-control", "form-select", "border-secondary"]});
     for (const i in webuiSettingsDefault.uiMaxElementsPerPage.validValues) {
         elPerPage.appendChild(elCreateText('option', {"value": i}, i));
@@ -797,10 +807,9 @@ function createPaginationEls(totalPages, curPage) {
         }
     }, false);
     row.lastChild.appendChild(elPerPage);
-    
-    const pageList = elCreateEmpty('div', {"class": ["row", "mb-3"]});
+
     const pageGrp = elCreateEmpty('div', {"class": ["btn-group"]});
-    
+
     let start = curPage - 3;
     if (start < 1) {
         start = 1;
@@ -845,7 +854,7 @@ function createPaginationEls(totalPages, curPage) {
             }, false);
         }
     }
-    
+
     const last = elCreateEmpty('button', {"title": tn('Last page'), "type": "button", "class": ["btn", "btn-secondary"]});
     if (totalPages === end + 1) {
         last.textContent = end + 1;
@@ -869,11 +878,12 @@ function createPaginationEls(totalPages, curPage) {
         }, false);
     }
     pageGrp.appendChild(last);
-    pageList.appendChild(pageGrp);
-    
-    pageDropdownMenu.appendChild(pageList);
+
+    pageDropdownMenu.appendChild(
+        elCreateNode('div', {"class": ["row", "mb-3"]}, pageGrp)
+    );
     pageDropdownMenu.appendChild(row);
-    
+
     const next = elCreateEmpty('button', {"title": tn('Next page'), "type": "button", "class": ["btn", "btn-secondary"]});
     next.appendChild(elCreateText('span', {"class": ["mi"]}, 'navigate_next'));
     if (totalPages !== -1 && totalPages === curPage) {
@@ -886,13 +896,14 @@ function createPaginationEls(totalPages, curPage) {
         }, false);
     }
 
-    const outer = elCreateEmpty('div', {"class": ["btn-group", "pagination"]});
-    outer.appendChild(prev);
-    const btnGrp = elCreateEmpty('div', {"class": ["btn-group"]});
-    btnGrp.appendChild(pageDropdownBtn);
-    btnGrp.appendChild(pageDropdownMenu);
-    outer.appendChild(btnGrp);
-    outer.appendChild(next);
+    const outer = elCreateNodes('div', {"class": ["btn-group", "pagination"]}, [
+        prev,
+        elCreateNodes('div', {"class": ["btn-group"]}, [
+            pageDropdownBtn,
+            pageDropdownMenu
+        ]),
+        next
+    ]);
     new BSN.Dropdown(pageDropdownBtn);
     return outer;
 }
@@ -993,12 +1004,13 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
 }
 
 function createSearchCrumb(filter, op, value) {
-    const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "bg-gray-800", "me-2"]}, filter + ' ' + op + ' \'' + value + '\'');
+    const btn = elCreateNodes('button', {"class": ["btn", "btn-secondary", "bg-gray-800", "me-2"]}, [
+        document.createTextNode(filter + ' ' + op + ' \'' + value + '\''),
+        elCreateText('span', {"class": ["ml-2", "badge", "bg-secondary"]}, '×')
+    ]);
     setData(btn, 'data-filter-tag', filter);
     setData(btn, 'data-filter-op', op);
     setData(btn, 'data-filter-value', value);
-    const badge = elCreateText('span', {"class": ["ml-2", "badge", "bg-secondary"]}, '×');
-    btn.appendChild(badge);
     return btn;
 }
 
@@ -1040,17 +1052,19 @@ function printValue(key, value) {
     if (value === undefined || value === null || value === '') {
         return document.createTextNode('-');
     }
-    switch (key) {
+    switch(key) {
         case 'Type':
-            if (value === 'song') { return elCreateText('span', {"class": ["mi"]}, 'music_note'); }
-            if (value === 'smartpls') { return elCreateText('span', {"class": ["mi"]}, 'queue_music'); }
-            if (value === 'plist') { return elCreateText('span', {"class": ["mi"]}, 'list'); }
-            if (value === 'dir') { return elCreateText('span', {"class": ["mi"]}, 'folder_open'); }
-            return elCreateText('span', {"class": ["mi"]}, 'radio_button_unchecked');
+            switch(value) {
+                case 'song':     return elCreateText('span', {"class": ["mi"]}, 'music_note');
+                case 'smartpls': return elCreateText('span', {"class": ["mi"]}, 'queue_music');
+                case 'plist':    return elCreateText('span', {"class": ["mi"]}, 'list');
+                case 'dir':      return elCreateText('span', {"class": ["mi"]}, 'folder_open');
+                default:         return elCreateText('span', {"class": ["mi"]}, 'radio_button_unchecked');
+            }
         case 'Duration':
             return document.createTextNode(beautifySongDuration(value));
         case 'AudioFormat':
-            return document.createTextNode(value.bits + tn('bits') + ' - ' + value.sampleRate / 1000 + tn('kHz'));
+            return document.createTextNode(value.bits + tn('bits') + smallSpace + nDash + smallSpace + value.sampleRate / 1000 + tn('kHz'));
         case 'Pos':
             //mpd is 0-indexed but humans wants 1-indexed lists
             return document.createTextNode(value + 1);
@@ -1168,7 +1182,7 @@ function zoomPicture(el) {
         window.open(getData(el, 'data-href'));
         return;
     }
-    
+
     if (el.classList.contains('carousel')) {
         let images;
         const dataImages = getData(el, 'data-images');
@@ -1181,7 +1195,7 @@ function zoomPicture(el) {
         else {
             return;
         }
-        
+
         //add uri to image list to get embedded albumart
         let aImages = [];
         const uri = getData(el, 'data-uri');
@@ -1201,7 +1215,7 @@ function zoomPicture(el) {
         uiElements.modalPicture.show();
         return;
     }
-    
+
     if (el.style.backgroundImage !== '') {
         const imgEl = document.getElementById('modalPictureImg');
         elClear(imgEl);
@@ -1232,21 +1246,27 @@ function createImgCarousel(imgEl, name, images) {
     }
     const carouselInner = elCreateEmpty('div', {"class": ["carousel-inner"]});
     for (let i = 0; i < nrImages; i++) {
-        carouselInner.appendChild(elCreateEmpty('div', {"class": ["carousel-item"]}));
-        carouselInner.lastChild.appendChild(elCreateEmpty('div', {}));
-        carouselInner.lastChild.style.backgroundImage = 'url("' + myEncodeURI(images[i]) + '")';
+        const carouselItem = elCreateNode('div', {"class": ["carousel-item"]}, 
+            elCreateEmpty('div', {})
+        );
+        carouselItem.style.backgroundImage = 'url("' + myEncodeURI(images[i]) + '")';
+        carouselInner.appendChild(carouselItem);
         if (i === 0) {
-            carouselInner.lastChild.classList.add('active');
+            carouselItem.classList.add('active');
         }
     }
     carousel.appendChild(carouselInner);
     if (nrImages > 0) {
-        const prev = elCreateEmpty('a', {"href": "#" + name, "data-bs-slide": "prev", "class": ["carousel-control-prev"]});
-        prev.appendChild(elCreateEmpty('span', {"class": ["carousel-control-prev-icon"]}));
-        carousel.appendChild(prev);
-        const next = elCreateEmpty('a', {"href": "#" + name, "data-bs-slide": "next", "class": ["carousel-control-next"]});
-        next.appendChild(elCreateEmpty('span', {"class": ["carousel-control-next-icon"]}));
-        carousel.appendChild(next);
+        carousel.appendChild(
+            elCreateNode('a', {"href": "#" + name, "data-bs-slide": "prev", "class": ["carousel-control-prev"]},
+                elCreateEmpty('span', {"class": ["carousel-control-prev-icon"]})
+            )
+        );
+        carousel.appendChild(
+            elCreateNode('a', {"href": "#" + name, "data-bs-slide": "next", "class": ["carousel-control-next"]},
+                elCreateEmpty('span', {"class": ["carousel-control-next-icon"]})
+            )
+        );
     }
 
     elClear(imgEl);

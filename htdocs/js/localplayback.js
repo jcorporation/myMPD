@@ -9,13 +9,13 @@ function initLocalplayer() {
         event.preventDefault();
         clickCheckLocalPlayerState(event);
     }, false);
-    
+
     document.getElementById('errorLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         clickCheckLocalPlayerState(event);
     }, false);
-    
+
     initLocalPlaybackControl();
 }
 
@@ -23,7 +23,7 @@ function initLocalPlaybackControl() {
     document.getElementById('localPlayer').addEventListener('click', function(event) {
         event.stopPropagation();
     });
-    
+
     document.getElementById('localPlayer').addEventListener('canplay', function() {
         logDebug('localPlayer event: canplay');
         elHideId('alertLocalPlayback');

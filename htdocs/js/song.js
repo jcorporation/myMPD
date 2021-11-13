@@ -87,8 +87,9 @@ function songDetailsRow(thContent, tdContent) {
 
 function parseSongDetails(obj) {
     const modal = document.getElementById('modalSongDetails');
-    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(obj.result.uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
-    
+    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + 
+        subdir + '/albumart/' + myEncodeURI(obj.result.uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+
     const elH1s = modal.getElementsByTagName('h1');
     for (let i = 0, j = elH1s.length; i < j; i++) {
         elH1s[i].textContent = obj.result.Title;
@@ -173,18 +174,18 @@ function parseSongDetails(obj) {
             }
         }
     }
-    
+
     if (features.featLyrics === true) {
         getLyrics(obj.result.uri, document.getElementById('lyricsText'));
     }
-    
+
     getComments(obj.result.uri, document.getElementById('tbodySongComments'));
 
     const pictureEls = document.getElementsByClassName('featPictures');
     for (let i = 0, j = pictureEls.length; i < j; i++) {
         elShow(pictureEls[i]);
     }
-    
+
     //add uri to image list to get embedded albumart
     const images = [ subdir + '/albumart/' + obj.result.uri ];
     //add all but coverfiles to image list
@@ -200,7 +201,7 @@ function parseSongDetails(obj) {
 function isCoverfile(uri) {
     const filename = basename(uri).toLowerCase();
     const fileparts = filename.split('.');
-    
+
     const extensions = ['png', 'jpg', 'jpeg', 'svg', 'webp', 'avif'];
     const coverimageNames = settings.coverimageNames.split(',');
     for (let i = 0, j = coverimageNames.length; i < j; i++) {
@@ -279,7 +280,7 @@ function getLyrics(uri, el) {
                 if (i === 0) {
                     lyricsTabs.lastChild.classList.add('active');
                 }
-               
+
                 const div = elCreateEmpty('div', {"class": ["lyricsText"]});
                 if (i > 0) {
                     div.classList.add('d-none');
@@ -449,13 +450,13 @@ function voteCurrentSong(vote) {
     if (uri === '') {
         return;
     }
-        
-    if (vote === 2 && document.getElementById('btnVoteUp').classList.contains('highlight')) {
+
+    if ((vote === 2 && document.getElementById('btnVoteUp').classList.contains('highlight')) ||
+        (vote === 0 && document.getElementById('btnVoteDown').classList.contains('highlight')))
+    {
         vote = 1;
     }
-    else if (vote === 0 && document.getElementById('btnVoteDown').classList.contains('highlight')) {
-        vote = 1;
-    }
+
     sendAPI("MYMPD_API_LIKE", {
         "uri": uri,
         "like": vote
@@ -478,7 +479,7 @@ function setVoteSongBtns(vote, uri) {
         elEnableId('btnVoteUp');
         elEnableId('btnVoteDown');
     }
-    
+
     if (vote === 0) {
         document.getElementById('btnVoteUp').classList.remove('highlight');
         document.getElementById('btnVoteDown').classList.add('highlight');

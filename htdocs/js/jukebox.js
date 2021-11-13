@@ -42,7 +42,7 @@ function delQueueJukeboxSong(pos) {
 }
 
 function parseJukeboxList(obj) {
-    if (checkResult(obj, 'QueueJukebox', null) === false) {
+    if (checkResultId(obj, 'QueueJukeboxList') === false) {
         if (obj.result !== undefined && obj.result.jukeboxMode === 0) {
             elHideId('QueueJukeboxList');
             elShowId('QueueJukeboxDisabled');

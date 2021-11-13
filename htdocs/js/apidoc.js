@@ -1277,7 +1277,7 @@ const APImethods = {
             "timerid": APIparams.timerid
         }
     },
-    "MYMPD_API_MESSAGE_SEND":  {
+    "MYMPD_API_MESSAGE_SEND": {
         "desc": "Sends a message to a MPD channel",
         "params": {
             "channel": {

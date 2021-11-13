@@ -238,7 +238,6 @@ function setColsChecklist(table, menu) {
 
 function setCols(table) {
     let sort = app.current.sort;
-    
     if (table === 'Search' && app.cards.Search.sort === 'Title') {
         if (settings.tagList.includes('Title')) {
             sort = 'Title';
@@ -250,7 +249,7 @@ function setCols(table) {
             sort = '-';
         }
     }
-    
+
     const thead = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
     elClear(thead);
 
@@ -312,7 +311,7 @@ function saveCols(table, tableEl) {
             }
         }
     }
-    
+
     const params = {"table": "cols" + table, "cols": []};
     const ths = header.getElementsByTagName('th');
     for (let i = 0, j = ths.length; i < j; i++) {
@@ -347,7 +346,7 @@ function saveColsPlayback(table) {
             header.appendChild(th);
         }
     }
-    
+
     //construct columns to save from actual playback card
     const params = {"table": "cols" + table, "cols": []};
     const ths = header.getElementsByTagName('div');
@@ -529,20 +528,17 @@ function warningRow(message, colspan) {
     );
 }
 
-function checkResult(obj, tbody, colspan) {
-    const list = tbody;
-    if (typeof tbody === 'string') {
-        tbody = document.getElementById(tbody + 'List').getElementsByTagName('tbody')[0];
-    }
-    if (colspan === null) {
-        colspan = settings['cols' + list] !== undefined ? settings['cols' + list].length : 0;
-        colspan++;
-    }
+function checkResultId(obj, id) {
+    return checkResult(obj, document.getElementById(id).getElementsByTagName('tbody')[0]);
+}
 
+function checkResult(obj, tbody) {
+    const colspan = tbody.parentNode.getElementsByTagName('tr')[0].getElementsByTagName('th').length;
     if (obj.error) {
         elClear(tbody);
         tbody.appendChild(errorRow(obj, colspan));
         tbody.parentNode.classList.remove('opacity05');
+        setPagination(0, 0);
         return false;
     }
     if (obj.result.returnedEntities === 0) {

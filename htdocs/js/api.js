@@ -152,7 +152,9 @@ function resetSessionTimer() {
 
 function validateSession() {
     sendAPI('MYMPD_API_SESSION_VALIDATE', {}, function(obj) {
-        if (obj.result !== undefined && obj.result.message === 'ok') {
+        if (obj.result !== undefined &&
+            obj.result.message === 'ok')
+        {
             session.timeout = getTimestamp() + sessionLifetime;
         }
         else {
@@ -174,7 +176,8 @@ function sendAPI(method, params, callback, onerror) {
     if (APImethods[method] === undefined) {
         logError('Method "' + method + '" is not defined');
     }
-    if (settings.pin === true && session.token === '' && 
+    if (settings.pin === true &&
+        session.token === '' && 
         session.timeout < getTimestamp() && APImethods[method].protected === true)
     {
         logDebug('Request must be authorized but we have no session');
@@ -261,17 +264,17 @@ function sendAPI(method, params, callback, onerror) {
 
 function webSocketConnect() {
     if (socket !== null && socket.readyState === WebSocket.OPEN) {
-        logInfo('Socket already connected');
+        logDebug('Socket already connected');
         websocketConnected = true;
         return;
     }
     else if (socket !== null && socket.readyState === WebSocket.CONNECTING) {
-        logInfo('Socket connection in progress');
+        logDebug('Socket connection in progress');
         websocketConnected = false;
         return;
     }
 
-    websocketConnected = false;  
+    websocketConnected = false;
     const wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
         window.location.hostname + 
         (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/ws/';
@@ -306,7 +309,7 @@ function webSocketConnect() {
                 logError('Invalid JSON data received: ' + msg.data);
                 return;
             }
-            
+
             switch (obj.method) {
                 case 'welcome':
                     websocketConnected = true;
@@ -411,7 +414,7 @@ function webSocketConnect() {
         };
 
         socket.onclose = function(event) {
-            logError('Websocket is disconnected');
+            logError('Websocket connection closed: ' + event.code);
             websocketConnected = false;
             if (appInited === true) {
                 toggleUI();
@@ -420,8 +423,7 @@ function webSocketConnect() {
                 }
             }
             else {
-                showAppInitAlert(tn('Websocket connection failed'));
-                logError('Websocket connection failed: ' + event.code);
+                showAppInitAlert(tn('Websocket connection closed'));
             }
             if (websocketTimer !== null) {
                 clearTimeout(websocketTimer);
@@ -438,7 +440,7 @@ function webSocketConnect() {
             }, 3000);
             socket = null;
         };
-        
+
         socket.onerror = function() {
             logError('Websocket error occured');
             if (socket !== null) {

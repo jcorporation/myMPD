@@ -158,7 +158,7 @@ function getQueue() {
 }
 
 function parseQueue(obj) {
-    if (checkResult(obj, 'QueueCurrent', null) === false) {
+    if (checkResultId(obj, 'QueueCurrentList') === false) {
         return;
     }
 
@@ -269,7 +269,7 @@ function setPlayingRow(row, elapsedTime, totalTime) {
 }
 
 function parseLastPlayed(obj) {
-    if (checkResult(obj, 'QueueLastPlayed', null) === false) {
+    if (checkResultId(obj, 'QueueLastPlayedList') === false) {
         return;
     }
 

@@ -65,7 +65,7 @@ function initPlaylists() {
 }
 
 function parsePlaylistsList(obj) {
-    if (checkResult(obj, 'BrowsePlaylistsList', 3) === false) {
+    if (checkResultId(obj, 'BrowsePlaylistsListList') === false) {
         return;
     }
 
@@ -101,7 +101,7 @@ function parsePlaylistsDetail(obj) {
     const tfoot = table.getElementsByTagName('tfoot')[0];
     const colspan = settings.colsBrowsePlaylistsDetail.length + 1;
 
-    if (checkResult(obj, 'BrowsePlaylistsDetail', colspan) === false) {
+    if (checkResultId(obj, 'BrowsePlaylistsDetailList') === false) {
         elClear(tfoot);
         return;
     }
@@ -125,7 +125,7 @@ function parsePlaylistsDetail(obj) {
         elCreateNode('td', {"colspan": colspan}, 
             elCreateText('small', {}, tn('Num songs', obj.result.totalEntities) + ' - ' + beautifyDuration(obj.result.totalTime))))
     );
-    
+
     updateTable(obj, 'BrowsePlaylistsDetail', function(row, data) {
         row.setAttribute('id', 'playlistTrackId' + data.Pos);
         row.setAttribute('draggable', 'true');
@@ -194,7 +194,7 @@ function parseSmartPlaylist(obj) {
     elHideId('saveSmartPlaylistSearch');
     elHideId('saveSmartPlaylistSticker');
     elHideId('saveSmartPlaylistNewest');
-    
+
     if (obj.result.type === 'search') {
         elShowId('saveSmartPlaylistSearch');
         document.getElementById('inputSaveSmartPlaylistExpression').value = obj.result.expression;

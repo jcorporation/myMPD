@@ -21,11 +21,11 @@ function parseStats(obj) {
     document.getElementById('mpdstatsMympd_uptime').textContent = beautifyDuration(obj.result.myMPDuptime);
     document.getElementById('mpdstatsDbUpdated').textContent = localeDate(obj.result.dbUpdated);
     document.getElementById('mympdVersion').textContent = obj.result.mympdVersion;
-    
+
     const mpdInfoVersionEl = document.getElementById('mpdInfoVersion');
     elClear(mpdInfoVersionEl);
     mpdInfoVersionEl.appendChild(document.createTextNode(obj.result.mpdProtocolVersion));
-    
+
     const mpdProtocolVersion = obj.result.mpdProtocolVersion.match(/(\d+)\.(\d+)\.(\d+)/);
     if (mpdProtocolVersion[1] >= mpdVersion.major &&
         mpdProtocolVersion[2] >= mpdVersion.minor &&
@@ -166,7 +166,7 @@ function parseState(obj) {
         toggleAlert('alertMpdStatusError', true, obj.result.lastError);
     }
     toggleTopAlert();
-    
+
     //refresh settings if mpd is not connected or ui is disabled
     //ui is disabled at startup
     if (settings.mpdConnected === false || uiEnabled === false) {
@@ -283,10 +283,10 @@ function songChange(obj) {
     let pageTitle = '';
 
     mediaSessionSetMetadata(obj.result.Title, joinArray(obj.result.Artist), obj.result.Album, obj.result.uri);
-    
+
     setCurrentCover(obj.result.uri);
     setBackgroundImage(obj.result.uri);
-    
+
     for (const elName of ['footerArtist', 'footerAlbum', 'footerCover', 'currentTitle']) {
         document.getElementById(elName).classList.remove('clickable');
     }
@@ -337,7 +337,7 @@ function songChange(obj) {
     }
     document.title = 'myMPD: ' + pageTitle;
     document.getElementById('footerCover').title = pageTitle;
-    
+
     if (isValidUri(obj.result.uri) === true && isStreamUri(obj.result.uri) === false) {
         document.getElementById('footerTitle').classList.add('clickable');
         document.getElementById('currentTitle').classList.add('clickable');        
@@ -355,11 +355,11 @@ function songChange(obj) {
         obj.result['Filetype'] = '';
         elDisableId('addCurrentSongToPlaylist');
     }
-    
+
     if (features.featStickers === true) {
         setVoteSongBtns(obj.result.like, obj.result.uri);
     }
-    
+
     setPlaybackCardTags(obj.result);
 
     const bookletEl = document.getElementById('currentBooklet');
@@ -369,7 +369,7 @@ function songChange(obj) {
         bookletEl.appendChild(elCreateText('a', {"target": "_blank", "href": subdir + '/browse/music/' + 
             myEncodeURI(obj.result.bookletPath)}, tn('Download booklet')));
     }
-    
+
     //Update title in queue view for http streams
     const playingTr = document.getElementById('queueTrackId' + obj.result.currentSongId);
     if (playingTr) {
@@ -382,7 +382,7 @@ function songChange(obj) {
     if (currentState.state === 'play') {
         showNotification(obj.result.Title, textNotification, 'player', 'info');
     }
-    
+
     //remember current song
     currentSong = newSong;
     currentSongObj = obj.result;

@@ -171,11 +171,11 @@ function initBrowse() {
     document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
         let target;
         switch(event.target.nodeName) {
-             case 'TD': target = event.target.parentNode; break;
-             case 'DIV': target = event.target.parentNode; break;
+             case 'TD':    target = event.target.parentNode; break;
+             case 'DIV':   target = event.target.parentNode; break;
              case 'SPAN':
              case 'SMALL': target = event.target.parentNode.parentNode.parentNode; break;
-             default: target = event.target;
+             default:      target = event.target;
         }
         if (target.nodeName === 'TR') {
             const uri = getData(target, 'data-uri');
@@ -222,7 +222,7 @@ function navBrowseHandler(event) {
             appGoto('Browse', tag, undefined);
             return;
         }
-        
+
         if (app.current.card === 'Browse' && app.current.tab !== 'Database') {
             appGoto('Browse', 'Database', app.cards.Browse.tabs.Database.active);
             return;
@@ -319,12 +319,14 @@ function parseFilesystem(obj) {
     const tfoot = table.getElementsByTagName('tfoot')[0];
     elClear(tfoot);
 
-    if (checkResult(obj, 'BrowseFilesystem', null) === false) {
+    if (checkResultId(obj, 'BrowseFilesystemList') === false) {
         elHide(imageList);
         return;
     }
 
-    if (obj.result.images.length === 0 && obj.result.bookletPath === '') {
+    if (obj.result.images.length === 0 &&
+        obj.result.bookletPath === '')
+    {
         elHide(imageList);
     }
     else {
@@ -345,7 +347,7 @@ function parseFilesystem(obj) {
     const rowTitleSong = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
     const rowTitleFolder = webuiSettingsDefault.clickFolder.validValues[settings.webuiSettings.clickFolder];
     const rowTitlePlaylist = webuiSettingsDefault.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
-    
+
     updateTable(obj, 'BrowseFilesystem', function(row, data) {
         setData(row, 'data-type', data.Type);
         setData(row, 'data-uri', data.uri);
@@ -384,7 +386,7 @@ function parseDatabase(obj) {
     const nrItems = obj.result.returnedEntities;
     if (nrItems === 0) {
         elReplaceChild(cardContainer,
-            elCreateEmpty('div', {"class": ["col", "not-clickable", "alert", "alert-secondary"]}, tn('Empty list'))
+            elCreateText('div', {"class": ["col", "not-clickable", "alert", "alert-secondary"]}, tn('Empty list'))
         );
         setPagination(0, 0);
         return;
@@ -414,7 +416,7 @@ function parseDatabase(obj) {
             card.appendChild(
                 elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
             );
-            card.appendChild(    
+            card.appendChild(
                 elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "p-2"], 
                     "title": obj.result.data[i][tagAlbumArtist] + ': ' + obj.result.data[i].Album}, [
                         printValue('Album', obj.result.data[i].Album),
@@ -463,7 +465,7 @@ function parseDatabase(obj) {
     for (let i = cols.length - 1; i >= nrItems; i--) {
         cols[i].remove();
     }
-    
+
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
 }
 
@@ -497,7 +499,7 @@ function parseAlbumDetails(obj) {
     const colspan = settings.colsBrowseDatabaseDetail.length;
     const infoEl = document.getElementById('viewDetailDatabaseInfo');
 
-    if (checkResult(obj, null, 3) === false) {
+    if (checkResultId(obj, 'BrowseDatabaseDetailList') === false) {
         elClear(infoEl);
         elClear(tfoot);
         return;
@@ -507,12 +509,12 @@ function parseAlbumDetails(obj) {
     coverEl.style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(obj.result.data[0].uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
     setData(coverEl, 'data-images', obj.result.images);
     setData(coverEl, 'data-uri', obj.result.data[0].uri);
-    
+
     elClear(infoEl);
     infoEl.appendChild(elCreateText('h1', {}, obj.result.Album));
     infoEl.appendChild(elCreateText('small', {}, tn('AlbumArtist')));
     const p = elCreateEmpty('p', {}, '');
-    
+
     if (settings.tagListBrowse.includes(tagAlbumArtist)) {
         for (const artist of obj.result.AlbumArtist) {
             const artistLink = elCreateText('a', {"href": "#"}, artist);
@@ -539,7 +541,7 @@ function parseAlbumDetails(obj) {
             ])
         );
     }
-    
+
     const rowTitle = tn(webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong]);
     updateTable(obj, 'BrowseDatabaseDetail', function(row, data) {
         setData(row, 'data-type', 'song');
@@ -566,9 +568,7 @@ function backToAlbumGrid() {
 
 //eslint-disable-next-line no-unused-vars
 function addAlbum(action) {
-    const album = app.current.tag;
-    const albumArtist = app.current.search;
-    _addAlbum(action, albumArtist, album);
+    _addAlbum(action, app.current.search, app.current.tag);
 }
 
 //eslint-disable-next-line no-unused-vars

@@ -78,7 +78,7 @@ function showListOutputAttributes(outputName) {
         "partition": ""
     }, function(obj) {
         const tbody = document.getElementById('outputAttributesList');
-        if (checkResult(obj, tbody, 5) === false) {
+        if (checkResult(obj, tbody) === false) {
             return;
         }
 

@@ -213,7 +213,7 @@ function removeScriptArgument(ev) {
     const el = document.getElementById('inputScriptArgument');
     el.value = ev.target.text;
     ev.target.remove();
-    el.focus();  
+    el.focus();
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -287,7 +287,7 @@ function parseScriptList(obj) {
     const triggerScripts = document.getElementById('selectTriggerScript');
     elClear(triggerScripts);
 
-    if (checkResult(obj, tbodyScripts, 2) === false) {
+    if (checkResult(obj, tbodyScripts) === false) {
         return;
     }
 

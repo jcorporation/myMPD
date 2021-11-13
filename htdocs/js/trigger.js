@@ -32,17 +32,17 @@ function initTrigger() {
 function saveTrigger() {
     cleanupModalId('modalTrigger');
     let formOK = true;
-    
+
     const nameEl = document.getElementById('inputTriggerName');
     if (!validatePlnameEl(nameEl)) {
         formOK = false;
     }
-    
+
     const scriptEl = document.getElementById('selectTriggerScript');
     if (!validateSelect(scriptEl)) {
         formOK = false;
     }
-    
+
     if (formOK === true) {
         const args = {};
         const argEls = document.getElementById('triggerActionScriptArguments').getElementsByTagName('input');
@@ -149,10 +149,9 @@ function deleteTrigger(el, id) {
 
 function parseTriggerList(obj) {
     const tbody = document.getElementById('listTriggerList');
-    if (checkResult(obj, tbody, 4) === false) {
+    if (checkResult(obj, tbody) === false) {
         return;
     }
-
     elClear(tbody);
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const row = elCreateNodes('tr', {}, [

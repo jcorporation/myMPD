@@ -72,14 +72,12 @@ function _updateDBfinished(idleEvent) {
         }
     }
 
+    const text = idleEvent === 'update_database' ?
+        tn('Database successfully updated') : tn('Database update finished');
+
     //update database modal
     if (document.getElementById('modalUpdateDB').classList.contains('show')) {
-        if (idleEvent === 'update_database') {
-            document.getElementById('updateDBfinished').textContent = tn('Database successfully updated');
-        }
-        else if (idleEvent === 'update_finished') {
-            document.getElementById('updateDBfinished').textContent = tn('Database update finished');
-        }
+        document.getElementById('updateDBfinished').textContent = text;
         const updateDBprogress = document.getElementById('updateDBprogress');
         updateDBprogress.classList.remove('updateDBprogressAnimate');
         updateDBprogress.style.width = '100%';
@@ -88,10 +86,5 @@ function _updateDBfinished(idleEvent) {
     }
 
     //general notification
-    if (idleEvent === 'update_database') {
-        showNotification(tn('Database successfully updated'), '', 'database', 'info');
-    }
-    else if (idleEvent === 'update_finished') {
-        showNotification(tn('Database update finished'), '', 'database', 'info');
-    }
+    showNotification(text, '', 'database', 'info');
 }

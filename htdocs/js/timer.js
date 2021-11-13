@@ -24,7 +24,7 @@ function initTimer() {
     for (let i = 0; i < 24; i++) {
         selectTimerHourEl.appendChild(elCreateText('option', {"value": i}, zeroPad(i, 2)));
     }
-    
+
     const selectTimerMinuteEl = document.getElementById('selectTimerMinute');
     for (let i = 0; i < 60; i = i + 5) {
         selectTimerMinuteEl.appendChild(elCreateText('option', {"value": i}, zeroPad(i, 2)));
@@ -33,7 +33,7 @@ function initTimer() {
     document.getElementById('inputTimerVolume').addEventListener('change', function() {
         document.getElementById('textTimerVolume').textContent = this.value + ' %';
     }, false);
-    
+
     document.getElementById('selectTimerAction').addEventListener('change', function() {
         selectTimerActionChange();
     }, false);
@@ -117,7 +117,7 @@ function saveTimer() {
     if (!validateInt(inputTimerIntervalEl)) {
         formOK = false;
     }
-    
+
     if (formOK === true) {
         const args = {};
         const argEls = document.getElementById('timerActionScriptArguments').getElementsByTagName('input');
@@ -167,7 +167,7 @@ function showEditTimer(timerid) {
     elHideId('listTimerFooter');
     elShowId('editTimerFooter');
     document.getElementById('selectTimerPlaylist').filterInput.value = '';
-        
+
     if (timerid !== 0) {
         sendAPI("MYMPD_API_TIMER_GET", {
             "timerid": timerid
@@ -308,8 +308,7 @@ function showListTimer() {
 
 function parseListTimer(obj) {
     const tbody = document.getElementById('listTimer').getElementsByTagName('tbody')[0];
-    
-    if (checkResult(obj, tbody, 6) === false) {
+    if (checkResult(obj, tbody) === false) {
         return;
     }
     elClear(tbody);

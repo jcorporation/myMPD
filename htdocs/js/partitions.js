@@ -48,7 +48,7 @@ function moveOutput(output) {
 
 function parsePartitionOutputsList(obj) {
     const outputList = document.getElementById('partitionOutputsList');
-    if (checkResult(obj, outputList, 1) === false) {
+    if (checkResult(obj, outputList) === false) {
         return;
     }
 
@@ -139,7 +139,7 @@ function switchPartition(partition) {
 
 function parsePartitionList(obj) {
     const partitionList = document.getElementById('listPartitionsList');
-    if (checkResult(obj, partitionList, 3) === false) {
+    if (checkResult(obj, partitionList) === false) {
         return;
     }
 

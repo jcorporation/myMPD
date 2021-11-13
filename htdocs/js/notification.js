@@ -122,7 +122,7 @@ function logMessage(title, text, facility, severity) {
     else { 
         logDebug('Unknown facility: ' + facility);
     }
-    
+
     const overview = document.getElementById('logOverview');
 
     let append = true;

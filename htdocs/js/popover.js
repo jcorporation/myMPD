@@ -59,7 +59,7 @@ function createPopoverTh(el) {
 
     const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false,
         title: document.createTextNode(tn('Columns')), template: template, content: document.createTextNode('dummy')});
-    
+
     el.addEventListener('show.bs.popover', function() {
         const menu = elCreateEmpty('form', {});
         setColsChecklist(app.id, menu);
@@ -111,7 +111,7 @@ function createPopoverDisc(el) {
     const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false,
         title: document.createTextNode(tn('Disc') + ' ' + disc), template: template,
         content: document.createTextNode('dummy')});
-    
+
     el.addEventListener('show.bs.popover', function() {
         const popoverBody = popoverInit.popover.getElementsByClassName('popover-body')[0];
         popoverBody.classList.add('px-0');
@@ -162,7 +162,7 @@ function createPopoverTd(el) {
 
     const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false,
         content: document.createTextNode('dummy'), template: template});
-    
+
     const tabHeader = popoverInit.popover.getElementsByClassName('nav-link');
     const tabPanes = popoverInit.popover.getElementsByClassName('tab-pane');
     for (let i = 0; i < 2; i++) {
@@ -209,11 +209,11 @@ function createMenuTd(el, tabHeader, tabContent, tabNr) {
     if (app.current.card === 'Home' && tabNr === 0) {
         return createMenuHome(el, tabHeader, tabContent);
     }
-    
+
     if (tabNr === 0) {
         return createMenuGeneric(el, tabHeader, tabContent);
     }
-    
+
     return createMenuSecondary(el, tabHeader, tabContent);
 }
 
@@ -357,14 +357,14 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         }
         return true;
     }
-    
+
     if (app.id === 'BrowseDatabaseList') {
         const albumArtist = getData(dataNode, 'data-albumartist');
         const album = getData(dataNode, 'data-album');
         addMenuItemsAlbumActions(tabContent, albumArtist, album);
         return true;
     }
-    
+
     if (app.id === 'BrowsePlaylistsList') {
         const smartplsOnly = getData(dataNode, 'data-smartpls-only');
         if (smartplsOnly === false || type !== 'smartpls') {
@@ -385,7 +385,7 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         addMenuItem(tabContent, {"cmd": "showDelPlaylist", "options": [uri, smartplsOnly]}, 'Delete playlist');
         return true;
     }
-    
+
     if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
         const x = document.getElementById('BrowsePlaylistsDetailList');
         const songpos = getData(dataNode, 'data-songpos');
@@ -401,7 +401,7 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         }
         return true;
     }
-    
+
     if (app.current.card === 'Queue' && app.current.tab === 'Current') {
         const trackid = getData(dataNode, 'data-trackid');
         const songpos = getData(dataNode, 'data-songpos');
@@ -417,12 +417,12 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", songpos + 1, -1]}, 'Remove all downwards');
         return true;
     }
-    
+
     if (app.current.card === 'Queue' && app.current.tab === 'LastPlayed') {
         addMenuItemsSongActions(tabContent, uri, name);
         return true;
     }
-    
+
     if (app.current.card === 'Queue' && app.current.tab === 'Jukebox') {
         const pos = Number(getData(dataNode, 'data-pos'));
         const vAlbum = getData(dataNode, 'data-album');

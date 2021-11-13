@@ -134,7 +134,7 @@ function parseListMounts(obj) {
     const tbody = document.getElementById('listMounts').getElementsByTagName('tbody')[0];
     const tr = tbody.getElementsByTagName('tr');
 
-    if (checkResult(obj, tbody, 5) === false) {
+    if (checkResult(obj, tbody) === false) {
         return;
     }
 

@@ -12,7 +12,7 @@ function initSearch() {
             showPopover(event);
         }
     }, false);
-    
+
     document.getElementById('searchtags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = getData(event.target, 'data-tag');
@@ -99,7 +99,7 @@ function initSearch() {
             sortdesc = false;
             sortcol = col;
         }
-                
+
         const s = document.getElementById('SearchList').getElementsByClassName('sort-dir');
         for (let i = 0, j = s.length; i < j; i++) {
             s[i].remove();
@@ -133,7 +133,7 @@ function doSearch(x) {
 }
 
 function parseSearch(obj) {
-    if (checkResult(obj, 'Search', null) === false) {
+    if (checkResultId(obj, 'SearchList') === false) {
         return;
     }
 
