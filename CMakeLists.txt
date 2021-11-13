@@ -225,7 +225,6 @@ set(SOURCES
   dist/rax/rax.c
   dist/sds/sds.c
   dist/tinymt/tinymt32.c
-  dist/utf8decode/utf8decode.c
   src/handle_options.c
   src/lib/api.c
   src/lib/covercache.c
