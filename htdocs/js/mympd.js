@@ -111,7 +111,6 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
 }
 
 function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
-    //called on hash change
     if (settingsParsed === false) {
         appInitStart();
         return;
@@ -122,7 +121,15 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         if (hash !== null) {
             try {
                 jsonHash = JSON.parse(myDecodeURIComponent(hash[1]));
-                app.current = jsonHash;
+                app.current.card = typeof jsonHash.card === 'string' ? jsonHash.card : '';
+                app.current.tab = typeof jsonHash.tab === 'string' ? jsonHash.tab : '';
+                app.current.view = typeof jsonHash.view === 'string' ? jsonHash.view : '';
+                app.current.offset = typeof jsonHash.offset === 'number' ? jsonHash.offset : '';
+                app.current.limit = typeof jsonHash.limit === 'number' ? jsonHash.limit : '';
+                app.current.filter = typeof jsonHash.filter === 'string' ? jsonHash.filter : '';
+                app.current.sort = typeof jsonHash.sort === 'string' ? jsonHash.sort : '';
+                app.current.tag = typeof jsonHash.tag === 'string' ? jsonHash.tag : '';
+                app.current.search = typeof jsonHash.search === 'string' ? jsonHash.search : '';
             }
             catch(error) {
                 //do nothing
