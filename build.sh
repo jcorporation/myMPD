@@ -494,9 +494,8 @@ check_file() {
   then
     echo "Running clang-tidy, output goes to clang-tidy.out"
     rm -f clang-tidy.out
-    clang-tidy \
-    	--checks="$CLANG_TIDY_CHECKS" \
-    	--header-filter=".*" "$FILE" > ../clang-tidy.out 2>/dev/null
+    clang-tidy --checks="$CLANG_TIDY_CHECKS" \
+    	"$FILE" > ../clang-tidy.out 2>/dev/null
     grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out
   else
     echo_warn "clang-tidy not found"  
@@ -547,8 +546,7 @@ check() {
     rm -f clang-tidy.out
     cd src || exit 1
     find ./ -name '*.c' -exec clang-tidy \
-    	--checks="$CLANG_TIDY_CHECKS" \
-    	--header-filter=".*" {}  \; >> ../clang-tidy.out 2>/dev/null
+    	--checks="$CLANG_TIDY_CHECKS"  {}  \; >> ../clang-tidy.out 2>/dev/null
     grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out
   else
     echo_warn "clang-tidy not found"  
