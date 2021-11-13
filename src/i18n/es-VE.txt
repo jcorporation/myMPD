@@ -564,7 +564,7 @@ myMPD instalado como aplicación
 MPD disconnected
 MPD desconectado
 
-Websocket connection failed
+Websocket connection closed
 Error en la conexión con el Websocket
 
 Connected to myMPD

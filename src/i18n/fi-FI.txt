@@ -564,7 +564,7 @@ myMPD asennettu sovelluksena
 MPD disconnected
 MPD yhteys katkaistu
 
-Websocket connection failed
+Websocket connection closed
 Websocket yhteys epäonnistui
 
 Connected to myMPD

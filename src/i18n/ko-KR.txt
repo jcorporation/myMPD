@@ -615,7 +615,7 @@ myMPD가 앱으로 설치됨
 MPD disconnected
 MPD 연결 끊어짐
 
-Websocket connection failed
+Websocket connection closed
 웹소켓 연결 안 됨
 
 Connected to myMPD

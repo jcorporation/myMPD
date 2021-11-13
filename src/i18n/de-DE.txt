@@ -618,8 +618,8 @@ myMPD wurde als App installiert
 MPD disconnected
 MPD nicht verbunden
 
-Websocket connection failed
-Websocket Verbindung fehlgeschlagen
+Websocket connection closed
+Websocket Verbindung geschlossen
 
 Connected to myMPD
 myMPD Verbindung hergestellt

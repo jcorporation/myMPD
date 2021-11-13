@@ -567,7 +567,7 @@ myMPD werd als app geïnstalleerd
 MPD disconnected
 MPD niet verbonden
 
-Websocket connection failed
+Websocket connection closed
 Websocket Verbinding mislukt
 
 Connected to myMPD
