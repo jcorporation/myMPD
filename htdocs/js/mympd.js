@@ -823,5 +823,17 @@ window.onerror = function(msg, url, line) {
     return true;
 };
 
+//allow service worker registration
+if (window.trustedTypes && window.trustedTypes.createPolicy) {
+    window.trustedTypes.createPolicy('default', {
+        createScriptURL(dirty) {
+            if (dirty === 'sw.js') {
+                return 'sw.js'
+            }
+            throw new Error('Script not allowed: ' + dirty);
+       }
+    });
+}
+
 //Start app
 appInitStart();
