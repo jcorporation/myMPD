@@ -38,7 +38,7 @@ function initQueue() {
             showPopover(event);
         }
     }, false);
-    
+
     document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             clickSong(getData(event.target.parentNode, 'data-uri'));
@@ -95,10 +95,11 @@ function parseUpdateQueue(obj) {
     if (obj.result.state === 'stop') {
         document.getElementById('btnPlay').textContent = 'play_arrow';
         domCache.progressBar.style.transition = 'none';
+        reflow(domCache.progressBar);
         domCache.progressBar.style.width = '0';
-        setTimeout(function() {
-            domCache.progressBar.style.transition = progressBarTransition;
-        }, 10);
+        reflow(domCache.progressBar);
+        domCache.progressBar.style.transition = progressBarTransition;
+        reflow(domCache.progressBar);
     }
     else if (obj.result.state === 'play') {
         document.getElementById('btnPlay').textContent = settings.webuiSettings.uiFooterPlaybackControls === 'stop' ? 'stop' : 'pause';
@@ -122,14 +123,14 @@ function parseUpdateQueue(obj) {
     if (badgeQueueItemsEl) {
         badgeQueueItemsEl.textContent = obj.result.queueLength;
     }
-    
+
     if (obj.result.nextSongPos === -1 && settings.jukeboxMode === false) {
         elDisableId('btnNext');
     }
     else {
         elEnableId('btnNext');
     }
-    
+
     if (obj.result.songPos < 0) {
         elDisableId('btnPrev');
     }

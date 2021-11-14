@@ -77,7 +77,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
         domCache.progressBar.style.width = progressPx + 'px';
     }
     domCache.progress.style.cursor = totalTime <= 0 ? 'default' : 'pointer';
-    
+
     //Set playing track in queue view
     queueSetCurrentSong(currentSongId, elapsedTime, totalTime);
 
@@ -116,18 +116,21 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
 }
 
 function parseState(obj) {
+    //Get current song if songid has changed
+    //Get current song if queueVersion has changed - updates stream titles
+    if (currentState.currentSongId !== obj.result.currentSongId ||
+        currentState.queueVersion !== obj.result.queueVersion)
+    {
+        sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, songChange);
+    }
+    //save state
+    currentState = obj.result;
     //Set play and queue state
     parseUpdateQueue(obj);
     //Set volume
     parseVolume(obj);
     //Set play counters
     setCounter(obj.result.currentSongId, obj.result.totalTime, obj.result.elapsedTime);
-    //Get current song
-    if (currentState.currentSongId !== obj.result.currentSongId ||
-        currentState.queueVersion !== obj.result.queueVersion)
-    {
-        sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, songChange);
-    }
     //clear playback card if no current song
     if (obj.result.songPos === -1) {
         document.getElementById('currentTitle').textContent = tn('Not playing');
@@ -153,9 +156,6 @@ function parseState(obj) {
             cff.getElementsByTagName('p')[0].appendChild(printValue('AudioFormat', obj.result.AudioFormat));
         }
     }
-
-    //save state
-    currentState = obj.result;
 
     //handle error from mpd status response
     //currentState must be updated before
