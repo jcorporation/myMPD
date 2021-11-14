@@ -368,7 +368,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     }
 
     buffer = sdscatlen(buffer, "],", 2);
-    
+
     sds albumartist = sdsempty();
     if (first_song != NULL) {
         buffer = get_extra_files(mympd_state, buffer, mpd_song_get_uri(first_song), false);
@@ -377,7 +377,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     else {
         buffer = sdscat(buffer, "\"images\":[],\"bookletPath\":\"\"");
     }
-    
+
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
@@ -386,7 +386,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     buffer = tojson_long(buffer, "Discs", discs, true);
     buffer = tojson_long(buffer, "totalTime", totalTime, false);
     buffer = jsonrpc_result_end(buffer);
-    
+
     sdsfree(albumartist);
     if (first_song != NULL) {
         mpd_song_free(first_song);
@@ -395,7 +395,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
     }
-    
+
     return buffer;
 }
 
@@ -536,7 +536,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     raxStop(&iter);
     FREE_SDS(key);
     list_clear(&expr_list);
-    
+
     //print album list
     unsigned entity_count = 0;
     unsigned entities_returned = 0;

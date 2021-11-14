@@ -42,7 +42,7 @@ function initLocalPlaybackControl() {
 function setLocalPlayerUrl() {
     const streamUrl = window.location.protocol + '//' + window.location.hostname + 
         (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/stream/';
-    
+
     const localPlayer = document.getElementById('localPlayer');
     if (localPlayer.src !== streamUrl) {
         localPlayer.pause();

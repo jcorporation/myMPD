@@ -201,7 +201,7 @@ function parseSettings(obj) {
         return;
     }
     settings = obj.result;
-    
+
     //check for old cached javascript
     if ('serviceWorker' in navigator && settings.mympdVersion !== myMPDversion) {
         logWarn('Server version (' + settings.mympdVersion + ') not equal client version (' + myMPDversion + '), reloading');
@@ -294,7 +294,7 @@ function parseSettings(obj) {
     if (settings.webuiSettings.enableLocalPlayback === true) {
         setLocalPlayerUrl();
     }
-    
+
     //parse mpd settings if connected
     if (settings.mpdConnected === true) {
         parseMPDSettings();

@@ -79,12 +79,12 @@ function parsePartitionOutputsList(obj) {
 function savePartition() {
     cleanupModalId('modalPartitions');
     let formOK = true;
-    
+
     const nameEl = document.getElementById('inputPartitionName');
     if (!validatePlnameEl(nameEl)) {
         formOK = false;
     }
-    
+
     if (formOK === true) {
         sendAPI("MYMPD_API_PARTITION_NEW", {
             "name": nameEl.value

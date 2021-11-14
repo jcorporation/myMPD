@@ -66,7 +66,7 @@ bool certificates_check(sds workdir, sds ssl_san) {
 bool certificates_create(sds dir, sds custom_san) {
     bool rc_ca = false;
     bool rc_cert = false;
-    
+
     //read ca certificate / private key or create it
     sds cacert_file = sdscatfmt(sdsempty(), "%s/ca.pem", dir);
     sds cakey_file = sdscatfmt(sdsempty(), "%s/ca.key", dir);
@@ -157,7 +157,7 @@ static bool certificates_cleanup(sds dir, const char *name) {
         MYMPD_LOG_ERRNO(errno);
     }
     FREE_SDS(key_file);
-    
+
     return true;
 }
 
@@ -186,7 +186,7 @@ static bool create_ca_certificate(sds cakey_file, EVP_PKEY **ca_key, sds cacert_
     if (*ca_key == NULL) {
         return false;
     }
-    
+
     *ca_cert = generate_selfsigned_cert(*ca_key);
     if (*ca_cert == NULL) {
         return false;
@@ -257,7 +257,7 @@ static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 *
 	    EVP_PKEY_free(*key);
 	    return false;
 	}
-	
+
 	return true;
 }
 
@@ -287,7 +287,7 @@ static sds get_san(sds buffer) {
         char addrstr[INET6_ADDRSTRLEN];
         sds old_addrstr = sdsempty();
         void *ptr = NULL;
-        
+
         for (rp = res; rp != NULL; rp = rp->ai_next) {
             inet_ntop(res->ai_family, res->ai_addr->sa_data, addrstr, INET6_ADDRSTRLEN);
 
@@ -349,9 +349,9 @@ static X509_REQ *generate_request(EVP_PKEY *pkey) {
     X509_NAME_add_entry_by_txt(name, "C",  MBSTRING_ASC, (unsigned char *)"DE", -1, -1, 0);
     X509_NAME_add_entry_by_txt(name, "O",  MBSTRING_ASC, (unsigned char *)"myMPD", -1, -1, 0);
     X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, (unsigned char *)cn, -1, -1, 0);
-    
+
     FREE_SDS(cn);
-    
+
     if (!X509_REQ_sign(req, pkey, EVP_sha256())) {
         MYMPD_LOG_ERROR("Error signing request");
         X509_REQ_free(req);
@@ -543,6 +543,6 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
         return false;
     }
     FREE_SDS(cert_file_tmp);
-    
+
     return true;
 }

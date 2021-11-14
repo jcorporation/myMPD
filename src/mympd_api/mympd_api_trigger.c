@@ -123,7 +123,7 @@ sds mympd_api_trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds me
         current = current->next;
         j++;
     }
-    
+
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_result_end(buffer);
@@ -155,7 +155,7 @@ sds mympd_api_trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds met
     else {
         buffer = jsonrpc_respond_message(buffer, method, request_id, false, "trigger", "warn", "Trigger not found");
     }
-    
+
     return buffer;
 }
 

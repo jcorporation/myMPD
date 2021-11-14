@@ -125,7 +125,7 @@ bool mympd_api_timer_add(struct t_timer_list *l, unsigned timeout, int interval,
     new_node->timeout = timeout;
     new_node->interval = interval;
     new_node->timer_id = timer_id;
- 
+
     if (definition == NULL || definition->enabled == true) {
         new_node->fd = timerfd_create(CLOCK_REALTIME, 0);
         if (new_node->fd == -1) {
@@ -133,7 +133,7 @@ bool mympd_api_timer_add(struct t_timer_list *l, unsigned timeout, int interval,
             MYMPD_LOG_ERROR("Can't create timerfd");
             return false;
         }
- 
+
         struct itimerspec new_value;
         //timeout
         new_value.it_value.tv_sec = timeout;
@@ -160,11 +160,11 @@ bool mympd_api_timer_add(struct t_timer_list *l, unsigned timeout, int interval,
     MYMPD_LOG_DEBUG("Added timer with id %d, start time in %ds", timer_id, timeout);
     return true;
 }
- 
+
 void mympd_api_timer_remove(struct t_timer_list *l, int timer_id) {
     struct t_timer_node *current = NULL;
     struct t_timer_node *previous = NULL;
-    
+
     for (current = l->list; current != NULL; previous = current, current = current->next) {
         if (current->timer_id == timer_id) {
             MYMPD_LOG_DEBUG("Removing timer with id %d", timer_id);
@@ -199,7 +199,7 @@ void mympd_api_timer_toggle(struct t_timer_list *l, int timer_id) {
 void mympd_api_timer_timerlist_truncate(struct t_timer_list *l) {
     struct t_timer_node *current = l->list;
     struct t_timer_node *tmp = NULL;
-    
+
     while (current != NULL) {
         MYMPD_LOG_DEBUG("Removing timer with id %d", current->timer_id);
         tmp = current;
@@ -329,7 +329,7 @@ sds mympd_api_timer_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
         }
         current = current->next;
     }
-    
+
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_result_end(buffer);
@@ -376,9 +376,9 @@ sds mympd_api_timer_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
         }
         current = current->next;
     }
-    
+
     buffer = jsonrpc_result_end(buffer);
-    
+
     if (found == false) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, true,
             "timer", "error", "Timer with given id not found");
@@ -510,7 +510,7 @@ bool mympd_api_timer_file_save(struct t_mympd_state *mympd_state) {
 //private functions 
 static struct t_timer_node *get_timer_from_fd(struct t_timer_list *l, int fd) {
     struct t_timer_node *current = l->list;
- 
+
     while (current != NULL) {
         if (current->fd == fd) {
             return current;

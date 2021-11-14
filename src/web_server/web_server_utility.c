@@ -143,7 +143,7 @@ void webserver_serve_stream_image(struct mg_connection *nc, struct mg_http_messa
 void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, const char *name) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
-    
+
     sds asset_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, name);
     asset_image = webserver_find_image_file(asset_image);
     if (sdslen(asset_image) > 0) {
@@ -218,7 +218,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri, struct mg
             break;
         }
     }
-    
+
     if (p->uri != NULL) {
         //respond with error if browser don't support compression and asset is compressed
         if (p->compressed == true) {

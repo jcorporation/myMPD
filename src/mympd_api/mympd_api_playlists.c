@@ -72,7 +72,7 @@ bool mympd_api_smartpls_default(struct t_config *config) {
         "{\"type\": \"newest\", \"timerange\": 604800, \"sort\": \"\"}");
     FREE_SDS(smartpls_file);
     FREE_SDS(prefix);
-    
+
     return rc;
 }
 
@@ -188,7 +188,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, false);
     buffer = jsonrpc_result_end(buffer);
-    
+
     return buffer;
 }
 
@@ -512,7 +512,7 @@ static int mympd_api_enum_playlist(struct t_mympd_state *mympd_state, const char
     if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_playlist") == false) {
         return -1;
     }
-    
+
     struct mpd_song *song;
     int entity_count = 0;
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {

@@ -76,7 +76,7 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
 {
     //disable jukebox to prevent adding songs to queue from old jukebox queue list
     mympd_state->jukebox_mode = JUKEBOX_OFF;
-    
+
     bool rc = false;
     if (mpd_command_list_begin(mympd_state->mpd_state->conn, false)) {
         rc = mpd_send_stop(mympd_state->mpd_state->conn);

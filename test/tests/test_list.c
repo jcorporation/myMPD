@@ -112,7 +112,7 @@ UTEST(list, test_list_insert_sorted_by_key) {
     struct t_list test_list;
     list_init(&test_list);
     struct t_list_node *current;
-    
+
     list_insert_sorted_by_key(&test_list, "ddd", 1, "value1", NULL, LIST_SORT_ASC);
     current = list_node_at(&test_list, 0);
     ASSERT_STREQ("ddd", current->key);
@@ -276,6 +276,6 @@ UTEST(list, test_list_move_item_pos) {
     ASSERT_STREQ("key3", current->key);
 
     ASSERT_EQ(6, test_list.length);
-    
+
     list_clear(&test_list);
 }

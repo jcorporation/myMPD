@@ -412,7 +412,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_st
     if (mympd_state->mpd_state->feat_mpd_tags == true) {
         enable_mpd_tags(mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd);
     }
-    
+
     if (rc == false) {
         MYMPD_LOG_ERROR("Filling jukebox queue failed, disabling jukebox");
         send_jsonrpc_notify("jukebox", "error", "Filling jukebox queue failed, disabling jukebox");

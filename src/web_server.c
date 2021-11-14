@@ -663,12 +663,12 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
 
 static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data) {
     MYMPD_LOG_DEBUG("API request (%lld): %s", (long long)nc->id, body);
-    
+
     //first check if request is valid json string
     if (validate_json(body) == false) {
         return false;
     }
-    
+
     sds cmd = NULL;
     sds jsonrpc = NULL;
     int id = 0;

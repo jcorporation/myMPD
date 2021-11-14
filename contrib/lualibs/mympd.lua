@@ -9,7 +9,7 @@
 mympd = { _version = "0.2.1" }
 
 --
--- Function to retriebe mympd_state
+-- Function to retrieve mympd_state
 -- 
 function mympd.init()
   return mympd_api("INTERNAL_API_SCRIPT_INIT")
@@ -23,7 +23,7 @@ function mympd.os_capture(cmd)
     local handle = assert(io.popen(cmd, 'r'))
     local output = assert(handle:read('*a'))
     handle:close()
-    
+
     output = string.gsub(
       string.gsub(
         string.gsub(output, '^%s+', ''), 

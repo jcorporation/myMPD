@@ -115,7 +115,7 @@ function logMessage(title, text, facility, severity) {
     if (severities[severity] === undefined) {
         logDebug('Unknown severity: ' + severity);
     }
-    
+
     if (facilities[facility] !== undefined) {
         facility = facilities[facility];
     }
@@ -156,7 +156,7 @@ function logMessage(title, text, facility, severity) {
     else {
         overview.replaceChild(entry, lastEntry);
     }
-   
+
     const overviewRows = overview.getElementsByClassName('row');
     if (overviewRows.length > 10) {
         overviewRows[10].remove();

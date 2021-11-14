@@ -100,7 +100,7 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
         mympd_state->mpd_state->song_end_time = now + total_time - elapsed_time - 10;
         mympd_state->mpd_state->song_start_time = now - elapsed_time;
         unsigned half_time = total_time / 2;
-        
+
         if (half_time > 240) {
             mympd_state->mpd_state->set_song_played_time = now - elapsed_time + 240;
         }

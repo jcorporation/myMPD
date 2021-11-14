@@ -221,7 +221,7 @@ void sds_basename_uri(sds uri) {
     if (uri_len == 0) {
         return;
     }
-    
+
     if (strstr(uri, "://") == NULL) {
         //filename, remove path
         for (i = uri_len - 1; i >= 0; i--) {

@@ -211,7 +211,7 @@ sds mympd_api_script_get(struct t_config *config, sds buffer, sds method, long r
             "script", "error", "Can not open scriptfile");
     }
     FREE_SDS(scriptfilename);
-    
+
     return buffer;
 }
 
@@ -258,7 +258,7 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
         MYMPD_LOG_ERRNO(errno);
         return entry;
     }
-    
+
     sds line = sdsempty();
     if (sds_getline(&line, fp, 1000) == 0 && strncmp(line, "-- ", 3) == 0) {
         sdsrange(line, 3, -1);
@@ -284,7 +284,7 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     thread_logname = sds_replace(thread_logname, "script");
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
     struct t_script_thread_arg *script_arg = (struct t_script_thread_arg *) script_thread_arg;
-    
+
     const char *script_return_text = NULL;
     lua_State *lua_vm = luaL_newstate();
     if (lua_vm == NULL) {
@@ -558,7 +558,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         request->data = sdscat(request->data, lua_tostring(lua_vm, 2));
     }
     request->data = sdscatlen(request->data, "}", 1);
-    
+
     mympd_queue_push(mympd_api_queue, request, tid);
 
     int i = 0;

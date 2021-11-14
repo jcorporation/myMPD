@@ -806,7 +806,7 @@ static sds read_navbar_icons(struct t_config *config) {
     FREE_SDS(file_name);
     sds_getfile(&buffer, fp, 2000);
     fclose(fp);
-    
+
     if (validate_json_array(buffer) == false) {
         MYMPD_LOG_ERROR("Invalid navbar icons");
         sdsclear(buffer);

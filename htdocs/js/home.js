@@ -16,7 +16,7 @@ function initHome() {
             popoverMenuHome(event);
         }
     }, false);
-    
+
     document.getElementById('HomeList').addEventListener('contextmenu', function(event) {
         if (event.target.classList.contains('card-body') ||
             event.target.classList.contains('card-footer'))
@@ -31,7 +31,7 @@ function initHome() {
         }
         popoverMenuHome(event);
     }, false);
-   
+
     dragAndDropHome();
 
     //modals
@@ -61,7 +61,7 @@ function initHome() {
             document.getElementById('homeIconPreview').textContent = document.getElementById('inputHomeIconLigature').value;
         }
     }, false);
-    
+
     document.getElementById('btnHomeIconLigature').parentNode.addEventListener('show.bs.dropdown', function () {
         const selLig = document.getElementById('inputHomeIconLigature').value;
         if (selLig !== '') {
@@ -75,7 +75,7 @@ function initHome() {
             filterHomeIconLigatures();
         }
     }, false);
-    
+
     const listHomeIconLigature = document.getElementById('listHomeIconLigature');
     const searchHomeIconCat = document.getElementById('searchHomeIconCat');
 
@@ -97,7 +97,7 @@ function initHome() {
             document.getElementById('btnHomeIconLigature').Dropdown.hide();
         }
     });
-    
+
     document.getElementById('searchHomeIconLigature').addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
@@ -105,18 +105,18 @@ function initHome() {
     searchHomeIconCat.addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
-    
+
     document.getElementById('searchHomeIconCat').addEventListener('change', function() {
         filterHomeIconLigatures();
     }, false);
-    
+
     document.getElementById('searchHomeIconLigature').addEventListener('keydown', function(event) {
         event.stopPropagation();
         if (event.key === 'Enter') {
             event.preventDefault();
         }
     }, false);
-    
+
     document.getElementById('searchHomeIconLigature').addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
             const sel = document.getElementById('listHomeIconLigature').getElementsByClassName('active')[0];
@@ -218,7 +218,7 @@ function parseHome(obj) {
         const homeType = obj.result.data[i].cmd === 'appGoto' ? 'View' :
             obj.result.data[i].cmd === 'execScriptFromOptions' ? 'Script' :
             typeFriendly[obj.result.data[i].options[0]];
-        
+
         const card = elCreateEmpty('div', {"class": ["card", "home-icons"], "tabindex": 0, "draggable": "true",
             "title": tn(homeType) + ': ' + obj.result.data[i].name});
         if (obj.result.data[i].options[0] === 'album'){
@@ -447,12 +447,12 @@ function _addHomeIcon(cmd, name, ligature, options) {
     document.getElementById('inputHomeIconLigature').value = ligature;
     document.getElementById('inputHomeIconBgcolor').value = '#28a745';
     document.getElementById('inputHomeIconColor').value = '#ffffff';
-    
+
     populateHomeIconCmdSelect(cmd, options[0]);
     document.getElementById('selectHomeIconCmd').value = cmd;
     showHomeIconCmdOptions(options);
     getHomeIconPictureList('');
-    
+
     document.getElementById('homeIconPreview').textContent = ligature;
     document.getElementById('homeIconPreview').style.backgroundColor = '#28a745';
     document.getElementById('homeIconPreview').style.color = '#ffffff';
@@ -489,7 +489,7 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('homeIconPreview').textContent = obj.result.data.ligature;
         document.getElementById('homeIconPreview').style.backgroundColor = obj.result.data.bgcolor;
         document.getElementById('homeIconPreview').style.color = obj.result.data.color;
-        
+
         if (obj.result.data.image === '') {
             elShowId('divHomeIconLigature');
             document.getElementById('homeIconPreview').style.backgroundImage = '';

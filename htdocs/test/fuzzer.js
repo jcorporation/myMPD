@@ -142,7 +142,7 @@ function sendAPI(id) {
             }
         }
     };
-    
+
     document.getElementsByTagName('h5')[0].innerText = 'Running ' + JSON.stringify(request);
     ajaxRequest.send(JSON.stringify(request));
 }

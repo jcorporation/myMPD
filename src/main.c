@@ -321,7 +321,7 @@ int main(int argc, char **argv) {
     #ifdef ENABLE_SSL
         MYMPD_LOG_NOTICE("%s", OPENSSL_VERSION_TEXT);
     #endif
-    
+
     //set signal handler
     signal(SIGTERM, mympd_signal_handler);
     signal(SIGINT, mympd_signal_handler);
@@ -397,7 +397,7 @@ int main(int argc, char **argv) {
     if (init_webserver == true) {
         web_server_free(&mgr);
     }
-    
+
     int expired = expire_result_queue(web_server_queue, 0);
     mympd_queue_free(web_server_queue);
     MYMPD_LOG_DEBUG("Expired %d entries from web_server_queue", expired);

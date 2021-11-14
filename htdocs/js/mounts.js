@@ -36,7 +36,7 @@ function initMounts() {
             );
         }
     }, false);
-    
+
     document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
         event.preventDefault();
         if (event.target.nodeName === 'A') {
@@ -160,14 +160,14 @@ function parseListMounts(obj) {
             td1,
             elCreateText('td', {}, obj.result.data[i].mountUrl),
             actionTd
-            
+
         ]);
         setData(row, 'data-url', obj.result.data[i].mountUrl);
         setData(row, 'data-point', obj.result.data[i].mountPoint);
         if (obj.result.data[i].mountPoint === '') {
             row.classList.add('not-clickable');
         }
-        
+
         if (i < tr.length) {
             activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
         }

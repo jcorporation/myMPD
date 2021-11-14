@@ -72,7 +72,7 @@ bool mympd_api_home_file_read(struct t_mympd_state *mympd_state) {
         FREE_SDS(home_file);
         return false;
     }
-    
+
     sds line = sdsempty();
     while (sds_getline(&line, fp, 1000) == 0) {
         if (validate_json(line) == false) {

@@ -495,7 +495,7 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
         _set_parse_error(error, "Value length for JSON path \"%s\" is too short", path);
         return false;
     }
-    
+
     //strip quotes
     n = n - 2;
     p++;

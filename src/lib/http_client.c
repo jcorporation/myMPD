@@ -74,7 +74,7 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
     sds dns_uri = get_dnsserver();
     MYMPD_LOG_DEBUG("Setting dns server to %s", dns_uri);
     mgr_client.dns4.url = dns_uri;
-    
+
     mgr_client.userdata = mg_client_request;
     MYMPD_LOG_DEBUG("HTTP client connecting to \"%s\"", mg_client_request->uri);
     mg_http_connect(&mgr_client, mg_client_request->uri, _http_client_ev_handler, mg_client_response);

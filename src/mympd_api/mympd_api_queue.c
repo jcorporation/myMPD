@@ -47,7 +47,7 @@ bool mympd_api_queue_prio_set(struct t_mympd_state *mympd_state, const unsigned 
 bool mympd_api_queue_prio_set_highest(struct t_mympd_state *mympd_state, const unsigned trackid) {
     //default prio is 0
     unsigned priority = 1;
-    
+
     //try to get prio of next song
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
     if (status == NULL) {

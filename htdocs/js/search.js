@@ -67,7 +67,7 @@ function initSearch() {
     document.getElementById('searchMatch').addEventListener('change', function() {
         doSearch(document.getElementById('searchstr').value);
     }, false);
-    
+
     document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
         if (features.featAdvsearch === false ||
             event.target.nodeName !== 'TH' ||
@@ -81,7 +81,7 @@ function initSearch() {
         }
         let sortcol = app.current.sort;
         let sortdesc = true;
-                
+
         if (sortcol === col || sortcol === '-' + col) {
             if (sortcol.indexOf('-') === 0) {
                 sortdesc = true;

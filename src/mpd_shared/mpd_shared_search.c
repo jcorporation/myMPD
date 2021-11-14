@@ -172,7 +172,7 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
                 return buffer;
             }
         }
-        
+
         unsigned real_limit = limit == 0 ? offset + MPD_RESULTS_MAX : offset + limit;
         bool rc = mpd_search_add_window(mpd_state->conn, offset, real_limit);
         if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {

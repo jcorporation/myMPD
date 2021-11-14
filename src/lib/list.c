@@ -398,7 +398,7 @@ bool list_insert(struct t_list *l, const char *key, long value_i, const char *va
     }
     n->user_data = user_data;
     n->next = l->head;
-    
+
     l->head = n;
     l->length++;
     return true;
@@ -447,7 +447,7 @@ bool list_insert_sorted_by_key(struct t_list *l, const char *key, long value_i, 
         l->tail = previous->next;
     }
     l->length++;
-    
+
     return true;
 }
 
