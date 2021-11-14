@@ -50,7 +50,7 @@ UTEST(validate, test_validate_isdigit) {
     //invalid
     data = sdscat(data, "asdfsfdjl/k");
     ASSERT_FALSE(vcb_isdigit(data));
-    sdsfree(data);    
+    sdsfree(data);
 }
 
 UTEST(validate, test_validate_isprint) {
@@ -61,7 +61,7 @@ UTEST(validate, test_validate_isprint) {
     //invalid
     data = sdscat(data, "asdfsfdjl/köä");
     ASSERT_FALSE(vcb_isprint(data));
-    sdsfree(data);    
+    sdsfree(data);
 }
 
 UTEST(validate, test_validate_ishexcolor) {
@@ -75,7 +75,7 @@ UTEST(validate, test_validate_ishexcolor) {
     sdsclear(data);
     data = sdscat(data, "ffbb#aa");
     ASSERT_FALSE(vcb_ishexcolor(data));
-    sdsfree(data);    
+    sdsfree(data);
 }
 
 UTEST(validate, test_validate_isname) {
@@ -92,7 +92,7 @@ UTEST(validate, test_validate_isname) {
     sdsclear(data);
     data = sdscat(data, "sdaf\a4589");
     ASSERT_FALSE(vcb_isname(data));
-    sdsfree(data);    
+    sdsfree(data);
 }
 
 UTEST(validate, test_validate_istext) {
@@ -103,7 +103,7 @@ UTEST(validate, test_validate_istext) {
     //invalid
     data = sdscat(data, "asdfsfdjl\a");
     ASSERT_FALSE(vcb_istext(data));
-    sdsfree(data);    
+    sdsfree(data);
 }
 
 UTEST(validate, test_validate_isfilename) {
@@ -117,7 +117,7 @@ UTEST(validate, test_validate_isfilename) {
     sdsclear(data);
     data = sdscat(data, "asdfsfd/jl");
     ASSERT_FALSE(vcb_isfilename(data));
-    sdsfree(data);    
+    sdsfree(data);
 }
 
 UTEST(validate, test_validate_isfilepath) {
@@ -144,7 +144,7 @@ UTEST(validate, test_validate_isuri) {
     sdsclear(data);
     data = sdscat(data, "/asdfsfdjl/sdf");
     ASSERT_TRUE(vcb_isuri(data));
-    sdsfree(data);    
+    sdsfree(data);
 }
 
 UTEST(validate, test_validate_iscolumn) {
@@ -158,7 +158,7 @@ UTEST(validate, test_validate_iscolumn) {
     //invalid
     data = sdscat(data, "asdfsfdj");
     ASSERT_FALSE(vcb_iscolumn(data));
-    sdsfree(data);    
+    sdsfree(data);
 }
 
 UTEST(validate, test_validate_istaglist) {
@@ -169,7 +169,7 @@ UTEST(validate, test_validate_istaglist) {
     //invalid
     data = sdscat(data, "Artist, asdfsfdj");
     ASSERT_FALSE(vcb_istaglist(data));
-    sdsfree(data);    
+    sdsfree(data);
 }
 
 UTEST(validate, test_validate_ismpdtag) {
@@ -180,7 +180,7 @@ UTEST(validate, test_validate_ismpdtag) {
     //invalid
     data = sdscat(data, "asdfsfdj");
     ASSERT_FALSE(vcb_ismpdtag(data));
-    sdsfree(data);    
+    sdsfree(data);
 }
 
 UTEST(validate, test_validate_ismpdtag_or_any) {
@@ -194,7 +194,7 @@ UTEST(validate, test_validate_ismpdtag_or_any) {
     //invalid
     data = sdscat(data, "asdfsfdj");
     ASSERT_FALSE(vcb_ismpdtag_or_any(data));
-    sdsfree(data);    
+    sdsfree(data);
 }
 
 UTEST(validate, test_validate_ismpdsort) {
@@ -208,5 +208,5 @@ UTEST(validate, test_validate_ismpdsort) {
     //invalid
     data = sdscat(data, "asdfsfdj");
     ASSERT_FALSE(vcb_ismpdsort(data));
-    sdsfree(data);    
+    sdsfree(data);
 }

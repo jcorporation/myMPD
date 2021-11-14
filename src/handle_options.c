@@ -23,7 +23,7 @@ static struct option long_options[] = {
    ,{"pin",       no_argument,       0, 'p'}
     #endif
 };
-   
+
 bool handle_options(struct t_config *config, int argc, char **argv) {
     int n = 0;
     int option_index = 0;

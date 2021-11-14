@@ -25,7 +25,7 @@
 static bool parse_internal_message(struct t_work_result *response, struct t_mg_user_data *mg_user_data);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 #ifdef ENABLE_SSL
-  static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data, void *fn_data);
+    static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data, void *fn_data);
 #endif
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response);
@@ -65,7 +65,7 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     mgr->dns4.url = strdup(dns_uri);
     MYMPD_LOG_DEBUG("Setting dns server to %s", dns_uri);
     FREE_SDS(dns_uri);
-  
+
     //bind to http_port
     struct mg_connection *nc_http;
     sds http_url = sdscatfmt(sdsempty(), "http://%s:%s", config->http_host, config->http_port);
@@ -115,18 +115,18 @@ void *web_server_loop(void *arg_mgr) {
     thread_logname = sds_replace(thread_logname, "webserver");
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
-    
+
     //set mongoose loglevel
     #ifdef DEBUG
     mg_log_set("1");
     #endif
-    
+
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
     #ifdef ENABLE_SSL
     MYMPD_LOG_DEBUG("Using certificate: %s", mg_user_data->config->ssl_cert);
     MYMPD_LOG_DEBUG("Using private key: %s", mg_user_data->config->ssl_key);
     #endif
-    
+
     sds last_notify = sdsempty();
     time_t last_time = 0;
     while (s_signal_received == 0) {
@@ -147,7 +147,7 @@ void *web_server_loop(void *arg_mgr) {
                     send_ws_notify(mgr, response);
                 } 
                 else {
-                    free_result(response);                    
+                    free_result(response);
                 }
             } 
             else {
@@ -169,21 +169,21 @@ static bool parse_internal_message(struct t_work_result *response, struct t_mg_u
     bool rc = false;
     if (response->extra != NULL) {	
         struct set_mg_user_data_request *new_mg_user_data = (struct set_mg_user_data_request *)response->extra;
-        
+
         mg_user_data->music_directory = sds_replace(mg_user_data->music_directory, new_mg_user_data->music_directory);
         FREE_SDS(new_mg_user_data->music_directory);
-        
+
         mg_user_data->playlist_directory = sds_replace(mg_user_data->playlist_directory, new_mg_user_data->playlist_directory);
         FREE_SDS(new_mg_user_data->playlist_directory);
-        
+
         sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
         mg_user_data->coverimage_names = webserver_split_coverimage_names(new_mg_user_data->coverimage_names, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
         FREE_SDS(new_mg_user_data->coverimage_names);
-        
+
         mg_user_data->feat_library = new_mg_user_data->feat_library;
         mg_user_data->feat_mpd_albumart = new_mg_user_data->feat_mpd_albumart;
         mg_user_data->covercache = new_mg_user_data->covercache;
-        
+
         sdsclear(mg_user_data->stream_uri);
         if (new_mg_user_data->mpd_stream_port != 0) {
             mg_user_data->stream_uri = sdscatprintf(mg_user_data->stream_uri, "http://%s:%u", 
@@ -272,7 +272,7 @@ static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *
                 frontend_nc->is_closing = 1;
             }
             break;
-        }    
+        }
     }
 	(void) ev_data;
 }
@@ -346,7 +346,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             MYMPD_LOG_INFO("HTTP request (%lu): %.*s %.*s", nc->id, (int)hm->method.len, hm->method.ptr, (int)hm->uri.len, hm->uri.ptr);
-            
             //limit proto to HTTP/1.1
             if (strncmp(hm->proto.ptr, "HTTP/1.1", hm->proto.len) != 0) {
                 MYMPD_LOG_ERROR("Invalid http version, only HTTP/1.1 is supported");
@@ -693,14 +692,14 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
         FREE_SDS(jsonrpc);
         return false;
     }
-    
+
     if (is_public_api_method(cmd_id) == false) {
         MYMPD_LOG_ERROR("API method %s is for internal use only", cmd);
         FREE_SDS(cmd);
         FREE_SDS(jsonrpc);
         return false;
     }
-    
+
     sds session = sdsempty();
     #ifdef ENABLE_SSL
     if (sdslen(mg_user_data->config->pin_hash) > 0 && is_protected_api_method(cmd_id) == true) {
@@ -736,7 +735,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
     #else
     (void) auth_header;
     #endif
-    
+
     switch(cmd_id) {
         case MYMPD_API_SESSION_LOGIN: {
             sds pin = NULL;
@@ -772,7 +771,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
             if (rc == false) {
                 response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, true, "session", "error", "Invalid session");
             }
-             
+
             webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
             FREE_SDS(response);
             break;
@@ -827,7 +826,7 @@ static bool handle_script_api(long long conn_id, sds body) {
         FREE_SDS(jsonrpc);
         return false;
     }
-    
+
     struct t_work_request *request = create_request(conn_id, id, cmd_id, body);
     mympd_queue_push(mympd_api_queue, request, 0);
 

@@ -67,7 +67,7 @@ bool mympd_api_sticker_dequeue(struct t_mympd_state *mympd_state) {
         MYMPD_LOG_INFO("Delay setting stickers, sticker_cache is building");
         return false;
     }
-    
+
     struct t_list_node *current = mympd_state->sticker_queue.head;
     while (current != NULL) {
         MYMPD_LOG_DEBUG("Setting %s = %ld for %s", current->value_p, current->value_i, current->key);

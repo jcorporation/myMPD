@@ -53,7 +53,7 @@ const char *__asan_default_options(void) {
 #endif
 
 static void mympd_signal_handler(int sig_num) {
-    signal(sig_num, mympd_signal_handler);  // Reinstantiate signal handler
+    signal(sig_num, mympd_signal_handler); // Reinstantiate signal handler
     if (sig_num == SIGTERM || sig_num == SIGINT) {
         //Set loop end condition for threads
         s_signal_received = sig_num;
@@ -66,7 +66,7 @@ static void mympd_signal_handler(int sig_num) {
         MYMPD_LOG_NOTICE("Signal SIGHUP received, saving states");
         struct t_work_request *request = create_request(-1, 0, INTERNAL_API_STATE_SAVE, NULL);
         request->data = sdscatlen(request->data, "}}", 2);
-        mympd_queue_push(mympd_api_queue, request, 0);    
+        mympd_queue_push(mympd_api_queue, request, 0);
     }
 }
 
@@ -77,7 +77,7 @@ static bool do_chown(const char *file_path, const char *user_name) {
         return false;
     }
 
-    errno = 0;  
+    errno = 0;
     int rc = chown(file_path, pwd->pw_uid, pwd->pw_gid); /* Flawfinder: ignore */
     //Originally owned by root
     if (rc == -1) {
@@ -142,7 +142,7 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         //workdir is not accessible
         return false;
     }
-    
+
     if (testdir_rc == DIR_CREATED) {
         config->first_startup = true;
         //directory exists or was created; set user and group, if uid = 0
@@ -241,7 +241,7 @@ int main(int argc, char **argv) {
 
     //get startup uid
     uid_t startup_uid = getuid();
-    
+
     mympd_api_queue = mympd_queue_create("mympd_api_queue");
     web_server_queue = mympd_queue_create("web_server_queue");
     mympd_script_queue = mympd_queue_create("mympd_script_queue");
@@ -251,11 +251,11 @@ int main(int argc, char **argv) {
 
     //initialize random number generator
     tinymt32_init(&tinymt, (unsigned)time(NULL));
-    
+
     //mympd config defaults
     struct t_config *config = (struct t_config *)malloc_assert(sizeof(struct t_config));
     mympd_config_defaults_initial(config);
-   
+
     //command line option
     if (handle_options(config, argc, argv) == false) {
         loglevel = LOG_ERR;
@@ -331,7 +331,7 @@ int main(int argc, char **argv) {
     setvbuf(stdout, NULL, _IOLBF, 0);
     setvbuf(stderr, NULL, _IOLBF, 0);
 
-    //init webserver    
+    //init webserver
     struct mg_mgr mgr;
     init_mg_user_data = true;
     init_webserver = web_server_init(&mgr, config, mg_user_data);

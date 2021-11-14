@@ -144,7 +144,7 @@ static void _http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_d
                 (int) hm->headers[i].value.len, hm->headers[i].value.ptr);
         }
         //response code line
-        for (unsigned i = 0; i <  hm->message.len; i++) {
+        for (unsigned i = 0; i < hm->message.len; i++) {
             if (hm->message.ptr[i] == '\n') {
                 break;
             }

@@ -45,7 +45,7 @@ bool mympd_api_home_icon_save(struct t_mympd_state *mympd_state, bool replace, u
         }
         key = sds_catjson(key, current->key, sdslen(current->key));
         current = current->next;
-    }    
+    }
     key = sdscatlen(key, "]}", 2);
     bool rc = false;
     if (replace == true) {
@@ -125,7 +125,7 @@ bool mympd_api_home_file_save(struct t_mympd_state *mympd_state) {
         FREE_SDS(home_file);
         return false;
     }
-    FREE_SDS(tmp_file);    
+    FREE_SDS(tmp_file);
     FREE_SDS(home_file);
     return true;
 }

@@ -272,7 +272,7 @@ bool mympd_api_trigger_file_save(struct t_mympd_state *mympd_state) {
     }
     FREE_SDS(tmp_file);
     FREE_SDS(trigger_file);
-    return true;    
+    return true;
 }
 
 //private functions

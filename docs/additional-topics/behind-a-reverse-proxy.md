@@ -60,7 +60,7 @@ Or append an existing htpasswd file
 `sudo htpasswd <path/to/htpasswd/file> <username to access mympd>`
 
 for example:
-`sudo htpasswd -c  /etc/apache2/.htpasswds mympd`
+`sudo htpasswd -c /etc/apache2/.htpasswds mympd`
 
 Then add the following to your mympd Location in your apache virtualhost configuration file
 
@@ -85,7 +85,7 @@ See https://wiki.apache.org/httpd/PasswordBasicAuth for more information
 
 ## Simple Access Control
 
-To limit acces to mympd  to the local network, add the following to the location directive adjusting for your own network:
+To limit acces to mympd to the local network, add the following to the location directive adjusting for your own network:
 
 ```
 Require host localhost 

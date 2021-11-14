@@ -95,7 +95,7 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
             return buffer;
         }
     }
-    
+
     if (adv == true) {
         bool rc = mpd_search_add_expression(mpd_state->conn, expression);
         if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_expression") == false) {
@@ -180,12 +180,12 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
             return buffer;
         }
     }
-    
+
     bool rc = mpd_search_commit(mpd_state->conn);
     if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_commit") == false) {
         return buffer;
     }
-    
+
     if (plist == NULL) {
         struct mpd_song *song;
         unsigned entities_returned = 0;
@@ -227,7 +227,7 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
         buffer = jsonrpc_respond_message_phrase(buffer, method, request_id, false, 
             "playlist", "info", "Added songs to %{playlist}", 2, "playlist", plist);
     }
-    
+
     mpd_response_finish(mpd_state->conn);
     if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
        return buffer;

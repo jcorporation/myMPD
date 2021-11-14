@@ -355,7 +355,7 @@ addmympduser() {
 
 installrelease() {
   echo "Installing myMPD"
-  cd release || exit 1  
+  cd release || exit 1
   [ -z "${DESTDIR+x}" ] && DESTDIR=""
   make install DESTDIR="$DESTDIR"
   addmympduser
@@ -498,7 +498,7 @@ check_file() {
     	"$FILE" > ../clang-tidy.out 2>/dev/null
     grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out
   else
-    echo_warn "clang-tidy not found"  
+    echo_warn "clang-tidy not found"
   fi
 }
 
@@ -546,10 +546,10 @@ check() {
     rm -f clang-tidy.out
     cd src || exit 1
     find ./ -name '*.c' -exec clang-tidy \
-    	--checks="$CLANG_TIDY_CHECKS"  {}  \; >> ../clang-tidy.out 2>/dev/null
+    	--checks="$CLANG_TIDY_CHECKS" {} \; >> ../clang-tidy.out 2>/dev/null
     grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out
   else
-    echo_warn "clang-tidy not found"  
+    echo_warn "clang-tidy not found"
   fi
   cd .. || exit 1
   check_docs
@@ -721,7 +721,7 @@ pkgosc() {
   fi
   
   mkdir osc
-  cd osc || exit 1  
+  cd osc || exit 1
   osc checkout "$OSC_REPO"
   rm -f "$OSC_REPO"/*
   
@@ -744,7 +744,7 @@ pkgosc() {
   if [ -f /etc/debian_version ]
   then
     cp "../package/mympd_${VERSION}-1.dsc" "$OSC_REPO/"
-    cp "../package/mympd_${VERSION}-1.debian.tar.xz"  "$OSC_REPO/"
+    cp "../package/mympd_${VERSION}-1.debian.tar.xz" "$OSC_REPO/"
   fi
   cp ../contrib/packaging/rpm/mympd.spec "$OSC_REPO/"
   cp ../contrib/packaging/arch/PKGBUILD "$OSC_REPO/"
@@ -974,7 +974,7 @@ materialicons() {
     echo_error "Error downloading metadata"
     exit 1
   fi
-  sed -i '1d' metadata.json  
+  sed -i '1d' metadata.json
   printf "const materialIcons={" > "ligatures.js"
   I=0
   for CAT in $(jq -r ".icons[].categories | .[]" < metadata.json | sort -u)

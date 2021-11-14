@@ -47,11 +47,11 @@ sds sds_catjsonchar(sds s, const char p) {
         case '"':
             s = sdscatprintf(s, "\\%c", p);
             break;
-        case '\b': s = sdscatlen(s, "\\b", 2);     break;
-        case '\f': s = sdscatlen(s, "\\f", 2);     break;
-        case '\n': s = sdscatlen(s, "\\n", 2);     break;
-        case '\r': s = sdscatlen(s, "\\r", 2);     break;
-        case '\t': s = sdscatlen(s, "\\t", 2);     break;
+        case '\b': s = sdscatlen(s, "\\b", 2); break;
+        case '\f': s = sdscatlen(s, "\\f", 2); break;
+        case '\n': s = sdscatlen(s, "\\n", 2); break;
+        case '\r': s = sdscatlen(s, "\\r", 2); break;
+        case '\t': s = sdscatlen(s, "\\t", 2); break;
         //ignore vertical tabulator and alert
         case '\v': 
         case '\a':
@@ -234,7 +234,7 @@ void sds_basename_uri(sds uri) {
     }
 
     //uri, remove query and hash
-    for (i = 0;  i < uri_len; i++) {
+    for (i = 0; i < uri_len; i++) {
         if (uri[i] == '#' || uri[i] == '?') {
             break;
         }
@@ -244,7 +244,7 @@ void sds_basename_uri(sds uri) {
     }
 }
 
-void sds_strip_slash(sds s) {      
+void sds_strip_slash(sds s) {
     char *sp = s;
     char *ep = s + sdslen(s) - 1;
     while(ep >= sp && *ep == '/') {

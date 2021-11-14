@@ -70,7 +70,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
                     }
                     break;
                 case MPD_IDLE_PLAYER:
-                    //get and put mpd state                
+                    //get and put mpd state
                     buffer = mympd_api_status_get(mympd_state, buffer, NULL, 0);
                     //song has changed
                     if (mympd_state->mpd_state->song_id != mympd_state->mpd_state->last_song_id && 
@@ -211,7 +211,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 mympd_state->mpd_state->conn_state = MPD_TOO_OLD;
                 s_signal_received = 1;
             }
-            
+
             buffer = jsonrpc_event(buffer, "mpd_connected");
             ws_notify(buffer);
             mympd_state->mpd_state->conn_state = MPD_CONNECTED;
@@ -312,10 +312,10 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 else {
                     mpd_response_finish(mympd_state->mpd_state->conn);
                 }
-                
+
                 if (set_played == true) {
                     mympd_state->mpd_state->last_last_played_id = mympd_state->mpd_state->song_id;
-                    
+
                     if (mympd_state->last_played_count > 0) {
                         mympd_api_stats_last_played_add_song(mympd_state, mympd_state->mpd_state->song_id);
                     }
@@ -325,11 +325,11 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                     }
                     mympd_api_trigger_execute(mympd_state, TRIGGER_MYMPD_SCROBBLE);
                 }
-                
+
                 if (jukebox_add_song == true) {
                     mpd_client_jukebox(mympd_state);
                 }
-                
+
                 if (mympd_api_queue_length > 0) {
                     //Handle request
                     MYMPD_LOG_DEBUG("Handle request");
@@ -338,11 +338,11 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                         mympd_api_handler(mympd_state, request);
                     }
                 }
-                
+
                 if (mympd_state->sticker_queue.length > 0) {
                     mympd_api_sticker_dequeue(mympd_state);
                 }
-                
+
                 MYMPD_LOG_DEBUG("Entering mpd idle mode");
                 if (!mpd_send_idle(mympd_state->mpd_state->conn)) {
                     check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);

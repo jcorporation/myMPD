@@ -69,7 +69,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
         }
         mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, value);
     }
-    else if (strcmp(key, "mpdPort") == 0  && vtype == MJSON_TOK_NUMBER) {
+    else if (strcmp(key, "mpdPort") == 0 && vtype == MJSON_TOK_NUMBER) {
         int mpd_port = (int)strtoimax(value, NULL, 10);
         if (mpd_port < MPD_PORT_MIN || mpd_port > MPD_PORT_MAX) {
             *error = set_invalid_value(*error, key, value);
@@ -668,7 +668,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
             }
         }
         const char *replaygain = mpd_lookup_replay_gain_mode(replay_gain_mode);
-        
+
         buffer = tojson_long(buffer, "repeat", mpd_status_get_repeat(status), true);
         if (mympd_state->mpd_state->feat_mpd_single_oneshot == true) {
             buffer = tojson_long(buffer, "single", mpd_status_get_single_state(status), true);
@@ -684,7 +684,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = tojson_long(buffer, "consume", mpd_status_get_consume(status), true);
         buffer = tojson_char(buffer, "replaygain", replaygain == NULL ? "" : replaygain, true);
         mpd_status_free(status);
-        
+
         buffer = tojson_bool(buffer, "featPlaylists", mympd_state->mpd_state->feat_mpd_playlists, true);
         buffer = tojson_bool(buffer, "featTags", mympd_state->mpd_state->feat_mpd_tags, true);
         buffer = tojson_bool(buffer, "featLibrary", mympd_state->mpd_state->feat_mpd_library, true);
@@ -700,7 +700,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = tojson_bool(buffer, "featSmartpls", mympd_state->mpd_state->feat_mpd_smartpls, true);
         buffer = tojson_bool(buffer, "featPlaylistRmRange", mympd_state->mpd_state->feat_mpd_playlist_rm_range, true);
         buffer = tojson_bool(buffer, "featWhence", mympd_state->mpd_state->feat_mpd_whence, true);
-        
+
         buffer = print_tags_array(buffer, "tagList", mympd_state->mpd_state->tag_types_mympd);
         buffer = sdscatlen(buffer, ",", 1);
         buffer = print_tags_array(buffer, "tagListSearch", mympd_state->tag_types_search);
@@ -710,7 +710,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = print_tags_array(buffer, "tagListMpd", mympd_state->mpd_state->tag_types_mpd);
         buffer = sdscatlen(buffer, ",", 1);
         buffer = print_tags_array(buffer, "smartplsGenerateTagList", mympd_state->smartpls_generate_tag_types);
-        
+
         buffer = sdscat(buffer, ",\"triggerEvents\":{");
         buffer = mympd_api_trigger_print_trigger_list(buffer);
         buffer = sdscatlen(buffer, "}", 1);

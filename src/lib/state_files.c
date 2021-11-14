@@ -19,7 +19,7 @@
 
 sds camel_to_snake(sds text) {
     sds buffer = sdsempty();
-    for (size_t i = 0;  i < sdslen(text); i++) {
+    for (size_t i = 0; i < sdslen(text); i++) {
         if (isupper(text[i]) > 0) {
             buffer = sdscatprintf(buffer, "_%c", tolower((unsigned char)text[i]));
         }
@@ -37,7 +37,7 @@ sds state_file_rw_string_sds(const char *workdir, const char *dir, const char *n
 }
 
 sds state_file_rw_string(const char *workdir, const char *dir, const char *name, const char *def_value, validate_callback vcb, bool warn) {
-    sds result = sdsempty();  
+    sds result = sdsempty();
     sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", workdir, dir, name);
     errno = 0;
     FILE *fp = fopen(cfg_file, OPEN_FLAGS_READ);

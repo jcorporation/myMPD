@@ -34,7 +34,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -Wall -Werror -Wvla -Winit-self -
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
 
 set(MYMPD_FLAGS "-Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
-	-Wformat=2  -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs \
+	-Wformat=2 -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs \
   -Wmissing-include-dirs -Wdouble-promotion -Wundef -Wformat-nonliteral")
 
 #linker flags

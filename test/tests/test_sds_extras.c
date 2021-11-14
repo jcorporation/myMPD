@@ -96,7 +96,7 @@ UTEST(sds_extras, sds_basename_uri) {
         {"https://host:443/verz/verz/test?safsaf#798234", "https://host:443/verz/verz/test" },
         {"https://host/verz/verz/test",                   "https://host/verz/verz/test" },
         {"",                                              "" },
-        {"/test/test.mp3",                            "test.mp3" },
+        {"/test/test.mp3",                                "test.mp3" },
         {NULL,                                            NULL}
     };
     struct t_input_result *p = testcases;

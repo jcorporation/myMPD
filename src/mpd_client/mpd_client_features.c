@@ -50,12 +50,12 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_state->feat_mpd_smartpls = false;
     mympd_state->mpd_state->feat_mpd_playlist_rm_range = false;
     mympd_state->mpd_state->feat_mpd_whence = false;
-    
+
     //get features
     mpd_client_feature_commands(mympd_state);
     mpd_client_feature_music_directory(mympd_state);
     mpd_client_feature_tags(mympd_state);
-    
+
     //set state
     sds buffer = sdsempty();
     buffer = mympd_api_status_get(mympd_state, buffer, NULL, 0);
@@ -71,7 +71,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
         MYMPD_LOG_WARN("Disabling single oneshot feature, depends on mpd >= 0.21.0");
         MYMPD_LOG_WARN("Disabling advanced search, depends on mpd >= 0.21.0");
     }
-    
+
     if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 22, 0) >= 0) {
         mympd_state->mpd_state->feat_mpd_partitions = true;
         MYMPD_LOG_NOTICE("Enabling partitions feature");
@@ -103,7 +103,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     else {
         MYMPD_LOG_WARN("Disabling position whence support, depends on mpd >= 0.23.4");
     }
-    
+
     if (mympd_state->mpd_state->feat_mpd_advsearch == true && mympd_state->mpd_state->feat_mpd_playlists == true) {
         MYMPD_LOG_NOTICE("Enabling support of smart playlists");
         mympd_state->mpd_state->feat_mpd_smartpls = true;
@@ -111,7 +111,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     else {
         MYMPD_LOG_WARN("Disabling support of smart playlists");
     }
-    
+
     //push settings to web_server_queue
     struct set_mg_user_data_request *extra = (struct set_mg_user_data_request*)malloc_assert(sizeof(struct set_mg_user_data_request));
     extra->music_directory = sdsdup(mympd_state->music_directory_value);
@@ -272,7 +272,7 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
     }
     sds_strip_slash(mympd_state->music_directory_value);
     MYMPD_LOG_INFO("Music directory is \"%s\"", mympd_state->music_directory_value);
-    
+
     //set feat_library
     if (sdslen(mympd_state->music_directory_value) == 0) {
         MYMPD_LOG_WARN("Disabling featLibrary support");

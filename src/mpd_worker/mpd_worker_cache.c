@@ -33,7 +33,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     if (mpd_worker_state->mpd_state->feat_mpd_stickers == true) {
         sticker_cache = raxNew();
     }
-    
+
     bool rc = true;
     if (mpd_worker_state->mpd_state->feat_mpd_tags == true ||
         mpd_worker_state->mpd_state->feat_mpd_stickers == true)

@@ -38,8 +38,8 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
         MYMPD_LOG_ERRNO(errno);
         FREE_SDS(tmp_file);
         return false;
-    }    
-    
+    }
+
     FILE *fp = fdopen(fd, "w");
     //first write last_played list to tmp file
     unsigned i = 0;
@@ -81,7 +81,7 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
     FREE_SDS(tmp_file);
     FREE_SDS(lp_file);
     //empt list after write to disc
-    list_clear(&mympd_state->last_played);    
+    list_clear(&mympd_state->last_played);
     return true;
 }
 
@@ -194,7 +194,7 @@ sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buff
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_result_end(buffer);
-    
+
     return buffer;
 }
 
@@ -202,9 +202,9 @@ sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
     struct mpd_stats *stats = mpd_run_stats(mympd_state->mpd_state->conn);
     if (stats == NULL) {
         buffer = check_error_and_recover(mympd_state->mpd_state, buffer, method, request_id);
-        return buffer;        
+        return buffer;
     }
-    
+
     const unsigned *version = mpd_connection_get_server_version(mympd_state->mpd_state->conn);
     sds mpd_protocol_version = sdscatfmt(sdsempty(),"%u.%u.%u", version[0], version[1], version[2]);
 

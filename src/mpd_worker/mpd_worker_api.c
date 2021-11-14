@@ -27,7 +27,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     MYMPD_LOG_INFO("MPD WORKER API request (%lld)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
     struct t_work_result *response = create_result(request);
-    
+
     switch(request->cmd_id) {
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
             if (mpd_worker_state->smartpls == false) {
@@ -92,7 +92,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     if (async == true) {
         return;
     }
-    
+
     if (sdslen(response->data) == 0) {
         response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true, 
             "general", "error", "No response for method %{method}", 2, "method", request->method);

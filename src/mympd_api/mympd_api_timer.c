@@ -141,7 +141,7 @@ bool mympd_api_timer_add(struct t_timer_list *l, unsigned timeout, int interval,
         //interval
         //0 = one shote and deactivate
         //-1 = one shot and remove
-        
+
         new_value.it_interval.tv_sec = interval > 0 ? interval : 0;
         new_value.it_interval.tv_nsec = 0;
 
@@ -368,7 +368,7 @@ sds mympd_api_timer_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
                     buffer = sdscatlen(buffer, ",", 1);
                 }
                 buffer = tojson_char(buffer, argument->key, argument->value_p, false);
-                argument = argument->next;            
+                argument = argument->next;
             }
             buffer = sdscatlen(buffer, "}", 1);
             found = true;
@@ -412,7 +412,7 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
         param = sdscatfmt(param, "{\"params\":%s}", line);
         timer_def = mympd_api_timer_parse(timer_def, param, NULL);
         int interval;
-        int timerid;            
+        int timerid;
         if (timer_def != NULL &&
             json_get_int(param, "$.params.interval", TIMER_INTERVAL_MIN, TIMER_INTERVAL_MAX, &interval, NULL) == true &&
             json_get_int(param, "$.params.timerid", 101, 200, &timerid, NULL) == true) 
@@ -484,7 +484,7 @@ bool mympd_api_timer_file_save(struct t_mympd_state *mympd_state) {
                     buffer = sdscatlen(buffer, ",", 1);
                 }
                 buffer = tojson_char(buffer, argument->key, argument->value_p, false);
-                argument = argument->next;            
+                argument = argument->next;
             }
             buffer = sdscatlen(buffer, "}}\n", 3);
             fputs(buffer, fp);
@@ -504,7 +504,7 @@ bool mympd_api_timer_file_save(struct t_mympd_state *mympd_state) {
     }
     FREE_SDS(tmp_file);
     FREE_SDS(timer_file);
-    return true;    
+    return true;
 }
 
 //private functions 

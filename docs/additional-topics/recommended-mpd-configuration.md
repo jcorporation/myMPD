@@ -42,7 +42,7 @@ audio_output {
 	port		"8000"
 	bitrate		"128"
 	format		"44100:16:1"
-	always_on       "yes"
-	tags            "yes"
+	always_on   "yes"
+	tags        "yes"
 }
 ```

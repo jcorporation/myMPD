@@ -93,12 +93,12 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
             webserver_serve_na_image(nc, hm);
             FREE_SDS(uri_decoded);
             return true;
-        }     
+        }
 
         sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, uri_decoded);
         MYMPD_LOG_DEBUG("Check for stream cover %s", coverfile);
         coverfile = webserver_find_image_file(coverfile);
-        
+
         if (sdslen(coverfile) > 0) {
             const char *mime_type = get_mime_type_by_ext(coverfile);
             MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
@@ -115,7 +115,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
         FREE_SDS(uri_decoded);
         return true;
     }
-    
+
     //check covercache
     if (mg_user_data->covercache == true) {
         sds filename = sdsdup(uri_decoded);
@@ -139,11 +139,11 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
         MYMPD_LOG_DEBUG("No covercache file found");
         FREE_SDS(covercachefile);
     }
-    
+
     //create absolute file
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mg_user_data->music_directory, uri_decoded);
     MYMPD_LOG_DEBUG("Absolut media_file: %s", mediafile);
-    
+
     if (mg_user_data->feat_library == true) {
         //try image in folder under music_directory
         if (mg_user_data->coverimage_names_len > 0) {
@@ -305,7 +305,7 @@ static bool handle_coverextract_flac(struct t_config *config, const char *uri, c
     FLAC__StreamMetadata *metadata = NULL;
 
     FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
-    
+
     if(! (is_ogg? FLAC__metadata_chain_read_ogg(chain, media_file) : FLAC__metadata_chain_read(chain, media_file)) ) {
         MYMPD_LOG_DEBUG("%s: ERROR: reading metadata", media_file);
         FLAC__metadata_chain_delete(chain);
@@ -315,14 +315,14 @@ static bool handle_coverextract_flac(struct t_config *config, const char *uri, c
     FLAC__Metadata_Iterator *iterator = FLAC__metadata_iterator_new();
     FLAC__metadata_iterator_init(iterator, chain);
     assert(iterator);
-    
+
     do {
         FLAC__StreamMetadata *block = FLAC__metadata_iterator_get_block(iterator);
         if (block->type == FLAC__METADATA_TYPE_PICTURE) {
             metadata = block;
         }
     } while (FLAC__metadata_iterator_next(iterator) && metadata == NULL);
-    
+
     if (metadata == NULL) {
         MYMPD_LOG_DEBUG("No embedded picture detected");
     }

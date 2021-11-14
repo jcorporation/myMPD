@@ -64,7 +64,7 @@ Compile time options are set through environment variables.
 | ENABLE_SSL | ON | ON = Enables SSL, requires OpenSSL >= 1.1.0 |
 | ENABLE_LIBID3TAG | ON | ON = Enables libid3tag usage for extracting coverimages |
 | ENABLE_FLAC | ON | ON = Enables flac usage for extracting coverimages |
-| ENABLE_LUA | ON | ON =  Enables scripting support with lua |
+| ENABLE_LUA | ON | ON = Enables scripting support with lua |
 | EMBEDDED_ASSETS | - | ON = Embeds assets in binary, default ON for release else OFF |
 | MANPAGES | ON | ON = build manpages |
 | ENABLE_LIBASAN | - | ON = compile with libasan, default ON for memcheck else OFF |

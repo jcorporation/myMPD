@@ -158,7 +158,7 @@ bool list_move_item_pos(struct t_list *l, unsigned from, unsigned to) {
 }
 
 bool list_swap_item_pos(struct t_list *l, unsigned index1, unsigned index2) {
-   if (l->length < 2) {
+    if (l->length < 2) {
         return false;
     }
     struct t_list_node *node1 = list_node_at(l, index1);
@@ -173,26 +173,26 @@ bool list_swap_item(struct t_list_node *n1, struct t_list_node *n2) {
     if (n1 == n2) {
         return false;
     }
-        
+
     if (n1 == NULL || n2 == NULL) {
         return false;
     }
-        
+
     sds key = n2->key;
     long value_i = n2->value_i;
     sds value_p = n2->value_p;
     void *user_data = n2->user_data;
-    
+
     n2->key = n1->key;
     n2->value_i = n1->value_i;
     n2->value_p = n1->value_p;
     n2->user_data = n1->user_data;
-    
+
     n1->key = key;
     n1->value_i = value_i;
     n1->value_p = value_p;
     n1->user_data = user_data;
-    
+
     return true;
 }
 
@@ -211,20 +211,20 @@ bool list_shuffle(struct t_list *l) {
     return true;
 }
 
-bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction  direction) {
+bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction direction) {
     int swapped; 
     struct t_list_node *ptr1; 
     struct t_list_node *lptr = NULL; 
-  
+
     if (l->head == NULL) {
         return false;
     }
-  
+
     do { 
         swapped = 0; 
         ptr1 = l->head;
-  
-        while (ptr1->next != lptr)  { 
+
+        while (ptr1->next != lptr) { 
             if ((direction == LIST_SORT_ASC && ptr1->value_i > ptr1->next->value_i) ||
                 (direction == LIST_SORT_DESC && ptr1->value_i < ptr1->next->value_i))
             {
@@ -239,23 +239,23 @@ bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction  direction)
     return true;
 }
 
-bool list_sort_by_value_p(struct t_list *l, enum list_sort_direction  direction) {
+bool list_sort_by_value_p(struct t_list *l, enum list_sort_direction direction) {
     int swapped; 
     struct t_list_node *ptr1; 
     struct t_list_node *lptr = NULL; 
-  
+
     if (l->head == NULL) {
         return false;
     }
-  
+
     do { 
         swapped = 0; 
         ptr1 = l->head;
-  
-        while (ptr1->next != lptr)  { 
+
+        while (ptr1->next != lptr) { 
             if ((direction == LIST_SORT_ASC && strcmp(ptr1->value_p, ptr1->next->value_p) > 0) ||
                 (direction == LIST_SORT_DESC && strcmp(ptr1->value_p, ptr1->next->value_p) < 0))
-            {  
+            {
                 list_swap_item(ptr1, ptr1->next); 
                 swapped = 1; 
             } 
@@ -267,23 +267,23 @@ bool list_sort_by_value_p(struct t_list *l, enum list_sort_direction  direction)
     return true;
 }
 
-bool list_sort_by_key(struct t_list *l, enum list_sort_direction  direction) {
+bool list_sort_by_key(struct t_list *l, enum list_sort_direction direction) {
     int swapped; 
     struct t_list_node *ptr1; 
     struct t_list_node *lptr = NULL; 
-  
+
     if (l->head == NULL) {
         return false;
     }
-  
+
     do { 
         swapped = 0; 
         ptr1 = l->head;
-  
-        while (ptr1->next != lptr)  { 
+
+        while (ptr1->next != lptr) { 
             if ((direction == LIST_SORT_ASC && strcmp(ptr1->key, ptr1->next->key) > 0) || 
                 (direction == LIST_SORT_DESC && strcmp(ptr1->key, ptr1->next->key) < 0))
-            {  
+            {
                 list_swap_item(ptr1, ptr1->next); 
                 swapped = 1; 
             }
@@ -308,7 +308,7 @@ bool list_replace(struct t_list *l, unsigned pos, const char *key, long value_i,
         current = current->next;
         i++;
     }
-    
+
     current->key = sds_replace(current->key, key);
     current->value_i = value_i;
     if (value_p != NULL) {
@@ -404,7 +404,7 @@ bool list_insert(struct t_list *l, const char *key, long value_i, const char *va
     return true;
 }
 
-bool list_insert_sorted_by_key(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data, enum list_sort_direction  direction) {
+bool list_insert_sorted_by_key(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data, enum list_sort_direction direction) {
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;
@@ -426,7 +426,7 @@ bool list_insert_sorted_by_key(struct t_list *l, const char *key, long value_i, 
     //find correct position to insert
     struct t_list_node *current = NULL;
     struct t_list_node *previous = NULL;
-    for (current = l->head; current != NULL; previous = current, current = current->next) {    
+    for (current = l->head; current != NULL; previous = current, current = current->next) {
         if (direction == LIST_SORT_ASC && strcmp(n->key, current->key) < 0) {
             break;
         }
@@ -451,7 +451,7 @@ bool list_insert_sorted_by_key(struct t_list *l, const char *key, long value_i, 
     return true;
 }
 
-bool list_insert_sorted_by_value_i(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data, enum list_sort_direction  direction) {
+bool list_insert_sorted_by_value_i(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data, enum list_sort_direction direction) {
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;
@@ -473,7 +473,7 @@ bool list_insert_sorted_by_value_i(struct t_list *l, const char *key, long value
     //find correct position to insert
     struct t_list_node *current = NULL;
     struct t_list_node *previous = NULL;
-    for (current = l->head; current != NULL; previous = current, current = current->next) {    
+    for (current = l->head; current != NULL; previous = current, current = current->next) {
         if (direction == LIST_SORT_ASC && n->value_i < current->value_i) {
             break;
         }
@@ -494,7 +494,7 @@ bool list_insert_sorted_by_value_i(struct t_list *l, const char *key, long value
         l->tail = previous->next;
     }
     l->length++;
-    
+
     return true;
 }
 
@@ -502,13 +502,13 @@ struct t_list_node *list_shift_first(struct t_list *l) {
     if (l->head == NULL) {
         return NULL;
     }
-    
+
     struct t_list_node *extracted = l->head;
     l->head = l->head->next;
     if (l->tail == extracted) {
         l->tail = NULL;
     }
-    
+
     extracted->next = NULL;
     return extracted;
 }

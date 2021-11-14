@@ -52,7 +52,7 @@ void webserver_populate_dummy_hm(struct mg_connection *nc, struct mg_http_messag
     else if (nc->label[1] == 'P') { hm->method = mg_str("POST"); }
     hm->uri = mg_str("/");
     hm->message = mg_str("");
-    hm->body = mg_str("");  
+    hm->body = mg_str("");
     hm->query = mg_str("");
     hm->proto = mg_str("HTTP/1.1"); //we only accept HTTP/1.1
     //add accept-encoding header to deliver gziped embedded files
@@ -107,9 +107,9 @@ void webserver_send_error(struct mg_connection *nc, int code, const char *msg) {
 
 void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *headers) {
     mg_printf(nc, "HTTP/1.1 200 OK\r\n"
-      "%s"
-      "Content-Length: %lu\r\n\r\n",
-      headers, len);
+        "%s"
+        "Content-Length: %lu\r\n\r\n",
+        headers, len);
 }
 
 void webserver_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers) {
@@ -120,9 +120,9 @@ void webserver_send_data(struct mg_connection *nc, const char *data, size_t len,
 
 void webserver_send_header_redirect(struct mg_connection *nc, const char *location) {
     mg_printf(nc, "HTTP/1.1 301 Moved Permanently\r\n"
-      "Location: %s\r\n"
-      "Content-Length: 0\r\n\r\n", 
-      location);
+        "Location: %s\r\n"
+        "Content-Length: 0\r\n\r\n", 
+        location);
 }
 
 void webserver_handle_connection_close(struct mg_connection *nc) {

@@ -22,7 +22,7 @@ sds mympd_api_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sds
 sds mympd_api_smartpls_put(struct t_config *config, sds buffer, sds method, long request_id,
                             const char *playlist);
 sds mympd_api_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer, sds method, 
-                                   long request_id, const char *type);
+                                  long request_id, const char *type);
 void mympd_api_smartpls_update(const char *playlist);
 void mympd_api_smartpls_update_all(void);
 bool mympd_api_smartpls_default(struct t_config *config);

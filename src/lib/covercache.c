@@ -67,7 +67,7 @@ int covercache_clear(const char *workdir, int keepdays) {
     int num_deleted = 0;
     bool error = false;
     time_t expire_time = time(NULL) - (long)(keepdays * 24 * 60 * 60);
-    
+
     sds covercache = sdscatfmt(sdsempty(), "%s/covercache", workdir);
     MYMPD_LOG_NOTICE("Cleaning covercache \"%s\"", covercache);
     MYMPD_LOG_DEBUG("Remove files older than %ld sec", expire_time);

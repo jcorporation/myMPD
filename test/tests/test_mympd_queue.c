@@ -15,16 +15,16 @@ UTEST(mympd_queue, push_shift) {
     sds test_data_in0 = sdsnew("test0");
     sds test_data_in1 = sdsnew("test0");
     sds test_data_in2 = sdsnew("test0");
-    
+
     sds test_data_out = NULL;
-    
+
     mympd_queue_push(test_queue, test_data_in0, 0);
     test_data_out = mympd_queue_shift(test_queue, 50, 0);
     ASSERT_STREQ(test_data_in0, test_data_out);
-    
+
     unsigned len = mympd_queue_length(test_queue, 0);
     ASSERT_EQ(0, len);
-    
+
     mympd_queue_push(test_queue, test_data_in1, 0);
     mympd_queue_push(test_queue, test_data_in2, 0);
     test_data_out = NULL;
@@ -37,7 +37,7 @@ UTEST(mympd_queue, push_shift) {
 
     len = mympd_queue_length(test_queue, 0);
     ASSERT_EQ(0, len);
-    
+
     mympd_queue_free(test_queue);
     sdsfree(test_data_in0);
     sdsfree(test_data_in1);
@@ -66,11 +66,11 @@ UTEST(mympd_queue, push_shift_id) {
     test_data_out = NULL;
     test_data_out = mympd_queue_shift(test_queue, 50, 10);
     ASSERT_STREQ(test_data_in0, test_data_out);
-    
+
     test_data_out = NULL;
     test_data_out = mympd_queue_shift(test_queue, 50, 10);
     ASSERT_STREQ(test_data_in2, test_data_out);
-    
+
     len = mympd_queue_length(test_queue, 0);
     ASSERT_EQ(0, len);
 

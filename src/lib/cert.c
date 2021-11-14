@@ -319,7 +319,7 @@ static int generate_set_random_serial(X509 *crt) {
 	unsigned char serial_bytes[20]; /* Flawfinder: ignore */
 	if (RAND_bytes(serial_bytes, sizeof(serial_bytes)) != 1) {
 	    return 0;
-        }
+    }
 	serial_bytes[0] &= 0x7f; /* Ensure positive serial! */
 	BIGNUM *bn = BN_new();
 	BN_bin2bn(serial_bytes, sizeof(serial_bytes), bn);
@@ -372,28 +372,28 @@ static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ 
         MYMPD_LOG_ERROR("Unable to create X509 structure");
         return NULL;
     }
-        
+
     /* Set version to X509v3 */
     X509_set_version(cert, 2);
 
     /* Set the serial number. */
     generate_set_random_serial(cert);
-    
+
     /* Set issuer to CA's subject. */
     X509_set_issuer_name(cert, X509_get_subject_name(ca_cert));
-    
+
     /* This certificate is valid from now until one year from now. */
     int lifetime = CERT_LIFETIME * 24 * 60 * 60;
     X509_gmtime_adj(X509_get_notBefore(cert), 0);
     X509_gmtime_adj(X509_get_notAfter(cert), lifetime);
-    
+
     /* Get the request's subject and just use it (we don't bother checking it since we generated
      * it ourself). Also take the request's public key. */
     X509_set_subject_name(cert, X509_REQ_get_subject_name(req));
     EVP_PKEY *req_pubkey = X509_REQ_get_pubkey(req);
     X509_set_pubkey(cert, req_pubkey);
     EVP_PKEY_free(req_pubkey);
-    
+
     /* Set extensions. */
     X509V3_CTX ctx;
     X509V3_set_ctx_nodb(&ctx);
@@ -444,54 +444,54 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
         MYMPD_LOG_ERROR("Unable to create X509 structure");
         return NULL;
     }
-    
+
     /* Set version to X509v3 */
     X509_set_version(cert, 2);
-    
+
     /* Set the serial number. */
     generate_set_random_serial(cert);
-    
+
     /* This certificate is valid from now until ten years from now. */
     int lifetime = CA_LIFETIME * 24 * 60 * 60;
     X509_gmtime_adj(X509_get_notBefore(cert), 0);
     X509_gmtime_adj(X509_get_notAfter(cert), lifetime);
-    
+
     /* Set the public key for our certificate. */
     X509_set_pubkey(cert, pkey);
-    
+
     /* We want to copy the subject name to the issuer name. */
     X509_NAME *name = X509_get_subject_name(cert);
-    
+
     /* Set the DN */
     time_t now = time(NULL);
     sds cn = sdscatprintf(sdsempty(), "myMPD CA %llu", (unsigned long long)now);
     X509_NAME_add_entry_by_txt(name, "C",  MBSTRING_ASC, (unsigned char *)"DE", -1, -1, 0);
     X509_NAME_add_entry_by_txt(name, "O",  MBSTRING_ASC, (unsigned char *)"myMPD", -1, -1, 0);
     X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, (unsigned char *)cn, -1, -1, 0);
-    FREE_SDS(cn);    
+    FREE_SDS(cn);
 
     /* Now set the issuer name. */
     X509_set_issuer_name(cert, name);
-    
+
     /* Set ca extension. */
     X509V3_CTX ctx;
     X509V3_set_ctx_nodb(&ctx);
     X509V3_set_ctx(&ctx, cert, cert, NULL, NULL, 0);
     add_extension(&ctx, cert, NID_basic_constraints, "critical, CA:true");
     add_extension(&ctx, cert, NID_key_usage, "critical, Certificate Sign, CRL Sign");
-    
+
     /* Self sign the certificate with our key. */
     if (!X509_sign(cert, pkey, EVP_sha256())) {
         MYMPD_LOG_ERROR("Error signing certificate");
         X509_free(cert);
         return NULL;
     }
-    
+
     return cert;
 }
 
 static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cert) {
-    /* Write the key to disk. */    
+    /* Write the key to disk. */
     sds key_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", key_file);
     errno = 0;
     int fd = mkstemp(key_file_tmp);
@@ -517,7 +517,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
         return false;
     }
     FREE_SDS(key_file_tmp);
-    
+
     /* Write the certificate to disk. */
     sds cert_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", cert_file);
     errno = 0;

@@ -29,7 +29,7 @@
 
 #include <lua.h>
 #include <lualib.h>
-#include <lauxlib.h>  
+#include <lauxlib.h>
 #ifdef EMBEDDED_ASSETS
     //embedded files for release build
     #include "mympd_api_scripts_lualibs.c"
@@ -75,7 +75,7 @@ sds mympd_api_script_list(struct t_config *config, sds buffer, sds method, long 
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "script", "error", "Can not open script directory");
         return buffer;
     }
-    
+
     struct dirent *next_file;
     int nr = 0;
     sds entry = sdsempty();
@@ -112,7 +112,7 @@ sds mympd_api_script_list(struct t_config *config, sds buffer, sds method, long 
     FREE_SDS(scriptfilename);
     FREE_SDS(entry);
     FREE_SDS(scriptdirname);
-    buffer = sdscatlen(buffer, "]", 1);        
+    buffer = sdscatlen(buffer, "]", 1);
     buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
@@ -256,7 +256,7 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
     if (fp == NULL) {
         MYMPD_LOG_ERROR("Can not open file \"%s\": %s", scriptfilename);
         MYMPD_LOG_ERRNO(errno);
-        return entry;    
+        return entry;
     }
     
     sds line = sdsempty();
@@ -533,7 +533,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
     }
 
     long tid = syscall(__NR_gettid);
-    
+
     struct t_work_request *request = create_request(-2, tid, method_id, NULL);
     if (raw == false) {
         for (int i = 2; i < n; i = i + 2) {
@@ -554,7 +554,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         request->data = sdscatlen(request->data, "}", 1);
     }
     else if (n == 2) {
-        sdsrange(request->data, 0, -2);  //trim {
+        sdsrange(request->data, 0, -2); //trim {
         request->data = sdscat(request->data, lua_tostring(lua_vm, 2));
     }
     request->data = sdscatlen(request->data, "}", 1);
@@ -571,7 +571,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                 MYMPD_LOG_DEBUG("Populating lua global state table mympd");
                 struct t_list *lua_mympd_state = (struct t_list *)response->extra;
                 lua_newtable(lua_vm);
-                populate_lua_table(lua_vm, lua_mympd_state);    
+                populate_lua_table(lua_vm, lua_mympd_state);
                 lua_setglobal(lua_vm, "mympd_state");
                 lua_mympd_state_free(lua_mympd_state);
                 lua_mympd_state = NULL;
@@ -618,7 +618,7 @@ static int _mympd_api_http_client(lua_State *lua_vm) {
         .extra_headers = lua_tostring(lua_vm, 3),
         .post_data = lua_tostring(lua_vm, 4)
     };
-    
+
     struct mg_client_response_t mg_client_response = {
         .rc = -1,
         .response = sdsempty(),
@@ -627,7 +627,7 @@ static int _mympd_api_http_client(lua_State *lua_vm) {
     };
 
     http_client_request(&mg_client_request, &mg_client_response);
-    
+
     lua_pushinteger(lua_vm, mg_client_response.rc);
     lua_pushlstring(lua_vm, mg_client_response.response, sdslen(mg_client_response.response));
     lua_pushlstring(lua_vm, mg_client_response.header, sdslen(mg_client_response.header));

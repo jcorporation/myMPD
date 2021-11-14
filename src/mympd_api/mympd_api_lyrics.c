@@ -152,7 +152,7 @@ static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_
         id3_file_close(file_struct);
         return returned_entities;
     }
-    
+
     int i = 0;
     struct id3_frame *frame;
     while ((frame = id3_tag_findframe(tags, "USLT", i)) != NULL) {
@@ -200,7 +200,7 @@ static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_
         i++;
     }
     id3_file_close(file_struct);
-    
+
     if (i == 0) {
         MYMPD_LOG_DEBUG("No embedded unsynced lyrics detected");
     }
@@ -255,13 +255,13 @@ static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_en
             else {
                 *buffer = tojson_char(*buffer, "lang", "", true);
             }
-            
+
             long time_stamp = id3_field_getint(&frame->fields[2]);
             *buffer = tojson_long(*buffer, "timestamp", time_stamp, true);
-            
+
             long content_type = id3_field_getint(&frame->fields[3]);
             *buffer = tojson_long(*buffer, "contenttype", content_type, true);
-            
+
             const id3_ucs4_t *uslt_desc = id3_field_getstring(&frame->fields[4]);
             if (uslt_desc != NULL) {
                 id3_utf8_t *uslt_desc_utf8 = id3_ucs4_utf8duplicate(uslt_desc);
@@ -274,7 +274,7 @@ static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_en
             sds text = decode_sylt(sylt_data, sylt_data_len, encoding);
             //sylt data is already encoded
             *buffer = sdscatfmt(*buffer, "\"text\":\"%s\"", text);
-            
+
             //*buffer = tojson_char(*buffer, "text", text, false);
             FREE_SDS(text);
             *buffer = sdscatlen(*buffer, "}", 1);
@@ -449,7 +449,7 @@ static int lyricsextract_flac(sds *buffer, sds media_file, bool is_ogg, const ch
     MYMPD_LOG_DEBUG("Exctracting lyrics from %s", media_file);
     FLAC__StreamMetadata *metadata = NULL;
     FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
-    
+
     if(! (is_ogg? FLAC__metadata_chain_read_ogg(chain, media_file) : FLAC__metadata_chain_read(chain, media_file)) ) {
         MYMPD_LOG_ERROR("%s: ERROR: reading metadata", media_file);
         FLAC__metadata_chain_delete(chain);

@@ -27,7 +27,7 @@ struct t_mympd_queue *mympd_queue_create(const char *name) {
     queue->length = 0;
     queue->name = name;
 
-    queue->mutex  = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
+    queue->mutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
     queue->wakeup = (pthread_cond_t)PTHREAD_COND_INITIALIZER;
     return queue;
 }
@@ -126,11 +126,11 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
     if (queue->head != NULL) {
         struct t_mympd_msg *current = NULL;
         struct t_mympd_msg *previous = NULL;
-        
+
         for (current = queue->head; current != NULL; previous = current, current = current->next) {
             if (id == 0 || id == current->id) {
                 void *data = current->data;
-                
+
                 if (previous == NULL) {
                     //Fix beginning pointer
                     queue->head = current->next;
@@ -167,13 +167,13 @@ void *mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age) {
     if (queue->head != NULL) {
         struct t_mympd_msg *current = NULL;
         struct t_mympd_msg *previous = NULL;
-        
+
         time_t expire_time = time(NULL) - max_age;
-        
+
         for (current = queue->head; current != NULL; previous = current, current = current->next) {
             if (max_age == 0 || current->timestamp < expire_time) {
                 void *data = current->data;
-                
+
                 if (previous == NULL) {
                     //Fix beginning pointer
                     queue->head = current->next;

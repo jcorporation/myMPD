@@ -39,18 +39,18 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
         sds mpd_pass = _get_mpd_conf("password", mympd_state->mpd_state->mpd_pass, vcb_isname);
         mympd_state->mpd_state->mpd_pass = sds_replace(mympd_state->mpd_state->mpd_pass, mpd_pass);
         FREE_SDS(mpd_pass);
-        
+
         sds mpd_port = _get_mpd_conf("port", mympd_state->mpd_state->mpd_host, vcb_isdigit);
         int port = (int)strtoimax(mpd_port, NULL, 10);
         if (port > 1024 && port <= 65534) {
             mympd_state->mpd_state->mpd_port = port;
         }
         FREE_SDS(mpd_port);
-        
+
         sds music_directory = _get_mpd_conf("music_directory", mympd_state->music_directory, vcb_isfilepath);
         mympd_state->music_directory = sds_replace(mympd_state->music_directory, music_directory);
         FREE_SDS(music_directory);
-        
+
         sds playlist_directory = _get_mpd_conf("playlist_directory", mympd_state->playlist_directory, vcb_isfilepath);
         mympd_state->playlist_directory = sds_replace(mympd_state->playlist_directory, playlist_directory);
         FREE_SDS(playlist_directory);
@@ -202,7 +202,7 @@ static int _sdssplit_whitespace(sds line, sds *name, sds *value) {
     int tokens = 0;
     unsigned i = 0;
     const char *p = line;
-    
+
     if (*p == '#') {
         return tokens;
     }

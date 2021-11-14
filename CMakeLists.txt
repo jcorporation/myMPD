@@ -117,9 +117,9 @@ else()
 endif()
 
 if(NOT "${ENABLE_LUA}" MATCHES "OFF")
-  IF(EXISTS "/etc/alpine-release")                                        
-    set(ENV{LUA_DIR} "/usr/lib/lua5.4")                                 
-  endif()     
+  IF(EXISTS "/etc/alpine-release")
+    set(ENV{LUA_DIR} "/usr/lib/lua5.4")
+  endif()
   message("Searching for lua")
   find_package(Lua)
   if(LUA_FOUND)
@@ -188,7 +188,7 @@ else()
 endif()
 
 set(MYMPD_FLAGS "-Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
-	-Wformat=2  -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs \
+	-Wformat=2 -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs \
   -Wmissing-include-dirs -Wdouble-promotion -Wundef -Wformat-nonliteral")
 
 #compiler flags for mympd src

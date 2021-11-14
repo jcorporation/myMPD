@@ -30,7 +30,7 @@ UTEST(list, test_list_push) {
     ASSERT_EQ(7, test_list.length);
     current = list_node_at(&test_list, test_list.length - 1);
     ASSERT_STREQ(current->key, test_list.tail->key);
-    
+
     list_clear(&test_list);
 }
 
@@ -45,7 +45,7 @@ UTEST(list, test_list_insert) {
     ASSERT_EQ(7, test_list.length);
     current = list_node_at(&test_list, 0);
     ASSERT_STREQ(current->key, test_list.head->key);
-    
+
     list_clear(&test_list);
 }
 
@@ -68,7 +68,7 @@ UTEST(list, test_list_shift) {
     //check tail
     current = list_node_at(&test_list, test_list.length - 1);
     ASSERT_STREQ(current->key, test_list.tail->key);
-    
+
     //remove first item
     list_shift(&test_list, 0);
     ASSERT_STREQ("key1", test_list.head->key);
@@ -76,7 +76,7 @@ UTEST(list, test_list_shift) {
 
     current = list_node_at(&test_list, 0);
     ASSERT_STREQ(current->key, test_list.head->key);
-    
+
     list_clear(&test_list);
 }
 
@@ -149,7 +149,7 @@ UTEST(list, test_list_insert_sorted_by_value_i) {
     struct t_list test_list;
     list_init(&test_list);
     struct t_list_node *current;
-    
+
     list_insert_sorted_by_value_i(&test_list, "ddd", 4, "value1", NULL, LIST_SORT_DESC);
     current = list_node_at(&test_list, 0);
     ASSERT_EQ(4, current->value_i);
@@ -171,7 +171,7 @@ UTEST(list, test_list_insert_sorted_by_value_i) {
     list_insert_sorted_by_value_i(&test_list, "xxx", 24, "value1", NULL, LIST_SORT_DESC);
     current = list_node_at(&test_list, 0);
     ASSERT_EQ(24, current->value_i);
-    
+
     ASSERT_EQ(24, test_list.head->value_i);
     ASSERT_EQ(1, test_list.tail->value_i);
 
@@ -182,7 +182,7 @@ UTEST(list, test_list_shuffle) {
     struct t_list test_list;
     list_init(&test_list);
     struct t_list_node *current;
-    
+
     list_shuffle(&test_list);
     bool shuffled = false;
     for (unsigned i = 0; i < test_list.length; i++) {

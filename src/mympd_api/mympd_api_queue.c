@@ -161,12 +161,12 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
     }
 
     unsigned real_limit = offset + limit;
-        
+
     bool rc = mpd_send_list_queue_range_meta(mympd_state->mpd_state->conn, offset, real_limit);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_queue_range_meta") == false) {
         return buffer;
     }
-        
+
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     unsigned total_time = 0;
@@ -204,7 +204,7 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "queueVersion", mpd_status_get_queue_version(status), false);
     buffer = jsonrpc_result_end(buffer);
-    
+
     mympd_state->mpd_state->queue_version = mpd_status_get_queue_version(status);
     mympd_state->mpd_state->queue_length = mpd_status_get_queue_length(status);
     mpd_status_free(status);
@@ -213,7 +213,7 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
     }
-    
+
     return buffer;
 }
 
@@ -254,9 +254,9 @@ sds mympd_api_queue_crop(struct t_mympd_state *mympd_state, sds buffer, sds meth
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "queue", "error", "Can not crop the queue");
         MYMPD_LOG_ERROR("Can not crop the queue");
     }
-    
+
     mpd_status_free(status);
-    
+
     return buffer;
 }
 
@@ -273,7 +273,7 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
         if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_tag_constraint") == false) {
             mpd_search_cancel(mympd_state->mpd_state->conn);
             return buffer;
-        }        
+        }
     }
     else {
         rc = mpd_search_add_any_tag_constraint(mympd_state->mpd_state->conn, MPD_OPERATOR_DEFAULT, searchstr);
@@ -287,7 +287,7 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_commit") == false) {
         return buffer;
     }
-    
+
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     struct mpd_song *song;
@@ -325,11 +325,11 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_char(buffer, "mpdtagtype", mpdtagtype, false);
     buffer = jsonrpc_result_end(buffer);
-    
+
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
     }
-    
+
     return buffer;
 }

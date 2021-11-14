@@ -17,12 +17,12 @@ This is the description of the lua table mympd_state. This table must be initial
 | next_song_id | Integer | Next song id in queue |
 | next_song_pos | Integer | Next song position in queue |
 | queue_length | Integer | Length of the queue |
-| queue_version | Integer |  Version of the queue |
+| queue_version | Integer | Version of the queue |
 | repeat | Boolean | MPD repeat option |
 | random | Boolean | MPD random option |
 | single_state | Integer | MPD single option: 0 = off, 1 = on, 2 = oneshot, 3 = unknown |
 | consume | Boolean | MPD consume option |
-| crossfade  | Integer | MPD crossfade option |
+| crossfade | Integer | MPD crossfade option |
 | music_directory | String | path to the music directory |
 | varlibdir | String | path to the myMPD localstatedir (default: /var/lib/mympd) |
 | jukebox_mode | Integer | Jukebox mode: 0 = off, 1 = on |

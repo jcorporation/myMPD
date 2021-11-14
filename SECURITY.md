@@ -2,10 +2,10 @@
 
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| Latest Release   | :white_check_mark:                |
+| Version | Supported |
+| ------- | --------- |
+| Latest Release | :white_check_mark: |
 
 
 ## Reporting a Vulnerability
-Please write a mail to:  <mail@jcgames.de>. I will respond as fast as possbile.
+Please write a mail to: <mail@jcgames.de>. I will respond as fast as possbile.

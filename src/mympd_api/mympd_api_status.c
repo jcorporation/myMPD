@@ -36,7 +36,7 @@ sds mympd_api_status_updatedb_state(struct t_mympd_state *mympd_state, sds buffe
     else {
         buffer = jsonrpc_event(buffer, "update_finished");
     }
-    return buffer;    
+    return buffer;
 }
 
 long mympd_api_status_updatedb_id(struct t_mympd_state *mympd_state) {
@@ -47,7 +47,7 @@ long mympd_api_status_updatedb_id(struct t_mympd_state *mympd_state) {
     }
     unsigned update_id = mpd_status_get_update_id(status);
     MYMPD_LOG_NOTICE("Update database ID: %u", update_id);
-    mpd_status_free(status);    
+    mpd_status_free(status);
     mpd_response_finish(mympd_state->mpd_state->conn);
     check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
     return update_id;
@@ -93,7 +93,7 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     mympd_state->mpd_state->crossfade = mpd_status_get_crossfade(status);
 
     const unsigned total_time = mpd_status_get_total_time(status);
-    const unsigned elapsed_time =  mympd_api_get_elapsed_seconds(status);
+    const unsigned elapsed_time = mympd_api_get_elapsed_seconds(status);
     unsigned uptime = time(NULL) - mympd_state->config->startup_time;
     if (total_time > 10 && uptime > elapsed_time) {
         time_t now = time(NULL);
@@ -114,7 +114,7 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
         mympd_state->mpd_state->song_start_time = 0;
         mympd_state->mpd_state->set_song_played_time = 0;
     }
-    
+
     if (method == NULL) {
         buffer = jsonrpc_notify_start(buffer, "update_state");
     }
@@ -214,7 +214,7 @@ sds mympd_api_status_partition_output_list(struct t_mympd_state *mympd_state, sd
     }
 
     buffer = _mympd_api_get_outputs(mympd_state, buffer, method, request_id);
-    
+
     rc = mpd_run_switch_partition(mympd_state->mpd_state->conn, oldpartition);
     check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_run_switch_partition");
     mpd_status_free(status);
@@ -274,7 +274,7 @@ static unsigned get_current_song_start_time(struct t_mympd_state *mympd_state) {
         return 0;
     }
     const unsigned start_time = time(NULL) - mympd_api_get_elapsed_seconds(status);
-    mpd_status_free(status);    
+    mpd_status_free(status);
     mpd_response_finish(mympd_state->mpd_state->conn);
     check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
     return start_time;
@@ -299,7 +299,7 @@ static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer,
         buffer = tojson_char(buffer, "name", mpd_output_get_name(output), true);
         buffer = tojson_long(buffer, "state", mpd_output_get_enabled(output), true);
         buffer = tojson_char(buffer, "plugin", mpd_output_get_plugin(output), true);
-        buffer = sdscat(buffer,  "\"attributes\":{");
+        buffer = sdscat(buffer, "\"attributes\":{");
         const struct mpd_pair *attributes = mpd_output_first_attribute(output);
         if (attributes != NULL) {
             buffer = tojson_char(buffer, attributes->name, attributes->value, false);

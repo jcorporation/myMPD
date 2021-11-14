@@ -80,7 +80,7 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
     };
 
     bool rc = false;
-    
+
     if (strcmp(tagstr, "shuffle") == 0) {
         MYMPD_LOG_INFO("Shuffling playlist %s", uri);
         rc = mpd_send_list_playlist(mpd_state->conn, uri);
@@ -154,11 +154,11 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
             }
         }
     }
-    
+
     unsigned randnr = randrange(100000, 999999);
     sds uri_tmp = sdscatprintf(sdsempty(), "%u-tmp-%s", randnr, uri);
     sds uri_old = sdscatprintf(sdsempty(), "%u-old-%s", randnr, uri);
-    
+
     //add sorted/shuffled songs to a new playlist
     if (mpd_command_list_begin(mpd_state->conn, false) == true) {
         struct t_list_node *current = plist.head;
@@ -207,10 +207,10 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
         FREE_SDS(uri_old);
         return buffer;
     }
-    
+
     FREE_SDS(uri_tmp);
     FREE_SDS(uri_old);
-    
+
     if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
         enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
     }

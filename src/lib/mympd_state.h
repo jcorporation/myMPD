@@ -163,7 +163,7 @@ struct t_mympd_state {
     //mpd state
     struct t_mpd_state *mpd_state;
     //lists
-    struct t_timer_list timer_list;    
+    struct t_timer_list timer_list;
     struct t_list home_list;
     struct t_list triggers;
     struct t_list last_played;

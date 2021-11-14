@@ -46,7 +46,7 @@ UTEST(mimetype, test_get_mime_type_by_magic) {
     const char *mime_type = get_mime_type_by_magic_stream(stream);
     ASSERT_STREQ("image/png", mime_type);
 
-    //empty    
+    //empty
     sdsclear(stream);
     mime_type = get_mime_type_by_magic_stream(stream);
     ASSERT_STREQ("application/octet-stream", mime_type);

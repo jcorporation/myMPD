@@ -95,7 +95,7 @@ bool check_error_and_recover2(struct t_mpd_state *mpd_state, sds *buffer, sds me
                               bool notify)
 {
     enum mpd_error error = mpd_connection_get_error(mpd_state->conn);
-    if (error  != MPD_ERROR_SUCCESS) {   
+    if (error != MPD_ERROR_SUCCESS) {
         const char *error_msg = mpd_connection_get_error_message(mpd_state->conn);
         MYMPD_LOG_ERROR("MPD error: %s (%d)", error_msg , error);
         if (buffer != NULL && *buffer != NULL) {
@@ -134,8 +134,8 @@ sds check_error_and_recover_notify(struct t_mpd_state *mpd_state, sds buffer) {
 
 sds respond_with_command_error(sds buffer, sds method, long request_id, const char *command) {
     return jsonrpc_respond_message_phrase(buffer, method, request_id, 
-                            true, "mpd", "error", "Error in response to command: %{command}",
-                            2, "command", command);
+        true, "mpd", "error", "Error in response to command: %{command}",
+        2, "command", command);
 }
 
 sds respond_with_mpd_error_or_ok(struct t_mpd_state *mpd_state, sds buffer, sds method, 

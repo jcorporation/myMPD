@@ -63,7 +63,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
     sds sds_buf6 = NULL;
     sds error = sdsempty();
     bool async = false;
-    
+
     #ifdef DEBUG
     MEASURE_START
     #endif
@@ -71,7 +71,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
     MYMPD_LOG_INFO("MYMPD API request (%lld)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
     struct t_work_result *response = create_result(request);
-    
+
     switch(request->cmd_id) {
         case MYMPD_API_LOGLEVEL:
             if (json_get_int(request->data, "$.params.loglevel", 0, 7, &int_buf1, &error) == true) {
@@ -112,7 +112,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_string_max(request->data, "$.params.cmd", &sds_buf6, vcb_isalnum, &error) == true &&
                 json_get_array_string(request->data, "$.params.options", &options, vcb_isname, 10, &error) == true)
             {
-                rc = mympd_api_home_icon_save(mympd_state, bool_buf1, uint_buf1, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, &options);                
+                rc = mympd_api_home_icon_save(mympd_state, bool_buf1, uint_buf1, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, &options);
                 if (rc == true) {
                     response->data = mympd_api_home_icon_list(mympd_state, response->data, request->method, request->id);
                 }
@@ -452,7 +452,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_JUKEBOX_LIST: {
             struct t_tags tagcols;
-            reset_t_tags(&tagcols);          
+            reset_t_tags(&tagcols);
             if (json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
                 json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
@@ -804,7 +804,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_PLAYER_VOLUME_GET:
             response->data = mympd_api_status_volume_get(mympd_state, response->data, request->method, request->id);
-            break;            
+            break;
         case MYMPD_API_PLAYER_SEEK_CURRENT:
             if (json_get_int_max(request->data, "$.params.seek", &int_buf1, &error) == true &&
                 json_get_bool(request->data, "$.params.relative", &bool_buf1, &error) == true)
@@ -815,7 +815,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_QUEUE_LIST: {
             struct t_tags tagcols;
-            reset_t_tags(&tagcols);          
+            reset_t_tags(&tagcols);
             if (json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
@@ -826,7 +826,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         }
         case MYMPD_API_QUEUE_LAST_PLAYED: {
             struct t_tags tagcols;
-            reset_t_tags(&tagcols);          
+            reset_t_tags(&tagcols);
             if (json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
                 json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
@@ -878,7 +878,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 response->data = mympd_api_playlist_delete_all(mympd_state, response->data, request->method, request->id, sds_buf1);
             }
             break;
-        case MYMPD_API_PLAYLIST_LIST:          
+        case MYMPD_API_PLAYLIST_LIST:
             if (json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
                 json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
@@ -889,7 +889,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_PLAYLIST_CONTENT_LIST: {
             struct t_tags tagcols;
-            reset_t_tags(&tagcols);          
+            reset_t_tags(&tagcols);
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
@@ -1052,7 +1052,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_DATABASE_FILESYSTEM_LIST: {
             struct t_tags tagcols;
-            reset_t_tags(&tagcols);          
+            reset_t_tags(&tagcols);
             if (json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
                 json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
@@ -1239,7 +1239,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_QUEUE_SEARCH: {
             struct t_tags tagcols;
-            reset_t_tags(&tagcols);          
+            reset_t_tags(&tagcols);
             if (json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
                 json_get_string(request->data, "$.params.filter", 1, NAME_LEN_MAX, &sds_buf1, vcb_ismpdtag_or_any, &error) == true &&
@@ -1252,7 +1252,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         }
         case MYMPD_API_DATABASE_SEARCH: {
             struct t_tags tagcols;
-            reset_t_tags(&tagcols);          
+            reset_t_tags(&tagcols);
             if (json_get_string(request->data, "$.params.searchstr", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_string(request->data, "$.params.filter", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag_or_any, &error) == true &&
                 json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
@@ -1266,7 +1266,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         }
         case MYMPD_API_DATABASE_SEARCH_ADV: {
             struct t_tags tagcols;
-            reset_t_tags(&tagcols);          
+            reset_t_tags(&tagcols);
             if (json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_string(request->data, "$.params.sort", 0, NAME_LEN_MAX, &sds_buf2, vcb_ismpdsort, &error) == true &&
                 json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &error) == true &&
@@ -1291,7 +1291,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 response->data = mympd_api_albumart_getcover(mympd_state, response->data, request->method, request->id, sds_buf1, &response->binary);
             }
             break;
-        case MYMPD_API_DATABASE_ALBUMS_GET:         
+        case MYMPD_API_DATABASE_ALBUMS_GET:
             if (json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
                 json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
@@ -1388,7 +1388,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Unknown request");
             MYMPD_LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
     }
-   
+
     FREE_SDS(sds_buf1);
     FREE_SDS(sds_buf2);
     FREE_SDS(sds_buf3);
