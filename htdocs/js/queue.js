@@ -260,7 +260,7 @@ function setPlayingRow(row, elapsedTime, totalTime) {
         }
     }
     row.classList.add('queue-playing');
-    
+
     let progressPrct = totalTime > 0 ? (100 / totalTime) * elapsedTime : 100;
     if (currentState.state === 'stop') {
         progressPrct = 100;
