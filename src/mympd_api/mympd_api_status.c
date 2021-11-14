@@ -234,7 +234,7 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer,
         buffer = jsonrpc_respond_message(buffer, method, request_id, false, "player", "info", "No current song");
         return buffer;
     }
-    
+
     const char *uri = mpd_song_get_uri(song);
 
     buffer = jsonrpc_result_start(buffer, method, request_id);
@@ -319,7 +319,7 @@ static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer,
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "numOutputs", nr, false);
     buffer = jsonrpc_result_end(buffer);
-    
+
     return buffer;
 }
 
