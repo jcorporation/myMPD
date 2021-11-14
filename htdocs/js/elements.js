@@ -6,7 +6,7 @@
 class inputClear extends HTMLInputElement {
     constructor() {
         super();
-        const button = elCreateText('button', {"class": ["mi", "mi-small", "input-inner-button", "btn-secondary"]}, 'clear');
+        const button = elCreateText('button', {"class": ["mi", "mi-small", "input-inner-button"]}, 'clear');
         this.button = button;
         this.classList.add('innerButton');
     }
@@ -48,10 +48,9 @@ class inputReset extends HTMLInputElement {
         this.classList.add('innerButton');
     }
     connectedCallback() {
-        if (this.parentNode.firstElementChild.getAttribute('type') === 'color') {
-            this.button.style.right = '1.5rem';
-        }
-        else if (this.parentNode.classList.contains('col-sm-8')) {
+        if (this.parentNode.firstElementChild.getAttribute('type') === 'color' ||
+            this.parentNode.classList.contains('col-sm-8'))
+        {
             this.button.style.right = '1rem';
         }
         if (this.nextElementSibling) {
@@ -78,7 +77,7 @@ class selectSearch extends HTMLInputElement {
             filterResult
         ]);
         this.parentNode.insertBefore(dropdown, this.nextElementSibling);
-        
+
         const button = elCreateEmpty('button', {"class": ["input-inner-button", "select-inner-button"], "data-bs-toggle": "dropdown"});
         if (this.parentNode.classList.contains('col-sm-8')) {
             button.style.right = '1rem';
