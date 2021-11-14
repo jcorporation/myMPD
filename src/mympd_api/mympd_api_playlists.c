@@ -48,7 +48,7 @@ bool mympd_api_smartpls_default(struct t_config *config) {
     FREE_SDS(prefix_file);
 
     sds smartpls_file = sdscatfmt(sdsempty(), "%s%sbestRated", prefix, (sdslen(prefix) > 0 ? "-" : ""));
-    rc = smartpls_init(config, smartpls_file, 
+    rc = smartpls_init(config, smartpls_file,
         "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200, \"minvalue\": 2, \"sort\": \"\"}");
     if (rc == false) {
         FREE_SDS(smartpls_file);
@@ -58,7 +58,7 @@ bool mympd_api_smartpls_default(struct t_config *config) {
 
     sdsclear(smartpls_file);
     smartpls_file = sdscatfmt(smartpls_file, "%s%smostPlayed", prefix, (sdslen(prefix) > 0 ? "-" : ""));
-    rc = smartpls_init(config, smartpls_file, 
+    rc = smartpls_init(config, smartpls_file,
         "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200, \"minvalue\": 0, \"sort\": \"\"}");
     if (rc == false) {
         FREE_SDS(smartpls_file);
@@ -68,7 +68,7 @@ bool mympd_api_smartpls_default(struct t_config *config) {
 
     sdsclear(smartpls_file);
     smartpls_file = sdscatfmt(smartpls_file, "%s%snewestSongs", prefix, (sdslen(prefix) > 0 ? "-" : ""));
-    rc = smartpls_init(config, smartpls_file, 
+    rc = smartpls_init(config, smartpls_file,
         "{\"type\": \"newest\", \"timerange\": 604800, \"sort\": \"\"}");
     FREE_SDS(smartpls_file);
     FREE_SDS(prefix);
@@ -529,7 +529,7 @@ static int mympd_api_enum_playlist(struct t_mympd_state *mympd_state, const char
     return entity_count;
 }
 
-static bool smartpls_init(struct t_config *config, const char *name, const char *value) { 
+static bool smartpls_init(struct t_config *config, const char *name, const char *value) {
     sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", config->workdir, name);
     errno = 0;
     int fd = mkstemp(tmp_file);

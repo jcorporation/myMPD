@@ -146,7 +146,7 @@ sds mpd_shared_get_tag_values(struct mpd_song const *song, const enum mpd_tag_ty
     return tag_values;
 }
 
-sds get_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
+sds get_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols,
                   const struct mpd_song *song)
 {
     sds tag_value = sdsempty();
@@ -167,7 +167,7 @@ sds get_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags
     return buffer;
 }
 
-sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
+sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols,
                         const char *uri)
 {
     sds filename = sdsnew(uri);
@@ -254,7 +254,7 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
     FREE_SDS(logline);
 }
 
-bool mpd_shared_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, 
+bool mpd_shared_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len,
                            const enum mpd_tag_type tag)
 {
     for (size_t i = 0; i < tag_types_len; i++) {

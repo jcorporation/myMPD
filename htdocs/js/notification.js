@@ -37,7 +37,7 @@ const severities = {
     "error": "Error"
 };
 
-const facilities = { 
+const facilities = {
     "player": "Player",
     "queue": "Queue",
     "general": "General",
@@ -61,7 +61,7 @@ function showNotification(title, text, facility, severity) {
         //notifications with severity info can be hidden
         if (settings.webuiSettings.notifyPage === false &&
             settings.webuiSettings.notifyWeb === false)
-        { 
+        {
             return;
         }
         //disabled notification for facility in advanced setting
@@ -71,7 +71,7 @@ function showNotification(title, text, facility, severity) {
             //fallback to general
             show = settings.webuiSettings['notificationGeneral'];
         }
-        if (show === false) { 
+        if (show === false) {
             return;
         }
     }
@@ -119,7 +119,7 @@ function logMessage(title, text, facility, severity) {
     if (facilities[facility] !== undefined) {
         facility = facilities[facility];
     }
-    else { 
+    else {
         logDebug('Unknown facility: ' + facility);
     }
 

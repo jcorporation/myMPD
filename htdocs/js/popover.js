@@ -320,10 +320,10 @@ function createMenuGeneric(el, tabHeader, tabContent) {
         type = getData(dataNode, 'data-type');
         uri = getData(dataNode, 'data-uri');
         name = getData(dataNode, 'data-name');
-        if (depth < 2) { 
+        if (depth < 2) {
             depth++;
         }
-        else { 
+        else {
             break;
         }
     }
@@ -341,7 +341,7 @@ function createMenuGeneric(el, tabHeader, tabContent) {
 
     tabHeader.textContent = tn(pType);
 
-    if (app.id === 'BrowseFilesystem' || 
+    if (app.id === 'BrowseFilesystem' ||
         app.id === 'Search' ||
         app.id === 'BrowseDatabaseDetail')
     {

@@ -138,7 +138,7 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     buffer = tojson_long(buffer, "queueVersion", mpd_status_get_queue_version(status), true);
     buffer = tojson_long(buffer, "nextSongPos", mpd_status_get_next_song_pos(status), true);
     buffer = tojson_long(buffer, "nextSongId", mpd_status_get_next_song_id(status), true);
-    buffer = tojson_long(buffer, "lastSongId", (mympd_state->mpd_state->last_song_id ? 
+    buffer = tojson_long(buffer, "lastSongId", (mympd_state->mpd_state->last_song_id ?
         mympd_state->mpd_state->last_song_id : -1), true);
     if (mympd_state->mpd_state->feat_mpd_partitions == true) {
         buffer = tojson_char(buffer, "partition", mpd_status_get_partition(status), true);

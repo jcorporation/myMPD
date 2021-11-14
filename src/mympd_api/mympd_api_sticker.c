@@ -74,8 +74,8 @@ bool mympd_api_sticker_dequeue(struct t_mympd_state *mympd_state) {
         if (strcmp(current->value_p, "playCount") == 0 || strcmp(current->value_p, "skipCount") == 0) {
             _mympd_api_count_song_uri(mympd_state, current->key, current->value_p, current->value_i);
         }
-        else if (strcmp(current->value_p, "like") == 0 || strcmp(current->value_p, "lastPlayed") == 0 || 
-                 strcmp(current->value_p, "lastSkipped") == 0) 
+        else if (strcmp(current->value_p, "like") == 0 || strcmp(current->value_p, "lastPlayed") == 0 ||
+                 strcmp(current->value_p, "lastSkipped") == 0)
         {
             _mympd_api_set_sticker(mympd_state, current->key, current->value_p, current->value_i);
         }
@@ -139,7 +139,7 @@ static bool _mympd_api_count_song_uri(struct t_mympd_state *mympd_state, const c
             else if (strcmp(name, "skipCount") == 0) {
                 sticker->skipCount = old_value;
             }
-        }    
+        }
     }
     return rc;
 }

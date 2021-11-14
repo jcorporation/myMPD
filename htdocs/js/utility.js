@@ -217,7 +217,7 @@ function clickQueueSong(songid, uri) {
                 "songId": songid
             });
             break;
-        case 'view': 
+        case 'view':
             if (uri === null) {
                 return;
             }
@@ -349,7 +349,7 @@ function getData(el, attribute) {
         //fallback to attribute
         value = el.getAttribute(attribute);
         if (value === null) {
-            //return undefined if attribute is null 
+            //return undefined if attribute is null
             value = undefined;
         }
     }
@@ -739,7 +739,7 @@ function setPagination(total, returned) {
         app.current.limit = 500;
     }
 
-    let totalPages = total < app.current.limit ? 
+    let totalPages = total < app.current.limit ?
         total === -1 ? -1 : 1 : Math.ceil(total / app.current.limit);
     const curPage = Math.ceil(app.current.offset / app.current.limit) + 1;
     if (app.current.limit > returned) {
@@ -772,7 +772,7 @@ function setPagination(total, returned) {
 }
 
 function createPaginationEls(totalPages, curPage) {
-    const prev = elCreateNode('button', {"title": tn('Previous page'), "type": "button", "class": ["btn", "btn-secondary"]}, 
+    const prev = elCreateNode('button', {"title": tn('Previous page'), "type": "button", "class": ["btn", "btn-secondary"]},
         elCreateText('span', {"class": ["mi"]}, 'navigate_before'));
     if (curPage === 1) {
         elDisable(prev);
@@ -784,7 +784,7 @@ function createPaginationEls(totalPages, curPage) {
         }, false);
     }
 
-    const pageDropdownBtn = elCreateText('button', {"type": "button", "data-bs-toggle": "dropdown", 
+    const pageDropdownBtn = elCreateText('button', {"type": "button", "data-bs-toggle": "dropdown",
         "class": ["square-end", "btn", "btn-secondary", "dropdown-toggle", "px-2"]}, curPage);
     pageDropdownBtn.addEventListener('show.bs.dropdown', function () {
         alignDropdown(this);
@@ -936,7 +936,7 @@ function parseCmd(event, href) {
         }
         switch(cmd.cmd) {
             case 'sendAPI':
-                sendAPI(cmd.options[0].cmd, {}); 
+                sendAPI(cmd.options[0].cmd, {});
                 break;
             case 'toggleBtn':
             case 'toggleBtnChk':
@@ -983,7 +983,7 @@ function gotoPage(x, limit) {
             app.current.offset = Math.floor(app.current.offset / app.current.limit);
         }
     }
-    appGoto(app.current.card, app.current.tab, app.current.view, 
+    appGoto(app.current.card, app.current.tab, app.current.view,
         app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search, 0);
 }
 
@@ -1034,7 +1034,7 @@ function createSearchExpression(crumbsEl, tag, op, value) {
             crumbOp = '=~';
             crumbValue = '^' + crumbValue;
         }
-        expression += '(' + getData(crumbs[i], 'data-filter-tag') + ' ' + 
+        expression += '(' + getData(crumbs[i], 'data-filter-tag') + ' ' +
             crumbOp + ' \'' + escapeMPD(crumbValue) + '\')';
     }
     if (value !== '') {
@@ -1075,13 +1075,13 @@ function printValue(key, value) {
         case 'Pos':
             //mpd is 0-indexed but humans wants 1-indexed lists
             return document.createTextNode(value + 1);
-        case 'LastModified': 
+        case 'LastModified':
         case 'LastPlayed':
         case 'stickerLastPlayed':
         case 'stickerLastSkipped':
             return document.createTextNode(value === 0 ? tn('never') : localeDate(value));
         case 'stickerLike':
-            return elCreateText('span', {"class": ["mi"]}, 
+            return elCreateText('span', {"class": ["mi"]},
                 value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up');
         case 'Artist':
         case 'AlbumArtist':
@@ -1253,7 +1253,7 @@ function createImgCarousel(imgEl, name, images) {
     }
     const carouselInner = elCreateEmpty('div', {"class": ["carousel-inner"]});
     for (let i = 0; i < nrImages; i++) {
-        const carouselItem = elCreateNode('div', {"class": ["carousel-item"]}, 
+        const carouselItem = elCreateNode('div', {"class": ["carousel-item"]},
             elCreateEmpty('div', {})
         );
         carouselItem.style.backgroundImage = 'url("' + myEncodeURI(images[i]) + '")';

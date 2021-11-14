@@ -25,7 +25,7 @@
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "../mpd_worker.h"
-#include "mympd_api_albumart.h" 
+#include "mympd_api_albumart.h"
 #include "mympd_api_browse.h"
 #include "mympd_api_home.h"
 #include "mympd_api_lyrics.h"
@@ -51,7 +51,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
     unsigned uint_buf2;
     unsigned uint_buf3;
     int int_buf1;
-    int int_buf2; 
+    int int_buf2;
     bool bool_buf1;
     bool rc;
     bool result;
@@ -84,7 +84,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         case MYMPD_API_SMARTPLS_UPDATE:
         case INTERNAL_API_CACHES_CREATE:
             if (worker_threads > 5) {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                     "general", "error", "Too many worker threads are already running");
                 break;
             }
@@ -170,7 +170,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                         "script", "error", "Could not save script");
                 }
             }
@@ -184,12 +184,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                         "script", "error", "Could not delete script");
                 }
             }
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                     "script", "error", "Invalid script name");
             }
             break;
@@ -207,7 +207,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         case MYMPD_API_SCRIPT_EXECUTE: {
             //malloc list - it is used in another thread
             struct t_list *arguments = list_new();
-            if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true && 
+            if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
             {
                 rc = mympd_api_script_start(mympd_state->config, sds_buf1, arguments, true);
@@ -215,12 +215,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                         "script", "error", "Can't create mympd_script thread");
                 }
             }
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                     "script", "error", "Invalid script name");
                 list_clear(arguments);
                 FREE_PTR(arguments);
@@ -238,12 +238,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                         "script", "error", "Can't create mympd_script thread");
                 }
             }
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                     "script", "error", "Invalid script content");
                 list_clear(arguments);
                 FREE_PTR(arguments);
@@ -268,7 +268,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     }
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                         "general", "error", "Invalid column");
                 }
                 FREE_SDS(cols);
@@ -339,22 +339,22 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         case MYMPD_API_COVERCACHE_CROP:
             int_buf1 = covercache_clear(mympd_state->config->workdir, mympd_state->covercache_keep_days);
             if (int_buf1 >= 0) {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                             "general", "info", "Successfully croped covercache");
             }
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                             "general", "error", "Error in cropping covercache");
             }
             break;
         case MYMPD_API_COVERCACHE_CLEAR:
             int_buf1 = covercache_clear(mympd_state->config->workdir, 0);
             if (int_buf1 >= 0) {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                             "general", "info", "Successfully cleared covercache");
             }
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                             "general", "error", "Error in clearing the covercache");
             }
             break;
@@ -518,7 +518,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 response->extra = lua_mympd_state;
             }
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                     "script", "error", "Error getting mympd state for script execution");
                 MYMPD_LOG_ERROR("Error getting mympd state for script execution");
                 free(lua_mympd_state);
@@ -656,7 +656,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 {
                     rc = mpd_shared_smartpls_save(mympd_state->config->workdir, "newest", sds_buf1, NULL, 0, int_buf1, sds_buf2);
                 }
-            }            
+            }
             else if (request->cmd_id == MYMPD_API_SMARTPLS_SEARCH_SAVE) {
                 if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                     json_get_string(request->data, "$.params.expression", 1, EXPRESSION_LEN_MAX, &sds_buf2, vcb_isname, &error) == true &&
@@ -779,7 +779,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_PLAYER_OUTPUT_TOGGLE:
             if (json_get_uint(request->data, "$.params.outputId", 0, MPD_OUTPUT_ID_MAX, &uint_buf1, &error) == true &&
-                json_get_uint(request->data, "$.params.state", 0, 1, &uint_buf2, &error) == true) 
+                json_get_uint(request->data, "$.params.state", 0, 1, &uint_buf2, &error) == true)
             {
                 if (uint_buf2 == 1) {
                     rc = mpd_run_enable_output(mympd_state->mpd_state->conn, uint_buf1);
@@ -868,7 +868,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_PLAYLIST_RM:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_bool(request->data, "$.params.smartplsOnly", &bool_buf1, &error) == true) 
+                json_get_bool(request->data, "$.params.smartplsOnly", &bool_buf1, &error) == true)
             {
                 response->data = mympd_api_playlist_delete(mympd_state, response->data, request->method, request->id, sds_buf1, bool_buf1);
             }
@@ -950,7 +950,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf2, vcb_isname, &error) == true)
             {
-                response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
+                response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
                     sds_buf2, NULL, false, NULL, sds_buf1, UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
                 if (result == true) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
@@ -967,7 +967,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf2, vcb_isname, &error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true)
             {
-                response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
+                response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
                     sds_buf2, NULL, false, NULL, sds_buf1, uint_buf1, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
                 if (result == true) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
@@ -984,7 +984,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_playlist_clear", &result);
                     break;
                 }
-                response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
+                response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
                     sds_buf2, NULL, false, NULL, sds_buf1, UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
                 if (result == true) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
@@ -1080,7 +1080,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                         //add and play
                         rc = mympd_api_queue_play_newly_inserted(mympd_state);
                         if (rc == false) {
-                            response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                            response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                                 "queue", "error", "Start playing newly added song failed");
                             break;
                         }
@@ -1134,12 +1134,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                         //add and play
                         rc = mympd_api_queue_play_newly_inserted(mympd_state);
                         if (rc == false) {
-                            response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                            response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                                 "queue", "error", "Start playing newly added song failed");
                             break;
                         }
                     }
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                         "queue", "info", "Updated the queue");
                 }
             }
@@ -1156,7 +1156,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_QUEUE_APPEND_SEARCH:
             if (json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
-                response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
+                response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
                     sds_buf1, NULL, false, NULL, "queue", UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
                 if (result == true) {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
@@ -1183,19 +1183,19 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 }
                 uint_buf2 = MPD_POSITION_ABSOLUTE;
                 //stop workaround for missing whence feature
-                response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
+                response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
                     sds_buf1, NULL, false, NULL, "queue", uint_buf1, uint_buf2, 0, 0, NULL, mympd_state->sticker_cache, &result);
                 if (result == true) {
                     if (bool_buf1 == true) {
                         //add and play
                         rc = mympd_api_queue_play_newly_inserted(mympd_state);
                         if (rc == false) {
-                            response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                            response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                                 "queue", "error", "Start playing newly added song failed");
                             break;
                         }
                     }
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                         "queue", "info", "Updated the queue");
                 }
             }
@@ -1207,7 +1207,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_clear", &result);
                     break;
                 }
-                response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
+                response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
                     sds_buf1, NULL, false, NULL, "queue", UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
                 if (result == true) {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
@@ -1222,11 +1222,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             {
                 rc = mpd_client_jukebox_add_to_queue(mympd_state, uint_buf2, uint_buf1, sds_buf1, true);
                 if (rc == true) {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, 
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                         "queue", "info", "Successfully added random songs to queue");
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                         "queue", "error", "Adding random songs to queue failed");
                 }
             }
@@ -1259,7 +1259,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_uint(request->data, "$.params.limit", 0, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
-                response->data = mpd_shared_search(mympd_state->mpd_state, response->data, request->method, request->id, 
+                response->data = mpd_shared_search(mympd_state->mpd_state, response->data, request->method, request->id,
                     sds_buf1, sds_buf2, NULL, uint_buf1, uint_buf2, &tagcols, mympd_state->sticker_cache, &result);
             }
             break;
@@ -1274,7 +1274,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_uint(request->data, "$.params.limit", 0, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
-                response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id, 
+                response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
                     sds_buf1, sds_buf2, bool_buf1, NULL, NULL, UINT_MAX, 0, uint_buf1, uint_buf2, &tagcols, mympd_state->sticker_cache, &result);
             }
             break;
@@ -1298,7 +1298,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_string(request->data, "$.params.sort", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdsort, &error) == true &&
                 json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &error) == true)
             {
-                response->data = mympd_api_browse_album_list(mympd_state, response->data, request->method, request->id, 
+                response->data = mympd_api_browse_album_list(mympd_state, response->data, request->method, request->id,
                     sds_buf1, sds_buf2, bool_buf1, uint_buf1, uint_buf2);
             }
             break;
@@ -1407,13 +1407,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
     }
 
     if (sdslen(error) > 0) {
-        response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, 
+        response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
             "general", "error", error);
         MYMPD_LOG_ERROR("Error processing method \"%s\"", request->method);
     }
     FREE_SDS(error);
     if (sdslen(response->data) == 0) {
-        response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true, 
+        response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, true,
             "general", "error", "No response for method %{method}", 2, "method", request->method);
         MYMPD_LOG_ERROR("No response for method \"%s\"", request->method);
     }

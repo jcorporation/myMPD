@@ -71,8 +71,8 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
     (void) user_data;
 }
 
-sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
-                               unsigned volume, const char *playlist, enum jukebox_modes jukebox_mode) 
+sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+                               unsigned volume, const char *playlist, enum jukebox_modes jukebox_mode)
 {
     //disable jukebox to prevent adding songs to queue from old jukebox queue list
     mympd_state->jukebox_mode = JUKEBOX_OFF;

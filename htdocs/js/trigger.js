@@ -116,7 +116,7 @@ function showTriggerScriptArgs(option, values) {
     const list = document.getElementById('triggerActionScriptArguments');
     elClear(list);
     for (let i = 0, j = args.arguments.length; i < j; i++) {
-        const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "triggerActionScriptArguments" + i, 
+        const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "triggerActionScriptArguments" + i,
             "value": (values[args.arguments[i]] ? values[args.arguments[i]] : '')});
         setData(input, 'data-name', args.arguments[i]);
         const fg = elCreateNodes('div', {"class": ["form-group", "row"]}, [

@@ -140,7 +140,7 @@ function parseSearch(obj) {
     if (obj.result.returnedEntities > 0) {
         elEnableId('searchAddAllSongs');
         elEnableId('searchAddAllSongsBtn');
-    } 
+    }
     else {
         elDisableId('searchAddAllSongs');
         elDisableId('searchAddAllSongsBtn');
@@ -159,7 +159,7 @@ function parseSearch(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function saveSearchAsSmartPlaylist() {
-    parseSmartPlaylist({"jsonrpc":"2.0","id":0,"result":{"method":"MYMPD_API_SMARTPLS_GET", 
+    parseSmartPlaylist({"jsonrpc":"2.0","id":0,"result":{"method":"MYMPD_API_SMARTPLS_GET",
         "plist": "",
         "type": "search",
         "expression": app.current.search

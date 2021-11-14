@@ -272,7 +272,7 @@ static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_wo
         if (strcmp(pair->name, "file") == 0) {
             FREE_PTR(uri);
             uri = strdup(pair->value);
-        } 
+        }
         else if (strcmp(pair->name, "sticker") == 0) {
             size_t j;
             const char *p_value = mpd_parse_sticker(pair->value, &j);

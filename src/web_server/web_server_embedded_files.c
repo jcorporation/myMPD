@@ -7,7 +7,7 @@
 #ifndef MYMPD_WEB_SERVER_EMBEDDED_FILES_C
 #define MYMPD_WEB_SERVER_EMBEDDED_FILES_C
 
-#define INCBIN_PREFIX 
+#define INCBIN_PREFIX
 #define INCBIN_STYLE INCBIN_STYLE_SNAKE
 
 #include "mympd_config_defs.h"

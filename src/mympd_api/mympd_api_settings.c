@@ -488,7 +488,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 if (value[0] == '0') { state = MPD_SINGLE_OFF; }
                 else if (value[0] == '1') { state = MPD_SINGLE_ON; }
                 else if (value[0] == '2') { state = MPD_SINGLE_ONESHOT; }
-                else { 
+                else {
                     *error = set_invalid_value(*error, key, value);
                     return false;
                 }
@@ -498,7 +498,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 unsigned uint_buf = 0;
                 if (value[0] == '0') { uint_buf = 0; }
                 else if (value[0] == '1') { uint_buf = 1; }
-                else { 
+                else {
                     *error = set_invalid_value(*error, key, value);
                     return false;
                 }
@@ -715,7 +715,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = mympd_api_trigger_print_trigger_list(buffer);
         buffer = sdscatlen(buffer, "}", 1);
 
-    } 
+    }
     else {
         buffer = tojson_bool(buffer, "mpdConnected", false, false);
     }
@@ -749,7 +749,7 @@ sds mympd_api_settings_picture_list(struct t_mympd_state *mympd_state, sds buffe
             if (strcasecmp(ext, ".webp") == 0 || strcasecmp(ext, ".jpg") == 0 ||
                 strcasecmp(ext, ".jpeg") == 0 || strcasecmp(ext, ".png") == 0 ||
                 strcasecmp(ext, ".tiff") == 0 || strcasecmp(ext, ".svg") == 0 ||
-                strcasecmp(ext, ".bmp") == 0) 
+                strcasecmp(ext, ".bmp") == 0)
             {
                 if (returned_entities++) {
                     buffer = sdscatlen(buffer, ",", 1);

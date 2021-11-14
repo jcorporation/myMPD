@@ -36,7 +36,7 @@ static void _free_filesystem_list_user_data(struct t_list_node *current);
 //public functions
 sds mympd_api_browse_fingerprint(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                                  const char *uri)
-{   
+{
     char fp_buffer[8192];
     const char *fingerprint = mpd_run_getfingerprint_chromaprint(mympd_state->mpd_state->conn, uri, fp_buffer, sizeof(fp_buffer));
     if (fingerprint == NULL) {
@@ -54,7 +54,7 @@ sds mympd_api_browse_fingerprint(struct t_mympd_state *mympd_state, sds buffer, 
     return buffer;
 }
 
-sds mympd_api_browse_songdetails(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
+sds mympd_api_browse_songdetails(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                                const char *uri)
 {
     bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, uri);
@@ -89,7 +89,7 @@ sds mympd_api_browse_songdetails(struct t_mympd_state *mympd_state, sds buffer, 
     return buffer;
 }
 
-sds mympd_api_browse_read_comments(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
+sds mympd_api_browse_read_comments(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                              const char *uri)
 {
     bool rc = mpd_send_read_comments(mympd_state->mpd_state->conn, uri);
@@ -104,7 +104,7 @@ sds mympd_api_browse_read_comments(struct t_mympd_state *mympd_state, sds buffer
     while ((pair = mpd_recv_pair(mympd_state->mpd_state->conn)) != NULL) {
         if (entities_returned++) {
             buffer = sdscatlen(buffer, ",", 1);
-        }    
+        }
         buffer = tojson_char(buffer, pair->name, pair->value,false);
         mpd_return_pair(mympd_state->mpd_state->conn, pair);
     }
@@ -119,7 +119,7 @@ sds mympd_api_browse_read_comments(struct t_mympd_state *mympd_state, sds buffer
     return buffer;
 }
 
-sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
+sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                               sds path, const unsigned offset, const unsigned limit, sds searchstr, const struct t_tags *tagcols)
 {
     bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, path);
@@ -399,7 +399,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     return buffer;
 }
 
-sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
+sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                                        sds expression, sds sort, bool sortdesc, const unsigned offset, unsigned limit)
 {
     if (mympd_state->album_cache == NULL) {
@@ -420,7 +420,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
         if (sort_tag_org != MPD_TAG_UNKNOWN) {
             sort_tag = get_sort_tag(sort_tag_org);
             if (mpd_shared_tag_exists(mympd_state->mpd_state->tag_types_mympd.tags, mympd_state->mpd_state->tag_types_mympd.len, sort_tag) == false) {
-                //sort tag is not enabled, revert 
+                //sort tag is not enabled, revert
                 sort_tag = sort_tag_org;
             }
         }
@@ -579,7 +579,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     return buffer;
 }
 
-sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, 
+sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                           sds searchstr, sds tag, const unsigned offset, const unsigned limit)
 {
     sds_utf8_tolower(searchstr);

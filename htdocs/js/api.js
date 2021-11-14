@@ -24,7 +24,7 @@ function removeEnterPinFooter(footer) {
 function createEnterPinFooter(footers, method, params, callback, onerror) {
     const input = elCreateEmpty('input', {"type": "password", "class": ["form-control", "border-secondary"]});
     const btn = elCreateText('button', {"class": ["btn", "btn-success"]}, tn('Enter'));
-    const newFooter = elCreateNode('div', {"class": ["modal-footer", "enterPinFooter"]}, 
+    const newFooter = elCreateNode('div', {"class": ["modal-footer", "enterPinFooter"]},
         elCreateNodes('div', {"class": ["row", "w-100"]}, [
             elCreateText('label', {"class": ["col-4", "col-form-label", "ps-0"]}, tn('Enter pin')),
             elCreateNode('div', {"class": ["col-8", "pe-0"]},
@@ -177,7 +177,7 @@ function sendAPI(method, params, callback, onerror) {
         logError('Method "' + method + '" is not defined');
     }
     if (settings.pin === true &&
-        session.token === '' && 
+        session.token === '' &&
         session.timeout < getTimestamp() && APImethods[method].protected === true)
     {
         logDebug('Request must be authorized but we have no session');
@@ -198,7 +198,7 @@ function sendAPI(method, params, callback, onerror) {
                 enterPin(method, params, callback, onerror);
             }
             else if (ajaxRequest.responseText !== '') {
-                if (settings.pin === true && session.token !== '' && 
+                if (settings.pin === true && session.token !== '' &&
                     APImethods[method].protected === true)
                 {
                     //session was extended through request
@@ -276,7 +276,7 @@ function webSocketConnect() {
 
     websocketConnected = false;
     const wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
-        window.location.hostname + 
+        window.location.hostname +
         (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/ws/';
     socket = new WebSocket(wsUrl);
     logDebug('Connecting to ' + wsUrl);
@@ -464,7 +464,7 @@ function webSocketClose() {
     }
     if (socket !== null) {
         //disable onclose handler first
-        socket.onclose = function () {}; 
+        socket.onclose = function () {};
         socket.close();
         socket = null;
     }

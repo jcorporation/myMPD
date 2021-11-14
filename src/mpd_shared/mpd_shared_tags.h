@@ -19,13 +19,13 @@ void disable_all_mpd_tags(struct t_mpd_state *mpd_state);
 void enable_all_mpd_tags(struct t_mpd_state *mpd_state);
 void enable_mpd_tags(struct t_mpd_state *mpd_state, struct t_tags *enable_tags);
 enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag);
-sds get_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
+sds get_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols,
                   const struct mpd_song *song);
-sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols, 
+sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols,
                         const char *uri);
 void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
                 struct t_tags allowed_tag_types);
-bool mpd_shared_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, 
+bool mpd_shared_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len,
                            const enum mpd_tag_type tag);
 sds mpd_shared_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values);
 sds mpd_shared_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values);

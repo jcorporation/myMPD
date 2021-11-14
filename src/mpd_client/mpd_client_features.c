@@ -28,9 +28,9 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
 //public functions
 void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_state->protocol = mpd_connection_get_server_version(mympd_state->mpd_state->conn);
-    MYMPD_LOG_NOTICE("MPD protocoll version: %u.%u.%u", 
-        mympd_state->mpd_state->protocol[0], 
-        mympd_state->mpd_state->protocol[1], 
+    MYMPD_LOG_NOTICE("MPD protocoll version: %u.%u.%u",
+        mympd_state->mpd_state->protocol[0],
+        mympd_state->mpd_state->protocol[1],
         mympd_state->mpd_state->protocol[2]
     );
 

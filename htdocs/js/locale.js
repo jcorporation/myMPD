@@ -66,8 +66,8 @@ function beautifyDuration(x) {
     const seconds = x - days * 86400 - hours * 3600 - minutes * 60;
 
     return (days > 0 ? days + smallSpace + tn('Days') + ' ' : '') +
-        (hours > 0 ? hours + smallSpace + tn('Hours') + ' ' + 
-        (minutes < 10 ? '0' : '') : '') + minutes + smallSpace + tn('Minutes') + ' ' + 
+        (hours > 0 ? hours + smallSpace + tn('Hours') + ' ' +
+        (minutes < 10 ? '0' : '') : '') + minutes + smallSpace + tn('Minutes') + ' ' +
         (seconds < 10 ? '0' : '') + seconds + smallSpace + tn('Seconds');
 }
 
@@ -76,14 +76,14 @@ function beautifySongDuration(x) {
     const minutes = Math.floor(x / 60) - hours * 60;
     const seconds = Math.floor(x - hours * 3600 - minutes * 60);
 
-    return (hours > 0 ? hours + ':' + (minutes < 10 ? '0' : '') : '') + 
+    return (hours > 0 ? hours + ':' + (minutes < 10 ? '0' : '') : '') +
         minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
 }
 
 function i18nHtml(root) {
     const attributes = [
-        ['data-phrase', 'textContent'], 
-        ['data-title-phrase', 'title'], 
+        ['data-phrase', 'textContent'],
+        ['data-title-phrase', 'title'],
         ['data-placeholder-phrase', 'placeholder']
     ];
     for (let i = 0, j = attributes.length; i < j; i++) {

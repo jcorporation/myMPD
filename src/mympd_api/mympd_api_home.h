@@ -19,7 +19,7 @@ bool mympd_api_home_icon_save(struct t_mympd_state *mympd_state, bool replace, u
     const char *cmd, struct t_list *option_list);
 sds mympd_api_home_icon_list(struct t_mympd_state *mympd_state, sds buffer, sds method,
     long request_id);
-sds mympd_api_home_icon_get(struct t_mympd_state *mympd_state, sds buffer, sds method, 
+sds mympd_api_home_icon_get(struct t_mympd_state *mympd_state, sds buffer, sds method,
     long request_id, unsigned pos);
 bool mympd_api_home_file_read(struct t_mympd_state *mympd_state);
 bool mympd_api_home_file_save(struct t_mympd_state *mympd_state);

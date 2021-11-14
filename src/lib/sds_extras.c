@@ -53,7 +53,7 @@ sds sds_catjsonchar(sds s, const char p) {
         case '\r': s = sdscatlen(s, "\\r", 2); break;
         case '\t': s = sdscatlen(s, "\\t", 2); break;
         //ignore vertical tabulator and alert
-        case '\v': 
+        case '\v':
         case '\a':
             //this escapes are not accepted in the unescape function
             break;
@@ -114,7 +114,7 @@ sds sds_urldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
                 s = sdscatprintf(s, "%c", (char) ((HEXTOI(a) << 4) | HEXTOI(b)));
                 i += 2;
                 p += 2;
-            } 
+            }
             else {
                 sdsclear(s);
                 return s;

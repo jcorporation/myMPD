@@ -67,8 +67,8 @@ function initSettings() {
     });
 
     document.getElementById('btnConsume').addEventListener('mouseup', function() {
-        setTimeout(function() { 
-            checkConsume(); 
+        setTimeout(function() {
+            checkConsume();
         }, 100);
     });
 }
@@ -798,7 +798,7 @@ function parseMPDSettings() {
 
     filterCols('Playback');
 
-    for (const table of ['Search', 'QueueCurrent', 'QueueLastPlayed', 'QueueJukebox', 
+    for (const table of ['Search', 'QueueCurrent', 'QueueLastPlayed', 'QueueJukebox',
             'BrowsePlaylistsDetail', 'BrowseFilesystem', 'BrowseDatabaseDetail'])
     {
         filterCols(table);
@@ -905,7 +905,7 @@ function saveSettings(closeModal) {
 
     for (const inputId of ['inputWebUIsettinguiCoverimageSize', 'inputWebUIsettinguiCoverimageSizeSmall',
             'inputSettinglastPlayedCount', 'inputSmartplsInterval', 'inputSettingvolumeMax', 'inputSettingvolumeMin',
-            'inputSettingvolumeStep', 'inputCovercacheKeepDays']) 
+            'inputSettingvolumeStep', 'inputCovercacheKeepDays'])
     {
         const inputEl = document.getElementById(inputId);
         if (!validateUint(inputEl)) {
@@ -1144,7 +1144,7 @@ function toggleBtnNotifyWeb(event) {
                     toggleBtnChk(btnNotifyWeb, true);
                     settings.webuiSettings.notifyWeb = true;
                     elHideId('warnNotifyWeb');
-                } 
+                }
                 else {
                     toggleBtnChk(btnNotifyWeb, false);
                     settings.webuiSettings.notifyWeb = false;

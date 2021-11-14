@@ -32,7 +32,7 @@ const struct t_mime_type_entry mime_entries[] = {
     {4, "667479706d696631", "avif", "image/avif"},
     {0, "494433",           "mp3",  "audio/mpeg"},
     {0, "664C6143",         "flac", "audio/flac"},
-    {0, "4F676753",         "oga",  "audio/ogg"}, 
+    {0, "4F676753",         "oga",  "audio/ogg"},
     {0, "4F676753",         "ogg",  "audio/ogg"},
     {0, "4F676753",         "opus", "audio/ogg"},
     {0, "4F676753",         "spx",  "audio/ogg"},

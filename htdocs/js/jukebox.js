@@ -22,7 +22,7 @@ function initJukebox() {
             this.blur();
         }
         else {
-            appGoto(app.current.card, app.current.tab, app.current.view, 
+            appGoto(app.current.card, app.current.tab, app.current.view,
                 0, app.current.limit, app.current.filter, app.current.sort, '-', this.value);
         }
     }, false);

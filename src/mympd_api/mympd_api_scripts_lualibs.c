@@ -7,7 +7,7 @@
 #ifndef MYMPD_EMBEDDED_LUALIBS_C
 #define MYMPD_EMBEDDED_LUALIBS_C
 
-#define INCBIN_PREFIX 
+#define INCBIN_PREFIX
 #define INCBIN_STYLE INCBIN_STYLE_SNAKE
 
 #include "mympd_config_defs.h"

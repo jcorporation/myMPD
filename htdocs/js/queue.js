@@ -18,14 +18,14 @@ function initQueue() {
             this.blur();
         }
         else {
-            appGoto(app.current.card, app.current.tab, app.current.view, 
+            appGoto(app.current.card, app.current.tab, app.current.view,
                 0, app.current.limit, app.current.filter, app.current.sort, '-', this.value);
         }
     }, false);
 
     document.getElementById('searchqueuetags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
-            appGoto(app.current.card, app.current.tab, app.current.view, 
+            appGoto(app.current.card, app.current.tab, app.current.view,
                 app.current.offset, app.current.limit, getData(event.target, 'data-tag'), app.current.sort, '-', app.current.search);
         }
     }, false);
@@ -208,14 +208,14 @@ function parseQueue(obj) {
     setData(table, 'data-version', obj.result.queueVersion);
     const tfoot = table.getElementsByTagName('tfoot')[0];
     if (obj.result.totalTime && obj.result.totalTime > 0 && obj.result.totalEntities <= app.current.limit ) {
-        elReplaceChild(tfoot, elCreateNode('tr', {}, 
-            elCreateNode('td', {"colspan": (colspan + 1)}, 
+        elReplaceChild(tfoot, elCreateNode('tr', {},
+            elCreateNode('td', {"colspan": (colspan + 1)},
                 elCreateText('small', {}, tn('Num songs', obj.result.totalEntities) + ' - ' + beautifyDuration(obj.result.totalTime))))
         );
     }
     else if (obj.result.totalEntities > 0) {
-        elReplaceChild(tfoot, elCreateNode('tr', {}, 
-            elCreateNode('td', {"colspan": (colspan + 1)}, 
+        elReplaceChild(tfoot, elCreateNode('tr', {},
+            elCreateNode('td', {"colspan": (colspan + 1)},
                 elCreateText('small', {}, tn('Num songs', obj.result.totalEntities))))
         );
     }

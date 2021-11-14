@@ -11,9 +11,9 @@ function appPrepare(scrollPos) {
             domCache.navbarBtns[i].classList.remove('active');
         }
         const cards = ['cardHome', 'cardPlayback', 'cardSearch',
-            'cardQueue', 'tabQueueCurrent', 'tabQueueLastPlayed', 'tabQueueJukebox', 
-            'cardBrowse', 'tabBrowseFilesystem', 
-            'tabBrowsePlaylists', 'viewBrowsePlaylistsDetail', 'viewBrowsePlaylistsList', 
+            'cardQueue', 'tabQueueCurrent', 'tabQueueLastPlayed', 'tabQueueJukebox',
+            'cardBrowse', 'tabBrowseFilesystem',
+            'tabBrowsePlaylists', 'viewBrowsePlaylistsDetail', 'viewBrowsePlaylistsList',
             'tabBrowseDatabase', 'viewBrowseDatabaseDetail', 'viewBrowseDatabaseList'];
         for (const card of cards) {
             elHideId(card);
@@ -269,7 +269,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             sendAPI("MYMPD_API_DATABASE_FILESYSTEM_LIST", {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
-                "path": (app.current.search ? app.current.search : "/"), 
+                "path": (app.current.search ? app.current.search : "/"),
                 "searchstr": (app.current.filter !== '-' ? app.current.filter : ''),
                 "cols": settings.colsBrowseFilesystemFetch
             }, parseFilesystem, true);
@@ -332,7 +332,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 sendAPI("MYMPD_API_DATABASE_ALBUMS_GET", {
                     "offset": app.current.offset,
                     "limit": app.current.limit,
-                    "expression": app.current.search, 
+                    "expression": app.current.search,
                     "sort": tsort,
                     "sortdesc": sortdesc
                 }, parseDatabase, true);
@@ -346,7 +346,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 sendAPI("MYMPD_API_DATABASE_TAG_LIST", {
                     "offset": app.current.offset,
                     "limit": app.current.limit,
-                    "searchstr": app.current.search, 
+                    "searchstr": app.current.search,
                     "tag": app.current.tag
                 }, parseDatabase, true);
             }
@@ -535,7 +535,7 @@ function appInitStart() {
     }
     //register serviceworker
     if ('serviceWorker' in navigator &&
-        window.location.protocol === 'https:' && 
+        window.location.protocol === 'https:' &&
         script === 'combined.js')
     {
         window.addEventListener('load', function() {
@@ -674,7 +674,7 @@ function appInit() {
 
     }, false);
     //contextmenu for tables
-    const tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList', 
+    const tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList',
         'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsListList', 'BrowsePlaylistsDetailList'];
     for (const tableName of tables) {
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {
@@ -711,14 +711,14 @@ function appInit() {
 function initGlobalModals() {
     const tab = document.getElementById('tabShortcuts');
     elClear(tab);
-    const keys = Object.keys(keymap).sort((a, b) => { 
+    const keys = Object.keys(keymap).sort((a, b) => {
         return keymap[a].order - keymap[b].order
     });
     for (const key of keys) {
         if (keymap[key].cmd === undefined) {
             tab.appendChild(
-                elCreateNode('div', {"class": ["row", "mb-2", "mt-3"]}, 
-                    elCreateNode('div', {"class": ["col-12"]}, 
+                elCreateNode('div', {"class": ["row", "mb-2", "mt-3"]},
+                    elCreateNode('div', {"class": ["col-12"]},
                         elCreateText('h5', {}, tn(keymap[key].desc))
                     )
                 )
@@ -769,7 +769,7 @@ function initPlayback() {
         if (event.target.nodeName === 'P') {
             gotoBrowse(event);
         }
-    }, false); 
+    }, false);
 }
 
 function initNavs() {

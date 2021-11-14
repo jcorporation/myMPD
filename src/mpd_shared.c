@@ -67,8 +67,8 @@ void mpd_shared_mpd_disconnect(struct t_mpd_state *mpd_state) {
     }
 }
 
-bool check_rc_error_and_recover(struct t_mpd_state *mpd_state, sds *buffer, 
-                                sds method, long request_id, bool notify, bool rc, 
+bool check_rc_error_and_recover(struct t_mpd_state *mpd_state, sds *buffer,
+                                sds method, long request_id, bool notify, bool rc,
                                 const char *command)
 {
     if (check_error_and_recover2(mpd_state, buffer, method, request_id, notify) == false) {
@@ -91,7 +91,7 @@ bool check_rc_error_and_recover(struct t_mpd_state *mpd_state, sds *buffer,
     return true;
 }
 
-bool check_error_and_recover2(struct t_mpd_state *mpd_state, sds *buffer, sds method, long request_id, 
+bool check_error_and_recover2(struct t_mpd_state *mpd_state, sds *buffer, sds method, long request_id,
                               bool notify)
 {
     enum mpd_error error = mpd_connection_get_error(mpd_state->conn);
@@ -100,7 +100,7 @@ bool check_error_and_recover2(struct t_mpd_state *mpd_state, sds *buffer, sds me
         MYMPD_LOG_ERROR("MPD error: %s (%d)", error_msg , error);
         if (buffer != NULL && *buffer != NULL) {
             if (notify == false) {
-                *buffer = jsonrpc_respond_message(*buffer, method, request_id, true, 
+                *buffer = jsonrpc_respond_message(*buffer, method, request_id, true,
                     "mpd", "error", error_msg);
             }
             else {
@@ -133,16 +133,16 @@ sds check_error_and_recover_notify(struct t_mpd_state *mpd_state, sds buffer) {
 }
 
 sds respond_with_command_error(sds buffer, sds method, long request_id, const char *command) {
-    return jsonrpc_respond_message_phrase(buffer, method, request_id, 
+    return jsonrpc_respond_message_phrase(buffer, method, request_id,
         true, "mpd", "error", "Error in response to command: %{command}",
         2, "command", command);
 }
 
-sds respond_with_mpd_error_or_ok(struct t_mpd_state *mpd_state, sds buffer, sds method, 
+sds respond_with_mpd_error_or_ok(struct t_mpd_state *mpd_state, sds buffer, sds method,
                                  long request_id, bool rc, const char *command, bool *result)
 {
     sdsclear(buffer);
-    *result = check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, 
+    *result = check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false,
                                    rc, command);
     if (*result == false) {
         return buffer;

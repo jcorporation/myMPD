@@ -114,12 +114,12 @@ struct t_list_node *list_get_node(const struct t_list *l, const char *key) {
 
 struct t_list_node *list_node_at(const struct t_list *l, unsigned index) {
     /* if there's no data in the list, fail */
-    if (l->head == NULL) { 
-        return NULL; 
+    if (l->head == NULL) {
+        return NULL;
     }
     struct t_list_node * current = l->head;
     for (; index > 0; index--) {
-        if (current->next == NULL) { 
+        if (current->next == NULL) {
             return NULL;
         }
         current = current->next;
@@ -212,85 +212,85 @@ bool list_shuffle(struct t_list *l) {
 }
 
 bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction direction) {
-    int swapped; 
-    struct t_list_node *ptr1; 
-    struct t_list_node *lptr = NULL; 
+    int swapped;
+    struct t_list_node *ptr1;
+    struct t_list_node *lptr = NULL;
 
     if (l->head == NULL) {
         return false;
     }
 
-    do { 
-        swapped = 0; 
+    do {
+        swapped = 0;
         ptr1 = l->head;
 
-        while (ptr1->next != lptr) { 
+        while (ptr1->next != lptr) {
             if ((direction == LIST_SORT_ASC && ptr1->value_i > ptr1->next->value_i) ||
                 (direction == LIST_SORT_DESC && ptr1->value_i < ptr1->next->value_i))
             {
-                list_swap_item(ptr1, ptr1->next); 
-                swapped = 1; 
-            } 
-            ptr1 = ptr1->next; 
-        } 
-        lptr = ptr1; 
-    } 
+                list_swap_item(ptr1, ptr1->next);
+                swapped = 1;
+            }
+            ptr1 = ptr1->next;
+        }
+        lptr = ptr1;
+    }
     while (swapped);
     return true;
 }
 
 bool list_sort_by_value_p(struct t_list *l, enum list_sort_direction direction) {
-    int swapped; 
-    struct t_list_node *ptr1; 
-    struct t_list_node *lptr = NULL; 
+    int swapped;
+    struct t_list_node *ptr1;
+    struct t_list_node *lptr = NULL;
 
     if (l->head == NULL) {
         return false;
     }
 
-    do { 
-        swapped = 0; 
+    do {
+        swapped = 0;
         ptr1 = l->head;
 
-        while (ptr1->next != lptr) { 
+        while (ptr1->next != lptr) {
             if ((direction == LIST_SORT_ASC && strcmp(ptr1->value_p, ptr1->next->value_p) > 0) ||
                 (direction == LIST_SORT_DESC && strcmp(ptr1->value_p, ptr1->next->value_p) < 0))
             {
-                list_swap_item(ptr1, ptr1->next); 
-                swapped = 1; 
-            } 
-            ptr1 = ptr1->next; 
-        } 
-        lptr = ptr1; 
-    } 
+                list_swap_item(ptr1, ptr1->next);
+                swapped = 1;
+            }
+            ptr1 = ptr1->next;
+        }
+        lptr = ptr1;
+    }
     while (swapped);
     return true;
 }
 
 bool list_sort_by_key(struct t_list *l, enum list_sort_direction direction) {
-    int swapped; 
-    struct t_list_node *ptr1; 
-    struct t_list_node *lptr = NULL; 
+    int swapped;
+    struct t_list_node *ptr1;
+    struct t_list_node *lptr = NULL;
 
     if (l->head == NULL) {
         return false;
     }
 
-    do { 
-        swapped = 0; 
+    do {
+        swapped = 0;
         ptr1 = l->head;
 
-        while (ptr1->next != lptr) { 
-            if ((direction == LIST_SORT_ASC && strcmp(ptr1->key, ptr1->next->key) > 0) || 
+        while (ptr1->next != lptr) {
+            if ((direction == LIST_SORT_ASC && strcmp(ptr1->key, ptr1->next->key) > 0) ||
                 (direction == LIST_SORT_DESC && strcmp(ptr1->key, ptr1->next->key) < 0))
             {
-                list_swap_item(ptr1, ptr1->next); 
-                swapped = 1; 
+                list_swap_item(ptr1, ptr1->next);
+                swapped = 1;
             }
-            ptr1 = ptr1->next; 
-        } 
-        lptr = ptr1; 
-    } 
+            ptr1 = ptr1->next;
+        }
+        lptr = ptr1;
+    }
     while (swapped);
     return true;
 }
@@ -544,8 +544,8 @@ bool list_shift(struct t_list *l, unsigned idx) {
 }
 
 static struct t_list_node *list_node_extract(struct t_list *l, unsigned idx) {
-    if (l->head == NULL || idx >= l->length) { 
-        return NULL; 
+    if (l->head == NULL || idx >= l->length) {
+        return NULL;
     }
 
     struct t_list_node *current = NULL;

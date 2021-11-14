@@ -84,7 +84,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
     MYMPD_LOG_INFO("Creating caches");
     unsigned start = 0;
     unsigned end = start + MPD_RESULTS_MAX;
-    unsigned i = 0;   
+    unsigned i = 0;
     unsigned album_count = 0;
     unsigned song_count = 0;
     unsigned skipped = 0;
@@ -154,7 +154,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         mpd_response_finish(mpd_worker_state->mpd_state->conn);
         if (check_error_and_recover2(mpd_worker_state->mpd_state, NULL, NULL, 0, false) == false) {
             MYMPD_LOG_ERROR("Cache update failed");
-            return false;        
+            return false;
         }
         start = end;
         end = end + MPD_RESULTS_MAX;

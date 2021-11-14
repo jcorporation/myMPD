@@ -90,7 +90,7 @@ function initScripts() {
         const [start, end] = [el.selectionStart, el.selectionEnd];
         const newText = 'rc, raw_result = mympd_api_raw("' + method + '", json.encode(' +
             apiParamsToArgs(APImethods[method].params) +
-            '))\n' + 
+            '))\n' +
             'if rc == 0 then\n' +
             '    result = json.decode(raw_result)\n' +
             'end\n';
@@ -361,7 +361,7 @@ function execScriptFromOptions(cmd, options) {
 function execScript(cmd) {
     if (cmd.arguments.length === 0) {
         sendAPI("MYMPD_API_SCRIPT_EXECUTE", {
-            "script": cmd.script, 
+            "script": cmd.script,
             "arguments": {}
         });
     }

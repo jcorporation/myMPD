@@ -54,12 +54,12 @@ const APIparams = {
         "example": 2,
         "desc": "From position",
     },
-    "to": { 
+    "to": {
         "type": "uint",
         "example": 1,
         "desc": "To position"
     },
-    "whence": { 
+    "whence": {
         "type": "uint",
         "example": 0,
         "desc": "How to interpret the to parameter: 0 = absolut, 1 = after, 2 = before current song"
@@ -551,7 +551,7 @@ const APImethods = {
             "plist": APIparams.plist,
             "offset": APIparams.offset,
             "limit": APIparams.limit,
-            "searchstr": APIparams.searchstr, 
+            "searchstr": APIparams.searchstr,
             "cols": APIparams.cols
         }
     },
@@ -583,7 +583,7 @@ const APImethods = {
             }
         }
     },
-    "MYMPD_API_SMARTPLS_UPDATE": { 
+    "MYMPD_API_SMARTPLS_UPDATE": {
         "desc": "Updates the smart playlist.",
         "async": true,
         "params": {
@@ -645,7 +645,7 @@ const APImethods = {
         }
     },
     "MYMPD_API_PLAYER_VOLUME_SET": {
-        "desc": "Sets the volume.", 
+        "desc": "Sets the volume.",
         "params": {
             "volume": {
                 "type": "uint",
@@ -761,7 +761,7 @@ const APImethods = {
                 "type": "text",
                 "example": "nfs://192.168.1.1/music",
                 "desc": "URL to mount."
-            }, 
+            },
             "mountPoint": {
                 "type": "text",
                 "example": "nas",
@@ -863,7 +863,7 @@ const APImethods = {
             "smartplsSort": {
                 "type": "text",
                 "example": "",
-                "desc": "Sort settings for generated smart playlists, blank = no sort, \"shuffle\" or tag name" 
+                "desc": "Sort settings for generated smart playlists, blank = no sort, \"shuffle\" or tag name"
             },
             "smartplsGenerateTagList": {
                 "type": "text",
@@ -933,7 +933,7 @@ const APImethods = {
             "webuiSettings": {
                 "params": {
                     "clickSong": {
-                        "type": "text", 
+                        "type": "text",
                         "example": "append",
                         "desc": "Action on click on song: append, replace, view"
                     },

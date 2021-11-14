@@ -98,7 +98,7 @@ bool mympd_api_stats_last_played_add_song(struct t_mympd_state *mympd_state, con
             list_insert(&mympd_state->last_played, uri, time(NULL), NULL, NULL);
             mpd_song_free(song);
             //write last_played list to disc
-            if (mympd_state->last_played.length > 9 || 
+            if (mympd_state->last_played.length > 9 ||
                 mympd_state->last_played.length > mympd_state->last_played_count)
             {
                 mympd_api_stats_last_played_file_save(mympd_state);
@@ -117,8 +117,8 @@ bool mympd_api_stats_last_played_add_song(struct t_mympd_state *mympd_state, con
     return true;
 }
 
-sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buffer, sds method, 
-                                     long request_id, const unsigned offset, const unsigned limit, 
+sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buffer, sds method,
+                                     long request_id, const unsigned offset, const unsigned limit,
                                      sds searchstr, const struct t_tags *tagcols)
 {
     unsigned entity_count = 0;
@@ -229,7 +229,7 @@ sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
 
 
 //private functions
-static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, unsigned entity_count, 
+static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, unsigned entity_count,
                                          long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols)
 {
     buffer = sdscatlen(buffer, "{", 1);

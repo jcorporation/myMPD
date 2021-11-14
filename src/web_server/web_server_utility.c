@@ -121,7 +121,7 @@ void webserver_send_data(struct mg_connection *nc, const char *data, size_t len,
 void webserver_send_header_redirect(struct mg_connection *nc, const char *location) {
     mg_printf(nc, "HTTP/1.1 301 Moved Permanently\r\n"
         "Location: %s\r\n"
-        "Content-Length: 0\r\n\r\n", 
+        "Content-Length: 0\r\n\r\n",
         location);
 }
 

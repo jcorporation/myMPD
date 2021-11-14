@@ -84,7 +84,7 @@ static int _mympd_api_lyrics_unsynced(struct t_mympd_state *mympd_state, sds *bu
     return returned_entities;
 }
 
-static int _mympd_api_lyrics_synced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, const char *mime_type_mediafile) { 
+static int _mympd_api_lyrics_synced(struct t_mympd_state *mympd_state, sds *buffer, int returned_entities, sds mediafile, const char *mime_type_mediafile) {
     //try .lrc file in folder in the music directory
     returned_entities = lyrics_fromfile(buffer, mediafile, mympd_state->lyrics_sylt_ext, true, returned_entities);
     //get embedded lyrics
@@ -325,7 +325,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
             //utf-16 le or be
             i = i + 2;
         }
-        else if (encoding == 3 && binary_data[i] == 0xef && binary_data[i + 1] == 0xbb && binary_data[i + 2] == 0xbf) { 
+        else if (encoding == 3 && binary_data[i] == 0xef && binary_data[i + 1] == 0xbb && binary_data[i + 2] == 0xbf) {
             //utf-8
             i = i + 3;
         }

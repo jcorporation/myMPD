@@ -10,7 +10,7 @@ function initBrowse() {
         }
         if (app.current.tag === 'Album') {
             if (event.target.classList.contains('card-body')) {
-                appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', 'AlbumArtist', 
+                appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', 'AlbumArtist',
                     getData(event.target.parentNode, 'data-album'),
                     getData(event.target.parentNode, 'data-albumartist')
                 );
@@ -22,7 +22,7 @@ function initBrowse() {
         else {
             app.current.search = '';
             document.getElementById('searchDatabaseStr').value = '';
-            appGoto(app.current.card, app.current.card, undefined, 0, undefined, 'Album', 'AlbumArtist', 'Album', 
+            appGoto(app.current.card, app.current.card, undefined, 0, undefined, 'Album', 'AlbumArtist', 'Album',
                 '((' + app.current.tag + ' == \'' + escapeMPD(getData(event.target.parentNode, 'data-tag')) + '\'))');
         }
     }, false);
@@ -110,7 +110,7 @@ function initBrowse() {
             this.blur();
         }
         else {
-            appGoto(app.current.card, app.current.tab, app.current.view, 
+            appGoto(app.current.card, app.current.tab, app.current.view,
                 0, app.current.limit, (this.value !== '' ? this.value : '-'), app.current.sort, '-', app.current.search);
         }
     }, false);
@@ -135,7 +135,7 @@ function initBrowse() {
             searchAlbumgrid(this.value);
         }
         else {
-            appGoto(app.current.card, app.current.tab, app.current.view, 
+            appGoto(app.current.card, app.current.tab, app.current.view,
                 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, this.value);
         }
     }, false);
@@ -233,7 +233,7 @@ function navBrowseHandler(event) {
         }
         app.current.search = '';
         document.getElementById('searchDatabaseMatch').value = 'contains';
-        appGoto(app.current.card, app.current.tab, app.current.view, 
+        appGoto(app.current.card, app.current.tab, app.current.view,
             0, app.current.limit, app.current.filter, app.current.sort, tag, app.current.search);
     }
 }
@@ -356,7 +356,7 @@ function parseFilesystem(obj) {
             data.Title = data.name;
         }
         setData(row, 'data-name', data.Title);
-        row.setAttribute('title', tn(data.Type === 'song' ? rowTitleSong : 
+        row.setAttribute('title', tn(data.Type === 'song' ? rowTitleSong :
                 data.Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
     });
     scrollToPosY(app.current.scrollPos);
@@ -417,7 +417,7 @@ function parseDatabase(obj) {
                 elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
             );
             card.appendChild(
-                elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "p-2"], 
+                elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "p-2"],
                     "title": obj.result.data[i][tagAlbumArtist] + ': ' + obj.result.data[i].Album}, [
                         printValue('Album', obj.result.data[i].Album),
                         elCreateEmpty('br', {}),
@@ -440,7 +440,7 @@ function parseDatabase(obj) {
                 );
             }
             card.appendChild(
-                elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2"], 
+                elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2"],
                     "title": obj.result.data[i].value}, obj.result.data[i].value)
             );
             setData(card, 'data-picture', picture);
@@ -483,7 +483,7 @@ function setGridImage(changes, observer) {
 }
 
 function addPlayButton(parentEl) {
-    const div = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"], 
+    const div = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"],
         "title": tn(webuiSettingsDefault.clickAlbumPlay.validValues[settings.webuiSettings.clickAlbumPlay])}, 'play_arrow');
     parentEl.appendChild(div);
     div.addEventListener('click', function(event) {
@@ -536,7 +536,7 @@ function parseAlbumDetails(obj) {
         infoEl.appendChild(
             elCreateNodes('p', {}, [
                 elCreateText('span', {"class": ["mi", "me-2"]}, 'description'),
-                elCreateText('a', {"target": "_blank", "href": subdir + '/browse/music/' + 
+                elCreateText('a', {"target": "_blank", "href": subdir + '/browse/music/' +
                     myEncodeURI(obj.result.bookletPath)}, tn('Download booklet'))
             ])
         );
@@ -622,6 +622,6 @@ function _addAlbum(action, albumArtist, album, disc) {
 
 function searchAlbumgrid(x) {
     const expression = createSearchExpression(document.getElementById('searchDatabaseCrumb'), app.current.filter, getSelectValueId('searchDatabaseMatch'), x);
-    appGoto(app.current.card, app.current.tab, app.current.view, 
+    appGoto(app.current.card, app.current.tab, app.current.view,
         0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression, 0);
 }

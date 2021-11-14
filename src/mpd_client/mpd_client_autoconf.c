@@ -115,7 +115,7 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
 //private functions
 
 static sds _find_mpd_conf(void) {
-    const char *filenames[] = { 
+    const char *filenames[] = {
         "/etc/mpd.conf",
         "/usr/local/etc/mpd.conf",
         "/etc/opt/mpd/mpd.conf",

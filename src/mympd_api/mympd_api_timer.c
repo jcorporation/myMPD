@@ -108,15 +108,15 @@ void mympd_api_timer_check(struct t_timer_list *l) {
     }
 }
 
-bool mympd_api_timer_replace(struct t_timer_list *l, unsigned timeout, int interval, time_handler handler, 
+bool mympd_api_timer_replace(struct t_timer_list *l, unsigned timeout, int interval, time_handler handler,
                    int timer_id, struct t_timer_definition *definition, void *user_data)
 {
     mympd_api_timer_remove(l, timer_id);
     return mympd_api_timer_add(l, timeout, interval, handler, timer_id, definition, user_data);
 }
 
-bool mympd_api_timer_add(struct t_timer_list *l, unsigned timeout, int interval, time_handler handler, 
-               int timer_id, struct t_timer_definition *definition, void *user_data) 
+bool mympd_api_timer_add(struct t_timer_list *l, unsigned timeout, int interval, time_handler handler,
+               int timer_id, struct t_timer_definition *definition, void *user_data)
 {
     struct t_timer_node *new_node = (struct t_timer_node *)malloc_assert(sizeof(struct t_timer_node));
     new_node->callback = handler;
@@ -415,7 +415,7 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
         int timerid;
         if (timer_def != NULL &&
             json_get_int(param, "$.params.interval", TIMER_INTERVAL_MIN, TIMER_INTERVAL_MAX, &interval, NULL) == true &&
-            json_get_int(param, "$.params.timerid", 101, 200, &timerid, NULL) == true) 
+            json_get_int(param, "$.params.timerid", 101, 200, &timerid, NULL) == true)
         {
             if (timerid > mympd_state->timer_list.last_id) {
                 mympd_state->timer_list.last_id = timerid;
@@ -507,7 +507,7 @@ bool mympd_api_timer_file_save(struct t_mympd_state *mympd_state) {
     return true;
 }
 
-//private functions 
+//private functions
 static struct t_timer_node *get_timer_from_fd(struct t_timer_list *l, int fd) {
     struct t_timer_node *current = l->list;
 

@@ -12,7 +12,7 @@
 #include "../lib/sds_extras.h"
 #include "../lib/validate.h"
 
-bool webserver_tagart_handler(struct mg_connection *nc, struct mg_http_message *hm, 
+bool webserver_tagart_handler(struct mg_connection *nc, struct mg_http_message *hm,
                    struct t_mg_user_data *mg_user_data) {
     //decode uri
     sds uri_decoded = sds_urldecode(sdsempty(), hm->uri.ptr, (int)hm->uri.len, 0);

@@ -62,7 +62,7 @@ function parsePartitionOutputsList(obj) {
     let nr = 0;
     for (let i = 0, j = obj.result.data.length; i < j; i++) {
         if (outputIds.includes(obj.result.data[i].id) === false) {
-            const tr = elCreateNode('tr', {}, 
+            const tr = elCreateNode('tr', {},
                 elCreateText('td', {}, obj.result.data[i].name)
             );
             setData(tr, 'data-output', obj.result.data[i].name);

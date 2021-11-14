@@ -84,7 +84,7 @@ void mympd_api_trigger_execute(struct t_mympd_state *mympd_state, enum trigger_e
     struct t_list_node *current = mympd_state->triggers.head;
     while (current != NULL) {
         if (current->value_i == event) {
-            MYMPD_LOG_NOTICE("Executing script %s for trigger %s (%d)", current->value_p, 
+            MYMPD_LOG_NOTICE("Executing script %s for trigger %s (%d)", current->value_p,
                 mympd_api_trigger_name(event), event);
             _trigger_execute(current->value_p, (struct t_list *)current->user_data);
         }

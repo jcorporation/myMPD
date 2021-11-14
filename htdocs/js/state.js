@@ -340,7 +340,7 @@ function songChange(obj) {
 
     if (isValidUri(obj.result.uri) === true && isStreamUri(obj.result.uri) === false) {
         document.getElementById('footerTitle').classList.add('clickable');
-        document.getElementById('currentTitle').classList.add('clickable');        
+        document.getElementById('currentTitle').classList.add('clickable');
     }
     else {
         document.getElementById('footerTitle').classList.remove('clickable');
@@ -366,7 +366,7 @@ function songChange(obj) {
     elClear(bookletEl);
     if (obj.result.bookletPath !== '' && obj.result.bookletPath !== undefined && features.featLibrary === true) {
         bookletEl.appendChild(elCreateText('span', {"class": ["mi", "me-2"]}, 'description'));
-        bookletEl.appendChild(elCreateText('a', {"target": "_blank", "href": subdir + '/browse/music/' + 
+        bookletEl.appendChild(elCreateText('a', {"target": "_blank", "href": subdir + '/browse/music/' +
             myEncodeURI(obj.result.bookletPath)}, tn('Download booklet')));
     }
 
@@ -374,7 +374,7 @@ function songChange(obj) {
     const playingTr = document.getElementById('queueTrackId' + obj.result.currentSongId);
     if (playingTr) {
         const titleCol = playingTr.querySelector('[data-col=Title');
-        if (titleCol) { 
+        if (titleCol) {
             titleCol.textContent = obj.result.Title;
         }
     }
@@ -450,7 +450,7 @@ function mediaSessionSetState() {
 
 function mediaSessionSetMetadata(title, artist, album, url) {
     if (settings.mediaSession === true && 'mediaSession' in navigator) {
-        const artwork = window.location.protocol + '//' + window.location.hostname + 
+        const artwork = window.location.protocol + '//' + window.location.hostname +
             (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart/' + myEncodeURI(url);
         navigator.mediaSession.metadata = new MediaMetadata({
             title: title,

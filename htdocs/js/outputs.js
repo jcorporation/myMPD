@@ -147,7 +147,7 @@ function parseVolume(obj) {
     if (obj.result.volume === -1) {
         document.getElementById('volumePrct').textContent = tn('Volumecontrol disabled');
         elHide(document.getElementById('volumeControl'));
-    } 
+    }
     else {
         elShow(document.getElementById('volumeControl'));
         document.getElementById('volumePrct').textContent = obj.result.volume + ' %';

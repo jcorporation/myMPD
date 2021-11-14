@@ -101,7 +101,7 @@ static bool drop_privileges(struct t_config *config, uid_t startup_uid) {
         }
         //purge supplementary groups
         errno = 0;
-        if (setgroups(0, NULL) == -1) { 
+        if (setgroups(0, NULL) == -1) {
             MYMPD_LOG_ERROR("setgroups() failed");
             MYMPD_LOG_ERRNO(errno);
             return false;
@@ -216,7 +216,7 @@ int main(int argc, char **argv) {
     log_on_tty = isatty(fileno(stdout)) ? true : false;
     log_to_syslog = false;
 
-    worker_threads = 0; 
+    worker_threads = 0;
     s_signal_received = 0;
     bool init_config = false;
     bool init_webserver = false;
@@ -305,7 +305,7 @@ int main(int argc, char **argv) {
     #endif
 
     MYMPD_LOG_NOTICE("Starting myMPD %s", MYMPD_VERSION);
-    MYMPD_LOG_NOTICE("Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i", 
+    MYMPD_LOG_NOTICE("Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i",
             LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION,
             LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
     MYMPD_LOG_NOTICE("Mongoose %s", MG_VERSION);

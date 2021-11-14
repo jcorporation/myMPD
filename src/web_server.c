@@ -97,7 +97,7 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
             MYMPD_LOG_ERROR("Can't bind to https://%s:%s", config->http_host, config->ssl_port);
             mg_mgr_free(mgr);
             return false;
-        } 
+        }
         MYMPD_LOG_NOTICE("Listening on https://%s:%s", config->http_host, config->ssl_port);
     }
     #endif
@@ -145,11 +145,11 @@ void *web_server_loop(void *arg_mgr) {
                     last_notify = sds_replace(last_notify, response->data);
                     last_time = now;
                     send_ws_notify(mgr, response);
-                } 
+                }
                 else {
                     free_result(response);
                 }
-            } 
+            }
             else {
                 MYMPD_LOG_DEBUG("Got API response for id \"%ld\"", response->conn_id);
                 //api response
@@ -167,7 +167,7 @@ void *web_server_loop(void *arg_mgr) {
 //private functions
 static bool parse_internal_message(struct t_work_result *response, struct t_mg_user_data *mg_user_data) {
     bool rc = false;
-    if (response->extra != NULL) {	
+    if (response->extra != NULL) {
         struct set_mg_user_data_request *new_mg_user_data = (struct set_mg_user_data_request *)response->extra;
 
         mg_user_data->music_directory = sds_replace(mg_user_data->music_directory, new_mg_user_data->music_directory);
@@ -186,7 +186,7 @@ static bool parse_internal_message(struct t_work_result *response, struct t_mg_u
 
         sdsclear(mg_user_data->stream_uri);
         if (new_mg_user_data->mpd_stream_port != 0) {
-            mg_user_data->stream_uri = sdscatprintf(mg_user_data->stream_uri, "http://%s:%u", 
+            mg_user_data->stream_uri = sdscatprintf(mg_user_data->stream_uri, "http://%s:%u",
                 (strncmp(new_mg_user_data->mpd_host, "/", 1) == 0 ? "127.0.0.1" : new_mg_user_data->mpd_host),
                 new_mg_user_data->mpd_stream_port);
         }
@@ -479,7 +479,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
             }
             #ifdef ENABLE_SSL
-            else if (mg_http_match_uri(hm, "/ca.crt")) { 
+            else if (mg_http_match_uri(hm, "/ca.crt")) {
                 if (config->custom_cert == false) {
                     //deliver ca certificate
                     sds ca_file = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->workdir);
@@ -716,12 +716,12 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
         }
         if (rc == false) {
             MYMPD_LOG_ERROR("API method %s is protected", cmd);
-            sds response = jsonrpc_respond_message(sdsempty(), cmd, 0, true, "session", "error", 
+            sds response = jsonrpc_respond_message(sdsempty(), cmd, 0, true, "session", "error",
                 (cmd_id == MYMPD_API_SESSION_VALIDATE ? "Invalid session" : "Authentication required"));
             mg_printf(nc, "HTTP/1.1 401 Unauthorized\r\n"
                 "WWW-Authenticate: Bearer realm=\"myMPD\"\r\n"
                 "Content-Type: application/json; charset=utf-8\r\n"
-                "Content-Length: %d\r\n\r\n", 
+                "Content-Length: %d\r\n\r\n",
                 (int)sdslen(response));
             mg_send(nc, response, sdslen(response));
             FREE_SDS(cmd);
@@ -819,7 +819,7 @@ static bool handle_script_api(long long conn_id, sds body) {
 
     MYMPD_LOG_INFO("Script API request (%lld): %s", conn_id, cmd);
 
-    enum mympd_cmd_ids cmd_id = get_cmd_id(cmd); 
+    enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
     if (cmd_id != INTERNAL_API_SCRIPT_POST_EXECUTE) {
         MYMPD_LOG_ERROR("API method %s is invalid for this uri", cmd);
         FREE_SDS(cmd);

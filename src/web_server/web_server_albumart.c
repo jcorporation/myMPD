@@ -60,8 +60,8 @@ void webserver_albumart_send(struct mg_connection *nc, sds data, sds binary) {
 
 //returns true if an image is served
 //returns false if waiting for mpd_client to handle request
-bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message *hm, 
-                     struct t_mg_user_data *mg_user_data, struct t_config *config, 
+bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message *hm,
+                     struct t_mg_user_data *mg_user_data, struct t_config *config,
                      long long conn_id)
 {
     //decode uri
@@ -173,7 +173,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
                     FREE_SDS(uri_decoded);
                     FREE_SDS(coverfile);
                     FREE_SDS(mediafile);
-                    FREE_SDS(path); 
+                    FREE_SDS(path);
                     return true;
                 }
                 sdsclear(coverfile);
@@ -183,7 +183,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
             FREE_SDS(path);
         }
 
-        if (access(mediafile, F_OK) == 0) { /* Flawfinder: ignore */ 
+        if (access(mediafile, F_OK) == 0) { /* Flawfinder: ignore */
             //try to extract albumart from media file
             bool rc = handle_coverextract(nc, config, uri_decoded, mediafile, mg_user_data->covercache);
             if (rc == true) {
@@ -213,7 +213,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
 }
 
 //privat functions
-static bool handle_coverextract(struct mg_connection *nc, struct t_config *config, 
+static bool handle_coverextract(struct mg_connection *nc, struct t_config *config,
                                 const char *uri, const char *media_file, bool covercache)
 {
     bool rc = false;
@@ -243,7 +243,7 @@ static bool handle_coverextract(struct mg_connection *nc, struct t_config *confi
     return rc;
 }
 
-static bool handle_coverextract_id3(struct t_config *config, const char *uri, const char *media_file, 
+static bool handle_coverextract_id3(struct t_config *config, const char *uri, const char *media_file,
                                     sds *binary, bool covercache)
 {
     bool rc = false;
@@ -296,7 +296,7 @@ static bool handle_coverextract_id3(struct t_config *config, const char *uri, co
     return rc;
 }
 
-static bool handle_coverextract_flac(struct t_config *config, const char *uri, const char *media_file, 
+static bool handle_coverextract_flac(struct t_config *config, const char *uri, const char *media_file,
                                      sds *binary, bool is_ogg, bool covercache)
 {
     bool rc = false;

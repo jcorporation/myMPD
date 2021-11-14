@@ -65,7 +65,7 @@ class inputReset extends HTMLInputElement {
             event.preventDefault();
             event.stopPropagation();
             const input = event.target.previousElementSibling;
-            input.value = getData(input, 'data-default') !== undefined ? getData(input, 'data-default') : 
+            input.value = getData(input, 'data-default') !== undefined ? getData(input, 'data-default') :
                 (input.getAttribute('placeholder') !== null ? input.getAttribute('placeholder') : '');
         }, false);
     }

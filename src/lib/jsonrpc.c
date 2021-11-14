@@ -95,17 +95,17 @@ sds jsonrpc_respond_ok(sds buffer, const char *method, long id, const char *faci
     return jsonrpc_respond_message(buffer, method, id, false, facility, "info", "ok");
 }
 
-sds jsonrpc_respond_message(sds buffer, const char *method, long id, bool error, 
+sds jsonrpc_respond_message(sds buffer, const char *method, long id, bool error,
                             const char *facility, const char *severity, const char *message)
 {
     return jsonrpc_respond_message_phrase(buffer, method, id, error, facility, severity, message, 0);
 }
 
-sds jsonrpc_respond_message_phrase(sds buffer, const char *method, long id, bool error, 
+sds jsonrpc_respond_message_phrase(sds buffer, const char *method, long id, bool error,
                             const char *facility, const char *severity, const char *message, int count, ...)
 {
     sdsclear(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"%s\":{", 
+    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"%s\":{",
         id, (error == true ? "error" : "result"));
     buffer = tojson_char(buffer, "method", method, true);
     buffer = tojson_char(buffer, "facility", facility, true);
@@ -482,7 +482,7 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
     int vtype = mjson_find(s, (int)sdslen(s), path, &p, &n);
     if (vtype != MJSON_TOK_STRING) {
         *result = NULL;
-        _set_parse_error(error, "JSON path \"%s\" not found or value is not string type, found type is \"%s\"", 
+        _set_parse_error(error, "JSON path \"%s\" not found or value is not string type, found type is \"%s\"",
             path, get_mjson_toktype_name(vtype));
         return false;
     }

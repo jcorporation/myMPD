@@ -48,13 +48,13 @@ const mpdVersion = {
 const browseFilesystemHistory = {};
 
 //list of stickers
-const stickerList = ['stickerPlayCount', 'stickerSkipCount', 'stickerLastPlayed', 
+const stickerList = ['stickerPlayCount', 'stickerSkipCount', 'stickerLastPlayed',
     'stickerLastSkipped', 'stickerLike'];
 
 //application state
 const app = {};
-app.cards = { 
-    "Home": { 
+app.cards = {
+    "Home": {
         "offset": 0,
         "limit": 100,
         "filter": "-",
@@ -63,7 +63,7 @@ app.cards = {
         "search": "",
         "scrollPos": 0
     },
-    "Playback": { 
+    "Playback": {
         "offset": 0,
         "limit": 100,
         "filter": "-",
@@ -74,8 +74,8 @@ app.cards = {
     },
     "Queue": {
         "active": "Current",
-        "tabs": { 
-            "Current": { 
+        "tabs": {
+            "Current": {
                 "offset": 0,
                 "limit": 100,
                 "filter": "any",
@@ -91,7 +91,7 @@ app.cards = {
                 "sort": "-",
                 "tag": "-",
                 "search": "",
-                "scrollPos": 0 
+                "scrollPos": 0
             },
             "Jukebox": {
                 "offset": 0,
@@ -100,33 +100,33 @@ app.cards = {
                 "sort": "-",
                 "tag": "-",
                 "search": "",
-                "scrollPos": 0 
+                "scrollPos": 0
             }
         }
     },
-    "Browse": { 
-        "active": "Database", 
-        "tabs": { 
-            "Filesystem": { 
+    "Browse": {
+        "active": "Database",
+        "tabs": {
+            "Filesystem": {
                 "offset": 0,
                 "limit": 100,
                 "filter": "-",
                 "sort": "-",
                 "tag": "-",
                 "search": "",
-                "scrollPos": 0 
+                "scrollPos": 0
             },
-            "Playlists": { 
+            "Playlists": {
                 "active": "List",
-                "views": { 
+                "views": {
                     "List": {
                         "offset": 0,
                         "limit": 100,
                         "filter": "-",
                         "sort": "-",
                         "tag": "-",
-                        "search": "", 
-                        "scrollPos": 0 
+                        "search": "",
+                        "scrollPos": 0
                     },
                     "Detail": {
                         "offset": 0,
@@ -139,10 +139,10 @@ app.cards = {
                     }
                 }
             },
-            "Database": { 
+            "Database": {
                 "active": "List",
-                "views": { 
-                    "List": { 
+                "views": {
+                    "List": {
                         "offset": 0,
                         "limit": 100,
                         "filter": "any",
@@ -151,7 +151,7 @@ app.cards = {
                         "search": "",
                         "scrollPos": 0
                     },
-                    "Detail": { 
+                    "Detail": {
                         "offset": 0,
                         "limit": 100,
                         "filter": "-",
@@ -164,7 +164,7 @@ app.cards = {
             }
         }
     },
-    "Search": { 
+    "Search": {
         "offset": 0,
         "limit": 100,
         "filter": "any",
@@ -243,31 +243,31 @@ const settingFields = {
 
 //webui settings default values
 const webuiSettingsDefault = {
-    "clickSong": { 
-        "defaultValue": "append", 
-        "validValues": { 
+    "clickSong": {
+        "defaultValue": "append",
+        "validValues": {
             "append": "Append to queue",
             "insert": "Insert after current playing song",
             "play": "Add to queue and play",
             "replace": "Replace queue",
             "view": "Song details"
-        }, 
+        },
         "inputType": "select",
         "title": "Click song",
         "form": "clickSettingsFrm"
     },
-    "clickQueueSong": { 
-        "defaultValue": "play", 
+    "clickQueueSong": {
+        "defaultValue": "play",
         "validValues": {
-            "play": "Play", 
+            "play": "Play",
             "view": "Song details",
         },
         "inputType": "select",
         "title": "Click song in queue",
         "form": "clickSettingsFrm"
     },
-    "clickPlaylist": { 
-        "defaultValue": "append", 
+    "clickPlaylist": {
+        "defaultValue": "append",
         "validValues": {
             "append": "Append to queue",
             "insert": "Insert after current playing song",
@@ -279,8 +279,8 @@ const webuiSettingsDefault = {
         "title": "Click playlist",
         "form": "clickSettingsFrm"
     },
-    "clickFolder": { 
-        "defaultValue": "view", 
+    "clickFolder": {
+        "defaultValue": "view",
         "validValues": {
             "append": "Append to queue",
             "insert": "Insert after current playing song",
@@ -292,8 +292,8 @@ const webuiSettingsDefault = {
         "title": "Click folder",
         "form": "clickSettingsFrm"
     },
-    "clickAlbumPlay": { 
-        "defaultValue": "replace", 
+    "clickAlbumPlay": {
+        "defaultValue": "replace",
         "validValues": {
             "append": "Append to queue",
             "insert": "Insert after current playing song",

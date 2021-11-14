@@ -304,7 +304,7 @@ function saveCols(table, tableEl) {
                 if (th) {
                     th.remove();
                 }
-            } 
+            }
             else if (!th) {
                 th = elCreateText('th', {"data-col": colInputs[i].name}, colInputs[i].name);
                 header.insertBefore(th, header.lastChild);
@@ -335,7 +335,7 @@ function saveColsPlayback(table) {
             if (th) {
                 th.remove();
             }
-        } 
+        }
         else if (!th) {
             //add enabled tags if not already shown
             th = elCreateNodes('div', {"id": "current" + colInputs[i].name}, [
@@ -369,7 +369,7 @@ function replaceTblRow(row, el) {
 
 function addDiscRow(disc, album, albumartist, colspan) {
     const row = elCreateNodes('tr', {"class": ["not-clickable"]}, [
-        elCreateNode('td', {}, 
+        elCreateNode('td', {},
             elCreateText('span', {"class": ["mi"]}, 'album')
         ),
         elCreateText('td', {"colspan": (colspan - 1)}, tn('Disc') + ' ' + disc),

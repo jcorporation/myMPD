@@ -24,7 +24,7 @@ struct mg_client_response_t {
 };
 
 sds get_dnsserver(void);
-void http_client_request(struct mg_client_request_t *mg_client_request, 
+void http_client_request(struct mg_client_request_t *mg_client_request,
     struct mg_client_response_t *mg_client_response);
 
 #endif

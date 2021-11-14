@@ -27,7 +27,7 @@ bool mympd_api_home_icon_delete(struct t_mympd_state *mympd_state, unsigned pos)
 
 bool mympd_api_home_icon_save(struct t_mympd_state *mympd_state, bool replace, unsigned oldpos,
     const char *name, const char *ligature, const char *bgcolor, const char *color, const char *image,
-    const char *cmd, struct t_list *option_list) 
+    const char *cmd, struct t_list *option_list)
 {
     sds key = sdsnewlen("{", 1);
     key = tojson_char(key, "name", name, true);

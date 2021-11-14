@@ -20,7 +20,7 @@ function initSong() {
                 uiElements.modalSongDetails.hide();
                 event.preventDefault();
                 gotoBrowse(event);
-            } 
+            }
         }
         else if (event.target.nodeName === 'BUTTON') {
             const cmd = getData(event.target, 'data-href');
@@ -87,7 +87,7 @@ function songDetailsRow(thContent, tdContent) {
 
 function parseSongDetails(obj) {
     const modal = document.getElementById('modalSongDetails');
-    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + 
+    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' +
         subdir + '/albumart/' + myEncodeURI(obj.result.uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
 
     const elH1s = modal.getElementsByTagName('h1');
@@ -122,7 +122,7 @@ function parseSongDetails(obj) {
     }
     tbody.appendChild(songDetailsRow('Duration', beautifyDuration(obj.result.Duration)));
     if (features.featLibrary === true) {
-        tbody.appendChild(songDetailsRow('Filename', elCreateText('a', {"class": ["text-break", "text-success", "downdload"], "href": "#", 
+        tbody.appendChild(songDetailsRow('Filename', elCreateText('a', {"class": ["text-break", "text-success", "downdload"], "href": "#",
             "target": "_blank", "title": tn(obj.result.uri)}, basename(obj.result.uri, false))));
     }
     else {
@@ -139,7 +139,7 @@ function parseSongDetails(obj) {
         tbody.lastChild.lastChild.setAttribute('id', 'fingerprint');
     }
     if (obj.result.bookletPath !== '') {
-        tbody.appendChild(songDetailsRow('Booklet', elCreateText('a', {"class": ["text-success"], 
+        tbody.appendChild(songDetailsRow('Booklet', elCreateText('a', {"class": ["text-success"],
             "href": myEncodeURI(subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName), "target": "_blank"},
             tn('Download'))));
     }
@@ -303,10 +303,10 @@ function getLyrics(uri, el) {
                     showSyncedLyrics = true;
                 }
             }
-            const lyricsScroll = elCreateNode('button', {"title": tn('Toggle autoscrolling'), "class": ["btn", "btn-sm", "me-2", "active", "d-none"], "id": "lyricsScroll"}, 
+            const lyricsScroll = elCreateNode('button', {"title": tn('Toggle autoscrolling'), "class": ["btn", "btn-sm", "me-2", "active", "d-none"], "id": "lyricsScroll"},
                 elCreateText('span', {"class": ["mi", "mi-small"]}, 'autorenew')
             );
-            const lyricsResize = elCreateNode('button', {"title": tn('Resize'), "class": ["btn", "btn-sm", "me-2", "active", "d-none"], "id": "lyricsResize"}, 
+            const lyricsResize = elCreateNode('button', {"title": tn('Resize'), "class": ["btn", "btn-sm", "me-2", "active", "d-none"], "id": "lyricsResize"},
                 elCreateText('span', {"class": ["mi", "mi-small"]}, 'aspect_ratio')
             );
             const lyricsHeader = elCreateEmpty('div', {"class": ["lyricsHeader", "btn-toolbar", "mt-2"]});
@@ -357,7 +357,7 @@ function getLyrics(uri, el) {
                                 "relative": false
                             });
                         }
-                    }, false); 
+                    }, false);
                 }
             }
             const lr = document.getElementById('lyricsResize');

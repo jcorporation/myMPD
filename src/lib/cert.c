@@ -37,8 +37,8 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey);
 static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cert);
 static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 **cert);
 static bool create_ca_certificate(sds cakey_file, EVP_PKEY **ca_key, sds cacert_file, X509 **ca_cert);
-static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key, 
-                                      sds servercert_file, X509 **server_cert, 
+static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
+                                      sds servercert_file, X509 **server_cert,
                                       sds custom_san, EVP_PKEY **ca_key, X509 **ca_cert);
 static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_days);
 static bool certificates_cleanup(sds dir, const char *name);
@@ -104,8 +104,8 @@ bool certificates_create(sds dir, sds custom_san) {
     X509 *server_cert = NULL;
 
     if (load_certificate(serverkey_file, &server_key, servercert_file, &server_cert) == false) {
-        rc_cert = create_server_certificate(serverkey_file, &server_key, servercert_file, &server_cert, 
-            custom_san, &ca_key, &ca_cert); 
+        rc_cert = create_server_certificate(serverkey_file, &server_key, servercert_file, &server_cert,
+            custom_san, &ca_key, &ca_cert);
     }
     else {
         MYMPD_LOG_NOTICE("Server certificate and private key found");
@@ -120,8 +120,8 @@ bool certificates_create(sds dir, sds custom_san) {
             server_cert = NULL;
             rc_cert = certificates_cleanup(dir, "server");
             if (rc_cert == true) {
-                rc_cert = create_server_certificate(serverkey_file, &server_key, servercert_file, &server_cert, 
-                    custom_san, &ca_key, &ca_cert); 
+                rc_cert = create_server_certificate(serverkey_file, &server_key, servercert_file, &server_cert,
+                    custom_san, &ca_key, &ca_cert);
             }
         }
     }
@@ -195,8 +195,8 @@ static bool create_ca_certificate(sds cakey_file, EVP_PKEY **ca_key, sds cacert_
     return rc_ca;
 }
 
-static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key, 
-                                      sds servercert_file, X509 **server_cert, 
+static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
+                                      sds servercert_file, X509 **server_cert,
                                       sds custom_san, EVP_PKEY **ca_key, X509 **ca_cert)
 {
     MYMPD_LOG_NOTICE("Creating server certificate");
@@ -265,9 +265,9 @@ static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 *
 static sds get_san(sds buffer) {
     buffer = sdscatfmt(buffer, "DNS:localhost, IP:127.0.0.1, IP:::1");
 
-    //Retrieve short hostname 
+    //Retrieve short hostname
     char hostbuffer[256]; /* Flawfinder: ignore */
-    int hostname = gethostname(hostbuffer, sizeof(hostbuffer)); 
+    int hostname = gethostname(hostbuffer, sizeof(hostbuffer));
     if (hostname == -1) {
         return buffer;
     }

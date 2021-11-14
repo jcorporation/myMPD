@@ -22,7 +22,7 @@ function initPlaylists() {
             this.blur();
         }
         else {
-            appGoto(app.current.card, app.current.tab, app.current.view, 
+            appGoto(app.current.card, app.current.tab, app.current.view,
                 0, app.current.limit, app.current.filter, app.current.sort, '-', this.value);
         }
     }, false);
@@ -32,7 +32,7 @@ function initPlaylists() {
             this.blur();
         }
         else {
-            appGoto(app.current.card, app.current.tab, app.current.view, 
+            appGoto(app.current.card, app.current.tab, app.current.view,
                 0, app.current.limit, app.current.filter, app.current.sort, '-', this.value);
         }
     }, false);
@@ -117,12 +117,12 @@ function parsePlaylistsDetail(obj) {
         elHideId('smartPlaylistContentBtns');
     }
     setDataId('BrowsePlaylistsDetailList', 'data-uri', obj.result.plist);
-    document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].textContent = 
+    document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].textContent =
         (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist')) + ': ' + obj.result.plist;
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
 
-    elReplaceChild(tfoot, elCreateNode('tr', {}, 
-        elCreateNode('td', {"colspan": colspan}, 
+    elReplaceChild(tfoot, elCreateNode('tr', {},
+        elCreateNode('td', {"colspan": colspan},
             elCreateText('small', {}, tn('Num songs', obj.result.totalEntities) + ' - ' + beautifyDuration(obj.result.totalTime))))
     );
 
@@ -228,7 +228,7 @@ function saveSmartPlaylist() {
 
     if (type === 'search') {
         sendAPI("MYMPD_API_SMARTPLS_SEARCH_SAVE", {
-            "plist": name, 
+            "plist": name,
             "expression": document.getElementById('inputSaveSmartPlaylistExpression').value,
             "sort": sort
         }, saveSmartPlaylistClose, true);
@@ -245,7 +245,7 @@ function saveSmartPlaylist() {
         sendAPI("MYMPD_API_SMARTPLS_STICKER_SAVE", {
             "plist": name,
             "sticker": getSelectValueId('selectSaveSmartPlaylistSticker'),
-            "maxentries": Number(maxentriesEl.value), 
+            "maxentries": Number(maxentriesEl.value),
             "minvalue": Number(minvalueEl.value),
             "sort": sort
         }, saveSmartPlaylistClose, true);
@@ -327,9 +327,9 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
         selectEl.value = selectedPlaylist;
     }
     elClear(selectEl.filterResult);
-    if (playlistSelectId === 'selectJukeboxPlaylist' || 
+    if (playlistSelectId === 'selectJukeboxPlaylist' ||
         playlistSelectId === 'selectAddToQueuePlaylist' ||
-        playlistSelectId === 'selectTimerPlaylist') 
+        playlistSelectId === 'selectTimerPlaylist')
     {
         selectEl.filterResult.appendChild(elCreateText('option', {"value": "Database"}, tn('Database')));
     }
@@ -445,7 +445,7 @@ function addToPlaylist() {
             return;
         }
         switch(mode) {
-            case 'append': 
+            case 'append':
                 appendPlaylist(type, uri, plistEl.value, addToPlaylistClose);
                 break;
             case 'insert':
@@ -459,7 +459,7 @@ function addToPlaylist() {
     else {
         //add to queue
         switch(mode) {
-            case 'append': 
+            case 'append':
                 appendQueue(type, uri, addToPlaylistClose);
                 break;
             case 'insert':
@@ -556,7 +556,7 @@ function renamePlaylist() {
     const to = document.getElementById('renamePlaylistTo').value;
     if (to !== from && validatePlname(to) === true) {
         sendAPI("MYMPD_API_PLAYLIST_RENAME", {
-            "plist": from, 
+            "plist": from,
             "newName": to
         }, renamePlaylistClose, true);
     }

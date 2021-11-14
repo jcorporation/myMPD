@@ -205,7 +205,7 @@ function parseNeighbors(obj) {
         ]);
         setData(a, 'data-value', obj.result.data[i].uri);
         dropdownNeighbors.appendChild(a);
-    }    
+    }
 }
 
 function getUrlhandlers() {

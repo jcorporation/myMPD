@@ -235,7 +235,7 @@ static void _detect_extra_files(struct t_mympd_state *mympd_state, const char *u
             else if (ext != NULL) {
                 if (strcasecmp(ext, ".webp") == 0 || strcasecmp(ext, ".jpg") == 0 ||
                     strcasecmp(ext, ".jpeg") == 0 || strcasecmp(ext, ".png") == 0 ||
-                    strcasecmp(ext, ".avif") == 0 || strcasecmp(ext, ".svg") == 0) 
+                    strcasecmp(ext, ".avif") == 0 || strcasecmp(ext, ".svg") == 0)
                 {
                     fullpath = sdscatfmt(fullpath, "%s/%s", path, next_file->d_name);
                     list_push(images, fullpath, 0, NULL, NULL);

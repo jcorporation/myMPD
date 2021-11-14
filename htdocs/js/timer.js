@@ -140,7 +140,7 @@ function saveTimer() {
             "weekdays": weekdays,
             "action": getData(selectTimerAction.options[selectTimerAction.selectedIndex].parentNode, 'data-value'),
             "subaction": getSelectValue(selectTimerAction),
-            "volume": Number(document.getElementById('inputTimerVolume').value), 
+            "volume": Number(document.getElementById('inputTimerVolume').value),
             "playlist": selectTimerPlaylist,
             "jukeboxMode": Number(jukeboxMode),
             "arguments": args
@@ -249,7 +249,7 @@ function selectTimerIntervalChange(value) {
     const inputTimerInterval = document.getElementById('inputTimerInterval');
     const selectTimerIntervalUnit = document.getElementById('selectTimerIntervalUnit');
     for (const unit of [604800, 86400, 3600, 60, 1]) {
-        if (value >= unit && value % unit === 0) { 
+        if (value >= unit && value % unit === 0) {
             inputTimerInterval.value = value / unit;
             selectTimerIntervalUnit.value = unit;
             break;
@@ -283,7 +283,7 @@ function showTimerScriptArgs(option, values) {
     const list = document.getElementById('timerActionScriptArguments');
     elClear(list);
     for (let i = 0, j = args.arguments.length; i < j; i++) {
-        const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "timerActionScriptArguments" + i, 
+        const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "timerActionScriptArguments" + i,
             "value": (values[args.arguments[i]] ? values[args.arguments[i]] : '')});
         setData(input, 'data-name', args.arguments[i]);
         const fg = elCreateNodes('div', {"class": ["form-group", "row"]}, [
@@ -334,9 +334,9 @@ function parseListTimer(obj) {
         switch (obj.result.data[i].interval) {
             case -1: interval = tn('One shot and delete'); break;
             case 0: interval = tn('One shot and disable'); break;
-            default: 
+            default:
                 for (const unit of [604800, 86400, 3600, 60, 1]) {
-                    if (obj.result.data[i].interval >= unit && obj.result.data[i].interval % unit === 0) { 
+                    if (obj.result.data[i].interval >= unit && obj.result.data[i].interval % unit === 0) {
                         interval = tn('Each ' + unit, obj.result.data[i].interval / unit);
                         break;
                     }
