@@ -115,6 +115,11 @@ function cleanupModal(el) {
     }
     //remove error messages
     hideModalAlert(el);
+    //remove spinners
+    const spinners = el.getElementsByClassName('spinner-border');
+    for (let i = spinners.length - 1; i >= 0; i--) {
+        spinners[i].remove();
+    }
 }
 
 //confirmation dialogs
@@ -589,7 +594,9 @@ function btnWaiting(btn, waiting) {
     }
     else {
         elEnable(btn);
-        if (btn.firstChild.nodeName === 'SPAN') {
+        if (btn.firstChild.nodeName === 'SPAN' &&
+            btn.firstChild.classList.contains('spinner-border'))
+        {
             btn.firstChild.remove();
         }
     }

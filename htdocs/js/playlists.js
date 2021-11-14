@@ -304,7 +304,9 @@ function addSmartpls(type) {
 
 //eslint-disable-next-line no-unused-vars
 function deletePlaylists() {
-    btnWaiting(document.getElementById('btnDeletePlaylists'), true);
+    if (settings.pin === false || session.token !== '') {
+        btnWaiting(document.getElementById('btnDeletePlaylists'), true);
+    }
     sendAPI("MYMPD_API_PLAYLIST_RM_ALL", {
         "type": getSelectValueId('selectDeletePlaylists')
     }, function() {
