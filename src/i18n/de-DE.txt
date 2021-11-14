@@ -1958,3 +1958,9 @@ Hinzufügen zu
 
 Home screen
 Startbildschirm
+
+Attribute
+Eigenschaft
+
+Value
+Wert
