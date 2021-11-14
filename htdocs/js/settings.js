@@ -329,7 +329,7 @@ function parseSettings(obj) {
     //scripts
     if (scriptsInited === false) {
         const selectTimerAction = document.getElementById('selectTimerAction');
-        elClear(document.getElementById('selectTimerAction'));
+        elClearId('selectTimerAction');
         selectTimerAction.appendChild(
             elCreateNodes('optgroup', {"data-value": "player", "label": tn('Playback')}, [
                 elCreateText('option', {"value": "startplay"}, tn('Start playback')),
@@ -341,7 +341,7 @@ function parseSettings(obj) {
             getScriptList(true);
         }
         else {
-            elClear(document.getElementById('scripts'));
+            elClearId('scripts');
             //reinit mainmenu -> change of script list
             uiElements.dropdownMainMenu.dispose();
             uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
