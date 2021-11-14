@@ -30,6 +30,8 @@ class inputClear extends HTMLInputElement {
             }
         }, false);
         this.button.addEventListener('mouseup', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
             event.target.previousElementSibling.value = '';
             const dataClearEvent = event.target.previousElementSibling.getAttribute('data-clear-event');
             if (dataClearEvent !== null) {
@@ -59,7 +61,9 @@ class inputReset extends HTMLInputElement {
         else {
             this.parentNode.appendChild(this.button);
         }
-        this.button.addEventListener('mouseup', function(event) {
+        this.button.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
             const input = event.target.previousElementSibling;
             input.value = getData(input, 'data-default') !== undefined ? getData(input, 'data-default') : 
                 (input.getAttribute('placeholder') !== null ? input.getAttribute('placeholder') : '');
@@ -92,6 +96,8 @@ class selectSearch extends HTMLInputElement {
     connectedCallback() {
         const input = this;
         this.filterResult.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
             input.value = event.target.text;
             setData(input, 'data-value', event.target.value);
             input.dropdownButton.Dropdown.hide();
