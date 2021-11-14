@@ -43,7 +43,7 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
     btn.addEventListener('click', function() {
         sendAPI('MYMPD_API_SESSION_LOGIN', {"pin": input.value}, function(obj) {
             input.value = '';
-            const alert = footers[0].parentNode.getElementsByClassName('alert')[0];
+            const alert = footers[0].getElementsByClassName('alert')[0];
             if (alert !== undefined) {
                 alert.remove();
             }
