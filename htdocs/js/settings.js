@@ -1003,8 +1003,8 @@ function saveSettingsApply(obj) {
         showModalAlert(obj);
     }
     else {
-        getSettings(true);
         btnWaiting(document.getElementById('btnApplySettings'), true);
+        getSettings(true);
     }
 }
 
