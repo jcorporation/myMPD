@@ -106,8 +106,14 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
             "search": search
         })
     );
-    app.goto = false;
     appRoute(card, tab, view, offset, limit, filter, sort, tag, search);
+}
+
+function isArrayOrString(obj) {
+    if (typeof obj === 'string') {
+        return true;
+    }
+    return Array.isArray(obj);
 }
 
 function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
@@ -121,15 +127,15 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         if (hash !== null) {
             try {
                 jsonHash = JSON.parse(myDecodeURIComponent(hash[1]));
-                app.current.card = typeof jsonHash.card === 'string' ? jsonHash.card : undefined;
+                app.current.card = isArrayOrString(jsonHash.card) ? jsonHash.card : undefined;
                 app.current.tab = typeof jsonHash.tab === 'string' ? jsonHash.tab : undefined;
                 app.current.view = typeof jsonHash.view === 'string' ? jsonHash.view : undefined;
                 app.current.offset = typeof jsonHash.offset === 'number' ? jsonHash.offset : '';
                 app.current.limit = typeof jsonHash.limit === 'number' ? jsonHash.limit : '';
-                app.current.filter = typeof jsonHash.filter === 'string' ? jsonHash.filter : '';
-                app.current.sort = typeof jsonHash.sort === 'string' ? jsonHash.sort : '';
-                app.current.tag = typeof jsonHash.tag === 'string' ? jsonHash.tag : '';
-                app.current.search = typeof jsonHash.search === 'string' ? jsonHash.search : '';
+                app.current.filter = isArrayOrString(jsonHash.filter) ? jsonHash.filter : '';
+                app.current.sort = isArrayOrString(jsonHash.sort) ? jsonHash.sort : '';
+                app.current.tag = isArrayOrString(jsonHash.tag) ? jsonHash.tag : '';
+                app.current.search = isArrayOrString(jsonHash.search) ? jsonHash.search : '';
             }
             catch(error) {
                 //do nothing
@@ -475,6 +481,9 @@ function appInitStart() {
     window.addEventListener('hashchange', function() {
         if (app.goto === false) {
             appRoute();
+        }
+        else {
+            app.goto = false;
         }
     }, false);
 
