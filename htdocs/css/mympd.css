@@ -752,8 +752,6 @@ textarea.small {
   border-radius: 0.2rem;
 }
 
-.btn:not(:disabled):not(.disabled):active,
-.btn:not(:disabled):not(.disabled).active,
 .show > .btn.dropdown-toggle {
   color: var(--bs-white);
   background-color: var(--mympd-highlightcolor) !important;

@@ -134,6 +134,7 @@ body.theme-light .btn {
   color: var(--bs-body-color);
 }
 
+body.theme-light .btn-danger,
 body.theme-light .btn-success {
   color: var(--mympd-highlightcolor-contrast);
 }
