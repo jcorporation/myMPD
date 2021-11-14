@@ -60,10 +60,10 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
                         mpd_client_jukebox(mympd_state);
                     }
                     //autoPlay enabled
-                    if (mympd_state->auto_play == true && mympd_state->mpd_state->queue_length > 1) {
+                    if (mympd_state->auto_play == true && mympd_state->mpd_state->queue_length > 0) {
                         if (mympd_state->mpd_state->state != MPD_STATE_PLAY) {
                             MYMPD_LOG_INFO("AutoPlay enabled, start playing");
-                            if (!mpd_run_play(mympd_state->mpd_state->conn)) {
+                            if (mpd_run_play(mympd_state->mpd_state->conn) == false) {
                                 check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
                             }
                         }
