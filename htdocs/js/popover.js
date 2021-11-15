@@ -46,10 +46,8 @@ function showPopover(event) {
                 popoverInit = createPopoverDisc(target);
                 break;
             case 'queue':
-                popoverInit = createPopoverQueueNavbarIcon(target);
-                break;
             case 'database':
-                popoverInit = createPopoverDatabaseNavbarIcon(target);
+                popoverInit = createPopoverNavbarIcon(target, popoverType);
                 break;
             case 'home':
                 popoverInit = createPopoverHome(target);
@@ -150,28 +148,32 @@ function createPopoverDisc(el) {
     return popoverInit;
 }
 
-function createPopoverQueueNavbarIcon(el) {
-    const popoverInit = createPopoverInit(el, tn('Queue'));
+function createPopoverNavbarIcon(el, type) {
+    const popoverInit = createPopoverInit(el, tn(ucFirst(type)));
     el.addEventListener('show.bs.popover', function() {
         const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
         popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
-        addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}]}, 'Clear');
-        addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}]}, 'Crop');
-        addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_SHUFFLE"}]}, 'Shuffle');
-        addMenuItem(popoverBody, {"cmd": "showModal", "options": ["modalSaveQueue"]}, 'Save');
-        addMenuItem(popoverBody, {"cmd": "showModal", "options": ["modalAddToQueue"]}, 'Add to queue');
-        createPopoverClickHandler(popoverBody);
-    }, false);
-    return popoverInit;
-}
-
-function createPopoverDatabaseNavbarIcon(el) {
-    const popoverInit = createPopoverInit(el, tn('Database'));
-    el.addEventListener('show.bs.popover', function() {
-        const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
-        popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
-        addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, false]}, 'Update database');
-        addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, true]}, 'Rescan database');
+        switch(type) {
+            case 'queue':
+                addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}]}, 'Clear');
+                addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}]}, 'Crop');
+                addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_SHUFFLE"}]}, 'Shuffle');
+                addMenuItem(popoverBody, {"cmd": "showModal", "options": ["modalSaveQueue"]}, 'Save');
+                addMenuItem(popoverBody, {"cmd": "showModal", "options": ["modalAddToQueue"]}, 'Add to queue');
+                popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "Current", undefined]}, 'Show queue');
+                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "LastPlayed", undefined]}, 'Show last played');
+                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "Jukebox", undefined]}, 'Show jukebox queue');
+                break;
+            case 'database':
+                addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, false]}, 'Update database');
+                addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, true]}, 'Rescan database');
+                popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Database", undefined]}, 'Show browse database');
+                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Playlists", undefined]}, 'Show browse playlists');
+                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Filesystem", undefined]}, 'Show browse filesystem');
+                break;
+        }
         createPopoverClickHandler(popoverBody);
     }, false);
     return popoverInit;
