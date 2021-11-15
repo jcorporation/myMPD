@@ -1284,6 +1284,7 @@ function createImgCarousel(imgEl, name, images) {
     });
 }
 
+//eslint-disable-next-line no-unused-vars
 function showModal(modal) {
     uiElements[modal].show();
 }

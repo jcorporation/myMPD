@@ -4,21 +4,21 @@
 // https://github.com/jcorporation/mympd
 
 //eslint-disable-next-line no-unused-vars
-function updateDB(uri, showModal, rescan) {
+function updateDB(uri, show, rescan) {
     const method = rescan === true ? "MYMPD_API_DATABASE_RESCAN" : "MYMPD_API_DATABASE_UPDATE";
     sendAPI(method, {"uri": uri}, function(obj) {
         if (obj.error !== undefined) {
             updateDBerror(true, obj.error.message);
         }
         else {
-            updateDBstarted(showModal);
+            updateDBstarted(show);
         }
     }, true);
 }
 
-function updateDBerror(showModal, message) {
+function updateDBerror(show, message) {
     const msg = tn('Database update failed') + ': ' + tn(message);
-    if (showModal === true) {
+    if (show === true) {
         document.getElementById('updateDBfinished').textContent = '';
         elShowId('updateDBfooter');
         const updateDBprogress = document.getElementById('updateDBprogress');
@@ -33,8 +33,8 @@ function updateDBerror(showModal, message) {
     showNotification(msg, '', 'database', 'error');
 }
 
-function updateDBstarted(showModal) {
-    if (showModal === true) {
+function updateDBstarted(show) {
+    if (show === true) {
         document.getElementById('updateDBfinished').textContent = '';
         elHideId('updateDBfooter');
         const updateDBprogress = document.getElementById('updateDBprogress');
