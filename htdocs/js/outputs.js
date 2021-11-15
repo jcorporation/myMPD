@@ -82,14 +82,12 @@ function showListOutputAttributes(outputName) {
             return;
         }
         //we get all outputs, filter by outputName
-        let output;
-        for (let i = 0; i < obj.result.numOutputs; i++) {
-            if (obj.result.data[i].name === outputName) {
-                output = obj.result.data[i];
+        for (const output of obj.result.data) {
+            if (output.name === outputName) {
+                parseOutputAttributes(output);
                 break;
             }
         }
-        parseOutputAttributes(output);
     }, false);
 }
 
