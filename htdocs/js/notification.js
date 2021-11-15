@@ -17,18 +17,18 @@ function toggleAlert(alertBox, state, msg) {
     if (state === false) {
         elHide(alertBoxEl);
         elClear(alertBoxEl);
+        return;
     }
-    else {
-        alertBoxEl.textContent = msg;
-        if (alertBox === 'alertMpdStatusError') {
-            const clBtn = elCreateEmpty('button', {"class": ["btn-close", "btn-close-alert"]});
-            alertBoxEl.appendChild(clBtn);
-            clBtn.addEventListener('click', function() {
-                clearMPDerror();
-            }, false);
-        }
-        elShow(alertBoxEl);
+
+    alertBoxEl.textContent = msg;
+    if (alertBox === 'alertMpdStatusError') {
+        const clBtn = elCreateEmpty('button', {"class": ["btn-close", "btn-close-alert"]});
+        alertBoxEl.appendChild(clBtn);
+        clBtn.addEventListener('click', function() {
+            clearMPDerror();
+        }, false);
     }
+    elShow(alertBoxEl);
 }
 
 const severities = {
@@ -184,7 +184,9 @@ function setElsState(tag, state, type) {
             continue;
         }
         if (state === 'disabled') {
-            if (el.classList.contains('alwaysEnabled') === false && el.getAttribute('disabled') === null) {
+            if (el.classList.contains('alwaysEnabled') === false &&
+                el.getAttribute('disabled') === null)
+            {
                 elDisable(el);
                 el.classList.add('disabled');
             }
