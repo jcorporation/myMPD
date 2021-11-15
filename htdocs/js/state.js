@@ -41,7 +41,7 @@ function parseStats(obj) {
 }
 
 function getServerinfo() {
-    const ajaxRequest=new XMLHttpRequest();
+    const ajaxRequest = new XMLHttpRequest();
     ajaxRequest.open('GET', subdir + '/api/serverinfo', true);
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {
@@ -158,7 +158,6 @@ function parseState(obj) {
     }
 
     //handle error from mpd status response
-    //currentState must be updated before
     if (obj.result.lastError === '') {
         toggleAlert('alertMpdStatusError', false, '');
     }
@@ -431,32 +430,37 @@ function clickTitle() {
 }
 
 function mediaSessionSetPositionState(duration, position) {
-    if (settings.mediaSession === true && 'mediaSession' in navigator && navigator.mediaSession.setPositionState) {
-        if (position < duration) {
-            //streams have position > duration
-            navigator.mediaSession.setPositionState({
-                duration: duration,
-                position: position
-            });
-        }
+    if (checkMediaSessionSupport === false ||
+        navigator.mediaSession.setPositionState === undefined)
+    {
+        return;
+    }
+    if (position < duration) {
+        //streams have position > duration
+        navigator.mediaSession.setPositionState({
+            duration: duration,
+            position: position
+        });
     }
 }
 
 function mediaSessionSetState() {
-    if (settings.mediaSession === true && 'mediaSession' in navigator) {
-        navigator.mediaSession.playbackState = currentState.state === 'play' ? 'playing' : 'paused';
+    if (checkMediaSessionSupport === false) {
+        return;
     }
+    navigator.mediaSession.playbackState = currentState.state === 'play' ? 'playing' : 'paused';
 }
 
 function mediaSessionSetMetadata(title, artist, album, url) {
-    if (settings.mediaSession === true && 'mediaSession' in navigator) {
-        const artwork = window.location.protocol + '//' + window.location.hostname +
-            (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart/' + myEncodeURI(url);
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: title,
-            artist: artist,
-            album: album,
-            artwork: [{src: artwork}]
-        });
+    if (checkMediaSessionSupport === false) {
+        return;
     }
+    const artwork = window.location.protocol + '//' + window.location.hostname +
+        (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart/' + myEncodeURI(url);
+    navigator.mediaSession.metadata = new MediaMetadata({
+        title: title,
+        artist: artist,
+        album: album,
+        artwork: [{src: artwork}]
+    });
 }

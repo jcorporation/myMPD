@@ -1288,3 +1288,7 @@ function createImgCarousel(imgEl, name, images) {
 function showModal(modal) {
     uiElements[modal].show();
 }
+
+function checkMediaSessionSupport() {
+    return settings.mediaSession && 'mediaSession' in navigator
+}
