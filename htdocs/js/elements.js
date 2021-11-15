@@ -29,9 +29,12 @@ class inputClear extends HTMLInputElement {
                 elShow(event.target.button);
             }
         }, false);
-        this.button.addEventListener('mouseup', function(event) {
+
+        this.button.addEventListener('click', function(event) {
             event.preventDefault();
-            event.stopPropagation();
+        }, false);
+
+        this.button.addEventListener('mouseup', function(event) {
             event.target.previousElementSibling.value = '';
             const dataClearEvent = event.target.previousElementSibling.getAttribute('data-clear-event');
             if (dataClearEvent !== null) {
@@ -113,6 +116,10 @@ class selectSearch extends HTMLInputElement {
                 input.dropdownButton.Dropdown.toggle();
             }, false);
         }
+        this.dropdownButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }, false);
     }
 }
 
