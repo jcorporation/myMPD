@@ -534,25 +534,25 @@ Monter le volulme
 Open settings
 Ouvrir les paramètres
 
-Goto playback
+Show playback
 Aller à la chanson en cours
 
-Goto queue
+Show queue
 Aller à la queue
 
-Goto last played
+Show last played
 Aller à la dernière chanson lue
 
-Goto browse database
+Show browse database
 Aller à la base de données
 
-Goto browse playlists
+Show browse playlists
 Aller aux listes de lecture
 
-Goto browse filesystem
+Show browse filesystem
 Aller au système de fichiers
 
-Goto search
+Show search
 Aller à la recherche
 
 Open about

@@ -531,25 +531,25 @@ Volumen +
 Open settings
 Abrir configuraciones
 
-Goto playback
+Show playback
 Ir a lista de reproducción
 
-Goto queue
+Show queue
 Ir a cola de reproducción
 
-Goto last played
+Show last played
 Ir a última reproducción
 
-Goto browse database
+Show browse database
 Ir a explorar base de datos
 
-Goto browse playlists
+Show browse playlists
 Ir a explorar listas de reproducción
 
-Goto browse filesystem
+Show browse filesystem
 Ir a explorar sistema de archivos
 
-Goto search
+Show search
 Ir a buscar
 
 Open about

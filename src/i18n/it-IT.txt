@@ -534,25 +534,25 @@ Alza volume
 Open settings
 Apri parametri
 
-Goto playback
+Show playback
 Vai alla riproduzione corrente
 
-Goto queue
+Show queue
 Vai alla coda
 
-Goto last played
+Show last played
 Vai all'ultimo brano riprodotto
 
-Goto browse database
+Show browse database
 Vai al database
 
-Goto browse playlists
+Show browse playlists
 Vai a sfoglia le liste di riproduzione
 
-Goto browse filesystem
+Show browse filesystem
 Vai a filesystem
 
-Goto search
+Show search
 Vai a ricerca
 
 Open about

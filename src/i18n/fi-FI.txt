@@ -531,25 +531,25 @@ Isommalle
 Open settings
 Avaa asetukset
 
-Goto playback
+Show playback
 Siirry toistoon
 
-Goto queue
+Show queue
 Siirry jonoon
 
-Goto last played
+Show last played
 Siirry viimeksi soitettuun
 
-Goto browse database
+Show browse database
 Siirry tietokannan selaamiseen
 
-Goto browse playlists
+Show browse playlists
 Siirry soittolistojen selaukseen
 
-Goto browse filesystem
+Show browse filesystem
 Siirry tiedostojärjelmän selaukseen
 
-Goto search
+Show search
 Siirry hakuun
 
 Open about

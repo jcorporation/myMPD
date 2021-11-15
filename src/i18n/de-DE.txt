@@ -579,32 +579,32 @@ Open MPD connection
 Open settings
 Öffne Einstellungen
 
-Goto home
-Gehe zur Startseite
+Show home
+Startseite anzeigen
 
-Goto playback
-Gehe zu Wiedergabe
+Show playback
+Aktuelle Wiedergabe anzeigen
 
-Goto queue
-Gehe zu Warteschlange
+Show queue
+Warteschlange anzeigen
 
-Goto last played
-Gehe zu Zuletzt gespielt
+Show last played
+Zuletzt gespielt anzeigen
 
-Goto jukebox queue
-Gehe zur Jukebox Warteschlange
+Show jukebox queue
+Jukebox Warteschlange anzeigen
 
-Goto browse database
-Gehe zu Datenbank durchsuchen
+Show browse database
+Datenbank anzeigen
 
-Goto browse playlists
-Gehe zu Wiedergabelisten
+Show browse playlists
+Wiedergabelisten anzeigen
 
-Goto browse filesystem
-Gehe zu Dateisystem
+Show browse filesystem
+Dateisystem anzeigen
 
-Goto search
-Gehe zur Suche
+Show search
+Suche anzeigen
 
 Open about
 Öffne Über myMPD

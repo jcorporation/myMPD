@@ -576,31 +576,31 @@ Volume up
 Open settings
 설정 열기
 
-Goto home
+Show home
 홈으로 가기
 
-Goto playback
+Show playback
 연주로 가기
 
-Goto queue
+Show queue
 순서로 가기
 
-Goto last played
+Show last played
 앞선 연주로 가기
 
-Goto jukebox queue
+Show jukebox queue
 뮤직박스 순서로 가기
 
-Goto browse database
+Show browse database
 데이터베이스 열기로 가기
 
-Goto browse playlists
+Show browse playlists
 연주목록 열기로 가기
 
-Goto browse filesystem
+Show browse filesystem
 파일 시스템 열기로 가기
 
-Goto search
+Show search
 찾기로 가기
 
 Open about

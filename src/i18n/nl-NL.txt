@@ -534,25 +534,25 @@ Volume plus
 Open settings
 Instellingen
 
-Goto playback
+Show playback
 Afspelen openen
 
-Goto queue
+Show queue
 Wachtrij openen
 
-Goto last played
+Show last played
 Laatst afgespeeld openen
 
-Goto browse database
+Show browse database
 Database openen
 
-Goto browse playlists
+Show browse playlists
 Afspeellijsten openen
 
-Goto browse filesystem
+Show browse filesystem
 Bestandssysteem openen
 
-Goto search
+Show search
 Zoeken openen
 
 Open about
