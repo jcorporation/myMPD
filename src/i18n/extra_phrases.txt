@@ -131,3 +131,6 @@ Each 604800
 Each 86400
 Show all albums from artist
 Show directory
+name
+state
+plugin

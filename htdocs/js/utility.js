@@ -1283,3 +1283,7 @@ function createImgCarousel(imgEl, name, images) {
         pause: false
     });
 }
+
+function showModal(modal) {
+    uiElements[modal].show();
+}

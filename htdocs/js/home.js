@@ -227,7 +227,7 @@ function parseHome(obj) {
         }
         setData(card, 'data-href', {"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
         setData(card, 'data-pos', i);
-        const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded", "clickable"]}, obj.result.data[i].ligature);
+        const cardBody = elCreateText('div', {"data-popover": "home", "class": ["card-body", "mi", "rounded", "clickable"]}, obj.result.data[i].ligature);
         if (obj.result.data[i].image !== '') {
             cardBody.style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(obj.result.data[i].image) + '")';
         }
@@ -238,7 +238,7 @@ function parseHome(obj) {
             cardBody.style.color = obj.result.data[i].color;
         }
         card.appendChild(cardBody);
-        card.appendChild(elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2", "clickable"]}, obj.result.data[i].name));
+        card.appendChild(elCreateText('div', {"data-popover": "home", "class": ["card-footer", "card-footer-grid", "p-2", "clickable"]}, obj.result.data[i].name));
         col.appendChild(card);
         if (i < cols.length) {
             cols[i].replaceWith(col);

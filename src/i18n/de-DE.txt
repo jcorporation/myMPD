@@ -1964,3 +1964,12 @@ Eigenschaft
 
 Value
 Wert
+
+name
+Name
+
+state
+Status
+
+plugin
+Plugin

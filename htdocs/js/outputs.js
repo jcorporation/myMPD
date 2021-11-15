@@ -81,7 +81,7 @@ function showListOutputAttributes(outputName) {
         if (checkResult(obj, tbody) === false) {
             return;
         }
-
+        //we get all outputs, filter by outputName
         let output;
         for (let i = 0; i < obj.result.numOutputs; i++) {
             if (obj.result.data[i].name === outputName) {
@@ -89,36 +89,43 @@ function showListOutputAttributes(outputName) {
                 break;
             }
         }
-        document.getElementById('modalOutputAttributesId').value = output.id;
-
-        elClear(tbody);
-        for (const n of ['name', 'state', 'plugin']) {
-            tbody.appendChild(
-                elCreateNodes('tr', {}, [
-                    elCreateText('td', {}, tn(ucFirst(n))),
-                    elCreateText('td', {}, output[n])
-                ])
-            );
-        }
-        let i = 0;
-        for (const key in output.attributes) {
-            i++;
-            tbody.appendChild(
-                elCreateNodes('tr', {}, [
-                    elCreateText('td', {}, key),
-                    elCreateNode('td', {},
-                        elCreateEmpty('input', {"name": key, "class": ["form-control"], "type": "text", "value": output.attributes[key]})
-                    )
-                ])
-            );
-        }
-        if (i > 0) {
-            elEnableId('btnOutputAttributesSave');
-        }
-        else {
-            elDisableId('btnOutputAttributesSave');
-        }
+        parseOutputAttributes(output);
     }, false);
+}
+
+function parseOutputAttributes(output) {
+    document.getElementById('modalOutputAttributesId').value = output.id;
+    const tbody = document.getElementById('outputAttributesList');
+    elClear(tbody);
+    for (const n of ['name', 'state', 'plugin']) {
+        if (n === 'state') {
+            output[n] = output[n] === 1 ? tn('Enabled') : tn('Disabled');
+        }
+        tbody.appendChild(
+            elCreateNodes('tr', {}, [
+                elCreateText('td', {}, tn(n)),
+                elCreateText('td', {}, output[n])
+            ])
+        );
+    }
+    let i = 0;
+    for (const key in output.attributes) {
+        i++;
+        tbody.appendChild(
+            elCreateNodes('tr', {}, [
+                elCreateText('td', {}, key),
+                elCreateNode('td', {},
+                    elCreateEmpty('input', {"name": key, "class": ["form-control"], "type": "text", "value": output.attributes[key]})
+                )
+            ])
+        );
+    }
+    if (i > 0) {
+        elEnableId('btnOutputAttributesSave');
+    }
+    else {
+        elDisableId('btnOutputAttributesSave');
+    }
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -146,10 +153,10 @@ function saveOutputAttributesClose(obj) {
 function parseVolume(obj) {
     if (obj.result.volume === -1) {
         document.getElementById('volumePrct').textContent = tn('Volumecontrol disabled');
-        elHide(document.getElementById('volumeControl'));
+        elHideId('volumeControl');
     }
     else {
-        elShow(document.getElementById('volumeControl'));
+        elShowId('volumeControl');
         document.getElementById('volumePrct').textContent = obj.result.volume + ' %';
         document.getElementById('volumeMenu').firstChild.textContent =
             obj.result.volume === 0 ? 'volume_off' :

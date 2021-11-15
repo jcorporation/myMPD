@@ -25,40 +25,71 @@ function hidePopover(thisEl) {
 function showPopover(event) {
     event.preventDefault();
     event.stopPropagation();
-    hidePopover(event.target);
+    const target = event.target.nodeName === 'SPAN' ? event.target.parentNode : event.target;
+    hidePopover(target);
     //popover is shown
-    if (event.target.getAttribute('aria-describedby') !== null ||
-        event.target.classList.contains('not-clickable'))
+    if (target.getAttribute('aria-describedby') !== null ||
+        target.classList.contains('not-clickable'))
     {
         return;
     }
     //check for existing popover instance
-    let popoverInit = event.target.Popover;
+    let popoverInit = target.Popover;
+    //create it if no popover instance is found
     if (popoverInit === undefined) {
-        //create it if no popover instance is found
-        if (event.target.parentNode.nodeName === 'TH') {
-            popoverInit = createPopoverTh(event.target);
-        }
-        else if (event.target.getAttribute('data-popover') === 'disc') {
-            popoverInit = createPopoverDisc(event.target);
-        }
-        else {
-            popoverInit = createPopoverTd(event.target);
+        const popoverType = event.target.getAttribute('data-popover');
+        switch (popoverType) {
+            case 'columns':
+                popoverInit = createPopoverColumns(target);
+                break;
+            case 'disc':
+                popoverInit = createPopoverDisc(target);
+                break;
+            case 'queue':
+                popoverInit = createPopoverQueueNavbarIcon(target);
+                break;
+            case 'database':
+                popoverInit = createPopoverDatabaseNavbarIcon(target);
+                break;
+            case 'home':
+                popoverInit = createPopoverHome(target);
+                break;
+            default:
+                popoverInit = createPopoverGeneric(target);
         }
     }
     //show the popover
     popoverInit.show();
 }
 
-function createPopoverTh(el) {
-    const template = elCreateNodes('div', {"class": ["popover"]}, [
-        elCreateEmpty('div', {"class": ["popover-arrow"]}),
-        elCreateEmpty('h3', {"class": ["popover-header"]}),
-        elCreateEmpty('div', {"class": ["popover-body"]})
-    ]);
+function createPopoverInit(el, title, template) {
+    if (template === undefined) {
+        template = elCreateNodes('div', {"class": ["popover"]}, [
+            elCreateEmpty('div', {"class": ["popover-arrow"]}),
+            elCreateEmpty('h3', {"class": ["popover-header"]}),
+            elCreateEmpty('div', {"class": ["popover-body"]})
+        ]);
+    }
+    return new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false,
+        title: document.createTextNode(title), template: template, content: document.createTextNode('dummy')});
+}
 
-    const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false,
-        title: document.createTextNode(tn('Columns')), template: template, content: document.createTextNode('dummy')});
+function createPopoverClickHandler(el) {
+    el.addEventListener('click', function(eventClick) {
+        if (eventClick.target.nodeName === 'A') {
+            const cmd = getData(eventClick.target, 'data-href');
+            if (cmd) {
+                parseCmd(eventClick, cmd);
+                hidePopover();
+            }
+        }
+        eventClick.preventDefault();
+        eventClick.stopPropagation();
+    }, false);
+}
+
+function createPopoverColumns(el) {
+    const popoverInit = createPopoverInit(el, tn('Columns'));
 
     el.addEventListener('show.bs.popover', function() {
         const menu = elCreateEmpty('form', {});
@@ -76,8 +107,7 @@ function createPopoverTh(el) {
             }
         }, false);
         const popoverBody = popoverInit.popover.getElementsByClassName('popover-body')[0];
-        elClear(popoverBody);
-        popoverBody.appendChild(menu);
+        elReplaceChild(popoverBody,menu);
         popoverBody.setAttribute('id', app.id + 'ColsDropdown');
     }, false);
 
@@ -102,20 +132,10 @@ function createPopoverDisc(el) {
     const album = getData(el.parentNode.parentNode, 'data-album');
     const albumArtist = getData(el.parentNode.parentNode, 'data-albumartist');
 
-    const template = elCreateNodes('div', {"class": ["popover"]}, [
-        elCreateEmpty('div', {"class": ["popover-arrow"]}),
-        elCreateEmpty('h3', {"class": ["popover-header"]}),
-        elCreateEmpty('div', {"class": ["popover-body"]})
-    ]);
-
-    const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false,
-        title: document.createTextNode(tn('Disc') + ' ' + disc), template: template,
-        content: document.createTextNode('dummy')});
-
+    const popoverInit = createPopoverInit(el, tn('Disc'));
     el.addEventListener('show.bs.popover', function() {
-        const popoverBody = popoverInit.popover.getElementsByClassName('popover-body')[0];
-        popoverBody.classList.add('px-0');
-        elClear(popoverBody);
+        const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
+        popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
         addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album, disc]}, 'Append to queue');
         if (features.featWhence === true) {
             addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["insertQueue", albumArtist, album]}, 'Insert after current playing song');
@@ -125,22 +145,51 @@ function createPopoverDisc(el) {
         if (features.featPlaylists === true) {
             addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album, disc]}, 'Add to playlist');
         }
-        popoverBody.addEventListener('click', function(eventClick) {
-            if (eventClick.target.nodeName === 'A') {
-                const cmd = getData(eventClick.target, 'data-href');
-                if (cmd) {
-                    parseCmd(eventClick, cmd);
-                    hidePopover();
-                }
-            }
-            eventClick.preventDefault();
-            eventClick.stopPropagation();
-        }, false);
+        createPopoverClickHandler(popoverBody);
     }, false);
     return popoverInit;
 }
 
-function createPopoverTd(el) {
+function createPopoverQueueNavbarIcon(el) {
+    const popoverInit = createPopoverInit(el, tn('Queue'));
+    el.addEventListener('show.bs.popover', function() {
+        const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
+        popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
+        addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}]}, 'Clear');
+        addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}]}, 'Crop');
+        addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_SHUFFLE"}]}, 'Shuffle');
+        addMenuItem(popoverBody, {"cmd": "showModal", "options": ["modalSaveQueue"]}, 'Save');
+        addMenuItem(popoverBody, {"cmd": "showModal", "options": ["modalAddToQueue"]}, 'Add to queue');
+        createPopoverClickHandler(popoverBody);
+    }, false);
+    return popoverInit;
+}
+
+function createPopoverDatabaseNavbarIcon(el) {
+    const popoverInit = createPopoverInit(el, tn('Database'));
+    el.addEventListener('show.bs.popover', function() {
+        const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
+        popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
+        addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, false]}, 'Update database');
+        addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, true]}, 'Rescan database');
+        createPopoverClickHandler(popoverBody);
+    }, false);
+    return popoverInit;
+}
+
+function createPopoverHome(el) {
+    const popoverInit = createPopoverInit(el, tn('Home'));
+    el.addEventListener('show.bs.popover', function() {
+        const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
+        popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
+        const popoverHeader = popoverInit.popover.getElementsByClassName('popover-header')[0];
+        createMenuHome(el, popoverHeader, popoverBody);
+        createPopoverClickHandler(popoverBody);
+    }, false);
+    return popoverInit;
+}
+
+function createPopoverGeneric(el) {
     const template = elCreateNodes('div', {"class": ["popover"]}, [
         elCreateEmpty('div', {"class": ["popover-arrow"]}),
         elCreateEmpty('h3', {"class": ["popover-header"]}),
@@ -160,8 +209,7 @@ function createPopoverTd(el) {
         ])
     ]);
 
-    const popoverInit = new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false,
-        content: document.createTextNode('dummy'), template: template});
+    const popoverInit = createPopoverInit(el, '', template);
 
     const tabHeader = popoverInit.popover.getElementsByClassName('nav-link');
     const tabPanes = popoverInit.popover.getElementsByClassName('tab-pane');
@@ -177,19 +225,12 @@ function createPopoverTd(el) {
         }, false);
 
         elClear(tabPanes[i]);
-        const created = createMenuTd(el, tabHeader[i], tabPanes[i], i);
+        const created = i === 0 ?
+            createMenuGeneric(el, tabHeader[0], tabPanes[0]) :
+            createMenuSecondary(el, tabHeader[1], tabPanes[1]);
+
         if (created === true) {
-            tabPanes[i].addEventListener('click', function(eventClick) {
-                if (eventClick.target.nodeName === 'A') {
-                    const cmd = getData(eventClick.target, 'data-href');
-                    if (cmd) {
-                        parseCmd(eventClick, cmd);
-                        hidePopover();
-                    }
-                }
-                eventClick.preventDefault();
-                eventClick.stopPropagation();
-            }, false);
+            createPopoverClickHandler(tabPanes[i]);
         }
         else {
             popoverInit.popover.getElementsByClassName('popover-header')[0].textContent = tabHeader[0].textContent;
@@ -203,18 +244,6 @@ function addMenuItem(tabContent, cmd, text) {
     const a = elCreateText('a', {"class": ["dropdown-item"], "href": "#"}, tn(text));
     setData(a, 'data-href', cmd);
     tabContent.appendChild(a);
-}
-
-function createMenuTd(el, tabHeader, tabContent, tabNr) {
-    if (app.current.card === 'Home' && tabNr === 0) {
-        return createMenuHome(el, tabHeader, tabContent);
-    }
-
-    if (tabNr === 0) {
-        return createMenuGeneric(el, tabHeader, tabContent);
-    }
-
-    return createMenuSecondary(el, tabHeader, tabContent);
 }
 
 function addMenuItemsAlbumActions(tabContent, albumArtist, album) {
