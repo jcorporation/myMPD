@@ -1207,7 +1207,7 @@ function zoomPicture(el) {
         let aImages = [];
         const uri = getData(el, 'data-uri');
         if (uri) {
-            aImages = [ subdir + '/albumart/' + myEncodeURI(uri) ];
+            aImages = [ subdir + '/albumart/' + uri ];
         }
         //add all but coverfiles to image list
         for (let i = 0, j = images.length; i < j; i++) {
@@ -1256,6 +1256,7 @@ function createImgCarousel(imgEl, name, images) {
         const carouselItem = elCreateNode('div', {"class": ["carousel-item"]},
             elCreateEmpty('div', {})
         );
+
         carouselItem.style.backgroundImage = 'url("' + myEncodeURI(images[i]) + '")';
         carouselInner.appendChild(carouselItem);
         if (i === 0) {
