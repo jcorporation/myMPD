@@ -124,7 +124,9 @@ function parseUpdateQueue(obj) {
         badgeQueueItemsEl.textContent = obj.result.queueLength;
     }
 
-    if (obj.result.nextSongPos === -1 && settings.jukeboxMode === false) {
+    if (obj.result.nextSongPos === -1 &&
+        settings.jukeboxMode === false)
+    {
         elDisableId('btnNext');
     }
     else {
@@ -199,8 +201,8 @@ function parseQueue(obj) {
         }
     }, function(row, data) {
         tableRow(row, data, app.id, colspan, smallWidth);
-        if (currentState && currentState.currentSongId === data.id) {
-            setPlayingRow(row, currentState.elapsedTime, data.Duration);
+        if (currentState.currentSongId === data.id) {
+            setPlayingRow(row);
         }
     });
 
@@ -210,7 +212,8 @@ function parseQueue(obj) {
     if (obj.result.totalTime && obj.result.totalTime > 0 && obj.result.totalEntities <= app.current.limit ) {
         elReplaceChild(tfoot, elCreateNode('tr', {},
             elCreateNode('td', {"colspan": (colspan + 1)},
-                elCreateText('small', {}, tn('Num songs', obj.result.totalEntities) + ' - ' + beautifyDuration(obj.result.totalTime))))
+                elCreateText('small', {}, tn('Num songs', obj.result.totalEntities) +
+                    smallSpace + "/" + smallSpace + beautifyDuration(obj.result.totalTime))))
         );
     }
     else if (obj.result.totalEntities > 0) {
@@ -224,46 +227,53 @@ function parseQueue(obj) {
     }
 }
 
-function queueSetCurrentSong(currentSongId, elapsedTime, totalTime) {
-    if (currentState && currentState.currentSongId !== currentSongId) {
-        const tr = document.getElementById('queueTrackId' + currentState.currentSongId);
-        if (tr) {
-            const durationTd = tr.querySelector('[data-col=Duration]');
-            if (durationTd) {
-                durationTd.textContent = beautifySongDuration(getData(tr, 'data-duration'));
-            }
-            const posTd = tr.querySelector('[data-col=Pos]');
-            if (posTd) {
-                posTd.classList.remove('mi');
-                posTd.textContent = getData(tr, 'data-songpos');
-            }
-            tr.classList.remove('queue-playing');
-            tr.style = '';
+function queueSetCurrentSong() {
+    //remove old playing row
+    const old = document.getElementById('queueTrackId' + currentState.lastSongId);
+    if (old !== null &&
+        old.classList.contains('queue-playing'))
+    {
+        const durationTd = old.querySelector('[data-col=Duration]');
+        if (durationTd) {
+            durationTd.textContent = beautifySongDuration(getData(tr, 'data-duration'));
         }
+        const posTd = old.querySelector('[data-col=Pos]');
+        if (posTd) {
+            posTd.classList.remove('mi');
+            posTd.textContent = getData(old, 'data-songpos') + 1;
+        }
+        old.classList.remove('queue-playing');
+        old.style = '';
     }
-    const tr = document.getElementById('queueTrackId' + currentSongId);
-    if (tr) {
-        setPlayingRow(tr, elapsedTime, totalTime);
+    //add or update new playing row
+    const tr = document.getElementById('queueTrackId' + currentState.currentSongId);
+    if (tr !== null) {
+        setPlayingRow(tr);
+        return;
     }
 }
 
-function setPlayingRow(row, elapsedTime, totalTime) {
-    const durationTd = row.querySelector('[data-col=Duration]');
-    if (durationTd) {
-        durationTd.textContent = beautifySongDuration(elapsedTime) + smallSpace + "/" + smallSpace + beautifySongDuration(totalTime);
-    }
-    const posTd = row.querySelector('[data-col=Pos]');
-    if (posTd) {
-        if (!posTd.classList.contains('mi')) {
+function setPlayingRow(row) {
+    if (row.classList.contains('queue-playing') === false) {
+        const durationTd = row.querySelector('[data-col=Duration]');
+        if (durationTd) {
+            durationTd.textContent = beautifySongDuration(currentState.elapsedTime) +
+                smallSpace + '/' + smallSpace + beautifySongDuration(currentState.totalTime);
+        }
+        const posTd = row.querySelector('[data-col=Pos]');
+        if (posTd !== null) {
             posTd.classList.add('mi');
             posTd.textContent = 'play_arrow';
         }
+        row.classList.add('queue-playing');
     }
-    row.classList.add('queue-playing');
 
-    let progressPrct = totalTime > 0 ? (100 / totalTime) * elapsedTime : 100;
+    let progressPrct;
     if (currentState.state === 'stop') {
         progressPrct = 100;
+    }
+    else {
+        progressPrct = currentState.totalTime > 0 ? (100 / currentState.totalTime) * currentState.elapsedTime : 100;
     }
     row.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
         progressPrct + '%, transparent ' + progressPrct +'%)';
@@ -395,7 +405,7 @@ function addToQueue() {
     if (!validateInt(inputAddToQueueQuantityEl)) {
         formOK = false;
     }
-    const selectAddToQueuePlaylistValue = getData(document.getElementById('selectAddToQueuePlaylist'), 'data-value');
+    const selectAddToQueuePlaylistValue = getDataId('selectAddToQueuePlaylist', 'data-value');
     if (formOK === true) {
         sendAPI("MYMPD_API_QUEUE_ADD_RANDOM", {
             "mode": Number(getSelectValueId('selectAddToQueueMode')),
