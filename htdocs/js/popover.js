@@ -171,7 +171,7 @@ function createPopoverDisc(el) {
 }
 
 function createPopoverNavbarIcon(el, type) {
-    const popoverInit = createPopoverInit(el, tn(ucFirst(type)));
+    const popoverInit = createPopoverInit(el, el.getAttribute('title'));
     el.addEventListener('show.bs.popover', function() {
         const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
         popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
@@ -218,7 +218,6 @@ function createPopoverAlbumView(el) {
     el.addEventListener('show.bs.popover', function() {
         const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
         popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
-        const popoverHeader = popoverInit.popover.getElementsByClassName('popover-header')[0];
         const albumArtist = getData(el, 'data-albumartist');
         const album = getData(el, 'data-album');
         addMenuItemsAlbumActions(popoverBody, albumArtist, album);
@@ -381,7 +380,7 @@ function createMenuLists(el, tabHeader, tabContent) {
     const type = getData(dataNode, 'data-type');
     const uri = getData(dataNode, 'data-uri');
     const name = getData(dataNode, 'data-name');
-    
+
     let pType = type;
     switch(type) {
         case 'song':
@@ -439,19 +438,19 @@ function createMenuLists(el, tabHeader, tabContent) {
             return true;
         }
         case 'BrowsePlaylistsDetail': {
-            const x = document.getElementById('BrowsePlaylistsDetailList');
-            const songpos = getData(dataNode, 'data-songpos');
-            const playlistLength = getData(dataNode.parentNode, 'data-playlistlength');
+            const table = document.getElementById('BrowsePlaylistsDetailList');
             addMenuItemsSongActions(tabContent, uri, name);
             tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-            if (getData(x, 'data-ro') === 'false') {
-                const plist = getData(x, 'data-uri');
+            if (getData(table, 'data-ro') === 'false') {
+                const plist = getData(table, 'data-uri');
+                const songpos = getData(dataNode, 'data-songpos');
+                const playlistLength = getData(table, 'data-playlistlength');
                 addMenuItem(tabContent, {"cmd": "removeFromPlaylist", "options": ["single", plist, songpos]}, 'Remove');
                 if (features.featPlaylistRmRange === true) {
                     if (songpos > 0) {
                         addMenuItem(tabContent, {"cmd": "removeFromPlaylist", "options": ["range", plist, 0, songpos]}, 'Remove all upwards');
                     }
-                    if (songpos < playlistLength - 1) {
+                    if (songpos + 1 < playlistLength) {
                         addMenuItem(tabContent, {"cmd": "removeFromPlaylist", "options": ["range", plist, songpos + 1, -1]}, 'Remove all downwards');
                     }
                 }
@@ -472,7 +471,7 @@ function createMenuLists(el, tabHeader, tabContent) {
             if (songpos > 0) {
                 addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", 0, songpos]}, 'Remove all upwards');
             }
-            if (songpos < currentState.queueLength - 1) {
+            if (songpos + 1 < currentState.queueLength) {
                 addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", songpos + 1, -1]}, 'Remove all downwards');
             }
             return true;
