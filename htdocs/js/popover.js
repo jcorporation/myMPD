@@ -180,8 +180,6 @@ function createPopoverNavbarIcon(el, type) {
                 addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}]}, 'Clear');
                 addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}]}, 'Crop');
                 addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_SHUFFLE"}]}, 'Shuffle');
-                addMenuItem(popoverBody, {"cmd": "showModal", "options": ["modalSaveQueue"]}, 'Save');
-                addMenuItem(popoverBody, {"cmd": "showModal", "options": ["modalAddToQueue"]}, 'Add to queue');
                 popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
                 addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "Current", undefined]}, 'Show queue');
                 addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "LastPlayed", undefined]}, 'Show last played');
@@ -298,7 +296,9 @@ function addMenuItemsAlbumActions(tabContent, albumArtist, album) {
     tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
     addMenuItem(tabContent, {"cmd": "gotoAlbum", "options": [albumArtist, album]}, 'Album details');
     addMenuItem(tabContent, {"cmd": "gotoAlbumList", "options": [tagAlbumArtist, albumArtist]}, 'Show all albums from artist');
-    if (features.featHome === true && app.id !== 'Home') {
+    if (features.featHome === true &&
+        app.id !== 'Home')
+    {
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "addAlbumToHome", "options": [albumArtist, album]}, 'Add to homescreen');
     }
@@ -320,7 +320,9 @@ function addMenuItemsSongActions(tabContent, uri, name) {
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "songDetails", "options": [uri]}, 'Song details');
     }
-    if (features.featHome === true && app.id !== 'Home') {
+    if (features.featHome === true &&
+        app.id !== 'Home')
+    {
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "addSongToHome", "options": [uri, name]}, 'Add to homescreen');
     }
@@ -356,7 +358,9 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
     else {
         addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [baseuri]}, 'Show directory');
     }
-    if (features.featHome === true && app.id !== 'Home') {
+    if (features.featHome === true &&
+        app.id !== 'Home')
+    {
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "addDirToHome", "options": [baseuri, baseuri]}, 'Add to homescreen');
     }
@@ -369,7 +373,9 @@ function addMenuItemsPlaylistActions(tabContent, type, uri, name) {
         addMenuItem(tabContent, {"cmd": "insertQueue", "options": [type, uri, 0, 1, true]}, 'Add to queue and play');
     }
     addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, uri]}, 'Replace queue');
-    if (features.featHome === true && app.id !== 'Home') {
+    if (features.featHome === true &&
+        app.id !== 'Home')
+    {
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, type, name]}, 'Add to homescreen');
     }
