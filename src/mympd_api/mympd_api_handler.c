@@ -851,7 +851,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_DATABASE_FINGERPRINT:
-            if (mympd_state->mpd_state->feat_mpd_fingerprint == true) {
+            if (mympd_state->mpd_state->feat_mpd_fingerprint == false) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "database", "error", "Fingerprint command not supported");
                 break;
             }
