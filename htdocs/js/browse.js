@@ -410,7 +410,7 @@ function parseDatabase(obj) {
         }
 
         let picture = '';
-        const card = elCreateEmpty('div', {"class": ["card", "card-grid", "clickable"], "tabindex": 0});
+        const card = elCreateEmpty('div', {"data-popover": "album", "class": ["card", "card-grid", "clickable"], "tabindex": 0});
         if (obj.result.tag === 'Album') {
             picture = subdir + '/albumart/' + obj.result.data[i].FirstSongUri;
             card.appendChild(

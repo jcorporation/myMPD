@@ -116,8 +116,10 @@ function parsePlaylistsDetail(obj) {
         elShowId('playlistContentBtns');
         elHideId('smartPlaylistContentBtns');
     }
-    setDataId('BrowsePlaylistsDetailList', 'data-uri', obj.result.plist);
-    document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].textContent =
+
+    setData(table, 'data-playlistlength', obj.result.totalEntities);
+    setData(table, 'data-uri', obj.result.plist);
+    table.getElementsByTagName('caption')[0].textContent =
         (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist')) + ': ' + obj.result.plist;
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
 

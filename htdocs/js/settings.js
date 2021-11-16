@@ -1179,31 +1179,24 @@ function setNavbarIcons() {
         if (id === 'nav' + app.current.card) {
             btn.classList.add('active');
         }
-        if (features.featHome === false && icon.options[0] === 'Home') {
+        if (features.featHome === false &&
+            icon.options[0] === 'Home')
+        {
             elHide(btn);
         }
-        const a = elCreateEmpty('a', {"data-title-phrase": icon.title, "title": tn(icon.title), "href": "#", "class": ["nav-link"]});
-        a.appendChild(elCreateText('span', {"class": ["mi"]}, icon.ligature));
-        if (icon.options[0] === 'Queue' && icon.options.length === 1) {
+        const a = elCreateNode('a', {"data-title-phrase": icon.title, "title": tn(icon.title), "href": "#", "class": ["nav-link"]},
+            elCreateText('span', {"class": ["mi"]}, icon.ligature)
+        );
+        if (icon.options[0] === 'Queue' &&
+            icon.options.length === 1)
+        {
             a.setAttribute('data-popover', 'queue');
-            a.firstChild.setAttribute('data-popover', 'queue');
-            a.appendChild(elCreateText('span', {"data-popover": "queue", "id": "badgeQueueItems", "class": ["badge", "bg-secondary"]}, oldQueueLength));
-            a.addEventListener('contextmenu', function(event) {
-                showPopover(event);
-            }, false);
-            a.addEventListener('long-press', function(event) {
-                showPopover(event);
-            }, false);
+            a.appendChild(
+                elCreateText('span', {"id": "badgeQueueItems", "class": ["badge", "bg-secondary"]}, oldQueueLength)
+            );
         }
         else if (icon.options[0] === 'Browse') {
             a.setAttribute('data-popover', 'database');
-            a.firstChild.setAttribute('data-popover', 'database');
-            a.addEventListener('contextmenu', function(event) {
-                showPopover(event);
-            }, false);
-            a.addEventListener('long-press', function(event) {
-                showPopover(event);
-            }, false);
         }
         btn.appendChild(a);
         container.appendChild(btn);

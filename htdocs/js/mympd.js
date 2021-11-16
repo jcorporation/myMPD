@@ -807,7 +807,8 @@ function initNavs() {
 
     domCache.progressBar.style.transition = progressBarTransition;
 
-    document.getElementById('navbar-main').addEventListener('click', function(event) {
+    const navbarMain = document.getElementById('navbar-main');
+    navbarMain.addEventListener('click', function(event) {
         event.preventDefault();
         if (event.target.nodeName === 'DIV') {
             return;
@@ -816,6 +817,24 @@ function initNavs() {
         const href = getData(target, 'data-href');
         parseCmd(event, href);
     }, false);
+
+    navbarMain.addEventListener('contextmenu', function(event) {
+        if (event.target.getAttribute('data-popover') === null &&
+            event.target.parentNode.getAttribute('data-popover') === null)
+        {
+            return;    
+        }
+        showPopover(event);
+    }, false);
+    navbarMain.addEventListener('long-press', function(event) {
+        if (event.target.getAttribute('data-popover') === null &&
+            event.target.parentNode.getAttribute('data-popover') === null)
+        {
+            return;    
+        }
+        showPopover(event);
+    }, false);
+
 
     document.getElementById('scripts').addEventListener('click', function(event) {
         event.preventDefault();

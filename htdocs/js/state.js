@@ -356,7 +356,7 @@ function songChange(obj) {
     }
 
     if (features.featStickers === true) {
-        setVoteSongBtns(obj.result.like, obj.result.uri);
+        setVoteSongBtns(obj.result.stickerLike, obj.result.uri);
     }
 
     setPlaybackCardTags(obj.result);
