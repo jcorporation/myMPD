@@ -171,9 +171,9 @@ bool vcb_isfilepath(sds data) {
         return false;
     }
     if (strncmp(data, "../", 3) == 0 ||
+        strncmp(data, "//", 2) == 0 ||
         strstr(data, "/../") != NULL ||
-        strstr(data, "/./") != NULL ||
-        strstr(data, "//") != NULL)
+        strstr(data, "/./") != NULL)
     {
         //prevent dir traversal
         MYMPD_LOG_WARN("Found dir traversal in path \"%s\"", data);
