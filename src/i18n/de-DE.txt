@@ -291,10 +291,10 @@ Wiedergabeliste löschen
 Delete
 Löschen
 
-Dislike song
+Hate song
 Gefällt mir nicht
 
-Like song
+Love song
 Gefällt mir
 
 MPD stickers are disabled
