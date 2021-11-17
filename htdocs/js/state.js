@@ -64,11 +64,11 @@ function setCounter() {
     if (progressPx < domCache.progressBar.offsetWidth) {
         //prevent transition
         domCache.progressBar.style.transition = 'none';
-        reflow(domCache.progressBar);
+        elReflow(domCache.progressBar);
         domCache.progressBar.style.width = progressPx + 'px';
-        reflow(domCache.progressBar);
+        elReflow(domCache.progressBar);
         domCache.progressBar.style.transition = progressBarTransition;
-        reflow(domCache.progressBar);
+        elReflow(domCache.progressBar);
     }
     else {
         domCache.progressBar.style.width = progressPx + 'px';
