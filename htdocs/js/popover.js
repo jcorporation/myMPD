@@ -195,6 +195,7 @@ function createPopoverNavbarIcon(el, type) {
                 break;
         }
         createPopoverClickHandler(popoverBody);
+        popoverInit.options.placement = getXpos(el) < 100 ? 'right' : 'bottom';
     }, false);
     return popoverInit;
 }
