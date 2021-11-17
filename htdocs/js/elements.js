@@ -6,7 +6,7 @@
 class inputClear extends HTMLInputElement {
     constructor() {
         super();
-        const button = elCreateText('button', {"class": ["mi", "mi-small", "input-inner-button"]}, 'clear');
+        const button = elCreateText('button', {"data-title-phrase": "Clear", "title": tn('Clear'), "class": ["mi", "mi-small", "input-inner-button"]}, 'clear');
         this.button = button;
         this.classList.add('innerButton');
     }
@@ -48,7 +48,7 @@ class inputClear extends HTMLInputElement {
 class inputReset extends HTMLInputElement {
     constructor() {
         super();
-        const button = elCreateText('button', {"class": ["mi", "mi-small", "input-inner-button"]}, 'settings_backup_restore');
+        const button = elCreateText('button', {"data-title-phrase": "Reset to default", "title": tn('Reset to default'), "class": ["mi", "mi-small", "input-inner-button"]}, 'settings_backup_restore');
         this.button = button;
         this.classList.add('innerButton');
     }
