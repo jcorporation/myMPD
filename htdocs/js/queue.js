@@ -95,11 +95,11 @@ function parseUpdateQueue(obj) {
     if (obj.result.state === 'stop') {
         document.getElementById('btnPlay').textContent = 'play_arrow';
         domCache.progressBar.style.transition = 'none';
-        reflow(domCache.progressBar);
+        elReflow(domCache.progressBar);
         domCache.progressBar.style.width = '0';
-        reflow(domCache.progressBar);
+        elReflow(domCache.progressBar);
         domCache.progressBar.style.transition = progressBarTransition;
-        reflow(domCache.progressBar);
+        elReflow(domCache.progressBar);
     }
     else if (obj.result.state === 'play') {
         document.getElementById('btnPlay').textContent = settings.webuiSettings.uiFooterPlaybackControls === 'stop' ? 'stop' : 'pause';
@@ -235,7 +235,7 @@ function queueSetCurrentSong() {
     {
         const durationTd = old.querySelector('[data-col=Duration]');
         if (durationTd) {
-            durationTd.textContent = beautifySongDuration(getData(tr, 'data-duration'));
+            durationTd.textContent = beautifySongDuration(getData(old, 'data-duration'));
         }
         const posTd = old.querySelector('[data-col=Pos]');
         if (posTd) {
@@ -255,11 +255,7 @@ function queueSetCurrentSong() {
 
 function setPlayingRow(row) {
     if (row.classList.contains('queue-playing') === false) {
-        const durationTd = row.querySelector('[data-col=Duration]');
-        if (durationTd) {
-            durationTd.textContent = beautifySongDuration(currentState.elapsedTime) +
-                smallSpace + '/' + smallSpace + beautifySongDuration(currentState.totalTime);
-        }
+        //set row as playing
         const posTd = row.querySelector('[data-col=Pos]');
         if (posTd !== null) {
             posTd.classList.add('mi');
@@ -267,14 +263,14 @@ function setPlayingRow(row) {
         }
         row.classList.add('queue-playing');
     }
-
-    let progressPrct;
-    if (currentState.state === 'stop') {
-        progressPrct = 100;
+    //set progress
+    const durationTd = row.querySelector('[data-col=Duration]');
+    if (durationTd) {
+        durationTd.textContent = beautifySongDuration(currentState.elapsedTime) +
+            smallSpace + '/' + smallSpace + beautifySongDuration(currentState.totalTime);
     }
-    else {
-        progressPrct = currentState.totalTime > 0 ? (100 / currentState.totalTime) * currentState.elapsedTime : 100;
-    }
+    const progressPrct = currentState.state === 'stop' || currentState.totalTime === 0 ?
+        100 : (100 / currentState.totalTime) * currentState.elapsedTime;
     row.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
         progressPrct + '%, transparent ' + progressPrct +'%)';
 }
