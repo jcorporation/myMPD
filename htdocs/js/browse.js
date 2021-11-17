@@ -371,7 +371,7 @@ function parseFilesystem(obj) {
 
 function parseDatabase(obj) {
     const cardContainer = document.getElementById('BrowseDatabaseListList');
-    setScrollViewHeight(cardContainer);
+
     const cols = cardContainer.getElementsByClassName('col');
     document.getElementById('BrowseDatabaseListList').classList.remove('opacity05');
 
@@ -446,7 +446,7 @@ function parseDatabase(obj) {
             setData(card, 'data-picture', picture);
             setData(card, 'data-tag', obj.result.data[i].value);
         }
-        const col = elCreateNode('div', {"class": ["col", "px-0", "flex-grow-0"]}, card);
+        const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
 
         i < cols.length ? cols[i].replaceWith(col) : cardContainer.append(col);
 
@@ -467,6 +467,7 @@ function parseDatabase(obj) {
     }
 
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
+    setScrollViewHeight(cardContainer);
 }
 
 function setGridImage(changes, observer) {
