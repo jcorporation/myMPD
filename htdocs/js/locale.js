@@ -11,28 +11,29 @@ function smartCount(number) {
 
 function tn(phrase, number, data) {
     if (phrase === undefined) {
-        logWarn('Phrase is undefined');
-        return 'undefined';
+        logDebug('Phrase is undefined');
+        return 'undefinedPhrase';
     }
     let result = undefined;
-    if (isNaN(number)) {
-        data = number;
-    }
 
     if (phrases[phrase]) {
         result = phrases[phrase][locale];
         if (result === undefined) {
-            if (locale !== 'en-US') {
-                logWarn('Phrase "' + phrase + '" for locale ' + locale + ' not found');
-            }
+/*debug*/   if (locale !== 'en-US') {
+/*debug*/       logDebug('Phrase "' + phrase + '" for locale ' + locale + ' not found');
+/*debug*/   }
             result = phrases[phrase]['en-US'];
         }
     }
     if (result === undefined) {
+        //fallback if phrase is not translated
         result = phrase;
     }
 
-    if (isNaN(number) === false) {
+    if (isNaN(number)) {
+        data = number;
+    }
+    else {
         const p = result.split(' |||| ');
         if (p.length > 1) {
             result = p[smartCount(number)];
@@ -41,7 +42,7 @@ function tn(phrase, number, data) {
     }
 
     if (data !== null) {
-        result = result.replace(/%\{(\w+)\}/g, function(m0, m1) {
+        result = result.replace(tnRegex, function(m0, m1) {
             return data[m1];
         });
     }
@@ -49,14 +50,7 @@ function tn(phrase, number, data) {
 }
 
 function localeDate(secs) {
-    let d;
-    if (secs === undefined) {
-       d  = new Date();
-    }
-    else {
-        d = new Date(secs * 1000);
-    }
-    return d.toLocaleString(locale);
+    return new Date(secs * 1000).toLocaleString(locale);
 }
 
 function beautifyDuration(x) {

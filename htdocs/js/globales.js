@@ -37,6 +37,7 @@ const sessionLifetime = 1780;
 const sessionRenewInterval = sessionLifetime * 500;
 let sessionTimer = null;
 const messages = [];
+const tnRegex = '/%\{(\w+)\}/g';
 
 //minimum mpd version to support all myMPD features
 const mpdVersion = {
