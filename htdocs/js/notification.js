@@ -133,7 +133,8 @@ function logMessage(title, text, facility, severity) {
             "text": text,
             "facility": facility,
             "severity": severity,
-            "occurence": 1
+            "occurence": 1,
+            "timestamp": getTimestamp()
         });
         messagesLen++;
     }
@@ -151,7 +152,7 @@ function showMessages() {
         const entry = elCreateEmpty('div', {"class": ["row", "align-items-center", "mb-2", "me-0"]});
         entry.appendChild(elCreateNode('div', {"class": ["col", "col-1", "ps-0"]}, getSeverityIcon(message.severity)));
         const col = elCreateEmpty('div', {"class": ["col", "col-11"]});
-        col.appendChild(elCreateText('small', {"class": ["me-2"]}, localeDate() +
+        col.appendChild(elCreateText('small', {"class": ["me-2"]}, localeDate(message.timestamp) +
             smallSpace + nDash + smallSpace + tn(facilities[message.facility])));
         if (message.occurence > 1) {
             col.appendChild(elCreateText('div', {"class": ["badge", "bg-secondary"]}, message.occurence));
