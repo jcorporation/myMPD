@@ -4,7 +4,7 @@ permalink: /known-issues
 title: Known issues
 ---
 
-## Common errors
+## Known issues
 
 ### Response line too large
 
