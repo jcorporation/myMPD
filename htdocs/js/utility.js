@@ -1137,8 +1137,6 @@ function toggleCollapseArrow(el) {
     icon.textContent = icon.textContent === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
 }
 
-
-
 function ucFirst(string) {
     return string[0].toUpperCase() + string.slice(1);
 }
@@ -1195,7 +1193,7 @@ function zoomPicture(el) {
     if (el.classList.contains('carousel')) {
         let images;
         const dataImages = getData(el, 'data-images');
-        if (dataImages !== undefined && dataImages !== null) {
+        if (dataImages !== undefined) {
             images = dataImages.slice();
         }
         else if (currentSongObj.images) {

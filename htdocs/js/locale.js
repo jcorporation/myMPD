@@ -42,6 +42,7 @@ function tn(phrase, number, data) {
     }
 
     if (data !== null) {
+        const tnRegex = '/%\{(\w+)\}/g';
         result = result.replace(tnRegex, function(m0, m1) {
             return data[m1];
         });
