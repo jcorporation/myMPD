@@ -4,7 +4,9 @@
 // https://github.com/jcorporation/mympd
 
 function setStateIcon() {
-    if (websocketConnected === false || settings.mpdConnected === false) {
+    if (websocketConnected === false ||
+        settings.mpdConnected === false)
+    {
         document.getElementById('logoBg').setAttribute('fill', '#6c757d');
     }
     else {
@@ -32,9 +34,21 @@ function toggleAlert(alertBox, state, msg) {
 }
 
 const severities = {
-    "info": "Info",
-    "warn": "Warning",
-    "error": "Error"
+    "info": {
+        "text": "Info",
+        "icon": "info",
+        "class": "text-success"
+    },
+    "warn": {
+        "text": "Warning",
+        "icon": "warning",
+        "class": "text-warning"
+    },
+    "error": {
+        "text": "Error",
+        "icon": "error",
+        "class": "text-danger"
+    }
 };
 
 const facilities = {
@@ -53,6 +67,11 @@ const facilities = {
     "timer": "Timer",
     "session": "Session"
 };
+
+function getSeverityIcon(severity) {
+    return elCreateText('span', {"title": tn(severities[severity].text),
+        "class": ["mi", severities[severity].class, "me-2"]}, severities[severity].icon);
+}
 
 function showNotification(title, text, facility, severity) {
     setStateIcon();
@@ -100,77 +119,50 @@ function showNotification(title, text, facility, severity) {
     }
 }
 
-function getSeverityIcon(severity) {
-    switch(severity) {
-        case 'info':
-            return elCreateText('span', {"class": ["mi", "text-success", "me-2"]}, 'info');
-        case 'warn':
-            return elCreateText('span', {"class": ["mi", "text-warning", "me-2"]}, 'warning');
-        default:
-            return elCreateText('span', {"class": ["mi", "text-danger", "me-2"]}, 'error');
-    }
-}
-
 function logMessage(title, text, facility, severity) {
-    if (severities[severity] === undefined) {
-        logDebug('Unknown severity: ' + severity);
-    }
-
-    if (facilities[facility] !== undefined) {
-        facility = facilities[facility];
+    let messagesLen = messages.length;
+    const lastMessage = messages[messagesLen - 1];
+    if (lastMessage &&
+        lastMessage.title === title)
+    {
+        lastMessage.occurence++;
     }
     else {
-        logDebug('Unknown facility: ' + facility);
+        messages.push({
+            "title": title,
+            "text": text,
+            "facility": facility,
+            "severity": severity,
+            "occurence": 1
+        });
+        messagesLen++;
     }
+    if (messagesLen > 10) {
+        messages.shift();
+        messagesLen = 10;
+    }
+    domCache.notificationCount.textContent = messagesLen;
+}
 
+function showMessages() {
     const overview = document.getElementById('logOverview');
-
-    let append = true;
-    const lastEntry = overview.firstElementChild;
-    if (lastEntry && getData(lastEntry, 'data-title') === title) {
-        append = false;
-    }
-
-    const entry = elCreateEmpty('div', {"class": ["row", "align-items-center", "mb-2", "me-0"]});
-    setData(entry, 'data-title', title);
-    let occurence = 1;
-    if (append === false) {
-        occurence += Number(getData(lastEntry, 'data-occurence'));
-    }
-    setData(entry, 'data-occurence', occurence);
-    entry.appendChild(elCreateNode('div', {"class": ["col", "col-1", "ps-0"]}, getSeverityIcon(severity)));
-    const col = elCreateEmpty('div', {"class": ["col", "col-11"]});
-    col.appendChild(elCreateText('small', {}, localeDate() + ' - ' + tn(facility) + '  '));
-    if (occurence > 1) {
-        col.appendChild(elCreateText('div', {"class": ["badge", "bg-secondary"]}, occurence));
-    }
-    col.appendChild(elCreateText('p', {"class": ["mb-0"]}, title));
-    if (text !== '') {
-        col.appendChild(elCreateText('p', {"class": ["mb-0"]}, text));
-    }
-    entry.appendChild(col);
-
-    if (append === true) {
+    elClear(overview);
+    for (const message of messages) {
+        const entry = elCreateEmpty('div', {"class": ["row", "align-items-center", "mb-2", "me-0"]});
+        entry.appendChild(elCreateNode('div', {"class": ["col", "col-1", "ps-0"]}, getSeverityIcon(message.severity)));
+        const col = elCreateEmpty('div', {"class": ["col", "col-11"]});
+        col.appendChild(elCreateText('small', {"class": ["me-2"]}, localeDate() +
+            smallSpace + nDash + smallSpace + tn(facilities[message.facility])));
+        if (message.occurence > 1) {
+            col.appendChild(elCreateText('div', {"class": ["badge", "bg-secondary"]}, message.occurence));
+        }
+        col.appendChild(elCreateText('p', {"class": ["mb-0"]}, message.title));
+        if (message.text !== '') {
+            col.appendChild(elCreateText('p', {"class": ["mb-0"]}, message.text));
+        }
+        entry.appendChild(col);
         overview.insertBefore(entry, overview.firstElementChild);
     }
-    else {
-        overview.replaceChild(entry, lastEntry);
-    }
-
-    const overviewRows = overview.getElementsByClassName('row');
-    if (overviewRows.length > 10) {
-        overviewRows[10].remove();
-    }
-    document.getElementById('notificationCount').textContent = overviewRows.length;
-}
-
-//eslint-disable-next-line no-unused-vars
-function clearLogOverview() {
-    const overviewEls = document.getElementById('logOverview').getElementsByTagName('div');
-    for (let i = overviewEls.length - 1; i >= 0; i--) {
-        overviewEls[i].remove();
-    }
-    setStateIcon();
 }
 
 function notificationsSupported() {

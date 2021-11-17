@@ -822,7 +822,7 @@ function initNavs() {
         if (event.target.getAttribute('data-popover') === null &&
             event.target.parentNode.getAttribute('data-popover') === null)
         {
-            return;    
+            return;
         }
         showPopover(event);
     }, false);
@@ -830,17 +830,20 @@ function initNavs() {
         if (event.target.getAttribute('data-popover') === null &&
             event.target.parentNode.getAttribute('data-popover') === null)
         {
-            return;    
+            return;
         }
         showPopover(event);
     }, false);
-
 
     document.getElementById('scripts').addEventListener('click', function(event) {
         event.preventDefault();
         if (event.target.nodeName === 'A') {
             execScript(getData(event.target, 'data-href'));
         }
+    }, false);
+
+    document.getElementById('menu-notifications').addEventListener('show.bs.collapse', function() {
+        showMessages();
     }, false);
 }
 

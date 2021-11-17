@@ -36,6 +36,7 @@ const session = {"token": "", "timeout": 0};
 const sessionLifetime = 1780;
 const sessionRenewInterval = sessionLifetime * 500;
 let sessionTimer = null;
+const messages = [];
 
 //minimum mpd version to support all myMPD features
 const mpdVersion = {
@@ -573,6 +574,7 @@ domCache.counter = document.getElementById('counter');
 domCache.progress = document.getElementById('footerProgress');
 domCache.progressBar = document.getElementById('footerProgressBar');
 domCache.progressPos = document.getElementById('footerProgressPos');
+domCache.notificationCount = document.getElementById('notificationCount');
 
 //Get BSN object references for fast access
 const uiElements = {};
