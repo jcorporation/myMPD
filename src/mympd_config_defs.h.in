@@ -66,7 +66,7 @@
 //mpd limits
 #define MPD_PORT_MIN 1024
 #define MPD_PORT_MAX 65535
-#define MPD_TIMEOUT_MIN 1000 //ms
+#define MPD_TIMEOUT_MIN 10000 //ms
 #define MPD_TIMEOUT_MAX 1000000 //ms
 #define MPD_RESULTS_MIN 25
 #define MPD_RESULTS_MAX 1000
