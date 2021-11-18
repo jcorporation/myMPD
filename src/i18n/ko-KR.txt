@@ -291,10 +291,10 @@ Delete playlist
 Delete
 지우기
 
-Dislike song
+Hate song
 곡 좋아하지 않음
 
-Like song
+Love song
 곡 좋아요
 
 MPD stickers are disabled
