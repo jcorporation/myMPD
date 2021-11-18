@@ -13,7 +13,7 @@ function initHome() {
             }
         }
         else if (event.target.classList.contains('card-footer')){
-            popoverMenuHome(event);
+            showPopover(event);
         }
     }, false);
 
@@ -21,15 +21,16 @@ function initHome() {
         if (event.target.classList.contains('card-body') ||
             event.target.classList.contains('card-footer'))
         {
-            popoverMenuHome(event);
+            showPopover(event);
         }
     }, false);
 
     document.getElementById('HomeList').addEventListener('long-press', function(event) {
-        if (event.target.id === 'HomeList') {
-            return;
+        if (event.target.classList.contains('card-body') ||
+            event.target.classList.contains('card-footer'))
+        {
+            showPopover(event);
         }
-        popoverMenuHome(event);
     }, false);
 
     dragAndDropHome();
@@ -250,13 +251,6 @@ function parseHome(obj) {
     for (let i = cols.length - 1; i >= obj.result.returnedEntities; i--) {
         cols[i].remove();
     }
-}
-
-function popoverMenuHome(event) {
-    event.target.parentNode.classList.add('selected');
-    showPopover(event);
-    event.preventDefault();
-    event.stopPropagation();
 }
 
 function dragAndDropHome() {

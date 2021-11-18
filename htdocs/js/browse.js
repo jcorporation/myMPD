@@ -16,7 +16,7 @@ function initBrowse() {
                 );
             }
             else if (event.target.classList.contains('card-footer')){
-                popoverMenuAlbumCards(event);
+                showPopover(event);
             }
         }
         else {
@@ -28,20 +28,24 @@ function initBrowse() {
     }, false);
 
     document.getElementById('BrowseDatabaseListList').addEventListener('contextmenu', function(event) {
-        if (event.target.classList.contains('row') || event.target.parentNode.classList.contains('not-clickable')) {
+        if (event.target.classList.contains('row') ||
+            event.target.parentNode.classList.contains('not-clickable'))
+        {
             return;
         }
         if (app.current.tag === 'Album') {
-            popoverMenuAlbumCards(event);
+            showPopover(event);
         }
     }, false);
 
     document.getElementById('BrowseDatabaseListList').addEventListener('long-press', function(event) {
-        if (event.target.classList.contains('row')) {
+        if (event.target.classList.contains('row') ||
+            event.target.parentNode.classList.contains('not-clickable'))
+        {
             return;
         }
         if (app.current.tag === 'Album') {
-            popoverMenuAlbumCards(event);
+            showPopover(event);
         }
     }, false);
 
@@ -236,20 +240,6 @@ function navBrowseHandler(event) {
         appGoto(app.current.card, app.current.tab, app.current.view,
             0, app.current.limit, app.current.filter, app.current.sort, tag, app.current.search);
     }
-}
-
-function popoverMenuAlbumCards(event) {
-    if (event.target.classList.contains('row')) {
-        return;
-    }
-    showPopover(event);
-    const selCards = document.getElementById('BrowseDatabaseListList').getElementsByClassName('selected');
-    for (let i = 0, j = selCards.length; i < j; i++) {
-        selCards[i].classList.remove('selected');
-    }
-    event.target.parentNode.classList.add('selected');
-    event.preventDefault();
-    event.stopPropagation();
 }
 
 function gotoBrowse(event) {
