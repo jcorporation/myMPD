@@ -203,14 +203,16 @@ function sendAPI(method, params, callback, onerror) {
             return;
         }
         if (ajaxRequest.status !== 200 ||
-            ajaxRequest.responseText === '')
+            ajaxRequest.responseText === '' ||
+            ajaxRequest.responseText.length > 1000000)
         {
-            logError('Empty response for request: ' + JSON.stringify(request));
+            logError('Illegal response for request: ' + JSON.stringify(request));
             logError('Response code: ' + ajaxRequest.status);
+            logError('Response length: ' + ajaxRequest.responseText.length);
             if (onerror === true) {
                 if (callback !== undefined && typeof(callback) === 'function') {
                     logDebug('Got empty API response calling ' + callback.name);
-                    callback({"error": {"message": "Empty response"}});
+                    callback({"error": {"message": "Illegal response"}});
                 }
             }
             return;
@@ -231,28 +233,30 @@ function sendAPI(method, params, callback, onerror) {
             showNotification(tn('Can not parse response to json object'), '', 'general', 'error');
             logError('Can not parse response to json object:' + ajaxRequest.responseText);
         }
-        if (obj.error) {
+        if (obj.error &&
+            typeof obj.error.message === 'string')
+        {
             //show error message
             showNotification(tn(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
-            logError(JSON.stringify(obj.error));
+            logError(ajaxRequest.responseText);
         }
         else if (obj.result &&
                  obj.result.message === 'ok')
         {
             //show no message
-            logDebug('Got API response: ' + JSON.stringify(obj.result));
+            logDebug('Got API response: ' + ajaxRequest.responseText);
         }
         else if (obj.result &&
-                 obj.result.message)
+                 typeof obj.result.message === 'string')
         {
             //show message
-            logDebug('Got API response: ' + JSON.stringify(obj.result));
+            logDebug('Got API response: ' + ajaxRequest.responseText);
             if (ignoreMessages.includes(obj.result.message) === false) {
                 showNotification(tn(obj.result.message, obj.result.data), '', obj.result.facility, obj.result.severity);
             }
         }
         else if (obj.result &&
-            obj.result.method)
+                 typeof obj.result.method === 'string')
         {
             //result is used in callback
             logDebug('Got API response of type: ' + obj.result.method);
