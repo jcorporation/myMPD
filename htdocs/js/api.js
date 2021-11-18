@@ -87,7 +87,9 @@ function enterPin(method, params, callback, onerror) {
         //open modal to enter pin and resend API request
         const enterBtn = elCreateText('button', {"id": "modalEnterPinEnterBtn", "class": ["btn", "btn-success"]}, tn('Enter'));
         enterBtn.addEventListener('click', function() {
-            sendAPI('MYMPD_API_SESSION_LOGIN', {"pin": document.getElementById('inputPinModal').value}, function(obj) {
+            sendAPI('MYMPD_API_SESSION_LOGIN', {
+                "pin": document.getElementById('inputPinModal').value},
+            function(obj) {
                 document.getElementById('inputPinModal').value = '';
                 if (obj.error) {
                     const em = document.getElementById('modalEnterPinMessage');
@@ -373,7 +375,7 @@ function webSocketConnect() {
                     getSettings(true);
                     break;
                 case 'update_queue':
-                    if (app.current.card === 'Queue') {
+                    if (app.id === 'QueueCurrent') {
                         getQueue();
                     }
                     //rename param to result
@@ -385,7 +387,9 @@ function webSocketConnect() {
                     getSettings();
                     break;
                 case 'update_outputs':
-                    sendAPI('MYMPD_API_PLAYER_OUTPUT_LIST', {"partition":""}, parseOutputs);
+                    sendAPI('MYMPD_API_PLAYER_OUTPUT_LIST', {
+                        "partition":""
+                    }, parseOutputs);
                     break;
                 case 'update_started':
                     updateDBstarted(false);
@@ -401,7 +405,7 @@ function webSocketConnect() {
                     parseVolume(obj);
                     break;
                 case 'update_stored_playlist':
-                    if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
+                    if (app.id === 'BrowsePlaylistsList') {
                         sendAPI('MYMPD_API_PLAYLIST_LIST', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
@@ -409,7 +413,7 @@ function webSocketConnect() {
                             "type": 0
                         }, parsePlaylistsList);
                     }
-                    else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
+                    else if (app.id === 'BrowsePlaylistsDetail') {
                         sendAPI('MYMPD_API_PLAYLIST_CONTENT_LIST', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
@@ -420,7 +424,7 @@ function webSocketConnect() {
                     }
                     break;
                 case 'update_lastplayed':
-                    if (app.current.card === 'Queue' && app.current.tab === 'LastPlayed') {
+                    if (app.id === 'QueueLastPlayed') {
                         sendAPI('MYMPD_API_QUEUE_LAST_PLAYED', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
@@ -430,7 +434,7 @@ function webSocketConnect() {
                     }
                     break;
                 case 'update_jukebox':
-                    if (app.current.card === 'Queue' && app.current.tab === 'Jukebox') {
+                    if (app.id === 'QueueJukebox') {
                         sendAPI('MYMPD_API_JUKEBOX_LIST', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
@@ -506,7 +510,9 @@ function webSocketClose() {
 }
 
 function websocketKeepAlive() {
-    if (socket !== null && socket.readyState === WebSocket.OPEN) {
+    if (socket !== null &&
+        socket.readyState === WebSocket.OPEN)
+    {
         socket.send('ping');
     }
 }
