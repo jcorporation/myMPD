@@ -87,21 +87,51 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
         sds mpd_port = sdsnew(mpd_port_env);
         if (vcb_isdigit(mpd_port) == true) {
             int port = (int)strtoimax(mpd_port, NULL, 10);
-            if (port > 1024 && port <= 65534) {
+            if (port == 0) {
+                mympd_state->mpd_state->mpd_port = 6600;
+                MYMPD_LOG_NOTICE("Setting mpd port to \"%d\"", mympd_state->mpd_state->mpd_port);
+            }
+            else if (port > MPD_PORT_MIN && port <= MPD_PORT_MAX) {
                 mympd_state->mpd_state->mpd_port = port;
                 MYMPD_LOG_NOTICE("Setting mpd port to \"%d\"", mympd_state->mpd_state->mpd_port);
             }
             else {
-                MYMPD_LOG_WARN("MPD port must between 1024 and 65534, default is 6600");
+                MYMPD_LOG_WARN("MPD port must be between 1024 and 65534, default is 6600");
             }
         }
         FREE_SDS(mpd_port);
+    }
+    const char *mpd_timeout_env = getenv("MPD_TIMEOUT"); /* Flawfinder: ignore */
+    if (mpd_timeout_env != NULL && strlen(mpd_timeout_env) <= 5) {
+        sds mpd_timeout = sdsnew(mpd_timeout_env);
+        if (vcb_isdigit(mpd_timeout) == true) {
+            int timeout = (int)strtoimax(mpd_timeout, NULL, 10);
+            timeout = timeout * 1000; //convert to ms
+            if (timeout >= MPD_TIMEOUT_MIN && timeout < MPD_TIMEOUT_MAX) {
+                mympd_state->mpd_state->mpd_timeout = timeout;
+                MYMPD_LOG_NOTICE("Setting mpd timeout to \"%d\"", mympd_state->mpd_state->mpd_timeout);
+            }
+            else {
+                MYMPD_LOG_WARN("MPD timeout must be between %d and %d", MPD_TIMEOUT_MIN, MPD_TIMEOUT_MAX);
+            }
+        }
+        FREE_SDS(mpd_timeout);
     }
     if (mpd_configured == true) {
         return;
     }
 
     //check for socket
+    const char *xdg_runtime_dir = getenv("XDG_RUNTIME_DIR"); /* Flawfinder: ignore */
+    if (xdg_runtime_dir != NULL && strlen(xdg_runtime_dir) <= 100) {
+        sds socket = sdscatfmt(sdsempty(), "%s/mpd/socket", xdg_runtime_dir);
+        if (access(socket, F_OK ) == 0) { /* Flawfinder: ignore */
+            mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, socket);
+            sdsfree(socket);
+            return;
+        }
+        sdsfree(socket);
+    }
     if (access("/run/mpd/socket", F_OK ) == 0) { /* Flawfinder: ignore */
         mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "/run/mpd/socket");
         return;
@@ -110,10 +140,14 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
         mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "/var/run/mpd/socket");
         return;
     }
+    if (access("/var/lib/mpd/socket", F_OK ) == 0) { /* Flawfinder: ignore */
+        //gentoo default 
+        mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "/var/lib/mpd/socket");
+        return;
+    }
 }
 
 //private functions
-
 static sds _find_mpd_conf(void) {
     const char *filenames[] = {
         "/etc/mpd.conf",
