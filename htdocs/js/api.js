@@ -330,13 +330,17 @@ function webSocketConnect() {
                 logDebug('Got websocket pong');
                 return;
             }
+            if (msg.data.length > 100000) {
+                logError("Websocket message is too large, discarding");
+                return;
+            }
             let obj;
             try {
                 obj = JSON.parse(msg.data);
                 logDebug('Websocket notification: ' + JSON.stringify(obj));
             }
             catch(error) {
-                logError('Invalid JSON data received: ' + msg.data);
+                logError('Invalid websocket notification received: ' + msg.data);
                 return;
             }
 
