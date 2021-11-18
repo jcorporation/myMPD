@@ -192,68 +192,89 @@ function sendAPI(method, params, callback, onerror) {
         ajaxRequest.setRequestHeader('Authorization', 'Bearer ' + session.token);
     }
     ajaxRequest.onreadystatechange = function() {
-        if (ajaxRequest.readyState === 4) {
-            if (ajaxRequest.status === 401 && method !== 'MYMPD_API_SESSION_VALIDATE') {
-                logDebug('Authorization required for ' + method);
-                enterPin(method, params, callback, onerror);
-            }
-            else if (ajaxRequest.responseText !== '') {
-                if (settings.pin === true && session.token !== '' &&
-                    APImethods[method].protected === true)
-                {
-                    //session was extended through request
-                    session.timeout = getTimestamp() + sessionLifetime;
-                    resetSessionTimer();
-                }
-                let obj;
-                try {
-                    obj = JSON.parse(ajaxRequest.responseText);
-                }
-                catch(error) {
-                    showNotification(tn('Can not parse response to json object'), '', 'general', 'error');
-                    logError('Can not parse response to json object:' + ajaxRequest.responseText);
-                }
-                if (obj.error) {
-                    showNotification(tn(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
-                    logError(JSON.stringify(obj.error));
-                }
-                else if (obj.result && obj.result.message && obj.result.message !== 'ok') {
-                    logDebug('Got API response: ' + JSON.stringify(obj.result));
-                    if (ignoreMessages.includes(obj.result.message) === false) {
-                        showNotification(tn(obj.result.message, obj.result.data), '', obj.result.facility, obj.result.severity);
-                    }
-                }
-                else if (obj.result && obj.result.message && obj.result.message === 'ok') {
-                    logDebug('Got API response: ' + JSON.stringify(obj.result));
-                }
-                else if (obj.result && obj.result.method) {
-                    logDebug('Got API response of type: ' + obj.result.method);
-                }
-                else {
-                    logError('Got invalid API response: ' + ajaxRequest.responseText);
-                    if (onerror !== true) {
-                        return;
-                    }
-                }
+        if (ajaxRequest.readyState !== 4) {
+            return;
+        }
+        if (ajaxRequest.status === 401 &&
+            method !== 'MYMPD_API_SESSION_VALIDATE')
+        {
+            logDebug('Authorization required for ' + method);
+            enterPin(method, params, callback, onerror);
+            return;
+        }
+        if (ajaxRequest.status !== 200 ||
+            ajaxRequest.responseText === '')
+        {
+            logError('Empty response for request: ' + JSON.stringify(request));
+            logError('Response code: ' + ajaxRequest.status);
+            if (onerror === true) {
                 if (callback !== undefined && typeof(callback) === 'function') {
-                    if (obj.result !== undefined || onerror === true) {
-                        logDebug('Calling ' + callback.name);
-                        callback(obj);
-                    }
-                    else {
-                        logDebug('Undefined resultset, skip calling ' + callback.name);
-                    }
+                    logDebug('Got empty API response calling ' + callback.name);
+                    callback({"error": {"message": "Empty response"}});
                 }
+            }
+            return;
+        }
+
+        if (settings.pin === true && session.token !== '' &&
+            APImethods[method].protected === true)
+        {
+            //session was extended through request
+            session.timeout = getTimestamp() + sessionLifetime;
+            resetSessionTimer();
+        }
+        let obj;
+        try {
+            obj = JSON.parse(ajaxRequest.responseText);
+        }
+        catch(error) {
+            showNotification(tn('Can not parse response to json object'), '', 'general', 'error');
+            logError('Can not parse response to json object:' + ajaxRequest.responseText);
+        }
+        if (obj.error) {
+            //show error message
+            showNotification(tn(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
+            logError(JSON.stringify(obj.error));
+        }
+        else if (obj.result &&
+                 obj.result.message === 'ok')
+        {
+            //show no message
+            logDebug('Got API response: ' + JSON.stringify(obj.result));
+        }
+        else if (obj.result &&
+                 obj.result.message)
+        {
+            //show message
+            logDebug('Got API response: ' + JSON.stringify(obj.result));
+            if (ignoreMessages.includes(obj.result.message) === false) {
+                showNotification(tn(obj.result.message, obj.result.data), '', obj.result.facility, obj.result.severity);
+            }
+        }
+        else if (obj.result &&
+            obj.result.method)
+        {
+            //result is used in callback
+            logDebug('Got API response of type: ' + obj.result.method);
+        }
+        else {
+            //rest is invalid
+            logError('Got invalid API response: ' + ajaxRequest.responseText);
+            if (onerror !== true) {
+                return;
+            }
+        }
+        if (callback !== undefined &&
+            typeof(callback) === 'function')
+        {
+            if (obj.result !== undefined ||
+                onerror === true)
+            {
+                logDebug('Calling ' + callback.name);
+                callback(obj);
             }
             else {
-                logError('Empty response for request: ' + JSON.stringify(request));
-                logError('Response code: ' + ajaxRequest.status);
-                if (onerror === true) {
-                    if (callback !== undefined && typeof(callback) === 'function') {
-                        logDebug('Got empty API response calling ' + callback.name);
-                        callback({"error": {"message": "Empty response"}});
-                    }
-                }
+                logDebug('Undefined resultset, skip calling ' + callback.name);
             }
         }
     };
@@ -263,12 +284,16 @@ function sendAPI(method, params, callback, onerror) {
 }
 
 function webSocketConnect() {
-    if (socket !== null && socket.readyState === WebSocket.OPEN) {
+    if (socket !== null &&
+        socket.readyState === WebSocket.OPEN)
+    {
         logDebug('Socket already connected');
         websocketConnected = true;
         return;
     }
-    else if (socket !== null && socket.readyState === WebSocket.CONNECTING) {
+    else if (socket !== null &&
+        socket.readyState === WebSocket.CONNECTING)
+    {
         logDebug('Socket connection in progress');
         websocketConnected = false;
         return;
@@ -277,7 +302,8 @@ function webSocketConnect() {
     websocketConnected = false;
     const wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
         window.location.hostname +
-        (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/ws/';
+        (window.location.port !== '' ? ':' + window.location.port : '') +
+        subdir + '/ws/';
     socket = new WebSocket(wsUrl);
     logDebug('Connecting to ' + wsUrl);
 
