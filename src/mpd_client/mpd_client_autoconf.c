@@ -60,6 +60,7 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
     FREE_SDS(mpd_conf);
 
     //try environment
+    //https://mpd.readthedocs.io/en/latest/client.html#environment-variables
     MYMPD_LOG_NOTICE("Reading environment");
     bool mpd_configured = false;
     const char *mpd_host_env = getenv("MPD_HOST"); /* Flawfinder: ignore */
@@ -145,6 +146,9 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
         mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "/var/lib/mpd/socket");
         return;
     }
+    //fallback to localhost:6600
+    mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "localhost");
+    mympd_state->mpd_state->mpd_port = 6600;
 }
 
 //private functions
