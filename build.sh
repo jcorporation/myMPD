@@ -765,26 +765,26 @@ installdeps() {
     apt-get update
     apt-get install -y --no-install-recommends \
 	gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-	build-essential liblua5.3-dev pkg-config libpcre3-dev
+	build-essential liblua5.3-dev pkg-config libpcre2-dev
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake perl openssl libid3tag flac lua pkgconf pcre
+    pacman -S gcc cmake perl openssl libid3tag flac lua pkgconf pcre2
   elif [ -f /etc/alpine-release ]
   then
     #alpine
     apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.4-dev \
-    	alpine-sdk linux-headers pkgconf pcre-dev
+    	alpine-sdk linux-headers pkgconf pcre2-dev
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	lua-devel unzip pcre-devel
+	lua-devel unzip pcre2-devel
   elif [ -f /etc/redhat-release ]
   then  
     #fedora 	
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	lua-devel unzip pcre-devel
+	lua-devel unzip pcre2-devel
   else 
     echo_warn "Unsupported distribution detected."
     echo "You should manually install:"
@@ -795,7 +795,7 @@ installdeps() {
     echo "  - flac (devel)"
     echo "  - libid3tag (devel)"
     echo "  - lua53 (devel)"
-    echo "  - libpcre3 (devel)"
+    echo "  - libpcre2 (devel)"
   fi
 }
 

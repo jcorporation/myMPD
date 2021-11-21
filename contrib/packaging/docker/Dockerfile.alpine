@@ -18,7 +18,7 @@ FROM alpine:latest
 ENV MPD_HOST=127.0.0.1
 ENV MPD_PORT=6600
 # hadolint ignore=DL3008
-RUN apk add --no-cache openssl libid3tag flac lua5.4 pcre
+RUN apk add --no-cache openssl libid3tag flac lua5.4 pcre2
 # hadolint ignore=DL3010
 COPY --from=build /mympd.tar.gz /
 WORKDIR /

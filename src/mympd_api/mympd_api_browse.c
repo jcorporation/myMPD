@@ -24,13 +24,15 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <libgen.h>
-#include <pcre.h>
 #include <string.h>
+
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include <pcre2.h>
 
 //private definitions
 static bool _search_song(struct mpd_song *song, struct t_list *expr_list, struct t_tags *browse_tag_types);
-static pcre *_compile_regex(const char *regex_str);
-static bool _cmp_regex(pcre *re_compiled, sds value);
+static pcre2_code *_compile_regex(const char *regex_str);
+static bool _cmp_regex(pcre2_code *re_compiled, sds value);
 static void _free_filesystem_list_user_data(struct t_list_node *current);
 
 //public functions
@@ -485,7 +487,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
         }
         if (strcmp(op, "=~") == 0 || strcmp(op, "!~") == 0) {
             //is regex, compile
-            pcre *re_compiled = _compile_regex(value);
+            pcre2_code *re_compiled = _compile_regex(value);
             list_push(&expr_list, value, tag_type, op , re_compiled);
         }
         else {
@@ -696,8 +698,8 @@ static bool _search_song(struct mpd_song *song, struct t_list *expr_list, struct
                     (strcmp(current->value_p, "starts_with") == 0 && strncmp(current->key, value_lower, sdslen(current->key)) != 0) ||
                     (strcmp(current->value_p, "==") == 0 && strcmp(value_lower, current->key) != 0) ||
                     (strcmp(current->value_p, "!=") == 0 && strcmp(value_lower, current->key) == 0) ||
-                    (strcmp(current->value_p, "=~") == 0 && _cmp_regex((pcre *)current->user_data, value_lower) == false) ||
-                    (strcmp(current->value_p, "!~") == 0 && _cmp_regex((pcre *)current->user_data, value_lower) == true))
+                    (strcmp(current->value_p, "=~") == 0 && _cmp_regex((pcre2_code *)current->user_data, value_lower) == false) ||
+                    (strcmp(current->value_p, "!~") == 0 && _cmp_regex((pcre2_code *)current->user_data, value_lower) == true))
                 {
                     rc = false;
                 }
@@ -724,36 +726,57 @@ static bool _search_song(struct mpd_song *song, struct t_list *expr_list, struct
     return true;
 }
 
-static pcre *_compile_regex(const char *regex_str) {
+static pcre2_code *_compile_regex(const char *regex_str) {
     MYMPD_LOG_DEBUG("Compiling regex: \"%s\"", regex_str);
-    const char *pcre_error_str;
-    int pcre_error_offset;
-    pcre *re_compiled = pcre_compile(regex_str, 0, &pcre_error_str, &pcre_error_offset, NULL);
-    if (re_compiled == NULL) {
-        MYMPD_LOG_DEBUG("Could not compile '%s': %s\n", regex_str, pcre_error_str);
+    PCRE2_SIZE erroroffset;
+    int rc;
+    pcre2_code *re_compiled = pcre2_compile(
+        (PCRE2_SPTR)regex_str, /* the pattern */
+        PCRE2_ZERO_TERMINATED, /* indicates pattern is zero-terminated */
+        0,                     /* default options */
+        &rc,          /* for error number */
+        &erroroffset,          /* for error offset */
+        NULL                   /* use default compile context */
+    );
+    if (re_compiled == NULL){
+        //Compilation failed
+        PCRE2_UCHAR buffer[256];
+        pcre2_get_error_message(rc, buffer, sizeof(buffer));
+        MYMPD_LOG_ERROR("PCRE2 compilation failed at offset %d: \"%s\"", (int)erroroffset, buffer);
+        return NULL;
     }
     return re_compiled;
 }
 
-static bool _cmp_regex(pcre *re_compiled, sds value) {
+static bool _cmp_regex(pcre2_code *re_compiled, sds value) {
     if (re_compiled == NULL) {
         return false;
     }
-    int substr_vec[30];
-    int pcre_exec_ret = pcre_exec(re_compiled, NULL, value, (int) sdslen(value), 0, 0, substr_vec, 30);
-    if (pcre_exec_ret < 0) {
-        switch(pcre_exec_ret) {
-            case PCRE_ERROR_NOMATCH      : break;
-            case PCRE_ERROR_NULL         : MYMPD_LOG_ERROR("Something was null"); break;
-            case PCRE_ERROR_BADOPTION    : MYMPD_LOG_ERROR("A bad option was passed"); break;
-            case PCRE_ERROR_BADMAGIC     : MYMPD_LOG_ERROR("Magic number bad (compiled regex corrupt?)"); break;
-            case PCRE_ERROR_UNKNOWN_NODE : MYMPD_LOG_ERROR("Something kooky in the compiled regex"); break;
-            case PCRE_ERROR_NOMEMORY     : MYMPD_LOG_ERROR("Ran out of memory"); break;
-            default                      : MYMPD_LOG_ERROR("Unknown error"); break;
-        }
-        return false;
+    pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(re_compiled, NULL);
+    int rc = pcre2_match(
+        re_compiled,          /* the compiled pattern */
+        (PCRE2_SPTR)value,    /* the subject string */
+        sdslen(value),        /* the length of the subject */
+        0,                    /* start at offset 0 in the subject */
+        0,                    /* default options */
+        match_data,                /* block for storing the result */
+        NULL                  /* use default match context */
+    );
+    pcre2_match_data_free(match_data);
+    if (rc >= 0) {
+        return true;
     }
-    return true;
+    //Matching failed: handle error cases
+    switch(rc) {
+        case PCRE2_ERROR_NOMATCH: 
+            break;
+        default: {
+            PCRE2_UCHAR buffer[256];
+            pcre2_get_error_message(rc, buffer, sizeof(buffer));
+            MYMPD_LOG_ERROR("PCRE2 matching error %d: \"%s\"", rc, buffer);
+        }
+    }
+    return false;
 }
 
 static void _free_filesystem_list_user_data(struct t_list_node *current) {

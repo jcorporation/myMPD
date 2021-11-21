@@ -39,7 +39,7 @@ define Package/mympd
   CATEGORY := Sound
   TITLE := myMPD - web MPD client and more
   URL := https://jcorporation.github.io
-  DEPENDS := +libpcre +MYMPD_FLAC:libflac +MYMPD_ID3TAG:libid3tag +MYMPD_LUA:liblua5.3 +MYMPD_SSL:libopenssl
+  DEPENDS := +libpcre2 +MYMPD_FLAC:libflac +MYMPD_ID3TAG:libid3tag +MYMPD_LUA:liblua5.3 +MYMPD_SSL:libopenssl
   USERID := mympd:mympd
 endef
 

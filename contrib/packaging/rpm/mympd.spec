@@ -21,7 +21,7 @@ BuildRequires:  openssl-devel
 BuildRequires:  libid3tag-devel
 BuildRequires:	flac-devel
 BuildRequires:  lua-devel
-BuildRequires:  pcre-devel
+BuildRequires:  pcre2-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %global debug_package %{nil}

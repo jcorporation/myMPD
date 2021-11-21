@@ -12,7 +12,7 @@ title: OpenWrt
 3. Run following commands to download dependencies recipes:
     ```
     scripts/feeds update -a
-    scripts/feeds install libflac libid3tag liblua5.3 libopenssl libpcre
+    scripts/feeds install libflac libid3tag liblua5.3 libopenssl libpcre2
     ```
 4. Copy contents of `contrib/packaging/openwrt` from myMPD tree
    to `package/mympd` directory of SDK.
@@ -28,7 +28,7 @@ title: OpenWrt
 2. Run following commands to download dependencies recipes:
     ```
     scripts/feeds update -a
-    scripts/feeds install libflac libid3tag liblua5.3 libopenssl libpcre
+    scripts/feeds install libflac libid3tag liblua5.3 libopenssl libpcre2
     ```
 3. Copy contents of `contrib/packaging/openwrt` from myMPD tree
    to `package/mympd` directory of SDK.

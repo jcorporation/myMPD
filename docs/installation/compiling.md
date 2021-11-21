@@ -32,7 +32,7 @@ myMPD has only a few dependencies beside the standard c libraries. Not installin
 - cmake >= 3.4
 - libasan3 - for debug builds only
 - Perl - to create translation files
-- pcre - for pcre support
+- pcre2 - for pcre support
 - Optional (devel packages): 
   - OpenSSL >= 1.1.0 - for https support
   - libid3tag - to extract embedded coverimages
