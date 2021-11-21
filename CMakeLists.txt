@@ -138,8 +138,6 @@ else()
   message("Lua is disabled by user")
 endif()
 
-add_subdirectory("cli_tools")
-
 configure_file(src/mympd_config_defs.h.in ${PROJECT_BINARY_DIR}/mympd_config_defs.h)
 configure_file(cmake/CopyConfig.cmake.in cmake/CopyConfig.cmake @ONLY)
 configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.service @ONLY)
@@ -369,3 +367,6 @@ endif()
 
 install(TARGETS mympd DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
 install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/cmake/CopyConfig.cmake)
+
+#sub projects
+add_subdirectory("cli_tools")

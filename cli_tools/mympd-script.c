@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-#define _GNU_SOURCE
+#include "mympd_config_defs.h"
 
 #include "../dist/mongoose/mongoose.h"
 #include "../dist/sds/sds.h"
@@ -17,7 +17,7 @@ static void print_usage(char **argv) {
                     "myMPD script utility\n"
                     "If scriptname is -, the script is read from stdin.\n"
                     "<URL>: e.g. https://localhost\n"
-                    "For further details look at https://github.com/jcorporation/myMPD/wiki/Scripting\n\n",
+                    "For further details look at https://jcorporation.github.io/myMPD/scripting/\n\n",
             argv[0]);
 }
 
