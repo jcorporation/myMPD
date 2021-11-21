@@ -50,6 +50,13 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
         logline = sdscat(logline, loglevel_colors[level]);
     }
 
+    #ifdef DEBUG
+        logline = sdscatprintf(logline, "%s:%d: ", file, line);
+    #else
+        (void)file;
+        (void)line;
+    #endif
+
     va_list args;
     va_start(args, fmt);
     logline = sdscatvprintf(logline, fmt, args);
@@ -66,15 +73,8 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
         logline = sdscat(logline, "\033[0m");
     }
 
-    if (level > 1) {
-        //info, verbose and debug to stdout
-        fputs(logline, stdout);
-        fflush(stdout);
-    }
-    else {
-        //error and warning to stderr
-        fputs(logline, stderr);
-        fflush(stderr);
-    }
+    fputs(logline, stdout);
+    fflush(stdout);
+
     sdsfree(logline);
 }
