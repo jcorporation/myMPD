@@ -817,7 +817,7 @@ Clear covercache
 Covercache löschen
 
 Clear
-Löschen
+Leeren
 
 Crop
 Abschneiden
