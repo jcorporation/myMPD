@@ -778,22 +778,25 @@ function initNavs() {
     }, false);
 
     domCache.progress.addEventListener('click', function(event) {
-        if (currentSong && currentSongObj.currentSongId >= 0 && currentSongObj.totalTime > 0) {
-            const seekVal = Math.ceil((currentSongObj.totalTime * event.clientX) / domCache.progress.offsetWidth);
+        if (currentState.currentSongId >= 0 &&
+            currentState.totalTime > 0)
+        {
+            const seekVal = Math.ceil((currentState.totalTime * event.clientX) / domCache.progress.offsetWidth);
             sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {"seek": seekVal, "relative": false});
             domCache.progressBar.style.transition = 'none';
-            domCache.progressBar.offsetHeight;
+            elReflow(domCache.progressBar);
             domCache.progressBar.style.width = event.clientX + 'px';
-            setTimeout(function() {
-                domCache.progressBar.style.transition = progressBarTransition;
-                domCache.progressBar.offsetHeight;
-            }, 1000);
+            elReflow(domCache.progressBar);
+            domCache.progressBar.style.transition = progressBarTransition;
+            elReflow(domCache.progressBar);
         }
     }, false);
 
     domCache.progress.addEventListener('mousemove', function(event) {
-        if ((currentState.state === 'pause' || currentState.state === 'play') && currentSongObj.totalTime > 0) {
-            domCache.progressPos.textContent = beautifySongDuration(Math.ceil((currentSongObj.totalTime / event.target.offsetWidth) * event.clientX));
+        if ((currentState.state === 'pause' || currentState.state === 'play') &&
+            currentState.totalTime > 0)
+        {
+            domCache.progressPos.textContent = beautifySongDuration(Math.ceil((currentState.totalTime / event.target.offsetWidth) * event.clientX));
             domCache.progressPos.style.display = 'block';
             const w = domCache.progressPos.offsetWidth / 2;
             const posX = event.clientX < w ? event.clientX : (event.clientX < window.innerWidth - w ? event.clientX - w : event.clientX - (w * 2));
