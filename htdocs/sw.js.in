@@ -20,15 +20,15 @@ const urlsToCache = [
 	subdir + '/assets/mympd-background-light.svg'
 ];
 
-const ignoreRequests = new RegExp('(' + [
-	subdir + '/api/(.*)',
-	subdir + '/ca.crt',
-	subdir + '/ws/',
-	subdir + '/stream/',
-	subdir + '/pics/(.*)',
-	subdir + '/albumart/(.*)',
-	subdir + '/tagart/(.*)',
-	subdir + '/browse/(.*)'].join('|') + ')$');
+const ignoreRequests = new RegExp(subdir + '/(' + [
+	'api/(.*)',
+	'ca.crt',
+	'ws/',
+	'stream/',
+	'pics/(.*)',
+	'albumart/(.*)',
+	'tagart/(.*)',
+	'browse/(.*)'].join('|') + ')$');
 
 self.addEventListener('install', function(event) {
     event.waitUntil(
@@ -55,7 +55,7 @@ self.addEventListener('fetch', function(event) {
                 return fetch(event.request);
             }
         })
-    );    
+    );
 });
 
 self.addEventListener('activate', function(event) {
