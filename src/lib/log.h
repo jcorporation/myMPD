@@ -23,7 +23,7 @@
     #define MYMPD_LOG_DEBUG(...) mympd_log(LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
     #define MYMPD_LOG_ERRNO(ERRNUM) mympd_log_errno(__FILE__, __LINE__, ERRNUM)
 #else
-    //release build should have on references to build dir
+    //release build should have no references to build dir
     #define MYMPD_LOG_EMERG(...) mympd_log(LOG_EMERG, "", __LINE__, __VA_ARGS__)
     #define MYMPD_LOG_ALERT(...) mympd_log(LOG_ALERT, "", __LINE__, __VA_ARGS__)
     #define MYMPD_LOG_CRIT(...) mympd_log(LOG_CRIT, "", __LINE__, __VA_ARGS__)
