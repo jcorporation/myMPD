@@ -40,6 +40,14 @@ body.theme-light .bs-popover-auto[data-popper-placement^="top"] > .popover-arrow
   border-top-color: var(--bs-gray-400);
 }
 
+body.theme-light .popover-body {
+  color: var(--bs-gray-800);
+}
+
+body.theme-light .dropdown-menu-dark .dropdown-header {
+  color: var(--bs-gray-800);
+}
+
 body.theme-light a,
 body.theme-light .dropdown-item,
 body.theme-light table {
