@@ -1174,15 +1174,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
-                //start workaround for missing whence feature
-                if (uint_buf2 == MPD_POSITION_AFTER_CURRENT) {
-                    uint_buf1 = mympd_state->mpd_state->song_pos + 1 + uint_buf1;
-                }
-                else if (uint_buf2 == MPD_POSITION_BEFORE_CURRENT) {
-                    uint_buf1 = mympd_state->mpd_state->song_pos - uint_buf1;
-                }
-                uint_buf2 = MPD_POSITION_ABSOLUTE;
-                //stop workaround for missing whence feature
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
                     sds_buf1, NULL, false, NULL, "queue", uint_buf1, uint_buf2, 0, 0, NULL, mympd_state->sticker_cache, &result);
                 if (result == true) {
