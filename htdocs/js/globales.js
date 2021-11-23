@@ -29,8 +29,8 @@ const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const hasIO = 'IntersectionObserver' in window ? true : false;
 const ligatureMore = 'menu';
 const progressBarTransition = 'width 1s linear';
-const smallSpace = "\u2009";
-const nDash = "\u2013";
+const smallSpace = '\u2009';
+const nDash = '\u2013';
 let tagAlbumArtist = 'AlbumArtist';
 const session = {"token": "", "timeout": 0};
 const sessionLifetime = 1780;
@@ -42,7 +42,7 @@ const messages = [];
 const mpdVersion = {
     "major": 0,
     "minor": 23,
-    "patch": 4
+    "patch": 5
 };
 
 //remember offset for filesystem browsing uris
