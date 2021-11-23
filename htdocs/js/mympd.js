@@ -40,10 +40,8 @@ function appPrepare(scrollPos) {
             }
         }
     }
-    if (isMobile === true) {
-        scrollToPosY(scrollPos);
-    }
     const list = document.getElementById(app.id + 'List');
+    scrollToPosY(list.parentNode, scrollPos);
     if (list) {
         list.classList.add('opacity05');
     }

@@ -469,11 +469,16 @@ function filetype(uri) {
     }
 }
 
-function scrollToPosY(pos) {
-    // For Safari
-    document.body.scrollTop = pos;
-    // For Chrome, Firefox, IE and Opera
-    document.documentElement.scrollTop = pos;
+function scrollToPosY(container,pos) {
+    if (isMobile === true) {
+        // For Safari
+        document.body.scrollTop = pos;
+        // For Chrome, Firefox, IE and Opera
+        document.documentElement.scrollTop = pos;
+    }
+    else {
+        container.scrollTop = pos;
+    }
 }
 
 function selectTag(btnsEl, desc, setTo) {
