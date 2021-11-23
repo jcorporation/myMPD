@@ -312,8 +312,8 @@ function clickNext() {
 }
 
 //eslint-disable-next-line no-unused-vars
-//mode: 0 = off, 1 = single, 2 = single one shot
 function clickSingle(mode) {
+    //mode: 0 = off, 1 = single, 2 = single one shot
     sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
         "single": mode
     });
