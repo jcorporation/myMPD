@@ -326,7 +326,7 @@ function songChange(obj) {
     }
 
     if (obj.result.Title !== undefined &&
-        obj.result.Title !== '')
+        obj.result.Title !== '-')
     {
         pageTitle += obj.result.Title;
         document.getElementById('currentTitle').textContent = obj.result.Title;
@@ -411,6 +411,7 @@ function setPlaybackCardTags(songObj) {
                 getLyrics(songObj.uri, c.getElementsByTagName('p')[0]);
                 break;
             case 'AudioFormat':
+                //songObj has no audioformat definition - use current state
                 elReplaceChild(c.getElementsByTagName('p')[0], printValue('AudioFormat', currentState.AudioFormat));
                 break;
             default: {
@@ -419,14 +420,19 @@ function setPlaybackCardTags(songObj) {
                     value = '-';
                 }
                 elReplaceChild(c.getElementsByTagName('p')[0], printValue(col, value));
-                if (value === '-' || settings.tagListBrowse.includes(col) === false) {
+                if ((typeof value === 'string' && value === '-') ||
+                    (typeof value === 'object' && value[0] === '-') ||
+                    settings.tagListBrowse.includes(col) === false)
+                {
                     c.getElementsByTagName('p')[0].classList.remove('clickable');
                 }
                 else {
                     c.getElementsByTagName('p')[0].classList.add('clickable');
                 }
                 setData(c, 'data-name', value);
-                if (col === 'Album' && songObj[tagAlbumArtist] !== null) {
+                if (col === 'Album' &&
+                    songObj[tagAlbumArtist] !== undefined)
+                {
                     setData(c, 'data-albumartist', songObj[tagAlbumArtist]);
                 }
             }
