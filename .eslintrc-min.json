@@ -39,7 +39,6 @@
         "no-shadow-restricted-names": "error",
         "no-unused-vars": "off",
         "no-useless-concat": "off",
-        "no-useless-escape": "off",
         "no-var": "error",
         "prefer-const": "error"
     }
