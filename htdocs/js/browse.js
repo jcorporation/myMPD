@@ -22,7 +22,7 @@ function initBrowse() {
         else {
             app.current.search = '';
             document.getElementById('searchDatabaseStr').value = '';
-            appGoto(app.current.card, app.current.card, undefined, 0, undefined, 'Album', 'AlbumArtist', 'Album',
+            appGoto(app.current.card, app.current.tab, undefined, 0, undefined, 'Album', 'AlbumArtist', 'Album',
                 '((' + app.current.tag + ' == \'' + escapeMPD(getData(event.target.parentNode, 'data-tag')) + '\'))');
         }
     }, false);
