@@ -751,7 +751,7 @@ function setFeatures() {
         features.featPartitions = settings.webuiSettings.enablePartitions === true ?
             (settings.featPartitions === true ? true : false) : false;
         features.featPlaylists = settings.featPlaylists;
-        features.featSingleOneShot = settings.featSingleOneShot;
+        features.featSingleOneshot = settings.featSingleOneshot;
         features.featSmartpls = settings.featSmartpls === true ?
             (settings.smartpls === true ? true : false) : false;
         features.featStickers = settings.featStickers;
@@ -795,6 +795,13 @@ function parseMPDSettings() {
     settings.tagList.sort();
     settings.tagListSearch.sort();
     settings.tagListBrowse.sort();
+
+    if (settings.single === 0) {
+        document.getElementById('btnSingleOneshot').classList.remove('active');
+    }
+    else {
+        document.getElementById('btnSingleOneshot').classList.add('active');
+    }
 
     filterCols('Playback');
 

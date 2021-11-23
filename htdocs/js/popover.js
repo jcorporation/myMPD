@@ -465,6 +465,11 @@ function createMenuLists(el, tabHeader, tabContent) {
                 addMenuItem(tabContent, {"cmd": "playAfterCurrent", "options": [trackid, songpos]}, 'Play after current playing song');
             }
             addMenuItem(tabContent, {"cmd": "showSetSongPriority", "options": [trackid]}, 'Set priority');
+            if (features.featSingleOneshot === true &&
+                trackid === currentState.currentSongId)
+            {
+                addMenuItem(tabContent, {"cmd": "clickSingleOneshot", "options": []}, 'Stop playback after current song');
+            }
             tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
             addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["single", trackid]}, 'Remove');
             if (songpos > 0) {

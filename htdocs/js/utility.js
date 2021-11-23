@@ -311,6 +311,13 @@ function clickNext() {
     sendAPI("MYMPD_API_PLAYER_NEXT", {});
 }
 
+//eslint-disable-next-line no-unused-vars
+function clickSingleOneshot() {
+    const single = settings.single === 0 ? 2 : 0;
+    sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
+        "single": single
+    });
+}
 
 //escape and unescape MPD filter values
 function escapeMPD(x) {
