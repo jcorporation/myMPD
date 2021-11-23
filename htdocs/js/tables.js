@@ -481,7 +481,7 @@ function tableRow(row, data, list, colspan, smallWidth) {
                 td.appendChild(
                     elCreateNodes('div', {"class": ["row"]}, [
                         elCreateText('small', {"class": ["col-3"]}, tn(settings['cols' + list][c])),
-                        elCreateNode('span', {"class": ["col-9"]}, printValue(settings['cols' + list][c], data[settings['cols' + list][c]]))
+                        elCreateNode('span', {"data-col": settings['cols' + list][c], "class": ["col-9"]}, printValue(settings['cols' + list][c], data[settings['cols' + list][c]]))
                     ])
                 );
             }
