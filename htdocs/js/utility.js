@@ -312,10 +312,10 @@ function clickNext() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function clickSingleOneshot() {
-    const single = settings.single === 0 ? 2 : 0;
+//mode: 0 = off, 1 = single, 2 = single one shot
+function clickSingle(mode) {
     sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
-        "single": single
+        "single": mode
     });
 }
 

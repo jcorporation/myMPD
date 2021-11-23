@@ -134,3 +134,6 @@ Show directory
 name
 state
 plugin
+Repeat current song once
+Repeat current song
+Stop playback after current song

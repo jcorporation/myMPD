@@ -796,13 +796,6 @@ function parseMPDSettings() {
     settings.tagListSearch.sort();
     settings.tagListBrowse.sort();
 
-    if (settings.single === 0) {
-        document.getElementById('btnSingleOneshot').classList.remove('active');
-    }
-    else {
-        document.getElementById('btnSingleOneshot').classList.add('active');
-    }
-
     filterCols('Playback');
 
     for (const table of ['Search', 'QueueCurrent', 'QueueLastPlayed', 'QueueJukebox',
@@ -1194,16 +1187,19 @@ function setNavbarIcons() {
         const a = elCreateNode('a', {"data-title-phrase": icon.title, "title": tn(icon.title), "href": "#", "class": ["nav-link"]},
             elCreateText('span', {"class": ["mi"]}, icon.ligature)
         );
+        if (icon.options.length === 1 &&
+            (icon.options[0] === 'Browse' ||
+             icon.options[0] === 'Queue' ||
+             icon.options[0] === 'Playback'))
+        {
+            a.setAttribute('data-popover', 'Navbar' + icon.options.join(''));
+        }
         if (icon.options[0] === 'Queue' &&
             icon.options.length === 1)
         {
-            a.setAttribute('data-popover', 'queue');
             a.appendChild(
                 elCreateText('span', {"id": "badgeQueueItems", "class": ["badge", "bg-secondary"]}, oldQueueLength)
             );
-        }
-        else if (icon.options[0] === 'Browse') {
-            a.setAttribute('data-popover', 'database');
         }
         btn.appendChild(a);
         container.appendChild(btn);

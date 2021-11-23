@@ -1973,3 +1973,12 @@ Status
 
 plugin
 Plugin
+
+Repeat current song once
+Aktuelles Lied einmal wiederholen
+
+Repeat current song
+Aktuelles Lied wiederholen
+
+Stop playback after current song
+Wiedergabe nach aktuellem Lied beenden

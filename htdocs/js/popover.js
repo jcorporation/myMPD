@@ -59,8 +59,9 @@ function showPopover(event) {
                 //disc actions in album details view
                 popoverInit = createPopoverDisc(target);
                 break;
-            case 'queue':
-            case 'database':
+            case 'NavbarPlayback':
+            case 'NavbarQueue':
+            case 'NavbarBrowse':
                 //navbar icons
                 popoverInit = createPopoverNavbarIcon(target, popoverType);
                 break;
@@ -127,7 +128,7 @@ function createPopoverColumns(el) {
             }
         }, false);
         const popoverBody = popoverInit.popover.getElementsByClassName('popover-body')[0];
-        elReplaceChild(popoverBody,menu);
+        elReplaceChild(popoverBody, menu);
         popoverBody.setAttribute('id', app.id + 'ColsDropdown');
     }, false);
 
@@ -170,28 +171,37 @@ function createPopoverDisc(el) {
 
 function createPopoverNavbarIcon(el, type) {
     const popoverInit = createPopoverInit(el, el.getAttribute('title'));
-    const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
-    popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
-    switch(type) {
-        case 'queue':
-            addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}]}, 'Clear');
-            addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}]}, 'Crop');
-            addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_SHUFFLE"}]}, 'Shuffle');
-            popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "Current", undefined]}, 'Show queue');
-            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "LastPlayed", undefined]}, 'Show last played');
-            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "Jukebox", undefined]}, 'Show jukebox queue');
-            break;
-        case 'database':
-            addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, false]}, 'Update database');
-            addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, true]}, 'Rescan database');
-            popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Database", undefined]}, 'Show browse database');
-            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Playlists", undefined]}, 'Show browse playlists');
-            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Filesystem", undefined]}, 'Show browse filesystem');
-            break;
-    }
-    createPopoverClickHandler(popoverBody);
+    //update content on each show event
+    el.addEventListener('show.bs.popover', function() {
+        const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
+        popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
+        switch(type) {
+            case 'NavbarPlayback':
+                addMenuItem(popoverBody, {"cmd": "showModal", "options": ["modalQueueSettings"]}, 'Playback settings');
+                addMenuItemsSingleActions(popoverBody);
+                popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Playback", undefined, undefined]}, 'Show playback');
+                break;
+            case 'NavbarQueue':
+                addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}]}, 'Clear');
+                addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}]}, 'Crop');
+                addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_SHUFFLE"}]}, 'Shuffle');
+                popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "Current", undefined]}, 'Show queue');
+                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "LastPlayed", undefined]}, 'Show last played');
+                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "Jukebox", undefined]}, 'Show jukebox queue');
+                break;
+            case 'NavbarBrowse':
+                addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, false]}, 'Update database');
+                addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, true]}, 'Rescan database');
+                popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Database", undefined]}, 'Show browse database');
+                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Playlists", undefined]}, 'Show browse playlists');
+                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Filesystem", undefined]}, 'Show browse filesystem');
+                break;
+        }
+        createPopoverClickHandler(popoverBody);
+    }, false);
     popoverInit.options.placement = getXpos(el) < 100 ? 'right' : 'bottom';
     return popoverInit;
 }
@@ -272,6 +282,22 @@ function addMenuItem(tabContent, cmd, text) {
     const a = elCreateText('a', {"class": ["dropdown-item"], "href": "#"}, tn(text));
     setData(a, 'data-href', cmd);
     tabContent.appendChild(a);
+}
+
+function addMenuItemsSingleActions(popoverBody) {
+    if (settings.single === 0 &&
+        settings.consume === 0)
+    {
+        if (settings.repeat === 1) {
+            if (features.featSingleOneshot === true) {
+                addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [2]}, 'Repeat current song once');
+            }
+            addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [1]}, 'Repeat current song');
+        }
+        else if (features.featSingleOneshot === true) {
+            addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [2]}, 'Stop playback after current song');
+        }
+    }
 }
 
 function addMenuItemsAlbumActions(tabContent, albumArtist, album) {
@@ -465,11 +491,7 @@ function createMenuLists(el, tabHeader, tabContent) {
                 addMenuItem(tabContent, {"cmd": "playAfterCurrent", "options": [trackid, songpos]}, 'Play after current playing song');
             }
             addMenuItem(tabContent, {"cmd": "showSetSongPriority", "options": [trackid]}, 'Set priority');
-            if (features.featSingleOneshot === true &&
-                trackid === currentState.currentSongId)
-            {
-                addMenuItem(tabContent, {"cmd": "clickSingleOneshot", "options": []}, 'Stop playback after current song');
-            }
+            addMenuItemsSingleActions(tabContent);
             tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
             addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["single", trackid]}, 'Remove');
             if (songpos > 0) {
