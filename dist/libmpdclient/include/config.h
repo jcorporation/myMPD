@@ -21,5 +21,5 @@
 
 #define PACKAGE "libmpdclient"
 
-#define VERSION "2.20"
+#define VERSION "2.21"
 
