@@ -234,7 +234,7 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response
                 webserver_albumart_send(nc, response->data, response->binary);
             }
             else {
-                webserver_send_data(nc, response->data, sdslen(response->data), "Content-Type: application/json; charset=utf-8\r\n");
+                webserver_send_data(nc, response->data, sdslen(response->data), "Content-Type: application/json\r\n");
             }
             break;
         }
@@ -441,7 +441,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     MYMPD_LOG_ERROR("Invalid script API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
                         "script", "error", "Invalid script API request");
-                    webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
+                    webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
                     FREE_SDS(response);
                 }
             }
@@ -460,7 +460,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                         response = tojson_char(response, "ip", "", false);
                     }
                     response = jsonrpc_result_end(response);
-                    webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
+                    webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
                     FREE_SDS(response);
                 }
             }
@@ -474,7 +474,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     MYMPD_LOG_ERROR("Invalid API request");
                     sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
                         "general", "error", "Invalid API request");
-                    webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
+                    webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
                     FREE_SDS(response);
                 }
             }
@@ -720,7 +720,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
                 (cmd_id == MYMPD_API_SESSION_VALIDATE ? "Invalid session" : "Authentication required"));
             mg_printf(nc, "HTTP/1.1 401 Unauthorized\r\n"
                 "WWW-Authenticate: Bearer realm=\"myMPD\"\r\n"
-                "Content-Type: application/json; charset=utf-8\r\n"
+                "Content-Type: application/json\r\n"
                 "Content-Length: %d\r\n\r\n",
                 (int)sdslen(response));
             mg_send(nc, response, sdslen(response));
@@ -755,7 +755,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
             else {
                 response = jsonrpc_respond_message(response, "MYMPD_API_SESSION_LOGIN", 0, true, "session", "error", "Invalid pin");
             }
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
+            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
             FREE_SDS(response);
             break;
         }
@@ -772,14 +772,14 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
                 response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, true, "session", "error", "Invalid session");
             }
 
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
+            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
             FREE_SDS(response);
             break;
         }
         case MYMPD_API_SESSION_VALIDATE: {
             //session is already validated
             sds response = jsonrpc_respond_ok(sdsempty(), "MYMPD_API_SESSION_VALIDATE", 0, "session");
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json; charset=utf-8\r\n");
+            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
             FREE_SDS(response);
             break;
         }

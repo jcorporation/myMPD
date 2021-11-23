@@ -189,7 +189,7 @@ function sendAPI(method, params, callback, onerror) {
     const request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": params};
     const ajaxRequest = new XMLHttpRequest();
     ajaxRequest.open('POST', subdir + '/api/', true);
-    ajaxRequest.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+    ajaxRequest.setRequestHeader('Content-type', 'application/json');
     if (session.token !== '') {
         ajaxRequest.setRequestHeader('Authorization', 'Bearer ' + session.token);
     }
