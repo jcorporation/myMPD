@@ -62,6 +62,11 @@ then
   fi
 fi
 
+if [ -z "${EXTRA_CMAKE_OPTIONS+x}" ]
+then
+  export EXTRA_CMAKE_OPTIONS=""
+fi
+
 #colorful warnings and errors
 echo_error() {
   printf "\e[0;31mERROR: "
@@ -228,7 +233,7 @@ createassets() {
 
   #Create translation phrases file
   createi18n "../../$MYMPD_BUILDDIR/htdocs/js/i18n.min.js" ""
-  
+
   echo "Minifying javascript"
   JSSRCFILES=""
   #shellcheck disable=SC2013
@@ -250,7 +255,7 @@ createassets() {
   cat $JSSRCFILES | grep -v "\"use strict\";" > "$MYMPD_BUILDDIR/htdocs/js/mympd.js"
   minify js htdocs/sw.js "$MYMPD_BUILDDIR/htdocs/sw.min.js"
   minify js "$MYMPD_BUILDDIR/htdocs/js/mympd.js" "$MYMPD_BUILDDIR/htdocs/js/mympd.min.js"
-  
+
   echo "Combining and compressing javascript"
   echo "//myMPD ${VERSION} | (c) 2018-2021 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-2.0-or-later | https://github.com/jcorporation/mympd" > "$MYMPD_BUILDDIR/htdocs/js/copyright.min.js"
   JSFILES="dist/bootstrap-native/bootstrap-native.min.js dist/long-press-event/long-press-event.min.js $MYMPD_BUILDDIR/htdocs/js/*.min.js"
@@ -267,10 +272,10 @@ createassets() {
   #shellcheck disable=SC2002
   cat $JSFILES >> "$MYMPD_BUILDDIR/htdocs/js/combined.js"
   $GZIP "$MYMPD_BUILDDIR/htdocs/js/combined.js"
-  
+
   #serviceworker
   $GZIPCAT "$MYMPD_BUILDDIR/htdocs/sw.min.js" > "$MYMPD_BUILDDIR/htdocs/sw.js.gz"
- 
+
   echo "Minifying stylesheets"
   for F in htdocs/css/*.css
   do
@@ -278,14 +283,14 @@ createassets() {
     DST=$(basename "$F" .css)
     minify css "$F" "$MYMPD_BUILDDIR/htdocs/css/${DST}.min.css"
   done
-  
+
   echo "Combining and compressing stylesheets"
   echo "/* myMPD ${VERSION} | (c) 2018-2021 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-2.0-or-later | https://github.com/jcorporation/mympd */" > "$MYMPD_BUILDDIR/htdocs/css/copyright.min.css"
   CSSFILES="dist/bootstrap/compiled/custom.css $MYMPD_BUILDDIR/htdocs/css/*.min.css"
   #shellcheck disable=SC2086
   cat $CSSFILES > "$MYMPD_BUILDDIR/htdocs/css/combined.css"
   $GZIP "$MYMPD_BUILDDIR/htdocs/css/combined.css"
-  
+
   echo "Minifying and compressing html"
   minify html htdocs/index.html "$MYMPD_BUILDDIR/htdocs/index.html"
   $GZIPCAT "$MYMPD_BUILDDIR/htdocs/index.html" > "$MYMPD_BUILDDIR/htdocs/index.html.gz"
@@ -315,7 +320,8 @@ buildrelease() {
   cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE \
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
   	-DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" \
-    -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DENABLE_LIBASAN="$ENABLE_LIBASAN" ..
+    -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DENABLE_LIBASAN="$ENABLE_LIBASAN" \
+    $EXTRA_CMAKE_OPTIONS ..
   make
 }
 
@@ -387,7 +393,7 @@ builddebug() {
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
     -DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" \
     -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DENABLE_LIBASAN="$ENABLE_LIBASAN" \
-    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON $EXTRA_CMAKE_OPTIONS ..
   make VERBOSE=1
   echo "Linking compilation database"
   sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' -e 's/-static-libasan//g' compile_commands.json > ../src/compile_commands.json
@@ -396,7 +402,7 @@ builddebug() {
 buildtest() {
   install -d test/build
   cd test/build || exit 1
-  cmake ..
+  cmake $EXTRA_CMAKE_OPTIONS ..
   make VERBOSE=1
   ./test
 }
@@ -409,7 +415,7 @@ cleanup() {
   rm -rf debug
   rm -rf package
   rm -rf test/build
-  
+
   #htdocs
   rm -f htdocs/js/bootstrap-native.js
   rm -f htdocs/js/long-press-event.js
@@ -450,7 +456,7 @@ check_includes() {
       echo_warn "First include is not mympd_config_defs.h: $FILE"
     fi
     SRCDIR=$(dirname "$FILE")
-    
+
     grep "#include \"" "$FILE" | grep -v "mympd_config_defs.h" | cut -d\" -f2 | while IFS= read -r INCLUDE
     do
       if ! realpath "$SRCDIR/$INCLUDE" > /dev/null 2>&1
@@ -472,7 +478,7 @@ check_file() {
   else
     echo_warn "cppcheck not found"
   fi
-  
+
   if check_cmd flawfinder
   then
     echo "Running flawfinder"
@@ -489,7 +495,7 @@ check_file() {
     echo "run: ./build.sh debug"
     exit 1
   fi
-  
+
   if check_cmd clang-tidy
   then
     echo "Running clang-tidy, output goes to clang-tidy.out"
@@ -520,7 +526,7 @@ check() {
   else
     echo_warn "cppcheck not found"
   fi
-  
+
   if check_cmd flawfinder
   then
     echo "Running flawfinder"
@@ -539,7 +545,7 @@ check() {
     echo "run: ./build.sh debug"
     exit 1
   fi
-  
+
   if check_cmd clang-tidy
   then
     echo "Running clang-tidy, output goes to clang-tidy.out"
@@ -579,7 +585,7 @@ pkgdebian() {
   SIGNOPT="--no-sign"
   if [ -n "${SIGN+x}" ] && [ "$SIGN" = "TRUE" ]
   then
-	SIGNOPT="--sign-key=$GPGKEYID"  
+	SIGNOPT="--sign-key=$GPGKEYID"
   else
     echo_warn "Package would not be signed"
   fi
@@ -719,18 +725,18 @@ pkgosc() {
   	  OSC_REPO="home:jcorporation/myMPD-devel"
   	fi
   fi
-  
+
   mkdir osc
   cd osc || exit 1
   osc checkout "$OSC_REPO"
   rm -f "$OSC_REPO"/*
-  
+
   cd "$STARTPATH" || exit 1
   pkgrpm taronly
 
   cd "$STARTPATH" || exit 1
   cp "package/build/mympd-${VERSION}.tar.gz" "osc/$OSC_REPO/"
-  
+
   if [ -f /etc/debian_version ]
   then
     pkgdebian
@@ -781,11 +787,11 @@ installdeps() {
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
 	lua-devel unzip pcre2-devel
   elif [ -f /etc/redhat-release ]
-  then  
-    #fedora 	
+  then
+    #fedora
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
 	lua-devel unzip pcre2-devel
-  else 
+  else
     echo_warn "Unsupported distribution detected."
     echo "You should manually install:"
     echo "  - gcc"
@@ -847,7 +853,7 @@ updatebootstrapnative() {
 
   cd "$STARTDIR" || exit 1
   rm -rf "$TMPDIR"
-  
+
   if [ -d ../../debug ]
   then
   	cp bootstrap-native.js ../../htdocs/js/
@@ -959,10 +965,10 @@ translate() {
 materialicons() {
   check_cmd jq
   check_cmd wget
-  
+
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
-  FONT_URI=$(wget -q https://fonts.googleapis.com/css2?family=Material+Icons -O - | grep url | cut -d\( -f2 | cut -d\) -f1)
+  FONT_URI=$(wget -q "https://fonts.googleapis.com/css2?family=Material+Icons" -O - | grep url | cut -d\( -f2 | cut -d\) -f1)
   if ! wget -q "$FONT_URI" -O MaterialIcons-Regular.woff2
   then
     echo_error "Error downloading font file"
@@ -1072,7 +1078,7 @@ sbuild_build() {
 sbuild_cleanup() {
   if [ "$(id -u)" != "0" ]
   then
-    echo "Must be run as root: "
+    echo "Must be run as root:"
     echo "  sudo -E ./build.sh sbuild_cleanup"
   	exit 1
   fi
@@ -1343,6 +1349,7 @@ case "$ACTION" in
     echo "  - EMBEDDED_ASSETS=\"ON\""
     echo "  - MANPAGES=\"ON\""
     echo "  - ENABLE_LIBASAN=\"OFF\""
+    echo "  - EXTRA_CMAKE_OPTIONS=\"\""
     echo ""
     exit 1
 	;;

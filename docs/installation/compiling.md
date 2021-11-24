@@ -68,6 +68,7 @@ Compile time options are set through environment variables.
 | EMBEDDED_ASSETS | - | ON = Embeds assets in binary, default ON for release else OFF |
 | MANPAGES | ON | ON = build manpages |
 | ENABLE_LIBASAN | - | ON = compile with libasan, default ON for memcheck else OFF |
+| EXTRA_CMAKE_OPTIONS | | Extra options for cmake | 
 {: .table .table-sm}
 
 There are three compile targets for myMPD.
