@@ -1,36 +1,40 @@
-# Copyright (C) 2007-2009 LuaDist.
-# Created by Peter Kapec <kapecp@gmail.com>
-# Redistribution and use of this file is allowed according to the terms of the MIT license.
-# Note:
-# Searching headers and libraries is very simple and is NOT as powerful as scripts
-# distributed with CMake, because LuaDist defines directories to search for.
-# Everyone is encouraged to contact the author with improvements. Maybe this file
-# becomes part of CMake distribution sometimes.
+# SPDX-License-Identifier: GPL-3.0-or-later
+# myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+# https://github.com/jcorporation/mympd
 
-# - Find pcre2
-# Find the PCRE2 headers and libraries.
+# Try to find pcre2
 #
-# PCRE2_INCLUDE_DIRS - where to find pcre2.h, etc.
-# PCRE2_LIBRARIES - List of libraries when using pcre.
-# PCRE2_FOUND - True if pcre2 found.
+# PCRE2_FOUND
+# PCRE2_INCLUDE_DIRS
+# PCRE2_LIBRARIES
 
-# Look for the header file.
-FIND_PATH(PCRE2_INCLUDE_DIR NAMES pcre2.h)
+find_package(PkgConfig)
+pkg_check_modules(PC_PCRE2 QUIET pcre2)
 
-# Look for the library.
-FIND_LIBRARY(PCRE2_LIBRARY NAMES pcre2-8)
+# Look for the header file
+find_path(PCRE2_INCLUDE_DIR
+    NAMES pcre2.h
+    HINTS ${PC_PCRE2_INCLUDEDIR} ${PC_PCRE2_INCLUDE_DIRS}
+)
 
-# Handle the QUIETLY and REQUIRED arguments and set PCRE2_FOUND to TRUE if all listed variables are TRUE.
-INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(PCRE2 DEFAULT_MSG PCRE2_LIBRARY PCRE2_INCLUDE_DIR)
+# Look for the library
+find_library(PCRE2_LIBRARY
+    NAMES pcre2-8
+    HINTS ${PC_PCRE2_LIBDIR} ${PC_PCRE2_LIBRARY_DIRS}
+)
 
-# Copy the results to the output variables.
-IF(PCRE2_FOUND)
-    SET(PCRE2_LIBRARIES ${PCRE2_LIBRARY})
-    SET(PCRE2_INCLUDE_DIRS ${PCRE2_INCLUDE_DIR})
-ELSE(PCRE2_FOUND)
-    SET(PCRE2_LIBRARIES)
-    SET(PCRE2_INCLUDE_DIRS)
-ENDIF(PCRE2_FOUND)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(PCRE2 DEFAULT_MSG
+    PCRE2_LIBRARY PCRE2_INCLUDE_DIR
+)
 
-MARK_AS_ADVANCED(PCRE2_INCLUDE_DIRS PCRE2_LIBRARIES)
+# Copy the results to the output variables
+if(PCRE2_FOUND)
+    set(PCRE2_LIBRARIES ${PCRE2_LIBRARY})
+    set(PCRE2_INCLUDE_DIRS ${PCRE2_INCLUDE_DIR})
+else()
+    set(PCRE2_LIBRARIES)
+    set(PCRE2_INCLUDE_DIRS)
+endif()
+
+mark_as_advanced(PCRE2_INCLUDE_DIRS PCRE2_LIBRARIES)

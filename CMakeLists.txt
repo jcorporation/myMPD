@@ -1,8 +1,6 @@
-#
 # SPDX-License-Identifier: GPL-3.0-or-later
 # myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
-#
 
 project (mympd C)
 set(CPACK_PACKAGE_VERSION_MAJOR "8")
@@ -34,7 +32,7 @@ message("Compiler: ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}")
 if("${CMAKE_INSTALL_PREFIX}" MATCHES "/usr")
   set(SUBDIR "/${PROJECT_NAME}")
   set(SUBDIRLIB "/lib")
-else() 
+else()
   set(SUBDIR "")
   set(SUBDIRLIB "")
 endif()
@@ -90,7 +88,7 @@ endif()
 
 if(NOT "${ENABLE_LIBID3TAG}" MATCHES "OFF")
   message("Searching for libid3tag")
-  find_package(LibId3Tag)
+  find_package(LIBID3TAG)
   if(LIBID3TAG_FOUND)
     set(ENABLE_LIBID3TAG "ON")
     include_directories(${LIBID3TAG_INCLUDE_DIRS})
@@ -152,7 +150,7 @@ if("${ENABLE_LIBASAN}" MATCHES "ON")
     -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
     -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
     -fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow \
-    -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -static-libasan") 
+    -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -static-libasan")
 else()
   set(LIBASAN_FLAGS "")
 endif()

@@ -1,31 +1,40 @@
-# - Try to find FLAC
-# Once done, this will define
+# SPDX-License-Identifier: GPL-3.0-or-later
+# myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+# https://github.com/jcorporation/mympd
+
+# Try to find FLAC
 #
-#   FLAC_FOUND - System has flac
-#   FLAC_INCLUDE_DIR - The flac include directories
-#   FLAC_LIBRARIES - The libraries needed to use flac
-#   FLAC_DEFINITIONS - Compiler witches required for using flac
+# FLAC_FOUND
+# FLAC_INCLUDE_DIRS
+# FLAC_LIBRARIES
 
 find_package(PkgConfig)
-pkg_check_modules(PC_FLAC QUIET libflac)
-set(FLAC_DEFINITIONS ${PC_FLAC_CFLAGS_OTHER})
+pkg_check_modules(PC_FLAC QUIET FLAC)
 
+# Look for the header file
 find_path(FLAC_INCLUDE_DIR
     NAMES FLAC/metadata.h
     HINTS ${PC_FLAC_INCLUDEDIR} ${PC_FLAC_INCLUDE_DIRS}
 )
 
+# Look for the library
 find_library(FLAC_LIBRARY
     NAMES FLAC
     HINTS ${PC_FLAC_LIBDIR} ${PC_FLAC_LIBRARY_DIRS}
 )
 
-set(FLAC_LIBRARIES ${FLAC_LIBRARY})
-set(FLAC_INCLUDE_DIRS ${FLAC_INCLUDE_DIR})
-
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(FLAC DEFAULT_MSG
     FLAC_LIBRARY FLAC_INCLUDE_DIR
 )
+
+# Copy the results to the output variables
+if(FLAC_FOUND)
+    set(FLAC_LIBRARIES ${FLAC_LIBRARY})
+    set(FLAC_INCLUDE_DIRS ${FLAC_INCLUDE_DIR})
+else()
+    set(FLAC_LIBRARIES)
+    set(FLAC_INCLUDE_DIRS)
+endif()
 
 mark_as_advanced(FLAC_LIBRARY FLAC_INCLUDE_DIR)

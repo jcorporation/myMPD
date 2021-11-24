@@ -10,14 +10,14 @@ mympd = { _version = "0.2.1" }
 
 --
 -- Function to retrieve mympd_state
--- 
+--
 function mympd.init()
   return mympd_api("INTERNAL_API_SCRIPT_INIT")
 end
 
 --
 -- Function to retrieve console output
--- 
+--
 function mympd.os_capture(cmd)
   if io then
     local handle = assert(io.popen(cmd, 'r'))
@@ -26,10 +26,10 @@ function mympd.os_capture(cmd)
 
     output = string.gsub(
       string.gsub(
-        string.gsub(output, '^%s+', ''), 
-          '%s+$', 
+        string.gsub(output, '^%s+', ''),
+          '%s+$',
           ''
-      ), 
+      ),
       '[\n\r]+',
       ' '
     )

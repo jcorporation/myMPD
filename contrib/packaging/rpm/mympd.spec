@@ -5,7 +5,7 @@
 
 Name:           mympd
 Version:        8.2.0
-Release:        0 
+Release:        0
 License:        GPL-3.0-or-later
 Group:          Productivity/Multimedia/Sound/Players
 Summary:        A standalone and mobile friendly web-based MPD client
@@ -26,12 +26,12 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %global debug_package %{nil}
 
-%description 
-myMPD is a standalone and lightweight web-based MPD client. 
+%description
+myMPD is a standalone and lightweight web-based MPD client.
 It's tuned for minimal resource usage and requires only very few dependencies.
 Therefore myMPD is ideal for raspberry pis and similar devices.
 
-%prep 
+%prep
 %setup -q -n %{name}-%{version}
 
 %build
@@ -57,7 +57,7 @@ then
   echo "Please purge /var/lib/mympd manually"
 fi
 
-%files 
+%files
 %defattr(-,root,root,-)
 %doc README.md
 /usr/bin/mympd
