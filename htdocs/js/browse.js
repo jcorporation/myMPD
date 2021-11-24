@@ -123,7 +123,9 @@ function initBrowse() {
         if (event.key === 'Escape') {
             this.blur();
         }
-        else if (event.key === 'Enter' && app.current.tag === 'Album') {
+        else if (event.key === 'Enter' &&
+            app.current.tag === 'Album')
+        {
             if (this.value !== '') {
                 const op = getSelectValueId('searchDatabaseMatch');
                 const crumbEl = document.getElementById('searchDatabaseCrumb');
@@ -222,12 +224,16 @@ function initBrowse() {
 function navBrowseHandler(event) {
     if (event.target.nodeName === 'BUTTON') {
         const tag = getData(event.target, 'data-tag');
-        if (tag === 'Playlists' || tag === 'Filesystem') {
+        if (tag === 'Playlists' ||
+            tag === 'Filesystem')
+        {
             appGoto('Browse', tag, undefined);
             return;
         }
 
-        if (app.current.card === 'Browse' && app.current.tab !== 'Database') {
+        if (app.current.card === 'Browse' &&
+            app.current.tab !== 'Database')
+        {
             appGoto('Browse', 'Database', app.cards.Browse.tabs.Database.active);
             return;
         }
@@ -253,7 +259,11 @@ function gotoBrowse(event) {
         tag = getData(target.parentNode, 'data-tag');
         name = getData(target.parentNode, 'data-name');
     }
-    if (tag !== '' && name !== '' && name !== '-' && settings.tagListBrowse.includes(tag)) {
+    if (tag !== '' &&
+        name !== '' &&
+        name !== '-' &&
+        settings.tagListBrowse.includes(tag))
+    {
         if (tag === 'Album') {
             let artist = getData(target, 'data-albumartist');
             if (artist === null) {
@@ -330,7 +340,8 @@ function parseFilesystem(obj) {
     }
     for (let i = 0, j = obj.result.images.length; i < j; i++) {
         const img = elCreateEmpty('div', {});
-        img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + myEncodeURI(obj.result.images[i]) + '"),url("assets/coverimage-loading.svg")';
+        img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + myEncodeURI(obj.result.images[i]) + '"),' +
+            'url("assets/coverimage-loading.svg")';
         imageList.appendChild(img);
     }
 
@@ -342,14 +353,10 @@ function parseFilesystem(obj) {
         setData(row, 'data-type', data.Type);
         setData(row, 'data-uri', data.uri);
         //set Title to name if not defined - for folders and playlists
-        if (data.Title === undefined) {
-            data.Title = data.name;
-        }
-        setData(row, 'data-name', data.Title);
+        setData(row, 'data-name', data.Title === undefined ? data.name : data.Title);
         row.setAttribute('title', tn(data.Type === 'song' ? rowTitleSong :
-                data.Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
+            data.Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
     });
-    scrollToPosY(app.current.scrollPos);
 
     const colspan = settings.colsBrowseFilesystem.length + 1;
     tfoot.appendChild(
@@ -386,12 +393,7 @@ function parseDatabase(obj) {
         elClear(cardContainer);
     }
     for (let i = 0; i < nrItems; i++) {
-        if (obj.result.data[i].AlbumArtist === '') {
-            obj.result.data[i].AlbumArtist = tn('Unknown artist');
-        }
-        if (obj.result.data[i].Album === '') {
-            obj.result.data[i].Album = tn('Unknown album');
-        }
+        //id is used only to check if card should be refreshed
         const id = obj.result.tag === 'Album' ? genId('database' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist)
                                               : genId('database' + obj.result.data[i].value);
 
@@ -438,7 +440,12 @@ function parseDatabase(obj) {
         }
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
 
-        i < cols.length ? cols[i].replaceWith(col) : cardContainer.append(col);
+        if (i < cols.length) {
+            cols[i].replaceWith(col);
+        }
+        else {
+            cardContainer.append(col);
+        }
 
         if (hasIO === true) {
             const options = {
@@ -467,7 +474,8 @@ function setGridImage(changes, observer) {
             const uri = getData(change.target.firstChild, 'data-picture');
             const body = change.target.firstChild.getElementsByClassName('card-body')[0];
             if (body) {
-                body.style.backgroundImage = 'url("' + myEncodeURI(uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+                body.style.backgroundImage = 'url("' + myEncodeURI(uri) + '"),' + 
+                    'url("' + subdir + '/assets/coverimage-loading.svg")';
             }
         }
     });
@@ -497,7 +505,8 @@ function parseAlbumDetails(obj) {
     }
 
     const coverEl = document.getElementById('viewDetailDatabaseCover');
-    coverEl.style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(obj.result.data[0].uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+    coverEl.style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(obj.result.data[0].uri) + '"),' +
+        'url("' + subdir + '/assets/coverimage-loading.svg")';
     setData(coverEl, 'data-images', obj.result.images);
     setData(coverEl, 'data-uri', obj.result.data[0].uri);
 
@@ -523,7 +532,9 @@ function parseAlbumDetails(obj) {
         p.textContent.appendChild(printValue('AlbumArtist', obj.result.AlbumArtist));
     }
     infoEl.appendChild(p);
-    if (obj.result.bookletPath !== '' && features.featLibrary === true) {
+    if (obj.result.bookletPath !== '' &&
+        features.featLibrary === true)
+    {
         infoEl.appendChild(
             elCreateNodes('p', {}, [
                 elCreateText('span', {"class": ["mi", "me-2"]}, 'description'),
@@ -545,7 +556,8 @@ function parseAlbumDetails(obj) {
         elCreateNode('tr', {},
             elCreateNode('td', {"colspan": colspan + 1},
                 elCreateNode('small', {},
-                    document.createTextNode(tn('Num songs', obj.result.totalEntities) + ' – ' + beautifyDuration(obj.result.totalTime))
+                    document.createTextNode(tn('Num songs', obj.result.totalEntities) +
+                        smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime))
                 )
             )
         )

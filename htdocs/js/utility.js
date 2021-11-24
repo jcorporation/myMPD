@@ -155,7 +155,9 @@ function showConfirmInline(el, text, btnText, callback) {
     const yesBtn = elCreateText('button', {"class": ["btn", "btn-danger", "float-end"]}, btnText);
     yesBtn.addEventListener('click', function(event) {
         event.stopPropagation();
-        if (callback !== undefined && typeof(callback) === 'function') {
+        if (callback !== undefined &&
+            typeof(callback) === 'function')
+        {
             callback();
         }
         this.parentNode.remove();
@@ -274,25 +276,24 @@ function seekRelative(offset) {
 
 //eslint-disable-next-line no-unused-vars
 function clickPlay() {
-    if (currentState.state === 'stop') {
-        sendAPI("MYMPD_API_PLAYER_PLAY", {});
-    }
-    else if (currentState.state === 'play') {
-        if (settings.webuiSettings.uiFooterPlaybackControls === 'stop' ||
-            isStreamUri(currentSongObj.uri) === true)
-        {
-            sendAPI("MYMPD_API_PLAYER_STOP", {});
-        }
-        else {
-            sendAPI("MYMPD_API_PLAYER_PAUSE", {});
-        }
-    }
-    else if (currentState.state === 'pause') {
-        sendAPI("MYMPD_API_PLAYER_RESUME", {});
-    }
-    else {
-        //fallback if playstate is unknown
-        sendAPI("MYMPD_API_PLAYER_PLAY", {});
+    switch(currentState.state) {
+        case 'play':
+            if (settings.webuiSettings.uiFooterPlaybackControls === 'stop' ||
+                isStreamUri(currentSongObj.uri) === true)
+            {
+                //always stop streams
+                sendAPI("MYMPD_API_PLAYER_STOP", {});
+            }
+            else {
+                sendAPI("MYMPD_API_PLAYER_PAUSE", {});
+            }
+            break;
+        case 'pause':
+            sendAPI("MYMPD_API_PLAYER_RESUME", {});
+            break;
+        default:
+            //fallback if playstate is stop or unknown
+            sendAPI("MYMPD_API_PLAYER_PLAY", {});
     }
 }
 
@@ -469,7 +470,7 @@ function filetype(uri) {
     }
 }
 
-function scrollToPosY(container,pos) {
+function scrollToPosY(container, pos) {
     if (isMobile === true) {
         // For Safari
         document.body.scrollTop = pos;
@@ -481,8 +482,8 @@ function scrollToPosY(container,pos) {
     }
 }
 
-function selectTag(btnsEl, desc, setTo) {
-    const btns = document.getElementById(btnsEl);
+function selectTag(btnsId, desc, setTo) {
+    const btns = document.getElementById(btnsId);
     let aBtn = btns.querySelector('.active');
     if (aBtn) {
         aBtn.classList.remove('active');
@@ -579,26 +580,33 @@ function openModal(modal) {
 
 //eslint-disable-next-line no-unused-vars
 function focusSearch() {
-    if (app.current.card === 'Queue' && app.current.tab === 'Current') {
-        document.getElementById('searchqueuestr').focus();
-    }
-    else if (app.current.card === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
-        document.getElementById('searchDatabaseStr').focus();
-    }
-    else if (app.current.card === 'Browse' && app.current.tab === 'Filesystem') {
-        document.getElementById('searchFilesystemStr').focus();
-    }
-    else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'List') {
-        document.getElementById('searchPlaylistsListStr').focus();
-    }
-    else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-        document.getElementById('searchPlaylistsDetailStr').focus();
-    }
-    else if (app.current.card === 'Search') {
-        document.getElementById('searchstr').focus();
-    }
-    else {
-        appGoto('Search');
+    switch(app.id) {
+        case 'QueueCurrent':
+            document.getElementById('searchqueuestr').focus();
+            break;
+        case 'QueueLastPlayed':
+            document.getElementById('searchQueueLastPlayedStr').focus();
+            break;
+        case 'QueueJukebox':
+            document.getElementById('searchQueueJukeboxStr').focus();
+            break;
+        case 'BrowseDatabaseList':
+            document.getElementById('searchDatabaseStr').focus();
+            break;
+        case 'BrowseFilesystem':
+            document.getElementById('searchFilesystemStr').focus();
+            break;
+        case 'BrowsePlaylistsList':
+            document.getElementById('searchPlaylistsListStr').focus();
+            break;
+        case 'BrowsePlaylistsDetail':
+            document.getElementById('searchPlaylistsDetailStr').focus();
+            break;
+        case 'Search':
+            document.getElementById('searchstr').focus();
+            break;
+        default:
+            appGoto('Search');
     }
 }
 
@@ -701,7 +709,9 @@ function toggleBtn(btn, state) {
         state = btn.classList.contains('active') ? false : true;
     }
 
-    if (state === true || state === 1) {
+    if (state === true ||
+        state === 1)
+    {
         btn.classList.add('active');
     }
     else {
@@ -719,7 +729,9 @@ function toggleBtnChk(btn, state) {
         state = btn.classList.contains('active') ? false : true;
     }
 
-    if (state === true || state === 1) {
+    if (state === true ||
+        state === 1)
+    {
         btn.classList.add('active');
         btn.textContent = 'check';
         return true;
@@ -771,7 +783,9 @@ function setPagination(total, returned) {
     //bottom
     const bottomBar = document.getElementById(app.id + 'ButtonsBottom');
     elClear(bottomBar);
-    if (domCache.body.classList.contains('not-mobile') || returned < 25) {
+    if (domCache.body.classList.contains('not-mobile') ||
+        returned < 25)
+    {
         elHide(bottomBar);
         return;
     }

@@ -41,8 +41,8 @@ function appPrepare(scrollPos) {
         }
     }
     const list = document.getElementById(app.id + 'List');
-    scrollToPosY(list.parentNode, scrollPos);
     if (list) {
+        scrollToPosY(list.parentNode, scrollPos);
         list.classList.add('opacity05');
     }
 }
