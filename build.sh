@@ -112,6 +112,7 @@ umask 0022
 
 #get myMPD version
 VERSION=$(grep CPACK_PACKAGE_VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.' | sed 's/\.$//')
+COPYRIGHT="myMPD ${VERSION} | (c) 2018-2021 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-2.0-or-later | https://github.com/jcorporation/mympd"
 
 #check for command
 check_cmd() {
@@ -154,8 +155,8 @@ setversion() {
   echo "Setting version to ${VERSION} and date to ${DATE_F2}"
 
   for F in htdocs/sw.js contrib/packaging/alpine/APKBUILD contrib/packaging/arch/PKGBUILD \
-  		   contrib/packaging/rpm/mympd.spec contrib/packaging/debian/changelog \
-  		   contrib/packaging/openwrt/Makefile contrib/man/mympd.1 contrib/man/mympd-script.1
+  		contrib/packaging/rpm/mympd.spec contrib/packaging/debian/changelog \
+  		contrib/packaging/openwrt/Makefile contrib/man/mympd.1 contrib/man/mympd-script.1
   do
   	echo "$F"
   	sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE_F1__/$DATE_F1/g" -e "s/__DATE_F2__/$DATE_F2/g" \
@@ -163,8 +164,11 @@ setversion() {
   done
 
   #gentoo ebuild must be moved only
-  [ -f "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild" ] || \
-  	mv -f contrib/packaging/gentoo/media-sound/mympd/mympd-*.ebuild "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild"
+  if [ ! -f "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild" ]
+  then
+  	mv -f contrib/packaging/gentoo/media-sound/mympd/mympd-*.ebuild \
+      "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild"
+  fi
 
   echo "const myMPDversion = '${VERSION}';" > htdocs/js/version.js
   printf "%s" "${VERSION}" > docs/_includes/version
@@ -257,8 +261,9 @@ createassets() {
   minify js "$MYMPD_BUILDDIR/htdocs/js/mympd.js" "$MYMPD_BUILDDIR/htdocs/js/mympd.min.js"
 
   echo "Combining and compressing javascript"
-  echo "//myMPD ${VERSION} | (c) 2018-2021 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-2.0-or-later | https://github.com/jcorporation/mympd" > "$MYMPD_BUILDDIR/htdocs/js/copyright.min.js"
-  JSFILES="dist/bootstrap-native/bootstrap-native.min.js dist/long-press-event/long-press-event.min.js $MYMPD_BUILDDIR/htdocs/js/*.min.js"
+  echo "//${COPYRIGHT}" > "$MYMPD_BUILDDIR/htdocs/js/copyright.min.js"
+  JSFILES="dist/bootstrap-native/bootstrap-native.min.js dist/long-press-event/long-press-event.min.js"
+  JSFILES="$JSFILES $MYMPD_BUILDDIR/htdocs/js/*.min.js"
   for F in $JSFILES
   do
     if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
@@ -285,7 +290,7 @@ createassets() {
   done
 
   echo "Combining and compressing stylesheets"
-  echo "/* myMPD ${VERSION} | (c) 2018-2021 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-2.0-or-later | https://github.com/jcorporation/mympd */" > "$MYMPD_BUILDDIR/htdocs/css/copyright.min.css"
+  echo "/* ${COPYRIGHT} */" > "$MYMPD_BUILDDIR/htdocs/css/copyright.min.css"
   CSSFILES="dist/bootstrap/compiled/custom.css $MYMPD_BUILDDIR/htdocs/css/*.min.css"
   #shellcheck disable=SC2086
   cat $CSSFILES > "$MYMPD_BUILDDIR/htdocs/css/combined.css"
@@ -317,6 +322,7 @@ buildrelease() {
   rm -vf CMakeFiles/mympd.dir/src/web_server/web_server_utility.c.o
   #set INSTALL_PREFIX and build myMPD
   export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
+  #shellcheck disable=SC2086
   cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE \
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
   	-DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" \
@@ -389,6 +395,7 @@ builddebug() {
 
   echo "Compiling myMPD"
   cd debug || exit 1
+  #shellcheck disable=SC2086
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG \
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
     -DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" \
@@ -396,12 +403,14 @@ builddebug() {
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON $EXTRA_CMAKE_OPTIONS ..
   make VERBOSE=1
   echo "Linking compilation database"
-  sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' -e 's/-static-libasan//g' compile_commands.json > ../src/compile_commands.json
+  sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' \
+    -e 's/-static-libasan//g' compile_commands.json > ../src/compile_commands.json
 }
 
 buildtest() {
   install -d test/build
   cd test/build || exit 1
+  #shellcheck disable=SC2086
   cmake $EXTRA_CMAKE_OPTIONS ..
   make VERBOSE=1
   ./test
@@ -435,7 +444,8 @@ cleanuposc() {
 }
 
 check_docs() {
-  grep -v '//' src/lib/api.h | grep 'X(MYMPD' | cut -d\( -f2 | cut -d\) -f1 | while IFS= read -r METHOD
+  grep -v '//' src/lib/api.h | grep 'X(MYMPD' | cut -d\( -f2 | cut -d\) -f1 | \
+  while IFS= read -r METHOD
   do
     grep -q "$METHOD" htdocs/js/apidoc.js || echo_warn "API $METHOD not documented"
   done
@@ -457,7 +467,8 @@ check_includes() {
     fi
     SRCDIR=$(dirname "$FILE")
 
-    grep "#include \"" "$FILE" | grep -v "mympd_config_defs.h" | cut -d\" -f2 | while IFS= read -r INCLUDE
+    grep "#include \"" "$FILE" | grep -v "mympd_config_defs.h" | cut -d\" -f2 | \
+    while IFS= read -r INCLUDE
     do
       if ! realpath "$SRCDIR/$INCLUDE" > /dev/null 2>&1
       then
@@ -968,7 +979,8 @@ materialicons() {
 
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
-  FONT_URI=$(wget -q "https://fonts.googleapis.com/css2?family=Material+Icons" -O - | grep url | cut -d\( -f2 | cut -d\) -f1)
+  FONT_URI=$(wget -q "https://fonts.googleapis.com/css2?family=Material+Icons" -O - | \
+    grep url | cut -d\( -f2 | cut -d\) -f1)
   if ! wget -q "$FONT_URI" -O MaterialIcons-Regular.woff2
   then
     echo_error "Error downloading font file"
@@ -1008,7 +1020,7 @@ materialicons() {
 sbuild_chroots() {
   if [ "$(id -u)" != "0" ]
   then
-    echo "Must be run as root: "
+    echo "Must be run as root:"
     echo "  sudo -E ./build.sh sbuild_chroots"
   	exit 1
   fi
@@ -1028,8 +1040,13 @@ sbuild_chroots() {
     do
       CHROOT="${DIST}-${ARCH}"
       echo "Creating chroot for $CHROOT"
-      [ -d "${WORKDIR}/chroot/${CHROOT}" ] && echo "chroot ${CHROOT} already exists... skipping." && continue
-      qemu-debootstrap --arch="${ARCH}" --variant=buildd --cache-dir="${WORKDIR}/cache" --include=fakeroot,build-essential "${DIST}" "${WORKDIR}/chroot/${CHROOT}/" "${DEBIAN_MIRROR}"
+      if [ -d "${WORKDIR}/chroot/${CHROOT}" ]
+      then
+        echo "chroot ${CHROOT} already exists... skipping."
+        continue
+      fi
+      qemu-debootstrap --arch="${ARCH}" --variant=buildd --cache-dir="${WORKDIR}/cache" \
+        --include=fakeroot,build-essential "${DIST}" "${WORKDIR}/chroot/${CHROOT}/" "${DEBIAN_MIRROR}"
 
       grep "${CHROOT}" /etc/schroot/schroot.conf || cat << EOF >> /etc/schroot/schroot.conf
 
@@ -1045,7 +1062,7 @@ EOF
 sbuild_build() {
   if [ "$(id -u)" != "0" ]
   then
-    echo "Must be run as root: "
+    echo "Must be run as root:"
     echo "  sudo -E ./build.sh sbuild_build"
   	exit 1
   fi
