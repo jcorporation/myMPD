@@ -50,6 +50,7 @@ function showPopover(event) {
     //create it if no popover instance is found
     if (popoverInit === undefined) {
         const popoverType = target.getAttribute('data-popover');
+        logDebug('Create new popover of type ' + popoverType);
         switch (popoverType) {
             case 'columns':
                 //column select in table header
@@ -285,18 +286,26 @@ function addMenuItem(tabContent, cmd, text) {
 }
 
 function addMenuItemsSingleActions(popoverBody) {
-    if (settings.single === 0 &&
-        settings.consume === 0)
-    {
-        if (settings.repeat === 1) {
+    if (settings.single === 0) {
+        if (settings.repeat === 1 &&
+            settings.consume === 0)
+        {
+            //repeat one song can only work with consume disabled
             if (features.featSingleOneshot === true) {
                 addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [2]}, 'Repeat current song once');
             }
             addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [1]}, 'Repeat current song');
         }
-        else if (features.featSingleOneshot === true) {
+        else if (features.featSingleOneshot === true &&
+                 settings.repeat === 0 &&
+                 settings.autoPlay === false)
+        {
+            //single one-shot works only with disabled auto play
             addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [2]}, 'Stop playback after current song');
         }
+    }
+    else {
+        addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [0]}, 'Disable single mode');
     }
 }
 
@@ -487,7 +496,9 @@ function createMenuLists(el, tabHeader, tabContent) {
             const songpos = getData(dataNode, 'data-songpos');
             addMenuItemsSongActions(tabContent, uri, name);
             tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-            if (trackid !== currentState.currentSongId) {
+            if (currentState.currentSongId !== -1 &&
+                trackid !== currentState.currentSongId)
+            {
                 addMenuItem(tabContent, {"cmd": "playAfterCurrent", "options": [trackid, songpos]}, 'Play after current playing song');
             }
             addMenuItem(tabContent, {"cmd": "showSetSongPriority", "options": [trackid]}, 'Set priority');
