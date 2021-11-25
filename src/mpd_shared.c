@@ -152,6 +152,5 @@ sds respond_with_mpd_error_or_ok(struct t_mpd_state *mpd_state, sds buffer, sds 
 
 bool mpd_shared_set_keepalive(struct t_mpd_state *mpd_state) {
     bool rc = mpd_connection_set_keepalive(mpd_state->conn, mpd_state->mpd_keepalive);
-    check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_connection_set_keepalive");
-    return rc;
+    return check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_connection_set_keepalive");
 }
