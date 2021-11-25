@@ -728,8 +728,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_uint(request->data, "$.params.from", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf2, &error) == true)
             {
-                uint_buf1--;
-                uint_buf2--;
                 if (uint_buf1 < uint_buf2) {
                     uint_buf2--;
                 }

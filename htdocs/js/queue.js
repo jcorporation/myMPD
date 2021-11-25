@@ -494,7 +494,7 @@ function playAfterCurrent(songId, songPos) {
         //not in random mode - move song after current playling song
         sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
             "from": songPos,
-            "to": currentState.songPos !== undefined ? currentState.songPos + 2 : 0
+            "to": currentState.songPos !== undefined ? currentState.songPos + 1 : 0
         });
     }
     else {
