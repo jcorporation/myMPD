@@ -44,7 +44,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Log into registry
         run: echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
