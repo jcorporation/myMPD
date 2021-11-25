@@ -340,28 +340,28 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             int_buf1 = covercache_clear(mympd_state->config->workdir, mympd_state->covercache_keep_days);
             if (int_buf1 >= 0) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
-                            "general", "info", "Successfully croped covercache");
+                    "general", "info", "Successfully croped covercache");
             }
             else {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
-                            "general", "error", "Error in cropping covercache");
+                    "general", "error", "Error in cropping covercache");
             }
             break;
         case MYMPD_API_COVERCACHE_CLEAR:
             int_buf1 = covercache_clear(mympd_state->config->workdir, 0);
             if (int_buf1 >= 0) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
-                            "general", "info", "Successfully cleared covercache");
+                    "general", "info", "Successfully cleared covercache");
             }
             else {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
-                            "general", "error", "Error in clearing the covercache");
+                    "general", "error", "Error in clearing the covercache");
             }
             break;
         case MYMPD_API_TIMER_SAVE: {
             if (mympd_state->timer_list.length > LIST_TIMER_MAX) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
-                        "timer", "error", "Too many timers defined");
+                    "timer", "error", "Too many timers defined");
                 break;
             }
             struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
@@ -1005,8 +1005,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_uint(request->data, "$.params.from", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf2, &error) == true)
             {
-                uint_buf1--;
-                uint_buf2--;
                 if (uint_buf1 < uint_buf2) {
                     uint_buf2--;
                 }
