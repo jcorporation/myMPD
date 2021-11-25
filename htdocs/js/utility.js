@@ -1267,7 +1267,7 @@ function zoomZoomPicture() {
 function createImgCarousel(imgEl, name, images) {
     const nrImages = images.length;
     const carousel = elCreateEmpty('div', {"id": name, "class": ["carousel", "slide"], "data-bs-ride": "carousel"});
-    if (nrImages > 0) {
+    if (nrImages > 1) {
         const carouselIndicators = elCreateEmpty('div', {"class": ["carousel-indicators"]});
         for (let i = 0; i < nrImages; i++) {
             carouselIndicators.appendChild(elCreateEmpty('button', {"type": "button", "data-bs-target": "#" + name, "data-bs-slide-to": i}));
@@ -1290,7 +1290,7 @@ function createImgCarousel(imgEl, name, images) {
         }
     }
     carousel.appendChild(carouselInner);
-    if (nrImages > 0) {
+    if (nrImages > 1) {
         carousel.appendChild(
             elCreateNode('a', {"href": "#" + name, "data-bs-slide": "prev", "class": ["carousel-control-prev"]},
                 elCreateEmpty('span', {"class": ["carousel-control-prev-icon"]})
