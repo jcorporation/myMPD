@@ -502,7 +502,9 @@ function createMenuLists(el, tabHeader, tabContent) {
                 addMenuItem(tabContent, {"cmd": "playAfterCurrent", "options": [trackid, songpos]}, 'Play after current playing song');
             }
             addMenuItem(tabContent, {"cmd": "showSetSongPriority", "options": [trackid]}, 'Set priority');
-            addMenuItemsSingleActions(tabContent);
+            if (trackid === currentState.currentSongId) {
+                addMenuItemsSingleActions(tabContent);
+            }
             tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
             addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["single", trackid]}, 'Remove');
             if (songpos > 0) {
