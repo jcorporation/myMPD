@@ -792,12 +792,6 @@ Vakio
 Appearance
 Ulkoasu
 
-Unknown artist
-Tuntematon artisti
-
-Unknown album
-Tuntematon albumi
-
 JavaScript error
 JavaScript virhe
 

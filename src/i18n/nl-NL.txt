@@ -792,12 +792,6 @@ Standaard
 Appearance
 Uiterlijk
 
-Unknown artist
-Onbekende artiest
-
-Unknown album
-Onbekend album
-
 JavaScript error
 JavaScript fout
 

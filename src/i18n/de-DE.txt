@@ -849,12 +849,6 @@ Standard
 Appearance
 Design
 
-Unknown artist
-Unbekannter Künstler
-
-Unknown album
-Unbekanntes Album
-
 JavaScript error
 JavaScript Fehler
 

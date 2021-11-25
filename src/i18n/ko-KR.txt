@@ -840,12 +840,6 @@ Default
 Appearance
 외관
 
-Unknown artist
-모르는 연주자
-
-Unknown album
-모르는 음반
-
 JavaScript error
 자바스크립트 오류
 

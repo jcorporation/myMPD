@@ -795,12 +795,6 @@ Predefinito
 Appearance
 Aspetto
 
-Unknown artist
-Artista sconosciuto
-
-Unknown album
-Album sconosciuto
-
 JavaScript error
 Errore JavaScript
 

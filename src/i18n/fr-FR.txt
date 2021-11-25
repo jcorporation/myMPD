@@ -795,12 +795,6 @@ Par défault
 Appearance
 Apparence
 
-Unknown artist
-Artist inconnu
-
-Unknown album
-Album inconnu
-
 JavaScript error
 Erreur JavaScript
 
