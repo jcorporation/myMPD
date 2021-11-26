@@ -20,8 +20,10 @@ if (LUA_FOUND)
     ../src/lib/http_client.c
   )
 
-  set_property(SOURCE "mympd-script.c" PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS} ${MONGOOSE_FLAGS}")
-  set_property(SOURCE "../dist/mongoose/mongoose.c" PROPERTY COMPILE_FLAGS "${MONGOOSE_FLAGS}")
+  #compiler flags for mongoose
+  set_property(SOURCE ../dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral")
+  #compiler flags for sds
+  set_property(SOURCE ../dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-shadow -Wno-format-nonliteral")
 
   add_executable(mympd-script ${MYMPD_SCRIPT_SOURCES})
   target_link_libraries(mympd-script)

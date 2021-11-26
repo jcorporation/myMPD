@@ -141,23 +141,33 @@ configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.se
 configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.sysVinit @ONLY)
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
 
-include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} dist/libmpdclient/include ${PCRE2_INCLUDE_DIRS})
+include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
+include_directories(${PCRE2_INCLUDE_DIRS})
+include_directories("dist/libmpdclient/include")
 
+#set strict global compile flags
 if("${ENABLE_LIBASAN}" MATCHES "ON")
   message("Compiling with libasan")
   set(LIBASAN_FLAGS "-fsanitize=address \
     -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
     -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
     -fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow \
-    -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -static-libasan")
+    -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr \
+    -static-libasan")
 else()
   set(LIBASAN_FLAGS "")
 endif()
 
+set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_DIRECTORY_LISTING=1 -DMG_ENABLE_SSI=0")
+set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABLE_RPC=0 \
+  -D MJSON_ENABLE_PRETTY=0 -D MJSON_ENABLE_MERGE=0")
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wvla -Winit-self -Wuninitialized \
 	-Werror=array-bounds -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE -O3 \
-	-ffunction-sections -fdata-sections \
-	${LIBASAN_FLAGS}")
+	-ffunction-sections -fdata-sections -Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
+	-Wformat=2 -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs \
+  -Wmissing-include-dirs -Wundef -Wformat-nonliteral \
+	${LIBASAN_FLAGS} ${MONGOOSE_FLAGS} ${MJSON_FLAGS}")
 
 foreach(FLAG IN ITEMS "-std=gnu17" "-fstack-clash-protection" "-fcf-protection" "-fno-plt")
   message("Checking for compiler flag ${FLAG}")
@@ -171,50 +181,25 @@ endforeach()
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
 
-set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_DIRECTORY_LISTING=1 -DMG_ENABLE_SSI=0")
-set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABLE_RPC=0 -D MJSON_ENABLE_PRETTY=0 -D MJSON_ENABLE_MERGE=0")
-
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
-  set(MONGOOSE_FLAGS "${MONGOOSE_FLAGS} -DMG_ENABLE_LOG=0")
+  #disable mongoose log for release
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMG_ENABLE_LOG=0")
   #linker flags
   set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -pie -s -Wl,--gc-sections")
 else()
   set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
 endif()
 
-set(MYMPD_FLAGS "-Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
-	-Wformat=2 -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs \
-  -Wmissing-include-dirs -Wdouble-promotion -Wundef -Wformat-nonliteral")
-
-#compiler flags for mympd src
-file(GLOB MYMPD_SRC_FILES1 "src/*.c")
-set_property(SOURCE ${MYMPD_SRC_FILES1} PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS} ${MONGOOSE_FLAGS}")
-
-file(GLOB MYMPD_SRC_FILES1 "src/lib/*.c")
-set_property(SOURCE ${MYMPD_SRC_FILES1} PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS} ${MJSON_FLAGS}")
-
-file(GLOB MYMPD_SRC_FILES2 "src/mpd_client/*.c")
-set_property(SOURCE ${MYMPD_SRC_FILES2} PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS}")
-
-file(GLOB MYMPD_SRC_FILES3 "src/mympd_api/*.c")
-set_property(SOURCE ${MYMPD_SRC_FILES3} PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS}")
-
-file(GLOB MYMPD_SRC_FILES4 "src/web_server/*.c")
-set_property(SOURCE ${MYMPD_SRC_FILES4} PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS} ${MONGOOSE_FLAGS}")
-
-file(GLOB MYMPD_SRC_FILES5 "src/mpd_worker/*.c")
-set_property(SOURCE ${MYMPD_SRC_FILES5} PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS}")
-
-file(GLOB MYMPD_SRC_FILES6 "src/mpd_shared/*.c")
-set_property(SOURCE ${MYMPD_SRC_FILES6} PROPERTY COMPILE_FLAGS "${MYMPD_FLAGS}")
-
-#compiler flags for mjson
-set_property(SOURCE dist/mjson/mjson.c PROPERTY COMPILE_FLAGS "${MJSON_FLAGS}")
-
+#relax some compiler settings for dist sources
 #compiler flags for mongoose
-set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "${MONGOOSE_FLAGS}")
+set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral")
+#compiler flags for rax
+set_property(SOURCE dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-shadow -Wno-format-nonliteral \
+  -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers")
+#compiler flags for sds
+set_property(SOURCE dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-shadow -Wno-format-nonliteral")
 
-set(SOURCES
+set(MYMPD_SOURCES
   dist/mjson/mjson.c
   dist/mongoose/mongoose.c
   dist/rax/rax.c
@@ -344,7 +329,7 @@ set(LIBMPDCLIENT_SOURCES
   dist/libmpdclient/src/tag.c
 )
 
-add_executable(mympd ${SOURCES} ${LIBMPDCLIENT_SOURCES} ${CERT_SOURCES})
+add_executable(mympd ${MYMPD_SOURCES} ${LIBMPDCLIENT_SOURCES} ${CERT_SOURCES})
 
 target_link_libraries(mympd ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(mympd m)
