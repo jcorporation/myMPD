@@ -1249,8 +1249,10 @@ function warnLocale(value) {
 
 //eslint-disable-next-line no-unused-vars
 function setLoglevel() {
-    const loglevel = getSelectValueId('selectSetLoglevel');
+    const loglevel = Number(getSelectValueId('selectSetLoglevel'));
     sendAPI("MYMPD_API_LOGLEVEL", {
-        "loglevel": Number(loglevel)
-    });
+        "loglevel": loglevel
+    }, function() {
+        settings.loglevel = loglevel
+    }, false);
 }
