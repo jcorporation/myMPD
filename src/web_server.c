@@ -761,15 +761,15 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
         }
         case MYMPD_API_SESSION_LOGOUT: {
             bool rc = false;
-            sds response;
+            sds response = sdsempty();
             if (sdslen(session) == 20) {
                 rc = webserver_session_remove(&mg_user_data->session_list, session);
                 if (rc == true) {
-                    response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, false, "session", "info", "Session removed");
+                    response = jsonrpc_respond_message(response, "MYMPD_API_SESSION_LOGOUT", 0, false, "session", "info", "Session removed");
                 }
             }
             if (rc == false) {
-                response = jsonrpc_respond_message(sdsempty(), "MYMPD_API_SESSION_LOGOUT", 0, true, "session", "error", "Invalid session");
+                response = jsonrpc_respond_message(response, "MYMPD_API_SESSION_LOGOUT", 0, true, "session", "error", "Invalid session");
             }
 
             webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
