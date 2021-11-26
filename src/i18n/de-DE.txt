@@ -1976,3 +1976,6 @@ Aktuelles Lied wiederholen
 
 Stop playback after current song
 Wiedergabe nach aktuellem Lied beenden
+
+Disable single mode
+Beende "Nur ein Lied" Modus
