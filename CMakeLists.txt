@@ -64,7 +64,6 @@ endif()
 
 find_package(Threads REQUIRED)
 find_package(PCRE2 REQUIRED)
-include_directories(${PCRE2_INCLUDE_DIRS})
 
 if(NOT "${ENABLE_SSL}" MATCHES "OFF")
   message("Searching for openssl")
@@ -142,7 +141,7 @@ configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.se
 configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.sysVinit @ONLY)
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
 
-include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} dist/libmpdclient/include)
+include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} dist/libmpdclient/include ${PCRE2_INCLUDE_DIRS})
 
 if("${ENABLE_LIBASAN}" MATCHES "ON")
   message("Compiling with libasan")
