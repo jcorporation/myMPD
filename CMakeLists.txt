@@ -24,7 +24,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 
 if (CMAKE_C_COMPILER_ID MATCHES "Clang")
   message("Compiling with clang")
-  add_compile_options(-Wno-unknown-warning-option)
+  add_compile_options("-Wno-unknown-warning-option")
 endif()
 
 message("Compiler: ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}")
@@ -163,7 +163,7 @@ set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABL
   -D MJSON_ENABLE_PRETTY=0 -D MJSON_ENABLE_MERGE=0")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wvla -Winit-self -Wuninitialized \
-	-Werror=array-bounds -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE -O3 \
+	-Werror=array-bounds -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
 	-ffunction-sections -fdata-sections -Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
 	-Wformat=2 -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs \
   -Wmissing-include-dirs -Wundef -Wformat-nonliteral \
@@ -179,14 +179,11 @@ foreach(FLAG IN ITEMS "-std=gnu17" "-fstack-clash-protection" "-fcf-protection" 
   endif()
 endforeach()
 
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
-
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
-  #disable mongoose log for release
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMG_ENABLE_LOG=0")
-  #linker flags
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -fPIE -DMG_ENABLE_LOG=0")
   set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -pie -s -Wl,--gc-sections")
 else()
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb -Og")
   set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
 endif()
 
