@@ -165,3 +165,27 @@ function saveSearchAsSmartPlaylist() {
         "expression": app.current.search
     }});
 }
+
+//eslint-disable-next-line no-unused-vars
+function addAllFromSearch(mode, type) {
+    switch(mode) {
+        case 'append':
+            appendQueue(type, app.current.search);
+            break;
+        case 'appendPlay':
+            appendPlayQueue(type, app.current.search);
+            break;
+        case 'insertAfterCurrent':
+            insertAfterCurrentQueue(type, app.current.search);
+            break;
+        case 'insertPlayAfterCurrent':
+            insertPlayAfterCurrentQueue(type, app.current.search);
+            break;
+        case 'replace':
+            replaceQueue(type, app.current.search, false);
+            break;
+        case 'replacePlay':
+            replacePlayQueue(type, app.current.search, true);
+            break;
+    }
+}

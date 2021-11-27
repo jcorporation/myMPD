@@ -46,6 +46,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+//private definitions
+static bool check_start_play(struct t_mympd_state *mympd_state, bool play, sds *buffer, sds method, long id);
+
+//public functions
+
 void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request *request) {
     unsigned uint_buf1;
     unsigned uint_buf2;
@@ -1071,43 +1076,48 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             {
                 rc = mpd_run_add_whence(mympd_state->mpd_state->conn, sds_buf1, uint_buf1, uint_buf2);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_add_whence", &result);
-                if (result == true) {
-                    if (bool_buf1 == true) {
-                        //add and play
-                        rc = mympd_api_queue_play_newly_inserted(mympd_state);
-                        if (rc == false) {
-                            response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
-                                "queue", "error", "Start playing newly added song failed");
-                            break;
-                        }
-                    }
+                if (result == true &&
+                    check_start_play(mympd_state, bool_buf1, &response->data, request->method, request->id) == true)
+                {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, "queue", "info", "Updated the queue");
                 }
             }
             break;
         case MYMPD_API_QUEUE_REPLACE_URI:
-            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true) {
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
+            {
                 rc = mympd_api_queue_replace_with_song(mympd_state, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mympd_api_queue_replace_with_song", &result);
-                if (result == true) {
+                if (result == true &&
+                    check_start_play(mympd_state, bool_buf1, &response->data, request->method, request->id) == true)
+                {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, "queue", "info", "Replaced the queue");
                 }
             }
             break;
         case MYMPD_API_QUEUE_APPEND_URI:
-            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true) {
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
+            {
                 rc = mpd_run_add(mympd_state->mpd_state->conn, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_add", &result);
-                if (result == true) {
+                if (result == true &&
+                    check_start_play(mympd_state, bool_buf1, &response->data, request->method, request->id) == true)
+                {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, "queue", "info", "Updated the queue");
                 }
             }
             break;
         case MYMPD_API_QUEUE_APPEND_PLAYLIST:
-            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true) {
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
+            {
                 rc = mpd_run_load(mympd_state->mpd_state->conn, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_load", &result);
-                if (result == true) {
+                if (result == true &&
+                    check_start_play(mympd_state, bool_buf1, &response->data, request->method, request->id) == true)
+                {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                         "queue", "info", "Updated the queue");
                 }
@@ -1125,36 +1135,37 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             {
                 rc = mpd_run_load_range_to(mympd_state->mpd_state->conn, sds_buf1, 0, UINT_MAX, uint_buf1, uint_buf2);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_load_range_to", &result);
-                if (result == true) {
-                    if (bool_buf1 == true) {
-                        //add and play
-                        rc = mympd_api_queue_play_newly_inserted(mympd_state);
-                        if (rc == false) {
-                            response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
-                                "queue", "error", "Start playing newly added song failed");
-                            break;
-                        }
-                    }
+                if (result == true &&
+                    check_start_play(mympd_state, bool_buf1, &response->data, request->method, request->id) == true)
+                {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                         "queue", "info", "Updated the queue");
                 }
             }
             break;
         case MYMPD_API_QUEUE_REPLACE_PLAYLIST:
-            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true) {
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
+            {
                 rc = mympd_api_queue_replace_with_playlist(mympd_state, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mympd_api_queue_replace_with_playlist", &result);
-                if (result == true) {
+                if (result == true &&
+                    check_start_play(mympd_state, bool_buf1, &response->data, request->method, request->id) == true)
+                {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                         "queue", "info", "Replaced the queue");
                 }
             }
             break;
         case MYMPD_API_QUEUE_APPEND_SEARCH:
-            if (json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
+            if (json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
+            {
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
                     sds_buf1, NULL, false, NULL, "queue", UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
-                if (result == true) {
+                if (result == true &&
+                    check_start_play(mympd_state, bool_buf1, &response->data, request->method, request->id) == true)
+                {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                         "queue", "info", "Updated the queue");
                 }
@@ -1172,23 +1183,18 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             {
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
                     sds_buf1, NULL, false, NULL, "queue", uint_buf1, uint_buf2, 0, 0, NULL, mympd_state->sticker_cache, &result);
-                if (result == true) {
-                    if (bool_buf1 == true) {
-                        //add and play
-                        rc = mympd_api_queue_play_newly_inserted(mympd_state);
-                        if (rc == false) {
-                            response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
-                                "queue", "error", "Start playing newly added song failed");
-                            break;
-                        }
-                    }
+                if (result == true &&
+                    check_start_play(mympd_state, bool_buf1, &response->data, request->method, request->id) == true)
+                {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                         "queue", "info", "Updated the queue");
                 }
             }
             break;
         case MYMPD_API_QUEUE_REPLACE_SEARCH:
-            if (json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
+            if (json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
+            {
                 rc = mpd_run_clear(mympd_state->mpd_state->conn);
                 if (rc == false) {
                     response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_clear", &result);
@@ -1196,7 +1202,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 }
                 response->data = mpd_shared_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
                     sds_buf1, NULL, false, NULL, "queue", UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
-                if (result == true) {
+                if (result == true &&
+                    check_start_play(mympd_state, bool_buf1, &response->data, request->method, request->id) == true)
+                {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                         "queue", "info", "Replaced the queue");
                 }
@@ -1416,4 +1424,17 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         free_result(response);
     }
     free_request(request);
+}
+
+//private
+static bool check_start_play(struct t_mympd_state *mympd_state, bool play, sds *buffer, sds method, long id) {
+    if (play == true) {
+        bool rc = mympd_api_queue_play_newly_inserted(mympd_state);
+        if (rc == false) {
+            *buffer = jsonrpc_respond_message(*buffer, method, id, true,
+                "queue", "error", "Start playing newly added song failed");
+        }
+        return rc;
+    }
+    return true;
 }

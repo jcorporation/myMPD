@@ -158,11 +158,12 @@ function createPopoverDisc(el) {
     const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
     popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
     addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album, disc]}, 'Append to queue');
+    addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["appendPlayQueue", albumArtist, album, disc]}, 'Append to queue and play');
     if (features.featWhence === true) {
-        addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["insertQueue", albumArtist, album]}, 'Insert after current playing song');
-        addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["playQueue", albumArtist, album]}, 'Add to queue and play');
+        addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["insertAfterCurrentQueue", albumArtist, album]}, 'Insert after current playing song');
     }
     addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album, disc]}, 'Replace queue');
+    addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["replacePlayQueue", albumArtist, album, disc]}, 'Replace queue and play');
     if (features.featPlaylists === true) {
         addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album, disc]}, 'Add to playlist');
     }
@@ -312,11 +313,12 @@ function addMenuItemsSingleActions(popoverBody) {
 function addMenuItemsAlbumActions(tabContent, albumArtist, album) {
     if (app.id !== 'QueueCurrent') {
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album]}, 'Append to queue');
+        addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["appendPlayQueue", albumArtist, album]}, 'Append to queue and play');
         if (features.featWhence === true) {
-            addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["insertQueue", albumArtist, album]}, 'Insert after current playing song');
-            addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["playQueue", albumArtist, album]}, 'Add to queue and play');
+            addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["insertAfterCurrentQueue", albumArtist, album]}, 'Insert after current playing song');
         }
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album]}, 'Replace queue');
+        addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["replacePlayQueue", albumArtist, album]}, 'Replace queue and play');
     }
     if (features.featPlaylists === true) {
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, 'Add to playlist');
@@ -335,11 +337,12 @@ function addMenuItemsAlbumActions(tabContent, albumArtist, album) {
 function addMenuItemsSongActions(tabContent, uri, name) {
     if (app.id !== 'QueueCurrent') {
         addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["song", uri]}, 'Append to queue');
+        addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": ["song", uri]}, 'Append to queue and play');
         if (features.featWhence === true) {
-            addMenuItem(tabContent, {"cmd": "insertQueue", "options": ["song", uri, 0, 1, false]}, 'Insert after current playing song');
-            addMenuItem(tabContent, {"cmd": "insertQueue", "options": ["song", uri, 0, 1, true]}, 'Add to queue and play');
+            addMenuItem(tabContent, {"cmd": "insertAfterCurrentQueue", "options": ["song", uri, 0, 1, false]}, 'Insert after current playing song');
         }
         addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["song", uri]}, 'Replace queue');
+        addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": ["song", uri]}, 'Replace queue and play');
     }
     if (features.featPlaylists === true) {
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [uri, ""]}, 'Add to playlist');
@@ -359,22 +362,24 @@ function addMenuItemsSongActions(tabContent, uri, name) {
 function addMenuItemsSearchActions(tabContent, uri) {
     if (app.id !== 'QueueCurrent') {
         addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["search", uri]}, 'Append to queue');
+        addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": ["search", uri]}, 'Append to queue and play');
         if (features.featWhence === true) {
-            addMenuItem(tabContent, {"cmd": "insertQueue", "options": ["search", uri, 0, 1, false]}, 'Insert after current playing song');
-            addMenuItem(tabContent, {"cmd": "insertQueue", "options": ["search", uri, 0, 1, true]}, 'Add to queue and play');
+            addMenuItem(tabContent, {"cmd": "insertAfterCurrentQueue", "options": ["search", uri, 0, 1, false]}, 'Insert after current playing song');
         }
         addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["search", uri]}, 'Replace queue');
+        addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": ["search", uri]}, 'Replace queue and play');
     }
 }
 
 function addMenuItemsDirectoryActions(tabContent, baseuri) {
     //songs must be arragend in one album per folder
     addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["dir", baseuri]}, 'Append to queue');
+    addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": ["dir", baseuri]}, 'Append to queue and play');
     if (features.featWhence === true) {
-        addMenuItem(tabContent, {"cmd": "insertQueue", "options": ["dir", baseuri, 0, 1, false]}, 'Insert after current playing song');
-        addMenuItem(tabContent, {"cmd": "insertQueue", "options": ["song", baseuri, 0, 1, true]}, 'Add to queue and play');
+        addMenuItem(tabContent, {"cmd": "insertAfterCurrentQueue", "options": ["dir", baseuri, 0, 1, false]}, 'Insert after current playing song');
     }
     addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["dir", baseuri]}, 'Replace queue');
+    addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": ["dir", baseuri]}, 'Replace queue and play');
     if (features.featPlaylists === true) {
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [baseuri, ""]}, 'Add to playlist');
     }
@@ -396,11 +401,12 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
 
 function addMenuItemsPlaylistActions(tabContent, type, uri, name) {
     addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri]}, 'Append to queue');
+    addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": [type, uri]}, 'Append to queue and play');
     if (features.featWhence === true) {
-        addMenuItem(tabContent, {"cmd": "insertQueue", "options": [type, uri, 0, 1, false]}, 'Add after current playing song');
-        addMenuItem(tabContent, {"cmd": "insertQueue", "options": [type, uri, 0, 1, true]}, 'Add to queue and play');
+        addMenuItem(tabContent, {"cmd": "insertAfterCurrentQueue", "options": [type, uri, 0, 1, false]}, 'Add after current playing song');
     }
     addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, uri]}, 'Replace queue');
+    addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": [type, uri]}, 'Replace queue and play');
     if (features.featHome === true &&
         app.id !== 'Home')
     {
@@ -601,7 +607,7 @@ function createMenuHome(el, tabHeader, tabContent) {
         case 'replaceQueueAlbum':
         case 'appendQueueAlbum':
         case 'playQueueAlbum':
-        case 'insertQueueAlbum':
+        case 'insertAfterCurrentQueueAlbum':
             type = href.options[0];
             title = typeFriendly[href.options[0]];
             break;

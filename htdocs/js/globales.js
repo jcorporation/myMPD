@@ -248,9 +248,10 @@ const webuiSettingsDefault = {
         "defaultValue": "append",
         "validValues": {
             "append": "Append to queue",
-            "insert": "Insert after current playing song",
-            "play": "Add to queue and play",
+            "appendPlay": "Append to queue and play",
+            "insertAfterCurrent": "Insert after current playing song",
             "replace": "Replace queue",
+            "replacePlay": "Replace queue and play",
             "view": "Song details"
         },
         "inputType": "select",
@@ -271,9 +272,10 @@ const webuiSettingsDefault = {
         "defaultValue": "append",
         "validValues": {
             "append": "Append to queue",
-            "insert": "Insert after current playing song",
-            "play": "Add to queue and play",
+            "appendPlay": "Append to queue and play",
+            "insertAfterCurrent": "Insert after current playing song",
             "replace": "Replace queue",
+            "replacePlay": "Replace queue and play",
             "view": "View playlist"
         },
         "inputType": "select",
@@ -284,9 +286,10 @@ const webuiSettingsDefault = {
         "defaultValue": "view",
         "validValues": {
             "append": "Append to queue",
-            "insert": "Insert after current playing song",
-            "play": "Add to queue and play",
+            "appendPlay": "Append to queue and play",
+            "insertAfterCurrent": "Insert after current playing song",
             "replace": "Replace queue",
+            "replacePlay": "Replace queue and play",
             "view": "Open folder"
         },
         "inputType": "select",
@@ -297,9 +300,10 @@ const webuiSettingsDefault = {
         "defaultValue": "replace",
         "validValues": {
             "append": "Append to queue",
-            "insert": "Insert after current playing song",
-            "play": "Add to queue and play",
+            "appendPlay": "Append to queue and play",
+            "insertAfterCurrent": "Insert after current playing song",
             "replace": "Replace queue",
+            "replacePlay": "Replace queue and play"
         },
         "inputType": "select",
         "title": "Click album play button",

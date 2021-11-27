@@ -91,7 +91,7 @@
       <a data-phrase="Fullscreen" class="dropdown-item" href="#" data-href='{"cmd": "openFullscreen", "options": []}'></a>
       <a data-phrase="Browse directories" class="dropdown-item featLibrary" href="browse/" target="_blank"></a>
       <a data-phrase="About" class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalAbout"></a>
-      <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item d-none" href="#"></a>
+      <a data-phrase="Add to homescreen" id="nav-add2homescreen" class="dropdown-item d-none" href="#"></a>
       <a data-phrase="Login" id="mmLogin" data-href='{"cmd": "enterPin", "options": []}' class="dropdown-item" href="#"></a>
       <a data-phrase="Logout" id="mmLogout" data-href='{"cmd": "removeSession", "options": []}' class="dropdown-item d-none" href="#"></a>
       <div class="dropdown-divider"></div>
@@ -472,11 +472,12 @@
               <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide">
                 <div class="d-grid gap-2">
                   <button data-phrase="Append to queue" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
-                  <button data-phrase="Insert after current playing song" data-href='{"cmd": "addAlbum", "options": ["insertQueue"]}' type="button" class="featWhence btn btn-secondary btn-sm"></button>
-                  <button data-phrase="Add to queue and play" data-href='{"cmd": "addAlbum", "options": ["playQueue"]}' type="button" class="featWhence btn btn-secondary btn-sm"></button>
+                  <button data-phrase="Append to queue and play" data-href='{"cmd": "addAlbum", "options": ["appendPlayQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
+                  <button data-phrase="Insert after current playing song" data-href='{"cmd": "addAlbum", "options": ["insertAfterCurrentQueue"]}' type="button" class="featWhence btn btn-secondary btn-sm"></button>
                   <button data-phrase="Replace queue" data-href='{"cmd": "addAlbum", "options": ["replaceQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
+                  <button data-phrase="Replace queue and play" data-href='{"cmd": "addAlbum", "options": ["replacePlayQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
                   <button data-phrase="Add to playlist" data-href='{"cmd": "addAlbum", "options": ["addPlaylist"]}' type="button" class="btn btn-secondary btn-sm featPlaylists"></button>
-                  <button data-phrase="Add to home screen" data-href='{"cmd": "addAlbumToHome", "options": []}' type="button" class="btn btn-secondary btn-sm featHome"></button>
+                  <button data-phrase="Add to homescreen" data-href='{"cmd": "addAlbumToHome", "options": []}' type="button" class="btn btn-secondary btn-sm featHome"></button>
               </div>
               </div>
             </div>
@@ -524,10 +525,12 @@
             <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide" id="BrowseFilesystemAddAllSongsDropdown">
               <div class="d-grid gap-2">
                 <button data-href='{"cmd": "addAllFromSearch", "options": ["append", "dir"]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm"></button>
-                <button data-href='{"cmd": "addAllFromSearch", "options": ["insert", "dir"]}' data-phrase="Insert after current playing song" type="button" class="featWhence btn btn-secondary btn-sm"></button>
-                <button data-href='{"cmd": "addAllFromSearch", "options": ["play", "dir"]}' data-phrase="Add to queue and play" type="button" class="featWhence btn btn-secondary btn-sm"></button>
+                <button data-href='{"cmd": "addAllFromSearch", "options": ["appendPlay", "dir"]}' data-phrase="Append to queue and play" type="button" class="btn btn-secondary btn-sm"></button>
+                <button data-href='{"cmd": "addAllFromSearch", "options": ["insertAfterCurrent", "dir"]}' data-phrase="Insert after current playing song" type="button" class="featWhence btn btn-secondary btn-sm"></button>
                 <button data-href='{"cmd": "addAllFromSearch", "options": ["replace", "dir"]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm"></button>
+                <button data-href='{"cmd": "addAllFromSearch", "options": ["replacePlay", "dir"]}' data-phrase="Replace queue and play" type="button" class="btn btn-secondary btn-sm"></button>
                 <button data-href='{"cmd": "showAddToPlaylistFromFilesystem", "options": []}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm featPlaylists"></button>
+                <button data-href='{"cmd": "addDirToHome", "options": []}' data-phrase="Add to homescreen" type="button" class="btn btn-secondary btn-sm featHome"></button>
               </div>
             </div>
           </div>
@@ -585,12 +588,13 @@
             <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide" id="searchAddAllSongsDropdown">
               <div class="d-grid gap-2">
                 <button data-href='{"cmd": "addAllFromSearch", "options": ["append", "search"]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm"></button>
-                <button data-href='{"cmd": "addAllFromSearch", "options": ["insert", "search"]}' data-phrase="Insert after current playing song" type="button" class="featWhence btn btn-secondary btn-sm"></button>
-                <button data-href='{"cmd": "addAllFromSearch", "options": ["play", "search"]}' data-phrase="Add to queue and play" type="button" class="featWhence btn btn-secondary btn-sm"></button>
+                <button data-href='{"cmd": "addAllFromSearch", "options": ["appendPlay", "search"]}' data-phrase="Append to queue and play" type="button" class="btn btn-secondary btn-sm"></button>
+                <button data-href='{"cmd": "addAllFromSearch", "options": ["insertAfterCurrent", "search"]}' data-phrase="Insert after current playing song" type="button" class="featWhence btn btn-secondary btn-sm"></button>
                 <button data-href='{"cmd": "addAllFromSearch", "options": ["replace", "search"]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm"></button>
+                <button data-href='{"cmd": "addAllFromSearch", "options": ["replacePlay", "search"]}' data-phrase="Replace queue and play" type="button" class="btn btn-secondary btn-sm"></button>
                 <button data-href='{"cmd": "showAddToPlaylistCurrentSearch", "options": []}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm featPlaylists"></button>
                 <button data-href='{"cmd": "saveSearchAsSmartPlaylist", "options": []}' data-phrase="Save as smart playlist" type="button" class="btn btn-secondary btn-sm featSmartpls"></button>
-                <button data-href='{"cmd": "addSearchToHome", "options": []}' data-phrase="Add to home screen" type="button" class="btn btn-secondary btn-sm featHome"></button>
+                <button data-href='{"cmd": "addSearchToHome", "options": []}' data-phrase="Add to homescreen" type="button" class="btn btn-secondary btn-sm featHome"></button>
               </div>
             </div>
           </div>
@@ -734,7 +738,7 @@
                 <div class="btn-group">
                   <button id="toggleAddToPlaylistQueue" class="btn btn-secondary active" data-href='{"cmd": "toggleAddToPlaylistFrm", "options":[]}' data-phrase="Queue"></button>
                   <button id="toggleAddToPlaylistPlaylist" class="btn btn-secondary" data-href='{"cmd": "toggleAddToPlaylistFrm", "options":[]}' data-phrase="Playlist"></button>
-                  <button type="button" class="btn btn-secondary" data-href='{"cmd": "addStreamToHome", "options": []}' data-phrase="Home screen"></button>
+                  <button type="button" class="btn btn-secondary" data-href='{"cmd": "addStreamToHome", "options": []}' data-phrase="Homescreen"></button>
                 </div>
               </div>
             </div>
@@ -759,17 +763,25 @@
                 <input class="form-check-input" type="radio" name="addToPlaylistPos" value="append" id="addToPlaylistPosAppend"/>
                 <label class="form-check-label" for="addToPlaylistPosAppend" data-phrase="Append"></label>
               </div>
-              <div class="form-check ms-4 featWhence">
-                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="insert" id="addToPlaylistPosInsert"/>
+              <div class="form-check ms-4" id="addToPlaylistPosAppendPlayRow">
+                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="appendPlay" id="addToPlaylistPosAppendPlay"/>
+                <label class="form-check-label" for="addToPlaylistPosAppendPlay" data-phrase="Append and play"></label>
+              </div>
+              <div class="form-check ms-4 featWhence" id="addToPlaylistPosInsertRow">
+                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="insertAfterCurrent" id="addToPlaylistPosInsert"/>
                 <label class="form-check-label" for="addToPlaylistPosInsert" id="addToPlaylistPosInsertLabel" data-phrase="Insert after current playing song"></label>
               </div>
-              <div class="form-check ms-4 featWhence" id="addToPlaylistPosPlayRow">
-                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="play" id="addToPlaylistPosPlay"/>
-                <label class="form-check-label" for="addToPlaylistPosPlay" data-phrase="Add to queue and play"></label>
+              <div class="form-check ms-4 featWhence" id="addToPlaylistPosInsertFirstRow">
+                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="insertFirst" id="addToPlaylistPosInsertFirst"/>
+                <label class="form-check-label" for="addToPlaylistPosInsert" id="addToPlaylistPosInsertLabel" data-phrase="Insert at start of playlist"></label>
               </div>
               <div class="form-check ms-4">
                 <input class="form-check-input" type="radio" name="addToPlaylistPos" value="replace" id="addToPlaylistPosReplace"/>
                 <label class="form-check-label" for="addToPlaylistPosReplace" data-phrase="Replace"></label>
+              </div>
+              <div class="form-check ms-4" id="addToPlaylistPosReplacePlayRow">
+                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="replacePlay" id="addToPlaylistPosReplacePlay"/>
+                <label class="form-check-label" for="addToPlaylistPosReplacePlay" data-phrase="Replace and play"></label>
               </div>
             </div>
           </div>

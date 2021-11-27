@@ -196,20 +196,24 @@ function joinArray(a) {
 //functions to get custom actions
 function clickAlbumPlay(albumArtist, album) {
     switch(settings.webuiSettings.clickAlbumPlay) {
-        case 'append':  return _addAlbum('appendQueue', albumArtist, album);
-        case 'insert':  return _addAlbum('insertQueue', albumArtist, album);
-        case 'play':    return _addAlbum('playQueue', albumArtist, album);
+        case 'append': return _addAlbum('appendQueue', albumArtist, album);
+        case 'appendPlay': return _addAlbum('appendPlayQueue', albumArtist, album);
+        case 'insertAfterCurrent': return _addAlbum('insertAfterCurrentQueue', albumArtist, album);
+        case 'insertPlayAfterCurrent': return _addAlbum('insertPlayAfterCurrentQueue', albumArtist, album);
         case 'replace': return _addAlbum('replaceQueue', albumArtist, album);
+        case 'replacePlay': return _addAlbum('replacePlayQueue', albumArtist, album);
     }
 }
 
 function clickSong(uri) {
     switch (settings.webuiSettings.clickSong) {
-        case 'append':  return appendQueue('song', uri);
-        case 'insert':  return insertQueue('song', uri, 0, 1, false);
-        case 'play':    return insertQueue('song', uri, 0, 1, true);
-        case 'replace': return replaceQueue('song', uri);
-        case 'view':    return songDetails(uri);
+        case 'append':             return appendQueue('song', uri);
+        case 'appendPlay':         return appendPlayQueue('song', uri);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
+        case 'replace':            return replaceQueue('song', uri);
+        case 'replacePlay':        return replacePlayQueue('song', uri);
+        case 'view':               return songDetails(uri);
     }
 }
 
@@ -233,20 +237,24 @@ function clickQueueSong(songid, uri) {
 
 function clickPlaylist(uri) {
     switch(settings.webuiSettings.clickPlaylist) {
-        case 'append':  return appendQueue('plist', uri);
-        case 'insert':  return insertQueue('plist', uri, 0, 1, false);
-        case 'play':    return insertQueue('plist', uri, 0, 1, true);
+        case 'append': return appendQueue('plist', uri);
+        case 'appendPlay': return appendPlayQueue('plist', uri);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue('plist', uri);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', uri);
         case 'replace': return replaceQueue('plist', uri);
-        case 'view':    return playlistDetails(uri);
+        case 'replacePlay': return replacePlayQueue('plist', uri);
+        case 'view': return playlistDetails(uri);
     }
 }
 
 function clickFolder(uri) {
     switch(settings.webuiSettings.clickFolder) {
         case 'append':  return appendQueue('dir', uri);
-        case 'insert':  return insertQueue('dir', uri, 0, 1, false);
-        case 'play':    return insertQueue('dir', uri, 0, 1, true);
+        case 'appendPlay':  return appendPlayQueue('dir', uri);
+        case 'insertAfterCurrent':  return insertAfterCurrentQueue('dir', uri);
+        case 'insertPlayAfterCurrent':  return insertPlayAfterCurrentQueue('dir', uri);
         case 'replace': return replaceQueue('dir', uri);
+        case 'replacePlay': return replacePlayQueue('dir', uri);
         case 'view':
             //remember offset for current browse uri
             browseFilesystemHistory[app.current.search] = {

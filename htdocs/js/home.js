@@ -349,25 +349,29 @@ function populateHomeIconCmdSelect(cmd, type) {
     else if (type === 'album') {
         selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueueAlbum"}, tn('Replace queue')));
         setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Albumartist", "Album"]});
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replacePlayQueueAlbum"}, tn('Replace queue and play')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Albumartist", "Album"]});
         if (features.featWhence === true) {
-            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertQueueAlbum"}, tn('Insert after current playing song')));
-            setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Albumartist", "Album"]});
-            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "playQueueAlbum"}, tn('Add to queue and play')));
+            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAfterCurrentQueueAlbum"}, tn('Insert after current playing song')));
             setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Albumartist", "Album"]});
         }
         selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueueAlbum"}, tn('Append to queue')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Albumartist", "Album"]});
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendPlayQueueAlbum"}, tn('Append to queue and play')));
         setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Albumartist", "Album"]});
     }
     else {
         selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueue"}, tn('Replace queue')));
         setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replacePlayQueue"}, tn('Replace queue and play')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
         if (features.featWhence === true) {
             selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAfterCurrentQueue"}, tn('Insert after current playing song')));
             setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
-            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAndPlayQueue"}, tn('Add to queue and play')));
-            setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
         }
         selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueue"}, tn('Append to queue')));
+        setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
+        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendPlayQueue"}, tn('Append to queue and play')));
         setData(selectHomeIconCmd.lastChild, 'data-options', {"options": ["Type", "Uri"]});
     }
 }
@@ -397,6 +401,10 @@ function addPlistToHome(uri, type, name) {
 
 //eslint-disable-next-line no-unused-vars
 function addDirToHome(uri, name) {
+    if(uri === undefined) {
+        uri = app.current.search;
+        name = basename(app.current.search, false);
+    }
     _addHomeIcon('replaceQueue', name, 'folder_open', ['dir', uri]);
 }
 
@@ -426,9 +434,11 @@ function addStreamToHome() {
     let action;
     switch(mode) {
         case 'append': action = 'appendQueue'; break;
-        case 'insert': action = 'insertAfterCurrentQueue'; break;
-        case 'play': action = 'insertAndPlayQueue'; break;
+        case 'appendPlay': action = 'appendPlayQueue'; break;
+        case 'insertAfterCurrent': action = 'insertAfterCurrentQueue'; break;
+        case 'insertPlayAfterCurrent': action = 'insertPlayAfterCurrentQueue'; break;
         case 'replace': action = 'replaceQueue'; break;
+        case 'replacePlay': action = 'replacePlayQueue'; break;
     }
     _addHomeIcon(action, '', 'stream', ['stream', uri]);
 }

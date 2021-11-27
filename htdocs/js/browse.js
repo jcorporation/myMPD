@@ -580,18 +580,28 @@ function appendQueueAlbum(albumArtist, album) {
 }
 
 //eslint-disable-next-line no-unused-vars
+function appendPlayQueueAlbum(albumArtist, album) {
+    _addAlbum('appendPlayQueue', albumArtist, album, undefined);
+}
+
+//eslint-disable-next-line no-unused-vars
 function replaceQueueAlbum(albumArtist, album) {
     _addAlbum('replaceQueue', albumArtist, album, undefined);
 }
 
 //eslint-disable-next-line no-unused-vars
-function insertQueueAlbum(albumArtist, album) {
+function replacePlayQueueAlbum(albumArtist, album) {
+    _addAlbum('replacePlayQueue', albumArtist, album, undefined);
+}
+
+//eslint-disable-next-line no-unused-vars
+function insertAfterCurrentQueueAlbum(albumArtist, album) {
     _addAlbum('insertQueue', albumArtist, album, undefined);
 }
 
 //eslint-disable-next-line no-unused-vars
-function playQueueAlbum(albumArtist, album) {
-    _addAlbum('replaceQueue', albumArtist, album, undefined);
+function insertPlayAfterCurrentQueueAlbum(albumArtist, album) {
+    _addAlbum('insertPlayQueue', albumArtist, album, undefined);
 }
 
 function _addAlbum(action, albumArtist, album, disc) {
@@ -608,14 +618,20 @@ function _addAlbum(action, albumArtist, album, disc) {
         case 'appendQueue':
             appendQueue('search', expression);
             break;
+        case 'appendPlayQueue':
+            appendPlayQueue('search', expression);
+            break;
         case 'replaceQueue':
             replaceQueue('search', expression);
             break;
-        case 'insertQueue':
-            insertQueue('search', expression, 0, 1, false);
+        case 'replacePlayQueue':
+            replacePlayQueue('search', expression);
             break;
-        case 'playQueue':
-            insertQueue('search', expression, 0, 1, true);
+        case 'insertAfterCurrentQueue':
+            insertAfterCurrentQueue('search', expression);
+            break;
+        case 'insertPlayAfterCurrentQueue':
+            insertPlayAfterCurrentQueue('search', expression);
             break;
         case 'addPlaylist':
             showAddToPlaylist('ALBUM', expression);

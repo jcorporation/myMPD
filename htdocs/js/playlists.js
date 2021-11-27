@@ -125,7 +125,8 @@ function parsePlaylistsDetail(obj) {
 
     elReplaceChild(tfoot, elCreateNode('tr', {},
         elCreateNode('td', {"colspan": colspan},
-            elCreateText('small', {}, tn('Num songs', obj.result.totalEntities) + ' - ' + beautifyDuration(obj.result.totalTime))))
+            elCreateText('small', {}, tn('Num songs', obj.result.totalEntities) + 
+                smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime))))
     );
 
     updateTable(obj, 'BrowsePlaylistsDetail', function(row, data) {
@@ -369,25 +370,19 @@ function showAddToPlaylist(uri, searchstr) {
     document.getElementById('addToPlaylistPlaylist').value = '';
     document.getElementById('addToPlaylistPlaylist').filterInput.value = '';
     document.getElementById('addToPlaylistPosAppend').checked = 'checked';
-    toggleBtnGroupId('toggleAddToPlaylistQueue');
     const streamUrl = document.getElementById('streamUrl');
     streamUrl.focus();
     streamUrl.value = '';
-    if (uri !== 'STREAM') {
-        //add to playlist
-        elHideId('addStreamFrm');
-        elShowId('addToPlaylistFrm');
-        elHideId('addToPlaylistPosPlayRow');
-        document.getElementById('addToPlaylistCaption').textContent = tn('Add to playlist');
-        document.getElementById('addToPlaylistPosInsertLabel').textContent = tn('Insert at start of playlist');
+    if (uri === 'STREAM') {
+        //add stream
+        toggleAddToPlaylistFrm(document.getElementById('toggleAddToPlaylistQueue'));
+        elShowId('addStreamFrm');
+        document.getElementById('addToPlaylistCaption').textContent = tn('Add stream');
     }
     else {
-        //add to queue
-        elShowId('addStreamFrm');
-        elHideId('addToPlaylistFrm');
-        elShowId('addToPlaylistPosPlayRow');
-        document.getElementById('addToPlaylistCaption').textContent = tn('Add stream');
-        document.getElementById('addToPlaylistPosInsert').nextElementSibling.textContent = tn('Insert after current playing song');
+        //add to playlist
+        toggleAddToPlaylistFrm(document.getElementById('toggleAddToPlaylistPlaylist'));
+        document.getElementById('addToPlaylistCaption').textContent = tn('Add to playlist');
     }
     uiElements.modalAddToPlaylist.show();
     if (features.featPlaylists) {
@@ -401,14 +396,18 @@ function toggleAddToPlaylistFrm(target) {
     if (target.getAttribute('id') === 'toggleAddToPlaylistPlaylist') {
         //add to playlist
         elShowId('addToPlaylistFrm');
-        document.getElementById('addToPlaylistPosInsert').nextElementSibling.textContent = tn('Insert at start of playlist');
-        elHideId('addToPlaylistPosPlayRow');
+        elShowId('addToPlaylistPosInsertFirstRow');
+        elHideId('addToPlaylistPosInsertRow');
+        elHideId('addToPlaylistPosAppendPlayRow');
+        elHideId('addToPlaylistPosReplacePlayRow');
     }
     else {
         //add to queue
         elHideId('addToPlaylistFrm');
-        document.getElementById('addToPlaylistPosInsert').nextElementSibling.textContent = tn('Insert after current playing song');
-        elShowId('addToPlaylistPosPlayRow');
+        elHideId('addToPlaylistPosInsertFirstRow');
+        elShowId('addToPlaylistPosInsertRow');
+        elShowId('addToPlaylistPosAppendPlayRow');
+        elShowId('addToPlaylistPosReplacePlayRow');
     }
 }
 
@@ -450,7 +449,7 @@ function addToPlaylist() {
             case 'append':
                 appendPlaylist(type, uri, plistEl.value, addToPlaylistClose);
                 break;
-            case 'insert':
+            case 'insertFirst':
                 insertPlaylist(type, uri, plistEl.value, 0, addToPlaylistClose);
                 break;
             case 'replace':
@@ -464,14 +463,20 @@ function addToPlaylist() {
             case 'append':
                 appendQueue(type, uri, addToPlaylistClose);
                 break;
-            case 'insert':
-                insertQueue(type, uri, 0, 1, false, addToPlaylistClose);
+            case 'appendPlay':
+                appendPlayQueue(type, uri, addToPlaylistClose);
                 break;
-            case 'play':
-                insertQueue(type, uri, 0, 1, true, addToPlaylistClose);
+            case 'insertAfterCurrent':
+                insertAfterCurrentQueue(type, uri,addToPlaylistClose);
+                break;
+            case 'insertPlayAfterCurrent':
+                insertPlayAfterCurrentQueue(type, uri, addToPlaylistClose);
                 break;
             case 'replace':
                 replaceQueue(type, uri, addToPlaylistClose);
+                break;
+            case 'replacePlay':
+                replacePlayQueue(type, uri, addToPlaylistClose);
                 break;
         }
     }
@@ -545,9 +550,9 @@ function replacePlaylist(type, uri, plist, callback) {
 //eslint-disable-next-line no-unused-vars
 function showRenamePlaylist(from) {
     cleanupModalId('modalRenamePlaylist');
-    uiElements.modalRenamePlaylist.show();
     document.getElementById('renamePlaylistFrom').value = from;
     document.getElementById('renamePlaylistTo').value = '';
+    uiElements.modalRenamePlaylist.show();
 }
 
 //eslint-disable-next-line no-unused-vars

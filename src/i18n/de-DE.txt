@@ -33,9 +33,6 @@ Einstellungen
 About
 Über myMPD
 
-Add to home screen
-Zum Startbildschirm hinzufügen
-
 Local playback
 Lokale Wiedergabe
 
@@ -645,6 +642,12 @@ Leere Liste
 Append to queue
 An Warteschlange anhängen
 
+Append to queue and play
+An Warteschlange anhängen und abspielen
+
+Append and play
+Anhängen und abspielen
+
 Add after current playing song
 Nach aktuellem Lied hinzufügen
 
@@ -653,6 +656,12 @@ Wiedergabeliste anzeigen
 
 Replace queue
 Warteschlange ersetzen
+
+Replace queue and play
+Warteschlange ersetzen und abspielen
+
+Replace and play
+Ersetzen und abspielen
 
 Edit smart playlist
 Intelligente Wiedergabeliste bearbeiten
@@ -1288,7 +1297,7 @@ Home
 Startseite
 
 Add to homescreen
-Zum Homescreen hinzufügen
+Zum Startbildschirm hinzufügen
 
 Can not get home icon
 Konnte Homeicon nicht abrufen
@@ -1315,7 +1324,7 @@ Picture
 Bild
 
 Homescreen welcome
-Du hast noch keine Homeicons hinzugefügt. Du kannst einzelne Ansichten, Wiedergabelisten und Skripte hinzufügen.
+Du hast noch keine Icons hinzugefügt. Du kannst einzelne Ansichten, Wiedergabelisten und Skripte hinzufügen.
 
 Can not open directory pics
 Konnte Verzeichnis pics nicht öffnen
@@ -1869,9 +1878,6 @@ Anhängen
 Replace
 Ersetzen
 
-Add to queue and play
-Zur Warteschlange hinzufügen und abspielen
-
 Insert at start of playlist
 Am Anfang der Wiedergabeliste einfügen
 
@@ -1949,9 +1955,6 @@ Temporäre Einstellung
 
 Add to
 Hinzufügen zu
-
-Home screen
-Startbildschirm
 
 Attribute
 Eigenschaft

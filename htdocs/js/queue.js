@@ -290,54 +290,47 @@ function parseLastPlayed(obj) {
     });
 }
 
-//eslint-disable-next-line no-unused-vars
-function addAllFromSearch(mode, type) {
-    switch(mode) {
-        case 'append':
-            appendQueue(type, app.current.search);
-            break;
-        case 'insert':
-            insertQueue(type, app.current.search, 0, 1, false);
-            break;
-        case 'play':
-            insertQueue(type, app.current.search, 0, 1, true);
-            break;
-        case 'replace':
-            replaceQueue(type, app.current.search);
-            break;
-    }
+function appendQueue(type, uri, callback) {
+    _appendQueue(type, uri, false, callback);
 }
 
-function appendQueue(type, uri, callback) {
+function appendPlayQueue(type, uri, callback) {
+    _appendQueue(type, uri, true, callback);
+}
+
+function _appendQueue(type, uri, play, callback) {
     switch(type) {
         case 'song':
         case 'dir':
         case 'stream':
             sendAPI("MYMPD_API_QUEUE_APPEND_URI", {
-                "uri": uri
+                "uri": uri,
+                "play": play
             }, callback, true);
             break;
         case 'plist':
             sendAPI("MYMPD_API_QUEUE_APPEND_PLAYLIST", {
-                "plist": uri
+                "plist": uri,
+                "play": play
             }, callback, true);
             break;
         case 'search':
             sendAPI("MYMPD_API_QUEUE_APPEND_SEARCH", {
-                "expression": uri
+                "expression": uri,
+                "play": play
             }, callback, true);
             break;
     }
 }
 
 //eslint-disable-next-line no-unused-vars
-function insertAndPlayQueue(type, uri, callback) {
-    insertQueue(type, uri, 0, 1, true, callback);
+function insertAfterCurrentQueue(type, uri, callback) {
+    insertQueue(type, uri, 0, 1, false, callback);
 }
 
 //eslint-disable-next-line no-unused-vars
-function insertAfterCurrentQueue(type, uri, callback) {
-    insertQueue(type, uri, 0, 1, false, callback);
+function insertPlayAfterCurrentQueue(type, uri, callback) {
+    insertQueue(type, uri, 0, 1, true, callback);
 }
 
 function insertQueue(type, uri, to, whence, play, callback) {
@@ -372,22 +365,33 @@ function insertQueue(type, uri, to, whence, play, callback) {
 }
 
 function replaceQueue(type, uri, callback) {
+    _replaceQueue(type, uri, false, callback)
+}
+
+function replacePlayQueue(type, uri, callback) {
+    _replaceQueue(type, uri, true, callback)
+}
+
+function _replaceQueue(type, uri, play, callback) {
     switch(type) {
         case 'song':
         case 'stream':
         case 'dir':
             sendAPI("MYMPD_API_QUEUE_REPLACE_URI", {
-                "uri": uri
+                "uri": uri,
+                "play": play
             }, callback, true);
             break;
         case 'plist':
             sendAPI("MYMPD_API_QUEUE_REPLACE_PLAYLIST", {
-                "plist": uri
+                "plist": uri,
+                "play": play
             }, callback, true);
             break;
         case 'search':
             sendAPI("MYMPD_API_QUEUE_REPLACE_SEARCH", {
-                "expression": uri
+                "expression": uri,
+                "play": play
             }, callback, true);
             break;
     }
