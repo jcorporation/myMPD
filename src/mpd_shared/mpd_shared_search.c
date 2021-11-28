@@ -199,7 +199,7 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
         if (adv == true) {
             buffer = tojson_char(buffer, "expression", expression, true);
             buffer = tojson_char(buffer, "sort", sort, true);
-            buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
+            buffer = tojson_bool(buffer, "sortdesc", sortdesc, false);
         }
         else {
             buffer = tojson_char(buffer, "searchstr", expression, true);
