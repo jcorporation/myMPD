@@ -209,7 +209,10 @@ function parseQueue(obj) {
     const table = document.getElementById('QueueCurrentList');
     setData(table, 'data-version', obj.result.queueVersion);
     const tfoot = table.getElementsByTagName('tfoot')[0];
-    if (obj.result.totalTime && obj.result.totalTime > 0 && obj.result.totalEntities <= app.current.limit ) {
+    if (obj.result.totalTime &&
+        obj.result.totalTime > 0 &&
+        obj.result.totalEntities <= app.current.limit)
+    {
         elReplaceChild(tfoot, elCreateNode('tr', {},
             elCreateNode('td', {"colspan": (colspan + 1)},
                 elCreateText('small', {}, tn('Num songs', obj.result.totalEntities) +
@@ -483,7 +486,9 @@ function delQueueSong(mode, start, end) {
 
 //eslint-disable-next-line no-unused-vars
 function gotoPlayingSong() {
-    if (currentState.songPos >= app.current.offset && currentState.songPos < app.current.offset + app.current.limit) {
+    if (currentState.songPos >= app.current.offset &&
+        currentState.songPos < app.current.offset + app.current.limit)
+    {
         //playing song is in this page
         document.getElementsByClassName('queue-playing')[0].scrollIntoView(true);
     }
