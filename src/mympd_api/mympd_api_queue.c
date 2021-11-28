@@ -88,10 +88,6 @@ bool mympd_api_queue_replace_with_song(struct t_mympd_state *mympd_state, const 
         if (rc == false) {
             MYMPD_LOG_ERROR("Error adding command to command list mpd_send_add");
         }
-        rc = mpd_send_play(mympd_state->mpd_state->conn);
-        if (rc == false) {
-            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_play");
-        }
         if (mpd_command_list_end(mympd_state->mpd_state->conn) == true) {
             mpd_response_finish(mympd_state->mpd_state->conn);
         }
@@ -106,7 +102,6 @@ bool mympd_api_queue_replace_with_playlist(struct t_mympd_state *mympd_state, co
     if (mpd_command_list_begin(mympd_state->mpd_state->conn, false)) {
         mpd_send_clear(mympd_state->mpd_state->conn);
         mpd_send_load(mympd_state->mpd_state->conn, plist);
-        mpd_send_play(mympd_state->mpd_state->conn);
         if (mpd_command_list_end(mympd_state->mpd_state->conn) == true) {
             mpd_response_finish(mympd_state->mpd_state->conn);
         }

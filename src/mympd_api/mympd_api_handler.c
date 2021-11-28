@@ -1429,6 +1429,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
 //private
 static bool check_start_play(struct t_mympd_state *mympd_state, bool play, sds *buffer, sds method, long id) {
     if (play == true) {
+        MYMPD_LOG_DEBUG("Start playing newly added songs");
         bool rc = mympd_api_queue_play_newly_inserted(mympd_state);
         if (rc == false) {
             *buffer = jsonrpc_respond_message(*buffer, method, id, true,
