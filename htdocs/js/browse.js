@@ -569,38 +569,45 @@ function backToAlbumGrid() {
     appGoto('Browse', 'Database', 'List');
 }
 
+//wrapper for buttons in album view
 //eslint-disable-next-line no-unused-vars
 function addAlbum(action) {
     _addAlbum(action, app.current.search, app.current.tag);
 }
-
+//wrapper for home icon action
 //eslint-disable-next-line no-unused-vars
-function appendQueueAlbum(albumArtist, album) {
+function appendQueueAlbum(type, albumArtist, album) {
+    //type not used but required for home icon cmd
     _addAlbum('appendQueue', albumArtist, album, undefined);
 }
-
+//wrapper for home icon action
 //eslint-disable-next-line no-unused-vars
-function appendPlayQueueAlbum(albumArtist, album) {
+function appendPlayQueueAlbum(type, albumArtist, album) {
+    //type not used but required for home icon cmd
     _addAlbum('appendPlayQueue', albumArtist, album, undefined);
 }
-
+//wrapper for home icon action
 //eslint-disable-next-line no-unused-vars
-function replaceQueueAlbum(albumArtist, album) {
+function replaceQueueAlbum(type, albumArtist, album) {
+    //type not used but required for home icon cmd
     _addAlbum('replaceQueue', albumArtist, album, undefined);
 }
-
+//wrapper for home icon action
 //eslint-disable-next-line no-unused-vars
-function replacePlayQueueAlbum(albumArtist, album) {
+function replacePlayQueueAlbum(type, albumArtist, album) {
+    //type not used but required for home icon cmd
     _addAlbum('replacePlayQueue', albumArtist, album, undefined);
 }
-
+//wrapper for home icon action
 //eslint-disable-next-line no-unused-vars
-function insertAfterCurrentQueueAlbum(albumArtist, album) {
+function insertAfterCurrentQueueAlbum(type, albumArtist, album) {
+    //type not used but required for home icon cmd
     _addAlbum('insertQueue', albumArtist, album, undefined);
 }
-
+//wrapper for home icon action
 //eslint-disable-next-line no-unused-vars
-function insertPlayAfterCurrentQueueAlbum(albumArtist, album) {
+function insertPlayAfterCurrentQueueAlbum(type, albumArtist, album) {
+    //type not used but required for home icon cmd
     _addAlbum('insertPlayQueue', albumArtist, album, undefined);
 }
 
