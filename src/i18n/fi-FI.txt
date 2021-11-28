@@ -30,9 +30,6 @@ Asetukset
 About
 Tietoja
 
-Add to home screen
-Lisää aloitus näkymään
-
 Local playback
 Paikallinen toisto
 

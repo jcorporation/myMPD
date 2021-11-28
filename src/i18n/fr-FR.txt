@@ -30,9 +30,6 @@ Paramètres
 About
 A propos
 
-Add to home screen
-Ajouter à l'écran d'accueil
-
 Local playback
 Jouer localement
 

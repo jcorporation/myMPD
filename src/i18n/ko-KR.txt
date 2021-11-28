@@ -1,4 +1,4 @@
-한국어
+;한국어
 
 MPD connection
 MPD 연결
@@ -32,9 +32,6 @@ Settings
 
 About
 정보
-
-Add to home screen
-홈 화면에 추가
 
 Local playback
 로컬 연주

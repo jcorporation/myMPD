@@ -30,9 +30,6 @@ Instellingen
 About
 Over myMPD
 
-Add to home screen
-Aan startscherm toevoegen
-
 Local playback
 Lokaal afspelen
 

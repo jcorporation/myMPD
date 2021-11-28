@@ -30,9 +30,6 @@ Ajustes
 About
 Acerca de
 
-Add to home screen
-Agregar a pantalla de inicio
-
 Local playback
 Reproducción local
 

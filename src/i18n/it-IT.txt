@@ -30,9 +30,6 @@ Parametri
 About
 Informazioni
 
-Add to home screen
-Aggiungi alla schermata home
-
 Local playback
 Riproduzione locale
 
