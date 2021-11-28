@@ -484,9 +484,9 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('inputHomeIconLigature').value = obj.result.data.ligature;
         document.getElementById('inputHomeIconBgcolor').value = obj.result.data.bgcolor;
         document.getElementById('inputHomeIconColor').value = obj.result.data.color;
-        document.getElementById('selectHomeIconCmd').value = obj.result.data.cmd;
 
         populateHomeIconCmdSelect(obj.result.data.cmd, obj.result.data.options[0]);
+        document.getElementById('selectHomeIconCmd').value = obj.result.data.cmd;
         showHomeIconCmdOptions(obj.result.data.options);
         getHomeIconPictureList(obj.result.data.image);
 
