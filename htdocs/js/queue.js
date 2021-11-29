@@ -49,14 +49,16 @@ function initQueue() {
     }, false);
 
     document.getElementById('selectAddToQueueMode').addEventListener('change', function() {
-        const value = getSelectValue(this);
-        if (value === '2') {
+        const value = Number(getSelectValue(this));
+        if (value === 2) {
+            //album mode
             elDisableId('inputAddToQueueQuantity');
             document.getElementById('inputAddToQueueQuantity').value = '1';
             elDisableId('selectAddToQueuePlaylist');
             document.getElementById('selectAddToQueuePlaylist').value = 'Database';
         }
-        else if (value === '1') {
+        else if (value === 1) {
+            //song mode
             elEnableId('inputAddToQueueQuantity');
             elEnableId('selectAddToQueuePlaylist');
         }
@@ -102,7 +104,8 @@ function parseUpdateQueue(obj) {
         elReflow(domCache.progressBar);
     }
     else if (obj.result.state === 'play') {
-        document.getElementById('btnPlay').textContent = settings.webuiSettings.uiFooterPlaybackControls === 'stop' ? 'stop' : 'pause';
+        document.getElementById('btnPlay').textContent =
+            settings.webuiSettings.uiFooterPlaybackControls === 'stop' ? 'stop' : 'pause';
     }
     else {
         //pause
@@ -192,7 +195,13 @@ function parseQueue(obj) {
         setData(row, 'data-songpos', data.Pos);
         setData(row, 'data-duration', data.Duration);
         setData(row, 'data-uri', data.uri);
-        setData(row, 'data-type', 'song');
+        if (isStreamUri(data.uri) === true) {
+            setData(row, 'data-type', 'stream');
+        }
+        else {
+            setData(row, 'data-type', 'song');
+        }
+        setData(row, 'data-name', data.Title);
         if (data.Album !== undefined) {
             setData(row, 'data-album', data.Album);
         }

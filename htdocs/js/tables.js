@@ -84,7 +84,7 @@ function dragAndDropTable(table) {
             sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {"from": oldSongpos, "to": newSongpos});
         }
         else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-            playlistMoveTrack(oldSongpos, newSongpos);
+            playlistMoveSong(oldSongpos, newSongpos);
         }
     }, false);
 }

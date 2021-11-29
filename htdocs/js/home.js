@@ -409,8 +409,9 @@ function addDirToHome(uri, name) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function addSongToHome(uri, name) {
-    _addHomeIcon('replaceQueue', name, 'music_note', ['song', uri]);
+function addSongToHome(uri, type, name) {
+    const ligature = type === 'song' ? 'music_note' : 'stream';
+    _addHomeIcon('replaceQueue', name, ligature, [type, uri]);
 }
 
 //eslint-disable-next-line no-unused-vars

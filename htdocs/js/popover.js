@@ -334,20 +334,21 @@ function addMenuItemsAlbumActions(tabContent, albumArtist, album) {
     }
 }
 
-function addMenuItemsSongActions(tabContent, uri, name) {
+//for single songs and streams
+function addMenuItemsSongActions(tabContent, uri, type, name) {
     if (app.id !== 'QueueCurrent') {
-        addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["song", uri]}, 'Append to queue');
-        addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": ["song", uri]}, 'Append to queue and play');
+        addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri]}, 'Append to queue');
+        addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": [type, uri]}, 'Append to queue and play');
         if (features.featWhence === true) {
-            addMenuItem(tabContent, {"cmd": "insertAfterCurrentQueue", "options": ["song", uri, 0, 1, false]}, 'Insert after current playing song');
+            addMenuItem(tabContent, {"cmd": "insertAfterCurrentQueue", "options": [type, uri, 0, 1, false]}, 'Insert after current playing song');
         }
-        addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["song", uri]}, 'Replace queue');
-        addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": ["song", uri]}, 'Replace queue and play');
+        addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, uri]}, 'Replace queue');
+        addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": [type, uri]}, 'Replace queue and play');
     }
     if (features.featPlaylists === true) {
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [uri, ""]}, 'Add to playlist');
     }
-    if (isStreamUri(uri) === false) {
+    if (type === 'song') {
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "songDetails", "options": [uri]}, 'Song details');
     }
@@ -355,19 +356,20 @@ function addMenuItemsSongActions(tabContent, uri, name) {
         app.id !== 'Home')
     {
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-        addMenuItem(tabContent, {"cmd": "addSongToHome", "options": [uri, name]}, 'Add to homescreen');
+        addMenuItem(tabContent, {"cmd": "addSongToHome", "options": [uri, type, name]}, 'Add to homescreen');
     }
 }
 
 function addMenuItemsSearchActions(tabContent, uri) {
-    if (app.id !== 'QueueCurrent') {
-        addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["search", uri]}, 'Append to queue');
-        addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": ["search", uri]}, 'Append to queue and play');
-        if (features.featWhence === true) {
-            addMenuItem(tabContent, {"cmd": "insertAfterCurrentQueue", "options": ["search", uri, 0, 1, false]}, 'Insert after current playing song');
-        }
-        addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["search", uri]}, 'Replace queue');
-        addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": ["search", uri]}, 'Replace queue and play');
+    addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["search", uri]}, 'Append to queue');
+    addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": ["search", uri]}, 'Append to queue and play');
+    if (features.featWhence === true) {
+        addMenuItem(tabContent, {"cmd": "insertAfterCurrentQueue", "options": ["search", uri, 0, 1, false]}, 'Insert after current playing song');
+    }
+    addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["search", uri]}, 'Replace queue');
+    addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": ["search", uri]}, 'Replace queue and play');
+    if (features.featPlaylists === true) {
+        addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": ["SEARCH", uri]}, 'Add to playlist');
     }
 }
 
@@ -421,17 +423,7 @@ function createMenuLists(el, tabHeader, tabContent) {
     const uri = getData(dataNode, 'data-uri');
     const name = getData(dataNode, 'data-name');
 
-    let pType = type;
-    switch(type) {
-        case 'song':
-            pType = isStreamUri(uri) === false ? 'Song' : 'Stream';
-            break;
-        case 'dir':      pType = 'Directory'; break;
-        case 'album':    pType = 'Album'; break;
-        case 'smartpls': pType = 'Smart playlist'; break;
-        case 'plist':    pType = 'Playlist'; break;
-    }
-    tabHeader.textContent = tn(pType);
+    tabHeader.textContent = tn(typeFriendly[type]);
 
     switch(app.id) {
         case 'BrowseFilesystem':
@@ -439,7 +431,8 @@ function createMenuLists(el, tabHeader, tabContent) {
         case 'BrowseDatabaseDetail': {
             switch(type) {
                 case 'song':
-                    addMenuItemsSongActions(tabContent, uri, name);
+                case 'stream':
+                    addMenuItemsSongActions(tabContent, uri, type, name);
                     break;
                 case 'dir':
                     addMenuItemsDirectoryActions(tabContent, uri);
@@ -479,7 +472,7 @@ function createMenuLists(el, tabHeader, tabContent) {
         }
         case 'BrowsePlaylistsDetail': {
             const table = document.getElementById('BrowsePlaylistsDetailList');
-            addMenuItemsSongActions(tabContent, uri, name);
+            addMenuItemsSongActions(tabContent, uri, type, name);
             tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
             if (getData(table, 'data-ro') === 'false') {
                 const plist = getData(table, 'data-uri');
@@ -500,7 +493,7 @@ function createMenuLists(el, tabHeader, tabContent) {
         case 'QueueCurrent': {
             const trackid = getData(dataNode, 'data-trackid');
             const songpos = getData(dataNode, 'data-songpos');
-            addMenuItemsSongActions(tabContent, uri, name);
+            addMenuItemsSongActions(tabContent, uri, type, name);
             tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
             if (currentState.currentSongId !== -1 &&
                 trackid !== currentState.currentSongId)
@@ -522,7 +515,7 @@ function createMenuLists(el, tabHeader, tabContent) {
             return true;
         }
         case 'QueueLastPlayed': {
-            addMenuItemsSongActions(tabContent, uri, name);
+            addMenuItemsSongActions(tabContent, uri, type, name);
             return true;
         }
         case 'QueueJukebox': {
@@ -530,7 +523,7 @@ function createMenuLists(el, tabHeader, tabContent) {
             const vAlbum = getData(dataNode, 'data-album');
             const vAlbumArtist = getData(dataNode, 'data-albumartist');
             if (settings.jukeboxMode === 1) {
-                addMenuItemsSongActions(tabContent, uri, name);
+                addMenuItemsSongActions(tabContent, uri, type, name);
             }
             else if (settings.jukeboxMode === 2) {
                 addMenuItemsAlbumActions(tabContent, vAlbumArtist, vAlbum)
@@ -587,38 +580,24 @@ function createMenuSecondary(el, tabHeader, tabContent) {
 function createMenuHome(el, tabHeader, tabContent) {
     const pos = getData(el, 'data-pos');
     const href = getData(el, 'data-href');
-    if (href === null || href === undefined) {
+    if (href === undefined) {
         return;
     }
     let type = '';
-    let title = '';
     let actionDesc = '';
     switch(href.cmd) {
         case 'appGoto':
             type = 'view';
-            title = 'View';
             actionDesc = 'Goto view';
             break;
         case 'execScriptFromOptions':
             type = 'script';
-            title = 'Script';
             actionDesc = 'Execute script';
             break;
-        case 'replaceQueueAlbum':
-        case 'appendQueueAlbum':
-        case 'playQueueAlbum':
-        case 'insertAfterCurrentQueueAlbum':
+        default:
             type = href.options[0];
-            title = typeFriendly[href.options[0]];
-            break;
-        case 'replaceQueue':
-        case 'appendQueue':
-        case 'insertAndPlayQueue':
-        case 'insertAfterCurrentQueue':
-            type = href.options[0];
-            title = typeFriendly[href.options[0]];
     }
-    tabHeader.textContent = tn(title);
+    tabHeader.textContent = tn(typeFriendly[type]);
     switch(type) {
         case 'plist':
         case 'smartpls':
@@ -629,7 +608,7 @@ function createMenuHome(el, tabHeader, tabContent) {
             break;
         case 'song':
         case 'stream':
-            addMenuItemsSongActions(tabContent, href.options[1], href.options[1]);
+            addMenuItemsSongActions(tabContent, href.options[1], type, href.options[1]);
             break;
         case 'search':
             addMenuItemsSearchActions(tabContent, href.options[1]);

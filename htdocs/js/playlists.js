@@ -419,9 +419,6 @@ function addToPlaylist() {
     let type;
     switch(uri) {
         case 'SEARCH':
-            uri = app.current.search;
-            type = 'search';
-            break;
         case 'ALBUM':
             uri = document.getElementById('addToPlaylistSearch').value;
             type = 'search';
@@ -432,10 +429,11 @@ function addToPlaylist() {
                 return;
             }
             uri = streamUrlEl.value;
-            type = 'song';
+            type = 'stream';
             break;
         }
         default:
+            //files and dirs
             type = 'song';
     }
 
@@ -494,6 +492,7 @@ function addToPlaylistClose(obj) {
 function appendPlaylist(type, uri, plist, callback) {
     switch(type) {
         case 'song':
+        case 'stream':
         case 'dir':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_APPEND_URI", {
                 "uri": uri,
@@ -512,6 +511,7 @@ function appendPlaylist(type, uri, plist, callback) {
 function insertPlaylist(type, uri, plist, to, callback) {
     switch(type) {
         case 'song':
+        case 'stream':
         case 'dir':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_URI", {
                 "uri": uri,
@@ -532,6 +532,7 @@ function insertPlaylist(type, uri, plist, to, callback) {
 function replacePlaylist(type, uri, plist, callback) {
     switch(type) {
         case 'song':
+        case 'stream':
         case 'dir':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_REPLACE_URI", {
                 "uri": uri,
@@ -624,7 +625,7 @@ function showClearPlaylist() {
     });
 }
 
-function playlistMoveTrack(from, to) {
+function playlistMoveSong(from, to) {
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_SONG", {
         "plist": app.current.filter,
         "from": from,

@@ -133,6 +133,10 @@ function doSearch(x) {
 }
 
 function parseSearch(obj) {
+    const table = document.getElementById('SearchList');
+    const tfoot = table.getElementsByTagName('tfoot')[0];
+    elClear(tfoot);
+
     if (checkResultId(obj, 'SearchList') === false) {
         return;
     }
@@ -155,6 +159,15 @@ function parseSearch(obj) {
         row.setAttribute('title', rowTitle);
         setData(row, 'data-name', data.Title);
     });
+
+    if (obj.result.totalEntities > 0) {
+        const colspan = settings.colsSearch.length + 1;
+        tfoot.appendChild(
+            elCreateNode('tr', {},
+                elCreateText('td', {"colspan": colspan}, tn('Num songs', obj.result.totalEntities))
+            )
+        );
+    }
 }
 
 //eslint-disable-next-line no-unused-vars
