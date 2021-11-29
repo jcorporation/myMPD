@@ -134,7 +134,7 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
             return buffer;
         }
     }
-    if (plist != NULL ||
+    if (plist == NULL ||
         mpd_connection_cmp_server_version(mpd_state->conn, 0, 22, 0) >= 0)
     {
         if (sort != NULL &&
@@ -193,7 +193,14 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
             mpd_song_free(song);
         }
         buffer = sdscatlen(buffer, "],", 2);
-        buffer = tojson_long(buffer, "totalEntities", -1, true);
+        if (offset == 0 &&
+            entities_returned < limit)
+        {
+            buffer = tojson_long(buffer, "totalEntities", entities_returned, true);
+        }
+        else {
+            buffer = tojson_long(buffer, "totalEntities", -1, true);
+        }
         buffer = tojson_long(buffer, "offset", offset, true);
         buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
         if (adv == true) {
