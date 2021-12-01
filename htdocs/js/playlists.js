@@ -14,8 +14,8 @@ function initPlaylists() {
         }
     });
 
-    setDataId('addToPlaylistPlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
-    setDataId('addToPlaylistPlaylist', 'data-cb-filter-options', [1, 'addToPlaylistPlaylist']);
+    setDataId('addToPlaylistPlaylist', 'cb-filter', 'filterPlaylistsSelect');
+    setDataId('addToPlaylistPlaylist', 'cb-filter-options', [1, 'addToPlaylistPlaylist']);
 
     document.getElementById('searchPlaylistsDetailStr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
@@ -39,8 +39,8 @@ function initPlaylists() {
 
    document.getElementById('BrowsePlaylistsListList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            if (getData(event.target.parentNode, 'data-smartpls-only') === false) {
-                clickPlaylist(getData(event.target.parentNode, 'data-uri'), getData(event.target.parentNode, 'data-name'));
+            if (getData(event.target.parentNode, 'smartpls-only') === false) {
+                clickPlaylist(getData(event.target.parentNode, 'uri'), getData(event.target.parentNode, 'name'));
             }
             else {
                 showNotification(tn('Playlist is empty'), '', 'playlist', 'warn')
@@ -56,7 +56,7 @@ function initPlaylists() {
             return;
         }
         if (event.target.nodeName === 'TD') {
-            clickSong(getData(event.target.parentNode, 'data-uri'), getData(event.target.parentNode, 'data-name'));
+            clickSong(getData(event.target.parentNode, 'uri'), getData(event.target.parentNode, 'name'));
         }
         else if (event.target.nodeName === 'A') {
             showPopover(event);
@@ -71,10 +71,10 @@ function parsePlaylistsList(obj) {
 
     const rowTitle = webuiSettingsDefault.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
     updateTable(obj, 'BrowsePlaylistsList', function(row, data) {
-        setData(row, 'data-uri', data.uri);
-        setData(row, 'data-type', data.Type);
-        setData(row, 'data-name', data.name);
-        setData(row, 'data-smartpls-only', data.smartplsOnly);
+        setData(row, 'uri', data.uri);
+        setData(row, 'type', data.Type);
+        setData(row, 'name', data.name);
+        setData(row, 'smartpls-only', data.smartplsOnly);
         row.setAttribute('title', tn(rowTitle));
     }, function(row, data) {
         row.appendChild(
@@ -107,18 +107,18 @@ function parsePlaylistsDetail(obj) {
     }
 
     if (isMPDplaylist(obj.result.plist) === false || obj.result.smartpls === true) {
-        setDataId('BrowsePlaylistsDetailList', 'data-ro', 'true');
+        setDataId('BrowsePlaylistsDetailList', 'ro', 'true');
         elHideId('playlistContentBtns');
         elShowId('smartPlaylistContentBtns');
     }
     else {
-        setDataId('BrowsePlaylistsDetailList', 'data-ro', 'false');
+        setDataId('BrowsePlaylistsDetailList', 'ro', 'false');
         elShowId('playlistContentBtns');
         elHideId('smartPlaylistContentBtns');
     }
 
-    setData(table, 'data-playlistlength', obj.result.totalEntities);
-    setData(table, 'data-uri', obj.result.plist);
+    setData(table, 'playlistlength', obj.result.totalEntities);
+    setData(table, 'uri', obj.result.plist);
     table.getElementsByTagName('caption')[0].textContent =
         (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist')) + ': ' + obj.result.plist;
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
@@ -133,10 +133,10 @@ function parsePlaylistsDetail(obj) {
         row.setAttribute('id', 'playlistTrackId' + data.Pos);
         row.setAttribute('draggable', 'true');
         row.setAttribute('tabindex', 0);
-        setData(row, 'data-type', data.Type);
-        setData(row, 'data-uri', data.uri);
-        setData(row, 'data-name', data.Title);
-        setData(row, 'data-songpos', data.Pos);
+        setData(row, 'type', data.Type);
+        setData(row, 'uri', data.uri);
+        setData(row, 'name', data.Title);
+        setData(row, 'songpos', data.Pos);
         row.setAttribute('title', tn(rowTitle));
     });
 }
@@ -150,7 +150,7 @@ function playlistDetails(uri) {
 //eslint-disable-next-line no-unused-vars
 function playlistShuffle() {
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_SHUFFLE", {
-        "plist": getDataId('BrowsePlaylistsDetailList', 'data-uri')
+        "plist": getDataId('BrowsePlaylistsDetailList', 'uri')
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');
 }
@@ -158,7 +158,7 @@ function playlistShuffle() {
 //eslint-disable-next-line no-unused-vars
 function playlistSort(tag) {
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_SORT", {
-        "plist": getDataId('BrowsePlaylistsDetailList', 'data-uri'),
+        "plist": getDataId('BrowsePlaylistsDetailList', 'uri'),
         "tag": tag
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');
@@ -193,7 +193,7 @@ function parseSmartPlaylist(obj) {
     const nameEl = document.getElementById('saveSmartPlaylistName');
     nameEl.value = obj.result.plist;
     document.getElementById('saveSmartPlaylistType').value = tn(obj.result.type);
-    setDataId('saveSmartPlaylistType', 'data-value', obj.result.type);
+    setDataId('saveSmartPlaylistType', 'value', obj.result.type);
     elHideId('saveSmartPlaylistSearch');
     elHideId('saveSmartPlaylistSticker');
     elHideId('saveSmartPlaylistNewest');
@@ -222,7 +222,7 @@ function saveSmartPlaylist() {
     cleanupModalId('modalSaveSmartPlaylist');
 
     const name = document.getElementById('saveSmartPlaylistName').value;
-    const type = getDataId('saveSmartPlaylistType', 'data-value');
+    const type = getDataId('saveSmartPlaylistType', 'value');
     const sort = getSelectValueId('saveSmartPlaylistSort');
     if (validatePlname(name) === false) {
         document.getElementById('saveSmartPlaylistName').classList.add('is-invalid');
@@ -347,7 +347,7 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
 
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistCurrentSong() {
-    const uri = getDataId('currentTitle', 'data-uri');
+    const uri = getDataId('currentTitle', 'uri');
     if (uri !== '') {
         showAddToPlaylist(uri, '');
     }
@@ -599,7 +599,7 @@ function updateSmartPlaylist(plist) {
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylistClick() {
     sendAPI("MYMPD_API_SMARTPLS_UPDATE", {
-        "plist": getDataId('BrowsePlaylistsDetailList', 'data-uri')
+        "plist": getDataId('BrowsePlaylistsDetailList', 'uri')
     });
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');
 }
@@ -616,7 +616,7 @@ function showDelPlaylist(plist, smartplsOnly) {
 
 //eslint-disable-next-line no-unused-vars
 function showClearPlaylist() {
-    const plist = getDataId('BrowsePlaylistsDetailList', 'data-uri');
+    const plist = getDataId('BrowsePlaylistsDetailList', 'uri');
     showConfirm(tn('Do you really want to clear the playlist?', {"playlist": plist}), tn('Yes, clear it'), function() {
         sendAPI("MYMPD_API_PLAYLIST_CONTENT_CLEAR", {
             "plist": plist

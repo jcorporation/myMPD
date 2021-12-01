@@ -8,14 +8,14 @@ function initMounts() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            if (getData(event.target.parentNode, 'data-point') === '') {
+            if (getData(event.target.parentNode, 'point') === '') {
                 return false;
             }
-            showEditMount(getData(event.target.parentNode, 'data-url'), getData(event.target.parentNode, 'data-point'));
+            showEditMount(getData(event.target.parentNode, 'url'), getData(event.target.parentNode, 'point'));
         }
         else if (event.target.nodeName === 'A') {
             const action = event.target.getAttribute('data-action');
-            const mountPoint = getData(event.target.parentNode.parentNode, 'data-point');
+            const mountPoint = getData(event.target.parentNode.parentNode, 'point');
             if (action === 'unmount') {
                 unmountMount(mountPoint);
             }
@@ -40,7 +40,7 @@ function initMounts() {
     document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
         event.preventDefault();
         if (event.target.nodeName === 'A') {
-            const ec = getData(event.target, 'data-value');
+            const ec = getData(event.target, 'value');
             const c = ec.match(/^(\w+:\/\/)(.+)$/);
             document.getElementById('selectMountUrlhandler').value = c[1];
             document.getElementById('inputMountUrl').value = c[2];
@@ -162,8 +162,8 @@ function parseListMounts(obj) {
             actionTd
 
         ]);
-        setData(row, 'data-url', obj.result.data[i].mountUrl);
-        setData(row, 'data-point', obj.result.data[i].mountPoint);
+        setData(row, 'url', obj.result.data[i].mountUrl);
+        setData(row, 'point', obj.result.data[i].mountPoint);
         if (obj.result.data[i].mountPoint === '') {
             row.classList.add('not-clickable');
         }
@@ -203,7 +203,7 @@ function parseNeighbors(obj) {
             elCreateEmpty('br', {}),
             elCreateText('small', {}, obj.result.data[i].displayName)
         ]);
-        setData(a, 'data-value', obj.result.data[i].uri);
+        setData(a, 'value', obj.result.data[i].uri);
         dropdownNeighbors.appendChild(a);
     }
 }

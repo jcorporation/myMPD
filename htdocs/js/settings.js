@@ -35,8 +35,8 @@ function initSettings() {
         getSettings();
     });
 
-    setDataId('selectJukeboxPlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
-    setDataId('selectJukeboxPlaylist', 'data-cb-filter-options', [0, 'selectJukeboxPlaylist']);
+    setDataId('selectJukeboxPlaylist', 'cb-filter', 'filterPlaylistsSelect');
+    setDataId('selectJukeboxPlaylist', 'cb-filter-options', [0, 'selectJukeboxPlaylist']);
 
     document.getElementById('modalConnection').addEventListener('shown.bs.modal', function () {
         getSettings();
@@ -45,7 +45,7 @@ function initSettings() {
 
     document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
         setTimeout(function() {
-            const value = getData(document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
+            const value = getData(document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0], 'value');
             if (value === '0') {
                 elDisableId('inputJukeboxQueueLength');
                 elDisableId('selectJukeboxPlaylist');
@@ -457,11 +457,11 @@ function populateQueueSettingsFrm() {
     if (settings.mpdConnected === true) {
         if (features.featPlaylists === true) {
             filterPlaylistsSelect(0, 'selectJukeboxPlaylist', '', settings.jukeboxPlaylist);
-            setDataId('selectJukeboxPlaylist', 'data-value', settings.jukeboxPlaylist);
+            setDataId('selectJukeboxPlaylist', 'value', settings.jukeboxPlaylist);
         }
         else {
             document.getElementById('selectJukeboxPlaylist').value = tn('Database');
-            setDataId('selectJukeboxPlaylist', 'data-value', 'Database');
+            setDataId('selectJukeboxPlaylist', 'value', 'Database');
         }
         toggleBtnChkId('btnRandom', settings.random);
         toggleBtnChkId('btnConsume', settings.consume);
@@ -839,7 +839,7 @@ function parseMPDSettings() {
                 elCreateText('small', {}, tn(settings.colsPlayback[i])),
                 elCreateEmpty('p', {})
             ]);
-            setData(div, 'data-tag', settings.colsPlayback[i]);
+            setData(div, 'tag', settings.colsPlayback[i]);
             pbtl.appendChild(div);
         }
         //fill blank card with currentSongObj
@@ -1023,7 +1023,7 @@ function saveQueueSettings() {
     const jukeboxMode = getBtnGroupValueId('btnJukeboxModeGroup');
     const replaygain = getBtnGroupValueId('btnReplaygainGroup');
     let jukeboxUniqueTag = getSelectValueId('selectJukeboxUniqueTag');
-    const jukeboxPlaylist = getDataId('selectJukeboxPlaylist', 'data-value');
+    const jukeboxPlaylist = getDataId('selectJukeboxPlaylist', 'value');
 
     if (jukeboxMode === '2') {
         jukeboxUniqueTag = 'Album';
@@ -1102,10 +1102,10 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
 
     const inputEl = document.getElementById(inputId);
     inputEl.value = values.join(', ');
-    if (getData(inputEl, 'data-init') === 'true') {
+    if (getData(inputEl, 'init') === 'true') {
         return;
     }
-    setData(inputEl, 'data-init', 'true');
+    setData(inputEl, 'init', 'true');
     document.getElementById(listId).addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
@@ -1202,7 +1202,7 @@ function setNavbarIcons() {
         }
         btn.appendChild(a);
         container.appendChild(btn);
-        setData(a, 'data-href', JSON.stringify({"cmd": "appGoto", "options": icon.options}));
+        setData(a, 'href', JSON.stringify({"cmd": "appGoto", "options": icon.options}));
     }
 
     //cache elements, reused in appPrepare

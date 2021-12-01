@@ -330,6 +330,9 @@ function clickSingle(mode) {
 
 //escape and unescape MPD filter values
 function escapeMPD(x) {
+    if (typeof x === 'number') {
+        return x;
+    }
     return x.replace(/(["'])/g, function(m0, m1) {
         switch(m1) {
             case '"':  return '\\"';
@@ -340,6 +343,9 @@ function escapeMPD(x) {
 }
 
 function unescapeMPD(x) {
+    if (typeof x === 'number') {
+        return x;
+    }
     return x.replace(/(\\'|\\"|\\\\)/g, function(m0, m1) {
         switch(m1) {
             case '\\"':  return '"';
@@ -367,12 +373,13 @@ function getData(el, attribute) {
     let value = el['myMPD-' + attribute];
     if (value === undefined) {
         //fallback to attribute
-        value = el.getAttribute(attribute);
+        value = el.getAttribute('data-' + attribute);
         if (value === null) {
             //return undefined if attribute is null
             value = undefined;
         }
     }
+    logDebug('getData: "' + attribute + '":"' + value + '"');
     return value;
 }
 
@@ -383,7 +390,7 @@ function getSelectValueId(id) {
 
 function getSelectValue(el) {
     if (el && el.selectedIndex >= 0) {
-        return getData(el.options[el.selectedIndex], 'value');
+        return el.options[el.selectedIndex].getAttribute('value');
     }
     return undefined;
 }
@@ -646,7 +653,7 @@ function toggleBtnGroupValue(btngrp, value) {
         valuestr = value.toString();
     }
     for (let i = 0, j = btns.length; i < j; i++) {
-        if (getData(btns[i], 'data-value') === valuestr) {
+        if (getData(btns[i], 'value') === valuestr) {
             btns[i].classList.add('active');
             b = btns[i];
         }
@@ -690,7 +697,7 @@ function getBtnGroupValueId(id) {
     if (activeBtn.length === 0) {
         activeBtn = document.getElementById(id).getElementsByTagName('button');
     }
-    return getData(activeBtn[0], 'data-value');
+    return getData(activeBtn[0], 'value');
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -1053,9 +1060,9 @@ function createSearchCrumb(filter, op, value) {
         document.createTextNode(filter + ' ' + op + ' \'' + value + '\''),
         elCreateText('span', {"class": ["ml-2", "badge", "bg-secondary"]}, '×')
     ]);
-    setData(btn, 'data-filter-tag', filter);
-    setData(btn, 'data-filter-op', op);
-    setData(btn, 'data-filter-value', value);
+    setData(btn, 'filter-tag', filter);
+    setData(btn, 'filter-op', op);
+    setData(btn, 'filter-value', value);
     return btn;
 }
 
@@ -1066,13 +1073,13 @@ function createSearchExpression(crumbsEl, tag, op, value) {
         if (i > 0) {
             expression += ' AND ';
         }
-        let crumbOp = getData(crumbs[i], 'data-filter-op');
-        let crumbValue = getData(crumbs[i], 'data-filter-value');
+        let crumbOp = getData(crumbs[i], 'filter-op');
+        let crumbValue = getData(crumbs[i], 'filter-value');
         if (app.current.card === 'Search' && crumbOp === 'starts_with') {
             crumbOp = '=~';
             crumbValue = '^' + crumbValue;
         }
-        expression += '(' + getData(crumbs[i], 'data-filter-tag') + ' ' +
+        expression += '(' + getData(crumbs[i], 'filter-tag') + ' ' +
             crumbOp + ' \'' + escapeMPD(crumbValue) + '\')';
     }
     if (value !== '') {
@@ -1220,13 +1227,13 @@ function cropCovercache() {
 //eslint-disable-next-line no-unused-vars
 function zoomPicture(el) {
     if (el.classList.contains('booklet')) {
-        window.open(getData(el, 'data-href'));
+        window.open(getData(el, 'href'));
         return;
     }
 
     if (el.classList.contains('carousel')) {
         let images;
-        const dataImages = getData(el, 'data-images');
+        const dataImages = getData(el, 'images');
         if (dataImages !== undefined) {
             images = dataImages.slice();
         }
@@ -1239,7 +1246,7 @@ function zoomPicture(el) {
 
         //add uri to image list to get embedded albumart
         let aImages = [];
-        const uri = getData(el, 'data-uri');
+        const uri = getData(el, 'uri');
         if (uri) {
             aImages = [ subdir + '/albumart/' + uri ];
         }

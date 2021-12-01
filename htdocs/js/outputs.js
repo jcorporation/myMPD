@@ -21,14 +21,14 @@ function initOutputs() {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
             document.getElementById('volumeMenu').Dropdown.toggle();
-            showListOutputAttributes(getData(event.target.parentNode, 'data-output-name'));
+            showListOutputAttributes(getData(event.target.parentNode, 'output-name'));
         }
         else {
             const target = event.target.nodeName === 'BUTTON' ? event.target : event.target.parentNode;
             event.stopPropagation();
             event.preventDefault();
             sendAPI("MYMPD_API_PLAYER_OUTPUT_TOGGLE", {
-                "outputId": Number(getData(target, 'data-output-id')),
+                "outputId": Number(getData(target, 'output-id')),
                 "state": (target.classList.contains('active') ? 0 : 1)
             });
             toggleBtn(target);
@@ -62,8 +62,8 @@ function parseOutputs(obj) {
             elCreateText('a', {"class": ["mi", "text-light", "align-self-center"],
                 "title": (Object.keys(obj.result.data[i].attributes).length > 0 ? tn('Edit attributes') : tn('Show attributes'))}, 'settings')
         ]);
-        setData(btn, 'data-output-name', obj.result.data[i].name);
-        setData(btn, 'data-output-id', obj.result.data[i].id);
+        setData(btn, 'output-name', obj.result.data[i].name);
+        setData(btn, 'output-id', obj.result.data[i].id);
         if (obj.result.data[i].state === 1) {
             btn.classList.add('active');
         }

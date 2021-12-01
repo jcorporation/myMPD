@@ -23,23 +23,23 @@ function initScripts() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            if (getData(event.target.parentNode, 'data-script') === '') {
+            if (getData(event.target.parentNode, 'script') === '') {
                 return false;
             }
-            showEditScript(getData(event.target.parentNode, 'data-script'));
+            showEditScript(getData(event.target.parentNode, 'script'));
         }
         else if (event.target.nodeName === 'A') {
-            const action = getData(event.target, 'data-action');
-            const script = getData(event.target.parentNode.parentNode, 'data-script');
+            const action = getData(event.target, 'action');
+            const script = getData(event.target.parentNode.parentNode, 'script');
             switch(action) {
                 case 'delete':
                     deleteScript(event.target, script);
                     break;
                 case 'execute':
-                    execScript(getData(event.target.parentNode.parentNode, 'data-href'));
+                    execScript(getData(event.target.parentNode.parentNode, 'href'));
                     break;
                 case 'add2home':
-                    addScriptToHome(script, getData(event.target.parentNode.parentNode, 'data-href'));
+                    addScriptToHome(script, getData(event.target.parentNode.parentNode, 'href'));
                     break;
             }
         }
@@ -292,7 +292,7 @@ function parseScriptList(obj) {
     }
 
     const timerActions = elCreateEmpty('optgroup', {"label": tn('Script')});
-    setData(timerActions, 'data-value', 'script');
+    setData(timerActions, 'value', 'script');
     const scriptMaxListLen = 4;
     const scriptListLen = obj.result.data.length;
     let showScriptListLen = 0;
@@ -305,7 +305,7 @@ function parseScriptList(obj) {
             if (obj.result.data[i].metadata.order > 0) {
                 showScriptListLen++;
                 const a = elCreateText('a', {"class": ["dropdown-item", "alwaysEnabled"], "href": "#"}, obj.result.data[i].name);
-                setData(a, 'data-href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
+                setData(a, 'href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
                 mainmenuScripts.appendChild(a);
             }
             //scriptlist in scripts modal
@@ -317,16 +317,16 @@ function parseScriptList(obj) {
                     elCreateText('a', {"href": "#", "title": tn('Add to homescreen'), "data-action": "add2home", "class": ["me-2", "mi", "color-darkgrey"]}, 'add_to_home_screen')
                 ])
             ]);
-            setData(tr, 'data-script', obj.result.data[i].name);
-            setData(tr, 'data-href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
+            setData(tr, 'script', obj.result.data[i].name);
+            setData(tr, 'href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
             tbodyScripts.appendChild(tr);
 
             //scriptlist select for timers and triggers
             const option = elCreateText('option', {"value": obj.result.data[i].name}, obj.result.data[i].name);
-            setData(option, 'data-arguments', {"arguments": obj.result.data[i].metadata.arguments});
+            setData(option, 'arguments', {"arguments": obj.result.data[i].metadata.arguments});
             timerActions.appendChild(option);
             const option2 = option.cloneNode(true);
-            setData(option2, 'data-arguments', {"arguments": obj.result.data[i].metadata.arguments});
+            setData(option2, 'arguments', {"arguments": obj.result.data[i].metadata.arguments});
             triggerScripts.appendChild(option2);
         }
     }

@@ -6,7 +6,7 @@
 function initSearch() {
     document.getElementById('SearchList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            clickSong(getData(event.target.parentNode, 'data-uri'));
+            clickSong(getData(event.target.parentNode, 'uri'));
         }
         else if (event.target.nodeName === 'A') {
             showPopover(event);
@@ -15,7 +15,7 @@ function initSearch() {
 
     document.getElementById('searchtags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
-            app.current.filter = getData(event.target, 'data-tag');
+            app.current.filter = getData(event.target, 'tag');
             doSearch(document.getElementById('searchstr').value);
         }
     }, false);
@@ -52,11 +52,11 @@ function initSearch() {
             //edit search expression
             event.preventDefault();
             event.stopPropagation();
-            document.getElementById('searchstr').value = unescapeMPD(getData(event.target, 'data-filter-value'));
-            selectTag('searchtags', 'searchtagsdesc', getData(event.target, 'data-filter-tag'));
-            document.getElementById('searchMatch').value = getData(event.target, 'data-filter-op');
+            document.getElementById('searchstr').value = unescapeMPD(getData(event.target, 'filter-value'));
+            selectTag('searchtags', 'searchtagsdesc', getData(event.target, 'filter-tag'));
+            document.getElementById('searchMatch').value = getData(event.target, 'filter-op');
             event.target.remove();
-            app.current.filter = getData(event.target,'data-filter-tag');
+            app.current.filter = getData(event.target,'filter-tag');
             doSearch(document.getElementById('searchstr').value);
             if (document.getElementById('searchCrumb').childElementCount === 0) {
                 elHideId('searchCrumb');
@@ -153,11 +153,11 @@ function parseSearch(obj) {
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
 
     updateTable(obj, 'Search', function(row, data) {
-        setData(row, 'data-type', data.Type);
-        setData(row, 'data-uri', data.uri);
+        setData(row, 'type', data.Type);
+        setData(row, 'uri', data.uri);
         row.setAttribute('tabindex', 0);
         row.setAttribute('title', rowTitle);
-        setData(row, 'data-name', data.Title);
+        setData(row, 'name', data.Title);
     });
 
     if (obj.result.totalEntities > 0) {

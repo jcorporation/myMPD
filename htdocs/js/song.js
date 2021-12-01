@@ -8,7 +8,7 @@ function initSong() {
         if (event.target.nodeName === 'A') {
             if (event.target.id === 'calcFingerprint') {
                 sendAPI("MYMPD_API_DATABASE_FINGERPRINT", {
-                        "uri": getData(event.target, 'data-uri')
+                        "uri": getData(event.target, 'uri')
                 }, parseFingerprint, true);
                 event.preventDefault();
                 const spinner = elCreateEmpty('div', {"class": ["spinner-border", "spinner-border-sm"]});
@@ -26,7 +26,7 @@ function initSong() {
         }
         else if (event.target.nodeName === 'BUTTON') {
             //song vote buttons
-            const cmd = getData(event.target.parentNode, 'data-href');
+            const cmd = getData(event.target.parentNode, 'href');
             if (cmd !== undefined) {
                 parseCmd(event, cmd);
             }
@@ -112,10 +112,10 @@ function parseSongDetails(obj) {
         const tr = elCreateEmpty('tr', {});
         tr.appendChild(elCreateText('th', {}, tn(settings.tagList[i])));
         const td = elCreateEmpty('td', {});
-        setData(td, 'data-tag', settings.tagList[i]);
-        setData(td, 'data-name', obj.result[settings.tagList[i]]);
+        setData(td, 'tag', settings.tagList[i]);
+        setData(td, 'name', obj.result[settings.tagList[i]]);
         if (settings.tagList[i] === 'Album' && obj.result[tagAlbumArtist] !== null) {
-            setData(td, 'data-albumartist', obj.result[tagAlbumArtist]);
+            setData(td, 'AlbumArtist', obj.result[tagAlbumArtist]);
         }
         if (settings.tagListBrowse.includes(settings.tagList[i]) && obj.result[settings.tagList[i]] !== '-') {
             td.appendChild(elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]]));
@@ -147,7 +147,7 @@ function parseSongDetails(obj) {
     tbody.appendChild(songDetailsRow('LastModified', localeDate(obj.result.LastModified)));
     if (features.featFingerprint === true) {
         const a = elCreateText('a', {"class": ["text-success"], "id": "calcFingerprint", "href": "#"}, tn('Calculate'));
-        setData(a, 'data-uri', obj.result.uri);
+        setData(a, 'uri', obj.result.uri);
         tbody.appendChild(songDetailsRow('Fingerprint', a));
         tbody.lastChild.lastChild.setAttribute('id', 'fingerprint');
     }
@@ -178,8 +178,8 @@ function parseSongDetails(obj) {
                     thDown,
                     thUp
                 ]);
-                setData(grp, 'data-href', {"cmd": "voteSong", "options": []});
-                setData(grp, 'data-uri', obj.result.uri);
+                setData(grp, 'href', {"cmd": "voteSong", "options": []});
+                setData(grp, 'uri', obj.result.uri);
                 tbody.appendChild(
                     elCreateNodes('tr', {}, [
                         elCreateText('th', {}, tn('Like')),
@@ -479,10 +479,10 @@ function voteSong(el) {
     {
         el.classList.add('active');
     }
-    let uri = getData(el.parentNode, 'data-uri');
+    let uri = getData(el.parentNode, 'uri');
     if (uri === undefined) {
         //fallback to current song
-        uri = getDataId('currentTitle', 'data-uri');
+        uri = getDataId('currentTitle', 'uri');
     }
     sendAPI("MYMPD_API_LIKE", {
         "uri": uri,

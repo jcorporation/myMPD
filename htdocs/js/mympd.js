@@ -284,7 +284,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             const crumbEl = document.getElementById('BrowseBreadcrumb');
             elClear(crumbEl);
             const home = elCreateText('a', {"class": ["mi"]}, 'home');
-            setData(home, 'data-uri', '');
+            setData(home, 'uri', '');
             crumbEl.appendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, home));
 
             const pathArray = app.current.search.split('/');
@@ -297,7 +297,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 }
                 fullPath += pathArray[i];
                 const a = elCreateText('a', {"href": "#"}, pathArray[i]);
-                setData(a, 'data-uri', fullPath);
+                setData(a, 'uri', fullPath);
                 crumbEl.appendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, a));
                 fullPath += '/';
             }
@@ -380,7 +380,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                     let sortdesc = false;
                     if (tsort === '-') {
                         tsort = settings.tagList.includes('Title') ? 'Title' : '-';
-                        setDataId('SearchList', 'data-sort', tsort);
+                        setDataId('SearchList', 'sort', tsort);
                     }
                     else if (tsort.charAt(0) === '-') {
                         sortdesc = true;
@@ -614,7 +614,7 @@ function appInit() {
             continue;
         }
         href.addEventListener('click', function(event) {
-            parseCmd(event, getData(this, 'data-href'));
+            parseCmd(event, getData(this, 'href'));
         }, false);
     }
     //hide popover
@@ -678,7 +678,7 @@ function appInit() {
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {
             if (event.target.parentNode.classList.contains('not-clickable') ||
                 event.target.parentNode.parentNode.classList.contains('not-clickable') ||
-                getData(event.target.parentNode, 'data-type') === 'parentDir')
+                getData(event.target.parentNode, 'type') === 'parentDir')
             {
                 return;
             }
@@ -690,7 +690,7 @@ function appInit() {
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('contextmenu', function(event) {
             if (event.target.parentNode.classList.contains('not-clickable') ||
                 event.target.parentNode.parentNode.classList.contains('not-clickable') ||
-                getData(event.target.parentNode, 'data-type') === 'parentDir')
+                getData(event.target.parentNode, 'type') === 'parentDir')
             {
                 return;
             }
@@ -815,7 +815,7 @@ function initNavs() {
             return;
         }
         const target = event.target.nodeName === 'A' ? event.target : event.target.parentNode;
-        const href = getData(target, 'data-href');
+        const href = getData(target, 'href');
         parseCmd(event, href);
     }, false);
 
@@ -839,7 +839,7 @@ function initNavs() {
     document.getElementById('scripts').addEventListener('click', function(event) {
         event.preventDefault();
         if (event.target.nodeName === 'A') {
-            execScript(getData(event.target, 'data-href'));
+            execScript(getData(event.target, 'href'));
         }
     }, false);
 

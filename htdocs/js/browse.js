@@ -11,8 +11,8 @@ function initBrowse() {
         if (app.current.tag === 'Album') {
             if (event.target.classList.contains('card-body')) {
                 appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', 'AlbumArtist',
-                    getData(event.target.parentNode, 'data-album'),
-                    getData(event.target.parentNode, 'data-albumartist')
+                    getData(event.target.parentNode, 'Album'),
+                    getData(event.target.parentNode, 'AlbumArtist')
                 );
             }
             else if (event.target.classList.contains('card-footer')){
@@ -23,7 +23,7 @@ function initBrowse() {
             app.current.search = '';
             document.getElementById('searchDatabaseStr').value = '';
             appGoto(app.current.card, app.current.tab, undefined, 0, undefined, 'Album', 'AlbumArtist', 'Album',
-                '((' + app.current.tag + ' == \'' + escapeMPD(getData(event.target.parentNode, 'data-tag')) + '\'))');
+                '((' + app.current.tag + ' == \'' + escapeMPD(getData(event.target.parentNode, 'tag')) + '\'))');
         }
     }, false);
 
@@ -54,7 +54,7 @@ function initBrowse() {
             return;
         }
         if (event.target.nodeName === 'TD') {
-            clickSong(getData(event.target.parentNode, 'data-uri'), getData(event.target.parentNode, 'data-name'));
+            clickSong(getData(event.target.parentNode, 'uri'), getData(event.target.parentNode, 'name'));
         }
         else if (event.target.nodeName === 'A') {
             showPopover(event);
@@ -63,7 +63,7 @@ function initBrowse() {
 
     document.getElementById('searchDatabaseTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
-            app.current.filter = getData(event.target, 'data-tag');
+            app.current.filter = getData(event.target, 'tag');
             searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
         }
     }, false);
@@ -85,7 +85,7 @@ function initBrowse() {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             event.stopPropagation();
-            app.current.sort = getData(event.target, 'data-tag');
+            app.current.sort = getData(event.target, 'tag');
             appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
         }
     }, false);
@@ -105,7 +105,7 @@ function initBrowse() {
     document.getElementById('dropdownSortPlaylistTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
-            playlistSort(getData(event.target, 'data-tag'));
+            playlistSort(getData(event.target, 'tag'));
         }
     }, false);
 
@@ -162,11 +162,11 @@ function initBrowse() {
             //edit search expression
             event.preventDefault();
             event.stopPropagation();
-            selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', getData(event.target,'data-filter-tag'));
-            document.getElementById('searchDatabaseStr').value = unescapeMPD(getData(event.target, 'data-filter-value'));
-            document.getElementById('searchDatabaseMatch').value = getData(event.target, 'data-filter-op');
+            selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', getData(event.target,'filter-tag'));
+            document.getElementById('searchDatabaseStr').value = unescapeMPD(getData(event.target, 'filter-value'));
+            document.getElementById('searchDatabaseMatch').value = getData(event.target, 'filter-op');
             event.target.remove();
-            app.current.filter = getData(event.target,'data-filter-tag');
+            app.current.filter = getData(event.target,'filter-tag');
             searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
             if (document.getElementById('searchDatabaseCrumb').childElementCount === 0) {
                 elHideId('searchDatabaseCrumb');
@@ -184,8 +184,8 @@ function initBrowse() {
              default:      target = event.target;
         }
         if (target.nodeName === 'TR') {
-            const uri = getData(target, 'data-uri');
-            const dataType = getData(target, 'data-type');
+            const uri = getData(target, 'uri');
+            const dataType = getData(target, 'type');
             switch(dataType) {
                 case 'parentDir': {
                     const offset = browseFilesystemHistory[uri] !== undefined ? browseFilesystemHistory[uri].offset : 0;
@@ -213,7 +213,7 @@ function initBrowse() {
     document.getElementById('BrowseBreadcrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
-            const uri = getData(event.target, 'data-uri');
+            const uri = getData(event.target, 'uri');
             const offset = browseFilesystemHistory[uri] !== undefined ? browseFilesystemHistory[uri].offset : 0;
             const scrollPos = browseFilesystemHistory[uri] !== undefined ? browseFilesystemHistory[uri].scrollPos : 0;
             appGoto('Browse', 'Filesystem', undefined, offset, app.current.limit, app.current.filter, app.current.sort, '-', uri, scrollPos);
@@ -223,7 +223,7 @@ function initBrowse() {
 
 function navBrowseHandler(event) {
     if (event.target.nodeName === 'BUTTON') {
-        const tag = getData(event.target, 'data-tag');
+        const tag = getData(event.target, 'tag');
         if (tag === 'Playlists' ||
             tag === 'Filesystem')
         {
@@ -253,11 +253,11 @@ function gotoBrowse(event) {
         return;
     }
     const target = event.target;
-    let tag = getData(target, 'data-tag');
-    let name = getData(target, 'data-name');
+    let tag = getData(target, 'tag');
+    let name = getData(target, 'name');
     if (tag === null) {
-        tag = getData(target.parentNode, 'data-tag');
-        name = getData(target.parentNode, 'data-name');
+        tag = getData(target.parentNode, 'tag');
+        name = getData(target.parentNode, 'name');
     }
     if (tag !== '' &&
         name !== '' &&
@@ -265,9 +265,9 @@ function gotoBrowse(event) {
         settings.tagListBrowse.includes(tag))
     {
         if (tag === 'Album') {
-            let artist = getData(target, 'data-albumartist');
+            let artist = getData(target, 'AlbumArtist');
             if (artist === null) {
-                artist = getData(target.parentNode, 'data-albumartist');
+                artist = getData(target.parentNode, 'AlbumArtist');
             }
             if (artist !== null) {
                 //Show album details
@@ -335,7 +335,7 @@ function parseFilesystem(obj) {
     if (obj.result.bookletPath !== '') {
         const img = elCreateEmpty('div', {"class": ["booklet"], "title": tn('Booklet')});
         img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
-        setData(img, 'data-href', subdir + '/browse/music/' + myEncodeURI(obj.result.bookletPath));
+        setData(img, 'href', subdir + '/browse/music/' + myEncodeURI(obj.result.bookletPath));
         imageList.appendChild(img);
     }
     for (let i = 0, j = obj.result.images.length; i < j; i++) {
@@ -350,10 +350,10 @@ function parseFilesystem(obj) {
     const rowTitlePlaylist = webuiSettingsDefault.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
 
     updateTable(obj, 'BrowseFilesystem', function(row, data) {
-        setData(row, 'data-type', data.Type);
-        setData(row, 'data-uri', data.uri);
+        setData(row, 'type', data.Type);
+        setData(row, 'uri', data.uri);
         //set Title to name if not defined - for folders and playlists
-        setData(row, 'data-name', data.Title === undefined ? data.name : data.Title);
+        setData(row, 'name', data.Title === undefined ? data.name : data.Title);
         row.setAttribute('title', tn(data.Type === 'song' ? rowTitleSong :
             data.Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
     });
@@ -416,12 +416,12 @@ function parseDatabase(obj) {
                         elCreateNode('small', {}, printValue(tagAlbumArtist, obj.result.data[i][tagAlbumArtist]))
                 ])
             );
-            setData(card, 'data-picture', picture);
-            setData(card, 'data-uri', obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, ''));
-            setData(card, 'data-type', 'album');
-            setData(card, 'data-name', obj.result.data[i].Album);
-            setData(card, 'data-album', obj.result.data[i].Album);
-            setData(card, 'data-albumartist', obj.result.data[i].AlbumArtist);
+            setData(card, 'picture', picture);
+            setData(card, 'uri', obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, ''));
+            setData(card, 'type', 'album');
+            setData(card, 'name', obj.result.data[i].Album);
+            setData(card, 'Album', obj.result.data[i].Album);
+            setData(card, 'AlbumArtist', obj.result.data[i].AlbumArtist);
             addPlayButton(card.firstChild);
         }
         else {
@@ -435,8 +435,8 @@ function parseDatabase(obj) {
                 elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2"],
                     "title": obj.result.data[i].value}, obj.result.data[i].value)
             );
-            setData(card, 'data-picture', picture);
-            setData(card, 'data-tag', obj.result.data[i].value);
+            setData(card, 'picture', picture);
+            setData(card, 'tag', obj.result.data[i].value);
         }
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
 
@@ -471,7 +471,7 @@ function setGridImage(changes, observer) {
     changes.forEach(change => {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);
-            const uri = getData(change.target.firstChild, 'data-picture');
+            const uri = getData(change.target.firstChild, 'picture');
             const body = change.target.firstChild.getElementsByClassName('card-body')[0];
             if (body) {
                 body.style.backgroundImage = 'url("' + myEncodeURI(uri) + '"),' + 
@@ -488,7 +488,7 @@ function addPlayButton(parentEl) {
     div.addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
-        clickAlbumPlay(getData(event.target.parentNode.parentNode, 'data-albumartist'), getData(event.target.parentNode.parentNode, 'data-album'));
+        clickAlbumPlay(getData(event.target.parentNode.parentNode, 'AlbumArtist'), getData(event.target.parentNode.parentNode, 'Album'));
     }, false);
 }
 
@@ -507,8 +507,8 @@ function parseAlbumDetails(obj) {
     const coverEl = document.getElementById('viewDetailDatabaseCover');
     coverEl.style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(obj.result.data[0].uri) + '"),' +
         'url("' + subdir + '/assets/coverimage-loading.svg")';
-    setData(coverEl, 'data-images', obj.result.images);
-    setData(coverEl, 'data-uri', obj.result.data[0].uri);
+    setData(coverEl, 'images', obj.result.images);
+    setData(coverEl, 'uri', obj.result.data[0].uri);
 
     elClear(infoEl);
     infoEl.appendChild(elCreateText('h1', {}, obj.result.Album));
@@ -518,8 +518,8 @@ function parseAlbumDetails(obj) {
     if (settings.tagListBrowse.includes(tagAlbumArtist)) {
         for (const artist of obj.result.AlbumArtist) {
             const artistLink = elCreateText('a', {"href": "#"}, artist);
-            setData(artistLink, 'data-tag', tagAlbumArtist);
-            setData(artistLink, 'data-name', artist);
+            setData(artistLink, 'tag', tagAlbumArtist);
+            setData(artistLink, 'name', artist);
             artistLink.addEventListener('click', function(event) {
                 event.preventDefault();
                 gotoBrowse(event);
@@ -546,9 +546,9 @@ function parseAlbumDetails(obj) {
 
     const rowTitle = tn(webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong]);
     updateTable(obj, 'BrowseDatabaseDetail', function(row, data) {
-        setData(row, 'data-type', 'song');
-        setData(row, 'data-name', data.Title);
-        setData(row, 'data-uri', data.uri);
+        setData(row, 'type', 'song');
+        setData(row, 'name', data.Title);
+        setData(row, 'uri', data.uri);
         row.setAttribute('title', rowTitle);
     });
 

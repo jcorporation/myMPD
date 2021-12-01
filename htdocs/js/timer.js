@@ -9,14 +9,14 @@ function initTimer() {
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
             if (!event.target.parentNode.classList.contains('not-clickable')) {
-                showEditTimer(getData(event.target.parentNode, 'data-id'));
+                showEditTimer(getData(event.target.parentNode, 'id'));
             }
         }
         else if (event.target.nodeName === 'A') {
-            deleteTimer(event.target, getData(event.target.parentNode.parentNode, 'data-id'));
+            deleteTimer(event.target, getData(event.target.parentNode.parentNode, 'id'));
         }
         else if (event.target.nodeName === 'BUTTON') {
-            toggleTimer(event.target, getData(event.target.parentNode.parentNode, 'data-id'));
+            toggleTimer(event.target, getData(event.target.parentNode.parentNode, 'id'));
         }
     }, false);
 
@@ -46,8 +46,8 @@ function initTimer() {
         showListTimer();
     });
 
-    setDataId('selectTimerPlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
-    setDataId('selectTimerPlaylist', 'data-cb-filter-options', [0, 'selectTimerPlaylist']);
+    setDataId('selectTimerPlaylist', 'cb-filter', 'filterPlaylistsSelect');
+    setDataId('selectTimerPlaylist', 'cb-filter-options', [0, 'selectTimerPlaylist']);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -100,8 +100,8 @@ function saveTimer() {
         setIsInvalid(document.getElementById('btnTimerSun').parentNode);
     }
     const selectTimerAction = document.getElementById('selectTimerAction');
-    const jukeboxMode = getData(document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
-    const selectTimerPlaylist = getDataId('selectTimerPlaylist', 'data-value');
+    const jukeboxMode = getData(document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0], 'value');
+    const selectTimerPlaylist = getDataId('selectTimerPlaylist', 'value');
 
     if (selectTimerAction.selectedIndex === -1) {
         formOK = false;
@@ -122,7 +122,7 @@ function saveTimer() {
         const args = {};
         const argEls = document.getElementById('timerActionScriptArguments').getElementsByTagName('input');
         for (let i = 0, j = argEls.length; i < j; i++) {
-            args[getData(argEls[i], 'data-name')] = argEls[i].value;
+            args[getData(argEls[i], 'name')] = argEls[i].value;
         }
         let interval = Number(inputTimerIntervalEl.value);
         if (interval > 0) {
@@ -138,7 +138,7 @@ function saveTimer() {
             "startHour": Number(getSelectValueId('selectTimerHour')),
             "startMinute": Number(getSelectValueId('selectTimerMinute')),
             "weekdays": weekdays,
-            "action": getData(selectTimerAction.options[selectTimerAction.selectedIndex].parentNode, 'data-value'),
+            "action": getData(selectTimerAction.options[selectTimerAction.selectedIndex].parentNode, 'value'),
             "subaction": getSelectValue(selectTimerAction),
             "volume": Number(document.getElementById('inputTimerVolume').value),
             "playlist": selectTimerPlaylist,
@@ -176,7 +176,7 @@ function showEditTimer(timerid) {
     else {
         filterPlaylistsSelect(1, 'selectTimerPlaylist', '', 'Database');
         document.getElementById('selectTimerPlaylist').value = tn('Database');
-        setDataId('selectTimerPlaylist', 'data-value', 'Database');
+        setDataId('selectTimerPlaylist', 'value', 'Database');
 
         document.getElementById('inputTimerId').value = '0';
         document.getElementById('inputTimerName').value = '';
@@ -202,7 +202,7 @@ function parseEditTimer(obj) {
     const playlistValue = obj.result.playlist;
     filterPlaylistsSelect(1, 'selectTimerPlaylist', '', playlistValue);
     document.getElementById('selectTimerPlaylist').value = playlistValue === 'Datbase' ? tn('Database'): playlistValue;
-    setDataId('selectTimerPlaylist', 'data-value', playlistValue);
+    setDataId('selectTimerPlaylist', 'value', playlistValue);
 
     document.getElementById('inputTimerId').value = obj.result.timerid;
     document.getElementById('inputTimerName').value = obj.result.name;
@@ -264,7 +264,7 @@ function selectTimerActionChange(values) {
         elShowId('timerActionPlay');
         elHideId('timerActionScript');
     }
-    else if (el.selectedIndex > -1 && getData(el.options[el.selectedIndex].parentNode, 'data-value') === 'script') {
+    else if (el.selectedIndex > -1 && getData(el.options[el.selectedIndex].parentNode, 'value') === 'script') {
         elShowId('timerActionScript');
         elHideId('timerActionPlay');
         showTimerScriptArgs(el.options[el.selectedIndex], values);
@@ -279,13 +279,13 @@ function showTimerScriptArgs(option, values) {
     if (values === undefined) {
         values = {};
     }
-    const args = JSON.parse(getData(option, 'data-arguments'));
+    const args = JSON.parse(getData(option, 'arguments'));
     const list = document.getElementById('timerActionScriptArguments');
     elClear(list);
     for (let i = 0, j = args.arguments.length; i < j; i++) {
         const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "timerActionScriptArguments" + i,
             "value": (values[args.arguments[i]] ? values[args.arguments[i]] : '')});
-        setData(input, 'data-name', args.arguments[i]);
+        setData(input, 'name', args.arguments[i]);
         const fg = elCreateNodes('div', {"class": ["form-group", "row"]}, [
             elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": "timerActionScriptArguments" + i}, args.arguments[i]),
             elCreateNode('div', {"class": ["col-sm-8"]}, input)
@@ -354,7 +354,7 @@ function parseListTimer(obj) {
                 elCreateText('a', {"class": ["mi", "color-darkgrey"], "href": "#"}, 'delete')
             )
         ]);
-        setData(row, 'data-id', obj.result.data[i].timerid);
+        setData(row, 'id', obj.result.data[i].timerid);
         tbody.append(row);
     }
 }

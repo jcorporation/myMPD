@@ -7,10 +7,10 @@ function initJukebox() {
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             if (settings.jukeboxMode === 1) {
-                clickSong(getData(event.target.parentNode, 'data-uri'), getData(event.target.parentNode, 'data-name'));
+                clickSong(getData(event.target.parentNode, 'uri'), getData(event.target.parentNode, 'name'));
             }
             else if (settings.jukeboxMode === 2) {
-                clickAlbumPlay(getData(event.target.parentNode, 'data-albumartist'), getData(event.target.parentNode, 'data-album'));
+                clickAlbumPlay(getData(event.target.parentNode, 'AlbumArtist'), getData(event.target.parentNode, 'Album'));
             }
         }
         else if (event.target.nodeName === 'A') {
@@ -56,16 +56,10 @@ function parseJukeboxList(obj) {
 
     const rowTitle = webuiSettingsDefault.clickAlbumPlay.validValues[settings.webuiSettings.clickAlbumPlay];
     updateTable(obj, 'QueueJukebox', function(row, data) {
-        setData(row, 'data-uri', data.uri);
-        setData(row, 'data-name', data.Title);
-        setData(row, 'data-type', data.uri === 'Album' ? 'album' : 'song');
-        setData(row, 'data-pos', (data.Pos - 1));
-        if (data.Album !== undefined) {
-            setData(row, 'data-album', data.Album);
-        }
-        if (data[tagAlbumArtist] !== undefined) {
-            setData(row, 'data-albumartist', data[tagAlbumArtist]);
-        }
+        setData(row, 'uri', data.uri);
+        setData(row, 'name', data.Title);
+        setData(row, 'type', data.uri === 'Album' ? 'album' : 'song');
+        setData(row, 'pos', data.Pos);
         row.setAttribute('title', tn(rowTitle));
         row.setAttribute('tabindex', 0);
     });

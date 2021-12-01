@@ -70,8 +70,8 @@ function dragAndDropTable(table) {
         if (event.target.nodeName === 'TD') {
             target = event.target.parentNode;
         }
-        const oldSongpos = getDataId(event.dataTransfer.getData('Text'), 'data-songpos');
-        const newSongpos = getData(target, 'data-songpos');
+        const oldSongpos = getDataId(event.dataTransfer.getData('Text'), 'songpos');
+        const newSongpos = getData(target, 'songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.classList.remove('opacity05');
         tableBody.insertBefore(dragEl, target);
@@ -342,7 +342,7 @@ function saveColsPlayback(table) {
                 elCreateText('small', {}, tn(colInputs[i].name)),
                 elCreateEmpty('p', {})
             ]);
-            setData(th, 'data-tag', colInputs[i].name);
+            setData(th, 'tag', colInputs[i].name);
             header.appendChild(th);
         }
     }
@@ -351,7 +351,7 @@ function saveColsPlayback(table) {
     const params = {"table": "cols" + table, "cols": []};
     const ths = header.getElementsByTagName('div');
     for (let i = 0, j = ths.length; i < j; i++) {
-        const name = getData(ths[i], 'data-tag');
+        const name = getData(ths[i], 'tag');
         if (name) {
             params.cols.push(name);
         }
@@ -377,9 +377,9 @@ function addDiscRow(disc, album, albumartist, colspan) {
             elCreateText('a', {"data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
         )
     ]);
-    setData(row, 'data-disc', disc);
-    setData(row, 'data-album', album);
-    setData(row, 'data-albumartist', albumartist);
+    setData(row, 'Disc', disc);
+    setData(row, 'Album', album);
+    setData(row, 'AlbumArtist', albumartist);
     return row;
 }
 
@@ -427,17 +427,17 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         row.setAttribute('tabindex', 0);
         //set artist and album data
         if (obj.result.data[i].Album !== undefined) {
-            setData(row, 'data-album', obj.result.data[i].Album);
+            setData(row, 'Album', obj.result.data[i].Album);
         }
         if (obj.result.data[i][tagAlbumArtist] !== undefined) {
-            setData(row, 'data-albumartist', obj.result.data[i][tagAlbumArtist]);
+            setData(row, 'AlbumArtist', obj.result.data[i][tagAlbumArtist]);
         }
         //and other browse tags
         for (const tag of settings.tagListBrowse) {
             if (albumFilters.includes(tag) &&
                 checkTagValue(obj.result.data[i][tag], '-') === false)
             {
-                setData(row, 'data-' + tag, obj.result.data[i][tag]);
+                setData(row, tag, obj.result.data[i][tag]);
             }
         }
         //set Title to name if not defined - for folders and playlists

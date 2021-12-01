@@ -8,8 +8,8 @@ function initPartitions() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'A') {
-            const action = getData(event.target, 'data-action');
-            const partition = getData(event.target.parentNode.parentNode, 'data-partition');
+            const action = getData(event.target, 'action');
+            const partition = getData(event.target.parentNode.parentNode, 'partition');
             if (action === 'delete') {
                 deletePartition(partition);
             }
@@ -23,7 +23,7 @@ function initPartitions() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            const outputName = getData(event.target.parentNode, 'data-output');
+            const outputName = getData(event.target.parentNode, 'output');
             moveOutput(outputName);
             uiElements.modalPartitionOutputs.hide();
         }
@@ -56,7 +56,7 @@ function parsePartitionOutputsList(obj) {
     const outputs = document.getElementById('outputs').getElementsByTagName('button');
     const outputIds = [];
     for (let i = 0, j= outputs.length; i < j; i++) {
-        outputIds.push(getData(outputs[i], 'data-output-id'));
+        outputIds.push(getData(outputs[i], 'output-id'));
     }
 
     let nr = 0;
@@ -65,7 +65,7 @@ function parsePartitionOutputsList(obj) {
             const tr = elCreateNode('tr', {},
                 elCreateText('td', {}, obj.result.data[i].name)
             );
-            setData(tr, 'data-output', obj.result.data[i].name);
+            setData(tr, 'output', obj.result.data[i].name);
             outputList.appendChild(tr);
             nr++;
         }
@@ -147,7 +147,7 @@ function parsePartitionList(obj) {
 
     for (let i = 0, j = obj.result.data.length; i < j; i++) {
         const tr = elCreateEmpty('tr', {});
-        setData(tr, 'data-partition', obj.result.data[i].name);
+        setData(tr, 'partition', obj.result.data[i].name);
         const td = elCreateEmpty('td', {});
         if (obj.result.data[i].name === settings.partition) {
             td.classList.add('font-weight-bold');

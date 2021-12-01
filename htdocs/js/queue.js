@@ -26,13 +26,13 @@ function initQueue() {
     document.getElementById('searchqueuetags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             appGoto(app.current.card, app.current.tab, app.current.view,
-                app.current.offset, app.current.limit, getData(event.target, 'data-tag'), app.current.sort, '-', app.current.search);
+                app.current.offset, app.current.limit, getData(event.target, 'tag'), app.current.sort, '-', app.current.search);
         }
     }, false);
 
     document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            clickQueueSong(getData(event.target.parentNode, 'data-trackid'), getData(event.target.parentNode, 'data-uri'));
+            clickQueueSong(getData(event.target.parentNode, 'trackid'), getData(event.target.parentNode, 'uri'));
         }
         else if (event.target.nodeName === 'A') {
             showPopover(event);
@@ -41,7 +41,7 @@ function initQueue() {
 
     document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            clickSong(getData(event.target.parentNode, 'data-uri'));
+            clickSong(getData(event.target.parentNode, 'uri'));
         }
         else if (event.target.nodeName === 'A') {
             showPopover(event);
@@ -67,15 +67,15 @@ function initQueue() {
     document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function() {
         cleanupModalId('modalAddToQueue');
         document.getElementById('selectAddToQueuePlaylist').value = tn('Database');
-        setDataId('selectAddToQueuePlaylist', 'data-value', 'Database');
+        setDataId('selectAddToQueuePlaylist', 'value', 'Database');
         document.getElementById('selectAddToQueuePlaylist').filterInput.value = '';
         if (features.featPlaylists === true) {
             filterPlaylistsSelect(0, 'selectAddToQueuePlaylist', '');
         }
     });
 
-    setDataId('selectAddToQueuePlaylist', 'data-cb-filter', 'filterPlaylistsSelect');
-    setDataId('selectAddToQueuePlaylist', 'data-cb-filter-options', [0, 'selectAddToQueuePlaylist']);
+    setDataId('selectAddToQueuePlaylist', 'cb-filter', 'filterPlaylistsSelect');
+    setDataId('selectAddToQueuePlaylist', 'cb-filter-options', [0, 'selectAddToQueuePlaylist']);
 
     document.getElementById('modalSaveQueue').addEventListener('shown.bs.modal', function() {
         const plName = document.getElementById('saveQueueName');
@@ -191,30 +191,30 @@ function parseQueue(obj) {
         row.setAttribute('id', 'queueTrackId' + data.id);
         row.setAttribute('tabindex', 0);
         row.setAttribute('title', tn(rowTitle));
-        setData(row, 'data-trackid', data.id);
-        setData(row, 'data-songpos', data.Pos);
-        setData(row, 'data-duration', data.Duration);
-        setData(row, 'data-uri', data.uri);
+        setData(row, 'trackid', data.id);
+        setData(row, 'songpos', data.Pos);
+        setData(row, 'duration', data.Duration);
+        setData(row, 'uri', data.uri);
         if (isStreamUri(data.uri) === true) {
-            setData(row, 'data-type', 'stream');
+            setData(row, 'type', 'stream');
         }
         else {
-            setData(row, 'data-type', 'song');
+            setData(row, 'type', 'song');
         }
-        setData(row, 'data-name', data.Title);
+        setData(row, 'name', data.Title);
         //set artist and album data
         if (data.Album !== undefined) {
-            setData(row, 'data-album', data.Album);
+            setData(row, 'Album', data.Album);
         }
         if (data[tagAlbumArtist] !== undefined) {
-            setData(row, 'data-albumartist', data[tagAlbumArtist]);
+            setData(row, 'AlbumArtist', data[tagAlbumArtist]);
         }
         //and other browse tags
         for (const tag of settings.tagListBrowse) {
             if (albumFilters.includes(tag) &&
                 checkTagValue(data[tag], '-') === false)
             {
-                setData(row, 'data-' + tag, data[tag]);
+                setData(row, tag, data[tag]);
             }
         }
 
@@ -226,7 +226,7 @@ function parseQueue(obj) {
     });
 
     const table = document.getElementById('QueueCurrentList');
-    setData(table, 'data-version', obj.result.queueVersion);
+    setData(table, 'version', obj.result.queueVersion);
     const tfoot = table.getElementsByTagName('tfoot')[0];
     if (obj.result.totalTime &&
         obj.result.totalTime > 0 &&
@@ -257,12 +257,12 @@ function queueSetCurrentSong() {
     {
         const durationTd = old.querySelector('[data-col=Duration]');
         if (durationTd) {
-            durationTd.textContent = beautifySongDuration(getData(old, 'data-duration'));
+            durationTd.textContent = beautifySongDuration(getData(old, 'duration'));
         }
         const posTd = old.querySelector('[data-col=Pos]');
         if (posTd) {
             posTd.classList.remove('mi');
-            posTd.textContent = getData(old, 'data-songpos') + 1;
+            posTd.textContent = getData(old, 'songpos') + 1;
         }
         old.classList.remove('queue-playing');
         old.style = '';
@@ -304,9 +304,9 @@ function parseLastPlayed(obj) {
 
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
     updateTable(obj, 'QueueLastPlayed', function(row, data) {
-        setData(row, 'data-uri', data.uri);
-        setData(row, 'data-name', data.Title);
-        setData(row, 'data-type', 'song');
+        setData(row, 'uri', data.uri);
+        setData(row, 'name', data.Title);
+        setData(row, 'type', 'song');
         row.setAttribute('tabindex', 0);
         row.setAttribute('title', tn(rowTitle));
     });
@@ -427,7 +427,7 @@ function addToQueue() {
     if (!validateInt(inputAddToQueueQuantityEl)) {
         formOK = false;
     }
-    const selectAddToQueuePlaylistValue = getDataId('selectAddToQueuePlaylist', 'data-value');
+    const selectAddToQueuePlaylistValue = getDataId('selectAddToQueuePlaylist', 'value');
     if (formOK === true) {
         sendAPI("MYMPD_API_QUEUE_ADD_RANDOM", {
             "mode": Number(getSelectValueId('selectAddToQueueMode')),
