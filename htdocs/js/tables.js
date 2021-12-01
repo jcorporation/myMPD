@@ -432,6 +432,14 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         if (obj.result.data[i][tagAlbumArtist] !== undefined) {
             setData(row, 'data-albumartist', obj.result.data[i][tagAlbumArtist]);
         }
+        //and other browse tags
+        for (const tag of settings.tagListBrowse) {
+            if (albumFilters.includes(tag) &&
+                checkTagValue(obj.result.data[i][tag], '-') === false)
+            {
+                setData(row, 'data-' + tag, obj.result.data[i][tag]);
+            }
+        }
         //set Title to name if not defined - for folders and playlists
         if (obj.result.data[i].Title === undefined) {
             obj.result.data[i].Title = obj.result.data[i].name;

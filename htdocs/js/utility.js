@@ -1327,3 +1327,10 @@ function showModal(modal) {
 function checkMediaSessionSupport() {
     return settings.mediaSession && 'mediaSession' in navigator
 }
+
+function checkTagValue(tag, value) {
+    if (typeof tag === 'string') {
+        return tag === value;
+    }
+    return tag[0] === value;
+}

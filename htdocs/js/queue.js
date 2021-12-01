@@ -202,12 +202,22 @@ function parseQueue(obj) {
             setData(row, 'data-type', 'song');
         }
         setData(row, 'data-name', data.Title);
+        //set artist and album data
         if (data.Album !== undefined) {
             setData(row, 'data-album', data.Album);
         }
         if (data[tagAlbumArtist] !== undefined) {
             setData(row, 'data-albumartist', data[tagAlbumArtist]);
         }
+        //and other browse tags
+        for (const tag of settings.tagListBrowse) {
+            if (albumFilters.includes(tag) &&
+                checkTagValue(data[tag], '-') === false)
+            {
+                setData(row, 'data-' + tag, data[tag]);
+            }
+        }
+
     }, function(row, data) {
         tableRow(row, data, app.id, colspan, smallWidth);
         if (currentState.currentSongId === data.id) {

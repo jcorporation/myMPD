@@ -803,14 +803,13 @@ function parseMPDSettings() {
     {
         filterCols(table);
         setCols(table);
-        //enforce albumartist and album for albumactions
+        //add all browse tags (advanced action in popover menu)
         const col = 'cols' + table + 'Fetch';
         settings[col] = settings['cols' + table].slice();
-        if (settings[col].includes('Album') === false && settings.tagList.includes('Album')) {
-            settings[col].push('Album');
-        }
-        if (settings[col].includes(tagAlbumArtist) === false && settings.tagList.includes(tagAlbumArtist)) {
-            settings[col].push(tagAlbumArtist);
+        for (const tag of settings.tagListBrowse) {
+            if (settings[col].includes(tag) === false) {
+                settings[col].push(tag);
+            }
         }
     }
     //enforce disc for album details view

@@ -32,6 +32,7 @@ const progressBarTransition = 'width 1s linear';
 const smallSpace = '\u2009';
 const nDash = '\u2013';
 let tagAlbumArtist = 'AlbumArtist';
+const albumFilters = ["Composer", "Performer", "Conductor", "Ensemble"];
 const session = {"token": "", "timeout": 0};
 const sessionLifetime = 1780;
 const sessionRenewInterval = sessionLifetime * 500;

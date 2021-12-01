@@ -224,7 +224,7 @@ function createPopoverAlbumView(el) {
     popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
     const albumArtist = getData(el, 'data-albumartist');
     const album = getData(el, 'data-album');
-    addMenuItemsAlbumActions(popoverBody, albumArtist, album);
+    addMenuItemsAlbumActions(popoverBody, el);
     createPopoverClickHandler(popoverBody);
     return popoverInit;
 }
@@ -310,7 +310,11 @@ function addMenuItemsSingleActions(popoverBody) {
     }
 }
 
-function addMenuItemsAlbumActions(tabContent, albumArtist, album) {
+function addMenuItemsAlbumActions(tabContent, dataNode, albumArtist, album) {
+    if (dataNode !== null) {
+        albumArtist = getData(dataNode, 'data-albumartist');
+        album = getData(dataNode, 'data-album');
+    }
     if (app.id !== 'QueueCurrent') {
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album]}, 'Append to queue');
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["appendPlayQueue", albumArtist, album]}, 'Append to queue and play');
@@ -324,8 +328,20 @@ function addMenuItemsAlbumActions(tabContent, albumArtist, album) {
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, 'Add to playlist');
     }
     tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-    addMenuItem(tabContent, {"cmd": "gotoAlbum", "options": [albumArtist, album]}, 'Album details');
-    addMenuItem(tabContent, {"cmd": "gotoAlbumList", "options": [tagAlbumArtist, albumArtist]}, 'Show all albums from artist');
+    if (app.id !== 'BrowseDatabaseDetail') {
+        addMenuItem(tabContent, {"cmd": "gotoAlbum", "options": [albumArtist, album]}, 'Album details');
+    }
+    for (const tag of settings.tagListBrowse) {
+        if (tag === tagAlbumArtist) {
+            addMenuItem(tabContent, {"cmd": "gotoAlbumList", "options": [tagAlbumArtist, albumArtist]}, 'Show all albums from artist');
+        }
+        else if (dataNode !== null && albumFilters.includes(tag)) {
+            const value = getData(dataNode, 'data-' + tag);
+            if (value !== undefined) {
+                addMenuItem(tabContent, {"cmd": "gotoAlbumList", "options": [tag, value]}, 'Show all albums from ' + tag);
+            }
+        }
+    }
     if (features.featHome === true &&
         app.id !== 'Home')
     {
@@ -371,6 +387,7 @@ function addMenuItemsSearchActions(tabContent, uri) {
     if (features.featPlaylists === true) {
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": ["SEARCH", uri]}, 'Add to playlist');
     }
+    addMenuItem(tabContent, {"cmd": "appGoto", "options": ["Search", undefined, undefined, 0, undefined, "any", "Title", "-", uri]}, 'Show search');
 }
 
 function addMenuItemsDirectoryActions(tabContent, baseuri) {
@@ -520,13 +537,11 @@ function createMenuLists(el, tabHeader, tabContent) {
         }
         case 'QueueJukebox': {
             const pos = Number(getData(dataNode, 'data-pos'));
-            const vAlbum = getData(dataNode, 'data-album');
-            const vAlbumArtist = getData(dataNode, 'data-albumartist');
             if (settings.jukeboxMode === 1) {
                 addMenuItemsSongActions(tabContent, uri, type, name);
             }
             else if (settings.jukeboxMode === 2) {
-                addMenuItemsAlbumActions(tabContent, vAlbumArtist, vAlbum)
+                addMenuItemsAlbumActions(tabContent, dataNode)
             }
             tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
             addMenuItem(tabContent, {"cmd": "delQueueJukeboxSong", "options": [pos]}, 'Remove');
@@ -543,6 +558,7 @@ function createMenuSecondary(el, tabHeader, tabContent) {
         case 'QueueLastPlayed':
         case 'QueueJukebox':
         case 'BrowseFilesystem':
+        case 'BrowseDatabaseDetail':
         case 'BrowsePlaylistsDetail': {
             const dataNode = el.parentNode.parentNode;
             const type = getData(dataNode, 'data-type');
@@ -564,7 +580,7 @@ function createMenuSecondary(el, tabHeader, tabContent) {
                 album !== '-' && albumArtist !== '-')
             {
                 tabHeader.textContent = tn('Album');
-                addMenuItemsAlbumActions(tabContent, albumArtist, album);
+                addMenuItemsAlbumActions(tabContent, dataNode);
             }
             else {
                 tabHeader.textContent = tn('Directory');
@@ -614,7 +630,7 @@ function createMenuHome(el, tabHeader, tabContent) {
             addMenuItemsSearchActions(tabContent, href.options[1]);
             break;
         case 'album':
-            addMenuItemsAlbumActions(tabContent, href.options[1], href.options[2]);
+            addMenuItemsAlbumActions(tabContent, null, href.options[1], href.options[2]);
             break;
         case 'view':
         case 'script':
