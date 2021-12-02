@@ -1013,6 +1013,7 @@ materialicons() {
   cp ligatures.js "$STARTPATH/htdocs/js/"
   cp MaterialIcons-Regular.woff2 "$STARTPATH/htdocs/assets/"
   cp MaterialIcons-Regular.woff2 "$STARTPATH/dist/material-icons/"
+  $GZIPCAT "$STARTPATH/dist/material-icons/MaterialIcons-Regular.woff2" > "$STARTPATH/dist/material-icons/MaterialIcons-Regular.woff2.gz"
   cd "$STARTPATH"
   rm -fr "$TMPDIR"
 }
