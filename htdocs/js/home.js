@@ -52,14 +52,16 @@ function initHome() {
     document.getElementById('selectHomeIconImage').addEventListener('change', function(event) {
         const value = getSelectValue(event.target);
         if (value !== '') {
-            document.getElementById('homeIconPreview').style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(value)  + '")';
+            document.getElementById('homeIconPreview').style.backgroundImage =
+                'url("' + subdir + '/pics/' + myEncodeURI(value)  + '")';
             elHideId('divHomeIconLigature');
             elClearId('homeIconPreview');
         }
         else {
             document.getElementById('homeIconPreview').style.backgroundImage = '';
             elShowId('divHomeIconLigature');
-            document.getElementById('homeIconPreview').textContent = document.getElementById('inputHomeIconLigature').value;
+            document.getElementById('homeIconPreview').textContent =
+                document.getElementById('inputHomeIconLigature').value;
         }
     }, false);
 
@@ -82,12 +84,20 @@ function initHome() {
 
     elClear(listHomeIconLigature);
     elClear(searchHomeIconCat);
-    searchHomeIconCat.appendChild(elCreateText('option', {"value": "all"}, tn('All')));
+    searchHomeIconCat.appendChild(
+        elCreateText('option', {"value": "all"}, tn('All'))
+    );
     for (const cat in materialIcons) {
-        listHomeIconLigature.appendChild(elCreateText('h5', {"class": ["ml-1", "mt-2"]}, ucFirst(cat)));
-        searchHomeIconCat.appendChild(elCreateText('option', {"value": cat}, ucFirst(cat)));
+        listHomeIconLigature.appendChild(
+            elCreateText('h5', {"class": ["ml-1", "mt-2"]}, ucFirst(cat))
+        );
+        searchHomeIconCat.appendChild(
+            elCreateText('option', {"value": cat}, ucFirst(cat))
+        );
         for (const icon of materialIcons[cat]) {
-            listHomeIconLigature.appendChild(elCreateText('button', {"class": ["btn", "btn-sm", "mi", "m-1"], "title": icon, "data-cat": cat}, icon));
+            listHomeIconLigature.appendChild(
+                elCreateText('button', {"class": ["btn", "btn-sm", "mi", "m-1"], "title": icon, "data-cat": cat}, icon)
+            );
         }
     }
 
@@ -144,7 +154,9 @@ function filterHomeIconLigatures() {
     const cat = getSelectValueId('searchHomeIconCat');
     const els = document.getElementById('listHomeIconLigature').getElementsByTagName('button');
     for (let i = 0, j = els.length; i < j; i++) {
-        if ((str === '' || els[i].getAttribute('title').indexOf(str) > -1) && (cat === 'all' || els[i].getAttribute('data-cat') === cat)) {
+        if ((str === '' || els[i].getAttribute('title').indexOf(str) > -1) &&
+            (cat === 'all' || els[i].getAttribute('data-cat') === cat))
+        {
             elShow(els[i]);
             if (els[i].getAttribute('title') === str) {
                 els[i].classList.add('active');
@@ -235,7 +247,9 @@ function parseHome(obj) {
         if (obj.result.data[i].bgcolor !== '') {
             cardBody.style.backgroundColor = obj.result.data[i].bgcolor;
         }
-        if (obj.result.data[i].color !== '' && obj.result.data[i].color !== undefined) {
+        if (obj.result.data[i].color !== '' &&
+            obj.result.data[i].color !== undefined)
+        {
             cardBody.style.color = obj.result.data[i].color;
         }
         card.appendChild(cardBody);
@@ -271,7 +285,9 @@ function dragAndDropHome() {
         if (dragEl.classList.contains('home-icons') === false) {
             return;
         }
-        if (event.target.nodeName === 'DIV' && event.target.classList.contains('home-icons')) {
+        if (event.target.nodeName === 'DIV' &&
+            event.target.classList.contains('home-icons'))
+        {
             event.target.classList.remove('dragover-icon');
         }
     }, false);
@@ -285,10 +301,14 @@ function dragAndDropHome() {
         for (const th of ths) {
             th.classList.remove('dragover-icon');
         }
-        if (event.target.nodeName === 'DIV' && event.target.classList.contains('home-icons')) {
+        if (event.target.nodeName === 'DIV' &&
+            event.target.classList.contains('home-icons'))
+        {
             event.target.classList.add('dragover-icon');
         }
-        else if (event.target.nodeName === 'DIV' && event.target.parentNode.classList.contains('home-icons')) {
+        else if (event.target.nodeName === 'DIV' &&
+                 event.target.parentNode.classList.contains('home-icons'))
+        {
             event.target.parentNode.classList.add('dragover-icon');
         }
         event.dataTransfer.dropEffect = 'move';
@@ -321,7 +341,10 @@ function dragAndDropHome() {
                 dragEl.classList.remove('opacity05');
                 const to = getData(dst, 'pos');
                 const from = getData(dragSrc, 'pos');
-                if (isNaN(to) === false && isNaN(from) === false && from !== to) {
+                if (isNaN(to) === false &&
+                    isNaN(from) === false &&
+                    from !== to)
+                {
                     sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, function(obj) {
                         parseHome(obj);
                     });
@@ -501,7 +524,8 @@ function _editHomeIcon(pos, replace, title) {
         }
         else {
             elHideId('divHomeIconLigature');
-            document.getElementById('homeIconPreview').style.backgroundImage = 'url(' + subdir + '"/pics/' + myEncodeURI(obj.result.data.image) + '")';
+            document.getElementById('homeIconPreview').style.backgroundImage =
+                'url(' + subdir + '"/pics/' + myEncodeURI(obj.result.data.image) + '")';
         }
         //reset ligature selection
         document.getElementById('searchHomeIconLigature').value = '';
@@ -529,7 +553,7 @@ function saveHomeIcon() {
         }
         const image = getSelectValueId('selectHomeIconImage');
         sendAPI("MYMPD_API_HOME_ICON_SAVE", {
-            "replace": (document.getElementById('inputHomeIconReplace').value === 'true' ? true : false),
+            "replace": strToBool(document.getElementById('inputHomeIconReplace').value),
             "oldpos": Number(document.getElementById('inputHomeIconOldpos').value),
             "name": nameEl.value,
             "ligature": (image === '' ? document.getElementById('inputHomeIconLigature').value : ''),
@@ -569,18 +593,20 @@ function showHomeIconCmdOptions(values) {
     }
     const divHomeIconOptions = document.getElementById('divHomeIconOptions');
     elClear(divHomeIconOptions);
-    const options = getSelectedOptionDataId('selectHomeIconCmd', 'data-options');
+    const options = getSelectedOptionDataId('selectHomeIconCmd', 'options');
     if (options !== undefined) {
         for (let i = 0, j = options.options.length; i < j; i++) {
-            const row = elCreateEmpty('div', {"class": ["mb-3", "row"]});
-            row.appendChild(elCreateText('label', {"class": ["col-sm-4"]}, tn(options.options[i])));
-            const div = elCreateEmpty('div', {"class": ["col-sm-8"]});
             let value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
-            if (value === '' && oldOptions[i] !== undefined) {
+            if (value === '' &&
+                oldOptions[i] !== undefined) {
                 value = oldOptions[i];
             }
-            div.appendChild(elCreateEmpty('input', {"class": ["form-control", "border-secondary"], "name": options.options[i], "value": value}));
-            row.appendChild(div);
+            const row = elCreateNodes('div', {"class": ["mb-3", "row"]}, [
+                elCreateText('label', {"class": ["col-sm-4"]}, tn(options.options[i])),
+                elCreateNode('div', {"class": ["col-sm-8"]}, 
+                    elCreateEmpty('input', {"class": ["form-control", "border-secondary"], "name": options.options[i], "value": value})
+                )
+            ]);
             divHomeIconOptions.appendChild(row);
         }
     }

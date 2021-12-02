@@ -212,6 +212,7 @@ function parseQueue(obj) {
         //and other browse tags
         for (const tag of settings.tagListBrowse) {
             if (albumFilters.includes(tag) &&
+                data[tag] !== undefined &&
                 checkTagValue(data[tag], '-') === false)
             {
                 setData(row, tag, data[tag]);

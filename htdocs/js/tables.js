@@ -435,6 +435,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         //and other browse tags
         for (const tag of settings.tagListBrowse) {
             if (albumFilters.includes(tag) &&
+                obj.result.data[i][tag] !== undefined &&
                 checkTagValue(obj.result.data[i][tag], '-') === false)
             {
                 setData(row, tag, obj.result.data[i][tag]);

@@ -323,6 +323,7 @@ function addMenuItemsAlbumActions(tabContent, dataNode, albumArtist, album) {
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["replacePlayQueue", albumArtist, album]}, 'Replace queue and play');
     }
     if (features.featPlaylists === true) {
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, 'Add to playlist');
     }
     tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
@@ -360,6 +361,7 @@ function addMenuItemsSongActions(tabContent, uri, type, name) {
         addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": [type, uri]}, 'Replace queue and play');
     }
     if (features.featPlaylists === true) {
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [uri, ""]}, 'Add to playlist');
     }
     if (type === 'song') {
@@ -383,8 +385,10 @@ function addMenuItemsSearchActions(tabContent, uri) {
     addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["search", uri]}, 'Replace queue');
     addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": ["search", uri]}, 'Replace queue and play');
     if (features.featPlaylists === true) {
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": ["SEARCH", uri]}, 'Add to playlist');
     }
+    tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
     addMenuItem(tabContent, {"cmd": "appGoto", "options": ["Search", undefined, undefined, 0, undefined, "any", "Title", "-", uri]}, 'Show search');
 }
 
@@ -398,6 +402,7 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
     addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["dir", baseuri]}, 'Replace queue');
     addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": ["dir", baseuri]}, 'Replace queue and play');
     if (features.featPlaylists === true) {
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [baseuri, ""]}, 'Add to playlist');
     }
     if (app.id === 'BrowseFilesystem') {
@@ -406,6 +411,7 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
         addMenuItem(tabContent, {"cmd": "rescanDB", "options": [baseuri, true]}, 'Rescan directory');
     }
     else {
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [baseuri]}, 'Show directory');
     }
     if (features.featHome === true &&

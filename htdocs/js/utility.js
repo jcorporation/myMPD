@@ -1341,3 +1341,7 @@ function checkTagValue(tag, value) {
     }
     return tag[0] === value;
 }
+
+function strToBool(str) {
+    return str === 'true';
+}
