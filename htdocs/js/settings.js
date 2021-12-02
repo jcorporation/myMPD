@@ -1102,16 +1102,17 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
 
     const inputEl = document.getElementById(inputId);
     inputEl.value = values.join(', ');
-    if (getData(inputEl, 'init') === 'true') {
+    if (getData(inputEl, 'init') === true) {
         return;
     }
-    setData(inputEl, 'init', 'true');
+    setData(inputEl, 'init', true);
     document.getElementById(listId).addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'BUTTON') {
             toggleBtnChk(event.target);
-            event.target.parentNode.parentNode.parentNode.previousElementSibling.value = getTagMultiSelectValues(event.target.parentNode.parentNode, true);
+            event.target.parentNode.parentNode.parentNode.previousElementSibling.value =
+                getTagMultiSelectValues(event.target.parentNode.parentNode, true);
         }
     });
 }
