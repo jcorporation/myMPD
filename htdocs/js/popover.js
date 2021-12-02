@@ -58,24 +58,25 @@ function showPopover(event) {
                 break;
             case 'disc':
                 //disc actions in album details view
-                popoverInit = createPopoverDisc(target);
+                popoverInit = createPopoverSimple(target, 'Disc', addMenuItemsDiscActions, false);
                 break;
             case 'NavbarPlayback':
             case 'NavbarQueue':
             case 'NavbarBrowse':
                 //navbar icons
-                popoverInit = createPopoverNavbarIcon(target, popoverType);
+                popoverInit = createPopoverSimple(target, target.getAttribute('title'), addMenuItemsNavbarActions, true);
+                popoverInit.options.placement = getXpos(target) < 100 ? 'right' : 'bottom';
                 break;
             case 'home':
                 //home card actions
-                popoverInit = createPopoverHome(target);
+                popoverInit = createPopoverTabs(target, createMenuHome, createMenuHomeSecondary);
                 break;
             case 'album':
                 //album action in album list
-                popoverInit = createPopoverAlbumView(target);
+                popoverInit = createPopoverSimple(target, 'Album', addMenuItemsAlbumActions, false);
                 break;
             default:
-                popoverInit = createPopoverLists(target);
+                popoverInit = createPopoverTabs(target, createMenuLists, createMenuListsSecondary);
         }
     }
     //show the popover
@@ -83,7 +84,27 @@ function showPopover(event) {
 }
 
 function createPopoverInit(el, title, template) {
-    if (template === undefined) {
+    if (template === 'tabs') {
+        template = elCreateNodes('div', {"class": ["popover"]}, [
+            elCreateEmpty('div', {"class": ["popover-arrow"]}),
+            elCreateEmpty('h3', {"class": ["popover-header"]}),
+            elCreateNodes('div', {"class": ["popover-tabs", "py-2"]}, [
+                elCreateNodes('ul', {"class": ["nav", "nav-tabs", "px-2"]}, [
+                    elCreateNode('li', {"class": ["nav-item"]},
+                        elCreateEmpty('a', {"class": ["nav-link", "active"], "href": "#"})
+                    ),
+                    elCreateNode('li', {"class": ["nav-item"]},
+                        elCreateEmpty('a', {"class": ["nav-link"], "href": "#"})
+                    )
+                ]),
+                elCreateNodes('div', {"class": ["tab-content"]}, [
+                    elCreateEmpty('div', {"class": ["tab-pane", "pt-2", "active", "show"], "id": "popoverTab0"}),
+                    elCreateEmpty('div', {"class": ["tab-pane", "pt-2"], "id": "popoverTab1"})
+                ])
+            ])
+        ]);
+    }
+    else {
         template = elCreateNodes('div', {"class": ["popover"]}, [
             elCreateEmpty('div', {"class": ["popover-arrow"]}),
             elCreateEmpty('h3', {"class": ["popover-header"]}),
@@ -149,106 +170,28 @@ function createPopoverColumns(el) {
     return popoverInit;
 }
 
-function createPopoverDisc(el) {
-    const disc = getData(el.parentNode.parentNode, 'Disc');
-    const album = getData(el.parentNode.parentNode, 'Album');
-    const albumArtist = getData(el.parentNode.parentNode, 'AlbumArtist');
-
-    const popoverInit = createPopoverInit(el, tn('Disc'));
-    const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
-    popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
-    addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album, disc]}, 'Append to queue');
-    addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["appendPlayQueue", albumArtist, album, disc]}, 'Append to queue and play');
-    if (features.featWhence === true) {
-        addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["insertAfterCurrentQueue", albumArtist, album]}, 'Insert after current playing song');
+function createPopoverSimple(el, title, contentCallback, onShow) {
+    const popoverInit = createPopoverInit(el, tn(title));
+    if (onShow === true) {
+        //update content on each show event
+        el.addEventListener('show.bs.popover', function() {
+            const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
+            popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
+            contentCallback(popoverBody, el);
+            createPopoverClickHandler(popoverBody);
+        }, false);
     }
-    addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album, disc]}, 'Replace queue');
-    addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["replacePlayQueue", albumArtist, album, disc]}, 'Replace queue and play');
-    if (features.featPlaylists === true) {
-        addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album, disc]}, 'Add to playlist');
-    }
-    createPopoverClickHandler(popoverBody);
-    return popoverInit;
-}
-
-function createPopoverNavbarIcon(el, type) {
-    const popoverInit = createPopoverInit(el, el.getAttribute('title'));
-    //update content on each show event
-    el.addEventListener('show.bs.popover', function() {
+    else {
         const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
         popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
-        switch(type) {
-            case 'NavbarPlayback':
-                addMenuItem(popoverBody, {"cmd": "showModal", "options": ["modalQueueSettings"]}, 'Playback settings');
-                addMenuItemsSingleActions(popoverBody);
-                popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Playback", undefined, undefined]}, 'Show playback');
-                break;
-            case 'NavbarQueue':
-                addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}]}, 'Clear');
-                addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}]}, 'Crop');
-                addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_SHUFFLE"}]}, 'Shuffle');
-                popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "Current", undefined]}, 'Show queue');
-                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "LastPlayed", undefined]}, 'Show last played');
-                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "Jukebox", undefined]}, 'Show jukebox queue');
-                break;
-            case 'NavbarBrowse':
-                addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, false]}, 'Update database');
-                addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, true]}, 'Rescan database');
-                popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Database", undefined]}, 'Show browse database');
-                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Playlists", undefined]}, 'Show browse playlists');
-                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Filesystem", undefined]}, 'Show browse filesystem');
-                break;
-        }
+        contentCallback(popoverBody, el);
         createPopoverClickHandler(popoverBody);
-    }, false);
-    popoverInit.options.placement = getXpos(el) < 100 ? 'right' : 'bottom';
+    }
     return popoverInit;
 }
 
-function createPopoverHome(el) {
-    const popoverInit = createPopoverInit(el, tn('Home'));
-    const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
-    popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
-    const popoverHeader = popoverInit.popover.getElementsByClassName('popover-header')[0];
-    createMenuHome(el, popoverHeader, popoverBody);
-    createPopoverClickHandler(popoverBody);
-    return popoverInit;
-}
-
-function createPopoverAlbumView(el) {
-    const popoverInit = createPopoverInit(el, tn('Album'));
-    const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
-    popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
-    addMenuItemsAlbumActions(popoverBody, el);
-    createPopoverClickHandler(popoverBody);
-    return popoverInit;
-}
-
-function createPopoverLists(el) {
-    const template = elCreateNodes('div', {"class": ["popover"]}, [
-        elCreateEmpty('div', {"class": ["popover-arrow"]}),
-        elCreateEmpty('h3', {"class": ["popover-header"]}),
-        elCreateNodes('div', {"class": ["popover-tabs", "py-2"]}, [
-            elCreateNodes('ul', {"class": ["nav", "nav-tabs", "px-2"]}, [
-                elCreateNode('li', {"class": ["nav-item"]},
-                    elCreateEmpty('a', {"class": ["nav-link", "active"], "href": "#"})
-                ),
-                elCreateNode('li', {"class": ["nav-item"]},
-                    elCreateEmpty('a', {"class": ["nav-link"], "href": "#"})
-                )
-            ]),
-            elCreateNodes('div', {"class": ["tab-content"]}, [
-                elCreateEmpty('div', {"class": ["tab-pane", "pt-2", "active", "show"], "id": "popoverTab0"}),
-                elCreateEmpty('div', {"class": ["tab-pane", "pt-2"], "id": "popoverTab1"})
-            ])
-        ])
-    ]);
-
-    const popoverInit = createPopoverInit(el, '', template);
-
+function createPopoverTabs(el, tab1Callback, tab2Callback) {
+    const popoverInit = createPopoverInit(el, '', 'tabs');
     const tabHeader = popoverInit.popover.getElementsByClassName('nav-link');
     const tabPanes = popoverInit.popover.getElementsByClassName('tab-pane');
     for (let i = 0; i < 2; i++) {
@@ -264,8 +207,8 @@ function createPopoverLists(el) {
 
         elClear(tabPanes[i]);
         const created = i === 0 ?
-            createMenuLists(el, tabHeader[0], tabPanes[0]) :
-            createMenuSecondary(el, tabHeader[1], tabPanes[1]);
+            tab1Callback(el, tabHeader[0], tabPanes[0]) :
+            tab2Callback(el, tabHeader[1], tabPanes[1]);
 
         if (created === true) {
             createPopoverClickHandler(tabPanes[i]);
@@ -282,6 +225,52 @@ function addMenuItem(tabContent, cmd, text) {
     const a = elCreateText('a', {"class": ["dropdown-item"], "href": "#"}, tn(text));
     setData(a, 'href', cmd);
     tabContent.appendChild(a);
+}
+
+function addMenuItemsNavbarActions(popoverBody, el) {
+    const type = el.getAttribute('data-popover');
+    switch(type) {
+        case 'NavbarPlayback':
+            addMenuItem(popoverBody, {"cmd": "showModal", "options": ["modalQueueSettings"]}, 'Playback settings');
+            addMenuItemsSingleActions(popoverBody);
+            popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Playback", undefined, undefined]}, 'Show playback');
+            break;
+        case 'NavbarQueue':
+            addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}]}, 'Clear');
+            addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}]}, 'Crop');
+            addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_SHUFFLE"}]}, 'Shuffle');
+            popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "Current", undefined]}, 'Show queue');
+            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "LastPlayed", undefined]}, 'Show last played');
+            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "Jukebox", undefined]}, 'Show jukebox queue');
+            break;
+        case 'NavbarBrowse':
+            addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, false]}, 'Update database');
+            addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, true]}, 'Rescan database');
+            popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Database", undefined]}, 'Show browse database');
+            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Playlists", undefined]}, 'Show browse playlists');
+            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Filesystem", undefined]}, 'Show browse filesystem');
+            break;
+    }
+}
+
+function addMenuItemsDiscActions(popoverBody, el) {
+    const disc = getData(el.parentNode.parentNode, 'Disc');
+    const album = getData(el.parentNode.parentNode, 'Album');
+    const albumArtist = getData(el.parentNode.parentNode, 'AlbumArtist');
+
+    addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album, disc]}, 'Append to queue');
+    addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["appendPlayQueue", albumArtist, album, disc]}, 'Append to queue and play');
+    if (features.featWhence === true) {
+        addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["insertAfterCurrentQueue", albumArtist, album]}, 'Insert after current playing song');
+    }
+    addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album, disc]}, 'Replace queue');
+    addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["replacePlayQueue", albumArtist, album, disc]}, 'Replace queue and play');
+    if (features.featPlaylists === true) {
+        addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album, disc]}, 'Add to playlist');
+    }
 }
 
 function addMenuItemsSingleActions(popoverBody) {
@@ -555,7 +544,7 @@ function createMenuLists(el, tabHeader, tabContent) {
     return false;
 }
 
-function createMenuSecondary(el, tabHeader, tabContent) {
+function createMenuListsSecondary(el, tabHeader, tabContent) {
     switch(app.id) {
         case 'Search':
         case 'QueueCurrent':
@@ -641,8 +630,12 @@ function createMenuHome(el, tabHeader, tabContent) {
         case 'script':
             addMenuItem(tabContent, {"cmd": "executeHomeIcon", "options": [pos]}, actionDesc);
     }
-    tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-    tabContent.appendChild(elCreateText('h2', {"class": ["dropdown-header"]}, tn('Home icon')));
+    return true;
+}
+
+function createMenuHomeSecondary(el, tabHeader, tabContent) {
+    const pos = getData(el, 'pos');
+    tabHeader.textContent = tn('Homeicon');
     addMenuItem(tabContent, {"cmd": "editHomeIcon", "options": [pos]}, 'Edit home icon');
     addMenuItem(tabContent, {"cmd": "duplicateHomeIcon", "options": [pos]}, 'Duplicate home icon');
     addMenuItem(tabContent, {"cmd": "deleteHomeIcon", "options": [pos]}, 'Delete home icon');
