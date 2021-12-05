@@ -255,7 +255,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 "limit": app.current.limit,
                 "searchstr": app.current.search,
                 "plist": app.current.filter,
-                "cols": settings.colsBrowsePlaylistsDetail
+                "cols": settings.colsBrowsePlaylistsDetailFetch
             }, parsePlaylistsDetail, true);
             const searchPlaylistsStrEl = document.getElementById('searchPlaylistsDetailStr');
             if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {

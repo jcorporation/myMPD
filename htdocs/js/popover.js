@@ -311,7 +311,9 @@ function addMenuItemsAlbumActions(tabContent, dataNode, albumArtist, album) {
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album]}, 'Replace queue');
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["replacePlayQueue", albumArtist, album]}, 'Replace queue and play');
     }
-    if (features.featPlaylists === true) {
+    if (features.featPlaylists === true &&
+        app.id !== 'Home')
+    {
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, 'Add to playlist');
     }
@@ -349,7 +351,9 @@ function addMenuItemsSongActions(tabContent, uri, type, name) {
         addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, uri]}, 'Replace queue');
         addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": [type, uri]}, 'Replace queue and play');
     }
-    if (features.featPlaylists === true) {
+    if (features.featPlaylists === true &&
+        app.id !== 'Home')
+    {
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [uri, ""]}, 'Add to playlist');
     }
@@ -373,7 +377,9 @@ function addMenuItemsSearchActions(tabContent, uri) {
     }
     addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["search", uri]}, 'Replace queue');
     addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": ["search", uri]}, 'Replace queue and play');
-    if (features.featPlaylists === true) {
+    if (features.featPlaylists === true &&
+        app.id !== 'Home')
+    {
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": ["SEARCH", uri]}, 'Add to playlist');
     }
@@ -390,7 +396,9 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
     }
     addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["dir", baseuri]}, 'Replace queue');
     addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": ["dir", baseuri]}, 'Replace queue and play');
-    if (features.featPlaylists === true) {
+    if (features.featPlaylists === true &&
+        app.id !== 'Home')
+    {
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [baseuri, ""]}, 'Add to playlist');
     }
@@ -419,11 +427,15 @@ function addMenuItemsPlaylistActions(tabContent, type, uri, name) {
     }
     addMenuItem(tabContent, {"cmd": "replaceQueue", "options": [type, uri]}, 'Replace queue');
     addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": [type, uri]}, 'Replace queue and play');
-    if (features.featHome === true &&
-        app.id !== 'Home')
-    {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-        addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, type, name]}, 'Add to homescreen');
+    if (features.featHome === true) {
+        if (app.id !== 'Home') {
+            tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, type, name]}, 'Add to homescreen');
+        }
+        else if (isMPDplaylist(uri) === true) {
+            tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addMenuItem(tabContent, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
+        }
     }
 }
 
@@ -483,8 +495,8 @@ function createMenuLists(el, tabHeader, tabContent) {
         case 'BrowsePlaylistsDetail': {
             const table = document.getElementById('BrowsePlaylistsDetailList');
             addMenuItemsSongActions(tabContent, uri, type, name);
-            tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
             if (getData(table, 'ro') === 'false') {
+                tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
                 const plist = getData(table, 'uri');
                 const songpos = getData(dataNode, 'songpos');
                 const playlistLength = getData(table, 'playlistlength');
