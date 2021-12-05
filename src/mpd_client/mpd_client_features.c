@@ -221,7 +221,6 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
     else {
         mympd_state->mpd_state->feat_mpd_tags = true;
         MYMPD_LOG_NOTICE("%s", logline);
-
         check_tags(mympd_state->mpd_state->tag_list, "tag_list", &mympd_state->mpd_state->tag_types_mympd, mympd_state->mpd_state->tag_types_mpd);
         enable_mpd_tags(mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd);
     }
