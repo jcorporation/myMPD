@@ -132,6 +132,14 @@ sds jsonrpc_respond_message_phrase(sds buffer, const char *method, long id, bool
     return buffer;
 }
 
+sds tojson_raw(sds buffer, const char *key, const char *value, bool comma) {
+    buffer = sdscatfmt(buffer, "\"%s\":%s", key, value);
+    if (comma) {
+        buffer = sdscatlen(buffer, ",", 1);
+    }
+    return buffer;
+}
+
 sds tojson_char(sds buffer, const char *key, const char *value, bool comma) {
     //treat NULL values as empty
     size_t len = value != NULL ? strlen(value) : 0;
