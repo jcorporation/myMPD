@@ -59,14 +59,18 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
                 struct mpd_song *song;
                 if ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
                     if (filter_mpd_song(song, searchstr, tagcols) == true) {
-                        if (entity_count >= offset && entity_count < real_limit) {
+                        if (entity_count >= offset &&
+                            entity_count < real_limit)
+                        {
                             if (entities_returned++) {
                                 buffer = sdscatlen(buffer, ",", 1);
                             }
                             buffer = sdscatlen(buffer, "{", 1);
                             buffer = tojson_long(buffer, "Pos", entity_count, true);
                             buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
-                            if (mympd_state->mpd_state->feat_mpd_stickers == true && mympd_state->sticker_cache != NULL) {
+                            if (mympd_state->mpd_state->feat_mpd_stickers == true &&
+                                mympd_state->sticker_cache != NULL)
+                            {
                                 buffer = sdscatlen(buffer, ",", 1);
                                 buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
                             }
@@ -91,9 +95,12 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
             sds_utf8_tolower(album_lower);
             artist_lower = sdscatsds(artist_lower, current->value_p);
             sds_utf8_tolower(album_lower);
-            if (strstr(album_lower, searchstr) != NULL || strstr(artist_lower, searchstr) != NULL) {
-                entity_count++;
-                if (entity_count > offset && entity_count <= real_limit) {
+            if (strstr(album_lower, searchstr) != NULL ||
+                strstr(artist_lower, searchstr) != NULL)
+            {
+                if (entity_count >= offset &&
+                    entity_count < real_limit)
+                {
                     if (entities_returned++) {
                         buffer = sdscatlen(buffer, ",", 1);
                     }
@@ -101,11 +108,12 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
                     buffer = tojson_long(buffer, "Pos", entity_count, true);
                     buffer = tojson_char(buffer, "uri", "Album", true);
                     buffer = tojson_char(buffer, "Title", "", true);
-                    buffer = tojson_char(buffer, "Album", current->key, true);
-                    buffer = tojson_char(buffer, "AlbumArtist", current->value_p, true);
-                    buffer = tojson_char(buffer, "Artist", current->value_p, false);
+                    buffer = tojson_raw(buffer, "Album", current->key, true);
+                    buffer = tojson_raw(buffer, "AlbumArtist", current->value_p, true);
+                    buffer = tojson_raw(buffer, "Artist", current->value_p, false);
                     buffer = sdscatlen(buffer, "}", 1);
                 }
+                entity_count++;
             }
             sdsclear(album_lower);
             sdsclear(artist_lower);
@@ -162,7 +170,10 @@ static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
     //add song if add_time is reached or queue is empty
     unsigned add_songs = substractUnsigned(mympd_state->jukebox_queue_length, queue_length);
 
-    if (now > add_time && add_time > 0 && queue_length <= mympd_state->jukebox_queue_length) {
+    if (now > add_time &&
+        add_time > 0 &&
+        queue_length <= mympd_state->jukebox_queue_length)
+    {
         MYMPD_LOG_DEBUG("Time now %d greater than add_time %d, adding song", now, add_time);
         add_songs++;
     }
@@ -552,6 +563,12 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
         MYMPD_LOG_DEBUG("Jukebox iterated through %u songs, skipped %u", lineno, skipno);
     }
     else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
+        if (mympd_state->album_cache == NULL) {
+            MYMPD_LOG_WARN("Album cache is null, jukebox can not add albums");
+            list_clear(queue_list);
+            FREE_PTR(queue_list);
+            return false;
+        }
         //add album
         if (manual == false) {
             add_songs = substractUnsigned(10, mympd_state->jukebox_queue.length);
