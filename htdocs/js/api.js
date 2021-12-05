@@ -419,7 +419,7 @@ function webSocketConnect() {
                             "limit": app.current.limit,
                             "searchstr": app.current.search,
                             "plist": app.current.filter,
-                            "cols": settings.colsBrowsePlaylistsDetail
+                            "cols": settings.colsBrowsePlaylistsDetailFetch
                         }, parsePlaylistsDetail);
                     }
                     break;
@@ -428,7 +428,7 @@ function webSocketConnect() {
                         sendAPI('MYMPD_API_QUEUE_LAST_PLAYED', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
-                            "cols": settings.colsQueueLastPlayed,
+                            "cols": settings.colsQueueLastPlayedFetch,
                             "searchstr": app.current.search
                         }, parseLastPlayed);
                     }
@@ -438,7 +438,7 @@ function webSocketConnect() {
                         sendAPI('MYMPD_API_JUKEBOX_LIST', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
-                            "cols": settings.colsQueueJukebox,
+                            "cols": settings.colsQueueJukeboxFetch,
                             "searchstr": app.current.search
                         }, parseJukeboxList);
                     }
