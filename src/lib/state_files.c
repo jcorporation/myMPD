@@ -62,8 +62,10 @@ sds state_file_rw_string(const char *workdir, const char *dir, const char *name,
     if (n == 0) {
         //sucessfully read the value
         if (vcb != NULL && vcb(result) == false) {
-            //validation failed
+            //validation failed, return default
             sdsclear(result);
+            result = sdscat(result, def_value);
+            return result;
         }
         else {
             //got valid result
@@ -71,8 +73,12 @@ sds state_file_rw_string(const char *workdir, const char *dir, const char *name,
             return result;
         }
     }
-    //blank value or too long line, return default value
-    result = sdscat(result, def_value);
+    if (n == -2) {
+        //too long line, return default
+        sdsclear(result);
+        result = sdscat(result, def_value);
+    }
+    MYMPD_LOG_DEBUG("State %s: %s", name, result);
     return result;
 }
 
