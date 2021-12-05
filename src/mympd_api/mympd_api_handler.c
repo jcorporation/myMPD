@@ -342,7 +342,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         }
         case MYMPD_API_COVERCACHE_CROP:
-            int_buf1 = covercache_clear(mympd_state->config->workdir, mympd_state->covercache_keep_days);
+            int_buf1 = covercache_clear(mympd_state->config->cachedir, mympd_state->covercache_keep_days);
             if (int_buf1 >= 0) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                     "general", "info", "Successfully croped covercache");
@@ -353,7 +353,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_COVERCACHE_CLEAR:
-            int_buf1 = covercache_clear(mympd_state->config->workdir, 0);
+            int_buf1 = covercache_clear(mympd_state->config->cachedir, 0);
             if (int_buf1 >= 0) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                     "general", "info", "Successfully cleared covercache");

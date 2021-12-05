@@ -14,20 +14,21 @@
 #include <stdio.h>
 
 static struct option long_options[] = {
+    #ifdef ENABLE_SSL
+    {"pin",       no_argument,       0, 'p'},
+    #endif
     {"help",      no_argument,       0, 'h'},
     {"user",      required_argument, 0, 'u'},
     {"syslog",    no_argument,       0, 's'},
     {"workdir",   required_argument, 0, 'w'},
-    {"config",    no_argument,       0, 'c'}
-    #ifdef ENABLE_SSL
-   ,{"pin",       no_argument,       0, 'p'}
-    #endif
+    {"config",    no_argument,       0, 'c'},
+    {"cachedir",  required_argument, 0, 'a'}
 };
 
 bool handle_options(struct t_config *config, int argc, char **argv) {
     int n = 0;
     int option_index = 0;
-    while((n = getopt_long(argc, argv, "hu:sw:cp", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
+    while((n = getopt_long(argc, argv, "hu:sw:cpa:", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
         switch (n) {
             case 'u':
                 config->user = sds_replace(config->user, optarg);
@@ -37,6 +38,9 @@ bool handle_options(struct t_config *config, int argc, char **argv) {
                 break;
             case 'w':
                 config->workdir = sds_replace(config->workdir, optarg);
+                break;
+            case 'a':
+                config->cachedir = sds_replace(config->cachedir, optarg);
                 break;
             case 'c':
                 config->bootstrap = true;
@@ -57,8 +61,9 @@ bool handle_options(struct t_config *config, int argc, char **argv) {
                                 "  -h, --help             displays this help\n"
                                 "  -u, --user <username>  username to drop privileges to (default: mympd)\n"
                                 "  -s, --syslog           enable syslog logging (facility: daemon)\n"
-                                "  -w, --workdir <path>   working directory (default: %s)\n",
-                    argv[0], MYMPD_VERSION, config->workdir);
+                                "  -w, --workdir <path>   working directory (default: %s)\n"
+                                "  -a, --cachedir <path>  cache directory (default: %s)\n",
+                    argv[0], MYMPD_VERSION, config->workdir, config->cachedir);
                 #ifdef ENABLE_SSL
                 fprintf(stderr, "  -p, --pin              sets a pin for myMPD settings\n");
                 #endif

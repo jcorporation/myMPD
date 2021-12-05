@@ -10,8 +10,8 @@ myMPD uses GNU standard installation directories.
 | ---------- | ----------- |
 | /usr/bin/mympd | myMPD executable |
 | /usr/bin/mympd-script | mympd-script executable |
+| /var/cache/mympd/covercache/ | directory for caching embedded coverart |
 | /var/lib/mympd/config/ | configuration files |
-| /var/lib/mympd/covercache/ | directory for caching embedded coverart |
 | /var/lib/mympd/pics/ | directory for stream coverart |
 | /var/lib/mympd/pics/`<tagname>`/ | Pictures for <tagname> e.g. AlbumArtist, Artist, Genre, ... |
 | /var/lib/mympd/state/ | state files |

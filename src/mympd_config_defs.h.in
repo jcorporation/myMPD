@@ -32,6 +32,7 @@
 //default paths
 #define DOC_ROOT "${ASSETS_PATH}"
 #define VARLIB_PATH "${VARLIB_PATH}"
+#define VARCACHE_PATH "${VARCACHE_PATH}"
 #define LUALIBS_PATH "${LUALIBS_PATH}"
 
 //io defaults

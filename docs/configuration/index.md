@@ -19,6 +19,7 @@ The `workdir` option is useful if you want to run more then one instance of myMP
 | -u, --user `<username>`| username to drop privileges to (default: `mympd`) |
 | -s, --syslog | enable syslog logging (facility: daemon) |
 | -w, --workdir `<path>` | working directory (default: `/var/lib/mympd`) |
+| -a, --cachedir `<path>` | cache directory (default: `/var/cache/mympd`) |
 | -p, --pin | sets a pin for myMPD settings |
 {: .table .table-sm }
 

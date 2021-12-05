@@ -11,6 +11,6 @@
 
 #include "../../dist/sds/sds.h"
 
-bool covercache_write_file(const char *workdir, const char *uri, const char *mime_type, sds binary);
-int covercache_clear(const char *workdir, int keepdays);
+bool covercache_write_file(const char *cachedir, const char *uri, const char *mime_type, sds binary);
+int covercache_clear(const char *cachedir, int keepdays);
 #endif

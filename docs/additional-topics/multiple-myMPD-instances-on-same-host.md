@@ -8,6 +8,7 @@ You can run multiple myMPD instances on the same host connecting to different MP
 
 You must define for each myMPD instance:
 - different working directory
+- different cache directory
 - different ports to listen on
 - different mpd servers
 
@@ -22,7 +23,7 @@ First myMPD instance:
 export MPD_HOST=/run/mpd1/socket
 export MYMPD_HTTP_PORT=8001
 export MYMPD_SSL=false
-mympd -w /var/lib/mympd1
+mympd -w /var/lib/mympd1 -a /var/cache/mympd1
 ```
 
 Second myMPD instance:
@@ -35,9 +36,9 @@ export MPD_HOST=/run/mpd1/socket
 export MYMPD_HTTP_PORT=8002
 export MYMPD_SSL_PORT=4432
 export MYMPD_SSL=true
-mympd -w /var/lib/mympd2
+mympd -w /var/lib/mympd2 -a /var/cache/mympd2
 ```
 
 If the working directory is already present you should edit the files in the config directory. The MPD instance can be set with the webgui or with the corresponding files in the state directory.
 
-If all is running fine, you should copy the startup file for each myMPD instance and add the workdir option.
+If all is running fine, you should copy the startup file for each myMPD instance and add the workdir and cachedir option.

@@ -47,6 +47,7 @@ void mympd_free_config(struct t_config *config) {
 void mympd_free_config_initial(struct t_config *config) {
     FREE_SDS(config->user);
     FREE_SDS(config->workdir);
+    FREE_SDS(config->cachedir);
 }
 
 void mympd_config_defaults(struct t_config *config) {
@@ -84,6 +85,7 @@ void mympd_config_defaults_initial(struct t_config *config) {
     //command line options
     config->user = sdsnew("mympd");
     config->workdir = sdsnew(VARLIB_PATH);
+    config->cachedir = sdsnew(VARCACHE_PATH);
     config->log_to_syslog = false;
     //not configureable
     config->startup_time = time(NULL);

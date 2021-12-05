@@ -924,6 +924,7 @@ purge() {
   [ -z "${DESTDIR+x}" ] && DESTDIR=""
   #MYMPD_INSTALL_PREFIX="/usr"
   rm -rf "$DESTDIR/var/lib/mympd"
+  rm -rf "$DESTDIR/var/cache/mympd"
   rm -f "$DESTDIR/etc/init.d/mympd"
   #MYMPD_INSTALL_PREFIX="/opt/mympd/"
   rm -rf "$DESTDIR/var/opt/mympd"

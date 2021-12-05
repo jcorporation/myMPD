@@ -142,7 +142,6 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         //workdir is not accessible
         return false;
     }
-
     if (testdir_rc == DIR_CREATED) {
         config->first_startup = true;
         //directory exists or was created; set user and group, if uid = 0
@@ -161,25 +160,51 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         return false;
     }
     FREE_SDS(testdirname);
+
+    testdir_rc = testdir("Cachedir", config->cachedir, true);
+    if (testdir_rc == DIR_CREATE_FAILED) {
+        //cachedir is not accessible
+        return false;
+    }
+    if (testdir_rc == DIR_CREATED) {
+        //directory exists or was created; set user and group, if uid = 0
+        if (startup_uid == 0 &&
+            do_chown(config->cachedir, config->user) == false)
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 
-struct t_workdir_subdirs_entry {
+struct t_subdirs_entry {
     const char *dirname;
     const char *description;
 };
 
-const struct t_workdir_subdirs_entry workdir_subdirs[] = {
+const struct t_subdirs_entry workdir_subdirs[] = {
     {"state",      "State dir"},
     {"smartpls",   "Smartpls dir"},
     {"pics",       "Pics dir"},
     {"empty",      "Empty dir"},
-    {"covercache", "Covercache dir"},
     #ifdef ENABLE_LUA
     {"scripts",    "Scripts dir"},
     #endif
     {NULL, NULL}
 };
+
+const struct t_subdirs_entry cachedir_subdirs[] = {
+    {"covercache", "Covercache dir"},
+    {NULL, NULL}
+};
+
+static bool check_dir(const char *parent, const char *subdir, const char *description) {
+    sds testdirname = sdscatfmt(sdsempty(), "%s/%s", parent, subdir);
+    int rc = testdir(description, testdirname, true);
+    sdsfree(testdirname);
+    return rc;
+}
 
 static bool check_dirs(struct t_config *config) {
     int testdir_rc;
@@ -190,11 +215,10 @@ static bool check_dirs(struct t_config *config) {
             return false;
         }
     #endif
-    sds testdirname = sdsempty();
-    const struct t_workdir_subdirs_entry *p = NULL;
+    const struct t_subdirs_entry *p = NULL;
+    //workdir
     for (p = workdir_subdirs; p->dirname != NULL; p++) {
-        testdirname = sdscatfmt(testdirname, "%s/%s", config->workdir, p->dirname);
-        testdir_rc = testdir(p->description, testdirname, true);
+        testdir_rc = check_dir(config->workdir, p->dirname, p->description);
         if (testdir_rc == DIR_CREATED) {
             if (strcmp(p->dirname, "smartpls") == 0) {
                 //directory created, create default smart playlists
@@ -202,12 +226,16 @@ static bool check_dirs(struct t_config *config) {
             }
         }
         if (testdir_rc == DIR_CREATE_FAILED) {
-            FREE_SDS(testdirname);
             return false;
         }
-        sdsclear(testdirname);
     }
-    FREE_SDS(testdirname);
+    //cachedir
+    for (p = cachedir_subdirs; p->dirname != NULL; p++) {
+        testdir_rc = check_dir(config->cachedir, p->dirname, p->description);
+        if (testdir_rc == DIR_CREATE_FAILED) {
+            return false;
+        }
+    }
     return true;
 }
 

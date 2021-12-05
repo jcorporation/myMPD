@@ -15,6 +15,7 @@
 struct t_config {
     sds user;
     sds workdir;
+    sds cachedir;
     sds http_host;
     sds http_port;
 #ifdef ENABLE_SSL
