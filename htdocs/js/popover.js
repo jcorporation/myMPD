@@ -483,13 +483,14 @@ function createMenuLists(el, tabHeader, tabContent) {
                 }
                 addMenuItem(tabContent, {"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist');
             }
+            addMenuItem(tabContent, {"cmd": "showDelPlaylist", "options": [uri, smartplsOnly]}, 'Delete playlist');
             if (settings.smartpls === true &&
                 type === 'smartpls')
             {
+                tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
                 addMenuItem(tabContent, {"cmd": "showSmartPlaylist", "options": [uri]}, 'Edit smart playlist');
                 addMenuItem(tabContent, {"cmd": "updateSmartPlaylist", "options": [uri]}, 'Update smart playlist');
             }
-            addMenuItem(tabContent, {"cmd": "showDelPlaylist", "options": [uri, smartplsOnly]}, 'Delete playlist');
             return true;
         }
         case 'BrowsePlaylistsDetail': {
@@ -574,7 +575,7 @@ function createMenuListsSecondary(el, tabHeader, tabContent) {
                 (app.id === 'BrowseFilesystem' && type === 'dir') ||
                 (app.id === 'BrowseFilesystem' && type === 'plist') ||
                 (app.id === 'BrowseFilesystem' && type === 'smartpls') ||
-                (app.id === 'QueueJukebox' && settings.jukeboxMode === 1))
+                (app.id === 'QueueJukebox' && settings.jukeboxMode === 2))
             {
                 return false;
             }
