@@ -106,7 +106,9 @@ function parsePlaylistsDetail(obj) {
         return;
     }
 
-    if (isMPDplaylist(obj.result.plist) === false || obj.result.smartpls === true) {
+    if (isMPDplaylist(obj.result.plist) === false ||
+        obj.result.smartpls === true)
+    {
         setDataId('BrowsePlaylistsDetailList', 'ro', 'true');
         elHideId('playlistContentBtns');
         elShowId('smartPlaylistContentBtns');
@@ -119,6 +121,7 @@ function parsePlaylistsDetail(obj) {
 
     setData(table, 'playlistlength', obj.result.totalEntities);
     setData(table, 'uri', obj.result.plist);
+    setData(table, 'type', obj.result.smartpls === true ? 'smartpls' : 'plist');
     table.getElementsByTagName('caption')[0].textContent =
         (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist')) + ': ' + obj.result.plist;
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
@@ -605,6 +608,11 @@ function updateSmartPlaylistClick() {
 }
 
 //eslint-disable-next-line no-unused-vars
+function editSmartPlaylistClick() {
+    showSmartPlaylist(getDataId('BrowsePlaylistsDetailList', 'uri'));
+}
+
+//eslint-disable-next-line no-unused-vars
 function showDelPlaylist(plist, smartplsOnly) {
     showConfirm(tn('Do you really want to delete the playlist?', {"playlist": plist}), tn('Yes, delete it'), function() {
         sendAPI("MYMPD_API_PLAYLIST_RM", {
@@ -641,4 +649,29 @@ function isMPDplaylist(uri) {
         return false;
     }
     return true;
+}
+
+function currentPlaylistToQueue(action) {
+    const uri = getDataId('BrowsePlaylistsDetailList', 'uri');
+    const type = getDataId('BrowsePlaylistsDetailList', 'type');
+    switch(action) {
+        case 'appendQueue':
+            appendQueue(type, uri);
+            break;
+        case 'appendPlayQueue':
+            appendPlayQueue(type, uri);
+            break;
+        case 'insertAfterCurrentQueue':
+            insertAfterCurrentQueue(type, uri, 0, 1, false);
+            break;
+        case 'replaceQueue':
+            replaceQueue(type, uri);
+            break;
+        case 'replaceQueue':
+            replacePlayQueue(type, uri);
+            break;
+        case 'addToHome':
+            addPlistToHome(uri, type, uri);
+            break;
+    }
 }
