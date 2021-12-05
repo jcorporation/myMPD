@@ -36,7 +36,8 @@ function delQueueJukeboxSong(pos) {
         sendAPI("MYMPD_API_JUKEBOX_LIST", {
             "offset": app.current.offset,
             "limit": app.current.limit,
-            "cols": settings.colsQueueJukebox
+            "cols": settings.colsQueueJukeboxFetch,
+            "searchstr": app.current.search
         }, parseJukeboxList);
     });
 }
