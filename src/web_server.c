@@ -407,6 +407,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                         MYMPD_LOG_WARN("Can not create backend connection");
                         nc->is_closing = 1;
                     }
+                    else {
+                        //save backend connection pointer in frontend connection fn_data
+                        nc->fn_data = backend_nc;
+                    }
                 }
                 if (backend_nc != NULL) {
                     //strip path
@@ -601,6 +605,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             MYMPD_LOG_INFO("HTTP connection %lu closed", nc->id);
             mg_user_data->connection_count--;
             if (backend_nc != NULL) {
+                MYMPD_LOG_INFO("Closing backend connection \"%lu\"", backend_nc->id);
                 //remove pointer to frontend connection
                 backend_nc->fn_data = NULL;
                 //close reverse proxy connection
