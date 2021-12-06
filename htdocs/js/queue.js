@@ -163,7 +163,10 @@ function getQueue() {
     }
 }
 
-function parseQueue(obj) {
+function parseQueue(obj) {const table = document.getElementById('QueueCurrentList');
+    const tfoot = table.getElementsByTagName('tfoot')[0];
+    elClear(tfoot);
+
     if (checkResultId(obj, 'QueueCurrentList') === false) {
         return;
     }
@@ -226,9 +229,7 @@ function parseQueue(obj) {
         }
     });
 
-    const table = document.getElementById('QueueCurrentList');
     setData(table, 'version', obj.result.queueVersion);
-    const tfoot = table.getElementsByTagName('tfoot')[0];
     if (obj.result.totalTime &&
         obj.result.totalTime > 0 &&
         obj.result.totalEntities <= app.current.limit)
@@ -244,9 +245,6 @@ function parseQueue(obj) {
             elCreateNode('td', {"colspan": (colspan + 1)},
                 elCreateText('small', {}, tn('Num songs', obj.result.totalEntities))))
         );
-    }
-    else {
-        elClear(tfoot);
     }
 }
 
