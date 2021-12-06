@@ -15,6 +15,7 @@
 #include "../lib/state_files.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
+#include "../mpd_client/mpd_client_jukebox.h"
 #include "../mympd_api/mympd_api_trigger.h"
 #include "../mympd_api/mympd_api_utility.h"
 #include "../mpd_shared.h"
@@ -535,7 +536,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
     }
     if (jukebox_changed == true && mympd_state->jukebox_queue.length > 0) {
         MYMPD_LOG_INFO("Jukebox options changed, clearing jukebox queue");
-        list_clear(&mympd_state->jukebox_queue);
+        mpd_client_clear_jukebox(&mympd_state->jukebox_queue);
     }
     if (write_state_file == true) {
         sds state_filename = camel_to_snake(key);

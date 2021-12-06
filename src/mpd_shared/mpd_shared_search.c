@@ -43,9 +43,9 @@ sds mpd_shared_search_adv(struct t_mpd_state *mpd_state, sds buffer, sds method,
 }
 
 
-sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operator, sds value) {
+sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operator, const char *value) {
     buffer = sdscatfmt(buffer, "(%s %s '", tag, operator);
-    for (size_t i = 0;  i < sdslen(value); i++) {
+    for (size_t i = 0;  i < strlen(value); i++) {
         if (value[i] == '\\' || value[i] == '\'') {
             buffer = sdscatlen(buffer, "\\", 1);
         }

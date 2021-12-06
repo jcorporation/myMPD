@@ -15,6 +15,7 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../mpd_shared.h"
+#include "../mpd_shared/mpd_shared_search.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "../mympd_api/mympd_api_utility.h"
@@ -33,11 +34,27 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
     unsigned add_songs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual);
 static bool mpd_client_jukebox_unique_tag(struct t_mympd_state *mympd_state, const char *uri, const char *value, bool manual, struct t_list *queue_list);
 static bool mpd_client_jukebox_unique_album(struct t_mympd_state *mympd_state, const char *album, const char *albumartist, bool manual, struct t_list *queue_list);
-static bool add_album_to_queue(struct t_mympd_state *mympd_state, const char *album, const char *albumartist);
+static bool add_album_to_queue(struct t_mympd_state *mympd_state, struct mpd_song *album);
 
 //public functions
-bool mpd_client_rm_jukebox_entry(struct t_mympd_state *mympd_state, unsigned pos) {
-    return list_shift(&mympd_state->jukebox_queue, pos);
+bool mpd_client_rm_jukebox_entry(struct t_list *list, unsigned pos) {
+    struct t_list_node *node = list_node_at(list, pos);
+    if (node->user_data != NULL) {
+        mpd_song_free(node->user_data);
+        node->user_data = NULL;
+    }
+    return list_shift(list, pos);
+}
+
+static void _free_song_user_data(struct t_list_node *current) {
+    if (current->user_data != NULL) {
+        mpd_song_free(current->user_data);
+        current->user_data = NULL;
+    }
+}
+
+void mpd_client_clear_jukebox(struct t_list *list) {
+    list_clear_user_data(list, _free_song_user_data);
 }
 
 sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
@@ -196,8 +213,6 @@ static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
     bool rc = mpd_client_jukebox_add_to_queue(mympd_state, add_songs, mympd_state->jukebox_mode, mympd_state->jukebox_playlist, false);
 
     if (rc == true) {
-        bool rc2 = mpd_run_play(mympd_state->mpd_state->conn);
-        check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc2, "mpd_run_play");
         //notify clients
         send_jsonrpc_event("update_jukebox");
         return true;
@@ -238,9 +253,17 @@ bool mpd_client_jukebox_add_to_queue(struct t_mympd_state *mympd_state, unsigned
             else {
                 MYMPD_LOG_ERROR("Jukebox adding song %s failed", current->key);
             }
+            if (manual == false) {
+                mpd_client_rm_jukebox_entry(&mympd_state->jukebox_queue, 0);
+                current = mympd_state->jukebox_queue.head;
+            }
+            else {
+                mpd_client_rm_jukebox_entry(&mympd_state->jukebox_queue_tmp, 0);
+                current = mympd_state->jukebox_queue_tmp.head;
+            }
         }
         else {
-            bool rc = add_album_to_queue(mympd_state, current->key, current->value_p);
+            bool rc = add_album_to_queue(mympd_state, (struct mpd_song *)current->user_data);
             if (rc == true) {
                 MYMPD_LOG_NOTICE("Jukebox adding album: %s - %s", current->value_p, current->key);
                 added++;
@@ -248,21 +271,21 @@ bool mpd_client_jukebox_add_to_queue(struct t_mympd_state *mympd_state, unsigned
             else {
                 MYMPD_LOG_ERROR("Jukebox adding album %s - %s failed", current->value_p, current->key);
             }
-        }
-        if (manual == false) {
-            list_shift(&mympd_state->jukebox_queue, 0);
-            current = mympd_state->jukebox_queue.head;
-        }
-        else {
-            list_shift(&mympd_state->jukebox_queue_tmp, 0);
-            current = mympd_state->jukebox_queue_tmp.head;
+            if (manual == false) {
+                mpd_song_free(mympd_state->jukebox_queue.head->user_data);
+                mympd_state->jukebox_queue.head->user_data = NULL;
+                mpd_client_rm_jukebox_entry(&mympd_state->jukebox_queue, 0);
+                current = mympd_state->jukebox_queue.head;
+            }
+            else {
+                mpd_song_free(mympd_state->jukebox_queue_tmp.head->user_data);
+                mympd_state->jukebox_queue_tmp.head->user_data = NULL;
+                mpd_client_rm_jukebox_entry(&mympd_state->jukebox_queue_tmp, 0);
+                current = mympd_state->jukebox_queue_tmp.head;
+            }
         }
     }
-    if (added > 0) {
-        bool rc = mpd_run_play(mympd_state->mpd_state->conn);
-        check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_play");
-    }
-    else {
+    if (added == 0) {
         MYMPD_LOG_ERROR("Error adding song(s)");
         return false;
     }
@@ -281,19 +304,27 @@ bool mpd_client_jukebox_add_to_queue(struct t_mympd_state *mympd_state, unsigned
 }
 
 //private functions
-static bool add_album_to_queue(struct t_mympd_state *mympd_state, const char *album, const char *albumartist) {
+static bool add_album_to_queue(struct t_mympd_state *mympd_state, struct mpd_song *album) {
     bool rc = mpd_search_add_db_songs(mympd_state->mpd_state->conn, true);
     if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_add_db_songs") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return false;
     }
-    rc = mpd_search_add_tag_constraint(mympd_state->mpd_state->conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, album);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_add_tag_constraint") == false) {
-        mpd_search_cancel(mympd_state->mpd_state->conn);
-        return false;
+
+    const char *value = NULL;
+    unsigned i = 0;
+    sds expression = sdsnewlen("(", 1);
+    while ((value = mpd_song_get_tag(album, mympd_state->mpd_state->tag_albumartist, i)) != NULL) {
+        expression = escape_mpd_search_expression(expression, mpd_tag_name(mympd_state->mpd_state->tag_albumartist), "==", value);
+        expression = sdscat(expression, " AND ");
+        i++;
     }
-    rc = mpd_search_add_tag_constraint(mympd_state->mpd_state->conn, MPD_OPERATOR_DEFAULT, mympd_state->mpd_state->tag_albumartist, albumartist);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_add_tag_constraint") == false) {
+    expression = escape_mpd_search_expression(expression, "Album", "==", mpd_song_get_tag(album, MPD_TAG_ALBUM, 0));
+    expression = sdscatlen(expression, ")", 1);
+
+    rc = mpd_search_add_expression(mympd_state->mpd_state->conn, expression);
+    FREE_SDS(expression);
+    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_add_expression") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return false;
     }
@@ -441,7 +472,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
     unsigned nkeep = 0;
 
     if (manual == true) {
-        list_clear(&mympd_state->jukebox_queue_tmp);
+        mpd_client_clear_jukebox(&mympd_state->jukebox_queue_tmp);
     }
 
     //get last_played and current queue
@@ -588,12 +619,12 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
                 if (randrange(0, lineno) < add_songs) {
                     if (nkeep < add_songs) {
                         if (manual == false) {
-                            if (list_push(&mympd_state->jukebox_queue, album, lineno, albumartist, NULL) == false) {
+                            if (list_push(&mympd_state->jukebox_queue, album, lineno, albumartist, mpd_song_dup(song)) == false) {
                                 MYMPD_LOG_ERROR("Can't push jukebox_queue_tmp element");
                             }
                         }
                         else {
-                            if (list_push(&mympd_state->jukebox_queue_tmp, album, lineno, albumartist, NULL) == false) {
+                            if (list_push(&mympd_state->jukebox_queue_tmp, album, lineno, albumartist, mpd_song_dup(song)) == false) {
                                 MYMPD_LOG_ERROR("Can't push jukebox_queue_tmp element");
                             }
                         }
@@ -602,12 +633,18 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
                     else {
                         unsigned i = add_songs > 1 ? randrange(0, add_songs - 1) : 0;
                         if (manual == false) {
-                            if (list_replace(&mympd_state->jukebox_queue, i, album, lineno, albumartist, NULL) == false) {
+                            struct t_list_node *node = list_node_at(&mympd_state->jukebox_queue, i);
+                            mpd_song_free(node->user_data);
+                            node->user_data = NULL;
+                            if (list_replace(&mympd_state->jukebox_queue, i, album, lineno, albumartist, mpd_song_dup(song)) == false) {
                                 MYMPD_LOG_ERROR("Can't replace jukebox_queue element pos %d", i);
                             }
                         }
                         else {
-                            if (list_replace(&mympd_state->jukebox_queue_tmp, i, album, lineno, albumartist, NULL) == false) {
+                            struct t_list_node *node = list_node_at(&mympd_state->jukebox_queue_tmp, i);
+                            mpd_song_free(node->user_data);
+                            node->user_data = NULL;
+                            if (list_replace(&mympd_state->jukebox_queue_tmp, i, album, lineno, albumartist, mpd_song_dup(song)) == false) {
                                 MYMPD_LOG_ERROR("Can't replace jukebox_queue_tmp element pos %d", i);
                             }
                         }

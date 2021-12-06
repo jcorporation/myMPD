@@ -446,7 +446,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_JUKEBOX_RM:
             if (json_get_uint(request->data, "$.params.pos", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true) {
-                rc = mpd_client_rm_jukebox_entry(mympd_state, uint_buf1);
+                rc = mpd_client_rm_jukebox_entry(&mympd_state->jukebox_queue, uint_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "jukebox");
                 }

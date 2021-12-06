@@ -14,6 +14,7 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
+#include "../mpd_client/mpd_client_jukebox.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
@@ -163,8 +164,8 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
 }
 
 void mympd_state_free(struct t_mympd_state *mympd_state) {
-    list_clear(&mympd_state->jukebox_queue);
-    list_clear(&mympd_state->jukebox_queue_tmp);
+    mpd_client_clear_jukebox(&mympd_state->jukebox_queue);
+    mpd_client_clear_jukebox(&mympd_state->jukebox_queue_tmp);
     list_clear(&mympd_state->sticker_queue);
     list_clear(&mympd_state->triggers);
     list_clear(&mympd_state->last_played);
