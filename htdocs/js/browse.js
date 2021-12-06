@@ -255,7 +255,7 @@ function gotoBrowse(event) {
     const target = event.target;
     let tag = getData(target, 'tag');
     let name = getData(target, 'name');
-    if (tag === null) {
+    if (tag === undefined) {
         tag = getData(target.parentNode, 'tag');
         name = getData(target.parentNode, 'name');
     }
@@ -266,7 +266,7 @@ function gotoBrowse(event) {
     {
         if (tag === 'Album') {
             let artist = getData(target, 'AlbumArtist');
-            if (artist === null) {
+            if (artist === undefined) {
                 artist = getData(target.parentNode, 'AlbumArtist');
             }
             if (artist !== null) {

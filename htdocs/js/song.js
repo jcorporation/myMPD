@@ -8,17 +8,17 @@ function initSong() {
         if (event.target.nodeName === 'A') {
             if (event.target.id === 'calcFingerprint') {
                 sendAPI("MYMPD_API_DATABASE_FINGERPRINT", {
-                        "uri": getData(event.target, 'uri')
+                    "uri": getData(event.target, 'uri')
                 }, parseFingerprint, true);
                 event.preventDefault();
                 const spinner = elCreateEmpty('div', {"class": ["spinner-border", "spinner-border-sm"]});
                 elHide(event.target);
                 event.target.parentNode.appendChild(spinner);
             }
-            else if (event.target.classList.contains('external')) {
+            else if (event.target.classList.contains('download')) {
                 //do nothing, link opens in new browser window
             }
-            else if (event.target.parentNode.getAttribute('data-tag') !== null) {
+            else if (getData(event.target.parentNode, 'tag') !== undefined) {
                 uiElements.modalSongDetails.hide();
                 event.preventDefault();
                 gotoBrowse(event);
@@ -70,7 +70,9 @@ function getMBtagLink(tag, value) {
             MBentity = 'recording';
             break;
     }
-    if (MBentity === '' || value === '-') {
+    if (MBentity === '' ||
+        value === '-')
+    {
         return elCreateText('span', {}, value);
     }
     else {
@@ -106,7 +108,9 @@ function parseSongDetails(obj) {
     const tbody = document.getElementById('tbodySongDetails');
     elClear(tbody);
     for (let i = 0, j = settings.tagList.length; i < j; i++) {
-        if (settings.tagList[i] === 'Title' || obj.result[settings.tagList[i]] === '-') {
+        if (settings.tagList[i] === 'Title' ||
+            obj.result[settings.tagList[i]] === '-')
+        {
             continue;
         }
         const tr = elCreateEmpty('tr', {});
@@ -117,7 +121,9 @@ function parseSongDetails(obj) {
         if (settings.tagList[i] === 'Album' && obj.result[tagAlbumArtist] !== null) {
             setData(td, 'AlbumArtist', obj.result[tagAlbumArtist]);
         }
-        if (settings.tagListBrowse.includes(settings.tagList[i]) && obj.result[settings.tagList[i]] !== '-') {
+        if (settings.tagListBrowse.includes(settings.tagList[i]) &&
+            checkTagValue(obj.result[settings.tagList[i]],'-') === false)
+        {
             td.appendChild(elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]]));
         }
         else if (settings.tagList[i].indexOf('MUSICBRAINZ') === 0) {
@@ -133,7 +139,8 @@ function parseSongDetails(obj) {
     if (features.featLibrary === true) {
         tbody.appendChild(
             songDetailsRow('Filename',
-                elCreateText('a', {"class": ["text-break", "text-success", "downdload"], "href": "#",
+                elCreateText('a', {"class": ["text-break", "text-success", "download"],
+                    "href": myEncodeURI(subdir + '/browse/music/' + obj.result.uri),
                     "target": "_blank", "title": tn(obj.result.uri)}, basename(obj.result.uri, false))
             )
         );
