@@ -672,6 +672,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             if (rc == true) {
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "playlist");
+                //update currently saved smart playlist
                 mympd_api_smartpls_update(sds_buf1);
             }
             break;
