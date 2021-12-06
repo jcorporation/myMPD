@@ -669,7 +669,9 @@ static bool mpd_client_jukebox_unique_tag(struct t_mympd_state *mympd_state, con
 static bool mpd_client_jukebox_unique_album(struct t_mympd_state *mympd_state, const char *album, const char *albumartist, bool manual, struct t_list *queue_list) {
     struct t_list_node *current = queue_list->head;
     while (current != NULL) {
-        if (strcmp(current->key, album) == 0 && strcmp(current->value_p, albumartist) == 0) {
+        if (strcmp(current->key, album) == 0 &&
+            strcmp(current->value_p, albumartist) == 0)
+        {
             return false;
         }
         current = current->next;
@@ -677,7 +679,9 @@ static bool mpd_client_jukebox_unique_album(struct t_mympd_state *mympd_state, c
 
     current = manual == false ? mympd_state->jukebox_queue.head : mympd_state->jukebox_queue_tmp.head;
     while (current != NULL) {
-        if (strcmp(current->key, album) == 0 && strcmp(current->value_p, albumartist) == 0) {
+        if (strcmp(current->key, album) == 0 &&
+            strcmp(current->value_p, albumartist) == 0)
+        {
             return false;
         }
         current = current->next;
