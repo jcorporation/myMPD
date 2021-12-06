@@ -1893,9 +1893,6 @@ Neu hinzugefügte Lieder konnten nicht wiedergegeben werden
 Current search
 Aktuelle Suche
 
-Home icon
-Homeicon
-
 Replaced the queue
 Warteschlange wurde ersetzt
 
