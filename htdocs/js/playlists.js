@@ -651,6 +651,7 @@ function isMPDplaylist(uri) {
     return true;
 }
 
+//eslint-disable-next-line no-unused-vars
 function currentPlaylistToQueue(action) {
     const uri = getDataId('BrowsePlaylistsDetailList', 'uri');
     const type = getDataId('BrowsePlaylistsDetailList', 'type');
@@ -667,7 +668,7 @@ function currentPlaylistToQueue(action) {
         case 'replaceQueue':
             replaceQueue(type, uri);
             break;
-        case 'replaceQueue':
+        case 'replacePlayQueue':
             replacePlayQueue(type, uri);
             break;
         case 'addToHome':

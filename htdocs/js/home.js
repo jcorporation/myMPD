@@ -629,6 +629,7 @@ function getHomeIconPictureList(picture) {
     getImageList('selectHomeIconImage', picture, [{"value": "", "text": "Use ligature"}]);
 }
 
+//eslint-disable-next-line no-unused-vars
 function homeIconGoto(type, uri, album) {
     switch(type) {
         case 'dir':
