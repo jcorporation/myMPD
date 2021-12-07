@@ -97,6 +97,18 @@ function eventChangeTheme(event) {
             bgImageEl.value = '/assets/mympd-background-dark.svg';
         }
     }
+    toggleThemeInputs(value);
+}
+
+function toggleThemeInputs(theme) {
+    if (theme === 'theme-autodetect') {
+        document.getElementById('inputWebUIsettinguiBgColor').parentNode.parentNode.classList.add('d-none');
+        document.getElementById('inputWebUIsettinguiBgImage').parentNode.parentNode.classList.add('d-none');
+    }
+    else {
+        document.getElementById('inputWebUIsettinguiBgColor').parentNode.parentNode.classList.remove('d-none');
+        document.getElementById('inputWebUIsettinguiBgImage').parentNode.parentNode.classList.remove('d-none');
+    }
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -243,7 +255,8 @@ function parseSettings(obj) {
         setTheme = 'theme-dark';
     }
     else if (setTheme === 'theme-autodetect') {
-        setTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-light';
+        setTheme = window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: light)').matches ? 'theme-light' : 'theme-dark';
     }
 
     for (const theme in webuiSettingsDefault.uiTheme.validValues) {
@@ -257,16 +270,25 @@ function parseSettings(obj) {
     }
 
     //background
-    if (settings.webuiSettings.uiBgImage.indexOf('/assets/') === 0) {
-        domCache.body.style.backgroundImage = 'url("' + subdir + myEncodeURI(settings.webuiSettings.uiBgImage) + '")';
-    }
-    else if (settings.webuiSettings.uiBgImage !== '') {
-        domCache.body.style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(settings.webuiSettings.uiBgImage) + '")';
+    if (settings.webuiSettings.uiTheme === 'theme-autodetect') {
+        //in auto mode we set default background
+        domCache.body.style.backgroundImage = '';
+        document.documentElement.style.setProperty('--mympd-backgroundcolor',
+            (setTheme === 'theme-dark' ? '#060708' : '#ffffff')
+        );
     }
     else {
-        domCache.body.style.backgroundImage = '';
+        if (settings.webuiSettings.uiBgImage.indexOf('/assets/') === 0) {
+            domCache.body.style.backgroundImage = 'url("' + subdir + myEncodeURI(settings.webuiSettings.uiBgImage) + '")';
+        }
+        else if (settings.webuiSettings.uiBgImage !== '') {
+            domCache.body.style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(settings.webuiSettings.uiBgImage) + '")';
+        }
+        else {
+            domCache.body.style.backgroundImage = '';
+        }
+        document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.webuiSettings.uiBgColor);
     }
-    document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.webuiSettings.uiBgColor);
 
     const albumartbg = document.querySelectorAll('.albumartbg');
     for (let i = 0, j = albumartbg.length; i < j; i++) {
@@ -521,6 +543,8 @@ function populateSettingsFrm() {
     createSettingsFrm();
 
     getBgImageList(settings.webuiSettings.uiBgImage);
+
+    toggleThemeInputs(settings.webuiSettings.uiTheme);
 
     //locales
     const localeList = document.getElementById('inputWebUIsettinguiLocale');

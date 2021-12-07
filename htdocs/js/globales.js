@@ -482,7 +482,7 @@ const webuiSettingsDefault = {
         "reset": true
     },
     "uiBgColor": {
-        "defaultValue": "#000000",
+        "defaultValue": "#060708",
         "inputType": "color",
         "title": "Color",
         "form": "bgFrm",
