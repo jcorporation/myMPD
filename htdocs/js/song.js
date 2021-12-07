@@ -173,11 +173,11 @@ function parseSongDetails(obj) {
         );
         for (const sticker of stickerList) {
             if (sticker === 'stickerLike') {
-                const thDown = elCreateText('button', {"data-vote": "0", "title": tn('Love song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_down');
+                const thDown = elCreateText('button', {"data-vote": "0", "title": tn('Hate song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_down');
                 if (obj.result[sticker] === 0) {
                     thDown.classList.add('active');
                 }
-                const thUp = elCreateText('button', {"data-vote": "2", "title": tn('Hate song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_up');
+                const thUp = elCreateText('button', {"data-vote": "2", "title": tn('Love song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_up');
                 if (obj.result[sticker] === 2) {
                     thUp.classList.add('active');
                 }
