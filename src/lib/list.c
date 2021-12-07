@@ -45,6 +45,7 @@ void list_clear_user_data(struct t_list *l, user_data_callback free_cb) {
         FREE_SDS(current->key);
         FREE_SDS(current->value_p);
         if (current->user_data != NULL && free_cb != NULL) {
+            //callback to free user_data
             free_cb(current);
         }
         else if (free_cb == NULL) {
@@ -58,8 +59,8 @@ void list_clear_user_data(struct t_list *l, user_data_callback free_cb) {
 }
 
 void list_free_cb_ignore_user_data(struct t_list_node *current) {
-    //this function should do nothing
-    (void) current;
+    //remove user_data pointer
+    current->user_data = NULL;
 }
 
 long list_get_value_i(const struct t_list *l, const char *key) {
