@@ -75,7 +75,8 @@ button.active,
   border-color: var(--mympd-highlightcolor);
 }
 
-.btn-success:disabled, .btn-success.disabled {
+.btn-success:disabled,
+.btn-success.disabled {
   color: inherit;
 }
 
@@ -383,6 +384,7 @@ button {
 
 .queue-playing:hover > * {
   background-color: unset;
+
   --bs-table-accent-bg: unset !important;
 }
 
@@ -758,7 +760,8 @@ textarea.small {
   border-color: var(--mympd-highlightcolor) !important;
 }
 
-.was-validated .form-control:invalid:focus, .form-control.is-invalid:focus {
+.was-validated .form-control:invalid:focus,
+.form-control.is-invalid:focus {
   box-shadow: none;
 }
 
@@ -1054,7 +1057,7 @@ button.input-inner-button:focus {
 
 button.select-inner-button {
   background-repeat: no-repeat;
-  background-position: right .75rem center;
+  background-position: right 0.75rem center;
   background-size: 16px 12px;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
   width: 2rem;
@@ -1159,5 +1162,5 @@ div.alert-secondary {
 }
 
 input.innerButton {
-  padding-right: calc(1.5em + .75rem);
+  padding-right: calc(1.5em + 0.75rem);
 }
