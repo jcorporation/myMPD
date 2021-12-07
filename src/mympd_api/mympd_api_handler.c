@@ -564,6 +564,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case INTERNAL_API_ALBUMCACHE_CREATED:
             if (request->extra != NULL) {
+                //first clear the jukebox queue - it has references to the album cache
+                mpd_client_clear_jukebox(&mympd_state->jukebox_queue);
+                //free the old album cache and replace it with the freshly generated one
                 album_cache_free(&mympd_state->album_cache);
                 mympd_state->album_cache = (rax *) request->extra;
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "database");

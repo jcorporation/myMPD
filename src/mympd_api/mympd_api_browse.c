@@ -554,9 +554,10 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
             song = (struct mpd_song *)current->user_data;
             album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, album);
             artist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, artist);
-            buffer = sdscat(buffer, "{\"Type\": \"album\",");
+            buffer = sdscatlen(buffer, "{", 1);
+            buffer = tojson_char(buffer, "Type", "album", true);
             buffer = tojson_raw(buffer, "Album", album, true);
-            buffer = tojson_raw(buffer, "AlbumArtist:", artist, true);
+            buffer = tojson_raw(buffer, "AlbumArtist", artist, true);
             buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
             buffer = sdscatlen(buffer, "}", 1);
         }
