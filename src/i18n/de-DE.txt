@@ -1979,3 +1979,6 @@ Wiedergabe nach aktuellem Lied beenden
 
 Disable single mode
 Beende "Nur ein Lied" Modus
+
+Homeicon
+Home Icon
