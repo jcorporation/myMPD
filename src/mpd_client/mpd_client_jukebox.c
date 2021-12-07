@@ -262,13 +262,11 @@ bool mpd_client_jukebox_add_to_queue(struct t_mympd_state *mympd_state, unsigned
                 MYMPD_LOG_ERROR("Jukebox adding album %s - %s failed", current->value_p, current->key);
             }
             if (manual == false) {
-                mpd_song_free(mympd_state->jukebox_queue.head->user_data);
                 mympd_state->jukebox_queue.head->user_data = NULL;
                 mpd_client_rm_jukebox_entry(&mympd_state->jukebox_queue, 0);
                 current = mympd_state->jukebox_queue.head;
             }
             else {
-                mpd_song_free(mympd_state->jukebox_queue_tmp.head->user_data);
                 mympd_state->jukebox_queue_tmp.head->user_data = NULL;
                 mpd_client_rm_jukebox_entry(&mympd_state->jukebox_queue_tmp, 0);
                 current = mympd_state->jukebox_queue_tmp.head;
