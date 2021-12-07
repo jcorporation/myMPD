@@ -59,19 +59,13 @@ sds state_file_rw_string(const char *workdir, const char *dir, const char *name,
     FREE_SDS(cfg_file);
     int n = sds_getline(&result, fp, 1000);
     fclose(fp);
-    if (n == 0) {
-        //sucessfully read the value
-        if (vcb != NULL && vcb(result) == false) {
-            //validation failed, return default
-            sdsclear(result);
-            result = sdscat(result, def_value);
-            return result;
-        }
-        else {
-            //got valid result
-            MYMPD_LOG_DEBUG("State %s: %s", name, result);
-            return result;
-        }
+    if (n == 0 &&             //sucessfully read the value
+        vcb != NULL &&        //has validation callback
+        vcb(result) == false) //validation failed, return default
+    {
+        sdsclear(result);
+        result = sdscat(result, def_value);
+        return result;
     }
     if (n == -2) {
         //too long line, return default
