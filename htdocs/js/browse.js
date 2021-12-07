@@ -413,7 +413,7 @@ function parseDatabase(obj) {
                     "title": obj.result.data[i][tagAlbumArtist] + ': ' + obj.result.data[i].Album}, [
                         printValue('Album', obj.result.data[i].Album),
                         elCreateEmpty('br', {}),
-                        elCreateNode('small', {}, printValue(tagAlbumArtist, obj.result.data[i][tagAlbumArtist]))
+                        elCreateNode('small', {}, printValue("AlbumArtist", obj.result.data[i].AlbumArtist))
                 ])
             );
             setData(card, 'picture', picture);
