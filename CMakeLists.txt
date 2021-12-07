@@ -36,7 +36,7 @@ if("${CMAKE_INSTALL_PREFIX}" MATCHES "/usr")
 else()
   set(SUBDIR "")
   set(SUBDIRLIB "")
-  set(SUBDIRCACHE "/")
+  set(SUBDIRCACHE "")
 endif()
 
 message("BIN_PATH: ${CMAKE_INSTALL_FULL_BINDIR}")
@@ -168,7 +168,9 @@ else()
   set(LIBASAN_FLAGS "")
 endif()
 
+#set mongoose functions
 set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_DIRECTORY_LISTING=1 -DMG_ENABLE_SSI=0")
+#set mjson functions
 set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABLE_RPC=0 \
   -D MJSON_ENABLE_PRETTY=0 -D MJSON_ENABLE_MERGE=0")
 
@@ -176,7 +178,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wvla -Winit-self -Wuninitiali
 	-Werror=array-bounds -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
 	-ffunction-sections -fdata-sections -Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
 	-Wformat=2 -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs \
-  -Wmissing-include-dirs -Wundef -Wformat-nonliteral \
+	-Wmissing-include-dirs -Wundef -Wformat-nonliteral \
 	${LIBASAN_FLAGS} ${MONGOOSE_FLAGS} ${MJSON_FLAGS}")
 
 foreach(FLAG IN ITEMS "-std=gnu17" "-fstack-clash-protection" "-fcf-protection" "-fno-plt")
