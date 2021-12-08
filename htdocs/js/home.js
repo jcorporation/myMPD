@@ -183,6 +183,22 @@ function filterHomeIconLigatures() {
     }
 }
 
+const friendlyActions = {
+    'replaceQueue': 'Replace queue',
+    'replacePlayQueue': 'Replace queue and play',
+    'insertAfterCurrentQueue': 'Insert after current playing song',
+    'appendQueue': 'Append to queue',
+    'appendPlayQueue': 'Append to queue and play',
+    'replaceQueueAlbum': 'Replace queue',
+    'replacePlayQueueAlbum': 'Replace queue and play',
+    'insertAfterCurrentQueueAlbum': 'Insert after current playing song',
+    'appendQueueAlbum': 'Append to queue',
+    'appendPlayQueueAlbum': 'Append to queue and play',
+    'appGoto': 'Show',
+    'homeIconGoto': 'Show',
+    'execScriptFromOptions': 'Execute script'
+};
+
 function parseHome(obj) {
     const cardContainer = document.getElementById('HomeList');
     const cols = cardContainer.getElementsByClassName('col');
@@ -200,29 +216,13 @@ function parseHome(obj) {
         elClear(cardContainer);
         const div = elCreateNodes('div', {"class": ["px-3", "py-1"]}, [
             elCreateText('h3', {}, tn('Homescreen')),
-            elCreateText('p', {}, tn('Homescreen welcome'))
-        ]);
-        const ul = elCreateNodes('ul', {}, [
-            elCreateNodes('li', {}, [
-                elCreateText('b', {}, tn('View')),
-                elCreateText('span', {}, ': ' + tn('Homescreen help view')),
-                elCreateText('span', {"class": ["mi"]}, 'add_to_home_screen')
-            ]),
-            elCreateNodes('li', {}, [
-                elCreateText('b', {}, tn('Playlist')),
-                elCreateText('span', {}, ': ' + tn('Homescreen help playlist'))
+            elCreateNodes('p', {}, [
+                document.createTextNode(tn('Homescreen welcome')),
+                elCreateText('span', {"class": ["mi"]}, 'add_to_home_screen'),
+                document.createTextNode(' '),
+                elCreateText('span', {"class": ["mi"]}, 'library_add')
             ])
         ]);
-        if (features.featScripting === true) {
-            ul.appendChild(
-                elCreateNodes('li', {}, [
-                    elCreateText('b', {}, tn('Script')),
-                    elCreateText('span', {}, ': ' + tn('Homescreen help script')),
-                    elCreateText('span', {"class": ["mi"]}, 'add_to_home_screen')
-                ])
-            );
-        }
-        div.appendChild(ul);
         cardContainer.appendChild(div);
         return;
     }
@@ -231,9 +231,11 @@ function parseHome(obj) {
         const homeType = obj.result.data[i].cmd === 'appGoto' ? 'View' :
             obj.result.data[i].cmd === 'execScriptFromOptions' ? 'Script' :
             typeFriendly[obj.result.data[i].options[0]];
+        const actionType = friendlyActions[obj.result.data[i].cmd];
 
         const card = elCreateEmpty('div', {"data-popover": "home", "class": ["card", "home-icons"], "tabindex": 0, "draggable": "true",
-            "title": tn(homeType) + ': ' + obj.result.data[i].name});
+            "title": tn(homeType) + ':' + smallSpace + obj.result.data[i].name +
+            '\n' + tn(actionType)});
         if (obj.result.data[i].options[0] === 'album'){
             //AlbumArtist must be an array
             obj.result.data[i].options[1] = JSON.parse(obj.result.data[i].options[1]);
