@@ -1324,7 +1324,7 @@ Picture
 Bild
 
 Homescreen welcome
-Du hast noch keine Icons hinzugefügt. Du kannst einzelne Ansichten, Wiedergabelisten und Skripte hinzufügen.
+Du hast noch keine Homeicons hinzugefügt. Homeicons können über das Kontextmenü und folgende Icons hinzugefügt werden:
 
 Can not open directory pics
 Konnte Verzeichnis pics nicht öffnen
@@ -1466,15 +1466,6 @@ Abspielen
 
 Homescreen
 Startbildschirm
-
-Homescreen help view
-Gehe zur Ansicht und klicke auf:
-
-Homescreen help playlist
-Öffne das Contextmenü einer Wiedergabeliste und wähle "Zum Startbildschirm hinzufügen"
-
-Homescreen help script
-Öffne die Skriptverwaltung und klicke auf:
 
 Help to improve myMPD
 Hilf mit myMPD zu verbessern
@@ -1982,3 +1973,6 @@ Beende "Nur ein Lied" Modus
 
 Homeicon
 Home Icon
+
+Show
+Anzeigen

@@ -1302,9 +1302,6 @@ Options
 Picture
 그림
 
-Homescreen welcome
-홈 아이콘을 아직 추가하지 않았습니다. 보기, 연주목록, 스크립트를 추가할 수 있습니다.
-
 Can not open directory pics
 디렉터리 그림을 열 수 없음
 
@@ -1443,15 +1440,6 @@ Play
 
 Homescreen
 홈 화면
-
-Homescreen help view
-보기로 가서 "홈 화면에 추가" 단추 누르기:
-
-Homescreen help playlist
-연주목록의 연관 메뉴를 열고 "홈 화면에 추가"를 선택합니다.
-
-Homescreen help script
-스크립트 대화 상자를 열고 "홈 화면에 추가" 단추 누르기:
 
 Help to improve myMPD
 myMPD 개선 도움

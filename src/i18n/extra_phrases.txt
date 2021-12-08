@@ -138,3 +138,5 @@ Repeat current song once
 Repeat current song
 Stop playback after current song
 Disable single mode
+Show
+View
