@@ -36,9 +36,6 @@ Reproducción local
 Connecting to stream...
 Conectando fuente...
 
-JavaScript is disabled
-JavaScript esta deshabilitado
-
 Apply
 Aplicar
 

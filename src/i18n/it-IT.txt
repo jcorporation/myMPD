@@ -39,9 +39,6 @@ Connessione al flusso...
 Error loading stream
 Errore caricamento flusso
 
-JavaScript is disabled
-JavaScript è disabilitato
-
 Apply
 Applica
 

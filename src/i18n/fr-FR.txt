@@ -39,9 +39,6 @@ Connection au flux...
 Error loading stream
 Erreur de chargement de flux
 
-JavaScript is disabled
-JavaScript est désactivé
-
 Apply
 Appliquer
 

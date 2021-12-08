@@ -36,9 +36,6 @@ Paikallinen toisto
 Connecting to stream...
 Yhdistetään...
 
-JavaScript is disabled
-JavaScript poistettu käytöstä
-
 Apply
 Käytä
 

@@ -39,9 +39,6 @@ Verbinden...
 Error loading stream
 Fout bij laden stream
 
-JavaScript is disabled
-JavaScript uitgeschakeld
-
 Apply
 Toepassen
 

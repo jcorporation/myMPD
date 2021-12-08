@@ -42,9 +42,6 @@ Connecting to stream...
 Error loading stream
 스트리밍 읽기 오류
 
-JavaScript is disabled
-자바스크립트 사용 안 함
-
 Apply
 적용
 

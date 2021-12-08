@@ -31,6 +31,7 @@ Location
 Type
 Pos
 Fileformat
+Duration
 Dark
 Default
 Light
