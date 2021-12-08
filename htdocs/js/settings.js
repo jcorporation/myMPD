@@ -160,7 +160,7 @@ function saveConnection() {
     if (!validateIntRange(mpdBinarylimitEl, 4, 256)) {
         formOK = false;
     }
-    if (!validateIntRange(mpdTimeoutEl, 1, 100)) {
+    if (!validateIntRange(mpdTimeoutEl, 1, 1000)) {
         formOK = false;
     }
     if (formOK === true) {
