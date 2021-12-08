@@ -30,9 +30,9 @@ function initMounts() {
             sendAPI("MYMPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors, true);
         }
         else {
-            const dropdownNeighbors = document.getElementById('dropdownNeighbors').children[0];
+            const dropdownNeighbors = document.getElementById('dropdownNeighbors').firstElementChild;
             elReplaceChild(dropdownNeighbors,
-                elCreateEmpty('div', {"class": ["list-group-item", "nowrap"]}, tn('Neighbors are disabled'))
+                elCreateText('div', {"class": ["list-group-item", "nowrap"]}, tn('Neighbors are disabled'))
             );
         }
     }, false);
