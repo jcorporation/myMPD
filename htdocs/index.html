@@ -52,8 +52,7 @@
           </svg>
         </a>
       </div>
-      <div id="navbar-main" class="d-flex noInitChilds">
-      </div>
+      <div id="navbar-main" class="d-flex noInitChilds"></div>
     </nav>
   </header>
   <!-- Main menu -->
@@ -106,9 +105,6 @@
   </div>
   <!-- Alerts -->
   <div id="top-alerts" class="d-none">
-    <noscript>
-      <div data-phrase="JavaScript is disabled" class="alert alert-danger top-alert"></div>
-    </noscript>
     <div id="alertMpdState" class="alert alert-danger top-alert d-flex flex-row d-none"></div>
     <div id="alertMpdStatusError" class="alert alert-danger top-alert-dismissible top-alert d-flex flex-row d-none"></div>
     <div id="alertMympdState" class="alert alert-danger top-alert d-flex flex-row d-none"></div>
@@ -215,14 +211,7 @@
         <div class="table-responsive-md scrollContainer">
           <table id="QueueCurrentList" class="table table-hover table-sm" data-version="">
             <thead>
-              <tr>
-                <th>#</th>
-                <th data-phrase="Title"></th>
-                <th data-phrase="Artist"></th>
-                <th data-phrase="Album"></th>
-                <th data-phrase="Duration"></th>
-                <th></th>
-              </tr>
+              <tr></tr>
             </thead>
             <tbody class="clickable"></tbody>
             <tfoot></tfoot>
@@ -258,14 +247,7 @@
         <div class="table-responsive-md scrollContainer">
           <table id="QueueLastPlayedList" class="table table-hover table-sm">
             <thead>
-              <tr>
-                <th>#</th>
-                <th data-phrase="Title"></th>
-                <th data-phrase="Artist"></th>
-                <th data-phrase="Album"></th>
-                <th data-phrase="Duration"></th>
-                <th></th>
-              </tr>
+              <tr></tr>
             </thead>
             <tbody class="clickable"></tbody>
           </table>
@@ -300,14 +282,7 @@
           <div id="QueueJukeboxDisabled" class="alert alert-warning" data-phrase="Jukebox is disabled"></div>
           <table id="QueueJukeboxList" class="table table-hover table-sm">
             <thead>
-              <tr>
-                <th>#</th>
-                <th data-phrase="Title"></th>
-                <th data-phrase="Artist"></th>
-                <th data-phrase="Album"></th>
-                <th data-phrase="Duration"></th>
-                <th></th>
-              </tr>
+              <tr></tr>
             </thead>
             <tbody class="clickable"></tbody>
           </table>
@@ -322,8 +297,7 @@
           <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsAllButtons">
             <div class="btn-group me-2">
               <button data-title-phrase="Select view" id="BrowseNavPlaylists" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
-              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavPlaylistsDropdown">
-              </div>
+              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavPlaylistsDropdown"></div>
             </div>
           <form id="searchPlaylistsAll" class="flex-grow-1">
             <div class="input-group me-2">
@@ -407,16 +381,9 @@
           </div>
           <div class="table-responsive-md scrollContainer">
             <table id="BrowsePlaylistsDetailList" class="table table-hover table-sm">
-              <caption>Playlistname</caption>
+              <caption></caption>
               <thead>
-                <tr>
-                  <th>#</th>
-                  <th data-phrase="Title"></th>
-                  <th data-phrase="Artist"></th>
-                  <th data-phrase="Album"></th>
-                  <th data-phrase="Duration"></th>
-                  <th></th>
-                </tr>
+                <tr></tr>
               </thead>
               <tbody class="clickable"></tbody>
               <tfoot></tfoot>
@@ -499,14 +466,7 @@
             <div id="viewDetailDatabaseInfo"></div>
             <table id="BrowseDatabaseDetailList" class="table table-hover table-sm">
               <thead>
-                <tr>
-                  <th>#</th>
-                  <th data-phrase="Title"></th>
-                  <th data-phrase="Artist"></th>
-                  <th data-phrase="Album"></th>
-                  <th data-phrase="Duration"></th>
-                  <th></th>
-                </tr>
+                <tr></tr>
               </thead>
               <tbody class="clickable"></tbody>
               <tfoot></tfoot>
@@ -550,14 +510,7 @@
         <div class="table-responsive-md scrollContainer">
           <table id="BrowseFilesystemList" class="table table-hover table-sm">
             <thead>
-              <tr>
-                <th></th>
-                <th data-phrase="Title"></th>
-                <th data-phrase="Artist"></th>
-                <th data-phrase="Album"></th>
-                <th data-phrase="Duration"></th>
-                <th></th>
-              </tr>
+              <tr></tr>
             </thead>
             <tbody class="clickable"></tbody>
             <tfoot></tfoot>
@@ -610,14 +563,7 @@
         <div class="table-responsive-md scrollContainer">
           <table id="SearchList" class="table table-hover table-sm">
             <thead>
-              <tr>
-                <th></th>
-                <th data-phrase="Title"></th>
-                <th data-phrase="Artist"></th>
-                <th data-phrase="Album"></th>
-                <th data-phrase="Duration"></th>
-                <th></th>
-              </tr>
+              <tr></tr>
             </thead>
             <tbody class="clickable"></tbody>
             <tfoot></tfoot>
@@ -643,7 +589,7 @@
           <button data-title-phrase="Next" data-href='{"cmd": "clickNext", "options": []}' id="btnNext" type="button" class="btn btn-dark px-2 mi rounded-2">skip_next</button>
         </div>
         <div class="align-self-center footerCounter">
-          <small id="counter">0:00&nbsp;/&nbsp;0:00</small>
+          <small id="counter"></small>
         </div>
       </div>
       <div class="d-flex flex-fill navbar-nav ms-3" id="footerInfo">
@@ -1489,7 +1435,7 @@
               <div class="col-sm-8">
                 <select id="selectAddToQueueMode" class="form-select">
                   <option value="1" data-phrase="Song"></option>
-                  <option value="2" data-phrase="Album"></option>
+                  <option value="2" data-phrase="Album" class="featAdvsearch"></option>
                 </select>
               </div>
             </div>
@@ -1548,14 +1494,12 @@
                 </div>
                 <div class="col table-responsive-md">
                   <table class="table table-sm">
-                    <tbody id="tbodySongDetails">
-                    </tbody>
+                    <tbody id="tbodySongDetails"></tbody>
                   </table>
                 </div>
               </div>
             </div>
-            <div class="tab-pane pb-3" id="tabSongPics">
-            </div>
+            <div class="tab-pane pb-3" id="tabSongPics"></div>
             <div class="tab-pane" id="tabSongLyrics">
               <h1 class="text-break"></h1>
               <div id="lyricsText"></div>
@@ -2051,50 +1995,50 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-        <div class="tab-content">
-          <div id="newTrigger" class="tab-pane">
-            <form id="newTriggerForm">
-              <input type="hidden" id="inputTriggerId"/>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputTriggerName" data-phrase="Trigger name"></label>
-                <div class="col-sm-8">
-                  <input id="inputTriggerName" class="form-control" type="text"/>
-                  <div class="invalid-feedback" data-phrase="Invalid trigger name"></div>
+          <div class="tab-content">
+            <div id="newTrigger" class="tab-pane">
+              <form id="newTriggerForm">
+                <input type="hidden" id="inputTriggerId"/>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="inputTriggerName" data-phrase="Trigger name"></label>
+                  <div class="col-sm-8">
+                    <input id="inputTriggerName" class="form-control" type="text"/>
+                    <div class="invalid-feedback" data-phrase="Invalid trigger name"></div>
+                  </div>
                 </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="selectTriggerEvent" data-phrase="Event"></label>
-                <div class="col-sm-8">
-                  <select class="form-select" id="selectTriggerEvent"></select>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="selectTriggerEvent" data-phrase="Event"></label>
+                  <div class="col-sm-8">
+                    <select class="form-select" id="selectTriggerEvent"></select>
+                  </div>
                 </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="selectTriggerScript" data-phrase="Script"></label>
-                <div class="col-sm-8">
-                  <select class="form-select" id="selectTriggerScript"></select>
-                  <div class="invalid-feedback" data-phrase="No script selected"></div>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="selectTriggerScript" data-phrase="Script"></label>
+                  <div class="col-sm-8">
+                    <select class="form-select" id="selectTriggerScript"></select>
+                    <div class="invalid-feedback" data-phrase="No script selected"></div>
+                  </div>
                 </div>
+                <h5 data-phrase="Script arguments"></h5>
+                <div id="triggerActionScriptArguments"></div>
+              </form>
+            </div>
+            <div class="tab-pane active" id="listTrigger">
+              <div class="table-responsive-md overflow-auto">
+                <table class="table table-hover table-sm">
+                  <thead>
+                    <tr>
+                      <th data-phrase="Trigger name"></th>
+                      <th data-phrase="Trigger"></th>
+                      <th data-phrase="Script"></th>
+                      <th>&nbsp;</th>
+                    </tr>
+                  </thead>
+                  <tbody id="listTriggerList" class="clickable"></tbody>
+                </table>
               </div>
-              <h5 data-phrase="Script arguments"></h5>
-              <div id="triggerActionScriptArguments"></div>
-            </form>
-          </div>
-          <div class="tab-pane active" id="listTrigger">
-            <div class="table-responsive-md overflow-auto">
-              <table class="table table-hover table-sm">
-                <thead>
-                  <tr>
-                    <th data-phrase="Trigger name"></th>
-                    <th data-phrase="Trigger"></th>
-                    <th data-phrase="Script"></th>
-                    <th>&nbsp;</th>
-                  </tr>
-                </thead>
-                <tbody id="listTriggerList" class="clickable"></tbody>
-              </table>
             </div>
           </div>
-        </div>
         </div>
         <div class="modal-footer justify-content-between" id="listTriggerFooter">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
