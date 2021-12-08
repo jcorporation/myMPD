@@ -237,7 +237,7 @@ function parseQueue(obj) {const table = document.getElementById('QueueCurrentLis
         elReplaceChild(tfoot, elCreateNode('tr', {},
             elCreateNode('td', {"colspan": (colspan + 1)},
                 elCreateText('small', {}, tn('Num songs', obj.result.totalEntities) +
-                    smallSpace + "/" + smallSpace + beautifyDuration(obj.result.totalTime))))
+                    smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime))))
         );
     }
     else if (obj.result.totalEntities > 0) {
