@@ -41,6 +41,10 @@ function elCreateEmpty(tagName, attributes) {
     return tag;
 }
 
+function elReplaceChildId(id, child) {
+    elReplaceChild(document.getElementById(id), child);
+}
+
 function elReplaceChild(el, child) {
     elClear(el);
     el.appendChild(child);

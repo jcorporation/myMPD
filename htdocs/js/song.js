@@ -43,14 +43,14 @@ function songDetails(uri) {
 
 function parseFingerprint(obj) {
     if (obj.error) {
-        elReplaceChild(document.getElementById('fingerprint'),
+        elReplaceChildId('fingerprint',
             elCreateText('div', {"class": ["alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
         );
         return;
     }
     const textarea = elCreateEmpty('textarea', {"class": ["form-control", "text-monospace", "small", "breakAll"], "rows": 5});
     textarea.value = obj.result.fingerprint;
-    elReplaceChild(document.getElementById('fingerprint'), textarea);
+    elReplaceChildId('fingerprint', textarea);
 }
 
 function getMBtagLink(tag, value) {
