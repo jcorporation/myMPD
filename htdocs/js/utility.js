@@ -1133,7 +1133,9 @@ function printValue(key, value) {
             return elCreateText('span', {"class": ["mi"]},
                 value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up');
         case 'Artist':
+        case 'ArtistSort':
         case 'AlbumArtist':
+        case 'AlbumArtistSort':
         case 'Genre':
         case 'Composer':
         case 'Performer':
