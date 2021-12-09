@@ -59,6 +59,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) 
                     if (mympd_state->jukebox_mode != JUKEBOX_OFF &&
                         mympd_state->mpd_state->queue_length < mympd_state->jukebox_queue_length)
                     {
+                        MYMPD_LOG_DEBUG("Jukebox mode: %u", mympd_state->jukebox_mode);
                         mpd_client_jukebox(mympd_state);
                     }
                     //autoPlay enabled
