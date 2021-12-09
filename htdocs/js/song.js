@@ -15,7 +15,9 @@ function initSong() {
                 elHide(event.target);
                 event.target.parentNode.appendChild(spinner);
             }
-            else if (event.target.classList.contains('download')) {
+            else if (event.target.classList.contains('download') ||
+                event.target.classList.contains('external'))
+            {
                 //do nothing, link opens in new browser window
             }
             else if (getData(event.target.parentNode, 'tag') !== undefined) {
