@@ -543,8 +543,12 @@ function checkResultId(obj, id) {
 
 function checkResult(obj, tbody) {
     const colspan = tbody.parentNode.getElementsByTagName('tr')[0].getElementsByTagName('th').length;
+    const tfoot = tbody.parentNode.getElementsByTagName('tfoot');
     if (obj.error) {
         elClear(tbody);
+        if (tfoot.length === 1) {
+            elClear(tfoot[0]);
+        }
         tbody.appendChild(errorRow(obj, colspan));
         tbody.parentNode.classList.remove('opacity05');
         setPagination(0, 0);
@@ -552,6 +556,9 @@ function checkResult(obj, tbody) {
     }
     if (obj.result.returnedEntities === 0) {
         elClear(tbody);
+        if (tfoot.length === 1) {
+            elClear(tfoot[0]);
+        }
         tbody.appendChild(emptyRow(colspan));
         tbody.parentNode.classList.remove('opacity05');
         setPagination(0, 0);
