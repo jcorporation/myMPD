@@ -40,19 +40,18 @@ bool is_multivalue_tag(enum mpd_tag_type tag) {
 }
 
 enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag) {
-    if (tag == MPD_TAG_ARTIST) {
-        return MPD_TAG_ARTIST_SORT;
+    switch(tag) {
+        case MPD_TAG_ARTIST:
+            return MPD_TAG_ARTIST_SORT;
+        case MPD_TAG_ALBUM_ARTIST:
+            return MPD_TAG_ALBUM_ARTIST_SORT;
+        case MPD_TAG_ALBUM:
+            return MPD_TAG_ALBUM_SORT;
+        case MPD_TAG_COMPOSER:
+            return MPD_TAG_COMPOSER_SORT;
+        default:
+            return tag;
     }
-    if (tag == MPD_TAG_ALBUM_ARTIST) {
-        return MPD_TAG_ALBUM_ARTIST_SORT;
-    }
-    if (tag == MPD_TAG_ALBUM) {
-        return MPD_TAG_ALBUM_SORT;
-    }
-    if (tag == MPD_TAG_COMPOSER) {
-        return MPD_TAG_COMPOSER_SORT;
-    }
-    return tag;
 }
 
 void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list) {
