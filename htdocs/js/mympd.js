@@ -407,6 +407,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             }
             else {
                 elClear(document.getElementById('SearchList').getElementsByTagName('tbody')[0]);
+                elClear(document.getElementById('SearchList').getElementsByTagName('tfoot')[0]);
                 elDisableId('searchAddAllSongs');
                 elDisableId('searchAddAllSongsBtn');
                 document.getElementById('SearchList').classList.remove('opacity05');
