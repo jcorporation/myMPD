@@ -364,9 +364,6 @@ function parseSettings(obj) {
         }
         else {
             elClearId('scripts');
-            //reinit mainmenu -> change of script list
-            uiElements.dropdownMainMenu.dispose();
-            uiElements.dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
         }
         scriptsInited = true;
     }
