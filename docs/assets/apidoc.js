@@ -270,7 +270,7 @@ const APImethods = {
         "params": {
             "plist": {
                 "type": "text",
-                "example": "test_pl",
+                "example": "test_plist",
                 "desc": "Playlist name"
             }
         }
@@ -1352,17 +1352,6 @@ const APImethods = {
         "desc": "Executes a script",
         "params": {
             "script": APIparams.script,
-            "arguments": APIparams.scriptArguments
-        }
-    },
-    "MYMPD_API_SCRIPT_POST_EXECUTE": {
-        "desc": "Posts a lua script to myMPD for execution",
-        "params": {
-            "script": {
-                "type": "text",
-                "example": "return \"test\"..argname1",
-                "desc": "The lua script itself"
-            },
             "arguments": APIparams.scriptArguments
         }
     },
