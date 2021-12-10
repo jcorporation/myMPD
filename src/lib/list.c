@@ -114,7 +114,7 @@ struct t_list_node *list_get_node(const struct t_list *l, const char *key) {
 }
 
 struct t_list_node *list_node_at(const struct t_list *l, unsigned index) {
-    /* if there's no data in the list, fail */
+    //if there's no data in the list, fail
     if (l->head == NULL) {
         return NULL;
     }
