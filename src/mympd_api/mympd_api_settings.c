@@ -201,12 +201,9 @@ bool mympd_api_settings_cols_save(struct t_mympd_state *mympd_state, sds table, 
         return false;
     }
     sds tablename = camel_to_snake(table);
-    if (!state_file_write(mympd_state->config->workdir, "state", tablename, cols)) {
-        FREE_SDS(tablename);
-        return false;
-    }
+    bool rc = state_file_write(mympd_state->config->workdir, "state", tablename, cols);
     FREE_SDS(tablename);
-    return true;
+    return rc;
 }
 
 bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
