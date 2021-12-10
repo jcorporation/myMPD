@@ -39,6 +39,9 @@ static bool add_album_to_queue(struct t_mympd_state *mympd_state, struct mpd_son
 //public functions
 bool mpd_client_rm_jukebox_entry(struct t_list *list, unsigned pos) {
     struct t_list_node *node = list_node_at(list, pos);
+    if (node == NULL) {
+        return false;
+    }
     node->user_data = NULL;
     return list_shift(list, pos);
 }
@@ -622,15 +625,25 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
                         unsigned i = add_songs > 1 ? randrange(0, add_songs - 1) : 0;
                         if (manual == false) {
                             struct t_list_node *node = list_node_at(&mympd_state->jukebox_queue, i);
-                            node->user_data = NULL;
-                            if (list_replace(&mympd_state->jukebox_queue, i, album, lineno, albumartist, song) == false) {
+                            if (node != NULL) {
+                                node->user_data = NULL;
+                                if (list_replace(&mympd_state->jukebox_queue, i, album, lineno, albumartist, song) == false) {
+                                    MYMPD_LOG_ERROR("Can't replace jukebox_queue element pos %d", i);
+                                }
+                            }
+                            else {
                                 MYMPD_LOG_ERROR("Can't replace jukebox_queue element pos %d", i);
                             }
                         }
                         else {
                             struct t_list_node *node = list_node_at(&mympd_state->jukebox_queue_tmp, i);
-                            node->user_data = NULL;
-                            if (list_replace(&mympd_state->jukebox_queue_tmp, i, album, lineno, albumartist, song) == false) {
+                            if (node != NULL) {
+                                node->user_data = NULL;
+                                if (list_replace(&mympd_state->jukebox_queue_tmp, i, album, lineno, albumartist, song) == false) {
+                                    MYMPD_LOG_ERROR("Can't replace jukebox_queue_tmp element pos %d", i);
+                                }
+                            }
+                            else {
                                 MYMPD_LOG_ERROR("Can't replace jukebox_queue_tmp element pos %d", i);
                             }
                         }
