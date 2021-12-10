@@ -749,8 +749,7 @@ sds mympd_api_settings_picture_list(struct t_mympd_state *mympd_state, sds buffe
             }
             if (strcasecmp(ext, ".webp") == 0 || strcasecmp(ext, ".jpg") == 0 ||
                 strcasecmp(ext, ".jpeg") == 0 || strcasecmp(ext, ".png") == 0 ||
-                strcasecmp(ext, ".tiff") == 0 || strcasecmp(ext, ".svg") == 0 ||
-                strcasecmp(ext, ".bmp") == 0)
+                strcasecmp(ext, ".avif") == 0 || strcasecmp(ext, ".svg") == 0)
             {
                 if (returned_entities++) {
                     buffer = sdscatlen(buffer, ",", 1);
