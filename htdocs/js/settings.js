@@ -331,7 +331,6 @@ function parseSettings(obj) {
     document.documentElement.style.setProperty('--mympd-highlightcolor', settings.webuiSettings.uiHighlightColor);
 
     //default limit for all cards
-    //convert from string to int
     let limit = settings.webuiSettings.uiMaxElementsPerPage;
     if (limit === 0) {
         limit = 500;
