@@ -489,7 +489,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     sds ca_file = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->workdir);
                     static struct mg_http_serve_opts s_http_server_opts;
                     s_http_server_opts.root_dir = mg_user_data->browse_document_root;
-                    s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
+                    s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
                     s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                     mg_http_serve_file(nc, hm, ca_file, &s_http_server_opts);
                     FREE_SDS(ca_file);
@@ -510,14 +510,14 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 MYMPD_LOG_DEBUG("Setting document root to \"%s\"", mg_user_data->pics_document_root);
                 static struct mg_http_serve_opts s_http_server_opts;
                 s_http_server_opts.root_dir = mg_user_data->pics_document_root;
-                s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
+                s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
                 s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                 hm->uri = mg_str_strip_parent(&hm->uri, 1);
                 mg_http_serve_dir(nc, hm, &s_http_server_opts);
             }
             else if (mg_http_match_uri(hm, "/browse/#")) {
                 static struct mg_http_serve_opts s_http_server_opts;
-                s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
+                s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
                 s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                 if (mg_http_match_uri(hm, "/browse/")) {
                     sds dirs = sdsempty();
@@ -529,7 +529,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                         dirs = sdscat(dirs, "<tr><td><a href=\"playlists/\">playlists/</a></td><td>MPD playlists directory</td><td></td></tr>");
                     }
                     dirs = sdscat(dirs, "<tr><td><a href=\"smartplaylists/\">smartplaylists/</a></td><td>myMPD smart playlists directory</td><td></td></tr>");
-                    mg_http_reply(nc, 200, "Content-Type: text/html\r\n"EXTRA_HEADERS_DIR, "<!DOCTYPE html>"
+                    mg_http_reply(nc, 200, "Content-Type: text/html\r\n"EXTRA_HEADERS_UNSAFE, "<!DOCTYPE html>"
                         "<html><head>"
                         "<meta charset=\"utf-8\">"
                         "<title>Index of /browse/</title>"
@@ -589,7 +589,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     //serve all files from filesystem
                     static struct mg_http_serve_opts s_http_server_opts;
                     s_http_server_opts.root_dir = DOC_ROOT;
-                    s_http_server_opts.extra_headers = EXTRA_HEADERS;
+                    if (mg_http_match_uri(hm, "/test/#")) {
+                        //test suite uses innerHTML
+                        s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
+                    }
+                    else {
+                        s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE;
+                    }
                     s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 #else

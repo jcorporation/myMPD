@@ -14,7 +14,7 @@
 
 #include <stdbool.h>
 
-#define EXTRA_HEADERS_DIR "Content-Security-Policy: default-src 'none'; "\
+#define EXTRA_HEADERS_UNSAFE "Content-Security-Policy: default-src 'none'; "\
     "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; "\
     "connect-src 'self' ws: wss:; manifest-src 'self'; "\
     "media-src 'self'; frame-ancestors *; base-uri 'none';\r\n"\
@@ -22,7 +22,7 @@
     "X-XSS-Protection: 1; mode=block\r\n"\
     "X-Frame-Options: deny\r\n"
 
-#define EXTRA_HEADERS "Content-Security-Policy: default-src 'none'; "\
+#define EXTRA_HEADERS_SAFE "Content-Security-Policy: default-src 'none'; "\
     "style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; "\
     "connect-src 'self' ws: wss:; manifest-src 'self'; "\
     "media-src 'self'; frame-ancestors *; base-uri 'none'; "\
@@ -32,6 +32,9 @@
     "X-Frame-Options: deny\r\n"
 
 #define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800\r\n"
+
+#define EXTRA_HEADERS_SAFE_CACHE EXTRA_HEADERS_SAFE\
+    EXTRA_HEADERS_CACHE
 
 #define DIRECTORY_LISTING_CSS "h1{top:0;font-size:inherit;font-weight:inherit}address{bottom:0;font-style:normal}"\
     "h1,address{background-color:#343a40;color:#f8f9fa;padding:1rem;position:fixed;"\

@@ -150,7 +150,7 @@ void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_messag
         const char *mime_type = get_mime_type_by_ext(asset_image);
         static struct mg_http_serve_opts s_http_server_opts;
         s_http_server_opts.root_dir = mg_user_data->browse_document_root;
-        s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
+        s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
         s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
         mg_http_serve_file(nc, hm, asset_image, &s_http_server_opts);
         MYMPD_LOG_DEBUG("Serving custom asset image \"%s\" (%s)", asset_image, mime_type);
@@ -161,7 +161,7 @@ void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_messag
             asset_image = sdscatfmt(asset_image, "%s/assets/%s.svg", DOC_ROOT, name);
             static struct mg_http_serve_opts s_http_server_opts;
             s_http_server_opts.root_dir = mg_user_data->browse_document_root;
-            s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
+            s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
             s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
             mg_http_serve_file(nc, hm, asset_image, &s_http_server_opts);
         #else
@@ -231,7 +231,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri, struct mg
         }
         //send header
         mg_printf(nc, "HTTP/1.1 200 OK\r\n"
-                      EXTRA_HEADERS
+                      EXTRA_HEADERS_SAFE
                       "%s"
                       "Content-Length: %u\r\n"
                       "Content-Type: %s\r\n"
