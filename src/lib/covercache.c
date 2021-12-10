@@ -31,7 +31,7 @@ bool covercache_write_file(const char *cachedir, const char *uri, const char *mi
     }
     bool rc = false;
     sds filename = sdsnew(uri);
-    sanitize_filename(filename);
+    sds_sanitize_filename(filename);
     sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", cachedir, filename);
     errno = 0;
     int fd = mkstemp(tmp_file);

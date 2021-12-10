@@ -32,6 +32,6 @@ void sds_basename_uri(sds uri);
 void sds_strip_file_extension(sds s);
 void sds_strip_slash(sds s);
 sds sds_catbool(sds s, bool v);
-void sanitize_filename(sds s);
+void sds_sanitize_filename(sds s);
 
 #endif

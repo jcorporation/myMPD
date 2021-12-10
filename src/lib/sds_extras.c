@@ -286,13 +286,13 @@ sds sds_catbool(sds s, bool v) {
 }
 
 static const char *invalid_filename_chars = "<>/.:?$!#\a\b\f\n\r\t\v\\|";
-void sanitize_filename(sds s) {
-    const size_t len = strlen(invalid_filename_chars);    
+void sds_sanitize_filename(sds s) {
+    const size_t len = strlen(invalid_filename_chars);
     for (size_t i = 0; i < len; i++) {
         for (size_t j = 0; j < sdslen(s); j++) {
             if (s[j] == invalid_filename_chars[i]) {
                 s[j] = '_';
-            }            
+            }
         }
     }
 }
