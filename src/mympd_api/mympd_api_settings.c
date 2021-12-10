@@ -643,16 +643,16 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = tojson_char(buffer, "lyricsVorbisUslt", mympd_state->lyrics_vorbis_uslt, true);
     buffer = tojson_char(buffer, "lyricsVorbisSylt", mympd_state->lyrics_vorbis_sylt, true);
     buffer = tojson_long(buffer, "covercacheKeepDays", mympd_state->covercache_keep_days, true);
-    buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
-    buffer = sdscatfmt(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
-    buffer = sdscatfmt(buffer, "\"colsBrowseDatabaseDetail\":%s,", mympd_state->cols_browse_database_detail);
-    buffer = sdscatfmt(buffer, "\"colsBrowsePlaylistsDetail\":%s,", mympd_state->cols_browse_playlists_detail);
-    buffer = sdscatfmt(buffer, "\"colsBrowseFilesystem\":%s,", mympd_state->cols_browse_filesystem);
-    buffer = sdscatfmt(buffer, "\"colsPlayback\":%s,", mympd_state->cols_playback);
-    buffer = sdscatfmt(buffer, "\"colsQueueLastPlayed\":%s,", mympd_state->cols_queue_last_played);
-    buffer = sdscatfmt(buffer, "\"colsQueueJukebox\":%s,", mympd_state->cols_queue_jukebox);
-    buffer = sdscatfmt(buffer, "\"navbarIcons\":%s,", mympd_state->navbar_icons);
-    buffer = sdscatfmt(buffer, "\"webuiSettings\":%s,", mympd_state->webui_settings);
+    buffer = tojson_raw(buffer, "colsQueueCurrent", mympd_state->cols_queue_current, true);
+    buffer = tojson_raw(buffer, "colsSearch", mympd_state->cols_search, true);
+    buffer = tojson_raw(buffer, "colsBrowseDatabaseDetail", mympd_state->cols_browse_database_detail, true);
+    buffer = tojson_raw(buffer, "colsBrowsePlaylistsDetail", mympd_state->cols_browse_playlists_detail, true);
+    buffer = tojson_raw(buffer, "colsBrowseFilesystem", mympd_state->cols_browse_filesystem, true);
+    buffer = tojson_raw(buffer, "colsPlayback", mympd_state->cols_playback, true);
+    buffer = tojson_raw(buffer, "colsQueueLastPlayed", mympd_state->cols_queue_last_played, true);
+    buffer = tojson_raw(buffer, "colsQueueJukebox", mympd_state->cols_queue_jukebox, true);
+    buffer = tojson_raw(buffer, "navbarIcons", mympd_state->navbar_icons, true);
+    buffer = tojson_raw(buffer, "webuiSettings", mympd_state->webui_settings, true);
     if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
         buffer = tojson_bool(buffer, "mpdConnected", true, true);
         struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
