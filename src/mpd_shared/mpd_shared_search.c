@@ -123,17 +123,6 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
         return buffer;
     }
 
-    if (mpd_state->feat_mpd_whence == true &&
-        plist != NULL &&
-        to < UINT_MAX)
-    {
-        //to = UINT_MAX is append
-        bool rc = mpd_search_add_position(mpd_state->conn, to, whence);
-        if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_position") == false) {
-            mpd_search_cancel(mpd_state->conn);
-            return buffer;
-        }
-    }
     if (plist == NULL ||
         mpd_connection_cmp_server_version(mpd_state->conn, 0, 22, 0) >= 0)
     {
@@ -163,13 +152,26 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
             }
         }
 
-        unsigned real_limit = limit == 0 ? offset + MPD_RESULTS_MAX : offset + limit;
+        unsigned real_limit = limit == 0 ? offset + MPD_PLAYLIST_LENGTH_MAX : offset + limit;
         bool rc = mpd_search_add_window(mpd_state->conn, offset, real_limit);
         if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
             mpd_search_cancel(mpd_state->conn);
             return buffer;
         }
     }
+
+    if (mpd_state->feat_mpd_whence == true &&
+        plist != NULL &&
+        to < UINT_MAX)
+    {
+        //to = UINT_MAX is append
+        bool rc = mpd_search_add_position(mpd_state->conn, to, whence);
+        if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_position") == false) {
+            mpd_search_cancel(mpd_state->conn);
+            return buffer;
+        }
+    }
+
     bool rc = mpd_search_commit(mpd_state->conn);
     if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_commit") == false) {
         return buffer;
