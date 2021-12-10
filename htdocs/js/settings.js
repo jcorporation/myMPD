@@ -446,7 +446,7 @@ function setLocale(newLocale) {
         }
     }
     if (localeFound === false) {
-        logError('Locale ' + locale + 'not defined');
+        logError('Locale "' + locale + '" not defined');
         locale = 'en-US';
     }
 
