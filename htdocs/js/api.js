@@ -220,7 +220,8 @@ function sendAPI(method, params, callback, onerror) {
             return;
         }
 
-        if (settings.pin === true && session.token !== '' &&
+        if (settings.pin === true &&
+            session.token !== '' &&
             APImethods[method].protected === true)
         {
             //session was extended through request
