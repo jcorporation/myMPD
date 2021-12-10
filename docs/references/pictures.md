@@ -40,7 +40,7 @@ myMPD caches extracted covers under `/var/lib/mympd/covercache`. Files in this d
 
 # Streams
 
-1. Images must be named as the uri of the stream, remove http://, https://, etc. and replace dots, colons and slashes with underscores, e.g. stream_laut_fm_nonpop.png for uri http://stream.laut.fm/nonpop.
+1. Images must be named as the uri of the stream, replace the characters `<>/.:?$!#\|` with `_`, e.g. `http___stream_laut_fm_nonpop.png` for uri `http://stream.laut.fm/nonpop`.
 2. Put these images under `/var/lib/mympd/pics/`.
 
 # Pictures for other tags

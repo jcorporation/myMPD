@@ -186,18 +186,26 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
         struct t_list_node *current = tag_list.head;
         while (current != NULL) {
             const char *tagstr = mpd_tag_name(tag);
-            sds playlist = sdscatfmt(sdsempty(), "%s%s%s-%s", mpd_worker_state->smartpls_prefix, (sdslen(mpd_worker_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, current->key);
+            sds filename = sdsdup(current->key);
+            sanitize_filename(filename);
+            sds playlist = sdscatfmt(sdsempty(), "%s%s%s-%s", mpd_worker_state->smartpls_prefix, (sdslen(mpd_worker_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, filename);
             sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", mpd_worker_state->config->workdir, playlist);
             if (access(plpath, F_OK) == -1) { /* Flawfinder: ignore */
-                MYMPD_LOG_INFO("Created smart playlist \"%s\"", playlist);
                 sds expression = sdsnew("(");
                 expression = escape_mpd_search_expression(expression, tagstr, "==", current->key);
                 expression = sdscatlen(expression, ")", 1);
-                mpd_shared_smartpls_save(mpd_worker_state->config->workdir, "search", playlist, expression, 0, 0, mpd_worker_state->smartpls_sort);
+                rc = mpd_shared_smartpls_save(mpd_worker_state->config->workdir, "search", playlist, expression, 0, 0, mpd_worker_state->smartpls_sort);
                 FREE_SDS(expression);
+                if (rc == true) {
+                    MYMPD_LOG_INFO("Created smart playlist \"%s\"", playlist);
+                }
+                else {
+                    MYMPD_LOG_ERROR("Creation of smart playlist \"%s\" failed", playlist);
+                }
             }
             FREE_SDS(playlist);
             FREE_SDS(plpath);
+            FREE_SDS(filename);
             current = current->next;
         }
         list_clear(&tag_list);

@@ -281,20 +281,18 @@ void sds_strip_file_extension(sds s) {
     }
 }
 
-void sds_streamuri_to_filename(sds s) {
-    if (sdslen(s) < 4) {
-        sdsclear(s);
-        return;
-    }
-    for (ssize_t i = 0; i < (ssize_t)sdslen(s) - 2; i++) {
-        if (s[i] == ':' && s[i + 1] == '/' && s[i + 2] == '/') {
-            sdsrange(s, i + 3, -1);
-            break;
-        }
-    }
-    sdsmapchars(s, "/.:?#", "_____", 5);
-}
-
 sds sds_catbool(sds s, bool v) {
     return v == true ? sdscatlen(s, "true", 4) : sdscatlen(s, "false", 5);
+}
+
+static const char *invalid_filename_chars = "<>/.:?$!#\a\b\f\n\r\t\v\\|";
+void sanitize_filename(sds s) {
+    const size_t len = strlen(invalid_filename_chars);    
+    for (size_t i = 0; i < len; i++) {
+        for (size_t j = 0; j < sdslen(s); j++) {
+            if (s[j] == invalid_filename_chars[i]) {
+                s[j] = '_';
+            }            
+        }
+    }
 }

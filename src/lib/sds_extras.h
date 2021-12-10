@@ -29,9 +29,9 @@ int sds_getline_n(sds *s, FILE *fp, size_t max);
 int sds_getfile(sds *s, FILE *fp, size_t max);
 sds sds_get_extension_from_filename(const char *filename);
 void sds_basename_uri(sds uri);
-void sds_streamuri_to_filename(sds s);
 void sds_strip_file_extension(sds s);
 void sds_strip_slash(sds s);
 sds sds_catbool(sds s, bool v);
+void sanitize_filename(sds s);
 
 #endif
