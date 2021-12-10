@@ -30,11 +30,11 @@ UTEST(sds_extras, test_sds_strip_file_extension) {
     sdsfree(test_input);
 }
 
-UTEST(sds_extras, test_sds_streamuri_to_filename) {
+UTEST(sds_extras, test_sds_sanitize_filename) {
     struct t_input_result testcases[] = {
-        {"http://host:80/verz/verz/test?safsaf#798234",   "host_80_verz_verz_test_safsaf_798234" },
-        {"https://host:443/verz/verz/test?safsaf#798234", "host_443_verz_verz_test_safsaf_798234" },
-        {"https://host/verz/verz/test",                   "host_verz_verz_test" },
+        {"http://host:80/verz/verz/test?safsaf#798234",   "http___host_80_verz_verz_test_safsaf_798234" },
+        {"https://host:443/verz/verz/test?safsaf#798234", "https___host_443_verz_verz_test_safsaf_798234" },
+        {"https://host/verz/verz/test",                   "https___host_verz_verz_test" },
         {"",                                              "" },
         {"/test/test.mp3.mp3",                            "_test_test_mp3_mp3" },
         {NULL,                                            NULL}
@@ -43,7 +43,7 @@ UTEST(sds_extras, test_sds_streamuri_to_filename) {
     sds test_input = sdsempty();
     while (p->input != NULL) {
         test_input = sdscatfmt(test_input, "%s", p->input);
-        sds_streamuri_to_filename(test_input);
+        sds_sanitize_filename(test_input);
         ASSERT_STREQ(p->result, test_input);
         sdsclear(test_input);
         p++;
