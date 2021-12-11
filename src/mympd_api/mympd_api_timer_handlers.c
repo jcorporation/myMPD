@@ -118,7 +118,7 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
         }
     }
 
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SETTINGS_SET, NULL);
+    struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_OPTIONS_SET, NULL);
     request->data = tojson_long(request->data, "jukeboxMode", jukebox_mode, true);
 
     if (jukebox_mode != JUKEBOX_OFF) {
