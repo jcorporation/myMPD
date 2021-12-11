@@ -844,7 +844,11 @@ function initNavs() {
         }
     }, false);
 
+    //update list of notifications
     document.getElementById('menu-notifications').addEventListener('show.bs.collapse', function() {
+        showMessages();
+    }, false);
+    document.getElementById('offcanvasMenu').addEventListener('show.bs.offcanvas', function() {
         showMessages();
     }, false);
 }

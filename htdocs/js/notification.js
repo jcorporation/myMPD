@@ -121,11 +121,12 @@ function showNotification(title, text, facility, severity) {
 
 function logMessage(title, text, facility, severity) {
     let messagesLen = messages.length;
-    const lastMessage = messages[messagesLen - 1];
+    const lastMessage = messagesLen > 0 ? messages[messagesLen - 1] : null;
     if (lastMessage &&
         lastMessage.title === title)
     {
         lastMessage.occurence++;
+        lastMessage.timestamp = getTimestamp();
     }
     else {
         messages.push({
