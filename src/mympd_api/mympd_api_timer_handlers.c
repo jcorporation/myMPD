@@ -75,6 +75,7 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
                                unsigned volume, const char *playlist, enum jukebox_modes jukebox_mode)
 {
     //disable jukebox to prevent adding songs to queue from old jukebox queue list
+    enum jukebox_modes old_jukebox_mode = mympd_state->jukebox_mode;
     mympd_state->jukebox_mode = JUKEBOX_OFF;
 
     bool rc = false;
@@ -103,7 +104,7 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_consume");
             }
         }
-        rc = mpd_send_single(mympd_state->mpd_state->conn, false);
+        rc = mpd_send_single_state(mympd_state->mpd_state->conn, MPD_SINGLE_OFF);
         if (rc == false) {
             MYMPD_LOG_ERROR("Error adding command to command list mpd_send_single");
         }
@@ -118,14 +119,23 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
         }
     }
 
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_OPTIONS_SET, NULL);
-    request->data = tojson_long(request->data, "jukeboxMode", jukebox_mode, true);
-
     if (jukebox_mode != JUKEBOX_OFF) {
+        //enable jukebox
+        struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_OPTIONS_SET, NULL);
+        request->data = tojson_long(request->data, "jukeboxMode", jukebox_mode, false);
+        request->data = sdscatlen(request->data, ",", 1);
         request->data = tojson_char(request->data, "jukeboxPlaylist", playlist, false);
+        request->data = sdscatlen(request->data, "}}", 2);
+        mympd_queue_push(mympd_api_queue, request, 0);
+        //start playback
+        struct t_work_request *request2 = create_request(-1, 0, MYMPD_API_PLAYER_PLAY, NULL);
+        request2->data = sdscatlen(request2->data, "}}", 2);
+        mympd_queue_push(mympd_api_queue, request2, 0);
     }
-    request->data = sdscatlen(request->data, "}}", 2);
-    mympd_queue_push(mympd_api_queue, request, 0);
+    else {
+        //restore old jukebox mode
+        mympd_state->jukebox_mode = old_jukebox_mode;
+    }
 
     bool result;
     buffer = respond_with_mpd_error_or_ok(mympd_state->mpd_state, buffer, method, request_id, rc, "mympd_api_timer_startplay", &result);
