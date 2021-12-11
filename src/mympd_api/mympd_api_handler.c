@@ -296,21 +296,22 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         }
         case MYMPD_API_PLAYER_OPTIONS_SET: {
+            if (mympd_state->mpd_state->conn_state != MPD_CONNECTED) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
+                    "general", "error", "Can't set playback options: MPD not connected");
+                break;
+            }
             if (json_iterate_object(request->data, "$.params", mympd_api_settings_mpd_options_set, mympd_state, NULL, 100, &error) == true) {
-                if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
-                    //feature detection
-                    mpd_client_mpd_features(mympd_state);
-                    if (mympd_state->jukebox_mode != JUKEBOX_OFF) {
-                        //enable jukebox
-                        mpd_client_jukebox(mympd_state);
-                    }
+                if (mympd_state->jukebox_mode != JUKEBOX_OFF) {
+                    //enable jukebox
+                    mpd_client_jukebox(mympd_state);
                 }
                 //respond with ok
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             }
             else {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
-                    "general", "error", "Can't save settings");
+                    "general", "error", "Can't set playback options");
             }
             break;
         }

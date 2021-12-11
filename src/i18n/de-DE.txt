@@ -1973,3 +1973,9 @@ Home Icon
 
 Show
 Anzeigen
+
+Can't set playback options
+Wiedergabeeinstellungen konnten nicht gespeichert werden
+
+Can't set playback options: MPD not connected
+Wiedergabeeinstellungen konnten nicht gespeichert werden: keine Verbidnung zum MPD Server
