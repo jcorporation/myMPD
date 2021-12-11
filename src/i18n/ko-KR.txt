@@ -774,7 +774,7 @@ Webserver
 Download
 내려받기
 
-Can't save setting
+Can't save settings
 설정을 저장할 수 없음
 
 No current song
