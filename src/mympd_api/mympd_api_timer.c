@@ -414,7 +414,7 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
         int interval;
         int timerid;
         if (timer_def != NULL &&
-            json_get_int(param, "$.params.interval", TIMER_INTERVAL_MIN, TIMER_INTERVAL_MAX, &interval, NULL) == true &&
+            json_get_int(param, "$.params.interval", -1, TIMER_INTERVAL_MAX, &interval, NULL) == true &&
             json_get_int(param, "$.params.timerid", 101, 200, &timerid, NULL) == true)
         {
             if (timerid > mympd_state->timer_list.last_id) {
