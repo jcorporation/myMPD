@@ -15,7 +15,7 @@ User contributed translations:
 
 * Regulary updated:
   * Korean (ko-KR)
-* Sometimes or never updated:
+* Outdated (not any longer included in build):
   * Dutch (nl-NL)
   * Finish (fi-FI)
   * French (fr-FR)
