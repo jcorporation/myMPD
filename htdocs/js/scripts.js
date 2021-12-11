@@ -291,7 +291,7 @@ function parseScriptList(obj) {
         return;
     }
 
-    const timerActions = elCreateEmpty('optgroup', {"label": tn('Script')});
+    const timerActions = elCreateEmpty('optgroup', {"id": "timerActionsScriptsOptGroup", "label": tn('Script')});
     setData(timerActions, 'value', 'script');
     const scriptMaxListLen = 4;
     const scriptListLen = obj.result.data.length;
@@ -321,10 +321,11 @@ function parseScriptList(obj) {
             setData(tr, 'href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
             tbodyScripts.appendChild(tr);
 
-            //scriptlist select for timers and triggers
+            //scriptlist select for timers
             const option = elCreateText('option', {"value": obj.result.data[i].name}, obj.result.data[i].name);
             setData(option, 'arguments', {"arguments": obj.result.data[i].metadata.arguments});
             timerActions.appendChild(option);
+            //scriptlist select for trigger
             const option2 = option.cloneNode(true);
             setData(option2, 'arguments', {"arguments": obj.result.data[i].metadata.arguments});
             triggerScripts.appendChild(option2);
@@ -342,8 +343,8 @@ function parseScriptList(obj) {
         elShow(navScripting.previousElementSibling);
         document.getElementById('scripts').classList.remove('collapse', 'menu-indent');
     }
-
-    const old = document.getElementById('selectTimerAction').querySelector('optgroup[label="Script"]');
+    //update timer actions select
+    const old = document.getElementById('timerActionsScriptsOptGroup');
     if (old) {
         old.replaceWith(timerActions);
     }
