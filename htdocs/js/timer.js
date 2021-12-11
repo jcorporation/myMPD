@@ -279,7 +279,7 @@ function showTimerScriptArgs(option, values) {
     if (values === undefined) {
         values = {};
     }
-    const args = JSON.parse(getData(option, 'arguments'));
+    const args = getData(option, 'arguments');
     const list = document.getElementById('timerActionScriptArguments');
     elClear(list);
     for (let i = 0, j = args.arguments.length; i < j; i++) {
