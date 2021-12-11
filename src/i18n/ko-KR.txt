@@ -4,7 +4,7 @@ MPD connection
 MPD 연결
 
 Add stream
-스트리밍 추가
+스트림 추가
 
 Update
 업데이트
@@ -37,10 +37,10 @@ Local playback
 로컬 연주
 
 Connecting to stream...
-스트리밍에 연결 중...
+스트림에 연결 중...
 
 Error loading stream
-스트리밍 읽기 오류
+스트림 읽기 오류
 
 Apply
 적용
@@ -145,7 +145,7 @@ Comment
 설명
 
 Disc
-디스크
+CD
 
 Label
 음반사
@@ -250,10 +250,10 @@ Add to playlist
 연주목록에 추가
 
 Stream URI
-스트리밍 주소
+스트림 주소
 
 http://uri.to/stream.mp3
-http://주소/stream.mp3
+http://주소/스트림.mp3
 
 Invalid filename
 잘못된 파일 이름
@@ -286,7 +286,7 @@ Delete
 지우기
 
 Hate song
-곡 좋아하지 않음
+곡 싫어요
 
 Love song
 곡 좋아요
@@ -499,7 +499,7 @@ Protocol version
 프로토콜 버전
 
 Action
-기능
+동작
 
 MPD host
 MPD 호스트
@@ -567,35 +567,38 @@ Volume down
 Volume up
 소리 크게
 
+Open MPD connection
+MPD 연결 열기
+
 Open settings
 설정 열기
 
 Show home
-홈으로 가기
+홈 보기
 
 Show playback
-연주로 가기
+연주 보기
 
 Show queue
-순서로 가기
+순서 보기
 
 Show last played
-앞선 연주로 가기
+앞선 연주 보기
 
 Show jukebox queue
-뮤직박스 순서로 가기
+뮤직박스 순서 보기
 
 Show browse database
-데이터베이스 열기로 가기
+데이터베이스 열기 보기
 
 Show browse playlists
-연주목록 열기로 가기
+연주목록 열기 보기
 
 Show browse filesystem
-파일 시스템 열기로 가기
+파일 시스템 열기 보기
 
 Show search
-찾기로 가기
+찾기 보기
 
 Open about
 정보 열기
@@ -610,7 +613,7 @@ MPD disconnected
 MPD 연결 끊어짐
 
 Websocket connection closed
-웹소켓 연결 안 됨
+웹소켓 연결 닫힘
 
 Connected to myMPD
 myMPD로 연결됨
@@ -636,6 +639,12 @@ Empty list
 Append to queue
 순서에 추가
 
+Append to queue and play
+순서에 추가하고 연주
+
+Append and play
+추가하고 연주
+
 Add after current playing song
 지금 연주 중인 곡 다음에 추가
 
@@ -644,6 +653,12 @@ View playlist
 
 Replace queue
 순서 바꾸기
+
+Replace queue and play
+순서 바꾸고 연주
+
+Replace and play
+바꾸고 연주
 
 Edit smart playlist
 스마트 연주목록 편집
@@ -720,6 +735,12 @@ Unknown smart playlist type
 Background
 배경
 
+Repeat each
+반복
+
+Weeks
+주
+
 Days
 일
 
@@ -753,7 +774,7 @@ Webserver
 Download
 내려받기
 
-Can't save settings
+Can't save setting
 설정을 저장할 수 없음
 
 No current song
@@ -1165,7 +1186,7 @@ New script
 새 스크립트
 
 No action selected
-기능 선택 안 됨
+동작 선택 안 됨
 
 Scale ratio
 크기 비율
@@ -1234,7 +1255,7 @@ Trigger not found
 트리거를 찾을 수 없음
 
 current
-현재
+지금
 
 Edit attributes
 속성 수정
@@ -1299,11 +1320,17 @@ Options
 Picture
 그림
 
+Homescreen welcome
+홈 아이콘을 아직 추가하지 않았습니다. 홈 아이콘을 추가할 수 있는 연관 메뉴나 다음 아이콘:
+
 Can not open directory pics
 디렉터리 그림을 열 수 없음
 
 Use ligature
 연결 사용
+
+Replace queue with playlist
+순서를 연주목록으로 대체
 
 Goto view
 보기로 가기
@@ -1389,9 +1416,8 @@ Failed to set song priority
 Lookup at musicbrainz
 뮤직브레인즈에서 찾기
 
-
 Play after current playing song
-현재 연주 중인 곡 다음에 연주
+지금 연주 중인 곡 다음에 연주
 
 First page
 첫 페이지
@@ -1400,7 +1426,7 @@ Last page
 끝 페이지
 
 Can not get lyrics for stream uri
-스트리밍 URI의 가사를 가져올 수 없음
+스트림 URI의 가사를 가져올 수 없음
 
 Albumcache not ready
 앨범 캐시 준비 안 됨
@@ -1446,6 +1472,12 @@ Are you sure?
 
 Do you really want to clear the queue?
 캐시를 지울까요?
+
+Do you really want to delete the timer?
+타이머를 지울까요?
+
+Do you really want to delete the trigger?
+트리거를 지울까요?
 
 Playback controls
 연주 관리
@@ -1497,6 +1529,21 @@ One shot and delete
 
 One shot and disable
 한 번에 사용 안 함
+
+Each 1
+매초 |||| 매 %{smart_count} 초
+
+Each 60
+매분 |||| 매 %{smart_count} 분
+
+Each 3600
+매시간 |||| 매 %{smart_count} 시간
+
+Each 86400
+매일 |||| 매 %{smart_count} 일
+
+Each 604800
+매주 |||| 매 %{smart_count} 주
 
 Missing translations
 선택한 언어에 % {smart_count}개의 번역이 없습니다 |||| 선택한 언어에 % {smart_count}개의 번역이 없습니다
@@ -1550,13 +1597,13 @@ Invalid playlist directory
 잘못된 연주목록 디렉터리
 
 Invalid stream port
-잘못된 스트리밍 포트
+잘못된 스트림 포트
 
 Playlist directory
 연주목록 디렉터리
 
 Stream port
-스트리밍 포트
+스트림 포트
 
 Volume control
 음량 조절
@@ -1595,7 +1642,7 @@ Timeout
 시간 초과
 
 Actions
-기능
+동작
 
 Covercache expiration
 음반 표지 캐시 만료
@@ -1751,4 +1798,178 @@ License
 라이센스
 
 Default actions
-기본 기능
+기본 동작
+
+Priority
+우선 순위
+
+Directory
+디렉터리
+
+Priority must be in range 0 - 255
+우선순위는 0 - 255 사이에 있어야 함
+
+Set
+설정
+
+Set song priority
+곡 우선 순위 설정
+
+Set priority
+우선 순위 설정
+
+Album details
+음반 정보
+
+AudioFormat
+오디오 포맷
+
+Not playing
+재생 중이 아님
+
+Choose a playlist or enter a new playlist name
+연주목록을 선택하거나 새로운 연주목록 입력
+
+Dialogs
+대화 상자
+
+Navigation
+내비게이션
+
+Open queue settings
+순서 설정 열기
+
+Select a playlist
+연주목록 선택
+
+Toggle autoscrolling
+자동 스크롤 전환
+
+Resize
+크기 조정
+
+Show all albums from artist
+연주자의 모든 음반 보기
+
+Show directory
+디렉터리 보기
+
+Each 
+각각
+
+Insert after current playing song
+지금 연주 중인 곡 다음에 넣기
+
+Append
+덧붙이기
+
+Replace
+바꾸기
+
+Insert at start of playlist
+연주목록의 처음에 넣기
+
+Insert mode
+추가 모드
+
+Method not supported
+방법 지원 안 됨
+
+Start playing newly added song failed
+새로 추가된 곡 연주 시작 실패
+
+Current search
+지금 찾기
+
+Replaced the queue
+순서 바꿈
+
+Updated the queue
+순서 업데이트함
+
+Replaced the playlist %{playlist}
+%{playlist} 연주목록 바꿈
+
+Updated the playlist %{playlist}
+%{playlist} 연주목록 업데이트함
+
+Cleared the playlist %{playlist}
+%{playlist} 연주목록 지움
+
+Add view to homescreen
+홈 화면에 보기 추가
+
+MPD version is outdated
+MPD 버전이 낮음
+
+Loglevel
+로그 수준
+
+Open maintenance
+유지보수 열기
+
+Covercache
+음반표지 캐시
+
+0 - Emerg
+0 - 비상
+
+1 - Alert
+1 - 경보
+
+2 - Critical
+2 - 위기
+
+3 - Error
+3 - 오류
+
+4 - Warn
+4 - 경고
+
+5 - Notice
+5 - 주의
+
+6 - Info
+6 - 정보
+
+7 - Debug
+7 - 디버그
+
+Temporary setting
+임시 설정
+
+Add to
+추가 위치
+
+Attribute
+속성
+
+Value
+값
+
+name
+이름
+
+state
+상태
+
+plugin
+플러그인
+
+Repeat current song once
+지금 곡 한 번 반복
+
+Repeat current song
+지금 곡 반복
+
+Stop playback after current song
+지금 곡 다음 연주 중지
+
+Disable single mode
+한 곡 모드 사용 안 함
+
+Homeicon
+홈 아이콘
+
+Show
+보기
