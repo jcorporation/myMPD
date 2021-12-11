@@ -108,7 +108,10 @@ function saveTimer() {
         setIsInvalid(selectTimerAction);
     }
 
-    if (jukeboxMode === '0' && selectTimerPlaylist === 'Database'&& getSelectValue(selectTimerAction) === 'startplay') {
+    if (jukeboxMode === '0' &&
+        selectTimerPlaylist === 'Database' &&
+        getSelectValue(selectTimerAction) === 'startplay')
+    {
         formOK = false;
         setIsInvalidId('btnTimerJukeboxModeGroup');
     }
@@ -224,6 +227,7 @@ function parseEditTimer(obj) {
 
 function selectTimerIntervalChange(value) {
     if (value === undefined) {
+        //change event from select itself
         value = Number(getSelectValueId('selectTimerInterval'));
     }
     else {
@@ -240,6 +244,7 @@ function selectTimerIntervalChange(value) {
         //repeat
         elShowId('groupTimerInterval');
         if (value === -2) {
+            //default interval is one day
             value = 86400;
         }
     }
