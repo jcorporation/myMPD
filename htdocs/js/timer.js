@@ -124,8 +124,10 @@ function saveTimer() {
         for (let i = 0, j = argEls.length; i < j; i++) {
             args[getData(argEls[i], 'name')] = argEls[i].value;
         }
-        let interval = Number(inputTimerIntervalEl.value);
-        if (interval > 0) {
+        let interval = Number(getSelectValueId('selectTimerInterval'));
+        if (interval === -2) {
+            //repeat
+            interval = Number(inputTimerIntervalEl.value);
             //convert interval to seconds
             const unit = Number(getSelectValueId('selectTimerIntervalUnit'));
             interval = interval * unit;
