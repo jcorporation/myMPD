@@ -216,15 +216,6 @@ minify() {
   return 0
 }
 
-createi18n() {
-  DST=$1
-  PRETTY=$2
-  cd src/i18n || exit 1
-  echo "Creating i18n json"
-  perl ./tojson.pl "$PRETTY" > "$DST"
-  cd ../.. || exit 1
-}
-
 createassets() {
   [ -z "${MYMPD_BUILDDIR+x}" ] && MYMPD_BUILDDIR="release"
 
@@ -236,7 +227,8 @@ createassets() {
   install -d "$MYMPD_BUILDDIR/htdocs/assets"
 
   #Create translation phrases file
-  createi18n "../../$MYMPD_BUILDDIR/htdocs/js/i18n.min.js" ""
+  createi18n "../../$MYMPD_BUILDDIR/htdocs/js/i18n.min.js" "" 2>/dev/null
+  transstatus $MYMPD_BUILDDIR/htdocs/js/i18n.min.js
 
   echo "Minifying javascript"
   JSSRCFILES=""
@@ -376,7 +368,8 @@ installrelease() {
 
 builddebug() {
   install -d debug/htdocs/js
-  createi18n ../../debug/htdocs/js/i18n.js pretty
+  createi18n ../../debug/htdocs/js/i18n.js pretty 2>/dev/null
+  transstatus debug/htdocs/js/i18n.js
   check_docs
   check_includes
 
@@ -959,19 +952,24 @@ purge() {
   fi
 }
 
-transstatus() {
-  TRANSOUT=$(./build.sh translate 2>&1)
-  for F in src/i18n/*-*.txt
-  do
-    T=$(basename "$F" .txt)
-    NR=$(echo "$TRANSOUT" | { grep -c "$T not found" || true; })
-    echo "$T: $NR"
-  done
+createi18n() {
+  DST=$1
+  PRETTY=$2
+  cd src/i18n || exit 1
+  echo "Creating i18n json"
+  perl ./tojson.pl "$PRETTY" > "$DST"
+  cd ../.. || exit 1
 }
 
-translate() {
-  cd src/i18n || exit 1
-  perl ./tojson.pl pretty > ../../htdocs/js/i18n.js
+transstatus() {
+  if check_cmd_silent jq
+  then
+    TFILE=$1
+    echo "Missing translation phrases:"
+    grep missingPhrases "$TFILE" | sed -e 's/.*missingPhrases=//' -e 's/;//' | jq -r | grep -E -v '\{|\}'
+  else
+    echo_warn "jq not found - can not print translation statistics"
+  fi
 }
 
 materialicons() {
@@ -1234,10 +1232,11 @@ case "$ACTION" in
 	  purge
 	;;
 	translate)
-	  translate
+	  createi18n ../../htdocs/js/i18n.js pretty
 	;;
 	transstatus)
-	  transstatus
+    createi18n ../../htdocs/js/i18n.js pretty 2>/dev/null
+	  transstatus htdocs/js/i18n.js
 	;;
 	materialicons)
 		materialicons
