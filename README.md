@@ -31,7 +31,7 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - Customizable home screen and navigation bar
 - [Smart playlists and saved searches](https://jcorporation.github.io/myMPD/references/smart-playlists)
 - Playback statistics and song voting
-- [Local albumart support: embedded and image per folder](https://jcorporation.github.io/myMPD/references/pictures)
+- [Albumart: embedded and image per folder](https://jcorporation.github.io/myMPD/references/pictures)
 - [Unsynchronized and synchronized Lyrics](https://jcorporation.github.io/myMPD/references/tags)
 - Local booklet support (per album folder)
 - HTTP stream support
