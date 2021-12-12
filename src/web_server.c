@@ -31,7 +31,7 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response);
 static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data);
 static bool handle_script_api(long long conn_id, sds body);
-static void mpd_stream_proxy_forward(struct mg_http_message *hm, struct mg_connection *nc);
+static void mpd_stream_proxy_forward(struct mg_connection *nc);
 static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 
 //public functions
@@ -244,10 +244,8 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response
 }
 
 // Reverse proxy
-static void mpd_stream_proxy_forward(struct mg_http_message *hm, struct mg_connection *nc) {
-    mg_printf(nc, "%.*s\r\n", (int) (hm->proto.ptr + hm->proto.len - hm->message.ptr), hm->message.ptr);
-    mg_send(nc, "\r\n", 2);
-    mg_send(nc, hm->body.ptr, hm->body.len);
+static void mpd_stream_proxy_forward(struct mg_connection *backend_nc) {
+    mg_printf(backend_nc, "GET / HTTP/1.1\r\n\r\n");
 }
 
 static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
@@ -413,16 +411,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     }
                 }
                 if (backend_nc != NULL) {
-                    //strip path
-                    hm->uri.ptr = "/";
-                    hm->uri.len = 1;
                     //set labels
                     backend_nc->label[0] = 'B';
                     backend_nc->label[1] = nc->label[1];
                     backend_nc->label[2] = nc->label[2];
                     //forward request
                     MYMPD_LOG_INFO("Forwarding client connection \"%lu\" to backend connection \"%lu\"", nc->id, backend_nc->id);
-                    mpd_stream_proxy_forward(hm, backend_nc);
+                    mpd_stream_proxy_forward(backend_nc);
                 }
             }
             else if (mg_http_match_uri(hm, "/ws/")) {
