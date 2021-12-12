@@ -166,8 +166,7 @@ static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
     mpd_status_free(status);
 
     time_t now = time(NULL);
-    time_t add_time = mympd_state->mpd_state->crossfade < mympd_state->mpd_state->song_end_time ?
-                      mympd_state->mpd_state->song_end_time - mympd_state->mpd_state->crossfade : 0;
+    time_t add_time = mympd_state->mpd_state->song_end_time - (mympd_state->mpd_state->crossfade + 10);
 
     MYMPD_LOG_DEBUG("Queue length: %u", queue_length);
     MYMPD_LOG_DEBUG("Min queue length: %u", mympd_state->jukebox_queue_length);

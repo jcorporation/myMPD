@@ -94,25 +94,24 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
 
     const unsigned total_time = mpd_status_get_total_time(status);
     const unsigned elapsed_time = mympd_api_get_elapsed_seconds(status);
-    unsigned uptime = time(NULL) - mympd_state->config->startup_time;
-    if (total_time > 10 && uptime > elapsed_time) {
-        time_t now = time(NULL);
-        mympd_state->mpd_state->song_end_time = now + total_time - elapsed_time - 10;
-        mympd_state->mpd_state->song_start_time = now - elapsed_time;
-        unsigned half_time = total_time / 2;
 
-        if (half_time > 240) {
-            mympd_state->mpd_state->set_song_played_time = now - elapsed_time + 240;
-        }
-        else {
-            mympd_state->mpd_state->set_song_played_time = elapsed_time < half_time ? now - (long)elapsed_time + (long)half_time : now;
-        }
-    }
-    else {
-        //don't track songs with length < 10s
-        mympd_state->mpd_state->song_end_time = 0;
-        mympd_state->mpd_state->song_start_time = 0;
+    time_t now = time(NULL);
+    unsigned uptime = now - mympd_state->config->startup_time;
+
+    mympd_state->mpd_state->song_end_time = now + total_time - elapsed_time;
+    mympd_state->mpd_state->song_start_time = now - elapsed_time;
+    unsigned half_time = total_time / 2;
+
+    if (total_time <= 10 &&  //don't track songs with length < 10s
+        uptime < half_time)  //don't track songs with played more then half before startup
+    {
         mympd_state->mpd_state->set_song_played_time = 0;
+    }
+    else if (half_time > 240) {  //set played after 4 minutes
+        mympd_state->mpd_state->set_song_played_time = now - elapsed_time + 240;
+    }
+    else { //set played after halftime of song
+        mympd_state->mpd_state->set_song_played_time = elapsed_time < half_time ? now - (long)elapsed_time + (long)half_time : now;
     }
 
     if (method == NULL) {
