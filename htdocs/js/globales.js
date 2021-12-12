@@ -388,13 +388,13 @@ const webuiSettingsDefault = {
         "form": "footerFrm"
     },
     "uiMaxElementsPerPage": {
-        "defaultValue": "100",
+        "defaultValue": 100,
         "validValues": {
-            "25": "25",
-            "50": "50",
-            "100": "100",
-            "250": "250",
-            "500": "500"
+            "25": 25,
+            "50": 50,
+            "100": 100,
+            "250": 250,
+            "500": 500
         },
         "inputType": "select",
         "contentType": "integer",

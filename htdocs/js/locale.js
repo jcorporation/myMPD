@@ -10,6 +10,10 @@ function smartCount(number) {
 }
 
 function tn(phrase, number, data) {
+    if (isNaN(phrase) === false) {
+        //do not translate numbers
+        return phrase;
+    }
     if (phrase === undefined) {
         logDebug('Phrase is undefined');
         return 'undefinedPhrase';
