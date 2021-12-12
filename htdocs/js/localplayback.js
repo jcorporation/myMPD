@@ -30,12 +30,10 @@ function createLocalPlaybackEl(createEvent) {
         el.removeAttribute('disabled');
     });
     document.getElementById('localPlayer').addEventListener('progress', function(event) {
-        if (isNaN(event.target.duration) ||
-            isFinite(event.target.duration) === false)
-        {
+        if (isNaN(event.target.duration)) {
             return;
         }
-        document.getElementById('localPlayerProgress').textContent = beautifySongDuration(event.target.duration);
+        document.getElementById('localPlayerProgress').textContent = beautifySongDuration(event.target.currentTime);
     });
     for (const ev of ['error', 'abort', 'stalled']) {
         document.getElementById('localPlayer').addEventListener(ev, function(event) {
@@ -45,7 +43,7 @@ function createLocalPlaybackEl(createEvent) {
             }
             logError('localPlayer event: ' + ev);
             elShowId('errorLocalPlayback');
-            el.textContent = tn('Retry');
+            el.textContent = 'play_arrow';
             el.removeAttribute('disabled');
             setData(el, 'state', 'stop');
             elClear(document.getElementById('localPlayerProgress'));
