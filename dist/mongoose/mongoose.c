@@ -1509,7 +1509,8 @@ void mg_http_serve_dir(struct mg_connection *c, struct mg_http_message *hm,
   const char *sp = opts->ssi_pattern;
   int flags = uri_to_path(c, hm, opts, path, sizeof(path));
   if (flags == 0) return;
-  LOG(LL_DEBUG, ("%.*s %s %d", (int) hm->uri.len, hm->uri.ptr, path, flags));
+  LOG(LL_VERBOSE_DEBUG,
+      ("%.*s %s %d", (int) hm->uri.len, hm->uri.ptr, path, flags));
   if (flags & MG_FS_DIR) {
     listdir(c, hm, opts, path);
   } else if (sp != NULL && mg_globmatch(sp, strlen(sp), path, strlen(path))) {
@@ -2400,6 +2401,13 @@ static bool mg_atonl(struct mg_str str, struct mg_addr *addr) {
   return true;
 }
 
+static bool mg_atone(struct mg_str str, struct mg_addr *addr) {
+  if (str.len > 0) return false;
+  addr->ip = 0;
+  addr->is_ip6 = false;
+  return true;
+}
+
 static bool mg_aton4(struct mg_str str, struct mg_addr *addr) {
   uint8_t data[4] = {0, 0, 0, 0};
   size_t i, num_dots = 0;
@@ -2476,7 +2484,8 @@ static bool mg_aton6(struct mg_str str, struct mg_addr *addr) {
 
 bool mg_aton(struct mg_str str, struct mg_addr *addr) {
   // LOG(LL_INFO, ("[%.*s]", (int) str.len, str.ptr));
-  return mg_atonl(str, addr) || mg_aton4(str, addr) || mg_aton6(str, addr);
+  return mg_atone(str, addr) || mg_atonl(str, addr) || mg_aton4(str, addr) ||
+         mg_aton6(str, addr);
 }
 
 void mg_mgr_free(struct mg_mgr *mgr) {
@@ -2946,9 +2955,9 @@ static struct mg_connection *alloc_conn(struct mg_mgr *mgr, bool is_client,
 
 static long mg_sock_send(struct mg_connection *c, const void *buf, size_t len) {
   long n;
-#if defined(_WIN32)
+#if !defined(__APPLE__)
   // See #1338, #1382. On Windows, UDP send() can fail despite connected.
-  // Use sendto() instead. But not UNIX: e.g. on Mac we'll get EISCONN
+  // Use sendto() instead. But not on Mac - we'll get EISCONN
   if (c->is_udp) {
     union usa usa;
     socklen_t slen = tousa(&c->peer, &usa);
