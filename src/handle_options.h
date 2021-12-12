@@ -11,6 +11,6 @@
 
 #include <stdbool.h>
 
-bool handle_options(struct t_config *config, int argc, char **argv);
+int handle_options(struct t_config *config, int argc, char **argv);
 
 #endif

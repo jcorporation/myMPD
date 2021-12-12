@@ -285,9 +285,17 @@ int main(int argc, char **argv) {
     mympd_config_defaults_initial(config);
 
     //command line option
-    if (handle_options(config, argc, argv) == false) {
-        loglevel = LOG_ERR;
-        goto cleanup;
+    int handle_options_rc = handle_options(config, argc, argv);
+    switch(handle_options_rc) {
+        case -1:
+            //invalid option
+            loglevel = LOG_ERR;
+            goto cleanup;
+        case 1:
+            //valid option and exit
+            loglevel = LOG_ERR;
+            rc = EXIT_SUCCESS;
+            goto cleanup;
     }
 
     //check initial directories
