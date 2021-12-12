@@ -183,8 +183,10 @@ static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
         add_time > 0 &&
         queue_length <= mympd_state->jukebox_queue_length)
     {
-        MYMPD_LOG_DEBUG("Time now %d greater than add_time %d, adding song", now, add_time);
-        add_songs++;
+        if (add_songs == 0) {
+            add_songs++;
+        }
+        MYMPD_LOG_DEBUG("Time now %d greater than add_time %d, adding %u song(s)", now, add_time, add_songs);
     }
 
     if (add_songs < 1) {
