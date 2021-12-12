@@ -626,16 +626,14 @@
         <div class="btn-group dropup featLocalPlayback ms-2">
           <button data-title-phrase="Local playback" id="localPlaybackMenu" class="btn btn-dark dropdown-toggle px-2" type="button" data-bs-toggle="dropdown"><span class="mi">airplay</span></button>
           <div class="dropdown-menu dropdown-menu-dark">
-            <h2 data-phrase="Local playback" class="dropdown-header dropdown-header-lx"></h2>
-            <div id="alertLocalPlayback" class="alert alert-warning mx-3 p-2 d-none">
-              <span data-phrase="Connecting to stream..."></span>
-              <a class="btn btn-sm btn-warning float-end mi mi-small px-1">refresh</a>
+            <h5 class="dropdown-header"><span class="mi mi-small me-2">airplay</span><span data-phrase="Local playback"></span></h5>
+            <hr class="mt-0"/>
+            <div id="errorLocalPlayback" class="alert alert-danger mx-3 p-2 d-none" data-phrase="Error loading stream"></div>
+            <audio class="mx-3" id="localPlayer" preload="none"></audio>
+            <div class="d-grid mx-3">
+              <div class="mb-3"><span data-phrase="Duration"></span>: <span id="localPlayerProgress"></span></div>
+              <button id="localPlaybackBtn" class="btn btn-success mi" data-href='{"cmd": "createLocalPlaybackEl", "options": []}'>play_arrow</button>
             </div>
-            <div id="errorLocalPlayback" class="alert alert-danger mx-3 p-2 d-none">
-              <span data-phrase="Error loading stream"></span>
-              <a class="btn btn-sm btn-danger float-end mi mi-small px-1">refresh</a>
-            </div>
-            <audio class="mx-3" id="localPlayer" preload="none" controls=""></audio>
           </div>
         </div>
       </div>

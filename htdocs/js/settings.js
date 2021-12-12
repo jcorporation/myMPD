@@ -318,11 +318,6 @@ function parseSettings(obj) {
         elHideId('btnStop');
     }
 
-    //set local playback url
-    if (settings.webuiSettings.enableLocalPlayback === true) {
-        setLocalPlayerUrl();
-    }
-
     //parse mpd settings if connected
     if (settings.mpdConnected === true) {
         parseMPDSettings();

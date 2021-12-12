@@ -1979,3 +1979,6 @@ Wiedergabeeinstellungen konnten nicht gespeichert werden
 
 Can't set playback options: MPD not connected
 Wiedergabeeinstellungen konnten nicht gespeichert werden: keine Verbidnung zum MPD Server
+
+Retry
+Erneut versuchen

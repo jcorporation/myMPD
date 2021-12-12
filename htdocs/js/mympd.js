@@ -635,7 +635,6 @@ function appInit() {
     initTimer();
     initPartitions();
     initMounts();
-    initLocalplayer();
     initSettings();
     initPlayback();
     initNavs();

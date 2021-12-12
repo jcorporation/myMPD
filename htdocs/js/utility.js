@@ -987,6 +987,9 @@ function parseCmd(event, href) {
             case 'sendAPI':
                 sendAPI(cmd.options[0].cmd, {});
                 break;
+            case 'createLocalPlaybackEl':
+                window[cmd.cmd](event, ... cmd.options);
+                break;
             case 'toggleBtn':
             case 'toggleBtnChk':
             case 'toggleBtnGroup':
