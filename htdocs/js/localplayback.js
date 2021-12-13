@@ -6,9 +6,9 @@
 //eslint-disable-next-line no-unused-vars
 function createLocalPlaybackEl(createEvent) {
     createEvent.stopPropagation();
-    const el = createEvent.target;
+    const el = createEvent.target.nodeName === 'SPAN' ? createEvent.target.parentNode : createEvent.target;
     const curState = getData(el, 'state');
-    el.textContent = 'play_arrow';
+    elReplaceChild(el, elCreateText('span', {"class": ["mi"]}, 'play_arrow'));
 
     //stop playback off old audio element
     const curAudioEl = document.getElementById('localPlayer');
@@ -26,8 +26,8 @@ function createLocalPlaybackEl(createEvent) {
         logDebug('localPlayer event: canplay');
         elHideId('errorLocalPlayback');
         setData(el, 'state', 'play');
-        el.textContent = 'stop';
-        el.removeAttribute('disabled');
+        btnWaiting(el, false);
+        elReplaceChild(el, elCreateText('span', {"class": ["mi"]}, 'stop'));
     });
     document.getElementById('localPlayer').addEventListener('progress', function(event) {
         if (isNaN(event.target.duration)) {
@@ -43,9 +43,9 @@ function createLocalPlaybackEl(createEvent) {
             }
             logError('localPlayer event: ' + ev);
             elShowId('errorLocalPlayback');
-            el.textContent = 'play_arrow';
-            el.removeAttribute('disabled');
             setData(el, 'state', 'stop');
+            btnWaiting(el, false);
+            elReplaceChild(el, elCreateText('span', {"class": ["mi"]}, 'play_arrow'));
             elClear(document.getElementById('localPlayerProgress'));
         });
     }
@@ -57,8 +57,8 @@ function createLocalPlaybackEl(createEvent) {
             (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/stream/';
         localPlayer.load();
         localPlayer.play();
-        el.textContent = 'autorenew';
-        el.setAttribute('disabled', 'disabled');
+        elClear(el);
+        btnWaiting(el, true);
     }
     else {
         setData(el, 'state', 'stop');
