@@ -21,11 +21,15 @@ function appPrepare(scrollPos) {
         //show active card
         elShowId('card' + app.current.card);
         //show active tab
-        if (app.current.tab !== undefined) {
+        if (app.current.tab !== undefined &&
+            app.current.tag !== '')
+        {
             elShowId('tab' + app.current.card + app.current.tab);
         }
         //show active view
-        if (app.current.view !== undefined) {
+        if (app.current.view !== undefined &&
+            app.current.view !== '')
+        {
             elShowId('view' + app.current.card + app.current.tab + app.current.view);
         }
         //show active navbar icon
@@ -218,7 +222,9 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 "searchstr": app.current.search
             }, parseLastPlayed, true);
             const searchQueueLastPlayedStrEl = document.getElementById('searchQueueLastPlayedStr');
-            if (searchQueueLastPlayedStrEl.value === '' && app.current.search !== '') {
+            if (searchQueueLastPlayedStrEl.value === '' &&
+                app.current.search !== '')
+            {
                 searchQueueLastPlayedStrEl.value = app.current.search;
             }
             break;
@@ -231,7 +237,9 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 "searchstr": app.current.search
             }, parseJukeboxList, true);
             const searchQueueJukeboxStrEl = document.getElementById('searchQueueJukeboxStr');
-            if (searchQueueJukeboxStrEl.value === '' && app.current.search !== '') {
+            if (searchQueueJukeboxStrEl.value === '' &&
+                app.current.search !== '')
+            {
                 searchQueueJukeboxStrEl.value = app.current.search;
             }
             break;
@@ -244,7 +252,9 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 "type": 0
             }, parsePlaylistsList, true);
             const searchPlaylistsStrEl = document.getElementById('searchPlaylistsListStr');
-            if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
+            if (searchPlaylistsStrEl.value === '' &&
+                app.current.search !== '')
+            {
                 searchPlaylistsStrEl.value = app.current.search;
             }
             break;
@@ -258,7 +268,9 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 "cols": settings.colsBrowsePlaylistsDetailFetch
             }, parsePlaylistsDetail, true);
             const searchPlaylistsStrEl = document.getElementById('searchPlaylistsDetailStr');
-            if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
+            if (searchPlaylistsStrEl.value === '' &&
+                app.current.search !== '')
+            {
                 searchPlaylistsStrEl.value = app.current.search;
             }
             break;
@@ -272,13 +284,15 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 "cols": settings.colsBrowseFilesystemFetch
             }, parseFilesystem, true);
             //Don't add all songs from root
-            if (app.current.search) {
-                elEnableId('BrowseFilesystemAddAllSongs');
-                elEnableId('BrowseFilesystemAddAllSongsBtn');
+            if (app.current.search === '') {
+                elHideId('BrowseFilesystemAddAllSongsGrp');
+                if (features.featHome === true) {
+                    elShowId('BrowseFilesystemAddToHome');
+                }
             }
             else {
-                elDisableId('BrowseFilesystemAddAllSongs');
-                elDisableId('BrowseFilesystemAddAllSongsBtn');
+                elShowId('BrowseFilesystemAddAllSongsGrp');
+                elHideId('BrowseFilesystemAddToHome');
             }
             //Create breadcrumb
             const crumbEl = document.getElementById('BrowseBreadcrumb');
@@ -366,7 +380,9 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             if (features.featAdvsearch) {
                 createSearchCrumbs(app.current.search, document.getElementById('searchstr'), document.getElementById('searchCrumb'));
             }
-            else if (document.getElementById('searchstr').value === '' && app.current.search !== '') {
+            else if (document.getElementById('searchstr').value === '' &&
+                app.current.search !== '')
+            {
                 document.getElementById('searchstr').value = app.current.search;
             }
             if (app.current.search === '') {
@@ -780,13 +796,10 @@ function initNavs() {
             currentState.totalTime > 0)
         {
             const seekVal = Math.ceil((currentState.totalTime * event.clientX) / domCache.progress.offsetWidth);
-            sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {"seek": seekVal, "relative": false});
-            domCache.progressBar.style.transition = 'none';
-            elReflow(domCache.progressBar);
-            domCache.progressBar.style.width = event.clientX + 'px';
-            elReflow(domCache.progressBar);
-            domCache.progressBar.style.transition = progressBarTransition;
-            elReflow(domCache.progressBar);
+            sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
+                "seek": seekVal,
+                "relative": false
+            });
         }
     }, false);
 
