@@ -488,7 +488,7 @@
               <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchFilesystemStr"/>
             </div>
           </form>
-          <div class="btn-group me-2">
+          <div class="btn-group me-2" id="BrowseFilesystemAddAllSongsGrp">
             <button data-title-phrase="Append to queue" data-href='{"cmd": "addAllFromSearch", "options": ["append", "dir"]}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary"><span class="mi">library_add</span></button>
             <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
             <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide" id="BrowseFilesystemAddAllSongsDropdown">
@@ -502,6 +502,9 @@
                 <button data-href='{"cmd": "addDirToHome", "options": []}' data-phrase="Add to homescreen" type="button" class="btn btn-secondary btn-sm featHome"></button>
               </div>
             </div>
+          </div>
+          <div class="btn-group me-2 featHome" id="BrowseFilesystemAddToHome">
+            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
           </div>
           <div id="BrowseFilesystemPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
@@ -632,7 +635,7 @@
             <audio class="mx-3" id="localPlayer" preload="none"></audio>
             <div class="d-grid mx-3">
               <div class="mb-3"><span data-phrase="Duration"></span>: <span id="localPlayerProgress"></span></div>
-              <button id="localPlaybackBtn" class="btn btn-success mi" data-href='{"cmd": "createLocalPlaybackEl", "options": []}'>play_arrow</button>
+              <button id="localPlaybackBtn" class="btn btn-success" data-href='{"cmd": "createLocalPlaybackEl", "options": []}'><span class="mi">play_arrow</span></button>
             </div>
           </div>
         </div>
@@ -1213,7 +1216,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <button type="button" class="btn btn-success" data-href='{"cmd": "saveQueueSettings", "options": []}' data-phrase="Save"></button>
+          <button id="btnSaveQueueSettings" type="button" class="btn btn-success" data-href='{"cmd": "saveQueueSettings", "options": []}' data-phrase="Save"></button>
         </div>
       </div>
     </div>
