@@ -629,6 +629,10 @@ function focusSearch() {
     }
 }
 
+function btnWaitingId(id, waiting) {
+    btnWaiting(document.getElementById(id), waiting);
+}
+
 function btnWaiting(btn, waiting) {
     if (waiting === true) {
         const spinner = elCreateEmpty('span', {"class": ["spinner-border", "spinner-border-sm", "me-2"]});

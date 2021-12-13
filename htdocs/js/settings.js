@@ -1051,6 +1051,7 @@ function saveQueueSettings() {
     }
 
     if (formOK === true) {
+        btnWaitingId('btnSaveQueueSettings', true);
         sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random": (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
@@ -1069,6 +1070,7 @@ function saveQueueSettings() {
 }
 
 function saveQueueSettingsClose(obj) {
+    btnWaitingId('btnSaveQueueSettings', false);
     if (obj.error) {
         showModalAlert(obj);
     }
