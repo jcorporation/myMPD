@@ -303,7 +303,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             if (json_iterate_object(request->data, "$.params", mympd_api_settings_mpd_options_set, mympd_state, NULL, 100, &error) == true) {
                 if (mympd_state->jukebox_mode != JUKEBOX_OFF) {
-                    //enable jukebox
+                    //start jukebox
                     mpd_client_jukebox(mympd_state);
                 }
                 //respond with ok
@@ -566,6 +566,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         case INTERNAL_API_ALBUMCACHE_CREATED:
             if (request->extra != NULL) {
                 //first clear the jukebox queue - it has references to the album cache
+                MYMPD_LOG_INFO("Clearing jukebox queue");
                 mpd_client_clear_jukebox(&mympd_state->jukebox_queue);
                 //free the old album cache and replace it with the freshly generated one
                 album_cache_free(&mympd_state->album_cache);
