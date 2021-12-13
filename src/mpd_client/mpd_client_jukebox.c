@@ -18,6 +18,7 @@
 #include "../mpd_shared/mpd_shared_search.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
+#include "../mympd_api/mympd_api_queue.h"
 #include "../mympd_api/mympd_api_utility.h"
 
 #include <errno.h>
@@ -153,6 +154,7 @@ bool mpd_client_jukebox(struct t_mympd_state *mympd_state) {
          }
          MYMPD_LOG_ERROR("Jukebox: trying again, attempt %d", i);
     }
+    
     return false;
 }
 
@@ -205,6 +207,14 @@ static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
     }
 
     bool rc = mpd_client_jukebox_add_to_queue(mympd_state, add_songs, mympd_state->jukebox_mode, mympd_state->jukebox_playlist, false);
+
+    //update playback state
+    mympd_api_queue_status(mympd_state, NULL);
+    if (mympd_state->mpd_state->state != MPD_STATE_PLAY) {
+        MYMPD_LOG_DEBUG("Jukebox: start playback");
+        rc = mpd_run_play(mympd_state->mpd_state->conn);
+        check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_play");    
+    }
 
     if (rc == true) {
         //notify clients

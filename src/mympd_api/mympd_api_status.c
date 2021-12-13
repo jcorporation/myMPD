@@ -98,7 +98,13 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     time_t now = time(NULL);
     unsigned uptime = now - mympd_state->config->startup_time;
 
-    mympd_state->mpd_state->song_end_time = now + total_time - elapsed_time;
+    if (total_time == 0) {
+        //no song end time for streams
+        mympd_state->mpd_state->song_end_time = 0;
+    }
+    else {
+        mympd_state->mpd_state->song_end_time = now + total_time - elapsed_time;
+    }
     mympd_state->mpd_state->song_start_time = now - elapsed_time;
     unsigned half_time = total_time / 2;
 

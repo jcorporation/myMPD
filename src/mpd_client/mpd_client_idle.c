@@ -299,7 +299,8 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 if (mympd_state->jukebox_mode != JUKEBOX_OFF) {
                     //add time is crossfade + 10s before song end time
                     time_t add_time = mympd_state->mpd_state->song_end_time - (mympd_state->mpd_state->crossfade + 10);
-                    if (now >= add_time && add_time > 0 &&
+                    if (now > add_time &&
+                        add_time > 0 &&
                         mympd_state->mpd_state->queue_length <= mympd_state->jukebox_queue_length)
                     {
                         jukebox_add_song = true;
