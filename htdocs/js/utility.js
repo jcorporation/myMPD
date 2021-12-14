@@ -1180,6 +1180,10 @@ function getTimestamp() {
 }
 
 function setScrollViewHeight(container) {
+    if (isMobile === true) {
+        container.parentNode.style.maxHeight = '';
+        return;
+    }
     const footerHeight = document.getElementsByTagName('footer')[0].offsetHeight;
     const tpos = getYpos(container.parentNode);
     const maxHeight = window.innerHeight - tpos - footerHeight;

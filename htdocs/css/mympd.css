@@ -147,7 +147,7 @@ html {
 body {
   min-height: 100vh;
   padding-top: 3rem;
-  padding-bottom: 4rem;
+  padding-bottom: 5rem;
   background-color: var(--mympd-backgroundcolor);
   background-position: center center;
   background-attachment: fixed;
