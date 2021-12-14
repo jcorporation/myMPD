@@ -11,8 +11,6 @@
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
-#include "mpd_client_features.h"
-#include "mpd_client_jukebox.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "../mpd_worker.h"
@@ -25,6 +23,8 @@
 #include "../mympd_api/mympd_api_timer_handlers.h"
 #include "../mympd_api/mympd_api_trigger.h"
 #include "../mympd_api/mympd_api_utility.h"
+#include "mpd_client_features.h"
+#include "mpd_client_jukebox.h"
 
 #include <poll.h>
 #include <string.h>
@@ -175,10 +175,10 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
         case MPD_DISCONNECTED:
             //try to connect
             if (strncmp(mympd_state->mpd_state->mpd_host, "/", 1) == 0) {
-                MYMPD_LOG_NOTICE("Connecting to MPD socket %s", mympd_state->mpd_state->mpd_host);
+                MYMPD_LOG_NOTICE("Connecting to MPD socket \"%s\"", mympd_state->mpd_state->mpd_host);
             }
             else {
-                MYMPD_LOG_NOTICE("Connecting to MPD host %s:%d", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port);
+                MYMPD_LOG_NOTICE("Connecting to MPD host \"%s:%d\"", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port);
             }
             mympd_state->mpd_state->conn = mpd_connection_new(mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_timeout);
             if (mympd_state->mpd_state->conn == NULL) {
@@ -237,7 +237,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             //initiate cache updates
             update_mympd_caches(mympd_state);
             //set timer for smart playlist update
-            mympd_api_timer_replace(&mympd_state->timer_list, 10, (int)mympd_state->smartpls_interval, timer_handler_smartpls_update, 2, NULL, NULL);
+            mympd_api_timer_replace(&mympd_state->timer_list, 30, (int)mympd_state->smartpls_interval, timer_handler_smartpls_update, 2, NULL, NULL);
             //jukebox
             if (mympd_state->jukebox_mode != JUKEBOX_OFF) {
                 mpd_client_jukebox(mympd_state);
@@ -293,6 +293,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                     mympd_state->mpd_state->set_song_played_time > 0 &&
                     mympd_state->mpd_state->last_last_played_id != mympd_state->mpd_state->song_id)
                 {
+                    MYMPD_LOG_DEBUG("Song has played half: %u", mympd_state->mpd_state->set_song_played_time);
                     set_played = true;
                 }
                 //check if the jukebox should add a song
@@ -303,6 +304,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                         add_time > 0 &&
                         mympd_state->mpd_state->queue_length <= mympd_state->jukebox_queue_length)
                     {
+                        MYMPD_LOG_DEBUG("Jukebox should add song");
                         jukebox_add_song = true;
                     }
                 }

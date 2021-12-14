@@ -87,10 +87,10 @@ static void *mpd_worker_run(void *arg) {
 
 static bool mpd_worker_connect(struct t_mpd_worker_state *mpd_worker_state) {
     if (strncmp(mpd_worker_state->mpd_state->mpd_host, "/", 1) == 0) {
-        MYMPD_LOG_NOTICE("MPD worker connecting to socket %s", mpd_worker_state->mpd_state->mpd_host);
+        MYMPD_LOG_NOTICE("MPD worker connecting to socket \"%s\"", mpd_worker_state->mpd_state->mpd_host);
     }
     else {
-        MYMPD_LOG_NOTICE("MPD worker connecting to %s:%d", mpd_worker_state->mpd_state->mpd_host, mpd_worker_state->mpd_state->mpd_port);
+        MYMPD_LOG_NOTICE("MPD worker connecting to \"%s:%d\"", mpd_worker_state->mpd_state->mpd_host, mpd_worker_state->mpd_state->mpd_port);
     }
     mpd_worker_state->mpd_state->conn = mpd_connection_new(mpd_worker_state->mpd_state->mpd_host, mpd_worker_state->mpd_state->mpd_port, mpd_worker_state->mpd_state->mpd_timeout);
     if (mpd_worker_state->mpd_state->conn == NULL) {
