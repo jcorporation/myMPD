@@ -60,7 +60,7 @@ static void mympd_signal_handler(int sig_num) {
         //Wakeup queue loops
         pthread_cond_signal(&mympd_api_queue->wakeup);
         pthread_cond_signal(&mympd_script_queue->wakeup);
-        MYMPD_LOG_NOTICE("Signal %s received, exiting", (sig_num == SIGTERM ? "SIGTERM" : "SIGINT"));
+        MYMPD_LOG_NOTICE("Signal \"%s\" received, exiting", (sig_num == SIGTERM ? "SIGTERM" : "SIGINT"));
     }
     else if (sig_num == SIGHUP) {
         MYMPD_LOG_NOTICE("Signal SIGHUP received, saving states");
@@ -90,7 +90,7 @@ static bool do_chown(const char *file_path, const char *user_name) {
 
 static bool drop_privileges(struct t_config *config, uid_t startup_uid) {
     if (startup_uid == 0 && sdslen(config->user) > 0) {
-        MYMPD_LOG_NOTICE("Droping privileges to %s", config->user);
+        MYMPD_LOG_NOTICE("Droping privileges to user \"%s\"", config->user);
         //get user
         struct passwd *pw;
         errno = 0;
@@ -137,7 +137,7 @@ static bool drop_privileges(struct t_config *config, uid_t startup_uid) {
 }
 
 static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
-    int testdir_rc = testdir("Workdir", config->workdir, true);
+    int testdir_rc = testdir("Work dir", config->workdir, true);
     if (testdir_rc == DIR_CREATE_FAILED) {
         //workdir is not accessible
         return false;
@@ -161,7 +161,7 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     }
     FREE_SDS(testdirname);
 
-    testdir_rc = testdir("Cachedir", config->cachedir, true);
+    testdir_rc = testdir("Cache dir", config->cachedir, true);
     if (testdir_rc == DIR_CREATE_FAILED) {
         //cachedir is not accessible
         return false;
@@ -341,21 +341,21 @@ int main(int argc, char **argv) {
     #endif
 
     MYMPD_LOG_NOTICE("Starting myMPD %s", MYMPD_VERSION);
-    MYMPD_LOG_NOTICE("Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i",
+    MYMPD_LOG_INFO("Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i",
             LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION,
             LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
-    MYMPD_LOG_NOTICE("Mongoose %s", MG_VERSION);
+    MYMPD_LOG_INFO("Mongoose %s", MG_VERSION);
     #ifdef ENABLE_LUA
-        MYMPD_LOG_NOTICE("%s", LUA_RELEASE);
+        MYMPD_LOG_INFO("%s", LUA_RELEASE);
     #endif
     #ifdef ENABLE_LIBID3TAG
-        MYMPD_LOG_NOTICE("Libid3tag %s", ID3_VERSION);
+        MYMPD_LOG_INFO("Libid3tag %s", ID3_VERSION);
     #endif
     #ifdef ENABLE_FLAC
-        MYMPD_LOG_NOTICE("FLAC %d.%d.%d", FLAC_API_VERSION_CURRENT, FLAC_API_VERSION_REVISION, FLAC_API_VERSION_AGE);
+        MYMPD_LOG_INFO("FLAC %d.%d.%d", FLAC_API_VERSION_CURRENT, FLAC_API_VERSION_REVISION, FLAC_API_VERSION_AGE);
     #endif
     #ifdef ENABLE_SSL
-        MYMPD_LOG_NOTICE("%s", OPENSSL_VERSION_TEXT);
+        MYMPD_LOG_INFO("%s", OPENSSL_VERSION_TEXT);
     #endif
 
     //set signal handler

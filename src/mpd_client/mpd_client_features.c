@@ -65,11 +65,11 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
         mympd_state->mpd_state->feat_mpd_single_oneshot = true;
         MYMPD_LOG_NOTICE("Enabling single oneshot feature");
         mympd_state->mpd_state->feat_mpd_advsearch = true;
-        MYMPD_LOG_INFO("Enabling advanced search");
+        MYMPD_LOG_INFO("Enabling advanced search feature");
     }
     else {
         MYMPD_LOG_WARN("Disabling single oneshot feature, depends on mpd >= 0.21.0");
-        MYMPD_LOG_WARN("Disabling advanced search, depends on mpd >= 0.21.0");
+        MYMPD_LOG_WARN("Disabling advanced search feature, depends on mpd >= 0.21.0");
     }
 
     if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 22, 0) >= 0) {
@@ -77,7 +77,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
         MYMPD_LOG_NOTICE("Enabling partitions feature");
     }
     else {
-        MYMPD_LOG_WARN("Disabling partitions support, depends on mpd >= 0.22.0");
+        MYMPD_LOG_WARN("Disabling partitions feature, depends on mpd >= 0.22.0");
     }
 
     if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 22, 4) >= 0 ) {
@@ -85,7 +85,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
         MYMPD_LOG_NOTICE("Enabling binarylimit feature");
     }
     else {
-        MYMPD_LOG_WARN("Disabling binarylimit support, depends on mpd >= 0.22.4");
+        MYMPD_LOG_WARN("Disabling binarylimit feature, depends on mpd >= 0.22.4");
     }
 
     if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 23, 3) >= 0 ) {
@@ -93,23 +93,23 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
         MYMPD_LOG_NOTICE("Enabling delete playlist range feature");
     }
     else {
-        MYMPD_LOG_WARN("Disabling delete playlist range support, depends on mpd >= 0.23.3");
+        MYMPD_LOG_WARN("Disabling delete playlist range feature, depends on mpd >= 0.23.3");
     }
 
     if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 23, 5) >= 0 ) {
         mympd_state->mpd_state->feat_mpd_whence = true;
-        MYMPD_LOG_NOTICE("Enabling support for position whence feature");
+        MYMPD_LOG_NOTICE("Enabling position whence feature");
     }
     else {
-        MYMPD_LOG_WARN("Disabling position whence support, depends on mpd >= 0.23.5");
+        MYMPD_LOG_WARN("Disabling position whence feature, depends on mpd >= 0.23.5");
     }
 
     if (mympd_state->mpd_state->feat_mpd_advsearch == true && mympd_state->mpd_state->feat_mpd_playlists == true) {
-        MYMPD_LOG_NOTICE("Enabling support of smart playlists");
+        MYMPD_LOG_NOTICE("Enabling smart playlists feature");
         mympd_state->mpd_state->feat_mpd_smartpls = true;
     }
     else {
-        MYMPD_LOG_WARN("Disabling support of smart playlists");
+        MYMPD_LOG_WARN("Disabling smart playlists feature");
     }
 
     //push settings to web_server_queue
@@ -274,15 +274,15 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
 
     //set feat_library
     if (sdslen(mympd_state->music_directory_value) == 0) {
-        MYMPD_LOG_WARN("Disabling featLibrary support");
+        MYMPD_LOG_WARN("Disabling library feature, music directory not defined");
         mympd_state->mpd_state->feat_mpd_library = false;
     }
     else if (testdir("MPD music_directory", mympd_state->music_directory_value, false) == DIR_EXISTS) {
-        MYMPD_LOG_NOTICE("Enabling featLibrary support");
+        MYMPD_LOG_NOTICE("Enabling library feature");
         mympd_state->mpd_state->feat_mpd_library = true;
     }
     else {
-        MYMPD_LOG_WARN("Disabling featLibrary support");
+        MYMPD_LOG_WARN("Disabling library feature, music directory not accessible");
         mympd_state->mpd_state->feat_mpd_library = false;
         sdsclear(mympd_state->music_directory_value);
     }
