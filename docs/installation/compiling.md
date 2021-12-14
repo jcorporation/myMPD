@@ -41,6 +41,8 @@ myMPD has only a few dependencies beside the standard c libraries. Not installin
 
 You can type `./build.sh installdeps` as root to install the dependencies (works only for supported distributions). For all other distributions you must install the packages manually.
 
+- Build it in [Termux]({{ site.baseurl }}/installation/termux)
+
 ## Packaging
 
 You can self create packages for your distribution:
@@ -95,7 +97,7 @@ You can use `./build.sh releaseinstall` to compile and install in one step.
 - `./build.sh memcheck` builds the debug binaries
   - Directory: debug
   - Plain assets in htdocs directory
-  - Binary is statically linked with libasan3
+  - Binary is statically linked with libasan
 
 ### Test
 
