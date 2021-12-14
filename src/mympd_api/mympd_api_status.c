@@ -108,7 +108,7 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     mympd_state->mpd_state->song_start_time = now - elapsed_time;
     unsigned half_time = total_time / 2;
 
-    if (total_time <= 10 &&  //don't track songs with length < 10s
+    if (total_time <= 10 ||  //don't track songs with length < 10s
         uptime < half_time)  //don't track songs with played more then half before startup
     {
         mympd_state->mpd_state->set_song_played_time = 0;
