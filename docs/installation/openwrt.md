@@ -7,7 +7,7 @@ title: OpenWrt
 ## Building with SDK
 
 1. Download desired version of OpenWrt SDK for Your device from: [https://openwrt.org/downloads](https://openwrt.org/downloads)
-   The SDK must match the version of OpenWrt istalled on Your device.
+   The SDK must match the version of OpenWrt installed on Your device.
 2. Unpack SDK and change current directory to it.
 3. Run following commands to download dependencies recipes:
     ```
