@@ -13,7 +13,7 @@ pkg upgrade
 pkg install build-essential cmake perl pcre2 openssl libid3tag libflac lua54 git
 ```
 
-#### Now to compile it
+## Now to compile it
 3. Clone the git repo (depth makes it download only the last commit making it much smaller and faster to download)
 ```
 git clone https://github.com/jcorporation/myMPD.git --depth=1
@@ -26,7 +26,7 @@ export EXTRA_CMAKE_OPTIONS="-DLUA_MATH_LIBRARY=/system/lib64/libm.so" # substitu
 ./build.sh release
 ```
 
-#### Initial config
+## Initial config
 5. Create the config directory for myMPD and run it to create the config files from the environment variables
 ```
 mkdir -p $HOME/.config/mympd
@@ -41,13 +41,13 @@ export MYMPD_SSL_PORT=443
 $HOME/myMPD/release/mympd -w $HOME/.config/mympd # run it
 ```
 
-#### Running it
+## Running it
 After this run myMPD with just this, the rest is necessary for the first start only
 ```
 $HOME/myMPD/release/mympd -w $HOME/.config/mympd
 ```
 
-#### Running with root (if you want to use lower ports, or use SSL)
+## Running with root (if you want to use lower ports, or use SSL)
 I made this little script which should run mympd as root with little trouble **(run it as the user!)**
 ```
 #!/bin/bash
