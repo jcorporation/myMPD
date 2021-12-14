@@ -22,7 +22,8 @@ Following distributions are supported:
 
 ## Dependencies
 
+- libpcre2: for pcre support
 - OpenSSL >= 1.1.0 (optional): for https support
 - libid3tag (optional): to extract embedded albumart
-- libflac (optional): to extract embedded albumart
+- flac (optional): to extract embedded albumart
 - liblua >= 5.3.0 (optional): for scripting myMPD
