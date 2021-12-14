@@ -36,9 +36,6 @@ About
 Local playback
 로컬 연주
 
-Connecting to stream...
-스트림에 연결 중...
-
 Error loading stream
 스트림 읽기 오류
 

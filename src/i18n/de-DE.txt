@@ -36,9 +36,6 @@ About
 Local playback
 Lokale Wiedergabe
 
-Connecting to stream...
-Verbinde...
-
 Error loading stream
 Fehler beim Laden des Streams
 
@@ -1979,3 +1976,9 @@ Wiedergabeeinstellungen konnten nicht gespeichert werden
 
 Can't set playback options: MPD not connected
 Wiedergabeeinstellungen konnten nicht gespeichert werden: keine Verbidnung zum MPD Server
+
+Addings songs from jukebox to queue failed
+Es konnten keine Lieder von der Jukebox zur Warteschlange hinzugefügt werden
+
+Filling jukebox queue
+Jukebox Warteschlange wird aufgefüllt
