@@ -166,7 +166,7 @@ void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_messag
             mg_http_serve_file(nc, hm, asset_image, &s_http_server_opts);
         #else
             asset_image = sdscatfmt(asset_image, "/assets/%s.svg", name);
-            webserver_serve_embedded_files(nc, asset_image, hm);
+            webserver_serve_embedded_files(nc, asset_image);
         #endif
         MYMPD_LOG_DEBUG("Serving asset image \"%s\" (image/svg+xml)", asset_image);
     }
@@ -184,7 +184,7 @@ struct embedded_file {
     const unsigned size;
 };
 
-bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_message *hm) {
+bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
     const struct embedded_file embedded_files[] = {
         {"/", 1, "text/html; charset=utf-8", true, false, index_html_data, index_html_size},
         {"/css/combined.css", 17, "text/css; charset=utf-8", true, false, combined_css_data, combined_css_size},
@@ -220,15 +220,6 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri, struct mg
     }
 
     if (p->uri != NULL) {
-        //respond with error if browser don't support compression and asset is compressed
-        if (p->compressed == true) {
-            struct mg_str *header_encoding = mg_http_get_header(hm, "Accept-Encoding");
-            if (header_encoding == NULL || mg_strstr(*header_encoding, mg_str_n("gzip", 4)) == NULL) {
-                nc->is_draining = 1;
-                webserver_send_error(nc, 406, "Browser does not support gzip compression");
-                return false;
-            }
-        }
         //send header
         mg_printf(nc, "HTTP/1.1 200 OK\r\n"
                       EXTRA_HEADERS_SAFE

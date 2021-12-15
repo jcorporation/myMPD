@@ -68,7 +68,7 @@ struct t_mg_user_data {
 };
 
 #ifdef EMBEDDED_ASSETS
-bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_message *hm);
+bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri);
 #endif
 void webserver_manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bool playlists);
 sds *webserver_split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count);
