@@ -1349,7 +1349,12 @@ function showModal(modal) {
 }
 
 function checkMediaSessionSupport() {
-    return settings.mediaSession && 'mediaSession' in navigator
+    if (settings.mediaSession === false ||
+        navigator.mediaSession === undefined)
+    {
+        return false;
+    }
+    return true;
 }
 
 function checkTagValue(tag, value) {

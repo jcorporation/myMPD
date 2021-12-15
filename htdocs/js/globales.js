@@ -368,7 +368,8 @@ const webuiSettingsDefault = {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Media session",
-        "form": "NotificationSettingsFrm"
+        "form": "NotificationSettingsFrm",
+        "warn": "Browser has no MediaSession support"
     },
     "uiFooterQueueSettings": {
         "defaultValue": false,

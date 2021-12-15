@@ -456,7 +456,7 @@ function clickTitle() {
 }
 
 function mediaSessionSetPositionState(duration, position) {
-    if (checkMediaSessionSupport === false ||
+    if (checkMediaSessionSupport() === false ||
         navigator.mediaSession.setPositionState === undefined)
     {
         return;
@@ -471,14 +471,14 @@ function mediaSessionSetPositionState(duration, position) {
 }
 
 function mediaSessionSetState() {
-    if (checkMediaSessionSupport === false) {
+    if (checkMediaSessionSupport() === false) {
         return;
     }
     navigator.mediaSession.playbackState = currentState.state === 'play' ? 'playing' : 'paused';
 }
 
 function mediaSessionSetMetadata(title, artist, album, url) {
-    if (checkMediaSessionSupport === false) {
+    if (checkMediaSessionSupport() === false) {
         return;
     }
     const artwork = window.location.protocol + '//' + window.location.hostname +

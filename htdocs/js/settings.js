@@ -581,6 +581,18 @@ function populateSettingsFrm() {
         document.getElementById('inputScaleRatio').value = scale;
     }
 
+    //media session support
+    const btnMediaSession = document.getElementById('inputWebUIsettingmediaSession');
+    if (checkMediaSessionSupport() === false) {
+        elShowId('warninputWebUIsettingmediaSession');
+        elDisable(btnMediaSession);
+        toggleBtnChk(btnMediaSession, false);
+    }
+    else {
+        elHideId('warninputWebUIsettingmediaSession');
+        elEnable(btnMediaSession);
+    }
+
     document.getElementById('inputBookletName').value = settings.bookletName;
     document.getElementById('inputCoverimageNames').value = settings.coverimageNames;
     document.getElementById('inputCovercacheKeepDays').value = settings.covercacheKeepDays;
