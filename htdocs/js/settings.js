@@ -242,14 +242,17 @@ function parseSettings(obj) {
     //execute only if settings modal is displayed
     if (document.getElementById('modalSettings').classList.contains('show')) {
         populateSettingsFrm();
+        initElements(document.getElementById('modalSettings'));
     }
     //execute only if connection modal is displayed
     if (document.getElementById('modalConnection').classList.contains('show')) {
         populateConnectionFrm();
+        initElements(document.getElementById('modalConnection'));
     }
     //execute only if queue settings modal is displayed
     if (document.getElementById('modalQueueSettings').classList.contains('show')) {
         populateQueueSettingsFrm();
+        initElements(document.getElementById('modalQueueSettings'));
     }
 
     //locales

@@ -666,7 +666,8 @@ function appInit() {
     dragAndDropTableHeader('BrowseFilesystem');
     dragAndDropTableHeader('BrowsePlaylistsDetail');
     dragAndDropTableHeader('BrowseDatabaseDetail');
-
+    //init custom elements
+    initElements(domCache.body);
     //update state on window focus - browser pauses javascript
     window.addEventListener('focus', function() {
         logDebug('Browser tab gots the focus -> update player state');

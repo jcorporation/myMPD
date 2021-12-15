@@ -175,7 +175,7 @@
               </button>
               <div class="dropdown-menu dropdown-menu-dark px-2" id="searchqueuetags"></div>
             </div>
-            <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search queue" type="text" class="form-control square-start rounded-end" id="searchqueuestr"/>
+            <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search queue" type="text" class="form-control square-start rounded-end" id="searchqueuestr"/>
           </div>
           <div class="btn-group me-2">
             <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalQueueSettings"><span class="mi">tune</span></button>
@@ -235,7 +235,7 @@
           <form class="flex-grow-1">
             <div class="input-group me-2">
               <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
-              <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchQueueLastPlayedStr"/>
+              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchQueueLastPlayedStr"/>
             </div>
           </form>
           <div class="btn-group me-2 featHome">
@@ -270,7 +270,7 @@
           <form class="flex-grow-1">
             <div class="input-group me-2">
               <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
-              <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchQueueJukeboxStr"/>
+              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchQueueJukeboxStr"/>
             </div>
           </form>
           <div class="btn-group me-2 featHome">
@@ -302,7 +302,7 @@
           <form id="searchPlaylistsAll" class="flex-grow-1">
             <div class="input-group me-2">
               <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
-              <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchPlaylistsListStr"/>
+              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchPlaylistsListStr"/>
             </div>
           </form>
           <div class="btn-group me-2 featSmartpls">
@@ -344,7 +344,7 @@
             <form id="searchPlaylistsDetail" class="flex-grow-1">
               <div class="input-group me-2">
                 <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
-                <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchPlaylistsDetailStr"/>
+                <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchPlaylistsDetailStr"/>
               </div>
             </form>
             <div class="btn-group" id="playlistContentBtns">
@@ -416,7 +416,7 @@
                   <option value="!=">!=</option>
                   <option value="!~">!~</option>
                 </select>
-                <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchDatabaseStr"/>
+                <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchDatabaseStr"/>
               </div>
             <div class="btn-group me-2">
               <button id="btnDatabaseSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">sort</span></button>
@@ -485,7 +485,7 @@
           <form class="flex-grow-1">
             <div class="input-group me-2">
               <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
-              <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchFilesystemStr"/>
+              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchFilesystemStr"/>
             </div>
           </form>
           <div class="btn-group me-2" id="BrowseFilesystemAddAllSongsGrp">
@@ -542,7 +542,7 @@
               <option value="!=">!=</option>
               <option value="!~">!~</option>
             </select>
-            <input is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchstr"/>
+            <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchstr"/>
           </div>
           <div class="btn-group me-2">
             <button data-title-phrase="Append to queue" id="searchAddAllSongs" class="btn btn-secondary" data-href='{"cmd": "addAllFromSearch", "options": ["append", "search"]}'><span class="mi">library_add</span></button>
@@ -701,7 +701,7 @@
               <label class="col-sm-4 col-form-label" for="addToPlaylistPlaylist" data-phrase="Playlist"></label>
               <div class="col-sm-8 position-relative">
                 <div class="btn-group d-flex">
-                  <input is="mympd-select-search" id="addToPlaylistPlaylist" data-placeholder-phrase="Choose a playlist or enter a new playlist name" class="form-control"/>
+                  <input data-is="mympd-select-search" id="addToPlaylistPlaylist" data-placeholder-phrase="Choose a playlist or enter a new playlist name" class="form-control"/>
                 </div>
                 <div class="invalid-feedback" data-phrase="Choose a playlist or enter a new playlist name"></div>
               </div>
@@ -906,7 +906,7 @@
                 <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="inputCoverimageNames" data-phrase="Name"></label>
                   <div class="col-sm-8 position-relative">
-                    <input is="mympd-input-reset" id="inputCoverimageNames" type="text" class="form-control" placeholder="folder,cover"/>
+                    <input data-is="mympd-input-reset" id="inputCoverimageNames" type="text" class="form-control" placeholder="folder,cover"/>
                     <div class="invalid-feedback" data-phrase="Invalid filename"></div>
                   </div>
                 </div>
@@ -914,7 +914,7 @@
                 <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="inputBookletName" data-phrase="Booklet filename"></label>
                   <div class="col-sm-8 position-relative">
-                    <input is="mympd-input-reset" id="inputBookletName" type="text" class="form-control" placeholder="booklet.pdf"/>
+                    <input data-is="mympd-input-reset" id="inputBookletName" type="text" class="form-control" placeholder="booklet.pdf"/>
                     <div class="invalid-feedback" data-phrase="Invalid filename"></div>
                   </div>
                 </div>
@@ -1009,7 +1009,7 @@
                   <div class="mb-3 row">
                     <label class="col-sm-4 col-form-label" for="inputSmartplsPrefix" data-phrase="Smart playlists prefix"></label>
                     <div class="col-sm-8 position-relative">
-                      <input is="mympd-input-reset" id="inputSmartplsPrefix" type="text" class="form-control" placeholder="myMPDsmart"/>
+                      <input data-is="mympd-input-reset" id="inputSmartplsPrefix" type="text" class="form-control" placeholder="myMPDsmart"/>
                       <div class="invalid-feedback" data-phrase="Invalid prefix"></div>
                     </div>
                   </div>
@@ -1024,7 +1024,7 @@
                     <div class="col-sm-8">
                       <div class="input-group">
                         <div class="flex-grow position-relative">
-                          <input is="mympd-input-reset" id="inputSmartplsInterval" type="text" class="form-control rounded" placeholder="4"/>
+                          <input data-is="mympd-input-reset" id="inputSmartplsInterval" type="text" class="form-control rounded" placeholder="4"/>
                         </div>
                         <span class="input-group-text-nobg" data-phrase="Hours"></span>
                         <div class="invalid-feedback" data-phrase="Invalid number"></div>
@@ -1063,7 +1063,7 @@
                 <div class="col-sm-8">
                   <div class="input-group">
                     <div class="flex-grow position-relative">
-                      <input is="mympd-input-reset" id="inputCovercacheKeepDays" type="text" class="form-control rounded" placeholder="7"/>
+                      <input data-is="mympd-input-reset" id="inputCovercacheKeepDays" type="text" class="form-control rounded" placeholder="7"/>
                     </div>
                     <span class="input-group-text-nobg" data-phrase="Days"></span>
                   </div>
@@ -1179,14 +1179,14 @@
                     <label class="col-sm-4 col-form-label" for="selectJukeboxPlaylist" data-phrase="Playlist"></label>
                     <div class="col-sm-8">
                       <div class="btn-group position-relative d-flex">
-                        <input is="mympd-select-search" readonly="readonly" id="selectJukeboxPlaylist" class="form-control"/>
+                        <input data-is="mympd-select-search" readonly="readonly" id="selectJukeboxPlaylist" class="form-control"/>
                       </div>
                     </div>
                   </div>
                   <div class="mb-3 row">
                     <label class="col-sm-4 col-form-label" for="inputJukeboxQueueLength" data-phrase="Keep queue length"></label>
                     <div class="col-sm-8 position-relative">
-                      <input is="mympd-input-reset" id="inputJukeboxQueueLength" type="text" class="form-control" placeholder="1"/>
+                      <input data-is="mympd-input-reset" id="inputJukeboxQueueLength" type="text" class="form-control" placeholder="1"/>
                       <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
                     </div>
                   </div>
@@ -1201,7 +1201,7 @@
                     <div class="col-sm-8">
                       <div class="input-group">
                         <div class="flex-grow position-relative">
-                          <input is="mympd-input-reset" id="inputJukeboxLastPlayed" type="text" class="form-control rounded" placeholder="24"/>
+                          <input data-is="mympd-input-reset" id="inputJukeboxLastPlayed" type="text" class="form-control rounded" placeholder="24"/>
                         </div>
                         <span class="input-group-text-nobg" data-phrase="Hours"></span>
                         <div class="invalid-feedback" data-phrase="Must be a number and equal or greater than zero"></div>
@@ -1299,14 +1299,14 @@
             <div class="mb-3 row">
               <label class="col-sm-4 col-form-label" for="inputMpdHost" data-phrase="MPD host"></label>
               <div class="col-sm-8 position-relative">
-                <input is="mympd-input-reset" id="inputMpdHost" type="text" class="form-control alwaysEnabled" placeholder="/run/mpd/socket"/>
+                <input data-is="mympd-input-reset" id="inputMpdHost" type="text" class="form-control alwaysEnabled" placeholder="/run/mpd/socket"/>
                 <div class="invalid-feedback" data-phrase="Invalid MPD host"></div>
               </div>
             </div>
             <div class="mb-3 row">
               <label class="col-sm-4 col-form-label" for="inputMpdPort" data-phrase="MPD port"></label>
               <div class="col-sm-8 position-relative">
-                <input is="mympd-input-reset" id="inputMpdPort" type="text" class="form-control alwaysEnabled" placeholder="6600"/>
+                <input data-is="mympd-input-reset" id="inputMpdPort" type="text" class="form-control alwaysEnabled" placeholder="6600"/>
                 <div class="invalid-feedback" data-phrase="Invalid MPD port"></div>
               </div>
             </div>
@@ -1341,14 +1341,14 @@
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="inputPlaylistDirectory" data-phrase="Playlist directory"></label>
                 <div class="col-sm-8 position-relative">
-                  <input is="mympd-input-reset" id="inputPlaylistDirectory" type="text" class="form-control alwaysEnabled" placeholder="/var/lib/mpd/playlists"/>
+                  <input data-is="mympd-input-reset" id="inputPlaylistDirectory" type="text" class="form-control alwaysEnabled" placeholder="/var/lib/mpd/playlists"/>
                   <div class="invalid-feedback" data-phrase="Invalid playlist directory"></div>
                 </div>
               </div>
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="inputMpdStreamPort" data-phrase="Stream port"></label>
                 <div class="col-sm-8 position-relative">
-                  <input is="mympd-input-reset" id="inputMpdStreamPort" type="text" class="form-control alwaysEnabled" placeholder="8080"/>
+                  <input data-is="mympd-input-reset" id="inputMpdStreamPort" type="text" class="form-control alwaysEnabled" placeholder="8080"/>
                   <div class="invalid-feedback" data-phrase="Invalid stream port"></div>
                 </div>
               </div>
@@ -1357,7 +1357,7 @@
                 <div class="col-sm-8">
                   <div class="input-group">
                     <div class="flex-grow position-relative">
-                      <input is="mympd-input-reset" id="inputMpdTimeout" type="text" class="form-control alwaysEnabled" placeholder="30"/>
+                      <input data-is="mympd-input-reset" id="inputMpdTimeout" type="text" class="form-control alwaysEnabled" placeholder="30"/>
                     </div>
                     <span class="input-group-text-nobg" data-phrase="Seconds"></span>
                     <div class="invalid-feedback" data-phrase="Invalid timeout"></div>
@@ -1378,7 +1378,7 @@
                 <div class="col-sm-8">
                   <div class="input-group">
                     <div class="flex-grow position-relative">
-                      <input is="mympd-input-reset" id="inputMpdBinarylimit" type="text" class="form-control alwaysEnabled" placeholder="8"/>
+                      <input data-is="mympd-input-reset" id="inputMpdBinarylimit" type="text" class="form-control alwaysEnabled" placeholder="8"/>
                     </div>
                     <span class="input-group-text-nobg" data-phrase="kB"></span>
                   </div>
@@ -1444,7 +1444,7 @@
               <label class="col-sm-4 col-form-label" for="selectAddToQueuePlaylist" data-phrase="From"></label>
               <div class="col-sm-8">
                 <div class="btn-group position-relative d-flex">
-                  <input is="mympd-select-search" id="selectAddToQueuePlaylist" readonly="readonly" class="form-control" data-placeholder-phrase="Select a playlist"/>
+                  <input data-is="mympd-select-search" id="selectAddToQueuePlaylist" readonly="readonly" class="form-control" data-placeholder-phrase="Select a playlist"/>
                 </div>
               </div>
             </div>
@@ -1642,7 +1642,7 @@
                   <label class="col-sm-4 col-form-label" for="selectTimerPlaylist" data-phrase="Playlist"></label>
                   <div class="col-sm-8">
                     <div class="btn-group position-relative d-flex">
-                      <input is="mympd-select-search" readonly="readonly" id="selectTimerPlaylist" class="form-control"/>
+                      <input data-is="mympd-select-search" readonly="readonly" id="selectTimerPlaylist" class="form-control"/>
                     </div>
                   </div>
                 </div>
@@ -2087,7 +2087,7 @@
                       <div id="dropdownHomeIconLigature" class="dropdown-menu  dropdown-menu-dark px-2">
                         <div class="row">
                           <div class="col position-relative">
-                            <input is="mympd-input-clear" data-clear-event="keyup" id="searchHomeIconLigature" type="text" class="form-control" data-placeholder-phrase="Filter"/>
+                            <input data-is="mympd-input-clear" data-clear-event="keyup" id="searchHomeIconLigature" type="text" class="form-control" data-placeholder-phrase="Filter"/>
                           </div>
                           <div class="col">
                             <select id="searchHomeIconCat" class="form-select"></select>
