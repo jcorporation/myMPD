@@ -11,5 +11,6 @@
 
 extern tinymt32_t tinymt;
 
-unsigned randrange(unsigned lower, unsigned upper);
+unsigned randrange_u(unsigned lower, unsigned upper);
+long randrange(long lower, long upper);
 #endif
