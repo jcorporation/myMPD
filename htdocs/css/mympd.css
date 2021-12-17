@@ -828,7 +828,7 @@ div#playDropdown .row {
 .top-alert-dismissible .btn-close {
   position: absolute;
   top: 0;
-  right: 4rem;
+  right: 0;
   z-index: 2;
   padding: 0.25rem 1.25rem;
   color: var(--bs-danger) !important;
