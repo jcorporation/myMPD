@@ -966,7 +966,7 @@ transstatus() {
   then
     TFILE=$1
     echo "Missing translation phrases:"
-    grep missingPhrases "$TFILE" | sed -e 's/.*missingPhrases=//' -e 's/;//' | jq -r | grep -E -v '\{|\}'
+    grep missingPhrases "$TFILE" | sed -e 's/.*missingPhrases=//' -e 's/;//' | jq -r -M
   else
     echo_warn "jq not found - can not print translation statistics"
   fi
