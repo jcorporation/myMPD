@@ -22,7 +22,6 @@ void ws_notify(sds message);
 bool is_virtual_cuedir(sds music_directory, sds filename);
 int testdir(const char *name, const char *dirname, bool create);
 void my_usleep(time_t usec);
-unsigned long substractUnsigned(unsigned long num1, unsigned long num2);
 
 //measure time
 #define MEASURE_START clock_t measure_start = clock();

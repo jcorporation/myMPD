@@ -58,13 +58,6 @@ void my_usleep(time_t usec) {
     nanosleep(&ts, NULL);
 }
 
-unsigned long substractUnsigned(unsigned long num1, unsigned long num2) {
-    if (num1 > num2) {
-        return num1 - num2;
-    }
-    return 0;
-}
-
 bool is_virtual_cuedir(sds music_directory, sds filename) {
     sds full_path = sdscatfmt(sdsempty(), "%s/%s", music_directory, filename);
     bool is_file = false;
