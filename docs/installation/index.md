@@ -11,4 +11,4 @@ myMPD should run on all current linux distributions. There are four ways to inst
 3. Use the docker image: [Docker]({{ site.baseurl }}/installation/docker)
 4. Use the ``build.sh`` script to compile myMPD: [Building myMPD]({{ site.baseurl }}/installation/compiling)
 
-myMPD also runs on [OpenWrt]({{ site.baseurl }}/installation/openwrt) and [Termux]({{ site.baseurl }}/installation/termux):
+myMPD also runs on [OpenWrt]({{ site.baseurl }}/installation/openwrt) and [Termux]({{ site.baseurl }}/installation/termux).
