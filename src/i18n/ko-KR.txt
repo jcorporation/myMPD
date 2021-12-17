@@ -1970,3 +1970,15 @@ Homeicon
 
 Show
 보기
+
+Can't set playback options
+연주 옵션을 설정할 수 없음
+
+Can't set playback options: MPD not connected
+연주 옵션을 설정할 수 없음: MPD 연결 안 됨
+
+Addings songs from jukebox to queue failed
+뮤직박스의 곡을 연주순서에 추가할 수 없음
+
+Filling jukebox queue
+뮤직박스 연주순서 채우기
