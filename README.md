@@ -86,4 +86,4 @@ For further information on installation and configuration, see the [myMPD docume
 
 2018-2021 Juergen Mang <mail@jcgames.de>
 
-myMPD is a fork of [ympd](https://github.com/notandy/ympd).
+myMPD was originally a fork of [ympd](https://github.com/notandy/ympd), but it has evolved into a much more featurefull MPD client. So that there are hardly any commonalities left.
