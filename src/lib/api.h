@@ -61,6 +61,7 @@ extern struct t_mympd_queue *mympd_script_queue;
     X(MYMPD_API_HOME_ICON_RM) \
     X(MYMPD_API_HOME_ICON_SAVE) \
     X(MYMPD_API_HOME_LIST) \
+    X(MYMPD_API_JUKEBOX_CLEAR) \
     X(MYMPD_API_JUKEBOX_LIST) \
     X(MYMPD_API_JUKEBOX_RM) \
     X(MYMPD_API_LIKE) \

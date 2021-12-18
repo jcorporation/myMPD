@@ -29,6 +29,18 @@ function initJukebox() {
 }
 
 //eslint-disable-next-line no-unused-vars
+function clearJukeboxQueue() {
+    sendAPI("MYMPD_API_JUKEBOX_CLEAR", {}, function() {
+        sendAPI("MYMPD_API_JUKEBOX_LIST", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "cols": settings.colsQueueJukeboxFetch,
+            "searchstr": app.current.search
+        }, parseJukeboxList);
+    });
+}
+
+//eslint-disable-next-line no-unused-vars
 function delQueueJukeboxSong(pos) {
     sendAPI("MYMPD_API_JUKEBOX_RM", {
         "pos": pos

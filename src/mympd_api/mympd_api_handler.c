@@ -456,6 +456,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 }
             }
             break;
+        case MYMPD_API_JUKEBOX_CLEAR:
+            mpd_client_clear_jukebox(&mympd_state->jukebox_queue);
+            response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "jukebox");
+            break;
         case MYMPD_API_JUKEBOX_LIST: {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);

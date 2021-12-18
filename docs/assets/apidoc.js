@@ -1549,6 +1549,10 @@ const APImethods = {
             "pos": APIparams.pos
         }
     },
+    "MYMPD_API_JUKEBOX_CLEAR": {
+        "desc": "Clears the jukebox queue.",
+        "params": {}
+    },
     "MYMPD_API_LYRICS_GET": {
         "desc": "Gets all lyrics from uri.",
         "params": {
