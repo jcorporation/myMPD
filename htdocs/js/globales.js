@@ -167,9 +167,9 @@ app.cards = {
             "Radio": {
                 "offset": 0,
                 "limit": 100,
-                "filter": "any",
-                "sort": "Name",
-                "tag": "any",
+                "filter": "name",
+                "sort": "-",
+                "tag": "-",
                 "search": "",
                 "scrollPos": 0
             }

@@ -381,7 +381,8 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'BrowseRadio': {
-            radiobrowserSearch(app.current.search);
+            selectTag('radiobrowsetags', 'radiobrowsetagsdesc', app.current.filter);
+            radiobrowserSearch();
             break;
         }
         case 'Search': {

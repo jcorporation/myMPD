@@ -525,6 +525,7 @@ function errorRow(obj, colspan) {
     );
 }
 
+//eslint-disable-next-line no-unused-vars
 function warningRow(message, colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
         elCreateNode('td', {"colspan": colspan},

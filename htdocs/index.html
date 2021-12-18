@@ -533,8 +533,14 @@
             </div>
           </div>
           <form class="flex-grow-1">
-            <div class="input-group me-2">
-              <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
+            <div class="input-group me-2 flex-grow-1">
+              <div class="btn-group">
+                <button  id="radiobrowsetagsBtn" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
+                  <span class="mi">search</span>
+                  <span data-phrase="Name" id="radiobrowsetagsdesc"></span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-dark px-2" id="radiobrowsetags"></div>
+              </div>
               <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchRadioStr"/>
             </div>
           </form>
