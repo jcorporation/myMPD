@@ -97,7 +97,7 @@ You can use `./build.sh releaseinstall` to compile and install in one step.
   - Directory: debug
   - Plain assets in htdocs directory
   - Use this to debug mympd with valgrind or gdb
-  
+
 - `./build.sh memcheck` builds the debug binaries
   - Directory: debug
   - Plain assets in htdocs directory
