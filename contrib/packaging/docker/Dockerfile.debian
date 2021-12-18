@@ -3,7 +3,7 @@
 # myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 #
-FROM library/debian:10 as build
+FROM library/debian:11 as build
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 COPY . /myMPD/
