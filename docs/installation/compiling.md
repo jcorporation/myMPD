@@ -29,9 +29,11 @@ The `build.sh` script is the one stop shop for building and packaging myMPD.
 ### Build Dependencies
 
 myMPD has only a few dependencies beside the standard c libraries. Not installing the optional dependencies leads only to a smaller subset of myMPD functions.
+
 - cmake >= 3.4
 - libasan3 - for memcheck builds only
 - Perl - to create translation files
+- jq - to show translation statistics
 - Devel packages:
   - pcre2 - for pcre support
   - Optional: 
@@ -47,6 +49,7 @@ You can type `./build.sh installdeps` as root to install the dependencies (works
 ## Packaging
 
 You can self create packages for your distribution:
+
 - `./build.sh pkgalpine` for Alpine Linux
 - `./build.sh pkgarch` for Arch based distributions (e.g. Manjaro)
 - `./build.sh pkgdebian` for Debian based distributions (e.g. Ubuntu. Raspbian)
