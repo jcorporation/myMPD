@@ -28,7 +28,7 @@ RDEPEND="
 	ssl? ( >=dev-libs/openssl-1.1 )
 	lua? ( >=dev-lang/lua-5.3 )
 	systemd? ( sys-apps/systemd )
-	dev-libs/libpcre:2"
+	dev-libs/libpcre2"
 
 QA_PRESTRIPPED="
 	usr/bin/mympd
