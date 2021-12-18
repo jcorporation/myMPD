@@ -524,6 +524,36 @@
         </div>
         <div class="btn-toolbar d-none justify-content-between" id="BrowseFilesystemButtonsBottom"></div>
       </div>
+
+      <div class="card-body d-none" id="tabBrowseRadio">
+        <div class="btn-toolbar card-toolbar" id="BrowseRadioButtons">
+          <div class="btn-group me-2">
+            <button data-title-phrase="Select view" id="BrowseNavRadio" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
+            <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavRadioDropdown">
+            </div>
+          </div>
+          <form class="flex-grow-1">
+            <div class="input-group me-2">
+              <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
+              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchRadioStr"/>
+            </div>
+          </form>
+          <div class="btn-group me-2 featHome" id="BrowseRadioAddToHome">
+            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+          </div>
+          <div id="BrowseRadioPaginationTop" class="btn-group me-2 pagination"></div>
+        </div>
+        <div class="table-responsive-md scrollContainer">
+          <table id="BrowseRadioList" class="table table-hover table-sm">
+            <thead>
+              <tr><th data-phrase="Station"></th><th data-phrase="Tags"></th><th data-phrase="Country"></th><th></th></tr>
+            </thead>
+            <tbody class="clickable"></tbody>
+            <tfoot></tfoot>
+          </table>
+        </div>
+        <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioButtonsBottom"></div>
+      </div>
     </div>
 
     <div class="card d-none" id="cardSearch">
@@ -2332,6 +2362,7 @@
 <!--debug-->  <script src="js/ligatures.js"></script>
 <!--debug-->  <script src="js/home.js"></script>
 <!--debug-->  <script src="js/jukebox.js"></script>
+<!--debug-->  <script src="js/radiobrowser.js"></script>
 <!--debug-->  <script src="js/mympd.js"></script>
 <!--release   <script src="js/combined.js"></script>-->
  </body>

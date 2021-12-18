@@ -221,6 +221,17 @@ function clickSong(uri) {
     }
 }
 
+function clickRadio(uri) {
+    switch (settings.webuiSettings.clickSong) {
+        case 'append':             return appendQueue('song', uri);
+        case 'appendPlay':         return appendPlayQueue('song', uri);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
+        case 'replace':            return replaceQueue('song', uri);
+        case 'replacePlay':        return replacePlayQueue('song', uri);
+    }
+}
+
 function clickQueueSong(songid, uri) {
     switch(settings.webuiSettings.clickQueueSong) {
         case 'play':
@@ -555,7 +566,8 @@ function addTagList(elId, list) {
         stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, tn(settings[list][i])));
     }
     if (elId === 'BrowseNavFilesystemDropdown' ||
-        elId === 'BrowseNavPlaylistsDropdown')
+        elId === 'BrowseNavPlaylistsDropdown' ||
+        elId === 'BrowseNavRadioDropdown')
     {
         if (features.featTags === true && features.featAdvsearch === true) {
             elClear(stack);
@@ -564,7 +576,8 @@ function addTagList(elId, list) {
     }
     if (elId === 'BrowseDatabaseByTagDropdown' ||
         elId === 'BrowseNavFilesystemDropdown' ||
-        elId === 'BrowseNavPlaylistsDropdown')
+        elId === 'BrowseNavPlaylistsDropdown' ||
+        elId === 'BrowseNavRadioDropdown')
     {
         if (elId === 'BrowseDatabaseByTagDropdown') {
             stack.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
@@ -575,6 +588,10 @@ function addTagList(elId, list) {
         }
         stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Filesystem"}, tn('Filesystem')));
         if (elId === 'BrowseNavFilesystemDropdown') {
+            stack.lastChild.classList.add('active');
+        }
+        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Radio"}, tn('Webradios')));
+        if (elId === 'BrowseNavRadioDropdown') {
             stack.lastChild.classList.add('active');
         }
     }

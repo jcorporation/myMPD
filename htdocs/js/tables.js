@@ -467,10 +467,6 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         tr[i].remove();
     }
 
-    if (nrItems === 1000) {
-        tbody.appendChild(warningRow('Too many results, list is cropped', colspan + 1));
-    }
-
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
 
     if (nrItems === 0) {

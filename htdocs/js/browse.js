@@ -102,6 +102,10 @@ function initBrowse() {
         navBrowseHandler(event);
     }, false);
 
+    document.getElementById('BrowseNavRadioDropdown').addEventListener('click', function(event) {
+        navBrowseHandler(event);
+    }, false);
+
     document.getElementById('dropdownSortPlaylistTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
@@ -225,7 +229,8 @@ function navBrowseHandler(event) {
     if (event.target.nodeName === 'BUTTON') {
         const tag = getData(event.target, 'tag');
         if (tag === 'Playlists' ||
-            tag === 'Filesystem')
+            tag === 'Filesystem' ||
+            tag === 'Radio')
         {
             appGoto('Browse', tag, undefined);
             return;

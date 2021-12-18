@@ -12,7 +12,7 @@ function appPrepare(scrollPos) {
         }
         const cards = ['cardHome', 'cardPlayback', 'cardSearch',
             'cardQueue', 'tabQueueCurrent', 'tabQueueLastPlayed', 'tabQueueJukebox',
-            'cardBrowse', 'tabBrowseFilesystem',
+            'cardBrowse', 'tabBrowseFilesystem', 'tabBrowseRadio',
             'tabBrowsePlaylists', 'viewBrowsePlaylistsDetail', 'viewBrowsePlaylistsList',
             'tabBrowseDatabase', 'viewBrowseDatabaseDetail', 'viewBrowseDatabaseList'];
         for (const card of cards) {
@@ -380,6 +380,10 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             //more detail views coming
             break;
         }
+        case 'BrowseRadio': {
+            radiobrowserSearch(app.current.search);
+            break;
+        }
         case 'Search': {
             document.getElementById('searchstr').focus();
             if (features.featAdvsearch) {
@@ -661,6 +665,7 @@ function appInit() {
     initNavs();
     initPlaylists();
     initOutputs();
+    initRadioBrowser();
     //init drag and drop
     dragAndDropTable('QueueCurrentList');
     dragAndDropTable('BrowsePlaylistsDetailList');

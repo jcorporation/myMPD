@@ -16,7 +16,7 @@
 
 #define EXTRA_HEADERS_UNSAFE "Content-Security-Policy: default-src 'none'; "\
     "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; "\
-    "connect-src 'self' ws: wss:; manifest-src 'self'; "\
+    "connect-src * ws: wss:; manifest-src 'self'; "\
     "media-src 'self'; frame-ancestors *; base-uri 'none';\r\n"\
     "X-Content-Type-Options: nosniff\r\n"\
     "X-XSS-Protection: 1; mode=block\r\n"\
@@ -24,7 +24,7 @@
 
 #define EXTRA_HEADERS_SAFE "Content-Security-Policy: default-src 'none'; "\
     "style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; "\
-    "connect-src 'self' ws: wss:; manifest-src 'self'; "\
+    "connect-src * ws: wss:; manifest-src 'self'; "\
     "media-src 'self'; frame-ancestors *; base-uri 'none'; "\
     "require-trusted-types-for 'script'\r\n"\
     "X-Content-Type-Options: nosniff\r\n"\

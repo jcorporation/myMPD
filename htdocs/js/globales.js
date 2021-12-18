@@ -163,6 +163,15 @@ app.cards = {
                         "scrollPos": 0
                     }
                 }
+            },
+            "Radio": {
+                "offset": 0,
+                "limit": 100,
+                "filter": "any",
+                "sort": "Name",
+                "tag": "any",
+                "search": "",
+                "scrollPos": 0
             }
         }
     },

@@ -453,6 +453,7 @@ function createMenuLists(el, tabHeader, tabContent) {
     switch(app.id) {
         case 'BrowseFilesystem':
         case 'Search':
+        case 'BrowseRadio':
         case 'BrowseDatabaseDetail': {
             switch(type) {
                 case 'song':
