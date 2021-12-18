@@ -11,12 +11,7 @@
 
 tinymt32_t tinymt;
 
-unsigned randrange_u(unsigned lower, unsigned upper) {
-    uint32_t r = tinymt32_generate_uint32(&tinymt);
-    unsigned rand = lower + r / (UINT32_MAX / (upper - lower + 1) + 1);
-    return rand;
-}
-
+//generates random number in range (inclusive lower and upper bounds)
 long randrange(long lower, long upper) {
     uint32_t r = tinymt32_generate_uint32(&tinymt);
     unsigned rand = lower + r / (UINT32_MAX / (upper - lower + 1) + 1);
