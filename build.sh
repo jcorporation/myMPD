@@ -774,8 +774,8 @@ installdeps() {
     #debian
     apt-get update
     apt-get install -y --no-install-recommends \
-	gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-	build-essential liblua5.3-dev pkg-config libpcre2-dev
+	    gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
+	    build-essential liblua5.3-dev pkg-config libpcre2-dev
   elif [ -f /etc/arch-release ]
   then
     #arch
@@ -794,7 +794,7 @@ installdeps() {
   then
     #fedora
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	lua-devel unzip pcre2-devel
+	    lua-devel unzip pcre2-devel
   else
     echo_warn "Unsupported distribution detected."
     echo "You should manually install:"
