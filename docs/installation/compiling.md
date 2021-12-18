@@ -30,14 +30,15 @@ The `build.sh` script is the one stop shop for building and packaging myMPD.
 
 myMPD has only a few dependencies beside the standard c libraries. Not installing the optional dependencies leads only to a smaller subset of myMPD functions.
 - cmake >= 3.4
-- libasan3 - for debug builds only
+- libasan3 - for memcheck builds only
 - Perl - to create translation files
-- pcre2 - for pcre support
-- Optional (devel packages): 
-  - OpenSSL >= 1.1.0 - for https support
-  - libid3tag - to extract embedded coverimages
-  - flac - to extract embedded coverimages
-  - liblua >= 5.3.0 - for scripting myMPD
+- Devel packages:
+  - pcre2 - for pcre support
+  - Optional: 
+    - OpenSSL >= 1.1.0 - for https support
+    - libid3tag - to extract embedded coverimages
+    - flac - to extract embedded coverimages
+    - liblua >= 5.3.0 - for scripting myMPD
 
 You can type `./build.sh installdeps` as root to install the dependencies (works only for supported distributions). For all other distributions you must install the packages manually.
 

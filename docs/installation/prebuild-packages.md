@@ -22,7 +22,7 @@ Following distributions are supported:
 
 ## Dependencies
 
-- libpcre2: for pcre support
+- libpcre2: for pcre support (8 bit runtime files)
 - OpenSSL >= 1.1.0 (optional): for https support
 - libid3tag (optional): to extract embedded albumart
 - flac (optional): to extract embedded albumart
