@@ -28,13 +28,14 @@ set(SOURCES
   ../dist/mjson/mjson.c
   ../dist/rax/rax.c
   ../dist/sds/sds.c
+  ../dist/tinymt/tinymt32.c
   ../src/lib/api.c
   ../src/lib/jsonrpc.c
   ../src/lib/list.c
+  ../src/lib/log.c
   ../src/lib/lua_mympd_state.c
   ../src/lib/mimetype.c
   ../src/lib/mympd_queue.c
-  ../src/lib/log.c
   ../src/lib/random.c
   ../src/lib/sds_extras.c
   ../src/lib/utility.c
@@ -46,6 +47,7 @@ set(SOURCES
   tests/test_list.c
   tests/test_mimetype.c
   tests/test_mympd_queue.c
+  tests/test_random.c
   tests/test_sds_extras.c
   tests/test_validate.c
 )
