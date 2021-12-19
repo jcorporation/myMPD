@@ -190,7 +190,7 @@ struct t_mympd_state {
     bool auto_play;
     enum jukebox_modes jukebox_mode;
     sds jukebox_playlist;
-    unsigned jukebox_queue_length;
+    long jukebox_queue_length;
     int jukebox_last_played;
     struct t_tags jukebox_unique_tag;
     bool jukebox_enforce_unique;

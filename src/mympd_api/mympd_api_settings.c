@@ -420,7 +420,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
         }
     }
     else if (strcmp(key, "jukeboxQueueLength") == 0 && vtype == MJSON_TOK_NUMBER) {
-        int jukebox_queue_length = (int)strtoimax(value, NULL, 10);
+        long jukebox_queue_length = strtoimax(value, NULL, 10);
         if (jukebox_queue_length <= 0 || jukebox_queue_length > JUKEBOX_QUEUE_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
