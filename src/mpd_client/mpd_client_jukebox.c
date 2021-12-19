@@ -240,9 +240,9 @@ static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
 
 bool mpd_client_jukebox_add_to_queue(struct t_mympd_state *mympd_state, long add_songs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
     if (manual == false) {
-        MYMPD_LOG_DEBUG("Jukebox queue length: %d", mympd_state->jukebox_queue.length);
+        MYMPD_LOG_DEBUG("Jukebox queue length: %u", mympd_state->jukebox_queue.length);
     }
-    if ((manual == false && add_songs > mympd_state->jukebox_queue.length) ||
+    if ((manual == false && add_songs > (long)mympd_state->jukebox_queue.length) ||
         (manual == true))
     {
         bool rc = mpd_client_jukebox_fill_jukebox_queue(mympd_state, add_songs, jukebox_mode, playlist, manual);
@@ -306,7 +306,7 @@ bool mpd_client_jukebox_add_to_queue(struct t_mympd_state *mympd_state, long add
                 return false;
             }
         }
-        MYMPD_LOG_DEBUG("Jukebox queue length: %d", mympd_state->jukebox_queue.length);
+        MYMPD_LOG_DEBUG("Jukebox queue length: %u", mympd_state->jukebox_queue.length);
     }
     return true;
 }
