@@ -590,7 +590,7 @@ static long _fill_jukebox_queue_songs(struct t_mympd_state *mympd_state, long ad
     long nkeep = 0;
     long lineno = 1;
     time_t since = time(NULL);
-    since = since - (long)(mympd_state->jukebox_last_played * 3600);
+    since = since - (mympd_state->jukebox_last_played * 3600);
 
     if (mympd_state->sticker_cache == NULL) {
         MYMPD_LOG_WARN("Sticker cache is null, jukebox doesn't respect last played constraint");

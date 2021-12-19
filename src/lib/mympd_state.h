@@ -87,8 +87,8 @@ struct t_mpd_state {
     unsigned song_pos;
     sds song_uri;
     sds last_song_uri;
-    unsigned queue_version;
-    unsigned queue_length;
+    long queue_version;
+    long queue_length;
     int last_last_played_id;
     int last_skipped_id;
     time_t song_end_time;
@@ -191,7 +191,7 @@ struct t_mympd_state {
     enum jukebox_modes jukebox_mode;
     sds jukebox_playlist;
     long jukebox_queue_length;
-    int jukebox_last_played;
+    long jukebox_last_played;
     struct t_tags jukebox_unique_tag;
     bool jukebox_enforce_unique;
     sds cols_queue_current;
