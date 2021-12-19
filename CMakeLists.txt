@@ -292,6 +292,8 @@ set(MYMPD_SOURCES
   src/mympd_config.c
   src/web_server.c
   src/web_server/web_server_albumart.c
+  src/web_server/web_server_proxy.c
+  src/web_server/web_server_radiobrowser.c
   src/web_server/web_server_sessions.c
   src/web_server/web_server_tagart.c
   src/web_server/web_server_utility.c

@@ -1602,5 +1602,14 @@ const APImethods = {
                 "desc": "https://jcorporation.github.io/myMPD/configuration/logging"
             }
         }
+    },
+    "MYMPD_API_CLOUD_RADIOBROWSER_SEARCH": {
+        "desc": "Searches radio-browser.info",
+        "params": {
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "filter": APIparams.filter,
+            "searchstr": APIparams.searchstr
+        }
     }
 };

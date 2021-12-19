@@ -16,6 +16,8 @@
 #include "lib/sds_extras.h"
 #include "lib/validate.h"
 #include "web_server/web_server_albumart.h"
+#include "web_server/web_server_proxy.h"
+#include "web_server/web_server_radiobrowser.h"
 #include "web_server/web_server_sessions.h"
 #include "web_server/web_server_tagart.h"
 
@@ -29,10 +31,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 #endif
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response);
-static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data);
+static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data,
+        struct mg_connection *backend_nc);
 static bool handle_script_api(long long conn_id, sds body);
-static void mpd_stream_proxy_forward(struct mg_connection *nc);
-static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 
 //public functions
 bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_data *mg_user_data) {
@@ -243,38 +244,6 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response
     free_result(response);
 }
 
-// Reverse proxy
-static void mpd_stream_proxy_forward(struct mg_connection *backend_nc) {
-    mg_printf(backend_nc, "GET / HTTP/1.1\r\n\r\n");
-}
-
-static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
-    struct mg_connection *frontend_nc = fn_data;
-    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
-    switch(ev) {
-        case MG_EV_ACCEPT:
-            mg_user_data->connection_count++;
-            break;
-        case MG_EV_READ:
-            //forward incoming data from backend to frontend
-            mg_send(frontend_nc, nc->recv.buf, nc->recv.len);
-            mg_iobuf_del(&nc->recv, 0, nc->recv.len);
-            break;
-        case MG_EV_CLOSE: {
-            MYMPD_LOG_INFO("Backend HTTP connection %lu closed", nc->id);
-            mg_user_data->connection_count--;
-            if (frontend_nc != NULL) {
-                //remove backend connection pointer from frontend connection
-                frontend_nc->fn_data = NULL;
-                //close frontend connection
-                frontend_nc->is_closing = 1;
-            }
-            break;
-        }
-    }
-	(void) ev_data;
-}
-
 //nc->label usage
 //0 - connection type: F = frontend connection, B = backend connection
 //1 - http method: G = GET, H = HEAD, P = POST
@@ -397,27 +366,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     webserver_send_error(nc, 404, "MPD stream port not configured");
                     break;
                 }
-                if (backend_nc == NULL) {
-                    MYMPD_LOG_INFO("Creating new mpd stream proxy backend connection to \"%s\"", mg_user_data->stream_uri);
-                    backend_nc = mg_connect(nc->mgr, mg_user_data->stream_uri, mpd_stream_proxy_ev_handler, nc);
-                    if (backend_nc == NULL) {
-                        //no backend connection, close frontend connection
-                        MYMPD_LOG_WARN("Can not create backend connection");
-                        nc->is_closing = 1;
-                    }
-                    else {
-                        //save backend connection pointer in frontend connection fn_data
-                        nc->fn_data = backend_nc;
-                    }
-                }
+                backend_nc = create_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_backend_to_frontend);
                 if (backend_nc != NULL) {
-                    //set labels
-                    backend_nc->label[0] = 'B';
-                    backend_nc->label[1] = nc->label[1];
-                    backend_nc->label[2] = nc->label[2];
                     //forward request
-                    MYMPD_LOG_INFO("Forwarding client connection \"%lu\" to backend connection \"%lu\"", nc->id, backend_nc->id);
-                    mpd_stream_proxy_forward(backend_nc);
+                    mg_printf(backend_nc, "GET / HTTP/1.1\r\n\r\n");
                 }
             }
             else if (mg_http_match_uri(hm, "/ws/")) {
@@ -467,7 +419,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 //api request
                 sds body = sdsnewlen(hm->body.ptr, hm->body.len);
                 struct mg_str *auth_header = mg_http_get_header(hm, "Authorization");
-                bool rc = handle_api(nc, body, auth_header, mg_user_data);
+                bool rc = handle_api(nc, body, auth_header, mg_user_data, backend_nc);
                 FREE_SDS(body);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Invalid API request");
@@ -667,7 +619,9 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
 }
 #endif
 
-static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data) {
+static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data,
+        struct mg_connection *backend_nc)
+{
     MYMPD_LOG_DEBUG("API request (%lld): %s", (long long)nc->id, body);
 
     //first check if request is valid json string
@@ -741,54 +695,15 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
     #else
     (void) auth_header;
     #endif
-
     switch(cmd_id) {
-        case MYMPD_API_SESSION_LOGIN: {
-            sds pin = NULL;
-            bool is_valid = false;
-            if (json_get_string(body, "$.params.pin", 1, 20, &pin, vcb_isalnum, NULL) == true) {
-                is_valid = pin_validate(pin, mg_user_data->config->pin_hash);
-            }
-            FREE_SDS(pin);
-            sds response = sdsempty();
-            if (is_valid == true) {
-                sds ses = webserver_session_new(&mg_user_data->session_list);
-                response = jsonrpc_result_start(response, "MYMPD_API_SESSION_LOGIN", 0);
-                response = tojson_char(response, "session", ses, false);
-                response = jsonrpc_result_end(response);
-                FREE_SDS(ses);
-            }
-            else {
-                response = jsonrpc_respond_message(response, "MYMPD_API_SESSION_LOGIN", 0, true, "session", "error", "Invalid pin");
-            }
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
-            FREE_SDS(response);
+        case MYMPD_API_SESSION_LOGIN:
+        case MYMPD_API_SESSION_LOGOUT:
+        case MYMPD_API_SESSION_VALIDATE:
+            webserver_session_api(nc, cmd_id, body, id, session, mg_user_data);
             break;
-        }
-        case MYMPD_API_SESSION_LOGOUT: {
-            bool rc = false;
-            sds response = sdsempty();
-            if (sdslen(session) == 20) {
-                rc = webserver_session_remove(&mg_user_data->session_list, session);
-                if (rc == true) {
-                    response = jsonrpc_respond_message(response, "MYMPD_API_SESSION_LOGOUT", 0, false, "session", "info", "Session removed");
-                }
-            }
-            if (rc == false) {
-                response = jsonrpc_respond_message(response, "MYMPD_API_SESSION_LOGOUT", 0, true, "session", "error", "Invalid session");
-            }
-
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
-            FREE_SDS(response);
+        case MYMPD_API_CLOUD_RADIOBROWSER_SEARCH:
+            radiobrowser_api(nc, backend_nc, cmd_id, body, id);
             break;
-        }
-        case MYMPD_API_SESSION_VALIDATE: {
-            //session is already validated
-            sds response = jsonrpc_respond_ok(sdsempty(), "MYMPD_API_SESSION_VALIDATE", 0, "session");
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
-            FREE_SDS(response);
-            break;
-        }
         default: {
             //forward API request to mympd_api_handler
             struct t_work_request *request = create_request((long long)nc->id, id, cmd_id, body);
