@@ -367,10 +367,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     break;
                 }
                 backend_nc = create_tcp_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_tcp_backend_to_frontend);
-                if (backend_nc != NULL) {
-                    //forward request
-                    mg_printf(backend_nc, "GET / HTTP/1.1\r\n\r\n");
-                }
             }
             else if (mg_http_match_uri(hm, "/ws/")) {
                 mg_ws_upgrade(nc, hm, NULL);
@@ -560,8 +556,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             if (backend_nc != NULL) {
                 MYMPD_LOG_INFO("Closing backend connection \"%lu\"", backend_nc->id);
                 //remove pointer to frontend connection
-                backend_nc->fn_data = NULL;
-                //close reverse proxy connection
+                struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)backend_nc->fn_data;
+                backend_nc_data->frontend_nc = NULL;
+                //close backend connection
                 backend_nc->is_closing = 1;
             }
             break;

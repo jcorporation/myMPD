@@ -69,32 +69,30 @@ bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *backend_n
     backend_nc = create_http_backend_connection(nc, backend_nc, uri, radiobrowser_handler);
     sdsfree(uri);
     if (backend_nc != NULL) {
-        switch(cmd_id) {
-            case MYMPD_API_CLOUD_RADIOBROWSER_SEARCH:
-                backend_nc->label[3] = 'a';
-                break;
-            default:
-                backend_nc->label[3] = ' ';
-        }
+        struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)backend_nc->fn_data;
+        backend_nc_data->cmd_id = cmd_id;
         return true;
     }
     return false;
 }
 
 void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
-    struct mg_connection *frontend_nc = fn_data;
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
+    struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)fn_data;
     switch(ev) {
         case MG_EV_CONNECT: {
             MYMPD_LOG_INFO("Backend HTTP connection \"%lu\" connected", nc->id);
+            struct mg_str host = mg_url_host(backend_nc_data->uri);
             struct mg_tls_opts tls_opts = {
-                .srvname = mg_url_host("de1.api.radio-browser.info")
+                .srvname = host
             };
             mg_tls_init(nc, &tls_opts);
-            mg_printf(nc, "GET /json/stations/search?offset=0&limit=25&name=swr HTTP/1.1\r\n"
-                "Host: de1.api.radio-browser.info\r\n"
-                "User-Agent: myMPD/v9.1.0\r\n"
-                "\r\n");
+            mg_printf(nc, "GET %s HTTP/1.1\r\n"
+                "Host: %.*s\r\n"
+                "User-Agent: "MYMPD_VERSION"/v9.1.0\r\n"
+                "\r\n",
+                mg_url_uri(backend_nc_data->uri),
+                host.len, host.ptr);
             mg_user_data->connection_count++;
             break;
         }
@@ -104,19 +102,12 @@ void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void 
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             MYMPD_LOG_DEBUG("Got response from connection \"%lu\": %d bytes", nc->id, hm->body.len);
-            sds method;
-            switch(nc->label[3]) {
-                case 'a':
-                    method = sdsnew("MYMPD_API_CLOUD_RADIOBROWSER_SEARCH");
-                    break;
-                default:
-                    method = sdsempty();
-            }
-            sds result = jsonrpc_result_start(sdsempty(), method, 0);
+            const char *cmd = get_cmd_id_method_name(backend_nc_data->cmd_id);
+            sds result = jsonrpc_result_start(sdsempty(), cmd, 0);
             result = sdscat(result, "\"data\":");
             result = sdscatlen(result, hm->body.ptr, hm->body.len);
             result = jsonrpc_result_end(result);
-            webserver_send_data(frontend_nc, result, sdslen(result), "Content-Type: application/json\r\n");
+            webserver_send_data(backend_nc_data->frontend_nc, result, sdslen(result), "Content-Type: application/json\r\n");
             sdsfree(result);
             break;
         }
@@ -124,11 +115,14 @@ void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void 
             //print end of jsonrpc message
             MYMPD_LOG_INFO("Backend HTTP connection \"%lu\" closed", nc->id);
             mg_user_data->connection_count--;
-            if (frontend_nc != NULL) {
+            if (backend_nc_data->frontend_nc != NULL) {
                 //remove backend connection pointer from frontend connection
-                frontend_nc->fn_data = NULL;
+                backend_nc_data->frontend_nc->fn_data = NULL;
                 //close frontend connection
-                frontend_nc->is_closing = 1;
+                backend_nc_data->frontend_nc->is_closing = 1;
+                //free backend_nc_data
+                free_backend_nc_data(backend_nc_data);
+                free(fn_data);
             }
             break;
         }
