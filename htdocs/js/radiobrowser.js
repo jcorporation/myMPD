@@ -46,13 +46,13 @@ function initRadioBrowser() {
 
 function parseStationList(obj) {
     const table = document.getElementById('BrowseRadioList');
+    const tbody = table.getElementsByTagName('tbody')[0];
     setScrollViewHeight(table);
 
-    if (checkResult(obj, table) === false) {
+    if (checkResult(obj, tbody) === false) {
         return;
     }
 
-    const tbody = table.getElementsByTagName('tbody')[0];
     elClear(tbody);
     const nrItems = obj.result.data.length;
     for (const station of obj.result.data) {
