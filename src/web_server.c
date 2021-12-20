@@ -262,19 +262,27 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             if (mg_user_data->connection_count > HTTP_CONNECTIONS_MAX) {
                 nc->is_draining = 1;
                 MYMPD_LOG_DEBUG("Connections: %d", mg_user_data->connection_count);
+                MYMPD_LOG_ERROR("Concurrent connections limit exceeded: %d", mg_user_data->connection_count);
                 webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
                 break;
             }
             //check acl
             if (sdslen(config->acl) > 0 && mg_check_ip_acl(mg_str(config->acl), nc->peer.ip) == false) {
                 nc->is_draining = 1;
+                char addr_str[INET6_ADDRSTRLEN];
+                const char *addr_str_ptr = inet_ntop((nc->peer.is_ip6 == true ? AF_INET6 : AF_INET), &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
+                if (addr_str_ptr == NULL) {
+                    webserver_send_error(nc, 500, "Internal error");
+                    break;
+                }
+                MYMPD_LOG_ERROR("Connection from \"%s\" blocked by ACL");
                 webserver_send_error(nc, 403, "Request blocked by ACL");
                 break;
             }
             //ssl support
             #ifdef ENABLE_SSL
             if (config->ssl == true) {
-                MYMPD_LOG_DEBUG("Init tls with cert \"%s\" and key \"%s\"", config->ssl_cert, config->ssl_key);
+                MYMPD_LOG_DEBUG("Init tls with cert \"%s\" and key \"%s\" for connection \"%lu\"", config->ssl_cert, config->ssl_key, nc->id);
                 struct mg_tls_opts tls_opts = {
                     .cert = config->ssl_cert,
                     .certkey = config->ssl_key
@@ -574,6 +582,8 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
     if (ev == MG_EV_ACCEPT) {
         //check connection count
         if (mg_user_data->connection_count > HTTP_CONNECTIONS_MAX) {
+            MYMPD_LOG_DEBUG("Connections: %d", mg_user_data->connection_count);
+            MYMPD_LOG_ERROR("Concurrent connections limit exceeded: %d", mg_user_data->connection_count);
             nc->is_draining = 1;
             webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
             return;
@@ -581,6 +591,12 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
         //check acl
         if (sdslen(config->acl) > 0 && mg_check_ip_acl(mg_str(config->acl), nc->peer.ip) == false) {
             nc->is_draining = 1;
+            char addr_str[INET6_ADDRSTRLEN];
+            const char *addr_str_ptr = inet_ntop((nc->peer.is_ip6 == true ? AF_INET6 : AF_INET), &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
+            if (addr_str_ptr == NULL) {
+                webserver_send_error(nc, 500, "Internal error");
+                return;
+            }
             webserver_send_error(nc, 403, "Request blocked by ACL");
             return;
         }
