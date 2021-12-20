@@ -382,7 +382,12 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         }
         case 'BrowseRadio': {
             selectTag('radiobrowsetags', 'radiobrowsetagsdesc', app.current.filter);
-            radiobrowserSearch();
+            sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_SEARCH", {
+                "offset": app.current.offset,
+                "limit": app.current.limit,
+                "filter": app.current.filter,
+                "searchstr": app.current.search
+            }, parseStationList, true);
             break;
         }
         case 'Search': {

@@ -44,37 +44,18 @@ function initRadioBrowser() {
     }, false);
 }
 
-function radiobrowserSearch() {
-    document.getElementById('BrowseRadioList').classList.add('opacity05');
-    const ajaxRequest = new XMLHttpRequest();
-    ajaxRequest.open('GET', 'https://de1.api.radio-browser.info/json/stations/search' +
-        '?' + app.current.filter + '=' + myEncodeURI(app.current.search) +
-        '&limit=' + app.current.limit + '&offset=' + app.current.offset + '&hidebroken=true', true);
-    ajaxRequest.setRequestHeader('User-Agent', 'myMPD/' + settings.mympdVersion);
-    ajaxRequest.onreadystatechange = function() {
-        if (ajaxRequest.status === 200 &&
-            ajaxRequest.responseText !== '')
-        {
-            let obj;
-            try {
-                obj = JSON.parse(ajaxRequest.responseText);
-            }
-            catch(error) {
-                return;
-            }
-            parseStationList(obj);
-        }
-    };
-    ajaxRequest.send();
-}
-
 function parseStationList(obj) {
     const table = document.getElementById('BrowseRadioList');
     setScrollViewHeight(table);
+
+    if (checkResult(obj, table) === false) {
+        return;
+    }
+
     const tbody = table.getElementsByTagName('tbody')[0];
     elClear(tbody);
-    const nrItems = obj.length;
-    for (const station of obj) {
+    const nrItems = obj.result.data.length;
+    for (const station of obj.result.data) {
         const row = elCreateNodes('tr', {}, [
             elCreateText('td', {}, station.name),
             elCreateText('td', {}, station.tags.replace(/,/g, ', ')),
