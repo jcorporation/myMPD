@@ -31,8 +31,10 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
                 json_get_string(body, "$.params.filter", 1, NAME_LEN_MAX, &filter, vcb_isprint, &error) == true &&
                 json_get_string(body, "$.params.searchstr", 0, NAME_LEN_MAX, &searchstr, vcb_isname, &error) == true)
             {
+                sds searchstr_encoded = sds_urlencode(sdsempty(), searchstr, sdslen(searchstr));
                 uri = sdscatprintf(uri, "/json/stations/search?offset=%u&limit=%u&%s=%s",
-                    offset, limit, filter, searchstr);
+                    offset, limit, filter, searchstr_encoded);
+                FREE_SDS(searchstr_encoded);
             }
             break;
         default:
@@ -90,6 +92,7 @@ void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void 
             mg_printf(nc, "GET %s HTTP/1.1\r\n"
                 "Host: %.*s\r\n"
                 "User-Agent: "MYMPD_VERSION"/v9.1.0\r\n"
+                "Connection: keep-alive\r\n"
                 "\r\n",
                 mg_url_uri(backend_nc_data->uri),
                 host.len, host.ptr);
