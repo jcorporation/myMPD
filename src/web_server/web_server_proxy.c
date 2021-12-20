@@ -12,22 +12,16 @@
 #include "../lib/sds_extras.h"
 #include "web_server_utility.h"
 
-struct mg_connection *create_backend_connection(struct mg_connection *nc, struct mg_connection *backend_nc, sds uri, mg_event_handler_t fn) {
+struct mg_connection *create_http_backend_connection(struct mg_connection *nc, struct mg_connection *backend_nc, sds uri, mg_event_handler_t fn) {
     if (backend_nc == NULL) {
-        MYMPD_LOG_INFO("Creating new backend connection to \"%s\"", uri);
-        backend_nc = mg_connect(nc->mgr, uri, fn, nc);
+        MYMPD_LOG_INFO("Creating new http backend connection to \"%s\"", uri);
+        backend_nc = mg_http_connect(nc->mgr, uri, fn, nc);
         if (backend_nc == NULL) {
             //no backend connection, close frontend connection
-            MYMPD_LOG_WARN("Can not create backend connection");
+            MYMPD_LOG_WARN("Can not create http backend connection");
             nc->is_closing = 1;
         }
         else {
-            if (mg_url_is_ssl(uri)) {
-                struct mg_tls_opts tls_opts = {
-                    .srvname = mg_url_host(uri)
-                };
-                mg_tls_init(backend_nc, &tls_opts);
-            }
             //save backend connection pointer in frontend connection fn_data
             nc->fn_data = backend_nc;
         }
@@ -37,16 +31,40 @@ struct mg_connection *create_backend_connection(struct mg_connection *nc, struct
         backend_nc->label[0] = 'B';
         backend_nc->label[1] = nc->label[1];
         backend_nc->label[2] = nc->label[2];
-        MYMPD_LOG_INFO("Forwarding client connection \"%lu\" to backend connection \"%lu\"", nc->id, backend_nc->id);
+        MYMPD_LOG_INFO("Forwarding client connection \"%lu\" to http backend connection \"%lu\"", nc->id, backend_nc->id);
     }
     return backend_nc;
 }
 
-void forward_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
+struct mg_connection *create_tcp_backend_connection(struct mg_connection *nc, struct mg_connection *backend_nc, sds uri, mg_event_handler_t fn) {
+    if (backend_nc == NULL) {
+        MYMPD_LOG_INFO("Creating new tcp backend connection to \"%s\"", uri);
+        backend_nc = mg_connect(nc->mgr, uri, fn, nc);
+        if (backend_nc == NULL) {
+            //no backend connection, close frontend connection
+            MYMPD_LOG_WARN("Can not create tcp backend connection");
+            nc->is_closing = 1;
+        }
+        else {
+            //save backend connection pointer in frontend connection fn_data
+            nc->fn_data = backend_nc;
+        }
+    }
+    if (backend_nc != NULL) {
+        //set labels
+        backend_nc->label[0] = 'B';
+        backend_nc->label[1] = nc->label[1];
+        backend_nc->label[2] = nc->label[2];
+        MYMPD_LOG_INFO("Forwarding client connection \"%lu\" to tcp backend connection \"%lu\"", nc->id, backend_nc->id);
+    }
+    return backend_nc;
+}
+
+void forward_tcp_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     struct mg_connection *frontend_nc = fn_data;
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     switch(ev) {
-        case MG_EV_ACCEPT:
+        case MG_EV_CONNECT:
             mg_user_data->connection_count++;
             break;
         case MG_EV_READ:

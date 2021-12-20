@@ -366,7 +366,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     webserver_send_error(nc, 404, "MPD stream port not configured");
                     break;
                 }
-                backend_nc = create_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_backend_to_frontend);
+                backend_nc = create_tcp_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_tcp_backend_to_frontend);
                 if (backend_nc != NULL) {
                     //forward request
                     mg_printf(backend_nc, "GET / HTTP/1.1\r\n\r\n");

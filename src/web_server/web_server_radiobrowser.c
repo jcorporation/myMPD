@@ -31,7 +31,7 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
                 json_get_string(body, "$.params.filter", 1, NAME_LEN_MAX, &filter, vcb_isprint, &error) == true &&
                 json_get_string(body, "$.params.searchstr", 0, NAME_LEN_MAX, &searchstr, vcb_isname, &error) == true)
             {
-                uri = sdscatprintf(uri, "/json/stations/search?offset=%ulimit=%u&%s=%s",
+                uri = sdscatprintf(uri, "/json/stations/search?offset=%u&limit=%u&%s=%s",
                     offset, limit, filter, searchstr);
             }
             break;
@@ -65,8 +65,8 @@ bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *backend_n
         enum mympd_cmd_ids cmd_id, const char *request)
 {
     const char *host = "de1.api.radio-browser.info";
-    sds uri = sdscatprintf(sdsempty(), "https://%s/", host);
-    backend_nc = create_backend_connection(nc, backend_nc, uri, radiobrowser_handler);
+    sds uri = sdscatprintf(sdsempty(), "https://%s%s", host, request);
+    backend_nc = create_http_backend_connection(nc, backend_nc, uri, radiobrowser_handler);
     sdsfree(uri);
     if (backend_nc != NULL) {
         switch(cmd_id) {
@@ -76,13 +76,6 @@ bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *backend_n
             default:
                 backend_nc->label[3] = ' ';
         }
-        //forward request
-        MYMPD_LOG_DEBUG("Sending request \"%s\" to host \"%s\"", request, host);
-        mg_printf(backend_nc, "GET %s HTTP/1.1\r\n"
-            "Host: %s\r\n"
-            "User-Agent: myMPD/v9.1.0\r\n"
-            "Connection: close\r\n\r\n",
-            request, host);
         return true;
     }
     return false;
@@ -92,14 +85,25 @@ void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void 
     struct mg_connection *frontend_nc = fn_data;
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     switch(ev) {
-        case MG_EV_ACCEPT: {
+        case MG_EV_CONNECT: {
+            MYMPD_LOG_INFO("Backend HTTP connection \"%lu\" connected", nc->id);
+            struct mg_tls_opts tls_opts = {
+                .srvname = mg_url_host("de1.api.radio-browser.info")
+            };
+            mg_tls_init(nc, &tls_opts);
+            mg_printf(nc, "GET /json/stations/search?offset=0&limit=25&name=swr HTTP/1.1\r\n"
+                "Host: de1.api.radio-browser.info\r\n"
+                "User-Agent: myMPD/v9.1.0\r\n"
+                "\r\n");
             mg_user_data->connection_count++;
             break;
         }
         case MG_EV_ERROR:
             MYMPD_LOG_ERROR("HTTP connection \"%lu\" failed", nc->id);
             break;
-        case MG_EV_CLOSE: {
+        case MG_EV_HTTP_MSG: {
+            struct mg_http_message *hm = (struct mg_http_message *) ev_data;
+            MYMPD_LOG_DEBUG("Got response from connection \"%lu\": %d bytes", nc->id, hm->body.len);
             sds method;
             switch(nc->label[3]) {
                 case 'a':
@@ -108,31 +112,25 @@ void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void 
                 default:
                     method = sdsempty();
             }
-            struct mg_http_message hm;
-            mg_http_parse((char *)nc->recv.buf, nc->recv.len, &hm);
             sds result = jsonrpc_result_start(sdsempty(), method, 0);
             result = sdscat(result, "\"data\":");
-            if (hm.body.ptr != NULL &&
-                hm.body.len > 0)
-            {
-                result = sdscatlen(result, hm.body.ptr, hm.body.len);
-            }
-            else {
-                result = sdscatlen(result, "[]", 2);
-            }
+            result = sdscatlen(result, hm->body.ptr, hm->body.len);
             result = jsonrpc_result_end(result);
             webserver_send_data(frontend_nc, result, sdslen(result), "Content-Type: application/json\r\n");
-            FREE_SDS(result);
-            MYMPD_LOG_INFO("Backend HTTP connection %lu closed", nc->id);
+            sdsfree(result);
+            break;
+        }
+        case MG_EV_CLOSE: {
+            //print end of jsonrpc message
+            MYMPD_LOG_INFO("Backend HTTP connection \"%lu\" closed", nc->id);
             mg_user_data->connection_count--;
             if (frontend_nc != NULL) {
                 //remove backend connection pointer from frontend connection
                 frontend_nc->fn_data = NULL;
                 //close frontend connection
-                frontend_nc->is_draining = 1;
+                frontend_nc->is_closing = 1;
             }
             break;
         }
     }
-    (void) ev_data;
 }
