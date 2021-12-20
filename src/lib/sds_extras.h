@@ -22,6 +22,7 @@ sds sds_catjson(sds s, const char *p, size_t len);
 sds sds_catjsonchar(sds s, const char p);
 bool sds_json_unescape(const char *src, int slen, sds *dst);
 sds sds_urldecode(sds s, const char *p, size_t len, int is_form_url_encoded);
+sds sds_urlencode(sds s, const char *p, size_t len);
 sds sds_replacelen(sds s, const char *value, size_t len);
 sds sds_replace(sds s, const char *value);
 int sds_getline(sds *s, FILE *fp, size_t max);

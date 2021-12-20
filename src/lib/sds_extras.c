@@ -98,6 +98,28 @@ bool sds_json_unescape(const char *src, int slen, sds *dst) {
     return true;
 }
 
+static bool is_url_safe(char c) {
+    if (isalnum(c) ||
+        c == '/' || c == '-' || c == '.' ||
+        c == '_')
+    {
+        return true;
+    }
+    return false;
+}
+
+sds sds_urlencode(sds s, const char *p, size_t len) {
+    for (size_t i = 0; i < len; i++) {
+        if (is_url_safe(p[i])) {
+            s = sdscatprintf(s, "%c", p[i]);
+        }
+        else {
+            s = sdscatprintf(s, "%%%hhX", p[i]);
+        }
+    }
+    return s;
+}
+
 sds sds_urldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
     size_t i;
     int a;
@@ -105,29 +127,29 @@ sds sds_urldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
 
     for (i = 0; i < len; i++) {
         switch(*p) {
-        case '%':
-            if (i < len - 2 && isxdigit(*(const unsigned char *) (p + 1)) &&
-                isxdigit(*(const unsigned char *) (p + 2)))
-            {
-                a = tolower(*(const unsigned char *) (p + 1));
-                b = tolower(*(const unsigned char *) (p + 2));
-                s = sdscatprintf(s, "%c", (char) ((HEXTOI(a) << 4) | HEXTOI(b)));
-                i += 2;
-                p += 2;
-            }
-            else {
-                sdsclear(s);
-                return s;
-            }
-            break;
-        case '+':
-            if (is_form_url_encoded == 1) {
-                s = sdscatlen(s, " ", 1);
+            case '%':
+                if (i < len - 2 && isxdigit(*(const unsigned char *) (p + 1)) &&
+                    isxdigit(*(const unsigned char *) (p + 2)))
+                {
+                    a = tolower(*(const unsigned char *) (p + 1));
+                    b = tolower(*(const unsigned char *) (p + 2));
+                    s = sdscatprintf(s, "%c", (char) ((HEXTOI(a) << 4) | HEXTOI(b)));
+                    i += 2;
+                    p += 2;
+                }
+                else {
+                    sdsclear(s);
+                    return s;
+                }
                 break;
-            }
-            //fall through
-        default:
-            s = sdscatlen(s, p, 1);
+            case '+':
+                if (is_form_url_encoded == 1) {
+                    s = sdscatlen(s, " ", 1);
+                    break;
+                }
+                //fall through
+            default:
+                s = sdscatlen(s, p, 1);
         }
         p++;
     }
