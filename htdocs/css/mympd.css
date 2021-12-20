@@ -1160,6 +1160,10 @@ div.alert-secondary {
   margin-bottom: 0;
 }
 
+div.alert-danger {
+  background-color: #f8d7da !important;
+}
+
 input.innerButton {
   padding-right: calc(1.5em + 0.75rem);
 }
