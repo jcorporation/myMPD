@@ -31,6 +31,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 #endif
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response);
+static void log_acl_deny(const struct mg_connection *nc);
 static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data,
         struct mg_connection *backend_nc);
 static bool handle_script_api(long long conn_id, sds body);
@@ -244,6 +245,16 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response
     free_result(response);
 }
 
+static void log_acl_deny(const struct mg_connection *nc) {
+    char addr_str[INET6_ADDRSTRLEN];
+    const char *addr_str_ptr = inet_ntop((nc->peer.is_ip6 == true ? AF_INET6 : AF_INET), &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
+    if (addr_str_ptr != NULL) {
+        MYMPD_LOG_ERROR("Connection from \"%s\" blocked by ACL");
+        return;
+    }
+    MYMPD_LOG_ERROR("Connection from unknown blocked by ACL");
+}
+
 //nc->label usage
 //0 - connection type: F = frontend connection, B = backend connection
 //1 - http method: G = GET, H = HEAD, P = POST
@@ -269,13 +280,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             //check acl
             if (sdslen(config->acl) > 0 && mg_check_ip_acl(mg_str(config->acl), nc->peer.ip) == false) {
                 nc->is_draining = 1;
-                char addr_str[INET6_ADDRSTRLEN];
-                const char *addr_str_ptr = inet_ntop((nc->peer.is_ip6 == true ? AF_INET6 : AF_INET), &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
-                if (addr_str_ptr == NULL) {
-                    webserver_send_error(nc, 500, "Internal error");
-                    break;
-                }
-                MYMPD_LOG_ERROR("Connection from \"%s\" blocked by ACL");
+                log_acl_deny(nc);
                 webserver_send_error(nc, 403, "Request blocked by ACL");
                 break;
             }
@@ -374,7 +379,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     webserver_send_error(nc, 404, "MPD stream port not configured");
                     break;
                 }
-                backend_nc = create_tcp_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_tcp_backend_to_frontend);
+                create_tcp_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_tcp_backend_to_frontend);
             }
             else if (mg_http_match_uri(hm, "/ws/")) {
                 mg_ws_upgrade(nc, hm, NULL);
@@ -385,6 +390,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             else if (mg_http_match_uri(hm, "/api/script")) {
                 if (sdslen(config->scriptacl) > 0 && mg_check_ip_acl(mg_str(config->scriptacl), nc->peer.ip) == false) {
+                    log_acl_deny(nc);
                     nc->is_draining = 1;
                     webserver_send_error(nc, 403, "Request blocked by ACL");
                     break;
@@ -590,13 +596,8 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
         }
         //check acl
         if (sdslen(config->acl) > 0 && mg_check_ip_acl(mg_str(config->acl), nc->peer.ip) == false) {
+            log_acl_deny(nc);
             nc->is_draining = 1;
-            char addr_str[INET6_ADDRSTRLEN];
-            const char *addr_str_ptr = inet_ntop((nc->peer.is_ip6 == true ? AF_INET6 : AF_INET), &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
-            if (addr_str_ptr == NULL) {
-                webserver_send_error(nc, 500, "Internal error");
-                return;
-            }
             webserver_send_error(nc, 403, "Request blocked by ACL");
             return;
         }
