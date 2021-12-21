@@ -106,4 +106,7 @@
 #define FILENAME_LEN_MAX 200
 #define FILEPATH_LEN_MAX 1000
 
+//radio-browser.info
+#define RADIO_BROWSER_HOST "all.api.radio-browser.info"
+
 #endif

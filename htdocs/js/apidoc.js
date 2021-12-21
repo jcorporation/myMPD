@@ -1611,5 +1611,9 @@ const APImethods = {
             "filter": APIparams.filter,
             "searchstr": APIparams.searchstr
         }
+    },
+    "MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST": {
+        "desc": "Return radio-browser.info endpoints",
+        "params": {}
     }
 };

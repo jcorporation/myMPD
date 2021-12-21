@@ -13,6 +13,13 @@
 #include "web_server_proxy.h"
 #include "web_server_utility.h"
 
+//private definitions
+static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *backend_nc,
+        enum mympd_cmd_ids cmd_id, const char *request);
+static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
+
+//public functions
+
 void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc,
     enum mympd_cmd_ids cmd_id, sds body, int id)
 {
@@ -36,6 +43,9 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
                     offset, limit, filter, searchstr_encoded);
                 FREE_SDS(searchstr_encoded);
             }
+            break;
+        case MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST:
+            uri = sdscat(uri, "/json/servers");
             break;
         default:
             error = sdscat(error, "Invalid API method for radiobrowser");
@@ -63,10 +73,12 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
     FREE_SDS(uri);
 }
 
-bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *backend_nc,
+//private functions
+
+static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *backend_nc,
         enum mympd_cmd_ids cmd_id, const char *request)
 {
-    const char *host = "de1.api.radio-browser.info";
+    const char *host = RADIO_BROWSER_HOST;
     sds uri = sdscatprintf(sdsempty(), "https://%s%s", host, request);
     backend_nc = create_http_backend_connection(nc, backend_nc, uri, radiobrowser_handler);
     sdsfree(uri);
@@ -78,7 +90,7 @@ bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *backend_n
     return false;
 }
 
-void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
+static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)fn_data;
     switch(ev) {
