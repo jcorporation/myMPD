@@ -167,7 +167,12 @@ const APImethods = {
             "path": {
                 "type": "text",
                 "example": "Alben",
-                "desc": "Directory to list"
+                "desc": "Directory or playlist to list"
+            },
+            "type": {
+                "type": "text",
+                "example": "dir",
+                "desc": "dir or plist"
             },
             "cols": APIparams.cols
         }

@@ -151,11 +151,15 @@ bool vcb_isuri(sds data) {
     return vcb_isfilepath(data);
 }
 
-bool vcb_isfilename(sds data) {
+bool vcb_isfilename_silent(sds data) {
     if (sdslen(data) == 0) {
         return false;
     }
-    bool rc = _check_for_invalid_chars(data, invalid_filename_chars);
+    return _check_for_invalid_chars(data, invalid_filename_chars);
+}
+
+bool vcb_isfilename(sds data) {
+    bool rc = vcb_isfilename_silent(data);
     if (rc == false) {
         MYMPD_LOG_WARN("Found illegal filename character");
     }

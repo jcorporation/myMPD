@@ -114,7 +114,7 @@ app.cards = {
                 "limit": 100,
                 "filter": "-",
                 "sort": "-",
-                "tag": "-",
+                "tag": "dir",
                 "search": "",
                 "scrollPos": 0
             },
@@ -281,6 +281,20 @@ const webuiSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click playlist",
+        "form": "clickSettingsFrm"
+    },
+    "clickFilesystemPlaylist": {
+        "defaultValue": "view",
+        "validValues": {
+            "append": "Append to queue",
+            "appendPlay": "Append to queue and play",
+            "insertAfterCurrent": "Insert after current playing song",
+            "replace": "Replace queue",
+            "replacePlay": "Replace queue and play",
+            "view": "View playlist"
+        },
+        "inputType": "select",
+        "title": "Click filesystem playlist",
         "form": "clickSettingsFrm"
     },
     "clickFolder": {

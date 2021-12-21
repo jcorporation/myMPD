@@ -222,7 +222,12 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
                     buffer= sdscatlen(buffer, ",", 1);
                 }
                 buffer = sdscatlen(buffer, "{", 1);
-                buffer = tojson_char(buffer, "Type", "song", true);
+                if (is_streamuri(mpd_song_get_uri(song)) == true) {
+                    buffer = tojson_char(buffer, "Type", "stream", true);
+                }
+                else {
+                    buffer = tojson_char(buffer, "Type", "song", true);
+                }
                 buffer = tojson_long(buffer, "Pos", entity_count, true);
                 buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
                 buffer = sdscatlen(buffer, "}", 1);

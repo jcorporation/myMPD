@@ -281,6 +281,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 "limit": app.current.limit,
                 "path": (app.current.search ? app.current.search : "/"),
                 "searchstr": (app.current.filter !== '-' ? app.current.filter : ''),
+                "type": app.current.tag,
                 "cols": settings.colsBrowseFilesystemFetch
             }, parseFilesystem, true);
             //Don't add all songs from root

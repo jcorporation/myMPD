@@ -409,7 +409,7 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
     }
     else {
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-        addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [baseuri]}, 'Show directory');
+        addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [baseuri, "dir"]}, 'Show directory');
     }
     if (features.featHome === true &&
         app.id !== 'Home')
@@ -432,9 +432,12 @@ function addMenuItemsPlaylistActions(tabContent, type, uri, name) {
             tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
             addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, type, name]}, 'Add to homescreen');
         }
-        else if (isMPDplaylist(uri) === true) {
+        if (isMPDplaylist(uri) === true) {
             tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
             addMenuItem(tabContent, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
+        }
+        else {
+            addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [uri, "plist"]}, 'View playlist');
         }
     }
 }

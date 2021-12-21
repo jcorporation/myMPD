@@ -58,7 +58,7 @@ sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
 
 bool is_smartpls(const char *workdir, sds playlist) {
     bool smartpls = false;
-    if (vcb_isfilename(playlist) == true) {
+    if (vcb_isfilename_silent(playlist) == true) {
         sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", workdir, playlist);
         if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
             smartpls = true;
