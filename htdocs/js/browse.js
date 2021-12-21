@@ -347,7 +347,12 @@ function parseFilesystem(obj) {
 
     const rowTitleSong = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
     const rowTitleFolder = webuiSettingsDefault.clickFolder.validValues[settings.webuiSettings.clickFolder];
-    const rowTitlePlaylist = webuiSettingsDefault.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
+    let rowTitlePlaylist = webuiSettingsDefault.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
+
+    if (settings.webuiSettings.clickPlaylist === 'view') {
+        //todo: implement it
+        rowTitlePlaylist = 'Playlists in filesystem can not be viewed';
+    }
 
     updateTable(obj, 'BrowseFilesystem', function(row, data) {
         setData(row, 'type', data.Type);

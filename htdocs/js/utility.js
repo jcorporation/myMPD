@@ -247,7 +247,14 @@ function clickPlaylist(uri) {
         case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', uri);
         case 'replace': return replaceQueue('plist', uri);
         case 'replacePlay': return replacePlayQueue('plist', uri);
-        case 'view': return playlistDetails(uri);
+        case 'view': {
+            if (isMPDplaylist(uri) === true) {
+                return playlistDetails(uri);
+            }
+            //Todo: implement listing playlists from filesystem view
+            //show it as like a subdir
+            showNotification(tn('Playlists in filesystem can not be viewed'), '', 'playlist', 'warn');
+        }
     }
 }
 

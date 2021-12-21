@@ -1982,3 +1982,6 @@ Es konnten keine Lieder von der Jukebox zur Warteschlange hinzugefügt werden
 
 Filling jukebox queue
 Jukebox Warteschlange wird aufgefüllt
+
+Playlists in filesystem can not be viewed
+Wiedergabelisten aus dem Dateisystem können nicht angezeigt werden
