@@ -1988,6 +1988,3 @@ Jukebox Warteschlange wird aufgefüllt
 
 Clear jukebox queue
 Leere Jukebox Warteschlange
-
-Playlists in filesystem can not be viewed
-Wiedergabelisten aus dem Dateisystem können nicht angezeigt werden
