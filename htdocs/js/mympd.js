@@ -276,6 +276,10 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'BrowseFilesystem': {
+            if (app.current.tag === '-') {
+                //default type is dir
+                app.current.tag = 'dir';
+            }
             sendAPI("MYMPD_API_DATABASE_FILESYSTEM_LIST", {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
