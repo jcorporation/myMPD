@@ -700,6 +700,11 @@ div.key {
   div#shortcutList > div.col-6 {
     width: 100%;
   }
+
+  [data-col="Duration"] {
+    max-width: none;
+    min-width: auto;
+  }
 }
 
 ol#searchCrumb,
