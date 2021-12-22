@@ -68,8 +68,10 @@ function setCounter() {
     //progressbar in footer
     const progressPx = currentState.totalTime > 0 ?
         Math.ceil(domCache.progress.offsetWidth * currentState.elapsedTime / currentState.totalTime) : 0;
-    if (progressPx < domCache.progressBar.offsetWidth) {
-        //prevent transition
+    if (progressPx < domCache.progressBar.offsetWidth - 50 ||
+        progressPx > domCache.progressBar.offsetWidth + 50)
+    {
+        //prevent transition if change is to big
         domCache.progressBar.style.transition = 'none';
         elReflow(domCache.progressBar);
         domCache.progressBar.style.width = progressPx + 'px';
