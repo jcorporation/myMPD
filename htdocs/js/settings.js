@@ -299,7 +299,7 @@ function parseSettings(obj) {
         document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.webuiSettings.uiBgColor);
     }
 
-    const albumartbg = document.querySelectorAll('.albumartbg');
+    const albumartbg = document.querySelectorAll('body > div.albumartbg');
     for (let i = 0, j = albumartbg.length; i < j; i++) {
         albumartbg[i].style.filter = settings.webuiSettings.uiBgCssFilter;
     }
@@ -814,10 +814,10 @@ function parseMPDSettings() {
     document.getElementById('partitionName').textContent = settings.partition;
 
     if (settings.webuiSettings.uiBgCover === true) {
-        setBackgroundImage(currentSongObj.uri);
+        setBackgroundImage(domCache.body, currentSongObj.uri);
     }
     else {
-        clearBackgroundImage();
+        clearBackgroundImage(domCache.body);
     }
 
     const triggerEventList = document.getElementById('selectTriggerEvent');

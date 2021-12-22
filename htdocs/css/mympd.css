@@ -178,27 +178,21 @@ main {
   word-break: break-all;
 }
 
-.albumartbg {
+body > .albumartbg {
   position: fixed;
-  width: 100%;
-  height: 100%;
-  background-position: center center;
-  background-size: cover;
-  filter: blur(5px);
-  transition: opacity 1s;
-  z-index: -9;
 }
 
-.coverbg {
-  position: absolute;
+div > .albumartbg {
+  border-radius: 0.25rem;
+}
+
+.albumartbg {
   width: 100%;
   height: 100%;
   background-position: center center;
   background-size: cover;
-  top: 0;
-  left: 0;
   transition: opacity 1s;
-  z-index: 3;
+  z-index: -9;
 }
 
 .badge {

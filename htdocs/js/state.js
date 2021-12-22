@@ -141,9 +141,6 @@ function parseState(obj) {
         document.getElementById('footerCover').classList.remove('clickable');
         document.getElementById('currentTitle').classList.remove('clickable');
         clearCurrentCover();
-        if (settings.webuiSettings.uiBgCover === true) {
-            clearBackgroundImage();
-        }
         const pb = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
         for (let i = 0, j = pb.length; i < j; i++) {
             elClear(pb[i]);
@@ -176,17 +173,22 @@ function parseState(obj) {
     }
 }
 
-function setBackgroundImage(url) {
+function setBackgroundImage(el, url) {
     if (url === undefined) {
-        clearBackgroundImage();
+        clearBackgroundImage(el);
         return;
     }
     const bgImageUrl = 'url("' + subdir + '/albumart/' + myEncodeURI(url) + '")';
-    const old = document.querySelectorAll('.albumartbg');
-    if (old[0] && old[0].style.backgroundImage === bgImageUrl) {
-        logDebug('Background image already set');
+    const old = el.parentNode.querySelectorAll(el.tagName + '> div.albumartbg');
+    //do not update if url is the same
+    if (old[0] &&
+        getData(old[0], 'uri') === bgImageUrl)
+    {
+        logDebug('Background image already set for: ' + el.tagName);
         return;
     }
+    //remove old covers that are already hidden and
+    //update z-index of current displayed cover
     for (let i = 0, j = old.length; i < j; i++) {
         if (old[i].style.zIndex === '-10') {
             old[i].remove();
@@ -196,21 +198,26 @@ function setBackgroundImage(url) {
             old[i].style.opacity = '0';
         }
     }
+    //add new cover and let it fade in
     const div = elCreateEmpty('div', {"class": ["albumartbg"]});
-    div.style.filter = settings.webuiSettings.uiBgCssFilter;
+    if (el.tagName === 'BODY') {
+        div.style.filter = settings.webuiSettings.uiBgCssFilter;
+    }
     div.style.backgroundImage = bgImageUrl;
     div.style.opacity = 0;
-    domCache.body.insertBefore(div, domCache.body.firstChild);
-
+    setData(div, 'uri', bgImageUrl);
+    el.insertBefore(div, el.firstChild);
+    //create dummy img element to handle onload for bgimage
     const img = new Image();
-    img.onload = function() {
-        document.querySelector('.albumartbg').style.opacity = 1;
+    setData(img, 'div', div);
+    img.onload = function(event) {
+        getData(event.target, 'div').style.opacity = 1;
     };
     img.src = subdir + '/albumart/' + myEncodeURI(url);
 }
 
-function clearBackgroundImage() {
-    const old = document.querySelectorAll('.albumartbg');
+function clearBackgroundImage(el) {
+    const old = el.parentNode.querySelectorAll(el.tagName + '> div.albumartbg');
     for (let i = 0, j = old.length; i < j; i++) {
         if (old[i].style.zIndex === '-10') {
             old[i].remove();
@@ -223,53 +230,18 @@ function clearBackgroundImage() {
 }
 
 function setCurrentCover(url) {
-    _setCurrentCover(url, document.getElementById('currentCover'));
-    _setCurrentCover(url, document.getElementById('footerCover'));
-}
-
-function _setCurrentCover(url, el) {
-    if (url === undefined) {
-        clearCurrentCover();
-        return;
+    setBackgroundImage(document.getElementById('currentCover'), url);
+    setBackgroundImage(document.getElementById('footerCover'), url);
+    if (settings.webuiSettings.uiBgCover === true) {
+        setBackgroundImage(domCache.body, url);
     }
-    const old = el.querySelectorAll('.coverbg');
-    for (let i = 0, j = old.length; i < j; i++) {
-        if (old[i].style.zIndex === '2') {
-            old[i].remove();
-        }
-        else {
-            old[i].style.zIndex = '2';
-        }
-    }
-
-    const div = elCreateEmpty('div', {"class": ["coverbg", "carousel", "rounded"]});
-    div.style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(url) + '")';
-    div.style.opacity = 0;
-    setData(div, 'uri', url);
-    el.insertBefore(div, el.firstChild);
-
-    const img = new Image();
-    img.onload = function() {
-        el.querySelector('.coverbg').style.opacity = 1;
-    };
-    img.src = subdir + '/albumart/' + myEncodeURI(url);
 }
 
 function clearCurrentCover() {
-    _clearCurrentCover(document.getElementById('currentCover'));
-    _clearCurrentCover(document.getElementById('footerCover'));
-}
-
-function _clearCurrentCover(el) {
-    const old = el.querySelectorAll('.coverbg');
-    for (let i = 0, j = old.length; i < j; i++) {
-        if (old[i].style.zIndex === '2') {
-            old[i].remove();
-        }
-        else {
-            old[i].style.zIndex = '2';
-            old[i].style.opacity = '0';
-        }
+    clearBackgroundImage(document.getElementById('currentCover'));
+    clearBackgroundImage(document.getElementById('footerCover'));
+    if (settings.webuiSettings.uiBgCover === true) {
+        clearBackgroundImage(domCache.body);
     }
 }
 
@@ -286,7 +258,6 @@ function songChange(obj) {
     mediaSessionSetMetadata(obj.result.Title, joinArray(obj.result.Artist), obj.result.Album, obj.result.uri);
 
     setCurrentCover(obj.result.uri);
-    setBackgroundImage(obj.result.uri);
 
     for (const elName of ['footerArtist', 'footerAlbum', 'footerCover', 'currentTitle']) {
         document.getElementById(elName).classList.remove('clickable');
