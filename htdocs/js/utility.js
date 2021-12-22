@@ -1142,6 +1142,7 @@ function printValue(key, value) {
                 case 'smartpls': return elCreateText('span', {"class": ["mi"]}, 'queue_music');
                 case 'plist':    return elCreateText('span', {"class": ["mi"]}, 'list');
                 case 'dir':      return elCreateText('span', {"class": ["mi"]}, 'folder_open');
+                case 'stream':	 return elCreateText('span', {"class": ["mi"]}, 'stream');
                 default:         return elCreateText('span', {"class": ["mi"]}, 'radio_button_unchecked');
             }
         case 'Duration':
