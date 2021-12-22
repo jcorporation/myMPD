@@ -16,6 +16,7 @@ The `workdir` option is useful if you want to run more then one instance of myMP
 | ------ | ----------- |
 | -c, --config | creates config and exits (default directory: `/var/lib/mympd/config/`) |
 | -h, --help | displays this help |
+| -v, --version | displays this help |
 | -u, --user `<username>`| username to drop privileges to (default: `mympd`) |
 | -s, --syslog | enable syslog logging (facility: daemon) |
 | -w, --workdir `<path>` | working directory (default: `/var/lib/mympd`) |
