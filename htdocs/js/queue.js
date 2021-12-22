@@ -271,7 +271,6 @@ function queueSetCurrentSong() {
     const tr = document.getElementById('queueTrackId' + currentState.currentSongId);
     if (tr !== null) {
         setPlayingRow(tr);
-        return;
     }
 }
 
