@@ -226,6 +226,7 @@ function parseQueue(obj) {const table = document.getElementById('QueueCurrentLis
         tableRow(row, data, app.id, colspan, smallWidth);
         if (currentState.currentSongId === data.id) {
             setPlayingRow(row);
+            setQueueCounter(row, getCounterText());
         }
     });
 
@@ -267,33 +268,34 @@ function queueSetCurrentSong() {
         old.classList.remove('queue-playing');
         old.style = '';
     }
-    //add or update new playing row
-    const tr = document.getElementById('queueTrackId' + currentState.currentSongId);
-    if (tr !== null) {
-        setPlayingRow(tr);
+    //set playing row
+    const playingRow = document.getElementById('queueTrackId' + currentState.currentSongId);
+    setPlayingRow(playingRow);
+}
+
+function setQueueCounter(playingRow, counterText) {
+    const progressPrct = currentState.state === 'stop' || currentState.totalTime === 0 ?
+            100 : (100 / currentState.totalTime) * currentState.elapsedTime;
+    playingRow.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
+        progressPrct + '%, transparent ' + progressPrct +'%)';
+    //counter in queue card
+    const durationTd = playingRow.querySelector('[data-col=Duration]');
+    if (durationTd) {
+        durationTd.textContent = counterText;
     }
 }
 
-function setPlayingRow(row) {
-    if (row.classList.contains('queue-playing') === false) {
-        //set row as playing
-        const posTd = row.querySelector('[data-col=Pos]');
+function setPlayingRow(playingRow) {
+    if (playingRow !== null &&
+        playingRow.classList.contains('queue-playing') === false)
+    {
+        const posTd = playingRow.querySelector('[data-col=Pos]');
         if (posTd !== null) {
             posTd.classList.add('mi');
             posTd.textContent = 'play_arrow';
         }
-        row.classList.add('queue-playing');
+        playingRow.classList.add('queue-playing');
     }
-    //set progress
-    const durationTd = row.querySelector('[data-col=Duration]');
-    if (durationTd) {
-        durationTd.textContent = beautifySongDuration(currentState.elapsedTime) +
-            smallSpace + '/' + smallSpace + beautifySongDuration(currentState.totalTime);
-    }
-    const progressPrct = currentState.state === 'stop' || currentState.totalTime === 0 ?
-        100 : (100 / currentState.totalTime) * currentState.elapsedTime;
-    row.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
-        progressPrct + '%, transparent ' + progressPrct +'%)';
 }
 
 function parseLastPlayed(obj) {

@@ -59,8 +59,15 @@ function getServerinfo() {
     ajaxRequest.send();
 }
 
+function getCounterText() {
+    return beautifySongDuration(currentState.elapsedTime) + smallSpace +
+        '/' + smallSpace + beautifySongDuration(currentState.totalTime);
+}
+
 function setCounter() {
-    const progressPx = currentState.totalTime > 0 ? Math.ceil(domCache.progress.offsetWidth * currentState.elapsedTime / currentState.totalTime) : 0;
+    //progressbar in footer
+    const progressPx = currentState.totalTime > 0 ?
+        Math.ceil(domCache.progress.offsetWidth * currentState.elapsedTime / currentState.totalTime) : 0;
     if (progressPx < domCache.progressBar.offsetWidth) {
         //prevent transition
         domCache.progressBar.style.transition = 'none';
@@ -75,12 +82,16 @@ function setCounter() {
     }
     domCache.progress.style.cursor = currentState.totalTime <= 0 ? 'default' : 'pointer';
 
-    //Set playing track in queue view
-    queueSetCurrentSong();
-
-    //Set counter in footer
-    domCache.counter.textContent = beautifySongDuration(currentState.elapsedTime) + smallSpace +
-        '/' + smallSpace + beautifySongDuration(currentState.totalTime);
+    //counter
+    const counterText = getCounterText();
+    //counter in footer
+    domCache.counter.textContent = counterText;
+    //update queue card
+    const playingRow = document.getElementById('queueTrackId' + currentState.currentSongId);
+    if (playingRow !== null) {
+        //progressbar and counter in queue card
+        setQueueCounter(playingRow, counterText)
+    }
 
     //synced lyrics
     if (showSyncedLyrics === true &&
@@ -89,15 +100,15 @@ function setCounter() {
         const sl = document.getElementById('currentLyrics');
         const toHighlight = sl.querySelector('[data-sec="' + currentState.elapsedTime + '"]');
         const highlighted = sl.getElementsByClassName('highlight')[0];
-        if (highlighted !== toHighlight) {
-            if (toHighlight !== null) {
-                toHighlight.classList.add('highlight');
-                if (scrollSyncedLyrics === true) {
-                    toHighlight.scrollIntoView({behavior: "smooth"});
-                }
-                if (highlighted !== undefined) {
-                    highlighted.classList.remove('highlight');
-                }
+        if (highlighted !== toHighlight &&
+            toHighlight !== null)
+        {
+            toHighlight.classList.add('highlight');
+            if (scrollSyncedLyrics === true) {
+                toHighlight.scrollIntoView({behavior: "smooth"});
+            }
+            if (highlighted !== undefined) {
+                highlighted.classList.remove('highlight');
             }
         }
     }
@@ -108,9 +119,7 @@ function setCounter() {
     if (currentState.state === 'play') {
         progressTimer = setTimeout(function() {
             currentState.elapsedTime += 1;
-            requestAnimationFrame(function() {
-                setCounter();
-            });
+            setCounter();
         }, 1000);
     }
 }
@@ -352,6 +361,9 @@ function songChange(obj) {
         bookletEl.appendChild(elCreateText('a', {"target": "_blank", "href": subdir + '/browse/music/' +
             myEncodeURI(obj.result.bookletPath)}, tn('Download booklet')));
     }
+
+    //update queue card
+    queueSetCurrentSong();
 
     //update title in queue view for http streams
     const playingTr = document.getElementById('queueTrackId' + obj.result.currentSongId);
