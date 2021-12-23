@@ -9,7 +9,8 @@ function initQueue() {
             this.blur();
         }
         else {
-            appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter , app.current.sort, '-', this.value);
+            appGoto(app.current.card, app.current.tab, app.current.view,
+                0, app.current.limit, app.current.filter , app.current.sort, '-', this.value);
         }
     }, false);
 
@@ -31,11 +32,13 @@ function initQueue() {
     }, false);
 
     document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            clickQueueSong(getData(event.target.parentNode, 'trackid'), getData(event.target.parentNode, 'uri'));
-        }
-        else if (event.target.nodeName === 'A') {
+        if (event.target.nodeName === 'A') {
             showPopover(event);
+            return;
+        }
+        const target = getParent(event.target, 'TR');
+        if (target !== null) {
+            clickQueueSong(getData(target, 'trackid'), getData(target, 'uri'));
         }
     }, false);
 
