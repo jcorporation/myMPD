@@ -1374,3 +1374,16 @@ function checkTagValue(tag, value) {
 function strToBool(str) {
     return str === 'true';
 }
+
+function getParent(el, nodeName) {
+    let target = el;
+    let i = 0;
+    while (target.nodeName !== nodeName) {
+        i++;
+        if (i > 10) {
+            return NULL;
+        }
+        target = target.parentNode;
+    }
+    return target;
+}
