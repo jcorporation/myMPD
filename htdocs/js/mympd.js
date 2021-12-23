@@ -781,7 +781,9 @@ function initPlayback() {
     }, false);
 
     document.getElementById('cardPlaybackTags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'P') {
+        if (event.target.nodeName === 'P' ||
+            event.target.nodeName === 'SPAN')
+        {
             gotoBrowse(event);
         }
     }, false);

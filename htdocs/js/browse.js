@@ -252,12 +252,18 @@ function gotoBrowse(event) {
     if (features.featAdvsearch === false) {
         return;
     }
-    const target = event.target;
+    let target = event.target;
     let tag = getData(target, 'tag');
     let name = getData(target, 'name');
-    if (tag === undefined) {
-        tag = getData(target.parentNode, 'tag');
-        name = getData(target.parentNode, 'name');
+    let i = 0;
+    while (tag === undefined) {
+        i++;
+        target = target.parentNode;
+        tag = getData(target, 'tag');
+        name = getData(target, 'name');
+        if (i > 2) {
+            break;
+        }
     }
     if (tag !== '' &&
         name !== '' &&
@@ -292,6 +298,10 @@ function gotoAlbum(artist, album) {
 
 //eslint-disable-next-line no-unused-vars
 function gotoAlbumList(tag, value) {
+    if (typeof value === 'string') {
+        //convert string to array
+        value = [value];
+    }
     document.getElementById('searchDatabaseStr').value = '';
     let expression = '(';
     for (let i = 0, j = value.length; i < j; i++) {

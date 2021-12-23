@@ -325,7 +325,7 @@ function saveCols(table, tableEl) {
 
 //eslint-disable-next-line no-unused-vars
 function saveColsPlayback(table) {
-    const colInputs = document.getElementById(table + 'ColsDropdown').firstChild.getElementsByTagName('button');
+    const colInputs = document.getElementById(table + 'ColsDropdown').firstElementChild.getElementsByTagName('button');
     const header = document.getElementById('cardPlaybackTags');
 
     for (let i = 0, j = colInputs.length - 1; i < j; i++) {
