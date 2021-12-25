@@ -105,9 +105,13 @@ sds mpd_shared_get_tag_value_string(struct mpd_song const *song, const enum mpd_
     tag_values = _mpd_shared_get_tag_value_string(song, tag, tag_values);
     if (sdslen(tag_values) == 0) {
         if (tag == MPD_TAG_TITLE) {
-            //title fallback to filename
-            tag_values = sdscat(tag_values, mpd_song_get_uri(song));
-            sds_basename_uri(tag_values);
+            //title fallback to name
+            tag_values = _mpd_shared_get_tag_value_string(song, MPD_TAG_NAME, tag_values);
+            if (sdslen(tag_values) == 0) {
+                //title fallback to filename
+                tag_values = sdscat(tag_values, mpd_song_get_uri(song));
+                sds_basename_uri(tag_values);
+            }
         }
         else if (tag == MPD_TAG_ALBUM_ARTIST) {
             //albumartist fallback to artist tag
@@ -122,11 +126,15 @@ sds mpd_shared_get_tag_values(struct mpd_song const *song, const enum mpd_tag_ty
     tag_values = _mpd_shared_get_tag_values(song, tag, tag_values, multi);
     if (sdslen(tag_values) == 0) {
         if (tag == MPD_TAG_TITLE) {
-            //title fallback to filename
-            sds filename = sdsnew(mpd_song_get_uri(song));
-            sds_basename_uri(filename);
-            tag_values = sds_catjson(tag_values, filename, sdslen(filename));
-            sdsfree(filename);
+            //title fallback to name
+            tag_values = _mpd_shared_get_tag_values(song, MPD_TAG_NAME, tag_values, multi);
+            if (sdslen(tag_values) == 0) {
+                //title fallback to filename
+                sds filename = sdsnew(mpd_song_get_uri(song));
+                sds_basename_uri(filename);
+                tag_values = sds_catjson(tag_values, filename, sdslen(filename));
+                sdsfree(filename);
+            }
         }
         else if (tag == MPD_TAG_ALBUM_ARTIST) {
             //albumartist fallback to artist tag
