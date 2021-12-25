@@ -1381,7 +1381,7 @@ function getParent(el, nodeName) {
     while (target.nodeName !== nodeName) {
         i++;
         if (i > 10) {
-            return NULL;
+            return null;
         }
         target = target.parentNode;
     }
