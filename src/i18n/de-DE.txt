@@ -1988,3 +1988,9 @@ Jukebox Warteschlange wird aufgefüllt
 
 Clear jukebox queue
 Leere Jukebox Warteschlange
+
+Mixramp delay
+Mixramp Verzögerung
+
+Mixramp db
+Mixramp DB

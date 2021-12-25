@@ -123,9 +123,7 @@ function validateUint(el) {
 }
 
 function validateIntRange(el, min, max) {
-    const value = el.value.replace(/[\d]/g, '');
-    if (value !== '') {
-        setIsInvalid(el);
+    if (validateInt(el) === false) {
         return false;
     }
     const intValue = Number(el.value);
@@ -139,6 +137,18 @@ function validateIntRange(el, min, max) {
 function validateFloat(el) {
     const value = el.value.replace(/[\d-.]/g, '');
     if (value !== '') {
+        setIsInvalid(el);
+        return false;
+    }
+    return true;
+}
+
+function validateFloatRange(el, min, max) {
+    if (validateFloat(el) === false) {
+        return false;
+    }
+    const floatValue = Number(el.value);
+    if (floatValue < min || floatValue > max) {
         setIsInvalid(el);
         return false;
     }

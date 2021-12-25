@@ -519,6 +519,25 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
             }
             rc = mpd_run_replay_gain_mode(mympd_state->mpd_state->conn, mode);
         }
+        else if (strcmp(key, "mixrampDb") == 0 && vtype == MJSON_TOK_NUMBER) {
+            float db = strtof(value, NULL);
+            if (db < -100 || db > 0) {
+                //mixrampdb should be a negative value
+                *error = set_invalid_value(*error, key, value);
+                return false;
+            }
+            rc = mpd_run_mixrampdb(mympd_state->mpd_state->conn, db);
+        }
+        else if (strcmp(key, "mixrampDelay") == 0 && vtype == MJSON_TOK_NUMBER) {
+            float delay = strtof(value, NULL);
+            if (delay < -1.0 || delay > 100) {
+                //mixrampdb should be a positive value
+                //0 disables mixramp
+                *error = set_invalid_value(*error, key, value);
+                return false;
+            }
+            rc = mpd_run_mixrampdelay(mympd_state->mpd_state->conn, delay);
+        }
         sds message = check_error_and_recover_notify(mympd_state->mpd_state, sdsempty());
         if (sdslen(message) > 0) {
             ws_notify(message);
@@ -678,6 +697,8 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
             buffer = tojson_char(buffer, "partition", mpd_status_get_partition(status), true);
         }
         buffer = tojson_long(buffer, "crossfade", mpd_status_get_crossfade(status), true);
+        buffer = tojson_double(buffer, "mixrampDb", mpd_status_get_mixrampdb(status), true);
+        buffer = tojson_double(buffer, "mixrampDelay", mpd_status_get_mixrampdelay(status), true);
         buffer = tojson_long(buffer, "random", mpd_status_get_random(status), true);
         buffer = tojson_long(buffer, "consume", mpd_status_get_consume(status), true);
         buffer = tojson_char(buffer, "replaygain", replaygain == NULL ? "" : replaygain, true);

@@ -1119,28 +1119,24 @@
                   </div>
                 </div>
                 <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="btnSingleGroup" data-phrase="Single"></label>
-                  <div class="col-sm-8">
-                    <div class="btn-group" id="btnSingleGroup">
-                      <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
-                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
-                      <button data-value="2" class="btn btn-secondary featSingleOneshot" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
-                    </div>
-                  </div>
-                </div>
-                <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="btnRepeat" data-phrase="Repeat"></label>
                   <div class="col-sm-8">
                     <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnRepeat" type="button" class="btn btn-secondary btn-sm mi"></button>
                   </div>
                 </div>
                 <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="inputCrossfade" data-phrase="Crossfade"></label>
+                  <label class="col-sm-4 col-form-label" for="btnAutoPlay" data-phrase="Autoplay"></label>
                   <div class="col-sm-8">
-                    <div class="input-group">
-                        <input id="inputCrossfade" type="text" class="form-control rounded"/>
-                        <div class="input-group-text-nobg" data-phrase="Seconds"></div>
-                        <div class="invalid-feedback" data-phrase="Must be a number"></div>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnAutoPlay" type="button" class="btn btn-secondary btn-sm mi"></button>
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="btnSingleGroup" data-phrase="Single"></label>
+                  <div class="col-sm-8">
+                    <div class="btn-group" id="btnSingleGroup">
+                      <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
+                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
+                      <button data-value="2" class="btn btn-secondary featSingleOneshot" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
                     </div>
                   </div>
                 </div>
@@ -1156,9 +1152,34 @@
                   </div>
                 </div>
                 <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="btnAutoPlay" data-phrase="Autoplay"></label>
+                  <label class="col-sm-4 col-form-label" for="inputCrossfade" data-phrase="Crossfade"></label>
                   <div class="col-sm-8">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnAutoPlay" type="button" class="btn btn-secondary btn-sm mi"></button>
+                    <div class="input-group">
+                      <div class="flex-grow position-relative">
+                        <input data-is="mympd-input-reset" id="inputCrossfade" type="text" class="form-control rounded" placeholder="0"/>
+                      </div>
+                      <div class="input-group-text-nobg" data-phrase="Seconds"></div>
+                      <div class="invalid-feedback" data-phrase="Must be a number"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="inputMixrampDelay" data-phrase="Mixramp delay"></label>
+                  <div class="col-sm-8">
+                    <div class="input-group">
+                      <div class="flex-grow position-relative">
+                        <input data-is="mympd-input-reset" id="inputMixrampDelay" type="text" class="form-control rounded" placeholder="-1"/>
+                      </div>
+                      <div class="input-group-text-nobg" data-phrase="Seconds"></div>
+                      <div class="invalid-feedback" data-phrase="Must be a number"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="inputMixrampDb" data-phrase="Mixramp db"></label>
+                  <div class="col-sm-8 position-relative">
+                    <input data-is="mympd-input-reset" id="inputMixrampDb" type="text" class="form-control rounded" placeholder="0"/>
+                    <div class="invalid-feedback" data-phrase="Must be a number"></div>
                   </div>
                 </div>
               </form>

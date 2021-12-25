@@ -492,6 +492,8 @@ function populateQueueSettingsFrm() {
         toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.single);
         toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.replaygain);
         document.getElementById('inputCrossfade').value = settings.crossfade;
+        document.getElementById('inputMixrampDb').value = settings.mixrampDb;
+        document.getElementById('inputMixrampDelay').value = settings.mixrampDelay;
         if (features.featStickers === false) {
             elShowId('warnPlaybackStatistics');
             elDisableId('inputJukeboxLastPlayed');
@@ -1050,9 +1052,18 @@ function saveQueueSettings() {
 
     for (const inputId of ['inputCrossfade', 'inputJukeboxQueueLength', 'inputJukeboxLastPlayed']) {
         const inputEl = document.getElementById(inputId);
-        if (!validateInt(inputEl)) {
+        if (validateInt(inputEl) === false) {
             formOK = false;
         }
+    }
+
+    const mixrampDbEl = document.getElementById('inputMixrampDb');
+    if (validateFloatRange(mixrampDbEl, -100, 0) === false) {
+        formOK = false;
+    }
+    const mixrampDelayEl = document.getElementById('inputMixrampDelay');
+    if (validateFloatRange(mixrampDelayEl, -1, 100) === false) {
+        formOK = false;
     }
 
     const singleState = getBtnGroupValueId('btnSingleGroup');
@@ -1074,6 +1085,8 @@ function saveQueueSettings() {
             "repeat": (document.getElementById('btnRepeat').classList.contains('active') ? 1 : 0),
             "replaygain": replaygain,
             "crossfade": Number(document.getElementById('inputCrossfade').value),
+            "mixrampDb": Number(mixrampDbEl.value),
+            "mixrampDelay": Number(mixrampDelayEl.value),
             "jukeboxMode": Number(jukeboxMode),
             "jukeboxPlaylist": jukeboxPlaylist,
             "jukeboxQueueLength": Number(document.getElementById('inputJukeboxQueueLength').value),
