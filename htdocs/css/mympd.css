@@ -11,10 +11,9 @@ body.not-mobile {
 
 body.not-mobile .scrollContainer {
   overflow-y: auto;
-  overflow-x: auto;
 }
 
-body.not-mobile .BrowseDatabaseCardsContainer {
+div.cardsContainer {
   overflow-x: hidden;
 }
 
@@ -897,14 +896,12 @@ div.active #badgeQueueItems {
   left: 7px;
 }
 
-div.BrowseDatabaseCardsContainer,
-div.HomeContainer {
+div.cardsContainer {
   padding-right: 5px;
   padding-left: 5px;
 }
 
-div.BrowseDatabaseCardsContainer .col,
-div.HomeContainer .col {
+div.cardsContainer .col {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
 }
