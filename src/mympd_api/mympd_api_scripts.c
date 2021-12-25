@@ -140,7 +140,7 @@ bool mympd_api_script_save(struct t_config *config, sds script, sds oldscript, i
         FREE_SDS(tmp_file);
         return false;
     }
-    FILE *fp = fdopen(fd, "w");
+    FILE *fp = fdopen(fd, OPEN_FLAGS_WRITE);
     //write metadata line
     sds argstr = sdsempty();
     argstr = list_to_json_array(argstr, arguments);
