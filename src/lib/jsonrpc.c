@@ -249,6 +249,25 @@ bool json_get_int(sds s, const char *path, int min, int max, int *result, sds *e
     return false;
 }
 
+bool json_get_long_max(sds s, const char *path, long *result, sds *error) {
+    return json_get_long(s, path, JSONRPC_LONG_MIN, JSONRPC_LONG_MAX, result, error);
+}
+
+bool json_get_long(sds s, const char *path, long min, long max, long *result, sds *error) {
+    double value;
+    if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
+        if (value >= min && value <= max) {
+            *result = (long)value;
+            return true;
+        }
+        _set_parse_error(error, "Number out of range for JSON path \"%s\"", path);
+    }
+    else {
+        _set_parse_error(error, "JSON path \"%s\" not found", path);
+    }
+    return false;
+}
+
 bool json_get_uint_max(sds s, const char *path, unsigned *result, sds *error) {
     return json_get_uint(s, path, 0, JSONRPC_INT_MAX, result, error);
 }
