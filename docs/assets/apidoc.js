@@ -1585,15 +1585,15 @@ const APImethods = {
         "params": {}
     },
     "MYMPD_API_COVERCACHE_CLEAR": {
-        "desc": "Clears the covercache",
+        "desc": "Clears the covercache.",
         "params": {}
     },
     "MYMPD_API_COVERCACHE_CROP": {
-        "desc": "Clears the covercache",
+        "desc": "Crops the covercache.",
         "params": {}
     },
     "MYMPD_API_LOGLEVEL": {
-        "desc": "Sets the loglevel",
+        "desc": "Sets the loglevel.",
         "protected": true,
         "params": {
             "loglevel": {
@@ -1601,6 +1601,56 @@ const APImethods = {
                 "example": 5,
                 "desc": "https://jcorporation.github.io/myMPD/configuration/logging"
             }
+        }
+    },
+    "MYMPD_API_WEBRADIO_LIST": {
+        "desc": "Lists webradio favorites.",
+        "params": {
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "searchstr": APIparams.searchstr
+        }
+    },
+    "MYMPD_API_WEBRADIO_SAVE": {
+        "desc": "Lists saved webradios.",
+        "params": {
+            "name": {
+                "type": "string",
+                "example": "swr1",
+                "desc": "Name of the webradio favorite to delete."
+            },
+            "uri": {
+                "type": "string",
+                "example": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
+                "desc": "URI of the webradio stream."
+            },
+            "picture": {
+                "type": "string",
+                "example": "http://www.swr.de/streampic.jpg",
+                "desc": "Picture for the webradio."
+            },
+            "genre": {
+                "type": "string",
+                "example": "Pop Rock",
+                "desc": "Genre or other tags."
+            }
+        }
+    },
+    "MYMPD_API_WEBRADIO_RM": {
+        "desc": "Deletes a webradio favorite.",
+        "params": {
+            "name": {
+                "type": "string",
+                "example": "swr1",
+                "desc": "Name of the webradio favorite to delete."
+            }
+        }
+    },
+    "MYMPD_API_CLOUD_RADIOBROWSER_NEWEST": {
+        "desc": "Lists the last changed/added stations.",
+        "params": {
+            "offset": APIparams.offset,
+            "limit": APIparams.limit
         }
     },
     "MYMPD_API_CLOUD_RADIOBROWSER_SEARCH": {
@@ -1613,7 +1663,7 @@ const APImethods = {
         }
     },
     "MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST": {
-        "desc": "Return radio-browser.info endpoints",
+        "desc": "Return radio-browser.info endpoints.",
         "params": {}
     }
 };

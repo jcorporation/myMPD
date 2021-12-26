@@ -90,21 +90,13 @@ function initBrowse() {
         }
     }, false);
 
-    document.getElementById('BrowseDatabaseByTagDropdown').addEventListener('click', function(event) {
-        navBrowseHandler(event);
-    }, false);
-
-    document.getElementById('BrowseNavPlaylistsDropdown').addEventListener('click', function(event) {
-        navBrowseHandler(event);
-    }, false);
-
-    document.getElementById('BrowseNavFilesystemDropdown').addEventListener('click', function(event) {
-        navBrowseHandler(event);
-    }, false);
-
-    document.getElementById('BrowseNavRadioDropdown').addEventListener('click', function(event) {
-        navBrowseHandler(event);
-    }, false);
+    for (const nav of ['BrowseDatabaseByTagDropdown', 'BrowseNavPlaylistsDropdown', 'BrowseNavFilesystemDropdown',
+            'BrowseNavRadioOnlineDropdown', 'BrowseNavRadioFavoritesDropdown'])
+    {
+        document.getElementById(nav).addEventListener('click', function(event) {
+            navBrowseHandler(event);
+        }, false);
+    }
 
     document.getElementById('dropdownSortPlaylistTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
@@ -395,7 +387,7 @@ function parseDatabase(obj) {
     const cardContainer = document.getElementById('BrowseDatabaseListList');
 
     const cols = cardContainer.getElementsByClassName('col');
-    document.getElementById('BrowseDatabaseListList').classList.remove('opacity05');
+    cardContainer.classList.remove('opacity05');
 
     if (obj.error !== undefined) {
         elReplaceChild(cardContainer,

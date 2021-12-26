@@ -113,7 +113,7 @@
   <main>
     <div class="card" id="cardHome">
       <div class="card-body">
-        <div class="container-fluid HomeContainer scrollContainer">
+        <div class="container-fluid cardsContainer scrollContainer">
           <div id="HomeList" class="row noInitChilds"></div>
         </div>
       </div>
@@ -438,7 +438,7 @@
             <div id="BrowseDatabaseListPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <ol class="featAdvsearch breadcrumb p-2 rounded-2 d-none" id="searchDatabaseCrumb"></ol>
-          <div class="container-fluid BrowseDatabaseCardsContainer scrollContainer">
+          <div class="container-fluid cardsContainer scrollContainer">
             <div id="BrowseDatabaseListList" class="row"></div>
           </div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseDatabaseListButtonsBottom"></div>
@@ -526,40 +526,70 @@
       </div>
 
       <div class="card-body d-none" id="tabBrowseRadio">
-        <div class="btn-toolbar card-toolbar" id="BrowseRadioButtons">
-          <div class="btn-group me-2">
-            <button data-title-phrase="Select view" id="BrowseNavRadio" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
-            <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavRadioDropdown">
-            </div>
-          </div>
-          <form class="flex-grow-1">
-            <div class="input-group me-2 flex-grow-1">
-              <div class="btn-group">
-                <button  id="radiobrowsetagsBtn" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
-                  <span class="mi">search</span>
-                  <span data-phrase="Name" id="radiobrowsetagsdesc"></span>
-                </button>
-                <div class="dropdown-menu dropdown-menu-dark px-2" id="radiobrowsetags"></div>
+        <div id="viewBrowseRadioFavorites">
+          <div class="btn-toolbar card-toolbar" id="BrowseRadioFavoritesButtons">
+            <div class="btn-group me-2">
+              <button data-title-phrase="Select view" id="BrowseNavRadioFavorites" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
+              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavRadioFavoritesDropdown">
               </div>
-              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="searchRadioStr"/>
             </div>
-          </form>
-          <div class="btn-group me-2 featHome" id="BrowseRadioAddToHome">
-            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+            <div class="btn-group me-2">
+              <button data-title-phrase="Search radio-browser.info" data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "Online"]}' type="button" class="btn btn-secondary"><span class="mi">radio</span></button>
+            </div>
+            <form class="flex-grow-1">
+              <div class="input-group me-2">
+                <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
+                <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="BrowseRadioFavoritesSearchStr"/>
+              </div>
+            </form>
+            <div class="btn-group me-2 featHome">
+              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+            </div>
+            <div id="BrowseRadioFavoritesPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <div id="BrowseRadioPaginationTop" class="btn-group me-2 pagination"></div>
+          <div class="container-fluid scrollContainer cardsContainer">
+            <div id="BrowseRadioFavoritesList" class="row"></div>
+          </div>
+          <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioFavoritesButtonsBottom"></div>
         </div>
-        <div class="table-responsive-md scrollContainer">
-          <table id="BrowseRadioList" class="table table-hover table-sm">
-            <thead>
-              <tr><th data-phrase="Station"></th><th data-phrase="Tags"></th><th data-phrase="Country"></th><th></th></tr>
-            </thead>
-            <tbody class="clickable"></tbody>
-            <tfoot></tfoot>
-          </table>
+        <div id="viewBrowseRadioOnline">
+          <div class="btn-toolbar card-toolbar" id="BrowseRadioOnlineButtons">
+            <div class="btn-group me-2">
+              <button data-title-phrase="Select view" id="BrowseNavRadioOnline" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
+              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavRadioOnlineDropdown">
+              </div>
+            </div>
+            <div class="btn-group me-2">
+              <button data-title-phrase="Webradio favorites" data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "Favorites"]}' type="button" class="btn btn-secondary"><span class="mi">favorite</span></button>
+            </div>
+            <form class="flex-grow-1">
+              <div class="input-group me-2 flex-grow-1">
+                <div class="btn-group">
+                  <button  id="BrowseRadioOnlineTagsBtn" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
+                    <span class="mi">search</span>
+                    <span data-phrase="Name" id="BrowseRadioOnlineTagsDesc"></span>
+                  </button>
+                  <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseRadioOnlineTags"></div>
+                </div>
+                <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="BrowseRadioOnlineSearchStr"/>
+              </div>
+            </form>
+            <div class="btn-group me-2 featHome" id="BrowseRadioOnlineAddToHome">
+              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+            </div>
+            <div id="BrowseRadioOnlinePaginationTop" class="btn-group me-2 pagination"></div>
+          </div>
+          <div class="table-responsive-md scrollContainer">
+            <table id="BrowseRadioOnlineList" class="table table-hover table-sm">
+              <thead>
+                <tr><th data-phrase="Station"></th><th data-phrase="Tags"></th><th data-phrase="Country"></th><th></th></tr>
+              </thead>
+              <tbody class="clickable"></tbody>
+              <tfoot></tfoot>
+            </table>
+          </div>
+          <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioOnlineButtonsBottom"></div>
         </div>
-        <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioButtonsBottom"></div>
-      </div>
     </div>
 
     <div class="card d-none" id="cardSearch">
@@ -2368,7 +2398,7 @@
 <!--debug-->  <script src="js/ligatures.js"></script>
 <!--debug-->  <script src="js/home.js"></script>
 <!--debug-->  <script src="js/jukebox.js"></script>
-<!--debug-->  <script src="js/radiobrowser.js"></script>
+<!--debug-->  <script src="js/webradio.js"></script>
 <!--debug-->  <script src="js/mympd.js"></script>
 <!--release   <script src="js/combined.js"></script>-->
  </body>

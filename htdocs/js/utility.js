@@ -172,10 +172,10 @@ function showConfirmInline(el, text, btnText, callback) {
 
 //custom encoding function
 //works like encodeURIComponent but
-//- does not escape /
+//- does not escape /:
 //- escapes further reserved characters
 function myEncodeURI(str) {
-    return encodeURI(str).replace(/[!'()*#?;,:@&=+$~]/g, function(c) {
+    return encodeURI(str).replace(/[!'()*#?;,@&=+$~]/g, function(c) {
         return '%' + c.charCodeAt(0).toString(16);
     });
 }
@@ -567,7 +567,8 @@ function addTagList(elId, list) {
     }
     if (elId === 'BrowseNavFilesystemDropdown' ||
         elId === 'BrowseNavPlaylistsDropdown' ||
-        elId === 'BrowseNavRadioDropdown')
+        elId === 'BrowseNavRadioFavoritesDropdown' ||
+        elId === 'BrowseNavRadioOnlineDropdown')
     {
         if (features.featTags === true && features.featAdvsearch === true) {
             elClear(stack);
@@ -577,7 +578,8 @@ function addTagList(elId, list) {
     if (elId === 'BrowseDatabaseByTagDropdown' ||
         elId === 'BrowseNavFilesystemDropdown' ||
         elId === 'BrowseNavPlaylistsDropdown' ||
-        elId === 'BrowseNavRadioDropdown')
+        elId === 'BrowseNavRadioFavoritesDropdown' ||
+        elId === 'BrowseNavRadioOnlineDropdown')
     {
         if (elId === 'BrowseDatabaseByTagDropdown') {
             stack.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
@@ -591,7 +593,9 @@ function addTagList(elId, list) {
             stack.lastChild.classList.add('active');
         }
         stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Radio"}, tn('Webradios')));
-        if (elId === 'BrowseNavRadioDropdown') {
+        if (elId === 'BrowseNavRadioFavoritesDropdown' ||
+        elId === 'BrowseNavRadioOnlineDropdown')
+        {
             stack.lastChild.classList.add('active');
         }
     }

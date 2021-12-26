@@ -71,6 +71,10 @@ function showPopover(event) {
                 //home card actions
                 popoverInit = createPopoverTabs(target, createMenuHome, createMenuHomeSecondary);
                 break;
+            case 'webradio':
+                //webradio favorite actions
+                popoverInit = createPopoverSimple(target, 'Webradio', addMenuItemsPlaylistActions, false);
+                break;
             case 'album':
                 //album action in album list
                 popoverInit = createPopoverSimple(target, 'Album', addMenuItemsAlbumActions, false);
@@ -341,7 +345,7 @@ function addMenuItemsAlbumActions(tabContent, dataNode, albumArtist, album) {
 }
 
 //for single songs and streams
-function addMenuItemsSongActions(tabContent, uri, type, name) {
+function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
     if (app.id !== 'QueueCurrent') {
         addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri]}, 'Append to queue');
         addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": [type, uri]}, 'Append to queue and play');
@@ -366,6 +370,14 @@ function addMenuItemsSongActions(tabContent, uri, type, name) {
     {
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "addSongToHome", "options": [uri, type, name]}, 'Add to homescreen');
+    }
+    if (app.id === 'BrowseRadioOnline' &&
+        dataNode !== null)
+    {
+        const genre = getData(dataNode, 'genre');
+        const picture = getData(dataNode, 'picture');
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addMenuItem(tabContent, {"cmd": "addRadioFavorite", "options": [uri, name, genre, picture]}, 'Add to favorites');
     }
 }
 
@@ -453,12 +465,12 @@ function createMenuLists(el, tabHeader, tabContent) {
     switch(app.id) {
         case 'BrowseFilesystem':
         case 'Search':
-        case 'BrowseRadio':
+        case 'BrowseRadioOnline':
         case 'BrowseDatabaseDetail': {
             switch(type) {
                 case 'song':
                 case 'stream':
-                    addMenuItemsSongActions(tabContent, uri, type, name);
+                    addMenuItemsSongActions(tabContent, dataNode, uri, type, name);
                     break;
                 case 'dir':
                     addMenuItemsDirectoryActions(tabContent, uri);
@@ -499,7 +511,7 @@ function createMenuLists(el, tabHeader, tabContent) {
         }
         case 'BrowsePlaylistsDetail': {
             const table = document.getElementById('BrowsePlaylistsDetailList');
-            addMenuItemsSongActions(tabContent, uri, type, name);
+            addMenuItemsSongActions(tabContent, dataNode, uri, type, name);
             if (getData(table, 'ro') === 'false') {
                 tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
                 const plist = getData(table, 'uri');
@@ -520,7 +532,7 @@ function createMenuLists(el, tabHeader, tabContent) {
         case 'QueueCurrent': {
             const trackid = getData(dataNode, 'trackid');
             const songpos = getData(dataNode, 'songpos');
-            addMenuItemsSongActions(tabContent, uri, type, name);
+            addMenuItemsSongActions(tabContent, dataNode, uri, type, name);
             tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
             if (currentState.currentSongId !== -1 &&
                 trackid !== currentState.currentSongId)
@@ -542,13 +554,13 @@ function createMenuLists(el, tabHeader, tabContent) {
             return true;
         }
         case 'QueueLastPlayed': {
-            addMenuItemsSongActions(tabContent, uri, type, name);
+            addMenuItemsSongActions(tabContent, dataNode, uri, type, name);
             return true;
         }
         case 'QueueJukebox': {
             const pos = Number(getData(dataNode, 'pos'));
             if (settings.jukeboxMode === 1) {
-                addMenuItemsSongActions(tabContent, uri, type, name);
+                addMenuItemsSongActions(tabContent, dataNode, uri, type, name);
             }
             else if (settings.jukeboxMode === 2) {
                 addMenuItemsAlbumActions(tabContent, dataNode)
@@ -635,7 +647,7 @@ function createMenuHome(el, tabHeader, tabContent) {
             break;
         case 'song':
         case 'stream':
-            addMenuItemsSongActions(tabContent, href.options[1], type, href.options[1]);
+            addMenuItemsSongActions(tabContent, null, href.options[1], type, href.options[1]);
             break;
         case 'search':
             addMenuItemsSearchActions(tabContent, href.options[1]);

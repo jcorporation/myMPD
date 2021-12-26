@@ -919,7 +919,8 @@ function parseMPDSettings() {
     addTagList('BrowseDatabaseByTagDropdown', 'tagListBrowse');
     addTagList('BrowseNavPlaylistsDropdown', 'tagListBrowse');
     addTagList('BrowseNavFilesystemDropdown', 'tagListBrowse');
-    addTagList('BrowseNavRadioDropdown', 'tagListBrowse');
+    addTagList('BrowseNavRadioFavoritesDropdown', 'tagListBrowse');
+    addTagList('BrowseNavRadioOnlineDropdown', 'tagListBrowse');
 
     addTagList('searchqueuetags', 'tagListSearch');
     addTagList('searchtags', 'tagListSearch');

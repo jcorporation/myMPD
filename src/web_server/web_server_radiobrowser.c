@@ -23,8 +23,8 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
 void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc,
     enum mympd_cmd_ids cmd_id, sds body, int id)
 {
-    unsigned offset;
-    unsigned limit;
+    long offset;
+    long limit;
     sds filter = NULL;
     sds searchstr = NULL;
     sds error = sdsempty();
@@ -33,15 +33,22 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
 
     switch(cmd_id) {
         case MYMPD_API_CLOUD_RADIOBROWSER_SEARCH:
-            if (json_get_uint(body, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &offset, &error) == true &&
-                json_get_uint(body, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &limit, &error) == true &&
+            if (json_get_long(body, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &offset, &error) == true &&
+                json_get_long(body, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &limit, &error) == true &&
                 json_get_string(body, "$.params.filter", 1, NAME_LEN_MAX, &filter, vcb_isprint, &error) == true &&
                 json_get_string(body, "$.params.searchstr", 0, NAME_LEN_MAX, &searchstr, vcb_isname, &error) == true)
             {
                 sds searchstr_encoded = sds_urlencode(sdsempty(), searchstr, sdslen(searchstr));
-                uri = sdscatprintf(uri, "/json/stations/search?offset=%u&limit=%u&%s=%s",
+                uri = sdscatprintf(uri, "/json/stations/search?offset=%ld&limit=%ld&%s=%s",
                     offset, limit, filter, searchstr_encoded);
                 FREE_SDS(searchstr_encoded);
+            }
+            break;
+        case MYMPD_API_CLOUD_RADIOBROWSER_NEWEST:
+            if (json_get_long(body, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &offset, &error) == true &&
+                json_get_long(body, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &limit, &error) == true)
+            {
+                uri = sdscatprintf(uri, "/json/stations/lastchange?offset=%ld&limit=%ld", offset, limit);
             }
             break;
         case MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST:

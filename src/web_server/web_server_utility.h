@@ -19,13 +19,13 @@
     "X-Frame-Options: deny\r\n"
 
 #define EXTRA_HEADERS_UNSAFE "Content-Security-Policy: default-src 'none'; "\
-    "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; "\
+    "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src * data:; "\
     "connect-src 'self' ws: wss:; manifest-src 'self'; "\
     "media-src 'self'; frame-ancestors *; base-uri 'none';\r\n"\
     EXTRA_HEADERS_MISC
 
 #define EXTRA_HEADERS_SAFE "Content-Security-Policy: default-src 'none'; "\
-    "style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; "\
+    "style-src 'self'; font-src 'self'; script-src 'self'; img-src * data:; "\
     "connect-src 'self' ws: wss:; manifest-src 'self'; "\
     "media-src 'self'; frame-ancestors *; base-uri 'none'; "\
     "require-trusted-types-for 'script'\r\n"\
@@ -47,16 +47,18 @@
     "a:hover{text-decoration:underline}"
 
 #define EXTRA_MIME_TYPES "avif=image/avif,flac=audio/flac,oga=audio/ogg,ogg=audio/ogg,"\
-    "opus=audio/ogg,spx=audio/ogg,pem=application/x-x509-ca-cert,woff2=font/woff2"
+    "opus=audio/ogg,spx=audio/ogg,pem=application/x-x509-ca-cert,woff2=font/woff2,"\
+    "m3u=audio/mpegurl"
 
 //struct for mg_mgr userdata
 struct t_mg_user_data {
     struct t_config *config; //pointer to mympd config
-    sds browse_document_root;
-    sds pics_document_root;
+    sds browse_directory;
+    sds pics_directory;
     sds music_directory;
-    sds smartpls_document_root;
+    sds smartpls_directory;
     sds playlist_directory;
+    sds webradios_directory;
     sds *coverimage_names;
     int coverimage_names_len;
     bool feat_library;

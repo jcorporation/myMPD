@@ -12,7 +12,8 @@ function appPrepare(scrollPos) {
         }
         const cards = ['cardHome', 'cardPlayback', 'cardSearch',
             'cardQueue', 'tabQueueCurrent', 'tabQueueLastPlayed', 'tabQueueJukebox',
-            'cardBrowse', 'tabBrowseFilesystem', 'tabBrowseRadio',
+            'cardBrowse', 'tabBrowseFilesystem',
+            'tabBrowseRadio', 'viewBrowseRadioFavorites', 'viewBrowseRadioOnline',
             'tabBrowsePlaylists', 'viewBrowsePlaylistsDetail', 'viewBrowsePlaylistsList',
             'tabBrowseDatabase', 'viewBrowseDatabaseDetail', 'viewBrowseDatabaseList'];
         for (const card of cards) {
@@ -380,14 +381,30 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             //more detail views coming
             break;
         }
-        case 'BrowseRadio': {
-            selectTag('radiobrowsetags', 'radiobrowsetagsdesc', app.current.filter);
-            sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_SEARCH", {
+        case 'BrowseRadioFavorites': {
+            sendAPI("MYMPD_API_WEBRADIO_LIST", {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
-                "filter": app.current.filter,
                 "searchstr": app.current.search
-            }, parseStationList, true);
+            }, parseWebradioList, true);
+            break;
+        }
+        case 'BrowseRadioOnline': {
+            selectTag('BrowseRadioOnlineTagsBtn', 'BrowseRadioOnlineTagsDesc', app.current.filter);
+            if (app.current.search === '') {
+                sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_NEWEST", {
+                    "offset": app.current.offset,
+                    "limit": app.current.limit,
+                }, parseRadiobrowserList, true);
+            }
+            else {
+                sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_SEARCH", {
+                    "offset": app.current.offset,
+                    "limit": app.current.limit,
+                    "filter": app.current.filter,
+                    "searchstr": app.current.search
+                }, parseRadiobrowserList, true);
+            }
             break;
         }
         case 'Search': {
@@ -671,7 +688,7 @@ function appInit() {
     initNavs();
     initPlaylists();
     initOutputs();
-    initRadioBrowser();
+    initWebradio();
     //init drag and drop
     dragAndDropTable('QueueCurrentList');
     dragAndDropTable('BrowsePlaylistsDetailList');

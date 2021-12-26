@@ -289,6 +289,7 @@ set(MYMPD_SOURCES
   src/mympd_api/mympd_api_timer_handlers.c
   src/mympd_api/mympd_api_trigger.c
   src/mympd_api/mympd_api_utility.c
+  src/mympd_api/mympd_api_webradios.c
   src/mympd_config.c
   src/web_server.c
   src/web_server/web_server_albumart.c

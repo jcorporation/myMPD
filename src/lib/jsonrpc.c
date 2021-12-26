@@ -256,8 +256,9 @@ bool json_get_long_max(sds s, const char *path, long *result, sds *error) {
 bool json_get_long(sds s, const char *path, long min, long max, long *result, sds *error) {
     double value;
     if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
-        if (value >= min && value <= max) {
-            *result = (long)value;
+        long value_long = (long)value;
+        if (value_long >= min && value_long <= max) {
+            *result = value_long;
             return true;
         }
         _set_parse_error(error, "Number out of range for JSON path \"%s\"", path);

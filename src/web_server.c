@@ -42,9 +42,10 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
 
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
-    mg_user_data->browse_document_root = sdscatfmt(sdsempty(), "%s/empty", config->workdir);
-    mg_user_data->pics_document_root = sdscatfmt(sdsempty(), "%s/pics", config->workdir);
-    mg_user_data->smartpls_document_root = sdscatfmt(sdsempty(), "%s/smartpls", config->workdir);
+    mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%s/empty", config->workdir);
+    mg_user_data->pics_directory = sdscatfmt(sdsempty(), "%s/pics", config->workdir);
+    mg_user_data->smartpls_directory = sdscatfmt(sdsempty(), "%s/smartpls", config->workdir);
+    mg_user_data->webradios_directory = sdscatfmt(sdsempty(), "%s/webradios", config->workdir);
     mg_user_data->music_directory = sdsempty();
     mg_user_data->playlist_directory = sdsempty();
     sds default_coverimagename = sdsnew("cover,folder");
@@ -326,12 +327,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             MYMPD_LOG_INFO("HTTP request (%lu): %.*s %.*s", nc->id, (int)hm->method.len, hm->method.ptr, (int)hm->uri.len, hm->uri.ptr);
-            //limit proto to HTTP/1.1
-            if (strncmp(hm->proto.ptr, "HTTP/1.1", hm->proto.len) != 0) {
-                MYMPD_LOG_ERROR("Invalid http version, only HTTP/1.1 is supported");
-                nc->is_closing = 1;
-                return;
-            }
             //limit allowed http methods
             if (strncmp(hm->method.ptr, "GET", hm->method.len) == 0) {
                 nc->label[1] = 'G';
@@ -445,7 +440,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     //deliver ca certificate
                     sds ca_file = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->workdir);
                     static struct mg_http_serve_opts s_http_server_opts;
-                    s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+                    s_http_server_opts.root_dir = mg_user_data->browse_directory;
                     s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
                     s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                     mg_http_serve_file(nc, hm, ca_file, &s_http_server_opts);
@@ -464,9 +459,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             else if (mg_http_match_uri(hm, "/pics/#")) {
                 //serve directory
-                MYMPD_LOG_DEBUG("Setting document root to \"%s\"", mg_user_data->pics_document_root);
+                MYMPD_LOG_DEBUG("Setting document root to \"%s\"", mg_user_data->pics_directory);
                 static struct mg_http_serve_opts s_http_server_opts;
-                s_http_server_opts.root_dir = mg_user_data->pics_document_root;
+                s_http_server_opts.root_dir = mg_user_data->pics_directory;
                 s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
                 s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                 hm->uri = mg_str_strip_parent(&hm->uri, 1);
@@ -486,6 +481,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                         dirs = sdscat(dirs, "<tr><td><a href=\"playlists/\">playlists/</a></td><td>MPD playlists directory</td><td></td></tr>");
                     }
                     dirs = sdscat(dirs, "<tr><td><a href=\"smartplaylists/\">smartplaylists/</a></td><td>myMPD smart playlists directory</td><td></td></tr>");
+                    dirs = sdscat(dirs, "<tr><td><a href=\"webradios/\">smartplaylists/</a></td><td>Webradio favorites</td><td></td></tr>");
                     mg_http_reply(nc, 200, "Content-Type: text/html\r\n"EXTRA_HEADERS_UNSAFE, "<!DOCTYPE html>"
                         "<html><head>"
                         "<meta charset=\"utf-8\">"
@@ -507,27 +503,33 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     sdsfree(dirs);
                 }
                 else if (mg_http_match_uri(hm, "/browse/pics/#")) {
-                    s_http_server_opts.root_dir = mg_user_data->pics_document_root;
+                    s_http_server_opts.root_dir = mg_user_data->pics_directory;
                     hm->uri = mg_str_strip_parent(&hm->uri, 2);
-                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
+                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->pics_directory, hm->uri.len, hm->uri.ptr);
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 }
                 else if (mg_http_match_uri(hm, "/browse/smartplaylists/#")) {
-                    s_http_server_opts.root_dir = mg_user_data->smartpls_document_root;
+                    s_http_server_opts.root_dir = mg_user_data->smartpls_directory;
                     hm->uri = mg_str_strip_parent(&hm->uri, 2);
-                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
+                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->smartpls_directory, hm->uri.len, hm->uri.ptr);
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 }
                 else if (sdslen(mg_user_data->playlist_directory) > 0 && mg_http_match_uri(hm, "/browse/playlists/#")) {
                     s_http_server_opts.root_dir = mg_user_data->playlist_directory;
                     hm->uri = mg_str_strip_parent(&hm->uri, 2);
-                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
+                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->playlist_directory, hm->uri.len, hm->uri.ptr);
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 }
                 else if (mg_user_data->feat_library == true && mg_http_match_uri(hm, "/browse/music/#")) {
                     s_http_server_opts.root_dir = mg_user_data->music_directory;
                     hm->uri = mg_str_strip_parent(&hm->uri, 2);
                     MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
+                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
+                }
+                else if (mg_user_data->feat_library == true && mg_http_match_uri(hm, "/browse/webradios/#")) {
+                    s_http_server_opts.root_dir = mg_user_data->webradios_directory;
+                    hm->uri = mg_str_strip_parent(&hm->uri, 2);
+                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->webradios_directory, hm->uri.len, hm->uri.ptr);
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 }
                 else {
@@ -715,6 +717,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
         case MYMPD_API_SESSION_VALIDATE:
             webserver_session_api(nc, cmd_id, body, id, session, mg_user_data);
             break;
+        case MYMPD_API_CLOUD_RADIOBROWSER_NEWEST:
         case MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST:
         case MYMPD_API_CLOUD_RADIOBROWSER_SEARCH:
             radiobrowser_api(nc, backend_nc, cmd_id, body, id);

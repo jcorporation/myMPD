@@ -18,11 +18,12 @@
 
 //public functions
 void mg_user_data_free(struct t_mg_user_data *mg_user_data) {
-    FREE_SDS(mg_user_data->browse_document_root);
-    FREE_SDS(mg_user_data->pics_document_root);
-    FREE_SDS(mg_user_data->smartpls_document_root);
+    FREE_SDS(mg_user_data->browse_directory);
+    FREE_SDS(mg_user_data->pics_directory);
+    FREE_SDS(mg_user_data->smartpls_directory);
     FREE_SDS(mg_user_data->music_directory);
     FREE_SDS(mg_user_data->playlist_directory);
+    FREE_SDS(mg_user_data->webradios_directory);
     sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
     FREE_SDS(mg_user_data->stream_uri);
     list_clear(&mg_user_data->session_list);
@@ -149,7 +150,7 @@ void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_messag
     if (sdslen(asset_image) > 0) {
         const char *mime_type = get_mime_type_by_ext(asset_image);
         static struct mg_http_serve_opts s_http_server_opts;
-        s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+        s_http_server_opts.root_dir = mg_user_data->browse_directory;
         s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
         s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
         mg_http_serve_file(nc, hm, asset_image, &s_http_server_opts);
@@ -160,7 +161,7 @@ void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_messag
         #ifndef EMBEDDED_ASSETS
             asset_image = sdscatfmt(asset_image, "%s/assets/%s.svg", DOC_ROOT, name);
             static struct mg_http_serve_opts s_http_server_opts;
-            s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+            s_http_server_opts.root_dir = mg_user_data->browse_directory;
             s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
             s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
             mg_http_serve_file(nc, hm, asset_image, &s_http_server_opts);

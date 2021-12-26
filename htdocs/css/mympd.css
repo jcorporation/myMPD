@@ -498,6 +498,7 @@ div.card {
 
 .album-cover-grid {
   background-size: cover;
+  background-position: center center;
   overflow: hidden;
   width: var(--mympd-coverimagesizesmall);
   height: var(--mympd-coverimagesizesmall);

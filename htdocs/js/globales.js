@@ -165,13 +165,27 @@ app.cards = {
                 }
             },
             "Radio": {
-                "offset": 0,
-                "limit": 100,
-                "filter": "name",
-                "sort": "-",
-                "tag": "-",
-                "search": "",
-                "scrollPos": 0
+                "active": "Favorites",
+                "views": {
+                    "Favorites": {
+                        "offset": 0,
+                        "limit": 100,
+                        "filter": "-",
+                        "sort": "-",
+                        "tag": "-",
+                        "search": "",
+                        "scrollPos": 0
+                    },
+                    "Online": {
+                        "offset": 0,
+                        "limit": 100,
+                        "filter": "name",
+                        "sort": "-",
+                        "tag": "-",
+                        "search": "",
+                        "scrollPos": 0
+                    }
+                }
             }
         }
     },
