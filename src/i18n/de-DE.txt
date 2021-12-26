@@ -1449,6 +1449,9 @@ Klick auf Verzeichnis
 Click playlist
 Klick auf Wiedergabeliste
 
+Click filesystem playlist
+Klick auf Wiedergabeliste im Dateisystem
+
 Click song in queue
 Klick auf Lied in Warteschlange
 

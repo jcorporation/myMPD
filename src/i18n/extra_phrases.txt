@@ -58,6 +58,7 @@ Click album play button
 Click folder
 Click playlist
 Click song in queue
+Click filesystem playlist
 Click song
 Play
 Num entries
