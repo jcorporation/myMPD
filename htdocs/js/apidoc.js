@@ -1619,7 +1619,7 @@ const APImethods = {
                 "example": "swr1",
                 "desc": "Name of the webradio favorite to delete."
             },
-            "uri": {
+            "streamUri": {
                 "type": "string",
                 "example": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
                 "desc": "URI of the webradio stream."
@@ -1636,12 +1636,22 @@ const APImethods = {
             }
         }
     },
+    "MYMPD_API_WEBRADIO_GET": {
+        "desc": "Deletes a webradio favorite.",
+        "params": {
+            "filename": {
+                "type": "string",
+                "example": "https___liveradio_swr_de_sw282p3_swr1bw_play_mp3.m3u",
+                "desc": "Name of the webradio favorite to get."
+            }
+        }
+    },
     "MYMPD_API_WEBRADIO_RM": {
         "desc": "Deletes a webradio favorite.",
         "params": {
-            "name": {
+            "filename": {
                 "type": "string",
-                "example": "swr1",
+                "example": "https___liveradio_swr_de_sw282p3_swr1bw_play_mp3.m3u",
                 "desc": "Name of the webradio favorite to delete."
             }
         }

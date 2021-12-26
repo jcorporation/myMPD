@@ -53,9 +53,7 @@ function initWebradio() {
             }
             else {
                 //load the playlist over http(s)
-                const uri = window.location.protocol + '//' + window.location.hostname +
-                    (window.location.port !== '' ? ':' + window.location.port : '') +
-                    subdir + '/browse/webradios/' + myEncodeURI(getData(event.target.parentNode, 'uri'));
+                const uri = getRadioFavoriteUri(getData(event.target.parentNode, 'uri'));
                 clickPlaylist(uri);
             }
         }
@@ -93,26 +91,61 @@ function initWebradio() {
     }, false);
 }
 
+ function getRadioFavoriteUri(uri) {
+    return window.location.protocol + '//' + window.location.hostname +
+        (window.location.port !== '' ? ':' + window.location.port : '') +
+        subdir + '/browse/webradios/' + myEncodeURI(uri);
+ }
+
 //eslint-disable-next-line no-unused-vars
-function addRadioFavorite(uri, name, genre, picture) {
-    sendAPI("MYMPD_API_WEBRADIO_SAVE", {
-        "uri": uri,
-        "name": name,
-        "genre": genre,
-        "picture": picture
+function deleteRadioFavorite(filename) {
+    sendAPI("MYMPD_API_WEBRADIO_RM", {
+        "filename": filename
+    }, function() {
+        sendAPI("MYMPD_API_WEBRADIO_LIST", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "searchstr": app.current.search
+        }, parseWebradioList, true);
     }, false);
 }
 
 //eslint-disable-next-line no-unused-vars
-function deleteRadioFavorite(el, name) {
-    sendAPI("MYMPD_API_WEBRADIO_RM", {
-        "name": name
-    }, function() {
-        sendAPI("MYMPD_API_WEBRADIO_LIST", {
-            "offset": app.current.offset,
-            "limit": app.current.limit
-        }, parseWebradioList, true);
+function editRadioFavorite(filename) {
+    sendAPI("MYMPD_API_WEBRADIO_GET", {
+        "filename": filename
+    }, function(obj) {
+        showEditRadioFavorite(obj.result.PLAYLIST, obj.result.EXTGENRE, obj.result.EXTIMG, obj.result.streamUri);
     }, false);
+}
+
+function showEditRadioFavorite(name, genre, picture, streamUri) {
+    cleanupModalId('modalSaveRadioFavorite');
+    document.getElementById('editRadioFavoriteName').value = name;
+    document.getElementById('editRadioFavoriteStreamUri').value = streamUri;
+    document.getElementById('editRadioFavoriteGenre').value = genre;
+    document.getElementById('editRadioFavoritePicture').value = picture;
+    uiElements.modalSaveRadioFavorite.show();
+}
+
+//eslint-disable-next-line no-unused-vars
+function saveRadioFavorite() {
+    cleanupModalId('modalSaveRadioFavorite');
+    sendAPI("MYMPD_API_WEBRADIO_SAVE", {
+        "name": document.getElementById('editRadioFavoriteName').value,
+        "streamUri": document.getElementById('editRadioFavoriteStreamUri').value,
+        "genre": document.getElementById('editRadioFavoriteGenre').value,
+        "picture": document.getElementById('editRadioFavoritePicture').value
+    }, saveRadioFavoriteClose, true);
+}
+
+function saveRadioFavoriteClose(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        uiElements.modalSaveRadioFavorite.hide();
+    }
 }
 
 function parseWebradioList(obj) {
@@ -143,9 +176,11 @@ function parseWebradioList(obj) {
     }
     for (let i = 0; i < nrItems; i++) {
         //id is used only to check if card should be refreshed
-        const id = genId('WebradioFavorite' + obj.result.data[i].uri);
+        const id = genId('WebradioFavorite' + obj.result.data[i].filename);
 
-        if (cols[i] !== undefined && cols[i].firstChild.firstChild.getAttribute('id') === id) {
+        if (cols[i] !== undefined &&
+            cols[i].firstChild.firstChild.getAttribute('id') === id)
+        {
             continue;
         }
 
@@ -158,8 +193,9 @@ function parseWebradioList(obj) {
             ])
         ]);
         setData(card, 'picture', obj.result.data[i].EXTIMG);
-        setData(card, 'uri', obj.result.data[i].uri);
-        setData(card, 'type', 'plist');
+        setData(card, 'uri', obj.result.data[i].filename);
+        setData(card, 'name', obj.result.data[i].PLAYLIST);
+        setData(card, 'type', 'webradio');
 
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
 

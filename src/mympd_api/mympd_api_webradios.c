@@ -25,6 +25,25 @@
 sds m3u_to_json(sds buffer, sds filename, sds *plname);
 
 //public functions
+sds mympd_api_webradio_get(struct t_config *config, sds buffer, sds method, long request_id, const char *filename) {
+    sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s", config->workdir, filename);
+    sds entry = sdsempty();
+    entry = m3u_to_json(entry, filepath, NULL);
+    if (sdslen(entry) == 0) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, true,
+            "database", "error", "Can not parse webradio favorite file");
+    }
+    else {
+        buffer = jsonrpc_result_start(buffer, method, request_id);
+        buffer = tojson_char(buffer, "filename", filename, true);
+        buffer = sdscatsds(buffer, entry);
+        buffer = jsonrpc_result_end(buffer);
+    }
+    FREE_SDS(entry);
+    FREE_SDS(filepath);
+    return buffer;
+}
+
 sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, long request_id, sds searchstr, long offset, long limit) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
@@ -59,6 +78,10 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
         sdsclear(entry);
         sdsclear(plname);
         entry = m3u_to_json(entry, filename, &plname);
+        if (sdslen(entry) == 0) {
+            //skip on parsing error
+            continue;
+        }
         sds_utf8_tolower(plname);
         if (search_len == 0 || strstr(plname, searchstr) != NULL) {
             if (entity_count >= offset &&
@@ -68,7 +91,7 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
                     buffer = sdscatlen(buffer, ",", 1);
                 }
                 buffer = sdscatlen(buffer, "{", 1);
-                buffer = tojson_char(buffer, "uri", next_file->d_name, true);
+                buffer = tojson_char(buffer, "filename", next_file->d_name, true);
                 buffer = sdscatsds(buffer, entry);
                 buffer = sdscatlen(buffer, "}", 1);
             }
@@ -106,9 +129,10 @@ bool mympd_api_webradio_save(struct t_config *config, sds name, sds uri, sds gen
         "%s\n",
         name, genre, name, picture, uri);
     fclose(fp);
-    sds filename = sdsdup(name);
+    sds filename = sdsdup(uri);
     sds_sanitize_filename(filename);
     sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s.m3u", config->workdir, filename);
+    FREE_SDS(filename);
     errno = 0;
     if (rename(tmp_file, filepath) == -1) {
         MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, filepath);
@@ -122,24 +146,27 @@ bool mympd_api_webradio_save(struct t_config *config, sds name, sds uri, sds gen
     return true;
 }
 
-bool mympd_api_webradio_delete(struct t_config *config, const char *name) {
-    sds filename = sdscatfmt(sdsempty(), "%s/webradios/%s.m3u", config->workdir, name);
+bool mympd_api_webradio_delete(struct t_config *config, const char *filename) {
+    sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s", config->workdir, filename);
     errno = 0;
-    if (unlink(filename) == -1) {
-        MYMPD_LOG_ERROR("Unlinking webradio file \"%s\" failed", filename);
+    if (unlink(filepath) == -1) {
+        MYMPD_LOG_ERROR("Unlinking webradio file \"%s\" failed", filepath);
         MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(filename);
+        FREE_SDS(filepath);
         return false;
     }
-    FREE_SDS(filename);
+    FREE_SDS(filepath);
     return true;
 }
 
 //private functions
 
 sds m3u_to_json(sds buffer, sds filename, sds *plname) {
+    errno = 0;
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
     if (fp == NULL) {
+        MYMPD_LOG_ERROR("Can not open file \"%s\"", filename);
+        MYMPD_LOG_ERRNO(errno);
         return buffer;
     }
     sds line = sdsempty();
@@ -153,16 +180,22 @@ sds m3u_to_json(sds buffer, sds filename, sds *plname) {
     }
     int line_count = 0;
     while (sds_getline(&line, fp, 1000) == 0) {
-        if (line[0] != '#') {
+        if (line[0] == '\0') {
+            //skip blank lines
             continue;
         }
         if (line_count++) {
             buffer = sdscatlen(buffer, ",", 1);
         }
+        if (line[0] != '#') {
+            //stream uri
+            buffer = tojson_char(buffer, "streamUri", line, false);
+            continue;
+        }
         buffer = sdscatlen(buffer, "\"", 1);
         int i = 1;
         while (line[i] != '\0' &&
-                line[i] != ':')
+               line[i] != ':')
         {
             buffer = sds_catjsonchar(buffer, line[i]);
             i++;
@@ -171,7 +204,9 @@ sds m3u_to_json(sds buffer, sds filename, sds *plname) {
         i++;
         while (line[i] != '\0') {
             buffer = sds_catjsonchar(buffer, line[i]);
-            *plname = sdscatprintf(*plname, "%c", line[i]);
+            if (plname != NULL) {
+                *plname = sdscatprintf(*plname, "%c", line[i]);
+            }
             i++;
         }
         buffer = sdscatlen(buffer, "\"", 1);

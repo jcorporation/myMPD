@@ -333,6 +333,7 @@ function _appendQueue(type, uri, play, callback) {
             }, callback, true);
             break;
         case 'plist':
+        case 'webradio':
             sendAPI("MYMPD_API_QUEUE_APPEND_PLAYLIST", {
                 "plist": uri,
                 "play": play
@@ -370,6 +371,7 @@ function insertQueue(type, uri, to, whence, play, callback) {
             }, callback, true);
             break;
         case 'plist':
+        case 'webradio':
             sendAPI("MYMPD_API_QUEUE_INSERT_PLAYLIST", {
                 "plist": uri,
                 "to": to,
@@ -407,6 +409,7 @@ function _replaceQueue(type, uri, play, callback) {
             }, callback, true);
             break;
         case 'plist':
+        case 'webradio':
             sendAPI("MYMPD_API_QUEUE_REPLACE_PLAYLIST", {
                 "plist": uri,
                 "play": play

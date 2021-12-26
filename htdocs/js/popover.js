@@ -73,7 +73,7 @@ function showPopover(event) {
                 break;
             case 'webradio':
                 //webradio favorite actions
-                popoverInit = createPopoverSimple(target, 'Webradio', addMenuItemsPlaylistActions, false);
+                popoverInit = createPopoverSimple(target, 'Webradio', addMenuItemsWebradioFavoritesActions, false);
                 break;
             case 'album':
                 //album action in album list
@@ -377,7 +377,7 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
         const genre = getData(dataNode, 'genre');
         const picture = getData(dataNode, 'picture');
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-        addMenuItem(tabContent, {"cmd": "addRadioFavorite", "options": [uri, name, genre, picture]}, 'Add to favorites');
+        addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [name, genre, picture, uri]}, 'Add to favorites');
     }
 }
 
@@ -431,6 +431,17 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
     }
 }
 
+function addMenuItemsWebradioFavoritesActions(tabContent, dataNode) {
+    const type = getData(dataNode, 'type');
+    const uri = getData(dataNode, 'uri');
+    const plistUri = getRadioFavoriteUri(uri);
+    const name = getData(dataNode, 'name');
+    addMenuItemsPlaylistActions(tabContent, type, plistUri, name);
+    tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+    addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
+    addMenuItem(tabContent, {"cmd": "deleteRadioFavorite", "options": [uri]}, 'Delete webradio favorite');
+}
+
 function addMenuItemsPlaylistActions(tabContent, type, uri, name) {
     addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri]}, 'Append to queue');
     addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": [type, uri]}, 'Append to queue and play');
@@ -444,12 +455,16 @@ function addMenuItemsPlaylistActions(tabContent, type, uri, name) {
             tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
             addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, type, name]}, 'Add to homescreen');
         }
-        if (isMPDplaylist(uri) === true) {
-            tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-            addMenuItem(tabContent, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
-        }
-        else {
-            addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [uri, "plist"]}, 'View playlist');
+        if (type === 'plist' ||
+            type === 'smartpls')
+        {
+            if (isMPDplaylist(uri) === true) {
+                tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+                addMenuItem(tabContent, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
+            }
+            else {
+                addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [uri, "plist"]}, 'View playlist');
+            }
         }
     }
 }
