@@ -22,13 +22,23 @@ function initWebradio() {
             this.blur();
         }
         else {
-            appGoto('Browse', 'Radio', undefined, 0, app.current.limit, app.current.filter, '-', '-', this.value);
+            appGoto(app.current.card, app.current.tab, app.current.view,
+                0, app.current.limit, app.current.filter, '-', '-', this.value);
         }
     }, false);
 
     document.getElementById('BrowseRadioOnlineList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            clickRadio(getData(event.target.parentNode, 'uri'));
+            const uri = getData(event.target.parentNode, 'uri');
+            if (settings.webuiSettings.clickRadioOnline === 'add') {
+                const name = getData(event.target.parentNode, 'name');
+                const genre = getData(event.target.parentNode, 'genre');
+                const picture = getData(event.target.parentNode, 'picture');
+                showEditRadioFavorite(name, genre, picture, uri);
+            }
+            else {
+                clickRadioOnline(uri);
+            }
         }
         else if (event.target.nodeName === 'A') {
             showPopover(event);
@@ -39,7 +49,8 @@ function initWebradio() {
         if (event.target.nodeName === 'BUTTON') {
             document.getElementById('BrowseRadioOnlineTagsBtn').Dropdown.hide();
             app.current.filter = getData(event.target, 'tag');
-            appGoto('Browse', 'Radio', undefined, 0, app.current.limit, app.current.filter, '-', '-', this.value);
+            appGoto(app.current.card, app.current.tab, app.current.view,
+                0, app.current.limit, app.current.filter, '-', '-', this.value);
         }
     }, false);
 
@@ -48,16 +59,10 @@ function initWebradio() {
             return;
         }
         if (event.target.classList.contains('card-body')) {
-            if (settings.webuiSettings.clickPlaylist === 'view') {
-                //show edit dialog
-            }
-            else {
-                //load the playlist over http(s)
-                const uri = getRadioFavoriteUri(getData(event.target.parentNode, 'uri'));
-                clickPlaylist(uri);
-            }
+            const uri = getData(event.target.parentNode, 'uri');
+            clickRadioFavorites(uri);
         }
-        else if (event.target.classList.contains('card-footer')){
+        else if (event.target.classList.contains('card-footer')) {
             showPopover(event);
         }
     }, false);
@@ -174,6 +179,7 @@ function parseWebradioList(obj) {
     if (cardContainer.getElementsByClassName('not-clickable').length > 0) {
         elClear(cardContainer);
     }
+    const rowTitle = tn(webuiSettingsDefault.clickRadioFavorites.validValues[settings.webuiSettings.clickRadioFavorites]);
     for (let i = 0; i < nrItems; i++) {
         //id is used only to check if card should be refreshed
         const id = genId('WebradioFavorite' + obj.result.data[i].filename);
@@ -185,7 +191,7 @@ function parseWebradioList(obj) {
         }
 
         const card = elCreateNodes('div', {"data-popover": "webradio", "class": ["card", "card-grid", "clickable"], "tabindex": 0}, [
-            elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id}),
+            elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id, "title": rowTitle}),
             elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "p-2"]}, [
                 document.createTextNode(obj.result.data[i].PLAYLIST),
                 elCreateEmpty('br', {}),
@@ -237,8 +243,9 @@ function parseRadiobrowserList(obj) {
 
     elClear(tbody);
     const nrItems = obj.result.data.length;
+    const rowTitle = tn(webuiSettingsDefault.clickRadioOnline.validValues[settings.webuiSettings.clickRadioOnline]);
     for (const station of obj.result.data) {
-        const row = elCreateNodes('tr', {}, [
+        const row = elCreateNodes('tr', {"title": rowTitle}, [
             elCreateText('td', {}, station.name),
             elCreateText('td', {}, station.tags.replace(/,/g, ', ')),
             elCreateText('td', {}, station.country)

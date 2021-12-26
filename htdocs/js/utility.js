@@ -221,14 +221,27 @@ function clickSong(uri) {
     }
 }
 
-function clickRadio(uri) {
-    switch (settings.webuiSettings.clickSong) {
-        case 'append':             return appendQueue('song', uri);
-        case 'appendPlay':         return appendPlayQueue('song', uri);
+function clickRadioOnline(uri) {
+    switch (settings.webuiSettings.clickRadioOnline) {
+        case 'append': return appendQueue('song', uri);
+        case 'appendPlay': return appendPlayQueue('song', uri);
         case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
         case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
-        case 'replace':            return replaceQueue('song', uri);
-        case 'replacePlay':        return replacePlayQueue('song', uri);
+        case 'replace': return replaceQueue('song', uri);
+        case 'replacePlay': return replacePlayQueue('song', uri);
+    }
+}
+
+function clickRadioFavorites(uri) {
+    const fullUri = getRadioFavoriteUri(uri);
+    switch(settings.webuiSettings.clickRadioFavorites) {
+        case 'append': return appendQueue('plist', fullUri);
+        case 'appendPlay': return appendPlayQueue('plist', fullUri);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue('plist', fullUri);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', fullUri);
+        case 'replace': return replaceQueue('plist', fullUri);
+        case 'replacePlay': return replacePlayQueue('plist', fullUri);
+        case 'edit': return editRadioFavorite(uri);
     }
 }
 

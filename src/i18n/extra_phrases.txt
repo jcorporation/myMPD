@@ -60,6 +60,8 @@ Click playlist
 Click song in queue
 Click filesystem playlist
 Click song
+Click webradio
+Click webradio favorite
 Play
 Num entries
 Song change

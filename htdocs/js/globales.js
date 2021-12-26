@@ -282,6 +282,34 @@ const webuiSettingsDefault = {
         "title": "Click song",
         "form": "clickSettingsFrm"
     },
+    "clickRadioOnline": {
+        "defaultValue": "append",
+        "validValues": {
+            "append": "Append to queue",
+            "appendPlay": "Append to queue and play",
+            "insertAfterCurrent": "Insert after current playing song",
+            "replace": "Replace queue",
+            "replacePlay": "Replace queue and play",
+            "add": "Add to favorites"
+        },
+        "inputType": "select",
+        "title": "Click webradio",
+        "form": "clickSettingsFrm"
+    },
+    "clickRadioFavorites": {
+        "defaultValue": "append",
+        "validValues": {
+            "append": "Append to queue",
+            "appendPlay": "Append to queue and play",
+            "insertAfterCurrent": "Insert after current playing song",
+            "replace": "Replace queue",
+            "replacePlay": "Replace queue and play",
+            "edit": "Edit webradio favorite"
+        },
+        "inputType": "select",
+        "title": "Click webradio favorite",
+        "form": "clickSettingsFrm"
+    },
     "clickQueueSong": {
         "defaultValue": "play",
         "validValues": {
