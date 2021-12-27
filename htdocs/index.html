@@ -539,12 +539,10 @@
             <div class="btn-group me-2">
               <button data-title-phrase="Manually add werbradio favorite" data-href='{"cmd": "showEditRadioFavorite", "options": ["", "", "", ""]}' type="button" class="btn btn-secondary"><span class="mi">add</span></button>
             </div>
-            <form class="flex-grow-1">
-              <div class="input-group me-2">
-                <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
-                <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="BrowseRadioFavoritesSearchStr"/>
-              </div>
-            </form>
+            <div class="input-group flex-grow-1 me-2">
+              <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
+              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="BrowseRadioFavoritesSearchStr"/>
+            </div>
             <div class="btn-group me-2 featHome">
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
             </div>
@@ -565,18 +563,16 @@
             <div class="btn-group me-2">
               <button data-title-phrase="Webradio favorites" data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "Favorites"]}' type="button" class="btn btn-secondary"><span class="mi">favorite</span></button>
             </div>
-            <form class="flex-grow-1">
-              <div class="input-group me-2 flex-grow-1">
-                <div class="btn-group">
-                  <button  id="BrowseRadioOnlineTagsBtn" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
-                    <span class="mi">search</span>
-                    <span data-phrase="Name" id="BrowseRadioOnlineTagsDesc"></span>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseRadioOnlineTags"></div>
-                </div>
-                <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="BrowseRadioOnlineSearchStr"/>
+            <div class="input-group me-2 flex-grow-1">
+              <div class="btn-group">
+                <button  id="BrowseRadioOnlineTagsBtn" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
+                  <span class="mi">search</span>
+                  <span data-phrase="Name" id="BrowseRadioOnlineTagsDesc"></span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseRadioOnlineTags"></div>
               </div>
-            </form>
+              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="BrowseRadioOnlineSearchStr"/>
+            </div>
             <div class="btn-group me-2 featHome" id="BrowseRadioOnlineAddToHome">
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
             </div>
@@ -593,6 +589,7 @@
           </div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioOnlineButtonsBottom"></div>
         </div>
+      </div>
     </div>
 
     <div class="card d-none" id="cardSearch">
@@ -2378,6 +2375,7 @@
         <div class="modal-body">
           <form id="saveRadioFavoriteFrm">
             <input type="hidden" id="editRadioFavoriteUUID" value=""/>
+            <input type="hidden" id="editRadioFavoriteStreamUriOld" value=""/>
             <div class="row mb-3">
               <label class="col-sm-4 col-form-label" for="editRadioFavoriteName" data-phrase="Name"></label>
               <div class="col-sm-8">

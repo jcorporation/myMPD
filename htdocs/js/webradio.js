@@ -21,7 +21,10 @@ function initWebradio() {
         if (event.key === 'Escape') {
             this.blur();
         }
-        else {
+        else if (this.value.length >= 3 ||
+            this.value.length === 0 ||
+            event.key === 'Enter')
+        {
             appGoto(app.current.card, app.current.tab, app.current.view,
                 0, app.current.limit, app.current.filter, '-', '-', this.value);
         }
@@ -132,6 +135,7 @@ function showEditRadioFavorite(name, genre, picture, streamUri, uuid) {
     cleanupModalId('modalSaveRadioFavorite');
     document.getElementById('editRadioFavoriteName').value = name;
     document.getElementById('editRadioFavoriteStreamUri').value = streamUri;
+    document.getElementById('editRadioFavoriteStreamUriOld').value = streamUri;
     document.getElementById('editRadioFavoriteGenre').value = genre;
     document.getElementById('editRadioFavoriteUUID').value = uuid;
 
@@ -148,6 +152,7 @@ function saveRadioFavorite() {
     sendAPI("MYMPD_API_WEBRADIO_SAVE", {
         "name": document.getElementById('editRadioFavoriteName').value,
         "streamUri": document.getElementById('editRadioFavoriteStreamUri').value,
+        "streamUriOld": document.getElementById('editRadioFavoriteStreamUriOld').value,
         "genre": document.getElementById('editRadioFavoriteGenre').value,
         "picture": document.getElementById('editRadioFavoritePicture').value,
         "uuid": document.getElementById('editRadioFavoriteUUID').value

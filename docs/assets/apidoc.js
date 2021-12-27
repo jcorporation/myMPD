@@ -1678,11 +1678,11 @@ const APImethods = {
         }
     },
     "MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST": {
-        "desc": "Return radio-browser.info endpoints.",
+        "desc": "Returns radio-browser.info endpoints.",
         "params": {}
     },
     "MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL": {
-        "desc": "Return radio-browser.info station details.",
+        "desc": "Returns radio-browser.info station details.",
         "params": {
             "uuid": {
                 "type": "string",
