@@ -1265,16 +1265,19 @@ function setNavbarIcons() {
 }
 
 function getBgImageList(image) {
-    getImageList('inputWebUIsettinguiBgImage', image, [
+    getImageListId('inputWebUIsettinguiBgImage', image, [
         {"value": "", "text": "None"},
         {"value": "/assets/mympd-background-dark.svg", "text": "Default image dark"},
         {"value": "/assets/mympd-background-light.svg", "text": "Default image light"},
     ]);
 }
 
-function getImageList(selectEl, value, addOptions) {
+function getImageListId(selectId, value, addOptions) {
+    getImageList(document.getElementById(selectId), value, addOptions)
+}
+
+function getImageList(sel, value, addOptions) {
     sendAPI("MYMPD_API_PICTURE_LIST", {}, function(obj) {
-        const sel = document.getElementById(selectEl);
         elClear(sel);
         for (const option of addOptions) {
             sel.appendChild(elCreateText('option', {"value": option.value}, option.text));

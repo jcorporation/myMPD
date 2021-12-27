@@ -102,16 +102,20 @@ function initWebradio() {
         subdir + '/browse/webradios/' + myEncodeURI(uri);
  }
 
+function getRadioFavoriteList() {
+    sendAPI("MYMPD_API_WEBRADIO_LIST", {
+        "offset": app.current.offset,
+        "limit": app.current.limit,
+        "searchstr": app.current.search
+    }, parseWebradioList, true);
+}
+
 //eslint-disable-next-line no-unused-vars
 function deleteRadioFavorite(filename) {
     sendAPI("MYMPD_API_WEBRADIO_RM", {
         "filename": filename
     }, function() {
-        sendAPI("MYMPD_API_WEBRADIO_LIST", {
-            "offset": app.current.offset,
-            "limit": app.current.limit,
-            "searchstr": app.current.search
-        }, parseWebradioList, true);
+        getRadioFavoriteList();
     }, false);
 }
 
@@ -129,7 +133,11 @@ function showEditRadioFavorite(name, genre, picture, streamUri) {
     document.getElementById('editRadioFavoriteName').value = name;
     document.getElementById('editRadioFavoriteStreamUri').value = streamUri;
     document.getElementById('editRadioFavoriteGenre').value = genre;
-    document.getElementById('editRadioFavoritePicture').value = picture;
+
+    const pictureEl = document.getElementById('editRadioFavoritePicture');
+    getImageList(pictureEl.filterResult, picture, []);
+    pictureEl.value = picture;
+
     uiElements.modalSaveRadioFavorite.show();
 }
 
@@ -150,6 +158,9 @@ function saveRadioFavoriteClose(obj) {
     }
     else {
         uiElements.modalSaveRadioFavorite.hide();
+        if (app.id === 'BrowseRadioFavorites') {
+            getRadioFavoriteList();
+        }
     }
 }
 
@@ -198,7 +209,10 @@ function parseWebradioList(obj) {
                 elCreateText('small', {}, obj.result.data[i].EXTGENRE)
             ])
         ]);
-        setData(card, 'picture', obj.result.data[i].EXTIMG);
+        const picture = obj.result.data[i].EXTIMG.indexOf('http') === 0 ?
+            obj.result.data[i].EXTIMG :
+            subdir + '/pics/' + obj.result.data[i].EXTIMG;
+        setData(card, 'picture', picture);
         setData(card, 'uri', obj.result.data[i].filename);
         setData(card, 'name', obj.result.data[i].PLAYLIST);
         setData(card, 'type', 'webradio');
@@ -221,7 +235,7 @@ function parseWebradioList(obj) {
             observer.observe(col);
         }
         else {
-            col.firstChild.firstChild.style.backgroundImage = myEncodeURI(obj.result.data[i].EXTIMG);
+            col.firstChild.firstChild.style.backgroundImage = myEncodeURIhost(picture);
         }
     }
     for (let i = cols.length - 1; i >= nrItems; i--) {

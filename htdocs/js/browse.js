@@ -491,7 +491,7 @@ function setGridImage(changes, observer) {
             const uri = getData(change.target.firstChild, 'picture');
             const body = change.target.firstChild.getElementsByClassName('card-body')[0];
             if (body) {
-                body.style.backgroundImage = 'url("' + myEncodeURI(uri) + '"),' + 
+                body.style.backgroundImage = 'url("' + myEncodeURIhost(uri) + '"),' +
                     'url("' + subdir + '/assets/coverimage-loading.svg")';
             }
         }

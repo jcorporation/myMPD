@@ -628,7 +628,7 @@ function showHomeIconCmdOptions(values) {
 }
 
 function getHomeIconPictureList(picture) {
-    getImageList('selectHomeIconImage', picture, [{"value": "", "text": "Use ligature"}]);
+    getImageListId('selectHomeIconImage', picture, [{"value": "", "text": "Use ligature"}]);
 }
 
 //eslint-disable-next-line no-unused-vars

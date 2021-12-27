@@ -170,12 +170,21 @@ function showConfirmInline(el, text, btnText, callback) {
     el.appendChild(confirm);
 }
 
+function myEncodeURIhost(str) {
+    const match = str.match(/(https?\:\/\/[^\/]+)(.*)$/);
+    if (match) {
+        //encode only non host part of uri
+        return match[1] + myEncodeURI(match[2]);
+    }
+    return myEncodeURI(str);
+}
+
 //custom encoding function
 //works like encodeURIComponent but
 //- does not escape /:
 //- escapes further reserved characters
 function myEncodeURI(str) {
-    return encodeURI(str).replace(/[!'()*#?;,@&=+$~]/g, function(c) {
+    return encodeURI(str).replace(/[!'()*#?;:,@&=+$~]/g, function(c) {
         return '%' + c.charCodeAt(0).toString(16);
     });
 }
