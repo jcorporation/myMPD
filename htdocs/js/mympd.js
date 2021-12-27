@@ -5,7 +5,10 @@
 
 /* eslint-enable no-unused-vars */
 function appPrepare(scrollPos) {
-    if (app.current.card !== app.last.card || app.current.tab !== app.last.tab || app.current.view !== app.last.view) {
+    if (app.current.card !== app.last.card ||
+        app.current.tab !== app.last.tab ||
+        app.current.view !== app.last.view)
+    {
         //Hide all cards + nav
         for (let i = 0; i < domCache.navbarBtnsLen; i++) {
             domCache.navbarBtns[i].classList.remove('active');
@@ -23,7 +26,7 @@ function appPrepare(scrollPos) {
         elShowId('card' + app.current.card);
         //show active tab
         if (app.current.tab !== undefined &&
-            app.current.tag !== '')
+            app.current.tab !== '')
         {
             elShowId('tab' + app.current.card + app.current.tab);
         }

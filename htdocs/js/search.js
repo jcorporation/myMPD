@@ -24,7 +24,9 @@ function initSearch() {
         if (event.key === 'Escape') {
             this.blur();
         }
-        else if (event.key === 'Enter' && features.featAdvsearch) {
+        else if (event.key === 'Enter' &&
+            features.featAdvsearch === true)
+        {
             if (this.value !== '') {
                 const op = getSelectValueId('searchMatch');
                 document.getElementById('searchCrumb').appendChild(createSearchCrumb(app.current.filter, op, this.value));
