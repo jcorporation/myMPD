@@ -431,7 +431,7 @@ function parseUnsyncedLyrics(parent, text) {
 }
 
 function parseSyncedLyrics(parent, lyrics, currentLyrics) {
-    for (const line of lyrics.replace('\r').split('\n')) {
+    for (const line of lyrics.replace(/\r/g, '').split('\n')) {
         //line must start with timestamp
         const elements = line.match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
         if (elements) {
