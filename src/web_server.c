@@ -720,6 +720,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
         case MYMPD_API_CLOUD_RADIOBROWSER_NEWEST:
         case MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST:
         case MYMPD_API_CLOUD_RADIOBROWSER_SEARCH:
+        case MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL:
             radiobrowser_api(nc, backend_nc, cmd_id, body, id);
             break;
         default: {

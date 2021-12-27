@@ -110,8 +110,8 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
     return buffer;
 }
 
-bool mympd_api_webradio_save(struct t_config *config, sds name, sds uri, sds genre, sds picture) {
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/webradios/%.XXXXXX", config->workdir, name);
+bool mympd_api_webradio_save(struct t_config *config, sds name, sds uri, sds genre, sds picture, sds uuid) {
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/webradios/%s.XXXXXX", config->workdir, name);
     errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
@@ -126,8 +126,9 @@ bool mympd_api_webradio_save(struct t_config *config, sds name, sds uri, sds gen
         "#EXTGENRE:%s\n"
         "#PLAYLIST:%s\n"
         "#EXTIMG:%s\n"
+        "#RADIOBROWSERUUID:%s\n"
         "%s\n",
-        name, genre, name, picture, uri);
+        name, genre, name, picture, uuid, uri);
     fclose(fp);
     sds filename = sdsdup(uri);
     sds_sanitize_filename(filename);

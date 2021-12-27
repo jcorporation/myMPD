@@ -539,7 +539,8 @@ function checkResultId(obj, id) {
 }
 
 function checkResult(obj, tbody) {
-    const colspan = tbody.parentNode.getElementsByTagName('tr')[0].getElementsByTagName('th').length;
+    const thead = tbody.parentNode.getElementsByTagName('tr')[0];
+    const colspan = thead !== undefined ? thead.getElementsByTagName('th').length : 0;
     const tfoot = tbody.parentNode.getElementsByTagName('tfoot');
     if (obj.error) {
         elClear(tbody);

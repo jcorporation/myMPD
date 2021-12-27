@@ -1581,10 +1581,10 @@
         <div class="modal-body">
           <div class="tab-content">
             <div class="tab-pane active" id="tabSongDetails">
-              <h1 class="text-break"></h1>
+              <h1 class="text-break mb-4"></h1>
               <div class="row">
                 <div class="col-md-auto">
-                  <div class="album-cover album-cover-loading album-cover-songdetails featCoverimage"></div>
+                  <div class="album-cover album-cover-loading album-cover-songdetails"></div>
                 </div>
                 <div class="col table-responsive-md">
                   <table class="table table-sm">
@@ -2377,6 +2377,7 @@
         </div>
         <div class="modal-body">
           <form id="saveRadioFavoriteFrm">
+            <input type="hidden" id="editRadioFavoriteUUID" value=""/>
             <div class="row mb-3">
               <label class="col-sm-4 col-form-label" for="editRadioFavoriteName" data-phrase="Name"></label>
               <div class="col-sm-8">
@@ -2408,6 +2409,33 @@
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "saveRadioFavorite", "options": []}' data-phrase="Save"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalRadioOnlineDetails" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="mi title-icon">radio</span> <span data-phrase="Webradio details"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <h1 class="text-break mb-4" id="radioOnlineDetailsTitle"></h1>
+          <div class="row">
+            <div class="col-md-auto">
+              <div class="album-cover album-cover-loading album-cover-songdetails" id="radioOnlineDetailsPicture"></div>
+            </div>
+            <div class="col table-responsive-md">
+              <table class="table table-sm">
+                <tbody id="modalRadioOnlineDetailsList"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
         </div>
       </div>
     </div>

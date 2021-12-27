@@ -1633,6 +1633,11 @@ const APImethods = {
                 "type": "string",
                 "example": "Pop Rock",
                 "desc": "Genre or other tags."
+            },
+            "uuid": {
+                "type": "string",
+                "example": "",
+                "desc": "Station UUID from radio-browser.info"
             }
         }
     },
@@ -1673,7 +1678,17 @@ const APImethods = {
         }
     },
     "MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST": {
-        "desc": "Return radio-browser.info endpoints.",
+        "desc": "Returns radio-browser.info endpoints.",
         "params": {}
+    },
+    "MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL": {
+        "desc": "Returns radio-browser.info station details.",
+        "params": {
+            "uuid": {
+                "type": "string",
+                "example": "d8f01eea-26be-4e3d-871d-7596e3ab8fb1",
+                "desc": "Station UUID from radio-browser.info"
+            }
+        }
     }
 };

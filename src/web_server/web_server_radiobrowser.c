@@ -54,6 +54,11 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
         case MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST:
             uri = sdscat(uri, "/json/servers");
             break;
+        case MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL:
+            if (json_get_string(body, "$.params.uuid", 0, FILEPATH_LEN_MAX, &filter, vcb_isalnum, &error) == true) {
+                uri = sdscatprintf(uri, "/json/stations/byuuid?uuids=%s", filter);
+            }
+            break;
         default:
             error = sdscat(error, "Invalid API method for radiobrowser");
     }

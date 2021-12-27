@@ -124,15 +124,16 @@ function editRadioFavorite(filename) {
     sendAPI("MYMPD_API_WEBRADIO_GET", {
         "filename": filename
     }, function(obj) {
-        showEditRadioFavorite(obj.result.PLAYLIST, obj.result.EXTGENRE, obj.result.EXTIMG, obj.result.streamUri);
+        showEditRadioFavorite(obj.result.PLAYLIST, obj.result.EXTGENRE, obj.result.EXTIMG, obj.result.streamUri, obj.result.RADIOBROWSERUUID);
     }, false);
 }
 
-function showEditRadioFavorite(name, genre, picture, streamUri) {
+function showEditRadioFavorite(name, genre, picture, streamUri, uuid) {
     cleanupModalId('modalSaveRadioFavorite');
     document.getElementById('editRadioFavoriteName').value = name;
     document.getElementById('editRadioFavoriteStreamUri').value = streamUri;
     document.getElementById('editRadioFavoriteGenre').value = genre;
+    document.getElementById('editRadioFavoriteUUID').value = uuid;
 
     const pictureEl = document.getElementById('editRadioFavoritePicture');
     getImageList(pictureEl.filterResult, picture, []);
@@ -148,7 +149,8 @@ function saveRadioFavorite() {
         "name": document.getElementById('editRadioFavoriteName').value,
         "streamUri": document.getElementById('editRadioFavoriteStreamUri').value,
         "genre": document.getElementById('editRadioFavoriteGenre').value,
-        "picture": document.getElementById('editRadioFavoritePicture').value
+        "picture": document.getElementById('editRadioFavoritePicture').value,
+        "uuid": document.getElementById('editRadioFavoriteUUID').value
     }, saveRadioFavoriteClose, true);
 }
 
@@ -215,6 +217,7 @@ function parseWebradioList(obj) {
         setData(card, 'picture', picture);
         setData(card, 'uri', obj.result.data[i].filename);
         setData(card, 'name', obj.result.data[i].PLAYLIST);
+        setData(card, 'uuid', obj.result.data[i].RADIOBROWSERUUID);
         setData(card, 'type', 'webradio');
 
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
@@ -246,6 +249,65 @@ function parseWebradioList(obj) {
     setScrollViewHeight(cardContainer);
 }
 
+//radio-browser.info api
+
+//eslint-disable-next-line no-unused-vars
+function showRadioOnlineDetails(uuid) {
+    sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL", {
+        "uuid": uuid
+    }, parseRadioOnlineDetails, true);
+    uiElements.modalRadioOnlineDetails.show();
+    elClearId('modalRadioOnlineDetailsList');
+}
+
+function parseRadioOnlineDetails(obj) {
+    const tbody = document.getElementById('modalRadioOnlineDetailsList');
+    if (checkResult(obj, tbody) === false) {
+        return;
+    }
+    const result = obj.result.data[0];
+    if (result.favicon !== '') {
+        document.getElementById('radioOnlineDetailsPicture').style.backgroundImage =
+        'url("' + myEncodeURIhost(result.favicon) + '")' +
+        ', url("' + subdir + '/assets/coverimage-loading.svg")';
+    }
+    document.getElementById('radioOnlineDetailsTitle').textContent = result.name;
+    const showFields = {
+        'url_resolved': 'Stream url',
+        'homepage': 'Homepage',
+        'tags': 'Tags',
+        'country': 'Country',
+        'language': 'Language',
+        'votes': 'Votes',
+        'lastchangetime': 'Last change time',
+        'lastcheckok': 'State',
+        'clickcount': 'Click count'
+    };
+    for (const field in showFields) {
+        let value;
+        switch(field) {
+            case 'homepage':
+                value = elCreateText('a', {"class": ["text-success", "external"],
+                    "href": myEncodeURIhost(result.homepage),
+                    "target": "_blank"}, result.homepage);
+                break;
+            case 'lastcheckok':
+                value = elCreateText('span', {"class": ["mi"]},
+                        (result[field] === 1 ? 'check_circle' : 'error')
+                    );
+                break;
+            default:
+                value = document.createTextNode(result[field]);
+        }
+        tbody.appendChild(
+            elCreateNodes('tr', {}, [
+                elCreateText('th', {}, tn(showFields[field])),
+                elCreateNode('td', {}, value)
+            ])
+        );
+    }
+}
+
 function parseRadiobrowserList(obj) {
     const table = document.getElementById('BrowseRadioOnlineList');
     const tbody = table.getElementsByTagName('tbody')[0];
@@ -264,11 +326,12 @@ function parseRadiobrowserList(obj) {
             elCreateText('td', {}, station.tags.replace(/,/g, ', ')),
             elCreateText('td', {}, station.country)
         ]);
-        setData(row, 'uri', station.url);
+        setData(row, 'uri', station.url_resolved);
         setData(row, 'name', station.name);
         setData(row, 'genre', station.tags);
         setData(row, 'picture', station.favicon);
         setData(row, 'type', 'stream');
+        setData(row, 'uuid', station.stationuuid);
         row.appendChild(
             elCreateNode('td', {},
                 elCreateText('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)

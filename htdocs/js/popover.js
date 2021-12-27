@@ -376,8 +376,10 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
     {
         const genre = getData(dataNode, 'genre');
         const picture = getData(dataNode, 'picture');
+        const uuid = getData(dataNode, 'uuid');
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-        addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [name, genre, picture, uri]}, 'Add to favorites');
+        addMenuItem(tabContent, {"cmd": "showRadioOnlineDetails", "options": [uuid]}, 'Show webradio details');
+        addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [name, genre, picture, uri, uuid]}, 'Add to favorites');
     }
 }
 
@@ -436,8 +438,12 @@ function addMenuItemsWebradioFavoritesActions(tabContent, dataNode) {
     const uri = getData(dataNode, 'uri');
     const plistUri = getRadioFavoriteUri(uri);
     const name = getData(dataNode, 'name');
+    const uuid = getData(dataNode, 'uuid');
     addMenuItemsPlaylistActions(tabContent, type, plistUri, name);
     tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+    if (uuid !== '') {
+        addMenuItem(tabContent, {"cmd": "showRadioOnlineDetails", "options": [uuid]}, 'Show webradio details');
+    }
     addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
     addMenuItem(tabContent, {"cmd": "deleteRadioFavorite", "options": [uri]}, 'Delete webradio favorite');
 }

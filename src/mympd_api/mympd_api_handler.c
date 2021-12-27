@@ -1411,9 +1411,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_string(request->data, "$.params.name", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_string(request->data, "$.params.streamUri", 1, FILEPATH_LEN_MAX, &sds_buf2, vcb_isuri, &error) == true &&
                 json_get_string(request->data, "$.params.genre", 0, FILENAME_LEN_MAX, &sds_buf3, vcb_isname, &error) == true &&
-                json_get_string(request->data, "$.params.picture", 0, FILEPATH_LEN_MAX, &sds_buf4, vcb_isuri, &error) == true)
+                json_get_string(request->data, "$.params.picture", 0, FILEPATH_LEN_MAX, &sds_buf4, vcb_isuri, &error) == true &&
+                json_get_string(request->data, "$.params.uuid", 0, FILEPATH_LEN_MAX, &sds_buf5, vcb_isalnum, &error) == true)
             {
-                rc = mympd_api_webradio_save(mympd_state->config, sds_buf1, sds_buf2, sds_buf3, sds_buf4);
+                rc = mympd_api_webradio_save(mympd_state->config, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                         "database", "info", "Webradio successfully added to favorites");

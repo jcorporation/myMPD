@@ -171,7 +171,7 @@ function showConfirmInline(el, text, btnText, callback) {
 }
 
 function myEncodeURIhost(str) {
-    const match = str.match(/(https?\:\/\/[^\/]+)(.*)$/);
+    const match = str.match(/(https?:\/\/[^/]+)(.*)$/);
     if (match) {
         //encode only non host part of uri
         return match[1] + myEncodeURI(match[2]);
