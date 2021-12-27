@@ -230,7 +230,7 @@ function clickSong(uri) {
     }
 }
 
-function clickRadioOnline(uri) {
+function clickRadioOnline(uri, uuid) {
     switch (settings.webuiSettings.clickRadioOnline) {
         case 'append': return appendQueue('song', uri);
         case 'appendPlay': return appendPlayQueue('song', uri);
@@ -239,6 +239,7 @@ function clickRadioOnline(uri) {
         case 'replace': return replaceQueue('song', uri);
         case 'replacePlay': return replacePlayQueue('song', uri);
     }
+    countClickRadioOnline(uuid);
 }
 
 function clickRadioFavorites(uri) {

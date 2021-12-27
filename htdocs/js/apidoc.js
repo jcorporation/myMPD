@@ -113,6 +113,11 @@ const APIparams = {
         "type": "bool",
         "example": true,
         "desc": "true = play first inserted song."
+    },
+    "radiobrowserUUID": {
+        "type": "string",
+        "example": "d8f01eea-26be-4e3d-871d-7596e3ab8fb1",
+        "desc": "Station UUID from radio-browser.info"
     }
 };
 
@@ -1634,11 +1639,7 @@ const APImethods = {
                 "example": "Pop Rock",
                 "desc": "Genre or other tags."
             },
-            "uuid": {
-                "type": "string",
-                "example": "",
-                "desc": "Station UUID from radio-browser.info"
-            }
+            "uuid": APIparams.radiobrowserUUID
         }
     },
     "MYMPD_API_WEBRADIO_GET": {
@@ -1659,6 +1660,12 @@ const APImethods = {
                 "example": "https___liveradio_swr_de_sw282p3_swr1bw_play_mp3.m3u",
                 "desc": "Name of the webradio favorite to delete."
             }
+        }
+    },
+    "MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT": {
+        "desc": "Returns radio-browser.info station details.",
+        "params": {
+            "uuid": APIparams.radiobrowserUUID
         }
     },
     "MYMPD_API_CLOUD_RADIOBROWSER_NEWEST": {
@@ -1684,11 +1691,7 @@ const APImethods = {
     "MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL": {
         "desc": "Returns radio-browser.info station details.",
         "params": {
-            "uuid": {
-                "type": "string",
-                "example": "d8f01eea-26be-4e3d-871d-7596e3ab8fb1",
-                "desc": "Station UUID from radio-browser.info"
-            }
+            "uuid": APIparams.radiobrowserUUID
         }
     }
 };

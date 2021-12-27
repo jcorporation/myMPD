@@ -717,6 +717,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
         case MYMPD_API_SESSION_VALIDATE:
             webserver_session_api(nc, cmd_id, body, id, session, mg_user_data);
             break;
+        case MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT:
         case MYMPD_API_CLOUD_RADIOBROWSER_NEWEST:
         case MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST:
         case MYMPD_API_CLOUD_RADIOBROWSER_SEARCH:

@@ -40,7 +40,7 @@ function initWebradio() {
                 showEditRadioFavorite(name, genre, picture, uri);
             }
             else {
-                clickRadioOnline(uri);
+                clickRadioOnline(uri, getData(event.target.parentNode, 'uuid'));
             }
         }
         else if (event.target.nodeName === 'A') {
@@ -149,14 +149,16 @@ function showEditRadioFavorite(name, genre, picture, streamUri, uuid) {
 //eslint-disable-next-line no-unused-vars
 function saveRadioFavorite() {
     cleanupModalId('modalSaveRadioFavorite');
+    const uuid = document.getElementById('editRadioFavoriteUUID').value;
     sendAPI("MYMPD_API_WEBRADIO_SAVE", {
         "name": document.getElementById('editRadioFavoriteName').value,
         "streamUri": document.getElementById('editRadioFavoriteStreamUri').value,
         "streamUriOld": document.getElementById('editRadioFavoriteStreamUriOld').value,
         "genre": document.getElementById('editRadioFavoriteGenre').value,
         "picture": document.getElementById('editRadioFavoritePicture').value,
-        "uuid": document.getElementById('editRadioFavoriteUUID').value
+        "uuid": uuid
     }, saveRadioFavoriteClose, true);
+    countClickRadioOnline(uuid);
 }
 
 function saveRadioFavoriteClose(obj) {
@@ -256,6 +258,14 @@ function parseWebradioList(obj) {
 
 //radio-browser.info api
 
+function countClickRadioOnline(uuid) {
+    if (uuid !== '') {
+        sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT", {
+            "uuid": uuid
+        });
+    }
+}
+
 //eslint-disable-next-line no-unused-vars
 function showRadioOnlineDetails(uuid) {
     sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL", {
@@ -263,6 +273,7 @@ function showRadioOnlineDetails(uuid) {
     }, parseRadioOnlineDetails, true);
     uiElements.modalRadioOnlineDetails.show();
     elClearId('modalRadioOnlineDetailsList');
+    countClickRadioOnline(uuid);
 }
 
 function parseRadioOnlineDetails(obj) {

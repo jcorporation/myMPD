@@ -32,6 +32,18 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
     const char *cmd = get_cmd_id_method_name(cmd_id);
 
     switch(cmd_id) {
+        case MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT:
+            if (json_get_string(body, "$.params.uuid", 0, FILEPATH_LEN_MAX, &filter, vcb_isalnum, &error) == true) {
+                uri = sdscatprintf(uri, "/json/url/%s", filter);
+            }
+            break;
+        case MYMPD_API_CLOUD_RADIOBROWSER_NEWEST:
+            if (json_get_long(body, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &offset, &error) == true &&
+                json_get_long(body, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &limit, &error) == true)
+            {
+                uri = sdscatprintf(uri, "/json/stations/lastchange?offset=%ld&limit=%ld", offset, limit);
+            }
+            break;
         case MYMPD_API_CLOUD_RADIOBROWSER_SEARCH:
             if (json_get_long(body, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &offset, &error) == true &&
                 json_get_long(body, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &limit, &error) == true &&
@@ -42,13 +54,6 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
                 uri = sdscatprintf(uri, "/json/stations/search?offset=%ld&limit=%ld&%s=%s",
                     offset, limit, filter, searchstr_encoded);
                 FREE_SDS(searchstr_encoded);
-            }
-            break;
-        case MYMPD_API_CLOUD_RADIOBROWSER_NEWEST:
-            if (json_get_long(body, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &offset, &error) == true &&
-                json_get_long(body, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &limit, &error) == true)
-            {
-                uri = sdscatprintf(uri, "/json/stations/lastchange?offset=%ld&limit=%ld", offset, limit);
             }
             break;
         case MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST:
