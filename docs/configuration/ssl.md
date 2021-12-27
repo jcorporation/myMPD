@@ -6,6 +6,12 @@ title: SSL
 
 In the default configuration myMPD encrypts traffic on port 443, set `/var/lib/mympd/config/ssl` to `false` to disable encryption. If ssl is enabled, myMPD redirects port 80 to 443. If you want to install myMPD as an app in chrome you need ssl.
 
+## Webradio favorites
+
+MPD loads the webradio favorites with the curl plugin. For this to work MPD must trust the myMPD certificate.
+
+- [Adding myMPD CA]({{ site.baseurl }}/configuration/ssl-trust)
+
 ## Default certificate
 
 Certificates are checked at startup and if necessary created or renewed. myMPD maintains a CA certificate and a server certificate signed with this ca.
