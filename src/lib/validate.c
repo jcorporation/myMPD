@@ -83,7 +83,10 @@ bool validate_json_array(sds data) {
 
 bool vcb_isalnum(sds data) {
     for (size_t i = 0; i < sdslen(data); i++) {
-        if (isalnum(data[i]) == 0 && data[i] != '_') {
+        if (isalnum(data[i]) == 0 &&
+            data[i] != '_' &&
+            data[i] != '-')
+        {
             MYMPD_LOG_WARN("Found none alphanumeric character in string");
             return false;
         }
