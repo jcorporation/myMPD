@@ -131,7 +131,7 @@ bool mympd_api_script_delete(struct t_config *config, const char *script) {
 }
 
 bool mympd_api_script_save(struct t_config *config, sds script, sds oldscript, int order, sds content, struct t_list *arguments) {
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/scripts/%.XXXXXX", config->workdir, script);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/scripts/%s.XXXXXX", config->workdir, script);
     errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
