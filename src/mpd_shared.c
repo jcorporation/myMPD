@@ -45,7 +45,7 @@ void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state) {
     mpd_state->last_song_set_song_played_time = 0;
     mpd_state->crossfade = 0;
     mpd_state->set_song_played_time = 0;
-    mpd_state->tag_list = sdsnew("Artist,Album,AlbumArtist,Title,Genre,Disc,Track");
+    mpd_state->tag_list = sdsnew("Artist,Album,AlbumArtist,Title,Genre,Disc,Track,Name");
     reset_t_tags(&mpd_state->tag_types_mympd);
     reset_t_tags(&mpd_state->tag_types_mpd);
     mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;

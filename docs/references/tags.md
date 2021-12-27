@@ -15,6 +15,7 @@ Following tags should be enabled for the best user experience (in MPD and in myM
 - Track
 - Disc
 - Genre
+- Name (for displaying extended playlist information)
 
 ## Hints
 

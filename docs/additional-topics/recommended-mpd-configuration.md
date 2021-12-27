@@ -14,7 +14,7 @@ sticker_file            "/var/lib/mpd/sticker.sql"
 playlist_directory      "/var/lib/mpd/playlists"
 
 # Enable metadata. If set to none, you can only browse the filesystem
-metadata_to_use         "AlbumArtist,Artist,Album,Title,Track,Disc,Genre"
+metadata_to_use         "AlbumArtist,Artist,Album,Title,Track,Disc,Genre,Name"
 
 # bind mpd to a unix socket
 bind_to_address         "/run/mpd/socket"
