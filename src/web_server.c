@@ -566,61 +566,65 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
     (void)fn_data;
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
-    if (ev == MG_EV_ACCEPT) {
-        mg_user_data->connection_count++;
-        //check connection count
-        if (mg_user_data->connection_count > HTTP_CONNECTIONS_MAX) {
-            MYMPD_LOG_DEBUG("Connections: %d", mg_user_data->connection_count);
-            MYMPD_LOG_ERROR("Concurrent connections limit exceeded: %d", mg_user_data->connection_count);
-            nc->is_draining = 1;
-            webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
-            return;
-        }
-        //check acl
-        if (sdslen(config->acl) > 0 && mg_check_ip_acl(mg_str(config->acl), nc->peer.ip) == false) {
-            log_acl_deny(nc);
-            nc->is_draining = 1;
-            webserver_send_error(nc, 403, "Request blocked by ACL");
-            return;
-        }
-    }
-    else if (ev == MG_EV_HTTP_MSG) {
-        struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-        if (mg_http_match_uri(hm, "/browse/webradios/*")) {
-            //we serve the webradio directory without https to avoid ssl configuration for the mpd curl plugin
-            static struct mg_http_serve_opts s_http_server_opts;
-            s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
-            s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-            s_http_server_opts.root_dir = mg_user_data->browse_directory;
-            MYMPD_LOG_INFO("Serving uri \"%.*s\"", hm->uri.len, hm->uri.ptr);
-            mg_http_serve_dir(nc, hm, &s_http_server_opts);
-            return;
-        }
-        //redirect to https
-        struct mg_str *host_hdr = mg_http_get_header(hm, "Host");
-        if (host_hdr == NULL) {
-            MYMPD_LOG_ERROR("No hoster header found, closing connection");
-            nc->is_closing = 1;
-            return;
-        }
 
-        sds host_header = sdscatlen(sdsempty(), host_hdr->ptr, (int)host_hdr->len);
-        int count = 0;
-        sds *tokens = sdssplitlen(host_header, (ssize_t)sdslen(host_header), ":", 1, &count);
-        sds s_redirect = sdscatfmt(sdsempty(), "https://%s", tokens[0]);
-        if (strcmp(config->ssl_port, "443") != 0) {
-            s_redirect = sdscatfmt(s_redirect, ":%s", config->ssl_port);
+    switch(ev) {
+        case MG_EV_ACCEPT:
+            mg_user_data->connection_count++;
+            //check connection count
+            if (mg_user_data->connection_count > HTTP_CONNECTIONS_MAX) {
+                MYMPD_LOG_DEBUG("Connections: %d", mg_user_data->connection_count);
+                MYMPD_LOG_ERROR("Concurrent connections limit exceeded: %d", mg_user_data->connection_count);
+                nc->is_draining = 1;
+                webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
+                break;
+            }
+            //check acl
+            if (sdslen(config->acl) > 0 && mg_check_ip_acl(mg_str(config->acl), nc->peer.ip) == false) {
+                log_acl_deny(nc);
+                nc->is_draining = 1;
+                webserver_send_error(nc, 403, "Request blocked by ACL");
+                break;
+            }
+            break;
+        case MG_EV_HTTP_MSG: {
+            struct mg_http_message *hm = (struct mg_http_message *) ev_data;
+            if (mg_http_match_uri(hm, "/browse/webradios/*")) {
+                //we serve the webradio directory without https to avoid ssl configuration for the mpd curl plugin
+                static struct mg_http_serve_opts s_http_server_opts;
+                s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
+                s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+                s_http_server_opts.root_dir = mg_user_data->browse_directory;
+                MYMPD_LOG_INFO("Serving uri \"%.*s\"", hm->uri.len, hm->uri.ptr);
+                mg_http_serve_dir(nc, hm, &s_http_server_opts);
+                break;
+            }
+            //redirect to https
+            struct mg_str *host_hdr = mg_http_get_header(hm, "Host");
+            if (host_hdr == NULL) {
+                MYMPD_LOG_ERROR("No hoster header found, closing connection");
+                nc->is_closing = 1;
+                break;
+            }
+
+            sds host_header = sdscatlen(sdsempty(), host_hdr->ptr, (int)host_hdr->len);
+            int count = 0;
+            sds *tokens = sdssplitlen(host_header, (ssize_t)sdslen(host_header), ":", 1, &count);
+            sds s_redirect = sdscatfmt(sdsempty(), "https://%s", tokens[0]);
+            if (strcmp(config->ssl_port, "443") != 0) {
+                s_redirect = sdscatfmt(s_redirect, ":%s", config->ssl_port);
+            }
+            MYMPD_LOG_INFO("Redirecting to %s", s_redirect);
+            webserver_send_header_redirect(nc, s_redirect);
+            nc->is_draining = 1;
+            sdsfreesplitres(tokens, count);
+            FREE_SDS(host_header);
+            FREE_SDS(s_redirect);
+            break;
         }
-        MYMPD_LOG_INFO("Redirecting to %s", s_redirect);
-        webserver_send_header_redirect(nc, s_redirect);
-        nc->is_draining = 1;
-        sdsfreesplitres(tokens, count);
-        FREE_SDS(host_header);
-        FREE_SDS(s_redirect);
-    }
-    else if (ev == MG_EV_CLOSE) {
-        MYMPD_LOG_INFO("Connection %lu closed", nc->id);
-        mg_user_data->connection_count--;
+        case MG_EV_CLOSE:
+            MYMPD_LOG_INFO("Connection %lu closed", nc->id);
+            mg_user_data->connection_count--;
+            break;
     }
 }
 #endif
