@@ -11,6 +11,7 @@
 #include "../lib/covercache.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/m3u.h"
 #include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
@@ -85,7 +86,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
     sdsrange(uri_decoded, 10, -1);
 
     MYMPD_LOG_DEBUG("Handle albumart for uri \"%s\"", uri_decoded);
-    //try image in /pics folder, if uri contains ://
+    //check for cover in /pics and webradio m3u
     if (is_streamuri(uri_decoded) == true) {
         sds_sanitize_filename(uri_decoded);
         if (sdslen(uri_decoded) == 0) {
@@ -96,12 +97,34 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
         }
 
         sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, uri_decoded);
-        MYMPD_LOG_DEBUG("Check for stream cover %s", coverfile);
+        MYMPD_LOG_DEBUG("Check for stream cover \"%s\"", coverfile);
         coverfile = webserver_find_image_file(coverfile);
 
+        if (sdslen(coverfile) == 0) {
+            //found no coverfile, next try to find a webradio m3u
+            sds webradio_file = sdscatfmt(sdsempty(), "%s/webradios/%s.m3u", config->workdir, uri_decoded);
+            MYMPD_LOG_DEBUG("Check for webradio playlist \"%s\"", webradio_file);
+            if (access(webradio_file, F_OK) == 0) { /* Flawfinder: ignore */
+                sds extimg = m3u_get_field(sdsempty(), "#EXTIMG", webradio_file);
+                if (strncmp(extimg, "http", 4) == 0) {
+                    //full uri, send a temporary redirect
+                    webserver_send_header_found(nc, extimg);
+                    FREE_SDS(uri_decoded);
+                    FREE_SDS(coverfile);
+                    FREE_SDS(extimg);
+                    return true;
+                }
+                if (sdslen(extimg) > 0) {
+                    coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, extimg);
+                }
+                FREE_SDS(extimg);
+            }
+            FREE_SDS(webradio_file);
+        }
         if (sdslen(coverfile) > 0) {
+            //found a local coverfile
             const char *mime_type = get_mime_type_by_ext(coverfile);
-            MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
+            MYMPD_LOG_DEBUG("Serving file \"%s\" (%s)", coverfile, mime_type);
             static struct mg_http_serve_opts s_http_server_opts;
             s_http_server_opts.root_dir = mg_user_data->browse_directory;
             s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
@@ -109,10 +132,11 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
             mg_http_serve_file(nc, hm, coverfile, &s_http_server_opts);
         }
         else {
+            //serve fallback image
             webserver_serve_stream_image(nc, hm);
         }
-        FREE_SDS(coverfile);
         FREE_SDS(uri_decoded);
+        FREE_SDS(coverfile);
         return true;
     }
 

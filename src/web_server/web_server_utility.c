@@ -122,6 +122,13 @@ void webserver_send_header_redirect(struct mg_connection *nc, const char *locati
         location);
 }
 
+void webserver_send_header_found(struct mg_connection *nc, const char *location) {
+    mg_printf(nc, "HTTP/1.1 302 Found\r\n"
+        "Location: %s\r\n"
+        "Content-Length: 0\r\n\r\n",
+        location);
+}
+
 void webserver_handle_connection_close(struct mg_connection *nc) {
     if (nc->label[2] == 'C') {
         MYMPD_LOG_DEBUG("Set connection %lu to is_draining", nc->id);

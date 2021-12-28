@@ -10,6 +10,7 @@
 #include "../lib/api.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/m3u.h"
 #include "../lib/mem.h"
 #include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
@@ -21,10 +22,6 @@
 #include <string.h>
 #include <unistd.h>
 
-//private definitions
-sds m3u_to_json(sds buffer, sds filename, sds *plname);
-
-//public functions
 sds mympd_api_webradio_get(struct t_config *config, sds buffer, sds method, long request_id, const char *filename) {
     sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s", config->workdir, filename);
     sds entry = sdsempty();
@@ -174,61 +171,4 @@ bool mympd_api_webradio_delete(struct t_config *config, const char *filename) {
     }
     FREE_SDS(filepath);
     return true;
-}
-
-//private functions
-
-sds m3u_to_json(sds buffer, sds filename, sds *plname) {
-    errno = 0;
-    FILE *fp = fopen(filename, OPEN_FLAGS_READ);
-    if (fp == NULL) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\"", filename);
-        MYMPD_LOG_ERRNO(errno);
-        return buffer;
-    }
-    sds line = sdsempty();
-    //check ext m3u header
-    sds_getline(&line, fp, 1000);
-    if (strcmp(line, "#EXTM3U") != 0) {
-        MYMPD_LOG_WARN("Invalid ext m3u file");
-        sdsfree(line);
-        fclose(fp);
-        return buffer;
-    }
-    int line_count = 0;
-    while (sds_getline(&line, fp, 1000) == 0) {
-        if (line[0] == '\0') {
-            //skip blank lines
-            continue;
-        }
-        if (line_count++) {
-            buffer = sdscatlen(buffer, ",", 1);
-        }
-        if (line[0] != '#') {
-            //stream uri
-            buffer = tojson_char(buffer, "streamUri", line, false);
-            continue;
-        }
-        buffer = sdscatlen(buffer, "\"", 1);
-        int i = 1;
-        while (line[i] != '\0' &&
-               line[i] != ':')
-        {
-            buffer = sds_catjsonchar(buffer, line[i]);
-            i++;
-        }
-        buffer = sdscatlen(buffer, "\":\"", 3);
-        i++;
-        while (line[i] != '\0') {
-            buffer = sds_catjsonchar(buffer, line[i]);
-            if (plname != NULL) {
-                *plname = sdscatprintf(*plname, "%c", line[i]);
-            }
-            i++;
-        }
-        buffer = sdscatlen(buffer, "\"", 1);
-    }
-    FREE_SDS(line);
-    fclose(fp);
-    return buffer;
 }

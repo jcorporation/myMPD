@@ -1125,7 +1125,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_QUEUE_APPEND_PLAYLIST:
-            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true &&
+            if (json_get_string(request->data, "$.params.plist", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
                 rc = mpd_run_load(mympd_state->mpd_state->conn, sds_buf1);
@@ -1143,7 +1143,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Method not supported");
                 break;
             }
-            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true &&
+            if (json_get_string(request->data, "$.params.plist", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
@@ -1159,7 +1159,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_QUEUE_REPLACE_PLAYLIST:
-            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true &&
+            if (json_get_string(request->data, "$.params.plist", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
                 rc = mympd_api_queue_replace_with_playlist(mympd_state, sds_buf1);
