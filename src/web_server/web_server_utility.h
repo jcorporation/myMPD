@@ -57,7 +57,6 @@ struct t_mg_user_data {
     sds music_directory;
     sds *coverimage_names;
     int coverimage_names_len;
-    bool feat_library;
     bool feat_mpd_albumart;
     bool publish_playlists;
     bool publish_music;
