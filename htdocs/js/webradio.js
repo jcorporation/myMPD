@@ -99,11 +99,12 @@ function initWebradio() {
     }, false);
 }
 
- function getRadioFavoriteUri(uri) {
-    return window.location.protocol + '//' + window.location.hostname +
-        (window.location.port !== '' ? ':' + window.location.port : '') +
+function getRadioFavoriteUri(uri) {
+    //favorite m3u uri points always to the http port of mympd to avoid necessary mpd curl plugin configuration
+    return 'http://' + window.location.hostname +
+        (settings.mympdHttpPort === '80' ? '' : ':' + settings.mympdHttpPort) +
         subdir + '/browse/webradios/' + myEncodeURI(uri);
- }
+}
 
 function getRadioFavoriteList() {
     sendAPI("MYMPD_API_WEBRADIO_LIST", {
@@ -220,7 +221,7 @@ function parseWebradioList(obj) {
         ]);
         const picture = obj.result.data[i].EXTIMG.indexOf('http') === 0 ?
             obj.result.data[i].EXTIMG :
-            subdir + '/pics/' + obj.result.data[i].EXTIMG;
+            subdir + '/browse/pics/' + obj.result.data[i].EXTIMG;
         setData(card, 'picture', picture);
         setData(card, 'uri', obj.result.data[i].filename);
         setData(card, 'name', obj.result.data[i].PLAYLIST);

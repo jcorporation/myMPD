@@ -1523,7 +1523,7 @@ const APImethods = {
             "image": {
                 "type": "text",
                 "example": "home-icon-1.png",
-                "desc": "realtive path for an image (/pics/ is the root)"
+                "desc": "relative path for an image (/browse/pics/ is the root)"
             },
             "cmd": {
                 "type": "text",

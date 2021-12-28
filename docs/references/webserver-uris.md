@@ -17,6 +17,5 @@ Reference of all webserver uris.
 | `/ca.crt` | Returns the myMPD CA certificate |
 | `/stream/` | Reverse proxy for mpd http stream |
 | `/tagart/<tagname>/<tagvalue>` | Returns the tagart |
-| `/pics/` | `/var/lib/mympd/pics/` |
 | `/ws/` | Websocket endpoint |
 {: .table .table-sm }

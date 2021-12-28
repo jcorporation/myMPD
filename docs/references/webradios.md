@@ -12,9 +12,7 @@ myMPD uses the great [radio-browser.info](https://www.radio-browser.info/) proje
 
 myMPD saves webradio favorites as single extended m3u files in the directory `/var/lib/mympd/webradios`. The filename is the sanitized stream uri.
 
-MPD loads this playlist with the curl plugin. If you have enabled SSL in myMPD (the default), you must add the myMPD ca certificate to your system trust store:
-
-- [Adding myMPD CA]({{ site.baseurl }}/configuration/ssl-trust)
+MPD loads this playlist with the curl plugin.
 
 ### File format
 

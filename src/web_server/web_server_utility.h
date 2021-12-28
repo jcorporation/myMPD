@@ -54,15 +54,13 @@
 struct t_mg_user_data {
     struct t_config *config; //pointer to mympd config
     sds browse_directory;
-    sds pics_directory;
     sds music_directory;
-    sds smartpls_directory;
-    sds playlist_directory;
-    sds webradios_directory;
     sds *coverimage_names;
     int coverimage_names_len;
     bool feat_library;
     bool feat_mpd_albumart;
+    bool publish_playlists;
+    bool publish_music;
     int connection_count;
     sds stream_uri;
     bool covercache;

@@ -43,15 +43,12 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
     mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%s/empty", config->workdir);
-    mg_user_data->pics_directory = sdscatfmt(sdsempty(), "%s/pics", config->workdir);
-    mg_user_data->smartpls_directory = sdscatfmt(sdsempty(), "%s/smartpls", config->workdir);
-    mg_user_data->webradios_directory = sdscatfmt(sdsempty(), "%s/webradios", config->workdir);
     mg_user_data->music_directory = sdsempty();
-    mg_user_data->playlist_directory = sdsempty();
     sds default_coverimagename = sdsnew("cover,folder");
     mg_user_data->coverimage_names= webserver_split_coverimage_names(default_coverimagename, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
     FREE_SDS(default_coverimagename);
-    mg_user_data->feat_library = false;
+    mg_user_data->publish_music = false;
+    mg_user_data->publish_playlists = false;
     mg_user_data->feat_mpd_albumart = false;
     mg_user_data->connection_count = 0;
     mg_user_data->stream_uri = sdsnew("http://localhost:8000");
@@ -172,18 +169,38 @@ static bool parse_internal_message(struct t_work_result *response, struct t_mg_u
     bool rc = false;
     if (response->extra != NULL) {
         struct set_mg_user_data_request *new_mg_user_data = (struct set_mg_user_data_request *)response->extra;
+        struct t_config *config = mg_user_data->config;
 
+        sdsclear(mg_user_data->browse_directory);
+        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, "%s/empty", config->workdir);
+        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/pics=%s/pics", config->workdir);
+        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/smartplaylists=%s/smartpls", config->workdir);
+        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/webradios=%s/webradios", config->workdir);
+        if (sdslen(new_mg_user_data->playlist_directory) > 0) {
+            mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/playlists=%s", new_mg_user_data->playlist_directory);
+            mg_user_data->publish_playlists = true;
+        }
+        else {
+            mg_user_data->publish_playlists = false;
+        }
+        FREE_SDS(new_mg_user_data->playlist_directory);
+
+        if (sdslen(new_mg_user_data->music_directory) > 0)
+        {
+            mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/music=%s", new_mg_user_data->music_directory);
+            mg_user_data->publish_music = true;
+        }
+        else {
+            mg_user_data->publish_music = false;
+        }
         mg_user_data->music_directory = sds_replace(mg_user_data->music_directory, new_mg_user_data->music_directory);
         FREE_SDS(new_mg_user_data->music_directory);
-
-        mg_user_data->playlist_directory = sds_replace(mg_user_data->playlist_directory, new_mg_user_data->playlist_directory);
-        FREE_SDS(new_mg_user_data->playlist_directory);
+        MYMPD_LOG_DEBUG("Document root: \"%s\"", mg_user_data->browse_directory);
 
         sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
         mg_user_data->coverimage_names = webserver_split_coverimage_names(new_mg_user_data->coverimage_names, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
         FREE_SDS(new_mg_user_data->coverimage_names);
 
-        mg_user_data->feat_library = new_mg_user_data->feat_library;
         mg_user_data->feat_mpd_albumart = new_mg_user_data->feat_mpd_albumart;
         mg_user_data->covercache = new_mg_user_data->covercache;
 
@@ -194,7 +211,7 @@ static bool parse_internal_message(struct t_work_result *response, struct t_mg_u
                 new_mg_user_data->mpd_stream_port);
         }
         FREE_SDS(new_mg_user_data->mpd_host);
-	FREE_PTR(response->extra);
+	    FREE_PTR(response->extra);
         rc = true;
     }
     else {
@@ -457,31 +474,21 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             else if (mg_http_match_uri(hm, "/tagart/#")) {
                 webserver_tagart_handler(nc, hm, mg_user_data);
             }
-            else if (mg_http_match_uri(hm, "/pics/#")) {
-                //serve directory
-                MYMPD_LOG_DEBUG("Setting document root to \"%s\"", mg_user_data->pics_directory);
-                static struct mg_http_serve_opts s_http_server_opts;
-                s_http_server_opts.root_dir = mg_user_data->pics_directory;
-                s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
-                s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-                hm->uri = mg_str_strip_parent(&hm->uri, 1);
-                mg_http_serve_dir(nc, hm, &s_http_server_opts);
-            }
             else if (mg_http_match_uri(hm, "/browse/#")) {
                 static struct mg_http_serve_opts s_http_server_opts;
                 s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
                 s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                 if (mg_http_match_uri(hm, "/browse/")) {
                     sds dirs = sdsempty();
-                    if (mg_user_data->feat_library == true) {
+                    if (mg_user_data->publish_music == true) {
                         dirs = sdscat(dirs, "<tr><td><a href=\"music/\">music/</a></td><td>MPD music directory</td><td></td></tr>");
                     }
                     dirs = sdscat(dirs, "<tr><td><a href=\"pics/\">pics/</a></td><td>myMPD pics directory</td><td></td></tr>");
-                    if (sdslen(mg_user_data->playlist_directory) > 0) {
+                    if (mg_user_data->publish_playlists == true) {
                         dirs = sdscat(dirs, "<tr><td><a href=\"playlists/\">playlists/</a></td><td>MPD playlists directory</td><td></td></tr>");
                     }
                     dirs = sdscat(dirs, "<tr><td><a href=\"smartplaylists/\">smartplaylists/</a></td><td>myMPD smart playlists directory</td><td></td></tr>");
-                    dirs = sdscat(dirs, "<tr><td><a href=\"webradios/\">smartplaylists/</a></td><td>Webradio favorites</td><td></td></tr>");
+                    dirs = sdscat(dirs, "<tr><td><a href=\"webradios/\">webradios/</a></td><td>Webradio favorites</td><td></td></tr>");
                     mg_http_reply(nc, 200, "Content-Type: text/html\r\n"EXTRA_HEADERS_UNSAFE, "<!DOCTYPE html>"
                         "<html><head>"
                         "<meta charset=\"utf-8\">"
@@ -502,38 +509,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     );
                     sdsfree(dirs);
                 }
-                else if (mg_http_match_uri(hm, "/browse/pics/#")) {
-                    s_http_server_opts.root_dir = mg_user_data->pics_directory;
-                    hm->uri = mg_str_strip_parent(&hm->uri, 2);
-                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->pics_directory, hm->uri.len, hm->uri.ptr);
-                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
-                }
-                else if (mg_http_match_uri(hm, "/browse/smartplaylists/#")) {
-                    s_http_server_opts.root_dir = mg_user_data->smartpls_directory;
-                    hm->uri = mg_str_strip_parent(&hm->uri, 2);
-                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->smartpls_directory, hm->uri.len, hm->uri.ptr);
-                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
-                }
-                else if (sdslen(mg_user_data->playlist_directory) > 0 && mg_http_match_uri(hm, "/browse/playlists/#")) {
-                    s_http_server_opts.root_dir = mg_user_data->playlist_directory;
-                    hm->uri = mg_str_strip_parent(&hm->uri, 2);
-                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->playlist_directory, hm->uri.len, hm->uri.ptr);
-                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
-                }
-                else if (mg_user_data->feat_library == true && mg_http_match_uri(hm, "/browse/music/#")) {
-                    s_http_server_opts.root_dir = mg_user_data->music_directory;
-                    hm->uri = mg_str_strip_parent(&hm->uri, 2);
-                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
-                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
-                }
-                else if (mg_user_data->feat_library == true && mg_http_match_uri(hm, "/browse/webradios/#")) {
-                    s_http_server_opts.root_dir = mg_user_data->webradios_directory;
-                    hm->uri = mg_str_strip_parent(&hm->uri, 2);
-                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->webradios_directory, hm->uri.len, hm->uri.ptr);
-                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
-                }
                 else {
-                    webserver_send_error(nc, 403, "Access to this ressource is forbidden.");
+                    s_http_server_opts.root_dir = mg_user_data->browse_directory;
+                    MYMPD_LOG_INFO("Serving uri \"%.*s\"", hm->uri.len, hm->uri.ptr);
+                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 }
             }
             else if (mg_vcmp(&hm->uri, "/index.html") == 0) {
@@ -588,6 +567,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
     if (ev == MG_EV_ACCEPT) {
+        mg_user_data->connection_count++;
         //check connection count
         if (mg_user_data->connection_count > HTTP_CONNECTIONS_MAX) {
             MYMPD_LOG_DEBUG("Connections: %d", mg_user_data->connection_count);
@@ -603,10 +583,20 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
             webserver_send_error(nc, 403, "Request blocked by ACL");
             return;
         }
-        mg_user_data->connection_count++;
     }
     else if (ev == MG_EV_HTTP_MSG) {
         struct mg_http_message *hm = (struct mg_http_message *) ev_data;
+        if (mg_http_match_uri(hm, "/browse/webradios/*")) {
+            //we serve the webradio directory without https to avoid ssl configuration for the mpd curl plugin
+            static struct mg_http_serve_opts s_http_server_opts;
+            s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
+            s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+            s_http_server_opts.root_dir = mg_user_data->browse_directory;
+            MYMPD_LOG_INFO("Serving uri \"%.*s\"", hm->uri.len, hm->uri.ptr);
+            mg_http_serve_dir(nc, hm, &s_http_server_opts);
+            return;
+        }
+        //redirect to https
         struct mg_str *host_hdr = mg_http_get_header(hm, "Host");
         if (host_hdr == NULL) {
             MYMPD_LOG_ERROR("No hoster header found, closing connection");

@@ -291,7 +291,7 @@ function parseSettings(obj) {
             domCache.body.style.backgroundImage = 'url("' + subdir + myEncodeURI(settings.webuiSettings.uiBgImage) + '")';
         }
         else if (settings.webuiSettings.uiBgImage !== '') {
-            domCache.body.style.backgroundImage = 'url("' + subdir + '/pics/' + myEncodeURI(settings.webuiSettings.uiBgImage) + '")';
+            domCache.body.style.backgroundImage = 'url("' + subdir + '/browse/pics/' + myEncodeURI(settings.webuiSettings.uiBgImage) + '")';
         }
         else {
             domCache.body.style.backgroundImage = '';
