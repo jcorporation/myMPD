@@ -198,12 +198,7 @@ function parseQueue(obj) {const table = document.getElementById('QueueCurrentLis
         setData(row, 'songpos', data.Pos);
         setData(row, 'duration', data.Duration);
         setData(row, 'uri', data.uri);
-        if (isStreamUri(data.uri) === true) {
-            setData(row, 'type', 'stream');
-        }
-        else {
-            setData(row, 'type', 'song');
-        }
+        setData(row, 'type', data.type);
         setData(row, 'name', data.Title);
         //set artist and album data
         if (data.Album !== undefined) {
@@ -230,7 +225,6 @@ function parseQueue(obj) {const table = document.getElementById('QueueCurrentLis
         }
     });
 
-    setData(table, 'version', obj.result.queueVersion);
     const tfoot = table.getElementsByTagName('tfoot')[0];
     if (obj.result.totalTime &&
         obj.result.totalTime > 0 &&
