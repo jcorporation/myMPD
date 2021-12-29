@@ -283,8 +283,8 @@ function parseRadioOnlineDetails(obj) {
     const result = obj.result.data[0];
     if (result.favicon !== '') {
         document.getElementById('radioOnlineDetailsImage').style.backgroundImage =
-        'url("' + myEncodeURIhost(result.favicon) + '")' +
-        ', url("' + subdir + '/assets/coverimage-loading.svg")';
+            'url("' + myEncodeURIhost(result.favicon) + '")' +
+            ', url("' + subdir + '/assets/coverimage-loading.svg")';
     }
     document.getElementById('radioOnlineDetailsTitle').textContent = result.name;
     const showFields = {
