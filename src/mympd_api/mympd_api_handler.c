@@ -1128,6 +1128,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_string(request->data, "$.params.plist", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
+                sds_buf1 = resolv_mympd_uri(sds_buf1, mympd_state);
                 rc = mpd_run_load(mympd_state->mpd_state->conn, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_load", &result);
                 if (result == true &&
@@ -1148,6 +1149,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
+                sds_buf1 = resolv_mympd_uri(sds_buf1, mympd_state);
                 rc = mpd_run_load_range_to(mympd_state->mpd_state->conn, sds_buf1, 0, UINT_MAX, uint_buf1, uint_buf2);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_load_range_to", &result);
                 if (result == true &&
@@ -1162,6 +1164,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_string(request->data, "$.params.plist", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
+                sds_buf1 = resolv_mympd_uri(sds_buf1, mympd_state);
                 rc = mympd_api_queue_replace_with_playlist(mympd_state, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mympd_api_queue_replace_with_playlist", &result);
                 if (result == true &&

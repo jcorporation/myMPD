@@ -630,7 +630,6 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = tojson_bool(buffer, "pin", false, true);
     buffer = tojson_bool(buffer, "featCacert", false, true);
 #endif
-    buffer = tojson_char(buffer, "mympdHttpPort", mympd_state->config->http_port, true);
 #ifdef ENABLE_LUA
     buffer = tojson_bool(buffer, "featScripting", true, true);
 #else

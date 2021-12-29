@@ -20,17 +20,86 @@
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "mympd_api_timer.h"
 
+#include <arpa/inet.h>
 #include <dirent.h>
 #include <errno.h>
+#include <ifaddrs.h>
 #include <libgen.h>
+#include <netdb.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 //private definitons
 static void _detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
 
+static sds get_local_ip(void) {
+    struct ifaddrs *ifaddr;
+    struct ifaddrs *ifa;
+    char host[NI_MAXHOST];
+
+    errno = 0;
+    if (getifaddrs(&ifaddr) == -1) {
+        MYMPD_LOG_ERROR("Can not get list of inteface ip addresses");
+        MYMPD_LOG_ERRNO(errno);
+        return sdsempty();
+    }
+
+    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr == NULL ||
+            strcmp(ifa->ifa_name, "lo") == 0)
+        {
+            continue;
+        }
+        int family = ifa->ifa_addr->sa_family;
+        if (family == AF_INET ||
+            family == AF_INET6)
+        {
+            int s = getnameinfo(ifa->ifa_addr,
+                    (family == AF_INET) ? sizeof(struct sockaddr_in) :
+                                          sizeof(struct sockaddr_in6),
+                    host, NI_MAXHOST,
+                    NULL, 0, NI_NUMERICHOST);
+            if (s != 0) {
+                MYMPD_LOG_ERROR("getnameinfo() failed: %s\n", gai_strerror(s));
+                continue;
+            }
+            sds ip = sdsnew(host);
+            freeifaddrs(ifaddr);
+            return ip;
+        }
+    }
+    freeifaddrs(ifaddr);
+    return sdsempty();
+}
+
+static sds get_mympd_host(struct t_mympd_state *mympd_state) {
+    if (strncmp(mympd_state->mpd_state->mpd_host, "/", 1) == 0) {
+        //local socket - use localhost
+        return sdsnew("localhost");
+    }
+    if (strcmp(mympd_state->config->http_host, "0.0.0.0") != 0) {
+        //host defined in configuration
+        return sdsdup(mympd_state->config->http_host);
+    }
+    //get local ip
+    return get_local_ip();
+}
+
 //public functions
+sds resolv_mympd_uri(sds uri, struct t_mympd_state *mympd_state) {
+    if (strncmp(uri, "mympd://webradio/", 17) == 0) {
+        sdsrange(uri, 17, -1);
+        sds host = get_mympd_host(mympd_state);
+        sds new_uri = sdscatfmt(sdsempty(), "http://%s:%s/browse/webradios/%s", host, mympd_state->config->http_port, uri);
+        sdsfree(uri);
+        sdsfree(host);
+        return new_uri;
+    }
+    return uri;
+}
+
 sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *uri, bool is_dirname) {
     struct t_list images;
     list_init(&images);

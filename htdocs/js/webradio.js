@@ -100,10 +100,8 @@ function initWebradio() {
 }
 
 function getRadioFavoriteUri(uri) {
-    //favorite m3u uri points always to the http port of mympd to avoid necessary mpd curl plugin configuration
-    return 'http://' + window.location.hostname +
-        (settings.mympdHttpPort === '80' ? '' : ':' + settings.mympdHttpPort) +
-        subdir + '/browse/webradios/' + myEncodeURI(uri);
+    //construct special url, it will be resolved by the myMPD api handler
+    return 'mympd://webradio/' + myEncodeURI(uri);
 }
 
 function getRadioFavoriteList() {
