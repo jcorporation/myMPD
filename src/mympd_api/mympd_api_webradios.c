@@ -22,6 +22,19 @@
 #include <string.h>
 #include <unistd.h>
 
+bool is_webradio(struct t_config *config, const char *uri) {
+    sds filename = sdsnew(uri);
+    sds_sanitize_filename(filename);
+    sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s.m3u", config->workdir, filename);
+    sdsfree(filename);
+    if (access(filepath, F_OK) == 0) { /* Flawfinder: ignore */
+        sdsfree(filepath);
+        return true;
+    }
+    sdsfree(filepath);
+    return false;
+}
+
 sds mympd_api_webradio_get(struct t_config *config, sds buffer, sds method, long request_id, const char *filename) {
     sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s", config->workdir, filename);
     sds entry = sdsempty();
