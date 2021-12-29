@@ -504,8 +504,10 @@ function _addHomeIcon(cmd, name, ligature, image, options) {
     showHomeIconCmdOptions(options);
     getHomeIconPictureList('');
     const homeIconPreviewEl = document.getElementById('homeIconPreview');
+    const homeIconImageInput = document.getElementById('inputHomeIconImage');
     if (image !== '') {
-        document.getElementById('inputHomeIconImage').value = image;
+        homeIconImageInput.value = image;
+        setData(homeIconImageInput, 'value', image);
         document.getElementById('inputHomeIconLigature').value = '';
         elClear(homeIconPreviewEl);
         homeIconPreviewEl.style.backgroundImage =
@@ -516,13 +518,14 @@ function _addHomeIcon(cmd, name, ligature, image, options) {
     }
     else {
         //use ligature
-        document.getElementById('inputHomeIconImage').value = '';
+        homeIconImageInput.value = tn('Use ligature');
+        setData(homeIconImageInput, 'value', '');
         document.getElementById('inputHomeIconLigature').value = ligature;
         homeIconPreviewEl.textContent = ligature;
         homeIconPreviewEl.style.backgroundImage = '';
         elShowId('divHomeIconLigature');
     }
-    
+
     homeIconPreviewEl.style.backgroundColor = '#28a745';
     homeIconPreviewEl.style.color = '#ffffff';
     uiElements.modalEditHomeIcon.show();
