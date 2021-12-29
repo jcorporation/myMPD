@@ -225,6 +225,14 @@ function createPopoverTabs(el, tab1Callback, tab2Callback) {
     return popoverInit;
 }
 
+function addDivider(tabContent) {
+    if (tabContent.lastChild &&
+        tabContent.lastChild.nodeName !== 'div')
+    {
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+    }
+}
+
 function addMenuItem(tabContent, cmd, text) {
     const a = elCreateText('a', {"class": ["dropdown-item"], "href": "#"}, tn(text));
     setData(a, 'href', cmd);
@@ -237,14 +245,14 @@ function addMenuItemsNavbarActions(popoverBody, el) {
         case 'NavbarPlayback':
             addMenuItem(popoverBody, {"cmd": "showModal", "options": ["modalQueueSettings"]}, 'Playback settings');
             addMenuItemsSingleActions(popoverBody);
-            popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addDivider(popoverBody);
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Playback", undefined, undefined]}, 'Show playback');
             break;
         case 'NavbarQueue':
             addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}]}, 'Clear');
             addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}]}, 'Crop');
             addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_SHUFFLE"}]}, 'Shuffle');
-            popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addDivider(popoverBody);
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "Current", undefined]}, 'Show queue');
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "LastPlayed", undefined]}, 'Show last played');
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "Jukebox", undefined]}, 'Show jukebox queue');
@@ -252,7 +260,7 @@ function addMenuItemsNavbarActions(popoverBody, el) {
         case 'NavbarBrowse':
             addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, false]}, 'Update database');
             addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, true]}, 'Rescan database');
-            popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addDivider(popoverBody);
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Database", undefined]}, 'Show browse database');
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Playlists", undefined]}, 'Show browse playlists');
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Filesystem", undefined]}, 'Show browse filesystem');
@@ -318,10 +326,10 @@ function addMenuItemsAlbumActions(tabContent, dataNode, albumArtist, album) {
     if (features.featPlaylists === true &&
         app.id !== 'Home')
     {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, 'Add to playlist');
     }
-    tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+    addDivider(tabContent);
     if (app.id !== 'BrowseDatabaseDetail') {
         addMenuItem(tabContent, {"cmd": "gotoAlbum", "options": [albumArtist, album]}, 'Album details');
     }
@@ -339,7 +347,7 @@ function addMenuItemsAlbumActions(tabContent, dataNode, albumArtist, album) {
     if (features.featHome === true &&
         app.id !== 'Home')
     {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "addAlbumToHome", "options": [albumArtist, album]}, 'Add to homescreen');
     }
 }
@@ -358,17 +366,17 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
     if (features.featPlaylists === true &&
         app.id !== 'Home')
     {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [uri, ""]}, 'Add to playlist');
     }
     if (type === 'song') {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "songDetails", "options": [uri]}, 'Song details');
     }
     if (features.featHome === true &&
         app.id !== 'Home')
     {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "addSongToHome", "options": [uri, type, name]}, 'Add to homescreen');
     }
     if (app.id === 'BrowseRadioOnline' &&
@@ -377,7 +385,7 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
         const genre = getData(dataNode, 'genre');
         const image = getData(dataNode, 'image');
         const uuid = getData(dataNode, 'uuid');
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "showRadioOnlineDetails", "options": [uuid]}, 'Webradio details');
         addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [name, genre, image, uri, uuid]}, 'Add to favorites');
     }
@@ -394,10 +402,10 @@ function addMenuItemsSearchActions(tabContent, uri) {
     if (features.featPlaylists === true &&
         app.id !== 'Home')
     {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": ["SEARCH", uri]}, 'Add to playlist');
     }
-    tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+    addDivider(tabContent);
     addMenuItem(tabContent, {"cmd": "appGoto", "options": ["Search", undefined, undefined, 0, undefined, "any", "Title", "-", uri]}, 'Show search');
 }
 
@@ -413,22 +421,22 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
     if (features.featPlaylists === true &&
         app.id !== 'Home')
     {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [baseuri, ""]}, 'Add to playlist');
     }
     if (app.id === 'BrowseFilesystem') {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "updateDB", "options": [baseuri, true]}, 'Update directory');
         addMenuItem(tabContent, {"cmd": "rescanDB", "options": [baseuri, true]}, 'Rescan directory');
     }
     else {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [baseuri, "dir"]}, 'Show directory');
     }
     if (features.featHome === true &&
         app.id !== 'Home')
     {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "addDirToHome", "options": [baseuri, baseuri]}, 'Add to homescreen');
     }
 }
@@ -440,7 +448,7 @@ function addMenuItemsWebradioFavoritesActions(tabContent, dataNode) {
     const name = getData(dataNode, 'name');
     const uuid = getData(dataNode, 'uuid');
     addMenuItemsPlaylistActions(tabContent, dataNode, type, plistUri, name);
-    tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+    addDivider(tabContent);
     if (uuid !== '') {
         addMenuItem(tabContent, {"cmd": "showRadioOnlineDetails", "options": [uuid]}, 'Webradio details');
     }
@@ -458,7 +466,7 @@ function addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name) {
     addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": [type, uri]}, 'Replace queue and play');
     if (features.featHome === true) {
         if (app.id !== 'Home') {
-            tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addDivider(tabContent);
             if (app.id === 'BrowseRadioFavorites') {
                 const image = getData(dataNode, 'image');
                 addMenuItem(tabContent, {"cmd": "addRadioFavoriteToHome", "options": [uri, type, name, image]}, 'Add to homescreen');
@@ -471,7 +479,7 @@ function addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name) {
             type === 'smartpls')
         {
             if (isMPDplaylist(uri) === true) {
-                tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+                addDivider(tabContent);
                 addMenuItem(tabContent, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
             }
             else {
@@ -517,7 +525,7 @@ function createMenuLists(el, tabHeader, tabContent) {
                 type !== 'smartpls')
             {
                 addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name);
-                tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+                addDivider(tabContent);
                 if (settings.smartpls === true && type === 'smartpls') {
                     addMenuItem(tabContent, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
                 }
@@ -530,7 +538,7 @@ function createMenuLists(el, tabHeader, tabContent) {
             if (settings.smartpls === true &&
                 type === 'smartpls')
             {
-                tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+                addDivider(tabContent);
                 addMenuItem(tabContent, {"cmd": "showSmartPlaylist", "options": [uri]}, 'Edit smart playlist');
                 addMenuItem(tabContent, {"cmd": "updateSmartPlaylist", "options": [uri]}, 'Update smart playlist');
             }
@@ -540,7 +548,7 @@ function createMenuLists(el, tabHeader, tabContent) {
             const table = document.getElementById('BrowsePlaylistsDetailList');
             addMenuItemsSongActions(tabContent, dataNode, uri, type, name);
             if (getData(table, 'ro') === 'false') {
-                tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+                addDivider(tabContent);
                 const plist = getData(table, 'uri');
                 const songpos = getData(dataNode, 'songpos');
                 const playlistLength = getData(table, 'playlistlength');
@@ -560,7 +568,7 @@ function createMenuLists(el, tabHeader, tabContent) {
             const trackid = getData(dataNode, 'trackid');
             const songpos = getData(dataNode, 'songpos');
             addMenuItemsSongActions(tabContent, dataNode, uri, type, name);
-            tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addDivider(tabContent);
             if (currentState.currentSongId !== -1 &&
                 trackid !== currentState.currentSongId)
             {
@@ -570,7 +578,7 @@ function createMenuLists(el, tabHeader, tabContent) {
             if (trackid === currentState.currentSongId) {
                 addMenuItemsSingleActions(tabContent);
             }
-            tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addDivider(tabContent);
             addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["single", trackid]}, 'Remove');
             if (songpos > 0) {
                 addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", 0, songpos]}, 'Remove all upwards');
@@ -592,7 +600,7 @@ function createMenuLists(el, tabHeader, tabContent) {
             else if (settings.jukeboxMode === 2) {
                 addMenuItemsAlbumActions(tabContent, dataNode)
             }
-            tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addDivider(tabContent);
             addMenuItem(tabContent, {"cmd": "delQueueJukeboxSong", "options": [pos]}, 'Remove');
             return true;
         }
