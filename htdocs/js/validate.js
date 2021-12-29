@@ -18,8 +18,8 @@ function isStreamUri(uri) {
 }
 
 function isHttpUri(uri) {
-    if (uri.indexOf('http://') == 0 ||
-        uri.indexOf('https://') == 0)
+    if (uri.indexOf('http://') === 0 ||
+        uri.indexOf('https://') === 0)
     {
         return true;
     }
