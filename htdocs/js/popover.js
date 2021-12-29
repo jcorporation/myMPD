@@ -375,11 +375,11 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
         dataNode !== null)
     {
         const genre = getData(dataNode, 'genre');
-        const picture = getData(dataNode, 'picture');
+        const image = getData(dataNode, 'image');
         const uuid = getData(dataNode, 'uuid');
         tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         addMenuItem(tabContent, {"cmd": "showRadioOnlineDetails", "options": [uuid]}, 'Show webradio details');
-        addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [name, genre, picture, uri, uuid]}, 'Add to favorites');
+        addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [name, genre, image, uri, uuid]}, 'Add to favorites');
     }
 }
 
@@ -439,7 +439,7 @@ function addMenuItemsWebradioFavoritesActions(tabContent, dataNode) {
     const plistUri = getRadioFavoriteUri(uri);
     const name = getData(dataNode, 'name');
     const uuid = getData(dataNode, 'uuid');
-    addMenuItemsPlaylistActions(tabContent, type, plistUri, name);
+    addMenuItemsPlaylistActions(tabContent, dataNode, type, plistUri, name);
     tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
     if (uuid !== '') {
         addMenuItem(tabContent, {"cmd": "showRadioOnlineDetails", "options": [uuid]}, 'Show webradio details');
@@ -448,7 +448,7 @@ function addMenuItemsWebradioFavoritesActions(tabContent, dataNode) {
     addMenuItem(tabContent, {"cmd": "deleteRadioFavorite", "options": [uri]}, 'Delete webradio favorite');
 }
 
-function addMenuItemsPlaylistActions(tabContent, type, uri, name) {
+function addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name) {
     addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri]}, 'Append to queue');
     addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": [type, uri]}, 'Append to queue and play');
     if (features.featWhence === true) {
@@ -459,7 +459,13 @@ function addMenuItemsPlaylistActions(tabContent, type, uri, name) {
     if (features.featHome === true) {
         if (app.id !== 'Home') {
             tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-            addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, type, name]}, 'Add to homescreen');
+            if (app.id === 'BrowseRadioFavorites') {
+                const image = getData(dataNode, 'image');
+                addMenuItem(tabContent, {"cmd": "addRadioFavoriteToHome", "options": [uri, type, name, image]}, 'Add to homescreen');
+            }
+            else {
+                addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, type, name]}, 'Add to homescreen');
+            }
         }
         if (type === 'plist' ||
             type === 'smartpls')
@@ -498,7 +504,7 @@ function createMenuLists(el, tabHeader, tabContent) {
                     break;
                 case 'plist':
                 case 'smartpls':
-                    addMenuItemsPlaylistActions(tabContent, type, uri, name);
+                    addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name);
                     break;
                 default:
                     return false;
@@ -510,7 +516,7 @@ function createMenuLists(el, tabHeader, tabContent) {
             if (smartplsOnly === false ||
                 type !== 'smartpls')
             {
-                addMenuItemsPlaylistActions(tabContent, type, uri, name);
+                addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name);
                 tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
                 if (settings.smartpls === true && type === 'smartpls') {
                     addMenuItem(tabContent, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
@@ -637,9 +643,9 @@ function createMenuListsSecondary(el, tabHeader, tabContent) {
     return false;
 }
 
-function createMenuHome(el, tabHeader, tabContent) {
-    const pos = getData(el, 'pos');
-    const href = getData(el, 'href');
+function createMenuHome(dataNode, tabHeader, tabContent) {
+    const pos = getData(dataNode, 'pos');
+    const href = getData(dataNode, 'href');
     if (href === undefined) {
         return;
     }
@@ -661,7 +667,8 @@ function createMenuHome(el, tabHeader, tabContent) {
     switch(type) {
         case 'plist':
         case 'smartpls':
-            addMenuItemsPlaylistActions(tabContent, type, href.options[1], href.options[1]);
+        case 'webradio':
+            addMenuItemsPlaylistActions(tabContent, dataNode, type, href.options[1], href.options[1]);
             break;
         case 'dir':
             addMenuItemsDirectoryActions(tabContent, href.options[1]);

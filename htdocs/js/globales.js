@@ -681,5 +681,6 @@ const typeFriendly = {
     'album': 'Album',
     'stream': 'Stream',
     'view': 'View',
-    'script': 'Script'
+    'script': 'Script',
+    'webradio': 'Webradio'
 };

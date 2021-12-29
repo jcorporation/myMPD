@@ -36,8 +36,8 @@ function initWebradio() {
             if (settings.webuiSettings.clickRadioOnline === 'add') {
                 const name = getData(event.target.parentNode, 'name');
                 const genre = getData(event.target.parentNode, 'genre');
-                const picture = getData(event.target.parentNode, 'picture');
-                showEditRadioFavorite(name, genre, picture, uri);
+                const image = getData(event.target.parentNode, 'image');
+                showEditRadioFavorite(name, genre, image, uri);
             }
             else {
                 clickRadioOnline(uri, getData(event.target.parentNode, 'uuid'));
@@ -132,7 +132,7 @@ function editRadioFavorite(filename) {
     }, false);
 }
 
-function showEditRadioFavorite(name, genre, picture, streamUri, uuid) {
+function showEditRadioFavorite(name, genre, image, streamUri, uuid) {
     cleanupModalId('modalSaveRadioFavorite');
     document.getElementById('editRadioFavoriteName').value = name;
     document.getElementById('editRadioFavoriteStreamUri').value = streamUri;
@@ -140,9 +140,9 @@ function showEditRadioFavorite(name, genre, picture, streamUri, uuid) {
     document.getElementById('editRadioFavoriteGenre').value = genre;
     document.getElementById('editRadioFavoriteUUID').value = uuid;
 
-    const pictureEl = document.getElementById('editRadioFavoritePicture');
-    getImageList(pictureEl.filterResult, picture, []);
-    pictureEl.value = picture;
+    const imageEl = document.getElementById('editRadioFavoriteImage');
+    getImageList(imageEl.filterResult, image, []);
+    imageEl.value = image;
 
     uiElements.modalSaveRadioFavorite.show();
 }
@@ -156,7 +156,7 @@ function saveRadioFavorite() {
         "streamUri": document.getElementById('editRadioFavoriteStreamUri').value,
         "streamUriOld": document.getElementById('editRadioFavoriteStreamUriOld').value,
         "genre": document.getElementById('editRadioFavoriteGenre').value,
-        "picture": document.getElementById('editRadioFavoritePicture').value,
+        "image": document.getElementById('editRadioFavoriteImage').value,
         "uuid": uuid
     }, saveRadioFavoriteClose, true);
     countClickRadioOnline(uuid);
@@ -219,10 +219,10 @@ function parseWebradioList(obj) {
                 elCreateText('small', {}, obj.result.data[i].EXTGENRE)
             ])
         ]);
-        const picture = obj.result.data[i].EXTIMG.indexOf('http') === 0 ?
+        const image = isHttpUri(obj.result.data[i].EXTIMG) === true ?
             obj.result.data[i].EXTIMG :
             subdir + '/browse/pics/' + obj.result.data[i].EXTIMG;
-        setData(card, 'picture', picture);
+        setData(card, 'image', image);
         setData(card, 'uri', obj.result.data[i].filename);
         setData(card, 'name', obj.result.data[i].PLAYLIST);
         setData(card, 'uuid', obj.result.data[i].RADIOBROWSERUUID);
@@ -246,7 +246,7 @@ function parseWebradioList(obj) {
             observer.observe(col);
         }
         else {
-            col.firstChild.firstChild.style.backgroundImage = myEncodeURIhost(picture);
+            col.firstChild.firstChild.style.backgroundImage = myEncodeURIhost(image);
         }
     }
     for (let i = cols.length - 1; i >= nrItems; i--) {
@@ -284,7 +284,7 @@ function parseRadioOnlineDetails(obj) {
     }
     const result = obj.result.data[0];
     if (result.favicon !== '') {
-        document.getElementById('radioOnlineDetailsPicture').style.backgroundImage =
+        document.getElementById('radioOnlineDetailsImage').style.backgroundImage =
         'url("' + myEncodeURIhost(result.favicon) + '")' +
         ', url("' + subdir + '/assets/coverimage-loading.svg")';
     }
@@ -346,7 +346,7 @@ function parseRadiobrowserList(obj) {
         setData(row, 'uri', station.url_resolved);
         setData(row, 'name', station.name);
         setData(row, 'genre', station.tags);
-        setData(row, 'picture', station.favicon);
+        setData(row, 'image', station.favicon);
         setData(row, 'type', 'stream');
         setData(row, 'uuid', station.stationuuid);
         row.appendChild(

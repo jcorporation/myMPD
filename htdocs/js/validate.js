@@ -17,6 +17,15 @@ function isStreamUri(uri) {
     return false;
 }
 
+function isHttpUri(uri) {
+    if (uri.indexOf('http://') == 0 ||
+        uri.indexOf('https://') == 0)
+    {
+        return true;
+    }
+    return false;
+}
+
 function removeIsInvalid(parentEl) {
     const els = parentEl.getElementsByClassName('is-invalid');
     for (let i = els.length - 1; i >= 0; i--) {

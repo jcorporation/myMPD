@@ -418,10 +418,10 @@ function parseDatabase(obj) {
             continue;
         }
 
-        let picture = '';
+        let image = '';
         const card = elCreateEmpty('div', {"data-popover": "album", "class": ["card", "card-grid", "clickable"], "tabindex": 0});
         if (obj.result.tag === 'Album') {
-            picture = subdir + '/albumart/' + obj.result.data[i].FirstSongUri;
+            image = subdir + '/albumart/' + obj.result.data[i].FirstSongUri;
             card.appendChild(
                 elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
             );
@@ -433,7 +433,7 @@ function parseDatabase(obj) {
                         elCreateNode('small', {}, printValue("AlbumArtist", obj.result.data[i].AlbumArtist))
                 ])
             );
-            setData(card, 'picture', picture);
+            setData(card, 'image', image);
             setData(card, 'uri', obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, ''));
             setData(card, 'type', 'album');
             setData(card, 'name', obj.result.data[i].Album);
@@ -442,7 +442,7 @@ function parseDatabase(obj) {
             addPlayButton(card.firstChild);
         }
         else {
-            picture = subdir + '/tagart/' + obj.result.tag + '/' + obj.result.data[i].value;
+            image = subdir + '/tagart/' + obj.result.tag + '/' + obj.result.data[i].value;
             if (obj.result.pics === true) {
                 card.appendChild(
                     elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
@@ -452,7 +452,7 @@ function parseDatabase(obj) {
                 elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2"],
                     "title": obj.result.data[i].value}, obj.result.data[i].value)
             );
-            setData(card, 'picture', picture);
+            setData(card, 'image', image);
             setData(card, 'tag', obj.result.data[i].value);
         }
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
@@ -473,7 +473,7 @@ function parseDatabase(obj) {
             observer.observe(col);
         }
         else {
-            col.firstChild.firstChild.style.backgroundImage = myEncodeURI(picture);
+            col.firstChild.firstChild.style.backgroundImage = myEncodeURI(image);
         }
     }
     for (let i = cols.length - 1; i >= nrItems; i--) {
@@ -488,7 +488,7 @@ function setGridImage(changes, observer) {
     changes.forEach(change => {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);
-            const uri = getData(change.target.firstChild, 'picture');
+            const uri = getData(change.target.firstChild, 'image');
             const body = change.target.firstChild.getElementsByClassName('card-body')[0];
             if (body) {
                 body.style.backgroundImage = 'url("' + myEncodeURIhost(uri) + '"),' +
