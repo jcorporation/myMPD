@@ -2258,12 +2258,14 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label" for="inputPinModal" data-phrase="Pin"></label>
-            <div class="col-sm-8">
-              <input id="inputPinModal" class="form-control" type="password"/>
+          <form>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="inputPinModal" data-phrase="Pin"></label>
+              <div class="col-sm-8">
+                <input id="inputPinModal" class="form-control" type="password" autocomplete="off"/>
+              </div>
             </div>
-          </div>
+        </form>
           <div id="modalEnterPinMessage" class="alert alert-danger p-2 d-none"></div>
         </div>
         <div class="modal-footer justify-content-between">
