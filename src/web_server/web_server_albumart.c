@@ -88,13 +88,13 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
     MYMPD_LOG_DEBUG("Handle albumart for uri \"%s\"", uri_decoded);
     //check for cover in /pics and webradio m3u
     if (is_streamuri(uri_decoded) == true) {
-        sds_sanitize_filename(uri_decoded);
         if (sdslen(uri_decoded) == 0) {
             MYMPD_LOG_ERROR("Uri to short");
             webserver_serve_na_image(nc, hm);
             FREE_SDS(uri_decoded);
             return true;
         }
+        sds_sanitize_filename(uri_decoded);
 
         sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, uri_decoded);
         MYMPD_LOG_DEBUG("Check for stream cover \"%s\"", coverfile);
