@@ -7,12 +7,14 @@
 #include "mympd_config_defs.h"
 #include "cert.h"
 
+#include "list.h"
 #include "log.h"
 #include "sds_extras.h"
 #include "utility.h"
 
 #include <arpa/inet.h>
 #include <errno.h>
+#include <ifaddrs.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <openssl/bn.h>
@@ -23,6 +25,7 @@
 #include <openssl/rand.h>
 #include <openssl/x509v3.h>
 #include <string.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 //private definitions
@@ -263,54 +266,80 @@ static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 *
 
 /*Gets local hostname and ip for subject alternative names */
 static sds get_san(sds buffer) {
-    buffer = sdscatfmt(buffer, "DNS:localhost, IP:127.0.0.1, IP:::1");
+    sds key = NULL;
+    struct t_list san;
+    list_init(&san);
+    list_push(&san, "DNS:localhost", 0, NULL, NULL);
 
     //Retrieve short hostname
     char hostbuffer[256]; /* Flawfinder: ignore */
     int hostname = gethostname(hostbuffer, sizeof(hostbuffer));
-    if (hostname == -1) {
-        return buffer;
-    }
-    buffer = sdscatfmt(buffer, ", DNS:%s", hostbuffer);
-
-    //Retrieve fqdn and ips
-    struct addrinfo hints = {0};
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_flags = AI_CANONNAME;
-    struct addrinfo *res;
-    struct addrinfo *rp;
-    if (getaddrinfo(hostbuffer, 0, &hints, &res) == 0) {
-        // The hostname was successfully resolved.
-        if (strcmp(hostbuffer, res->ai_canonname) != 0) {
-            buffer = sdscatfmt(buffer, ", DNS:%s", res->ai_canonname);
-        }
-        char addrstr[INET6_ADDRSTRLEN];
-        sds old_addrstr = sdsempty();
-        void *ptr = NULL;
-
-        for (rp = res; rp != NULL; rp = rp->ai_next) {
-            inet_ntop(res->ai_family, res->ai_addr->sa_data, addrstr, INET6_ADDRSTRLEN);
-
-            switch (res->ai_family) {
-                case AF_INET:
-                    ptr = &((struct sockaddr_in *) res->ai_addr)->sin_addr;
-                    break;
-                case AF_INET6:
-                    ptr = &((struct sockaddr_in6 *) res->ai_addr)->sin6_addr;
-                    break;
+    if (hostname == 0) {
+        key = sdscatfmt(sdsempty(), "DNS:%s", hostbuffer);
+        list_push(&san, key, 0, NULL, NULL);
+        //Retrieve fqdn
+        struct addrinfo hints = {0};
+        hints.ai_family = AF_UNSPEC;
+        hints.ai_flags = AI_CANONNAME;
+        struct addrinfo *res;
+        if (getaddrinfo(hostbuffer, 0, &hints, &res) == 0) {
+            // The hostname was successfully resolved.
+            if (strcmp(hostbuffer, res->ai_canonname) != 0) {
+                sdsclear(key);
+                key = sdscatfmt(sdsempty(), "DNS:%s", res->ai_canonname);
+                list_push(&san, key, 0, NULL, NULL);
             }
-            if (ptr != NULL) {
-                inet_ntop(res->ai_family, ptr, addrstr, INET6_ADDRSTRLEN);
-                if (strcmp(old_addrstr, addrstr) != 0) {
-                    buffer = sdscatfmt(buffer, ", IP:%s", addrstr);
-                    old_addrstr = sds_replace(old_addrstr, addrstr);
+            freeaddrinfo(res);
+        }
+    }
+    //retrieve interface ip addresses
+    struct ifaddrs *ifaddr;
+    struct ifaddrs *ifa;
+    char host[NI_MAXHOST];
+
+    errno = 0;
+    if (getifaddrs(&ifaddr) == 0) {
+        for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+            if (ifa->ifa_addr == NULL) {
+                continue;
+            }
+            int family = ifa->ifa_addr->sa_family;
+            if (family == AF_INET ||
+                family == AF_INET6)
+            {
+                int s = getnameinfo(ifa->ifa_addr,
+                    (family == AF_INET) ? sizeof(struct sockaddr_in) :
+                                          sizeof(struct sockaddr_in6),
+                    host, NI_MAXHOST,
+                    NULL, 0, NI_NUMERICHOST);
+
+                if (s != 0) {
+                    MYMPD_LOG_ERROR("getnameinfo() failed: %s\n", gai_strerror(s));
+                    continue;
                 }
+                sdsclear(key);
+                key = sdscatfmt(sdsempty(), "IP:%s", host);
+                list_push(&san, key, 0, NULL, NULL);
             }
-            ptr = NULL;
         }
-        freeaddrinfo(res);
-        FREE_SDS(old_addrstr);
+        freeifaddrs(ifaddr);
     }
+    else {
+        MYMPD_LOG_ERROR("Can not get list of inteface ip addresses");
+        MYMPD_LOG_ERRNO(errno);
+    }
+    //create san string
+    struct t_list_node *current = san.head;
+    int i = 0;
+    while (current->next != NULL) {
+        if (i++) {
+            buffer = sdscatlen(buffer, ",", 1);
+        }
+        buffer = sdscatsds(buffer, current->key);
+        current = current->next;
+    }
+    list_clear(&san);
+    FREE_SDS(key);
     return buffer;
 }
 
