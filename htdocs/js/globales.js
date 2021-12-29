@@ -634,7 +634,8 @@ const keymap = {
         "5": {"order": 306, "cmd": "appGoto", "options": ["Browse", "Database"], "desc": "Show browse database", "req": "featTags"},
         "6": {"order": 307, "cmd": "appGoto", "options": ["Browse", "Playlists"], "desc": "Show browse playlists", "req": "featPlaylists"},
         "7": {"order": 308, "cmd": "appGoto", "options": ["Browse", "Filesystem"], "desc": "Show browse filesystem"},
-        "8": {"order": 309, "cmd": "appGoto", "options": ["Search"], "desc": "Show search"},
+        "8": {"order": 308, "cmd": "appGoto", "options": ["Browse", "Radio"], "desc": "Show browse webradio"},
+        "9": {"order": 309, "cmd": "appGoto", "options": ["Search"], "desc": "Show search"},
         "/": {"order": 310, "cmd": "focusSearch", "options": [], "desc": "Focus search"}
 };
 

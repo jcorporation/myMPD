@@ -594,6 +594,9 @@ Wiedergabelisten anzeigen
 Show browse filesystem
 Dateisystem anzeigen
 
+Show browse webradio
+Webradios anzeigen
+
 Show search
 Suche anzeigen
 
