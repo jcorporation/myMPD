@@ -72,7 +72,7 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
         }
         default: {
             sds response = jsonrpc_respond_message(sdsempty(), cmd, id, true,
-                "general", "error", "Invalid API method for session");
+                "general", "error", "Invalid API request");
             webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
             FREE_SDS(response);
         }

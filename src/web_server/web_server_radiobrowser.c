@@ -65,7 +65,7 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
             }
             break;
         default:
-            error = sdscat(error, "Invalid API method for radiobrowser");
+            error = sdscat(error, "Invalid API request");
     }
 
     if (sdslen(error) > 0) {

@@ -144,3 +144,4 @@ Stop playback after current song
 Disable single mode
 Show
 View
+Add to favorites
