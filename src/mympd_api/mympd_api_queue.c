@@ -13,6 +13,7 @@
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "mympd_api_utility.h"
+#include "mympd_api_webradios.h"
 
 //private definitions
 static sds _mympd_api_get_queue_state(struct mpd_status *status, sds buffer);
@@ -308,7 +309,17 @@ sds _print_queue_entry(struct t_mympd_state *mympd_state, sds buffer, const stru
     const char *uri = mpd_song_get_uri(song);
     buffer = sdscatlen(buffer, ",", 1);
     if (is_streamuri(uri) == true) {
-        buffer = tojson_char(buffer, "type", "stream", false);
+        sds webradio = get_webradio_from_uri(mympd_state->config, uri);
+        if (sdslen(webradio) > 0) {
+            buffer = sdscat(buffer, "\"webradio\":{");
+            buffer = sdscatsds(buffer, webradio);
+            buffer = sdscatlen(buffer, "},", 2);
+            buffer = tojson_char(buffer, "type", "webradio", false);
+        }
+        else {
+            buffer = tojson_char(buffer, "type", "stream", false);
+        }
+        sdsfree(webradio);
     }
     else {
         buffer = tojson_char(buffer, "type", "song", false);

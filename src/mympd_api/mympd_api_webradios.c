@@ -22,17 +22,21 @@
 #include <string.h>
 #include <unistd.h>
 
-bool is_webradio(struct t_config *config, const char *uri) {
+sds get_webradio_from_uri(struct t_config *config, const char *uri) {
     sds filename = sdsnew(uri);
     sds_sanitize_filename(filename);
     sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s.m3u", config->workdir, filename);
-    sdsfree(filename);
+    sds entry = sdsempty();
     if (access(filepath, F_OK) == 0) { /* Flawfinder: ignore */
+        entry = tojson_char(entry, "filename", filename, true);
+        entry = m3u_to_json(entry, filepath, NULL);
         sdsfree(filepath);
-        return true;
+        sdsfree(filename);
+        return entry;
     }
     sdsfree(filepath);
-    return false;
+    sdsfree(filename);
+    return entry;
 }
 
 sds mympd_api_webradio_get(struct t_config *config, sds buffer, sds method, long request_id, const char *filename) {

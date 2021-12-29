@@ -47,6 +47,7 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
     if (fp == NULL) {
         MYMPD_LOG_ERROR("Can not open file \"%s\"", filename);
         MYMPD_LOG_ERRNO(errno);
+        sdsclear(buffer);
         return buffer;
     }
     sds line = sdsempty();
@@ -56,6 +57,7 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
         MYMPD_LOG_WARN("Invalid ext m3u file");
         sdsfree(line);
         fclose(fp);
+        sdsclear(buffer);
         return buffer;
     }
     int line_count = 0;

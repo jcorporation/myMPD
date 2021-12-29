@@ -16,6 +16,7 @@
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "mympd_api_utility.h"
+#include "mympd_api_webradios.h"
 
 //private definitions
 static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
@@ -254,6 +255,15 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer,
     }
     buffer = sdscatlen(buffer, ",", 1);
     buffer = get_extra_files(mympd_state, buffer, uri, false);
+    if (is_streamuri(uri) == true) {
+        sds webradio = get_webradio_from_uri(mympd_state->config, uri);
+        if (sdslen(webradio) > 0) {
+            buffer = sdscat(buffer, ",\"webradio\":{");
+            buffer = sdscatsds(buffer, webradio);
+            buffer = sdscatlen(buffer, "}", 1);
+        }
+        sdsfree(webradio);
+    }
     mpd_song_free(song);
 
     mpd_response_finish(mympd_state->mpd_state->conn);
