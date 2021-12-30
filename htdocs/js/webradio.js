@@ -142,7 +142,7 @@ function showEditRadioFavorite(name, genre, image, streamUri, homepage, country,
     document.getElementById('editRadioFavoriteHomepage').value = homepage;
     document.getElementById('editRadioFavoriteCountry').value = country;
     document.getElementById('editRadioFavoriteLanguage').value = language;
-    document.getElementById('editRadioFavoriteUUID').value = uuid;
+    document.getElementById('editRadioFavoriteUUID').value = uuid === undefined ? '' : uuid;
 
     const imageEl = document.getElementById('editRadioFavoriteImage');
     getImageList(imageEl.filterResult, image, []);
