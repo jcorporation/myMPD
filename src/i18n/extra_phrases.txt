@@ -145,3 +145,4 @@ Disable single mode
 Show
 View
 Add to favorites
+Delete webradio favorite

@@ -385,10 +385,12 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
         const genre = getData(dataNode, 'genre');
         const image = getData(dataNode, 'image');
         const homepage = getData(dataNode, 'homepage');
+        const country = getData(dataNode, 'country');
+        const language = getData(dataNode, 'language');
         const uuid = getData(dataNode, 'uuid');
         addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "showRadioOnlineDetails", "options": [uuid]}, 'Webradio details');
-        addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [name, genre, image, uri, homepage, uuid]}, 'Add to favorites');
+        addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [name, genre, image, uri, homepage, country, language, uuid]}, 'Add to favorites');
     }
     if (app.id === 'QueueCurrent' &&
         type === 'webradio')

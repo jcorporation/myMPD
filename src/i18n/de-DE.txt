@@ -2060,3 +2060,6 @@ Zu Favoriten hinzufügen
 
 Webradio
 Webradio
+
+Delete webradio favorite
+Webradio Favorit löschen
