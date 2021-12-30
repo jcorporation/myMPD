@@ -386,42 +386,80 @@ function songChange(obj) {
 }
 
 function setPlaybackCardTags(songObj) {
-    for (const col of settings.colsPlayback) {
-        const c = document.getElementById('current' + col);
-        if (c === null) {
-            continue;
-        }
-        switch(col) {
-            case 'Lyrics':
-                getLyrics(songObj.uri, c.getElementsByTagName('p')[0]);
-                break;
-            case 'AudioFormat':
-                //songObj has no audioformat definition - use current state
-                elReplaceChild(c.getElementsByTagName('p')[0], printValue('AudioFormat', currentState.AudioFormat));
-                break;
-            default: {
-                let value = songObj[col];
-                if (value === undefined) {
-                    value = '-';
-                }
-                elReplaceChild(c.getElementsByTagName('p')[0], printValue(col, value));
-                if ((typeof value === 'string' && value === '-') ||
-                    (typeof value === 'object' && value[0] === '-') ||
-                    settings.tagListBrowse.includes(col) === false)
-                {
-                    c.getElementsByTagName('p')[0].classList.remove('clickable');
-                }
-                else {
-                    c.getElementsByTagName('p')[0].classList.add('clickable');
-                }
-                setData(c, 'name', value);
-                if (col === 'Album' &&
-                    songObj[tagAlbumArtist] !== undefined)
-                {
-                    setData(c, 'AlbumArtist', songObj[tagAlbumArtist]);
+    if (songObj.webradio === undefined) {
+        for (const col of settings.colsPlayback) {
+            elHideId('cardPlaybackWebradio');
+            elShowId('cardPlaybackTags');
+            const c = document.getElementById('current' + col);
+            if (c === null) {
+                continue;
+            }
+            switch(col) {
+                case 'Lyrics':
+                    getLyrics(songObj.uri, c.getElementsByTagName('p')[0]);
+                    break;
+                case 'AudioFormat':
+                    //songObj has no audioformat definition - use current state
+                    elReplaceChild(c.getElementsByTagName('p')[0], printValue('AudioFormat', currentState.AudioFormat));
+                    break;
+                default: {
+                    let value = songObj[col];
+                    if (value === undefined) {
+                        value = '-';
+                    }
+                    elReplaceChild(c.getElementsByTagName('p')[0], printValue(col, value));
+                    if ((typeof value === 'string' && value === '-') ||
+                        (typeof value === 'object' && value[0] === '-') ||
+                        settings.tagListBrowse.includes(col) === false)
+                    {
+                        c.getElementsByTagName('p')[0].classList.remove('clickable');
+                    }
+                    else {
+                        c.getElementsByTagName('p')[0].classList.add('clickable');
+                    }
+                    setData(c, 'name', value);
+                    if (col === 'Album' &&
+                        songObj[tagAlbumArtist] !== undefined)
+                    {
+                        setData(c, 'AlbumArtist', songObj[tagAlbumArtist]);
+                    }
                 }
             }
         }
+    }
+    else {
+        //webradio info
+        const cardPlaybackWebradio = document.getElementById('cardPlaybackWebradio');
+        elShow(cardPlaybackWebradio);
+        elHideId('cardPlaybackTags');
+
+        const webradioName = elCreateText('p', {"href": "#", "class": ["clickable"]}, songObj.webradio.PLAYLIST);
+        setData(webradioName, 'href', {"cmd": "showRadioOnlineDetails", "options": [songObj.webradio.RADIOBROWSERUUID]});
+        webradioName.addEventListener('click', function(event) {
+            parseCmd(event, getData(event.target, 'href'));
+        }, false);
+        elReplaceChild(cardPlaybackWebradio,
+            elCreateNodes('div', {}, [
+                elCreateText('small', {}, tn('Webradio')),
+                webradioName
+            ])
+        );
+        cardPlaybackWebradio.appendChild(
+            elCreateNodes('div', {}, [
+                elCreateText('small', {}, tn('Genre')),
+                elCreateText('p', {}, songObj.webradio.EXTGENRE)
+            ])
+        );
+        cardPlaybackWebradio.appendChild(
+            elCreateNodes('div', {}, [
+                elCreateText('small', {}, tn('Homepage')),
+                elCreateNode('p', {}, 
+                    elCreateText('a', {"class": ["text-success", "external"],
+                        "href": myEncodeURIhost(songObj.webradio.HOMEPAGE),
+                        "target": "_blank"}, songObj.webradio.HOMEPAGE)
+                )
+            ])
+        );
     }
 }
 

@@ -384,10 +384,11 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
     {
         const genre = getData(dataNode, 'genre');
         const image = getData(dataNode, 'image');
+        const homepage = getData(dataNode, 'homepage');
         const uuid = getData(dataNode, 'uuid');
         addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "showRadioOnlineDetails", "options": [uuid]}, 'Webradio details');
-        addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [name, genre, image, uri, uuid]}, 'Add to favorites');
+        addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [name, genre, image, uri, homepage, uuid]}, 'Add to favorites');
     }
     if (app.id === 'QueueCurrent' &&
         type === 'webradio')
@@ -395,7 +396,9 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
         const webradioUuid = getData(dataNode, 'webradioUuid');
         const webradioUri = getData(dataNode, 'webradioUri');
         addDivider(tabContent);
-        addMenuItem(tabContent, {"cmd": "showRadioOnlineDetails", "options": [webradioUuid]}, 'Webradio details');
+        if (webradioUuid !== '') {
+            addMenuItem(tabContent, {"cmd": "showRadioOnlineDetails", "options": [webradioUuid]}, 'Webradio details');
+        }
         addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [webradioUri]}, 'Edit webradio favorite');
     }
 }

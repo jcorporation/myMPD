@@ -69,6 +69,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
     sds sds_buf4 = NULL;
     sds sds_buf5 = NULL;
     sds sds_buf6 = NULL;
+    sds sds_buf7 = NULL;
     sds error = sdsempty();
     bool async = false;
 
@@ -1416,9 +1417,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_string(request->data, "$.params.streamUriOld", 0, FILEPATH_LEN_MAX, &sds_buf3, vcb_isuri, &error) == true &&
                 json_get_string(request->data, "$.params.genre", 0, FILENAME_LEN_MAX, &sds_buf4, vcb_isname, &error) == true &&
                 json_get_string(request->data, "$.params.image", 0, FILEPATH_LEN_MAX, &sds_buf5, vcb_isuri, &error) == true &&
-                json_get_string(request->data, "$.params.uuid", 0, FILEPATH_LEN_MAX, &sds_buf6, vcb_isalnum, &error) == true)
+                json_get_string(request->data, "$.params.uuid", 0, FILEPATH_LEN_MAX, &sds_buf6, vcb_isalnum, &error) == true &&
+                json_get_string(request->data, "$.params.homepage", 0, FILEPATH_LEN_MAX, &sds_buf7, vcb_isuri, &error) == true)
             {
-                rc = mympd_api_webradio_save(mympd_state->config, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6);
+                rc = mympd_api_webradio_save(mympd_state->config, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, sds_buf7);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                         "database", "info", "Webradio favorite successfully saved");
@@ -1452,6 +1454,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
     FREE_SDS(sds_buf4);
     FREE_SDS(sds_buf5);
     FREE_SDS(sds_buf6);
+    FREE_SDS(sds_buf7);
 
     #ifdef DEBUG
     MEASURE_END

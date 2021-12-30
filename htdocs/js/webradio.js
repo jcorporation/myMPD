@@ -126,16 +126,19 @@ function editRadioFavorite(filename) {
     sendAPI("MYMPD_API_WEBRADIO_GET", {
         "filename": filename
     }, function(obj) {
-        showEditRadioFavorite(obj.result.PLAYLIST, obj.result.EXTGENRE, obj.result.EXTIMG, obj.result.streamUri, obj.result.RADIOBROWSERUUID);
+        showEditRadioFavorite(obj.result.PLAYLIST, obj.result.EXTGENRE,
+            obj.result.EXTIMG, obj.result.streamUri, obj.result.HOMEPAGE,
+            obj.result.RADIOBROWSERUUID);
     }, false);
 }
 
-function showEditRadioFavorite(name, genre, image, streamUri, uuid) {
+function showEditRadioFavorite(name, genre, image, streamUri, homepage, uuid) {
     cleanupModalId('modalSaveRadioFavorite');
     document.getElementById('editRadioFavoriteName').value = name;
     document.getElementById('editRadioFavoriteStreamUri').value = streamUri;
     document.getElementById('editRadioFavoriteStreamUriOld').value = streamUri;
     document.getElementById('editRadioFavoriteGenre').value = genre;
+    document.getElementById('editRadioFavoriteHomepage').value = homepage;
     document.getElementById('editRadioFavoriteUUID').value = uuid;
 
     const imageEl = document.getElementById('editRadioFavoriteImage');
@@ -155,6 +158,7 @@ function saveRadioFavorite() {
         "streamUriOld": document.getElementById('editRadioFavoriteStreamUriOld').value,
         "genre": document.getElementById('editRadioFavoriteGenre').value,
         "image": document.getElementById('editRadioFavoriteImage').value,
+        "homepage": document.getElementById('editRadioFavoriteHomepage').value,
         "uuid": uuid
     }, saveRadioFavoriteClose, true);
     countClickRadioOnline(uuid);
@@ -345,6 +349,7 @@ function parseRadiobrowserList(obj) {
         setData(row, 'name', station.name);
         setData(row, 'genre', station.tags);
         setData(row, 'image', station.favicon);
+        setData(row, 'homepage', station.homepage);
         setData(row, 'type', 'stream');
         setData(row, 'uuid', station.stationuuid);
         row.appendChild(

@@ -1639,6 +1639,11 @@ const APImethods = {
                 "example": "Pop Rock",
                 "desc": "Genre or other tags."
             },
+            "homepage": {
+                "type": "string",
+                "example": "http://swr1.de",
+                "desc": "Webradio homepage"
+            },
             "uuid": APIparams.radiobrowserUUID
         }
     },
