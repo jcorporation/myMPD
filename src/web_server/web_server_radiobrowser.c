@@ -41,7 +41,7 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
             if (json_get_long(body, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &offset, &error) == true &&
                 json_get_long(body, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &limit, &error) == true)
             {
-                uri = sdscatprintf(uri, "/json/stations/lastchange?offset=%ld&limit=%ld", offset, limit);
+                uri = sdscatprintf(uri, "/json/stations/lastchange?hidebroken=true&offset=%ld&limit=%ld", offset, limit);
             }
             break;
         case MYMPD_API_CLOUD_RADIOBROWSER_SEARCH:
@@ -51,7 +51,7 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
                 json_get_string(body, "$.params.searchstr", 0, NAME_LEN_MAX, &searchstr, vcb_isname, &error) == true)
             {
                 sds searchstr_encoded = sds_urlencode(sdsempty(), searchstr, sdslen(searchstr));
-                uri = sdscatprintf(uri, "/json/stations/search?offset=%ld&limit=%ld&%s=%s",
+                uri = sdscatprintf(uri, "/json/stations/search?hidebroken=true&offset=%ld&limit=%ld&%s=%s",
                     offset, limit, filter, searchstr_encoded);
                 FREE_SDS(searchstr_encoded);
             }
