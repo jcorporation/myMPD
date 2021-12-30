@@ -389,6 +389,15 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
         addMenuItem(tabContent, {"cmd": "showRadioOnlineDetails", "options": [uuid]}, 'Webradio details');
         addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [name, genre, image, uri, uuid]}, 'Add to favorites');
     }
+    if (app.id === 'QueueCurrent' &&
+        type === 'webradio')
+    {
+        const webradioUuid = getData(dataNode, 'webradioUuid');
+        const webradioUri = getData(dataNode, 'webradioUri');
+        addDivider(tabContent);
+        addMenuItem(tabContent, {"cmd": "showRadioOnlineDetails", "options": [webradioUuid]}, 'Webradio details');
+        addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [webradioUri]}, 'Edit webradio favorite');
+    }
 }
 
 function addMenuItemsSearchActions(tabContent, uri) {
