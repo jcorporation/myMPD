@@ -737,8 +737,6 @@ function appInit() {
                 return;
             }
             showPopover(event);
-            event.preventDefault();
-            event.stopPropagation();
         }, false);
 
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('contextmenu', function(event) {
@@ -749,8 +747,6 @@ function appInit() {
                 return;
             }
             showPopover(event);
-            event.preventDefault();
-            event.stopPropagation();
         }, false);
     }
 

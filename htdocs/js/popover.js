@@ -26,7 +26,11 @@ function showPopover(event) {
     event.preventDefault();
     event.stopPropagation();
     //get the dom node to attach the popover object
-    let target = event.target.nodeName === 'SPAN' ? event.target.parentNode : event.target;
+    let target = event.target.nodeName === 'SPAN'
+               ? event.target.parentNode : event.target;
+    if (target.nodeName === 'SMALL') {
+        target = target.parentNode;
+    }
     if (target.nodeName === 'TD') {
         //try to attach popover instance to action link in tables
         const actionLink = target.parentNode.lastElementChild.firstElementChild;

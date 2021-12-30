@@ -58,14 +58,15 @@ function initWebradio() {
     }, false);
 
     document.getElementById('BrowseRadioFavoritesList').addEventListener('click', function(event) {
-        if (event.target.classList.contains('row')) {
+        const target = event.target.nodeName === 'SMALL' ? event.target.parentNode : event.target;
+        if (target.classList.contains('row')) {
             return;
         }
-        if (event.target.classList.contains('card-body')) {
+        if (target.classList.contains('card-body')) {
             const uri = getData(event.target.parentNode, 'uri');
             clickRadioFavorites(uri);
         }
-        else if (event.target.classList.contains('card-footer')) {
+        else if (target.classList.contains('card-footer')) {
             showPopover(event);
         }
     }, false);
@@ -234,7 +235,7 @@ function parseWebradioList(obj) {
         setData(card, 'image', image);
         setData(card, 'uri', obj.result.data[i].filename);
         setData(card, 'name', obj.result.data[i].PLAYLIST);
-        setData(card, 'uuid', obj.result.data[i].RADIOBROWSERUUID);
+        setData(card, 'uuid', obj.result.data[i].RADIOBROWSERUUID === undefined ? '' : obj.result.data[i].RADIOBROWSERUUID);
         setData(card, 'type', 'webradio');
 
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);

@@ -9,13 +9,14 @@ function initBrowse() {
             return;
         }
         if (app.current.tag === 'Album') {
-            if (event.target.classList.contains('card-body')) {
+            const target = getParent(event.target, 'DIV');
+            if (target.classList.contains('card-body')) {
                 appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', 'AlbumArtist',
-                    getData(event.target.parentNode, 'Album'),
-                    getData(event.target.parentNode, 'AlbumArtist')
+                    getData(target.parentNode, 'Album'),
+                    getData(target.parentNode, 'AlbumArtist')
                 );
             }
-            else if (event.target.classList.contains('card-footer')){
+            else if (target.classList.contains('card-footer')){
                 showPopover(event);
             }
         }

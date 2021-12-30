@@ -456,16 +456,18 @@ function setPlaybackCardTags(songObj) {
                 elCreateText('p', {}, songObj.webradio.COUNTRY + smallSpace + nDash + smallSpace + songObj.webradio.LANGUAGE)
             ])
         );
-        cardPlaybackWebradio.appendChild(
-            elCreateNodes('div', {}, [
-                elCreateText('small', {}, tn('Homepage')),
-                elCreateNode('p', {}, 
-                    elCreateText('a', {"class": ["text-success", "external"],
-                        "href": myEncodeURIhost(songObj.webradio.HOMEPAGE),
-                        "target": "_blank"}, songObj.webradio.HOMEPAGE)
-                )
-            ])
-        );
+        if (songObj.webradio.HOMEPAGE !== '') {
+            cardPlaybackWebradio.appendChild(
+                elCreateNodes('div', {}, [
+                    elCreateText('small', {}, tn('Homepage')),
+                    elCreateNode('p', {}, 
+                        elCreateText('a', {"class": ["text-success", "external"],
+                            "href": myEncodeURIhost(songObj.webradio.HOMEPAGE),
+                            "target": "_blank"}, songObj.webradio.HOMEPAGE)
+                    )
+                ])
+            );
+        }
     }
 }
 
