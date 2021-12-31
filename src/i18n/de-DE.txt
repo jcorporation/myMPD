@@ -2063,3 +2063,9 @@ Webradio
 
 Delete webradio favorite
 Webradio Favorit löschen
+
+Empty response from radio-browser.info
+Fehlerhafte Antwort von radio-browser.info
+
+Language
+Sprache
