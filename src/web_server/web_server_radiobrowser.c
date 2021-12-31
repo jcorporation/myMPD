@@ -135,10 +135,17 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             MYMPD_LOG_DEBUG("Got response from connection \"%lu\": %d bytes", nc->id, hm->body.len);
             const char *cmd = get_cmd_id_method_name(backend_nc_data->cmd_id);
-            sds result = jsonrpc_result_start(sdsempty(), cmd, 0);
-            result = sdscat(result, "\"data\":");
-            result = sdscatlen(result, hm->body.ptr, hm->body.len);
-            result = jsonrpc_result_end(result);
+            sds result = sdsempty();
+            if (hm->body.len > 0) {
+                result = jsonrpc_result_start(result, cmd, 0);
+                result = sdscat(result, "\"data\":");
+                result = sdscatlen(result, hm->body.ptr, hm->body.len);
+                result = jsonrpc_result_end(result);
+            }
+            else {
+                result = jsonrpc_respond_message(result, cmd, 0, true,
+                    "database", "error", "Empty response from radio-browser.info");
+            }
             webserver_send_data(backend_nc_data->frontend_nc, result, sdslen(result), "Content-Type: application/json\r\n");
             sdsfree(result);
             break;
