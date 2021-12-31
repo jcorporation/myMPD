@@ -71,6 +71,10 @@ function initSettings() {
             checkConsume();
         }, 100);
     });
+
+    initElements(document.getElementById('modalConnection'));
+    initElements(document.getElementById('modalQueueSettings'));
+    createSettingsFrm();
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -83,18 +87,20 @@ function eventChangeLocale(event) {
 function eventChangeTheme(event) {
     const value = getSelectValue(event.target);
     const bgImageEl = document.getElementById('inputWebUIsettinguiBgImage');
-    const bgImageValue = getSelectValue(bgImageEl);
+    const bgImageValue = getData(bgImageEl, 'value');
     if (value === 'theme-light') {
         document.getElementById('inputWebUIsettinguiBgColor').value = '#ffffff';
         if (bgImageValue.indexOf('/assets/') === 0) {
-            bgImageEl.value = '/assets/mympd-background-light.svg';
+            bgImageEl.value = getBgImageText('/assets/mympd-background-light.svg');
+            setData(bgImageEl, 'value', '/assets/mympd-background-light.svg');
         }
     }
     else {
         //theme-dark is the default
         document.getElementById('inputWebUIsettinguiBgColor').value = '#060708';
         if (bgImageValue.indexOf('/assets/') === 0) {
-            bgImageEl.value = '/assets/mympd-background-dark.svg';
+            bgImageEl.value = getBgImageText('/assets/mympd-background-dark.svg');
+            setData(bgImageEl, 'value', '/assets/mympd-background-dark.svg');
         }
     }
     toggleThemeInputs(value);
@@ -242,17 +248,14 @@ function parseSettings(obj) {
     //execute only if settings modal is displayed
     if (document.getElementById('modalSettings').classList.contains('show')) {
         populateSettingsFrm();
-        initElements(document.getElementById('modalSettings'));
     }
     //execute only if connection modal is displayed
     if (document.getElementById('modalConnection').classList.contains('show')) {
         populateConnectionFrm();
-        initElements(document.getElementById('modalConnection'));
     }
     //execute only if queue settings modal is displayed
     if (document.getElementById('modalQueueSettings').classList.contains('show')) {
         populateQueueSettingsFrm();
-        initElements(document.getElementById('modalQueueSettings'));
     }
 
     //locales
@@ -541,10 +544,20 @@ function populateConnectionFrm() {
     }
 }
 
-function populateSettingsFrm() {
-    createSettingsFrm();
+function getBgImageText(value) {
+    for (const key of bgImageValues) {
+        if (key.value === value) {
+            return key.text;
+        }
+    }
+    return value;
+}
 
+function populateSettingsFrm() {
     getBgImageList(settings.webuiSettings.uiBgImage);
+    const bgImageInput = document.getElementById('inputWebUIsettinguiBgImage');
+    setData(bgImageInput, 'value', settings.webuiSettings.uiBgImage);
+    bgImageInput.value = getBgImageText(settings.webuiSettings.uiBgImage);
 
     toggleThemeInputs(settings.webuiSettings.uiTheme);
 
@@ -660,6 +673,7 @@ function setFeatureBtnId(id, value) {
 function createSettingsFrm() {
     _createSettingsFrm(settings.webuiSettings, webuiSettingsDefault, 'inputWebUIsetting');
     _createSettingsFrm(settings, settingFields, 'inputSetting');
+    initElements(document.getElementById('modalSettings'));
 }
 
 function _createSettingsFrm(fields, defaults, prefix) {
@@ -702,6 +716,24 @@ function _createSettingsFrm(fields, defaults, prefix) {
                 }
             }
             col.appendChild(select);
+        }
+        else if (defaults[key].inputType === 'mympd-select-search') {
+            const input = elCreateEmpty('input', {"class": ["form-select"], "id": prefix + r(key)});
+            for (let value in defaults[key].validValues) {
+                if (defaults[key].contentType === 'integer') {
+                    value = Number(value);
+                }
+                select.appendChild(elCreateText('option', {"value": value}, tn(defaults[key].validValues[value])));
+                if (fields[key] === value) {
+                    select.lastChild.setAttribute('selected', 'selected');
+                }
+            }
+            setData(input, 'cb-filter', defaults[key].cbCallback);
+            setData(input, 'cb-filter-options', [input.getAttribute('id')]);
+            input.setAttribute('data-is', 'mympd-select-search');
+            col.classList.add('position-relative');
+            const btnGrp = elCreateNode('div', {"class": ["btn-group", "d-flex"]}, input);
+            col.appendChild(btnGrp);
         }
         else if (defaults[key].inputType === 'checkbox') {
             const btn = elCreateEmpty('button', {"type": "button", "id": prefix + r(key), "class": ["btn", "btn-sm", "btn-secondary", "mi", "chkBtn"]});
@@ -982,6 +1014,9 @@ function saveSettings(closeModal) {
         if (el) {
             if (webuiSettingsDefault[key].inputType === 'select') {
                 webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(getSelectValue(el)) : getSelectValue(el);
+            }
+            else if (webuiSettingsDefault[key].inputType === 'mympd-input-select') {
+                webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(getData(el, 'value')) : getData(el, 'value');
             }
             else if (webuiSettingsDefault[key].inputType === 'checkbox') {
                 webuiSettings[key] = el.classList.contains('active') ? true : false;
@@ -1265,11 +1300,8 @@ function setNavbarIcons() {
 }
 
 function getBgImageList(image) {
-    getImageListId('inputWebUIsettinguiBgImage', image, [
-        {"value": "", "text": "None"},
-        {"value": "/assets/mympd-background-dark.svg", "text": "Default image dark"},
-        {"value": "/assets/mympd-background-light.svg", "text": "Default image light"},
-    ]);
+    const list = document.getElementById('inputWebUIsettinguiBgImage').filterResult;
+    getImageList(list, image, bgImageValues);
 }
 
 function getImageListId(selectId, value, addOptions) {

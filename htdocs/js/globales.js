@@ -556,7 +556,8 @@ const webuiSettingsDefault = {
     },
     "uiBgImage": {
         "defaultValue": "",
-        "inputType": "select",
+        "inputType": "mympd-select-search",
+        "cbCallback": "filterImageSelect",
         "title": "Image",
         "form": "bgFrm2"
     },
@@ -685,3 +686,9 @@ const typeFriendly = {
     'script': 'Script',
     'webradio': 'Webradio'
 };
+
+const bgImageValues = [
+    {"value": "", "text": "None"},
+    {"value": "/assets/mympd-background-dark.svg", "text": "Default image dark"},
+    {"value": "/assets/mympd-background-light.svg", "text": "Default image light"}
+];
