@@ -67,6 +67,9 @@ function initHome() {
         }
     }, false);
 
+    setDataId('inputHomeIconImage', 'cb-filter', 'filterImageSelect');
+    setDataId('inputHomeIconImage', 'cb-filter-options', ['inputHomeIconImage']);
+
     document.getElementById('btnHomeIconLigature').parentNode.addEventListener('show.bs.dropdown', function () {
         const selLig = document.getElementById('inputHomeIconLigature').value;
         if (selLig !== '') {

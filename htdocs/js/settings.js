@@ -1289,6 +1289,20 @@ function getImageList(sel, value, addOptions) {
     });
 }
 
+function filterImageSelect(elId, searchstr) {
+    const select = document.getElementById(elId).filterResult;
+    searchstr = searchstr.toLowerCase();
+    for (const option of select.options) {
+        const value = option.value.toLowerCase();
+        if (value.indexOf(searchstr) >= 0) {
+            elShow(option);
+        }
+        else {
+            elHide(option);
+        }
+    }
+}
+
 function warnLocale(value) {
     const warnEl = document.getElementById('warnMissingPhrases');
     elClear(warnEl);

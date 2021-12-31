@@ -98,6 +98,9 @@ function initWebradio() {
                 0, app.current.limit, app.current.filter, app.current.sort, '-', this.value);
         }
     }, false);
+
+    setDataId('editRadioFavoriteImage', 'cb-filter', 'filterImageSelect');
+    setDataId('editRadioFavoriteImage', 'cb-filter-options', ['editRadioFavoriteImage']);
 }
 
 function getRadioFavoriteUri(uri) {
