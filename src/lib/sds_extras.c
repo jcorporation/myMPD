@@ -307,7 +307,7 @@ sds sds_catbool(sds s, bool v) {
     return v == true ? sdscatlen(s, "true", 4) : sdscatlen(s, "false", 5);
 }
 
-static const char *invalid_filename_chars = "<>/.:?$!#\a\b\f\n\r\t\v\\|";
+static const char *invalid_filename_chars = "<>/.:?&$!#\a\b\f\n\r\t\v\\|";
 void sds_sanitize_filename(sds s) {
     const size_t len = strlen(invalid_filename_chars);
     for (size_t i = 0; i < len; i++) {
