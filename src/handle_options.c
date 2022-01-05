@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -29,7 +29,7 @@ static struct option long_options[] = {
 static void print_usage(struct t_config *config, const char *cmd) {
     fprintf(stderr, "\nUsage: %s [OPTION]...\n\n"
                     "myMPD %s\n"
-                    "(c) 2018-2021 Juergen Mang <mail@jcgames.de>\n"
+                    "(c) 2018-2022 Juergen Mang <mail@jcgames.de>\n"
                     "https://github.com/jcorporation/myMPD\n\n"
                     "Options:\n"
                     "  -c, --config           creates config and exits\n"
