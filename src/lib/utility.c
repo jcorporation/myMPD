@@ -13,9 +13,11 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <unistd.h>
 
 void ws_notify(sds message) {
     MYMPD_LOG_DEBUG("Push websocket notify to queue: \"%s\"", message);
@@ -78,4 +80,45 @@ bool is_streamuri(const char *uri) {
         return true;
     }
     return false;
+}
+
+bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
+    sds tmp_file = sdscatfmt(sdsempty(), "%s.XXXXXX", filepath);
+    errno = 0;
+    int fd = mkstemp(tmp_file);
+    if (fd < 0) {
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
+        MYMPD_LOG_ERRNO(errno);
+        sdsfree(tmp_file);
+        return false;
+    }
+
+    FILE *fp = fdopen(fd, "w");
+    size_t written = fwrite(data, 1, data_len, fp);
+    fclose(fp);
+    if (written != data_len) {
+        MYMPD_LOG_ERROR("Error writing data to file \"%s\"", tmp_file);
+        errno = 0;
+        if (unlink(tmp_file) != 0) {
+            MYMPD_LOG_ERROR("Error removing file \"%s\"", tmp_file);
+            MYMPD_LOG_ERRNO(errno);
+        }
+        sdsfree(tmp_file);
+        return false;
+    }
+
+    errno = 0;
+    if (rename(tmp_file, filepath) == -1) {
+        MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, filepath);
+        MYMPD_LOG_ERRNO(errno);
+        errno = 0;
+        if (unlink(tmp_file) != 0) {
+            MYMPD_LOG_ERROR("Error removing file \"%s\"", tmp_file);
+            MYMPD_LOG_ERRNO(errno);
+        }
+        sdsfree(tmp_file);
+        return false;
+    }
+    sdsfree(tmp_file);
+    return true;
 }
