@@ -55,7 +55,7 @@ function initHome() {
             document.getElementById('homeIconPreview').style.backgroundImage =
                 isHttpUri(value) === true ?
                     'url("' + myEncodeURIhost(value)  + '")':
-                    'url("' + subdir + '/browse/pics/' + myEncodeURI(value)  + '")';
+                    'url("' + subdir + '/browse/pics/homeicons/' + myEncodeURI(value)  + '")';
             elHideId('divHomeIconLigature');
             elClearId('homeIconPreview');
         }
@@ -251,7 +251,7 @@ function parseHome(obj) {
         if (obj.result.data[i].image !== '') {
             cardBody.style.backgroundImage = isHttpUri(obj.result.data[i].image) === true ?
                 'url("' + myEncodeURIhost(obj.result.data[i].image) +'")' :
-                'url("' + subdir + '/browse/pics/' + myEncodeURI(obj.result.data[i].image) + '")';
+                'url("' + subdir + '/browse/pics/homeicons/' + myEncodeURI(obj.result.data[i].image) + '")';
         }
         if (obj.result.data[i].bgcolor !== '') {
             cardBody.style.backgroundColor = obj.result.data[i].bgcolor;
@@ -516,7 +516,7 @@ function _addHomeIcon(cmd, name, ligature, image, options) {
         homeIconPreviewEl.style.backgroundImage =
             isHttpUri(image) === true ?
                 'url("' + myEncodeURIhost(image) +'")' :
-                'url("' + subdir + '/browse/pics/' + myEncodeURI(image) + '")';
+                'url("' + subdir + '/browse/pics/homeicons/' + myEncodeURI(image) + '")';
         elHideId('divHomeIconLigature');
     }
     else {
@@ -573,7 +573,7 @@ function _editHomeIcon(pos, replace, title) {
             document.getElementById('homeIconPreview').style.backgroundImage =
                 isHttpUri(obj.result.data.image) === true ?
                     'url("' + myEncodeURIhost(obj.result.data.image) +'")' :
-                    'url("' + subdir + '/browse/pics/' + myEncodeURI(obj.result.data.image) + '")';
+                    'url("' + subdir + '/browse/pics/homeicons/' + myEncodeURI(obj.result.data.image) + '")';
         }
         //reset ligature selection
         document.getElementById('searchHomeIconLigature').value = '';

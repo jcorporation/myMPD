@@ -92,7 +92,7 @@ function initBrowse() {
     }, false);
 
     for (const nav of ['BrowseDatabaseByTagDropdown', 'BrowseNavPlaylistsDropdown', 'BrowseNavFilesystemDropdown',
-            'BrowseNavRadioOnlineDropdown', 'BrowseNavRadioFavoritesDropdown'])
+            'BrowseNavRadioBrowserDropdown', 'BrowseNavRadioFavoritesDropdown'])
     {
         document.getElementById(nav).addEventListener('click', function(event) {
             navBrowseHandler(event);

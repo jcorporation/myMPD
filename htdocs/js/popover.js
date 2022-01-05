@@ -383,7 +383,7 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
         addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "addSongToHome", "options": [uri, type, name]}, 'Add to homescreen');
     }
-    if (app.id === 'BrowseRadioOnline' &&
+    if (app.id === 'BrowseRadioRadioBrowser' &&
         dataNode !== null)
     {
         const genre = getData(dataNode, 'genre');
@@ -393,7 +393,7 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
         const language = getData(dataNode, 'language');
         const uuid = getData(dataNode, 'uuid');
         addDivider(tabContent);
-        addMenuItem(tabContent, {"cmd": "showRadioOnlineDetails", "options": [uuid]}, 'Webradio details');
+        addMenuItem(tabContent, {"cmd": "showRadioBrowserDetails", "options": [uuid]}, 'Webradio details');
         addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [name, genre, image, uri, homepage, country, language, uuid]}, 'Add to favorites');
     }
     if (app.id === 'QueueCurrent' &&
@@ -403,7 +403,7 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
         const webradioUri = getData(dataNode, 'webradioUri');
         addDivider(tabContent);
         if (webradioUuid !== '') {
-            addMenuItem(tabContent, {"cmd": "showRadioOnlineDetails", "options": [webradioUuid]}, 'Webradio details');
+            addMenuItem(tabContent, {"cmd": "showRadioBrowserDetails", "options": [webradioUuid]}, 'Webradio details');
         }
         addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [webradioUri]}, 'Edit webradio favorite');
     }
@@ -468,7 +468,7 @@ function addMenuItemsWebradioFavoritesActions(tabContent, dataNode) {
     addMenuItemsPlaylistActions(tabContent, dataNode, type, plistUri, name);
     addDivider(tabContent);
     if (uuid !== '') {
-        addMenuItem(tabContent, {"cmd": "showRadioOnlineDetails", "options": [uuid]}, 'Webradio details');
+        addMenuItem(tabContent, {"cmd": "showRadioBrowserDetails", "options": [uuid]}, 'Webradio details');
     }
     addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
     addMenuItem(tabContent, {"cmd": "deleteRadioFavorite", "options": [uri]}, 'Delete webradio favorite');
@@ -518,7 +518,7 @@ function createMenuLists(el, tabHeader, tabContent) {
     switch(app.id) {
         case 'BrowseFilesystem':
         case 'Search':
-        case 'BrowseRadioOnline':
+        case 'BrowseRadioRadioBrowser':
         case 'BrowseDatabaseDetail': {
             switch(type) {
                 case 'song':

@@ -294,7 +294,7 @@ function parseSettings(obj) {
             domCache.body.style.backgroundImage = 'url("' + subdir + myEncodeURI(settings.webuiSettings.uiBgImage) + '")';
         }
         else if (settings.webuiSettings.uiBgImage !== '') {
-            domCache.body.style.backgroundImage = 'url("' + subdir + '/browse/pics/' + myEncodeURI(settings.webuiSettings.uiBgImage) + '")';
+            domCache.body.style.backgroundImage = 'url("' + subdir + '/browse/pics/backgrounds/' + myEncodeURI(settings.webuiSettings.uiBgImage) + '")';
         }
         else {
             domCache.body.style.backgroundImage = '';
@@ -719,15 +719,6 @@ function _createSettingsFrm(fields, defaults, prefix) {
         }
         else if (defaults[key].inputType === 'mympd-select-search') {
             const input = elCreateEmpty('input', {"class": ["form-select"], "id": prefix + r(key)});
-            for (let value in defaults[key].validValues) {
-                if (defaults[key].contentType === 'integer') {
-                    value = Number(value);
-                }
-                select.appendChild(elCreateText('option', {"value": value}, tn(defaults[key].validValues[value])));
-                if (fields[key] === value) {
-                    select.lastChild.setAttribute('selected', 'selected');
-                }
-            }
             setData(input, 'cb-filter', defaults[key].cbCallback);
             setData(input, 'cb-filter-options', [input.getAttribute('id')]);
             input.setAttribute('data-is', 'mympd-select-search');
@@ -952,7 +943,7 @@ function parseMPDSettings() {
     addTagList('BrowseNavPlaylistsDropdown', 'tagListBrowse');
     addTagList('BrowseNavFilesystemDropdown', 'tagListBrowse');
     addTagList('BrowseNavRadioFavoritesDropdown', 'tagListBrowse');
-    addTagList('BrowseNavRadioOnlineDropdown', 'tagListBrowse');
+    addTagList('BrowseNavRadioBrowserDropdown', 'tagListBrowse');
 
     addTagList('searchqueuetags', 'tagListSearch');
     addTagList('searchtags', 'tagListSearch');
@@ -1015,7 +1006,7 @@ function saveSettings(closeModal) {
             if (webuiSettingsDefault[key].inputType === 'select') {
                 webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(getSelectValue(el)) : getSelectValue(el);
             }
-            else if (webuiSettingsDefault[key].inputType === 'mympd-input-select') {
+            else if (webuiSettingsDefault[key].inputType === 'mympd-select-search') {
                 webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(getData(el, 'value')) : getData(el, 'value');
             }
             else if (webuiSettingsDefault[key].inputType === 'checkbox') {
@@ -1304,6 +1295,7 @@ function getBgImageList(image) {
     getImageList(list, image, bgImageValues, 'backgrounds');
 }
 
+//eslint-disable-next-line no-unused-vars
 function getImageListId(selectId, value, addOptions, type) {
     getImageList(document.getElementById(selectId), value, addOptions, type)
 }
@@ -1317,12 +1309,13 @@ function getImageList(sel, value, addOptions, type) {
             sel.appendChild(elCreateText('option', {"value": option.value}, option.text));
         }
         for (let i = 0; i < obj.result.returnedEntities; i++) {
-            sel.appendChild(elCreateText('option', {"value": obj.result.data[i]}, basename(obj.result.data[i], false)));
+            sel.appendChild(elCreateText('option', {"value": obj.result.data[i]}, obj.result.data[i]));
         }
         sel.value = value;
     });
 }
 
+//eslint-disable-next-line no-unused-vars
 function filterImageSelect(elId, searchstr) {
     const select = document.getElementById(elId).filterResult;
     searchstr = searchstr.toLowerCase();

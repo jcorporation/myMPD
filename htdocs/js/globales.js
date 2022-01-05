@@ -38,6 +38,7 @@ const sessionLifetime = 1780;
 const sessionRenewInterval = sessionLifetime * 500;
 let sessionTimer = null;
 const messages = [];
+const debugMode = document.getElementsByTagName("script")[0].src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
 
 //minimum mpd version to support all myMPD features
 const mpdVersion = {
@@ -176,7 +177,7 @@ app.cards = {
                         "search": "",
                         "scrollPos": 0
                     },
-                    "Online": {
+                    "RadioBrowser": {
                         "offset": 0,
                         "limit": 100,
                         "filter": "name",
@@ -282,7 +283,7 @@ const webuiSettingsDefault = {
         "title": "Click song",
         "form": "clickSettingsFrm"
     },
-    "clickRadioOnline": {
+    "clickRadioBrowser": {
         "defaultValue": "append",
         "validValues": {
             "append": "Append to queue",

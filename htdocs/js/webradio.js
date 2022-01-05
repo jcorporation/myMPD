@@ -15,9 +15,9 @@ function initWebradio() {
         stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": tag.key}, tn(tag.desc)));
     }
     stack.firstElementChild.classList.add('active');
-    document.getElementById('BrowseRadioOnlineTags').appendChild(stack);
+    document.getElementById('BrowseRadioRadioBrowserTags').appendChild(stack);
 
-    document.getElementById('BrowseRadioOnlineSearchStr').addEventListener('keyup', function(event) {
+    document.getElementById('BrowseRadioRadioBrowserSearchStr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
             this.blur();
         }
@@ -30,17 +30,17 @@ function initWebradio() {
         }
     }, false);
 
-    document.getElementById('BrowseRadioOnlineList').addEventListener('click', function(event) {
+    document.getElementById('BrowseRadioRadioBrowserList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             const uri = getData(event.target.parentNode, 'uri');
-            if (settings.webuiSettings.clickRadioOnline === 'add') {
+            if (settings.webuiSettings.clickRadioBrowser === 'add') {
                 const name = getData(event.target.parentNode, 'name');
                 const genre = getData(event.target.parentNode, 'genre');
                 const image = getData(event.target.parentNode, 'image');
                 showEditRadioFavorite(name, genre, image, uri);
             }
             else {
-                clickRadioOnline(uri, getData(event.target.parentNode, 'uuid'));
+                clickRadioBrowser(uri, getData(event.target.parentNode, 'uuid'));
             }
         }
         else if (event.target.nodeName === 'A') {
@@ -48,9 +48,9 @@ function initWebradio() {
         }
     }, false);
 
-    document.getElementById('BrowseRadioOnlineTags').addEventListener('click', function(event) {
+    document.getElementById('BrowseRadioRadioBrowserTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
-            document.getElementById('BrowseRadioOnlineTagsBtn').Dropdown.hide();
+            document.getElementById('BrowseRadioRadioBrowserTagsBtn').Dropdown.hide();
             app.current.filter = getData(event.target, 'tag');
             appGoto(app.current.card, app.current.tab, app.current.view,
                 0, app.current.limit, app.current.filter, '-', '-', this.value);
@@ -113,7 +113,7 @@ function getRadioFavoriteList() {
         "offset": app.current.offset,
         "limit": app.current.limit,
         "searchstr": app.current.search
-    }, parseWebradioList, true);
+    }, parseRadioFavoritesList, true);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -169,7 +169,7 @@ function saveRadioFavorite() {
         "language": document.getElementById('editRadioFavoriteLanguage').value,
         "uuid": uuid
     }, saveRadioFavoriteClose, true);
-    countClickRadioOnline(uuid);
+    countClickRadioBrowser(uuid);
 }
 
 function saveRadioFavoriteClose(obj) {
@@ -184,7 +184,7 @@ function saveRadioFavoriteClose(obj) {
     }
 }
 
-function parseWebradioList(obj) {
+function parseRadioFavoritesList(obj) {
     const cardContainer = document.getElementById('BrowseRadioFavoritesList');
 
     const cols = cardContainer.getElementsByClassName('col');
@@ -272,7 +272,7 @@ function parseWebradioList(obj) {
 
 //radio-browser.info api
 
-function countClickRadioOnline(uuid) {
+function countClickRadioBrowser(uuid) {
     if (uuid !== '') {
         sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT", {
             "uuid": uuid
@@ -281,27 +281,36 @@ function countClickRadioOnline(uuid) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function showRadioOnlineDetails(uuid) {
+function showRadioBrowserDetails(uuid) {
     sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL", {
         "uuid": uuid
-    }, parseRadioOnlineDetails, true);
-    uiElements.modalRadioOnlineDetails.show();
-    elClearId('modalRadioOnlineDetailsList');
-    countClickRadioOnline(uuid);
+    }, parseRadioBrowserDetails, true);
+    uiElements.modalRadioBrowserDetails.show();
+    elReplaceChildId('modalRadioBrowserDetailsList',
+        elCreateNode('tr', {}, 
+            elCreateText('td', {"colspan": 2}, tn('Loading...'))
+        )
+    );
+    countClickRadioBrowser(uuid);
 }
 
-function parseRadioOnlineDetails(obj) {
-    const tbody = document.getElementById('modalRadioOnlineDetailsList');
+function parseRadioBrowserDetails(obj) {
+    const tbody = document.getElementById('modalRadioBrowserDetailsList');
     if (checkResult(obj, tbody) === false) {
         return;
     }
+    elClearId('modalRadioBrowserDetailsList');
     const result = obj.result.data[0];
     if (result.favicon !== '') {
-        document.getElementById('radioOnlineDetailsImage').style.backgroundImage =
+        document.getElementById('RadioBrowserDetailsImage').style.backgroundImage =
             'url("' + myEncodeURIhost(result.favicon) + '")' +
             ', url("' + subdir + '/assets/coverimage-loading.svg")';
     }
-    document.getElementById('radioOnlineDetailsTitle').textContent = result.name;
+    else {
+        document.getElementById('RadioBrowserDetailsImage').style.backgroundImage =
+            'url("' + subdir + '/assets/coverimage-notavailable.svg")';
+    }
+    document.getElementById('RadioBrowserDetailsTitle').textContent = result.name;
     const showFields = {
         'url_resolved': 'Stream url',
         'homepage': 'Homepage',
@@ -339,7 +348,7 @@ function parseRadioOnlineDetails(obj) {
 }
 
 function parseRadiobrowserList(obj) {
-    const table = document.getElementById('BrowseRadioOnlineList');
+    const table = document.getElementById('BrowseRadioRadioBrowserList');
     const tbody = table.getElementsByTagName('tbody')[0];
     setScrollViewHeight(table);
 
@@ -349,7 +358,7 @@ function parseRadiobrowserList(obj) {
 
     elClear(tbody);
     const nrItems = obj.result.data.length;
-    const rowTitle = tn(webuiSettingsDefault.clickRadioOnline.validValues[settings.webuiSettings.clickRadioOnline]);
+    const rowTitle = tn(webuiSettingsDefault.clickRadioBrowser.validValues[settings.webuiSettings.clickRadioBrowser]);
     for (const station of obj.result.data) {
         const row = elCreateNodes('tr', {"title": rowTitle}, [
             elCreateText('td', {}, station.name),

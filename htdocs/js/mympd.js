@@ -16,7 +16,7 @@ function appPrepare(scrollPos) {
         const cards = ['cardHome', 'cardPlayback', 'cardSearch',
             'cardQueue', 'tabQueueCurrent', 'tabQueueLastPlayed', 'tabQueueJukebox',
             'cardBrowse', 'tabBrowseFilesystem',
-            'tabBrowseRadio', 'viewBrowseRadioFavorites', 'viewBrowseRadioOnline',
+            'tabBrowseRadio', 'viewBrowseRadioFavorites', 'viewBrowseRadioRadioBrowser',
             'tabBrowsePlaylists', 'viewBrowsePlaylistsDetail', 'viewBrowsePlaylistsList',
             'tabBrowseDatabase', 'viewBrowseDatabaseDetail', 'viewBrowseDatabaseList'];
         for (const card of cards) {
@@ -389,11 +389,11 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
                 "searchstr": app.current.search
-            }, parseWebradioList, true);
+            }, parseRadioFavoritesList, true);
             break;
         }
-        case 'BrowseRadioOnline': {
-            selectTag('BrowseRadioOnlineTagsBtn', 'BrowseRadioOnlineTagsDesc', app.current.filter);
+        case 'BrowseRadioRadioBrowser': {
+            selectTag('BrowseRadioRadioBrowserTagsBtn', 'BrowseRadioRadioBrowserTagsDesc', app.current.filter);
             if (app.current.search === '') {
                 sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_NEWEST", {
                     "offset": app.current.offset,
@@ -579,14 +579,13 @@ function appInitStart() {
     i18nHtml(document.getElementById('splashScreenAlert'));
 
     //set loglevel
-    const script = document.getElementsByTagName("script")[0].src.replace(/^.*[/]/, '');
-    if (script !== 'combined.js') {
+    if (debugMode === true) {
         settings.loglevel = 4;
     }
     //register serviceworker
     if ('serviceWorker' in navigator &&
         window.location.protocol === 'https:' &&
-        script === 'combined.js')
+        debugMode === false)
     {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('sw.js', {scope: subdir + '/'}).then(function(registration) {
@@ -727,7 +726,7 @@ function appInit() {
     //contextmenu for tables
     const tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList',
         'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsListList', 'BrowsePlaylistsDetailList',
-        'BrowseRadioOnlineList'];
+        'BrowseRadioRadioBrowserList'];
     for (const tableName of tables) {
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {
             if (event.target.parentNode.classList.contains('not-clickable') ||
@@ -902,18 +901,20 @@ function initNavs() {
 }
 
 //Handle javascript errors
-window.onerror = function(msg, url, line) {
-    logError('JavaScript error: ' + msg + ' (' + url + ': ' + line + ')');
-    if (settings.loglevel >= 4) {
-        if (appInited === true) {
-            showNotification(tn('JavaScript error'), msg + ' (' + url + ': ' + line + ')', 'general', 'error');
+if (debugMode === false) {
+    window.onerror = function(msg, url, line) {
+        logError('JavaScript error: ' + msg + ' (' + url + ': ' + line + ')');
+        if (settings.loglevel >= 4) {
+            if (appInited === true) {
+                showNotification(tn('JavaScript error'), msg + ' (' + url + ': ' + line + ')', 'general', 'error');
+            }
+            else {
+                showAppInitAlert(tn('JavaScript error') + ': ' + msg + ' (' + url + ': ' + line + ')');
+            }
         }
-        else {
-            showAppInitAlert(tn('JavaScript error') + ': ' + msg + ' (' + url + ': ' + line + ')');
-        }
-    }
-    return true;
-};
+        return true;
+    };
+}
 
 //allow service worker registration
 if (window.trustedTypes && window.trustedTypes.createPolicy) {

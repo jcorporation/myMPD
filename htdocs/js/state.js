@@ -434,7 +434,7 @@ function setPlaybackCardTags(songObj) {
         elHideId('cardPlaybackTags');
 
         const webradioName = elCreateText('p', {"href": "#", "class": ["clickable"]}, songObj.webradio.PLAYLIST);
-        setData(webradioName, 'href', {"cmd": "showRadioOnlineDetails", "options": [songObj.webradio.RADIOBROWSERUUID]});
+        setData(webradioName, 'href', {"cmd": "showRadioBrowserDetails", "options": [songObj.webradio.RADIOBROWSERUUID]});
         webradioName.addEventListener('click', function(event) {
             parseCmd(event, getData(event.target, 'href'));
         }, false);

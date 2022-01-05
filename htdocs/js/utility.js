@@ -230,8 +230,8 @@ function clickSong(uri) {
     }
 }
 
-function clickRadioOnline(uri, uuid) {
-    switch (settings.webuiSettings.clickRadioOnline) {
+function clickRadioBrowser(uri, uuid) {
+    switch (settings.webuiSettings.clickRadioBrowser) {
         case 'append': return appendQueue('song', uri);
         case 'appendPlay': return appendPlayQueue('song', uri);
         case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
@@ -239,7 +239,7 @@ function clickRadioOnline(uri, uuid) {
         case 'replace': return replaceQueue('song', uri);
         case 'replacePlay': return replacePlayQueue('song', uri);
     }
-    countClickRadioOnline(uuid);
+    countClickRadioBrowser(uuid);
 }
 
 function clickRadioFavorites(uri) {
@@ -591,7 +591,7 @@ function addTagList(elId, list) {
     if (elId === 'BrowseNavFilesystemDropdown' ||
         elId === 'BrowseNavPlaylistsDropdown' ||
         elId === 'BrowseNavRadioFavoritesDropdown' ||
-        elId === 'BrowseNavRadioOnlineDropdown')
+        elId === 'BrowseNavRadioBrowserDropdown')
     {
         if (features.featTags === true && features.featAdvsearch === true) {
             elClear(stack);
@@ -602,7 +602,7 @@ function addTagList(elId, list) {
         elId === 'BrowseNavFilesystemDropdown' ||
         elId === 'BrowseNavPlaylistsDropdown' ||
         elId === 'BrowseNavRadioFavoritesDropdown' ||
-        elId === 'BrowseNavRadioOnlineDropdown')
+        elId === 'BrowseNavRadioBrowserDropdown')
     {
         if (elId === 'BrowseDatabaseByTagDropdown') {
             stack.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
@@ -617,7 +617,7 @@ function addTagList(elId, list) {
         }
         stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Radio"}, tn('Webradios')));
         if (elId === 'BrowseNavRadioFavoritesDropdown' ||
-        elId === 'BrowseNavRadioOnlineDropdown')
+        elId === 'BrowseNavRadioBrowserDropdown')
         {
             stack.lastChild.classList.add('active');
         }

@@ -535,7 +535,7 @@
               </div>
             </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Search radio-browser.info" data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "Online"]}' type="button" class="btn btn-secondary"><span class="mi">radio</span></button>
+              <button data-title-phrase="Search radio-browser.info" data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "RadioBrowser"]}' type="button" class="btn btn-secondary"><span class="mi">radio</span></button>
             </div>
             <div class="btn-group me-2">
               <button data-title-phrase="Manually add webradio favorite" data-href='{"cmd": "showEditRadioFavorite", "options": ["", "", "", ""]}' type="button" class="btn btn-secondary"><span class="mi">add</span></button>
@@ -554,11 +554,11 @@
           </div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioFavoritesButtonsBottom"></div>
         </div>
-        <div id="viewBrowseRadioOnline">
-          <div class="btn-toolbar card-toolbar" id="BrowseRadioOnlineButtons">
+        <div id="viewBrowseRadioRadioBrowser">
+          <div class="btn-toolbar card-toolbar" id="BrowseRadioRadioBrowserButtons">
             <div class="btn-group me-2">
-              <button data-title-phrase="Select view" id="BrowseNavRadioOnline" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
-              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavRadioOnlineDropdown">
+              <button data-title-phrase="Select view" id="BrowseNavRadioBrowser" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
+              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavRadioBrowserDropdown">
               </div>
             </div>
             <div class="btn-group me-2">
@@ -566,21 +566,21 @@
             </div>
             <div class="input-group me-2 flex-grow-1">
               <div class="btn-group">
-                <button  id="BrowseRadioOnlineTagsBtn" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
+                <button  id="BrowseRadioRadioBrowserTagsBtn" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
                   <span class="mi">search</span>
-                  <span data-phrase="Name" id="BrowseRadioOnlineTagsDesc"></span>
+                  <span data-phrase="Name" id="BrowseRadioRadioBrowserTagsDesc"></span>
                 </button>
-                <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseRadioOnlineTags"></div>
+                <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseRadioRadioBrowserTags"></div>
               </div>
-              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="BrowseRadioOnlineSearchStr"/>
+              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="BrowseRadioRadioBrowserSearchStr"/>
             </div>
-            <div class="btn-group me-2 featHome" id="BrowseRadioOnlineAddToHome">
+            <div class="btn-group me-2 featHome" id="BrowseRadioRadioBrowserAddToHome">
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
             </div>
-            <div id="BrowseRadioOnlinePaginationTop" class="btn-group me-2 pagination"></div>
+            <div id="BrowseRadioRadioBrowserPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="table-responsive-md scrollContainer">
-            <table id="BrowseRadioOnlineList" class="table table-hover table-sm">
+            <table id="BrowseRadioRadioBrowserList" class="table table-hover table-sm">
               <thead>
                 <tr><th data-phrase="Station"></th><th data-phrase="Country"></th><th data-phrase="Tags"></th><th></th></tr>
               </thead>
@@ -588,7 +588,7 @@
               <tfoot></tfoot>
             </table>
           </div>
-          <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioOnlineButtonsBottom"></div>
+          <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioRadioBrowserButtonsBottom"></div>
         </div>
       </div>
     </div>
@@ -2435,7 +2435,7 @@
     </div>
   </div>
 
-  <div class="modal fade" id="modalRadioOnlineDetails" tabindex="-1">
+  <div class="modal fade" id="modalRadioBrowserDetails" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -2443,14 +2443,14 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <h1 class="text-break mb-4" id="radioOnlineDetailsTitle"></h1>
+          <h1 class="text-break mb-4" id="RadioBrowserDetailsTitle"></h1>
           <div class="row">
             <div class="col-md-auto">
-              <div class="album-cover album-cover-loading album-cover-songdetails" id="radioOnlineDetailsImage"></div>
+              <div class="album-cover album-cover-loading album-cover-songdetails" id="RadioBrowserDetailsImage"></div>
             </div>
             <div class="col table-responsive-md">
               <table class="table table-sm">
-                <tbody id="modalRadioOnlineDetailsList"></tbody>
+                <tbody id="modalRadioBrowserDetailsList"></tbody>
               </table>
             </div>
           </div>
