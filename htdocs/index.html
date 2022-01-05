@@ -531,11 +531,17 @@
           <div class="btn-toolbar card-toolbar" id="BrowseRadioFavoritesButtons">
             <div class="btn-group me-2">
               <button data-title-phrase="Select view" id="BrowseNavRadioFavorites" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
-              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavRadioFavoritesDropdown">
-              </div>
+              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavRadioFavoritesDropdown"></div>
             </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Search radio-browser.info" data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "RadioBrowser"]}' type="button" class="btn btn-secondary"><span class="mi">radio</span></button>
+              <button data-title-phrase="Browse webradios" class="btn btn-secondary" data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "WebradioDb"]}'><span class="mi">radio</span></button>
+              <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown"></button>
+              <div class="dropdown-menu dropdown-menu-dark px-2">
+                <div class="d-grid gap-2">
+                  <button data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "WebradioDb"]}' data-phrase="Browse webradiodb " type="button" class="btn btn-secondary btn-sm"></button>
+                  <button data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "RadioBrowser"]}' data-phrase="Browse radio-browser.info" type="button" class="btn btn-secondary btn-sm"></button>
+                </div>
+              </div>
             </div>
             <div class="btn-group me-2">
               <button data-title-phrase="Manually add webradio favorite" data-href='{"cmd": "showEditRadioFavorite", "options": ["", "", "", ""]}' type="button" class="btn btn-secondary"><span class="mi">add</span></button>
@@ -553,6 +559,47 @@
             <div id="BrowseRadioFavoritesList" class="row"></div>
           </div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioFavoritesButtonsBottom"></div>
+        </div>
+        <div id="viewBrowseRadioWebradioDb">
+          <div class="btn-toolbar card-toolbar" id="BrowseRadioWebradioDbButtons">
+            <div class="btn-group me-2">
+              <button data-title-phrase="Select view" id="BrowseNavWebradioDb" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
+              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavWebradioDbDropdown">
+              </div>
+            </div>
+            <div class="btn-group me-2">
+              <button data-title-phrase="Webradio favorites" data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "Favorites"]}' type="button" class="btn btn-secondary"><span class="mi">favorite</span></button>
+            </div>
+            <div class="input-group flex-grow-1 me-2">
+              <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
+              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="BrowseRadioWebradioDbSearchStr"/>
+            </div>
+            <div class="input-group me-2">
+              <select id="selectWebradioDbGenre" class="form-select firstGrey">
+                <option value="" data-phrase="Genre"></option>
+              </select>
+              <select id="selectWebradioDbCountry" class="form-select">
+                <option value="" data-phrase="Country"></option>
+              </select>
+              <select id="selectWebradioDbLanguage" class="form-select">
+                <option value="" data-phrase="Language"></option>
+              </select>
+            </div>
+            <div class="btn-group me-2 featHome" id="BrowseRadioWebradioDbAddToHome">
+              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
+            </div>
+            <div id="BrowseRadioWebradioDbPaginationTop" class="btn-group me-2 pagination"></div>
+          </div>
+          <div class="table-responsive-md scrollContainer">
+            <table id="BrowseRadioWebradioDbList" class="table table-hover table-sm">
+              <thead>
+                <tr><th data-phrase="Station"></th><th data-phrase="Country"></th><th data-phrase="Genre"></th><th></th></tr>
+              </thead>
+              <tbody class="clickable"></tbody>
+              <tfoot></tfoot>
+            </table>
+          </div>
+          <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioWebradioDbButtonsBottom"></div>
         </div>
         <div id="viewBrowseRadioRadioBrowser">
           <div class="btn-toolbar card-toolbar" id="BrowseRadioRadioBrowserButtons">

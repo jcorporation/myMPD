@@ -16,7 +16,7 @@ function appPrepare(scrollPos) {
         const cards = ['cardHome', 'cardPlayback', 'cardSearch',
             'cardQueue', 'tabQueueCurrent', 'tabQueueLastPlayed', 'tabQueueJukebox',
             'cardBrowse', 'tabBrowseFilesystem',
-            'tabBrowseRadio', 'viewBrowseRadioFavorites', 'viewBrowseRadioRadioBrowser',
+            'tabBrowseRadio', 'viewBrowseRadioFavorites', 'viewBrowseRadioWebradioDb', 'viewBrowseRadioRadioBrowser',
             'tabBrowsePlaylists', 'viewBrowsePlaylistsDetail', 'viewBrowsePlaylistsList',
             'tabBrowseDatabase', 'viewBrowseDatabaseDetail', 'viewBrowseDatabaseList'];
         for (const card of cards) {
@@ -385,11 +385,17 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'BrowseRadioFavorites': {
-            sendAPI("MYMPD_API_WEBRADIO_LIST", {
+            sendAPI("MYMPD_API_WEBRADIO_FAVORITE_LIST", {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
                 "searchstr": app.current.search
             }, parseRadioFavoritesList, true);
+            break;
+        }
+        case 'BrowseRadioWebradioDb': {
+            const result = searchWebradioDB(app.current.search, app.current.filter.genre,
+                app.current.filter.country, app.current.filter.language, app.current.sort);
+            parseSearchWebradioDB(result);
             break;
         }
         case 'BrowseRadioRadioBrowser': {
@@ -726,7 +732,7 @@ function appInit() {
     //contextmenu for tables
     const tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList',
         'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsListList', 'BrowsePlaylistsDetailList',
-        'BrowseRadioRadioBrowserList'];
+        'BrowseRadioRadioBrowserList', 'BrowseRadioWebradioDbList'];
     for (const tableName of tables) {
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {
             if (event.target.parentNode.classList.contains('not-clickable') ||

@@ -39,6 +39,8 @@ const sessionRenewInterval = sessionLifetime * 500;
 let sessionTimer = null;
 const messages = [];
 const debugMode = document.getElementsByTagName("script")[0].src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
+let webradioDb = null;
+const webradioDbUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
 
 //minimum mpd version to support all myMPD features
 const mpdVersion = {
@@ -177,11 +179,24 @@ app.cards = {
                         "search": "",
                         "scrollPos": 0
                     },
+                    "WebradioDb": {
+                        "offset": 0,
+                        "limit": 100,
+                        "filter": {
+                            "genre":"",
+                            "country":"",
+                            "language":""
+                        },
+                        "sort": "-",
+                        "tag": "-",
+                        "search": "",
+                        "scrollPos": 0
+                    },
                     "RadioBrowser": {
                         "offset": 0,
                         "limit": 100,
                         "filter": "name",
-                        "sort": "-",
+                        "sort": "PLAYLIST",
                         "tag": "-",
                         "search": "",
                         "scrollPos": 0

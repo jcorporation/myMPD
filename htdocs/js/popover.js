@@ -396,6 +396,18 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
         addMenuItem(tabContent, {"cmd": "showRadioBrowserDetails", "options": [uuid]}, 'Webradio details');
         addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [name, genre, image, uri, homepage, country, language, uuid]}, 'Add to favorites');
     }
+    if (app.id === 'BrowseRadioWebradioDb' &&
+        dataNode !== null)
+    {
+        const genre = getData(dataNode, 'genre');
+        const image = getData(dataNode, 'image');
+        const homepage = getData(dataNode, 'homepage');
+        const country = getData(dataNode, 'country');
+        const language = getData(dataNode, 'language');
+        addDivider(tabContent);
+        addMenuItem(tabContent, {"cmd": "showWebradioDbDetails", "options": [uri]}, 'Webradio details');
+        addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [name, genre, image, uri, homepage, country, language, '']}, 'Add to favorites');
+    }
     if (app.id === 'QueueCurrent' &&
         type === 'webradio')
     {
@@ -519,6 +531,7 @@ function createMenuLists(el, tabHeader, tabContent) {
         case 'BrowseFilesystem':
         case 'Search':
         case 'BrowseRadioRadioBrowser':
+        case 'BrowseRadioWebradioDb':
         case 'BrowseDatabaseDetail': {
             switch(type) {
                 case 'song':

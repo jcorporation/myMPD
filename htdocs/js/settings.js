@@ -943,6 +943,7 @@ function parseMPDSettings() {
     addTagList('BrowseNavPlaylistsDropdown', 'tagListBrowse');
     addTagList('BrowseNavFilesystemDropdown', 'tagListBrowse');
     addTagList('BrowseNavRadioFavoritesDropdown', 'tagListBrowse');
+    addTagList('BrowseNavWebradioDbDropdown', 'tagListBrowse');
     addTagList('BrowseNavRadioBrowserDropdown', 'tagListBrowse');
 
     addTagList('searchqueuetags', 'tagListSearch');

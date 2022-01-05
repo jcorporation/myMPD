@@ -242,6 +242,17 @@ function clickRadioBrowser(uri, uuid) {
     countClickRadioBrowser(uuid);
 }
 
+function clickWebradioDb(uri) {
+    switch (settings.webuiSettings.clickRadioBrowser) {
+        case 'append': return appendQueue('song', uri);
+        case 'appendPlay': return appendPlayQueue('song', uri);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
+        case 'replace': return replaceQueue('song', uri);
+        case 'replacePlay': return replacePlayQueue('song', uri);
+    }
+}
+
 function clickRadioFavorites(uri) {
     const fullUri = getRadioFavoriteUri(uri);
     switch(settings.webuiSettings.clickRadioFavorites) {
@@ -591,6 +602,7 @@ function addTagList(elId, list) {
     if (elId === 'BrowseNavFilesystemDropdown' ||
         elId === 'BrowseNavPlaylistsDropdown' ||
         elId === 'BrowseNavRadioFavoritesDropdown' ||
+        elId === 'BrowseNavWebradioDbDropdown' ||
         elId === 'BrowseNavRadioBrowserDropdown')
     {
         if (features.featTags === true && features.featAdvsearch === true) {
@@ -1445,4 +1457,20 @@ function getParent(el, nodeName) {
         target = target.parentNode;
     }
     return target;
+}
+
+function populateSelectId(id, options, selectedValue) {
+    populateSelect(document.getElementById(id), options, selectedValue);
+}
+
+function populateSelect(el, options, selectedValue) {
+	for (const value of options) {
+		const opt = document.createElement('option');
+		opt.text = tn(value);
+		opt.value = value;
+        if (value === selectedValue) {
+            opt.setAttribute('selected', 'selected');
+        }
+		el.appendChild(opt);
+	}
 }
