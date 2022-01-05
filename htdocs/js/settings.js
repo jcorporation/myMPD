@@ -1301,21 +1301,23 @@ function setNavbarIcons() {
 
 function getBgImageList(image) {
     const list = document.getElementById('inputWebUIsettinguiBgImage').filterResult;
-    getImageList(list, image, bgImageValues);
+    getImageList(list, image, bgImageValues, 'backgrounds');
 }
 
-function getImageListId(selectId, value, addOptions) {
-    getImageList(document.getElementById(selectId), value, addOptions)
+function getImageListId(selectId, value, addOptions, type) {
+    getImageList(document.getElementById(selectId), value, addOptions, type)
 }
 
-function getImageList(sel, value, addOptions) {
-    sendAPI("MYMPD_API_PICTURE_LIST", {}, function(obj) {
+function getImageList(sel, value, addOptions, type) {
+    sendAPI("MYMPD_API_PICTURE_LIST", {
+        "type": type
+    }, function(obj) {
         elClear(sel);
         for (const option of addOptions) {
             sel.appendChild(elCreateText('option', {"value": option.value}, option.text));
         }
         for (let i = 0; i < obj.result.returnedEntities; i++) {
-            sel.appendChild(elCreateText('option', {"value": obj.result.data[i]}, obj.result.data[i]));
+            sel.appendChild(elCreateText('option', {"value": obj.result.data[i]}, basename(obj.result.data[i], false)));
         }
         sel.value = value;
     });

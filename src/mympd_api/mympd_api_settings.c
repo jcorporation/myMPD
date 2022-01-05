@@ -742,8 +742,8 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
     return buffer;
 }
 
-sds mympd_api_settings_picture_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
-    sds pic_dirname = sdscatfmt(sdsempty(), "%s/pics", mympd_state->config->workdir);
+sds mympd_api_settings_picture_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, sds type) {
+    sds pic_dirname = sdscatfmt(sdsempty(), "%s/pics/%s", mympd_state->config->workdir, type);
     errno = 0;
     DIR *pic_dir = opendir(pic_dirname);
     if (pic_dir == NULL) {

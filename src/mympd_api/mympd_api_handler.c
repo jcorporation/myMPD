@@ -104,7 +104,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             mpd_worker_start(mympd_state, request);
             break;
         case MYMPD_API_PICTURE_LIST:
-            response->data = mympd_api_settings_picture_list(mympd_state, response->data, request->method, request->id);
+            if (json_get_string(request->data, "$.params.type", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
+                response->data = mympd_api_settings_picture_list(mympd_state, response->data, request->method, request->id, sds_buf1);
+            }
             break;
         case MYMPD_API_HOME_ICON_SAVE: {
             if (mympd_state->home_list.length > LIST_HOME_ICONS_MAX) {

@@ -148,7 +148,7 @@ function showEditRadioFavorite(name, genre, image, streamUri, homepage, country,
     document.getElementById('editRadioFavoriteUUID').value = uuid === undefined ? '' : uuid;
 
     const imageEl = document.getElementById('editRadioFavoriteImage');
-    getImageList(imageEl.filterResult, image, []);
+    getImageList(imageEl.filterResult, image, [], 'streams');
     imageEl.value = image;
 
     uiElements.modalSaveRadioFavorite.show();
@@ -234,7 +234,7 @@ function parseWebradioList(obj) {
         ]);
         const image = isHttpUri(obj.result.data[i].EXTIMG) === true ?
             obj.result.data[i].EXTIMG :
-            subdir + '/browse/pics/' + obj.result.data[i].EXTIMG;
+            subdir + '/browse/pics/streams/' + obj.result.data[i].EXTIMG;
         setData(card, 'image', image);
         setData(card, 'uri', obj.result.data[i].filename);
         setData(card, 'name', obj.result.data[i].PLAYLIST);

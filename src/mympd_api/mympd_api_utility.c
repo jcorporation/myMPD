@@ -137,13 +137,6 @@ bool is_smartpls(const char *workdir, sds playlist) {
     return smartpls;
 }
 
-bool is_streamuri(const char *uri) {
-    if (uri != NULL && strstr(uri, "://") != NULL) {
-        return true;
-    }
-    return false;
-}
-
 bool mympd_api_set_binarylimit(struct t_mympd_state *mympd_state) {
     bool rc = true;
     if (mympd_state->mpd_state->feat_mpd_binarylimit == true) {

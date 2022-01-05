@@ -184,14 +184,17 @@ struct t_subdirs_entry {
 };
 
 const struct t_subdirs_entry workdir_subdirs[] = {
-    {"empty",      "Empty dir"},
-    {"pics",       "Pics dir"},
+    {"empty",            "Empty dir"},
+    {"pics",             "Pics dir"},
+    {"pics/backgrounds", "Backgrounds dir"},
+    {"pics/homeicons",   "Homeicons dir"},
+    {"pics/streams",     "Streamcovers dir"},
     #ifdef ENABLE_LUA
-    {"scripts",    "Scripts dir"},
+    {"scripts",          "Scripts dir"},
     #endif
-    {"smartpls",   "Smartpls dir"},
-    {"state",      "State dir"},
-    {"webradios",  "Webradio dir"},
+    {"smartpls",         "Smartpls dir"},
+    {"state",            "State dir"},
+    {"webradios",        "Webradio dir"},
     {NULL, NULL}
 };
 

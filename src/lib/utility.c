@@ -13,6 +13,7 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <time.h>
 
@@ -70,4 +71,11 @@ bool is_virtual_cuedir(sds music_directory, sds filename) {
     }
     sdsfree(full_path);
     return is_file;
+}
+
+bool is_streamuri(const char *uri) {
+    if (uri != NULL && strstr(uri, "://") != NULL) {
+        return true;
+    }
+    return false;
 }

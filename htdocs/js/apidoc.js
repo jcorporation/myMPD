@@ -1541,8 +1541,14 @@ const APImethods = {
         }
     },
     "MYMPD_API_PICTURE_LIST": {
-        "desc": "Lists all pictures in the /pics directory.",
-        "params": {}
+        "desc": "Lists all pictures in the /pics/<type> directory.",
+        "params": {
+            "type": {
+                "type": "text",
+                "example": "streams",
+                "desc": "Subfolder of pics directory."
+            }
+        }
     },
     "MYMPD_API_JUKEBOX_LIST": {
         "desc": "Lists the internal jukebox queue.",

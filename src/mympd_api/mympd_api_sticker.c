@@ -10,10 +10,11 @@
 #include "../lib/api.h"
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
-#include "mympd_api_utility.h"
+
 
 #include <inttypes.h>
 #include <limits.h>
