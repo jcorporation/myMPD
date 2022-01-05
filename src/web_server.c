@@ -20,6 +20,7 @@
 #include "web_server/web_server_radiobrowser.h"
 #include "web_server/web_server_sessions.h"
 #include "web_server/web_server_tagart.h"
+#include "web_server/web_server_webradiodb.h"
 
 #include <sys/prctl.h>
 
@@ -717,6 +718,9 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
         case MYMPD_API_CLOUD_RADIOBROWSER_SEARCH:
         case MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL:
             radiobrowser_api(nc, backend_nc, cmd_id, body, id);
+            break;
+        case MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET:
+            webradiodb_api(nc, backend_nc, cmd_id, body, id);
             break;
         default: {
             //forward API request to mympd_api_handler

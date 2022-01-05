@@ -299,6 +299,7 @@ set(MYMPD_SOURCES
   src/web_server/web_server_sessions.c
   src/web_server/web_server_tagart.c
   src/web_server/web_server_utility.c
+  src/web_server/web_server_webradiodb.c
 )
 
 if("${ENABLE_SSL}" MATCHES "ON")

@@ -108,7 +108,8 @@
 #define FILENAME_LEN_MAX 200
 #define FILEPATH_LEN_MAX 1000
 
-//radio-browser.info
-#define RADIO_BROWSER_HOST "all.api.radio-browser.info"
+//cloud api hosts
+#define RADIOBROWSER_HOST "all.api.radio-browser.info"
+#define WEBRADIODB_HOST "jcorporation.github.io/"
 
 #endif

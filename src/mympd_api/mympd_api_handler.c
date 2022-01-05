@@ -1402,7 +1402,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_unmount", &result);
             }
             break;
-        case MYMPD_API_WEBRADIO_LIST:
+        case MYMPD_API_WEBRADIO_FAVORITE_LIST:
             if (json_get_long(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &long_buf1, &error) == true &&
                 json_get_long(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &long_buf2, &error) == true &&
                 json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true)
@@ -1410,12 +1410,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 response->data = mympd_api_webradio_list(mympd_state->config, response->data, request->method, request->id, sds_buf1, long_buf1, long_buf2);
             }
             break;
-        case MYMPD_API_WEBRADIO_GET:
+        case MYMPD_API_WEBRADIO_FAVORITE_GET:
             if (json_get_string(request->data, "$.params.filename", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
                 response->data = mympd_api_webradio_get(mympd_state->config, response->data, request->method, request->id, sds_buf1);
             }
             break;
-        case MYMPD_API_WEBRADIO_SAVE:
+        case MYMPD_API_WEBRADIO_FAVORITE_SAVE:
             if (json_get_string(request->data, "$.params.name", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_string(request->data, "$.params.streamUri", 1, FILEPATH_LEN_MAX, &sds_buf2, vcb_isuri, &error) == true &&
                 json_get_string(request->data, "$.params.streamUriOld", 0, FILEPATH_LEN_MAX, &sds_buf3, vcb_isuri, &error) == true &&
@@ -1438,7 +1438,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 }
             }
             break;
-        case MYMPD_API_WEBRADIO_RM:
+        case MYMPD_API_WEBRADIO_FAVORITE_RM:
             if (json_get_string(request->data, "$.params.filename", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
                 rc = mympd_api_webradio_delete(mympd_state->config, sds_buf1);
                 if (rc == true) {

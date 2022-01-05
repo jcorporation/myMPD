@@ -1614,7 +1614,7 @@ const APImethods = {
             }
         }
     },
-    "MYMPD_API_WEBRADIO_LIST": {
+    "MYMPD_API_WEBRADIO_FAVORITE_LIST": {
         "desc": "Lists webradio favorites.",
         "params": {
             "offset": APIparams.offset,
@@ -1622,7 +1622,7 @@ const APImethods = {
             "searchstr": APIparams.searchstr
         }
     },
-    "MYMPD_API_WEBRADIO_SAVE": {
+    "MYMPD_API_WEBRADIO_FAVORITE_SAVE": {
         "desc": "Lists saved webradios.",
         "params": {
             "name": {
@@ -1653,7 +1653,7 @@ const APImethods = {
             "uuid": APIparams.radiobrowserUUID
         }
     },
-    "MYMPD_API_WEBRADIO_GET": {
+    "MYMPD_API_WEBRADIO_FAVORITE_GET": {
         "desc": "Deletes a webradio favorite.",
         "params": {
             "filename": {
@@ -1663,7 +1663,7 @@ const APImethods = {
             }
         }
     },
-    "MYMPD_API_WEBRADIO_RM": {
+    "MYMPD_API_WEBRADIO_FAVORITE_RM": {
         "desc": "Deletes a webradio favorite.",
         "params": {
             "filename": {
@@ -1704,5 +1704,9 @@ const APImethods = {
         "params": {
             "uuid": APIparams.radiobrowserUUID
         }
+    },
+    "MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET": {
+        "desc": "Gets the full webradiodb.",
+        "params": {}
     }
 };
