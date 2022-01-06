@@ -179,7 +179,7 @@ app.cards = {
                         "search": "",
                         "scrollPos": 0
                     },
-                    "WebradioDb": {
+                    "Webradiodb": {
                         "offset": 0,
                         "limit": 100,
                         "filter": {
@@ -192,7 +192,7 @@ app.cards = {
                         "search": "",
                         "scrollPos": 0
                     },
-                    "RadioBrowser": {
+                    "Radiobrowser": {
                         "offset": 0,
                         "limit": 100,
                         "filter": "name",
@@ -298,7 +298,7 @@ const webuiSettingsDefault = {
         "title": "Click song",
         "form": "clickSettingsFrm"
     },
-    "clickRadioBrowser": {
+    "clickRadiobrowser": {
         "defaultValue": "append",
         "validValues": {
             "append": "Append to queue",

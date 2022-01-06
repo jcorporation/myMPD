@@ -230,8 +230,8 @@ function clickSong(uri) {
     }
 }
 
-function clickRadioBrowser(uri, uuid) {
-    switch (settings.webuiSettings.clickRadioBrowser) {
+function clickRadiobrowser(uri, uuid) {
+    switch (settings.webuiSettings.clickRadiobrowser) {
         case 'append': return appendQueue('song', uri);
         case 'appendPlay': return appendPlayQueue('song', uri);
         case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
@@ -239,11 +239,11 @@ function clickRadioBrowser(uri, uuid) {
         case 'replace': return replaceQueue('song', uri);
         case 'replacePlay': return replacePlayQueue('song', uri);
     }
-    countClickRadioBrowser(uuid);
+    countClickRadiobrowser(uuid);
 }
 
-function clickWebradioDb(uri) {
-    switch (settings.webuiSettings.clickRadioBrowser) {
+function clickWebradiodb(uri) {
+    switch (settings.webuiSettings.clickRadiobrowser) {
         case 'append': return appendQueue('song', uri);
         case 'appendPlay': return appendPlayQueue('song', uri);
         case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
@@ -602,8 +602,8 @@ function addTagList(elId, list) {
     if (elId === 'BrowseNavFilesystemDropdown' ||
         elId === 'BrowseNavPlaylistsDropdown' ||
         elId === 'BrowseNavRadioFavoritesDropdown' ||
-        elId === 'BrowseNavWebradioDbDropdown' ||
-        elId === 'BrowseNavRadioBrowserDropdown')
+        elId === 'BrowseNavWebradiodbDropdown' ||
+        elId === 'BrowseNavRadiobrowserDropdown')
     {
         if (features.featTags === true && features.featAdvsearch === true) {
             elClear(stack);
@@ -614,7 +614,8 @@ function addTagList(elId, list) {
         elId === 'BrowseNavFilesystemDropdown' ||
         elId === 'BrowseNavPlaylistsDropdown' ||
         elId === 'BrowseNavRadioFavoritesDropdown' ||
-        elId === 'BrowseNavRadioBrowserDropdown')
+        elId === 'BrowseNavWebradiodbDropdown' ||
+        elId === 'BrowseNavRadiobrowserDropdown')
     {
         if (elId === 'BrowseDatabaseByTagDropdown') {
             stack.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
@@ -629,7 +630,8 @@ function addTagList(elId, list) {
         }
         stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Radio"}, tn('Webradios')));
         if (elId === 'BrowseNavRadioFavoritesDropdown' ||
-        elId === 'BrowseNavRadioBrowserDropdown')
+            elId === 'BrowseNavWebradiodbDropdown' ||
+            elId === 'BrowseNavRadiobrowserDropdown')
         {
             stack.lastChild.classList.add('active');
         }
@@ -1243,6 +1245,27 @@ function printValue(key, value) {
             }
             return span;
         }
+        case 'EXTGENRE':
+            //multi value tags
+            return document.createTextNode(
+                value.join(', ')
+            );
+        case 'tags':
+            return document.createTextNode(
+                value.replace(/,(\S)/g, ', $1')
+            );
+        case 'homepage':
+        case 'HOMEPAGE':
+            if (value === '') {
+                return document.createTextNode(value);
+            }
+            return elCreateText('a', {"class": ["text-success", "external"],
+                        "href": myEncodeURIhost(value),
+                        "target": "_blank"}, value);
+        case 'lastcheckok':
+            return elCreateText('span', {"class": ["mi"]},
+                    (value === 1 ? 'check_circle' : 'error')
+                );
         default:
             if (key.indexOf('MUSICBRAINZ') === 0) {
                 return getMBtagLink(key, value);

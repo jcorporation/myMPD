@@ -169,6 +169,13 @@ function dragAndDropTableHeader(table) {
 }
 
 function setColTags(table) {
+    if (table === 'BrowseRadioWebradiodb') {
+        return ["COUNTRY", "DESCRIPTION", "EXTGENRE", "HOMEPAGE", "LANGUAGE", "PLAYLIST", "streamUri"];
+    }
+    else if (table === 'BrowseRadioRadiobrowser') {
+        return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
+    }
+
     const tags = settings.tagList.slice();
     if (features.featTags === false) {
         tags.push('Title');
@@ -203,8 +210,8 @@ function setColTags(table) {
     }
     //sort tags and append stickers
     tags.sort();
-    tags.push('dropdownTitleSticker');
     if (features.featStickers === true) {
+        tags.push('dropdownTitleSticker');
         for (const sticker of stickerList) {
             tags.push(sticker);
         }
@@ -424,7 +431,6 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             perRowCallback(row, obj.result.data[i]);
         }
         //data row
-        row.setAttribute('tabindex', 0);
         //set artist and album data
         if (obj.result.data[i].Album !== undefined) {
             setData(row, 'Album', obj.result.data[i].Album);

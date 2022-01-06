@@ -188,6 +188,8 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     mympd_state->cols_playback = sdsnew("[\"Artist\",\"Album\"]");
     mympd_state->cols_queue_last_played = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");
     mympd_state->cols_queue_jukebox = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\"]");
+    mympd_state->cols_browse_radio_webradiodb = sdsnew("[\"PLAYLIST\",\"COUNTRY\",\"LANGUAGE\",\"EXTGENRE\"]");
+    mympd_state->cols_browse_radio_radiobrowser = sdsnew("[\"name\",\"country\",\"language\",\"tags\"]");
     mympd_state->volume_min = 0;
     mympd_state->volume_max = 100;
     mympd_state->volume_step = 5;
@@ -251,6 +253,8 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->cols_playback);
     FREE_SDS(mympd_state->cols_queue_last_played);
     FREE_SDS(mympd_state->cols_queue_jukebox);
+    FREE_SDS(mympd_state->cols_browse_radio_webradiodb);
+    FREE_SDS(mympd_state->cols_browse_radio_radiobrowser);
     FREE_SDS(mympd_state->coverimage_names);
     FREE_SDS(mympd_state->music_directory);
     FREE_SDS(mympd_state->music_directory_value);

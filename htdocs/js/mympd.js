@@ -16,7 +16,7 @@ function appPrepare(scrollPos) {
         const cards = ['cardHome', 'cardPlayback', 'cardSearch',
             'cardQueue', 'tabQueueCurrent', 'tabQueueLastPlayed', 'tabQueueJukebox',
             'cardBrowse', 'tabBrowseFilesystem',
-            'tabBrowseRadio', 'viewBrowseRadioFavorites', 'viewBrowseRadioWebradioDb', 'viewBrowseRadioRadioBrowser',
+            'tabBrowseRadio', 'viewBrowseRadioFavorites', 'viewBrowseRadioWebradiodb', 'viewBrowseRadioRadiobrowser',
             'tabBrowsePlaylists', 'viewBrowsePlaylistsDetail', 'viewBrowsePlaylistsList',
             'tabBrowseDatabase', 'viewBrowseDatabaseDetail', 'viewBrowseDatabaseList'];
         for (const card of cards) {
@@ -392,14 +392,15 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             }, parseRadioFavoritesList, true);
             break;
         }
-        case 'BrowseRadioWebradioDb': {
+        case 'BrowseRadioWebradiodb': {
             const result = searchWebradioDB(app.current.search, app.current.filter.genre,
-                app.current.filter.country, app.current.filter.language, app.current.sort);
+                app.current.filter.country, app.current.filter.language, app.current.sort,
+                app.current.offset, app.current.limit);
             parseSearchWebradioDB(result);
             break;
         }
-        case 'BrowseRadioRadioBrowser': {
-            selectTag('BrowseRadioRadioBrowserTagsBtn', 'BrowseRadioRadioBrowserTagsDesc', app.current.filter);
+        case 'BrowseRadioRadiobrowser': {
+            selectTag('BrowseRadioRadiobrowserTagsBtn', 'BrowseRadioRadiobrowserTagsDesc', app.current.filter);
             if (app.current.search === '') {
                 sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_NEWEST", {
                     "offset": app.current.offset,
@@ -732,7 +733,7 @@ function appInit() {
     //contextmenu for tables
     const tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList',
         'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsListList', 'BrowsePlaylistsDetailList',
-        'BrowseRadioRadioBrowserList', 'BrowseRadioWebradioDbList'];
+        'BrowseRadioRadiobrowserList', 'BrowseRadioWebradiodbList'];
     for (const tableName of tables) {
         document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {
             if (event.target.parentNode.classList.contains('not-clickable') ||

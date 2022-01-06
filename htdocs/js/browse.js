@@ -92,7 +92,7 @@ function initBrowse() {
     }, false);
 
     for (const nav of ['BrowseDatabaseByTagDropdown', 'BrowseNavPlaylistsDropdown', 'BrowseNavFilesystemDropdown',
-            'BrowseNavRadioBrowserDropdown', 'BrowseNavRadioFavoritesDropdown'])
+        'BrowseNavWebradiodbDropdown','BrowseNavRadiobrowserDropdown', 'BrowseNavRadioFavoritesDropdown'])
     {
         document.getElementById(nav).addEventListener('click', function(event) {
             navBrowseHandler(event);
@@ -420,7 +420,7 @@ function parseDatabase(obj) {
         }
 
         let image = '';
-        const card = elCreateEmpty('div', {"data-popover": "album", "class": ["card", "card-grid", "clickable"], "tabindex": 0});
+        const card = elCreateEmpty('div', {"data-popover": "album", "class": ["card", "card-grid", "clickable"]});
         if (obj.result.tag === 'Album') {
             image = subdir + '/albumart/' + obj.result.data[i].FirstSongUri;
             card.appendChild(

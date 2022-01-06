@@ -15,9 +15,9 @@ function initWebradio() {
         stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": tag.key}, tn(tag.desc)));
     }
     stack.firstElementChild.classList.add('active');
-    document.getElementById('BrowseRadioRadioBrowserTags').appendChild(stack);
+    document.getElementById('BrowseRadioRadiobrowserTags').appendChild(stack);
 
-    document.getElementById('BrowseRadioRadioBrowserSearchStr').addEventListener('keyup', function(event) {
+    document.getElementById('BrowseRadioRadiobrowserSearchStr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
             this.blur();
         }
@@ -30,17 +30,17 @@ function initWebradio() {
         }
     }, false);
 
-    document.getElementById('BrowseRadioRadioBrowserList').addEventListener('click', function(event) {
+    document.getElementById('BrowseRadioRadiobrowserList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             const uri = getData(event.target.parentNode, 'uri');
-            if (settings.webuiSettings.clickRadioBrowser === 'add') {
+            if (settings.webuiSettings.clickRadiobrowser === 'add') {
                 const name = getData(event.target.parentNode, 'name');
                 const genre = getData(event.target.parentNode, 'genre');
                 const image = getData(event.target.parentNode, 'image');
                 showEditRadioFavorite(name, genre, image, uri);
             }
             else {
-                clickRadioBrowser(uri, getData(event.target.parentNode, 'uuid'));
+                clickRadiobrowser(uri, getData(event.target.parentNode, 'uuid'));
             }
         }
         else if (event.target.nodeName === 'A') {
@@ -48,16 +48,16 @@ function initWebradio() {
         }
     }, false);
 
-    document.getElementById('BrowseRadioRadioBrowserTags').addEventListener('click', function(event) {
+    document.getElementById('BrowseRadioRadiobrowserTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
-            document.getElementById('BrowseRadioRadioBrowserTagsBtn').Dropdown.hide();
+            document.getElementById('BrowseRadioRadiobrowserTagsBtn').Dropdown.hide();
             app.current.filter = getData(event.target, 'tag');
             appGoto(app.current.card, app.current.tab, app.current.view,
                 0, app.current.limit, app.current.filter, '-', '-', this.value);
         }
     }, false);
 
-    document.getElementById('BrowseRadioWebradioDbSearchStr').addEventListener('keyup', function(event) {
+    document.getElementById('BrowseRadioWebradiodbSearchStr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
             this.blur();
         }
@@ -66,29 +66,29 @@ function initWebradio() {
         }
     }, false);
 
-    document.getElementById('selectWebradioDbGenre').addEventListener('change', function(event) {
+    document.getElementById('selectWebradiodbGenre').addEventListener('change', function(event) {
         doSearchWebradioDB();
     }, false);
 
-    document.getElementById('selectWebradioDbCountry').addEventListener('change', function(event) {
+    document.getElementById('selectWebradiodbCountry').addEventListener('change', function(event) {
         doSearchWebradioDB();
     }, false);
 
-    document.getElementById('selectWebradioDbLanguage').addEventListener('change', function(event) {
+    document.getElementById('selectWebradiodbLanguage').addEventListener('change', function(event) {
         doSearchWebradioDB();
     }, false);
 
-    document.getElementById('BrowseRadioWebradioDbList').addEventListener('click', function(event) {
+    document.getElementById('BrowseRadioWebradiodbList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             const uri = getData(event.target.parentNode, 'uri');
-            if (settings.webuiSettings.clickRadioBrowser === 'add') {
+            if (settings.webuiSettings.clickRadiobrowser === 'add') {
                 const name = getData(event.target.parentNode, 'name');
                 const genre = getData(event.target.parentNode, 'genre');
                 const image = getData(event.target.parentNode, 'image');
                 showEditRadioFavorite(name, genre, image, uri);
             }
             else {
-                clickWebradioDb(uri);
+                clickWebradiodb(uri);
             }
         }
         else if (event.target.nodeName === 'A') {
@@ -210,7 +210,7 @@ function saveRadioFavorite() {
         "language": document.getElementById('editRadioFavoriteLanguage').value,
         "uuid": uuid
     }, saveRadioFavoriteClose, true);
-    countClickRadioBrowser(uuid);
+    countClickRadiobrowser(uuid);
 }
 
 function saveRadioFavoriteClose(obj) {
@@ -316,9 +316,9 @@ function parseRadioFavoritesList(obj) {
 function getWebradiodb() {
     sendAPI("MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET", {}, function(obj) {
         webradioDb = obj.result.data;
-        populateSelectId('selectWebradioDbGenre', webradioDb.webradioGenres, '');
-        populateSelectId('selectWebradioDbCountry', webradioDb.webradioCountries, '');
-        populateSelectId('selectWebradioDbLanguage', webradioDb.webradioLanguages, '');
+        populateSelectId('selectWebradiodbGenre', webradioDb.webradioGenres, '');
+        populateSelectId('selectWebradiodbCountry', webradioDb.webradioCountries, '');
+        populateSelectId('selectWebradiodbLanguage', webradioDb.webradioLanguages, '');
     }, false);
 }
 
@@ -328,23 +328,26 @@ function doSearchWebradioDB() {
             dosearchWebradioDB()
         }, 1000);
     }
-    const searchstr = document.getElementById('BrowseRadioWebradioDbSearchStr').value;
-    const genre = getSelectValueId('selectWebradioDbGenre');
-    const country = getSelectValueId('selectWebradioDbCountry');
-    const language = getSelectValueId('selectWebradioDbLanguage');
-    appGoto('Browse', 'Radio', 'WebradioDb',
+    const searchstr = document.getElementById('BrowseRadioWebradiodbSearchStr').value;
+    const genre = getSelectValueId('selectWebradiodbGenre');
+    const country = getSelectValueId('selectWebradiodbCountry');
+    const language = getSelectValueId('selectWebradiodbLanguage');
+    appGoto('Browse', 'Radio', 'Webradiodb',
         0, app.current.limit, {"genre": genre, "country": country, "language": language},
         app.current.sort, undefined, searchstr, 0);
 }
 
-function searchWebradioDB(name, genre, country, language, sort) {
-	const result = {
-		"returnedEntities": 0,
-		"data": []
+function searchWebradioDB(name, genre, country, language, sort, offset, limit) {
+	const obj = {
+        "result": {
+            "totalEntities": 0,
+            "returnedEntities": 0,
+            "data": []
+        }
 	};
     if (webradioDb === null) {
         logDebug('WebradioDb is empty');
-        return result;
+        return obj;
     }
 
 	for (const key in webradioDb.webradios) {
@@ -353,11 +356,11 @@ function searchWebradioDB(name, genre, country, language, sort) {
 			(country === ''  || country === webradioDb.webradios[key].COUNTRY) &&
 			(language === '' || language === webradioDb.webradios[key].LANGUAGE)
 		) {
-			result.data.push(webradioDb.webradios[key]);
-			result.returnedEntities++;
+			obj.result.data.push(webradioDb.webradios[key]);
+			obj.result.totalEntities++;
 		}
 	}
-	result.data.sort(function(a, b) {
+	obj.result.data.sort(function(a, b) {
 		if (a[sort] < b[sort]) {
 			return -1;
 		}
@@ -366,53 +369,47 @@ function searchWebradioDB(name, genre, country, language, sort) {
 		}
 		return 0;
 	});
-	return result;
+    if (offset > 0) {
+        obj.result.data.splice(0, offset - 1);
+    }
+    const last = obj.result.data.length - limit;
+    if (last > 0) {
+        obj.result.data.splice(limit, last);
+    }
+    obj.result.returnedEntities = obj.result.data.length;
+	return obj;
 }
 
-function parseSearchWebradioDB(result) {
-    const table = document.getElementById('BrowseRadioWebradioDbList');
-    const tbody = table.getElementsByTagName('tbody')[0];
-    setScrollViewHeight(table);
+function parseSearchWebradioDB(obj) {
+    const table = document.getElementById('BrowseRadioWebradiodbList');
+    const tfoot = table.getElementsByTagName('tfoot')[0];
+    elClear(tfoot);
 
-    elClear(tbody);
-    const rowTitle = tn(webuiSettingsDefault.clickRadioBrowser.validValues[settings.webuiSettings.clickRadioBrowser]);
-    let i = 0;
-    const last = app.current.offset + app.current.limit;
-    for (const station of result.data) {
-        if (i < app.current.offset) {
-			i++;
-			continue;
-		}
-		if (i >= last) {
-            break;
-        }
-        i++;
-        const row = elCreateNodes('tr', {"title": rowTitle}, [
-            elCreateText('td', {}, station.PLAYLIST),
-            elCreateText('td', {}, station.COUNTRY + smallSpace + nDash + smallSpace + station.LANGUAGE),
-            elCreateText('td', {}, station.EXTGENRE.join(', '))
-        ]);
-        setData(row, 'uri', station.streamUri);
-        setData(row, 'name', station.PLAYLIST);
-        setData(row, 'genre', station.EXTGENRE);
-        setData(row, 'image', webradioDbUri + station.EXTIMG);
-        setData(row, 'homepage', station.HOMEPAGE);
-        setData(row, 'country', station.COUNTRY);
-        setData(row, 'language', station.LANGUAGE);
+    if (checkResultId(obj, 'BrowseRadioWebradiodbList') === false) {
+        return;
+    }
+
+    const rowTitle = tn(webuiSettingsDefault.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
+
+    updateTable(obj, 'BrowseRadioWebradiodb', function(row, data) {
+        setData(row, 'uri', data.streamUri);
+        setData(row, 'name', data.PLAYLIST);
+        setData(row, 'genre', data.EXTGENRE);
+        setData(row, 'image', webradioDbUri + data.EXTIMG);
+        setData(row, 'homepage', data.HOMEPAGE);
+        setData(row, 'country', data.COUNTRY);
+        setData(row, 'language', data.LANGUAGE);
         setData(row, 'type', 'stream');
-        row.appendChild(
-            elCreateNode('td', {},
-                elCreateText('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
+        row.setAttribute('title', rowTitle);
+    });
+
+    if (obj.result.totalEntities > 0) {
+        const colspan = settings.colsBrowseRadioWebradiodb.length + 1;
+        tfoot.appendChild(
+            elCreateNode('tr', {},
+                elCreateText('td', {"colspan": colspan}, tn('Num entries', obj.result.totalEntities))
             )
         );
-        tbody.appendChild(row);
-    }
-    table.classList.remove('opacity05');
-
-    setPagination(result.returnedEntities, result.returnedEntities);
-
-    if (result.returnedEntities === 0) {
-        tbody.appendChild(emptyRow(4));
     }
 }
 
@@ -420,21 +417,21 @@ function streamUriToName(uri) {
     return uri.replace(/[<>\/.:?&$!#\|]/g, '_');
 }
 
-function showWebradioDbDetails(uri) {
-    const tbody = document.getElementById('modalRadioBrowserDetailsList');
-    elClearId('modalRadioBrowserDetailsList');
+function showWebradiodbDetails(uri) {
+    const tbody = document.getElementById('modalRadiobrowserDetailsList');
+    elClearId('modalRadiobrowserDetailsList');
     const m3u = streamUriToName(uri) + '.m3u';
     const result = webradioDb.webradios[m3u];
     if (result.EXTIMG !== '') {
-        document.getElementById('RadioBrowserDetailsImage').style.backgroundImage =
+        document.getElementById('RadiobrowserDetailsImage').style.backgroundImage =
             'url("' + myEncodeURIhost(webradioDbUri + result.EXTIMG) + '")' +
             ', url("' + subdir + '/assets/coverimage-loading.svg")';
     }
     else {
-        document.getElementById('RadioBrowserDetailsImage').style.backgroundImage =
+        document.getElementById('RadiobrowserDetailsImage').style.backgroundImage =
             'url("' + subdir + '/assets/coverimage-notavailable.svg")';
     }
-    document.getElementById('RadioBrowserDetailsTitle').textContent = result.name;
+    document.getElementById('RadiobrowserDetailsTitle').textContent = result.name;
     const showFields = {
         'streamUri': 'Stream url',
         'HOMEPAGE': 'Homepage',
@@ -444,21 +441,7 @@ function showWebradioDbDetails(uri) {
         'DESCRIPTION': 'Description'
     };
     for (const field in showFields) {
-        let value;
-        switch(field) {
-            case 'HOMEPAGE':
-                if (result.HOMEPAGE !== '') {
-                    value = elCreateText('a', {"class": ["text-success", "external"],
-                        "href": myEncodeURIhost(result.HOMEPAGE),
-                        "target": "_blank"}, result.HOMEPAGE);
-                }
-                else {
-                    value = document.createTextNode('');
-                }
-                break;
-            default:
-                value = document.createTextNode(result[field]);
-        }
+        const value = printValue(field, result[field]);
         tbody.appendChild(
             elCreateNodes('tr', {}, [
                 elCreateText('th', {}, tn(showFields[field])),
@@ -466,12 +449,12 @@ function showWebradioDbDetails(uri) {
             ])
         );
     }
-    uiElements.modalRadioBrowserDetails.show();
+    uiElements.modalRadiobrowserDetails.show();
 }
 
 //radio-browser.info api
 
-function countClickRadioBrowser(uuid) {
+function countClickRadiobrowser(uuid) {
     if (uuid !== '') {
         sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT", {
             "uuid": uuid
@@ -480,36 +463,36 @@ function countClickRadioBrowser(uuid) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function showRadioBrowserDetails(uuid) {
+function showRadiobrowserDetails(uuid) {
     sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL", {
         "uuid": uuid
-    }, parseRadioBrowserDetails, true);
-    uiElements.modalRadioBrowserDetails.show();
-    elReplaceChildId('modalRadioBrowserDetailsList',
+    }, parseRadiobrowserDetails, true);
+    uiElements.modalRadiobrowserDetails.show();
+    elReplaceChildId('modalRadiobrowserDetailsList',
         elCreateNode('tr', {}, 
             elCreateText('td', {"colspan": 2}, tn('Loading...'))
         )
     );
-    countClickRadioBrowser(uuid);
+    countClickRadiobrowser(uuid);
 }
 
-function parseRadioBrowserDetails(obj) {
-    const tbody = document.getElementById('modalRadioBrowserDetailsList');
+function parseRadiobrowserDetails(obj) {
+    const tbody = document.getElementById('modalRadiobrowserDetailsList');
     if (checkResult(obj, tbody) === false) {
         return;
     }
-    elClearId('modalRadioBrowserDetailsList');
+    elClearId('modalRadiobrowserDetailsList');
     const result = obj.result.data[0];
     if (result.favicon !== '') {
-        document.getElementById('RadioBrowserDetailsImage').style.backgroundImage =
+        document.getElementById('RadiobrowserDetailsImage').style.backgroundImage =
             'url("' + myEncodeURIhost(result.favicon) + '")' +
             ', url("' + subdir + '/assets/coverimage-loading.svg")';
     }
     else {
-        document.getElementById('RadioBrowserDetailsImage').style.backgroundImage =
+        document.getElementById('RadiobrowserDetailsImage').style.backgroundImage =
             'url("' + subdir + '/assets/coverimage-notavailable.svg")';
     }
-    document.getElementById('RadioBrowserDetailsTitle').textContent = result.name;
+    document.getElementById('RadiobrowserDetailsTitle').textContent = result.name;
     const showFields = {
         'url_resolved': 'Stream url',
         'homepage': 'Homepage',
@@ -522,26 +505,7 @@ function parseRadioBrowserDetails(obj) {
         'clickcount': 'Click count'
     };
     for (const field in showFields) {
-        let value;
-        switch(field) {
-            case 'homepage':
-                if (result.homepage !== '') {
-                    value = elCreateText('a', {"class": ["text-success", "external"],
-                        "href": myEncodeURIhost(result.homepage),
-                        "target": "_blank"}, result.homepage);
-                }
-                else {
-                    value = document.createTextNode('');
-                }
-                break;
-            case 'lastcheckok':
-                value = elCreateText('span', {"class": ["mi"]},
-                        (result[field] === 1 ? 'check_circle' : 'error')
-                    );
-                break;
-            default:
-                value = document.createTextNode(result[field]);
-        }
+        const value = printValue(field, result[field]);
         tbody.appendChild(
             elCreateNodes('tr', {}, [
                 elCreateText('th', {}, tn(showFields[field])),
@@ -552,44 +516,23 @@ function parseRadioBrowserDetails(obj) {
 }
 
 function parseRadiobrowserList(obj) {
-    const table = document.getElementById('BrowseRadioRadioBrowserList');
-    const tbody = table.getElementsByTagName('tbody')[0];
-    setScrollViewHeight(table);
-
-    if (checkResult(obj, tbody) === false) {
+    if (checkResultId(obj, 'BrowseRadioRadiobrowserList') === false) {
         return;
     }
 
-    elClear(tbody);
-    const nrItems = obj.result.data.length;
-    const rowTitle = tn(webuiSettingsDefault.clickRadioBrowser.validValues[settings.webuiSettings.clickRadioBrowser]);
-    for (const station of obj.result.data) {
-        const row = elCreateNodes('tr', {"title": rowTitle}, [
-            elCreateText('td', {}, station.name),
-            elCreateText('td', {}, station.country + smallSpace + nDash + smallSpace + station.language),
-            elCreateText('td', {}, station.tags.replace(/,/g, ', '))
-        ]);
-        setData(row, 'uri', station.url_resolved);
-        setData(row, 'name', station.name);
-        setData(row, 'genre', station.tags);
-        setData(row, 'image', station.favicon);
-        setData(row, 'homepage', station.homepage);
-        setData(row, 'country', station.country);
-        setData(row, 'language', station.language);
+    const rowTitle = tn(webuiSettingsDefault.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
+    obj.result.returnedEntities = obj.result.data.length;
+
+    updateTable(obj, 'BrowseRadioRadiobrowser', function(row, data) {
+        setData(row, 'uri', data.url_resolved);
+        setData(row, 'name', data.name);
+        setData(row, 'genre', data.tags);
+        setData(row, 'image', data.favicon);
+        setData(row, 'homepage', data.homepage);
+        setData(row, 'country', data.country);
+        setData(row, 'language', data.language);
+        setData(row, 'uuid', data.stationuuid);
         setData(row, 'type', 'stream');
-        setData(row, 'uuid', station.stationuuid);
-        row.appendChild(
-            elCreateNode('td', {},
-                elCreateText('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
-            )
-        );
-        tbody.appendChild(row);
-    }
-    table.classList.remove('opacity05');
-
-    setPagination(-1, nrItems);
-
-    if (nrItems === 0) {
-        tbody.appendChild(emptyRow(4));
-    }
+        row.setAttribute('title', rowTitle);
+    });
 }

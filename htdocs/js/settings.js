@@ -387,7 +387,9 @@ function parseSettings(obj) {
         app.id === 'Search' ||
         app.id === 'BrowseFilesystem' ||
         app.id === 'BrowsePlaylistsDetail' ||
-        app.id === 'BrowseDatabase')
+        app.id === 'BrowseDatabase' ||
+        app.id === 'BrowseRadioWebradiodb' ||
+        app.id === 'BrowseRadioRadiobrowser')
     {
         appRoute();
     }
@@ -873,6 +875,9 @@ function parseMPDSettings() {
             }
         }
     }
+    setCols('BrowseRadioWebradiodb');
+    setCols('BrowseRadioRadiobrowser');
+
     //enforce disc for album details view
     if (settings.colsBrowseDatabaseDetailFetch.includes('Disc') === false && settings.tagList.includes('Disc')) {
         settings.colsBrowseDatabaseDetailFetch.push('Disc');
@@ -943,8 +948,8 @@ function parseMPDSettings() {
     addTagList('BrowseNavPlaylistsDropdown', 'tagListBrowse');
     addTagList('BrowseNavFilesystemDropdown', 'tagListBrowse');
     addTagList('BrowseNavRadioFavoritesDropdown', 'tagListBrowse');
-    addTagList('BrowseNavWebradioDbDropdown', 'tagListBrowse');
-    addTagList('BrowseNavRadioBrowserDropdown', 'tagListBrowse');
+    addTagList('BrowseNavWebradiodbDropdown', 'tagListBrowse');
+    addTagList('BrowseNavRadiobrowserDropdown', 'tagListBrowse');
 
     addTagList('searchqueuetags', 'tagListSearch');
     addTagList('searchtags', 'tagListSearch');
@@ -1214,34 +1219,32 @@ function filterCols(x) {
 function toggleBtnNotifyWeb(event) {
     const btnNotifyWeb = event.target;
     const notifyWebState = btnNotifyWeb.classList.contains('active') ? true : false;
-    if (notificationsSupported()) {
-        if (notifyWebState === false) {
-            Notification.requestPermission(function (permission) {
-                if (!('permission' in Notification)) {
-                    Notification.permission = permission;
-                }
-                if (permission === 'granted') {
-                    toggleBtnChk(btnNotifyWeb, true);
-                    settings.webuiSettings.notifyWeb = true;
-                    elHideId('warnNotifyWeb');
-                }
-                else {
-                    toggleBtnChk(btnNotifyWeb, false);
-                    settings.webuiSettings.notifyWeb = false;
-                    elShowId('warnNotifyWeb');
-                }
-            });
+    if (notificationsSupported() === false) {
+        toggleBtnChk(btnNotifyWeb, false);
+        settings.webuiSettings.notifyWeb = false;
+        return;
+    }
+    if (notifyWebState === true) {
+        toggleBtnChk(btnNotifyWeb, false);
+        settings.webuiSettings.notifyWeb = false;
+        elHideId('warnNotifyWeb');
+        return;
+    }
+    Notification.requestPermission(function (permission) {
+        if (!('permission' in Notification)) {
+            Notification.permission = permission;
+        }
+        if (permission === 'granted') {
+            toggleBtnChk(btnNotifyWeb, true);
+            settings.webuiSettings.notifyWeb = true;
+            elHideId('warnNotifyWeb');
         }
         else {
             toggleBtnChk(btnNotifyWeb, false);
             settings.webuiSettings.notifyWeb = false;
-            elHideId('warnNotifyWeb');
+            elShowId('warnNotifyWeb');
         }
-    }
-    else {
-        toggleBtnChk(btnNotifyWeb, false);
-        settings.webuiSettings.notifyWeb = false;
-    }
+    });
 }
 
 function setNavbarIcons() {

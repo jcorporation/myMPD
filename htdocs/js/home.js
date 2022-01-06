@@ -238,7 +238,7 @@ function parseHome(obj) {
             typeFriendly[obj.result.data[i].options[0]];
         const actionType = friendlyActions[obj.result.data[i].cmd];
 
-        const card = elCreateEmpty('div', {"data-popover": "home", "class": ["card", "home-icons"], "tabindex": 0, "draggable": "true",
+        const card = elCreateEmpty('div', {"data-popover": "home", "class": ["card", "home-icons"], "draggable": "true",
             "title": tn(homeType) + ':' + smallSpace + obj.result.data[i].name +
             '\n' + tn(actionType)});
         if (obj.result.data[i].options[0] === 'album'){

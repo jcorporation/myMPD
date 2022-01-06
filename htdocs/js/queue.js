@@ -192,7 +192,6 @@ function parseQueue(obj) {const table = document.getElementById('QueueCurrentLis
     updateTable(obj, 'QueueCurrent', function(row, data) {
         row.setAttribute('draggable', 'true');
         row.setAttribute('id', 'queueTrackId' + data.id);
-        row.setAttribute('tabindex', 0);
         row.setAttribute('title', tn(rowTitle));
         setData(row, 'trackid', data.id);
         setData(row, 'songpos', data.Pos);
@@ -307,7 +306,6 @@ function parseLastPlayed(obj) {
         setData(row, 'uri', data.uri);
         setData(row, 'name', data.Title);
         setData(row, 'type', 'song');
-        row.setAttribute('tabindex', 0);
         row.setAttribute('title', tn(rowTitle));
     });
 }

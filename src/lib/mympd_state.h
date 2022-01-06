@@ -202,6 +202,8 @@ struct t_mympd_state {
     sds cols_playback;
     sds cols_queue_last_played;
     sds cols_queue_jukebox;
+    sds cols_browse_radio_webradiodb;
+    sds cols_browse_radio_radiobrowser;
     bool localplayer;
     int mpd_stream_port;
     sds music_directory;
