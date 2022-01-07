@@ -21,10 +21,7 @@ function initWebradio() {
         if (event.key === 'Escape') {
             this.blur();
         }
-        else if (this.value.length >= 3 ||
-            this.value.length === 0 ||
-            event.key === 'Enter')
-        {
+        else if (event.key === 'Enter') {
             appGoto(app.current.card, app.current.tab, app.current.view,
                 0, app.current.limit, app.current.filter, '-', '-', this.value);
         }
