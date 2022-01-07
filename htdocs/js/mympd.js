@@ -139,7 +139,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 app.current.offset = typeof jsonHash.offset === 'number' ? jsonHash.offset : '';
                 app.current.limit = typeof jsonHash.limit === 'number' ? jsonHash.limit : '';
                 app.current.filter = isArrayOrString(jsonHash.filter) ? jsonHash.filter : '';
-                app.current.sort = isArrayOrString(jsonHash.sort) ? jsonHash.sort : '';
+                app.current.sort = jsonHash.sort;
                 app.current.tag = isArrayOrString(jsonHash.tag) ? jsonHash.tag : '';
                 app.current.search = isArrayOrString(jsonHash.search) ? jsonHash.search : '';
             }
@@ -434,21 +434,14 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 document.getElementById('searchCrumb').children.length > 0)
             {
                 if (features.featAdvsearch) {
-                    let tsort = app.current.sort;
-                    let sortdesc = false;
-                    if (tsort === '-') {
-                        tsort = settings.tagList.includes('Title') ? 'Title' : '-';
-                        setDataId('SearchList', 'sort', tsort);
-                    }
-                    else if (tsort.charAt(0) === '-') {
-                        sortdesc = true;
-                        tsort = tsort.substring(1);
+                    if (app.current.sort.tag === '-') {
+                        app.current.sort.tag = settings.tagList.includes('Title') ? 'Title' : '-';
                     }
                     sendAPI("MYMPD_API_DATABASE_SEARCH_ADV", {
                         "offset": app.current.offset,
                         "limit": app.current.limit,
-                        "sort": tsort,
-                        "sortdesc": sortdesc,
+                        "sort": app.current.sort.tag,
+                        "sortdesc": app.current.sort.desc,
                         "expression": app.current.search,
                         "cols": settings.colsSearchFetch
                     }, parseSearch, true);

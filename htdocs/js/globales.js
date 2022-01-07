@@ -187,7 +187,10 @@ app.cards = {
                             "country":"",
                             "language":""
                         },
-                        "sort": "-",
+                        "sort": {
+                            "tag": "Name",
+                            "desc": false
+                        },
                         "tag": "-",
                         "search": "",
                         "scrollPos": 0
@@ -196,7 +199,7 @@ app.cards = {
                         "offset": 0,
                         "limit": 100,
                         "filter": "name",
-                        "sort": "PLAYLIST",
+                        "sort": "-",
                         "tag": "-",
                         "search": "",
                         "scrollPos": 0
@@ -209,7 +212,10 @@ app.cards = {
         "offset": 0,
         "limit": 100,
         "filter": "any",
-        "sort": "-",
+        "sort": {
+            "tag": "-",
+            "desc": false
+        },
         "tag": "-",
         "search": "",
         "scrollPos": 0

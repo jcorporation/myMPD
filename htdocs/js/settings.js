@@ -885,7 +885,7 @@ function parseMPDSettings() {
 
     if (features.featTags === false) {
         app.cards.Browse.active = 'Filesystem';
-        app.cards.Search.sort = 'filename';
+        app.cards.Search.sort.tag = 'filename';
         app.cards.Search.filter = 'filename';
         app.cards.Queue.tabs.Current.filter = 'filename';
         settings.colsQueueCurrent = ["Pos", "Title", "Duration"];
@@ -919,7 +919,7 @@ function parseMPDSettings() {
     }
 
     if (settings.tagList.includes('Title')) {
-        app.cards.Search.sort = 'Title';
+        app.cards.Search.sort.tag = 'Title';
     }
 
     if (settings.tagList.includes('AlbumArtist')) {

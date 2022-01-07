@@ -80,6 +80,13 @@ function initWebradio() {
         doSearchWebradioDB();
     }, false);
 
+    document.getElementById('BrowseRadioWebradiodbList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
+        const colName = event.target.getAttribute('data-col');
+        toggleSort(event.target, colName);
+        appGoto(app.current.card, app.current.tab, app.current.view,
+            app.current.offset, app.current.limit, app.current.filter, app.current.sort, '-', app.current.search);
+    }, false);
+
     document.getElementById('BrowseRadioWebradiodbList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             const uri = getData(event.target.parentNode, 'uri');
@@ -366,11 +373,11 @@ function searchWebradioDB(name, genre, country, language, sort, offset, limit) {
 		}
 	}
 	obj.result.data.sort(function(a, b) {
-		if (a[sort] < b[sort]) {
-			return -1;
+		if (a[sort.tag] < b[sort.tag]) {
+			return sort.desc === false ? -1 : 1;
 		}
-		if (a[sort] > b[sort]) {
-			return 1;
+		if (a[sort.tag] > b[sort.tag]) {
+            return sort.desc === false ? 1 : -1;
 		}
 		return 0;
 	});

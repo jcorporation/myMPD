@@ -1090,7 +1090,8 @@ input[is=mympd-select-search][readonly] {
   margin-right: -1.5rem;
 }
 
-#SearchList > thead > tr > th {
+#SearchList > thead > tr > th,
+#BrowseRadioWebradiodbList > thead > tr > th {
   padding-right: 1.5rem;
 }
 

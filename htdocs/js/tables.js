@@ -237,16 +237,15 @@ function setColsChecklist(table, menu) {
 }
 
 function setCols(table) {
-    let sort = app.current.sort;
-    if (table === 'Search' && app.cards.Search.sort === 'Title') {
+    if (table === 'Search' && app.cards.Search.sort.tag === 'Title') {
         if (settings.tagList.includes('Title')) {
-            sort = 'Title';
+            app.cards.Search.sort.tag = 'Title';
         }
         else if (features.featTags === false) {
-            sort = 'Filename';
+            app.cards.Search.sort.tag = 'Filename';
         }
         else {
-            sort = '-';
+            app.cards.Search.sort.tag = '-';
         }
     }
 
@@ -256,17 +255,17 @@ function setCols(table) {
     for (let i = 0, j = settings['cols' + table].length; i < j; i++) {
         const hname = settings['cols' + table][i];
         const th = elCreateText('th', {"draggable": "true", "data-col": settings['cols' + table][i]}, tn(hname));
-        if (hname === 'Track' || hname === 'Pos') {
+        if (hname === 'Track' ||
+            hname === 'Pos')
+        {
             th.textContent = '#';
         }
-
-        if (table === 'Search' && (hname === sort || ('-' + hname) === sort) ) {
-            let sortdesc = false;
-            if (app.current.sort.indexOf('-') === 0) {
-                sortdesc = true;
-            }
+        if ((table === 'Search' && hname === app.cards.Search.sort.tag) ||
+            (table === 'BrowseRadioWebradiodb' && hname === app.cards.Browse.tabs.Radio.views.Webradiodb.sort.tag)
+           )
+        {
             th.appendChild(
-                elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down'))
+                elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (app.cards.Search.sort.desc === true ? 'arrow_drop_up' : 'arrow_drop_down'))
             );
         }
         thead.appendChild(th);
@@ -357,6 +356,25 @@ function saveColsPlayback(table) {
         }
     }
     sendAPI("MYMPD_API_COLS_SAVE", params, getSettings);
+}
+
+function toggleSort(th, colName) {
+    if (app.current.sort.tag === colName) {
+        app.current.sort.desc = app.current.sort.desc === false ? true : false;
+    }
+    else {
+        app.current.sort.desc = false;
+        app.current.sort.tag = colName;
+    }
+    //remove old sort indicator
+    const sdi = th.parentNode.getElementsByClassName('sort-dir');
+    for (const s of sdi) {
+        s.remove();
+    }
+    //set new sort indicator
+    th.appendChild(
+        elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (app.current.sort.desc === true ? 'arrow_drop_up' : 'arrow_drop_down'))
+    );
 }
 
 function replaceTblRow(row, el) {
