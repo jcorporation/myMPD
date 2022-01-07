@@ -24,9 +24,10 @@ static const char *invalid_filename_chars = "\a\b\f\n\r\t\v/\\";
 static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v";
 
 static const char *mympd_cols[]={"Pos", "Duration", "Type", "Priority", "LastPlayed", "Filename", "Filetype", "AudioFormat", "LastModified",
-    "Lyrics", "stickerPlayCount", "stickerSkipCount", "stickerLastPlayed", "stickerLastSkipped", "stickerLike", "COUNTRY", "DESCRIPTION",
-    "EXTGENRE", "HOMEPAGE", "LANGUAGE", "PLAYLIST", "streamUri", "clickcount", "country", "homepage", "language", "lastchangetime",
-    "lastcheckok", "tags", "url_resolved", "votes", 0};
+    "Lyrics", "stickerPlayCount", "stickerSkipCount", "stickerLastPlayed", "stickerLastSkipped", "stickerLike",
+    "Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri", //Columns for webradiodb
+    "clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes", //Columns for radiobrowser
+    0};
 
 static bool _check_for_invalid_chars(sds data, const char *invalid_chars) {
     size_t len = sdslen(data);

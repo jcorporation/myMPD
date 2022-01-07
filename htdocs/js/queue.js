@@ -200,8 +200,8 @@ function parseQueue(obj) {const table = document.getElementById('QueueCurrentLis
         setData(row, 'type', data.type);
         setData(row, 'name', data.Title);
         if (data.type === 'webradio') {
-            setData(row, 'webradioUuid', data.webradio.RADIOBROWSERUUID);
-            setData(row, 'webradioUri', data.webradio.filename + '.m3u');
+            setData(row, 'RADIOBROWSERUUID', data.webradio.RADIOBROWSERUUID);
+            setData(row, 'webradioUri', data.webradio.filename);
         }
         //set artist and album data
         if (data.Album !== undefined) {

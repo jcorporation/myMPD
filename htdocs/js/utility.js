@@ -1223,14 +1223,13 @@ function printValue(key, value) {
         case 'ArtistSort':
         case 'AlbumArtist':
         case 'AlbumArtistSort':
-        case 'Genre':
         case 'Composer':
         case 'Performer':
         case 'Conductor':
         case 'Ensemble':
         case 'MUSICBRAINZ_ARTISTID':
         case 'MUSICBRAINZ_ALBUMARTISTID': {
-            //multi value tags
+            //multi value tags - print lines
             const span = elCreateEmpty('span', {});
             for (let i = 0, j = value.length; i < j; i++) {
                 if (i > 0) {
@@ -1245,8 +1244,11 @@ function printValue(key, value) {
             }
             return span;
         }
-        case 'EXTGENRE':
-            //multi value tags
+        case 'Genre':
+            //multi value tags - print comma separated
+            if (typeof value === 'string') {
+                return document.createTextNode(value);
+            }
             return document.createTextNode(
                 value.join(', ')
             );
@@ -1255,7 +1257,7 @@ function printValue(key, value) {
                 value.replace(/,(\S)/g, ', $1')
             );
         case 'homepage':
-        case 'HOMEPAGE':
+        case 'Homepage':
             if (value === '') {
                 return document.createTextNode(value);
             }

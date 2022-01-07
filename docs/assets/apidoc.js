@@ -1650,7 +1650,7 @@ const APImethods = {
                 "example": "http://swr1.de",
                 "desc": "Webradio homepage"
             },
-            "uuid": APIparams.radiobrowserUUID
+            "RADIOBROWSERUUID": APIparams.radiobrowserUUID
         }
     },
     "MYMPD_API_WEBRADIO_FAVORITE_GET": {

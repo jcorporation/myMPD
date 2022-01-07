@@ -433,8 +433,8 @@ function setPlaybackCardTags(songObj) {
         elShow(cardPlaybackWebradio);
         elHideId('cardPlaybackTags');
 
-        const webradioName = elCreateText('p', {"href": "#", "class": ["clickable"]}, songObj.webradio.PLAYLIST);
-        setData(webradioName, 'href', {"cmd": "showRadioBrowserDetails", "options": [songObj.webradio.RADIOBROWSERUUID]});
+        const webradioName = elCreateText('p', {"href": "#", "class": ["clickable"]}, songObj.webradio.Name);
+        setData(webradioName, 'href', {"cmd": "editRadioFavorite", "options": [songObj.webradio.filename]});
         webradioName.addEventListener('click', function(event) {
             parseCmd(event, getData(event.target, 'href'));
         }, false);
@@ -447,24 +447,32 @@ function setPlaybackCardTags(songObj) {
         cardPlaybackWebradio.appendChild(
             elCreateNodes('div', {}, [
                 elCreateText('small', {}, tn('Genre')),
-                elCreateText('p', {}, songObj.webradio.EXTGENRE)
+                elCreateText('p', {}, songObj.webradio.Genre)
             ])
         );
         cardPlaybackWebradio.appendChild(
             elCreateNodes('div', {}, [
                 elCreateText('small', {}, tn('Country')),
-                elCreateText('p', {}, songObj.webradio.COUNTRY + smallSpace + nDash + smallSpace + songObj.webradio.LANGUAGE)
+                elCreateText('p', {}, songObj.webradio.Country + smallSpace + nDash + smallSpace + songObj.webradio.Language)
             ])
         );
-        if (songObj.webradio.HOMEPAGE !== '') {
+        if (songObj.webradio.Homepage !== '') {
             cardPlaybackWebradio.appendChild(
                 elCreateNodes('div', {}, [
                     elCreateText('small', {}, tn('Homepage')),
                     elCreateNode('p', {}, 
                         elCreateText('a', {"class": ["text-success", "external"],
-                            "href": myEncodeURIhost(songObj.webradio.HOMEPAGE),
-                            "target": "_blank"}, songObj.webradio.HOMEPAGE)
+                            "href": myEncodeURIhost(songObj.webradio.Homepage),
+                            "target": "_blank"}, songObj.webradio.Homepage)
                     )
+                ])
+            );
+        }
+        if (songObj.webradio.Description !== '') {
+            cardPlaybackWebradio.appendChild(
+                elCreateNodes('div', {}, [
+                    elCreateText('small', {}, tn('Description')),
+                    elCreateText('p', {}, songObj.webradio.Description)
                 ])
             );
         }

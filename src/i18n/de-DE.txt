@@ -2081,3 +2081,30 @@ Lade...
 
 Stream uri
 Stream URL
+
+clickcount
+Klick Anzahl
+
+country
+Land
+
+homepage
+Homepage
+
+language
+Sprache
+
+lastchangetime
+Geändert
+
+lastcheckok
+Check
+
+tags
+Tags
+
+url_resolved
+URL
+
+votes
+Stimmen

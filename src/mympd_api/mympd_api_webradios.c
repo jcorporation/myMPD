@@ -25,7 +25,8 @@
 sds get_webradio_from_uri(struct t_config *config, const char *uri) {
     sds filename = sdsnew(uri);
     sds_sanitize_filename(filename);
-    sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s.m3u", config->workdir, filename);
+    filename = sdscatlen(filename, ".m3u", 4);
+    sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s", config->workdir, filename);
     sds entry = sdsempty();
     if (access(filepath, F_OK) == 0) { /* Flawfinder: ignore */
         entry = tojson_char(entry, "filename", filename, true);
@@ -125,7 +126,7 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
 }
 
 bool mympd_api_webradio_save(struct t_config *config, sds name, sds uri, sds uri_old,
-        sds genre, sds picture, sds uuid, sds homepage, sds country, sds language)
+        sds genre, sds picture, sds uuid, sds homepage, sds country, sds language, sds description)
 {
     sds tmp_file = sdscatfmt(sdsempty(), "%s/webradios/%s.XXXXXX", config->workdir, name);
     errno = 0;
@@ -146,8 +147,9 @@ bool mympd_api_webradio_save(struct t_config *config, sds name, sds uri, sds uri
         "#HOMEPAGE:%s\n"
         "#COUNTRY:%s\n"
         "#LANGUAGE:%s\n"
+        "#DESCRIPTION:%s\n"
         "%s\n",
-        name, genre, name, picture, uuid, homepage, country, language, uri);
+        name, genre, name, picture, uuid, homepage, country, language, description, uri);
     fclose(fp);
     sds filename = sdsdup(uri);
     sds_sanitize_filename(filename);

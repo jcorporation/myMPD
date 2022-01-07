@@ -16,6 +16,11 @@
 #include <string.h>
 #include <unistd.h>
 
+//private definitions
+static const char *m3ufields_map(sds field);
+
+//public functions
+
 sds m3u_get_field(sds buffer, const char *field, const char *filename) {
     errno = 0;
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
@@ -61,6 +66,7 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
         return buffer;
     }
     int line_count = 0;
+    sds field = sdsempty();
     while (sds_getline(&line, fp, 1000) == 0) {
         if (line[0] == '\0') {
             //skip blank lines
@@ -71,18 +77,23 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
         }
         if (line[0] != '#') {
             //stream uri
-            buffer = tojson_char(buffer, "streamUri", line, false);
+            buffer = tojson_char(buffer, "StreamUri", line, false);
             continue;
         }
-        buffer = sdscatlen(buffer, "\"", 1);
+        //skip # char
         int i = 1;
+        sdsclear(field);
         while (line[i] != '\0' &&
                line[i] != ':')
         {
-            buffer = sds_catjsonchar(buffer, line[i]);
+            field = sds_catjsonchar(field, line[i]);
             i++;
         }
-        buffer = sdscatlen(buffer, "\":\"", 3);
+        const char *key = m3ufields_map(field);
+        if (key[0] == '\0') {
+            key = field;
+        }
+        buffer = sdscatfmt(buffer, "\"%s\":\"", key);
         i++;
         while (line[i] != '\0') {
             buffer = sds_catjsonchar(buffer, line[i]);
@@ -94,6 +105,20 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
         buffer = sdscatlen(buffer, "\"", 1);
     }
     FREE_SDS(line);
+    FREE_SDS(field);
     fclose(fp);
     return buffer;
+}
+
+//private functions
+
+static const char *m3ufields_map(sds field) {
+    if (strcmp(field, "EXTGENRE") == 0)         { return "Genre"; }
+    if (strcmp(field, "EXTIMG") == 0)           { return "Image"; }
+    if (strcmp(field, "HOMEPAGE") == 0)         { return "Homepage"; }
+    if (strcmp(field, "COUNTRY") == 0)          { return "Country"; }
+    if (strcmp(field, "LANGUAGE") == 0)         { return "Language"; }
+    if (strcmp(field, "DESCRIPTION") == 0)      { return "Description"; }
+    if (strcmp(field, "PLAYLIST") == 0)         { return "Name"; }
+    return "";
 }

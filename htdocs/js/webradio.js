@@ -34,13 +34,15 @@ function initWebradio() {
         if (event.target.nodeName === 'TD') {
             const uri = getData(event.target.parentNode, 'uri');
             if (settings.webuiSettings.clickRadiobrowser === 'add') {
-                const name = getData(event.target.parentNode, 'name');
-                const genre = getData(event.target.parentNode, 'genre');
-                const image = getData(event.target.parentNode, 'image');
-                showEditRadioFavorite(name, genre, image, uri);
+                showEditRadioFavorite({
+                    "Name": getData(event.target.parentNode, 'name'),
+                    "Genre": getData(event.target.parentNode, 'genre'),
+                    "Image": getData(event.target.parentNode, 'image'),
+                    "StreamUri": uri
+                });
             }
             else {
-                clickRadiobrowser(uri, getData(event.target.parentNode, 'uuid'));
+                clickRadiobrowser(uri, getData(event.target.parentNode, 'RADIOBROWSERUUID'));
             }
         }
         else if (event.target.nodeName === 'A') {
@@ -66,15 +68,15 @@ function initWebradio() {
         }
     }, false);
 
-    document.getElementById('selectWebradiodbGenre').addEventListener('change', function(event) {
+    document.getElementById('selectWebradiodbGenre').addEventListener('change', function() {
         doSearchWebradioDB();
     }, false);
 
-    document.getElementById('selectWebradiodbCountry').addEventListener('change', function(event) {
+    document.getElementById('selectWebradiodbCountry').addEventListener('change', function() {
         doSearchWebradioDB();
     }, false);
 
-    document.getElementById('selectWebradiodbLanguage').addEventListener('change', function(event) {
+    document.getElementById('selectWebradiodbLanguage').addEventListener('change', function() {
         doSearchWebradioDB();
     }, false);
 
@@ -82,10 +84,12 @@ function initWebradio() {
         if (event.target.nodeName === 'TD') {
             const uri = getData(event.target.parentNode, 'uri');
             if (settings.webuiSettings.clickRadiobrowser === 'add') {
-                const name = getData(event.target.parentNode, 'name');
-                const genre = getData(event.target.parentNode, 'genre');
-                const image = getData(event.target.parentNode, 'image');
-                showEditRadioFavorite(name, genre, image, uri);
+                showEditRadioFavorite({
+                    "Name": getData(event.target.parentNode, 'name'),
+                    "Genre": getData(event.target.parentNode, 'genre'),
+                    "Image": getData(event.target.parentNode, 'image'),
+                    "StreamUri": uri
+                });
             }
             else {
                 clickWebradiodb(uri);
@@ -171,26 +175,25 @@ function editRadioFavorite(filename) {
     sendAPI("MYMPD_API_WEBRADIO_FAVORITE_GET", {
         "filename": filename
     }, function(obj) {
-        showEditRadioFavorite(obj.result.PLAYLIST, obj.result.EXTGENRE,
-            obj.result.EXTIMG, obj.result.streamUri, obj.result.HOMEPAGE,
-            obj.result.COUNTRY, obj.result.LANGUAGE, obj.result.RADIOBROWSERUUID);
+        showEditRadioFavorite(obj.result);
     }, false);
 }
 
-function showEditRadioFavorite(name, genre, image, streamUri, homepage, country, language, uuid) {
+function showEditRadioFavorite(obj) {
     cleanupModalId('modalSaveRadioFavorite');
-    document.getElementById('editRadioFavoriteName').value = name;
-    document.getElementById('editRadioFavoriteStreamUri').value = streamUri;
-    document.getElementById('editRadioFavoriteStreamUriOld').value = streamUri;
-    document.getElementById('editRadioFavoriteGenre').value = genre;
-    document.getElementById('editRadioFavoriteHomepage').value = homepage;
-    document.getElementById('editRadioFavoriteCountry').value = country;
-    document.getElementById('editRadioFavoriteLanguage').value = language;
-    document.getElementById('editRadioFavoriteUUID').value = uuid === undefined ? '' : uuid;
+    document.getElementById('editRadioFavoriteName').value = obj.Name;
+    document.getElementById('editRadioFavoriteStreamUri').value = obj.StreamUri;
+    document.getElementById('editRadioFavoriteStreamUriOld').value = obj.StreamUri;
+    document.getElementById('editRadioFavoriteGenre').value = obj.Genre === undefined ? '' : obj.Genre;
+    document.getElementById('editRadioFavoriteHomepage').value = obj.Homepage === undefined ? '' : obj.Homepage;
+    document.getElementById('editRadioFavoriteCountry').value = obj.Country === undefined ? '' : obj.Country;
+    document.getElementById('editRadioFavoriteLanguage').value = obj.Language === undefined ? '' : obj.Language;
+    document.getElementById('editRadioFavoriteDescription').value = obj.Description === undefined ? '' : obj.Description;
+    document.getElementById('editRadioFavoriteRADIOBROWSERUUID').value = obj.RADIOBROWSERUUID === undefined ? '' : obj.RADIOBROWSERUUID;
 
     const imageEl = document.getElementById('editRadioFavoriteImage');
-    getImageList(imageEl.filterResult, image, [], 'streams');
-    imageEl.value = image;
+    getImageList(imageEl.filterResult, obj.Image, [], 'streams');
+    imageEl.value = obj.Image;
 
     uiElements.modalSaveRadioFavorite.show();
 }
@@ -198,7 +201,7 @@ function showEditRadioFavorite(name, genre, image, streamUri, homepage, country,
 //eslint-disable-next-line no-unused-vars
 function saveRadioFavorite() {
     cleanupModalId('modalSaveRadioFavorite');
-    const uuid = document.getElementById('editRadioFavoriteUUID').value;
+    const uuid = document.getElementById('editRadioFavoriteRADIOBROWSERUUID').value;
     sendAPI("MYMPD_API_WEBRADIO_FAVORITE_SAVE", {
         "name": document.getElementById('editRadioFavoriteName').value,
         "streamUri": document.getElementById('editRadioFavoriteStreamUri').value,
@@ -208,7 +211,8 @@ function saveRadioFavorite() {
         "homepage": document.getElementById('editRadioFavoriteHomepage').value,
         "country": document.getElementById('editRadioFavoriteCountry').value,
         "language": document.getElementById('editRadioFavoriteLanguage').value,
-        "uuid": uuid
+        "description": document.getElementById('editRadioFavoriteDescription').value,
+        "RADIOBROWSERUUID": uuid
     }, saveRadioFavoriteClose, true);
     countClickRadiobrowser(uuid);
 }
@@ -265,21 +269,27 @@ function parseRadioFavoritesList(obj) {
         const card = elCreateNodes('div', {"data-popover": "webradio", "class": ["card", "card-grid", "clickable"], "tabindex": 0}, [
             elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id, "title": rowTitle}),
             elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "p-2"]}, [
-                document.createTextNode(obj.result.data[i].PLAYLIST),
+                document.createTextNode(obj.result.data[i].Name),
                 elCreateEmpty('br', {}),
-                elCreateText('small', {}, obj.result.data[i].EXTGENRE),
+                elCreateText('small', {}, obj.result.data[i].Genre),
                 elCreateEmpty('br', {}),
-                elCreateText('small', {}, obj.result.data[i].COUNTRY +
-                    smallSpace + nDash + smallSpace + obj.result.data[i].LANGUAGE)
+                elCreateText('small', {}, obj.result.data[i].Country +
+                    smallSpace + nDash + smallSpace + obj.result.data[i].Language)
             ])
         ]);
-        const image = isHttpUri(obj.result.data[i].EXTIMG) === true ?
-            obj.result.data[i].EXTIMG :
-            subdir + '/browse/pics/streams/' + obj.result.data[i].EXTIMG;
+        let image;
+        if (obj.result.data[i].Image === '') {
+            image = subdir + '/assets/coverimage-stream.svg';
+        }
+        else {
+            image = isHttpUri(obj.result.data[i].Image) === true ?
+                obj.result.data[i].Image :
+                subdir + '/browse/pics/streams/' + obj.result.data[i].Image;
+        }
         setData(card, 'image', image);
         setData(card, 'uri', obj.result.data[i].filename);
-        setData(card, 'name', obj.result.data[i].PLAYLIST);
-        setData(card, 'uuid', obj.result.data[i].RADIOBROWSERUUID === undefined ? '' : obj.result.data[i].RADIOBROWSERUUID);
+        setData(card, 'name', obj.result.data[i].Name);
+        setData(card, 'RADIOBROWSERUUID', obj.result.data[i].RADIOBROWSERUUID === undefined ? '' : obj.result.data[i].RADIOBROWSERUUID);
         setData(card, 'type', 'webradio');
 
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
@@ -323,11 +333,6 @@ function getWebradiodb() {
 }
 
 function doSearchWebradioDB() {
-    if (webradioDb === null) {
-        setTimeout(function() {
-            dosearchWebradioDB()
-        }, 1000);
-    }
     const searchstr = document.getElementById('BrowseRadioWebradiodbSearchStr').value;
     const genre = getSelectValueId('selectWebradiodbGenre');
     const country = getSelectValueId('selectWebradiodbCountry');
@@ -351,10 +356,10 @@ function searchWebradioDB(name, genre, country, language, sort, offset, limit) {
     }
 
 	for (const key in webradioDb.webradios) {
-		if (webradioDb.webradios[key].PLAYLIST.toLowerCase().indexOf(name) > -1 &&
-			(genre === ''    || webradioDb.webradios[key].EXTGENRE.includes(genre)) &&
-			(country === ''  || country === webradioDb.webradios[key].COUNTRY) &&
-			(language === '' || language === webradioDb.webradios[key].LANGUAGE)
+		if (webradioDb.webradios[key].Name.toLowerCase().indexOf(name) > -1 &&
+			(genre === ''    || webradioDb.webradios[key].Genre.includes(genre)) &&
+			(country === ''  || country === webradioDb.webradios[key].Country) &&
+			(language === '' || language === webradioDb.webradios[key].Language)
 		) {
 			obj.result.data.push(webradioDb.webradios[key]);
 			obj.result.totalEntities++;
@@ -392,13 +397,14 @@ function parseSearchWebradioDB(obj) {
     const rowTitle = tn(webuiSettingsDefault.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
 
     updateTable(obj, 'BrowseRadioWebradiodb', function(row, data) {
-        setData(row, 'uri', data.streamUri);
-        setData(row, 'name', data.PLAYLIST);
-        setData(row, 'genre', data.EXTGENRE);
-        setData(row, 'image', webradioDbUri + data.EXTIMG);
-        setData(row, 'homepage', data.HOMEPAGE);
-        setData(row, 'country', data.COUNTRY);
-        setData(row, 'language', data.LANGUAGE);
+        setData(row, 'uri', data.StreamUri);
+        setData(row, 'name', data.Name);
+        setData(row, 'genre', data.Genre);
+        setData(row, 'image', webradioDbUri + data.Image);
+        setData(row, 'homepage', data.Homepage);
+        setData(row, 'country', data.Country);
+        setData(row, 'language', data.Language);
+        setData(row, 'description', data.Description);
         setData(row, 'type', 'stream');
         row.setAttribute('title', rowTitle);
     });
@@ -414,17 +420,18 @@ function parseSearchWebradioDB(obj) {
 }
 
 function streamUriToName(uri) {
-    return uri.replace(/[<>\/.:?&$!#\|]/g, '_');
+    return uri.replace(/[<>/.:?&$!#|]/g, '_');
 }
 
+//eslint-disable-next-line no-unused-vars
 function showWebradiodbDetails(uri) {
     const tbody = document.getElementById('modalRadiobrowserDetailsList');
     elClearId('modalRadiobrowserDetailsList');
-    const m3u = streamUriToName(uri) + '.m3u';
+    const m3u = isStreamUri(uri) ? streamUriToName(uri) + '.m3u' : uri;
     const result = webradioDb.webradios[m3u];
-    if (result.EXTIMG !== '') {
+    if (result.Image !== '') {
         document.getElementById('RadiobrowserDetailsImage').style.backgroundImage =
-            'url("' + myEncodeURIhost(webradioDbUri + result.EXTIMG) + '")' +
+            'url("' + myEncodeURIhost(webradioDbUri + result.Image) + '")' +
             ', url("' + subdir + '/assets/coverimage-loading.svg")';
     }
     else {
@@ -432,19 +439,19 @@ function showWebradiodbDetails(uri) {
             'url("' + subdir + '/assets/coverimage-notavailable.svg")';
     }
     document.getElementById('RadiobrowserDetailsTitle').textContent = result.name;
-    const showFields = {
-        'streamUri': 'Stream uri',
-        'HOMEPAGE': 'Homepage',
-        'EXTGENRE': 'Genre',
-        'COUNTRY': 'Country',
-        'LANGUAGE': 'Language',
-        'DESCRIPTION': 'Description'
-    };
-    for (const field in showFields) {
+    const showFields = [
+        'StreamUri',
+        'Homepage',
+        'Genre',
+        'Country',
+        'Language',
+        'Description'
+    ];
+    for (const field of showFields) {
         const value = printValue(field, result[field]);
         tbody.appendChild(
             elCreateNodes('tr', {}, [
-                elCreateText('th', {}, tn(showFields[field])),
+                elCreateText('th', {}, tn(field)),
                 elCreateNode('td', {}, value)
             ])
         );
@@ -494,7 +501,7 @@ function parseRadiobrowserDetails(obj) {
     }
     document.getElementById('RadiobrowserDetailsTitle').textContent = result.name;
     const showFields = {
-        'url_resolved': 'Stream url',
+        'url_resolved': 'StreamUri',
         'homepage': 'Homepage',
         'tags': 'Tags',
         'country': 'Country',
@@ -531,7 +538,7 @@ function parseRadiobrowserList(obj) {
         setData(row, 'homepage', data.homepage);
         setData(row, 'country', data.country);
         setData(row, 'language', data.language);
-        setData(row, 'uuid', data.stationuuid);
+        setData(row, 'RADIOBROWSERUUID', data.stationuuid);
         setData(row, 'type', 'stream');
         row.setAttribute('title', rowTitle);
     });
