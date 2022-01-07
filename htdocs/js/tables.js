@@ -90,14 +90,7 @@ function dragAndDropTable(table) {
 }
 
 function dragAndDropTableHeader(table) {
-    let tableHeader;
-    if (document.getElementById(table + 'List')) {
-        tableHeader = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
-    }
-    else {
-        tableHeader = table.getElementsByTagName('tr')[0];
-        table = 'BrowseDatabase';
-    }
+    const tableHeader = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
 
     tableHeader.addEventListener('dragstart', function(event) {
         if (event.target.nodeName === 'TH') {

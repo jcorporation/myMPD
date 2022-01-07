@@ -699,15 +699,23 @@ function appInit() {
     initOutputs();
     initWebradio();
     //init drag and drop
-    dragAndDropTable('QueueCurrentList');
-    dragAndDropTable('BrowsePlaylistsDetailList');
-    dragAndDropTableHeader('QueueCurrent');
-    dragAndDropTableHeader('QueueLastPlayed');
-    dragAndDropTableHeader('QueueJukebox');
-    dragAndDropTableHeader('Search');
-    dragAndDropTableHeader('BrowseFilesystem');
-    dragAndDropTableHeader('BrowsePlaylistsDetail');
-    dragAndDropTableHeader('BrowseDatabaseDetail');
+    for (const table of ['QueueCurrentList', 'BrowsePlaylistsDetailList']) {
+        dragAndDropTable(table);
+    }
+    const dndTableHeader = [
+        'QueueCurrent',
+        'QueueLastPlayed',
+        'QueueJukebox',
+        'Search',
+        'BrowseFilesystem',
+        'BrowsePlaylistsDetail',
+        'BrowseDatabaseDetail',
+        'BrowseRadioWebradiodb',
+        'BrowseRadioRadiobrowser'
+    ];
+    for (const table of dndTableHeader) {
+        dragAndDropTableHeader(table);
+    }
     //init custom elements
     initElements(domCache.body);
     //update state on window focus - browser pauses javascript
