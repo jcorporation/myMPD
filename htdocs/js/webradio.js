@@ -433,7 +433,7 @@ function showWebradiodbDetails(uri) {
     }
     document.getElementById('RadiobrowserDetailsTitle').textContent = result.name;
     const showFields = {
-        'streamUri': 'Stream url',
+        'streamUri': 'Stream uri',
         'HOMEPAGE': 'Homepage',
         'EXTGENRE': 'Genre',
         'COUNTRY': 'Country',

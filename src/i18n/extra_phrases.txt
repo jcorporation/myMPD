@@ -146,3 +146,5 @@ Show
 View
 Add to favorites
 Delete webradio favorite
+Description
+Stream uri

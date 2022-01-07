@@ -2004,9 +2004,6 @@ Land
 Tags
 Tags
 
-Station
-Station
-
 Webradios
 Webradios
 
@@ -2037,7 +2034,7 @@ Verbindung zu radio-browser.info fehlgeschlagen
 Manually add webradio favorite
 Webradio Favorit manuell hinzufügen
 
-Search radio-browser.info
+Browse radio-browser.info
 Suche auf radio-browser.info
 
 Type or select picture
@@ -2069,3 +2066,18 @@ Fehlerhafte Antwort von radio-browser.info
 
 Language
 Sprache
+
+Description
+Beschreibung
+
+Browse WebradioDB
+Suche in der WebradioDB
+
+Empty response from webradiodb backend
+Leere Antwort vom WebradioDB Backend
+
+Loading...
+Lade...
+
+Stream uri
+Stream URL
