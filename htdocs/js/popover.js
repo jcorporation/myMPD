@@ -383,7 +383,7 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
         addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "addSongToHome", "options": [uri, type, name]}, 'Add to homescreen');
     }
-    if (app.id === 'BrowseRadioRadioBrowser' &&
+    if (app.id === 'BrowseRadioRadiobrowser' &&
         dataNode !== null)
     {
         const genre = getData(dataNode, 'genre');
@@ -393,10 +393,10 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
         const language = getData(dataNode, 'language');
         const uuid = getData(dataNode, 'uuid');
         addDivider(tabContent);
-        addMenuItem(tabContent, {"cmd": "showRadioBrowserDetails", "options": [uuid]}, 'Webradio details');
+        addMenuItem(tabContent, {"cmd": "showRadiobrowserDetails", "options": [uuid]}, 'Webradio details');
         addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [name, genre, image, uri, homepage, country, language, uuid]}, 'Add to favorites');
     }
-    if (app.id === 'BrowseRadioWebradioDb' &&
+    if (app.id === 'BrowseRadioWebradiodb' &&
         dataNode !== null)
     {
         const genre = getData(dataNode, 'genre');
@@ -405,7 +405,7 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
         const country = getData(dataNode, 'country');
         const language = getData(dataNode, 'language');
         addDivider(tabContent);
-        addMenuItem(tabContent, {"cmd": "showWebradioDbDetails", "options": [uri]}, 'Webradio details');
+        addMenuItem(tabContent, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
         addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [name, genre, image, uri, homepage, country, language, '']}, 'Add to favorites');
     }
     if (app.id === 'QueueCurrent' &&
@@ -415,7 +415,7 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
         const webradioUri = getData(dataNode, 'webradioUri');
         addDivider(tabContent);
         if (webradioUuid !== '') {
-            addMenuItem(tabContent, {"cmd": "showRadioBrowserDetails", "options": [webradioUuid]}, 'Webradio details');
+            addMenuItem(tabContent, {"cmd": "showRadiobrowserDetails", "options": [webradioUuid]}, 'Webradio details');
         }
         addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [webradioUri]}, 'Edit webradio favorite');
     }
@@ -480,7 +480,7 @@ function addMenuItemsWebradioFavoritesActions(tabContent, dataNode) {
     addMenuItemsPlaylistActions(tabContent, dataNode, type, plistUri, name);
     addDivider(tabContent);
     if (uuid !== '') {
-        addMenuItem(tabContent, {"cmd": "showRadioBrowserDetails", "options": [uuid]}, 'Webradio details');
+        addMenuItem(tabContent, {"cmd": "showRadiobrowserDetails", "options": [uuid]}, 'Webradio details');
     }
     addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
     addMenuItem(tabContent, {"cmd": "deleteRadioFavorite", "options": [uri]}, 'Delete webradio favorite');
@@ -530,8 +530,8 @@ function createMenuLists(el, tabHeader, tabContent) {
     switch(app.id) {
         case 'BrowseFilesystem':
         case 'Search':
-        case 'BrowseRadioRadioBrowser':
-        case 'BrowseRadioWebradioDb':
+        case 'BrowseRadioRadiobrowser':
+        case 'BrowseRadioWebradiodb':
         case 'BrowseDatabaseDetail': {
             switch(type) {
                 case 'song':
