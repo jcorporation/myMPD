@@ -230,7 +230,8 @@ set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format
 set_property(SOURCE dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-shadow -Wno-format-nonliteral \
   -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers")
 #compiler flags for sds
-set_property(SOURCE dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-shadow -Wno-format-nonliteral")
+#-Wno-stringop-overflow: gcc 11.2.0 bug
+set_property(SOURCE dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-shadow -Wno-format-nonliteral -Wno-stringop-overflow")
 
 #set source files
 set(MYMPD_SOURCES
