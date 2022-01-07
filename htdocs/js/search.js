@@ -71,15 +71,10 @@ function initSearch() {
     }, false);
 
     document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
-        if (features.featAdvsearch === false ||
-            event.target.nodeName !== 'TH' ||
-            event.target.textContent === '')
-        {
-            return;
-        }
         const colName = event.target.getAttribute('data-col');
         if (colName === 'Duration' ||
-            colName.indexOf('sticker') === 0)
+            colName.indexOf('sticker') === 0 ||
+            features.featAdvsearch === false)
         {
             return;
         }

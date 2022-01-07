@@ -185,8 +185,8 @@ function editRadioFavorite(filename) {
 
 function showEditRadioFavorite(obj) {
     cleanupModalId('modalSaveRadioFavorite');
-    document.getElementById('editRadioFavoriteName').value = obj.Name;
-    document.getElementById('editRadioFavoriteStreamUri').value = obj.StreamUri;
+    document.getElementById('editRadioFavoriteName').value = obj.Name === undefined ? '' : obj.Name;
+    document.getElementById('editRadioFavoriteStreamUri').value = obj.StreamUri === undefined ? '' : obj.StreamUri;
     document.getElementById('editRadioFavoriteStreamUriOld').value = obj.StreamUri;
     document.getElementById('editRadioFavoriteGenre').value = obj.Genre === undefined ? '' : obj.Genre;
     document.getElementById('editRadioFavoriteHomepage').value = obj.Homepage === undefined ? '' : obj.Homepage;
@@ -197,7 +197,7 @@ function showEditRadioFavorite(obj) {
 
     const imageEl = document.getElementById('editRadioFavoriteImage');
     getImageList(imageEl.filterResult, obj.Image, [], 'streams');
-    imageEl.value = obj.Image;
+    imageEl.value = obj.Image === undefined ? '' : obj.Image;
 
     uiElements.modalSaveRadioFavorite.show();
 }
@@ -219,6 +219,21 @@ function saveRadioFavorite() {
         "RADIOBROWSERUUID": uuid
     }, saveRadioFavoriteClose, true);
     countClickRadiobrowser(uuid);
+}
+
+//eslint-disable-next-line no-unused-vars
+function addToWebradioDb() {
+    const uri = 'https://github.com/jcorporation/webradiodb/issues/new??labels=labels=AddWebradio&template=add-webradio.yml' +
+        '&title=' + encodeURIComponent('[Add Webradio]: ' + document.getElementById('editRadioFavoriteName').value) +
+        '&name=' + encodeURIComponent(document.getElementById('editRadioFavoriteName').value) +
+        '&streamuri=' + encodeURIComponent(document.getElementById('editRadioFavoriteStreamUri').value) +
+        '&genre=' + encodeURIComponent(document.getElementById('editRadioFavoriteGenre').value) +
+        '&homepage=' + encodeURIComponent(document.getElementById('editRadioFavoriteHomepage').value) +
+        '&image=' + encodeURIComponent(document.getElementById('editRadioFavoriteImage').value) +
+        '&country=' + encodeURIComponent(document.getElementById('editRadioFavoriteCountry').value) +
+        '&language=' + encodeURIComponent(document.getElementById('editRadioFavoriteLanguage').value) +
+        '&description=' + encodeURIComponent(document.getElementById('editRadioFavoriteDescription').value);
+    window.open(uri, '_blank');
 }
 
 function saveRadioFavoriteClose(obj) {

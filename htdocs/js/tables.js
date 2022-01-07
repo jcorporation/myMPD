@@ -359,6 +359,12 @@ function saveColsPlayback(table) {
 }
 
 function toggleSort(th, colName) {
+    if (th.nodeName !== 'TH' ||
+        th.textContent === '')
+    {
+        return;
+    }
+
     if (app.current.sort.tag === colName) {
         app.current.sort.desc = app.current.sort.desc === false ? true : false;
     }
