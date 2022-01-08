@@ -3,12 +3,6 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-const radiobrowserTags = [
-    {'key': 'name', 'desc': 'Name'},
-    {'key': 'country', 'desc': 'Country'},
-    {'key': 'tag', 'desc': 'Tags'}
-];
-
 function initWebradio() {
     document.getElementById('BrowseRadioRadiobrowserSearchStr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
