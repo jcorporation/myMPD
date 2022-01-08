@@ -1650,6 +1650,11 @@ const APImethods = {
                 "example": "http://swr1.de",
                 "desc": "Webradio homepage"
             },
+            "description": {
+                "type": "string",
+                "example": "Short description",
+                "desc": "Short description"
+            },
             "RADIOBROWSERUUID": APIparams.radiobrowserUUID
         }
     },
@@ -1691,7 +1696,21 @@ const APImethods = {
         "params": {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
-            "filter": APIparams.filter,
+            "tags": {
+                "type": "string",
+                "example": "pop",
+                "desc": "Tag to filter"
+            },
+            "country": {
+                "type": "string",
+                "example": "Germany",
+                "desc": "Country to filter"
+            },
+            "language": {
+                "type": "string",
+                "example": "German",
+                "desc": "Language to filter"
+            },
             "searchstr": APIparams.searchstr
         }
     },

@@ -25,16 +25,19 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
 {
     long offset;
     long limit;
-    sds filter = NULL;
+    sds tags = NULL;
+    sds country = NULL;
+    sds language = NULL;
     sds searchstr = NULL;
+    sds uuid = NULL;
     sds error = sdsempty();
     sds uri = sdsempty();
     const char *cmd = get_cmd_id_method_name(cmd_id);
 
     switch(cmd_id) {
         case MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT:
-            if (json_get_string(body, "$.params.uuid", 0, FILEPATH_LEN_MAX, &filter, vcb_isalnum, &error) == true) {
-                uri = sdscatprintf(uri, "/json/url/%s", filter);
+            if (json_get_string(body, "$.params.uuid", 0, FILEPATH_LEN_MAX, &uuid, vcb_isalnum, &error) == true) {
+                uri = sdscatprintf(uri, "/json/url/%s", uuid);
             }
             break;
         case MYMPD_API_CLOUD_RADIOBROWSER_NEWEST:
@@ -47,12 +50,14 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
         case MYMPD_API_CLOUD_RADIOBROWSER_SEARCH:
             if (json_get_long(body, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &offset, &error) == true &&
                 json_get_long(body, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &limit, &error) == true &&
-                json_get_string(body, "$.params.filter", 1, NAME_LEN_MAX, &filter, vcb_isprint, &error) == true &&
+                json_get_string(body, "$.params.tags", 0, NAME_LEN_MAX, &tags, vcb_isname, &error) == true &&
+                json_get_string(body, "$.params.country", 0, NAME_LEN_MAX, &country, vcb_isname, &error) == true &&
+                json_get_string(body, "$.params.language", 0, NAME_LEN_MAX, &language, vcb_isname, &error) == true &&
                 json_get_string(body, "$.params.searchstr", 0, NAME_LEN_MAX, &searchstr, vcb_isname, &error) == true)
             {
                 sds searchstr_encoded = sds_urlencode(sdsempty(), searchstr, sdslen(searchstr));
-                uri = sdscatprintf(uri, "/json/stations/search?hidebroken=true&offset=%ld&limit=%ld&%s=%s",
-                    offset, limit, filter, searchstr_encoded);
+                uri = sdscatprintf(uri, "/json/stations/search?hidebroken=true&offset=%ld&limit=%ld&name=%s&tag=%s&country=%s&language=%s",
+                    offset, limit, searchstr_encoded, tags, country, language);
                 FREE_SDS(searchstr_encoded);
             }
             break;
@@ -60,8 +65,8 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
             uri = sdscat(uri, "/json/servers");
             break;
         case MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL:
-            if (json_get_string(body, "$.params.uuid", 0, FILEPATH_LEN_MAX, &filter, vcb_isalnum, &error) == true) {
-                uri = sdscatprintf(uri, "/json/stations/byuuid?uuids=%s", filter);
+            if (json_get_string(body, "$.params.uuid", 0, FILEPATH_LEN_MAX, &uuid, vcb_isalnum, &error) == true) {
+                uri = sdscatprintf(uri, "/json/stations/byuuid?uuids=%s", uuid);
             }
             break;
         default:
@@ -84,8 +89,11 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
             FREE_SDS(response);
         }
     }
-    FREE_SDS(filter);
+    FREE_SDS(tags);
+    FREE_SDS(country);
+    FREE_SDS(language);
     FREE_SDS(searchstr);
+    FREE_SDS(uuid);
     FREE_SDS(error);
     FREE_SDS(uri);
 }

@@ -183,9 +183,9 @@ app.cards = {
                         "offset": 0,
                         "limit": 100,
                         "filter": {
-                            "genre":"",
-                            "country":"",
-                            "language":""
+                            "genre": "",
+                            "country": "",
+                            "language": ""
                         },
                         "sort": {
                             "tag": "Name",
@@ -198,7 +198,12 @@ app.cards = {
                     "Radiobrowser": {
                         "offset": 0,
                         "limit": 100,
-                        "filter": "name",
+                        "filter": {
+                            "tags": "",
+                            "genre": "",
+                            "country": "",
+                            "language": ""
+                        },
                         "sort": "-",
                         "tag": "-",
                         "search": "",

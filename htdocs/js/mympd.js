@@ -138,7 +138,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 app.current.view = typeof jsonHash.view === 'string' ? jsonHash.view : undefined;
                 app.current.offset = typeof jsonHash.offset === 'number' ? jsonHash.offset : '';
                 app.current.limit = typeof jsonHash.limit === 'number' ? jsonHash.limit : '';
-                app.current.filter = isArrayOrString(jsonHash.filter) ? jsonHash.filter : '';
+                app.current.filter = jsonHash.filter;
                 app.current.sort = jsonHash.sort;
                 app.current.tag = isArrayOrString(jsonHash.tag) ? jsonHash.tag : '';
                 app.current.search = isArrayOrString(jsonHash.search) ? jsonHash.search : '';
@@ -400,7 +400,9 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'BrowseRadioRadiobrowser': {
-            selectTag('BrowseRadioRadiobrowserTagsBtn', 'BrowseRadioRadiobrowserTagsDesc', app.current.filter);
+            document.getElementById('inputRadiobrowserTags').value = app.current.filter.tags;
+            document.getElementById('inputRadiobrowserCountry').value = app.current.filter.country;
+            document.getElementById('inputRadiobrowserLanguage').value = app.current.filter.language;
             if (app.current.search === '') {
                 sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_NEWEST", {
                     "offset": app.current.offset,
@@ -411,7 +413,9 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_SEARCH", {
                     "offset": app.current.offset,
                     "limit": app.current.limit,
-                    "filter": app.current.filter,
+                    "tags": app.current.filter.tags,
+                    "country": app.current.filter.country,
+                    "language": app.current.filter.language,
                     "searchstr": app.current.search
                 }, parseRadiobrowserList, true);
             }

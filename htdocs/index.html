@@ -483,8 +483,7 @@
         <div class="btn-toolbar card-toolbar" id="BrowseFilesystemButtons">
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" id="BrowseNavFilesystem" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">layers</span></button>
-            <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavFilesystemDropdown">
-            </div>
+            <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavFilesystemDropdown"></div>
           </div>
           <form class="flex-grow-1">
             <div class="input-group me-2">
@@ -574,16 +573,21 @@
               <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
               <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="BrowseRadioWebradiodbSearchStr"/>
             </div>
-            <div class="input-group me-2">
-              <select id="selectWebradiodbGenre" class="form-select firstGrey">
-                <option value="" data-phrase="Genre"></option>
-              </select>
-              <select id="selectWebradiodbCountry" class="form-select">
-                <option value="" data-phrase="Country"></option>
-              </select>
-              <select id="selectWebradiodbLanguage" class="form-select">
-                <option value="" data-phrase="Language"></option>
-              </select>
+            <div class="btn-group me-2">
+              <button id="BrowseRadioWebradiodbFilterBtn" data-title-phrase="Filter" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">filter_list_off</span></button>
+              <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide" id="BrowseRadioWebradiodbFilter">
+                <div class="d-grid gap-2">
+                  <select id="selectWebradiodbGenre" class="form-select">
+                    <option value="" data-phrase="Genre"></option>
+                  </select>
+                  <select id="selectWebradiodbCountry" class="form-select">
+                    <option value="" data-phrase="Country"></option>
+                  </select>
+                  <select id="selectWebradiodbLanguage" class="form-select">
+                    <option value="" data-phrase="Language"></option>
+                  </select>
+                </div>
+              </div>
             </div>
             <div class="btn-group me-2 featHome" id="BrowseRadioWebradiodbAddToHome">
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
@@ -611,15 +615,20 @@
             <div class="btn-group me-2">
               <button data-title-phrase="Webradio favorites" data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "Favorites"]}' type="button" class="btn btn-secondary"><span class="mi">favorite</span></button>
             </div>
-            <div class="input-group me-2 flex-grow-1">
-              <div class="btn-group">
-                <button  id="BrowseRadioRadiobrowserTagsBtn" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
-                  <span class="mi">search</span>
-                  <span data-phrase="Name" id="BrowseRadioRadiobrowserTagsDesc"></span>
-                </button>
-                <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseRadioRadiobrowserTags"></div>
-              </div>
+            <div class="input-group flex-grow-1 me-2">
+              <span class="input-group-text border-secondary bg-secondary"><span class="mi">search</span></span>
               <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="BrowseRadioRadiobrowserSearchStr"/>
+            </div>
+            <div class="btn-group me-2">
+              <button id="BrowseRadioRadiobrowserFilterBtn" data-title-phrase="Filter" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">filter_list_off</span></button>
+              <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide" id="BrowseRadioRadiobrowserFilter">
+                <div class="d-grid gap-2">
+                  <input data-placeholder-phrase="Tags" id="inputRadiobrowserTags" class="form-control"/>
+                  <input data-placeholder-phrase="Country" id="inputRadiobrowserCountry" class="form-control"/>
+                  <input data-placeholder-phrase="Language" id="inputRadiobrowserLanguage" class="form-control"/>
+                  <button class="btn btn-success" data-href='{"cmd": "searchRadiobrowser", "options": []}' data-phrase="Apply"></button>
+                </div>
+              </div>
             </div>
             <div class="btn-group me-2 featHome" id="BrowseRadioRadiobrowserAddToHome">
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>

@@ -10,20 +10,12 @@ const radiobrowserTags = [
 ];
 
 function initWebradio() {
-    const stack = elCreateEmpty('div', {"class": ["d-grid", "gap-2"]});
-    for (const tag of radiobrowserTags) {
-        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": tag.key}, tn(tag.desc)));
-    }
-    stack.firstElementChild.classList.add('active');
-    document.getElementById('BrowseRadioRadiobrowserTags').appendChild(stack);
-
     document.getElementById('BrowseRadioRadiobrowserSearchStr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
             this.blur();
         }
         else if (event.key === 'Enter') {
-            appGoto(app.current.card, app.current.tab, app.current.view,
-                0, app.current.limit, app.current.filter, '-', '-', this.value);
+            searchRadiobrowser();
         }
     }, false);
 
@@ -47,15 +39,6 @@ function initWebradio() {
         }
     }, false);
 
-    document.getElementById('BrowseRadioRadiobrowserTags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON') {
-            document.getElementById('BrowseRadioRadiobrowserTagsBtn').Dropdown.hide();
-            app.current.filter = getData(event.target, 'tag');
-            appGoto(app.current.card, app.current.tab, app.current.view,
-                0, app.current.limit, app.current.filter, '-', '-', this.value);
-        }
-    }, false);
-
     document.getElementById('BrowseRadioWebradiodbSearchStr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
             this.blur();
@@ -63,6 +46,10 @@ function initWebradio() {
         else {
             doSearchWebradioDB();
         }
+    }, false);
+
+    document.getElementById('BrowseRadioWebradiodbFilter').addEventListener('click', function(event) {
+        event.stopPropagation();
     }, false);
 
     document.getElementById('selectWebradiodbGenre').addEventListener('change', function() {
@@ -419,6 +406,16 @@ function parseSearchWebradioDB(obj) {
     const tfoot = table.getElementsByTagName('tfoot')[0];
     elClear(tfoot);
 
+    if (app.current.filter.genre === '' &&
+        app.current.filter.country === '' &&
+        app.current.filter.language === '')
+    {
+        document.getElementById('BrowseRadioWebradiodbFilterBtn').firstElementChild.textContent = 'filter_list_off';
+    }
+    else {
+        document.getElementById('BrowseRadioWebradiodbFilterBtn').firstElementChild.textContent = 'filter_list';
+    }
+
     if (checkResultId(obj, 'BrowseRadioWebradiodbList') === false) {
         return;
     }
@@ -498,6 +495,14 @@ function countClickRadiobrowser(uuid) {
     }
 }
 
+function searchRadiobrowser() {
+    app.current.filter.tags = document.getElementById('inputRadiobrowserTags').value;
+    app.current.filter.country = document.getElementById('inputRadiobrowserCountry').value;
+    app.current.filter.language = document.getElementById('inputRadiobrowserLanguage').value;
+    appGoto(app.current.card, app.current.tab, app.current.view,
+        0, app.current.limit, app.current.filter, '-', '-', document.getElementById('BrowseRadioRadiobrowserSearchStr').value);
+}
+
 //eslint-disable-next-line no-unused-vars
 function showRadiobrowserDetails(uuid) {
     sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL", {
@@ -552,6 +557,16 @@ function parseRadiobrowserDetails(obj) {
 }
 
 function parseRadiobrowserList(obj) {
+    if (app.current.filter.tags === '' &&
+        app.current.filter.country === '' &&
+        app.current.filter.language === '')
+    {
+        document.getElementById('BrowseRadioRadiobrowserFilterBtn').firstElementChild.textContent = 'filter_list_off';
+    }
+    else {
+        document.getElementById('BrowseRadioRadiobrowserFilterBtn').firstElementChild.textContent = 'filter_list';
+    }
+
     if (checkResultId(obj, 'BrowseRadioRadiobrowserList') === false) {
         return;
     }
