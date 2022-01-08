@@ -227,10 +227,10 @@ endif()
 #compiler flags for mongoose
 set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral")
 #compiler flags for rax
-set_property(SOURCE dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-shadow -Wno-format-nonliteral \
-  -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers")
+set_property(SOURCE dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral \
+  -Wno-shadow -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers")
 #compiler flags for sds
-set_property(SOURCE dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-shadow -Wno-format-nonliteral")
+set_property(SOURCE dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral")
 
 #set source files
 set(MYMPD_SOURCES
