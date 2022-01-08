@@ -199,6 +199,16 @@ function showEditRadioFavorite(obj) {
     getImageList(imageEl.filterResult, obj.Image, [], 'streams');
     imageEl.value = obj.Image === undefined ? '' : obj.Image;
 
+    const webradio = streamUriToName(obj.StreamUri) + '.m3u';
+    if (webradioDb !== null && 
+        webradioDb.webradios[webradio] === undefined)
+    {
+        elShowId('btnAddToWebradiodb');
+    }
+    else {
+        elHideId('btnAddToWebradiodb');
+    }
+
     uiElements.modalSaveRadioFavorite.show();
 }
 
