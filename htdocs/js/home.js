@@ -241,10 +241,15 @@ function parseHome(obj) {
         const card = elCreateEmpty('div', {"data-popover": "home", "class": ["card", "home-icons"], "draggable": "true",
             "title": tn(homeType) + ':' + smallSpace + obj.result.data[i].name +
             '\n' + tn(actionType)});
-        if (obj.result.data[i].options[0] === 'album'){
-            //AlbumArtist must be an array
-            obj.result.data[i].options[1] = JSON.parse(obj.result.data[i].options[1]);
+        //decode json options
+        for (let j = 0, k = obj.result.data[i].options.length; j < k; j++) {
+            if (obj.result.data[i].options[j].indexOf('{"') === 0 ||
+                obj.result.data[i].options[j].indexOf('["') === 0)
+            {
+                obj.result.data[i].options[j] = JSON.parse(obj.result.data[i].options[j]);
+            }
         }
+
         setData(card, 'href', {"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
         setData(card, 'pos', i);
         const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded", "clickable"]}, obj.result.data[i].ligature);
@@ -648,6 +653,9 @@ function showHomeIconCmdOptions(values) {
             if (value === '' &&
                 oldOptions[i] !== undefined) {
                 value = oldOptions[i];
+            }
+            if (typeof value === 'object') {
+                value = JSON.stringify(value);
             }
             const row = elCreateNodes('div', {"class": ["mb-3", "row"]}, [
                 elCreateText('label', {"class": ["col-sm-4"]}, tn(options.options[i])),
