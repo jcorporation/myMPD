@@ -24,7 +24,7 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - MPD output attributes
 - Browse mpd database by tags (gridview)
 - Browse filesystem
-- Webradios
+- Webradios: [Webradiodb](https://jcorporation.github.io/webradiodb/) and [RadioBrowser](https://www.radio-browser.info/)
 - Queue management
 - Playlist management
 - Advanced search
