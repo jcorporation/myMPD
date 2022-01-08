@@ -699,6 +699,12 @@ function focusSearch() {
         case 'BrowsePlaylistsDetail':
             document.getElementById('searchPlaylistsDetailStr').focus();
             break;
+        case 'BrowseRadioWebradiodb':
+            document.getElementById('BrowseRadioWebradiodbSearchStr').focus();
+            break;
+        case 'BrowseRadioRadiobrowser':
+            document.getElementById('BrowseRadioRadiobrowserSearchStr').focus();
+            break;
         case 'Search':
             document.getElementById('searchstr').focus();
             break;
