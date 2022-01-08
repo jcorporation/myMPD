@@ -563,7 +563,8 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('selectHomeIconCmd').value = obj.result.data.cmd;
         showHomeIconCmdOptions(obj.result.data.options);
         getHomeIconPictureList(obj.result.data.image);
-        document.getElementById('inputHomeIconImage').value = obj.result.data.image;
+        document.getElementById('inputHomeIconImage').value = obj.result.data.image === '' ? tn('Use ligature') : obj.result.data.image;
+        setData(document.getElementById('inputHomeIconImage'),'value', obj.result.data.image);
 
         document.getElementById('homeIconPreview').textContent = obj.result.data.ligature;
         document.getElementById('homeIconPreview').style.backgroundColor = obj.result.data.bgcolor;
@@ -604,7 +605,7 @@ function saveHomeIcon() {
         for (const optionEl of optionEls) {
             options.push(optionEl.value);
         }
-        const image = document.getElementById('inputHomeIconImage').value;
+        const image = getData(document.getElementById('inputHomeIconImage'), 'value');
         sendAPI("MYMPD_API_HOME_ICON_SAVE", {
             "replace": strToBool(document.getElementById('inputHomeIconReplace').value),
             "oldpos": Number(document.getElementById('inputHomeIconOldpos').value),
@@ -670,7 +671,7 @@ function showHomeIconCmdOptions(values) {
 
 function getHomeIconPictureList(picture) {
     const selectHomeIconImage = document.getElementById('inputHomeIconImage').filterResult;
-    getImageList(selectHomeIconImage, picture, [{"value": "", "text": "Use ligature"}], 'homeicons');
+    getImageList(selectHomeIconImage, picture, [{"value": "", "text": tn('Use ligature')}], 'homeicons');
 }
 
 //eslint-disable-next-line no-unused-vars
