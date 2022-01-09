@@ -574,19 +574,17 @@
               <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="BrowseRadioWebradiodbSearchStr"/>
             </div>
             <div class="btn-group me-2">
-              <button id="BrowseRadioWebradiodbFilterBtn" data-title-phrase="Filter" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">filter_list_off</span></button>
-              <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide" id="BrowseRadioWebradiodbFilter">
-                <div class="d-grid gap-2">
-                  <select id="selectWebradiodbGenre" class="form-select">
-                    <option value="" data-phrase="Genre"></option>
-                  </select>
-                  <select id="selectWebradiodbCountry" class="form-select">
-                    <option value="" data-phrase="Country"></option>
-                  </select>
-                  <select id="selectWebradiodbLanguage" class="form-select">
-                    <option value="" data-phrase="Language"></option>
-                  </select>
-                </div>
+              <button id="BrowseRadioWebradiodbFilterBtn" data-title-phrase="Filter" class="btn btn-secondary rounded-end" type="button" data-bs-target="#BrowseRadioWebradiodbFilter" data-bs-toggle="collapse"><span class="mi">filter_list_off</span></button>
+            </div>
+            <div class="collapse btn-group2" id="BrowseRadioWebradiodbFilter">
+              <div class="btn-group position-relative me-2">
+                <input readonly="readonly" data-is="mympd-select-search" id="filterWebradiodbGenre" class="form-select" data-placeholder-phrase="Genre"/>
+              </div>
+              <div class="btn-group position-relative me-2">
+                <input readonly="readonly" data-is="mympd-select-search" id="filterWebradiodbCountry" class="form-select" data-placeholder-phrase="Country"/>
+              </div>
+              <div class="btn-group position-relative me-2">
+                <input readonly="readonly" data-is="mympd-select-search" id="filterWebradiodbLanguage" class="form-select" data-placeholder-phrase="Language"/>
               </div>
             </div>
             <div class="btn-group me-2 featHome" id="BrowseRadioWebradiodbAddToHome">
@@ -620,14 +618,12 @@
               <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" type="text" class="form-control rounded-end" id="BrowseRadioRadiobrowserSearchStr"/>
             </div>
             <div class="btn-group me-2">
-              <button id="BrowseRadioRadiobrowserFilterBtn" data-title-phrase="Filter" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="mi">filter_list_off</span></button>
-              <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide" id="BrowseRadioRadiobrowserFilter">
-                <div class="d-grid gap-2">
-                  <input data-placeholder-phrase="Tags" id="inputRadiobrowserTags" class="form-control"/>
-                  <input data-placeholder-phrase="Country" id="inputRadiobrowserCountry" class="form-control"/>
-                  <input data-placeholder-phrase="Language" id="inputRadiobrowserLanguage" class="form-control"/>
-                  <button class="btn btn-success" data-href='{"cmd": "searchRadiobrowser", "options": []}' data-phrase="Apply"></button>
-                </div>
+              <button id="BrowseRadioRadiobrowserFilterBtn" data-title-phrase="Filter" class="btn btn-secondary rounded-end" type="button" data-bs-target="#BrowseRadioRadiobrowserFilter" data-bs-toggle="collapse"><span class="mi">filter_list_off</span></button>
+              <div class="collapse input-group ms-2" id="BrowseRadioRadiobrowserFilter">
+                <input data-placeholder-phrase="Tags" id="inputRadiobrowserTags" class="form-control me-2 rounded"/>
+                <input data-placeholder-phrase="Country" id="inputRadiobrowserCountry" class="form-control me-2 rounded"/>
+                <input data-placeholder-phrase="Language" id="inputRadiobrowserLanguage" class="form-control me-2 rounded"/>
+                <button class="btn btn-success rounded" data-href='{"cmd": "searchRadiobrowser", "options": []}'><span class="mi">done</span></button>
               </div>
             </div>
             <div class="btn-group me-2 featHome" id="BrowseRadioRadiobrowserAddToHome">

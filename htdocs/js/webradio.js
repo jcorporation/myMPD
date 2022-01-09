@@ -13,6 +13,14 @@ function initWebradio() {
         }
     }, false);
 
+    document.getElementById('BrowseRadioRadiobrowserFilter').addEventListener('show.bs.collapse', function() {
+        document.getElementById('BrowseRadioRadiobrowserFilterBtn').classList.add('active');
+    }, false);
+
+    document.getElementById('BrowseRadioRadiobrowserFilter').addEventListener('hide.bs.collapse', function() {
+        document.getElementById('BrowseRadioRadiobrowserFilterBtn').classList.remove('active');
+    }, false);
+
     document.getElementById('BrowseRadioRadiobrowserList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             const uri = getData(event.target.parentNode, 'uri');
@@ -42,21 +50,29 @@ function initWebradio() {
         }
     }, false);
 
-    document.getElementById('BrowseRadioWebradiodbFilter').addEventListener('click', function(event) {
-        event.stopPropagation();
+    document.getElementById('BrowseRadioWebradiodbFilter').addEventListener('show.bs.collapse', function() {
+        document.getElementById('BrowseRadioWebradiodbFilterBtn').classList.add('active');
     }, false);
 
-    document.getElementById('selectWebradiodbGenre').addEventListener('change', function() {
-        doSearchWebradioDB();
+    document.getElementById('BrowseRadioWebradiodbFilter').addEventListener('hide.bs.collapse', function() {
+        document.getElementById('BrowseRadioWebradiodbFilterBtn').classList.remove('active');
     }, false);
 
-    document.getElementById('selectWebradiodbCountry').addEventListener('change', function() {
+    document.getElementById('filterWebradiodbGenre').addEventListener('change', function() {
         doSearchWebradioDB();
     }, false);
-
-    document.getElementById('selectWebradiodbLanguage').addEventListener('change', function() {
+    setDataId('filterWebradiodbGenre', 'cb-filter', ["filterWebradiodbFilter"]);
+    setDataId('filterWebradiodbGenre', 'cb-filter-options', ["filterWebradiodbGenre"]);
+    document.getElementById('filterWebradiodbCountry').addEventListener('change', function() {
         doSearchWebradioDB();
     }, false);
+    setDataId('filterWebradiodbCountry', 'cb-filter', ["filterWebradiodbFilter"]);
+    setDataId('filterWebradiodbCountry', 'cb-filter-options', ["filterWebradiodbCountry"]);
+    document.getElementById('filterWebradiodbLanguage').addEventListener('change', function() {
+        doSearchWebradioDB();
+    }, false);
+    setDataId('filterWebradiodbLanguage', 'cb-filter', ["filterWebradiodbFilter"]);
+    setDataId('filterWebradiodbLanguage', 'cb-filter-options', ["filterWebradiodbLanguage"]);
 
     document.getElementById('BrowseRadioWebradiodbList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
         const colName = event.target.getAttribute('data-col');
@@ -336,17 +352,31 @@ function parseRadioFavoritesList(obj) {
 function getWebradiodb() {
     sendAPI("MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET", {}, function(obj) {
         webradioDb = obj.result.data;
-        populateSelectId('selectWebradiodbGenre', webradioDb.webradioGenres, '');
-        populateSelectId('selectWebradiodbCountry', webradioDb.webradioCountries, '');
-        populateSelectId('selectWebradiodbLanguage', webradioDb.webradioLanguages, '');
+        populateSelect(document.getElementById('filterWebradiodbGenre').filterResult, webradioDb.webradioGenres, '');
+        populateSelect(document.getElementById('filterWebradiodbCountry').filterResult, webradioDb.webradioCountries, '');
+        populateSelect(document.getElementById('filterWebradiodbLanguage').filterResult, webradioDb.webradioLanguages, '');
     }, false);
+}
+
+function filterWebradiodbFilter(id, value) {
+    value = value.toLowerCase();
+    const el = document.getElementById(id);
+    const options = el.filterResult.options;
+    for (let i = 0, j = options.length; i < j; i++) {
+        if (options[i].value.toLowerCase().indexOf(value) > -1) {
+            elShow(options[i]);
+        }
+        else {
+            elHide(options[i]);
+        }
+    }
 }
 
 function doSearchWebradioDB() {
     const searchstr = document.getElementById('BrowseRadioWebradiodbSearchStr').value;
-    const genre = getSelectValueId('selectWebradiodbGenre');
-    const country = getSelectValueId('selectWebradiodbCountry');
-    const language = getSelectValueId('selectWebradiodbLanguage');
+    const genre = getDataId('filterWebradiodbGenre', 'value');
+    const country = getDataId('filterWebradiodbCountry', 'value');
+    const language = getDataId('filterWebradiodbLanguage', 'value');
     appGoto('Browse', 'Radio', 'Webradiodb',
         0, app.current.limit, {"genre": genre, "country": country, "language": language},
         app.current.sort, undefined, searchstr, 0);

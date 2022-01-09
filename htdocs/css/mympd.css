@@ -1164,3 +1164,9 @@ div.alert-danger {
 input.innerButton {
   padding-right: calc(1.5em + 0.75rem);
 }
+
+.btn-group2 {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+}
