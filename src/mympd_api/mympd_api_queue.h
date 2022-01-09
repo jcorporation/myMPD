@@ -12,7 +12,7 @@
 bool mympd_api_queue_play_newly_inserted(struct t_mympd_state *mympd_state);
 sds mympd_api_queue_status(struct t_mympd_state *mympd_state, sds buffer);
 sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                         unsigned offset, unsigned limit, const struct t_tags *tagcols);
+                         long offset, long limit, const struct t_tags *tagcols);
 sds mympd_api_queue_crop(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, bool or_clear);
 sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                             const char *mpdtagtype, const unsigned offset, const unsigned limit,
