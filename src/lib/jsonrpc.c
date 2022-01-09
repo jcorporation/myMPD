@@ -82,7 +82,7 @@ sds jsonrpc_notify_start(sds buffer, const char *method) {
 
 sds jsonrpc_result_start(sds buffer, const char *method, long id) {
     sdsclear(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"result\":{", id);
+    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%I,\"result\":{", id);
     buffer = tojson_char(buffer, "method", method, true);
     return buffer;
 }
@@ -105,7 +105,7 @@ sds jsonrpc_respond_message_phrase(sds buffer, const char *method, long id, bool
                             const char *facility, const char *severity, const char *message, int count, ...)
 {
     sdsclear(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"%s\":{",
+    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%I,\"%s\":{",
         id, (error == true ? "error" : "result"));
     buffer = tojson_char(buffer, "method", method, true);
     buffer = tojson_char(buffer, "facility", facility, true);
@@ -146,6 +146,10 @@ sds tojson_char(sds buffer, const char *key, const char *value, bool comma) {
     return tojson_char_len(buffer, key, value, len, comma);
 }
 
+sds tojson_sds(sds buffer, const char *key, sds value, bool comma) {
+    return tojson_char_len(buffer, key, value, sdslen(value), comma);
+}
+
 sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":", key);
     if (value != NULL) {
@@ -169,7 +173,7 @@ sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
 }
 
 sds tojson_long(sds buffer, const char *key, long long value, bool comma) {
-    buffer = sdscatprintf(buffer, "\"%s\":%lld", key, value);
+    buffer = sdscatfmt(buffer, "\"%s\":%I", key, value);
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
     }
@@ -177,7 +181,7 @@ sds tojson_long(sds buffer, const char *key, long long value, bool comma) {
 }
 
 sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma) {
-    buffer = sdscatprintf(buffer, "\"%s\":%lu", key, value);
+    buffer = sdscatfmt(buffer, "\"%s\":%U", key, value);
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
     }

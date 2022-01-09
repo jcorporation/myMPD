@@ -31,6 +31,7 @@ sds jsonrpc_respond_message(sds buffer, const char *method, long id,
 sds jsonrpc_respond_message_phrase(sds buffer, const char *method, long id,
         bool error, const char *facility, const char *severity, const char *message, int count, ...);
 sds tojson_raw(sds buffer, const char *key, const char *value, bool comma);
+sds tojson_sds(sds buffer, const char *key, sds value, bool comma);
 sds tojson_char(sds buffer, const char *key, const char *value, bool comma);
 sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, bool comma);
 sds tojson_bool(sds buffer, const char *key, bool value, bool comma);
