@@ -180,11 +180,25 @@ function editRadioFavorite(filename) {
     }, false);
 }
 
+//eslint-disable-next-line no-unused-vars
+function manualAddRadioFavorite() {
+    showEditRadioFavorite({
+        "Name": "",
+        "StreamUri": "",
+        "Genre": "",
+        "Homepage": "",
+        "Country": "",
+        "Language": "",
+        "Description": "",
+        "RADIOBROWSERUUID": ""
+    });
+}
+
 function showEditRadioFavorite(obj) {
     cleanupModalId('modalSaveRadioFavorite');
     document.getElementById('editRadioFavoriteName').value = obj.Name === undefined ? '' : obj.Name;
     document.getElementById('editRadioFavoriteStreamUri').value = obj.StreamUri === undefined ? '' : obj.StreamUri;
-    document.getElementById('editRadioFavoriteStreamUriOld').value = obj.StreamUri;
+    document.getElementById('editRadioFavoriteStreamUriOld').value = obj.StreamUri === undefined ? '' : obj.StreamUri
     document.getElementById('editRadioFavoriteGenre').value = obj.Genre === undefined ? '' : obj.Genre;
     document.getElementById('editRadioFavoriteHomepage').value = obj.Homepage === undefined ? '' : obj.Homepage;
     document.getElementById('editRadioFavoriteCountry').value = obj.Country === undefined ? '' : obj.Country;
@@ -196,11 +210,15 @@ function showEditRadioFavorite(obj) {
     getImageList(imageEl.filterResult, obj.Image, [], 'streams');
     imageEl.value = obj.Image === undefined ? '' : obj.Image;
 
-    const webradio = streamUriToName(obj.StreamUri) + '.m3u';
-    if (webradioDb !== null && 
-        webradioDb.webradios[webradio] === undefined)
+    if (obj.StreamUri !== undefined && 
+        obj.StreamUri !== '')
     {
-        elShowId('btnAddToWebradiodb');
+        const webradio = streamUriToName(obj.StreamUri) + '.m3u';
+        if (webradioDb !== null && 
+            webradioDb.webradios[webradio] === undefined)
+        {
+            elShowId('btnAddToWebradiodb');
+        }
     }
     else {
         elHideId('btnAddToWebradiodb');
