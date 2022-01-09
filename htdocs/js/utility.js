@@ -1489,19 +1489,3 @@ function getParent(el, nodeName) {
     }
     return target;
 }
-
-function populateSelectId(id, options, selectedValue) {
-    populateSelect(document.getElementById(id), options, selectedValue);
-}
-
-function populateSelect(el, options, selectedValue) {
-	for (const value of options) {
-		const opt = document.createElement('option');
-		opt.text = tn(value);
-		opt.value = value;
-        if (value === selectedValue) {
-            opt.setAttribute('selected', 'selected');
-        }
-		el.appendChild(opt);
-	}
-}
