@@ -34,18 +34,24 @@ void sds_utf8_tolower(sds s) {
 }
 
 sds sds_catjson(sds s, const char *p, size_t len) {
+    /* To avoid continuous reallocations, let's start with a buffer that
+     * can hold at least stringlength + 10 chars. */
+    s = sdsMakeRoomFor(s, len + 10);
+
     s = sdscatlen(s, "\"", 1);
-    for (size_t i = 0; i < len; i++) {
-            s = sds_catjsonchar(s, p[i]);
+    while (len--) {
+        s = sds_catjsonchar(s, *p);
+        p++;
     }
     return sdscatlen(s, "\"", 1);
 }
+
 
 sds sds_catjsonchar(sds s, const char p) {
     switch(p) {
         case '\\':
         case '"':
-            s = sdscatprintf(s, "\\%c", p);
+            s = sdscatfmt(s, "\\%c", p);
             break;
         case '\b': s = sdscatlen(s, "\\b", 2); break;
         case '\f': s = sdscatlen(s, "\\f", 2); break;
@@ -58,7 +64,7 @@ sds sds_catjsonchar(sds s, const char p) {
             //this escapes are not accepted in the unescape function
             break;
         default:
-            s = sdscatprintf(s, "%c", p);
+            s = sdscatfmt(s, "%c", p);
             break;
     }
     return s;
