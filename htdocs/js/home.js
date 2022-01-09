@@ -151,7 +151,8 @@ function selectHomeIconLigature(x) {
     document.getElementById('inputHomeIconLigature').value = x.getAttribute('title');
     document.getElementById('homeIconPreview').textContent = x.getAttribute('title');
     document.getElementById('homeIconPreview').style.backgroundImage = '';
-    document.getElementById('inputHomeIconImage').value = '';
+    document.getElementById('inputHomeIconImage').value = tn('Use ligature');
+    setData(document.getElementById('inputHomeIconImage'), 'value', '');
 }
 
 function filterHomeIconLigatures() {
