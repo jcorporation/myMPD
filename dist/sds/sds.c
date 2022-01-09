@@ -606,6 +606,7 @@ sds sdscatprintf(sds s, const char *fmt, ...) {
  * However this function only handles an incompatible subset of printf-alike
  * format specifiers:
  *
+ * %c - char
  * %s - C String
  * %S - SDS string
  * %i - signed int
@@ -911,7 +912,7 @@ sds sdscatrepr(sds s, const char *p, size_t len) {
         switch(*p) {
         case '\\':
         case '"':
-            s = sdscatprintf(s,"\\%c",*p);
+            s = sdscatfmt(s,"\\%c",*p);
             break;
         case '\n': s = sdscatlen(s,"\\n",2); break;
         case '\r': s = sdscatlen(s,"\\r",2); break;
@@ -920,7 +921,7 @@ sds sdscatrepr(sds s, const char *p, size_t len) {
         case '\b': s = sdscatlen(s,"\\b",2); break;
         default:
             if (isprint(*p))
-                s = sdscatprintf(s,"%c",*p);
+                s = sdscatfmt(s,"%c",*p);
             else
                 s = sdscatprintf(s,"\\x%02x",(unsigned char)*p);
             break;
