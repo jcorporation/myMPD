@@ -73,7 +73,7 @@ sds webserver_find_image_file(sds basefilename) {
     const char **p = image_file_extensions;
     sds testfilename = sdsempty();
     while (*p != NULL) {
-        testfilename = sdscatfmt(testfilename, "%s.%s", basefilename, *p);
+        testfilename = sdscatfmt(testfilename, "%S.%s", basefilename, *p);
         if (access(testfilename, F_OK) == 0) { /* Flawfinder: ignore */
             break;
         }
@@ -148,7 +148,7 @@ void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_messag
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
 
-    sds asset_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, name);
+    sds asset_image = sdscatfmt(sdsempty(), "%S/pics/%s", config->workdir, name);
     asset_image = webserver_find_image_file(asset_image);
     if (sdslen(asset_image) > 0) {
         const char *mime_type = get_mime_type_by_ext(asset_image);
@@ -242,7 +242,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         return true;
     }
     else {
-        sds errormsg = sdscatfmt(sdsempty(), "Embedded asset \"%s\" not found", uri_decoded);
+        sds errormsg = sdscatfmt(sdsempty(), "Embedded asset \"%S\" not found", uri_decoded);
         webserver_send_error(nc, 404, errormsg);
         FREE_SDS(errormsg);
     }

@@ -38,7 +38,7 @@ sds get_dnsserver(void) {
                 //skip blank chars
             }
             for (z = p; *z != '\0' && (isdigit(*z) || *z == '.'); z++) {
-                nameserver = sdscatprintf(nameserver, "%c", *z);
+                nameserver = sdscatfmt(nameserver, "%c", *z);
             }
             struct sockaddr_in sa;
             if (inet_pton(AF_INET, nameserver, &(sa.sin_addr)) == 1) {
@@ -139,9 +139,10 @@ static void _http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_d
             if (hm->headers[i].name.len == 0) {
                 break;
             }
-            mg_client_response->header = sdscatprintf(mg_client_response->header, "%.*s: %.*s\n",
-                (int) hm->headers[i].name.len, hm->headers[i].name.ptr,
-                (int) hm->headers[i].value.len, hm->headers[i].value.ptr);
+            mg_client_response->header = sdscatlen(mg_client_response->header, hm->headers[i].name.ptr, hm->headers[i].name.len);
+            mg_client_response->header = sdscatlen(mg_client_response->header, ": ", 2);
+            mg_client_response->header = sdscatlen(mg_client_response->header, hm->headers[i].value.ptr, hm->headers[i].value.len);
+            mg_client_response->header = sdscatlen(mg_client_response->header, "\n", 1);
         }
         //response code line
         for (unsigned i = 0; i < hm->message.len; i++) {
@@ -149,7 +150,7 @@ static void _http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_d
                 break;
             }
             if (isprint(hm->message.ptr[i])) {
-                mg_client_response->response = sdscatprintf(mg_client_response->response,
+                mg_client_response->response = sdscatfmt(mg_client_response->response,
                     "%c", hm->message.ptr[i]);
             }
         }

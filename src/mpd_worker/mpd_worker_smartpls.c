@@ -356,17 +356,18 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
         return false;
     }
 
-    value_max -= timerange;
-    if (value_max <= 0) {
+    //prevent overflow
+    if ((unsigned long)timerange > value_max) {
         return false;
     }
+    value_max -= timerange;
 
     mpd_worker_smartpls_clear(mpd_worker_state, playlist);
 
     sds buffer = sdsempty();
     sds method = sdsempty();
     bool result = false;
-    sds searchstr = sdscatprintf(sdsempty(), "(modified-since '%lu')", value_max);
+    sds searchstr = sdscatfmt(sdsempty(), "(modified-since '%U')", value_max);
     buffer = mpd_shared_search_adv(mpd_worker_state->mpd_state, buffer, method, 0, searchstr, "LastModified", true, playlist, UINT_MAX, 0, 0, MPD_PLAYLIST_LENGTH_MAX, NULL, NULL, &result);
     FREE_SDS(searchstr);
     if (result == true) {

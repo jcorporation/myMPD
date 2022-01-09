@@ -155,9 +155,9 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
         }
     }
 
-    unsigned randnr = randrange(100000, 999999);
-    sds uri_tmp = sdscatprintf(sdsempty(), "%u-tmp-%s", randnr, uri);
-    sds uri_old = sdscatprintf(sdsempty(), "%u-old-%s", randnr, uri);
+    long randnr = randrange(100000, 999999);
+    sds uri_tmp = sdscatfmt(sdsempty(), "%I-tmp-%s", randnr, uri);
+    sds uri_old = sdscatfmt(sdsempty(), "%I-old-%s", randnr, uri);
 
     //add sorted/shuffled songs to a new playlist
     if (mpd_command_list_begin(mpd_state->conn, false) == true) {

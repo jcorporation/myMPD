@@ -21,10 +21,10 @@ sds camel_to_snake(sds text) {
     sds buffer = sdsempty();
     for (size_t i = 0; i < sdslen(text); i++) {
         if (isupper(text[i]) > 0) {
-            buffer = sdscatprintf(buffer, "_%c", tolower((unsigned char)text[i]));
+            buffer = sdscatfmt(buffer, "_%c", tolower((unsigned char)text[i]));
         }
         else {
-            buffer = sdscatprintf(buffer, "%c", text[i]);
+            buffer = sdscatfmt(buffer, "%c", text[i]);
         }
     }
     return buffer;

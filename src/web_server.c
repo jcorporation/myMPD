@@ -43,7 +43,7 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
 
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
-    mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%s/empty", config->workdir);
+    mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%S/empty", config->workdir);
     mg_user_data->music_directory = sdsempty();
     sds default_coverimagename = sdsnew("cover,folder");
     mg_user_data->coverimage_names= webserver_split_coverimage_names(default_coverimagename, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
@@ -69,7 +69,7 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
 
     //bind to http_port
     struct mg_connection *nc_http;
-    sds http_url = sdscatfmt(sdsempty(), "http://%s:%s", config->http_host, config->http_port);
+    sds http_url = sdscatfmt(sdsempty(), "http://%S:%S", config->http_host, config->http_port);
     #ifdef ENABLE_SSL
     if (config->ssl == true) {
         nc_http = mg_http_listen(mgr, http_url, ev_handler_redirect, NULL);
@@ -91,7 +91,7 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     //bind to ssl_port
     #ifdef ENABLE_SSL
     if (config->ssl == true) {
-        sds https_url = sdscatfmt(sdsempty(), "https://%s:%s", config->http_host, config->ssl_port);
+        sds https_url = sdscatfmt(sdsempty(), "https://%S:%S", config->http_host, config->ssl_port);
         struct mg_connection *nc_https = mg_http_listen(mgr, https_url, ev_handler, NULL);
         FREE_SDS(https_url);
         if (nc_https == NULL) {
@@ -173,12 +173,12 @@ static bool parse_internal_message(struct t_work_result *response, struct t_mg_u
         struct t_config *config = mg_user_data->config;
 
         sdsclear(mg_user_data->browse_directory);
-        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, "%s/empty", config->workdir);
-        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/pics=%s/pics", config->workdir);
-        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/smartplaylists=%s/smartpls", config->workdir);
-        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/webradios=%s/webradios", config->workdir);
+        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, "%S/empty", config->workdir);
+        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/pics=%S/pics", config->workdir);
+        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/smartplaylists=%S/smartpls", config->workdir);
+        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/webradios=%S/webradios", config->workdir);
         if (sdslen(new_mg_user_data->playlist_directory) > 0) {
-            mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/playlists=%s", new_mg_user_data->playlist_directory);
+            mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/playlists=%S", new_mg_user_data->playlist_directory);
             mg_user_data->publish_playlists = true;
         }
         else {
@@ -188,7 +188,7 @@ static bool parse_internal_message(struct t_work_result *response, struct t_mg_u
 
         if (sdslen(new_mg_user_data->music_directory) > 0)
         {
-            mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/music=%s", new_mg_user_data->music_directory);
+            mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/music=%S", new_mg_user_data->music_directory);
             mg_user_data->publish_music = true;
         }
         else {
@@ -207,7 +207,7 @@ static bool parse_internal_message(struct t_work_result *response, struct t_mg_u
 
         sdsclear(mg_user_data->stream_uri);
         if (new_mg_user_data->mpd_stream_port != 0) {
-            mg_user_data->stream_uri = sdscatprintf(mg_user_data->stream_uri, "http://%s:%u",
+            mg_user_data->stream_uri = sdscatfmt(mg_user_data->stream_uri, "http://%s:%u",
                 (strncmp(new_mg_user_data->mpd_host, "/", 1) == 0 ? "127.0.0.1" : new_mg_user_data->mpd_host),
                 new_mg_user_data->mpd_stream_port);
         }
@@ -456,7 +456,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             else if (mg_http_match_uri(hm, "/ca.crt")) {
                 if (config->custom_cert == false) {
                     //deliver ca certificate
-                    sds ca_file = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->workdir);
+                    sds ca_file = sdscatfmt(sdsempty(), "%S/ssl/ca.pem", config->workdir);
                     static struct mg_http_serve_opts s_http_server_opts;
                     s_http_server_opts.root_dir = mg_user_data->browse_directory;
                     s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
@@ -610,9 +610,9 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
             sds host_header = sdscatlen(sdsempty(), host_hdr->ptr, (int)host_hdr->len);
             int count = 0;
             sds *tokens = sdssplitlen(host_header, (ssize_t)sdslen(host_header), ":", 1, &count);
-            sds s_redirect = sdscatfmt(sdsempty(), "https://%s", tokens[0]);
+            sds s_redirect = sdscatfmt(sdsempty(), "https://%S", tokens[0]);
             if (strcmp(config->ssl_port, "443") != 0) {
-                s_redirect = sdscatfmt(s_redirect, ":%s", config->ssl_port);
+                s_redirect = sdscatfmt(s_redirect, ":%S", config->ssl_port);
             }
             MYMPD_LOG_INFO("Redirecting to %s", s_redirect);
             webserver_send_header_redirect(nc, s_redirect);

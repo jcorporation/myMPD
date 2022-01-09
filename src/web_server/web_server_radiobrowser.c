@@ -37,14 +37,14 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
     switch(cmd_id) {
         case MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT:
             if (json_get_string(body, "$.params.uuid", 0, FILEPATH_LEN_MAX, &uuid, vcb_isalnum, &error) == true) {
-                uri = sdscatprintf(uri, "/json/url/%s", uuid);
+                uri = sdscatfmt(uri, "/json/url/%S", uuid);
             }
             break;
         case MYMPD_API_CLOUD_RADIOBROWSER_NEWEST:
             if (json_get_long(body, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &offset, &error) == true &&
                 json_get_long(body, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &limit, &error) == true)
             {
-                uri = sdscatprintf(uri, "/json/stations/lastchange?hidebroken=true&offset=%ld&limit=%ld", offset, limit);
+                uri = sdscatfmt(uri, "/json/stations/lastchange?hidebroken=true&offset=%I&limit=%I", offset, limit);
             }
             break;
         case MYMPD_API_CLOUD_RADIOBROWSER_SEARCH:
@@ -56,7 +56,7 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
                 json_get_string(body, "$.params.searchstr", 0, NAME_LEN_MAX, &searchstr, vcb_isname, &error) == true)
             {
                 sds searchstr_encoded = sds_urlencode(sdsempty(), searchstr, sdslen(searchstr));
-                uri = sdscatprintf(uri, "/json/stations/search?hidebroken=true&offset=%ld&limit=%ld&name=%s&tag=%s&country=%s&language=%s",
+                uri = sdscatfmt(uri, "/json/stations/search?hidebroken=true&offset=%I&limit=%I&name=%S&tag=%S&country=%S&language=%S",
                     offset, limit, searchstr_encoded, tags, country, language);
                 FREE_SDS(searchstr_encoded);
             }
@@ -66,7 +66,7 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
             break;
         case MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL:
             if (json_get_string(body, "$.params.uuid", 0, FILEPATH_LEN_MAX, &uuid, vcb_isalnum, &error) == true) {
-                uri = sdscatprintf(uri, "/json/stations/byuuid?uuids=%s", uuid);
+                uri = sdscatfmt(uri, "/json/stations/byuuid?uuids=%S", uuid);
             }
             break;
         default:
@@ -104,7 +104,7 @@ static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *ba
         enum mympd_cmd_ids cmd_id, const char *request)
 {
     const char *host = RADIOBROWSER_HOST;
-    sds uri = sdscatprintf(sdsempty(), "https://%s%s", host, request);
+    sds uri = sdscatfmt(sdsempty(), "https://%s%s", host, request);
     backend_nc = create_http_backend_connection(nc, backend_nc, uri, radiobrowser_handler);
     sdsfree(uri);
     if (backend_nc != NULL) {

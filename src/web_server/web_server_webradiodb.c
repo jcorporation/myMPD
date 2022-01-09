@@ -37,7 +37,7 @@ void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
     switch(cmd_id) {
         case MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET:
             data = webradiodb_cache_check(config->cachedir, "webradiodb-combined.min.json");
-            uri = sdscatprintf(uri, "/webradiodb/db/index/webradiodb-combined.min.json");
+            uri = sdscat(uri, "/webradiodb/db/index/webradiodb-combined.min.json");
             break;
         default:
             error = sdscat(error, "Invalid API request");
@@ -76,7 +76,7 @@ void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
 //private functions
 
 static sds webradiodb_cache_check(sds cachedir, const char *cache_file) {
-    sds filepath = sdscatfmt(sdsempty(), "%s/webradiodb/%s", cachedir, cache_file);
+    sds filepath = sdscatfmt(sdsempty(), "%S/webradiodb/%s", cachedir, cache_file);
     struct stat status;
     if (stat(filepath, &status) == 0) {
         //cache it one day
@@ -109,7 +109,7 @@ static sds webradiodb_cache_check(sds cachedir, const char *cache_file) {
 }
 
 static bool webradiodb_cache_write(sds cachedir, const char *cache_file, const char *data, size_t data_len) {
-    sds filepath = sdscatfmt(sdsempty(), "%s/webradiodb/%s", cachedir, cache_file);
+    sds filepath = sdscatfmt(sdsempty(), "%S/webradiodb/%s", cachedir, cache_file);
     bool rc = write_data_to_file(filepath, data, data_len);
     sdsfree(filepath);
     return rc;
@@ -119,7 +119,7 @@ static bool webradiodb_send(struct mg_connection *nc, struct mg_connection *back
         enum mympd_cmd_ids cmd_id, const char *request)
 {
     const char *host = WEBRADIODB_HOST;
-    sds uri = sdscatprintf(sdsempty(), "https://%s%s", host, request);
+    sds uri = sdscatfmt(sdsempty(), "https://%s%s", host, request);
     backend_nc = create_http_backend_connection(nc, backend_nc, uri, webradiodb_handler);
     sdsfree(uri);
     if (backend_nc != NULL) {

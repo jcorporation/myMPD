@@ -41,12 +41,12 @@ bool pin_set(sds workdir) {
 
     printf("Enter pin: ");
     while ((c = getc(stdin)) != '\n') {
-        pin = sdscatprintf(pin, "%c", c);
+        pin = sdscatfmt(pin, "%c", c);
     }
 
     printf("\nRe-enter pin: ");
     while ((c = getc(stdin)) != '\n') {
-        pin2 = sdscatprintf(pin2, "%c", c);
+        pin2 = sdscatfmt(pin2, "%c", c);
     }
     tcsetattr(fileno(stdin), TCSAFLUSH, &old);
 

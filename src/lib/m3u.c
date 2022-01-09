@@ -98,7 +98,7 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
         while (line[i] != '\0') {
             buffer = sds_catjsonchar(buffer, line[i]);
             if (plname != NULL) {
-                *plname = sdscatprintf(*plname, "%c", line[i]);
+                *plname = sdscatfmt(*plname, "%c", line[i]);
             }
             i++;
         }

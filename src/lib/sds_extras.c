@@ -88,7 +88,7 @@ bool sds_json_unescape(const char *src, int slen, sds *dst) {
                 src += 4;
             }
             else if ((p = strchr(esc1, *src)) != NULL) {
-                *dst = sdscatprintf(*dst, "%c", esc2[p - esc1]);
+                *dst = sdscatfmt(*dst, "%c", esc2[p - esc1]);
             }
             else {
                 //other escapes are not accepted
@@ -96,7 +96,7 @@ bool sds_json_unescape(const char *src, int slen, sds *dst) {
             }
         }
         else {
-            *dst = sdscatprintf(*dst, "%c", *src);
+            *dst = sdscatfmt(*dst, "%c", *src);
         }
         src++;
     }
@@ -117,7 +117,7 @@ static bool is_url_safe(char c) {
 sds sds_urlencode(sds s, const char *p, size_t len) {
     for (size_t i = 0; i < len; i++) {
         if (is_url_safe(p[i])) {
-            s = sdscatprintf(s, "%c", p[i]);
+            s = sdscatfmt(s, "%c", p[i]);
         }
         else {
             s = sdscatprintf(s, "%%%hhX", p[i]);
@@ -139,7 +139,7 @@ sds sds_urldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
                 {
                     a = tolower(*(const unsigned char *) (p + 1));
                     b = tolower(*(const unsigned char *) (p + 2));
-                    s = sdscatprintf(s, "%c", (char) ((HEXTOI(a) << 4) | HEXTOI(b)));
+                    s = sdscatfmt(s, "%c", (char) ((HEXTOI(a) << 4) | HEXTOI(b)));
                     i += 2;
                     p += 2;
                 }
@@ -202,7 +202,7 @@ int sds_getline(sds *s, FILE *fp, size_t max) {
             return 0;
         }
         if (i < max) {
-            *s = sdscatprintf(*s, "%c", c);
+            *s = sdscatfmt(*s, "%c", c);
             i++;
         }
         else {
@@ -232,7 +232,7 @@ int sds_getfile(sds *s, FILE *fp, size_t max) {
             return -1;
         }
         if (i < max) {
-            *s = sdscatprintf(*s, "%c", c);
+            *s = sdscatfmt(*s, "%c", c);
             i++;
         }
         else {

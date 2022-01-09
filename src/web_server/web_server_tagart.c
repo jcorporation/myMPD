@@ -33,7 +33,7 @@ bool webserver_tagart_handler(struct mg_connection *nc, struct mg_http_message *
     MYMPD_LOG_DEBUG("Handle tagart for uri \"%s\"", uri_decoded);
     //create absolute file
     sdsrange(uri_decoded, 8, -1);
-    sds mediafile = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, uri_decoded);
+    sds mediafile = sdscatfmt(sdsempty(), "%S/pics/%S", config->workdir, uri_decoded);
     MYMPD_LOG_DEBUG("Absolut media_file: %s", mediafile);
     mediafile = webserver_find_image_file(mediafile);
     if (sdslen(mediafile) > 0) {
