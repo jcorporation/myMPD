@@ -342,10 +342,10 @@ static sds _mympd_api_get_queue_state(struct mpd_status *status, sds buffer) {
         playstate == MPD_STATE_PLAY ? "play" :
         playstate == MPD_STATE_PAUSE ? "pause" : "unknown";
     buffer = tojson_char(buffer, "state", playstate_str, true);
-    buffer = tojson_long(buffer, "queueLength", mpd_status_get_queue_length(status), true);
-    buffer = tojson_long(buffer, "queueVersion", mpd_status_get_queue_version(status), true);
-    buffer = tojson_long(buffer, "songPos", mpd_status_get_song_pos(status), true);
-    buffer = tojson_long(buffer, "nextSongPos", mpd_status_get_next_song_pos(status), false);
+    buffer = tojson_uint(buffer, "queueLength", mpd_status_get_queue_length(status), true);
+    buffer = tojson_uint(buffer, "queueVersion", mpd_status_get_queue_version(status), true);
+    buffer = tojson_int(buffer, "songPos", mpd_status_get_song_pos(status), true);
+    buffer = tojson_int(buffer, "nextSongPos", mpd_status_get_next_song_pos(status), false);
     buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
