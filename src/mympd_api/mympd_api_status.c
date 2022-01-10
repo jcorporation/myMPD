@@ -94,8 +94,8 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     mympd_state->mpd_state->queue_length = (long long) mpd_status_get_queue_length(status);
     mympd_state->mpd_state->crossfade = mpd_status_get_crossfade(status);
 
-    const unsigned total_time = mpd_status_get_total_time(status);
-    const unsigned elapsed_time = mympd_api_get_elapsed_seconds(status);
+    time_t total_time = (time_t)mpd_status_get_total_time(status);
+    time_t elapsed_time = (time_t)mympd_api_get_elapsed_seconds(status);
 
     time_t now = time(NULL);
     time_t uptime = now - mympd_state->config->startup_time;
