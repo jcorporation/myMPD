@@ -610,8 +610,10 @@ sds sdscatprintf(sds s, const char *fmt, ...) {
  * %s - C String
  * %S - SDS string
  * %i - signed int
+ * %l - signed long
  * %I - 64 bit signed integer (long long, int64_t)
  * %u - unsigned int
+ * %L - unsigned long
  * %U - 64 bit unsigned integer (unsigned long long, uint64_t)
  * %% - Verbatim "%" character.
  */
@@ -663,8 +665,11 @@ sds sdscatfmt(sds s, char const *fmt, ...) {
                 break;
             case 'i':
             case 'I':
+            case 'l':
                 if (next == 'i')
                     num = va_arg(ap,int);
+                else if (next == 'l')
+                    num = va_arg(ap,long);
                 else
                     num = va_arg(ap,long long);
                 {
@@ -680,8 +685,11 @@ sds sdscatfmt(sds s, char const *fmt, ...) {
                 break;
             case 'u':
             case 'U':
+            case 'L':
                 if (next == 'u')
                     unum = va_arg(ap,unsigned int);
+                else if (next == 'L')
+                    unum = va_arg(ap,unsigned long);
                 else
                     unum = va_arg(ap,unsigned long long);
                 {
