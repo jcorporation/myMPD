@@ -163,7 +163,7 @@ sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buff
                 obj = mympd_api_get_last_played_obj(mympd_state, obj, entity_count, value, data, searchstr, tagcols);
                 if (sdslen(obj) > 0) {
                     entity_count++;
-                    if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
+                    if (entity_count > offset && entity_count <= real_limit) {
                         if (entities_returned++) {
                             buffer = sdscatlen(buffer, ",", 1);
                         }
