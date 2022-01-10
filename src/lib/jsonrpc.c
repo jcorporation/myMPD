@@ -82,7 +82,7 @@ sds jsonrpc_notify_start(sds buffer, const char *method) {
 
 sds jsonrpc_result_start(sds buffer, const char *method, long id) {
     sdsclear(buffer);
-    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%I,\"result\":{", id);
+    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%l,\"result\":{", id);
     buffer = tojson_char(buffer, "method", method, true);
     return buffer;
 }
@@ -105,7 +105,7 @@ sds jsonrpc_respond_message_phrase(sds buffer, const char *method, long id, bool
                             const char *facility, const char *severity, const char *message, int count, ...)
 {
     sdsclear(buffer);
-    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%I,\"%s\":{",
+    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%l,\"%s\":{",
         id, (error == true ? "error" : "result"));
     buffer = tojson_char(buffer, "method", method, true);
     buffer = tojson_char(buffer, "facility", facility, true);
@@ -172,7 +172,31 @@ sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
     return buffer;
 }
 
-sds tojson_long(sds buffer, const char *key, long long value, bool comma) {
+sds tojson_int(sds buffer, const char *key, int value, bool comma) {
+    buffer = sdscatfmt(buffer, "\"%s\":%i", key, value);
+    if (comma) {
+        buffer = sdscatlen(buffer, ",", 1);
+    }
+    return buffer;
+}
+
+sds tojson_uint(sds buffer, const char *key, unsigned value, bool comma) {
+    buffer = sdscatfmt(buffer, "\"%s\":%u", key, value);
+    if (comma) {
+        buffer = sdscatlen(buffer, ",", 1);
+    }
+    return buffer;
+}
+
+sds tojson_long(sds buffer, const char *key, long value, bool comma) {
+    buffer = sdscatfmt(buffer, "\"%s\":%l", key, value);
+    if (comma) {
+        buffer = sdscatlen(buffer, ",", 1);
+    }
+    return buffer;
+}
+
+sds tojson_llong(sds buffer, const char *key, long long value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%I", key, value);
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
@@ -181,6 +205,14 @@ sds tojson_long(sds buffer, const char *key, long long value, bool comma) {
 }
 
 sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma) {
+    buffer = sdscatfmt(buffer, "\"%s\":%L", key, value);
+    if (comma) {
+        buffer = sdscatlen(buffer, ",", 1);
+    }
+    return buffer;
+}
+
+sds tojson_ullong(sds buffer, const char *key, unsigned long long value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%U", key, value);
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
