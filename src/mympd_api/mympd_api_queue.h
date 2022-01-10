@@ -15,7 +15,7 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
                          long offset, long limit, const struct t_tags *tagcols);
 sds mympd_api_queue_crop(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, bool or_clear);
 sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                            const char *mpdtagtype, const unsigned offset, const unsigned limit,
+                            const char *mpdtagtype, const long offset, const long limit,
                             const char *searchstr, const struct t_tags *tagcols);
 bool mympd_api_queue_replace_with_song(struct t_mympd_state *mympd_state, const char *uri);
 bool mympd_api_queue_replace_with_playlist(struct t_mympd_state *mympd_state, const char *plist);

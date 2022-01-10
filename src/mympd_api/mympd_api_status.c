@@ -22,7 +22,7 @@
 //private definitions
 static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
 static int _mympd_api_get_volume(struct t_mympd_state *mympd_state);
-static unsigned get_current_song_start_time(struct t_mympd_state *mympd_state);
+static time_t get_current_song_start_time(struct t_mympd_state *mympd_state);
 
 //public functions
 sds mympd_api_status_updatedb_state(struct t_mympd_state *mympd_state, sds buffer) {
@@ -98,7 +98,7 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     const unsigned elapsed_time = mympd_api_get_elapsed_seconds(status);
 
     time_t now = time(NULL);
-    unsigned uptime = now - mympd_state->config->startup_time;
+    time_t uptime = now - mympd_state->config->startup_time;
 
     if (total_time == 0) {
         //no song end time for streams
@@ -108,7 +108,7 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
         mympd_state->mpd_state->song_end_time = now + total_time - elapsed_time;
     }
     mympd_state->mpd_state->song_start_time = now - elapsed_time;
-    unsigned half_time = total_time / 2;
+    time_t half_time = total_time / 2;
 
     if (total_time <= 10 ||  //don't track songs with length < 10s
         uptime < half_time)  //don't track songs with played more then half before startup
@@ -272,14 +272,14 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer,
         return buffer;
     }
     buffer = sdscatlen(buffer, ",", 1);
-    unsigned start_time = get_current_song_start_time(mympd_state);
-    buffer = tojson_long(buffer, "startTime", start_time, false);
+    time_t start_time = get_current_song_start_time(mympd_state);
+    buffer = tojson_llong(buffer, "startTime", (long long)start_time, false);
     buffer = jsonrpc_result_end(buffer);
     return buffer;
 }
 
 //private functions
-static unsigned get_current_song_start_time(struct t_mympd_state *mympd_state) {
+static time_t get_current_song_start_time(struct t_mympd_state *mympd_state) {
     if (mympd_state->mpd_state->song_start_time > 0) {
         return mympd_state->mpd_state->song_start_time;
     }
@@ -289,7 +289,7 @@ static unsigned get_current_song_start_time(struct t_mympd_state *mympd_state) {
         check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
         return 0;
     }
-    const unsigned start_time = time(NULL) - mympd_api_get_elapsed_seconds(status);
+    const time_t start_time = time(NULL) - mympd_api_get_elapsed_seconds(status);
     mpd_status_free(status);
     mpd_response_finish(mympd_state->mpd_state->conn);
     check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);

@@ -122,7 +122,7 @@ sds mympd_api_browse_read_comments(struct t_mympd_state *mympd_state, sds buffer
 }
 
 sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                              sds path, const unsigned offset, const unsigned limit, sds searchstr, const struct t_tags *tagcols)
+                              sds path, const long offset, const long limit, sds searchstr, const struct t_tags *tagcols)
 {
     bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, path);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_meta") == false) {
@@ -216,8 +216,8 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
 
-    unsigned entity_count = 0;
-    unsigned entities_returned = 0;
+    long entity_count = 0;
+    long entities_returned = 0;
     if (sdslen(path) > 1) {
         char *path_cpy = strdup(path);
         char *parent_dir = dirname(path_cpy);
@@ -229,7 +229,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
         free(path_cpy);
     }
 
-    unsigned real_limit = offset + limit;
+    long real_limit = offset + limit;
 
     struct t_list_node *current;
     while ((current = list_shift_first(&entity_list)) != NULL) {
@@ -386,7 +386,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     buffer = tojson_char(buffer, "Album", album, true);
     buffer = sdscatfmt(buffer, "\"AlbumArtist\":%s,", albumartist);
     buffer = tojson_long(buffer, "Discs", discs, true);
-    buffer = tojson_long(buffer, "totalTime", totalTime, false);
+    buffer = tojson_uint(buffer, "totalTime", totalTime, false);
     buffer = jsonrpc_result_end(buffer);
 
     sdsfree(albumartist);
@@ -402,7 +402,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
 }
 
 sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                                       sds expression, sds sort, bool sortdesc, const unsigned offset, unsigned limit)
+                                       sds expression, sds sort, bool sortdesc, const long offset, long limit)
 {
     if (mympd_state->album_cache == NULL) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "database", "error", "Albumcache not ready");
@@ -443,7 +443,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
         sds tag = sdsempty();
         sds op = sdsempty();
         sds value = sdsempty();
-        unsigned i = 0;
+        size_t i = 0;
         char *p = tokens[j];
         //tag
         for (i = 0; i < sdslen(tokens[j]); i++, p++) {
@@ -540,9 +540,9 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     list_clear(&expr_list);
 
     //print album list
-    unsigned entity_count = 0;
-    unsigned entities_returned = 0;
-    unsigned real_limit = offset + limit;
+    long entity_count = 0;
+    long entities_returned = 0;
+    long real_limit = offset + limit;
     sds album = sdsempty();
     sds artist = sdsempty();
     struct t_list_node *current;
@@ -583,7 +583,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
 }
 
 sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                          sds searchstr, sds tag, const unsigned offset, const unsigned limit)
+                          sds searchstr, sds tag, const long offset, const long limit)
 {
     sds_utf8_tolower(searchstr);
     size_t searchstr_len = sdslen(searchstr);
@@ -603,10 +603,10 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
     }
 
     struct mpd_pair *pair;
-    unsigned entity_count = 0;
-    unsigned entities_returned = 0;
+    long entity_count = 0;
+    long entities_returned = 0;
     enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
-    unsigned real_limit = offset + limit;
+    long real_limit = offset + limit;
     while ((pair = mpd_recv_pair_tag(mympd_state->mpd_state->conn, mpdtag)) != NULL) {
         if (pair->value[0] == '\0') {
             MYMPD_LOG_DEBUG("Value is empty, skipping");
@@ -686,7 +686,7 @@ static bool _search_song(struct mpd_song *song, struct t_list *expr_list, struct
         }
         bool rc = false;
         sds_utf8_tolower(current->key);
-        for (unsigned i = 0; i < tags->len; i++) {
+        for (int i = 0; i < tags->len; i++) {
             rc = true;
             int j = 0;
             const char *value = NULL;

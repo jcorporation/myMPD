@@ -88,7 +88,7 @@ bool mympd_api_sticker_dequeue(struct t_mympd_state *mympd_state) {
 
 //private functions
 static bool _mympd_api_count_song_uri(struct t_mympd_state *mympd_state, const char *uri, const char *name, const long value) {
-    unsigned old_value = 0;
+    long old_value = 0;
     struct t_sticker *sticker = NULL;
     if (mympd_state->sticker_cache != NULL) {
         sticker = get_sticker_from_cache(mympd_state->sticker_cache, uri);
@@ -110,7 +110,7 @@ static bool _mympd_api_count_song_uri(struct t_mympd_state *mympd_state, const c
         }
         while ((pair = mpd_recv_sticker(mympd_state->mpd_state->conn)) != NULL) {
             if (strcmp(pair->name, name) == 0) {
-                old_value = (int)strtoimax(pair->value, &crap, 10);
+                old_value = strtoimax(pair->value, &crap, 10);
             }
             mpd_return_sticker(mympd_state->mpd_state->conn, pair);
         }
@@ -125,7 +125,7 @@ static bool _mympd_api_count_song_uri(struct t_mympd_state *mympd_state, const c
         old_value = INT_MAX / 2;
     }
 
-    sds value_str = sdsfromlonglong(old_value);
+    sds value_str = sdsfromlonglong((long long)old_value);
     MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
     bool rc = mpd_run_sticker_set(mympd_state->mpd_state->conn, "song", uri, name, value_str);
     FREE_SDS(value_str);
@@ -146,7 +146,7 @@ static bool _mympd_api_count_song_uri(struct t_mympd_state *mympd_state, const c
 }
 
 static bool _mympd_api_set_sticker(struct t_mympd_state *mympd_state, const char *uri, const char *name, const long value) {
-    sds value_str = sdsfromlonglong(value);
+    sds value_str = sdsfromlonglong((long long)value);
     MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
     bool rc = mpd_run_sticker_set(mympd_state->mpd_state->conn, "song", uri, name, value_str);
     FREE_SDS(value_str);

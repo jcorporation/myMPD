@@ -133,7 +133,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
     struct pollfd fds[1];
     int pollrc;
     sds buffer = sdsempty();
-    unsigned mympd_api_queue_length = 0;
+    long mympd_api_queue_length = 0;
     switch (mympd_state->mpd_state->conn_state) {
         case MPD_WAIT: {
             time_t now = time(NULL);

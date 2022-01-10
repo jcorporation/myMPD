@@ -82,12 +82,12 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
 //private functions
 static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache) {
     MYMPD_LOG_INFO("Creating caches");
-    unsigned start = 0;
-    unsigned end = start + MPD_RESULTS_MAX;
-    unsigned i = 0;
-    unsigned album_count = 0;
-    unsigned song_count = 0;
-    unsigned skipped = 0;
+    long start = 0;
+    long end = start + MPD_RESULTS_MAX;
+    long i = 0;
+    long album_count = 0;
+    long song_count = 0;
+    long skipped = 0;
     //get first song from each album
     do {
         bool rc = mpd_search_db_songs(mpd_worker_state->mpd_state->conn, false);
@@ -172,9 +172,9 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         FREE_SDS(uri);
         raxStop(&iter);
     }
-    MYMPD_LOG_INFO("Added %u albums to album cache", album_count);
-    MYMPD_LOG_INFO("Skipped %u albums", skipped);
-    MYMPD_LOG_INFO("Added %u songs to sticker cache", song_count);
+    MYMPD_LOG_INFO("Added %ld albums to album cache", album_count);
+    MYMPD_LOG_INFO("Skipped %ld albums", skipped);
+    MYMPD_LOG_INFO("Added %ld songs to sticker cache", song_count);
     MYMPD_LOG_INFO("Cache updated successfully");
     return true;
 }

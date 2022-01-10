@@ -16,7 +16,7 @@
 #include <unistd.h>
 
 struct t_mime_type_entry {
-    unsigned skip;
+    size_t skip;
     const char *magic_bytes;
     const char *extension;
     const char *mime_type;

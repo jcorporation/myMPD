@@ -8,12 +8,13 @@
 #define MYMPD_API_PLAYLISTS_H
 
 #include "../lib/mympd_state.h"
+#include "../mpd_shared/mpd_shared_playlists.h"
 
 sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                             const unsigned offset, const unsigned limit, sds searchstr, const unsigned type);
+                             const long offset, const long limit, sds searchstr, enum playlist_types type);
 sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffer, sds method,
-                                 long request_id, sds plist, const unsigned offset,
-                                 const unsigned limit, sds searchstr,
+                                 long request_id, sds plist, const long offset,
+                                 const long limit, sds searchstr,
                                  const struct t_tags *tagcols);
 sds mympd_api_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sds method,
                                long request_id, const char *playlist, bool smartpls_only);

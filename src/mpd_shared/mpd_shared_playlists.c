@@ -22,19 +22,19 @@
 #include <string.h>
 #include <sys/stat.h>
 
-unsigned long mpd_shared_get_db_mtime(struct t_mpd_state *mpd_state) {
+time_t mpd_shared_get_db_mtime(struct t_mpd_state *mpd_state) {
     struct mpd_stats *stats = mpd_run_stats(mpd_state->conn);
     if (stats == NULL) {
         check_error_and_recover(mpd_state, NULL, NULL, 0);
         return 0;
     }
-    unsigned long mtime = mpd_stats_get_db_update_time(stats);
+    time_t mtime = (time_t)mpd_stats_get_db_update_time(stats);
     mpd_stats_free(stats);
     return mtime;
 }
 
-unsigned long mpd_shared_get_smartpls_mtime(struct t_config *config, const char *playlist) {
-    sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->workdir, playlist);
+time_t mpd_shared_get_smartpls_mtime(struct t_config *config, const char *playlist) {
+    sds plpath = sdscatfmt(sdsempty(), "%S/smartpls/%s", config->workdir, playlist);
     struct stat attr;
     errno = 0;
     if (stat(plpath, &attr) != 0) {
@@ -47,12 +47,12 @@ unsigned long mpd_shared_get_smartpls_mtime(struct t_config *config, const char 
     return attr.st_mtime;
 }
 
-unsigned long mpd_shared_get_playlist_mtime(struct t_mpd_state *mpd_state, const char *playlist) {
+time_t mpd_shared_get_playlist_mtime(struct t_mpd_state *mpd_state, const char *playlist) {
     bool rc = mpd_send_list_playlists(mpd_state->conn);
     if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_playlists") == false) {
         return 0;
     }
-    unsigned long mtime = 0;
+    time_t mtime = 0;
     struct mpd_playlist *pl;
     while ((pl = mpd_recv_playlist(mpd_state->conn)) != NULL) {
         const char *plpath = mpd_playlist_get_path(pl);

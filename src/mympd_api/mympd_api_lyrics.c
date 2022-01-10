@@ -313,8 +313,8 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
     sds sylt_text = sdsempty();
     //text buffer
     sds text_buf = sdsempty();
-    unsigned sep_len = encoding == 0 || encoding == 3 ? 1 : 2;
-    unsigned i = 0;
+    int sep_len = encoding == 0 || encoding == 3 ? 1 : 2;
+    id3_length_t i = 0;
 
     MYMPD_LOG_DEBUG("Sylt encoding: %u", encoding);
 

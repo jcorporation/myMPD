@@ -74,7 +74,7 @@ int mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
     return 1;
 }
 
-unsigned mympd_queue_length(struct t_mympd_queue *queue, int timeout) {
+long mympd_queue_length(struct t_mympd_queue *queue, int timeout) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
@@ -90,7 +90,7 @@ unsigned mympd_queue_length(struct t_mympd_queue *queue, int timeout) {
             MYMPD_LOG_ERRNO(errno);
         }
     }
-    unsigned len = queue->length;
+    long len = queue->length;
     unlock_mutex(&queue->mutex);
     return len;
 }

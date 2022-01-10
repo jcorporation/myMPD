@@ -41,7 +41,7 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
 
     mpd_worker_smartpls_per_tag(mpd_worker_state);
 
-    unsigned long db_mtime = mpd_shared_get_db_mtime(mpd_worker_state->mpd_state);
+    time_t db_mtime = mpd_shared_get_db_mtime(mpd_worker_state->mpd_state);
     MYMPD_LOG_DEBUG("Database mtime: %d", db_mtime);
 
     sds dirname = sdscatfmt(sdsempty(), "%s/smartpls", mpd_worker_state->config->workdir);
@@ -58,9 +58,9 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
         if (next_file->d_type != DT_REG) {
             continue;
         }
-        unsigned long playlist_mtime = mpd_shared_get_playlist_mtime(mpd_worker_state->mpd_state, next_file->d_name);
-        unsigned long smartpls_mtime = mpd_shared_get_smartpls_mtime(mpd_worker_state->config, next_file->d_name);
-        MYMPD_LOG_DEBUG("Playlist %s: playlist mtime %d, smartpls mtime %d", next_file->d_name, playlist_mtime, smartpls_mtime);
+        time_t playlist_mtime = mpd_shared_get_playlist_mtime(mpd_worker_state->mpd_state, next_file->d_name);
+        time_t smartpls_mtime = mpd_shared_get_smartpls_mtime(mpd_worker_state->config, next_file->d_name);
+        MYMPD_LOG_DEBUG("Playlist %s: playlist mtime %lld, smartpls mtime %lld", next_file->d_name, (long long)playlist_mtime, (long long)smartpls_mtime);
         if (force == true || db_mtime > playlist_mtime || smartpls_mtime > playlist_mtime) {
             mpd_worker_smartpls_update(mpd_worker_state, next_file->d_name);
         }
@@ -157,7 +157,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
 
 //private functions
 static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_state) {
-    for (size_t i = 0; i < mpd_worker_state->smartpls_generate_tag_types.len; i++) {
+    for (int i = 0; i < mpd_worker_state->smartpls_generate_tag_types.len; i++) {
         enum mpd_tag_type tag = mpd_worker_state->smartpls_generate_tag_types.tags[i];
         bool rc = mpd_search_db_tags(mpd_worker_state->mpd_state->conn, tag);
 

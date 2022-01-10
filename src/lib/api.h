@@ -206,7 +206,7 @@ struct set_mg_user_data_request {
     sds coverimage_names;
     bool feat_mpd_albumart;
     sds mpd_host;
-    unsigned mpd_stream_port;
+    int mpd_stream_port;
     bool covercache;
 };
 
@@ -217,8 +217,8 @@ bool is_protected_api_method(enum mympd_cmd_ids cmd_id);
 bool is_public_api_method(enum mympd_cmd_ids cmd_id);
 bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id);
 struct t_work_result *create_result(struct t_work_request *request);
-struct t_work_result *create_result_new(long long conn_id, long request_id, unsigned cmd_id);
-struct t_work_request *create_request(long long conn_id, long request_id, unsigned cmd_id, const char *data);
+struct t_work_result *create_result_new(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id);
+struct t_work_request *create_request(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id, const char *data);
 int expire_request_queue(struct t_mympd_queue *queue, time_t age);
 int expire_result_queue(struct t_mympd_queue *queue, time_t age);
 void free_request(struct t_work_request *request);

@@ -18,6 +18,7 @@ enum jukebox_modes {
     JUKEBOX_OFF,
     JUKEBOX_ADD_SONG,
     JUKEBOX_ADD_ALBUM,
+    JUKEBOX_UNKNOWN
 };
 
 enum trigger_events {
@@ -54,15 +55,15 @@ enum mpd_conn_states {
 };
 
 struct t_sticker {
-    unsigned playCount;
-    unsigned skipCount;
-    unsigned lastPlayed;
-    unsigned lastSkipped;
-    unsigned like;
+    long playCount;
+    long skipCount;
+    long lastPlayed;
+    long lastSkipped;
+    long like;
 };
 
 struct t_tags {
-    size_t len;
+    int len;
     enum mpd_tag_type tags[64];
 };
 
@@ -130,9 +131,9 @@ struct t_timer_definition {
     int start_minute;
     sds action;
     sds subaction;
-    int volume;
+    unsigned volume;
     sds playlist;
-    unsigned jukebox_mode;
+    enum jukebox_modes jukebox_mode;
     bool weekdays[7];
     struct t_list arguments;
 };
@@ -144,7 +145,7 @@ struct t_timer_node {
     time_handler callback;
     struct t_timer_definition *definition;
     void *user_data;
-    unsigned timeout;
+    time_t timeout;
     int interval;
     int timer_id;
     struct t_timer_node *next;
@@ -186,7 +187,7 @@ struct t_mympd_state {
     time_t smartpls_interval;
     struct t_tags smartpls_generate_tag_types;
     sds smartpls_generate_tag_list;
-    unsigned last_played_count;
+    long last_played_count;
     bool auto_play;
     enum jukebox_modes jukebox_mode;
     sds jukebox_playlist;

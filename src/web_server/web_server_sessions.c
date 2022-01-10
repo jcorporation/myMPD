@@ -84,7 +84,7 @@ sds webserver_session_new(struct t_list *session_list) {
     #ifdef ENABLE_SSL
     unsigned char *buf = malloc_assert(10 * sizeof(unsigned char));
     RAND_bytes(buf, 10);
-    for (unsigned i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
         session = sdscatprintf(session, "%02x", buf[i]);
     }
     FREE_PTR(buf);
@@ -107,7 +107,7 @@ sds webserver_session_new(struct t_list *session_list) {
 bool webserver_session_validate(struct t_list *session_list, const char *session) {
     time_t now = time(NULL);
     struct t_list_node *current = session_list->head;
-    unsigned i = 0;
+    int i = 0;
     while (current != NULL) {
         if (current->value_i < now) {
             MYMPD_LOG_DEBUG("Session %s timed out", current->key);
@@ -135,7 +135,7 @@ bool webserver_session_validate(struct t_list *session_list, const char *session
 
 bool webserver_session_remove(struct t_list *session_list, const char *session) {
     struct t_list_node *current = session_list->head;
-    unsigned i = 0;
+    int i = 0;
     while (current != NULL) {
         if (strcmp(current->key, session) == 0) {
             MYMPD_LOG_DEBUG("Session %s removed", current->key);

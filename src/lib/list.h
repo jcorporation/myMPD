@@ -25,7 +25,7 @@ struct t_list_node {
 };
 
 struct t_list {
-    unsigned length;
+    long length;
     struct t_list_node *head;
     struct t_list_node *tail;
 };
@@ -45,8 +45,8 @@ bool list_push_len(struct t_list *l, const char *key, int key_len, long value_i,
 bool list_insert(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data);
 bool list_insert_sorted_by_key(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data, enum list_sort_direction direction);
 bool list_insert_sorted_by_value_i(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data, enum list_sort_direction direction);
-bool list_shift(struct t_list *l, unsigned idx);
-bool list_replace(struct t_list *l, unsigned pos, const char *key, long value_i, const char *value_p, void *user_data);
+bool list_shift(struct t_list *l, long idx);
+bool list_replace(struct t_list *l, long pos, const char *key, long value_i, const char *value_p, void *user_data);
 long list_get_value_i(const struct t_list *l, const char *key);
 sds list_get_value_p(const struct t_list *l, const char *key);
 void *list_get_user_data(const struct t_list *l, const char *key);
@@ -56,8 +56,8 @@ bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction direction);
 bool list_sort_by_value_p(struct t_list *l, enum list_sort_direction direction);
 bool list_sort_by_key(struct t_list *l, enum list_sort_direction direction);
 bool list_swap_item(struct t_list_node *n1, struct t_list_node *n2);
-bool list_swap_item_pos(struct t_list *l, unsigned index1, unsigned index2);
-bool list_move_item_pos(struct t_list *l, unsigned from, unsigned to);
-struct t_list_node *list_node_at(const struct t_list * l, unsigned index);
+bool list_swap_item_pos(struct t_list *l, long index1, long index2);
+bool list_move_item_pos(struct t_list *l, long from, long to);
+struct t_list_node *list_node_at(const struct t_list * l, long index);
 struct t_list_node *list_shift_first(struct t_list *l);
 #endif

@@ -238,7 +238,7 @@ static int _sdssplit_whitespace(sds line, sds *name, sds *value) {
     *name = sdsempty();
     *value = sdsempty();
     int tokens = 0;
-    unsigned i = 0;
+    size_t i = 0;
     const char *p = line;
 
     if (*p == '#') {

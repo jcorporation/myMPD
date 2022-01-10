@@ -14,7 +14,6 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
-#include "../mpd_shared/mpd_shared_playlists.h"
 #include "../mpd_shared/mpd_shared_search.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "mympd_api_utility.h"
@@ -91,7 +90,7 @@ void mympd_api_smartpls_update_all(void) {
 }
 
 sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                             const unsigned offset, const unsigned limit, sds searchstr, const unsigned type)
+                             const long offset, const long limit, sds searchstr, enum playlist_types type)
 {
     bool rc = mpd_send_list_playlists(mympd_state->mpd_state->conn);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlists") == false) {
@@ -142,7 +141,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
                     (search_len == 0 || strstr(plpath_lower, searchstr) != NULL) &&
                     list_get_node(&entity_list, next_file->d_name) == NULL)
                 {
-                    unsigned long last_modified = mpd_shared_get_smartpls_mtime(mympd_state->config, next_file->d_name);
+                    time_t last_modified = mpd_shared_get_smartpls_mtime(mympd_state->config, next_file->d_name);
                     list_push(&entity_list, next_file->d_name, (long)last_modified, "t", NULL);
                 }
                 sdsclear(plpath_lower);
@@ -162,9 +161,9 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer,"\"data\":[");
 
-    unsigned entity_count = 0;
-    unsigned entities_returned = 0;
-    unsigned real_limit = offset + limit;
+    long entity_count = 0;
+    long entities_returned = 0;
+    long real_limit = offset + limit;
     struct t_list_node *current = entity_list.head;
     while (current != NULL) {
         if (entity_count >= offset && entity_count < real_limit) {
@@ -194,7 +193,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
 }
 
 sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                                 sds plist, const unsigned offset, const unsigned limit, sds searchstr, const struct t_tags *tagcols)
+                                 sds plist, const long offset, const long limit, sds searchstr, const struct t_tags *tagcols)
 {
     bool rc = mpd_send_list_playlist_meta(mympd_state->mpd_state->conn, plist);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlist_meta") == false) {
@@ -207,10 +206,10 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
     buffer = sdscat(buffer,"\"data\":[");
 
     struct mpd_song *song;
-    unsigned entities_returned = 0;
-    unsigned entity_count = 0;
-    unsigned total_time = 0;
-    unsigned real_limit = offset + limit;
+    long entities_returned = 0;
+    long entity_count = 0;
+    long total_time = 0;
+    long real_limit = offset + limit;
     sds entityName = sdsempty();
     size_t search_len = sdslen(searchstr);
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {

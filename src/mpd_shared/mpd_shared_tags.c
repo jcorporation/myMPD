@@ -158,7 +158,7 @@ sds get_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags
 {
     sds tag_value = sdsempty();
     if (mpd_state->feat_mpd_tags == true) {
-        for (size_t tagnr = 0; tagnr < tagcols->len; ++tagnr) {
+        for (int tagnr = 0; tagnr < tagcols->len; ++tagnr) {
             tag_value = mpd_shared_get_tag_values(song, tagcols->tags[tagnr], tag_value);
             buffer = sdscatfmt(buffer, "\"%s\":%s,", mpd_tag_name(tagcols->tags[tagnr]), tag_value);
         }
@@ -180,7 +180,7 @@ sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct 
     sds filename = sdsnew(uri);
     sds_basename_uri(filename);
     if (mpd_state->feat_mpd_tags == true) {
-        for (size_t tagnr = 0; tagnr < tagcols->len; ++tagnr) {
+        for (int tagnr = 0; tagnr < tagcols->len; ++tagnr) {
             const bool multi = is_multivalue_tag(tagcols->tags[tagnr]);
             buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(tagcols->tags[tagnr]));
             if (multi == true) {
@@ -223,7 +223,7 @@ bool filter_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_
     }
     sds value = sdsempty();
     bool rc = false;
-    for (size_t i = 0; i < tagcols->len; i++) {
+    for (int i = 0; i < tagcols->len; i++) {
         value = _mpd_shared_get_tag_values(song, tagcols->tags[i], value, false);
         sdstolower(value);
         if (strstr(value, searchstr) != NULL) {

@@ -88,6 +88,33 @@ static sds get_mympd_host(struct t_mympd_state *mympd_state) {
 }
 
 //public functions
+enum jukebox_modes mympd_parse_jukebox_mode(const char *str) {
+    if (strcmp(str, "off") == 0) {
+        return JUKEBOX_OFF;
+    }
+    if (strcmp(str, "song") == 0) {
+        return JUKEBOX_ADD_SONG;
+    }
+    if (strcmp(str, "album") == 0) {
+        return JUKEBOX_ADD_ALBUM;
+    }
+    return JUKEBOX_UNKNOWN;
+}
+
+const char *mympd_lookup_jukebox_mode(enum jukebox_modes mode) {
+	switch (mode) {
+        case JUKEBOX_OFF:
+            return "off";
+        case JUKEBOX_ADD_SONG:
+            return "song";
+        case JUKEBOX_ADD_ALBUM:
+            return "album";
+        default:
+            return NULL;
+    }
+	return NULL;
+}
+
 sds resolv_mympd_uri(sds uri, struct t_mympd_state *mympd_state) {
     if (strncmp(uri, "mympd://webradio/", 17) == 0) {
         sdsrange(uri, 17, -1);

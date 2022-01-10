@@ -141,7 +141,7 @@ sds mympd_api_queue_crop(struct t_mympd_state *mympd_state, sds buffer, sds meth
         return buffer;
     }
     const unsigned length = mpd_status_get_queue_length(status) - 1;
-    unsigned playing_song_pos = mpd_status_get_song_pos(status);
+    unsigned playing_song_pos = (unsigned)mpd_status_get_song_pos(status);
     enum mpd_state state = mpd_status_get_state(status);
 
     if ((state == MPD_STATE_PLAY || state == MPD_STATE_PAUSE) && length > 1) {
@@ -233,7 +233,7 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
 }
 
 sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                            const char *mpdtagtype, const unsigned offset, const unsigned limit, const char *searchstr, const struct t_tags *tagcols)
+                            const char *mpdtagtype, const long offset, const long limit, const char *searchstr, const struct t_tags *tagcols)
 {
     bool rc = mpd_search_queue_songs(mympd_state->mpd_state->conn, false);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_queue_songs") == false) {
@@ -263,10 +263,10 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     struct mpd_song *song;
-    unsigned total_time = 0;
-    unsigned entity_count = 0;
-    unsigned entities_returned = 0;
-    unsigned real_limit = offset + limit;
+    long total_time = 0;
+    long entity_count = 0;
+    long entities_returned = 0;
+    long real_limit = offset + limit;
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
         if (entity_count > offset && entity_count <= real_limit) {
             if (entities_returned++) {

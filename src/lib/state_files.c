@@ -87,17 +87,37 @@ bool state_file_rw_bool(const char *workdir, const char *dir, const char *name, 
 }
 
 int state_file_rw_int(const char *workdir, const char *dir, const char *name, const int def_value, const int min, const int max, bool warn) {
-    return (int)state_file_rw_long(workdir, dir, name, def_value, min, max, warn);
+    char *crap = NULL;
+    int value = def_value;
+    sds def_value_str = sdsfromlonglong((long long)def_value);
+    sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
+    FREE_SDS(def_value_str);
+    value = (int)strtoimax(line, &crap, 10);
+    FREE_SDS(line);
+    if (value >= min && value <= max) {
+        return value;
+    }
+    return def_value;
 }
 
 unsigned state_file_rw_uint(const char *workdir, const char *dir, const char *name, const unsigned def_value, const unsigned min, const unsigned max, bool warn) {
-    return (unsigned)state_file_rw_long(workdir, dir, name, def_value, min, max, warn);
+    char *crap = NULL;
+    unsigned value = def_value;
+    sds def_value_str = sdsfromlonglong((long long)def_value);
+    sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
+    FREE_SDS(def_value_str);
+    value = strtoumax(line, &crap, 10);
+    FREE_SDS(line);
+    if (value >= min && value <= max) {
+        return value;
+    }
+    return def_value;
 }
 
 long state_file_rw_long(const char *workdir, const char *dir, const char *name, const long def_value, const long min, const long max, bool warn) {
     char *crap = NULL;
     long value = def_value;
-    sds def_value_str = sdsfromlonglong(def_value);
+    sds def_value_str = sdsfromlonglong((long long)def_value);
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
     FREE_SDS(def_value_str);
     value = strtoimax(line, &crap, 10);

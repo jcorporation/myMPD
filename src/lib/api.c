@@ -100,7 +100,7 @@ struct t_work_result *create_result(struct t_work_request *request) {
     return response;
 }
 
-struct t_work_result *create_result_new(long long conn_id, long request_id, unsigned cmd_id) {
+struct t_work_result *create_result_new(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id) {
     struct t_work_result *response = (struct t_work_result *)malloc_assert(sizeof(struct t_work_result));
     response->conn_id = conn_id;
     response->id = request_id;
@@ -113,7 +113,7 @@ struct t_work_result *create_result_new(long long conn_id, long request_id, unsi
     return response;
 }
 
-struct t_work_request *create_request(long long conn_id, long request_id, unsigned cmd_id, const char *data) {
+struct t_work_request *create_request(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id, const char *data) {
     struct t_work_request *request = (struct t_work_request *)malloc_assert(sizeof(struct t_work_request));
     request->conn_id = conn_id;
     request->cmd_id = cmd_id;

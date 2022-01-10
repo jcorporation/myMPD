@@ -185,7 +185,7 @@ struct embedded_file {
     bool compressed;
     bool cache;
     const unsigned char *data;
-    const unsigned size;
+    const int size;
 };
 
 bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
@@ -228,7 +228,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         mg_printf(nc, "HTTP/1.1 200 OK\r\n"
                       EXTRA_HEADERS_SAFE
                       "%s"
-                      "Content-Length: %u\r\n"
+                      "Content-Length: %d\r\n"
                       "Content-Type: %s\r\n"
                       "%s\r\n",
                       (p->cache == true ? EXTRA_HEADERS_CACHE : ""),

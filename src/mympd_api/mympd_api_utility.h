@@ -9,6 +9,8 @@
 
 #include "../lib/mympd_state.h"
 
+enum jukebox_modes mympd_parse_jukebox_mode(const char *str);
+const char *mympd_lookup_jukebox_mode(enum jukebox_modes mode);
 void mympd_state_default(struct t_mympd_state *mympd_state);
 void mympd_state_free(struct t_mympd_state *mympd_state);
 bool is_smartpls(const char *workdir, sds playlist);

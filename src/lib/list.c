@@ -15,7 +15,7 @@
 #include <string.h>
 
 //private definitions
-static struct t_list_node *list_node_extract(struct t_list *l, unsigned idx);
+static struct t_list_node *list_node_extract(struct t_list *l, long idx);
 
 //public functions
 
@@ -113,7 +113,7 @@ struct t_list_node *list_get_node(const struct t_list *l, const char *key) {
     return current;
 }
 
-struct t_list_node *list_node_at(const struct t_list *l, unsigned index) {
+struct t_list_node *list_node_at(const struct t_list *l, long index) {
     //if there's no data in the list, fail
     if (l->head == NULL) {
         return NULL;
@@ -128,7 +128,7 @@ struct t_list_node *list_node_at(const struct t_list *l, unsigned index) {
     return current;
 }
 
-bool list_move_item_pos(struct t_list *l, unsigned from, unsigned to) {
+bool list_move_item_pos(struct t_list *l, long from, long to) {
     if (from > l->length || to > l->length) {
         return false;
     }
@@ -158,7 +158,7 @@ bool list_move_item_pos(struct t_list *l, unsigned from, unsigned to) {
     return true;
 }
 
-bool list_swap_item_pos(struct t_list *l, unsigned index1, unsigned index2) {
+bool list_swap_item_pos(struct t_list *l, long index1, long index2) {
     if (l->length < 2) {
         return false;
     }
@@ -204,7 +204,7 @@ bool list_shuffle(struct t_list *l) {
     int n = 0;
     struct t_list_node *current = l->head;
     while (current != NULL) {
-        unsigned pos = randrange(0, l->length);
+        long pos = randrange(0, l->length);
         list_swap_item(current, list_node_at(l, pos));
         n++;
         current = current->next;
@@ -296,11 +296,11 @@ bool list_sort_by_key(struct t_list *l, enum list_sort_direction direction) {
     return true;
 }
 
-bool list_replace(struct t_list *l, unsigned pos, const char *key, long value_i, const char *value_p, void *user_data) {
+bool list_replace(struct t_list *l, long pos, const char *key, long value_i, const char *value_p, void *user_data) {
     if (pos >= l->length) {
         return false;
     }
-    unsigned i = 0;
+    long i = 0;
     struct t_list_node *current = l->head;
     while (current->next != NULL) {
         if (i == pos) {
@@ -530,7 +530,7 @@ void list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb)
     free(n);
 }
 
-bool list_shift(struct t_list *l, unsigned idx) {
+bool list_shift(struct t_list *l, long idx) {
     struct t_list_node *extracted = list_node_extract(l, idx);
     if (extracted == NULL) {
         return false;
@@ -544,14 +544,14 @@ bool list_shift(struct t_list *l, unsigned idx) {
     return true;
 }
 
-static struct t_list_node *list_node_extract(struct t_list *l, unsigned idx) {
+static struct t_list_node *list_node_extract(struct t_list *l, long idx) {
     if (l->head == NULL || idx >= l->length) {
         return NULL;
     }
 
     struct t_list_node *current = NULL;
     struct t_list_node *previous = NULL;
-    unsigned i = 0;
+    long i = 0;
     for (current = l->head; current != NULL; previous = current, current = current->next) {
         if (i == idx) {
             if (previous == NULL) {

@@ -40,7 +40,7 @@ sds tojson_uint(sds buffer, const char *key, unsigned value, bool comma);
 sds tojson_long(sds buffer, const char *key, long value, bool comma);
 sds tojson_llong(sds buffer, const char *key, long long value, bool comma);
 sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma);
-sds tojson_ullong(sds buffer, const char *key, unsigned long value, bool comma);
+sds tojson_ullong(sds buffer, const char *key, unsigned long long value, bool comma);
 sds tojson_double(sds buffer, const char *key, double value, bool comma);
 
 bool json_get_bool(sds s, const char *path, bool *result, sds *error);

@@ -24,7 +24,7 @@
 #include <string.h>
 
 //private definitions
-static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, unsigned entity_count,
+static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, long entity_count,
                                          long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols);
 
 //public functions
@@ -42,7 +42,7 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
 
     FILE *fp = fdopen(fd, "w");
     //first write last_played list to tmp file
-    unsigned i = 0;
+    int i = 0;
     struct t_list_node *current = mympd_state->last_played.head;
     while (current != NULL && i < mympd_state->last_played_count) {
         fprintf(fp, "%ld::%s\n", current->value_i, current->key);
@@ -118,18 +118,18 @@ bool mympd_api_stats_last_played_add_song(struct t_mympd_state *mympd_state, con
 }
 
 sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buffer, sds method,
-                                     long request_id, const unsigned offset, const unsigned limit,
+                                     long request_id, const long offset, const long limit,
                                      sds searchstr, const struct t_tags *tagcols)
 {
-    unsigned entity_count = 0;
-    unsigned entities_returned = 0;
+    long entity_count = 0;
+    long entities_returned = 0;
     sds_utf8_tolower(searchstr);
 
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     sds obj = sdsempty();
 
-    unsigned real_limit = offset + limit;
+    long real_limit = offset + limit;
 
     if (mympd_state->last_played.length > 0) {
         struct t_list_node *current = mympd_state->last_played.head;
@@ -229,7 +229,7 @@ sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
 
 
 //private functions
-static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, unsigned entity_count,
+static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, long entity_count,
                                          long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols)
 {
     buffer = sdscatlen(buffer, "{", 1);

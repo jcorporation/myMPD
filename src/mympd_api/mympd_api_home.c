@@ -17,15 +17,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-bool mympd_api_home_icon_move(struct t_mympd_state *mympd_state, unsigned from, unsigned to) {
+bool mympd_api_home_icon_move(struct t_mympd_state *mympd_state, long from, long to) {
     return list_move_item_pos(&mympd_state->home_list, from, to);
 }
 
-bool mympd_api_home_icon_delete(struct t_mympd_state *mympd_state, unsigned pos) {
+bool mympd_api_home_icon_delete(struct t_mympd_state *mympd_state, long pos) {
     return list_shift(&mympd_state->home_list, pos);
 }
 
-bool mympd_api_home_icon_save(struct t_mympd_state *mympd_state, bool replace, unsigned oldpos,
+bool mympd_api_home_icon_save(struct t_mympd_state *mympd_state, bool replace, long oldpos,
     const char *name, const char *ligature, const char *bgcolor, const char *color, const char *image,
     const char *cmd, struct t_list *option_list)
 {
@@ -148,7 +148,7 @@ sds mympd_api_home_icon_list(struct t_mympd_state *mympd_state, sds buffer, sds 
     return buffer;
 }
 
-sds mympd_api_home_icon_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, unsigned pos) {
+sds mympd_api_home_icon_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, long pos) {
     struct t_list_node *current = list_node_at(&mympd_state->home_list, pos);
     if (current != NULL) {
         buffer = jsonrpc_result_start(buffer, method, request_id);

@@ -108,14 +108,14 @@ void mympd_api_timer_check(struct t_timer_list *l) {
     }
 }
 
-bool mympd_api_timer_replace(struct t_timer_list *l, unsigned timeout, int interval, time_handler handler,
+bool mympd_api_timer_replace(struct t_timer_list *l, time_t timeout, int interval, time_handler handler,
                    int timer_id, struct t_timer_definition *definition, void *user_data)
 {
     mympd_api_timer_remove(l, timer_id);
     return mympd_api_timer_add(l, timeout, interval, handler, timer_id, definition, user_data);
 }
 
-bool mympd_api_timer_add(struct t_timer_list *l, unsigned timeout, int interval, time_handler handler,
+bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, time_handler handler,
                int timer_id, struct t_timer_definition *definition, void *user_data)
 {
     struct t_timer_node *new_node = (struct t_timer_node *)malloc_assert(sizeof(struct t_timer_node));
@@ -254,7 +254,7 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
         json_get_int(str, "$.params.startMinute", 0, 59, &timer_def->start_minute, error) == true &&
         json_get_string_max(str, "$.params.action", &timer_def->action, vcb_isalnum, error) == true &&
         json_get_string_max(str, "$.params.subaction", &timer_def->subaction, vcb_isname, error) == true &&
-        json_get_int(str, "$.params.volume", 0, 100, &timer_def->volume, error) == true &&
+        json_get_uint(str, "$.params.volume", 0, 100, &timer_def->volume, error) == true &&
         json_get_string_max(str, "$.params.playlist", &timer_def->playlist, vcb_isfilename, error) == true &&
         json_get_uint(str, "$.params.jukeboxMode", 0, 2, &timer_def->jukebox_mode, error) == true &&
         json_get_object_string(str, "$.params.arguments", &timer_def->arguments, vcb_isname, 10, error) == true &&

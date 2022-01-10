@@ -19,7 +19,7 @@ sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, sds 
 
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    unsigned entity_count = 0;
+    long entity_count = 0;
     struct mpd_pair *partition;
     while ((partition = mpd_recv_partition_pair(mympd_state->mpd_state->conn)) != NULL) {
         if (entity_count++) {
