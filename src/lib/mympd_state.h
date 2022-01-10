@@ -70,10 +70,10 @@ struct t_mpd_state {
     //Connection
     struct mpd_connection *conn;
     enum mpd_conn_states conn_state;
-    int mpd_timeout;
+    unsigned mpd_timeout;
     bool mpd_keepalive;
     time_t reconnect_time;
-    unsigned reconnect_interval;
+    time_t reconnect_interval;
     //connection configuration
     enum mpd_state state;
     sds mpd_host;
@@ -84,11 +84,11 @@ struct t_mpd_state {
     int song_id;
     int next_song_id;
     int last_song_id;
-    unsigned song_pos;
+    int song_pos;
     sds song_uri;
     sds last_song_uri;
-    long queue_version;
-    long queue_length;
+    unsigned queue_version;
+    unsigned queue_length;
     int last_last_played_id;
     int last_skipped_id;
     time_t song_end_time;
