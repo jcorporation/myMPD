@@ -187,7 +187,7 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
     }
 
     mympd_state->mpd_state->queue_version = mpd_status_get_queue_version(status);
-    mympd_state->mpd_state->queue_length = mpd_status_get_queue_length(status);
+    mympd_state->mpd_state->queue_length = (long long)mpd_status_get_queue_length(status);
     mpd_status_free(status);
 
     if (offset >= mympd_state->mpd_state->queue_length) {
@@ -219,7 +219,7 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
 
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalTime", total_time, true);
-    buffer = tojson_long(buffer, "totalEntities", mympd_state->mpd_state->queue_length, true);
+    buffer = tojson_llong(buffer, "totalEntities", mympd_state->mpd_state->queue_length, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_result_end(buffer);

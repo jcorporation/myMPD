@@ -91,7 +91,7 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     mympd_state->mpd_state->song_pos = mpd_status_get_song_pos(status);
     mympd_state->mpd_state->next_song_id = mpd_status_get_next_song_id(status);
     mympd_state->mpd_state->queue_version = mpd_status_get_queue_version(status);
-    mympd_state->mpd_state->queue_length = mpd_status_get_queue_length(status);
+    mympd_state->mpd_state->queue_length = (long long) mpd_status_get_queue_length(status);
     mympd_state->mpd_state->crossfade = mpd_status_get_crossfade(status);
 
     const unsigned total_time = mpd_status_get_total_time(status);
@@ -141,7 +141,7 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     buffer = tojson_long(buffer, "totalTime", mpd_status_get_total_time(status), true);
     buffer = tojson_long(buffer, "currentSongId", mpd_status_get_song_id(status), true);
     buffer = tojson_long(buffer, "kbitrate", mpd_status_get_kbit_rate(status), true);
-    buffer = tojson_long(buffer, "queueLength", mpd_status_get_queue_length(status), true);
+    buffer = tojson_llong(buffer, "queueLength", mpd_status_get_queue_length(status), true);
     buffer = tojson_long(buffer, "queueVersion", mpd_status_get_queue_version(status), true);
     buffer = tojson_long(buffer, "nextSongPos", mpd_status_get_next_song_pos(status), true);
     buffer = tojson_long(buffer, "nextSongId", mpd_status_get_next_song_id(status), true);
