@@ -426,7 +426,9 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
             addMenuItem(tabContent, {"cmd": "showRadiobrowserDetails", "options": [webradioUuid]}, 'Webradio details');
         }
         else {
-            addMenuItem(tabContent, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
+            if (webradioDb.webradios[webradioUri] !== undefined) {
+                addMenuItem(tabContent, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
+            }
         }
         addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [webradioUri]}, 'Edit webradio favorite');
     }
@@ -494,7 +496,9 @@ function addMenuItemsWebradioFavoritesActions(tabContent, dataNode) {
         addMenuItem(tabContent, {"cmd": "showRadiobrowserDetails", "options": [uuid]}, 'Webradio details');
     }
     else {
-        addMenuItem(tabContent, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
+        if (webradioDb.webradios[uri] !== undefined) {
+            addMenuItem(tabContent, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
+        }
     }
     addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
     addMenuItem(tabContent, {"cmd": "deleteRadioFavorite", "options": [uri]}, 'Delete webradio favorite');
