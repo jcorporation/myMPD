@@ -1136,9 +1136,9 @@ const APImethods = {
                 "desc": "MPD randome mode: 1=enabled, 0=disabled"
             },
             "single": {
-                "type": "uint",
-                "example": 1,
-                "desc": "MPD single mode: 2=single oneshot, 1=enabled, 0=disabled"
+                "type": "text",
+                "example": "1",
+                "desc": "MPD single mode: 0, 1, oneshot"
             },
             "repeat": {
                 "type": "uint",
@@ -1156,9 +1156,9 @@ const APImethods = {
                 "desc": "MPD crossfade in seconds"
             },
             "jukeboxMode": {
-                "type": "uint",
-                "example": 1,
-                "desc": "Jukebox mode: 0=disabled, 1=song, 2=album"
+                "type": "text",
+                "example": "off",
+                "desc": "Jukebox modes: off, song, album"
             },
             "jukeboxPlaylist": {
                 "type": "text",
@@ -1253,9 +1253,9 @@ const APImethods = {
                 "desc": "Playlist to use, valid values: \"Database\" or MPD playlist name"
             },
             "jukeboxMode": {
-                "type": "uint",
-                "example": 1,
-                "desc": "Jukebox mode: 0 = off, 1 = song, 2 = album"
+                "type": "text",
+                "example": "off",
+                "desc": "off, song, album"
             },
             "weekdays": {
                 "type": "array",

@@ -13,6 +13,7 @@
 #include "../lib/log.h"
 #include "../lib/mympd_configuration.h"
 #include "../mpd_shared.h"
+#include "mympd_api_utility.h"
 
 #include <string.h>
 
@@ -122,7 +123,7 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
     if (jukebox_mode != JUKEBOX_OFF) {
         //enable jukebox
         struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_OPTIONS_SET, NULL);
-        request->data = tojson_long(request->data, "jukeboxMode", jukebox_mode, true);
+        request->data = tojson_char(request->data, "jukeboxMode", mympd_lookup_jukebox_mode(jukebox_mode), true);
         request->data = tojson_char(request->data, "jukeboxPlaylist", playlist, false);
         request->data = sdscatlen(request->data, "}}", 2);
         mympd_queue_push(mympd_api_queue, request, 0);

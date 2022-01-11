@@ -46,20 +46,20 @@ function initSettings() {
     document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
         setTimeout(function() {
             const value = getData(document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0], 'value');
-            if (value === '0') {
+            if (value === 'off') {
                 elDisableId('inputJukeboxQueueLength');
                 elDisableId('selectJukeboxPlaylist');
             }
-            else if (value === '2') {
+            else if (value === 'album') {
                 elDisableId('inputJukeboxQueueLength');
                 elDisableId('selectJukeboxPlaylist');
                 document.getElementById('selectJukeboxPlaylist').value = 'Database';
             }
-            else if (value === '1') {
+            else if (value === 'song') {
                 elEnableId('inputJukeboxQueueLength');
                 elEnableId('selectJukeboxPlaylist');
             }
-            if (value !== '0') {
+            if (value !== 'off') {
                 toggleBtnChkId('btnConsume', true);
             }
             checkConsume();
@@ -202,7 +202,7 @@ function getSettings(onerror) {
 function checkConsume() {
     const stateConsume = document.getElementById('btnConsume').classList.contains('active') ? true : false;
     const stateJukeboxMode = getBtnGroupValueId('btnJukeboxModeGroup');
-    if (stateJukeboxMode > 0 && stateConsume === false) {
+    if (stateJukeboxMode !== 'off' && stateConsume === false) {
         elShowId('warnConsume');
     }
     else {
@@ -465,16 +465,16 @@ function populateQueueSettingsFrm() {
     document.getElementById('selectJukeboxUniqueTag').value = settings.jukeboxUniqueTag;
     document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
     document.getElementById('inputJukeboxLastPlayed').value = settings.jukeboxLastPlayed;
-    if (settings.jukeboxMode === 0) {
+    if (settings.jukeboxMode === 'off') {
         elDisableId('inputJukeboxQueueLength');
         elDisableId('selectJukeboxPlaylist');
     }
-    else if (settings.jukeboxMode === 2) {
+    else if (settings.jukeboxMode === 'album') {
         elDisableId('inputJukeboxQueueLength');
         elDisableId('selectJukeboxPlaylist');
         document.getElementById('selectJukeboxPlaylist').value = 'Database';
     }
-    else if (settings.jukeboxMode === 1) {
+    else if (settings.jukeboxMode === 'song') {
         elEnableId('inputJukeboxQueueLength');
         elEnableId('selectJukeboxPlaylist');
     }
@@ -1106,22 +1106,22 @@ function saveQueueSettings() {
     let jukeboxUniqueTag = getSelectValueId('selectJukeboxUniqueTag');
     const jukeboxPlaylist = getDataId('selectJukeboxPlaylist', 'value');
 
-    if (jukeboxMode === '2') {
+    if (jukeboxMode === 'album') {
         jukeboxUniqueTag = 'Album';
     }
 
     if (formOK === true) {
         btnWaitingId('btnSaveQueueSettings', true);
         sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
-            "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
-            "random": (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
-            "single": Number(singleState),
-            "repeat": (document.getElementById('btnRepeat').classList.contains('active') ? 1 : 0),
+            "consume": (document.getElementById('btnConsume').classList.contains('active') ? true : false),
+            "random": (document.getElementById('btnRandom').classList.contains('active') ? true : false),
+            "single": singleState,
+            "repeat": (document.getElementById('btnRepeat').classList.contains('active') ? true : false),
             "replaygain": replaygain,
             "crossfade": Number(document.getElementById('inputCrossfade').value),
             "mixrampDb": Number(mixrampDbEl.value),
             "mixrampDelay": Number(mixrampDelayEl.value),
-            "jukeboxMode": Number(jukeboxMode),
+            "jukeboxMode": jukeboxMode,
             "jukeboxPlaylist": jukeboxPlaylist,
             "jukeboxQueueLength": Number(document.getElementById('inputJukeboxQueueLength').value),
             "jukeboxLastPlayed": Number(document.getElementById('inputJukeboxLastPlayed').value),
