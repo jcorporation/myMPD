@@ -203,7 +203,7 @@ function showEditRadioFavorite(obj) {
     document.getElementById('editRadioFavoriteDescription').value = obj.Description === undefined ? '' : obj.Description;
 
     const imageEl = document.getElementById('editRadioFavoriteImage');
-    getImageList(imageEl.filterResult, obj.Image, [], 'streams');
+    getImageList(imageEl.filterResult, obj.Image, [], 'thumbs');
     imageEl.value = obj.Image === undefined ? '' : obj.Image;
 
     if (obj.StreamUri !== undefined && 
@@ -321,7 +321,7 @@ function parseRadioFavoritesList(obj) {
         else {
             image = isHttpUri(obj.result.data[i].Image) === true ?
                 obj.result.data[i].Image :
-                subdir + '/browse/pics/streams/' + obj.result.data[i].Image;
+                subdir + '/browse/pics/thumbs/' + obj.result.data[i].Image;
         }
         setData(card, 'image', image);
         setData(card, 'uri', obj.result.data[i].filename);

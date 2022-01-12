@@ -487,7 +487,6 @@ function addMenuItemsWebradioFavoritesActions(tabContent, dataNode) {
 
 function addMenuItemsWebradioFavoritesHomeActions(tabContent, uri) {
     addDivider(tabContent);
-    addMenuItem(tabContent, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
     addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
 }
 
@@ -504,6 +503,9 @@ function addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name) {
             addDivider(tabContent);
             if (app.id === 'BrowseRadioFavorites') {
                 const image = getData(dataNode, 'image');
+                if (isHttpUri(image) === false) {
+                    image = basename(image, false);
+                }
                 addMenuItem(tabContent, {"cmd": "addRadioFavoriteToHome", "options": [uri, type, name, image]}, 'Add to homescreen');
             }
             else {

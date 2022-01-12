@@ -129,7 +129,7 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
             mg_printf(nc, "GET %s HTTP/1.1\r\n"
                 "Host: %.*s\r\n"
                 "User-Agent: myMPD/%s\r\n"
-                "Connection: keep-alive\r\n"
+                "Connection: close\r\n"
                 "\r\n",
                 mg_url_uri(backend_nc_data->uri),
                 host.len, host.ptr,

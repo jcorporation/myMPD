@@ -55,7 +55,7 @@ function initHome() {
             document.getElementById('homeIconPreview').style.backgroundImage =
                 isHttpUri(value) === true ?
                     'url("' + myEncodeURIhost(value)  + '")':
-                    'url("' + subdir + '/browse/pics/homeicons/' + myEncodeURI(value)  + '")';
+                    'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(value)  + '")';
             elHideId('divHomeIconLigature');
             elClearId('homeIconPreview');
         }
@@ -257,7 +257,7 @@ function parseHome(obj) {
         if (obj.result.data[i].image !== '') {
             cardBody.style.backgroundImage = isHttpUri(obj.result.data[i].image) === true ?
                 'url("' + myEncodeURIhost(obj.result.data[i].image) +'")' :
-                'url("' + subdir + '/browse/pics/homeicons/' + myEncodeURI(obj.result.data[i].image) + '")';
+                'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(obj.result.data[i].image) + '")';
         }
         if (obj.result.data[i].bgcolor !== '') {
             cardBody.style.backgroundColor = obj.result.data[i].bgcolor;
@@ -522,7 +522,7 @@ function _addHomeIcon(cmd, name, ligature, image, options) {
         homeIconPreviewEl.style.backgroundImage =
             isHttpUri(image) === true ?
                 'url("' + myEncodeURIhost(image) +'")' :
-                'url("' + subdir + '/browse/pics/homeicons/' + myEncodeURI(image) + '")';
+                'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(image) + '")';
         elHideId('divHomeIconLigature');
     }
     else {
@@ -580,7 +580,7 @@ function _editHomeIcon(pos, replace, title) {
             document.getElementById('homeIconPreview').style.backgroundImage =
                 isHttpUri(obj.result.data.image) === true ?
                     'url("' + myEncodeURIhost(obj.result.data.image) +'")' :
-                    'url("' + subdir + '/browse/pics/homeicons/' + myEncodeURI(obj.result.data.image) + '")';
+                    'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(obj.result.data.image) + '")';
         }
         //reset ligature selection
         document.getElementById('searchHomeIconLigature').value = '';
@@ -672,7 +672,7 @@ function showHomeIconCmdOptions(values) {
 
 function getHomeIconPictureList(picture) {
     const selectHomeIconImage = document.getElementById('inputHomeIconImage').filterResult;
-    getImageList(selectHomeIconImage, picture, [{"value": "", "text": tn('Use ligature')}], 'homeicons');
+    getImageList(selectHomeIconImage, picture, [{"value": "", "text": tn('Use ligature')}], 'thumbs');
 }
 
 //eslint-disable-next-line no-unused-vars
