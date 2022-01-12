@@ -110,12 +110,14 @@ void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *
 }
 
 void webserver_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers) {
+    MYMPD_LOG_DEBUG("Sending %u bytes to %lu", len, nc->id);
     webserver_send_header_ok(nc, len, headers);
     mg_send(nc, data, len);
     webserver_handle_connection_close(nc);
 }
 
 void webserver_send_header_redirect(struct mg_connection *nc, const char *location) {
+    MYMPD_LOG_DEBUG("Sending 301 Moved Permanently \"%s\" to %lu", location, nc->id);
     mg_printf(nc, "HTTP/1.1 301 Moved Permanently\r\n"
         "Location: %s\r\n"
         "Content-Length: 0\r\n\r\n",
@@ -123,6 +125,7 @@ void webserver_send_header_redirect(struct mg_connection *nc, const char *locati
 }
 
 void webserver_send_header_found(struct mg_connection *nc, const char *location) {
+    MYMPD_LOG_DEBUG("Sending 302 Found \"%s\" to %lu", location, nc->id);
     mg_printf(nc, "HTTP/1.1 302 Found\r\n"
         "Location: %s\r\n"
         "Content-Length: 0\r\n\r\n",
