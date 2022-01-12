@@ -540,6 +540,14 @@ function emptyRow(colspan) {
     );
 }
 
+function loadingRow(colspan) {
+    return elCreateNode('tr', {"class": ["not-clickable"]},
+        elCreateNode('td', {"colspan": colspan},
+            elCreateText('div', {"class": ["alert", "alert-secondary"]}, tn('Loading...'))
+        )
+    );
+}
+
 function errorRow(obj, colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
         elCreateNode('td', {"colspan": colspan},

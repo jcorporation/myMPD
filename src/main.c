@@ -187,8 +187,7 @@ const struct t_subdirs_entry workdir_subdirs[] = {
     {"empty",            "Empty dir"},
     {"pics",             "Pics dir"},
     {"pics/backgrounds", "Backgrounds dir"},
-    {"pics/homeicons",   "Homeicons dir"},
-    {"pics/streams",     "Streamcovers dir"},
+    {"pics/thumbs",      "Thumbnails dir"},
     #ifdef ENABLE_LUA
     {"scripts",          "Scripts dir"},
     #endif
@@ -220,6 +219,18 @@ static bool check_dirs(struct t_config *config) {
             return false;
         }
     #endif
+    //rename streams to thumbs for 9.1.0 upgrade
+    sds streams_dir = sdscatfmt(sdsempty(), "%s/pics/streams", config->workdir);
+    DIR* dir = opendir(streams_dir);
+    if (dir) {
+        closedir(dir);
+        MYMPD_LOG_INFO("Renaming folder streams to thumbs");
+        sds thumbs_dir = sdscatfmt(sdsempty(), "%s/pics/thumbs", config->workdir);
+        rename(streams_dir, thumbs_dir);
+        sdsfree(thumbs_dir);
+    }
+    sdsfree(streams_dir);
+
     const struct t_subdirs_entry *p = NULL;
     //workdir
     for (p = workdir_subdirs; p->dirname != NULL; p++) {

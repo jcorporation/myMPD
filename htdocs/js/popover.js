@@ -396,8 +396,7 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
             "StreamUri": uri,
             "Homepage": getData(dataNode, 'homepage'),
             "Country": getData(dataNode, 'country'),
-            "Language": getData(dataNode, 'language'),
-            "RADIOBROWSERUUID": uuid
+            "Language": getData(dataNode, 'language')
         }]}, 'Add to favorites');
     }
     if (app.id === 'BrowseRadioWebradiodb' &&
@@ -419,17 +418,8 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
     if (app.id === 'QueueCurrent' &&
         type === 'webradio')
     {
-        const webradioUuid = getData(dataNode, 'RADIOBROWSERUUID');
-        const webradioUri = getData(dataNode, 'webradioUri');
         addDivider(tabContent);
-        if (webradioUuid !== '') {
-            addMenuItem(tabContent, {"cmd": "showRadiobrowserDetails", "options": [webradioUuid]}, 'Webradio details');
-        }
-        else {
-            if (webradioDb.webradios[webradioUri] !== undefined) {
-                addMenuItem(tabContent, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
-            }
-        }
+        const webradioUri = getData(dataNode, 'webradioUri');
         addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [webradioUri]}, 'Edit webradio favorite');
     }
 }
@@ -489,24 +479,14 @@ function addMenuItemsWebradioFavoritesActions(tabContent, dataNode) {
     const uri = getData(dataNode, 'uri');
     const plistUri = getRadioFavoriteUri(uri);
     const name = getData(dataNode, 'name');
-    const uuid = getData(dataNode, 'RADIOBROWSERUUID');
     addMenuItemsPlaylistActions(tabContent, dataNode, type, plistUri, name);
     addDivider(tabContent);
-    if (uuid !== '') {
-        addMenuItem(tabContent, {"cmd": "showRadiobrowserDetails", "options": [uuid]}, 'Webradio details');
-    }
-    else {
-        if (webradioDb.webradios[uri] !== undefined) {
-            addMenuItem(tabContent, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
-        }
-    }
     addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
     addMenuItem(tabContent, {"cmd": "deleteRadioFavorite", "options": [uri]}, 'Delete webradio favorite');
 }
 
 function addMenuItemsWebradioFavoritesHomeActions(tabContent, uri) {
     addDivider(tabContent);
-    addMenuItem(tabContent, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
     addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
 }
 
@@ -523,6 +503,9 @@ function addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name) {
             addDivider(tabContent);
             if (app.id === 'BrowseRadioFavorites') {
                 const image = getData(dataNode, 'image');
+                if (isHttpUri(image) === false) {
+                    image = basename(image, false);
+                }
                 addMenuItem(tabContent, {"cmd": "addRadioFavoriteToHome", "options": [uri, type, name, image]}, 'Add to homescreen');
             }
             else {
@@ -649,10 +632,10 @@ function createMenuLists(el, tabHeader, tabContent) {
         }
         case 'QueueJukebox': {
             const pos = Number(getData(dataNode, 'pos'));
-            if (settings.jukeboxMode === 1) {
+            if (settings.jukeboxMode === 'song') {
                 addMenuItemsSongActions(tabContent, dataNode, uri, type, name);
             }
-            else if (settings.jukeboxMode === 2) {
+            else if (settings.jukeboxMode === 'album') {
                 addMenuItemsAlbumActions(tabContent, dataNode)
             }
             addDivider(tabContent);
@@ -681,7 +664,7 @@ function createMenuListsSecondary(el, tabHeader, tabContent) {
                 (app.id === 'BrowseFilesystem' && type === 'dir') ||
                 (app.id === 'BrowseFilesystem' && type === 'plist') ||
                 (app.id === 'BrowseFilesystem' && type === 'smartpls') ||
-                (app.id === 'QueueJukebox' && settings.jukeboxMode === 2))
+                (app.id === 'QueueJukebox' && settings.jukeboxMode === 'album'))
             {
                 return false;
             }

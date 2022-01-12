@@ -86,7 +86,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
     sdsrange(uri_decoded, 10, -1);
 
     MYMPD_LOG_DEBUG("Handle albumart for uri \"%s\"", uri_decoded);
-    //check for cover in /pics/streams/ and webradio m3u
+    //check for cover in /pics/thumbs/ and webradio m3u
     if (is_streamuri(uri_decoded) == true) {
         if (sdslen(uri_decoded) == 0) {
             MYMPD_LOG_ERROR("Uri to short");
@@ -96,7 +96,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
         }
         sds_sanitize_filename(uri_decoded);
 
-        sds coverfile = sdscatfmt(sdsempty(), "%S/pics/streams/%S", config->workdir, uri_decoded);
+        sds coverfile = sdscatfmt(sdsempty(), "%S/pics/thumbs/%S", config->workdir, uri_decoded);
         MYMPD_LOG_DEBUG("Check for stream cover \"%s\"", coverfile);
         coverfile = webserver_find_image_file(coverfile);
 
@@ -116,7 +116,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
                     return true;
                 }
                 if (sdslen(extimg) > 0) {
-                    coverfile = sdscatfmt(sdsempty(), "%S/pics/streams/%S", config->workdir, extimg);
+                    coverfile = sdscatfmt(sdsempty(), "%S/pics/thumbs/%S", config->workdir, extimg);
                 }
                 FREE_SDS(extimg);
             }

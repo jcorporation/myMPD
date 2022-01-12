@@ -6,10 +6,10 @@
 function initJukebox() {
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            if (settings.jukeboxMode === 1) {
+            if (settings.jukeboxMode === 'song') {
                 clickSong(getData(event.target.parentNode, 'uri'), getData(event.target.parentNode, 'name'));
             }
-            else if (settings.jukeboxMode === 2) {
+            else if (settings.jukeboxMode === 'album') {
                 clickAlbumPlay(getData(event.target.parentNode, 'AlbumArtist'), getData(event.target.parentNode, 'Album'));
             }
         }
@@ -56,7 +56,9 @@ function delQueueJukeboxSong(pos) {
 
 function parseJukeboxList(obj) {
     if (checkResultId(obj, 'QueueJukeboxList') === false) {
-        if (obj.result !== undefined && obj.result.jukeboxMode === 0) {
+        if (obj.result !== undefined &&
+            obj.result.jukeboxMode === 'off')
+        {
             elHideId('QueueJukeboxList');
             elShowId('QueueJukeboxDisabled');
         }

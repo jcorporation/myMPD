@@ -108,7 +108,7 @@ function saveTimer() {
         setIsInvalid(selectTimerAction);
     }
 
-    if (jukeboxMode === '0' &&
+    if (jukeboxMode === 'off' &&
         selectTimerPlaylist === 'Database' &&
         getSelectValue(selectTimerAction) === 'startplay')
     {
@@ -147,7 +147,7 @@ function saveTimer() {
             "subaction": getSelectValue(selectTimerAction),
             "volume": Number(document.getElementById('inputTimerVolume').value),
             "playlist": selectTimerPlaylist,
-            "jukeboxMode": Number(jukeboxMode),
+            "jukeboxMode": jukeboxMode,
             "arguments": args
         }, saveTimerCheckError, true);
     }
@@ -179,7 +179,7 @@ function showEditTimer(timerid) {
         }, parseEditTimer);
     }
     else {
-        filterPlaylistsSelect(1, 'selectTimerPlaylist', '', 'Database');
+        filterPlaylistsSelect(0, 'selectTimerPlaylist', '', 'Database');
         document.getElementById('selectTimerPlaylist').value = tn('Database');
         setDataId('selectTimerPlaylist', 'value', 'Database');
 
@@ -193,7 +193,7 @@ function showEditTimer(timerid) {
         document.getElementById('selectTimerPlaylist').value = 'Database';
         selectTimerIntervalChange(86400);
         selectTimerActionChange();
-        toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), 1);
+        toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), 'song');
         const weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
         for (let i = 0, j = weekdayBtns.length; i < j; i++) {
             toggleBtnChkId(weekdayBtns[i], false);

@@ -106,6 +106,7 @@ function setSelectSearch(el) {
     el.filterInput = filterInput;
     el.filterResult = filterResult;
     el.classList.add('innerButton');
+    setData(el, 'value', el.value);
     el.addEventListener('keyup', function(event) {
         setData(el, 'value', event.target.value);
     }, false);
