@@ -112,6 +112,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
                     FREE_SDS(uri_decoded);
                     FREE_SDS(coverfile);
                     FREE_SDS(extimg);
+                    FREE_SDS(webradio_file);
                     return true;
                 }
                 if (sdslen(extimg) > 0) {
