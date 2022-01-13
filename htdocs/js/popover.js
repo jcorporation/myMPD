@@ -512,6 +512,8 @@ function addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name) {
                 addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, type, name]}, 'Add to homescreen');
             }
         }
+    }
+    if (app.id !== 'BrowsePlaylistsList') {
         if (type === 'plist' ||
             type === 'smartpls')
         {
