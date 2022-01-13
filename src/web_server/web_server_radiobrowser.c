@@ -161,7 +161,6 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
             break;
         }
         case MG_EV_CLOSE: {
-            //print end of jsonrpc message
             MYMPD_LOG_INFO("Backend HTTP connection \"%lu\" closed", nc->id);
             mg_user_data->connection_count--;
             if (backend_nc_data->frontend_nc != NULL) {
