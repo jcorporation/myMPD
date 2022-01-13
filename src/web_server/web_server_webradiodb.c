@@ -118,8 +118,7 @@ static bool webradiodb_cache_write(sds cachedir, const char *cache_file, const c
 static bool webradiodb_send(struct mg_connection *nc, struct mg_connection *backend_nc,
         enum mympd_cmd_ids cmd_id, const char *request)
 {
-    const char *host = WEBRADIODB_HOST;
-    sds uri = sdscatfmt(sdsempty(), "https://%s%s", host, request);
+    sds uri = sdscatfmt(sdsempty(), "https://%s%s", WEBRADIODB_HOST, request);
     backend_nc = create_http_backend_connection(nc, backend_nc, uri, webradiodb_handler);
     sdsfree(uri);
     if (backend_nc != NULL) {
