@@ -169,10 +169,11 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
                 backend_nc_data->frontend_nc->fn_data = NULL;
                 //close frontend connection
                 backend_nc_data->frontend_nc->is_draining = 1;
-                //free backend_nc_data
-                free_backend_nc_data(backend_nc_data);
-                free(fn_data);
             }
+            //free backend_nc_data
+            free_backend_nc_data(backend_nc_data);
+            free(backend_nc_data);
+            nc->fn_data = NULL;
             break;
         }
     }
