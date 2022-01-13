@@ -838,7 +838,7 @@ const APImethods = {
             },
             "mpdTimeout": {
                 "type": "uint",
-                "example": 10000,
+                "example": 120000,
                 "desc": "MPD timeout in ms"
             }
         }
@@ -1116,7 +1116,7 @@ const APImethods = {
                     "uiLocale": {
                         "type": "text",
                         "example": "de-DE",
-                        "desc": "Language code or \"auto\" for browser default"
+                        "desc": "Language code or \"auto\" for browser default."
                     }
                 }
             }
@@ -1126,14 +1126,14 @@ const APImethods = {
         "desc": "Sets MPD and jukebox options.",
         "params":{
             "consume": {
-                "type": "uint",
-                "example": 1,
-                "desc": "MPD consume mode: 1=enabled, 0=disabled"
+                "type": "bool",
+                "example": true,
+                "desc": "MPD consume mode."
             },
             "random": {
-                "type": "uint",
-                "example": 0,
-                "desc": "MPD randome mode: 1=enabled, 0=disabled"
+                "type": "bool",
+                "example": false,
+                "desc": "MPD randome mode."
             },
             "single": {
                 "type": "text",
@@ -1141,9 +1141,9 @@ const APImethods = {
                 "desc": "MPD single mode: 0, 1, oneshot"
             },
             "repeat": {
-                "type": "uint",
-                "example": 1,
-                "desc": "MPD repeat mode: 1=enabled, 0=disabled"
+                "type": "bool",
+                "example": false,
+                "desc": "MPD repeat mode."
             },
             "replaygain": {
                 "type": "text",
@@ -1545,7 +1545,7 @@ const APImethods = {
         "params": {
             "type": {
                 "type": "text",
-                "example": "streams",
+                "example": "thumbs",
                 "desc": "Subfolder of pics directory."
             }
         }
@@ -1609,7 +1609,7 @@ const APImethods = {
         "params": {
             "loglevel": {
                 "type": "uint",
-                "example": 5,
+                "example": 7,
                 "desc": "https://jcorporation.github.io/myMPD/configuration/logging"
             }
         }
@@ -1633,9 +1633,14 @@ const APImethods = {
             "streamUri": {
                 "type": "string",
                 "example": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
-                "desc": "URI of the webradio stream."
+                "desc": "New URI of the webradio stream."
             },
-            "picture": {
+            "streamUriOld": {
+                "type": "string",
+                "example": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
+                "desc": "Old URI of the webradio stream."
+            },
+            "image": {
                 "type": "string",
                 "example": "http://www.swr.de/streampic.jpg",
                 "desc": "Picture for the webradio."
@@ -1650,12 +1655,21 @@ const APImethods = {
                 "example": "http://swr1.de",
                 "desc": "Webradio homepage"
             },
+            "country": {
+                "type": "string",
+                "example": "Germany",
+                "desc": "Country"
+            },
+            "language": {
+                "type": "string",
+                "example": "German",
+                "desc": "Language"
+            },
             "description": {
                 "type": "string",
                 "example": "Short description",
                 "desc": "Short description"
-            },
-            "RADIOBROWSERUUID": APIparams.radiobrowserUUID
+            }
         }
     },
     "MYMPD_API_WEBRADIO_FAVORITE_GET": {
