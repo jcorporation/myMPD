@@ -198,13 +198,13 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
         if (offset == 0 &&
             entities_returned < limit)
         {
-            buffer = tojson_long(buffer, "totalEntities", entities_returned, true);
+            buffer = tojson_uint(buffer, "totalEntities", entities_returned, true);
         }
         else {
             buffer = tojson_long(buffer, "totalEntities", -1, true);
         }
-        buffer = tojson_long(buffer, "offset", offset, true);
-        buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
+        buffer = tojson_uint(buffer, "offset", offset, true);
+        buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
         if (adv == true) {
             buffer = tojson_char(buffer, "expression", expression, true);
             buffer = tojson_char(buffer, "sort", sort, true);

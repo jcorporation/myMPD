@@ -208,7 +208,7 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
     struct mpd_song *song;
     long entities_returned = 0;
     long entity_count = 0;
-    long total_time = 0;
+    unsigned total_time = 0;
     long real_limit = offset + limit;
     sds entityName = sdsempty();
     size_t search_len = sdslen(searchstr);
@@ -250,7 +250,7 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
 
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
-    buffer = tojson_long(buffer, "totalTime", total_time, true);
+    buffer = tojson_uint(buffer, "totalTime", total_time, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_char(buffer, "searchstr", searchstr, true);

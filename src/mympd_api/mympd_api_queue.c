@@ -124,7 +124,7 @@ sds mympd_api_queue_status(struct t_mympd_state *mympd_state, sds buffer) {
 
     mympd_state->mpd_state->queue_version = mpd_status_get_queue_version(status);
     mympd_state->mpd_state->queue_length = mpd_status_get_queue_length(status);
-    mympd_state->mpd_state->crossfade = mpd_status_get_crossfade(status);
+    mympd_state->mpd_state->crossfade = (time_t)mpd_status_get_crossfade(status);
     mympd_state->mpd_state->state = mpd_status_get_state(status);
 
     if (buffer != NULL) {
@@ -203,7 +203,7 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
 
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    long total_time = 0;
+    unsigned total_time = 0;
     long entity_count = 0;
     long entities_returned = 0;
     struct mpd_song *song;
@@ -218,7 +218,7 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
     }
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_long(buffer, "totalTime", total_time, true);
+    buffer = tojson_uint(buffer, "totalTime", total_time, true);
     buffer = tojson_llong(buffer, "totalEntities", mympd_state->mpd_state->queue_length, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
@@ -263,7 +263,7 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     struct mpd_song *song;
-    long total_time = 0;
+    unsigned total_time = 0;
     long entity_count = 0;
     long entities_returned = 0;
     long real_limit = offset + limit;
@@ -280,7 +280,7 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
     }
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_long(buffer, "totalTime", total_time, true);
+    buffer = tojson_uint(buffer, "totalTime", total_time, true);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
@@ -299,9 +299,9 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
 
 sds _print_queue_entry(struct t_mympd_state *mympd_state, sds buffer, const struct t_tags *tagcols, struct mpd_song *song) {
     buffer = sdscatlen(buffer, "{", 1);
-    buffer = tojson_long(buffer, "id", mpd_song_get_id(song), true);
-    buffer = tojson_long(buffer, "Pos", mpd_song_get_pos(song), true);
-    buffer = tojson_long(buffer, "Priority", mpd_song_get_prio(song), true);
+    buffer = tojson_uint(buffer, "id", mpd_song_get_id(song), true);
+    buffer = tojson_uint(buffer, "Pos", mpd_song_get_pos(song), true);
+    buffer = tojson_uint(buffer, "Priority", mpd_song_get_prio(song), true);
     const struct mpd_audio_format *audioformat = mpd_song_get_audio_format(song);
     buffer = printAudioFormat(buffer, audioformat);
     buffer = sdscatlen(buffer, ",", 1);

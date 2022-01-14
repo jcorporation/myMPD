@@ -84,7 +84,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
     MYMPD_LOG_INFO("Creating caches");
     unsigned start = 0;
     unsigned end = start + MPD_RESULTS_MAX;
-    long i = 0;
+    unsigned i = 0;
     long album_count = 0;
     long song_count = 0;
     long skipped = 0;

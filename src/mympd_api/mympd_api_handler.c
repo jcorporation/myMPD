@@ -1237,9 +1237,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         case MYMPD_API_QUEUE_ADD_RANDOM:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.mode", 0, 2, &uint_buf1, &error) == true &&
-                json_get_uint(request->data, "$.params.quantity", 0, 1000, &uint_buf2, &error) == true)
+                json_get_long(request->data, "$.params.quantity", 0, 1000, &long_buf1, &error) == true)
             {
-                rc = mpd_client_jukebox_add_to_queue(mympd_state, uint_buf2, uint_buf1, sds_buf1, true);
+                rc = mpd_client_jukebox_add_to_queue(mympd_state, long_buf1, uint_buf1, sds_buf1, true);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                         "queue", "info", "Successfully added random songs to queue");

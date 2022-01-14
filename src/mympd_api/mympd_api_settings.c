@@ -231,7 +231,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
         }
     }
     else if (strcmp(key, "lastPlayedCount") == 0 && vtype == MJSON_TOK_NUMBER) {
-        long last_played_count = strtoimax(value, NULL, 10);
+        long last_played_count = (long)strtoimax(value, NULL, 10);
         if (last_played_count < 0 || last_played_count > MPD_PLAYLIST_LENGTH_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
@@ -310,7 +310,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
         mympd_state->smartpls_prefix = sds_replacelen(mympd_state->smartpls_prefix, value, sdslen(value));
     }
     else if (strcmp(key, "smartplsInterval") == 0 && vtype == MJSON_TOK_NUMBER) {
-        time_t interval = strtoimax(value, NULL, 10);
+        time_t interval = (time_t)strtoimax(value, NULL, 10);
         if (interval < TIMER_INTERVAL_MIN || interval > TIMER_INTERVAL_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
@@ -421,7 +421,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
         }
     }
     else if (strcmp(key, "jukeboxQueueLength") == 0 && vtype == MJSON_TOK_NUMBER) {
-        long jukebox_queue_length = strtoimax(value, NULL, 10);
+        long jukebox_queue_length = (long)strtoimax(value, NULL, 10);
         if (jukebox_queue_length <= 0 || jukebox_queue_length > JUKEBOX_QUEUE_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
@@ -440,7 +440,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
         }
     }
     else if (strcmp(key, "jukeboxLastPlayed") == 0 && vtype == MJSON_TOK_NUMBER) {
-        long jukebox_last_played = strtoimax(value, NULL, 10);
+        long jukebox_last_played = (long)strtoimax(value, NULL, 10);
         if (jukebox_last_played < 0 || jukebox_last_played > JUKEBOX_LAST_PLAYED_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;

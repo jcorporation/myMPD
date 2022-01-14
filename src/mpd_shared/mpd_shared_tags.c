@@ -168,7 +168,7 @@ sds get_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags
         buffer = sdscatfmt(buffer, "\"Title\":%s,", tag_value);
     }
     FREE_SDS(tag_value);
-    buffer = tojson_long(buffer, "Duration", mpd_song_get_duration(song), true);
+    buffer = tojson_uint(buffer, "Duration", mpd_song_get_duration(song), true);
     buffer = tojson_long(buffer, "LastModified", mpd_song_get_last_modified(song), true);
     buffer = tojson_char(buffer, "uri", mpd_song_get_uri(song), false);
     return buffer;
@@ -210,7 +210,7 @@ sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct 
 
 sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat) {
     buffer = sdscat(buffer, "\"AudioFormat\":{");
-    buffer = tojson_long(buffer, "sampleRate", (audioformat ? audioformat->sample_rate : 0), true);
+    buffer = tojson_uint(buffer, "sampleRate", (audioformat ? audioformat->sample_rate : 0), true);
     buffer = tojson_long(buffer, "bits", (audioformat ? audioformat->bits : 0), true);
     buffer = tojson_long(buffer, "channels", (audioformat ? audioformat->channels : 0), false);
     buffer = sdscatlen(buffer, "}", 1);

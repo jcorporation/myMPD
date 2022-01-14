@@ -209,9 +209,9 @@ sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
     sds mpd_protocol_version = sdscatfmt(sdsempty(),"%u.%u.%u", version[0], version[1], version[2]);
 
     buffer = jsonrpc_result_start(buffer, method, request_id);
-    buffer = tojson_long(buffer, "artists", mpd_stats_get_number_of_artists(stats), true);
-    buffer = tojson_long(buffer, "albums", mpd_stats_get_number_of_albums(stats), true);
-    buffer = tojson_long(buffer, "songs", mpd_stats_get_number_of_songs(stats), true);
+    buffer = tojson_uint(buffer, "artists", mpd_stats_get_number_of_artists(stats), true);
+    buffer = tojson_uint(buffer, "albums", mpd_stats_get_number_of_albums(stats), true);
+    buffer = tojson_uint(buffer, "songs", mpd_stats_get_number_of_songs(stats), true);
     buffer = tojson_ulong(buffer, "playtime", mpd_stats_get_play_time(stats), true);
     buffer = tojson_ulong(buffer, "uptime", mpd_stats_get_uptime(stats), true);
     buffer = tojson_long(buffer, "myMPDuptime", time(NULL) - mympd_state->config->startup_time, true);

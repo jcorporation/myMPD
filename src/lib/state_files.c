@@ -120,7 +120,7 @@ long state_file_rw_long(const char *workdir, const char *dir, const char *name, 
     sds def_value_str = sdsfromlonglong((long long)def_value);
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
     FREE_SDS(def_value_str);
-    value = strtoimax(line, &crap, 10);
+    value = (long)strtoimax(line, &crap, 10);
     FREE_SDS(line);
     if (value >= min && value <= max) {
         return value;

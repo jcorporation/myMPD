@@ -44,7 +44,7 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
     }
     else if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "startplay") == 0) {
         struct t_work_request *request = create_request(-1, 0, INTERNAL_API_TIMER_STARTPLAY, NULL);
-        request->data = tojson_long(request->data, "volume", definition->volume, true);
+        request->data = tojson_uint(request->data, "volume", definition->volume, true);
         request->data = tojson_char(request->data, "plist", definition->playlist, true);
         request->data = tojson_long(request->data, "jukeboxMode", definition->jukebox_mode, false);
         request->data = sdscatlen(request->data, "}}", 2);

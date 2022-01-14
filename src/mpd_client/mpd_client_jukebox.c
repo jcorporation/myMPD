@@ -175,7 +175,7 @@ static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
         check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
         return false;
     }
-    long queue_length = mpd_status_get_queue_length(status);
+    long queue_length = (long)mpd_status_get_queue_length(status);
     mpd_status_free(status);
 
     time_t now = time(NULL);
@@ -685,7 +685,7 @@ static long _fill_jukebox_queue_songs(struct t_mympd_state *mympd_state, long ad
         }
         start = end;
         end = end + MPD_RESULTS_MAX;
-    } while (from_database == true && lineno + skipno > start);
+    } while (from_database == true && lineno + skipno > (long)start);
     MYMPD_LOG_DEBUG("Jukebox iterated through %ld songs, skipped %ld", lineno, skipno);
     return (int)nkeep;
 }

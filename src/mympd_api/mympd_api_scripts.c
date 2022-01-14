@@ -542,7 +542,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                 request->data = tojson_bool(request->data, lua_tostring(lua_vm, i), lua_toboolean(lua_vm, i + 1), comma);
             }
             else if (lua_isinteger(lua_vm, i + 1)) {
-                request->data = tojson_long(request->data, lua_tostring(lua_vm, i), lua_tointeger(lua_vm, i + 1), comma);
+                request->data = tojson_llong(request->data, lua_tostring(lua_vm, i), lua_tointeger(lua_vm, i + 1), comma);
             }
             else if (lua_isnumber(lua_vm, i + 1)) {
                 request->data = tojson_double(request->data, lua_tostring(lua_vm, i), lua_tonumber(lua_vm, i + 1), comma);
