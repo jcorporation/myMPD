@@ -300,7 +300,7 @@ void sds_strip_file_extension(sds s) {
     char *ep = s + sdslen(s) - 1;
     while (ep >= sp) {
         if (*ep == '.') {
-            size_t len = (size_t)(ep-sp)+1;
+            size_t len = (size_t)(ep-sp);
             s[len] = '\0';
             sdssetlen(s, len);
             break;
