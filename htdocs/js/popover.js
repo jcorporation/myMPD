@@ -502,7 +502,7 @@ function addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name) {
         if (app.id !== 'Home') {
             addDivider(tabContent);
             if (app.id === 'BrowseRadioFavorites') {
-                const image = getData(dataNode, 'image');
+                let image = getData(dataNode, 'image');
                 if (isHttpUri(image) === false) {
                     image = basename(image, false);
                 }
