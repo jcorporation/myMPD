@@ -14,7 +14,7 @@
 struct backend_nc_data_t {
     struct mg_connection *frontend_nc;
     sds uri;
-    int cmd_id;
+    enum mympd_cmd_ids cmd_id;
 };
 
 void free_backend_nc_data(struct backend_nc_data_t *data);

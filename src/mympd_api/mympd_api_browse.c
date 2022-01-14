@@ -682,13 +682,13 @@ static bool _search_song(struct mpd_song *song, struct t_list *expr_list, struct
         else {
             //use selected tag only
             tags = &one_tag;
-            tags->tags[0] = current->value_i;
+            tags->tags[0] = (enum mpd_tag_type)current->value_i;
         }
         bool rc = false;
         sds_utf8_tolower(current->key);
-        for (int i = 0; i < tags->len; i++) {
+        for (size_t i = 0; i < tags->len; i++) {
             rc = true;
-            int j = 0;
+            unsigned j = 0;
             const char *value = NULL;
             while ((value = mpd_song_get_tag(song, tags->tags[i], j)) != NULL) {
                 j++;

@@ -200,7 +200,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector-strong -D_FORTIFY_SOURCE=2
   -ffunction-sections -fdata-sections -Wall -Werror -Wvla -Winit-self -Wuninitialized \
 	-Werror=array-bounds -Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
 	-Wformat=2 -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs \
-	-Wmissing-include-dirs -Wundef -Wformat-nonliteral -Wsign-compare \
+	-Wmissing-include-dirs -Wundef -Wformat-nonliteral -Wsign-compare -Wconversion \
 	${LIBASAN_FLAGS} ${MONGOOSE_FLAGS} ${MJSON_FLAGS}")
 
 #check for supported compiler flags
@@ -227,11 +227,11 @@ endif()
 #compiler flags for mongoose
 set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral")
 #compiler flags for rax
-set_property(SOURCE dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral \
+set_property(SOURCE dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
   -Wno-shadow -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers")
 #compiler flags for sds
 #-Wno-stringop-overflow: gcc 11.2.0 bug
-set_property(SOURCE dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-stringop-overflow")
+set_property(SOURCE dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-stringop-overflow -Wno-conversion")
 
 #set source files
 set(MYMPD_SOURCES

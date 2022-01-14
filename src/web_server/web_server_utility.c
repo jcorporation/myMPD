@@ -188,7 +188,7 @@ struct embedded_file {
     bool compressed;
     bool cache;
     const unsigned char *data;
-    const int size;
+    const unsigned size;
 };
 
 bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {

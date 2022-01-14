@@ -78,7 +78,7 @@ mpd_run_play(struct mpd_connection *connection)
 bool
 mpd_send_play_pos(struct mpd_connection *connection, unsigned song_pos)
 {
-	return mpd_send_int_command(connection, "play", song_pos);
+	return mpd_send_u_command(connection, "play", song_pos);
 }
 
 bool
@@ -92,7 +92,7 @@ mpd_run_play_pos(struct mpd_connection *connection, unsigned song_pos)
 bool
 mpd_send_play_id(struct mpd_connection *connection, unsigned song_id)
 {
-	return mpd_send_int_command(connection, "playid", song_id);
+	return mpd_send_u_command(connection, "playid", song_id);
 }
 
 bool
@@ -173,7 +173,7 @@ bool
 mpd_send_seek_pos(struct mpd_connection *connection,
 		 unsigned song_pos, unsigned t)
 {
-	return mpd_send_int2_command(connection, "seek", song_pos, t);
+	return mpd_send_u2_command(connection, "seek", song_pos, t);
 }
 
 bool
@@ -189,7 +189,7 @@ bool
 mpd_send_seek_id(struct mpd_connection *connection,
 		 unsigned song_id, unsigned t)
 {
-	return mpd_send_int2_command(connection, "seekid", song_id, t);
+	return mpd_send_u2_command(connection, "seekid", song_id, t);
 }
 
 bool
@@ -318,7 +318,7 @@ mpd_run_consume(struct mpd_connection *connection, bool mode)
 bool
 mpd_send_crossfade(struct mpd_connection *connection, unsigned seconds)
 {
-	return mpd_send_int_command(connection, "crossfade", seconds);
+	return mpd_send_u_command(connection, "crossfade", seconds);
 }
 
 bool

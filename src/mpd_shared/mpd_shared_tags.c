@@ -88,7 +88,7 @@ void enable_mpd_tags(struct t_mpd_state *mpd_state, struct t_tags *enable_tags) 
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear_tag_types");
             }
             if (enable_tags->len > 0) {
-                rc = mpd_send_enable_tag_types(mpd_state->conn, enable_tags->tags, enable_tags->len);
+                rc = mpd_send_enable_tag_types(mpd_state->conn, enable_tags->tags, (unsigned)enable_tags->len);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_enable_tag_types");
                 }
@@ -158,7 +158,7 @@ sds get_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags
 {
     sds tag_value = sdsempty();
     if (mpd_state->feat_mpd_tags == true) {
-        for (int tagnr = 0; tagnr < tagcols->len; ++tagnr) {
+        for (unsigned tagnr = 0; tagnr < tagcols->len; ++tagnr) {
             tag_value = mpd_shared_get_tag_values(song, tagcols->tags[tagnr], tag_value);
             buffer = sdscatfmt(buffer, "\"%s\":%s,", mpd_tag_name(tagcols->tags[tagnr]), tag_value);
         }
@@ -180,7 +180,7 @@ sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct 
     sds filename = sdsnew(uri);
     sds_basename_uri(filename);
     if (mpd_state->feat_mpd_tags == true) {
-        for (int tagnr = 0; tagnr < tagcols->len; ++tagnr) {
+        for (unsigned tagnr = 0; tagnr < tagcols->len; ++tagnr) {
             const bool multi = is_multivalue_tag(tagcols->tags[tagnr]);
             buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(tagcols->tags[tagnr]));
             if (multi == true) {
@@ -223,7 +223,7 @@ bool filter_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_
     }
     sds value = sdsempty();
     bool rc = false;
-    for (int i = 0; i < tagcols->len; i++) {
+    for (unsigned i = 0; i < tagcols->len; i++) {
         value = _mpd_shared_get_tag_values(song, tagcols->tags[i], value, false);
         sdstolower(value);
         if (strstr(value, searchstr) != NULL) {
@@ -292,7 +292,7 @@ void album_cache_free(rax **album_cache) {
 static sds _mpd_shared_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values) {
     sdsclear(tag_values);
     char *value = NULL;
-    int i = 0;
+    unsigned i = 0;
     //return json string
     while ((value = (char *)mpd_song_get_tag(song, tag, i)) != NULL) {
         if (i++) {
@@ -306,7 +306,7 @@ static sds _mpd_shared_get_tag_value_string(struct mpd_song const *song, const e
 static sds _mpd_shared_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values, const bool multi) {
     sdsclear(tag_values);
     char *value = NULL;
-    int i = 0;
+    unsigned i = 0;
     if (multi == true) {
         //return json array
         tag_values = sdscatlen(tag_values, "[", 1);

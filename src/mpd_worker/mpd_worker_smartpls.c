@@ -157,7 +157,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
 
 //private functions
 static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_state) {
-    for (int i = 0; i < mpd_worker_state->smartpls_generate_tag_types.len; i++) {
+    for (unsigned i = 0; i < mpd_worker_state->smartpls_generate_tag_types.len; i++) {
         enum mpd_tag_type tag = mpd_worker_state->smartpls_generate_tag_types.tags[i];
         bool rc = mpd_search_db_tags(mpd_worker_state->mpd_state->conn, tag);
 
@@ -357,10 +357,10 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
     }
 
     //prevent overflow
-    if ((unsigned long)timerange > value_max) {
+    if (timerange < 0) {
         return false;
     }
-    value_max -= timerange;
+    value_max = value_max - (unsigned long)timerange;
 
     mpd_worker_smartpls_clear(mpd_worker_state, playlist);
 

@@ -82,11 +82,11 @@ unsigned
 mpd_recv_update_id(struct mpd_connection *connection)
 {
 	struct mpd_pair *pair;
-	int ret = 0;
+	unsigned ret = 0;
 
 	pair = mpd_recv_pair_named(connection, "updating_db");
 	if (pair != NULL) {
-		ret = atoi(pair->value);
+		ret = (unsigned)strtoul(pair->value, NULL, 10);
 		mpd_return_pair(connection, pair);
 	}
 

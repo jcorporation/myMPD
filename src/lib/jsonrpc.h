@@ -59,7 +59,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
 bool json_get_tags(sds s, const char *path, struct t_tags *tags, int max_elements, sds *error);
 bool json_find_key(sds s, const char *path);
 
-const char *get_mjson_toktype_name(unsigned vtype);
+const char *get_mjson_toktype_name(int vtype);
 sds list_to_json_array(sds s, struct t_list *l);
 sds json_get_cols_as_string(sds s, sds cols, bool *rc);
 

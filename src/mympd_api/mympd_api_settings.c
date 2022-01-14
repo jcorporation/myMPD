@@ -71,7 +71,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
         mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, value);
     }
     else if (strcmp(key, "mpdPort") == 0 && vtype == MJSON_TOK_NUMBER) {
-        int mpd_port = (int)strtoimax(value, NULL, 10);
+        unsigned mpd_port = (unsigned)strtoumax(value, NULL, 10);
         if (mpd_port < MPD_PORT_MIN || mpd_port > MPD_PORT_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
@@ -79,7 +79,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
         mympd_state->mpd_state->mpd_port = mpd_port;
     }
     else if (strcmp(key, "mpdStreamPort") == 0 && vtype == MJSON_TOK_NUMBER) {
-        int mpd_stream_port = (int)strtoimax(value, NULL, 10);
+        unsigned mpd_stream_port = (unsigned)strtoumax(value, NULL, 10);
         if (mpd_stream_port < MPD_PORT_MIN || mpd_stream_port > MPD_PORT_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
@@ -103,7 +103,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
         sds_strip_slash(mympd_state->playlist_directory);
     }
     else if (strcmp(key, "mpdBinarylimit") == 0 && vtype == MJSON_TOK_NUMBER) {
-        unsigned binarylimit = strtoumax(value, NULL, 10);
+        unsigned binarylimit = (unsigned)strtoumax(value, NULL, 10);
         if (binarylimit < MPD_BINARY_SIZE_MIN || binarylimit > MPD_BINARY_SIZE_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
@@ -116,7 +116,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
         }
     }
     else if (strcmp(key, "mpdTimeout") == 0 && vtype == MJSON_TOK_NUMBER) {
-        unsigned mpd_timeout = strtoumax(value, NULL, 10);
+        unsigned mpd_timeout = (unsigned)strtoumax(value, NULL, 10);
         if (mpd_timeout < MPD_TIMEOUT_MIN || mpd_timeout > MPD_TIMEOUT_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
@@ -239,7 +239,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
         mympd_state->last_played_count = last_played_count;
     }
     else if (strcmp(key, "volumeMin") == 0 && vtype == MJSON_TOK_NUMBER) {
-        unsigned volume_min = (int)strtoumax(value, NULL, 10);
+        unsigned volume_min = (unsigned)strtoumax(value, NULL, 10);
         if (volume_min > VOLUME_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
@@ -247,7 +247,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
         mympd_state->volume_min = volume_min;
     }
     else if (strcmp(key, "volumeMax") == 0 && vtype == MJSON_TOK_NUMBER) {
-        unsigned volume_max = (int)strtoumax(value, NULL, 10);
+        unsigned volume_max = (unsigned)strtoumax(value, NULL, 10);
         if (volume_max > VOLUME_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
@@ -255,7 +255,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
         mympd_state->volume_max = volume_max;
     }
     else if (strcmp(key, "volumeStep") == 0 && vtype == MJSON_TOK_NUMBER) {
-        int volume_step = (int)strtoimax(value, NULL, 10);
+        unsigned volume_step = (unsigned)strtoimax(value, NULL, 10);
         if (volume_step < VOLUME_STEP_MIN || volume_step > VOLUME_STEP_MAX) {
             *error = set_invalid_value(*error, key, value);
             return false;
@@ -484,7 +484,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
             rc = mpd_run_single_state(mympd_state->mpd_state->conn, state);
         }
         else if (strcmp(key, "crossfade") == 0 && vtype == MJSON_TOK_NUMBER) {
-            unsigned uint_buf = strtoumax(value, NULL, 10);
+            unsigned uint_buf = (unsigned)strtoumax(value, NULL, 10);
             if (uint_buf > MPD_CROSSFADE_MAX) {
                 *error = set_invalid_value(*error, key, value);
                 return false;
@@ -545,7 +545,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
 void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_NOTICE("Reading states");
     mympd_state->mpd_state->mpd_host = state_file_rw_string_sds(mympd_state->config->workdir, "state", "mpd_host", mympd_state->mpd_state->mpd_host, vcb_isname, false);
-    mympd_state->mpd_state->mpd_port = state_file_rw_int(mympd_state->config->workdir, "state", "mpd_port", mympd_state->mpd_state->mpd_port, MPD_PORT_MIN, MPD_PORT_MAX, false);
+    mympd_state->mpd_state->mpd_port = state_file_rw_uint(mympd_state->config->workdir, "state", "mpd_port", mympd_state->mpd_state->mpd_port, MPD_PORT_MIN, MPD_PORT_MAX, false);
     mympd_state->mpd_state->mpd_pass = state_file_rw_string_sds(mympd_state->config->workdir, "state", "mpd_pass", mympd_state->mpd_state->mpd_pass, vcb_isname, false);
     mympd_state->mpd_state->mpd_binarylimit = state_file_rw_uint(mympd_state->config->workdir, "state", "mpd_binarylimit", mympd_state->mpd_state->mpd_binarylimit, MPD_BINARY_SIZE_MIN, MPD_BINARY_SIZE_MAX, false);
     mympd_state->mpd_state->mpd_timeout = state_file_rw_uint(mympd_state->config->workdir, "state", "mpd_timeout", mympd_state->mpd_state->mpd_timeout, MPD_TIMEOUT_MIN, MPD_TIMEOUT_MAX, false);
@@ -560,7 +560,7 @@ void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
     mympd_state->smartpls_generate_tag_list = state_file_rw_string_sds(mympd_state->config->workdir, "state", "smartpls_generate_tag_list", mympd_state->smartpls_generate_tag_list, vcb_istaglist, false);
     mympd_state->last_played_count = state_file_rw_long(mympd_state->config->workdir, "state", "last_played_count", mympd_state->last_played_count, 0, MPD_PLAYLIST_LENGTH_MAX, false);
     mympd_state->auto_play = state_file_rw_bool(mympd_state->config->workdir, "state", "auto_play", mympd_state->auto_play, false);
-    mympd_state->jukebox_mode = state_file_rw_int(mympd_state->config->workdir, "state", "jukebox_mode", mympd_state->jukebox_mode, 0, 2, false);
+    mympd_state->jukebox_mode = state_file_rw_uint(mympd_state->config->workdir, "state", "jukebox_mode", mympd_state->jukebox_mode, 0, 2, false);
     mympd_state->jukebox_playlist = state_file_rw_string_sds(mympd_state->config->workdir, "state", "jukebox_playlist", mympd_state->jukebox_playlist, vcb_isfilename, false);
     mympd_state->jukebox_queue_length = state_file_rw_long(mympd_state->config->workdir, "state", "jukebox_queue_length", mympd_state->jukebox_queue_length, 0, JUKEBOX_QUEUE_MAX, false);
     mympd_state->jukebox_last_played = state_file_rw_long(mympd_state->config->workdir, "state", "jukebox_last_played", mympd_state->jukebox_last_played, 0, JUKEBOX_LAST_PLAYED_MAX, false);
@@ -583,7 +583,7 @@ void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
     mympd_state->volume_max = state_file_rw_uint(mympd_state->config->workdir, "state", "volume_max", mympd_state->volume_max, VOLUME_MIN, VOLUME_MAX, false);
     mympd_state->volume_step = state_file_rw_uint(mympd_state->config->workdir, "state", "volume_step", mympd_state->volume_step, VOLUME_STEP_MIN, VOLUME_STEP_MAX, false);
     mympd_state->webui_settings = state_file_rw_string_sds(mympd_state->config->workdir, "state", "webui_settings", mympd_state->webui_settings, validate_json, false);
-    mympd_state->mpd_stream_port = state_file_rw_int(mympd_state->config->workdir, "state", "mpd_stream_port", mympd_state->mpd_stream_port, MPD_PORT_MIN, MPD_PORT_MAX, false);
+    mympd_state->mpd_stream_port = state_file_rw_uint(mympd_state->config->workdir, "state", "mpd_stream_port", mympd_state->mpd_stream_port, MPD_PORT_MIN, MPD_PORT_MAX, false);
     mympd_state->lyrics_uslt_ext = state_file_rw_string_sds(mympd_state->config->workdir, "state", "lyrics_uslt_ext", mympd_state->lyrics_uslt_ext, vcb_isalnum, false);
     mympd_state->lyrics_sylt_ext = state_file_rw_string_sds(mympd_state->config->workdir, "state", "lyrics_sylt_ext", mympd_state->lyrics_sylt_ext, vcb_isalnum, false);
     mympd_state->lyrics_vorbis_uslt = state_file_rw_string_sds(mympd_state->config->workdir, "state", "lyrics_vorbis_uslt", mympd_state->lyrics_vorbis_uslt, vcb_isalnum, false);
@@ -599,9 +599,9 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
     buffer = tojson_char(buffer, "mpdHost", mympd_state->mpd_state->mpd_host, true);
-    buffer = tojson_int(buffer, "mpdPort", mympd_state->mpd_state->mpd_port, true);
+    buffer = tojson_uint(buffer, "mpdPort", mympd_state->mpd_state->mpd_port, true);
     buffer = tojson_char(buffer, "mpdPass", "dontsetpassword", true);
-    buffer = tojson_int(buffer, "mpdStreamPort", mympd_state->mpd_stream_port, true);
+    buffer = tojson_uint(buffer, "mpdStreamPort", mympd_state->mpd_stream_port, true);
     buffer = tojson_uint(buffer, "mpdTimeout", mympd_state->mpd_state->mpd_timeout, true);
     buffer = tojson_bool(buffer, "mpdKeepalive", mympd_state->mpd_state->mpd_keepalive, true);
     buffer = tojson_uint(buffer, "mpdBinarylimit", mympd_state->mpd_state->mpd_binarylimit, true);
@@ -822,7 +822,7 @@ static sds read_navbar_icons(struct t_config *config) {
 
 static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags) {
     buffer = sdscatfmt(buffer, "\"%s\": [", tagsname);
-    for (int i = 0; i < tags.len; i++) {
+    for (unsigned i = 0; i < tags.len; i++) {
         if (i > 0) {
             buffer = sdscatlen(buffer, ",", 1);
         }

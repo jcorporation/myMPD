@@ -41,7 +41,7 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
         FREE_SDS(mpd_pass);
 
         sds mpd_port = _get_mpd_conf("port", mympd_state->mpd_state->mpd_host, vcb_isdigit);
-        int port = (int)strtoimax(mpd_port, NULL, 10);
+        unsigned port = (unsigned)strtoumax(mpd_port, NULL, 10);
         if (port > 1024 && port <= 65534) {
             mympd_state->mpd_state->mpd_port = port;
         }
@@ -87,7 +87,7 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
     if (mpd_port_env != NULL && strlen(mpd_port_env) <= 5) {
         sds mpd_port = sdsnew(mpd_port_env);
         if (vcb_isdigit(mpd_port) == true) {
-            int port = (int)strtoimax(mpd_port, NULL, 10);
+            unsigned port = (unsigned)strtoumax(mpd_port, NULL, 10);
             if (port == 0) {
                 mympd_state->mpd_state->mpd_port = 6600;
                 MYMPD_LOG_NOTICE("Setting mpd port to \"%d\"", mympd_state->mpd_state->mpd_port);
@@ -106,7 +106,7 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
     if (mpd_timeout_env != NULL && strlen(mpd_timeout_env) <= 5) {
         sds mpd_timeout = sdsnew(mpd_timeout_env);
         if (vcb_isdigit(mpd_timeout) == true) {
-            int timeout = (int)strtoimax(mpd_timeout, NULL, 10);
+            unsigned timeout = (unsigned)strtoumax(mpd_timeout, NULL, 10);
             timeout = timeout * 1000; //convert to ms
             if (timeout >= MPD_TIMEOUT_MIN && timeout < MPD_TIMEOUT_MAX) {
                 mympd_state->mpd_state->mpd_timeout = timeout;

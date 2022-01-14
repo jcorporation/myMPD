@@ -66,7 +66,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
                      long long conn_id)
 {
     //decode uri
-    sds uri_decoded = sds_urldecode(sdsempty(), hm->uri.ptr, (int)hm->uri.len, 0);
+    sds uri_decoded = sds_urldecode(sdsempty(), hm->uri.ptr, hm->uri.len, 0);
     if (sdslen(uri_decoded) == 0) {
         MYMPD_LOG_ERROR("Failed to decode uri");
         webserver_serve_na_image(nc, hm);

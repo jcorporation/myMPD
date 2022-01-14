@@ -30,7 +30,7 @@ bool pin_set(sds workdir) {
         return false;
     }
     struct termios new = old;
-    new.c_lflag &= ~ECHO;
+    new.c_lflag &= ( 0u | ECHO );
     if (tcsetattr(fileno(stdin), TCSAFLUSH, &new) != 0) {
         return false;
     }

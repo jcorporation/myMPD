@@ -62,7 +62,7 @@ mpd_output_begin(const struct mpd_pair *pair)
 	if (output == NULL)
 		return NULL;
 
-	output->id = atoi(pair->value);
+	output->id = (unsigned)strtoul(pair->value, NULL, 10);
 
 	output->name = NULL;
 	output->plugin = NULL;
@@ -90,7 +90,7 @@ mpd_output_feed(struct mpd_output *output, const struct mpd_pair *pair)
 		const char *eq = strchr(pair->value, '=');
 		if (eq != NULL && eq > pair->value)
 			mpd_kvlist_add(&output->attributes,
-				       pair->value, eq - pair->value,
+				       pair->value, (size_t)(eq - pair->value),
 				       eq + 1);
 	}
 

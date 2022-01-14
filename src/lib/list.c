@@ -356,7 +356,7 @@ bool list_push(struct t_list *l, const char *key, long value_i, const char *valu
     return true;
 }
 
-bool list_push_len(struct t_list *l, const char *key, int key_len, long value_i, const char *value_p, int value_len, void *user_data) {
+bool list_push_len(struct t_list *l, const char *key, size_t key_len, long value_i, const char *value_p, size_t value_len, void *user_data) {
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnewlen(key, key_len);
     n->value_i = value_i;

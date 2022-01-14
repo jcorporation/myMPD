@@ -60,7 +60,7 @@ bool mympd_api_queue_prio_set_highest(struct t_mympd_state *mympd_state, const u
     int next_song_id = mpd_status_get_next_song_id(status);
     mpd_status_free(status);
     if (next_song_id > -1 ) {
-        bool rc = mpd_send_get_queue_song_id(mympd_state->mpd_state->conn, next_song_id);
+        bool rc = mpd_send_get_queue_song_id(mympd_state->mpd_state->conn, (unsigned)next_song_id);
         if (rc == true) {
             struct mpd_song *song = mpd_recv_song(mympd_state->mpd_state->conn);
             if (song != NULL) {
@@ -147,7 +147,7 @@ sds mympd_api_queue_crop(struct t_mympd_state *mympd_state, sds buffer, sds meth
     if ((state == MPD_STATE_PLAY || state == MPD_STATE_PAUSE) && length > 1) {
         playing_song_pos++;
         if (playing_song_pos < length) {
-            bool rc = mpd_run_delete_range(mympd_state->mpd_state->conn, playing_song_pos, -1);
+            bool rc = mpd_run_delete_range(mympd_state->mpd_state->conn, playing_song_pos, UINT_MAX);
             if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_run_delete_range") == false) {
                 return buffer;
             }
@@ -196,7 +196,7 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
 
     long real_limit = offset + limit;
 
-    bool rc = mpd_send_list_queue_range_meta(mympd_state->mpd_state->conn, offset, real_limit);
+    bool rc = mpd_send_list_queue_range_meta(mympd_state->mpd_state->conn, (unsigned)offset, (unsigned)real_limit);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_queue_range_meta") == false) {
         return buffer;
     }

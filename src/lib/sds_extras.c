@@ -278,7 +278,7 @@ void sds_strip_slash(sds s) {
     while(ep >= sp && *ep == '/') {
         ep--;
     }
-    size_t len = (sp > ep) ? 0 : ((ep - sp) + 1);
+    size_t len = (size_t)(ep-sp)+1;
     s[len] = '\0';
     sdssetlen(s, len);
 }
@@ -300,7 +300,7 @@ void sds_strip_file_extension(sds s) {
     char *ep = s + sdslen(s) - 1;
     while (ep >= sp) {
         if (*ep == '.') {
-            size_t len = (sp > ep) ? 0 : (ep - sp);
+            size_t len = (size_t)(ep-sp)+1;
             s[len] = '\0';
             sdssetlen(s, len);
             break;

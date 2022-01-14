@@ -584,8 +584,8 @@ static long _fill_jukebox_queue_albums(struct t_mympd_state *mympd_state, long a
 static long _fill_jukebox_queue_songs(struct t_mympd_state *mympd_state, long add_songs, const char *playlist,
         bool manual, struct t_list *queue_list, struct t_list *add_list)
 {
-    long start = 0;
-    long end = start + MPD_RESULTS_MAX;
+    unsigned start = 0;
+    unsigned end = start + MPD_RESULTS_MAX;
     long skipno = 0;
     long nkeep = 0;
     long lineno = 1;

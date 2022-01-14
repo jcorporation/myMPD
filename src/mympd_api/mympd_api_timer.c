@@ -36,7 +36,7 @@ void mympd_api_timer_timerlist_init(struct t_timer_list *l) {
 }
 
 void mympd_api_timer_check(struct t_timer_list *l) {
-    int iMaxCount = 0;
+    unsigned iMaxCount = 0;
     struct t_timer_node *current = l->list;
     uint64_t exp;
 
@@ -61,7 +61,7 @@ void mympd_api_timer_check(struct t_timer_list *l) {
         return;
     }
 
-    for (int i = 0; i < iMaxCount; i++) {
+    for (unsigned i = 0; i < iMaxCount; i++) {
         if (ufds[i].revents & POLLIN) {
             ssize_t s = read(ufds[i].fd, &exp, sizeof(uint64_t));
             if (s != sizeof(uint64_t)) {

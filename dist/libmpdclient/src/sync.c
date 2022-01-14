@@ -44,7 +44,7 @@
 static enum mpd_async_event
 mpd_sync_poll(struct mpd_async *async, struct timeval *tv)
 {
-	unsigned fd;
+	int fd;
 	fd_set rfds, wfds, efds;
 	int ret;
 	enum mpd_async_event events;
@@ -70,12 +70,12 @@ mpd_sync_poll(struct mpd_async *async, struct timeval *tv)
 		ret = select(fd + 1, &rfds, &wfds, &efds, tv);
 		if (ret > 0) {
 			if (!FD_ISSET(fd, &rfds))
-				events &= ~MPD_ASYNC_EVENT_READ;
+				events &= (unsigned)(~MPD_ASYNC_EVENT_READ);
 			if (!FD_ISSET(fd, &wfds))
-				events &= ~MPD_ASYNC_EVENT_WRITE;
+				events &= (unsigned)(~MPD_ASYNC_EVENT_WRITE);
 			if (!FD_ISSET(fd, &efds))
-				events &= ~(MPD_ASYNC_EVENT_HUP|
-					    MPD_ASYNC_EVENT_ERROR);
+				events &= (unsigned)(~(MPD_ASYNC_EVENT_HUP|
+					    MPD_ASYNC_EVENT_ERROR));
 
 			return events;
 		}

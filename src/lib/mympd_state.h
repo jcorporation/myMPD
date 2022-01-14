@@ -63,7 +63,7 @@ struct t_sticker {
 };
 
 struct t_tags {
-    int len;
+    size_t len;
     enum mpd_tag_type tags[64];
 };
 
@@ -78,7 +78,7 @@ struct t_mpd_state {
     //connection configuration
     enum mpd_state state;
     sds mpd_host;
-    int mpd_port;
+    unsigned mpd_port;
     sds mpd_pass;
     unsigned mpd_binarylimit;
     //connection states
@@ -103,7 +103,7 @@ struct t_mpd_state {
     sds tag_list;
     struct t_tags tag_types_mympd;
     struct t_tags tag_types_mpd;
-    unsigned tag_albumartist;
+    enum mpd_tag_type tag_albumartist;
     //Feats
     const unsigned* protocol;
     bool feat_mpd_library;
@@ -206,7 +206,7 @@ struct t_mympd_state {
     sds cols_browse_radio_webradiodb;
     sds cols_browse_radio_radiobrowser;
     bool localplayer;
-    int mpd_stream_port;
+    unsigned mpd_stream_port;
     sds music_directory;
     sds music_directory_value;
     sds playlist_directory;

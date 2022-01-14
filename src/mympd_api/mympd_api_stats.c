@@ -87,7 +87,7 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
 
 bool mympd_api_stats_last_played_add_song(struct t_mympd_state *mympd_state, const int song_id) {
     if (song_id > -1) {
-        struct mpd_song *song = mpd_run_get_queue_song_id(mympd_state->mpd_state->conn, song_id);
+        struct mpd_song *song = mpd_run_get_queue_song_id(mympd_state->mpd_state->conn, (unsigned)song_id);
         if (song) {
             const char *uri = mpd_song_get_uri(song);
             if (is_streamuri(uri) == true) {

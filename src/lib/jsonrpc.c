@@ -419,7 +419,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
                 FREE_SDS(key);
                 return false;
             default:
-                value = sdscatlen(value, p + voff, vlen);
+                value = sdscatlen(value, p + voff, (size_t)vlen);
                 break;
         }
 
@@ -488,7 +488,7 @@ bool json_find_key(sds s, const char *path) {
     return vtype == MJSON_TOK_INVALID ? false : true;
 }
 
-const char *get_mjson_toktype_name(unsigned vtype) {
+const char *get_mjson_toktype_name(int vtype) {
     switch(vtype) {
         case MJSON_TOK_INVALID: return "MJSON_TOK_INVALID";
         case MJSON_TOK_KEY:     return "MJSON_TOK_KEY";

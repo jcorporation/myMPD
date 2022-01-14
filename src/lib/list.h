@@ -41,7 +41,7 @@ void list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb)
 void list_node_free(struct t_list_node *n);
 
 bool list_push(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data);
-bool list_push_len(struct t_list *l, const char *key, int key_len, long value_i, const char *value_p, int value_len, void *user_data);
+bool list_push_len(struct t_list *l, const char *key, size_t key_len, long value_i, const char *value_p, size_t value_len, void *user_data);
 bool list_insert(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data);
 bool list_insert_sorted_by_key(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data, enum list_sort_direction direction);
 bool list_insert_sorted_by_value_i(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data, enum list_sort_direction direction);

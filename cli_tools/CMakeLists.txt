@@ -23,7 +23,8 @@ if (LUA_FOUND)
   #compiler flags for mongoose
   set_property(SOURCE ../dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral")
   #compiler flags for sds
-  set_property(SOURCE ../dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-shadow -Wno-format-nonliteral")
+  #-Wno-stringop-overflow: gcc 11.2.0 bug
+  set_property(SOURCE ../dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-stringop-overflow -Wno-conversion")
 
   add_executable(mympd-script ${MYMPD_SCRIPT_SOURCES})
   target_link_libraries(mympd-script)

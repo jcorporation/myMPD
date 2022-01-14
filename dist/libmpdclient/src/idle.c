@@ -157,7 +157,7 @@ mpd_send_idle_mask(struct mpd_connection *connection, enum mpd_idle mask)
 
 	for (unsigned i = 0; idle_names[i] != NULL; ++i) {
 		if (mask & (1 << i)) {
-			mask &= ~(1 << i);
+			mask &= (unsigned)~(1 << i);
 			strcat(buffer, " ");
 			strcat(buffer, idle_names[i]);
 		}

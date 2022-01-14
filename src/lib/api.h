@@ -206,7 +206,7 @@ struct set_mg_user_data_request {
     sds coverimage_names;
     bool feat_mpd_albumart;
     sds mpd_host;
-    int mpd_stream_port;
+    unsigned mpd_stream_port;
     bool covercache;
 };
 

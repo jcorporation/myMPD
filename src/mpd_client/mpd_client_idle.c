@@ -33,7 +33,7 @@
 static bool update_mympd_caches(struct t_mympd_state *mympd_state);
 
 //public functions
-void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) {
+void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitmask) {
     for (unsigned j = 0;; j++) {
         enum mpd_idle idle_event = 1 << j;
         const char *idle_name = mpd_idle_name(idle_event);
