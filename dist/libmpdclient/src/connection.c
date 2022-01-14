@@ -269,8 +269,8 @@ mpd_connection_set_timeout(struct mpd_connection *connection,
 {
 	assert(timeout_ms > 0);
 
-	connection->timeout.tv_sec = (__time_t)(timeout_ms / 1000);
-	connection->timeout.tv_usec = (__suseconds_t)(timeout_ms % 1000);
+	connection->timeout.tv_sec = (time_t)(timeout_ms / 1000);
+	connection->timeout.tv_usec = (long)timeout_ms % 1000;
 }
 
 int
