@@ -203,7 +203,7 @@ mpd_send_u2_command(struct mpd_connection *connection, const char *command,
 	char arg2_string[INTLEN];
 
 	snprintf(arg1_string, sizeof(arg1_string), "%u", arg1);
-	snprintf(arg2_string, sizeof(arg1_string), "%u", arg2);
+	snprintf(arg2_string, sizeof(arg2_string), "%u", arg2);
 	return mpd_send_command(connection, command,
 				arg1_string, arg2_string,NULL);
 }
