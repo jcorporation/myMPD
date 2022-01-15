@@ -14,25 +14,30 @@ printf "8080" > /var/lib/mympd/config/http_port
 printf "127.0.0.1" > /var/lib/mympd/config/http_host
 ```
 
+The reverse proxy should be configured to:
+- remove the subdirectory
+- support websockets for the `/ws/` uri
+- not merge slashes: [#656 - Can't get a thumbnail for network stream](https://github.com/jcorporation/myMPD/discussions/657)
+
 In this examples myMPD is proxied behind the path `/mympd`.
 
 ***
 
-# Nginx
+## Nginx
 
 ```
+merge_slashes off;
+
 location /mympd/ {
-  # nginx's default HTTP 1.0 not supported by myMPD:
-  proxy_http_version 1.1;
   proxy_pass http://127.0.0.1:8080/;
 }
 ```
 
 ***
 
-# Apache
+## Apache
 
-## Basic setup with proxypass
+### Basic setup with proxypass
 
 To access mympd behind apache2 enable following modules, e.g. with `a2enmod`:
 - proxy
@@ -51,7 +56,7 @@ ProxyPass /mympd/ http://127.0.0.1:8080/
 ProxyPassReverse /mympd/ http://127.0.0.1:8080/
 ```
 
-## Basic Password Authentication
+### Basic Password Authentication
 
 To add basic password authentication create a new htpasswd file 
 `sudo htpasswd -c <path/to/htpasswd/file> <username to access mympd>`
@@ -83,7 +88,7 @@ for example:
 ```
 See https://wiki.apache.org/httpd/PasswordBasicAuth for more information
 
-## Simple Access Control
+### Simple Access Control
 
 To limit acces to mympd to the local network, add the following to the location directive adjusting for your own network:
 
@@ -95,9 +100,11 @@ Require ip <ip range/netmask> # ex 192.168.1.0/24
 
 See https://httpd.apache.org/docs/2.4/howto/access.html for more information
 
-## Full Example Config
+### Full Example Config
 
 ```
+MergeSlashes OFF
+
 <VirtualHost *:80>
   ServerName yourserver.example.com
 
