@@ -189,7 +189,7 @@ function setBackgroundImage(el, url) {
         clearBackgroundImage(el);
         return;
     }
-    const bgImageUrl = 'url("' + subdir + '/albumart/' + myEncodeURI(url) + '")';
+    const bgImageUrl = 'url("' + subdir + '/albumart/' + myEncodeURIComponent(url) + '")';
     const old = el.parentNode.querySelectorAll(el.tagName + '> div.albumartbg');
     //do not update if url is the same
     if (old[0] &&
@@ -224,7 +224,7 @@ function setBackgroundImage(el, url) {
     img.onload = function(event) {
         getData(event.target, 'div').style.opacity = 1;
     };
-    img.src = subdir + '/albumart/' + myEncodeURI(url);
+    img.src = subdir + '/albumart/' + myEncodeURIComponent(url);
 }
 
 function clearBackgroundImage(el) {
@@ -521,7 +521,7 @@ function mediaSessionSetMetadata(title, artist, album, url) {
         return;
     }
     const artwork = window.location.protocol + '//' + window.location.hostname +
-        (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart/' + myEncodeURI(url);
+        (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart/' + myEncodeURIComponent(url);
     navigator.mediaSession.metadata = new MediaMetadata({
         title: title,
         artist: artist,

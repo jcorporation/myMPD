@@ -1370,21 +1370,10 @@ function zoomPicture(el) {
             return;
         }
 
-        //add uri to image list to get embedded albumart
-        let aImages = [];
         const uri = getData(el, 'uri');
-        if (uri) {
-            aImages = [ subdir + '/albumart/' + uri ];
-        }
-        //add all but coverfiles to image list
-        for (let i = 0, j = images.length; i < j; i++) {
-            if (isCoverfile(images[i]) === false) {
-                aImages.push(subdir + '/browse/music/' + images[i]);
-            }
-        }
         const imgEl = document.getElementById('modalPictureImg');
         imgEl.style.paddingTop = 0;
-        createImgCarousel(imgEl, 'picsCarousel', aImages);
+        createImgCarousel(imgEl, 'picsCarousel', uri, images);
         elHideId('modalPictureZoom');
         uiElements.modalPicture.show();
         return;
@@ -1405,7 +1394,19 @@ function zoomZoomPicture() {
     window.open(document.getElementById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
 }
 
-function createImgCarousel(imgEl, name, images) {
+function createImgCarousel(imgEl, name, uri, images) {
+    //add uri to image list to get embedded albumart
+    const aImages = [ subdir + '/albumart/' + myEncodeURIComponent(uri) ];
+    //add all but coverfiles to image list
+    for (let i = 0, j = images.length; i < j; i++) {
+        if (isCoverfile(images[i]) === false) {
+            aImages.push(subdir + '/browse/music/' + myEncodeURI(images[i]));
+        }
+    }
+    _createImgCarousel(imgEl, name, aImages);
+}
+
+function _createImgCarousel(imgEl, name, images) {
     const nrImages = images.length;
     const carousel = elCreateEmpty('div', {"id": name, "class": ["carousel", "slide"], "data-bs-ride": "carousel"});
     if (nrImages > 1) {
@@ -1424,7 +1425,7 @@ function createImgCarousel(imgEl, name, images) {
             elCreateEmpty('div', {})
         );
 
-        carouselItem.style.backgroundImage = 'url("' + myEncodeURI(images[i]) + '")';
+        carouselItem.style.backgroundImage = 'url("' + images[i] + '")';
         carouselInner.appendChild(carouselItem);
         if (i === 0) {
             carouselItem.classList.add('active');

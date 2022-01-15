@@ -101,7 +101,7 @@ function songDetailsRow(thContent, tdContent) {
 function parseSongDetails(obj) {
     const modal = document.getElementById('modalSongDetails');
     modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' +
-        subdir + '/albumart/' + myEncodeURI(obj.result.uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+        subdir + '/albumart/' + myEncodeURIComponent(obj.result.uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
 
     const elH1s = modal.getElementsByTagName('h1');
     for (let i = 0, j = elH1s.length; i < j; i++) {
@@ -203,28 +203,13 @@ function parseSongDetails(obj) {
             }
         }
     }
-
+    //populate other tabs
     if (features.featLyrics === true) {
         getLyrics(obj.result.uri, document.getElementById('lyricsText'));
     }
-
     getComments(obj.result.uri, document.getElementById('tbodySongComments'));
-
-    const pictureEls = document.getElementsByClassName('featPictures');
-    for (let i = 0, j = pictureEls.length; i < j; i++) {
-        elShow(pictureEls[i]);
-    }
-
-    //add uri to image list to get embedded albumart
-    const images = [ subdir + '/albumart/' + obj.result.uri ];
-    //add all but coverfiles to image list
-    for (let i = 0, j = obj.result.images.length; i < j; i++) {
-        if (isCoverfile(obj.result.images[i]) === false) {
-            images.push(subdir + '/browse/music/' + obj.result.images[i]);
-        }
-    }
     const imgEl = document.getElementById('tabSongPics');
-    createImgCarousel(imgEl, 'songPicsCarousel', images);
+    createImgCarousel(imgEl, 'songPicsCarousel', obj.result.uri, obj.result.images)
 }
 
 function isCoverfile(uri) {
