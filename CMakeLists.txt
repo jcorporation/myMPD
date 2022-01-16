@@ -225,7 +225,7 @@ endif()
 
 #relax some compiler settings for dist sources
 #compiler flags for mongoose
-set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral")
+set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion")
 #compiler flags for mjson
 set_property(SOURCE dist/mjson/mjson.c PROPERTY COMPILE_FLAGS "-Wno-conversion")
 #compiler flags for rax

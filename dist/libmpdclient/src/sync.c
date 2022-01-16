@@ -69,11 +69,11 @@ mpd_sync_poll(struct mpd_async *async, struct timeval *tv)
 
 		ret = select(fd + 1, &rfds, &wfds, &efds, tv);
 		if (ret > 0) {
-			if (!FD_ISSET(fd, &rfds))
+			if (!FD_ISSET((long unsigned)fd, &rfds))
 				events &= (unsigned)(~MPD_ASYNC_EVENT_READ);
-			if (!FD_ISSET(fd, &wfds))
+			if (!FD_ISSET((long unsigned)fd, &wfds))
 				events &= (unsigned)(~MPD_ASYNC_EVENT_WRITE);
-			if (!FD_ISSET(fd, &efds))
+			if (!FD_ISSET((long unsigned)fd, &efds))
 				events &= (unsigned)(~(MPD_ASYNC_EVENT_HUP|
 					    MPD_ASYNC_EVENT_ERROR));
 
