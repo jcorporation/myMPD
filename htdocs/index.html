@@ -2482,14 +2482,21 @@
                 <input type="text" class="form-control" id="editRadioFavoriteDescription"/>
               </div>
             </div>
+            <div class="row mb-3">
+              <label class="col-sm-4 col-form-label" data-phrase="WebradioDB"></label>
+              <div class="col-sm-8">
+                <p id="webradiodbCheckState"></p>
+                <button id="btnAddToWebradiodb" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "addToWebradioDb", "options": []}' data-phrase="Add to WebradioDB"></button>
+                <button id="btnCheckWebradiodb" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "checkWebradioDb", "options": []}' data-phrase="Check WebradioDB"></button>
+                <button id="btnUpdateFromWebradiodb" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "updateFromWebradioDb", "options": []}' data-phrase="Update from WebradioDB"></button>
+                <button id="btnUpdateWebradiodb" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "updateWebradioDb", "options": []}' data-phrase="Update WebradioDB"></button>
+              </div>
+            </div>
           </form>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <div>
-            <button id="btnAddToWebradiodb" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "addToWebradioDb", "options": []}' data-phrase="Add to WebradioDB"></button>
-            <button type="button" class="btn btn-success" data-href='{"cmd": "saveRadioFavorite", "options": []}' data-phrase="Save"></button>
-          </div>
+          <button type="button" class="btn btn-success" data-href='{"cmd": "saveRadioFavorite", "options": []}' data-phrase="Save"></button>
         </div>
       </div>
     </div>

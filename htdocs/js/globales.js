@@ -40,7 +40,7 @@ let sessionTimer = null;
 const messages = [];
 const debugMode = document.getElementsByTagName("script")[0].src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
 let webradioDb = null;
-const webradioDbUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
+const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
 
 //minimum mpd version to support all myMPD features
 const mpdVersion = {
