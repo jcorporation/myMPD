@@ -95,7 +95,7 @@ bool mympd_api_stats_last_played_add_song(struct t_mympd_state *mympd_state, con
                 mpd_song_free(song);
                 return true;
             }
-            list_insert(&mympd_state->last_played, uri, time(NULL), NULL, NULL);
+            list_insert(&mympd_state->last_played, uri, (long)time(NULL), NULL, NULL);
             mpd_song_free(song);
             //write last_played list to disc
             if (mympd_state->last_played.length > 9 ||
@@ -214,7 +214,7 @@ sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
     buffer = tojson_uint(buffer, "songs", mpd_stats_get_number_of_songs(stats), true);
     buffer = tojson_ulong(buffer, "playtime", mpd_stats_get_play_time(stats), true);
     buffer = tojson_ulong(buffer, "uptime", mpd_stats_get_uptime(stats), true);
-    buffer = tojson_long(buffer, "myMPDuptime", time(NULL) - mympd_state->config->startup_time, true);
+    buffer = tojson_long(buffer, "myMPDuptime", (long)(time(NULL) - mympd_state->config->startup_time), true);
     buffer = tojson_ulong(buffer, "dbUpdated", mpd_stats_get_db_update_time(stats), true);
     buffer = tojson_ulong(buffer, "dbPlaytime", mpd_stats_get_db_play_time(stats), true);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
@@ -226,7 +226,6 @@ sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
 
     return buffer;
 }
-
 
 //private functions
 static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, long entity_count,

@@ -94,7 +94,7 @@ sds webserver_session_new(struct t_list *session_list) {
     //timeout old sessions
     webserver_session_validate(session_list, NULL);
     //add new session with 30 min timeout
-    list_push(session_list, session, (time(NULL) + HTTP_SESSION_TIMEOUT), NULL, NULL);
+    list_push(session_list, session, (long)(time(NULL) + HTTP_SESSION_TIMEOUT), NULL, NULL);
     MYMPD_LOG_DEBUG("Created session %s", session);
     //limit sessions to 10
     if (session_list->length > HTTP_SESSIONS_MAX) {
@@ -119,7 +119,7 @@ bool webserver_session_validate(struct t_list *session_list, const char *session
             //validate session
             if (session != NULL && strcmp(current->key, session) == 0) {
                 MYMPD_LOG_DEBUG("Extending session \"%s\"", session);
-                current->value_i = time(NULL) + 1800;
+                current->value_i = (long)(time(NULL) + 1800);
                 return true;
             }
             //skip to next entrie

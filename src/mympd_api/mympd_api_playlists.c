@@ -112,10 +112,10 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
             (type == PLTYPE_ALL || (type == PLTYPE_STATIC && smartpls == false) || (type == PLTYPE_SMART && smartpls == true)))
         {
             if (smartpls == true) {
-                list_push(&entity_list, plpath, mpd_playlist_get_last_modified(pl), "s", NULL);
+                list_push(&entity_list, plpath, (long)mpd_playlist_get_last_modified(pl), "s", NULL);
             }
             else {
-                list_push(&entity_list, plpath, mpd_playlist_get_last_modified(pl), "f", NULL);
+                list_push(&entity_list, plpath, (long)mpd_playlist_get_last_modified(pl), "f", NULL);
             }
         }
         mpd_playlist_free(pl);
