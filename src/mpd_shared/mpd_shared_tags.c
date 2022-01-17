@@ -169,7 +169,7 @@ sds get_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags
     }
     FREE_SDS(tag_value);
     buffer = tojson_uint(buffer, "Duration", mpd_song_get_duration(song), true);
-    buffer = tojson_long(buffer, "LastModified", mpd_song_get_last_modified(song), true);
+    buffer = tojson_llong(buffer, "LastModified", (long long)mpd_song_get_last_modified(song), true);
     buffer = tojson_char(buffer, "uri", mpd_song_get_uri(song), false);
     return buffer;
 }
