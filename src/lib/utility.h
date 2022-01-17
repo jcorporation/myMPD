@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -22,7 +22,8 @@ void ws_notify(sds message);
 bool is_virtual_cuedir(sds music_directory, sds filename);
 int testdir(const char *name, const char *dirname, bool create);
 void my_usleep(time_t usec);
-unsigned long substractUnsigned(unsigned long num1, unsigned long num2);
+bool is_streamuri(const char *uri);
+bool write_data_to_file(sds filepath, const char *data, size_t data_len);
 
 //measure time
 #define MEASURE_START clock_t measure_start = clock();

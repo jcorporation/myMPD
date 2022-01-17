@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+# myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 
 #myMPD is written in C
@@ -9,8 +9,8 @@ project (mympd C)
 #update myMPD version here and run ./build.sh setversion to update
 #the source files
 set(CPACK_PACKAGE_VERSION_MAJOR "9")
-set(CPACK_PACKAGE_VERSION_MINOR "0")
-set(CPACK_PACKAGE_VERSION_PATCH "4")
+set(CPACK_PACKAGE_VERSION_MINOR "1")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 #minimal cmake version needed for correct GNUInstallDirs
 cmake_minimum_required(VERSION 3.4)
@@ -200,7 +200,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector-strong -D_FORTIFY_SOURCE=2
   -ffunction-sections -fdata-sections -Wall -Werror -Wvla -Winit-self -Wuninitialized \
 	-Werror=array-bounds -Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
 	-Wformat=2 -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs \
-	-Wmissing-include-dirs -Wundef -Wformat-nonliteral -Wsign-compare \
+	-Wmissing-include-dirs -Wundef -Wformat-nonliteral -Wsign-compare -Wconversion \
 	${LIBASAN_FLAGS} ${MONGOOSE_FLAGS} ${MJSON_FLAGS}")
 
 #check for supported compiler flags
@@ -223,16 +223,6 @@ else()
   set (CMAKE_EXE_LINKER_FLAGS "")
 endif()
 
-#relax some compiler settings for dist sources
-#compiler flags for mongoose
-set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral")
-#compiler flags for rax
-set_property(SOURCE dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-shadow -Wno-format-nonliteral \
-  -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers")
-#compiler flags for sds
-#-Wno-stringop-overflow: gcc 11.2.0 bug
-set_property(SOURCE dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-shadow -Wno-format-nonliteral -Wno-stringop-overflow")
-
 #set source files
 set(MYMPD_SOURCES
   dist/mjson/mjson.c
@@ -248,6 +238,7 @@ set(MYMPD_SOURCES
   src/lib/list.c
   src/lib/log.c
   src/lib/lua_mympd_state.c
+  src/lib/m3u.c
   src/lib/mimetype.c
   src/lib/mympd_pin.c
   src/lib/mympd_queue.c
@@ -290,12 +281,16 @@ set(MYMPD_SOURCES
   src/mympd_api/mympd_api_timer_handlers.c
   src/mympd_api/mympd_api_trigger.c
   src/mympd_api/mympd_api_utility.c
+  src/mympd_api/mympd_api_webradios.c
   src/mympd_config.c
   src/web_server.c
   src/web_server/web_server_albumart.c
+  src/web_server/web_server_proxy.c
+  src/web_server/web_server_radiobrowser.c
   src/web_server/web_server_sessions.c
   src/web_server/web_server_tagart.c
   src/web_server/web_server_utility.c
+  src/web_server/web_server_webradiodb.c
 )
 
 if("${ENABLE_SSL}" MATCHES "ON")
@@ -363,6 +358,20 @@ set(LIBMPDCLIENT_SOURCES
   dist/libmpdclient/src/sync.c
   dist/libmpdclient/src/tag.c
 )
+
+#relax some compiler settings for dist sources
+#compiler flags for mongoose
+set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion")
+#compiler flags for mjson
+set_property(SOURCE dist/mjson/mjson.c PROPERTY COMPILE_FLAGS "-Wno-conversion")
+#compiler flags for rax
+set_property(SOURCE dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
+  -Wno-shadow -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers")
+#compiler flags for sds
+#-Wno-stringop-overflow: gcc 11.2.0 bug
+set_property(SOURCE dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-stringop-overflow -Wno-conversion")
+#compiler flags for libmpdclient
+set_property(SOURCE ${LIBMPDCLIENT_SOURCES} PROPERTY COMPILE_FLAGS "-Wno-conversion")
 
 #compile the executeable
 add_executable(mympd ${MYMPD_SOURCES} ${LIBMPDCLIENT_SOURCES} ${CERT_SOURCES})

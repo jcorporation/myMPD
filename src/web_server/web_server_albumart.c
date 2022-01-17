@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -11,6 +11,7 @@
 #include "../lib/covercache.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/m3u.h"
 #include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
@@ -43,7 +44,7 @@ void webserver_albumart_send(struct mg_connection *nc, sds data, sds binary) {
         strncmp(mime_type, "image/", 6) != 0)
     {
         MYMPD_LOG_DEBUG("Serving file from memory (%s - %u bytes)", mime_type, len);
-        sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", mime_type);
+        sds header = sdscatfmt(sdsempty(), "Content-Type: %S\r\n", mime_type);
         header = sdscat(header, EXTRA_HEADERS_CACHE);
         webserver_send_header_ok(nc, len, header);
         mg_send(nc, binary, len);
@@ -65,7 +66,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
                      long long conn_id)
 {
     //decode uri
-    sds uri_decoded = sds_urldecode(sdsempty(), hm->uri.ptr, (int)hm->uri.len, 0);
+    sds uri_decoded = sds_urldecode(sdsempty(), hm->uri.ptr, hm->uri.len, 0);
     if (sdslen(uri_decoded) == 0) {
         MYMPD_LOG_ERROR("Failed to decode uri");
         webserver_serve_na_image(nc, hm);
@@ -85,34 +86,58 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
     sdsrange(uri_decoded, 10, -1);
 
     MYMPD_LOG_DEBUG("Handle albumart for uri \"%s\"", uri_decoded);
-    //try image in /pics folder, if uri contains ://
+    //check for cover in /pics/thumbs/ and webradio m3u
     if (is_streamuri(uri_decoded) == true) {
-        sds_sanitize_filename(uri_decoded);
         if (sdslen(uri_decoded) == 0) {
             MYMPD_LOG_ERROR("Uri to short");
             webserver_serve_na_image(nc, hm);
             FREE_SDS(uri_decoded);
             return true;
         }
+        sds_sanitize_filename(uri_decoded);
 
-        sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, uri_decoded);
-        MYMPD_LOG_DEBUG("Check for stream cover %s", coverfile);
+        sds coverfile = sdscatfmt(sdsempty(), "%S/pics/thumbs/%S", config->workdir, uri_decoded);
+        MYMPD_LOG_DEBUG("Check for stream cover \"%s\"", coverfile);
         coverfile = webserver_find_image_file(coverfile);
 
+        if (sdslen(coverfile) == 0) {
+            //found no coverfile, next try to find a webradio m3u
+            sds webradio_file = sdscatfmt(sdsempty(), "%S/webradios/%S.m3u", config->workdir, uri_decoded);
+            MYMPD_LOG_DEBUG("Check for webradio playlist \"%s\"", webradio_file);
+            if (access(webradio_file, F_OK) == 0) { /* Flawfinder: ignore */
+                sds extimg = m3u_get_field(sdsempty(), "#EXTIMG", webradio_file);
+                if (is_streamuri(extimg) == true) {
+                    //full uri, send a temporary redirect
+                    webserver_send_header_found(nc, extimg);
+                    FREE_SDS(uri_decoded);
+                    FREE_SDS(coverfile);
+                    FREE_SDS(extimg);
+                    FREE_SDS(webradio_file);
+                    return true;
+                }
+                if (sdslen(extimg) > 0) {
+                    coverfile = sdscatfmt(sdsempty(), "%S/pics/thumbs/%S", config->workdir, extimg);
+                }
+                FREE_SDS(extimg);
+            }
+            FREE_SDS(webradio_file);
+        }
         if (sdslen(coverfile) > 0) {
+            //found a local coverfile
             const char *mime_type = get_mime_type_by_ext(coverfile);
-            MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
+            MYMPD_LOG_DEBUG("Serving file \"%s\" (%s)", coverfile, mime_type);
             static struct mg_http_serve_opts s_http_server_opts;
-            s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+            s_http_server_opts.root_dir = mg_user_data->browse_directory;
             s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
             s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
             mg_http_serve_file(nc, hm, coverfile, &s_http_server_opts);
         }
         else {
+            //serve fallback image
             webserver_serve_stream_image(nc, hm);
         }
-        FREE_SDS(coverfile);
         FREE_SDS(uri_decoded);
+        FREE_SDS(coverfile);
         return true;
     }
 
@@ -120,14 +145,14 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
     if (mg_user_data->covercache == true) {
         sds filename = sdsdup(uri_decoded);
         sds_sanitize_filename(filename);
-        sds covercachefile = sdscatfmt(sdsempty(), "%s/covercache/%s", config->cachedir, filename);
+        sds covercachefile = sdscatfmt(sdsempty(), "%S/covercache/%S", config->cachedir, filename);
         FREE_SDS(filename);
         covercachefile = webserver_find_image_file(covercachefile);
         if (sdslen(covercachefile) > 0) {
             const char *mime_type = get_mime_type_by_ext(covercachefile);
             MYMPD_LOG_DEBUG("Serving file %s (%s)", covercachefile, mime_type);
             static struct mg_http_serve_opts s_http_server_opts;
-            s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+            s_http_server_opts.root_dir = mg_user_data->browse_directory;
             s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
             s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
             mg_http_serve_file(nc, hm, covercachefile, &s_http_server_opts);
@@ -141,10 +166,10 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
     }
 
     //create absolute file
-    sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mg_user_data->music_directory, uri_decoded);
+    sds mediafile = sdscatfmt(sdsempty(), "%S/%S", mg_user_data->music_directory, uri_decoded);
     MYMPD_LOG_DEBUG("Absolut media_file: %s", mediafile);
 
-    if (mg_user_data->feat_library == true) {
+    if (sdslen(mg_user_data->music_directory) > 0) {
         //try image in folder under music_directory
         if (mg_user_data->coverimage_names_len > 0) {
             sds path = sdsdup(uri_decoded);
@@ -157,7 +182,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
             }
             sds coverfile = sdsempty();
             for (int j = 0; j < mg_user_data->coverimage_names_len; j++) {
-                coverfile = sdscatfmt(coverfile, "%s/%s/%s", mg_user_data->music_directory, path, mg_user_data->coverimage_names[j]);
+                coverfile = sdscatfmt(coverfile, "%S/%S/%S", mg_user_data->music_directory, path, mg_user_data->coverimage_names[j]);
                 if (strchr(mg_user_data->coverimage_names[j], '.') == NULL) {
                     //basename, try extensions
                     coverfile = webserver_find_image_file(coverfile);
@@ -166,7 +191,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
                     const char *mime_type = get_mime_type_by_ext(coverfile);
                     MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
                     static struct mg_http_serve_opts s_http_server_opts;
-                    s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+                    s_http_server_opts.root_dir = mg_user_data->browse_directory;
                     s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
                     s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                     mg_http_serve_file(nc, hm, coverfile, &s_http_server_opts);

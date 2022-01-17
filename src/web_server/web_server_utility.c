@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -18,11 +18,8 @@
 
 //public functions
 void mg_user_data_free(struct t_mg_user_data *mg_user_data) {
-    FREE_SDS(mg_user_data->browse_document_root);
-    FREE_SDS(mg_user_data->pics_document_root);
-    FREE_SDS(mg_user_data->smartpls_document_root);
+    FREE_SDS(mg_user_data->browse_directory);
     FREE_SDS(mg_user_data->music_directory);
-    FREE_SDS(mg_user_data->playlist_directory);
     sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
     FREE_SDS(mg_user_data->stream_uri);
     list_clear(&mg_user_data->session_list);
@@ -76,7 +73,7 @@ sds webserver_find_image_file(sds basefilename) {
     const char **p = image_file_extensions;
     sds testfilename = sdsempty();
     while (*p != NULL) {
-        testfilename = sdscatfmt(testfilename, "%s.%s", basefilename, *p);
+        testfilename = sdscatfmt(testfilename, "%S.%s", basefilename, *p);
         if (access(testfilename, F_OK) == 0) { /* Flawfinder: ignore */
             break;
         }
@@ -113,13 +110,23 @@ void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *
 }
 
 void webserver_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers) {
+    MYMPD_LOG_DEBUG("Sending %u bytes to %lu", len, nc->id);
     webserver_send_header_ok(nc, len, headers);
     mg_send(nc, data, len);
     webserver_handle_connection_close(nc);
 }
 
 void webserver_send_header_redirect(struct mg_connection *nc, const char *location) {
+    MYMPD_LOG_DEBUG("Sending 301 Moved Permanently \"%s\" to %lu", location, nc->id);
     mg_printf(nc, "HTTP/1.1 301 Moved Permanently\r\n"
+        "Location: %s\r\n"
+        "Content-Length: 0\r\n\r\n",
+        location);
+}
+
+void webserver_send_header_found(struct mg_connection *nc, const char *location) {
+    MYMPD_LOG_DEBUG("Sending 302 Found \"%s\" to %lu", location, nc->id);
+    mg_printf(nc, "HTTP/1.1 302 Found\r\n"
         "Location: %s\r\n"
         "Content-Length: 0\r\n\r\n",
         location);
@@ -144,12 +151,12 @@ void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_messag
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
 
-    sds asset_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->workdir, name);
+    sds asset_image = sdscatfmt(sdsempty(), "%S/pics/%s", config->workdir, name);
     asset_image = webserver_find_image_file(asset_image);
     if (sdslen(asset_image) > 0) {
         const char *mime_type = get_mime_type_by_ext(asset_image);
         static struct mg_http_serve_opts s_http_server_opts;
-        s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+        s_http_server_opts.root_dir = mg_user_data->browse_directory;
         s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
         s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
         mg_http_serve_file(nc, hm, asset_image, &s_http_server_opts);
@@ -160,7 +167,7 @@ void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_messag
         #ifndef EMBEDDED_ASSETS
             asset_image = sdscatfmt(asset_image, "%s/assets/%s.svg", DOC_ROOT, name);
             static struct mg_http_serve_opts s_http_server_opts;
-            s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+            s_http_server_opts.root_dir = mg_user_data->browse_directory;
             s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
             s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
             mg_http_serve_file(nc, hm, asset_image, &s_http_server_opts);
@@ -224,7 +231,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         mg_printf(nc, "HTTP/1.1 200 OK\r\n"
                       EXTRA_HEADERS_SAFE
                       "%s"
-                      "Content-Length: %u\r\n"
+                      "Content-Length: %d\r\n"
                       "Content-Type: %s\r\n"
                       "%s\r\n",
                       (p->cache == true ? EXTRA_HEADERS_CACHE : ""),
@@ -238,7 +245,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         return true;
     }
     else {
-        sds errormsg = sdscatfmt(sdsempty(), "Embedded asset \"%s\" not found", uri_decoded);
+        sds errormsg = sdscatfmt(sdsempty(), "Embedded asset \"%S\" not found", uri_decoded);
         webserver_send_error(nc, 404, errormsg);
         FREE_SDS(errormsg);
     }

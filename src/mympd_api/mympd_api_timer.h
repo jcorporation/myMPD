@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -14,9 +14,9 @@ void mympd_api_timer_timerlist_init(struct t_timer_list *l);
 void mympd_api_timer_timerlist_truncate(struct t_timer_list *l);
 bool mympd_api_timer_timerlist_free(struct t_timer_list *l);
 void mympd_api_timer_check(struct t_timer_list *l);
-bool mympd_api_timer_add(struct t_timer_list *l, unsigned timeout, int interval,
+bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval,
     time_handler handler, int timer_id, struct t_timer_definition *definition, void *user_data);
-bool mympd_api_timer_replace(struct t_timer_list *l, unsigned timeout, int interval,
+bool mympd_api_timer_replace(struct t_timer_list *l, time_t timeout, int interval,
     time_handler handler, int timer_id, struct t_timer_definition *definition, void *user_data);
 void mympd_api_timer_remove(struct t_timer_list *l, int timer_id);
 void mympd_api_timer_toggle(struct t_timer_list *l, int timer_id);

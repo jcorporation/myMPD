@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 const ignoreMessages = ['No current song', 'No lyrics found'];
@@ -22,7 +22,7 @@ function removeEnterPinFooter(footer) {
 }
 
 function createEnterPinFooter(footers, method, params, callback, onerror) {
-    const input = elCreateEmpty('input', {"type": "password", "class": ["form-control", "border-secondary"]});
+    const input = elCreateEmpty('input', {"type": "password", "autocomplete": "off", "class": ["form-control", "border-secondary"]});
     const btn = elCreateText('button', {"class": ["btn", "btn-success"]}, tn('Enter'));
     const newFooter = elCreateNode('div', {"class": ["modal-footer", "enterPinFooter"]},
         elCreateNodes('div', {"class": ["row", "w-100"]}, [

@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -60,6 +60,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     }
 
     sds logline = sdsempty();
+    logline = sdsMakeRoomFor(logline, 200);
     if (log_on_tty == true) {
         logline = sdscat(logline, loglevel_colors[level]);
     }
@@ -73,7 +74,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     }
     logline = sdscatprintf(logline, "%-8s %-10s", loglevel_names[level], thread_logname);
     #ifdef DEBUG
-        logline = sdscatprintf(logline, "%s:%d: ", file, line);
+        logline = sdscatfmt(logline, "%s:%i: ", file, line);
     #else
         (void)file;
         (void)line;

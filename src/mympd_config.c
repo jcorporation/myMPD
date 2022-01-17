@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -97,7 +97,7 @@ bool mympd_read_config(struct t_config *config) {
     config->http_host = state_file_rw_string_sds(config->workdir, "config", "http_host", config->http_host, vcb_isname, false);
     config->http_port = state_file_rw_string_sds(config->workdir, "config", "http_port", config->http_port, vcb_isdigit, false);
 
-    long http_port = strtoimax(config->http_port, NULL, 10);
+    long http_port = (long)strtoimax(config->http_port, NULL, 10);
     if (http_port <= 0 || http_port > MPD_PORT_MAX) {
         MYMPD_LOG_WARN("Invalid http port, using default 80");
         config->http_port = sds_replace(config->http_port, "80");
@@ -113,7 +113,7 @@ bool mympd_read_config(struct t_config *config) {
         }
         config->pin_hash = state_file_rw_string_sds(config->workdir, "config", "pin_hash", config->pin_hash, vcb_isname, false);
 
-        long ssl_port = strtoimax(config->ssl_port, NULL, 10);
+        long ssl_port = (long)strtoimax(config->ssl_port, NULL, 10);
         if (ssl_port <= 0 || ssl_port > MPD_PORT_MAX) {
             MYMPD_LOG_WARN("Invalid ssl port, using default 443");
             config->ssl_port = sds_replace(config->ssl_port, "443");

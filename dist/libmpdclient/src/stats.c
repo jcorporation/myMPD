@@ -69,19 +69,19 @@ void
 mpd_stats_feed(struct mpd_stats *stats, const struct mpd_pair *pair)
 {
 	if (strcmp(pair->name, "artists") == 0)
-		stats->number_of_artists = atoi(pair->value);
+		stats->number_of_artists = (unsigned)strtoul(pair->value, NULL, 10);
 	else if (strcmp(pair->name, "albums") == 0)
-		stats->number_of_albums = atoi(pair->value);
+		stats->number_of_albums = (unsigned)strtoul(pair->value, NULL, 10);
 	else if (strcmp(pair->name, "songs") == 0)
-		stats->number_of_songs = atoi(pair->value);
+		stats->number_of_songs = (unsigned)strtoul(pair->value, NULL, 10);
 	else if (strcmp(pair->name, "uptime") == 0)
-		stats->uptime = strtoul(pair->value,NULL,10);
+		stats->uptime = strtoul(pair->value, NULL, 10);
 	else if (strcmp(pair->name, "db_update") == 0)
-		stats->db_update_time = strtoul(pair->value,NULL,10);
+		stats->db_update_time = (unsigned)strtoul(pair->value, NULL, 10);
 	else if (strcmp(pair->name, "playtime") == 0)
-		stats->play_time = strtoul(pair->value,NULL,10);
+		stats->play_time = (unsigned)strtoul(pair->value, NULL, 10);
 	else if (strcmp(pair->name, "db_playtime") == 0)
-		stats->db_play_time = strtoul(pair->value,NULL,10);
+		stats->db_play_time = (unsigned)strtoul(pair->value, NULL, 10);
 }
 
 void mpd_stats_free(struct mpd_stats * stats) {

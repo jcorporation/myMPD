@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -26,6 +26,12 @@ void lua_mympd_state_set_p(struct t_list *lua_mympd_state, const char *k, const 
 void lua_mympd_state_set_i(struct t_list *lua_mympd_state, const char *k, long v) {
     struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc_assert(sizeof(struct t_lua_mympd_state_value));
     value->i = v;
+    list_push(lua_mympd_state, k, LUA_TYPE_INTEGER, NULL, value);
+}
+
+void lua_mympd_state_set_u(struct t_list *lua_mympd_state, const char *k, unsigned v) {
+    struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc_assert(sizeof(struct t_lua_mympd_state_value));
+    value->i = (long)v;
     list_push(lua_mympd_state, k, LUA_TYPE_INTEGER, NULL, value);
 }
 

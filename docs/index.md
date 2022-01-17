@@ -54,3 +54,4 @@ This documentation is for myMPD version {% include version %}.
   - [Recommended MPD configuration]({{ site.baseurl }}/additional-topics/recommended-mpd-configuration)
   - [Scrobble to ListenBrainz]({{ site.baseurl }}/additional-topics/scrobble-to-listenbrainz)
 - [Known issues]({{ site.baseurl }}/known-issues)
+- [Security]({{ site.baseurl }}/security)

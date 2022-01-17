@@ -1,7 +1,7 @@
 "use strict";
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -108,6 +108,8 @@ function formToParams(p, k) {
 }
 
 function sendAPI() {
+    document.getElementById('resultState').textContent = 'Sending...';
+    document.getElementById('resultText').textContent = '';
     let select = document.getElementById('cmds');
     let method = select.options[select.selectedIndex].value;
     let request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": {}};

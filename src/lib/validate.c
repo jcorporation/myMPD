@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -24,7 +24,10 @@ static const char *invalid_filename_chars = "\a\b\f\n\r\t\v/\\";
 static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v";
 
 static const char *mympd_cols[]={"Pos", "Duration", "Type", "Priority", "LastPlayed", "Filename", "Filetype", "AudioFormat", "LastModified",
-    "Lyrics", "stickerPlayCount", "stickerSkipCount", "stickerLastPlayed", "stickerLastSkipped", "stickerLike", 0};
+    "Lyrics", "stickerPlayCount", "stickerSkipCount", "stickerLastPlayed", "stickerLastSkipped", "stickerLike",
+    "Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri", //Columns for webradiodb
+    "clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes", //Columns for radiobrowser
+    0};
 
 static bool _check_for_invalid_chars(sds data, const char *invalid_chars) {
     size_t len = sdslen(data);
@@ -83,7 +86,10 @@ bool validate_json_array(sds data) {
 
 bool vcb_isalnum(sds data) {
     for (size_t i = 0; i < sdslen(data); i++) {
-        if (isalnum(data[i]) == 0 && data[i] != '_') {
+        if (isalnum(data[i]) == 0 &&
+            data[i] != '_' &&
+            data[i] != '-')
+        {
             MYMPD_LOG_WARN("Found none alphanumeric character in string");
             return false;
         }
@@ -151,11 +157,15 @@ bool vcb_isuri(sds data) {
     return vcb_isfilepath(data);
 }
 
-bool vcb_isfilename(sds data) {
+bool vcb_isfilename_silent(sds data) {
     if (sdslen(data) == 0) {
         return false;
     }
-    bool rc = _check_for_invalid_chars(data, invalid_filename_chars);
+    return _check_for_invalid_chars(data, invalid_filename_chars);
+}
+
+bool vcb_isfilename(sds data) {
+    bool rc = vcb_isfilename_silent(data);
     if (rc == false) {
         MYMPD_LOG_WARN("Found illegal filename character");
     }

@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -16,8 +16,11 @@
 #include "lib/sds_extras.h"
 #include "lib/validate.h"
 #include "web_server/web_server_albumart.h"
+#include "web_server/web_server_proxy.h"
+#include "web_server/web_server_radiobrowser.h"
 #include "web_server/web_server_sessions.h"
 #include "web_server/web_server_tagart.h"
+#include "web_server/web_server_webradiodb.h"
 
 #include <sys/prctl.h>
 
@@ -29,10 +32,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 #endif
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response);
-static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data);
+static void log_acl_deny(const struct mg_connection *nc);
+static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data,
+        struct mg_connection *backend_nc);
 static bool handle_script_api(long long conn_id, sds body);
-static void mpd_stream_proxy_forward(struct mg_connection *nc);
-static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 
 //public functions
 bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_data *mg_user_data) {
@@ -40,15 +43,13 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
 
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
-    mg_user_data->browse_document_root = sdscatfmt(sdsempty(), "%s/empty", config->workdir);
-    mg_user_data->pics_document_root = sdscatfmt(sdsempty(), "%s/pics", config->workdir);
-    mg_user_data->smartpls_document_root = sdscatfmt(sdsempty(), "%s/smartpls", config->workdir);
+    mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%S/empty", config->workdir);
     mg_user_data->music_directory = sdsempty();
-    mg_user_data->playlist_directory = sdsempty();
     sds default_coverimagename = sdsnew("cover,folder");
     mg_user_data->coverimage_names= webserver_split_coverimage_names(default_coverimagename, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
     FREE_SDS(default_coverimagename);
-    mg_user_data->feat_library = false;
+    mg_user_data->publish_music = false;
+    mg_user_data->publish_playlists = false;
     mg_user_data->feat_mpd_albumart = false;
     mg_user_data->connection_count = 0;
     mg_user_data->stream_uri = sdsnew("http://localhost:8000");
@@ -68,7 +69,7 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
 
     //bind to http_port
     struct mg_connection *nc_http;
-    sds http_url = sdscatfmt(sdsempty(), "http://%s:%s", config->http_host, config->http_port);
+    sds http_url = sdscatfmt(sdsempty(), "http://%S:%S", config->http_host, config->http_port);
     #ifdef ENABLE_SSL
     if (config->ssl == true) {
         nc_http = mg_http_listen(mgr, http_url, ev_handler_redirect, NULL);
@@ -90,7 +91,7 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     //bind to ssl_port
     #ifdef ENABLE_SSL
     if (config->ssl == true) {
-        sds https_url = sdscatfmt(sdsempty(), "https://%s:%s", config->http_host, config->ssl_port);
+        sds https_url = sdscatfmt(sdsempty(), "https://%S:%S", config->http_host, config->ssl_port);
         struct mg_connection *nc_https = mg_http_listen(mgr, https_url, ev_handler, NULL);
         FREE_SDS(https_url);
         if (nc_https == NULL) {
@@ -169,29 +170,49 @@ static bool parse_internal_message(struct t_work_result *response, struct t_mg_u
     bool rc = false;
     if (response->extra != NULL) {
         struct set_mg_user_data_request *new_mg_user_data = (struct set_mg_user_data_request *)response->extra;
+        struct t_config *config = mg_user_data->config;
 
+        sdsclear(mg_user_data->browse_directory);
+        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, "%S/empty", config->workdir);
+        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/pics=%S/pics", config->workdir);
+        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/smartplaylists=%S/smartpls", config->workdir);
+        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/webradios=%S/webradios", config->workdir);
+        if (sdslen(new_mg_user_data->playlist_directory) > 0) {
+            mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/playlists=%S", new_mg_user_data->playlist_directory);
+            mg_user_data->publish_playlists = true;
+        }
+        else {
+            mg_user_data->publish_playlists = false;
+        }
+        FREE_SDS(new_mg_user_data->playlist_directory);
+
+        if (sdslen(new_mg_user_data->music_directory) > 0)
+        {
+            mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/music=%S", new_mg_user_data->music_directory);
+            mg_user_data->publish_music = true;
+        }
+        else {
+            mg_user_data->publish_music = false;
+        }
         mg_user_data->music_directory = sds_replace(mg_user_data->music_directory, new_mg_user_data->music_directory);
         FREE_SDS(new_mg_user_data->music_directory);
-
-        mg_user_data->playlist_directory = sds_replace(mg_user_data->playlist_directory, new_mg_user_data->playlist_directory);
-        FREE_SDS(new_mg_user_data->playlist_directory);
+        MYMPD_LOG_DEBUG("Document root: \"%s\"", mg_user_data->browse_directory);
 
         sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
         mg_user_data->coverimage_names = webserver_split_coverimage_names(new_mg_user_data->coverimage_names, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
         FREE_SDS(new_mg_user_data->coverimage_names);
 
-        mg_user_data->feat_library = new_mg_user_data->feat_library;
         mg_user_data->feat_mpd_albumart = new_mg_user_data->feat_mpd_albumart;
         mg_user_data->covercache = new_mg_user_data->covercache;
 
         sdsclear(mg_user_data->stream_uri);
         if (new_mg_user_data->mpd_stream_port != 0) {
-            mg_user_data->stream_uri = sdscatprintf(mg_user_data->stream_uri, "http://%s:%u",
+            mg_user_data->stream_uri = sdscatfmt(mg_user_data->stream_uri, "http://%s:%u",
                 (strncmp(new_mg_user_data->mpd_host, "/", 1) == 0 ? "127.0.0.1" : new_mg_user_data->mpd_host),
                 new_mg_user_data->mpd_stream_port);
         }
         FREE_SDS(new_mg_user_data->mpd_host);
-	FREE_PTR(response->extra);
+	    FREE_PTR(response->extra);
         rc = true;
     }
     else {
@@ -243,36 +264,14 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response
     free_result(response);
 }
 
-// Reverse proxy
-static void mpd_stream_proxy_forward(struct mg_connection *backend_nc) {
-    mg_printf(backend_nc, "GET / HTTP/1.1\r\n\r\n");
-}
-
-static void mpd_stream_proxy_ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
-    struct mg_connection *frontend_nc = fn_data;
-    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
-    switch(ev) {
-        case MG_EV_ACCEPT:
-            mg_user_data->connection_count++;
-            break;
-        case MG_EV_READ:
-            //forward incoming data from backend to frontend
-            mg_send(frontend_nc, nc->recv.buf, nc->recv.len);
-            mg_iobuf_del(&nc->recv, 0, nc->recv.len);
-            break;
-        case MG_EV_CLOSE: {
-            MYMPD_LOG_INFO("Backend HTTP connection %lu closed", nc->id);
-            mg_user_data->connection_count--;
-            if (frontend_nc != NULL) {
-                //remove backend connection pointer from frontend connection
-                frontend_nc->fn_data = NULL;
-                //close frontend connection
-                frontend_nc->is_closing = 1;
-            }
-            break;
-        }
+static void log_acl_deny(const struct mg_connection *nc) {
+    char addr_str[INET6_ADDRSTRLEN];
+    const char *addr_str_ptr = inet_ntop((nc->peer.is_ip6 == true ? AF_INET6 : AF_INET), &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
+    if (addr_str_ptr != NULL) {
+        MYMPD_LOG_ERROR("Connection from \"%s\" blocked by ACL");
+        return;
     }
-	(void) ev_data;
+    MYMPD_LOG_ERROR("Connection from unknown blocked by ACL");
 }
 
 //nc->label usage
@@ -293,19 +292,21 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             if (mg_user_data->connection_count > HTTP_CONNECTIONS_MAX) {
                 nc->is_draining = 1;
                 MYMPD_LOG_DEBUG("Connections: %d", mg_user_data->connection_count);
+                MYMPD_LOG_ERROR("Concurrent connections limit exceeded: %d", mg_user_data->connection_count);
                 webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
                 break;
             }
             //check acl
             if (sdslen(config->acl) > 0 && mg_check_ip_acl(mg_str(config->acl), nc->peer.ip) == false) {
                 nc->is_draining = 1;
+                log_acl_deny(nc);
                 webserver_send_error(nc, 403, "Request blocked by ACL");
                 break;
             }
             //ssl support
             #ifdef ENABLE_SSL
             if (config->ssl == true) {
-                MYMPD_LOG_DEBUG("Init tls with cert \"%s\" and key \"%s\"", config->ssl_cert, config->ssl_key);
+                MYMPD_LOG_DEBUG("Init tls with cert \"%s\" and key \"%s\" for connection \"%lu\"", config->ssl_cert, config->ssl_key, nc->id);
                 struct mg_tls_opts tls_opts = {
                     .cert = config->ssl_cert,
                     .certkey = config->ssl_key
@@ -344,12 +345,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             MYMPD_LOG_INFO("HTTP request (%lu): %.*s %.*s", nc->id, (int)hm->method.len, hm->method.ptr, (int)hm->uri.len, hm->uri.ptr);
-            //limit proto to HTTP/1.1
-            if (strncmp(hm->proto.ptr, "HTTP/1.1", hm->proto.len) != 0) {
-                MYMPD_LOG_ERROR("Invalid http version, only HTTP/1.1 is supported");
-                nc->is_closing = 1;
-                return;
-            }
             //limit allowed http methods
             if (strncmp(hm->method.ptr, "GET", hm->method.len) == 0) {
                 nc->label[1] = 'G';
@@ -397,28 +392,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     webserver_send_error(nc, 404, "MPD stream port not configured");
                     break;
                 }
-                if (backend_nc == NULL) {
-                    MYMPD_LOG_INFO("Creating new mpd stream proxy backend connection to \"%s\"", mg_user_data->stream_uri);
-                    backend_nc = mg_connect(nc->mgr, mg_user_data->stream_uri, mpd_stream_proxy_ev_handler, nc);
-                    if (backend_nc == NULL) {
-                        //no backend connection, close frontend connection
-                        MYMPD_LOG_WARN("Can not create backend connection");
-                        nc->is_closing = 1;
-                    }
-                    else {
-                        //save backend connection pointer in frontend connection fn_data
-                        nc->fn_data = backend_nc;
-                    }
-                }
-                if (backend_nc != NULL) {
-                    //set labels
-                    backend_nc->label[0] = 'B';
-                    backend_nc->label[1] = nc->label[1];
-                    backend_nc->label[2] = nc->label[2];
-                    //forward request
-                    MYMPD_LOG_INFO("Forwarding client connection \"%lu\" to backend connection \"%lu\"", nc->id, backend_nc->id);
-                    mpd_stream_proxy_forward(backend_nc);
-                }
+                create_tcp_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_tcp_backend_to_frontend);
             }
             else if (mg_http_match_uri(hm, "/ws/")) {
                 mg_ws_upgrade(nc, hm, NULL);
@@ -429,6 +403,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             else if (mg_http_match_uri(hm, "/api/script")) {
                 if (sdslen(config->scriptacl) > 0 && mg_check_ip_acl(mg_str(config->scriptacl), nc->peer.ip) == false) {
+                    log_acl_deny(nc);
                     nc->is_draining = 1;
                     webserver_send_error(nc, 403, "Request blocked by ACL");
                     break;
@@ -467,7 +442,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 //api request
                 sds body = sdsnewlen(hm->body.ptr, hm->body.len);
                 struct mg_str *auth_header = mg_http_get_header(hm, "Authorization");
-                bool rc = handle_api(nc, body, auth_header, mg_user_data);
+                bool rc = handle_api(nc, body, auth_header, mg_user_data, backend_nc);
                 FREE_SDS(body);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Invalid API request");
@@ -481,9 +456,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             else if (mg_http_match_uri(hm, "/ca.crt")) {
                 if (config->custom_cert == false) {
                     //deliver ca certificate
-                    sds ca_file = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->workdir);
+                    sds ca_file = sdscatfmt(sdsempty(), "%S/ssl/ca.pem", config->workdir);
                     static struct mg_http_serve_opts s_http_server_opts;
-                    s_http_server_opts.root_dir = mg_user_data->browse_document_root;
+                    s_http_server_opts.root_dir = mg_user_data->browse_directory;
                     s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
                     s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                     mg_http_serve_file(nc, hm, ca_file, &s_http_server_opts);
@@ -500,30 +475,21 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             else if (mg_http_match_uri(hm, "/tagart/#")) {
                 webserver_tagart_handler(nc, hm, mg_user_data);
             }
-            else if (mg_http_match_uri(hm, "/pics/#")) {
-                //serve directory
-                MYMPD_LOG_DEBUG("Setting document root to \"%s\"", mg_user_data->pics_document_root);
-                static struct mg_http_serve_opts s_http_server_opts;
-                s_http_server_opts.root_dir = mg_user_data->pics_document_root;
-                s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
-                s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-                hm->uri = mg_str_strip_parent(&hm->uri, 1);
-                mg_http_serve_dir(nc, hm, &s_http_server_opts);
-            }
             else if (mg_http_match_uri(hm, "/browse/#")) {
                 static struct mg_http_serve_opts s_http_server_opts;
                 s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
                 s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                 if (mg_http_match_uri(hm, "/browse/")) {
                     sds dirs = sdsempty();
-                    if (mg_user_data->feat_library == true) {
+                    if (mg_user_data->publish_music == true) {
                         dirs = sdscat(dirs, "<tr><td><a href=\"music/\">music/</a></td><td>MPD music directory</td><td></td></tr>");
                     }
                     dirs = sdscat(dirs, "<tr><td><a href=\"pics/\">pics/</a></td><td>myMPD pics directory</td><td></td></tr>");
-                    if (sdslen(mg_user_data->playlist_directory) > 0) {
+                    if (mg_user_data->publish_playlists == true) {
                         dirs = sdscat(dirs, "<tr><td><a href=\"playlists/\">playlists/</a></td><td>MPD playlists directory</td><td></td></tr>");
                     }
                     dirs = sdscat(dirs, "<tr><td><a href=\"smartplaylists/\">smartplaylists/</a></td><td>myMPD smart playlists directory</td><td></td></tr>");
+                    dirs = sdscat(dirs, "<tr><td><a href=\"webradios/\">webradios/</a></td><td>Webradio favorites</td><td></td></tr>");
                     mg_http_reply(nc, 200, "Content-Type: text/html\r\n"EXTRA_HEADERS_UNSAFE, "<!DOCTYPE html>"
                         "<html><head>"
                         "<meta charset=\"utf-8\">"
@@ -544,32 +510,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     );
                     sdsfree(dirs);
                 }
-                else if (mg_http_match_uri(hm, "/browse/pics/#")) {
-                    s_http_server_opts.root_dir = mg_user_data->pics_document_root;
-                    hm->uri = mg_str_strip_parent(&hm->uri, 2);
-                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
-                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
-                }
-                else if (mg_http_match_uri(hm, "/browse/smartplaylists/#")) {
-                    s_http_server_opts.root_dir = mg_user_data->smartpls_document_root;
-                    hm->uri = mg_str_strip_parent(&hm->uri, 2);
-                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
-                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
-                }
-                else if (sdslen(mg_user_data->playlist_directory) > 0 && mg_http_match_uri(hm, "/browse/playlists/#")) {
-                    s_http_server_opts.root_dir = mg_user_data->playlist_directory;
-                    hm->uri = mg_str_strip_parent(&hm->uri, 2);
-                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
-                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
-                }
-                else if (mg_user_data->feat_library == true && mg_http_match_uri(hm, "/browse/music/#")) {
-                    s_http_server_opts.root_dir = mg_user_data->music_directory;
-                    hm->uri = mg_str_strip_parent(&hm->uri, 2);
-                    MYMPD_LOG_DEBUG("Serving directory %s%.*s", mg_user_data->music_directory, hm->uri.len, hm->uri.ptr);
-                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
-                }
                 else {
-                    webserver_send_error(nc, 403, "Access to this ressource is forbidden.");
+                    s_http_server_opts.root_dir = mg_user_data->browse_directory;
+                    MYMPD_LOG_INFO("Serving uri \"%.*s\"", hm->uri.len, hm->uri.ptr);
+                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 }
             }
             else if (mg_vcmp(&hm->uri, "/index.html") == 0) {
@@ -608,8 +552,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             if (backend_nc != NULL) {
                 MYMPD_LOG_INFO("Closing backend connection \"%lu\"", backend_nc->id);
                 //remove pointer to frontend connection
-                backend_nc->fn_data = NULL;
-                //close reverse proxy connection
+                struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)backend_nc->fn_data;
+                backend_nc_data->frontend_nc = NULL;
+                //close backend connection
                 backend_nc->is_closing = 1;
             }
             break;
@@ -622,52 +567,72 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
     (void)fn_data;
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
-    if (ev == MG_EV_ACCEPT) {
-        //check connection count
-        if (mg_user_data->connection_count > HTTP_CONNECTIONS_MAX) {
-            nc->is_draining = 1;
-            webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
-            return;
-        }
-        //check acl
-        if (sdslen(config->acl) > 0 && mg_check_ip_acl(mg_str(config->acl), nc->peer.ip) == false) {
-            nc->is_draining = 1;
-            webserver_send_error(nc, 403, "Request blocked by ACL");
-            return;
-        }
-        mg_user_data->connection_count++;
-    }
-    else if (ev == MG_EV_HTTP_MSG) {
-        struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-        struct mg_str *host_hdr = mg_http_get_header(hm, "Host");
-        if (host_hdr == NULL) {
-            MYMPD_LOG_ERROR("No hoster header found, closing connection");
-            nc->is_closing = 1;
-            return;
-        }
 
-        sds host_header = sdscatlen(sdsempty(), host_hdr->ptr, (int)host_hdr->len);
-        int count = 0;
-        sds *tokens = sdssplitlen(host_header, (ssize_t)sdslen(host_header), ":", 1, &count);
-        sds s_redirect = sdscatfmt(sdsempty(), "https://%s", tokens[0]);
-        if (strcmp(config->ssl_port, "443") != 0) {
-            s_redirect = sdscatfmt(s_redirect, ":%s", config->ssl_port);
+    switch(ev) {
+        case MG_EV_ACCEPT:
+            mg_user_data->connection_count++;
+            //check connection count
+            if (mg_user_data->connection_count > HTTP_CONNECTIONS_MAX) {
+                MYMPD_LOG_DEBUG("Connections: %d", mg_user_data->connection_count);
+                MYMPD_LOG_ERROR("Concurrent connections limit exceeded: %d", mg_user_data->connection_count);
+                nc->is_draining = 1;
+                webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
+                break;
+            }
+            //check acl
+            if (sdslen(config->acl) > 0 && mg_check_ip_acl(mg_str(config->acl), nc->peer.ip) == false) {
+                log_acl_deny(nc);
+                nc->is_draining = 1;
+                webserver_send_error(nc, 403, "Request blocked by ACL");
+                break;
+            }
+            break;
+        case MG_EV_HTTP_MSG: {
+            struct mg_http_message *hm = (struct mg_http_message *) ev_data;
+            if (mg_http_match_uri(hm, "/browse/webradios/*")) {
+                //we serve the webradio directory without https to avoid ssl configuration for the mpd curl plugin
+                static struct mg_http_serve_opts s_http_server_opts;
+                s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
+                s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+                s_http_server_opts.root_dir = mg_user_data->browse_directory;
+                MYMPD_LOG_INFO("Serving uri \"%.*s\"", hm->uri.len, hm->uri.ptr);
+                mg_http_serve_dir(nc, hm, &s_http_server_opts);
+                break;
+            }
+            //redirect to https
+            struct mg_str *host_hdr = mg_http_get_header(hm, "Host");
+            if (host_hdr == NULL) {
+                MYMPD_LOG_ERROR("No hoster header found, closing connection");
+                nc->is_closing = 1;
+                break;
+            }
+
+            sds host_header = sdscatlen(sdsempty(), host_hdr->ptr, host_hdr->len);
+            int count = 0;
+            sds *tokens = sdssplitlen(host_header, (ssize_t)sdslen(host_header), ":", 1, &count);
+            sds s_redirect = sdscatfmt(sdsempty(), "https://%S", tokens[0]);
+            if (strcmp(config->ssl_port, "443") != 0) {
+                s_redirect = sdscatfmt(s_redirect, ":%S", config->ssl_port);
+            }
+            MYMPD_LOG_INFO("Redirecting to %s", s_redirect);
+            webserver_send_header_redirect(nc, s_redirect);
+            nc->is_draining = 1;
+            sdsfreesplitres(tokens, count);
+            FREE_SDS(host_header);
+            FREE_SDS(s_redirect);
+            break;
         }
-        MYMPD_LOG_INFO("Redirecting to %s", s_redirect);
-        webserver_send_header_redirect(nc, s_redirect);
-        nc->is_draining = 1;
-        sdsfreesplitres(tokens, count);
-        FREE_SDS(host_header);
-        FREE_SDS(s_redirect);
-    }
-    else if (ev == MG_EV_CLOSE) {
-        MYMPD_LOG_INFO("Connection %lu closed", nc->id);
-        mg_user_data->connection_count--;
+        case MG_EV_CLOSE:
+            MYMPD_LOG_INFO("Connection %lu closed", nc->id);
+            mg_user_data->connection_count--;
+            break;
     }
 }
 #endif
 
-static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data) {
+static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data,
+        struct mg_connection *backend_nc)
+{
     MYMPD_LOG_DEBUG("API request (%lld): %s", (long long)nc->id, body);
 
     //first check if request is valid json string
@@ -741,54 +706,22 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
     #else
     (void) auth_header;
     #endif
-
     switch(cmd_id) {
-        case MYMPD_API_SESSION_LOGIN: {
-            sds pin = NULL;
-            bool is_valid = false;
-            if (json_get_string(body, "$.params.pin", 1, 20, &pin, vcb_isalnum, NULL) == true) {
-                is_valid = pin_validate(pin, mg_user_data->config->pin_hash);
-            }
-            FREE_SDS(pin);
-            sds response = sdsempty();
-            if (is_valid == true) {
-                sds ses = webserver_session_new(&mg_user_data->session_list);
-                response = jsonrpc_result_start(response, "MYMPD_API_SESSION_LOGIN", 0);
-                response = tojson_char(response, "session", ses, false);
-                response = jsonrpc_result_end(response);
-                FREE_SDS(ses);
-            }
-            else {
-                response = jsonrpc_respond_message(response, "MYMPD_API_SESSION_LOGIN", 0, true, "session", "error", "Invalid pin");
-            }
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
-            FREE_SDS(response);
+        case MYMPD_API_SESSION_LOGIN:
+        case MYMPD_API_SESSION_LOGOUT:
+        case MYMPD_API_SESSION_VALIDATE:
+            webserver_session_api(nc, cmd_id, body, id, session, mg_user_data);
             break;
-        }
-        case MYMPD_API_SESSION_LOGOUT: {
-            bool rc = false;
-            sds response = sdsempty();
-            if (sdslen(session) == 20) {
-                rc = webserver_session_remove(&mg_user_data->session_list, session);
-                if (rc == true) {
-                    response = jsonrpc_respond_message(response, "MYMPD_API_SESSION_LOGOUT", 0, false, "session", "info", "Session removed");
-                }
-            }
-            if (rc == false) {
-                response = jsonrpc_respond_message(response, "MYMPD_API_SESSION_LOGOUT", 0, true, "session", "error", "Invalid session");
-            }
-
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
-            FREE_SDS(response);
+        case MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT:
+        case MYMPD_API_CLOUD_RADIOBROWSER_NEWEST:
+        case MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST:
+        case MYMPD_API_CLOUD_RADIOBROWSER_SEARCH:
+        case MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL:
+            radiobrowser_api(nc, backend_nc, cmd_id, body, id);
             break;
-        }
-        case MYMPD_API_SESSION_VALIDATE: {
-            //session is already validated
-            sds response = jsonrpc_respond_ok(sdsempty(), "MYMPD_API_SESSION_VALIDATE", 0, "session");
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
-            FREE_SDS(response);
+        case MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET:
+            webradiodb_api(nc, backend_nc, cmd_id, body, id);
             break;
-        }
         default: {
             //forward API request to mympd_api_handler
             struct t_work_request *request = create_request((long long)nc->id, id, cmd_id, body);

@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -17,6 +17,7 @@ sds state_file_rw_string(const char *workdir, const char *dir, const char *name,
 bool state_file_rw_bool(const char *workdir, const char *dir, const char *name, const bool def_value, bool warn);
 int state_file_rw_int(const char *workdir, const char *dir, const char *name, const int def_value, const int min, const int max, bool warn);
 unsigned state_file_rw_uint(const char *workdir, const char *dir, const char *name, const unsigned def_value, const unsigned min, const unsigned max, bool warn);
+long state_file_rw_long(const char *workdir, const char *dir, const char *name, const long def_value, const long min, const long max, bool warn);
 bool state_file_write(const char *workdir, const char *dir, const char *name, const char *value);
 sds camel_to_snake(sds text);
 #endif

@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -11,11 +11,11 @@
 #include "../lib/log.h"
 #include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
-#include "mympd_api_utility.h"
 
 #include <errno.h>
 #include <inttypes.h>
@@ -24,7 +24,7 @@
 #include <string.h>
 
 //private definitions
-static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, unsigned entity_count,
+static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, long entity_count,
                                          long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols);
 
 //public functions
@@ -42,7 +42,7 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
 
     FILE *fp = fdopen(fd, "w");
     //first write last_played list to tmp file
-    unsigned i = 0;
+    int i = 0;
     struct t_list_node *current = mympd_state->last_played.head;
     while (current != NULL && i < mympd_state->last_played_count) {
         fprintf(fp, "%ld::%s\n", current->value_i, current->key);
@@ -87,7 +87,7 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
 
 bool mympd_api_stats_last_played_add_song(struct t_mympd_state *mympd_state, const int song_id) {
     if (song_id > -1) {
-        struct mpd_song *song = mpd_run_get_queue_song_id(mympd_state->mpd_state->conn, song_id);
+        struct mpd_song *song = mpd_run_get_queue_song_id(mympd_state->mpd_state->conn, (unsigned)song_id);
         if (song) {
             const char *uri = mpd_song_get_uri(song);
             if (is_streamuri(uri) == true) {
@@ -118,18 +118,18 @@ bool mympd_api_stats_last_played_add_song(struct t_mympd_state *mympd_state, con
 }
 
 sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buffer, sds method,
-                                     long request_id, const unsigned offset, const unsigned limit,
+                                     long request_id, const long offset, const long limit,
                                      sds searchstr, const struct t_tags *tagcols)
 {
-    unsigned entity_count = 0;
-    unsigned entities_returned = 0;
+    long entity_count = 0;
+    long entities_returned = 0;
     sds_utf8_tolower(searchstr);
 
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     sds obj = sdsempty();
 
-    unsigned real_limit = offset + limit;
+    long real_limit = offset + limit;
 
     if (mympd_state->last_played.length > 0) {
         struct t_list_node *current = mympd_state->last_played.head;
@@ -163,7 +163,7 @@ sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buff
                 obj = mympd_api_get_last_played_obj(mympd_state, obj, entity_count, value, data, searchstr, tagcols);
                 if (sdslen(obj) > 0) {
                     entity_count++;
-                    if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
+                    if (entity_count > offset && entity_count <= real_limit) {
                         if (entities_returned++) {
                             buffer = sdscatlen(buffer, ",", 1);
                         }
@@ -209,9 +209,9 @@ sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
     sds mpd_protocol_version = sdscatfmt(sdsempty(),"%u.%u.%u", version[0], version[1], version[2]);
 
     buffer = jsonrpc_result_start(buffer, method, request_id);
-    buffer = tojson_long(buffer, "artists", mpd_stats_get_number_of_artists(stats), true);
-    buffer = tojson_long(buffer, "albums", mpd_stats_get_number_of_albums(stats), true);
-    buffer = tojson_long(buffer, "songs", mpd_stats_get_number_of_songs(stats), true);
+    buffer = tojson_uint(buffer, "artists", mpd_stats_get_number_of_artists(stats), true);
+    buffer = tojson_uint(buffer, "albums", mpd_stats_get_number_of_albums(stats), true);
+    buffer = tojson_uint(buffer, "songs", mpd_stats_get_number_of_songs(stats), true);
     buffer = tojson_ulong(buffer, "playtime", mpd_stats_get_play_time(stats), true);
     buffer = tojson_ulong(buffer, "uptime", mpd_stats_get_uptime(stats), true);
     buffer = tojson_long(buffer, "myMPDuptime", time(NULL) - mympd_state->config->startup_time, true);
@@ -229,7 +229,7 @@ sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
 
 
 //private functions
-static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, unsigned entity_count,
+static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, long entity_count,
                                          long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols)
 {
     buffer = sdscatlen(buffer, "{", 1);

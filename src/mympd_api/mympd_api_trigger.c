@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -130,7 +130,7 @@ sds mympd_api_trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds me
     return buffer;
 }
 
-sds mympd_api_trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, unsigned id) {
+sds mympd_api_trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, long id) {
     struct t_list_node *current = list_node_at(&mympd_state->triggers, id);
     if (current != NULL) {
         buffer = jsonrpc_result_start(buffer, method, request_id);
@@ -159,7 +159,7 @@ sds mympd_api_trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds met
     return buffer;
 }
 
-bool mympd_api_trigger_delete(struct t_mympd_state *mympd_state, unsigned idx) {
+bool mympd_api_trigger_delete(struct t_mympd_state *mympd_state, long idx) {
     struct t_list_node *toremove = list_node_at(&mympd_state->triggers, idx);
     if (toremove != NULL) {
         list_clear((struct t_list *)toremove->user_data);

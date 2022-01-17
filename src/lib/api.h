@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -40,6 +40,12 @@ extern struct t_mympd_queue *mympd_script_queue;
     X(INTERNAL_API_WEBSERVER_NOTIFY) \
     X(INTERNAL_API_WEBSERVER_SETTINGS) \
     X(INTERNAL_API_COUNT) \
+    X(MYMPD_API_CLOUD_RADIOBROWSER_NEWEST) \
+    X(MYMPD_API_CLOUD_RADIOBROWSER_SEARCH) \
+    X(MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST) \
+    X(MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL) \
+    X(MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT) \
+    X(MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET) \
     X(MYMPD_API_COLS_SAVE) \
     X(MYMPD_API_CONNECTION_SAVE) \
     X(MYMPD_API_COVERCACHE_CLEAR) \
@@ -61,6 +67,7 @@ extern struct t_mympd_queue *mympd_script_queue;
     X(MYMPD_API_HOME_ICON_RM) \
     X(MYMPD_API_HOME_ICON_SAVE) \
     X(MYMPD_API_HOME_LIST) \
+    X(MYMPD_API_JUKEBOX_CLEAR) \
     X(MYMPD_API_JUKEBOX_LIST) \
     X(MYMPD_API_JUKEBOX_RM) \
     X(MYMPD_API_LIKE) \
@@ -160,6 +167,10 @@ extern struct t_mympd_queue *mympd_script_queue;
     X(MYMPD_API_TRIGGER_RM) \
     X(MYMPD_API_TRIGGER_SAVE) \
     X(MYMPD_API_URLHANDLERS) \
+    X(MYMPD_API_WEBRADIO_FAVORITE_GET) \
+    X(MYMPD_API_WEBRADIO_FAVORITE_LIST) \
+    X(MYMPD_API_WEBRADIO_FAVORITE_RM) \
+    X(MYMPD_API_WEBRADIO_FAVORITE_SAVE) \
     X(TOTAL_API_COUNT)
 
 #define GEN_ENUM(X) X,
@@ -193,7 +204,6 @@ struct set_mg_user_data_request {
     sds music_directory;
     sds playlist_directory;
     sds coverimage_names;
-    bool feat_library;
     bool feat_mpd_albumart;
     sds mpd_host;
     unsigned mpd_stream_port;
@@ -207,8 +217,8 @@ bool is_protected_api_method(enum mympd_cmd_ids cmd_id);
 bool is_public_api_method(enum mympd_cmd_ids cmd_id);
 bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id);
 struct t_work_result *create_result(struct t_work_request *request);
-struct t_work_result *create_result_new(long long conn_id, long request_id, unsigned cmd_id);
-struct t_work_request *create_request(long long conn_id, long request_id, unsigned cmd_id, const char *data);
+struct t_work_result *create_result_new(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id);
+struct t_work_request *create_request(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id, const char *data);
 int expire_request_queue(struct t_mympd_queue *queue, time_t age);
 int expire_result_queue(struct t_mympd_queue *queue, time_t age);
 void free_request(struct t_work_request *request);

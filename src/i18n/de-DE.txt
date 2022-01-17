@@ -594,6 +594,9 @@ Wiedergabelisten anzeigen
 Show browse filesystem
 Dateisystem anzeigen
 
+Show browse webradio
+Webradios anzeigen
+
 Show search
 Suche anzeigen
 
@@ -1825,7 +1828,7 @@ AudioFormat
 Audioformat
 
 Not playing
-gestoppt
+Wiedergabe nicht gestartet
 
 Choose a playlist or enter a new playlist name
 Wiedergabeliste wählen oder neuen Namen eingeben
@@ -1986,5 +1989,152 @@ Es konnten keine Lieder von der Jukebox zur Warteschlange hinzugefügt werden
 Filling jukebox queue
 Jukebox Warteschlange wird aufgefüllt
 
-Playlists in filesystem can not be viewed
-Wiedergabelisten aus dem Dateisystem können nicht angezeigt werden
+Clear jukebox queue
+Leere Jukebox Warteschlange
+
+Mixramp delay
+Mixramp Verzögerung
+
+Mixramp db
+Mixramp DB
+
+Country
+Land
+
+Tags
+Tags
+
+Webradios
+Webradios
+
+Can not open webradios directory
+Konnte das Webradio Verzeichnis nicht öffnen
+
+Can not parse webradio favorite file
+Konnte die Webradioa Favoriten Datei nicht parsen
+
+Click webradio
+Klick auf Webradio
+
+Click webradio favorite
+Klick auf Webradio Favorit
+
+Could not delete webradio favorite
+Konnte Webradio Favorit nicht löschen
+
+Could not save webradio favorite
+Konnte Webradio Favorit nicht speichern
+
+Edit webradio favorite
+Webradio Favorit editieren
+
+Error connection to radio-browser.info
+Verbindung zu radio-browser.info fehlgeschlagen
+
+Manually add webradio favorite
+Webradio Favorit manuell hinzufügen
+
+Browse radio-browser.info
+Suche auf radio-browser.info
+
+Type or select picture
+Bild wählen oder URL eingeben
+
+Uri
+Url
+
+Webradio details
+Webradio Details
+
+Webradio favorite successfully saved
+Webradio Favorit erfolgreich gespeichert
+
+Webradio favorites
+Webradio Favoriten
+
+Add to favorites
+Zu Favoriten hinzufügen
+
+Webradio
+Webradio
+
+Delete webradio favorite
+Webradio Favorit löschen
+
+Empty response from radio-browser.info
+Fehlerhafte Antwort von radio-browser.info
+
+Language
+Sprache
+
+Description
+Beschreibung
+
+Browse WebradioDB
+Suche in der WebradioDB
+
+Empty response from webradiodb backend
+Leere Antwort vom WebradioDB Backend
+
+Loading...
+Lade...
+
+Stream uri
+Stream URL
+
+clickcount
+Klick Anzahl
+
+country
+Land
+
+homepage
+Homepage
+
+language
+Sprache
+
+lastchangetime
+Geändert
+
+lastcheckok
+Check
+
+tags
+Tags
+
+url_resolved
+URL
+
+votes
+Stimmen
+
+Check WebradioDB
+WebradioDB prüfen
+
+Update WebradioDB
+WebradioDB aktualisieren
+
+Update from WebradioDB
+Favorit aktualisieren
+
+Add to WebradioDB
+Zu WebradioDB hinzufügen
+
+Uri not found in WebradioDB
+URL nicht in WebradioDB gefunden.
+
+Favorite and WebradioDb entry are different
+Favorit und WebradioDB Eintrag unterscheiden sich.
+
+Favorite is uptodate
+Favorit ist aktuell.
+
+Empty uri
+Leere Url
+
+Checking...
+Überprüfe...
+
+WebradioDB
+WebradioDB

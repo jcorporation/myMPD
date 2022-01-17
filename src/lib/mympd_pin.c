@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -30,7 +30,7 @@ bool pin_set(sds workdir) {
         return false;
     }
     struct termios new = old;
-    new.c_lflag &= ~ECHO;
+    new.c_lflag &= ( 0u | ECHO );
     if (tcsetattr(fileno(stdin), TCSAFLUSH, &new) != 0) {
         return false;
     }
@@ -41,12 +41,12 @@ bool pin_set(sds workdir) {
 
     printf("Enter pin: ");
     while ((c = getc(stdin)) != '\n') {
-        pin = sdscatprintf(pin, "%c", c);
+        pin = sdscatfmt(pin, "%c", c);
     }
 
     printf("\nRe-enter pin: ");
     while ((c = getc(stdin)) != '\n') {
-        pin2 = sdscatprintf(pin2, "%c", c);
+        pin2 = sdscatfmt(pin2, "%c", c);
     }
     tcsetattr(fileno(stdin), TCSAFLUSH, &old);
 

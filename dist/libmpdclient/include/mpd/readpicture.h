@@ -54,6 +54,8 @@ extern "C" {
  * @param uri the URI of the song
  * @param offset to read from
  * @return true on success
+ *
+ * @since libmpdclient 2.20, MPD 0.22
  */
 bool
 mpd_send_readpicture(struct mpd_connection *connection, const char *uri, unsigned offset);
@@ -66,6 +68,8 @@ mpd_send_readpicture(struct mpd_connection *connection, const char *uri, unsigne
  * chunk size (default 8192, can be set with binarylimit command)
  * @param buffer_size the size of the allocated buffer
  * @return read size on success, -1 on failure
+ *
+ * @since libmpdclient 2.20, MPD 0.22
  */
 int
 mpd_recv_readpicture(struct mpd_connection *connection, void *buffer, size_t buffer_size);
@@ -81,6 +85,8 @@ mpd_recv_readpicture(struct mpd_connection *connection, void *buffer, size_t buf
  * chunk size (default 8192, can be set with binarylimit command)
  * @param buffer_size the size of the allocated buffer
  * @return read size on success, -1 on failure
+ *
+ * @since libmpdclient 2.20, MPD 0.22
  */
 int
 mpd_run_readpicture(struct mpd_connection *connection,

@@ -45,19 +45,19 @@ mpd_parse_audio_format(struct mpd_audio_format *audio_format, const char *p)
 		/* allow format specifications such as "dsd64" which
 		   implies the sample rate */
 
-		unsigned long dsd = strtoul(p + 3, &endptr, 10);
+		uint32_t dsd = (uint32_t)strtoul(p + 3, &endptr, 10);
 		if (endptr > p + 3 && *endptr == ':' &&
 		    dsd >= 32 && dsd <= 4096 && dsd % 2 == 0) {
 			audio_format->sample_rate = dsd * 44100 / 8;
 			audio_format->bits = MPD_SAMPLE_FORMAT_DSD;
 
 			p = endptr + 1;
-			audio_format->channels = strtoul(p, NULL, 10);
+			audio_format->channels = (uint8_t)strtoul(p, NULL, 10);
 			return;
 		}
 	}
 
-	audio_format->sample_rate = strtoul(p, &endptr, 10);
+	audio_format->sample_rate = (uint32_t)strtoul(p, &endptr, 10);
 	if (*endptr == ':') {
 		p = endptr + 1;
 
@@ -69,12 +69,12 @@ mpd_parse_audio_format(struct mpd_audio_format *audio_format, const char *p)
 			audio_format->bits = MPD_SAMPLE_FORMAT_DSD;
 			p += 4;
 		} else {
-			audio_format->bits = strtoul(p, &endptr, 10);
+			audio_format->bits = (uint8_t)strtoul(p, &endptr, 10);
 			p = *endptr == ':' ? endptr + 1 : NULL;
 		}
 
 		audio_format->channels = p != NULL
-			? strtoul(p, NULL, 10)
+			? (uint8_t)strtoul(p, NULL, 10)
 			: 0;
 	} else {
 		audio_format->bits = 0;

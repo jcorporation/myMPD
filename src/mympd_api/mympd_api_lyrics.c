@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -12,8 +12,8 @@
 #include "../lib/mem.h"
 #include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "../lib/validate.h"
-#include "mympd_api_utility.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -153,7 +153,7 @@ static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_
         return returned_entities;
     }
 
-    int i = 0;
+    unsigned i = 0;
     struct id3_frame *frame;
     while ((frame = id3_tag_findframe(tags, "USLT", i)) != NULL) {
         //fields of USLT:
@@ -226,7 +226,7 @@ static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_en
         return 0;
     }
 
-    int i = 0;
+    unsigned i = 0;
     struct id3_frame *frame;
     while ((frame = id3_tag_findframe(tags, "SYLT", i)) != NULL) {
         //fields of SYLT:
@@ -313,8 +313,8 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
     sds sylt_text = sdsempty();
     //text buffer
     sds text_buf = sdsempty();
-    unsigned sep_len = encoding == 0 || encoding == 3 ? 1 : 2;
-    unsigned i = 0;
+    id3_length_t sep_len = encoding == 0 || encoding == 3 ? 1 : 2;
+    id3_length_t i = 0;
 
     MYMPD_LOG_DEBUG("Sylt encoding: %u", encoding);
 
@@ -354,13 +354,13 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
                     text_buf = sds_catjsonchar(text_buf, (char)binary_data[i]);
                 }
                 else {
-                    unsigned c = (binary_data[i + 1] << 8) | binary_data[i];
+                    unsigned c = (unsigned)((binary_data[i + 1] << 8) | binary_data[i]);
                     if (c <= 0xd7ff || c >= 0xe000) {
                         text_buf = sdscatprintf(text_buf, "\\u%04x", c);
                     }
                     else {
                         //surrogate pair
-                        c = (binary_data[i + 1] << 24) | (binary_data[i] << 16) | (binary_data[i + 3] << 8) | binary_data[i + 2];
+                        c = (unsigned)((binary_data[i + 1] << 24) | (binary_data[i] << 16) | (binary_data[i + 3] << 8) | binary_data[i + 2]);
                         c = c - 0x10000;
                         if (c <= 0x10ffff) {
                             text_buf = sdscatprintf(text_buf, "\\u%04x%04x", 0xd800 + (c >> 10), 0xdc00 + (c & 0x3ff));
@@ -378,13 +378,13 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
                     text_buf = sds_catjsonchar(text_buf, (char)binary_data[i + 1]);
                 }
                 else {
-                    unsigned c = (binary_data[i] << 8) | binary_data[i + 1];
+                    unsigned c = (unsigned)((binary_data[i] << 8) | binary_data[i + 1]);
                     if (c <= 0xd7ff || c >= 0xe000) {
                         text_buf = sdscatprintf(text_buf, "\\u%04x", c);
                     }
                     else if (i + 4 < binary_length) {
                         //surrogate pair
-                        c = (binary_data[i] << 24) | (binary_data[i + 1] << 16) | (binary_data[i + 2] << 8) | binary_data[i + 3];
+                        c = (unsigned)((binary_data[i] << 24) | (binary_data[i + 1] << 16) | (binary_data[i + 2] << 8) | binary_data[i + 3]);
                         c = c - 0x10000;
                         if (c <= 0x10ffff) {
                             text_buf = sdscatprintf(text_buf, "\\u%04x%04x", 0xd800 + (c >> 10), 0xdc00 + (c & 0x3ff));
@@ -406,7 +406,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
                     text_buf = sds_catjsonchar(text_buf, (char)binary_data[i]);
                 }
                 else {
-                    text_buf = sdscatprintf(text_buf, "%c", binary_data[i]);
+                    text_buf = sdscatfmt(text_buf, "%c", binary_data[i]);
                 }
                 i++;
             }
@@ -471,7 +471,7 @@ static int lyricsextract_flac(sds *buffer, sds media_file, bool is_ogg, const ch
         }
         else if (block->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
             field_num = 0;
-            while ((field_num = FLAC__metadata_object_vorbiscomment_find_entry_from(block, field_num, comment_name)) > -1) {
+            while ((field_num = FLAC__metadata_object_vorbiscomment_find_entry_from(block, (unsigned)field_num, comment_name)) > -1) {
                 metadata = block;
                 FLAC__StreamMetadata_VorbisComment *vc = &metadata->data.vorbis_comment;
                 FLAC__StreamMetadata_VorbisComment_Entry *field = &vc->comments[field_num++];

@@ -60,6 +60,8 @@ Click playlist
 Click song in queue
 Click filesystem playlist
 Click song
+Click webradio
+Click webradio favorite
 Play
 Num entries
 Song change
@@ -142,3 +144,16 @@ Stop playback after current song
 Disable single mode
 Show
 View
+Add to favorites
+Delete webradio favorite
+Description
+Stream uri
+clickcount
+country
+homepage
+language
+lastchangetime
+lastcheckok
+tags
+url_resolved
+votes

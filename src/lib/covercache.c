@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -10,6 +10,7 @@
 #include "log.h"
 #include "mimetype.h"
 #include "sds_extras.h"
+#include "utility.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -29,37 +30,12 @@ bool covercache_write_file(const char *cachedir, const char *uri, const char *mi
         MYMPD_LOG_WARN("Covercache file for \"%s\" not written, could not determine file extension", uri);
         return false;
     }
-    bool rc = false;
     sds filename = sdsnew(uri);
     sds_sanitize_filename(filename);
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", cachedir, filename);
-    errno = 0;
-    int fd = mkstemp(tmp_file);
-    if (fd < 0) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
-        MYMPD_LOG_ERRNO(errno);
-    }
-    else {
-        FILE *fp = fdopen(fd, "w");
-        fwrite(binary, 1, sdslen(binary), fp);
-        fclose(fp);
-        sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", cachedir, filename, ext);
-        errno = 0;
-        if (rename(tmp_file, cover_file) == -1) {
-            MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, cover_file);
-            MYMPD_LOG_ERRNO(errno);
-            errno = 0;
-            if (unlink(tmp_file) != 0) {
-                MYMPD_LOG_ERROR("Error removing file \"%s\"", tmp_file);
-                MYMPD_LOG_ERRNO(errno);
-            }
-        }
-        MYMPD_LOG_DEBUG("Write covercache file \"%s\" for uri \"%s\"", cover_file, uri);
-        FREE_SDS(cover_file);
-        rc = true;
-    }
-    FREE_SDS(tmp_file);
+    sds filepath = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", cachedir, filename, ext);
+    bool rc = write_data_to_file(filepath, binary, sdslen(binary));
     FREE_SDS(filename);
+    FREE_SDS(filepath);
     return rc;
 }
 
@@ -73,37 +49,41 @@ int covercache_clear(const char *cachedir, int keepdays) {
     MYMPD_LOG_DEBUG("Remove files older than %ld sec", expire_time);
     errno = 0;
     DIR *covercache_dir = opendir(covercache);
-    if (covercache_dir != NULL) {
-        struct dirent *next_file;
-        sds filepath = sdsempty();
-        while ((next_file = readdir(covercache_dir)) != NULL ) {
-            if (next_file->d_type == DT_REG) {
-                filepath = sdscatfmt(filepath, "%s/%s", covercache, next_file->d_name);
-                struct stat status;
-                if (stat(filepath, &status) == 0) {
-                    if (status.st_mtime < expire_time) {
-                        MYMPD_LOG_DEBUG("Deleting \"%s\": %ld", filepath, status.st_mtime);
-                        errno = 0;
-                        if (unlink(filepath) != 0) {
-                            MYMPD_LOG_ERROR("Error removing file \"%s\"", filepath);
-                            MYMPD_LOG_ERRNO(errno);
-                            error = true;
-                        }
-                        else {
-                            num_deleted++;
-                        }
-                    }
-                }
-                sdsclear(filepath);
-            }
-        }
-        closedir(covercache_dir);
-        FREE_SDS(filepath);
-    }
-    else {
+    if (covercache_dir == NULL) {
         MYMPD_LOG_ERROR("Error opening directory \"%s\"", covercache);
         MYMPD_LOG_ERRNO(errno);
+        FREE_SDS(covercache);
+        return -1;
     }
+
+    struct dirent *next_file;
+    sds filepath = sdsempty();
+    while ((next_file = readdir(covercache_dir)) != NULL ) {
+        if (next_file->d_type != DT_REG) {
+            continue;
+        }
+        sdsclear(filepath);
+        filepath = sdscatfmt(filepath, "%s/%s", covercache, next_file->d_name);
+        struct stat status;
+        if (stat(filepath, &status) != 0) {
+            continue;
+        }
+        if (status.st_mtime < expire_time) {
+            MYMPD_LOG_DEBUG("Deleting \"%s\": %ld", filepath, status.st_mtime);
+            errno = 0;
+            if (unlink(filepath) != 0) {
+                MYMPD_LOG_ERROR("Error removing file \"%s\"", filepath);
+                MYMPD_LOG_ERRNO(errno);
+                error = true;
+            }
+            else {
+                num_deleted++;
+            }
+        }
+    }
+    closedir(covercache_dir);
+    FREE_SDS(filepath);
+
     MYMPD_LOG_NOTICE("Deleted %d files from covercache", num_deleted);
     FREE_SDS(covercache);
     return error == false ? num_deleted : -1;

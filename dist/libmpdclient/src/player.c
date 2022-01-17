@@ -78,7 +78,7 @@ mpd_run_play(struct mpd_connection *connection)
 bool
 mpd_send_play_pos(struct mpd_connection *connection, unsigned song_pos)
 {
-	return mpd_send_int_command(connection, "play", song_pos);
+	return mpd_send_u_command(connection, "play", song_pos);
 }
 
 bool
@@ -92,7 +92,7 @@ mpd_run_play_pos(struct mpd_connection *connection, unsigned song_pos)
 bool
 mpd_send_play_id(struct mpd_connection *connection, unsigned song_id)
 {
-	return mpd_send_int_command(connection, "playid", song_id);
+	return mpd_send_u_command(connection, "playid", song_id);
 }
 
 bool
@@ -173,7 +173,7 @@ bool
 mpd_send_seek_pos(struct mpd_connection *connection,
 		 unsigned song_pos, unsigned t)
 {
-	return mpd_send_int2_command(connection, "seek", song_pos, t);
+	return mpd_send_u2_command(connection, "seek", song_pos, t);
 }
 
 bool
@@ -189,7 +189,7 @@ bool
 mpd_send_seek_id(struct mpd_connection *connection,
 		 unsigned song_id, unsigned t)
 {
-	return mpd_send_int2_command(connection, "seekid", song_id, t);
+	return mpd_send_u2_command(connection, "seekid", song_id, t);
 }
 
 bool
@@ -267,26 +267,11 @@ mpd_run_random(struct mpd_connection *connection, bool mode)
 		mpd_response_finish(connection);
 }
 
-static const char *
-single_state_to_string(enum mpd_single_state state)
-{
-	switch (state) {
-	case MPD_SINGLE_OFF:
-		return "0";
-	case MPD_SINGLE_ON:
-		return "1";
-	case MPD_SINGLE_ONESHOT:
-		return "oneshot";
-	case MPD_SINGLE_UNKNOWN:
-		return NULL;
-	}
-	return NULL;
-}
 bool
 mpd_send_single_state(struct mpd_connection *connection,
 		      enum mpd_single_state state)
 {
-	const char *state_str = single_state_to_string(state);
+	const char *state_str = mpd_lookup_single_state(state);
 	if (state_str == NULL)
 		return false;
 
@@ -333,7 +318,7 @@ mpd_run_consume(struct mpd_connection *connection, bool mode)
 bool
 mpd_send_crossfade(struct mpd_connection *connection, unsigned seconds)
 {
-	return mpd_send_int_command(connection, "crossfade", seconds);
+	return mpd_send_u_command(connection, "crossfade", seconds);
 }
 
 bool

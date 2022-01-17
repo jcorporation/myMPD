@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -33,7 +33,7 @@
 static bool update_mympd_caches(struct t_mympd_state *mympd_state);
 
 //public functions
-void mpd_client_parse_idle(struct t_mympd_state *mympd_state, int idle_bitmask) {
+void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitmask) {
     for (unsigned j = 0;; j++) {
         enum mpd_idle idle_event = 1 << j;
         const char *idle_name = mpd_idle_name(idle_event);
@@ -133,7 +133,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
     struct pollfd fds[1];
     int pollrc;
     sds buffer = sdsempty();
-    unsigned mympd_api_queue_length = 0;
+    long mympd_api_queue_length = 0;
     switch (mympd_state->mpd_state->conn_state) {
         case MPD_WAIT: {
             time_t now = time(NULL);

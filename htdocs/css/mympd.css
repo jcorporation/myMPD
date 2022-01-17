@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -11,10 +11,9 @@ body.not-mobile {
 
 body.not-mobile .scrollContainer {
   overflow-y: auto;
-  overflow-x: auto;
 }
 
-body.not-mobile .BrowseDatabaseCardsContainer {
+div.cardsContainer {
   overflow-x: hidden;
 }
 
@@ -178,27 +177,21 @@ main {
   word-break: break-all;
 }
 
-.albumartbg {
+body > .albumartbg {
   position: fixed;
-  width: 100%;
-  height: 100%;
-  background-position: center center;
-  background-size: cover;
-  filter: blur(5px);
-  transition: opacity 1s;
-  z-index: -9;
 }
 
-.coverbg {
-  position: absolute;
+div > .albumartbg {
+  border-radius: 0.25rem;
+}
+
+.albumartbg {
   width: 100%;
   height: 100%;
   background-position: center center;
   background-size: cover;
-  top: 0;
-  left: 0;
   transition: opacity 1s;
-  z-index: 3;
+  z-index: -9;
 }
 
 .badge {
@@ -505,6 +498,7 @@ div.card {
 
 .album-cover-grid {
   background-size: cover;
+  background-position: center center;
   overflow: hidden;
   width: var(--mympd-coverimagesizesmall);
   height: var(--mympd-coverimagesizesmall);
@@ -706,6 +700,11 @@ div.key {
   div#shortcutList > div.col-6 {
     width: 100%;
   }
+
+  [data-col="Duration"] {
+    max-width: none;
+    min-width: auto;
+  }
 }
 
 ol#searchCrumb,
@@ -898,14 +897,12 @@ div.active #badgeQueueItems {
   left: 7px;
 }
 
-div.BrowseDatabaseCardsContainer,
-div.HomeContainer {
+div.cardsContainer {
   padding-right: 5px;
   padding-left: 5px;
 }
 
-div.BrowseDatabaseCardsContainer .col,
-div.HomeContainer .col {
+div.cardsContainer .col {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
 }
@@ -948,8 +945,6 @@ div#homeIconPreview {
   padding-bottom: 0;
   text-align: center;
   padding-top: 1rem;
-  float: left;
-  margin-right: 2rem;
 }
 
 div.album-grid-mouseover {
@@ -1095,7 +1090,8 @@ input[is=mympd-select-search][readonly] {
   margin-right: -1.5rem;
 }
 
-#SearchList > thead > tr > th {
+#SearchList > thead > tr > th,
+#BrowseRadioWebradiodbList > thead > tr > th {
   padding-right: 1.5rem;
 }
 
@@ -1161,6 +1157,16 @@ div.alert-secondary {
   margin-bottom: 0;
 }
 
+div.alert-danger {
+  background-color: #f8d7da !important;
+}
+
 input.innerButton {
   padding-right: calc(1.5em + 0.75rem);
+}
+
+.btn-group2 {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
 }

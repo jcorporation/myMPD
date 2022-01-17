@@ -2,13 +2,13 @@
 # Copyright (C) 2021 Tomasz Maciej Nowak <tmn505@gmail.com>
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
-# myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+# myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME := mympd
-PKG_VERSION := 9.0.4
+PKG_VERSION := 9.1.0
 PKG_RELEASE := 1
 
 PKG_SOURCE := $(PKG_NAME)-$(PKG_VERSION).tar.gz

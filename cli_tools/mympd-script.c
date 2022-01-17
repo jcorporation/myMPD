@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0fd-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -30,7 +30,7 @@ static sds parse_arguments(sds post_data, char **argv, int argc) {
             post_data = sdscatlen(post_data, ",", 1);
         }
         int count = 0;
-        sds *kv = sdssplitlen(argv[i], strlen(argv[i]), "=", 1, &count);
+        sds *kv = sdssplitlen(argv[i], (ssize_t)strlen(argv[i]), "=", 1, &count);
         if (count == 2) {
             post_data = sds_catjson(post_data, kv[0], sdslen(kv[0]));
             post_data = sdscat(post_data, ":");
