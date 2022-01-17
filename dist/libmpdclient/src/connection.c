@@ -64,7 +64,7 @@ mpd_parse_welcome(struct mpd_connection *connection, const char *output)
 	}
 
 	tmp = &output[strlen(MPD_WELCOME_MESSAGE)];
-	connection->version[0] = (unsigned)strtoul(tmp, &test, 10);
+	connection->version[0] = strtoul(tmp, &test, 10);
 	if (test == tmp) {
 		mpd_error_code(&connection->error, MPD_ERROR_MALFORMED);
 		mpd_error_message(&connection->error,
@@ -73,9 +73,9 @@ mpd_parse_welcome(struct mpd_connection *connection, const char *output)
 	}
 
 	if (*test == '.') {
-		connection->version[1] = (unsigned)strtoul(test + 1, &test, 10);
+		connection->version[1] = strtoul(test + 1, &test, 10);
 		if (*test == '.')
-			connection->version[2] = (unsigned)strtoul(test + 1, &test, 10);
+			connection->version[2] = strtoul(test + 1, &test, 10);
 		else
 			connection->version[2] = 0;
 	} else {
@@ -269,8 +269,8 @@ mpd_connection_set_timeout(struct mpd_connection *connection,
 {
 	assert(timeout_ms > 0);
 
-	connection->timeout.tv_sec = (time_t)(timeout_ms / 1000);
-	connection->timeout.tv_usec = (long)(timeout_ms % 1000);
+	connection->timeout.tv_sec = timeout_ms / 1000;
+	connection->timeout.tv_usec = timeout_ms % 1000;
 }
 
 int

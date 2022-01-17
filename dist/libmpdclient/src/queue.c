@@ -56,7 +56,7 @@ mpd_send_list_queue_range_meta(struct mpd_connection *connection,
 bool
 mpd_send_get_queue_song_pos(struct mpd_connection *connection, unsigned pos)
 {
-	return mpd_send_u_command(connection, "playlistinfo", pos);
+	return mpd_send_int_command(connection, "playlistinfo", pos);
 }
 
 struct mpd_song *
@@ -81,7 +81,7 @@ mpd_run_get_queue_song_pos(struct mpd_connection *connection, unsigned pos)
 bool
 mpd_send_get_queue_song_id(struct mpd_connection *connection, unsigned id)
 {
-	return mpd_send_u_command(connection, "playlistid", id);
+	return mpd_send_int_command(connection, "playlistid", id);
 }
 
 struct mpd_song *
@@ -107,7 +107,7 @@ bool
 mpd_send_queue_changes_meta(struct mpd_connection *connection,
 			    unsigned version)
 {
-	return mpd_send_u_command(connection, "plchanges", version);
+	return mpd_send_ll_command(connection, "plchanges", version);
 }
 
 bool
@@ -123,7 +123,7 @@ bool
 mpd_send_queue_changes_brief(struct mpd_connection *connection,
 			     unsigned version)
 {
-	return mpd_send_u_command(connection, "plchangesposid", version);
+	return mpd_send_ll_command(connection, "plchangesposid", version);
 }
 
 bool
@@ -145,7 +145,7 @@ mpd_recv_queue_change_brief(struct mpd_connection *connection,
 	if (pair == NULL)
 		return false;
 
-	*position_r = (unsigned)strtoul(pair->value, NULL, 10);
+	*position_r = atoi(pair->value);
 	mpd_return_pair(connection, pair);
 
 	pair = mpd_recv_pair_named(connection, "Id");
@@ -162,7 +162,7 @@ mpd_recv_queue_change_brief(struct mpd_connection *connection,
 		return false;
 	}
 
-	*id_r = (unsigned)strtoul(pair->value, NULL, 10);
+	*id_r = atoi(pair->value);
 	mpd_return_pair(connection, pair);
 
 	return !mpd_error_is_defined(&connection->error);
@@ -299,7 +299,7 @@ mpd_run_add_id_whence(struct mpd_connection *connection, const char *uri,
 bool
 mpd_send_delete(struct mpd_connection *connection, unsigned pos)
 {
-	return mpd_send_u_command(connection, "delete", pos);
+	return mpd_send_int_command(connection, "delete", pos);
 }
 
 bool
@@ -329,7 +329,7 @@ mpd_run_delete_range(struct mpd_connection *connection,
 bool
 mpd_send_delete_id(struct mpd_connection *connection, unsigned id)
 {
-	return mpd_send_u_command(connection, "deleteid", id);
+	return mpd_send_int_command(connection, "deleteid", id);
 }
 
 bool
@@ -386,7 +386,7 @@ mpd_run_clear(struct mpd_connection *connection)
 bool
 mpd_send_move(struct mpd_connection *connection, unsigned from, unsigned to)
 {
-	return mpd_send_u2_command(connection, "move", from, to);
+	return mpd_send_int2_command(connection, "move", from, to);
 }
 
 bool
@@ -400,7 +400,7 @@ mpd_run_move(struct mpd_connection *connection, unsigned from, unsigned to)
 bool
 mpd_send_move_id(struct mpd_connection *connection, unsigned from, unsigned to)
 {
-	return mpd_send_u2_command(connection, "moveid", from, to);
+	return mpd_send_int2_command(connection, "moveid", from, to);
 }
 
 bool
@@ -430,7 +430,7 @@ mpd_run_move_range(struct mpd_connection *connection,
 bool
 mpd_send_swap(struct mpd_connection *connection, unsigned pos1, unsigned pos2)
 {
-	return mpd_send_u2_command(connection, "swap", pos1, pos2);
+	return mpd_send_int2_command(connection, "swap", pos1, pos2);
 }
 
 bool
@@ -444,7 +444,7 @@ mpd_run_swap(struct mpd_connection *connection, unsigned pos1, unsigned pos2)
 bool
 mpd_send_swap_id(struct mpd_connection *connection, unsigned id1, unsigned id2)
 {
-	return mpd_send_u2_command(connection, "swapid", id1, id2);
+	return mpd_send_int2_command(connection, "swapid", id1, id2);
 }
 
 bool
@@ -492,7 +492,7 @@ mpd_run_clear_tag_id(struct mpd_connection *connection, unsigned id,
 bool
 mpd_send_clear_all_tags_id(struct mpd_connection *connection, unsigned id)
 {
-	return mpd_send_u_command(connection, "cleartagid", id);
+	return mpd_send_int_command(connection, "cleartagid", id);
 }
 
 bool
@@ -507,7 +507,7 @@ bool
 mpd_send_prio(struct mpd_connection *connection, unsigned priority,
 	      unsigned position)
 {
-	return mpd_send_u2_command(connection, "prio", priority, position);
+	return mpd_send_int2_command(connection, "prio", priority, position);
 }
 
 bool
@@ -523,7 +523,7 @@ bool
 mpd_send_prio_range(struct mpd_connection *connection, unsigned priority,
 		    unsigned start, unsigned end)
 {
-	return mpd_send_u_range_command(connection, "prio", priority,
+	return mpd_send_i_range_command(connection, "prio", priority,
 					start, end);
 }
 
@@ -540,7 +540,7 @@ bool
 mpd_send_prio_id(struct mpd_connection *connection, unsigned priority,
 		 unsigned id)
 {
-	return mpd_send_u2_command(connection, "prioid", priority, id);
+	return mpd_send_int2_command(connection, "prioid", priority, id);
 }
 
 bool

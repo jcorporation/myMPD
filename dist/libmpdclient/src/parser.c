@@ -113,9 +113,9 @@ mpd_parser_feed(struct mpd_parser *parser, char *line)
 		if (p == NULL)
 			return set_result(parser, MPD_PARSER_ERROR);
 
-		parser->u.error.server = (enum mpd_server_error)strtol(p + 1, &p, 10);
+		parser->u.error.server = strtol(p + 1, &p, 10);
 		if (*p == '@')
-			parser->u.error.at = (unsigned)strtoul(p + 1, &p, 10);
+			parser->u.error.at = strtol(p + 1, &p, 10);
 
 		q = strchr(p, ']');
 		if (q == NULL)

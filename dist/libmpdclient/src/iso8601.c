@@ -88,36 +88,36 @@ time_t
 iso8601_datetime_parse(const char *input)
 {
 	char *endptr;
-	int year, month, day, hour, minute, second;
+	unsigned year, month, day, hour, minute, second;
 	struct tm tm;
 
-	year = (int)strtol(input, &endptr, 10);
+	year = strtoul(input, &endptr, 10);
 	if (year < 1970 || year >= 3000 || *endptr != '-')
 		/* beware of the Y3K problem! */
 		return 0;
 
 	input = endptr + 1;
-	month = (int)strtol(input, &endptr, 10);
+	month = strtoul(input, &endptr, 10);
 	if (month < 1 || month > 12 || *endptr != '-')
 		return 0;
 
 	input = endptr + 1;
-	day = (int)strtol(input, &endptr, 10);
+	day = strtoul(input, &endptr, 10);
 	if (day < 1 || day > 31 || *endptr != 'T')
 		return 0;
 
 	input = endptr + 1;
-	hour = (int)strtol(input, &endptr, 10);
+	hour = strtoul(input, &endptr, 10);
 	if (endptr == input || hour >= 24 || *endptr != ':')
 		return 0;
 
 	input = endptr + 1;
-	minute = (int)strtol(input, &endptr, 10);
+	minute = strtoul(input, &endptr, 10);
 	if (endptr == input || minute >= 60 || *endptr != ':')
 		return 0;
 
 	input = endptr + 1;
-	second = (int)strtol(input, &endptr, 10);
+	second = strtoul(input, &endptr, 10);
 	if (endptr == input || second >= 60 ||
 	    (*endptr != 0 && *endptr != 'Z'))
 		return 0;

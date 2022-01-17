@@ -62,10 +62,6 @@ mpd_send_u_command(struct mpd_connection *connection, const char *command,
 		     unsigned arg1);
 
 bool
-mpd_send_u2_command(struct mpd_connection *connection, const char *command,
-		     unsigned arg1, unsigned arg2);
-
-bool
 mpd_send_u_f_command(struct mpd_connection *connection, const char *command,
 		     unsigned arg1, float arg2);
 

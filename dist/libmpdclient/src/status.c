@@ -170,17 +170,17 @@ parse_ms(const char *p)
 	unsigned ms;
 
 	if (*p >= '0' && *p <= '9')
-		ms = (unsigned)(100 * (*p++ - '0'));
+		ms = 100 * (*p++ - '0');
 	else
 		return 0;
 
 	if (*p >= '0' && *p <= '9')
-		ms += (unsigned)(10 * (*p - '0'));
+		ms += 10 * (*p - '0');
 	else
 		return ms;
 
 	if (*p >= '0' && *p <= '9')
-		ms += (unsigned)(*p - '0');
+		ms += *p - '0';
 
 	return ms;
 }
@@ -244,34 +244,34 @@ mpd_status_feed(struct mpd_status *status, const struct mpd_pair *pair)
 	else if (strcmp(pair->name, "consume") == 0)
 		status->consume = !!atoi(pair->value);
 	else if (strcmp(pair->name, "playlist") == 0)
-		status->queue_version = (unsigned)strtoul(pair->value, NULL, 10);
+		status->queue_version = strtoul(pair->value, NULL, 10);
 	else if (strcmp(pair->name, "playlistlength") == 0)
-		status->queue_length = (unsigned)strtoul(pair->value, NULL, 10);
+		status->queue_length = atoi(pair->value);
 	else if (strcmp(pair->name, "bitrate") == 0)
-		status->kbit_rate = (unsigned)strtoul(pair->value, NULL, 10);
+		status->kbit_rate = atoi(pair->value);
 	else if (strcmp(pair->name, "state") == 0)
 		status->state = parse_mpd_state(pair->value);
 	else if (strcmp(pair->name, "song") == 0)
-		status->song_pos = (int)strtol(pair->value, NULL, 10);
+		status->song_pos = atoi(pair->value);
 	else if (strcmp(pair->name, "songid") == 0)
-		status->song_id = (int)strtol(pair->value, NULL, 10);
+		status->song_id = atoi(pair->value);
 	else if (strcmp(pair->name, "nextsong") == 0)
-		status->next_song_pos = (int)strtol(pair->value, NULL, 10);
+		status->next_song_pos = atoi(pair->value);
 	else if (strcmp(pair->name, "nextsongid") == 0)
-		status->next_song_id = (int)strtol(pair->value, NULL, 10);
+		status->next_song_id = atoi(pair->value);
 	else if (strcmp(pair->name, "time") == 0) {
 		char *endptr;
 
-		status->elapsed_time = (unsigned)strtoul(pair->value, &endptr, 10);
+		status->elapsed_time = strtoul(pair->value, &endptr, 10);
 		if (*endptr == ':')
-			status->total_time = (unsigned)strtoul(endptr + 1, NULL, 10);
+			status->total_time = strtoul(endptr + 1, NULL, 10);
 
 		if (status->elapsed_ms == 0)
 			status->elapsed_ms = status->elapsed_time * 1000;
 	} else if (strcmp(pair->name, "elapsed") == 0) {
 		char *endptr;
 
-		status->elapsed_ms = (unsigned)strtoul(pair->value, &endptr, 10) * 1000;
+		status->elapsed_ms = strtoul(pair->value, &endptr, 10) * 1000;
 		if (*endptr == '.')
 			status->elapsed_ms += parse_ms(endptr + 1);
 
@@ -284,13 +284,13 @@ mpd_status_feed(struct mpd_status *status, const struct mpd_pair *pair)
 		free(status->error);
 		status->error = strdup(pair->value);
 	} else if (strcmp(pair->name, "xfade") == 0)
-		status->crossfade = (unsigned)strtoul(pair->value, NULL, 10);
+		status->crossfade = atoi(pair->value);
 	else if (strcmp(pair->name, "mixrampdb") == 0)
-		status->mixrampdb = strtof(pair->value, NULL);
+		status->mixrampdb = atof(pair->value);
 	else if (strcmp(pair->name, "mixrampdelay") == 0)
-		status->mixrampdelay = strtof(pair->value, NULL);
+		status->mixrampdelay = atof(pair->value);
 	else if (strcmp(pair->name, "updating_db") == 0)
-		status->update_id = (unsigned)strtoul(pair->value, NULL, 10);
+		status->update_id = atoi(pair->value);
 	else if (strcmp(pair->name, "audio") == 0)
 		mpd_parse_audio_format(&status->audio_format, pair->value);
 }

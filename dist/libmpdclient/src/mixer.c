@@ -39,7 +39,7 @@
 bool
 mpd_send_set_volume(struct mpd_connection *connection, unsigned volume)
 {
-	return mpd_send_u_command(connection, "setvol", volume);
+	return mpd_send_int_command(connection, "setvol", volume);
 }
 
 bool

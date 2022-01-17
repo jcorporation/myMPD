@@ -41,10 +41,10 @@
  */
 struct mpd_buffer {
 	/** the next buffer position to write to */
-	size_t write;
+	unsigned write;
 
 	/** the next buffer position to read from */
-	size_t read;
+	unsigned read;
 
 	/** the actual buffer */
 	unsigned char data[BUFFER_SIZE];

@@ -340,7 +340,7 @@ mpd_async_send_command_v(struct mpd_async *async, const char *command,
 
 	*p++ = '\n';
 
-	mpd_buffer_expand(&async->output, (size_t)(p - dest));
+	mpd_buffer_expand(&async->output, p - dest);
 	return true;
 }
 
@@ -389,7 +389,7 @@ mpd_async_recv_line(struct mpd_async *async)
 	}
 
 	*newline = 0;
-	mpd_buffer_consume(&async->input, (size_t)(newline + 1 - src));
+	mpd_buffer_consume(&async->input, newline + 1 - src);
 
 	return src;
 }

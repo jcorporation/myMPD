@@ -68,7 +68,7 @@ mpd_parse_host_password(struct mpd_settings *settings)
 	if (at == NULL)
 		return true;
 
-	at_pos = (size_t)(at - settings->host);
+	at_pos = at - settings->host;
 	settings->password = malloc(at_pos + 1);
 	if (settings->password == NULL)
 		return false;
@@ -132,7 +132,7 @@ mpd_check_port(unsigned port)
 	if (port == 0) {
 		const char *env_port = getenv("MPD_PORT");
 		if (env_port != NULL)
-			port = (unsigned)strtoul(env_port, NULL, 10);
+			port = atoi(env_port);
 	}
 
 	return port;
@@ -143,7 +143,7 @@ mpd_default_timeout_ms(void)
 {
 	const char *timeout_string = getenv("MPD_TIMEOUT");
 	if (timeout_string != NULL) {
-		const unsigned timeout_s = (unsigned)strtoul(timeout_string, NULL, 10);
+		const int timeout_s = atoi(timeout_string);
 		if (timeout_s > 0)
 			return timeout_s * 1000;
 	}

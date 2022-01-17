@@ -75,7 +75,7 @@ mpd_recv_output(struct mpd_connection *connection)
 bool
 mpd_send_enable_output(struct mpd_connection *connection, unsigned output_id)
 {
-	return mpd_send_u_command(connection, "enableoutput", output_id);
+	return mpd_send_int_command(connection, "enableoutput", output_id);
 }
 
 bool
@@ -89,7 +89,7 @@ mpd_run_enable_output(struct mpd_connection *connection, unsigned output_id)
 bool
 mpd_send_disable_output(struct mpd_connection *connection, unsigned output_id)
 {
-	return mpd_send_u_command(connection, "disableoutput", output_id);
+	return mpd_send_int_command(connection, "disableoutput", output_id);
 }
 
 bool
@@ -103,7 +103,7 @@ mpd_run_disable_output(struct mpd_connection *connection, unsigned output_id)
 bool
 mpd_send_toggle_output(struct mpd_connection *connection, unsigned output_id)
 {
-	return mpd_send_u_command(connection, "toggleoutput", output_id);
+	return mpd_send_int_command(connection, "toggleoutput", output_id);
 }
 
 bool
