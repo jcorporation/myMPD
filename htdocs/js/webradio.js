@@ -233,6 +233,8 @@ function saveRadioFavorite() {
 
 //eslint-disable-next-line no-unused-vars
 function checkWebradioDb() {
+    document.getElementById('webradiodbCheckState').textContent = tn('Checking...');
+    btnWaitingId('btnCheckWebradiodb', true);
     if (webradioDb === null) {
         //fetch webradiodb database
         sendAPI("MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET", {}, function(obj) {
@@ -278,6 +280,7 @@ function _checkWebradioDb() {
         elShowId('btnCheckWebradiodb');
         document.getElementById('webradiodbCheckState').textContent = tn('Empty uri');
     }
+    btnWaitingId('btnCheckWebradiodb', false);
 }
 
 function compareWebradioDb() {
