@@ -223,18 +223,6 @@ else()
   set (CMAKE_EXE_LINKER_FLAGS "")
 endif()
 
-#relax some compiler settings for dist sources
-#compiler flags for mongoose
-set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion")
-#compiler flags for mjson
-set_property(SOURCE dist/mjson/mjson.c PROPERTY COMPILE_FLAGS "-Wno-conversion")
-#compiler flags for rax
-set_property(SOURCE dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
-  -Wno-shadow -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers")
-#compiler flags for sds
-#-Wno-stringop-overflow: gcc 11.2.0 bug
-set_property(SOURCE dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-stringop-overflow -Wno-conversion")
-
 #set source files
 set(MYMPD_SOURCES
   dist/mjson/mjson.c
@@ -370,6 +358,20 @@ set(LIBMPDCLIENT_SOURCES
   dist/libmpdclient/src/sync.c
   dist/libmpdclient/src/tag.c
 )
+
+#relax some compiler settings for dist sources
+#compiler flags for mongoose
+set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion")
+#compiler flags for mjson
+set_property(SOURCE dist/mjson/mjson.c PROPERTY COMPILE_FLAGS "-Wno-conversion")
+#compiler flags for rax
+set_property(SOURCE dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
+  -Wno-shadow -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers")
+#compiler flags for sds
+#-Wno-stringop-overflow: gcc 11.2.0 bug
+set_property(SOURCE dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-stringop-overflow -Wno-conversion")
+#compiler flags for libmpdclient
+set_property(SOURCE ${LIBMPDCLIENT_SOURCES} PROPERTY COMPILE_FLAGS "-Wno-conversion")
 
 #compile the executeable
 add_executable(mympd ${MYMPD_SOURCES} ${LIBMPDCLIENT_SOURCES} ${CERT_SOURCES})
