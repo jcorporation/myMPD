@@ -30,8 +30,6 @@ services:
     container_name: mympd
     network_mode: "host"
     environment:
-      - PUID=1000
-      - PGID=1000
       - TZ=Europe/London
       - UMASK_SET=022 #optional
       - MYMPD_SSL=false
@@ -48,12 +46,10 @@ Docker CLI:
 docker run -d \
   --name=mympd \
   --net="host" \
-  -e PUID=1000 \
-  -e PGID=1000 \
   -e TZ=Europe/London \
-  -e UMASK_SET=022 `#optional` \
+  -e UMASK_SET=022 \
   -e MYMPD_SSL=false \
-  -v /path/to/mpd/socket:/run/mpd/socket #optional, use if you connect to mpd using sockets
+  -v /path/to/mpd/socket:/run/mpd/socket \
   -v /path/to/mympd/docker/dir:/var/lib/mympd/ \
   -v /path/to/music/dir/:/music/:ro \
   -v /path/to/playlists/dir/:/playlists/:ro \
