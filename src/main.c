@@ -144,14 +144,14 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     }
     if (testdir_rc == DIR_CREATED) {
         config->first_startup = true;
-        //directory exists or was created; set user and group, if uid = 0
-        if (startup_uid == 0 &&
-            do_chown(config->workdir, config->user) == false)
-        {
+    }
+    //directory exists or was created; set user and group, if uid = 0
+    if (startup_uid == 0) {
+        MYMPD_LOG_DEBUG("Checking ownership of \"%s\"", config->workdir);
+        if (do_chown(config->workdir, config->user) == false) {
             return false;
         }
     }
-
     //config directory
     sds testdirname = sdscatfmt(sdsempty(), "%s/config", config->workdir);
     testdir_rc = testdir("Config dir", testdirname, true);
