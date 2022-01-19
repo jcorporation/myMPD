@@ -518,7 +518,7 @@ function gotoPlayingSong() {
 
 //eslint-disable-next-line no-unused-vars
 function playAfterCurrent(songId, songPos) {
-    if (settings.random === 0) {
+    if (settings.random === false) {
         //not in random mode - move song after current playling song
         sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
             "from": songPos,
