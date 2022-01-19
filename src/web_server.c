@@ -268,10 +268,27 @@ static void log_acl_deny(const struct mg_connection *nc) {
     char addr_str[INET6_ADDRSTRLEN];
     const char *addr_str_ptr = inet_ntop((nc->peer.is_ip6 == true ? AF_INET6 : AF_INET), &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
     if (addr_str_ptr != NULL) {
-        MYMPD_LOG_ERROR("Connection from \"%s\" blocked by ACL");
+        MYMPD_LOG_ERROR("Connection from \"%s\" blocked by ACL", addr_str_ptr);
         return;
     }
     MYMPD_LOG_ERROR("Connection from unknown blocked by ACL");
+}
+
+static bool check_acl(struct mg_connection *nc, sds acl) {
+    if (sdslen(acl) > 0) {
+        int acl_result = mg_check_ip_acl(mg_str(acl), nc->peer.ip);
+        MYMPD_LOG_DEBUG("Check against acl \"%s\": %d", acl, acl_result);
+        if (acl_result < 0) {
+            MYMPD_LOG_ERROR("Malformed acl \"%s\"", acl);
+        }
+        if (acl_result != 1) {
+            nc->is_draining = 1;
+            log_acl_deny(nc);
+            webserver_send_error(nc, 403, "Request blocked by ACL");
+            return false;
+        }
+    }
+    return true;
 }
 
 //nc->label usage
@@ -297,10 +314,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 break;
             }
             //check acl
-            if (sdslen(config->acl) > 0 && mg_check_ip_acl(mg_str(config->acl), nc->peer.ip) == false) {
-                nc->is_draining = 1;
-                log_acl_deny(nc);
-                webserver_send_error(nc, 403, "Request blocked by ACL");
+            if (check_acl(nc, config->acl) == false) {
                 break;
             }
             //ssl support
@@ -402,10 +416,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 FREE_SDS(response);
             }
             else if (mg_http_match_uri(hm, "/api/script")) {
-                if (sdslen(config->scriptacl) > 0 && mg_check_ip_acl(mg_str(config->scriptacl), nc->peer.ip) == false) {
-                    log_acl_deny(nc);
-                    nc->is_draining = 1;
-                    webserver_send_error(nc, 403, "Request blocked by ACL");
+                //check acl
+                if (check_acl(nc, config->scriptacl) == false) {
                     break;
                 }
                 sds body = sdsnewlen(hm->body.ptr, hm->body.len);
@@ -580,10 +592,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
                 break;
             }
             //check acl
-            if (sdslen(config->acl) > 0 && mg_check_ip_acl(mg_str(config->acl), nc->peer.ip) == false) {
-                log_acl_deny(nc);
-                nc->is_draining = 1;
-                webserver_send_error(nc, 403, "Request blocked by ACL");
+            if (check_acl(nc, config->acl) == false) {
                 break;
             }
             break;
