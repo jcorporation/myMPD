@@ -32,7 +32,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 #endif
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response);
-static void log_acl_deny(const struct mg_connection *nc);
+static bool check_acl(struct mg_connection *nc, sds acl);
 static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data,
         struct mg_connection *backend_nc);
 static bool handle_script_api(long long conn_id, sds body);
@@ -264,31 +264,32 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response
     free_result(response);
 }
 
-static void log_acl_deny(const struct mg_connection *nc) {
+static bool check_acl(struct mg_connection *nc, sds acl) {
+    if (sdslen(acl) == 0) {
+        return true;
+    }
+    if (nc->peer.is_ip6 == true) {
+        //acls for ipv6 is not implemented in mongoose
+        //myMPD compiles mongoose without ipv6 support
+        MYMPD_LOG_WARN("IPv6 ACLs are not supported");
+        return true;
+    }
+    int acl_result = mg_check_ip_acl(mg_str(acl), nc->peer.ip);
+    MYMPD_LOG_DEBUG("Check against acl \"%s\": %d", acl, acl_result);
+    if (acl_result == 1) {
+        return true;
+    }
+    if (acl_result < 0) {
+        MYMPD_LOG_ERROR("Malformed acl \"%s\"", acl);
+        return false;
+    }
+
     char addr_str[INET6_ADDRSTRLEN];
     const char *addr_str_ptr = inet_ntop((nc->peer.is_ip6 == true ? AF_INET6 : AF_INET), &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
-    if (addr_str_ptr != NULL) {
-        MYMPD_LOG_ERROR("Connection from \"%s\" blocked by ACL", addr_str_ptr);
-        return;
-    }
-    MYMPD_LOG_ERROR("Connection from unknown blocked by ACL");
-}
-
-static bool check_acl(struct mg_connection *nc, sds acl) {
-    if (sdslen(acl) > 0) {
-        int acl_result = mg_check_ip_acl(mg_str(acl), nc->peer.ip);
-        MYMPD_LOG_DEBUG("Check against acl \"%s\": %d", acl, acl_result);
-        if (acl_result < 0) {
-            MYMPD_LOG_ERROR("Malformed acl \"%s\"", acl);
-        }
-        if (acl_result != 1) {
-            nc->is_draining = 1;
-            log_acl_deny(nc);
-            webserver_send_error(nc, 403, "Request blocked by ACL");
-            return false;
-        }
-    }
-    return true;
+    MYMPD_LOG_ERROR("Connection from \"%s\" blocked by ACL", (addr_str_ptr != NULL ? addr_str_ptr: "unknown"));
+    webserver_send_error(nc, 403, "Request blocked by ACL");
+    nc->is_draining = 1;
+    return false;
 }
 
 //nc->label usage
