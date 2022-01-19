@@ -13,11 +13,12 @@
 UTEST(random, test_random) {
     //initialize random number generator
     tinymt32_init(&tinymt, (unsigned)time(NULL));
-
+    printf("Random number: ");
     for (int i = 0; i < 100; i++) {
         long r = randrange(0, 100);
-        printf("Random number: %ld\n", r);
+        printf("%ld ", r);
         ASSERT_GE(r, 0);
         ASSERT_LE(r, 100);
     }
+    printf("\n");
 }
