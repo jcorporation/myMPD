@@ -16,12 +16,13 @@ set(CPACK_PACKAGE_VERSION_PATCH "0")
 cmake_minimum_required(VERSION 3.4)
 
 #available options
-option(ENABLE_SSL "Enables OpenSSL usage, default ON" ON)
-option(ENABLE_LIBID3TAG "Enables libid3tag usage, default ON" ON)
-option(ENABLE_FLAC "Enables flac usage, default ON" ON)
-option(ENABLE_LUA "Enables lua usage, default ON" ON)
 option(EMBEDDED_ASSETS "Embeds assets in binary, default ON" ON)
+option(ENABLE_FLAC "Enables flac usage, default ON" ON)
+option(ENABLE_IPV6 "Enables IPv6, default OFF" OFF)
+option(ENABLE_LUA "Enables lua usage, default ON" ON)
 option(ENABLE_LIBASAN "Enables build with libasan, default OFF" OFF)
+option(ENABLE_LIBID3TAG "Enables libid3tag usage, default ON" ON)
+option(ENABLE_SSL "Enables OpenSSL usage, default ON" ON)
 
 #cmake modules
 include(GNUInstallDirs)
@@ -189,9 +190,12 @@ else()
   set(LIBASAN_FLAGS "")
 endif()
 
-#set mongoose functions
+#set mongoose feature flags
 set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_DIRECTORY_LISTING=1 -DMG_ENABLE_SSI=0")
-#set mjson functions
+if("${ENABLE_IPV6}" MATCHES "ON")
+  set(MONGOOSE_FLAGS "${MONGOOSE_FLAGS} -DMG_ENABLE_IPV6=1")
+endif()
+#set mjson feature flags
 set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABLE_RPC=0 \
   -D MJSON_ENABLE_PRETTY=0 -D MJSON_ENABLE_MERGE=0")
 

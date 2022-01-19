@@ -271,7 +271,6 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
     if (nc->peer.is_ip6 == true) {
         //acls for ipv6 is not implemented in mongoose
         //myMPD compiles mongoose without ipv6 support
-        MYMPD_LOG_WARN("IPv6 ACLs are not supported");
         return true;
     }
     int acl_result = mg_check_ip_acl(mg_str(acl), nc->peer.ip);
@@ -285,7 +284,9 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
     }
 
     char addr_str[INET6_ADDRSTRLEN];
-    const char *addr_str_ptr = inet_ntop((nc->peer.is_ip6 == true ? AF_INET6 : AF_INET), &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
+    const char *addr_str_ptr = nc->peer.is_ip6 == true ?
+        inet_ntop(AF_INET6, &nc->peer.ip6, addr_str, INET6_ADDRSTRLEN) :
+        inet_ntop(AF_INET, &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
     MYMPD_LOG_ERROR("Connection from \"%s\" blocked by ACL", (addr_str_ptr != NULL ? addr_str_ptr: "unknown"));
     webserver_send_error(nc, 403, "Request blocked by ACL");
     nc->is_draining = 1;
@@ -331,8 +332,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             #endif
             if (loglevel == LOG_DEBUG) {
                 char addr_str[INET6_ADDRSTRLEN];
-                const char *addr_str_ptr = inet_ntop((nc->peer.is_ip6 == true ? AF_INET6 : AF_INET), &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
+                const char *addr_str_ptr = nc->peer.is_ip6 == true ?
+                    inet_ntop(AF_INET6, &nc->peer.ip6, addr_str, INET6_ADDRSTRLEN) :
+                    inet_ntop(AF_INET, &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
                 if (addr_str_ptr == NULL) {
+                    MYMPD_LOG_ERROR("Could not convert peer ip to string");
                     webserver_send_error(nc, 500, "Internal error");
                     nc->is_draining = 1;
                     break;
@@ -437,13 +441,15 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 socklen_t len = sizeof(localip);
                 if (getsockname((int)(long)nc->fd, (struct sockaddr *)&localip, &len) == 0) {
                     sds response = jsonrpc_result_start(sdsempty(), "", 0);
-                    char addr[INET6_ADDRSTRLEN];
-                    const char *str = inet_ntop(localip.sin_family, &localip.sin_addr, addr, INET6_ADDRSTRLEN);
-                    if (str != NULL) {
-                        response = tojson_char(response, "ip", str, false);
+                    char addr_str[INET6_ADDRSTRLEN];
+                    const char *addr_str_ptr = nc->peer.is_ip6 == true ?
+                        inet_ntop(AF_INET6, &nc->peer.ip6, addr_str, INET6_ADDRSTRLEN) :
+                        inet_ntop(AF_INET, &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
+                    if (addr_str_ptr != NULL) {
+                        response = tojson_char(response, "ip", addr_str_ptr, false);
                     }
                     else {
-                        MYMPD_LOG_ERROR("Can not get listening ip");
+                        MYMPD_LOG_ERROR("Could not convert peer ip to string");
                         response = tojson_char(response, "ip", "", false);
                     }
                     response = jsonrpc_result_end(response);

@@ -332,6 +332,12 @@ int main(int argc, char **argv) {
     mympd_config_defaults(config);
     mympd_read_config(config);
 
+    #ifdef ENABLE_IPV6
+        if (sdslen(config->acl) > 0) {
+            MYMPD_LOG_WARN("No acl support for IPv6");
+        }
+    #endif
+
     //bootstrap
     if (config->bootstrap == true) {
         printf("Created myMPD config and exit\n");

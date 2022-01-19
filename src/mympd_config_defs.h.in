@@ -22,6 +22,7 @@
 #cmakedefine ENABLE_FLAC
 #cmakedefine ENABLE_SSL
 #cmakedefine ENABLE_LUA
+#cmakedefine ENABLE_IPV6
 
 //myMPD version from cmake
 #define MYMPD_VERSION_MAJOR ${CPACK_PACKAGE_VERSION_MAJOR}

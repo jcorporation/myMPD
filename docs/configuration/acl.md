@@ -6,6 +6,8 @@ title: ACL
 
 myMPD supports simple IP ACLs to restrict connections to the webserver and to the remote scripting API endpoint.
 
+At the moment there are only ACLs for IPv4 supported.
+
 The ACL is a comma separated list of IPv4 subnets: x.x.x.x/x Each subnet is prepended by either a - or a + sign. A plus sign means allow, where a minus sign means deny.
 
 If the acl is empty, all connections are allowed else all connections are denied if not explicitely allowed.
