@@ -56,7 +56,7 @@ int testdir(const char *name, const char *dirname, bool create) {
 void my_usleep(time_t usec) {
     struct timespec ts = {
         .tv_sec = (usec / 1000) / 1000,
-        .tv_nsec = (usec % 1000000000L) * 1000L
+        .tv_nsec = (long)((usec % 1000000000L) * 1000L)
     };
     nanosleep(&ts, NULL);
 }
