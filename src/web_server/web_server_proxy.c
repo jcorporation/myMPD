@@ -89,7 +89,7 @@ void forward_tcp_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_
                 "User-Agent: myMPD/"MYMPD_VERSION"\r\n"
                 "\r\n",
                 mg_url_uri(backend_nc_data->uri),
-                host.len, host.ptr);
+                (int)host.len, host.ptr);
             break;
         case MG_EV_READ:
             //forward incoming data from backend to frontend

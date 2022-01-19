@@ -132,7 +132,7 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
                 "Connection: close\r\n"
                 "\r\n",
                 mg_url_uri(backend_nc_data->uri),
-                host.len, host.ptr,
+                (int)host.len, host.ptr,
                 MYMPD_VERSION
             );
             mg_user_data->connection_count++;
