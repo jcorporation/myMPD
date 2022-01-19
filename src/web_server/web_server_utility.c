@@ -98,7 +98,7 @@ void webserver_send_error(struct mg_connection *nc, int code, const char *msg) {
         msg);
     if (code >= 400) {
         //log msg not directly to prevent format string errors
-        MYMPD_LOG_ERROR("%s", msg);
+        MYMPD_LOG_ERROR("HTTP %d: %s", code, msg);
     }
 }
 
