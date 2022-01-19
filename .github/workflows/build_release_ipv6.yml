@@ -1,0 +1,18 @@
+name: release_ipv6
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: installdeps
+      run: sudo ./build.sh installdeps
+    - name: build
+      env:
+        ENABLE_IPV6: ON
+      run: ./build.sh release
+    - name: install
+      run: sudo ./build.sh install
