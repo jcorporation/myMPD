@@ -214,7 +214,7 @@ sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
     buffer = tojson_uint(buffer, "songs", mpd_stats_get_number_of_songs(stats), true);
     buffer = tojson_ulong(buffer, "playtime", mpd_stats_get_play_time(stats), true);
     buffer = tojson_ulong(buffer, "uptime", mpd_stats_get_uptime(stats), true);
-    buffer = tojson_long(buffer, "myMPDuptime", (long)(time(NULL) - mympd_state->config->startup_time), true);
+    buffer = tojson_llong(buffer, "myMPDuptime", (long long)(time(NULL) - mympd_state->config->startup_time), true);
     buffer = tojson_ulong(buffer, "dbUpdated", mpd_stats_get_db_update_time(stats), true);
     buffer = tojson_ulong(buffer, "dbPlaytime", mpd_stats_get_db_play_time(stats), true);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
