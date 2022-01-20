@@ -50,7 +50,7 @@ bool mympd_api_sticker_last_played(struct t_mympd_state *mympd_state, const char
     if (is_streamuri(uri) == true) {
         return true;
     }
-    return list_push(&mympd_state->sticker_queue, uri, (long)mympd_state->mpd_state->song_start_time, "lastPlayed", NULL);
+    return list_push(&mympd_state->sticker_queue, uri, (long long)mympd_state->mpd_state->song_start_time, "lastPlayed", NULL);
 }
 
 bool mympd_api_sticker_last_skipped(struct t_mympd_state *mympd_state, const char *uri) {
@@ -58,7 +58,7 @@ bool mympd_api_sticker_last_skipped(struct t_mympd_state *mympd_state, const cha
         return true;
     }
     time_t now = time(NULL);
-    return list_push(&mympd_state->sticker_queue, uri, (long)now, "lastSkipped", NULL);
+    return list_push(&mympd_state->sticker_queue, uri, (long long)now, "lastSkipped", NULL);
 }
 
 bool mympd_api_sticker_dequeue(struct t_mympd_state *mympd_state) {
@@ -71,7 +71,7 @@ bool mympd_api_sticker_dequeue(struct t_mympd_state *mympd_state) {
 
     struct t_list_node *current = mympd_state->sticker_queue.head;
     while (current != NULL) {
-        MYMPD_LOG_DEBUG("Setting %s = %ld for %s", current->value_p, current->value_i, current->key);
+        MYMPD_LOG_DEBUG("Setting %s = %lld for \"%s\"", current->value_p, current->value_i, current->key);
         if (strcmp(current->value_p, "playCount") == 0 ||
             strcmp(current->value_p, "skipCount") == 0)
         {

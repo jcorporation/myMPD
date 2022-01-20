@@ -42,7 +42,7 @@ bool covercache_write_file(const char *cachedir, const char *uri, const char *mi
 int covercache_clear(const char *cachedir, int keepdays) {
     int num_deleted = 0;
     bool error = false;
-    time_t expire_time = time(NULL) - (long)(keepdays * 24 * 60 * 60);
+    time_t expire_time = time(NULL) - (time_t)(keepdays * 24 * 60 * 60);
 
     sds covercache = sdscatfmt(sdsempty(), "%s/covercache", cachedir);
     MYMPD_LOG_NOTICE("Cleaning covercache \"%s\"", covercache);

@@ -19,7 +19,7 @@ enum list_sort_direction {
 struct t_list_node {
     sds key;
     sds value_p;
-    long value_i;
+    long long value_i;
     void *user_data;
     struct t_list_node *next;
 };
@@ -40,14 +40,14 @@ void list_free_cb_ignore_user_data(struct t_list_node *current);
 void list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb);
 void list_node_free(struct t_list_node *n);
 
-bool list_push(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data);
-bool list_push_len(struct t_list *l, const char *key, size_t key_len, long value_i, const char *value_p, size_t value_len, void *user_data);
-bool list_insert(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data);
-bool list_insert_sorted_by_key(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data, enum list_sort_direction direction);
-bool list_insert_sorted_by_value_i(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data, enum list_sort_direction direction);
+bool list_push(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data);
+bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long value_i, const char *value_p, size_t value_len, void *user_data);
+bool list_insert(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data);
+bool list_insert_sorted_by_key(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data, enum list_sort_direction direction);
+bool list_insert_sorted_by_value_i(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data, enum list_sort_direction direction);
 bool list_shift(struct t_list *l, long idx);
-bool list_replace(struct t_list *l, long pos, const char *key, long value_i, const char *value_p, void *user_data);
-long list_get_value_i(const struct t_list *l, const char *key);
+bool list_replace(struct t_list *l, long pos, const char *key, long long value_i, const char *value_p, void *user_data);
+long long list_get_value_i(const struct t_list *l, const char *key);
 sds list_get_value_p(const struct t_list *l, const char *key);
 void *list_get_user_data(const struct t_list *l, const char *key);
 struct t_list_node *list_get_node(const struct t_list *l, const char *key);

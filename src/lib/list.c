@@ -63,8 +63,8 @@ void list_free_cb_ignore_user_data(struct t_list_node *current) {
     current->user_data = NULL;
 }
 
-long list_get_value_i(const struct t_list *l, const char *key) {
-    long value_i = -1;
+long long list_get_value_i(const struct t_list *l, const char *key) {
+    long long value_i = -1;
     struct t_list_node *current = l->head;
     while (current != NULL) {
         if (strcmp(current->key, key) == 0) {
@@ -180,7 +180,7 @@ bool list_swap_item(struct t_list_node *n1, struct t_list_node *n2) {
     }
 
     sds key = n2->key;
-    long value_i = n2->value_i;
+    long long value_i = n2->value_i;
     sds value_p = n2->value_p;
     void *user_data = n2->user_data;
 
@@ -296,7 +296,7 @@ bool list_sort_by_key(struct t_list *l, enum list_sort_direction direction) {
     return true;
 }
 
-bool list_replace(struct t_list *l, long pos, const char *key, long value_i, const char *value_p, void *user_data) {
+bool list_replace(struct t_list *l, long pos, const char *key, long long value_i, const char *value_p, void *user_data) {
     if (pos >= l->length) {
         return false;
     }
@@ -325,7 +325,7 @@ bool list_replace(struct t_list *l, long pos, const char *key, long value_i, con
     return true;
 }
 
-bool list_push(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data) {
+bool list_push(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data) {
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;
@@ -356,7 +356,7 @@ bool list_push(struct t_list *l, const char *key, long value_i, const char *valu
     return true;
 }
 
-bool list_push_len(struct t_list *l, const char *key, size_t key_len, long value_i, const char *value_p, size_t value_len, void *user_data) {
+bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long value_i, const char *value_p, size_t value_len, void *user_data) {
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnewlen(key, key_len);
     n->value_i = value_i;
@@ -387,7 +387,7 @@ bool list_push_len(struct t_list *l, const char *key, size_t key_len, long value
     return true;
 }
 
-bool list_insert(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data) {
+bool list_insert(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data) {
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;
@@ -405,7 +405,7 @@ bool list_insert(struct t_list *l, const char *key, long value_i, const char *va
     return true;
 }
 
-bool list_insert_sorted_by_key(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data, enum list_sort_direction direction) {
+bool list_insert_sorted_by_key(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data, enum list_sort_direction direction) {
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;
@@ -452,7 +452,7 @@ bool list_insert_sorted_by_key(struct t_list *l, const char *key, long value_i, 
     return true;
 }
 
-bool list_insert_sorted_by_value_i(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data, enum list_sort_direction direction) {
+bool list_insert_sorted_by_value_i(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data, enum list_sort_direction direction) {
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;

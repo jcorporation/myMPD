@@ -512,7 +512,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
         if (_search_song(song, &expr_list, &mympd_state->tag_types_browse) == true) {
             if (sort_by_last_modified == true) {
                 key = sdscatlen(key, iter.key, iter.key_len);
-                list_insert_sorted_by_value_i(&album_list, key, (long)mpd_song_get_last_modified(song), NULL, iter.data,
+                list_insert_sorted_by_value_i(&album_list, key, (long long)mpd_song_get_last_modified(song), NULL, iter.data,
                     (sortdesc == false ? LIST_SORT_ASC : LIST_SORT_DESC));
                 sdsclear(key);
             }

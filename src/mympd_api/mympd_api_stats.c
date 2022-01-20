@@ -45,7 +45,7 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
     int i = 0;
     struct t_list_node *current = mympd_state->last_played.head;
     while (current != NULL && i < mympd_state->last_played_count) {
-        fprintf(fp, "%ld::%s\n", current->value_i, current->key);
+        fprintf(fp, "%lld::%s\n", current->value_i, current->key);
         current = current->next;
         i++;
     }

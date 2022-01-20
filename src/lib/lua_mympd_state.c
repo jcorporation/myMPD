@@ -23,7 +23,7 @@ void lua_mympd_state_set_p(struct t_list *lua_mympd_state, const char *k, const 
     list_push(lua_mympd_state, k, LUA_TYPE_STRING, NULL, value);
 }
 
-void lua_mympd_state_set_i(struct t_list *lua_mympd_state, const char *k, long v) {
+void lua_mympd_state_set_i(struct t_list *lua_mympd_state, const char *k, long long v) {
     struct t_lua_mympd_state_value *value = malloc_assert(sizeof(struct t_lua_mympd_state_value));
     value->i = v;
     list_push(lua_mympd_state, k, LUA_TYPE_INTEGER, NULL, value);
@@ -31,7 +31,7 @@ void lua_mympd_state_set_i(struct t_list *lua_mympd_state, const char *k, long v
 
 void lua_mympd_state_set_u(struct t_list *lua_mympd_state, const char *k, unsigned v) {
     struct t_lua_mympd_state_value *value = malloc_assert(sizeof(struct t_lua_mympd_state_value));
-    value->i = (long)v;
+    value->i = (long long)v;
     list_push(lua_mympd_state, k, LUA_TYPE_INTEGER, NULL, value);
 }
 
