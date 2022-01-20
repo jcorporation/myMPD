@@ -46,7 +46,7 @@ int covercache_clear(const char *cachedir, int keepdays) {
 
     sds covercache = sdscatfmt(sdsempty(), "%s/covercache", cachedir);
     MYMPD_LOG_NOTICE("Cleaning covercache \"%s\"", covercache);
-    MYMPD_LOG_DEBUG("Remove files older than %ld sec", expire_time);
+    MYMPD_LOG_DEBUG("Remove files older than %lld sec", (long long)expire_time);
     errno = 0;
     DIR *covercache_dir = opendir(covercache);
     if (covercache_dir == NULL) {
@@ -69,7 +69,7 @@ int covercache_clear(const char *cachedir, int keepdays) {
             continue;
         }
         if (status.st_mtime < expire_time) {
-            MYMPD_LOG_DEBUG("Deleting \"%s\": %ld", filepath, status.st_mtime);
+            MYMPD_LOG_DEBUG("Deleting \"%s\": %lld", filepath, (long long)status.st_mtime);
             errno = 0;
             if (unlink(filepath) != 0) {
                 MYMPD_LOG_ERROR("Error removing file \"%s\"", filepath);
