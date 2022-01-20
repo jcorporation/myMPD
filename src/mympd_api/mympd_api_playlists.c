@@ -264,20 +264,22 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
 sds mympd_api_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sds method,
                               long request_id, const char *old_playlist, const char *new_playlist)
 {
+    //first handle smart playlists
     sds old_pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, old_playlist);
     sds new_pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, new_playlist);
-    //first handle smart playlists
-    if (access(new_pl_file, F_OK ) != -1) { /* Flawfinder: ignore */
-        MYMPD_LOG_ERROR("A playlist with name \"%s\" already exists", new_pl_file);
-        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "A smart playlist with this name already exists");
-        FREE_SDS(old_pl_file);
-        FREE_SDS(new_pl_file);
-        return buffer;
-    }
-    if (access(old_pl_file, F_OK ) != -1) { /* Flawfinder: ignore */
-        //smart playlist
-        errno = 0;
-        if (rename(old_pl_file, new_pl_file) == -1) {
+    //link old name to new name
+    errno = 0;
+    if (link(old_pl_file, new_pl_file) == -1) {
+        if (errno == EEXIST) {
+            //handle new smart playlist name exists already
+            MYMPD_LOG_ERROR("A playlist with name \"%s\" already exists", new_pl_file);
+            buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "A smart playlist with this name already exists");
+            FREE_SDS(old_pl_file);
+            FREE_SDS(new_pl_file);
+            return buffer;
+        }
+        if (errno != ENOENT) {
+            //ENOENT is OK, handle other errors
             MYMPD_LOG_ERROR("Renaming smart playlist from \"%s\" to \"%s\" failed", old_pl_file, new_pl_file);
             MYMPD_LOG_ERRNO(errno);
             buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Renaming playlist failed");
@@ -285,6 +287,23 @@ sds mympd_api_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sds
             FREE_SDS(new_pl_file);
             return buffer;
         }
+        //no smart playlist exists, this is OK
+    }
+    errno = 0;
+    //remove old smart playlist
+    if (unlink(old_pl_file) == -1) {
+        MYMPD_LOG_ERROR("Deleting old smart playlist \"%s\" failed", old_pl_file);
+        MYMPD_LOG_ERRNO(errno);
+        //try to remove new smart playlist to prevent duplicates
+        errno = 0;
+        if (unlink(new_pl_file) == -1) {
+            MYMPD_LOG_ERROR("Deleting new smart playlist \"%s\" failed", new_pl_file);
+            MYMPD_LOG_ERRNO(errno);
+        }
+        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Renaming playlist failed");
+        FREE_SDS(old_pl_file);
+        FREE_SDS(new_pl_file);
+        return buffer;
     }
     FREE_SDS(old_pl_file);
     FREE_SDS(new_pl_file);
@@ -303,15 +322,16 @@ sds mympd_api_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sds
     sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, playlist);
     errno = 0;
     int rc = unlink(pl_file);
-    if (rc == -1 && errno != ENOENT) {
+    if (rc == -1 &&
+        errno != ENOENT)
+    {
+        //ignores none existing smart playlist
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Deleting smart playlist failed");
         MYMPD_LOG_ERROR("Deleting smart playlist \"%s\" failed", playlist);
         MYMPD_LOG_ERRNO(errno);
         FREE_SDS(pl_file);
         return buffer;
     }
-    //ignore error
-    MYMPD_LOG_DEBUG("File \"%s\" does not exist", pl_file);
     FREE_SDS(pl_file);
     if (smartpls_only == true) {
         send_jsonrpc_event("update_stored_playlist");
