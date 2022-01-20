@@ -4,6 +4,8 @@ permalink: /configuration/acl
 title: ACL
 ---
 
+The acl support is currently broken in upstream: [Issue #663](https://github.com/jcorporation/myMPD/issues/663).
+
 myMPD supports simple IP ACLs to restrict connections to the webserver and to the remote scripting API endpoint.
 
 At the moment there are only ACLs for IPv4 supported.
