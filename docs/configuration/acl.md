@@ -4,6 +4,8 @@ permalink: /configuration/acl
 title: ACL
 ---
 
+The acl support is currently broken in upstream: [Issue #663](https://github.com/jcorporation/myMPD/issues/663).
+
 myMPD supports simple IP ACLs to restrict connections to the webserver and to the remote scripting API endpoint.
 
 The ACL is a comma separated list of IPv4 subnets: x.x.x.x/x Each subnet is prepended by either a - or a + sign. A plus sign means allow, where a minus sign means deny.
