@@ -158,7 +158,7 @@ static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data, 
             break;
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-            MYMPD_LOG_DEBUG("Got response from connection \"%lu\": %d bytes", nc->id, hm->body.len);
+            MYMPD_LOG_DEBUG("Got response from connection \"%lu\": %lu bytes", nc->id, hm->body.len);
             const char *cmd = get_cmd_id_method_name(backend_nc_data->cmd_id);
             sds result = sdsempty();
             if (hm->body.len > 0) {

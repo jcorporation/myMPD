@@ -250,7 +250,7 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response
     struct mg_connection *nc = mgr->conns;
     while (nc != NULL) {
         if ((int)nc->is_websocket == 0 && nc->id == (long unsigned)response->conn_id) {
-            MYMPD_LOG_DEBUG("Sending response to conn_id %lu (length: %d): %s", nc->id, sdslen(response->data), response->data);
+            MYMPD_LOG_DEBUG("Sending response to conn_id %lu (length: %lu): %s", nc->id, sdslen(response->data), response->data);
             if (response->cmd_id == INTERNAL_API_ALBUMART) {
                 webserver_albumart_send(nc, response->data, response->binary);
             }
@@ -351,7 +351,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         }
         case MG_EV_WS_MSG: {
             struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
-            MYMPD_LOG_DEBUG("WS message (%lu): %.*s", nc->id, wm->data.len, wm->data.ptr);
+            MYMPD_LOG_DEBUG("WS message (%lu): %.*s", nc->id, (int)wm->data.len, wm->data.ptr);
             if (strncmp(wm->data.ptr, "ping", wm->data.len) == 0) {
                 size_t sent = mg_ws_send(nc, "pong", 4, WEBSOCKET_OP_TEXT);
                 if (sent != 6) {
@@ -375,20 +375,20 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 nc->label[1] = 'P';
             }
             else {
-                MYMPD_LOG_ERROR("Invalid http method \"%.*s\"", hm->method.len, hm->method.ptr);
+                MYMPD_LOG_ERROR("Invalid http method \"%.*s\"", (int)hm->method.len, hm->method.ptr);
                 nc->is_closing = 1;
                 return;
             }
             //check uri length
             if (hm->uri.len > URI_LENGTH_MAX) {
-                MYMPD_LOG_ERROR("Uri is too long, length is %d, maximum length is %d", hm->uri.len, URI_LENGTH_MAX);
+                MYMPD_LOG_ERROR("Uri is too long, length is %lu, maximum length is %d", hm->uri.len, URI_LENGTH_MAX);
                 nc->is_closing = 1;
                 return;
             }
 
             //check post requests length
             if (nc->label[1] == 'P' && (hm->body.len == 0 || hm->body.len > BODY_SIZE_MAX)) {
-                MYMPD_LOG_ERROR("POST request with body of size %d is out of bounds", hm->body.len);
+                MYMPD_LOG_ERROR("POST request with body of size %lu is out of bounds", hm->body.len);
                 nc->is_closing = 1;
                 return;
             }
@@ -531,7 +531,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
                 else {
                     s_http_server_opts.root_dir = mg_user_data->browse_directory;
-                    MYMPD_LOG_INFO("Serving uri \"%.*s\"", hm->uri.len, hm->uri.ptr);
+                    MYMPD_LOG_INFO("Serving uri \"%.*s\"", (int)hm->uri.len, hm->uri.ptr);
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 }
             }
@@ -611,7 +611,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
                 s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
                 s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                 s_http_server_opts.root_dir = mg_user_data->browse_directory;
-                MYMPD_LOG_INFO("Serving uri \"%.*s\"", hm->uri.len, hm->uri.ptr);
+                MYMPD_LOG_INFO("Serving uri \"%.*s\"", (int)hm->uri.len, hm->uri.ptr);
                 mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 break;
             }
