@@ -174,7 +174,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
             buffer = tojson_char(buffer, "Type", (current->value_p[0] == 'f' ? "plist" : "smartpls"), true);
             buffer = tojson_char(buffer, "uri", current->key, true);
             buffer = tojson_char(buffer, "name", current->key, true);
-            buffer = tojson_long(buffer, "lastModified", current->value_i, true);
+            buffer = tojson_llong(buffer, "lastModified", current->value_i, true);
             buffer = tojson_bool(buffer, "smartplsOnly", current->value_p[0] == 't' ? true : false, false);
             buffer = sdscat(buffer, "}");
         }

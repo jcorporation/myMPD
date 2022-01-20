@@ -49,7 +49,7 @@ static void *mympd_api_script_execute(void *script_thread_arg);
 static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script);
 static void populate_lua_table(lua_State *lua_vm, struct t_list *lua_mympd_state);
 static void populate_lua_table_field_p(lua_State *lua_vm, const char *key, const char *value);
-static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, long value);
+static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, long long value);
 static void populate_lua_table_field_f(lua_State *lua_vm, const char *key, double value);
 static void populate_lua_table_field_b(lua_State *lua_vm, const char *key, bool value);
 static void register_lua_functions(lua_State *lua_vm);
@@ -465,7 +465,7 @@ static void populate_lua_table_field_p(lua_State *lua_vm, const char *key, const
     lua_settable(lua_vm, -3);
 }
 
-static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, long value) {
+static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, long long value) {
     lua_pushstring(lua_vm, key);
     lua_pushinteger(lua_vm, value);
     lua_settable(lua_vm, -3);

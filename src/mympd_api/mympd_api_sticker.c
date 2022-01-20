@@ -75,13 +75,13 @@ bool mympd_api_sticker_dequeue(struct t_mympd_state *mympd_state) {
         if (strcmp(current->value_p, "playCount") == 0 ||
             strcmp(current->value_p, "skipCount") == 0)
         {
-            _mympd_api_count_song_uri(mympd_state, current->key, current->value_p, current->value_i);
+            _mympd_api_count_song_uri(mympd_state, current->key, current->value_p, (long)current->value_i);
         }
         else if (strcmp(current->value_p, "like") == 0 ||
                  strcmp(current->value_p, "lastPlayed") == 0 ||
                  strcmp(current->value_p, "lastSkipped") == 0)
         {
-            _mympd_api_set_sticker(mympd_state, current->key, current->value_p, current->value_i);
+            _mympd_api_set_sticker(mympd_state, current->key, current->value_p, (long)current->value_i);
         }
         list_shift(&mympd_state->sticker_queue, 0);
         current = mympd_state->sticker_queue.head;

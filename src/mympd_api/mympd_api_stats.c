@@ -25,7 +25,7 @@
 
 //private definitions
 static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, long entity_count,
-                                         long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols);
+                                         long long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols);
 
 //public functions
 bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
@@ -229,11 +229,11 @@ sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
 
 //private functions
 static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, long entity_count,
-                                         long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols)
+                                         long long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols)
 {
     buffer = sdscatlen(buffer, "{", 1);
     buffer = tojson_long(buffer, "Pos", entity_count, true);
-    buffer = tojson_long(buffer, "LastPlayed", last_played, true);
+    buffer = tojson_llong(buffer, "LastPlayed", last_played, true);
     bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, uri);
     if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == false) {
         mpd_response_finish(mympd_state->mpd_state->conn);

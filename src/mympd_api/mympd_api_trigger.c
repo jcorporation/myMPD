@@ -105,8 +105,8 @@ sds mympd_api_trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = sdscatlen(buffer, "{", 1);
         buffer = tojson_long(buffer, "id", j, true);
         buffer = tojson_char(buffer, "name", current->key, true);
-        buffer = tojson_long(buffer, "event", current->value_i, true);
-        buffer = tojson_char(buffer, "eventName", mympd_api_trigger_name(current->value_i), true);
+        buffer = tojson_llong(buffer, "event", current->value_i, true);
+        buffer = tojson_char(buffer, "eventName", mympd_api_trigger_name((long)current->value_i), true);
         buffer = tojson_char(buffer, "script", current->value_p, true);
         buffer = sdscat(buffer, "\"arguments\": {");
         struct t_list *arguments = ( struct t_list *)current->user_data;
@@ -136,7 +136,7 @@ sds mympd_api_trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds met
         buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = tojson_long(buffer, "id", id, true);
         buffer = tojson_char(buffer, "name", current->key, true);
-        buffer = tojson_long(buffer, "event", current->value_i, true);
+        buffer = tojson_llong(buffer, "event", current->value_i, true);
         buffer = tojson_char(buffer, "script", current->value_p, true);
         buffer = sdscat(buffer, "\"arguments\": {");
         struct t_list *arguments = (struct t_list *)current->user_data;
@@ -242,7 +242,7 @@ bool mympd_api_trigger_file_save(struct t_mympd_state *mympd_state) {
     while (current != NULL) {
         buffer = sds_replace(buffer, "{");
         buffer = tojson_char(buffer, "name", current->key, true);
-        buffer = tojson_long(buffer, "event", current->value_i, true);
+        buffer = tojson_llong(buffer, "event", current->value_i, true);
         buffer = tojson_char(buffer, "script", current->value_p, true);
         buffer = sdscat(buffer, "\"arguments\":{");
         struct t_list *arguments = (struct t_list *)current->user_data;
