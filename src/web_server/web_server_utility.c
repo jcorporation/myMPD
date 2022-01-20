@@ -110,7 +110,7 @@ void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *
 }
 
 void webserver_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers) {
-    MYMPD_LOG_DEBUG("Sending %lu bytes to %lu", len, nc->id);
+    MYMPD_LOG_DEBUG("Sending %lu bytes to %lu", (unsigned long)len, nc->id);
     webserver_send_header_ok(nc, len, headers);
     mg_send(nc, data, len);
     webserver_handle_connection_close(nc);
