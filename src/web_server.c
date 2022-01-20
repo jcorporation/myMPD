@@ -307,18 +307,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
     switch(ev) {
         case MG_EV_ACCEPT: {
             mg_user_data->connection_count++;
-            //check connection count
-            if (mg_user_data->connection_count > HTTP_CONNECTIONS_MAX) {
-                nc->is_draining = 1;
-                MYMPD_LOG_DEBUG("Connections: %d", mg_user_data->connection_count);
-                MYMPD_LOG_ERROR("Concurrent connections limit exceeded: %d", mg_user_data->connection_count);
-                webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
-                break;
-            }
-            //check acl
-            if (check_acl(nc, config->acl) == false) {
-                break;
-            }
             //ssl support
             #ifdef ENABLE_SSL
             if (config->ssl == true) {
@@ -330,6 +318,18 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 mg_tls_init(nc, &tls_opts);
             }
             #endif
+            //check connection count
+            if (mg_user_data->connection_count > HTTP_CONNECTIONS_MAX) {
+                MYMPD_LOG_DEBUG("Connections: %d", mg_user_data->connection_count);
+                MYMPD_LOG_ERROR("Concurrent connections limit exceeded: %d", mg_user_data->connection_count);
+                webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
+                nc->is_draining = 1;
+                break;
+            }
+            //check acl
+            if (check_acl(nc, config->acl) == false) {
+                break;
+            }
             if (loglevel == LOG_DEBUG) {
                 char addr_str[INET6_ADDRSTRLEN];
                 const char *addr_str_ptr = nc->peer.is_ip6 == true ?
@@ -376,20 +376,23 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             else {
                 MYMPD_LOG_ERROR("Invalid http method \"%.*s\"", (int)hm->method.len, hm->method.ptr);
-                nc->is_closing = 1;
+                webserver_send_error(nc, 405, "Invalid http method");
+                nc->is_draining = 1;
                 return;
             }
             //check uri length
             if (hm->uri.len > URI_LENGTH_MAX) {
                 MYMPD_LOG_ERROR("Uri is too long, length is %lu, maximum length is %d", (unsigned long)hm->uri.len, URI_LENGTH_MAX);
-                nc->is_closing = 1;
+                webserver_send_error(nc, 414, "Uri is too long");
+                nc->is_draining = 1;
                 return;
             }
 
             //check post requests length
             if (nc->label[1] == 'P' && (hm->body.len == 0 || hm->body.len > BODY_SIZE_MAX)) {
                 MYMPD_LOG_ERROR("POST request with body of size %lu is out of bounds", (unsigned long)hm->body.len);
-                nc->is_closing = 1;
+                webserver_send_error(nc, 413, "Post request is too large");
+                nc->is_draining = 1;
                 return;
             }
             //respect connection close header
@@ -407,8 +410,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 
             if (mg_http_match_uri(hm, "/stream/")) {
                 if (sdslen(mg_user_data->stream_uri) == 0) {
-                    nc->is_draining = 1;
                     webserver_send_error(nc, 404, "MPD stream port not configured");
+                    nc->is_draining = 1;
                     break;
                 }
                 create_tcp_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_tcp_backend_to_frontend);
@@ -594,8 +597,8 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
             if (mg_user_data->connection_count > HTTP_CONNECTIONS_MAX) {
                 MYMPD_LOG_DEBUG("Connections: %d", mg_user_data->connection_count);
                 MYMPD_LOG_ERROR("Concurrent connections limit exceeded: %d", mg_user_data->connection_count);
-                nc->is_draining = 1;
                 webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
+                nc->is_draining = 1;
                 break;
             }
             //check acl
