@@ -159,7 +159,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                         if (request->conn_id > -1) {
                             struct t_work_result *response = create_result(request);
                             response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "mpd", "error", "MPD disconnected");
-                            MYMPD_LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
+                            MYMPD_LOG_DEBUG("Send http response to connection %lld: %s", request->conn_id, response->data);
                             mympd_queue_push(web_server_queue, response, 0);
                         }
                         free_request(request);
@@ -269,7 +269,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                     mympd_state->mpd_state->reconnect_interval += 2;
                 }
                 mympd_state->mpd_state->reconnect_time = time(NULL) + mympd_state->mpd_state->reconnect_interval;
-                MYMPD_LOG_INFO("Waiting %u seconds before reconnection", mympd_state->mpd_state->reconnect_interval);
+                MYMPD_LOG_INFO("Waiting %lld seconds before reconnection", (long long)mympd_state->mpd_state->reconnect_interval);
             }
             else {
                 mympd_state->mpd_state->conn_state = MPD_DISCONNECTED;
@@ -293,7 +293,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                     mympd_state->mpd_state->set_song_played_time > 0 &&
                     mympd_state->mpd_state->last_last_played_id != mympd_state->mpd_state->song_id)
                 {
-                    MYMPD_LOG_DEBUG("Song has played half: %u", mympd_state->mpd_state->set_song_played_time);
+                    MYMPD_LOG_DEBUG("Song has played half: %lld", (long long)mympd_state->mpd_state->set_song_played_time);
                     set_played = true;
                 }
                 //check if the jukebox should add a song

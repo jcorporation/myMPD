@@ -181,11 +181,11 @@ static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
     time_t now = time(NULL);
     time_t add_time = mympd_state->mpd_state->song_end_time - (mympd_state->mpd_state->crossfade + 10);
 
-    MYMPD_LOG_DEBUG("Queue length: %u", queue_length);
-    MYMPD_LOG_DEBUG("Min queue length: %u", mympd_state->jukebox_queue_length);
+    MYMPD_LOG_DEBUG("Queue length: %ld", queue_length);
+    MYMPD_LOG_DEBUG("Min queue length: %ld", mympd_state->jukebox_queue_length);
 
     if (queue_length >= mympd_state->jukebox_queue_length && now < add_time) {
-        MYMPD_LOG_DEBUG("Jukebox: Queue length >= %d and add_time not reached", mympd_state->jukebox_queue_length);
+        MYMPD_LOG_DEBUG("Jukebox: Queue length >= %ld and add_time not reached", mympd_state->jukebox_queue_length);
         return true;
     }
 
@@ -199,7 +199,7 @@ static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
         if (add_songs == 0) {
             add_songs++;
         }
-        MYMPD_LOG_DEBUG("Time now %d greater than add_time %d, adding %u song(s)", now, add_time, add_songs);
+        MYMPD_LOG_DEBUG("Time now %lld greater than add_time %lld, adding %ld song(s)", (long long)now, (long long)add_time, add_songs);
     }
 
     if (add_songs < 1) {
@@ -208,7 +208,7 @@ static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
     }
 
     if (add_songs > 99) {
-        MYMPD_LOG_WARN("Jukebox: max songs to add set to %ul, adding max. 99 songs", add_songs);
+        MYMPD_LOG_WARN("Jukebox: max songs to add set to %ld, adding max. 99 songs", add_songs);
         add_songs = 99;
     }
 
@@ -240,7 +240,7 @@ static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
 
 bool mpd_client_jukebox_add_to_queue(struct t_mympd_state *mympd_state, long add_songs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
     if (manual == false) {
-        MYMPD_LOG_DEBUG("Jukebox queue length: %u", mympd_state->jukebox_queue.length);
+        MYMPD_LOG_DEBUG("Jukebox queue length: %ld", mympd_state->jukebox_queue.length);
     }
     if ((manual == false && add_songs > mympd_state->jukebox_queue.length) ||
         (manual == true))
@@ -306,7 +306,7 @@ bool mpd_client_jukebox_add_to_queue(struct t_mympd_state *mympd_state, long add
                 return false;
             }
         }
-        MYMPD_LOG_DEBUG("Jukebox queue length: %u", mympd_state->jukebox_queue.length);
+        MYMPD_LOG_DEBUG("Jukebox queue length: %ld", mympd_state->jukebox_queue.length);
     }
     return true;
 }
@@ -442,7 +442,7 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
         }
         FREE_SDS(lp_file);
     }
-    MYMPD_LOG_DEBUG("Jukebox last_played list length: %d", queue_list->length);
+    MYMPD_LOG_DEBUG("Jukebox last_played list length: %ld", queue_list->length);
     return queue_list;
 }
 
@@ -498,7 +498,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
     }
 
     if (added < add_songs) {
-        MYMPD_LOG_WARN("Jukebox queue didn't contain %u entries", add_songs);
+        MYMPD_LOG_WARN("Jukebox queue didn't contain %ld entries", add_songs);
         if (mympd_state->jukebox_enforce_unique == true) {
             MYMPD_LOG_WARN("Disabling jukebox unique constraints temporarily");
             mympd_state->jukebox_enforce_unique = false;

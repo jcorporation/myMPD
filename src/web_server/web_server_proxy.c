@@ -20,7 +20,7 @@ void free_backend_nc_data(struct backend_nc_data_t *data) {
 struct mg_connection *create_http_backend_connection(struct mg_connection *nc, struct mg_connection *backend_nc, sds uri, mg_event_handler_t fn) {
     if (backend_nc == NULL) {
         MYMPD_LOG_INFO("Creating new http backend connection to \"%s\"", uri);
-        struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)malloc(sizeof(struct backend_nc_data_t));
+        struct backend_nc_data_t *backend_nc_data = malloc(sizeof(struct backend_nc_data_t));
         backend_nc_data->uri = sdsdup(uri);
         backend_nc_data->frontend_nc = nc;
         backend_nc = mg_http_connect(nc->mgr, uri, fn, backend_nc_data);
@@ -50,7 +50,7 @@ struct mg_connection *create_http_backend_connection(struct mg_connection *nc, s
 struct mg_connection *create_tcp_backend_connection(struct mg_connection *nc, struct mg_connection *backend_nc, sds uri, mg_event_handler_t fn) {
     if (backend_nc == NULL) {
         MYMPD_LOG_INFO("Creating new tcp backend connection to \"%s\"", uri);
-        struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)malloc(sizeof(struct backend_nc_data_t));
+        struct backend_nc_data_t *backend_nc_data = malloc(sizeof(struct backend_nc_data_t));
         backend_nc_data->uri = sdsdup(uri);
         backend_nc_data->frontend_nc = nc;
         backend_nc = mg_connect(nc->mgr, uri, fn, backend_nc_data);

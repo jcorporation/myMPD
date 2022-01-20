@@ -152,7 +152,7 @@ void *web_server_loop(void *arg_mgr) {
                 }
             }
             else {
-                MYMPD_LOG_DEBUG("Got API response for id \"%ld\"", response->conn_id);
+                MYMPD_LOG_DEBUG("Got API response for id \"%lld\"", response->conn_id);
                 //api response
                 send_api_response(mgr, response);
             }

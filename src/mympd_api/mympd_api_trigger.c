@@ -220,7 +220,7 @@ bool mympd_api_trigger_file_read(struct t_mympd_state *mympd_state) {
     }
     FREE_SDS(line);
     fclose(fp);
-    MYMPD_LOG_INFO("Read %d triggers(s) from disc", mympd_state->triggers.length);
+    MYMPD_LOG_INFO("Read %ld triggers(s) from disc", mympd_state->triggers.length);
     FREE_SDS(trigger_file);
     return true;
 }

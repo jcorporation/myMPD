@@ -21,7 +21,7 @@ static void set_wait_time(int timeout, struct timespec *max_wait);
 //public functions
 
 struct t_mympd_queue *mympd_queue_create(const char *name) {
-    struct t_mympd_queue *queue = (struct t_mympd_queue *)malloc_assert(sizeof(struct t_mympd_queue));
+    struct t_mympd_queue *queue = malloc_assert(sizeof(struct t_mympd_queue));
     queue->head = NULL;
     queue->tail = NULL;
     queue->length = 0;
@@ -50,7 +50,7 @@ int mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
         MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
         return 0;
     }
-    struct t_mympd_msg* new_node = (struct t_mympd_msg*)malloc_assert(sizeof(struct t_mympd_msg));
+    struct t_mympd_msg* new_node = malloc_assert(sizeof(struct t_mympd_msg));
     new_node->data = data;
     new_node->id = id;
     new_node->timestamp = time(NULL);
@@ -86,7 +86,7 @@ long mympd_queue_length(struct t_mympd_queue *queue, int timeout) {
         errno = 0;
         rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
         if (rc != 0 && rc != ETIMEDOUT) {
-            MYMPD_LOG_ERROR("Error in pthread_cond_timedwait: %s", rc);
+            MYMPD_LOG_ERROR("Error in pthread_cond_timedwait: %d", rc);
             MYMPD_LOG_ERRNO(errno);
         }
     }
@@ -149,7 +149,7 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
                 unlock_mutex(&queue->mutex);
                 return data;
             }
-            MYMPD_LOG_DEBUG("Skipping queue entry with id %d", current->id);
+            MYMPD_LOG_DEBUG("Skipping queue entry with id %ld", current->id);
         }
     }
 

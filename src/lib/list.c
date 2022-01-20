@@ -21,7 +21,7 @@ static struct t_list_node *list_node_extract(struct t_list *l, long idx);
 
 //Mallocs a new list and inits it
 struct t_list *list_new(void) {
-    struct t_list *l = (struct t_list *) malloc_assert(sizeof(struct t_list));
+    struct t_list *l = malloc_assert(sizeof(struct t_list));
     list_init(l);
     return l;
 }

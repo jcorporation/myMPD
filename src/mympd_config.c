@@ -83,7 +83,7 @@ void mympd_config_defaults(struct t_config *config) {
 
 void mympd_config_defaults_initial(struct t_config *config) {
     //command line options
-    config->user = sdsnew("mympd");
+    config->user = sdsnewlen("mympd", 5);
     config->workdir = sdsnew(VARLIB_PATH);
     config->cachedir = sdsnew(VARCACHE_PATH);
     config->log_to_syslog = false;

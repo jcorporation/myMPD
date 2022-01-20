@@ -32,7 +32,7 @@ void *mympd_api_loop(void *arg_config) {
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
 
     //create mympd_state struct and set defaults
-    struct t_mympd_state *mympd_state = (struct t_mympd_state *)malloc_assert(sizeof(struct t_mympd_state));
+    struct t_mympd_state *mympd_state = malloc_assert(sizeof(struct t_mympd_state));
     mympd_state->config = (struct t_config *) arg_config;
     mympd_state_default(mympd_state);
 

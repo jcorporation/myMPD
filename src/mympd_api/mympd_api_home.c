@@ -160,7 +160,7 @@ sds mympd_api_home_icon_get(struct t_mympd_state *mympd_state, sds buffer, sds m
         return buffer;
     }
 
-    MYMPD_LOG_ERROR("Can not get home icon at pos %u", pos);
+    MYMPD_LOG_ERROR("Can not get home icon at pos %ld", pos);
     buffer = jsonrpc_respond_message(buffer, method, request_id, true, "home", "error", "Can not get home icon");
     return buffer;
 }

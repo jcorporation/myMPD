@@ -119,7 +119,7 @@ bool mympd_api_timer_replace(struct t_timer_list *l, time_t timeout, int interva
 bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, time_handler handler,
                int timer_id, struct t_timer_definition *definition, void *user_data)
 {
-    struct t_timer_node *new_node = (struct t_timer_node *)malloc_assert(sizeof(struct t_timer_node));
+    struct t_timer_node *new_node = malloc_assert(sizeof(struct t_timer_node));
     new_node->callback = handler;
     new_node->definition = definition;
     new_node->user_data = user_data;
@@ -158,7 +158,7 @@ bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, t
     if (definition == NULL || definition->enabled == true) {
         l->active++;
     }
-    MYMPD_LOG_DEBUG("Added timer with id %d, start time in %ds", timer_id, timeout);
+    MYMPD_LOG_DEBUG("Added timer with id %d, start time in %llds", timer_id, (long long)timeout);
     return true;
 }
 

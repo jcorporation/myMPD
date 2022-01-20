@@ -42,7 +42,7 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
     mpd_worker_smartpls_per_tag(mpd_worker_state);
 
     time_t db_mtime = mpd_shared_get_db_mtime(mpd_worker_state->mpd_state);
-    MYMPD_LOG_DEBUG("Database mtime: %d", db_mtime);
+    MYMPD_LOG_DEBUG("Database mtime: %lld", (long long)db_mtime);
 
     sds dirname = sdscatfmt(sdsempty(), "%s/smartpls", mpd_worker_state->config->workdir);
     errno = 0;
@@ -191,7 +191,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
             sds playlist = sdscatfmt(sdsempty(), "%s%s%s-%s", mpd_worker_state->smartpls_prefix, (sdslen(mpd_worker_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, filename);
             sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", mpd_worker_state->config->workdir, playlist);
             if (access(plpath, F_OK) == -1) { /* Flawfinder: ignore */
-                sds expression = sdsnew("(");
+                sds expression = sdsnewlen("(", 1);
                 expression = escape_mpd_search_expression(expression, tagstr, "==", current->key);
                 expression = sdscatlen(expression, ")", 1);
                 rc = mpd_shared_smartpls_save(mpd_worker_state->config->workdir, "search", playlist, expression, 0, 0, mpd_worker_state->smartpls_sort);

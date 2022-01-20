@@ -10,12 +10,14 @@
 #include <assert.h>
 #include <stdlib.h>
 
+__attribute__((malloc))
 static inline void *malloc_assert(size_t size) {
     void *p = malloc(size);
     assert(p);
     return p;
 }
 
+__attribute__((malloc))
 static inline void *realloc_assert(void *ptr, size_t size) {
     void *p = realloc(ptr, size);
     assert(p);

@@ -291,13 +291,13 @@ int main(int argc, char **argv) {
     mympd_script_queue = mympd_queue_create("mympd_script_queue");
 
     //create mg_user_data struct for web_server
-    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)malloc_assert(sizeof(struct t_mg_user_data));
+    struct t_mg_user_data *mg_user_data = malloc_assert(sizeof(struct t_mg_user_data));
 
     //initialize random number generator
     tinymt32_init(&tinymt, (uint32_t)time(NULL));
 
     //mympd config defaults
-    struct t_config *config = (struct t_config *)malloc_assert(sizeof(struct t_config));
+    struct t_config *config = malloc_assert(sizeof(struct t_config));
     mympd_config_defaults_initial(config);
 
     //command line option

@@ -113,7 +113,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     }
 
     //push settings to web_server_queue
-    struct set_mg_user_data_request *extra = (struct set_mg_user_data_request*)malloc_assert(sizeof(struct set_mg_user_data_request));
+    struct set_mg_user_data_request *extra = malloc_assert(sizeof(struct set_mg_user_data_request));
     extra->music_directory = sdsdup(mympd_state->music_directory_value);
     extra->playlist_directory = sdsdup(mympd_state->playlist_directory);
     extra->coverimage_names = sdsdup(mympd_state->coverimage_names);

@@ -244,7 +244,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     list_init(&mympd_state->jukebox_queue);
     list_init(&mympd_state->jukebox_queue_tmp);
     //mpd state
-    mympd_state->mpd_state = (struct t_mpd_state *)malloc_assert(sizeof(struct t_mpd_state));
+    mympd_state->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
     mpd_shared_default_mpd_state(mympd_state->mpd_state);
     //triggers;
     list_init(&mympd_state->triggers);

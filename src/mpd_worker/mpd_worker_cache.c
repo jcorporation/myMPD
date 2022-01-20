@@ -121,8 +121,8 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             //sticker cache
             if (mpd_worker_state->mpd_state->feat_mpd_stickers == true) {
                 const char *uri = mpd_song_get_uri(song);
-                struct t_sticker *sticker = (struct t_sticker *) malloc_assert(sizeof(struct t_sticker));
-                raxInsert(sticker_cache, (unsigned char*)uri, strlen(uri), (void *)sticker, NULL);
+                struct t_sticker *sticker = malloc_assert(sizeof(struct t_sticker));
+                raxInsert(sticker_cache, (unsigned char *)uri, strlen(uri), (void *)sticker, NULL);
                 song_count++;
             }
             //album cache
@@ -132,7 +132,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
                 if (sdslen(album) > 0 && sdslen(artist) > 0) {
                     sdsclear(key);
                     key = sdscatfmt(key, "%s::%s", album, artist);
-                    if (raxTryInsert(album_cache, (unsigned char*)key, sdslen(key), (void *)song, NULL) == 0) {
+                    if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, NULL) == 0) {
                         //discard song data if key exists
                         mpd_song_free(song);
                     }

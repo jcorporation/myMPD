@@ -226,7 +226,7 @@ bool mympd_api_script_start(struct t_config *config, const char *script, struct 
         MYMPD_LOG_ERROR("Can not set mympd_script thread to detached");
         return false;
     }
-    struct t_script_thread_arg *script_thread_arg = (struct t_script_thread_arg *)malloc_assert(sizeof(struct t_script_thread_arg));
+    struct t_script_thread_arg *script_thread_arg = malloc_assert(sizeof(struct t_script_thread_arg));
     script_thread_arg->config = config;
     script_thread_arg->localscript = localscript;
     script_thread_arg->arguments = arguments;
@@ -254,7 +254,7 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
     errno = 0;
     FILE *fp = fopen(scriptfilename, OPEN_FLAGS_READ);
     if (fp == NULL) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\": %s", scriptfilename);
+        MYMPD_LOG_ERROR("Can not open file \"%s\"", scriptfilename);
         MYMPD_LOG_ERRNO(errno);
         return entry;
     }
