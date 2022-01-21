@@ -76,6 +76,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
     bool async = false;
 
     #ifdef DEBUG
+    MEASURE_INIT
     MEASURE_START
     #endif
 
