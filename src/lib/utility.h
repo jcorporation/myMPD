@@ -26,8 +26,8 @@ bool is_streamuri(const char *uri);
 bool write_data_to_file(sds filepath, const char *data, size_t data_len);
 
 //measure time
-#define MEASURE_START clock_t measure_start = clock();
-#define MEASURE_END clock_t measure_end = clock();
-#define MEASURE_PRINT(X) MYMPD_LOG_DEBUG("Execution time for %s: %lf", X, ((double) (measure_end - measure_start)) / CLOCKS_PER_SEC);
+#define MEASURE_START clock_t tic = clock();
+#define MEASURE_END clock_t toc = clock();
+#define MEASURE_PRINT(X) MYMPD_LOG_DEBUG("Execution time for %s: %lf", X, (double)(toc - tic) * 1000.0 / CLOCKS_PER_SEC);
 
 #endif
