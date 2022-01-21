@@ -37,7 +37,7 @@ int testdir(const char *name, const char *dirname, bool create) {
 
     if (create == true) {
         errno = 0;
-        if (mkdir(dirname, 0700) != 0) {
+        if (mkdir(dirname, 0770) != 0) {
             MYMPD_LOG_ERROR("%s: creating \"%s\" failed", name, dirname);
             MYMPD_LOG_ERRNO(errno);
             //directory does not exist and creating it failed
@@ -53,10 +53,10 @@ int testdir(const char *name, const char *dirname, bool create) {
     return DIR_NOT_EXISTS;
 }
 
-void my_usleep(time_t usec) {
+void my_msleep(long msec) {
     struct timespec ts = {
-        .tv_sec = (usec / 1000) / 1000,
-        .tv_nsec = (long)((usec % 1000000000L) * 1000L)
+        .tv_sec = (time_t)(msec / 1000),
+        .tv_nsec = (msec % 1000L) * 1000000L
     };
     nanosleep(&ts, NULL);
 }

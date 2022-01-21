@@ -49,6 +49,7 @@ set(SOURCES
   tests/test_mympd_queue.c
   tests/test_random.c
   tests/test_sds_extras.c
+  tests/test_utility.c
   tests/test_validate.c
 )
 

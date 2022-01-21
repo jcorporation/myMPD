@@ -21,7 +21,7 @@ enum testdir_status {
 void ws_notify(sds message);
 bool is_virtual_cuedir(sds music_directory, sds filename);
 int testdir(const char *name, const char *dirname, bool create);
-void my_usleep(time_t usec);
+void my_msleep(long msec);
 bool is_streamuri(const char *uri);
 bool write_data_to_file(sds filepath, const char *data, size_t data_len);
 

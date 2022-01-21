@@ -168,7 +168,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             }
             if (now < mympd_state->mpd_state->reconnect_time) {
                 //pause 100ms to prevent high cpu usage
-                my_usleep(100000);
+                my_msleep(100);
             }
             break;
         }
