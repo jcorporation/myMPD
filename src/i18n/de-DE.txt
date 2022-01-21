@@ -2122,13 +2122,13 @@ Add to WebradioDB
 Zu WebradioDB hinzufügen
 
 Uri not found in WebradioDB
-URL nicht in WebradioDB gefunden.
+URL nicht in WebradioDB gefunden
 
 Favorite and WebradioDb entry are different
-Favorit und WebradioDB Eintrag unterscheiden sich.
+Favorit und WebradioDB Eintrag unterscheiden sich
 
 Favorite is uptodate
-Favorit ist aktuell.
+Favorit ist aktuell
 
 Empty uri
 Leere Url
@@ -2138,3 +2138,6 @@ Checking...
 
 WebradioDB
 WebradioDB
+
+Documentation
+Dokumentation

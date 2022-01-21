@@ -72,7 +72,8 @@ function initSearch() {
 
     document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
         const colName = event.target.getAttribute('data-col');
-        if (colName === 'Duration' ||
+        if (colName === null ||
+            colName === 'Duration' ||
             colName.indexOf('sticker') === 0 ||
             features.featAdvsearch === false)
         {

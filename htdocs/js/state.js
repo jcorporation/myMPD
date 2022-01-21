@@ -463,6 +463,7 @@ function setPlaybackCardTags(songObj) {
                     elCreateNode('p', {}, 
                         elCreateText('a', {"class": ["text-success", "external"],
                             "href": myEncodeURIhost(songObj.webradio.Homepage),
+                            "rel": "noreferrer",
                             "target": "_blank"}, songObj.webradio.Homepage)
                     )
                 ])

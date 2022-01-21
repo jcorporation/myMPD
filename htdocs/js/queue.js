@@ -32,6 +32,9 @@ function initQueue() {
     }, false);
 
     document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'TH') {
+            return;
+        }
         if (event.target.nodeName === 'A') {
             showPopover(event);
             return;
