@@ -52,34 +52,34 @@ else()
   set(SUBDIRCACHE "")
 endif()
 
-message("BIN_PATH: ${CMAKE_INSTALL_FULL_BINDIR}")
+message("Executables in: ${CMAKE_INSTALL_FULL_BINDIR}")
 
 if("${CMAKE_INSTALL_PREFIX}" MATCHES "/usr/local")
   set(VARLIB_PATH "/${CMAKE_INSTALL_LOCALSTATEDIR}${SUBDIRLIB}${SUBDIR}")
 else()
   set(VARLIB_PATH "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}${SUBDIRLIB}${SUBDIR}")
 endif()
-message("VARLIB_PATH: ${VARLIB_PATH}")
+message("Workdir: ${VARLIB_PATH}")
 
 if("${CMAKE_INSTALL_PREFIX}" MATCHES "/usr/local")
   set(VARCACHE_PATH "/${CMAKE_INSTALL_LOCALSTATEDIR}${SUBDIRCACHE}${SUBDIR}")
 else()
   set(VARCACHE_PATH "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}${SUBDIRCACHE}${SUBDIR}")
 endif()
-message("VARCACHE_PATH: ${VARCACHE_PATH}")
+message("Cachedir: ${VARCACHE_PATH}")
 
 #default is to deliver embedded assets for release
 #and assets in htdocs for debug
 if("${EMBEDDED_ASSETS}" MATCHES "ON")
   set(ASSETS_PATH "${VARLIB_PATH}/empty")
   set(LUALIBS_PATH "")
-  message("Emedding assets in binary")
+  message("Embedding assets in binary")
 else()
   set(ASSETS_PATH "${PROJECT_SOURCE_DIR}/htdocs")
   set(LUALIBS_PATH "${PROJECT_SOURCE_DIR}/contrib/lualibs")
   message("Serving assets from filesystem")
 endif()
-message("ASSETS_PATH: ${ASSETS_PATH}")
+message("Document root: ${ASSETS_PATH}")
 
 #set debug define for source
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
