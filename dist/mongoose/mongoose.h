@@ -18,78 +18,10 @@
 #ifndef MONGOOSE_H
 #define MONGOOSE_H
 
-#define MG_VERSION "7.4"
+#define MG_VERSION "7.6"
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-
-#ifndef MG_ENABLE_SOCKET
-#define MG_ENABLE_SOCKET 1
-#endif
-
-#ifndef MG_ENABLE_MBEDTLS
-#define MG_ENABLE_MBEDTLS 0
-#endif
-
-#ifndef MG_ENABLE_OPENSSL
-#define MG_ENABLE_OPENSSL 0
-#endif
-
-#ifndef MG_ENABLE_SSI
-#define MG_ENABLE_SSI 1
-#endif
-
-#ifndef MG_ENABLE_IPV6
-#define MG_ENABLE_IPV6 0
-#endif
-
-#ifndef MG_ENABLE_LOG
-#define MG_ENABLE_LOG 1
-#endif
-
-#ifndef MG_ENABLE_MD5
-#define MG_ENABLE_MD5 0
-#endif
-
-// Set MG_ENABLE_WINSOCK=0 for Win32 builds with external IP stack (like LWIP)
-#ifndef MG_ENABLE_WINSOCK
-#define MG_ENABLE_WINSOCK 1
-#endif
-
-#ifndef MG_ENABLE_DIRLIST
-#define MG_ENABLE_DIRLIST 0
-#endif
-
-#ifndef MG_ENABLE_CUSTOM_RANDOM
-#define MG_ENABLE_CUSTOM_RANDOM 0
-#endif
-
-#ifndef MG_ENABLE_PACKED_FS
-#define MG_ENABLE_PACKED_FS 0
-#endif
-
-// Granularity of the send/recv IO buffer growth
-#ifndef MG_IO_SIZE
-#define MG_IO_SIZE 2048
-#endif
-
-// Maximum size of the recv IO buffer
-#ifndef MG_MAX_RECV_BUF_SIZE
-#define MG_MAX_RECV_BUF_SIZE (3 * 1024 * 1024)
-#endif
-
-#ifndef MG_MAX_HTTP_HEADERS
-#define MG_MAX_HTTP_HEADERS 40
-#endif
-
-#ifndef MG_PATH_MAX
-#define MG_PATH_MAX PATH_MAX
-#endif
-
-#ifndef MG_SOCK_LISTEN_BACKLOG_SIZE
-#define MG_SOCK_LISTEN_BACKLOG_SIZE 128
 #endif
 
 
@@ -145,21 +77,21 @@ extern "C" {
 #if MG_ARCH == MG_ARCH_AZURERTOS
 
 #include <stdarg.h>
-#include <stdint.h>
 #include <stdbool.h>
-#include <time.h>
+#include <stdint.h>
 #include <stdio.h>
- 
-#include <tx_api.h>
-#include <fx_api.h>
+#include <time.h>
 
-#include <tx_port.h>
-#include <nx_port.h>
+#include <fx_api.h>
+#include <tx_api.h>
+
 #include <nx_api.h>
 #include <nx_bsd.h>
+#include <nx_port.h>
+#include <tx_port.h>
 
 #ifdef __REDLIB__
-#define va_copy(d,s)__builtin_va_copy(d,s)
+#define va_copy(d, s) __builtin_va_copy(d, s)
 #endif
 
 #define PATH_MAX FX_MAXIMUM_PATH
@@ -170,9 +102,10 @@ extern "C" {
 #define gmtime_r(a, b) gmtime(a)
 #define MG_INT64_FMT "%lld"
 
-static __inline struct tm *localtime_r(time_t *t, struct tm *tm) {
-  (void) tm;
-  return localtime(t);
+static __inline struct tm *localtime_r(const time_t *t, struct tm *tm) {
+  struct tm *x = localtime(t);
+  *tm = *x;
+  return tm;
 }
 
 #undef FOPEN_MAX
@@ -197,11 +130,6 @@ static __inline struct tm *localtime_r(time_t *t, struct tm *tm) {
 #include <sys/types.h>
 #include <time.h>
 
-#undef MG_PATH_MAX
-#undef MG_ENABLE_DIRLIST
-
-#define MG_DIRSEP '/'
-#define MG_INT64_FMT "%lld"
 #define MG_PATH_MAX 128
 #define MG_ENABLE_DIRLIST 1
 
@@ -229,11 +157,6 @@ static __inline struct tm *localtime_r(time_t *t, struct tm *tm) {
 
 #include <esp_system.h>
 
-#undef MG_PATH_MAX
-#undef MG_ENABLE_DIRLIST
-
-#define MG_DIRSEP '/'
-#define MG_INT64_FMT "%lld"
 #define MG_PATH_MAX 128
 #define MG_ENABLE_DIRLIST 1
 
@@ -245,17 +168,16 @@ static __inline struct tm *localtime_r(time_t *t, struct tm *tm) {
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 #if defined(__GNUC__)
 #include <sys/stat.h>
 #include <sys/time.h>
 #else
-typedef long suseconds_t;
 struct timeval {
   time_t tv_sec;
-  suseconds_t tv_usec;
+  long tv_usec;
 };
 #endif
 
@@ -288,8 +210,8 @@ static inline void *mg_calloc(int cnt, size_t size) {
 #define calloc(a, b) mg_calloc((a), (b))
 #define free(a) vPortFree(a)
 #define malloc(a) pvPortMalloc(a)
-
 #define gmtime_r(a, b) gmtime(a)
+#define mkdir(a, b) (-1)
 
 #endif  // MG_ARCH == MG_ARCH_FREERTOS_LWIP
 
@@ -312,9 +234,6 @@ static inline void *mg_calloc(int cnt, size_t size) {
 #include <FreeRTOS_IP.h>
 #include <FreeRTOS_Sockets.h>
 #include <task.h>
-
-#define MG_INT64_FMT "%lld"
-#define MG_DIRSEP '/'
 
 // Why FreeRTOS-TCP did not implement a clean BSD API, but its own thing
 // with FreeRTOS_ prefix, is beyond me
@@ -353,15 +272,15 @@ static inline void *mg_calloc(int cnt, size_t size) {
 #define calloc(a, b) mg_calloc((a), (b))
 #define free(a) vPortFree(a)
 #define malloc(a) pvPortMalloc(a)
+#define mkdir(a, b) (-1)
 
 #define gmtime_r(a, b) gmtime(a)
 
 #if !defined(__GNUC__)
 // copied from GCC on ARM; for some reason useconds are signed
-typedef long suseconds_t;
 struct timeval {
   time_t tv_sec;
-  suseconds_t tv_usec;
+  long tv_usec;
 };
 #endif
 
@@ -410,10 +329,11 @@ struct timeval {
 #include <time.h>
 #include <unistd.h>
 
-#define MG_DIRSEP '/'
 #define MG_INT64_FMT "%" PRId64
-#undef MG_ENABLE_DIRLIST
+
+#ifndef MG_ENABLE_DIRLIST
 #define MG_ENABLE_DIRLIST 1
+#endif
 
 #endif
 
@@ -433,6 +353,7 @@ struct timeval {
 #endif
 
 #include <ctype.h>
+#include <direct.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -474,7 +395,6 @@ typedef enum { false = 0, true = 1 } bool;
 #endif
 #endif
 
-typedef unsigned suseconds_t;
 typedef int socklen_t;
 #define MG_DIRSEP '\\'
 #ifndef PATH_MAX
@@ -486,6 +406,10 @@ typedef int socklen_t;
 #ifndef EWOULDBLOCK
 #define EWOULDBLOCK WSAEWOULDBLOCK
 #endif
+
+#define realpath(a, b) _fullpath((b), (a), MG_PATH_MAX)
+#define sleep(x) Sleep(x)
+#define mkdir(a, b) _mkdir(a)
 
 #ifndef va_copy
 #ifdef __va_copy
@@ -500,25 +424,135 @@ typedef int socklen_t;
 
 #define MG_INT64_FMT "%I64d"
 
-#undef MG_ENABLE_DIRLIST
+#ifndef MG_ENABLE_DIRLIST
 #define MG_ENABLE_DIRLIST 1
+#endif
 
 // https://lgtm.com/rules/2154840805/ -gmtime, localtime, ctime and asctime
-static __inline struct tm *gmtime_r(time_t *t, struct tm *tm) {
-  (void) tm;
-  return gmtime(t);
+static __inline struct tm *gmtime_r(const time_t *t, struct tm *tm) {
+  struct tm *x = gmtime(t);
+  *tm = *x;
+  return tm;
 }
 
-static __inline struct tm *localtime_r(time_t *t, struct tm *tm) {
-  (void) tm;
-  return localtime(t);
+static __inline struct tm *localtime_r(const time_t *t, struct tm *tm) {
+  struct tm *x = localtime(t);
+  *tm = *x;
+  return tm;
 }
 
 #endif
 
 
-#include <ctype.h>
-#include <string.h>
+#ifndef MG_ENABLE_FATFS
+#define MG_ENABLE_FATFS 0
+#endif
+
+#ifndef MG_FATFS_ROOT
+#define MG_FATFS_ROOT "/"
+#endif
+
+#ifndef MG_FATFS_BSIZE
+#define MG_FATFS_BSIZE 64
+#endif
+
+#ifndef MG_ENABLE_SOCKET
+#define MG_ENABLE_SOCKET 1
+#endif
+
+#ifndef MG_ENABLE_MBEDTLS
+#define MG_ENABLE_MBEDTLS 0
+#endif
+
+#ifndef MG_ENABLE_OPENSSL
+#define MG_ENABLE_OPENSSL 0
+#endif
+
+#ifndef MG_ENABLE_CUSTOM_TLS
+#define MG_ENABLE_CUSTOM_TLS 0
+#endif
+
+#ifndef MG_ENABLE_SSI
+#define MG_ENABLE_SSI 1
+#endif
+
+#ifndef MG_ENABLE_IPV6
+#define MG_ENABLE_IPV6 0
+#endif
+
+#ifndef MG_ENABLE_LOG
+#define MG_ENABLE_LOG 1
+#endif
+
+#ifndef MG_ENABLE_MD5
+#define MG_ENABLE_MD5 0
+#endif
+
+// Set MG_ENABLE_WINSOCK=0 for Win32 builds with external IP stack (like LWIP)
+#ifndef MG_ENABLE_WINSOCK
+#define MG_ENABLE_WINSOCK 1
+#endif
+
+#ifndef MG_ENABLE_DIRLIST
+#define MG_ENABLE_DIRLIST 0
+#endif
+
+#ifndef MG_ENABLE_CUSTOM_RANDOM
+#define MG_ENABLE_CUSTOM_RANDOM 0
+#endif
+
+#ifndef MG_ENABLE_PACKED_FS
+#define MG_ENABLE_PACKED_FS 0
+#endif
+
+// Granularity of the send/recv IO buffer growth
+#ifndef MG_IO_SIZE
+#define MG_IO_SIZE 2048
+#endif
+
+// Maximum size of the recv IO buffer
+#ifndef MG_MAX_RECV_BUF_SIZE
+#define MG_MAX_RECV_BUF_SIZE (3 * 1024 * 1024)
+#endif
+
+#ifndef MG_MAX_HTTP_HEADERS
+#define MG_MAX_HTTP_HEADERS 40
+#endif
+
+#ifndef MG_HTTP_INDEX
+#define MG_HTTP_INDEX "index.html"
+#endif
+
+#ifndef MG_PATH_MAX
+#ifdef PATH_MAX
+#define MG_PATH_MAX PATH_MAX
+#else
+#define MG_PATH_MAX 128
+#endif
+#endif
+
+#ifndef MG_SOCK_LISTEN_BACKLOG_SIZE
+#define MG_SOCK_LISTEN_BACKLOG_SIZE 128
+#endif
+
+#ifndef MG_DIRSEP
+#define MG_DIRSEP '/'
+#endif
+
+#ifndef MG_INT64_FMT
+#define MG_INT64_FMT "%lld"
+#endif
+
+#ifndef MG_ENABLE_FILE
+#if defined(FOPEN_MAX)
+#define MG_ENABLE_FILE 1
+#else
+#define MG_ENABLE_FILE 0
+#endif
+#endif
+
+
+
 
 struct mg_str {
   const char *ptr;  // Pointer to string data
@@ -563,9 +597,11 @@ void mg_log_set_callback(void (*fn)(const void *, size_t, void *), void *param);
 #endif
 
 
+
+
 struct mg_timer {
-  unsigned long period_ms;  // Timer period in milliseconds
-  unsigned long expire;     // Expiration timestamp in milliseconds
+  int64_t period_ms;        // Timer period in milliseconds
+  int64_t expire;           // Expiration timestamp in milliseconds
   unsigned flags;           // Possible flags values below
 #define MG_TIMER_REPEAT 1   // Call function periodically, otherwise run once
 #define MG_TIMER_RUN_NOW 2  // Call immediately when timer is set
@@ -576,18 +612,54 @@ struct mg_timer {
 
 extern struct mg_timer *g_timers;  // Global list of timers
 
-void mg_timer_init(struct mg_timer *, unsigned long ms, unsigned,
-                   void (*fn)(void *), void *);
+void mg_timer_init(struct mg_timer *, int64_t, unsigned, void (*)(void *),
+                   void *);
 void mg_timer_free(struct mg_timer *);
-void mg_timer_poll(unsigned long current_time_ms);
+void mg_timer_poll(int64_t current_time_ms);
 
 
 
 
 
-char *mg_file_read(const char *path, size_t *size);
-bool mg_file_write(const char *path, const void *buf, size_t len);
-bool mg_file_printf(const char *path, const char *fmt, ...);
+enum { MG_FS_READ = 1, MG_FS_WRITE = 2, MG_FS_DIR = 4 };
+
+// Filesystem API functions
+// stat() returns MG_FS_* flags and populates file size and modification time
+// list() calls fn() for every directory entry, allowing to list a directory
+struct mg_fs {
+  int (*stat)(const char *path, size_t *size, time_t *mtime);
+  void (*list)(const char *path, void (*fn)(const char *, void *), void *);
+  void *(*open)(const char *path, int flags);              // Open file
+  void (*close)(void *fd);                                 // Close file
+  size_t (*read)(void *fd, void *buf, size_t len);         // Read file
+  size_t (*write)(void *fd, const void *buf, size_t len);  // Write file
+  size_t (*seek)(void *fd, size_t offset);                 // Set file position
+  bool (*rename)(const char *from, const char *to);        // Rename
+  bool (*remove)(const char *path);                        // Delete file
+  bool (*mkd)(const char *path);                           // Create directory
+};
+
+extern struct mg_fs mg_fs_posix;   // POSIX open/close/read/write/seek
+extern struct mg_fs mg_fs_packed;  // Packed FS, see examples/complete
+extern struct mg_fs mg_fs_fat;     // FAT FS
+
+// File descriptor
+struct mg_fd {
+  void *fd;
+  struct mg_fs *fs;
+};
+
+struct mg_fd *mg_fs_open(struct mg_fs *fs, const char *path, int flags);
+void mg_fs_close(struct mg_fd *fd);
+char *mg_file_read(struct mg_fs *fs, const char *path, size_t *size);
+bool mg_file_write(struct mg_fs *fs, const char *path, const void *, size_t);
+bool mg_file_printf(struct mg_fs *fs, const char *path, const char *fmt, ...);
+
+
+
+
+
+
 void mg_random(void *buf, size_t len);
 bool mg_globmatch(const char *pattern, size_t plen, const char *s, size_t n);
 bool mg_commalist(struct mg_str *s, struct mg_str *k, struct mg_str *v);
@@ -600,14 +672,20 @@ void mg_unhex(const char *buf, size_t len, unsigned char *to);
 unsigned long mg_unhexn(const char *s, size_t len);
 int mg_asprintf(char **buf, size_t size, const char *fmt, ...);
 int mg_vasprintf(char **buf, size_t size, const char *fmt, va_list ap);
-int64_t mg_to64(struct mg_str str);
 int mg_check_ip_acl(struct mg_str acl, uint32_t remote_ip);
-double mg_time(void);
-unsigned long mg_millis(void);
-void mg_usleep(unsigned long usecs);
+int64_t mg_to64(struct mg_str str);
+int64_t mg_millis(void);
 
 #define mg_htons(x) mg_ntohs(x)
 #define mg_htonl(x) mg_ntohl(x)
+
+#ifndef EXTERN_C
+#ifdef __cplusplus
+#define EXTERN_C extern "C"
+#else
+#define EXTERN_C
+#endif
+#endif
 
 // Expands to a string representation of its argument: e.g.
 // MG_STRINGIFY_LITERAL(5) expands to "5"
@@ -641,33 +719,6 @@ void mg_usleep(unsigned long usecs);
     while (*h != (elem_)) h = &(*h)->next; \
     *h = (elem_)->next;                    \
   } while (0)
-
-
-
-
-enum { MG_FS_READ = 1, MG_FS_WRITE = 2, MG_FS_DIR = 4 };
-
-// Filesystem API functions
-// stat() returns MG_FS_* flags and populates file size and modification time
-// list() calls fn() for every directory entry, allowing to list a directory
-struct mg_fs {
-  int (*stat)(const char *path, size_t *size, time_t *mtime);
-  void (*list)(const char *path, void (*fn)(const char *, void *), void *);
-  struct mg_fd *(*open)(const char *path, int flags);      // Open file
-  void (*close)(struct mg_fd *fd);                         // Close file
-  size_t (*read)(void *fd, void *buf, size_t len);         // Read file
-  size_t (*write)(void *fd, const void *buf, size_t len);  // Write file
-  size_t (*seek)(void *fd, size_t offset);                 // Set file position
-};
-
-// File descriptor
-struct mg_fd {
-  void *fd;
-  struct mg_fs *fs;
-};
-
-extern struct mg_fs mg_fs_posix;   // POSIX open/close/read/write/seek
-extern struct mg_fs mg_fs_packed;  // Packed FS, see examples/complete
 
 
 
@@ -737,7 +788,7 @@ void mg_error(struct mg_connection *c, const char *fmt, ...);
 enum {
   MG_EV_ERROR,       // Error                        char *error_message
   MG_EV_OPEN,        // Connection created           NULL
-  MG_EV_POLL,        // mg_mgr_poll iteration        unsigned long *millis
+  MG_EV_POLL,        // mg_mgr_poll iteration        int64_t *milliseconds
   MG_EV_RESOLVE,     // Host name is resolved        NULL
   MG_EV_CONNECT,     // Connection established       NULL
   MG_EV_ACCEPT,      // Connection accepted          NULL
@@ -752,7 +803,7 @@ enum {
   MG_EV_MQTT_CMD,    // MQTT low-level command       struct mg_mqtt_message *
   MG_EV_MQTT_MSG,    // MQTT PUBLISH received        struct mg_mqtt_message *
   MG_EV_MQTT_OPEN,   // MQTT CONNACK received        int *connack_status_code
-  MG_EV_SNTP_TIME,   // SNTP time received           struct timeval *
+  MG_EV_SNTP_TIME,   // SNTP time received           int64_t *milliseconds
   MG_EV_USER,        // Starting ID for user events
 };
 
@@ -830,12 +881,13 @@ void mg_connect_resolved(struct mg_connection *);
 bool mg_send(struct mg_connection *, const void *, size_t);
 int mg_printf(struct mg_connection *, const char *fmt, ...);
 int mg_vprintf(struct mg_connection *, const char *fmt, va_list ap);
-char *mg_straddr(struct mg_connection *, char *, size_t);
+char *mg_straddr(struct mg_addr *, char *, size_t);
 bool mg_aton(struct mg_str str, struct mg_addr *addr);
 char *mg_ntoa(const struct mg_addr *addr, char *buf, size_t len);
 
 struct mg_connection *mg_mkpipe(struct mg_mgr *, mg_event_handler_t, void *);
-void mg_mgr_wakeup(struct mg_connection *pipe);
+void mg_mgr_wakeup(struct mg_connection *pipe, const void *buf, size_t len);
+
 
 
 
@@ -895,7 +947,7 @@ size_t mg_url_encode(const char *s, size_t n, char *buf, size_t len);
 void mg_http_creds(struct mg_http_message *, char *, size_t, char *, size_t);
 bool mg_http_match_uri(const struct mg_http_message *, const char *glob);
 int mg_http_upload(struct mg_connection *, struct mg_http_message *hm,
-                   const char *dir);
+                   struct mg_fs *fs, const char *dir);
 void mg_http_bauth(struct mg_connection *, const char *user, const char *pass);
 struct mg_str mg_http_get_header_var(struct mg_str s, struct mg_str v);
 size_t mg_http_next_multipart(struct mg_str, size_t, struct mg_http_part *);
@@ -906,6 +958,9 @@ void mg_http_serve_ssi(struct mg_connection *c, const char *root,
 
 
 
+
+
+
 struct mg_tls_opts {
   const char *ca;         // CA certificate file. For both listeners and clients
   const char *crl;        // Certificate Revocation List. For clients
@@ -913,6 +968,7 @@ struct mg_tls_opts {
   const char *certkey;    // Certificate key
   const char *ciphers;    // Cipher list
   struct mg_str srvname;  // If not empty, enables server name verification
+  struct mg_fs *fs;       // FS API for reading certificate files
 };
 
 void mg_tls_init(struct mg_connection *, struct mg_tls_opts *);
@@ -920,6 +976,39 @@ void mg_tls_free(struct mg_connection *);
 long mg_tls_send(struct mg_connection *, const void *buf, size_t len);
 long mg_tls_recv(struct mg_connection *, void *buf, size_t len);
 void mg_tls_handshake(struct mg_connection *);
+
+
+#if MG_ENABLE_MBEDTLS
+
+
+
+
+#include <mbedtls/debug.h>
+#include <mbedtls/net_sockets.h>
+#include <mbedtls/ssl.h>
+
+struct mg_tls {
+  char *cafile;             // CA certificate path
+  mbedtls_x509_crt ca;      // Parsed CA certificate
+  mbedtls_x509_crl crl;     // Parsed Certificate Revocation List
+  mbedtls_x509_crt cert;    // Parsed certificate
+  mbedtls_ssl_context ssl;  // SSL/TLS context
+  mbedtls_ssl_config conf;  // SSL-TLS config
+  mbedtls_pk_context pk;    // Private key context
+};
+#endif
+
+
+#if MG_ENABLE_OPENSSL
+
+#include <openssl/err.h>
+#include <openssl/ssl.h>
+
+struct mg_tls {
+  SSL_CTX *ctx;
+  SSL *ssl;
+};
+#endif
 
 
 #define WEBSOCKET_OP_CONTINUE 0
@@ -950,7 +1039,7 @@ size_t mg_ws_wrap(struct mg_connection *, size_t len, int op);
 struct mg_connection *mg_sntp_connect(struct mg_mgr *mgr, const char *url,
                                       mg_event_handler_t fn, void *fn_data);
 void mg_sntp_send(struct mg_connection *c, unsigned long utc);
-int mg_sntp_parse(const unsigned char *buf, size_t len, struct timeval *tv);
+int64_t mg_sntp_parse(const unsigned char *buf, size_t len);
 
 
 
@@ -977,7 +1066,7 @@ struct mg_mqtt_opts {
   struct mg_str client_id;     // Client ID
   struct mg_str will_topic;    // Will topic
   struct mg_str will_message;  // Will message
-  uint8_t qos;                 // Quality of service
+  uint8_t will_qos;            // Will message quality of service
   bool will_retain;            // Retain last will
   bool clean;                  // Use clean session, 0 or 1
   uint16_t keepalive;          // Keep-alive timer in seconds
@@ -999,9 +1088,9 @@ struct mg_connection *mg_mqtt_connect(struct mg_mgr *, const char *url,
 struct mg_connection *mg_mqtt_listen(struct mg_mgr *mgr, const char *url,
                                      mg_event_handler_t fn, void *fn_data);
 void mg_mqtt_login(struct mg_connection *c, struct mg_mqtt_opts *opts);
-void mg_mqtt_pub(struct mg_connection *c, struct mg_str *topic,
-                 struct mg_str *data, int qos, bool retain);
-void mg_mqtt_sub(struct mg_connection *, struct mg_str *topic, int qos);
+void mg_mqtt_pub(struct mg_connection *c, struct mg_str topic,
+                 struct mg_str data, int qos, bool retain);
+void mg_mqtt_sub(struct mg_connection *, struct mg_str topic, int qos);
 int mg_mqtt_parse(const uint8_t *buf, size_t len, struct mg_mqtt_message *m);
 void mg_mqtt_send_header(struct mg_connection *, uint8_t cmd, uint8_t flags,
                          uint32_t len);
@@ -1045,7 +1134,7 @@ struct mg_dns_rr {
   uint16_t alen;    // Address length
 };
 
-void mg_resolve(struct mg_connection *, struct mg_str *, int);
+void mg_resolve(struct mg_connection *, const char *url);
 void mg_resolve_cancel(struct mg_connection *);
 bool mg_dns_parse(const uint8_t *buf, size_t len, struct mg_dns_message *);
 size_t mg_dns_parse_rr(const uint8_t *buf, size_t len, size_t ofs,
