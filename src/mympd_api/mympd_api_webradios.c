@@ -72,15 +72,17 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "database", "error", "Can not open webradios directory");
         return buffer;
     }
+    struct t_list webradios;
+    list_init(&webradios);
 
     sds_utf8_tolower(searchstr);
     size_t search_len = sdslen(searchstr);
     struct dirent *next_file;
-    long entity_count = 0;
-    long entities_returned = 0;
+    
     sds filename = sdsempty();
     sds entry = sdsempty();
     sds plname = sdsempty();
+    //read dir
     while ((next_file = readdir(webradios_dir)) != NULL ) {
         sds extension = sds_get_extension_from_filename(next_file->d_name);
         if (strcmp(extension, "m3u") != 0) {
@@ -97,20 +99,10 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
             //skip on parsing error
             continue;
         }
-        sds_utf8_tolower(plname);
-        if (search_len == 0 || strstr(plname, searchstr) != NULL) {
-            if (entity_count >= offset &&
-                entities_returned < limit)
-            {
-                if (entities_returned++) {
-                    buffer = sdscatlen(buffer, ",", 1);
-                }
-                buffer = sdscatlen(buffer, "{", 1);
-                buffer = tojson_char(buffer, "filename", next_file->d_name, true);
-                buffer = sdscatsds(buffer, entry);
-                buffer = sdscatlen(buffer, "}", 1);
-            }
-            entity_count++;
+        if (search_len == 0 ||
+            strstr(plname, searchstr) != NULL)
+        {
+            list_push(&webradios, plname, 0, entry, sdsdup(next_file->d_name));
         }
     }
     closedir(webradios_dir);
@@ -118,6 +110,30 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
     FREE_SDS(webradios_dirname);
     FREE_SDS(entry);
     FREE_SDS(plname);
+    //sort by webradio name
+    list_sort_by_key(&webradios, LIST_SORT_ASC);
+    //print result
+    long entity_count = 0;
+    long entities_returned = 0;
+    struct t_list_node *current = webradios.head;
+    while (current != NULL) {
+        if (entity_count >= offset &&
+                entities_returned < limit)
+        {
+            if (entities_returned++) {
+                buffer = sdscatlen(buffer, ",", 1);
+            }
+            buffer = sdscatlen(buffer, "{", 1);
+            buffer = tojson_sds(buffer, "filename", (sds)current->user_data, true);
+            buffer = sdscatsds(buffer, current->value_p);
+            buffer = sdscatlen(buffer, "}", 1);
+        }
+        entity_count++;
+        FREE_SDS(current->user_data);
+        current->user_data = NULL;
+        current = current->next;
+    }
+    list_clear(&webradios);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);

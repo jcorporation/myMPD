@@ -522,12 +522,21 @@ function searchWebradiodb(name, genre, country, language, sort, offset, limit) {
 		}
 	}
 	obj.result.data.sort(function(a, b) {
+	        //primary sort by defined tag
 		if (a[sort.tag] < b[sort.tag]) {
-			return sort.desc === false ? -1 : 1;
+                    return sort.desc === false ? -1 : 1;
 		}
 		if (a[sort.tag] > b[sort.tag]) {
-            return sort.desc === false ? 1 : -1;
+		    return sort.desc === false ? 1 : -1;
 		}
+		//secondary sort by Name
+		if (a.Name < b.Name) {
+                    return sort.desc === false ? -1 : 1;
+		}
+		if (a.Name > b.Name) {
+		    return sort.desc === false ? 1 : -1;
+		}
+		//equal
 		return 0;
 	});
     if (offset > 0) {

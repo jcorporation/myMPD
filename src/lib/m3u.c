@@ -107,6 +107,9 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
     FREE_SDS(line);
     FREE_SDS(field);
     fclose(fp);
+    if (plname != NULL) {
+        sds_utf8_tolower(*plname);
+    }
     return buffer;
 }
 
