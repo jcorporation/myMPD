@@ -78,7 +78,7 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
     sds_utf8_tolower(searchstr);
     size_t search_len = sdslen(searchstr);
     struct dirent *next_file;
-    
+
     sds filename = sdsempty();
     sds entry = sdsempty();
     sds plname = sdsempty();
@@ -102,7 +102,7 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
         if (search_len == 0 ||
             strstr(plname, searchstr) != NULL)
         {
-            list_push(&webradios, plname, 0, entry, sdsdup(next_file->d_name));
+            list_push(&webradios, sdsdup(plname), 0, entry, sdsnew(next_file->d_name));
         }
     }
     closedir(webradios_dir);
