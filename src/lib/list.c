@@ -212,7 +212,34 @@ bool list_shuffle(struct t_list *l) {
     return true;
 }
 
-bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction direction) {
+static bool list_sort_cmp_value_i(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
+    if ((direction == LIST_SORT_ASC && current->value_i > next->value_i) ||
+        (direction == LIST_SORT_DESC && current->value_i < next->value_i))
+    {
+        return true;
+    }
+    return false;
+}
+
+static bool list_sort_cmp_value_p(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
+    if ((direction == LIST_SORT_ASC && strcmp(current->value_p, next->value_p) > 0) ||
+        (direction == LIST_SORT_DESC && strcmp(current->value_p, next->value_p) < 0))
+    {
+        return true;
+    }
+    return false;
+}
+
+static bool list_sort_cmp_key(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
+    if ((direction == LIST_SORT_ASC && strcmp(current->key, next->key) > 0) ||
+        (direction == LIST_SORT_DESC && strcmp(current->key, next->key) < 0))
+    {
+        return true;
+    }
+    return false;
+}
+
+bool list_sort_by_callback(struct t_list *l, enum list_sort_direction direction, list_sort_callback sort_cb) {
     int swapped;
     struct t_list_node *ptr1;
     struct t_list_node *lptr = NULL;
@@ -224,76 +251,28 @@ bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction direction) 
     do {
         swapped = 0;
         ptr1 = l->head;
-
         while (ptr1->next != lptr) {
-            if ((direction == LIST_SORT_ASC && ptr1->value_i > ptr1->next->value_i) ||
-                (direction == LIST_SORT_DESC && ptr1->value_i < ptr1->next->value_i))
-            {
+            if (sort_cb(ptr1, ptr1->next, direction) == true) {
                 list_swap_item(ptr1, ptr1->next);
                 swapped = 1;
             }
             ptr1 = ptr1->next;
         }
         lptr = ptr1;
-    }
-    while (swapped);
+    } while (swapped);
     return true;
+}
+
+bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction direction) {
+    return list_sort_by_callback(l, direction, list_sort_cmp_value_i);
 }
 
 bool list_sort_by_value_p(struct t_list *l, enum list_sort_direction direction) {
-    int swapped;
-    struct t_list_node *ptr1;
-    struct t_list_node *lptr = NULL;
-
-    if (l->head == NULL) {
-        return false;
-    }
-
-    do {
-        swapped = 0;
-        ptr1 = l->head;
-
-        while (ptr1->next != lptr) {
-            if ((direction == LIST_SORT_ASC && strcmp(ptr1->value_p, ptr1->next->value_p) > 0) ||
-                (direction == LIST_SORT_DESC && strcmp(ptr1->value_p, ptr1->next->value_p) < 0))
-            {
-                list_swap_item(ptr1, ptr1->next);
-                swapped = 1;
-            }
-            ptr1 = ptr1->next;
-        }
-        lptr = ptr1;
-    }
-    while (swapped);
-    return true;
+    return list_sort_by_callback(l, direction, list_sort_cmp_value_p);
 }
 
 bool list_sort_by_key(struct t_list *l, enum list_sort_direction direction) {
-    int swapped;
-    struct t_list_node *ptr1;
-    struct t_list_node *lptr = NULL;
-
-    if (l->head == NULL) {
-        return false;
-    }
-
-    do {
-        swapped = 0;
-        ptr1 = l->head;
-
-        while (ptr1->next != lptr) {
-            if ((direction == LIST_SORT_ASC && strcmp(ptr1->key, ptr1->next->key) > 0) ||
-                (direction == LIST_SORT_DESC && strcmp(ptr1->key, ptr1->next->key) < 0))
-            {
-                list_swap_item(ptr1, ptr1->next);
-                swapped = 1;
-            }
-            ptr1 = ptr1->next;
-        }
-        lptr = ptr1;
-    }
-    while (swapped);
-    return true;
+    return list_sort_by_callback(l, direction, list_sort_cmp_key);
 }
 
 bool list_replace(struct t_list *l, long pos, const char *key, long long value_i, const char *value_p, void *user_data) {

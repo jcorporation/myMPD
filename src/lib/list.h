@@ -31,6 +31,7 @@ struct t_list {
 };
 
 typedef void (*user_data_callback) (struct t_list_node *current);
+typedef bool (*list_sort_callback) (struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction);
 
 struct t_list *list_new(void);
 void list_init(struct t_list *l);
@@ -52,6 +53,7 @@ sds list_get_value_p(const struct t_list *l, const char *key);
 void *list_get_user_data(const struct t_list *l, const char *key);
 struct t_list_node *list_get_node(const struct t_list *l, const char *key);
 bool list_shuffle(struct t_list *l);
+bool list_sort_by_callback(struct t_list *l, enum list_sort_direction direction, list_sort_callback sort_cb);
 bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction direction);
 bool list_sort_by_value_p(struct t_list *l, enum list_sort_direction direction);
 bool list_sort_by_key(struct t_list *l, enum list_sort_direction direction);
