@@ -102,7 +102,7 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
         if (search_len == 0 ||
             strstr(plname, searchstr) != NULL)
         {
-            list_push(&webradios, sdsdup(plname), 0, entry, sdsnew(next_file->d_name));
+            list_push(&webradios, plname, 0, entry, sdsnew(next_file->d_name));
         }
     }
     closedir(webradios_dir);
