@@ -49,10 +49,10 @@ Queue
 순서
 
 Browse
-열기
+찾아보기
 
 Search
-찾기
+검색
 
 Save queue
 순서 저장
@@ -88,7 +88,7 @@ kHz
 kHz
 
 Search queue
-순서 찾기
+순서 검색
 
 Title
 제목
@@ -220,7 +220,7 @@ To top
 위로
 
 Select tag to search
-찾을 태그 선택
+검색할 태그 선택
 
 contains
 내용
@@ -391,7 +391,7 @@ Locale
 언어
 
 Browser default
-기본 열기
+기본 찾아보기
 
 Notifications
 알림
@@ -406,10 +406,10 @@ Tags to use
 쓸 태그
 
 Tags to search
-찾을 태그
+검색할 태그
 
 Tags to browse
-열 태그
+찾아볼 태그
 
 Local playback
 로컬 연주
@@ -571,37 +571,40 @@ Open settings
 설정 열기
 
 Show home
-홈 보기
+홈 표시
 
 Show playback
-연주 보기
+연주 표시
 
 Show queue
-순서 보기
+순서 표시
 
 Show last played
-앞선 연주 보기
+앞선 연주 표시
 
 Show jukebox queue
-뮤직박스 순서 보기
+뮤직박스 순서 표시
 
 Show browse database
-데이터베이스 열기 보기
+데이터베이스 찾아보기 표시
 
 Show browse playlists
-연주목록 열기 보기
+연주목록 찾아보기 표시
 
 Show browse filesystem
-파일 시스템 열기 보기
+파일 시스템 찾아보기 표시
+
+Show browse webradio
+웹라디오 찾아보기 표시
 
 Show search
-찾기 보기
+검색 표시
 
 Open about
 정보 열기
 
 Focus search
-찾기로 가기
+검색 강조
 
 myMPD installed as app
 myMPD가 앱으로 설치됨
@@ -778,7 +781,7 @@ No current song
 지금 곡 없음
 
 No search expression defined
-찾을 문구 없음
+검색 문구가 지정되지 않음
 
 Unknown table %{table}
 %{table} 테이블 알 수 없음
@@ -976,7 +979,7 @@ Sorted playlist succesfully
 연주목록 정렬함
 
 search
-찾기
+검색
 
 newest
 최신
@@ -1006,22 +1009,22 @@ Leaving playlist as it is
 연주목록을 그대로 둠
 
 Delete all playlists
-모든 연주목록 지움
+모든 연주목록 지우기
 
 Delete all smart playlists
-모든 스마트 연주목록 지움
+모든 스마트 연주목록 지우기
 
 Delete empty playlists
-빈 연주목록 지움
+빈 연주목록 지우기
 
 Delete playlists
-연주목록 지움
+연주목록 지우기
 
 Media session
 미디어 세션
 
 Playlists deleted
-연주목록 지워짐
+연주목록 지움
 
 Preview
 미리 보기
@@ -1051,7 +1054,7 @@ Adding timer failed
 타이머를 추가할 수 없음
 
 Browse directories
-디렉터리 열기
+디렉터리 찾아보기
 
 Mounts
 마운트
@@ -1261,7 +1264,7 @@ Output attributes
 출력 속성
 
 Show attributes
-속성 보기
+속성 표시
 
 Websocket is disconnected
 웹소켓 연결 안 됨
@@ -1300,7 +1303,7 @@ Can not move home icon
 홈 아이콘을 옮길 수 없음
 
 Delete home icon
-홈 아이콘 지움
+홈 아이콘 지우기
 
 Duplicate home icon
 홈 아이콘 복사
@@ -1378,7 +1381,7 @@ Select view
 보기 선택
 
 Show cover
-커버 보기
+커버 표시
 
 Toggle play
 연주 토글
@@ -1449,6 +1452,9 @@ Click folder
 Click playlist
 연주목록 누름
 
+Click filesystem playlist
+파일시스템 연주목록 누름
+
 Click song in queue
 순서의 곡 누름
 
@@ -1492,13 +1498,13 @@ Do you really want to clear the playlist?
 "%{playlist}" 연주목록을 지울까요?
 
 Do you really want to delete the playlist?
-"%{playlist}" 연주목록을 삭제할까요?
+"%{playlist}" 연주목록을 지울까요?
 
 Do you really want to delete the script?
-스크립트를 삭제할까요?
+스크립트를 지울까요?
 
 Yes, delete it
-예, 삭제합니다
+예, 지웁니다
 
 Yes, do it
 예, 합니다
@@ -1513,7 +1519,7 @@ Song change
 곡 바꿈
 
 Show playback settings in footer
-아래에 연주 설정 보기
+아래에 연주 설정 표시
 
 Interval
 간격
@@ -1522,7 +1528,7 @@ Invalid timer interval
 잘못된 시간 간격
 
 One shot and delete
-한 번에 삭제
+한 번에 지우기
 
 One shot and disable
 한 번에 사용 안 함
@@ -1846,10 +1852,10 @@ Resize
 크기 조정
 
 Show all albums from artist
-연주자의 모든 음반 보기
+연주자의 모든 음반 표시
 
 Show directory
-디렉터리 보기
+디렉터리 표시
 
 Each 
 각각
@@ -1876,7 +1882,7 @@ Start playing newly added song failed
 새로 추가된 곡 연주 시작 실패
 
 Current search
-지금 찾기
+지금 검색
 
 Replaced the queue
 순서 바꿈
@@ -1969,7 +1975,7 @@ Homeicon
 홈 아이콘
 
 Show
-보기
+표시
 
 Can't set playback options
 연주 옵션을 설정할 수 없음
@@ -1982,3 +1988,156 @@ Addings songs from jukebox to queue failed
 
 Filling jukebox queue
 뮤직박스 연주순서 채우기
+
+Clear jukebox queue
+뮤직박스 연주순서 지우기
+
+Mixramp delay
+Mixramp 지연
+
+Mixramp db
+Mixramp DB
+
+Country
+국가
+
+Tags
+태그
+
+Webradios
+웹라디오
+
+Can not open webradios directory
+웹라디오 디렉터리를 열 수 없음
+
+Can not parse webradio favorite file
+웹라디오 즐겨찾기 파일을 분석할 수 없음
+
+Click webradio
+웹라디오 누름
+
+Click webradio favorite
+웹라디오 즐겨찾기 누름
+
+Could not delete webradio favorite
+웹라디오 즐겨찾기를 지울 수 없음
+
+Could not save webradio favorite
+웹라디오 즐겨찾기를 저장할 수 없음
+
+Edit webradio favorite
+웹라디오 즐겨찾기 수정
+
+Error connection to radio-browser.info
+radio-browser.info 연결 오류
+
+Manually add webradio favorite
+웹라디오 즐겨찾기 수동 추가
+
+Browse radio-browser.info
+radio-browser.info 찾아보기
+
+Type or select picture
+사진 입력 또는 선택
+
+Uri
+Url
+
+Webradio details
+웹라디오 세부정보
+
+Webradio favorite successfully saved
+웹라디오 즐겨찾기를 성공적으로 저장함
+
+Webradio favorites
+웹라디오 즐겨찾기
+
+Add to favorites
+즐겨찾기에 추가
+
+Webradio
+웹라디오
+
+Delete webradio favorite
+웹라디오 즐겨찾기 지우기
+
+Empty response from radio-browser.info
+radio-browser.info의 빈 응답
+
+Language
+언어
+
+Description
+설명
+
+Browse WebradioDB
+웹라디오 DB 찾아보기
+
+Empty response from webradiodb backend
+웹라디오 DB 백엔드의 빈 응답
+
+Loading...
+읽는 중...
+
+Stream uri
+스트림 URL
+
+clickcount
+클릭 수
+
+country
+국가
+
+homepage
+홈페이지
+
+language
+언어
+
+lastchangetime
+최근 변경 시간
+
+lastcheckok
+최근 확인
+
+tags
+태그
+
+url_resolved
+URL
+
+votes
+투표
+
+Check WebradioDB
+웹라디오 DB 확인
+
+Update WebradioDB
+웹라디오 DB 업데이트
+
+Update from WebradioDB
+웹라디오 DB에서 업데이트
+
+Add to WebradioDB
+웹라디오 DB 추가
+
+Uri not found in WebradioDB
+웹라디오 DB에서 URL을 찾을 수 없음
+
+Favorite and WebradioDb entry are different
+즐겨찾기와 웹라디오 DB 항목이 다름
+
+Favorite is uptodate
+즐겨찾기가 업데이트됨
+
+Empty uri
+빈 URL
+
+Checking...
+확인 중...
+
+WebradioDB
+웹라디오 DB
+
+Documentation
+문서
