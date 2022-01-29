@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -41,8 +41,8 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
 
     mpd_worker_smartpls_per_tag(mpd_worker_state);
 
-    unsigned long db_mtime = mpd_shared_get_db_mtime(mpd_worker_state->mpd_state);
-    MYMPD_LOG_DEBUG("Database mtime: %d", db_mtime);
+    time_t db_mtime = mpd_shared_get_db_mtime(mpd_worker_state->mpd_state);
+    MYMPD_LOG_DEBUG("Database mtime: %lld", (long long)db_mtime);
 
     sds dirname = sdscatfmt(sdsempty(), "%s/smartpls", mpd_worker_state->config->workdir);
     errno = 0;
@@ -58,9 +58,9 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
         if (next_file->d_type != DT_REG) {
             continue;
         }
-        unsigned long playlist_mtime = mpd_shared_get_playlist_mtime(mpd_worker_state->mpd_state, next_file->d_name);
-        unsigned long smartpls_mtime = mpd_shared_get_smartpls_mtime(mpd_worker_state->config, next_file->d_name);
-        MYMPD_LOG_DEBUG("Playlist %s: playlist mtime %d, smartpls mtime %d", next_file->d_name, playlist_mtime, smartpls_mtime);
+        time_t playlist_mtime = mpd_shared_get_playlist_mtime(mpd_worker_state->mpd_state, next_file->d_name);
+        time_t smartpls_mtime = mpd_shared_get_smartpls_mtime(mpd_worker_state->config, next_file->d_name);
+        MYMPD_LOG_DEBUG("Playlist %s: playlist mtime %lld, smartpls mtime %lld", next_file->d_name, (long long)playlist_mtime, (long long)smartpls_mtime);
         if (force == true || db_mtime > playlist_mtime || smartpls_mtime > playlist_mtime) {
             mpd_worker_smartpls_update(mpd_worker_state, next_file->d_name);
         }
@@ -157,7 +157,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
 
 //private functions
 static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_state) {
-    for (size_t i = 0; i < mpd_worker_state->smartpls_generate_tag_types.len; i++) {
+    for (unsigned i = 0; i < mpd_worker_state->smartpls_generate_tag_types.len; i++) {
         enum mpd_tag_type tag = mpd_worker_state->smartpls_generate_tag_types.tags[i];
         bool rc = mpd_search_db_tags(mpd_worker_state->mpd_state->conn, tag);
 
@@ -191,7 +191,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
             sds playlist = sdscatfmt(sdsempty(), "%s%s%s-%s", mpd_worker_state->smartpls_prefix, (sdslen(mpd_worker_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, filename);
             sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", mpd_worker_state->config->workdir, playlist);
             if (access(plpath, F_OK) == -1) { /* Flawfinder: ignore */
-                sds expression = sdsnew("(");
+                sds expression = sdsnewlen("(", 1);
                 expression = escape_mpd_search_expression(expression, tagstr, "==", current->key);
                 expression = sdscatlen(expression, ")", 1);
                 rc = mpd_shared_smartpls_save(mpd_worker_state->config->workdir, "search", playlist, expression, 0, 0, mpd_worker_state->smartpls_sort);
@@ -356,17 +356,18 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
         return false;
     }
 
-    value_max -= timerange;
-    if (value_max <= 0) {
+    //prevent overflow
+    if (timerange < 0) {
         return false;
     }
+    value_max = value_max - (unsigned long)timerange;
 
     mpd_worker_smartpls_clear(mpd_worker_state, playlist);
 
     sds buffer = sdsempty();
     sds method = sdsempty();
     bool result = false;
-    sds searchstr = sdscatprintf(sdsempty(), "(modified-since '%lu')", value_max);
+    sds searchstr = sdscatfmt(sdsempty(), "(modified-since '%U')", value_max);
     buffer = mpd_shared_search_adv(mpd_worker_state->mpd_state, buffer, method, 0, searchstr, "LastModified", true, playlist, UINT_MAX, 0, 0, MPD_PLAYLIST_LENGTH_MAX, NULL, NULL, &result);
     FREE_SDS(searchstr);
     if (result == true) {

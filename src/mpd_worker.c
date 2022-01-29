@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -39,7 +39,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
         return false;
     }
     //create mpd worker state from mympd_state
-    struct t_mpd_worker_state *mpd_worker_state = (struct t_mpd_worker_state *)malloc_assert(sizeof(struct t_mpd_worker_state));
+    struct t_mpd_worker_state *mpd_worker_state = malloc_assert(sizeof(struct t_mpd_worker_state));
     mpd_worker_state->request = request;
     mpd_worker_state->smartpls = mympd_state->smartpls == true ? mympd_state->mpd_state->feat_mpd_smartpls == true ? true : false : false;
     mpd_worker_state->smartpls_sort = sdsdup(mympd_state->smartpls_sort);
@@ -48,7 +48,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     copy_tag_types(&mympd_state->smartpls_generate_tag_types, &mpd_worker_state->smartpls_generate_tag_types);
 
     //mpd state
-    mpd_worker_state->mpd_state = (struct t_mpd_state *)malloc_assert(sizeof(struct t_mpd_state));
+    mpd_worker_state->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
     mpd_shared_default_mpd_state(mpd_worker_state->mpd_state);
     mpd_worker_state->mpd_state->mpd_host = sds_replace(mpd_worker_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_host);
     mpd_worker_state->mpd_state->mpd_port = mympd_state->mpd_state->mpd_port;

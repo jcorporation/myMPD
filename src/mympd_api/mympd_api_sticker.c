@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -10,10 +10,11 @@
 #include "../lib/api.h"
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
-#include "mympd_api_utility.h"
+
 
 #include <inttypes.h>
 #include <limits.h>
@@ -49,7 +50,7 @@ bool mympd_api_sticker_last_played(struct t_mympd_state *mympd_state, const char
     if (is_streamuri(uri) == true) {
         return true;
     }
-    return list_push(&mympd_state->sticker_queue, uri, mympd_state->mpd_state->song_start_time, "lastPlayed", NULL);
+    return list_push(&mympd_state->sticker_queue, uri, (long long)mympd_state->mpd_state->song_start_time, "lastPlayed", NULL);
 }
 
 bool mympd_api_sticker_last_skipped(struct t_mympd_state *mympd_state, const char *uri) {
@@ -57,7 +58,7 @@ bool mympd_api_sticker_last_skipped(struct t_mympd_state *mympd_state, const cha
         return true;
     }
     time_t now = time(NULL);
-    return list_push(&mympd_state->sticker_queue, uri, now, "lastSkipped", NULL);
+    return list_push(&mympd_state->sticker_queue, uri, (long long)now, "lastSkipped", NULL);
 }
 
 bool mympd_api_sticker_dequeue(struct t_mympd_state *mympd_state) {
@@ -70,14 +71,17 @@ bool mympd_api_sticker_dequeue(struct t_mympd_state *mympd_state) {
 
     struct t_list_node *current = mympd_state->sticker_queue.head;
     while (current != NULL) {
-        MYMPD_LOG_DEBUG("Setting %s = %ld for %s", current->value_p, current->value_i, current->key);
-        if (strcmp(current->value_p, "playCount") == 0 || strcmp(current->value_p, "skipCount") == 0) {
-            _mympd_api_count_song_uri(mympd_state, current->key, current->value_p, current->value_i);
+        MYMPD_LOG_DEBUG("Setting %s = %lld for \"%s\"", current->value_p, current->value_i, current->key);
+        if (strcmp(current->value_p, "playCount") == 0 ||
+            strcmp(current->value_p, "skipCount") == 0)
+        {
+            _mympd_api_count_song_uri(mympd_state, current->key, current->value_p, (long)current->value_i);
         }
-        else if (strcmp(current->value_p, "like") == 0 || strcmp(current->value_p, "lastPlayed") == 0 ||
+        else if (strcmp(current->value_p, "like") == 0 ||
+                 strcmp(current->value_p, "lastPlayed") == 0 ||
                  strcmp(current->value_p, "lastSkipped") == 0)
         {
-            _mympd_api_set_sticker(mympd_state, current->key, current->value_p, current->value_i);
+            _mympd_api_set_sticker(mympd_state, current->key, current->value_p, (long)current->value_i);
         }
         list_shift(&mympd_state->sticker_queue, 0);
         current = mympd_state->sticker_queue.head;
@@ -87,7 +91,7 @@ bool mympd_api_sticker_dequeue(struct t_mympd_state *mympd_state) {
 
 //private functions
 static bool _mympd_api_count_song_uri(struct t_mympd_state *mympd_state, const char *uri, const char *name, const long value) {
-    unsigned old_value = 0;
+    long old_value = 0;
     struct t_sticker *sticker = NULL;
     if (mympd_state->sticker_cache != NULL) {
         sticker = get_sticker_from_cache(mympd_state->sticker_cache, uri);
@@ -109,7 +113,7 @@ static bool _mympd_api_count_song_uri(struct t_mympd_state *mympd_state, const c
         }
         while ((pair = mpd_recv_sticker(mympd_state->mpd_state->conn)) != NULL) {
             if (strcmp(pair->name, name) == 0) {
-                old_value = (int)strtoimax(pair->value, &crap, 10);
+                old_value = (long)strtoimax(pair->value, &crap, 10);
             }
             mpd_return_sticker(mympd_state->mpd_state->conn, pair);
         }
@@ -124,7 +128,7 @@ static bool _mympd_api_count_song_uri(struct t_mympd_state *mympd_state, const c
         old_value = INT_MAX / 2;
     }
 
-    sds value_str = sdsfromlonglong(old_value);
+    sds value_str = sdsfromlonglong((long long)old_value);
     MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
     bool rc = mpd_run_sticker_set(mympd_state->mpd_state->conn, "song", uri, name, value_str);
     FREE_SDS(value_str);
@@ -145,7 +149,7 @@ static bool _mympd_api_count_song_uri(struct t_mympd_state *mympd_state, const c
 }
 
 static bool _mympd_api_set_sticker(struct t_mympd_state *mympd_state, const char *uri, const char *name, const long value) {
-    sds value_str = sdsfromlonglong(value);
+    sds value_str = sdsfromlonglong((long long)value);
     MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
     bool rc = mpd_run_sticker_set(mympd_state->mpd_state->conn, "song", uri, name, value_str);
     FREE_SDS(value_str);

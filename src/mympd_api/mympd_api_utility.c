@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -20,17 +20,113 @@
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "mympd_api_timer.h"
 
+#include <arpa/inet.h>
 #include <dirent.h>
 #include <errno.h>
+#include <ifaddrs.h>
 #include <libgen.h>
+#include <netdb.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 //private definitons
 static void _detect_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
 
+static sds get_local_ip(void) {
+    struct ifaddrs *ifaddr;
+    struct ifaddrs *ifa;
+    char host[NI_MAXHOST];
+
+    errno = 0;
+    if (getifaddrs(&ifaddr) == -1) {
+        MYMPD_LOG_ERROR("Can not get list of inteface ip addresses");
+        MYMPD_LOG_ERRNO(errno);
+        return sdsempty();
+    }
+
+    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr == NULL ||
+            strcmp(ifa->ifa_name, "lo") == 0)
+        {
+            continue;
+        }
+        int family = ifa->ifa_addr->sa_family;
+        if (family == AF_INET ||
+            family == AF_INET6)
+        {
+            int s = getnameinfo(ifa->ifa_addr,
+                    (family == AF_INET) ? sizeof(struct sockaddr_in) :
+                                          sizeof(struct sockaddr_in6),
+                    host, NI_MAXHOST,
+                    NULL, 0, NI_NUMERICHOST);
+            if (s != 0) {
+                MYMPD_LOG_ERROR("getnameinfo() failed: %s\n", gai_strerror(s));
+                continue;
+            }
+            sds ip = sdsnew(host);
+            freeifaddrs(ifaddr);
+            return ip;
+        }
+    }
+    freeifaddrs(ifaddr);
+    return sdsempty();
+}
+
+static sds get_mympd_host(struct t_mympd_state *mympd_state) {
+    if (strncmp(mympd_state->mpd_state->mpd_host, "/", 1) == 0) {
+        //local socket - use localhost
+        return sdsnew("localhost");
+    }
+    if (strcmp(mympd_state->config->http_host, "0.0.0.0") != 0) {
+        //host defined in configuration
+        return sdsdup(mympd_state->config->http_host);
+    }
+    //get local ip
+    return get_local_ip();
+}
+
 //public functions
+enum jukebox_modes mympd_parse_jukebox_mode(const char *str) {
+    if (strcmp(str, "off") == 0) {
+        return JUKEBOX_OFF;
+    }
+    if (strcmp(str, "song") == 0) {
+        return JUKEBOX_ADD_SONG;
+    }
+    if (strcmp(str, "album") == 0) {
+        return JUKEBOX_ADD_ALBUM;
+    }
+    return JUKEBOX_UNKNOWN;
+}
+
+const char *mympd_lookup_jukebox_mode(enum jukebox_modes mode) {
+	switch (mode) {
+        case JUKEBOX_OFF:
+            return "off";
+        case JUKEBOX_ADD_SONG:
+            return "song";
+        case JUKEBOX_ADD_ALBUM:
+            return "album";
+        default:
+            return NULL;
+    }
+	return NULL;
+}
+
+sds resolv_mympd_uri(sds uri, struct t_mympd_state *mympd_state) {
+    if (strncmp(uri, "mympd://webradio/", 17) == 0) {
+        sdsrange(uri, 17, -1);
+        sds host = get_mympd_host(mympd_state);
+        sds new_uri = sdscatfmt(sdsempty(), "http://%s:%s/browse/webradios/%s", host, mympd_state->config->http_port, uri);
+        sdsfree(uri);
+        sdsfree(host);
+        return new_uri;
+    }
+    return uri;
+}
+
 sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *uri, bool is_dirname) {
     struct t_list images;
     list_init(&images);
@@ -58,7 +154,7 @@ sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
 
 bool is_smartpls(const char *workdir, sds playlist) {
     bool smartpls = false;
-    if (vcb_isfilename(playlist) == true) {
+    if (vcb_isfilename_silent(playlist) == true) {
         sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", workdir, playlist);
         if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
             smartpls = true;
@@ -66,13 +162,6 @@ bool is_smartpls(const char *workdir, sds playlist) {
         FREE_SDS(smartpls_file);
     }
     return smartpls;
-}
-
-bool is_streamuri(const char *uri) {
-    if (uri != NULL && strstr(uri, "://") != NULL) {
-        return true;
-    }
-    return false;
 }
 
 bool mympd_api_set_binarylimit(struct t_mympd_state *mympd_state) {
@@ -126,6 +215,8 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     mympd_state->cols_playback = sdsnew("[\"Artist\",\"Album\"]");
     mympd_state->cols_queue_last_played = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");
     mympd_state->cols_queue_jukebox = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\"]");
+    mympd_state->cols_browse_radio_webradiodb = sdsnew("[\"Name\",\"Country\",\"Language\",\"Genre\"]");
+    mympd_state->cols_browse_radio_radiobrowser = sdsnew("[\"name\",\"country\",\"language\",\"tags\"]");
     mympd_state->volume_min = 0;
     mympd_state->volume_max = 100;
     mympd_state->volume_step = 5;
@@ -153,7 +244,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     list_init(&mympd_state->jukebox_queue);
     list_init(&mympd_state->jukebox_queue_tmp);
     //mpd state
-    mympd_state->mpd_state = (struct t_mpd_state *)malloc_assert(sizeof(struct t_mpd_state));
+    mympd_state->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
     mpd_shared_default_mpd_state(mympd_state->mpd_state);
     //triggers;
     list_init(&mympd_state->triggers);
@@ -189,6 +280,8 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->cols_playback);
     FREE_SDS(mympd_state->cols_queue_last_played);
     FREE_SDS(mympd_state->cols_queue_jukebox);
+    FREE_SDS(mympd_state->cols_browse_radio_webradiodb);
+    FREE_SDS(mympd_state->cols_browse_radio_radiobrowser);
     FREE_SDS(mympd_state->coverimage_names);
     FREE_SDS(mympd_state->music_directory);
     FREE_SDS(mympd_state->music_directory_value);

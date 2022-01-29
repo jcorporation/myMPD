@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 //we do not use the custom element is="" feature - safari does not support it
@@ -106,12 +106,18 @@ function setSelectSearch(el) {
     el.filterInput = filterInput;
     el.filterResult = filterResult;
     el.classList.add('innerButton');
+    setData(el, 'value', el.value);
+    el.addEventListener('keyup', function(event) {
+        setData(el, 'value', event.target.value);
+    }, false);
     el.filterResult.addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
         el.value = event.target.text;
         setData(el, 'value', event.target.value);
         el.dropdownButton.Dropdown.hide();
+        const changeEvent = new Event('change');
+        el.dispatchEvent(changeEvent);
     }, false);
     el.filterInput.addEventListener('keyup', function(event) {
         const cb = getData(el, 'cb-filter');

@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -22,6 +22,7 @@ bool vcb_isprint(sds data);
 bool vcb_ishexcolor(sds data);
 bool vcb_isname(sds data);
 bool vcb_istext(sds data);
+bool vcb_isfilename_silent(sds data);
 bool vcb_isfilename(sds data);
 bool vcb_isfilepath(sds data);
 bool vcb_isuri(sds data);

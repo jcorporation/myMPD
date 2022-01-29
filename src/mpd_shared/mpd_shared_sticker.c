@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -12,7 +12,7 @@
 #include "../lib/mem.h"
 #include "../lib/validate.h"
 #include "../mpd_shared.h"
-#include "../mympd_api/mympd_api_utility.h"
+#include "../lib/utility.h"
 
 #include <inttypes.h>
 #include <stdlib.h>

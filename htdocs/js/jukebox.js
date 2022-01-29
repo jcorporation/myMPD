@@ -1,15 +1,15 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 function initJukebox() {
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            if (settings.jukeboxMode === 1) {
+            if (settings.jukeboxMode === 'song') {
                 clickSong(getData(event.target.parentNode, 'uri'), getData(event.target.parentNode, 'name'));
             }
-            else if (settings.jukeboxMode === 2) {
+            else if (settings.jukeboxMode === 'album') {
                 clickAlbumPlay(getData(event.target.parentNode, 'AlbumArtist'), getData(event.target.parentNode, 'Album'));
             }
         }
@@ -29,6 +29,18 @@ function initJukebox() {
 }
 
 //eslint-disable-next-line no-unused-vars
+function clearJukeboxQueue() {
+    sendAPI("MYMPD_API_JUKEBOX_CLEAR", {}, function() {
+        sendAPI("MYMPD_API_JUKEBOX_LIST", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "cols": settings.colsQueueJukeboxFetch,
+            "searchstr": app.current.search
+        }, parseJukeboxList);
+    });
+}
+
+//eslint-disable-next-line no-unused-vars
 function delQueueJukeboxSong(pos) {
     sendAPI("MYMPD_API_JUKEBOX_RM", {
         "pos": pos
@@ -44,7 +56,9 @@ function delQueueJukeboxSong(pos) {
 
 function parseJukeboxList(obj) {
     if (checkResultId(obj, 'QueueJukeboxList') === false) {
-        if (obj.result !== undefined && obj.result.jukeboxMode === 0) {
+        if (obj.result !== undefined &&
+            obj.result.jukeboxMode === 'off')
+        {
             elHideId('QueueJukeboxList');
             elShowId('QueueJukeboxDisabled');
         }

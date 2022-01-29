@@ -1,6 +1,6 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
-# myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+# myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 #
 
@@ -21,9 +21,10 @@ if (LUA_FOUND)
   )
 
   #compiler flags for mongoose
-  set_property(SOURCE ../dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral")
+  set_property(SOURCE ../dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion")
   #compiler flags for sds
-  set_property(SOURCE ../dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-shadow -Wno-format-nonliteral")
+  #-Wno-stringop-overflow: gcc 11.2.0 bug
+  set_property(SOURCE ../dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-stringop-overflow -Wno-conversion")
 
   add_executable(mympd-script ${MYMPD_SCRIPT_SOURCES})
   target_link_libraries(mympd-script)

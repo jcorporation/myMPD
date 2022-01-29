@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -11,8 +11,11 @@
 
 tinymt32_t tinymt;
 
-unsigned randrange(unsigned lower, unsigned upper) {
-    unsigned r = tinymt32_generate_uint32(&tinymt);
-    unsigned rand = lower + r / (UINT_MAX / (upper - lower + 1) + 1);
-    return rand;
+//generates random number in range (inclusive lower and upper bounds)
+long randrange(long lower, long upper) {
+    uint32_t lower_u = (uint32_t)lower;
+    uint32_t upper_u = (uint32_t)upper;
+    uint32_t r = tinymt32_generate_uint32(&tinymt);
+    uint32_t rand = lower_u + r / (UINT32_MAX / (upper_u - lower_u + 1) + 1);
+    return (long)rand;
 }

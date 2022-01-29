@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -22,6 +22,7 @@
 #cmakedefine ENABLE_FLAC
 #cmakedefine ENABLE_SSL
 #cmakedefine ENABLE_LUA
+#cmakedefine ENABLE_IPV6
 
 //myMPD version from cmake
 #define MYMPD_VERSION_MAJOR ${CPACK_PACKAGE_VERSION_MAJOR}
@@ -80,14 +81,16 @@
 //limits for json parsing
 #define JSONRPC_INT_MIN INT_MIN
 #define JSONRPC_INT_MAX INT_MAX
+#define JSONRPC_LONG_MIN INT_MIN
+#define JSONRPC_LONG_MAX INT_MAX
 #define JSONRPC_UINT_MAX INT_MAX
 #define JSONRPC_STR_MAX 3000
 #define JSONRPC_KEY_MAX 50
 
-#define TIMER_INTERVAL_MIN 5
-#define TIMER_INTERVAL_MAX 7257600
+#define TIMER_INTERVAL_MIN 5 //5 seconds
+#define TIMER_INTERVAL_MAX 7257600 //12 weeks
 #define COVERCACHE_AGE_MIN 0
-#define COVERCACHE_AGE_MAX 365
+#define COVERCACHE_AGE_MAX 365 //days
 #define VOLUME_MIN 0
 #define VOLUME_MAX 100
 #define VOLUME_STEP_MIN 1
@@ -105,5 +108,9 @@
 //filesystem limits
 #define FILENAME_LEN_MAX 200
 #define FILEPATH_LEN_MAX 1000
+
+//cloud api hosts
+#define RADIOBROWSER_HOST "all.api.radio-browser.info"
+#define WEBRADIODB_HOST "jcorporation.github.io"
 
 #endif

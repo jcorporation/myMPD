@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -34,18 +34,24 @@ void sds_utf8_tolower(sds s) {
 }
 
 sds sds_catjson(sds s, const char *p, size_t len) {
+    /* To avoid continuous reallocations, let's start with a buffer that
+     * can hold at least stringlength + 10 chars. */
+    s = sdsMakeRoomFor(s, len + 10);
+
     s = sdscatlen(s, "\"", 1);
-    for (size_t i = 0; i < len; i++) {
-            s = sds_catjsonchar(s, p[i]);
+    while (len--) {
+        s = sds_catjsonchar(s, *p);
+        p++;
     }
     return sdscatlen(s, "\"", 1);
 }
+
 
 sds sds_catjsonchar(sds s, const char p) {
     switch(p) {
         case '\\':
         case '"':
-            s = sdscatprintf(s, "\\%c", p);
+            s = sdscatfmt(s, "\\%c", p);
             break;
         case '\b': s = sdscatlen(s, "\\b", 2); break;
         case '\f': s = sdscatlen(s, "\\f", 2); break;
@@ -58,7 +64,7 @@ sds sds_catjsonchar(sds s, const char p) {
             //this escapes are not accepted in the unescape function
             break;
         default:
-            s = sdscatprintf(s, "%c", p);
+            s = sdscatfmt(s, "%c", p);
             break;
     }
     return s;
@@ -82,7 +88,7 @@ bool sds_json_unescape(const char *src, int slen, sds *dst) {
                 src += 4;
             }
             else if ((p = strchr(esc1, *src)) != NULL) {
-                *dst = sdscatprintf(*dst, "%c", esc2[p - esc1]);
+                *dst = sdscatfmt(*dst, "%c", esc2[p - esc1]);
             }
             else {
                 //other escapes are not accepted
@@ -90,12 +96,34 @@ bool sds_json_unescape(const char *src, int slen, sds *dst) {
             }
         }
         else {
-            *dst = sdscatprintf(*dst, "%c", *src);
+            *dst = sdscatfmt(*dst, "%c", *src);
         }
         src++;
     }
 
     return true;
+}
+
+static bool is_url_safe(char c) {
+    if (isalnum(c) ||
+        c == '/' || c == '-' || c == '.' ||
+        c == '_')
+    {
+        return true;
+    }
+    return false;
+}
+
+sds sds_urlencode(sds s, const char *p, size_t len) {
+    for (size_t i = 0; i < len; i++) {
+        if (is_url_safe(p[i])) {
+            s = sdscatfmt(s, "%c", p[i]);
+        }
+        else {
+            s = sdscatprintf(s, "%%%hhX", p[i]);
+        }
+    }
+    return s;
 }
 
 sds sds_urldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
@@ -105,29 +133,29 @@ sds sds_urldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
 
     for (i = 0; i < len; i++) {
         switch(*p) {
-        case '%':
-            if (i < len - 2 && isxdigit(*(const unsigned char *) (p + 1)) &&
-                isxdigit(*(const unsigned char *) (p + 2)))
-            {
-                a = tolower(*(const unsigned char *) (p + 1));
-                b = tolower(*(const unsigned char *) (p + 2));
-                s = sdscatprintf(s, "%c", (char) ((HEXTOI(a) << 4) | HEXTOI(b)));
-                i += 2;
-                p += 2;
-            }
-            else {
-                sdsclear(s);
-                return s;
-            }
-            break;
-        case '+':
-            if (is_form_url_encoded == 1) {
-                s = sdscatlen(s, " ", 1);
+            case '%':
+                if (i < len - 2 && isxdigit(*(const unsigned char *) (p + 1)) &&
+                    isxdigit(*(const unsigned char *) (p + 2)))
+                {
+                    a = tolower(*(const unsigned char *) (p + 1));
+                    b = tolower(*(const unsigned char *) (p + 2));
+                    s = sdscatfmt(s, "%c", (char) ((HEXTOI(a) << 4) | HEXTOI(b)));
+                    i += 2;
+                    p += 2;
+                }
+                else {
+                    sdsclear(s);
+                    return s;
+                }
                 break;
-            }
-            //fall through
-        default:
-            s = sdscatlen(s, p, 1);
+            case '+':
+                if (is_form_url_encoded == 1) {
+                    s = sdscatlen(s, " ", 1);
+                    break;
+                }
+                //fall through
+            default:
+                s = sdscatlen(s, p, 1);
         }
         p++;
     }
@@ -174,11 +202,11 @@ int sds_getline(sds *s, FILE *fp, size_t max) {
             return 0;
         }
         if (i < max) {
-            *s = sdscatprintf(*s, "%c", c);
+            *s = sdscatfmt(*s, "%c", c);
             i++;
         }
         else {
-            MYMPD_LOG_ERROR("Line is too long, max length is %u", max);
+            MYMPD_LOG_ERROR("Line is too long, max length is %lu", (unsigned long)max);
             return -2;
         }
     }
@@ -197,18 +225,18 @@ int sds_getfile(sds *s, FILE *fp, size_t max) {
         int c = fgetc(fp);
         if (c == EOF) {
             sdstrim(*s, "\r \t\n");
-            MYMPD_LOG_DEBUG("Read %u bytes from file", sdslen(*s));
+            MYMPD_LOG_DEBUG("Read %lu bytes from file", (unsigned long)sdslen(*s));
             if (sdslen(*s) > 0) {
                 return 0;
             }
             return -1;
         }
         if (i < max) {
-            *s = sdscatprintf(*s, "%c", c);
+            *s = sdscatfmt(*s, "%c", c);
             i++;
         }
         else {
-            MYMPD_LOG_ERROR("File is too long, max length is %u", max);
+            MYMPD_LOG_ERROR("File is too long, max length is %lu", (unsigned long)max);
             return -2;
         }
     }
@@ -250,7 +278,7 @@ void sds_strip_slash(sds s) {
     while(ep >= sp && *ep == '/') {
         ep--;
     }
-    size_t len = (sp > ep) ? 0 : ((ep - sp) + 1);
+    size_t len = (size_t)(ep-sp)+1;
     s[len] = '\0';
     sdssetlen(s, len);
 }
@@ -272,7 +300,7 @@ void sds_strip_file_extension(sds s) {
     char *ep = s + sdslen(s) - 1;
     while (ep >= sp) {
         if (*ep == '.') {
-            size_t len = (sp > ep) ? 0 : (ep - sp);
+            size_t len = (size_t)(ep-sp);
             s[len] = '\0';
             sdssetlen(s, len);
             break;
@@ -285,7 +313,7 @@ sds sds_catbool(sds s, bool v) {
     return v == true ? sdscatlen(s, "true", 4) : sdscatlen(s, "false", 5);
 }
 
-static const char *invalid_filename_chars = "<>/.:?$!#\a\b\f\n\r\t\v\\|";
+static const char *invalid_filename_chars = "<>/.:?&$!#\a\b\f\n\r\t\v\\|";
 void sds_sanitize_filename(sds s) {
     const size_t len = strlen(invalid_filename_chars);
     for (size_t i = 0; i < len; i++) {

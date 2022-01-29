@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 //element handling shortcuts
@@ -170,12 +170,21 @@ function showConfirmInline(el, text, btnText, callback) {
     el.appendChild(confirm);
 }
 
+function myEncodeURIhost(str) {
+    const match = str.match(/(https?:\/\/[^/]+)(.*)$/);
+    if (match) {
+        //encode only non host part of uri
+        return match[1] + myEncodeURI(match[2]);
+    }
+    return myEncodeURI(str);
+}
+
 //custom encoding function
 //works like encodeURIComponent but
-//- does not escape /
+//- does not escape /:
 //- escapes further reserved characters
 function myEncodeURI(str) {
-    return encodeURI(str).replace(/[!'()*#?;,:@&=+$~]/g, function(c) {
+    return encodeURI(str).replace(/[!'()*#?;:,@&=+$~]/g, function(c) {
         return '%' + c.charCodeAt(0).toString(16);
     });
 }
@@ -211,13 +220,49 @@ function clickAlbumPlay(albumArtist, album) {
 
 function clickSong(uri) {
     switch (settings.webuiSettings.clickSong) {
-        case 'append':             return appendQueue('song', uri);
-        case 'appendPlay':         return appendPlayQueue('song', uri);
+        case 'append': return appendQueue('song', uri);
+        case 'appendPlay': return appendPlayQueue('song', uri);
         case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
         case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
-        case 'replace':            return replaceQueue('song', uri);
-        case 'replacePlay':        return replacePlayQueue('song', uri);
-        case 'view':               return songDetails(uri);
+        case 'replace': return replaceQueue('song', uri);
+        case 'replacePlay': return replacePlayQueue('song', uri);
+        case 'view': return songDetails(uri);
+    }
+}
+
+function clickRadiobrowser(uri, uuid) {
+    switch (settings.webuiSettings.clickRadiobrowser) {
+        case 'append': return appendQueue('song', uri);
+        case 'appendPlay': return appendPlayQueue('song', uri);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
+        case 'replace': return replaceQueue('song', uri);
+        case 'replacePlay': return replacePlayQueue('song', uri);
+    }
+    countClickRadiobrowser(uuid);
+}
+
+function clickWebradiodb(uri) {
+    switch (settings.webuiSettings.clickRadiobrowser) {
+        case 'append': return appendQueue('song', uri);
+        case 'appendPlay': return appendPlayQueue('song', uri);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
+        case 'replace': return replaceQueue('song', uri);
+        case 'replacePlay': return replacePlayQueue('song', uri);
+    }
+}
+
+function clickRadioFavorites(uri) {
+    const fullUri = getRadioFavoriteUri(uri);
+    switch(settings.webuiSettings.clickRadioFavorites) {
+        case 'append': return appendQueue('plist', fullUri);
+        case 'appendPlay': return appendPlayQueue('plist', fullUri);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue('plist', fullUri);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', fullUri);
+        case 'replace': return replaceQueue('plist', fullUri);
+        case 'replacePlay': return replacePlayQueue('plist', fullUri);
+        case 'edit': return editRadioFavorite(uri);
     }
 }
 
@@ -247,14 +292,27 @@ function clickPlaylist(uri) {
         case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', uri);
         case 'replace': return replaceQueue('plist', uri);
         case 'replacePlay': return replacePlayQueue('plist', uri);
-        case 'view': {
-            if (isMPDplaylist(uri) === true) {
-                return playlistDetails(uri);
-            }
-            //Todo: implement listing playlists from filesystem view
-            //show it as like a subdir
-            showNotification(tn('Playlists in filesystem can not be viewed'), '', 'playlist', 'warn');
-        }
+        case 'view': return playlistDetails(uri);
+    }
+}
+
+function clickFilesystemPlaylist(uri) {
+    switch(settings.webuiSettings.clickFilesystemPlaylist) {
+        case 'append': return appendQueue('plist', uri);
+        case 'appendPlay': return appendPlayQueue('plist', uri);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue('plist', uri);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', uri);
+        case 'replace': return replaceQueue('plist', uri);
+        case 'replacePlay': return replacePlayQueue('plist', uri);
+        case 'view':
+            //remember offset for current browse uri
+            browseFilesystemHistory[app.current.search] = {
+                "offset": app.current.offset,
+                "scrollPos": document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop
+            };
+            //reset filter and show playlist
+            app.current.filter = '-';
+            appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, 'plist', uri);
     }
 }
 
@@ -274,7 +332,7 @@ function clickFolder(uri) {
             };
             //reset filter and open folder
             app.current.filter = '-';
-            appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', uri);
+            appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, 'dir', uri);
     }
 }
 
@@ -542,7 +600,10 @@ function addTagList(elId, list) {
         stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, tn(settings[list][i])));
     }
     if (elId === 'BrowseNavFilesystemDropdown' ||
-        elId === 'BrowseNavPlaylistsDropdown')
+        elId === 'BrowseNavPlaylistsDropdown' ||
+        elId === 'BrowseNavRadioFavoritesDropdown' ||
+        elId === 'BrowseNavWebradiodbDropdown' ||
+        elId === 'BrowseNavRadiobrowserDropdown')
     {
         if (features.featTags === true && features.featAdvsearch === true) {
             elClear(stack);
@@ -551,7 +612,10 @@ function addTagList(elId, list) {
     }
     if (elId === 'BrowseDatabaseByTagDropdown' ||
         elId === 'BrowseNavFilesystemDropdown' ||
-        elId === 'BrowseNavPlaylistsDropdown')
+        elId === 'BrowseNavPlaylistsDropdown' ||
+        elId === 'BrowseNavRadioFavoritesDropdown' ||
+        elId === 'BrowseNavWebradiodbDropdown' ||
+        elId === 'BrowseNavRadiobrowserDropdown')
     {
         if (elId === 'BrowseDatabaseByTagDropdown') {
             stack.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
@@ -562,6 +626,13 @@ function addTagList(elId, list) {
         }
         stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Filesystem"}, tn('Filesystem')));
         if (elId === 'BrowseNavFilesystemDropdown') {
+            stack.lastChild.classList.add('active');
+        }
+        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Radio"}, tn('Webradios')));
+        if (elId === 'BrowseNavRadioFavoritesDropdown' ||
+            elId === 'BrowseNavWebradiodbDropdown' ||
+            elId === 'BrowseNavRadiobrowserDropdown')
+        {
             stack.lastChild.classList.add('active');
         }
     }
@@ -628,6 +699,12 @@ function focusSearch() {
         case 'BrowsePlaylistsDetail':
             document.getElementById('searchPlaylistsDetailStr').focus();
             break;
+        case 'BrowseRadioWebradiodb':
+            document.getElementById('BrowseRadioWebradiodbSearchStr').focus();
+            break;
+        case 'BrowseRadioRadiobrowser':
+            document.getElementById('BrowseRadioRadiobrowserSearchStr').focus();
+            break;
         case 'Search':
             document.getElementById('searchstr').focus();
             break;
@@ -647,12 +724,15 @@ function btnWaiting(btn, waiting) {
         elDisable(btn);
     }
     else {
-        elEnable(btn);
-        if (btn.firstChild.nodeName === 'SPAN' &&
-            btn.firstChild.classList.contains('spinner-border'))
-        {
-            btn.firstChild.remove();
-        }
+        //add a small delay, user should notice the change
+        setTimeout(function() {
+            elEnable(btn);
+            if (btn.firstChild.nodeName === 'SPAN' &&
+                btn.firstChild.classList.contains('spinner-border'))
+            {
+                btn.firstChild.remove();
+            }
+        }, 100);
     }
 }
 
@@ -1129,6 +1209,8 @@ function printValue(key, value) {
                 case 'smartpls': return elCreateText('span', {"class": ["mi"]}, 'queue_music');
                 case 'plist':    return elCreateText('span', {"class": ["mi"]}, 'list');
                 case 'dir':      return elCreateText('span', {"class": ["mi"]}, 'folder_open');
+                case 'stream':	 return elCreateText('span', {"class": ["mi"]}, 'stream');
+                case 'webradio': return elCreateText('span', {"class": ["mi"]}, 'radio');
                 default:         return elCreateText('span', {"class": ["mi"]}, 'radio_button_unchecked');
             }
         case 'Duration':
@@ -1150,14 +1232,13 @@ function printValue(key, value) {
         case 'ArtistSort':
         case 'AlbumArtist':
         case 'AlbumArtistSort':
-        case 'Genre':
         case 'Composer':
         case 'Performer':
         case 'Conductor':
         case 'Ensemble':
         case 'MUSICBRAINZ_ARTISTID':
         case 'MUSICBRAINZ_ALBUMARTISTID': {
-            //multi value tags
+            //multi value tags - print lines
             const span = elCreateEmpty('span', {});
             for (let i = 0, j = value.length; i < j; i++) {
                 if (i > 0) {
@@ -1172,6 +1253,30 @@ function printValue(key, value) {
             }
             return span;
         }
+        case 'Genre':
+            //multi value tags - print comma separated
+            if (typeof value === 'string') {
+                return document.createTextNode(value);
+            }
+            return document.createTextNode(
+                value.join(', ')
+            );
+        case 'tags':
+            return document.createTextNode(
+                value.replace(/,(\S)/g, ', $1')
+            );
+        case 'homepage':
+        case 'Homepage':
+            if (value === '') {
+                return document.createTextNode(value);
+            }
+            return elCreateText('a', {"class": ["text-success", "external"],
+                        "href": myEncodeURIhost(value),
+                        "target": "_blank"}, value);
+        case 'lastcheckok':
+            return elCreateText('span', {"class": ["mi"]},
+                    (value === 1 ? 'check_circle' : 'error')
+                );
         default:
             if (key.indexOf('MUSICBRAINZ') === 0) {
                 return getMBtagLink(key, value);
@@ -1268,21 +1373,10 @@ function zoomPicture(el) {
             return;
         }
 
-        //add uri to image list to get embedded albumart
-        let aImages = [];
         const uri = getData(el, 'uri');
-        if (uri) {
-            aImages = [ subdir + '/albumart/' + uri ];
-        }
-        //add all but coverfiles to image list
-        for (let i = 0, j = images.length; i < j; i++) {
-            if (isCoverfile(images[i]) === false) {
-                aImages.push(subdir + '/browse/music/' + images[i]);
-            }
-        }
         const imgEl = document.getElementById('modalPictureImg');
         imgEl.style.paddingTop = 0;
-        createImgCarousel(imgEl, 'picsCarousel', aImages);
+        createImgCarousel(imgEl, 'picsCarousel', uri, images);
         elHideId('modalPictureZoom');
         uiElements.modalPicture.show();
         return;
@@ -1303,7 +1397,19 @@ function zoomZoomPicture() {
     window.open(document.getElementById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
 }
 
-function createImgCarousel(imgEl, name, images) {
+function createImgCarousel(imgEl, name, uri, images) {
+    //add uri to image list to get embedded albumart
+    const aImages = [ subdir + '/albumart/' + myEncodeURIComponent(uri) ];
+    //add all but coverfiles to image list
+    for (let i = 0, j = images.length; i < j; i++) {
+        if (isCoverfile(images[i]) === false) {
+            aImages.push(subdir + '/browse/music/' + myEncodeURI(images[i]));
+        }
+    }
+    _createImgCarousel(imgEl, name, aImages);
+}
+
+function _createImgCarousel(imgEl, name, images) {
     const nrImages = images.length;
     const carousel = elCreateEmpty('div', {"id": name, "class": ["carousel", "slide"], "data-bs-ride": "carousel"});
     if (nrImages > 1) {
@@ -1322,7 +1428,7 @@ function createImgCarousel(imgEl, name, images) {
             elCreateEmpty('div', {})
         );
 
-        carouselItem.style.backgroundImage = 'url("' + myEncodeURI(images[i]) + '")';
+        carouselItem.style.backgroundImage = 'url("' + images[i] + '")';
         carouselInner.appendChild(carouselItem);
         if (i === 0) {
             carouselItem.classList.add('active');

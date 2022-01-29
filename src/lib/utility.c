@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -13,8 +13,11 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <unistd.h>
 
 void ws_notify(sds message) {
     MYMPD_LOG_DEBUG("Push websocket notify to queue: \"%s\"", message);
@@ -34,7 +37,7 @@ int testdir(const char *name, const char *dirname, bool create) {
 
     if (create == true) {
         errno = 0;
-        if (mkdir(dirname, 0700) != 0) {
+        if (mkdir(dirname, 0770) != 0) {
             MYMPD_LOG_ERROR("%s: creating \"%s\" failed", name, dirname);
             MYMPD_LOG_ERRNO(errno);
             //directory does not exist and creating it failed
@@ -50,19 +53,12 @@ int testdir(const char *name, const char *dirname, bool create) {
     return DIR_NOT_EXISTS;
 }
 
-void my_usleep(time_t usec) {
+void my_msleep(long msec) {
     struct timespec ts = {
-        .tv_sec = (usec / 1000) / 1000,
-        .tv_nsec = (usec % 1000000000L) * 1000
+        .tv_sec = (time_t)(msec / 1000),
+        .tv_nsec = (msec % 1000L) * 1000000L
     };
     nanosleep(&ts, NULL);
-}
-
-unsigned long substractUnsigned(unsigned long num1, unsigned long num2) {
-    if (num1 > num2) {
-        return num1 - num2;
-    }
-    return 0;
 }
 
 bool is_virtual_cuedir(sds music_directory, sds filename) {
@@ -77,4 +73,52 @@ bool is_virtual_cuedir(sds music_directory, sds filename) {
     }
     sdsfree(full_path);
     return is_file;
+}
+
+bool is_streamuri(const char *uri) {
+    if (uri != NULL && strstr(uri, "://") != NULL) {
+        return true;
+    }
+    return false;
+}
+
+bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
+    sds tmp_file = sdscatfmt(sdsempty(), "%s.XXXXXX", filepath);
+    errno = 0;
+    int fd = mkstemp(tmp_file);
+    if (fd < 0) {
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
+        MYMPD_LOG_ERRNO(errno);
+        sdsfree(tmp_file);
+        return false;
+    }
+
+    FILE *fp = fdopen(fd, "w");
+    size_t written = fwrite(data, 1, data_len, fp);
+    fclose(fp);
+    if (written != data_len) {
+        MYMPD_LOG_ERROR("Error writing data to file \"%s\"", tmp_file);
+        errno = 0;
+        if (unlink(tmp_file) != 0) {
+            MYMPD_LOG_ERROR("Error removing file \"%s\"", tmp_file);
+            MYMPD_LOG_ERRNO(errno);
+        }
+        sdsfree(tmp_file);
+        return false;
+    }
+
+    errno = 0;
+    if (rename(tmp_file, filepath) == -1) {
+        MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, filepath);
+        MYMPD_LOG_ERRNO(errno);
+        errno = 0;
+        if (unlink(tmp_file) != 0) {
+            MYMPD_LOG_ERROR("Error removing file \"%s\"", tmp_file);
+            MYMPD_LOG_ERRNO(errno);
+        }
+        sdsfree(tmp_file);
+        return false;
+    }
+    sdsfree(tmp_file);
+    return true;
 }

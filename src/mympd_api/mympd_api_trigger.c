@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -105,8 +105,8 @@ sds mympd_api_trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = sdscatlen(buffer, "{", 1);
         buffer = tojson_long(buffer, "id", j, true);
         buffer = tojson_char(buffer, "name", current->key, true);
-        buffer = tojson_long(buffer, "event", current->value_i, true);
-        buffer = tojson_char(buffer, "eventName", mympd_api_trigger_name(current->value_i), true);
+        buffer = tojson_llong(buffer, "event", current->value_i, true);
+        buffer = tojson_char(buffer, "eventName", mympd_api_trigger_name((long)current->value_i), true);
         buffer = tojson_char(buffer, "script", current->value_p, true);
         buffer = sdscat(buffer, "\"arguments\": {");
         struct t_list *arguments = ( struct t_list *)current->user_data;
@@ -130,13 +130,13 @@ sds mympd_api_trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds me
     return buffer;
 }
 
-sds mympd_api_trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, unsigned id) {
+sds mympd_api_trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, long id) {
     struct t_list_node *current = list_node_at(&mympd_state->triggers, id);
     if (current != NULL) {
         buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = tojson_long(buffer, "id", id, true);
         buffer = tojson_char(buffer, "name", current->key, true);
-        buffer = tojson_long(buffer, "event", current->value_i, true);
+        buffer = tojson_llong(buffer, "event", current->value_i, true);
         buffer = tojson_char(buffer, "script", current->value_p, true);
         buffer = sdscat(buffer, "\"arguments\": {");
         struct t_list *arguments = (struct t_list *)current->user_data;
@@ -159,7 +159,7 @@ sds mympd_api_trigger_get(struct t_mympd_state *mympd_state, sds buffer, sds met
     return buffer;
 }
 
-bool mympd_api_trigger_delete(struct t_mympd_state *mympd_state, unsigned idx) {
+bool mympd_api_trigger_delete(struct t_mympd_state *mympd_state, long idx) {
     struct t_list_node *toremove = list_node_at(&mympd_state->triggers, idx);
     if (toremove != NULL) {
         list_clear((struct t_list *)toremove->user_data);
@@ -220,7 +220,7 @@ bool mympd_api_trigger_file_read(struct t_mympd_state *mympd_state) {
     }
     FREE_SDS(line);
     fclose(fp);
-    MYMPD_LOG_INFO("Read %d triggers(s) from disc", mympd_state->triggers.length);
+    MYMPD_LOG_INFO("Read %ld triggers(s) from disc", mympd_state->triggers.length);
     FREE_SDS(trigger_file);
     return true;
 }
@@ -242,7 +242,7 @@ bool mympd_api_trigger_file_save(struct t_mympd_state *mympd_state) {
     while (current != NULL) {
         buffer = sds_replace(buffer, "{");
         buffer = tojson_char(buffer, "name", current->key, true);
-        buffer = tojson_long(buffer, "event", current->value_i, true);
+        buffer = tojson_llong(buffer, "event", current->value_i, true);
         buffer = tojson_char(buffer, "script", current->value_p, true);
         buffer = sdscat(buffer, "\"arguments\":{");
         struct t_list *arguments = (struct t_list *)current->user_data;

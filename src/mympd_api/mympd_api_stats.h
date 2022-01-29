@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -12,7 +12,7 @@
 bool mympd_api_stats_last_played_add_song(struct t_mympd_state *mympd_state, const int song_id);
 bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state);
 sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buffer, sds method,
-                                     long request_id, const unsigned offset,
-                                     const unsigned limit, sds searchstr, const struct t_tags *tagcols);
+                                     long request_id, long offset, long limit, sds searchstr,
+                                     const struct t_tags *tagcols);
 sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
 #endif

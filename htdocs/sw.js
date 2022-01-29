@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-const CACHE = 'myMPD-cache-v9.0.4';
+const CACHE = 'myMPD-cache-v9.1.0';
 const subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
 const urlsToCache = [
     subdir + '/',
@@ -25,7 +25,6 @@ const ignoreRequests = new RegExp(subdir + '/(' + [
 	'ca.crt',
 	'ws/',
 	'stream/',
-	'pics/(.*)',
 	'albumart/(.*)',
 	'tagart/(.*)',
 	'browse/(.*)'].join('|') + ')$');
@@ -43,7 +42,9 @@ self.addEventListener('install', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-    if (ignoreRequests.test(event.request.url)) {
+    if (event.request.url.indexOf('https://' + self.location.hostname + '/') !== 0 ||
+        ignoreRequests.test(event.request.url))
+    {
         return false;
     }
     event.respondWith(

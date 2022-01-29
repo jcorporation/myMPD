@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -85,7 +85,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             break;
         default:
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Unknown request");
-            MYMPD_LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
+            MYMPD_LOG_ERROR("Unknown API request: %.*s", (int)sdslen(request->data), request->data);
     }
     FREE_SDS(sds_buf1);
 

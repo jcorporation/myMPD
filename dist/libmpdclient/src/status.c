@@ -198,8 +198,8 @@ parse_mpd_state(const char *p)
 		return MPD_STATE_UNKNOWN;
 }
 
-static enum mpd_single_state
-parse_mpd_single_state(const char *p)
+enum mpd_single_state
+mpd_parse_single_state(const char *p)
 {
 	if (strcmp(p, "0") == 0)
 		return MPD_SINGLE_OFF;
@@ -209,6 +209,22 @@ parse_mpd_single_state(const char *p)
 		return MPD_SINGLE_ONESHOT;
 	else
 		return MPD_SINGLE_UNKNOWN;
+}
+
+const char *
+mpd_lookup_single_state(enum mpd_single_state state)
+{
+	switch (state) {
+	case MPD_SINGLE_OFF:
+		return "0";
+	case MPD_SINGLE_ON:
+		return "1";
+	case MPD_SINGLE_ONESHOT:
+		return "oneshot";
+	case MPD_SINGLE_UNKNOWN:
+		return NULL;
+	}
+	return NULL;
 }
 
 void
@@ -224,7 +240,7 @@ mpd_status_feed(struct mpd_status *status, const struct mpd_pair *pair)
 	else if (strcmp(pair->name, "random") == 0)
 		status->random = !!atoi(pair->value);
 	else if (strcmp(pair->name, "single") == 0)
-		status->single = parse_mpd_single_state(pair->value);
+		status->single = mpd_parse_single_state(pair->value);
 	else if (strcmp(pair->name, "consume") == 0)
 		status->consume = !!atoi(pair->value);
 	else if (strcmp(pair->name, "playlist") == 0)

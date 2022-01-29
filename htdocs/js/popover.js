@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 function hidePopover(thisEl) {
@@ -26,7 +26,11 @@ function showPopover(event) {
     event.preventDefault();
     event.stopPropagation();
     //get the dom node to attach the popover object
-    let target = event.target.nodeName === 'SPAN' ? event.target.parentNode : event.target;
+    let target = event.target.nodeName === 'SPAN'
+               ? event.target.parentNode : event.target;
+    if (target.nodeName === 'SMALL') {
+        target = target.parentNode;
+    }
     if (target.nodeName === 'TD') {
         //try to attach popover instance to action link in tables
         const actionLink = target.parentNode.lastElementChild.firstElementChild;
@@ -70,6 +74,10 @@ function showPopover(event) {
             case 'home':
                 //home card actions
                 popoverInit = createPopoverTabs(target, createMenuHome, createMenuHomeSecondary);
+                break;
+            case 'webradio':
+                //webradio favorite actions
+                popoverInit = createPopoverSimple(target, 'Webradio', addMenuItemsWebradioFavoritesActions, false);
                 break;
             case 'album':
                 //album action in album list
@@ -221,6 +229,14 @@ function createPopoverTabs(el, tab1Callback, tab2Callback) {
     return popoverInit;
 }
 
+function addDivider(tabContent) {
+    if (tabContent.lastChild &&
+        tabContent.lastChild.nodeName !== 'div')
+    {
+        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+    }
+}
+
 function addMenuItem(tabContent, cmd, text) {
     const a = elCreateText('a', {"class": ["dropdown-item"], "href": "#"}, tn(text));
     setData(a, 'href', cmd);
@@ -233,14 +249,14 @@ function addMenuItemsNavbarActions(popoverBody, el) {
         case 'NavbarPlayback':
             addMenuItem(popoverBody, {"cmd": "showModal", "options": ["modalQueueSettings"]}, 'Playback settings');
             addMenuItemsSingleActions(popoverBody);
-            popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addDivider(popoverBody);
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Playback", undefined, undefined]}, 'Show playback');
             break;
         case 'NavbarQueue':
             addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}]}, 'Clear');
             addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}]}, 'Crop');
             addMenuItem(popoverBody, {"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_SHUFFLE"}]}, 'Shuffle');
-            popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addDivider(popoverBody);
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "Current", undefined]}, 'Show queue');
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "LastPlayed", undefined]}, 'Show last played');
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "Jukebox", undefined]}, 'Show jukebox queue');
@@ -248,7 +264,7 @@ function addMenuItemsNavbarActions(popoverBody, el) {
         case 'NavbarBrowse':
             addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, false]}, 'Update database');
             addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, true]}, 'Rescan database');
-            popoverBody.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addDivider(popoverBody);
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Database", undefined]}, 'Show browse database');
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Playlists", undefined]}, 'Show browse playlists');
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Filesystem", undefined]}, 'Show browse filesystem');
@@ -274,9 +290,9 @@ function addMenuItemsDiscActions(popoverBody, el) {
 }
 
 function addMenuItemsSingleActions(popoverBody) {
-    if (settings.single === 0) {
-        if (settings.repeat === 1 &&
-            settings.consume === 0)
+    if (settings.single === '0') {
+        if (settings.repeat === true &&
+            settings.consume === false)
         {
             //repeat one song can only work with consume disabled
             if (features.featSingleOneshot === true) {
@@ -285,7 +301,7 @@ function addMenuItemsSingleActions(popoverBody) {
             addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [1]}, 'Repeat current song');
         }
         else if (features.featSingleOneshot === true &&
-                 settings.repeat === 0 &&
+                 settings.repeat === true &&
                  settings.autoPlay === false)
         {
             //single one-shot works only with disabled auto play
@@ -314,10 +330,10 @@ function addMenuItemsAlbumActions(tabContent, dataNode, albumArtist, album) {
     if (features.featPlaylists === true &&
         app.id !== 'Home')
     {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, 'Add to playlist');
     }
-    tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+    addDivider(tabContent);
     if (app.id !== 'BrowseDatabaseDetail') {
         addMenuItem(tabContent, {"cmd": "gotoAlbum", "options": [albumArtist, album]}, 'Album details');
     }
@@ -335,13 +351,13 @@ function addMenuItemsAlbumActions(tabContent, dataNode, albumArtist, album) {
     if (features.featHome === true &&
         app.id !== 'Home')
     {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "addAlbumToHome", "options": [albumArtist, album]}, 'Add to homescreen');
     }
 }
 
 //for single songs and streams
-function addMenuItemsSongActions(tabContent, uri, type, name) {
+function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
     if (app.id !== 'QueueCurrent') {
         addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri]}, 'Append to queue');
         addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": [type, uri]}, 'Append to queue and play');
@@ -354,18 +370,57 @@ function addMenuItemsSongActions(tabContent, uri, type, name) {
     if (features.featPlaylists === true &&
         app.id !== 'Home')
     {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [uri, ""]}, 'Add to playlist');
     }
     if (type === 'song') {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "songDetails", "options": [uri]}, 'Song details');
     }
     if (features.featHome === true &&
         app.id !== 'Home')
     {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "addSongToHome", "options": [uri, type, name]}, 'Add to homescreen');
+    }
+    if (app.id === 'BrowseRadioRadiobrowser' &&
+        dataNode !== null)
+    {
+        const uuid = getData(dataNode, 'RADIOBROWSERUUID');
+        addDivider(tabContent);
+        addMenuItem(tabContent, {"cmd": "showRadiobrowserDetails", "options": [uuid]}, 'Webradio details');
+        addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [{
+            "Name": name,
+            "Genre": getData(dataNode, 'genre').replace(/,(\S)/g, ', $1'),
+            "Image": getData(dataNode, 'image'),
+            "StreamUri": uri,
+            "Homepage": getData(dataNode, 'homepage'),
+            "Country": getData(dataNode, 'country'),
+            "Language": getData(dataNode, 'language')
+        }]}, 'Add to favorites');
+    }
+    if (app.id === 'BrowseRadioWebradiodb' &&
+        dataNode !== null)
+    {
+        addDivider(tabContent);
+        addMenuItem(tabContent, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
+        addMenuItem(tabContent, {"cmd": "showEditRadioFavorite", "options": [{
+            "Name": name,
+            "Genre": getData(dataNode, 'genre'),
+            "Image": getData(dataNode, 'image'),
+            "StreamUri": uri,
+            "Homepage": getData(dataNode, 'homepage'),
+            "Country": getData(dataNode, 'country'),
+            "Language": getData(dataNode, 'language'),
+            "Description": getData(dataNode, 'description')
+        }]}, 'Add to favorites');
+    }
+    if (app.id === 'QueueCurrent' &&
+        type === 'webradio')
+    {
+        addDivider(tabContent);
+        const webradioUri = getData(dataNode, 'webradioUri');
+        addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [webradioUri]}, 'Edit webradio favorite');
     }
 }
 
@@ -380,10 +435,10 @@ function addMenuItemsSearchActions(tabContent, uri) {
     if (features.featPlaylists === true &&
         app.id !== 'Home')
     {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": ["SEARCH", uri]}, 'Add to playlist');
     }
-    tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+    addDivider(tabContent);
     addMenuItem(tabContent, {"cmd": "appGoto", "options": ["Search", undefined, undefined, 0, undefined, "any", "Title", "-", uri]}, 'Show search');
 }
 
@@ -399,27 +454,43 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
     if (features.featPlaylists === true &&
         app.id !== 'Home')
     {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": [baseuri, ""]}, 'Add to playlist');
     }
     if (app.id === 'BrowseFilesystem') {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "updateDB", "options": [baseuri, true]}, 'Update directory');
         addMenuItem(tabContent, {"cmd": "rescanDB", "options": [baseuri, true]}, 'Rescan directory');
     }
     else {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-        addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [baseuri]}, 'Show directory');
+        addDivider(tabContent);
+        addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [baseuri, "dir"]}, 'Show directory');
     }
     if (features.featHome === true &&
         app.id !== 'Home')
     {
-        tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+        addDivider(tabContent);
         addMenuItem(tabContent, {"cmd": "addDirToHome", "options": [baseuri, baseuri]}, 'Add to homescreen');
     }
 }
 
-function addMenuItemsPlaylistActions(tabContent, type, uri, name) {
+function addMenuItemsWebradioFavoritesActions(tabContent, dataNode) {
+    const type = getData(dataNode, 'type');
+    const uri = getData(dataNode, 'uri');
+    const plistUri = getRadioFavoriteUri(uri);
+    const name = getData(dataNode, 'name');
+    addMenuItemsPlaylistActions(tabContent, dataNode, type, plistUri, name);
+    addDivider(tabContent);
+    addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
+    addMenuItem(tabContent, {"cmd": "deleteRadioFavorite", "options": [uri]}, 'Delete webradio favorite');
+}
+
+function addMenuItemsWebradioFavoritesHomeActions(tabContent, uri) {
+    addDivider(tabContent);
+    addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
+}
+
+function addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name) {
     addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri]}, 'Append to queue');
     addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": [type, uri]}, 'Append to queue and play');
     if (features.featWhence === true) {
@@ -429,12 +500,30 @@ function addMenuItemsPlaylistActions(tabContent, type, uri, name) {
     addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": [type, uri]}, 'Replace queue and play');
     if (features.featHome === true) {
         if (app.id !== 'Home') {
-            tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-            addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, type, name]}, 'Add to homescreen');
+            addDivider(tabContent);
+            if (app.id === 'BrowseRadioFavorites') {
+                let image = getData(dataNode, 'image');
+                if (isHttpUri(image) === false) {
+                    image = basename(image, false);
+                }
+                addMenuItem(tabContent, {"cmd": "addRadioFavoriteToHome", "options": [uri, type, name, image]}, 'Add to homescreen');
+            }
+            else {
+                addMenuItem(tabContent, {"cmd": "addPlistToHome", "options": [uri, type, name]}, 'Add to homescreen');
+            }
         }
-        else if (isMPDplaylist(uri) === true) {
-            tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-            addMenuItem(tabContent, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
+    }
+    if (app.id !== 'BrowsePlaylistsList') {
+        if (type === 'plist' ||
+            type === 'smartpls')
+        {
+            if (isMPDplaylist(uri) === true) {
+                addDivider(tabContent);
+                addMenuItem(tabContent, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
+            }
+            else {
+                addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [uri, "plist"]}, 'View playlist');
+            }
         }
     }
 }
@@ -450,18 +539,20 @@ function createMenuLists(el, tabHeader, tabContent) {
     switch(app.id) {
         case 'BrowseFilesystem':
         case 'Search':
+        case 'BrowseRadioRadiobrowser':
+        case 'BrowseRadioWebradiodb':
         case 'BrowseDatabaseDetail': {
             switch(type) {
                 case 'song':
                 case 'stream':
-                    addMenuItemsSongActions(tabContent, uri, type, name);
+                    addMenuItemsSongActions(tabContent, dataNode, uri, type, name);
                     break;
                 case 'dir':
                     addMenuItemsDirectoryActions(tabContent, uri);
                     break;
                 case 'plist':
                 case 'smartpls':
-                    addMenuItemsPlaylistActions(tabContent, type, uri, name);
+                    addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name);
                     break;
                 default:
                     return false;
@@ -473,8 +564,8 @@ function createMenuLists(el, tabHeader, tabContent) {
             if (smartplsOnly === false ||
                 type !== 'smartpls')
             {
-                addMenuItemsPlaylistActions(tabContent, type, uri, name);
-                tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+                addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name);
+                addDivider(tabContent);
                 if (settings.smartpls === true && type === 'smartpls') {
                     addMenuItem(tabContent, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
                 }
@@ -487,7 +578,7 @@ function createMenuLists(el, tabHeader, tabContent) {
             if (settings.smartpls === true &&
                 type === 'smartpls')
             {
-                tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+                addDivider(tabContent);
                 addMenuItem(tabContent, {"cmd": "showSmartPlaylist", "options": [uri]}, 'Edit smart playlist');
                 addMenuItem(tabContent, {"cmd": "updateSmartPlaylist", "options": [uri]}, 'Update smart playlist');
             }
@@ -495,9 +586,9 @@ function createMenuLists(el, tabHeader, tabContent) {
         }
         case 'BrowsePlaylistsDetail': {
             const table = document.getElementById('BrowsePlaylistsDetailList');
-            addMenuItemsSongActions(tabContent, uri, type, name);
+            addMenuItemsSongActions(tabContent, dataNode, uri, type, name);
             if (getData(table, 'ro') === 'false') {
-                tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+                addDivider(tabContent);
                 const plist = getData(table, 'uri');
                 const songpos = getData(dataNode, 'songpos');
                 const playlistLength = getData(table, 'playlistlength');
@@ -516,8 +607,8 @@ function createMenuLists(el, tabHeader, tabContent) {
         case 'QueueCurrent': {
             const trackid = getData(dataNode, 'trackid');
             const songpos = getData(dataNode, 'songpos');
-            addMenuItemsSongActions(tabContent, uri, type, name);
-            tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addMenuItemsSongActions(tabContent, dataNode, uri, type, name);
+            addDivider(tabContent);
             if (currentState.currentSongId !== -1 &&
                 trackid !== currentState.currentSongId)
             {
@@ -527,7 +618,7 @@ function createMenuLists(el, tabHeader, tabContent) {
             if (trackid === currentState.currentSongId) {
                 addMenuItemsSingleActions(tabContent);
             }
-            tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addDivider(tabContent);
             addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["single", trackid]}, 'Remove');
             if (songpos > 0) {
                 addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", 0, songpos]}, 'Remove all upwards');
@@ -538,18 +629,18 @@ function createMenuLists(el, tabHeader, tabContent) {
             return true;
         }
         case 'QueueLastPlayed': {
-            addMenuItemsSongActions(tabContent, uri, type, name);
+            addMenuItemsSongActions(tabContent, dataNode, uri, type, name);
             return true;
         }
         case 'QueueJukebox': {
             const pos = Number(getData(dataNode, 'pos'));
-            if (settings.jukeboxMode === 1) {
-                addMenuItemsSongActions(tabContent, uri, type, name);
+            if (settings.jukeboxMode === 'song') {
+                addMenuItemsSongActions(tabContent, dataNode, uri, type, name);
             }
-            else if (settings.jukeboxMode === 2) {
+            else if (settings.jukeboxMode === 'album') {
                 addMenuItemsAlbumActions(tabContent, dataNode)
             }
-            tabContent.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            addDivider(tabContent);
             addMenuItem(tabContent, {"cmd": "delQueueJukeboxSong", "options": [pos]}, 'Remove');
             return true;
         }
@@ -575,7 +666,7 @@ function createMenuListsSecondary(el, tabHeader, tabContent) {
                 (app.id === 'BrowseFilesystem' && type === 'dir') ||
                 (app.id === 'BrowseFilesystem' && type === 'plist') ||
                 (app.id === 'BrowseFilesystem' && type === 'smartpls') ||
-                (app.id === 'QueueJukebox' && settings.jukeboxMode === 2))
+                (app.id === 'QueueJukebox' && settings.jukeboxMode === 'album'))
             {
                 return false;
             }
@@ -600,9 +691,9 @@ function createMenuListsSecondary(el, tabHeader, tabContent) {
     return false;
 }
 
-function createMenuHome(el, tabHeader, tabContent) {
-    const pos = getData(el, 'pos');
-    const href = getData(el, 'href');
+function createMenuHome(dataNode, tabHeader, tabContent) {
+    const pos = getData(dataNode, 'pos');
+    const href = getData(dataNode, 'href');
     if (href === undefined) {
         return;
     }
@@ -624,14 +715,16 @@ function createMenuHome(el, tabHeader, tabContent) {
     switch(type) {
         case 'plist':
         case 'smartpls':
-            addMenuItemsPlaylistActions(tabContent, type, href.options[1], href.options[1]);
+        case 'webradio':
+            addMenuItemsPlaylistActions(tabContent, dataNode, type, href.options[1], href.options[1]);
+            addMenuItemsWebradioFavoritesHomeActions(tabContent, href.options[1].substr(17));
             break;
         case 'dir':
             addMenuItemsDirectoryActions(tabContent, href.options[1]);
             break;
         case 'song':
         case 'stream':
-            addMenuItemsSongActions(tabContent, href.options[1], type, href.options[1]);
+            addMenuItemsSongActions(tabContent, null, href.options[1], type, href.options[1]);
             break;
         case 'search':
             addMenuItemsSearchActions(tabContent, href.options[1]);

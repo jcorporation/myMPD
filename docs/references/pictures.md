@@ -34,18 +34,18 @@ myMPD can extract embedded albumart, if it can access the music files. If MPD >=
 
 #### Covercache
 
-myMPD caches extracted covers under `/var/lib/mympd/covercache`. Files in this directory can be safely deleted. myMPD houskeeps the covercache on startup and each two hours.
+myMPD caches extracted covers under `/var/cache/mympd/covercache`. Files in this directory can be safely deleted. myMPD houskeeps the covercache on startup and each two hours.
 
 ***
 
 # Streams
 
-1. Images must be named as the uri of the stream, replace the characters `<>/.:?$!#\|` with `_`, e.g. `http___stream_laut_fm_nonpop.png` for uri `http://stream.laut.fm/nonpop`.
-2. Put these images under `/var/lib/mympd/pics/`.
+1. Images must be named as the uri of the stream, replace the characters `<>/.:?&$!#\|` with `_`, e.g. `http___stream_laut_fm_nonpop.png` for uri `http://stream.laut.fm/nonpop`.
+2. Put these images in the `/var/lib/mympd/pics/thumbs` folder.
 
 # Pictures for other tags
 
-The "Browse Database" grid view can display pictures for other tags than album also. To enable this simply create a directory with the tagname in the `/var/lib/mympd/pics` directory and put pictures with filename equal the tag value in this directory. 
+The "Browse Database" grid view can display pictures for other tags than album also. To enable this simply create a directory with the tagname in the `/var/lib/mympd/pics` directory and put pictures with filename equal the tag value in this directory.
 
 ## Example
 
@@ -55,7 +55,11 @@ Create a directory named `AlbumArtist` under `/var/lib/mympd/pics`. Add pictures
 
 # Home icon pictures
 
-Pictures for the home icons mus be placed in the directory `/var/lib/mympd/pics`.
+Pictures for the home icons must be placed in the directory `/var/lib/mympd/pics/thumbs`.
+
+# Background images
+
+Background images must be saved in the `/var/lib/mympd/pics/backgrounds` folder.
 
 # Supported file extensions
 

@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -49,7 +49,7 @@ sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operat
         if (value[i] == '\\' || value[i] == '\'') {
             buffer = sdscatlen(buffer, "\\", 1);
         }
-        buffer = sdscatprintf(buffer, "%c", value[i]);
+        buffer = sdscatfmt(buffer, "%c", value[i]);
     }
     buffer = sdscatlen(buffer, "')", 2);
     return buffer;
@@ -198,13 +198,13 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
         if (offset == 0 &&
             entities_returned < limit)
         {
-            buffer = tojson_long(buffer, "totalEntities", entities_returned, true);
+            buffer = tojson_uint(buffer, "totalEntities", entities_returned, true);
         }
         else {
             buffer = tojson_long(buffer, "totalEntities", -1, true);
         }
-        buffer = tojson_long(buffer, "offset", offset, true);
-        buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
+        buffer = tojson_uint(buffer, "offset", offset, true);
+        buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
         if (adv == true) {
             buffer = tojson_char(buffer, "expression", expression, true);
             buffer = tojson_char(buffer, "sort", sort, true);

@@ -12,8 +12,10 @@ myMPD uses GNU standard installation directories.
 | /usr/bin/mympd-script | mympd-script executable |
 | /var/cache/mympd/covercache/ | directory for caching embedded coverart |
 | /var/lib/mympd/config/ | configuration files |
-| /var/lib/mympd/pics/ | directory for stream coverart |
-| /var/lib/mympd/pics/`<tagname>`/ | Pictures for <tagname> e.g. AlbumArtist, Artist, Genre, ... |
+| /var/lib/mympd/pics/ | Root folder for images |
+| /var/lib/mympd/pics/backgrounds/ | Backgroundimages |
+| /var/lib/mympd/pics/thumbs/ | Folder for homeicon, webradio and stream images |
+| /var/lib/mympd/pics/`<tagname>`/ | Images for <tagname> e.g. AlbumArtist, Artist, Genre, ... |
 | /var/lib/mympd/state/ | state files |
 | /var/lib/mympd/smartpls/ | directory for smart playlists |
 | /var/lib/mympd/ssl/ | myMPD ssl ca and certificates, created on startup |

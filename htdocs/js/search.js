@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 function initSearch() {
@@ -24,7 +24,9 @@ function initSearch() {
         if (event.key === 'Escape') {
             this.blur();
         }
-        else if (event.key === 'Enter' && features.featAdvsearch) {
+        else if (event.key === 'Enter' &&
+            features.featAdvsearch === true)
+        {
             if (this.value !== '') {
                 const op = getSelectValueId('searchMatch');
                 document.getElementById('searchCrumb').appendChild(createSearchCrumb(app.current.filter, op, this.value));
@@ -69,54 +71,15 @@ function initSearch() {
     }, false);
 
     document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
-        if (features.featAdvsearch === false ||
-            event.target.nodeName !== 'TH' ||
-            event.target.textContent === '')
+        const colName = event.target.getAttribute('data-col');
+        if (colName === null ||
+            colName === 'Duration' ||
+            colName.indexOf('sticker') === 0 ||
+            features.featAdvsearch === false)
         {
             return;
         }
-        let col = event.target.getAttribute('data-col');
-        if (col === 'Duration' || col.indexOf('sticker') === 0) {
-            return;
-        }
-        let sortcol = app.current.sort;
-        let sortdesc = true;
-
-        if (sortcol === col || sortcol === '-' + col) {
-            if (sortcol.indexOf('-') === 0) {
-                sortdesc = true;
-                col = sortcol.substring(1);
-            }
-            else {
-                sortdesc = false;
-            }
-        }
-        if (sortdesc === false) {
-            sortcol = '-' + col;
-            sortdesc = true;
-        }
-        else {
-            sortdesc = false;
-            sortcol = col;
-        }
-
-        const s = document.getElementById('SearchList').getElementsByClassName('sort-dir');
-        for (let i = 0, j = s.length; i < j; i++) {
-            s[i].remove();
-        }
-        app.current.sort = sortcol;
-
-        elClear(event.target);
-        event.target.appendChild(
-            document.createTextNode(
-                tn(
-                    event.target.getAttribute('data-col')
-                )
-            )
-        );
-        event.target.appendChild(
-            elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down'))
-        );
+        toggleSort(event.target, colName);
         appGoto(app.current.card, app.current.tab, app.current.view,
             app.current.offset, app.current.limit, app.current.filter, app.current.sort, '-', app.current.search);
     }, false);

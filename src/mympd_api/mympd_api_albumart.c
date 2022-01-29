@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -10,6 +10,7 @@
 #include "../lib/covercache.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mem.h"
 #include "../lib/mimetype.h"
 #include "../lib/mympd_configuration.h"
 
@@ -19,20 +20,20 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
                         const char *uri, sds *binary)
 {
     unsigned offset = 0;
-    void *binary_buffer = malloc(mympd_state->mpd_state->mpd_binarylimit);
+    void *binary_buffer = malloc_assert(mympd_state->mpd_state->mpd_binarylimit);
     int recv_len = 0;
     if (mympd_state->mpd_state->feat_mpd_albumart == true) {
         MYMPD_LOG_DEBUG("Try mpd command albumart for \"%s\"", uri);
         while ((recv_len = mpd_run_albumart(mympd_state->mpd_state->conn, uri, offset, binary_buffer, mympd_state->mpd_state->mpd_binarylimit)) > 0) {
-            *binary = sdscatlen(*binary, binary_buffer, recv_len);
+            *binary = sdscatlen(*binary, binary_buffer, (size_t)recv_len);
             if (sdslen(*binary) > MPD_BINARY_SIZE_MAX) {
                 MYMPD_LOG_WARN("Retrieved binary data is too large, discarding");
                 sdsclear(*binary);
                 offset = 0;
                 break;
             }
-            offset += recv_len;
-            if (recv_len < (int)mympd_state->mpd_state->mpd_binarylimit) {
+            offset += (unsigned)recv_len;
+            if ((size_t)recv_len < mympd_state->mpd_state->mpd_binarylimit) {
                 break;
             }
         }
@@ -43,15 +44,15 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
         mpd_response_finish(mympd_state->mpd_state->conn);
         MYMPD_LOG_DEBUG("Try mpd command readpicture for \"%s\"", uri);
         while ((recv_len = mpd_run_readpicture(mympd_state->mpd_state->conn, uri, offset, binary_buffer, mympd_state->mpd_state->mpd_binarylimit)) > 0) {
-            *binary = sdscatlen(*binary, binary_buffer, recv_len);
+            *binary = sdscatlen(*binary, binary_buffer, (size_t)recv_len);
             if (sdslen(*binary) > MPD_BINARY_SIZE_MAX) {
                 MYMPD_LOG_WARN("Retrieved binary data is too large, discarding");
                 sdsclear(*binary);
                 offset = 0;
                 break;
             }
-            offset += recv_len;
-            if (recv_len < (int)mympd_state->mpd_state->mpd_binarylimit) {
+            offset += (unsigned)recv_len;
+            if ((size_t)recv_len < mympd_state->mpd_state->mpd_binarylimit) {
                 break;
             }
         }

@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -15,13 +15,13 @@
 #include <string.h>
 
 //private definitions
-static struct t_list_node *list_node_extract(struct t_list *l, unsigned idx);
+static struct t_list_node *list_node_extract(struct t_list *l, long idx);
 
 //public functions
 
 //Mallocs a new list and inits it
 struct t_list *list_new(void) {
-    struct t_list *l = (struct t_list *) malloc_assert(sizeof(struct t_list));
+    struct t_list *l = malloc_assert(sizeof(struct t_list));
     list_init(l);
     return l;
 }
@@ -63,8 +63,8 @@ void list_free_cb_ignore_user_data(struct t_list_node *current) {
     current->user_data = NULL;
 }
 
-long list_get_value_i(const struct t_list *l, const char *key) {
-    long value_i = -1;
+long long list_get_value_i(const struct t_list *l, const char *key) {
+    long long value_i = -1;
     struct t_list_node *current = l->head;
     while (current != NULL) {
         if (strcmp(current->key, key) == 0) {
@@ -113,7 +113,7 @@ struct t_list_node *list_get_node(const struct t_list *l, const char *key) {
     return current;
 }
 
-struct t_list_node *list_node_at(const struct t_list *l, unsigned index) {
+struct t_list_node *list_node_at(const struct t_list *l, long index) {
     //if there's no data in the list, fail
     if (l->head == NULL) {
         return NULL;
@@ -128,7 +128,7 @@ struct t_list_node *list_node_at(const struct t_list *l, unsigned index) {
     return current;
 }
 
-bool list_move_item_pos(struct t_list *l, unsigned from, unsigned to) {
+bool list_move_item_pos(struct t_list *l, long from, long to) {
     if (from > l->length || to > l->length) {
         return false;
     }
@@ -158,7 +158,7 @@ bool list_move_item_pos(struct t_list *l, unsigned from, unsigned to) {
     return true;
 }
 
-bool list_swap_item_pos(struct t_list *l, unsigned index1, unsigned index2) {
+bool list_swap_item_pos(struct t_list *l, long index1, long index2) {
     if (l->length < 2) {
         return false;
     }
@@ -180,7 +180,7 @@ bool list_swap_item(struct t_list_node *n1, struct t_list_node *n2) {
     }
 
     sds key = n2->key;
-    long value_i = n2->value_i;
+    long long value_i = n2->value_i;
     sds value_p = n2->value_p;
     void *user_data = n2->user_data;
 
@@ -204,7 +204,7 @@ bool list_shuffle(struct t_list *l) {
     int n = 0;
     struct t_list_node *current = l->head;
     while (current != NULL) {
-        unsigned pos = randrange(0, l->length);
+        long pos = randrange(0, l->length);
         list_swap_item(current, list_node_at(l, pos));
         n++;
         current = current->next;
@@ -212,7 +212,34 @@ bool list_shuffle(struct t_list *l) {
     return true;
 }
 
-bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction direction) {
+static bool list_sort_cmp_value_i(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
+    if ((direction == LIST_SORT_ASC && current->value_i > next->value_i) ||
+        (direction == LIST_SORT_DESC && current->value_i < next->value_i))
+    {
+        return true;
+    }
+    return false;
+}
+
+static bool list_sort_cmp_value_p(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
+    if ((direction == LIST_SORT_ASC && strcmp(current->value_p, next->value_p) > 0) ||
+        (direction == LIST_SORT_DESC && strcmp(current->value_p, next->value_p) < 0))
+    {
+        return true;
+    }
+    return false;
+}
+
+static bool list_sort_cmp_key(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
+    if ((direction == LIST_SORT_ASC && strcmp(current->key, next->key) > 0) ||
+        (direction == LIST_SORT_DESC && strcmp(current->key, next->key) < 0))
+    {
+        return true;
+    }
+    return false;
+}
+
+bool list_sort_by_callback(struct t_list *l, enum list_sort_direction direction, list_sort_callback sort_cb) {
     int swapped;
     struct t_list_node *ptr1;
     struct t_list_node *lptr = NULL;
@@ -224,83 +251,35 @@ bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction direction) 
     do {
         swapped = 0;
         ptr1 = l->head;
-
         while (ptr1->next != lptr) {
-            if ((direction == LIST_SORT_ASC && ptr1->value_i > ptr1->next->value_i) ||
-                (direction == LIST_SORT_DESC && ptr1->value_i < ptr1->next->value_i))
-            {
+            if (sort_cb(ptr1, ptr1->next, direction) == true) {
                 list_swap_item(ptr1, ptr1->next);
                 swapped = 1;
             }
             ptr1 = ptr1->next;
         }
         lptr = ptr1;
-    }
-    while (swapped);
+    } while (swapped);
     return true;
+}
+
+bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction direction) {
+    return list_sort_by_callback(l, direction, list_sort_cmp_value_i);
 }
 
 bool list_sort_by_value_p(struct t_list *l, enum list_sort_direction direction) {
-    int swapped;
-    struct t_list_node *ptr1;
-    struct t_list_node *lptr = NULL;
-
-    if (l->head == NULL) {
-        return false;
-    }
-
-    do {
-        swapped = 0;
-        ptr1 = l->head;
-
-        while (ptr1->next != lptr) {
-            if ((direction == LIST_SORT_ASC && strcmp(ptr1->value_p, ptr1->next->value_p) > 0) ||
-                (direction == LIST_SORT_DESC && strcmp(ptr1->value_p, ptr1->next->value_p) < 0))
-            {
-                list_swap_item(ptr1, ptr1->next);
-                swapped = 1;
-            }
-            ptr1 = ptr1->next;
-        }
-        lptr = ptr1;
-    }
-    while (swapped);
-    return true;
+    return list_sort_by_callback(l, direction, list_sort_cmp_value_p);
 }
 
 bool list_sort_by_key(struct t_list *l, enum list_sort_direction direction) {
-    int swapped;
-    struct t_list_node *ptr1;
-    struct t_list_node *lptr = NULL;
-
-    if (l->head == NULL) {
-        return false;
-    }
-
-    do {
-        swapped = 0;
-        ptr1 = l->head;
-
-        while (ptr1->next != lptr) {
-            if ((direction == LIST_SORT_ASC && strcmp(ptr1->key, ptr1->next->key) > 0) ||
-                (direction == LIST_SORT_DESC && strcmp(ptr1->key, ptr1->next->key) < 0))
-            {
-                list_swap_item(ptr1, ptr1->next);
-                swapped = 1;
-            }
-            ptr1 = ptr1->next;
-        }
-        lptr = ptr1;
-    }
-    while (swapped);
-    return true;
+    return list_sort_by_callback(l, direction, list_sort_cmp_key);
 }
 
-bool list_replace(struct t_list *l, unsigned pos, const char *key, long value_i, const char *value_p, void *user_data) {
+bool list_replace(struct t_list *l, long pos, const char *key, long long value_i, const char *value_p, void *user_data) {
     if (pos >= l->length) {
         return false;
     }
-    unsigned i = 0;
+    long i = 0;
     struct t_list_node *current = l->head;
     while (current->next != NULL) {
         if (i == pos) {
@@ -325,7 +304,7 @@ bool list_replace(struct t_list *l, unsigned pos, const char *key, long value_i,
     return true;
 }
 
-bool list_push(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data) {
+bool list_push(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data) {
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;
@@ -356,7 +335,7 @@ bool list_push(struct t_list *l, const char *key, long value_i, const char *valu
     return true;
 }
 
-bool list_push_len(struct t_list *l, const char *key, int key_len, long value_i, const char *value_p, int value_len, void *user_data) {
+bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long value_i, const char *value_p, size_t value_len, void *user_data) {
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnewlen(key, key_len);
     n->value_i = value_i;
@@ -387,7 +366,7 @@ bool list_push_len(struct t_list *l, const char *key, int key_len, long value_i,
     return true;
 }
 
-bool list_insert(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data) {
+bool list_insert(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data) {
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;
@@ -405,7 +384,7 @@ bool list_insert(struct t_list *l, const char *key, long value_i, const char *va
     return true;
 }
 
-bool list_insert_sorted_by_key(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data, enum list_sort_direction direction) {
+bool list_insert_sorted_by_key(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data, enum list_sort_direction direction) {
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;
@@ -452,7 +431,7 @@ bool list_insert_sorted_by_key(struct t_list *l, const char *key, long value_i, 
     return true;
 }
 
-bool list_insert_sorted_by_value_i(struct t_list *l, const char *key, long value_i, const char *value_p, void *user_data, enum list_sort_direction direction) {
+bool list_insert_sorted_by_value_i(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data, enum list_sort_direction direction) {
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;
@@ -530,7 +509,7 @@ void list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb)
     free(n);
 }
 
-bool list_shift(struct t_list *l, unsigned idx) {
+bool list_shift(struct t_list *l, long idx) {
     struct t_list_node *extracted = list_node_extract(l, idx);
     if (extracted == NULL) {
         return false;
@@ -544,14 +523,14 @@ bool list_shift(struct t_list *l, unsigned idx) {
     return true;
 }
 
-static struct t_list_node *list_node_extract(struct t_list *l, unsigned idx) {
+static struct t_list_node *list_node_extract(struct t_list *l, long idx) {
     if (l->head == NULL || idx >= l->length) {
         return NULL;
     }
 
     struct t_list_node *current = NULL;
     struct t_list_node *previous = NULL;
-    unsigned i = 0;
+    long i = 0;
     for (current = l->head; current != NULL; previous = current, current = current->next) {
         if (i == idx) {
             if (previous == NULL) {

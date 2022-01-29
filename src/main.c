@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -184,18 +184,22 @@ struct t_subdirs_entry {
 };
 
 const struct t_subdirs_entry workdir_subdirs[] = {
-    {"state",      "State dir"},
-    {"smartpls",   "Smartpls dir"},
-    {"pics",       "Pics dir"},
-    {"empty",      "Empty dir"},
+    {"empty",            "Empty dir"},
+    {"pics",             "Pics dir"},
+    {"pics/backgrounds", "Backgrounds dir"},
+    {"pics/thumbs",      "Thumbnails dir"},
     #ifdef ENABLE_LUA
-    {"scripts",    "Scripts dir"},
+    {"scripts",          "Scripts dir"},
     #endif
+    {"smartpls",         "Smartpls dir"},
+    {"state",            "State dir"},
+    {"webradios",        "Webradio dir"},
     {NULL, NULL}
 };
 
 const struct t_subdirs_entry cachedir_subdirs[] = {
     {"covercache", "Covercache dir"},
+    {"webradiodb", "Webradiodb cache dir"},
     {NULL, NULL}
 };
 
@@ -215,6 +219,18 @@ static bool check_dirs(struct t_config *config) {
             return false;
         }
     #endif
+    //rename streams to thumbs for 9.1.0 upgrade
+    sds streams_dir = sdscatfmt(sdsempty(), "%s/pics/streams", config->workdir);
+    DIR* dir = opendir(streams_dir);
+    if (dir) {
+        closedir(dir);
+        MYMPD_LOG_INFO("Renaming folder streams to thumbs");
+        sds thumbs_dir = sdscatfmt(sdsempty(), "%s/pics/thumbs", config->workdir);
+        rename(streams_dir, thumbs_dir);
+        sdsfree(thumbs_dir);
+    }
+    sdsfree(streams_dir);
+
     const struct t_subdirs_entry *p = NULL;
     //workdir
     for (p = workdir_subdirs; p->dirname != NULL; p++) {
@@ -275,13 +291,13 @@ int main(int argc, char **argv) {
     mympd_script_queue = mympd_queue_create("mympd_script_queue");
 
     //create mg_user_data struct for web_server
-    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)malloc_assert(sizeof(struct t_mg_user_data));
+    struct t_mg_user_data *mg_user_data = malloc_assert(sizeof(struct t_mg_user_data));
 
     //initialize random number generator
-    tinymt32_init(&tinymt, (unsigned)time(NULL));
+    tinymt32_init(&tinymt, (uint32_t)time(NULL));
 
     //mympd config defaults
-    struct t_config *config = (struct t_config *)malloc_assert(sizeof(struct t_config));
+    struct t_config *config = malloc_assert(sizeof(struct t_config));
     mympd_config_defaults_initial(config);
 
     //command line option
@@ -315,6 +331,12 @@ int main(int argc, char **argv) {
     init_config = true;
     mympd_config_defaults(config);
     mympd_read_config(config);
+
+    #ifdef ENABLE_IPV6
+        if (sdslen(config->acl) > 0) {
+            MYMPD_LOG_WARN("No acl support for IPv6");
+        }
+    #endif
 
     //bootstrap
     if (config->bootstrap == true) {

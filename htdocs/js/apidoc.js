@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 const APIparams = {
@@ -113,6 +113,11 @@ const APIparams = {
         "type": "bool",
         "example": true,
         "desc": "true = play first inserted song."
+    },
+    "radiobrowserUUID": {
+        "type": "string",
+        "example": "d8f01eea-26be-4e3d-871d-7596e3ab8fb1",
+        "desc": "Station UUID from radio-browser.info"
     }
 };
 
@@ -167,7 +172,12 @@ const APImethods = {
             "path": {
                 "type": "text",
                 "example": "Alben",
-                "desc": "Directory to list"
+                "desc": "Directory or playlist to list"
+            },
+            "type": {
+                "type": "text",
+                "example": "dir",
+                "desc": "dir or plist"
             },
             "cols": APIparams.cols
         }
@@ -828,7 +838,7 @@ const APImethods = {
             },
             "mpdTimeout": {
                 "type": "uint",
-                "example": 10000,
+                "example": 120000,
                 "desc": "MPD timeout in ms"
             }
         }
@@ -1106,7 +1116,7 @@ const APImethods = {
                     "uiLocale": {
                         "type": "text",
                         "example": "de-DE",
-                        "desc": "Language code or \"auto\" for browser default"
+                        "desc": "Language code or \"auto\" for browser default."
                     }
                 }
             }
@@ -1116,24 +1126,24 @@ const APImethods = {
         "desc": "Sets MPD and jukebox options.",
         "params":{
             "consume": {
-                "type": "uint",
-                "example": 1,
-                "desc": "MPD consume mode: 1=enabled, 0=disabled"
+                "type": "bool",
+                "example": true,
+                "desc": "MPD consume mode."
             },
             "random": {
-                "type": "uint",
-                "example": 0,
-                "desc": "MPD randome mode: 1=enabled, 0=disabled"
+                "type": "bool",
+                "example": false,
+                "desc": "MPD randome mode."
             },
             "single": {
-                "type": "uint",
-                "example": 1,
-                "desc": "MPD single mode: 2=single oneshot, 1=enabled, 0=disabled"
+                "type": "text",
+                "example": "1",
+                "desc": "MPD single mode: 0, 1, oneshot"
             },
             "repeat": {
-                "type": "uint",
-                "example": 1,
-                "desc": "MPD repeat mode: 1=enabled, 0=disabled"
+                "type": "bool",
+                "example": false,
+                "desc": "MPD repeat mode."
             },
             "replaygain": {
                 "type": "text",
@@ -1146,9 +1156,9 @@ const APImethods = {
                 "desc": "MPD crossfade in seconds"
             },
             "jukeboxMode": {
-                "type": "uint",
-                "example": 1,
-                "desc": "Jukebox mode: 0=disabled, 1=song, 2=album"
+                "type": "text",
+                "example": "off",
+                "desc": "Jukebox modes: off, song, album"
             },
             "jukeboxPlaylist": {
                 "type": "text",
@@ -1243,9 +1253,9 @@ const APImethods = {
                 "desc": "Playlist to use, valid values: \"Database\" or MPD playlist name"
             },
             "jukeboxMode": {
-                "type": "uint",
-                "example": 1,
-                "desc": "Jukebox mode: 0 = off, 1 = song, 2 = album"
+                "type": "text",
+                "example": "off",
+                "desc": "off, song, album"
             },
             "weekdays": {
                 "type": "array",
@@ -1513,7 +1523,7 @@ const APImethods = {
             "image": {
                 "type": "text",
                 "example": "home-icon-1.png",
-                "desc": "realtive path for an image (/pics/ is the root)"
+                "desc": "relative path for an image (/browse/pics/ is the root)"
             },
             "cmd": {
                 "type": "text",
@@ -1531,8 +1541,14 @@ const APImethods = {
         }
     },
     "MYMPD_API_PICTURE_LIST": {
-        "desc": "Lists all pictures in the /pics directory.",
-        "params": {}
+        "desc": "Lists all pictures in the /pics/<type> directory.",
+        "params": {
+            "type": {
+                "type": "text",
+                "example": "thumbs",
+                "desc": "Subfolder of pics directory."
+            }
+        }
     },
     "MYMPD_API_JUKEBOX_LIST": {
         "desc": "Lists the internal jukebox queue.",
@@ -1548,6 +1564,10 @@ const APImethods = {
         "params": {
             "pos": APIparams.pos
         }
+    },
+    "MYMPD_API_JUKEBOX_CLEAR": {
+        "desc": "Clears the jukebox queue.",
+        "params": {}
     },
     "MYMPD_API_LYRICS_GET": {
         "desc": "Gets all lyrics from uri.",
@@ -1576,22 +1596,150 @@ const APImethods = {
         "params": {}
     },
     "MYMPD_API_COVERCACHE_CLEAR": {
-        "desc": "Clears the covercache",
+        "desc": "Clears the covercache.",
         "params": {}
     },
     "MYMPD_API_COVERCACHE_CROP": {
-        "desc": "Clears the covercache",
+        "desc": "Crops the covercache.",
         "params": {}
     },
     "MYMPD_API_LOGLEVEL": {
-        "desc": "Sets the loglevel",
+        "desc": "Sets the loglevel.",
         "protected": true,
         "params": {
             "loglevel": {
                 "type": "uint",
-                "example": 5,
+                "example": 7,
                 "desc": "https://jcorporation.github.io/myMPD/configuration/logging"
             }
         }
+    },
+    "MYMPD_API_WEBRADIO_FAVORITE_LIST": {
+        "desc": "Lists webradio favorites.",
+        "params": {
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "searchstr": APIparams.searchstr
+        }
+    },
+    "MYMPD_API_WEBRADIO_FAVORITE_SAVE": {
+        "desc": "Lists saved webradios.",
+        "params": {
+            "name": {
+                "type": "string",
+                "example": "swr1",
+                "desc": "Name of the webradio favorite to delete."
+            },
+            "streamUri": {
+                "type": "string",
+                "example": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
+                "desc": "New URI of the webradio stream."
+            },
+            "streamUriOld": {
+                "type": "string",
+                "example": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
+                "desc": "Old URI of the webradio stream."
+            },
+            "image": {
+                "type": "string",
+                "example": "http://www.swr.de/streampic.jpg",
+                "desc": "Picture for the webradio."
+            },
+            "genre": {
+                "type": "string",
+                "example": "Pop Rock",
+                "desc": "Genre or other tags."
+            },
+            "homepage": {
+                "type": "string",
+                "example": "http://swr1.de",
+                "desc": "Webradio homepage"
+            },
+            "country": {
+                "type": "string",
+                "example": "Germany",
+                "desc": "Country"
+            },
+            "language": {
+                "type": "string",
+                "example": "German",
+                "desc": "Language"
+            },
+            "description": {
+                "type": "string",
+                "example": "Short description",
+                "desc": "Short description"
+            }
+        }
+    },
+    "MYMPD_API_WEBRADIO_FAVORITE_GET": {
+        "desc": "Deletes a webradio favorite.",
+        "params": {
+            "filename": {
+                "type": "string",
+                "example": "https___liveradio_swr_de_sw282p3_swr1bw_play_mp3.m3u",
+                "desc": "Name of the webradio favorite to get."
+            }
+        }
+    },
+    "MYMPD_API_WEBRADIO_FAVORITE_RM": {
+        "desc": "Deletes a webradio favorite.",
+        "params": {
+            "filename": {
+                "type": "string",
+                "example": "https___liveradio_swr_de_sw282p3_swr1bw_play_mp3.m3u",
+                "desc": "Name of the webradio favorite to delete."
+            }
+        }
+    },
+    "MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT": {
+        "desc": "Returns radio-browser.info station details.",
+        "params": {
+            "uuid": APIparams.radiobrowserUUID
+        }
+    },
+    "MYMPD_API_CLOUD_RADIOBROWSER_NEWEST": {
+        "desc": "Lists the last changed/added stations.",
+        "params": {
+            "offset": APIparams.offset,
+            "limit": APIparams.limit
+        }
+    },
+    "MYMPD_API_CLOUD_RADIOBROWSER_SEARCH": {
+        "desc": "Searches radio-browser.info",
+        "params": {
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "tags": {
+                "type": "string",
+                "example": "pop",
+                "desc": "Tag to filter"
+            },
+            "country": {
+                "type": "string",
+                "example": "Germany",
+                "desc": "Country to filter"
+            },
+            "language": {
+                "type": "string",
+                "example": "German",
+                "desc": "Language to filter"
+            },
+            "searchstr": APIparams.searchstr
+        }
+    },
+    "MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST": {
+        "desc": "Returns radio-browser.info endpoints.",
+        "params": {}
+    },
+    "MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL": {
+        "desc": "Returns radio-browser.info station details.",
+        "params": {
+            "uuid": APIparams.radiobrowserUUID
+        }
+    },
+    "MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET": {
+        "desc": "Gets the full webradiodb.",
+        "params": {}
     }
 };

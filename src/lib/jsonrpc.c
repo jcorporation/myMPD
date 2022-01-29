@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -82,7 +82,7 @@ sds jsonrpc_notify_start(sds buffer, const char *method) {
 
 sds jsonrpc_result_start(sds buffer, const char *method, long id) {
     sdsclear(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"result\":{", id);
+    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%l,\"result\":{", id);
     buffer = tojson_char(buffer, "method", method, true);
     return buffer;
 }
@@ -105,7 +105,7 @@ sds jsonrpc_respond_message_phrase(sds buffer, const char *method, long id, bool
                             const char *facility, const char *severity, const char *message, int count, ...)
 {
     sdsclear(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"%s\":{",
+    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%l,\"%s\":{",
         id, (error == true ? "error" : "result"));
     buffer = tojson_char(buffer, "method", method, true);
     buffer = tojson_char(buffer, "facility", facility, true);
@@ -146,6 +146,10 @@ sds tojson_char(sds buffer, const char *key, const char *value, bool comma) {
     return tojson_char_len(buffer, key, value, len, comma);
 }
 
+sds tojson_sds(sds buffer, const char *key, sds value, bool comma) {
+    return tojson_char_len(buffer, key, value, sdslen(value), comma);
+}
+
 sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":", key);
     if (value != NULL) {
@@ -168,8 +172,32 @@ sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
     return buffer;
 }
 
-sds tojson_long(sds buffer, const char *key, long long value, bool comma) {
-    buffer = sdscatprintf(buffer, "\"%s\":%lld", key, value);
+sds tojson_int(sds buffer, const char *key, int value, bool comma) {
+    buffer = sdscatfmt(buffer, "\"%s\":%i", key, value);
+    if (comma) {
+        buffer = sdscatlen(buffer, ",", 1);
+    }
+    return buffer;
+}
+
+sds tojson_uint(sds buffer, const char *key, unsigned value, bool comma) {
+    buffer = sdscatfmt(buffer, "\"%s\":%u", key, value);
+    if (comma) {
+        buffer = sdscatlen(buffer, ",", 1);
+    }
+    return buffer;
+}
+
+sds tojson_long(sds buffer, const char *key, long value, bool comma) {
+    buffer = sdscatfmt(buffer, "\"%s\":%l", key, value);
+    if (comma) {
+        buffer = sdscatlen(buffer, ",", 1);
+    }
+    return buffer;
+}
+
+sds tojson_llong(sds buffer, const char *key, long long value, bool comma) {
+    buffer = sdscatfmt(buffer, "\"%s\":%I", key, value);
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
     }
@@ -177,7 +205,15 @@ sds tojson_long(sds buffer, const char *key, long long value, bool comma) {
 }
 
 sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma) {
-    buffer = sdscatprintf(buffer, "\"%s\":%lu", key, value);
+    buffer = sdscatfmt(buffer, "\"%s\":%L", key, value);
+    if (comma) {
+        buffer = sdscatlen(buffer, ",", 1);
+    }
+    return buffer;
+}
+
+sds tojson_ullong(sds buffer, const char *key, unsigned long long value, bool comma) {
+    buffer = sdscatfmt(buffer, "\"%s\":%U", key, value);
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
     }
@@ -239,6 +275,26 @@ bool json_get_int(sds s, const char *path, int min, int max, int *result, sds *e
     if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
         if (value >= min && value <= max) {
             *result = (int)value;
+            return true;
+        }
+        _set_parse_error(error, "Number out of range for JSON path \"%s\"", path);
+    }
+    else {
+        _set_parse_error(error, "JSON path \"%s\" not found", path);
+    }
+    return false;
+}
+
+bool json_get_long_max(sds s, const char *path, long *result, sds *error) {
+    return json_get_long(s, path, JSONRPC_LONG_MIN, JSONRPC_LONG_MAX, result, error);
+}
+
+bool json_get_long(sds s, const char *path, long min, long max, long *result, sds *error) {
+    double value;
+    if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
+        long value_long = (long)value;
+        if (value_long >= min && value_long <= max) {
+            *result = value_long;
             return true;
         }
         _set_parse_error(error, "Number out of range for JSON path \"%s\"", path);
@@ -363,7 +419,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
                 FREE_SDS(key);
                 return false;
             default:
-                value = sdscatlen(value, p + voff, vlen);
+                value = sdscatlen(value, p + voff, (size_t)vlen);
                 break;
         }
 
@@ -432,7 +488,7 @@ bool json_find_key(sds s, const char *path) {
     return vtype == MJSON_TOK_INVALID ? false : true;
 }
 
-const char *get_mjson_toktype_name(unsigned vtype) {
+const char *get_mjson_toktype_name(int vtype) {
     switch(vtype) {
         case MJSON_TOK_INVALID: return "MJSON_TOK_INVALID";
         case MJSON_TOK_KEY:     return "MJSON_TOK_KEY";

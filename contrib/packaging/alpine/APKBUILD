@@ -1,12 +1,12 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
-# myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+# myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 #
 # Maintainer: Juergen Mang <mail@jcgames.de>
 #
 pkgname=mympd
-pkgver=9.0.4
+pkgver=9.1.0
 pkgrel=0
 pkgdesc="myMPD is a standalone and mobile friendly web-based MPD client."
 url="https://jcorporation.github.io/myMPD/"

@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -21,10 +21,10 @@ sds camel_to_snake(sds text) {
     sds buffer = sdsempty();
     for (size_t i = 0; i < sdslen(text); i++) {
         if (isupper(text[i]) > 0) {
-            buffer = sdscatprintf(buffer, "_%c", tolower((unsigned char)text[i]));
+            buffer = sdscatfmt(buffer, "_%c", tolower((unsigned char)text[i]));
         }
         else {
-            buffer = sdscatprintf(buffer, "%c", text[i]);
+            buffer = sdscatfmt(buffer, "%c", text[i]);
         }
     }
     return buffer;
@@ -89,7 +89,7 @@ bool state_file_rw_bool(const char *workdir, const char *dir, const char *name, 
 int state_file_rw_int(const char *workdir, const char *dir, const char *name, const int def_value, const int min, const int max, bool warn) {
     char *crap = NULL;
     int value = def_value;
-    sds def_value_str = sdsfromlonglong(def_value);
+    sds def_value_str = sdsfromlonglong((long long)def_value);
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
     FREE_SDS(def_value_str);
     value = (int)strtoimax(line, &crap, 10);
@@ -103,10 +103,24 @@ int state_file_rw_int(const char *workdir, const char *dir, const char *name, co
 unsigned state_file_rw_uint(const char *workdir, const char *dir, const char *name, const unsigned def_value, const unsigned min, const unsigned max, bool warn) {
     char *crap = NULL;
     unsigned value = def_value;
-    sds def_value_str = sdsfromlonglong(def_value);
+    sds def_value_str = sdsfromlonglong((long long)def_value);
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
     FREE_SDS(def_value_str);
-    value = (int)strtoimax(line, &crap, 10);
+    value = (unsigned)strtoumax(line, &crap, 10);
+    FREE_SDS(line);
+    if (value >= min && value <= max) {
+        return value;
+    }
+    return def_value;
+}
+
+long state_file_rw_long(const char *workdir, const char *dir, const char *name, const long def_value, const long min, const long max, bool warn) {
+    char *crap = NULL;
+    long value = def_value;
+    sds def_value_str = sdsfromlonglong((long long)def_value);
+    sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
+    FREE_SDS(def_value_str);
+    value = (long)strtoimax(line, &crap, 10);
     FREE_SDS(line);
     if (value >= min && value <= max) {
         return value;

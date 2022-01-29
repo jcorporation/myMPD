@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -85,9 +85,9 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
     unsigned start = 0;
     unsigned end = start + MPD_RESULTS_MAX;
     unsigned i = 0;
-    unsigned album_count = 0;
-    unsigned song_count = 0;
-    unsigned skipped = 0;
+    long album_count = 0;
+    long song_count = 0;
+    long skipped = 0;
     //get first song from each album
     do {
         bool rc = mpd_search_db_songs(mpd_worker_state->mpd_state->conn, false);
@@ -121,8 +121,8 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             //sticker cache
             if (mpd_worker_state->mpd_state->feat_mpd_stickers == true) {
                 const char *uri = mpd_song_get_uri(song);
-                struct t_sticker *sticker = (struct t_sticker *) malloc_assert(sizeof(struct t_sticker));
-                raxInsert(sticker_cache, (unsigned char*)uri, strlen(uri), (void *)sticker, NULL);
+                struct t_sticker *sticker = malloc_assert(sizeof(struct t_sticker));
+                raxInsert(sticker_cache, (unsigned char *)uri, strlen(uri), (void *)sticker, NULL);
                 song_count++;
             }
             //album cache
@@ -132,7 +132,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
                 if (sdslen(album) > 0 && sdslen(artist) > 0) {
                     sdsclear(key);
                     key = sdscatfmt(key, "%s::%s", album, artist);
-                    if (raxTryInsert(album_cache, (unsigned char*)key, sdslen(key), (void *)song, NULL) == 0) {
+                    if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, NULL) == 0) {
                         //discard song data if key exists
                         mpd_song_free(song);
                     }
@@ -172,9 +172,9 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         FREE_SDS(uri);
         raxStop(&iter);
     }
-    MYMPD_LOG_INFO("Added %u albums to album cache", album_count);
-    MYMPD_LOG_INFO("Skipped %u albums", skipped);
-    MYMPD_LOG_INFO("Added %u songs to sticker cache", song_count);
+    MYMPD_LOG_INFO("Added %ld albums to album cache", album_count);
+    MYMPD_LOG_INFO("Skipped %ld albums", skipped);
+    MYMPD_LOG_INFO("Added %ld songs to sticker cache", song_count);
     MYMPD_LOG_INFO("Cache updated successfully");
     return true;
 }

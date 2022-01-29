@@ -187,6 +187,26 @@ enum mpd_single_state
 mpd_status_get_single_state(const struct mpd_status *status);
 
 /**
+ * Looks up the name of the specified single mode.
+ *
+ * @return the name, or NULL if the single mode is not valid
+ *
+ * @since libmpdclient 2.21.
+ */
+const char *
+mpd_lookup_single_state(enum mpd_single_state state);
+
+/**
+ * Parse the string to check which single mode it contains.
+ *
+ * @return the single mode enum
+ *
+ * @since libmpdclient 2.21.
+ */
+enum mpd_single_state
+mpd_parse_single_state(const char *p);
+
+/**
  * This function is deprecated as it does not distinguish the states of
  * the single mode (added to MPD 0.21). Call mpd_status_get_single_state() in
  * its place.

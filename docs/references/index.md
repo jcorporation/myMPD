@@ -18,4 +18,5 @@ title: References
 - [Tags]({{ site.baseurl }}/references/tags)
 - [Translating]({{ site.baseurl }}/references/translating)
 - [Trigger]({{ site.baseurl }}/references/trigger)
+- [Webradios]({{ site.baseurl }}/references/webradios)
 - [Webserver uris]({{ site.baseurl }}/references/webserver-uris)

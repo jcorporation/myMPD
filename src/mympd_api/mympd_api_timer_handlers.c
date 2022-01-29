@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -13,6 +13,7 @@
 #include "../lib/log.h"
 #include "../lib/mympd_configuration.h"
 #include "../mpd_shared.h"
+#include "mympd_api_utility.h"
 
 #include <string.h>
 
@@ -43,7 +44,7 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
     }
     else if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "startplay") == 0) {
         struct t_work_request *request = create_request(-1, 0, INTERNAL_API_TIMER_STARTPLAY, NULL);
-        request->data = tojson_long(request->data, "volume", definition->volume, true);
+        request->data = tojson_uint(request->data, "volume", definition->volume, true);
         request->data = tojson_char(request->data, "plist", definition->playlist, true);
         request->data = tojson_long(request->data, "jukeboxMode", definition->jukebox_mode, false);
         request->data = sdscatlen(request->data, "}}", 2);
@@ -122,7 +123,7 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
     if (jukebox_mode != JUKEBOX_OFF) {
         //enable jukebox
         struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_OPTIONS_SET, NULL);
-        request->data = tojson_long(request->data, "jukeboxMode", jukebox_mode, true);
+        request->data = tojson_char(request->data, "jukeboxMode", mympd_lookup_jukebox_mode(jukebox_mode), true);
         request->data = tojson_char(request->data, "jukeboxPlaylist", playlist, false);
         request->data = sdscatlen(request->data, "}}", 2);
         mympd_queue_push(mympd_api_queue, request, 0);

@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 function initQueue() {
@@ -32,6 +32,9 @@ function initQueue() {
     }, false);
 
     document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'TH') {
+            return;
+        }
         if (event.target.nodeName === 'A') {
             showPopover(event);
             return;
@@ -131,7 +134,7 @@ function parseUpdateQueue(obj) {
     }
 
     if (obj.result.nextSongPos === -1 &&
-        settings.jukeboxMode === false)
+        settings.jukeboxMode === 'off')
     {
         elDisableId('btnNext');
     }
@@ -192,19 +195,16 @@ function parseQueue(obj) {const table = document.getElementById('QueueCurrentLis
     updateTable(obj, 'QueueCurrent', function(row, data) {
         row.setAttribute('draggable', 'true');
         row.setAttribute('id', 'queueTrackId' + data.id);
-        row.setAttribute('tabindex', 0);
         row.setAttribute('title', tn(rowTitle));
         setData(row, 'trackid', data.id);
         setData(row, 'songpos', data.Pos);
         setData(row, 'duration', data.Duration);
         setData(row, 'uri', data.uri);
-        if (isStreamUri(data.uri) === true) {
-            setData(row, 'type', 'stream');
-        }
-        else {
-            setData(row, 'type', 'song');
-        }
+        setData(row, 'type', data.type);
         setData(row, 'name', data.Title);
+        if (data.type === 'webradio') {
+            setData(row, 'webradioUri', data.webradio.filename);
+        }
         //set artist and album data
         if (data.Album !== undefined) {
             setData(row, 'Album', data.Album);
@@ -226,10 +226,10 @@ function parseQueue(obj) {const table = document.getElementById('QueueCurrentLis
         tableRow(row, data, app.id, colspan, smallWidth);
         if (currentState.currentSongId === data.id) {
             setPlayingRow(row);
+            setQueueCounter(row, getCounterText());
         }
     });
 
-    setData(table, 'version', obj.result.queueVersion);
     const tfoot = table.getElementsByTagName('tfoot')[0];
     if (obj.result.totalTime &&
         obj.result.totalTime > 0 &&
@@ -267,34 +267,35 @@ function queueSetCurrentSong() {
         old.classList.remove('queue-playing');
         old.style = '';
     }
-    //add or update new playing row
-    const tr = document.getElementById('queueTrackId' + currentState.currentSongId);
-    if (tr !== null) {
-        setPlayingRow(tr);
-        return;
+    //set playing row
+    const playingRow = document.getElementById('queueTrackId' + currentState.currentSongId);
+    setPlayingRow(playingRow);
+}
+
+function setQueueCounter(playingRow, counterText) {
+    //calc percent with two decimals after comma
+    const progressPrct = currentState.state === 'stop' || currentState.totalTime === 0 ?
+            100 : Math.ceil((100 / currentState.totalTime) * currentState.elapsedTime * 100) / 100;
+    playingRow.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
+        progressPrct + '%, transparent ' + progressPrct + '%, transparent 100%)';
+    //counter in queue card
+    const durationTd = playingRow.querySelector('[data-col=Duration]');
+    if (durationTd) {
+        durationTd.textContent = counterText;
     }
 }
 
-function setPlayingRow(row) {
-    if (row.classList.contains('queue-playing') === false) {
-        //set row as playing
-        const posTd = row.querySelector('[data-col=Pos]');
+function setPlayingRow(playingRow) {
+    if (playingRow !== null &&
+        playingRow.classList.contains('queue-playing') === false)
+    {
+        const posTd = playingRow.querySelector('[data-col=Pos]');
         if (posTd !== null) {
             posTd.classList.add('mi');
             posTd.textContent = 'play_arrow';
         }
-        row.classList.add('queue-playing');
+        playingRow.classList.add('queue-playing');
     }
-    //set progress
-    const durationTd = row.querySelector('[data-col=Duration]');
-    if (durationTd) {
-        durationTd.textContent = beautifySongDuration(currentState.elapsedTime) +
-            smallSpace + '/' + smallSpace + beautifySongDuration(currentState.totalTime);
-    }
-    const progressPrct = currentState.state === 'stop' || currentState.totalTime === 0 ?
-        100 : (100 / currentState.totalTime) * currentState.elapsedTime;
-    row.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
-        progressPrct + '%, transparent ' + progressPrct +'%)';
 }
 
 function parseLastPlayed(obj) {
@@ -307,7 +308,6 @@ function parseLastPlayed(obj) {
         setData(row, 'uri', data.uri);
         setData(row, 'name', data.Title);
         setData(row, 'type', 'song');
-        row.setAttribute('tabindex', 0);
         row.setAttribute('title', tn(rowTitle));
     });
 }
@@ -331,6 +331,7 @@ function _appendQueue(type, uri, play, callback) {
             }, callback, true);
             break;
         case 'plist':
+        case 'webradio':
             sendAPI("MYMPD_API_QUEUE_APPEND_PLAYLIST", {
                 "plist": uri,
                 "play": play
@@ -368,6 +369,7 @@ function insertQueue(type, uri, to, whence, play, callback) {
             }, callback, true);
             break;
         case 'plist':
+        case 'webradio':
             sendAPI("MYMPD_API_QUEUE_INSERT_PLAYLIST", {
                 "plist": uri,
                 "to": to,
@@ -405,6 +407,7 @@ function _replaceQueue(type, uri, play, callback) {
             }, callback, true);
             break;
         case 'plist':
+        case 'webradio':
             sendAPI("MYMPD_API_QUEUE_REPLACE_PLAYLIST", {
                 "plist": uri,
                 "play": play
@@ -518,7 +521,7 @@ function gotoPlayingSong() {
 
 //eslint-disable-next-line no-unused-vars
 function playAfterCurrent(songId, songPos) {
-    if (settings.random === 0) {
+    if (settings.random === false) {
         //not in random mode - move song after current playling song
         sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
             "from": songPos,

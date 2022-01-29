@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 const startTime = Date.now();
@@ -38,6 +38,9 @@ const sessionLifetime = 1780;
 const sessionRenewInterval = sessionLifetime * 500;
 let sessionTimer = null;
 const messages = [];
+const debugMode = document.getElementsByTagName("script")[0].src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
+let webradioDb = null;
+const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
 
 //minimum mpd version to support all myMPD features
 const mpdVersion = {
@@ -114,7 +117,7 @@ app.cards = {
                 "limit": 100,
                 "filter": "-",
                 "sort": "-",
-                "tag": "-",
+                "tag": "dir",
                 "search": "",
                 "scrollPos": 0
             },
@@ -163,6 +166,50 @@ app.cards = {
                         "scrollPos": 0
                     }
                 }
+            },
+            "Radio": {
+                "active": "Favorites",
+                "views": {
+                    "Favorites": {
+                        "offset": 0,
+                        "limit": 100,
+                        "filter": "-",
+                        "sort": "-",
+                        "tag": "-",
+                        "search": "",
+                        "scrollPos": 0
+                    },
+                    "Webradiodb": {
+                        "offset": 0,
+                        "limit": 100,
+                        "filter": {
+                            "genre": "",
+                            "country": "",
+                            "language": ""
+                        },
+                        "sort": {
+                            "tag": "Name",
+                            "desc": false
+                        },
+                        "tag": "-",
+                        "search": "",
+                        "scrollPos": 0
+                    },
+                    "Radiobrowser": {
+                        "offset": 0,
+                        "limit": 100,
+                        "filter": {
+                            "tags": "",
+                            "genre": "",
+                            "country": "",
+                            "language": ""
+                        },
+                        "sort": "-",
+                        "tag": "-",
+                        "search": "",
+                        "scrollPos": 0
+                    }
+                }
             }
         }
     },
@@ -170,7 +217,10 @@ app.cards = {
         "offset": 0,
         "limit": 100,
         "filter": "any",
-        "sort": "-",
+        "sort": {
+            "tag": "-",
+            "desc": false
+        },
         "tag": "-",
         "search": "",
         "scrollPos": 0
@@ -259,6 +309,34 @@ const webuiSettingsDefault = {
         "title": "Click song",
         "form": "clickSettingsFrm"
     },
+    "clickRadiobrowser": {
+        "defaultValue": "append",
+        "validValues": {
+            "append": "Append to queue",
+            "appendPlay": "Append to queue and play",
+            "insertAfterCurrent": "Insert after current playing song",
+            "replace": "Replace queue",
+            "replacePlay": "Replace queue and play",
+            "add": "Add to favorites"
+        },
+        "inputType": "select",
+        "title": "Click webradio",
+        "form": "clickSettingsFrm"
+    },
+    "clickRadioFavorites": {
+        "defaultValue": "append",
+        "validValues": {
+            "append": "Append to queue",
+            "appendPlay": "Append to queue and play",
+            "insertAfterCurrent": "Insert after current playing song",
+            "replace": "Replace queue",
+            "replacePlay": "Replace queue and play",
+            "edit": "Edit webradio favorite"
+        },
+        "inputType": "select",
+        "title": "Click webradio favorite",
+        "form": "clickSettingsFrm"
+    },
     "clickQueueSong": {
         "defaultValue": "play",
         "validValues": {
@@ -281,6 +359,20 @@ const webuiSettingsDefault = {
         },
         "inputType": "select",
         "title": "Click playlist",
+        "form": "clickSettingsFrm"
+    },
+    "clickFilesystemPlaylist": {
+        "defaultValue": "view",
+        "validValues": {
+            "append": "Append to queue",
+            "appendPlay": "Append to queue and play",
+            "insertAfterCurrent": "Insert after current playing song",
+            "replace": "Replace queue",
+            "replacePlay": "Replace queue and play",
+            "view": "View playlist"
+        },
+        "inputType": "select",
+        "title": "Click filesystem playlist",
         "form": "clickSettingsFrm"
     },
     "clickFolder": {
@@ -491,7 +583,8 @@ const webuiSettingsDefault = {
     },
     "uiBgImage": {
         "defaultValue": "",
-        "inputType": "select",
+        "inputType": "mympd-select-search",
+        "cbCallback": "filterImageSelect",
         "title": "Image",
         "form": "bgFrm2"
     },
@@ -569,7 +662,8 @@ const keymap = {
         "5": {"order": 306, "cmd": "appGoto", "options": ["Browse", "Database"], "desc": "Show browse database", "req": "featTags"},
         "6": {"order": 307, "cmd": "appGoto", "options": ["Browse", "Playlists"], "desc": "Show browse playlists", "req": "featPlaylists"},
         "7": {"order": 308, "cmd": "appGoto", "options": ["Browse", "Filesystem"], "desc": "Show browse filesystem"},
-        "8": {"order": 309, "cmd": "appGoto", "options": ["Search"], "desc": "Show search"},
+        "8": {"order": 308, "cmd": "appGoto", "options": ["Browse", "Radio"], "desc": "Show browse webradio"},
+        "9": {"order": 309, "cmd": "appGoto", "options": ["Search"], "desc": "Show search"},
         "/": {"order": 310, "cmd": "focusSearch", "options": [], "desc": "Focus search"}
 };
 
@@ -616,5 +710,12 @@ const typeFriendly = {
     'album': 'Album',
     'stream': 'Stream',
     'view': 'View',
-    'script': 'Script'
+    'script': 'Script',
+    'webradio': 'Webradio'
 };
+
+const bgImageValues = [
+    {"value": "", "text": "None"},
+    {"value": "/assets/mympd-background-dark.svg", "text": "Default image dark"},
+    {"value": "/assets/mympd-background-light.svg", "text": "Default image light"}
+];

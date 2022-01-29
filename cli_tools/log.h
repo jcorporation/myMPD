@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -37,7 +37,9 @@ extern int loglevel;
 extern bool log_on_tty;
 
 void mympd_log_errno(const char *file, int line, int errnum);
-void mympd_log(int level, const char *file, int line, const char *fmt, ...);
+void mympd_log(int level, const char *file, int line, const char *fmt, ...)
+    __attribute__ ((format (printf, 4, 5)));
+
 void set_loglevel(int level);
 
 #endif

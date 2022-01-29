@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -49,7 +49,7 @@ static void *mympd_api_script_execute(void *script_thread_arg);
 static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script);
 static void populate_lua_table(lua_State *lua_vm, struct t_list *lua_mympd_state);
 static void populate_lua_table_field_p(lua_State *lua_vm, const char *key, const char *value);
-static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, long value);
+static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, long long value);
 static void populate_lua_table_field_f(lua_State *lua_vm, const char *key, double value);
 static void populate_lua_table_field_b(lua_State *lua_vm, const char *key, bool value);
 static void register_lua_functions(lua_State *lua_vm);
@@ -131,7 +131,7 @@ bool mympd_api_script_delete(struct t_config *config, const char *script) {
 }
 
 bool mympd_api_script_save(struct t_config *config, sds script, sds oldscript, int order, sds content, struct t_list *arguments) {
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/scripts/%.XXXXXX", config->workdir, script);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/scripts/%s.XXXXXX", config->workdir, script);
     errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
@@ -140,7 +140,7 @@ bool mympd_api_script_save(struct t_config *config, sds script, sds oldscript, i
         FREE_SDS(tmp_file);
         return false;
     }
-    FILE *fp = fdopen(fd, "w");
+    FILE *fp = fdopen(fd, OPEN_FLAGS_WRITE);
     //write metadata line
     sds argstr = sdsempty();
     argstr = list_to_json_array(argstr, arguments);
@@ -226,7 +226,7 @@ bool mympd_api_script_start(struct t_config *config, const char *script, struct 
         MYMPD_LOG_ERROR("Can not set mympd_script thread to detached");
         return false;
     }
-    struct t_script_thread_arg *script_thread_arg = (struct t_script_thread_arg *)malloc_assert(sizeof(struct t_script_thread_arg));
+    struct t_script_thread_arg *script_thread_arg = malloc_assert(sizeof(struct t_script_thread_arg));
     script_thread_arg->config = config;
     script_thread_arg->localscript = localscript;
     script_thread_arg->arguments = arguments;
@@ -254,7 +254,7 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
     errno = 0;
     FILE *fp = fopen(scriptfilename, OPEN_FLAGS_READ);
     if (fp == NULL) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\": %s", scriptfilename);
+        MYMPD_LOG_ERROR("Can not open file \"%s\"", scriptfilename);
         MYMPD_LOG_ERRNO(errno);
         return entry;
     }
@@ -465,7 +465,7 @@ static void populate_lua_table_field_p(lua_State *lua_vm, const char *key, const
     lua_settable(lua_vm, -3);
 }
 
-static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, long value) {
+static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, long long value) {
     lua_pushstring(lua_vm, key);
     lua_pushinteger(lua_vm, value);
     lua_settable(lua_vm, -3);
@@ -542,7 +542,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                 request->data = tojson_bool(request->data, lua_tostring(lua_vm, i), lua_toboolean(lua_vm, i + 1), comma);
             }
             else if (lua_isinteger(lua_vm, i + 1)) {
-                request->data = tojson_long(request->data, lua_tostring(lua_vm, i), lua_tointeger(lua_vm, i + 1), comma);
+                request->data = tojson_llong(request->data, lua_tostring(lua_vm, i), lua_tointeger(lua_vm, i + 1), comma);
             }
             else if (lua_isnumber(lua_vm, i + 1)) {
                 request->data = tojson_double(request->data, lua_tostring(lua_vm, i), lua_tonumber(lua_vm, i + 1), comma);

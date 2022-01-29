@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 #SPDX-License-Identifier: GPL-3.0-or-later
-#myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+#myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 #https://github.com/jcorporation/mympd
 
 #exit on error
@@ -62,6 +62,11 @@ then
   fi
 fi
 
+if [ -z "${ENABLE_IPV6+x}" ]
+then
+  export ENABLE_IPV6="OFF"
+fi
+
 if [ -z "${EXTRA_CMAKE_OPTIONS+x}" ]
 then
   export EXTRA_CMAKE_OPTIONS=""
@@ -91,6 +96,7 @@ CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-easily-swappable-parameters"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-macro-parentheses"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-reserved-identifier,-cert-dcl37-c,-cert-dcl51-cpp"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-signal-handler,-cert-sig30-c"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-integer-division"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-clang-diagnostic-invalid-command-line-argument"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-concurrency-mt-unsafe"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-cppcoreguidelines*"
@@ -99,10 +105,11 @@ CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvm-header-guard"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvm-include-order"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvmlibc-restrict-system-libc-headers"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-misc-misplaced-const"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-avoid-const-params-in-decls"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-function-cognitive-complexity,-google-readability-function-size,-readability-function-size"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-magic-numbers"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-avoid-const-params-in-decls"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-non-const-parameter"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-isolate-declaration"
 
 #save startpath
 STARTPATH=$(pwd)
@@ -112,7 +119,7 @@ umask 0022
 
 #get myMPD version
 VERSION=$(grep CPACK_PACKAGE_VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.' | sed 's/\.$//')
-COPYRIGHT="myMPD ${VERSION} | (c) 2018-2021 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd"
+COPYRIGHT="myMPD ${VERSION} | (c) 2018-2022 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd"
 
 #check for command
 check_cmd() {
@@ -319,7 +326,7 @@ buildrelease() {
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
   	-DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" \
     -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DENABLE_LIBASAN="$ENABLE_LIBASAN" \
-    $EXTRA_CMAKE_OPTIONS ..
+    -DENABLE_IPV6="$ENABLE_IPV6" $EXTRA_CMAKE_OPTIONS ..
   make
 }
 
@@ -390,10 +397,11 @@ builddebug() {
   cd debug || exit 1
   #shellcheck disable=SC2086
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
     -DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" \
     -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DENABLE_LIBASAN="$ENABLE_LIBASAN" \
-    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON $EXTRA_CMAKE_OPTIONS ..
+    -DENABLE_IPV6="$ENABLE_IPV6" $EXTRA_CMAKE_OPTIONS ..
   make VERBOSE=1
   echo "Linking compilation database"
   sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' \
@@ -1365,16 +1373,17 @@ case "$ACTION" in
     echo "  materialicons:    updates the materialicons json"
     echo "  setversion:       sets version and date in packaging files from CMakeLists.txt"
     echo ""
-    echo "Environment variables for building"
-    echo "  - MYMPD_INSTALL_PREFIX=\"/usr\""
-    echo "  - ENABLE_SSL=\"ON\""
-    echo "  - ENABLE_LIBID3TAG=\"ON\""
+    echo "Environment variables (with defaults) for building"
     echo "  - ENABLE_FLAC=\"ON\""
-    echo "  - ENABLE_LUA=\"ON\""
-    echo "  - EMBEDDED_ASSETS=\"ON\""
-    echo "  - MANPAGES=\"ON\""
+    echo "  - ENABLE_IPV6=\"OFF\""
     echo "  - ENABLE_LIBASAN=\"OFF\""
+    echo "  - ENABLE_LIBID3TAG=\"ON\""
+    echo "  - ENABLE_LUA=\"ON\""
+    echo "  - ENABLE_SSL=\"ON\""
+    echo "  - EMBEDDED_ASSETS=\"ON\""
     echo "  - EXTRA_CMAKE_OPTIONS=\"\""
+    echo "  - MANPAGES=\"ON\""
+    echo "  - MYMPD_INSTALL_PREFIX=\"/usr\""
     echo ""
     exit 1
 	;;
