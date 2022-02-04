@@ -135,6 +135,14 @@ function setSelectSearch(el) {
             el.dropdownButton.Dropdown.toggle();
         }, false);
     }
+    if (isMobile === true) {
+        el.parentNode.addEventListener('shown.bs.dropdown', function() {
+            domCache.body.style.overflow = 'hidden';
+        }, false);
+        el.parentNode.addEventListener('hidden.bs.dropdown', function() {
+            domCache.body.style.overflow = 'initial';
+        }, false);
+    }
     el.dropdownButton.addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
