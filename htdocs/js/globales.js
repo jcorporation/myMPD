@@ -715,7 +715,6 @@ const typeFriendly = {
 };
 
 const bgImageValues = [
-    {"value": "", "text": "None"},
     {"value": "/assets/mympd-background-dark.svg", "text": "Default image dark"},
     {"value": "/assets/mympd-background-light.svg", "text": "Default image light"}
 ];

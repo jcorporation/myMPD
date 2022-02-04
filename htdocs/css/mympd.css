@@ -1170,3 +1170,8 @@ input.innerButton {
   display: inline-flex;
   vertical-align: middle;
 }
+
+.list-group-scroll {
+  max-height: 12rem;
+  overflow-y: auto;
+}

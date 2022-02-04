@@ -89,7 +89,7 @@ function setInputReset(el) {
 
 function setSelectSearch(el) {
     const filterInput = elCreateEmpty('input', {"class": ["form-control", "form-control-sm", "mb-1"], "data-placeholder-phrase": "Filter", "placeholder": tn('Filter')});
-    const filterResult = elCreateEmpty('select', {"class": ["form-select", "form-select-sm"], "size": 10});
+    const filterResult = elCreateEmpty('ul', {"class": ["list-group", "list-group-scroll"]});
     const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "dropdown-menu-dark", "p-2", "w-100"]}, [
         filterInput,
         filterResult
@@ -113,8 +113,8 @@ function setSelectSearch(el) {
     el.filterResult.addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
-        el.value = event.target.text;
-        setData(el, 'value', event.target.value);
+        el.value = event.target.textContent;
+        setData(el, 'value', getData(event.target, 'value'));
         el.dropdownButton.Dropdown.hide();
         const changeEvent = new Event('change');
         el.dispatchEvent(changeEvent);
@@ -124,6 +124,11 @@ function setSelectSearch(el) {
         const cbOptions = getData(el, 'cb-filter-options');
         window[cb](... cbOptions, event.target.value);
     }, false);
+    el.addFilterResult = function(text, value) {
+        const item = elCreateText('li', {"class": ["list-group-item", "list-group-item-action", "bg-secondary", "clickable"]}, text);
+        setData(item, 'value', value);
+        el.filterResult.appendChild(item);
+    };
     new BSN.Dropdown(el.dropdownButton);
     if (el.getAttribute('readonly') === 'readonly') {
         el.addEventListener('click', function() {

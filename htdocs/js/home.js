@@ -676,7 +676,7 @@ function showHomeIconCmdOptions(values) {
 }
 
 function getHomeIconPictureList(picture) {
-    const selectHomeIconImage = document.getElementById('inputHomeIconImage').filterResult;
+    const selectHomeIconImage = document.getElementById('inputHomeIconImage');
     getImageList(selectHomeIconImage, picture, [{"value": "", "text": tn('Use ligature')}], 'thumbs');
 }
 

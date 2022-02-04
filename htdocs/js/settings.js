@@ -547,6 +547,9 @@ function populateConnectionFrm() {
 }
 
 function getBgImageText(value) {
+    if (value === '') {
+        return 'None';
+    }
     for (const key of bgImageValues) {
         if (key.value === value) {
             return key.text;
@@ -1295,7 +1298,7 @@ function setNavbarIcons() {
 }
 
 function getBgImageList(image) {
-    const list = document.getElementById('inputWebUIsettinguiBgImage').filterResult;
+    const list = document.getElementById('inputWebUIsettinguiBgImage');
     getImageList(list, image, bgImageValues, 'backgrounds');
 }
 
@@ -1310,12 +1313,13 @@ function getImageList(sel, value, addOptions, type) {
     }, function(obj) {
         elClear(sel);
         for (const option of addOptions) {
-            sel.appendChild(elCreateText('option', {"value": option.value}, option.text));
+            sel.addFilterResult(option.text, option.value);
         }
         for (let i = 0; i < obj.result.returnedEntities; i++) {
-            sel.appendChild(elCreateText('option', {"value": obj.result.data[i]}, obj.result.data[i]));
+            sel.addFilterResult(obj.result.data[i], obj.result.data[i]);
         }
-        sel.value = value;
+        sel.value = getBgImageText(value);
+        setData(sel, 'value', value);
     });
 }
 
@@ -1323,13 +1327,14 @@ function getImageList(sel, value, addOptions, type) {
 function filterImageSelect(elId, searchstr) {
     const select = document.getElementById(elId).filterResult;
     searchstr = searchstr.toLowerCase();
-    for (const option of select.options) {
-        const value = option.value.toLowerCase();
+    const items = select.getElementsByTagName('li');
+    for (const item of items) {
+        const value = item.textContent.toLowerCase();
         if (value.indexOf(searchstr) >= 0) {
-            elShow(option);
+            elShow(item);
         }
         else {
-            elHide(option);
+            elHide(item);
         }
     }
 }

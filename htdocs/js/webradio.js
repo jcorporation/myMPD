@@ -203,7 +203,7 @@ function showEditRadioFavorite(obj) {
     document.getElementById('editRadioFavoriteDescription').value = obj.Description === undefined ? '' : obj.Description;
 
     const imageEl = document.getElementById('editRadioFavoriteImage');
-    getImageList(imageEl.filterResult, obj.Image, [], 'thumbs');
+    getImageList(imageEl, obj.Image, [], 'thumbs');
     imageEl.value = obj.Image === undefined ? '' : obj.Image;
 
     elHideId('btnAddToWebradiodb');
@@ -468,18 +468,14 @@ function getWebradiodb() {
 
 function filterWebradiodbFilter(id, source, placeholder, searchStr) {
     searchStr = searchStr.toLowerCase();
-    const el = document.getElementById(id).filterResult;
-    elReplaceChild(el,
-        elCreateText('option', {"value": ""}, tn(placeholder))
-    );
+    const el = document.getElementById(id);
+    el.addFilterResult(tn(placeholder), '');
     let i = 0;
     for (const value of webradioDb[source]) {
         if (searchStr === '' ||
             value.toLowerCase().indexOf(searchStr) > -1)
         {
-            el.appendChild(
-                elCreateText('option', {"value": value}, tn(value))
-            );
+            el.addFilterResult(value, value);
             i++;
         }
         if (i === 50) {

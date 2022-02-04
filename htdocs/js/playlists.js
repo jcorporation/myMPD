@@ -345,13 +345,13 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
         playlistSelectId === 'selectAddToQueuePlaylist' ||
         playlistSelectId === 'selectTimerPlaylist')
     {
-        selectEl.filterResult.appendChild(elCreateText('option', {"value": "Database"}, tn('Database')));
+        selectEl.addFilterResult(tn('Database'), 'Database');
     }
 
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        selectEl.filterResult.appendChild(elCreateText('option', {"value": obj.result.data[i].uri}, obj.result.data[i].uri));
+        selectEl.addFilterResult(obj.result.data[i].uri, obj.result.data[i].uri);
         if (obj.result.data[i].uri === selectedPlaylist) {
-            selectEl.filterResult.lastChild.setAttribute('selected', 'selected');
+            selectEl.filterResult.lastChild.classList.add('active');
         }
     }
 }
