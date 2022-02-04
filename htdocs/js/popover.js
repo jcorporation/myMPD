@@ -381,7 +381,13 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
         app.id !== 'Home')
     {
         addDivider(tabContent);
-        addMenuItem(tabContent, {"cmd": "addSongToHome", "options": [uri, type, name]}, 'Add to homescreen');
+        if (app.id === 'BrowseRadioWebradiodb') {
+            const image = getData(dataNode, 'image');
+            addMenuItem(tabContent, {"cmd": "addWebRadiodbToHome", "options": [uri, type, name, image]}, 'Add to homescreen');
+        }
+        else {
+            addMenuItem(tabContent, {"cmd": "addSongToHome", "options": [uri, type, name]}, 'Add to homescreen');
+        }
     }
     if (app.id === 'BrowseRadioRadiobrowser' &&
         dataNode !== null)

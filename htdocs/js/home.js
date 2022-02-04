@@ -456,6 +456,11 @@ function addRadioFavoriteToHome(uri, type, name, image) {
 }
 
 //eslint-disable-next-line no-unused-vars
+function addWebRadiodbToHome(uri, type, name, image) {
+    _addHomeIcon('replaceQueue', name, '', image, [type, uri]);
+}
+
+//eslint-disable-next-line no-unused-vars
 function addDirToHome(uri, name) {
     if(uri === undefined) {
         uri = app.current.search;
