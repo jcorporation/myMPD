@@ -499,6 +499,7 @@ function doSearchWebradiodb() {
 }
 
 function searchWebradiodb(name, genre, country, language, sort, offset, limit) {
+    name = name.toLowerCase();
 	const obj = {
         "result": {
             "totalEntities": 0,
