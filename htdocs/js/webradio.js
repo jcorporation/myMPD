@@ -510,8 +510,8 @@ function searchWebradiodb(name, genre, country, language, sort, offset, limit) {
 
 	for (const key in webradioDb.webradios) {
 		if (webradioDb.webradios[key].Name.toLowerCase().indexOf(name) > -1 &&
-			(genre === ''    || webradioDb.webradios[key].Genre.includes(genre)) &&
-			(country === ''  || country === webradioDb.webradios[key].Country) &&
+			(genre === '' || webradioDb.webradios[key].Genre.includes(genre)) &&
+			(country === '' || country === webradioDb.webradios[key].Country) &&
 			(language === '' || language === webradioDb.webradios[key].Language)
 		) {
 			obj.result.data.push(webradioDb.webradios[key]);
@@ -519,19 +519,19 @@ function searchWebradiodb(name, genre, country, language, sort, offset, limit) {
 		}
 	}
 	obj.result.data.sort(function(a, b) {
-	        //primary sort by defined tag
+        //primary sort by defined tag
 		if (a[sort.tag] < b[sort.tag]) {
-                    return sort.desc === false ? -1 : 1;
+            return sort.desc === false ? -1 : 1;
 		}
 		if (a[sort.tag] > b[sort.tag]) {
-		    return sort.desc === false ? 1 : -1;
+            return sort.desc === false ? 1 : -1;
 		}
 		//secondary sort by Name
 		if (a.Name < b.Name) {
-                    return sort.desc === false ? -1 : 1;
+            return sort.desc === false ? -1 : 1;
 		}
 		if (a.Name > b.Name) {
-		    return sort.desc === false ? 1 : -1;
+            return sort.desc === false ? 1 : -1;
 		}
 		//equal
 		return 0;
