@@ -469,6 +469,7 @@ function getWebradiodb() {
 function filterWebradiodbFilter(id, source, placeholder, searchStr) {
     searchStr = searchStr.toLowerCase();
     const el = document.getElementById(id);
+    elClear(el.filterResult);
     el.addFilterResult(tn(placeholder), '');
     let i = 0;
     for (const value of webradioDb[source]) {
