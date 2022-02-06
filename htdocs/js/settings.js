@@ -1311,7 +1311,7 @@ function getImageList(sel, value, addOptions, type) {
     sendAPI("MYMPD_API_PICTURE_LIST", {
         "type": type
     }, function(obj) {
-        elClear(sel);
+        elClear(sel.filterResult);
         for (const option of addOptions) {
             sel.addFilterResult(option.text, option.value);
         }
