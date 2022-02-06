@@ -516,7 +516,7 @@ function _addHomeIcon(cmd, name, ligature, image, options) {
     populateHomeIconCmdSelect(cmd, options[0]);
     document.getElementById('selectHomeIconCmd').value = cmd;
     showHomeIconCmdOptions(options);
-    getHomeIconPictureList('');
+    getHomeIconPictureList();
     const homeIconPreviewEl = document.getElementById('homeIconPreview');
     const homeIconImageInput = document.getElementById('inputHomeIconImage');
     if (image !== '') {
@@ -568,7 +568,7 @@ function _editHomeIcon(pos, replace, title) {
         populateHomeIconCmdSelect(obj.result.data.cmd, obj.result.data.options[0]);
         document.getElementById('selectHomeIconCmd').value = obj.result.data.cmd;
         showHomeIconCmdOptions(obj.result.data.options);
-        getHomeIconPictureList(obj.result.data.image);
+        getHomeIconPictureList();
         document.getElementById('inputHomeIconImage').value = obj.result.data.image === '' ? tn('Use ligature') : obj.result.data.image;
         setData(document.getElementById('inputHomeIconImage'),'value', obj.result.data.image);
 
@@ -675,9 +675,9 @@ function showHomeIconCmdOptions(values) {
     }
 }
 
-function getHomeIconPictureList(picture) {
+function getHomeIconPictureList() {
     const selectHomeIconImage = document.getElementById('inputHomeIconImage');
-    getImageList(selectHomeIconImage, picture, [{"value": "", "text": tn('Use ligature')}], 'thumbs');
+    getImageList(selectHomeIconImage, [{"value": "", "text": tn('Use ligature')}], 'thumbs');
 }
 
 //eslint-disable-next-line no-unused-vars

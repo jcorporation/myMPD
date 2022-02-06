@@ -1297,17 +1297,17 @@ function setNavbarIcons() {
     domCache.navbarBtnsLen = domCache.navbarBtns.length;
 }
 
-function getBgImageList(image) {
+function getBgImageList() {
     const list = document.getElementById('inputWebUIsettinguiBgImage');
-    getImageList(list, image, bgImageValues, 'backgrounds');
+    getImageList(list, bgImageValues, 'backgrounds');
 }
 
 //eslint-disable-next-line no-unused-vars
-function getImageListId(selectId, value, addOptions, type) {
-    getImageList(document.getElementById(selectId), value, addOptions, type)
+function getImageListId(selectId, addOptions, type) {
+    getImageList(document.getElementById(selectId), addOptions, type)
 }
 
-function getImageList(sel, value, addOptions, type) {
+function getImageList(sel, addOptions, type) {
     sendAPI("MYMPD_API_PICTURE_LIST", {
         "type": type
     }, function(obj) {
@@ -1318,8 +1318,6 @@ function getImageList(sel, value, addOptions, type) {
         for (let i = 0; i < obj.result.returnedEntities; i++) {
             sel.addFilterResult(obj.result.data[i], obj.result.data[i]);
         }
-        sel.value = getBgImageText(value);
-        setData(sel, 'value', value);
     });
 }
 

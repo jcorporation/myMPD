@@ -203,8 +203,9 @@ function showEditRadioFavorite(obj) {
     document.getElementById('editRadioFavoriteDescription').value = obj.Description === undefined ? '' : obj.Description;
 
     const imageEl = document.getElementById('editRadioFavoriteImage');
-    getImageList(imageEl, obj.Image, [], 'thumbs');
+    getImageList(imageEl, [], 'thumbs');
     imageEl.value = obj.Image === undefined ? '' : obj.Image;
+    setData(imageEl, 'value', obj.Image === undefined ? '' : obj.Image);
 
     elHideId('btnAddToWebradiodb');
     elHideId('btnUpdateWebradiodb');
