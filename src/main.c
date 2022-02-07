@@ -142,9 +142,6 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         //workdir is not accessible
         return false;
     }
-    if (testdir_rc == DIR_CREATED) {
-        config->first_startup = true;
-    }
     //directory exists or was created; set user and group, if uid = 0
     if (startup_uid == 0) {
         MYMPD_LOG_DEBUG("Checking ownership of \"%s\"", config->workdir);
@@ -158,6 +155,10 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     if (testdir_rc == DIR_CREATE_FAILED) {
         FREE_SDS(testdirname);
         return false;
+    }
+    else if (testdir_rc == DIR_CREATED) {
+        MYMPD_LOG_INFO("First startup of myMPD");
+        config->first_startup = true;
     }
     FREE_SDS(testdirname);
 

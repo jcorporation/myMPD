@@ -51,6 +51,9 @@ void mympd_free_config_initial(struct t_config *config) {
 }
 
 void mympd_config_defaults(struct t_config *config) {
+    if (config->first_startup == true) {
+        MYMPD_LOG_INFO("Reading environment variables");
+    }
     //configureable with environment variables at first startup
     config->http_host = mympd_getenv_string("MYMPD_HTTP_HOST", "0.0.0.0", vcb_isname, config->first_startup);
     config->http_port = mympd_getenv_string("MYMPD_HTTP_PORT", "80", vcb_isdigit, config->first_startup);
@@ -136,6 +139,7 @@ bool mympd_read_config(struct t_config *config) {
 static const char *mympd_getenv(const char *env_var, bool first_startup) {
     const char *env_value = getenv(env_var); /* Flawfinder: ignore */
     if (env_value == NULL) {
+        MYMPD_LOG_DEBUG("Environment variable \"%s\" not found", env_var);
         return NULL;
     }
     if (env_value[0] == '\0') {
