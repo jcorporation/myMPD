@@ -65,9 +65,12 @@ static sds get_local_ip(void) {
                 MYMPD_LOG_ERROR("getnameinfo() failed: %s\n", gai_strerror(s));
                 continue;
             }
-            sds ip = sdsnew(host);
+            char *crap;
+            // remove zone info from ipv6
+            char *ip = strtok_r(host, "%", &crap);
+            sds ip_str = sdsnew(ip);
             freeifaddrs(ifaddr);
-            return ip;
+            return ip_str;
         }
     }
     freeifaddrs(ifaddr);

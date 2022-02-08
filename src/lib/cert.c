@@ -321,9 +321,12 @@ static sds get_san(sds buffer) {
                     MYMPD_LOG_ERROR("getnameinfo() failed: %s\n", gai_strerror(s));
                     continue;
                 }
-                MYMPD_LOG_DEBUG("Adding IP:%s to SAN", host);
                 sdsclear(key);
-                key = sdscatfmt(key, "IP:%s", host);
+                char *crap;
+                // remove zone info from ipv6
+                char *ip = strtok_r(host, "%", &crap);
+                MYMPD_LOG_DEBUG("Adding IP:%s to SAN", ip);
+                key = sdscatfmt(key, "IP:%s", ip);
                 list_push(&san, key, 0, NULL, NULL);
             }
         }
