@@ -215,7 +215,7 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
     sds san = sdsempty();
     san = get_san(san);
     if (sdslen(custom_san) > 0) {
-        san = sdscatfmt(san, ", %s", custom_san);
+        san = sdscatfmt(san, ",%s", custom_san);
     }
     MYMPD_LOG_NOTICE("Set server certificate san to: %s", san);
     *server_cert = sign_certificate_request(*ca_key, *ca_cert, server_req, san);
@@ -266,16 +266,18 @@ static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 *
 
 /*Gets local hostname and ip for subject alternative names */
 static sds get_san(sds buffer) {
-    sds key = NULL;
+    sds key = sdsempty();
     struct t_list san;
     list_init(&san);
+    MYMPD_LOG_DEBUG("Adding DNS:localhost to SAN");
     list_push(&san, "DNS:localhost", 0, NULL, NULL);
 
     //Retrieve short hostname
     char hostbuffer[256]; /* Flawfinder: ignore */
     int hostname = gethostname(hostbuffer, sizeof(hostbuffer));
     if (hostname == 0) {
-        key = sdscatfmt(sdsempty(), "DNS:%s", hostbuffer);
+        MYMPD_LOG_DEBUG("Adding DNS:%s to SAN", hostbuffer);
+        key = sdscatfmt(key, "DNS:%s", hostbuffer);
         list_push(&san, key, 0, NULL, NULL);
         //Retrieve fqdn
         struct addrinfo hints = {0};
@@ -285,6 +287,7 @@ static sds get_san(sds buffer) {
         if (getaddrinfo(hostbuffer, 0, &hints, &res) == 0) {
             // The hostname was successfully resolved.
             if (strcmp(hostbuffer, res->ai_canonname) != 0) {
+                MYMPD_LOG_DEBUG("Adding DNS:%s to SAN", res->ai_canonname);
                 sdsclear(key);
                 key = sdscatfmt(sdsempty(), "DNS:%s", res->ai_canonname);
                 list_push(&san, key, 0, NULL, NULL);
@@ -317,8 +320,9 @@ static sds get_san(sds buffer) {
                     MYMPD_LOG_ERROR("getnameinfo() failed: %s\n", gai_strerror(s));
                     continue;
                 }
+                MYMPD_LOG_DEBUG("Adding IP:%s to SAN", host);
                 sdsclear(key);
-                key = sdscatfmt(sdsempty(), "IP:%s", host);
+                key = sdscatfmt(key, "IP:%s", host);
                 list_push(&san, key, 0, NULL, NULL);
             }
         }
@@ -331,7 +335,7 @@ static sds get_san(sds buffer) {
     //create san string
     struct t_list_node *current = san.head;
     int i = 0;
-    while (current->next != NULL) {
+    while (current != NULL) {
         if (i++) {
             buffer = sdscatlen(buffer, ",", 1);
         }
