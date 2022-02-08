@@ -156,7 +156,7 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         FREE_SDS(testdirname);
         return false;
     }
-    else if (testdir_rc == DIR_CREATED) {
+    if (testdir_rc == DIR_CREATED) {
         MYMPD_LOG_INFO("First startup of myMPD");
         config->first_startup = true;
     }
