@@ -136,8 +136,55 @@ function parseState(obj) {
     }
     //save state
     currentState = obj.result;
-    //Set play and queue state
-    parseUpdateQueue(obj);
+    //Set playback buttons
+    if (obj.result.state === 'stop') {
+        document.getElementById('btnPlay').textContent = 'play_arrow';
+        domCache.progressBar.style.transition = 'none';
+        elReflow(domCache.progressBar);
+        domCache.progressBar.style.width = '0';
+        elReflow(domCache.progressBar);
+        domCache.progressBar.style.transition = progressBarTransition;
+        elReflow(domCache.progressBar);
+    }
+    else if (obj.result.state === 'play') {
+        document.getElementById('btnPlay').textContent =
+            settings.webuiSettings.uiFooterPlaybackControls === 'stop' ? 'stop' : 'pause';
+    }
+    else {
+        //pause
+        document.getElementById('btnPlay').textContent = 'play_arrow';
+    }
+
+    if (obj.result.queueLength === 0) {
+        elDisableId('btnPlay');
+    }
+    else {
+        elEnableId('btnPlay');
+    }
+
+    if (obj.result.nextSongPos === -1 &&
+        settings.jukeboxMode === 'off')
+    {
+        elDisableId('btnNext');
+    }
+    else {
+        elEnableId('btnNext');
+    }
+
+    if (obj.result.songPos < 0) {
+        elDisableId('btnPrev');
+    }
+    else {
+        elEnableId('btnPrev');
+    }
+    //media session
+    mediaSessionSetState();
+    mediaSessionSetPositionState(obj.result.totalTime, obj.result.elapsedTime);
+    //queue badge in navbar
+    const badgeQueueItemsEl = document.getElementById('badgeQueueItems');
+    if (badgeQueueItemsEl) {
+        badgeQueueItemsEl.textContent = obj.result.queueLength;
+    }
     //Set volume
     parseVolume(obj);
     //Set play counters

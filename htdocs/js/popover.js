@@ -62,13 +62,13 @@ function showPopover(event) {
                 break;
             case 'disc':
                 //disc actions in album details view
-                popoverInit = createPopoverSimple(target, 'Disc', addMenuItemsDiscActions, false);
+                popoverInit = createPopoverSimple(target, 'Disc', addMenuItemsDiscActions);
                 break;
             case 'NavbarPlayback':
             case 'NavbarQueue':
             case 'NavbarBrowse':
                 //navbar icons
-                popoverInit = createPopoverSimple(target, target.getAttribute('title'), addMenuItemsNavbarActions, true);
+                popoverInit = createPopoverSimple(target, target.getAttribute('title'), addMenuItemsNavbarActions);
                 popoverInit.options.placement = getXpos(target) < 100 ? 'right' : 'bottom';
                 break;
             case 'home':
@@ -77,11 +77,11 @@ function showPopover(event) {
                 break;
             case 'webradio':
                 //webradio favorite actions
-                popoverInit = createPopoverSimple(target, 'Webradio', addMenuItemsWebradioFavoritesActions, false);
+                popoverInit = createPopoverSimple(target, 'Webradio', addMenuItemsWebradioFavoritesActions);
                 break;
             case 'album':
                 //album action in album list
-                popoverInit = createPopoverSimple(target, 'Album', addMenuItemsAlbumActions, false);
+                popoverInit = createPopoverSimple(target, 'Album', addMenuItemsAlbumActions);
                 break;
             default:
                 popoverInit = createPopoverTabs(target, createMenuLists, createMenuListsSecondary);
@@ -91,34 +91,34 @@ function showPopover(event) {
     popoverInit.show();
 }
 
-function createPopoverInit(el, title, template) {
+function createPopoverBody(template) {
     if (template === 'tabs') {
-        template = elCreateNodes('div', {"class": ["popover"]}, [
-            elCreateEmpty('div', {"class": ["popover-arrow"]}),
-            elCreateEmpty('h3', {"class": ["popover-header"]}),
-            elCreateNodes('div', {"class": ["popover-tabs", "py-2"]}, [
-                elCreateNodes('ul', {"class": ["nav", "nav-tabs", "px-2"]}, [
-                    elCreateNode('li', {"class": ["nav-item"]},
-                        elCreateEmpty('a', {"class": ["nav-link", "active"], "href": "#"})
-                    ),
-                    elCreateNode('li', {"class": ["nav-item"]},
-                        elCreateEmpty('a', {"class": ["nav-link"], "href": "#"})
-                    )
-                ]),
-                elCreateNodes('div', {"class": ["tab-content"]}, [
-                    elCreateEmpty('div', {"class": ["tab-pane", "pt-2", "active", "show"], "id": "popoverTab0"}),
-                    elCreateEmpty('div', {"class": ["tab-pane", "pt-2"], "id": "popoverTab1"})
-                ])
-            ])
-        ]);
+        return elCreateNodes('div', {"class": ["popover-tabs", "py-2"]}, [
+                   elCreateNodes('ul', {"class": ["nav", "nav-tabs", "px-2"]}, [
+                       elCreateNode('li', {"class": ["nav-item"]},
+                           elCreateEmpty('a', {"class": ["nav-link", "active"], "href": "#"})
+                       ),
+                       elCreateNode('li', {"class": ["nav-item"]},
+                           elCreateEmpty('a', {"class": ["nav-link"], "href": "#"})
+                       )
+                   ]),
+                   elCreateNodes('div', {"class": ["tab-content"]}, [
+                       elCreateEmpty('div', {"class": ["tab-pane", "pt-2", "active", "show"], "id": "popoverTab0"}),
+                       elCreateEmpty('div', {"class": ["tab-pane", "pt-2"], "id": "popoverTab1"})
+                   ])
+               ])
     }
-    else {
-        template = elCreateNodes('div', {"class": ["popover"]}, [
-            elCreateEmpty('div', {"class": ["popover-arrow"]}),
-            elCreateEmpty('h3', {"class": ["popover-header"]}),
-            elCreateEmpty('div', {"class": ["popover-body"]})
-        ]);
-    }
+    
+    return elCreateEmpty('div', {"class": ["popover-body"]})
+}
+
+function createPopoverInit(el, title, template) {
+    template = elCreateNodes('div', {"class": ["popover"]}, [
+                   elCreateEmpty('div', {"class": ["popover-arrow"]}),
+                   elCreateEmpty('h3', {"class": ["popover-header"]}),
+                   createPopoverBody(template)
+               ]);
+
     return new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false,
         title: document.createTextNode(title), template: template, content: document.createTextNode('dummy')});
 }
@@ -178,54 +178,50 @@ function createPopoverColumns(el) {
     return popoverInit;
 }
 
-function createPopoverSimple(el, title, contentCallback, onShow) {
+function createPopoverSimple(el, title, contentCallback) {
     const popoverInit = createPopoverInit(el, tn(title));
-    if (onShow === true) {
-        //update content on each show event
-        el.addEventListener('show.bs.popover', function() {
-            const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
-            popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
-            contentCallback(popoverBody, el);
-            createPopoverClickHandler(popoverBody);
-        }, false);
-    }
-    else {
+    //update content on each show event
+    el.addEventListener('show.bs.popover', function() {
         const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
         popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
         contentCallback(popoverBody, el);
         createPopoverClickHandler(popoverBody);
-    }
+    }, false);
     return popoverInit;
 }
 
 function createPopoverTabs(el, tab1Callback, tab2Callback) {
     const popoverInit = createPopoverInit(el, '', 'tabs');
-    const tabHeader = popoverInit.popover.getElementsByClassName('nav-link');
-    const tabPanes = popoverInit.popover.getElementsByClassName('tab-pane');
-    for (let i = 0; i < 2; i++) {
-        tabHeader[i].addEventListener('click', function(event) {
-            tabHeader[i].classList.add('active');
-            tabPanes[i].classList.add('active', 'show');
-            const j = i === 0 ? 1 : 0;
-            tabHeader[j].classList.remove('active');
-            tabPanes[j].classList.remove('active', 'show');
-            event.preventDefault();
-            event.stopPropagation();
-        }, false);
+    //update content on each show event
+    el.addEventListener('show.bs.popover', function() {
+        popoverInit.popover.getElementsByClassName('popover-tabs')[0].replaceWith(createPopoverBody('tabs'));
+        const tabHeader = popoverInit.popover.getElementsByClassName('nav-link');
+        const tabPanes = popoverInit.popover.getElementsByClassName('tab-pane');
+        for (let i = 0; i < 2; i++) {
+            tabHeader[i].addEventListener('click', function(event) {
+                tabHeader[i].classList.add('active');
+                tabPanes[i].classList.add('active', 'show');
+                const j = i === 0 ? 1 : 0;
+                tabHeader[j].classList.remove('active');
+                tabPanes[j].classList.remove('active', 'show');
+                event.preventDefault();
+                event.stopPropagation();
+            }, false);
 
-        elClear(tabPanes[i]);
-        const created = i === 0 ?
-            tab1Callback(el, tabHeader[0], tabPanes[0]) :
-            tab2Callback(el, tabHeader[1], tabPanes[1]);
+            elClear(tabPanes[i]);
+            const created = i === 0 ?
+                tab1Callback(el, tabHeader[0], tabPanes[0]) :
+                tab2Callback(el, tabHeader[1], tabPanes[1]);
 
-        if (created === true) {
-            createPopoverClickHandler(tabPanes[i]);
+            if (created === true) {
+                createPopoverClickHandler(tabPanes[i]);
+            }
+            else {
+                popoverInit.popover.getElementsByClassName('popover-header')[0].textContent = tabHeader[0].textContent;
+                tabHeader[0].parentNode.parentNode.remove();
+            }
         }
-        else {
-            popoverInit.popover.getElementsByClassName('popover-header')[0].textContent = tabHeader[0].textContent;
-            tabHeader[0].parentNode.parentNode.remove();
-        }
-    }
+    }, false);
     return popoverInit;
 }
 

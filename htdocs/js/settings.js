@@ -323,6 +323,10 @@ function parseSettings(obj) {
     else {
         elHideId('btnStop');
     }
+    
+    if (settings.jukeboxMode !== 'off') {
+        document.getElementById('btnNext').removeAttribute('disabled');
+    }
 
     //parse mpd settings if connected
     if (settings.mpdConnected === true) {

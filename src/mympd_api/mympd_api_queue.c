@@ -13,10 +13,10 @@
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
+#include "mympd_api_utility.h"
 #include "mympd_api_webradios.h"
 
 //private definitions
-static sds _mympd_api_get_queue_state(struct mpd_status *status, sds buffer);
 sds _print_queue_entry(struct t_mympd_state *mympd_state, sds buffer, const struct t_tags *tagcols, struct mpd_song *song);
 
 //public
@@ -128,7 +128,9 @@ sds mympd_api_queue_status(struct t_mympd_state *mympd_state, sds buffer) {
     mympd_state->mpd_state->state = mpd_status_get_state(status);
 
     if (buffer != NULL) {
-        buffer = _mympd_api_get_queue_state(status, buffer);
+        buffer = jsonrpc_notify_start(buffer, "update_queue");
+        buffer = mympd_api_status_print(mympd_state, buffer, status);
+        buffer = jsonrpc_result_end(buffer);
     }
     mpd_status_free(status);
     return buffer;
@@ -331,21 +333,5 @@ sds _print_queue_entry(struct t_mympd_state *mympd_state, sds buffer, const stru
         buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, uri);
     }
     buffer = sdscatlen(buffer, "}", 1);
-    return buffer;
-}
-
-static sds _mympd_api_get_queue_state(struct mpd_status *status, sds buffer) {
-    buffer = jsonrpc_notify_start(buffer, "update_queue");
-    enum mpd_state playstate = mpd_status_get_state(status);
-    const char *playstate_str =
-        playstate == MPD_STATE_STOP ? "stop" :
-        playstate == MPD_STATE_PLAY ? "play" :
-        playstate == MPD_STATE_PAUSE ? "pause" : "unknown";
-    buffer = tojson_char(buffer, "state", playstate_str, true);
-    buffer = tojson_uint(buffer, "queueLength", mpd_status_get_queue_length(status), true);
-    buffer = tojson_uint(buffer, "queueVersion", mpd_status_get_queue_version(status), true);
-    buffer = tojson_int(buffer, "songPos", mpd_status_get_song_pos(status), true);
-    buffer = tojson_int(buffer, "nextSongPos", mpd_status_get_next_song_pos(status), false);
-    buffer = jsonrpc_result_end(buffer);
     return buffer;
 }

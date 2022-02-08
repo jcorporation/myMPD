@@ -9,6 +9,7 @@
 
 #include "../lib/mympd_state.h"
 
+sds mympd_api_status_print(struct t_mympd_state *mympd_state, sds buffer, struct mpd_status *status);
 enum jukebox_modes mympd_parse_jukebox_mode(const char *str);
 const char *mympd_lookup_jukebox_mode(enum jukebox_modes mode);
 void mympd_state_default(struct t_mympd_state *mympd_state);

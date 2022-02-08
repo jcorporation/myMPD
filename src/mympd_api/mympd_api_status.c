@@ -128,32 +128,7 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     else {
         buffer = jsonrpc_result_start(buffer, method, request_id);
     }
-    enum mpd_state playstate = mpd_status_get_state(status);
-    const char *playstate_str =
-        playstate == MPD_STATE_STOP ? "stop" :
-        playstate == MPD_STATE_PLAY ? "play" :
-        playstate == MPD_STATE_PAUSE ? "pause" : "unknown";
-
-    buffer = tojson_char(buffer, "state", playstate_str, true);
-    buffer = tojson_long(buffer, "volume", mpd_status_get_volume(status), true);
-    buffer = tojson_long(buffer, "songPos", mpd_status_get_song_pos(status), true);
-    buffer = tojson_uint(buffer, "elapsedTime", mympd_api_get_elapsed_seconds(status), true);
-    buffer = tojson_uint(buffer, "totalTime", mpd_status_get_total_time(status), true);
-    buffer = tojson_long(buffer, "currentSongId", mpd_status_get_song_id(status), true);
-    buffer = tojson_uint(buffer, "kbitrate", mpd_status_get_kbit_rate(status), true);
-    buffer = tojson_uint(buffer, "queueLength", mpd_status_get_queue_length(status), true);
-    buffer = tojson_uint(buffer, "queueVersion", mpd_status_get_queue_version(status), true);
-    buffer = tojson_long(buffer, "nextSongPos", mpd_status_get_next_song_pos(status), true);
-    buffer = tojson_long(buffer, "nextSongId", mpd_status_get_next_song_id(status), true);
-    buffer = tojson_long(buffer, "lastSongId", (mympd_state->mpd_state->last_song_id ?
-        mympd_state->mpd_state->last_song_id : -1), true);
-    if (mympd_state->mpd_state->feat_mpd_partitions == true) {
-        buffer = tojson_char(buffer, "partition", mpd_status_get_partition(status), true);
-    }
-    const struct mpd_audio_format *audioformat = mpd_status_get_audio_format(status);
-    buffer = printAudioFormat(buffer, audioformat);
-    buffer = sdscatlen(buffer, ",", 1);
-    buffer = tojson_char(buffer, "lastError", mpd_status_get_error(status), false);
+    buffer = mympd_api_status_print(mympd_state, buffer, status);
     buffer = jsonrpc_result_end(buffer);
 
     mpd_status_free(status);

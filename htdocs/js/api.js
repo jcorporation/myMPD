@@ -357,10 +357,16 @@ function webSocketConnect() {
                         validateSession();
                     }
                     break;
+                case 'update_queue':
                 case 'update_state':
                     //rename param to result
                     obj.result = obj.params;
                     delete obj.params;
+                    if (app.id === 'QueueCurrent' &&
+                        obj.method === 'update_queue')
+                    {
+                        getQueue();
+                    }
                     parseState(obj);
                     break;
                 case 'mpd_disconnected':
@@ -374,15 +380,6 @@ function webSocketConnect() {
                     showNotification(tn('Connected to MPD'), '', 'general', 'info');
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState);
                     getSettings(true);
-                    break;
-                case 'update_queue':
-                    if (app.id === 'QueueCurrent') {
-                        getQueue();
-                    }
-                    //rename param to result
-                    obj.result = obj.params;
-                    delete obj.params;
-                    parseUpdateQueue(obj);
                     break;
                 case 'update_options':
                     getSettings();
