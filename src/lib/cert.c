@@ -215,6 +215,7 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
     sds san = sdsempty();
     san = get_san(san);
     if (sdslen(custom_san) > 0) {
+        MYMPD_LOG_DEBUG("Adding custom san: %s", custom_san);
         san = sdscatfmt(san, ",%s", custom_san);
     }
     MYMPD_LOG_NOTICE("Set server certificate san to: %s", san);
