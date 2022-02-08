@@ -409,6 +409,8 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
             mympd_state->jukebox_mode = jukebox_mode;
             jukebox_changed = true;
         }
+        sdsclear(value);
+        value = sdscatprintf(value, "%d", jukebox_mode);
     }
     else if (strcmp(key, "jukeboxPlaylist") == 0 && vtype == MJSON_TOK_STRING) {
         if (vcb_isfilename(value) == false) {
