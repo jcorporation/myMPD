@@ -399,6 +399,10 @@ static X509_REQ *generate_request(EVP_PKEY *pkey) {
 
 static void add_extension(X509V3_CTX *ctx, X509 *cert, int nid, const char *value) {
     X509_EXTENSION *ex = X509V3_EXT_conf_nid(NULL, ctx, nid, value);
+    if (!ex) {
+        MYMPD_LOG_ERROR("Error adding extension with value: %s", value);
+        return;
+    }
     X509_add_ext(cert, ex, -1);
     X509_EXTENSION_free(ex);
 }
