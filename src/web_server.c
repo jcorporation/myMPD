@@ -82,7 +82,7 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     #endif
     FREE_SDS(http_url);
     if (nc_http == NULL) {
-        MYMPD_LOG_ERROR("Can't bind to http://%s:%s", config->http_host, config->http_port);
+        MYMPD_LOG_EMERG("Can't bind to http://%s:%s", config->http_host, config->http_port);
         mg_mgr_free(mgr);
         return false;
     }
