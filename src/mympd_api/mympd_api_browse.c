@@ -603,40 +603,51 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
     }
 
     struct mpd_pair *pair;
-    long entity_count = 0;
-    long entities_returned = 0;
     enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
-    long real_limit = offset + limit;
+    struct t_list taglist;
+    list_init(&taglist);
+    sds value_lower = sdsempty();
+    //filter and sort
     while ((pair = mpd_recv_pair_tag(mympd_state->mpd_state->conn, mpdtag)) != NULL) {
         if (pair->value[0] == '\0') {
             MYMPD_LOG_DEBUG("Value is empty, skipping");
             mpd_return_pair(mympd_state->mpd_state->conn, pair);
             continue;
         }
-        sds value_lower = sdsnew(pair->value);
+        sdsclear(value_lower);
+        value_lower = sdscat(value_lower, pair->value);
         sds_utf8_tolower(value_lower);
         mpd_return_pair(mympd_state->mpd_state->conn, pair);
         if (searchstr_len == 0 ||
             (searchstr_len <= 2 && strncmp(searchstr, value_lower, searchstr_len) == 0) ||
             (searchstr_len > 2 && strstr(value_lower, searchstr) != NULL))
         {
-            if (entity_count >= offset && entity_count < real_limit) {
-                if (entities_returned++) {
-                    buffer = sdscatlen(buffer, ",", 1);
-                }
-                buffer = sdscatlen(buffer, "{", 1);
-                buffer = tojson_char(buffer, "value", pair->value, false);
-                buffer = sdscatlen(buffer, "}", 1);
-            }
-            entity_count++;
+            list_insert_sorted_by_key(&taglist, pair->value, 0, NULL, NULL, LIST_SORT_ASC);
         }
-        FREE_SDS(value_lower);
     }
+    FREE_SDS(value_lower);
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
     }
-
+    //print list
+    long entity_count = 0;
+    long entities_returned = 0;
+    long real_limit = offset + limit;
+    struct t_list_node *current = taglist.head;
+    while (current != NULL) {
+        if (entity_count >= offset && entity_count < real_limit) {
+            if (entities_returned++) {
+                buffer = sdscatlen(buffer, ",", 1);
+            }
+            buffer = sdscatlen(buffer, "{", 1);
+            buffer = tojson_sds(buffer, "value", current->key, false);
+            buffer = sdscatlen(buffer, "}", 1);
+        }
+        entity_count++;
+        current = current->next; 
+    }
+    list_clear(&taglist);
     //checks if this tag has a directory with pictures in /var/lib/mympd/pics
     sds pic_path = sdscatfmt(sdsempty(), "%s/pics/%s", mympd_state->config->workdir, tag);
     bool pic = false;

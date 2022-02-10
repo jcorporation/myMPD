@@ -222,20 +222,36 @@ static bool list_sort_cmp_value_i(struct t_list_node *current, struct t_list_nod
 }
 
 static bool list_sort_cmp_value_p(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
-    if ((direction == LIST_SORT_ASC && strcmp(current->value_p, next->value_p) > 0) ||
-        (direction == LIST_SORT_DESC && strcmp(current->value_p, next->value_p) < 0))
+    sds cvalue = sdsdup(current->value_p);
+    sds nvalue = sdsdup(next->value_p);
+    sds_utf8_tolower(cvalue);
+    sds_utf8_tolower(nvalue);
+    if ((direction == LIST_SORT_ASC && strcmp(cvalue, nvalue) > 0) ||
+        (direction == LIST_SORT_DESC && strcmp(cvalue, nvalue) < 0))
     {
+        sdsfree(cvalue);
+        sdsfree(nvalue);
         return true;
     }
+    sdsfree(cvalue);
+    sdsfree(nvalue);
     return false;
 }
 
 static bool list_sort_cmp_key(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
-    if ((direction == LIST_SORT_ASC && strcmp(current->key, next->key) > 0) ||
-        (direction == LIST_SORT_DESC && strcmp(current->key, next->key) < 0))
+    sds ckey = sdsdup(current->key);
+    sds nkey = sdsdup(next->key);
+    sds_utf8_tolower(ckey);
+    sds_utf8_tolower(nkey);
+    if ((direction == LIST_SORT_ASC && strcmp(ckey, nkey) > 0) ||
+        (direction == LIST_SORT_DESC && strcmp(ckey, nkey) < 0))
     {
+        sdsfree(ckey);
+        sdsfree(nkey);
         return true;
     }
+    sdsfree(ckey);
+    sdsfree(nkey);
     return false;
 }
 
@@ -403,14 +419,20 @@ bool list_insert_sorted_by_key(struct t_list *l, const char *key, long long valu
         l->length++;
         return true;
     }
+    sds key_lower = sdsdup(n->key);
+    sds ckey_lower = sdsempty();
+    sds_utf8_tolower(key_lower);
     //find correct position to insert
     struct t_list_node *current = NULL;
     struct t_list_node *previous = NULL;
     for (current = l->head; current != NULL; previous = current, current = current->next) {
-        if (direction == LIST_SORT_ASC && strcmp(n->key, current->key) < 0) {
+        sdsclear(ckey_lower);
+        ckey_lower = sdscatsds(ckey_lower, current->key);
+        sds_utf8_tolower(ckey_lower);
+        if (direction == LIST_SORT_ASC && strcmp(key_lower, ckey_lower) < 0) {
             break;
         }
-        if (direction == LIST_SORT_DESC && strcmp(n->key, current->key) > 0) {
+        if (direction == LIST_SORT_DESC && strcmp(key_lower, ckey_lower) > 0) {
             break;
         }
     }
@@ -427,7 +449,8 @@ bool list_insert_sorted_by_key(struct t_list *l, const char *key, long long valu
         l->tail = previous->next;
     }
     l->length++;
-
+    sdsfree(key_lower);
+    sdsfree(ckey_lower);
     return true;
 }
 
