@@ -18,12 +18,16 @@ function initJukebox() {
         }
     }, false);
     document.getElementById('searchQueueJukeboxStr').addEventListener('keyup', function(event) {
+        clearSearchTimer();
         if (event.key === 'Escape') {
             this.blur();
         }
         else {
-            appGoto(app.current.card, app.current.tab, app.current.view,
-                0, app.current.limit, app.current.filter, app.current.sort, '-', this.value);
+            const value = this.value;
+            searchTimer = setTimeout(function() {
+                appGoto(app.current.card, app.current.tab, app.current.view,
+                    0, app.current.limit, app.current.filter, app.current.sort, '-', value);
+            }, searchTimerTimeout);
         }
     }, false);
 }

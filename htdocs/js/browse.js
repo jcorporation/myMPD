@@ -107,39 +107,52 @@ function initBrowse() {
     }, false);
 
     document.getElementById('searchFilesystemStr').addEventListener('keyup', function(event) {
+        clearSearchTimer();
         if (event.key === 'Escape') {
             this.blur();
         }
         else {
-            appGoto(app.current.card, app.current.tab, app.current.view,
-                0, app.current.limit, (this.value !== '' ? this.value : '-'), app.current.sort, '-', app.current.search);
+            const value = this.value;
+            searchTimer = setTimeout(function() {
+                appGoto(app.current.card, app.current.tab, app.current.view,
+                    0, app.current.limit, (value !== '' ? value : '-'), app.current.sort, '-', app.current.search);
+            }, searchTimerTimeout);
         }
     }, false);
 
     document.getElementById('searchDatabaseStr').addEventListener('keyup', function(event) {
+        clearSearchTimer();
+        const value = this.value;
         if (event.key === 'Escape') {
+            clearSearchTimer();
             this.blur();
         }
         else if (event.key === 'Enter' &&
             app.current.tag === 'Album')
         {
-            if (this.value !== '') {
+            if (value !== '') {
                 const op = getSelectValueId('searchDatabaseMatch');
                 const crumbEl = document.getElementById('searchDatabaseCrumb');
-                crumbEl.appendChild(createSearchCrumb(app.current.filter, op, this.value));
+                crumbEl.appendChild(createSearchCrumb(app.current.filter, op, value));
                 elShow(crumbEl);
                 this.value = '';
             }
             else {
-                searchAlbumgrid(this.value);
+                searchTimer = setTimeout(function() {
+                    searchAlbumgrid(value);
+                }, searchTimerTimeout);
             }
         }
         else if (app.current.tag === 'Album') {
-            searchAlbumgrid(this.value);
+            searchTimer = setTimeout(function() {
+                searchAlbumgrid(value);
+            }, searchTimerTimeout);
         }
         else {
-            appGoto(app.current.card, app.current.tab, app.current.view,
-                0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, this.value);
+            searchTimer = setTimeout(function() {
+                appGoto(app.current.card, app.current.tab, app.current.view,
+                    0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, value);
+            }, searchTimerTimeout);
         }
     }, false);
 

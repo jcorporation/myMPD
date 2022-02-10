@@ -1493,3 +1493,10 @@ function getParent(el, nodeName) {
     }
     return target;
 }
+
+function clearSearchTimer() {
+    if (searchTimer !== null) {
+        clearTimeout(searchTimer);
+        searchTimer = null;
+    }
+}

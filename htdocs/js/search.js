@@ -21,24 +21,30 @@ function initSearch() {
     }, false);
 
     document.getElementById('searchstr').addEventListener('keyup', function(event) {
+        clearSearchTimer();
+        const value = this.value;
         if (event.key === 'Escape') {
             this.blur();
         }
         else if (event.key === 'Enter' &&
             features.featAdvsearch === true)
         {
-            if (this.value !== '') {
+            if (value !== '') {
                 const op = getSelectValueId('searchMatch');
-                document.getElementById('searchCrumb').appendChild(createSearchCrumb(app.current.filter, op, this.value));
+                document.getElementById('searchCrumb').appendChild(createSearchCrumb(app.current.filter, op, value));
                 elShowId('searchCrumb');
                 this.value = '';
             }
             else {
-                doSearch(this.value);
+                searchTimer = setTimeout(function() {
+                    doSearch(value);
+                }, searchTimerTimeout);
             }
         }
         else {
-            doSearch(this.value);
+            searchTimer = setTimeout(function() {
+                doSearch(value);
+            }, searchTimerTimeout);
         }
     }, false);
 
