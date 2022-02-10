@@ -138,23 +138,25 @@ bool mympd_read_config(struct t_config *config) {
 //private functions
 static const char *mympd_getenv(const char *env_var, bool first_startup) {
     const char *env_value = getenv(env_var); /* Flawfinder: ignore */
-    if (env_value == NULL) {
-        MYMPD_LOG_DEBUG("Environment variable \"%s\" not found", env_var);
-        return NULL;
-    }
-    if (env_value[0] == '\0') {
-        MYMPD_LOG_WARN("Environment variable \"%s\" is empty", env_var);
-        return NULL;
-    }
-    if (strlen(env_value) > 100) {
-        MYMPD_LOG_WARN("Environment variable \"%s\" is too long", env_var);
-        return NULL;
-    }
     if (first_startup == true) {
+        if (env_value == NULL) {
+            MYMPD_LOG_DEBUG("Environment variable \"%s\" not set", env_var);
+            return NULL;
+        }
+        if (env_value[0] == '\0') {
+            MYMPD_LOG_WARN("Environment variable \"%s\" is empty", env_var);
+            return NULL;
+        }
+        if (strlen(env_value) > 100) {
+            MYMPD_LOG_WARN("Environment variable \"%s\" is too long", env_var);
+            return NULL;
+        }
         MYMPD_LOG_INFO("Using environment variable \"%s\" with value \"%s\"", env_var, env_value);
         return env_value;
     }
-    MYMPD_LOG_INFO("Ignoring environment variable \"%s\" with value \"%s\"", env_var, env_value);
+    if (env_value != NULL) {
+        MYMPD_LOG_INFO("Ignoring environment variable \"%s\" with value \"%s\"", env_var, env_value);
+    }
     return NULL;
 }
 
