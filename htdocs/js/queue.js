@@ -117,7 +117,18 @@ function getQueue() {
     }
 }
 
-function parseQueue(obj) {const table = document.getElementById('QueueCurrentList');
+function parseQueue(obj) {
+    //goto playing song button
+    if (obj.result &&
+        obj.result.totalEntities > 1)
+    {
+        elEnableId('btnQueueGotoPlayingSong');
+    }
+    else {
+        elDisableId('btnQueueGotoPlayingSong');
+    }
+
+    const table = document.getElementById('QueueCurrentList');
     if (checkResultId(obj, 'QueueCurrentList') === false) {
         return;
     }
@@ -125,15 +136,6 @@ function parseQueue(obj) {const table = document.getElementById('QueueCurrentLis
     if (obj.result.offset < app.current.offset) {
         gotoPage(obj.result.offset);
         return;
-    }
-
-    //goto playing song button
-    const btnQueueGotoPlayingSongParent = document.getElementById('btnQueueGotoPlayingSong').parentNode;
-    if (obj.result.totalEntities > 1) {
-        elShow(btnQueueGotoPlayingSongParent);
-    }
-    else {
-        elHide(btnQueueGotoPlayingSongParent);
     }
 
     const colspan = settings['colsQueueCurrent'].length;
@@ -456,6 +458,10 @@ function delQueueSong(mode, start, end) {
 
 //eslint-disable-next-line no-unused-vars
 function gotoPlayingSong() {
+    if (currentState.songPos === -1) {
+        elDisableId('btnQueueGotoPlayingSong');
+        return;
+    }
     if (currentState.songPos >= app.current.offset &&
         currentState.songPos < app.current.offset + app.current.limit)
     {
