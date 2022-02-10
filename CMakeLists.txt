@@ -9,8 +9,8 @@ project (mympd C)
 #update myMPD version here and run ./build.sh setversion to update
 #the source files
 set(CPACK_PACKAGE_VERSION_MAJOR "9")
-set(CPACK_PACKAGE_VERSION_MINOR "1")
-set(CPACK_PACKAGE_VERSION_PATCH "2")
+set(CPACK_PACKAGE_VERSION_MINOR "2")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 #minimal cmake version needed for correct GNUInstallDirs
 cmake_minimum_required(VERSION 3.4)
