@@ -357,12 +357,12 @@ function parseFilesystem(obj) {
         if (obj.result.bookletPath !== '') {
             const img = elCreateEmpty('div', {"class": ["booklet"], "title": tn('Booklet')});
             img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
-            setData(img, 'href', subdir + '/browse/music/' + myEncodeURI(obj.result.bookletPath));
+            setData(img, 'href', subdir + myEncodeURI(obj.result.bookletPath));
             imageList.appendChild(img);
         }
         for (let i = 0, j = obj.result.images.length; i < j; i++) {
             const img = elCreateEmpty('div', {});
-            img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + myEncodeURI(obj.result.images[i]) + '"),' +
+            img.style.backgroundImage = 'url("' + subdir + myEncodeURI(obj.result.images[i]) + '"),' +
                 'url("assets/coverimage-loading.svg")';
             imageList.appendChild(img);
         }
@@ -435,7 +435,7 @@ function parseDatabase(obj) {
         let image = '';
         const card = elCreateEmpty('div', {"data-popover": "album", "class": ["card", "card-grid", "clickable"]});
         if (obj.result.tag === 'Album') {
-            image = subdir + '/albumart/' + obj.result.data[i].FirstSongUri;
+            image = subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri);
             card.appendChild(
                 elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
             );
@@ -456,7 +456,7 @@ function parseDatabase(obj) {
             addPlayButton(card.firstChild);
         }
         else {
-            image = subdir + '/tagart/' + obj.result.tag + '/' + obj.result.data[i].value;
+            image = subdir + '/tagart?uri=' + obj.result.tag + '/' + obj.result.data[i].value;
             if (obj.result.pics === true) {
                 card.appendChild(
                     elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
@@ -505,7 +505,7 @@ function setGridImage(changes, observer) {
             const uri = getData(change.target.firstChild, 'image');
             const body = change.target.firstChild.getElementsByClassName('card-body')[0];
             if (body) {
-                body.style.backgroundImage = 'url("' + myEncodeURIhost(uri) + '"),' +
+                body.style.backgroundImage = 'url("' + uri + '"),' +
                     'url("' + subdir + '/assets/coverimage-loading.svg")';
             }
         }
@@ -536,7 +536,7 @@ function parseAlbumDetails(obj) {
     }
 
     const coverEl = document.getElementById('viewDetailDatabaseCover');
-    coverEl.style.backgroundImage = 'url("' + subdir + '/albumart/' + myEncodeURI(obj.result.data[0].uri) + '"),' +
+    coverEl.style.backgroundImage = 'url("' + subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.data[0].uri) + '"),' +
         'url("' + subdir + '/assets/coverimage-loading.svg")';
     setData(coverEl, 'images', obj.result.images);
     setData(coverEl, 'uri', obj.result.data[0].uri);

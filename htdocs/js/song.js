@@ -101,7 +101,7 @@ function songDetailsRow(thContent, tdContent) {
 function parseSongDetails(obj) {
     const modal = document.getElementById('modalSongDetails');
     modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' +
-        subdir + '/albumart/' + myEncodeURIComponent(obj.result.uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+        subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
 
     const elH1s = modal.getElementsByTagName('h1');
     for (let i = 0, j = elH1s.length; i < j; i++) {
@@ -162,7 +162,7 @@ function parseSongDetails(obj) {
     }
     if (obj.result.bookletPath !== '') {
         tbody.appendChild(songDetailsRow('Booklet', elCreateText('a', {"class": ["text-success"],
-            "href": myEncodeURI(subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName), "target": "_blank"},
+            "href": myEncodeURI(subdir + '/browse/music/' + myEncodeURIComponent(obj.result.bookletPath)), "target": "_blank"},
             tn('Download'))));
     }
     if (features.featStickers === true) {

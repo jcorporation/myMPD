@@ -20,7 +20,7 @@
 #include <time.h>
 #include <unistd.h>
 
-bool covercache_write_file(const char *cachedir, const char *uri, const char *mime_type, sds binary) {
+bool covercache_write_file(const char *cachedir, const char *uri, const char *mime_type, sds binary, int offset) {
     if (mime_type[0] == '\0') {
         MYMPD_LOG_WARN("Covercache file for \"%s\" not written, mime_type is empty", uri);
         return false;
@@ -32,7 +32,7 @@ bool covercache_write_file(const char *cachedir, const char *uri, const char *mi
     }
     sds filename = sdsnew(uri);
     sds_sanitize_filename(filename);
-    sds filepath = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", cachedir, filename, ext);
+    sds filepath = sdscatprintf(sdsempty(), "%s/covercache/%s-%d.%s", cachedir, filename, offset, ext);
     bool rc = write_data_to_file(filepath, binary, sdslen(binary));
     FREE_SDS(filename);
     FREE_SDS(filepath);

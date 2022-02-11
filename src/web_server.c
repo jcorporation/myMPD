@@ -491,10 +491,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
             }
             #endif
-            else if (mg_http_match_uri(hm, "/albumart/#")) {
+            else if (mg_http_match_uri(hm, "/albumart")) {
                 webserver_albumart_handler(nc, hm, mg_user_data, config, (long long)nc->id);
             }
-            else if (mg_http_match_uri(hm, "/tagart/#")) {
+            else if (mg_http_match_uri(hm, "/tagart")) {
                 webserver_tagart_handler(nc, hm, mg_user_data);
             }
             else if (mg_http_match_uri(hm, "/browse/#")) {

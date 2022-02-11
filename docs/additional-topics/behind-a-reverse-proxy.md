@@ -17,7 +17,6 @@ printf "127.0.0.1" > /var/lib/mympd/config/http_host
 The reverse proxy should be configured to:
 - remove the subdirectory
 - support websockets for the `/ws/` uri
-- not merge slashes: [#656 - Can't get a thumbnail for network stream](https://github.com/jcorporation/myMPD/discussions/657)
 
 In this examples myMPD is proxied behind the path `/mympd`.
 
@@ -26,8 +25,6 @@ In this examples myMPD is proxied behind the path `/mympd`.
 ## Nginx
 
 ```
-merge_slashes off;
-
 location /mympd/ {
   proxy_pass http://127.0.0.1:8080/;
 }

@@ -236,7 +236,7 @@ function setBackgroundImage(el, url) {
         clearBackgroundImage(el);
         return;
     }
-    const bgImageUrl = 'url("' + subdir + '/albumart/' + myEncodeURIComponent(url) + '")';
+    const bgImageUrl = 'url("' + subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(url) + '")';
     const old = el.parentNode.querySelectorAll(el.tagName + '> div.albumartbg');
     //do not update if url is the same
     if (old[0] &&
@@ -271,7 +271,7 @@ function setBackgroundImage(el, url) {
     img.onload = function(event) {
         getData(event.target, 'div').style.opacity = 1;
     };
-    img.src = subdir + '/albumart/' + myEncodeURIComponent(url);
+    img.src = subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(url);
 }
 
 function clearBackgroundImage(el) {
@@ -407,7 +407,7 @@ function songChange(obj) {
         features.featLibrary === true)
     {
         bookletEl.appendChild(elCreateText('span', {"class": ["mi", "me-2"]}, 'description'));
-        bookletEl.appendChild(elCreateText('a', {"target": "_blank", "href": subdir + '/browse/music/' +
+        bookletEl.appendChild(elCreateText('a', {"target": "_blank", "href": subdir +
             myEncodeURI(obj.result.bookletPath)}, tn('Download booklet')));
     }
 
@@ -569,7 +569,7 @@ function mediaSessionSetMetadata(title, artist, album, url) {
         return;
     }
     const artwork = window.location.protocol + '//' + window.location.hostname +
-        (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart/' + myEncodeURIComponent(url);
+        (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(url);
     navigator.mediaSession.metadata = new MediaMetadata({
         title: title,
         artist: artist,

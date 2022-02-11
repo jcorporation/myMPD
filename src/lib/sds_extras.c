@@ -11,9 +11,22 @@
 #include "log.h"
 
 #include <ctype.h>
+#include <inttypes.h>
 #include <string.h>
 
 #define HEXTOI(x) (x >= '0' && x <= '9' ? x - '0' : x - 'W')
+
+int sds_toimax(sds s) {
+    sds nr = sdsempty();
+    while (isdigit(s[0])) {
+        nr = sdscatfmt(nr, "%c", s[0]);
+        sdsrange(s, 1, -1);
+    }
+    char *crap;
+    int number = (int)strtoimax(nr, &crap, 10);
+    sdsfree(nr);
+    return number;
+}
 
 void sds_utf8_tolower(sds s) {
     utf8_int32_t cp;

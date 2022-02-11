@@ -1399,11 +1399,11 @@ function zoomZoomPicture() {
 
 function createImgCarousel(imgEl, name, uri, images) {
     //add uri to image list to get embedded albumart
-    const aImages = [ subdir + '/albumart/' + myEncodeURIComponent(uri) ];
+    const aImages = [ subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(uri) ];
     //add all but coverfiles to image list
     for (let i = 0, j = images.length; i < j; i++) {
         if (isCoverfile(images[i]) === false) {
-            aImages.push(subdir + '/browse/music/' + myEncodeURI(images[i]));
+            aImages.push(subdir + myEncodeURI(images[i]));
         }
     }
     _createImgCarousel(imgEl, name, aImages);

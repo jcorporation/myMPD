@@ -17,6 +17,7 @@
     SDS_PTR = NULL; \
 } while (0)
 
+int sds_toimax(sds s);
 void sds_utf8_tolower(sds s);
 sds sds_catjson(sds s, const char *p, size_t len);
 sds sds_catjsonchar(sds s, const char p);

@@ -70,7 +70,7 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
         buffer = tojson_char(buffer, "mime_type", mime_type, false);
         buffer = jsonrpc_result_end(buffer);
         if (mympd_state->covercache_keep_days > 0) {
-            covercache_write_file(mympd_state->config->cachedir, uri, mime_type, *binary);
+            covercache_write_file(mympd_state->config->cachedir, uri, mime_type, *binary, 0);
         }
     }
     else {
