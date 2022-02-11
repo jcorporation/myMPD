@@ -4,15 +4,15 @@
 // https://github.com/jcorporation/mympd
 
 function hidePopover(thisEl) {
-    const menuEls = document.querySelectorAll('[aria-describedby]');
-    for (const el of menuEls) {
+    const popoverEls = document.querySelectorAll('[aria-describedby]');
+    for (const el of popoverEls) {
         if (thisEl === el) {
             //do not hide popover that should be opened
             continue;
         }
-        el.Tooltip.hide();
+        BSN.Popover.getInstance(el).hide();
     }
-    if (menuEls.length === 0) {
+    if (popoverEls.length === 0) {
         //handle popover dom nodes without a trigger element
         const popover = document.getElementsByClassName('popover')[0];
         if (popover) {
@@ -50,9 +50,9 @@ function showPopover(event) {
         return;
     }
     //check for existing popover instance
-    let popoverInit = target.Tooltip;
+    let popoverInit = BSN.Popover.getInstance(target);
     //create it if no popover instance is found
-    if (popoverInit === undefined) {
+    if (popoverInit === null) {
         const popoverType = target.getAttribute('data-popover');
         logDebug('Create new popover of type ' + popoverType);
         switch (popoverType) {
@@ -87,7 +87,6 @@ function showPopover(event) {
                 popoverInit = createPopoverTabs(target, createMenuLists, createMenuListsSecondary);
         }
     }
-    target.Tooltip = popoverInit;
     //show the popover
     popoverInit.show();
 }
@@ -109,7 +108,6 @@ function createPopoverBody(template) {
                    ])
                ])
     }
-    
     return elCreateEmpty('div', {"class": ["popover-body"]})
 }
 

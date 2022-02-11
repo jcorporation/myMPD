@@ -682,11 +682,11 @@ domCache.notificationCount = document.getElementById('notificationCount');
 const uiElements = {};
 //all modals
 for (const m of document.getElementsByClassName('modal')) {
-    uiElements[m.id] = document.getElementById(m.id).Modal;
+    uiElements[m.id] = BSN.Modal.getInstance(m);
 }
 //other directly accessed BSN objects
-uiElements.dropdownHomeIconLigature = document.getElementById('btnHomeIconLigature').Dropdown;
-uiElements.collapseJukeboxMode = document.getElementById('collapseJukeboxMode').Collapse;
+uiElements.dropdownHomeIconLigature = BSN.Dropdown.getInstance('btnHomeIconLigature');
+uiElements.collapseJukeboxMode = BSN.Collapse.getInstance('collapseJukeboxMode');
 
 const LUAfunctions = {
     "mympd_api_http_client": {
