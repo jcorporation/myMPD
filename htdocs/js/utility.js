@@ -1052,6 +1052,9 @@ function createPaginationEls(totalPages, curPage) {
         next
     ]);
     new BSN.Dropdown(pageDropdownBtn);
+    pageDropdownBtn.parentNode.addEventListener('show.bs.dropdown', function (event) {
+        alignDropdown(event.target);
+    });
     return outer;
 }
 

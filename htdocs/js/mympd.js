@@ -662,8 +662,8 @@ function appInit() {
     //align dropdowns
     const dropdowns = document.querySelectorAll('.dropdown-toggle');
     for (const dropdown of dropdowns) {
-        dropdown.parentNode.addEventListener('show.bs.dropdown', function () {
-            alignDropdown(this);
+        dropdown.parentNode.addEventListener('show.bs.dropdown', function (event) {
+            alignDropdown(event.target);
         });
     }
     //init links
