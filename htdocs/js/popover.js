@@ -10,7 +10,7 @@ function hidePopover(thisEl) {
             //do not hide popover that should be opened
             continue;
         }
-        el.Popover.hide();
+        el.Tooltip.hide();
     }
     if (menuEls.length === 0) {
         //handle popover dom nodes without a trigger element
@@ -50,7 +50,7 @@ function showPopover(event) {
         return;
     }
     //check for existing popover instance
-    let popoverInit = target.Popover;
+    let popoverInit = target.Tooltip;
     //create it if no popover instance is found
     if (popoverInit === undefined) {
         const popoverType = target.getAttribute('data-popover');
@@ -87,6 +87,7 @@ function showPopover(event) {
                 popoverInit = createPopoverTabs(target, createMenuLists, createMenuListsSecondary);
         }
     }
+    target.Tooltip = popoverInit;
     //show the popover
     popoverInit.show();
 }
@@ -157,7 +158,7 @@ function createPopoverColumns(el) {
                 saveCols(app.id);
             }
         }, false);
-        const popoverBody = popoverInit.popover.getElementsByClassName('popover-body')[0];
+        const popoverBody = popoverInit.tooltip.getElementsByClassName('popover-body')[0];
         elReplaceChild(popoverBody, menu);
         popoverBody.setAttribute('id', app.id + 'ColsDropdown');
     }, false);
@@ -183,7 +184,7 @@ function createPopoverSimple(el, title, contentCallback) {
     //update content on each show event
     el.addEventListener('show.bs.popover', function() {
         const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
-        popoverInit.popover.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
+        popoverInit.tooltip.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
         contentCallback(popoverBody, el);
         createPopoverClickHandler(popoverBody);
     }, false);
@@ -194,9 +195,9 @@ function createPopoverTabs(el, tab1Callback, tab2Callback) {
     const popoverInit = createPopoverInit(el, '', 'tabs');
     //update content on each show event
     el.addEventListener('show.bs.popover', function() {
-        popoverInit.popover.getElementsByClassName('popover-tabs')[0].replaceWith(createPopoverBody('tabs'));
-        const tabHeader = popoverInit.popover.getElementsByClassName('nav-link');
-        const tabPanes = popoverInit.popover.getElementsByClassName('tab-pane');
+        popoverInit.tooltip.getElementsByClassName('popover-tabs')[0].replaceWith(createPopoverBody('tabs'));
+        const tabHeader = popoverInit.tooltip.getElementsByClassName('nav-link');
+        const tabPanes = popoverInit.tooltip.getElementsByClassName('tab-pane');
         for (let i = 0; i < 2; i++) {
             tabHeader[i].addEventListener('click', function(event) {
                 tabHeader[i].classList.add('active');
@@ -217,7 +218,7 @@ function createPopoverTabs(el, tab1Callback, tab2Callback) {
                 createPopoverClickHandler(tabPanes[i]);
             }
             else {
-                popoverInit.popover.getElementsByClassName('popover-header')[0].textContent = tabHeader[0].textContent;
+                popoverInit.tooltip.getElementsByClassName('popover-header')[0].textContent = tabHeader[0].textContent;
                 tabHeader[0].parentNode.parentNode.remove();
             }
         }
