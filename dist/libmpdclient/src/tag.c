@@ -68,11 +68,12 @@ static const char *const mpd_tag_type_names[MPD_TAG_COUNT] =
 	[MPD_TAG_WORK] = "Work",
 	[MPD_TAG_CONDUCTOR] = "Conductor",
 
-    [MPD_TAG_COMPOSER_SORT] = "ComposerSort",
-    [MPD_TAG_ENSEMBLE] = "Ensemble",
-    [MPD_TAG_MOVEMENT] = "Movement",
-    [MPD_TAG_MOVEMENTNUMBER] = "MovementNumber",
-    [MPD_TAG_LOCATION] = "Location",
+	[MPD_TAG_COMPOSER_SORT] = "ComposerSort",
+	[MPD_TAG_ENSEMBLE] = "Ensemble",
+	[MPD_TAG_MOVEMENT] = "Movement",
+	[MPD_TAG_MOVEMENTNUMBER] = "MovementNumber",
+	[MPD_TAG_LOCATION] = "Location",
+	[MPD_TAG_MOOD] = "Mood",
 };
 
 const char *
