@@ -461,8 +461,8 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
     }
     if (app.id === 'BrowseFilesystem') {
         addDivider(tabContent);
-        addMenuItem(tabContent, {"cmd": "updateDB", "options": [baseuri, true]}, 'Update directory');
-        addMenuItem(tabContent, {"cmd": "rescanDB", "options": [baseuri, true]}, 'Rescan directory');
+        addMenuItem(tabContent, {"cmd": "updateDB", "options": [baseuri, true, false]}, 'Update directory');
+        addMenuItem(tabContent, {"cmd": "updateDB", "options": [baseuri, true, true]}, 'Rescan directory');
     }
     else {
         addDivider(tabContent);
