@@ -4,21 +4,21 @@
 // https://github.com/jcorporation/mympd
 
 //eslint-disable-next-line no-unused-vars
-function updateDB(uri, show, rescan) {
+function updateDB(uri, showUpdateModal, showUpdateNotification, rescan) {
     const method = rescan === true ? "MYMPD_API_DATABASE_RESCAN" : "MYMPD_API_DATABASE_UPDATE";
     sendAPI(method, {"uri": uri}, function(obj) {
         if (obj.error !== undefined) {
             updateDBerror(true, obj.error.message);
         }
         else {
-            updateDBstarted(show);
+            updateDBstarted(showUpdateModal, showUpdateNotification);
         }
     }, true);
 }
 
-function updateDBerror(show, message) {
+function updateDBerror(showUpdateModal, message) {
     const msg = tn('Database update failed') + ': ' + tn(message);
-    if (show === true) {
+    if (showUpdateModal === true) {
         document.getElementById('updateDBfinished').textContent = '';
         elShowId('updateDBfooter');
         const updateDBprogress = document.getElementById('updateDBprogress');
@@ -33,8 +33,8 @@ function updateDBerror(show, message) {
     showNotification(msg, '', 'database', 'error');
 }
 
-function updateDBstarted(show) {
-    if (show === true) {
+function updateDBstarted(showUpdateModal, showUpdateNotification) {
+    if (showUpdateModal === true) {
         document.getElementById('updateDBfinished').textContent = '';
         elHideId('updateDBfooter');
         const updateDBprogress = document.getElementById('updateDBprogress');
@@ -46,7 +46,9 @@ function updateDBstarted(show) {
         uiElements.modalUpdateDB.show();
         updateDBprogress.classList.add('updateDBprogressAnimate');
     }
-    showNotification(tn('Database update started'), '', 'database', 'info');
+    if (showUpdateNotification === true) {
+        showNotification(tn('Database update started'), '', 'database', 'info');
+    }
 }
 
 function updateDBfinished(idleEvent) {
