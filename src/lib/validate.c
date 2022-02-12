@@ -232,7 +232,9 @@ bool vcb_ismpdtag(sds data) {
 }
 
 bool vcb_ismpdtag_or_any(sds data) {
-    if (strcmp(data, "any") == 0) {
+    if (strcmp(data, "any") == 0 ||
+        strcmp(data, "filename") == 0)
+    {
         return true;
     }
     return vcb_ismpdtag(data);
