@@ -62,7 +62,7 @@ mpd_output_begin(const struct mpd_pair *pair)
 	if (output == NULL)
 		return NULL;
 
-	output->id = atoi(pair->value);
+	output->id = strtoul(pair->value, NULL, 10);
 
 	output->name = NULL;
 	output->plugin = NULL;

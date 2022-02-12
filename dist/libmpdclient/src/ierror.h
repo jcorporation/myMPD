@@ -58,7 +58,7 @@ struct mpd_error_info {
 	 * The command list index of the command which emitted this
 	 * error.  Zero if no command list was used.
 	 */
-	int at;
+	unsigned at;
 
 	/**
 	 * The operating system's error code (i.e. errno or WSAGetLastError()).
@@ -152,7 +152,7 @@ mpd_error_code(struct mpd_error_info *error, enum mpd_error code)
  */
 static inline void
 mpd_error_server(struct mpd_error_info *error,
-		 enum mpd_server_error server, int at)
+		 enum mpd_server_error server, unsigned at)
 {
 	mpd_error_code(error, MPD_ERROR_SERVER);
 	error->server = server;

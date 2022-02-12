@@ -44,7 +44,7 @@
 static enum mpd_async_event
 mpd_sync_poll(struct mpd_async *async, struct timeval *tv)
 {
-	unsigned fd;
+	int fd;
 	fd_set rfds, wfds, efds;
 	int ret;
 	enum mpd_async_event events;

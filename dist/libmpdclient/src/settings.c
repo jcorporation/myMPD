@@ -132,7 +132,7 @@ mpd_check_port(unsigned port)
 	if (port == 0) {
 		const char *env_port = getenv("MPD_PORT");
 		if (env_port != NULL)
-			port = atoi(env_port);
+			port = strtoul(env_port, NULL, 10);
 	}
 
 	return port;
@@ -143,7 +143,7 @@ mpd_default_timeout_ms(void)
 {
 	const char *timeout_string = getenv("MPD_TIMEOUT");
 	if (timeout_string != NULL) {
-		const int timeout_s = atoi(timeout_string);
+		const unsigned timeout_s = strtoul(timeout_string, NULL, 10);
 		if (timeout_s > 0)
 			return timeout_s * 1000;
 	}

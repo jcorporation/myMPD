@@ -57,7 +57,7 @@ mpd_recv_readpicture(struct mpd_connection *connection, void *buffer, size_t buf
 	size_t chunk_size = strtoumax(pair->value, NULL, 10);
 	mpd_return_pair(connection, pair);
 
-	unsigned retrieve_bytes = chunk_size > buffer_size ? buffer_size : chunk_size;
+	size_t retrieve_bytes = chunk_size > buffer_size ? buffer_size : chunk_size;
 	if (mpd_recv_binary(connection, buffer, retrieve_bytes) == false) {
 		return -1;
 	}

@@ -79,7 +79,7 @@ mpd_socket_global_init(struct mpd_error_info *error)
  * Wait for the socket to become writable.
  */
 static int
-mpd_socket_wait_writable(unsigned fd, struct timeval *tv)
+mpd_socket_wait_writable(int fd, struct timeval *tv)
 {
 	fd_set fds;
 	int ret;

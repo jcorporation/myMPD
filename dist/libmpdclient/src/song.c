@@ -206,7 +206,7 @@ mpd_song_dup(const struct mpd_song *song)
 			continue;
 
 		do {
-			success = mpd_song_add_tag(ret, i, src_tag->value);
+			success = mpd_song_add_tag(ret, (enum mpd_tag_type)i, src_tag->value);
 			if (!success) {
 				mpd_song_free(ret);
 				return NULL;
@@ -531,7 +531,7 @@ mpd_song_feed(struct mpd_song *song, const struct mpd_pair *pair)
 	}
 
 	if (strcmp(pair->name, "Time") == 0)
-		mpd_song_set_duration(song, atoi(pair->value));
+		mpd_song_set_duration(song, strtoul(pair->value, NULL, 10));
 	else if (strcmp(pair->name, "duration") == 0)
 		mpd_song_set_duration_ms(song, 1000 * atof(pair->value));
 	else if (strcmp(pair->name, "Range") == 0)
@@ -539,11 +539,11 @@ mpd_song_feed(struct mpd_song *song, const struct mpd_pair *pair)
 	else if (strcmp(pair->name, "Last-Modified") == 0)
 		mpd_song_set_last_modified(song, iso8601_datetime_parse(pair->value));
 	else if (strcmp(pair->name, "Pos") == 0)
-		mpd_song_set_pos(song, atoi(pair->value));
+		mpd_song_set_pos(song, strtoul(pair->value, NULL, 10));
 	else if (strcmp(pair->name, "Id") == 0)
-		mpd_song_set_id(song, atoi(pair->value));
+		mpd_song_set_id(song, strtoul(pair->value, NULL, 10));
 	else if (strcmp(pair->name, "Prio") == 0)
-		mpd_song_set_prio(song, atoi(pair->value));
+		mpd_song_set_prio(song, strtoul(pair->value, NULL, 10));
 	else if (strcmp(pair->name, "Format") == 0)
 		mpd_song_parse_audio_format(song, pair->value);
 
