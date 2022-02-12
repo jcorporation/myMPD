@@ -39,9 +39,9 @@ static bool handle_coverextract_flac(struct t_config *config, const char *uri, c
 void webserver_albumart_send(struct mg_connection *nc, sds data, sds binary) {
     size_t len = sdslen(binary);
     sds mime_type = NULL;
-    if ( len > 0 &&
-        json_get_string(data, "$.params.mime_type", 1, 200, &mime_type, vcb_isname, NULL) == true &&
-        strncmp(mime_type, "image/", 6) != 0)
+    if (len > 0 &&
+        json_get_string(data, "$.result.mime_type", 1, 200, &mime_type, vcb_isname, NULL) == true &&
+        strncmp(mime_type, "image/", 6) == 0)
     {
         MYMPD_LOG_DEBUG("Serving file from memory (%s - %lu bytes)", mime_type, (unsigned long)len);
         sds header = sdscatfmt(sdsempty(), "Content-Type: %S\r\n", mime_type);
