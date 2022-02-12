@@ -258,7 +258,7 @@ static bool handle_coverextract(struct mg_connection *nc, struct t_config *confi
     if (rc == true) {
         const char *mime_type = get_mime_type_by_magic_stream(binary);
         MYMPD_LOG_DEBUG("Serving coverimage for \"%s\" (%s)", media_file, mime_type);
-        sds header = sdscatfmt(sdsempty(), "Content-Type: %s", mime_type);
+        sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", mime_type);
         header = sdscat(header, EXTRA_HEADERS_CACHE);
         webserver_send_header_ok(nc, sdslen(binary), header);
         mg_send(nc, binary, sdslen(binary));
