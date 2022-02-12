@@ -270,7 +270,7 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
     long entities_returned = 0;
     long real_limit = offset + limit;
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
-        if (entity_count > offset && entity_count <= real_limit) {
+        if (entity_count >= offset && entity_count < real_limit) {
             if (entities_returned++) {
                 buffer= sdscatlen(buffer, ",", 1);
             }
