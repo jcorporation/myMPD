@@ -1365,12 +1365,15 @@ function zoomPicture(el) {
 
     if (el.classList.contains('carousel')) {
         let images;
+        let embeddedImageCount;
         const dataImages = getData(el, 'images');
         if (dataImages !== undefined) {
             images = dataImages.slice();
+            embeddedImageCount = getData(el, 'embeddedImageCount');
         }
         else if (currentSongObj.images) {
             images = currentSongObj.images.slice();
+            embeddedImageCount = currentSongObj.embeddedImageCount;
         }
         else {
             return;
@@ -1379,7 +1382,7 @@ function zoomPicture(el) {
         const uri = getData(el, 'uri');
         const imgEl = document.getElementById('modalPictureImg');
         imgEl.style.paddingTop = 0;
-        createImgCarousel(imgEl, 'picsCarousel', uri, images);
+        createImgCarousel(imgEl, 'picsCarousel', uri, images, embeddedImageCount);
         elHideId('modalPictureZoom');
         uiElements.modalPicture.show();
         return;
@@ -1400,9 +1403,12 @@ function zoomZoomPicture() {
     window.open(document.getElementById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
 }
 
-function createImgCarousel(imgEl, name, uri, images) {
-    //add uri to image list to get embedded albumart
-    const aImages = [ subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(uri) ];
+function createImgCarousel(imgEl, name, uri, images, embeddedImageCount) {
+    //embedded albumart
+    const aImages = [];
+    for (let i = 0; i < embeddedImageCount; i++) {
+        aImages.push(subdir + '/albumart?offset=' + i + '&uri=' + myEncodeURIComponent(uri));
+    }
     //add all but coverfiles to image list
     for (let i = 0, j = images.length; i < j; i++) {
         if (isCoverfile(images[i]) === false) {

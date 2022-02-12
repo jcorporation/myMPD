@@ -209,7 +209,7 @@ function parseSongDetails(obj) {
     }
     getComments(obj.result.uri, document.getElementById('tbodySongComments'));
     const imgEl = document.getElementById('tabSongPics');
-    createImgCarousel(imgEl, 'songPicsCarousel', obj.result.uri, obj.result.images)
+    createImgCarousel(imgEl, 'songPicsCarousel', obj.result.uri, obj.result.images, obj.result.embeddedImageCount);
 }
 
 function isCoverfile(uri) {

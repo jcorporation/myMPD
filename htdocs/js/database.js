@@ -59,7 +59,7 @@ function updateDBfinished(idleEvent) {
         //on small databases the modal opens after the finish event
         setTimeout(function() {
             _updateDBfinished(idleEvent);
-        }, 100);
+        }, 1000);
     }
 }
 

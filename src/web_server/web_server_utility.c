@@ -70,6 +70,7 @@ sds *webserver_split_coverimage_names(sds coverimage_name, sds *coverimage_names
 static const char *image_file_extensions[] = {"png", "jpg", "jpeg", "webp", "avif", NULL};
 
 sds webserver_find_image_file(sds basefilename) {
+    MYMPD_LOG_DEBUG("Searching image file for basename \"%s\"", basefilename);
     const char **p = image_file_extensions;
     sds testfilename = sdsempty();
     while (*p != NULL) {

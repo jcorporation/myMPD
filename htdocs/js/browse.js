@@ -539,6 +539,7 @@ function parseAlbumDetails(obj) {
     coverEl.style.backgroundImage = 'url("' + subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.data[0].uri) + '"),' +
         'url("' + subdir + '/assets/coverimage-loading.svg")';
     setData(coverEl, 'images', obj.result.images);
+    setData(coverEl, 'embeddedImageCount', obj.result.embeddedImageCount);
     setData(coverEl, 'uri', obj.result.data[0].uri);
 
     elClear(infoEl);

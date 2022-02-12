@@ -148,7 +148,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
     if (mg_user_data->covercache == true) {
         sds filename = sdsdup(uri_decoded);
         sds_sanitize_filename(filename);
-        sds covercachefile = sdscatfmt(sdsempty(), "%S/covercache/%S-%d", config->cachedir, filename, offset);
+        sds covercachefile = sdscatprintf(sdsempty(), "%s/covercache/%s-%d", config->cachedir, filename, offset);
         FREE_SDS(filename);
         covercachefile = webserver_find_image_file(covercachefile);
         if (sdslen(covercachefile) > 0) {
@@ -163,7 +163,6 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
             FREE_SDS(covercachefile);
             return true;
         }
-
         MYMPD_LOG_DEBUG("No covercache file found");
         FREE_SDS(covercachefile);
     }
@@ -223,8 +222,10 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
     }
     FREE_SDS(mediafile);
 
-    //ask mpd
-    if (mg_user_data->feat_mpd_albumart == true) {
+    //ask mpd - mpd can read only first image
+    if (mg_user_data->feat_mpd_albumart == true &&
+        offset == 0)
+    {
         MYMPD_LOG_DEBUG("Sending getalbumart to mpd_client_queue");
         struct t_work_request *request = create_request(conn_id, 0, INTERNAL_API_ALBUMART, NULL);
         request->data = tojson_char(request->data, "uri", uri_decoded, false);
@@ -344,14 +345,17 @@ static bool handle_coverextract_flac(struct t_config *config, const char *uri, c
     FLAC__Metadata_Iterator *iterator = FLAC__metadata_iterator_new();
     FLAC__metadata_iterator_init(iterator, chain);
     assert(iterator);
-    for (int i = 0; i <= offset; i++) {
-        do {
-            FLAC__StreamMetadata *block = FLAC__metadata_iterator_get_block(iterator);
-            if (block->type == FLAC__METADATA_TYPE_PICTURE) {
+    int i = 0;
+    do {
+        FLAC__StreamMetadata *block = FLAC__metadata_iterator_get_block(iterator);
+        if (block->type == FLAC__METADATA_TYPE_PICTURE) {
+            if (i == offset) {
                 metadata = block;
+                break;
             }
-        } while (FLAC__metadata_iterator_next(iterator) && metadata == NULL);
-    }
+            i++;
+        }
+    } while (FLAC__metadata_iterator_next(iterator) && metadata == NULL);
 
     if (metadata == NULL) {
         MYMPD_LOG_DEBUG("No embedded picture detected");

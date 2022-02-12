@@ -193,6 +193,14 @@ sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
         current = current->next;
     }
     buffer = sdscatlen(buffer, "]", 1);
+
+    if (is_dirname == false) {
+        buffer = sdscatlen(buffer, ",", 1);
+        sds fullpath = sdscatfmt(sdsempty(), "%s/%s", mympd_state->music_directory_value, uri);
+        int count = _get_embedded_covers_count(fullpath);
+        sdsfree(fullpath);
+        buffer = tojson_int(buffer, "embeddedImageCount", count, false);
+    }
     list_clear(&images);
     FREE_SDS(booklet_path);
     return buffer;
@@ -388,14 +396,6 @@ static void _get_extra_files(struct t_mympd_state *mympd_state, const char *uri,
         MYMPD_LOG_ERROR("Can not open directory \"%s\" to get list of extra files", albumpath);
         MYMPD_LOG_ERRNO(errno);
     }
-    if (is_dirname == false) {
-        int count = _get_embedded_covers_count(uri);
-        for (int i = 0; i < count; i++) {
-            fullpath = sdscatfmt(fullpath, "/albumart?offset=%d&uri=%s", count, uri);
-            list_push(images, fullpath, 0, NULL, NULL);
-            sdsclear(fullpath);
-        }
-    }
     FREE_SDS(fullpath);
     FREE_SDS(path);
     FREE_SDS(albumpath);
@@ -404,8 +404,8 @@ static void _get_extra_files(struct t_mympd_state *mympd_state, const char *uri,
 static int _get_embedded_covers_count(const char *media_file) {
     int count = 0;
     const char *mime_type_media_file = get_mime_type_by_ext(media_file);
-    MYMPD_LOG_DEBUG("Counting coverextract for uri \"%s\"", media_file);
     MYMPD_LOG_DEBUG("Mimetype of %s is %s", media_file, mime_type_media_file);
+    MYMPD_LOG_DEBUG("Counting coverimages from %s", media_file);
     if (strcmp(mime_type_media_file, "audio/mpeg") == 0) {
         count = _get_embedded_covers_count_id3(media_file);
     }
@@ -415,13 +415,13 @@ static int _get_embedded_covers_count(const char *media_file) {
     else if (strcmp(mime_type_media_file, "audio/flac") == 0) {
         count = _get_embedded_covers_count_flac(media_file, false);
     }
+    MYMPD_LOG_DEBUG("Found %d embedded coverimages in %s", count, media_file);
     return count;
 }
 
 static int _get_embedded_covers_count_id3(const char *media_file) {
     int count = 0;
     #ifdef ENABLE_LIBID3TAG
-    MYMPD_LOG_DEBUG("Counting coverimages from %s", media_file);
     struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
     if (file_struct == NULL) {
         MYMPD_LOG_ERROR("Can't parse id3_file: %s", media_file);
@@ -435,7 +435,9 @@ static int _get_embedded_covers_count_id3(const char *media_file) {
     struct id3_frame *frame;
     do {
         frame = id3_tag_findframe(tags, "APIC", (unsigned)count);
-        count++;
+        if (frame != NULL) {
+            count++;
+        }
     } while (frame != NULL);
     id3_file_close(file_struct);
     #else
@@ -447,9 +449,6 @@ static int _get_embedded_covers_count_id3(const char *media_file) {
 static int _get_embedded_covers_count_flac(const char *media_file, bool is_ogg) {
     int count = 0;
     #ifdef ENABLE_FLAC
-    MYMPD_LOG_DEBUG("Counting coverimages from %s", media_file);
-    FLAC__StreamMetadata *metadata = NULL;
-
     FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
 
     if(! (is_ogg? FLAC__metadata_chain_read_ogg(chain, media_file) : FLAC__metadata_chain_read(chain, media_file)) ) {
@@ -457,19 +456,15 @@ static int _get_embedded_covers_count_flac(const char *media_file, bool is_ogg) 
         FLAC__metadata_chain_delete(chain);
         return 0;
     }
-
     FLAC__Metadata_Iterator *iterator = FLAC__metadata_iterator_new();
     FLAC__metadata_iterator_init(iterator, chain);
     assert(iterator);
     do {
-        do {
-            FLAC__StreamMetadata *block = FLAC__metadata_iterator_get_block(iterator);
-            if (block->type == FLAC__METADATA_TYPE_PICTURE) {
-                metadata = block;
-            }
-        } while (FLAC__metadata_iterator_next(iterator) && metadata == NULL);
-        count++;
-    } while (metadata != NULL);
+        FLAC__StreamMetadata *block = FLAC__metadata_iterator_get_block(iterator);
+        if (block->type == FLAC__METADATA_TYPE_PICTURE) {
+            count++;
+        }
+    } while (FLAC__metadata_iterator_next(iterator));
 
     FLAC__metadata_iterator_delete(iterator);
     FLAC__metadata_chain_delete(chain);
