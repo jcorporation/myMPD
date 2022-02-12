@@ -97,7 +97,7 @@ function updateMount(el, uri) {
     }
     const spinner = elCreateEmpty('div', {"id": "spinnerUpdateProgress", "class": ["spinner-border", "spinner-border-sm"]});
     el.parentNode.insertBefore(spinner, el);
-    updateDB(uri, false);
+    updateDB(uri, false, false, false);
 }
 
 //eslint-disable-next-line no-unused-vars

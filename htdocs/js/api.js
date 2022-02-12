@@ -390,7 +390,7 @@ function webSocketConnect() {
                     }, parseOutputs);
                     break;
                 case 'update_started':
-                    updateDBstarted(false);
+                    updateDBstarted(false, true);
                     break;
                 case 'update_database':
                 case 'update_finished':
