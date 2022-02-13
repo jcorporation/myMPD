@@ -727,8 +727,8 @@ for (const m of document.getElementsByClassName('modal')) {
     uiElements[m.id] = BSN.Modal.getInstance(m);
 }
 //other directly accessed BSN objects
-uiElements.dropdownHomeIconLigature = BSN.Dropdown.getInstance('btnHomeIconLigature');
-uiElements.collapseJukeboxMode = BSN.Collapse.getInstance('collapseJukeboxMode');
+uiElements.dropdownHomeIconLigature = BSN.Dropdown.getInstance('#btnHomeIconLigature');
+uiElements.collapseJukeboxMode = BSN.Collapse.getInstance('#collapseJukeboxMode');
 
 const LUAfunctions = {
     "mympd_api_http_client": {

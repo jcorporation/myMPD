@@ -111,14 +111,27 @@ function createPopoverBody(template) {
     return elCreateEmpty('div', {"class": ["popover-body"]})
 }
 
-function createPopoverInit(el, title, template) {
-    template = elCreateNodes('div', {"class": ["popover"]}, [
+function createPopoverInit(el, title, bodyTemplate) {
+    const template = elCreateNodes('div', {"class": ["popover"]}, [
                    elCreateEmpty('div', {"class": ["popover-arrow"]}),
                    elCreateEmpty('h3', {"class": ["popover-header"]}),
-                   createPopoverBody(template)
+                   createPopoverBody(bodyTemplate)
                ]);
-    return new BSN.Popover(el, {trigger: 'manual', delay: 0, dismissible: false,
-        title: document.createTextNode(title), template: template, content: document.createTextNode('dummy')});
+    const options = {trigger: 'manual', delay: 0, dismissible: false,
+        title: document.createTextNode(title), template: template, content: document.createTextNode('dummy')
+    };
+
+    let popoverType = el.getAttribute('data-popover');
+    if (popoverType === null) {
+        popoverType = el.getAttribute('data-col');
+    }
+    switch(popoverType) {
+        case 'columns':
+        case 'Action':
+            options.placement = 'left';
+    }
+
+    return new BSN.Popover(el, options);
 }
 
 function createPopoverClickHandler(el) {
@@ -136,7 +149,7 @@ function createPopoverClickHandler(el) {
 }
 
 function createPopoverColumns(el) {
-    const popoverInit = createPopoverInit(el, tn('Columns'));
+    const popoverInit = createPopoverInit(el, tn('Columns'), "simple");
     //update content on each show event
     el.addEventListener('show.bs.popover', function() {
         const menu = elCreateEmpty('form', {});
@@ -160,19 +173,6 @@ function createPopoverColumns(el) {
         popoverBody.setAttribute('id', app.id + 'ColsDropdown');
     }, false);
 
-    //resize popover-body to prevent screen overflow
-    el.addEventListener('shown.bs.popover', function(event) {
-        const popoverId = event.target.getAttribute('aria-describedby');
-        const popover = document.querySelector(popoverId);
-        const offsetTop = popover.offsetTop;
-        if (offsetTop < 0) {
-            const b = popover.getElementsByClassName('popover-body')[0];
-            const h = popover.getElementsByClassName('popover-header')[0];
-            b.style.maxHeight = (popover.offsetHeight + offsetTop - h.offsetHeight) + 'px';
-            popover.style.top = 0;
-            b.style.overflow = 'auto';
-        }
-    }, false);
     return popoverInit;
 }
 
