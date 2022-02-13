@@ -154,6 +154,7 @@ static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_
     }
 
     unsigned i = 0;
+    unsigned found_lyrics = 0;
     struct id3_frame *frame;
     while ((frame = id3_tag_findframe(tags, "USLT", i)) != NULL) {
         //fields of USLT:
@@ -191,6 +192,7 @@ static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_
             FREE_PTR(uslt_text_utf8);
             *buffer = sdscatlen(*buffer, "}", 1);
             returned_entities++;
+            found_lyrics++;
             MYMPD_LOG_DEBUG("Unsynced lyrics successfully extracted");
         }
         else {
@@ -201,7 +203,7 @@ static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_
     }
     id3_file_close(file_struct);
 
-    if (i == 0) {
+    if (found_lyrics == 0) {
         MYMPD_LOG_DEBUG("No embedded unsynced lyrics detected");
     }
     #else
@@ -227,6 +229,7 @@ static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_en
     }
 
     unsigned i = 0;
+    unsigned found_lyrics = 0;
     struct id3_frame *frame;
     while ((frame = id3_tag_findframe(tags, "SYLT", i)) != NULL) {
         //fields of SYLT:
@@ -279,6 +282,7 @@ static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_en
             FREE_SDS(text);
             *buffer = sdscatlen(*buffer, "}", 1);
             returned_entities++;
+            found_lyrics++;
             MYMPD_LOG_DEBUG("Synced lyrics successfully extracted");
         }
         else {
@@ -288,7 +292,7 @@ static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_en
         i++;
     }
     id3_file_close(file_struct);
-    if (i == 0) {
+    if (found_lyrics == 0) {
         MYMPD_LOG_DEBUG("No embedded synced lyrics detected");
     }
     #else
