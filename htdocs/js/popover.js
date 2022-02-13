@@ -163,7 +163,7 @@ function createPopoverColumns(el) {
     //resize popover-body to prevent screen overflow
     el.addEventListener('shown.bs.popover', function(event) {
         const popoverId = event.target.getAttribute('aria-describedby');
-        const popover = document.getElementById(popoverId);
+        const popover = document.querySelector(popoverId);
         const offsetTop = popover.offsetTop;
         if (offsetTop < 0) {
             const b = popover.getElementsByClassName('popover-body')[0];
