@@ -110,7 +110,7 @@ function initHome() {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             selectHomeIconLigature(event.target);
-            document.getElementById('btnHomeIconLigature').Dropdown.hide();
+            uiElements.dropdownHomeIconLigature.hide();
         }
     });
 
