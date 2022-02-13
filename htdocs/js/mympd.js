@@ -149,8 +149,8 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         }
         if (jsonHash === null) {
             appPrepare(0);
-            let initialStartupView = localStorage.getItem('uiStartupView');
-            if (initialStartupView === null) {
+            let initialStartupView = settings.webuiSettings.uiStartupView;
+            if (initialStartupView === undefined) {
                 initialStartupView = features.featHome === true ? 'Home' : 'Playback';
             }
             const path = initialStartupView.split('/');
