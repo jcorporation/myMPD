@@ -65,15 +65,26 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
         struct t_mg_user_data *mg_user_data, struct t_config *config, long long conn_id)
 {
     sds query = sdsnewlen(hm->query.ptr, hm->query.len);
-    //remove offset=
-    sdsrange(query, 7, -1);
-    int offset = sds_toimax(query);
-    //remove &uri=
-    sdsrange(query, 5, -1);
-    //decode uri
-    sds uri_decoded = sds_urldecode(sdsempty(), query, sdslen(query), 0);
+    sds uri_decoded = sdsempty();
+    int offset = 0;
+    if (sdslen(query) > 13 &&
+        strncmp(query, "offset=", 7) == 0)
+    {
+        //remove offset=
+        sdsrange(query, 7, -1);
+        offset = sds_toimax(query);
+        if (sdslen(query) > 5 &&
+            strncmp(query, "&uri=", 5) == 0)
+        {
+            //remove &uri=
+            sdsrange(query, 5, -1);
+            //decode uri
+            uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), 0);
+        }
+    }
+    sdsfree(query);
     if (sdslen(uri_decoded) == 0) {
-        MYMPD_LOG_ERROR("Failed to decode uri");
+        MYMPD_LOG_ERROR("Failed to decode query");
         webserver_serve_na_image(nc, hm);
         FREE_SDS(uri_decoded);
         return true;
