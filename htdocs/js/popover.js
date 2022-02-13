@@ -117,8 +117,7 @@ function createPopoverInit(el, title, template) {
                    elCreateEmpty('h3', {"class": ["popover-header"]}),
                    createPopoverBody(template)
                ]);
-
-    return new BSN.Popover(el, {trigger: 'click', delay: 0, dismissible: false,
+    return new BSN.Popover(el, {trigger: 'manual', delay: 0, dismissible: false,
         title: document.createTextNode(title), template: template, content: document.createTextNode('dummy')});
 }
 
