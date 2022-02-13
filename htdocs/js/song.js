@@ -409,7 +409,7 @@ function createLyricsTabs(el, obj) {
 }
 
 function parseUnsyncedLyrics(parent, text) {
-    for (const line of text.replace('\r').split('\n')) {
+    for (const line of text.replace(/\r/g, '').split('\n')) {
         parent.appendChild(document.createTextNode(line));
         parent.appendChild(elCreateEmpty('br', {}));
     }
