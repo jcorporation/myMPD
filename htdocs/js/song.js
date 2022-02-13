@@ -418,18 +418,19 @@ function parseUnsyncedLyrics(parent, text) {
 function parseSyncedLyrics(parent, lyrics, currentLyrics) {
     for (const line of lyrics.replace(/\r/g, '').split('\n')) {
         //line must start with timestamp
-        const elements = line.match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
+        const elements = line.match(/^\[(\d+):(\d+)\.\d+\](.*)$/);
         if (elements) {
-            //elements[3] are hundreths of a seconde - ignore it for the moment
             const ts = [Number(elements[1]) * 60 + Number(elements[2])];
             const text = [];
             //support of timestamps per word
-            const regex = /(.+)(<(\d+):(\d+)\.\d+>)?/g;
-            let match;
-            while ((match = regex.exec(elements[4])) !== null) {
-                text.push(match[1]);
-                if (regex[2] !== undefined) {
-                    ts.push(Number(match[3]) * 60 + Number(match[4]));
+            const words = elements[3].split(/(<\d+:\d+\.\d+>)/);
+            for (const word of words) {
+                let timestamp;
+                if ((timestamp = word.match(/^<(\d+):(\d+)\.\d+>$/)) !== null) {
+                    ts.push(Number(timestamp[1]) * 60 + Number(timestamp[2]));
+                }
+                else {
+                    text.push(word);
                 }
             }
             if (text.length === 0) {
@@ -438,7 +439,7 @@ function parseSyncedLyrics(parent, lyrics, currentLyrics) {
             }
             const p = elCreateEmpty('p', {});
             for (let i = 0, j = ts.length; i < j; i++) {
-                const span = elCreateText('span', {"data-sec": ts[i]}, text[i]);
+                const span = elCreateText('span', {"data-sec": ts[i], "title": beautifySongDuration(ts[i])}, text[i]);
                 if (currentLyrics === true) {
                     span.classList.add('clickable');
                 }
