@@ -149,12 +149,12 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         }
         if (jsonHash === null) {
             appPrepare(0);
-            if (features.featHome === true) {
-                appGoto('Home');
+            let initialStartupView = localStorage.getItem('uiStartupView');
+            if (initialStartupView === null) {
+                initialStartupView = features.featHome === true ? 'Home' : 'Playback';
             }
-            else {
-                appGoto('Playback');
-            }
+            const path = initialStartupView.split('/');
+            appGoto(...path);
             return;
         }
     }
@@ -485,6 +485,15 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         }
         default:
             appGoto("Home");
+/*
+            if (settings.webuiSettings.uiStartupView === null) {
+                appGoto("Home");
+            }
+            else {
+                const path = settings.webuiSettings.uiStartupCard.split('/');
+                appGoto(...path);
+            }
+*/
     }
 
     app.last.card = app.current.card;

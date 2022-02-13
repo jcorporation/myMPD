@@ -229,9 +229,32 @@ app.cards = {
     }
 };
 
-app.id = "Home";
-app.current = {"card": "Home", "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0};
-app.last = {"card": undefined, "tab": undefined, "view": undefined, "offset": 0, "limit": 100, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0};
+app.id = 'Home';
+app.current = {
+    "card": "Home",
+    "tab": undefined,
+    "view": undefined,
+    "offset": 0,
+    "limit": 100,
+    "filter": "",
+    "search": "",
+    "sort": "",
+    "tag": "",
+    "scrollPos": 0
+};
+
+app.last = {
+    "card": undefined,
+    "tab": undefined,
+    "view": undefined,
+    "offset": 0,
+    "limit": 100,
+    "filter": "",
+    "search": "",
+    "sort": "",
+    "tag": "",
+    "scrollPos": 0
+};
 app.goto = false;
 
 //normal settings
@@ -609,6 +632,25 @@ const webuiSettingsDefault = {
         "title": "Locale",
         "form": "localeFrm",
         "onChange": "eventChangeLocale"
+    },
+    "uiStartupView": {
+        "defaultValue": null,
+        "validValues": {
+            "Home": "Home",
+            "Playback": "Playback",
+            "Queue/Current": "Queue",
+            "Queue/LastPlayed": "LastPlayed",
+            "Queue/Jukebox": "Jukebox Queue",
+            "Browse/Database": "Database",
+            "Browse/Playlists": "Playlists",
+            "Browse/Filesystem": "Filesystem",
+            "Browse/Radio": "Radio Favorites",
+            "Search": "Search"
+        },
+        "inputType": "select",
+        "title": "Startup view",
+        "form": "startupFrm",
+        "onChange": "eventChangeTheme"
     }
 };
 

@@ -238,6 +238,11 @@ function parseSettings(obj) {
             settings.webuiSettings[key] = webuiSettingsDefault[key].defaultValue;
         }
     }
+    
+    //local cache of uiStartupView
+    if (settings.webuiSettings.uiStartupView !== null) {
+        localStorage.setItem('uiStartupView', settings.webuiSettings.uiStartupView);
+    }
 
     //set session state
     setSessionState();

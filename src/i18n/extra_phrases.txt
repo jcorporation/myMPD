@@ -157,3 +157,6 @@ lastcheckok
 tags
 url_resolved
 votes
+Jukebox Queue
+Startup
+Startup view
