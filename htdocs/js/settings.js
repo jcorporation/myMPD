@@ -54,6 +54,7 @@ function initSettings() {
                 elDisableId('inputJukeboxQueueLength');
                 elDisableId('selectJukeboxPlaylist');
                 document.getElementById('selectJukeboxPlaylist').value = 'Database';
+                setDataId('selectJukeboxPlaylist', 'value', 'Database');
             }
             else if (value === 'song') {
                 elEnableId('inputJukeboxQueueLength');

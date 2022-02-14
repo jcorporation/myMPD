@@ -115,7 +115,7 @@ function setSelectSearch(el) {
         event.stopPropagation();
         el.value = event.target.textContent;
         setData(el, 'value', getData(event.target, 'value'));
-        el.dropdownButton.Dropdown.hide();
+        BSN.Dropdown.getInstance(el.nextElementSibling).hide();
         const changeEvent = new Event('change');
         el.dispatchEvent(changeEvent);
     }, false);
@@ -131,8 +131,8 @@ function setSelectSearch(el) {
     };
     new BSN.Dropdown(el.dropdownButton);
     if (el.getAttribute('readonly') === 'readonly') {
-        el.addEventListener('click', function() {
-            el.dropdownButton.Dropdown.toggle();
+        el.addEventListener('click', function(event) {
+            BSN.Dropdown.getInstance(event.target.nextElementSibling).toggle();
         }, false);
     }
     if (isMobile === true) {

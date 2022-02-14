@@ -119,7 +119,7 @@ function showTriggerScriptArgs(option, values) {
         const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "triggerActionScriptArguments" + i,
             "value": (values[args.arguments[i]] ? values[args.arguments[i]] : '')});
         setData(input, 'name', args.arguments[i]);
-        const fg = elCreateNodes('div', {"class": ["form-group", "row"]}, [
+        const fg = elCreateNodes('div', {"class": ["form-group", "row", "mb-3"]}, [
             elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": "triggerActionScriptArguments" + i}, args.arguments[i]),
             elCreateNode('div', {"class": ["col-sm-8"]}, input)
         ]);

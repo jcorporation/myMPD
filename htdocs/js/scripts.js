@@ -95,7 +95,7 @@ function initScripts() {
             '    result = json.decode(raw_result)\n' +
             'end\n';
         el.setRangeText(newText, start, end, 'preserve');
-        document.getElementById('btnDropdownAddAPIcall').Dropdown.hide();
+        BSN.Dropdown.getInstance('#btnDropdownAddAPIcall').hide();
         el.focus();
     }, false);
 
@@ -129,7 +129,7 @@ function initScripts() {
         const el = document.getElementById('textareaScriptContent');
         const [start, end] = [el.selectionStart, el.selectionEnd];
         el.setRangeText(LUAfunctions[value].func, start, end, 'end');
-        document.getElementById('btnDropdownAddFunction').Dropdown.hide();
+        BSN.Dropdown.getInstance('#btnDropdownAddFunction').hide();
         el.focus();
     }, false);
 }
