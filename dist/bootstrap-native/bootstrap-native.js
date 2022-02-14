@@ -1,5 +1,5 @@
 /*!
-  * Native JavaScript for Bootstrap v4.1.0alpha5 (https://thednp.github.io/bootstrap.native/)
+  * Native JavaScript for Bootstrap v4.1.0alpha7 (https://thednp.github.io/bootstrap.native/)
   * Copyright 2015-2022 © dnp_theme
   * Licensed under MIT (https://github.com/thednp/bootstrap.native/blob/master/LICENSE)
   */
@@ -28,9 +28,7 @@
   const transitionDelay = 'transitionDelay';
 
   /**
-   * A global namespace for:
-   * * `transitionProperty` string for Firefox,
-   * * `transition` property for all other browsers.
+   * A global namespace for `transitionProperty` string for modern browsers.
    *
    * @type {string}
    */
@@ -112,7 +110,7 @@
     if (duration) {
       /**
        * Wrap the handler in on -> off callback
-       * @type {EventListenerObject['handleEvent']} e Event object
+       * @type {EventListener} e Event object
        */
       const transitionEndWrapper = (e) => {
         if (e.target === element) {
@@ -199,7 +197,7 @@
    *
    * @param {HTMLElement | Element} element target
    * @param {string} classNAME to check
-   * @return {boolean}
+   * @returns {boolean}
    */
   function hasClass(element, classNAME) {
     return element.classList.contains(classNAME);
@@ -210,6 +208,7 @@
    *
    * @param {HTMLElement | Element} element target
    * @param {string} classNAME to remove
+   * @returns {void}
    */
   function removeClass(element, classNAME) {
     element.classList.remove(classNAME);
@@ -434,8 +433,9 @@
 
   /**
    * Shortcut for `HTMLElement.getAttribute()` method.
-   * @param  {HTMLElement | Element} element target element
-   * @param  {string} attribute attribute name
+   * @param {HTMLElement | Element} element target element
+   * @param {string} attribute attribute name
+   * @returns {string?} attribute value
    */
   const getAttribute = (element, attribute) => element.getAttribute(attribute);
 
@@ -532,7 +532,7 @@
     return normalOps;
   }
 
-  var version = "4.1.0alpha5";
+  var version = "4.1.0alpha7";
 
   const Version = version;
 
@@ -729,6 +729,7 @@
    * @param  {HTMLElement | Element} element target element
    * @param  {string} attribute attribute name
    * @param  {string} value attribute value
+   * @returns {void}
    */
   const setAttribute = (element, attribute, value) => element.setAttribute(attribute, value);
 
@@ -737,6 +738,7 @@
    *
    * @param {HTMLElement | Element} element target
    * @param {string} classNAME to add
+   * @returns {void}
    */
   function addClass(element, classNAME) {
     element.classList.add(classNAME);
@@ -1032,7 +1034,7 @@
      * @param {HTMLElement | Element | string} target target element
      * @param {ReturnType<TimerHandler>} callback the callback
      * @param {number} delay the execution delay
-     * @param {string=} key a unique
+     * @param {string=} key a unique key
      */
     set: (target, callback, delay, key) => {
       const element = querySelector(target);
@@ -2034,6 +2036,7 @@
    * Shortcut for `HTMLElement.hasAttribute()` method.
    * @param  {HTMLElement | Element} element target element
    * @param  {string} attribute attribute name
+   * @returns {boolean} the query result
    */
   const hasAttribute = (element, attribute) => element.hasAttribute(attribute);
 
@@ -2572,6 +2575,7 @@
    * Shortcut for `HTMLElement.removeAttribute()` method.
    * @param  {HTMLElement | Element} element target element
    * @param  {string} attribute attribute name
+   * @returns {void}
    */
   const removeAttribute = (element, attribute) => element.removeAttribute(attribute);
 
@@ -4038,30 +4042,6 @@
    */
   const mousehoverEvent = 'hover';
 
-  // @ts-ignore
-  const { userAgentData: uaDATA } = navigator;
-
-  /**
-   * A global namespace for `userAgentData` object.
-   */
-  const userAgentData = uaDATA;
-
-  const { userAgent: userAgentString } = navigator;
-
-  /**
-   * A global namespace for `navigator.userAgent` string.
-   */
-  const userAgent = userAgentString;
-
-  const appleBrands = /(iPhone|iPod|iPad)/;
-
-  /**
-   * A global `boolean` for Apple browsers.
-   * @type {boolean}
-   */
-  const isApple = !userAgentData ? appleBrands.test(userAgent)
-    : userAgentData.brands.some((/** @type {Record<string, any>} */x) => appleBrands.test(x.brand));
-
   let elementUID = 1;
   const elementIDMap = new Map();
 
@@ -4097,6 +4077,30 @@
     }
     return result;
   }
+
+  // @ts-ignore
+  const { userAgentData: uaDATA } = navigator;
+
+  /**
+   * A global namespace for `userAgentData` object.
+   */
+  const userAgentData = uaDATA;
+
+  const { userAgent: userAgentString } = navigator;
+
+  /**
+   * A global namespace for `navigator.userAgent` string.
+   */
+  const userAgent = userAgentString;
+
+  const appleBrands = /(iPhone|iPod|iPad)/;
+
+  /**
+   * A global `boolean` for Apple browsers.
+   * @type {boolean}
+   */
+  const isApple = !userAgentData ? appleBrands.test(userAgent)
+    : userAgentData.brands.some((/** @type {Record<string, any>} */x) => appleBrands.test(x.brand));
 
   /**
    * Global namespace for `data-bs-title` attribute.
@@ -4281,7 +4285,7 @@
     const action = add ? addListener : removeListener;
     const { element } = self;
 
-    action(getDocument(element), touchstartEvent, tooltipTouchHandler, passiveHandler);
+    action(getDocument(element), touchstartEvent, self.handleTouch, passiveHandler);
 
     if (!isMedia(element)) {
       [scrollEvent, resizeEvent].forEach((ev) => {
@@ -4353,7 +4357,7 @@
           action(btn, mouseclickEvent, self.hide);
         } else {
           action(element, mouseleaveEvent, self.hide);
-          action(getDocument(element), touchstartEvent, tooltipTouchHandler, passiveHandler);
+          action(getDocument(element), touchstartEvent, self.handleTouch, passiveHandler);
         }
       } else if (tr === mouseclickEvent) {
         action(element, tr, (!dismissible ? self.toggle : self.show));
@@ -4408,21 +4412,6 @@
       // @ts-ignore
       (content || getAttribute(element, titleAtt[0])));
     removeAttribute(element, titleAtt[content ? 1 : 0]);
-  }
-
-  // TOOLTIP EVENT HANDLERS
-  // ======================
-  /**
-   * Handles the `touchstart` event listener for `Tooltip`
-   * @this {Tooltip}
-   * @param {TouchEvent} e the `Event` object
-   */
-  function tooltipTouchHandler({ target }) {
-    const { tooltip, element } = this;
-    // @ts-ignore
-    if (tooltip.contains(target) || target === element || element.contains(target)) ; else {
-      this.hide();
-    }
   }
 
   // TOOLTIP DEFINITION
@@ -4481,7 +4470,7 @@
       tooltipDefaults[titleAttr] = null;
 
       // all functions bind
-      tooltipTouchHandler.bind(self);
+      self.handleTouch = self.handleTouch.bind(self);
       self.update = self.update.bind(self);
       self.show = self.show.bind(self);
       self.hide = self.hide.bind(self);
@@ -4643,6 +4632,21 @@
       const self = this;
       if (!self.enabled) self.enable();
       else self.disable();
+    }
+
+    /**
+     * Handles the `touchstart` event listener for `Tooltip`
+     * @this {Tooltip}
+     * @param {TouchEvent} e the `Event` object
+     */
+    handleTouch({ target }) {
+      const { tooltip, element } = this;
+
+      if (tooltip.contains(target) || target === element
+        // @ts-ignore
+        || (target && element.contains(target))) ; else {
+        this.hide();
+      }
     }
 
     /** Removes the `Tooltip` from the target element. */
@@ -5276,12 +5280,13 @@
    *
    * @param {HTMLElement | Element | Document | Window} element event.target
    * @param {string} eventName event.type
-   * @param {EventListenerObject['handleEvent']} handler callback
+   * @param {EventListener} listener callback
    * @param {(EventListenerOptions | boolean)=} options other event options
+   * @returns {void}
    */
-  function on(element, eventName, handler, options) {
+  function on(element, eventName, listener, options) {
     const ops = options || false;
-    element.addEventListener(eventName, handler, ops);
+    element.addEventListener(eventName, listener, ops);
   }
 
   /**
@@ -5289,12 +5294,13 @@
    *
    * @param {HTMLElement | Element | Document | Window} element event.target
    * @param {string} eventName event.type
-   * @param {EventListenerObject['handleEvent']} handler callback
+   * @param {EventListener} listener callback
    * @param {(EventListenerOptions | boolean)=} options other event options
+   * @returns {void}
    */
-  function off(element, eventName, handler, options) {
+  function off(element, eventName, listener, options) {
     const ops = options || false;
-    element.removeEventListener(eventName, handler, ops);
+    element.removeEventListener(eventName, listener, ops);
   }
 
   /**
@@ -5303,17 +5309,18 @@
    *
    * @param {HTMLElement | Element | Document | Window} element event.target
    * @param {string} eventName event.type
-   * @param {EventListenerObject['handleEvent']} handler callback
+   * @param {EventListener} listener callback
    * @param {(EventListenerOptions | boolean)=} options other event options
+   * @returns {void}
    */
-  function one(element, eventName, handler, options) {
+  function one(element, eventName, listener, options) {
   /**
-   * Wrap the handler for easy on -> off
-   * @type {EventListenerObject['handleEvent']}
+   * Wrap the listener for easy on -> off
+   * @type {EventListener}
    */
     const handlerWrapper = (e) => {
       if (e.target === element) {
-        handler.apply(element, [e]);
+        listener.apply(element, [e]);
         off(element, eventName, handlerWrapper, options);
       }
     };
