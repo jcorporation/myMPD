@@ -194,7 +194,9 @@ sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
     }
     buffer = sdscatlen(buffer, "]", 1);
 
-    if (is_dirname == false) {
+    if (is_dirname == false &&
+        is_streamuri(uri) == false)
+    {
         buffer = sdscatlen(buffer, ",", 1);
         sds fullpath = sdscatfmt(sdsempty(), "%s/%s", mympd_state->music_directory_value, uri);
         int count = _get_embedded_covers_count(fullpath);

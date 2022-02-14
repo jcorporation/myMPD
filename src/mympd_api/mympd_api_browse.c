@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "mympd_api_browse.h"
 
+#include "../../dist/utf8/utf8.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
@@ -31,8 +32,8 @@
 
 //private definitions
 static bool _search_song(struct mpd_song *song, struct t_list *expr_list, struct t_tags *browse_tag_types);
-static pcre2_code *_compile_regex(const char *regex_str);
-static bool _cmp_regex(pcre2_code *re_compiled, sds value);
+static pcre2_code *_compile_regex(char *regex_str);
+static bool _cmp_regex(pcre2_code *re_compiled, const char *value);
 static void _free_filesystem_list_user_data(struct t_list_node *current);
 
 //public functions
@@ -682,7 +683,6 @@ static bool _search_song(struct mpd_song *song, struct t_list *expr_list, struct
     (void) browse_tag_types;
     struct t_tags one_tag;
     one_tag.len = 1;
-    sds value_lower = sdsempty();
     struct t_list_node *current = expr_list->head;
     while (current != NULL) {
         struct t_tags *tags = NULL;
@@ -696,22 +696,18 @@ static bool _search_song(struct mpd_song *song, struct t_list *expr_list, struct
             tags->tags[0] = (enum mpd_tag_type)current->value_i;
         }
         bool rc = false;
-        sds_utf8_tolower(current->key);
         for (size_t i = 0; i < tags->len; i++) {
             rc = true;
             unsigned j = 0;
             const char *value = NULL;
             while ((value = mpd_song_get_tag(song, tags->tags[i], j)) != NULL) {
                 j++;
-                sdsclear(value_lower);
-                value_lower = sdscat(value_lower, value);
-                sds_utf8_tolower(value_lower);
-                if ((strcmp(current->value_p, "contains") == 0 && strstr(value_lower, current->key) == NULL) ||
-                    (strcmp(current->value_p, "starts_with") == 0 && strncmp(current->key, value_lower, sdslen(current->key)) != 0) ||
-                    (strcmp(current->value_p, "==") == 0 && strcmp(value_lower, current->key) != 0) ||
-                    (strcmp(current->value_p, "!=") == 0 && strcmp(value_lower, current->key) == 0) ||
-                    (strcmp(current->value_p, "=~") == 0 && _cmp_regex((pcre2_code *)current->user_data, value_lower) == false) ||
-                    (strcmp(current->value_p, "!~") == 0 && _cmp_regex((pcre2_code *)current->user_data, value_lower) == true))
+                if ((strcmp(current->value_p, "contains") == 0 && utf8casestr(value, current->key) == NULL) ||
+                    (strcmp(current->value_p, "starts_with") == 0 && utf8ncasecmp(current->key, value, sdslen(current->key)) != 0) ||
+                    (strcmp(current->value_p, "==") == 0 && utf8casecmp(value, current->key) != 0) ||
+                    (strcmp(current->value_p, "!=") == 0 && utf8casecmp(value, current->key) == 0) ||
+                    (strcmp(current->value_p, "=~") == 0 && _cmp_regex((pcre2_code *)current->user_data, value) == false) ||
+                    (strcmp(current->value_p, "!~") == 0 && _cmp_regex((pcre2_code *)current->user_data, value) == true))
                 {
                     rc = false;
                 }
@@ -729,24 +725,23 @@ static bool _search_song(struct mpd_song *song, struct t_list *expr_list, struct
             }
         }
         if (rc == false) {
-            FREE_SDS(value_lower);
             return false;
         }
         current = current->next;
     }
-    FREE_SDS(value_lower);
     return true;
 }
 
-static pcre2_code *_compile_regex(const char *regex_str) {
+static pcre2_code *_compile_regex(char *regex_str) {
     MYMPD_LOG_DEBUG("Compiling regex: \"%s\"", regex_str);
+    utf8lwr(regex_str);
     PCRE2_SIZE erroroffset;
     int rc;
     pcre2_code *re_compiled = pcre2_compile(
         (PCRE2_SPTR)regex_str, /* the pattern */
         PCRE2_ZERO_TERMINATED, /* indicates pattern is zero-terminated */
         0,                     /* default options */
-        &rc,          /* for error number */
+        &rc,		       /* for error number */
         &erroroffset,          /* for error offset */
         NULL                   /* use default compile context */
     );
@@ -760,21 +755,24 @@ static pcre2_code *_compile_regex(const char *regex_str) {
     return re_compiled;
 }
 
-static bool _cmp_regex(pcre2_code *re_compiled, sds value) {
+static bool _cmp_regex(pcre2_code *re_compiled, const char *value) {
     if (re_compiled == NULL) {
         return false;
     }
+    char *lower = strdup(value);
+    utf8lwr(lower);
     pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(re_compiled, NULL);
     int rc = pcre2_match(
         re_compiled,          /* the compiled pattern */
-        (PCRE2_SPTR)value,    /* the subject string */
-        sdslen(value),        /* the length of the subject */
+        (PCRE2_SPTR)lower,    /* the subject string */
+        strlen(value),        /* the length of the subject */
         0,                    /* start at offset 0 in the subject */
         0,                    /* default options */
-        match_data,                /* block for storing the result */
+        match_data,           /* block for storing the result */
         NULL                  /* use default match context */
     );
     pcre2_match_data_free(match_data);
+    free(lower);
     if (rc >= 0) {
         return true;
     }
