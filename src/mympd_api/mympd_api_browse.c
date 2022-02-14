@@ -130,8 +130,6 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
         return buffer;
     }
 
-    sds_utf8_tolower(searchstr);
-
     struct t_list entity_list;
     list_init(&entity_list);
     struct mpd_entity *entity;
@@ -145,10 +143,8 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                 const struct mpd_song *song = mpd_entity_get_song(entity);
                 sds entity_name = sdsempty();
                 entity_name = mpd_shared_get_tag_values(song, MPD_TAG_TITLE, entity_name);
-                sds_utf8_tolower(entity_name);
-                if (search_len == 0 || strstr(entity_name, searchstr) != NULL) {
+                if (search_len == 0 || utf8casestr(entity_name, searchstr) != NULL) {
                     sds key = sdscatfmt(sdsempty(), "2%s", mpd_song_get_uri(song));
-                    sds_utf8_tolower(key);
                     list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_SONG, entity_name, mpd_song_dup(song), LIST_SORT_ASC);
                     FREE_SDS(key);
                 }
@@ -165,45 +161,39 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                 else {
                     dir_name = (char *)entity_name;
                 }
-                sds dir_name_lower = sdsnew(dir_name);
-                sds_utf8_tolower(dir_name_lower);
-                if (search_len == 0 || strstr(dir_name_lower, searchstr) != NULL) {
+                if (search_len == 0 || utf8casestr(dir_name, searchstr) != NULL) {
                     sds key = sdscatfmt(sdsempty(), "0%s", mpd_directory_get_path(dir));
-                    sds_utf8_tolower(key);
                     list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_DIRECTORY, dir_name, mpd_directory_dup(dir), LIST_SORT_ASC);
                     FREE_SDS(key);
                 }
-                FREE_SDS(dir_name_lower);
                 break;
             }
             case MPD_ENTITY_TYPE_PLAYLIST: {
                 const struct mpd_playlist *pl = mpd_entity_get_playlist(entity);
-                sds entity_name = sdsnew(mpd_playlist_get_path(pl));
-                sds_utf8_tolower(entity_name);
+                const char *pl_path = mpd_playlist_get_path(pl);
                 //do not show mpd playlists in root directory
                 if (strcmp(path, "/") == 0) {
-                    sds ext = sds_get_extension_from_filename(entity_name);
-                    if (strcmp(ext, "m3u") != 0 && strcmp(ext, "pls") != 0) {
+                    sds ext = sds_get_extension_from_filename(pl_path);
+                    if (strcmp(ext, "m3u") != 0 &&
+                        strcmp(ext, "pls") != 0)
+                    {
                         FREE_SDS(ext);
-                        FREE_SDS(entity_name);
                         break;
                     }
                     FREE_SDS(ext);
                 }
-                char *pl_name = strrchr(entity_name, '/');
+                char *pl_name = strrchr(pl_path, '/');
                 if (pl_name != NULL) {
                     pl_name++;
                 }
                 else {
-                    pl_name = entity_name;
+                    pl_name = (char *)pl_path;
                 }
-                if (search_len == 0 || strstr(pl_name, searchstr) != NULL) {
+                if (search_len == 0 || utf8casestr(pl_name, searchstr) != NULL) {
                     sds key = sdscatfmt(sdsempty(), "1%s", mpd_playlist_get_path(pl));
-                    sds_utf8_tolower(key);
                     list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_PLAYLIST, pl_name, mpd_playlist_dup(pl), LIST_SORT_ASC);
                     FREE_SDS(key);
                 }
-                FREE_SDS(entity_name);
                 break;
             }
         }
@@ -586,7 +576,6 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
 sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                           sds searchstr, sds tag, const long offset, const long limit)
 {
-    sds_utf8_tolower(searchstr);
     size_t searchstr_len = sdslen(searchstr);
 
     buffer = jsonrpc_result_start(buffer, method, request_id);
@@ -607,7 +596,6 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
     enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
     struct t_list taglist;
     list_init(&taglist);
-    sds value_lower = sdsempty();
     //filter and sort
     while ((pair = mpd_recv_pair_tag(mympd_state->mpd_state->conn, mpdtag)) != NULL) {
         if (pair->value[0] == '\0') {
@@ -615,18 +603,14 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
             mpd_return_pair(mympd_state->mpd_state->conn, pair);
             continue;
         }
-        sdsclear(value_lower);
-        value_lower = sdscat(value_lower, pair->value);
-        sds_utf8_tolower(value_lower);
         mpd_return_pair(mympd_state->mpd_state->conn, pair);
         if (searchstr_len == 0 ||
-            (searchstr_len <= 2 && strncmp(searchstr, value_lower, searchstr_len) == 0) ||
-            (searchstr_len > 2 && strstr(value_lower, searchstr) != NULL))
+            (searchstr_len <= 2 && utf8ncasecmp(searchstr, pair->value, searchstr_len) == 0) ||
+            (searchstr_len > 2 && utf8casestr(pair->value, searchstr) != NULL))
         {
             list_insert_sorted_by_key(&taglist, pair->value, 0, NULL, NULL, LIST_SORT_ASC);
         }
     }
-    FREE_SDS(value_lower);
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
@@ -650,7 +634,7 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
     }
     list_clear(&taglist);
     //checks if this tag has a directory with pictures in /var/lib/mympd/pics
-    sds pic_path = sdscatfmt(sdsempty(), "%s/pics/%s", mympd_state->config->workdir, tag);
+    sds pic_path = sdscatfmt(sdsempty(), "%S/pics/%s", mympd_state->config->workdir, tag);
     bool pic = false;
     errno = 0;
     DIR* dir = opendir(pic_path);

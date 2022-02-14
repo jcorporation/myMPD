@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "mympd_api_playlists.h"
 
+#include "../../dist/utf8/utf8.h"
 #include "../lib/api.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
@@ -96,19 +97,15 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlists") == false) {
         return buffer;
     }
-    sds_utf8_tolower(searchstr);
     size_t search_len = sdslen(searchstr);
 
     struct mpd_playlist *pl;
     struct t_list entity_list;
     list_init(&entity_list);
-    sds plpath_lower = sdsempty();
     while ((pl = mpd_recv_playlist(mympd_state->mpd_state->conn)) != NULL) {
         const char *plpath = mpd_playlist_get_path(pl);
-        plpath_lower = sdscat(plpath_lower, plpath);
-        bool smartpls = is_smartpls(mympd_state->config->workdir, plpath_lower);
-        sds_utf8_tolower(plpath_lower);
-        if ((search_len == 0 || strstr(plpath_lower, searchstr) != NULL) &&
+        bool smartpls = is_smartpls(mympd_state->config->workdir, plpath);
+        if ((search_len == 0 || utf8casestr(plpath, searchstr) != NULL) &&
             (type == PLTYPE_ALL || (type == PLTYPE_STATIC && smartpls == false) || (type == PLTYPE_SMART && smartpls == true)))
         {
             if (smartpls == true) {
@@ -119,7 +116,6 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
             }
         }
         mpd_playlist_free(pl);
-        sdsclear(plpath_lower);
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
@@ -128,23 +124,19 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
 
     //add empty smart playlists
     if (type != 1) {
-        sdsclear(plpath_lower);
         sds smartpls_path = sdscatfmt(sdsempty(), "%s/smartpls", mympd_state->config->workdir);
         errno = 0;
         DIR *smartpls_dir = opendir(smartpls_path);
         if (smartpls_dir != NULL) {
             struct dirent *next_file;
             while ((next_file = readdir(smartpls_dir)) != NULL ) {
-                plpath_lower = sdscat(plpath_lower, next_file->d_name);
-                sds_utf8_tolower(plpath_lower);
                 if (next_file->d_type == DT_REG &&
-                    (search_len == 0 || strstr(plpath_lower, searchstr) != NULL) &&
+                    (search_len == 0 || utf8casestr(next_file->d_name, searchstr) != NULL) &&
                     list_get_node(&entity_list, next_file->d_name) == NULL)
                 {
                     time_t last_modified = mpd_shared_get_smartpls_mtime(mympd_state->config, next_file->d_name);
                     list_push(&entity_list, next_file->d_name, (long)last_modified, "t", NULL);
                 }
-                sdsclear(plpath_lower);
             }
             closedir(smartpls_dir);
         }
@@ -154,7 +146,6 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
         }
         FREE_SDS(smartpls_path);
     }
-    FREE_SDS(plpath_lower);
 
     list_sort_by_key(&entity_list, LIST_SORT_ASC);
 
@@ -200,8 +191,6 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
         return buffer;
     }
 
-    sds_utf8_tolower(searchstr);
-
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer,"\"data\":[");
 
@@ -216,8 +205,7 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
         total_time += mpd_song_get_duration(song);
         if (entity_count >= offset && entity_count < real_limit) {
             entityName = mpd_shared_get_tag_values(song, MPD_TAG_TITLE, entityName);
-            sds_utf8_tolower(entityName);
-            if (search_len == 0 || strstr(entityName, searchstr) != NULL) {
+            if (search_len == 0 || utf8casestr(entityName, searchstr) != NULL) {
                 if (entities_returned++) {
                     buffer= sdscatlen(buffer, ",", 1);
                 }
