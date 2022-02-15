@@ -384,20 +384,7 @@ function parseSettings(obj) {
     document.getElementById('volumeBar').setAttribute('max', settings.volumeMax);
 
     //update columns
-    if (app.id === 'QueueCurrent') {
-        getQueue();
-    }
-    else if (app.id === 'QueueLastPlayed' ||
-        app.id === 'QueueJukebox' ||
-        app.id === 'Search' ||
-        app.id === 'BrowseFilesystem' ||
-        app.id === 'BrowsePlaylistsDetail' ||
-        app.id === 'BrowseDatabase' ||
-        app.id === 'BrowseRadioWebradiodb' ||
-        app.id === 'BrowseRadioRadiobrowser')
-    {
-        appRoute();
-    }
+    appRoute();
 
     if (settings.mediaSession === true && 'mediaSession' in navigator) {
         navigator.mediaSession.setActionHandler('play', clickPlay);
@@ -831,6 +818,7 @@ function setFeatures() {
         features.featFingerprint = settings.featFingerprint;
         features.featPlaylistRmRange = settings.featPlaylistRmRange;
         features.featWhence = settings.featWhence;
+        features.featAdvqueue = settings.featAdvqueue;
     }
 }
 
@@ -959,8 +947,8 @@ function parseMPDSettings() {
     addTagList('BrowseNavWebradiodbDropdown', 'tagListBrowse');
     addTagList('BrowseNavRadiobrowserDropdown', 'tagListBrowse');
 
-    addTagList('searchqueuetags', 'tagListSearch');
-    addTagList('searchtags', 'tagListSearch');
+    addTagList('searchQueueTags', 'tagListSearch');
+    addTagList('searchTags', 'tagListSearch');
     addTagList('searchDatabaseTags', 'tagListBrowse');
     addTagList('databaseSortTagsList', 'tagListBrowse');
     addTagList('dropdownSortPlaylistTags', 'tagList');

@@ -150,7 +150,9 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         if (jsonHash === null) {
             appPrepare(0);
             let initialStartupView = settings.webuiSettings.uiStartupView;
-            if (initialStartupView === undefined) {
+            if (initialStartupView === undefined ||
+                initialStartupView === null)
+            {
                 initialStartupView = features.featHome === true ? 'Home' : 'Playback';
             }
             const path = initialStartupView.split('/');
@@ -214,8 +216,60 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'QueueCurrent': {
-            selectTag('searchqueuetags', 'searchqueuetagsdesc', app.current.filter);
-            getQueue();
+            document.getElementById('searchQueueStr').focus();
+            if (features.featAdvqueue) {
+                createSearchCrumbs(app.current.search, document.getElementById('searchQueueStr'), document.getElementById('searchQueueCrumb'));
+            }
+            else if (document.getElementById('searchQueueStr').value === '' &&
+                app.current.search !== '')
+            {
+                document.getElementById('searchQueueStr').value = app.current.search;
+            }
+            if (app.current.search === '') {
+                document.getElementById('searchQueueStr').value = '';
+            }
+            if (features.featAdvqueue === true) {
+                if (app.current.sort.tag === '-') {
+                    app.current.sort.tag = 'prio';
+                }
+                sendAPI("MYMPD_API_QUEUE_SEARCH_ADV", {
+                    "offset": app.current.offset,
+                    "limit": app.current.limit,
+                    "sort": app.current.sort.tag,
+                    "sortdesc": app.current.sort.desc,
+                    "expression": app.current.search,
+                    "cols": settings.colsSearchFetch
+                }, parseQueue, true);
+                if (app.current.filter === 'priority') {
+                    elShowId('priorityMatch');
+                    document.getElementById('searchQueueMatch').value = '>=';
+                }
+                else {
+                    if (getSelectValueId('searchQueueMatch') === '>=') {
+                        document.getElementById('searchQueueMatch').value = 'contains';
+                    }
+                    elHideId('priorityMatch');
+                }
+            }
+            else if (document.getElementById('searchQueueStr').value.length >= 2 ||
+                     document.getElementById('searchQueueCrumb').children.length > 0)
+            {
+                sendAPI("MYMPD_API_QUEUE_SEARCH", {
+                    "offset": app.current.offset,
+                    "limit": app.current.limit,
+                    "filter": app.current.filter,
+                    "searchstr": app.current.search,
+                    "cols": settings.colsSearchFetch
+                }, parseQueue, true);
+            }
+            else {
+                sendAPI("MYMPD_API_QUEUE_LIST", {
+                    "offset": app.current.offset,
+                    "limit": app.current.limit,
+                    "cols": settings.colsSearchFetch
+                }, parseQueue, true);
+            }
+            selectTag('searchQueueTags', 'searchQueueTagsDesc', app.current.filter);
             break;
         }
         case 'QueueLastPlayed': {
@@ -434,22 +488,22 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'Search': {
-            document.getElementById('searchstr').focus();
+            document.getElementById('searchStr').focus();
             if (features.featAdvsearch) {
-                createSearchCrumbs(app.current.search, document.getElementById('searchstr'), document.getElementById('searchCrumb'));
+                createSearchCrumbs(app.current.search, document.getElementById('searchStr'), document.getElementById('searchCrumb'));
             }
-            else if (document.getElementById('searchstr').value === '' &&
+            else if (document.getElementById('searchStr').value === '' &&
                 app.current.search !== '')
             {
-                document.getElementById('searchstr').value = app.current.search;
+                document.getElementById('searchStr').value = app.current.search;
             }
             if (app.current.search === '') {
-                document.getElementById('searchstr').value = '';
+                document.getElementById('searchStr').value = '';
             }
-            if (document.getElementById('searchstr').value.length >= 2 ||
+            if (document.getElementById('searchStr').value.length >= 2 ||
                 document.getElementById('searchCrumb').children.length > 0)
             {
-                if (features.featAdvsearch) {
+                if (features.featAdvsearch === true) {
                     if (app.current.sort.tag === '-') {
                         app.current.sort.tag = settings.tagList.includes('Title') ? 'Title' : '-';
                     }
@@ -480,7 +534,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 document.getElementById('SearchList').classList.remove('opacity05');
                 setPagination(0, 0);
             }
-            selectTag('searchtags', 'searchtagsdesc', app.current.filter);
+            selectTag('searchTags', 'searchTagsDesc', app.current.filter);
             break;
         }
         default:

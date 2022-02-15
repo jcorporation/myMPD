@@ -86,7 +86,10 @@ app.cards = {
                 "offset": 0,
                 "limit": 100,
                 "filter": "any",
-                "sort": "-",
+                "sort": {
+                    "tag": "-",
+                    "desc": false
+                },
                 "tag": "-",
                 "search": "",
                 "scrollPos": 0

@@ -308,11 +308,19 @@ sds mympd_api_queue_search_adv(struct t_mympd_state *mympd_state, sds buffer, sd
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return buffer;
     }
-    rc = mpd_search_add_expression(mympd_state->mpd_state->conn, expression);
+
+    if (sdslen(expression) == 0) {
+        //search requires an expression
+        rc = mpd_search_add_expression(mympd_state->mpd_state->conn, "(base '')");
+    }
+    else {
+        rc = mpd_search_add_expression(mympd_state->mpd_state->conn, expression);
+    }
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_expression") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return buffer;
     }
+
     enum mpd_tag_type sort_tag = mpd_tag_name_parse(sort);
     if (sort_tag != MPD_TAG_UNKNOWN) {
         sort_tag = get_sort_tag(sort_tag);
@@ -329,7 +337,7 @@ sds mympd_api_queue_search_adv(struct t_mympd_state *mympd_state, sds buffer, sd
             return buffer;
         }
     }
-    else if (strcmp(sort, "prio") == 0) {
+    else if (strcmp(sort, "Priority") == 0) {
         rc = mpd_search_add_sort_name(mympd_state->mpd_state->conn, "prio", sortdesc);
         if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_name") == false) {
             mpd_search_cancel(mympd_state->mpd_state->conn);
@@ -339,7 +347,7 @@ sds mympd_api_queue_search_adv(struct t_mympd_state *mympd_state, sds buffer, sd
     else {
         MYMPD_LOG_WARN("Unknown sort tag: %s", sort);
     }
-    
+
     unsigned real_limit = limit == 0 ? offset + MPD_PLAYLIST_LENGTH_MAX : offset + limit;
     rc = mpd_search_add_window(mympd_state->mpd_state->conn, offset, real_limit);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
@@ -383,7 +391,7 @@ sds mympd_api_queue_search_adv(struct t_mympd_state *mympd_state, sds buffer, sd
         return buffer;
     }
 
-    return buffer;                            
+    return buffer;
 }
 
 //private functions

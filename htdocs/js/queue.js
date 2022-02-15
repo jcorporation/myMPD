@@ -4,20 +4,6 @@
 // https://github.com/jcorporation/mympd
 
 function initQueue() {
-    document.getElementById('searchqueuestr').addEventListener('keyup', function(event) {
-        clearSearchTimer();
-        if (event.key === 'Escape') {
-            this.blur();
-        }
-        else {
-            const value = this.value;
-            searchTimer = setTimeout(function() {
-                appGoto(app.current.card, app.current.tab, app.current.view,
-                    0, app.current.limit, app.current.filter , app.current.sort, '-', value);
-            }, searchTimerTimeout);
-        }
-    }, false);
-
     document.getElementById('searchQueueLastPlayedStr').addEventListener('keyup', function(event) {
         clearSearchTimer();
         if (event.key === 'Escape') {
@@ -32,21 +18,31 @@ function initQueue() {
         }
     }, false);
 
-    document.getElementById('searchqueuetags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON') {
-            appGoto(app.current.card, app.current.tab, app.current.view,
-                app.current.offset, app.current.limit, getData(event.target, 'tag'), app.current.sort, '-', app.current.search);
-        }
-    }, false);
-
     document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TH') {
-            return;
-        }
+        //popover
         if (event.target.nodeName === 'A') {
             showPopover(event);
             return;
         }
+        //table header
+        if (event.target.nodeName === 'TH') {
+            if (features.featAdvqueue === false) {
+                return;
+            }
+            const colName = event.target.getAttribute('data-col');
+            if (colName === null ||
+                colName === 'Duration' ||
+                colName.indexOf('sticker') === 0 ||
+                features.featAdvsearch === false)
+            {
+                return;
+            }
+            toggleSort(event.target, colName);
+            appGoto(app.current.card, app.current.tab, app.current.view,
+                app.current.offset, app.current.limit, app.current.filter, app.current.sort, '-', app.current.search);
+            return;
+        }
+        //table body
         const target = getParent(event.target, 'TR');
         if (target !== null) {
             clickQueueSong(getData(target, 'trackid'), getData(target, 'uri'));
@@ -104,24 +100,78 @@ function initQueue() {
         prioEl.value = '';
         cleanupModalId('modalSetSongPriority');
     });
+
+    document.getElementById('searchQueueTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            app.current.filter = getData(event.target, 'tag');
+            getQueue(document.getElementById('searchQueueStr').value);
+        }
+    }, false);
+
+    document.getElementById('searchQueueStr').addEventListener('keyup', function(event) {
+        clearSearchTimer();
+        const value = this.value;
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else if (event.key === 'Enter' &&
+            features.featAdvsearch === true)
+        {
+            if (value !== '') {
+                const op = getSelectValueId('searchQueueMatch');
+                document.getElementById('searchQueueCrumb').appendChild(createSearchCrumb(app.current.filter, op, value));
+                elShowId('searchQueueCrumb');
+                this.value = '';
+            }
+            else {
+                searchTimer = setTimeout(function() {
+                    getQueue(value);
+                }, searchTimerTimeout);
+            }
+        }
+        else {
+            searchTimer = setTimeout(function() {
+                getQueue(value);
+            }, searchTimerTimeout);
+        }
+    }, false);
+
+    document.getElementById('searchQueueCrumb').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'SPAN') {
+            //remove search expression
+            event.preventDefault();
+            event.stopPropagation();
+            event.target.parentNode.remove();
+            getQueue('');
+        }
+        else if (event.target.nodeName === 'BUTTON') {
+            //edit search expression
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('searchQueueStr').value = unescapeMPD(getData(event.target, 'filter-value'));
+            selectTag('searchQueueTags', 'searchQueueTagsDesc', getData(event.target, 'filter-tag'));
+            document.getElementById('searchQueueMatch').value = getData(event.target, 'filter-op');
+            event.target.remove();
+            app.current.filter = getData(event.target,'filter-tag');
+            getQueue(document.getElementById('searchQueueStr').value);
+            if (document.getElementById('searchQueueCrumb').childElementCount === 0) {
+                elHideId('searchQueueCrumb');
+            }
+        }
+    }, false);
+
+    document.getElementById('searchQueueMatch').addEventListener('change', function() {
+        getQueue(document.getElementById('searchQueueStr').value);
+    }, false);
 }
 
-function getQueue() {
-    if (app.current.search.length >= 2) {
-        sendAPI("MYMPD_API_QUEUE_SEARCH", {
-            "filter": app.current.filter,
-            "offset": app.current.offset,
-            "limit": app.current.limit,
-            "searchstr": app.current.search,
-            "cols": settings.colsQueueCurrentFetch
-        }, parseQueue, true);
+function getQueue(x) {
+    if (features.featAdvqueue) {
+        const expression = createSearchExpression(document.getElementById('searchQueueCrumb'), app.current.filter, getSelectValueId('searchQueueMatch'), x);
+        appGoto('Queue', 'Current', undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', expression, 0);
     }
     else {
-        sendAPI("MYMPD_API_QUEUE_LIST", {
-            "offset": app.current.offset,
-            "limit": app.current.limit,
-            "cols": settings.colsQueueCurrentFetch
-        }, parseQueue, true);
+        appGoto('Queue', 'Current', undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', x, 0);
     }
 }
 

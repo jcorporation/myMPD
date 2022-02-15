@@ -5,22 +5,41 @@
 
 function initSearch() {
     document.getElementById('SearchList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            clickSong(getData(event.target.parentNode, 'uri'));
-        }
-        else if (event.target.nodeName === 'A') {
+        //popover
+        if (event.target.nodeName === 'A') {
             showPopover(event);
+            return;
+        }
+        //table header
+        if (event.target.nodeName === 'TH') {
+            const colName = event.target.getAttribute('data-col');
+            if (colName === null ||
+                colName === 'Duration' ||
+                colName.indexOf('sticker') === 0 ||
+                features.featAdvsearch === false)
+            {
+                return;
+            }
+            toggleSort(event.target, colName);
+            appGoto(app.current.card, app.current.tab, app.current.view,
+                app.current.offset, app.current.limit, app.current.filter, app.current.sort, '-', app.current.search);
+            return;
+        }
+        //table body
+        const target = getParent(event.target, 'TR');
+        if (target !== null) {
+            clickSong(getData(target, 'uri'));
         }
     }, false);
 
-    document.getElementById('searchtags').addEventListener('click', function(event) {
+    document.getElementById('searchTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = getData(event.target, 'tag');
-            doSearch(document.getElementById('searchstr').value);
+            doSearch(document.getElementById('searchStr').value);
         }
     }, false);
 
-    document.getElementById('searchstr').addEventListener('keyup', function(event) {
+    document.getElementById('searchStr').addEventListener('keyup', function(event) {
         clearSearchTimer();
         const value = this.value;
         if (event.key === 'Escape') {
@@ -60,12 +79,12 @@ function initSearch() {
             //edit search expression
             event.preventDefault();
             event.stopPropagation();
-            document.getElementById('searchstr').value = unescapeMPD(getData(event.target, 'filter-value'));
-            selectTag('searchtags', 'searchtagsdesc', getData(event.target, 'filter-tag'));
+            document.getElementById('searchStr').value = unescapeMPD(getData(event.target, 'filter-value'));
+            selectTag('searchTags', 'searchTagsDesc', getData(event.target, 'filter-tag'));
             document.getElementById('searchMatch').value = getData(event.target, 'filter-op');
             event.target.remove();
             app.current.filter = getData(event.target,'filter-tag');
-            doSearch(document.getElementById('searchstr').value);
+            doSearch(document.getElementById('searchStr').value);
             if (document.getElementById('searchCrumb').childElementCount === 0) {
                 elHideId('searchCrumb');
             }
@@ -73,21 +92,7 @@ function initSearch() {
     }, false);
 
     document.getElementById('searchMatch').addEventListener('change', function() {
-        doSearch(document.getElementById('searchstr').value);
-    }, false);
-
-    document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
-        const colName = event.target.getAttribute('data-col');
-        if (colName === null ||
-            colName === 'Duration' ||
-            colName.indexOf('sticker') === 0 ||
-            features.featAdvsearch === false)
-        {
-            return;
-        }
-        toggleSort(event.target, colName);
-        appGoto(app.current.card, app.current.tab, app.current.view,
-            app.current.offset, app.current.limit, app.current.filter, app.current.sort, '-', app.current.search);
+        doSearch(document.getElementById('searchStr').value);
     }, false);
 }
 

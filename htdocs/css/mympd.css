@@ -1091,7 +1091,8 @@ input[is=mympd-select-search][readonly] {
 }
 
 #SearchList > thead > tr > th,
-#BrowseRadioWebradiodbList > thead > tr > th {
+#BrowseRadioWebradiodbList > thead > tr > th,
+#QueueCurrentList > thead > tr > th {
   padding-right: 1.5rem;
 }
 

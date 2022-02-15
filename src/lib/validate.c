@@ -247,7 +247,7 @@ bool vcb_ismpdsort(sds data) {
         strcmp(data, "shuffle") != 0 &&
         strcmp(data, "LastModified") != 0 &&
         strcmp(data, "Date") != 0 &&
-        strcmp(data, "prio") != 0)
+        strcmp(data, "Priority") != 0)
     {
         MYMPD_LOG_WARN("Unknown tag \"%s\"", data);
         return false;

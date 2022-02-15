@@ -644,6 +644,12 @@ function addTagList(elId, list) {
         }
         stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "LastModified"}, tn('Last modified')));
     }
+    else if (elId === 'searchQueueTags') {
+        if (features.featAdvqueue === true)
+        {
+            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "priority"}, tn('Priority')));
+        }
+    }
     const el = document.getElementById(elId);
     elReplaceChild(el, stack);
 }
@@ -1167,6 +1173,19 @@ function createSearchCrumb(filter, op, value) {
     return btn;
 }
 
+function _createSearchExpression(tag, op, value) {
+    if (op === 'starts_with' &&
+        app.id !== 'BrowseDatabaseList')
+    {
+        //mpd does not support starts_with, convert it to regex
+        op = '=~';
+        value = '^' + value;
+    }
+    return '(' + tag + ' ' + op + ' ' +
+        (op === '>=' ? value : '\'' + escapeMPD(value) + '\'') +
+        ')';
+}
+
 function createSearchExpression(crumbsEl, tag, op, value) {
     let expression = '(';
     const crumbs = crumbsEl.children;
@@ -1174,25 +1193,17 @@ function createSearchExpression(crumbsEl, tag, op, value) {
         if (i > 0) {
             expression += ' AND ';
         }
-        let crumbOp = getData(crumbs[i], 'filter-op');
-        let crumbValue = getData(crumbs[i], 'filter-value');
-        if (app.current.card === 'Search' && crumbOp === 'starts_with') {
-            crumbOp = '=~';
-            crumbValue = '^' + crumbValue;
-        }
-        expression += '(' + getData(crumbs[i], 'filter-tag') + ' ' +
-            crumbOp + ' \'' + escapeMPD(crumbValue) + '\')';
+        expression += _createSearchExpression(
+            getData(crumbs[i], 'filter-tag'),
+            getData(crumbs[i], 'filter-op'),
+            getData(crumbs[i], 'filter-value')
+        );
     }
     if (value !== '') {
         if (expression.length > 1) {
             expression += ' AND ';
         }
-        if (app.current.card === 'Search' && op === 'starts_with') {
-            //mpd does not support starts_with, convert it to regex
-            op = '=~';
-            value = '^' + value;
-        }
-        expression += '(' + tag + ' ' + op + ' \'' + escapeMPD(value) +'\')';
+        expression += _createSearchExpression(tag, op, value);
     }
     expression += ')';
     if (expression.length <= 2) {
