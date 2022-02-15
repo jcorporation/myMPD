@@ -16,6 +16,8 @@
 #include "mympd_api_utility.h"
 #include "mympd_api_webradios.h"
 
+#include <string.h>
+
 //private definitions
 sds _print_queue_entry(struct t_mympd_state *mympd_state, sds buffer, const struct t_tags *tagcols, struct mpd_song *song);
 
@@ -295,6 +297,93 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
     }
 
     return buffer;
+}
+
+sds mympd_api_queue_search_adv(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+                            sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit,
+                            const struct t_tags *tagcols)
+{
+    bool rc = mpd_search_queue_songs(mympd_state->mpd_state->conn, false);
+    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_queue_songs") == false) {
+        mpd_search_cancel(mympd_state->mpd_state->conn);
+        return buffer;
+    }
+    rc = mpd_search_add_expression(mympd_state->mpd_state->conn, expression);
+    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_expression") == false) {
+        mpd_search_cancel(mympd_state->mpd_state->conn);
+        return buffer;
+    }
+    enum mpd_tag_type sort_tag = mpd_tag_name_parse(sort);
+    if (sort_tag != MPD_TAG_UNKNOWN) {
+        sort_tag = get_sort_tag(sort_tag);
+        rc = mpd_search_add_sort_tag(mympd_state->mpd_state->conn, sort_tag, sortdesc);
+        if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_tag") == false) {
+            mpd_search_cancel(mympd_state->mpd_state->conn);
+            return buffer;
+        }
+    }
+    else if (strcmp(sort, "LastModified") == 0) {
+        rc = mpd_search_add_sort_name(mympd_state->mpd_state->conn, "Last-Modified", sortdesc);
+        if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_name") == false) {
+            mpd_search_cancel(mympd_state->mpd_state->conn);
+            return buffer;
+        }
+    }
+    else if (strcmp(sort, "prio") == 0) {
+        rc = mpd_search_add_sort_name(mympd_state->mpd_state->conn, "prio", sortdesc);
+        if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_name") == false) {
+            mpd_search_cancel(mympd_state->mpd_state->conn);
+            return buffer;
+        }
+    }
+    else {
+        MYMPD_LOG_WARN("Unknown sort tag: %s", sort);
+    }
+    
+    unsigned real_limit = limit == 0 ? offset + MPD_PLAYLIST_LENGTH_MAX : offset + limit;
+    rc = mpd_search_add_window(mympd_state->mpd_state->conn, offset, real_limit);
+    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
+        mpd_search_cancel(mympd_state->mpd_state->conn);
+        return buffer;
+    }
+
+    rc = mpd_search_commit(mympd_state->mpd_state->conn);
+    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_commit") == false) {
+        return buffer;
+    }
+
+    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = sdscat(buffer, "\"data\":[");
+    struct mpd_song *song;
+    unsigned total_time = 0;
+    long entities_returned = 0;
+    while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
+        if (entities_returned++) {
+            buffer= sdscatlen(buffer, ",", 1);
+        }
+        buffer = _print_queue_entry(mympd_state, buffer, tagcols, song);
+        total_time += mpd_song_get_duration(song);
+        mpd_song_free(song);
+    }
+
+    buffer = sdscatlen(buffer, "],", 2);
+    buffer = tojson_uint(buffer, "totalTime", total_time, true);
+    if (sdslen(expression) == 0) {
+        buffer = tojson_llong(buffer, "totalEntities", mympd_state->mpd_state->queue_length, true);
+    }
+    else {
+        buffer = tojson_long(buffer, "totalEntities", -1, true);
+    }
+    buffer = tojson_uint(buffer, "offset", offset, true);
+    buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
+    buffer = jsonrpc_result_end(buffer);
+
+    mpd_response_finish(mympd_state->mpd_state->conn);
+    if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
+
+    return buffer;                            
 }
 
 //private functions

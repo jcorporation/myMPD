@@ -140,6 +140,7 @@ extern struct t_mympd_queue *mympd_script_queue;
     X(MYMPD_API_QUEUE_RM_SONG) \
     X(MYMPD_API_QUEUE_SAVE) \
     X(MYMPD_API_QUEUE_SEARCH) \
+    X(MYMPD_API_QUEUE_SEARCH_ADV) \
     X(MYMPD_API_QUEUE_SHUFFLE) \
     X(MYMPD_API_SCRIPT_EXECUTE) \
     X(MYMPD_API_SCRIPT_GET) \

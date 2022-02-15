@@ -296,10 +296,21 @@ const APImethods = {
     "MYMPD_API_QUEUE_SEARCH": {
         "desc": "Searches the queue.",
         "params": {
-            "offset": APIparams.offset,
-            "limit": APIparams.limit,
             "filter": APIparams.filter,
             "searchstr": APIparams.searchstr,
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "cols": APIparams.cols
+        }
+    },
+    "MYMPD_API_QUEUE_SEARCH_ADV": {
+        "desc": "Searches the queue.",
+        "params": {
+            "expression": APIparams.expression,
+            "sort": APIparams.sort,
+            "sortdesc": APIparams.sortdesc,
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
             "cols": APIparams.cols
         }
     },

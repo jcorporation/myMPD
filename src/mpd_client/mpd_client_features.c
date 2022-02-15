@@ -50,6 +50,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_state->feat_mpd_smartpls = false;
     mympd_state->mpd_state->feat_mpd_playlist_rm_range = false;
     mympd_state->mpd_state->feat_mpd_whence = false;
+    mympd_state->mpd_state->feat_mpd_advqueue = false;
 
     //get features
     mpd_client_feature_commands(mympd_state);
@@ -102,6 +103,14 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     }
     else {
         MYMPD_LOG_WARN("Disabling position whence feature, depends on mpd >= 0.23.5");
+    }
+    
+    if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 24, 0) >= 0 ) {
+        mympd_state->mpd_state->feat_mpd_advqueue = true;
+        MYMPD_LOG_NOTICE("Enabling advanced queue feature");
+    }
+    else {
+        MYMPD_LOG_WARN("Disabling advancded queue feature, depends on mpd >= 0.24.0");
     }
 
     if (mympd_state->mpd_state->feat_mpd_advsearch == true && mympd_state->mpd_state->feat_mpd_playlists == true) {

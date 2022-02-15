@@ -1270,6 +1270,21 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         }
+        case MYMPD_API_QUEUE_SEARCH_ADV: {
+            struct t_tags tagcols;
+            reset_t_tags(&tagcols);
+            if (json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
+                json_get_string(request->data, "$.params.sort", 0, NAME_LEN_MAX, &sds_buf2, vcb_ismpdsort, &error) == true &&
+                json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &error) == true &&
+                json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
+                json_get_uint(request->data, "$.params.limit", 0, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
+                json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
+            {
+                response->data = mympd_api_queue_search_adv(mympd_state, response->data, request->method, request->id,
+                    sds_buf1, sds_buf2, bool_buf1, uint_buf1, uint_buf2, &tagcols);
+            }
+            break;
+        }
         case MYMPD_API_DATABASE_SEARCH: {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);
