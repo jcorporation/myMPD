@@ -226,8 +226,7 @@ function queueSetCurrentSong() {
         old.style = '';
     }
     //set playing row
-    const playingRow = document.getElementById('queueTrackId' + currentState.currentSongId);
-    setPlayingRow(playingRow);
+    setPlayingRow();
 }
 
 function setQueueCounter(playingRow, counterText) {
@@ -244,13 +243,15 @@ function setQueueCounter(playingRow, counterText) {
 }
 
 function setPlayingRow(playingRow) {
-    if (playingRow !== null &&
-        playingRow.classList.contains('queue-playing') === false)
-    {
+    if (playingRow === undefined) {
+        playingRow = document.getElementById('queueTrackId' + currentState.currentSongId);
+    }
+    if (playingRow !== null) {
         const posTd = playingRow.querySelector('[data-col=Pos]');
         if (posTd !== null) {
             posTd.classList.add('mi');
-            posTd.textContent = 'play_arrow';
+            posTd.textContent = currentState.state === 'play' ? 'play_arrow' :
+                currentState.state === 'pause' ? 'pause' : 'stop';
         }
         playingRow.classList.add('queue-playing');
     }

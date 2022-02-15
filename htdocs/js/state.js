@@ -154,6 +154,9 @@ function parseState(obj) {
         //pause
         document.getElementById('btnPlay').textContent = 'play_arrow';
     }
+    if (app.id === 'QueueCurrent') {
+        setPlayingRow();
+    }
 
     if (obj.result.queueLength === 0) {
         elDisableId('btnPlay');
