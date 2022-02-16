@@ -110,7 +110,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
         MYMPD_LOG_NOTICE("Enabling advanced queue feature");
     }
     else {
-        MYMPD_LOG_WARN("Disabling advancded queue feature, depends on mpd >= 0.24.0");
+        MYMPD_LOG_WARN("Disabling advanced queue feature, depends on mpd >= 0.24.0");
     }
 
     if (mympd_state->mpd_state->feat_mpd_advsearch == true && mympd_state->mpd_state->feat_mpd_playlists == true) {

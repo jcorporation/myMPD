@@ -538,16 +538,14 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         default:
-            appGoto("Home");
-/*
-            if (settings.webuiSettings.uiStartupView === null) {
-                appGoto("Home");
+            let initialStartupView = settings.webuiSettings.uiStartupView;
+            if (initialStartupView === undefined ||
+                initialStartupView === null)
+            {
+                initialStartupView = features.featHome === true ? 'Home' : 'Playback';
             }
-            else {
-                const path = settings.webuiSettings.uiStartupCard.split('/');
-                appGoto(...path);
-            }
-*/
+            const path = initialStartupView.split('/');
+            appGoto(...path);
     }
 
     app.last.card = app.current.card;

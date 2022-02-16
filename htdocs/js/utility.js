@@ -647,7 +647,7 @@ function addTagList(elId, list) {
     else if (elId === 'searchQueueTags') {
         if (features.featAdvqueue === true)
         {
-            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "priority"}, tn('Priority')));
+            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "prio"}, tn('Priority')));
         }
     }
     const el = document.getElementById(elId);
