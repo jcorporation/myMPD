@@ -230,7 +230,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             }
             if (features.featAdvqueue === true) {
                 if (app.current.sort.tag === '-') {
-                    app.current.sort.tag = 'prio';
+                    app.current.sort.tag = 'Priority';
                 }
                 sendAPI("MYMPD_API_QUEUE_SEARCH_ADV", {
                     "offset": app.current.offset,
@@ -240,7 +240,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                     "expression": app.current.search,
                     "cols": settings.colsSearchFetch
                 }, parseQueue, true);
-                if (app.current.filter === 'priority') {
+                if (app.current.filter === 'prio') {
                     elShowId('priorityMatch');
                     document.getElementById('searchQueueMatch').value = '>=';
                 }
