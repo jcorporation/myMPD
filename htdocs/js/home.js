@@ -71,6 +71,7 @@ function initHome() {
     setDataId('inputHomeIconImage', 'cb-filter-options', ['inputHomeIconImage']);
 
     document.getElementById('btnHomeIconLigature').parentNode.addEventListener('show.bs.dropdown', function () {
+        populateHomeIconLigatures();
         const selLig = document.getElementById('inputHomeIconLigature').value;
         if (selLig !== '') {
             document.getElementById('searchHomeIconLigature').value = selLig;
@@ -84,29 +85,7 @@ function initHome() {
         }
     }, false);
 
-    const listHomeIconLigature = document.getElementById('listHomeIconLigature');
-    const searchHomeIconCat = document.getElementById('searchHomeIconCat');
-
-    elClear(listHomeIconLigature);
-    elClear(searchHomeIconCat);
-    searchHomeIconCat.appendChild(
-        elCreateText('option', {"value": "all"}, tn('All'))
-    );
-    for (const cat in materialIcons) {
-        listHomeIconLigature.appendChild(
-            elCreateText('h5', {"class": ["ml-1", "mt-2"]}, ucFirst(cat))
-        );
-        searchHomeIconCat.appendChild(
-            elCreateText('option', {"value": cat}, ucFirst(cat))
-        );
-        for (const icon of materialIcons[cat]) {
-            listHomeIconLigature.appendChild(
-                elCreateText('button', {"class": ["btn", "btn-sm", "mi", "m-1"], "title": icon, "data-cat": cat}, icon)
-            );
-        }
-    }
-
-    listHomeIconLigature.addEventListener('click', function(event) {
+    document.getElementById('listHomeIconLigature').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             selectHomeIconLigature(event.target);
@@ -145,6 +124,32 @@ function initHome() {
             filterHomeIconLigatures();
         }
     }, false);
+}
+
+function populateHomeIconLigatures() {
+    const listHomeIconLigature = document.getElementById('listHomeIconLigature');
+    const searchHomeIconCat = document.getElementById('searchHomeIconCat');
+    if (searchHomeIconCat.firstChild !== null) {
+        return;
+    }
+    elClear(listHomeIconLigature);
+    elClear(searchHomeIconCat);
+    searchHomeIconCat.appendChild(
+        elCreateText('option', {"value": "all"}, tn('All'))
+    );
+    for (const cat in materialIcons) {
+        listHomeIconLigature.appendChild(
+            elCreateText('h5', {"class": ["ml-1", "mt-2"]}, ucFirst(cat))
+        );
+        searchHomeIconCat.appendChild(
+            elCreateText('option', {"value": cat}, ucFirst(cat))
+        );
+        for (const icon of materialIcons[cat]) {
+            listHomeIconLigature.appendChild(
+                elCreateText('button', {"class": ["btn", "btn-sm", "mi", "m-1"], "title": icon, "data-cat": cat}, icon)
+            );
+        }
+    }
 }
 
 function selectHomeIconLigature(x) {
