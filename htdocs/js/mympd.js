@@ -537,7 +537,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             selectTag('searchTags', 'searchTagsDesc', app.current.filter);
             break;
         }
-        default:
+        default: {
             let initialStartupView = settings.webuiSettings.uiStartupView;
             if (initialStartupView === undefined ||
                 initialStartupView === null)
@@ -546,6 +546,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             }
             const path = initialStartupView.split('/');
             appGoto(...path);
+        }
     }
 
     app.last.card = app.current.card;

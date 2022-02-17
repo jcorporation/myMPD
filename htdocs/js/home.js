@@ -97,22 +97,24 @@ function initHome() {
         event.stopPropagation();
     }, false);
 
+    const searchHomeIconCat = document.getElementById('searchHomeIconCat');
     searchHomeIconCat.addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
 
-    document.getElementById('searchHomeIconCat').addEventListener('change', function() {
+    searchHomeIconCat.addEventListener('change', function() {
         filterHomeIconLigatures();
     }, false);
 
-    document.getElementById('searchHomeIconLigature').addEventListener('keydown', function(event) {
+    const searchHomeIconLigature = document.getElementById('searchHomeIconLigature');
+    searchHomeIconLigature.addEventListener('keydown', function(event) {
         event.stopPropagation();
         if (event.key === 'Enter') {
             event.preventDefault();
         }
     }, false);
 
-    document.getElementById('searchHomeIconLigature').addEventListener('keyup', function(event) {
+    searchHomeIconLigature.addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
             const sel = document.getElementById('listHomeIconLigature').getElementsByClassName('active')[0];
             if (sel !== undefined) {

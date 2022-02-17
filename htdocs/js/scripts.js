@@ -340,7 +340,12 @@ function parseScriptList(obj) {
     }
     else {
         elHide(navScripting);
-        elShow(navScripting.previousElementSibling);
+        if (showScriptListLen === 0) {
+            elHide(navScripting.previousElementSibling);
+        }
+        else {
+            elShow(navScripting.previousElementSibling);
+        }
         document.getElementById('scripts').classList.remove('collapse', 'menu-indent');
     }
     //update timer actions select
