@@ -56,7 +56,7 @@ function saveTrigger() {
             "event": Number(getSelectValueId('selectTriggerEvent')),
             "script": getSelectValueId('selectTriggerScript'),
             "arguments": args
-            }, saveTriggerCheckError, true);
+        }, saveTriggerCheckError, true);
     }
 }
 
