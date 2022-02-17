@@ -955,7 +955,7 @@ function createPaginationEls(totalPages, curPage) {
     elPerPage.addEventListener('change', function(event) {
         const newLimit = Number(getSelectValue(event.target));
         if (app.current.limit !== newLimit) {
-            event.target.parentNode.parentNode.parentNode.previousElementSibling.Dropdown.hide();
+            BSN.Dropdown.getInstance(event.target.parentNode.parentNode.parentNode.previousElementSibling).hide();
             gotoPage(app.current.offset, newLimit);
         }
     }, false);

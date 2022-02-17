@@ -20,7 +20,7 @@ function initOutputs() {
     document.getElementById('outputs').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
-            document.getElementById('volumeMenu').Dropdown.toggle();
+            BSN.Dropdown.getInstance('#volumeMenu').toggle();
             showListOutputAttributes(getData(event.target.parentNode, 'output-name'));
         }
         else {
