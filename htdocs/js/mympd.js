@@ -869,7 +869,7 @@ function initGlobalModals() {
         tab.lastChild.appendChild(col);
     }
 
-    document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
+    document.getElementById('modalAbout').addEventListener('show.bs.modal', function () {
         sendAPI("MYMPD_API_DATABASE_STATS", {}, parseStats);
         getServerinfo();
     }, false);
