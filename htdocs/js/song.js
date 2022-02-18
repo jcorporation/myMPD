@@ -456,6 +456,9 @@ function voteSong(el) {
     if (el.nodeName === 'SPAN') {
         el = el.parentNode;
     }
+    if (el.nodeName === 'DIV') {
+        return;
+    }
     let vote = Number(el.getAttribute('data-vote'));
     if (vote === 0 && el.classList.contains('active')) {
         vote = 1;
