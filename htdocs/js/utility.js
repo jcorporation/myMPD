@@ -80,6 +80,8 @@ function elDisableId(el) {
 
 function elDisable(el) {
     el.setAttribute('disabled', 'disabled');
+    //manually disabled, remove disabled class
+    el.classList.remove('disabled');
 }
 
 function elEnableId(el) {

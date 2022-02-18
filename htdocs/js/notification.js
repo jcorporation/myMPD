@@ -179,13 +179,15 @@ function setElsState(tag, state, type) {
         }
         if (state === 'disabled') {
             if (el.classList.contains('alwaysEnabled') === false &&
-                el.getAttribute('disabled') === null)
+                el.getAttribute('disabled') !== 'disabled')
             {
+                //disable only elements that are not already disabled
                 elDisable(el);
                 el.classList.add('disabled');
             }
         }
         else if (el.classList.contains('disabled')) {
+            //enable only elements that are disabled through this function
             elEnable(el);
             el.classList.remove('disabled');
         }
