@@ -501,12 +501,14 @@ function setVoteSongBtns(vote, uri) {
     {
         elDisable(btnVoteUp);
         elDisable(btnVoteDown);
+        elDisable(btnVoteUp.parentNode);
         btnVoteUp.classList.remove('active');
         btnVoteDown.classList.remove('active');
     }
     else {
         elEnable(btnVoteUp);
         elEnable(btnVoteDown);
+        elEnable(btnVoteUp.parentNode);
     }
 
     switch(vote) {

@@ -82,6 +82,7 @@ function elDisable(el) {
     el.setAttribute('disabled', 'disabled');
     //manually disabled, remove disabled class
     el.classList.remove('disabled');
+    el.classList.replace('clickable', 'not-clickable');
 }
 
 function elEnableId(el) {
@@ -90,6 +91,7 @@ function elEnableId(el) {
 
 function elEnable(el) {
     el.removeAttribute('disabled');
+    el.classList.replace('not-clickable', 'clickable');
 }
 
 function elReflow(el) {
