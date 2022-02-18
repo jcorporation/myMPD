@@ -490,31 +490,34 @@ function setVoteSongBtns(vote, uri) {
         uri = '';
     }
 
+    const btnVoteUp = document.getElementById('btnVoteUp');
+    const btnVoteDown = document.getElementById('btnVoteDown');
+
     if (isValidUri(uri) === false ||
         isStreamUri(uri) === true)
     {
-        elDisableId('btnVoteUp');
-        elDisableId('btnVoteDown');
-        document.getElementById('btnVoteUp').classList.remove('active');
-        document.getElementById('btnVoteDown').classList.remove('active');
+        elDisable(btnVoteUp);
+        elDisable(btnVoteDown);
+        btnVoteUp.classList.remove('active');
+        btnVoteDown.classList.remove('active');
     }
     else {
-        elEnableId('btnVoteUp');
-        elEnableId('btnVoteDown');
+        elEnable(btnVoteUp);
+        elEnable(btnVoteDown);
     }
 
     switch(vote) {
         case 0:
-            document.getElementById('btnVoteUp').classList.remove('active');
-            document.getElementById('btnVoteDown').classList.add('active');
+            btnVoteUp.classList.remove('active');
+            btnVoteDown.classList.add('active');
             break;
         case 2:
-            document.getElementById('btnVoteUp').classList.add('active');
-            document.getElementById('btnVoteDown').classList.remove('active');
+            btnVoteUp.classList.add('active');
+            btnVoteDown.classList.remove('active');
             break;
         default:
-            document.getElementById('btnVoteUp').classList.remove('active');
-            document.getElementById('btnVoteDown').classList.remove('active');
+            btnVoteUp.classList.remove('active');
+            btnVoteDown.classList.remove('active');
             break;
     }
 }
