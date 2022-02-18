@@ -89,7 +89,7 @@ function setInputReset(el) {
 
 function setSelectSearch(el) {
     const filterInput = elCreateEmpty('input', {"class": ["form-control", "form-control-sm", "mb-1"], "data-placeholder-phrase": "Filter", "placeholder": tn('Filter')});
-    const filterResult = elCreateEmpty('ul', {"class": ["list-group", "list-group-scroll"]});
+    const filterResult = elCreateEmpty('ul', {"class": ["list-group", "list-group-scroll", "border", "border-secondary"]});
     const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "dropdown-menu-dark", "p-2", "w-100"]}, [
         filterInput,
         filterResult
@@ -125,7 +125,7 @@ function setSelectSearch(el) {
         window[cb](... cbOptions, event.target.value);
     }, false);
     el.addFilterResult = function(text, value) {
-        const item = elCreateText('li', {"class": ["list-group-item", "list-group-item-action", "bg-secondary", "clickable"]}, text);
+        const item = elCreateText('li', {"class": ["list-group-item", "list-group-item-action", "clickable"]}, text);
         setData(item, 'value', value);
         el.filterResult.appendChild(item);
     };
