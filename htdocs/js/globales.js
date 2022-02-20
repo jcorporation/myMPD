@@ -522,6 +522,12 @@ const webuiSettingsDefault = {
         "title": "Elements per page",
         "form": "appearanceSettingsFrm"
     },
+    "uiSmallWidthTagRows": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Display tags in rows for small displays",
+        "form": "appearanceSettingsFrm"
+    },
     "enableHome": {
         "defaultValue": true,
         "inputType": "checkbox",

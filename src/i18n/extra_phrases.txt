@@ -160,3 +160,4 @@ votes
 Jukebox Queue
 Startup
 Startup view
+Display tags in rows for small displays

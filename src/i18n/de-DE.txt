@@ -2150,3 +2150,6 @@ Startbildschirm
 
 Jukebox Queue
 Jukebox Warteschlange
+
+Display tags in rows for small displays
+Zeige Tags in Zeilen für kleine Displays

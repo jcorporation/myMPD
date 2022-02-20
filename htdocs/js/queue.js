@@ -197,7 +197,7 @@ function parseQueue(obj) {
     }
 
     const colspan = settings['colsQueueCurrent'].length;
-    const smallWidth = window.innerWidth < 576 ? true : false;
+    const smallWidth = uiSmallWidthTagRows();
 
     const rowTitle = webuiSettingsDefault.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
     updateTable(obj, 'QueueCurrent', function(row, data) {

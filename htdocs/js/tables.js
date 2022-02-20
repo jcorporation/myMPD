@@ -415,7 +415,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
 
     const nrItems = obj.result.returnedEntities;
     const tr = tbody.getElementsByTagName('tr');
-    const smallWidth = window.innerWidth < 576 ? true : false;
+    const smallWidth = uiSmallWidthTagRows();
 
     //disc handling for album view
     let z = 0;
@@ -594,4 +594,11 @@ function checkResult(obj, tbody) {
         return false;
     }
     return true;
+}
+
+function uiSmallWidthTagRows() {
+    if (settings.webuiSettings.uiSmallWidthTagRows === true) {
+        return window.innerWidth < 576 ? true : false;
+    }
+    return false;
 }
