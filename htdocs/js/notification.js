@@ -171,8 +171,8 @@ function notificationsSupported() {
     return "Notification" in window;
 }
 
-function setElsState(tag, state, type) {
-    const els = type === 'tag' ? document.getElementsByTagName(tag) : document.getElementsByClassName(tag);
+function setElsState(selector, state) {
+    const els = document.querySelectorAll(selector);
     for (const el of els) {
         if (el.classList.contains('close')) {
             continue;
@@ -196,7 +196,9 @@ function setElsState(tag, state, type) {
 
 function toggleUI() {
     let state = 'disabled';
-    if (websocketConnected === true && settings.mpdConnected === true) {
+    if (websocketConnected === true &&
+        settings.mpdConnected === true)
+    {
         state = 'enabled';
     }
     const enabled = state === 'disabled' ? false : true;
@@ -207,7 +209,12 @@ function toggleUI() {
         setElsState('select', state, 'tag');
         setElsState('button', state, 'tag');
         setElsState('textarea', state, 'tag');
-        setElsState('clickable', state, 'class');
+        if (enabled === false) {
+            setElsState('.clickable', state, 'class');
+        }
+        else {
+            setElsState('.not-clickable', state, 'class');
+        }
         uiEnabled = enabled;
     }
 
