@@ -161,3 +161,9 @@ Jukebox Queue
 Startup
 Startup view
 Display tags in rows for small displays
+Enable consume
+Disable consume
+Enable random
+Disable random
+Enable repeat
+Disable repeat

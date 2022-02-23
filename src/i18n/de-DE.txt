@@ -2153,3 +2153,33 @@ Jukebox Warteschlange
 
 Display tags in rows for small displays
 Zeige Tags in Zeilen für kleine Displays
+
+Disable consume
+Deaktiviere Konsumieren
+
+Disable random
+Deaktiviere Zufallswiedergabe
+
+Disable repeat
+Deaktiviere Wiederholen
+
+Enable consume
+Aktiviere Konsumieren
+
+Enable random
+Aktiviere Zufallswiedergabe
+
+Enable repeat
+Aktiviere Wiederholen
+
+Switch single mode
+Nur ein Lied Modus ändern
+
+Toggle consume
+Konsumieren ändern
+
+Toggle random
+Zufallswiedergabe ändern
+
+Toggle repeat
+Wiederholen ändern

@@ -79,6 +79,48 @@ function initSettings() {
 }
 
 //eslint-disable-next-line no-unused-vars
+function togglePlaymode(option) {
+    let value;
+    let title;
+    switch(option) {
+        case 'consume':
+        case 'random':
+        case 'repeat':
+            if (settings[option] === true) {
+                value = false;
+                title = 'Disable ' + option;
+            }
+            else {
+                value = true;
+                title = 'Enable ' + option;
+            }
+            break;
+        case 'single':
+            if (settings.single === '0') {
+                value = 'oneshot';
+                title = 'Enable single oneshot';
+            }
+            else if (settings.single === 'oneshot') {
+                value = '1';
+                title = 'Enable single mode';
+            }
+            else if (settings.single === '1') {
+                value = '0';
+                title = 'Disable single mode';
+            }
+            break;
+    }
+    const params = {};
+    params[option] = value;
+    sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", params, togglePlaymodeResult, true);
+    showNotification(tn(title), '', 'queue', 'info');
+}
+
+function togglePlaymodeResult(obj) {
+    getSettings();
+}
+
+//eslint-disable-next-line no-unused-vars
 function eventChangeLocale(event) {
     const value = getSelectValue(event.target);
     warnLocale(value);
