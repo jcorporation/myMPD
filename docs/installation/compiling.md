@@ -123,7 +123,7 @@ For advanced options type ``./build.sh help``.
 
 The build script can use sbuild and qemu to cross compile debian packages, thanks to #264 @tsunulukai.
 
-1. Set target distributions: `export DISTROS="buster stretch"`
+1. Set target distributions: `export DISTROS="bullseye buster"`
 2. Set target architectures: `export TARGETS="armhf armel"`
 3. `sudo -E ./build.sh sbuild_chroots` to create chroot environments for build
 4. `sudo -E ./build.sh sbuild_build` to build the packages

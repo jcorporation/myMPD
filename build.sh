@@ -1040,7 +1040,7 @@ sbuild_chroots() {
   	exit 1
   fi
   [ -z "${WORKDIR+x}" ] && WORKDIR="$STARTPATH/builder"
-  [ -z "${DISTROS+x}" ] && DISTROS="buster stretch"
+  [ -z "${DISTROS+x}" ] && DISTROS="bullseye buster"
   [ -z "${TARGETS+x}" ] && TARGETS="armhf armel"
   [ -z "${DEBIAN_MIRROR+x}" ] && DEBIAN_MIRROR="http://ftp.de.debian.org/debian"
 
@@ -1082,7 +1082,7 @@ sbuild_build() {
   	exit 1
   fi
   [ -z "${WORKDIR+x}" ] && WORKDIR="$STARTPATH/builder"
-  [ -z "${DISTROS+x}" ] && DISTROS="buster stretch"
+  [ -z "${DISTROS+x}" ] && DISTROS="bullseye buster"
   [ -z "${TARGETS+x}" ] && TARGETS="armhf armel"
 
   check_cmd sbuild qemu-debootstrap
