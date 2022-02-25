@@ -1044,7 +1044,10 @@ sbuild_chroots() {
   [ -z "${TARGETS+x}" ] && TARGETS="armhf armel"
   [ -z "${DEBIAN_MIRROR+x}" ] && DEBIAN_MIRROR="http://ftp.de.debian.org/debian"
 
-  check_cmd sbuild debootstrap
+  DEBOOTSTRAP="qemu-debootstrap"
+  [ "$(lsb_release -c -s)" == "bullseye" ] && DEBOOTSTRAP="debootstrap"
+
+  check_cmd sbuild "$DEBOOTSTRAP"
 
   mkdir -p "${WORKDIR}/chroot"
   mkdir -p "${WORKDIR}/cache"
@@ -1060,7 +1063,7 @@ sbuild_chroots() {
         echo "chroot ${CHROOT} already exists... skipping."
         continue
       fi
-      debootstrap --arch="${ARCH}" --variant=buildd --cache-dir="${WORKDIR}/cache" \
+      $DEBOOTSTRAP --arch="${ARCH}" --variant=buildd --cache-dir="${WORKDIR}/cache" \
         --include=fakeroot,build-essential "${DIST}" "${WORKDIR}/chroot/${CHROOT}/" "${DEBIAN_MIRROR}"
 
       grep "${CHROOT}" /etc/schroot/schroot.conf || cat << EOF >> /etc/schroot/schroot.conf
@@ -1082,10 +1085,10 @@ sbuild_build() {
   	exit 1
   fi
   [ -z "${WORKDIR+x}" ] && WORKDIR="$STARTPATH/builder"
-  [ -z "${DISTROS+x}" ] && DISTROS="buster stretch"
+  [ -z "${DISTROS+x}" ] && DISTROS="bullseye buster"
   [ -z "${TARGETS+x}" ] && TARGETS="armhf armel"
 
-  check_cmd sbuild debootstrap
+  check_cmd sbuild
 
   prepare
   cp -a contrib/packaging/debian .
