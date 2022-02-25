@@ -1045,7 +1045,7 @@ sbuild_chroots() {
   [ -z "${DEBIAN_MIRROR+x}" ] && DEBIAN_MIRROR="http://ftp.de.debian.org/debian"
 
   DEBOOTSTRAP="qemu-debootstrap"
-  [ "$(lsb_release -c -s)" == "bullseye" ] && DEBOOTSTRAP="debootstrap"
+  [ "$(lsb_release -c -s)" = "bullseye" ] && DEBOOTSTRAP="debootstrap"
 
   check_cmd sbuild "$DEBOOTSTRAP"
 
