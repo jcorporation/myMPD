@@ -1044,7 +1044,7 @@ sbuild_chroots() {
   [ -z "${TARGETS+x}" ] && TARGETS="armhf armel"
   [ -z "${DEBIAN_MIRROR+x}" ] && DEBIAN_MIRROR="http://ftp.de.debian.org/debian"
 
-  check_cmd sbuild qemu-debootstrap
+  check_cmd sbuild debootstrap
 
   mkdir -p "${WORKDIR}/chroot"
   mkdir -p "${WORKDIR}/cache"
@@ -1060,7 +1060,7 @@ sbuild_chroots() {
         echo "chroot ${CHROOT} already exists... skipping."
         continue
       fi
-      qemu-debootstrap --arch="${ARCH}" --variant=buildd --cache-dir="${WORKDIR}/cache" \
+      debootstrap --arch="${ARCH}" --variant=buildd --cache-dir="${WORKDIR}/cache" \
         --include=fakeroot,build-essential "${DIST}" "${WORKDIR}/chroot/${CHROOT}/" "${DEBIAN_MIRROR}"
 
       grep "${CHROOT}" /etc/schroot/schroot.conf || cat << EOF >> /etc/schroot/schroot.conf
@@ -1085,7 +1085,7 @@ sbuild_build() {
   [ -z "${DISTROS+x}" ] && DISTROS="buster stretch"
   [ -z "${TARGETS+x}" ] && TARGETS="armhf armel"
 
-  check_cmd sbuild qemu-debootstrap
+  check_cmd sbuild debootstrap
 
   prepare
   cp -a contrib/packaging/debian .
