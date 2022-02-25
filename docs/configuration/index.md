@@ -57,14 +57,18 @@ You can use `mympd -c` to create the initial configuration in the `/var/lib/mymp
 
 myMPD tries to autodetect the mpd connection at first startup.
 
-1. Searches for a valid `mpd.conf` file and reads all interesting settings
-2. Uses the default MPD environment variables
-3. Tries `/run/mpd/socket` and `/var/run/mpd/socket`
+1. Uses the default MPD environment variables
+2. Searches for a mpd socket
+  - `$XDG_RUNTIME_DIR/mpd/socket`
+  - `/run/mpd/socket`
+  - `/var/run/mpd/socket`
+  - `/var/lib/mpd/socket`
 
 | ENVIRONMENT | DEFAULT | DESCRIPTION |
 | ----------- | ------- | ----------- |
 | MPD_HOST | `/run/mpd/socket` | MPD host or path to mpd socket |
 | MPD_PORT | 6600 | MPD port |
+| MPD_TIMEOUT | 30 | MPD timeout |
 {: .table .table-sm}
 
 This is done after droping privileges to the mympd user.
