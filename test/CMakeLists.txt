@@ -26,6 +26,7 @@ include(CheckCSourceCompiles)
 
 set(SOURCES
   ../dist/mjson/mjson.c
+  ../dist/mongoose/mongoose.c
   ../dist/rax/rax.c
   ../dist/sds/sds.c
   ../dist/tinymt/tinymt32.c
