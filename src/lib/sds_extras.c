@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "sds_extras.h"
 
+#include "../../dist/mongoose/mongoose.h"
 #include "../../dist/utf8/utf8.h"
 #include "log.h"
 
@@ -15,6 +16,19 @@
 #include <string.h>
 
 #define HEXTOI(x) (x >= '0' && x <= '9' ? x - '0' : x - 'W')
+
+sds sds_hash(const char *p) {
+    mg_sha1_ctx ctx;
+    mg_sha1_init(&ctx);
+    mg_sha1_update(&ctx, (unsigned char *)p, strlen(p));
+    unsigned char hash[20];
+    mg_sha1_final(hash, &ctx);
+    sds hex_hash = sdsempty();
+    for (unsigned i = 0; i < 20; i++) {
+        hex_hash = sdscatprintf(hex_hash, "%02x", hash[i]);
+    }
+    return hex_hash;
+}
 
 int sds_toimax(sds s) {
     sds nr = sdsempty();

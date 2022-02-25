@@ -157,8 +157,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
 
     //check covercache
     if (mg_user_data->covercache == true) {
-        sds filename = sdsdup(uri_decoded);
-        sds_sanitize_filename(filename);
+        sds filename = sds_hash(uri_decoded);
         sds covercachefile = sdscatprintf(sdsempty(), "%s/covercache/%s-%d", config->cachedir, filename, offset);
         FREE_SDS(filename);
         covercachefile = webserver_find_image_file(covercachefile);

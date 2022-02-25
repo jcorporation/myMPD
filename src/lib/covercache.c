@@ -30,8 +30,7 @@ bool covercache_write_file(const char *cachedir, const char *uri, const char *mi
         MYMPD_LOG_WARN("Covercache file for \"%s\" not written, could not determine file extension", uri);
         return false;
     }
-    sds filename = sdsnew(uri);
-    sds_sanitize_filename(filename);
+    sds filename = sds_hash(uri);
     sds filepath = sdscatprintf(sdsempty(), "%s/covercache/%s-%d.%s", cachedir, filename, offset, ext);
     bool rc = write_data_to_file(filepath, binary, sdslen(binary));
     FREE_SDS(filename);

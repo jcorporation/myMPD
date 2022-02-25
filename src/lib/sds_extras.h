@@ -35,5 +35,6 @@ void sds_strip_file_extension(sds s);
 void sds_strip_slash(sds s);
 sds sds_catbool(sds s, bool v);
 void sds_sanitize_filename(sds s);
+sds sds_hash(const char *p);
 
 #endif
