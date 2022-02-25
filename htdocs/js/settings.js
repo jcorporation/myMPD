@@ -112,12 +112,8 @@ function togglePlaymode(option) {
     }
     const params = {};
     params[option] = value;
-    sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", params, togglePlaymodeResult, true);
+    sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", params);
     showNotification(tn(title), '', 'queue', 'info');
-}
-
-function togglePlaymodeResult(obj) {
-    getSettings();
 }
 
 //eslint-disable-next-line no-unused-vars
