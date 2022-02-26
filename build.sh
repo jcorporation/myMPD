@@ -1043,9 +1043,7 @@ sbuild_chroots() {
   [ -z "${DISTROS+x}" ] && DISTROS="bullseye buster"
   [ -z "${TARGETS+x}" ] && TARGETS="armhf armel"
   [ -z "${DEBIAN_MIRROR+x}" ] && DEBIAN_MIRROR="http://ftp.de.debian.org/debian"
-
-  DEBOOTSTRAP="qemu-debootstrap"
-  [ "$(lsb_release -c -s)" = "bullseye" ] && DEBOOTSTRAP="debootstrap"
+  [ -z "${DEBOOTSTRAP+x}" ] && DEBOOTSTRAP="debootstrap"
 
   check_cmd sbuild "$DEBOOTSTRAP"
 
@@ -1355,6 +1353,7 @@ case "$ACTION" in
     echo "                      - DISTROS=\"buster stretch\""
     echo "                      - TARGETS=\"armhf armel\""
     echo "                      - DEBIAN_MIRROR=\"http://ftp.de.debian.org/debian\""
+    echo "                      - DEBOOTSTRAP=\"debootstrap"
     echo "  sbuild_build:     builds the packages for targets and distros"
     echo "                    must be run as root"
     echo "                    following environment variables are respected"
