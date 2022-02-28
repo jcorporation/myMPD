@@ -2183,3 +2183,6 @@ Zufallswiedergabe ändern
 
 Toggle repeat
 Wiederholen ändern
+
+Invalid response
+Ungültige Antwort

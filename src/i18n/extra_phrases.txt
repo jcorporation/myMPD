@@ -167,3 +167,4 @@ Enable random
 Disable random
 Enable repeat
 Disable repeat
+Invalid response

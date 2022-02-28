@@ -208,13 +208,13 @@ function sendAPI(method, params, callback, onerror) {
             ajaxRequest.responseText === '' ||
             ajaxRequest.responseText.length > 1000000)
         {
-            logError('Illegal response for request: ' + JSON.stringify(request));
+            logError('Invalid response for request: ' + JSON.stringify(request));
             logError('Response code: ' + ajaxRequest.status);
             logError('Response length: ' + ajaxRequest.responseText.length);
             if (onerror === true) {
                 if (callback !== undefined && typeof(callback) === 'function') {
                     logDebug('Got empty API response calling ' + callback.name);
-                    callback({"error": {"message": "Illegal response"}});
+                    callback({"error": {"message": "Invalid response"}});
                 }
             }
             return;
