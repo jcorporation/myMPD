@@ -116,6 +116,8 @@ function sendAPI() {
     if (APImethods[method].params !== undefined) {
         request.params = formToParams(APImethods[method].params, '');
     }
+    let time_start = 0;
+    let time_end = 0;
     let ajaxRequest = new XMLHttpRequest();
     ajaxRequest.open('POST', '/api/', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
@@ -125,7 +127,9 @@ function sendAPI() {
             try {
                 let obj = JSON.parse(ajaxRequest.responseText);
                 if (obj.result) {
-                    document.getElementById('resultState').textContent = 'OK';
+                    time_end = new Date().getTime();
+                    const duration = time_end - time_start;
+                    document.getElementById('resultState').textContent = 'OK - ' + duration + ' ms';
                 }
                 else {
                     document.getElementById('resultState').textContent = 'ERROR';
@@ -141,6 +145,7 @@ function sendAPI() {
             document.getElementById('resultText').textContent = ajaxRequest.responseText;
         }
     };
+    time_start = new Date().getTime();
     ajaxRequest.send(JSON.stringify(request));
     document.getElementById('requestText').textContent = JSON.stringify(request);
 }
