@@ -406,6 +406,19 @@ bool list_insert_sorted_by_key(struct t_list *l, const char *key, long long valu
         l->length++;
         return true;
     }
+    //last pos to insert
+    if (direction == LIST_SORT_ASC && utf8casecmp(key, l->tail) > 0) {
+        l->tail->next = n;
+        l->tail = n;
+        l->length++;
+        return true;
+    }
+    if (direction == LIST_SORT_DESC && utf8casecmp(key, l->tail) < 0) {
+        l->tail->next = n;
+        l->tail = n;
+        l->length++;
+        return true;
+    }
     //find correct position to insert
     struct t_list_node *current = NULL;
     struct t_list_node *previous = NULL;
